@@ -55,25 +55,25 @@ func Render(ancestry *gramps.Ancestry, outputDirectoryPath string) error {
 		return err
 	}
 	for _, person := range ancestry.People {
-		err := RenderPerson(outputDirectoryPath, &person)
+		err := RenderEntity(outputDirectoryPath, &person)
 		if err != nil {
 			return err
 		}
 	}
 	for _, event := range ancestry.Events {
-		err := RenderEvent(outputDirectoryPath, &event)
+		err := RenderEntity(outputDirectoryPath, &event)
 		if err != nil {
 			return err
 		}
 	}
 	for _, place := range ancestry.Places {
-		err := RenderPlace(outputDirectoryPath, &place)
+		err := RenderEntity(outputDirectoryPath, &place)
 		if err != nil {
 			return err
 		}
 	}
 	for _, family := range ancestry.Families {
-		err := RenderFamily(outputDirectoryPath, &family)
+		err := RenderEntity(outputDirectoryPath, &family)
 		if err != nil {
 			return err
 		}
@@ -81,51 +81,12 @@ func Render(ancestry *gramps.Ancestry, outputDirectoryPath string) error {
 	return nil
 }
 
-func RenderPerson(outputDirectoryPath string, person *gramps.Person) error {
-	f, err := CreateFile(filepath.Join(outputDirectoryPath, "person", person.ID))
+func RenderEntity(outputDirectoryPath string, entity gramps.Entity) error {
+	f, err := CreateFile(filepath.Join(outputDirectoryPath, entity.GetTypeName(), entity.GetID()))
 	if err != nil {
 		return err
 	}
-	_, err = f.WriteString(fmt.Sprintf("%s, %s", person.FamilyName, person.IndividualName))
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func RenderEvent(outputDirectoryPath string, event *gramps.Event) error {
-	f, err := CreateFile(filepath.Join(outputDirectoryPath, "event", event.ID))
-	if err != nil {
-		return err
-	}
-	_, err = f.WriteString(event.ID)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func RenderPlace(outputDirectoryPath string, place *gramps.Place) error {
-	f, err := CreateFile(filepath.Join(outputDirectoryPath, "place", place.ID))
-	if err != nil {
-		return err
-	}
-	_, err = f.WriteString(place.ID)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func RenderFamily(outputDirectoryPath string, family *gramps.Family) error {
-	f, err := CreateFile(filepath.Join(outputDirectoryPath, "family", family.ID))
-	if err != nil {
-		return err
-	}
-	_, err = f.WriteString(family.ID)
+	_, err = f.WriteString(entity.GetID())
 	if err != nil {
 		return err
 	}
