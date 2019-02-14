@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+cd "$(dirname "$0")/.."
+
+# Test shell files.
+while read -r file; do
+    shellcheck -x "$file"
+done < <(find ./ 2>/dev/null | grep "^\./bin/.*$")
+
+# Lint Go code.
+invalid_files="$(gofmt -l -s .)"
+if [ ! -z "$invalid_files" ]; then
+    echo "$invalid_files"
+    exit 1
+fi
