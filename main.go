@@ -3,12 +3,14 @@ package main
 import (
 	"fmt"
 	"github.com/bartfeenstra/betty/gramps"
+	"github.com/bartfeenstra/betty/render"
 	"github.com/jessevdk/go-flags"
 	"os"
 )
 
 type Options struct {
-	FilePath string `long:"filepath" required:"true"`
+	InputFilePath       string `short:"i" long:"input" required:"true" description:"The path to the Gramps XML file to render."`
+	OutputDirectoryPath string `short:"o" long:"output" required:"true" description:"The path to the output directory."`
 }
 
 func ExitBetty(err error) {
@@ -18,14 +20,18 @@ func ExitBetty(err error) {
 
 func main() {
 	options := Options{}
-	parser := flags.NewParser(&options, flags.None)
+	parser := flags.NewParser(&options, flags.HelpFlag)
 	_, err := parser.Parse()
 	if err != nil {
 		ExitBetty(err)
 	}
-	ancestry, err := gramps.Parse(options.FilePath)
+	ancestry, err := gramps.Parse(options.InputFilePath)
 	if err != nil {
 		ExitBetty(err)
 	}
-	fmt.Printf("%#v", ancestry)
+	err = render.Render(ancestry, options.OutputDirectoryPath)
+	if err != nil {
+		ExitBetty(err)
+	}
+	fmt.Printf("The genealogy data from %s has been rendered and placed into %s.\n", options.InputFilePath, options.OutputDirectoryPath)
 }
