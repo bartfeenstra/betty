@@ -8,54 +8,42 @@ import (
 type Handle string
 
 type entity struct {
-	ID      string `xml:"id,attr"`
+	Id      string `xml:"id,attr"`
 	Changed int    `xml:"change,attr"`
 	Handle  Handle `xml:"handle,attr"`
 }
 
 type Entity interface {
-	GetID() string
+	GetId() string
 	GetChanged() int
 	GetHandle() Handle
 	GetTypeName() string
 }
 
-func (event Event) GetID() string {
-	return event.ID
+func (entity entity) GetId() string {
+	return entity.Id
 }
 
-func (event Event) GetChanged() int {
-	return event.Changed
+func (entity entity) GetChanged() int {
+	return entity.Changed
 }
 
-func (event Event) GetHandle() Handle {
-	return event.Handle
-}
-
-func (event Event) GetTypeName() string {
-	return "event"
+func (entity entity) GetHandle() Handle {
+	return entity.Handle
 }
 
 type Event struct {
 	entity
 }
 
+func (event Event) GetTypeName() string {
+	return "event"
+}
+
 type Person struct {
 	entity
 	FamilyName     string `xml:"name>surname"`
 	IndividualName string `xml:"name>first"`
-}
-
-func (event Person) GetID() string {
-	return event.ID
-}
-
-func (event Person) GetChanged() int {
-	return event.Changed
-}
-
-func (event Person) GetHandle() Handle {
-	return event.Handle
 }
 
 func (event Person) GetTypeName() string {
@@ -66,36 +54,12 @@ type Family struct {
 	entity
 }
 
-func (event Family) GetID() string {
-	return event.ID
-}
-
-func (event Family) GetChanged() int {
-	return event.Changed
-}
-
-func (event Family) GetHandle() Handle {
-	return event.Handle
-}
-
 func (event Family) GetTypeName() string {
 	return "family"
 }
 
 type Place struct {
 	entity
-}
-
-func (event Place) GetID() string {
-	return event.ID
-}
-
-func (event Place) GetChanged() int {
-	return event.Changed
-}
-
-func (event Place) GetHandle() Handle {
-	return event.Handle
 }
 
 func (event Place) GetTypeName() string {

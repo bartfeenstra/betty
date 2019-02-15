@@ -82,11 +82,11 @@ func Render(ancestry *gramps.Ancestry, outputDirectoryPath string) error {
 }
 
 func RenderEntity(outputDirectoryPath string, entity gramps.Entity) error {
-	f, err := CreateFile(filepath.Join(outputDirectoryPath, entity.GetTypeName(), entity.GetID()))
+	f, err := CreateFile(filepath.Join(outputDirectoryPath, entity.GetTypeName(), entity.GetId()))
 	if err != nil {
 		return err
 	}
-	_, err = f.WriteString(entity.GetID())
+	_, err = f.WriteString(entity.GetId())
 	if err != nil {
 		return err
 	}
