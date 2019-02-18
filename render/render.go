@@ -2,7 +2,9 @@ package render
 
 import (
 	"fmt"
+	"github.com/bartfeenstra/betty/assets"
 	"github.com/bartfeenstra/betty/gramps"
+	"html/template"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -86,10 +88,14 @@ func RenderEntity(outputDirectoryPath string, entity gramps.Entity) error {
 	if err != nil {
 		return err
 	}
-	_, err = f.WriteString(entity.GetId())
+	entityTemplateContents, err := assets.ReadFile("templates/" + entity.GetTypeName() + ".html")
 	if err != nil {
 		return err
 	}
-
+	entityTemplate, err := template.New(entity.GetTypeName()).Parse(string(entityTemplateContents))
+	err = entityTemplate.ExecuteTemplate(f, entity.GetTypeName(), entity)
+	if err != nil {
+		return err
+	}
 	return nil
 }

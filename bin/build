@@ -4,4 +4,19 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
+mkdir -p ./build/go
+FILEB0X_VERSION=v1.1.3
+if [[ ! -d ./build/go/fileb0x ]]; then
+    git clone https://github.com/UnnoTed/fileb0x.git ./build/go/fileb0x
+fi
+(
+    cd ./build/go/fileb0x
+    git fetch
+    git checkout "$FILEB0X_VERSION"
+    go build
+    pwd
+    ls -la
+)
+./build/go/fileb0x/fileb0x b0x.yaml
+
 go build

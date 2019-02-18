@@ -1,3 +1,5 @@
 # Build artifacts.
+/assets
 /betty
+/build
 /go.sum
