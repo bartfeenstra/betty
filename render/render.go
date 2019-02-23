@@ -84,16 +84,23 @@ func Render(ancestry *gramps.Ancestry, outputDirectoryPath string) error {
 }
 
 func RenderEntity(outputDirectoryPath string, entity gramps.Entity) error {
-	f, err := CreateFile(filepath.Join(outputDirectoryPath, entity.GetTypeName(), entity.GetId()))
+	output, err := CreateFile(filepath.Join(outputDirectoryPath, entity.GetTypeName(), entity.GetId()))
 	if err != nil {
 		return err
 	}
-	entityTemplateContents, err := assets.ReadFile("templates/" + entity.GetTypeName() + ".html")
-	if err != nil {
-		return err
+	tmpls := template.New("betty")
+	tmplPaths := []string{"base.html", entity.GetTypeName() + ".html"}
+	for _, tmplPath := range tmplPaths {
+		tmplContents, err := assets.ReadFile("templates/" + tmplPath)
+		if err != nil {
+			return err
+		}
+		_, err = tmpls.Parse(string(tmplContents))
+		if err != nil {
+			return err
+		}
 	}
-	entityTemplate, err := template.New(entity.GetTypeName()).Parse(string(entityTemplateContents))
-	err = entityTemplate.ExecuteTemplate(f, entity.GetTypeName(), entity)
+	err = tmpls.ExecuteTemplate(output, "betty", entity)
 	if err != nil {
 		return err
 	}

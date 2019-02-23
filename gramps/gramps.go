@@ -18,6 +18,7 @@ type Entity interface {
 	GetChanged() int
 	GetHandle() Handle
 	GetTypeName() string
+	GetLabel() string
 }
 
 func (entity entity) GetId() string {
@@ -32,11 +33,15 @@ func (entity entity) GetHandle() Handle {
 	return entity.Handle
 }
 
+func (entity entity) GetLabel() string {
+	return entity.GetId()
+}
+
 type Event struct {
 	entity
 }
 
-func (event Event) GetTypeName() string {
+func (_ Event) GetTypeName() string {
 	return "event"
 }
 
@@ -46,15 +51,19 @@ type Person struct {
 	IndividualName string `xml:"name>first"`
 }
 
-func (event Person) GetTypeName() string {
+func (_ Person) GetTypeName() string {
 	return "person"
+}
+
+func (person Person) GetLabel() string {
+	return person.FamilyName + ", " + person.IndividualName
 }
 
 type Family struct {
 	entity
 }
 
-func (event Family) GetTypeName() string {
+func (_ Family) GetTypeName() string {
 	return "family"
 }
 
@@ -62,7 +71,7 @@ type Place struct {
 	entity
 }
 
-func (event Place) GetTypeName() string {
+func (_ Place) GetTypeName() string {
 	return "place"
 }
 
