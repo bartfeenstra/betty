@@ -1,5 +1,5 @@
 # Build artifacts.
-/assets
-/betty
+/betty/assets
+/betty/betty
+/betty/go.sum
 /build
-/go.sum
