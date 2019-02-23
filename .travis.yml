@@ -13,8 +13,7 @@ addons:
     packages:
       - shellcheck
 
-install:
-  - :
+install: []
 
 script:
   - ./bin/build
