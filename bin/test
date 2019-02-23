@@ -10,7 +10,7 @@ while read -r file; do
 done < <(find ./ 2>/dev/null | grep "^\./bin/.*$")
 
 # Lint Go code.
-invalid_files="$(gofmt -l -s .)"
+invalid_files="$(gofmt -l -s ./betty)"
 if [ ! -z "$invalid_files" ]; then
     echo "$invalid_files"
     exit 1

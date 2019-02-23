@@ -1,7 +1,0 @@
-pkg: assets
-dest: ./assets/
-output: assets.go
-fmt: true
-custom:
-  - files:
-      - ./templates

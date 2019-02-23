@@ -4,4 +4,4 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
-gofmt -s -w .
+gofmt -s -w ./betty

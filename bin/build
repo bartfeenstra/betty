@@ -18,6 +18,8 @@ fi
     git checkout "$FILEB0X_VERSION"
     go build
 )
-./build/go/fileb0x/fileb0x b0x.yaml
-
-go build
+(
+    cd ./betty
+    ../build/go/fileb0x/fileb0x ./b0x.yaml
+    go build
+)
