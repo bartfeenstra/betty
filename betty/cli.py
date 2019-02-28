@@ -1,5 +1,7 @@
 import argparse
+import os
 
+from betty.betty import Betty
 from betty.gramps import parse
 from betty.render import render
 
@@ -12,8 +14,10 @@ def main(args):
 
     parsed_args = parser.parse_args(args)
     try:
+        betty_root_path = os.path.dirname(os.path.abspath(__file__))
+        betty = Betty(betty_root_path, parsed_args.output_directory_path)
         ancestry = parse(parsed_args.input_file_path_gramps)
-        render(ancestry, parsed_args.output_directory_path)
+        render(ancestry, betty)
     except KeyboardInterrupt:
         # Quit gracefully.
         print('Quitting...')
