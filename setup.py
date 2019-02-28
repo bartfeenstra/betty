@@ -45,7 +45,7 @@ SETUP = {
         ])
     ],
     'package_data': {
-        'betty': ['assets/**', 'templates/**'],
+        'betty': ['assets/**', 'templates/content/**', 'templates/partials/**'],
     },
 }
 print(SETUP)
