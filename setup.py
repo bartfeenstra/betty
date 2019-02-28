@@ -48,7 +48,6 @@ SETUP = {
         'betty': ['assets/**', 'templates/content/**', 'templates/partials/**'],
     },
 }
-print(SETUP)
 
 if __name__ == '__main__':
     setup(**SETUP)
