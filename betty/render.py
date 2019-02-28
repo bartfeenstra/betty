@@ -33,7 +33,7 @@ def _render_assets(path: str) -> None:
 
 def render_entity_type(entities: Iterable[Entity], entity_type_name: str, output_directory_path: str) -> None:
     entity_type_path = os.path.join(output_directory_path, entity_type_name)
-    _render_template(entity_type_path, 'list.html', {
+    _render_template(entity_type_path, 'list-%s.html' % entity_type_name, {
         'entity_type_name': entity_type_name,
         'entities': sorted(entities, key=lambda entity: entity.label),
     })
