@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% set title = entity_type_name %}
+{% block content %}
+    {% if entities %}
+        <ul>
+            {% for entity in entities %}
+                <li><a href="/{{ entity_type_name }}/{{ entity.id }}">{{ entity.label }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}

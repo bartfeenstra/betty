@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<head>
+    <title>{{ title }}</title>
+</head>
+<body>
+<nav>
+    <ul>
+        <li><a href="/people">People</a></li>
+        <li><a href="/family">Families</a></li>
+        <li><a href="/event">Events</a></li>
+        <li><a href="/place">Places</a></li>
+    </ul>
+</nav>
+<div id="content">
+    <h1>{{ title }}</h1>
+    {% block content %}{% endblock %}
+</div>
+<footer><p>A family history as told by <a href="https://github.com/bartfeenstra/betty">Betty</a></p></footer>
+</body>
+</html>

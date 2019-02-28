@@ -1,0 +1,6 @@
+-r requirements.txt
+autopep8 ~= 1.4.3
+flake8 ~= 3.7.0
+recommonmark ~= 0.4.0
+twine ~= 1.9.1
+wheel ~= 0.30.0

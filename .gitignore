@@ -1,0 +1,7 @@
+# Build artifacts.
+/.tox
+/betty.egg-info
+*.pyc
+
+### Third-party files.
+/vendor
