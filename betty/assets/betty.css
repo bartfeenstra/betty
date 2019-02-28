@@ -1,0 +1,46 @@
+html {
+    height: 100%;
+}
+
+body {
+    background-color: pink;
+    margin: 0;
+    font-family: sans-serif;
+    height: 100%;
+}
+
+#nav-primary {
+    height: 3em;
+}
+#nav-primary ul {
+    list-style: none;
+    margin: 0;
+}
+#nav-primary li {
+    display: inline;
+}
+#nav-primary li a {
+    display: block;
+    float: left;
+    line-height: 3em;
+    padding: 0 2em;
+}
+#nav-primary li a:hover {
+    color: white;
+    background-color: purple;
+}
+
+#content {
+    background-color: white;
+    clear: both;
+    padding: 3em;
+}
+
+footer {
+
+}
+
+
+a {
+    text-decoration: none;
+}

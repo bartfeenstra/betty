@@ -1,7 +1,6 @@
 """Integrates Betty with Python's setuptools."""
 
 import os
-from glob import iglob
 
 from setuptools import setup, find_packages
 
@@ -43,12 +42,13 @@ SETUP = {
             'README.md',
             'requirements.txt',
             'VERSION',
-        ] + [path[len(ROOT_PATH) + 1:] for path in iglob('%s/betty/templates/**' % ROOT_PATH)])
+        ])
     ],
     'package_data': {
-        'betty': ['templates/**'],
+        'betty': ['assets/**', 'templates/**'],
     },
 }
+print(SETUP)
 
 if __name__ == '__main__':
     setup(**SETUP)

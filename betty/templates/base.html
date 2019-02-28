@@ -2,11 +2,13 @@
 <html>
 <head>
     <title>{{ title }}</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/assets/betty.css"/>
 </head>
 <body>
-<nav>
+<nav id="nav-primary">
     <ul>
-        <li><a href="/people">People</a></li>
+        <li><a href="/person">People</a></li>
         <li><a href="/family">Families</a></li>
         <li><a href="/event">Events</a></li>
         <li><a href="/place">Places</a></li>
@@ -16,6 +18,6 @@
     <h1>{{ title }}</h1>
     {% block content %}{% endblock %}
 </div>
-<footer><p>A family history as told by <a href="https://github.com/bartfeenstra/betty">Betty</a></p></footer>
+<footer><p>A family history as told by <a href="https://github.com/bartfeenstra/betty">Betty 👵</a></p></footer>
 </body>
 </html>
