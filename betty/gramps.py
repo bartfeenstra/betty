@@ -28,7 +28,7 @@ def parse(file_path) -> Ancestry:
     places = _parse_places(database)
     events = _parse_events(places, database)
     people = _parse_people(events, database)
-    families = _parse_families(database)
+    families = _parse_families(people, database)
     ancestry = Ancestry()
     ancestry.people = {person.id: person for person in people.values()}
     ancestry.families = {family.id: family for family in families.values()}
@@ -38,11 +38,12 @@ def parse(file_path) -> Ancestry:
 
 
 def _parse_people(events: Dict[str, Event], database: Element) -> Dict[str, Person]:
-    return {person.id: person for person in
+    return {handle: person for handle, person in
             [_parse_person(events, element) for element in database.xpath('.//*[local-name()="person"]')]}
 
 
-def _parse_person(events: Dict[str, Event], element: Element) -> Person:
+def _parse_person(events: Dict[str, Event], element: Element) -> Tuple[str, Person]:
+    handle = xpath1(element, './@handle')
     properties = {
         'individual_name': element.xpath('./ns:name[@type="Birth Name"]/ns:first', namespaces=NS)[0].text,
         'family_name': element.xpath('./ns:name[@type="Birth Name"]/ns:surname', namespaces=NS)[0].text,
@@ -51,7 +52,7 @@ def _parse_person(events: Dict[str, Event], element: Element) -> Person:
     person = Person(element.xpath('./@id')[0], **properties)
     person.birth = _parse_person_birth(events, event_handles)
     person.death = _parse_person_death(events, event_handles)
-    return person
+    return handle, person
 
 
 def _parse_person_birth(events: Dict[str, Event], handles: List[str]) -> Optional[Event]:
@@ -68,13 +69,36 @@ def _parse_person_filter_events(events: Dict[str, Event], handles: List[str], ev
     return [event for event in [events[event_handle] for event_handle in handles] if event.type == event_type]
 
 
-def _parse_families(database: Element) -> Dict[str, Family]:
+def _parse_families(people: Dict[str, Person], database: Element) -> Dict[str, Family]:
     return {family.id: family for family in
-            [_parse_family(element) for element in database.xpath('.//*[local-name()="family"]')]}
+            [_parse_family(people, element) for element in database.xpath('.//*[local-name()="family"]')]}
 
 
-def _parse_family(element: Element) -> Family:
-    return Family(element.xpath('./@id')[0])
+def _parse_family(people: Dict[str, Person], element: Element) -> Family:
+    family = Family(element.xpath('./@id')[0])
+
+    # Parse the father.
+    father_handle = xpath1(element, './ns:father/@hlink')
+    if father_handle:
+        father = people[father_handle]
+        father.ancestor_families.append(family)
+        family.parents.append(father)
+
+    # Parse the mother.
+    mother_handle = xpath1(element, './ns:mother/@hlink')
+    if mother_handle:
+        mother = people[mother_handle]
+        mother.ancestor_families.append(family)
+        family.parents.append(mother)
+
+    # Parse the children.
+    child_handles = xpath(element, './ns:childref/@hlink')
+    for child_handle in child_handles:
+        child = people[child_handle]
+        child.descendant_family = family
+        family.children.append(child)
+
+    return family
 
 
 def _parse_places(database: Element) -> Dict[str, Place]:
@@ -113,7 +137,7 @@ def _parse_event(places: Dict[str, Place], element: Element) -> Tuple[str, Event
     if dateval:
         dateval_components = dateval.split('-')
         date_components = [int(val) for val in dateval_components] + \
-            [None] * (3 - len(dateval_components))
+                          [None] * (3 - len(dateval_components))
         event.date = Date(*date_components)
 
     # Parse the event place.
