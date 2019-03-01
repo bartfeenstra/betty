@@ -1,2 +1,7 @@
 {% extends 'partials/base.html' %}
 {% set title = place.label %}
+{% block content %}
+    {% if place.coordinates %}
+        <p>Coordinates: {{ place.coordinates.latitude }}°, {{ place.coordinates.longitude }}°</p>
+    {% endif %}
+{% endblock %}

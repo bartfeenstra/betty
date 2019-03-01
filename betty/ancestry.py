@@ -1,4 +1,5 @@
 import calendar
+import re
 from enum import Enum
 from typing import Dict, Optional, List
 
@@ -32,6 +33,27 @@ class Date:
         return 'unknown'
 
 
+class Coordinates:
+    COORDINATE_PATTERN = r'^-?\d+(\.\d+)?$'
+    INVALID_COORDINATE_MESSAGE = '"%s" is not a valid coordinate.'
+
+    def __init__(self, latitude: str, longitude: str):
+        if not re.fullmatch(self.COORDINATE_PATTERN, latitude):
+            raise ValueError(self.INVALID_COORDINATE_MESSAGE % latitude)
+        if not re.fullmatch(self.COORDINATE_PATTERN, longitude):
+            raise ValueError(self.INVALID_COORDINATE_MESSAGE % longitude)
+        self._latitude = latitude
+        self._longitude = longitude
+
+    @property
+    def latitude(self) -> str:
+        return self._latitude
+
+    @property
+    def longitude(self) -> str:
+        return self._longitude
+
+
 class Entity:
     def __init__(self, entity_id):
         self._id = entity_id
@@ -49,10 +71,19 @@ class Place(Entity):
     def __init__(self, entity_id: str, name: str = None):
         Entity.__init__(self, entity_id)
         self._name = name
+        self._coordinates = None
 
     @property
     def label(self) -> str:
         return self._name or 'unknown'
+
+    @property
+    def coordinates(self) -> Coordinates:
+        return self._coordinates
+
+    @coordinates.setter
+    def coordinates(self, coordinates: Coordinates):
+        self._coordinates = coordinates
 
 
 class Event(Entity):

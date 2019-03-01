@@ -3,7 +3,7 @@ from typing import Dict, Tuple, List, Optional
 from lxml import etree
 from lxml.etree import XMLParser, Element
 
-from betty.ancestry import Event, Place, Family, Person, Ancestry, Date
+from betty.ancestry import Event, Place, Family, Person, Ancestry, Date, Coordinates
 
 NS = {
     'ns': 'http://gramps-project.org/xml/1.7.1/',
@@ -111,7 +111,29 @@ def _parse_place(element: Element) -> Tuple[str, Place]:
     properties = {
         'name': element.xpath('./ns:pname/@value', namespaces=NS)[0]
     }
-    return handle, Place(element.xpath('./@id')[0], **properties)
+    place = Place(element.xpath('./@id')[0], **properties)
+    coordinates = _parse_coordinates(element)
+    if coordinates:
+        place.coordinates = coordinates
+
+    return handle, place
+
+
+def _parse_coordinates(element: Element) -> Optional[Coordinates]:
+    coord_element = xpath1(element, './ns:coord')
+
+    if coord_element is None:
+        return None
+
+    latitudeval = xpath1(coord_element, './@lat')
+    longitudeval = xpath1(coord_element, './@long')
+
+    try:
+        return Coordinates(latitudeval, longitudeval)
+    except BaseException:
+        # We could not parse/validate the Gramps coordinates, because they are too freeform.
+        pass
+    return None
 
 
 def _parse_events(places: Dict[str, Place], database: Element) -> Dict[str, Event]:
