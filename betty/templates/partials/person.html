@@ -1,2 +1,10 @@
 {% extends 'partials/base.html' %}
 {% set title = person.label %}
+{% block content %}
+    {% if person.birth and person.birth.date %}
+        <span>Born on: {{ person.birth.date.label }}</span>
+    {% endif %}
+    {% if person.death and person.death.date %}
+        <span>Died on: {{ person.death.date.label }}</span>
+    {% endif %}
+{% endblock %}

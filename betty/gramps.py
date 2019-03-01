@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Tuple, List, Optional
 
 from lxml import etree
 from lxml.etree import XMLParser, Element
@@ -25,26 +25,47 @@ def parse(file_path) -> Ancestry:
     parser = XMLParser()
     tree = etree.parse(file_path, parser)
     database = tree.getroot()
-    entities = {
-        'people': _parse_people(database),
-        'families': _parse_families(database),
-        'places': _parse_places(database),
-        'events': _parse_events(database),
-    }
-    return Ancestry(**entities)
+    places = _parse_places(database)
+    events = _parse_events(database)
+    people = _parse_people(events, database)
+    families = _parse_families(database)
+    ancestry = Ancestry()
+    ancestry.people = {person.id: person for person in people.values()}
+    ancestry.families = {family.id: family for family in families.values()}
+    ancestry.places = {place.id: place for place in places.values()}
+    ancestry.events = {event.id: event for event in events.values()}
+    return ancestry
 
 
-def _parse_people(database: Element) -> Dict[str, Person]:
+def _parse_people(events: Dict[str, Event], database: Element) -> Dict[str, Person]:
     return {person.id: person for person in
-            [_parse_person(element) for element in database.xpath('.//*[local-name()="person"]')]}
+            [_parse_person(events, element) for element in database.xpath('.//*[local-name()="person"]')]}
 
 
-def _parse_person(element: Element) -> Person:
+def _parse_person(events: Dict[str, Event], element: Element) -> Person:
     properties = {
         'individual_name': element.xpath('./ns:name[@type="Birth Name"]/ns:first', namespaces=NS)[0].text,
         'family_name': element.xpath('./ns:name[@type="Birth Name"]/ns:surname', namespaces=NS)[0].text,
     }
-    return Person(element.xpath('./@id')[0], **properties)
+    event_handles = xpath(element, './ns:eventref/@hlink')
+    person = Person(element.xpath('./@id')[0], **properties)
+    person.birth = _parse_person_birth(events, event_handles)
+    person.death = _parse_person_death(events, event_handles)
+    return person
+
+
+def _parse_person_birth(events: Dict[str, Event], handles: List[str]) -> Optional[Event]:
+    births = _parse_person_filter_events(events, handles, Event.Type.BIRTH)
+    return births[0] if births else None
+
+
+def _parse_person_death(events: Dict[str, Event], handles: List[str]) -> Optional[Event]:
+    births = _parse_person_filter_events(events, handles, Event.Type.DEATH)
+    return births[0] if births else None
+
+
+def _parse_person_filter_events(events: Dict[str, Event], handles: List[str], event_type: Event.Type) -> List[Event]:
+    return [event for event in [events[event_handle] for event_handle in handles] if event.type == event_type]
 
 
 def _parse_families(database: Element) -> Dict[str, Family]:
@@ -69,7 +90,7 @@ def _parse_place(element: Element) -> Place:
 
 
 def _parse_events(database: Element) -> Dict[str, Event]:
-    return {event.id: event for event in
+    return {handle: event for handle, event in
             [_parse_event(element) for element in database.xpath('.//*[local-name()="event"]')]}
 
 
@@ -80,7 +101,8 @@ EVENT_TYPE_MAP = {
 }
 
 
-def _parse_event(element: Element) -> Event:
+def _parse_event(element: Element) -> Tuple[str, Event]:
+    handle = xpath1(element, './@handle')
     gramps_type = xpath1(element, './ns:type')
 
     event = Event(xpath1(element, './@id'), EVENT_TYPE_MAP[gramps_type.text])
@@ -89,7 +111,8 @@ def _parse_event(element: Element) -> Event:
     dateval = xpath1(element, './ns:dateval/@val')
     if dateval:
         dateval_components = dateval.split('-')
-        date_components = [int(val) for val in dateval_components] + [None] * (3 - len(dateval_components))
+        date_components = [int(val) for val in dateval_components] + \
+            [None] * (3 - len(dateval_components))
         event.date = Date(*date_components)
 
-    return event
+    return handle, event
