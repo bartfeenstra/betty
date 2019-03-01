@@ -26,7 +26,7 @@ def parse(file_path) -> Ancestry:
     tree = etree.parse(file_path, parser)
     database = tree.getroot()
     places = _parse_places(database)
-    events = _parse_events(database)
+    events = _parse_events(places, database)
     people = _parse_people(events, database)
     families = _parse_families(database)
     ancestry = Ancestry()
@@ -78,20 +78,21 @@ def _parse_family(element: Element) -> Family:
 
 
 def _parse_places(database: Element) -> Dict[str, Place]:
-    return {place.id: place for place in
+    return {handle: place for handle, place in
             [_parse_place(element) for element in database.xpath('.//*[local-name()="placeobj"]')]}
 
 
-def _parse_place(element: Element) -> Place:
+def _parse_place(element: Element) -> Tuple[str, Place]:
+    handle = xpath1(element, './@handle')
     properties = {
         'name': element.xpath('./ns:pname/@value', namespaces=NS)[0]
     }
-    return Place(element.xpath('./@id')[0], **properties)
+    return handle, Place(element.xpath('./@id')[0], **properties)
 
 
-def _parse_events(database: Element) -> Dict[str, Event]:
+def _parse_events(places: Dict[str, Place], database: Element) -> Dict[str, Event]:
     return {handle: event for handle, event in
-            [_parse_event(element) for element in database.xpath('.//*[local-name()="event"]')]}
+            [_parse_event(places, element) for element in database.xpath('.//*[local-name()="event"]')]}
 
 
 EVENT_TYPE_MAP = {
@@ -101,7 +102,7 @@ EVENT_TYPE_MAP = {
 }
 
 
-def _parse_event(element: Element) -> Tuple[str, Event]:
+def _parse_event(places: Dict[str, Place], element: Element) -> Tuple[str, Event]:
     handle = xpath1(element, './@handle')
     gramps_type = xpath1(element, './ns:type')
 
@@ -114,5 +115,10 @@ def _parse_event(element: Element) -> Tuple[str, Event]:
         date_components = [int(val) for val in dateval_components] + \
             [None] * (3 - len(dateval_components))
         event.date = Date(*date_components)
+
+    # Parse the event place.
+    place_handle = xpath1(element, './ns:place/@hlink')
+    if place_handle:
+        event.place = places[place_handle]
 
     return handle, event

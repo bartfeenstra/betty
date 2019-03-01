@@ -45,6 +45,16 @@ class Entity:
         return self.id
 
 
+class Place(Entity):
+    def __init__(self, entity_id: str, name: str = None):
+        Entity.__init__(self, entity_id)
+        self._name = name
+
+    @property
+    def label(self) -> str:
+        return self._name or 'unknown'
+
+
 class Event(Entity):
     class Type(Enum):
         BIRTH = 'birth'
@@ -60,6 +70,7 @@ class Event(Entity):
     def __init__(self, entity_id: str, entity_type: Type):
         Entity.__init__(self, entity_id)
         self._date = None
+        self._place = None
         self._type = entity_type
 
     @property
@@ -76,6 +87,14 @@ class Event(Entity):
     @date.setter
     def date(self, date: Date):
         self._date = date
+
+    @property
+    def place(self) -> Optional[Place]:
+        return self._place
+
+    @place.setter
+    def place(self, place: Place):
+        self._place = place
 
     @property
     def type(self):
@@ -117,16 +136,6 @@ class Person(Entity):
 
 class Family(Entity):
     pass
-
-
-class Place(Entity):
-    def __init__(self, entity_id: str, name: str = None):
-        Entity.__init__(self, entity_id)
-        self._name = name
-
-    @property
-    def label(self) -> str:
-        return self._name or 'unknown'
 
 
 class Ancestry:
