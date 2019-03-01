@@ -1,6 +1,6 @@
 import calendar
 from enum import Enum
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 
 class Date:
@@ -112,6 +112,8 @@ class Person(Entity):
         self._family_name = family_name
         self._birth = None
         self._death = None
+        self._descendant_family = None
+        self._ancestor_families = []
 
     @property
     def label(self) -> str:
@@ -133,9 +135,55 @@ class Person(Entity):
     def death(self, death: Event):
         self._death = death
 
+    @property
+    def descendant_family(self):
+        return self._descendant_family
+
+    @descendant_family.setter
+    def descendant_family(self, family):
+        self._descendant_family = family
+
+    @property
+    def ancestor_families(self):
+        return self._ancestor_families
+
+    @ancestor_families.setter
+    def ancestor_families(self, families):
+        self._ancestor_families = families
+
+    @property
+    def parents(self):
+        return self._descendant_family.parents if self._descendant_family else []
+
+    @property
+    def children(self):
+        children = []
+        for family in self._ancestor_families:
+            children += family.children
+        return children
+
 
 class Family(Entity):
-    pass
+    def __init__(self, entity_id: str):
+        Entity.__init__(self, entity_id)
+        self._parents = []
+        self._children = []
+
+    @property
+    def parents(self) -> List[Person]:
+        return self._parents
+
+    @parents.setter
+    def parents(self, parents: List[Person]):
+        self._parents = parents
+
+    @property
+    def children(self) -> List[Person]:
+        return self._children
+
+    @children.setter
+    def children(self, children: List[Person]):
+        self._children = children
 
 
 class Ancestry:

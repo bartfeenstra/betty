@@ -1,8 +1,9 @@
 {% extends 'partials/base.html' %}
 {% set title = person.label %}
 {% block content %}
+    <h2>Birth</h2>
     {% if person.birth %}
-        <span>
+        <p>
             Born on:
             {{ person.birth.date.label if person.birth.date else 'unknown' }}
             in
@@ -11,10 +12,14 @@
             {% else %}
                 <em>unknown</em>
             {% endif %}
-        </span>
+        </p>
+    {% else %}
+        <p>Unknown.</p>
     {% endif %}
+
+    <h2>Death</h2>
     {% if person.death %}
-        <span>
+        <p>
             Died on:
             {{ person.death.date.label if person.death.date else 'unknown' }}
             in
@@ -23,6 +28,30 @@
             {% else %}
                 <em>unknown</em>
             {% endif %}
-        </span>
+        </p>
+    {% else %}
+        <p>Unknown.</p>
+    {% endif %}
+
+    <h2>Parents</h2>
+    {% if person.parents %}
+        <ul>
+            {% for parent in person.parents %}
+                <li><a href="/person/{{ parent.id }}">{{ parent.label }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Unknown.</p>
+    {% endif %}
+
+    <h2>Children</h2>
+    {% if person.children %}
+        <ul>
+            {% for child in person.children %}
+                <li><a href="/person/{{ child.id }}">{{ child.label }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Unknown.</p>
     {% endif %}
 {% endblock %}
