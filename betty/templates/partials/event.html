@@ -1,2 +1,7 @@
 {% extends 'partials/base.html' %}
 {% set title = event.label %}
+{% block content %}
+    {% if event.place %}
+        In <a href="/place/{{ event.place.id }}">{{ event.place.label }}</a>.
+    {% endif %}
+{% endblock %}
