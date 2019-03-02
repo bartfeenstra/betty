@@ -78,6 +78,7 @@ class Place(Entity):
         Entity.__init__(self, entity_id)
         self._name = name
         self._coordinates = None
+        self._events = set()
 
     @property
     def label(self) -> str:
@@ -90,6 +91,10 @@ class Place(Entity):
     @coordinates.setter
     def coordinates(self, coordinates: Coordinates):
         self._coordinates = coordinates
+
+    @property
+    def events(self):
+        return self._events
 
 
 class Event(Entity):
