@@ -24,10 +24,16 @@ class Date:
 
     @property
     def label(self) -> str:
+        # All components.
         if self._year and self._month and self._day:
             return '%s %d, %d' % (calendar.month_name[self._month], self._day, self._year)
+        # No year.
         if not self._year and self._month and self._day:
             return '%s %d' % (calendar.month_name[self._month], self._day)
+        # No month.
+        if self._year and not self._month:
+            return str(self._year)
+        # No day.
         if self._year and self._month and not self._day:
             return '%s, %d' % (calendar.month_name[self._month], self._year)
         return 'unknown'
