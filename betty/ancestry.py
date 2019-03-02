@@ -193,6 +193,15 @@ class Person(Entity):
             children += family.children
         return children
 
+    @property
+    def siblings(self):
+        siblings = set()
+        for parent in self.parents:
+            for sibling in parent.children:
+                if sibling != self:
+                    siblings.add(sibling)
+        return siblings
+
 
 class Family(Entity):
     def __init__(self, entity_id: str):
