@@ -54,4 +54,15 @@
     {% else %}
         <p>Unknown.</p>
     {% endif %}
+
+    <h2>Siblings</h2>
+    {% if person.siblings %}
+        <ul>
+            {% for sibling in person.siblings %}
+                <li><a href="/person/{{ sibling.id }}">{{ sibling.label }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Unknown.</p>
+    {% endif %}
 {% endblock %}
