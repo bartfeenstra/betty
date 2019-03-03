@@ -16,7 +16,6 @@ def render(ancestry: Ancestry, betty: Betty) -> None:
     _render_assets(betty.output_directory_path)
     render_entity_type(ancestry.people.values(), 'person',
                        betty.output_directory_path)
-    render_entity_type(ancestry.families.values(), 'family', betty.output_directory_path)
     render_entity_type(ancestry.places.values(), 'place', betty.output_directory_path)
     render_entity_type(ancestry.events.values(), 'event',
                        betty.output_directory_path)
