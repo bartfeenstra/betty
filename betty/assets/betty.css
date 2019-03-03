@@ -4,6 +4,7 @@ html {
 
 body {
     background-color: pink;
+    color: #333333;
     margin: 0;
     font-family: sans-serif;
     height: 100%;
@@ -23,6 +24,7 @@ body {
 }
 
 #nav-primary li a {
+    color: purple;
     display: block;
     float: left;
     line-height: 3em;
@@ -40,6 +42,51 @@ body {
     padding: 3em;
 }
 
+h1, h2, h3, h4, h5, h6 {
+    color: #000000;
+}
+
+h1 {
+    font-weight: normal;
+    font-size: 3em;
+}
+
 a {
     text-decoration: none;
+    color: #149988;
+}
+
+a:hover {
+
+    color: #2A615A;
+}
+
+footer {
+    color: #777777;
+    padding: 3em;
+}
+
+/* Entity metadata */
+dl.meta {
+    margin-top: -2em;
+}
+
+dl.meta dt {
+    font-weight: bold;
+}
+
+@media (min-width: 768px) {
+
+    dl.meta dt,
+    dl.meta dd {
+        display: inline;
+    }
+
+    dl.meta dt:after {
+        content: ':';
+    }
+
+    dl.meta dd {
+        margin: 0 3em 0 0;
+    }
 }
