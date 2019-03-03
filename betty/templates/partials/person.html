@@ -1,37 +1,7 @@
 {% extends 'partials/base.html' %}
 {% set title = person.label %}
 {% block content %}
-    <h2>Birth</h2>
-    {% if person.birth %}
-        <p>
-            Born on:
-            {{ person.birth.date.label if person.birth.date else 'unknown' }}
-            in
-            {% if person.birth.place %}
-                <a href="/place/{{ person.birth.place.id }}">{{ person.birth.place.label }}</a>
-            {% else %}
-                <em>unknown</em>
-            {% endif %}
-        </p>
-    {% else %}
-        <p>Unknown.</p>
-    {% endif %}
-
-    <h2>Death</h2>
-    {% if person.death %}
-        <p>
-            Died on:
-            {{ person.death.date.label if person.death.date else 'unknown' }}
-            in
-            {% if person.death.place %}
-                <a href="/place/{{ person.death.place.id }}">{{ person.death.place.label }}</a>
-            {% else %}
-                <em>unknown</em>
-            {% endif %}
-        </p>
-    {% else %}
-        <p>Unknown.</p>
-    {% endif %}
+    {% include 'partials/person-meta.html' %}
 
     <h2>Parents</h2>
     {% if person.parents %}

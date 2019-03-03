@@ -1,0 +1,26 @@
+{% if person.birth or person.death %}
+    <dl class="meta">
+        {% if person.birth %}
+            <dt>Birth</dt>
+            <dd>
+            {% if person.birth.date.label %}
+                {{ person.birth.date.label }}
+            {% endif %}
+            {% if person.birth.place %}
+                in <a href="/place/{{ person.birth.place.id }}">{{ person.birth.place.label }}</a>
+            {% endif %}
+            </dd>
+        {% endif %}
+        {% if person.death %}
+            <dt>Death</dt>
+            <dd>
+            {% if person.death.date.label %}
+                {{ person.death.date.label }}
+            {% endif %}
+            {% if person.death.place %}
+                in <a href="/place/{{ person.death.place.id }}">{{ person.death.place.label }}</a>
+            {% endif %}
+            </dd>
+        {% endif %}
+    </dl>
+{% endif %}

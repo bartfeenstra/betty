@@ -4,10 +4,16 @@ html {
 
 body {
     background-color: pink;
+    color: #333333;
+    line-height: 1.5em;
     margin: 0;
     font-family: sans-serif;
     height: 100%;
 }
+
+/*
+ * Header.
+ */
 
 #nav-primary {
     height: 3em;
@@ -23,8 +29,10 @@ body {
 }
 
 #nav-primary li a {
+    color: purple;
     display: block;
     float: left;
+    font-size: 1.1em;
     line-height: 3em;
     padding: 0 2em;
 }
@@ -34,12 +42,80 @@ body {
     background-color: purple;
 }
 
+/*
+ * Footer.
+ */
+
+footer {
+    color: #777777;
+    padding: 3em;
+}
+
+/*
+ * Main content.
+ */
+
 #content {
     background-color: white;
     clear: both;
     padding: 3em;
 }
 
+h1, h2, h3, h4, h5, h6 {
+    color: #000000;
+}
+
+h1 {
+    font-weight: normal;
+    font-size: 3em;
+}
+
 a {
     text-decoration: none;
+    color: #149988;
+}
+
+a:hover {
+
+    color: #2A615A;
+}
+
+/*
+ * Entity metadata.
+ */
+
+dl.meta dt {
+    font-weight: bold;
+}
+
+@media (min-width: 768px) {
+    dl.meta dt,
+    dl.meta dd {
+        display: inline;
+    }
+
+    dl.meta dt:after {
+        content: ':';
+    }
+
+    dl.meta dd {
+        margin: 0 3em 0 0;
+    }
+}
+
+/*
+ * Entity lists.
+ */
+ul.entities {
+    padding: 0;
+}
+
+ul.entities li {
+    list-style: none;
+    margin-top: 0.5em;
+    padding: 0.5em;
+}
+
+ul.entities li.even {
+    background-color: #eeeeee;
 }

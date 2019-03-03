@@ -1,9 +1,11 @@
 {% extends 'partials/base.html' %}
 {% block content %}
     {% if entities %}
-        <ul>
+        <ul class="entities">
             {% for entity in entities %}
-                <li><a href="/{{ entity_type_name }}/{{ entity.id }}">{{ entity.label }}</a></li>
+                <li class="{{ loop.cycle('odd', 'even') }}">
+                    <a href="/{{ entity_type_name }}/{{ entity.id }}">{{ entity.label }}</a>
+                </li>
             {% endfor %}
         </ul>
     {% endif %}
