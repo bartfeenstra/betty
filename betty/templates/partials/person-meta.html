@@ -1,6 +1,6 @@
 {% if person.birth or person.death %}
     <dl class="meta">
-        {% if person.birth %}
+        {% if person.birth.date or person.birth.place %}
             <dt>Birth</dt>
             <dd>
             {% if person.birth.date.label %}
@@ -11,7 +11,7 @@
             {% endif %}
             </dd>
         {% endif %}
-        {% if person.death %}
+        {% if person.death.date or person.death.place %}
             <dt>Death</dt>
             <dd>
             {% if person.death.date.label %}
