@@ -60,9 +60,64 @@ class Coordinates:
         return self._longitude
 
 
+class Note:
+    def __init__(self, text: str):
+        self._text = text
+
+    @property
+    def text(self):
+        return self._text
+
+
+class File:
+    def __init__(self, path: str):
+        self._path = path
+        self._description = None
+        self._type = None
+
+    @property
+    def path(self):
+        return self._path
+
+    @property
+    def type(self) -> Optional[str]:
+        return self._type
+
+    @type.setter
+    def type(self, file_type: str):
+        self._type = file_type
+
+    @property
+    def description(self) -> Optional[str]:
+        return self._description
+
+    @description.setter
+    def description(self, description: str):
+        self._description = description
+
+
+class Attachment:
+    def __init__(self, file: File):
+        self._file = file
+        self._notes = []
+
+    @property
+    def file(self) -> Optional[File]:
+        return self._file
+
+    @property
+    def notes(self) -> List[Note]:
+        return self._notes
+
+    @notes.setter
+    def notes(self, notes: List[Note]):
+        self._notes = notes
+
+
 class Entity:
     def __init__(self, entity_id):
         self._id = entity_id
+        self._attachments = []
 
     @property
     def id(self) -> str:
@@ -71,6 +126,14 @@ class Entity:
     @property
     def label(self) -> str:
         return self.id
+
+    @property
+    def attachments(self) -> List[Attachment]:
+        return self._attachments
+
+    @attachments.setter
+    def attachments(self, attachments: List[Attachment]):
+        self._attachments = attachments
 
 
 class Place(Entity):
@@ -212,6 +275,17 @@ class Person(Entity):
                 if sibling != self:
                     siblings.add(sibling)
         return siblings
+
+    @property
+    def attachments(self):
+        attachments = set()
+        if self.descendant_family:
+            for attachment in self.descendant_family.attachments:
+                attachments.add(attachment)
+        for family in self.ancestor_families:
+            for attachment in family.attachments:
+                attachments.add(attachment)
+        return attachments
 
 
 class Family(Entity):

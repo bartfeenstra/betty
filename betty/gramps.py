@@ -3,7 +3,7 @@ from typing import Dict, Tuple, List, Optional
 from lxml import etree
 from lxml.etree import XMLParser, Element
 
-from betty.ancestry import Event, Place, Family, Person, Ancestry, Date, Coordinates
+from betty.ancestry import Attachment, Event, Place, Family, Person, Ancestry, Date, Coordinates, Note, File
 
 NS = {
     'ns': 'http://gramps-project.org/xml/1.7.1/',
@@ -25,16 +25,57 @@ def parse(file_path) -> Ancestry:
     parser = XMLParser()
     tree = etree.parse(file_path, parser)
     database = tree.getroot()
+    notes = _parse_notes(database)
+    attachments = _parse_attachments(notes, database)
     places = _parse_places(database)
     events = _parse_events(places, database)
     people = _parse_people(events, database)
-    families = _parse_families(people, database)
+    families = _parse_families(people, attachments, database)
     ancestry = Ancestry()
     ancestry.people = {person.id: person for person in people.values()}
     ancestry.families = {family.id: family for family in families.values()}
     ancestry.places = {place.id: place for place in places.values()}
     ancestry.events = {event.id: event for event in events.values()}
     return ancestry
+
+
+def _parse_date(element: Element) -> Optional[Date]:
+    dateval = xpath1(element, './ns:dateval/@val')
+    if dateval:
+        dateval_components = dateval.split('-')
+        date_components = [int(val) for val in dateval_components] + \
+                          [None] * (3 - len(dateval_components))
+        return Date(*date_components)
+    return None
+
+
+def _parse_notes(database: Element) -> Dict[str, Note]:
+    return {handle: note for handle, note in
+            [_parse_note(element) for element in xpath(database, './ns:notes/ns:note')]}
+
+
+def _parse_note(element: Element) -> Tuple[str, Note]:
+    handle = xpath1(element, './@handle')
+    text = xpath1(element, './text')
+    return handle, Note(text)
+
+
+def _parse_attachments(notes: Dict[str, Note], database: Element) -> Dict[str, Attachment]:
+    return {handle: attachment for handle, attachment in
+            [_parse_attachment(notes, element) for element in xpath(database, './ns:objects/ns:object')]}
+
+
+def _parse_attachment(notes: Dict[str, Note], element: Element) -> Tuple[str, Attachment]:
+    handle = xpath1(element, './@handle')
+    # @todo Import the file to the output directory.
+    file_element = xpath1(element, './ns:file')
+    file = File(xpath1(file_element, './@src'))
+    file.type = xpath1(file_element, './@mime')
+    note_handles = xpath(element, './ns:noteref/@hlink')
+    attachment = Attachment(file)
+    for note_handle in note_handles:
+        attachment.notes.append(notes[note_handle])
+    return handle, attachment
 
 
 def _parse_people(events: Dict[str, Event], database: Element) -> Dict[str, Person]:
@@ -69,12 +110,12 @@ def _parse_person_filter_events(events: Dict[str, Event], handles: List[str], ev
     return [event for event in [events[event_handle] for event_handle in handles] if event.type == event_type]
 
 
-def _parse_families(people: Dict[str, Person], database: Element) -> Dict[str, Family]:
+def _parse_families(people: Dict[str, Person], attachments: Dict[str, Attachment], database: Element) -> Dict[str, Family]:
     return {family.id: family for family in
-            [_parse_family(people, element) for element in database.xpath('.//*[local-name()="family"]')]}
+            [_parse_family(people, attachments, element) for element in database.xpath('.//*[local-name()="family"]')]}
 
 
-def _parse_family(people: Dict[str, Person], element: Element) -> Family:
+def _parse_family(people: Dict[str, Person], attachments: Dict[str, Attachment], element: Element) -> Family:
     family = Family(element.xpath('./@id')[0])
 
     # Parse the father.
@@ -97,6 +138,11 @@ def _parse_family(people: Dict[str, Person], element: Element) -> Family:
         child = people[child_handle]
         child.descendant_family = family
         family.children.append(child)
+
+    # Parse the attachments.
+    attachment_handles = xpath(element, './ns:objref/@hlink')
+    for attachment_handle in attachment_handles:
+        family.attachments.append(attachments[attachment_handle])
 
     return family
 
@@ -154,13 +200,7 @@ def _parse_event(places: Dict[str, Place], element: Element) -> Tuple[str, Event
 
     event = Event(xpath1(element, './@id'), EVENT_TYPE_MAP[gramps_type.text])
 
-    # Parse the event date.
-    dateval = xpath1(element, './ns:dateval/@val')
-    if dateval:
-        dateval_components = dateval.split('-')
-        date_components = [int(val) for val in dateval_components] + \
-                          [None] * (3 - len(dateval_components))
-        event.date = Date(*date_components)
+    event.date = _parse_date(element)
 
     # Parse the event place.
     place_handle = xpath1(element, './ns:place/@hlink')

@@ -35,4 +35,11 @@
     {% else %}
         <p>Unknown.</p>
     {% endif %}
+
+    {% if person.attachments %}
+        <h2>Media</h2>
+        {% for attachment in person.attachments %}
+            {% include 'partials/attachment.html' %}
+        {% endfor %}
+    {% endif %}
 {% endblock %}
