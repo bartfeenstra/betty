@@ -1,6 +1,7 @@
 import calendar
 import re
 from enum import Enum
+from os.path import splitext
 from typing import Dict, Optional, List
 
 
@@ -83,6 +84,10 @@ class File:
     def type(self) -> Optional[str]:
         return self._type
 
+    @property
+    def extension(self):
+        return splitext(self._path)[1][1:]
+
     @type.setter
     def type(self, file_type: str):
         self._type = file_type
@@ -96,28 +101,10 @@ class File:
         self._description = description
 
 
-class Attachment:
-    def __init__(self, file: File):
-        self._file = file
-        self._notes = []
-
-    @property
-    def file(self) -> Optional[File]:
-        return self._file
-
-    @property
-    def notes(self) -> List[Note]:
-        return self._notes
-
-    @notes.setter
-    def notes(self, notes: List[Note]):
-        self._notes = notes
-
-
 class Entity:
-    def __init__(self, entity_id):
+    def __init__(self, entity_id: str):
         self._id = entity_id
-        self._attachments = []
+        self._documents = []
 
     @property
     def id(self) -> str:
@@ -128,12 +115,36 @@ class Entity:
         return self.id
 
     @property
-    def attachments(self) -> List[Attachment]:
-        return self._attachments
+    def documents(self) -> List:
+        return self._documents
 
-    @attachments.setter
-    def attachments(self, attachments: List[Attachment]):
-        self._attachments = attachments
+    @documents.setter
+    def documents(self, documents: List):
+        self._documents = documents
+
+
+class Document(Entity):
+    def __init__(self, entity_id: str, file: File, description: str):
+        Entity.__init__(self, entity_id)
+        self._file = file
+        self._description = description
+        self._notes = []
+
+    @property
+    def label(self):
+        return self._description
+
+    @property
+    def file(self) -> File:
+        return self._file
+
+    @property
+    def notes(self) -> List[Note]:
+        return self._notes
+
+    @notes.setter
+    def notes(self, notes: List[Note]):
+        self._notes = notes
 
 
 class Place(Entity):
@@ -276,17 +287,6 @@ class Person(Entity):
                     siblings.add(sibling)
         return siblings
 
-    @property
-    def attachments(self):
-        attachments = set()
-        if self.descendant_family:
-            for attachment in self.descendant_family.attachments:
-                attachments.add(attachment)
-        for family in self.ancestor_families:
-            for attachment in family.attachments:
-                attachments.add(attachment)
-        return attachments
-
 
 class Family(Entity):
     def __init__(self, entity_id: str):
@@ -313,10 +313,19 @@ class Family(Entity):
 
 class Ancestry:
     def __init__(self):
+        self._documents = {}
         self._people = {}
         self._families = {}
         self._places = {}
         self._events = {}
+
+    @property
+    def documents(self) -> Dict[str, Document]:
+        return self._documents
+
+    @documents.setter
+    def documents(self, documents: Dict[str, Document]):
+        self._documents = documents
 
     @property
     def people(self) -> Dict[str, Person]:

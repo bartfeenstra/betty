@@ -1,19 +1,23 @@
 import os
+import re
+import shutil
 from glob import glob
-from os.path import join
+from os.path import join, splitext
 from shutil import copytree
 from typing import Iterable, Dict
 
-from jinja2 import Template, Environment, PackageLoader, select_autoescape
+from jinja2 import Template, Environment, PackageLoader, select_autoescape, evalcontextfilter, escape
+from markupsafe import Markup
 
 import betty
-from betty.ancestry import Ancestry, Entity
+from betty.ancestry import Ancestry, Entity, Document
 from betty.betty import Betty
 
 
 def render(ancestry: Ancestry, betty: Betty) -> None:
     _create_directory(betty.output_directory_path)
     _render_assets(betty.output_directory_path)
+    render_documents(ancestry.documents.values(), betty)
     render_entity_type(ancestry.people.values(), 'person',
                        betty.output_directory_path)
     render_entity_type(ancestry.places.values(), 'place', betty.output_directory_path)
@@ -45,6 +49,16 @@ def _render_content(betty: Betty) -> None:
                               destination_path), template_path)
 
 
+def render_documents(documents: Iterable[Document], betty: Betty) -> None:
+    documents_directory_path = os.path.join(betty.output_directory_path, 'document')
+    _create_directory(documents_directory_path)
+    for document in documents:
+        destination = os.path.join(documents_directory_path,
+                                   document.id + splitext(document.file.path)[1])
+        # @todo To copy files with relative paths, we need the XML file's path.
+        shutil.copy2(document.file.path, destination)
+
+
 def render_entity_type(entities: Iterable[Entity], entity_type_name: str, output_directory_path: str) -> None:
     entity_type_path = os.path.join(output_directory_path, entity_type_name)
     _render_template(entity_type_path, 'partials/list-%s.html' % entity_type_name, {
@@ -73,4 +87,20 @@ def _get_template(name: str) -> Template:
         loader=PackageLoader('betty', 'templates'),
         autoescape=select_autoescape(['html'])
     )
+    environment.filters['paragraphs'] = _render_html_paragraphs
     return environment.get_template(name)
+
+
+_paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
+
+
+@evalcontextfilter
+def _render_html_paragraphs(eval_ctx, text: str) -> str:
+    """Converts newlines to <p> and <br> tags.
+
+    Taken from http://jinja.pocoo.org/docs/2.10/api/#custom-filters."""
+    result = u'\n\n'.join(u'<p>%s</p>' % p.replace('\n', Markup('<br>\n'))
+                          for p in _paragraph_re.split(escape(text)))
+    if eval_ctx.autoescape:
+        result = Markup(result)
+    return result

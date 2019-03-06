@@ -3,7 +3,7 @@ from typing import Dict, Tuple, List, Optional
 from lxml import etree
 from lxml.etree import XMLParser, Element
 
-from betty.ancestry import Attachment, Event, Place, Family, Person, Ancestry, Date, Coordinates, Note, File
+from betty.ancestry import Document, Event, Place, Family, Person, Ancestry, Date, Coordinates, Note, File
 
 NS = {
     'ns': 'http://gramps-project.org/xml/1.7.1/',
@@ -26,12 +26,13 @@ def parse(file_path) -> Ancestry:
     tree = etree.parse(file_path, parser)
     database = tree.getroot()
     notes = _parse_notes(database)
-    attachments = _parse_attachments(notes, database)
+    documents = _parse_documents(notes, database)
     places = _parse_places(database)
     events = _parse_events(places, database)
     people = _parse_people(events, database)
-    families = _parse_families(people, attachments, database)
+    families = _parse_families(people, documents, database)
     ancestry = Ancestry()
+    ancestry.documents = documents
     ancestry.people = {person.id: person for person in people.values()}
     ancestry.families = {family.id: family for family in families.values()}
     ancestry.places = {place.id: place for place in places.values()}
@@ -56,26 +57,27 @@ def _parse_notes(database: Element) -> Dict[str, Note]:
 
 def _parse_note(element: Element) -> Tuple[str, Note]:
     handle = xpath1(element, './@handle')
-    text = xpath1(element, './text')
+    text = xpath1(element, './ns:text/text()')
     return handle, Note(text)
 
 
-def _parse_attachments(notes: Dict[str, Note], database: Element) -> Dict[str, Attachment]:
-    return {handle: attachment for handle, attachment in
-            [_parse_attachment(notes, element) for element in xpath(database, './ns:objects/ns:object')]}
+def _parse_documents(notes: Dict[str, Note], database: Element) -> Dict[str, Document]:
+    return {handle: document for handle, document in
+            [_parse_document(notes, element) for element in xpath(database, './ns:objects/ns:object')]}
 
 
-def _parse_attachment(notes: Dict[str, Note], element: Element) -> Tuple[str, Attachment]:
+def _parse_document(notes: Dict[str, Note], element: Element) -> Tuple[str, Document]:
     handle = xpath1(element, './@handle')
-    # @todo Import the file to the output directory.
+    entity_id = xpath1(element, './@id')
     file_element = xpath1(element, './ns:file')
+    description = xpath1(file_element, './@description')
     file = File(xpath1(file_element, './@src'))
     file.type = xpath1(file_element, './@mime')
     note_handles = xpath(element, './ns:noteref/@hlink')
-    attachment = Attachment(file)
+    document = Document(entity_id, file, description)
     for note_handle in note_handles:
-        attachment.notes.append(notes[note_handle])
-    return handle, attachment
+        document.notes.append(notes[note_handle])
+    return handle, document
 
 
 def _parse_people(events: Dict[str, Event], database: Element) -> Dict[str, Person]:
@@ -110,12 +112,12 @@ def _parse_person_filter_events(events: Dict[str, Event], handles: List[str], ev
     return [event for event in [events[event_handle] for event_handle in handles] if event.type == event_type]
 
 
-def _parse_families(people: Dict[str, Person], attachments: Dict[str, Attachment], database: Element) -> Dict[str, Family]:
+def _parse_families(people: Dict[str, Person], documents: Dict[str, Document], database: Element) -> Dict[str, Family]:
     return {family.id: family for family in
-            [_parse_family(people, attachments, element) for element in database.xpath('.//*[local-name()="family"]')]}
+            [_parse_family(people, documents, element) for element in database.xpath('.//*[local-name()="family"]')]}
 
 
-def _parse_family(people: Dict[str, Person], attachments: Dict[str, Attachment], element: Element) -> Family:
+def _parse_family(people: Dict[str, Person], documents: Dict[str, Document], element: Element) -> Family:
     family = Family(element.xpath('./@id')[0])
 
     # Parse the father.
@@ -139,10 +141,10 @@ def _parse_family(people: Dict[str, Person], attachments: Dict[str, Attachment],
         child.descendant_family = family
         family.children.append(child)
 
-    # Parse the attachments.
-    attachment_handles = xpath(element, './ns:objref/@hlink')
-    for attachment_handle in attachment_handles:
-        family.attachments.append(attachments[attachment_handle])
+    # Parse the documents.
+    document_handles = xpath(element, './ns:objref/@hlink')
+    for document_handle in document_handles:
+        family.documents.append(documents[document_handle])
 
     return family
 
