@@ -5,7 +5,6 @@ html {
 body {
     background-color: pink;
     color: #333333;
-    line-height: 1.5em;
     margin: 0;
     font-family: sans-serif;
     height: 100%;
@@ -59,6 +58,8 @@ footer {
     background-color: white;
     clear: both;
     padding: 3em;
+    display: inline-block;
+    min-width: calc(100% - 6em);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -118,4 +119,13 @@ ul.entities li {
 
 ul.entities li.even {
     background-color: #eeeeee;
+}
+
+/*
+ * Text.
+ */
+dl,
+p,
+li {
+    line-height: 1.5;
 }
