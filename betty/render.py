@@ -55,7 +55,6 @@ def render_documents(documents: Iterable[Document], betty: Betty) -> None:
     for document in documents:
         destination = os.path.join(documents_directory_path,
                                    document.id + splitext(document.file.path)[1])
-        # @todo To copy files with relative paths, we need the XML file's path.
         shutil.copy2(document.file.path, destination)
 
 

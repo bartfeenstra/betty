@@ -1,3 +1,4 @@
+from os.path import join
 from typing import Dict, Tuple, List, Optional
 
 from lxml import etree
@@ -26,7 +27,7 @@ def parse(file_path) -> Ancestry:
     tree = etree.parse(file_path, parser)
     database = tree.getroot()
     notes = _parse_notes(database)
-    documents = _parse_documents(notes, database)
+    documents = _parse_documents(file_path, notes, database)
     places = _parse_places(database)
     events = _parse_events(places, database)
     people = _parse_people(events, database)
@@ -61,17 +62,19 @@ def _parse_note(element: Element) -> Tuple[str, Note]:
     return handle, Note(text)
 
 
-def _parse_documents(notes: Dict[str, Note], database: Element) -> Dict[str, Document]:
+def _parse_documents(gramps_file_path: str, notes: Dict[str, Note], database: Element) -> Dict[str, Document]:
     return {handle: document for handle, document in
-            [_parse_document(notes, element) for element in xpath(database, './ns:objects/ns:object')]}
+            [_parse_document(gramps_file_path, notes, element) for element in
+             xpath(database, './ns:objects/ns:object')]}
 
 
-def _parse_document(notes: Dict[str, Note], element: Element) -> Tuple[str, Document]:
+def _parse_document(gramps_file_path, notes: Dict[str, Note], element: Element) -> Tuple[str, Document]:
     handle = xpath1(element, './@handle')
     entity_id = xpath1(element, './@id')
     file_element = xpath1(element, './ns:file')
     description = xpath1(file_element, './@description')
-    file = File(xpath1(file_element, './@src'))
+    file_path = xpath1(file_element, './@src')
+    file = File(join(gramps_file_path, file_path))
     file.type = xpath1(file_element, './@mime')
     note_handles = xpath(element, './ns:noteref/@hlink')
     document = Document(entity_id, file, description)
