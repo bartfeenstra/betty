@@ -35,4 +35,20 @@
     {% else %}
         <p>Unknown.</p>
     {% endif %}
+
+    {% set ns = namespace(documents = []) %}
+    {% set ns.documents = ns.documents + person.documents %}
+    {% if person.descendant_family %}
+        {% set ns.documents = ns.documents + person.descendant_family.documents %}
+    {% endif %}
+    {% for family in person.ancestor_families %}
+        {% set ns.documents = ns.documents + family.documents %}
+    {% endfor %}
+    {% set ns.documents = ns.documents | unique | list %}
+    {% if ns.documents %}
+        {{ documents }}
+        {% for document in ns.documents %}
+            {% include 'partials/document.html' %}
+        {% endfor %}
+    {% endif %}
 {% endblock %}
