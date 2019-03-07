@@ -129,3 +129,23 @@ p,
 li {
     line-height: 1.5;
 }
+
+/*
+ * Media.
+ */
+.image {
+    background-color: #eeeeee;
+    margin: 0;
+    padding: 1em;
+}
+
+figure {
+    background-color: #cccccc;
+    display: inline-block;
+    padding: 0.5em;
+    margin: 0;
+}
+
+figure img {
+    width: 100%;
+}
