@@ -2,7 +2,34 @@ import calendar
 import re
 from enum import Enum
 from os.path import splitext
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Iterable
+
+
+class EventHandlingSet:
+    def __init__(self, addition_handler=None, removal_handler=None):
+        self._values = set()
+        self._addition_handler = addition_handler
+        self._removal_handler = removal_handler
+
+    def add(self, value):
+        if value in self._values:
+            return
+        self._values.add(value)
+        if self._addition_handler is not None:
+            self._addition_handler(value)
+
+    def remove(self, value):
+        if value not in self._values:
+            return
+        self._values.remove(value)
+        if self._removal_handler is not None:
+            self._removal_handler(value)
+
+    def replace(self, values: Iterable):
+        self._values = set(values)
+
+    def __iter__(self):
+        return self._values.__iter__()
 
 
 class Date:
@@ -229,7 +256,8 @@ class Person(Entity):
         self._birth = None
         self._death = None
         self._descendant_family = None
-        self._ancestor_families = []
+        self._ancestor_families = EventHandlingSet(lambda family: family.parents.add(self),
+                                                   lambda family: family.parents.remove(self))
 
     @property
     def label(self) -> str:
@@ -257,15 +285,20 @@ class Person(Entity):
 
     @descendant_family.setter
     def descendant_family(self, family):
+        previous_family = self._descendant_family
         self._descendant_family = family
+        if previous_family is not None:
+            previous_family.children.remove(self)
+        if family is not None:
+            family.children.add(self)
 
     @property
-    def ancestor_families(self):
+    def ancestor_families(self) -> Iterable:
         return self._ancestor_families
 
     @ancestor_families.setter
-    def ancestor_families(self, families):
-        self._ancestor_families = families
+    def ancestor_families(self, families: Iterable):
+        self._ancestor_families.replace(families)
 
     @property
     def parents(self):
@@ -291,24 +324,32 @@ class Person(Entity):
 class Family(Entity):
     def __init__(self, entity_id: str):
         Entity.__init__(self, entity_id)
-        self._parents = []
-        self._children = []
+
+        def handle_child_addition(child):
+            child.descendant_family = self
+
+        def handle_child_removal(child):
+            child.descendant_family = None
+
+        self._parents = EventHandlingSet(lambda parent: parent.ancestor_families.add(self),
+                                         lambda parent: parent.ancestor_families.remove(self))
+        self._children = EventHandlingSet(handle_child_addition, handle_child_removal)
 
     @property
-    def parents(self) -> List[Person]:
+    def parents(self) -> Iterable[Person]:
         return self._parents
 
     @parents.setter
-    def parents(self, parents: List[Person]):
-        self._parents = parents
+    def parents(self, parents: Iterable[Person]):
+        self._parents.replace(parents)
 
     @property
-    def children(self) -> List[Person]:
+    def children(self) -> Iterable[Person]:
         return self._children
 
     @children.setter
-    def children(self, children: List[Person]):
-        self._children = children
+    def children(self, children: Iterable[Person]):
+        self._children.replace(children)
 
 
 class Ancestry:

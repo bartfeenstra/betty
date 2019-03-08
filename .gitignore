@@ -3,5 +3,9 @@
 /betty.egg-info
 *.pyc
 
+# Test artifacts.
+/.coverage
+
 ### Third-party files.
 /vendor
+

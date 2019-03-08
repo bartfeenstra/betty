@@ -1,0 +1,3 @@
+[run]
+source = betty
+omit = */test*.py
