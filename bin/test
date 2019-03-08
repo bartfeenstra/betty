@@ -6,3 +6,8 @@ cd "$(dirname "$0")/.."
 
 # Test the Python code style.
 flake8 --ignore=E501 ./betty
+
+# Run unit tests with coverage.
+coverage erase
+coverage run -m nose2
+coverage report -m
