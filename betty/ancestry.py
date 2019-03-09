@@ -264,6 +264,14 @@ class Person(Entity):
         return '%s, %s' % (self._family_name or 'unknown', self._individual_name or 'unknown')
 
     @property
+    def individual_name(self) -> Optional[str]:
+        return self._individual_name
+
+    @property
+    def family_name(self) -> Optional[str]:
+        return self._family_name
+
+    @property
     def birth(self) -> Event:
         return self._birth
 
