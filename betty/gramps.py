@@ -127,22 +127,22 @@ def _parse_family(people: Dict[str, Person], documents: Dict[str, Document], ele
     father_handle = xpath1(element, './ns:father/@hlink')
     if father_handle:
         father = people[father_handle]
-        father.ancestor_families.append(family)
-        family.parents.append(father)
+        father.ancestor_families.add(family)
+        family.parents.add(father)
 
     # Parse the mother.
     mother_handle = xpath1(element, './ns:mother/@hlink')
     if mother_handle:
         mother = people[mother_handle]
-        mother.ancestor_families.append(family)
-        family.parents.append(mother)
+        mother.ancestor_families.add(family)
+        family.parents.add(mother)
 
     # Parse the children.
     child_handles = xpath(element, './ns:childref/@hlink')
     for child_handle in child_handles:
         child = people[child_handle]
         child.descendant_family = family
-        family.children.append(child)
+        family.children.add(child)
 
     # Parse the documents.
     document_handles = xpath(element, './ns:objref/@hlink')
