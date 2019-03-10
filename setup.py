@@ -45,7 +45,7 @@ SETUP = {
         ])
     ],
     'package_data': {
-        'betty': ['assets/**', 'templates/content/**', 'templates/partials/**'],
+        'betty': ['assets/**', 'config.schema.json', 'templates/content/**', 'templates/partials/**'],
     },
 }
 
