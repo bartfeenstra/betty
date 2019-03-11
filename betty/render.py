@@ -10,6 +10,7 @@ from markupsafe import Markup
 
 import betty
 from betty.ancestry import Entity
+from betty.npm import install
 from betty.site import Site
 
 
@@ -22,6 +23,7 @@ def render(site: Site) -> None:
     environment.filters['paragraphs'] = _render_html_paragraphs
 
     _render_public(site, environment)
+    _render_js()
     _render_documents(site)
     _render_entity_type(site, environment, site.ancestry.people.values(), 'person')
     _render_entity_type(site, environment, site.ancestry.places.values(), 'place')
@@ -53,6 +55,10 @@ def _render_public(site: Site, environment: Environment) -> None:
                 f.write(template.render())
         else:
             shutil.copy2(file_path, destination_path)
+
+
+def _render_js() -> None:
+    install()
 
 
 def _render_documents(site: Site) -> None:
