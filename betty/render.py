@@ -2,11 +2,10 @@ import os
 import re
 import shutil
 from glob import glob
-from os.path import join, splitext, abspath
-from shutil import copytree
+from os.path import join, splitext
 from typing import Iterable
 
-from jinja2 import Environment, PackageLoader, select_autoescape, evalcontextfilter, escape
+from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader
 from markupsafe import Markup
 
 import betty
@@ -16,19 +15,17 @@ from betty.site import Site
 
 def render(site: Site) -> None:
     environment = Environment(
-        loader=PackageLoader('betty', 'templates'),
+        loader=FileSystemLoader(join(betty.RESOURCE_PATH, 'templates')),
         autoescape=select_autoescape(['html'])
     )
     environment.globals['site'] = site
     environment.filters['paragraphs'] = _render_html_paragraphs
 
-    _create_directory(site.configuration.output_directory_path)
-    _render_assets(site.configuration.output_directory_path)
+    _render_public(site, environment)
     _render_documents(site)
     _render_entity_type(site, environment, site.ancestry.people.values(), 'person')
     _render_entity_type(site, environment, site.ancestry.places.values(), 'place')
     _render_entity_type(site, environment, site.ancestry.events.values(), 'event')
-    _render_content(site, environment)
 
 
 def _create_directory(path: str) -> None:
@@ -40,23 +37,22 @@ def _create_file(path: str) -> object:
     return open(path, 'w')
 
 
-def _create_document(path: str) -> object:
+def _create_html_file(path: str) -> object:
     return _create_file(os.path.join(path, 'index.html'))
 
 
-def _render_assets(path: str) -> None:
-    copytree(join(betty.__path__[0], 'assets'), join(path, 'assets'))
-
-
-def _render_content(site: Site, environment: Environment) -> None:
-    template_root_path = join(abspath(betty.__path__[0]), 'templates')
-    content_root_path = join(template_root_path, 'content')
-    for content_path in glob(join(content_root_path, '**')):
-        template_path = content_path[len(template_root_path) + 1:]
-        destination_path = content_path[len(content_root_path) + 1:]
-        with _create_file(join(site.configuration.output_directory_path,
-                               destination_path)) as f:
-            f.write(environment.get_template(template_path).render())
+def _render_public(site: Site, environment: Environment) -> None:
+    template_loader = FileSystemLoader('/')
+    public_path = join(betty.RESOURCE_PATH, 'public')
+    for file_path in glob(join(public_path, '**')):
+        destination_path = join(site.configuration.output_directory_path, file_path[len(public_path) + 1:])
+        if file_path.endswith('.j2'):
+            destination_path = destination_path[:-3]
+            with _create_file(destination_path) as f:
+                template = template_loader.load(environment, file_path, environment.globals)
+                f.write(template.render())
+        else:
+            shutil.copy2(file_path, destination_path)
 
 
 def _render_documents(site: Site) -> None:
@@ -71,8 +67,8 @@ def _render_documents(site: Site) -> None:
 def _render_entity_type(site: Site, environment: Environment, entities: Iterable[Entity],
                         entity_type_name: str) -> None:
     entity_type_path = os.path.join(site.configuration.output_directory_path, entity_type_name)
-    with _create_document(entity_type_path) as f:
-        f.write(environment.get_template('partials/list-%s.html' % entity_type_name).render({
+    with _create_html_file(entity_type_path) as f:
+        f.write(environment.get_template('list-%s.html.j2' % entity_type_name).render({
             'entity_type_name': entity_type_name,
             'entities': sorted(entities, key=lambda entity: entity.label),
         }))
@@ -83,8 +79,8 @@ def _render_entity_type(site: Site, environment: Environment, entities: Iterable
 def _render_entity(site: Site, environment: Environment, entity: Entity, entity_type_name: str) -> None:
     entity_path = os.path.join(
         site.configuration.output_directory_path, entity_type_name, entity.id)
-    with _create_document(entity_path) as f:
-        f.write(environment.get_template('partials/%s.html' % entity_type_name).render({
+    with _create_html_file(entity_path) as f:
+        f.write(environment.get_template('%s.html.j2' % entity_type_name).render({
             entity_type_name: entity,
         }))
 

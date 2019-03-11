@@ -3,22 +3,22 @@
   "short_name": "Betty",
   "icons": [
     {
-      "src": "/assets/betty-16x16.png",
+      "src": "/betty-16x16.png",
       "sizes": "16x16",
       "type": "image/png"
     },
     {
-      "src": "/assets/betty-32x32.png",
+      "src": "/betty-32x32.png",
       "sizes": "32x32",
       "type": "image/png"
     },
     {
-      "src": "/assets/betty-192x192.png",
+      "src": "/betty-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/assets/betty-512x512.png",
+      "src": "/betty-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
     }

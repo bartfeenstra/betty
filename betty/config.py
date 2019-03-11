@@ -35,7 +35,7 @@ def _from_json(config_json: str) -> Configuration:
         config_dict = loads(config_json)
     except JSONDecodeError:
         raise ValueError('Invalid JSON.')
-    with open(join(betty.__path__[0], 'config.schema.json')) as f:
+    with open(join(betty.RESOURCE_PATH, 'config.schema.json')) as f:
         try:
             validate(instance=config_dict, schema=load(f))
         except ValidationError:

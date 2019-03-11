@@ -1,8 +1,11 @@
 """Integrates Betty with Python's setuptools."""
 
 import os
+from os.path import join
 
 from setuptools import setup, find_packages
+
+import betty
 
 ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -22,6 +25,11 @@ try:
 except ImportError:
     # Allow this to fail, because we cannot guarantee this dependency is installed.
     pass
+
+betty_package_data = []
+for (path, _, filenames) in list(os.walk(betty.RESOURCE_PATH)):
+    for filename in filenames:
+        betty_package_data.append(join(path, filename))
 
 SETUP = {
     'name': 'betty',
@@ -45,7 +53,7 @@ SETUP = {
         ])
     ],
     'package_data': {
-        'betty': ['assets/**', 'config.schema.json', 'templates/content/**', 'templates/partials/**'],
+        'betty': betty_package_data,
     },
 }
 
