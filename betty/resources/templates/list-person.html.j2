@@ -1,4 +1,4 @@
-{% extends 'partials/list.html' %}
+{% extends 'list.html.j2' %}
 {% set title = 'People' %}
 {% block content %}
     {% if entities %}
@@ -6,7 +6,7 @@
             {% for person in entities %}
                 <li class="{{ loop.cycle('odd', 'even') }}">
                     <a href="/person/{{ person.id }}">{{ person.label }}</a>
-                    {% include 'partials/person-meta.html' %}
+                    {% include 'person-meta.html.j2' %}
                 </li>
             {% endfor %}
         </ul>
