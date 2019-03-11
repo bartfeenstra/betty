@@ -4,7 +4,7 @@ import shutil
 from glob import glob
 from os.path import join, splitext, abspath
 from shutil import copytree
-from typing import Iterable, Dict
+from typing import Iterable
 
 from jinja2 import Template, Environment, PackageLoader, select_autoescape, evalcontextfilter, escape
 from markupsafe import Markup
@@ -31,8 +31,12 @@ def _create_directory(path: str) -> None:
 
 
 def _create_file(path: str) -> object:
-    _create_directory(path)
-    return open(os.path.join(path, 'index.html'), 'w')
+    _create_directory(os.path.dirname(path))
+    return open(path, 'w')
+
+
+def _create_document(path: str) -> object:
+    return _create_file(os.path.join(path, 'index.html'))
 
 
 def _render_assets(path: str) -> None:
@@ -45,8 +49,10 @@ def _render_content(site: Site) -> None:
     for content_path in glob(join(content_root_path, '**')):
         template_path = content_path[len(template_root_path) + 1:]
         destination_path = content_path[len(content_root_path) + 1:]
-        _render_template(join(site.configuration.output_directory_path,
-                              destination_path), template_path)
+
+        with _create_file(join(site.configuration.output_directory_path,
+                               destination_path)) as f:
+            f.write(_get_template(template_path).render())
 
 
 def render_documents(documents: Iterable[Document], betty: Site) -> None:
@@ -60,10 +66,11 @@ def render_documents(documents: Iterable[Document], betty: Site) -> None:
 
 def render_entity_type(entities: Iterable[Entity], entity_type_name: str, output_directory_path: str) -> None:
     entity_type_path = os.path.join(output_directory_path, entity_type_name)
-    _render_template(entity_type_path, 'partials/list-%s.html' % entity_type_name, {
-        'entity_type_name': entity_type_name,
-        'entities': sorted(entities, key=lambda entity: entity.label),
-    })
+    with _create_document(entity_type_path) as f:
+        f.write(_get_template('partials/list-%s.html' % entity_type_name).render({
+            'entity_type_name': entity_type_name,
+            'entities': sorted(entities, key=lambda entity: entity.label),
+        }))
     for entity in entities:
         _render_entity(entity, entity_type_name, output_directory_path)
 
@@ -71,14 +78,11 @@ def render_entity_type(entities: Iterable[Entity], entity_type_name: str, output
 def _render_entity(entity: Entity, entity_type_name: str, output_directory_path: str) -> None:
     entity_path = os.path.join(
         output_directory_path, entity_type_name, entity.id)
-    _render_template(entity_path, 'partials/%s.html' % entity_type_name, {
-        entity_type_name: entity,
-    })
 
-
-def _render_template(path: str, name: str, data: Dict = None) -> None:
-    with _create_file(path) as f:
-        f.write(_get_template(name).render(data or {}))
+    with _create_document(entity_path) as f:
+        f.write(_get_template('partials/%s.html' % entity_type_name).render({
+            entity_type_name: entity,
+        }))
 
 
 def _get_template(name: str) -> Template:
