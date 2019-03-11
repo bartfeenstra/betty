@@ -18,10 +18,10 @@ def render(site: Site) -> None:
     _create_directory(site.configuration.output_directory_path)
     _render_assets(site.configuration.output_directory_path)
     render_documents(site.ancestry.documents.values(), site)
-    render_entity_type(site.ancestry.people.values(), 'person',
+    render_entity_type(site, site.ancestry.people.values(), 'person',
                        site.configuration.output_directory_path)
-    render_entity_type(site.ancestry.places.values(), 'place', site.configuration.output_directory_path)
-    render_entity_type(site.ancestry.events.values(), 'event',
+    render_entity_type(site, site.ancestry.places.values(), 'place', site.configuration.output_directory_path)
+    render_entity_type(site, site.ancestry.events.values(), 'event',
                        site.configuration.output_directory_path)
     _render_content(site)
 
@@ -45,8 +45,8 @@ def _render_content(site: Site) -> None:
     for content_path in glob(join(content_root_path, '**')):
         template_path = content_path[len(template_root_path) + 1:]
         destination_path = content_path[len(content_root_path) + 1:]
-        _render_template(join(site.configuration.output_directory_path,
-                              destination_path), template_path)
+        _render_template(site, join(site.configuration.output_directory_path,
+                                    destination_path), template_path)
 
 
 def render_documents(documents: Iterable[Document], betty: Site) -> None:
@@ -58,34 +58,36 @@ def render_documents(documents: Iterable[Document], betty: Site) -> None:
         shutil.copy2(document.file.path, destination)
 
 
-def render_entity_type(entities: Iterable[Entity], entity_type_name: str, output_directory_path: str) -> None:
+def render_entity_type(site: Site, entities: Iterable[Entity], entity_type_name: str,
+                       output_directory_path: str) -> None:
     entity_type_path = os.path.join(output_directory_path, entity_type_name)
-    _render_template(entity_type_path, 'partials/list-%s.html' % entity_type_name, {
+    _render_template(site, entity_type_path, 'partials/list-%s.html' % entity_type_name, {
         'entity_type_name': entity_type_name,
         'entities': sorted(entities, key=lambda entity: entity.label),
     })
     for entity in entities:
-        _render_entity(entity, entity_type_name, output_directory_path)
+        _render_entity(site, entity, entity_type_name, output_directory_path)
 
 
-def _render_entity(entity: Entity, entity_type_name: str, output_directory_path: str) -> None:
+def _render_entity(site: Site, entity: Entity, entity_type_name: str, output_directory_path: str) -> None:
     entity_path = os.path.join(
         output_directory_path, entity_type_name, entity.id)
-    _render_template(entity_path, 'partials/%s.html' % entity_type_name, {
+    _render_template(site, entity_path, 'partials/%s.html' % entity_type_name, {
         entity_type_name: entity,
     })
 
 
-def _render_template(path: str, name: str, data: Dict = None) -> None:
+def _render_template(site: Site, path: str, name: str, data: Dict = None) -> None:
     with _create_file(path) as f:
-        f.write(_get_template(name).render(data or {}))
+        f.write(_get_template(site, name).render(data or {}))
 
 
-def _get_template(name: str) -> Template:
+def _get_template(site: Site, name: str) -> Template:
     environment = Environment(
         loader=PackageLoader('betty', 'templates'),
         autoescape=select_autoescape(['html'])
     )
+    environment.globals['site'] = site
     environment.filters['paragraphs'] = _render_html_paragraphs
     return environment.get_template(name)
 

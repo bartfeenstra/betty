@@ -8,9 +8,10 @@ import betty
 
 
 class Configuration:
-    def __init__(self, input_gramps_file_path: str, output_directory_path: str):
+    def __init__(self, input_gramps_file_path: str, output_directory_path: str, url: str):
         self._input_gramps_file_path = input_gramps_file_path
         self._output_directory_path = output_directory_path
+        self._url = url
 
     @property
     def input_gramps_file_path(self) -> str:
@@ -20,9 +21,13 @@ class Configuration:
     def output_directory_path(self) -> str:
         return self._output_directory_path
 
+    @property
+    def url(self):
+        return self._url
+
 
 def _from_dict(config_dict: Dict) -> Configuration:
-    return Configuration(config_dict['inputGrampsFilePath'], config_dict['outputDirectoryPath'])
+    return Configuration(config_dict['inputGrampsFilePath'], config_dict['outputDirectoryPath'], config_dict['url'])
 
 
 def _from_json(config_json: str) -> Configuration:

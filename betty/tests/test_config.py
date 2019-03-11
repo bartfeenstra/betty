@@ -12,6 +12,7 @@ class FromTest(TestCase):
         config_dict = {
             'inputGrampsFilePath': input_gramps_file_path,
             'outputDirectoryPath': output_directory_path,
+            'url': 'https://example.com',
         }
         with TemporaryFile(mode='r+') as f:
             dump(config_dict, f)
