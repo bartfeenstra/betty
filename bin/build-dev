@@ -8,5 +8,4 @@ cd "$(dirname "$0")/.."
 pip install -r requirements-dev.txt
 
 # Install JavaScript dependencies.
-betty_npm_dir=$(python -c 'from betty import npm; npm.install(); print(npm._BETTY_INSTANCE_NPM_DIR)')
-(cd "$betty_npm_dir" && npm install --only=dev)
+python -c "from betty import npm; npm.install('dev')"
