@@ -12,6 +12,7 @@ class Configuration:
         self._input_gramps_file_path = input_gramps_file_path
         self._output_directory_path = output_directory_path
         self._url = url
+        self._title = 'Betty'
 
     @property
     def input_gramps_file_path(self) -> str:
@@ -25,9 +26,22 @@ class Configuration:
     def url(self):
         return self._url
 
+    @property
+    def title(self) -> str:
+        return self._title
+
+    @title.setter
+    def title(self, title: str) -> None:
+        self._title = title
+
 
 def _from_dict(config_dict: Dict) -> Configuration:
-    return Configuration(config_dict['inputGrampsFilePath'], config_dict['outputDirectoryPath'], config_dict['url'])
+    configuration = Configuration(config_dict['inputGrampsFilePath'], config_dict['outputDirectoryPath'],
+                                  config_dict['url'])
+    if 'title' in config_dict:
+        configuration.title = config_dict['title']
+
+    return configuration
 
 
 def _from_json(config_json: str) -> Configuration:
