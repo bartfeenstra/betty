@@ -7,6 +7,9 @@
     "outputDirectoryPath": {
       "type": "string"
     },
+    "tile": {
+      "type": "string"
+    },
     "url": {
       "type": "string"
     }

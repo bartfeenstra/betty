@@ -1,35 +1,50 @@
-from json import dump
+from json import dumps
 from tempfile import TemporaryFile
+from typing import Any, Dict
 from unittest import TestCase
 
 from betty.config import from_file
 
 
 class FromTest(TestCase):
-    def test_from_file_should_parse(self):
-        input_gramps_file_path = '/tmp/path/to/data.xml'
-        output_directory_path = '/tmp/path/to/site'
-        config_dict = {
-            'inputGrampsFilePath': input_gramps_file_path,
-            'outputDirectoryPath': output_directory_path,
-            'url': 'https://example.com',
-        }
-        with TemporaryFile(mode='r+') as f:
-            dump(config_dict, f)
-            f.seek(0)
+    _MINIMAL_CONFIG_DICT = {
+        'inputGrampsFilePath': '/tmp/path/to/data.xml',
+        'outputDirectoryPath': '/tmp/path/to/site',
+        'url': 'https://example.com',
+    }
+
+    def _writes(self, config: str):
+        f = TemporaryFile(mode='r+')
+        f.write(config)
+        f.seek(0)
+        return f
+
+    def _write(self, config_dict: Dict[str, Any]):
+        return self._writes(dumps(config_dict))
+
+    def test_from_file_should_parse_minimal(self):
+        with self._write(self._MINIMAL_CONFIG_DICT) as f:
             configuration = from_file(f)
-        self.assertEquals(configuration.input_gramps_file_path, input_gramps_file_path)
-        self.assertEquals(configuration.output_directory_path, output_directory_path)
+        self.assertEquals(configuration.input_gramps_file_path, self._MINIMAL_CONFIG_DICT['inputGrampsFilePath'])
+        self.assertEquals(configuration.output_directory_path, self._MINIMAL_CONFIG_DICT['outputDirectoryPath'])
+        self.assertEquals(configuration.url, self._MINIMAL_CONFIG_DICT['url'])
+        self.assertEquals(configuration.title, 'Betty')
+
+    def test_from_file_should_parse_title(self):
+        title = 'My first Betty site'
+        config_dict = self._MINIMAL_CONFIG_DICT
+        config_dict['title'] = title
+        with self._write(config_dict) as f:
+            configuration = from_file(f)
+            self.assertEquals(configuration.title, title)
 
     def test_from_file_should_error_if_invalid_json(self):
-        with TemporaryFile(mode='r+') as f:
+        with self._writes('') as f:
             with self.assertRaises(ValueError):
                 from_file(f)
 
     def test_from_file_should_error_if_invalid_config(self):
         config_dict = {}
-        with TemporaryFile(mode='r+') as f:
-            dump(config_dict, f)
-            f.seek(0)
+        with self._write(config_dict) as f:
             with self.assertRaises(ValueError):
                 from_file(f)
