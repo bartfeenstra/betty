@@ -4,4 +4,8 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
+# Install Python dependencies.
 pip install -r requirements-dev.txt
+
+# Install JavaScript dependencies.
+python -c "from betty import npm; npm.install('dev')"
