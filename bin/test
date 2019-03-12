@@ -7,6 +7,11 @@ cd "$(dirname "$0")/.."
 # Test the Python code style.
 flake8 --ignore=E501 ./betty
 
+# Test the CSS code style.
+betty_npm_dir=$(python -c 'from betty import npm; print(npm._BETTY_INSTANCE_NPM_DIR)')
+betty_dir=$(readlink -f "$(pwd)")
+(cd "$betty_npm_dir" && ./node_modules/.bin/stylelint "$betty_dir/betty/resources/public/betty.css")
+
 # Run unit tests with coverage.
 coverage erase
 coverage run -m nose2

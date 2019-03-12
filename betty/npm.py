@@ -13,10 +13,12 @@ _BETTY_INSTANCE_NPM_DIR = join(expanduser('~'), '.betty', _BETTY_INSTANCE_ID)
 
 def install() -> None:
     ensure_target()
-    p = Popen(['npm', 'install'], cwd=_BETTY_INSTANCE_NPM_DIR, stdout=PIPE, stderr=PIPE)
+    p = Popen(['npm', 'install', '--only', 'prod'], cwd=_BETTY_INSTANCE_NPM_DIR,
+              stdout=PIPE, stderr=PIPE)
     p.wait()
 
 
 def ensure_target() -> None:
     makedirs(_BETTY_INSTANCE_NPM_DIR, 0o700, True)
-    copy2(join(RESOURCE_PATH, 'package.json'), join(_BETTY_INSTANCE_NPM_DIR, 'package.json'))
+    copy2(join(RESOURCE_PATH, 'package.json'), join(
+        _BETTY_INSTANCE_NPM_DIR, 'package.json'))
