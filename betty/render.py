@@ -1,10 +1,10 @@
 import os
 import re
 import shutil
-from glob import glob
 from os.path import join, splitext
 from typing import Iterable
 
+from betty.path import iterfiles
 from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader
 from markupsafe import Markup
 
@@ -46,7 +46,7 @@ def _create_html_file(path: str) -> object:
 def _render_public(site: Site, environment: Environment) -> None:
     template_loader = FileSystemLoader('/')
     public_path = join(betty.RESOURCE_PATH, 'public')
-    for file_path in glob(join(public_path, '**')):
+    for file_path in iterfiles(public_path):
         destination_path = join(site.configuration.output_directory_path, file_path[len(public_path) + 1:])
         if file_path.endswith('.j2'):
             destination_path = destination_path[:-3]
