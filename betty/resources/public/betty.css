@@ -1,13 +1,62 @@
 html {
-    height: 100%;
+  height: 100%;
 }
 
 body {
-    background-color: pink;
-    color: #333333;
-    margin: 0;
-    font-family: sans-serif;
-    height: 100%;
+  background-color: pink;
+  color: #333;
+  margin: 0;
+  font-family: sans-serif;
+  height: 100%;
+}
+
+/*
+ * Text and links.
+ */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #000;
+}
+
+h1 {
+  font-weight: normal;
+  font-size: 3em;
+}
+
+a {
+  text-decoration: none;
+  color: #149988;
+}
+
+a:hover {
+  color: #2a615a;
+}
+
+dl,
+p,
+li {
+  line-height: 1.5;
+}
+
+/*
+ * Entity lists.
+ */
+ul.entities {
+  padding: 0;
+}
+
+ul.entities li {
+  list-style: none;
+  margin-top: 0.5em;
+  padding: 0.5em;
+}
+
+ul.entities li.even {
+  background-color: #eee;
 }
 
 /*
@@ -15,30 +64,30 @@ body {
  */
 
 #nav-primary {
-    height: 3em;
+  height: 3em;
 }
 
 #nav-primary ul {
-    list-style: none;
-    margin: 0;
+  list-style: none;
+  margin: 0;
 }
 
-#nav-primary li {
-    display: inline;
+#nav-primary ul li {
+  display: inline;
 }
 
-#nav-primary li a {
-    color: purple;
-    display: block;
-    float: left;
-    font-size: 1.1em;
-    line-height: 3em;
-    padding: 0 2em;
+#nav-primary ul li a {
+  color: purple;
+  display: block;
+  float: left;
+  font-size: 1.1em;
+  line-height: 3em;
+  padding: 0 2em;
 }
 
-#nav-primary li a:hover {
-    color: white;
-    background-color: purple;
+#nav-primary ul li a:hover {
+  color: white;
+  background-color: purple;
 }
 
 /*
@@ -46,8 +95,8 @@ body {
  */
 
 footer {
-    color: #777777;
-    padding: 3em;
+  color: #777;
+  padding: 3em;
 }
 
 /*
@@ -55,30 +104,11 @@ footer {
  */
 
 #content {
-    background-color: white;
-    clear: both;
-    padding: 3em;
-    display: inline-block;
-    min-width: calc(100% - 6em);
-}
-
-h1, h2, h3, h4, h5, h6 {
-    color: #000000;
-}
-
-h1 {
-    font-weight: normal;
-    font-size: 3em;
-}
-
-a {
-    text-decoration: none;
-    color: #149988;
-}
-
-a:hover {
-
-    color: #2A615A;
+  background-color: white;
+  clear: both;
+  padding: 3em;
+  display: inline-block;
+  min-width: calc(100% - 6em);
 }
 
 /*
@@ -86,66 +116,40 @@ a:hover {
  */
 
 dl.meta dt {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 @media (min-width: 768px) {
-    dl.meta dt,
-    dl.meta dd {
-        display: inline;
-    }
+  dl.meta dt,
+  dl.meta dd {
+    display: inline;
+  }
 
-    dl.meta dt:after {
-        content: ':';
-    }
+  dl.meta dt::after {
+    content: ':';
+  }
 
-    dl.meta dd {
-        margin: 0 3em 0 0;
-    }
-}
-
-/*
- * Entity lists.
- */
-ul.entities {
-    padding: 0;
-}
-
-ul.entities li {
-    list-style: none;
-    margin-top: 0.5em;
-    padding: 0.5em;
-}
-
-ul.entities li.even {
-    background-color: #eeeeee;
-}
-
-/*
- * Text.
- */
-dl,
-p,
-li {
-    line-height: 1.5;
+  dl.meta dd {
+    margin: 0 3em 0 0;
+  }
 }
 
 /*
  * Media.
  */
 .image {
-    background-color: #eeeeee;
-    margin: 0;
-    padding: 1em;
+  background-color: #eee;
+  margin: 0;
+  padding: 1em;
 }
 
 figure {
-    background-color: #cccccc;
-    display: inline-block;
-    padding: 0.5em;
-    margin: 0;
+  background-color: #ccc;
+  display: inline-block;
+  padding: 0.5em;
+  margin: 0;
 }
 
 figure img {
-    width: 100%;
+  width: 100%;
 }
