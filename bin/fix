@@ -4,10 +4,14 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
+betty_npm_dir=$(python -c 'from betty import npm; print(npm.BETTY_INSTANCE_NPM_DIR)')
+betty_dir=$(readlink -f "$(pwd)")
+
 # Fix Python code style violations.
 autopep8 --in-place -r ./betty
 
 # Fix CSS code style violations.
-betty_npm_dir=$(python -c 'from betty import npm; print(npm.BETTY_INSTANCE_NPM_DIR)')
-betty_dir=$(readlink -f "$(pwd)")
 (cd "$betty_npm_dir" && ./node_modules/.bin/stylelint --fix "$betty_dir/betty/resources/public/betty.css" )
+
+# Fix JS code style violations.
+(cd "$betty_npm_dir" && node_modules/.bin/eslint --fix "$betty_dir/betty/resources/**/*.js")

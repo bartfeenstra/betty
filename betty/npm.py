@@ -11,12 +11,17 @@ _BETTY_INSTANCE_ID = hashlib.sha1(betty.__path__[0].encode()).hexdigest()
 BETTY_INSTANCE_NPM_DIR = join(expanduser('~'), '.betty', _BETTY_INSTANCE_ID)
 
 
-def install(only: str = 'prod') -> None:
+def install(dev: bool = False) -> None:
     ensure_target()
-    Popen(['npm', 'install', '--only=%s' % only], cwd=BETTY_INSTANCE_NPM_DIR).wait()
+    args = ['npm', 'install']
+    if not dev:
+        args.append('--production')
+    Popen(args, cwd=BETTY_INSTANCE_NPM_DIR).wait()
 
 
 def ensure_target() -> None:
     makedirs(BETTY_INSTANCE_NPM_DIR, 0o700, True)
-    copy2(join(RESOURCE_PATH, 'package.json'), join(
-        BETTY_INSTANCE_NPM_DIR, 'package.json'))
+    files = ['package.json', 'webpack.config.js']
+    for file in files:
+        copy2(join(RESOURCE_PATH, file), join(
+            BETTY_INSTANCE_NPM_DIR, file))

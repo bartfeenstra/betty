@@ -2,7 +2,7 @@
 {% set title = place.label %}
 {% block content %}
     {% if place.coordinates %}
-        <iframe width="425" height="350" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://www.openstreetmap.org/export/embed.html?bbox={{ place.coordinates.longitude | float - 0.015 }}%2C{{ place.coordinates.latitude | float + 0.015 }}%2C{{ place.coordinates.longitude | float + 0.015 }}%2C{{ place.coordinates.latitude | float - 0.015 }}&amp;layer=mapnik&amp;marker={{ place.coordinates.latitude }}%2C{{ place.coordinates.longitude }}" style="border: 1px solid black"></iframe><br/><small><a href="https://www.openstreetmap.org/?mlat={{ place.coordinates.latitude }}&amp;mlon={{ place.coordinates.longitude }}#map=15/{{ place.coordinates.latitude }}/{{ place.coordinates.longitude }}">View Larger Map</a></small>
+        <div class="map" id="map-{{ place.id }}" data-latitude="{{ place.coordinates.latitude }}" data-longitude="{{ place.coordinates.longitude }}"></div>
     {% endif %}
 
     <h2>Events</h2>
