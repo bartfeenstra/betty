@@ -1,3 +1,8 @@
-'use strict';
+'use strict'
 
-import {map} from './map'
+import { style } from '../css/betty.css' // eslint-disable-line no-unused-vars
+import { initializeMaps } from './map'
+
+document.addEventListener('DOMContentLoaded', () => {
+  initializeMaps()
+})

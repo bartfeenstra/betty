@@ -70,7 +70,8 @@ class PersonTest(TestCase):
         sut = Person('person')
         sut.ancestor_families = [family_1, family_2]
 
-        self.assertCountEqual(sut.children, [child_1_1, child_1_2, child_2_1, child_2_2])
+        self.assertCountEqual(
+            sut.children, [child_1_1, child_1_2, child_2_1, child_2_2])
 
     def test_children_without_descendant_family(self):
         sut = Person('person')
