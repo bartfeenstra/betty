@@ -341,7 +341,8 @@ class Family(Entity):
 
         self._parents = EventHandlingSet(lambda parent: parent.ancestor_families.add(self),
                                          lambda parent: parent.ancestor_families.remove(self))
-        self._children = EventHandlingSet(handle_child_addition, handle_child_removal)
+        self._children = EventHandlingSet(
+            handle_child_addition, handle_child_removal)
 
     @property
     def parents(self) -> Iterable[Person]:

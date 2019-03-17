@@ -25,8 +25,10 @@ class FromTest(TestCase):
     def test_from_file_should_parse_minimal(self):
         with self._write(self._MINIMAL_CONFIG_DICT) as f:
             configuration = from_file(f)
-        self.assertEquals(configuration.input_gramps_file_path, self._MINIMAL_CONFIG_DICT['inputGrampsFilePath'])
-        self.assertEquals(configuration.output_directory_path, self._MINIMAL_CONFIG_DICT['outputDirectoryPath'])
+        self.assertEquals(configuration.input_gramps_file_path,
+                          self._MINIMAL_CONFIG_DICT['inputGrampsFilePath'])
+        self.assertEquals(configuration.output_directory_path,
+                          self._MINIMAL_CONFIG_DICT['outputDirectoryPath'])
         self.assertEquals(configuration.url, self._MINIMAL_CONFIG_DICT['url'])
         self.assertEquals(configuration.title, 'Betty')
 

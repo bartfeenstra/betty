@@ -9,7 +9,8 @@ class GrampsTestCase(TestCase):
     @property
     def ancestry(self) -> Ancestry:
         if not hasattr(self, '_ancestry'):
-            self._ancestry = parse(join(dirname(abspath(__file__)), 'resources', 'data.xml'))
+            self._ancestry = parse(
+                join(dirname(abspath(__file__)), 'resources', 'data.xml'))
         return self._ancestry
 
 

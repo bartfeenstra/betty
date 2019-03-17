@@ -13,7 +13,8 @@ BETTY_INSTANCE_NPM_DIR = join(expanduser('~'), '.betty', _BETTY_INSTANCE_ID)
 
 def install(only: str = 'prod') -> None:
     ensure_target()
-    Popen(['npm', 'install', '--only=%s' % only], cwd=BETTY_INSTANCE_NPM_DIR).wait()
+    Popen(['npm', 'install', '--only=%s' % only],
+          cwd=BETTY_INSTANCE_NPM_DIR).wait()
 
 
 def ensure_target() -> None:

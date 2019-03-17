@@ -9,7 +9,8 @@ from betty.site import Site
 def main(args):
     parser = argparse.ArgumentParser(
         description='Betty is a static ancestry site generator.')
-    parser.add_argument('--config', dest='config_file_path', required=True, action='store')
+    parser.add_argument('--config', dest='config_file_path',
+                        required=True, action='store')
 
     parsed_args = parser.parse_args(args)
     try:
