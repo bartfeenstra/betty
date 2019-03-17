@@ -2,15 +2,16 @@ import os
 import re
 import shutil
 from os.path import join, splitext
+from subprocess import Popen
 from typing import Iterable
 
-from betty.path import iterfiles
 from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader
 from markupsafe import Markup
 
 import betty
 from betty.ancestry import Entity
-from betty.npm import install
+from betty.npm import install, BETTY_INSTANCE_NPM_DIR
+from betty.path import iterfiles
 from betty.site import Site
 
 
@@ -23,7 +24,7 @@ def render(site: Site) -> None:
     environment.filters['paragraphs'] = _render_html_paragraphs
 
     _render_public(site, environment)
-    _render_js()
+    _render_webpack(site)
     _render_documents(site)
     _render_entity_type(site, environment,
                         site.ancestry.people.values(), 'person')
@@ -62,8 +63,32 @@ def _render_public(site: Site, environment: Environment) -> None:
             shutil.copy2(file_path, destination_path)
 
 
-def _render_js() -> None:
+def _render_webpack(site: Site) -> None:
     install()
+
+    asset_types = ('css', 'js')
+
+    # Set up Webpack's input directories.
+    for asset_type in asset_types:
+        webpack_asset_type_input_dir = join(
+            BETTY_INSTANCE_NPM_DIR, 'input', asset_type)
+        try:
+            shutil.rmtree(webpack_asset_type_input_dir)
+        except FileNotFoundError:
+            pass
+        shutil.copytree(join(betty.RESOURCE_PATH, asset_type),
+                        webpack_asset_type_input_dir)
+
+    # Build the assets.
+    args = ['./node_modules/.bin/webpack', '--config', join(betty.RESOURCE_PATH,
+                                                            'webpack.config.js')]
+    Popen(args, cwd=BETTY_INSTANCE_NPM_DIR, shell=True).wait()
+
+    # Move the Webpack output to the Betty output.
+    for asset_type in asset_types:
+        asset_filename = 'betty.%s' % asset_type
+        shutil.copy2(join(BETTY_INSTANCE_NPM_DIR, 'output', asset_filename),
+                     join(site.configuration.output_directory_path, asset_filename))
 
 
 def _render_documents(site: Site) -> None:
