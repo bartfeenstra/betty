@@ -25,9 +25,12 @@ def render(site: Site) -> None:
     _render_public(site, environment)
     _render_js()
     _render_documents(site)
-    _render_entity_type(site, environment, site.ancestry.people.values(), 'person')
-    _render_entity_type(site, environment, site.ancestry.places.values(), 'place')
-    _render_entity_type(site, environment, site.ancestry.events.values(), 'event')
+    _render_entity_type(site, environment,
+                        site.ancestry.people.values(), 'person')
+    _render_entity_type(site, environment,
+                        site.ancestry.places.values(), 'place')
+    _render_entity_type(site, environment,
+                        site.ancestry.events.values(), 'event')
 
 
 def _create_directory(path: str) -> None:
@@ -47,11 +50,13 @@ def _render_public(site: Site, environment: Environment) -> None:
     template_loader = FileSystemLoader('/')
     public_path = join(betty.RESOURCE_PATH, 'public')
     for file_path in iterfiles(public_path):
-        destination_path = join(site.configuration.output_directory_path, file_path[len(public_path) + 1:])
+        destination_path = join(
+            site.configuration.output_directory_path, file_path[len(public_path) + 1:])
         if file_path.endswith('.j2'):
             destination_path = destination_path[:-3]
             with _create_file(destination_path) as f:
-                template = template_loader.load(environment, file_path, environment.globals)
+                template = template_loader.load(
+                    environment, file_path, environment.globals)
                 f.write(template.render())
         else:
             shutil.copy2(file_path, destination_path)
@@ -62,7 +67,8 @@ def _render_js() -> None:
 
 
 def _render_documents(site: Site) -> None:
-    documents_directory_path = os.path.join(site.configuration.output_directory_path, 'document')
+    documents_directory_path = os.path.join(
+        site.configuration.output_directory_path, 'document')
     _create_directory(documents_directory_path)
     for document in site.ancestry.documents.values():
         destination = os.path.join(documents_directory_path,
@@ -72,7 +78,8 @@ def _render_documents(site: Site) -> None:
 
 def _render_entity_type(site: Site, environment: Environment, entities: Iterable[Entity],
                         entity_type_name: str) -> None:
-    entity_type_path = os.path.join(site.configuration.output_directory_path, entity_type_name)
+    entity_type_path = os.path.join(
+        site.configuration.output_directory_path, entity_type_name)
     with _create_html_file(entity_type_path) as f:
         f.write(environment.get_template('list-%s.html.j2' % entity_type_name).render({
             'entity_type_name': entity_type_name,
