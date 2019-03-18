@@ -2,7 +2,7 @@
 {% set title = place.label %}
 {% block content %}
     {% if place.coordinates %}
-        <div class="map" id="map-{{ place.id }}" data-latitude="{{ place.coordinates.latitude }}" data-longitude="{{ place.coordinates.longitude }}"></div>
+        <div class="map" id="map-{{ place.id }}" data-place-ids="{{ place.id }}"></div>
     {% endif %}
 
     <h2>Events</h2>

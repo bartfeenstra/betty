@@ -1,2 +1,12 @@
 {% extends 'list.html.j2' %}
 {% set title = 'Places' %}
+{% block content %}
+    {% if entities %}
+        {% set ns = namespace(placeIds = []) %}
+        {% for place in entities %}
+            {% set ns.placeIds = ns.placeIds + [place.id] %}
+        {% endfor %}
+        <div class="map" id="list-place-map" data-place-ids="{{ ns.placeIds | join(',') }}"></div>
+    {% endif %}
+    {{ super() }}
+{% endblock %}
