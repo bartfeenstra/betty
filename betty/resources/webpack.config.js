@@ -42,10 +42,17 @@ module.exports = {
         test: /\.css$/,
         use: [MiniCssExtractPlugin.loader, 'css-loader']
       },
-      // Ignore every file that's not CSS or JavaScript.
+      // Ignore assets we do not want to bundle.
       {
-        test: /^(?!.*(css|js)$).+$/,
-        use: ['ignore-loader']
+        test: /\.png$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: 'images/[name].[ext]'
+            }
+          }
+        ]
       }
     ]
   }

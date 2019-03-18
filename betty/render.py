@@ -1,15 +1,17 @@
 import os
 import re
 import shutil
+from json import dumps
 from os.path import join, splitext
 from subprocess import Popen
-from typing import Iterable
+from typing import Iterable, Union, Any
 
 from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader
 from markupsafe import Markup
 
 import betty
 from betty.ancestry import Entity
+from betty.json import JSONEncoder
 from betty.npm import install, BETTY_INSTANCE_NPM_DIR
 from betty.path import iterfiles
 from betty.site import Site
@@ -21,10 +23,11 @@ def render(site: Site) -> None:
         autoescape=select_autoescape(['html'])
     )
     environment.globals['site'] = site
+    environment.filters['json'] = _render_json
     environment.filters['paragraphs'] = _render_html_paragraphs
 
     _render_public(site, environment)
-    _render_webpack(site)
+    _render_webpack(site, environment)
     _render_documents(site)
     _render_entity_type(site, environment,
                         site.ancestry.people.values(), 'person')
@@ -47,23 +50,28 @@ def _create_html_file(path: str) -> object:
     return _create_file(os.path.join(path, 'index.html'))
 
 
-def _render_public(site: Site, environment: Environment) -> None:
+def _copytree(environment: Environment, source_path: str, destination_path: str) -> None:
     template_loader = FileSystemLoader('/')
-    public_path = join(betty.RESOURCE_PATH, 'public')
-    for file_path in iterfiles(public_path):
-        destination_path = join(
-            site.configuration.output_directory_path, file_path[len(public_path) + 1:])
-        if file_path.endswith('.j2'):
-            destination_path = destination_path[:-3]
-            with _create_file(destination_path) as f:
+    for file_source_path in iterfiles(source_path):
+        file_destination_path = join(
+            destination_path, file_source_path[len(source_path) + 1:])
+        if file_source_path.endswith('.j2'):
+            file_destination_path = file_destination_path[:-3]
+            with _create_file(file_destination_path) as f:
                 template = template_loader.load(
-                    environment, file_path, environment.globals)
+                    environment, file_source_path, environment.globals)
                 f.write(template.render())
         else:
-            shutil.copy2(file_path, destination_path)
+            _create_directory(os.path.dirname(file_destination_path))
+            shutil.copy2(file_source_path, file_destination_path)
 
 
-def _render_webpack(site: Site) -> None:
+def _render_public(site, environment) -> None:
+    _copytree(environment, join(betty.RESOURCE_PATH, 'public'),
+              site.configuration.output_directory_path)
+
+
+def _render_webpack(site: Site, environment: Environment) -> None:
     install()
 
     asset_types = ('css', 'js')
@@ -76,8 +84,8 @@ def _render_webpack(site: Site) -> None:
             shutil.rmtree(webpack_asset_type_input_dir)
         except FileNotFoundError:
             pass
-        shutil.copytree(join(betty.RESOURCE_PATH, asset_type),
-                        webpack_asset_type_input_dir)
+        _copytree(environment, join(betty.RESOURCE_PATH, asset_type),
+                  webpack_asset_type_input_dir)
 
     # Build the assets.
     args = ['./node_modules/.bin/webpack', '--config', join(betty.RESOURCE_PATH,
@@ -85,10 +93,12 @@ def _render_webpack(site: Site) -> None:
     Popen(args, cwd=BETTY_INSTANCE_NPM_DIR, shell=True).wait()
 
     # Move the Webpack output to the Betty output.
-    for asset_type in asset_types:
-        asset_filename = 'betty.%s' % asset_type
-        shutil.copy2(join(BETTY_INSTANCE_NPM_DIR, 'output', asset_filename),
-                     join(site.configuration.output_directory_path, asset_filename))
+    shutil.copytree(join(BETTY_INSTANCE_NPM_DIR, 'output', 'images'), join(
+        site.configuration.output_directory_path, 'images'))
+    shutil.copy2(join(BETTY_INSTANCE_NPM_DIR, 'output', 'betty.css'), join(
+        site.configuration.output_directory_path, 'betty.css'))
+    shutil.copy2(join(BETTY_INSTANCE_NPM_DIR, 'output', 'betty.js'), join(
+        site.configuration.output_directory_path, 'betty.js'))
 
 
 def _render_documents(site: Site) -> None:
@@ -126,8 +136,12 @@ def _render_entity(site: Site, environment: Environment, entity: Entity, entity_
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
 
 
+def _render_json(data: Any) -> Union[str, Markup]:
+    return dumps(data, cls=JSONEncoder)
+
+
 @evalcontextfilter
-def _render_html_paragraphs(eval_ctx, text: str) -> str:
+def _render_html_paragraphs(eval_ctx, text: str) -> Union[str, Markup]:
     """Converts newlines to <p> and <br> tags.
 
     Taken from http://jinja.pocoo.org/docs/2.10/api/#custom-filters."""
