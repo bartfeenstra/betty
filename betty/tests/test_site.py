@@ -6,7 +6,7 @@ from betty.config import Configuration
 from betty.site import Site
 
 
-class SiteTEst(TestCase):
+class SiteTest(TestCase):
     def test_ancestry_should_return(self):
         ancestry = Ancestry()
         configuration = Mock(Configuration)
