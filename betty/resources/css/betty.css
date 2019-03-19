@@ -24,7 +24,12 @@ h6 {
 
 h1 {
     font-weight: normal;
-    font-size: 3em;
+    font-size: 2rem;
+}
+
+h2 {
+    font-weight: normal;
+    font-size: 1.6rem;
 }
 
 a {
