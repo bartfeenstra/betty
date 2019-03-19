@@ -1,2 +1,9 @@
 {% extends 'list.html.j2' %}
 {% set title = 'Events' %}
+{% set ns = namespace(dated_events = []) %}
+{% for event in entities %}
+    {% if event.date != None and event.date.year != None and event.date.month != None and event.date.day != None %}
+        {% set ns.dated_events = ns.dated_events + [event] %}
+    {% endif %}
+{% endfor %}
+{% set entities = ns.dated_events | sort(attribute='date') %}

@@ -1,6 +1,7 @@
 import calendar
 import re
 from enum import Enum
+from functools import total_ordering
 from os.path import splitext
 from typing import Dict, Optional, List, Iterable
 
@@ -32,6 +33,7 @@ class EventHandlingSet:
         return self._values.__iter__()
 
 
+@total_ordering
 class Date:
     def __init__(self, year: int, month: int = None, day: int = None):
         self._year = year
@@ -65,6 +67,20 @@ class Date:
         if self._year and self._month and not self._day:
             return '%s, %d' % (calendar.month_name[self._month], self._year)
         return 'unknown'
+
+    def __eq__(self, other):
+        if other is None:
+            return False
+        if isinstance(other, Date):
+            return (self._year, self._month, self._day) == (other._year, other._month, other._day)
+        return NotImplemented
+
+    def __lt__(self, other):
+        if other is None:
+            return False
+        if isinstance(other, Date):
+            return (self._year, self._month, self._day) < (other._year, other._month, other._day)
+        return NotImplemented
 
 
 class Coordinates:

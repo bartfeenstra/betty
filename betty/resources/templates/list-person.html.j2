@@ -3,7 +3,7 @@
 {% block content %}
     {% if entities %}
         <ul class="entities">
-            {% for person in entities %}
+            {% for person in entities | sort(attribute='label') %}
                 <li class="{{ loop.cycle('odd', 'even') }}">
                     <a href="/person/{{ person.id }}">{{ person.label }}</a>
                     {% include 'person-meta.html.j2' %}
