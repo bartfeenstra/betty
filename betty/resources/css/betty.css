@@ -24,7 +24,12 @@ h6 {
 
 h1 {
     font-weight: normal;
-    font-size: 3em;
+    font-size: 2rem;
+}
+
+h2 {
+    font-weight: normal;
+    font-size: 1.6rem;
 }
 
 a {
@@ -106,9 +111,9 @@ footer {
 #content {
     background-color: white;
     clear: both;
-    padding: 3em;
+    padding: 1rem;
     display: inline-block;
-    min-width: calc(100% - 6em);
+    min-width: calc(100% - 2rem);
 }
 
 /*
@@ -158,5 +163,7 @@ figure img {
  * Maps.
  */
 .map {
-    height: 500px;
+    /* Maps are full width, so leave enough vertical space for scrolling. */
+    height: 50vh;
+    margin: 0 -1rem;
 }
