@@ -118,7 +118,7 @@ def _render_entity_type(site: Site, environment: Environment, entities: Iterable
     with _create_html_file(entity_type_path) as f:
         f.write(environment.get_template('list-%s.html.j2' % entity_type_name).render({
             'entity_type_name': entity_type_name,
-            'entities': sorted(entities, key=lambda entity: entity.label),
+            'entities': entities,
         }))
     for entity in entities:
         _render_entity(site, environment, entity, entity_type_name)
