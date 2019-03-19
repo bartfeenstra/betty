@@ -42,14 +42,14 @@ module.exports = {
         test: /\.css$/,
         use: [MiniCssExtractPlugin.loader, 'css-loader']
       },
-      // Ignore assets we do not want to bundle.
+      // Bundle Leaflet images.
       {
-        test: /\.png$/,
+        test: /\/node_modules\/leaflet\/dist\/images\/.*\.png$/,
         use: [
           {
             loader: 'file-loader',
             options: {
-              name: 'images/[name].[ext]'
+              name: 'images/leaflet/[name].[ext]'
             }
           }
         ]
