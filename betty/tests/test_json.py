@@ -8,9 +8,8 @@ from betty.json import JSONEncoder
 
 
 class JSONEncoderTest(TestCase):
-    def assert_encodes(self, data, expected):
-        self.assertEquals(json.loads(
-            json.dumps(data, cls=JSONEncoder)), expected)
+    def assert_encodes(self, expected, data):
+        self.assertEquals(expected, json.loads(json.dumps(data, cls=JSONEncoder)))
 
     @parameterized.expand([
         ('I am a string', 'I am a string'),
@@ -20,7 +19,7 @@ class JSONEncoderTest(TestCase):
         ({}, {}),
     ])
     def test_builtin_type_should_encode(self, data, expected):
-        self.assert_encodes(data, expected)
+        self.assert_encodes(expected, data)
 
     def test_coordinates_should_encode(self):
         latitude = '12.345'
@@ -30,7 +29,7 @@ class JSONEncoderTest(TestCase):
             'latitude': latitude,
             'longitude': longitude,
         }
-        self.assert_encodes(coordinates, expected)
+        self.assert_encodes(expected, coordinates)
 
     def test_place_should_encode_minimal(self):
         place_id = 'the_place'
@@ -40,7 +39,7 @@ class JSONEncoderTest(TestCase):
             'id': place_id,
             'label': label,
         }
-        self.assert_encodes(place, expected)
+        self.assert_encodes(expected, place)
 
     def test_place_should_encode_full(self):
         place_id = 'the_place'
@@ -58,14 +57,14 @@ class JSONEncoderTest(TestCase):
                 'longitude': longitude,
             }
         }
-        self.assert_encodes(place, expected)
+        self.assert_encodes(expected, place)
 
     def test_ancestry_should_encode_minimal(self):
         ancestry = Ancestry()
         expected = {
             'places': {},
         }
-        self.assert_encodes(ancestry, expected)
+        self.assert_encodes(expected, ancestry)
 
     def test_ancestry_should_encode_full(self):
         ancestry = Ancestry()
@@ -81,4 +80,4 @@ class JSONEncoderTest(TestCase):
                 },
             },
         }
-        self.assert_encodes(ancestry, expected)
+        self.assert_encodes(expected, ancestry)
