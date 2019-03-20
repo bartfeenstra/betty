@@ -210,8 +210,6 @@ def _parse_event(places: Dict[str, Place], element: Element) -> Tuple[str, Event
     # Parse the event place.
     place_handle = xpath1(element, './ns:place/@hlink')
     if place_handle:
-        place = places[place_handle]
-        event.place = place
-        place.events.add(event)
+        event.place = places[place_handle]
 
     return handle, event

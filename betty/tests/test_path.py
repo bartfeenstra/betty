@@ -14,7 +14,8 @@ class PathTest(TestCase):
             open(join(path, 'rootfile'), 'a').close()
             open(join(path, '.hiddenrootfile'), 'a').close()
             open(join(subdirpath, 'subdirfile'), 'a').close()
-            actual = [actualpath[len(path) + 1:] for actualpath in iterfiles(path)]
+            actual = [actualpath[len(path) + 1:]
+                      for actualpath in iterfiles(path)]
         expected = [
             '.hiddenrootfile',
             'rootfile',
