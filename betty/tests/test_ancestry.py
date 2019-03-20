@@ -1,6 +1,8 @@
 from unittest import TestCase
 
-from betty.ancestry import EventHandlingSet, Person, Family, Event, Place
+from parameterized import parameterized
+
+from betty.ancestry import EventHandlingSet, Person, Family, Event, Place, Date
 
 
 class EventHandlingSetTest(TestCase):
@@ -130,3 +132,67 @@ class EventTest(TestCase):
         sut.place = None
         self.assertEquals(None, sut.place)
         self.assertNotIn(sut, place.events)
+
+
+class DateTest(TestCase):
+    @parameterized.expand([
+        (1970, 1, 1),
+        (1970, 1, None),
+        (1970, None, 1),
+        (None, 1, 1),
+        (1970, None, None),
+        (None, 1, None),
+        (None, None, 1),
+        (None, None, None),
+    ])
+    def test_label(self, year, month, day):
+        self.assertEquals(str, type(Date(year, month, day).label))
+
+    @parameterized.expand([
+        (1970, 1, 1),
+        (None, None, None),
+    ])
+    def test_parts(self, year, month, day):
+        self.assertEquals((year, month, day), Date(year, month, day).parts)
+
+    @parameterized.expand([
+        (True, Date(1970, 1, 1)),
+        (False, Date(1970, 1, None)),
+        (False, Date(1970, None, 1)),
+        (False, Date(None, 1, 1)),
+        (False, Date(1970, None, None)),
+        (False, Date(None, 1, None)),
+        (False, Date(None, None, 1)),
+        (False, None),
+    ])
+    def test_eq(self, expected, date):
+        self.assertEquals(expected, date == Date(1970, 1, 1))
+
+    @parameterized.expand([
+        (True, 1970, 1, 2),
+        (True, 1970, 2, 1),
+        (True, 1971, 1, 1),
+        (False, 1970, 1, 1),
+        (False, 1970, 1, 1),
+        (False, 1969, 1, 1),
+        (False, 1969, 12, 12),
+    ])
+    def test_gt(self, expected, year, month, day):
+        # This tests __lt__ and @total_ordering, by invoking the generated __gt__ implementation.
+        sut = Date(year, month, day)
+        self.assertEquals(expected, sut > Date(1970, 1, 1))
+
+    @parameterized.expand([
+        (Date(1970, 1, None),),
+        (Date(1970, None, 1),),
+        (Date(None, 1, 1),),
+        (Date(1970, None, None),),
+        (Date(None, 1, None),),
+        (Date(None, None, 1),),
+        (Date(None, None, None),),
+        (None,),
+    ])
+    def test_gt_should_raise_typeerror_for_missing_parts(self, date):
+        # This tests __lt__ and @total_ordering, by invoking the generated __gt__ implementation.
+        with self.assertRaises(TypeError):
+            date > Date(1970, 1, 1)
