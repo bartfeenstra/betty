@@ -11,10 +11,10 @@ class SiteTest(TestCase):
         ancestry = Ancestry()
         configuration = Mock(Configuration)
         sut = Site(ancestry, configuration)
-        self.assertEquals(sut.ancestry, ancestry)
+        self.assertEquals(ancestry, sut.ancestry)
 
     def test_configuration_should_return(self):
         ancestry = Ancestry()
         configuration = Mock(Configuration)
         sut = Site(ancestry, configuration)
-        self.assertEquals(sut.configuration, configuration)
+        self.assertEquals(configuration, sut.configuration)

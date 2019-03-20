@@ -25,12 +25,10 @@ class FromTest(TestCase):
     def test_from_file_should_parse_minimal(self):
         with self._write(self._MINIMAL_CONFIG_DICT) as f:
             configuration = from_file(f)
-        self.assertEquals(configuration.input_gramps_file_path,
-                          self._MINIMAL_CONFIG_DICT['inputGrampsFilePath'])
-        self.assertEquals(configuration.output_directory_path,
-                          self._MINIMAL_CONFIG_DICT['outputDirectoryPath'])
-        self.assertEquals(configuration.url, self._MINIMAL_CONFIG_DICT['url'])
-        self.assertEquals(configuration.title, 'Betty')
+        self.assertEquals(self._MINIMAL_CONFIG_DICT['inputGrampsFilePath'], configuration.input_gramps_file_path)
+        self.assertEquals(self._MINIMAL_CONFIG_DICT['outputDirectoryPath'], configuration.output_directory_path)
+        self.assertEquals(self._MINIMAL_CONFIG_DICT['url'], configuration.url)
+        self.assertEquals('Betty', configuration.title)
 
     def test_from_file_should_parse_title(self):
         title = 'My first Betty site'
@@ -38,7 +36,7 @@ class FromTest(TestCase):
         config_dict['title'] = title
         with self._write(config_dict) as f:
             configuration = from_file(f)
-            self.assertEquals(configuration.title, title)
+            self.assertEquals(title, configuration.title)
 
     def test_from_file_should_error_if_invalid_json(self):
         with self._writes('') as f:
