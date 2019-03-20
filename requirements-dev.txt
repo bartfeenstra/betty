@@ -1,5 +1,6 @@
 -r requirements.txt
 autopep8 ~= 1.4.3
+codecov ~= 2.0.15
 coverage ~= 4.5
 flake8 ~= 3.7.0
 nose2 ~= 0.8
