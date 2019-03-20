@@ -3,7 +3,7 @@ import re
 from enum import Enum
 from functools import total_ordering
 from os.path import splitext
-from typing import Dict, Optional, List, Iterable
+from typing import Dict, Optional, List, Iterable, Tuple
 
 
 class EventHandlingSet:
@@ -35,13 +35,13 @@ class EventHandlingSet:
 
 @total_ordering
 class Date:
-    def __init__(self, year: int, month: int = None, day: int = None):
+    def __init__(self, year: Optional[int] = None, month: Optional[int] = None, day: Optional[int] = None):
         self._year = year
         self._month = month
         self._day = day
 
     @property
-    def year(self) -> int:
+    def year(self) -> Optional[int]:
         return self._year
 
     @property
@@ -68,19 +68,21 @@ class Date:
             return '%s, %d' % (calendar.month_name[self._month], self._year)
         return 'unknown'
 
+    @property
+    def parts(self) -> Tuple[Optional[int], Optional[int], Optional[int]]:
+        return self._year, self._month, self._day
+
     def __eq__(self, other):
-        if other is None:
-            return False
-        if isinstance(other, Date):
-            return (self._year, self._month, self._day) == (other._year, other._month, other._day)
-        return NotImplemented
+        if not isinstance(other, Date):
+            return NotImplemented
+        return self.parts == other.parts
 
     def __lt__(self, other):
-        if other is None:
-            return False
-        if isinstance(other, Date):
-            return (self._year, self._month, self._day) < (other._year, other._month, other._day)
-        return NotImplemented
+        if not isinstance(other, Date):
+            return NotImplemented
+        if None in self.parts or None in other.parts:
+            return NotImplemented
+        return self.parts < other.parts
 
 
 class Coordinates:
