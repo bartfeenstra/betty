@@ -24,6 +24,11 @@ class ParsePlaceTest(GrampsTestCase):
         self.assertEquals('52.366667', place.coordinates.latitude)
         self.assertEquals('4.9', place.coordinates.longitude)
 
+    def test_place_should_include_events(self):
+        place = self.ancestry.places['P0000']
+        event = self.ancestry.events['E0000']
+        self.assertIn(event, place.events)
+
 
 class ParsePersonTest(GrampsTestCase):
     def test_person_should_include_individual_name(self):
@@ -55,7 +60,8 @@ class ParseFamilyTest(GrampsTestCase):
 class ParseEventTest(GrampsTestCase):
     def test_event_should_include_place(self):
         event = self.ancestry.events['E0000']
-        self.assertEquals('P0000', event.place.id)
+        place = self.ancestry.places['P0000']
+        self.assertEquals(place, event.place)
 
     def test_event_should_include_date(self):
         event = self.ancestry.events['E0000']

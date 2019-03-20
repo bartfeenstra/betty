@@ -195,7 +195,15 @@ class Place(Entity):
         Entity.__init__(self, entity_id)
         self._name = name
         self._coordinates = None
-        self._events = set()
+
+        def handle_event_addition(event: Event):
+            event.place = self
+
+        def handle_event_removal(event: Event):
+            event.place = None
+
+        self._events = EventHandlingSet(
+            handle_event_addition, handle_event_removal)
 
     @property
     def label(self) -> str:
@@ -210,7 +218,7 @@ class Place(Entity):
         self._coordinates = coordinates
 
     @property
-    def events(self):
+    def events(self) -> Iterable:
         return self._events
 
 
@@ -261,8 +269,13 @@ class Event(Entity):
         return self._place
 
     @place.setter
-    def place(self, place: Place):
+    def place(self, place: Optional[Place]):
+        previous_place = self._place
         self._place = place
+        if previous_place is not None:
+            previous_place.events.remove(self)
+        if place is not None:
+            place.events.add(self)
 
     @property
     def type(self):

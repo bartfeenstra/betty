@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from betty.ancestry import EventHandlingSet, Person, Family
+from betty.ancestry import EventHandlingSet, Person, Family, Event, Place
 
 
 class EventHandlingSetTest(TestCase):
@@ -109,3 +109,24 @@ class FamilyTest(TestCase):
         sut.children.remove(child)
         self.assertEquals([], list(sut.children))
         self.assertEquals(None, child.descendant_family)
+
+
+class PlaceTest(TestCase):
+    def test_events_should_sync_references(self):
+        event = Event('1', Event.Type.BIRTH)
+        sut = Place('1')
+        sut.events.add(event)
+        self.assertIn(event, sut.events)
+        self.assertEquals(sut, event.place)
+
+
+class EventTest(TestCase):
+    def test_place_should_sync_references(self):
+        place = Place('1')
+        sut = Event('1', Event.Type.BIRTH)
+        sut.place = place
+        self.assertEquals(place, sut.place)
+        self.assertIn(sut, place.events)
+        sut.place = None
+        self.assertEquals(None, sut.place)
+        self.assertNotIn(sut, place.events)
