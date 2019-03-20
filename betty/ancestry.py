@@ -231,13 +231,20 @@ class Event(Entity):
         self._date = None
         self._place = None
         self._type = entity_type
+        self._people = EventHandlingSet(lambda person: person.events.add(self),
+                                        lambda person: person.events.remove(self))
 
     @property
     def label(self) -> str:
-        type_label = self._type_labels[self._type]
+        people = set(self._people)
+        if people:
+            people_labels = [person.label for person in sorted(self._people, key=lambda x: x.label)]
+            label = '%s of %s' % (self._type_labels[self._type], ', '.join(people_labels))
+        else:
+            label = self._type_labels[self._type]
         if self._date:
-            return '%s (%s)' % (type_label, self._date.label)
-        return type_label
+            label = '%s (%s)' % (label, self._date.label)
+        return label
 
     @property
     def date(self) -> Optional[Date]:
@@ -263,14 +270,18 @@ class Event(Entity):
     def type(self, event_type: Type):
         self._type = event_type
 
+    @property
+    def people(self):
+        return self._people
+
 
 class Person(Entity):
     def __init__(self, entity_id: str, individual_name: str = None, family_name: str = None):
         Entity.__init__(self, entity_id)
         self._individual_name = individual_name
         self._family_name = family_name
-        self._birth = None
-        self._death = None
+        self._events = EventHandlingSet(lambda event: event.people.add(self),
+                                        lambda event: event.people.remove(self))
         self._descendant_family = None
         self._ancestor_families = EventHandlingSet(lambda family: family.parents.add(self),
                                                    lambda family: family.parents.remove(self))
@@ -288,20 +299,26 @@ class Person(Entity):
         return self._family_name
 
     @property
-    def birth(self) -> Event:
-        return self._birth
+    def events(self) -> Iterable:
+        return self._events
 
-    @birth.setter
-    def birth(self, birth: Event):
-        self._birth = birth
+    @events.setter
+    def events(self, events: Iterable):
+        self._events.replace(events)
 
     @property
-    def death(self) -> Event:
-        return self._death
+    def birth(self) -> Optional[Event]:
+        for event in self._events:
+            if event.type == Event.Type.BIRTH:
+                return event
+        return None
 
-    @death.setter
-    def death(self, death: Event):
-        self._death = death
+    @property
+    def death(self) -> Optional[Event]:
+        for event in self._events:
+            if event.type == Event.Type.DEATH:
+                return event
+        return None
 
     @property
     def descendant_family(self):

@@ -62,3 +62,7 @@ class ParseEventTest(GrampsTestCase):
         self.assertEquals(event.date.year, 1970)
         self.assertEquals(event.date.month, 1)
         self.assertEquals(event.date.day, 1)
+
+    def test_event_should_include_people(self):
+        event = self.ancestry.events['E0000']
+        self.assertEquals(list(event.people)[0].id, 'I0000')

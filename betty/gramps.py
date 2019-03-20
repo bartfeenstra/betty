@@ -96,8 +96,8 @@ def _parse_person(events: Dict[str, Event], element: Element) -> Tuple[str, Pers
     }
     event_handles = xpath(element, './ns:eventref/@hlink')
     person = Person(element.xpath('./@id')[0], **properties)
-    person.birth = _parse_person_birth(events, event_handles)
-    person.death = _parse_person_death(events, event_handles)
+    for event_handle in event_handles:
+        person.events.add(events[event_handle])
     return handle, person
 
 
