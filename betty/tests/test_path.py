@@ -21,4 +21,4 @@ class PathTest(TestCase):
             'rootfile',
             'subdir/subdirfile',
         ]
-        self.assertCountEqual(actual, expected)
+        self.assertCountEqual(expected, actual)
