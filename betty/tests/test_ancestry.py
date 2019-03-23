@@ -20,19 +20,19 @@ class EventHandlingSetTest(TestCase):
         sut = EventHandlingSet(addition_handler, removal_handler)
         value = 'A valuable value'
         sut.add(value)
-        self.assertEquals([value], list(sut))
+        self.assertCountEqual([value], sut)
         self.assertEquals([value], reference)
         sut.remove(value)
-        self.assertEquals([], list(sut))
+        self.assertCountEqual([], sut)
         self.assertEquals([], reference)
 
     def test_without_handler(self):
         sut = EventHandlingSet()
         value = 'A valuable value'
         sut.add(value)
-        self.assertEquals([value], list(sut))
+        self.assertCountEqual([value], sut)
         sut.remove(value)
-        self.assertEquals([], list(sut))
+        self.assertCountEqual([], sut)
 
 
 class PersonTest(TestCase):
@@ -40,21 +40,21 @@ class PersonTest(TestCase):
         family = Family('1')
         sut = Person('1')
         sut.ancestor_families.add(family)
-        self.assertEquals([family], list(sut.ancestor_families))
-        self.assertEquals([sut], list(family.parents))
+        self.assertCountEqual([family], sut.ancestor_families)
+        self.assertCountEqual([sut], family.parents)
         sut.ancestor_families.remove(family)
-        self.assertEquals([], list(sut.ancestor_families))
-        self.assertEqual([], list(family.parents))
+        self.assertCountEqual([], sut.ancestor_families)
+        self.assertCountEqual([], family.parents)
 
     def test_descendant_family_should_sync_references(self):
         family = Family('1')
         sut = Person('1')
         sut.descendant_family = family
         self.assertEquals(family, sut.descendant_family)
-        self.assertEquals([sut], list(family.children))
+        self.assertCountEqual([sut], family.children)
         sut.descendant_family = None
         self.assertIsNone(sut.descendant_family)
-        self.assertEquals([], list(family.children))
+        self.assertCountEqual([], family.children)
 
     def test_children_without_ancestor_families(self):
         sut = Person('person')
@@ -77,13 +77,13 @@ class PersonTest(TestCase):
         self.assertCountEqual(
             [child_1_1, child_1_2, child_2_1, child_2_2], sut.children)
 
-    def test_children_without_descendant_family(self):
+    def test_parents_without_descendant_family(self):
         sut = Person('person')
         self.assertEquals([], sut.parents)
 
-    def test_children_with_descendant_family(self):
-        parent_1 = Person('1')
-        parent_2 = Person('2')
+    def test_parents_with_descendant_family(self):
+        parent_1 = Mock(Person)
+        parent_2 = Mock(Person)
         family = Family('1')
         family.parents = [parent_1, parent_2]
 
@@ -92,15 +92,43 @@ class PersonTest(TestCase):
 
         self.assertCountEqual([parent_1, parent_2], sut.parents)
 
+    def test_siblings_without_descendant_family(self):
+        sut = Person('person')
+        self.assertCountEqual([], sut.siblings)
+
+    def test_siblings_with_descendant_families(self):
+        parent = Person('1')
+        sibling = Mock(Person)
+        descendant_family = Family('1')
+        descendant_family.parents.add(parent)
+        descendant_family.children.add(sibling)
+
+        half_family = Family('1')
+        half_sibling = Mock(Person)
+        half_family.parents.add(parent)
+        half_family.children.add(half_sibling)
+
+        sut = Person('person')
+        sut.descendant_family = descendant_family
+
+        self.assertCountEqual([sibling, half_sibling], sut.siblings)
+
+    def test_events(self):
+        sut = Person('1')
+        self.assertCountEqual([], sut.events)
+        events = (Mock(Event), Mock(Event))
+        sut.events = events
+        self.assertCountEqual(events, sut.events)
+
     def test_events_should_sync_references(self):
         event = Event('1', Event.Type.BIRTH)
         sut = Person('1')
         sut.events.add(event)
-        self.assertEquals([event], list(sut.events))
-        self.assertEquals([sut], list(event.people))
+        self.assertCountEqual([event], sut.events)
+        self.assertCountEqual([sut], event.people)
         sut.events.remove(event)
-        self.assertEquals([], list(sut.events))
-        self.assertEquals([], list(event.people))
+        self.assertCountEqual([], sut.events)
+        self.assertCountEqual([], event.people)
 
 
 class FamilyTest(TestCase):
@@ -108,20 +136,20 @@ class FamilyTest(TestCase):
         parent = Person('1')
         sut = Family('1')
         sut.parents.add(parent)
-        self.assertEquals([parent], list(sut.parents))
-        self.assertEquals([sut], list(parent.ancestor_families))
+        self.assertCountEqual([parent], sut.parents)
+        self.assertCountEqual([sut], parent.ancestor_families)
         sut.parents.remove(parent)
-        self.assertEquals([], list(sut.parents))
-        self.assertEquals([], list(parent.ancestor_families))
+        self.assertCountEqual([], sut.parents)
+        self.assertCountEqual([], parent.ancestor_families)
 
     def test_children_should_sync_references(self):
         child = Person('1')
         sut = Family('1')
         sut.children.add(child)
-        self.assertEquals([child], list(sut.children))
+        self.assertCountEqual([child], sut.children)
         self.assertEquals(sut, child.descendant_family)
         sut.children.remove(child)
-        self.assertEquals([], list(sut.children))
+        self.assertCountEqual([], sut.children)
         self.assertEquals(None, child.descendant_family)
 
 
@@ -166,7 +194,7 @@ class EventTest(TestCase):
             Person('1', 'Jane', 'Doe'),
             Person('2', 'Janet', 'Dough'),
         ]
-        sut.people.replace(people)
+        sut.people = people
         self.assertEquals('Marriage of Doe, Jane and Dough, Janet', sut.label)
 
     def test_label_with_date_and_people(self):
@@ -178,7 +206,7 @@ class EventTest(TestCase):
             Person('1', 'Jane', 'Doe'),
             Person('2', 'Janet', 'Dough'),
         ]
-        sut.people.replace(people)
+        sut.people = people
         self.assertEquals('Marriage of Doe, Jane and Dough, Janet (January 1, 1970)', sut.label)
 
     def test_place_should_sync_references(self):
@@ -195,14 +223,29 @@ class EventTest(TestCase):
         person = Person('1')
         sut = Event('1', Event.Type.BIRTH)
         sut.people.add(person)
-        self.assertEquals([person], list(sut.people))
-        self.assertEquals([sut], list(person.events))
+        self.assertCountEqual([person], sut.people)
+        self.assertCountEqual([sut], person.events)
         sut.people.remove(person)
-        self.assertEquals([], list(sut.people))
-        self.assertEquals([], list(person.events))
+        self.assertCountEqual([], sut.people)
+        self.assertCountEqual([], person.events)
 
 
 class DateTest(TestCase):
+    def test_year(self):
+        year = 1970
+        sut = Date(year=year)
+        self.assertEquals(year, sut.year)
+
+    def test_month(self):
+        month = 1
+        sut = Date(month=month)
+        self.assertEquals(month, sut.month)
+
+    def test_day(self):
+        day = 1
+        sut = Date(day=day)
+        self.assertEquals(day, sut.day)
+
     @parameterized.expand([
         (1970, 1, 1),
         (1970, 1, None),
