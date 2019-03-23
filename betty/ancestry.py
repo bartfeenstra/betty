@@ -263,6 +263,10 @@ class Event(Entity):
     def people(self):
         return self._people
 
+    @people.setter
+    def people(self, people):
+        self._people.replace(people)
+
 
 class Person(Entity):
     def __init__(self, entity_id: str, individual_name: str = None, family_name: str = None):
