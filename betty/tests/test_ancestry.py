@@ -1,8 +1,10 @@
+from tempfile import TemporaryFile, NamedTemporaryFile
 from unittest import TestCase
+from unittest.mock import Mock
 
 from parameterized import parameterized
 
-from betty.ancestry import EventHandlingSet, Person, Family, Event, Place, Date
+from betty.ancestry import EventHandlingSet, Person, Family, Event, Place, Date, File, Note, Document
 
 
 class EventHandlingSetTest(TestCase):
@@ -196,3 +198,73 @@ class DateTest(TestCase):
         # This tests __lt__ and @total_ordering, by invoking the generated __gt__ implementation.
         with self.assertRaises(TypeError):
             date > Date(1970, 1, 1)
+
+
+class FileTest(TestCase):
+    def test_path(self):
+        with TemporaryFile() as f:
+            sut = File(f.name)
+            self.assertEquals(f.name, sut.path)
+
+    def test_extension_with_extension(self):
+        extension = 'betty'
+        with NamedTemporaryFile(suffix='.%s' % extension) as f:
+            sut = File(f.name)
+            self.assertEquals(extension, sut.extension)
+
+    def test_extension_without_extension(self):
+        with NamedTemporaryFile() as f:
+            sut = File(f.name)
+            self.assertIsNone(sut.extension)
+
+
+class NoteTest(TestCase):
+    def test_text(self):
+        text = 'Betty wrote this.'
+        sut = Note(text)
+        self.assertEquals(text, sut.text)
+
+
+class DocumentTest(TestCase):
+    def test_id(self):
+        entity_id = 'BETTY01'
+        file = Mock(File)
+        sut = Document(entity_id, file)
+        self.assertEquals(entity_id, sut.id)
+
+    def test_file(self):
+        entity_id = 'BETTY01'
+        file = Mock(File)
+        sut = Document(entity_id, file)
+        self.assertEquals(file, sut.file)
+
+    def test_description(self):
+        entity_id = 'BETTY01'
+        file = Mock(File)
+        sut = Document(entity_id, file)
+        description = 'Hi, my name is Betty!'
+        sut.description = description
+        self.assertEquals(description, sut.description)
+
+    def test_label_with_description(self):
+        entity_id = 'BETTY01'
+        file = Mock(File)
+        sut = Document(entity_id, file)
+        description = 'Hi, my name is Betty!'
+        sut.description = description
+        self.assertEquals(description, sut.label)
+
+    def test_label_without_description(self):
+        entity_id = 'BETTY01'
+        file = Mock(File)
+        sut = Document(entity_id, file)
+        self.assertIsInstance(sut.label, str)
+
+    def test_notes(self):
+        entity_id = 'BETTY01'
+        file = Mock(File)
+        sut = Document(entity_id, file)
+        self.assertCountEqual([], sut.notes)
+        notes = (Mock(Note), Mock(Note))
+        sut.notes = notes
+        self.assertCountEqual(notes, sut.notes)
