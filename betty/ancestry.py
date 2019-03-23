@@ -98,7 +98,6 @@ class Note:
 class File:
     def __init__(self, path: str):
         self._path = path
-        self._description = None
         self._type = None
 
     @property
@@ -106,24 +105,9 @@ class File:
         return self._path
 
     @property
-    def type(self) -> Optional[str]:
-        return self._type
-
-    @property
-    def extension(self):
-        return splitext(self._path)[1][1:]
-
-    @type.setter
-    def type(self, file_type: str):
-        self._type = file_type
-
-    @property
-    def description(self) -> Optional[str]:
-        return self._description
-
-    @description.setter
-    def description(self, description: str):
-        self._description = description
+    def extension(self) -> Optional[str]:
+        extension = splitext(self._path)[1][1:]
+        return extension if extension else None
 
 
 class Entity:
@@ -149,19 +133,27 @@ class Entity:
 
 
 class Document(Entity):
-    def __init__(self, entity_id: str, file: File, description: str):
+    def __init__(self, entity_id: str, file: File):
         Entity.__init__(self, entity_id)
         self._file = file
-        self._description = description
+        self._description = None
         self._notes = []
 
     @property
     def label(self):
-        return self._description
+        return self._description if self._description else ''
 
     @property
     def file(self) -> File:
         return self._file
+
+    @property
+    def description(self) -> Optional[str]:
+        return self._description
+
+    @description.setter
+    def description(self, description: str):
+        self._description = description
 
     @property
     def notes(self) -> List[Note]:
