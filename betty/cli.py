@@ -6,13 +6,13 @@ from betty.render import render
 from betty.site import Site
 
 
-def main(args):
+def main():
     parser = argparse.ArgumentParser(
         description='Betty is a static ancestry site generator.')
     parser.add_argument('--config', dest='config_file_path',
                         required=True, action='store')
 
-    parsed_args = parser.parse_args(args)
+    parsed_args = parser.parse_args()
     try:
         with open(parsed_args.config_file_path) as f:
             configuration = from_file(f)

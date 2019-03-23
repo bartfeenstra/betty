@@ -6,7 +6,27 @@ Betty is a static site generator for [Gramps](https://gramps-project.org/) XML f
 
 ## Usage
 
+### Requirements
+- Python 3.5+
+
+### Installation
+- Clone the repository.
+- Inside the Betty project directory, run `pip install .`.
+
+### The command line
+After installation, Betty can be used via the `betty` command:
+```
+usage: betty [-h] --config CONFIG_FILE_PATH
+
+Betty is a static ancestry site generator.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --config CONFIG_FILE_PATH
+```
+
 ### Nginx configuration
+To serve the generated site with nginx, you can alter and use the following configuration:
 ```
 server {
 	# The port to listen to.
@@ -36,3 +56,23 @@ server {
 	}
 }
 ```
+
+## Development
+First, clone the repository, and navigate to its root directory.
+
+### Requirements
+- The usage requirements documented earlier.
+- Bash (you're all good if `which bash` outputs a path in your terminal)
+
+### Installation
+In any existing Python environment, run `./bin/build-dev`.
+
+Or with tox, run `tox --develop --notest`.
+
+### Testing
+In any existing Python environment, run `./bin/test`.
+
+Or with tox, run `tox`. 
+
+### Fixing problems automatically
+In any existing Python environment, run `./bin/fix`.
