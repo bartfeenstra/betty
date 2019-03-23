@@ -73,12 +73,14 @@ def _parse_document(gramps_file_path, notes: Dict[str, Note], element: Element) 
     handle = xpath1(element, './@handle')
     entity_id = xpath1(element, './@id')
     file_element = xpath1(element, './ns:file')
-    description = xpath1(file_element, './@description')
     file_path = xpath1(file_element, './@src')
     file = File(join(gramps_file_path, file_path))
     file.type = xpath1(file_element, './@mime')
     note_handles = xpath(element, './ns:noteref/@hlink')
-    document = Document(entity_id, file, description)
+    document = Document(entity_id, file)
+    description = xpath1(file_element, './@description')
+    if description:
+        document.description = description
     for note_handle in note_handles:
         document.notes.append(notes[note_handle])
     return handle, document
