@@ -92,6 +92,16 @@ class PersonTest(TestCase):
 
         self.assertCountEqual([parent_1, parent_2], sut.parents)
 
+    def test_events_should_sync_references(self):
+        event = Event('1', Event.Type.BIRTH)
+        sut = Person('1')
+        sut.events.add(event)
+        self.assertEquals([event], list(sut.events))
+        self.assertEquals([sut], list(event.people))
+        sut.events.remove(event)
+        self.assertEquals([], list(sut.events))
+        self.assertEquals([], list(event.people))
+
 
 class FamilyTest(TestCase):
     def test_parents_should_sync_references(self):
@@ -125,6 +135,52 @@ class PlaceTest(TestCase):
 
 
 class EventTest(TestCase):
+    def test_date(self):
+        sut = Event('1', Event.Type.BIRTH)
+        self.assertIsNone(sut.date)
+        date = Mock(Date)
+        sut.date = date
+        self.assertEquals(date, sut.date)
+
+    def test_type(self):
+        event_type = Event.Type.BIRTH
+        sut = Event('1', event_type)
+        self.assertEquals(event_type, sut.type)
+
+    def test_label_with_type_only(self):
+        event_type = Event.Type.BIRTH
+        sut = Event('1', event_type)
+        self.assertEquals('Birth', sut.label)
+
+    def test_label_with_date(self):
+        event_type = Event.Type.BIRTH
+        sut = Event('1', event_type)
+        date = Date(1970, 1, 1)
+        sut.date = date
+        self.assertEquals('Birth (January 1, 1970)', sut.label)
+
+    def test_label_with_people(self):
+        event_type = Event.Type.MARRIAGE
+        sut = Event('1', event_type)
+        people = [
+            Person('1', 'Jane', 'Doe'),
+            Person('2', 'Janet', 'Dough'),
+        ]
+        sut.people.replace(people)
+        self.assertEquals('Marriage of Doe, Jane and Dough, Janet', sut.label)
+
+    def test_label_with_date_and_people(self):
+        event_type = Event.Type.MARRIAGE
+        sut = Event('1', event_type)
+        date = Date(1970, 1, 1)
+        sut.date = date
+        people = [
+            Person('1', 'Jane', 'Doe'),
+            Person('2', 'Janet', 'Dough'),
+        ]
+        sut.people.replace(people)
+        self.assertEquals('Marriage of Doe, Jane and Dough, Janet (January 1, 1970)', sut.label)
+
     def test_place_should_sync_references(self):
         place = Place('1')
         sut = Event('1', Event.Type.BIRTH)
@@ -134,6 +190,16 @@ class EventTest(TestCase):
         sut.place = None
         self.assertEquals(None, sut.place)
         self.assertNotIn(sut, place.events)
+
+    def test_people_should_sync_references(self):
+        person = Person('1')
+        sut = Event('1', Event.Type.BIRTH)
+        sut.people.add(person)
+        self.assertEquals([person], list(sut.people))
+        self.assertEquals([sut], list(person.events))
+        sut.people.remove(person)
+        self.assertEquals([], list(sut.people))
+        self.assertEquals([], list(person.events))
 
 
 class DateTest(TestCase):
