@@ -1,9 +1,10 @@
 import calendar
-import re
 from enum import Enum
 from functools import total_ordering
 from os.path import splitext
 from typing import Dict, Optional, List, Iterable, Tuple
+
+from geopy import Point
 
 
 class EventHandlingSet:
@@ -83,27 +84,6 @@ class Date:
         if None in self.parts or None in other.parts:
             return NotImplemented
         return self.parts < other.parts
-
-
-class Coordinates:
-    COORDINATE_PATTERN = r'^-?\d+(\.\d+)?$'
-    INVALID_COORDINATE_MESSAGE = '"%s" is not a valid coordinate.'
-
-    def __init__(self, latitude: str, longitude: str):
-        if not re.fullmatch(self.COORDINATE_PATTERN, latitude):
-            raise ValueError(self.INVALID_COORDINATE_MESSAGE % latitude)
-        if not re.fullmatch(self.COORDINATE_PATTERN, longitude):
-            raise ValueError(self.INVALID_COORDINATE_MESSAGE % longitude)
-        self._latitude = latitude
-        self._longitude = longitude
-
-    @property
-    def latitude(self) -> str:
-        return self._latitude
-
-    @property
-    def longitude(self) -> str:
-        return self._longitude
 
 
 class Note:
@@ -212,11 +192,11 @@ class Place(Entity):
         return self._name or 'unknown'
 
     @property
-    def coordinates(self) -> Coordinates:
+    def coordinates(self) -> Point:
         return self._coordinates
 
     @coordinates.setter
-    def coordinates(self, coordinates: Coordinates):
+    def coordinates(self, coordinates: Point):
         self._coordinates = coordinates
 
     @property

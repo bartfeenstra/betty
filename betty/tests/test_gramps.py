@@ -21,8 +21,8 @@ class ParsePlaceTest(GrampsTestCase):
 
     def test_place_should_include_coordinates(self):
         place = self.ancestry.places['P0000']
-        self.assertEquals('52.366667', place.coordinates.latitude)
-        self.assertEquals('4.9', place.coordinates.longitude)
+        self.assertAlmostEquals(52.366667, place.coordinates.latitude)
+        self.assertAlmostEquals(4.9, place.coordinates.longitude)
 
     def test_place_should_include_events(self):
         place = self.ancestry.places['P0000']

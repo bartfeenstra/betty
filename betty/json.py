@@ -1,7 +1,9 @@
 import json as stdjson
 from typing import Dict
 
-from betty.ancestry import Place, Ancestry, Coordinates
+from geopy import Point
+
+from betty.ancestry import Place, Ancestry
 
 
 def _ancestry_to_dict(ancestry: Ancestry) -> Dict:
@@ -10,7 +12,7 @@ def _ancestry_to_dict(ancestry: Ancestry) -> Dict:
     }
 
 
-def _coordinates_to_dict(coordinates: Coordinates) -> Dict:
+def _coordinates_to_dict(coordinates: Point) -> Dict:
     return {
         'latitude': coordinates.latitude,
         'longitude': coordinates.longitude,
@@ -30,7 +32,7 @@ def _place_to_dict(place: Place) -> Dict:
 class JSONEncoder(stdjson.JSONEncoder):
     _mappers = {
         Ancestry: _ancestry_to_dict,
-        Coordinates: _coordinates_to_dict,
+        Point: _coordinates_to_dict,
         Place: _place_to_dict,
     }
 

@@ -1,15 +1,17 @@
 import json
 from unittest import TestCase
 
+from geopy import Point
 from parameterized import parameterized
 
-from betty.ancestry import Coordinates, Place, Ancestry
+from betty.ancestry import Place, Ancestry
 from betty.json import JSONEncoder
 
 
 class JSONEncoderTest(TestCase):
     def assert_encodes(self, expected, data):
-        self.assertEquals(expected, json.loads(json.dumps(data, cls=JSONEncoder)))
+        self.assertAlmostEquals(expected, json.loads(
+            json.dumps(data, cls=JSONEncoder)))
 
     @parameterized.expand([
         ('I am a string', 'I am a string'),
@@ -22,9 +24,9 @@ class JSONEncoderTest(TestCase):
         self.assert_encodes(expected, data)
 
     def test_coordinates_should_encode(self):
-        latitude = '12.345'
-        longitude = '-54.321'
-        coordinates = Coordinates(latitude, longitude)
+        latitude = 12.345
+        longitude = -54.321
+        coordinates = Point(latitude, longitude)
         expected = {
             'latitude': latitude,
             'longitude': longitude,
@@ -44,9 +46,9 @@ class JSONEncoderTest(TestCase):
     def test_place_should_encode_full(self):
         place_id = 'the_place'
         label = 'The Place'
-        latitude = '12.345'
-        longitude = '-54.321'
-        coordinates = Coordinates(latitude, longitude)
+        latitude = 12.345
+        longitude = -54.321
+        coordinates = Point(latitude, longitude)
         place = Place(place_id, label)
         place.coordinates = coordinates
         expected = {

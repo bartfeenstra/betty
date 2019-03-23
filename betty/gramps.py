@@ -1,10 +1,11 @@
 from os.path import join
 from typing import Dict, Tuple, List, Optional
 
+from geopy import Point
 from lxml import etree
 from lxml.etree import XMLParser, Element
 
-from betty.ancestry import Document, Event, Place, Family, Person, Ancestry, Date, Coordinates, Note, File
+from betty.ancestry import Document, Event, Place, Family, Person, Ancestry, Date, Note, File
 
 NS = {
     'ns': 'http://gramps-project.org/xml/1.7.1/',
@@ -170,7 +171,7 @@ def _parse_place(element: Element) -> Tuple[str, Place]:
     return handle, place
 
 
-def _parse_coordinates(element: Element) -> Optional[Coordinates]:
+def _parse_coordinates(element: Element) -> Optional[Point]:
     coord_element = xpath1(element, './ns:coord')
 
     if coord_element is None:
@@ -180,7 +181,7 @@ def _parse_coordinates(element: Element) -> Optional[Coordinates]:
     longitudeval = xpath1(coord_element, './@long')
 
     try:
-        return Coordinates(latitudeval, longitudeval)
+        return Point(latitudeval, longitudeval)
     except BaseException:
         # We could not parse/validate the Gramps coordinates, because they are too freeform.
         pass
