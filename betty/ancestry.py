@@ -223,7 +223,7 @@ class Event(Entity):
             people_labels = [person.label for person in sorted(
                 self._people, key=lambda x: x.label)]
             label = '%s of %s' % (
-                self._type_labels[self._type], ', '.join(people_labels))
+                self._type_labels[self._type], ' and '.join(people_labels))
         else:
             label = self._type_labels[self._type]
         if self._date:
