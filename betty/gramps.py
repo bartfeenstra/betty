@@ -155,22 +155,36 @@ def _parse_family(people: Dict[str, Person], documents: Dict[str, Document], ele
     return family
 
 
+class _IntermediatePlace:
+    def __init__(self, place: Place, enclosed_by_handle: Optional[str]):
+        self.place = place
+        self.enclosed_by_handle = enclosed_by_handle
+
+
 def _parse_places(database: Element) -> Dict[str, Place]:
-    return {handle: place for handle, place in
-            [_parse_place(element) for element in database.xpath('.//*[local-name()="placeobj"]')]}
+    intermediate_places = {handle: intermediate_place for handle, intermediate_place in
+                           [_parse_place(element) for element in database.xpath('.//*[local-name()="placeobj"]')]}
+    for intermediate_place in intermediate_places.values():
+        if intermediate_place.enclosed_by_handle is not None:
+            intermediate_place.place.enclosed_by = intermediate_places[intermediate_place.enclosed_by_handle].place
+    return {handle: intermediate_place.place for handle, intermediate_place in intermediate_places.items()}
 
 
-def _parse_place(element: Element) -> Tuple[str, Place]:
+def _parse_place(element: Element) -> Tuple[str, _IntermediatePlace]:
     handle = xpath1(element, './@handle')
     properties = {
         'name': element.xpath('./ns:pname/@value', namespaces=NS)[0]
     }
     place = Place(element.xpath('./@id')[0], **properties)
+
     coordinates = _parse_coordinates(element)
     if coordinates:
         place.coordinates = coordinates
 
-    return handle, place
+    # Set the first place reference as the place that encloses this place.
+    enclosed_by_handle = xpath1(element, './ns:placeref/@hlink')
+
+    return handle, _IntermediatePlace(place, enclosed_by_handle)
 
 
 def _parse_coordinates(element: Element) -> Optional[Point]:

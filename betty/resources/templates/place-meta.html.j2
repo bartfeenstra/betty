@@ -1,0 +1,12 @@
+{% macro enclosed_by(place) %}
+    <a href="/place/{{ place.id }}">{{ place.label }}</a>
+    {%- if place.enclosed_by -%}
+        ,{{ enclosed_by(place.enclosed_by) }}
+    {%- endif -%}
+{% endmacro %}
+
+{% if place.enclosed_by %}
+    <span class="meta">
+    in {{ enclosed_by(place.enclosed_by) }}
+    </span>
+{% endif %}
