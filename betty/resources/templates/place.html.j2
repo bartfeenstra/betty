@@ -1,6 +1,8 @@
 {% extends 'base.html.j2' %}
 {% set title = place.label %}
 {% block content %}
+    {% include 'place-meta.html.j2' %}
+
     {% if place.coordinates %}
         <div class="map" id="map-{{ place.id }}" data-place-ids="{{ place.id }}"></div>
     {% endif %}

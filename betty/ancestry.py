@@ -178,6 +178,16 @@ class Place(Entity):
 
         self._events = EventHandlingSet(
             handle_event_addition, handle_event_removal)
+        self._enclosed_by = None
+
+        def handle_encloses_addition(place):
+            place.enclosed_by = self
+
+        def handle_encloses_removal(place):
+            place.enclosed_by = None
+
+        self._encloses = EventHandlingSet(
+            handle_encloses_addition, handle_encloses_removal)
 
     @property
     def label(self) -> str:
@@ -194,6 +204,23 @@ class Place(Entity):
     @property
     def events(self) -> Iterable:
         return self._events
+
+    @property
+    def enclosed_by(self):
+        return self._enclosed_by
+
+    @enclosed_by.setter
+    def enclosed_by(self, place):
+        previous_place = self._enclosed_by
+        self._enclosed_by = place
+        if previous_place is not None:
+            previous_place.encloses.remove(self)
+        if place is not None:
+            place.encloses.add(self)
+
+    @property
+    def encloses(self) -> Iterable:
+        return self._encloses
 
 
 class Event(Entity):

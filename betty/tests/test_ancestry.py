@@ -155,11 +155,34 @@ class FamilyTest(TestCase):
 
 class PlaceTest(TestCase):
     def test_events_should_sync_references(self):
-        event = Event('1', Event.Type.BIRTH)
         sut = Place('1')
+        event = Event('1', Event.Type.BIRTH)
         sut.events.add(event)
         self.assertIn(event, sut.events)
         self.assertEquals(sut, event.place)
+        sut.events.remove(event)
+        self.assertCountEqual([], sut.events)
+        self.assertEquals(None, event.place)
+
+    def test_encloses_should_sync_references(self):
+        sut = Place('1')
+        enclosed_place = Place('2')
+        sut.encloses.add(enclosed_place)
+        self.assertIn(enclosed_place, sut.encloses)
+        self.assertEquals(sut, enclosed_place.enclosed_by)
+        sut.encloses.remove(enclosed_place)
+        self.assertCountEqual([], sut.encloses)
+        self.assertEquals(None, enclosed_place.enclosed_by)
+
+    def test_enclosed_by_should_sync_references(self):
+        sut = Place('1')
+        enclosing_place = Place('2')
+        sut.enclosed_by = enclosing_place
+        self.assertEquals(enclosing_place, sut.enclosed_by)
+        self.assertIn(sut, enclosing_place.encloses)
+        sut.enclosed_by = None
+        self.assertIsNone(sut.enclosed_by)
+        self.assertCountEqual([], enclosing_place.encloses)
 
 
 class EventTest(TestCase):
