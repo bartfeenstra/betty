@@ -1,0 +1,8 @@
+{% macro label(place) %}
+    <a href="/place/{{ place.id }}">{{ place.label }}</a>
+    {%- if place.enclosed_by -%}
+        ,{{ label(place.enclosed_by) }}
+    {%- endif -%}
+{% endmacro %}
+
+{{ label(place) }}

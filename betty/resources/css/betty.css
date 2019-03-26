@@ -120,21 +120,21 @@ footer {
  * Entity metadata.
  */
 
-dl.meta dt {
+.meta dt {
     font-weight: bold;
 }
 
 @media (min-width: 768px) {
-    dl.meta dt,
-    dl.meta dd {
+    .meta dt,
+    .meta dd {
         display: inline;
     }
 
-    dl.meta dt::after {
+    .meta dt::after {
         content: ':';
     }
 
-    dl.meta dd {
+    .meta dd {
         margin: 0 3em 0 0;
     }
 }

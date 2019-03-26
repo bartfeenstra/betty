@@ -1,7 +1,5 @@
 {% extends 'base.html.j2' %}
 {% set title = event.label %}
 {% block content %}
-    {% if event.place %}
-        In <a href="/place/{{ event.place.id }}">{{ event.place.label }}</a>.
-    {% endif %}
+    {% include 'event-meta.html.j2' %}
 {% endblock %}

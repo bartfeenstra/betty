@@ -9,5 +9,14 @@
         {% endfor %}
         <div class="map" id="list-place-map" data-place-ids="{{ ns.placeIds | join(',') }}"></div>
     {% endif %}
-    {{ super() }}
+    {% if entities %}
+        <ul class="entities">
+            {% for place in entities | sort(attribute='label') %}
+                <li class="{{ loop.cycle('odd', 'even') }}">
+                    <a href="/place/{{ place.id }}">{{ place.label }}</a>
+                    {% include 'place-meta.html.j2' %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 {% endblock %}

@@ -6,4 +6,16 @@
         {% set ns.dated_events = ns.dated_events + [event] %}
     {% endif %}
 {% endfor %}
-{% set entities = ns.dated_events | sort(attribute='date') %}
+{% set entities = ns.dated_events %}
+{% block content %}
+    {% if entities %}
+        <ul class="entities">
+            {% for event in entities | sort(attribute='date') %}
+                <li class="{{ loop.cycle('odd', 'even') }}">
+                    <a href="/event/{{ event.id }}">{{ event.label }}</a>
+                    {% include 'event-meta.html.j2' %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}
