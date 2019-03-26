@@ -1,7 +1,7 @@
 from os.path import join, dirname, abspath
 from unittest import TestCase
 
-from betty.ancestry import Ancestry
+from betty.ancestry import Ancestry, Event
 from betty.gramps import parse
 
 
@@ -48,16 +48,22 @@ class ParsePersonTest(GrampsTestCase):
 class ParseFamilyTest(GrampsTestCase):
     def test_family_should_include_parents(self):
         family = self.ancestry.families['F0000']
-        actual_parent_ids = [parent.id for parent in family.parents]
-        self.assertCountEqual(['I0002', 'I0003'], actual_parent_ids)
+        expected_parents = [self.ancestry.people['I0002'], self.ancestry.people['I0003']]
+        self.assertCountEqual(expected_parents, family.parents)
 
     def test_family_should_include_children(self):
         family = self.ancestry.families['F0000']
-        actual_child_ids = [parent.id for parent in family.children]
-        self.assertCountEqual(['I0000', 'I0001'], actual_child_ids)
+        expected_children = [self.ancestry.people['I0000'], self.ancestry.people['I0001']]
+        self.assertCountEqual(expected_children, family.children)
 
 
 class ParseEventTest(GrampsTestCase):
+    def test_event_should_be_birth(self):
+        self.assertEquals(Event.Type.BIRTH, self.ancestry.events['E0000'].type)
+
+    def test_event_should_be_death(self):
+        self.assertEquals(Event.Type.DEATH, self.ancestry.events['E0002'].type)
+
     def test_event_should_include_place(self):
         event = self.ancestry.events['E0000']
         place = self.ancestry.places['P0000']
@@ -71,4 +77,5 @@ class ParseEventTest(GrampsTestCase):
 
     def test_event_should_include_people(self):
         event = self.ancestry.events['E0000']
-        self.assertEquals('I0000', list(event.people)[0].id)
+        expected_people = [self.ancestry.people['I0000']]
+        self.assertCountEqual(expected_people, event.people)
