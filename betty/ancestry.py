@@ -227,11 +227,13 @@ class Event(Entity):
     class Type(Enum):
         BIRTH = 'birth'
         DEATH = 'death'
+        BURIAL = 'burial'
         MARRIAGE = 'marriage'
 
     _type_labels = {
         Type.BIRTH: 'Birth',
         Type.DEATH: 'Death',
+        Type.BURIAL: 'Burial',
         Type.MARRIAGE: 'Marriage',
     }
 

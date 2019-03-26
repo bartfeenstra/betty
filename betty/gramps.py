@@ -212,6 +212,7 @@ def _parse_events(places: Dict[str, Place], database: Element) -> Dict[str, Even
 EVENT_TYPE_MAP = {
     'Birth': Event.Type.BIRTH,
     'Death': Event.Type.DEATH,
+    'Burial': Event.Type.BURIAL,
     'Marriage': Event.Type.MARRIAGE,
 }
 
