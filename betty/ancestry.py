@@ -1,4 +1,3 @@
-import calendar
 from enum import Enum
 from functools import total_ordering
 from os.path import splitext
@@ -52,22 +51,6 @@ class Date:
     @property
     def day(self) -> Optional[int]:
         return self._day
-
-    @property
-    def label(self) -> str:
-        # All components.
-        if self._year and self._month and self._day:
-            return '%s %d, %d' % (calendar.month_name[self._month], self._day, self._year)
-        # No year.
-        if not self._year and self._month and self._day:
-            return '%s %d' % (calendar.month_name[self._month], self._day)
-        # No month.
-        if self._year and not self._month:
-            return str(self._year)
-        # No day.
-        if self._year and self._month and not self._day:
-            return '%s, %d' % (calendar.month_name[self._month], self._year)
-        return 'unknown'
 
     @property
     def parts(self) -> Tuple[Optional[int], Optional[int], Optional[int]]:
@@ -255,8 +238,6 @@ class Event(Entity):
                 self._type_labels[self._type], ' and '.join(people_labels))
         else:
             label = self._type_labels[self._type]
-        if self._date:
-            label = '%s (%s)' % (label, self._date.label)
         return label
 
     @property

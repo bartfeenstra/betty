@@ -203,13 +203,6 @@ class EventTest(TestCase):
         sut = Event('1', event_type)
         self.assertEquals('Birth', sut.label)
 
-    def test_label_with_date(self):
-        event_type = Event.Type.BIRTH
-        sut = Event('1', event_type)
-        date = Date(1970, 1, 1)
-        sut.date = date
-        self.assertEquals('Birth (January 1, 1970)', sut.label)
-
     def test_label_with_people(self):
         event_type = Event.Type.MARRIAGE
         sut = Event('1', event_type)
@@ -219,18 +212,6 @@ class EventTest(TestCase):
         ]
         sut.people = people
         self.assertEquals('Marriage of Doe, Jane and Dough, Janet', sut.label)
-
-    def test_label_with_date_and_people(self):
-        event_type = Event.Type.MARRIAGE
-        sut = Event('1', event_type)
-        date = Date(1970, 1, 1)
-        sut.date = date
-        people = [
-            Person('1', 'Jane', 'Doe'),
-            Person('2', 'Janet', 'Dough'),
-        ]
-        sut.people = people
-        self.assertEquals('Marriage of Doe, Jane and Dough, Janet (January 1, 1970)', sut.label)
 
     def test_place_should_sync_references(self):
         place = Place('1')
@@ -268,19 +249,6 @@ class DateTest(TestCase):
         day = 1
         sut = Date(day=day)
         self.assertEquals(day, sut.day)
-
-    @parameterized.expand([
-        (1970, 1, 1),
-        (1970, 1, None),
-        (1970, None, 1),
-        (None, 1, 1),
-        (1970, None, None),
-        (None, 1, None),
-        (None, None, 1),
-        (None, None, None),
-    ])
-    def test_label(self, year, month, day):
-        self.assertEquals(str, type(Date(year, month, day).label))
 
     @parameterized.expand([
         (1970, 1, 1),

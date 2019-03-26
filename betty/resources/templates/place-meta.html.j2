@@ -7,6 +7,9 @@
 
 {% if place.enclosed_by %}
     <span class="meta">
-    in {{ enclosed_by(place.enclosed_by) }}
+    in
+        {% with place=place.enclosed_by %}
+            {% include 'place-label.html.j2' %}
+        {% endwith %}
     </span>
 {% endif %}

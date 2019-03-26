@@ -1,3 +1,4 @@
+import calendar
 import os
 import re
 import shutil
@@ -10,7 +11,7 @@ from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, Fi
 from markupsafe import Markup
 
 import betty
-from betty.ancestry import Entity
+from betty.ancestry import Entity, Date
 from betty.json import JSONEncoder
 from betty.npm import install, BETTY_INSTANCE_NPM_DIR
 from betty.path import iterfiles
@@ -25,6 +26,7 @@ def render(site: Site) -> None:
     environment.globals['site'] = site
     environment.filters['json'] = _render_json
     environment.filters['paragraphs'] = _render_html_paragraphs
+    environment.filters['date'] = _render_date
 
     _render_public(site, environment)
     _render_webpack(site, environment)
@@ -133,11 +135,11 @@ def _render_entity(site: Site, environment: Environment, entity: Entity, entity_
         }))
 
 
-_paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
-
-
 def _render_json(data: Any) -> Union[str, Markup]:
     return dumps(data, cls=JSONEncoder)
+
+
+_paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
 
 
 @evalcontextfilter
@@ -150,3 +152,19 @@ def _render_html_paragraphs(eval_ctx, text: str) -> Union[str, Markup]:
     if eval_ctx.autoescape:
         result = Markup(result)
     return result
+
+
+def _render_date(date: Date) -> str:
+    # All components.
+    if date.year and date.month and date.day:
+        return '%s %d, %d' % (calendar.month_name[date.month], date.day, date.year)
+    # No year.
+    if not date.year and date.month and date.day:
+        return '%s %d' % (calendar.month_name[date.month], date.day)
+    # No month.
+    if date.year and not date.month:
+        return str(date.year)
+    # No day.
+    if date.year and date.month and not date.day:
+        return '%s, %d' % (calendar.month_name[date.month], date.year)
+    return 'unknown date'
