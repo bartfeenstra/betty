@@ -118,7 +118,7 @@ def _render_entity_type(site: Site, environment: Environment, entities: Iterable
     entity_type_path = os.path.join(
         site.configuration.output_directory_path, entity_type_name)
     with _create_html_file(entity_type_path) as f:
-        f.write(environment.get_template('list-%s.html.j2' % entity_type_name).render({
+        f.write(environment.get_template('page/list-%s.html.j2' % entity_type_name).render({
             'entity_type_name': entity_type_name,
             'entities': entities,
         }))
@@ -130,7 +130,7 @@ def _render_entity(site: Site, environment: Environment, entity: Entity, entity_
     entity_path = os.path.join(
         site.configuration.output_directory_path, entity_type_name, entity.id)
     with _create_html_file(entity_path) as f:
-        f.write(environment.get_template('%s.html.j2' % entity_type_name).render({
+        f.write(environment.get_template('page/%s.html.j2' % entity_type_name).render({
             entity_type_name: entity,
         }))
 
