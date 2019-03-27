@@ -32,6 +32,9 @@ class EventHandlingSet:
     def __iter__(self):
         return self._values.__iter__()
 
+    def __len__(self):
+        return len(self._values)
+
 
 @total_ordering
 class Date:
