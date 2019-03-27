@@ -1,9 +1,8 @@
 {% if event.date %}
     {{ event.date | date }}
 {% endif %}
-{% if event.place %}
+{% if event.place and event.place != place_context %}
     in
-    {% with place=event.place %}
-        {% include 'place-label.html.j2' %}
-    {% endwith %}
+    {% import 'macro/place.html.j2' as placeMacros %}
+    {{ placeMacros.label(event.place, place_context) }}
 {% endif %}
