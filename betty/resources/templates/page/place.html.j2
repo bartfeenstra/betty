@@ -1,4 +1,4 @@
-{% extends 'base.html.j2' %}
+{% extends 'page/base.html.j2' %}
 {% set title = place.label %}
 {% block content %}
     {% include 'place-meta.html.j2' %}
@@ -9,11 +9,9 @@
 
     <h2>Events</h2>
     {% if place.events %}
-        <ul>
-            {% for event in place.events %}
-                <li><a href="/event/{{ event.id }}">{{ event.label }}</a></li>
-            {% endfor %}
-        </ul>
+        {% with events=place.events %}
+            {% include 'list-event.html.j2' %}
+        {% endwith %}
     {% else %}
         <p>Unknown.</p>
     {% endif %}

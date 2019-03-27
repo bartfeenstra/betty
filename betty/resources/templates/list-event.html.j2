@@ -1,21 +1,16 @@
-{% extends 'list.html.j2' %}
-{% set title = 'Events' %}
 {% set ns = namespace(dated_events = []) %}
-{% for event in entities %}
+{% for event in events %}
     {% if event.date != None and event.date.year != None and event.date.month != None and event.date.day != None %}
         {% set ns.dated_events = ns.dated_events + [event] %}
     {% endif %}
 {% endfor %}
-{% set entities = ns.dated_events %}
-{% block content %}
-    {% if entities %}
-        <ul class="entities">
-            {% for event in entities | sort(attribute='date') %}
-                <li class="{{ loop.cycle('odd', 'even') }}">
-                    <a href="/event/{{ event.id }}">{{ event.label }}</a>
-                    {% include 'event-meta.html.j2' %}
-                </li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-{% endblock %}
+{% if ns.dated_events %}
+    <ul class="entities">
+        {% for event in ns.dated_events | sort(attribute='date') %}
+            <li class="{{ loop.cycle('odd', 'even') }}">
+                <a href="/event/{{ event.id }}">{{ event.label }}</a>
+                {% include 'event-meta.html.j2' %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}

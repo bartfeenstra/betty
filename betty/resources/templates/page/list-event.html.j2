@@ -1,0 +1,7 @@
+{% extends 'page/base.html.j2' %}
+{% set title = 'Events' %}
+{% block content %}
+    {% with events=entities %}
+        {% include 'list-event.html.j2' %}
+    {% endwith %}
+{% endblock %}
