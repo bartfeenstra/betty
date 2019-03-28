@@ -11,12 +11,11 @@
         <div class="map" id="map-{{ place.id }}" data-place-ids="{{ place_ids | join(',') }}"></div>
     {% endif %}
 
-    <h2>Events</h2>
-    {% if place.events %}
-        {% with events=place.events | list + place | walk('encloses') | map(attribute="events") | flatten | list %}
+    {% set events = place.events | list + place | walk('encloses') | map(attribute="events") | flatten | list %}
+    {% if events | length > 0 %}
+        <h2>Events</h2>
+        {% with events=events, place_context=place %}
             {% include 'list-event.html.j2' %}
         {% endwith %}
-    {% else %}
-        <p>Unknown.</p>
     {% endif %}
 {% endblock %}
