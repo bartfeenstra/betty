@@ -24,6 +24,8 @@ def render(site: Site) -> None:
         autoescape=select_autoescape(['html'])
     )
     environment.globals['site'] = site
+    environment.filters['flatten'] = _render_flatten
+    environment.filters['walk'] = _render_walk
     environment.filters['json'] = _render_json
     environment.filters['paragraphs'] = _render_html_paragraphs
     environment.filters['date'] = _render_date
@@ -133,6 +135,19 @@ def _render_entity(site: Site, environment: Environment, entity: Entity, entity_
         f.write(environment.get_template('page/%s.html.j2' % entity_type_name).render({
             entity_type_name: entity,
         }))
+
+
+def _render_flatten(items):
+    for item in items:
+        for child in item:
+            yield child
+
+
+def _render_walk(item, attribute_name):
+    children = getattr(item, attribute_name)
+    for child in children:
+        yield child
+        yield from _render_walk(child, attribute_name)
 
 
 def _render_json(data: Any) -> Union[str, Markup]:

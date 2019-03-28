@@ -3,11 +3,7 @@
 {% set entities = entities | sort(attribute='label') %}
 {% block content %}
     {% if entities %}
-        {% set ns = namespace(placeIds = []) %}
-        {% for place in entities %}
-            {% set ns.placeIds = ns.placeIds + [place.id] %}
-        {% endfor %}
-        <div class="map" id="list-place-map" data-place-ids="{{ ns.placeIds | join(',') }}"></div>
+        <div class="map" id="list-place-map" data-place-ids="{{ entities | map(attribute='id') | join(',') }}"></div>
     {% endif %}
     {% if entities %}
         <ul class="entities">
