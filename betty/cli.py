@@ -1,4 +1,5 @@
 import argparse
+from tempfile import TemporaryDirectory
 
 from betty.config import from_file
 from betty.gramps import parse
@@ -16,9 +17,10 @@ def main():
     try:
         with open(parsed_args.config_file_path) as f:
             configuration = from_file(f)
-        ancestry = parse(configuration.input_gramps_file_path)
-        site = Site(ancestry, configuration)
-        render(site)
+        with TemporaryDirectory() as working_directory_path:
+            ancestry = parse(configuration.input_gramps_file_path, working_directory_path)
+            site = Site(ancestry, configuration)
+            render(site)
     except KeyboardInterrupt:
         # Quit gracefully.
         print('Quitting...')
