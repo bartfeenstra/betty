@@ -1,6 +1,6 @@
 {% macro label(place, context=None) %}
     <a href="/place/{{ place.id }}">{{ place.label }}</a>
     {%- if place.enclosed_by and place.enclosed_by != context -%}
-        ,{{ label(place.enclosed_by) }}
+        ,{{ label(place.enclosed_by, context) }}
     {%- endif -%}
 {% endmacro %}
