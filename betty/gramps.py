@@ -1,4 +1,6 @@
-from os.path import join
+import gzip
+import tarfile
+from os.path import join, dirname
 from typing import Dict, Tuple, List, Optional
 
 from geopy import Point
@@ -23,7 +25,21 @@ def xpath1(element, selector: str) -> []:
     return None
 
 
-def parse(file_path) -> Ancestry:
+def parse(gramps_file_path, working_directory_path) -> Ancestry:
+    ungzipped_outer_file = gzip.open(gramps_file_path)
+    xml_file_path = join(working_directory_path, 'data.xml')
+    with open(xml_file_path, 'wb') as xml_file:
+        try:
+            tarfile.open(fileobj=ungzipped_outer_file).extractall(working_directory_path)
+            gramps_file_path = join(working_directory_path, 'data.gramps')
+            xml_file.write(gzip.open(gramps_file_path).read())
+        except tarfile.ReadError:
+            xml_file.write(ungzipped_outer_file.read())
+
+    return _parse_xml_file(xml_file_path)
+
+
+def _parse_xml_file(file_path) -> Ancestry:
     parser = XMLParser()
     tree = etree.parse(file_path, parser)
     database = tree.getroot()
@@ -34,7 +50,7 @@ def parse(file_path) -> Ancestry:
     people = _parse_people(events, database)
     families = _parse_families(people, documents, database)
     ancestry = Ancestry()
-    ancestry.documents = documents
+    ancestry.documents = {document.id: document for document in documents.values()}
     ancestry.people = {person.id: person for person in people.values()}
     ancestry.families = {family.id: family for family in families.values()}
     ancestry.places = {place.id: place for place in places.values()}
@@ -73,8 +89,8 @@ def _parse_document(gramps_file_path, notes: Dict[str, Note], element: Element) 
     handle = xpath1(element, './@handle')
     entity_id = xpath1(element, './@id')
     file_element = xpath1(element, './ns:file')
-    file_path = xpath1(file_element, './@src')
-    file = File(join(gramps_file_path, file_path))
+    file_path = join(dirname(gramps_file_path), xpath1(file_element, './@src'))
+    file = File(file_path)
     file.type = xpath1(file_element, './@mime')
     note_handles = xpath(element, './ns:noteref/@hlink')
     document = Document(entity_id, file)

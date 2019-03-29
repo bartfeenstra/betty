@@ -1,17 +1,41 @@
+import gzip
 from os.path import join, dirname, abspath
+from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from betty.ancestry import Ancestry, Event
+from betty.ancestry import Event
 from betty.gramps import parse
 
 
+class ExtractionTest(TestCase):
+    def test_gramps_xml(self):
+        with TemporaryDirectory() as working_directory_path:
+            ancestry = parse(join(dirname(abspath(__file__)), 'resources', 'minimal.gramps'), working_directory_path)
+            self.assertEquals('Dough, Janet', ancestry.people['I0000'].label)
+
+    def test_portable_gramps_xml_package(self):
+        with TemporaryDirectory() as working_directory_path:
+            ancestry = parse(join(dirname(abspath(__file__)), 'resources', 'minimal.gpkg'), working_directory_path)
+            self.assertEquals('Dough, Janet', ancestry.people['I0000'].label)
+            self.assertEquals('1px', ancestry.documents['O0000'].description)
+
+
 class GrampsTestCase(TestCase):
-    @property
-    def ancestry(self) -> Ancestry:
-        if not hasattr(self, '_ancestry'):
-            self._ancestry = parse(
-                join(dirname(abspath(__file__)), 'resources', 'data.xml'))
-        return self._ancestry
+    @classmethod
+    def setUpClass(cls) -> None:
+        # Our main Gramps XML data is stored as an XML file, so edits are easier to track. Because that is not a native
+        # Gramps format, we gzip it prior to using it in our Gramps API.
+        cls.working_directory = TemporaryDirectory()
+        with TemporaryDirectory() as gramps_working_directory_path:
+            gramps_file_path = join(gramps_working_directory_path, 'data.gramps')
+            with gzip.open(gramps_file_path, mode='w') as gramps_f:
+                with open(join(dirname(abspath(__file__)), 'resources', 'data.xml'), mode='rb') as xml_f:
+                    gramps_f.write(xml_f.read())
+            cls.ancestry = parse(gramps_f.name, cls.working_directory.name)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.working_directory.cleanup()
 
 
 class ParsePlaceTest(GrampsTestCase):
