@@ -47,6 +47,10 @@ li {
     line-height: 1.5;
 }
 
+address {
+    display: inline;
+}
+
 /*
  * Entity lists.
  */
