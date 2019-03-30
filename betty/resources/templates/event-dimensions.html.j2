@@ -1,5 +1,6 @@
 {% if event.date %}
-    {{ event.date | date }}
+    {% import 'macro/date.html.j2' as dateMacros %}
+    {{ dateMacros.format(event.date) }}
 {% endif %}
 {% if event.place and event.place != place_context %}
     in
