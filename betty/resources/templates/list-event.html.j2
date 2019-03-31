@@ -8,7 +8,7 @@
 <ul class="entities">
     {% for event in ns.dated_events | sort(attribute='date') %}
         <li class="{{ loop.cycle('odd', 'even') }}">
-            {{ eventMacros.label(event) }}
+            {{ eventMacros.label(event, person_context=person_context | default(None)) }}
             {% include 'event-meta.html.j2' %}
         </li>
     {% endfor %}
