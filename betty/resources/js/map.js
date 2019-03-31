@@ -35,7 +35,7 @@ function initializeMap (mapContainer) {
     let place = ancestry.places[placeId]
     if (place.coordinates) {
       let marker = L.marker([place.coordinates.latitude, place.coordinates.longitude]).addTo(map)
-      marker.bindPopup(`<a href="/place/${place.id}">${place.label}</a>`)
+      marker.bindPopup(`<a href="/place/${place.id}">${place.name}</a>`)
       markers.push(marker)
     }
   }

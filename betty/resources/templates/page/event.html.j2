@@ -1,5 +1,6 @@
 {% extends 'page/base.html.j2' %}
-{% set title = event.label %}
+{% import 'macro/event.html.j2' as eventMacros %}
+{% set title = eventMacros.label(event) | striptags %}
 {% block content %}
     {% include 'event-meta.html.j2' %}
 

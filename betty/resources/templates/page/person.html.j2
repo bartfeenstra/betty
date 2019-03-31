@@ -1,5 +1,5 @@
 {% extends 'page/base.html.j2' %}
-{% set title = person.label %}
+{% set title = person.name %}
 {% block content %}
     {% include 'person-meta.html.j2' %}
 
@@ -7,7 +7,7 @@
         <h2>Parents</h2>
         <ul>
             {% for parent in person.parents %}
-                <li><a href="/person/{{ parent.id }}">{{ parent.label }}</a></li>
+                <li><a href="/person/{{ parent.id }}">{{ parent.name }}</a></li>
             {% endfor %}
         </ul>
     {% endif %}
@@ -16,7 +16,7 @@
         <h2>Children</h2>
         <ul>
             {% for child in person.children %}
-                <li><a href="/person/{{ child.id }}">{{ child.label }}</a></li>
+                <li><a href="/person/{{ child.id }}">{{ child.name }}</a></li>
             {% endfor %}
         </ul>
     {% endif %}
@@ -25,7 +25,7 @@
         <h2>Siblings</h2>
         <ul>
             {% for sibling in person.siblings %}
-                <li><a href="/person/{{ sibling.id }}">{{ sibling.label }}</a></li>
+                <li><a href="/person/{{ sibling.id }}">{{ sibling.name }}</a></li>
             {% endfor %}
         </ul>
     {% endif %}

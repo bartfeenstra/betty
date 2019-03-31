@@ -109,10 +109,6 @@ class Entity:
         return self._id
 
     @property
-    def label(self) -> str:
-        return self.id
-
-    @property
     def documents(self) -> List:
         return self._documents
 
@@ -127,10 +123,6 @@ class Document(Entity):
         self._file = file
         self._description = None
         self._notes = []
-
-    @property
-    def label(self):
-        return self._description if self._description else ''
 
     @property
     def file(self) -> File:
@@ -154,7 +146,7 @@ class Document(Entity):
 
 
 class Place(Entity):
-    def __init__(self, entity_id: str, name: str = None):
+    def __init__(self, entity_id: str, name: str):
         Entity.__init__(self, entity_id)
         self._name = name
         self._coordinates = None
@@ -179,8 +171,8 @@ class Place(Entity):
             handle_encloses_addition, handle_encloses_removal)
 
     @property
-    def label(self) -> str:
-        return self._name or 'unknown'
+    def name(self) -> str:
+        return self._name
 
     @property
     def coordinates(self) -> Point:
@@ -219,13 +211,6 @@ class Event(Entity):
         BURIAL = 'burial'
         MARRIAGE = 'marriage'
 
-    _type_labels = {
-        Type.BIRTH: 'Birth',
-        Type.DEATH: 'Death',
-        Type.BURIAL: 'Burial',
-        Type.MARRIAGE: 'Marriage',
-    }
-
     def __init__(self, entity_id: str, entity_type: Type):
         Entity.__init__(self, entity_id)
         self._date = None
@@ -233,18 +218,6 @@ class Event(Entity):
         self._type = entity_type
         self._people = EventHandlingSet(lambda person: person.events.add(self),
                                         lambda person: person.events.remove(self))
-
-    @property
-    def label(self) -> str:
-        people = set(self._people)
-        if people:
-            people_labels = [person.label for person in sorted(
-                self._people, key=lambda x: x.label)]
-            label = '%s of %s' % (
-                self._type_labels[self._type], ' and '.join(people_labels))
-        else:
-            label = self._type_labels[self._type]
-        return label
 
     @property
     def date(self) -> Optional[Date]:
@@ -297,16 +270,16 @@ class Person(Entity):
                                           lambda child: child.parents.remove(self))
 
     @property
-    def label(self) -> str:
-        return '%s, %s' % (self._family_name or 'unknown', self._individual_name or 'unknown')
-
-    @property
     def individual_name(self) -> Optional[str]:
         return self._individual_name
 
     @property
     def family_name(self) -> Optional[str]:
         return self._family_name
+
+    @property
+    def name(self) -> str:
+        return '%s, %s' % (self._family_name or '…', self._individual_name or '…')
 
     @property
     def events(self) -> Iterable:

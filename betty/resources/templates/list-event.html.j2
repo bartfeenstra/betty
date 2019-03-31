@@ -4,13 +4,12 @@
         {% set ns.dated_events = ns.dated_events + [event] %}
     {% endif %}
 {% endfor %}
-{% if ns.dated_events %}
-    <ul class="entities">
-        {% for event in ns.dated_events | sort(attribute='date') %}
-            <li class="{{ loop.cycle('odd', 'even') }}">
-                <a href="/event/{{ event.id }}">{{ event.label }}</a>
-                {% include 'event-meta.html.j2' %}
-            </li>
-        {% endfor %}
-    </ul>
-{% endif %}
+{% import 'macro/event.html.j2' as eventMacros %}
+<ul class="entities">
+    {% for event in ns.dated_events | sort(attribute='date') %}
+        <li class="{{ loop.cycle('odd', 'even') }}">
+            {{ eventMacros.label(event) }}
+            {% include 'event-meta.html.j2' %}
+        </li>
+    {% endfor %}
+</ul>
