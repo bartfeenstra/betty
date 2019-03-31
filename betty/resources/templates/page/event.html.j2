@@ -2,4 +2,10 @@
 {% set title = event.label %}
 {% block content %}
     {% include 'event-meta.html.j2' %}
+
+    {% if event.documents | length > 0 %}
+        {% for document in event.documents %}
+            {% include 'document.html.j2' %}
+        {% endfor %}
+    {% endif %}
 {% endblock %}
