@@ -10,13 +10,21 @@ import { leafletMarkerShadowImage } from '../../node_modules/leaflet/dist/images
 import ancestry from './ancestry.json'
 
 function initializeMaps () {
-  const mapContainers = document.getElementsByClassName('map')
+  const mapContainers = document.getElementsByClassName('places')
   for (let mapContainer of mapContainers) {
     initializeMap(mapContainer)
   }
 }
 
 function initializeMap (mapContainer) {
+  const placesData = mapContainer.querySelectorAll('[data-betty-place-id]')
+
+  // Remove all existing content and convert the container to a map.
+  while (mapContainer.firstChild) {
+    mapContainer.removeChild(mapContainer.firstChild)
+  }
+  mapContainer.className += ' map'
+
   let map = L.map(mapContainer.id)
 
   // Build the attribution layer.
@@ -30,12 +38,11 @@ function initializeMap (mapContainer) {
 
   // Build place markers.
   const markers = []
-  const placeIds = mapContainer.dataset.placeIds.split(',')
-  for (let placeId of placeIds) {
-    let place = ancestry.places[placeId]
+  for (let placeData of placesData) {
+    let place = ancestry.places[placeData.dataset.bettyPlaceId]
     if (place.coordinates) {
       let marker = L.marker([place.coordinates.latitude, place.coordinates.longitude]).addTo(map)
-      marker.bindPopup(`<a href="/place/${place.id}">${place.name}</a>`)
+      marker.bindPopup(placeData.innerHTML)
       markers.push(marker)
     }
   }
