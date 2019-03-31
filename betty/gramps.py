@@ -1,13 +1,13 @@
 import gzip
 import tarfile
 from os.path import join, dirname
-from typing import Dict, Tuple, List, Optional
+from typing import Tuple, Optional
 
 from geopy import Point
 from lxml import etree
 from lxml.etree import XMLParser, Element
 
-from betty.ancestry import Document, Event, Place, Family, Person, Ancestry, Date, Note, File
+from betty.ancestry import Document, Event, Place, Person, Ancestry, Date, Note, File
 
 NS = {
     'ns': 'http://gramps-project.org/xml/1.7.1/',
@@ -43,19 +43,31 @@ def _parse_xml_file(file_path) -> Ancestry:
     parser = XMLParser()
     tree = etree.parse(file_path, parser)
     database = tree.getroot()
-    notes = _parse_notes(database)
-    documents = _parse_documents(file_path, notes, database)
-    places = _parse_places(database)
-    events = _parse_events(places, database)
-    people = _parse_people(events, database)
-    families = _parse_families(people, documents, database)
-    ancestry = Ancestry()
-    ancestry.documents = {document.id: document for document in documents.values()}
-    ancestry.people = {person.id: person for person in people.values()}
-    ancestry.families = {family.id: family for family in families.values()}
-    ancestry.places = {place.id: place for place in places.values()}
-    ancestry.events = {event.id: event for event in events.values()}
-    return ancestry
+    ancestry = _IntermediateAncestry()
+    _parse_notes(ancestry, database)
+    _parse_documents(ancestry, database, file_path)
+    _parse_places(ancestry, database)
+    _parse_events(ancestry, database)
+    _parse_people(ancestry, database)
+    _parse_families(ancestry, database)
+    return ancestry.to_ancestry()
+
+
+class _IntermediateAncestry:
+    def __init__(self):
+        self.notes = {}
+        self.documents = {}
+        self.places = {}
+        self.events = {}
+        self.people = {}
+
+    def to_ancestry(self):
+        ancestry = Ancestry()
+        ancestry.documents = {document.id: document for document in self.documents.values()}
+        ancestry.people = {person.id: person for person in self.people.values()}
+        ancestry.places = {place.id: place for place in self.places.values()}
+        ancestry.events = {event.id: event for event in self.events.values()}
+        return ancestry
 
 
 def _parse_date(element: Element) -> Optional[Date]:
@@ -68,24 +80,23 @@ def _parse_date(element: Element) -> Optional[Date]:
     return None
 
 
-def _parse_notes(database: Element) -> Dict[str, Note]:
-    return {handle: note for handle, note in
-            [_parse_note(element) for element in xpath(database, './ns:notes/ns:note')]}
+def _parse_notes(ancestry: _IntermediateAncestry, database: Element):
+    for element in xpath(database, './ns:notes/ns:note'):
+        _parse_note(ancestry, element)
 
 
-def _parse_note(element: Element) -> Tuple[str, Note]:
+def _parse_note(ancestry: _IntermediateAncestry, element: Element):
     handle = xpath1(element, './@handle')
     text = xpath1(element, './ns:text/text()')
-    return handle, Note(text)
+    ancestry.notes[handle] = Note(text)
 
 
-def _parse_documents(gramps_file_path: str, notes: Dict[str, Note], database: Element) -> Dict[str, Document]:
-    return {handle: document for handle, document in
-            [_parse_document(gramps_file_path, notes, element) for element in
-             xpath(database, './ns:objects/ns:object')]}
+def _parse_documents(ancestry: _IntermediateAncestry, database: Element, gramps_file_path: str):
+    for element in xpath(database, './ns:objects/ns:object'):
+        _parse_document(ancestry, element, gramps_file_path)
 
 
-def _parse_document(gramps_file_path, notes: Dict[str, Note], element: Element) -> Tuple[str, Document]:
+def _parse_document(ancestry: _IntermediateAncestry, element: Element, gramps_file_path):
     handle = xpath1(element, './@handle')
     entity_id = xpath1(element, './@id')
     file_element = xpath1(element, './ns:file')
@@ -98,16 +109,16 @@ def _parse_document(gramps_file_path, notes: Dict[str, Note], element: Element) 
     if description:
         document.description = description
     for note_handle in note_handles:
-        document.notes.append(notes[note_handle])
-    return handle, document
+        document.notes.append(ancestry.notes[note_handle])
+    ancestry.documents[handle] = document
 
 
-def _parse_people(events: Dict[str, Event], database: Element) -> Dict[str, Person]:
-    return {handle: person for handle, person in
-            [_parse_person(events, element) for element in database.xpath('.//*[local-name()="person"]')]}
+def _parse_people(ancestry: _IntermediateAncestry, database: Element):
+    for element in database.xpath('.//*[local-name()="person"]'):
+        _parse_person(ancestry, element)
 
 
-def _parse_person(events: Dict[str, Event], element: Element) -> Tuple[str, Person]:
+def _parse_person(ancestry: _IntermediateAncestry, element: Element):
     handle = xpath1(element, './@handle')
     properties = {
         'individual_name': element.xpath('./ns:name[@type="Birth Name"]/ns:first', namespaces=NS)[0].text,
@@ -116,59 +127,47 @@ def _parse_person(events: Dict[str, Event], element: Element) -> Tuple[str, Pers
     event_handles = xpath(element, './ns:eventref/@hlink')
     person = Person(element.xpath('./@id')[0], **properties)
     for event_handle in event_handles:
-        person.events.add(events[event_handle])
-    return handle, person
+        person.events.add(ancestry.events[event_handle])
+
+    ancestry.people[handle] = person
 
 
-def _parse_person_birth(events: Dict[str, Event], handles: List[str]) -> Optional[Event]:
-    births = _parse_person_filter_events(events, handles, Event.Type.BIRTH)
-    return births[0] if births else None
+def _parse_families(ancestry: _IntermediateAncestry, database: Element):
+    for element in database.xpath('.//*[local-name()="family"]'):
+        _parse_family(ancestry, element)
 
 
-def _parse_person_death(events: Dict[str, Event], handles: List[str]) -> Optional[Event]:
-    births = _parse_person_filter_events(events, handles, Event.Type.DEATH)
-    return births[0] if births else None
+def _parse_family(ancestry: _IntermediateAncestry, element: Element):
+    parents = set()
 
-
-def _parse_person_filter_events(events: Dict[str, Event], handles: List[str], event_type: Event.Type) -> List[Event]:
-    return [event for event in [events[event_handle] for event_handle in handles] if event.type == event_type]
-
-
-def _parse_families(people: Dict[str, Person], documents: Dict[str, Document], database: Element) -> Dict[str, Family]:
-    return {family.id: family for family in
-            [_parse_family(people, documents, element) for element in database.xpath('.//*[local-name()="family"]')]}
-
-
-def _parse_family(people: Dict[str, Person], documents: Dict[str, Document], element: Element) -> Family:
-    family = Family(element.xpath('./@id')[0])
+    # Parse events.
+    event_handles = xpath(element, './ns:eventref/@hlink')
+    events = [ancestry.events[event_handle] for event_handle in event_handles]
 
     # Parse the father.
     father_handle = xpath1(element, './ns:father/@hlink')
     if father_handle:
-        father = people[father_handle]
-        father.ancestor_families.add(family)
-        family.parents.add(father)
+        father = ancestry.people[father_handle]
+        for event in events:
+            father.events.add(event)
+        parents.add(father)
 
     # Parse the mother.
     mother_handle = xpath1(element, './ns:mother/@hlink')
     if mother_handle:
-        mother = people[mother_handle]
-        mother.ancestor_families.add(family)
-        family.parents.add(mother)
+        mother = ancestry.people[mother_handle]
+        for event in events:
+            mother.events.add(event)
+        parents.add(mother)
 
     # Parse the children.
     child_handles = xpath(element, './ns:childref/@hlink')
     for child_handle in child_handles:
-        child = people[child_handle]
-        child.descendant_family = family
-        family.children.add(child)
-
-    # Parse the documents.
-    document_handles = xpath(element, './ns:objref/@hlink')
-    for document_handle in document_handles:
-        family.documents.append(documents[document_handle])
-
-    return family
+        child = ancestry.people[child_handle]
+        for event in events:
+            child.events.add(event)
+        for parent in parents:
+            parent.children.add(child)
 
 
 class _IntermediatePlace:
@@ -177,13 +176,13 @@ class _IntermediatePlace:
         self.enclosed_by_handle = enclosed_by_handle
 
 
-def _parse_places(database: Element) -> Dict[str, Place]:
+def _parse_places(ancestry: _IntermediateAncestry, database: Element):
     intermediate_places = {handle: intermediate_place for handle, intermediate_place in
                            [_parse_place(element) for element in database.xpath('.//*[local-name()="placeobj"]')]}
     for intermediate_place in intermediate_places.values():
         if intermediate_place.enclosed_by_handle is not None:
             intermediate_place.place.enclosed_by = intermediate_places[intermediate_place.enclosed_by_handle].place
-    return {handle: intermediate_place.place for handle, intermediate_place in intermediate_places.items()}
+    ancestry.places = {handle: intermediate_place.place for handle, intermediate_place in intermediate_places.items()}
 
 
 def _parse_place(element: Element) -> Tuple[str, _IntermediatePlace]:
@@ -220,9 +219,9 @@ def _parse_coordinates(element: Element) -> Optional[Point]:
     return None
 
 
-def _parse_events(places: Dict[str, Place], database: Element) -> Dict[str, Event]:
-    return {handle: event for handle, event in
-            [_parse_event(places, element) for element in database.xpath('.//*[local-name()="event"]')]}
+def _parse_events(ancestry: _IntermediateAncestry, database: Element):
+    for element in database.xpath('.//*[local-name()="event"]'):
+        _parse_event(ancestry, element)
 
 
 EVENT_TYPE_MAP = {
@@ -233,7 +232,7 @@ EVENT_TYPE_MAP = {
 }
 
 
-def _parse_event(places: Dict[str, Place], element: Element) -> Tuple[str, Event]:
+def _parse_event(ancestry: _IntermediateAncestry, element: Element):
     handle = xpath1(element, './@handle')
     gramps_type = xpath1(element, './ns:type')
 
@@ -244,6 +243,11 @@ def _parse_event(places: Dict[str, Place], element: Element) -> Tuple[str, Event
     # Parse the event place.
     place_handle = xpath1(element, './ns:place/@hlink')
     if place_handle:
-        event.place = places[place_handle]
+        event.place = ancestry.places[place_handle]
 
-    return handle, event
+    # Parse the documents.
+    document_handles = xpath(element, './ns:objref/@hlink')
+    for document_handle in document_handles:
+        event.documents.append(ancestry.documents[document_handle])
+
+    ancestry.events[handle] = event
