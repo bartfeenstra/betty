@@ -27,7 +27,10 @@ class EventHandlingSet:
             self._removal_handler(value)
 
     def replace(self, values: Iterable):
-        self._values = set(values)
+        for value in set(self._values):
+            self.remove(value)
+        for value in values:
+            self.add(value)
 
     def __iter__(self):
         return self._values.__iter__()
@@ -288,9 +291,10 @@ class Person(Entity):
         self._family_name = family_name
         self._events = EventHandlingSet(lambda event: event.people.add(self),
                                         lambda event: event.people.remove(self))
-        self._descendant_family = None
-        self._ancestor_families = EventHandlingSet(lambda family: family.parents.add(self),
-                                                   lambda family: family.parents.remove(self))
+        self._parents = EventHandlingSet(lambda parent: parent.children.add(self),
+                                         lambda parent: parent.children.remove(self))
+        self._children = EventHandlingSet(lambda child: child.parents.add(self),
+                                          lambda child: child.parents.remove(self))
 
     @property
     def label(self) -> str:
@@ -327,77 +331,29 @@ class Person(Entity):
         return None
 
     @property
-    def descendant_family(self):
-        return self._descendant_family
+    def parents(self) -> Iterable:
+        return self._parents
 
-    @descendant_family.setter
-    def descendant_family(self, family):
-        previous_family = self._descendant_family
-        self._descendant_family = family
-        if previous_family is not None:
-            previous_family.children.remove(self)
-        if family is not None:
-            family.children.add(self)
+    @parents.setter
+    def parents(self, parents: Iterable):
+        self._parents.replace(parents)
 
     @property
-    def ancestor_families(self) -> Iterable:
-        return self._ancestor_families
+    def children(self) -> Iterable:
+        return self._children
 
-    @ancestor_families.setter
-    def ancestor_families(self, families: Iterable):
-        self._ancestor_families.replace(families)
-
-    @property
-    def parents(self):
-        return self._descendant_family.parents if self._descendant_family else []
-
-    @property
-    def children(self):
-        children = []
-        for family in self._ancestor_families:
-            children += family.children
-        return children
+    @children.setter
+    def children(self, children: Iterable):
+        self._children.replace(children)
 
     @property
     def siblings(self):
         siblings = set()
-        for parent in self.parents:
+        for parent in self._parents:
             for sibling in parent.children:
                 if sibling != self:
                     siblings.add(sibling)
         return siblings
-
-
-class Family(Entity):
-    def __init__(self, entity_id: str):
-        Entity.__init__(self, entity_id)
-
-        def handle_child_addition(child):
-            child.descendant_family = self
-
-        def handle_child_removal(child):
-            child.descendant_family = None
-
-        self._parents = EventHandlingSet(lambda parent: parent.ancestor_families.add(self),
-                                         lambda parent: parent.ancestor_families.remove(self))
-        self._children = EventHandlingSet(
-            handle_child_addition, handle_child_removal)
-
-    @property
-    def parents(self) -> Iterable[Person]:
-        return self._parents
-
-    @parents.setter
-    def parents(self, parents: Iterable[Person]):
-        self._parents.replace(parents)
-
-    @property
-    def children(self) -> Iterable[Person]:
-        return self._children
-
-    @children.setter
-    def children(self, children: Iterable[Person]):
-        self._children.replace(children)
 
 
 class Ancestry:
@@ -423,14 +379,6 @@ class Ancestry:
     @people.setter
     def people(self, people: Dict[str, Person]):
         self._people = people
-
-    @property
-    def families(self) -> Dict[str, Family]:
-        return self._families
-
-    @families.setter
-    def families(self, families: Dict[str, Family]):
-        self._families = families
 
     @property
     def places(self) -> Dict[str, Place]:

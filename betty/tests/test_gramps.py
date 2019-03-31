@@ -70,15 +70,17 @@ class ParsePersonTest(GrampsTestCase):
 
 
 class ParseFamilyTest(GrampsTestCase):
-    def test_family_should_include_parents(self):
-        family = self.ancestry.families['F0000']
+    def test_family_should_set_parents(self):
         expected_parents = [self.ancestry.people['I0002'], self.ancestry.people['I0003']]
-        self.assertCountEqual(expected_parents, family.parents)
+        children = [self.ancestry.people['I0000'], self.ancestry.people['I0001']]
+        for child in children:
+            self.assertCountEqual(expected_parents, child.parents)
 
-    def test_family_should_include_children(self):
-        family = self.ancestry.families['F0000']
+    def test_family_should_set_children(self):
+        parents = [self.ancestry.people['I0002'], self.ancestry.people['I0003']]
         expected_children = [self.ancestry.people['I0000'], self.ancestry.people['I0001']]
-        self.assertCountEqual(expected_children, family.children)
+        for parent in parents:
+            self.assertCountEqual(expected_children, parent.children)
 
 
 class ParseEventTest(GrampsTestCase):

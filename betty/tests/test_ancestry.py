@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 from parameterized import parameterized
 
-from betty.ancestry import EventHandlingSet, Person, Family, Event, Place, Date, File, Note, Document
+from betty.ancestry import EventHandlingSet, Person, Event, Place, Date, File, Note, Document
 
 
 class EventHandlingSetTest(TestCase):
@@ -18,11 +18,20 @@ class EventHandlingSetTest(TestCase):
             reference.remove(removed_value)
 
         sut = EventHandlingSet(addition_handler, removal_handler)
+
         value = 'A valuable value'
+
         sut.add(value)
         self.assertCountEqual([value], sut)
         self.assertEquals([value], reference)
-        sut.remove(value)
+
+        newvalue = 'A even more valuable value'
+
+        sut.replace([newvalue])
+        self.assertCountEqual([newvalue], sut)
+        self.assertEquals([newvalue], reference)
+
+        sut.remove(newvalue)
         self.assertCountEqual([], sut)
         self.assertEquals([], reference)
 
@@ -36,89 +45,45 @@ class EventHandlingSetTest(TestCase):
 
 
 class PersonTest(TestCase):
-    def test_ancestor_families_should_sync_references(self):
-        family = Family('1')
+    def test_parents_should_sync_references(self):
         sut = Person('1')
-        sut.ancestor_families.add(family)
-        self.assertCountEqual([family], sut.ancestor_families)
-        self.assertCountEqual([sut], family.parents)
-        sut.ancestor_families.remove(family)
-        self.assertCountEqual([], sut.ancestor_families)
-        self.assertCountEqual([], family.parents)
+        parent = Person('2')
+        sut.parents.add(parent)
+        self.assertCountEqual([parent], sut.parents)
+        self.assertCountEqual([sut], parent.children)
+        sut.parents.remove(parent)
+        self.assertCountEqual([], sut.parents)
+        self.assertCountEqual([], parent.children)
 
-    def test_descendant_family_should_sync_references(self):
-        family = Family('1')
+    def test_children_should_sync_references(self):
         sut = Person('1')
-        sut.descendant_family = family
-        self.assertEquals(family, sut.descendant_family)
-        self.assertCountEqual([sut], family.children)
-        sut.descendant_family = None
-        self.assertIsNone(sut.descendant_family)
-        self.assertCountEqual([], family.children)
+        child = Person('2')
+        sut.children.add(child)
+        self.assertCountEqual([child], sut.children)
+        self.assertCountEqual([sut], child.parents)
+        sut.children.remove(child)
+        self.assertCountEqual([], sut.children)
+        self.assertCountEqual([], child.parents)
 
-    def test_children_without_ancestor_families(self):
-        sut = Person('person')
-        self.assertEquals([], sut.children)
-
-    def test_children_with_multiple_ancestor_families(self):
-        child_1_1 = Person('1_1')
-        child_1_2 = Person('1_2')
-        family_1 = Family('1')
-        family_1.children = [child_1_1, child_1_2]
-
-        child_2_1 = Person('2_1')
-        child_2_2 = Person('2_2')
-        family_2 = Family('2')
-        family_2.children = [child_2_1, child_2_2]
-
-        sut = Person('person')
-        sut.ancestor_families = [family_1, family_2]
-
-        self.assertCountEqual(
-            [child_1_1, child_1_2, child_2_1, child_2_2], sut.children)
-
-    def test_parents_without_descendant_family(self):
-        sut = Person('person')
-        self.assertEquals([], sut.parents)
-
-    def test_parents_with_descendant_family(self):
-        parent_1 = Mock(Person)
-        parent_2 = Mock(Person)
-        family = Family('1')
-        family.parents = [parent_1, parent_2]
-
-        sut = Person('person')
-        sut.descendant_family = family
-
-        self.assertCountEqual([parent_1, parent_2], sut.parents)
-
-    def test_siblings_without_descendant_family(self):
+    def test_siblings_without_parents(self):
         sut = Person('person')
         self.assertCountEqual([], sut.siblings)
 
-    def test_siblings_with_descendant_families(self):
-        parent = Person('1')
-        sibling = Mock(Person)
-        descendant_family = Family('1')
-        descendant_family.parents.add(parent)
-        descendant_family.children.add(sibling)
-
-        half_family = Family('1')
-        half_sibling = Mock(Person)
-        half_family.parents.add(parent)
-        half_family.children.add(half_sibling)
-
-        sut = Person('person')
-        sut.descendant_family = descendant_family
-
-        self.assertCountEqual([sibling, half_sibling], sut.siblings)
-
-    def test_events(self):
+    def test_siblings_with_one_common_parent(self):
         sut = Person('1')
-        self.assertCountEqual([], sut.events)
-        events = (Mock(Event), Mock(Event))
-        sut.events = events
-        self.assertCountEqual(events, sut.events)
+        sibling = Person('2')
+        parent = Person('3')
+        parent.children = [sut, sibling]
+
+        self.assertCountEqual([sibling], sut.siblings)
+
+    def test_siblings_with_multiple_common_parents(self):
+        sut = Person('1')
+        sibling = Person('2')
+        parent = Person('3')
+        parent.children = [sut, sibling]
+
+        self.assertCountEqual([sibling], sut.siblings)
 
     def test_events_should_sync_references(self):
         event = Event('1', Event.Type.BIRTH)
@@ -129,28 +94,6 @@ class PersonTest(TestCase):
         sut.events.remove(event)
         self.assertCountEqual([], sut.events)
         self.assertCountEqual([], event.people)
-
-
-class FamilyTest(TestCase):
-    def test_parents_should_sync_references(self):
-        parent = Person('1')
-        sut = Family('1')
-        sut.parents.add(parent)
-        self.assertCountEqual([parent], sut.parents)
-        self.assertCountEqual([sut], parent.ancestor_families)
-        sut.parents.remove(parent)
-        self.assertCountEqual([], sut.parents)
-        self.assertCountEqual([], parent.ancestor_families)
-
-    def test_children_should_sync_references(self):
-        child = Person('1')
-        sut = Family('1')
-        sut.children.add(child)
-        self.assertCountEqual([child], sut.children)
-        self.assertEquals(sut, child.descendant_family)
-        sut.children.remove(child)
-        self.assertCountEqual([], sut.children)
-        self.assertEquals(None, child.descendant_family)
 
 
 class PlaceTest(TestCase):
