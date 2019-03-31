@@ -164,8 +164,6 @@ def _parse_family(ancestry: _IntermediateAncestry, element: Element):
     child_handles = xpath(element, './ns:childref/@hlink')
     for child_handle in child_handles:
         child = ancestry.people[child_handle]
-        for event in events:
-            child.events.add(event)
         for parent in parents:
             parent.children.add(child)
 
