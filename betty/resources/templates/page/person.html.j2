@@ -32,7 +32,7 @@
 
     {% if person.events | length > 0 %}
         <h2>Events</h2>
-        {% with events=person.events %}
+        {% with events=person.events, person_context=person %}
             {% include 'list-event.html.j2' %}
         {% endwith %}
     {% endif %}

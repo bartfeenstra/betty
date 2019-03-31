@@ -1,12 +1,13 @@
-{% macro label(event) %}
+{% macro label(event, person_context=None) %}
     <a href="/event/{{ event.id }}">{{ type_label(event) }}</a>
-    {% if event.people | length > 0 %}
-        of
+    {% set people = event.people | reject('equalto', person_context) | list %}
+    {% if people | length > 0 %}
+        {% if person_context %}with{% else %}of{% endif %}
         {% set ns = namespace(people_labels=[]) %}
-        {% for person in event.people | sort(attribute='name') %}
-            {%  set ns.people_labels = ns.people_labels + ['<a href="/person/' + person.id + '">' + person.name + '</a>'] %}
+        {% for person in people | sort(attribute='name') %}
+            {% set ns.people_labels = ns.people_labels + ['<a href="/person/' + person.id + '">' + person.name + '</a>'] %}
         {% endfor %}
-        {{ ns.people_labels | join(', ') }}
+        {{ ns.people_labels | join(' and ') }}
     {% endif %}
 {% endmacro %}
 
