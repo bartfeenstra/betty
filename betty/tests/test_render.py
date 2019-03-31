@@ -46,7 +46,7 @@ class RenderTest(TestCase):
     def setUpClass(cls):
         ancestry = Ancestry()
 
-        place1 = Place('PLACE1')
+        place1 = Place('PLACE1', 'one')
 
         event1 = Event('EVENT1', Event.Type.BIRTH)
         event1.place = place1

@@ -46,8 +46,8 @@ class EventHandlingSetTest(TestCase):
 
 class PersonTest(TestCase):
     def test_parents_should_sync_references(self):
-        sut = Person('1')
-        parent = Person('2')
+        sut = Person('1', 'one')
+        parent = Person('2', 'two')
         sut.parents.add(parent)
         self.assertCountEqual([parent], sut.parents)
         self.assertCountEqual([sut], parent.children)
@@ -98,7 +98,7 @@ class PersonTest(TestCase):
 
 class PlaceTest(TestCase):
     def test_events_should_sync_references(self):
-        sut = Place('1')
+        sut = Place('1', 'one')
         event = Event('1', Event.Type.BIRTH)
         sut.events.add(event)
         self.assertIn(event, sut.events)
@@ -108,8 +108,8 @@ class PlaceTest(TestCase):
         self.assertEquals(None, event.place)
 
     def test_encloses_should_sync_references(self):
-        sut = Place('1')
-        enclosed_place = Place('2')
+        sut = Place('1', 'one')
+        enclosed_place = Place('2', 'two')
         sut.encloses.add(enclosed_place)
         self.assertIn(enclosed_place, sut.encloses)
         self.assertEquals(sut, enclosed_place.enclosed_by)
@@ -118,8 +118,8 @@ class PlaceTest(TestCase):
         self.assertEquals(None, enclosed_place.enclosed_by)
 
     def test_enclosed_by_should_sync_references(self):
-        sut = Place('1')
-        enclosing_place = Place('2')
+        sut = Place('1', 'one')
+        enclosing_place = Place('2', 'two')
         sut.enclosed_by = enclosing_place
         self.assertEquals(enclosing_place, sut.enclosed_by)
         self.assertIn(sut, enclosing_place.encloses)
@@ -141,23 +141,8 @@ class EventTest(TestCase):
         sut = Event('1', event_type)
         self.assertEquals(event_type, sut.type)
 
-    def test_label_with_type_only(self):
-        event_type = Event.Type.BIRTH
-        sut = Event('1', event_type)
-        self.assertEquals('Birth', sut.label)
-
-    def test_label_with_people(self):
-        event_type = Event.Type.MARRIAGE
-        sut = Event('1', event_type)
-        people = [
-            Person('1', 'Jane', 'Doe'),
-            Person('2', 'Janet', 'Dough'),
-        ]
-        sut.people = people
-        self.assertEquals('Marriage of Doe, Jane and Dough, Janet', sut.label)
-
     def test_place_should_sync_references(self):
-        place = Place('1')
+        place = Place('1', 'one')
         sut = Event('1', Event.Type.BIRTH)
         sut.place = place
         self.assertEquals(place, sut.place)
@@ -288,20 +273,6 @@ class DocumentTest(TestCase):
         description = 'Hi, my name is Betty!'
         sut.description = description
         self.assertEquals(description, sut.description)
-
-    def test_label_with_description(self):
-        entity_id = 'BETTY01'
-        file = Mock(File)
-        sut = Document(entity_id, file)
-        description = 'Hi, my name is Betty!'
-        sut.description = description
-        self.assertEquals(description, sut.label)
-
-    def test_label_without_description(self):
-        entity_id = 'BETTY01'
-        file = Mock(File)
-        sut = Document(entity_id, file)
-        self.assertIsInstance(sut.label, str)
 
     def test_notes(self):
         entity_id = 'BETTY01'

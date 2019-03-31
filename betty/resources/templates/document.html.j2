@@ -2,9 +2,9 @@
     <div class="image">
         {% set document_path = '/document/' +  document.id + '.' + document.file.extension %}
         <figure>
-            <a href="{{ document_path }}"><img src="{{ document_path }}" alt="{{ document.label }}"/></a>
-            {% if document.label %}
-                <figcaption>{{ document.label }}</figcaption>
+            <a href="{{ document_path }}"><img src="{{ document_path }}" alt="{{ document.description }}"/></a>
+            {% if document.description %}
+                <figcaption>{{ document.description }}</figcaption>
             {% endif %}
         </figure>
         {% if document.notes %}

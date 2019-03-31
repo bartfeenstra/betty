@@ -11,12 +11,12 @@ class ExtractionTest(TestCase):
     def test_gramps_xml(self):
         with TemporaryDirectory() as working_directory_path:
             ancestry = parse(join(dirname(abspath(__file__)), 'resources', 'minimal.gramps'), working_directory_path)
-            self.assertEquals('Dough, Janet', ancestry.people['I0000'].label)
+            self.assertEquals('Dough, Janet', ancestry.people['I0000'].name)
 
     def test_portable_gramps_xml_package(self):
         with TemporaryDirectory() as working_directory_path:
             ancestry = parse(join(dirname(abspath(__file__)), 'resources', 'minimal.gpkg'), working_directory_path)
-            self.assertEquals('Dough, Janet', ancestry.people['I0000'].label)
+            self.assertEquals('Dough, Janet', ancestry.people['I0000'].name)
             self.assertEquals('1px', ancestry.documents['O0000'].description)
 
 
@@ -41,7 +41,7 @@ class GrampsTestCase(TestCase):
 class ParsePlaceTest(GrampsTestCase):
     def test_place_should_include_name(self):
         place = self.ancestry.places['P0000']
-        self.assertEquals('Amsterdam', place.label)
+        self.assertEquals('Amsterdam', place.name)
 
     def test_place_should_include_coordinates(self):
         place = self.ancestry.places['P0000']

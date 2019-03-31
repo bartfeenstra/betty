@@ -22,7 +22,7 @@ def _coordinates_to_dict(coordinates: Point) -> Dict:
 def _place_to_dict(place: Place) -> Dict:
     place_dict = {
         'id': place.id,
-        'label': place.label,
+        'name': place.name,
     }
     if place.coordinates:
         place_dict['coordinates'] = place.coordinates
