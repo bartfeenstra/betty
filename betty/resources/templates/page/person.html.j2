@@ -3,37 +3,31 @@
 {% block content %}
     {% include 'person-meta.html.j2' %}
 
-    <h2>Parents</h2>
-    {% if person.parents %}
+    {% if person.parents | length > 0 %}
+        <h2>Parents</h2>
         <ul>
             {% for parent in person.parents %}
                 <li><a href="/person/{{ parent.id }}">{{ parent.label }}</a></li>
             {% endfor %}
         </ul>
-    {% else %}
-        <p>Unknown.</p>
     {% endif %}
 
-    <h2>Children</h2>
-    {% if person.children %}
+    {% if person.children | length > 0 %}
+        <h2>Children</h2>
         <ul>
             {% for child in person.children %}
                 <li><a href="/person/{{ child.id }}">{{ child.label }}</a></li>
             {% endfor %}
         </ul>
-    {% else %}
-        <p>Unknown.</p>
     {% endif %}
 
-    <h2>Siblings</h2>
-    {% if person.siblings %}
+    {% if person.siblings | length > 0 %}
+        <h2>Siblings</h2>
         <ul>
             {% for sibling in person.siblings %}
                 <li><a href="/person/{{ sibling.id }}">{{ sibling.label }}</a></li>
             {% endfor %}
         </ul>
-    {% else %}
-        <p>Unknown.</p>
     {% endif %}
 
     {% if person.events | length > 0 %}
@@ -44,7 +38,7 @@
     {% endif %}
 
     {% set documents = person.documents | list + person.events | map(attribute="documents") | flatten | unique | list %}
-    {% if documents %}
+    {% if documents | length > 0 %}
         {% for document in documents %}
             {% include 'document.html.j2' %}
         {% endfor %}
