@@ -36,6 +36,13 @@
         <p>Unknown.</p>
     {% endif %}
 
+    {% if person.events | length > 0 %}
+        <h2>Events</h2>
+        {% with events=person.events %}
+            {% include 'list-event.html.j2' %}
+        {% endwith %}
+    {% endif %}
+
     {% set documents = person.documents | list + person.events | map(attribute="documents") | flatten | unique | list %}
     {% if documents %}
         {% for document in documents %}
