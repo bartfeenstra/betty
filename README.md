@@ -35,6 +35,8 @@ server {
 	server_name $publicHostname;
 	# The path to the local web root.
 	root $localWebRoot;
+	# The cache lifetime.
+	add_header Cache-Control: max-age=86400; 
 
 	# Handle HTTP error responses.
 	error_page 401 /.error/401.html;
