@@ -7,6 +7,8 @@ from os.path import join, splitext
 from subprocess import Popen
 from typing import Iterable, Union, Any
 
+from geopy import units
+from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader
 from markupsafe import Markup
 
@@ -29,6 +31,7 @@ def render(site: Site) -> None:
     environment.filters['walk'] = _render_walk
     environment.filters['json'] = _render_json
     environment.filters['paragraphs'] = _render_html_paragraphs
+    environment.filters['format_degrees'] = _render_format_degrees
 
     _render_public(site, environment)
     _render_webpack(site, environment)
@@ -167,3 +170,17 @@ def _render_html_paragraphs(eval_ctx, text: str) -> Union[str, Markup]:
     if eval_ctx.autoescape:
         result = Markup(result)
     return result
+
+
+def _render_format_degrees(degrees):
+    arcminutes = units.arcminutes(degrees=degrees - int(degrees))
+    arcseconds = units.arcseconds(arcminutes=arcminutes - int(arcminutes))
+    format_dict = dict(
+        deg='°',
+        arcmin="'",
+        arcsec='"',
+        degrees=degrees,
+        minutes=round(abs(arcminutes)),
+        seconds=round(abs(arcseconds))
+    )
+    return DEGREES_FORMAT % format_dict
