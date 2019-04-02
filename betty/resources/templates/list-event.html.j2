@@ -1,12 +1,6 @@
-{% set ns = namespace(dated_events = []) %}
-{% for event in events %}
-    {% if event.date != None and event.date.year != None and event.date.month != None and event.date.day != None %}
-        {% set ns.dated_events = ns.dated_events + [event] %}
-    {% endif %}
-{% endfor %}
 {% import 'macro/event.html.j2' as eventMacros %}
 <ul class="entities">
-    {% for event in ns.dated_events | sort(attribute='date') %}
+    {% for event in events | rejectattr('date', 'none') | rejectattr('date.year', 'none') | rejectattr('date.month', 'none') | rejectattr('date.day', 'none') | sort(attribute='date') %}
         <li class="{{ loop.cycle('odd', 'even') }}">
             {{ eventMacros.label(event, person_context=person_context | default(None)) }}
             {% include 'event-meta.html.j2' %}
