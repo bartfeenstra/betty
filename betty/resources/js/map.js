@@ -9,15 +9,22 @@ import { leafletMarkerIcon2xImage } from '../../node_modules/leaflet/dist/images
 import { leafletMarkerShadowImage } from '../../node_modules/leaflet/dist/images/marker-shadow.png' // eslint-disable-line no-unused-vars
 import ancestry from './ancestry.json'
 
-function initializeMaps () {
-  const mapContainers = document.getElementsByClassName('map')
-  for (let mapContainer of mapContainers) {
-    initializeMap(mapContainer)
+let mapCount = 0
+
+function initializePlaceLists () {
+  const placeLists = document.getElementsByClassName('places')
+  for (let placeList of placeLists) {
+    initializePlaceList(placeList)
   }
 }
 
-function initializeMap (mapContainer) {
-  let map = L.map(mapContainer.id)
+function initializePlaceList (placeList) {
+  const placeData = placeList.querySelectorAll('[data-betty-place-id]')
+
+  const mapArea = placeList.getElementsByClassName('map')[0]
+  mapArea.id = (++mapCount).toString()
+
+  let map = L.map(mapArea.id)
 
   // Build the attribution layer.
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -30,12 +37,11 @@ function initializeMap (mapContainer) {
 
   // Build place markers.
   const markers = []
-  const placeIds = mapContainer.dataset.placeIds.split(',')
-  for (let placeId of placeIds) {
-    let place = ancestry.places[placeId]
+  for (let placeDatum of placeData) {
+    let place = ancestry.places[placeDatum.dataset.bettyPlaceId]
     if (place.coordinates) {
       let marker = L.marker([place.coordinates.latitude, place.coordinates.longitude]).addTo(map)
-      marker.bindPopup(`<a href="/place/${place.id}">${place.name}</a>`)
+      marker.bindPopup(placeDatum.innerHTML)
       markers.push(marker)
     }
   }
@@ -47,4 +53,4 @@ function initializeMap (mapContainer) {
   })
 }
 
-export { initializeMaps }
+export { initializePlaceLists }

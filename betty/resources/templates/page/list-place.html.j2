@@ -1,15 +1,7 @@
 {% extends 'page/base.html.j2' %}
 {% set title = 'Places' %}
 {% block content %}
-    {% if entities %}
-        <div class="map" id="list-place-map" data-place-ids="{{ entities | map(attribute='id') | join(',') }}"></div>
-    {% endif %}
-    <ul class="entities">
-        {% for place in entities | sort(attribute='name') %}
-            <li class="{{ loop.cycle('odd', 'even') }}">
-                <a href="/place/{{ place.id }}">{{ place.name }}</a>
-                {% include 'place-meta.html.j2' %}
-            </li>
-        {% endfor %}
-    </ul>
+    {% with places=entities, canonical=True %}
+        {% include 'list-place.html.j2' %}
+    {% endwith %}
 {% endblock %}
