@@ -59,6 +59,10 @@ class Date:
         return self._day
 
     @property
+    def complete(self) -> bool:
+        return self._year is not None and self._month is not None and self._day is not None
+
+    @property
     def parts(self) -> Tuple[Optional[int], Optional[int], Optional[int]]:
         return self._year, self._month, self._day
 

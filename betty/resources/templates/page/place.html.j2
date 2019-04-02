@@ -3,16 +3,16 @@
 {% block content %}
     {% include 'place-meta.html.j2' %}
 
-    {% set places = place | walk('encloses') | list %}
+    {% set place_ids = place | walk('encloses') | map(attribute='id') %}
     {% if place.coordinates %}
-        {% set places = places + [place] %}
+        {% set place_ids = place_ids | list + [place.id] %}
     {% endif %}
-    {% if places | length > 0 %}
-        {% include 'list-place.html.j2' %}
+    {% if place_ids is defined %}
+        <div class="map" id="map-{{ place.id }}" data-place-ids="{{ place_ids | join(',') }}"></div>
     {% endif %}
 
     {% set events = place.events | list + place | walk('encloses') | map(attribute="events") | flatten | list %}
-    {% if events | rejectattr('date', 'none') | rejectattr('date.year', 'none') | rejectattr('date.month', 'none') | rejectattr('date.day', 'none') | list | length > 0 %}
+    {% if events | rejectattr('date', 'none') | selectattr('date.complete') | list | length > 0 %}
         <h2>Events</h2>
         {% with events=events, place_context=place %}
             {% include 'list-event.html.j2' %}
