@@ -37,7 +37,7 @@
         </ul>
     {% endif %}
 
-    {% if person.events | length > 0 %}
+    {% if person.events | rejectattr('date', 'none') | selectattr('date.complete') | list | length > 0 %}
         <h2>Events</h2>
         {% with events=person.events, person_context=person %}
             {% include 'list-event.html.j2' %}
