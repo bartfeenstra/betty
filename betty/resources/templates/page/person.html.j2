@@ -3,6 +3,13 @@
 {% block content %}
     {% include 'person-meta.html.j2' %}
 
+    {% set places = person.events | map(attribute='place') | reject('equalto', None) | unique | list %}
+    {% if places | length > 0 %}
+        {% with places=places %}
+            {% include 'list-place.html.j2' %}
+        {% endwith %}
+    {% endif %}
+
     {% if person.parents | length > 0 %}
         <h2>Parents</h2>
         <ul>
