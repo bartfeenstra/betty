@@ -9,23 +9,22 @@ import { leafletMarkerIcon2xImage } from '../../node_modules/leaflet/dist/images
 import { leafletMarkerShadowImage } from '../../node_modules/leaflet/dist/images/marker-shadow.png' // eslint-disable-line no-unused-vars
 import ancestry from './ancestry.json'
 
-function initializeMaps () {
-  const mapContainers = document.getElementsByClassName('places')
-  for (let mapContainer of mapContainers) {
-    initializeMap(mapContainer)
+let mapCount = 0
+
+function initializePlaceLists () {
+  const placeLists = document.getElementsByClassName('places')
+  for (let placeList of placeLists) {
+    initializePlaceList(placeList)
   }
 }
 
-function initializeMap (mapContainer) {
-  const placesData = mapContainer.querySelectorAll('[data-betty-place-id]')
+function initializePlaceList (placeList) {
+  const placeData = placeList.querySelectorAll('[data-betty-place-id]')
 
-  // Remove all existing content and convert the container to a map.
-  while (mapContainer.firstChild) {
-    mapContainer.removeChild(mapContainer.firstChild)
-  }
-  mapContainer.className += ' map'
+  const mapArea = placeList.getElementsByClassName('map')[0]
+  mapArea.id = (++mapCount).toString()
 
-  let map = L.map(mapContainer.id)
+  let map = L.map(mapArea.id)
 
   // Build the attribution layer.
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -38,11 +37,11 @@ function initializeMap (mapContainer) {
 
   // Build place markers.
   const markers = []
-  for (let placeData of placesData) {
-    let place = ancestry.places[placeData.dataset.bettyPlaceId]
+  for (let placeDatum of placeData) {
+    let place = ancestry.places[placeDatum.dataset.bettyPlaceId]
     if (place.coordinates) {
       let marker = L.marker([place.coordinates.latitude, place.coordinates.longitude]).addTo(map)
-      marker.bindPopup(placeData.innerHTML)
+      marker.bindPopup(placeDatum.innerHTML)
       markers.push(marker)
     }
   }
@@ -54,4 +53,4 @@ function initializeMap (mapContainer) {
   })
 }
 
-export { initializeMaps }
+export { initializePlaceLists }
