@@ -179,6 +179,19 @@ class DateTest(TestCase):
         self.assertEquals(day, sut.day)
 
     @parameterized.expand([
+        (True, 1970, 1, 1),
+        (False, None, 1, 1),
+        (False, 1970, None, 1),
+        (False, 1970, 1, None),
+        (False, None, None, 1),
+        (False, 1970, None, None),
+        (False, None, None, None),
+    ])
+    def test_complete(self, expected, year, month, day):
+        sut = Date(year, month, day)
+        self.assertEquals(expected, sut.complete)
+
+    @parameterized.expand([
         (1970, 1, 1),
         (None, None, None),
     ])
