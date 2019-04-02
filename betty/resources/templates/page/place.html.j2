@@ -2,6 +2,12 @@
 {% set title = place.name %}
 {% block content %}
     {% include 'place-meta.html.j2' %}
+    {% if place.coordinates %}
+        <p>
+        <address title="{{ place.coordinates.latitude }}°, {{ place.coordinates.longitude }}°"
+                 class="tooltip">{{ place.coordinates.latitude | format_degrees }}, {{ place.coordinates.longitude | format_degrees }}</address>
+        </p>
+    {% endif %}
 
     {% set place_ids = place | walk('encloses') | map(attribute='id') %}
     {% if place.coordinates %}

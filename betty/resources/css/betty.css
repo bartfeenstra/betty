@@ -51,6 +51,11 @@ address {
     display: inline;
 }
 
+.tooltip {
+    cursor: help;
+    text-decoration: dotted underline;
+}
+
 /*
  * Entity lists.
  */
