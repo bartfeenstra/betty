@@ -3,6 +3,8 @@ from os.path import join
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
+import html5lib
+
 from betty.ancestry import Ancestry, Person, Event, Place
 from betty.config import Configuration
 from betty.render import render, _render_walk, _render_flatten
@@ -73,6 +75,9 @@ class RenderTest(TestCase):
     def assert_page(self, path: str):
         abspath = join(self.site.configuration.output_directory_path, path.lstrip('/'), 'index.html')
         self.assertTrue(os.path.exists(abspath), '%s does not exist' % abspath)
+        with open(abspath) as f:
+            parser = html5lib.HTMLParser(strict=True)
+            parser.parse(f)
 
     def test_front_page(self):
         self.assert_page('/')
