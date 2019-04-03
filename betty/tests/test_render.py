@@ -79,7 +79,6 @@ class RenderTest(TestCase):
             parser = html5lib.HTMLParser(strict=True)
             parser.parse(f)
 
-
     def test_front_page(self):
         self.assert_page('/')
 
