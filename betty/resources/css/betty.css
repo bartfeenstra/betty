@@ -49,6 +49,7 @@ li {
 
 address {
     display: inline;
+    font-style: normal;
 }
 
 .tooltip {

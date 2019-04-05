@@ -2,6 +2,7 @@ import calendar
 import os
 import re
 import shutil
+from itertools import takewhile
 from json import dumps
 from os.path import join, splitext
 from subprocess import Popen
@@ -9,7 +10,9 @@ from typing import Iterable, Union, Any
 
 from geopy import units
 from geopy.format import DEGREES_FORMAT
-from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader
+from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter
+from jinja2.filters import prepare_map
+from jinja2.runtime import Macro
 from markupsafe import Markup
 
 import betty
@@ -27,8 +30,10 @@ def render(site: Site) -> None:
     )
     environment.globals['site'] = site
     environment.globals['calendar'] = calendar
+    environment.filters['map'] = _render_map
     environment.filters['flatten'] = _render_flatten
     environment.filters['walk'] = _render_walk
+    environment.filters['takewhile'] = _render_takewhile
     environment.filters['json'] = _render_json
     environment.filters['paragraphs'] = _render_html_paragraphs
     environment.filters['format_degrees'] = _render_format_degrees
@@ -148,6 +153,17 @@ def _render_flatten(items):
 
 def _render_walk(item, attribute_name):
     children = getattr(item, attribute_name)
+
+    # If the child has the requested attribute, yield it,
+    if hasattr(children, attribute_name):
+        yield children
+        yield from _render_walk(children, attribute_name)
+
+    # Otherwise loop over the children and yield their attributes.
+    try:
+        children = iter(children)
+    except TypeError:
+        return
     for child in children:
         yield child
         yield from _render_walk(child, attribute_name)
@@ -184,3 +200,29 @@ def _render_format_degrees(degrees):
         seconds=round(abs(arcseconds))
     )
     return DEGREES_FORMAT % format_dict
+
+
+@contextfilter
+def _render_map(*args, **kwargs):
+    if len(args) == 3 and isinstance(args[2], Macro):
+        seq = args[1]
+        func = args[2]
+    else:
+        seq, func = prepare_map(args, kwargs)
+    if seq:
+        for item in seq:
+            yield func(item)
+
+
+@contextfilter
+def _render_takewhile(context, seq, *args, **kwargs):
+    try:
+        name = args[0]
+        args = args[1:]
+
+        def func(item):
+            return context.environment.call_test(name, item, args, kwargs)
+    except LookupError:
+        func = bool
+    if seq:
+        yield from takewhile(func, seq)
