@@ -1,0 +1,10 @@
+{% macro label(person, link=True) %}
+    {%- if link -%}
+        {%- set start_tag = '<a href="/person/' ~ person.id ~ '"' -%}
+        {%- set end_tag = '</a>' -%}
+    {%- else -%}
+        {%- set start_tag = '<span' -%}
+        {%- set end_tag = '</span>' -%}
+    {%- endif -%}
+    {{ start_tag }} typeof="foaf:Person">{% if person.family_name %}<span property="foaf:familyName">{{ person.family_name }}</span>{% else %}…{% endif %}, {% if person.individual_name %}<span property="foaf:individualName">{{ person.individual_name }}</span>{% else %}…{% endif %}{{ end_tag }}
+{% endmacro %}

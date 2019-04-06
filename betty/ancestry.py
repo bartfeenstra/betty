@@ -282,8 +282,8 @@ class Person(Entity):
         return self._family_name
 
     @property
-    def name(self) -> str:
-        return '%s, %s' % (self._family_name or '…', self._individual_name or '…')
+    def names(self) -> Tuple[str, str]:
+        return self._family_name or '', self._individual_name or ''
 
     @property
     def events(self) -> Iterable:
