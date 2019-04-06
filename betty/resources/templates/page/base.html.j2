@@ -1,10 +1,13 @@
 <!doctype html>
-<html lang="en" prefix="foaf: http://xmlns.com/foaf/0.1/ rel: http://purl.org/vocab/relationship/">
+<html lang="en" prefix="foaf: http://xmlns.com/foaf/0.1/ og: http://ogp.me/ns# rel: http://purl.org/vocab/relationship/">
 <head>
-    <title>{{ title | striptags }}</title>
+    <title>{{ title | striptags }} - {{ site.configuration.title }}</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Betty (https://github.com/bartfeenstra/betty)"/>
+    <meta name="og:title" content="{{ title | striptags }}"/>
+    <meta name="og:site_name" content="{{ site.configuration.title }}"/>
+    <meta name="og:image" content="/betty-512x512.png"/>
     <link rel="stylesheet" href="/betty.css"/>
     <link rel="icon" href="/betty.ico">
     <link rel="manifest" href="/betty.webmanifest">
