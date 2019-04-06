@@ -1,13 +1,10 @@
 {% macro label(event, person_context=None) %}
+    {% import 'macro/person.html.j2' as personMacros %}
     <a href="/event/{{ event.id }}">{{ type_label(event) }}</a>
     {% set people = event.people | reject('equalto', person_context) | list %}
     {% if people | length > 0 %}
         {% if person_context %}with{% else %}of{% endif %}
-        {% set ns = namespace(people_labels=[]) %}
-        {% for person in people | sort(attribute='name') %}
-            {% set ns.people_labels = ns.people_labels + ['<a href="/person/' + person.id + '">' + person.name + '</a>'] %}
-        {% endfor %}
-        {{ ns.people_labels | join(' and ') }}
+        {{ people | sort(attribute='names') | map(personMacros.label) | join(' and ') }}
     {% endif %}
 {% endmacro %}
 

@@ -1,5 +1,6 @@
 {% extends 'page/base.html.j2' %}
-{% set title = person.name %}
+{% import 'macro/person.html.j2' as personMacros %}
+{% set title = personMacros.label(person, False) %}
 {% block content %}
     {% include 'person-meta.html.j2' %}
 
@@ -14,7 +15,7 @@
         <h2>Parents</h2>
         <ul>
             {% for parent in person.parents %}
-                <li><a href="/person/{{ parent.id }}">{{ parent.name }}</a></li>
+                <li typeof="foaf:Person" property="rel:childOf">{{ personMacros.label(parent) }}</li>
             {% endfor %}
         </ul>
     {% endif %}
@@ -23,7 +24,7 @@
         <h2>Children</h2>
         <ul>
             {% for child in person.children %}
-                <li><a href="/person/{{ child.id }}">{{ child.name }}</a></li>
+                <li typeof="foaf:Person" property="rel:parentOf">{{ personMacros.label(child) }}</li>
             {% endfor %}
         </ul>
     {% endif %}
@@ -32,7 +33,7 @@
         <h2>Siblings</h2>
         <ul>
             {% for sibling in person.siblings %}
-                <li><a href="/person/{{ sibling.id }}">{{ sibling.name }}</a></li>
+                <li typeof="foaf:Person" property="rel:siblingOf">{{ personMacros.label(sibling) }}</li>
             {% endfor %}
         </ul>
     {% endif %}

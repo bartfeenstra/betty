@@ -11,12 +11,14 @@ class ExtractionTest(TestCase):
     def test_gramps_xml(self):
         with TemporaryDirectory() as working_directory_path:
             ancestry = parse(join(dirname(abspath(__file__)), 'resources', 'minimal.gramps'), working_directory_path)
-            self.assertEquals('Dough, Janet', ancestry.people['I0000'].name)
+            self.assertEquals('Dough', ancestry.people['I0000'].family_name)
+            self.assertEquals('Janet', ancestry.people['I0000'].individual_name)
 
     def test_portable_gramps_xml_package(self):
         with TemporaryDirectory() as working_directory_path:
             ancestry = parse(join(dirname(abspath(__file__)), 'resources', 'minimal.gpkg'), working_directory_path)
-            self.assertEquals('Dough, Janet', ancestry.people['I0000'].name)
+            self.assertEquals('Dough', ancestry.people['I0000'].family_name)
+            self.assertEquals('Janet', ancestry.people['I0000'].individual_name)
             self.assertEquals('1px', ancestry.documents['O0000'].description)
 
 
