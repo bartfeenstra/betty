@@ -11,6 +11,12 @@ class Site:
     def ancestry(self) -> Ancestry:
         return self._ancestry
 
-    @property
+    @propertyw
     def configuration(self):
         return self._configuration
+
+    def dispatch(self, event_name, *args, **kwargs):
+        if event_name not in self._listeners:
+            return
+        for listener in self._listeners[event_name]:
+            listener(*args, **kwargs)
