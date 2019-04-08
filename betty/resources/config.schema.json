@@ -12,6 +12,9 @@
     },
     "url": {
       "type": "string"
+    },
+    "plugins": {
+      "type": "object"
     }
   },
   "required": [

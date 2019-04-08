@@ -337,7 +337,6 @@ class Ancestry:
     def __init__(self):
         self._documents = {}
         self._people = {}
-        self._families = {}
         self._places = {}
         self._events = {}
 

@@ -30,7 +30,8 @@ def parse(gramps_file_path, working_directory_path) -> Ancestry:
     xml_file_path = join(working_directory_path, 'data.xml')
     with open(xml_file_path, 'wb') as xml_file:
         try:
-            tarfile.open(fileobj=ungzipped_outer_file).extractall(working_directory_path)
+            tarfile.open(fileobj=ungzipped_outer_file).extractall(
+                working_directory_path)
             gramps_file_path = join(working_directory_path, 'data.gramps')
             xml_file.write(gzip.open(gramps_file_path).read())
         except tarfile.ReadError:
@@ -63,8 +64,10 @@ class _IntermediateAncestry:
 
     def to_ancestry(self):
         ancestry = Ancestry()
-        ancestry.documents = {document.id: document for document in self.documents.values()}
-        ancestry.people = {person.id: person for person in self.people.values()}
+        ancestry.documents = {
+            document.id: document for document in self.documents.values()}
+        ancestry.people = {
+            person.id: person for person in self.people.values()}
         ancestry.places = {place.id: place for place in self.places.values()}
         ancestry.events = {event.id: event for event in self.events.values()}
         return ancestry
@@ -179,8 +182,10 @@ def _parse_places(ancestry: _IntermediateAncestry, database: Element):
                            [_parse_place(element) for element in database.xpath('.//*[local-name()="placeobj"]')]}
     for intermediate_place in intermediate_places.values():
         if intermediate_place.enclosed_by_handle is not None:
-            intermediate_place.place.enclosed_by = intermediate_places[intermediate_place.enclosed_by_handle].place
-    ancestry.places = {handle: intermediate_place.place for handle, intermediate_place in intermediate_places.items()}
+            intermediate_place.place.enclosed_by = intermediate_places[
+                intermediate_place.enclosed_by_handle].place
+    ancestry.places = {handle: intermediate_place.place for handle,
+                       intermediate_place in intermediate_places.items()}
 
 
 def _parse_place(element: Element) -> Tuple[str, _IntermediatePlace]:
