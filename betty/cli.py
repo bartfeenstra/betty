@@ -21,9 +21,9 @@ def main():
         with TemporaryDirectory() as working_directory_path:
             ancestry = parse(
                 configuration.input_gramps_file_path, working_directory_path)
-        site = Site(ancestry, configuration)
-        site.event_dispatcher.dispatch(POST_PARSE_EVENT, ancestry)
-        render(site)
+            site = Site(ancestry, configuration)
+            site.event_dispatcher.dispatch(POST_PARSE_EVENT, ancestry)
+            render(site)
     except KeyboardInterrupt:
         # Quit gracefully.
         print('Quitting...')

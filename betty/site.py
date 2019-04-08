@@ -7,7 +7,7 @@ class Site:
     def __init__(self, ancestry: Ancestry, configuration: Configuration):
         self._ancestry = ancestry
         self._configuration = configuration
-        self._plugins = list([plugin_class(plugin_configuration) for plugin_class, plugin_configuration in
+        self._plugins = list([plugin_class.from_configuration_dict(plugin_configuration) for plugin_class, plugin_configuration in
                               configuration.plugins.items()])
         self._event_dispatcher = EventDispatcher()
         for plugin in self._plugins:

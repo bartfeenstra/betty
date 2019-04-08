@@ -251,6 +251,6 @@ def _parse_event(ancestry: _IntermediateAncestry, element: Element):
     # Parse the documents.
     document_handles = xpath(element, './ns:objref/@hlink')
     for document_handle in document_handles:
-        event.documents.append(ancestry.documents[document_handle])
+        event.documents.add(ancestry.documents[document_handle])
 
     ancestry.events[handle] = event

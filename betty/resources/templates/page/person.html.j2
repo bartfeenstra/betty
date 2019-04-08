@@ -11,28 +11,31 @@
         {% endwith %}
     {% endif %}
 
-    {% if person.parents | length > 0 %}
+    {% set parents = person.parents | rejectattr('private', 'eq', True) | list %}
+    {% if parents | length > 0 %}
         <h2>Parents</h2>
         <ul>
-            {% for parent in person.parents %}
+            {% for parent in parents %}
                 <li typeof="foaf:Person" property="rel:childOf">{{ personMacros.label(parent) }}</li>
             {% endfor %}
         </ul>
     {% endif %}
 
-    {% if person.children | length > 0 %}
+    {% set children = person.children | rejectattr('private', 'eq', True) | list %}
+    {% if children | length > 0 %}
         <h2>Children</h2>
         <ul>
-            {% for child in person.children %}
+            {% for child in children %}
                 <li typeof="foaf:Person" property="rel:parentOf">{{ personMacros.label(child) }}</li>
             {% endfor %}
         </ul>
     {% endif %}
 
-    {% if person.siblings | length > 0 %}
+    {% set siblings = person.siblings | rejectattr('private', 'eq', True) | list %}
+    {% if siblings | length > 0 %}
         <h2>Siblings</h2>
         <ul>
-            {% for sibling in person.siblings %}
+            {% for sibling in siblings %}
                 <li typeof="foaf:Person" property="rel:siblingOf">{{ personMacros.label(sibling) }}</li>
             {% endfor %}
         </ul>
