@@ -19,7 +19,8 @@ class RenderFlattenTest(TestCase):
         self.assertCountEqual([], _render_flatten([[], [], []]))
 
     def test_with_non_empty_items(self):
-        self.assertCountEqual(['apple', 'banana', 'kiwi'], _render_flatten([['kiwi'], ['apple'], ['banana']]))
+        self.assertCountEqual(['apple', 'banana', 'kiwi'], _render_flatten(
+            [['kiwi'], ['apple'], ['banana']]))
 
 
 class RenderWalkTest(TestCase):
@@ -64,7 +65,8 @@ class RenderTest(TestCase):
         ancestry.people.update({person.id: person for person in people})
 
         cls._outputDirectory = TemporaryDirectory()
-        configuration = Configuration(None, cls._outputDirectory.name, 'https://ancestry.example.com')
+        configuration = Configuration(
+            None, cls._outputDirectory.name, 'https://ancestry.example.com')
         cls.site = Site(ancestry, configuration)
         render(cls.site)
 
@@ -73,7 +75,8 @@ class RenderTest(TestCase):
         cls._outputDirectory.cleanup()
 
     def assert_page(self, path: str):
-        abspath = join(self.site.configuration.output_directory_path, path.lstrip('/'), 'index.html')
+        abspath = join(self.site.configuration.output_directory_path,
+                       path.lstrip('/'), 'index.html')
         self.assertTrue(os.path.exists(abspath), '%s does not exist' % abspath)
         with open(abspath) as f:
             parser = html5lib.HTMLParser(strict=True)
