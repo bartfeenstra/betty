@@ -1,76 +1,134 @@
+from typing import Dict
 from unittest import TestCase
 
-from betty.plugin import Plugin, name, from_configuration_list, CyclicDependencyError, PluginNotFoundError
+from betty.graph import CyclicGraphError
+from betty.plugin import Plugin, name, from_configuration_list, PluginNotFoundError
 
 
-class FruitPlugin(Plugin):
+class PluginTest(TestCase):
+    def test_from_configuration_dict(self):
+        plugin = Plugin.from_configuration_dict({})
+        self.assertIsInstance(plugin, Plugin)
+
+    def test_depends_on(self):
+        self.assertEquals(set(), Plugin.depends_on())
+
+    def test_subscribes_to(self):
+        plugin = Plugin.from_configuration_dict({})
+        self.assertEquals(set(), plugin.subscribes_to())
+
+
+class NonConfigurablePlugin(Plugin):
     pass
 
 
-class RoundFruitPlugin(Plugin):
+class ConfigurablePlugin(Plugin):
+    def __init__(self, check):
+        self.check = check
+
+    @classmethod
+    def from_configuration_dict(cls, configuration: Dict):
+        return cls(configuration['check'])
+
+
+class DependsOnNonConfigurablePluginPlugin(Plugin):
     @classmethod
     def depends_on(cls):
-        return [FruitPlugin]
+        return {NonConfigurablePlugin}
 
 
-class ApplePlugin(Plugin):
+class AlsoDependsOnNonConfigurablePluginPlugin(Plugin):
     @classmethod
     def depends_on(cls):
-        return [RoundFruitPlugin]
+        return {NonConfigurablePlugin}
 
 
-class BentFruitPlugin(Plugin):
+class DependsOnNonConfigurablePluginPluginPlugin(Plugin):
     @classmethod
     def depends_on(cls):
-        return [FruitPlugin]
+        return {DependsOnNonConfigurablePluginPlugin}
 
 
-class BananaPlugin(Plugin):
+class CyclicDependencyOnePlugin(Plugin):
     @classmethod
     def depends_on(cls):
-        return [BentFruitPlugin]
+        return {CyclicDependencyTwoPlugin}
 
 
-class KiwiPlugin(Plugin):
+class CyclicDependencyTwoPlugin(Plugin):
     @classmethod
     def depends_on(cls):
-        return [MangoPlugin]
+        return {CyclicDependencyOnePlugin}
 
 
-class MangoPlugin(Plugin):
-    @classmethod
-    def depends_on(cls):
-        return [KiwiPlugin]
-
-
-class TestFromConfigurationList(TestCase):
+class FromConfigurationListTest(TestCase):
     def test_without_plugins(self):
         self.assertEquals([], from_configuration_list([]))
 
     def test_with_one_plugin(self):
-        actual = from_configuration_list({
-            name(FruitPlugin): {},
-        })
+        actual = from_configuration_list([
+            name(NonConfigurablePlugin),
+        ])
         self.assertEquals(1, len(actual))
-        self.assertIsInstance(actual[0], FruitPlugin)
+        self.assertIsInstance(actual[0], NonConfigurablePlugin)
+
+    def test_with_one_plugin_without_configuration(self):
+        actual = from_configuration_list([
+            {
+                'type': name(NonConfigurablePlugin),
+            },
+        ])
+        self.assertEquals(1, len(actual))
+        self.assertIsInstance(actual[0], NonConfigurablePlugin)
+
+    def test_with_one_plugin_with_unneeded_configuration(self):
+        actual = from_configuration_list([
+            {
+                'type': name(NonConfigurablePlugin),
+                'configuration': {},
+            },
+        ])
+        self.assertEquals(1, len(actual))
+        self.assertIsInstance(actual[0], NonConfigurablePlugin)
+
+    def test_with_one_plugin_with_configuration(self):
+        check = 1337
+        actual = from_configuration_list([
+            {
+                'type': name(ConfigurablePlugin),
+                'configuration': {
+                    'check': check,
+                },
+            },
+        ])
+        self.assertEquals(1, len(actual))
+        self.assertIsInstance(actual[0], ConfigurablePlugin)
+        self.assertEquals(actual[0].check, check)
+
+    def test_with_one_plugin_with_single_chained_dependency(self):
+        actual = from_configuration_list([
+            name(DependsOnNonConfigurablePluginPluginPlugin),
+        ])
+        self.assertEquals(3, len(actual))
+        self.assertIsInstance(actual[0], DependsOnNonConfigurablePluginPluginPlugin)
+        self.assertIsInstance(actual[1], DependsOnNonConfigurablePluginPlugin)
+        self.assertIsInstance(actual[2], NonConfigurablePlugin)
 
     def test_with_multiple_plugins_with_duplicate_dependencies(self):
-        actual = from_configuration_list({
-            name(ApplePlugin): {},
-            name(BananaPlugin): {},
-        })
+        actual = from_configuration_list([
+            name(DependsOnNonConfigurablePluginPlugin),
+            name(AlsoDependsOnNonConfigurablePluginPlugin),
+        ])
         self.assertEquals(3, len(actual))
-        # @todo THis fails, because the original configuration comes from dictionaries, WHICH ARE NOT ORDERED IN JSON OR OLDER PYTHON VERSIONS.....
-        self.assertIsInstance(actual[0], FruitPlugin)
-        self.assertIsInstance(actual[1], ApplePlugin)
-        self.assertIsInstance(actual[2], BananaPlugin)
+        self.assertIn(DependsOnNonConfigurablePluginPlugin, [type(plugin) for plugin in actual])
+        self.assertIn(AlsoDependsOnNonConfigurablePluginPlugin, [type(plugin) for plugin in actual])
+        self.assertIsInstance(actual[2], NonConfigurablePlugin)
 
     def test_with_multiple_plugins_with_cyclic_dependencies(self):
-        with self.assertRaises(CyclicDependencyError):
-            from_configuration_list({
-                name(KiwiPlugin): {},
-                name(MangoPlugin): {},
-            })
+        with self.assertRaises(CyclicGraphError):
+            from_configuration_list([
+                name(CyclicDependencyOnePlugin),
+            ])
 
     def test_with_multiple_plugins_with_unknown_plugin_type_module(self):
         with self.assertRaises(PluginNotFoundError):

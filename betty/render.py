@@ -17,6 +17,7 @@ from markupsafe import Markup
 
 import betty
 from betty.ancestry import Entity
+from betty.functools import walk
 from betty.json import JSONEncoder
 from betty.npm import install, BETTY_INSTANCE_NPM_DIR
 from betty.path import iterfiles
@@ -152,21 +153,7 @@ def _render_flatten(items):
 
 
 def _render_walk(item, attribute_name):
-    children = getattr(item, attribute_name)
-
-    # If the child has the requested attribute, yield it,
-    if hasattr(children, attribute_name):
-        yield children
-        yield from _render_walk(children, attribute_name)
-
-    # Otherwise loop over the children and yield their attributes.
-    try:
-        children = iter(children)
-    except TypeError:
-        return
-    for child in children:
-        yield child
-        yield from _render_walk(child, attribute_name)
+    return walk(item, attribute_name)
 
 
 def _render_json(data: Any) -> Union[str, Markup]:

@@ -1,10 +1,12 @@
+from importlib import import_module
 from json import loads, load, JSONDecodeError
 from os.path import join
-from typing import Dict
+from typing import Dict, Type
 
 from jsonschema import validate, ValidationError
 
 import betty
+from betty.plugin import Plugin
 
 
 class Configuration:
@@ -13,6 +15,7 @@ class Configuration:
         self._output_directory_path = output_directory_path
         self._url = url
         self._title = 'Betty'
+        self._plugins = {}
 
     @property
     def input_gramps_file_path(self) -> str:
@@ -34,12 +37,23 @@ class Configuration:
     def title(self, title: str) -> None:
         self._title = title
 
+    @property
+    def plugins(self) -> Dict[Type[Plugin], Dict]:
+        return self._plugins
+
 
 def _from_dict(config_dict: Dict) -> Configuration:
     configuration = Configuration(config_dict['inputGrampsFilePath'], config_dict['outputDirectoryPath'],
                                   config_dict['url'])
     if 'title' in config_dict:
         configuration.title = config_dict['title']
+
+    if 'plugins' in config_dict:
+        for plugin_name, plugin_configuration in config_dict['plugins'].items():
+            plugin_module_name, plugin_class_name = plugin_name.rsplit('.', 1)
+            plugin_class = getattr(import_module(
+                plugin_module_name), plugin_class_name)
+            configuration.plugins[plugin_class] = plugin_configuration
 
     return configuration
 
