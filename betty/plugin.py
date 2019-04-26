@@ -41,7 +41,7 @@ def _load(plugin_type_name) -> Type:
     plugin_module_name, plugin_class_name = plugin_type_name.rsplit('.', 1)
     try:
         module = import_module(plugin_module_name)
-    except ModuleNotFoundError:
+    except ImportError:
         raise PluginNotFoundError(
             'Could not find module "%s" for plugin "%s".' % (plugin_module_name, plugin_type_name))
     try:
