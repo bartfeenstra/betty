@@ -5,7 +5,6 @@ import shutil
 from itertools import takewhile
 from json import dumps
 from os.path import join, splitext
-from subprocess import Popen
 from typing import Iterable, Union, Any
 
 from geopy import units
@@ -17,8 +16,8 @@ from markupsafe import Markup
 
 import betty
 from betty.ancestry import Entity
+from betty.event import POST_RENDER_EVENT
 from betty.json import JSONEncoder
-from betty.npm import install, BETTY_INSTANCE_NPM_DIR
 from betty.path import iterfiles
 from betty.site import Site
 
@@ -47,6 +46,7 @@ def render(site: Site) -> None:
                         site.ancestry.places.values(), 'place')
     _render_entity_type(site, environment,
                         site.ancestry.events.values(), 'event')
+    site.event_dispatcher.dispatch(POST_RENDER_EVENT, site, environment)
 
 
 def _create_directory(path: str) -> None:
@@ -81,36 +81,6 @@ def _copytree(environment: Environment, source_path: str, destination_path: str)
 def _render_public(site, environment) -> None:
     _copytree(environment, join(betty.RESOURCE_PATH, 'public'),
               site.configuration.output_directory_path)
-
-
-def _render_webpack(site: Site, environment: Environment) -> None:
-    install()
-
-    asset_types = ('css', 'js')
-
-    # Set up Webpack's input directories.
-    for asset_type in asset_types:
-        webpack_asset_type_input_dir = join(
-            BETTY_INSTANCE_NPM_DIR, 'input', asset_type)
-        try:
-            shutil.rmtree(webpack_asset_type_input_dir)
-        except FileNotFoundError:
-            pass
-        _copytree(environment, join(betty.RESOURCE_PATH, asset_type),
-                  webpack_asset_type_input_dir)
-
-    # Build the assets.
-    args = ['./node_modules/.bin/webpack', '--config', join(betty.RESOURCE_PATH,
-                                                            'webpack.config.js')]
-    Popen(args, cwd=BETTY_INSTANCE_NPM_DIR, shell=True).wait()
-
-    # Move the Webpack output to the Betty output.
-    shutil.copytree(join(BETTY_INSTANCE_NPM_DIR, 'output', 'images'), join(
-        site.configuration.output_directory_path, 'images'))
-    shutil.copy2(join(BETTY_INSTANCE_NPM_DIR, 'output', 'betty.css'), join(
-        site.configuration.output_directory_path, 'betty.css'))
-    shutil.copy2(join(BETTY_INSTANCE_NPM_DIR, 'output', 'betty.js'), join(
-        site.configuration.output_directory_path, 'betty.js'))
 
 
 def _render_documents(site: Site) -> None:

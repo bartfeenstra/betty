@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import Callable
 
-POST_PARSE_EVENT = 'parse:post'
+POST_RENDER_EVENT = 'render:post'
 
 
 class EventDispatcher:
