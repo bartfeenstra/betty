@@ -27,7 +27,8 @@ class Maps(Plugin, JsPackageProvider, JsEntryPointProvider):
         ]
 
     def _copy_images(self):
-        copytree(join(self._npm_directory_path, 'node_modules', 'leaflet', 'dist', 'images'), join(self._output_directory_path, 'images', 'leaflet'))
+        copytree(join(self._npm_directory_path, 'node_modules', 'leaflet', 'dist',
+                      'images'), join(self._output_directory_path, 'images', 'leaflet'))
 
     @property
     def package_directory_path(self) -> str:
