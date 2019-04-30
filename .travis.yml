@@ -26,6 +26,7 @@ cache:
     - npm
 
 install:
+    - node --version
     - npm --version
     - npm config list --json
     - ./bin/build-dev
