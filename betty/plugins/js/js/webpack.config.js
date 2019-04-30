@@ -44,12 +44,12 @@ module.exports = {
       },
       // Bundle Leaflet images.
       {
-        test: /\/node_modules\/leaflet\/dist\/images\/.*\.png$/,
+        test: /.*\.png$/,
         use: [
           {
             loader: 'file-loader',
             options: {
-              name: 'images/leaflet/[name].[ext]'
+              name: 'images/[hash].[ext]'
             }
           }
         ]
