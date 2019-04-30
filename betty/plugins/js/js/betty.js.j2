@@ -1,0 +1,8 @@
+'use strict'
+
+import { style } from './betty.css'
+
+{% for entry_point, import_path in plugins['betty.plugins.js.Js'].entry_points %}
+    import { {{ entry_point }} } from '../{{ import_path }}'
+    document.addEventListener('DOMContentLoaded', {{ entry_point }})
+{% endfor %}

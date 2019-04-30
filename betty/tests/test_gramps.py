@@ -10,15 +10,19 @@ from betty.gramps import parse
 class ExtractionTest(TestCase):
     def test_gramps_xml(self):
         with TemporaryDirectory() as working_directory_path:
-            ancestry = parse(join(dirname(abspath(__file__)), 'resources', 'minimal.gramps'), working_directory_path)
+            ancestry = parse(join(dirname(abspath(__file__)),
+                                  'resources', 'minimal.gramps'), working_directory_path)
             self.assertEquals('Dough', ancestry.people['I0000'].family_name)
-            self.assertEquals('Janet', ancestry.people['I0000'].individual_name)
+            self.assertEquals(
+                'Janet', ancestry.people['I0000'].individual_name)
 
     def test_portable_gramps_xml_package(self):
         with TemporaryDirectory() as working_directory_path:
-            ancestry = parse(join(dirname(abspath(__file__)), 'resources', 'minimal.gpkg'), working_directory_path)
+            ancestry = parse(join(dirname(abspath(__file__)),
+                                  'resources', 'minimal.gpkg'), working_directory_path)
             self.assertEquals('Dough', ancestry.people['I0000'].family_name)
-            self.assertEquals('Janet', ancestry.people['I0000'].individual_name)
+            self.assertEquals(
+                'Janet', ancestry.people['I0000'].individual_name)
             self.assertEquals('1px', ancestry.documents['O0000'].description)
 
 
@@ -29,7 +33,8 @@ class GrampsTestCase(TestCase):
         # Gramps format, we gzip it prior to using it in our Gramps API.
         cls.working_directory = TemporaryDirectory()
         with TemporaryDirectory() as gramps_working_directory_path:
-            gramps_file_path = join(gramps_working_directory_path, 'data.gramps')
+            gramps_file_path = join(
+                gramps_working_directory_path, 'data.gramps')
             with gzip.open(gramps_file_path, mode='w') as gramps_f:
                 with open(join(dirname(abspath(__file__)), 'resources', 'data.xml'), mode='rb') as xml_f:
                     gramps_f.write(xml_f.read())
@@ -73,14 +78,18 @@ class ParsePersonTest(GrampsTestCase):
 
 class ParseFamilyTest(GrampsTestCase):
     def test_family_should_set_parents(self):
-        expected_parents = [self.ancestry.people['I0002'], self.ancestry.people['I0003']]
-        children = [self.ancestry.people['I0000'], self.ancestry.people['I0001']]
+        expected_parents = [self.ancestry.people['I0002'],
+                            self.ancestry.people['I0003']]
+        children = [self.ancestry.people['I0000'],
+                    self.ancestry.people['I0001']]
         for child in children:
             self.assertCountEqual(expected_parents, child.parents)
 
     def test_family_should_set_children(self):
-        parents = [self.ancestry.people['I0002'], self.ancestry.people['I0003']]
-        expected_children = [self.ancestry.people['I0000'], self.ancestry.people['I0001']]
+        parents = [self.ancestry.people['I0002'],
+                   self.ancestry.people['I0003']]
+        expected_children = [self.ancestry.people['I0000'],
+                             self.ancestry.people['I0001']]
         for parent in parents:
             self.assertCountEqual(expected_children, parent.children)
 

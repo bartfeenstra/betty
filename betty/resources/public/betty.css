@@ -1,0 +1,170 @@
+html {
+  height: 100%;
+}
+
+body {
+  background-color: pink;
+  color: #333;
+  margin: 0;
+  font-family: sans-serif;
+  height: 100%;
+}
+
+/*
+ * Text and links.
+ */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #000;
+}
+
+h1 {
+  font-weight: normal;
+  font-size: 2rem;
+}
+
+h2 {
+  font-weight: normal;
+  font-size: 1.6rem;
+}
+
+a {
+  text-decoration: none;
+  color: #149988;
+}
+
+a:hover {
+  color: #2a615a;
+}
+
+dl,
+p,
+li {
+  line-height: 1.5;
+}
+
+address {
+  display: inline;
+  font-style: normal;
+}
+
+.tooltip {
+  cursor: help;
+  text-decoration: dotted underline;
+}
+
+/*
+ * Entity lists.
+ */
+ul.entities {
+  padding: 0;
+}
+
+ul.entities li {
+  list-style: none;
+  margin-top: 0.5em;
+  padding: 0.5em;
+}
+
+ul.entities li.even {
+  background-color: #eee;
+}
+
+/*
+ * Header.
+ */
+
+#nav-primary {
+  height: 3em;
+}
+
+#nav-primary ul {
+  list-style: none;
+  margin: 0;
+}
+
+#nav-primary ul li {
+  display: inline;
+}
+
+#nav-primary ul li a {
+  color: purple;
+  display: block;
+  float: left;
+  font-size: 1.1em;
+  line-height: 3em;
+  padding: 0 2em;
+}
+
+#nav-primary ul li a:hover {
+  color: white;
+  background-color: purple;
+}
+
+/*
+ * Footer.
+ */
+
+footer {
+  color: #777;
+  padding: 3em;
+}
+
+/*
+ * Main content.
+ */
+
+#content {
+  background-color: white;
+  clear: both;
+  padding: 1rem;
+  display: inline-block;
+  min-width: calc(100% - 2rem);
+}
+
+/*
+ * Entity metadata.
+ */
+
+.meta dt {
+  font-weight: bold;
+}
+
+@media (min-width: 768px) {
+  .meta dt,
+  .meta dd {
+    display: inline;
+  }
+
+  .meta dt::after {
+    content: ':';
+  }
+
+  .meta dd {
+    margin: 0 3em 0 0;
+  }
+}
+
+/*
+ * Media.
+ */
+.image {
+  background-color: #eee;
+  margin: 0;
+  padding: 1em;
+}
+
+figure {
+  background-color: #ccc;
+  display: inline-block;
+  padding: 0.5em;
+  margin: 0;
+}
+
+figure img {
+  width: 100%;
+}

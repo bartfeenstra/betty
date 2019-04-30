@@ -1,12 +1,14 @@
 'use strict'
 
+import { mapsStyle } from './maps.css' // eslint-disable-line no-unused-vars
+
 import * as L from 'leaflet'
-import { style } from '../../node_modules/leaflet/dist/leaflet.css' // eslint-disable-line no-unused-vars
-import { leafletLayerImage } from '../../node_modules/leaflet/dist/images/layers.png' // eslint-disable-line no-unused-vars
-import { leafletLayer2xImage } from '../../node_modules/leaflet/dist/images/layers-2x.png' // eslint-disable-line no-unused-vars
-import { leaflerMarkerIconImage } from '../../node_modules/leaflet/dist/images/marker-icon.png' // eslint-disable-line no-unused-vars
-import { leafletMarkerIcon2xImage } from '../../node_modules/leaflet/dist/images/marker-icon-2x.png' // eslint-disable-line no-unused-vars
-import { leafletMarkerShadowImage } from '../../node_modules/leaflet/dist/images/marker-shadow.png' // eslint-disable-line no-unused-vars
+import { leafletStyle } from '../node_modules/leaflet/dist/leaflet.css' // eslint-disable-line no-unused-vars
+import { leafletLayerImage } from '../node_modules/leaflet/dist/images/layers.png' // eslint-disable-line no-unused-vars
+import { leafletLayer2xImage } from '../node_modules/leaflet/dist/images/layers-2x.png' // eslint-disable-line no-unused-vars
+import { leaflerMarkerIconImage } from '../node_modules/leaflet/dist/images/marker-icon.png' // eslint-disable-line no-unused-vars
+import { leafletMarkerIcon2xImage } from '../node_modules/leaflet/dist/images/marker-icon-2x.png' // eslint-disable-line no-unused-vars
+import { leafletMarkerShadowImage } from '../node_modules/leaflet/dist/images/marker-shadow.png' // eslint-disable-line no-unused-vars
 import ancestry from './ancestry.json'
 
 let mapCount = 0

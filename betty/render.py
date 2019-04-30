@@ -2,10 +2,11 @@ import calendar
 import os
 import re
 import shutil
+from importlib import import_module
 from itertools import takewhile
 from json import dumps
 from os.path import join, splitext
-from typing import Iterable, Union, Any
+from typing import Iterable, Union, Any, Dict, Type
 
 from geopy import units
 from geopy.format import DEGREES_FORMAT
@@ -19,6 +20,7 @@ from betty.ancestry import Entity
 from betty.event import POST_RENDER_EVENT
 from betty.json import JSONEncoder
 from betty.path import iterfiles
+from betty.plugin import Plugin
 from betty.site import Site
 
 
@@ -28,6 +30,7 @@ def render(site: Site) -> None:
         autoescape=select_autoescape(['html'])
     )
     environment.globals['site'] = site
+    environment.globals['plugins'] = Plugins(site.plugins)
     environment.globals['calendar'] = calendar
     environment.filters['map'] = _render_map
     environment.filters['flatten'] = _render_flatten
@@ -38,7 +41,6 @@ def render(site: Site) -> None:
     environment.filters['format_degrees'] = _render_format_degrees
 
     _render_public(site, environment)
-    _render_webpack(site, environment)
     _render_documents(site)
     _render_entity_type(site, environment,
                         site.ancestry.people.values(), 'person')
@@ -46,7 +48,7 @@ def render(site: Site) -> None:
                         site.ancestry.places.values(), 'place')
     _render_entity_type(site, environment,
                         site.ancestry.events.values(), 'event')
-    site.event_dispatcher.dispatch(POST_RENDER_EVENT, site, environment)
+    site.event_dispatcher.dispatch(POST_RENDER_EVENT, environment)
 
 
 def _create_directory(path: str) -> None:
@@ -196,3 +198,18 @@ def _render_takewhile(context, seq, *args, **kwargs):
         func = bool
     if seq:
         yield from takewhile(func, seq)
+
+
+class Plugins:
+    def __init__(self, plugins: Dict[Type, Plugin]):
+        self._plugins = plugins
+
+    def __getitem__(self, plugin_type_name):
+        return self._plugins[self._type(plugin_type_name)]
+
+    def __contains__(self, plugin_type_name):
+        return self._type(plugin_type_name) in self._plugins
+
+    def _type(self, plugin_type_name: str):
+        plugin_module_name, plugin_class_name = plugin_type_name.rsplit('.', 1)
+        return getattr(import_module(plugin_module_name), plugin_class_name)

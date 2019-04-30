@@ -8,4 +8,4 @@ cd "$(dirname "$0")/.."
 pip install -e .[development]
 
 # Install JavaScript dependencies.
-python -c "from betty import npm; npm.install('dev')"
+npm install

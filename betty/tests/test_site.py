@@ -88,7 +88,8 @@ class SiteTest(TestCase):
         configuration.plugins[NonConfigurablePlugin] = {}
         sut = Site(ancestry, configuration)
         self.assertEquals(1, len(sut.plugins))
-        self.assertIsInstance(sut.plugins[NonConfigurablePlugin], NonConfigurablePlugin)
+        self.assertIsInstance(
+            sut.plugins[NonConfigurablePlugin], NonConfigurablePlugin)
 
     def test_with_one_configurable_plugin(self):
         ancestry = Ancestry()
@@ -99,7 +100,8 @@ class SiteTest(TestCase):
         }
         sut = Site(ancestry, configuration)
         self.assertEquals(1, len(sut.plugins))
-        self.assertIsInstance(sut.plugins[ConfigurablePlugin], ConfigurablePlugin)
+        self.assertIsInstance(
+            sut.plugins[ConfigurablePlugin], ConfigurablePlugin)
         self.assertEquals(check, sut.plugins[ConfigurablePlugin].check)
 
     def test_with_one_plugin_with_single_chained_dependency(self):
@@ -111,8 +113,10 @@ class SiteTest(TestCase):
         sut.event_dispatcher.dispatch(TRACKING_EVENT, tracker)
         self.assertEquals(3, len(tracker))
         self.assertEquals(NonConfigurablePlugin, type(tracker[0]))
-        self.assertEquals(DependsOnNonConfigurablePluginPlugin, type(tracker[1]))
-        self.assertEquals(DependsOnNonConfigurablePluginPluginPlugin, type(tracker[2]))
+        self.assertEquals(
+            DependsOnNonConfigurablePluginPlugin, type(tracker[1]))
+        self.assertEquals(
+            DependsOnNonConfigurablePluginPluginPlugin, type(tracker[2]))
 
     def test_with_multiple_plugins_with_duplicate_dependencies(self):
         ancestry = Ancestry()
@@ -124,8 +128,10 @@ class SiteTest(TestCase):
         sut.event_dispatcher.dispatch(TRACKING_EVENT, tracker)
         self.assertEquals(3, len(tracker))
         self.assertEquals(NonConfigurablePlugin, type(tracker[0]))
-        self.assertIn(DependsOnNonConfigurablePluginPlugin, [type(plugin) for plugin in tracker])
-        self.assertIn(AlsoDependsOnNonConfigurablePluginPlugin, [type(plugin) for plugin in tracker])
+        self.assertIn(DependsOnNonConfigurablePluginPlugin,
+                      [type(plugin) for plugin in tracker])
+        self.assertIn(AlsoDependsOnNonConfigurablePluginPlugin,
+                      [type(plugin) for plugin in tracker])
 
     def test_with_multiple_plugins_with_cyclic_dependencies(self):
         ancestry = Ancestry()

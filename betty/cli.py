@@ -18,7 +18,8 @@ def main():
         with open(parsed_args.config_file_path) as f:
             configuration = from_file(f)
         with TemporaryDirectory() as working_directory_path:
-            ancestry = parse(configuration.input_gramps_file_path, working_directory_path)
+            ancestry = parse(
+                configuration.input_gramps_file_path, working_directory_path)
             site = Site(ancestry, configuration)
             render(site)
     except KeyboardInterrupt:

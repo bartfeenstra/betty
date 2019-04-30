@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from typing import Type
 
 from betty.ancestry import Ancestry
@@ -12,7 +12,7 @@ class Site:
         self._ancestry = ancestry
         self._configuration = configuration
         self._event_dispatcher = EventDispatcher()
-        self._plugins = {}
+        self._plugins = OrderedDict()
         self._init_plugins()
 
     def _init_plugins(self):
@@ -33,7 +33,8 @@ class Site:
         for plugin_type in tsort(plugin_types_graph):
             plugin_configuration = self.configuration.plugins[
                 plugin_type] if plugin_type in self.configuration.plugins else {}
-            plugin = plugin_type.from_configuration_dict(self, plugin_configuration)
+            plugin = plugin_type.from_configuration_dict(
+                self, plugin_configuration)
             self._plugins[plugin_type] = plugin
             for event_name, listener in plugin.subscribes_to():
                 self._event_dispatcher.add_listener(event_name, listener)
@@ -47,7 +48,7 @@ class Site:
         return self._configuration
 
     @property
-    def plugins(self):
+    def plugins(self) -> OrderedDict:
         return self._plugins
 
     @property
