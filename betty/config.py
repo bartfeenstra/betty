@@ -6,7 +6,6 @@ from typing import Dict, Type
 from jsonschema import validate, ValidationError
 
 import betty
-from betty.plugin import Plugin
 
 
 class Configuration:
@@ -38,7 +37,7 @@ class Configuration:
         self._title = title
 
     @property
-    def plugins(self) -> Dict[Type[Plugin], Dict]:
+    def plugins(self) -> Dict[Type, Dict]:
         return self._plugins
 
 
@@ -49,11 +48,17 @@ def _from_dict(config_dict: Dict) -> Configuration:
         configuration.title = config_dict['title']
 
     if 'plugins' in config_dict:
-        for plugin_name, plugin_configuration in config_dict['plugins'].items():
-            plugin_module_name, plugin_class_name = plugin_name.rsplit('.', 1)
-            plugin_class = getattr(import_module(
-                plugin_module_name), plugin_class_name)
-            configuration.plugins[plugin_class] = plugin_configuration
+        def _normalize(plugin_definition):
+            if isinstance(plugin_definition, str):
+                return plugin_definition, {}
+            plugin_definition.setdefault('configuration', {})
+            return plugin_definition['type'], plugin_definition['configuration']
+
+        for plugin_definition in config_dict['plugins']:
+            plugin_type_name, plugin_configuration = _normalize(plugin_definition)
+            plugin_module_name, plugin_class_name = plugin_type_name.rsplit('.', 1)
+            plugin_type = getattr(import_module(plugin_module_name), plugin_class_name)
+            configuration.plugins[plugin_type] = plugin_configuration
 
     return configuration
 

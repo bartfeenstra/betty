@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import Callable
 
 POST_PARSE_EVENT = 'parse:post'
@@ -5,10 +6,9 @@ POST_PARSE_EVENT = 'parse:post'
 
 class EventDispatcher:
     def __init__(self):
-        self._listeners = {}
+        self._listeners = defaultdict(list)
 
     def add_listener(self, event_name: str, listener: Callable):
-        self._listeners.setdefault(event_name, [])
         self._listeners[event_name].append(listener)
 
     def dispatch(self, event_name, *args, **kwargs):

@@ -14,7 +14,28 @@
       "type": "string"
     },
     "plugins": {
-      "type": "object"
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "configuration": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          }
+        ]
+      }
     }
   },
   "required": [
