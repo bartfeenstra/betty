@@ -54,40 +54,40 @@ class Js(Plugin, JsPackageProvider):
         for plugin in self._plugins.values():
             if isinstance(plugin, JsPackageProvider):
                 _copytree(environment, plugin.package_directory_path,
-                          join(self._directory_path, plugin.name()))
+                          join(self.directory_path, plugin.name()))
                 dependencies[plugin.name()] = 'file:%s' % join(
-                    self._directory_path, plugin.name())
+                    self.directory_path, plugin.name())
         package_json = {
             'dependencies': dependencies,
             'scripts': {
                 'webpack': 'webpack --config ./betty.plugins.js.Js/webpack.config.js',
             },
         }
-        with open(join(self._directory_path, 'package.json'), 'w') as f:
+        with open(join(self.directory_path, 'package.json'), 'w') as f:
             json.dump(package_json, f)
 
     def _install(self) -> None:
-        makedirs(self._directory_path, 0o700, True)
+        makedirs(self.directory_path, 0o700, True)
         check_call(['npm', 'install', '--production'],
-                   cwd=self._directory_path)
+                   cwd=self.directory_path)
 
     def _webpack(self) -> None:
         copy2(join(RESOURCE_PATH, 'public/betty.css'),
-              join(self._directory_path, self.name(), 'betty.css'))
+              join(self.directory_path, self.name(), 'betty.css'))
 
         # Build the assets.
-        check_call(['npm', 'run', 'webpack'], cwd=self._directory_path)
+        check_call(['npm', 'run', 'webpack'], cwd=self.directory_path)
 
         # Move the Webpack output to the Betty output.
         try:
-            copytree(join(self._directory_path, 'output', 'images'),
+            copytree(join(self.directory_path, 'output', 'images'),
                      join(self._output_directory_path, 'images'))
         except FileNotFoundError:
             # There may not be any images.
             pass
-        copy2(join(self._directory_path, 'output', 'betty.css'),
+        copy2(join(self.directory_path, 'output', 'betty.css'),
               join(self._output_directory_path, 'betty.css'))
-        copy2(join(self._directory_path, 'output', 'betty.js'),
+        copy2(join(self.directory_path, 'output', 'betty.js'),
               join(self._output_directory_path, 'betty.js'))
 
     @property
