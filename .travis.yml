@@ -1,25 +1,32 @@
-dist: xenial
-
 language: python
 
 matrix:
     include:
-        - name: 'Latest: Python 3.7 & Node.js 10'
+        - name: 'Latest: Linux, Python 3.7 & Node.js 10'
+          dist: xenial
           python: '3.7'
           env:
               - NODE_VERSION=10
         - name: 'Python 3.6'
+          dist: xenial
           python: '3.6'
           env:
               - NODE_VERSION=10
         - name: 'Python 3.5'
+          dist: xenial
           python: '3.5'
           env:
               - NODE_VERSION=10
         - name: 'Node.js 8'
+          dist: xenial
           python: '3.7'
           env:
               - NODE_VERSION=8
+        - name: 'Mac OS'
+          dist: osx
+          python: '3.7'
+          env:
+              - NODE_VERSION=10
 
 cache:
     - pip
@@ -29,7 +36,7 @@ before_install:
     - nvm install "$NODE_VERSION"
 
 install:
-    - node --version
+    - npm config list --json
     - ./bin/build-dev
 
 script:
