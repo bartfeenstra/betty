@@ -1,14 +1,10 @@
 from json import dumps
 from tempfile import TemporaryFile
-from typing import Any, Dict, Type
+from typing import Any, Dict
 from unittest import TestCase
 
 from betty.config import from_file
 from betty.plugin import Plugin
-
-
-def _plugin_name(cls: Type):
-    return '%s.%s' % (cls.__module__, cls.__name__)
 
 
 class FromTest(TestCase):
@@ -47,7 +43,7 @@ class FromTest(TestCase):
 
     def test_from_file_should_parse_one_plugin_shorthand(self):
         config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['plugins'] = [_plugin_name(Plugin)]
+        config_dict['plugins'] = [Plugin.name()]
         with self._write(config_dict) as f:
             configuration = from_file(f)
             expected = {
@@ -58,7 +54,7 @@ class FromTest(TestCase):
     def test_from_file_should_parse_one_plugin(self):
         config_dict = dict(**self._MINIMAL_CONFIG_DICT)
         config_dict['plugins'] = [{
-            'type': _plugin_name(Plugin),
+            'type': Plugin.name(),
         }]
         with self._write(config_dict) as f:
             configuration = from_file(f)
@@ -73,7 +69,7 @@ class FromTest(TestCase):
             'check': 1337,
         }
         config_dict['plugins'] = [{
-            'type': _plugin_name(Plugin),
+            'type': Plugin.name(),
             'configuration': plugin_configuration,
         }]
         with self._write(config_dict) as f:
