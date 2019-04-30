@@ -10,10 +10,14 @@ python:
 cache: pip
 
 install:
+    - npm --version
     - ./bin/build-dev
 
 script:
     - ./bin/test
+
+after_failure:
+    - ls -la ~/.betty/*
 
 after_success:
     - codecov
