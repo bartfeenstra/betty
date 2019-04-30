@@ -11,6 +11,7 @@ cache: pip
 
 install:
     - npm --version
+    - npm config list --json
     - ./bin/build-dev
 
 script:
