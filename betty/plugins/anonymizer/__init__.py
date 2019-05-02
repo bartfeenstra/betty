@@ -14,10 +14,10 @@ class Anonymizer(Plugin):
 
     def subscribes_to(self) -> List[Tuple[str, Callable]]:
         return (
-            (POST_PARSE_EVENT, self._anonymize),
+            (POST_PARSE_EVENT, self.anonymize),
         )
 
-    def _anonymize(self, ancestry: Ancestry) -> None:
+    def anonymize(self, ancestry: Ancestry) -> None:
         for person in ancestry.people.values():
             self._anonymize_person(person)
 
