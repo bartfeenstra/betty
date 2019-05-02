@@ -16,13 +16,15 @@ Betty is a static site generator for [Gramps](https://gramps-project.org/) XML f
 ### The command line
 After installation, Betty can be used via the `betty` command:
 ```
-usage: betty [-h] --config CONFIG_FILE_PATH
+usage: betty [-h] {generate} ...
 
 Betty is a static ancestry site generator.
 
+positional arguments:
+  {generate}
+
 optional arguments:
-  -h, --help            show this help message and exit
-  --config CONFIG_FILE_PATH
+  -h, --help  show this help message and exit
 ```
 
 ### Nginx configuration
