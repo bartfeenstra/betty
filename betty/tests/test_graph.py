@@ -45,8 +45,6 @@ class TSortTest(TestCase):
             1: {2, 3},
         }
         vertices = tsort(graph)
-        # @todo The problem is multiple outdegrees, or in terms of plugins, shared dependencies.
-        print(vertices)
         self.assertEquals(3, len(vertices))
         self.assertEquals(1, vertices[0])
         self.assertIn(2, vertices)
