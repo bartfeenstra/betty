@@ -1,23 +1,27 @@
-from typing import Dict, List
+from typing import Dict
 from unittest import TestCase
 
 from betty.ancestry import Ancestry
 from betty.config import Configuration
+from betty.event import Event
 from betty.graph import CyclicGraphError
 from betty.plugin import Plugin
 from betty.site import Site
 
-TRACKING_EVENT = '%s:tracking_event' % __file__
+
+class TrackingEvent(Event):
+    def __init__(self):
+        self.tracker = []
 
 
 class TrackablePlugin(Plugin):
     def subscribes_to(self):
         return [
-            (TRACKING_EVENT, self._track)
+            (TrackingEvent, self._track)
         ]
 
-    def _track(self, tracker: List):
-        tracker.append(self)
+    def _track(self, event: TrackingEvent):
+        event.tracker.append(self)
 
 
 class NonConfigurablePlugin(TrackablePlugin):
@@ -101,24 +105,24 @@ class SiteTest(TestCase):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.plugins[DependsOnNonConfigurablePluginPluginPlugin] = {}
         sut = Site(configuration)
-        tracker = []
-        sut.event_dispatcher.dispatch(TRACKING_EVENT, tracker)
-        self.assertEquals(3, len(tracker))
-        self.assertEquals(NonConfigurablePlugin, type(tracker[0]))
-        self.assertEquals(DependsOnNonConfigurablePluginPlugin, type(tracker[1]))
-        self.assertEquals(DependsOnNonConfigurablePluginPluginPlugin, type(tracker[2]))
+        event = TrackingEvent()
+        sut.event_dispatcher.dispatch(event)
+        self.assertEquals(3, len(event.tracker))
+        self.assertEquals(NonConfigurablePlugin, type(event.tracker[0]))
+        self.assertEquals(DependsOnNonConfigurablePluginPlugin, type(event.tracker[1]))
+        self.assertEquals(DependsOnNonConfigurablePluginPluginPlugin, type(event.tracker[2]))
 
     def test_with_multiple_plugins_with_duplicate_dependencies(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.plugins[DependsOnNonConfigurablePluginPlugin] = {}
         configuration.plugins[AlsoDependsOnNonConfigurablePluginPlugin] = {}
         sut = Site(configuration)
-        tracker = []
-        sut.event_dispatcher.dispatch(TRACKING_EVENT, tracker)
-        self.assertEquals(3, len(tracker))
-        self.assertEquals(NonConfigurablePlugin, type(tracker[0]))
-        self.assertIn(DependsOnNonConfigurablePluginPlugin, [type(plugin) for plugin in tracker])
-        self.assertIn(AlsoDependsOnNonConfigurablePluginPlugin, [type(plugin) for plugin in tracker])
+        event = TrackingEvent()
+        sut.event_dispatcher.dispatch(event)
+        self.assertEquals(3, len(event.tracker))
+        self.assertEquals(NonConfigurablePlugin, type(event.tracker[0]))
+        self.assertIn(DependsOnNonConfigurablePluginPlugin, [type(plugin) for plugin in event.tracker])
+        self.assertIn(AlsoDependsOnNonConfigurablePluginPlugin, [type(plugin) for plugin in event.tracker])
 
     def test_with_multiple_plugins_with_cyclic_dependencies(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)

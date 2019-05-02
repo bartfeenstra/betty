@@ -9,7 +9,7 @@ from lxml import etree
 from lxml.etree import XMLParser, Element
 
 from betty.ancestry import Document, Event, Place, Person, Ancestry, Date, Note, File
-from betty.event import PARSE_EVENT
+from betty.parse import ParseEvent
 from betty.plugin import Plugin
 from betty.site import Site
 
@@ -267,9 +267,9 @@ class Gramps(Plugin):
 
     def subscribes_to(self) -> List[Tuple[str, Callable]]:
         return [
-            (PARSE_EVENT, self._parse),
+            (ParseEvent, self._parse),
         ]
 
-    def _parse(self, ancestry: Ancestry) -> None:
+    def _parse(self, event: ParseEvent) -> None:
         xml_file_path = extract_xml_file(self._gramps_file_path, self._working_directory_path)
-        parse_xml_file(ancestry, xml_file_path)
+        parse_xml_file(event.ancestry, xml_file_path)
