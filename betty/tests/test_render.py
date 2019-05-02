@@ -5,7 +5,7 @@ from unittest import TestCase
 
 import html5lib
 
-from betty.ancestry import Ancestry, Person, Event, Place
+from betty.ancestry import Person, Event, Place
 from betty.config import Configuration
 from betty.render import render, _render_walk, _render_flatten
 from betty.site import Site
@@ -46,7 +46,9 @@ class RenderTest(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        ancestry = Ancestry()
+        cls._outputDirectory = TemporaryDirectory()
+        configuration = Configuration(cls._outputDirectory.name, 'https://ancestry.example.com')
+        cls.site = Site(configuration)
 
         place1 = Place('PLACE1', 'one')
 
@@ -57,15 +59,12 @@ class RenderTest(TestCase):
         person1.events.add(event1)
 
         places = [place1]
-        ancestry.places.update({place.id: place for place in places})
+        cls.site.ancestry.places.update({place.id: place for place in places})
         events = [event1]
-        ancestry.events.update({event.id: event for event in events})
+        cls.site.ancestry.events.update({event.id: event for event in events})
         people = [person1]
-        ancestry.people.update({person.id: person for person in people})
+        cls.site.ancestry.people.update({person.id: person for person in people})
 
-        cls._outputDirectory = TemporaryDirectory()
-        configuration = Configuration(None, cls._outputDirectory.name, 'https://ancestry.example.com')
-        cls.site = Site(ancestry, configuration)
         render(cls.site)
 
     @classmethod

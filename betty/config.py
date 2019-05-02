@@ -9,16 +9,11 @@ import betty
 
 
 class Configuration:
-    def __init__(self, input_gramps_file_path: str, output_directory_path: str, url: str):
-        self._input_gramps_file_path = input_gramps_file_path
+    def __init__(self, output_directory_path: str, url: str):
         self._output_directory_path = output_directory_path
         self._url = url
         self._title = 'Betty'
         self._plugins = {}
-
-    @property
-    def input_gramps_file_path(self) -> str:
-        return self._input_gramps_file_path
 
     @property
     def output_directory_path(self) -> str:
@@ -42,8 +37,7 @@ class Configuration:
 
 
 def _from_dict(config_dict: Dict) -> Configuration:
-    configuration = Configuration(config_dict['inputGrampsFilePath'], config_dict['outputDirectoryPath'],
-                                  config_dict['url'])
+    configuration = Configuration(config_dict['outputDirectoryPath'], config_dict['url'])
     if 'title' in config_dict:
         configuration.title = config_dict['title']
 
