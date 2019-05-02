@@ -10,6 +10,9 @@
     "url": {
       "type": "string"
     },
+    "mode": {
+      "enum": ["development", "production"]
+    },
     "plugins": {
       "type": "array",
       "items": {

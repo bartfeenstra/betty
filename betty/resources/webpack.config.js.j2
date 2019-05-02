@@ -5,8 +5,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const path = require('path')
 
 module.exports = {
-  // @todo Once we have a mode (dev/prod) setting in our Betty configuration, optimize this.
-  mode: 'development',
+  mode: '{{ site.configuration.mode }}',
   entry: {
     betty: path.resolve(__dirname, 'input', 'js', 'betty.js')
   },
@@ -15,8 +14,7 @@ module.exports = {
     filename: '[name].js'
   },
   optimization: {
-    // @todo Once we have a mode (dev/prod) setting in our Betty configuration, optimize this.
-    minimize: false,
+    minimize: {% if site.configuration.mode == 'production' %}true{% else %}false{% elif %},
     splitChunks: {
       cacheGroups: {
         styles: {
