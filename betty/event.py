@@ -1,6 +1,7 @@
 from collections import defaultdict
 from typing import Callable
 
+PARSE_EVENT = 'parse'
 POST_PARSE_EVENT = 'parse:post'
 
 

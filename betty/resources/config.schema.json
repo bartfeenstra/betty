@@ -1,9 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "properties": {
-    "inputGrampsFilePath": {
-      "type": "string"
-    },
     "outputDirectoryPath": {
       "type": "string"
     },
@@ -39,7 +36,6 @@
     }
   },
   "required": [
-    "inputGrampsFilePath",
     "outputDirectoryPath",
     "url"
   ]
