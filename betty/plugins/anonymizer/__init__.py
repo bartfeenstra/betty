@@ -2,8 +2,8 @@ from datetime import datetime
 from typing import List, Tuple, Callable
 
 from betty.ancestry import Ancestry, Person
-from betty.event import POST_PARSE_EVENT
 from betty.functools import walk
+from betty.parse import PostParseEvent
 from betty.plugin import Plugin
 
 
@@ -14,7 +14,7 @@ class Anonymizer(Plugin):
 
     def subscribes_to(self) -> List[Tuple[str, Callable]]:
         return (
-            (POST_PARSE_EVENT, self.anonymize),
+            (PostParseEvent, lambda event: self.anonymize(event.ancestry)),
         )
 
     def anonymize(self, ancestry: Ancestry) -> None:
