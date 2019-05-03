@@ -283,7 +283,7 @@ class Person(Entity):
                                          lambda parent: parent.children.remove(self))
         self._children = EventHandlingSet(lambda child: child.parents.add(self),
                                           lambda child: child.parents.remove(self))
-        self._private = False
+        self._private = None
 
     @property
     def individual_name(self) -> Optional[str]:
@@ -353,11 +353,11 @@ class Person(Entity):
         return siblings
 
     @property
-    def private(self) -> bool:
+    def private(self) -> Optional[bool]:
         return self._private
 
     @private.setter
-    def private(self, private: bool):
+    def private(self, private: Optional[bool]):
         self._private = private
 
 
