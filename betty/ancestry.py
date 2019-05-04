@@ -12,7 +12,11 @@ class EventHandlingSet:
         self._addition_handler = addition_handler
         self._removal_handler = removal_handler
 
-    def add(self, value):
+    def add(self, *values):
+        for value in values:
+            self._add_one(value)
+
+    def _add_one(self, value):
         if value in self._values:
             return
         self._values.add(value)

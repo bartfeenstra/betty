@@ -22,6 +22,6 @@ class Anonymizer(Plugin):
         person.individual_name = None
         person.family_name = None
         for event in set(person.events):
-            event.people.replace(())
+            event.people.remove(person)
         for document in set(person.documents):
-            document.entities.replace(())
+            document.entities.remove(person)
