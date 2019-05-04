@@ -49,8 +49,8 @@ class AnonymizerTest(TestCase):
             sut = Anonymizer()
             sut.anonymize(ancestry)
             self.assert_anonymized(person)
-            self.assertCountEqual([partner], event.people)
-            self.assertCountEqual([partner], document.entities)
+            self.assertCountEqual([], event.people)
+            self.assertCountEqual([], document.entities)
 
     def test_anonymize_should_not_anonymize_non_private_person(self):
         with NamedTemporaryFile() as document_f:
