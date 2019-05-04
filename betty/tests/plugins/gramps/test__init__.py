@@ -63,15 +63,27 @@ class ParseXmlFileTestCase(TestCase):
         person = self.ancestry.people['I0003']
         self.assertEquals('E0002', person.death.id)
 
+    def test_person_should_be_private(self):
+        person = self.ancestry.people['I0003']
+        self.assertTrue(person.private)
+
+    def test_person_should_not_be_private(self):
+        person = self.ancestry.people['I0002']
+        self.assertFalse(person.private)
+
     def test_family_should_set_parents(self):
-        expected_parents = [self.ancestry.people['I0002'], self.ancestry.people['I0003']]
-        children = [self.ancestry.people['I0000'], self.ancestry.people['I0001']]
+        expected_parents = [self.ancestry.people['I0002'],
+                            self.ancestry.people['I0003']]
+        children = [self.ancestry.people['I0000'],
+                    self.ancestry.people['I0001']]
         for child in children:
             self.assertCountEqual(expected_parents, child.parents)
 
     def test_family_should_set_children(self):
-        parents = [self.ancestry.people['I0002'], self.ancestry.people['I0003']]
-        expected_children = [self.ancestry.people['I0000'], self.ancestry.people['I0001']]
+        parents = [self.ancestry.people['I0002'],
+                   self.ancestry.people['I0003']]
+        expected_children = [self.ancestry.people['I0000'],
+                             self.ancestry.people['I0001']]
         for parent in parents:
             self.assertCountEqual(expected_children, parent.children)
 

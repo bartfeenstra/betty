@@ -16,5 +16,13 @@ class Plugin:
     def depends_on(cls) -> Set[Type]:
         return set()
 
+    @classmethod
+    def comes_after(cls) -> Set[Type]:
+        return set()
+
+    @classmethod
+    def comes_before(cls) -> Set[Type]:
+        return set()
+
     def subscribes_to(self) -> List[Tuple[str, Callable]]:
         return set()

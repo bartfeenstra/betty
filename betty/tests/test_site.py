@@ -67,6 +67,18 @@ class DependsOnNonConfigurablePluginPluginPlugin(TrackablePlugin):
         return {DependsOnNonConfigurablePluginPlugin}
 
 
+class ComesBeforeNonConfigurablePluginPlugin(TrackablePlugin):
+    @classmethod
+    def comes_before(cls):
+        return {NonConfigurablePlugin}
+
+
+class ComesAfterNonConfigurablePluginPlugin(TrackablePlugin):
+    @classmethod
+    def comes_after(cls):
+        return {NonConfigurablePlugin}
+
+
 class SiteTest(TestCase):
     _MINIMAL_CONFIGURATION_ARGS = {
         'output_directory_path': '/tmp/path/to/site',
@@ -129,3 +141,43 @@ class SiteTest(TestCase):
         configuration.plugins[CyclicDependencyOnePlugin] = {}
         with self.assertRaises(CyclicGraphError):
             Site(configuration)
+
+    def test_with_comes_before_with_other_plugin(self):
+        configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
+        configuration.plugins[NonConfigurablePlugin] = {}
+        configuration.plugins[ComesBeforeNonConfigurablePluginPlugin] = {}
+        sut = Site(configuration)
+        event = TrackingEvent()
+        sut.event_dispatcher.dispatch(event)
+        self.assertEquals(2, len(event.tracker))
+        self.assertEquals(ComesBeforeNonConfigurablePluginPlugin, type(event.tracker[0]))
+        self.assertEquals(NonConfigurablePlugin, type(event.tracker[1]))
+
+    def test_with_comes_before_without_other_plugin(self):
+        configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
+        configuration.plugins[ComesBeforeNonConfigurablePluginPlugin] = {}
+        sut = Site(configuration)
+        event = TrackingEvent()
+        sut.event_dispatcher.dispatch(event)
+        self.assertEquals(1, len(event.tracker))
+        self.assertEquals(ComesBeforeNonConfigurablePluginPlugin, type(event.tracker[0]))
+
+    def test_with_comes_after_with_other_plugin(self):
+        configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
+        configuration.plugins[ComesAfterNonConfigurablePluginPlugin] = {}
+        configuration.plugins[NonConfigurablePlugin] = {}
+        sut = Site(configuration)
+        event = TrackingEvent()
+        sut.event_dispatcher.dispatch(event)
+        self.assertEquals(2, len(event.tracker))
+        self.assertEquals(NonConfigurablePlugin, type(event.tracker[0]))
+        self.assertEquals(ComesAfterNonConfigurablePluginPlugin, type(event.tracker[1]))
+
+    def test_with_comes_after_without_other_plugin(self):
+        configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
+        configuration.plugins[ComesAfterNonConfigurablePluginPlugin] = {}
+        sut = Site(configuration)
+        event = TrackingEvent()
+        sut.event_dispatcher.dispatch(event)
+        self.assertEquals(1, len(event.tracker))
+        self.assertEquals(ComesAfterNonConfigurablePluginPlugin, type(event.tracker[0]))

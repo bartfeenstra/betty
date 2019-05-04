@@ -3,7 +3,7 @@
 {% block content %}
     {% import 'macro/person.html.j2' as personMacros %}
     <ul class="entities">
-        {% for person in entities | sort(attribute='names') %}
+        {% for person in entities | rejectattr('private', 'eq', True) | sort(attribute='names') %}
             <li class="{{ loop.cycle('odd', 'even') }}">
                 {{ personMacros.label(person) }}
                 {% include 'person-meta.html.j2' %}
