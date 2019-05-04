@@ -43,6 +43,9 @@ script:
     - ./bin/test
 
 after_failure:
+    - node --version
+    - npm --version
+    - npm config list --json
     - ls -la ~/.betty/*
     - cat ~/.betty/*/package.json
 
