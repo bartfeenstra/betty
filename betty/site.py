@@ -29,8 +29,11 @@ class Site:
                     _extend_plugin_type_graph(graph, dependency)
 
         plugin_types_graph = defaultdict(set)
+        # Add dependencies to the plugin graph.
         for plugin_type in self._configuration.plugins.keys():
             _extend_plugin_type_graph(plugin_types_graph, plugin_type)
+        # Now all dependencies have been collected, extend the graph with optional plugin orders.
+        for plugin_type in self._configuration.plugins.keys():
             for before in plugin_type.comes_before():
                 if before in plugin_types_graph:
                     plugin_types_graph[plugin_type].add(before)
