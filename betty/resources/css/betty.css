@@ -149,6 +149,14 @@ footer {
     }
 }
 
+/**
+ * People.
+ */
+.private {
+    cursor: help;
+    text-decoration: dotted underline;
+}
+
 /*
  * Media.
  */

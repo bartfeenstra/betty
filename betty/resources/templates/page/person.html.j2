@@ -11,7 +11,7 @@
         {% endwith %}
     {% endif %}
 
-    {% set parents = person.parents | rejectattr('private', 'eq', True) | list %}
+    {% set parents = person.parents | list %}
     {% if parents | length > 0 %}
         <h2>Parents</h2>
         <ul>
@@ -21,7 +21,7 @@
         </ul>
     {% endif %}
 
-    {% set children = person.children | rejectattr('private', 'eq', True) | list %}
+    {% set children = person.children | list %}
     {% if children | length > 0 %}
         <h2>Children</h2>
         <ul>
@@ -31,7 +31,7 @@
         </ul>
     {% endif %}
 
-    {% set siblings = person.siblings | rejectattr('private', 'eq', True) | list %}
+    {% set siblings = person.siblings | list %}
     {% if siblings | length > 0 %}
         <h2>Siblings</h2>
         <ul>
