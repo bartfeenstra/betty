@@ -63,6 +63,14 @@ class ParseXmlFileTestCase(TestCase):
         person = self.ancestry.people['I0003']
         self.assertEquals('E0002', person.death.id)
 
+    def test_person_should_be_private(self):
+        person = self.ancestry.people['I0003']
+        self.assertTrue(person.private)
+
+    def test_person_should_not_be_private(self):
+        person = self.ancestry.people['I0002']
+        self.assertFalse(person.private)
+
     def test_family_should_set_parents(self):
         expected_parents = [self.ancestry.people['I0002'],
                             self.ancestry.people['I0003']]
