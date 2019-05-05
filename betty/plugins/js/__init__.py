@@ -57,26 +57,26 @@ class Js(Plugin, JsPackageProvider):
                           join(self.directory_path, plugin.name()))
                 dependencies[plugin.name()] = 'file:%s' % join(
                     self.directory_path, plugin.name())
-        package_json = {
-            'dependencies': dependencies,
-            'scripts': {
-                'webpack': 'webpack --config ./betty.plugins.js.Js/webpack.config.js',
-            },
-        }
-        with open(join(self.directory_path, 'package.json'), 'w') as f:
-            json.dump(package_json, f)
+        with open(join(self.directory_path, self.name(), 'package.json'), 'r+') as package_json_f:
+            package_json = json.load(package_json_f)
+            package_json['dependencies'].update(dependencies)
+            package_json['scripts'] = {
+                'webpack': 'webpack --config ./webpack.config.js',
+            }
+            package_json_f.seek(0)
+            json.dump(package_json, package_json_f)
 
     def _install(self) -> None:
         makedirs(self.directory_path, 0o700, True)
         check_call(['npm', 'install', '--production'],
-                   cwd=self.directory_path)
+                   cwd=join(self.directory_path, self.name()))
 
     def _webpack(self) -> None:
         copy2(join(RESOURCE_PATH, 'public/betty.css'),
               join(self.directory_path, self.name(), 'betty.css'))
 
         # Build the assets.
-        check_call(['npm', 'run', 'webpack'], cwd=self.directory_path)
+        check_call(['npm', 'run', 'webpack'], cwd=join(self.directory_path, self.name()))
 
         # Move the Webpack output to the Betty output.
         try:
