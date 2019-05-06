@@ -12,7 +12,11 @@ class EventHandlingSet:
         self._addition_handler = addition_handler
         self._removal_handler = removal_handler
 
-    def add(self, value):
+    def add(self, *values):
+        for value in values:
+            self._add_one(value)
+
+    def _add_one(self, value):
         if value in self._values:
             return
         self._values.add(value)
@@ -106,19 +110,20 @@ class File:
 class Entity:
     def __init__(self, entity_id: str):
         self._id = entity_id
-        self._documents = []
+        self._documents = EventHandlingSet(lambda document: document.entities.add(self),
+                                           lambda document: document.entities.remove(self))
 
     @property
     def id(self) -> str:
         return self._id
 
     @property
-    def documents(self) -> List:
+    def documents(self) -> Iterable:
         return self._documents
 
     @documents.setter
-    def documents(self, documents: List):
-        self._documents = documents
+    def documents(self, documents: Iterable):
+        self._documents.replace(documents)
 
 
 class Document(Entity):
@@ -127,6 +132,8 @@ class Document(Entity):
         self._file = file
         self._description = None
         self._notes = []
+        self._entities = EventHandlingSet(lambda entity: entity.documents.add(self),
+                                          lambda entity: entity.documents.remove(self))
 
     @property
     def file(self) -> File:
@@ -147,6 +154,14 @@ class Document(Entity):
     @notes.setter
     def notes(self, notes: List[Note]):
         self._notes = notes
+
+    @property
+    def entities(self) -> Iterable:
+        return self._entities
+
+    @entities.setter
+    def entities(self, entities: Iterable):
+        self._entities.replace(entities)
 
 
 class Place(Entity):
@@ -272,14 +287,23 @@ class Person(Entity):
                                          lambda parent: parent.children.remove(self))
         self._children = EventHandlingSet(lambda child: child.parents.add(self),
                                           lambda child: child.parents.remove(self))
+        self._private = None
 
     @property
     def individual_name(self) -> Optional[str]:
         return self._individual_name
 
+    @individual_name.setter
+    def individual_name(self, name: str):
+        self._individual_name = name
+
     @property
     def family_name(self) -> Optional[str]:
         return self._family_name
+
+    @family_name.setter
+    def family_name(self, name: str):
+        self._family_name = name
 
     @property
     def names(self) -> Tuple[str, str]:
@@ -332,12 +356,19 @@ class Person(Entity):
                     siblings.add(sibling)
         return siblings
 
+    @property
+    def private(self) -> Optional[bool]:
+        return self._private
+
+    @private.setter
+    def private(self, private: Optional[bool]):
+        self._private = private
+
 
 class Ancestry:
     def __init__(self):
         self._documents = {}
         self._people = {}
-        self._families = {}
         self._places = {}
         self._events = {}
 

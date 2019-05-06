@@ -2,7 +2,6 @@ from os.path import join
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from betty.ancestry import Ancestry
 from betty.config import Configuration
 from betty.plugins.maps import Maps
 from betty.render import render
@@ -15,12 +14,10 @@ class RenderTest(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        ancestry = Ancestry()
         cls._outputDirectory = TemporaryDirectory()
-        configuration = Configuration(
-            None, cls._outputDirectory.name, 'https://ancestry.example.com')
+        configuration = Configuration(cls._outputDirectory.name, 'https://ancestry.example.com')
         configuration.plugins[Maps] = {}
-        cls.site = Site(ancestry, configuration)
+        cls.site = Site(configuration)
         render(cls.site)
 
     @classmethod

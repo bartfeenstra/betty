@@ -1,5 +1,6 @@
-from collections import defaultdict, OrderedDict
-from typing import Type
+from collections import defaultdict
+from tempfile import TemporaryDirectory
+from typing import Type, Dict
 
 from betty.ancestry import Ancestry
 from betty.config import Configuration
@@ -8,11 +9,12 @@ from betty.graph import tsort, Graph
 
 
 class Site:
-    def __init__(self, ancestry: Ancestry, configuration: Configuration):
-        self._ancestry = ancestry
+    def __init__(self, configuration: Configuration):
+        self._working_directory = TemporaryDirectory()
+        self._ancestry = Ancestry()
         self._configuration = configuration
         self._event_dispatcher = EventDispatcher()
-        self._plugins = OrderedDict()
+        self._plugins = {}
         self._init_plugins()
 
     def _init_plugins(self):
@@ -27,8 +29,17 @@ class Site:
                     _extend_plugin_type_graph(graph, dependency)
 
         plugin_types_graph = defaultdict(set)
+        # Add dependencies to the plugin graph.
         for plugin_type in self._configuration.plugins.keys():
             _extend_plugin_type_graph(plugin_types_graph, plugin_type)
+        # Now all dependencies have been collected, extend the graph with optional plugin orders.
+        for plugin_type in self._configuration.plugins.keys():
+            for before in plugin_type.comes_before():
+                if before in plugin_types_graph:
+                    plugin_types_graph[plugin_type].add(before)
+            for after in plugin_type.comes_after():
+                if after in plugin_types_graph:
+                    plugin_types_graph[after].add(plugin_type)
 
         for plugin_type in tsort(plugin_types_graph):
             plugin_configuration = self.configuration.plugins[
@@ -48,9 +59,22 @@ class Site:
         return self._configuration
 
     @property
-    def plugins(self) -> OrderedDict:
+    def plugins(self) -> Dict:
         return self._plugins
 
     @property
     def event_dispatcher(self) -> EventDispatcher:
         return self._event_dispatcher
+
+    @property
+    def working_directory_path(self):
+        return self._working_directory.name
+
+    def cleanup(self):
+        self._working_directory.cleanup()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.cleanup()

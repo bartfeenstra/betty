@@ -1,51 +1,41 @@
-import gzip
 from os.path import join, dirname, abspath
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from betty.ancestry import Event
-from betty.gramps import parse
+from lxml import etree
+from lxml.etree import XMLParser
+
+from betty.ancestry import Event, Ancestry
+from betty.config import Configuration
+from betty.parse import parse
+from betty.plugins.gramps import extract_xml_file, parse_xml_file, Gramps
+from betty.site import Site
 
 
-class ExtractionTest(TestCase):
+class ExtractXmlFileTest(TestCase):
     def test_gramps_xml(self):
         with TemporaryDirectory() as working_directory_path:
-            ancestry = parse(join(dirname(abspath(__file__)),
-                                  'resources', 'minimal.gramps'), working_directory_path)
-            self.assertEquals('Dough', ancestry.people['I0000'].family_name)
-            self.assertEquals(
-                'Janet', ancestry.people['I0000'].individual_name)
+            gramps_file_path = join(dirname(abspath(__file__)), 'resources', 'minimal.gramps')
+            xml_file_path = extract_xml_file(gramps_file_path, working_directory_path)
+            with open(xml_file_path) as f:
+                parser = XMLParser()
+                etree.parse(f, parser)
 
     def test_portable_gramps_xml_package(self):
         with TemporaryDirectory() as working_directory_path:
-            ancestry = parse(join(dirname(abspath(__file__)),
-                                  'resources', 'minimal.gpkg'), working_directory_path)
-            self.assertEquals('Dough', ancestry.people['I0000'].family_name)
-            self.assertEquals(
-                'Janet', ancestry.people['I0000'].individual_name)
-            self.assertEquals('1px', ancestry.documents['O0000'].description)
+            gramps_file_path = join(dirname(abspath(__file__)), 'resources', 'minimal.gpkg')
+            xml_file_path = extract_xml_file(gramps_file_path, working_directory_path)
+            with open(xml_file_path) as f:
+                parser = XMLParser()
+                etree.parse(f, parser)
 
 
-class GrampsTestCase(TestCase):
+class ParseXmlFileTestCase(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        # Our main Gramps XML data is stored as an XML file, so edits are easier to track. Because that is not a native
-        # Gramps format, we gzip it prior to using it in our Gramps API.
-        cls.working_directory = TemporaryDirectory()
-        with TemporaryDirectory() as gramps_working_directory_path:
-            gramps_file_path = join(
-                gramps_working_directory_path, 'data.gramps')
-            with gzip.open(gramps_file_path, mode='w') as gramps_f:
-                with open(join(dirname(abspath(__file__)), 'resources', 'data.xml'), mode='rb') as xml_f:
-                    gramps_f.write(xml_f.read())
-            cls.ancestry = parse(gramps_f.name, cls.working_directory.name)
+        cls.ancestry = Ancestry()
+        parse_xml_file(cls.ancestry, join(dirname(abspath(__file__)), 'resources', 'data.xml'))
 
-    @classmethod
-    def tearDownClass(cls) -> None:
-        cls.working_directory.cleanup()
-
-
-class ParsePlaceTest(GrampsTestCase):
     def test_place_should_include_name(self):
         place = self.ancestry.places['P0000']
         self.assertEquals('Amsterdam', place.name)
@@ -60,8 +50,6 @@ class ParsePlaceTest(GrampsTestCase):
         event = self.ancestry.events['E0000']
         self.assertIn(event, place.events)
 
-
-class ParsePersonTest(GrampsTestCase):
     def test_person_should_include_individual_name(self):
         person = self.ancestry.people['I0000']
         self.assertEquals('Jane', person.individual_name)
@@ -75,8 +63,14 @@ class ParsePersonTest(GrampsTestCase):
         person = self.ancestry.people['I0003']
         self.assertEquals('E0002', person.death.id)
 
+    def test_person_should_be_private(self):
+        person = self.ancestry.people['I0003']
+        self.assertTrue(person.private)
 
-class ParseFamilyTest(GrampsTestCase):
+    def test_person_should_not_be_private(self):
+        person = self.ancestry.people['I0002']
+        self.assertFalse(person.private)
+
     def test_family_should_set_parents(self):
         expected_parents = [self.ancestry.people['I0002'],
                             self.ancestry.people['I0003']]
@@ -93,8 +87,6 @@ class ParseFamilyTest(GrampsTestCase):
         for parent in parents:
             self.assertCountEqual(expected_children, parent.children)
 
-
-class ParseEventTest(GrampsTestCase):
     def test_event_should_be_birth(self):
         self.assertEquals(Event.Type.BIRTH, self.ancestry.events['E0000'].type)
 
@@ -116,3 +108,17 @@ class ParseEventTest(GrampsTestCase):
         event = self.ancestry.events['E0000']
         expected_people = [self.ancestry.people['I0000']]
         self.assertCountEqual(expected_people, event.people)
+
+
+class GrampsTest(TestCase):
+    def test_parse_event(self):
+        with TemporaryDirectory() as output_directory_path:
+            configuration = Configuration(output_directory_path, 'https://example.com')
+            configuration.plugins[Gramps] = {
+                'file': join(dirname(abspath(__file__)), 'resources', 'minimal.gpkg')
+            }
+            with Site(configuration) as site:
+                parse(site)
+                self.assertEquals('Dough', site.ancestry.people['I0000'].family_name)
+                self.assertEquals('Janet', site.ancestry.people['I0000'].individual_name)
+                self.assertEquals('1px', site.ancestry.documents['O0000'].description)

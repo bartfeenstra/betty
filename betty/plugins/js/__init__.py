@@ -11,9 +11,8 @@ from jinja2 import Environment
 
 import betty
 from betty import RESOURCE_PATH
-from betty.event import POST_RENDER_EVENT
 from betty.plugin import Plugin
-from betty.render import _copytree
+from betty.render import _copytree, PostRenderEvent
 from betty.site import Site
 
 
@@ -42,9 +41,9 @@ class Js(Plugin, JsPackageProvider):
 
     def subscribes_to(self):
         return [
-            (POST_RENDER_EVENT, self._build_instance_directory),
-            (POST_RENDER_EVENT, lambda *_: self._install()),
-            (POST_RENDER_EVENT, lambda *_: self._webpack()),
+            (PostRenderEvent, lambda event: self._build_instance_directory(event.environment)),
+            (PostRenderEvent, lambda event: self._install()),
+            (PostRenderEvent, lambda event: self._webpack()),
         ]
 
     def _build_instance_directory(self, environment: Environment) -> None:

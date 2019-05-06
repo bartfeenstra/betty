@@ -17,11 +17,21 @@ from markupsafe import Markup
 
 import betty
 from betty.ancestry import Entity
-from betty.event import POST_RENDER_EVENT
+from betty.event import Event
+from betty.functools import walk
 from betty.json import JSONEncoder
 from betty.path import iterfiles
 from betty.plugin import Plugin
 from betty.site import Site
+
+
+class PostRenderEvent(Event):
+    def __init__(self, environment: Environment):
+        self._environment = environment
+
+    @property
+    def environment(self) -> Environment:
+        return self._environment
 
 
 def render(site: Site) -> None:
@@ -48,7 +58,7 @@ def render(site: Site) -> None:
                         site.ancestry.places.values(), 'place')
     _render_entity_type(site, environment,
                         site.ancestry.events.values(), 'event')
-    site.event_dispatcher.dispatch(POST_RENDER_EVENT, environment)
+    site.event_dispatcher.dispatch(PostRenderEvent(environment))
 
 
 def _create_directory(path: str) -> None:
@@ -124,21 +134,7 @@ def _render_flatten(items):
 
 
 def _render_walk(item, attribute_name):
-    children = getattr(item, attribute_name)
-
-    # If the child has the requested attribute, yield it,
-    if hasattr(children, attribute_name):
-        yield children
-        yield from _render_walk(children, attribute_name)
-
-    # Otherwise loop over the children and yield their attributes.
-    try:
-        children = iter(children)
-    except TypeError:
-        return
-    for child in children:
-        yield child
-        yield from _render_walk(child, attribute_name)
+    return walk(item, attribute_name)
 
 
 def _render_json(data: Any) -> Union[str, Markup]:
