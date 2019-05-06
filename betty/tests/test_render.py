@@ -48,7 +48,8 @@ class RenderTest(TestCase):
     @classmethod
     def setUpClass(cls):
         cls._outputDirectory = TemporaryDirectory()
-        configuration = Configuration(cls._outputDirectory.name, 'https://ancestry.example.com')
+        configuration = Configuration(
+            cls._outputDirectory.name, 'https://ancestry.example.com')
         cls.site = Site(configuration)
 
         place1 = Place('PLACE1', 'one')
@@ -64,7 +65,8 @@ class RenderTest(TestCase):
         events = [event1]
         cls.site.ancestry.events.update({event.id: event for event in events})
         people = [person1]
-        cls.site.ancestry.people.update({person.id: person for person in people})
+        cls.site.ancestry.people.update(
+            {person.id: person for person in people})
 
         render(cls.site)
 

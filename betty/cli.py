@@ -18,7 +18,8 @@ def build_parser():
     parser = argparse.ArgumentParser(
         description='Betty is a static ancestry site generator.')
     subparsers = parser.add_subparsers()
-    generate_parser = subparsers.add_parser('generate', description='Generate a static site.')
+    generate_parser = subparsers.add_parser(
+        'generate', description='Generate a static site.')
     generate_parser.add_argument('--config', dest='config_file_path',
                                  required=True, action='store')
     generate_parser.set_defaults(_callback=generate)

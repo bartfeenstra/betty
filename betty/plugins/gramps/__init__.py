@@ -23,8 +23,10 @@ class _IntermediateAncestry:
         self.people = {}
 
     def populate(self, ancestry: Ancestry):
-        ancestry.documents = {document.id: document for document in self.documents.values()}
-        ancestry.people = {person.id: person for person in self.people.values()}
+        ancestry.documents = {
+            document.id: document for document in self.documents.values()}
+        ancestry.people = {
+            person.id: person for person in self.people.values()}
         ancestry.places = {place.id: place for place in self.places.values()}
         ancestry.events = {event.id: event for event in self.events.values()}
 
@@ -58,8 +60,10 @@ def extract_xml_file(gramps_file_path: str, working_directory_path: str) -> str:
     xml_file_path = join(gramps_working_directory_path, 'data.xml')
     with open(xml_file_path, 'wb') as xml_file:
         try:
-            tarfile.open(fileobj=ungzipped_outer_file).extractall(gramps_working_directory_path)
-            gramps_file_path = join(gramps_working_directory_path, 'data.gramps')
+            tarfile.open(fileobj=ungzipped_outer_file).extractall(
+                gramps_working_directory_path)
+            gramps_file_path = join(
+                gramps_working_directory_path, 'data.gramps')
             xml_file.write(gzip.open(gramps_file_path).read())
         except tarfile.ReadError:
             xml_file.write(ungzipped_outer_file.read())
@@ -110,7 +114,8 @@ def _parse_document(ancestry: _IntermediateAncestry, element: Element, gramps_fi
     handle = _xpath1(element, './@handle')
     entity_id = _xpath1(element, './@id')
     file_element = _xpath1(element, './ns:file')
-    file_path = join(dirname(gramps_file_path), _xpath1(file_element, './@src'))
+    file_path = join(dirname(gramps_file_path),
+                     _xpath1(file_element, './@src'))
     file = File(file_path)
     file.type = _xpath1(file_element, './@mime')
     note_handles = _xpath(element, './ns:noteref/@hlink')
@@ -185,7 +190,8 @@ def _parse_places(ancestry: _IntermediateAncestry, database: Element):
                            [_parse_place(element) for element in database.xpath('.//*[local-name()="placeobj"]')]}
     for intermediate_place in intermediate_places.values():
         if intermediate_place.enclosed_by_handle is not None:
-            intermediate_place.place.enclosed_by = intermediate_places[intermediate_place.enclosed_by_handle].place
+            intermediate_place.place.enclosed_by = intermediate_places[
+                intermediate_place.enclosed_by_handle].place
     ancestry.places = {handle: intermediate_place.place for handle, intermediate_place in
                        intermediate_places.items()}
 
@@ -273,5 +279,6 @@ class Gramps(Plugin):
         ]
 
     def _parse(self, event: ParseEvent) -> None:
-        xml_file_path = extract_xml_file(self._gramps_file_path, self._working_directory_path)
+        xml_file_path = extract_xml_file(
+            self._gramps_file_path, self._working_directory_path)
         parse_xml_file(event.ancestry, xml_file_path)
