@@ -3,6 +3,8 @@ from tempfile import TemporaryFile
 from typing import Any, Dict
 from unittest import TestCase
 
+from parameterized import parameterized
+
 from betty.config import from_file
 from betty.plugin import Plugin
 
@@ -29,6 +31,7 @@ class FromTest(TestCase):
             self._MINIMAL_CONFIG_DICT['outputDirectoryPath'], configuration.output_directory_path)
         self.assertEquals(self._MINIMAL_CONFIG_DICT['url'], configuration.url)
         self.assertEquals('Betty', configuration.title)
+        self.assertEquals('production', configuration.mode)
 
     def test_from_file_should_parse_title(self):
         title = 'My first Betty site'
@@ -37,6 +40,17 @@ class FromTest(TestCase):
         with self._write(config_dict) as f:
             configuration = from_file(f)
             self.assertEquals(title, configuration.title)
+
+    @parameterized.expand([
+        ('production',),
+        ('development',),
+    ])
+    def test_from_file_should_parse_mode(self, mode: str):
+        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
+        config_dict['mode'] = mode
+        with self._write(config_dict) as f:
+            configuration = from_file(f)
+            self.assertEquals(mode, configuration.mode)
 
     def test_from_file_should_parse_one_plugin_shorthand(self):
         config_dict = dict(**self._MINIMAL_CONFIG_DICT)

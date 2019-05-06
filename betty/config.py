@@ -14,6 +14,7 @@ class Configuration:
         self._url = url
         self._title = 'Betty'
         self._plugins = {}
+        self._mode = 'production'
 
     @property
     def output_directory_path(self) -> str:
@@ -32,6 +33,14 @@ class Configuration:
         self._title = title
 
     @property
+    def mode(self) -> str:
+        return self._mode
+
+    @mode.setter
+    def mode(self, mode: str) -> None:
+        self._mode = mode
+
+    @property
     def plugins(self) -> Dict[Type, Dict]:
         return self._plugins
 
@@ -40,6 +49,9 @@ def _from_dict(config_dict: Dict) -> Configuration:
     configuration = Configuration(config_dict['outputDirectoryPath'], config_dict['url'])
     if 'title' in config_dict:
         configuration.title = config_dict['title']
+
+    if 'mode' in config_dict:
+        configuration.mode = config_dict['mode']
 
     if 'plugins' in config_dict:
         def _normalize(plugin_definition):
