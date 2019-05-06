@@ -1,6 +1,8 @@
 # Build artifacts.
 /.tox
 /betty.egg-info
+/node_modules
+/package-lock.json
 *.pyc
 
 # Test artifacts.

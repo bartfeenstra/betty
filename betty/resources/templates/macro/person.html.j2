@@ -1,10 +1,25 @@
 {% macro label(person, link=True) %}
     {%- if link -%}
-        {%- set start_tag = '<a href="/person/' ~ person.id ~ '"' -%}
-        {%- set end_tag = '</a>' -%}
-    {%- else -%}
-        {%- set start_tag = '<span' -%}
-        {%- set end_tag = '</span>' -%}
+        <a href="/person/{{ person.id }}">
     {%- endif -%}
-    {{ start_tag }} typeof="foaf:Person">{% if person.family_name %}<span property="foaf:familyName">{{ person.family_name }}</span>{% else %}…{% endif %}, {% if person.individual_name %}<span property="foaf:individualName">{{ person.individual_name }}</span>{% else %}…{% endif %}{{ end_tag }}
+    {%- if person.private -%}
+        <span class="private" title="This person's details are unavailable to protect their privacy.">private</span>
+    {%- else -%}
+        <span typeof="foaf:Person">
+    {%- if person.family_name -%}
+        <span property="foaf:familyName">{{ person.family_name }}</span>
+    {%- else -%}
+        …
+    {%- endif -%}
+    ,
+    {%- if person.individual_name -%}
+        <span property="foaf:individualName">{{ person.individual_name }}</span>
+    {%- else -%}
+        …
+    {%- endif -%}
+    </span>
+    {%- endif -%}
+    {%- if link -%}
+        </a>
+    {%- endif -%}
 {% endmacro %}

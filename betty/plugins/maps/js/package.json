@@ -1,0 +1,6 @@
+{
+  "main": "maps.js",
+  "dependencies": {
+    "leaflet": "^1.4.0"
+  }
+}

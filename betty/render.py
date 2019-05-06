@@ -2,11 +2,11 @@ import calendar
 import os
 import re
 import shutil
+from importlib import import_module
 from itertools import takewhile
 from json import dumps
 from os.path import join, splitext
-from subprocess import Popen
-from typing import Iterable, Union, Any
+from typing import Iterable, Union, Any, Dict, Type
 
 from geopy import units
 from geopy.format import DEGREES_FORMAT
@@ -17,10 +17,21 @@ from markupsafe import Markup
 
 import betty
 from betty.ancestry import Entity
+from betty.event import Event
+from betty.functools import walk
 from betty.json import JSONEncoder
-from betty.npm import install, BETTY_INSTANCE_NPM_DIR
 from betty.path import iterfiles
+from betty.plugin import Plugin
 from betty.site import Site
+
+
+class PostRenderEvent(Event):
+    def __init__(self, environment: Environment):
+        self._environment = environment
+
+    @property
+    def environment(self) -> Environment:
+        return self._environment
 
 
 def render(site: Site) -> None:
@@ -29,6 +40,7 @@ def render(site: Site) -> None:
         autoescape=select_autoescape(['html'])
     )
     environment.globals['site'] = site
+    environment.globals['plugins'] = Plugins(site.plugins)
     environment.globals['calendar'] = calendar
     environment.filters['map'] = _render_map
     environment.filters['flatten'] = _render_flatten
@@ -39,7 +51,6 @@ def render(site: Site) -> None:
     environment.filters['format_degrees'] = _render_format_degrees
 
     _render_public(site, environment)
-    _render_webpack(site, environment)
     _render_documents(site)
     _render_entity_type(site, environment,
                         site.ancestry.people.values(), 'person')
@@ -47,6 +58,7 @@ def render(site: Site) -> None:
                         site.ancestry.places.values(), 'place')
     _render_entity_type(site, environment,
                         site.ancestry.events.values(), 'event')
+    site.event_dispatcher.dispatch(PostRenderEvent(environment))
 
 
 def _create_directory(path: str) -> None:
@@ -81,36 +93,6 @@ def _copytree(environment: Environment, source_path: str, destination_path: str)
 def _render_public(site, environment) -> None:
     _copytree(environment, join(betty.RESOURCE_PATH, 'public'),
               site.configuration.output_directory_path)
-
-
-def _render_webpack(site: Site, environment: Environment) -> None:
-    install()
-
-    asset_types = ('css', 'js')
-
-    # Set up Webpack's input directories.
-    for asset_type in asset_types:
-        webpack_asset_type_input_dir = join(
-            BETTY_INSTANCE_NPM_DIR, 'input', asset_type)
-        try:
-            shutil.rmtree(webpack_asset_type_input_dir)
-        except FileNotFoundError:
-            pass
-        _copytree(environment, join(betty.RESOURCE_PATH, asset_type),
-                  webpack_asset_type_input_dir)
-
-    # Build the assets.
-    args = ['./node_modules/.bin/webpack', '--config', join(betty.RESOURCE_PATH,
-                                                            'webpack.config.js')]
-    Popen(args, cwd=BETTY_INSTANCE_NPM_DIR, shell=True).wait()
-
-    # Move the Webpack output to the Betty output.
-    shutil.copytree(join(BETTY_INSTANCE_NPM_DIR, 'output', 'images'), join(
-        site.configuration.output_directory_path, 'images'))
-    shutil.copy2(join(BETTY_INSTANCE_NPM_DIR, 'output', 'betty.css'), join(
-        site.configuration.output_directory_path, 'betty.css'))
-    shutil.copy2(join(BETTY_INSTANCE_NPM_DIR, 'output', 'betty.js'), join(
-        site.configuration.output_directory_path, 'betty.js'))
 
 
 def _render_documents(site: Site) -> None:
@@ -152,21 +134,7 @@ def _render_flatten(items):
 
 
 def _render_walk(item, attribute_name):
-    children = getattr(item, attribute_name)
-
-    # If the child has the requested attribute, yield it,
-    if hasattr(children, attribute_name):
-        yield children
-        yield from _render_walk(children, attribute_name)
-
-    # Otherwise loop over the children and yield their attributes.
-    try:
-        children = iter(children)
-    except TypeError:
-        return
-    for child in children:
-        yield child
-        yield from _render_walk(child, attribute_name)
+    return walk(item, attribute_name)
 
 
 def _render_json(data: Any) -> Union[str, Markup]:
@@ -226,3 +194,18 @@ def _render_takewhile(context, seq, *args, **kwargs):
         func = bool
     if seq:
         yield from takewhile(func, seq)
+
+
+class Plugins:
+    def __init__(self, plugins: Dict[Type, Plugin]):
+        self._plugins = plugins
+
+    def __getitem__(self, plugin_type_name):
+        return self._plugins[self._type(plugin_type_name)]
+
+    def __contains__(self, plugin_type_name):
+        return self._type(plugin_type_name) in self._plugins
+
+    def _type(self, plugin_type_name: str):
+        plugin_module_name, plugin_class_name = plugin_type_name.rsplit('.', 1)
+        return getattr(import_module(plugin_module_name), plugin_class_name)

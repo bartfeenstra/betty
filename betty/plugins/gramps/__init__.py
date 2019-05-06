@@ -138,6 +138,8 @@ def _parse_person(ancestry: _IntermediateAncestry, element: Element):
     person = Person(_xpath1(element, './@id'), **properties)
     for event_handle in event_handles:
         person.events.add(ancestry.events[event_handle])
+    if str(_xpath1(element, './@priv')) == '1':
+        person.private = True
 
     ancestry.people[handle] = person
 
@@ -251,7 +253,7 @@ def _parse_event(ancestry: _IntermediateAncestry, element: Element):
     # Parse the documents.
     document_handles = _xpath(element, './ns:objref/@hlink')
     for document_handle in document_handles:
-        event.documents.append(ancestry.documents[document_handle])
+        event.documents.add(ancestry.documents[document_handle])
 
     ancestry.events[handle] = event
 

@@ -61,9 +61,12 @@ def _from_dict(config_dict: Dict) -> Configuration:
             return plugin_definition['type'], plugin_definition['configuration']
 
         for plugin_definition in config_dict['plugins']:
-            plugin_type_name, plugin_configuration = _normalize(plugin_definition)
-            plugin_module_name, plugin_class_name = plugin_type_name.rsplit('.', 1)
-            plugin_type = getattr(import_module(plugin_module_name), plugin_class_name)
+            plugin_type_name, plugin_configuration = _normalize(
+                plugin_definition)
+            plugin_module_name, plugin_class_name = plugin_type_name.rsplit(
+                '.', 1)
+            plugin_type = getattr(import_module(
+                plugin_module_name), plugin_class_name)
             configuration.plugins[plugin_type] = plugin_configuration
 
     return configuration
