@@ -60,4 +60,6 @@ let BettyIcon = L.Icon.Default.extend({
   }
 })
 
-export { initializePlaceLists }
+export {
+  initializePlaceLists as betty
+}

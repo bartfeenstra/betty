@@ -5,7 +5,7 @@ from os import makedirs
 from os.path import join, expanduser, dirname
 from shutil import copy2, copytree
 from subprocess import check_call
-from typing import Tuple, List, Dict
+from typing import Tuple, Dict, Iterable
 
 from jinja2 import Environment
 
@@ -24,9 +24,7 @@ class JsPackageProvider:
 
 
 class JsEntryPointProvider:
-    @property
-    def entry_point(self) -> Tuple[str, str]:
-        raise NotImplementedError
+    pass
 
 
 class Js(Plugin, JsPackageProvider):
@@ -55,8 +53,13 @@ class Js(Plugin, JsPackageProvider):
             if isinstance(plugin, JsPackageProvider):
                 _copytree(environment, plugin.package_directory_path,
                           join(self.directory_path, plugin.name()))
-                dependencies[plugin.name()] = 'file:%s' % join(
-                    self.directory_path, plugin.name())
+                if not isinstance(plugin, self.__class__):
+                    dependencies[plugin.name()] = 'file:%s' % join(self.directory_path, plugin.name())
+                    with open(join(self.directory_path, plugin.name(), 'package.json'), 'r+') as package_json_f:
+                        package_json = json.load(package_json_f)
+                        package_json['name'] = plugin.name()
+                        package_json_f.seek(0)
+                        json.dump(package_json, package_json_f)
         with open(join(self.directory_path, self.name(), 'package.json'), 'r+') as package_json_f:
             package_json = json.load(package_json_f)
             package_json['dependencies'].update(dependencies)
@@ -95,14 +98,11 @@ class Js(Plugin, JsPackageProvider):
         return self._directory_path
 
     @property
-    def entry_points(self) -> List[Tuple[str, str]]:
-        entry_points = []
+    def entry_points(self) -> Iterable[Tuple[str, str]]:
         for plugin in self._plugins.values():
             if isinstance(plugin, JsEntryPointProvider):
-                entry_point, plugin_import_path = plugin.entry_point
-                entry_points.append(
-                    (entry_point, join(plugin.name(), plugin_import_path)))
-        return entry_points
+                entry_point_alias = 'betty%s' % hashlib.sha256(plugin.name().encode()).hexdigest()
+                yield entry_point_alias, plugin.name()
 
     @property
     def package_directory_path(self) -> str:
