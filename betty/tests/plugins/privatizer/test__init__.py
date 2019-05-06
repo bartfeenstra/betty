@@ -13,7 +13,8 @@ from betty.site import Site
 class PrivatizerTest(TestCase):
     def test_post_parse(self):
         with TemporaryDirectory() as output_directory_path:
-            configuration = Configuration(output_directory_path, 'https://example.com')
+            configuration = Configuration(
+                output_directory_path, 'https://example.com')
             configuration.plugins[Privatizer] = {}
             with Site(configuration) as site:
                 person = Person('P0')

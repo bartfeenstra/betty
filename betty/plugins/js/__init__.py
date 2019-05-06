@@ -41,7 +41,8 @@ class Js(Plugin, JsPackageProvider):
 
     def subscribes_to(self):
         return [
-            (PostRenderEvent, lambda event: self._build_instance_directory(event.environment)),
+            (PostRenderEvent, lambda event: self._build_instance_directory(
+                event.environment)),
             (PostRenderEvent, lambda event: self._install()),
             (PostRenderEvent, lambda event: self._webpack()),
         ]
@@ -53,7 +54,8 @@ class Js(Plugin, JsPackageProvider):
                 _copytree(environment, plugin.package_directory_path,
                           join(self.directory_path, plugin.name()))
                 if not isinstance(plugin, self.__class__):
-                    dependencies[plugin.name()] = 'file:%s' % join(self.directory_path, plugin.name())
+                    dependencies[plugin.name()] = 'file:%s' % join(
+                        self.directory_path, plugin.name())
                     with open(join(self.directory_path, plugin.name(), 'package.json'), 'r+') as package_json_f:
                         package_json = json.load(package_json_f)
                         package_json['name'] = plugin.name()
@@ -78,7 +80,8 @@ class Js(Plugin, JsPackageProvider):
               join(self.directory_path, self.name(), 'betty.css'))
 
         # Build the assets.
-        check_call(['npm', 'run', 'webpack'], cwd=join(self.directory_path, self.name()))
+        check_call(['npm', 'run', 'webpack'], cwd=join(
+            self.directory_path, self.name()))
 
         # Move the Webpack output to the Betty output.
         try:
@@ -100,7 +103,8 @@ class Js(Plugin, JsPackageProvider):
     def entry_points(self) -> Iterable[Tuple[str, str]]:
         for plugin in self._plugins.values():
             if isinstance(plugin, JsEntryPointProvider):
-                entry_point_alias = 'betty%s' % hashlib.sha256(plugin.name().encode()).hexdigest()
+                entry_point_alias = 'betty%s' % hashlib.sha256(
+                    plugin.name().encode()).hexdigest()
                 yield entry_point_alias, plugin.name()
 
     @property

@@ -100,7 +100,8 @@ class SiteTest(TestCase):
         configuration.plugins[NonConfigurablePlugin] = {}
         sut = Site(configuration)
         self.assertEquals(1, len(sut.plugins))
-        self.assertIsInstance(sut.plugins[NonConfigurablePlugin], NonConfigurablePlugin)
+        self.assertIsInstance(
+            sut.plugins[NonConfigurablePlugin], NonConfigurablePlugin)
 
     def test_with_one_configurable_plugin(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
@@ -110,7 +111,8 @@ class SiteTest(TestCase):
         }
         sut = Site(configuration)
         self.assertEquals(1, len(sut.plugins))
-        self.assertIsInstance(sut.plugins[ConfigurablePlugin], ConfigurablePlugin)
+        self.assertIsInstance(
+            sut.plugins[ConfigurablePlugin], ConfigurablePlugin)
         self.assertEquals(check, sut.plugins[ConfigurablePlugin].check)
 
     def test_with_one_plugin_with_single_chained_dependency(self):
@@ -121,8 +123,10 @@ class SiteTest(TestCase):
         sut.event_dispatcher.dispatch(event)
         self.assertEquals(3, len(event.tracker))
         self.assertEquals(NonConfigurablePlugin, type(event.tracker[0]))
-        self.assertEquals(DependsOnNonConfigurablePluginPlugin, type(event.tracker[1]))
-        self.assertEquals(DependsOnNonConfigurablePluginPluginPlugin, type(event.tracker[2]))
+        self.assertEquals(DependsOnNonConfigurablePluginPlugin,
+                          type(event.tracker[1]))
+        self.assertEquals(
+            DependsOnNonConfigurablePluginPluginPlugin, type(event.tracker[2]))
 
     def test_with_multiple_plugins_with_duplicate_dependencies(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
@@ -133,8 +137,10 @@ class SiteTest(TestCase):
         sut.event_dispatcher.dispatch(event)
         self.assertEquals(3, len(event.tracker))
         self.assertEquals(NonConfigurablePlugin, type(event.tracker[0]))
-        self.assertIn(DependsOnNonConfigurablePluginPlugin, [type(plugin) for plugin in event.tracker])
-        self.assertIn(AlsoDependsOnNonConfigurablePluginPlugin, [type(plugin) for plugin in event.tracker])
+        self.assertIn(DependsOnNonConfigurablePluginPlugin, [
+                      type(plugin) for plugin in event.tracker])
+        self.assertIn(AlsoDependsOnNonConfigurablePluginPlugin, [
+                      type(plugin) for plugin in event.tracker])
 
     def test_with_multiple_plugins_with_cyclic_dependencies(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
@@ -150,7 +156,8 @@ class SiteTest(TestCase):
         event = TrackingEvent()
         sut.event_dispatcher.dispatch(event)
         self.assertEquals(2, len(event.tracker))
-        self.assertEquals(ComesBeforeNonConfigurablePluginPlugin, type(event.tracker[0]))
+        self.assertEquals(
+            ComesBeforeNonConfigurablePluginPlugin, type(event.tracker[0]))
         self.assertEquals(NonConfigurablePlugin, type(event.tracker[1]))
 
     def test_with_comes_before_without_other_plugin(self):
@@ -160,7 +167,8 @@ class SiteTest(TestCase):
         event = TrackingEvent()
         sut.event_dispatcher.dispatch(event)
         self.assertEquals(1, len(event.tracker))
-        self.assertEquals(ComesBeforeNonConfigurablePluginPlugin, type(event.tracker[0]))
+        self.assertEquals(
+            ComesBeforeNonConfigurablePluginPlugin, type(event.tracker[0]))
 
     def test_with_comes_after_with_other_plugin(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
@@ -171,7 +179,8 @@ class SiteTest(TestCase):
         sut.event_dispatcher.dispatch(event)
         self.assertEquals(2, len(event.tracker))
         self.assertEquals(NonConfigurablePlugin, type(event.tracker[0]))
-        self.assertEquals(ComesAfterNonConfigurablePluginPlugin, type(event.tracker[1]))
+        self.assertEquals(ComesAfterNonConfigurablePluginPlugin,
+                          type(event.tracker[1]))
 
     def test_with_comes_after_without_other_plugin(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
@@ -180,4 +189,5 @@ class SiteTest(TestCase):
         event = TrackingEvent()
         sut.event_dispatcher.dispatch(event)
         self.assertEquals(1, len(event.tracker))
-        self.assertEquals(ComesAfterNonConfigurablePluginPlugin, type(event.tracker[0]))
+        self.assertEquals(ComesAfterNonConfigurablePluginPlugin,
+                          type(event.tracker[0]))

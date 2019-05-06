@@ -15,16 +15,20 @@ from betty.site import Site
 class ExtractXmlFileTest(TestCase):
     def test_gramps_xml(self):
         with TemporaryDirectory() as working_directory_path:
-            gramps_file_path = join(dirname(abspath(__file__)), 'resources', 'minimal.gramps')
-            xml_file_path = extract_xml_file(gramps_file_path, working_directory_path)
+            gramps_file_path = join(
+                dirname(abspath(__file__)), 'resources', 'minimal.gramps')
+            xml_file_path = extract_xml_file(
+                gramps_file_path, working_directory_path)
             with open(xml_file_path) as f:
                 parser = XMLParser()
                 etree.parse(f, parser)
 
     def test_portable_gramps_xml_package(self):
         with TemporaryDirectory() as working_directory_path:
-            gramps_file_path = join(dirname(abspath(__file__)), 'resources', 'minimal.gpkg')
-            xml_file_path = extract_xml_file(gramps_file_path, working_directory_path)
+            gramps_file_path = join(
+                dirname(abspath(__file__)), 'resources', 'minimal.gpkg')
+            xml_file_path = extract_xml_file(
+                gramps_file_path, working_directory_path)
             with open(xml_file_path) as f:
                 parser = XMLParser()
                 etree.parse(f, parser)
@@ -34,7 +38,8 @@ class ParseXmlFileTestCase(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.ancestry = Ancestry()
-        parse_xml_file(cls.ancestry, join(dirname(abspath(__file__)), 'resources', 'data.xml'))
+        parse_xml_file(cls.ancestry, join(
+            dirname(abspath(__file__)), 'resources', 'data.xml'))
 
     def test_place_should_include_name(self):
         place = self.ancestry.places['P0000']
@@ -113,12 +118,16 @@ class ParseXmlFileTestCase(TestCase):
 class GrampsTest(TestCase):
     def test_parse_event(self):
         with TemporaryDirectory() as output_directory_path:
-            configuration = Configuration(output_directory_path, 'https://example.com')
+            configuration = Configuration(
+                output_directory_path, 'https://example.com')
             configuration.plugins[Gramps] = {
                 'file': join(dirname(abspath(__file__)), 'resources', 'minimal.gpkg')
             }
             with Site(configuration) as site:
                 parse(site)
-                self.assertEquals('Dough', site.ancestry.people['I0000'].family_name)
-                self.assertEquals('Janet', site.ancestry.people['I0000'].individual_name)
-                self.assertEquals('1px', site.ancestry.documents['O0000'].description)
+                self.assertEquals(
+                    'Dough', site.ancestry.people['I0000'].family_name)
+                self.assertEquals(
+                    'Janet', site.ancestry.people['I0000'].individual_name)
+                self.assertEquals(
+                    '1px', site.ancestry.documents['O0000'].description)

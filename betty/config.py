@@ -46,7 +46,8 @@ class Configuration:
 
 
 def _from_dict(config_dict: Dict) -> Configuration:
-    configuration = Configuration(config_dict['outputDirectoryPath'], config_dict['url'])
+    configuration = Configuration(
+        config_dict['outputDirectoryPath'], config_dict['url'])
     if 'title' in config_dict:
         configuration.title = config_dict['title']
 
