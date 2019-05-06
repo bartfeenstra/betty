@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="en" prefix="foaf: http://xmlns.com/foaf/0.1/ og: http://ogp.me/ns# rel: http://purl.org/vocab/relationship/">
+<html lang="en"
+      prefix="foaf: http://xmlns.com/foaf/0.1/ og: http://ogp.me/ns# rel: http://purl.org/vocab/relationship/">
 <head>
     <title>{{ title | striptags }} - {{ site.configuration.title }}</title>
     <meta charset="utf-8">
@@ -33,6 +34,8 @@
     {% block content %}{% endblock %}
 </div>
 <footer><p>A family history as told by <a href="https://github.com/bartfeenstra/betty">Betty 👵</a></p></footer>
-<script src="/betty.js"></script>
+{% if 'betty.plugins.js.Js' in plugins %}
+    <script src="/betty.js"></script>
+{% endif %}
 </body>
 </html>

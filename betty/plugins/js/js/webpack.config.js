@@ -8,10 +8,10 @@ module.exports = {
   // @todo Once we have a mode (dev/prod) setting in our Betty configuration, optimize this.
   mode: 'development',
   entry: {
-    betty: path.resolve(__dirname, 'input', 'js', 'betty.js')
+    betty: path.resolve(__dirname, 'betty.js')
   },
   output: {
-    path: path.resolve(__dirname, 'output'),
+    path: path.resolve(__dirname, '..', 'output'),
     filename: '[name].js'
   },
   optimization: {
@@ -32,7 +32,7 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new MiniCssExtractPlugin({
-      path: path.resolve(__dirname, 'output'),
+      path: path.resolve(__dirname, '..', 'output'),
       filename: '[name].css'
     })
   ],
@@ -44,12 +44,12 @@ module.exports = {
       },
       // Bundle Leaflet images.
       {
-        test: /\/node_modules\/leaflet\/dist\/images\/.*\.png$/,
+        test: /.*\.png$/,
         use: [
           {
             loader: 'file-loader',
             options: {
-              name: 'images/leaflet/[name].[ext]'
+              name: 'images/[hash].[ext]'
             }
           }
         ]

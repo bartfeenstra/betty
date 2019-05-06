@@ -4,17 +4,14 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
-betty_npm_dir=$(python -c 'from betty import npm; print(npm.BETTY_INSTANCE_NPM_DIR)')
-betty_dir=$(readlink -f "$(pwd)")
-
 # Test the Python code style.
 flake8 --ignore=E501 ./betty
 
 # Test the CSS code style.
-(cd "$betty_npm_dir" && ./node_modules/.bin/stylelint "$betty_dir/betty/resources/public/betty.css")
+./node_modules/.bin/stylelint "./**/*.css"
 
 # Test the JS code style.
-(cd "$betty_npm_dir" && node_modules/.bin/eslint "$betty_dir/betty/resources/**/*.js")
+./node_modules/.bin/eslint "./**/*.js"
 
 # Run unit tests with coverage.
 coverage erase

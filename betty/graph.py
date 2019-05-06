@@ -16,12 +16,14 @@ class CyclicGraphError(GraphError):
 def tsort(graph: Graph) -> Iterable[Vertex]:
     edges = list(_graph_to_edges(graph))
     sorted_vertices = []
-    outdegree_vertices = list([edge[0] for edge in edges if not _is_target(edge[0], edges)])
+    outdegree_vertices = list(
+        [edge[0] for edge in edges if not _is_target(edge[0], edges)])
     while outdegree_vertices:
         outdegree_vertex = outdegree_vertices.pop()
         if outdegree_vertex not in sorted_vertices:
             sorted_vertices.append(outdegree_vertex)
-        outdegree_vertex_edges = list([edge for edge in edges if edge[0] == outdegree_vertex])
+        outdegree_vertex_edges = list(
+            [edge for edge in edges if edge[0] == outdegree_vertex])
         while outdegree_vertex_edges:
             edge = outdegree_vertex_edges.pop()
             edges.remove(edge)

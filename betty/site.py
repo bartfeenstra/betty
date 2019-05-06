@@ -1,6 +1,6 @@
 from collections import defaultdict
 from tempfile import TemporaryDirectory
-from typing import Type
+from typing import Type, Dict
 
 from betty.ancestry import Ancestry
 from betty.config import Configuration
@@ -44,7 +44,8 @@ class Site:
         for plugin_type in tsort(plugin_types_graph):
             plugin_configuration = self.configuration.plugins[
                 plugin_type] if plugin_type in self.configuration.plugins else {}
-            plugin = plugin_type.from_configuration_dict(self, plugin_configuration)
+            plugin = plugin_type.from_configuration_dict(
+                self, plugin_configuration)
             self._plugins[plugin_type] = plugin
             for event_name, listener in plugin.subscribes_to():
                 self._event_dispatcher.add_listener(event_name, listener)
@@ -58,7 +59,7 @@ class Site:
         return self._configuration
 
     @property
-    def plugins(self):
+    def plugins(self) -> Dict:
         return self._plugins
 
     @property
