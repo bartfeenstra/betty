@@ -14,7 +14,7 @@ module.exports = {
     filename: '[name].js'
   },
   optimization: {
-    minimize: {% if site.configuration.mode == 'production' %}true{% else %}false{% elif %},
+    minimize: {% if site.configuration.mode == 'production' %}true{% else %}false{% endif %},
     splitChunks: {
       cacheGroups: {
         styles: {
