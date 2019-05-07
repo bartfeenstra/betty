@@ -15,12 +15,11 @@ from jinja2.filters import prepare_map
 from jinja2.runtime import Macro
 from markupsafe import Markup
 
-import betty
 from betty.ancestry import Entity
 from betty.event import Event
+from betty.fs import makedirs, iterfiles
 from betty.functools import walk
 from betty.json import JSONEncoder
-from betty.path import iterfiles
 from betty.plugin import Plugin
 from betty.site import Site
 
@@ -35,8 +34,9 @@ class PostRenderEvent(Event):
 
 
 def render(site: Site) -> None:
+    template_directory_paths = list([join(path, 'resources', 'templates') for path in site.file_system.paths])
     environment = Environment(
-        loader=FileSystemLoader(join(betty.RESOURCE_PATH, 'templates')),
+        loader=FileSystemLoader(template_directory_paths),
         autoescape=select_autoescape(['html'])
     )
     environment.globals['site'] = site
@@ -61,12 +61,8 @@ def render(site: Site) -> None:
     site.event_dispatcher.dispatch(PostRenderEvent(environment))
 
 
-def _create_directory(path: str) -> None:
-    os.makedirs(path, 0o755, True)
-
-
 def _create_file(path: str) -> object:
-    _create_directory(os.path.dirname(path))
+    makedirs(os.path.dirname(path))
     return open(path, 'w')
 
 
@@ -74,31 +70,27 @@ def _create_html_file(path: str) -> object:
     return _create_file(os.path.join(path, 'index.html'))
 
 
-def _copytree(environment: Environment, source_path: str, destination_path: str) -> None:
+def _render_public(site: Site, environment: Environment) -> None:
+    site.file_system.copytree(join('resources', 'public'),
+                              site.configuration.output_directory_path)
+    render_tree(site.configuration.output_directory_path, environment)
+
+
+def render_tree(path: str, environment: Environment) -> None:
     template_loader = FileSystemLoader('/')
-    for file_source_path in iterfiles(source_path):
-        file_destination_path = join(
-            destination_path, file_source_path[len(source_path) + 1:])
+    for file_source_path in iterfiles(path):
         if file_source_path.endswith('.j2'):
-            file_destination_path = file_destination_path[:-3]
-            with _create_file(file_destination_path) as f:
-                template = template_loader.load(
-                    environment, file_source_path, environment.globals)
+            file_destination_path = file_source_path[:-3]
+            template = template_loader.load(environment, file_source_path, environment.globals)
+            with open(file_destination_path, 'w') as f:
                 f.write(template.render())
-        else:
-            _create_directory(os.path.dirname(file_destination_path))
-            shutil.copy2(file_source_path, file_destination_path)
-
-
-def _render_public(site, environment) -> None:
-    _copytree(environment, join(betty.RESOURCE_PATH, 'public'),
-              site.configuration.output_directory_path)
+            os.remove(file_source_path)
 
 
 def _render_documents(site: Site) -> None:
     documents_directory_path = os.path.join(
         site.configuration.output_directory_path, 'document')
-    _create_directory(documents_directory_path)
+    makedirs(documents_directory_path)
     for document in site.ancestry.documents.values():
         destination = os.path.join(documents_directory_path,
                                    document.id + splitext(document.file.path)[1])

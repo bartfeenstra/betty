@@ -1,18 +1,17 @@
 import hashlib
 import json
-from collections import OrderedDict
 from os import makedirs
 from os.path import join, expanduser, dirname
-from shutil import copy2, copytree
+from shutil import copy2, copytree, rmtree
 from subprocess import check_call
 from typing import Tuple, Dict, Iterable
 
 from jinja2 import Environment
 
 import betty
-from betty import RESOURCE_PATH
+from betty.fs import FileSystem
 from betty.plugin import Plugin
-from betty.render import _copytree, PostRenderEvent
+from betty.render import PostRenderEvent, render_tree
 from betty.site import Site
 
 
@@ -27,17 +26,18 @@ class JsEntryPointProvider:
 
 
 class Js(Plugin, JsPackageProvider):
-    def __init__(self, plugins: OrderedDict, output_directory_path: str):
+    def __init__(self, file_system: FileSystem, plugins: Dict, output_directory_path: str):
         betty_instance_id = hashlib.sha1(
             betty.__path__[0].encode()).hexdigest()
         self._directory_path = join(
             expanduser('~'), '.betty', betty_instance_id)
+        self._file_system = file_system
         self._plugins = plugins
         self._output_directory_path = output_directory_path
 
     @classmethod
     def from_configuration_dict(cls, site: Site, configuration: Dict):
-        return cls(site.plugins, site.configuration.output_directory_path)
+        return cls(site.file_system, site.plugins, site.configuration.output_directory_path)
 
     def subscribes_to(self):
         return [
@@ -48,11 +48,13 @@ class Js(Plugin, JsPackageProvider):
         ]
 
     def _build_instance_directory(self, environment: Environment) -> None:
+        rmtree(self.directory_path)
         dependencies = {}
         for plugin in self._plugins.values():
             if isinstance(plugin, JsPackageProvider):
-                _copytree(environment, plugin.package_directory_path,
-                          join(self.directory_path, plugin.name()))
+                copytree(plugin.package_directory_path,
+                         join(self.directory_path, plugin.name()))
+                render_tree(join(self.directory_path, plugin.name()), environment)
                 if not isinstance(plugin, self.__class__):
                     dependencies[plugin.name()] = 'file:%s' % join(
                         self.directory_path, plugin.name())
@@ -76,8 +78,8 @@ class Js(Plugin, JsPackageProvider):
                    cwd=join(self.directory_path, self.name()))
 
     def _webpack(self) -> None:
-        copy2(join(RESOURCE_PATH, 'public/betty.css'),
-              join(self.directory_path, self.name(), 'betty.css'))
+        self._file_system.copy2(join('resources', 'public/betty.css'),
+                                join(self.directory_path, self.name(), 'betty.css'))
 
         # Build the assets.
         check_call(['npm', 'run', 'webpack'], cwd=join(

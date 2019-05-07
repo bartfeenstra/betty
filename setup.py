@@ -5,7 +5,7 @@ import os
 from setuptools import setup, find_packages
 
 import betty
-from betty.path import iterfiles
+from betty.fs import iterfiles
 
 ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 
