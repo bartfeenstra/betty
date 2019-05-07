@@ -1,8 +1,9 @@
 import os
+from collections import deque
 from os import walk
 from os.path import join, dirname, exists, relpath
 from shutil import copy2
-from typing import Iterable, List
+from typing import Iterable
 
 
 def iterfiles(path: str) -> Iterable[str]:
@@ -15,10 +16,10 @@ def makedirs(path: str) -> None:
 
 class FileSystem:
     def __init__(self, *paths):
-        self._paths = list(paths)
+        self._paths = deque(paths)
 
     @property
-    def paths(self) -> List[str]:
+    def paths(self) -> deque:
         return self._paths
 
     def open(self, *file_paths: str):

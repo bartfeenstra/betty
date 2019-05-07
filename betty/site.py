@@ -16,6 +16,8 @@ class Site:
         self._ancestry = Ancestry()
         self._configuration = configuration
         self._file_system = FileSystem(dirname(abspath(__file__)))
+        if configuration.resources_path:
+            self._file_system.paths.appendleft(configuration.resources_path)
         self._event_dispatcher = EventDispatcher()
         self._plugins = {}
         self._init_plugins()
