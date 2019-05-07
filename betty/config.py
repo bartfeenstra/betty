@@ -80,15 +80,7 @@ def _from_dict(working_directory_path: str, config_dict: Dict) -> Configuration:
         configuration.resources_path = config_dict['resourcesPath']
 
     if 'plugins' in config_dict:
-        def _normalize(plugin_definition):
-            if isinstance(plugin_definition, str):
-                return plugin_definition, {}
-            plugin_definition.setdefault('configuration', {})
-            return plugin_definition['type'], plugin_definition['configuration']
-
-        for plugin_definition in config_dict['plugins']:
-            plugin_type_name, plugin_configuration = _normalize(
-                plugin_definition)
+        for plugin_type_name, plugin_configuration in config_dict['plugins'].items():
             plugin_module_name, plugin_class_name = plugin_type_name.rsplit(
                 '.', 1)
             plugin_type = getattr(import_module(
