@@ -1,20 +1,29 @@
 from importlib import import_module
 from json import loads, load, JSONDecodeError
-from os.path import join
-from typing import Dict, Type
+from os import getcwd
+from os.path import join, abspath, dirname
+from typing import Dict, Type, Optional
 
 from jsonschema import validate, ValidationError
-
-import betty
 
 
 class Configuration:
     def __init__(self, output_directory_path: str, url: str):
+        self._working_directory_path = getcwd()
         self._output_directory_path = output_directory_path
         self._url = url
         self._title = 'Betty'
         self._plugins = {}
         self._mode = 'production'
+        self._resources_path = None
+
+    @property
+    def working_directory_path(self) -> str:
+        return self._working_directory_path
+
+    @working_directory_path.setter
+    def working_directory_path(self, working_directory_path: str) -> None:
+        self._working_directory_path = working_directory_path
 
     @property
     def output_directory_path(self) -> str:
@@ -44,15 +53,31 @@ class Configuration:
     def plugins(self) -> Dict[Type, Dict]:
         return self._plugins
 
+    @property
+    def resources_path(self) -> Optional[str]:
+        return self._resources_path
 
-def _from_dict(config_dict: Dict) -> Configuration:
+    @resources_path.setter
+    def resources_path(self, resources_path: str) -> None:
+        self._resources_path = self._abspath(resources_path)
+
+    def _abspath(self, path: str):
+        return abspath(join(self._working_directory_path, path))
+
+
+def _from_dict(working_directory_path: str, config_dict: Dict) -> Configuration:
     configuration = Configuration(
         config_dict['outputDirectoryPath'], config_dict['url'])
+    configuration.working_directory_path = working_directory_path
+
     if 'title' in config_dict:
         configuration.title = config_dict['title']
 
     if 'mode' in config_dict:
         configuration.mode = config_dict['mode']
+
+    if 'resourcesPath' in config_dict:
+        configuration.resources_path = config_dict['resourcesPath']
 
     if 'plugins' in config_dict:
         def _normalize(plugin_definition):
@@ -73,18 +98,18 @@ def _from_dict(config_dict: Dict) -> Configuration:
     return configuration
 
 
-def _from_json(config_json: str) -> Configuration:
+def _from_json(working_directory_path: str, config_json: str) -> Configuration:
     try:
         config_dict = loads(config_json)
     except JSONDecodeError:
         raise ValueError('Invalid JSON.')
-    with open(join(betty.RESOURCE_PATH, 'config.schema.json')) as f:
+    with open(join(dirname(abspath(__file__)), 'config.schema.json')) as f:
         try:
             validate(instance=config_dict, schema=load(f))
         except ValidationError:
             raise ValueError('The JSON is no valid Betty configuration.')
-    return _from_dict(config_dict)
+    return _from_dict(working_directory_path, config_dict)
 
 
 def from_file(f) -> Configuration:
-    return _from_json(f.read())
+    return _from_json(dirname(f.name), f.read())

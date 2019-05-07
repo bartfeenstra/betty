@@ -1,10 +1,12 @@
 from collections import defaultdict
+from os.path import abspath, dirname, join
 from tempfile import TemporaryDirectory
 from typing import Type, Dict
 
 from betty.ancestry import Ancestry
 from betty.config import Configuration
 from betty.event import EventDispatcher
+from betty.fs import FileSystem
 from betty.graph import tsort, Graph
 
 
@@ -13,6 +15,9 @@ class Site:
         self._working_directory = TemporaryDirectory()
         self._ancestry = Ancestry()
         self._configuration = configuration
+        self._resources = FileSystem(join(dirname(abspath(__file__)), 'resources'))
+        if configuration.resources_path:
+            self._resources.paths.appendleft(configuration.resources_path)
         self._event_dispatcher = EventDispatcher()
         self._plugins = {}
         self._init_plugins()
@@ -61,6 +66,10 @@ class Site:
     @property
     def plugins(self) -> Dict:
         return self._plugins
+
+    @property
+    def resources(self) -> FileSystem:
+        return self._resources
 
     @property
     def event_dispatcher(self) -> EventDispatcher:

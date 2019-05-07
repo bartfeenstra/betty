@@ -138,9 +138,9 @@ class SiteTest(TestCase):
         self.assertEquals(3, len(event.tracker))
         self.assertEquals(NonConfigurablePlugin, type(event.tracker[0]))
         self.assertIn(DependsOnNonConfigurablePluginPlugin, [
-                      type(plugin) for plugin in event.tracker])
+            type(plugin) for plugin in event.tracker])
         self.assertIn(AlsoDependsOnNonConfigurablePluginPlugin, [
-                      type(plugin) for plugin in event.tracker])
+            type(plugin) for plugin in event.tracker])
 
     def test_with_multiple_plugins_with_cyclic_dependencies(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
@@ -191,3 +191,16 @@ class SiteTest(TestCase):
         self.assertEquals(1, len(event.tracker))
         self.assertEquals(ComesAfterNonConfigurablePluginPlugin,
                           type(event.tracker[0]))
+
+    def test_resources_without_resources_path(self):
+        configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
+        sut = Site(configuration)
+        self.assertEquals(1, len(sut.resources.paths))
+
+    def test_resources_with_resources_path(self):
+        resources_path = '/tmp/betty'
+        configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
+        configuration.resources_path = resources_path
+        sut = Site(configuration)
+        self.assertEquals(2, len(sut.resources.paths))
+        self.assertEquals(resources_path, sut.resources.paths[0])

@@ -13,6 +13,9 @@
     "mode": {
       "enum": ["development", "production"]
     },
+    "resources_path": {
+      "type": "string"
+    },
     "plugins": {
       "type": "array",
       "items": {
