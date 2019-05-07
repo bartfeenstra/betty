@@ -37,7 +37,7 @@ class Js(Plugin, JsPackageProvider):
 
     @classmethod
     def from_configuration_dict(cls, site: Site, configuration: Dict):
-        return cls(site.file_system, site.plugins, site.configuration.output_directory_path)
+        return cls(site.resources, site.plugins, site.configuration.output_directory_path)
 
     def subscribes_to(self):
         return [

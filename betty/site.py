@@ -66,7 +66,7 @@ class Site:
         return self._plugins
 
     @property
-    def file_system(self) -> FileSystem:
+    def resources(self) -> FileSystem:
         return self._file_system
 
     @property
