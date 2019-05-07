@@ -15,9 +15,9 @@ class Site:
         self._working_directory = TemporaryDirectory()
         self._ancestry = Ancestry()
         self._configuration = configuration
-        self._file_system = FileSystem(join(dirname(abspath(__file__)), 'resources'))
+        self._resources = FileSystem(join(dirname(abspath(__file__)), 'resources'))
         if configuration.resources_path:
-            self._file_system.paths.appendleft(configuration.resources_path)
+            self._resources.paths.appendleft(configuration.resources_path)
         self._event_dispatcher = EventDispatcher()
         self._plugins = {}
         self._init_plugins()
@@ -69,7 +69,7 @@ class Site:
 
     @property
     def resources(self) -> FileSystem:
-        return self._file_system
+        return self._resources
 
     @property
     def event_dispatcher(self) -> EventDispatcher:
