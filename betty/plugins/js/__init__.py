@@ -48,7 +48,11 @@ class Js(Plugin, JsPackageProvider):
         ]
 
     def _build_instance_directory(self, environment: Environment) -> None:
-        rmtree(self.directory_path)
+        # Remove an existing instance directory, if it exists.
+        try:
+            rmtree(self.directory_path)
+        except FileNotFoundError:
+            pass
         dependencies = {}
         for plugin in self._plugins.values():
             if isinstance(plugin, JsPackageProvider):
