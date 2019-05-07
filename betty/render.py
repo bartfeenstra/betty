@@ -34,7 +34,7 @@ class PostRenderEvent(Event):
 
 
 def render(site: Site) -> None:
-    template_directory_paths = list([join(path, 'resources', 'templates') for path in site.resources.paths])
+    template_directory_paths = list([join(path, 'templates') for path in site.resources.paths])
     environment = Environment(
         loader=FileSystemLoader(template_directory_paths),
         autoescape=select_autoescape(['html'])
@@ -71,8 +71,7 @@ def _create_html_file(path: str) -> object:
 
 
 def _render_public(site: Site, environment: Environment) -> None:
-    site.resources.copytree(join('resources', 'public'),
-                            site.configuration.output_directory_path)
+    site.resources.copytree('public', site.configuration.output_directory_path)
     render_tree(site.configuration.output_directory_path, environment)
 
 

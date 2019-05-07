@@ -61,8 +61,8 @@ def _from_dict(config_dict: Dict) -> Configuration:
     if 'mode' in config_dict:
         configuration.mode = config_dict['mode']
 
-    if 'resources_path' in config_dict:
-        configuration.resources_path = config_dict['resources_path']
+    if 'resourcesPath' in config_dict:
+        configuration.resources_path = config_dict['resourcesPath']
 
     if 'plugins' in config_dict:
         def _normalize(plugin_definition):

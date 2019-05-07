@@ -1,5 +1,5 @@
 from collections import defaultdict
-from os.path import abspath, dirname
+from os.path import abspath, dirname, join
 from tempfile import TemporaryDirectory
 from typing import Type, Dict
 
@@ -15,7 +15,7 @@ class Site:
         self._working_directory = TemporaryDirectory()
         self._ancestry = Ancestry()
         self._configuration = configuration
-        self._file_system = FileSystem(dirname(abspath(__file__)))
+        self._file_system = FileSystem(join(dirname(abspath(__file__)), 'resources'))
         if configuration.resources_path:
             self._file_system.paths.appendleft(configuration.resources_path)
         self._event_dispatcher = EventDispatcher()

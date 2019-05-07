@@ -1,5 +1,5 @@
-import os
-from os.path import join
+from os import makedirs
+from os.path import join, exists
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
@@ -77,7 +77,7 @@ class RenderTest(TestCase):
     def assert_page(self, path: str):
         abspath = join(self.site.configuration.output_directory_path,
                        path.lstrip('/'), 'index.html')
-        self.assertTrue(os.path.exists(abspath), '%s does not exist' % abspath)
+        self.assertTrue(exists(abspath), '%s does not exist' % abspath)
         with open(abspath) as f:
             parser = html5lib.HTMLParser(strict=True)
             parser.parse(f)
@@ -105,3 +105,16 @@ class RenderTest(TestCase):
     def test_event(self):
         event = self.site.ancestry.events['EVENT1']
         self.assert_page('/event/%s' % event.id)
+
+    def test_resource_override(self):
+        with TemporaryDirectory() as output_directory_path:
+            with TemporaryDirectory() as resources_path:
+                makedirs(join(resources_path, 'public'))
+                with open(join(resources_path, 'public', 'index.html.j2'), 'w') as f:
+                    f.write('{% block content %}Betty was here{% endblock %}')
+                configuration = Configuration(output_directory_path, 'https://ancestry.example.com')
+                configuration.resources_path = resources_path
+                site = Site(configuration)
+                render(site)
+                with open(join(output_directory_path, 'index.html')) as f:
+                    self.assertIn('Betty was here', f.read())

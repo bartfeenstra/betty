@@ -55,7 +55,7 @@ class FromTest(TestCase):
     def test_from_file_should_parse_resources_path(self):
         resources_path = '/tmp/betty'
         config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['resources_path'] = resources_path
+        config_dict['resourcesPath'] = resources_path
         with self._write(config_dict) as f:
             configuration = from_file(f)
             self.assertEquals(resources_path, configuration.resources_path)

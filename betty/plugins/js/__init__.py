@@ -82,8 +82,7 @@ class Js(Plugin, JsPackageProvider):
                    cwd=join(self.directory_path, self.name()))
 
     def _webpack(self) -> None:
-        self._file_system.copy2(join('resources', 'public/betty.css'),
-                                join(self.directory_path, self.name(), 'betty.css'))
+        self._file_system.copy2(join('public/betty.css'), join(self.directory_path, self.name(), 'betty.css'))
 
         # Build the assets.
         check_call(['npm', 'run', 'webpack'], cwd=join(
