@@ -1,12 +1,39 @@
 from json import dumps
-from tempfile import TemporaryFile
+from os import getcwd
+from tempfile import NamedTemporaryFile
 from typing import Any, Dict
 from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.config import from_file
+from betty.config import from_file, Configuration
 from betty.plugin import Plugin
+
+
+class ConfigurationTest(TestCase):
+    def test_working_directory_path(self):
+        sut = Configuration('/tmp/betty', 'https://example.com')
+
+        self.assertEquals(getcwd(), sut.working_directory_path)
+
+        working_directory_path = '/tmp/betty-working-directory'
+        sut.working_directory_path = working_directory_path
+        self.assertEquals(working_directory_path, sut.working_directory_path)
+
+    def test_resources_path(self):
+        sut = Configuration('/tmp/betty', 'https://example.com')
+
+        self.assertIsNone(sut.resources_path)
+
+        absolute_resources_directory_path = '/tmp/betty-resources'
+        sut.working_directory_path = absolute_resources_directory_path
+        self.assertEquals(absolute_resources_directory_path, sut.working_directory_path)
+
+        working_directory_path = '/tmp/betty-working-directory'
+        sut.working_directory_path = working_directory_path
+        relative_resources_directory_path = './betty-resources'
+        sut.resources_path = relative_resources_directory_path
+        self.assertEquals('/tmp/betty-working-directory/betty-resources', sut.resources_path)
 
 
 class FromTest(TestCase):
@@ -16,7 +43,7 @@ class FromTest(TestCase):
     }
 
     def _writes(self, config: str):
-        f = TemporaryFile(mode='r+')
+        f = NamedTemporaryFile(mode='r+')
         f.write(config)
         f.seek(0)
         return f
