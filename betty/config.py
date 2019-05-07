@@ -1,11 +1,9 @@
 from importlib import import_module
 from json import loads, load, JSONDecodeError
-from os.path import join
+from os.path import join, abspath, dirname
 from typing import Dict, Type
 
 from jsonschema import validate, ValidationError
-
-from betty import RESOURCE_PATH
 
 
 class Configuration:
@@ -78,7 +76,7 @@ def _from_json(config_json: str) -> Configuration:
         config_dict = loads(config_json)
     except JSONDecodeError:
         raise ValueError('Invalid JSON.')
-    with open(join(RESOURCE_PATH, 'config.schema.json')) as f:
+    with open(join(dirname(abspath(__file__)), 'config.schema.json')) as f:
         try:
             validate(instance=config_dict, schema=load(f))
         except ValidationError:

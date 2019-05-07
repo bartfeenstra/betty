@@ -1,10 +1,10 @@
 """Integrates Betty with Python's setuptools."""
 
 import os
+from os.path import abspath, dirname, join
 
 from setuptools import setup, find_packages
 
-import betty
 from betty.fs import iterfiles
 
 ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -66,7 +66,7 @@ SETUP = {
         ])
     ],
     'package_data': {
-        'betty': iterfiles(betty.RESOURCE_PATH),
+        'betty': iterfiles(join(dirname(abspath(__file__)), 'resources')),
     },
 }
 
