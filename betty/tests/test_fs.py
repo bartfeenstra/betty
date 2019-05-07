@@ -50,6 +50,51 @@ class FileSystemTest(TestCase):
                 with self.assertRaises(FileNotFoundError):
                     sut.open('mangos')
 
+    def test_open_with_first_file_path_alternative_first_source_path(self):
+        with TemporaryDirectory() as source_path_1:
+            with TemporaryDirectory() as source_path_2:
+                with open(join(source_path_1, 'pinkladies'), 'w') as f:
+                    f.write('pinkladies')
+                with open(join(source_path_2, 'pinkladies'), 'w') as f:
+                    f.write('notpinkladies')
+                with open(join(source_path_1, 'apples'), 'w') as f:
+                    f.write('notpinkladies')
+                with open(join(source_path_2, 'apples'), 'w') as f:
+                    f.write('notpinkladies')
+
+                sut = FileSystem(source_path_1, source_path_2)
+
+                with sut.open('pinkladies', 'apples') as f:
+                    self.assertEquals('pinkladies', f.read())
+
+    def test_open_with_first_file_path_alternative_second_source_path(self):
+        with TemporaryDirectory() as source_path_1:
+            with TemporaryDirectory() as source_path_2:
+                with open(join(source_path_2, 'pinkladies'), 'w') as f:
+                    f.write('pinkladies')
+                with open(join(source_path_1, 'apples'), 'w') as f:
+                    f.write('notpinkladies')
+                with open(join(source_path_2, 'apples'), 'w') as f:
+                    f.write('notpinkladies')
+
+                sut = FileSystem(source_path_1, source_path_2)
+
+                with sut.open('pinkladies', 'apples') as f:
+                    self.assertEquals('pinkladies', f.read())
+
+    def test_open_with_second_file_path_alternative_first_source_path(self):
+        with TemporaryDirectory() as source_path_1:
+            with TemporaryDirectory() as source_path_2:
+                with open(join(source_path_1, 'apples'), 'w') as f:
+                    f.write('apples')
+                with open(join(source_path_2, 'apples'), 'w') as f:
+                    f.write('notapples')
+
+                sut = FileSystem(source_path_1, source_path_2)
+
+                with sut.open('pinkladies', 'apples') as f:
+                    self.assertEquals('apples', f.read())
+
     def test_copy2(self):
         with TemporaryDirectory() as source_path_1:
             with TemporaryDirectory() as source_path_2:
