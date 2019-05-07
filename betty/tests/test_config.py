@@ -87,37 +87,14 @@ class FromTest(TestCase):
             configuration = from_file(f)
             self.assertEquals(resources_path, configuration.resources_path)
 
-    def test_from_file_should_parse_one_plugin_shorthand(self):
-        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['plugins'] = [Plugin.name()]
-        with self._write(config_dict) as f:
-            configuration = from_file(f)
-            expected = {
-                Plugin: {},
-            }
-            self.assertEquals(expected, configuration.plugins)
-
-    def test_from_file_should_parse_one_plugin(self):
-        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['plugins'] = [{
-            'type': Plugin.name(),
-        }]
-        with self._write(config_dict) as f:
-            configuration = from_file(f)
-            expected = {
-                Plugin: {},
-            }
-            self.assertEquals(expected, configuration.plugins)
-
     def test_from_file_should_parse_one_plugin_with_configuration(self):
         config_dict = dict(**self._MINIMAL_CONFIG_DICT)
         plugin_configuration = {
             'check': 1337,
         }
-        config_dict['plugins'] = [{
-            'type': Plugin.name(),
-            'configuration': plugin_configuration,
-        }]
+        config_dict['plugins'] = {
+            Plugin.name(): plugin_configuration,
+        }
         with self._write(config_dict) as f:
             configuration = from_file(f)
             expected = {
@@ -125,16 +102,32 @@ class FromTest(TestCase):
             }
             self.assertEquals(expected, configuration.plugins)
 
+    def test_from_file_should_parse_one_plugin_without_configuration(self):
+        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
+        config_dict['plugins'] = {
+            Plugin.name(): {},
+        }
+        with self._write(config_dict) as f:
+            configuration = from_file(f)
+            expected = {
+                Plugin: {},
+            }
+            self.assertEquals(expected, configuration.plugins)
+
     def test_from_file_should_error_if_unknown_plugin_type_module(self):
         config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['plugins'] = ['foo.bar.Baz']
+        config_dict['plugins'] = {
+            'foo.bar.Baz': {},
+        }
         with self._write(config_dict) as f:
             with self.assertRaises(ImportError):
                 from_file(f)
 
     def test_from_file_should_error_if_unknown_plugin_type(self):
         config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['plugins'] = ['%s.Foo' % self.__module__]
+        config_dict['plugins'] = {
+            '%s.Foo' % self.__module__: {},
+        }
         with self._write(config_dict) as f:
             with self.assertRaises(AttributeError):
                 from_file(f)
