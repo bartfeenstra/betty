@@ -11,34 +11,50 @@ from betty.plugin import Plugin
 
 
 class ConfigurationTest(TestCase):
-    def test_working_directory_path(self):
+    def test_working_directory_path_with_cwd(self):
         sut = Configuration('/tmp/betty', 'https://example.com')
-
         self.assertEquals(getcwd(), sut.working_directory_path)
 
+    def test_working_directory_path_with_path(self):
+        sut = Configuration('/tmp/betty', 'https://example.com')
         working_directory_path = '/tmp/betty-working-directory'
         sut.working_directory_path = working_directory_path
         self.assertEquals(working_directory_path, sut.working_directory_path)
 
-    def test_resources_path(self):
-        sut = Configuration('/tmp/betty', 'https://example.com')
+    def test_output_directory_path_with_absolute_path(self):
+        output_directory_path = '/tmp/betty'
+        sut = Configuration(output_directory_path, 'https://example.com')
+        self.assertEquals(output_directory_path, sut.output_directory_path)
 
-        self.assertIsNone(sut.resources_path)
-
-        absolute_resources_directory_path = '/tmp/betty-resources'
-        sut.working_directory_path = absolute_resources_directory_path
-        self.assertEquals(absolute_resources_directory_path, sut.working_directory_path)
-
+    def test_output_directory_path_with_relative_path(self):
+        output_directory_path = './betty'
+        sut = Configuration(output_directory_path, 'https://example.com')
         working_directory_path = '/tmp/betty-working-directory'
         sut.working_directory_path = working_directory_path
-        relative_resources_directory_path = './betty-resources'
-        sut.resources_path = relative_resources_directory_path
-        self.assertEquals('/tmp/betty-working-directory/betty-resources', sut.resources_path)
+        self.assertEquals('/tmp/betty-working-directory/betty', sut.output_directory_path)
+
+    def test_resources_directory_path_without_path(self):
+        sut = Configuration('/tmp/betty', 'https://example.com')
+        self.assertIsNone(sut.resources_directory_path)
+
+    def test_resources_directory_path_with_absolute_path(self):
+        sut = Configuration('/tmp/betty', 'https://example.com')
+        resources_directory_path = '/tmp/betty-resources'
+        sut.resources_directory_path = resources_directory_path
+        self.assertEquals(resources_directory_path, sut.resources_directory_path)
+
+    def test_resources_directory_path_with_relative_path(self):
+        sut = Configuration('/tmp/betty', 'https://example.com')
+        working_directory_path = '/tmp/betty-working-directory'
+        sut.working_directory_path = working_directory_path
+        resources_directory_path = './betty-resources'
+        sut.resources_directory_path = resources_directory_path
+        self.assertEquals('/tmp/betty-working-directory/betty-resources', sut.resources_directory_path)
 
 
 class FromTest(TestCase):
     _MINIMAL_CONFIG_DICT = {
-        'outputDirectoryPath': '/tmp/path/to/site',
+        'output': '/tmp/path/to/site',
         'url': 'https://example.com',
     }
 
@@ -55,7 +71,7 @@ class FromTest(TestCase):
         with self._write(self._MINIMAL_CONFIG_DICT) as f:
             configuration = from_file(f)
         self.assertEquals(
-            self._MINIMAL_CONFIG_DICT['outputDirectoryPath'], configuration.output_directory_path)
+            self._MINIMAL_CONFIG_DICT['output'], configuration.output_directory_path)
         self.assertEquals(self._MINIMAL_CONFIG_DICT['url'], configuration.url)
         self.assertEquals('Betty', configuration.title)
         self.assertEquals('production', configuration.mode)
@@ -79,13 +95,13 @@ class FromTest(TestCase):
             configuration = from_file(f)
             self.assertEquals(mode, configuration.mode)
 
-    def test_from_file_should_parse_resources_path(self):
-        resources_path = '/tmp/betty'
+    def test_from_file_should_parse_resources_directory_path(self):
+        resources_directory_path = '/tmp/betty'
         config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['resourcesPath'] = resources_path
+        config_dict['resources'] = resources_directory_path
         with self._write(config_dict) as f:
             configuration = from_file(f)
-            self.assertEquals(resources_path, configuration.resources_path)
+            self.assertEquals(resources_directory_path, configuration.resources_directory_path)
 
     def test_from_file_should_parse_one_plugin_with_configuration(self):
         config_dict = dict(**self._MINIMAL_CONFIG_DICT)

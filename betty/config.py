@@ -15,7 +15,7 @@ class Configuration:
         self._title = 'Betty'
         self._plugins = {}
         self._mode = 'production'
-        self._resources_path = None
+        self._resources_directory_path = None
 
     @property
     def working_directory_path(self) -> str:
@@ -27,7 +27,7 @@ class Configuration:
 
     @property
     def output_directory_path(self) -> str:
-        return self._output_directory_path
+        return self._abspath(self._output_directory_path)
 
     @property
     def url(self):
@@ -54,12 +54,12 @@ class Configuration:
         return self._plugins
 
     @property
-    def resources_path(self) -> Optional[str]:
-        return self._resources_path
+    def resources_directory_path(self) -> Optional[str]:
+        return self._abspath(self._resources_directory_path) if self._resources_directory_path else None
 
-    @resources_path.setter
-    def resources_path(self, resources_path: str) -> None:
-        self._resources_path = self._abspath(resources_path)
+    @resources_directory_path.setter
+    def resources_directory_path(self, resources_directory_path: str) -> None:
+        self._resources_directory_path = resources_directory_path
 
     def _abspath(self, path: str):
         return abspath(join(self._working_directory_path, path))
@@ -67,7 +67,7 @@ class Configuration:
 
 def _from_dict(working_directory_path: str, config_dict: Dict) -> Configuration:
     configuration = Configuration(
-        config_dict['outputDirectoryPath'], config_dict['url'])
+        config_dict['output'], config_dict['url'])
     configuration.working_directory_path = working_directory_path
 
     if 'title' in config_dict:
@@ -76,8 +76,8 @@ def _from_dict(working_directory_path: str, config_dict: Dict) -> Configuration:
     if 'mode' in config_dict:
         configuration.mode = config_dict['mode']
 
-    if 'resourcesPath' in config_dict:
-        configuration.resources_path = config_dict['resourcesPath']
+    if 'resources' in config_dict:
+        configuration.resources_directory_path = config_dict['resources']
 
     if 'plugins' in config_dict:
         for plugin_type_name, plugin_configuration in config_dict['plugins'].items():

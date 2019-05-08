@@ -108,12 +108,12 @@ class RenderTest(TestCase):
 
     def test_resource_override(self):
         with TemporaryDirectory() as output_directory_path:
-            with TemporaryDirectory() as resources_path:
-                makedirs(join(resources_path, 'public'))
-                with open(join(resources_path, 'public', 'index.html.j2'), 'w') as f:
+            with TemporaryDirectory() as resources_directory_path:
+                makedirs(join(resources_directory_path, 'public'))
+                with open(join(resources_directory_path, 'public', 'index.html.j2'), 'w') as f:
                     f.write('{% block content %}Betty was here{% endblock %}')
                 configuration = Configuration(output_directory_path, 'https://ancestry.example.com')
-                configuration.resources_path = resources_path
+                configuration.resources_directory_path = resources_directory_path
                 site = Site(configuration)
                 render(site)
                 with open(join(output_directory_path, 'index.html')) as f:
