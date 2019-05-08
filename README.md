@@ -147,5 +147,5 @@ In any existing Python environment, run `./bin/test`.
 ### Fixing problems automatically
 In any existing Python environment, run `./bin/fix`.
 
-### Contributions 🥳
+## Contributions 🥳
 You are welcome to [report bugs](https://github.com/bartfeenstra/betty/issues) or [submit improvements](https://github.com/bartfeenstra/betty/pulls).
