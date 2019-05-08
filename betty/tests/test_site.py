@@ -192,15 +192,15 @@ class SiteTest(TestCase):
         self.assertEquals(ComesAfterNonConfigurablePluginPlugin,
                           type(event.tracker[0]))
 
-    def test_resources_without_resources_path(self):
+    def test_resources_without_resources_directory_path(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         sut = Site(configuration)
         self.assertEquals(1, len(sut.resources.paths))
 
-    def test_resources_with_resources_path(self):
-        resources_path = '/tmp/betty'
+    def test_resources_with_resources_directory_path(self):
+        resources_directory_path = '/tmp/betty'
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        configuration.resources_path = resources_path
+        configuration.resources_directory_path = resources_directory_path
         sut = Site(configuration)
         self.assertEquals(2, len(sut.resources.paths))
-        self.assertEquals(resources_path, sut.resources.paths[0])
+        self.assertEquals(resources_directory_path, sut.resources.paths[0])

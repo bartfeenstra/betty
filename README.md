@@ -55,10 +55,10 @@ optional arguments:
 Configuration files are written in JSON:
 ```json
 {
-	"outputDirectoryPath": "/var/www/betty",
+	"output": "/var/www/betty",
 	"url": "https://ancestry.example.com",
 	"title": "Betty's ancestry",
-	"resourcesPath": "./resources",
+	"resources": "./resources",
 	"plugins": {
 		"betty.plugins.gramps.Gramps": {
 			"file": "./gramps.gpkg"
@@ -70,10 +70,10 @@ Configuration files are written in JSON:
 	}
 }
 ```
-- `outputDirectoryPath` (required); The path to the directory in which to place the generated site.
+- `output` (required); The path to the directory in which to place the generated site.
 - `url` (required); The absolute, public URL at which the site will be published.
 - `title` (optional); The site's title.
-- `resourcesPath` (optional); The path to a directory containing overrides for any of Betty's [resources](./betty/resources).
+- `resources` (optional); The path to a directory containing overrides for any of Betty's [resources](./betty/resources).
 - `plugins` (optional): The plugins to enable. Keys are plugin names, and values are objects containing each plugin's configuration.
     - `betty.plugin.gramps.Gramps`: Parses a Gramps genealogy. Configuration:
         - `file`: the path to the *Gramps XML* or *Gramps XML Package* file.

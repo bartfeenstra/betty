@@ -26,7 +26,7 @@ class MainTest(TestCase):
             with TemporaryDirectory() as output_directory_path:
                 url = 'https://example.com'
                 config_dict = {
-                    'outputDirectoryPath': output_directory_path,
+                    'output': output_directory_path,
                     'url': url,
                 }
                 dump(config_dict, config_file)
