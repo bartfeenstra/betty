@@ -11,8 +11,7 @@
     {%- else -%}
         …
     {%- endif -%}
-    ,
-    {%- if person.individual_name -%}
+    , {% if person.individual_name -%}
         <span property="foaf:individualName">{{ person.individual_name }}</span>
     {%- else -%}
         …

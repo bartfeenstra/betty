@@ -1,9 +1,3 @@
-{% if event.date %}
-    {% import 'macro/date.html.j2' as dateMacros %}
-    {{ dateMacros.format(event.date) }}
-{% endif %}
-{% if event.place and event.place != place_context %}
-    in
-    {% import 'macro/place.html.j2' as placeMacros %}
-    {{ placeMacros.label(event.place, place_context) }}
-{% endif %}
+{%- import 'macro/date.html.j2' as dateMacros -%}
+{%- import 'macro/place.html.j2' as placeMacros -%}
+{% if event.date %}{{ dateMacros.format(event.date) }}{%- endif %} {% if event.place and event.place != place_context %}in {{ placeMacros.label(event.place, place_context) }}{% endif -%}

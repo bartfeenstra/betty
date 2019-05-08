@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="/betty.css"/>
     <link rel="icon" href="/betty.ico">
     <link rel="manifest" href="/betty.webmanifest">
+    {%- if 'betty.plugins.js.Js' in plugins %}
     <style id="js-visibility">
         .js-show {
             display: none;
@@ -20,6 +21,7 @@
     <script>
         document.getElementById('js-visibility').innerHTML = '.js-hide{display:none;}'
     </script>
+    {% endif -%}
 </head>
 <body>
 <nav id="nav-primary">
@@ -31,11 +33,11 @@
 </nav>
 <div id="content">
     <h1>{{ title }}</h1>
-    {% block content %}{% endblock %}
+    {%- block content -%}{%- endblock -%}
 </div>
 <footer><p>A family history as told by <a href="https://github.com/bartfeenstra/betty">Betty 👵</a></p></footer>
-{% if 'betty.plugins.js.Js' in plugins %}
+{%- if 'betty.plugins.js.Js' in plugins %}
     <script src="/betty.js"></script>
-{% endif %}
+{% endif -%}
 </body>
 </html>
