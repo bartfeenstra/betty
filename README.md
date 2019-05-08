@@ -57,7 +57,7 @@ Configuration files are written in JSON:
 {
 	"outputDirectoryPath": "/var/www/betty",
 	"url": "https://ancestry.example.com",
-	"title": "Bart Feenstra's ancestry",
+	"title": "Betty's ancestry",
 	"resourcesPath": "./resources",
 	"plugins": {
 		"betty.plugins.gramps.Gramps": {
@@ -66,7 +66,7 @@ Configuration files are written in JSON:
 		"betty.plugins.maps.Maps": {},
 		"betty.plugins.privatizer.Privatizer": {},
 		"betty.plugins.anonymizer.Anonymizer": {},
-		"betty.plugins.Cleaner.Cleaner": {}
+		"betty.plugins.cleaner.Cleaner": {}
 	}
 }
 ```
