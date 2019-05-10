@@ -1,4 +1,5 @@
 import gzip
+import re
 import tarfile
 from os import mkdir
 from os.path import join, dirname
@@ -86,7 +87,7 @@ def parse_xml_file(ancestry: Ancestry, file_path) -> None:
 
 def _parse_date(element: Element) -> Optional[Date]:
     dateval = _xpath1(element, './ns:dateval/@val')
-    if dateval:
+    if re.fullmatch(r'\d{4}-\d{2}-\d{2}', dateval):
         dateval_components = dateval.split('-')
         date_components = [int(val) for val in dateval_components] + \
                           [None] * (3 - len(dateval_components))
