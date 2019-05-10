@@ -1,6 +1,7 @@
 """Integrates Betty with Python's setuptools."""
 
 import os
+from itertools import chain
 from os.path import abspath, dirname, join
 
 from setuptools import setup, find_packages
@@ -65,8 +66,14 @@ SETUP = {
             'VERSION',
         ])
     ],
+    'include_package_data': True,
     'package_data': {
-        'betty': iterfiles(join(dirname(abspath(__file__)), 'resources')),
+        'betty': chain(
+            [join(dirname(abspath(__file__)), 'betty', 'config.schema.json')],
+            iterfiles(join(dirname(abspath(__file__)), 'betty', 'resources')),
+            iterfiles(join(dirname(abspath(__file__)), 'betty', 'plugins', 'js', 'js')),
+            iterfiles(join(dirname(abspath(__file__)), 'betty', 'plugins', 'maps', 'js')),
+        ),
     },
 }
 
