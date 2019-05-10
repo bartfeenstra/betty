@@ -5,7 +5,7 @@ set -Eeuo pipefail
 cd "$(dirname "$0")/.."
 
 # Install Python dependencies.
-pip install -e .[development]
+pip install -e '.[development]'
 
 # Install JavaScript dependencies.
 npm install
