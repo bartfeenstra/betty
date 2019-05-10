@@ -4,6 +4,11 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
+# Lint the shell scripts.
+for file in ./bin/*; do
+    shellcheck -x "$file"
+done
+
 # Test the Python code style.
 flake8 --ignore=E501 ./betty
 
