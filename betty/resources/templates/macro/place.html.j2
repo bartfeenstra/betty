@@ -2,9 +2,7 @@
     <address>
         {{ _link(place) }}
         {%- set enclosing_places = place | walk('enclosed_by') | takewhile('ne', None) | takewhile('ne', context) | list -%}
-        {%- if enclosing_places | length > 0 -%}
-            ({{ enclosing_places | map(_link) | join(', ') }})
-        {%- endif -%}
+        {%- if enclosing_places | length > 0 -%} ({{ enclosing_places | map(_link) | join(', ') }}){%- endif -%}
     </address>
 {%- endmacro -%}
 
