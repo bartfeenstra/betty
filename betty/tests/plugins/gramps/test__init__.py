@@ -114,6 +114,17 @@ class ParseXmlFileTestCase(TestCase):
         expected_people = [self.ancestry.people['I0000']]
         self.assertCountEqual(expected_people, event.people)
 
+    def test_date_should_ignore_invalid_date(self):
+        date = self.ancestry.events['E0001'].date
+        self.assertIsNone(date)
+
+    def test_date_should_ignore_invalid_date_parts(self):
+        date = self.ancestry.events['E0002'].date
+        self.assertIsNotNone(date)
+        self.assertIsNone(date.year)
+        self.assertEquals(12, date.month)
+        self.assertEquals(31, date.day)
+
 
 class GrampsTest(TestCase):
     def test_parse_event(self):
