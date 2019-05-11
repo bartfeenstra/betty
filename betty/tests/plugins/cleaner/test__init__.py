@@ -37,10 +37,10 @@ class CleanerTest(TestCase):
         anonymous_place = Place('P1', 'Almelo')
         ancestry.places[anonymous_place.id] = anonymous_place
 
-        anonymous_place_encloses_onymous_places = Place('P3', 'Netherlands')
-        anonymous_place_encloses_onymous_places.encloses.add(onymous_place)
-        anonymous_place_encloses_onymous_places.encloses.add(anonymous_place)
-        ancestry.places[anonymous_place_encloses_onymous_places.id] = anonymous_place_encloses_onymous_places
+        onmyous_place_because_encloses_onmyous_places = Place('P3', 'Netherlands')
+        onmyous_place_because_encloses_onmyous_places.encloses.add(onymous_place)
+        onmyous_place_because_encloses_onmyous_places.encloses.add(anonymous_place)
+        ancestry.places[onmyous_place_because_encloses_onmyous_places.id] = onmyous_place_because_encloses_onmyous_places
 
         clean(ancestry)
 
@@ -49,7 +49,7 @@ class CleanerTest(TestCase):
         }, ancestry.events)
         self.assertDictEqual({
             onymous_place.id: onymous_place,
-            anonymous_place_encloses_onymous_places.id: anonymous_place_encloses_onymous_places,
+            onmyous_place_because_encloses_onmyous_places.id: onmyous_place_because_encloses_onmyous_places,
         }, ancestry.places)
 
-        self.assertNotIn(anonymous_place, anonymous_place_encloses_onymous_places.encloses)
+        self.assertNotIn(anonymous_place, onmyous_place_because_encloses_onmyous_places.encloses)
