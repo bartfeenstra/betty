@@ -22,20 +22,32 @@ class CleanerTest(TestCase):
 
     def test_clean(self):
         ancestry = Ancestry()
-        event_with_person = Event('E0', Event.Type.BIRTH)
-        event_with_person.people.add(Person('P0'))
-        anonymized_event = Event('E1', Event.Type.BIRTH)
-        ancestry.events[event_with_person.id] = event_with_person
-        ancestry.events[anonymized_event.id] = anonymized_event
-        place_with_event = Place('P0', 'Amsterdam')
-        place_with_event.events.add(event_with_person)
-        anonymized_place = Place('P1', 'Almelo')
-        ancestry.places[place_with_event.id] = place_with_event
-        ancestry.places[anonymized_place.id] = anonymized_place
+
+        onymous_event = Event('E0', Event.Type.BIRTH)
+        onymous_event.people.add(Person('P0'))
+        ancestry.events[onymous_event.id] = onymous_event
+
+        anonymous_event = Event('E1', Event.Type.BIRTH)
+        ancestry.events[anonymous_event.id] = anonymous_event
+
+        onymous_place = Place('P0', 'Amsterdam')
+        onymous_place.events.add(onymous_event)
+        ancestry.places[onymous_place.id] = onymous_place
+
+        anonymous_place = Place('P1', 'Almelo')
+        ancestry.places[anonymous_place.id] = anonymous_place
+
+        anonymous_place_encloses_onymous_places = Place('P3', 'Netherlands')
+        anonymous_place_encloses_onymous_places.encloses.add(onymous_place)
+        anonymous_place_encloses_onymous_places.encloses.add(anonymous_place)
+        ancestry.places[anonymous_place_encloses_onymous_places.id] = anonymous_place_encloses_onymous_places
+
         clean(ancestry)
-        self.assertEquals({
-            event_with_person.id: event_with_person,
+
+        self.assertDictEqual({
+            onymous_event.id: onymous_event,
         }, ancestry.events)
-        self.assertEquals({
-            place_with_event.id: place_with_event,
+        self.assertDictEqual({
+            onymous_place.id: onymous_place,
+            anonymous_place_encloses_onymous_places.id: anonymous_place_encloses_onymous_places,
         }, ancestry.places)
