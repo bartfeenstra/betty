@@ -90,7 +90,7 @@ _DATE_PART_PATTERN = re.compile(r'\d+')
 
 
 def _parse_date(element: Element) -> Optional[Date]:
-    dateval = _xpath1(element, './ns:dateval/@val')
+    dateval = str(_xpath1(element, './ns:dateval/@val'))
     if _DATE_PATTERN.fullmatch(dateval):
         dateval_parts = dateval.split('-')
         date_parts = [int(val) if _DATE_PART_PATTERN.fullmatch(val) else None for val in dateval_parts] + \
