@@ -51,3 +51,5 @@ class CleanerTest(TestCase):
             onymous_place.id: onymous_place,
             anonymous_place_encloses_onymous_places.id: anonymous_place_encloses_onymous_places,
         }, ancestry.places)
+
+        self.assertNotIn(anonymous_place, anonymous_place_encloses_onymous_places.encloses)

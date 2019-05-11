@@ -39,6 +39,7 @@ def _clean_places(ancestry: Ancestry):
 
     for place in tsort(places_graph):
         if _place_is_anonymous(place):
+            place.enclosed_by = None
             del ancestry.places[place.id]
 
 
