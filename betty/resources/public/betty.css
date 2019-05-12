@@ -75,29 +75,85 @@ ul.entities li.even {
 }
 
 /*
- * Header.
+ * Navigation.
  */
 
 #nav-primary {
-  height: 3em;
+  color: purple;
+  font-size: 1.1rem;
+}
+
+#site-title {
+  line-height: 3rem;
+  padding: 0 1rem;
+  text-transform: uppercase;
+  width: calc(75% - 2rem);
+}
+
+#site-title a {
+  color: #777;
+}
+
+#nav-primary input[type="checkbox"] {
+  display: none;
+}
+
+#nav-primary label {
+  cursor: pointer;
+  display: block;
+  float: right;
+  height: 3rem;
+  line-height: 3rem;
+  position: absolute;
+  right: 0;
+  text-align: center;
+  text-transform: uppercase;
+  top: 0;
+  width: 25%;
+}
+
+#nav-primary input[type="checkbox"]:checked ~ label {
+  background-color: #fff;
+}
+
+#nav-primary label::after {
+  content: "MENU";
+}
+
+#nav-primary input[type="checkbox"]:checked ~ label::after {
+  content: "×";
+  font-weight: bold;
 }
 
 #nav-primary ul {
+  background-color: #fff;
+  border-bottom: 0.5em pink solid;
   list-style: none;
   margin: 0;
+  padding: 1rem 3rem;
+  position: absolute;
+  top: 3rem;
+  width: calc(100% - 6rem);
+}
+
+#nav-primary input[type="checkbox"] ~ ul {
+  display: none;
+}
+
+#nav-primary input[type="checkbox"]:checked ~ ul {
+  display: initial;
 }
 
 #nav-primary ul li {
-  display: inline;
+  margin: 1rem 0;
 }
 
 #nav-primary ul li a {
+  background-color: #eee;
   color: purple;
   display: block;
-  float: left;
-  font-size: 1.1em;
-  line-height: 3em;
-  padding: 0 2em;
+  line-height: 3rem;
+  text-align: center;
 }
 
 #nav-primary ul li a:hover {
