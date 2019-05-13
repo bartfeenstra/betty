@@ -242,6 +242,7 @@ def _parse_events(ancestry: _IntermediateAncestry, database: Element):
 
 _EVENT_TYPE_MAP = {
     'Birth': Event.Type.BIRTH,
+    'Baptism': Event.Type.BAPTISM,
     'Death': Event.Type.DEATH,
     'Burial': Event.Type.BURIAL,
     'Marriage': Event.Type.MARRIAGE,
