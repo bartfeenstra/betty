@@ -11,6 +11,7 @@
 {% macro type_label(event) -%}
     {%- set _type_labels = {
         event.Type.BIRTH: 'Birth',
+        event.Type.BAPTISM: 'Baptism',
         event.Type.DEATH: 'Death',
         event.Type.BURIAL: 'Burial',
         event.Type.MARRIAGE: 'Marriage',

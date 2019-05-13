@@ -226,6 +226,7 @@ class Place(Entity):
 class Event(Entity):
     class Type(Enum):
         BIRTH = 'birth'
+        BAPTISM = 'baptism'
         DEATH = 'death'
         BURIAL = 'burial'
         MARRIAGE = 'marriage'
