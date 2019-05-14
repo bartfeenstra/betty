@@ -227,6 +227,7 @@ class Event(Entity):
     class Type(Enum):
         BIRTH = 'birth'
         BAPTISM = 'baptism'
+        CREMATION = 'cremation'
         DEATH = 'death'
         BURIAL = 'burial'
         MARRIAGE = 'marriage'
