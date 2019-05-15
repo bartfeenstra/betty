@@ -107,6 +107,37 @@ class File:
         return extension if extension else None
 
 
+class Source:
+    def __init__(self):
+        self._contained_by = None
+
+        def handle_contains_addition(source):
+            source.contained_by = self
+
+        def handle_contains_removal(source):
+            source.contained_by = None
+
+        self._contains = EventHandlingSet(
+            handle_contains_addition, handle_contains_removal)
+
+    @property
+    def contained_by(self):
+        return self._contained_by
+
+    @contained_by.setter
+    def contained_by(self, place):
+        previous_place = self._contained_by
+        self._contained_by = place
+        if previous_place is not None:
+            previous_place.contains.remove(self)
+        if place is not None:
+            place.contains.add(self)
+
+    @property
+    def contains(self) -> Iterable:
+        return self._contains
+
+
 class Entity:
     def __init__(self, entity_id: str):
         self._id = entity_id
