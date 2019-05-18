@@ -1,41 +1,95 @@
 import argparse
-import sys
+from os import getcwd
+from os.path import join
+from typing import Callable, Optional, List
 
 from betty import parse, render
-from betty.config import from_file
+from betty.config import from_file, Configuration
 from betty.site import Site
 
 
-def generate(config_file_path: str):
-    with open(config_file_path) as f:
-        configuration = from_file(f)
-    with Site(configuration) as site:
-        parse.parse(site)
-        render.render(site)
+class Command:
+    def build_parser(self, add_parser: Callable):
+        raise NotImplementedError
+
+    def run(self, **kwargs):
+        raise NotImplementedError
 
 
-def build_parser():
-    parser = argparse.ArgumentParser(
-        description='Betty is a static ancestry site generator.')
-    subparsers = parser.add_subparsers()
-    generate_parser = subparsers.add_parser(
-        'generate', description='Generate a static site.')
-    generate_parser.add_argument('--config', dest='config_file_path',
-                                 required=True, action='store')
-    generate_parser.set_defaults(_callback=generate)
+class CommandProvider:
+    @property
+    def commands(self) -> List[Command]:
+        raise NotImplementedError
+
+
+class GenerateCommand(Command):
+    def __init__(self, site: Site):
+        self._site = site
+
+    def build_parser(self, add_parser: Callable):
+        return add_parser('generate', description='Generate a static site.')
+
+    def run(self):
+        parse.parse(self._site)
+        render.render(self._site)
+
+
+def build_betty_parser():
+    parser = argparse.ArgumentParser(description='Betty is a static ancestry site generator.', add_help=False)
+    parser.add_argument('-c', '--configuration', dest='config_file_path', action='store',
+                        help='The path to the configuration file. Defaults to betty.json in the current working directory.')
+    parser.add_argument('-h', '--help', action='store_true', default=False, help='Show this help message and exit.')
+    parser.add_argument('...', nargs=argparse.REMAINDER, help='The command to run, and any arguments it needs.')
     return parser
+
+
+def build_commands_parser(commands):
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers()
+    for command in commands:
+        command_parser = command.build_parser(subparsers.add_parser)
+        command_parser.set_defaults(_betty_command_callback=command.run)
+    return parser
+
+
+def get_configuration(config_file_path: Optional[str]) -> Optional[Configuration]:
+    if config_file_path is None:
+        config_file_path = join(getcwd(), 'betty.json')
+    try:
+        with open(config_file_path) as f:
+            return from_file(f)
+    except FileNotFoundError:
+        pass
 
 
 def main(args=None):
     try:
-        parser = build_parser()
-        parsed_args = vars(parser.parse_args(args))
-        if '_callback' not in parsed_args:
-            parser.print_usage(sys.stderr)
-            parser.exit(2)
-        callback = parsed_args['_callback']
-        del parsed_args['_callback']
-        callback(**parsed_args)
+        betty_parser = build_betty_parser()
+        betty_parsed_args = vars(betty_parser.parse_args(args))
+        configuration = get_configuration(betty_parsed_args['config_file_path'])
+        if configuration:
+            with Site(configuration) as site:
+                commands = [GenerateCommand(site)]
+                for plugin in site.plugins.values():
+                    if isinstance(plugin, CommandProvider):
+                        for command in plugin.commands:
+                            commands.append(command)
+                commands_parser = build_commands_parser(commands)
+                if betty_parsed_args['help']:
+                    commands_parser.print_help()
+                    commands_parser.exit()
+                commands_parsed_args = vars(commands_parser.parse_args(betty_parsed_args['...']))
+                if '_betty_command_callback' not in commands_parsed_args:
+                    commands_parser.print_usage()
+                    commands_parser.exit(2)
+                callback = commands_parsed_args['_betty_command_callback']
+                del commands_parsed_args['_betty_command_callback']
+                callback(**commands_parsed_args)
+                commands_parser.exit()
+
+        betty_parser.print_help()
+        status = 0 if betty_parsed_args['help'] else 2
+        betty_parser.exit(status)
     except KeyboardInterrupt:
         # Quit gracefully.
         print('Quitting...')
