@@ -1,4 +1,3 @@
-from contextlib import contextmanager
 from json import dump
 from os import chdir, getcwd
 from os.path import join
@@ -12,15 +11,18 @@ from betty.plugin import Plugin
 from betty.site import Site
 
 
-@contextmanager
-def assert_exit(test_case: TestCase, expected_code: int):
-    try:
-        yield
-    except SystemExit as e:
-        test_case.assertEquals(expected_code, e.code)
-    except BaseException as e:
-        test_case.fail('The system exit was expected, but it did not occur.')
-        raise e
+class AssertExit:
+    def __init__(self, test_case: TestCase, expected_code: int):
+        self._test_case = test_case
+        self._expected_code = expected_code
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._test_case.assertIsInstance(exc_val, SystemExit, 'A system exit was expected, but it did not occur.')
+        self._test_case.assertEquals(self._expected_code, exc_val.code)
+        return True
 
 
 class TestCommandError(BaseException):
@@ -44,7 +46,8 @@ class TestPlugin(Plugin, CommandProvider):
 
 
 class MainTest(TestCase):
-    assertExit = assert_exit
+    def assertExit(self, *args):
+        return AssertExit(self, *args)
 
     @patch('sys.stdout')
     def test_without_arguments(self, _):
@@ -119,7 +122,8 @@ class MainTest(TestCase):
 
 
 class GenerateCommandTest(TestCase):
-    assertExit = assert_exit
+    def assertExit(self, *args):
+        return AssertExit(self, *args)
 
     @patch('betty.render.render')
     @patch('betty.parse.parse')
