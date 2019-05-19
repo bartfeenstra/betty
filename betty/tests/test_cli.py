@@ -1,27 +1,66 @@
 from json import dump
+from os import chdir, getcwd
+from os.path import join
 from tempfile import NamedTemporaryFile, TemporaryDirectory
+from typing import List, Callable
 from unittest import TestCase
 from unittest.mock import patch
 
-from betty.cli import main
+from betty.cli import main, CommandProvider, Command
+from betty.plugin import Plugin
 from betty.site import Site
 
 
+class AssertExit:
+    def __init__(self, test_case: TestCase, expected_code: int):
+        self._test_case = test_case
+        self._expected_code = expected_code
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._test_case.assertIsInstance(exc_val, SystemExit, 'A system exit was expected, but it did not occur.')
+        self._test_case.assertEquals(self._expected_code, exc_val.code)
+        return True
+
+
+class TestCommandError(BaseException):
+    pass
+
+
+class TestCommand(Command):
+    def build_parser(self, add_parser: Callable):
+        return add_parser('test')
+
+    def run(self, **kwargs):
+        raise TestCommandError
+
+
+class TestPlugin(Plugin, CommandProvider):
+    @property
+    def commands(self) -> List[Command]:
+        return [
+            TestCommand(),
+        ]
+
+
 class MainTest(TestCase):
-    @patch('sys.stderr')
-    def test_without_subcommand(self, _):
-        with self.assertRaises(SystemExit):
+    def assertExit(self, *args):
+        return AssertExit(self, *args)
+
+    @patch('sys.stdout')
+    def test_without_arguments(self, _):
+        with self.assertExit(2):
             main()
 
-    @patch('argparse.ArgumentParser')
     @patch('sys.stdout')
-    def test_with_keyboard_interrupt(self, _, parser):
-        parser.side_effect = KeyboardInterrupt
-        main()
+    def test_help_without_configuration(self, _):
+        with self.assertExit(0):
+            main(['--help'])
 
-    @patch('betty.render.render')
-    @patch('betty.parse.parse')
-    def test_generate(self, parse, render):
+    @patch('sys.stdout')
+    def test_configuration_without_help(self, _):
         with NamedTemporaryFile(mode='w') as config_file:
             with TemporaryDirectory() as output_directory_path:
                 url = 'https://example.com'
@@ -32,8 +71,75 @@ class MainTest(TestCase):
                 dump(config_dict, config_file)
                 config_file.seek(0)
 
-                args = ['generate', '--config', config_file.name]
-                main(args)
+                with self.assertExit(2):
+                    main(['--config', config_file.name])
+
+    @patch('sys.stdout')
+    def test_help_with_configuration(self, _):
+        with NamedTemporaryFile(mode='w') as config_file:
+            with TemporaryDirectory() as output_directory_path:
+                url = 'https://example.com'
+                config_dict = {
+                    'output': output_directory_path,
+                    'url': url,
+                    'plugins': {
+                        TestPlugin.name(): {},
+                    },
+                }
+                dump(config_dict, config_file)
+                config_file.seek(0)
+
+                with self.assertExit(0):
+                    main(['--config', config_file.name, '--help'])
+
+    @patch('sys.stdout')
+    def test_with_discovered_configuration(self, _):
+        with TemporaryDirectory() as cwd:
+            with TemporaryDirectory() as output_directory_path:
+                with open(join(cwd, 'betty.json'), 'w') as config_file:
+                    url = 'https://example.com'
+                    config_dict = {
+                        'output': output_directory_path,
+                        'url': url,
+                        'plugins': {
+                            TestPlugin.name(): {},
+                        },
+                    }
+                    dump(config_dict, config_file)
+                original_cwd = getcwd()
+                try:
+                    chdir(cwd)
+                    with self.assertRaises(TestCommandError):
+                        main(['test'])
+                finally:
+                    chdir(original_cwd)
+
+    @patch('argparse.ArgumentParser')
+    @patch('sys.stdout')
+    def test_with_keyboard_interrupt(self, _, parser):
+        parser.side_effect = KeyboardInterrupt
+        main()
+
+
+class GenerateCommandTest(TestCase):
+    def assertExit(self, *args):
+        return AssertExit(self, *args)
+
+    @patch('betty.render.render')
+    @patch('betty.parse.parse')
+    def test_run(self, parse, render):
+        with NamedTemporaryFile(mode='w') as config_file:
+            with TemporaryDirectory() as output_directory_path:
+                url = 'https://example.com'
+                config_dict = {
+                    'output': output_directory_path,
+                    'url': url,
+                }
+                dump(config_dict, config_file)
+                config_file.seek(0)
+
+                with self.assertExit(0):
+                    main(['--config', config_file.name, 'generate'])
 
                 self.assertEquals(1, parse.call_count)
                 parse_args, parse_kwargs = parse.call_args

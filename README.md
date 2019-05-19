@@ -40,15 +40,18 @@ Run `pip install git+https://github.com/bartfeenstra/betty.git`.
 ### The command line
 After installation, Betty can be used via the `betty` command:
 ```
-usage: betty [-h] {generate} ...
+usage: betty [-c CONFIG_FILE_PATH] [-h] ...
 
 Betty is a static ancestry site generator.
 
 positional arguments:
-  {generate}
+  ...                   The command to run, and any arguments it needs.
 
 optional arguments:
-  -h, --help  show this help message and exit
+  -c CONFIG_FILE_PATH, --configuration CONFIG_FILE_PATH
+                        The path to the configuration file. Defaults to
+                        betty.json in the current working directory.
+  -h, --help            Show this help message and exit.
 ```
 
 ### Configuration files
