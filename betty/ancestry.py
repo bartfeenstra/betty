@@ -107,8 +107,34 @@ class File:
         return extension if extension else None
 
 
-class Source:
-    def __init__(self):
+class Identifiable:
+    def __init__(self, id: str):
+        self._id = id
+
+    @property
+    def id(self) -> str:
+        return self._id
+
+
+class Link:
+    def __init__(self, uri: str, label: Optional[str]):
+        self._uri = uri
+        self._label = label
+
+    @property
+    def uri(self) -> str:
+        return self._uri
+
+    @property
+    def label(self) -> str:
+        return self._label if self._label else self._uri
+
+
+class Source(Identifiable):
+    def __init__(self, source_id: str, name: str):
+        Identifiable.__init__(self, source_id)
+        self._name = name
+        self._link = None
         self._contained_by = None
 
         def handle_contains_addition(source):
@@ -137,16 +163,41 @@ class Source:
     def contains(self) -> Iterable:
         return self._contains
 
+    @property
+    def name(self) -> str:
+        return self._name
 
-class Entity:
-    def __init__(self, entity_id: str):
-        self._id = entity_id
-        self._documents = EventHandlingSet(lambda document: document.entities.add(self),
-                                           lambda document: document.entities.remove(self))
+    @name.setter
+    def name(self, name: str):
+        self._name = name
 
     @property
-    def id(self) -> str:
-        return self._id
+    def link(self) -> Optional[Link]:
+        return self._link
+
+    @link.setter
+    def link(self, link: Optional[Link]):
+        self._link = link
+
+
+class Sourced:
+    def __init__(self):
+        self._sources = EventHandlingSet(lambda source: source.sourceds.add(self),
+                                         lambda source: source.sourceds.remove(self))
+
+    @property
+    def sources(self) -> Iterable:
+        return self._sources
+
+    @sources.setter
+    def sources(self, sources: Iterable):
+        self._sources.replace(sources)
+
+
+class Documented:
+    def __init__(self):
+        self._documents = EventHandlingSet(lambda document: document.entities.add(self),
+                                           lambda document: document.entities.remove(self))
 
     @property
     def documents(self) -> Iterable:
@@ -157,9 +208,10 @@ class Entity:
         self._documents.replace(documents)
 
 
-class Document(Entity):
-    def __init__(self, entity_id: str, file: File):
-        Entity.__init__(self, entity_id)
+class Document(Identifiable, Sourced):
+    def __init__(self, document_id: str, file: File):
+        Identifiable.__init__(self, document_id)
+        Sourced.__init__(self)
         self._file = file
         self._description = None
         self._notes = []
@@ -195,9 +247,9 @@ class Document(Entity):
         self._entities.replace(entities)
 
 
-class Place(Entity):
-    def __init__(self, entity_id: str, name: str):
-        Entity.__init__(self, entity_id)
+class Place(Identifiable):
+    def __init__(self, place_id: str, name: str):
+        Identifiable.__init__(self, place_id)
         self._name = name
         self._coordinates = None
 
@@ -254,7 +306,7 @@ class Place(Entity):
         return self._encloses
 
 
-class Event(Entity):
+class Event(Identifiable):
     class Type(Enum):
         BIRTH = 'birth'
         BAPTISM = 'baptism'
@@ -263,8 +315,8 @@ class Event(Entity):
         BURIAL = 'burial'
         MARRIAGE = 'marriage'
 
-    def __init__(self, entity_id: str, entity_type: Type):
-        Entity.__init__(self, entity_id)
+    def __init__(self, event_id: str, entity_type: Type):
+        Identifiable.__init__(self, event_id)
         self._date = None
         self._place = None
         self._type = entity_type
@@ -309,9 +361,10 @@ class Event(Entity):
         self._people.replace(people)
 
 
-class Person(Entity):
-    def __init__(self, entity_id: str, individual_name: str = None, family_name: str = None):
-        Entity.__init__(self, entity_id)
+class Person(Identifiable, Documented):
+    def __init__(self, person_id: str, individual_name: str = None, family_name: str = None):
+        Identifiable.__init__(self, person_id)
+        Documented.__init__(self)
         self._individual_name = individual_name
         self._family_name = family_name
         self._events = EventHandlingSet(lambda event: event.people.add(self),
@@ -404,6 +457,7 @@ class Ancestry:
         self._people = {}
         self._places = {}
         self._events = {}
+        self._sources = {}
 
     @property
     def documents(self) -> Dict[str, Document]:
@@ -436,3 +490,11 @@ class Ancestry:
     @events.setter
     def events(self, events: Dict[str, Event]):
         self._events = events
+
+    @property
+    def sources(self) -> Dict[str, Source]:
+        return self._sources
+
+    @sources.setter
+    def sources(self, sources: Dict[str, Source]):
+        self._sources = sources

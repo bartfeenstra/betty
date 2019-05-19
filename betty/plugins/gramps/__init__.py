@@ -9,7 +9,7 @@ from geopy import Point
 from lxml import etree
 from lxml.etree import XMLParser, Element
 
-from betty.ancestry import Document, Event, Place, Person, Ancestry, Date, Note, File
+from betty.ancestry import Document, Event, Place, Person, Ancestry, Date, Note, File, Link, Source
 from betty.parse import ParseEvent
 from betty.plugin import Plugin
 from betty.site import Site
@@ -22,6 +22,7 @@ class _IntermediateAncestry:
         self.places = {}
         self.events = {}
         self.people = {}
+        self.sources = {}
 
     def populate(self, ancestry: Ancestry):
         ancestry.documents = {
@@ -30,6 +31,7 @@ class _IntermediateAncestry:
             person.id: person for person in self.people.values()}
         ancestry.places = {place.id: place for place in self.places.values()}
         ancestry.events = {event.id: event for event in self.events.values()}
+        ancestry.sources = {source.id: source for source in self.sources.values()}
 
 
 class _IntermediatePlace:
@@ -77,6 +79,8 @@ def parse_xml_file(ancestry: Ancestry, file_path) -> None:
     database = tree.getroot()
     intermediate_ancestry = _IntermediateAncestry()
     _parse_notes(intermediate_ancestry, database)
+    _parse_repositories(intermediate_ancestry, database)
+    _parse_sources(intermediate_ancestry, database)
     _parse_documents(intermediate_ancestry, database, file_path)
     _parse_places(intermediate_ancestry, database)
     _parse_events(intermediate_ancestry, database)
@@ -269,6 +273,48 @@ def _parse_event(ancestry: _IntermediateAncestry, element: Element):
         event.documents.add(ancestry.documents[document_handle])
 
     ancestry.events[handle] = event
+
+
+def _parse_url(element: Element) -> Link:
+    uri = str(_xpath1(element, './@href'))
+    label = str(_xpath1(element, './@description'))
+    return Link(uri, label)
+
+
+def _parse_repositories(ancestry: _IntermediateAncestry, database: Element) -> None:
+    for element in database.xpath('.//*[local-name()="repository"]'):
+        _parse_repository(ancestry, element)
+
+
+def _parse_repository(ancestry: _IntermediateAncestry, element: Element) -> None:
+    handle = _xpath1(element, './@handle')
+
+    source = Source(_xpath1(element, './@id'), _xpath1(element, './ns:rname').text)
+
+    # Parse the URL.
+    url_element = _xpath1(element, './ns:url')
+    if url_element is not None:
+        source.link = _parse_url(url_element)
+
+    ancestry.sources[handle] = source
+
+
+def _parse_sources(ancestry: _IntermediateAncestry, database: Element):
+    for element in database.xpath('.//*[local-name()="source"]'):
+        _parse_source(ancestry, element)
+
+
+def _parse_source(ancestry: _IntermediateAncestry, element: Element) -> None:
+    handle = _xpath1(element, './@handle')
+
+    source = Source(_xpath1(element, './@id'),
+                    _xpath1(element, './ns:stitle').text)
+
+    repository_source_handle = _xpath1(element, './ns:reporef/@hlink')
+    if repository_source_handle is not None:
+        source.contained_by = ancestry.sources[repository_source_handle]
+
+    ancestry.sources[handle] = source
 
 
 class Gramps(Plugin):

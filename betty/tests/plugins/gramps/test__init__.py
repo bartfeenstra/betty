@@ -125,6 +125,24 @@ class ParseXmlFileTestCase(TestCase):
         self.assertEquals(12, date.month)
         self.assertEquals(31, date.day)
 
+    def test_source_from_repository_should_include_name(self):
+        source = self.ancestry.sources['R0000']
+        self.assertEquals('Library of Alexandria', source.name)
+
+    def test_source_from_repository_should_include_link(self):
+        link = self.ancestry.sources['R0000'].link
+        self.assertEquals('https://alexandria.example.com', link.uri)
+        self.assertEquals('Library of Alexandria Catalogue', link.label)
+
+    def test_source_from_source_should_include_title(self):
+        source = self.ancestry.sources['S0000']
+        self.assertEquals('A Whisper', source.name)
+
+    def test_source_from_source_should_include_repository(self):
+        source = self.ancestry.sources['S0000']
+        containing_source = self.ancestry.sources['R0000']
+        self.assertEquals(containing_source, source.contained_by)
+
 
 class GrampsTest(TestCase):
     def test_parse_event(self):

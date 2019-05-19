@@ -15,7 +15,6 @@ from jinja2.filters import prepare_map
 from jinja2.runtime import Macro
 from markupsafe import Markup
 
-from betty.ancestry import Entity
 from betty.event import Event
 from betty.fs import makedirs, iterfiles
 from betty.functools import walk
@@ -96,7 +95,7 @@ def _render_documents(site: Site) -> None:
         shutil.copy2(document.file.path, destination)
 
 
-def _render_entity_type(site: Site, environment: Environment, entities: Iterable[Entity],
+def _render_entity_type(site: Site, environment: Environment, entities: Iterable[Any],
                         entity_type_name: str) -> None:
     entity_type_path = os.path.join(
         site.configuration.output_directory_path, entity_type_name)
@@ -109,7 +108,7 @@ def _render_entity_type(site: Site, environment: Environment, entities: Iterable
         _render_entity(site, environment, entity, entity_type_name)
 
 
-def _render_entity(site: Site, environment: Environment, entity: Entity, entity_type_name: str) -> None:
+def _render_entity(site: Site, environment: Environment, entity: Any, entity_type_name: str) -> None:
     entity_path = os.path.join(
         site.configuration.output_directory_path, entity_type_name, entity.id)
     with _create_html_file(entity_path) as f:
