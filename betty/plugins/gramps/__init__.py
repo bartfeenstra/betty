@@ -22,6 +22,7 @@ class _IntermediateAncestry:
         self.places = {}
         self.events = {}
         self.people = {}
+        self.citations = {}
         self.sources = {}
 
     def populate(self, ancestry: Ancestry):
@@ -81,6 +82,7 @@ def parse_xml_file(ancestry: Ancestry, file_path) -> None:
     _parse_notes(intermediate_ancestry, database)
     _parse_repositories(intermediate_ancestry, database)
     _parse_sources(intermediate_ancestry, database)
+    _parse_citations(intermediate_ancestry, database)
     _parse_documents(intermediate_ancestry, database, file_path)
     _parse_places(intermediate_ancestry, database)
     _parse_events(intermediate_ancestry, database)
@@ -154,6 +156,10 @@ def _parse_person(ancestry: _IntermediateAncestry, element: Element):
         person.events.add(ancestry.events[event_handle])
     if str(_xpath1(element, './@priv')) == '1':
         person.private = True
+
+    citation_handles = _xpath(element, './ns:citationref/@hlink')
+    for citation_handle in citation_handles:
+        person.sources.add(ancestry.sources[ancestry.citations[citation_handle]])
 
     ancestry.people[handle] = person
 
@@ -315,6 +321,13 @@ def _parse_source(ancestry: _IntermediateAncestry, element: Element) -> None:
         source.contained_by = ancestry.sources[repository_source_handle]
 
     ancestry.sources[handle] = source
+
+
+def _parse_citations(ancestry: _IntermediateAncestry, database: Element):
+    for element in database.xpath('.//*[local-name()="citation"]'):
+        handle = _xpath1(element, './@handle')
+        source_handle = _xpath1(element, './ns:sourceref/@hlink')
+        ancestry.citations[handle] = source_handle
 
 
 class Gramps(Plugin):

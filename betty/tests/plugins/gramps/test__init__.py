@@ -76,6 +76,11 @@ class ParseXmlFileTestCase(TestCase):
         person = self.ancestry.people['I0002']
         self.assertFalse(person.private)
 
+    def test_person_should_include_citation(self):
+        person = self.ancestry.people['I0000']
+        source = self.ancestry.sources['S0000']
+        self.assertIn(source, person.sources)
+
     def test_family_should_set_parents(self):
         expected_parents = [self.ancestry.people['I0002'],
                             self.ancestry.people['I0003']]

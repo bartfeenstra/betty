@@ -146,6 +146,9 @@ class Source(Identifiable):
         self._contains = EventHandlingSet(
             handle_contains_addition, handle_contains_removal)
 
+        self._sourceds = EventHandlingSet(lambda sourced: sourced.sources.add(self),
+                                          lambda sourced: sourced.sources.remove(self))
+
     @property
     def contained_by(self):
         return self._contained_by
@@ -162,6 +165,14 @@ class Source(Identifiable):
     @property
     def contains(self) -> Iterable:
         return self._contains
+
+    @property
+    def sourceds(self) -> Iterable:
+        return self._sourceds
+
+    @sourceds.setter
+    def sourceds(self, sourceds: Iterable):
+        self._sourceds.replace(sourceds)
 
     @property
     def name(self) -> str:
@@ -361,10 +372,11 @@ class Event(Identifiable):
         self._people.replace(people)
 
 
-class Person(Identifiable, Documented):
+class Person(Identifiable, Documented, Sourced):
     def __init__(self, person_id: str, individual_name: str = None, family_name: str = None):
         Identifiable.__init__(self, person_id)
         Documented.__init__(self)
+        Sourced.__init__(self)
         self._individual_name = individual_name
         self._family_name = family_name
         self._events = EventHandlingSet(lambda event: event.people.add(self),
