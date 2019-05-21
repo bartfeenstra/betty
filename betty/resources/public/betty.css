@@ -57,6 +57,10 @@ address {
   text-decoration: dotted underline;
 }
 
+.reference-usage {
+  font-variant-position: super;
+}
+
 /*
  * Entity lists.
  */

@@ -1,0 +1,11 @@
+{%- macro label(reference) -%}
+    <address>
+        {{ _link(reference) }}
+        {%- set containing_references = reference | walk('contained_by') | takewhile('ne', None) | list -%}
+        {%- if containing_references | length > 0 %} ({{ containing_references | map(_link) | join(', ') }}){%- endif -%}
+    </address>
+{%- endmacro -%}
+
+{% macro _link(reference) -%}
+    <a href="/reference/{{ reference.id }}">{{ reference.name }}</a>
+{%- endmacro -%}

@@ -1,3 +1,5 @@
+{{- references.track() or '' -}}
+{%- import 'macro/reference.html.j2' as referenceMacros -%}
 <!doctype html>
 <html lang="en"
       prefix="foaf: http://xmlns.com/foaf/0.1/ og: http://ogp.me/ns# rel: http://purl.org/vocab/relationship/">
@@ -32,11 +34,22 @@
         <li><a href="/person">People</a></li>
         <li><a href="/event">Events</a></li>
         <li><a href="/place">Places</a></li>
+        <li><a href="/reference">References</a></li>
     </ul>
 </nav>
 <div id="content">
     <h1>{{ title }}</h1>
     {%- block content -%}{%- endblock -%}
+    {% if references | length > 0 %}
+        <section id="references">
+            <h2>References</h2>
+            <ol>
+            {% for _, reference in references %}
+                <li>{{ referenceMacros.label(reference) }}</li>
+            {% endfor %}
+            </ol>
+        </section>
+    {% endif %}
 </div>
 <footer><p>A family history as told by <a href="https://github.com/bartfeenstra/betty">Betty 👵</a></p></footer>
 {%- if 'betty.plugins.js.Js' in plugins %}

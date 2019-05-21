@@ -83,6 +83,19 @@ class Date:
         return self.parts < other.parts
 
 
+class Dated:
+    def __init__(self):
+        self._date = None
+
+    @property
+    def date(self) -> Optional[Date]:
+        return self._date
+
+    @date.setter
+    def date(self, date: Date):
+        self._date = date
+
+
 class Note:
     def __init__(self, text: str):
         self._text = text
@@ -116,6 +129,19 @@ class Identifiable:
         return self._id
 
 
+class Described:
+    def __init__(self):
+        self._description = None
+
+    @property
+    def description(self) -> Optional[str]:
+        return self._description
+
+    @description.setter
+    def description(self, description: str):
+        self._description = description
+
+
 class Link:
     def __init__(self, uri: str, label: Optional[str]):
         self._uri = uri
@@ -130,49 +156,94 @@ class Link:
         return self._label if self._label else self._uri
 
 
-class Source(Identifiable):
-    def __init__(self, source_id: str, name: str):
-        Identifiable.__init__(self, source_id)
+class Documented:
+    def __init__(self):
+        self._documents = EventHandlingSet(lambda document: document.entities.add(self),
+                                           lambda document: document.entities.remove(self))
+
+    @property
+    def documents(self) -> Iterable:
+        return self._documents
+
+    @documents.setter
+    def documents(self, documents: Iterable):
+        self._documents.replace(documents)
+
+
+class Document(Identifiable, Described):
+    def __init__(self, document_id: str, file: File):
+        Identifiable.__init__(self, document_id)
+        Described.__init__(self)
+        self._file = file
+        self._notes = []
+        self._entities = EventHandlingSet(lambda entity: entity.documents.add(self),
+                                          lambda entity: entity.documents.remove(self))
+
+    @property
+    def file(self) -> File:
+        return self._file
+
+    @property
+    def notes(self) -> List[Note]:
+        return self._notes
+
+    @notes.setter
+    def notes(self, notes: List[Note]):
+        self._notes = notes
+
+    @property
+    def entities(self) -> Iterable:
+        return self._entities
+
+    @entities.setter
+    def entities(self, entities: Iterable):
+        self._entities.replace(entities)
+
+
+class Reference(Identifiable, Dated, Documented):
+    def __init__(self, reference_id: str, name: str):
+        Identifiable.__init__(self, reference_id)
+        Documented.__init__(self)
         self._name = name
         self._link = None
         self._contained_by = None
 
-        def handle_contains_addition(source):
-            source.contained_by = self
+        def handle_contains_addition(reference):
+            reference.referrers = self
 
-        def handle_contains_removal(source):
-            source.contained_by = None
+        def handle_contains_removal(reference):
+            reference.referrers = None
 
         self._contains = EventHandlingSet(
             handle_contains_addition, handle_contains_removal)
 
-        self._sourceds = EventHandlingSet(lambda sourced: sourced.sources.add(self),
-                                          lambda sourced: sourced.sources.remove(self))
+        self._referees = EventHandlingSet(lambda referee: referee.references.add(self),
+                                          lambda referee: referee.references.remove(self))
 
     @property
     def contained_by(self):
         return self._contained_by
 
     @contained_by.setter
-    def contained_by(self, place):
-        previous_place = self._contained_by
-        self._contained_by = place
-        if previous_place is not None:
-            previous_place.contains.remove(self)
-        if place is not None:
-            place.contains.add(self)
+    def contained_by(self, reference):
+        previous_reference = self._contained_by
+        self._contained_by = reference
+        if previous_reference is not None:
+            previous_reference.contains.remove(self)
+        if reference is not None:
+            reference.contains.add(self)
 
     @property
     def contains(self) -> Iterable:
         return self._contains
 
     @property
-    def sourceds(self) -> Iterable:
-        return self._sourceds
+    def referees(self) -> Iterable:
+        return self._referees
 
-    @sourceds.setter
-    def sourceds(self, sourceds: Iterable):
-        self._sourceds.replace(sourceds)
+    @referees.setter
+    def referees(self, referees: Iterable):
+        self._referees.replace(referees)
 
     @property
     def name(self) -> str:
@@ -191,71 +262,18 @@ class Source(Identifiable):
         self._link = link
 
 
-class Sourced:
+class Referenced:
     def __init__(self):
-        self._sources = EventHandlingSet(lambda source: source.sourceds.add(self),
-                                         lambda source: source.sourceds.remove(self))
+        self._references = EventHandlingSet(lambda references: references.referees.add(self),
+                                            lambda references: references.referees.remove(self))
 
     @property
-    def sources(self) -> Iterable:
-        return self._sources
+    def references(self) -> Iterable:
+        return self._references
 
-    @sources.setter
-    def sources(self, sources: Iterable):
-        self._sources.replace(sources)
-
-
-class Documented:
-    def __init__(self):
-        self._documents = EventHandlingSet(lambda document: document.entities.add(self),
-                                           lambda document: document.entities.remove(self))
-
-    @property
-    def documents(self) -> Iterable:
-        return self._documents
-
-    @documents.setter
-    def documents(self, documents: Iterable):
-        self._documents.replace(documents)
-
-
-class Document(Identifiable, Sourced):
-    def __init__(self, document_id: str, file: File):
-        Identifiable.__init__(self, document_id)
-        Sourced.__init__(self)
-        self._file = file
-        self._description = None
-        self._notes = []
-        self._entities = EventHandlingSet(lambda entity: entity.documents.add(self),
-                                          lambda entity: entity.documents.remove(self))
-
-    @property
-    def file(self) -> File:
-        return self._file
-
-    @property
-    def description(self) -> Optional[str]:
-        return self._description
-
-    @description.setter
-    def description(self, description: str):
-        self._description = description
-
-    @property
-    def notes(self) -> List[Note]:
-        return self._notes
-
-    @notes.setter
-    def notes(self, notes: List[Note]):
-        self._notes = notes
-
-    @property
-    def entities(self) -> Iterable:
-        return self._entities
-
-    @entities.setter
-    def entities(self, entities: Iterable):
-        self._entities.replace(entities)
+    @references.setter
+    def references(self, references: Iterable):
+        self._references.replace(references)
 
 
 class Place(Identifiable):
@@ -317,7 +335,7 @@ class Place(Identifiable):
         return self._encloses
 
 
-class Event(Identifiable):
+class Event(Identifiable, Dated, Documented, Referenced):
     class Type(Enum):
         BIRTH = 'birth'
         BAPTISM = 'baptism'
@@ -328,19 +346,14 @@ class Event(Identifiable):
 
     def __init__(self, event_id: str, entity_type: Type):
         Identifiable.__init__(self, event_id)
+        Dated.__init__(self)
+        Documented.__init__(self)
+        Referenced.__init__(self)
         self._date = None
         self._place = None
         self._type = entity_type
         self._people = EventHandlingSet(lambda person: person.events.add(self),
                                         lambda person: person.events.remove(self))
-
-    @property
-    def date(self) -> Optional[Date]:
-        return self._date
-
-    @date.setter
-    def date(self, date: Date):
-        self._date = date
 
     @property
     def place(self) -> Optional[Place]:
@@ -372,11 +385,11 @@ class Event(Identifiable):
         self._people.replace(people)
 
 
-class Person(Identifiable, Documented, Sourced):
+class Person(Identifiable, Documented, Referenced):
     def __init__(self, person_id: str, individual_name: str = None, family_name: str = None):
         Identifiable.__init__(self, person_id)
         Documented.__init__(self)
-        Sourced.__init__(self)
+        Referenced.__init__(self)
         self._individual_name = individual_name
         self._family_name = family_name
         self._events = EventHandlingSet(lambda event: event.people.add(self),
@@ -469,7 +482,7 @@ class Ancestry:
         self._people = {}
         self._places = {}
         self._events = {}
-        self._sources = {}
+        self._references = {}
 
     @property
     def documents(self) -> Dict[str, Document]:
@@ -504,9 +517,9 @@ class Ancestry:
         self._events = events
 
     @property
-    def sources(self) -> Dict[str, Source]:
-        return self._sources
+    def references(self) -> Dict[str, Reference]:
+        return self._references
 
-    @sources.setter
-    def sources(self, sources: Dict[str, Source]):
-        self._sources = sources
+    @references.setter
+    def references(self, references: Dict[str, Reference]):
+        self._references = references

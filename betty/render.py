@@ -15,6 +15,7 @@ from jinja2.filters import prepare_map
 from jinja2.runtime import Macro
 from markupsafe import Markup
 
+from betty.ancestry import Reference
 from betty.event import Event
 from betty.fs import makedirs, iterfiles
 from betty.functools import walk
@@ -30,6 +31,31 @@ class PostRenderEvent(Event):
     @property
     def environment(self) -> Environment:
         return self._environment
+
+
+class _References:
+    def __init__(self):
+        self._references = []
+
+    def __iter__(self):
+        return enumerate(self._references, 1)
+
+    def __len__(self):
+        return len(self._references)
+
+    def use(self, reference: Reference) -> int:
+        if reference not in self._references:
+            self._references.append(reference)
+        return self._references.index(reference) + 1
+
+    def track(self):
+        self.clear()
+
+    def clear(self):
+        self._references = []
+
+
+_references = _References()
 
 
 def render(site: Site) -> None:
@@ -48,6 +74,7 @@ def render(site: Site) -> None:
     environment.filters['json'] = _render_json
     environment.filters['paragraphs'] = _render_html_paragraphs
     environment.filters['format_degrees'] = _render_format_degrees
+    environment.globals['references'] = _references
 
     _render_public(site, environment)
     _render_documents(site)
@@ -57,6 +84,8 @@ def render(site: Site) -> None:
                         site.ancestry.places.values(), 'place')
     _render_entity_type(site, environment,
                         site.ancestry.events.values(), 'event')
+    _render_entity_type(site, environment,
+                        site.ancestry.references.values(), 'reference')
     site.event_dispatcher.dispatch(PostRenderEvent(environment))
 
 
