@@ -16,6 +16,7 @@ from jinja2.runtime import Macro
 from markupsafe import Markup
 
 from betty.ancestry import Entity
+from betty.config import Configuration
 from betty.event import Event
 from betty.fs import makedirs, iterfiles
 from betty.functools import walk
@@ -49,6 +50,8 @@ def render(site: Site) -> None:
     environment.filters['json'] = _render_json
     environment.filters['paragraphs'] = _render_html_paragraphs
     environment.filters['format_degrees'] = _render_format_degrees
+    environment.filters['url'] = lambda *args, **kwargs: _render_url(site.configuration, *args, **kwargs)
+    environment.filters['file_url'] = lambda *args, **kwargs: _render_file_url(site.configuration, *args, **kwargs)
 
     _render_public(site, environment)
     _render_documents(site)
@@ -185,6 +188,20 @@ def _render_takewhile(context, seq, *args, **kwargs):
         func = bool
     if seq:
         yield from takewhile(func, seq)
+
+
+def _render_url(configuration: Configuration, path: str, absolute=False):
+    url = _render_file_url(configuration, path, absolute)
+    if not configuration.clean_urls:
+        url += '/index.html'
+    return url
+
+
+def _render_file_url(configuration: Configuration, path: str, absolute=False):
+    url = configuration.base_url if absolute else ''
+    path = (configuration.root_path.strip('/') + '/' + path.strip('/')).strip('/')
+    url += '/' + path
+    return url
 
 
 class Plugins:

@@ -1,6 +1,6 @@
 {% macro label(person, link=True) %}
     {%- if link -%}
-        <a href="/person/{{ person.id }}">
+        <a href="{{ ('/person/' ~ person.id) | url }}">
     {%- endif -%}
     {%- if person.private -%}
         <span class="private" title="This person's details are unavailable to protect their privacy.">private</span>
