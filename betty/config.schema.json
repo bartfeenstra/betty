@@ -7,8 +7,14 @@
     "title": {
       "type": "string"
     },
-    "url": {
+    "base_url": {
       "type": "string"
+    },
+    "root_path": {
+      "type": "string"
+    },
+    "clean_urls": {
+      "type": "boolean"
     },
     "mode": {
       "enum": ["development", "production"]
@@ -25,7 +31,7 @@
   },
   "required": [
     "output",
-    "url"
+    "base_url"
   ],
   "additionalProperties": false
 }

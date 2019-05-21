@@ -11,9 +11,9 @@
     <meta name="og:title" content="{{ title | striptags }}"/>
     <meta name="og:site_name" content="{{ site.configuration.title }}"/>
     <meta name="og:image" content="/betty-512x512.png"/>
-    <link rel="stylesheet" href="/betty.css"/>
-    <link rel="icon" href="/betty.ico">
-    <link rel="manifest" href="/betty.webmanifest">
+    <link rel="stylesheet" href="{{ '/betty.css' | file_url }}"/>
+    <link rel="icon" href="{{ '/betty.ico' | file_url }}">
+    <link rel="manifest" href="{{ '/betty.webmanifest' | file_url }}">
     {%- if 'betty.plugins.js.Js' in plugins %}
     <style id="js-visibility">
         .js-show {
@@ -27,14 +27,14 @@
 </head>
 <body>
 <nav id="nav-primary">
-    <div id="site-title"><a href="/">{{ site.configuration.title }}</a></div>
+    <div id="site-title"><a href="{{ '/' | url }}">{{ site.configuration.title }}</a></div>
     <input type="checkbox" id="nav-toggle"/>
     <label for="nav-toggle"></label>
     <ul>
-        <li><a href="/person">People</a></li>
-        <li><a href="/event">Events</a></li>
-        <li><a href="/place">Places</a></li>
-        <li><a href="/reference">References</a></li>
+        <li><a href="{{ '/person' | url }}">People</a></li>
+        <li><a href="{{ '/event' | url }}">Events</a></li>
+        <li><a href="{{ '/place' | url }}">Places</a></li>
+        <li><a href="{{ '/reference' | url }}">References</a></li>
     </ul>
 </nav>
 <div id="content">
@@ -53,7 +53,7 @@
 </div>
 <footer><p>A family history as told by <a href="https://github.com/bartfeenstra/betty">Betty 👵</a></p></footer>
 {%- if 'betty.plugins.js.Js' in plugins %}
-    <script src="/betty.js"></script>
+    <script src="{{ '/betty.js' | file_url }}"></script>
 {% endif -%}
 </body>
 </html>

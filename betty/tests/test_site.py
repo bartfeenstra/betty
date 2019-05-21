@@ -82,7 +82,7 @@ class ComesAfterNonConfigurablePluginPlugin(TrackablePlugin):
 class SiteTest(TestCase):
     _MINIMAL_CONFIGURATION_ARGS = {
         'output_directory_path': '/tmp/path/to/site',
-        'url': 'https://example.com',
+        'base_url': 'https://example.com',
     }
 
     def test_ancestry_should_return(self):

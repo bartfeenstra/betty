@@ -1,6 +1,6 @@
 {%- macro label(event, person_context=None) -%}
     {%- import 'macro/person.html.j2' as personMacros -%}
-    <a href="/event/{{ event.id }}">{{ type_label(event) }}</a>
+    <a href="{{ ('/event/' ~ event.id) | url }}">{{ type_label(event) }}</a>
     {%- set people = event.people | reject('equalto', person_context) | list -%}
     {%- if people | length > 0 -%}
         {%- if person_context %} with {% else %} of {% endif -%}
