@@ -7,5 +7,5 @@
 {%- endmacro -%}
 
 {% macro _link(place) -%}
-    <a href="/place/{{ place.id }}">{{ place.name }}</a>
+    <a href="{{ ('/place/' ~ place.id) | url }}">{{ place.name }}</a>
 {%- endmacro -%}

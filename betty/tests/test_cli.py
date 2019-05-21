@@ -66,7 +66,7 @@ class MainTest(TestCase):
                 url = 'https://example.com'
                 config_dict = {
                     'output': output_directory_path,
-                    'url': url,
+                    'base_url': url,
                 }
                 dump(config_dict, config_file)
                 config_file.seek(0)
@@ -81,7 +81,7 @@ class MainTest(TestCase):
                 url = 'https://example.com'
                 config_dict = {
                     'output': output_directory_path,
-                    'url': url,
+                    'base_url': url,
                     'plugins': {
                         TestPlugin.name(): {},
                     },
@@ -100,7 +100,7 @@ class MainTest(TestCase):
                     url = 'https://example.com'
                     config_dict = {
                         'output': output_directory_path,
-                        'url': url,
+                        'base_url': url,
                         'plugins': {
                             TestPlugin.name(): {},
                         },
@@ -133,7 +133,7 @@ class GenerateCommandTest(TestCase):
                 url = 'https://example.com'
                 config_dict = {
                     'output': output_directory_path,
-                    'url': url,
+                    'base_url': url,
                 }
                 dump(config_dict, config_file)
                 config_file.seek(0)

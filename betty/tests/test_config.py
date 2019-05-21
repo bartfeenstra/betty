@@ -51,11 +51,23 @@ class ConfigurationTest(TestCase):
         sut.resources_directory_path = resources_directory_path
         self.assertEquals('/tmp/betty-working-directory/betty-resources', sut.resources_directory_path)
 
+    def test_root_path(self):
+        sut = Configuration('/tmp/betty', 'https://example.com')
+        root_path = '/betty'
+        sut.root_path = root_path
+        self.assertEquals(root_path, sut.root_path)
+
+    def test_clean_urls(self):
+        sut = Configuration('/tmp/betty', 'https://example.com')
+        clean_urls = True
+        sut.clean_urls = clean_urls
+        self.assertEquals(clean_urls, sut.clean_urls)
+
 
 class FromTest(TestCase):
     _MINIMAL_CONFIG_DICT = {
         'output': '/tmp/path/to/site',
-        'url': 'https://example.com',
+        'base_url': 'https://example.com',
     }
 
     def _writes(self, config: str):
@@ -72,9 +84,11 @@ class FromTest(TestCase):
             configuration = from_file(f)
         self.assertEquals(
             self._MINIMAL_CONFIG_DICT['output'], configuration.output_directory_path)
-        self.assertEquals(self._MINIMAL_CONFIG_DICT['url'], configuration.url)
+        self.assertEquals(self._MINIMAL_CONFIG_DICT['base_url'], configuration.base_url)
         self.assertEquals('Betty', configuration.title)
         self.assertEquals('production', configuration.mode)
+        self.assertEquals('/', configuration.root_path)
+        self.assertFalse(configuration.clean_urls)
 
     def test_from_file_should_parse_title(self):
         title = 'My first Betty site'
@@ -83,6 +97,22 @@ class FromTest(TestCase):
         with self._write(config_dict) as f:
             configuration = from_file(f)
             self.assertEquals(title, configuration.title)
+
+    def test_from_file_should_root_path(self):
+        root_path = '/betty'
+        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
+        config_dict['root_path'] = root_path
+        with self._write(config_dict) as f:
+            configuration = from_file(f)
+            self.assertEquals(root_path, configuration.root_path)
+
+    def test_from_file_should_clean_urls(self):
+        clean_urls = True
+        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
+        config_dict['clean_urls'] = clean_urls
+        with self._write(config_dict) as f:
+            configuration = from_file(f)
+            self.assertEquals(clean_urls, configuration.clean_urls)
 
     @parameterized.expand([
         ('production',),

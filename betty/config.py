@@ -8,10 +8,12 @@ from jsonschema import validate, ValidationError
 
 
 class Configuration:
-    def __init__(self, output_directory_path: str, url: str):
+    def __init__(self, output_directory_path: str, base_url: str):
         self._working_directory_path = getcwd()
         self._output_directory_path = output_directory_path
-        self._url = url
+        self._base_url = base_url.rstrip('/')
+        self._root_path = '/'
+        self._clean_urls = False
         self._title = 'Betty'
         self._plugins = {}
         self._mode = 'production'
@@ -30,8 +32,24 @@ class Configuration:
         return self._abspath(self._output_directory_path)
 
     @property
-    def url(self):
-        return self._url
+    def base_url(self):
+        return self._base_url
+
+    @property
+    def root_path(self):
+        return self._root_path
+
+    @root_path.setter
+    def root_path(self, root_path: bool):
+        self._root_path = root_path
+
+    @property
+    def clean_urls(self):
+        return self._clean_urls
+
+    @clean_urls.setter
+    def clean_urls(self, clean_urls: bool):
+        self._clean_urls = clean_urls
 
     @property
     def title(self) -> str:
@@ -67,11 +85,17 @@ class Configuration:
 
 def _from_dict(working_directory_path: str, config_dict: Dict) -> Configuration:
     configuration = Configuration(
-        config_dict['output'], config_dict['url'])
+        config_dict['output'], config_dict['base_url'])
     configuration.working_directory_path = working_directory_path
 
     if 'title' in config_dict:
         configuration.title = config_dict['title']
+
+    if 'root_path' in config_dict:
+        configuration.root_path = config_dict['root_path']
+
+    if 'clean_urls' in config_dict:
+        configuration.clean_urls = config_dict['clean_urls']
 
     if 'mode' in config_dict:
         configuration.mode = config_dict['mode']
