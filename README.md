@@ -59,7 +59,9 @@ Configuration files are written in JSON:
 ```json
 {
 	"output": "/var/www/betty",
-	"url": "https://ancestry.example.com",
+	"base_url": "https://ancestry.example.com",
+	"root_path": "/betty",
+	"clean_urls": true,
 	"title": "Betty's ancestry",
 	"resources": "./resources",
 	"plugins": {
@@ -74,7 +76,9 @@ Configuration files are written in JSON:
 }
 ```
 - `output` (required); The path to the directory in which to place the generated site.
-- `url` (required); The absolute, public URL at which the site will be published.
+- `base_url` (required); The absolute, public URL at which the site will be published.
+- `root_path` (optional); The relative path under the public URL at which the site will be published.
+- `clean_urls` (optional); A boolean indicating whether to use clean URLs, e.g. `/path` instead of `/path/index.html`.
 - `title` (optional); The site's title.
 - `resources` (optional); The path to a directory containing overrides for any of Betty's [resources](./betty/resources).
 - `plugins` (optional): The plugins to enable. Keys are plugin names, and values are objects containing each plugin's configuration.
