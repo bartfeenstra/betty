@@ -1,0 +1,7 @@
+{% if reference.contained_by %}
+    <span class="meta">
+    in
+    {% import 'macro/reference.html.j2' as referenceMacros %}
+    {{ referenceMacros.label(reference.contained_by) }}
+    </span>
+{% endif %}

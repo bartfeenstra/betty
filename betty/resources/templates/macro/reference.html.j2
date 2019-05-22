@@ -1,0 +1,14 @@
+{%- macro label(reference) -%}
+    {{ _link(reference) }}
+    {%- set containing_references = reference | walk('contained_by') | takewhile('ne', None) | list -%}
+    {%- if containing_references | length > 0 %} ({{ containing_references | map(_link) | join(', ') }}){%- endif -%}
+{%- endmacro -%}
+
+{% macro use(reference) -%}
+    {% set referenceNumber = references.use(reference) %}
+    <a href="#reference-footnote-{{ referenceNumber }}" class="reference-usage">[{{ referenceNumber }}]</a>
+{%- endmacro -%}
+
+{% macro _link(reference) -%}
+    <a href="{{ ('/reference/' ~ reference.id) | url }}">{{ reference.name }}</a>
+{%- endmacro -%}

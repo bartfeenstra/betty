@@ -1,0 +1,11 @@
+{% extends 'page/base.html.j2' %}
+{% import 'macro/reference.html.j2' as referenceMacros %}
+{% set title = reference.name %}
+{% block content %}
+    {% include 'reference-meta.html.j2' %}
+    {% if reference.documents | length > 0 %}
+        {% for document in reference.documents %}
+            {% include 'document.html.j2' %}
+        {% endfor %}
+    {% endif %}
+{% endblock %}

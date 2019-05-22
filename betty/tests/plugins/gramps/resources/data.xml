@@ -32,6 +32,7 @@
       </name>
       <eventref hlink="_e1dd3ac2fa22e6fefa18f738bdd" role="Primary"/>
       <childof hlink="_e1dd3b84f9e5d832ffc17baa46c"/>
+      <citationref hlink="_e2c25a12a097a0b24bd9eae5090"/>
     </person>
     <person handle="_e1dd3b41b052be747e10b86c4a" change="1552127019" id="I0001">
       <gender>U</gender>
@@ -75,4 +76,27 @@
       <coord long="4.9" lat="52.366667"/>
     </placeobj>
   </places>
+  <citations>
+    <citation handle="_e2c25a12a097a0b24bd9eae5090" change="1558277266" id="C0000">
+      <confidence>2</confidence>
+      <sourceref hlink="_e2b5e77b4cc5c91c9ed60a6cb39"/>
+    </citation>
+  </citations>
+  <sources>
+    <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
+      <stitle>A Whisper</stitle>
+      <sauthor>A Little Birdie</sauthor>
+      <spubinfo>Somewhere over the rainbow</spubinfo>
+      <sabbrev>whisper</sabbrev>
+      <noteref hlink="_e2b5e7cc5bac29ce4d145b02b3"/>
+      <reporef hlink="_e2c257f50fd27b1c841d7497448" medium="Book"/>
+    </source>
+  </sources>
+  <repositories>
+    <repository handle="_e2c257f50fd27b1c841d7497448" change="1558277216" id="R0000">
+      <rname>Library of Alexandria</rname>
+      <type>Unknown</type>
+      <url href="https://alexandria.example.com" type="Unknown" description="Library of Alexandria Catalogue"/>
+    </repository>
+  </repositories>
 </database>

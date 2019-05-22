@@ -57,6 +57,15 @@ address {
   text-decoration: dotted underline;
 }
 
+.reference-usage {
+  font-size: 0.9rem;
+  font-variant-position: super;
+}
+
+.reference-footnotes {
+  font-size: 0.9rem;
+}
+
 /*
  * Entity lists.
  */
