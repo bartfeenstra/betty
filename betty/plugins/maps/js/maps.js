@@ -8,6 +8,7 @@ import leafletMarkerIconImage from 'leaflet/dist/images/marker-icon.png'
 import leafletMarkerIcon2xImage from 'leaflet/dist/images/marker-icon-2x.png'
 import leafletMarkerShadowImage from 'leaflet/dist/images/marker-shadow.png'
 import ancestry from './ancestry.json'
+import configuration from './configuration.js'
 
 let mapCount = 0
 
@@ -53,7 +54,7 @@ function initializePlaceList (placeList) {
 
 let BettyIcon = L.Icon.Default.extend({
   options: {
-    imagePath: '/',
+    imagePath: configuration.rootPath,
     iconUrl: leafletMarkerIconImage,
     iconRetinaUrl: leafletMarkerIcon2xImage,
     shadowUrl: leafletMarkerShadowImage
