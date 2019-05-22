@@ -58,7 +58,12 @@ address {
 }
 
 .reference-usage {
+  font-size: 0.9rem;
   font-variant-position: super;
+}
+
+.reference-footnotes {
+  font-size: 0.9rem;
 }
 
 /*

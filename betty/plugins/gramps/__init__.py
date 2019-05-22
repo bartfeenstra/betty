@@ -336,7 +336,7 @@ def _parse_citation(ancestry: _IntermediateAncestry, element: Element) -> None:
     page = _xpath1(element, './ns:page')
 
     reference = Reference(_xpath1(element, './@id'),
-                          page.text if page else '')
+                          page.text if page is not None else '')
 
     _parse_objref(ancestry, reference, element)
 

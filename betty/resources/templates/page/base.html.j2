@@ -41,11 +41,11 @@
     <h1>{{ title }}</h1>
     {%- block content -%}{%- endblock -%}
     {% if references | length > 0 %}
-        <section id="references">
+        <section class="reference-footnotes">
             <h2>References</h2>
             <ol>
-            {% for _, reference in references %}
-                <li>{{ referenceMacros.label(reference) }}</li>
+            {% for number, reference in references %}
+                <li id="reference-footnote-{{ number }}">{{ referenceMacros.label(reference) }}</li>
             {% endfor %}
             </ol>
         </section>

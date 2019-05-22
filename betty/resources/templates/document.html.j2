@@ -1,6 +1,6 @@
 {% if document.file.type.startswith('image/') %}
     <div class="image">
-        {% set document_path = '/document/' +  document.id + '.' + document.file.extension %}
+        {% set document_path = ('/document/' +  document.id + '.' + document.file.extension) | file_url %}
         <figure>
             <a href="{{ document_path }}"><img src="{{ document_path }}" alt="{{ document.description }}"/></a>
             {% if document.description %}
