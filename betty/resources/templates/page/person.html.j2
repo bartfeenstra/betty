@@ -48,10 +48,10 @@
         {% endwith %}
     {% endif %}
 
-    {% set documents = person.documents | list + person.events | map(attribute="documents") | flatten | unique | list %}
-    {% if documents | length > 0 %}
-        {% for document in documents %}
-            {% include 'document.html.j2' %}
+    {% set files = person.files | list + person.events | map(attribute="files") | flatten | unique | list %}
+    {% if files | length > 0 %}
+        {% for file in files %}
+            {% include 'file.html.j2' %}
         {% endfor %}
     {% endif %}
 {% endblock %}

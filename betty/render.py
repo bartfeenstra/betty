@@ -80,7 +80,7 @@ def render(site: Site) -> None:
     environment.filters['file_url'] = lambda *args, **kwargs: _render_file_url(site.configuration, *args, **kwargs)
 
     _render_public(site, environment)
-    _render_documents(site)
+    _render_files(site, environment)
     _render_entity_type(site, environment,
                         site.ancestry.people.values(), 'person')
     _render_entity_type(site, environment,
@@ -117,14 +117,15 @@ def render_tree(path: str, environment: Environment) -> None:
             os.remove(file_source_path)
 
 
-def _render_documents(site: Site) -> None:
-    documents_directory_path = os.path.join(
-        site.configuration.output_directory_path, 'document')
-    makedirs(documents_directory_path)
-    for document in site.ancestry.documents.values():
-        destination = os.path.join(documents_directory_path,
-                                   document.id + splitext(document.file.path)[1])
-        shutil.copy2(document.file.path, destination)
+def _render_files(site: Site, environment: Environment) -> None:
+    file_directory_path = os.path.join(
+        site.configuration.output_directory_path, 'file')
+    makedirs(file_directory_path)
+    for file in site.ancestry.files.values():
+        destination = os.path.join(file_directory_path,
+                                   file.id + splitext(file.path)[1])
+        shutil.copy2(file.path, destination)
+    _render_entity_type(site, environment, site.ancestry.files.values(), 'file')
 
 
 def _render_entity_type(site: Site, environment: Environment, entities: Iterable[Any],
