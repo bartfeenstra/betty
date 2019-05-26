@@ -107,12 +107,8 @@ ul.entities li.even {
   color: #000;
 }
 
-#nav-primary input[type="checkbox"] {
-  display: none;
-}
-
-#nav-primary label {
-  cursor: pointer;
+.nav-primary-toggle {
+  color: purple;
   display: block;
   float: right;
   height: 3rem;
@@ -125,22 +121,30 @@ ul.entities li.even {
   width: 25%;
 }
 
-#nav-primary input[type="checkbox"]:checked ~ label {
+#nav-primary-hide {
   background-color: #fff;
-}
-
-#nav-primary label::after {
-  content: "MENU";
-}
-
-#nav-primary input[type="checkbox"]:checked ~ label::after {
-  content: "×";
+  display: none;
   font-weight: bold;
+}
+
+#nav-primary-show:hover,
+#nav-primary-hide:hover {
+  color: white;
+  background-color: purple;
+}
+
+#nav-primary:target #nav-primary-show {
+  display: none;
+}
+
+#nav-primary:target #nav-primary-hide {
+  display: initial;
 }
 
 #nav-primary ul {
   background-color: #fff;
   border-bottom: 0.5em pink solid;
+  display: none;
   list-style: none;
   margin: 0;
   padding: 1rem 3rem;
@@ -149,11 +153,7 @@ ul.entities li.even {
   width: calc(100% - 6rem);
 }
 
-#nav-primary input[type="checkbox"] ~ ul {
-  display: none;
-}
-
-#nav-primary input[type="checkbox"]:checked ~ ul {
+#nav-primary:target ul {
   display: initial;
 }
 
@@ -174,8 +174,9 @@ ul.entities li.even {
   background-color: purple;
 }
 
-@media (min-width: 384px) {
-  #nav-primary label {
+@media (min-width: 768px) {
+  .nav-primary-toggle,
+  #nav-primary:target #nav-primary-hide {
     display: none;
   }
 
