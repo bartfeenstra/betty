@@ -151,6 +151,7 @@ ul.entities li.even {
   position: absolute;
   top: 3rem;
   width: calc(100% - 6rem);
+  z-index: 999;
 }
 
 #nav-primary:target ul {
