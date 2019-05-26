@@ -1,21 +1,23 @@
 import calendar
 import os
 import re
-import shutil
 from importlib import import_module
 from itertools import takewhile
 from json import dumps
-from os.path import join, splitext
-from typing import Iterable, Union, Any, Dict, Type
+from os.path import join, exists
+from shutil import copy2
+from typing import Iterable, Union, Any, Dict, Type, Optional
 
+from PIL import Image
 from geopy import units
 from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter
 from jinja2.filters import prepare_map
 from jinja2.runtime import Macro
 from markupsafe import Markup
+from resizeimage import resizeimage
 
-from betty.ancestry import Reference
+from betty.ancestry import Reference, File
 from betty.config import Configuration
 from betty.event import Event
 from betty.fs import makedirs, iterfiles
@@ -78,9 +80,12 @@ def render(site: Site) -> None:
     environment.globals['references'] = _references
     environment.filters['url'] = lambda *args, **kwargs: _render_url(site.configuration, *args, **kwargs)
     environment.filters['file_url'] = lambda *args, **kwargs: _render_file_url(site.configuration, *args, **kwargs)
+    environment.filters['file'] = lambda *args: _render_file(site, *args)
+    environment.filters['image'] = lambda *args: _render_image(site, *args)
 
     _render_public(site, environment)
-    _render_files(site, environment)
+    _render_entity_type(site, environment,
+                        site.ancestry.files.values(), 'file')
     _render_entity_type(site, environment,
                         site.ancestry.people.values(), 'person')
     _render_entity_type(site, environment,
@@ -115,17 +120,6 @@ def render_tree(path: str, environment: Environment) -> None:
             with open(file_destination_path, 'w') as f:
                 f.write(template.render())
             os.remove(file_source_path)
-
-
-def _render_files(site: Site, environment: Environment) -> None:
-    file_directory_path = os.path.join(
-        site.configuration.output_directory_path, 'file')
-    makedirs(file_directory_path)
-    for file in site.ancestry.files.values():
-        destination = os.path.join(file_directory_path,
-                                   file.id + splitext(file.path)[1])
-        shutil.copy2(file.path, destination)
-    _render_entity_type(site, environment, site.ancestry.files.values(), 'file')
 
 
 def _render_entity_type(site: Site, environment: Environment, entities: Iterable[Any],
@@ -231,6 +225,52 @@ def _render_file_url(configuration: Configuration, path: str, absolute=False):
     path = (configuration.root_path.strip('/') + '/' + path.strip('/')).strip('/')
     url += '/' + path
     return url
+
+
+def _render_file(site: Site, file: File) -> str:
+    file_directory_path = os.path.join(
+        site.configuration.output_directory_path, 'file')
+
+    destination_name = '%s.%s' % (file.id, file.extension)
+    destination_path = '/file/%s' % destination_name
+    output_destination_path = os.path.join(file_directory_path, destination_name)
+
+    if exists(output_destination_path):
+        return destination_path
+
+    makedirs(file_directory_path)
+    copy2(file.path, output_destination_path)
+
+    return destination_path
+
+
+def _render_image(site: Site, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
+    if width is None and height is None:
+        raise ValueError('At least the width or height must be given.')
+
+    if width is None:
+        suffix = '-x%d' % height
+        convert = resizeimage.resize_height
+    elif height is None:
+        suffix = '%dx-d' % width
+        convert = resizeimage.resize_width
+    else:
+        suffix = '%dx%d' % (width, height)
+        convert = resizeimage.resize_cover
+
+    file_directory_path = os.path.join(site.configuration.output_directory_path, 'file')
+    destination_name = '%s-%s.%s' % (file.id, suffix, file.extension)
+    destination_path = '/file/%s' % destination_name
+    output_destination_path = os.path.join(file_directory_path, destination_name)
+
+    if exists(output_destination_path):
+        return destination_path
+
+    makedirs(file_directory_path)
+    with Image.open(file.path) as image:
+        convert(image, (width, height)).save(output_destination_path)
+
+    return destination_path
 
 
 class Plugins:

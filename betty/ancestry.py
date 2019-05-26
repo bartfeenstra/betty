@@ -164,6 +164,10 @@ class File(Identifiable, Described):
         self._type = file_type
 
     @property
+    def basename(self) -> str:
+        return splitext(self._path)[0]
+
+    @property
     def extension(self) -> Optional[str]:
         extension = splitext(self._path)[1][1:]
         return extension if extension else None

@@ -11,8 +11,9 @@
     {% endif %}
 
     {% if event.files | length > 0 %}
-        {% for file in event.files %}
-            {% include 'file.html.j2' %}
-        {% endfor %}
+        <h2>Media</h2>
+        {% with files=event.files %}
+            {% include 'list-file.html.j2' %}
+        {% endwith %}
     {% endif %}
 {% endblock %}

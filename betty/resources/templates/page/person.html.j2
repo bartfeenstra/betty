@@ -50,8 +50,7 @@
 
     {% set files = person.files | list + person.events | map(attribute="files") | flatten | unique | list %}
     {% if files | length > 0 %}
-        {% for file in files %}
-            {% include 'file.html.j2' %}
-        {% endfor %}
+        <h2>Media</h2>
+        {% include 'list-file.html.j2' %}
     {% endif %}
 {% endblock %}

@@ -1,18 +1,12 @@
 {% if file.type.startswith('image/') %}
     <div class="image">
-        {% set file_path = ('/file/' +  file.id + '.' + file.extension) | file_url %}
-        <figure>
-            <a href="{{ file_path }}"><img src="{{ file_path }}" alt="{{ file.description }}"/></a>
-            {% if file.description %}
-                <figcaption>{{ file.description }}</figcaption>
-            {% endif %}
-        </figure>
-        {% if file.notes %}
-            <div class="notes">
-                {% for note in file.notes %}
-                    {{ note.text | paragraphs }}
-                {% endfor %}
-            </div>
-        {% endif %}
+        <a href="{{ ('/file/' ~ file.id) | url }}">
+            <figure>
+                <img src="{{ file | image(300, 300) | file_url }}" alt="{{ file.description }}"/>
+                {% if file.description %}
+                    <figcaption>{{ file.description }}</figcaption>
+                {% endif %}
+            </figure>
+        </a>
     </div>
 {% endif %}

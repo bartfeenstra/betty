@@ -255,18 +255,20 @@ footer {
  * Media.
  */
 .image {
-  background-color: #eee;
-  margin: 0;
-  padding: 1em;
+  display: inline-block;
+  vertical-align: top;
+  width: 300px;
+}
+
+.image a { /* stylelint-disable-line no-descending-specificity */
+  display: block;
+  width: 100%;
 }
 
 figure {
-  background-color: #ccc;
-  display: inline-block;
-  padding: 0.5em;
   margin: 0;
 }
 
-figure img {
-  width: 100%;
+figcaption {
+  padding: 0.5rem;
 }

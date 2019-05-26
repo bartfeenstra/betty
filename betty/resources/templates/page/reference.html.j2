@@ -4,8 +4,9 @@
 {% block content %}
     {% include 'reference-meta.html.j2' %}
     {% if reference.files | length > 0 %}
-        {% for file in reference.files %}
-            {% include 'file.html.j2' %}
-        {% endfor %}
+        <h2>Media</h2>
+        {% with files=reference.files %}
+            {% include 'list-file.html.j2' %}
+        {% endwith %}
     {% endif %}
 {% endblock %}
