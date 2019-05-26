@@ -57,7 +57,7 @@ let BettyIcon = L.Icon.Default.extend({
     imagePath: configuration.rootPath,
     iconUrl: leafletMarkerIconImage.replace(/^\/+/, ''),
     iconRetinaUrl: leafletMarkerIcon2xImage.replace(/^\/+/, ''),
-    shadowUrl: leafletMarkerShadowImage.replace(/^\/+/, ''),
+    shadowUrl: leafletMarkerShadowImage.replace(/^\/+/, '')
   }
 })
 
