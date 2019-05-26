@@ -3,10 +3,9 @@
 {% set title = reference.name %}
 {% block content %}
     {% include 'reference-meta.html.j2' %}
-    {% if reference.files | length > 0 %}
+    {% set files = reference | walk('contains') | list | map(attribute="files") | flatten | unique | list %}
+    {% if files | length > 0 %}
         <h2>Media</h2>
-        {% with files=reference.files %}
-            {% include 'list-file.html.j2' %}
-        {% endwith %}
+        {% include 'list-file.html.j2' %}
     {% endif %}
 {% endblock %}
