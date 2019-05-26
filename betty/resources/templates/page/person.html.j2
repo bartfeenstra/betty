@@ -48,7 +48,7 @@
         {% endwith %}
     {% endif %}
 
-    {% set files = person.files | list + person.events | map(attribute="files") | flatten | unique | list %}
+    {% set files = (person.files | list + person.events | map(attribute="files") | flatten | list + person.events | map(attribute="references") | flatten | map(attribute="files") | flatten | list) | unique | list %}
     {% if files | length > 0 %}
         <h2>Media</h2>
         {% include 'list-file.html.j2' %}
