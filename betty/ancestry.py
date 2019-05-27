@@ -343,6 +343,7 @@ class Event(Identifiable, Dated, Documented, Referenced):
         DEATH = 'death'
         BURIAL = 'burial'
         MARRIAGE = 'marriage'
+        RESIDENCE = 'residence'
 
     def __init__(self, event_id: str, entity_type: Type):
         Identifiable.__init__(self, event_id)
