@@ -256,6 +256,7 @@ _EVENT_TYPE_MAP = {
     'Death': Event.Type.DEATH,
     'Burial': Event.Type.BURIAL,
     'Marriage': Event.Type.MARRIAGE,
+    'Residence': Event.Type.RESIDENCE,
 }
 
 
