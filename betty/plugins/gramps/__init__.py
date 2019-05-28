@@ -159,6 +159,8 @@ def _parse_person(ancestry: _IntermediateAncestry, element: Element):
     for citation_handle in citation_handles:
         person.references.add(ancestry.references[citation_handle])
 
+    _parse_objref(ancestry, person, element)
+
     ancestry.people[handle] = person
 
 
