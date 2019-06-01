@@ -49,31 +49,75 @@ class PrivatizerTest(TestCase):
         sut.privatize(ancestry)
         self.assertFalse(person.private)
 
-    @parameterized.expand([
-        (True, None),
-        (True, True),
-        (False, False),
-    ])
-    def test_privatize_should_privatize_if_age_unknown_with_descendants_of_unknown_age(self, expected, private):
+    def test_privatize_should_privatize_if_age_unknown_with_descendants_of_unknown_age(self, expected):
         person = Person('P0', 'Janet', 'Dough')
-        person.private = private
         person.events.add(Event('E0', Event.Type.BIRTH))
-        descendant = Person('P1')
-        person.children.add(descendant)
+        child = Person('P1')
+        child.events.add(Event('E1', Event.Type.BIRTH))
+        person.children.add(child)
+        grandchild = Person('P1')
+        grandchild.events.add(Event('E2', Event.Type.BIRTH))
+        child.children.add(grandchild)
         ancestry = Ancestry()
         ancestry.people[person.id] = person
         sut = Privatizer()
         sut.privatize(ancestry)
         self.assertEquals(expected, person.private)
 
-    def test_privatize_should_not_privatize_if_age_unknown_with_descendants_over_age_threshold(self):
+    def test_privatize_should_not_privatize_if_age_unknown_with_child_over_age_threshold(self):
         person = Person('P0', 'Janet', 'Dough')
         person.events.add(Event('E0', Event.Type.BIRTH))
-        descendant = Person('P1')
-        descendant_birth = Event('E1', Event.Type.BIRTH)
-        descendant_birth.date = Date(1234, 5, 6)
-        descendant.events.add(descendant_birth)
-        person.children.add(descendant)
+        child = Person('P1')
+        child_birth = Event('E1', Event.Type.BIRTH)
+        child_birth.date = Date(1234, 5, 6)
+        child.events.add(child_birth)
+        person.children.add(child)
+        ancestry = Ancestry()
+        ancestry.people[person.id] = person
+        sut = Privatizer()
+        sut.privatize(ancestry)
+        self.assertFalse(person.private)
+
+    def test_privatize_should_not_privatize_if_age_unknown_with_grandchild_over_age_threshold(self):
+        person = Person('P0', 'Janet', 'Dough')
+        person.events.add(Event('E0', Event.Type.BIRTH))
+        child = Person('P1')
+        person.children.add(child)
+        grandchild = Person('P1')
+        grandchild_birth = Event('E1', Event.Type.BIRTH)
+        grandchild_birth.date = Date(1234, 5, 6)
+        grandchild.events.add(grandchild_birth)
+        child.children.add(grandchild)
+        ancestry = Ancestry()
+        ancestry.people[person.id] = person
+        sut = Privatizer()
+        sut.privatize(ancestry)
+        self.assertFalse(person.private)
+
+    def test_privatize_should_not_privatize_if_age_unknown_with_parent_death_over_age_threshold(self):
+        person = Person('P0', 'Janet', 'Dough')
+        person.events.add(Event('E0', Event.Type.BIRTH))
+        parent = Person('P1')
+        parent_death = Event('E1', Event.Type.DEATH)
+        parent_death.date = Date(1234, 5, 6)
+        parent.events.add(parent_death)
+        person.parents.add(parent)
+        ancestry = Ancestry()
+        ancestry.people[person.id] = person
+        sut = Privatizer()
+        sut.privatize(ancestry)
+        self.assertFalse(person.private)
+
+    def test_privatize_should_not_privatize_if_age_unknown_with_grandparent_death_over_age_threshold(self):
+        person = Person('P0', 'Janet', 'Dough')
+        person.events.add(Event('E0', Event.Type.BIRTH))
+        parent = Person('P1')
+        person.parents.add(parent)
+        grandparent = Person('P2')
+        grandparent_death = Event('E1', Event.Type.DEATH)
+        grandparent_death.date = Date(1234, 5, 6)
+        grandparent.events.add(grandparent_death)
+        parent.parents.add(grandparent)
         ancestry = Ancestry()
         ancestry.people[person.id] = person
         sut = Privatizer()

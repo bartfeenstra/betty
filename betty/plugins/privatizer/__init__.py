@@ -1,15 +1,14 @@
 from datetime import datetime
-from typing import List, Tuple, Callable
+from typing import List, Tuple, Callable, Optional
 
-from betty.ancestry import Ancestry, Person
-from betty.functools import walk
+from betty.ancestry import Ancestry, Person, Event
 from betty.parse import PostParseEvent
 from betty.plugin import Plugin
 
 
 class Privatizer(Plugin):
     def __init__(self):
-        self._privacy_expires_at_age = 125
+        self._threshold = 100
 
     def subscribes_to(self) -> List[Tuple[str, Callable]]:
         return (
@@ -24,20 +23,53 @@ class Privatizer(Plugin):
         if person.private is not None:
             return
 
-        person.private = self._person_has_privacy(person)
+        person.private = self._person_is_private(person)
 
-    def _person_has_privacy(self, person: Person) -> bool:
-        return not self._person_is_dead(person) and not self._person_has_expired(
-            person) and not self._descendants_have_expired(person)
+    def _person_is_private(self, person: Person) -> bool:
+        if person.death is not None:
+            return False
 
-    def _person_is_dead(self, person: Person) -> bool:
-        return person.death is not None
+        if self._birth_has_expired(person, 0):
+            return False
 
-    def _person_has_expired(self, person: Person) -> bool:
-        return person.birth is not None and person.birth.date is not None and person.birth.date.year is not None and person.birth.date.year + self._privacy_expires_at_age < datetime.now().year
+        def ancestors(person: Person, generation: int):
+            for parent in person.parents:
+                yield generation, parent
+                yield from ancestors(parent, generation - 1)
 
-    def _descendants_have_expired(self, person: Person) -> bool:
-        descendants = walk(person, 'children')
-        for descendant in descendants:
-            if self._person_has_expired(descendant):
-                return True
+        for generation, ancestor in ancestors(person, 0):
+            if self._birth_has_expired(ancestor, generation):
+                return False
+            if self._death_has_expired(ancestor, generation):
+                return False
+
+        def descendants(person: Person, generation: int):
+            for child in person.children:
+                yield generation, child
+                yield from descendants(child, generation + 1)
+
+        for generation, descendant in descendants(person, 0):
+            if self._birth_has_expired(descendant, generation):
+                return False
+            if self._death_has_expired(descendant, generation):
+                return False
+
+        return True
+
+    def _birth_has_expired(self, person: Person, generation: int) -> bool:
+        return self._event_has_expired(person.birth, abs(generation) + 1)
+
+    def _death_has_expired(self, person: Person, generation: int) -> bool:
+        return self._event_has_expired(person.death, abs(generation))
+
+    def _event_has_expired(self, event: Optional[Event], multiplier: int) -> bool:
+        if event is None:
+            return False
+
+        if event.date is None:
+            return False
+
+        if event.date.year is None:
+            return False
+
+        return event.date.year + self._threshold * multiplier < datetime.now().year
