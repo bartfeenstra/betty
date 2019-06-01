@@ -10,9 +10,10 @@
         {% endwith %}
     {% endif %}
 
-    {% if event.documents | length > 0 %}
-        {% for document in event.documents %}
-            {% include 'document.html.j2' %}
-        {% endfor %}
+    {% if event.files | length > 0 %}
+        <h2>Media</h2>
+        {% with files=event.files %}
+            {% include 'list-file.html.j2' %}
+        {% endwith %}
     {% endif %}
 {% endblock %}

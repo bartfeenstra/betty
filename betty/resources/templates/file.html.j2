@@ -1,0 +1,12 @@
+{% if file.type.startswith('image/') %}
+    <div class="image">
+        <a href="{{ ('/file/' ~ file.id) | url }}">
+            <figure>
+                <img src="{{ file | image(300, 300) | file_url }}" alt="{{ file.description }}"/>
+                {% if file.description %}
+                    <figcaption>{{ file.description }}</figcaption>
+                {% endif %}
+            </figure>
+        </a>
+    </div>
+{% endif %}

@@ -28,5 +28,5 @@ class Anonymizer(Plugin):
         person.family_name = None
         for event in set(person.events):
             event.people.replace([])
-        for document in set(person.documents):
-            document.entities.replace([])
+        for file in set(person.files):
+            file.entities.replace([])

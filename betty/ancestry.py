@@ -105,21 +105,6 @@ class Note:
         return self._text
 
 
-class File:
-    def __init__(self, path: str):
-        self._path = path
-        self._type = None
-
-    @property
-    def path(self):
-        return self._path
-
-    @property
-    def extension(self) -> Optional[str]:
-        extension = splitext(self._path)[1][1:]
-        return extension if extension else None
-
-
 class Identifiable:
     def __init__(self, id: str):
         self._id = id
@@ -156,32 +141,36 @@ class Link:
         return self._label if self._label else self._uri
 
 
-class Documented:
-    def __init__(self):
-        self._documents = EventHandlingSet(lambda document: document.entities.add(self),
-                                           lambda document: document.entities.remove(self))
-
-    @property
-    def documents(self) -> Iterable:
-        return self._documents
-
-    @documents.setter
-    def documents(self, documents: Iterable):
-        self._documents.replace(documents)
-
-
-class Document(Identifiable, Described):
-    def __init__(self, document_id: str, file: File):
-        Identifiable.__init__(self, document_id)
+class File(Identifiable, Described):
+    def __init__(self, file_id: str, path: str):
+        Identifiable.__init__(self, file_id)
         Described.__init__(self)
-        self._file = file
+        self._path = path
+        self._type = None
         self._notes = []
-        self._entities = EventHandlingSet(lambda entity: entity.documents.add(self),
-                                          lambda entity: entity.documents.remove(self))
+        self._entities = EventHandlingSet(lambda entity: entity.files.add(self),
+                                          lambda entity: entity.files.remove(self))
 
     @property
-    def file(self) -> File:
-        return self._file
+    def path(self):
+        return self._path
+
+    @property
+    def type(self) -> Optional[str]:
+        return self._type
+
+    @type.setter
+    def type(self, file_type: str):
+        self._type = file_type
+
+    @property
+    def basename(self) -> str:
+        return splitext(self._path)[0]
+
+    @property
+    def extension(self) -> Optional[str]:
+        extension = splitext(self._path)[1][1:]
+        return extension if extension else None
 
     @property
     def notes(self) -> List[Note]:
@@ -200,10 +189,24 @@ class Document(Identifiable, Described):
         self._entities.replace(entities)
 
 
-class Reference(Identifiable, Dated, Documented):
+class HasFiles:
+    def __init__(self):
+        self._files = EventHandlingSet(lambda file: file.entities.add(self),
+                                       lambda file: file.entities.remove(self))
+
+    @property
+    def files(self) -> Iterable:
+        return self._files
+
+    @files.setter
+    def files(self, files: Iterable):
+        self._files.replace(files)
+
+
+class Reference(Identifiable, Dated, HasFiles):
     def __init__(self, reference_id: str, name: str):
         Identifiable.__init__(self, reference_id)
-        Documented.__init__(self)
+        HasFiles.__init__(self)
         self._name = name
         self._link = None
         self._contained_by = None
@@ -335,7 +338,7 @@ class Place(Identifiable):
         return self._encloses
 
 
-class Event(Identifiable, Dated, Documented, Referenced):
+class Event(Identifiable, Dated, HasFiles, Referenced):
     class Type(Enum):
         BIRTH = 'birth'
         BAPTISM = 'baptism'
@@ -348,7 +351,7 @@ class Event(Identifiable, Dated, Documented, Referenced):
     def __init__(self, event_id: str, entity_type: Type):
         Identifiable.__init__(self, event_id)
         Dated.__init__(self)
-        Documented.__init__(self)
+        HasFiles.__init__(self)
         Referenced.__init__(self)
         self._date = None
         self._place = None
@@ -386,10 +389,10 @@ class Event(Identifiable, Dated, Documented, Referenced):
         self._people.replace(people)
 
 
-class Person(Identifiable, Documented, Referenced):
+class Person(Identifiable, HasFiles, Referenced):
     def __init__(self, person_id: str, individual_name: str = None, family_name: str = None):
         Identifiable.__init__(self, person_id)
-        Documented.__init__(self)
+        HasFiles.__init__(self)
         Referenced.__init__(self)
         self._individual_name = individual_name
         self._family_name = family_name
@@ -479,19 +482,19 @@ class Person(Identifiable, Documented, Referenced):
 
 class Ancestry:
     def __init__(self):
-        self._documents = {}
+        self._files = {}
         self._people = {}
         self._places = {}
         self._events = {}
         self._references = {}
 
     @property
-    def documents(self) -> Dict[str, Document]:
-        return self._documents
+    def files(self) -> Dict[str, File]:
+        return self._files
 
-    @documents.setter
-    def documents(self, documents: Dict[str, Document]):
-        self._documents = documents
+    @files.setter
+    def files(self, files: Dict[str, File]):
+        self._files = files
 
     @property
     def people(self) -> Dict[str, Person]:

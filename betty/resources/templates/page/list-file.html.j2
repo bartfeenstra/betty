@@ -1,0 +1,7 @@
+{% extends 'page/base.html.j2' %}
+{% set title = 'Media' %}
+{% block content %}
+    {% with files=entities %}
+        {% include 'list-file.html.j2' %}
+    {% endwith %}
+{% endblock %}

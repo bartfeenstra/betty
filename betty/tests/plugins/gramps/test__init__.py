@@ -164,4 +164,4 @@ class GrampsTest(TestCase):
                 self.assertEquals(
                     'Janet', site.ancestry.people['I0000'].individual_name)
                 self.assertEquals(
-                    '1px', site.ancestry.documents['O0000'].description)
+                    '1px', site.ancestry.files['O0000'].description)

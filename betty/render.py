@@ -1,6 +1,4 @@
 import os
-import shutil
-from os.path import splitext
 from typing import Iterable, Any
 
 from jinja2 import Environment
@@ -23,7 +21,8 @@ class PostRenderEvent(Event):
 def render(site: Site) -> None:
     environment = create_environment(site)
     _render_public(site, environment)
-    _render_documents(site)
+    _render_entity_type(site, environment,
+                        site.ancestry.files.values(), 'file')
     _render_entity_type(site, environment,
                         site.ancestry.people.values(), 'person')
     _render_entity_type(site, environment,
@@ -47,16 +46,6 @@ def _create_html_file(path: str) -> object:
 def _render_public(site: Site, environment: Environment) -> None:
     site.resources.copytree('public', site.configuration.output_directory_path)
     render_tree(site.configuration.output_directory_path, environment)
-
-
-def _render_documents(site: Site) -> None:
-    documents_directory_path = os.path.join(
-        site.configuration.output_directory_path, 'document')
-    makedirs(documents_directory_path)
-    for document in site.ancestry.documents.values():
-        destination = os.path.join(documents_directory_path,
-                                   document.id + splitext(document.file.path)[1])
-        shutil.copy2(document.file.path, destination)
 
 
 def _render_entity_type(site: Site, environment: Environment, entities: Iterable[Any],

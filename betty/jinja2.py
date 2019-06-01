@@ -4,19 +4,22 @@ import re
 from importlib import import_module
 from itertools import takewhile
 from json import dumps
-from os.path import join
-from typing import Union, Any, Dict, Type
+from os.path import join, exists
+from shutil import copy2
+from typing import Union, Any, Dict, Type, Optional
 
+from PIL import Image
 from geopy import units
 from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter
 from jinja2.filters import prepare_map
 from jinja2.runtime import Macro
 from markupsafe import Markup
+from resizeimage import resizeimage
 
-from betty.ancestry import Reference
+from betty.ancestry import Reference, File
 from betty.config import Configuration
-from betty.fs import iterfiles
+from betty.fs import iterfiles, makedirs
 from betty.functools import walk
 from betty.json import JSONEncoder
 from betty.plugin import Plugin
@@ -79,6 +82,8 @@ def create_environment(site: Site):
     environment.globals['references'] = _References()
     environment.filters['url'] = lambda *args, **kwargs: _filter_url(site.configuration, *args, **kwargs)
     environment.filters['file_url'] = lambda *args, **kwargs: _filter_file_url(site.configuration, *args, **kwargs)
+    environment.filters['file'] = lambda *args: _filter_file(site, *args)
+    environment.filters['image'] = lambda *args, **kwargs: _filter_image(site, *args, **kwargs)
     return environment
 
 
@@ -174,3 +179,52 @@ def _filter_file_url(configuration: Configuration, path: str, absolute=False):
     path = (configuration.root_path.strip('/') + '/' + path.strip('/')).strip('/')
     url += '/' + path
     return url
+
+
+def _filter_file(site: Site, file: File) -> str:
+    file_directory_path = os.path.join(
+        site.configuration.output_directory_path, 'file')
+
+    destination_name = '%s.%s' % (file.id, file.extension)
+    destination_path = '/file/%s' % destination_name
+    output_destination_path = os.path.join(file_directory_path, destination_name)
+
+    if exists(output_destination_path):
+        return destination_path
+
+    makedirs(file_directory_path)
+    copy2(file.path, output_destination_path)
+
+    return destination_path
+
+
+def _filter_image(site: Site, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
+    if width is None and height is None:
+        raise ValueError('At least the width or height must be given.')
+
+    if width is None:
+        size = height
+        suffix = '-x%d'
+        convert = resizeimage.resize_height
+    elif height is None:
+        size = width
+        suffix = '%dx-'
+        convert = resizeimage.resize_width
+    else:
+        size = (width, height)
+        suffix = '%dx%d'
+        convert = resizeimage.resize_cover
+
+    file_directory_path = os.path.join(site.configuration.output_directory_path, 'file')
+    destination_name = '%s-%s.%s' % (file.id, suffix % size, file.extension)
+    destination_path = '/file/%s' % destination_name
+    output_destination_path = os.path.join(file_directory_path, destination_name)
+
+    if exists(output_destination_path):
+        return destination_path
+
+    makedirs(file_directory_path)
+    with Image.open(file.path) as image:
+        convert(image, size).save(output_destination_path)
+
+    return destination_path
