@@ -83,7 +83,7 @@ def create_environment(site: Site):
     environment.filters['url'] = lambda *args, **kwargs: _filter_url(site.configuration, *args, **kwargs)
     environment.filters['file_url'] = lambda *args, **kwargs: _filter_file_url(site.configuration, *args, **kwargs)
     environment.filters['file'] = lambda *args: _filter_file(site, *args)
-    environment.filters['image'] = lambda *args: _filter_image(site, *args)
+    environment.filters['image'] = lambda *args, **kwargs: _filter_image(site, *args, **kwargs)
     return environment
 
 
@@ -203,17 +203,20 @@ def _filter_image(site: Site, file: File, width: Optional[int] = None, height: O
         raise ValueError('At least the width or height must be given.')
 
     if width is None:
-        suffix = '-x%d' % height
+        size = height
+        suffix = '-x%d'
         convert = resizeimage.resize_height
     elif height is None:
-        suffix = '%dx-d' % width
+        size = width
+        suffix = '%dx-'
         convert = resizeimage.resize_width
     else:
-        suffix = '%dx%d' % (width, height)
+        size = (width, height)
+        suffix = '%dx%d'
         convert = resizeimage.resize_cover
 
     file_directory_path = os.path.join(site.configuration.output_directory_path, 'file')
-    destination_name = '%s-%s.%s' % (file.id, suffix, file.extension)
+    destination_name = '%s-%s.%s' % (file.id, suffix % size, file.extension)
     destination_path = '/file/%s' % destination_name
     output_destination_path = os.path.join(file_directory_path, destination_name)
 
@@ -222,6 +225,6 @@ def _filter_image(site: Site, file: File, width: Optional[int] = None, height: O
 
     makedirs(file_directory_path)
     with Image.open(file.path) as image:
-        convert(image, (width, height)).save(output_destination_path)
+        convert(image, size).save(output_destination_path)
 
     return destination_path
