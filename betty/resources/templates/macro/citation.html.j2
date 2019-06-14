@@ -1,0 +1,14 @@
+{%- import 'macro/source.html.j2' as sourceMacros -%}
+
+{% macro cite(citation) -%}
+    {% set citationNumber = citations.cite(citation) %}
+    <a href="#reference-{{ citationNumber }}" class="citation">[{{ citationNumber }}]</a>
+{%- endmacro -%}
+
+{%- macro referenceLabel(citation) -%}
+    {% if citation.description %}
+        {{ citation.description }} ({{ sourceMacros.link(citation.source) }})
+    {% else %}
+        {{ sourceMacros.link(citation.source) }}
+    {% endif %}
+{%- endmacro -%}

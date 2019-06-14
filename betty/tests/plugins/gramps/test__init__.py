@@ -78,8 +78,8 @@ class ParseXmlFileTestCase(TestCase):
 
     def test_person_should_include_citation(self):
         person = self.ancestry.people['I0000']
-        source = self.ancestry.references['C0000']
-        self.assertIn(source, person.references)
+        citation = self.ancestry.citations['C0000']
+        self.assertIn(citation, person.citations)
 
     def test_family_should_set_parents(self):
         expected_parents = [self.ancestry.people['I0002'],
@@ -131,21 +131,21 @@ class ParseXmlFileTestCase(TestCase):
         self.assertEquals(31, date.day)
 
     def test_source_from_repository_should_include_name(self):
-        source = self.ancestry.references['R0000']
+        source = self.ancestry.sources['R0000']
         self.assertEquals('Library of Alexandria', source.name)
 
     def test_source_from_repository_should_include_link(self):
-        link = self.ancestry.references['R0000'].link
+        link = self.ancestry.sources['R0000'].link
         self.assertEquals('https://alexandria.example.com', link.uri)
         self.assertEquals('Library of Alexandria Catalogue', link.label)
 
     def test_source_from_source_should_include_title(self):
-        source = self.ancestry.references['S0000']
+        source = self.ancestry.sources['S0000']
         self.assertEquals('A Whisper', source.name)
 
     def test_source_from_source_should_include_repository(self):
-        source = self.ancestry.references['S0000']
-        containing_source = self.ancestry.references['R0000']
+        source = self.ancestry.sources['S0000']
+        containing_source = self.ancestry.sources['R0000']
         self.assertEquals(containing_source, source.contained_by)
 
 

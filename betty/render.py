@@ -30,7 +30,7 @@ def render(site: Site) -> None:
     _render_entity_type(site, environment,
                         site.ancestry.events.values(), 'event')
     _render_entity_type(site, environment,
-                        site.ancestry.references.values(), 'reference')
+                        site.ancestry.sources.values(), 'source')
     site.event_dispatcher.dispatch(PostRenderEvent(environment))
 
 

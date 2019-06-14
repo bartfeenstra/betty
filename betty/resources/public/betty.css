@@ -57,12 +57,12 @@ address {
   text-decoration: dotted underline;
 }
 
-.reference-usage {
+.citation {
   font-size: 0.9rem;
   font-variant-position: super;
 }
 
-.reference-footnotes {
+.reference {
   font-size: 0.9rem;
 }
 

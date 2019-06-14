@@ -203,50 +203,55 @@ class HasFiles:
         self._files.replace(files)
 
 
-class Reference(Identifiable, Dated, HasFiles):
-    def __init__(self, reference_id: str, name: str):
-        Identifiable.__init__(self, reference_id)
-        HasFiles.__init__(self)
+class Source(Identifiable, Dated):
+    def __init__(self, source_id: str, name: str):
+        Identifiable.__init__(self, source_id)
         self._name = name
         self._link = None
         self._contained_by = None
 
-        def handle_contains_addition(reference):
-            reference.referrers = self
+        def handle_contains_addition(source):
+            source.contained_by = self
 
-        def handle_contains_removal(reference):
-            reference.referrers = None
+        def handle_contains_removal(source):
+            source.contained_by = None
 
         self._contains = EventHandlingSet(
             handle_contains_addition, handle_contains_removal)
 
-        self._referees = EventHandlingSet(lambda referee: referee.references.add(self),
-                                          lambda referee: referee.references.remove(self))
+        def handle_citations_addition(citation):
+            citation.source = self
+
+        def handle_citations_removal(citation):
+            citation.source = None
+
+        self._citations = EventHandlingSet(
+            handle_citations_addition, handle_citations_removal)
 
     @property
     def contained_by(self):
         return self._contained_by
 
     @contained_by.setter
-    def contained_by(self, reference):
-        previous_reference = self._contained_by
-        self._contained_by = reference
-        if previous_reference is not None:
-            previous_reference.contains.remove(self)
-        if reference is not None:
-            reference.contains.add(self)
+    def contained_by(self, source):
+        previous_source = self._contained_by
+        self._contained_by = source
+        if previous_source is not None:
+            previous_source.contains.remove(self)
+        if source is not None:
+            source.contains.add(self)
 
     @property
     def contains(self) -> Iterable:
         return self._contains
 
     @property
-    def referees(self) -> Iterable:
-        return self._referees
+    def citations(self) -> Iterable:
+        return self._citations
 
-    @referees.setter
-    def referees(self, referees: Iterable):
-        self._referees.replace(referees)
+    @citations.setter
+    def citations(self, citations: Iterable):
+        self._citations.replace(citations)
 
     @property
     def name(self) -> str:
@@ -265,18 +270,49 @@ class Reference(Identifiable, Dated, HasFiles):
         self._link = link
 
 
-class Referenced:
-    def __init__(self):
-        self._references = EventHandlingSet(lambda references: references.referees.add(self),
-                                            lambda references: references.referees.remove(self))
+class Citation(Identifiable, Described, HasFiles):
+    def __init__(self, citation_id: str):
+        Identifiable.__init__(self, citation_id)
+        HasFiles.__init__(self)
+        Described.__init__(self)
+        self._source = None
+        self._claims = EventHandlingSet(lambda claim: claim.citations.add(self),
+                                        lambda claim: claim.citations.remove(self))
 
     @property
-    def references(self) -> Iterable:
-        return self._references
+    def source(self) -> Source:
+        return self._source
 
-    @references.setter
-    def references(self, references: Iterable):
-        self._references.replace(references)
+    @source.setter
+    def source(self, source: Source):
+        previous_source = self._source
+        self._source = source
+        if previous_source is not None:
+            previous_source.citations.remove(self)
+        if source is not None:
+            source.citations.add(self)
+
+    @property
+    def claims(self) -> Iterable:
+        return self._claims
+
+    @claims.setter
+    def claims(self, claims: Iterable):
+        self._claims.replace(claims)
+
+
+class HasCitations:
+    def __init__(self):
+        self._citations = EventHandlingSet(lambda citation: citation.claims.add(self),
+                                           lambda citation: citation.claims.remove(self))
+
+    @property
+    def citations(self) -> Iterable:
+        return self._citations
+
+    @citations.setter
+    def citations(self, citations: Iterable):
+        self._citations.replace(citations)
 
 
 class Place(Identifiable):
@@ -338,7 +374,7 @@ class Place(Identifiable):
         return self._encloses
 
 
-class Event(Identifiable, Dated, HasFiles, Referenced):
+class Event(Identifiable, Dated, HasFiles, HasCitations):
     class Type(Enum):
         BIRTH = 'birth'
         BAPTISM = 'baptism'
@@ -352,7 +388,7 @@ class Event(Identifiable, Dated, HasFiles, Referenced):
         Identifiable.__init__(self, event_id)
         Dated.__init__(self)
         HasFiles.__init__(self)
-        Referenced.__init__(self)
+        HasCitations.__init__(self)
         self._date = None
         self._place = None
         self._type = entity_type
@@ -389,11 +425,11 @@ class Event(Identifiable, Dated, HasFiles, Referenced):
         self._people.replace(people)
 
 
-class Person(Identifiable, HasFiles, Referenced):
+class Person(Identifiable, HasFiles, HasCitations):
     def __init__(self, person_id: str, individual_name: str = None, family_name: str = None):
         Identifiable.__init__(self, person_id)
         HasFiles.__init__(self)
-        Referenced.__init__(self)
+        HasCitations.__init__(self)
         self._individual_name = individual_name
         self._family_name = family_name
         self._events = EventHandlingSet(lambda event: event.people.add(self),
@@ -486,7 +522,8 @@ class Ancestry:
         self._people = {}
         self._places = {}
         self._events = {}
-        self._references = {}
+        self._sources = {}
+        self._citations = {}
 
     @property
     def files(self) -> Dict[str, File]:
@@ -521,9 +558,17 @@ class Ancestry:
         self._events = events
 
     @property
-    def references(self) -> Dict[str, Reference]:
-        return self._references
+    def sources(self) -> Dict[str, Source]:
+        return self._sources
 
-    @references.setter
-    def references(self, references: Dict[str, Reference]):
-        self._references = references
+    @sources.setter
+    def sources(self, sources: Dict[str, Source]):
+        self._sources = sources
+
+    @property
+    def citations(self) -> Dict[str, Citation]:
+        return self._citations
+
+    @citations.setter
+    def citations(self, citations: Dict[str, Citation]):
+        self._citations = citations

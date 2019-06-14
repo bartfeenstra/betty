@@ -1,0 +1,10 @@
+{% extends 'page/base.html.j2' %}
+{% set title = source.name %}
+{% block content %}
+    {% include 'source-meta.html.j2' %}
+    {% set files = ([source] + (source | walk('contains') | list)) | map(attribute="citations") | flatten | map(attribute="files") | flatten | unique | list %}
+    {% if files | length > 0 %}
+        <h2>Media</h2>
+        {% include 'list-file.html.j2' %}
+    {% endif %}
+{% endblock %}
