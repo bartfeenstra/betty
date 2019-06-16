@@ -1,6 +1,6 @@
 from enum import Enum
 from functools import total_ordering
-from os.path import splitext
+from os.path import splitext, basename
 from typing import Dict, Optional, List, Iterable, Tuple
 
 from geopy import Point
@@ -162,6 +162,10 @@ class File(Identifiable, Described):
     @type.setter
     def type(self, file_type: str):
         self._type = file_type
+
+    @property
+    def name(self) -> str:
+        return basename(self._path)
 
     @property
     def basename(self) -> str:
