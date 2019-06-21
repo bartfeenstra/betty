@@ -104,6 +104,12 @@ footer {
   min-width: calc(100% - 2rem);
 }
 
+.featured {
+  background-color: #eee;
+  margin: 0 -1rem;
+  width: 100vw;
+}
+
 /*
  * Entity metadata.
  */
@@ -217,6 +223,14 @@ ul.file-controls li a:hover {
 
 .file-extended:target figcaption {
   display: none;
+}
+
+.featured.image img {
+  cursor: zoom-in;
+  display: block;
+  margin: auto;
+  max-height: 75vh;
+  max-width: 100%;
 }
 
 /*
