@@ -1,7 +1,7 @@
 {%- import 'macro/place.html.j2' as placeMacros -%}
 <div class="places">
     {%- if 'betty.plugins.maps.Maps' in plugins %}
-        <div class="map js-show"></div>
+        <div class="featured map js-show"></div>
     {% endif -%}
     <ul class="entities {% if canonical is not defined or not canonical %} js-hide{% endif %}">
         {%- for place in places | sort(attribute='name') %}
