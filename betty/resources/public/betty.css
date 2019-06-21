@@ -99,7 +99,7 @@ footer {
 #content {
   background-color: white;
   clear: both;
-  padding: 1rem;
+  padding: 0 1rem;
   display: inline-block;
   min-width: calc(100% - 2rem);
 }
