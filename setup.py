@@ -38,6 +38,7 @@ SETUP = {
         'jsonschema ~= 3.0',
         'lxml ~= 4.3.1',
         'markupsafe ~= 1.1.1',
+        'python-resize-image ~= 1.1.18',
     ],
     'extras_require': {
         'development': [

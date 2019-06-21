@@ -7,38 +7,8 @@ import html5lib
 
 from betty.ancestry import Person, Event, Place, Reference
 from betty.config import Configuration
-from betty.render import render, _render_walk, _render_flatten
+from betty.render import render
 from betty.site import Site
-
-
-class RenderFlattenTest(TestCase):
-    def test_without_items(self):
-        self.assertCountEqual([], _render_flatten([]))
-
-    def test_with_empty_items(self):
-        self.assertCountEqual([], _render_flatten([[], [], []]))
-
-    def test_with_non_empty_items(self):
-        self.assertCountEqual(['apple', 'banana', 'kiwi'], _render_flatten(
-            [['kiwi'], ['apple'], ['banana']]))
-
-
-class RenderWalkTest(TestCase):
-    class Data:
-        def __init__(self, children=None):
-            self.children = children or []
-
-    def test_without_children(self):
-        data = self.Data()
-        self.assertCountEqual([], _render_walk(data, 'children'))
-
-    def test_with_children(self):
-        child1child1 = self.Data()
-        child1 = self.Data([child1child1])
-        child2 = self.Data()
-        data = self.Data([child1, child2])
-        expected = [child1, child2, child1child1]
-        self.assertCountEqual(expected, _render_walk(data, 'children'))
 
 
 class RenderTest(TestCase):

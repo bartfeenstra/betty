@@ -5,9 +5,24 @@
             <loc>{{ ('/person/' ~ id) | url(absolute=true) }}</loc>
         </url>
     {% endfor %}
+    {% for id in site.ancestry.events %}
+        <url>
+            <loc>{{ ('/event/' ~ id) | url(absolute=true) }}</loc>
+        </url>
+    {% endfor %}
     {% for id in site.ancestry.places %}
         <url>
             <loc>{{ ('/place/' ~ id) | url(absolute=true) }}</loc>
+        </url>
+    {% endfor %}
+    {% for id in site.ancestry.files %}
+        <url>
+            <loc>{{ ('/file/' ~ id) | url(absolute=true) }}</loc>
+        </url>
+    {% endfor %}
+    {% for id in site.ancestry.references %}
+        <url>
+            <loc>{{ ('/reference/' ~ id) | url(absolute=true) }}</loc>
         </url>
     {% endfor %}
 </urlset>

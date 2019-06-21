@@ -9,7 +9,7 @@ from geopy import Point
 from lxml import etree
 from lxml.etree import XMLParser, Element
 
-from betty.ancestry import Document, Event, Place, Person, Ancestry, Date, Note, File, Link, Reference, Documented
+from betty.ancestry import Event, Place, Person, Ancestry, Date, Note, File, Link, Reference, HasFiles
 from betty.parse import ParseEvent
 from betty.plugin import Plugin
 from betty.site import Site
@@ -18,15 +18,15 @@ from betty.site import Site
 class _IntermediateAncestry:
     def __init__(self):
         self.notes = {}
-        self.documents = {}
+        self.files = {}
         self.places = {}
         self.events = {}
         self.people = {}
         self.references = {}
 
     def populate(self, ancestry: Ancestry):
-        ancestry.documents = {
-            document.id: document for document in self.documents.values()}
+        ancestry.files = {
+            file.id: file for file in self.files.values()}
         ancestry.people = {
             person.id: person for person in self.people.values()}
         ancestry.places = {place.id: place for place in self.places.values()}
@@ -79,7 +79,7 @@ def parse_xml_file(ancestry: Ancestry, file_path) -> None:
     database = tree.getroot()
     intermediate_ancestry = _IntermediateAncestry()
     _parse_notes(intermediate_ancestry, database)
-    _parse_documents(intermediate_ancestry, database, file_path)
+    _parse_objects(intermediate_ancestry, database, file_path)
     _parse_repositories(intermediate_ancestry, database)
     _parse_sources(intermediate_ancestry, database)
     _parse_citations(intermediate_ancestry, database)
@@ -115,27 +115,26 @@ def _parse_note(ancestry: _IntermediateAncestry, element: Element):
     ancestry.notes[handle] = Note(text)
 
 
-def _parse_documents(ancestry: _IntermediateAncestry, database: Element, gramps_file_path: str):
+def _parse_objects(ancestry: _IntermediateAncestry, database: Element, gramps_file_path: str):
     for element in _xpath(database, './ns:objects/ns:object'):
-        _parse_document(ancestry, element, gramps_file_path)
+        _parse_object(ancestry, element, gramps_file_path)
 
 
-def _parse_document(ancestry: _IntermediateAncestry, element: Element, gramps_file_path):
+def _parse_object(ancestry: _IntermediateAncestry, element: Element, gramps_file_path):
     handle = _xpath1(element, './@handle')
-    entity_id = _xpath1(element, './@id')
+    entity_id = str(_xpath1(element, './@id'))
     file_element = _xpath1(element, './ns:file')
     file_path = join(dirname(gramps_file_path),
-                     _xpath1(file_element, './@src'))
-    file = File(file_path)
-    file.type = _xpath1(file_element, './@mime')
-    note_handles = _xpath(element, './ns:noteref/@hlink')
-    document = Document(entity_id, file)
-    description = _xpath1(file_element, './@description')
+                     str(_xpath1(file_element, './@src')))
+    file = File(entity_id, file_path)
+    file.type = str(_xpath1(file_element, './@mime'))
+    description = str(_xpath1(file_element, './@description'))
     if description:
-        document.description = description
+        file.description = description
+    note_handles = _xpath(element, './ns:noteref/@hlink')
     for note_handle in note_handles:
-        document.notes.append(ancestry.notes[note_handle])
-    ancestry.documents[handle] = document
+        file.notes.append(ancestry.notes[note_handle])
+    ancestry.files[handle] = file
 
 
 def _parse_people(ancestry: _IntermediateAncestry, database: Element):
@@ -159,6 +158,8 @@ def _parse_person(ancestry: _IntermediateAncestry, element: Element):
     citation_handles = _xpath(element, './ns:citationref/@hlink')
     for citation_handle in citation_handles:
         person.references.add(ancestry.references[citation_handle])
+
+    _parse_objref(ancestry, person, element)
 
     ancestry.people[handle] = person
 
@@ -348,10 +349,10 @@ def _parse_citation(ancestry: _IntermediateAncestry, element: Element) -> None:
     ancestry.references[handle] = reference
 
 
-def _parse_objref(ancestry: _IntermediateAncestry, documented: Documented, element: Element):
-    document_handles = _xpath(element, './ns:objref/@hlink')
-    for document_handle in document_handles:
-        documented.documents.add(ancestry.documents[document_handle])
+def _parse_objref(ancestry: _IntermediateAncestry, owner: HasFiles, element: Element):
+    file_handles = _xpath(element, './ns:objref/@hlink')
+    for file_handle in file_handles:
+        owner.files.add(ancestry.files[file_handle])
 
 
 class Gramps(Plugin):

@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 from parameterized import parameterized
 
-from betty.ancestry import EventHandlingSet, Person, Event, Place, Date, File, Note, Document
+from betty.ancestry import EventHandlingSet, Person, Event, Place, Date, File, Note
 
 
 class EventHandlingSetTest(TestCase):
@@ -241,24 +241,6 @@ class DateTest(TestCase):
             date > Date(1970, 1, 1)
 
 
-class FileTest(TestCase):
-    def test_path(self):
-        with TemporaryFile() as f:
-            sut = File(f.name)
-            self.assertEquals(f.name, sut.path)
-
-    def test_extension_with_extension(self):
-        extension = 'betty'
-        with NamedTemporaryFile(suffix='.%s' % extension) as f:
-            sut = File(f.name)
-            self.assertEquals(extension, sut.extension)
-
-    def test_extension_without_extension(self):
-        with NamedTemporaryFile() as f:
-            sut = File(f.name)
-            self.assertIsNone(sut.extension)
-
-
 class NoteTest(TestCase):
     def test_text(self):
         text = 'Betty wrote this.'
@@ -266,31 +248,44 @@ class NoteTest(TestCase):
         self.assertEquals(text, sut.text)
 
 
-class DocumentTest(TestCase):
+class FileTest(TestCase):
     def test_id(self):
-        entity_id = 'BETTY01'
-        file = Mock(File)
-        sut = Document(entity_id, file)
-        self.assertEquals(entity_id, sut.id)
+        file_id = 'BETTY01'
+        file_path = '/tmp/betty'
+        sut = File(file_id, file_path)
+        self.assertEquals(file_id, sut.id)
 
-    def test_file(self):
-        entity_id = 'BETTY01'
-        file = Mock(File)
-        sut = Document(entity_id, file)
-        self.assertEquals(file, sut.file)
+    def test_path(self):
+        with TemporaryFile() as f:
+            file_id = 'BETTY01'
+            sut = File(file_id, f.name)
+            self.assertEquals(f.name, sut.path)
+
+    def test_extension_with_extension(self):
+        extension = 'betty'
+        with NamedTemporaryFile(suffix='.%s' % extension) as f:
+            file_id = 'BETTY01'
+            sut = File(file_id, f.name)
+            self.assertEquals(extension, sut.extension)
+
+    def test_extension_without_extension(self):
+        with NamedTemporaryFile() as f:
+            file_id = 'BETTY01'
+            sut = File(file_id, f.name)
+            self.assertIsNone(sut.extension)
 
     def test_description(self):
-        entity_id = 'BETTY01'
-        file = Mock(File)
-        sut = Document(entity_id, file)
+        file_id = 'BETTY01'
+        file_path = '/tmp/betty'
+        sut = File(file_id, file_path)
         description = 'Hi, my name is Betty!'
         sut.description = description
         self.assertEquals(description, sut.description)
 
     def test_notes(self):
-        entity_id = 'BETTY01'
-        file = Mock(File)
-        sut = Document(entity_id, file)
+        file_id = 'BETTY01'
+        file_path = '/tmp/betty'
+        sut = File(file_id, file_path)
         self.assertCountEqual([], sut.notes)
         notes = (Mock(Note), Mock(Note))
         sut.notes = notes
