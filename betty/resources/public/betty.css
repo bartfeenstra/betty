@@ -212,11 +212,9 @@ ul.file-controls li a:hover {
   color: #fff;
 }
 
-.file-content {
-  text-align: center;
-}
-
 .file-extended:target img {
+  display: block;
+  margin: auto;
   max-height: calc(100vh - 3rem);
   max-width: 100%;
 }
