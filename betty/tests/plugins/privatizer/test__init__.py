@@ -14,26 +14,27 @@ from betty.site import Site
 
 def _expand(generation: int):
     multiplier = abs(generation) + 1 if generation < 0 else 1
-    date_under_threshold = Date(datetime.now().year + 100 * multiplier + 1, 1, 1)
-    date_over_threshold = Date(datetime.now().year - 100 * multiplier - 1, 1, 1)
+    threshold_year = datetime.now().year - 100 * multiplier
+    date_under_threshold = Date(threshold_year + 1, 1, 1)
+    date_over_threshold = Date(threshold_year - 1, 1, 1)
     return parameterized.expand([
-        # # If there are no events for a person, their privacy does not change.
+        # If there are no events for a person, their privacy does not change.
         (True, None, None),
         (True, True, None),
         (False, False, None),
-        # # Deaths are special, and their existence prevents generation 0 from being private even without a date.
+        # Deaths are special, and their existence prevents generation 0 from being private even without a date.
         (generation != 0, None, Event('E0', Event.Type.DEATH)),
         (True, True, Event('E0', Event.Type.DEATH)),
         (False, False, Event('E0', Event.Type.DEATH)),
-        # # Regular events without dates do not affect privacy.
+        # Regular events without dates do not affect privacy.
         (True, None, Event('E0', Event.Type.BIRTH)),
         (True, True, Event('E0', Event.Type.BIRTH)),
         (False, False, Event('E0', Event.Type.BIRTH)),
-        # # Regular events with incomplete dates do not affect privacy.
+        # Regular events with incomplete dates do not affect privacy.
         (True, None, Event('E0', Event.Type.BIRTH, date=Date())),
         (True, True, Event('E0', Event.Type.BIRTH, date=Date())),
         (False, False, Event('E0', Event.Type.BIRTH, date=Date())),
-        # # Regular events under the lifetime threshold do not affect privacy.
+        # Regular events under the lifetime threshold do not affect privacy.
         (True, None, Event('E0', Event.Type.BIRTH, date=date_under_threshold)),
         (True, True, Event('E0', Event.Type.BIRTH, date=date_under_threshold)),
         (False, False, Event('E0', Event.Type.BIRTH, date=date_under_threshold)),

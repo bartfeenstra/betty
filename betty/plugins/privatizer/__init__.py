@@ -28,19 +28,20 @@ class Privatizer(Plugin):
         person.private = self._person_is_private(person)
 
     def _person_is_private(self, person: Person) -> bool:
+        # A dead person is not private, regardless of when they died.
         if person.death is not None:
             return False
 
-        if self._person_has_expired(person, 0):
+        if self._person_has_expired(person, 1):
             return False
 
-        def ancestors(person: Person, generation: int):
+        def ancestors(person: Person, generation: int = -1):
             for parent in person.parents:
                 yield generation, parent
                 yield from ancestors(parent, generation - 1)
 
-        for generation, ancestor in ancestors(person, 0):
-            if self._person_has_expired(ancestor, abs(generation)):
+        for generation, ancestor in ancestors(person):
+            if self._person_has_expired(ancestor, abs(generation) + 1):
                 return False
 
         # If any descendant has any expired event, the person is considered not private.
@@ -57,6 +58,8 @@ class Privatizer(Plugin):
         return False
 
     def _event_has_expired(self, event: Event, multiplier: int) -> bool:
+        assert multiplier > 0
+
         if event.date is None:
             return False
 
