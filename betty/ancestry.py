@@ -352,13 +352,13 @@ class Event(Identifiable, Dated, HasFiles, Referenced):
         MARRIAGE = 'marriage'
         RESIDENCE = 'residence'
 
-    def __init__(self, event_id: str, entity_type: Type):
+    def __init__(self, event_id: str, entity_type: Type, date: Optional[Date] = None, place: Optional[Place] = None):
         Identifiable.__init__(self, event_id)
         Dated.__init__(self)
         HasFiles.__init__(self)
         Referenced.__init__(self)
-        self._date = None
-        self._place = None
+        self._date = date
+        self._place = place
         self._type = entity_type
         self._people = EventHandlingSet(lambda person: person.events.add(self),
                                         lambda person: person.events.remove(self))
