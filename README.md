@@ -69,6 +69,7 @@ Configuration files are written in JSON:
 			"file": "./gramps.gpkg"
 		},
 		"betty.plugins.maps.Maps": {},
+		"betty.plugins.wikipedia.Wikipedia": {},
 		"betty.plugins.privatizer.Privatizer": {},
 		"betty.plugins.anonymizer.Anonymizer": {},
 		"betty.plugins.cleaner.Cleaner": {}
@@ -84,6 +85,7 @@ Configuration files are written in JSON:
 - `plugins` (optional): The plugins to enable. Keys are plugin names, and values are objects containing each plugin's configuration.
     - `betty.plugin.gramps.Gramps`: Parses a Gramps genealogy. Configuration:
         - `file`: the path to the *Gramps XML* or *Gramps XML Package* file.
+    - `betty.plugin.wikipedia.Wikipedia`: Lets templates and other plugins retrieve complementary Wikipedia entries.
     - `betty.plugin.privatizer.Privatizer`: Marks living people private. Configuration: `{}`.
     - `betty.plugin.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `{}`.
     - `betty.plugin.cleaner.Cleaner`: Removes data (events, media, etc.) that have no relation to any people. Configuration: `{}`.

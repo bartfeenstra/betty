@@ -63,6 +63,12 @@ class _References:
         self._references = []
 
 
+class Jinja2Provider:
+    @property
+    def filters(self):
+        raise NotImplementedError
+
+
 def create_environment(site: Site):
     template_directory_paths = list([join(path, 'templates') for path in site.resources.paths])
     environment = Environment(
@@ -84,6 +90,9 @@ def create_environment(site: Site):
     environment.filters['file_url'] = lambda *args, **kwargs: _filter_file_url(site.configuration, *args, **kwargs)
     environment.filters['file'] = lambda *args: _filter_file(site, *args)
     environment.filters['image'] = lambda *args, **kwargs: _filter_image(site, *args, **kwargs)
+    for plugin in site.plugins.values():
+        if isinstance(plugin, Jinja2Provider):
+            environment.filters.update(plugin.filters)
     return environment
 
 

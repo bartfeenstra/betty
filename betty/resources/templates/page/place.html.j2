@@ -17,6 +17,12 @@
         {% include 'list-place.html.j2' %}
     {% endif %}
 
+    {%- if 'betty.plugins.wikipedia.Wikipedia' in plugins %}
+        {% for entry in place.links | wikipedia %}
+            {{ entry.content | safe }}
+        {% endfor %}
+    {% endif -%}
+
     {% set events = place.events | list + place | walk('encloses') | map(attribute="events") | flatten | list %}
     {% if events | rejectattr('date', 'none') | selectattr('date.complete') | list | length > 0 %}
         <h2>Events</h2>
