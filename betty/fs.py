@@ -15,7 +15,7 @@ def makedirs(path: str) -> None:
     os.makedirs(path, 0o755, True)
 
 
-def filehash(path: str) -> str:
+def hashfile(path: str) -> str:
     hasher = hashlib.md5()
     with open(path, 'rb') as file:
         hasher.update(file.read())
