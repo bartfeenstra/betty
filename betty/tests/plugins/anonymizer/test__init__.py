@@ -26,15 +26,15 @@ class AnonymizerTest(TestCase):
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
             configuration.plugins[Anonymizer] = {}
-            with Site(configuration) as site:
-                with NamedTemporaryFile() as file_f:
-                    person = Person('P0', 'Janet', 'Dough')
-                    person.private = True
-                    person.events.add(Event('E0', Event.Type.BIRTH))
-                    person.files.add(File('D0', file_f.name))
-                    site.ancestry.people[person.id] = person
-                    parse(site)
-                    self.assert_anonymized(person)
+            site = Site(configuration)
+            with NamedTemporaryFile() as file_f:
+                person = Person('P0', 'Janet', 'Dough')
+                person.private = True
+                person.events.add(Event('E0', Event.Type.BIRTH))
+                person.files.add(File('D0', file_f.name))
+                site.ancestry.people[person.id] = person
+                parse(site)
+                self.assert_anonymized(person)
 
     def test_anonymize_should_anonymize_private_person(self):
         with NamedTemporaryFile() as file_f:

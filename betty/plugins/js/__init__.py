@@ -1,7 +1,7 @@
 import hashlib
 import json
 from os import makedirs
-from os.path import join, expanduser, dirname
+from os.path import join, dirname
 from shutil import copy2, copytree, rmtree
 from subprocess import check_call
 from typing import Tuple, Dict, Iterable
@@ -26,18 +26,17 @@ class JsEntryPointProvider:
 
 
 class Js(Plugin, JsPackageProvider):
-    def __init__(self, file_system: FileSystem, plugins: Dict, output_directory_path: str):
+    def __init__(self, file_system: FileSystem, plugins: Dict, output_directory_path: str, cache_directory_path: str):
         betty_instance_id = hashlib.sha1(
             betty.__path__[0].encode()).hexdigest()
-        self._directory_path = join(
-            expanduser('~'), '.betty', betty_instance_id)
+        self._directory_path = join(cache_directory_path, 'js-%s' % betty_instance_id)
         self._file_system = file_system
         self._plugins = plugins
         self._output_directory_path = output_directory_path
 
     @classmethod
     def from_configuration_dict(cls, site: Site, configuration: Dict):
-        return cls(site.resources, site.plugins, site.configuration.output_directory_path)
+        return cls(site.resources, site.plugins, site.configuration.output_directory_path, site.configuration.cache_directory_path)
 
     def subscribes_to(self):
         return [

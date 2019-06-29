@@ -56,17 +56,17 @@ def _xpath1(element, selector: str) -> []:
     return None
 
 
-def extract_xml_file(gramps_file_path: str, working_directory_path: str) -> str:
-    gramps_working_directory_path = join(working_directory_path, Gramps.name())
-    mkdir(gramps_working_directory_path)
+def extract_xml_file(gramps_file_path: str, cache_directory_path: str) -> str:
+    try:
+        mkdir(cache_directory_path)
+    except FileExistsError:
+        pass
     ungzipped_outer_file = gzip.open(gramps_file_path)
-    xml_file_path = join(gramps_working_directory_path, 'data.xml')
+    xml_file_path = join(cache_directory_path, 'data.xml')
     with open(xml_file_path, 'wb') as xml_file:
         try:
-            tarfile.open(fileobj=ungzipped_outer_file).extractall(
-                gramps_working_directory_path)
-            gramps_file_path = join(
-                gramps_working_directory_path, 'data.gramps')
+            tarfile.open(fileobj=ungzipped_outer_file).extractall(cache_directory_path)
+            gramps_file_path = join(cache_directory_path, 'data.gramps')
             xml_file.write(gzip.open(gramps_file_path).read())
         except tarfile.ReadError:
             xml_file.write(ungzipped_outer_file.read())
@@ -356,13 +356,13 @@ def _parse_objref(ancestry: _IntermediateAncestry, owner: HasFiles, element: Ele
 
 
 class Gramps(Plugin):
-    def __init__(self, gramps_file_path: str, working_directory_path: str):
+    def __init__(self, gramps_file_path: str, cache_directory_path: str):
         self._gramps_file_path = gramps_file_path
-        self._working_directory_path = working_directory_path
+        self._cache_directory_path = cache_directory_path
 
     @classmethod
     def from_configuration_dict(cls, site: Site, configuration: Dict):
-        return cls(configuration['file'], site.working_directory_path)
+        return cls(configuration['file'], join(site.configuration.cache_directory_path, 'gramps'))
 
     def subscribes_to(self) -> List[Tuple[str, Callable]]:
         return [
@@ -371,5 +371,5 @@ class Gramps(Plugin):
 
     def _parse(self, event: ParseEvent) -> None:
         xml_file_path = extract_xml_file(
-            self._gramps_file_path, self._working_directory_path)
+            self._gramps_file_path, self._cache_directory_path)
         parse_xml_file(event.ancestry, xml_file_path)
