@@ -15,10 +15,17 @@ def makedirs(path: str) -> None:
     os.makedirs(path, 0o755, True)
 
 
+BLOCK_SIZE = 65536
+
+
 def hashfile(path: str) -> str:
     hasher = hashlib.md5()
     with open(path, 'rb') as file:
-        hasher.update(file.read())
+        while True:
+            buffer = file.read(BLOCK_SIZE)
+            if len(buffer) == 0:
+                break
+            hasher.update(buffer)
     return hasher.hexdigest()
 
 
