@@ -1,7 +1,6 @@
 import gzip
 import re
 import tarfile
-from os import mkdir
 from os.path import join, dirname
 from typing import Tuple, Optional, Callable, List, Dict
 
@@ -10,6 +9,7 @@ from lxml import etree
 from lxml.etree import XMLParser, Element
 
 from betty.ancestry import Event, Place, Person, Ancestry, Date, Note, File, Link, Reference, HasFiles
+from betty.fs import makedirs
 from betty.parse import ParseEvent
 from betty.plugin import Plugin
 from betty.site import Site
@@ -58,7 +58,7 @@ def _xpath1(element, selector: str) -> []:
 
 def extract_xml_file(gramps_file_path: str, cache_directory_path: str) -> str:
     try:
-        mkdir(cache_directory_path)
+        makedirs(cache_directory_path)
     except FileExistsError:
         pass
     ungzipped_outer_file = gzip.open(gramps_file_path)
