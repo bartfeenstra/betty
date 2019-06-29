@@ -51,12 +51,12 @@ class PrivatizerTest(TestCase):
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
             configuration.plugins[Privatizer] = {}
-            with Site(configuration) as site:
-                person = Person('P0')
-                person.events.add(Event('E0', Event.Type.BIRTH))
-                site.ancestry.people[person.id] = person
-                parse(site)
-                self.assertTrue(person.private)
+            site = Site(configuration)
+            person = Person('P0')
+            person.events.add(Event('E0', Event.Type.BIRTH))
+            site.ancestry.people[person.id] = person
+            parse(site)
+            self.assertTrue(person.private)
 
     @_expand(0)
     def test_privatize_without_relatives(self, expected, private, event: Optional[Event]):

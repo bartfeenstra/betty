@@ -98,9 +98,9 @@ from betty.site import Site
 output_directory_path = '/var/www/betty'
 url = 'https://betty.example.com'
 configuration = Configuration(output_directory_path, url)
-with Site(configuration) as site:
-    parse(site)
-    render(site)
+site = Site(configuration)
+parse(site)
+render(site)
 
 ```
 

@@ -11,15 +11,15 @@ from betty.plugin import Plugin
 
 
 class ConfigurationTest(TestCase):
-    def test_working_directory_path_with_cwd(self):
+    def test_site_directory_path_with_cwd(self):
         sut = Configuration('/tmp/betty', 'https://example.com')
-        self.assertEquals(getcwd(), sut.working_directory_path)
+        self.assertEquals(getcwd(), sut.site_directory_path)
 
-    def test_working_directory_path_with_path(self):
+    def test_site_directory_path_with_path(self):
         sut = Configuration('/tmp/betty', 'https://example.com')
-        working_directory_path = '/tmp/betty-working-directory'
-        sut.working_directory_path = working_directory_path
-        self.assertEquals(working_directory_path, sut.working_directory_path)
+        site_directory_path = '/tmp/betty-working-directory'
+        sut.site_directory_path = site_directory_path
+        self.assertEquals(site_directory_path, sut.site_directory_path)
 
     def test_output_directory_path_with_absolute_path(self):
         output_directory_path = '/tmp/betty'
@@ -29,8 +29,8 @@ class ConfigurationTest(TestCase):
     def test_output_directory_path_with_relative_path(self):
         output_directory_path = './betty'
         sut = Configuration(output_directory_path, 'https://example.com')
-        working_directory_path = '/tmp/betty-working-directory'
-        sut.working_directory_path = working_directory_path
+        site_directory_path = '/tmp/betty-working-directory'
+        sut.site_directory_path = site_directory_path
         self.assertEquals('/tmp/betty-working-directory/betty', sut.output_directory_path)
 
     def test_resources_directory_path_without_path(self):
@@ -45,8 +45,8 @@ class ConfigurationTest(TestCase):
 
     def test_resources_directory_path_with_relative_path(self):
         sut = Configuration('/tmp/betty', 'https://example.com')
-        working_directory_path = '/tmp/betty-working-directory'
-        sut.working_directory_path = working_directory_path
+        site_directory_path = '/tmp/betty-working-directory'
+        sut.site_directory_path = site_directory_path
         resources_directory_path = './betty-resources'
         sut.resources_directory_path = resources_directory_path
         self.assertEquals('/tmp/betty-working-directory/betty-resources', sut.resources_directory_path)

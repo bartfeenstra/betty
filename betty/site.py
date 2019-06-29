@@ -1,6 +1,5 @@
 from collections import defaultdict
 from os.path import abspath, dirname, join
-from tempfile import TemporaryDirectory
 from typing import Type, Dict
 
 from betty.ancestry import Ancestry
@@ -12,7 +11,6 @@ from betty.graph import tsort, Graph
 
 class Site:
     def __init__(self, configuration: Configuration):
-        self._working_directory = TemporaryDirectory()
         self._ancestry = Ancestry()
         self._configuration = configuration
         self._resources = FileSystem(join(dirname(abspath(__file__)), 'resources'))
@@ -74,16 +72,3 @@ class Site:
     @property
     def event_dispatcher(self) -> EventDispatcher:
         return self._event_dispatcher
-
-    @property
-    def working_directory_path(self):
-        return self._working_directory.name
-
-    def cleanup(self):
-        self._working_directory.cleanup()
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.cleanup()

@@ -19,7 +19,7 @@ from resizeimage import resizeimage
 
 from betty.ancestry import Reference, File
 from betty.config import Configuration
-from betty.fs import iterfiles, makedirs
+from betty.fs import iterfiles, makedirs, hashfile
 from betty.functools import walk
 from betty.json import JSONEncoder
 from betty.plugin import Plugin
@@ -218,13 +218,19 @@ def _filter_image(site: Site, file: File, width: Optional[int] = None, height: O
     file_directory_path = os.path.join(site.configuration.output_directory_path, 'file')
     destination_name = '%s-%s.%s' % (file.id, suffix % size, file.extension)
     destination_path = '/file/%s' % destination_name
-    output_destination_path = os.path.join(file_directory_path, destination_name)
+    cache_directory_path = join(site.configuration.cache_directory_path, 'image')
+    cache_file_path = join(cache_directory_path, '%s-%s' % (hashfile(file.path), destination_name))
+    output_file_path = join(file_directory_path, destination_name)
 
-    if exists(output_destination_path):
-        return destination_path
-
-    makedirs(file_directory_path)
-    with Image.open(file.path) as image:
-        convert(image, size).save(output_destination_path)
+    try:
+        copy2(cache_file_path, output_file_path)
+    except FileNotFoundError:
+        if exists(output_file_path):
+            return destination_path
+        makedirs(cache_directory_path)
+        with Image.open(file.path) as image:
+            convert(image, size).save(cache_file_path)
+        makedirs(file_directory_path)
+        copy2(cache_file_path, output_file_path)
 
     return destination_path
