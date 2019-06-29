@@ -1,10 +1,10 @@
 import os
 from os import mkdir
-from os.path import join
+from os.path import join, dirname
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from betty.fs import iterfiles, FileSystem
+from betty.fs import iterfiles, FileSystem, filehash
 
 
 class IterfilesTest(TestCase):
@@ -23,6 +23,12 @@ class IterfilesTest(TestCase):
             'subdir/subdirfile',
         ]
         self.assertCountEqual(expected, actual)
+
+
+class FilehashTest(TestCase):
+    def test_filehash(self):
+        file_path = join(dirname(dirname(__file__)), 'resources/public/betty-512x512.png')
+        self.assertEquals('699fbf62d4e694646151cb78eef2e146', filehash(file_path))
 
 
 class FileSystemTest(TestCase):
