@@ -1,3 +1,4 @@
+import hashlib
 import os
 from collections import deque
 from os import walk
@@ -12,6 +13,13 @@ def iterfiles(path: str) -> Iterable[str]:
 
 def makedirs(path: str) -> None:
     os.makedirs(path, 0o755, True)
+
+
+def filehash(path: str) -> str:
+    hasher = hashlib.md5()
+    with open(path, 'rb') as file:
+        hasher.update(file.read())
+    return hasher.hexdigest()
 
 
 class FileSystem:
