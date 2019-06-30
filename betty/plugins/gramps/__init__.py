@@ -1,4 +1,5 @@
 import gzip
+import logging
 import re
 import tarfile
 from os.path import join, dirname
@@ -63,6 +64,8 @@ def extract_xml_file(gramps_file_path: str, cache_directory_path: str) -> str:
         pass
     ungzipped_outer_file = gzip.open(gramps_file_path)
     xml_file_path = join(cache_directory_path, 'data.xml')
+    logger = logging.getLogger()
+    logger.info('Extracting %s...' % xml_file_path)
     with open(xml_file_path, 'wb') as xml_file:
         try:
             tarfile.open(fileobj=ungzipped_outer_file).extractall(cache_directory_path)
@@ -74,18 +77,24 @@ def extract_xml_file(gramps_file_path: str, cache_directory_path: str) -> str:
 
 
 def parse_xml_file(ancestry: Ancestry, file_path) -> None:
+    logger = logging.getLogger()
     parser = XMLParser()
     tree = etree.parse(file_path, parser)
     database = tree.getroot()
     intermediate_ancestry = _IntermediateAncestry()
     _parse_notes(intermediate_ancestry, database)
+    logger.info('Parsed %d notes.' % len(intermediate_ancestry.notes))
     _parse_objects(intermediate_ancestry, database, file_path)
+    logger.info('Parsed %d files.' % len(intermediate_ancestry.files))
     _parse_repositories(intermediate_ancestry, database)
     _parse_sources(intermediate_ancestry, database)
     _parse_citations(intermediate_ancestry, database)
     _parse_places(intermediate_ancestry, database)
+    logger.info('Parsed %d places.' % len(intermediate_ancestry.places))
     _parse_events(intermediate_ancestry, database)
+    logger.info('Parsed %d events.' % len(intermediate_ancestry.events))
     _parse_people(intermediate_ancestry, database)
+    logger.info('Parsed %d people.' % len(intermediate_ancestry.people))
     _parse_families(intermediate_ancestry, database)
     intermediate_ancestry.populate(ancestry)
 

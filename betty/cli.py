@@ -1,10 +1,12 @@
 import argparse
+import logging
 from os import getcwd
 from os.path import join
 from typing import Callable, Optional, List
 
 from betty import parse, render
 from betty.config import from_file, Configuration
+from betty.logging import CliHandler
 from betty.site import Site
 
 
@@ -63,11 +65,16 @@ def get_configuration(config_file_path: Optional[str]) -> Optional[Configuration
 
 
 def main(args=None):
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    logger.addHandler(CliHandler())
     try:
         betty_parser = build_betty_parser()
         betty_parsed_args = vars(betty_parser.parse_args(args))
         configuration = get_configuration(betty_parsed_args['config_file_path'])
         if configuration:
+            if configuration.mode == 'development':
+                logger.setLevel(logging.DEBUG)
             site = Site(configuration)
             commands = [GenerateCommand(site)]
             for plugin in site.plugins.values():
@@ -92,4 +99,4 @@ def main(args=None):
         betty_parser.exit(status)
     except KeyboardInterrupt:
         # Quit gracefully.
-        print('Quitting...')
+        logger.info('Quitting...')
