@@ -1,7 +1,7 @@
 import gzip
+import logging
 import re
 import tarfile
-from os import mkdir
 from os.path import join, dirname
 from typing import Tuple, Optional, Callable, List, Dict
 
@@ -10,6 +10,7 @@ from lxml import etree
 from lxml.etree import XMLParser, Element
 
 from betty.ancestry import Event, Place, Person, Ancestry, Date, Note, File, Link, Reference, HasFiles
+from betty.fs import makedirs
 from betty.parse import ParseEvent
 from betty.plugin import Plugin
 from betty.site import Site
@@ -56,17 +57,19 @@ def _xpath1(element, selector: str) -> []:
     return None
 
 
-def extract_xml_file(gramps_file_path: str, working_directory_path: str) -> str:
-    gramps_working_directory_path = join(working_directory_path, Gramps.name())
-    mkdir(gramps_working_directory_path)
+def extract_xml_file(gramps_file_path: str, cache_directory_path: str) -> str:
+    try:
+        makedirs(cache_directory_path)
+    except FileExistsError:
+        pass
     ungzipped_outer_file = gzip.open(gramps_file_path)
-    xml_file_path = join(gramps_working_directory_path, 'data.xml')
+    xml_file_path = join(cache_directory_path, 'data.xml')
+    logger = logging.getLogger()
+    logger.info('Extracting %s...' % xml_file_path)
     with open(xml_file_path, 'wb') as xml_file:
         try:
-            tarfile.open(fileobj=ungzipped_outer_file).extractall(
-                gramps_working_directory_path)
-            gramps_file_path = join(
-                gramps_working_directory_path, 'data.gramps')
+            tarfile.open(fileobj=ungzipped_outer_file).extractall(cache_directory_path)
+            gramps_file_path = join(cache_directory_path, 'data.gramps')
             xml_file.write(gzip.open(gramps_file_path).read())
         except tarfile.ReadError:
             xml_file.write(ungzipped_outer_file.read())
@@ -74,18 +77,24 @@ def extract_xml_file(gramps_file_path: str, working_directory_path: str) -> str:
 
 
 def parse_xml_file(ancestry: Ancestry, file_path) -> None:
+    logger = logging.getLogger()
     parser = XMLParser()
     tree = etree.parse(file_path, parser)
     database = tree.getroot()
     intermediate_ancestry = _IntermediateAncestry()
     _parse_notes(intermediate_ancestry, database)
+    logger.info('Parsed %d notes.' % len(intermediate_ancestry.notes))
     _parse_objects(intermediate_ancestry, database, file_path)
+    logger.info('Parsed %d files.' % len(intermediate_ancestry.files))
     _parse_repositories(intermediate_ancestry, database)
     _parse_sources(intermediate_ancestry, database)
     _parse_citations(intermediate_ancestry, database)
     _parse_places(intermediate_ancestry, database)
+    logger.info('Parsed %d places.' % len(intermediate_ancestry.places))
     _parse_events(intermediate_ancestry, database)
+    logger.info('Parsed %d events.' % len(intermediate_ancestry.events))
     _parse_people(intermediate_ancestry, database)
+    logger.info('Parsed %d people.' % len(intermediate_ancestry.people))
     _parse_families(intermediate_ancestry, database)
     intermediate_ancestry.populate(ancestry)
 
@@ -361,13 +370,13 @@ def _parse_objref(ancestry: _IntermediateAncestry, owner: HasFiles, element: Ele
 
 
 class Gramps(Plugin):
-    def __init__(self, gramps_file_path: str, working_directory_path: str):
+    def __init__(self, gramps_file_path: str, cache_directory_path: str):
         self._gramps_file_path = gramps_file_path
-        self._working_directory_path = working_directory_path
+        self._cache_directory_path = cache_directory_path
 
     @classmethod
     def from_configuration_dict(cls, site: Site, configuration: Dict):
-        return cls(configuration['file'], site.working_directory_path)
+        return cls(configuration['file'], join(site.configuration.cache_directory_path, 'gramps'))
 
     def subscribes_to(self) -> List[Tuple[str, Callable]]:
         return [
@@ -376,5 +385,5 @@ class Gramps(Plugin):
 
     def _parse(self, event: ParseEvent) -> None:
         xml_file_path = extract_xml_file(
-            self._gramps_file_path, self._working_directory_path)
+            self._gramps_file_path, self._cache_directory_path)
         parse_xml_file(event.ancestry, xml_file_path)
