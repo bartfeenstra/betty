@@ -1,4 +1,5 @@
-from typing import Iterable
+from os.path import dirname
+from typing import Iterable, Optional
 from urllib.parse import urlparse
 
 import requests
@@ -34,8 +35,7 @@ def _retrieve_one(link: Link) -> WikipediaEntry:
         # @todo We must ignore any link that does not point to a Wikipedia entry.
         raise ValueError
     title = parts.path[6:]
-    uri = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=extracts&format=json&formatversion=2' % (
-        language_code, title)
+    uri = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=extracts&exintro&format=json&formatversion=2' % (language_code, title)
     response = requests.get(uri)
     page = response.json()['query']['pages'][0]
     return WikipediaEntry(link.uri, page['title'], page['extract'])
@@ -52,3 +52,7 @@ class Wikipedia(Plugin, Jinja2Provider):
         return {
             'wikipedia': _retrieve_all,
         }
+
+    @property
+    def resource_directory_path(self) -> Optional[str]:
+        return '%s/resources' % dirname(__file__)

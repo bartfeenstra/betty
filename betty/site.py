@@ -52,6 +52,8 @@ class Site:
             self._plugins[plugin_type] = plugin
             for event_name, listener in plugin.subscribes_to():
                 self._event_dispatcher.add_listener(event_name, listener)
+            if plugin.resource_directory_path is not None:
+                self._resources.paths.appendleft(plugin.resource_directory_path)
 
     @property
     def ancestry(self) -> Ancestry:

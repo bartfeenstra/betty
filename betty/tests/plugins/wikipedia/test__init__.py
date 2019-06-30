@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from betty.ancestry import Link
-from betty.plugins.wikipedia import Wikipedia, _retrieve_one
+from betty.plugins.wikipedia import _retrieve_one
 
 
 class WikipediaTest(TestCase):
