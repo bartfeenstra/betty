@@ -1,7 +1,7 @@
 from enum import Enum
 from functools import total_ordering
 from os.path import splitext, basename
-from typing import Dict, Optional, List, Iterable, Tuple
+from typing import Dict, Optional, List, Iterable, Tuple, Set
 
 from geopy import Point
 
@@ -128,7 +128,7 @@ class Described:
 
 
 class Link:
-    def __init__(self, uri: str, label: Optional[str]):
+    def __init__(self, uri: str, label: Optional[str] = None):
         self._uri = uri
         self._label = label
 
@@ -288,6 +288,7 @@ class Place(Identifiable):
         Identifiable.__init__(self, place_id)
         self._name = name
         self._coordinates = None
+        self._links = set()
 
         def handle_event_addition(event: Event):
             event.place = self
@@ -340,6 +341,10 @@ class Place(Identifiable):
     @property
     def encloses(self) -> Iterable:
         return self._encloses
+
+    @property
+    def links(self) -> Set[Link]:
+        return self._links
 
 
 class Event(Identifiable, Dated, HasFiles, Referenced):

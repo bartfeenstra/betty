@@ -50,6 +50,7 @@ SETUP = {
             'nose2 ~= 0.8',
             'parameterized ~= 0.6',
             'recommonmark ~= 0.4.0',
+            'requests-mock ~= 1.6.0',
             'twine ~= 1.9.1',
             'wheel ~= 0.30.0',
         ],

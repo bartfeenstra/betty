@@ -234,6 +234,11 @@ def _parse_place(element: Element) -> Tuple[str, _IntermediatePlace]:
     # Set the first place reference as the place that encloses this place.
     enclosed_by_handle = _xpath1(element, './ns:placeref/@hlink')
 
+    # Parse the URLs.
+    url_elements = _xpath(element, './ns:url')
+    for url_element in url_elements:
+        place.links.add(_parse_url(url_element))
+
     return handle, _IntermediatePlace(place, enclosed_by_handle)
 
 

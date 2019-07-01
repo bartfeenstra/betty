@@ -1,4 +1,4 @@
-from typing import Callable, Tuple, Dict, Type, Set, List
+from typing import Callable, Tuple, Dict, Type, Set, List, Optional
 
 from betty.site import Site
 
@@ -26,3 +26,7 @@ class Plugin:
 
     def subscribes_to(self) -> List[Tuple[str, Callable]]:
         return set()
+
+    @property
+    def resource_directory_path(self) -> Optional[str]:
+        return None
