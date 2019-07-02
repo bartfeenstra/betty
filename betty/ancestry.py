@@ -1,7 +1,7 @@
 from enum import Enum
 from functools import total_ordering
-from os.path import splitext
-from typing import Dict, Optional, List, Iterable, Tuple
+from os.path import splitext, basename
+from typing import Dict, Optional, List, Iterable, Tuple, Set
 
 from geopy import Point
 
@@ -128,7 +128,7 @@ class Described:
 
 
 class Link:
-    def __init__(self, uri: str, label: Optional[str]):
+    def __init__(self, uri: str, label: Optional[str] = None):
         self._uri = uri
         self._label = label
 
@@ -162,6 +162,10 @@ class File(Identifiable, Described):
     @type.setter
     def type(self, file_type: str):
         self._type = file_type
+
+    @property
+    def name(self) -> str:
+        return basename(self._path)
 
     @property
     def basename(self) -> str:
@@ -320,6 +324,7 @@ class Place(Identifiable):
         Identifiable.__init__(self, place_id)
         self._name = name
         self._coordinates = None
+        self._links = set()
 
         def handle_event_addition(event: Event):
             event.place = self
@@ -373,6 +378,10 @@ class Place(Identifiable):
     def encloses(self) -> Iterable:
         return self._encloses
 
+    @property
+    def links(self) -> Set[Link]:
+        return self._links
+
 
 class Event(Identifiable, Dated, HasFiles, HasCitations):
     class Type(Enum):
@@ -384,13 +393,13 @@ class Event(Identifiable, Dated, HasFiles, HasCitations):
         MARRIAGE = 'marriage'
         RESIDENCE = 'residence'
 
-    def __init__(self, event_id: str, entity_type: Type):
+    def __init__(self, event_id: str, entity_type: Type, date: Optional[Date] = None, place: Optional[Place] = None):
         Identifiable.__init__(self, event_id)
         Dated.__init__(self)
         HasFiles.__init__(self)
         HasCitations.__init__(self)
-        self._date = None
-        self._place = None
+        self._date = date
+        self._place = place
         self._type = entity_type
         self._people = EventHandlingSet(lambda person: person.events.add(self),
                                         lambda person: person.events.remove(self))

@@ -14,21 +14,21 @@ from betty.site import Site
 
 class ExtractXmlFileTest(TestCase):
     def test_gramps_xml(self):
-        with TemporaryDirectory() as working_directory_path:
+        with TemporaryDirectory() as cache_directory_path:
             gramps_file_path = join(
                 dirname(abspath(__file__)), 'resources', 'minimal.gramps')
             xml_file_path = extract_xml_file(
-                gramps_file_path, working_directory_path)
+                gramps_file_path, cache_directory_path)
             with open(xml_file_path) as f:
                 parser = XMLParser()
                 etree.parse(f, parser)
 
     def test_portable_gramps_xml_package(self):
-        with TemporaryDirectory() as working_directory_path:
+        with TemporaryDirectory() as cache_directory_path:
             gramps_file_path = join(
                 dirname(abspath(__file__)), 'resources', 'minimal.gpkg')
             xml_file_path = extract_xml_file(
-                gramps_file_path, working_directory_path)
+                gramps_file_path, cache_directory_path)
             with open(xml_file_path) as f:
                 parser = XMLParser()
                 etree.parse(f, parser)
@@ -157,11 +157,11 @@ class GrampsTest(TestCase):
             configuration.plugins[Gramps] = {
                 'file': join(dirname(abspath(__file__)), 'resources', 'minimal.gpkg')
             }
-            with Site(configuration) as site:
-                parse(site)
-                self.assertEquals(
-                    'Dough', site.ancestry.people['I0000'].family_name)
-                self.assertEquals(
-                    'Janet', site.ancestry.people['I0000'].individual_name)
-                self.assertEquals(
-                    '1px', site.ancestry.files['O0000'].description)
+            site = Site(configuration)
+            parse(site)
+            self.assertEquals(
+                'Dough', site.ancestry.people['I0000'].family_name)
+            self.assertEquals(
+                'Janet', site.ancestry.people['I0000'].individual_name)
+            self.assertEquals(
+                '1px', site.ancestry.files['O0000'].description)

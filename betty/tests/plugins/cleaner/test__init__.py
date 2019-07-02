@@ -14,11 +14,11 @@ class CleanerTest(TestCase):
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
             configuration.plugins[Cleaner] = {}
-            with Site(configuration) as site:
-                event = Event('E0', Event.Type.BIRTH)
-                site.ancestry.events[event.id] = event
-                parse(site)
-                self.assertEquals({}, site.ancestry.events)
+            site = Site(configuration)
+            event = Event('E0', Event.Type.BIRTH)
+            site.ancestry.events[event.id] = event
+            parse(site)
+            self.assertEquals({}, site.ancestry.events)
 
     def test_clean(self):
         ancestry = Ancestry()

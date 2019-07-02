@@ -2,9 +2,11 @@
 {% set title = file.description %}
 {% block content %}
     {% if file.type.startswith('image/') %}
-        <a href="{{ file | file | file_url }}">
-            <img src="{{ file | image(300, 300) | file_url }}" alt="{{ file.description }}"/>
-        </a>
+        <div class="featured image">
+            <a href="{{ file | file | file_url }}">
+                <img src="{{ file | file | file_url }}" alt="{{ file.description }}"/>
+            </a>
+        </div>
     {% endif %}
     {% if file.notes %}
         <h2>Notes</h2>

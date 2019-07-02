@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import Iterable, Any
 
@@ -19,18 +20,24 @@ class PostRenderEvent(Event):
 
 
 def render(site: Site) -> None:
+    logger = logging.getLogger()
     environment = create_environment(site)
     _render_public(site, environment)
     _render_entity_type(site, environment,
                         site.ancestry.files.values(), 'file')
+    logger.info('Rendered %d files.' % len(site.ancestry.files))
     _render_entity_type(site, environment,
                         site.ancestry.people.values(), 'person')
+    logger.info('Rendered %d people.' % len(site.ancestry.people))
     _render_entity_type(site, environment,
                         site.ancestry.places.values(), 'place')
+    logger.info('Rendered %d places.' % len(site.ancestry.places))
     _render_entity_type(site, environment,
                         site.ancestry.events.values(), 'event')
+    logger.info('Rendered %d events.' % len(site.ancestry.events))
     _render_entity_type(site, environment,
                         site.ancestry.sources.values(), 'source')
+    logger.info('Rendered %d sources.' % len(site.ancestry.sources))
     site.event_dispatcher.dispatch(PostRenderEvent(environment))
 
 

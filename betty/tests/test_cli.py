@@ -115,7 +115,7 @@ class MainTest(TestCase):
                     chdir(original_cwd)
 
     @patch('argparse.ArgumentParser')
-    @patch('sys.stdout')
+    @patch('sys.stderr')
     def test_with_keyboard_interrupt(self, _, parser):
         parser.side_effect = KeyboardInterrupt
         main()

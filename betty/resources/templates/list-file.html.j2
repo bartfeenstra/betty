@@ -1,3 +1,10 @@
+{% set files = files | list %}
 {% for file in files %}
+    {% if files[loop.index0 - 1] %}
+        {% set previous_file = files[loop.index0 - 1] %}
+    {% endif %}
+    {% if files[loop.index0 + 1] %}
+        {% set next_file = files[loop.index0 + 1] %}
+    {% endif %}
     {% include 'file.html.j2' %}
 {% endfor %}

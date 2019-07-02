@@ -84,6 +84,154 @@ ul.entities li.even {
 }
 
 /*
+ * Footer.
+ */
+
+footer {
+  color: #777;
+  padding: 3em;
+}
+
+/*
+ * Main content.
+ */
+
+#content {
+  background-color: white;
+  clear: both;
+  padding: 0 1rem;
+  display: inline-block;
+  min-width: calc(100% - 2rem);
+}
+
+.featured {
+  background-color: #eee;
+  margin: 0 -1rem;
+  width: 100vw;
+}
+
+/*
+ * Entity metadata.
+ */
+
+.meta dt {
+  font-weight: bold;
+}
+
+@media (min-width: 768px) {
+  .meta dt,
+  .meta dd {
+    display: inline;
+  }
+
+  .meta dt::after {
+    content: ':';
+  }
+
+  .meta dd {
+    margin: 0 3em 0 0;
+  }
+}
+
+/**
+ * People.
+ */
+.private {
+  cursor: help;
+  text-decoration: dotted underline;
+}
+
+/*
+ * Media.
+ */
+.file {
+  display: inline-block;
+  vertical-align: top;
+  width: 300px;
+}
+
+.file-summary {
+  display: block;
+  width: 100%;
+}
+
+.file-extended {
+  display: none;
+}
+
+.file-extended:target {
+  background-color: #000;
+  display: initial;
+  height: 100vh;
+  left: 0;
+  overflow-y: scroll;
+  position: fixed;
+  top: 0;
+  width: 100vw;
+}
+
+figure {
+  margin: 0;
+}
+
+figcaption {
+  padding: 0.5rem;
+}
+
+ul.file-controls {
+  border: 0;
+  display: block !important;
+  height: 3rem;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  width: 100%;
+}
+
+ul.file-controls li {
+  display: inline-block;
+}
+
+.file-previous {
+  float: left;
+}
+
+.file-next {
+  float: right;
+}
+
+ul.file-controls li a {
+  color: #ccc;
+  float: right;
+  font-size: 1.1rem;
+  line-height: 3rem;
+  padding: 0 0.5rem;
+}
+
+ul.file-controls li a:hover {
+  color: #fff;
+}
+
+.file-extended:target img {
+  display: block;
+  margin: auto;
+  max-height: calc(100vh - 3rem);
+  max-width: 100%;
+}
+
+.file-extended:target figcaption {
+  display: none;
+}
+
+.featured.image img {
+  cursor: zoom-in;
+  display: block;
+  margin: auto;
+  max-height: 75vh;
+  max-width: 100%;
+}
+
+/*
  * Navigation.
  */
 
@@ -199,78 +347,4 @@ ul.entities li.even {
     float: left;
     padding: 0 1em;
   }
-}
-
-/*
- * Footer.
- */
-
-footer {
-  color: #777;
-  padding: 3em;
-}
-
-/*
- * Main content.
- */
-
-#content {
-  background-color: white;
-  clear: both;
-  padding: 1rem;
-  display: inline-block;
-  min-width: calc(100% - 2rem);
-}
-
-/*
- * Entity metadata.
- */
-
-.meta dt {
-  font-weight: bold;
-}
-
-@media (min-width: 768px) {
-  .meta dt,
-  .meta dd {
-    display: inline;
-  }
-
-  .meta dt::after {
-    content: ':';
-  }
-
-  .meta dd {
-    margin: 0 3em 0 0;
-  }
-}
-
-/**
- * People.
- */
-.private {
-  cursor: help;
-  text-decoration: dotted underline;
-}
-
-/*
- * Media.
- */
-.image {
-  display: inline-block;
-  vertical-align: top;
-  width: 300px;
-}
-
-.image a { /* stylelint-disable-line no-descending-specificity */
-  display: block;
-  width: 100%;
-}
-
-figure {
-  margin: 0;
-}
-
-figcaption {
-  padding: 0.5rem;
 }
