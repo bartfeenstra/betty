@@ -11,6 +11,7 @@ from betty.plugins.anonymizer import Anonymizer
 def clean(ancestry: Ancestry) -> None:
     _clean_events(ancestry)
     _clean_places(ancestry)
+    _clean_people(ancestry)
 
 
 def _clean_events(ancestry: Ancestry):
@@ -51,6 +52,12 @@ def _place_is_anonymous(place: Place) -> bool:
         return False
 
     return True
+
+
+def _clean_people(ancestry: Ancestry) -> None:
+    for person in list(ancestry.people.values()):
+        if person.private and len(person.children) == 0:
+            del ancestry.people[person.id]
 
 
 class Cleaner(Plugin):
