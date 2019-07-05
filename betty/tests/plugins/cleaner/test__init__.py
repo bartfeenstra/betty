@@ -20,6 +20,8 @@ class CleanerTest(TestCase):
             parse(site)
             self.assertEquals({}, site.ancestry.events)
 
+
+class CleanTest(TestCase):
     def test_clean(self):
         ancestry = Ancestry()
 
@@ -40,7 +42,8 @@ class CleanerTest(TestCase):
         onmyous_place_because_encloses_onmyous_places = Place('P3', 'Netherlands')
         onmyous_place_because_encloses_onmyous_places.encloses.add(onymous_place)
         onmyous_place_because_encloses_onmyous_places.encloses.add(anonymous_place)
-        ancestry.places[onmyous_place_because_encloses_onmyous_places.id] = onmyous_place_because_encloses_onmyous_places
+        ancestry.places[
+            onmyous_place_because_encloses_onmyous_places.id] = onmyous_place_because_encloses_onmyous_places
 
         clean(ancestry)
 
@@ -53,3 +56,23 @@ class CleanerTest(TestCase):
         }, ancestry.places)
 
         self.assertNotIn(anonymous_place, onmyous_place_because_encloses_onmyous_places.encloses)
+
+    def test_clean_should_clean_private_people_without_descendants(self):
+        ancestry = Ancestry()
+
+        person = Person('P0')
+        person.private = False
+        ancestry.people[person.id] = person
+        child = Person('P1')
+        child.private = True
+        ancestry.people[child.id] = child
+        grandchild = Person('P2')
+        grandchild.private = True
+        ancestry.people[grandchild.id] = grandchild
+        great_grandchild = Person('P3')
+        great_grandchild.private = True
+        ancestry.people[great_grandchild.id] = great_grandchild
+
+        clean(ancestry)
+
+        self.assertEquals(1, len(ancestry.people))
