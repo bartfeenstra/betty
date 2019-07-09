@@ -1,5 +1,7 @@
 <div class="meta">
-    {%- if person.birth or person.death %}
+    {%- if person.private -%}
+        <p>This person's details are unavailable to protect their privacy.</p>
+    {%- elif person.birth or person.death %}
         <dl>
             {%- if person.birth %}
                 <dt>Birth</dt>
