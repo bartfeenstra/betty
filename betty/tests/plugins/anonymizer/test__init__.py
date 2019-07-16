@@ -4,7 +4,7 @@ from unittest import TestCase
 from betty.ancestry import Ancestry, Person, Event, File
 from betty.config import Configuration
 from betty.parse import parse
-from betty.plugins.anonymizer import Anonymizer, anonymize
+from betty.plugins.anonymizer import Anonymizer, anonymize, anonymize_person
 from betty.site import Site
 
 
@@ -96,6 +96,60 @@ class AnonymizeTest(AnonymizerTestCase):
         self.assertCountEqual([child], person.children)
         self.assertCountEqual([grandchild], child.children)
         self.assertCountEqual([great_grandchild], grandchild.children)
+
+
+class AnonymizePersonTest(AnonymizerTestCase):
+    def test_anonymize_person_should_anonymize_parents_if_private_without_public_descendants(self):
+        person = Person('P0')
+        person.private = True
+        child = Person('P1')
+        child.private = True
+        person.children.add(child)
+        parent = Person('P2')
+        parent.private = True
+        person.parents.add(parent)
+
+        anonymize_person(person)
+        self.assertCountEqual([], person.parents)
+
+    def test_anonymize_person_should_anonymize_parents_if_private_with_public_descendants(self):
+        person = Person('P0')
+        person.private = True
+        child = Person('P1')
+        child.private = False
+        person.children.add(child)
+        parent = Person('P2')
+        parent.private = True
+        person.parents.add(parent)
+
+        anonymize_person(person)
+        self.assertCountEqual([parent], person.parents)
+
+    def test_anonymize_person_should_anonymize_parents_if_public_without_public_descendants(self):
+        person = Person('P0')
+        person.private = False
+        child = Person('P1')
+        child.private = True
+        person.children.add(child)
+        parent = Person('P2')
+        parent.private = True
+        person.parents.add(parent)
+
+        anonymize_person(person)
+        self.assertCountEqual([parent], person.parents)
+
+    def test_anonymize_person_should_anonymize_parents_if_public_with_public_descendants(self):
+        person = Person('P0')
+        person.private = False
+        child = Person('P1')
+        child.private = False
+        person.children.add(child)
+        parent = Person('P2')
+        parent.private = True
+        person.parents.add(parent)
+
+        anonymize_person(person)
+        self.assertCountEqual([parent], person.parents)
 
 
 class AnonymizerTest(AnonymizerTestCase):
