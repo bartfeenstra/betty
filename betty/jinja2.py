@@ -70,7 +70,8 @@ class Jinja2Provider:
 
 
 def create_environment(site: Site):
-    template_directory_paths = list([join(path, 'templates') for path in site.resources.paths])
+    template_directory_paths = list(
+        [join(path, 'templates') for path in site.resources.paths])
     environment = Environment(
         loader=FileSystemLoader(template_directory_paths),
         autoescape=select_autoescape(['html'])
@@ -86,10 +87,13 @@ def create_environment(site: Site):
     environment.filters['paragraphs'] = _filter_paragraphs
     environment.filters['format_degrees'] = _filter_format_degrees
     environment.globals['references'] = _References()
-    environment.filters['url'] = lambda *args, **kwargs: _filter_url(site.configuration, *args, **kwargs)
-    environment.filters['file_url'] = lambda *args, **kwargs: _filter_file_url(site.configuration, *args, **kwargs)
+    environment.filters['url'] = lambda *args, **kwargs: _filter_url(
+        site.configuration, *args, **kwargs)
+    environment.filters['file_url'] = lambda *args, **kwargs: _filter_file_url(
+        site.configuration, *args, **kwargs)
     environment.filters['file'] = lambda *args: _filter_file(site, *args)
-    environment.filters['image'] = lambda *args, **kwargs: _filter_image(site, *args, **kwargs)
+    environment.filters['image'] = lambda *args, **kwargs: _filter_image(
+        site, *args, **kwargs)
     for plugin in site.plugins.values():
         if isinstance(plugin, Jinja2Provider):
             environment.filters.update(plugin.filters)
@@ -101,7 +105,8 @@ def render_tree(path: str, environment: Environment) -> None:
     for file_source_path in iterfiles(path):
         if file_source_path.endswith('.j2'):
             file_destination_path = file_source_path[:-3]
-            template = template_loader.load(environment, file_source_path, environment.globals)
+            template = template_loader.load(
+                environment, file_source_path, environment.globals)
             with open(file_destination_path, 'w') as f:
                 f.write(template.render())
             os.remove(file_source_path)
@@ -185,7 +190,8 @@ def _filter_url(configuration: Configuration, path: str, absolute=False):
 
 def _filter_file_url(configuration: Configuration, path: str, absolute=False):
     url = configuration.base_url if absolute else ''
-    path = (configuration.root_path.strip('/') + '/' + path.strip('/')).strip('/')
+    path = (configuration.root_path.strip(
+        '/') + '/' + path.strip('/')).strip('/')
     url += '/' + path
     return url
 
@@ -196,7 +202,8 @@ def _filter_file(site: Site, file: File) -> str:
 
     destination_name = '%s.%s' % (file.id, file.extension)
     destination_path = '/file/%s' % destination_name
-    output_destination_path = os.path.join(file_directory_path, destination_name)
+    output_destination_path = os.path.join(
+        file_directory_path, destination_name)
 
     if exists(output_destination_path):
         return destination_path
@@ -224,11 +231,14 @@ def _filter_image(site: Site, file: File, width: Optional[int] = None, height: O
         suffix = '%dx%d'
         convert = resizeimage.resize_cover
 
-    file_directory_path = os.path.join(site.configuration.output_directory_path, 'file')
+    file_directory_path = os.path.join(
+        site.configuration.output_directory_path, 'file')
     destination_name = '%s-%s.%s' % (file.id, suffix % size, file.extension)
     destination_path = '/file/%s' % destination_name
-    cache_directory_path = join(site.configuration.cache_directory_path, 'image')
-    cache_file_path = join(cache_directory_path, '%s-%s' % (hashfile(file.path), destination_name))
+    cache_directory_path = join(
+        site.configuration.cache_directory_path, 'image')
+    cache_file_path = join(cache_directory_path, '%s-%s' %
+                           (hashfile(file.path), destination_name))
     output_file_path = join(file_directory_path, destination_name)
 
     try:

@@ -29,7 +29,8 @@ class Js(Plugin, JsPackageProvider):
     def __init__(self, file_system: FileSystem, plugins: Dict, output_directory_path: str, cache_directory_path: str):
         betty_instance_id = hashlib.sha1(
             betty.__path__[0].encode()).hexdigest()
-        self._directory_path = join(cache_directory_path, 'js-%s' % betty_instance_id)
+        self._directory_path = join(
+            cache_directory_path, 'js-%s' % betty_instance_id)
         self._file_system = file_system
         self._plugins = plugins
         self._output_directory_path = output_directory_path
@@ -57,7 +58,8 @@ class Js(Plugin, JsPackageProvider):
             if isinstance(plugin, JsPackageProvider):
                 copytree(plugin.package_directory_path,
                          join(self.directory_path, plugin.name()))
-                render_tree(join(self.directory_path, plugin.name()), environment)
+                render_tree(join(self.directory_path,
+                                 plugin.name()), environment)
                 if not isinstance(plugin, self.__class__):
                     dependencies[plugin.name()] = 'file:%s' % join(
                         self.directory_path, plugin.name())
@@ -81,7 +83,8 @@ class Js(Plugin, JsPackageProvider):
                    cwd=join(self.directory_path, self.name()))
 
     def _webpack(self) -> None:
-        self._file_system.copy2(join('public/betty.css'), join(self.directory_path, self.name(), 'betty.css'))
+        self._file_system.copy2(
+            join('public/betty.css'), join(self.directory_path, self.name(), 'betty.css'))
 
         # Build the assets.
         check_call(['npm', 'run', 'webpack'], cwd=join(

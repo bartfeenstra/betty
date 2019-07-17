@@ -27,8 +27,10 @@ class IterfilesTest(TestCase):
 
 class HashfileTest(TestCase):
     def test_hashfile(self):
-        file_path = join(dirname(dirname(__file__)), 'resources/public/betty-512x512.png')
-        self.assertEquals('699fbf62d4e694646151cb78eef2e146', hashfile(file_path))
+        file_path = join(dirname(dirname(__file__)),
+                         'resources/public/betty-512x512.png')
+        self.assertEquals('699fbf62d4e694646151cb78eef2e146',
+                          hashfile(file_path))
 
 
 class FileSystemTest(TestCase):
