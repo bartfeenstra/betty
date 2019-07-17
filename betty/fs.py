@@ -57,7 +57,8 @@ class FileSystem:
     def copytree(self, source_path: str, destination_path: str) -> str:
         for fs_path in self._paths:
             for file_source_path in iterfiles(join(fs_path, source_path)):
-                file_destination_path = join(destination_path, relpath(file_source_path, join(fs_path, source_path)))
+                file_destination_path = join(destination_path, relpath(
+                    file_source_path, join(fs_path, source_path)))
                 if not exists(file_destination_path):
                     makedirs(dirname(file_destination_path))
                     copy2(file_source_path, file_destination_path)
