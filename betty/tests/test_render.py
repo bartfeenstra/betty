@@ -4,6 +4,7 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 import html5lib
+from rdflib import Graph
 
 from betty.ancestry import Person, Event, Place, Reference
 from betty.config import Configuration
@@ -72,6 +73,14 @@ class RenderTest(TestCase):
     def test_person(self):
         person = self.site.ancestry.people['PERSON1']
         self.assert_page('/person/%s' % person.id)
+        rdf = self._rdf(person)
+        print(list(rdf))
+
+    def _rdf(self, person: Person) -> Graph:
+        from pyRdfa import pyRdfa
+        abspath = join(self.site.configuration.output_directory_path,
+                       ('/person/%s' % person.id).lstrip('/'), 'index.html')
+        return pyRdfa().graph_from_source(abspath)
 
     def test_events(self):
         self.assert_page('/event/')

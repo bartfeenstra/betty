@@ -49,6 +49,7 @@ SETUP = {
             'html5lib ~= 1.0.1',
             'nose2 ~= 0.8',
             'parameterized ~= 0.6',
+            'pyrdfa3 ~= 3.5.3',
             'recommonmark ~= 0.4.0',
             'requests-mock ~= 1.6.0',
             'twine ~= 1.9.1',
