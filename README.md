@@ -64,15 +64,15 @@ Configuration files are written in JSON:
 	"title": "Betty's ancestry",
 	"resources": "./resources",
 	"plugins": {
+		"betty.plugins.anonymizer.Anonymizer": {},
+		"betty.plugins.cleaner.Cleaner": {},
 		"betty.plugins.gramps.Gramps": {
 			"file": "./gramps.gpkg"
 		},
 		"betty.plugins.maps.Maps": {},
-		"betty.plugins.wikipedia.Wikipedia": {},
+		"betty.plugins.nginx.Nginx": {},
 		"betty.plugins.privatizer.Privatizer": {},
-		"betty.plugins.anonymizer.Anonymizer": {},
-		"betty.plugins.cleaner.Cleaner": {}
-		"betty.plugins.nginx.Nginx": {}
+		"betty.plugins.wikipedia.Wikipedia": {}
 	}
 }
 ```
@@ -83,13 +83,14 @@ Configuration files are written in JSON:
 - `title` (optional); The site's title.
 - `resources` (optional); The path to a directory containing overrides for any of Betty's [resources](./betty/resources).
 - `plugins` (optional): The plugins to enable. Keys are plugin names, and values are objects containing each plugin's configuration.
-    - `betty.plugin.gramps.Gramps`: Parses a Gramps genealogy. Configuration:
-        - `file`: the path to the *Gramps XML* or *Gramps XML Package* file.
-    - `betty.plugin.wikipedia.Wikipedia`: Lets templates and other plugins retrieve complementary Wikipedia entries.
-    - `betty.plugin.privatizer.Privatizer`: Marks living people private. Configuration: `{}`.
     - `betty.plugin.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `{}`.
     - `betty.plugin.cleaner.Cleaner`: Removes data (events, media, etc.) that have no relation to any people. Configuration: `{}`.
+    - `betty.plugin.gramps.Gramps`: Parses a Gramps genealogy. Configuration:
+        - `file`: the path to the *Gramps XML* or *Gramps XML Package* file.
+    - `betty.plugin.maps.Maps`: Renders maps using [Leaflet](https://leafletjs.com/).
     - `betty.plugin.nginx.Nginx`: Creates an [nginx](https://nginx.org) configuration file in the output directory . Configuration: `{}`.
+    - `betty.plugin.privatizer.Privatizer`: Marks living people private. Configuration: `{}`.
+    - `betty.plugin.wikipedia.Wikipedia`: Lets templates and other plugins retrieve complementary Wikipedia entries.
 
 ### The Python API
 ```python
