@@ -37,6 +37,10 @@ class Configuration:
         return abspath(join(self._site_directory_path, self._output_directory_path))
 
     @property
+    def www_directory_path(self) -> str:
+        return join(self.output_directory_path, 'www')
+
+    @property
     def base_url(self):
         return self._base_url
 

@@ -10,11 +10,16 @@ from betty.logging import CliHandler
 
 class CliHandlerTest(TestCase):
     @parameterized.expand([
-        ('\033[91mSomething went wrong!\033[0m\n', 'Something went wrong!', CRITICAL),
-        ('\033[91mSomething went wrong!\033[0m\n', 'Something went wrong!', ERROR),
-        ('\033[93mSomething went wrong!\033[0m\n', 'Something went wrong!', WARNING),
-        ('\033[92mSomething went wrong!\033[0m\n', 'Something went wrong!', INFO),
-        ('\033[97mSomething went wrong!\033[0m\n', 'Something went wrong!', DEBUG),
+        ('\033[91mSomething went wrong!\033[0m\n',
+         'Something went wrong!', CRITICAL),
+        ('\033[91mSomething went wrong!\033[0m\n',
+         'Something went wrong!', ERROR),
+        ('\033[93mSomething went wrong!\033[0m\n',
+         'Something went wrong!', WARNING),
+        ('\033[92mSomething went wrong!\033[0m\n',
+         'Something went wrong!', INFO),
+        ('\033[97mSomething went wrong!\033[0m\n',
+         'Something went wrong!', DEBUG),
     ])
     @patch('sys.stderr', new_callable=io.StringIO)
     def test_log(self, expected: str, message: str, level: int, stderr: io.StringIO):

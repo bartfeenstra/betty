@@ -17,4 +17,4 @@ class PluginTest(TestCase):
     def test_subscribes_to(self):
         site = Mock(Site)
         plugin = Plugin.from_configuration_dict(site, {})
-        self.assertEquals(set(), plugin.subscribes_to())
+        self.assertEquals([], plugin.subscribes_to())

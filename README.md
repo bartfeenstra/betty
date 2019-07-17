@@ -12,7 +12,6 @@ Betty is a static site generator for [Gramps](https://gramps-project.org/) XML f
   - [The command line](#the-command-line)
   - [Configuration files](#configuration-files)
   - [The Python API](#the-python-api)
-  - [nginx configuration](#nginx-configuration)
 - [Development](#development)
 - [Contributions](#contributions-)
 
@@ -73,6 +72,7 @@ Configuration files are written in JSON:
 		"betty.plugins.privatizer.Privatizer": {},
 		"betty.plugins.anonymizer.Anonymizer": {},
 		"betty.plugins.cleaner.Cleaner": {}
+		"betty.plugins.nginx.Nginx": {}
 	}
 }
 ```
@@ -89,6 +89,7 @@ Configuration files are written in JSON:
     - `betty.plugin.privatizer.Privatizer`: Marks living people private. Configuration: `{}`.
     - `betty.plugin.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `{}`.
     - `betty.plugin.cleaner.Cleaner`: Removes data (events, media, etc.) that have no relation to any people. Configuration: `{}`.
+    - `betty.plugin.nginx.Nginx`: Creates an [nginx](https://nginx.org) configuration file in the output directory . Configuration: `{}`.
 
 ### The Python API
 ```python
@@ -104,40 +105,6 @@ site = Site(configuration)
 parse(site)
 render(site)
 
-```
-
-### Nginx configuration
-To serve the generated site with nginx, you can alter and use the following configuration:
-```
-server {
-	# The port to listen to.
-	listen 80;
-	# The publicly visible hostname.
-	server_name $publicHostname;
-	# The path to the local web root.
-	root $localWebRoot;
-	# The cache lifetime.
-	add_header Cache-Control: max-age=86400; 
-
-	# Handle HTTP error responses.
-	error_page 401 /.error/401.html;
-	error_page 403 /.error/403.html;
-	error_page 404 /.error/404.html;
-	location /.error {
-		internal;
-	}
-
-	# Redirect */index.html to their parent directories for clean URLs.
-	if ($request_uri ~ "^(.*)/index\.html$") {
-		return 301 $1;
-	}
-
-	# When directories are requested, serve their index.html contents.
-	location / {
-		index index.html;
-		try_files $uri $uri/ =404;
-	}
-}
 ```
 
 ## Development

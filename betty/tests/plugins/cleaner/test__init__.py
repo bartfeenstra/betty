@@ -39,9 +39,12 @@ class CleanTest(TestCase):
         anonymous_place = Place('P1', 'Almelo')
         ancestry.places[anonymous_place.id] = anonymous_place
 
-        onmyous_place_because_encloses_onmyous_places = Place('P3', 'Netherlands')
-        onmyous_place_because_encloses_onmyous_places.encloses.add(onymous_place)
-        onmyous_place_because_encloses_onmyous_places.encloses.add(anonymous_place)
+        onmyous_place_because_encloses_onmyous_places = Place(
+            'P3', 'Netherlands')
+        onmyous_place_because_encloses_onmyous_places.encloses.add(
+            onymous_place)
+        onmyous_place_because_encloses_onmyous_places.encloses.add(
+            anonymous_place)
         ancestry.places[
             onmyous_place_because_encloses_onmyous_places.id] = onmyous_place_because_encloses_onmyous_places
 
@@ -55,7 +58,8 @@ class CleanTest(TestCase):
             onmyous_place_because_encloses_onmyous_places.id: onmyous_place_because_encloses_onmyous_places,
         }, ancestry.places)
 
-        self.assertNotIn(anonymous_place, onmyous_place_because_encloses_onmyous_places.encloses)
+        self.assertNotIn(
+            anonymous_place, onmyous_place_because_encloses_onmyous_places.encloses)
 
     def test_clean_should_clean_private_people_without_descendants(self):
         ancestry = Ancestry()

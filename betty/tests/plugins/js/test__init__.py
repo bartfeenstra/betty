@@ -17,9 +17,9 @@ class JsTest(TestCase):
             configuration.plugins[Js] = {}
             site = Site(configuration)
             render(site)
-            with open(join(output_directory_path, 'betty.js')) as f:
+            with open(join(configuration.www_directory_path, 'betty.js')) as f:
                 betty_js = f.read()
             self.assertIn('betty.css', betty_js)
-            with open(join(output_directory_path, 'betty.css')) as f:
+            with open(join(configuration.www_directory_path, 'betty.css')) as f:
                 betty_css = f.read()
             self.assertGreater(len(betty_css), 0)

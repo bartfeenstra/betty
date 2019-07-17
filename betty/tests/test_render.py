@@ -40,7 +40,8 @@ class RenderTest(TestCase):
         cls.site.ancestry.people.update(
             {person.id: person for person in people})
         references = [reference1]
-        cls.site.ancestry.references.update({reference.id: reference for reference in references})
+        cls.site.ancestry.references.update(
+            {reference.id: reference for reference in references})
 
         render(cls.site)
 
@@ -49,7 +50,7 @@ class RenderTest(TestCase):
         cls._outputDirectory.cleanup()
 
     def assert_page(self, path: str):
-        abspath = join(self.site.configuration.output_directory_path,
+        abspath = join(self.site.configuration.www_directory_path,
                        path.lstrip('/'), 'index.html')
         self.assertTrue(exists(abspath), '%s does not exist' % abspath)
         with open(abspath) as f:
@@ -93,9 +94,10 @@ class RenderTest(TestCase):
                 makedirs(join(resources_directory_path, 'public'))
                 with open(join(resources_directory_path, 'public', 'index.html.j2'), 'w') as f:
                     f.write('{% block content %}Betty was here{% endblock %}')
-                configuration = Configuration(output_directory_path, 'https://ancestry.example.com')
+                configuration = Configuration(
+                    output_directory_path, 'https://ancestry.example.com')
                 configuration.resources_directory_path = resources_directory_path
                 site = Site(configuration)
                 render(site)
-                with open(join(output_directory_path, 'index.html')) as f:
+                with open(join(configuration.www_directory_path, 'index.html')) as f:
                     self.assertIn('Betty was here', f.read())

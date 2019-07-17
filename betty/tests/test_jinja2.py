@@ -14,12 +14,15 @@ class FlattenTest(TestCase):
     @parameterized.expand([
         ('', '{{ [] | flatten | join(", ") }}'),
         ('', '{{ [[], [], []] | flatten | join(", ") }}'),
-        ('kiwi, apple, banana', '{{ [["kiwi"], ["apple"], ["banana"]] | flatten | join(", ") }}'),
+        ('kiwi, apple, banana',
+         '{{ [["kiwi"], ["apple"], ["banana"]] | flatten | join(", ") }}'),
     ])
     def test(self, expected, template):
-        with TemporaryDirectory() as output_directory_path:
-            environment = create_environment(Site(Configuration(output_directory_path, 'https://example.com')))
-            self.assertEquals(expected, environment.from_string(template).render())
+        with TemporaryDirectory() as www_directory_path:
+            environment = create_environment(
+                Site(Configuration(www_directory_path, 'https://example.com')))
+            self.assertEquals(
+                expected, environment.from_string(template).render())
 
 
 class WalkData:
@@ -38,20 +41,25 @@ class WalkTest(TestCase):
          WalkData('parent', [WalkData('child1', [WalkData('child1child1')]), WalkData('child2')])),
     ])
     def test(self, expected, template, data):
-        with TemporaryDirectory() as output_directory_path:
-            environment = create_environment(Site(Configuration(output_directory_path, 'https://example.com')))
-            self.assertEquals(expected, environment.from_string(template).render(data=data))
+        with TemporaryDirectory() as www_directory_path:
+            environment = create_environment(
+                Site(Configuration(www_directory_path, 'https://example.com')))
+            self.assertEquals(expected, environment.from_string(
+                template).render(data=data))
 
 
 class ParagraphsTest(TestCase):
     @parameterized.expand([
         ('<p></p>', '{{ "" | paragraphs }}'),
-        ('<p>Apples <br>\n and <br>\n oranges</p>', '{{ "Apples \n and \n oranges" | paragraphs }}'),
+        ('<p>Apples <br>\n and <br>\n oranges</p>',
+         '{{ "Apples \n and \n oranges" | paragraphs }}'),
     ])
     def test(self, expected, template):
-        with TemporaryDirectory() as output_directory_path:
-            environment = create_environment(Site(Configuration(output_directory_path, 'https://example.com')))
-            self.assertEquals(expected, environment.from_string(template).render())
+        with TemporaryDirectory() as www_directory_path:
+            environment = create_environment(
+                Site(Configuration(www_directory_path, 'https://example.com')))
+            self.assertEquals(
+                expected, environment.from_string(template).render())
 
 
 class FormatDegreesTest(TestCase):
@@ -60,9 +68,11 @@ class FormatDegreesTest(TestCase):
         ('52° 22&#39; 1&#34;', '{{ 52.367 | format_degrees }}'),
     ])
     def test(self, expected, template):
-        with TemporaryDirectory() as output_directory_path:
-            environment = create_environment(Site(Configuration(output_directory_path, 'https://example.com')))
-            self.assertEquals(expected, environment.from_string(template).render())
+        with TemporaryDirectory() as www_directory_path:
+            environment = create_environment(
+                Site(Configuration(www_directory_path, 'https://example.com')))
+            self.assertEquals(
+                expected, environment.from_string(template).render())
 
 
 class MapData:
@@ -79,52 +89,69 @@ class MapTest(TestCase):
          {}),
     ])
     def test(self, expected, template, data):
-        with TemporaryDirectory() as output_directory_path:
-            environment = create_environment(Site(Configuration(output_directory_path, 'https://example.com')))
-            self.assertEquals(expected, environment.from_string(template).render(data=data))
+        with TemporaryDirectory() as www_directory_path:
+            environment = create_environment(
+                Site(Configuration(www_directory_path, 'https://example.com')))
+            self.assertEquals(expected, environment.from_string(
+                template).render(data=data))
 
 
 class TakewhileTest(TestCase):
     @parameterized.expand([
         ('', '{{ [] | takewhile("ne", None) | join(", ") }}'),
-        ('kiwi, apple', '{{ ["kiwi", "apple", None, "banana", None] | takewhile | join(", ") }}'),
-        ('kiwi, apple', '{{ ["kiwi", "apple", None, "banana", None] | takewhile("ne", None) | join(", ") }}'),
+        ('kiwi, apple',
+         '{{ ["kiwi", "apple", None, "banana", None] | takewhile | join(", ") }}'),
+        ('kiwi, apple',
+         '{{ ["kiwi", "apple", None, "banana", None] | takewhile("ne", None) | join(", ") }}'),
     ])
     def test(self, expected, template):
-        with TemporaryDirectory() as output_directory_path:
-            environment = create_environment(Site(Configuration(output_directory_path, 'https://example.com')))
-            self.assertEquals(expected, environment.from_string(template).render())
+        with TemporaryDirectory() as www_directory_path:
+            environment = create_environment(
+                Site(Configuration(www_directory_path, 'https://example.com')))
+            self.assertEquals(
+                expected, environment.from_string(template).render())
 
 
 class FileTest(TestCase):
     @parameterized.expand([
         ('/file/F1.py', '{{ file | file }}', File('F1', __file__)),
-        ('/file/F1.py:/file/F1.py', '{{ file | file }}:{{ file | file }}', File('F1', __file__)),
+        ('/file/F1.py:/file/F1.py',
+         '{{ file | file }}:{{ file | file }}', File('F1', __file__)),
     ])
     def test(self, expected, template, file):
         with TemporaryDirectory() as output_directory_path:
-            environment = create_environment(Site(Configuration(output_directory_path, 'https://example.com')))
+            configuration = Configuration(
+                output_directory_path, 'https://example.com')
+            environment = create_environment(Site(configuration))
             actual = environment.from_string(template).render(file=file)
             self.assertEquals(expected, actual)
             for file_path in actual.split(':'):
-                self.assertTrue(exists(join(output_directory_path, file_path[1:])))
+                self.assertTrue(
+                    exists(join(configuration.www_directory_path, file_path[1:])))
 
 
-image_path = join(dirname(dirname(__file__)), 'resources/public/betty-512x512.png')
+image_path = join(dirname(dirname(__file__)),
+                  'resources/public/betty-512x512.png')
 
 
 class ImageTest(TestCase):
     @parameterized.expand([
-        ('/file/F1-99x-.png', '{{ file | image(width=99) }}', File('F1', image_path)),
-        ('/file/F1--x99.png', '{{ file | image(height=99) }}', File('F1', image_path)),
-        ('/file/F1-99x99.png', '{{ file | image(width=99, height=99) }}', File('F1', image_path)),
+        ('/file/F1-99x-.png',
+         '{{ file | image(width=99) }}', File('F1', image_path)),
+        ('/file/F1--x99.png',
+         '{{ file | image(height=99) }}', File('F1', image_path)),
+        ('/file/F1-99x99.png',
+         '{{ file | image(width=99, height=99) }}', File('F1', image_path)),
         ('/file/F1-99x99.png:/file/F1-99x99.png',
          '{{ file | image(width=99, height=99) }}:{{ file | image(width=99, height=99) }}', File('F1', image_path)),
     ])
     def test(self, expected, template, file):
         with TemporaryDirectory() as output_directory_path:
-            environment = create_environment(Site(Configuration(output_directory_path, 'https://example.com')))
+            configuration = Configuration(
+                output_directory_path, 'https://example.com')
+            environment = create_environment(Site(configuration))
             actual = environment.from_string(template).render(file=file)
             self.assertEquals(expected, actual)
             for file_path in actual.split(':'):
-                self.assertTrue(exists(join(output_directory_path, file_path[1:])))
+                self.assertTrue(
+                    exists(join(configuration.www_directory_path, file_path[1:])))

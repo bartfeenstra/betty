@@ -13,9 +13,11 @@ class Site:
     def __init__(self, configuration: Configuration):
         self._ancestry = Ancestry()
         self._configuration = configuration
-        self._resources = FileSystem(join(dirname(abspath(__file__)), 'resources'))
+        self._resources = FileSystem(
+            join(dirname(abspath(__file__)), 'resources'))
         if configuration.resources_directory_path:
-            self._resources.paths.appendleft(configuration.resources_directory_path)
+            self._resources.paths.appendleft(
+                configuration.resources_directory_path)
         self._event_dispatcher = EventDispatcher()
         self._plugins = {}
         self._init_plugins()
@@ -53,7 +55,8 @@ class Site:
             for event_name, listener in plugin.subscribes_to():
                 self._event_dispatcher.add_listener(event_name, listener)
             if plugin.resource_directory_path is not None:
-                self._resources.paths.appendleft(plugin.resource_directory_path)
+                self._resources.paths.appendleft(
+                    plugin.resource_directory_path)
 
     @property
     def ancestry(self) -> Ancestry:
