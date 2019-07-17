@@ -50,7 +50,7 @@ class RenderTest(TestCase):
         cls._outputDirectory.cleanup()
 
     def assert_page(self, path: str):
-        abspath = join(self.site.configuration.output_directory_path,
+        abspath = join(self.site.configuration.www_directory_path,
                        path.lstrip('/'), 'index.html')
         self.assertTrue(exists(abspath), '%s does not exist' % abspath)
         with open(abspath) as f:
@@ -99,5 +99,5 @@ class RenderTest(TestCase):
                 configuration.resources_directory_path = resources_directory_path
                 site = Site(configuration)
                 render(site)
-                with open(join(output_directory_path, 'index.html')) as f:
+                with open(join(configuration.www_directory_path, 'index.html')) as f:
                     self.assertIn('Betty was here', f.read())

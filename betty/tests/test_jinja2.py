@@ -18,9 +18,9 @@ class FlattenTest(TestCase):
          '{{ [["kiwi"], ["apple"], ["banana"]] | flatten | join(", ") }}'),
     ])
     def test(self, expected, template):
-        with TemporaryDirectory() as output_directory_path:
+        with TemporaryDirectory() as www_directory_path:
             environment = create_environment(
-                Site(Configuration(output_directory_path, 'https://example.com')))
+                Site(Configuration(www_directory_path, 'https://example.com')))
             self.assertEquals(
                 expected, environment.from_string(template).render())
 
@@ -41,9 +41,9 @@ class WalkTest(TestCase):
          WalkData('parent', [WalkData('child1', [WalkData('child1child1')]), WalkData('child2')])),
     ])
     def test(self, expected, template, data):
-        with TemporaryDirectory() as output_directory_path:
+        with TemporaryDirectory() as www_directory_path:
             environment = create_environment(
-                Site(Configuration(output_directory_path, 'https://example.com')))
+                Site(Configuration(www_directory_path, 'https://example.com')))
             self.assertEquals(expected, environment.from_string(
                 template).render(data=data))
 
@@ -55,9 +55,9 @@ class ParagraphsTest(TestCase):
          '{{ "Apples \n and \n oranges" | paragraphs }}'),
     ])
     def test(self, expected, template):
-        with TemporaryDirectory() as output_directory_path:
+        with TemporaryDirectory() as www_directory_path:
             environment = create_environment(
-                Site(Configuration(output_directory_path, 'https://example.com')))
+                Site(Configuration(www_directory_path, 'https://example.com')))
             self.assertEquals(
                 expected, environment.from_string(template).render())
 
@@ -68,9 +68,9 @@ class FormatDegreesTest(TestCase):
         ('52° 22&#39; 1&#34;', '{{ 52.367 | format_degrees }}'),
     ])
     def test(self, expected, template):
-        with TemporaryDirectory() as output_directory_path:
+        with TemporaryDirectory() as www_directory_path:
             environment = create_environment(
-                Site(Configuration(output_directory_path, 'https://example.com')))
+                Site(Configuration(www_directory_path, 'https://example.com')))
             self.assertEquals(
                 expected, environment.from_string(template).render())
 
@@ -89,9 +89,9 @@ class MapTest(TestCase):
          {}),
     ])
     def test(self, expected, template, data):
-        with TemporaryDirectory() as output_directory_path:
+        with TemporaryDirectory() as www_directory_path:
             environment = create_environment(
-                Site(Configuration(output_directory_path, 'https://example.com')))
+                Site(Configuration(www_directory_path, 'https://example.com')))
             self.assertEquals(expected, environment.from_string(
                 template).render(data=data))
 
@@ -105,9 +105,9 @@ class TakewhileTest(TestCase):
          '{{ ["kiwi", "apple", None, "banana", None] | takewhile("ne", None) | join(", ") }}'),
     ])
     def test(self, expected, template):
-        with TemporaryDirectory() as output_directory_path:
+        with TemporaryDirectory() as www_directory_path:
             environment = create_environment(
-                Site(Configuration(output_directory_path, 'https://example.com')))
+                Site(Configuration(www_directory_path, 'https://example.com')))
             self.assertEquals(
                 expected, environment.from_string(template).render())
 
@@ -120,13 +120,14 @@ class FileTest(TestCase):
     ])
     def test(self, expected, template, file):
         with TemporaryDirectory() as output_directory_path:
-            environment = create_environment(
-                Site(Configuration(output_directory_path, 'https://example.com')))
+            configuration = Configuration(
+                output_directory_path, 'https://example.com')
+            environment = create_environment(Site(configuration))
             actual = environment.from_string(template).render(file=file)
             self.assertEquals(expected, actual)
             for file_path in actual.split(':'):
                 self.assertTrue(
-                    exists(join(output_directory_path, file_path[1:])))
+                    exists(join(configuration.www_directory_path, file_path[1:])))
 
 
 image_path = join(dirname(dirname(__file__)),
@@ -146,10 +147,11 @@ class ImageTest(TestCase):
     ])
     def test(self, expected, template, file):
         with TemporaryDirectory() as output_directory_path:
-            environment = create_environment(
-                Site(Configuration(output_directory_path, 'https://example.com')))
+            configuration = Configuration(
+                output_directory_path, 'https://example.com')
+            environment = create_environment(Site(configuration))
             actual = environment.from_string(template).render(file=file)
             self.assertEquals(expected, actual)
             for file_path in actual.split(':'):
                 self.assertTrue(
-                    exists(join(output_directory_path, file_path[1:])))
+                    exists(join(configuration.www_directory_path, file_path[1:])))

@@ -26,6 +26,9 @@ from betty.plugin import Plugin
 from betty.site import Site
 
 
+_root_loader = FileSystemLoader('/')
+
+
 class _Plugins:
     def __init__(self, plugins: Dict[Type, Plugin]):
         self._plugins = plugins
@@ -101,15 +104,18 @@ def create_environment(site: Site):
 
 
 def render_tree(path: str, environment: Environment) -> None:
-    template_loader = FileSystemLoader('/')
     for file_source_path in iterfiles(path):
         if file_source_path.endswith('.j2'):
-            file_destination_path = file_source_path[:-3]
-            template = template_loader.load(
-                environment, file_source_path, environment.globals)
-            with open(file_destination_path, 'w') as f:
-                f.write(template.render())
-            os.remove(file_source_path)
+            render_file(file_source_path, environment)
+
+
+def render_file(file_source_path: str, environment: Environment) -> None:
+    file_destination_path = file_source_path[:-3]
+    template = _root_loader.load(
+        environment, file_source_path, environment.globals)
+    with open(file_destination_path, 'w') as f:
+        f.write(template.render())
+    os.remove(file_source_path)
 
 
 def _filter_flatten(items):
@@ -198,7 +204,7 @@ def _filter_file_url(configuration: Configuration, path: str, absolute=False):
 
 def _filter_file(site: Site, file: File) -> str:
     file_directory_path = os.path.join(
-        site.configuration.output_directory_path, 'file')
+        site.configuration.www_directory_path, 'file')
 
     destination_name = '%s.%s' % (file.id, file.extension)
     destination_path = '/file/%s' % destination_name
@@ -232,7 +238,7 @@ def _filter_image(site: Site, file: File, width: Optional[int] = None, height: O
         convert = resizeimage.resize_cover
 
     file_directory_path = os.path.join(
-        site.configuration.output_directory_path, 'file')
+        site.configuration.www_directory_path, 'file')
     destination_name = '%s-%s.%s' % (file.id, suffix % size, file.extension)
     destination_path = '/file/%s' % destination_name
     cache_directory_path = join(

@@ -26,18 +26,18 @@ class JsEntryPointProvider:
 
 
 class Js(Plugin, JsPackageProvider):
-    def __init__(self, file_system: FileSystem, plugins: Dict, output_directory_path: str, cache_directory_path: str):
+    def __init__(self, file_system: FileSystem, plugins: Dict, www_directory_path: str, cache_directory_path: str):
         betty_instance_id = hashlib.sha1(
             betty.__path__[0].encode()).hexdigest()
         self._directory_path = join(
             cache_directory_path, 'js-%s' % betty_instance_id)
         self._file_system = file_system
         self._plugins = plugins
-        self._output_directory_path = output_directory_path
+        self._www_directory_path = www_directory_path
 
     @classmethod
     def from_configuration_dict(cls, site: Site, configuration: Dict):
-        return cls(site.resources, site.plugins, site.configuration.output_directory_path, site.configuration.cache_directory_path)
+        return cls(site.resources, site.plugins, site.configuration.www_directory_path, site.configuration.cache_directory_path)
 
     def subscribes_to(self):
         return [
@@ -93,14 +93,14 @@ class Js(Plugin, JsPackageProvider):
         # Move the Webpack output to the Betty output.
         try:
             copytree(join(self.directory_path, 'output', 'images'),
-                     join(self._output_directory_path, 'images'))
+                     join(self._www_directory_path, 'images'))
         except FileNotFoundError:
             # There may not be any images.
             pass
         copy2(join(self.directory_path, 'output', 'betty.css'),
-              join(self._output_directory_path, 'betty.css'))
+              join(self._www_directory_path, 'betty.css'))
         copy2(join(self.directory_path, 'output', 'betty.js'),
-              join(self._output_directory_path, 'betty.js'))
+              join(self._www_directory_path, 'betty.js'))
 
     @property
     def directory_path(self):

@@ -52,7 +52,9 @@ class FileSystem:
                 return copy2(join(fs_path, source_path), destination_path)
             except FileNotFoundError:
                 pass
-        raise FileNotFoundError
+        tried_paths = [join(fs_path, source_path) for fs_path in self._paths]
+        raise FileNotFoundError('Could not find any of %s.' %
+                                ', '.join(tried_paths))
 
     def copytree(self, source_path: str, destination_path: str) -> str:
         for fs_path in self._paths:
