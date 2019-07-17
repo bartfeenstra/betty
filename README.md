@@ -71,7 +71,7 @@ Configuration files are written in JSON:
 		"betty.plugins.wikipedia.Wikipedia": {},
 		"betty.plugins.privatizer.Privatizer": {},
 		"betty.plugins.anonymizer.Anonymizer": {},
-		"betty.plugins.cleaner.Cleaner": {}
+		"betty.plugins.cleaner.Cleaner": {},
 		"betty.plugins.nginx.Nginx": {}
 	}
 }
