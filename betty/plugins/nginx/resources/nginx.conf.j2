@@ -2,7 +2,8 @@ server {
 	# The port to listen to.
 	listen 80;
 	# The publicly visible hostname.
-	server_name {{ site.configuration.base_url }};
+    {%- set server_name_parts = site.configuration.base_url | urlparse %}
+	server_name {{ server_name_parts['netloc'] }};
 	# The path to the local web root.
 	root {{ site.configuration.www_directory_path }};
 	# The cache lifetime.
