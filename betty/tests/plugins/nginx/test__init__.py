@@ -22,7 +22,7 @@ class NginxTest(TestCase):
 	# The port to listen to.
 	listen 80;
 	# The publicly visible hostname.
-	server_name https://example.com;
+	server_name example.com;
 	# The path to the local web root.
 	root %s;
 	# The cache lifetime.
@@ -63,7 +63,7 @@ class NginxTest(TestCase):
 	# The port to listen to.
 	listen 80;
 	# The publicly visible hostname.
-	server_name https://example.com;
+	server_name example.com;
 	# The path to the local web root.
 	root %s;
 	# The cache lifetime.

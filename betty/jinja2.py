@@ -7,6 +7,7 @@ from json import dumps
 from os.path import join, exists
 from shutil import copy2
 from typing import Union, Any, Dict, Type, Optional
+from urllib.parse import urlparse
 
 from PIL import Image
 from geopy import units
@@ -97,6 +98,7 @@ def create_environment(site: Site):
     environment.filters['file'] = lambda *args: _filter_file(site, *args)
     environment.filters['image'] = lambda *args, **kwargs: _filter_image(
         site, *args, **kwargs)
+    environment.filters['urlparse'] = urlparse
     for plugin in site.plugins.values():
         if isinstance(plugin, Jinja2Provider):
             environment.filters.update(plugin.filters)
