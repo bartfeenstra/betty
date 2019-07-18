@@ -38,6 +38,10 @@ class NginxTest(TestCase):
 
 	# When directories are requested, serve their index.html contents.
 	location / {
+		if ($request_method = OPTIONS) {
+			add_header Allow "OPTIONS, GET";
+			return 200;
+		}
 		index index.html;
 		try_files $uri $uri/ =404;
 	}
@@ -80,6 +84,10 @@ class NginxTest(TestCase):
 
 	# When directories are requested, serve their index.html contents.
 	location / {
+		if ($request_method = OPTIONS) {
+			add_header Allow "OPTIONS, GET";
+			return 200;
+		}
 		index index.html;
 		try_files $uri $uri/ =404;
 	}
