@@ -17,10 +17,10 @@ class MapsTest(TestCase):
             configuration.plugins[Maps] = {}
             site = Site(configuration)
             render(site)
-            with open(join(output_directory_path, 'betty.js')) as f:
+            with open(join(configuration.www_directory_path, 'betty.js')) as f:
                 betty_js = f.read()
             self.assertIn('maps.js', betty_js)
             self.assertIn('maps.css', betty_js)
-            with open(join(output_directory_path, 'betty.css')) as f:
+            with open(join(configuration.www_directory_path, 'betty.css')) as f:
                 betty_css = f.read()
             self.assertIn('.map', betty_css)

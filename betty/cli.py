@@ -37,11 +37,14 @@ class GenerateCommand(Command):
 
 
 def build_betty_parser():
-    parser = argparse.ArgumentParser(description='Betty is a static ancestry site generator.', add_help=False)
+    parser = argparse.ArgumentParser(
+        description='Betty is a static ancestry site generator.', add_help=False)
     parser.add_argument('-c', '--configuration', dest='config_file_path', action='store',
                         help='The path to the configuration file. Defaults to betty.json in the current working directory.')
-    parser.add_argument('-h', '--help', action='store_true', default=False, help='Show this help message and exit.')
-    parser.add_argument('...', nargs=argparse.REMAINDER, help='The command to run, and any arguments it needs.')
+    parser.add_argument('-h', '--help', action='store_true',
+                        default=False, help='Show this help message and exit.')
+    parser.add_argument('...', nargs=argparse.REMAINDER,
+                        help='The command to run, and any arguments it needs.')
     return parser
 
 
@@ -71,7 +74,8 @@ def main(args=None):
     try:
         betty_parser = build_betty_parser()
         betty_parsed_args = vars(betty_parser.parse_args(args))
-        configuration = get_configuration(betty_parsed_args['config_file_path'])
+        configuration = get_configuration(
+            betty_parsed_args['config_file_path'])
         if configuration:
             if configuration.mode == 'development':
                 logger.setLevel(logging.DEBUG)
@@ -85,7 +89,8 @@ def main(args=None):
             if betty_parsed_args['help']:
                 commands_parser.print_help()
                 commands_parser.exit()
-            commands_parsed_args = vars(commands_parser.parse_args(betty_parsed_args['...']))
+            commands_parsed_args = vars(
+                commands_parser.parse_args(betty_parsed_args['...']))
             if '_betty_command_callback' not in commands_parsed_args:
                 commands_parser.print_usage()
                 commands_parser.exit(2)
