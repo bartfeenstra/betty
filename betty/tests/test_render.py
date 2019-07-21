@@ -75,13 +75,18 @@ class RenderTest(TestCase):
         person = self.site.ancestry.people['PERSON1']
         self.assert_page('/person/%s' % person.id)
         rdf = self._rdf(person)
-        print(list(rdf))
 
     def _rdf(self, person: Person) -> Graph:
         from pyRdfa import pyRdfa
-        abspath = join(self.site.configuration.output_directory_path,
+        filepath = join(self.site.configuration.www_directory_path,
                        ('/person/%s' % person.id).lstrip('/'), 'index.html')
-        return pyRdfa().graph_from_source(abspath)
+        abspath = filepath
+        with open (filepath) as f:
+            print(f.read())
+        graphtype = Graph
+        graph = pyRdfa().graph_from_source(abspath)
+        print(graph.serialize())
+        print(list(graph))
 
     def test_events(self):
         self.assert_page('/event/')

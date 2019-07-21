@@ -16,7 +16,7 @@
         <h2>Parents</h2>
         <ul>
             {% for parent in parents %}
-                <li typeof="foaf:Person" property="rel:childOf">{{ personMacros.label(parent) }}</li>
+                <li typeof="foaf:Person" property="rel:childOf" resource="{{ ('/person/' ~ parent.id) | url }}">{{ personMacros.label(parent) }}</li>
             {% endfor %}
         </ul>
     {% endif %}
@@ -26,7 +26,7 @@
         <h2>Children</h2>
         <ul>
             {% for child in children %}
-                <li typeof="foaf:Person" property="rel:parentOf">{{ personMacros.label(child) }}</li>
+                <li typeof="foaf:Person" property="rel:parentOf" resource="{{ ('/person/' ~ child.id) | url }}">{{ personMacros.label(child) }}</li>
             {% endfor %}
         </ul>
     {% endif %}
@@ -36,7 +36,7 @@
         <h2>Siblings</h2>
         <ul>
             {% for sibling in siblings %}
-                <li typeof="foaf:Person" property="rel:siblingOf">{{ personMacros.label(sibling) }}</li>
+                <li typeof="foaf:Person" property="rel:siblingOf" resource="{{ ('/person/' ~ sibling.id) | url }}">{{ personMacros.label(sibling) }}</li>
             {% endfor %}
         </ul>
     {% endif %}
