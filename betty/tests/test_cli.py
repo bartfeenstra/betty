@@ -20,7 +20,8 @@ class AssertExit:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self._test_case.assertIsInstance(exc_val, SystemExit, 'A system exit was expected, but it did not occur.')
+        self._test_case.assertIsInstance(
+            exc_val, SystemExit, 'A system exit was expected, but it did not occur.')
         self._test_case.assertEquals(self._expected_code, exc_val.code)
         return True
 

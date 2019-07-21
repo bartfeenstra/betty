@@ -21,12 +21,14 @@ class EntryTest(TestCase):
 
     def test_title(self):
         title = 'Amsterdam'
-        sut = Entry('https://en.wikipedia.org/wiki/UriForAmsterdam', title, 'Content for Amsterdam')
+        sut = Entry('https://en.wikipedia.org/wiki/UriForAmsterdam',
+                    title, 'Content for Amsterdam')
         self.assertEquals(title, sut.title)
 
     def test_content(self):
         content = 'Amsterdam'
-        sut = Entry('https://en.wikipedia.org/wiki/UriForAmsterdam', 'Title for Amsterdam', content)
+        sut = Entry('https://en.wikipedia.org/wiki/UriForAmsterdam',
+                    'Title for Amsterdam', content)
         self.assertEquals(content, sut.content)
 
 
@@ -139,5 +141,6 @@ class WikipediaTest(TestCase):
                 }
             }
             m.register_uri('GET', api_uri, json=api_response_body)
-            actual = environment.from_string('{% for entry in ([link] | wikipedia) %}{{ entry.content }}{% endfor %}').render(link=link)
+            actual = environment.from_string(
+                '{% for entry in ([link] | wikipedia) %}{{ entry.content }}{% endfor %}').render(link=link)
             self.assertEquals(extract, actual)

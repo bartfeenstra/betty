@@ -33,8 +33,10 @@ class _IntermediateAncestry:
             person.id: person for person in self.people.values()}
         ancestry.places = {place.id: place for place in self.places.values()}
         ancestry.events = {event.id: event for event in self.events.values()}
-        ancestry.sources = {source.id: source for source in self.sources.values()}
-        ancestry.citations = {citation.id: citation for citation in self.citations.values()}
+        ancestry.sources = {
+            source.id: source for source in self.sources.values()}
+        ancestry.citations = {
+            citation.id: citation for citation in self.citations.values()}
 
 
 class _IntermediatePlace:
@@ -70,7 +72,8 @@ def extract_xml_file(gramps_file_path: str, cache_directory_path: str) -> str:
     logger.info('Extracting %s...' % xml_file_path)
     with open(xml_file_path, 'wb') as xml_file:
         try:
-            tarfile.open(fileobj=ungzipped_outer_file).extractall(cache_directory_path)
+            tarfile.open(fileobj=ungzipped_outer_file).extractall(
+                cache_directory_path)
             gramps_file_path = join(cache_directory_path, 'data.gramps')
             xml_file.write(gzip.open(gramps_file_path).read())
         except tarfile.ReadError:
@@ -313,7 +316,8 @@ def _parse_repositories(ancestry: _IntermediateAncestry, database: Element) -> N
 def _parse_repository(ancestry: _IntermediateAncestry, element: Element) -> None:
     handle = _xpath1(element, './@handle')
 
-    source = Source(_xpath1(element, './@id'), _xpath1(element, './ns:rname').text)
+    source = Source(_xpath1(element, './@id'),
+                    _xpath1(element, './ns:rname').text)
 
     # Parse the URL.
     url_element = _xpath1(element, './ns:url')

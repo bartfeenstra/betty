@@ -9,20 +9,19 @@ from betty.plugins.privatizer import Privatizer
 
 def anonymize(ancestry: Ancestry) -> None:
     for person in ancestry.people.values():
-        anonymize_person(person)
+        if person.private:
+            anonymize_person(person)
 
 
 def anonymize_person(person: Person) -> None:
-    if not person.private:
-        return
-
     person.individual_name = None
     person.family_name = None
     for event in set(person.events):
         event.people.replace([])
     for file in set(person.files):
         file.entities.replace([])
-    if not _has_public_descendants(person):
+    # If a person is public themselves, or a node connecting other public persons, preserve their place in the graph.
+    if person.private and not _has_public_descendants(person):
         person.parents = set()
 
 

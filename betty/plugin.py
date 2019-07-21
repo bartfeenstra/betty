@@ -24,8 +24,8 @@ class Plugin:
     def comes_before(cls) -> Set[Type]:
         return set()
 
-    def subscribes_to(self) -> List[Tuple[str, Callable]]:
-        return set()
+    def subscribes_to(self) -> List[Tuple[Type, Callable]]:
+        return []
 
     @property
     def resource_directory_path(self) -> Optional[str]:

@@ -1,5 +1,6 @@
 from json import dumps
 from os import getcwd
+from os.path import join
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict
 from unittest import TestCase
@@ -31,7 +32,14 @@ class ConfigurationTest(TestCase):
         sut = Configuration(output_directory_path, 'https://example.com')
         site_directory_path = '/tmp/betty-working-directory'
         sut.site_directory_path = site_directory_path
-        self.assertEquals('/tmp/betty-working-directory/betty', sut.output_directory_path)
+        self.assertEquals('/tmp/betty-working-directory/betty',
+                          sut.output_directory_path)
+
+    def test_www_directory_path_with_absolute_path(self):
+        output_directory_path = '/tmp/betty'
+        sut = Configuration(output_directory_path, 'https://example.com')
+        expected = join(output_directory_path, 'www')
+        self.assertEquals(expected, sut.www_directory_path)
 
     def test_resources_directory_path_without_path(self):
         sut = Configuration('/tmp/betty', 'https://example.com')
@@ -41,7 +49,8 @@ class ConfigurationTest(TestCase):
         sut = Configuration('/tmp/betty', 'https://example.com')
         resources_directory_path = '/tmp/betty-resources'
         sut.resources_directory_path = resources_directory_path
-        self.assertEquals(resources_directory_path, sut.resources_directory_path)
+        self.assertEquals(resources_directory_path,
+                          sut.resources_directory_path)
 
     def test_resources_directory_path_with_relative_path(self):
         sut = Configuration('/tmp/betty', 'https://example.com')
@@ -49,7 +58,8 @@ class ConfigurationTest(TestCase):
         sut.site_directory_path = site_directory_path
         resources_directory_path = './betty-resources'
         sut.resources_directory_path = resources_directory_path
-        self.assertEquals('/tmp/betty-working-directory/betty-resources', sut.resources_directory_path)
+        self.assertEquals(
+            '/tmp/betty-working-directory/betty-resources', sut.resources_directory_path)
 
     def test_root_path(self):
         sut = Configuration('/tmp/betty', 'https://example.com')
@@ -84,7 +94,8 @@ class FromTest(TestCase):
             configuration = from_file(f)
         self.assertEquals(
             self._MINIMAL_CONFIG_DICT['output'], configuration.output_directory_path)
-        self.assertEquals(self._MINIMAL_CONFIG_DICT['base_url'], configuration.base_url)
+        self.assertEquals(
+            self._MINIMAL_CONFIG_DICT['base_url'], configuration.base_url)
         self.assertEquals('Betty', configuration.title)
         self.assertEquals('production', configuration.mode)
         self.assertEquals('/', configuration.root_path)
@@ -131,7 +142,8 @@ class FromTest(TestCase):
         config_dict['resources'] = resources_directory_path
         with self._write(config_dict) as f:
             configuration = from_file(f)
-            self.assertEquals(resources_directory_path, configuration.resources_directory_path)
+            self.assertEquals(resources_directory_path,
+                              configuration.resources_directory_path)
 
     def test_from_file_should_parse_one_plugin_with_configuration(self):
         config_dict = dict(**self._MINIMAL_CONFIG_DICT)
