@@ -4,9 +4,14 @@
     {%- if containing_references | length > 0 %} ({{ containing_references | map(_link) | join(', ') }}){%- endif -%}
 {%- endmacro -%}
 
-{% macro use(reference) -%}
-    {% set referenceNumber = references.use(reference) %}
-    <a href="#reference-footnote-{{ referenceNumber }}" class="reference-usage">[{{ referenceNumber }}]</a>
+{% macro use(references) -%}
+    {% set numberedReferences = [] %}
+    {% for reference in references %}
+        {% set numberedReferences = [(references.use(reference), reference)] + numberedReferences %}
+    {% endfor %}
+    {% for number, reference in numberedReferences | sort(attribute=0) %}
+        <a href="#reference-footnote-{{ referenceNumber }}" class="reference-usage">[{{ referenceNumber }}]</a>
+    {% endfor %}
 {%- endmacro -%}
 
 {% macro _link(reference) -%}
