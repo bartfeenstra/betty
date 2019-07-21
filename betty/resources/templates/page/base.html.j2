@@ -1,5 +1,5 @@
-{{- references.track() or '' -}}
-{%- import 'macro/reference.html.j2' as referenceMacros -%}
+{{- citations.track() or '' -}}
+{%- import 'macro/citation.html.j2' as citationMacros -%}
 <!doctype html>
 <html lang="en"
       prefix="foaf: http://xmlns.com/foaf/0.1/ og: http://ogp.me/ns# rel: http://purl.org/vocab/relationship/">
@@ -35,18 +35,18 @@
         <li><a href="{{ '/event' | url }}">Events</a></li>
         <li><a href="{{ '/place' | url }}">Places</a></li>
         <li><a href="{{ '/file' | url }}">Media</a></li>
-        <li><a href="{{ '/reference' | url }}">References</a></li>
+        <li><a href="{{ '/source' | url }}">Sources</a></li>
     </ul>
 </nav>
 <div id="content">
     <h1>{{ title }}</h1>
     {%- block content -%}{%- endblock -%}
-    {% if references | length > 0 %}
-        <section class="reference-footnotes">
+    {% if citations | length > 0 %}
+        <section class="references">
             <h2>References</h2>
             <ol>
-            {% for number, reference in references %}
-                <li id="reference-footnote-{{ number }}">{{ referenceMacros.label(reference) }}</li>
+            {% for number, citation in citations %}
+                <li id="reference-{{ number }}">{{ citationMacros.referenceLabel(citation) }}</li>
             {% endfor %}
             </ol>
         </section>

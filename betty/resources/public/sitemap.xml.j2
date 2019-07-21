@@ -20,9 +20,9 @@
             <loc>{{ ('/file/' ~ id) | url(absolute=true) }}</loc>
         </url>
     {% endfor %}
-    {% for id in site.ancestry.references %}
+    {% for id in site.ancestry.sources %}
         <url>
-            <loc>{{ ('/reference/' ~ id) | url(absolute=true) }}</loc>
+            <loc>{{ ('/source/' ~ id) | url(absolute=true) }}</loc>
         </url>
     {% endfor %}
 </urlset>

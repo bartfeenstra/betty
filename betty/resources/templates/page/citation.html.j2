@@ -1,0 +1,10 @@
+{% extends 'page/base.html.j2' %}
+{% set title = citation.description %}
+{% block content %}
+    {% include 'citation-meta.html.j2' %}
+    {% set files = citation.files %}
+    {% if files | length > 0 %}
+        <h2>Media</h2>
+        {% include 'list-file.html.j2' %}
+    {% endif %}
+{% endblock %}

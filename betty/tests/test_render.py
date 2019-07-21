@@ -5,7 +5,7 @@ from unittest import TestCase
 
 import html5lib
 
-from betty.ancestry import Person, Event, Place, Reference
+from betty.ancestry import Person, Event, Place, Source
 from betty.config import Configuration
 from betty.render import render
 from betty.site import Site
@@ -30,7 +30,7 @@ class RenderTest(TestCase):
         person1 = Person('PERSON1', 'Janet', 'Dough')
         person1.events.add(event1)
 
-        reference1 = Reference('REFERENCE1', 'A Little Birdie')
+        source1 = Source('SOURCE1', 'A Little Birdie')
 
         places = [place1]
         cls.site.ancestry.places.update({place.id: place for place in places})
@@ -39,9 +39,9 @@ class RenderTest(TestCase):
         people = [person1]
         cls.site.ancestry.people.update(
             {person.id: person for person in people})
-        references = [reference1]
-        cls.site.ancestry.references.update(
-            {reference.id: reference for reference in references})
+        sources = [source1]
+        cls.site.ancestry.sources.update(
+            {source.id: source for source in sources})
 
         render(cls.site)
 
@@ -81,12 +81,12 @@ class RenderTest(TestCase):
         event = self.site.ancestry.events['EVENT1']
         self.assert_page('/event/%s' % event.id)
 
-    def test_references(self):
-        self.assert_page('/reference/')
+    def test_sources(self):
+        self.assert_page('/source/')
 
-    def test_reference(self):
-        reference = self.site.ancestry.references['REFERENCE1']
-        self.assert_page('/reference/%s' % reference.id)
+    def test_source(self):
+        source = self.site.ancestry.sources['SOURCE1']
+        self.assert_page('/source/%s' % source.id)
 
     def test_resource_override(self):
         with TemporaryDirectory() as output_directory_path:

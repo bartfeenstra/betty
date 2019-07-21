@@ -2,7 +2,7 @@ import logging
 import os
 from typing import Iterable, Any
 
-from jinja2 import Environment
+from jinja2 import Environment, TemplateNotFound
 
 from betty.event import Event
 from betty.fs import makedirs
@@ -36,8 +36,11 @@ def render(site: Site) -> None:
                         site.ancestry.events.values(), 'event')
     logger.info('Rendered %d events.' % len(site.ancestry.events))
     _render_entity_type(site, environment,
-                        site.ancestry.references.values(), 'reference')
-    logger.info('Rendered %d references.' % len(site.ancestry.references))
+                        site.ancestry.citations.values(), 'citation')
+    logger.info('Rendered %d citations.' % len(site.ancestry.citations))
+    _render_entity_type(site, environment,
+                        site.ancestry.sources.values(), 'source')
+    logger.info('Rendered %d sources.' % len(site.ancestry.sources))
     site.event_dispatcher.dispatch(PostRenderEvent(environment))
 
 
@@ -59,11 +62,16 @@ def _render_entity_type(site: Site, environment: Environment, entities: Iterable
                         entity_type_name: str) -> None:
     entity_type_path = os.path.join(
         site.configuration.www_directory_path, entity_type_name)
-    with _create_html_file(entity_type_path) as f:
-        f.write(environment.get_template('page/list-%s.html.j2' % entity_type_name).render({
-            'entity_type_name': entity_type_name,
-            'entities': entities,
-        }))
+    try:
+        template = environment.get_template(
+            'page/list-%s.html.j2' % entity_type_name)
+        with _create_html_file(entity_type_path) as f:
+            f.write(template.render({
+                'entity_type_name': entity_type_name,
+                'entities': entities,
+            }))
+    except TemplateNotFound:
+        pass
     for entity in entities:
         _render_entity(site, environment, entity, entity_type_name)
 
