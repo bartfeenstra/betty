@@ -298,7 +298,6 @@ def _parse_event(ancestry: _IntermediateAncestry, element: Element):
     citation_handles = _xpath(element, './ns:citationref/@hlink')
     for citation_handle in citation_handles:
         event.citations.add(ancestry.citations[citation_handle])
-
     ancestry.events[handle] = event
 
 

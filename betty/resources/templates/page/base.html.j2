@@ -1,4 +1,4 @@
-{{- citations.track() or '' -}}
+{{- citer.track() or '' -}}
 {%- import 'macro/citation.html.j2' as citationMacros -%}
 <!doctype html>
 <html lang="en"
@@ -41,11 +41,11 @@
 <div id="content">
     <h1>{{ title }}</h1>
     {%- block content -%}{%- endblock -%}
-    {% if citations | length > 0 %}
+    {% if citer | length > 0 %}
         <section class="references">
             <h2>References</h2>
             <ol>
-            {% for number, citation in citations %}
+            {% for number, citation in citer %}
                 <li id="reference-{{ number }}">{{ citationMacros.referenceLabel(citation) }}</li>
             {% endfor %}
             </ol>

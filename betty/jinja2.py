@@ -45,7 +45,7 @@ class _Plugins:
         return getattr(import_module(plugin_module_name), plugin_class_name)
 
 
-class _Citations:
+class _Citer:
     def __init__(self):
         self._citations = []
 
@@ -90,7 +90,7 @@ def create_environment(site: Site):
     environment.filters['json'] = _filter_json
     environment.filters['paragraphs'] = _filter_paragraphs
     environment.filters['format_degrees'] = _filter_format_degrees
-    environment.globals['citations'] = _Citations()
+    environment.globals['citer'] = _Citer()
     environment.filters['url'] = lambda *args, **kwargs: _filter_url(
         site.configuration, *args, **kwargs)
     environment.filters['file_url'] = lambda *args, **kwargs: _filter_file_url(

@@ -2,6 +2,4 @@
 {%- import 'macro/place.html.j2' as placeMacros -%}
 {%- import 'macro/citation.html.j2' as citationMacros -%}
 {% if event.date %}{{ dateMacros.format(event.date) }}{%- endif %} {% if event.place and event.place != place_context %}in {{ placeMacros.label(event.place, place_context) }}{% endif -%}
-{% for citation in event.citations %}
-    {{ citationMacros.cite(citation) }}
-{% endfor %}
+{{ citationMacros.cite(event.citations) }}
