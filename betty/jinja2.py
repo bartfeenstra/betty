@@ -18,7 +18,7 @@ from jinja2.runtime import Macro
 from markupsafe import Markup
 from resizeimage import resizeimage
 
-from betty.ancestry import Reference, File
+from betty.ancestry import File, Citation
 from betty.config import Configuration
 from betty.fs import iterfiles, makedirs, hashfile
 from betty.functools import walk
@@ -45,26 +45,26 @@ class _Plugins:
         return getattr(import_module(plugin_module_name), plugin_class_name)
 
 
-class _References:
+class _Citer:
     def __init__(self):
-        self._references = []
+        self._citations = []
 
     def __iter__(self):
-        return enumerate(self._references, 1)
+        return enumerate(self._citations, 1)
 
     def __len__(self):
-        return len(self._references)
+        return len(self._citations)
 
-    def use(self, reference: Reference) -> int:
-        if reference not in self._references:
-            self._references.append(reference)
-        return self._references.index(reference) + 1
+    def cite(self, citation: Citation) -> int:
+        if citation not in self._citations:
+            self._citations.append(citation)
+        return self._citations.index(citation) + 1
 
     def track(self):
         self.clear()
 
     def clear(self):
-        self._references = []
+        self._citations = []
 
 
 class Jinja2Provider:
@@ -90,7 +90,7 @@ def create_environment(site: Site):
     environment.filters['json'] = _filter_json
     environment.filters['paragraphs'] = _filter_paragraphs
     environment.filters['format_degrees'] = _filter_format_degrees
-    environment.globals['references'] = _References()
+    environment.globals['citer'] = _Citer()
     environment.filters['url'] = lambda *args, **kwargs: _filter_url(
         site.configuration, *args, **kwargs)
     environment.filters['file_url'] = lambda *args, **kwargs: _filter_file_url(

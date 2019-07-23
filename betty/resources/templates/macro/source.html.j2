@@ -1,0 +1,3 @@
+{% macro link(source) -%}
+    <a href="{{ ('/source/' ~ source.id) | url }}">{{ source.name }}</a>
+{%- endmacro -%}

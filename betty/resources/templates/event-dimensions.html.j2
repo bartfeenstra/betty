@@ -1,5 +1,5 @@
 {%- import 'macro/date.html.j2' as dateMacros -%}
 {%- import 'macro/place.html.j2' as placeMacros -%}
-{%- import 'macro/reference.html.j2' as referenceMacros -%}
+{%- import 'macro/citation.html.j2' as citationMacros -%}
 {% if event.date %}{{ dateMacros.format(event.date) }}{%- endif %} {% if event.place and event.place != place_context %}in {{ placeMacros.label(event.place, place_context) }}{% endif -%}
-{{ referenceMacros.use(event.references) }}
+{{ citationMacros.cite(event.citations) }}
