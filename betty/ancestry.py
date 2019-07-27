@@ -12,6 +12,10 @@ class EventHandlingSet:
         self._addition_handler = addition_handler
         self._removal_handler = removal_handler
 
+    @property
+    def values(self) -> Set:
+        return self._values
+
     def add(self, *values):
         for value in values:
             self._add_one(value)

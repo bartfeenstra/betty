@@ -24,11 +24,19 @@
     {% set children = person.children | list %}
     {% if children | length > 0 %}
         <h2>Children</h2>
-        <ul>
-            {% for child in children %}
-                <li typeof="foaf:Person" property="rel:parentOf">{{ personMacros.label(child) }}</li>
-            {% endfor %}
-        </ul>
+        {% for siblings in children | groupby('parents.values') %}
+            <p>
+                {% set otherParents = (siblings.grouper - set([person])) %}
+                {% if otherParents | length > 0 %}
+                    with {{ otherParents | map(otherParentLabel) | join(', ') }}:
+                {% endif %}
+            <ul>
+                {% for child in siblings.list %}
+                    <li typeof="foaf:Person" property="rel:parentOf">{{ personMacros.label(child) }}</li>
+                {% endfor %}
+            </ul>
+            </p>
+        {% endfor %}
     {% endif %}
 
     {% set siblings = person.siblings | list %}
@@ -54,3 +62,7 @@
         {% include 'list-file.html.j2' %}
     {% endif %}
 {% endblock %}
+
+{% macro otherParentLabel(person) -%}
+    <span typeof="foaf:Person" property="rel:spouseOf">{{ personMacros.label(person) }}</span>
+{%- endmacro %}
