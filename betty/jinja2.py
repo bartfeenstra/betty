@@ -82,6 +82,8 @@ def create_environment(site: Site):
     )
     environment.globals['site'] = site
     environment.globals['plugins'] = _Plugins(site.plugins)
+    environment.globals['set'] = set
+    environment.globals['urlparse'] = urlparse
     environment.globals['calendar'] = calendar
     environment.filters['map'] = _filter_map
     environment.filters['flatten'] = _filter_flatten
@@ -98,7 +100,6 @@ def create_environment(site: Site):
     environment.filters['file'] = lambda *args: _filter_file(site, *args)
     environment.filters['image'] = lambda *args, **kwargs: _filter_image(
         site, *args, **kwargs)
-    environment.filters['urlparse'] = urlparse
     for plugin in site.plugins.values():
         if isinstance(plugin, Jinja2Provider):
             environment.filters.update(plugin.filters)
