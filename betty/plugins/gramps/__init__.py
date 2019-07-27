@@ -104,16 +104,14 @@ def parse_xml_file(ancestry: Ancestry, file_path) -> None:
     intermediate_ancestry.populate(ancestry)
 
 
-_DATE_PATTERN = re.compile(r'.{4}-.{2}-.{2}')
-_DATE_PART_PATTERN = re.compile(r'\d+')
+_DATE_PATTERN = re.compile(r'^.{4}((-.{2})?-.{2})?$')
+_DATE_PART_PATTERN = re.compile(r'^\d+$')
 
 
 def _parse_date(element: Element) -> Optional[Date]:
     dateval = str(_xpath1(element, './ns:dateval/@val'))
     if _DATE_PATTERN.fullmatch(dateval):
-        dateval_parts = dateval.split('-')
-        date_parts = [int(val) if _DATE_PART_PATTERN.fullmatch(val) else None for val in dateval_parts] + \
-                     [None] * (3 - len(dateval_parts))
+        date_parts = [int(part) if _DATE_PART_PATTERN.fullmatch(part) else None for part in dateval.split('-')]
         return Date(*date_parts)
     return None
 
