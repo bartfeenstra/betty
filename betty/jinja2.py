@@ -82,6 +82,7 @@ def create_environment(site: Site):
     )
     environment.globals['site'] = site
     environment.globals['plugins'] = _Plugins(site.plugins)
+    environment.globals['set'] = set
     environment.globals['urlparse'] = urlparse
     environment.globals['calendar'] = calendar
     environment.filters['map'] = _filter_map
