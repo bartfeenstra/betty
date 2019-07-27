@@ -1,44 +1,14 @@
-import os
-from os.path import join
+from os import makedirs
+from os.path import join, exists
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 import html5lib
 
-from betty.ancestry import Ancestry, Person, Event, Place
+from betty.ancestry import Person, Event, Place, Source
 from betty.config import Configuration
-from betty.render import render, _render_walk, _render_flatten
+from betty.render import render
 from betty.site import Site
-
-
-class RenderFlattenTest(TestCase):
-    def test_without_items(self):
-        self.assertCountEqual([], _render_flatten([]))
-
-    def test_with_empty_items(self):
-        self.assertCountEqual([], _render_flatten([[], [], []]))
-
-    def test_with_non_empty_items(self):
-        self.assertCountEqual(['apple', 'banana', 'kiwi'], _render_flatten(
-            [['kiwi'], ['apple'], ['banana']]))
-
-
-class RenderWalkTest(TestCase):
-    class Data:
-        def __init__(self, children=None):
-            self.children = children or []
-
-    def test_without_children(self):
-        data = self.Data()
-        self.assertCountEqual([], _render_walk(data, 'children'))
-
-    def test_with_children(self):
-        child1child1 = self.Data()
-        child1 = self.Data([child1child1])
-        child2 = self.Data()
-        data = self.Data([child1, child2])
-        expected = [child1, child2, child1child1]
-        self.assertCountEqual(expected, _render_walk(data, 'children'))
 
 
 class RenderTest(TestCase):
@@ -47,7 +17,10 @@ class RenderTest(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        ancestry = Ancestry()
+        cls._outputDirectory = TemporaryDirectory()
+        configuration = Configuration(
+            cls._outputDirectory.name, 'https://ancestry.example.com')
+        cls.site = Site(configuration)
 
         place1 = Place('PLACE1', 'one')
 
@@ -57,17 +30,19 @@ class RenderTest(TestCase):
         person1 = Person('PERSON1', 'Janet', 'Dough')
         person1.events.add(event1)
 
-        places = [place1]
-        ancestry.places.update({place.id: place for place in places})
-        events = [event1]
-        ancestry.events.update({event.id: event for event in events})
-        people = [person1]
-        ancestry.people.update({person.id: person for person in people})
+        source1 = Source('SOURCE1', 'A Little Birdie')
 
-        cls._outputDirectory = TemporaryDirectory()
-        configuration = Configuration(
-            None, cls._outputDirectory.name, 'https://ancestry.example.com')
-        cls.site = Site(ancestry, configuration)
+        places = [place1]
+        cls.site.ancestry.places.update({place.id: place for place in places})
+        events = [event1]
+        cls.site.ancestry.events.update({event.id: event for event in events})
+        people = [person1]
+        cls.site.ancestry.people.update(
+            {person.id: person for person in people})
+        sources = [source1]
+        cls.site.ancestry.sources.update(
+            {source.id: source for source in sources})
+
         render(cls.site)
 
     @classmethod
@@ -75,9 +50,9 @@ class RenderTest(TestCase):
         cls._outputDirectory.cleanup()
 
     def assert_page(self, path: str):
-        abspath = join(self.site.configuration.output_directory_path,
+        abspath = join(self.site.configuration.www_directory_path,
                        path.lstrip('/'), 'index.html')
-        self.assertTrue(os.path.exists(abspath), '%s does not exist' % abspath)
+        self.assertTrue(exists(abspath), '%s does not exist' % abspath)
         with open(abspath) as f:
             parser = html5lib.HTMLParser(strict=True)
             parser.parse(f)
@@ -105,3 +80,24 @@ class RenderTest(TestCase):
     def test_event(self):
         event = self.site.ancestry.events['EVENT1']
         self.assert_page('/event/%s' % event.id)
+
+    def test_sources(self):
+        self.assert_page('/source/')
+
+    def test_source(self):
+        source = self.site.ancestry.sources['SOURCE1']
+        self.assert_page('/source/%s' % source.id)
+
+    def test_resource_override(self):
+        with TemporaryDirectory() as output_directory_path:
+            with TemporaryDirectory() as resources_directory_path:
+                makedirs(join(resources_directory_path, 'public'))
+                with open(join(resources_directory_path, 'public', 'index.html.j2'), 'w') as f:
+                    f.write('{% block content %}Betty was here{% endblock %}')
+                configuration = Configuration(
+                    output_directory_path, 'https://ancestry.example.com')
+                configuration.resources_directory_path = resources_directory_path
+                site = Site(configuration)
+                render(site)
+                with open(join(configuration.www_directory_path, 'index.html')) as f:
+                    self.assertIn('Betty was here', f.read())

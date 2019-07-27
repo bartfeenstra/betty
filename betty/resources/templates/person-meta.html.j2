@@ -1,22 +1,24 @@
 <div class="meta">
-    {% if person.birth or person.death %}
+    {%- if person.private -%}
+        <p>This person's details are unavailable to protect their privacy.</p>
+    {%- elif person.birth or person.death %}
         <dl>
-            {% if person.birth %}
+            {%- if person.birth %}
                 <dt>Birth</dt>
                 <dd>
-                    {% with event=person.birth %}
+                    {%- with event=person.birth -%}
                         {% include 'event-dimensions.html.j2' %}
-                    {% endwith %}
+                    {%- endwith -%}
                 </dd>
-            {% endif %}
-            {% if person.death %}
+            {%- endif %}
+            {%- if person.death %}
                 <dt>Death</dt>
                 <dd>
-                    {% with event=person.death %}
+                    {%- with event=person.death -%}
                         {% include 'event-dimensions.html.j2' %}
-                    {% endwith %}
+                    {%- endwith -%}
                 </dd>
-            {% endif %}
+            {%- endif %}
         </dl>
-    {% endif %}
+    {%- endif %}
 </div>

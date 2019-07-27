@@ -1,19 +1,22 @@
-{% macro label(event, person_context=None) %}
-    {% import 'macro/person.html.j2' as personMacros %}
-    <a href="/event/{{ event.id }}">{{ type_label(event) }}</a>
-    {% set people = event.people | reject('equalto', person_context) | list %}
-    {% if people | length > 0 %}
-        {% if person_context %}with{% else %}of{% endif %}
+{%- macro label(event, person_context=None) -%}
+    {%- import 'macro/person.html.j2' as personMacros -%}
+    <a href="{{ ('/event/' ~ event.id) | url }}">{{ type_label(event) }}</a>
+    {%- set people = event.people | reject('equalto', person_context) | list -%}
+    {%- if people | length > 0 -%}
+        {%- if person_context %} with {% else %} of {% endif -%}
         {{ people | sort(attribute='names') | map(personMacros.label) | join(' and ') }}
-    {% endif %}
-{% endmacro %}
+    {%- endif -%}
+{%- endmacro -%}
 
-{% macro type_label(event) %}
-    {% set _type_labels = {
+{% macro type_label(event) -%}
+    {%- set _type_labels = {
         event.Type.BIRTH: 'Birth',
+        event.Type.BAPTISM: 'Baptism',
+        event.Type.CREMATION: 'Cremation',
         event.Type.DEATH: 'Death',
         event.Type.BURIAL: 'Burial',
         event.Type.MARRIAGE: 'Marriage',
-    } %}
+        event.Type.RESIDENCE: 'Residence',
+    } -%}
     {{ _type_labels[event.type] }}
-{% endmacro %}
+{%- endmacro -%}

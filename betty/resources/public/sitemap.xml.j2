@@ -2,12 +2,27 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
     {% for id in site.ancestry.people %}
         <url>
-            <loc>{{ site.configuration.url }}/person/{{ id }}</loc>
+            <loc>{{ ('/person/' ~ id) | url(absolute=true) }}</loc>
+        </url>
+    {% endfor %}
+    {% for id in site.ancestry.events %}
+        <url>
+            <loc>{{ ('/event/' ~ id) | url(absolute=true) }}</loc>
         </url>
     {% endfor %}
     {% for id in site.ancestry.places %}
         <url>
-            <loc>{{ site.configuration.url }}/place/{{ id }}</loc>
+            <loc>{{ ('/place/' ~ id) | url(absolute=true) }}</loc>
+        </url>
+    {% endfor %}
+    {% for id in site.ancestry.files %}
+        <url>
+            <loc>{{ ('/file/' ~ id) | url(absolute=true) }}</loc>
+        </url>
+    {% endfor %}
+    {% for id in site.ancestry.sources %}
+        <url>
+            <loc>{{ ('/source/' ~ id) | url(absolute=true) }}</loc>
         </url>
     {% endfor %}
 </urlset>

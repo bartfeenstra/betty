@@ -1,0 +1,350 @@
+html {
+  height: 100%;
+}
+
+body {
+  background-color: pink;
+  color: #333;
+  margin: 0;
+  font-family: sans-serif;
+  height: 100%;
+}
+
+/*
+ * Text and links.
+ */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #000;
+}
+
+h1 {
+  font-weight: normal;
+  font-size: 2rem;
+}
+
+h2 {
+  font-weight: normal;
+  font-size: 1.6rem;
+}
+
+a {
+  text-decoration: none;
+  color: #149988;
+}
+
+a:hover {
+  color: #2a615a;
+}
+
+dl,
+p,
+li {
+  line-height: 1.5;
+}
+
+address {
+  display: inline;
+  font-style: normal;
+}
+
+.tooltip {
+  cursor: help;
+  text-decoration: dotted underline;
+}
+
+.citation {
+  font-size: 0.9rem;
+  font-variant-position: super;
+}
+
+.reference {
+  font-size: 0.9rem;
+}
+
+/*
+ * Entity lists.
+ */
+ul.entities {
+  padding: 0;
+}
+
+ul.entities li {
+  list-style: none;
+  margin-top: 0.5em;
+  padding: 0.5em;
+}
+
+ul.entities li.even {
+  background-color: #eee;
+}
+
+/*
+ * Footer.
+ */
+
+footer {
+  color: #777;
+  padding: 3em;
+}
+
+/*
+ * Main content.
+ */
+
+#content {
+  background-color: white;
+  clear: both;
+  padding: 0 1rem;
+  display: inline-block;
+  min-width: calc(100% - 2rem);
+}
+
+.featured {
+  background-color: #eee;
+  margin: 0 -1rem;
+  width: 100vw;
+}
+
+/*
+ * Entity metadata.
+ */
+
+.meta dt {
+  font-weight: bold;
+}
+
+@media (min-width: 768px) {
+  .meta dt,
+  .meta dd {
+    display: inline;
+  }
+
+  .meta dt::after {
+    content: ':';
+  }
+
+  .meta dd {
+    margin: 0 3em 0 0;
+  }
+}
+
+/**
+ * People.
+ */
+.private {
+  cursor: help;
+  text-decoration: dotted underline;
+}
+
+/*
+ * Media.
+ */
+.file {
+  display: inline-block;
+  vertical-align: top;
+  width: 300px;
+}
+
+.file-summary {
+  display: block;
+  width: 100%;
+}
+
+.file-extended {
+  display: none;
+}
+
+.file-extended:target {
+  background-color: #000;
+  display: initial;
+  height: 100vh;
+  left: 0;
+  overflow-y: scroll;
+  position: fixed;
+  top: 0;
+  width: 100vw;
+}
+
+figure {
+  margin: 0;
+}
+
+figcaption {
+  padding: 0.5rem;
+}
+
+ul.file-controls {
+  border: 0;
+  display: block !important;
+  height: 3rem;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  width: 100%;
+}
+
+ul.file-controls li {
+  display: inline-block;
+}
+
+.file-previous {
+  float: left;
+}
+
+.file-next {
+  float: right;
+}
+
+ul.file-controls li a {
+  color: #ccc;
+  float: right;
+  font-size: 1.1rem;
+  line-height: 3rem;
+  padding: 0 0.5rem;
+}
+
+ul.file-controls li a:hover {
+  color: #fff;
+}
+
+.file-extended:target img {
+  display: block;
+  margin: auto;
+  max-height: calc(100vh - 3rem);
+  max-width: 100%;
+}
+
+.file-extended:target figcaption {
+  display: none;
+}
+
+.featured.image img {
+  cursor: zoom-in;
+  display: block;
+  margin: auto;
+  max-height: 75vh;
+  max-width: 100%;
+}
+
+/*
+ * Navigation.
+ */
+
+#nav-primary {
+  color: purple;
+  font-size: 1.1rem;
+}
+
+#site-title {
+  line-height: 3rem;
+  padding: 0 1rem;
+  text-transform: uppercase;
+  width: calc(75% - 2rem);
+}
+
+#site-title a {
+  color: #777;
+}
+
+#site-title a:hover {
+  color: #000;
+}
+
+.nav-primary-toggle {
+  color: purple;
+  display: block;
+  float: right;
+  height: 3rem;
+  line-height: 3rem;
+  position: absolute;
+  right: 0;
+  text-align: center;
+  text-transform: uppercase;
+  top: 0;
+  width: 25%;
+}
+
+#nav-primary-hide {
+  background-color: #fff;
+  display: none;
+  font-weight: bold;
+}
+
+#nav-primary-show:hover,
+#nav-primary-hide:hover {
+  color: white;
+  background-color: purple;
+}
+
+#nav-primary:target #nav-primary-show {
+  display: none;
+}
+
+#nav-primary:target #nav-primary-hide {
+  display: initial;
+}
+
+#nav-primary ul {
+  background-color: #fff;
+  border-bottom: 0.5em pink solid;
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 1rem 3rem;
+  position: absolute;
+  top: 3rem;
+  width: calc(100% - 6rem);
+  z-index: 999;
+}
+
+#nav-primary:target ul {
+  display: initial;
+}
+
+#nav-primary ul li {
+  margin: 1rem 0;
+}
+
+#nav-primary ul li a { /* stylelint-disable-line no-descending-specificity */
+  background-color: #eee;
+  color: purple;
+  display: block;
+  line-height: 3rem;
+  text-align: center;
+}
+
+#nav-primary ul li a:hover {
+  color: white;
+  background-color: purple;
+}
+
+@media (min-width: 768px) {
+  .nav-primary-toggle,
+  #nav-primary:target #nav-primary-hide {
+    display: none;
+  }
+
+  #nav-primary ul {
+    background-color: #eee;
+    border: 0;
+    display: block !important;
+    height: 3rem;
+    padding: 0;
+    position: static;
+    width: 100%;
+  }
+
+  #nav-primary ul li {
+    display: inline;
+  }
+
+  #nav-primary ul li a {
+    float: left;
+    padding: 0 1em;
+  }
+}

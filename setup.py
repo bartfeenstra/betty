@@ -1,11 +1,12 @@
 """Integrates Betty with Python's setuptools."""
 
 import os
+from itertools import chain
+from os.path import abspath, dirname, join
 
 from setuptools import setup, find_packages
 
-import betty
-from betty.path import iterfiles
+from betty.fs import iterfiles
 
 ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -37,6 +38,7 @@ SETUP = {
         'jsonschema ~= 3.0',
         'lxml ~= 4.3.1',
         'markupsafe ~= 1.1.1',
+        'python-resize-image ~= 1.1.18',
     ],
     'extras_require': {
         'development': [
@@ -48,6 +50,7 @@ SETUP = {
             'nose2 ~= 0.8',
             'parameterized ~= 0.6',
             'recommonmark ~= 0.4.0',
+            'requests-mock ~= 1.6.0',
             'twine ~= 1.9.1',
             'wheel ~= 0.30.0',
         ],
@@ -65,8 +68,14 @@ SETUP = {
             'VERSION',
         ])
     ],
+    'include_package_data': True,
     'package_data': {
-        'betty': iterfiles(betty.RESOURCE_PATH),
+        'betty': chain(
+            [join(dirname(abspath(__file__)), 'betty', 'config.schema.json')],
+            iterfiles(join(dirname(abspath(__file__)), 'betty', 'resources')),
+            iterfiles(join(dirname(abspath(__file__)), 'betty', 'plugins', 'js', 'js')),
+            iterfiles(join(dirname(abspath(__file__)), 'betty', 'plugins', 'maps', 'js')),
+        ),
     },
 }
 

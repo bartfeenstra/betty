@@ -1,13 +1,11 @@
-{% macro label(place, context=None) %}
+{%- macro label(place, context=None) -%}
     <address>
         {{ _link(place) }}
-        {% set enclosing_places = place | walk('enclosed_by') | takewhile('ne', None) | takewhile('ne', context) | list %}
-        {%- if enclosing_places | length > 0 -%}
-            ({{ enclosing_places | map(_link) | join(', ') }})
-        {%- endif -%}
+        {%- set enclosing_places = place | walk('enclosed_by') | takewhile('ne', None) | takewhile('ne', context) | list -%}
+        {%- if enclosing_places | length > 0 %} ({{ enclosing_places | map(_link) | join(', ') }}){%- endif -%}
     </address>
-{% endmacro %}
+{%- endmacro -%}
 
 {% macro _link(place) -%}
-    <a href="/place/{{ place.id }}">{{ place.name }}</a>
-{%- endmacro %}
+    <a href="{{ ('/place/' ~ place.id) | url }}">{{ place.name }}</a>
+{%- endmacro -%}

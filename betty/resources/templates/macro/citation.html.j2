@@ -1,0 +1,19 @@
+{%- import 'macro/source.html.j2' as sourceMacros -%}
+
+{% macro cite(citations) -%}
+    {% set ns = namespace(numberedCitations=[]) %}
+    {% for citation in citations %}
+        {% set ns.numberedCitations = ns.numberedCitations + [(citer.cite(citation), reference)] %}
+    {% endfor %}
+    {% for number, citation in ns.numberedCitations | sort(attribute=0) %}
+        <a href="#reference-{{ number }}" class="citation">[{{ number }}]</a>
+    {% endfor %}
+{%- endmacro -%}
+
+{%- macro referenceLabel(citation) -%}
+    {% if citation.description %}
+        <a href="{{ ('/citation/' ~ citation.id) | url }}">{{ citation.description }}</a> ({{ sourceMacros.link(citation.source) }})
+    {% else %}
+        {{ sourceMacros.link(citation.source) }}
+    {% endif %}
+{%- endmacro -%}

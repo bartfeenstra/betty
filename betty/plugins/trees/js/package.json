@@ -1,0 +1,7 @@
+{
+  "main": "trees.js",
+  "dependencies": {
+    "dagre-d3": "^0.6.3",
+    "d3": "^4.13.0"
+  }
+}

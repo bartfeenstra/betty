@@ -1,7 +1,7 @@
 from enum import Enum
 from functools import total_ordering
-from os.path import splitext
-from typing import Dict, Optional, List, Iterable, Tuple
+from os.path import splitext, basename
+from typing import Dict, Optional, List, Iterable, Tuple, Set
 
 from geopy import Point
 
@@ -12,7 +12,11 @@ class EventHandlingSet:
         self._addition_handler = addition_handler
         self._removal_handler = removal_handler
 
-    def add(self, value):
+    def add(self, *values):
+        for value in values:
+            self._add_one(value)
+
+    def _add_one(self, value):
         if value in self._values:
             return
         self._values.add(value)
@@ -79,6 +83,19 @@ class Date:
         return self.parts < other.parts
 
 
+class Dated:
+    def __init__(self):
+        self._date = None
+
+    @property
+    def date(self) -> Optional[Date]:
+        return self._date
+
+    @date.setter
+    def date(self, date: Date):
+        self._date = date
+
+
 class Note:
     def __init__(self, text: str):
         self._text = text
@@ -88,49 +105,18 @@ class Note:
         return self._text
 
 
-class File:
-    def __init__(self, path: str):
-        self._path = path
-        self._type = None
-
-    @property
-    def path(self):
-        return self._path
-
-    @property
-    def extension(self) -> Optional[str]:
-        extension = splitext(self._path)[1][1:]
-        return extension if extension else None
-
-
-class Entity:
-    def __init__(self, entity_id: str):
-        self._id = entity_id
-        self._documents = []
+class Identifiable:
+    def __init__(self, id: str):
+        self._id = id
 
     @property
     def id(self) -> str:
         return self._id
 
-    @property
-    def documents(self) -> List:
-        return self._documents
 
-    @documents.setter
-    def documents(self, documents: List):
-        self._documents = documents
-
-
-class Document(Entity):
-    def __init__(self, entity_id: str, file: File):
-        Entity.__init__(self, entity_id)
-        self._file = file
+class Described:
+    def __init__(self):
         self._description = None
-        self._notes = []
-
-    @property
-    def file(self) -> File:
-        return self._file
 
     @property
     def description(self) -> Optional[str]:
@@ -140,6 +126,56 @@ class Document(Entity):
     def description(self, description: str):
         self._description = description
 
+
+class Link:
+    def __init__(self, uri: str, label: Optional[str] = None):
+        self._uri = uri
+        self._label = label
+
+    @property
+    def uri(self) -> str:
+        return self._uri
+
+    @property
+    def label(self) -> str:
+        return self._label if self._label else self._uri
+
+
+class File(Identifiable, Described):
+    def __init__(self, file_id: str, path: str):
+        Identifiable.__init__(self, file_id)
+        Described.__init__(self)
+        self._path = path
+        self._type = None
+        self._notes = []
+        self._entities = EventHandlingSet(lambda entity: entity.files.add(self),
+                                          lambda entity: entity.files.remove(self))
+
+    @property
+    def path(self):
+        return self._path
+
+    @property
+    def type(self) -> Optional[str]:
+        return self._type
+
+    @type.setter
+    def type(self, file_type: str):
+        self._type = file_type
+
+    @property
+    def name(self) -> str:
+        return basename(self._path)
+
+    @property
+    def basename(self) -> str:
+        return splitext(self._path)[0]
+
+    @property
+    def extension(self) -> Optional[str]:
+        extension = splitext(self._path)[1][1:]
+        return extension if extension else None
+
     @property
     def notes(self) -> List[Note]:
         return self._notes
@@ -148,12 +184,147 @@ class Document(Entity):
     def notes(self, notes: List[Note]):
         self._notes = notes
 
+    @property
+    def entities(self) -> Iterable:
+        return self._entities
 
-class Place(Entity):
-    def __init__(self, entity_id: str, name: str):
-        Entity.__init__(self, entity_id)
+    @entities.setter
+    def entities(self, entities: Iterable):
+        self._entities.replace(entities)
+
+
+class HasFiles:
+    def __init__(self):
+        self._files = EventHandlingSet(lambda file: file.entities.add(self),
+                                       lambda file: file.entities.remove(self))
+
+    @property
+    def files(self) -> Iterable:
+        return self._files
+
+    @files.setter
+    def files(self, files: Iterable):
+        self._files.replace(files)
+
+
+class Source(Identifiable, Dated):
+    def __init__(self, source_id: str, name: str):
+        Identifiable.__init__(self, source_id)
+        self._name = name
+        self._link = None
+        self._contained_by = None
+
+        def handle_contains_addition(source):
+            source.contained_by = self
+
+        def handle_contains_removal(source):
+            source.contained_by = None
+
+        self._contains = EventHandlingSet(
+            handle_contains_addition, handle_contains_removal)
+
+        def handle_citations_addition(citation):
+            citation.source = self
+
+        def handle_citations_removal(citation):
+            citation.source = None
+
+        self._citations = EventHandlingSet(
+            handle_citations_addition, handle_citations_removal)
+
+    @property
+    def contained_by(self):
+        return self._contained_by
+
+    @contained_by.setter
+    def contained_by(self, source):
+        previous_source = self._contained_by
+        self._contained_by = source
+        if previous_source is not None:
+            previous_source.contains.remove(self)
+        if source is not None:
+            source.contains.add(self)
+
+    @property
+    def contains(self) -> Iterable:
+        return self._contains
+
+    @property
+    def citations(self) -> Iterable:
+        return self._citations
+
+    @citations.setter
+    def citations(self, citations: Iterable):
+        self._citations.replace(citations)
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, name: str):
+        self._name = name
+
+    @property
+    def link(self) -> Optional[Link]:
+        return self._link
+
+    @link.setter
+    def link(self, link: Optional[Link]):
+        self._link = link
+
+
+class Citation(Identifiable, Described, HasFiles):
+    def __init__(self, citation_id: str):
+        Identifiable.__init__(self, citation_id)
+        HasFiles.__init__(self)
+        Described.__init__(self)
+        self._source = None
+        self._claims = EventHandlingSet(lambda claim: claim.citations.add(self),
+                                        lambda claim: claim.citations.remove(self))
+
+    @property
+    def source(self) -> Source:
+        return self._source
+
+    @source.setter
+    def source(self, source: Source):
+        previous_source = self._source
+        self._source = source
+        if previous_source is not None:
+            previous_source.citations.remove(self)
+        if source is not None:
+            source.citations.add(self)
+
+    @property
+    def claims(self) -> Iterable:
+        return self._claims
+
+    @claims.setter
+    def claims(self, claims: Iterable):
+        self._claims.replace(claims)
+
+
+class HasCitations:
+    def __init__(self):
+        self._citations = EventHandlingSet(lambda citation: citation.claims.add(self),
+                                           lambda citation: citation.claims.remove(self))
+
+    @property
+    def citations(self) -> Iterable:
+        return self._citations
+
+    @citations.setter
+    def citations(self, citations: Iterable):
+        self._citations.replace(citations)
+
+
+class Place(Identifiable):
+    def __init__(self, place_id: str, name: str):
+        Identifiable.__init__(self, place_id)
         self._name = name
         self._coordinates = None
+        self._links = set()
 
         def handle_event_addition(event: Event):
             event.place = self
@@ -207,29 +378,31 @@ class Place(Entity):
     def encloses(self) -> Iterable:
         return self._encloses
 
+    @property
+    def links(self) -> Set[Link]:
+        return self._links
 
-class Event(Entity):
+
+class Event(Identifiable, Dated, HasFiles, HasCitations):
     class Type(Enum):
         BIRTH = 'birth'
+        BAPTISM = 'baptism'
+        CREMATION = 'cremation'
         DEATH = 'death'
         BURIAL = 'burial'
         MARRIAGE = 'marriage'
+        RESIDENCE = 'residence'
 
-    def __init__(self, entity_id: str, entity_type: Type):
-        Entity.__init__(self, entity_id)
-        self._date = None
-        self._place = None
+    def __init__(self, event_id: str, entity_type: Type, date: Optional[Date] = None, place: Optional[Place] = None):
+        Identifiable.__init__(self, event_id)
+        Dated.__init__(self)
+        HasFiles.__init__(self)
+        HasCitations.__init__(self)
+        self._date = date
+        self._place = place
         self._type = entity_type
         self._people = EventHandlingSet(lambda person: person.events.add(self),
                                         lambda person: person.events.remove(self))
-
-    @property
-    def date(self) -> Optional[Date]:
-        return self._date
-
-    @date.setter
-    def date(self, date: Date):
-        self._date = date
 
     @property
     def place(self) -> Optional[Place]:
@@ -261,9 +434,11 @@ class Event(Entity):
         self._people.replace(people)
 
 
-class Person(Entity):
-    def __init__(self, entity_id: str, individual_name: str = None, family_name: str = None):
-        Entity.__init__(self, entity_id)
+class Person(Identifiable, HasFiles, HasCitations):
+    def __init__(self, person_id: str, individual_name: str = None, family_name: str = None):
+        Identifiable.__init__(self, person_id)
+        HasFiles.__init__(self)
+        HasCitations.__init__(self)
         self._individual_name = individual_name
         self._family_name = family_name
         self._events = EventHandlingSet(lambda event: event.people.add(self),
@@ -272,14 +447,23 @@ class Person(Entity):
                                          lambda parent: parent.children.remove(self))
         self._children = EventHandlingSet(lambda child: child.parents.add(self),
                                           lambda child: child.parents.remove(self))
+        self._private = None
 
     @property
     def individual_name(self) -> Optional[str]:
         return self._individual_name
 
+    @individual_name.setter
+    def individual_name(self, name: str):
+        self._individual_name = name
+
     @property
     def family_name(self) -> Optional[str]:
         return self._family_name
+
+    @family_name.setter
+    def family_name(self, name: str):
+        self._family_name = name
 
     @property
     def names(self) -> Tuple[str, str]:
@@ -332,22 +516,31 @@ class Person(Entity):
                     siblings.add(sibling)
         return siblings
 
+    @property
+    def private(self) -> Optional[bool]:
+        return self._private
+
+    @private.setter
+    def private(self, private: Optional[bool]):
+        self._private = private
+
 
 class Ancestry:
     def __init__(self):
-        self._documents = {}
+        self._files = {}
         self._people = {}
-        self._families = {}
         self._places = {}
         self._events = {}
+        self._sources = {}
+        self._citations = {}
 
     @property
-    def documents(self) -> Dict[str, Document]:
-        return self._documents
+    def files(self) -> Dict[str, File]:
+        return self._files
 
-    @documents.setter
-    def documents(self, documents: Dict[str, Document]):
-        self._documents = documents
+    @files.setter
+    def files(self, files: Dict[str, File]):
+        self._files = files
 
     @property
     def people(self) -> Dict[str, Person]:
@@ -372,3 +565,19 @@ class Ancestry:
     @events.setter
     def events(self, events: Dict[str, Event]):
         self._events = events
+
+    @property
+    def sources(self) -> Dict[str, Source]:
+        return self._sources
+
+    @sources.setter
+    def sources(self, sources: Dict[str, Source]):
+        self._sources = sources
+
+    @property
+    def citations(self) -> Dict[str, Citation]:
+        return self._citations
+
+    @citations.setter
+    def citations(self, citations: Dict[str, Citation]):
+        self._citations = citations

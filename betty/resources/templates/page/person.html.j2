@@ -13,28 +13,31 @@
 
     <div class="tree"></div>
 
-    {% if person.parents | length > 0 %}
+    {% set parents = person.parents | list %}
+    {% if parents | length > 0 %}
         <h2>Parents</h2>
         <ul>
-            {% for parent in person.parents %}
+            {% for parent in parents %}
                 <li typeof="foaf:Person" property="rel:childOf">{{ personMacros.label(parent) }}</li>
             {% endfor %}
         </ul>
     {% endif %}
 
-    {% if person.children | length > 0 %}
+    {% set children = person.children | list %}
+    {% if children | length > 0 %}
         <h2>Children</h2>
         <ul>
-            {% for child in person.children %}
+            {% for child in children %}
                 <li typeof="foaf:Person" property="rel:parentOf">{{ personMacros.label(child) }}</li>
             {% endfor %}
         </ul>
     {% endif %}
 
-    {% if person.siblings | length > 0 %}
+    {% set siblings = person.siblings | list %}
+    {% if siblings | length > 0 %}
         <h2>Siblings</h2>
         <ul>
-            {% for sibling in person.siblings %}
+            {% for sibling in siblings %}
                 <li typeof="foaf:Person" property="rel:siblingOf">{{ personMacros.label(sibling) }}</li>
             {% endfor %}
         </ul>
@@ -47,10 +50,9 @@
         {% endwith %}
     {% endif %}
 
-    {% set documents = person.documents | list + person.events | map(attribute="documents") | flatten | unique | list %}
-    {% if documents | length > 0 %}
-        {% for document in documents %}
-            {% include 'document.html.j2' %}
-        {% endfor %}
+    {% set files = (person.files | list + person.events | map(attribute="files") | flatten | list + person.events | map(attribute="references") | flatten | map(attribute="files") | flatten | list) | unique | list %}
+    {% if files | length > 0 %}
+        <h2>Media</h2>
+        {% include 'list-file.html.j2' %}
     {% endif %}
 {% endblock %}
