@@ -1,7 +1,8 @@
 'use strict'
 
 const configuration = {
-    rootPath: '{{ site.configuration.root_path }}',
+    baseUrl: {{ site.configuration.base_url | json }},
+    rootPath: {{ site.configuration.root_path| json }},
     cleanUrls: {{ site.configuration.clean_urls | json }},
 }
 
