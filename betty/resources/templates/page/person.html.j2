@@ -49,6 +49,8 @@
         </ul>
     {% endif %}
 
+    <div class="featured tree js-show" data-betty-person-id="{{ person.id }}"></div>
+
     {% if person.events | rejectattr('date', 'none') | selectattr('date.complete') | list | length > 0 %}
         <h2>Events</h2>
         {% with events=person.events, person_context=person %}

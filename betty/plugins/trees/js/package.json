@@ -1,0 +1,7 @@
+{
+  "main": "trees.js",
+  "dependencies": {
+    "cytoscape": "^3.8.2",
+    "cytoscape-dagre": "^2.2.2"
+  }
+}
