@@ -23,8 +23,7 @@ function initializePlaceList (placeList) {
   const placeData = placeList.querySelectorAll('[data-betty-place-id]')
 
   const mapArea = placeList.getElementsByClassName('map')[0]
-  mapCount++
-  mapArea.id = `map-${mapCount}`
+  mapArea.id = (++mapCount).toString()
 
   let map = L.map(mapArea.id)
 
