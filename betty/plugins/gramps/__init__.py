@@ -111,7 +111,8 @@ _DATE_PART_PATTERN = re.compile(r'^\d+$')
 def _parse_date(element: Element) -> Optional[Date]:
     dateval = str(_xpath1(element, './ns:dateval/@val'))
     if _DATE_PATTERN.fullmatch(dateval):
-        date_parts = [int(part) if _DATE_PART_PATTERN.fullmatch(part) else None for part in dateval.split('-')]
+        date_parts = [int(part) if _DATE_PART_PATTERN.fullmatch(
+            part) else None for part in dateval.split('-')]
         return Date(*date_parts)
     return None
 

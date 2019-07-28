@@ -1,64 +1,111 @@
 'use strict'
 
-// import * as d3 from 'd3'
-import * as dagreD3 from 'dagre-d3'
-// import ancestry from './ancestry.json'
+import treesStyle from './trees.css' // eslint-disable-line no-unused-vars
 
-let treeCount = 0
+import cytoscape from 'cytoscape'
+import dagre from 'cytoscape-dagre'
+import ancestry from './ancestry.json'
+
+cytoscape.use(dagre)
 
 function initializeAncestryTrees () {
-  const ancestryTrees = document.getElementsByClassName('tree')
-  for (let ancestryTree of ancestryTrees) {
-    initializeAncestryTree(ancestryTree)
+  const trees = document.getElementsByClassName('tree')
+  for (let tree of trees) {
+    initializeAncestryTree(tree, tree.dataset.bettyPersonId)
   }
 }
 
-function initializeAncestryTree (ancestryTree) {
-  const treeArea = ancestryTree
-  treeCount++
-  treeArea.id = `tree-${treeCount}`
+function initializeAncestryTree (container, personId) {
+  let elements = {
+    nodes: [],
+    edges: []
+  }
+  personToElements(ancestry.people[personId], elements)
+  const cy = cytoscape({
+    container: document.getElementsByClassName('tree')[0],
+    layout: {
+      name: 'dagre'
+    },
+    wheelSensitivity: 0.25,
+    style: [
+      {
+        selector: 'node',
+        style: {
+          'content': 'data(label)',
+          'shape': 'round-rectangle',
+          'text-valign': 'center',
+          'text-halign': 'center',
+          'background-color': '#eee',
+          'width': 'label',
+          'height': 'label',
+          'padding': '9px'
+        }
+      },
+      {
+        selector: 'edge',
+        style: {
+          'curve-style': 'taxi',
+          'taxi-direction': 'downward',
+          'width': 4,
+          'target-arrow-shape': 'triangle',
+          'line-color': '#777',
+          'target-arrow-color': '#777'
+        }
+      }
+    ],
+    elements: elements
+  })
+  cy.zoom({
+    level: 1,
+    position: cy.getElementById(personId).position()
+  })
+}
 
-  // const data = Object.values(ancestry.people)
+function personToElements (person, elements) {
+  personToNode(person, elements.nodes)
+  parentsToElements(person, elements)
+  childrenToElements(person, elements)
+}
 
-  // const tree = d3.select(`#${treeArea.id}`)
-  // tree.selectAll('p')
-  //     .data(data)
-  //     .enter()
-  //     .append('p')
-  //     .text((d) => `${d.family_name}, ${d.individual_name}`)
-  //
-  // const clusterRoot = d3.stratify()
-  // .id((d) => d.id)
-  // .parentId((d) => )
-  // (data);
-  //
-  // // @todo Use I0000 as the root while testing. Clusters are trees, so we must always use a specific person as the starting point.
-  // const cluster = d3.cluster()
+function personToNode (person, nodes) {
+  const label = person.private ? 'private' : person.family_name + ', ' + person.individual_name
+  nodes.push({
+    data: {
+      id: person.id,
+      label: label
+    },
+    selectable: false,
+    grabbable: false,
+    pannable: true
+  })
+}
 
-  var g = new dagreD3.graphlib.Graph().setGraph({}).setDefaultEdgeLabel(function () { return {} })
+function parentsToElements (child, elements) {
+  for (let parentId of child.parent_ids) {
+    let parent = ancestry.people[parentId]
+    elements.edges.push({
+      data: {
+        source: parent.id,
+        target: child.id
+      }
+    })
+    personToNode(parent, elements.nodes)
+    parentsToElements(parent, elements)
+  }
+}
 
-  g.setNode('pp1', { label: 'PP1', rank: 'same_pp' })
-  g.setNode('pp2', { label: 'PP2', rank: 'same_pp' })
-  g.setNode('pp3', { label: 'PP3', rank: 'same_pp' })
-  g.setNode('pp4', { label: 'PP4', rank: 'same_pp' })
-  g.setNode('p1', { label: 'P1', rank: 'same_p' })
-  g.setNode('p2', { label: 'P2', rank: 'same_p' })
-  g.setNode('p3', { label: 'P3', rank: 'same_p' })
-  g.setNode('c1', { label: 'C1', rank: 'same_c' })
-  g.setNode('c2', { label: 'C2', rank: 'same_c' })
-
-  g.setEdge('pp1', 'p1')
-  g.setEdge('pp2', 'p1')
-  g.setEdge('pp3', 'p2')
-  g.setEdge('pp4', 'p2')
-  g.setEdge('p2', 'c2')
-  g.setEdge('p1', 'c2')
-  g.setEdge('p1', 'c1')
-  g.setEdge('p3', 'c1')
-
-  // var renderer = new dagreD3.render()
-  // renderer.edgeInterpolate('linear');
-  // renderer(d3.select('svg g'), g)
+function childrenToElements (parent, elements) {
+  for (let childId of parent.child_ids) {
+    let child = ancestry.people[childId]
+    elements.edges.push({
+      data: {
+        source: parent.id,
+        target: child.id
+      }
+    })
+    personToNode(child, elements.nodes)
+    childrenToElements(child, elements)
+  }
 }
 
 export {

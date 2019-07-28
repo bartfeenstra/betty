@@ -36,6 +36,8 @@ def _person_to_dict(person: Person) -> Dict:
         'family_name': person.family_name,
         'individual_name': person.individual_name,
         'parent_ids': [parent.id for parent in person.parents],
+        'child_ids': [child.id for child in person.children],
+        'private': person.private,
     }
     return person_dict
 

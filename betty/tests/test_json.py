@@ -69,6 +69,8 @@ class JSONEncoderTest(TestCase):
             'family_name': None,
             'individual_name': None,
             'parent_ids': [],
+            'child_ids': [],
+            'private': None,
         }
         self.assert_encodes(expected, person)
 
@@ -76,17 +78,24 @@ class JSONEncoderTest(TestCase):
         parent_id = 'the_parent'
         parent = Person(parent_id)
 
+        child_id = 'the_child'
+        child = Person(child_id)
+
         person_id = 'the_person'
         person_family_name = 'Person'
         person_individual_name = 'The'
         person = Person(person_id, person_individual_name, person_family_name)
         person.parents.add(parent)
+        person.children.add(child)
+        person.private = False
 
         expected = {
             'id': person_id,
             'family_name': person_family_name,
             'individual_name': person_individual_name,
             'parent_ids': [parent_id],
+            'child_ids': [child_id],
+            'private': False,
         }
         self.assert_encodes(expected, person)
 
@@ -125,6 +134,8 @@ class JSONEncoderTest(TestCase):
                     'family_name': person_family_name,
                     'individual_name': person_individual_name,
                     'parent_ids': [],
+                    'child_ids': [],
+                    'private': None,
                 },
             },
         }

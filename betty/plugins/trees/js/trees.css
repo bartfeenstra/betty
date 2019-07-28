@@ -2,3 +2,20 @@
   /* Trees are full width, so leave enough vertical space for scrolling. */
   height: 50vh;
 }
+
+.tree text {
+  font-weight: 300;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+}
+
+.tree .node rect {
+  stroke: #999;
+  fill: #fff;
+  stroke-width: 1.5px;
+}
+
+.tree .edgePath path {
+  stroke: #333;
+  stroke-width: 1.5px;
+}

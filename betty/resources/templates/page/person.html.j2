@@ -11,8 +11,6 @@
         {% endwith %}
     {% endif %}
 
-    <div class="tree"></div>
-
     {% set parents = person.parents | list %}
     {% if parents | length > 0 %}
         <h2>Parents</h2>
@@ -50,6 +48,8 @@
             {% endfor %}
         </ul>
     {% endif %}
+
+    <div class="featured tree js-show" data-betty-person-id="{{ person.id }}"></div>
 
     {% if person.events | rejectattr('date', 'none') | selectattr('date.complete') | list | length > 0 %}
         <h2>Events</h2>
