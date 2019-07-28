@@ -72,6 +72,7 @@ Configuration files are written in JSON:
 		"betty.plugins.maps.Maps": {},
 		"betty.plugins.nginx.Nginx": {},
 		"betty.plugins.privatizer.Privatizer": {},
+		"betty.plugins.trees.Trees": {},
 		"betty.plugins.wikipedia.Wikipedia": {}
 	}
 }
@@ -87,9 +88,10 @@ Configuration files are written in JSON:
     - `betty.plugin.cleaner.Cleaner`: Removes data (events, media, etc.) that have no relation to any people. Configuration: `{}`.
     - `betty.plugin.gramps.Gramps`: Parses a Gramps genealogy. Configuration:
         - `file`: the path to the *Gramps XML* or *Gramps XML Package* file.
-    - `betty.plugin.maps.Maps`: Renders maps using [Leaflet](https://leafletjs.com/).
+    - `betty.plugin.maps.Maps`: Renders interactive maps using [Leaflet](https://leafletjs.com/).
     - `betty.plugin.nginx.Nginx`: Creates an [nginx](https://nginx.org) configuration file in the output directory . Configuration: `{}`.
     - `betty.plugin.privatizer.Privatizer`: Marks living people private. Configuration: `{}`.
+    - `betty.plugin.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
     - `betty.plugin.wikipedia.Wikipedia`: Lets templates and other plugins retrieve complementary Wikipedia entries.
 
 ### The Python API
