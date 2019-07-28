@@ -81,7 +81,7 @@ function initializeAncestryTree (container, personId) {
   cy.on('mouseout', 'node.public', (event) => {
     event.target.removeClass('hover')
   })
-  cy.on('click', 'node.public', (event) => {
+  cy.on('tap', 'node.public', (event) => {
     window.location = event.target.data().url
   })
 }
@@ -90,7 +90,7 @@ function personToNode (person, nodes) {
   const label = person.private ? 'private' : person.family_name + ', ' + person.individual_name
   let url = ''
   if (!person.private) {
-    url += configuration.rootPath + '/person/' + person.id
+    url += configuration.baseUrl + configuration.rootPath + '/person/' + person.id
     if (!configuration.cleanUrls) {
       url += '/index.html'
     }
