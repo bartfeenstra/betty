@@ -5,6 +5,7 @@ import treesStyle from './trees.css' // eslint-disable-line no-unused-vars
 import cytoscape from 'cytoscape'
 import dagre from 'cytoscape-dagre'
 import ancestry from './ancestry.json'
+import configuration from './configuration.js'
 
 cytoscape.use(dagre)
 
@@ -20,7 +21,10 @@ function initializeAncestryTree (container, personId) {
     nodes: [],
     edges: []
   }
-  personToElements(ancestry.people[personId], elements)
+  const person = ancestry.people[personId]
+  personToNode(person, elements.nodes)
+  parentsToElements(person, elements)
+  childrenToElements(person, elements)
   const cy = cytoscape({
     container: document.getElementsByClassName('tree')[0],
     layout: {
@@ -42,6 +46,18 @@ function initializeAncestryTree (container, personId) {
         }
       },
       {
+        selector: 'node.public',
+        style: {
+          'color': '#149988'
+        }
+      },
+      {
+        selector: 'node.public.hover',
+        style: {
+          'color': '#2a615a'
+        }
+      },
+      {
         selector: 'edge',
         style: {
           'curve-style': 'taxi',
@@ -59,24 +75,36 @@ function initializeAncestryTree (container, personId) {
     level: 1,
     position: cy.getElementById(personId).position()
   })
-}
-
-function personToElements (person, elements) {
-  personToNode(person, elements.nodes)
-  parentsToElements(person, elements)
-  childrenToElements(person, elements)
+  cy.on('mouseover', 'node.public', (event) => {
+    event.target.addClass('hover')
+  })
+  cy.on('mouseout', 'node.public', (event) => {
+    event.target.removeClass('hover')
+  })
+  cy.on('click', 'node.public', (event) => {
+    window.location = event.target.data().url
+  })
 }
 
 function personToNode (person, nodes) {
   const label = person.private ? 'private' : person.family_name + ', ' + person.individual_name
+  let url = ''
+  if (!person.private) {
+    url += configuration.rootPath + '/person/' + person.id
+    if (!configuration.cleanUrls) {
+      url += '/index.html'
+    }
+  }
   nodes.push({
     data: {
       id: person.id,
-      label: label
+      label: label,
+      url: url
     },
     selectable: false,
     grabbable: false,
-    pannable: true
+    pannable: true,
+    classes: person.private ? [] : ['public']
   })
 }
 
