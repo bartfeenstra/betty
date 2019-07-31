@@ -26,7 +26,7 @@ class NginxTest(TestCase):
 	# The path to the local web root.
 	root %s;
 	# The cache lifetime.
-	add_header Cache-Control: max-age=86400;
+	add_header Cache-Control "max-age=86400";
 
 	# Handle HTTP error responses.
 	error_page 401 /.error/401.html;
@@ -67,7 +67,7 @@ class NginxTest(TestCase):
 	# The path to the local web root.
 	root %s;
 	# The cache lifetime.
-	add_header Cache-Control: max-age=86400;
+	add_header Cache-Control "max-age=86400";
 
 	# Handle HTTP error responses.
 	error_page 401 /.error/401.html;
