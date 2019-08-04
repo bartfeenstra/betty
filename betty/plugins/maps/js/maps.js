@@ -7,7 +7,7 @@ import leafletStyle from 'leaflet/dist/leaflet.css' // eslint-disable-line no-un
 import leafletMarkerIconImage from 'leaflet/dist/images/marker-icon.png'
 import leafletMarkerIcon2xImage from 'leaflet/dist/images/marker-icon-2x.png'
 import leafletMarkerShadowImage from 'leaflet/dist/images/marker-shadow.png'
-import ancestry from './ancestry.json'
+import places from './places.json'
 import configuration from './configuration.js'
 
 let mapCount = 0
@@ -35,7 +35,7 @@ function initializePlaceList (placeList) {
   // Build place markers.
   const markers = []
   for (let placeDatum of placeData) {
-    let place = ancestry.places[placeDatum.dataset.bettyPlaceId]
+    let place = places[placeDatum.dataset.bettyPlaceId]
     if (place.coordinates) {
       let marker = L.marker([place.coordinates.latitude, place.coordinates.longitude], {
         icon: new BettyIcon()
