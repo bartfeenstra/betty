@@ -540,14 +540,14 @@ class Person(Identifiable, HasFiles, HasCitations):
     @property
     def birth(self) -> Optional[Event]:
         for presence in self.presences:
-            if presence.event.type == Event.Type.BIRTH:
+            if presence.event.type == Event.Type.BIRTH and presence.role == Presence.Role.SUBJECT:
                 return presence.event
         return None
 
     @property
     def death(self) -> Optional[Event]:
         for presence in self.presences:
-            if presence.event.type == Event.Type.DEATH:
+            if presence.event.type == Event.Type.DEATH and presence.role == Presence.Role.SUBJECT:
                 return presence.event
         return None
 
