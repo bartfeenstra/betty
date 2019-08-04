@@ -4,7 +4,7 @@ import treesStyle from './trees.css' // eslint-disable-line no-unused-vars
 
 import cytoscape from 'cytoscape'
 import dagre from 'cytoscape-dagre'
-import ancestry from './ancestry.json'
+import people from './people.json'
 import configuration from './configuration.js'
 
 cytoscape.use(dagre)
@@ -21,7 +21,7 @@ function initializeAncestryTree (container, personId) {
     nodes: [],
     edges: []
   }
-  const person = ancestry.people[personId]
+  const person = people[personId]
   personToNode(person, elements.nodes)
   parentsToElements(person, elements)
   childrenToElements(person, elements)
@@ -110,7 +110,7 @@ function personToNode (person, nodes) {
 
 function parentsToElements (child, elements) {
   for (let parentId of child.parent_ids) {
-    let parent = ancestry.people[parentId]
+    let parent = people[parentId]
     elements.edges.push({
       data: {
         source: parent.id,
@@ -124,7 +124,7 @@ function parentsToElements (child, elements) {
 
 function childrenToElements (parent, elements) {
   for (let childId of parent.child_ids) {
-    let child = ancestry.people[childId]
+    let child = people[childId]
     elements.edges.push({
       data: {
         source: parent.id,
