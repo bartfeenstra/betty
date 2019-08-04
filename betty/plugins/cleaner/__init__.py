@@ -16,7 +16,7 @@ def clean(ancestry: Ancestry) -> None:
 
 def _clean_events(ancestry: Ancestry):
     for event in list(ancestry.events.values()):
-        if len(event.people) == 0:
+        if len(event.presences) == 0:
             event.place = None
             del ancestry.events[event.id]
 

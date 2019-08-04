@@ -1,7 +1,7 @@
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from unittest import TestCase
 
-from betty.ancestry import Ancestry, Person, Event, File
+from betty.ancestry import Ancestry, Person, Event, File, Presence
 from betty.config import Configuration
 from betty.parse import parse
 from betty.plugins.anonymizer import Anonymizer, anonymize, anonymize_person
@@ -12,13 +12,13 @@ class AnonymizerTestCase(TestCase):
     def assert_anonymized(self, person: Person):
         self.assertIsNone(person.individual_name)
         self.assertIsNone(person.family_name)
-        self.assertCountEqual([], person.events)
+        self.assertCountEqual([], person.presences)
         self.assertCountEqual([], person.files)
 
     def assert_not_anonymized(self, person: Person):
         self.assertIsNotNone(person.individual_name)
         self.assertIsNotNone(person.family_name)
-        self.assertNotEqual([], sorted(person.events))
+        self.assertNotEqual([], sorted(person.presences))
         self.assertNotEqual([], sorted(person.files))
 
 
@@ -28,21 +28,27 @@ class AnonymizeTest(AnonymizerTestCase):
             person = Person('P0', 'Janet', 'Dough')
             person.private = True
             partner = Person('P1', 'Jenny', 'Donut')
+            person_presence = Presence(Presence.Role.SUBJECT)
+            person_presence.person = person
+            partner_presence = Presence(Presence.Role.SUBJECT)
+            partner_presence.person = partner
             event = Event('E0', Event.Type.MARRIAGE)
-            event.people.add(person, partner)
+            event.presences = [person_presence, partner_presence]
             file = File('D0', file_f.name)
             file.entities.add(person, partner)
             ancestry = Ancestry()
             ancestry.people[person.id] = person
             anonymize(ancestry)
             self.assert_anonymized(person)
-            self.assertCountEqual([], event.people)
+            self.assertCountEqual([], event.presences)
             self.assertCountEqual([], file.entities)
 
     def test_anonymize_should_not_anonymize_public_person(self):
         with NamedTemporaryFile() as file_f:
             person = Person('P0', 'Janet', 'Dough')
-            person.events.add(Event('E0', Event.Type.BIRTH))
+            presence = Presence(Presence.Role.SUBJECT)
+            presence.event = Event('E0', Event.Type.BIRTH)
+            person.presences.add(presence)
             person.files.add(File('D0', file_f.name))
             ancestry = Ancestry()
             ancestry.people[person.id] = person
@@ -162,7 +168,9 @@ class AnonymizerTest(AnonymizerTestCase):
             with NamedTemporaryFile() as file_f:
                 person = Person('P0', 'Janet', 'Dough')
                 person.private = True
-                person.events.add(Event('E0', Event.Type.BIRTH))
+                presence = Presence(Presence.Role.SUBJECT)
+                presence.event = Event('E0', Event.Type.BIRTH)
+                person.presences.add(presence)
                 person.files.add(File('D0', file_f.name))
                 site.ancestry.people[person.id] = person
                 parse(site)

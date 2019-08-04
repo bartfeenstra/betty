@@ -1,7 +1,7 @@
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from betty.ancestry import Ancestry, Person, Event, Place
+from betty.ancestry import Ancestry, Person, Event, Place, Presence
 from betty.config import Configuration
 from betty.parse import parse
 from betty.plugins.cleaner import Cleaner, clean
@@ -26,7 +26,9 @@ class CleanTest(TestCase):
         ancestry = Ancestry()
 
         onymous_event = Event('E0', Event.Type.BIRTH)
-        onymous_event.people.add(Person('P0'))
+        onymous_event_presence = Presence(Presence.Role.SUBJECT)
+        onymous_event_presence.person = Person('P0')
+        onymous_event.presences.add(onymous_event_presence)
         ancestry.events[onymous_event.id] = onymous_event
 
         anonymous_event = Event('E1', Event.Type.BIRTH)

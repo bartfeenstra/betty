@@ -5,7 +5,7 @@ from unittest import TestCase
 
 import html5lib
 
-from betty.ancestry import Person, Event, Place, Source
+from betty.ancestry import Person, Event, Place, Source, Presence
 from betty.config import Configuration
 from betty.render import render
 from betty.site import Site
@@ -27,8 +27,11 @@ class RenderTest(TestCase):
         event1 = Event('EVENT1', Event.Type.BIRTH)
         event1.place = place1
 
+        event1_person_1_presence = Presence(Presence.Role.SUBJECT)
+        event1_person_1_presence.event = event1
+
         person1 = Person('PERSON1', 'Janet', 'Dough')
-        person1.events.add(event1)
+        person1.presences.add(event1_person_1_presence)
 
         source1 = Source('SOURCE1', 'A Little Birdie')
 

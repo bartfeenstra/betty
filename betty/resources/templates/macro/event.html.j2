@@ -1,10 +1,19 @@
 {%- macro label(event, person_context=None) -%}
     {%- import 'macro/person.html.j2' as personMacros -%}
     <a href="{{ ('/event/' ~ event.id) | url }}">{{ type_label(event) }}</a>
-    {%- set people = event.people | reject('equalto', person_context) | list -%}
-    {%- if people | length > 0 -%}
+
+
+    {% set ns = namespace(subjects=[]) %}
+    {% for presence in event.presences %}
+        {% if presence.Role.SUBJECT == presence.role and presence.person != person_context %}
+            {% set ns.subjects = ns.subjects + [presence.person] %}
+        {% endif %}
+    {% endfor %}
+
+
+    {%- if ns.subjects | length > 0 -%}
         {%- if person_context %} with {% else %} of {% endif -%}
-        {{ people | sort(attribute='names') | map(personMacros.label) | join(' and ') }}
+        {{ ns.subjects | sort(attribute='names') | map(personMacros.label) | join(' and ') }}
     {%- endif -%}
 {%- endmacro -%}
 
@@ -19,4 +28,16 @@
         event.Type.RESIDENCE: 'Residence',
     } -%}
     {{ _type_labels[event.type] }}
+{%- endmacro -%}
+
+{% macro presence_role_label(presence) -%}
+    {%- set _role_labels = {
+        presence.Role.SUBJECT: 'Subject',
+        presence.Role.WITNESS: 'Witness',
+    } -%}
+    {%- if presence.role in _role_labels -%}
+        {{ _role_labels[presence.role] }}
+    {%- else -%}
+        Attendee
+    {%- endif -%}
 {%- endmacro -%}

@@ -117,7 +117,8 @@ class ParseXmlFileTestCase(TestCase):
     def test_event_should_include_people(self):
         event = self.ancestry.events['E0000']
         expected_people = [self.ancestry.people['I0000']]
-        self.assertCountEqual(expected_people, event.people)
+        self.assertCountEqual(
+            expected_people, [presence.person for presence in event.presences])
 
     def test_date_should_ignore_invalid_date(self):
         date = self.ancestry.events['E0001'].date

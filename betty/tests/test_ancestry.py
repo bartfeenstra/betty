@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 from parameterized import parameterized
 
-from betty.ancestry import EventHandlingSet, Person, Event, Place, Date, File, Note
+from betty.ancestry import EventHandlingSet, Person, Event, Place, Date, File, Note, Presence
 
 
 class EventHandlingSetTest(TestCase):
@@ -91,15 +91,15 @@ class PersonTest(TestCase):
 
         self.assertCountEqual([sibling], sut.siblings)
 
-    def test_events_should_sync_references(self):
-        event = Event('1', Event.Type.BIRTH)
+    def test_presence_should_sync_references(self):
+        presence = Presence(Presence.Role.SUBJECT)
         sut = Person('1')
-        sut.events.add(event)
-        self.assertCountEqual([event], sut.events)
-        self.assertCountEqual([sut], event.people)
-        sut.events.remove(event)
-        self.assertCountEqual([], sut.events)
-        self.assertCountEqual([], event.people)
+        sut.presences.add(presence)
+        self.assertCountEqual([presence], sut.presences)
+        self.assertEquals(sut, presence.person)
+        sut.presences.remove(presence)
+        self.assertCountEqual([], sut.presences)
+        self.assertIsNone(presence.person)
 
 
 class PlaceTest(TestCase):
@@ -157,15 +157,15 @@ class EventTest(TestCase):
         self.assertEquals(None, sut.place)
         self.assertNotIn(sut, place.events)
 
-    def test_people_should_sync_references(self):
-        person = Person('1')
+    def test_presence_should_sync_references(self):
+        presence = Presence(Presence.Role.SUBJECT)
         sut = Event('1', Event.Type.BIRTH)
-        sut.people.add(person)
-        self.assertCountEqual([person], sut.people)
-        self.assertCountEqual([sut], person.events)
-        sut.people.remove(person)
-        self.assertCountEqual([], sut.people)
-        self.assertCountEqual([], person.events)
+        sut.presences.add(presence)
+        self.assertCountEqual([presence], sut.presences)
+        self.assertEquals(sut, presence.event)
+        sut.presences.remove(presence)
+        self.assertCountEqual([], sut.presences)
+        self.assertIsNone(presence.event)
 
 
 class DateTest(TestCase):

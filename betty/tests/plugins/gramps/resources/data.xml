@@ -42,6 +42,7 @@
       </name>
       <eventref hlink="_e1dd3b743cf30a2b9ac3f32eac" role="Primary"/>
       <childof hlink="_e1dd3b84f9e5d832ffc17baa46c"/>
+      <eventref hlink="_e1dd6b69f2d6c31de58efd91ddf" role="Witness"/>
     </person>
     <person handle="_e1dd3bf1f0041d92f586f9d8683" change="1552126972" id="I0002">
       <gender>U</gender>

@@ -16,10 +16,15 @@ def anonymize(ancestry: Ancestry) -> None:
 def anonymize_person(person: Person) -> None:
     person.individual_name = None
     person.family_name = None
-    for event in set(person.events):
-        event.people.replace([])
+    for presence in set(person.presences):
+        person.presences.remove(presence)
+        event = presence.event
+        if event is not None:
+            for event_presence in event.presences:
+                event_presence.person = None
+            event.presences = []
     for file in set(person.files):
-        file.entities.replace([])
+        file.entities = []
     # If a person is public themselves, or a node connecting other public persons, preserve their place in the graph.
     if person.private and not _has_public_descendants(person):
         person.parents = set()
