@@ -52,8 +52,8 @@ class Privatizer(Plugin):
         return True
 
     def _person_has_expired(self, person: Person, multiplier: int) -> bool:
-        for event in person.events:
-            if self._event_has_expired(event, multiplier):
+        for presence in person.presences:
+            if self._event_has_expired(presence.event, multiplier):
                 return True
         return False
 

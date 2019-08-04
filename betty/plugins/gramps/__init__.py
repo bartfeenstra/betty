@@ -3,13 +3,14 @@ import logging
 import re
 import tarfile
 from os.path import join, dirname
-from typing import Tuple, Optional, Callable, List, Dict
+from typing import Tuple, Optional, Callable, List, Dict, Iterable
 
 from geopy import Point
 from lxml import etree
 from lxml.etree import XMLParser, Element
 
-from betty.ancestry import Event, Place, Person, Ancestry, Date, Note, File, Link, Source, HasFiles, Citation
+from betty.ancestry import Event, Place, Person, Ancestry, Date, Note, File, Link, Source, HasFiles, Citation, \
+    Presence
 from betty.fs import makedirs
 from betty.parse import ParseEvent
 from betty.plugin import Plugin
@@ -157,14 +158,12 @@ def _parse_people(ancestry: _IntermediateAncestry, database: Element):
 
 def _parse_person(ancestry: _IntermediateAncestry, element: Element):
     handle = _xpath1(element, './@handle')
-    properties = {
-        'individual_name': _xpath1(element, './ns:name[@type="Birth Name"]/ns:first').text,
-        'family_name': _xpath1(element, './ns:name[@type="Birth Name"]/ns:surname').text,
-    }
-    event_handles = _xpath(element, './ns:eventref/@hlink')
-    person = Person(_xpath1(element, './@id'), **properties)
-    for event_handle in event_handles:
-        person.events.add(ancestry.events[event_handle])
+    individual_name = _xpath1(
+        element, './ns:name[@type="Birth Name"]/ns:first').text
+    family_name = _xpath1(
+        element, './ns:name[@type="Birth Name"]/ns:surname').text
+    person = Person(_xpath1(element, './@id'), individual_name, family_name)
+    person.presences = _parse_eventrefs(ancestry, element)
     if str(_xpath1(element, './@priv')) == '1':
         person.private = True
 
@@ -185,24 +184,20 @@ def _parse_families(ancestry: _IntermediateAncestry, database: Element):
 def _parse_family(ancestry: _IntermediateAncestry, element: Element):
     parents = set()
 
-    # Parse events.
-    event_handles = _xpath(element, './ns:eventref/@hlink')
-    events = [ancestry.events[event_handle] for event_handle in event_handles]
-
     # Parse the father.
     father_handle = _xpath1(element, './ns:father/@hlink')
     if father_handle:
         father = ancestry.people[father_handle]
-        for event in events:
-            father.events.add(event)
+        for presence in _parse_eventrefs(ancestry, element):
+            father.presences.add(presence)
         parents.add(father)
 
     # Parse the mother.
     mother_handle = _xpath1(element, './ns:mother/@hlink')
     if mother_handle:
         mother = ancestry.people[mother_handle]
-        for event in events:
-            mother.events.add(event)
+        for presence in _parse_eventrefs(ancestry, element):
+            mother.presences.add(presence)
         parents.add(mother)
 
     # Parse the children.
@@ -211,6 +206,29 @@ def _parse_family(ancestry: _IntermediateAncestry, element: Element):
         child = ancestry.people[child_handle]
         for parent in parents:
             parent.children.add(child)
+
+
+def _parse_eventrefs(ancestry: _IntermediateAncestry, element: Element) -> Iterable[Presence]:
+    eventrefs = _xpath(element, './ns:eventref')
+    for eventref in eventrefs:
+        yield _parse_eventref(ancestry, eventref)
+
+
+_PRESENCE_ROLE_MAP = {
+    'Primary': Presence.Role.SUBJECT,
+    'Family': Presence.Role.SUBJECT,
+    'Witness': Presence.Role.WITNESS,
+    'Unknown': Presence.Role.ATTENDEE,
+}
+
+
+def _parse_eventref(ancestry: _IntermediateAncestry, eventref: Element) -> Presence:
+    event_handle = _xpath1(eventref, './@hlink')
+    gramps_presence_role = _xpath1(eventref, './@role')
+    role = _PRESENCE_ROLE_MAP[gramps_presence_role] if gramps_presence_role in _PRESENCE_ROLE_MAP else Presence.Role.ATTENDEE
+    presence = Presence(role)
+    presence.event = ancestry.events[event_handle]
+    return presence
 
 
 def _parse_places(ancestry: _IntermediateAncestry, database: Element):
@@ -280,7 +298,7 @@ _EVENT_TYPE_MAP = {
 
 
 def _parse_event(ancestry: _IntermediateAncestry, element: Element):
-    handle = _xpath1(element, './@handle')
+    handle = str(_xpath1(element, './@handle'))
     gramps_type = _xpath1(element, './ns:type')
 
     event = Event(_xpath1(element, './@id'), _EVENT_TYPE_MAP[gramps_type.text])

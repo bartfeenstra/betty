@@ -4,7 +4,7 @@
 {% block content %}
     {% include 'person-meta.html.j2' %}
 
-    {% set places = person.events | map(attribute='place') | reject('equalto', None) | unique | list %}
+    {% set places = person.presences | map(attribute='event.place') | reject('equalto', None) | unique | list %}
     {% if places | length > 0 %}
         {% with places=places %}
             {% include 'list-place.html.j2' %}
@@ -51,14 +51,15 @@
 
     <div class="featured tree js-show" data-betty-person-id="{{ person.id }}"></div>
 
-    {% if person.events | rejectattr('date', 'none') | selectattr('date.complete') | list | length > 0 %}
+    {% set events = person.presences | map(attribute='event') | list %}
+    {% if events | rejectattr('date', 'none') | selectattr('date.complete') | list | length > 0 %}
         <h2>Events</h2>
-        {% with events=person.events, person_context=person %}
+        {% with person_context=person %}
             {% include 'list-event.html.j2' %}
         {% endwith %}
     {% endif %}
 
-    {% set files = (person.files | list + person.events | map(attribute="files") | flatten | list + person.events | map(attribute="references") | flatten | map(attribute="files") | flatten | list) | unique | list %}
+    {% set files = (person.files | list + events | map(attribute="files") | flatten | list + events | map(attribute="references") | flatten | map(attribute="files") | flatten | list) | unique | list %}
     {% if files | length > 0 %}
         <h2>Media</h2>
         {% include 'list-file.html.j2' %}

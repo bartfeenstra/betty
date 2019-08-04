@@ -1,5 +1,6 @@
 {% extends 'page/base.html.j2' %}
 {% import 'macro/event.html.j2' as eventMacros %}
+{% import 'macro/person.html.j2' as personMacros %}
 {% set title = eventMacros.label(event) | striptags %}
 {% block content %}
     {% include 'event-meta.html.j2' %}
@@ -8,6 +9,36 @@
         {% with places=[event.place] %}
             {% include 'list-place.html.j2' %}
         {% endwith %}
+    {% endif %}
+
+    {% set ns = namespace(witnesses=[]) %}
+    {% for presence in event.presences %}
+        {% if presence.Role.WITNESS == presence.role %}
+            {% set ns.witnesses = ns.witnesses + [presence.person] %}
+        {% endif %}
+    {% endfor %}
+    {% if ns.witnesses | length > 0 %}
+        <h2>Witnesses</h2>
+        <ul>
+            {% for witness in ns.witnesses %}
+                <li typeof="foaf:Person" property="rel:knowsOf">{{ personMacros.label(witness) }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% set ns = namespace(attendees=[]) %}
+    {% for presence in event.presences %}
+        {% if presence.Role.SUBJECT != presence.role and presence.Role.WITNESS != presence.role %}
+            {% set ns.attendees = ns.attendees + [presence.person] %}
+        {% endif %}
+    {% endfor %}
+    {% if ns.attendees | length > 0 %}
+        <h2>Other attendees</h2>
+        <ul>
+            {% for attendee in ns.attendees %}
+                <li typeof="foaf:Person" property="rel:knowsOf">{{ personMacros.label(attendee) }}</li>
+            {% endfor %}
+        </ul>
     {% endif %}
 
     {% if event.files | length > 0 %}

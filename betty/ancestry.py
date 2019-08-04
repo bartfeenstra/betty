@@ -387,6 +387,48 @@ class Place(Identifiable):
         return self._links
 
 
+class Presence:
+    class Role(Enum):
+        SUBJECT = 'subject'
+        WITNESS = 'witness'
+        ATTENDEE = 'attendee'
+
+    def __init__(self, role: Role):
+        self._role = role
+        self._person = None
+        self._event = None
+
+    @property
+    def role(self) -> 'Role':
+        return self._role
+
+    @property
+    def person(self) -> 'Person':
+        return self._person
+
+    @person.setter
+    def person(self, person: 'Person'):
+        previous_person = self._person
+        self._person = person
+        if previous_person is not None:
+            previous_person.presences.remove(self)
+        if person is not None:
+            person.presences.add(self)
+
+    @property
+    def event(self) -> 'Event':
+        return self._event
+
+    @event.setter
+    def event(self, event: 'Event'):
+        previous_event = self._event
+        self._event = event
+        if previous_event is not None:
+            previous_event.presences.remove(self)
+        if event is not None:
+            event.presences.add(self)
+
+
 class Event(Identifiable, Dated, HasFiles, HasCitations):
     class Type(Enum):
         BIRTH = 'birth'
@@ -405,8 +447,15 @@ class Event(Identifiable, Dated, HasFiles, HasCitations):
         self._date = date
         self._place = place
         self._type = entity_type
-        self._people = EventHandlingSet(lambda person: person.events.add(self),
-                                        lambda person: person.events.remove(self))
+
+        def handle_presence_addition(presence):
+            presence.event = self
+
+        def handle_presence_removal(presence):
+            presence.event = None
+
+        self._presences = EventHandlingSet(
+            handle_presence_addition, handle_presence_removal)
 
     @property
     def place(self) -> Optional[Place]:
@@ -430,12 +479,12 @@ class Event(Identifiable, Dated, HasFiles, HasCitations):
         self._type = event_type
 
     @property
-    def people(self):
-        return self._people
+    def presences(self):
+        return self._presences
 
-    @people.setter
-    def people(self, people):
-        self._people.replace(people)
+    @presences.setter
+    def presences(self, presences):
+        self._presences.replace(presences)
 
 
 class Person(Identifiable, HasFiles, HasCitations):
@@ -445,13 +494,20 @@ class Person(Identifiable, HasFiles, HasCitations):
         HasCitations.__init__(self)
         self._individual_name = individual_name
         self._family_name = family_name
-        self._events = EventHandlingSet(lambda event: event.people.add(self),
-                                        lambda event: event.people.remove(self))
         self._parents = EventHandlingSet(lambda parent: parent.children.add(self),
                                          lambda parent: parent.children.remove(self))
         self._children = EventHandlingSet(lambda child: child.parents.add(self),
                                           lambda child: child.parents.remove(self))
         self._private = None
+
+        def handle_presence_addition(presence):
+            presence.person = self
+
+        def handle_presence_removal(presence):
+            presence.person = None
+
+        self._presences = EventHandlingSet(
+            handle_presence_addition, handle_presence_removal)
 
     @property
     def individual_name(self) -> Optional[str]:
@@ -474,25 +530,25 @@ class Person(Identifiable, HasFiles, HasCitations):
         return self._family_name or '', self._individual_name or ''
 
     @property
-    def events(self) -> Iterable:
-        return self._events
+    def presences(self) -> Iterable:
+        return self._presences
 
-    @events.setter
-    def events(self, events: Iterable):
-        self._events.replace(events)
+    @presences.setter
+    def presences(self, presences: Iterable):
+        self._presences.replace(presences)
 
     @property
     def birth(self) -> Optional[Event]:
-        for event in self._events:
-            if event.type == Event.Type.BIRTH:
-                return event
+        for presence in self.presences:
+            if presence.event.type == Event.Type.BIRTH:
+                return presence.event
         return None
 
     @property
     def death(self) -> Optional[Event]:
-        for event in self._events:
-            if event.type == Event.Type.DEATH:
-                return event
+        for presence in self.presences:
+            if presence.event.type == Event.Type.DEATH:
+                return presence.event
         return None
 
     @property
