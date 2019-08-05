@@ -183,7 +183,7 @@ def _parse_families(ancestry: _IntermediateAncestry, database: Element):
 
 
 def _parse_family(ancestry: _IntermediateAncestry, element: Element):
-    parents = set()
+    parents = []
 
     # Parse the father.
     father_handle = _xpath1(element, './ns:father/@hlink')
@@ -191,7 +191,7 @@ def _parse_family(ancestry: _IntermediateAncestry, element: Element):
         father = ancestry.people[father_handle]
         for presence in _parse_eventrefs(ancestry, element):
             father.presences.add(presence)
-        parents.add(father)
+        parents.append(father)
 
     # Parse the mother.
     mother_handle = _xpath1(element, './ns:mother/@hlink')
@@ -199,7 +199,7 @@ def _parse_family(ancestry: _IntermediateAncestry, element: Element):
         mother = ancestry.people[mother_handle]
         for presence in _parse_eventrefs(ancestry, element):
             mother.presences.add(presence)
-        parents.add(mother)
+        parents.append(mother)
 
     # Parse the children.
     child_handles = _xpath(element, './ns:childref/@hlink')
