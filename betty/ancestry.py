@@ -8,13 +8,13 @@ from geopy import Point
 
 class EventHandlingSet:
     def __init__(self, addition_handler=None, removal_handler=None):
-        self._values = set()
+        self._values = []
         self._addition_handler = addition_handler
         self._removal_handler = removal_handler
 
     @property
-    def values(self) -> Set:
-        return self._values
+    def list(self) -> List:
+        return list(self._values)
 
     def add(self, *values):
         for value in values:
@@ -23,7 +23,7 @@ class EventHandlingSet:
     def _add_one(self, value):
         if value in self._values:
             return
-        self._values.add(value)
+        self._values.append(value)
         if self._addition_handler is not None:
             self._addition_handler(value)
 
@@ -35,7 +35,7 @@ class EventHandlingSet:
             self._removal_handler(value)
 
     def replace(self, values: Iterable):
-        for value in set(self._values):
+        for value in list(self._values):
             self.remove(value)
         for value in values:
             self.add(value)
@@ -489,6 +489,7 @@ class Event(Identifiable, Dated, HasFiles, HasCitations):
         self._presences.replace(presences)
 
 
+@total_ordering
 class Person(Identifiable, HasFiles, HasCitations):
     def __init__(self, person_id: str, individual_name: str = None, family_name: str = None):
         Identifiable.__init__(self, person_id)
@@ -510,6 +511,16 @@ class Person(Identifiable, HasFiles, HasCitations):
 
         self._presences = EventHandlingSet(
             handle_presence_addition, handle_presence_removal)
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return self.id == other.id
+
+    def __gt__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return self.id > other.id
 
     @property
     def individual_name(self) -> Optional[str]:
@@ -570,12 +581,12 @@ class Person(Identifiable, HasFiles, HasCitations):
         self._children.replace(children)
 
     @property
-    def siblings(self):
-        siblings = set()
+    def siblings(self) -> List:
+        siblings = []
         for parent in self._parents:
             for sibling in parent.children:
-                if sibling != self:
-                    siblings.add(sibling)
+                if sibling != self and sibling not in siblings:
+                    siblings.append(sibling)
         return siblings
 
     @property

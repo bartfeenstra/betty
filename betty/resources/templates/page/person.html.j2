@@ -24,14 +24,14 @@
     {% set children = person.children | list %}
     {% if children | length > 0 %}
         <h2>Children</h2>
-        {% for siblings in children | groupby('parents.values') %}
+        {% for parents, siblings in children | groupby('parents.list') %}
             <p>
-                {% set otherParents = (siblings.grouper - set([person])) %}
-                {% if otherParents | length > 0 %}
-                    with {{ otherParents | map(otherParentLabel) | join(', ') }}:
+                {% set _ = parents.remove(person) %}
+                {% if parents | length > 0 %}
+                    with {{ parents | map(otherParentLabel) | join(', ') }}:
                 {% endif %}
             <ul>
-                {% for child in siblings.list %}
+                {% for child in siblings %}
                     <li typeof="foaf:Person" property="rel:parentOf">{{ personMacros.label(child) }}</li>
                 {% endfor %}
             </ul>

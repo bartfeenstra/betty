@@ -8,11 +8,11 @@ from betty.ancestry import EventHandlingSet, Person, Event, Place, Date, File, N
 
 
 class EventHandlingSetTest(TestCase):
-    def test_values(self):
+    def test_list(self):
         sut = EventHandlingSet()
         value = 'Some value'
         sut.add(value)
-        self.assertEquals({value}, sut.values)
+        self.assertEquals([value], sut.list)
 
     def test_with_handler(self):
         reference = []
