@@ -41,19 +41,21 @@ class Configuration:
         return join(self.output_directory_path, 'www')
 
     @property
-    def base_url(self):
+    def base_url(self) -> str:
         return self._base_url
 
     @property
-    def root_path(self):
+    def root_path(self) -> str:
         return self._root_path
 
     @root_path.setter
-    def root_path(self, root_path: bool):
+    def root_path(self, root_path: str):
+        if not root_path.endswith('/'):
+            root_path += '/'
         self._root_path = root_path
 
     @property
-    def clean_urls(self):
+    def clean_urls(self) -> bool:
         return self._clean_urls
 
     @clean_urls.setter
