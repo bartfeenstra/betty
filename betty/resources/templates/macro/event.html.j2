@@ -5,37 +5,36 @@
 
     {% set ns = namespace(subjects=[]) %}
     {% for presence in event.presences %}
-        {% if presence.Role.SUBJECT == presence.role and presence.person != person_context %}
+        {% if PresenceRole.SUBJECT == presence.role and presence.person != person_context %}
             {% set ns.subjects = ns.subjects + [presence.person] %}
         {% endif %}
     {% endfor %}
 
-
     {%- if ns.subjects | length > 0 -%}
-        {%- if person_context %} with {% else %} of {% endif -%}
+        {%- if person_context is not none and person_context in (event.presences | selectattr('role', 'equalto', PresenceRole.SUBJECT) | map(attribute='person')) %} with {% else %} of {% endif -%}
         {{ ns.subjects | sort(attribute='names') | map(personMacros.label) | join(' and ') }}
     {%- endif -%}
 {%- endmacro -%}
 
 {% macro type_label(event) -%}
     {%- set _type_labels = {
-        event.Type.BIRTH: 'Birth',
-        event.Type.BAPTISM: 'Baptism',
-        event.Type.CREMATION: 'Cremation',
-        event.Type.DEATH: 'Death',
-        event.Type.BURIAL: 'Burial',
-        event.Type.MARRIAGE: 'Marriage',
-        event.Type.RESIDENCE: 'Residence',
-        event.Type.IMMIGRATION: 'Immigration',
-        event.Type.EMIGRATION: 'Emigration',
+        EventType.BIRTH: 'Birth',
+        EventType.BAPTISM: 'Baptism',
+        EventType.CREMATION: 'Cremation',
+        EventType.DEATH: 'Death',
+        EventType.BURIAL: 'Burial',
+        EventType.MARRIAGE: 'Marriage',
+        EventType.RESIDENCE: 'Residence',
+        EventType.IMMIGRATION: 'Immigration',
+        EventType.EMIGRATION: 'Emigration',
     } -%}
     {{ _type_labels[event.type] }}
 {%- endmacro -%}
 
 {% macro presence_role_label(presence) -%}
     {%- set _role_labels = {
-        presence.Role.SUBJECT: 'Subject',
-        presence.Role.WITNESS: 'Witness',
+        PresenceRole.SUBJECT: 'Subject',
+        PresenceRole.WITNESS: 'Witness',
     } -%}
     {%- if presence.role in _role_labels -%}
         {{ _role_labels[presence.role] }}

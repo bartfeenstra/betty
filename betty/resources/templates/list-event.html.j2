@@ -5,7 +5,7 @@
             {{ eventMacros.label(event, person_context=person_context | default(None)) }}
             {% if person_context is not none %}
                 {% for presence in event.presences %}
-                    {% if presence.person == person_context and presence.role != presence.Role.SUBJECT %}
+                    {% if presence.person == person_context and presence.role != PresenceRole.SUBJECT %}
                         ({{ eventMacros.presence_role_label(presence) }})
                     {% endif %}
                 {% endfor %}
