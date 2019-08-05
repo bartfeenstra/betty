@@ -241,18 +241,18 @@ ul.file-controls li a:hover {
 }
 
 #site-title {
-  line-height: 3rem;
-  padding: 0 1rem;
-  text-transform: uppercase;
-  width: calc(75% - 2rem);
+  background-image: url("{{ '/betty-32x32.png' | file_url }}");
+  background-position: center;
+  background-repeat: no-repeat;
+  display: block;
+  height: 3rem;
+  opacity: 0.7;
+  text-indent: -999em;
+  width: 3rem;
 }
 
-#site-title a {
-  color: #777;
-}
-
-#site-title a:hover {
-  color: #000;
+#site-title:hover {
+  opacity: 1;
 }
 
 .nav-primary-toggle {

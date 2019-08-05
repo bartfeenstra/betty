@@ -12,7 +12,7 @@ class Configuration:
         self._site_directory_path = getcwd()
         self._cache_directory_path = join(expanduser('~'), '.betty')
         self._output_directory_path = output_directory_path
-        self._base_url = base_url.rstrip('/')
+        self._base_url = base_url.rstrip('/') if not base_url.endswith('://') else base_url
         self._root_path = '/'
         self._clean_urls = False
         self._title = 'Betty'
@@ -50,9 +50,8 @@ class Configuration:
 
     @root_path.setter
     def root_path(self, root_path: str):
-        if not root_path.endswith('/'):
-            root_path += '/'
-        self._root_path = root_path
+        root_path = root_path.rstrip('/')
+        self._root_path = '/' + root_path if not root_path.startswith('/') else root_path
 
     @property
     def clean_urls(self) -> bool:
