@@ -438,6 +438,8 @@ class Event(Identifiable, Dated, HasFiles, HasCitations):
         BURIAL = 'burial'
         MARRIAGE = 'marriage'
         RESIDENCE = 'residence'
+        IMMIGRATION = 'immigration'
+        EMIGRATION = 'emigration'
 
     def __init__(self, event_id: str, entity_type: Type, date: Optional[Date] = None, place: Optional[Place] = None):
         Identifiable.__init__(self, event_id)
