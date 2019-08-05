@@ -63,9 +63,10 @@ class ConfigurationTest(TestCase):
 
     def test_root_path(self):
         sut = Configuration('/tmp/betty', 'https://example.com')
-        root_path = '/betty'
-        sut.root_path = root_path
-        self.assertEquals(root_path, sut.root_path)
+        configured_root_path = '/betty'
+        expected_root_path = '/betty/'
+        sut.root_path = configured_root_path
+        self.assertEquals(expected_root_path, sut.root_path)
 
     def test_clean_urls(self):
         sut = Configuration('/tmp/betty', 'https://example.com')
@@ -110,12 +111,13 @@ class FromTest(TestCase):
             self.assertEquals(title, configuration.title)
 
     def test_from_file_should_root_path(self):
-        root_path = '/betty'
+        configured_root_path = '/betty'
+        expected_root_path = '/betty/'
         config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['root_path'] = root_path
+        config_dict['root_path'] = configured_root_path
         with self._write(config_dict) as f:
             configuration = from_file(f)
-            self.assertEquals(root_path, configuration.root_path)
+            self.assertEquals(expected_root_path, configuration.root_path)
 
     def test_from_file_should_clean_urls(self):
         clean_urls = True
