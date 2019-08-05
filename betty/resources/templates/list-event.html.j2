@@ -3,7 +3,7 @@
     {%- for event in events | rejectattr('date', 'none') | selectattr('date.complete') | sort(attribute='date') %}
         <li class="{{ loop.cycle('odd', 'even') }}">
             {{ eventMacros.label(event, person_context=person_context | default(None)) }}
-            {% if person_content is not none %}
+            {% if person_context is not none %}
                 {% for presence in event.presences %}
                     {% if presence.person == person_context and presence.role != presence.Role.SUBJECT %}
                         ({{ eventMacros.presence_role_label(presence) }})
