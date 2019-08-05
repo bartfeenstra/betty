@@ -1,1 +1,14 @@
-{{ site.ancestry.people | json }}
+{% import 'macro/person.html.j2' as personMacros %}
+{% set ns = namespace(people={}) %}
+{% for person in site.ancestry.people.values() %}
+    {% set _ = ns.people.update({
+        person.id: {
+            'id': person.id,
+            'label': personMacros.label(person) | striptags,
+            'url': ('/person/' ~ person.id) | url,
+            'parentIds': person.parents | map(attribute='id') | list,
+            'childIds': person.children | map(attribute='id') | list,
+        }
+    }) %}
+{% endfor %}
+{{ ns.people | json }}

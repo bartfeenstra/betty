@@ -5,7 +5,6 @@ import treesStyle from './trees.css' // eslint-disable-line no-unused-vars
 import cytoscape from 'cytoscape'
 import dagre from 'cytoscape-dagre'
 import people from './people.json'
-import configuration from './configuration.js'
 
 cytoscape.use(dagre)
 
@@ -87,19 +86,11 @@ function initializeAncestryTree (container, personId) {
 }
 
 function personToNode (person, nodes) {
-  const label = person.private ? 'private' : person.family_name + ', ' + person.individual_name
-  let url = ''
-  if (!person.private) {
-    url += configuration.baseUrl + configuration.rootPath + '/person/' + person.id
-    if (!configuration.cleanUrls) {
-      url += '/index.html'
-    }
-  }
   nodes.push({
     data: {
       id: person.id,
-      label: label,
-      url: url
+      label: person.label,
+      url: person.url
     },
     selectable: false,
     grabbable: false,
@@ -109,7 +100,7 @@ function personToNode (person, nodes) {
 }
 
 function parentsToElements (child, elements) {
-  for (let parentId of child.parent_ids) {
+  for (let parentId of child.parentIds) {
     let parent = people[parentId]
     elements.edges.push({
       data: {
@@ -123,7 +114,7 @@ function parentsToElements (child, elements) {
 }
 
 function childrenToElements (parent, elements) {
-  for (let childId of parent.child_ids) {
+  for (let childId of parent.childIds) {
     let child = people[childId]
     elements.edges.push({
       data: {

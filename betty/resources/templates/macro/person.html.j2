@@ -1,4 +1,27 @@
-{% macro label(person, link=True) %}
+{% macro label(person, context=None) %}
+    {%- if context != person -%}
+        <a href="{{ ('/person/' ~ person.id) | url }}">
+    {%- endif -%}
+    {%- if person.private -%}
+        <span class="private" title="This person's details are unavailable to protect their privacy.">private</span>
+    {%- else -%}
+        <span typeof="foaf:Person">
+        {% if person.individual_name -%}
+            <span property="foaf:individualName">{{ person.individual_name }}</span>
+        {%- else -%}
+            …
+        {%- endif -%}
+        {%- if person.family_name %}
+            <span property="foaf:familyName">{{ person.family_name }}</span>
+        {%- endif -%}
+        </span>
+    {%- endif -%}
+    {%- if context != person -%}
+        </a>
+    {%- endif -%}
+{% endmacro %}
+
+{% macro sortableLabel(person, link=True) %}
     {%- if link -%}
         <a href="{{ ('/person/' ~ person.id) | url }}">
     {%- endif -%}
@@ -6,17 +29,17 @@
         <span class="private" title="This person's details are unavailable to protect their privacy.">private</span>
     {%- else -%}
         <span typeof="foaf:Person">
-    {%- if person.family_name -%}
-        <span property="foaf:familyName">{{ person.family_name }}</span>
-    {%- else -%}
-        …
-    {%- endif -%}
-    , {% if person.individual_name -%}
-        <span property="foaf:individualName">{{ person.individual_name }}</span>
-    {%- else -%}
-        …
-    {%- endif -%}
-    </span>
+        {%- if person.family_name -%}
+            <span property="foaf:familyName">{{ person.family_name }}</span>
+        {%- else -%}
+            …
+        {%- endif -%}
+        , {% if person.individual_name -%}
+            <span property="foaf:individualName">{{ person.individual_name }}</span>
+        {%- else -%}
+            …
+        {%- endif -%}
+        </span>
     {%- endif -%}
     {%- if link -%}
         </a>
