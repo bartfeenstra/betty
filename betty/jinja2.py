@@ -18,7 +18,7 @@ from jinja2.runtime import Macro
 from markupsafe import Markup
 from resizeimage import resizeimage
 
-from betty.ancestry import File, Citation
+from betty.ancestry import File, Citation, Event, Presence
 from betty.config import Configuration
 from betty.fs import iterfiles, makedirs, hashfile
 from betty.functools import walk
@@ -82,7 +82,8 @@ def create_environment(site: Site):
     )
     environment.globals['site'] = site
     environment.globals['plugins'] = _Plugins(site.plugins)
-    environment.globals['set'] = set
+    environment.globals['EventType'] = Event.Type
+    environment.globals['PresenceRole'] = Presence.Role
     environment.globals['urlparse'] = urlparse
     environment.globals['calendar'] = calendar
     environment.filters['map'] = _filter_map

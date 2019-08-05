@@ -13,7 +13,7 @@
 
     {% set ns = namespace(witnesses=[]) %}
     {% for presence in event.presences %}
-        {% if presence.Role.WITNESS == presence.role %}
+        {% if PresenceRole.WITNESS == presence.role %}
             {% set ns.witnesses = ns.witnesses + [presence.person] %}
         {% endif %}
     {% endfor %}
@@ -28,7 +28,7 @@
 
     {% set ns = namespace(attendees=[]) %}
     {% for presence in event.presences %}
-        {% if presence.Role.SUBJECT != presence.role and presence.Role.WITNESS != presence.role %}
+        {% if presence.role not in [PresenceRole.SUBJECT, PresenceRole.WITNESS] %}
             {% set ns.attendees = ns.attendees + [presence.person] %}
         {% endif %}
     {% endfor %}
