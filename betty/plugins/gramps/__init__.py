@@ -162,7 +162,8 @@ def _parse_person(ancestry: _IntermediateAncestry, element: Element):
         element, './ns:name[@type="Birth Name"]/ns:first').text
     family_name = _xpath1(
         element, './ns:name[@type="Birth Name"]/ns:surname').text
-    person = Person(_xpath1(element, './@id'), individual_name, family_name)
+    person = Person(str(_xpath1(element, './@id')),
+                    individual_name, family_name)
     person.presences = _parse_eventrefs(ancestry, element)
     if str(_xpath1(element, './@priv')) == '1':
         person.private = True
