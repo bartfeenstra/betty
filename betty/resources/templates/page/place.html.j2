@@ -18,7 +18,9 @@
     {% endif %}
 
     {%- if 'betty.plugins.wikipedia.Wikipedia' in plugins %}
-        {% include 'wikipedia.html.j2' %}
+        {% with entity=place %}
+            {% include 'wikipedia.html.j2' %}
+        {% endwith %}
     {% endif -%}
 
     {% set events = place.events | list + place | walk('encloses') | map(attribute="events") | flatten | list %}

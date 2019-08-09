@@ -11,6 +11,12 @@
         {% endwith %}
     {% endif %}
 
+    {%- if 'betty.plugins.wikipedia.Wikipedia' in plugins %}
+        {% with entity=person %}
+            {% include 'wikipedia.html.j2' %}
+        {% endwith %}
+    {% endif -%}
+
     {% set parents = person.parents | list %}
     {% if parents | length > 0 %}
         <h2>Parents</h2>
