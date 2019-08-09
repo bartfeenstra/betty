@@ -136,7 +136,9 @@ class ParseXmlFileTestCase(TestCase):
         self.assertEquals('Library of Alexandria', source.name)
 
     def test_source_from_repository_should_include_link(self):
-        link = self.ancestry.sources['R0000'].link
+        links = self.ancestry.sources['R0000'].links
+        self.assertEquals(1, len(links))
+        link = list(links)[0]
         self.assertEquals('https://alexandria.example.com', link.uri)
         self.assertEquals('Library of Alexandria Catalogue', link.label)
 

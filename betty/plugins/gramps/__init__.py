@@ -10,7 +10,7 @@ from lxml import etree
 from lxml.etree import XMLParser, Element
 
 from betty.ancestry import Event, Place, Person, Ancestry, Date, Note, File, Link, Source, HasFiles, Citation, \
-    Presence
+    Presence, HasLinks
 from betty.fs import makedirs
 from betty.parse import ParseEvent
 from betty.plugin import Plugin
@@ -173,6 +173,7 @@ def _parse_person(ancestry: _IntermediateAncestry, element: Element):
         person.citations.add(ancestry.citations[citation_handle])
 
     _parse_objref(ancestry, person, element)
+    _parse_urls(person, element)
 
     ancestry.people[handle] = person
 
@@ -257,10 +258,7 @@ def _parse_place(element: Element) -> Tuple[str, _IntermediatePlace]:
     # Set the first place reference as the place that encloses this place.
     enclosed_by_handle = _xpath1(element, './ns:placeref/@hlink')
 
-    # Parse the URLs.
-    url_elements = _xpath(element, './ns:url')
-    for url_element in url_elements:
-        place.links.add(_parse_url(url_element))
+    _parse_urls(place, element)
 
     return handle, _IntermediatePlace(place, enclosed_by_handle)
 
@@ -321,12 +319,6 @@ def _parse_event(ancestry: _IntermediateAncestry, element: Element):
     ancestry.events[handle] = event
 
 
-def _parse_url(element: Element) -> Link:
-    uri = str(_xpath1(element, './@href'))
-    label = str(_xpath1(element, './@description'))
-    return Link(uri, label)
-
-
 def _parse_repositories(ancestry: _IntermediateAncestry, database: Element) -> None:
     for element in database.xpath('.//*[local-name()="repository"]'):
         _parse_repository(ancestry, element)
@@ -338,10 +330,7 @@ def _parse_repository(ancestry: _IntermediateAncestry, element: Element) -> None
     source = Source(_xpath1(element, './@id'),
                     _xpath1(element, './ns:rname').text)
 
-    # Parse the URL.
-    url_element = _xpath1(element, './ns:url')
-    if url_element is not None:
-        source.link = _parse_url(url_element)
+    _parse_urls(source, element)
 
     ancestry.sources[handle] = source
 
@@ -391,6 +380,14 @@ def _parse_objref(ancestry: _IntermediateAncestry, owner: HasFiles, element: Ele
     file_handles = _xpath(element, './ns:objref/@hlink')
     for file_handle in file_handles:
         owner.files.add(ancestry.files[file_handle])
+
+
+def _parse_urls(owner: HasLinks, element: Element):
+    url_elements = _xpath(element, './ns:url')
+    for url_element in url_elements:
+        uri = str(_xpath1(url_element, './@href'))
+        label = str(_xpath1(url_element, './@description'))
+        owner.links.add(Link(uri, label))
 
 
 class Gramps(Plugin):
