@@ -434,6 +434,7 @@ class Event(Identifiable, Dated, HasFiles, HasCitations):
         DEATH = 'death'
         BURIAL = 'burial'
         MARRIAGE = 'marriage'
+        MARRIAGE_BANNS = 'marriage-banns'
         RESIDENCE = 'residence'
         IMMIGRATION = 'immigration'
         EMIGRATION = 'emigration'
