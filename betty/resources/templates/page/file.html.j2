@@ -4,7 +4,7 @@
     {% if file.type.startswith('image/') %}
         <div class="featured image">
             <a href="{{ file | file | file_url }}">
-                <img src="{{ file | file | file_url }}" alt="{{ file.description }}"/>
+                <img src="{{ file | image(1200, 1200) | file_url }}" alt="{{ file.description }}"/>
             </a>
         </div>
     {% endif %}
