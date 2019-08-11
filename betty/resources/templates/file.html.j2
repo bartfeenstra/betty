@@ -27,7 +27,7 @@
         <div class="file-content">
             {% if file.type.startswith('image/') %}
                 <figure>
-                    <img src="{{ file | file | file_url }}" alt="{{ file.description }}" title="{{ file.description }}" class="image-fit"/>
+                    <img src="{{ file | image(1200, 1200) | file_url }}" alt="{{ file.description }}" title="{{ file.description }}" class="image-fit"/>
                     {% if file.description %}
                         <figcaption>{{ file.description }}</figcaption>
                     {% endif %}
