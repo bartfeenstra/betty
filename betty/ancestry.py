@@ -550,17 +550,19 @@ class Person(Identifiable, HasFiles, HasCitations, HasLinks):
         self._presences.replace(presences)
 
     @property
-    def birth(self) -> Optional[Event]:
-        for presence in self.presences:
-            if presence.event.type == Event.Type.BIRTH and presence.role == Presence.Role.SUBJECT:
-                return presence.event
+    def start(self) -> Optional[Event]:
+        for event_type in [Event.Type.BIRTH, Event.Type.BAPTISM]:
+            for presence in self.presences:
+                if presence.event.type == event_type and presence.role == Presence.Role.SUBJECT:
+                    return presence.event
         return None
 
     @property
-    def death(self) -> Optional[Event]:
-        for presence in self.presences:
-            if presence.event.type == Event.Type.DEATH and presence.role == Presence.Role.SUBJECT:
-                return presence.event
+    def end(self) -> Optional[Event]:
+        for event_type in [Event.Type.DEATH, Event.Type.BURIAL]:
+            for presence in self.presences:
+                if presence.event.type == event_type and presence.role == Presence.Role.SUBJECT:
+                    return presence.event
         return None
 
     @property
