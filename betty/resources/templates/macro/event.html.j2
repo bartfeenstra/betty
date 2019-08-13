@@ -12,7 +12,8 @@
 
     {%- if ns.subjects | length > 0 -%}
         {%- if person_context is not none and person_context in (event.presences | selectattr('role', 'equalto', PresenceRole.SUBJECT) | map(attribute='person')) %} with {% else %} of {% endif -%}
-        {{ ns.subjects | sort(attribute='names') | map(personMacros.label) | join(' and ') }}
+        {{ ns.subjects | sort(attribute='name
+        s') | map(personMacros.label) | join(' and ') }}
     {%- endif -%}
 {%- endmacro -%}
 
