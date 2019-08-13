@@ -2,7 +2,7 @@
     <a href="#file-{{ file.id }}" class="file-summary">
         {% if file.type.startswith('image/') %}
             <figure>
-                <img src="{{ file | image(300, 300) | file_url }}" alt="{{ file.description }}"/>
+                <img src="{{ file | image(300, 300) | url }}" alt="{{ file.description }}"/>
                 {% if file.description %}
                     <figcaption>{{ file.description }}</figcaption>
                 {% endif %}
@@ -13,9 +13,9 @@
     </a>
     <div id="file-{{ file.id }}" class="file-extended">
         <ul class="file-controls">
-            <li><a href="{{ file | file | file_url }}" title="View original in full">⇔</a></li>
-            <li><a href="{{ file | file | file_url }}" download="{{ file.name }}" title="Download this file">⇓</a></li>
-            <li><a href="{{ ('/file/' ~ file.id) | url }}" title="More details">ℹ</a></li>
+            <li><a href="{{ file | file | url }}" title="View original in full">⇔</a></li>
+            <li><a href="{{ file | file | url }}" download="{{ file.name }}" title="Download this file">⇓</a></li>
+            <li><a href="{{ file | url }}" title="More details">ℹ</a></li>
             <li><a href="#" title="Close this file">×</a></li>
             {% if previous_file %}
                 <li class="file-nav file-previous"><a href="#file-{{ previous_file.id }}" title="{{ previous_file.description }}">←</a></li>
@@ -27,7 +27,7 @@
         <div class="file-content">
             {% if file.type.startswith('image/') %}
                 <figure>
-                    <img src="{{ file | image(1200, 1200) | file_url }}" alt="{{ file.description }}" title="{{ file.description }}" class="image-fit"/>
+                    <img src="{{ file | image(1200, 1200) | url }}" alt="{{ file.description }}" title="{{ file.description }}" class="image-fit"/>
                     {% if file.description %}
                         <figcaption>{{ file.description }}</figcaption>
                     {% endif %}

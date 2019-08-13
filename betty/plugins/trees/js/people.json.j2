@@ -5,7 +5,7 @@
         person.id: {
             'id': person.id,
             'label': personMacros.label(person) | striptags,
-            'url': ('/person/' ~ person.id) | url,
+            'url': person | url,
             'parentIds': person.parents | map(attribute='id') | list,
             'childIds': person.children | map(attribute='id') | list,
         }

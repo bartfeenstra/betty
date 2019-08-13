@@ -19,13 +19,12 @@ from markupsafe import Markup
 from resizeimage import resizeimage
 
 from betty.ancestry import File, Citation, Event, Presence
-from betty.config import Configuration
 from betty.fs import iterfiles, makedirs, hashfile
 from betty.functools import walk
 from betty.json import JSONEncoder
 from betty.plugin import Plugin
 from betty.site import Site
-
+from betty.url import UrlGenerator
 
 _root_loader = FileSystemLoader('/')
 
@@ -94,10 +93,7 @@ def create_environment(site: Site):
     environment.filters['paragraphs'] = _filter_paragraphs
     environment.filters['format_degrees'] = _filter_format_degrees
     environment.globals['citer'] = _Citer()
-    environment.filters['url'] = lambda *args, **kwargs: _filter_url(
-        site.configuration, *args, **kwargs)
-    environment.filters['file_url'] = lambda *args, **kwargs: _filter_file_url(
-        site.configuration, *args, **kwargs)
+    environment.filters['url'] = UrlGenerator(site.configuration).generate
     environment.filters['file'] = lambda *args: _filter_file(site, *args)
     environment.filters['image'] = lambda *args, **kwargs: _filter_image(
         site, *args, **kwargs)
@@ -189,21 +185,6 @@ def _filter_takewhile(context, seq, *args, **kwargs):
         func = bool
     if seq:
         yield from takewhile(func, seq)
-
-
-def _filter_url(configuration: Configuration, path: str, absolute=False):
-    url = _filter_file_url(configuration, path, absolute)
-    if not configuration.clean_urls:
-        url += '/index.html'
-    return url
-
-
-def _filter_file_url(configuration: Configuration, path: str, absolute=False):
-    url = configuration.base_url if absolute else ''
-    path = (configuration.root_path.strip(
-        '/') + '/' + path.strip('/')).strip('/')
-    url += '/' + path
-    return url
 
 
 def _filter_file(site: Site, file: File) -> str:
