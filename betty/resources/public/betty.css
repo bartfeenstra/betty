@@ -141,6 +141,15 @@ footer {
   text-decoration: dotted underline;
 }
 
+.aka {
+  color: #777;
+  font-size: 0.9rem;
+}
+
+.aka .person-label {
+  font-style: italic;
+}
+
 /*
  * Media.
  */

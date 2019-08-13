@@ -62,7 +62,7 @@ class PrivatizerTest(TestCase):
 
     @_expand(0)
     def test_privatize_without_relatives(self, expected, private, event: Optional[Event]):
-        person = Person('P0', 'Janet', 'Dough')
+        person = Person('P0')
         person.private = private
         if event is not None:
             presence = Presence(Presence.Role.SUBJECT)
@@ -76,7 +76,7 @@ class PrivatizerTest(TestCase):
 
     @_expand(1)
     def test_privatize_with_child(self, expected, private, event: Optional[Event]):
-        person = Person('P0', 'Janet', 'Dough')
+        person = Person('P0')
         person.private = private
         child = Person('P1')
         if event is not None:
@@ -93,7 +93,7 @@ class PrivatizerTest(TestCase):
 
     @_expand(2)
     def test_privatize_with_grandchild(self, expected, private, event: Optional[Event]):
-        person = Person('P0', 'Janet', 'Dough')
+        person = Person('P0')
         person.private = private
         child = Person('P1')
         person.children.add(child)
@@ -113,7 +113,7 @@ class PrivatizerTest(TestCase):
 
     @_expand(3)
     def test_privatize_with_great_grandchild(self, expected, private, event: Optional[Event]):
-        person = Person('P0', 'Janet', 'Dough')
+        person = Person('P0')
         person.private = private
         child = Person('P1')
         person.children.add(child)
@@ -133,7 +133,7 @@ class PrivatizerTest(TestCase):
 
     @_expand(-1)
     def test_privatize_with_parent(self, expected, private, event: Optional[Event]):
-        person = Person('P0', 'Janet', 'Dough')
+        person = Person('P0')
         person.private = private
         parent = Person('P1')
         if event is not None:
@@ -150,7 +150,7 @@ class PrivatizerTest(TestCase):
 
     @_expand(-2)
     def test_privatize_with_grandparent(self, expected, private, event: Optional[Event]):
-        person = Person('P0', 'Janet', 'Dough')
+        person = Person('P0')
         person.private = private
         parent = Person('P1')
         person.parents.add(parent)
@@ -170,7 +170,7 @@ class PrivatizerTest(TestCase):
 
     @_expand(-3)
     def test_privatize_with_great_grandparent(self, expected, private, event: Optional[Event]):
-        person = Person('P0', 'Janet', 'Dough')
+        person = Person('P0')
         person.private = private
         parent = Person('P1')
         person.parents.add(parent)

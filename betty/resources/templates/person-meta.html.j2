@@ -1,24 +1,33 @@
+{% import 'macro/person.html.j2' as personMacros %}
 <div class="meta">
     {%- if person.private -%}
         <p>This person's details are unavailable to protect their privacy.</p>
-    {%- elif person.birth or person.death %}
-        <dl>
-            {%- if person.birth %}
-                <dt>Birth</dt>
-                <dd>
-                    {%- with event=person.birth -%}
-                        {% include 'event-dimensions.html.j2' %}
-                    {%- endwith -%}
-                </dd>
-            {%- endif %}
-            {%- if person.death %}
-                <dt>Death</dt>
-                <dd>
-                    {%- with event=person.death -%}
-                        {% include 'event-dimensions.html.j2' %}
-                    {%- endwith -%}
-                </dd>
-            {%- endif %}
-        </dl>
+    {%- else -%}
+        {%- if person.alternative_names | length > 0 -%}
+
+            MAKE A MACRO FOR THESE ALTERNATIVE NAME LABELS SO WE CAN PRINT CITATIONS
+
+            <span class="aka">Also known as {{ person.alternative_names | map(personMacros.nameLabel) | join(', ') }}</span>
+        {%- endif -%}
+        {%- if person.birth or person.death %}
+            <dl>
+                {%- if person.birth %}
+                    <dt>Birth</dt>
+                    <dd>
+                        {%- with event=person.birth -%}
+                            {% include 'event-dimensions.html.j2' %}
+                        {%- endwith -%}
+                    </dd>
+                {%- endif %}
+                {%- if person.death %}
+                    <dt>Death</dt>
+                    <dd>
+                        {%- with event=person.death -%}
+                            {% include 'event-dimensions.html.j2' %}
+                        {%- endwith -%}
+                    </dd>
+                {%- endif %}
+            </dl>
+        {%- endif -%}
     {%- endif %}
 </div>

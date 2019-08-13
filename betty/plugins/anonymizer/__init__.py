@@ -14,8 +14,8 @@ def anonymize(ancestry: Ancestry) -> None:
 
 
 def anonymize_person(person: Person) -> None:
-    person.individual_name = None
-    person.family_name = None
+    person.name = None
+    person.alternative_names = []
     for presence in set(person.presences):
         person.presences.remove(presence)
         event = presence.event

@@ -5,21 +5,25 @@
     {%- if person.private -%}
         <span class="private" title="This person's details are unavailable to protect their privacy.">private</span>
     {%- else -%}
-        <span typeof="foaf:Person">
-        {% if person.individual_name -%}
-            <span property="foaf:individualName">{{ person.individual_name }}</span>
-        {%- else -%}
-            …
-        {%- endif -%}
-        {%- if person.family_name %}
-            <span property="foaf:familyName">{{ person.family_name }}</span>
-        {%- endif -%}
-        </span>
+        {{ nameLabel(person.name) }}
     {%- endif -%}
     {%- if context != person -%}
         </a>
     {%- endif -%}
 {% endmacro %}
+
+{%- macro nameLabel(name) -%}
+    <span class="person-label" typeof="foaf:Person">
+    {% if name.individual -%}
+        <span property="foaf:individualName">{{ name.individual.name }}</span>
+    {%- else -%}
+        …
+    {%- endif -%}
+    {%- if name.family %}
+        <span property="foaf:familyName">{{ name.family }}</span>
+    {%- endif -%}
+    </span>
+{%- endmacro -%}
 
 {% macro sortableLabel(person, link=True) %}
     {%- if link -%}
@@ -28,14 +32,14 @@
     {%- if person.private -%}
         <span class="private" title="This person's details are unavailable to protect their privacy.">private</span>
     {%- else -%}
-        <span typeof="foaf:Person">
-        {%- if person.family_name -%}
-            <span property="foaf:familyName">{{ person.family_name }}</span>
+        <span class="person-label" typeof="foaf:Person">
+        {%- if person.name.family -%}
+            <span property="foaf:familyName">{{ person.name.family }}</span>
         {%- else -%}
             …
         {%- endif -%}
-        , {% if person.individual_name -%}
-            <span property="foaf:individualName">{{ person.individual_name }}</span>
+        , {% if person.name.individual -%}
+            <span property="foaf:individualName">{{ person.name.individual.name }}</span>
         {%- else -%}
             …
         {%- endif -%}

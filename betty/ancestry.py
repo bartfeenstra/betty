@@ -488,14 +488,95 @@ class Event(Identifiable, Dated, HasFiles, HasCitations):
 
 
 @total_ordering
+class IndividualName:
+    def __init__(self, name: str = '', nick: str = ''):
+        self._name = name
+        self._nick = nick
+
+    def __eq__(self, other):
+        if not isinstance(other, IndividualName):
+            return NotImplemented
+        return self._name == other._name
+
+    def __gt__(self, other):
+        if not isinstance(other, IndividualName):
+            return NotImplemented
+        return self._name > other._name
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def nick(self) -> Optional[str]:
+        return self._nick
+
+
+@total_ordering
+class FamilyName:
+    def __init__(self, name: str, prefix: str = ''):
+        self._name = name
+        self._prefix = prefix
+
+    def __eq__(self, other):
+        if not isinstance(other, FamilyName):
+            return NotImplemented
+        return self._name, self._prefix == other._name, other._prefix
+
+    def __gt__(self, other):
+        if not isinstance(other, FamilyName):
+            return NotImplemented
+        return self._name, self._prefix > other._name, other._prefix
+
+    def __str__(self):
+        if self._prefix is None:
+            return self._name
+        return '%s %s' % (self._prefix, self._name)
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def prefix(self) -> str:
+        return self._prefix
+
+
+@total_ordering
+class Name(HasCitations):
+    def __init__(self, individual: IndividualName = '', family: FamilyName = ''):
+        HasCitations.__init__(self)
+        self._individual = individual
+        self._family = family
+
+    def __eq__(self, other):
+        if not isinstance(other, Name):
+            return NotImplemented
+        return self._family, self._individual == other._family, other._individual
+
+    def __gt__(self, other):
+        if not isinstance(other, Name):
+            return NotImplemented
+        return self._family, self._individual > other._family, other._individual
+
+    @property
+    def individual(self) -> IndividualName:
+        return self._individual
+
+    @property
+    def family(self) -> FamilyName:
+        return self._family
+
+
+@total_ordering
 class Person(Identifiable, HasFiles, HasCitations, HasLinks):
-    def __init__(self, person_id: str, individual_name: str = None, family_name: str = None):
+    def __init__(self, person_id: str):
         Identifiable.__init__(self, person_id)
         HasFiles.__init__(self)
         HasCitations.__init__(self)
         HasLinks.__init__(self)
-        self._individual_name = individual_name
-        self._family_name = family_name
+        self._name = None
+        self._alternative_names = []
         self._parents = EventHandlingSet(lambda parent: parent.children.add(self),
                                          lambda parent: parent.children.remove(self))
         self._children = EventHandlingSet(lambda child: child.parents.add(self),
@@ -522,24 +603,20 @@ class Person(Identifiable, HasFiles, HasCitations, HasLinks):
         return self.id > other.id
 
     @property
-    def individual_name(self) -> Optional[str]:
-        return self._individual_name
+    def name(self) -> Optional[Name]:
+        return self._name
 
-    @individual_name.setter
-    def individual_name(self, name: str):
-        self._individual_name = name
-
-    @property
-    def family_name(self) -> Optional[str]:
-        return self._family_name
-
-    @family_name.setter
-    def family_name(self, name: str):
-        self._family_name = name
+    @name.setter
+    def name(self, name: Name):
+        self._name = name
 
     @property
-    def names(self) -> Tuple[str, str]:
-        return self._family_name or '', self._individual_name or ''
+    def alternative_names(self) -> List[Name]:
+        return self._alternative_names
+
+    @alternative_names.setter
+    def alternative_names(self, names: Iterable[Name]):
+        self._alternative_names = list(names)
 
     @property
     def presences(self) -> Iterable:

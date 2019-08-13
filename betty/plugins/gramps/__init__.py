@@ -10,7 +10,7 @@ from lxml import etree
 from lxml.etree import XMLParser, Element
 
 from betty.ancestry import Event, Place, Person, Ancestry, Date, Note, File, Link, Source, HasFiles, Citation, \
-    Presence, HasLinks
+    Presence, HasLinks, FamilyName, IndividualName, Name
 from betty.fs import makedirs
 from betty.parse import ParseEvent
 from betty.plugin import Plugin
@@ -158,12 +158,23 @@ def _parse_people(ancestry: _IntermediateAncestry, database: Element):
 
 def _parse_person(ancestry: _IntermediateAncestry, element: Element):
     handle = _xpath1(element, './@handle')
-    individual_name = _xpath1(
-        element, './ns:name[@type="Birth Name"]/ns:first').text
-    family_name = _xpath1(
-        element, './ns:name[@type="Birth Name"]/ns:surname').text
-    person = Person(str(_xpath1(element, './@id')),
-                    individual_name, family_name)
+    person = Person(str(_xpath1(element, './@id')))
+    for name_element in _xpath(element, './ns:name'):
+        is_alternative = _xpath1(name_element, './@alt') == '1'
+        individual_name = _xpath1(name_element, './ns:first').text
+        nick_element = _xpath1(name_element, './ns:nick')
+        nick = nick_element.text if nick_element is not None else None
+        for surname_element in _xpath(name_element, './ns:surname'):
+            if not is_alternative:
+                is_alternative = _xpath1(surname_element, './@prim') == '0'
+            family_name = surname_element.text or ''
+            family_name_prefix = _xpath1(surname_element, './@prefix')
+            name = Name(IndividualName(individual_name, nick),
+                        FamilyName(family_name, family_name_prefix))
+            if is_alternative:
+                person.alternative_names.append(name)
+            else:
+                person.name = name
     person.presences = _parse_eventrefs(ancestry, element)
     if str(_xpath1(element, './@priv')) == '1':
         person.private = True
