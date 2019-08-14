@@ -12,7 +12,7 @@
 
 {%- macro referenceLabel(citation) -%}
     {% if citation.description %}
-        <a href="{{ ('/citation/' ~ citation.id) | url }}">{{ citation.description }}</a> ({{ sourceMacros.link(citation.source) }})
+        <a href="{{ citation | url }}">{{ citation.description }}</a> ({{ sourceMacros.link(citation.source) }})
     {% else %}
         {{ sourceMacros.link(citation.source) }}
     {% endif %}
