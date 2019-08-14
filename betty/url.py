@@ -11,12 +11,12 @@ class UrlGenerator:
     def generate(self, target: Any, absolute: bool = False) -> str:
         _GENERATORS = {
             str: self._generate_for_file_path,
-            Person: self._generator_for_identifiable('/person/%s'),
-            Event: self._generator_for_identifiable('/event/%s'),
-            Place: self._generator_for_identifiable('/place/%s'),
-            File: self._generator_for_identifiable('/file/%s'),
-            Source: self._generator_for_identifiable('/source/%s'),
-            Citation: self._generator_for_identifiable('/citation/%s'),
+            Person: self._generator_for_identifiable('person/%s/'),
+            Event: self._generator_for_identifiable('event/%s/'),
+            Place: self._generator_for_identifiable('place/%s/'),
+            File: self._generator_for_identifiable('file/%s/'),
+            Source: self._generator_for_identifiable('source/%s/'),
+            Citation: self._generator_for_identifiable('citation/%s/'),
         }
         generator = _GENERATORS[type(target)]
         return generator(target, absolute)
@@ -27,12 +27,11 @@ class UrlGenerator:
     def _generate_for_directory_path(self, path: str, absolute=False):
         url = self._generate_for_file_path(path, absolute)
         if not self._configuration.clean_urls:
-            url += '/index.html'
+            url += 'index.html'
         return url
 
     def _generate_for_file_path(self, path: str, absolute=False):
         url = self._configuration.base_url if absolute else ''
-        path = (self._configuration.root_path.strip(
-            '/') + '/' + path.strip('/')).strip('/')
-        url += '/' + path
+        url += self._configuration.root_path
+        url += path
         return url
