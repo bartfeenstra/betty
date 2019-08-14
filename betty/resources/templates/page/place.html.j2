@@ -14,11 +14,15 @@
         {% set places = places + [place] %}
     {% endif %}
     {% if places | length > 0 %}
-        {% include 'list-place.html.j2' %}
+        {% with place_context=place %}
+            {% include 'list-place.html.j2' %}
+        {% endwith %}
     {% endif %}
 
     {%- if 'betty.plugins.wikipedia.Wikipedia' in plugins %}
-        {% include 'wikipedia.html.j2' %}
+        {% with entity=place %}
+            {% include 'wikipedia.html.j2' %}
+        {% endwith %}
     {% endif -%}
 
     {% set events = place.events | list + place | walk('encloses') | map(attribute="events") | flatten | list %}

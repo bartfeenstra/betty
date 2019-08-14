@@ -145,6 +145,15 @@ class Link:
         return self._label if self._label else self._uri
 
 
+class HasLinks:
+    def __init__(self):
+        self._links = set()
+
+    @property
+    def links(self) -> Set[Link]:
+        return self._links
+
+
 class File(Identifiable, Described):
     def __init__(self, file_id: str, path: str):
         Identifiable.__init__(self, file_id)
@@ -211,11 +220,11 @@ class HasFiles:
         self._files.replace(files)
 
 
-class Source(Identifiable, Dated):
+class Source(Identifiable, Dated, HasLinks):
     def __init__(self, source_id: str, name: str):
         Identifiable.__init__(self, source_id)
+        HasLinks.__init__(self)
         self._name = name
-        self._link = None
         self._contained_by = None
 
         def handle_contains_addition(source):
@@ -269,14 +278,6 @@ class Source(Identifiable, Dated):
     def name(self, name: str):
         self._name = name
 
-    @property
-    def link(self) -> Optional[Link]:
-        return self._link
-
-    @link.setter
-    def link(self, link: Optional[Link]):
-        self._link = link
-
 
 class Citation(Identifiable, Described, HasFiles):
     def __init__(self, citation_id: str):
@@ -323,12 +324,12 @@ class HasCitations:
         self._citations.replace(citations)
 
 
-class Place(Identifiable):
+class Place(Identifiable, HasLinks):
     def __init__(self, place_id: str, name: str):
         Identifiable.__init__(self, place_id)
+        HasLinks.__init__(self)
         self._name = name
         self._coordinates = None
-        self._links = set()
 
         def handle_event_addition(event: Event):
             event.place = self
@@ -382,10 +383,6 @@ class Place(Identifiable):
     def encloses(self) -> Iterable:
         return self._encloses
 
-    @property
-    def links(self) -> Set[Link]:
-        return self._links
-
 
 class Presence:
     class Role(Enum):
@@ -437,6 +434,7 @@ class Event(Identifiable, Dated, HasFiles, HasCitations):
         DEATH = 'death'
         BURIAL = 'burial'
         MARRIAGE = 'marriage'
+        MARRIAGE_BANNS = 'marriage-banns'
         RESIDENCE = 'residence'
         IMMIGRATION = 'immigration'
         EMIGRATION = 'emigration'
@@ -490,11 +488,12 @@ class Event(Identifiable, Dated, HasFiles, HasCitations):
 
 
 @total_ordering
-class Person(Identifiable, HasFiles, HasCitations):
+class Person(Identifiable, HasFiles, HasCitations, HasLinks):
     def __init__(self, person_id: str, individual_name: str = None, family_name: str = None):
         Identifiable.__init__(self, person_id)
         HasFiles.__init__(self)
         HasCitations.__init__(self)
+        HasLinks.__init__(self)
         self._individual_name = individual_name
         self._family_name = family_name
         self._parents = EventHandlingSet(lambda parent: parent.children.add(self),
@@ -551,17 +550,19 @@ class Person(Identifiable, HasFiles, HasCitations):
         self._presences.replace(presences)
 
     @property
-    def birth(self) -> Optional[Event]:
-        for presence in self.presences:
-            if presence.event.type == Event.Type.BIRTH and presence.role == Presence.Role.SUBJECT:
-                return presence.event
+    def start(self) -> Optional[Event]:
+        for event_type in [Event.Type.BIRTH, Event.Type.BAPTISM]:
+            for presence in self.presences:
+                if presence.event.type == event_type and presence.role == Presence.Role.SUBJECT:
+                    return presence.event
         return None
 
     @property
-    def death(self) -> Optional[Event]:
-        for presence in self.presences:
-            if presence.event.type == Event.Type.DEATH and presence.role == Presence.Role.SUBJECT:
-                return presence.event
+    def end(self) -> Optional[Event]:
+        for event_type in [Event.Type.DEATH, Event.Type.BURIAL]:
+            for presence in self.presences:
+                if presence.event.type == event_type and presence.role == Presence.Role.SUBJECT:
+                    return presence.event
         return None
 
     @property

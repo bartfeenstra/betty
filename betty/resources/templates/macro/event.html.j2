@@ -1,6 +1,6 @@
 {%- macro label(event, person_context=None) -%}
     {%- import 'macro/person.html.j2' as personMacros -%}
-    <a href="{{ ('/event/' ~ event.id) | url }}">{{ type_label(event) }}</a>
+    <a href="{{ event | url }}">{{ type_label(event) }}</a>
 
 
     {% set ns = namespace(subjects=[]) %}
@@ -12,7 +12,8 @@
 
     {%- if ns.subjects | length > 0 -%}
         {%- if person_context is not none and person_context in (event.presences | selectattr('role', 'equalto', PresenceRole.SUBJECT) | map(attribute='person')) %} with {% else %} of {% endif -%}
-        {{ ns.subjects | sort(attribute='names') | map(personMacros.label) | join(' and ') }}
+        {{ ns.subjects | sort(attribute='name
+        s') | map(personMacros.label) | join(' and ') }}
     {%- endif -%}
 {%- endmacro -%}
 
@@ -24,6 +25,7 @@
         EventType.DEATH: 'Death',
         EventType.BURIAL: 'Burial',
         EventType.MARRIAGE: 'Marriage',
+        EventType.MARRIAGE_BANNS: 'Marriage banns',
         EventType.RESIDENCE: 'Residence',
         EventType.IMMIGRATION: 'Immigration',
         EventType.EMIGRATION: 'Emigration',

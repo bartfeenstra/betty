@@ -1,4 +1,4 @@
-{% for entry in place.links | wikipedia %}
+{% for entry in entity.links | wikipedia %}
     {{ entry.content | safe }}
     <p>Read more on <a href="{{ entry.uri }}">Wikipedia</a>.</p>
     <small><a href="https://en.wikipedia.org/wiki/Wikipedia:Copyrights">Copyright</a> Wikipedia and its contributors.</small>

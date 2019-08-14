@@ -19,13 +19,12 @@ from markupsafe import Markup
 from resizeimage import resizeimage
 
 from betty.ancestry import File, Citation, Event, Presence
-from betty.config import Configuration
 from betty.fs import iterfiles, makedirs, hashfile
 from betty.functools import walk
 from betty.json import JSONEncoder
 from betty.plugin import Plugin
 from betty.site import Site
-
+from betty.url import UrlGenerator
 
 _root_loader = FileSystemLoader('/')
 
@@ -94,10 +93,7 @@ def create_environment(site: Site):
     environment.filters['paragraphs'] = _filter_paragraphs
     environment.filters['format_degrees'] = _filter_format_degrees
     environment.globals['citer'] = _Citer()
-    environment.filters['url'] = lambda *args, **kwargs: _filter_url(
-        site.configuration, *args, **kwargs)
-    environment.filters['file_url'] = lambda *args, **kwargs: _filter_file_url(
-        site.configuration, *args, **kwargs)
+    environment.filters['url'] = UrlGenerator(site.configuration).generate
     environment.filters['file'] = lambda *args: _filter_file(site, *args)
     environment.filters['image'] = lambda *args, **kwargs: _filter_image(
         site, *args, **kwargs)
@@ -191,21 +187,6 @@ def _filter_takewhile(context, seq, *args, **kwargs):
         yield from takewhile(func, seq)
 
 
-def _filter_url(configuration: Configuration, path: str, absolute=False):
-    url = _filter_file_url(configuration, path, absolute)
-    if not configuration.clean_urls:
-        url += '/index.html'
-    return url
-
-
-def _filter_file_url(configuration: Configuration, path: str, absolute=False):
-    url = configuration.base_url if absolute else ''
-    path = (configuration.root_path.strip(
-        '/') + '/' + path.strip('/')).strip('/')
-    url += '/' + path
-    return url
-
-
 def _filter_file(site: Site, file: File) -> str:
     file_directory_path = os.path.join(
         site.configuration.www_directory_path, 'file')
@@ -228,38 +209,43 @@ def _filter_image(site: Site, file: File, width: Optional[int] = None, height: O
     if width is None and height is None:
         raise ValueError('At least the width or height must be given.')
 
-    if width is None:
-        size = height
-        suffix = '-x%d'
-        convert = resizeimage.resize_height
-    elif height is None:
-        size = width
-        suffix = '%dx-'
-        convert = resizeimage.resize_width
-    else:
-        size = (width, height)
-        suffix = '%dx%d'
-        convert = resizeimage.resize_cover
+    with Image.open(file.path) as image:
+        if width is not None:
+            width = min(width, image.width)
+        if height is not None:
+            height = min(height, image.height)
 
-    file_directory_path = os.path.join(
-        site.configuration.www_directory_path, 'file')
-    destination_name = '%s-%s.%s' % (file.id, suffix % size, file.extension)
-    destination_path = '/file/%s' % destination_name
-    cache_directory_path = join(
-        site.configuration.cache_directory_path, 'image')
-    cache_file_path = join(cache_directory_path, '%s-%s' %
-                           (hashfile(file.path), destination_name))
-    output_file_path = join(file_directory_path, destination_name)
+        if width is None:
+            size = height
+            suffix = '-x%d'
+            convert = resizeimage.resize_height
+        elif height is None:
+            size = width
+            suffix = '%dx-'
+            convert = resizeimage.resize_width
+        else:
+            size = (width, height)
+            suffix = '%dx%d'
+            convert = resizeimage.resize_cover
 
-    try:
-        copy2(cache_file_path, output_file_path)
-    except FileNotFoundError:
-        if exists(output_file_path):
-            return destination_path
-        makedirs(cache_directory_path)
-        with Image.open(file.path) as image:
+        file_directory_path = os.path.join(
+            site.configuration.www_directory_path, 'file')
+        destination_name = '%s-%s.%s' % (file.id, suffix % size, file.extension)
+        destination_path = '/file/%s' % destination_name
+        cache_directory_path = join(
+            site.configuration.cache_directory_path, 'image')
+        cache_file_path = join(cache_directory_path, '%s-%s' %
+                               (hashfile(file.path), destination_name))
+        output_file_path = join(file_directory_path, destination_name)
+
+        try:
+            copy2(cache_file_path, output_file_path)
+        except FileNotFoundError:
+            if exists(output_file_path):
+                return destination_path
+            makedirs(cache_directory_path)
             convert(image, size).save(cache_file_path)
-        makedirs(file_directory_path)
-        copy2(cache_file_path, output_file_path)
+            makedirs(file_directory_path)
+            copy2(cache_file_path, output_file_path)
 
     return destination_path
