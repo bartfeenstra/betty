@@ -50,8 +50,9 @@ class Configuration:
 
     @root_path.setter
     def root_path(self, root_path: str):
-        root_path = root_path.rstrip('/')
-        self._root_path = '/' + root_path if not root_path.startswith('/') else root_path
+        if not root_path.endswith('/'):
+            root_path += '/'
+        self._root_path = root_path
 
     @property
     def clean_urls(self) -> bool:
