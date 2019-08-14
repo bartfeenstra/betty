@@ -11,7 +11,9 @@ from betty.url import UrlGenerator
 class UrlGeneratorTest(TestCase):
     @parameterized.expand([
         ('/example', 'example'),
+        ('/example', '/example'),
         ('/example/', 'example/'),
+        ('/example/', '/example/'),
     ])
     def test_generate_for_string_target(self, expected: str, target: str):
         configuration = Configuration('/tmp', 'https://example.com')
@@ -20,7 +22,9 @@ class UrlGeneratorTest(TestCase):
 
     @parameterized.expand([
         ('https://example.com/example', 'example'),
+        ('https://example.com/example', '/example'),
         ('https://example.com/example/', 'example/'),
+        ('https://example.com/example/', '/example/'),
     ])
     def test_generate_for_string_target_absolute(self, expected: str, target: str):
         configuration = Configuration('/tmp', 'https://example.com')
