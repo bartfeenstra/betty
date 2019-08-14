@@ -33,5 +33,5 @@ class UrlGenerator:
     def _generate_for_file_path(self, path: str, absolute=False):
         url = self._configuration.base_url if absolute else ''
         url += self._configuration.root_path
-        url += path
+        url += path.lstrip('/')
         return url
