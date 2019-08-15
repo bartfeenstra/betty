@@ -10,10 +10,11 @@ from betty.url import UrlGenerator
 
 class UrlGeneratorTest(TestCase):
     @parameterized.expand([
+        ('/index.html', '/'),
         ('/example', 'example'),
         ('/example', '/example'),
-        ('/example/', 'example/'),
-        ('/example/', '/example/'),
+        ('/example/index.html', 'example/'),
+        ('/example/index.html', '/example/'),
     ])
     def test_generate_for_string_target(self, expected: str, target: str):
         configuration = Configuration('/tmp', 'https://example.com')
@@ -21,10 +22,11 @@ class UrlGeneratorTest(TestCase):
         self.assertEquals(expected, sut.generate(target))
 
     @parameterized.expand([
+        ('https://example.com/index.html', '/'),
         ('https://example.com/example', 'example'),
         ('https://example.com/example', '/example'),
-        ('https://example.com/example/', 'example/'),
-        ('https://example.com/example/', '/example/'),
+        ('https://example.com/example/index.html', 'example/'),
+        ('https://example.com/example/index.html', '/example/'),
     ])
     def test_generate_for_string_target_absolute(self, expected: str, target: str):
         configuration = Configuration('/tmp', 'https://example.com')
@@ -45,6 +47,7 @@ class UrlGeneratorTest(TestCase):
         self.assertEquals(expected, sut.generate(target))
 
     @parameterized.expand([
+        ('/', '/'),
         ('/person/P1/', Person('P1')),
         ('/event/E1/', Event('E1', Event.Type.DEATH)),
         ('/place/P1/', Place('P1', 'Place 1')),

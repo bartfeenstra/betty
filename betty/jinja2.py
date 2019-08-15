@@ -230,7 +230,8 @@ def _filter_image(site: Site, file: File, width: Optional[int] = None, height: O
 
         file_directory_path = os.path.join(
             site.configuration.www_directory_path, 'file')
-        destination_name = '%s-%s.%s' % (file.id, suffix % size, file.extension)
+        destination_name = '%s-%s.%s' % (file.id, suffix %
+                                         size, file.extension)
         destination_path = '/file/%s' % destination_name
         cache_directory_path = join(
             site.configuration.cache_directory_path, 'image')
