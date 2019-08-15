@@ -91,6 +91,15 @@ class MainTest(TestCase):
                 with self.assertExit(0):
                     main(['--config', config_file.name, '--help'])
 
+    def test_help_with_invalid_configuration(self, _, __):
+        with NamedTemporaryFile(mode='w') as config_file:
+            config_dict = {}
+            dump(config_dict, config_file)
+            config_file.seek(0)
+
+            with self.assertExit(1):
+                main(['--config', config_file.name, '--help'])
+
     def test_with_discovered_configuration(self, _, __):
         with TemporaryDirectory() as cwd:
             with TemporaryDirectory() as output_directory_path:
