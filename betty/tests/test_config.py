@@ -7,7 +7,7 @@ from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.config import from_file, Configuration
+from betty.config import from_file, Configuration, ConfigurationError
 from betty.plugin import Plugin
 
 
@@ -194,11 +194,11 @@ class FromTest(TestCase):
 
     def test_from_file_should_error_if_invalid_json(self):
         with self._writes('') as f:
-            with self.assertRaises(ValueError):
+            with self.assertRaises(ConfigurationError):
                 from_file(f)
 
     def test_from_file_should_error_if_invalid_config(self):
         config_dict = {}
         with self._write(config_dict) as f:
-            with self.assertRaises(ValueError):
+            with self.assertRaises(ConfigurationError):
                 from_file(f)

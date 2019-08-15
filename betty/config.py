@@ -3,8 +3,9 @@ from json import loads, load, JSONDecodeError
 from os import getcwd
 from os.path import join, abspath, dirname, expanduser
 from typing import Dict, Type, Optional
-
 from jsonschema import validate, ValidationError
+
+from betty.error import ExternalContextError
 
 
 class Configuration:
@@ -92,6 +93,10 @@ class Configuration:
         self._resources_directory_path = resources_directory_path
 
 
+class ConfigurationError(ExternalContextError):
+    pass
+
+
 def _from_dict(site_directory_path: str, config_dict: Dict) -> Configuration:
     configuration = Configuration(
         config_dict['output'], config_dict['base_url'])
@@ -127,14 +132,18 @@ def _from_json(site_directory_path: str, config_json: str) -> Configuration:
     try:
         config_dict = loads(config_json)
     except JSONDecodeError:
-        raise ValueError('Invalid JSON.')
+        raise ConfigurationError('Invalid JSON.')
     with open(join(dirname(abspath(__file__)), 'config.schema.json')) as f:
         try:
             validate(instance=config_dict, schema=load(f))
         except ValidationError:
-            raise ValueError('The JSON is no valid Betty configuration.')
+            raise ConfigurationError(
+                'The JSON is no valid Betty configuration.')
     return _from_dict(site_directory_path, config_dict)
 
 
 def from_file(f) -> Configuration:
-    return _from_json(dirname(f.name), f.read())
+    try:
+        return _from_json(dirname(f.name), f.read())
+    except ConfigurationError as e:
+        raise e.add_context('In %s.' % abspath(f.name))
