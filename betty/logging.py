@@ -1,3 +1,4 @@
+import sys
 from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET, StreamHandler
 
 
@@ -12,7 +13,7 @@ class CliHandler(StreamHandler):
     ]
 
     def __init__(self):
-        StreamHandler.__init__(self)
+        StreamHandler.__init__(self, sys.stderr)
 
     def format(self, record):
         s = StreamHandler.format(self, record)

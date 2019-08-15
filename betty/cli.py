@@ -6,6 +6,7 @@ from typing import Callable, Optional, List
 
 from betty import parse, render
 from betty.config import from_file, Configuration
+from betty.error import ExternalContextError
 from betty.logging import CliHandler
 from betty.site import Site
 
@@ -105,3 +106,11 @@ def main(args=None):
     except KeyboardInterrupt:
         # Quit gracefully.
         logger.info('Quitting...')
+    except ExternalContextError as e:
+        logger.error(str(e))
+        exit(1)
+    except SystemExit as e:
+        raise e
+    except BaseException as e:
+        logger.exception(str(e))
+        exit(1)
