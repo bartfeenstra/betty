@@ -12,7 +12,8 @@ class Configuration:
         self._site_directory_path = getcwd()
         self._cache_directory_path = join(expanduser('~'), '.betty')
         self._output_directory_path = output_directory_path
-        self._base_url = base_url.rstrip('/') if not base_url.endswith('://') else base_url
+        self._base_url = base_url.rstrip(
+            '/') if not base_url.endswith('://') else base_url
         self._root_path = '/'
         self._clean_urls = False
         self._title = 'Betty'
