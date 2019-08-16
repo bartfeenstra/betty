@@ -1,5 +1,7 @@
 import logging
 import os
+from os import chmod
+from os.path import join
 from typing import Iterable, Any
 
 from jinja2 import Environment, TemplateNotFound
@@ -41,6 +43,12 @@ def render(site: Site) -> None:
     _render_entity_type(site, environment,
                         site.ancestry.sources.values(), 'source')
     logger.info('Rendered %d sources.' % len(site.ancestry.sources))
+    chmod(site.configuration.www_directory_path, 0o755)
+    for directory_path, subdirectory_names, file_names in os.walk(site.configuration.www_directory_path):
+        for subdirectory_name in subdirectory_names:
+            chmod(join(directory_path, subdirectory_name), 0o755)
+        for file_name in file_names:
+            chmod(join(directory_path, file_name), 0o644)
     site.event_dispatcher.dispatch(PostRenderEvent(environment))
 
 
