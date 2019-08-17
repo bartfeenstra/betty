@@ -220,9 +220,10 @@ class HasFiles:
         self._files.replace(files)
 
 
-class Source(Identifiable, Dated, HasLinks):
+class Source(Identifiable, Dated, HasFiles, HasLinks):
     def __init__(self, source_id: str, name: str):
         Identifiable.__init__(self, source_id)
+        HasFiles.__init__(self)
         HasLinks.__init__(self)
         self._name = name
         self._contained_by = None
