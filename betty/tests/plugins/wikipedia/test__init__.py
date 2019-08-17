@@ -1,4 +1,5 @@
 from tempfile import TemporaryDirectory
+from time import sleep
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -9,7 +10,7 @@ from requests import RequestException
 from betty.ancestry import Link
 from betty.config import Configuration
 from betty.jinja2 import create_environment
-from betty.plugins.wikipedia import _retrieve_one, Entry, _retrieve_all, Wikipedia
+from betty.plugins.wikipedia import Entry, Wikipedia, Retriever
 from betty.site import Site
 
 
@@ -32,32 +33,71 @@ class EntryTest(TestCase):
         self.assertEquals(content, sut.content)
 
 
-class RetrieveOneTest(TestCase):
+class RetrieverTest(TestCase):
     @parameterized.expand([
         ('https://en.wikipedia.org/wiki/Amsterdam',),
         ('http://en.wikipedia.org/wiki/Amsterdam',),
     ])
     @requests_mock.mock()
-    def test_retrieve_one_should_return_entry(self, page_uri: str, m):
+    def test_one_should_return_entry(self, page_uri: str, m_requests):
         link = Link(page_uri)
         api_uri = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam&prop=extracts&exintro&format=json&formatversion=2'
         title = 'Amstelredam'
-        extract = 'De hoofdstad van Nederland.'
-        api_response_body = {
+        extract_1 = 'De hoofdstad van Nederland.'
+        extract_4 = 'Niet de hoofdstad van Holland.'
+        api_response_body_1 = {
             'query': {
                 'pages': [
                     {
                         'title': title,
-                        'extract': extract,
+                        'extract': extract_1,
                     },
                 ],
             }
         }
-        m.register_uri('GET', api_uri, json=api_response_body)
-        entry = _retrieve_one(link)
-        self.assertEquals(page_uri, entry.uri)
-        self.assertEquals(title, entry.title)
-        self.assertEquals(extract, entry.content)
+        api_response_body_4 = {
+            'query': {
+                'pages': [
+                    {
+                        'title': title,
+                        'extract': extract_4,
+                    },
+                ],
+            }
+        }
+        m_requests.get(api_uri, [
+            {
+                'json': api_response_body_1,
+            },
+            {
+                'exc': RequestException,
+            },
+            {
+                'json': api_response_body_4,
+            },
+        ])
+        with TemporaryDirectory() as cache_directory_path:
+            retriever = Retriever(cache_directory_path, 1)
+            # The first retrieval should make a successful request and set the cache.
+            entry_1 = retriever.one(link)
+            # The second retrieval should hit the cache from the first request.
+            entry_2 = retriever.one(link)
+            # The third retrieval should result in a failed request, and hit the cache from the first request.
+            sleep(2)
+            entry_3 = retriever.one(link)
+            # The fourth retrieval should make a successful request and set the cache again.
+            entry_4 = retriever.one(link)
+            # The fifth retrieval should hit the cache from the fourth request.
+            entry_5 = retriever.one(link)
+        self.assertEquals(3, m_requests.call_count)
+        for entry in [entry_1, entry_2, entry_3]:
+            self.assertEquals(page_uri, entry.uri)
+            self.assertEquals(title, entry.title)
+            self.assertEquals(extract_1, entry.content)
+        for entry in [entry_4, entry_5]:
+            self.assertEquals(page_uri, entry.uri)
+            self.assertEquals(title, entry.title)
+            self.assertEquals(extract_4, entry.content)
 
     @parameterized.expand([
         ('',),
@@ -69,30 +109,30 @@ class RetrieveOneTest(TestCase):
         ('https://ancestry.bartfeenstra.com',),
     ])
     @requests_mock.mock()
-    def test_retrieve_one_should_ignore_unsupported_uris(self, page_uri: str, m):
+    def test_one_should_ignore_unsupported_uris(self, page_uri: str, m_requests):
         link = Link(page_uri)
-        entry = _retrieve_one(link)
+        with TemporaryDirectory() as cache_directory_path:
+            entry = Retriever(cache_directory_path).one(link)
         self.assertIsNone(entry)
-        self.assertEquals(0, len(m.request_history))
+        self.assertEquals(0, len(m_requests.request_history))
 
     @requests_mock.mock()
     @patch('sys.stderr')
-    def test_retrieve_one_should_handle_request_errors(self, m, _):
+    def test_one_should_handle_request_errors(self, m_requests, _):
         page_uri = 'https://en.wikipedia.org/wiki/Amsterdam'
         link = Link(page_uri)
         api_uri = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam&prop=extracts&exintro&format=json&formatversion=2'
-        m.register_uri('GET', api_uri, exc=RequestException)
-        entry = _retrieve_one(link)
+        m_requests.register_uri('GET', api_uri, exc=RequestException)
+        with TemporaryDirectory() as cache_directory_path:
+            entry = Retriever(cache_directory_path).one(link)
         self.assertIsNone(entry)
 
-
-class RetrieveaLLTest(TestCase):
     @parameterized.expand([
         ('https://en.wikipedia.org/wiki/Amsterdam',),
         ('http://en.wikipedia.org/wiki/Amsterdam',),
     ])
     @requests_mock.mock()
-    def test_retrieve_one_should_return_entry(self, page_uri: str, m):
+    def test_all_should_return_entry(self, page_uri: str, m_requests):
         link = Link(page_uri)
         api_uri = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam&prop=extracts&exintro&format=json&formatversion=2'
         title = 'Amstelredam'
@@ -107,8 +147,9 @@ class RetrieveaLLTest(TestCase):
                 ],
             }
         }
-        m.register_uri('GET', api_uri, json=api_response_body)
-        entries = list(_retrieve_all([link]))
+        m_requests.register_uri('GET', api_uri, json=api_response_body)
+        with TemporaryDirectory() as cache_directory_path:
+            entries = list(Retriever(cache_directory_path).all([link]))
         self.assertEquals(1, len(entries))
         entry = entries[0]
         self.assertEquals(page_uri, entry.uri)
@@ -117,30 +158,33 @@ class RetrieveaLLTest(TestCase):
 
 
 class WikipediaTest(TestCase):
+    @patch('os.path.expanduser')
     @requests_mock.mock()
-    def test_filter(self, m):
-        with TemporaryDirectory() as output_directory_path:
-            configuration = Configuration(
-                output_directory_path, 'https://ancestry.example.com')
-            configuration.plugins[Wikipedia] = {}
+    def test_filter(self, m_expanduser, m_requests):
+        with TemporaryDirectory() as cache_directory_path:
+            m_expanduser.side_effect = lambda _: cache_directory_path
+            with TemporaryDirectory() as output_directory_path:
+                configuration = Configuration(
+                    output_directory_path, 'https://ancestry.example.com')
+                configuration.plugins[Wikipedia] = {}
 
-            environment = create_environment(Site(configuration))
-            page_uri = 'https://en.wikipedia.org/wiki/Amsterdam'
-            link = Link(page_uri)
-            api_uri = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam&prop=extracts&exintro&format=json&formatversion=2'
-            title = 'Amstelredam'
-            extract = 'De hoofdstad vanF Nederland.'
-            api_response_body = {
-                'query': {
-                    'pages': [
-                        {
-                            'title': title,
-                            'extract': extract,
-                        },
-                    ],
+                environment = create_environment(Site(configuration))
+                page_uri = 'https://en.wikipedia.org/wiki/Amsterdam'
+                link = Link(page_uri)
+                api_uri = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam&prop=extracts&exintro&format=json&formatversion=2'
+                title = 'Amstelredam'
+                extract = 'De hoofdstad van Nederland.'
+                api_response_body = {
+                    'query': {
+                        'pages': [
+                            {
+                                'title': title,
+                                'extract': extract,
+                            },
+                        ],
+                    }
                 }
-            }
-            m.register_uri('GET', api_uri, json=api_response_body)
-            actual = environment.from_string(
-                '{% for entry in ([link] | wikipedia) %}{{ entry.content }}{% endfor %}').render(link=link)
-            self.assertEquals(extract, actual)
+                m_requests.register_uri('GET', api_uri, json=api_response_body)
+                actual = environment.from_string(
+                    '{% for entry in ([link] | wikipedia) %}{{ entry.content }}{% endfor %}').render(link=link)
+                self.assertEquals(extract, actual)

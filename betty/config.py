@@ -1,7 +1,7 @@
 from importlib import import_module
 from json import loads, load, JSONDecodeError
-from os import getcwd
-from os.path import join, abspath, dirname, expanduser
+from os import getcwd, path
+from os.path import join, abspath, dirname
 from typing import Dict, Type, Optional
 from jsonschema import validate, ValidationError
 
@@ -11,7 +11,7 @@ from betty.error import ExternalContextError
 class Configuration:
     def __init__(self, output_directory_path: str, base_url: str):
         self._site_directory_path = getcwd()
-        self._cache_directory_path = join(expanduser('~'), '.betty')
+        self._cache_directory_path = join(path.expanduser('~'), '.betty')
         self._output_directory_path = output_directory_path
         self._base_url = base_url.rstrip(
             '/') if not base_url.endswith('://') else base_url
