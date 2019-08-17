@@ -350,6 +350,7 @@ def _parse_source(ancestry: _IntermediateAncestry, element: Element) -> None:
     repository_source_handle = _xpath1(element, './ns:reporef/@hlink')
     if repository_source_handle is not None:
         source.contained_by = ancestry.sources[repository_source_handle]
+    _parse_objref(ancestry, source, element)
 
     ancestry.sources[handle] = source
 
