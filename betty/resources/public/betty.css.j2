@@ -144,10 +144,15 @@ footer {
 /*
  * Media.
  */
+.files {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-gap: 30px;
+}
+
 .file {
   display: inline-block;
   vertical-align: top;
-  width: 300px;
 }
 
 .file-summary {
@@ -212,11 +217,16 @@ ul.file-controls li a:hover {
   color: #fff;
 }
 
+.file img {
+  display: block;
+  margin: auto;
+  max-width: 100%;
+}
+
 .file-extended:target img {
   display: block;
   margin: auto;
   max-height: calc(100vh - 3rem);
-  max-width: 100%;
 }
 
 .file-extended:target figcaption {
