@@ -2,7 +2,7 @@
     <a href="#file-{{ file.id }}" class="file-summary">
         {% if file.type.startswith('image/') %}
             <figure>
-                <img src="{{ file | image(300, 300) | url }}" alt="{{ file.description }}"/>
+                <img src="{{ file | image(600, 600) | url }}" alt="{{ file.description }}"/>
                 {% if file.description %}
                     <figcaption>{{ file.description }}</figcaption>
                 {% endif %}
