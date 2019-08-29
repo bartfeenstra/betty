@@ -2,7 +2,7 @@ import hashlib
 import os
 from collections import deque
 from os import walk
-from os.path import join, dirname, exists, relpath
+from os.path import join, dirname, exists, relpath, getmtime
 from shutil import copy2
 from typing import Iterable
 
@@ -15,18 +15,8 @@ def makedirs(path: str) -> None:
     os.makedirs(path, 0o755, True)
 
 
-BLOCK_SIZE = 65536
-
-
 def hashfile(path: str) -> str:
-    hasher = hashlib.md5()
-    with open(path, 'rb') as file:
-        while True:
-            buffer = file.read(BLOCK_SIZE)
-            if len(buffer) == 0:
-                break
-            hasher.update(buffer)
-    return hasher.hexdigest()
+    return hashlib.md5(':'.join([str(getmtime(path)), path]).encode('utf-8')).hexdigest()
 
 
 class FileSystem:
