@@ -32,11 +32,17 @@ class _NodeModulesBackup:
 
     def __enter__(self):
         self._tmp = mkdtemp()
-        shutil.move(join(self._package_path, 'node_modules'), self._tmp)
+        try:
+            shutil.move(join(self._package_path, 'node_modules'), self._tmp)
+        except FileNotFoundError:
+            pass
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        shutil.move(join(self._tmp, 'node_modules'),
-                    join(self._package_path, 'node_modules'))
+        try:
+            shutil.move(join(self._tmp, 'node_modules'),
+                        join(self._package_path, 'node_modules'))
+        except FileNotFoundError:
+            pass
         shutil.rmtree(self._tmp)
 
 
