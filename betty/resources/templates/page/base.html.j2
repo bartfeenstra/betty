@@ -28,6 +28,11 @@
 <body>
 <nav id="nav-primary">
     <a id="site-title" href="{{ '/' | url }}" title="{{ site.configuration.title }}">{{ site.configuration.title }}</a>
+    {%- if 'betty.plugins.search.Search' in plugins %}
+        <form id="search">
+            <input id="search-keywords" type="text"/>
+        </form>form>
+    {% endif -%}
     <a id="nav-primary-show" class="nav-primary-toggle" href="#nav-primary">Menu</a>
     <a id="nav-primary-hide" class="nav-primary-toggle" href="#">×</a>
     <ul>

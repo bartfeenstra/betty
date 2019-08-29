@@ -1,0 +1,38 @@
+#search {
+  float: left;
+}
+
+#search-query {
+  border: 3px solid #eee;
+  display: inline;
+  height: 2rem;
+  margin-top: 0.5rem;
+  padding: 0;
+}
+
+#search-results-container {
+  background-color: #fff;
+  height: calc(100% - 3rem);
+  overflow: scroll;
+  position: absolute;
+  top: 3rem;
+  width: 100%;
+}
+
+.search-results {
+  list-style: none;
+  padding: 0;
+}
+
+.search-results li {
+  display: block;
+}
+
+.search-result {
+  display: block;
+}
+
+.search-result:hover a,
+.search-result:focus a {
+  background-color: #eee;
+}
