@@ -32,13 +32,14 @@ class _NodeModulesBackup:
 
     def __enter__(self):
         self._tmp = mkdtemp()
-        # Remove Betty plugin packages from node_modules. If they're required, they'll be rebuilt, but if they're not,
-        # they'll cause stale symbolic links, causing fatal npm errors.
-        node_modules_path = join(self._package_path, 'node_modules')
-        for package_path in os.listdir(node_modules_path):
-            if package_path.startswith('betty-'):
-                os.unlink(join(node_modules_path, package_path))
         try:
+            # Remove Betty plugin packages from node_modules. If they're required, they'll be rebuilt, but if they're
+            # not, they'll cause stale symbolic links, causing fatal npm errors.
+            node_modules_path = join(self._package_path, 'node_modules')
+            for package_path in os.listdir(node_modules_path):
+                if package_path.startswith('betty-'):
+                    os.unlink(join(node_modules_path, package_path))
+
             shutil.move(join(self._package_path, 'node_modules'), self._tmp)
         except FileNotFoundError:
             pass
