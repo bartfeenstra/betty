@@ -1,7 +1,7 @@
 import hashlib
 import json
+import os
 import shutil
-from os import makedirs
 from os.path import join, dirname
 from subprocess import check_call
 from tempfile import mkdtemp
@@ -32,6 +32,12 @@ class _NodeModulesBackup:
 
     def __enter__(self):
         self._tmp = mkdtemp()
+        # Remove Betty plugin packages from node_modules. If they're required, they'll be rebuilt, but if they're not,
+        # they'll cause stale symbolic links, causing fatal npm errors.
+        node_modules_path = join(self._package_path, 'node_modules')
+        for package_path in os.listdir(node_modules_path):
+            if package_path.startswith('betty-'):
+                os.unlink(join(node_modules_path, package_path))
         try:
             shutil.move(join(self._package_path, 'node_modules'), self._tmp)
         except FileNotFoundError:
@@ -84,7 +90,7 @@ class Js(Plugin, JsPackageProvider):
                     render_tree(join(self.directory_path,
                                      plugin.name()), environment)
                     if not isinstance(plugin, self.__class__):
-                        dependencies[plugin.name()] = 'file:%s' % join(
+                        dependencies['betty-%s' % plugin.name()] = 'file:%s' % join(
                             self.directory_path, plugin.name())
                         with open(join(self.directory_path, plugin.name(), 'package.json'), 'r+') as package_json_f:
                             package_json = json.load(package_json_f)
@@ -101,7 +107,7 @@ class Js(Plugin, JsPackageProvider):
             json.dump(package_json, package_json_f)
 
     def _install(self) -> None:
-        makedirs(self.directory_path, 0o700, True)
+        os.makedirs(self.directory_path, 0o700, True)
         check_call(['npm', 'install', '--production'],
                    cwd=self._js_package_path)
 
