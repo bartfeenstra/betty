@@ -2,7 +2,7 @@
 
 import searchStyle from './search.css' // eslint-disable-line no-unused-vars
 
-import ancestry from './ancestry.json'
+import index from './index.json'
 import configuration from './configuration.js'
 
 const hideSearchKeyCodes = [
@@ -37,7 +37,7 @@ function initializeSearch () {
     return false
   })
 
-  searchQueryElement.addEventListener('keypress', search)
+  searchQueryElement.addEventListener('keyup', search)
 
   // Allow keyboard navigation through the results.
   searchQueryElement.addEventListener('keydown', (e) => {
@@ -105,26 +105,19 @@ function hideContainer () {
 }
 
 function search () {
-  const results = searchPeople(this.value)
+  const results = index.filter((result) => match(this.value, result.text))
   configureContainer(renderResults(results))
   showContainer()
 }
 
 function match (query, haystack) {
   haystack = haystack.toLowerCase()
-  for (let queryPart of query.split(/\s/)) {
-    if (haystack.includes(queryPart)) {
-      return true
+  for (let queryPart of query.split(/\s/).filter((x) => x)) {
+    if (!haystack.includes(queryPart)) {
+      return false
     }
   }
-  return false
-}
-
-function searchPeople (query) {
-  return Object.values(ancestry.people)
-    .filter((person) => (person.family_name && match(query, person.family_name)) || (person.individual_name && match(query, person.individual_name)))
-  // @todo Use generic labels and get URLs from Python.
-    .map((person) => new Result(person.individual_name + ' ' + person.family_name, 'person/' + person.id))
+  return true
 }
 
 function renderResults (results) {
@@ -136,13 +129,6 @@ function renderResult (result) {
   return configuration.resultTemplate
     .replace('## result_label ##', result.label)
     .replace('## result_url ##', result.url)
-}
-
-class Result {
-  constructor (label, url) {
-    this.label = label
-    this.url = url
-  }
 }
 
 export {

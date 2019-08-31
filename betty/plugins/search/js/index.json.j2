@@ -1,0 +1,12 @@
+{% import 'macro/person.html.j2' as personMacros %}
+{% set ns = namespace(resources=[]) %}
+{% for person in site.ancestry.people.values() %}
+    {% if not person.private %}
+        {% set _ = ns.resources.append({
+            'text': [person.family_name, person.individual_name] | join(' '),
+            'label': personMacros.label(person) | striptags,
+            'url': person | url,
+        }) %}
+    {% endif %}
+{% endfor %}
+{{ ns.resources | json }}
