@@ -4,10 +4,15 @@
 
 #search-query {
   border: 3px solid #eee;
+  color: #777;
   display: inline;
   height: 2rem;
   margin-top: 0.5rem;
-  padding: 0;
+  padding: 0 0.25rem;
+}
+
+#search-query:focus {
+  color: #000;
 }
 
 #search-results-container {
@@ -17,22 +22,27 @@
   position: absolute;
   top: 3rem;
   width: 100%;
+  z-index: 9999;
 }
 
-.search-results {
+#search-results {
   list-style: none;
+  margin: 0;
   padding: 0;
 }
 
-.search-results li {
+#search-results li {
   display: block;
 }
 
 .search-result {
+  border-bottom: 1px #eee solid;
   display: block;
+  padding: 1rem;
 }
 
-.search-result:hover a,
-.search-result:focus a {
+.search-result:hover,
+.search-result:focus {
   background-color: #eee;
+  outline: none;
 }
