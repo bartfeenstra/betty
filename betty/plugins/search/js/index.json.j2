@@ -1,4 +1,5 @@
 {% import 'macro/person.html.j2' as personMacros %}
+{% import 'macro/place.html.j2' as placeMacros %}
 {% set ns = namespace(resources=[]) %}
 {% for person in site.ancestry.people.values() %}
     {% if not person.private %}
@@ -8,5 +9,12 @@
             'url': person | url,
         }) %}
     {% endif %}
+{% endfor %}
+{% for place in site.ancestry.places.values() %}
+    {% set _ = ns.resources.append({
+        'text': place.name,
+        'label': placeMacros.label(place) | striptags,
+        'url': place | url,
+    }) %}
 {% endfor %}
 {{ ns.resources | json }}
