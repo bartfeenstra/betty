@@ -29,8 +29,10 @@ matrix:
               - NODE_VERSION=10
 
 cache:
-    - pip
-    - npm
+    pip: true
+    npm: true
+    directories:
+      - /home/travis/.betty/betty.plugins.js.Js
 
 before_install:
     - nvm install "$NODE_VERSION"
