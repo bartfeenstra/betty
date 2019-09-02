@@ -17,9 +17,10 @@
 
 #search-results {
   background-color: #fff;
-  height: calc(100% - 3rem);
+  border-bottom: 0.5em pink solid;
   list-style: none;
   margin: 0;
+  max-height: calc(100% - 3rem);
   overflow: scroll;
   padding: 0;
   position: absolute;
