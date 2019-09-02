@@ -15,12 +15,12 @@ class Site:
         self._configuration = configuration
         self._resources = FileSystem(
             join(dirname(abspath(__file__)), 'resources'))
-        if configuration.resources_directory_path:
-            self._resources.paths.appendleft(
-                configuration.resources_directory_path)
         self._event_dispatcher = EventDispatcher()
         self._plugins = {}
         self._init_plugins()
+        if configuration.resources_directory_path:
+            self._resources.paths.appendleft(
+                configuration.resources_directory_path)
 
     def _init_plugins(self):
         def _extend_plugin_type_graph(graph: Graph, plugin_type: Type):
