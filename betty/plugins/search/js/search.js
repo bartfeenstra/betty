@@ -11,15 +11,11 @@ const hideSearchKeyCodes = [
 ]
 
 const nextKeyCodes = [
-  // Arrow right.
-  39,
   // Arrow down.
   40
 ]
 
 const previousKeyCodes = [
-  // Arrow left.
-  37,
   // Arrow up.
   38
 ]
