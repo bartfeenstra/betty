@@ -1,6 +1,6 @@
 {% import 'macro/source.html.j2' as sourceMacros %}
 {% if citation.source %}
-    <span class="meta">
+    <div class="meta">
     {{ ([citation.source] + citation.source | walk('contained_by') | list) | map(sourceMacros.link) | join(', ') }}
-    </span>
+    </div>
 {% endif %}
