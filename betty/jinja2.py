@@ -39,7 +39,7 @@ class _Plugins:
     def __contains__(self, plugin_type_name):
         try:
             return self._type(plugin_type_name) in self._plugins
-        except (ModuleNotFoundError, AttributeError):
+        except (ImportError, AttributeError):
             return False
 
     def _type(self, plugin_type_name: str):
