@@ -1,7 +1,7 @@
 {% if place.enclosed_by %}
-    <span class="meta">
+    <div class="meta">
     in
     {% import 'macro/place.html.j2' as placeMacros %}
     {{ placeMacros.label(place.enclosed_by) }}
-    </span>
+    </div>
 {% endif %}

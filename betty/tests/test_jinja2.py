@@ -7,6 +7,7 @@ from parameterized import parameterized
 from betty.ancestry import File
 from betty.config import Configuration
 from betty.jinja2 import create_environment
+from betty.plugin import Plugin
 from betty.site import Site
 
 
@@ -155,3 +156,45 @@ class ImageTest(TestCase):
             for file_path in actual.split(':'):
                 self.assertTrue(
                     exists(join(configuration.www_directory_path, file_path[1:])))
+
+
+class TestPlugin(Plugin):
+    pass
+
+
+class PluginsTest(TestCase):
+    def test_with_unknown_plugin_module(self):
+        with TemporaryDirectory() as www_directory_path:
+            environment = create_environment(
+                Site(Configuration(www_directory_path, 'https://example.com')))
+            template = '{%- if "betty.UnknownModule.Plugin" in plugins %}true{% else %}false{% endif %}'
+            self.assertEquals(
+                'false', environment.from_string(template).render())
+
+    def test_with_unknown_plugin_class(self):
+        with TemporaryDirectory() as www_directory_path:
+            environment = create_environment(
+                Site(Configuration(www_directory_path, 'https://example.com')))
+            template = '{%- if "betty.UnknownPlugin" in plugins %}true{% else %}false{% endif %}'
+            self.assertEquals(
+                'false', environment.from_string(template).render())
+
+    def test_with_disabled_plugin(self):
+        with TemporaryDirectory() as www_directory_path:
+            environment = create_environment(
+                Site(Configuration(www_directory_path, 'https://example.com')))
+            template = '{%- if "' + TestPlugin.__module__ + \
+                '.TestPlugin" in plugins %}true{% else %}false{% endif %}'
+            self.assertEquals(
+                'false', environment.from_string(template).render())
+
+    def test_with_enabled_plugin(self):
+        with TemporaryDirectory() as www_directory_path:
+            configuration = Configuration(
+                www_directory_path, 'https://example.com')
+            configuration.plugins[TestPlugin] = {}
+            environment = create_environment(Site(configuration))
+            template = '{%- if "' + TestPlugin.__module__ + \
+                '.TestPlugin" in plugins %}true{% else %}false{% endif %}'
+            self.assertEquals(
+                'true', environment.from_string(template).render())

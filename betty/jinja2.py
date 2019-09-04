@@ -37,7 +37,10 @@ class _Plugins:
         return self._plugins[self._type(plugin_type_name)]
 
     def __contains__(self, plugin_type_name):
-        return self._type(plugin_type_name) in self._plugins
+        try:
+            return self._type(plugin_type_name) in self._plugins
+        except (ImportError, AttributeError):
+            return False
 
     def _type(self, plugin_type_name: str):
         plugin_module_name, plugin_class_name = plugin_type_name.rsplit('.', 1)
