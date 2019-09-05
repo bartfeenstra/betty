@@ -1,5 +1,6 @@
 #search {
   float: left;
+  max-width: calc(70% - 3rem);
 }
 
 #search-query {
@@ -9,6 +10,7 @@
   height: 2rem;
   margin-top: 0.5rem;
   padding: 0 0.25rem;
+  width: 100%;
 }
 
 #search-query:focus {
