@@ -122,8 +122,7 @@ function search () {
 }
 
 function match (query, haystack) {
-  haystack = haystack.toLowerCase()
-  for (let queryPart of query.split(/\s/).filter((x) => x)) {
+  for (let queryPart of query.toLowerCase().split(/\s/).filter((x) => x)) {
     if (!haystack.includes(queryPart)) {
       return false
     }

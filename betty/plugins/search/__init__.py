@@ -33,14 +33,14 @@ class Search(Plugin, JsPackageProvider, JsEntryPointProvider, Jinja2Provider):
         environment = create_environment(self._site)
         for person in self._site.ancestry.people.values():
             yield {
-                'text': '%s %s' % (person.individual_name, person.family_name),
+                'text': ('%s %s' % (person.individual_name, person.family_name)).lower(),
                 'result': environment.get_template('search-result-person.html.j2').render({
                     'person': person,
                 })
             }
         for place in self._site.ancestry.places.values():
             yield {
-                'text': place.name,
+                'text': place.name.lower(),
                 'result': environment.get_template('search-result-place.html.j2').render({
                     'place': place,
                 })
