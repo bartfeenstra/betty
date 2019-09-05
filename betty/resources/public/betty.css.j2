@@ -256,6 +256,7 @@ ul.file-controls li a:hover {
   background-position: center;
   background-repeat: no-repeat;
   display: block;
+  float: left;
   height: 3rem;
   opacity: 0.7;
   text-indent: -999em;
@@ -264,6 +265,18 @@ ul.file-controls li a:hover {
 
 #site-title:hover {
   opacity: 1;
+}
+
+.nav-expanded {
+  background-color: #fff;
+  border-bottom: 0.5em pink solid;
+  left: 0;
+  margin: 0;
+  max-height: calc(100% - 3rem);
+  position: absolute;
+  top: 3rem;
+  width: 100%;
+  z-index: 9999;
 }
 
 .nav-primary-toggle {
@@ -301,16 +314,9 @@ ul.file-controls li a:hover {
 }
 
 #nav-primary ul {
-  background-color: #fff;
-  border-bottom: 0.5em pink solid;
   display: none;
   list-style: none;
-  margin: 0;
-  padding: 1rem 3rem;
-  position: absolute;
-  top: 3rem;
-  width: calc(100% - 6rem);
-  z-index: 9999;
+  padding: 1rem 0;
 }
 
 #nav-primary:target ul {
@@ -343,6 +349,7 @@ ul.file-controls li a:hover {
   #nav-primary ul {
     background-color: #eee;
     border: 0;
+    clear: both;
     display: block !important;
     height: 3rem;
     padding: 0;
@@ -358,4 +365,11 @@ ul.file-controls li a:hover {
     float: left;
     padding: 0 1em;
   }
+}
+
+kbd {
+  background-color: #eee;
+  border: 1px solid #777;
+  border-radius: 0.3rem;
+  padding: 0 0.3rem;
 }

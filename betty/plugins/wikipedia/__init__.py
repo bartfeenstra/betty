@@ -4,7 +4,7 @@ import re
 from json import load
 from os.path import dirname, join, getmtime
 from time import time
-from typing import Iterable, Optional, Dict
+from typing import Iterable, Optional, Dict, Callable
 from urllib.parse import urlparse
 
 import requests
@@ -107,7 +107,7 @@ class Wikipedia(Plugin, Jinja2Provider):
         return cls(Retriever(site.configuration.cache_directory_path))
 
     @property
-    def filters(self):
+    def filters(self) -> Dict[str, Callable]:
         return {
             'wikipedia': self._retriever.all,
         }

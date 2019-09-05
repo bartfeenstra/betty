@@ -1,0 +1,2 @@
+{% import 'macro/person.html.j2' as personMacros %}
+<a href="{{ person | url }}" class="search-result-target">{{ personMacros.label(person) | striptags }}</a>

@@ -6,7 +6,7 @@ from itertools import takewhile
 from json import dumps
 from os.path import join, exists
 from shutil import copy2
-from typing import Union, Any, Dict, Type, Optional
+from typing import Union, Any, Dict, Type, Optional, Callable
 from urllib.parse import urlparse
 
 from PIL import Image
@@ -71,11 +71,15 @@ class _Citer:
 
 class Jinja2Provider:
     @property
-    def filters(self):
-        raise NotImplementedError
+    def globals(self) -> Dict[str, Callable]:
+        return {}
+
+    @property
+    def filters(self) -> Dict[str, Callable]:
+        return {}
 
 
-def create_environment(site: Site):
+def create_environment(site: Site) -> Environment:
     template_directory_paths = list(
         [join(path, 'templates') for path in site.resources.paths])
     environment = Environment(
@@ -102,6 +106,7 @@ def create_environment(site: Site):
         site, *args, **kwargs)
     for plugin in site.plugins.values():
         if isinstance(plugin, Jinja2Provider):
+            environment.globals.update(plugin.globals)
             environment.filters.update(plugin.filters)
     return environment
 
