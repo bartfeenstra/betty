@@ -36,6 +36,7 @@ SETUP = {
         'geopy ~= 1.18.1',
         'jinja2 ~= 2.10',
         'jsonschema ~= 3.0',
+        'libsass ~= 0.19.2',
         'lxml ~= 4.3.1',
         'markupsafe ~= 1.1.1',
         'python-resize-image ~= 1.1.18',
