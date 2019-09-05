@@ -29,9 +29,12 @@ SETUP = {
     'description': 'Betty is a static ancestry site generator.',
     'long_description': long_description,
     'version': VERSION,
-    'license': 'MIT',
+    'license': 'GPLv3',
     'author': 'Bart Feenstra',
     'url': 'https://github.com/bartfeenstra/betty',
+    'classifiers': [
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)'
+    ],
     'install_requires': [
         'geopy ~= 1.18.1',
         'jinja2 ~= 2.10',
