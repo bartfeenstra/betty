@@ -45,3 +45,11 @@
   background-color: #eee;
   outline: none;
 }
+
+#search-instructions {
+  color: #777;
+}
+
+#search-instructions kbd {
+  color: #000;
+}
