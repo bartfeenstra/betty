@@ -16,15 +16,8 @@
 }
 
 #search-results {
-  background-color: #fff;
-  border-bottom: 0.5em pink solid;
-  max-height: calc(100% - 3rem);
   overflow: scroll;
   padding: 0 1rem;
-  position: absolute;
-  top: 3rem;
-  width: 100%;
-  z-index: 9999;
 }
 
 #search-results ul {
