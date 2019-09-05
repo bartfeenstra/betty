@@ -5,6 +5,11 @@ import searchStyle from './search.css' // eslint-disable-line no-unused-vars
 import index from './index.json'
 import configuration from './configuration.js'
 
+const enterSearchKeyCodes = [
+  // "s".
+  83
+]
+
 const hideSearchKeyCodes = [
   // Escape.
   27
@@ -40,6 +45,19 @@ function initializeSearch () {
     navigateResults(e.which)
   })
 
+  // Allow navigation into and out of the search.
+  document.addEventListener('keyup', (e) => {
+    if (enterSearchKeyCodes.includes(e.which)) {
+      searchQueryElement.focus()
+    }
+  })
+  searchQueryElement.addEventListener('focus', showSearchResults)
+  document.addEventListener('mousedown', (e) => {
+    if (!searchQueryElement.contains(e.target) && !searchResultsInjector.contains(e.target)) {
+      hideSearchResults()
+      searchQueryElement.blur()
+    }
+  })
   document.addEventListener('keydown', (e) => {
     if (hideSearchKeyCodes.includes(e.which)) {
       hideSearchResults()
@@ -99,9 +117,6 @@ function hideSearchResults () {
 
 function search () {
   const results = index.filter((result) => match(this.value, result.text))
-  if (!results) {
-    return
-  }
   setSearchResults(results)
   showSearchResults()
 }

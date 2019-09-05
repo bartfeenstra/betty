@@ -18,15 +18,19 @@
 #search-results {
   background-color: #fff;
   border-bottom: 0.5em pink solid;
-  list-style: none;
-  margin: 0;
   max-height: calc(100% - 3rem);
   overflow: scroll;
-  padding: 0;
+  padding: 0 1rem;
   position: absolute;
   top: 3rem;
   width: 100%;
   z-index: 9999;
+}
+
+#search-results ul {
+  list-style: none;
+  margin: 0 -1rem;
+  padding: 0;
 }
 
 .search-result {
