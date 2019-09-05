@@ -1,3 +1,5 @@
+@import 'betty-variables';
+
 html {
   height: 100%;
 }
@@ -252,7 +254,7 @@ ul.file-controls li a:hover {
 }
 
 #site-title {
-  background-image: url("{{ '/betty-32x32.png' | url }}");
+  background-image: url($betty-32-32-png-url);
   background-position: center;
   background-repeat: no-repeat;
   display: block;
