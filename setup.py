@@ -16,18 +16,11 @@ with open('/'.join((ROOT_PATH, 'VERSION'))) as f:
 with open('/'.join((ROOT_PATH, 'README.md'))) as f:
     long_description = f.read()
 
-try:
-    from m2r import convert
-
-    long_description = convert(long_description)
-except ImportError:
-    # Allow this to fail, because we cannot guarantee this dependency is installed.
-    pass
-
 SETUP = {
     'name': 'betty',
     'description': 'Betty is a static ancestry site generator.',
     'long_description': long_description,
+    'long_description_content_type': 'text/markdown',
     'version': VERSION,
     'license': 'MIT',
     'author': 'Bart Feenstra',
