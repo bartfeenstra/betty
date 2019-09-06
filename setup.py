@@ -26,7 +26,15 @@ SETUP = {
     'author': 'Bart Feenstra',
     'url': 'https://github.com/bartfeenstra/betty',
     'classifiers': [
-        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)'
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Operating System :: MacOS',
+        'Operating System :: POSIX :: BSD',
+        'Operating System :: POSIX :: Linux',
+        'Operating System :: POSIX :: SunOS/Solaris',
+        'Operating System :: Unix',
+        'Topic :: Scientific/Engineering :: Visualization',
+        'Topic :: Sociology :: Genealogy',
+        'Topic :: Software Development :: Code Generators',
     ],
     'install_requires': [
         'geopy ~= 1.18.1',
