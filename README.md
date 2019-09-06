@@ -13,8 +13,8 @@ Betty is a static site generator for [Gramps](https://gramps-project.org/) XML f
   - [Configuration files](#configuration-files)
   - [The Python API](#the-python-api)
 - [Development](#development)
-- [Contributions](#contributions-)
-
+- [Contributions](#contributions)
+- [License](#license)
 ## Features
 Betty generates generates a [static site](https://en.wikipedia.org/wiki/Static_web_page) from your genealogy records.
 This means that once your site has been generated, you will not need any special software to publish it. It's **fast and
@@ -129,4 +129,12 @@ In any existing Python environment, run `./bin/test`.
 In any existing Python environment, run `./bin/fix`.
 
 ## Contributions 🥳
-You are welcome to [report bugs](https://github.com/bartfeenstra/betty/issues) or [submit improvements](https://github.com/bartfeenstra/betty/pulls).
+Betty is Free and Open Source Software. As such you are welcome to
+[report bugs](https://github.com/bartfeenstra/betty/issues) or
+[submit improvements](https://github.com/bartfeenstra/betty/pulls).
+
+## Copyright & license
+Betty is copyright [Bart Feenstra](https://twitter.com/BartFeenstra/) and contributors, and released under the
+[GNU General Public License, Version 3](./LICENSE.txt). In short, that means **you are free to use Betty**, but **if you
+distribute Betty yourself, you must do so under the exact same license**, provide that license, and make your source
+code available. 
