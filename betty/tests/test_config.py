@@ -1,7 +1,7 @@
 from json import dumps
 from os import getcwd
 from os.path import join
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import Any, Dict
 from unittest import TestCase
 
@@ -139,13 +139,13 @@ class FromTest(TestCase):
             self.assertEquals(mode, configuration.mode)
 
     def test_from_file_should_parse_resources_directory_path(self):
-        resources_directory_path = '/tmp/betty'
-        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['resources'] = resources_directory_path
-        with self._write(config_dict) as f:
-            configuration = from_file(f)
-            self.assertEquals(resources_directory_path,
-                              configuration.resources_directory_path)
+        with TemporaryDirectory() as resources_directory_path:
+            config_dict = dict(**self._MINIMAL_CONFIG_DICT)
+            config_dict['resources'] = resources_directory_path
+            with self._write(config_dict) as f:
+                configuration = from_file(f)
+                self.assertEquals(resources_directory_path,
+                                  configuration.resources_directory_path)
 
     def test_from_file_should_parse_one_plugin_with_configuration(self):
         config_dict = dict(**self._MINIMAL_CONFIG_DICT)
