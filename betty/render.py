@@ -6,6 +6,7 @@ from typing import Iterable, Any
 
 from jinja2 import Environment, TemplateNotFound
 
+from betty import sass
 from betty.event import Event
 from betty.fs import makedirs
 from betty.jinja2 import create_environment, render_tree
@@ -64,6 +65,7 @@ def _create_html_file(path: str) -> object:
 def _render_public(site: Site, environment: Environment) -> None:
     site.resources.copytree('public', site.configuration.www_directory_path)
     render_tree(site.configuration.www_directory_path, environment)
+    sass.render_tree(site.configuration.www_directory_path)
 
 
 def _render_entity_type(site: Site, environment: Environment, entities: Iterable[Any],
