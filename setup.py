@@ -66,7 +66,7 @@ SETUP = {
     'packages': find_packages(),
     'data_files': [
         ('', [
-            'LICENSE',
+            'LICENSE.txt',
             'README.md',
             'VERSION',
         ])
