@@ -8,9 +8,11 @@ from typing import Tuple, Optional, Callable, List, Dict, Iterable
 from geopy import Point
 from lxml import etree
 from lxml.etree import XMLParser, Element
+from voluptuous import Schema, IsFile
 
 from betty.ancestry import Event, Place, Person, Ancestry, Date, Note, File, Link, Source, HasFiles, Citation, \
     Presence, HasLinks
+from betty.config import assert_configuration
 from betty.fs import makedirs
 from betty.parse import ParseEvent
 from betty.plugin import Plugin
@@ -395,6 +397,11 @@ def _parse_urls(owner: HasLinks, element: Element):
         owner.links.add(Link(uri, label))
 
 
+GrampsConfigurationSchema = Schema({
+    'file': IsFile(),
+})
+
+
 class Gramps(Plugin):
     def __init__(self, gramps_file_path: str, cache_directory_path: str):
         self._gramps_file_path = gramps_file_path
@@ -402,6 +409,7 @@ class Gramps(Plugin):
 
     @classmethod
     def from_configuration_dict(cls, site: Site, configuration: Dict):
+        assert_configuration(GrampsConfigurationSchema, configuration)
         return cls(configuration['file'], join(site.configuration.cache_directory_path, 'gramps'))
 
     def subscribes_to(self) -> List[Tuple[str, Callable]]:

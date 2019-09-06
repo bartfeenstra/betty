@@ -1,11 +1,13 @@
 from importlib import import_module
-from json import loads, load, JSONDecodeError
+from json import loads, JSONDecodeError
 from os import getcwd, path
 from os.path import join, abspath, dirname
 from typing import Dict, Type, Optional
-from jsonschema import validate, ValidationError
+
+from voluptuous import Schema, All, Required, Invalid, IsDir, Any
 
 from betty.error import ExternalContextError
+from betty.voluptuous import MapDict
 
 
 class Configuration:
@@ -93,11 +95,31 @@ class Configuration:
         self._resources_directory_path = resources_directory_path
 
 
+ConfigurationSchema = Schema({
+    Required('output'): All(str),
+    'title': All(str),
+    Required('base_url'): All(str),
+    'root_path': All(str),
+    'clean_urls': All(bool),
+    'mode': Any('development', 'production'),
+    'resources': All(str, IsDir()),
+    'plugins': MapDict(str, dict),
+})
+
+
 class ConfigurationError(ExternalContextError):
     pass
 
 
+def assert_configuration(schema: Schema, configuration: Any):
+    try:
+        schema(configuration)
+    except Invalid as e:
+        raise ConfigurationError(e)
+
+
 def _from_dict(site_directory_path: str, config_dict: Dict) -> Configuration:
+    assert_configuration(ConfigurationSchema, config_dict)
     configuration = Configuration(
         config_dict['output'], config_dict['base_url'])
     configuration.site_directory_path = site_directory_path
@@ -133,12 +155,6 @@ def _from_json(site_directory_path: str, config_json: str) -> Configuration:
         config_dict = loads(config_json)
     except JSONDecodeError:
         raise ConfigurationError('Invalid JSON.')
-    with open(join(dirname(abspath(__file__)), 'config.schema.json')) as f:
-        try:
-            validate(instance=config_dict, schema=load(f))
-        except ValidationError:
-            raise ConfigurationError(
-                'The JSON is no valid Betty configuration.')
     return _from_dict(site_directory_path, config_dict)
 
 

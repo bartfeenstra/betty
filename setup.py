@@ -31,11 +31,11 @@ SETUP = {
     'install_requires': [
         'geopy ~= 1.18.1',
         'jinja2 ~= 2.10',
-        'jsonschema ~= 3.0',
         'libsass ~= 0.19.2',
         'lxml ~= 4.3.1',
         'markupsafe ~= 1.1.1',
         'python-resize-image ~= 1.1.18',
+        'voluptuous ~= 0.11.7',
     ],
     'extras_require': {
         'development': [
@@ -68,7 +68,6 @@ SETUP = {
     'include_package_data': True,
     'package_data': {
         'betty': chain(
-            [join(dirname(abspath(__file__)), 'betty', 'config.schema.json')],
             iterfiles(join(dirname(abspath(__file__)), 'betty', 'resources')),
             iterfiles(join(dirname(abspath(__file__)), 'betty', 'plugins', 'js', 'js')),
             iterfiles(join(dirname(abspath(__file__)), 'betty', 'plugins', 'maps', 'js')),
