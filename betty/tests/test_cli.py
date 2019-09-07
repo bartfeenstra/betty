@@ -61,7 +61,7 @@ class MainTest(TestCase):
             main(['--help'])
 
     def test_configuration_without_help(self, _, __):
-        with NamedTemporaryFile(mode='w') as config_file:
+        with NamedTemporaryFile(mode='w', suffix='.json') as config_file:
             with TemporaryDirectory() as output_directory_path:
                 url = 'https://example.com'
                 config_dict = {
@@ -75,7 +75,7 @@ class MainTest(TestCase):
                     main(['--config', config_file.name])
 
     def test_help_with_configuration(self, _, __):
-        with NamedTemporaryFile(mode='w') as config_file:
+        with NamedTemporaryFile(mode='w', suffix='.json') as config_file:
             with TemporaryDirectory() as output_directory_path:
                 url = 'https://example.com'
                 config_dict = {
@@ -92,7 +92,7 @@ class MainTest(TestCase):
                     main(['--config', config_file.name, '--help'])
 
     def test_help_with_invalid_configuration(self, _, __):
-        with NamedTemporaryFile(mode='w') as config_file:
+        with NamedTemporaryFile(mode='w', suffix='.json') as config_file:
             config_dict = {}
             dump(config_dict, config_file)
             config_file.seek(0)
@@ -134,7 +134,7 @@ class GenerateCommandTest(TestCase):
     @patch('betty.render.render')
     @patch('betty.parse.parse')
     def test_run(self, parse, render):
-        with NamedTemporaryFile(mode='w') as config_file:
+        with NamedTemporaryFile(mode='w', suffix='.json') as config_file:
             with TemporaryDirectory() as output_directory_path:
                 url = 'https://example.com'
                 config_dict = {
