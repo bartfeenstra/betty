@@ -54,29 +54,25 @@ optional arguments:
 ```
 
 ### Configuration files
-Configuration files are written in JSON:
-```json
-{
-	"output": "/var/www/betty",
-	"base_url": "https://ancestry.example.com",
-	"root_path": "/betty",
-	"clean_urls": true,
-	"title": "Betty's ancestry",
-	"resources": "./resources",
-	"plugins": {
-		"betty.plugins.anonymizer.Anonymizer": {},
-		"betty.plugins.cleaner.Cleaner": {},
-		"betty.plugins.gramps.Gramps": {
-			"file": "./gramps.gpkg"
-		},
-		"betty.plugins.maps.Maps": {},
-		"betty.plugins.nginx.Nginx": {},
-		"betty.plugins.privatizer.Privatizer": {},
-		"betty.plugins.search.Search": {},
-		"betty.plugins.trees.Trees": {},
-		"betty.plugins.wikipedia.Wikipedia": {}
-	}
-}
+Configuration files are written in YAML (`*.yaml` or `*.yml`) or JSON (`*.json`):
+```yaml
+output: /var/www/betty
+base_url: https://ancestry.example.com
+root_path: /betty
+clean_urls: true
+title: Betty's ancestry
+resources: ./resources
+plugins:
+  betty.plugins.anonymizer.Anonymizer: {}
+  betty.plugins.cleaner.Cleaner: {}
+  betty.plugins.gramps.Gramps:
+    file: ./gramps.gpkg
+  betty.plugins.maps.Maps: {}
+  betty.plugins.nginx.Nginx: {}
+  betty.plugins.privatizer.Privatizer: {}
+  betty.plugins.search.Search: {}
+  betty.plugins.trees.Trees: {}
+  betty.plugins.wikipedia.Wikipedia: {}
 ```
 - `output` (required); The path to the directory in which to place the generated site.
 - `base_url` (required); The absolute, public URL at which the site will be published.

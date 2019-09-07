@@ -1,10 +1,11 @@
-from json import dumps
+import json
 from os import getcwd
 from os.path import join
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import Any, Dict
 from unittest import TestCase
 
+import yaml
 from parameterized import parameterized
 
 from betty.config import from_file, Configuration, ConfigurationError
@@ -81,17 +82,22 @@ class FromTest(TestCase):
         'base_url': 'https://example.com',
     }
 
-    def _writes(self, config: str):
-        f = NamedTemporaryFile(mode='r+')
+    def _writes(self, config: str, extension: str):
+        f = NamedTemporaryFile(mode='r+', suffix='.' + extension)
         f.write(config)
         f.seek(0)
         return f
 
     def _write(self, config_dict: Dict[str, Any]):
-        return self._writes(dumps(config_dict))
+        return self._writes(json.dumps(config_dict), 'json')
 
-    def test_from_file_should_parse_minimal(self):
-        with self._write(self._MINIMAL_CONFIG_DICT) as f:
+    @parameterized.expand([
+        ('json', json.dumps),
+        ('yaml', yaml.safe_dump),
+        ('yml', yaml.safe_dump),
+    ])
+    def test_from_file_should_parse_minimal(self, extension, dumper):
+        with self._writes(dumper(self._MINIMAL_CONFIG_DICT), extension) as f:
             configuration = from_file(f)
         self.assertEquals(
             self._MINIMAL_CONFIG_DICT['output'], configuration.output_directory_path)
@@ -192,8 +198,18 @@ class FromTest(TestCase):
             with self.assertRaises(AttributeError):
                 from_file(f)
 
+    def test_from_file_should_error_unknown_format(self):
+        with self._writes('', 'abc') as f:
+            with self.assertRaises(ConfigurationError):
+                from_file(f)
+
     def test_from_file_should_error_if_invalid_json(self):
-        with self._writes('') as f:
+        with self._writes('', 'json') as f:
+            with self.assertRaises(ConfigurationError):
+                from_file(f)
+
+    def test_from_file_should_error_if_invalid_yaml(self):
+        with self._writes('"foo', 'yaml') as f:
             with self.assertRaises(ConfigurationError):
                 from_file(f)
 

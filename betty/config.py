@@ -1,9 +1,10 @@
+import json
 from importlib import import_module
-from json import loads, JSONDecodeError
 from os import getcwd, path
 from os.path import join, abspath, dirname
 from typing import Dict, Type, Optional
 
+import yaml
 from voluptuous import Schema, All, Required, Invalid, IsDir, Any
 
 from betty.error import ExternalContextError
@@ -152,14 +153,35 @@ def _from_dict(site_directory_path: str, config_dict: Dict) -> Configuration:
 
 def _from_json(site_directory_path: str, config_json: str) -> Configuration:
     try:
-        config_dict = loads(config_json)
-    except JSONDecodeError:
+        config_dict = json.loads(config_json)
+    except json.JSONDecodeError:
         raise ConfigurationError('Invalid JSON.')
     return _from_dict(site_directory_path, config_dict)
 
 
-def from_file(f) -> Configuration:
+def _from_yaml(site_directory_path: str, config_yaml: str) -> Configuration:
     try:
-        return _from_json(dirname(f.name), f.read())
+        config_dict = yaml.safe_load(config_yaml)
+    except yaml.YAMLError:
+        raise ConfigurationError('Invalid YAML.')
+    return _from_dict(site_directory_path, config_dict)
+
+
+_factories = {
+    '.json': _from_json,
+    '.yaml': _from_yaml,
+    '.yml': _from_yaml,
+}
+
+
+def from_file(f) -> Configuration:
+    file_base_name, file_extension = path.splitext(f.name)
+    try:
+        factory = _factories[file_extension]
+    except KeyError:
+        raise ConfigurationError('Unknown file format "%s". Supported formats are: %s.' % (
+            file_extension, ', '.join(_factories.keys())))
+    try:
+        return factory(dirname(f.name), f.read())
     except ConfigurationError as e:
         raise e.add_context('In %s.' % abspath(f.name))
