@@ -154,16 +154,16 @@ def _from_dict(site_directory_path: str, config_dict: Dict) -> Configuration:
 def _from_json(site_directory_path: str, config_json: str) -> Configuration:
     try:
         config_dict = json.loads(config_json)
-    except json.JSONDecodeError:
-        raise ConfigurationError('Invalid JSON.')
+    except json.JSONDecodeError as e:
+        raise ConfigurationError('Invalid JSON: %s.' % e)
     return _from_dict(site_directory_path, config_dict)
 
 
 def _from_yaml(site_directory_path: str, config_yaml: str) -> Configuration:
     try:
         config_dict = yaml.safe_load(config_yaml)
-    except yaml.YAMLError:
-        raise ConfigurationError('Invalid YAML.')
+    except yaml.YAMLError as e:
+        raise ConfigurationError('Invalid YAML: %s' % e)
     return _from_dict(site_directory_path, config_dict)
 
 
