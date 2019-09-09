@@ -16,7 +16,7 @@
         {%- set formatted = calendar.month_name[date.month] + ', ' + date.year | string -%}
         {%- set timevals = [date.year, '{:0>2}'.format(date.month)] -%}
     {%- else -%}
-        {%- set formatted = 'unknown date' -%}
+        {%- set formatted = _('unknown date') -%}
     {%- endif -%}
     {%- if timevals is defined -%}
         <time datetime="{{ timevals | join('-') }}">{{ formatted }}</time>

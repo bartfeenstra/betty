@@ -61,6 +61,7 @@ base_url: https://ancestry.example.com
 root_path: /betty
 clean_urls: true
 title: Betty's ancestry
+language: nl
 resources: ./resources
 plugins:
   betty.plugins.anonymizer.Anonymizer: {}
@@ -79,6 +80,7 @@ plugins:
 - `root_path` (optional); The relative path under the public URL at which the site will be published.
 - `clean_urls` (optional); A boolean indicating whether to use clean URLs, e.g. `/path` instead of `/path/index.html`.
 - `title` (optional); The site's title.
+- `language` (optional); The ISO 639-1 code of the language to render the site in. Defaults to `en` (English).
 - `resources` (optional); The path to a directory containing overrides for any of Betty's [resources](./betty/resources).
 - `plugins` (optional): The plugins to enable. Keys are plugin names, and values are objects containing each plugin's configuration.
     - `betty.plugin.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `{}`.

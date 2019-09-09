@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+cd "$(dirname "$0")/.."
+
+for locale_directory_path in ./locale/*; do
+  language=$(basename "$locale_directory_path")
+  pybabel compile -d locale -l "$language" -D betty
+done

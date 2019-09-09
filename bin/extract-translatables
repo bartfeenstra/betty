@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+cd "$(dirname "$0")/.."
+
+pybabel extract -F ./babel.ini -o betty.pot ./betty
+
+for locale_directory_path in ./locale/*; do
+  language=$(basename "$locale_directory_path")
+  pybabel update -d locale -l "$language" -D betty -i ./betty.pot
+done

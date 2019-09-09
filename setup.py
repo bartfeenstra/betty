@@ -49,6 +49,7 @@ SETUP = {
     'extras_require': {
         'development': [
             'autopep8 ~= 1.4.3',
+            'babel ~= 2.7.0',
             'codecov ~= 2.0.15',
             'coverage ~= 4.5',
             'flake8 ~= 3.7.0',

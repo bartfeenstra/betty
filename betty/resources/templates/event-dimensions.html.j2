@@ -1,5 +1,25 @@
 {%- import 'macro/date.html.j2' as dateMacros -%}
 {%- import 'macro/place.html.j2' as placeMacros -%}
 {%- import 'macro/citation.html.j2' as citationMacros -%}
-{% if event.date %}{{ dateMacros.format(event.date) }}{%- endif %} {% if event.place and event.place != place_context %}in {{ placeMacros.label(event.place, place_context) }}{% endif -%}
+{% set formattedDate = none %}
+{% if event.date %}
+    {% set formattedDate = dateMacros.format(event.date) %}
+{%- endif %}
+
+{% set formattedPlace = none %}
+{% if event.place and event.place != place_context %}
+    {% set formattedPlace = placeMacros.label(event.place, place_context) %}
+{% endif -%}
+
+{% if formattedDate and formattedPlace %}
+    {% trans date = formattedDate, place = formattedPlace -%}
+        {{ date }} in {{ place }}
+    {%- endtrans %}
+{% elif formattedPlace -%}
+    {% trans place =formattedPlace -%}
+        in {{ place }}
+    {%- endtrans %}
+{% else %}
+    {{ formattedDate }}
+{%- endif %}
 {{ citationMacros.cite(event.citations) }}

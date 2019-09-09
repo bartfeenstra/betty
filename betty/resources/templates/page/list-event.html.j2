@@ -1,5 +1,5 @@
 {% extends 'page/base.html.j2' %}
-{% set title = 'Events' %}
+{% set title = _('Events') %}
 {% block content %}
     {% with events=entities %}
         {% include 'list-event.html.j2' %}

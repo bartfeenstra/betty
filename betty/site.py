@@ -1,4 +1,6 @@
+import gettext
 from collections import defaultdict
+from os import path
 from os.path import abspath, dirname, join
 from typing import Type, Dict
 
@@ -11,6 +13,9 @@ from betty.graph import tsort, Graph
 
 class Site:
     def __init__(self, configuration: Configuration):
+        if configuration.locale != ('en', 'US'):
+            gettext.translation('betty', path.join(dirname(dirname(__file__)), 'locale'), [
+                                '_'.join(configuration.locale)]).install()
         self._ancestry = Ancestry()
         self._configuration = configuration
         self._resources = FileSystem(

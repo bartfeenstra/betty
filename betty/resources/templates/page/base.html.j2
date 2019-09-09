@@ -36,11 +36,11 @@
     <a id="nav-primary-show" class="nav-primary-toggle" href="#nav-primary">Menu</a>
     <a id="nav-primary-hide" class="nav-primary-toggle" href="#">×</a>
     <ul class="nav-expanded">
-        <li><a href="{{ '/person/' | url }}">People</a></li>
-        <li><a href="{{ '/event/' | url }}">Events</a></li>
-        <li><a href="{{ '/place/' | url }}">Places</a></li>
-        <li><a href="{{ '/file/' | url }}">Media</a></li>
-        <li><a href="{{ '/source/' | url }}">Sources</a></li>
+        <li><a href="{{ '/person/' | url }}">{{ _('People') }}</a></li>
+        <li><a href="{{ '/event/' | url }}">{{ _('Events') }}</a></li>
+        <li><a href="{{ '/place/' | url }}">{{ _('Places') }}</a></li>
+        <li><a href="{{ '/file/' | url }}">{{ _('Media') }}</a></li>
+        <li><a href="{{ '/source/' | url }}">{{ _('Sources') }}</a></li>
     </ul>
 </nav>
 <div id="content">
@@ -48,7 +48,7 @@
     {%- block content -%}{%- endblock -%}
     {% if citer | length > 0 %}
         <section class="references">
-            <h2>References</h2>
+            <h2>{{ _('References') }}</h2>
             <ol>
             {% for number, citation in citer %}
                 <li id="reference-{{ number }}">{{ citationMacros.referenceLabel(citation) }}</li>
@@ -57,7 +57,7 @@
         </section>
     {% endif %}
 </div>
-<footer><p>A family history as told by <a href="https://github.com/bartfeenstra/betty">Betty 👵</a></p></footer>
+<footer><p>{{ _('A family history as told by <a href="https://github.com/bartfeenstra/betty">Betty</a>') }}</p></footer>
 {%- if 'betty.plugins.js.Js' in plugins %}
     <script src="{{ '/betty.js' | url }}"></script>
 {% endif -%}

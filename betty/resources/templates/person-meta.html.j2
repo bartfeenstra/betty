@@ -1,7 +1,7 @@
 {%- import 'macro/event.html.j2' as eventMacros -%}
 <div class="meta">
     {%- if person.private -%}
-        <p>This person's details are unavailable to protect their privacy.</p>
+        <p>{{ _('This person\'s details are unavailable to protect their privacy.') }}</p>
     {%- elif person.start or person.end %}
         <dl>
             {%- if person.start %}

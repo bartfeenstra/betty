@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+cd "$(dirname "$0")/.."
+
+language="$1"
+
+if [ -f "./locale/$language/LC_MESSAGES/betty.po" ]; then
+  exit 0
+fi
+
+pybabel init --no-wrap -d locale -l "$language" -D betty -i ./betty.pot

@@ -18,7 +18,7 @@
         {% endif %}
     {% endfor %}
     {% if ns.witnesses | length > 0 %}
-        <h2>Witnesses</h2>
+        <h2>{{ _('Witnesses') }}</h2>
         <ul>
             {% for witness in ns.witnesses %}
                 <li typeof="foaf:Person" property="rel:knowsOf">{{ personMacros.label(witness) }}</li>
@@ -33,7 +33,7 @@
         {% endif %}
     {% endfor %}
     {% if ns.attendees | length > 0 %}
-        <h2>Other attendees</h2>
+        <h2>{{ _('Other attendees') }}</h2>
         <ul>
             {% for attendee in ns.attendees %}
                 <li typeof="foaf:Person" property="rel:knowsOf">{{ personMacros.label(attendee) }}</li>
@@ -42,7 +42,7 @@
     {% endif %}
 
     {% if event.files | length > 0 %}
-        <h2>Media</h2>
+        <h2>{{ _('Media') }}</h2>
         {% with files=event.files %}
             {% include 'list-file.html.j2' %}
         {% endwith %}
