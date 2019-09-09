@@ -116,7 +116,7 @@ class FromTest(TestCase):
             configuration = from_file(f)
             self.assertEquals(title, configuration.title)
 
-    def test_from_file_should_parse_language(self):
+    def test_from_file_should_parse_locale(self):
         locale = ('nl', 'NL')
         config_dict = dict(**self._MINIMAL_CONFIG_DICT)
         config_dict['locale'] = locale
