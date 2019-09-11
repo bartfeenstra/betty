@@ -1,14 +1,18 @@
 import json
+from collections import namedtuple
 from importlib import import_module
 from os import getcwd, path
 from os.path import join, abspath, dirname
-from typing import Dict, Type, Optional, Tuple
+from typing import Dict, Type, Optional
 
 import yaml
 from voluptuous import Schema, All, Required, Invalid, IsDir, Any, Coerce
 
 from betty.error import ExternalContextError
 from betty.voluptuous import MapDict
+
+
+Locale = namedtuple('Locale', ['language', 'region'])
 
 
 class Configuration:
@@ -24,7 +28,7 @@ class Configuration:
         self._plugins = {}
         self._mode = 'production'
         self._resources_directory_path = None
-        self._locale = ('en', 'US')
+        self._locale = Locale('en', 'US')
 
     @property
     def site_directory_path(self) -> str:
@@ -97,11 +101,11 @@ class Configuration:
         self._resources_directory_path = resources_directory_path
 
     @property
-    def locale(self) -> Tuple[str, str]:
+    def locale(self) -> Locale:
         return self._locale
 
     @locale.setter
-    def locale(self, locale: Tuple[str, str]) -> None:
+    def locale(self, locale: Locale) -> None:
         self._locale = locale
 
 
@@ -139,7 +143,7 @@ def _from_dict(site_directory_path: str, config_dict: Dict) -> Configuration:
         configuration.title = config_dict['title']
 
     if 'locale' in config_dict:
-        configuration.locale = config_dict['locale']
+        configuration.locale = Locale(*config_dict['locale'])
 
     if 'root_path' in config_dict:
         configuration.root_path = config_dict['root_path']

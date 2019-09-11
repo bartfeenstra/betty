@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-09-10 00:06+0100\n"
+"POT-Creation-Date: 2019-09-11 23:56+0100\n"
 "PO-Revision-Date: 2019-09-09 21:11+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: nl\n"
@@ -26,6 +26,21 @@ msgstr ""
 "Gebruik <kbd>↑</kbd> en <kbd>↓</kbd> om door de resultaten te bladeren, "
 "of <kbd>esc</kbd> om te stoppen met zoeken. Open het zoekformulier "
 "opnieuw met <kbd>s</kbd>."
+
+#: betty/plugins/wikipedia/resources/templates/wikipedia.html.j2:3
+#, python-format
+msgid "Read more on <a href=\"%(uri)s\">Wikipedia</a>."
+msgstr "Lees verder op <a href=\"%(uri)s\">Wikipedia</a>."
+
+#: betty/plugins/wikipedia/resources/templates/wikipedia.html.j2:4
+msgid ""
+"<a "
+"href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a>"
+" Wikipedia and its contributors."
+msgstr ""
+"<a "
+"href=\"https://nl.wikipedia.org/wiki/Wikipedia:Auteursrechten\">Copyright</a>"
+" Wikipedia en bijdragers."
 
 #: betty/resources/templates/event-dimensions.html.j2:15
 #, python-format
@@ -143,7 +158,7 @@ msgid ""
 "A family history as told by <a "
 "href=\"https://github.com/bartfeenstra/betty\">Betty</a>"
 msgstr ""
-"Een familieverhaal zoals verteld door <a "
+"Een familieverhaal verteld door <a "
 "href=\"https://github.com/bartfeenstra/betty\">Betty</a>"
 
 #: betty/resources/templates/page/event.html.j2:21

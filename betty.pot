@@ -1,14 +1,14 @@
-# Translations template for PROJECT.
-# Copyright (C) 2019 ORGANIZATION
-# This file is distributed under the same license as the PROJECT project.
+# Translations template for Betty.
+# Copyright (C) 2019 Bart Feenstra & contributors
+# This file is distributed under the same license as the Betty project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT VERSION\n"
+"Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-09-10 00:06+0100\n"
+"POT-Creation-Date: 2019-09-11 23:56+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,6 +21,18 @@ msgstr ""
 msgid ""
 "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
 "to exit the search. Next time, open the search with <kbd>s</kbd>."
+msgstr ""
+
+#: betty/plugins/wikipedia/resources/templates/wikipedia.html.j2:3
+#, python-format
+msgid "Read more on <a href=\"%(uri)s\">Wikipedia</a>."
+msgstr ""
+
+#: betty/plugins/wikipedia/resources/templates/wikipedia.html.j2:4
+msgid ""
+"<a "
+"href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a>"
+" Wikipedia and its contributors."
 msgstr ""
 
 #: betty/resources/templates/event-dimensions.html.j2:15

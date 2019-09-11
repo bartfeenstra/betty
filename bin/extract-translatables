@@ -4,7 +4,7 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
-pybabel extract -F ./babel.ini -o betty.pot ./betty
+pybabel extract -F ./babel.ini -o betty.pot --project 'Betty' --copyright-holder 'Bart Feenstra & contributors' ./betty
 
 for locale_directory_path in ./locale/*; do
   language=$(basename "$locale_directory_path")
