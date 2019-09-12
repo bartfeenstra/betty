@@ -37,6 +37,7 @@ SETUP = {
         'Topic :: Software Development :: Code Generators',
     ],
     'install_requires': [
+        'babel ~= 2.7.0',
         'geopy ~= 1.18.1',
         'jinja2 ~= 2.10',
         'libsass ~= 0.19.2',
@@ -49,7 +50,6 @@ SETUP = {
     'extras_require': {
         'development': [
             'autopep8 ~= 1.4.3',
-            'babel ~= 2.7.0',
             'codecov ~= 2.0.15',
             'coverage ~= 4.5',
             'flake8 ~= 3.7.0',

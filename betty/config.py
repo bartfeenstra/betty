@@ -6,13 +6,11 @@ from os.path import join, abspath, dirname
 from typing import Dict, Type, Optional
 
 import yaml
+from babel import Locale
 from voluptuous import Schema, All, Required, Invalid, IsDir, Any, Coerce
 
 from betty.error import ExternalContextError
 from betty.voluptuous import MapDict
-
-
-Locale = namedtuple('Locale', ['language', 'region'])
 
 
 class Configuration:
@@ -112,7 +110,7 @@ class Configuration:
 ConfigurationSchema = Schema({
     Required('output'): All(str),
     'title': All(str),
-    'locale': All(Coerce(tuple), (str, str)),
+    'locale': All(Coerce(lambda args: Locale(*args))),
     Required('base_url'): All(str),
     'root_path': All(str),
     'clean_urls': All(bool),

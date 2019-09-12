@@ -1,5 +1,4 @@
 import calendar
-import gettext
 import os
 import re
 from importlib import import_module
@@ -88,12 +87,7 @@ def create_environment(site: Site) -> Environment:
         autoescape=select_autoescape(['html']),
         extensions=['jinja2.ext.i18n']
     )
-    if site.configuration.locale != ('en', 'US'):
-        with open(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'locale', '_'.join(site.configuration.locale), 'LC_MESSAGES', 'betty.mo'), 'rb') as f:
-            translations = gettext.GNUTranslations(f)
-    else:
-        translations = gettext.NullTranslations()
-    environment.install_gettext_translations(translations)
+    environment.install_gettext_translations(site.translations)
     environment.globals['site'] = site
     environment.globals['plugins'] = _Plugins(site.plugins)
     environment.globals['EventType'] = Event.Type
