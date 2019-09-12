@@ -1,6 +1,5 @@
 import gettext
 from collections import defaultdict
-from os import path
 from os.path import abspath, dirname, join
 from typing import Type, Dict
 
@@ -68,16 +67,17 @@ class Site:
     def _boot_resources(self) -> None:
         for plugin in self._plugins.values():
             if plugin.resource_directory_path is not None:
-                self._resources.paths.appendleft(plugin.resource_directory_path)
+                self._resources.paths.appendleft(
+                    plugin.resource_directory_path)
 
     def _boot_translations(self) -> None:
         for resources_path in reversed(self._resources.paths):
-            translations = open_translations(self._configuration.locale, resources_path)
+            translations = open_translations(
+                self._configuration.locale, resources_path)
             if translations:
                 translations.add_fallback(self._translations)
                 self._translations = translations
         self.translations.install()
-
 
     @property
     def ancestry(self) -> Ancestry:

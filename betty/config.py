@@ -1,5 +1,4 @@
 import json
-from collections import namedtuple
 from importlib import import_module
 from os import getcwd, path
 from os.path import join, abspath, dirname
