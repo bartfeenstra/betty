@@ -1,12 +1,10 @@
 """Integrates Betty with Python's setuptools."""
 
 import os
-from itertools import chain
+from glob import glob
 from os.path import abspath, dirname, join
 
 from setuptools import setup, find_packages
-
-from betty.fs import iterfiles
 
 ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -76,11 +74,7 @@ SETUP = {
     ],
     'include_package_data': True,
     'package_data': {
-        'betty': chain(
-            iterfiles(join(dirname(abspath(__file__)), 'betty', 'resources')),
-            iterfiles(join(dirname(abspath(__file__)), 'betty', 'plugins', 'js', 'js')),
-            iterfiles(join(dirname(abspath(__file__)), 'betty', 'plugins', 'maps', 'js')),
-        ),
+        'betty': glob(join(dirname(abspath(__file__)), 'betty', 'resources', '**'), recursive=True) + glob(join(dirname(abspath(__file__)), 'betty', 'plugins', '*', 'resources', '**'), recursive=True),
     },
 }
 

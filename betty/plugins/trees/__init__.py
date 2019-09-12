@@ -1,4 +1,5 @@
 from os.path import dirname
+from typing import Optional
 
 from betty.plugin import Plugin
 from betty.plugins.js import Js, JsEntryPointProvider, JsPackageProvider
@@ -10,5 +11,5 @@ class Trees(Plugin, JsPackageProvider, JsEntryPointProvider):
         return {Js}
 
     @property
-    def package_directory_path(self) -> str:
-        return '%s/js' % dirname(__file__)
+    def resource_directory_path(self) -> Optional[str]:
+        return '%s/resources' % dirname(__file__)
