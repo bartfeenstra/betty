@@ -85,9 +85,6 @@ class Retriever:
         link_language, _, _ = parts.netloc.split('.')
         title = parts.path[6:]
 
-        # @todo If the original article's language differs from the requested language, see if the article exists in the requested language and get its title.
-        # @todo
-        # @todo
         if language != link_language:
             translations_uri = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=langlinks&lllimit=500&format=json&formatversion=2' % (
                 link_language, title)

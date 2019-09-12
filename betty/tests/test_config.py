@@ -6,6 +6,7 @@ from typing import Any, Dict
 from unittest import TestCase
 
 import yaml
+from babel import Locale
 from parameterized import parameterized
 
 from betty.config import from_file, Configuration, ConfigurationError
@@ -122,7 +123,7 @@ class FromTest(TestCase):
         config_dict['locale'] = locale
         with self._write(config_dict) as f:
             configuration = from_file(f)
-            self.assertEquals(locale, configuration.locale)
+            self.assertEquals(Locale('nl', 'NL'), configuration.locale)
 
     def test_from_file_should_root_path(self):
         configured_root_path = '/betty'
