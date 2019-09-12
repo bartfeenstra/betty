@@ -2,9 +2,10 @@ import hashlib
 import json
 import shutil
 from os import path
+from os.path import dirname
 from subprocess import check_call
 from tempfile import mkdtemp
-from typing import Tuple, Dict, Iterable
+from typing import Tuple, Dict, Iterable, Optional
 
 from jinja2 import Environment
 
@@ -16,9 +17,7 @@ from betty.site import Site
 
 
 class JsPackageProvider:
-    @property
-    def package_directory_path(self) -> str:
-        raise NotImplementedError
+    pass
 
 
 class JsEntryPointProvider:
@@ -67,6 +66,10 @@ class Js(Plugin, JsPackageProvider):
             (PostRenderEvent, lambda event: self._render(event.environment)),
         ]
 
+    @property
+    def resource_directory_path(self) -> Optional[str]:
+        return '%s/resources' % dirname(__file__)
+
     def _render(self, environment: Environment) -> None:
         js_plugins = list([plugin for plugin in self._plugins.values(
         ) if isinstance(plugin, JsPackageProvider)])
@@ -85,7 +88,7 @@ class Js(Plugin, JsPackageProvider):
                     shutil.rmtree(plugin_build_directory_path)
                 except FileNotFoundError:
                     pass
-                shutil.copytree(plugin.package_directory_path,
+                shutil.copytree(path.join(plugin.resource_directory_path, 'js'),
                                 plugin_build_directory_path)
             render_tree(plugin_build_directory_path, environment)
             if not isinstance(plugin, self.__class__):
@@ -137,7 +140,3 @@ class Js(Plugin, JsPackageProvider):
                 entry_point_alias = 'betty%s' % hashlib.md5(
                     plugin.name().encode()).hexdigest()
                 yield entry_point_alias, plugin.name()
-
-    @property
-    def package_directory_path(self) -> str:
-        return '%s/js' % path.dirname(__file__)
