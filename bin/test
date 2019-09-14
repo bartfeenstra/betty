@@ -10,7 +10,7 @@ for file in ./bin/*; do
 done
 
 # Test the Python code style.
-flake8 --ignore=E501 ./betty
+flake8 --config ./flake8.ini ./betty
 
 # Test the CSS code style.
 ./node_modules/.bin/stylelint "./**/*.css" "./**/*.sass" "./**/*.scss"
