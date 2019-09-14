@@ -1,4 +1,3 @@
-import calendar
 import os
 import re
 from importlib import import_module
@@ -22,6 +21,7 @@ from betty.ancestry import File, Citation, Event, Presence
 from betty.fs import iterfiles, makedirs, hashfile
 from betty.functools import walk
 from betty.json import JSONEncoder
+from betty.locale import format_date
 from betty.plugin import Plugin
 from betty.site import Site
 from betty.url import UrlGenerator
@@ -93,13 +93,14 @@ def create_environment(site: Site) -> Environment:
     environment.globals['EventType'] = Event.Type
     environment.globals['PresenceRole'] = Presence.Role
     environment.globals['urlparse'] = urlparse
-    environment.globals['calendar'] = calendar
     environment.filters['map'] = _filter_map
     environment.filters['flatten'] = _filter_flatten
     environment.filters['walk'] = _filter_walk
     environment.filters['takewhile'] = _filter_takewhile
     environment.filters['json'] = _filter_json
     environment.filters['paragraphs'] = _filter_paragraphs
+    environment.filters['format_date'] = lambda date: format_date(
+        date, site.configuration.locale)
     environment.filters['format_degrees'] = _filter_format_degrees
     environment.globals['citer'] = _Citer()
     environment.filters['url'] = UrlGenerator(site.configuration).generate

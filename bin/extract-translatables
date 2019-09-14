@@ -6,7 +6,7 @@ cd "$(dirname "$0")/.."
 
 pybabel extract -F ./babel.ini -o betty.pot --project 'Betty' --copyright-holder 'Bart Feenstra & contributors' ./betty
 
-for locale_directory_path in ./locale/*; do
+for locale_directory_path in ./betty/resources/locale/*; do
   language=$(basename "$locale_directory_path")
-  pybabel update -d locale -l "$language" -D betty -i ./betty.pot
+  pybabel update -d ./betty/resources/locale -l "$language" -D betty -i ./betty.pot
 done

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-09-11 23:56+0100\n"
+"POT-Creation-Date: 2019-09-14 12:02+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,30 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
+
+#: betty/locale.py:25
+msgid "MMMM d, y"
+msgstr ""
+
+#: betty/locale.py:26
+msgid "MMMM, y"
+msgstr ""
+
+#: betty/locale.py:27
+msgid "y"
+msgstr ""
+
+#: betty/locale.py:28
+msgid "MMMM d"
+msgstr ""
+
+#: betty/locale.py:29
+msgid "MMMM"
+msgstr ""
+
+#: betty/locale.py:32
+msgid "unknown date"
+msgstr ""
 
 #: betty/plugins/search/resources/templates/search-results-container.html.j2:3
 msgid ""
@@ -35,22 +59,18 @@ msgid ""
 " Wikipedia and its contributors."
 msgstr ""
 
-#: betty/resources/templates/event-dimensions.html.j2:15
+#: betty/resources/templates/event-dimensions.html.j2:14
 #, python-format
 msgid "%(date)s in %(place)s"
 msgstr ""
 
-#: betty/resources/templates/event-dimensions.html.j2:19
+#: betty/resources/templates/event-dimensions.html.j2:18
 #, python-format
 msgid "in %(place)s"
 msgstr ""
 
 #: betty/resources/templates/person-meta.html.j2:4
 msgid "This person's details are unavailable to protect their privacy."
-msgstr ""
-
-#: betty/resources/templates/macro/date.html.j2:19
-msgid "unknown date"
 msgstr ""
 
 #: betty/resources/templates/macro/event.html.j2:15

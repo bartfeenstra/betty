@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-09-11 23:56+0100\n"
+"POT-Creation-Date: 2019-09-14 12:02+0100\n"
 "PO-Revision-Date: 2019-09-09 21:11+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: nl\n"
@@ -17,6 +17,30 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
+
+#: betty/locale.py:25
+msgid "MMMM d, y"
+msgstr "d MMMM y"
+
+#: betty/locale.py:26
+msgid "MMMM, y"
+msgstr "MMMM y"
+
+#: betty/locale.py:27
+msgid "y"
+msgstr "y"
+
+#: betty/locale.py:28
+msgid "MMMM d"
+msgstr "d MMMM"
+
+#: betty/locale.py:29
+msgid "MMMM"
+msgstr "MMMM"
+
+#: betty/locale.py:32
+msgid "unknown date"
+msgstr "onbekend"
 
 #: betty/plugins/search/resources/templates/search-results-container.html.j2:3
 msgid ""
@@ -42,12 +66,12 @@ msgstr ""
 "href=\"https://nl.wikipedia.org/wiki/Wikipedia:Auteursrechten\">Copyright</a>"
 " Wikipedia en bijdragers."
 
-#: betty/resources/templates/event-dimensions.html.j2:15
+#: betty/resources/templates/event-dimensions.html.j2:14
 #, python-format
 msgid "%(date)s in %(place)s"
 msgstr "%(date)s te %(place)s"
 
-#: betty/resources/templates/event-dimensions.html.j2:19
+#: betty/resources/templates/event-dimensions.html.j2:18
 #, python-format
 msgid "in %(place)s"
 msgstr "te %(place)s"
@@ -55,10 +79,6 @@ msgstr "te %(place)s"
 #: betty/resources/templates/person-meta.html.j2:4
 msgid "This person's details are unavailable to protect their privacy."
 msgstr "De gegevens van deze persoon zijn niet beschikbaar vanwege privacyredenen."
-
-#: betty/resources/templates/macro/date.html.j2:19
-msgid "unknown date"
-msgstr "onbekend"
 
 #: betty/resources/templates/macro/event.html.j2:15
 #, python-format
