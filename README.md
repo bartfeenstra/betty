@@ -61,9 +61,7 @@ base_url: https://ancestry.example.com
 root_path: /betty
 clean_urls: true
 title: Betty's ancestry
-locale:
-  - nl
-  - NL
+locale: ['nl', 'NL']
 resources: ./resources
 plugins:
   betty.plugins.anonymizer.Anonymizer: {}
