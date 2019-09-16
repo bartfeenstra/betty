@@ -7,5 +7,5 @@
 {%- endmacro -%}
 
 {% macro _link(place) -%}
-    <a href="{{ place | url }}">{{ place.name }}</a>
+    <a href="{{ place | url }}">{{ place.names | locale_sort(site.configuration.locale) | first }}</a>
 {%- endmacro -%}

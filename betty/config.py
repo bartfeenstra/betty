@@ -5,10 +5,10 @@ from os.path import join, abspath, dirname
 from typing import Dict, Type, Optional
 
 import yaml
-from babel import Locale
 from voluptuous import Schema, All, Required, Invalid, IsDir, Any, Coerce
 
 from betty.error import ExternalContextError
+from betty.locale import Locale
 from betty.voluptuous import MapDict
 
 

@@ -36,7 +36,7 @@ class Search(Plugin, JsPackageProvider, JsEntryPointProvider, Jinja2Provider):
             }
         for place in self._site.ancestry.places.values():
             yield {
-                'text': place.name.lower(),
+                'text': ' '.join(map(lambda x: x.name.lower(), place.names)),
                 'result': environment.get_template('search-result-place.html.j2').render({
                     'place': place,
                 })

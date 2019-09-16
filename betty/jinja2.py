@@ -21,7 +21,7 @@ from betty.ancestry import File, Citation, Event, Presence
 from betty.fs import iterfiles, makedirs, hashfile
 from betty.functools import walk
 from betty.json import JSONEncoder
-from betty.locale import format_date
+from betty.locale import format_date, sort
 from betty.plugin import Plugin
 from betty.site import Site
 from betty.url import UrlGenerator
@@ -97,6 +97,9 @@ def create_environment(site: Site) -> Environment:
     environment.filters['flatten'] = _filter_flatten
     environment.filters['walk'] = _filter_walk
     environment.filters['takewhile'] = _filter_takewhile
+    environment.filters['locale_sort'] = sort
+    environment.filters['sort_places'] = lambda places: sorted(
+        places, key=lambda place: str(sort(place.names, site.configuration.locale)[0]))
     environment.filters['json'] = _filter_json
     environment.filters['paragraphs'] = _filter_paragraphs
     environment.filters['format_date'] = lambda date: format_date(

@@ -6,10 +6,10 @@ from typing import Any, Dict
 from unittest import TestCase
 
 import yaml
-from babel import Locale
 from parameterized import parameterized
 
 from betty.config import from_file, Configuration, ConfigurationError
+from betty.locale import Locale
 from betty.plugin import Plugin
 
 

@@ -11,9 +11,10 @@ from lxml.etree import XMLParser, Element
 from voluptuous import Schema, IsFile
 
 from betty.ancestry import Event, Place, Person, Ancestry, Date, Note, File, Link, Source, HasFiles, Citation, \
-    Presence, HasLinks
+    Presence, HasLinks, PlaceName
 from betty.config import assert_configuration
 from betty.fs import makedirs
+from betty.locale import Locale
 from betty.parse import ParseEvent
 from betty.plugin import Plugin
 from betty.site import Site
@@ -251,10 +252,13 @@ def _parse_places(ancestry: _IntermediateAncestry, database: Element):
 
 def _parse_place(element: Element) -> Tuple[str, _IntermediatePlace]:
     handle = _xpath1(element, './@handle')
-    properties = {
-        'name': _xpath1(element, './ns:pname/@value')
-    }
-    place = Place(_xpath1(element, './@id'), **properties)
+    names = []
+    for name_element in _xpath(element, './ns:pname'):
+        language = _xpath1(name_element, './@lang')
+        locale = None if language is None else Locale(language)
+        names.append(PlaceName(str(_xpath1(name_element, './@value')), locale))
+
+    place = Place(_xpath1(element, './@id'), names)
 
     coordinates = _parse_coordinates(element)
     if coordinates:

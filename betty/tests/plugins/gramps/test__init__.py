@@ -43,7 +43,10 @@ class ParseXmlFileTestCase(TestCase):
 
     def test_place_should_include_name(self):
         place = self.ancestry.places['P0000']
-        self.assertEquals('Amsterdam', place.name)
+        names = place.names
+        self.assertEquals(1, len(names))
+        name = names[0]
+        self.assertEquals('Amsterdam', name.name)
 
     def test_place_should_include_coordinates(self):
         place = self.ancestry.places['P0000']

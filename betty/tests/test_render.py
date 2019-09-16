@@ -5,7 +5,7 @@ from unittest import TestCase
 
 import html5lib
 
-from betty.ancestry import Person, Event, Place, Source, Presence
+from betty.ancestry import Person, Event, Place, Source, Presence, PlaceName
 from betty.config import Configuration
 from betty.render import render
 from betty.site import Site
@@ -22,7 +22,7 @@ class RenderTest(TestCase):
             cls._outputDirectory.name, 'https://ancestry.example.com')
         cls.site = Site(configuration)
 
-        place1 = Place('PLACE1', 'one')
+        place1 = Place('PLACE1', [PlaceName('one')])
 
         event1 = Event('EVENT1', Event.Type.BIRTH)
         event1.place = place1
