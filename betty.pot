@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-09-14 12:02+0100\n"
+"POT-Creation-Date: 2019-09-17 22:36+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,27 +17,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: betty/locale.py:25
+#: betty/locale.py:133
 msgid "MMMM d, y"
 msgstr ""
 
-#: betty/locale.py:26
+#: betty/locale.py:134
 msgid "MMMM, y"
 msgstr ""
 
-#: betty/locale.py:27
+#: betty/locale.py:135
 msgid "y"
 msgstr ""
 
-#: betty/locale.py:28
+#: betty/locale.py:136
 msgid "MMMM d"
 msgstr ""
 
-#: betty/locale.py:29
+#: betty/locale.py:137
 msgid "MMMM"
 msgstr ""
 
-#: betty/locale.py:32
+#: betty/locale.py:142
 msgid "unknown date"
 msgstr ""
 
@@ -57,6 +57,11 @@ msgid ""
 "<a "
 "href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a>"
 " Wikipedia and its contributors."
+msgstr ""
+
+#: betty/resources/public/index.html.j2:2
+#, python-format
+msgid "Welcome to %(title)s"
 msgstr ""
 
 #: betty/resources/templates/event-dimensions.html.j2:14

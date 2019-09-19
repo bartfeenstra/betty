@@ -24,9 +24,6 @@ class Site:
         self._boot_event_listeners()
         self._boot_resources()
         self._boot_translations()
-        if configuration.resources_directory_path:
-            self._resources.paths.appendleft(
-                configuration.resources_directory_path)
 
     def _init_plugins(self) -> None:
         def _extend_plugin_type_graph(graph: Graph, plugin_type: Type):
@@ -69,6 +66,9 @@ class Site:
             if plugin.resource_directory_path is not None:
                 self._resources.paths.appendleft(
                     plugin.resource_directory_path)
+        if self._configuration.resources_directory_path:
+            self._resources.paths.appendleft(
+                self._configuration.resources_directory_path)
 
     def _boot_translations(self) -> None:
         for resources_path in reversed(self._resources.paths):

@@ -6,8 +6,8 @@ cd "$(dirname "$0")/.."
 
 language="$1"
 
-if [ -f "./locale/$language/LC_MESSAGES/betty.po" ]; then
+if [ -f "./betty/resources/locale/$language/LC_MESSAGES/betty.po" ]; then
   exit 0
 fi
 
-pybabel init --no-wrap -d locale -l "$language" -D betty -i ./betty.pot
+pybabel init --no-wrap -d ./betty/resources/locale -l "$language" -D betty -i ./betty.pot
