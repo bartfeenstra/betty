@@ -28,7 +28,6 @@ class SortTest(TestCase):
         ([PlaceName('Nederland', Locale('nl')), PlaceName('The Netherlands', Locale('en'))], [
          PlaceName('The Netherlands', Locale('en')), PlaceName('Nederland', Locale('nl'))], Locale('nl')),
     ])
-    def test_localize_names(self, expected, names, locale: Locale):
-        # self.fail('@todo Should we convert this to a sort instead, where we sort objects based on their locale, and a given locale? For templates, we expose that as a filter.')
+    def test(self, expected, names, locale: Locale):
         place = Place('The Place', names)
         self.assertEquals(expected, sort(place.names, locale))
