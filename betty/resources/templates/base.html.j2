@@ -57,7 +57,9 @@
         </section>
     {% endif %}
 </div>
-<footer><p>A family history as told by <a href="https://github.com/bartfeenstra/betty">Betty 👵</a></p></footer>
+<footer>
+    {% include 'footer.html.j2' %}
+</footer>
 {%- if 'betty.plugins.js.Js' in plugins %}
     <script src="{{ '/betty.js' | url }}"></script>
 {% endif -%}
