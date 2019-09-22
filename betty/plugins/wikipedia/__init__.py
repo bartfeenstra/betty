@@ -8,6 +8,7 @@ from typing import Iterable, Optional, Dict, Callable
 from urllib.parse import urlparse
 
 import requests
+from jinja2 import environmentfilter
 from requests import RequestException
 
 from betty.ancestry import Link
@@ -113,18 +114,17 @@ class Retriever:
 
 
 class Wikipedia(Plugin, Jinja2Provider):
-    def __init__(self, language: str, retriever: Retriever):
-        self._language = language
+    def __init__(self, retriever: Retriever):
         self._retriever = retriever
 
     @classmethod
     def from_configuration_dict(cls, site: Site, configuration: Dict):
-        return cls(site.configuration.locale.language, Retriever(site.configuration.cache_directory_path))
+        return cls(Retriever(site.configuration.cache_directory_path))
 
     @property
     def filters(self) -> Dict[str, Callable]:
         return {
-            'wikipedia': lambda links: self._retriever.all(self._language, links),
+            'wikipedia': environmentfilter(lambda environment, links: self._retriever.all(environment.globals['locale'].language, links)),
         }
 
     @property

@@ -2,10 +2,10 @@ import json
 from importlib import import_module
 from os import getcwd, path
 from os.path import join, abspath, dirname
-from typing import Dict, Type, Optional
+from typing import Dict, Type, Optional, List, Iterable
 
 import yaml
-from voluptuous import Schema, All, Required, Invalid, IsDir, Any, Coerce
+from voluptuous import Schema, All, Required, Invalid, IsDir, Any
 
 from betty.error import ExternalContextError
 from betty.locale import Locale
@@ -25,7 +25,7 @@ class Configuration:
         self._plugins = {}
         self._mode = 'production'
         self._resources_directory_path = None
-        self._locale = Locale('en', 'US')
+        self._locales = [Locale('en', 'US')]
 
     @property
     def site_directory_path(self) -> str:
@@ -98,18 +98,26 @@ class Configuration:
         self._resources_directory_path = resources_directory_path
 
     @property
-    def locale(self) -> Locale:
-        return self._locale
+    def locales(self) -> List[Locale]:
+        return self._locales
 
-    @locale.setter
-    def locale(self, locale: Locale) -> None:
-        self._locale = locale
+    @locales.setter
+    def locales(self, locales: Iterable[Locale]) -> None:
+        self._locales = locales
+
+    @property
+    def default_locale(self) -> Locale:
+        return self._locales[0]
+
+    @property
+    def multilingual(self) -> bool:
+        return len(self._locales) > 1
 
 
 ConfigurationSchema = Schema({
     Required('output'): All(str),
     'title': All(str),
-    'locale': All(Coerce(lambda args: Locale(*args))),
+    'locales': All(list, [list]),
     Required('base_url'): All(str),
     'root_path': All(str),
     'clean_urls': All(bool),
@@ -139,8 +147,9 @@ def _from_dict(site_directory_path: str, config_dict: Dict) -> Configuration:
     if 'title' in config_dict:
         configuration.title = config_dict['title']
 
-    if 'locale' in config_dict:
-        configuration.locale = Locale(*config_dict['locale'])
+    if 'locales' in config_dict:
+        configuration.locales = list(
+            [Locale(*identifiers) for identifiers in config_dict['locales']])
 
     if 'root_path' in config_dict:
         configuration.root_path = config_dict['root_path']

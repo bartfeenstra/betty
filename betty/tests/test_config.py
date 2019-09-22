@@ -120,10 +120,10 @@ class FromTest(TestCase):
     def test_from_file_should_parse_locale(self):
         locale = ('nl', 'NL')
         config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['locale'] = locale
+        config_dict['locales'] = [locale]
         with self._write(config_dict) as f:
             configuration = from_file(f)
-            self.assertEquals(Locale('nl', 'NL'), configuration.locale)
+            self.assertEquals([Locale('nl', 'NL')], configuration.locales)
 
     def test_from_file_should_root_path(self):
         configured_root_path = '/betty'

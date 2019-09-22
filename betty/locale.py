@@ -23,6 +23,9 @@ class Locale:
     def __repr__(self):
         return self.get_identifier()
 
+    def __hash__(self):
+        return hash(self.get_identifier())
+
     @property
     def language(self) -> str:
         return self._language

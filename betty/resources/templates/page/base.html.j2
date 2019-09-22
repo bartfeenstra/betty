@@ -1,7 +1,7 @@
 {{- citer.track() or '' -}}
 {%- import 'macro/citation.html.j2' as citationMacros -%}
 <!doctype html>
-<html lang="{{ [site.configuration.locale.language, site.configuration.locale.script, site.configuration.locale.territory] | reject('none') | join('-') }}"
+<html lang="{{ [locale.language, locale.script, locale.territory] | reject('none') | join('-') }}"
       prefix="foaf: http://xmlns.com/foaf/0.1/ og: http://ogp.me/ns# rel: http://purl.org/vocab/relationship/">
 <head>
     <title>{{ title | striptags }} - {{ site.configuration.title }}</title>

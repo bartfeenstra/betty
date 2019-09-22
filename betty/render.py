@@ -24,26 +24,47 @@ class PostRenderEvent(Event):
 
 def render(site: Site) -> None:
     logger = logging.getLogger()
-    environment = create_environment(site)
-    _render_public(site, environment)
-    _render_entity_type(site, environment,
-                        site.ancestry.files.values(), 'file')
-    logger.info('Rendered %d files.' % len(site.ancestry.files))
-    _render_entity_type(site, environment,
-                        site.ancestry.people.values(), 'person')
-    logger.info('Rendered %d people.' % len(site.ancestry.people))
-    _render_entity_type(site, environment,
-                        site.ancestry.places.values(), 'place')
-    logger.info('Rendered %d places.' % len(site.ancestry.places))
-    _render_entity_type(site, environment,
-                        site.ancestry.events.values(), 'event')
-    logger.info('Rendered %d events.' % len(site.ancestry.events))
-    _render_entity_type(site, environment,
-                        site.ancestry.citations.values(), 'citation')
-    logger.info('Rendered %d citations.' % len(site.ancestry.citations))
-    _render_entity_type(site, environment,
-                        site.ancestry.sources.values(), 'source')
-    logger.info('Rendered %d sources.' % len(site.ancestry.sources))
+    site.resources.copytree(join('public', 'static'),
+                            site.configuration.www_directory_path)
+    render_tree(site.configuration.www_directory_path,
+                create_environment(site))
+    sass.render_tree(site.configuration.www_directory_path)
+    for locale in site.configuration.locales:
+        environment = create_environment(site, locale)
+        if site.configuration.multilingual:
+            www_directory_path = join(
+                site.configuration.www_directory_path, locale.get_identifier())
+        else:
+            www_directory_path = site.configuration.www_directory_path
+
+        site.resources.copytree(
+            join('public', 'localized'), www_directory_path)
+        render_tree(www_directory_path, environment)
+
+        _render_entity_type(www_directory_path, environment,
+                            site.ancestry.files.values(), 'file')
+        logger.info('Rendered %d files in %s.' %
+                    (len(site.ancestry.files), locale))
+        _render_entity_type(www_directory_path, environment,
+                            site.ancestry.people.values(), 'person')
+        logger.info('Rendered %d people in %s.' %
+                    (len(site.ancestry.people), locale))
+        _render_entity_type(www_directory_path, environment,
+                            site.ancestry.places.values(), 'place')
+        logger.info('Rendered %d places in %s.' %
+                    (len(site.ancestry.places), locale))
+        _render_entity_type(www_directory_path, environment,
+                            site.ancestry.events.values(), 'event')
+        logger.info('Rendered %d events in %s.' %
+                    (len(site.ancestry.events), locale))
+        _render_entity_type(www_directory_path, environment,
+                            site.ancestry.citations.values(), 'citation')
+        logger.info('Rendered %d citations in %s.' %
+                    (len(site.ancestry.citations), locale))
+        _render_entity_type(www_directory_path, environment,
+                            site.ancestry.sources.values(), 'source')
+        logger.info('Rendered %d sources in %s.' %
+                    (len(site.ancestry.sources), locale))
     chmod(site.configuration.www_directory_path, 0o755)
     for directory_path, subdirectory_names, file_names in os.walk(site.configuration.www_directory_path):
         for subdirectory_name in subdirectory_names:
@@ -62,16 +83,9 @@ def _create_html_file(path: str) -> object:
     return _create_file(os.path.join(path, 'index.html'))
 
 
-def _render_public(site: Site, environment: Environment) -> None:
-    site.resources.copytree('public', site.configuration.www_directory_path)
-    render_tree(site.configuration.www_directory_path, environment)
-    sass.render_tree(site.configuration.www_directory_path)
-
-
-def _render_entity_type(site: Site, environment: Environment, entities: Iterable[Any],
+def _render_entity_type(www_directory_path: str, environment: Environment, entities: Iterable[Any],
                         entity_type_name: str) -> None:
-    entity_type_path = os.path.join(
-        site.configuration.www_directory_path, entity_type_name)
+    entity_type_path = os.path.join(www_directory_path, entity_type_name)
     try:
         template = environment.get_template(
             'page/list-%s.html.j2' % entity_type_name)
@@ -83,12 +97,12 @@ def _render_entity_type(site: Site, environment: Environment, entities: Iterable
     except TemplateNotFound:
         pass
     for entity in entities:
-        _render_entity(site, environment, entity, entity_type_name)
+        _render_entity(www_directory_path, environment,
+                       entity, entity_type_name)
 
 
-def _render_entity(site: Site, environment: Environment, entity: Any, entity_type_name: str) -> None:
-    entity_path = os.path.join(
-        site.configuration.www_directory_path, entity_type_name, entity.id)
+def _render_entity(www_directory_path: str, environment: Environment, entity: Any, entity_type_name: str) -> None:
+    entity_path = os.path.join(www_directory_path, entity_type_name, entity.id)
     with _create_html_file(entity_path) as f:
         f.write(environment.get_template('page/%s.html.j2' % entity_type_name).render({
             entity_type_name: entity,

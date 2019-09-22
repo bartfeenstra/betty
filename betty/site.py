@@ -1,4 +1,5 @@
 import gettext
+import logging
 from collections import defaultdict
 from os.path import abspath, dirname, join
 from typing import Type, Dict
@@ -8,7 +9,7 @@ from betty.config import Configuration
 from betty.event import EventDispatcher
 from betty.fs import FileSystem
 from betty.graph import tsort, Graph
-from betty.locale import open_translations
+from betty.locale import open_translations, Locale
 
 
 class Site:
@@ -18,12 +19,12 @@ class Site:
         self._resources = FileSystem(
             join(dirname(abspath(__file__)), 'resources'))
         self._event_dispatcher = EventDispatcher()
-        self._translations = gettext.NullTranslations()
+        self._translations = defaultdict(gettext.NullTranslations)
         self._plugins = {}
         self._init_plugins()
-        self._boot_event_listeners()
-        self._boot_resources()
-        self._boot_translations()
+        self._init_event_listeners()
+        self._init_resources()
+        self._init_translations()
 
     def _init_plugins(self) -> None:
         def _extend_plugin_type_graph(graph: Graph, plugin_type: Type):
@@ -56,12 +57,12 @@ class Site:
                 self, plugin_configuration)
             self._plugins[plugin_type] = plugin
 
-    def _boot_event_listeners(self) -> None:
+    def _init_event_listeners(self) -> None:
         for plugin in self._plugins.values():
             for event_name, listener in plugin.subscribes_to():
                 self._event_dispatcher.add_listener(event_name, listener)
 
-    def _boot_resources(self) -> None:
+    def _init_resources(self) -> None:
         for plugin in self._plugins.values():
             if plugin.resource_directory_path is not None:
                 self._resources.paths.appendleft(
@@ -70,21 +71,27 @@ class Site:
             self._resources.paths.appendleft(
                 self._configuration.resources_directory_path)
 
-    def _boot_translations(self) -> None:
-        for resources_path in reversed(self._resources.paths):
-            translations = open_translations(
-                self._configuration.locale, resources_path)
-            if translations:
-                translations.add_fallback(self._translations)
-                self._translations = translations
-        self.translations.install()
+    def _init_translations(self) -> None:
+        self._translations[Locale('en', 'US')] = gettext.NullTranslations()
+        for locale in self._configuration.locales:
+            for resources_path in reversed(self._resources.paths):
+                translations = open_translations(locale, resources_path)
+                if translations:
+                    translations.add_fallback(self._translations[locale])
+                    self._translations[locale] = translations
+        try:
+            self.translations[self._configuration.default_locale].install()
+        except KeyError:
+            logger = logging.getLogger()
+            logger.debug('No translations found for default locale %s.' %
+                         self._configuration.default_locale)
 
     @property
     def ancestry(self) -> Ancestry:
         return self._ancestry
 
     @property
-    def configuration(self):
+    def configuration(self) -> Configuration:
         return self._configuration
 
     @property
@@ -100,5 +107,5 @@ class Site:
         return self._event_dispatcher
 
     @property
-    def translations(self) -> gettext.NullTranslations:
+    def translations(self) -> Dict[Locale, gettext.NullTranslations]:
         return self._translations
