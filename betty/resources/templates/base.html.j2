@@ -23,6 +23,7 @@
     <script>
         document.getElementById('js-visibility').innerHTML = '.js-hide{display:none;}'
     </script>
+    <script src="{{ '/betty.js' | url }}" defer></script>
     {% endif -%}
 </head>
 <body>
@@ -60,8 +61,5 @@
 <footer>
     {% include 'footer.html.j2' %}
 </footer>
-{%- if 'betty.plugins.js.Js' in plugins %}
-    <script src="{{ '/betty.js' | url }}"></script>
-{% endif -%}
 </body>
 </html>
