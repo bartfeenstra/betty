@@ -23,6 +23,7 @@
     <script>
         document.getElementById('js-visibility').innerHTML = '.js-hide{display:none;}'
     </script>
+    <script src="{{ '/betty.js' | url }}" defer></script>
     {% endif -%}
 </head>
 <body>
@@ -57,9 +58,8 @@
         </section>
     {% endif %}
 </div>
-<footer><p>{{ _('A family history as told by <a href="https://github.com/bartfeenstra/betty">Betty</a>') }}</p></footer>
-{%- if 'betty.plugins.js.Js' in plugins %}
-    <script src="{{ '/betty.js' | url }}"></script>
-{% endif -%}
+<footer>
+    {% include 'footer.html.j2' %}
+</footer>
 </body>
 </html>
