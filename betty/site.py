@@ -1,6 +1,6 @@
 import gettext
 import logging
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from os.path import abspath, dirname, join
 from typing import Type, Dict
 
@@ -20,7 +20,7 @@ class Site:
             join(dirname(abspath(__file__)), 'resources'))
         self._event_dispatcher = EventDispatcher()
         self._translations = defaultdict(gettext.NullTranslations)
-        self._plugins = {}
+        self._plugins = OrderedDict()
         self._init_plugins()
         self._init_event_listeners()
         self._init_resources()
