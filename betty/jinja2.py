@@ -79,9 +79,9 @@ class Jinja2Provider:
         return {}
 
 
-def create_environment(site: Site, locale: Locale = None) -> Environment:
-    if locale is None:
-        locale = site.configuration.default_locale
+def create_environment(site: Site, default_locale: Locale = None) -> Environment:
+    if default_locale is None:
+        default_locale = site.configuration.default_locale
     template_directory_paths = list(
         [join(path, 'templates') for path in site.resources.paths])
     environment = Environment(
@@ -89,9 +89,9 @@ def create_environment(site: Site, locale: Locale = None) -> Environment:
         autoescape=select_autoescape(['html']),
         extensions=['jinja2.ext.i18n']
     )
-    environment.install_gettext_translations(site.translations[locale])
+    environment.install_gettext_translations(site.translations[default_locale])
     environment.globals['site'] = site
-    environment.globals['locale'] = locale
+    environment.globals['locale'] = default_locale
     environment.globals['plugins'] = _Plugins(site.plugins)
     environment.globals['EventType'] = Event.Type
     environment.globals['PresenceRole'] = Presence.Role
@@ -100,18 +100,19 @@ def create_environment(site: Site, locale: Locale = None) -> Environment:
     environment.filters['flatten'] = _filter_flatten
     environment.filters['walk'] = _filter_walk
     environment.filters['takewhile'] = _filter_takewhile
-    environment.filters['locale_sort'] = lambda locales: sort(locales, locale)
+    environment.filters['locale_sort'] = lambda locales: sort(
+        locales, default_locale)
     environment.filters['sort_places'] = lambda places: sorted(
-        places, key=lambda place: str(sort(place.names, locale)[0]))
+        places, key=lambda place: str(sort(place.names, default_locale)[0]))
     environment.filters['json'] = _filter_json
     environment.filters['paragraphs'] = _filter_paragraphs
     environment.filters['format_date'] = lambda date: format_date(
-        date, locale)
+        date, default_locale)
     environment.filters['format_degrees'] = _filter_format_degrees
     environment.globals['citer'] = _Citer()
     url_generator = UrlGenerator(site.configuration)
-    environment.filters['url'] = lambda target, absolute= False: url_generator.generate(
-        target, absolute, locale)
+    environment.filters['url'] = lambda target, absolute=False, locale=None: url_generator.generate(
+        target, absolute, locale if locale else default_locale)
     environment.filters['file'] = lambda *args: _filter_file(site, *args)
     environment.filters['image'] = lambda *args, **kwargs: _filter_image(
         site, *args, **kwargs)

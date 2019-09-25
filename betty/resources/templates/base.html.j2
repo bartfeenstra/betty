@@ -14,7 +14,6 @@
     <link rel="stylesheet" href="{{ '/betty.css' | url }}"/>
     <link rel="icon" href="{{ '/betty.ico' | url }}">
     <link rel="manifest" href="{{ '/betty.webmanifest' | url }}">
-    {%- if 'betty.plugins.js.Js' in plugins %}
     <style id="js-visibility">
         .js-show {
             display: none;
@@ -23,6 +22,7 @@
     <script>
         document.getElementById('js-visibility').innerHTML = '.js-hide{display:none;}'
     </script>
+    {%- if 'betty.plugins.js.Js' in plugins %}
     <script src="{{ '/betty.js' | url }}" defer></script>
     {% endif -%}
 </head>
@@ -34,15 +34,30 @@
             <input id="search-query" type="search"/>
         </form>
     {% endif -%}
-    <a id="nav-primary-show" class="nav-primary-toggle" href="#nav-primary">Menu</a>
-    <a id="nav-primary-hide" class="nav-primary-toggle" href="#">×</a>
-    <ul class="nav-expanded">
-        <li><a href="{{ '/person/' | url }}">{{ _('People') }}</a></li>
-        <li><a href="{{ '/event/' | url }}">{{ _('Events') }}</a></li>
-        <li><a href="{{ '/place/' | url }}">{{ _('Places') }}</a></li>
-        <li><a href="{{ '/file/' | url }}">{{ _('Media') }}</a></li>
-        <li><a href="{{ '/source/' | url }}">{{ _('Sources') }}</a></li>
-    </ul>
+    <div class="nav-primary-expandable">
+        <h2 class="nav-primary-action">{% trans %}Menu{% endtrans %}</h2>
+        <div class="nav-primary-expanded">
+            <ul class="nav-secondary">
+                <li><a href="{{ '/person/' | url }}" class="nav-secondary-action">{{ _('People') }}</a></li>
+                <li><a href="{{ '/event/' | url }}" class="nav-secondary-action">{{ _('Events') }}</a></li>
+                <li><a href="{{ '/place/' | url }}" class="nav-secondary-action">{{ _('Places') }}</a></li>
+                <li><a href="{{ '/file/' | url }}" class="nav-secondary-action">{{ _('Media') }}</a></li>
+                <li><a href="{{ '/source/' | url }}" class="nav-secondary-action">{{ _('Sources') }}</a></li>
+            </ul>
+        </div>
+    </div>
+    {%- if site.configuration.multilingual %}
+        <div class="nav-primary-expandable">
+            <h2 class="nav-primary-action">{{ locale.info.get_display_name() }}</h2>
+            <div class="nav-primary-expanded">
+                <ul class="nav-secondary">
+                {% for available_locale in site.configuration.locales | reject('eq', locale) %}
+                    <li><a href="{{ '/' | url(locale=available_locale) }}" class="nav-secondary-action">{{ available_locale.info.get_display_name() }}</a></li>
+                {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endif -%}
 </nav>
 <div id="content">
     <h1>{{ title }}</h1>

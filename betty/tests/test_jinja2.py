@@ -131,7 +131,8 @@ class FileTest(TestCase):
                     exists(join(configuration.www_directory_path, file_path[1:])))
 
 
-image_path = join(dirname(dirname(__file__)), 'resources', 'public', 'static', 'betty-512x512.png')
+image_path = join(dirname(dirname(__file__)), 'resources',
+                  'public', 'static', 'betty-512x512.png')
 
 
 class ImageTest(TestCase):

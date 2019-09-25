@@ -45,6 +45,10 @@ class Locale:
     def get_identifier(self, separator: str = '_'):
         return separator.join(filter(None, (self._language, self._region, self._script, self._variant)))
 
+    @property
+    def info(self) -> babel.Locale:
+        return babel.Locale(self._language, self._region, self._script, self._variant)
+
 
 class Localized:
     def __init__(self):
@@ -144,4 +148,4 @@ def format_date(date: Date, locale: Locale) -> str:
     except KeyError:
         return _('unknown date')
     parts = map(lambda x: 1 if x is None else x, date.parts)
-    return dates.format_date(datetime.date(*parts), format, babel.Locale(locale.language, locale.region, locale.script, locale.variant))
+    return dates.format_date(datetime.date(*parts), format, locale.info)
