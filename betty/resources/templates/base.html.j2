@@ -38,7 +38,7 @@
 </head>
 <body>
 <nav id="nav-primary">
-    <a id="site-title" href="{{ '/' | url }}" title="{{ site.configuration.title }}">{{ site.configuration.title }}</a>
+    <a id="site-title" href="{{ '/index.html' | url }}" title="{{ site.configuration.title }}">{{ site.configuration.title }}</a>
     {%- if 'betty.plugins.search.Search' in plugins %}
         <form id="search" autocomplete="off">
             <input id="search-query" type="search"/>

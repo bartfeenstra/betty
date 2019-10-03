@@ -24,7 +24,7 @@ from betty.functools import walk
 from betty.json import JSONEncoder
 from betty.plugin import Plugin
 from betty.site import Site
-from betty.url import UrlGenerator
+from betty.url import DelegatingUrlGenerator
 
 _root_loader = FileSystemLoader('/')
 
@@ -100,7 +100,8 @@ def create_environment(site: Site) -> Environment:
     environment.filters['paragraphs'] = _filter_paragraphs
     environment.filters['format_degrees'] = _filter_format_degrees
     environment.globals['citer'] = _Citer()
-    environment.filters['url'] = UrlGenerator(site.configuration).generate
+    environment.filters['url'] = DelegatingUrlGenerator(
+        site.configuration).generate
     environment.filters['file'] = lambda *args: _filter_file(site, *args)
     environment.filters['image'] = lambda *args, **kwargs: _filter_image(
         site, *args, **kwargs)
