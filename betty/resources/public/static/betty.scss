@@ -317,13 +317,13 @@ figcaption {
   border-bottom: 1px #eee solid;
 }
 
-.nav-secondary-action {
+.nav-secondary li a {
   display: block;
   padding: 1rem;
 }
 
-.nav-secondary-action:hover,
-.nav-secondary-action:focus {
+.nav-secondary li a:hover,
+.nav-secondary li a:focus {
   background-color: #eee;
 }
 
@@ -332,12 +332,15 @@ figcaption {
     display: none;
   }
 
+  #nav-sections .nav-primary-expanded {
+    display: initial;
+  }
+
   #nav-sections .nav-secondary {
     background-color: #eee;
     border: 0;
     clear: both;
     display: block !important;
-    height: 3rem;
     padding: 0;
     position: absolute;
     width: 100%;
@@ -349,6 +352,7 @@ figcaption {
 
   #nav-sections .nav-secondary li a {
     float: left;
+    line-height: 3rem;
     padding: 0 1em;
   }
 }

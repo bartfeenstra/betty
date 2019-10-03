@@ -34,15 +34,15 @@
             <input id="search-query" type="search"/>
         </form>
     {% endif -%}
-    <div class="nav-primary-expandable">
+    <div id="nav-sections" class="nav-primary-expandable">
         <h2 class="nav-primary-action">{% trans %}Menu{% endtrans %}</h2>
         <div class="nav-primary-expanded">
             <ul class="nav-secondary">
-                <li><a href="{{ '/person/' | url }}" class="nav-secondary-action">{{ _('People') }}</a></li>
-                <li><a href="{{ '/event/' | url }}" class="nav-secondary-action">{{ _('Events') }}</a></li>
-                <li><a href="{{ '/place/' | url }}" class="nav-secondary-action">{{ _('Places') }}</a></li>
-                <li><a href="{{ '/file/' | url }}" class="nav-secondary-action">{{ _('Media') }}</a></li>
-                <li><a href="{{ '/source/' | url }}" class="nav-secondary-action">{{ _('Sources') }}</a></li>
+                <li><a href="{{ '/person/' | url }}">{{ _('People') }}</a></li>
+                <li><a href="{{ '/event/' | url }}">{{ _('Events') }}</a></li>
+                <li><a href="{{ '/place/' | url }}">{{ _('Places') }}</a></li>
+                <li><a href="{{ '/file/' | url }}">{{ _('Media') }}</a></li>
+                <li><a href="{{ '/source/' | url }}">{{ _('Sources') }}</a></li>
             </ul>
         </div>
     </div>
@@ -52,7 +52,7 @@
             <div class="nav-primary-expanded">
                 <ul class="nav-secondary">
                 {% for available_locale in site.configuration.locales | reject('eq', locale) %}
-                    <li><a href="{{ '/' | url(locale=available_locale) }}" class="nav-secondary-action">{{ available_locale.info.get_display_name() }}</a></li>
+                    <li><a href="{{ '/' | url(locale=available_locale) }}">{{ available_locale.info.get_display_name() }}</a></li>
                 {% endfor %}
                 </ul>
             </div>
