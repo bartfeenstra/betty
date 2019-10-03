@@ -2,7 +2,7 @@ import logging
 import os
 from os import chmod
 from os.path import join
-from typing import Iterable, Any
+from typing import Iterable, Any, Union
 
 from jinja2 import Environment, TemplateNotFound
 
@@ -11,6 +11,18 @@ from betty.event import Event
 from betty.fs import makedirs
 from betty.jinja2 import create_environment, render_tree
 from betty.site import Site
+
+
+Target = Union[str, object]
+
+
+class Resource:
+    def __init__(self, target: Target):
+        self._target = target
+
+    @property
+    def target(self) -> Target:
+        return self._target
 
 
 class PostRenderEvent(Event):
@@ -64,7 +76,8 @@ def _create_html_file(path: str) -> object:
 
 def _render_public(site: Site, environment: Environment) -> None:
     site.resources.copytree('public', site.configuration.www_directory_path)
-    render_tree(site.configuration.www_directory_path, environment)
+    render_tree(site.configuration.www_directory_path,
+                environment, site.configuration.www_directory_path)
     sass.render_tree(site.configuration.www_directory_path)
 
 
@@ -91,5 +104,7 @@ def _render_entity(site: Site, environment: Environment, entity: Any, entity_typ
         site.configuration.www_directory_path, entity_type_name, entity.id)
     with _create_html_file(entity_path) as f:
         f.write(environment.get_template('page/%s.html.j2' % entity_type_name).render({
+            'resource': entity,
+            'entity_type_name': entity_type_name,
             entity_type_name: entity,
         }))
