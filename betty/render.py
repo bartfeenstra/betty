@@ -78,6 +78,7 @@ def _render_entity_type(site: Site, environment: Environment, entities: Iterable
             'page/list-%s.html.j2' % entity_type_name)
         with _create_html_file(entity_type_path) as f:
             f.write(template.render({
+                'resource': '%s/index.html' % entity_type_name,
                 'entity_type_name': entity_type_name,
                 'entities': entities,
             }))
