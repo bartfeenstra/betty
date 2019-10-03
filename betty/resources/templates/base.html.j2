@@ -10,6 +10,16 @@
     <meta name="generator" content="Betty (https://github.com/bartfeenstra/betty)"/>
     <meta name="og:title" content="{{ title | striptags }}"/>
     <meta name="og:site_name" content="{{ site.configuration.title }}"/>
+    {%- if resource is defined -%}
+        {%- for file in resource.files | default([]) -%}
+            {%- if file.type.startswith('image/') %}
+                <meta name="og:image" content="{{ file | image(600, 600) | url }}"/>
+                {%- if file.description %}
+                    <meta name="og:image:description" content="{{ file.description }}"/>
+                {%- endif -%}
+            {%- endif -%}
+        {%- endfor -%}
+    {%- endif %}
     <meta name="og:image" content="/betty-512x512.png"/>
     <link rel="stylesheet" href="{{ '/betty.css' | url }}"/>
     <link rel="icon" href="{{ '/betty.ico' | url }}">

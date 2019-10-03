@@ -112,18 +112,21 @@ def create_environment(site: Site) -> Environment:
     return environment
 
 
-def render_tree(path: str, environment: Environment) -> None:
+def render_tree(path: str, environment: Environment, www_directory_path: str = None) -> None:
     for file_source_path in iterfiles(path):
         if file_source_path.endswith('.j2'):
-            render_file(file_source_path, environment)
+            render_file(file_source_path, environment, www_directory_path)
 
 
-def render_file(file_source_path: str, environment: Environment) -> None:
+def render_file(file_source_path: str, environment: Environment, www_directory_path: str = None) -> None:
     file_destination_path = file_source_path[:-3]
+    data = {}
+    if www_directory_path is not None and file_destination_path.startswith(www_directory_path):
+        data['resource'] = file_destination_path[len(www_directory_path):]
     template = _root_loader.load(
         environment, file_source_path, environment.globals)
     with open(file_destination_path, 'w') as f:
-        f.write(template.render())
+        f.write(template.render(data))
     os.remove(file_source_path)
 
 
