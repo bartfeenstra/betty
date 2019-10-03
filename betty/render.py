@@ -2,7 +2,7 @@ import logging
 import os
 from os import chmod
 from os.path import join
-from typing import Iterable, Any, Union
+from typing import Iterable, Any
 
 from jinja2 import Environment, TemplateNotFound
 
@@ -11,18 +11,6 @@ from betty.event import Event
 from betty.fs import makedirs
 from betty.jinja2 import create_environment, render_tree
 from betty.site import Site
-
-
-Target = Union[str, object]
-
-
-class Resource:
-    def __init__(self, target: Target):
-        self._target = target
-
-    @property
-    def target(self) -> Target:
-        return self._target
 
 
 class PostRenderEvent(Event):
