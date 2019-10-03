@@ -64,7 +64,8 @@ def _create_html_file(path: str) -> object:
 
 def _render_public(site: Site, environment: Environment) -> None:
     site.resources.copytree('public', site.configuration.www_directory_path)
-    render_tree(site.configuration.www_directory_path, environment)
+    render_tree(site.configuration.www_directory_path,
+                environment, site.configuration.www_directory_path)
     sass.render_tree(site.configuration.www_directory_path)
 
 
@@ -91,5 +92,7 @@ def _render_entity(site: Site, environment: Environment, entity: Any, entity_typ
         site.configuration.www_directory_path, entity_type_name, entity.id)
     with _create_html_file(entity_path) as f:
         f.write(environment.get_template('page/%s.html.j2' % entity_type_name).render({
+            'resource': entity,
+            'entity_type_name': entity_type_name,
             entity_type_name: entity,
         }))

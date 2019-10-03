@@ -8,7 +8,7 @@ class UrlGenerator:
     def __init__(self, configuration: Configuration):
         self._configuration = configuration
 
-    def generate(self, target: Any, absolute: bool = False) -> str:
+    def generate(self, resource: Any, absolute: bool = False) -> str:
         _GENERATORS = {
             str: self._generate_for_path,
             Person: self._generator_for_identifiable('person/%s/'),
@@ -18,8 +18,8 @@ class UrlGenerator:
             Source: self._generator_for_identifiable('source/%s/'),
             Citation: self._generator_for_identifiable('citation/%s/'),
         }
-        generator = _GENERATORS[type(target)]
-        return generator(target, absolute)
+        generator = _GENERATORS[type(resource)]
+        return generator(resource, absolute)
 
     def _generator_for_identifiable(self, pattern: str) -> Callable:
         return lambda identifiable, absolute: self._generate_for_path(pattern % identifiable.id, absolute)
