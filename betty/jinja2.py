@@ -84,7 +84,8 @@ def create_environment(site: Site) -> Environment:
         [join(path, 'templates') for path in site.resources.paths])
     environment = Environment(
         loader=FileSystemLoader(template_directory_paths),
-        autoescape=select_autoescape(['html'])
+        autoescape=select_autoescape(['html']),
+        extensions=['jinja2.ext.do']
     )
     environment.globals['site'] = site
     environment.globals['plugins'] = _Plugins(site.plugins)
