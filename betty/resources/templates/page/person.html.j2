@@ -32,7 +32,7 @@
         <h2>{{ _('Children') }}</h2>
         {% for parents, siblings in children | groupby('parents.list') %}
             <p>
-                {% set _ = parents.remove(person) %}
+                {% do parents.remove(person) %}
                 {% if parents | length > 0 %}
                     {% trans count = parents | length, parents = parents | map(otherParentLabel) | join(', ') -%}
                         with {{ parents }}:

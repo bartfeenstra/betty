@@ -1,4 +1,4 @@
-{{- citer.track() or '' -}}
+{% do citer.track() %}
 {%- import 'macro/citation.html.j2' as citationMacros -%}
 <!doctype html>
 <html lang="{{ [locale.language, locale.script, locale.territory] | reject('none') | join('-') }}"
@@ -10,6 +10,14 @@
     <meta name="generator" content="Betty (https://github.com/bartfeenstra/betty)"/>
     <meta name="og:title" content="{{ title | striptags }}"/>
     <meta name="og:site_name" content="{{ site.configuration.title }}"/>
+    {%- for file in resource.files | default([]) -%}
+        {%- if file.type.startswith('image/') %}
+            <meta name="og:image" content="{{ file | image(600, 600) | url }}"/>
+            {%- if file.description %}
+                <meta name="og:image:description" content="{{ file.description }}"/>
+            {%- endif -%}
+        {%- endif -%}
+    {%- endfor -%}
     <meta name="og:image" content="/betty-512x512.png"/>
     <link rel="stylesheet" href="{{ '/betty.css' | url }}"/>
     <link rel="icon" href="{{ '/betty.ico' | url }}">
@@ -28,7 +36,7 @@
 </head>
 <body>
 <nav id="nav-primary">
-    <a id="site-title" href="{{ '/' | url }}" title="{{ site.configuration.title }}">{{ site.configuration.title }}</a>
+    <a id="site-title" href="{{ '<front>' | url }}" title="{{ site.configuration.title }}">{{ site.configuration.title }}</a>
     {%- if 'betty.plugins.search.Search' in plugins %}
         <form id="search" autocomplete="off">
             <input id="search-query" type="search"/>
@@ -38,11 +46,11 @@
         <h2 class="nav-primary-action">{% trans %}Menu{% endtrans %}</h2>
         <div class="nav-primary-expanded">
             <ul class="nav-secondary">
-                <li><a href="{{ '/person/' | url }}">{{ _('People') }}</a></li>
-                <li><a href="{{ '/event/' | url }}">{{ _('Events') }}</a></li>
-                <li><a href="{{ '/place/' | url }}">{{ _('Places') }}</a></li>
-                <li><a href="{{ '/file/' | url }}">{{ _('Media') }}</a></li>
-                <li><a href="{{ '/source/' | url }}">{{ _('Sources') }}</a></li>
+                <li><a href="{{ '<person>' | url }}">{{ _('People') }}</a></li>
+                <li><a href="{{ '<event>' | url }}">{{ _('Events') }}</a></li>
+                <li><a href="{{ '<place>' | url }}">{{ _('Places') }}</a></li>
+                <li><a href="{{ '<file>' | url }}">{{ _('Media') }}</a></li>
+                <li><a href="{{ '<source>' | url }}">{{ _('Sources') }}</a></li>
             </ul>
         </div>
     </div>
@@ -52,7 +60,7 @@
             <div class="nav-primary-expanded">
                 <ul class="nav-secondary">
                 {% for available_locale in site.configuration.locales | reject('eq', locale) %}
-                    <li><a href="{{ '/' | url(locale=available_locale) }}">{{ available_locale.info.get_display_name() }}</a></li>
+                    <li><a href="{{ resource | url(locale=available_locale) }}">{{ available_locale.info.get_display_name() }}</a></li>
                 {% endfor %}
                 </ul>
             </div>

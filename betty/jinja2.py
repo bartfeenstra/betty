@@ -24,7 +24,7 @@ from betty.json import JSONEncoder
 from betty.locale import format_date, sort, Locale
 from betty.plugin import Plugin
 from betty.site import Site
-from betty.url import UrlGenerator
+from betty.url import DelegatingUrlGenerator
 
 _root_loader = FileSystemLoader('/')
 
@@ -87,7 +87,10 @@ def create_environment(site: Site, default_locale: Locale = None) -> Environment
     environment = Environment(
         loader=FileSystemLoader(template_directory_paths),
         autoescape=select_autoescape(['html']),
-        extensions=['jinja2.ext.i18n']
+        extensions=[
+            'jinja2.ext.do',
+            'jinja2.ext.i18n',
+        ]
     )
     environment.install_gettext_translations(site.translations[default_locale])
     environment.globals['site'] = site
@@ -110,9 +113,11 @@ def create_environment(site: Site, default_locale: Locale = None) -> Environment
         date, default_locale)
     environment.filters['format_degrees'] = _filter_format_degrees
     environment.globals['citer'] = _Citer()
-    url_generator = UrlGenerator(site.configuration)
-    environment.filters['url'] = lambda target, absolute=False, locale=None: url_generator.generate(
-        target, absolute, locale if locale else default_locale)
+    url_generator = DelegatingUrlGenerator(site.configuration)
+
+    def _filter_url(resource, locale=None, **kwargs):
+        return url_generator.generate(resource, locale=locale if locale else default_locale, **kwargs)
+    environment.filters['url'] = _filter_url
     environment.filters['file'] = lambda *args: _filter_file(site, *args)
     environment.filters['image'] = lambda *args, **kwargs: _filter_image(
         site, *args, **kwargs)
@@ -123,18 +128,21 @@ def create_environment(site: Site, default_locale: Locale = None) -> Environment
     return environment
 
 
-def render_tree(path: str, environment: Environment) -> None:
+def render_tree(path: str, environment: Environment, www_directory_path: str = None) -> None:
     for file_source_path in iterfiles(path):
         if file_source_path.endswith('.j2'):
-            render_file(file_source_path, environment)
+            render_file(file_source_path, environment, www_directory_path)
 
 
-def render_file(file_source_path: str, environment: Environment) -> None:
+def render_file(file_source_path: str, environment: Environment, www_directory_path: str = None) -> None:
     file_destination_path = file_source_path[:-3]
+    data = {}
+    if www_directory_path is not None and file_destination_path.startswith(www_directory_path):
+        data['resource'] = file_destination_path[len(www_directory_path):]
     template = _root_loader.load(
         environment, file_source_path, environment.globals)
     with open(file_destination_path, 'w') as f:
-        f.write(template.render())
+        f.write(template.render(data))
     os.remove(file_source_path)
 
 

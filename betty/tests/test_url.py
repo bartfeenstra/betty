@@ -1,62 +1,100 @@
+from betty.url import DelegatingUrlGenerator, PathUrlGenerator, IdentifiableUrlGenerator, AliasUrlGenerator
+from betty.config import Configuration
+from betty.ancestry import Person, Event, Place, File, Source, Citation, Identifiable, PlaceName
 from typing import Any
 from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.ancestry import Person, Event, Place, File, Source, Citation, PlaceName
-from betty.config import Configuration
-from betty.url import UrlGenerator
 
-
-class UrlGeneratorTest(TestCase):
-    @parameterized.expand([
-        ('/index.html', '/'),
-        ('/example', 'example'),
-        ('/example', '/example'),
-        ('/example/index.html', 'example/'),
-        ('/example/index.html', '/example/'),
-    ])
-    def test_generate_for_string_target(self, expected: str, target: str):
-        configuration = Configuration('/tmp', 'https://example.com')
-        sut = UrlGenerator(configuration)
-        self.assertEquals(expected, sut.generate(target))
-
-    @parameterized.expand([
-        ('https://example.com/index.html', '/'),
-        ('https://example.com/example', 'example'),
-        ('https://example.com/example', '/example'),
-        ('https://example.com/example/index.html', 'example/'),
-        ('https://example.com/example/index.html', '/example/'),
-    ])
-    def test_generate_for_string_target_absolute(self, expected: str, target: str):
-        configuration = Configuration('/tmp', 'https://example.com')
-        sut = UrlGenerator(configuration)
-        self.assertEquals(expected, sut.generate(target, True))
-
-    @parameterized.expand([
-        ('/person/P1/index.html', Person('P1')),
-        ('/event/E1/index.html', Event('E1', Event.Type.DEATH)),
-        ('/place/P1/index.html', Place('P1', [PlaceName('Place 1')])),
-        ('/file/F1/index.html', File('F1', '/tmp')),
-        ('/source/S1/index.html', Source('S1', 'Source 1')),
-        ('/citation/C1/index.html', Citation('C1')),
-    ])
-    def test_generate_for_identifiable_target(self, expected: str, target: Any):
-        configuration = Configuration('/tmp', 'https://example.com')
-        sut = UrlGenerator(configuration)
-        self.assertEquals(expected, sut.generate(target))
-
+class PathUrlGeneratorTest(TestCase):
     @parameterized.expand([
         ('/', '/'),
-        ('/person/P1/', Person('P1')),
-        ('/event/E1/', Event('E1', Event.Type.DEATH)),
-        ('/place/P1/', Place('P1', [PlaceName('Place 1')])),
-        ('/file/F1/', File('F1', '/tmp')),
-        ('/source/S1/', Source('S1', 'Source 1')),
-        ('/citation/C1/', Citation('C1')),
+        ('/example', 'example'),
+        ('/example', '/example'),
+        ('/example/', 'example/'),
+        ('/example/', '/example/'),
+        ('/example/index.html', 'example/index.html'),
+        ('/example/index.html', '/example/index.html'),
     ])
-    def test_generate_for_identifiable_target_with_clean_urls(self, expected: str, target: Any):
+    def test_generate(self, expected: str, resource: str):
+        configuration = Configuration('/tmp', 'https://example.com')
+        sut = PathUrlGenerator(configuration)
+        self.assertEquals(expected, sut.generate(resource))
+
+    @parameterized.expand([
+        ('/example/', 'example/index.html'),
+        ('/example/', '/example/index.html'),
+    ])
+    def test_generate_with_clean_urls(self, expected: str, resource: str):
         configuration = Configuration('/tmp', 'https://example.com')
         configuration.clean_urls = True
-        sut = UrlGenerator(configuration)
-        self.assertEquals(expected, sut.generate(target))
+        sut = PathUrlGenerator(configuration)
+        self.assertEquals(expected, sut.generate(resource))
+
+    @parameterized.expand([
+        ('https://example.com/', '/'),
+        ('https://example.com/example', 'example'),
+    ])
+    def test_generate_absolute(self, expected: str, resource: str):
+        configuration = Configuration('/tmp', 'https://example.com')
+        sut = PathUrlGenerator(configuration)
+        self.assertEquals(expected, sut.generate(resource, absolute=True))
+
+    def test_generate_with_invalid_value(self):
+        configuration = Configuration('/tmp', 'https://example.com')
+        sut = PathUrlGenerator(configuration)
+        with self.assertRaises(ValueError):
+            sut.generate(9)
+
+
+class AliasUrlGeneratorTest(TestCase):
+    def test_generate(self):
+        configuration = Configuration('/tmp', 'https://example.com')
+        sut = AliasUrlGenerator(configuration, '<alias>', 'path')
+        self.assertEquals('/path', sut.generate('<alias>'))
+
+    def test_generate_with_invalid_value(self):
+        configuration = Configuration('/tmp', 'https://example.com')
+        sut = AliasUrlGenerator(configuration, 'alias', 'path')
+        with self.assertRaises(ValueError):
+            sut.generate('<notalias>')
+
+
+class IdentifiableUrlGeneratorTest(TestCase):
+    def test_generate(self):
+        configuration = Configuration('/tmp', 'https://example.com')
+        sut = IdentifiableUrlGenerator(
+            configuration, Identifiable, 'prefix/%s/index.html')
+        self.assertEquals('/prefix/I1/index.html',
+                          sut.generate(Identifiable('I1')))
+
+    def test_generate_with_invalid_value(self):
+        configuration = Configuration('/tmp', 'https://example.com')
+        sut = IdentifiableUrlGenerator(
+            configuration, Identifiable, 'prefix/%s/index.html')
+        with self.assertRaises(ValueError):
+            sut.generate(9)
+
+
+class DelegatingUrlGeneratorTest(TestCase):
+    @parameterized.expand([
+        ('/index.html', '/index.html'),
+        ('/index.html', '<front>'),
+        ('/person/index.html', '<person>'),
+        ('/person/P1/index.html', Person('P1')),
+        ('/event/index.html', '<event>'),
+        ('/event/E1/index.html', Event('E1', Event.Type.DEATH)),
+        ('/place/index.html', '<place>'),
+        ('/place/P1/index.html', Place('P1', [PlaceName('Place 1')])),
+        ('/file/index.html', '<file>'),
+        ('/file/F1/index.html', File('F1', '/tmp')),
+        ('/source/index.html', '<source>'),
+        ('/source/S1/index.html', Source('S1', 'Source 1')),
+        ('/citation/index.html', '<citation>'),
+        ('/citation/C1/index.html', Citation('C1')),
+    ])
+    def test_generate(self, expected: str, resource: Any):
+        configuration = Configuration('/tmp', 'https://example.com')
+        sut = DelegatingUrlGenerator(configuration)
+        self.assertEquals(expected, sut.generate(resource))

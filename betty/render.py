@@ -27,7 +27,7 @@ def render(site: Site) -> None:
     site.resources.copytree(join('public', 'static'),
                             site.configuration.www_directory_path)
     render_tree(site.configuration.www_directory_path,
-                create_environment(site))
+                create_environment(site), site.configuration.www_directory_path)
     sass.render_tree(site.configuration.www_directory_path)
     for locale in site.configuration.locales:
         environment = create_environment(site, locale)
@@ -39,7 +39,8 @@ def render(site: Site) -> None:
 
         site.resources.copytree(
             join('public', 'localized'), www_directory_path)
-        render_tree(www_directory_path, environment)
+        render_tree(www_directory_path, environment,
+                    site.configuration.www_directory_path)
 
         _render_entity_type(www_directory_path, environment,
                             site.ancestry.files.values(), 'file')
@@ -91,6 +92,7 @@ def _render_entity_type(www_directory_path: str, environment: Environment, entit
             'page/list-%s.html.j2' % entity_type_name)
         with _create_html_file(entity_type_path) as f:
             f.write(template.render({
+                'resource': '<%s>' % entity_type_name,
                 'entity_type_name': entity_type_name,
                 'entities': entities,
             }))
@@ -105,5 +107,7 @@ def _render_entity(www_directory_path: str, environment: Environment, entity: An
     entity_path = os.path.join(www_directory_path, entity_type_name, entity.id)
     with _create_html_file(entity_path) as f:
         f.write(environment.get_template('page/%s.html.j2' % entity_type_name).render({
+            'resource': entity,
+            'entity_type_name': entity_type_name,
             entity_type_name: entity,
         }))
