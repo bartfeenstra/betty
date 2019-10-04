@@ -36,7 +36,7 @@
 </head>
 <body>
 <nav id="nav-primary">
-    <a id="site-title" href="{{ '/index.html' | url }}" title="{{ site.configuration.title }}">{{ site.configuration.title }}</a>
+    <a id="site-title" href="{{ '<front>' | url }}" title="{{ site.configuration.title }}">{{ site.configuration.title }}</a>
     {%- if 'betty.plugins.search.Search' in plugins %}
         <form id="search" autocomplete="off">
             <input id="search-query" type="search"/>
@@ -45,11 +45,11 @@
     <a id="nav-primary-show" class="nav-primary-toggle" href="#nav-primary">Menu</a>
     <a id="nav-primary-hide" class="nav-primary-toggle" href="#">×</a>
     <ul class="nav-expanded">
-        <li><a href="{{ '/person/' | url }}">People</a></li>
-        <li><a href="{{ '/event/' | url }}">Events</a></li>
-        <li><a href="{{ '/place/' | url }}">Places</a></li>
-        <li><a href="{{ '/file/' | url }}">Media</a></li>
-        <li><a href="{{ '/source/' | url }}">Sources</a></li>
+        <li><a href="{{ '<person>' | url }}">People</a></li>
+        <li><a href="{{ '<event>' | url }}">Events</a></li>
+        <li><a href="{{ '<place>' | url }}">Places</a></li>
+        <li><a href="{{ '<file>' | url }}">Media</a></li>
+        <li><a href="{{ '<source>' | url }}">Sources</a></li>
     </ul>
 </nav>
 <div id="content">
