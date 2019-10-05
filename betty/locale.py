@@ -146,6 +146,6 @@ def format_date(date: Date, locale: Locale, translation: gettext.NullTranslation
     try:
         format = DATE_FORMATS[tuple(map(lambda x: x is not None, date.parts))]
     except KeyError:
-        return _('unknown date')
+        return translation.gettext('unknown date')
     parts = map(lambda x: 1 if x is None else x, date.parts)
     return dates.format_date(datetime.date(*parts), format, locale.info)
