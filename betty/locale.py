@@ -135,13 +135,13 @@ class Date:
         return self.parts < other.parts
 
 
-def format_date(date: Date, locale: Locale) -> str:
+def format_date(date: Date, locale: Locale, translation: gettext.NullTranslations) -> str:
     DATE_FORMATS = {
-        (True, True, True): _('MMMM d, y'),
-        (True, True, False): _('MMMM, y'),
-        (True, False, False): _('y'),
-        (False, True, True): _('MMMM d'),
-        (False, True, False): _('MMMM'),
+        (True, True, True): translation.gettext('MMMM d, y'),
+        (True, True, False): translation.gettext('MMMM, y'),
+        (True, False, False): translation.gettext('y'),
+        (False, True, True): translation.gettext('MMMM d'),
+        (False, True, False): translation.gettext('MMMM'),
     }
     try:
         format = DATE_FORMATS[tuple(map(lambda x: x is not None, date.parts))]

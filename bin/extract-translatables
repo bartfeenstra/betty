@@ -10,4 +10,4 @@ mkdir -p ./betty/resources/locale
 while read -r locale_directory_path; do
   language=$(basename "$locale_directory_path")
   pybabel update -d ./betty/resources/locale -l "$language" -D betty -i ./betty.pot
-done < <(find ./resources/locale/ -mindepth 1 -maxdepth 1 -type d)
+done < <(find ./betty/resources/locale/ -mindepth 1 -maxdepth 1 -type d)

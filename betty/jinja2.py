@@ -110,7 +110,7 @@ def create_environment(site: Site, default_locale: Locale = None) -> Environment
     environment.filters['json'] = _filter_json
     environment.filters['paragraphs'] = _filter_paragraphs
     environment.filters['format_date'] = lambda date: format_date(
-        date, default_locale)
+        date, default_locale, site.translations[default_locale])
     environment.filters['format_degrees'] = _filter_format_degrees
     environment.globals['citer'] = _Citer()
     url_generator = DelegatingUrlGenerator(site.configuration)

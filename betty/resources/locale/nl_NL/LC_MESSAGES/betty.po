@@ -7,49 +7,50 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-09-17 22:36+0100\n"
-"PO-Revision-Date: 2019-09-09 21:11+0100\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2019-10-05 11:36+0100\n"
+"PO-Revision-Date: 2019-10-05 11:38+0100\n"
 "Language: nl\n"
 "Language-Team: nl <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
+"Last-Translator: \n"
+"X-Generator: Poedit 2.2.4\n"
 
-#: betty/locale.py:133
+#: betty/locale.py:140
 msgid "MMMM d, y"
 msgstr "d MMMM y"
 
-#: betty/locale.py:134
+#: betty/locale.py:141
 msgid "MMMM, y"
 msgstr "MMMM y"
 
-#: betty/locale.py:135
+#: betty/locale.py:142
 msgid "y"
 msgstr "y"
 
-#: betty/locale.py:136
+#: betty/locale.py:143
 msgid "MMMM d"
 msgstr "d MMMM"
 
-#: betty/locale.py:137
+#: betty/locale.py:144
 msgid "MMMM"
 msgstr "MMMM"
 
-#: betty/locale.py:142
+#: betty/locale.py:149
 msgid "unknown date"
 msgstr "onbekend"
 
 #: betty/plugins/search/resources/templates/search-results-container.html.j2:3
 msgid ""
-"Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
-"to exit the search. Next time, open the search with <kbd>s</kbd>."
+"Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> to exit "
+"the search. Next time, open the search with <kbd>s</kbd>."
 msgstr ""
-"Gebruik <kbd>↑</kbd> en <kbd>↓</kbd> om door de resultaten te bladeren, "
-"of <kbd>esc</kbd> om te stoppen met zoeken. Open het zoekformulier "
-"opnieuw met <kbd>s</kbd>."
+"Gebruik <kbd>↑</kbd> en <kbd>↓</kbd> om door de resultaten te bladeren, of "
+"<kbd>esc</kbd> om te stoppen met zoeken. Open het zoekformulier opnieuw met "
+"<kbd>s</kbd>."
 
 #: betty/plugins/wikipedia/resources/templates/wikipedia.html.j2:3
 #, python-format
@@ -58,15 +59,13 @@ msgstr "Lees verder op <a href=\"%(uri)s\">Wikipedia</a>."
 
 #: betty/plugins/wikipedia/resources/templates/wikipedia.html.j2:4
 msgid ""
-"<a "
-"href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a>"
-" Wikipedia and its contributors."
+"<a href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a> "
+"Wikipedia and its contributors."
 msgstr ""
-"<a "
-"href=\"https://nl.wikipedia.org/wiki/Wikipedia:Auteursrechten\">Copyright</a>"
-" Wikipedia en bijdragers."
+"<a href=\"https://nl.wikipedia.org/wiki/Wikipedia:Auteursrechten\">Copyright</a> "
+"Wikipedia en bijdragers."
 
-#: betty/resources/public/index.html.j2:2
+#: betty/resources/public/localized/index.html.j2:2
 #, python-format
 msgid "Welcome to %(title)s"
 msgstr "Welkom bij %(title)s"
@@ -80,6 +79,14 @@ msgstr "%(date)s te %(place)s"
 #, python-format
 msgid "in %(place)s"
 msgstr "te %(place)s"
+
+#: betty/resources/templates/footer.html.j2:1
+msgid ""
+"A family history as told by <a href=\"https://github.com/bartfeenstra/betty"
+"\">Betty👵</a>"
+msgstr ""
+"Een familieverhaal verteld door <a href=\"https://github.com/bartfeenstra/betty"
+"\">Betty👵</a>"
 
 #: betty/resources/templates/person-meta.html.j2:4
 msgid "This person's details are unavailable to protect their privacy."
@@ -143,48 +150,12 @@ msgstr "Onderwerp"
 msgid "Witness"
 msgstr "Getuige"
 
-#: betty/resources/templates/page/base.html.j2:39
-#: betty/resources/templates/page/list-person.html.j2:2
-msgid "People"
-msgstr "Personen"
-
-#: betty/resources/templates/page/base.html.j2:40
-#: betty/resources/templates/page/list-event.html.j2:2
-#: betty/resources/templates/page/person.html.j2:66
-#: betty/resources/templates/page/place.html.j2:24
-msgid "Events"
-msgstr "Gebeurtenissen"
-
-#: betty/resources/templates/page/base.html.j2:41
-#: betty/resources/templates/page/list-place.html.j2:2
-msgid "Places"
-msgstr "Plaatsen"
-
-#: betty/resources/templates/page/base.html.j2:42
 #: betty/resources/templates/page/citation.html.j2:7
 #: betty/resources/templates/page/event.html.j2:45
 #: betty/resources/templates/page/list-file.html.j2:2
-#: betty/resources/templates/page/person.html.j2:79
 #: betty/resources/templates/page/source.html.j2:10
 msgid "Media"
 msgstr "Media"
-
-#: betty/resources/templates/page/base.html.j2:43
-#: betty/resources/templates/page/list-source.html.j2:2
-msgid "Sources"
-msgstr "Bronnen"
-
-#: betty/resources/templates/page/base.html.j2:51
-msgid "References"
-msgstr "Referenties"
-
-#: betty/resources/templates/page/base.html.j2:60
-msgid ""
-"A family history as told by <a "
-"href=\"https://github.com/bartfeenstra/betty\">Betty</a>"
-msgstr ""
-"Een familieverhaal verteld door <a "
-"href=\"https://github.com/bartfeenstra/betty\">Betty</a>"
 
 #: betty/resources/templates/page/event.html.j2:21
 msgid "Witnesses"
@@ -198,22 +169,36 @@ msgstr "Overige aanwezigen"
 msgid "Notes"
 msgstr "Opmerkingen"
 
-#: betty/resources/templates/page/person.html.j2:22
+#: betty/resources/templates/page/list-event.html.j2:2
+#: betty/resources/templates/page/place.html.j2:24
+msgid "Events"
+msgstr "Gebeurtenissen"
+
+#: betty/resources/templates/page/list-person.html.j2:2
+msgid "People"
+msgstr "Personen"
+
+#: betty/resources/templates/page/list-place.html.j2:2
+msgid "Places"
+msgstr "Plaatsen"
+
+#: betty/resources/templates/page/list-source.html.j2:2
+msgid "Sources"
+msgstr "Bronnen"
+
+msgid "References"
+msgstr "Referenties"
+
 msgid "Parents"
 msgstr "Ouders"
 
-#: betty/resources/templates/page/person.html.j2:32
 msgid "Children"
 msgstr "Kinderen"
 
-#: betty/resources/templates/page/person.html.j2:37
-#, python-format
 msgid "with %(parents)s:"
 msgid_plural "with %(parents)s:"
 msgstr[0] "met %(parents)s:"
 msgstr[1] "met %(parents)s:"
 
-#: betty/resources/templates/page/person.html.j2:54
 msgid "Siblings"
 msgstr "Broers en zussen"
-
