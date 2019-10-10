@@ -1,33 +1,58 @@
-from typing import Optional
+from typing import Iterable
 from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.ancestry import PlaceName, Place
-from betty.locale import _score, Locale, sort
+from betty.locale import validate_locale, Localized, negotiate_localizeds
 
 
-class ScoreTest(TestCase):
+class ValidateLocaleTest(TestCase):
     @parameterized.expand([
-        (0, None, None),
-        (0, Locale('nl'), Locale('en')),
-        (1, Locale('nl'), Locale('nl')),
-        (1, Locale('nl', 'NL'), Locale('nl', 'BE')),
-        (2, Locale('nl', 'NL'), Locale('nl', 'NL')),
-        (2, Locale('nl', 'NL', 'Latn'), Locale('nl', 'NL', 'Brai')),
-        (3, Locale('nl', 'NL', 'Latn'), Locale('nl', 'NL', 'Latn')),
-        (3, Locale('nl', 'NL', 'Latn', 'twd'), Locale('nl', 'NL', 'Latn', 'dru')),
-        (4, Locale('nl', 'NL', 'Latn', 'twd'), Locale('nl', 'NL', 'Latn', 'twd')),
+        ('nl',),
+        ('nl-NL',),
+        ('sr-Latn-CS',),
     ])
-    def test(self, expected: int, locale_1: Optional[Locale], locale_2: Optional[Locale]):
-        self.assertEquals(expected, _score(locale_1, locale_2))
+    def test_valid_value_should_pass_through(self, locale: str):
+        self.assertEquals(locale, validate_locale(locale))
 
-
-class SortTest(TestCase):
     @parameterized.expand([
-        ([PlaceName('Nederland', Locale('nl')), PlaceName('The Netherlands', Locale('en'))], [
-         PlaceName('The Netherlands', Locale('en')), PlaceName('Nederland', Locale('nl'))], Locale('nl')),
+        ('',),
+        ('123',),
+        ('nl-nl-nl-nl',),
     ])
-    def test(self, expected, names, locale: Locale):
-        place = Place('The Place', names)
-        self.assertEquals(expected, sort(place.names, locale))
+    def test_invalid_value_should_raise_error(self, locale: str):
+        with self.assertRaises(ValueError):
+            validate_locale(locale)
+
+
+class NegotiateLocalizedsTest(TestCase):
+    class DummyLocalized(Localized):
+        def __eq__(self, other):
+            return self._locale == other._locale
+
+        def __repr__(self):
+            return '%s(%s)' % (self.__class__.__name__, self._locale)
+
+    @parameterized.expand([
+        (DummyLocalized('nl'), 'nl', [DummyLocalized('nl')]),
+        (DummyLocalized('nl-NL'), 'nl', [DummyLocalized('nl-NL')]),
+        (DummyLocalized('nl'), 'nl-NL', [DummyLocalized('nl')]),
+        (DummyLocalized('nl'), 'nl', [
+         DummyLocalized('nl'), DummyLocalized('en')]),
+        (DummyLocalized('nl'), 'nl', [
+         DummyLocalized('en'), DummyLocalized('nl')]),
+    ])
+    def test_with_match_should_return_match(self, expected: Localized, preferred_locale: str, localizeds: Iterable[Localized]):
+        self.assertEquals(expected, negotiate_localizeds(
+            preferred_locale, localizeds))
+
+    def test_without_match_should_return_default(self):
+        preferred_locale = 'de'
+        localizeds = [self.DummyLocalized('nl'), self.DummyLocalized(
+            'en'), self.DummyLocalized('uk')]
+        self.assertEquals(self.DummyLocalized('nl'), negotiate_localizeds(
+            preferred_locale, localizeds))
+
+    def test_without_localizeds_should_raise_error(self):
+        with self.assertRaises(ValueError):
+            negotiate_localizeds('nl', [])

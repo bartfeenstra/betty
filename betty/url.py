@@ -1,12 +1,11 @@
-from typing import Any, Type
+from typing import Any, Type, Optional
 
 from betty.ancestry import Person, Citation, Source, File, Place, Event, Identifiable
 from betty.config import Configuration
-from betty.locale import Locale
 
 
 class UrlGenerator:
-    def generate(self, resource: Any, absolute: bool = False, locale: Locale = None) -> str:
+    def generate(self, resource: Any, absolute: bool = False, locale: Optional[str] = None) -> str:
         raise NotImplementedError
 
 
@@ -75,7 +74,7 @@ class DelegatingUrlGenerator(UrlGenerator):
             resource if isinstance(resource, str) else type(resource)))
 
 
-def _generate_from_path(configuration: Configuration, resource: str, absolute: bool = False, locale: Locale = None, localize: bool = False) -> str:
+def _generate_from_path(configuration: Configuration, resource: str, absolute: bool = False, locale: Optional[str] = None, localize: bool = False) -> str:
     if not isinstance(resource, str):
         raise ValueError('%s is not a string.' % type(resource))
     url = configuration.base_url if absolute else ''
@@ -83,7 +82,7 @@ def _generate_from_path(configuration: Configuration, resource: str, absolute: b
     if localize and configuration.multilingual:
         if locale is None:
             locale = configuration.default_locale
-        url += locale.get_identifier() + '/'
+        url += configuration.locales[locale].alias + '/'
     url += resource.lstrip('/')
     if configuration.clean_urls and resource.endswith('/index.html'):
         url = url[:-10]

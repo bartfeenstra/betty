@@ -4,95 +4,20 @@ import os
 from functools import total_ordering
 from typing import Optional, Tuple, Iterable
 
-import babel
-from babel import dates
-
-
-class Locale:
-    def __init__(self, language: str, region: Optional[str] = None, script: Optional[str] = None, variant: Optional[str] = None):
-        self._language = language
-        self._region = region
-        self._script = script
-        self._variant = variant
-
-    def __eq__(self, other):
-        if not isinstance(other, self.__class__):
-            return NotImplemented
-        return self._language == other._language and self._region == other._region and self._script == other._script and self._variant == other._variant
-
-    def __repr__(self):
-        return self.get_identifier()
-
-    def __hash__(self):
-        return hash(self.get_identifier())
-
-    @property
-    def language(self) -> str:
-        return self._language
-
-    @property
-    def region(self) -> Optional[str]:
-        return self._region
-
-    @property
-    def script(self) -> Optional[str]:
-        return self._script
-
-    @property
-    def variant(self) -> Optional[str]:
-        return self._variant
-
-    def get_identifier(self, separator: str = '_'):
-        return separator.join(filter(None, (self._language, self._region, self._script, self._variant)))
-
-    @property
-    def info(self) -> babel.Locale:
-        return babel.Locale(self._language, self._region, self._script, self._variant)
+from babel import dates, Locale, parse_locale, negotiate_locale
 
 
 class Localized:
-    def __init__(self):
-        self._locale = None
+    def __init__(self, locale: Optional[str] = None):
+        self._locale = locale
 
     @property
-    def locale(self) -> Optional[Locale]:
+    def locale(self) -> Optional[str]:
         return self._locale
 
     @locale.setter
-    def locale(self, locale: Optional[Locale]) -> None:
+    def locale(self, locale: Optional[str]) -> None:
         self._locale = locale
-
-
-def _score(locale_1: Locale, locale_2: Locale) -> int:
-    if locale_1 is None or locale_2 is None:
-        return 0
-    if locale_1.language != locale_2.language:
-        return 0
-    if locale_1.region != locale_2.region:
-        return 1
-    if locale_1.region is None and locale_2.region is None:
-        return 1
-    if locale_1.script != locale_2.script:
-        return 2
-    if locale_1.script is None and locale_2.script is None:
-        return 2
-    if locale_1.variant != locale_2.variant:
-        return 3
-    if locale_1.variant is None and locale_2.variant is None:
-        return 3
-    return 4
-
-
-def sort(localizeds: Iterable[Localized], locale: Locale):
-    return sorted(localizeds, key=lambda localized: _score(localized.locale, locale), reverse=True)
-
-
-def open_translations(locale: Locale, directory_path: str) -> Optional[gettext.GNUTranslations]:
-    try:
-        with open(os.path.join(directory_path, 'locale', str(locale), 'LC_MESSAGES', 'betty.mo'), 'rb') as f:
-            return gettext.GNUTranslations(f)
-    except FileNotFoundError:
-        return None
 
 
 @total_ordering
@@ -135,7 +60,35 @@ class Date:
         return self.parts < other.parts
 
 
-def format_date(date: Date, locale: Locale, translation: gettext.NullTranslations) -> str:
+def validate_locale(locale: str) -> str:
+    parse_locale(locale, '-')
+    return locale
+
+
+def negotiate_localizeds(preferred_locale: str, localizeds: Iterable[Localized]) -> Localized:
+    localizeds = list(localizeds)
+    negotiated_locale = negotiate_locale([preferred_locale], map(
+        lambda localized: localized.locale, localizeds), '-')
+    if negotiated_locale is None:
+        if len(localizeds) > 0:
+            return localizeds[0]
+        else:
+            raise ValueError(
+                'Cannot negotiate if there are no localized values.')
+    for localized in localizeds:
+        if localized.locale == negotiated_locale:
+            return localized
+
+
+def open_translations(locale: str, directory_path: str) -> Optional[gettext.GNUTranslations]:
+    try:
+        with open(os.path.join(directory_path, 'locale', locale, 'LC_MESSAGES', 'betty.mo'), 'rb') as f:
+            return gettext.GNUTranslations(f)
+    except FileNotFoundError:
+        return None
+
+
+def format_date(date: Date, locale: str, translation: gettext.NullTranslations) -> str:
     DATE_FORMATS = {
         (True, True, True): translation.gettext('MMMM d, y'),
         (True, True, False): translation.gettext('MMMM, y'),
@@ -148,4 +101,4 @@ def format_date(date: Date, locale: Locale, translation: gettext.NullTranslation
     except KeyError:
         return translation.gettext('unknown date')
     parts = map(lambda x: 1 if x is None else x, date.parts)
-    return dates.format_date(datetime.date(*parts), format, locale.info)
+    return dates.format_date(datetime.date(*parts), format, Locale.parse(locale, '-'))

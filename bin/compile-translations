@@ -5,6 +5,6 @@ set -Eeuo pipefail
 cd "$(dirname "$0")/.."
 
 for locale_directory_path in ./betty/resources/locale/*; do
-  language=$(basename "$locale_directory_path")
-  pybabel compile -d ./betty/resources/locale -l "$language" -D betty
+  locale=$(basename "$locale_directory_path")
+  pybabel compile -d ./betty/resources/locale -l "$locale" -D betty
 done

@@ -25,7 +25,7 @@ def _place_name_to_dict(name: PlaceName) -> Dict:
         'name': name.name,
     }
     if name.locale:
-        place_name_dict['locale'] = name.locale.get_identifier()
+        place_name_dict['locale'] = name.locale
     return place_name_dict
 
 

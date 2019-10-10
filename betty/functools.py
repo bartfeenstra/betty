@@ -14,3 +14,7 @@ def walk(item, attribute_name):
     for child in children:
         yield child
         yield from walk(child, attribute_name)
+
+
+def passthrough(x):
+    return x

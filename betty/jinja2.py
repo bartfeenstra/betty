@@ -5,23 +5,24 @@ from itertools import takewhile
 from json import dumps
 from os.path import join, exists
 from shutil import copy2
-from typing import Union, Any, Dict, Type, Optional, Callable
+from typing import Union, Any, Dict, Type, Optional, Callable, Iterable
 from urllib.parse import urlparse
 
 from PIL import Image
+from babel import Locale
 from geopy import units
 from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter
-from jinja2.filters import prepare_map
+from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.runtime import Macro
 from markupsafe import Markup
 from resizeimage import resizeimage
 
 from betty.ancestry import File, Citation, Event, Presence
 from betty.fs import iterfiles, makedirs, hashfile
-from betty.functools import walk
+from betty.functools import walk, passthrough
 from betty.json import JSONEncoder
-from betty.locale import format_date, sort, Locale
+from betty.locale import format_date, negotiate_localizeds, Localized
 from betty.plugin import Plugin
 from betty.site import Site
 from betty.url import DelegatingUrlGenerator
@@ -79,7 +80,7 @@ class Jinja2Provider:
         return {}
 
 
-def create_environment(site: Site, default_locale: Locale = None) -> Environment:
+def create_environment(site: Site, default_locale: Optional[str] = None) -> Environment:
     if default_locale is None:
         default_locale = site.configuration.default_locale
     template_directory_paths = list(
@@ -103,10 +104,12 @@ def create_environment(site: Site, default_locale: Locale = None) -> Environment
     environment.filters['flatten'] = _filter_flatten
     environment.filters['walk'] = _filter_walk
     environment.filters['takewhile'] = _filter_takewhile
-    environment.filters['locale_sort'] = lambda locales: sort(
-        locales, default_locale)
-    environment.filters['sort_places'] = lambda places: sorted(
-        places, key=lambda place: str(sort(place.names, default_locale)[0]))
+    environment.filters['locale_get_data'] = lambda locale: Locale.parse(
+        locale, '-')
+    environment.filters['negotiate_localizeds'] = lambda localizeds: negotiate_localizeds(
+        default_locale, localizeds)
+    environment.filters['sort_localizeds'] = contextfilter(
+        lambda context, *args, **kwargs: _filter_sort_localizeds(context, default_locale, *args, **kwargs))
     environment.filters['json'] = _filter_json
     environment.filters['paragraphs'] = _filter_paragraphs
     environment.filters['format_date'] = lambda date: format_date(
@@ -278,3 +281,19 @@ def _filter_image(site: Site, file: File, width: Optional[int] = None, height: O
             copy2(cache_file_path, output_file_path)
 
     return destination_path
+
+
+def _filter_sort_localizeds(context, preferred_locale: str, localizeds: Iterable[Localized], localized_attribute: Optional[str] = None, sort_attribute: Optional[str] = None):
+    if localized_attribute is None:
+        get_localized_attr = passthrough
+    else:
+        get_localized_attr = make_attrgetter(
+            context.environment, localized_attribute)
+    if sort_attribute is None:
+        get_sort_attr = passthrough
+    else:
+        get_sort_attr = make_attrgetter(context.environment, sort_attribute)
+
+    def get_sort_key(x):
+        return get_sort_attr(negotiate_localizeds(preferred_locale, get_localized_attr(x)))
+    return sorted(localizeds, key=get_sort_key)

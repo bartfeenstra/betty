@@ -1,5 +1,5 @@
 {% extends 'base.html.j2' %}
-{% set title = place.names | locale_sort | first %}
+{% set title = place.names | negotiate_localizeds %}
 {% block content %}
     {% include 'place-meta.html.j2' %}
 

@@ -5,7 +5,7 @@ from typing import Dict, Optional, List, Iterable, Tuple, Set
 
 from geopy import Point
 
-from betty.locale import Date, Localized, Locale
+from betty.locale import Date, Localized
 
 
 class EventHandlingSet:
@@ -288,7 +288,7 @@ class HasCitations:
 
 
 class PlaceName(Localized):
-    def __init__(self, name: str, locale: Locale = None):
+    def __init__(self, name: str, locale: Optional[str] = None):
         Localized.__init__(self)
         self._name = name
         self.locale = locale

@@ -8,6 +8,7 @@ from typing import Iterable, Optional, Dict, Callable
 from urllib.parse import urlparse
 
 import requests
+from babel import parse_locale
 from jinja2 import environmentfilter
 from requests import RequestException
 
@@ -124,7 +125,7 @@ class Wikipedia(Plugin, Jinja2Provider):
     @property
     def filters(self) -> Dict[str, Callable]:
         return {
-            'wikipedia': environmentfilter(lambda environment, links: self._retriever.all(environment.globals['locale'].language, links)),
+            'wikipedia': environmentfilter(lambda environment, links: self._retriever.all(parse_locale(environment.globals['locale'], '-')[0], links)),
         }
 
     @property

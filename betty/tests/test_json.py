@@ -6,7 +6,6 @@ from parameterized import parameterized
 
 from betty.ancestry import Place, Ancestry, Person, PlaceName
 from betty.json import JSONEncoder
-from betty.locale import Locale
 
 
 class JSONEncoderTest(TestCase):
@@ -51,7 +50,7 @@ class JSONEncoderTest(TestCase):
     def test_place_should_encode_full(self):
         place_id = 'the_place'
         name = 'The Place'
-        locale = Locale('nl', 'NL')
+        locale = 'nl-NL'
         latitude = 12.345
         longitude = -54.321
         coordinates = Point(latitude, longitude)
@@ -62,7 +61,7 @@ class JSONEncoderTest(TestCase):
             'names': [
                 {
                     'name': name,
-                    'locale': 'nl_NL',
+                    'locale': 'nl-NL',
                 },
             ],
             'coordinates': {
@@ -123,7 +122,7 @@ class JSONEncoderTest(TestCase):
 
         place_id = 'the_place'
         place_name = 'The Place'
-        place_name_locale = Locale('nl', 'NL')
+        place_name_locale = 'nl-NL'
         place = Place(place_id, [PlaceName(place_name, place_name_locale)])
         ancestry.places[place_id] = place
 
@@ -140,7 +139,7 @@ class JSONEncoderTest(TestCase):
                     'names': [
                         {
                             'name': place_name,
-                            'locale': 'nl_NL',
+                            'locale': 'nl-NL',
                         },
                     ],
                 },

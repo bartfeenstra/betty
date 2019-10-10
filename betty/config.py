@@ -1,15 +1,41 @@
 import json
+from collections import OrderedDict
 from importlib import import_module
 from os import getcwd, path
 from os.path import join, abspath, dirname
-from typing import Dict, Type, Optional, List, Iterable
+from typing import Dict, Type, Optional
 
 import yaml
 from voluptuous import Schema, All, Required, Invalid, IsDir, Any
 
 from betty.error import ExternalContextError
-from betty.locale import Locale
+from betty.locale import validate_locale
 from betty.voluptuous import MapDict
+
+
+class LocaleConfiguration:
+    def __init__(self, locale: str, alias: str = None):
+        self._locale = locale
+        self._alias = alias
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        if self._locale != other._locale:
+            return False
+        if self._alias != other._alias:
+            return False
+        return True
+
+    @property
+    def locale(self) -> str:
+        return self._locale
+
+    @property
+    def alias(self) -> str:
+        if self._alias is None:
+            return self._locale
+        return self._alias
 
 
 class Configuration:
@@ -25,7 +51,9 @@ class Configuration:
         self._plugins = {}
         self._mode = 'production'
         self._resources_directory_path = None
-        self._locales = [Locale('en', 'US')]
+        self._locales = OrderedDict()
+        default_locale = 'en-US'
+        self._locales[default_locale] = LocaleConfiguration(default_locale)
 
     @property
     def site_directory_path(self) -> str:
@@ -98,16 +126,12 @@ class Configuration:
         self._resources_directory_path = resources_directory_path
 
     @property
-    def locales(self) -> List[Locale]:
+    def locales(self) -> Dict[str, LocaleConfiguration]:
         return self._locales
 
-    @locales.setter
-    def locales(self, locales: Iterable[Locale]) -> None:
-        self._locales = locales
-
     @property
-    def default_locale(self) -> Locale:
-        return self._locales[0]
+    def default_locale(self) -> str:
+        return next(iter(self._locales))
 
     @property
     def multilingual(self) -> bool:
@@ -117,7 +141,10 @@ class Configuration:
 ConfigurationSchema = Schema({
     Required('output'): All(str),
     'title': All(str),
-    'locales': All(list, [list]),
+    'locales': All(list, [{
+        Required('locale'): validate_locale,
+        Required('alias', default=None): Any(str, None),
+    }]),
     Required('base_url'): All(str),
     'root_path': All(str),
     'clean_urls': All(bool),
@@ -131,15 +158,15 @@ class ConfigurationError(ExternalContextError):
     pass
 
 
-def assert_configuration(schema: Schema, configuration: Any):
+def validate_configuration(schema: Schema, configuration: Any) -> Any:
     try:
-        schema(configuration)
+        return schema(configuration)
     except Invalid as e:
         raise ConfigurationError(e)
 
 
 def _from_dict(site_directory_path: str, config_dict: Dict) -> Configuration:
-    assert_configuration(ConfigurationSchema, config_dict)
+    config_dict = validate_configuration(ConfigurationSchema, config_dict)
     configuration = Configuration(
         config_dict['output'], config_dict['base_url'])
     configuration.site_directory_path = site_directory_path
@@ -148,8 +175,11 @@ def _from_dict(site_directory_path: str, config_dict: Dict) -> Configuration:
         configuration.title = config_dict['title']
 
     if 'locales' in config_dict:
-        configuration.locales = list(
-            [Locale(*identifiers) for identifiers in config_dict['locales']])
+        configuration.locales.clear()
+        for locale_config in config_dict['locales']:
+            locale = locale_config['locale']
+            configuration.locales[locale] = LocaleConfiguration(
+                locale, locale_config['alias'])
 
     if 'root_path' in config_dict:
         configuration.root_path = config_dict['root_path']
