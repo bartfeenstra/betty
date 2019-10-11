@@ -29,8 +29,7 @@ def render(site: Site) -> None:
     render_tree(site.configuration.www_directory_path,
                 create_environment(site), site.configuration.www_directory_path)
     sass.render_tree(site.configuration.www_directory_path)
-    for locale_configuration in site.configuration.locales.values():
-        locale = locale_configuration.locale
+    for locale, locale_configuration in site.configuration.locales.items():
         environment = create_environment(site, locale)
         if site.configuration.multilingual:
             www_directory_path = join(
