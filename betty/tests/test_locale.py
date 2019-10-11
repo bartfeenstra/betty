@@ -1,9 +1,10 @@
+import gettext
 from typing import Iterable
 from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.locale import validate_locale, Localized, negotiate_localizeds
+from betty.locale import validate_locale, Localized, negotiate_localizeds, format_date, Date
 
 
 class ValidateLocaleTest(TestCase):
@@ -56,3 +57,19 @@ class NegotiateLocalizedsTest(TestCase):
     def test_without_localizeds_should_raise_error(self):
         with self.assertRaises(ValueError):
             negotiate_localizeds('nl', [])
+
+
+class FormatDateTest(TestCase):
+    @parameterized.expand([
+        ('unknown date', Date()),
+        ('unknown date', Date(None, None, 1)),
+        ('January', Date(None, 1, None)),
+        ('1970', Date(1970, None, None)),
+        ('January, 1970', Date(1970, 1, None)),
+        ('January 1, 1970', Date(1970, 1, 1)),
+        ('January 1', Date(None, 1, 1)),
+    ])
+    def test(self, expected: str, date: Date):
+        locale = 'en'
+        translation = gettext.NullTranslations()
+        self.assertEquals(expected, format_date(date, locale, translation))

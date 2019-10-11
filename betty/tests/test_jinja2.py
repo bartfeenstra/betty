@@ -7,6 +7,7 @@ from parameterized import parameterized
 from betty.ancestry import File
 from betty.config import Configuration
 from betty.jinja2 import create_environment
+from betty.locale import Date
 from betty.plugin import Plugin
 from betty.site import Site
 
@@ -198,3 +199,17 @@ class PluginsTest(TestCase):
                 '.TestPlugin" in plugins %}true{% else %}false{% endif %}'
             self.assertEquals(
                 'true', environment.from_string(template).render())
+
+
+class FormatDateTest(TestCase):
+    def test(self):
+        with TemporaryDirectory() as www_directory_path:
+            configuration = Configuration(
+                www_directory_path, 'https://example.com')
+            configuration.plugins[TestPlugin] = {}
+            environment = create_environment(Site(configuration))
+            template = '{{ date | format_date}}'
+            date = Date(1970, 1, 1)
+            self.assertEquals(
+                'January 1, 1970', environment.from_string(template).render(date=date))
+
