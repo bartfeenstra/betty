@@ -212,4 +212,3 @@ class FormatDateTest(TestCase):
             date = Date(1970, 1, 1)
             self.assertEquals(
                 'January 1, 1970', environment.from_string(template).render(date=date))
-
