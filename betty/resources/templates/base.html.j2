@@ -12,16 +12,16 @@
     <meta name="og:site_name" content="{{ site.configuration.title }}"/>
     {%- for file in resource.files | default([]) -%}
         {%- if file.type.startswith('image/') %}
-            <meta name="og:image" content="{{ file | image(600, 600) | url }}"/>
+            <meta name="og:image" content="{{ file | image(600, 600) | static_url }}"/>
             {%- if file.description %}
                 <meta name="og:image:description" content="{{ file.description }}"/>
             {%- endif -%}
         {%- endif -%}
     {%- endfor -%}
     <meta name="og:image" content="/betty-512x512.png"/>
-    <link rel="stylesheet" href="{{ '/betty.css' | url }}"/>
-    <link rel="icon" href="{{ '/betty.ico' | url }}">
-    <link rel="manifest" href="{{ '/betty.webmanifest' | url }}">
+    <link rel="stylesheet" href="{{ '/betty.css' | static_url }}"/>
+    <link rel="icon" href="{{ '/betty.ico' | static_url }}">
+    <link rel="manifest" href="{{ '/betty.webmanifest' | static_url }}">
     <style id="js-visibility">
         .js-show {
             display: none;
@@ -31,12 +31,12 @@
         document.getElementById('js-visibility').innerHTML = '.js-hide{display:none;}'
     </script>
     {%- if 'betty.plugins.js.Js' in plugins %}
-    <script src="{{ '/betty.js' | url }}" defer></script>
+    <script src="{{ '/betty.js' | static_url }}" defer></script>
     {% endif -%}
 </head>
 <body>
 <nav id="nav-primary">
-    <a id="site-title" href="{{ '<front>' | url }}" title="{{ site.configuration.title }}">{{ site.configuration.title }}</a>
+    <a id="site-title" href="{{ '/index.html' | url }}" title="{{ site.configuration.title }}">{{ site.configuration.title }}</a>
     {%- if 'betty.plugins.search.Search' in plugins %}
         <form id="search" autocomplete="off">
             <input id="search-query" type="search"/>
@@ -46,11 +46,11 @@
         <h2 class="nav-primary-action">{% trans %}Menu{% endtrans %}</h2>
         <div class="nav-primary-expanded">
             <ul class="nav-secondary">
-                <li><a href="{{ '<person>' | url }}">{{ _('People') }}</a></li>
-                <li><a href="{{ '<event>' | url }}">{{ _('Events') }}</a></li>
-                <li><a href="{{ '<place>' | url }}">{{ _('Places') }}</a></li>
-                <li><a href="{{ '<file>' | url }}">{{ _('Media') }}</a></li>
-                <li><a href="{{ '<source>' | url }}">{{ _('Sources') }}</a></li>
+                <li><a href="{{ '/person/index.html' | url }}">{{ _('People') }}</a></li>
+                <li><a href="{{ '/event/index.html' | url }}">{{ _('Events') }}</a></li>
+                <li><a href="{{ '/place/index.html' | url }}">{{ _('Places') }}</a></li>
+                <li><a href="{{ '/file/index.html' | url }}">{{ _('Media') }}</a></li>
+                <li><a href="{{ '/source/index.html' | url }}">{{ _('Sources') }}</a></li>
             </ul>
         </div>
     </div>

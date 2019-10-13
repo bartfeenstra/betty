@@ -3,8 +3,8 @@
 {% block content %}
     {% if file.type.startswith('image/') %}
         <div class="featured image">
-            <a href="{{ file | file | url }}">
-                <img src="{{ file | image(1200, 1200) | url }}" alt="{{ file.description }}"/>
+            <a href="{{ file | file | static_url }}">
+                <img src="{{ file | image(1200, 1200) | static_url }}" alt="{{ file.description }}"/>
             </a>
         </div>
     {% endif %}

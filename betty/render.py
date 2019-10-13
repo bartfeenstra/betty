@@ -26,11 +26,12 @@ def render(site: Site) -> None:
     logger = logging.getLogger()
     site.resources.copytree(join('public', 'static'),
                             site.configuration.www_directory_path)
+    static_environment = create_environment(site)
     render_tree(site.configuration.www_directory_path,
-                create_environment(site), site.configuration.www_directory_path)
+                static_environment, site.configuration)
     sass.render_tree(site.configuration.www_directory_path)
     for locale, locale_configuration in site.configuration.locales.items():
-        environment = create_environment(site, locale)
+        localized_environment = create_environment(site, locale)
         if site.configuration.multilingual:
             www_directory_path = join(
                 site.configuration.www_directory_path, locale_configuration.alias)
@@ -39,30 +40,30 @@ def render(site: Site) -> None:
 
         site.resources.copytree(
             join('public', 'localized'), www_directory_path)
-        render_tree(www_directory_path, environment,
-                    site.configuration.www_directory_path)
+        render_tree(www_directory_path,
+                    localized_environment, site.configuration)
 
-        _render_entity_type(www_directory_path, environment,
+        _render_entity_type(www_directory_path, localized_environment,
                             site.ancestry.files.values(), 'file')
         logger.info('Rendered %d files in %s.' %
                     (len(site.ancestry.files), locale))
-        _render_entity_type(www_directory_path, environment,
+        _render_entity_type(www_directory_path, localized_environment,
                             site.ancestry.people.values(), 'person')
         logger.info('Rendered %d people in %s.' %
                     (len(site.ancestry.people), locale))
-        _render_entity_type(www_directory_path, environment,
+        _render_entity_type(www_directory_path, localized_environment,
                             site.ancestry.places.values(), 'place')
         logger.info('Rendered %d places in %s.' %
                     (len(site.ancestry.places), locale))
-        _render_entity_type(www_directory_path, environment,
+        _render_entity_type(www_directory_path, localized_environment,
                             site.ancestry.events.values(), 'event')
         logger.info('Rendered %d events in %s.' %
                     (len(site.ancestry.events), locale))
-        _render_entity_type(www_directory_path, environment,
+        _render_entity_type(www_directory_path, localized_environment,
                             site.ancestry.citations.values(), 'citation')
         logger.info('Rendered %d citations in %s.' %
                     (len(site.ancestry.citations), locale))
-        _render_entity_type(www_directory_path, environment,
+        _render_entity_type(www_directory_path, localized_environment,
                             site.ancestry.sources.values(), 'source')
         logger.info('Rendered %d sources in %s.' %
                     (len(site.ancestry.sources), locale))
@@ -72,7 +73,7 @@ def render(site: Site) -> None:
             chmod(join(directory_path, subdirectory_name), 0o755)
         for file_name in file_names:
             chmod(join(directory_path, file_name), 0o644)
-    site.event_dispatcher.dispatch(PostRenderEvent(environment))
+    site.event_dispatcher.dispatch(PostRenderEvent(localized_environment))
 
 
 def _create_file(path: str) -> object:

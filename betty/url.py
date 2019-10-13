@@ -9,24 +9,20 @@ class UrlGenerator:
         raise NotImplementedError
 
 
-class PathUrlGenerator(UrlGenerator):
+class LocalizedPathUrlGenerator(UrlGenerator):
     def __init__(self, configuration: Configuration):
         self._configuration = configuration
 
     def generate(self, resource, **kwargs) -> str:
-        return _generate_from_path(self._configuration, resource, **kwargs)
+        return _generate_from_path(self._configuration, resource, localize=True, **kwargs)
 
 
-class AliasUrlGenerator(UrlGenerator):
-    def __init__(self, configuration: Configuration, alias: str, path: str):
+class StaticPathUrlGenerator(UrlGenerator):
+    def __init__(self, configuration: Configuration):
         self._configuration = configuration
-        self._alias = alias
-        self._path = path
 
-    def generate(self, resource: str, **kwargs) -> str:
-        if resource != self._alias:
-            raise ValueError('%s is not %s.' % (resource, self._alias))
-        return _generate_from_path(self._configuration, self._path, localize=True, **kwargs)
+    def generate(self, resource, **kwargs) -> str:
+        return _generate_from_path(self._configuration, resource, localize=False, **kwargs)
 
 
 class IdentifiableUrlGenerator(UrlGenerator):
@@ -38,30 +34,32 @@ class IdentifiableUrlGenerator(UrlGenerator):
     def generate(self, resource: Identifiable, **kwargs) -> str:
         if not isinstance(resource, self._type):
             raise ValueError('%s is not a %s' % (type(resource), self._type))
-        return _generate_from_path(self._configuration, self._pattern % resource.id, localize=True, **kwargs)
+        kwargs['localize'] = True
+        return _generate_from_path(self._configuration, self._pattern % resource.id, **kwargs)
 
 
-class DelegatingUrlGenerator(UrlGenerator):
+# @todo We don't want a localize parameter, because any static URL must not be localized, and all other URLs must be.
+# @todo In render_file(), strip the locale alias again like we experimented with before.
+# @todo
+# @todo
+
+
+class LocalizedUrlGenerator(UrlGenerator):
     def __init__(self, configuration: Configuration):
-        self._generators = []
-        entity_types = [
-            ('person', Person),
-            ('event', Event),
-            ('place', Place),
-            ('file', File),
-            ('source', Source),
-            ('citation', Citation),
-        ]
-        for entity_type_name, entity_type in entity_types:
-            self._generators += [
-                AliasUrlGenerator(
-                    configuration, '<%s>' % entity_type_name, '%s/index.html' % entity_type_name),
-                IdentifiableUrlGenerator(
-                    configuration, entity_type, '%s/%%s/index.html' % entity_type_name),
-            ]
-        self._generators += [
-            AliasUrlGenerator(configuration, '<front>', '/index.html'),
-            PathUrlGenerator(configuration),
+        self._generators = [
+            IdentifiableUrlGenerator(
+                configuration, Person, 'person/%s/index.html'),
+            IdentifiableUrlGenerator(
+                configuration, Event, 'event/%s/index.html'),
+            IdentifiableUrlGenerator(
+                configuration, Place, 'place/%s/index.html'),
+            IdentifiableUrlGenerator(
+                configuration, File, 'file/%s/index.html'),
+            IdentifiableUrlGenerator(
+                configuration, Source, 'source/%s/index.html'),
+            IdentifiableUrlGenerator(
+                configuration, Citation, 'citation/%s/index.html'),
+            LocalizedPathUrlGenerator(configuration),
         ]
 
     def generate(self, resource: Any, **kwargs) -> str:
@@ -74,7 +72,7 @@ class DelegatingUrlGenerator(UrlGenerator):
             resource if isinstance(resource, str) else type(resource)))
 
 
-def _generate_from_path(configuration: Configuration, resource: str, absolute: bool = False, locale: Optional[str] = None, localize: bool = False) -> str:
+def _generate_from_path(configuration: Configuration, resource: str, localize: bool = False, absolute: bool = False, locale: Optional[str] = None) -> str:
     if not isinstance(resource, str):
         raise ValueError('%s is not a string.' % type(resource))
     url = configuration.base_url if absolute else ''

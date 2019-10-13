@@ -19,13 +19,14 @@ from markupsafe import Markup
 from resizeimage import resizeimage
 
 from betty.ancestry import File, Citation, Event, Presence
+from betty.config import Configuration
 from betty.fs import iterfiles, makedirs, hashfile
 from betty.functools import walk, passthrough
 from betty.json import JSONEncoder
 from betty.locale import format_date, negotiate_localizeds, Localized
 from betty.plugin import Plugin
 from betty.site import Site
-from betty.url import DelegatingUrlGenerator
+from betty.url import LocalizedUrlGenerator, StaticPathUrlGenerator
 
 _root_loader = FileSystemLoader('/')
 
@@ -116,11 +117,13 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
         date, default_locale, site.translations[default_locale])
     environment.filters['format_degrees'] = _filter_format_degrees
     environment.globals['citer'] = _Citer()
-    url_generator = DelegatingUrlGenerator(site.configuration)
+    url_generator = LocalizedUrlGenerator(site.configuration)
 
     def _filter_url(resource, locale=None, **kwargs):
         return url_generator.generate(resource, locale=locale if locale else default_locale, **kwargs)
     environment.filters['url'] = _filter_url
+    environment.filters['static_url'] = StaticPathUrlGenerator(
+        site.configuration).generate
     environment.filters['file'] = lambda *args: _filter_file(site, *args)
     environment.filters['image'] = lambda *args, **kwargs: _filter_image(
         site, *args, **kwargs)
@@ -131,17 +134,25 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
     return environment
 
 
-def render_tree(path: str, environment: Environment, www_directory_path: str = None) -> None:
+def render_tree(path: str, environment: Environment, configuration: Optional[Configuration] = None) -> None:
     for file_source_path in iterfiles(path):
         if file_source_path.endswith('.j2'):
-            render_file(file_source_path, environment, www_directory_path)
+            render_file(file_source_path, environment, configuration)
 
 
-def render_file(file_source_path: str, environment: Environment, www_directory_path: str = None) -> None:
+def render_file(file_source_path: str, environment: Environment, configuration: Optional[Configuration] = None) -> None:
     file_destination_path = file_source_path[:-3]
     data = {}
-    if www_directory_path is not None and file_destination_path.startswith(www_directory_path):
-        data['resource'] = file_destination_path[len(www_directory_path):]
+    if configuration is not None:
+        if file_destination_path.startswith(configuration.www_directory_path):
+            # Unix-style paths use forward slashes, so they are valid URL paths.
+            resource = file_destination_path[len(
+                configuration.www_directory_path):]
+            if configuration.multilingual:
+                resource_parts = resource.lstrip('/').split('/')
+                if resource_parts[0] in map(lambda x: x.alias, configuration.locales.values()):
+                    resource = '/'.join(resource_parts[1:])
+            data['resource'] = resource
     template = _root_loader.load(
         environment, file_source_path, environment.globals)
     with open(file_destination_path, 'w') as f:
