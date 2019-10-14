@@ -1,14 +1,24 @@
-from os import makedirs
+from os import makedirs, path
 from os.path import join, exists
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 import html5lib
+from lxml import etree
 
 from betty.ancestry import Person, Event, Place, Source, Presence
 from betty.config import Configuration
 from betty.render import render
 from betty.site import Site
+
+
+class RenderTestCase(TestCase):
+    def setUp(self):
+        self._outputDirectory = TemporaryDirectory()
+        self.site = None
+
+    def tearDown(self):
+        self._outputDirectory.cleanup()
 
 
 class RenderTest(TestCase):
@@ -104,3 +114,21 @@ class RenderTest(TestCase):
                 render(site)
                 with open(join(configuration.www_directory_path, 'index.html')) as f:
                     self.assertIn('Betty was here', f.read())
+
+
+class SitemapRenderTest(RenderTestCase):
+    def setUp(self):
+        RenderTestCase.setUp(self)
+        configuration = Configuration(
+            self._outputDirectory.name, 'https://ancestry.example.com')
+        self.site = Site(configuration)
+
+    def test_validate(self):
+
+        render(self.site)
+        with open(path.join(path.dirname(__file__), 'resources', 'sitemap.xsd')) as f:
+            schema_doc = etree.parse(f)
+        schema = etree.XMLSchema(schema_doc)
+        with open(path.join(self.site.configuration.www_directory_path, 'sitemap.xml')) as f:
+            sitemap_doc = etree.parse(f)
+        schema.validate(sitemap_doc)
