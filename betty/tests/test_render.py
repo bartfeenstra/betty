@@ -20,17 +20,8 @@ class RenderTestCase(TestCase):
     def tearDown(self):
         self._outputDirectory.cleanup()
 
-    def assert_page(self, path: str) -> str:
-        file_path = join(
-            self.site.configuration.www_directory_path, path.lstrip('/'))
-        self.assertTrue(exists(file_path), '%s does not exist' % file_path)
-        with open(file_path) as f:
-            parser = html5lib.HTMLParser(strict=True)
-            parser.parse(f)
-        return file_path
 
-
-class RenderTest(RenderTestCase):
+class RenderTest(TestCase):
     _outputDirectory = None
     site = None
 
