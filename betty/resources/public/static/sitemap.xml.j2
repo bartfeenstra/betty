@@ -7,9 +7,11 @@
     {% set identifiables = identifiables + site.ancestry.files.values() | list %}
     {% set identifiables = identifiables + site.ancestry.sources.values() | list %}
     {% set identifiables = identifiables + site.ancestry.citations.values() | list %}
-    {% for identifiable in identifiables %}
-        <url>
-            <loc>{{ identifiable | url(absolute=true) }}</loc>
-        </url>
+    {% for locale in site.configuration.locales %}
+        {% for identifiable in identifiables %}
+            <url>
+                <loc>{{ identifiable | url(absolute=true, locale=locale) }}</loc>
+            </url>
+        {% endfor %}
     {% endfor %}
 </urlset>
