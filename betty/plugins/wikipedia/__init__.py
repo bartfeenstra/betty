@@ -92,9 +92,10 @@ class Retriever:
                 link_language, title)
             translations_response_data = self._request(translations_uri)
             translations_data = translations_response_data['query']['pages'][0]['langlinks']
-            title = next(translation_data['title']
-                         for translation_data in translations_data if translation_data['lang'] == language)
-            if title is None:
+            try:
+                title = next(
+                    translation_data['title'] for translation_data in translations_data if translation_data['lang'] == language)
+            except StopIteration:
                 return None
             link_language = language
 
