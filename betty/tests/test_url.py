@@ -10,6 +10,7 @@ from parameterized import parameterized
 class PathUrlGeneratorTest(TestCase):
     @parameterized.expand([
         ('/', '/'),
+        ('/index.html', '/index.html'),
         ('/example', 'example'),
         ('/example', '/example'),
         ('/example/', 'example/'),
@@ -23,6 +24,8 @@ class PathUrlGeneratorTest(TestCase):
         self.assertEquals(expected, sut.generate(resource))
 
     @parameterized.expand([
+        ('/', 'index.html'),
+        ('/', '/index.html'),
         ('/example/', 'example/index.html'),
         ('/example/', '/example/index.html'),
     ])

@@ -93,7 +93,7 @@ def _render_entity_type(www_directory_path: str, environment: Environment, entit
             'page/list-%s.html.j2' % entity_type_name)
         with _create_html_file(entity_type_path) as f:
             f.write(template.render({
-                'resource': '<%s>' % entity_type_name,
+                'resource': '/%s/index.html' % entity_type_name,
                 'entity_type_name': entity_type_name,
                 'entities': entities,
             }))

@@ -38,12 +38,6 @@ class IdentifiableUrlGenerator(UrlGenerator):
         return _generate_from_path(self._configuration, self._pattern % resource.id, **kwargs)
 
 
-# @todo We don't want a localize parameter, because any static URL must not be localized, and all other URLs must be.
-# @todo In render_file(), strip the locale alias again like we experimented with before.
-# @todo
-# @todo
-
-
 class LocalizedUrlGenerator(UrlGenerator):
     def __init__(self, configuration: Configuration):
         self._generators = [
@@ -82,6 +76,6 @@ def _generate_from_path(configuration: Configuration, resource: str, localize: b
             locale = configuration.default_locale
         url += configuration.locales[locale].alias + '/'
     url += resource.lstrip('/')
-    if configuration.clean_urls and resource.endswith('/index.html'):
+    if configuration.clean_urls and (resource.endswith('/index.html') or resource == 'index.html'):
         url = url[:-10]
     return url

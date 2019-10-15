@@ -15,6 +15,17 @@ server {
 	location /.error {
 		internal;
 	}
+    {%- if site.configuration.multilingual %}
+
+    # Redirect requests that aren't for a specific language to the default language.
+    location ~ ^/[^{{ site.configuration.locales.values() | map(attribute='alias') | join('|') }}]/ {
+        set $localized_uri {{ site.configuration.locales[site.configuration.default_locale].alias }}/$uri;
+        if (-f $localized_uri) {
+            break;
+        }
+        return 301 /$localized_uri;
+    }
+    {%- endif %}
 	{%- if site.configuration.clean_urls %}
 
 	# Redirect */index.html to their parent directories for clean URLs.
