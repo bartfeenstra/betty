@@ -1,5 +1,5 @@
 from betty.url import LocalizedPathUrlGenerator, IdentifiableUrlGenerator, LocalizedUrlGenerator
-from betty.config import Configuration
+from betty.config import Configuration, LocaleConfiguration
 from betty.ancestry import Person, Event, Place, File, Source, Citation, Identifiable, PlaceName
 from typing import Any
 from unittest import TestCase
@@ -50,6 +50,16 @@ class PathUrlGeneratorTest(TestCase):
         with self.assertRaises(ValueError):
             sut.generate(9)
 
+    def test_generate_multilingual(self):
+        configuration = Configuration('/tmp', 'https://example.com')
+        configuration.locales.clear()
+        configuration.locales['nl'] = LocaleConfiguration('nl')
+        configuration.locales['en'] = LocaleConfiguration('en')
+        sut = LocalizedPathUrlGenerator(configuration)
+        self.assertEquals('/nl/index.html', sut.generate('/index.html'))
+        self.assertEquals('/en/index.html',
+                          sut.generate('/index.html', locale='en'))
+
 
 class IdentifiableUrlGeneratorTest(TestCase):
     def test_generate(self):
@@ -81,3 +91,9 @@ class LocalizedUrlGeneratorTest(TestCase):
         configuration = Configuration('/tmp', 'https://example.com')
         sut = LocalizedUrlGenerator(configuration)
         self.assertEquals(expected, sut.generate(resource))
+
+    def test_generate_with_invalid_value(self):
+        configuration = Configuration('/tmp', 'https://example.com')
+        sut = LocalizedUrlGenerator(configuration)
+        with self.assertRaises(ValueError):
+            sut.generate(9)
