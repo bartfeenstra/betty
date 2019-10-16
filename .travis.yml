@@ -2,7 +2,12 @@ language: python
 
 matrix:
     include:
-        - name: 'Latest: Linux, Python 3.7 & Node.js 10'
+        - name: 'Latest: Linux, Python 3.8 & Node.js 10'
+          dist: xenial
+          python: '3.8'
+          env:
+              - NODE_VERSION=10
+        - name: 'Python 3.7'
           dist: xenial
           python: '3.7'
           env:
@@ -19,12 +24,12 @@ matrix:
               - NODE_VERSION=10
         - name: 'Node.js 8'
           dist: xenial
-          python: '3.7'
+          python: '3.8'
           env:
               - NODE_VERSION=8
         - name: 'Mac OS'
           dist: osx
-          python: '3.7'
+          python: '3.8'
           env:
               - NODE_VERSION=10
 
