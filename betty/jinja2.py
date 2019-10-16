@@ -21,7 +21,7 @@ from resizeimage import resizeimage
 from betty.ancestry import File, Citation, Event, Presence
 from betty.config import Configuration
 from betty.fs import iterfiles, makedirs, hashfile
-from betty.functools import walk, passthrough
+from betty.functools import walk
 from betty.json import JSONEncoder
 from betty.locale import format_date, negotiate_localizeds, Localized
 from betty.plugin import Plugin
@@ -294,16 +294,10 @@ def _filter_image(site: Site, file: File, width: Optional[int] = None, height: O
     return destination_path
 
 
-def _filter_sort_localizeds(context, preferred_locale: str, localizeds: Iterable[Localized], localized_attribute: Optional[str] = None, sort_attribute: Optional[str] = None):
-    if localized_attribute is None:
-        get_localized_attr = passthrough
-    else:
-        get_localized_attr = make_attrgetter(
-            context.environment, localized_attribute)
-    if sort_attribute is None:
-        get_sort_attr = passthrough
-    else:
-        get_sort_attr = make_attrgetter(context.environment, sort_attribute)
+def _filter_sort_localizeds(context, preferred_locale: str, localizeds: Iterable[Localized], localized_attribute: str, sort_attribute: str):
+    get_localized_attr = make_attrgetter(
+        context.environment, localized_attribute)
+    get_sort_attr = make_attrgetter(context.environment, sort_attribute)
 
     def get_sort_key(x):
         return get_sort_attr(negotiate_localizeds(preferred_locale, get_localized_attr(x)))
