@@ -11,7 +11,7 @@ from lxml.etree import XMLParser, Element
 from voluptuous import Schema, IsFile
 
 from betty.ancestry import Event, Place, Person, Ancestry, Date, Note, File, Link, Source, HasFiles, Citation, \
-    Presence, HasLinks, PlaceName
+    Presence, HasLinks, LocalizedName
 from betty.config import validate_configuration
 from betty.fs import makedirs
 from betty.parse import ParseEvent
@@ -256,7 +256,7 @@ def _parse_place(element: Element) -> Tuple[str, _IntermediatePlace]:
         # The Gramps language is a single ISO language code, which is a valid BCP 47 locale.
         language = _xpath1(name_element, './@lang')
         names.append(
-            PlaceName(str(_xpath1(name_element, './@value')), language))
+            LocalizedName(str(_xpath1(name_element, './@value')), language))
 
     place = Place(_xpath1(element, './@id'), names)
 

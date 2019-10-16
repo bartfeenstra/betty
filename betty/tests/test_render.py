@@ -6,7 +6,7 @@ from unittest import TestCase
 import html5lib
 from lxml import etree
 
-from betty.ancestry import Person, Event, Place, Source, PlaceName
+from betty.ancestry import Person, Event, Place, Source, LocalizedName
 from betty.config import Configuration, LocaleConfiguration
 from betty.render import render
 from betty.site import Site
@@ -46,7 +46,7 @@ class RenderTest(RenderTestCase):
         self.assert_page('/place/index.html')
 
     def test_place(self):
-        place = Place('PLACE1', [PlaceName('one')])
+        place = Place('PLACE1', [LocalizedName('one')])
         self.site.ancestry.places[place.id] = place
         render(self.site)
         self.assert_page('/place/%s/index.html' % place.id)

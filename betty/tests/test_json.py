@@ -4,7 +4,7 @@ from unittest import TestCase
 from geopy import Point
 from parameterized import parameterized
 
-from betty.ancestry import Place, Ancestry, Person, PlaceName
+from betty.ancestry import Place, Ancestry, Person, LocalizedName
 from betty.json import JSONEncoder
 
 
@@ -36,7 +36,7 @@ class JSONEncoderTest(TestCase):
     def test_place_should_encode_minimal(self):
         place_id = 'the_place'
         name = 'The Place'
-        place = Place(place_id, [PlaceName(name)])
+        place = Place(place_id, [LocalizedName(name)])
         expected = {
             'id': place_id,
             'names': [
@@ -54,7 +54,7 @@ class JSONEncoderTest(TestCase):
         latitude = 12.345
         longitude = -54.321
         coordinates = Point(latitude, longitude)
-        place = Place(place_id, [PlaceName(name, locale)])
+        place = Place(place_id, [LocalizedName(name, locale)])
         place.coordinates = coordinates
         expected = {
             'id': place_id,
@@ -123,7 +123,7 @@ class JSONEncoderTest(TestCase):
         place_id = 'the_place'
         place_name = 'The Place'
         place_name_locale = 'nl-NL'
-        place = Place(place_id, [PlaceName(place_name, place_name_locale)])
+        place = Place(place_id, [LocalizedName(place_name, place_name_locale)])
         ancestry.places[place_id] = place
 
         person_id = 'the_person'

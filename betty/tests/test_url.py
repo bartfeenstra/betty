@@ -1,6 +1,6 @@
 from betty.url import LocalizedPathUrlGenerator, IdentifiableUrlGenerator, LocalizedUrlGenerator
 from betty.config import Configuration, LocaleConfiguration
-from betty.ancestry import Person, Event, Place, File, Source, Citation, Identifiable, PlaceName
+from betty.ancestry import Person, Event, Place, File, Source, Citation, Identifiable, LocalizedName
 from typing import Any
 from unittest import TestCase
 
@@ -82,7 +82,7 @@ class LocalizedUrlGeneratorTest(TestCase):
         ('/index.html', '/index.html'),
         ('/person/P1/index.html', Person('P1')),
         ('/event/E1/index.html', Event('E1', Event.Type.DEATH)),
-        ('/place/P1/index.html', Place('P1', [PlaceName('Place 1')])),
+        ('/place/P1/index.html', Place('P1', [LocalizedName('Place 1')])),
         ('/file/F1/index.html', File('F1', '/tmp')),
         ('/source/S1/index.html', Source('S1', 'Source 1')),
         ('/citation/C1/index.html', Citation('C1')),

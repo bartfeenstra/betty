@@ -1,7 +1,7 @@
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from betty.ancestry import Ancestry, Person, Event, Place, Presence, PlaceName
+from betty.ancestry import Ancestry, Person, Event, Place, Presence, LocalizedName
 from betty.config import Configuration
 from betty.parse import parse
 from betty.plugins.cleaner import Cleaner, clean
@@ -34,15 +34,15 @@ class CleanTest(TestCase):
         anonymous_event = Event('E1', Event.Type.BIRTH)
         ancestry.events[anonymous_event.id] = anonymous_event
 
-        onymous_place = Place('P0', [PlaceName('Amsterdam')])
+        onymous_place = Place('P0', [LocalizedName('Amsterdam')])
         onymous_place.events.add(onymous_event)
         ancestry.places[onymous_place.id] = onymous_place
 
-        anonymous_place = Place('P1', [PlaceName('Almelo')])
+        anonymous_place = Place('P1', [LocalizedName('Almelo')])
         ancestry.places[anonymous_place.id] = anonymous_place
 
         onmyous_place_because_encloses_onmyous_places = Place(
-            'P3', [PlaceName('Netherlands')])
+            'P3', [LocalizedName('Netherlands')])
         onmyous_place_because_encloses_onmyous_places.encloses.add(
             onymous_place)
         onmyous_place_because_encloses_onmyous_places.encloses.add(

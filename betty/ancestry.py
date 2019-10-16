@@ -287,7 +287,7 @@ class HasCitations:
         self._citations.replace(citations)
 
 
-class PlaceName(Localized):
+class LocalizedName(Localized):
     def __init__(self, name: str, locale: Optional[str] = None):
         Localized.__init__(self)
         self._name = name
@@ -310,7 +310,7 @@ class PlaceName(Localized):
 
 
 class Place(Identifiable, HasLinks):
-    def __init__(self, place_id: str, names: List[PlaceName]):
+    def __init__(self, place_id: str, names: List[LocalizedName]):
         Identifiable.__init__(self, place_id)
         HasLinks.__init__(self)
         self._names = names
@@ -336,7 +336,7 @@ class Place(Identifiable, HasLinks):
             handle_encloses_addition, handle_encloses_removal)
 
     @property
-    def names(self) -> List[PlaceName]:
+    def names(self) -> List[LocalizedName]:
         return self._names
 
     @property
