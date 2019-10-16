@@ -13,6 +13,32 @@ from betty.config import from_file, Configuration, ConfigurationError, LocaleCon
 from betty.plugin import Plugin
 
 
+class LocaleConfigurationTest(TestCase):
+    def test_locale(self):
+        locale = 'nl-NL'
+        sut = LocaleConfiguration(locale)
+        self.assertEquals(locale, sut.locale)
+
+    def test_alias_implicit(self):
+        locale = 'nl-NL'
+        sut = LocaleConfiguration(locale)
+        self.assertEquals(locale, sut.alias)
+
+    def test_alias_explicit(self):
+        locale = 'nl-NL'
+        alias = 'nl'
+        sut = LocaleConfiguration(locale, alias)
+        self.assertEquals(alias, sut.alias)
+
+    @parameterized.expand([
+        (False, LocaleConfiguration('nl', 'NL'), 'not a locale configuration'),
+        (False, LocaleConfiguration('nl', 'NL'), 999),
+        (False, LocaleConfiguration('nl', 'NL'), object()),
+    ])
+    def test_eq(self, expected, sut, other):
+        self.assertEquals(expected, sut == other)
+
+
 class ConfigurationTest(TestCase):
     def test_site_directory_path_with_cwd(self):
         sut = Configuration('/tmp/betty', 'https://example.com')
