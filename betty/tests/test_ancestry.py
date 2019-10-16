@@ -296,3 +296,25 @@ class FileTest(TestCase):
         notes = (Mock(Note), Mock(Note))
         sut.notes = notes
         self.assertCountEqual(notes, sut.notes)
+
+
+class LocalizedNameTest(TestCase):
+    @parameterized.expand([
+        (True, LocalizedName('Ikke'), LocalizedName('Ikke')),
+        (True, LocalizedName('Ikke', 'nl-NL'), LocalizedName('Ikke', 'nl-NL')),
+        (False, LocalizedName('Ikke', 'nl-NL'), LocalizedName('Ikke', 'nl-BE')),
+        (False, LocalizedName('Ikke', 'nl-NL'), LocalizedName('Ik', 'nl-NL')),
+        (False, LocalizedName('Ikke'), LocalizedName('Ik')),
+    ])
+    def test_eq(self, expected, a, b):
+        self.assertEquals(expected, a == b)
+
+    def test_str(self):
+        name = 'Ikke'
+        sut = LocalizedName(name)
+        self.assertEquals(name, str(sut))
+
+    def test_name(self):
+        name = 'Ikke'
+        sut = LocalizedName(name)
+        self.assertEquals(name, sut.name)
