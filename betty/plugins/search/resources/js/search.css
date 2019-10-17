@@ -1,6 +1,6 @@
 #search {
   float: left;
-  max-width: calc(70% - 3rem);
+  max-width: calc(50% - 3rem);
 }
 
 #search-query {
