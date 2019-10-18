@@ -56,13 +56,16 @@
     </div>
     {%- if site.configuration.multilingual %}
         <div class="nav-primary-expandable">
-            {% set locale_data = site.configuration.locales[locale].alias | locale_get_data %}
-            <h2 class="nav-primary-action">{{ locale_data.get_display_name() }}</h2>
+            <h2 class="nav-primary-action">{{ _('Language') }}</h2>
             <div class="nav-primary-expanded">
                 <ul class="nav-secondary">
-                {% for available_locale in site.configuration.locales | reject('eq', locale) %}
+                {% set ns = namespace(available_locales=[]) %}
+                {% for available_locale in site.configuration.locales %}
                     {% set available_locale_data = site.configuration.locales[available_locale].alias | locale_get_data %}
-                    <li><a href="{{ resource | url(locale=available_locale) }}" hreflang="{{ available_locale }}" rel="alternate">{{ available_locale_data.get_display_name() }}</a></li>
+                    {% do ns.available_locales.append((available_locale, available_locale_data.get_display_name())) %}
+                {% endfor %}
+                {% for available_locale, available_locale_name in ns.available_locales | sort(attribute='1') %}
+                    <li><a href="{{ resource | url(locale=available_locale) }}" hreflang="{{ available_locale }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a></li>
                 {% endfor %}
                 </ul>
             </div>

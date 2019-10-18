@@ -101,10 +101,10 @@ class MultilingualTest(RenderTestCase):
     def test_public_localized_resource(self):
         render(self.site)
         with open(self.assert_page('/nl/index.html')) as f:
-            translation_link = '<a href="/en/index.html" hreflang="en" rel="alternate">English</a>'
+            translation_link = '<a href="/en/index.html" hreflang="en" lang="en" rel="alternate">English</a>'
             self.assertIn(translation_link, f.read())
         with open(self.assert_page('/en/index.html')) as f:
-            translation_link = '<a href="/nl/index.html" hreflang="nl" rel="alternate">Nederlands</a>'
+            translation_link = '<a href="/nl/index.html" hreflang="nl" lang="nl" rel="alternate">Nederlands</a>'
             self.assertIn(translation_link, f.read())
 
     def test_entity(self):
@@ -112,10 +112,10 @@ class MultilingualTest(RenderTestCase):
         self.site.ancestry.people[person.id] = person
         render(self.site)
         with open(self.assert_page('/nl/person/%s/index.html' % person.id)) as f:
-            translation_link = '<a href="/en/person/%s/index.html" hreflang="en" rel="alternate">English</a>' % person.id
+            translation_link = '<a href="/en/person/%s/index.html" hreflang="en" lang="en" rel="alternate">English</a>' % person.id
             self.assertIn(translation_link, f.read())
         with open(self.assert_page('/en/person/%s/index.html' % person.id)) as f:
-            translation_link = '<a href="/nl/person/%s/index.html" hreflang="nl" rel="alternate">Nederlands</a>' % person.id
+            translation_link = '<a href="/nl/person/%s/index.html" hreflang="nl" lang="nl" rel="alternate">Nederlands</a>' % person.id
             self.assertIn(translation_link, f.read())
 
 
