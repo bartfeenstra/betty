@@ -1,74 +1,59 @@
-from typing import Any, Type
+from typing import Any, Type, Optional
 
 from betty.ancestry import Person, Citation, Source, File, Place, Event, Identifiable
 from betty.config import Configuration
 
 
 class UrlGenerator:
-    def generate(self, resource: Any, absolute: bool = False) -> str:
+    def generate(self, resource: Any, absolute: bool = False, locale: Optional[str] = None) -> str:
         raise NotImplementedError
 
 
-class PathUrlGenerator(UrlGenerator):
+class LocalizedPathUrlGenerator(UrlGenerator):
     def __init__(self, configuration: Configuration):
         self._configuration = configuration
 
-    def generate(self, resource: str, absolute: bool = False) -> str:
-        if not isinstance(resource, str):
-            raise ValueError('%s is not a string.' % type(resource))
-        url = self._configuration.base_url if absolute else ''
-        url += self._configuration.root_path
-        url += resource.lstrip('/')
-        if self._configuration.clean_urls and resource.endswith('/index.html'):
-            url = url[:-10]
-        return url
+    def generate(self, resource, **kwargs) -> str:
+        return _generate_from_path(self._configuration, resource, localize=True, **kwargs)
 
 
-class AliasUrlGenerator(PathUrlGenerator):
-    def __init__(self, configuration: Configuration, alias: str, path: str):
-        PathUrlGenerator.__init__(self, configuration)
-        self._alias = alias
-        self._path = path
+class StaticPathUrlGenerator(UrlGenerator):
+    def __init__(self, configuration: Configuration):
+        self._configuration = configuration
 
-    def generate(self, resource: str, **kwargs) -> str:
-        if resource != self._alias:
-            raise ValueError('%s is not %s.' % (resource, self._alias))
-        return PathUrlGenerator.generate(self, self._path, **kwargs)
+    def generate(self, resource, **kwargs) -> str:
+        return _generate_from_path(self._configuration, resource, localize=False, **kwargs)
 
 
-class IdentifiableUrlGenerator(PathUrlGenerator):
+class IdentifiableUrlGenerator(UrlGenerator):
     def __init__(self, configuration: Configuration, identifiable_type: Type[Identifiable], pattern: str):
-        PathUrlGenerator.__init__(self, configuration)
+        self._configuration = configuration
         self._type = identifiable_type
         self._pattern = pattern
 
     def generate(self, resource: Identifiable, **kwargs) -> str:
         if not isinstance(resource, self._type):
             raise ValueError('%s is not a %s' % (type(resource), self._type))
-        return PathUrlGenerator.generate(self, self._pattern % resource.id, **kwargs)
+        kwargs['localize'] = True
+        return _generate_from_path(self._configuration, self._pattern % resource.id, **kwargs)
 
 
-class DelegatingUrlGenerator(UrlGenerator):
+class LocalizedUrlGenerator(UrlGenerator):
     def __init__(self, configuration: Configuration):
-        self._generators = []
-        entity_types = [
-            ('person', Person),
-            ('event', Event),
-            ('place', Place),
-            ('file', File),
-            ('source', Source),
-            ('citation', Citation),
-        ]
-        for entity_type_name, entity_type in entity_types:
-            self._generators += [
-                AliasUrlGenerator(
-                    configuration, '<%s>' % entity_type_name, '%s/index.html' % entity_type_name),
-                IdentifiableUrlGenerator(
-                    configuration, entity_type, '%s/%%s/index.html' % entity_type_name),
-            ]
-        self._generators += [
-            AliasUrlGenerator(configuration, '<front>', '/index.html'),
-            PathUrlGenerator(configuration),
+        self._generators = [
+            IdentifiableUrlGenerator(
+                configuration, Person, 'person/%s/index.html'),
+            IdentifiableUrlGenerator(
+                configuration, Event, 'event/%s/index.html'),
+            IdentifiableUrlGenerator(
+                configuration, Place, 'place/%s/index.html'),
+            IdentifiableUrlGenerator(
+                configuration, File, 'file/%s/index.html'),
+            IdentifiableUrlGenerator(
+                configuration, Source, 'source/%s/index.html'),
+            IdentifiableUrlGenerator(
+                configuration, Citation, 'citation/%s/index.html'),
+            LocalizedPathUrlGenerator(configuration),
         ]
 
     def generate(self, resource: Any, **kwargs) -> str:
@@ -79,3 +64,18 @@ class DelegatingUrlGenerator(UrlGenerator):
                 pass
         raise ValueError('No URL generator found for %s.' % (
             resource if isinstance(resource, str) else type(resource)))
+
+
+def _generate_from_path(configuration: Configuration, resource: str, localize: bool = False, absolute: bool = False, locale: Optional[str] = None) -> str:
+    if not isinstance(resource, str):
+        raise ValueError('%s is not a string.' % type(resource))
+    url = configuration.base_url if absolute else ''
+    url += configuration.root_path
+    if localize and configuration.multilingual:
+        if locale is None:
+            locale = configuration.default_locale
+        url += configuration.locales[locale].alias + '/'
+    url += resource.lstrip('/')
+    if configuration.clean_urls and (resource.endswith('/index.html') or resource == 'index.html'):
+        url = url[:-10]
+    return url

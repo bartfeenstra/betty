@@ -1,6 +1,7 @@
 from os.path import dirname
 from typing import Optional, Iterable, Callable, Dict
 
+from betty.ancestry import Person, Place
 from betty.jinja2 import Jinja2Provider, create_environment
 from betty.plugin import Plugin
 from betty.plugins.js import Js, JsEntryPointProvider, JsPackageProvider
@@ -23,27 +24,38 @@ class Search(Plugin, JsPackageProvider, JsEntryPointProvider, Jinja2Provider):
     def resource_directory_path(self) -> Optional[str]:
         return '%s/resources' % dirname(__file__)
 
-    def _index(self) -> Iterable:
-        # Create the environment here, because doing so in the initializer would be at a time when not all plugins have
-        # been initialized yet
-        environment = create_environment(self._site)
-        for person in self._site.ancestry.people.values():
-            yield {
-                'text': ('%s %s' % (person.individual_name, person.family_name)).lower(),
-                'result': environment.get_template('search-result-person.html.j2').render({
-                    'person': person,
-                })
-            }
-        for place in self._site.ancestry.places.values():
-            yield {
-                'text': place.name.lower(),
-                'result': environment.get_template('search-result-place.html.j2').render({
-                    'place': place,
-                })
-            }
-
     @property
     def globals(self) -> Dict[str, Callable]:
         return {
-            'search_index': self._index,
+            'search_index': lambda: index(self._site),
+        }
+
+
+def index(site: Site) -> Iterable:
+    # Create the environments here, because doing so in the initializer would be at a time when not all plugins have
+    # been initialized yet
+    environments = {}
+    for locale in site.configuration.locales:
+        environments[locale] = create_environment(site, locale)
+
+    def render_person_result(locale: str, person: Person):
+        return environments[locale].get_template('search-result-person.html.j2').render({
+            'person': person,
+        })
+    for person in site.ancestry.people.values():
+        if person.individual_name is None and person.family_name is None:
+            continue
+        yield {
+            'text': ' '.join([name.lower() for name in [person.individual_name, person.family_name] if name is not None]),
+            'results': {locale: render_person_result(locale, person) for locale in environments},
+        }
+
+    def render_place_result(locale: str, place: Place):
+        return environments[locale].get_template('search-result-place.html.j2').render({
+            'place': place,
+        })
+    for place in site.ancestry.places.values():
+        yield {
+            'text': ' '.join(map(lambda x: x.name.lower(), place.names)),
+            'results': {locale: render_place_result(locale, place) for locale in environments},
         }

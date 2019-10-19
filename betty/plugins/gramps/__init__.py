@@ -11,8 +11,8 @@ from lxml.etree import XMLParser, Element
 from voluptuous import Schema, IsFile
 
 from betty.ancestry import Event, Place, Person, Ancestry, Date, Note, File, Link, Source, HasFiles, Citation, \
-    Presence, HasLinks
-from betty.config import assert_configuration
+    Presence, HasLinks, LocalizedName
+from betty.config import validate_configuration
 from betty.fs import makedirs
 from betty.parse import ParseEvent
 from betty.plugin import Plugin
@@ -251,10 +251,14 @@ def _parse_places(ancestry: _IntermediateAncestry, database: Element):
 
 def _parse_place(element: Element) -> Tuple[str, _IntermediatePlace]:
     handle = _xpath1(element, './@handle')
-    properties = {
-        'name': _xpath1(element, './ns:pname/@value')
-    }
-    place = Place(_xpath1(element, './@id'), **properties)
+    names = []
+    for name_element in _xpath(element, './ns:pname'):
+        # The Gramps language is a single ISO language code, which is a valid BCP 47 locale.
+        language = _xpath1(name_element, './@lang')
+        names.append(
+            LocalizedName(str(_xpath1(name_element, './@value')), language))
+
+    place = Place(_xpath1(element, './@id'), names)
 
     coordinates = _parse_coordinates(element)
     if coordinates:
@@ -409,7 +413,7 @@ class Gramps(Plugin):
 
     @classmethod
     def from_configuration_dict(cls, site: Site, configuration: Dict):
-        assert_configuration(GrampsConfigurationSchema, configuration)
+        validate_configuration(GrampsConfigurationSchema, configuration)
         return cls(configuration['file'], join(site.configuration.cache_directory_path, 'gramps'))
 
     def subscribes_to(self) -> List[Tuple[str, Callable]]:

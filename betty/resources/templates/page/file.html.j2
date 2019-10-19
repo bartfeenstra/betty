@@ -3,13 +3,13 @@
 {% block content %}
     {% if file.type.startswith('image/') %}
         <div class="featured image">
-            <a href="{{ file | file | url }}">
-                <img src="{{ file | image(1200, 1200) | url }}" alt="{{ file.description }}"/>
+            <a href="{{ file | file | static_url }}">
+                <img src="{{ file | image(1200, 1200) | static_url }}" alt="{{ file.description }}"/>
             </a>
         </div>
     {% endif %}
     {% if file.notes %}
-        <h2>Notes</h2>
+        <h2>{{ _('Notes') }}</h2>
         {% for note in file.notes %}
             {{ note.text | paragraphs }}
         {% endfor %}

@@ -19,7 +19,7 @@
 
     {% set parents = person.parents | list %}
     {% if parents | length > 0 %}
-        <h2>Parents</h2>
+        <h2>{{ _('Parents') }}</h2>
         <ul>
             {% for parent in parents %}
                 <li typeof="foaf:Person" property="rel:childOf">{{ personMacros.label(parent) }}</li>
@@ -29,12 +29,16 @@
 
     {% set children = person.children | list %}
     {% if children | length > 0 %}
-        <h2>Children</h2>
+        <h2>{{ _('Children') }}</h2>
         {% for parents, siblings in children | groupby('parents.list') %}
             <p>
                 {% do parents.remove(person) %}
                 {% if parents | length > 0 %}
-                    with {{ parents | map(otherParentLabel) | join(', ') }}:
+                    {% trans count = parents | length, parents = parents | map(otherParentLabel) | join(', ') -%}
+                        with {{ parents }}:
+                    {%- pluralize -%}
+                        with {{ parents }}:
+                    {%- endtrans %}
                 {% endif %}
             <ul>
                 {% for child in siblings %}
@@ -47,7 +51,7 @@
 
     {% set siblings = person.siblings | list %}
     {% if siblings | length > 0 %}
-        <h2>Siblings</h2>
+        <h2>{{ _('Siblings') }}</h2>
         <ul>
             {% for sibling in siblings %}
                 <li typeof="foaf:Person" property="rel:siblingOf">{{ personMacros.label(sibling) }}</li>
@@ -59,7 +63,7 @@
 
     {% set events = person.presences | map(attribute='event') | list %}
     {% if events | rejectattr('date', 'none') | selectattr('date.complete') | list | length > 0 %}
-        <h2>Events</h2>
+        <h2>{{ _('Events') }}</h2>
         {% with person_context=person %}
             {% include 'list-event.html.j2' %}
         {% endwith %}
@@ -72,7 +76,7 @@
     {% set haveFiles = haveFiles + events | map(attribute='citations') | flatten | map(attribute='source') | list %}
     {% set files = haveFiles | map(attribute='files') | flatten | unique | list %}
     {% if files | length > 0 %}
-        <h2>Media</h2>
+        <h2>{{ _('Media') }}</h2>
         {% include 'list-file.html.j2' %}
     {% endif %}
 {% endblock %}

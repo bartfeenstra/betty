@@ -1,4 +1,5 @@
 import json
+from collections import OrderedDict
 from os import getcwd
 from os.path import join
 from tempfile import NamedTemporaryFile, TemporaryDirectory
@@ -8,8 +9,34 @@ from unittest import TestCase
 import yaml
 from parameterized import parameterized
 
-from betty.config import from_file, Configuration, ConfigurationError
+from betty.config import from_file, Configuration, ConfigurationError, LocaleConfiguration
 from betty.plugin import Plugin
+
+
+class LocaleConfigurationTest(TestCase):
+    def test_locale(self):
+        locale = 'nl-NL'
+        sut = LocaleConfiguration(locale)
+        self.assertEquals(locale, sut.locale)
+
+    def test_alias_implicit(self):
+        locale = 'nl-NL'
+        sut = LocaleConfiguration(locale)
+        self.assertEquals(locale, sut.alias)
+
+    def test_alias_explicit(self):
+        locale = 'nl-NL'
+        alias = 'nl'
+        sut = LocaleConfiguration(locale, alias)
+        self.assertEquals(alias, sut.alias)
+
+    @parameterized.expand([
+        (False, LocaleConfiguration('nl', 'NL'), 'not a locale configuration'),
+        (False, LocaleConfiguration('nl', 'NL'), 999),
+        (False, LocaleConfiguration('nl', 'NL'), object()),
+    ])
+    def test_eq(self, expected, sut, other):
+        self.assertEquals(expected, sut == other)
 
 
 class ConfigurationTest(TestCase):
@@ -115,6 +142,34 @@ class FromTest(TestCase):
         with self._write(config_dict) as f:
             configuration = from_file(f)
             self.assertEquals(title, configuration.title)
+
+    def test_from_file_should_parse_locale_locale(self):
+        locale = 'nl-NL'
+        locale_config = {
+            'locale': locale,
+        }
+        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
+        config_dict['locales'] = [locale_config]
+        with self._write(config_dict) as f:
+            configuration = from_file(f)
+            self.assertDictEqual(OrderedDict({
+                locale: LocaleConfiguration(locale),
+            }), configuration.locales)
+
+    def test_from_file_should_parse_locale_alias(self):
+        locale = 'nl-NL'
+        alias = 'nl'
+        locale_config = {
+            'locale': locale,
+            'alias': alias,
+        }
+        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
+        config_dict['locales'] = [locale_config]
+        with self._write(config_dict) as f:
+            configuration = from_file(f)
+            self.assertDictEqual(OrderedDict({
+                locale: LocaleConfiguration(locale, alias),
+            }), configuration.locales)
 
     def test_from_file_should_root_path(self):
         configured_root_path = '/betty'

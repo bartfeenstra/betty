@@ -15,12 +15,14 @@ Betty is a static site generator for [Gramps](https://gramps-project.org/) XML f
 - [Development](#development)
 - [Contributions](#contributions)
 - [License](#license)
+
 ## Features
 Betty generates generates a [static site](https://en.wikipedia.org/wiki/Static_web_page) from your genealogy records.
 This means that once your site has been generated, you will not need any special software to publish it. It's **fast and
 secure**.
 - Builds pages for people, places, events, and media.
 - Renders interactive maps.
+- Fully multilingual: localize the site to one or more languages of your choice.
 - [Responsive](https://en.wikipedia.org/wiki/Responsive_web_design), and mobile- and touch-friendly interface.
 - Privacy and anonymization filters for living people.
 - [View an example](https://ancestry.bartfeenstra.com/).
@@ -61,6 +63,10 @@ base_url: https://ancestry.example.com
 root_path: /betty
 clean_urls: true
 title: Betty's ancestry
+locales:
+  - locale: en-US
+    alias: en
+  - locale: nl
 resources: ./resources
 plugins:
   betty.plugins.anonymizer.Anonymizer: {}
@@ -79,6 +85,11 @@ plugins:
 - `root_path` (optional); The relative path under the public URL at which the site will be published.
 - `clean_urls` (optional); A boolean indicating whether to use clean URLs, e.g. `/path` instead of `/path/index.html`.
 - `title` (optional); The site's title.
+- `locales` (optional); An array of locales, each of which is an object with the following keys:
+    - `locale`(required): An [IETF BCP 47](https://tools.ietf.org/html/bcp47) language tag.
+    - `alias` (optional): A shorthand alias to use instead of the full language tag, such as when rendering URLs.
+
+  If no locales are defined, Betty defaults to US English.
 - `resources` (optional); The path to a directory containing overrides for any of Betty's [resources](./betty/resources).
 - `plugins` (optional): The plugins to enable. Keys are plugin names, and values are objects containing each plugin's configuration.
     - `betty.plugin.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `{}`.

@@ -1,12 +1,14 @@
 from os.path import exists, join, dirname
 from tempfile import TemporaryDirectory
+from typing import List
 from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.ancestry import File
+from betty.ancestry import File, LocalizedName
 from betty.config import Configuration
 from betty.jinja2 import create_environment
+from betty.locale import Date
 from betty.plugin import Plugin
 from betty.site import Site
 
@@ -131,8 +133,8 @@ class FileTest(TestCase):
                     exists(join(configuration.www_directory_path, file_path[1:])))
 
 
-image_path = join(dirname(dirname(__file__)),
-                  'resources/public/betty-512x512.png')
+image_path = join(dirname(dirname(__file__)), 'resources',
+                  'public', 'static', 'betty-512x512.png')
 
 
 class ImageTest(TestCase):
@@ -198,3 +200,57 @@ class PluginsTest(TestCase):
                 '.TestPlugin" in plugins %}true{% else %}false{% endif %}'
             self.assertEquals(
                 'true', environment.from_string(template).render())
+
+
+class FormatDateTest(TestCase):
+    def test(self):
+        with TemporaryDirectory() as www_directory_path:
+            configuration = Configuration(
+                www_directory_path, 'https://example.com')
+            environment = create_environment(Site(configuration))
+            template = '{{ date | format_date }}'
+            date = Date(1970, 1, 1)
+            self.assertEquals(
+                'January 1, 1970', environment.from_string(template).render(date=date))
+
+
+class SortLocalizedTest(TestCase):
+    class WithLocalizedNames:
+        def __init__(self, identifier, names: List[LocalizedName]):
+            self.id = identifier
+            self.names = names
+
+        def __repr__(self):
+            return self.id
+
+    def test(self):
+        with TemporaryDirectory() as www_directory_path:
+            configuration = Configuration(
+                www_directory_path, 'https://example.com')
+            environment = create_environment(Site(configuration))
+            template = '{{ data | sort_localizeds(localized_attribute="names", sort_attribute="name") }}'
+            data = [
+                self.WithLocalizedNames('third', [
+                    LocalizedName('3', 'nl-NL'),
+                ]),
+                self.WithLocalizedNames('second', [
+                    LocalizedName('2', 'en'),
+                    LocalizedName('1', 'nl-NL'),
+                ]),
+                self.WithLocalizedNames('first', [
+                    LocalizedName('2', 'nl-NL'),
+                    LocalizedName('1', 'en-US'),
+                ]),
+            ]
+            self.assertEquals('[first, second, third]', environment.from_string(
+                template).render(data=data))
+
+    def test_with_empty_iterable(self):
+        with TemporaryDirectory() as www_directory_path:
+            configuration = Configuration(
+                www_directory_path, 'https://example.com')
+            environment = create_environment(Site(configuration))
+            template = '{{ data | sort_localizeds(localized_attribute="names", sort_attribute="name") }}'
+            data = []
+            self.assertEquals('[]', environment.from_string(
+                template).render(data=data))

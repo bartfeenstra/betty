@@ -1,5 +1,5 @@
 {% extends 'base.html.j2' %}
-{% set title = place.name %}
+{% set title = place.names | negotiate_localizeds %}
 {% block content %}
     {% include 'place-meta.html.j2' %}
 
@@ -21,7 +21,7 @@
 
     {% set events = place.events | list + place | walk('encloses') | map(attribute="events") | flatten | list %}
     {% if events | rejectattr('date', 'none') | selectattr('date.complete') | list | length > 0 %}
-        <h2>Events</h2>
+        <h2>{{ _('Events') }}</h2>
         {% with events=events, place_context=place %}
             {% include 'list-event.html.j2' %}
         {% endwith %}

@@ -7,5 +7,6 @@
 {%- endmacro -%}
 
 {% macro _link(place) -%}
-    <a href="{{ place | url }}">{{ place.name }}</a>
+    {%- set localized_name = place.names | negotiate_localizeds -%}
+    <a href="{{ place | url }}"{% if localized_name.locale is not none %} lang="{{ localized_name.locale }}"{% endif %}>{{ localized_name }}</a>
 {%- endmacro -%}

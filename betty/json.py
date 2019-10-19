@@ -3,7 +3,7 @@ from typing import Dict
 
 from geopy import Point
 
-from betty.ancestry import Place, Ancestry, Person
+from betty.ancestry import Place, Ancestry, Person, LocalizedName
 
 
 def _ancestry_to_dict(ancestry: Ancestry) -> Dict:
@@ -20,10 +20,19 @@ def _coordinates_to_dict(coordinates: Point) -> Dict:
     }
 
 
+def _localized_name_to_dict(name: LocalizedName) -> Dict:
+    localized_name_dict = {
+        'name': name.name,
+    }
+    if name.locale:
+        localized_name_dict['locale'] = name.locale
+    return localized_name_dict
+
+
 def _place_to_dict(place: Place) -> Dict:
     place_dict = {
         'id': place.id,
-        'name': place.name,
+        'names': place.names,
     }
     if place.coordinates:
         place_dict['coordinates'] = place.coordinates
@@ -46,6 +55,7 @@ class JSONEncoder(stdjson.JSONEncoder):
     _mappers = {
         Ancestry: _ancestry_to_dict,
         Point: _coordinates_to_dict,
+        LocalizedName: _localized_name_to_dict,
         Place: _place_to_dict,
         Person: _person_to_dict,
     }

@@ -8,6 +8,8 @@ from typing import Iterable, Optional, Dict, Callable
 from urllib.parse import urlparse
 
 import requests
+from babel import parse_locale
+from jinja2 import environmentfilter
 from requests import RequestException
 
 from betty.ancestry import Link
@@ -38,25 +40,12 @@ class Entry:
 
 class Retriever:
     def __init__(self, cache_directory_path: str, ttl: int = 86400):
-        self._cache_directory_path = cache_directory_path
+        self._cache_directory_path = join(cache_directory_path, 'wikipedia')
+        makedirs(self._cache_directory_path)
         self._ttl = ttl
 
-    def one(self, link: Link) -> Optional[Entry]:
-        parts = urlparse(link.uri)
-        if parts.scheme not in ['http', 'https']:
-            return None
-        if not re.fullmatch(r'^[a-z]+\.wikipedia\.org$', parts.netloc, re.IGNORECASE):
-            return None
-        if not re.fullmatch(r'^/wiki/.+$', parts.path, re.IGNORECASE):
-            return None
-        language_code, domain, _ = parts.netloc.split('.')
-        title = parts.path[6:]
-        uri = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=extracts&exintro&format=json&formatversion=2' % (
-            language_code, title)
-
-        cache_directory_path = join(self._cache_directory_path, 'wikipedia')
-        makedirs(cache_directory_path)
-        cache_file_path = join(cache_directory_path,
+    def _request(self, uri: str) -> Optional[Dict]:
+        cache_file_path = join(self._cache_directory_path,
                                hashlib.md5(uri.encode('utf-8')).hexdigest())
 
         response_data = None
@@ -85,15 +74,43 @@ class Retriever:
             except FileNotFoundError:
                 pass
 
-        if response_data is None:
+        return response_data
+
+    def one(self, language: str, link: Link) -> Optional[Entry]:
+        parts = urlparse(link.uri)
+        if parts.scheme not in ['http', 'https']:
+            return None
+        if not re.fullmatch(r'^[a-z]+\.wikipedia\.org$', parts.netloc, re.IGNORECASE):
+            return None
+        if not re.fullmatch(r'^/wiki/.+$', parts.path, re.IGNORECASE):
+            return None
+        link_language, _, _ = parts.netloc.split('.')
+        title = parts.path[6:]
+
+        if language != link_language:
+            translations_uri = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=langlinks&lllimit=500&format=json&formatversion=2' % (
+                link_language, title)
+            translations_response_data = self._request(translations_uri)
+            translations_data = translations_response_data['query']['pages'][0]['langlinks']
+            try:
+                title = next(
+                    translation_data['title'] for translation_data in translations_data if translation_data['lang'] == language)
+            except StopIteration:
+                return None
+            link_language = language
+
+        page_uri = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=extracts&exintro&format=json&formatversion=2' % (
+            link_language, title)
+        page_response_data = self._request(page_uri)
+        if page_response_data is None:
             return None
 
-        page = response_data['query']['pages'][0]
-        return Entry(link.uri, page['title'], page['extract'])
+        page_data = page_response_data['query']['pages'][0]
+        return Entry(link.uri, page_data['title'], page_data['extract'])
 
-    def all(self, links: Iterable[Link]) -> Iterable[Entry]:
+    def all(self, language: str, links: Iterable[Link]) -> Iterable[Entry]:
         for link in links:
-            entry = self.one(link)
+            entry = self.one(language, link)
             if entry is not None:
                 yield entry
 
@@ -109,7 +126,7 @@ class Wikipedia(Plugin, Jinja2Provider):
     @property
     def filters(self) -> Dict[str, Callable]:
         return {
-            'wikipedia': self._retriever.all,
+            'wikipedia': environmentfilter(lambda environment, links: self._retriever.all(parse_locale(environment.globals['locale'], '-')[0], links)),
         }
 
     @property

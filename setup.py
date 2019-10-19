@@ -35,6 +35,7 @@ SETUP = {
         'Topic :: Software Development :: Code Generators',
     ],
     'install_requires': [
+        'babel ~= 2.7.0',
         'geopy ~= 1.18.1',
         'jinja2 ~= 2.10',
         'libsass ~= 0.19.2',

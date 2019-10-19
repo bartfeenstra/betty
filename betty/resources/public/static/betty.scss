@@ -72,17 +72,17 @@ address {
 /*
  * Entity lists.
  */
-ul.entities {
+.entities {
   padding: 0;
 }
 
-ul.entities li {
+.entities li {
   list-style: none;
   margin-top: 0.5em;
   padding: 0.5em;
 }
 
-ul.entities li.even {
+.entities li.even {
   background-color: #eee;
 }
 
@@ -186,7 +186,7 @@ figcaption {
   padding: 0.5rem;
 }
 
-ul.file-controls {
+.file-controls {
   border: 0;
   display: block !important;
   height: 3rem;
@@ -196,7 +196,7 @@ ul.file-controls {
   width: 100%;
 }
 
-ul.file-controls li {
+.file-controls li {
   display: inline-block;
 }
 
@@ -208,7 +208,7 @@ ul.file-controls li {
   float: right;
 }
 
-ul.file-controls li a {
+.file-controls li a {
   color: #ccc;
   float: right;
   font-size: 1.1rem;
@@ -216,7 +216,7 @@ ul.file-controls li a {
   padding: 0 0.5rem;
 }
 
-ul.file-controls li a:hover {
+.file-controls li a:hover {
   color: #fff;
 }
 
@@ -248,11 +248,6 @@ ul.file-controls li a:hover {
  * Navigation.
  */
 
-#nav-primary {
-  color: purple;
-  font-size: 1.1rem;
-}
-
 #site-title {
   background-image: url($betty-32-32-png-url);
   background-position: center;
@@ -269,9 +264,29 @@ ul.file-controls li a:hover {
   opacity: 1;
 }
 
-.nav-expanded {
+#nav-primary {
+  color: purple;
+  font-size: 1.1rem;
+}
+
+.nav-primary-action {
+  color: purple;
+  cursor: pointer;
+  display: block;
+  float: right;
+  font-size: 1.1rem;
+  height: 3rem;
+  line-height: 3rem;
+  margin: 0;
+  text-align: center;
+  text-transform: uppercase;
+  width: 25%;
+}
+
+.nav-primary-expanded {
   background-color: #fff;
   border-bottom: 0.5em pink solid;
+  display: none;
   left: 0;
   margin: 0;
   max-height: calc(100% - 3rem);
@@ -281,92 +296,78 @@ ul.file-controls li a:hover {
   z-index: 9999;
 }
 
-.nav-primary-toggle {
-  color: purple;
-  display: block;
-  float: right;
-  height: 3rem;
-  line-height: 3rem;
-  position: absolute;
-  right: 0;
-  text-align: center;
-  text-transform: uppercase;
-  top: 0;
-  width: 25%;
+.nav-primary-expandable:hover .nav-primary-expanded {
+  display: initial;
 }
 
-#nav-primary-hide {
-  background-color: #fff;
-  display: none;
-  font-weight: bold;
-}
-
-#nav-primary-show:hover,
-#nav-primary-hide:hover {
+.nav-primary-expandable:hover .nav-primary-action {
   color: white;
   background-color: purple;
 }
 
-#nav-primary:target #nav-primary-show {
-  display: none;
-}
-
-#nav-primary:target #nav-primary-hide {
-  display: initial;
-}
-
-#nav-primary ul {
-  display: none;
+.nav-secondary {
   list-style: none;
-  padding: 1rem 0;
+  margin: 0;
+  padding: 0;
+  width: 100%;
 }
 
-#nav-primary:target ul {
-  display: initial;
-}
-
-#nav-primary ul li {
-  margin: 1rem 0;
-}
-
-#nav-primary ul li a { /* stylelint-disable-line no-descending-specificity */
-  background-color: #eee;
-  color: purple;
+.nav-secondary li {
   display: block;
-  line-height: 3rem;
-  text-align: center;
+  border-bottom: 1px #eee solid;
 }
 
-#nav-primary ul li a:hover {
-  color: white;
-  background-color: purple;
+.nav-secondary li a {
+  display: block;
+  padding: 1rem;
+}
+
+.nav-secondary li a:hover,
+.nav-secondary li a:focus {
+  background-color: #eee;
 }
 
 @media (min-width: 768px) {
-  .nav-primary-toggle,
-  #nav-primary:target #nav-primary-hide {
+  #nav-sections .nav-primary-action {
     display: none;
   }
 
-  #nav-primary ul {
+  #nav-sections .nav-primary-expanded {
+    display: initial;
+  }
+
+  #nav-sections .nav-secondary {
     background-color: #eee;
     border: 0;
     clear: both;
     display: block !important;
-    height: 3rem;
     padding: 0;
-    position: static;
+    position: absolute;
     width: 100%;
   }
 
-  #nav-primary ul li {
+  #nav-sections .nav-secondary li {
     display: inline;
   }
 
-  #nav-primary ul li a {
+  #nav-sections .nav-secondary li a {
     float: left;
+    line-height: 3rem;
     padding: 0 1em;
   }
+
+  #content {
+    margin-top: 3rem;
+  }
+}
+
+#nav-locale-available {
+  display: none;
+}
+
+#nav-locale:hover #nav-locale-available,
+#nav-locale:focus #nav-locale-available {
+  display: block;
 }
 
 kbd {

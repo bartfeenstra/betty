@@ -1,0 +1,251 @@
+# Dutch translations for PROJECT.
+# Copyright (C) 2019 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-10-19 14:28+0100\n"
+"PO-Revision-Date: 2019-10-05 11:38+0100\n"
+"Last-Translator: \n"
+"Language: nl\n"
+"Language-Team: nl <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: betty/locale.py:93
+msgid "MMMM d, y"
+msgstr "d MMMM y"
+
+#: betty/locale.py:94
+msgid "MMMM, y"
+msgstr "MMMM y"
+
+#: betty/locale.py:95
+msgid "y"
+msgstr "y"
+
+#: betty/locale.py:96
+msgid "MMMM d"
+msgstr "d MMMM"
+
+#: betty/locale.py:97
+msgid "MMMM"
+msgstr "MMMM"
+
+#: betty/locale.py:102
+msgid "unknown date"
+msgstr "onbekend"
+
+#: betty/plugins/search/resources/templates/search-results-container.html.j2:3
+msgid ""
+"Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
+"to exit the search. Next time, open the search with <kbd>s</kbd>."
+msgstr ""
+"Gebruik <kbd>↑</kbd> en <kbd>↓</kbd> om door de resultaten te bladeren, "
+"of <kbd>esc</kbd> om te stoppen met zoeken. Open het zoekformulier "
+"opnieuw met <kbd>s</kbd>."
+
+#: betty/plugins/wikipedia/resources/templates/wikipedia.html.j2:3
+#, python-format
+msgid "Read more on <a href=\"%(uri)s\">Wikipedia</a>."
+msgstr "Lees verder op <a href=\"%(uri)s\">Wikipedia</a>."
+
+#: betty/plugins/wikipedia/resources/templates/wikipedia.html.j2:4
+msgid ""
+"<a "
+"href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a>"
+" Wikipedia and its contributors."
+msgstr ""
+"<a "
+"href=\"https://nl.wikipedia.org/wiki/Wikipedia:Auteursrechten\">Copyright</a>"
+" Wikipedia en bijdragers."
+
+#: betty/resources/public/localized/index.html.j2:2
+#, python-format
+msgid "Welcome to %(title)s"
+msgstr "Welkom bij %(title)s"
+
+#: betty/resources/templates/base.html.j2:46
+msgid "Menu"
+msgstr "Menu"
+
+#: betty/resources/templates/base.html.j2:49
+#: betty/resources/templates/page/list-person.html.j2:2
+msgid "People"
+msgstr "Personen"
+
+#: betty/resources/templates/base.html.j2:50
+#: betty/resources/templates/page/list-event.html.j2:2
+#: betty/resources/templates/page/person.html.j2:66
+#: betty/resources/templates/page/place.html.j2:24
+msgid "Events"
+msgstr "Gebeurtenissen"
+
+#: betty/resources/templates/base.html.j2:51
+#: betty/resources/templates/page/list-place.html.j2:2
+msgid "Places"
+msgstr "Plaatsen"
+
+#: betty/resources/templates/base.html.j2:52
+#: betty/resources/templates/page/citation.html.j2:7
+#: betty/resources/templates/page/event.html.j2:45
+#: betty/resources/templates/page/list-file.html.j2:2
+#: betty/resources/templates/page/person.html.j2:79
+#: betty/resources/templates/page/source.html.j2:10
+msgid "Media"
+msgstr "Media"
+
+#: betty/resources/templates/base.html.j2:53
+#: betty/resources/templates/page/list-source.html.j2:2
+msgid "Sources"
+msgstr "Bronnen"
+
+#: betty/resources/templates/base.html.j2:59
+msgid "Language"
+msgstr "Taal"
+
+#: betty/resources/templates/base.html.j2:80
+msgid "References"
+msgstr "Referenties"
+
+#: betty/resources/templates/event-dimensions.html.j2:14
+#, python-format
+msgid "%(date)s in %(place)s"
+msgstr "%(date)s te %(place)s"
+
+#: betty/resources/templates/event-dimensions.html.j2:18
+#, python-format
+msgid "in %(place)s"
+msgstr "te %(place)s"
+
+#: betty/resources/templates/footer.html.j2:1
+msgid ""
+"A family history as told by <a "
+"href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
+msgstr ""
+"Een familieverhaal verteld door <a "
+"href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
+
+#: betty/resources/templates/person-meta.html.j2:4
+msgid "This person's details are unavailable to protect their privacy."
+msgstr "De gegevens van deze persoon zijn niet beschikbaar vanwege privacyredenen."
+
+#: betty/resources/templates/macro/event.html.j2:15
+#, python-format
+msgid "%(event)s with %(subjects)s"
+msgstr "%(event)s met %(subjects)s"
+
+#: betty/resources/templates/macro/event.html.j2:19
+#, python-format
+msgid "%(event)s of %(subjects)s"
+msgstr "%(event)s van %(subjects)s"
+
+#: betty/resources/templates/macro/event.html.j2:28
+msgid "Birth"
+msgstr "Geboorte"
+
+#: betty/resources/templates/macro/event.html.j2:29
+msgid "Baptism"
+msgstr "Doping"
+
+#: betty/resources/templates/macro/event.html.j2:30
+msgid "Cremation"
+msgstr "Crematie"
+
+#: betty/resources/templates/macro/event.html.j2:31
+msgid "Death"
+msgstr "Overlijden"
+
+#: betty/resources/templates/macro/event.html.j2:32
+msgid "Burial"
+msgstr "Begravenis"
+
+#: betty/resources/templates/macro/event.html.j2:33
+msgid "Marriage"
+msgstr "Huwelijk"
+
+#: betty/resources/templates/macro/event.html.j2:34
+msgid "Marriage banns"
+msgstr "Ondertrouw"
+
+#: betty/resources/templates/macro/event.html.j2:35
+msgid "Residence"
+msgstr "Woonplaats"
+
+#: betty/resources/templates/macro/event.html.j2:36
+msgid "Immigration"
+msgstr "Immigratie"
+
+#: betty/resources/templates/macro/event.html.j2:37
+msgid "Emigration"
+msgstr "Emigratie"
+
+#: betty/resources/templates/macro/event.html.j2:44
+msgid "Subject"
+msgstr "Onderwerp"
+
+#: betty/resources/templates/macro/event.html.j2:45
+msgid "Witness"
+msgstr "Getuige"
+
+#: betty/resources/templates/page/event.html.j2:21
+msgid "Witnesses"
+msgstr "Getuigen"
+
+#: betty/resources/templates/page/event.html.j2:36
+msgid "Other attendees"
+msgstr "Overige aanwezigen"
+
+#: betty/resources/templates/page/file.html.j2:12
+msgid "Notes"
+msgstr "Opmerkingen"
+
+#: betty/resources/templates/page/person.html.j2:22
+msgid "Parents"
+msgstr "Ouders"
+
+#: betty/resources/templates/page/person.html.j2:32
+msgid "Children"
+msgstr "Kinderen"
+
+#: betty/resources/templates/page/person.html.j2:37
+#, python-format
+msgid "with %(parents)s:"
+msgid_plural "with %(parents)s:"
+msgstr[0] "met %(parents)s:"
+msgstr[1] "met %(parents)s:"
+
+#: betty/resources/templates/page/person.html.j2:54
+msgid "Siblings"
+msgstr "Broers en zussen"
+
+#: betty/resources/public/localized/.error/401.html.j2:2
+msgid "Unauthorized"
+msgstr "Onbevoegd"
+
+#: betty/resources/public/localized/.error/401.html.j2:4
+msgid "I'm sorry, dear, but it seems you're not logged in."
+msgstr "Het spijt me, schat, maar het lijkt erop dat je niet ingelogd bent."
+
+#: betty/resources/public/localized/.error/403.html.j2:2
+msgid "Access denied"
+msgstr "Verboden toegang"
+
+#: betty/resources/public/localized/.error/403.html.j2:4
+msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
+msgstr "Het spijt me, schat, maar het lijkt erop dat je deze pagina niet mag zien."
+
+#: betty/resources/public/localized/.error/404.html.j2:2
+msgid "Page not found"
+msgstr "Pagina niet gevonden"
+
+#: betty/resources/public/localized/.error/404.html.j2:4
+msgid "I'm sorry, dear, but it seems this page does not exist."
+msgstr "Het spijt me, schat, maar het lijkt erop dat deze pagina niet bestaat."
+

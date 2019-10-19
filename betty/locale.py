@@ -1,0 +1,104 @@
+import datetime
+import gettext
+import os
+from functools import total_ordering
+from typing import Optional, Tuple, Iterable
+
+from babel import dates, Locale, parse_locale, negotiate_locale
+
+
+class Localized:
+    def __init__(self, locale: Optional[str] = None):
+        self._locale = locale
+
+    @property
+    def locale(self) -> Optional[str]:
+        return self._locale
+
+    @locale.setter
+    def locale(self, locale: Optional[str]) -> None:
+        self._locale = locale
+
+
+@total_ordering
+class Date:
+    def __init__(self, year: Optional[int] = None, month: Optional[int] = None, day: Optional[int] = None):
+        self._year = year
+        self._month = month
+        self._day = day
+
+    @property
+    def year(self) -> Optional[int]:
+        return self._year
+
+    @property
+    def month(self) -> Optional[int]:
+        return self._month
+
+    @property
+    def day(self) -> Optional[int]:
+        return self._day
+
+    @property
+    def complete(self) -> bool:
+        return self._year is not None and self._month is not None and self._day is not None
+
+    @property
+    def parts(self) -> Tuple[Optional[int], Optional[int], Optional[int]]:
+        return self._year, self._month, self._day
+
+    def __eq__(self, other):
+        if not isinstance(other, Date):
+            return NotImplemented
+        return self.parts == other.parts
+
+    def __lt__(self, other):
+        if not isinstance(other, Date):
+            return NotImplemented
+        if None in self.parts or None in other.parts:
+            return NotImplemented
+        return self.parts < other.parts
+
+
+def validate_locale(locale: str) -> str:
+    parse_locale(locale, '-')
+    return locale
+
+
+def negotiate_localizeds(preferred_locale: str, localizeds: Iterable[Localized]) -> Localized:
+    localizeds = list(localizeds)
+    negotiated_locale = negotiate_locale([preferred_locale], map(
+        lambda localized: localized.locale, localizeds), '-')
+    if negotiated_locale is None:
+        if len(localizeds) > 0:
+            return localizeds[0]
+        else:
+            raise ValueError(
+                'Cannot negotiate if there are no localized values.')
+    for localized in localizeds:
+        if localized.locale == negotiated_locale:
+            return localized
+
+
+def open_translations(locale: str, directory_path: str) -> Optional[gettext.GNUTranslations]:
+    try:
+        with open(os.path.join(directory_path, 'locale', locale.replace('-', '_'), 'LC_MESSAGES', 'betty.mo'), 'rb') as f:
+            return gettext.GNUTranslations(f)
+    except FileNotFoundError:
+        return None
+
+
+def format_date(date: Date, locale: str, translation: gettext.NullTranslations) -> str:
+    DATE_FORMATS = {
+        (True, True, True): translation.gettext('MMMM d, y'),
+        (True, True, False): translation.gettext('MMMM, y'),
+        (True, False, False): translation.gettext('y'),
+        (False, True, True): translation.gettext('MMMM d'),
+        (False, True, False): translation.gettext('MMMM'),
+    }
+    try:
+        format = DATE_FORMATS[tuple(map(lambda x: x is not None, date.parts))]
+    except KeyError:
+        return translation.gettext('unknown date')
+    parts = map(lambda x: 1 if x is None else x, date.parts)
+    return dates.format_date(datetime.date(*parts), format, Locale.parse(locale, '-'))

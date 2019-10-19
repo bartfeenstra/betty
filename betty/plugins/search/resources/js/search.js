@@ -137,7 +137,7 @@ function renderResults (results) {
 
 function renderResult (result) {
   return configuration.resultContainerTemplate
-    .replace('## result ##', result.result)
+    .replace('## result ##', result.results[document.documentElement.lang])
 }
 
 export {
