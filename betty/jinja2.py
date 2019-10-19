@@ -20,7 +20,7 @@ from resizeimage import resizeimage
 
 from betty.ancestry import File, Citation, Event, Presence
 from betty.config import Configuration
-from betty.fs import iterfiles, makedirs, hashfile
+from betty.fs import iterfiles, makedirs, hashfile, is_hidden
 from betty.functools import walk
 from betty.json import JSONEncoder
 from betty.locale import format_date, negotiate_localizeds, Localized
@@ -144,7 +144,7 @@ def render_file(file_source_path: str, environment: Environment, configuration: 
     file_destination_path = file_source_path[:-3]
     data = {}
     if configuration is not None:
-        if file_destination_path.startswith(configuration.www_directory_path):
+        if file_destination_path.startswith(configuration.www_directory_path) and not is_hidden(file_destination_path):
             # Unix-style paths use forward slashes, so they are valid URL paths.
             resource = file_destination_path[len(
                 configuration.www_directory_path):]

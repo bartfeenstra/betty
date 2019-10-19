@@ -7,40 +7,38 @@ server {
 	root {{ site.configuration.www_directory_path }};
 	# The cache lifetime.
 	add_header Cache-Control "max-age=86400";
-
-	# Handle HTTP error responses.
-	error_page 401 /.error/401.html;
-	error_page 403 /.error/403.html;
-	error_page 404 /.error/404.html;
-	location /.error {
-		internal;
-	}
     {%- if site.configuration.multilingual %}
+        location ~ ^/({{ site.configuration.locales.values() | map(attribute='alias') | join('|') }})(/|$) {
+            # Handle HTTP error responses.
+            set $locale $1;
+            error_page 401 /$locale/.error/401.html;
+            error_page 403 /$locale/.error/403.html;
+            error_page 404 /$locale/.error/404.html;
+            location ~ ^/$locale/\.error {
+                internal;
+            }
 
-    # Redirect requests that aren't for a specific language to the default language.
-    location ~ ^/[^{{ site.configuration.locales.values() | map(attribute='alias') | join('|') }}]/ {
-        set $localized_uri {{ site.configuration.locales[site.configuration.default_locale].alias }}/$uri;
-        if (-f $localized_uri) {
-            break;
+            index index.html;
+            try_files $uri $uri/ =404;
         }
-        return 301 /$localized_uri;
-    }
+        location @localized_redirect {
+            return 307 /{{ site.configuration.locales[site.configuration.default_locale].alias }}$uri;
+        }
+        location / {
+            try_files $uri @localized_redirect;
+        }
+    {%- else %}
+        location / {
+            # Handle HTTP error responses.
+            error_page 401 /.error/401.html;
+            error_page 403 /.error/403.html;
+            error_page 404 /.error/404.html;
+            location /.error {
+                internal;
+            }
+
+            index index.html;
+            try_files $uri $uri/ =404;
+        }
     {%- endif %}
-	{%- if site.configuration.clean_urls %}
-
-	# Redirect */index.html to their parent directories for clean URLs.
-	if ($request_uri ~ "^(.*)/index\.html$") {
-		return 301 $1;
-	}
-	{%- endif %}
-
-	# When directories are requested, serve their index.html contents.
-	location / {
-		if ($request_method = OPTIONS) {
-			add_header Allow "OPTIONS, GET";
-			return 200;
-		}
-		index index.html;
-		try_files $uri $uri/ =404;
-	}
 }

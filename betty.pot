@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-10-19 12:40+0100\n"
+"POT-Creation-Date: 2019-10-19 14:28+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -214,5 +214,29 @@ msgstr[1] ""
 
 #: betty/resources/templates/page/person.html.j2:54
 msgid "Siblings"
+msgstr ""
+
+#: betty/resources/public/localized/.error/401.html.j2:2
+msgid "Unauthorized"
+msgstr ""
+
+#: betty/resources/public/localized/.error/401.html.j2:4
+msgid "I'm sorry, dear, but it seems you're not logged in."
+msgstr ""
+
+#: betty/resources/public/localized/.error/403.html.j2:2
+msgid "Access denied"
+msgstr ""
+
+#: betty/resources/public/localized/.error/403.html.j2:4
+msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
+msgstr ""
+
+#: betty/resources/public/localized/.error/404.html.j2:2
+msgid "Page not found"
+msgstr ""
+
+#: betty/resources/public/localized/.error/404.html.j2:4
+msgid "I'm sorry, dear, but it seems this page does not exist."
 msgstr ""
 

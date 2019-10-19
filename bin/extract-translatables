@@ -4,7 +4,7 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
-pybabel extract -F ./babel.ini -o betty.pot --project 'Betty' --copyright-holder 'Bart Feenstra & contributors' ./betty
+pybabel extract -F ./babel.ini -o betty.pot --project 'Betty' --copyright-holder 'Bart Feenstra & contributors' ./betty ./betty/resources/public/localized/.error
 
 mkdir -p ./betty/resources/locale
 while read -r locale_directory_path; do

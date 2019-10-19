@@ -10,14 +10,16 @@
     <meta name="generator" content="Betty (https://github.com/bartfeenstra/betty)"/>
     <meta name="og:title" content="{{ title | striptags }}"/>
     <meta name="og:site_name" content="{{ site.configuration.title }}"/>
-    {%- for file in resource.files | default([]) -%}
-        {%- if file.type.startswith('image/') %}
-            <meta name="og:image" content="{{ file | image(600, 600) | static_url }}"/>
-            {%- if file.description %}
-                <meta name="og:image:description" content="{{ file.description }}"/>
+    {% if resource %}
+        {%- for file in resource.files | default([]) -%}
+            {%- if file.type.startswith('image/') %}
+                <meta name="og:image" content="{{ file | image(600, 600) | static_url }}"/>
+                {%- if file.description %}
+                    <meta name="og:image:description" content="{{ file.description }}"/>
+                {%- endif -%}
             {%- endif -%}
-        {%- endif -%}
-    {%- endfor -%}
+        {%- endfor -%}
+    {% endif %}
     <meta name="og:image" content="/betty-512x512.png"/>
     <link rel="stylesheet" href="{{ '/betty.css' | static_url }}"/>
     <link rel="icon" href="{{ '/betty.ico' | static_url }}">
@@ -54,7 +56,7 @@
             </ul>
         </div>
     </div>
-    {%- if site.configuration.multilingual %}
+    {%- if resource and site.configuration.multilingual %}
         <div class="nav-primary-expandable">
             <h2 class="nav-primary-action">{{ _('Language') }}</h2>
             <div class="nav-primary-expanded">

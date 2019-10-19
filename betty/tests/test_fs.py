@@ -4,7 +4,9 @@ from os.path import join, dirname
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from betty.fs import iterfiles, FileSystem, hashfile
+from parameterized import parameterized
+
+from betty.fs import iterfiles, FileSystem, hashfile, is_hidden
 
 
 class IterfilesTest(TestCase):
@@ -37,6 +39,23 @@ class HashfileTest(TestCase):
         file_path_2 = join(dirname(dirname(__file__)),
                            'resources', 'public', 'static', 'betty-512x512.png')
         self.assertNotEquals(hashfile(file_path_1), hashfile(file_path_2))
+
+
+class IsHiddenTest(TestCase):
+    @parameterized.expand([
+        (True, '.betty'),
+        (True, '.betty.log'),
+        (True, '/etc/.betty/betty'),
+        (True, '/etc/.betty/betty.log'),
+        (False, ''),
+        (False, '/'),
+        (False, 'betty'),
+        (False, 'betty.log'),
+        (False, 'betty/betty.log'),
+        (False, '/etc/betty.log'),
+    ])
+    def test(self, expected, path):
+        self.assertEquals(expected, is_hidden(path))
 
 
 class FileSystemTest(TestCase):

@@ -27,24 +27,18 @@ class NginxTest(TestCase):
 	root %s;
 	# The cache lifetime.
 	add_header Cache-Control "max-age=86400";
+        location / {
+            # Handle HTTP error responses.
+            error_page 401 /.error/401.html;
+            error_page 403 /.error/403.html;
+            error_page 404 /.error/404.html;
+            location /.error {
+                internal;
+            }
 
-	# Handle HTTP error responses.
-	error_page 401 /.error/401.html;
-	error_page 403 /.error/403.html;
-	error_page 404 /.error/404.html;
-	location /.error {
-		internal;
-	}
-
-	# When directories are requested, serve their index.html contents.
-	location / {
-		if ($request_method = OPTIONS) {
-			add_header Allow "OPTIONS, GET";
-			return 200;
-		}
-		index index.html;
-		try_files $uri $uri/ =404;
-	}
+            index index.html;
+            try_files $uri $uri/ =404;
+        }
 }''' % configuration.www_directory_path  # noqa: E101 W191
             with open(join(configuration.output_directory_path, 'nginx.conf')) as f:  # noqa: E101
                 self.assertEquals(expected, f.read())
@@ -68,29 +62,18 @@ class NginxTest(TestCase):
 	root %s;
 	# The cache lifetime.
 	add_header Cache-Control "max-age=86400";
+        location / {
+            # Handle HTTP error responses.
+            error_page 401 /.error/401.html;
+            error_page 403 /.error/403.html;
+            error_page 404 /.error/404.html;
+            location /.error {
+                internal;
+            }
 
-	# Handle HTTP error responses.
-	error_page 401 /.error/401.html;
-	error_page 403 /.error/403.html;
-	error_page 404 /.error/404.html;
-	location /.error {
-		internal;
-	}
-
-	# Redirect */index.html to their parent directories for clean URLs.
-	if ($request_uri ~ "^(.*)/index\.html$") {
-		return 301 $1;
-	}
-
-	# When directories are requested, serve their index.html contents.
-	location / {
-		if ($request_method = OPTIONS) {
-			add_header Allow "OPTIONS, GET";
-			return 200;
-		}
-		index index.html;
-		try_files $uri $uri/ =404;
-	}
+            index index.html;
+            try_files $uri $uri/ =404;
+        }
 }''' % configuration.www_directory_path  # noqa: E101 W191
             with open(join(configuration.output_directory_path, 'nginx.conf')) as f:  # noqa: E101
                 self.assertEquals(expected, f.read())
@@ -117,33 +100,25 @@ class NginxTest(TestCase):
 	root %s;
 	# The cache lifetime.
 	add_header Cache-Control "max-age=86400";
+        location ~ ^/(en|nl)(/|$) {
+            # Handle HTTP error responses.
+            set $locale $1;
+            error_page 401 /$locale/.error/401.html;
+            error_page 403 /$locale/.error/403.html;
+            error_page 404 /$locale/.error/404.html;
+            location ~ ^/$locale/\.error {
+                internal;
+            }
 
-	# Handle HTTP error responses.
-	error_page 401 /.error/401.html;
-	error_page 403 /.error/403.html;
-	error_page 404 /.error/404.html;
-	location /.error {
-		internal;
-	}
-
-    # Redirect requests that aren't for a specific language to the default language.
-    location ~ ^/[^en|nl]/ {
-        set $localized_uri en/$uri;
-        if (-f $localized_uri) {
-            break;
+            index index.html;
+            try_files $uri $uri/ =404;
         }
-        return 301 /$localized_uri;
-    }
-
-	# When directories are requested, serve their index.html contents.
-	location / {
-		if ($request_method = OPTIONS) {
-			add_header Allow "OPTIONS, GET";
-			return 200;
-		}
-		index index.html;
-		try_files $uri $uri/ =404;
-	}
+        location @localized_redirect {
+            return 307 /en$uri;
+        }
+        location / {
+            try_files $uri @localized_redirect;
+        }
 }''' % configuration.www_directory_path  # noqa: E101 W191
             with open(join(configuration.output_directory_path, 'nginx.conf')) as f:  # noqa: E101
                 self.assertEquals(expected, f.read())
