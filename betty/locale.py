@@ -82,7 +82,7 @@ def negotiate_localizeds(preferred_locale: str, localizeds: Iterable[Localized])
 
 def open_translations(locale: str, directory_path: str) -> Optional[gettext.GNUTranslations]:
     try:
-        with open(os.path.join(directory_path, 'locale', locale, 'LC_MESSAGES', 'betty.mo'), 'rb') as f:
+        with open(os.path.join(directory_path, 'locale', locale.replace('-', '_'), 'LC_MESSAGES', 'betty.mo'), 'rb') as f:
             return gettext.GNUTranslations(f)
     except FileNotFoundError:
         return None

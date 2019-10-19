@@ -4,7 +4,7 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
-locale="$1"
+locale=$(echo "$1" | tr '-' '_')
 
 if [ -f "./betty/resources/locale/$locale/LC_MESSAGES/betty.po" ]; then
   exit 0
