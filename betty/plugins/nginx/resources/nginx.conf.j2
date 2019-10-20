@@ -22,7 +22,7 @@ server {
             try_files $uri $uri/ =404;
         }
         location @localized_redirect {
-            return 307 /{{ site.configuration.locales[site.configuration.default_locale].alias }}$uri;
+            return 301 /{{ site.configuration.locales[site.configuration.default_locale].alias }}$uri;
         }
         location / {
             try_files $uri @localized_redirect;
