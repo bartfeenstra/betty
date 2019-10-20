@@ -1,6 +1,7 @@
 #search {
   float: left;
-  max-width: calc(50% - 3rem);
+  max-width: calc(100% - 9rem);
+  width: 30rem;
 }
 
 #search-query {
@@ -14,6 +15,7 @@
 }
 
 #search-query:focus {
+  border-color: #777;
   color: #000;
 }
 
@@ -23,8 +25,17 @@
 
 #search-instructions {
   color: #777;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
 #search-instructions kbd {
   color: #000;
+}
+
+@media (min-width: 768px) {
+  #search-instructions {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
 }
