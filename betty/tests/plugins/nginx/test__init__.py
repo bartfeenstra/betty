@@ -114,7 +114,7 @@ class NginxTest(TestCase):
             try_files $uri $uri/ =404;
         }
         location @localized_redirect {
-            return 307 /en$uri;
+            return 301 /en$uri;
         }
         location / {
             try_files $uri @localized_redirect;
