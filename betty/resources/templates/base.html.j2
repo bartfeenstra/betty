@@ -19,6 +19,7 @@
                 {%- endif -%}
             {%- endif -%}
         {%- endfor -%}
+        <link rel="canonical" href="{{ resource | url(absolute=true) }}"/>
     {% endif %}
     <meta name="og:image" content="/betty-512x512.png"/>
     <link rel="stylesheet" href="{{ '/betty.css' | static_url }}"/>
