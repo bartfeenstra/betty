@@ -38,6 +38,11 @@ matrix:
           env:
               - NODE_VERSION=12
 
+addons:
+  apt:
+    packages:
+      - jq
+
 cache:
     pip: true
     npm: true
