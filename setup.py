@@ -43,6 +43,7 @@ SETUP = {
         'markupsafe ~= 1.1.1',
         'python-resize-image ~= 1.1.18',
         'pyyaml ~= 5.1.2',
+        'requests ~= 2.22.0',
         'voluptuous ~= 0.11.7',
     ],
     'extras_require': {
