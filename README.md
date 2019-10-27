@@ -75,7 +75,7 @@ plugins:
     file: ./gramps.gpkg
   betty.plugins.maps.Maps: {}
   betty.plugins.nginx.Nginx:
-    lua: true
+    content_negotiation: true
   betty.plugins.privatizer.Privatizer: {}
   betty.plugins.search.Search: {}
   betty.plugins.trees.Trees: {}
