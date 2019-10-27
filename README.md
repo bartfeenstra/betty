@@ -74,7 +74,8 @@ plugins:
   betty.plugins.gramps.Gramps:
     file: ./gramps.gpkg
   betty.plugins.maps.Maps: {}
-  betty.plugins.nginx.Nginx: {}
+  betty.plugins.nginx.Nginx:
+    lua: true
   betty.plugins.privatizer.Privatizer: {}
   betty.plugins.search.Search: {}
   betty.plugins.trees.Trees: {}
@@ -89,7 +90,7 @@ plugins:
     - `locale`(required): An [IETF BCP 47](https://tools.ietf.org/html/bcp47) language tag.
     - `alias` (optional): A shorthand alias to use instead of the full language tag, such as when rendering URLs.
 
-  If no locales are defined, Betty defaults to US English.
+    If no locales are defined, Betty defaults to US English.
 - `resources` (optional); The path to a directory containing overrides for any of Betty's [resources](./betty/resources).
 - `plugins` (optional): The plugins to enable. Keys are plugin names, and values are objects containing each plugin's configuration.
     - `betty.plugin.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `{}`.
@@ -97,7 +98,14 @@ plugins:
     - `betty.plugin.gramps.Gramps`: Parses a Gramps genealogy. Configuration:
         - `file`: the path to the *Gramps XML* or *Gramps XML Package* file.
     - `betty.plugin.maps.Maps`: Renders interactive maps using [Leaflet](https://leafletjs.com/).
-    - `betty.plugin.nginx.Nginx`: Creates an [nginx](https://nginx.org) configuration file in the output directory . Configuration: `{}`.
+    - `betty.plugin.nginx.Nginx`: Creates an [nginx](https://nginx.org) configuration file in the output directory.
+        Configuration: `{}`.
+        - `content_negotiation` (optional, defaults to `false`): Enables dynamic content negotiation. You must make sure
+            the nginx [Lua module](https://github.com/openresty/lua-nginx-module#readme) is enabled, and
+            [CONE](https://github.com/bartfeenstra/cone)'s
+            [cone.lua](https://raw.githubusercontent.com/bartfeenstra/cone/master/cone.lua) can be found by putting it
+            in nginx's [lua_package_path](https://github.com/openresty/lua-nginx-module#lua_package_path). Content
+            negotiation allows Betty to respond with your users' preferred locales.
     - `betty.plugin.privatizer.Privatizer`: Marks living people private. Configuration: `{}`.
     - `betty.plugin.search.Search`: Allows users to search through content.
     - `betty.plugin.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
@@ -124,6 +132,7 @@ First, [fork and clone](https://guides.github.com/activities/forking/) the repos
 
 ### Requirements
 - The installation requirements documented earlier.
+- [Docker](https://www.docker.com/)
 - [jq](https://stedolan.github.io/jq/)
 - Bash (you're all good if `which bash` outputs a path in your terminal)
 

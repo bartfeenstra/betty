@@ -22,7 +22,20 @@ server {
             try_files $uri $uri/ =404;
         }
         location @localized_redirect {
-            return 301 /{{ site.configuration.locales[site.configuration.default_locale].alias }}$uri;
+            {%- if plugins['betty.plugins.nginx.Nginx'].content_negotiation %}
+                set_by_lua_block $locale_alias {
+                    local available_locales = {'{{ site.configuration.locales | join("', '") }}'}
+                    local locale_aliases = {}
+                    {%- for locale in site.configuration.locales %}
+                        locale_aliases['{{ locale }}'] = '{{ site.configuration.locales[locale].alias }}'
+                    {%- endfor %}
+                    local locale = require('cone').negotiate(ngx.req.get_headers()['Accept-Language'], available_locales)
+                    return locale_aliases[locale]
+                }
+            {%- else %}
+                set $locale_alias {{ site.configuration.locales[site.configuration.default_locale].alias }};
+            {%- endif %}
+            return 301 /$locale_alias$uri;
         }
         location / {
             try_files $uri @localized_redirect;
