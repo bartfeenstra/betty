@@ -1,9 +1,11 @@
 from enum import Enum
 from functools import total_ordering
 from os.path import splitext, basename
-from typing import Dict, Optional, List, Iterable, Tuple, Set
+from typing import Dict, Optional, List, Iterable, Set
 
 from geopy import Point
+
+from betty.locale import Date, Localized
 
 
 class EventHandlingSet:
@@ -45,46 +47,6 @@ class EventHandlingSet:
 
     def __len__(self):
         return len(self._values)
-
-
-@total_ordering
-class Date:
-    def __init__(self, year: Optional[int] = None, month: Optional[int] = None, day: Optional[int] = None):
-        self._year = year
-        self._month = month
-        self._day = day
-
-    @property
-    def year(self) -> Optional[int]:
-        return self._year
-
-    @property
-    def month(self) -> Optional[int]:
-        return self._month
-
-    @property
-    def day(self) -> Optional[int]:
-        return self._day
-
-    @property
-    def complete(self) -> bool:
-        return self._year is not None and self._month is not None and self._day is not None
-
-    @property
-    def parts(self) -> Tuple[Optional[int], Optional[int], Optional[int]]:
-        return self._year, self._month, self._day
-
-    def __eq__(self, other):
-        if not isinstance(other, Date):
-            return NotImplemented
-        return self.parts == other.parts
-
-    def __lt__(self, other):
-        if not isinstance(other, Date):
-            return NotImplemented
-        if None in self.parts or None in other.parts:
-            return NotImplemented
-        return self.parts < other.parts
 
 
 class Dated:
@@ -220,9 +182,10 @@ class HasFiles:
         self._files.replace(files)
 
 
-class Source(Identifiable, Dated, HasLinks):
+class Source(Identifiable, Dated, HasFiles, HasLinks):
     def __init__(self, source_id: str, name: str):
         Identifiable.__init__(self, source_id)
+        HasFiles.__init__(self)
         HasLinks.__init__(self)
         self._name = name
         self._contained_by = None
@@ -324,11 +287,33 @@ class HasCitations:
         self._citations.replace(citations)
 
 
+class LocalizedName(Localized):
+    def __init__(self, name: str, locale: Optional[str] = None):
+        Localized.__init__(self)
+        self._name = name
+        self.locale = locale
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return self._name == other._name and self._locale == other._locale
+
+    def __repr__(self):
+        return '%s(%s, %s)' % (type(self).__name__, self._name, self._locale.__repr__())
+
+    def __str__(self):
+        return self._name
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+
 class Place(Identifiable, HasLinks):
-    def __init__(self, place_id: str, name: str):
+    def __init__(self, place_id: str, names: List[LocalizedName]):
         Identifiable.__init__(self, place_id)
         HasLinks.__init__(self)
-        self._name = name
+        self._names = names
         self._coordinates = None
 
         def handle_event_addition(event: Event):
@@ -351,8 +336,8 @@ class Place(Identifiable, HasLinks):
             handle_encloses_addition, handle_encloses_removal)
 
     @property
-    def name(self) -> str:
-        return self._name
+    def names(self) -> List[LocalizedName]:
+        return self._names
 
     @property
     def coordinates(self) -> Point:
@@ -544,7 +529,7 @@ class FamilyName:
 
 @total_ordering
 class Name(HasCitations):
-    def __init__(self, individual: IndividualName = '', family: FamilyName = ''):
+    def __init__(self, individual: Optional[IndividualName] = None, family: Optional[FamilyName] = None):
         HasCitations.__init__(self)
         self._individual = individual
         self._family = family
@@ -627,17 +612,19 @@ class Person(Identifiable, HasFiles, HasCitations, HasLinks):
         self._presences.replace(presences)
 
     @property
-    def birth(self) -> Optional[Event]:
-        for presence in self.presences:
-            if presence.event.type == Event.Type.BIRTH and presence.role == Presence.Role.SUBJECT:
-                return presence.event
+    def start(self) -> Optional[Event]:
+        for event_type in [Event.Type.BIRTH, Event.Type.BAPTISM]:
+            for presence in self.presences:
+                if presence.event.type == event_type and presence.role == Presence.Role.SUBJECT:
+                    return presence.event
         return None
 
     @property
-    def death(self) -> Optional[Event]:
-        for presence in self.presences:
-            if presence.event.type == Event.Type.DEATH and presence.role == Presence.Role.SUBJECT:
-                return presence.event
+    def end(self) -> Optional[Event]:
+        for event_type in [Event.Type.DEATH, Event.Type.BURIAL]:
+            for presence in self.presences:
+                if presence.event.type == event_type and presence.role == Presence.Role.SUBJECT:
+                    return presence.event
         return None
 
     @property

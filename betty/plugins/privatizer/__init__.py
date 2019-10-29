@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Tuple, Callable
 
-from betty.ancestry import Ancestry, Person, Event
+from betty.ancestry import Ancestry, Person, Event, Presence
 from betty.functools import walk
 from betty.parse import PostParseEvent
 from betty.plugin import Plugin
@@ -29,7 +29,7 @@ class Privatizer(Plugin):
 
     def _person_is_private(self, person: Person) -> bool:
         # A dead person is not private, regardless of when they died.
-        if person.death is not None:
+        if len([presence for presence in person.presences if presence.event.type == Event.Type.DEATH and presence.role == Presence.Role.SUBJECT]) > 0:
             return False
 
         if self._person_has_expired(person, 1):

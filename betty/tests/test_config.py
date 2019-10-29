@@ -1,14 +1,42 @@
-from json import dumps
+import json
+from collections import OrderedDict
 from os import getcwd
 from os.path import join
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import Any, Dict
 from unittest import TestCase
 
+import yaml
 from parameterized import parameterized
 
-from betty.config import from_file, Configuration
+from betty.config import from_file, Configuration, ConfigurationError, LocaleConfiguration
 from betty.plugin import Plugin
+
+
+class LocaleConfigurationTest(TestCase):
+    def test_locale(self):
+        locale = 'nl-NL'
+        sut = LocaleConfiguration(locale)
+        self.assertEquals(locale, sut.locale)
+
+    def test_alias_implicit(self):
+        locale = 'nl-NL'
+        sut = LocaleConfiguration(locale)
+        self.assertEquals(locale, sut.alias)
+
+    def test_alias_explicit(self):
+        locale = 'nl-NL'
+        alias = 'nl'
+        sut = LocaleConfiguration(locale, alias)
+        self.assertEquals(alias, sut.alias)
+
+    @parameterized.expand([
+        (False, LocaleConfiguration('nl', 'NL'), 'not a locale configuration'),
+        (False, LocaleConfiguration('nl', 'NL'), 999),
+        (False, LocaleConfiguration('nl', 'NL'), object()),
+    ])
+    def test_eq(self, expected, sut, other):
+        self.assertEquals(expected, sut == other)
 
 
 class ConfigurationTest(TestCase):
@@ -81,17 +109,22 @@ class FromTest(TestCase):
         'base_url': 'https://example.com',
     }
 
-    def _writes(self, config: str):
-        f = NamedTemporaryFile(mode='r+')
+    def _writes(self, config: str, extension: str):
+        f = NamedTemporaryFile(mode='r+', suffix='.' + extension)
         f.write(config)
         f.seek(0)
         return f
 
     def _write(self, config_dict: Dict[str, Any]):
-        return self._writes(dumps(config_dict))
+        return self._writes(json.dumps(config_dict), 'json')
 
-    def test_from_file_should_parse_minimal(self):
-        with self._write(self._MINIMAL_CONFIG_DICT) as f:
+    @parameterized.expand([
+        ('json', json.dumps),
+        ('yaml', yaml.safe_dump),
+        ('yml', yaml.safe_dump),
+    ])
+    def test_from_file_should_parse_minimal(self, extension, dumper):
+        with self._writes(dumper(self._MINIMAL_CONFIG_DICT), extension) as f:
             configuration = from_file(f)
         self.assertEquals(
             self._MINIMAL_CONFIG_DICT['output'], configuration.output_directory_path)
@@ -109,6 +142,34 @@ class FromTest(TestCase):
         with self._write(config_dict) as f:
             configuration = from_file(f)
             self.assertEquals(title, configuration.title)
+
+    def test_from_file_should_parse_locale_locale(self):
+        locale = 'nl-NL'
+        locale_config = {
+            'locale': locale,
+        }
+        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
+        config_dict['locales'] = [locale_config]
+        with self._write(config_dict) as f:
+            configuration = from_file(f)
+            self.assertDictEqual(OrderedDict({
+                locale: LocaleConfiguration(locale),
+            }), configuration.locales)
+
+    def test_from_file_should_parse_locale_alias(self):
+        locale = 'nl-NL'
+        alias = 'nl'
+        locale_config = {
+            'locale': locale,
+            'alias': alias,
+        }
+        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
+        config_dict['locales'] = [locale_config]
+        with self._write(config_dict) as f:
+            configuration = from_file(f)
+            self.assertDictEqual(OrderedDict({
+                locale: LocaleConfiguration(locale, alias),
+            }), configuration.locales)
 
     def test_from_file_should_root_path(self):
         configured_root_path = '/betty'
@@ -139,13 +200,13 @@ class FromTest(TestCase):
             self.assertEquals(mode, configuration.mode)
 
     def test_from_file_should_parse_resources_directory_path(self):
-        resources_directory_path = '/tmp/betty'
-        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['resources'] = resources_directory_path
-        with self._write(config_dict) as f:
-            configuration = from_file(f)
-            self.assertEquals(resources_directory_path,
-                              configuration.resources_directory_path)
+        with TemporaryDirectory() as resources_directory_path:
+            config_dict = dict(**self._MINIMAL_CONFIG_DICT)
+            config_dict['resources'] = resources_directory_path
+            with self._write(config_dict) as f:
+                configuration = from_file(f)
+                self.assertEquals(resources_directory_path,
+                                  configuration.resources_directory_path)
 
     def test_from_file_should_parse_one_plugin_with_configuration(self):
         config_dict = dict(**self._MINIMAL_CONFIG_DICT)
@@ -192,13 +253,23 @@ class FromTest(TestCase):
             with self.assertRaises(AttributeError):
                 from_file(f)
 
+    def test_from_file_should_error_unknown_format(self):
+        with self._writes('', 'abc') as f:
+            with self.assertRaises(ConfigurationError):
+                from_file(f)
+
     def test_from_file_should_error_if_invalid_json(self):
-        with self._writes('') as f:
-            with self.assertRaises(ValueError):
+        with self._writes('', 'json') as f:
+            with self.assertRaises(ConfigurationError):
+                from_file(f)
+
+    def test_from_file_should_error_if_invalid_yaml(self):
+        with self._writes('"foo', 'yaml') as f:
+            with self.assertRaises(ConfigurationError):
                 from_file(f)
 
     def test_from_file_should_error_if_invalid_config(self):
         config_dict = {}
         with self._write(config_dict) as f:
-            with self.assertRaises(ValueError):
+            with self.assertRaises(ConfigurationError):
                 from_file(f)

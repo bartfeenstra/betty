@@ -4,16 +4,25 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
+trap tear_down INT TERM EXIT
+
+working_directory_path=$(mktemp -d)
+
+function tear_down() {
+    docker stop betty-test-nginx 1>/dev/null || true
+    rm -r "$working_directory_path"
+}
+
 # Lint the shell scripts.
 for file in ./bin/*; do
     shellcheck -x "$file"
 done
 
 # Test the Python code style.
-flake8 --ignore=E501 ./betty
+flake8 --config ./flake8.ini ./betty
 
 # Test the CSS code style.
-./node_modules/.bin/stylelint "./**/*.css"
+./node_modules/.bin/stylelint "./**/*.css" "./**/*.sass" "./**/*.scss"
 
 # Test the JS code style.
 ./node_modules/.bin/eslint "./**/*.js"
@@ -22,3 +31,83 @@ flake8 --ignore=E501 ./betty
 coverage erase
 coverage run -m nose2
 coverage report -m
+
+# Prepare the nginx integration tests.
+nginx_working_directory_path="$working_directory_path/nginx"
+mkdir "$nginx_working_directory_path"
+nginx_output_directory_path="$nginx_working_directory_path/output"
+docker build -t betty-test-nginx ./betty/tests/resources/nginx
+
+# Test the monolingual Nginx configuration.
+jq --arg OUTPUT_DIRECTORY_PATH "$nginx_output_directory_path" '. + {"output": $OUTPUT_DIRECTORY_PATH}' ./betty/tests/resources/nginx/betty-monolingual.json > "$nginx_working_directory_path/betty.json"
+betty -c "$nginx_working_directory_path/betty.json" generate
+nginx_conf_path="$nginx_output_directory_path/nginx.conf"
+nginx_conf=$(cat "$nginx_conf_path")
+echo "$nginx_conf" | awk '{if($1 == "root") {print "root /var/www/betty/;"} else {print $0}}' > "$nginx_conf_path"
+docker run --rm --name betty-test-nginx -d -v "$nginx_conf_path:/etc/nginx/conf.d/betty.conf:ro" -v "$nginx_output_directory_path/www:/var/www/betty:ro" betty-test-nginx 1>/dev/null
+nginx_container_address=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' betty-test-nginx)
+# Test the front page.
+if [[ $(curl -s -o /dev/null -w "%{http_code}" "$nginx_container_address:80") -eq 200 ]]; then
+    echo 'SUCCESS: A request to the front page returns an HTTP 200 response.'
+else
+    echo 'ERROR: A request to the front page does not return an HTTP 200 response.'
+    exit 1
+fi
+# Test HTTP 404 errors.
+if [[ $(curl -s -o /dev/null -w "%{http_code}" "$nginx_container_address:80/non-existent") -eq 404 ]]; then
+    echo 'SUCCESS: A request to a non-existent path returns an HTTP 404 response.'
+else
+    echo 'ERROR: A request to a non-existent path does not return an HTTP 404 response.'
+    exit 1
+fi
+docker stop betty-test-nginx 1>/dev/null
+
+# Test the multilingual Nginx configuration.
+jq --arg OUTPUT_DIRECTORY_PATH "$nginx_output_directory_path" '. + {"output": $OUTPUT_DIRECTORY_PATH}' ./betty/tests/resources/nginx/betty-multilingual.json > "$nginx_working_directory_path/betty.json"
+betty -c "$nginx_working_directory_path/betty.json" generate
+nginx_conf_path="$nginx_output_directory_path/nginx.conf"
+nginx_conf=$(cat "$nginx_conf_path")
+echo "$nginx_conf" | awk '{if($1 == "root") {print "root /var/www/betty/;"} else {print $0}}' > "$nginx_conf_path"
+docker run --rm --name betty-test-nginx -d -v "$nginx_conf_path:/etc/nginx/conf.d/betty.conf:ro" -v "$nginx_output_directory_path/www:/var/www/betty:ro" betty-test-nginx 1>/dev/null
+nginx_container_address=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' betty-test-nginx)
+# Test the redirect to the localized front page.
+if [[ $(curl -s -o /dev/null -L -w "%{http_code} %{url_effective}" "$nginx_container_address:80") == "200 http://$nginx_container_address/en/" ]]; then
+    echo 'SUCCESS: A request to the base URL redirects to the localized front page.'
+else
+    echo "$nginx_conf_path"
+    cat "$nginx_conf_path"
+    echo 'ERROR: A request to the base URL does not redirect to the localized front page.'
+    exit 1
+fi
+# Test HTTP 404 errors.
+if [[ $(curl -s -o /dev/null -w "%{http_code}" "$nginx_container_address:80/nl/non-existent") -eq 404 ]]; then
+    echo 'SUCCESS: A request to a non-existent path returns a localized HTTP 404 response.'
+else
+    echo 'ERROR: A request to a non-existent path does not return a localized HTTP 404 response.'
+    exit 1
+fi
+docker stop betty-test-nginx 1>/dev/null
+
+# Test the multilingual Nginx configuration with Lua enabled.
+jq --arg OUTPUT_DIRECTORY_PATH "$nginx_output_directory_path" '. + {"output": $OUTPUT_DIRECTORY_PATH}' ./betty/tests/resources/nginx/betty-multilingual-content-negotiation.json > "$nginx_working_directory_path/betty.json"
+betty -c "$nginx_working_directory_path/betty.json" generate
+nginx_conf_path="$nginx_output_directory_path/nginx.conf"
+nginx_conf=$(cat "$nginx_conf_path")
+echo "$nginx_conf" | awk '{if($1 == "root") {print "root /var/www/betty/;"} else {print $0}}' > "$nginx_conf_path"
+docker run --rm --name betty-test-nginx -d -v "$nginx_conf_path:/etc/nginx/conf.d/betty.conf:ro" -v "$nginx_output_directory_path/www:/var/www/betty:ro" betty-test-nginx 1>/dev/null
+nginx_container_address=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' betty-test-nginx)
+# Test the redirect to the localized front page.
+if [[ $(curl -s -o /dev/null -L -w "%{http_code} %{url_effective}" -H 'Accept-Language: nl-NL' "$nginx_container_address:80") == "200 http://$nginx_container_address/nl/" ]]; then
+    echo 'SUCCESS: A request to the base URL redirects to the negotiated localized front page.'
+else
+    echo 'ERROR: A request to the base URL does not redirect to the negotiated localized front page.'
+    exit 1
+fi
+# Test HTTP 404 errors.
+if [[ $(curl -s -o /dev/null -w "%{http_code}" "$nginx_container_address:80/nl/non-existent") -eq 404 ]]; then
+    echo 'SUCCESS: A request to a non-existent path returns a negotiated localized HTTP 404 response.'
+else
+    echo 'ERROR: A request to a non-existent path does not return a negotiated localized HTTP 404 response.'
+    exit 1
+fi
+docker stop betty-test-nginx 1>/dev/null

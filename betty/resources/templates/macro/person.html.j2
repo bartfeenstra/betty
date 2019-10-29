@@ -1,6 +1,6 @@
 {% macro label(person, context=None) %}
     {%- if context != person -%}
-        <a href="{{ ('/person/' ~ person.id) | url }}">
+        <a href="{{ person | url }}">
     {%- endif -%}
     {%- if person.private -%}
         <span class="private" title="This person's details are unavailable to protect their privacy.">private</span>
@@ -27,7 +27,7 @@
 
 {% macro sortableLabel(person, link=True) %}
     {%- if link -%}
-        <a href="{{ ('/person/' ~ person.id) | url }}">
+        <a href="{{ person | url }}">
     {%- endif -%}
     {%- if person.private -%}
         <span class="private" title="This person's details are unavailable to protect their privacy.">private</span>

@@ -1,7 +1,8 @@
-{% import 'macro/person.html.j2' as personMacros %}
+{%- import 'macro/event.html.j2' as eventMacros -%}
+{%- import 'macro/person.html.j2' as personMacros -%}
 <div class="meta">
     {%- if person.private -%}
-        <p>This person's details are unavailable to protect their privacy.</p>
+        <p>{{ _('This person\'s details are unavailable to protect their privacy.') }}</p>
     {%- else -%}
         {%- if person.alternative_names | length > 0 -%}
 
@@ -9,25 +10,25 @@
 
             <span class="aka">Also known as {{ person.alternative_names | map(personMacros.nameLabel) | join(', ') }}</span>
         {%- endif -%}
-        {%- if person.birth or person.death %}
+        {%- if person.start or person.end %}
             <dl>
-                {%- if person.birth %}
-                    <dt>Birth</dt>
+                {%- if person.start %}
+                    <dt>{{ eventMacros.type_label(person.start) }}</dt>
                     <dd>
-                        {%- with event=person.birth -%}
+                        {%- with event=person.start -%}
                             {% include 'event-dimensions.html.j2' %}
                         {%- endwith -%}
                     </dd>
                 {%- endif %}
-                {%- if person.death %}
-                    <dt>Death</dt>
+                {%- if person.end %}
+                    <dt>{{ eventMacros.type_label(person.end) }}</dt>
                     <dd>
-                        {%- with event=person.death -%}
+                        {%- with event=person.end -%}
                             {% include 'event-dimensions.html.j2' %}
                         {%- endwith -%}
                     </dd>
                 {%- endif %}
             </dl>
-        {%- endif -%}
+        {%- endif %}
     {%- endif %}
 </div>

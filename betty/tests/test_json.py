@@ -4,7 +4,7 @@ from unittest import TestCase
 from geopy import Point
 from parameterized import parameterized
 
-from betty.ancestry import Place, Ancestry, Person
+from betty.ancestry import Place, Ancestry, Person, LocalizedName
 from betty.json import JSONEncoder
 
 
@@ -36,24 +36,34 @@ class JSONEncoderTest(TestCase):
     def test_place_should_encode_minimal(self):
         place_id = 'the_place'
         name = 'The Place'
-        place = Place(place_id, name)
+        place = Place(place_id, [LocalizedName(name)])
         expected = {
             'id': place_id,
-            'name': name,
+            'names': [
+                {
+                    'name': name,
+                },
+            ],
         }
         self.assert_encodes(expected, place)
 
     def test_place_should_encode_full(self):
         place_id = 'the_place'
         name = 'The Place'
+        locale = 'nl-NL'
         latitude = 12.345
         longitude = -54.321
         coordinates = Point(latitude, longitude)
-        place = Place(place_id, name)
+        place = Place(place_id, [LocalizedName(name, locale)])
         place.coordinates = coordinates
         expected = {
             'id': place_id,
-            'name': name,
+            'names': [
+                {
+                    'name': name,
+                    'locale': 'nl-NL',
+                },
+            ],
             'coordinates': {
                 'latitude': latitude,
                 'longitude': longitude,
@@ -112,7 +122,8 @@ class JSONEncoderTest(TestCase):
 
         place_id = 'the_place'
         place_name = 'The Place'
-        place = Place(place_id, place_name)
+        place_name_locale = 'nl-NL'
+        place = Place(place_id, [LocalizedName(place_name, place_name_locale)])
         ancestry.places[place_id] = place
 
         person_id = 'the_person'
@@ -125,7 +136,12 @@ class JSONEncoderTest(TestCase):
             'places': {
                 place_id: {
                     'id': place_id,
-                    'name': place_name,
+                    'names': [
+                        {
+                            'name': place_name,
+                            'locale': 'nl-NL',
+                        },
+                    ],
                 },
             },
             'people': {

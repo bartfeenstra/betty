@@ -43,7 +43,10 @@ class ParseXmlFileTestCase(TestCase):
 
     def test_place_should_include_name(self):
         place = self.ancestry.places['P0000']
-        self.assertEquals('Amsterdam', place.name)
+        names = place.names
+        self.assertEquals(1, len(names))
+        name = names[0]
+        self.assertEquals('Amsterdam', name.name)
 
     def test_place_should_include_coordinates(self):
         place = self.ancestry.places['P0000']
@@ -70,11 +73,11 @@ class ParseXmlFileTestCase(TestCase):
 
     def test_person_should_include_birth(self):
         person = self.ancestry.people['I0000']
-        self.assertEquals('E0000', person.birth.id)
+        self.assertEquals('E0000', person.start.id)
 
     def test_person_should_include_death(self):
         person = self.ancestry.people['I0003']
-        self.assertEquals('E0002', person.death.id)
+        self.assertEquals('E0002', person.end.id)
 
     def test_person_should_be_private(self):
         person = self.ancestry.people['I0003']

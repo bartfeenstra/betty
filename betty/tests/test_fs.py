@@ -4,7 +4,9 @@ from os.path import join, dirname
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from betty.fs import iterfiles, FileSystem, hashfile
+from parameterized import parameterized
+
+from betty.fs import iterfiles, FileSystem, hashfile, is_hidden
 
 
 class IterfilesTest(TestCase):
@@ -26,11 +28,34 @@ class IterfilesTest(TestCase):
 
 
 class HashfileTest(TestCase):
-    def test_hashfile(self):
+    def test_hashfile_with_identical_file(self):
         file_path = join(dirname(dirname(__file__)),
-                         'resources/public/betty-512x512.png')
-        self.assertEquals('699fbf62d4e694646151cb78eef2e146',
-                          hashfile(file_path))
+                         'resources', 'public', 'static', 'betty-16x16.png')
+        self.assertEquals(hashfile(file_path), hashfile(file_path))
+
+    def test_hashfile_with_different_files(self):
+        file_path_1 = join(dirname(dirname(__file__)),
+                           'resources', 'public', 'static', 'betty-16x16.png')
+        file_path_2 = join(dirname(dirname(__file__)),
+                           'resources', 'public', 'static', 'betty-512x512.png')
+        self.assertNotEquals(hashfile(file_path_1), hashfile(file_path_2))
+
+
+class IsHiddenTest(TestCase):
+    @parameterized.expand([
+        (True, '.betty'),
+        (True, '.betty.log'),
+        (True, '/etc/.betty/betty'),
+        (True, '/etc/.betty/betty.log'),
+        (False, ''),
+        (False, '/'),
+        (False, 'betty'),
+        (False, 'betty.log'),
+        (False, 'betty/betty.log'),
+        (False, '/etc/betty.log'),
+    ])
+    def test(self, expected, path):
+        self.assertEquals(expected, is_hidden(path))
 
 
 class FileSystemTest(TestCase):

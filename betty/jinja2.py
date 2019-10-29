@@ -1,4 +1,3 @@
-import calendar
 import os
 import re
 from importlib import import_module
@@ -6,26 +5,28 @@ from itertools import takewhile
 from json import dumps
 from os.path import join, exists
 from shutil import copy2
-from typing import Union, Any, Dict, Type, Optional
+from typing import Union, Any, Dict, Type, Optional, Callable, Iterable
 from urllib.parse import urlparse
 
 from PIL import Image
+from babel import Locale
 from geopy import units
 from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter
-from jinja2.filters import prepare_map
+from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.runtime import Macro
 from markupsafe import Markup
 from resizeimage import resizeimage
 
 from betty.ancestry import File, Citation, Event, Presence
 from betty.config import Configuration
-from betty.fs import iterfiles, makedirs, hashfile
+from betty.fs import iterfiles, makedirs, hashfile, is_hidden
 from betty.functools import walk
 from betty.json import JSONEncoder
+from betty.locale import format_date, negotiate_localizeds, Localized
 from betty.plugin import Plugin
 from betty.site import Site
-
+from betty.url import LocalizedUrlGenerator, StaticPathUrlGenerator
 
 _root_loader = FileSystemLoader('/')
 
@@ -38,7 +39,10 @@ class _Plugins:
         return self._plugins[self._type(plugin_type_name)]
 
     def __contains__(self, plugin_type_name):
-        return self._type(plugin_type_name) in self._plugins
+        try:
+            return self._type(plugin_type_name) in self._plugins
+        except (ImportError, AttributeError):
+            return False
 
     def _type(self, plugin_type_name: str):
         plugin_module_name, plugin_class_name = plugin_type_name.rsplit('.', 1)
@@ -69,56 +73,90 @@ class _Citer:
 
 class Jinja2Provider:
     @property
-    def filters(self):
-        raise NotImplementedError
+    def globals(self) -> Dict[str, Callable]:
+        return {}
+
+    @property
+    def filters(self) -> Dict[str, Callable]:
+        return {}
 
 
-def create_environment(site: Site):
+def create_environment(site: Site, default_locale: Optional[str] = None) -> Environment:
+    if default_locale is None:
+        default_locale = site.configuration.default_locale
     template_directory_paths = list(
         [join(path, 'templates') for path in site.resources.paths])
     environment = Environment(
         loader=FileSystemLoader(template_directory_paths),
-        autoescape=select_autoescape(['html'])
+        autoescape=select_autoescape(['html']),
+        extensions=[
+            'jinja2.ext.do',
+            'jinja2.ext.i18n',
+        ]
     )
+    environment.install_gettext_translations(site.translations[default_locale])
     environment.globals['site'] = site
+    environment.globals['locale'] = default_locale
     environment.globals['plugins'] = _Plugins(site.plugins)
     environment.globals['EventType'] = Event.Type
     environment.globals['PresenceRole'] = Presence.Role
     environment.globals['urlparse'] = urlparse
-    environment.globals['calendar'] = calendar
     environment.filters['map'] = _filter_map
     environment.filters['flatten'] = _filter_flatten
     environment.filters['walk'] = _filter_walk
     environment.filters['takewhile'] = _filter_takewhile
+    environment.filters['locale_get_data'] = lambda locale: Locale.parse(
+        locale, '-')
+    environment.filters['negotiate_localizeds'] = lambda localizeds: negotiate_localizeds(
+        default_locale, localizeds)
+    environment.filters['sort_localizeds'] = contextfilter(
+        lambda context, *args, **kwargs: _filter_sort_localizeds(context, default_locale, *args, **kwargs))
     environment.filters['json'] = _filter_json
     environment.filters['paragraphs'] = _filter_paragraphs
+    environment.filters['format_date'] = lambda date: format_date(
+        date, default_locale, site.translations[default_locale])
     environment.filters['format_degrees'] = _filter_format_degrees
     environment.globals['citer'] = _Citer()
-    environment.filters['url'] = lambda *args, **kwargs: _filter_url(
-        site.configuration, *args, **kwargs)
-    environment.filters['file_url'] = lambda *args, **kwargs: _filter_file_url(
-        site.configuration, *args, **kwargs)
+    url_generator = LocalizedUrlGenerator(site.configuration)
+
+    def _filter_url(resource, locale=None, **kwargs):
+        return url_generator.generate(resource, locale=locale if locale else default_locale, **kwargs)
+    environment.filters['url'] = _filter_url
+    environment.filters['static_url'] = StaticPathUrlGenerator(
+        site.configuration).generate
     environment.filters['file'] = lambda *args: _filter_file(site, *args)
     environment.filters['image'] = lambda *args, **kwargs: _filter_image(
         site, *args, **kwargs)
     for plugin in site.plugins.values():
         if isinstance(plugin, Jinja2Provider):
+            environment.globals.update(plugin.globals)
             environment.filters.update(plugin.filters)
     return environment
 
 
-def render_tree(path: str, environment: Environment) -> None:
+def render_tree(path: str, environment: Environment, configuration: Optional[Configuration] = None) -> None:
     for file_source_path in iterfiles(path):
         if file_source_path.endswith('.j2'):
-            render_file(file_source_path, environment)
+            render_file(file_source_path, environment, configuration)
 
 
-def render_file(file_source_path: str, environment: Environment) -> None:
+def render_file(file_source_path: str, environment: Environment, configuration: Optional[Configuration] = None) -> None:
     file_destination_path = file_source_path[:-3]
+    data = {}
+    if configuration is not None:
+        if file_destination_path.startswith(configuration.www_directory_path) and not is_hidden(file_destination_path):
+            # Unix-style paths use forward slashes, so they are valid URL paths.
+            resource = file_destination_path[len(
+                configuration.www_directory_path):]
+            if configuration.multilingual:
+                resource_parts = resource.lstrip('/').split('/')
+                if resource_parts[0] in map(lambda x: x.alias, configuration.locales.values()):
+                    resource = '/'.join(resource_parts[1:])
+            data['resource'] = resource
     template = _root_loader.load(
         environment, file_source_path, environment.globals)
     with open(file_destination_path, 'w') as f:
-        f.write(template.render())
+        f.write(template.render(data))
     os.remove(file_source_path)
 
 
@@ -191,21 +229,6 @@ def _filter_takewhile(context, seq, *args, **kwargs):
         yield from takewhile(func, seq)
 
 
-def _filter_url(configuration: Configuration, path: str, absolute=False):
-    url = _filter_file_url(configuration, path, absolute)
-    if not configuration.clean_urls:
-        url += '/index.html'
-    return url
-
-
-def _filter_file_url(configuration: Configuration, path: str, absolute=False):
-    url = configuration.base_url if absolute else ''
-    path = (configuration.root_path.strip(
-        '/') + '/' + path.strip('/')).strip('/')
-    url += '/' + path
-    return url
-
-
 def _filter_file(site: Site, file: File) -> str:
     file_directory_path = os.path.join(
         site.configuration.www_directory_path, 'file')
@@ -269,3 +292,13 @@ def _filter_image(site: Site, file: File, width: Optional[int] = None, height: O
             copy2(cache_file_path, output_file_path)
 
     return destination_path
+
+
+def _filter_sort_localizeds(context, preferred_locale: str, localizeds: Iterable[Localized], localized_attribute: str, sort_attribute: str):
+    get_localized_attr = make_attrgetter(
+        context.environment, localized_attribute)
+    get_sort_attr = make_attrgetter(context.environment, sort_attribute)
+
+    def get_sort_key(x):
+        return get_sort_attr(negotiate_localizeds(preferred_locale, get_localized_attr(x)))
+    return sorted(localizeds, key=get_sort_key)

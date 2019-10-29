@@ -1,6 +1,6 @@
 {% if source.contained_by %}
-    <span class="meta">
+    <div class="meta">
     {% import 'macro/source.html.j2' as sourceMacros %}
     {{ sourceMacros.link(source.contained_by) }}
-    </span>
+    </div>
 {% endif %}

@@ -8,9 +8,11 @@ from typing import Tuple, Optional, Callable, List, Dict, Iterable
 from geopy import Point
 from lxml import etree
 from lxml.etree import XMLParser, Element
+from voluptuous import Schema, IsFile
 
-from betty.ancestry import Event, Place, Person, Ancestry, Date, Note, File, Link, Source, HasFiles, Citation, \
-    Presence, HasLinks, FamilyName, IndividualName, Name
+from betty.ancestry import Event, Place, Person, Ancestry, Date, Note, File, Link, Source, HasFiles, Citation, Name, \
+    IndividualName, FamilyName, Presence, LocalizedName, HasLinks
+from betty.config import validate_configuration
 from betty.fs import makedirs
 from betty.parse import ParseEvent
 from betty.plugin import Plugin
@@ -161,20 +163,24 @@ def _parse_person(ancestry: _IntermediateAncestry, element: Element):
     person = Person(str(_xpath1(element, './@id')))
     for name_element in _xpath(element, './ns:name'):
         is_alternative = _xpath1(name_element, './@alt') == '1'
-        individual_name = _xpath1(name_element, './ns:first').text
         nick_element = _xpath1(name_element, './ns:nick')
-        nick = nick_element.text if nick_element is not None else None
-        for surname_element in _xpath(name_element, './ns:surname'):
-            if not is_alternative:
-                is_alternative = _xpath1(surname_element, './@prim') == '0'
-            family_name = surname_element.text or ''
-            family_name_prefix = _xpath1(surname_element, './@prefix')
-            name = Name(IndividualName(individual_name, nick),
-                        FamilyName(family_name, family_name_prefix))
-            if is_alternative:
-                person.alternative_names.append(name)
-            else:
-                person.name = name
+        nick = '' if nick_element is None else nick_element.text
+        individual_name_element = _xpath1(name_element, './ns:first')
+        individual_name = None if individual_name_element is None else IndividualName(individual_name_element.text, nick)
+        surname_elements = _xpath(name_element, './ns:surname')
+        if surname_elements:
+            for surname_element in surname_elements:
+                if not is_alternative:
+                    is_alternative = _xpath1(surname_element, './@prim') == '0'
+                family_name_prefix = _xpath1(surname_element, './@prefix')
+                family_name = FamilyName(surname_element.text, family_name_prefix)
+                name = Name(individual_name, family_name)
+                if is_alternative:
+                    person.alternative_names.append(name)
+                else:
+                    person.name = name
+        elif individual_name:
+            person.name = Name(individual_name)
     person.presences = _parse_eventrefs(ancestry, element)
     if str(_xpath1(element, './@priv')) == '1':
         person.private = True
@@ -257,10 +263,14 @@ def _parse_places(ancestry: _IntermediateAncestry, database: Element):
 
 def _parse_place(element: Element) -> Tuple[str, _IntermediatePlace]:
     handle = _xpath1(element, './@handle')
-    properties = {
-        'name': _xpath1(element, './ns:pname/@value')
-    }
-    place = Place(_xpath1(element, './@id'), **properties)
+    names = []
+    for name_element in _xpath(element, './ns:pname'):
+        # The Gramps language is a single ISO language code, which is a valid BCP 47 locale.
+        language = _xpath1(name_element, './@lang')
+        names.append(
+            LocalizedName(str(_xpath1(name_element, './@value')), language))
+
+    place = Place(_xpath1(element, './@id'), names)
 
     coordinates = _parse_coordinates(element)
     if coordinates:
@@ -361,6 +371,7 @@ def _parse_source(ancestry: _IntermediateAncestry, element: Element) -> None:
     repository_source_handle = _xpath1(element, './ns:reporef/@hlink')
     if repository_source_handle is not None:
         source.contained_by = ancestry.sources[repository_source_handle]
+    _parse_objref(ancestry, source, element)
 
     ancestry.sources[handle] = source
 
@@ -402,6 +413,11 @@ def _parse_urls(owner: HasLinks, element: Element):
         owner.links.add(Link(uri, label))
 
 
+GrampsConfigurationSchema = Schema({
+    'file': IsFile(),
+})
+
+
 class Gramps(Plugin):
     def __init__(self, gramps_file_path: str, cache_directory_path: str):
         self._gramps_file_path = gramps_file_path
@@ -409,6 +425,7 @@ class Gramps(Plugin):
 
     @classmethod
     def from_configuration_dict(cls, site: Site, configuration: Dict):
+        validate_configuration(GrampsConfigurationSchema, configuration)
         return cls(configuration['file'], join(site.configuration.cache_directory_path, 'gramps'))
 
     def subscribes_to(self) -> List[Tuple[str, Callable]]:

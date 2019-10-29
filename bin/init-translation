@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+cd "$(dirname "$0")/.."
+
+locale=$(echo "$1" | tr '-' '_')
+
+if [ -f "./betty/resources/locale/$locale/LC_MESSAGES/betty.po" ]; then
+  exit 0
+fi
+
+pybabel init --no-wrap -d ./betty/resources/locale -l "$locale" -D betty -i ./betty.pot

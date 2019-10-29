@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 from parameterized import parameterized
 
-from betty.ancestry import EventHandlingSet, Person, Event, Place, Date, File, Note, Presence
+from betty.ancestry import EventHandlingSet, Person, Event, Place, Date, File, Note, Presence, LocalizedName
 
 
 class EventHandlingSetTest(TestCase):
@@ -104,7 +104,7 @@ class PersonTest(TestCase):
 
 class PlaceTest(TestCase):
     def test_events_should_sync_references(self):
-        sut = Place('1', 'one')
+        sut = Place('1', [LocalizedName('one')])
         event = Event('1', Event.Type.BIRTH)
         sut.events.add(event)
         self.assertIn(event, sut.events)
@@ -114,8 +114,8 @@ class PlaceTest(TestCase):
         self.assertEquals(None, event.place)
 
     def test_encloses_should_sync_references(self):
-        sut = Place('1', 'one')
-        enclosed_place = Place('2', 'two')
+        sut = Place('1', [LocalizedName('one')])
+        enclosed_place = Place('2', [LocalizedName('two')])
         sut.encloses.add(enclosed_place)
         self.assertIn(enclosed_place, sut.encloses)
         self.assertEquals(sut, enclosed_place.enclosed_by)
@@ -124,8 +124,8 @@ class PlaceTest(TestCase):
         self.assertEquals(None, enclosed_place.enclosed_by)
 
     def test_enclosed_by_should_sync_references(self):
-        sut = Place('1', 'one')
-        enclosing_place = Place('2', 'two')
+        sut = Place('1', [LocalizedName('one')])
+        enclosing_place = Place('2', [LocalizedName('two')])
         sut.enclosed_by = enclosing_place
         self.assertEquals(enclosing_place, sut.enclosed_by)
         self.assertIn(sut, enclosing_place.encloses)
@@ -148,7 +148,7 @@ class EventTest(TestCase):
         self.assertEquals(event_type, sut.type)
 
     def test_place_should_sync_references(self):
-        place = Place('1', 'one')
+        place = Place('1', [LocalizedName('one')])
         sut = Event('1', Event.Type.BIRTH)
         sut.place = place
         self.assertEquals(place, sut.place)
@@ -296,3 +296,25 @@ class FileTest(TestCase):
         notes = (Mock(Note), Mock(Note))
         sut.notes = notes
         self.assertCountEqual(notes, sut.notes)
+
+
+class LocalizedNameTest(TestCase):
+    @parameterized.expand([
+        (True, LocalizedName('Ikke'), LocalizedName('Ikke')),
+        (True, LocalizedName('Ikke', 'nl-NL'), LocalizedName('Ikke', 'nl-NL')),
+        (False, LocalizedName('Ikke', 'nl-NL'), LocalizedName('Ikke', 'nl-BE')),
+        (False, LocalizedName('Ikke', 'nl-NL'), LocalizedName('Ik', 'nl-NL')),
+        (False, LocalizedName('Ikke'), LocalizedName('Ik')),
+    ])
+    def test_eq(self, expected, a, b):
+        self.assertEquals(expected, a == b)
+
+    def test_str(self):
+        name = 'Ikke'
+        sut = LocalizedName(name)
+        self.assertEquals(name, str(sut))
+
+    def test_name(self):
+        name = 'Ikke'
+        sut = LocalizedName(name)
+        self.assertEquals(name, sut.name)

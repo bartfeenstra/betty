@@ -1,10 +1,11 @@
 import hashlib
 import json
-from os import makedirs
-from os.path import join, dirname
-from shutil import copy2, copytree, rmtree
+import shutil
+from os import path
+from os.path import dirname
 from subprocess import check_call
-from typing import Tuple, Dict, Iterable
+from tempfile import mkdtemp
+from typing import Tuple, Dict, Iterable, Optional
 
 from jinja2 import Environment
 
@@ -16,59 +17,94 @@ from betty.site import Site
 
 
 class JsPackageProvider:
-    @property
-    def package_directory_path(self) -> str:
-        raise NotImplementedError
+    pass
 
 
 class JsEntryPointProvider:
     pass
 
 
+class _NodeModulesBackup:
+    def __init__(self, package_path: str):
+        self._package_path = package_path
+
+    def __enter__(self):
+        self._tmp = mkdtemp()
+        try:
+            shutil.move(path.join(self._package_path,
+                                  'node_modules'), self._tmp)
+        except FileNotFoundError:
+            pass
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        try:
+            shutil.move(path.join(self._tmp, 'node_modules'),
+                        path.join(self._package_path, 'node_modules'))
+        except FileNotFoundError:
+            pass
+        shutil.rmtree(self._tmp)
+
+
+def betty_instance_id():
+    return hashlib.md5(betty.__path__[0].encode()).hexdigest()
+
+
 class Js(Plugin, JsPackageProvider):
     def __init__(self, file_system: FileSystem, plugins: Dict, www_directory_path: str, cache_directory_path: str):
-        betty_instance_id = hashlib.sha1(
-            betty.__path__[0].encode()).hexdigest()
-        self._directory_path = join(
-            cache_directory_path, 'js-%s' % betty_instance_id)
+        self._cache_directory_path = cache_directory_path
         self._file_system = file_system
         self._plugins = plugins
         self._www_directory_path = www_directory_path
 
     @classmethod
     def from_configuration_dict(cls, site: Site, configuration: Dict):
-        return cls(site.resources, site.plugins, site.configuration.www_directory_path, site.configuration.cache_directory_path)
+        return cls(site.resources, site.plugins, site.configuration.www_directory_path,
+                   site.configuration.cache_directory_path)
 
     def subscribes_to(self):
         return [
-            (PostRenderEvent, lambda event: self._build_instance_directory(
-                event.environment)),
-            (PostRenderEvent, lambda event: self._install()),
-            (PostRenderEvent, lambda event: self._webpack()),
+            (PostRenderEvent, lambda event: self._render(event.environment)),
         ]
 
-    def _build_instance_directory(self, environment: Environment) -> None:
-        # Remove an existing instance directory, if it exists.
-        try:
-            rmtree(self.directory_path)
-        except FileNotFoundError:
-            pass
+    @property
+    def resource_directory_path(self) -> Optional[str]:
+        return '%s/resources' % dirname(__file__)
+
+    def _render(self, environment: Environment) -> None:
+        js_plugins = list([plugin for plugin in self._plugins.values(
+        ) if isinstance(plugin, JsPackageProvider)])
+        js_plugin_names = [plugin.name() for plugin in js_plugins]
+        build_id = hashlib.md5(':'.join(js_plugin_names).encode()).hexdigest()
+        build_directory_path = path.join(
+            self._cache_directory_path, self.name(), betty_instance_id(), build_id)
+
+        # Build plugins' JavaScript assets.
         dependencies = {}
-        for plugin in self._plugins.values():
-            if isinstance(plugin, JsPackageProvider):
-                copytree(plugin.package_directory_path,
-                         join(self.directory_path, plugin.name()))
-                render_tree(join(self.directory_path,
-                                 plugin.name()), environment)
-                if not isinstance(plugin, self.__class__):
-                    dependencies[plugin.name()] = 'file:%s' % join(
-                        self.directory_path, plugin.name())
-                    with open(join(self.directory_path, plugin.name(), 'package.json'), 'r+') as package_json_f:
-                        package_json = json.load(package_json_f)
-                        package_json['name'] = plugin.name()
-                        package_json_f.seek(0)
-                        json.dump(package_json, package_json_f)
-        with open(join(self.directory_path, self.name(), 'package.json'), 'r+') as package_json_f:
+        for plugin in [self] + js_plugins:
+            plugin_build_directory_path = path.join(
+                build_directory_path, plugin.name())
+            with _NodeModulesBackup(plugin_build_directory_path):
+                try:
+                    shutil.rmtree(plugin_build_directory_path)
+                except FileNotFoundError:
+                    pass
+                shutil.copytree(path.join(plugin.resource_directory_path, 'js'),
+                                plugin_build_directory_path)
+            render_tree(plugin_build_directory_path, environment)
+            if not isinstance(plugin, self.__class__):
+                dependencies['%s' % plugin.name(
+                )] = 'file:%s' % plugin_build_directory_path
+                with open(path.join(plugin_build_directory_path, 'package.json'), 'r+') as package_json_f:
+                    package_json = json.load(package_json_f)
+                    package_json['name'] = plugin.name()
+                    package_json_f.seek(0)
+                    json.dump(package_json, package_json_f)
+
+        js_plugin_build_directory_path = path.join(
+            build_directory_path, self.name())
+
+        # Add dependencies to the JavaScript plugin.
+        with open(path.join(js_plugin_build_directory_path, 'package.json'), 'r+') as package_json_f:
             package_json = json.load(package_json_f)
             package_json['dependencies'].update(dependencies)
             package_json['scripts'] = {
@@ -77,43 +113,30 @@ class Js(Plugin, JsPackageProvider):
             package_json_f.seek(0)
             json.dump(package_json, package_json_f)
 
-    def _install(self) -> None:
-        makedirs(self.directory_path, 0o700, True)
+        # Install third-party dependencies.
         check_call(['npm', 'install', '--production'],
-                   cwd=join(self.directory_path, self.name()))
+                   cwd=js_plugin_build_directory_path)
 
-    def _webpack(self) -> None:
-        self._file_system.copy2(
-            join('public/betty.css'), join(self.directory_path, self.name(), 'betty.css'))
-
-        # Build the assets.
-        check_call(['npm', 'run', 'webpack'], cwd=join(
-            self.directory_path, self.name()))
-
-        # Move the Webpack output to the Betty output.
+        # Run Webpack.
+        self._file_system.copy2(path.join(self._www_directory_path, 'betty.css'), path.join(
+            js_plugin_build_directory_path, 'betty.css'))
+        check_call(['npm', 'run', 'webpack'],
+                   cwd=js_plugin_build_directory_path)
         try:
-            copytree(join(self.directory_path, 'output', 'images'),
-                     join(self._www_directory_path, 'images'))
+            shutil.copytree(path.join(build_directory_path, 'output', 'images'), path.join(
+                self._www_directory_path, 'images'))
         except FileNotFoundError:
             # There may not be any images.
             pass
-        copy2(join(self.directory_path, 'output', 'betty.css'),
-              join(self._www_directory_path, 'betty.css'))
-        copy2(join(self.directory_path, 'output', 'betty.js'),
-              join(self._www_directory_path, 'betty.js'))
-
-    @property
-    def directory_path(self):
-        return self._directory_path
+        shutil.copy2(path.join(build_directory_path, 'output', 'betty.css'), path.join(
+            self._www_directory_path, 'betty.css'))
+        shutil.copy2(path.join(build_directory_path, 'output', 'betty.js'), path.join(
+            self._www_directory_path, 'betty.js'))
 
     @property
     def entry_points(self) -> Iterable[Tuple[str, str]]:
         for plugin in self._plugins.values():
             if isinstance(plugin, JsEntryPointProvider):
-                entry_point_alias = 'betty%s' % hashlib.sha256(
+                entry_point_alias = 'betty%s' % hashlib.md5(
                     plugin.name().encode()).hexdigest()
                 yield entry_point_alias, plugin.name()
-
-    @property
-    def package_directory_path(self) -> str:
-        return '%s/js' % dirname(__file__)

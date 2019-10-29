@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+    {% set identifiables = [] %}
+    {% set identifiables = identifiables + site.ancestry.people.values() | list %}
+    {% set identifiables = identifiables + site.ancestry.events.values() | list %}
+    {% set identifiables = identifiables + site.ancestry.places.values() | list %}
+    {% set identifiables = identifiables + site.ancestry.files.values() | list %}
+    {% set identifiables = identifiables + site.ancestry.sources.values() | list %}
+    {% set identifiables = identifiables + site.ancestry.citations.values() | list %}
+    {% for locale in site.configuration.locales %}
+        {% for identifiable in identifiables %}
+            <url>
+                <loc>{{ identifiable | url(absolute=true, locale=locale) }}</loc>
+            </url>
+        {% endfor %}
+    {% endfor %}
+</urlset>

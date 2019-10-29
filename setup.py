@@ -1,12 +1,10 @@
 """Integrates Betty with Python's setuptools."""
 
 import os
-from itertools import chain
+from glob import glob
 from os.path import abspath, dirname, join
 
 from setuptools import setup, find_packages
-
-from betty.fs import iterfiles
 
 ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -16,29 +14,37 @@ with open('/'.join((ROOT_PATH, 'VERSION'))) as f:
 with open('/'.join((ROOT_PATH, 'README.md'))) as f:
     long_description = f.read()
 
-try:
-    from m2r import convert
-
-    long_description = convert(long_description)
-except ImportError:
-    # Allow this to fail, because we cannot guarantee this dependency is installed.
-    pass
-
 SETUP = {
     'name': 'betty',
     'description': 'Betty is a static ancestry site generator.',
     'long_description': long_description,
+    'long_description_content_type': 'text/markdown',
     'version': VERSION,
-    'license': 'MIT',
+    'license': 'GPLv3',
     'author': 'Bart Feenstra',
     'url': 'https://github.com/bartfeenstra/betty',
+    'classifiers': [
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Operating System :: MacOS',
+        'Operating System :: POSIX :: BSD',
+        'Operating System :: POSIX :: Linux',
+        'Operating System :: POSIX :: SunOS/Solaris',
+        'Operating System :: Unix',
+        'Topic :: Scientific/Engineering :: Visualization',
+        'Topic :: Sociology :: Genealogy',
+        'Topic :: Software Development :: Code Generators',
+    ],
     'install_requires': [
+        'babel ~= 2.7.0',
         'geopy ~= 1.18.1',
         'jinja2 ~= 2.10',
-        'jsonschema ~= 3.0',
+        'libsass ~= 0.19.2',
         'lxml ~= 4.3.1',
         'markupsafe ~= 1.1.1',
         'python-resize-image ~= 1.1.18',
+        'pyyaml ~= 5.1.2',
+        'requests ~= 2.22.0',
+        'voluptuous ~= 0.11.7',
     ],
     'extras_require': {
         'development': [
@@ -63,19 +69,14 @@ SETUP = {
     'packages': find_packages(),
     'data_files': [
         ('', [
-            'LICENSE',
+            'LICENSE.txt',
             'README.md',
             'VERSION',
         ])
     ],
     'include_package_data': True,
     'package_data': {
-        'betty': chain(
-            [join(dirname(abspath(__file__)), 'betty', 'config.schema.json')],
-            iterfiles(join(dirname(abspath(__file__)), 'betty', 'resources')),
-            iterfiles(join(dirname(abspath(__file__)), 'betty', 'plugins', 'js', 'js')),
-            iterfiles(join(dirname(abspath(__file__)), 'betty', 'plugins', 'maps', 'js')),
-        ),
+        'betty': glob(join(dirname(abspath(__file__)), 'betty', 'resources', '**'), recursive=True) + glob(join(dirname(abspath(__file__)), 'betty', 'plugins', '*', 'resources', '**'), recursive=True),
     },
 }
 

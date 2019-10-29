@@ -46,23 +46,22 @@ class TestPlugin(Plugin, CommandProvider):
         ]
 
 
+@patch('sys.stderr')
+@patch('sys.stdout')
 class MainTest(TestCase):
     def assertExit(self, *args):
         return AssertExit(self, *args)
 
-    @patch('sys.stdout')
-    def test_without_arguments(self, _):
+    def test_without_arguments(self, _, __):
         with self.assertExit(2):
             main()
 
-    @patch('sys.stdout')
-    def test_help_without_configuration(self, _):
+    def test_help_without_configuration(self, _, __):
         with self.assertExit(0):
             main(['--help'])
 
-    @patch('sys.stdout')
-    def test_configuration_without_help(self, _):
-        with NamedTemporaryFile(mode='w') as config_file:
+    def test_configuration_without_help(self, _, __):
+        with NamedTemporaryFile(mode='w', suffix='.json') as config_file:
             with TemporaryDirectory() as output_directory_path:
                 url = 'https://example.com'
                 config_dict = {
@@ -75,9 +74,8 @@ class MainTest(TestCase):
                 with self.assertExit(2):
                     main(['--config', config_file.name])
 
-    @patch('sys.stdout')
-    def test_help_with_configuration(self, _):
-        with NamedTemporaryFile(mode='w') as config_file:
+    def test_help_with_configuration(self, _, __):
+        with NamedTemporaryFile(mode='w', suffix='.json') as config_file:
             with TemporaryDirectory() as output_directory_path:
                 url = 'https://example.com'
                 config_dict = {
@@ -93,8 +91,16 @@ class MainTest(TestCase):
                 with self.assertExit(0):
                     main(['--config', config_file.name, '--help'])
 
-    @patch('sys.stdout')
-    def test_with_discovered_configuration(self, _):
+    def test_help_with_invalid_configuration(self, _, __):
+        with NamedTemporaryFile(mode='w', suffix='.json') as config_file:
+            config_dict = {}
+            dump(config_dict, config_file)
+            config_file.seek(0)
+
+            with self.assertExit(1):
+                main(['--config', config_file.name, '--help'])
+
+    def test_with_discovered_configuration(self, _, __):
         with TemporaryDirectory() as cwd:
             with TemporaryDirectory() as output_directory_path:
                 with open(join(cwd, 'betty.json'), 'w') as config_file:
@@ -110,14 +116,13 @@ class MainTest(TestCase):
                 original_cwd = getcwd()
                 try:
                     chdir(cwd)
-                    with self.assertRaises(TestCommandError):
+                    with self.assertExit(1):
                         main(['test'])
                 finally:
                     chdir(original_cwd)
 
     @patch('argparse.ArgumentParser')
-    @patch('sys.stderr')
-    def test_with_keyboard_interrupt(self, _, parser):
+    def test_with_keyboard_interrupt(self, parser, _, __):
         parser.side_effect = KeyboardInterrupt
         main()
 
@@ -129,7 +134,7 @@ class GenerateCommandTest(TestCase):
     @patch('betty.render.render')
     @patch('betty.parse.parse')
     def test_run(self, parse, render):
-        with NamedTemporaryFile(mode='w') as config_file:
+        with NamedTemporaryFile(mode='w', suffix='.json') as config_file:
             with TemporaryDirectory() as output_directory_path:
                 url = 'https://example.com'
                 config_dict = {
