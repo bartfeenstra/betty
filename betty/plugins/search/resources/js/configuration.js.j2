@@ -1,8 +1,16 @@
 'use strict'
 
 const configuration = {
-    resultContainerTemplate: `{% include 'search-result-container.html.j2' %}`,
-    resultsContainerTemplate: `{% include 'search-results-container.html.j2' %}`,
+    resultContainerTemplate: {
+    {%- for locale in site.configuration.locales -%}
+        '{{ locale }}': `{% include 'search-result-container.html.j2' %}`,
+    {% endfor %}
+    },
+    resultsContainerTemplate: {
+    {%- for locale in site.configuration.locales -%}
+        '{{ locale }}': `{% include 'search-results-container.html.j2' %}`,
+    {% endfor %}
+    },
 }
 
 export default configuration

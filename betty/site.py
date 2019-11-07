@@ -9,7 +9,7 @@ from betty.config import Configuration
 from betty.event import EventDispatcher
 from betty.fs import FileSystem
 from betty.graph import tsort, Graph
-from betty.locale import open_translations, Locale
+from betty.locale import open_translations
 
 
 class Site:
@@ -72,7 +72,6 @@ class Site:
                 self._configuration.resources_directory_path)
 
     def _init_translations(self) -> None:
-        self._translations[Locale('en', 'US')] = gettext.NullTranslations()
         for locale in self._configuration.locales:
             for resources_path in reversed(self._resources.paths):
                 translations = open_translations(locale, resources_path)
@@ -107,5 +106,5 @@ class Site:
         return self._event_dispatcher
 
     @property
-    def translations(self) -> Dict[Locale, gettext.NullTranslations]:
+    def translations(self) -> Dict[str, gettext.NullTranslations]:
         return self._translations

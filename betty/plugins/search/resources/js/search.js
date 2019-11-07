@@ -131,12 +131,12 @@ function match (query, haystack) {
 }
 
 function renderResults (results) {
-  return configuration.resultsContainerTemplate
+  return configuration.resultsContainerTemplate[document.documentElement.lang]
     .replace('## results ##', results.map(renderResult).join(''))
 }
 
 function renderResult (result) {
-  return configuration.resultContainerTemplate
+  return configuration.resultContainerTemplate[document.documentElement.lang]
     .replace('## result ##', result.results[document.documentElement.lang])
 }
 

@@ -1,3 +1,4 @@
+import gettext
 import os
 import re
 from importlib import import_module
@@ -12,9 +13,10 @@ from PIL import Image
 from babel import Locale
 from geopy import units
 from geopy.format import DEGREES_FORMAT
-from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter
+from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter, \
+    contextfunction
 from jinja2.filters import prepare_map, make_attrgetter
-from jinja2.runtime import Macro
+from jinja2.runtime import Macro, Context, resolve_or_missing
 from markupsafe import Markup
 from resizeimage import resizeimage
 
@@ -71,6 +73,19 @@ class _Citer:
         self._citations = []
 
 
+class ContextLocaleTranslations:
+    def __init__(self, translations: Dict[str, gettext.NullTranslations]):
+        self._translations = translations
+
+    @contextfunction
+    def gettext(self, context: Context, *args) -> str:
+        return self._translations[resolve_or_missing(context, 'locale')].gettext(*args)
+
+    @contextfunction
+    def ngettext(self, context: Context, *args) -> str:
+        return self._translations[resolve_or_missing(context, 'locale')].ngettext(*args)
+
+
 class Jinja2Provider:
     @property
     def globals(self) -> Dict[str, Callable]:
@@ -94,7 +109,7 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
             'jinja2.ext.i18n',
         ]
     )
-    environment.install_gettext_translations(site.translations[default_locale])
+    environment.install_gettext_translations(ContextLocaleTranslations(site.translations))
     environment.globals['site'] = site
     environment.globals['locale'] = default_locale
     environment.globals['plugins'] = _Plugins(site.plugins)

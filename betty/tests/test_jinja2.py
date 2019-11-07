@@ -254,3 +254,14 @@ class SortLocalizedTest(TestCase):
             data = []
             self.assertEquals('[]', environment.from_string(
                 template).render(data=data))
+
+
+class LocaleTest(TestCase):
+    def test_with_default_locale(self):
+        with TemporaryDirectory() as www_directory_path:
+            configuration = Configuration(
+                www_directory_path, 'https://example.com')
+            default_locale = 'nl-NL'
+            environment = create_environment(Site(configuration), default_locale)
+            template = '{{ locale }}'
+            self.assertEquals(default_locale, environment.from_string(template).render())
