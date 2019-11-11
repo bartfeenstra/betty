@@ -1,17 +1,28 @@
 import json
+from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 from geopy import Point
 from parameterized import parameterized
 
 from betty.ancestry import Place, Ancestry, Person, LocalizedName
+from betty.config import Configuration
 from betty.json import JSONEncoder
+from betty.url import LocalizedUrlGenerator
 
 
 class JSONEncoderTest(TestCase):
+    def setUp(self) -> None:
+        self._output_directory_path = TemporaryDirectory()
+        configuration = Configuration(self._output_directory_path.name, 'https://example.com')
+        self._url_generator = LocalizedUrlGenerator(configuration)
+
+    def tearDown(self) -> None:
+        self._output_directory_path.cleanup()
+
     def assert_encodes(self, expected, data):
         self.assertAlmostEquals(expected, json.loads(
-            json.dumps(data, cls=JSONEncoder)))
+            json.dumps(data, cls=JSONEncoder.get_factory(self._url_generator))))
 
     @parameterized.expand([
         ('I am a string', 'I am a string'),
@@ -75,11 +86,18 @@ class JSONEncoderTest(TestCase):
         person_id = 'the_person'
         person = Person(person_id)
         expected = {
+            '@context': {
+                'individualName': 'https://schema.org/givenName',
+                'familyName': 'https://schema.org/familyName',
+                'parents': 'https://schema.org/parent',
+                'children': 'https://schema.org/child',
+            },
+            '@type': 'https://schema.org/Person',
             'id': person_id,
-            'family_name': None,
-            'individual_name': None,
-            'parent_ids': [],
-            'child_ids': [],
+            'familyName': None,
+            'individualName': None,
+            'parents': [],
+            'children': [],
             'private': None,
         }
         self.assert_encodes(expected, person)

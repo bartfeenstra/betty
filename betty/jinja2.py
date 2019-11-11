@@ -86,6 +86,7 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
         default_locale = site.configuration.default_locale
     template_directory_paths = list(
         [join(path, 'templates') for path in site.resources.paths])
+    url_generator = LocalizedUrlGenerator(site.configuration)
     environment = Environment(
         loader=FileSystemLoader(template_directory_paths),
         autoescape=select_autoescape(['html']),
@@ -111,16 +112,23 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
         default_locale, localizeds)
     environment.filters['sort_localizeds'] = contextfilter(
         lambda context, *args, **kwargs: _filter_sort_localizeds(context, default_locale, *args, **kwargs))
+
+    def _filter_json(data: Any) -> str:
+        try:
+            return dumps(data, cls=JSONEncoder.get_factory(url_generator))
+        except TypeError:
+            return ''
+
     environment.filters['json'] = _filter_json
     environment.filters['paragraphs'] = _filter_paragraphs
     environment.filters['format_date'] = lambda date: format_date(
         date, default_locale, site.translations[default_locale])
     environment.filters['format_degrees'] = _filter_format_degrees
     environment.globals['citer'] = _Citer()
-    url_generator = LocalizedUrlGenerator(site.configuration)
 
     def _filter_url(resource, locale=None, **kwargs):
         return url_generator.generate(resource, locale=locale if locale else default_locale, **kwargs)
+
     environment.filters['url'] = _filter_url
     environment.filters['static_url'] = StaticPathUrlGenerator(
         site.configuration).generate
@@ -168,10 +176,6 @@ def _filter_flatten(items):
 
 def _filter_walk(item, attribute_name):
     return walk(item, attribute_name)
-
-
-def _filter_json(data: Any) -> Union[str, Markup]:
-    return dumps(data, cls=JSONEncoder)
 
 
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
@@ -294,11 +298,13 @@ def _filter_image(site: Site, file: File, width: Optional[int] = None, height: O
     return destination_path
 
 
-def _filter_sort_localizeds(context, preferred_locale: str, localizeds: Iterable[Localized], localized_attribute: str, sort_attribute: str):
+def _filter_sort_localizeds(context, preferred_locale: str, localizeds: Iterable[Localized], localized_attribute: str,
+                            sort_attribute: str):
     get_localized_attr = make_attrgetter(
         context.environment, localized_attribute)
     get_sort_attr = make_attrgetter(context.environment, sort_attribute)
 
     def get_sort_key(x):
         return get_sort_attr(negotiate_localizeds(preferred_locale, get_localized_attr(x)))
+
     return sorted(localizeds, key=get_sort_key)
