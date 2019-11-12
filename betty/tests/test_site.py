@@ -6,6 +6,7 @@ from betty.config import Configuration
 from betty.event import Event
 from betty.graph import CyclicGraphError
 from betty.plugin import Plugin
+from betty.plugins.betty import Betty
 from betty.site import Site
 
 
@@ -95,22 +96,29 @@ class SiteTest(TestCase):
         sut = Site(configuration)
         self.assertEquals(configuration, sut.configuration)
 
-    def test_with_one_plugin(self):
+    def test_with_default_plugin(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        configuration.plugins[NonConfigurablePlugin] = {}
         sut = Site(configuration)
         self.assertEquals(1, len(sut.plugins))
         self.assertIsInstance(
+            sut.plugins[Betty], Betty)
+
+    def test_with_one_configured_plugin(self):
+        configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
+        configuration.plugins[NonConfigurablePlugin] = {}
+        sut = Site(configuration)
+        self.assertEquals(2, len(sut.plugins))
+        self.assertIsInstance(
             sut.plugins[NonConfigurablePlugin], NonConfigurablePlugin)
 
-    def test_with_one_configurable_plugin(self):
+    def test_with_one_configured_configurable_plugin(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         check = 1337
         configuration.plugins[ConfigurablePlugin] = {
             'check': check,
         }
         sut = Site(configuration)
-        self.assertEquals(1, len(sut.plugins))
+        self.assertEquals(2, len(sut.plugins))
         self.assertIsInstance(
             sut.plugins[ConfigurablePlugin], ConfigurablePlugin)
         self.assertEquals(check, sut.plugins[ConfigurablePlugin].check)

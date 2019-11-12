@@ -2,39 +2,13 @@ import argparse
 import logging
 from os import getcwd
 from os.path import join
-from typing import Callable, Optional, List
+from typing import Optional
 
-from betty import parse, render
+from betty.cli.command import CommandProvider
 from betty.config import from_file, Configuration
 from betty.error import ExternalContextError
 from betty.logging import CliHandler
 from betty.site import Site
-
-
-class Command:
-    def build_parser(self, add_parser: Callable):
-        raise NotImplementedError
-
-    def run(self, **kwargs):
-        raise NotImplementedError
-
-
-class CommandProvider:
-    @property
-    def commands(self) -> List[Command]:
-        raise NotImplementedError
-
-
-class GenerateCommand(Command):
-    def __init__(self, site: Site):
-        self._site = site
-
-    def build_parser(self, add_parser: Callable):
-        return add_parser('generate', description='Generate a static site.')
-
-    def run(self):
-        parse.parse(self._site)
-        render.render(self._site)
 
 
 def build_betty_parser():
@@ -81,7 +55,7 @@ def main(args=None):
             if configuration.mode == 'development':
                 logger.setLevel(logging.DEBUG)
             site = Site(configuration)
-            commands = [GenerateCommand(site)]
+            commands = []
             for plugin in site.plugins.values():
                 if isinstance(plugin, CommandProvider):
                     for command in plugin.commands:

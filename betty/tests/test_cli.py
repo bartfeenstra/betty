@@ -6,7 +6,8 @@ from typing import List, Callable
 from unittest import TestCase
 from unittest.mock import patch
 
-from betty.cli import main, CommandProvider, Command
+from betty.cli import CommandProvider, main
+from betty.cli.command import Command
 from betty.plugin import Plugin
 from betty.site import Site
 

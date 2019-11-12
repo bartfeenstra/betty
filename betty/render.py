@@ -6,10 +6,9 @@ from typing import Iterable, Any
 
 from jinja2 import Environment, TemplateNotFound
 
-from betty import sass
+from betty import jinja2, sass
 from betty.event import Event
 from betty.fs import makedirs
-from betty.jinja2 import create_environment, render_tree
 from betty.site import Site
 
 
@@ -26,12 +25,12 @@ def render(site: Site) -> None:
     logger = logging.getLogger()
     site.resources.copytree(join('public', 'static'),
                             site.configuration.www_directory_path)
-    static_environment = create_environment(site)
-    render_tree(site.configuration.www_directory_path,
-                static_environment, site.configuration)
+    static_environment = jinja2.create_environment(site)
+    jinja2.render_tree(site.configuration.www_directory_path,
+                       static_environment, site.configuration)
     sass.render_tree(site.configuration.www_directory_path)
     for locale, locale_configuration in site.configuration.locales.items():
-        localized_environment = create_environment(site, locale)
+        localized_environment = jinja2.create_environment(site, locale)
         if site.configuration.multilingual:
             www_directory_path = join(
                 site.configuration.www_directory_path, locale_configuration.alias)
@@ -40,8 +39,8 @@ def render(site: Site) -> None:
 
         site.resources.copytree(
             join('public', 'localized'), www_directory_path)
-        render_tree(www_directory_path,
-                    localized_environment, site.configuration)
+        jinja2.render_tree(www_directory_path,
+                           localized_environment, site.configuration)
 
         _render_entity_type(www_directory_path, localized_environment,
                             site.ancestry.files.values(), 'file')

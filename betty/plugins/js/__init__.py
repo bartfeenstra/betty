@@ -11,8 +11,9 @@ from jinja2 import Environment
 
 import betty
 from betty.fs import FileSystem
+from betty.jinja2 import render_tree
 from betty.plugin import Plugin
-from betty.render import PostRenderEvent, render_tree
+from betty.render import PostRenderEvent
 from betty.site import Site
 
 

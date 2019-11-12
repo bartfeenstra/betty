@@ -1,7 +1,6 @@
 import gettext
 import logging
 from collections import defaultdict, OrderedDict
-from os.path import abspath, dirname, join
 from typing import Type, Dict
 
 from betty.ancestry import Ancestry
@@ -16,11 +15,13 @@ class Site:
     def __init__(self, configuration: Configuration):
         self._ancestry = Ancestry()
         self._configuration = configuration
-        self._resources = FileSystem(
-            join(dirname(abspath(__file__)), 'resources'))
+        self._resources = FileSystem()
         self._event_dispatcher = EventDispatcher()
         self._translations = defaultdict(gettext.NullTranslations)
         self._plugins = OrderedDict()
+        # Import the Betty plugin locally to prevent cyclic imports.
+        from betty.plugins import betty
+        self._plugins[betty.Betty] = betty.Betty(self)
         self._init_plugins()
         self._init_event_listeners()
         self._init_resources()
