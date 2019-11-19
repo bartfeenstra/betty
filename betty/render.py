@@ -1,5 +1,6 @@
 import logging
 import os
+from json import dump
 from os import chmod
 from os.path import join
 from typing import Iterable, Any
@@ -7,10 +8,13 @@ from typing import Iterable, Any
 from jinja2 import Environment, TemplateNotFound
 
 from betty import sass
+from betty.config import Configuration
 from betty.event import Event
 from betty.fs import makedirs
 from betty.jinja2 import create_environment, render_tree
+from betty.json import JSONEncoder
 from betty.site import Site
+from betty.url import SiteUrlGenerator
 
 
 class PostRenderEvent(Event):
@@ -43,28 +47,28 @@ def render(site: Site) -> None:
         render_tree(www_directory_path,
                     localized_environment, site.configuration)
 
-        _render_entity_type(www_directory_path, localized_environment,
-                            site.ancestry.files.values(), 'file')
+        _render_entity_type(www_directory_path,
+                            site.ancestry.files.values(), 'file', site.configuration, localized_environment)
         logger.info('Rendered %d files in %s.' %
                     (len(site.ancestry.files), locale))
-        _render_entity_type(www_directory_path, localized_environment,
-                            site.ancestry.people.values(), 'person')
+        _render_entity_type(www_directory_path, site.ancestry.people.values(
+        ), 'person', site.configuration, localized_environment)
         logger.info('Rendered %d people in %s.' %
                     (len(site.ancestry.people), locale))
-        _render_entity_type(www_directory_path, localized_environment,
-                            site.ancestry.places.values(), 'place')
+        _render_entity_type(www_directory_path, site.ancestry.places.values(
+        ), 'place', site.configuration, localized_environment)
         logger.info('Rendered %d places in %s.' %
                     (len(site.ancestry.places), locale))
-        _render_entity_type(www_directory_path, localized_environment,
-                            site.ancestry.events.values(), 'event')
+        _render_entity_type(www_directory_path, site.ancestry.events.values(
+        ), 'event', site.configuration, localized_environment)
         logger.info('Rendered %d events in %s.' %
                     (len(site.ancestry.events), locale))
-        _render_entity_type(www_directory_path, localized_environment,
-                            site.ancestry.citations.values(), 'citation')
+        _render_entity_type(www_directory_path, site.ancestry.citations.values(
+        ), 'citation', site.configuration, localized_environment)
         logger.info('Rendered %d citations in %s.' %
                     (len(site.ancestry.citations), locale))
-        _render_entity_type(www_directory_path, localized_environment,
-                            site.ancestry.sources.values(), 'source')
+        _render_entity_type(www_directory_path, site.ancestry.sources.values(
+        ), 'source', site.configuration, localized_environment)
         logger.info('Rendered %d sources in %s.' %
                     (len(site.ancestry.sources), locale))
     chmod(site.configuration.www_directory_path, 0o755)
@@ -85,8 +89,23 @@ def _create_html_file(path: str) -> object:
     return _create_file(os.path.join(path, 'index.html'))
 
 
-def _render_entity_type(www_directory_path: str, environment: Environment, entities: Iterable[Any],
-                        entity_type_name: str) -> None:
+def _create_json_file(path: str) -> object:
+    return _create_file(os.path.join(path, 'index.json'))
+
+
+def _render_entity_type(www_directory_path: str, entities: Iterable[Any], entity_type_name: str,
+                        configuration: Configuration, environment: Environment) -> None:
+    _render_entity_type_list_html(
+        www_directory_path, entities, entity_type_name, environment)
+    _render_entity_type_list_json(
+        www_directory_path, entities, entity_type_name, configuration)
+    for entity in entities:
+        _render_entity(www_directory_path, entity,
+                       entity_type_name, environment)
+
+
+def _render_entity_type_list_html(www_directory_path: str, entities: Iterable[Any], entity_type_name: str,
+                                  environment: Environment) -> None:
     entity_type_path = os.path.join(www_directory_path, entity_type_name)
     try:
         template = environment.get_template(
@@ -99,12 +118,26 @@ def _render_entity_type(www_directory_path: str, environment: Environment, entit
             }))
     except TemplateNotFound:
         pass
-    for entity in entities:
-        _render_entity(www_directory_path, environment,
-                       entity, entity_type_name)
 
 
-def _render_entity(www_directory_path: str, environment: Environment, entity: Any, entity_type_name: str) -> None:
+def _render_entity_type_list_json(www_directory_path: str, entities: Iterable[Any], entity_type_name: str, configuration: Configuration) -> None:
+    entity_type_path = os.path.join(www_directory_path, entity_type_name)
+    with _create_json_file(entity_type_path) as f:
+        url_generator = SiteUrlGenerator(configuration)
+        data = []
+        for entity in entities:
+            data.append(url_generator.generate(
+                entity, 'application/json', absolute=True))
+        dump(data, f, indent=4)
+
+
+def _render_entity(www_directory_path: str, entity: Any, entity_type_name: str, environment: Environment) -> None:
+    _render_entity_html(www_directory_path, entity,
+                        entity_type_name, environment)
+    _render_entity_json(www_directory_path, entity, entity_type_name)
+
+
+def _render_entity_html(www_directory_path: str, entity: Any, entity_type_name: str, environment: Environment) -> None:
     entity_path = os.path.join(www_directory_path, entity_type_name, entity.id)
     with _create_html_file(entity_path) as f:
         f.write(environment.get_template('page/%s.html.j2' % entity_type_name).render({
@@ -112,3 +145,9 @@ def _render_entity(www_directory_path: str, environment: Environment, entity: An
             'entity_type_name': entity_type_name,
             entity_type_name: entity,
         }))
+
+
+def _render_entity_json(www_directory_path: str, entity: Any, entity_type_name: str) -> None:
+    entity_path = os.path.join(www_directory_path, entity_type_name, entity.id)
+    with _create_json_file(entity_path) as f:
+        dump(entity, f, cls=JSONEncoder, indent=4)

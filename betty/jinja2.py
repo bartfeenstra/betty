@@ -26,7 +26,7 @@ from betty.json import JSONEncoder
 from betty.locale import format_date, negotiate_localizeds, Localized
 from betty.plugin import Plugin
 from betty.site import Site
-from betty.url import LocalizedUrlGenerator, StaticPathUrlGenerator
+from betty.url import SiteUrlGenerator, StaticPathUrlGenerator
 
 _root_loader = FileSystemLoader('/')
 
@@ -117,10 +117,12 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
         date, default_locale, site.translations[default_locale])
     environment.filters['format_degrees'] = _filter_format_degrees
     environment.globals['citer'] = _Citer()
-    url_generator = LocalizedUrlGenerator(site.configuration)
+    url_generator = SiteUrlGenerator(site.configuration)
 
-    def _filter_url(resource, locale=None, **kwargs):
-        return url_generator.generate(resource, locale=locale if locale else default_locale, **kwargs)
+    def _filter_url(resource, content_type=None, locale=None, **kwargs):
+        content_type = content_type if content_type else 'text/html'
+        locale = locale if locale else default_locale
+        return url_generator.generate(resource, content_type, locale=locale, **kwargs)
     environment.filters['url'] = _filter_url
     environment.filters['static_url'] = StaticPathUrlGenerator(
         site.configuration).generate

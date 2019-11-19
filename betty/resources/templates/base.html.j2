@@ -20,11 +20,12 @@
             {%- endif -%}
         {%- endfor -%}
         <link rel="canonical" href="{{ resource | url(absolute=true) }}"/>
+        <link rel="alternate" href="{{ resource | url(absolute=true, content_type='application/json') }}" type="application/json"/>
     {% endif %}
     <meta name="og:image" content="/betty-512x512.png"/>
     <link rel="stylesheet" href="{{ '/betty.css' | static_url }}"/>
-    <link rel="icon" href="{{ '/betty.ico' | static_url }}">
-    <link rel="manifest" href="{{ '/betty.webmanifest' | static_url }}">
+    <link rel="icon" href="{{ '/betty.ico' | static_url }}"/>
+    <link rel="manifest" href="{{ '/betty.webmanifest' | static_url }}"/>
     <style id="js-visibility">
         .js-show {
             display: none;
