@@ -10,7 +10,8 @@ import requests
 
 CONTAINER_NAME = IMAGE_NAME = 'betty-test-nginx'
 
-RESOURCES_PATH = path.join(path.dirname(path.dirname(path.dirname(__file__))), 'resources', 'nginx')
+RESOURCES_PATH = path.join(path.dirname(path.dirname(
+    path.dirname(__file__))), 'resources', 'nginx')
 
 
 class NginxIntegrationTest(TestCase):
@@ -24,20 +25,25 @@ class NginxIntegrationTest(TestCase):
             self._working_directory = TemporaryDirectory()
             with open(path.join(RESOURCES_PATH, self._configuration_template_file_path)) as f:
                 configuration = json.load(f)
-            output_directory_path = path.join(self._working_directory.name, 'output')
+            output_directory_path = path.join(
+                self._working_directory.name, 'output')
             configuration['output'] = output_directory_path
-            configuration_file_path = path.join(self._working_directory.name, 'betty.json')
+            configuration_file_path = path.join(
+                self._working_directory.name, 'betty.json')
             with open(configuration_file_path, 'w') as f:
                 json.dump(configuration, f)
-            subprocess.check_call(['betty', '-c', configuration_file_path, 'generate'])
+            subprocess.check_call(
+                ['betty', '-c', configuration_file_path, 'generate'])
             with fileinput.input(path.join(output_directory_path, 'nginx.conf'), inplace=True) as f:
                 for line in f:
                     if 'root /tmp' in line:
                         print('root /var/www/betty/;')
                     else:
                         print(line)
-            subprocess.check_call(['docker', 'run', '--rm', '--name', IMAGE_NAME, '-d', '-v', '%s:/etc/nginx/conf.d/betty.conf:ro' % path.join(output_directory_path, 'nginx.conf'), '-v', '%s:/var/www/betty:ro' % path.join(output_directory_path, 'www'), CONTAINER_NAME])
-            self.address = 'http://%s' % subprocess.check_output(['docker', 'inspect', '-f', '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}', CONTAINER_NAME]).decode('utf-8').strip()
+            subprocess.check_call(['docker', 'run', '--rm', '--name', IMAGE_NAME, '-d', '-v', '%s:/etc/nginx/conf.d/betty.conf:ro' % path.join(
+                output_directory_path, 'nginx.conf'), '-v', '%s:/var/www/betty:ro' % path.join(output_directory_path, 'www'), CONTAINER_NAME])
+            self.address = 'http://%s' % subprocess.check_output(
+                ['docker', 'inspect', '-f', '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}', CONTAINER_NAME]).decode('utf-8').strip()
             return self
 
         def __exit__(self, exc_type, exc_val, exc_tb):
@@ -54,7 +60,8 @@ class NginxIntegrationTest(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        subprocess.check_call(['docker', 'build', '-t', IMAGE_NAME, RESOURCES_PATH])
+        subprocess.check_call(
+            ['docker', 'build', '-t', IMAGE_NAME, RESOURCES_PATH])
 
     def assert_betty_html(self, content: str) -> None:
         parser = html5lib.HTMLParser()
