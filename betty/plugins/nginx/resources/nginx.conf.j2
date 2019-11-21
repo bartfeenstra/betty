@@ -9,8 +9,11 @@ server {
 	add_header Cache-Control "max-age=86400";
     {%- if site.configuration.multilingual %}
         location ~ ^/({{ site.configuration.locales.values() | map(attribute='alias') | join('|') }})(/|$) {
-            # Handle HTTP error responses.
             set $locale $1;
+
+            add_header Content-Language "$locale" always;
+
+            # Handle HTTP error responses.
             error_page 401 /$locale/.error/401.html;
             error_page 403 /$locale/.error/403.html;
             error_page 404 /$locale/.error/404.html;
@@ -21,7 +24,7 @@ server {
             index index.html;
             try_files $uri $uri/ =404;
         }
-        location @localized_redirect {
+        location @negotiated_redirect {
             {%- if plugins['betty.plugins.nginx.Nginx'].content_negotiation %}
                 set_by_lua_block $locale_alias {
                     local available_locales = {'{{ site.configuration.locales | join("', '") }}'}
@@ -38,7 +41,7 @@ server {
             return 301 /$locale_alias$uri;
         }
         location / {
-            try_files $uri @localized_redirect;
+            try_files $uri @negotiated_redirect;
         }
     {%- else %}
         location / {
