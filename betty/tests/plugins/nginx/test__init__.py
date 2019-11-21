@@ -101,8 +101,11 @@ class NginxTest(TestCase):
 	# The cache lifetime.
 	add_header Cache-Control "max-age=86400";
         location ~ ^/(en|nl)(/|$) {
-            # Handle HTTP error responses.
             set $locale $1;
+
+            add_header Content-Language "$locale" always;
+
+            # Handle HTTP error responses.
             error_page 401 /$locale/.error/401.html;
             error_page 403 /$locale/.error/403.html;
             error_page 404 /$locale/.error/404.html;
@@ -113,12 +116,12 @@ class NginxTest(TestCase):
             index index.html;
             try_files $uri $uri/ =404;
         }
-        location @localized_redirect {
+        location @negotiated_redirect {
                 set $locale_alias en;
             return 301 /$locale_alias$uri;
         }
         location / {
-            try_files $uri @localized_redirect;
+            try_files $uri @negotiated_redirect;
         }
 }''' % configuration.www_directory_path  # noqa: E101 W191
             with open(join(configuration.output_directory_path, 'nginx.conf')) as f:  # noqa: E101
@@ -149,8 +152,11 @@ class NginxTest(TestCase):
 	# The cache lifetime.
 	add_header Cache-Control "max-age=86400";
         location ~ ^/(en|nl)(/|$) {
-            # Handle HTTP error responses.
             set $locale $1;
+
+            add_header Content-Language "$locale" always;
+
+            # Handle HTTP error responses.
             error_page 401 /$locale/.error/401.html;
             error_page 403 /$locale/.error/403.html;
             error_page 404 /$locale/.error/404.html;
@@ -161,7 +167,7 @@ class NginxTest(TestCase):
             index index.html;
             try_files $uri $uri/ =404;
         }
-        location @localized_redirect {
+        location @negotiated_redirect {
                 set_by_lua_block $locale_alias {
                     local available_locales = {'en-US', 'nl-NL'}
                     local locale_aliases = {}
@@ -173,7 +179,7 @@ class NginxTest(TestCase):
             return 301 /$locale_alias$uri;
         }
         location / {
-            try_files $uri @localized_redirect;
+            try_files $uri @negotiated_redirect;
         }
 }''' % configuration.www_directory_path  # noqa: E101 W191
             with open(join(configuration.output_directory_path, 'nginx.conf')) as f:  # noqa: E101

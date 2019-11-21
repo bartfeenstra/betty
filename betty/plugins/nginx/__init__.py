@@ -23,7 +23,8 @@ class Nginx(Plugin):
 
     @classmethod
     def from_configuration_dict(cls, site: Site, configuration: Dict):
-        configuration = validate_configuration(ConfigurationSchema, configuration)
+        configuration = validate_configuration(
+            ConfigurationSchema, configuration)
         return cls(site, configuration['content_negotiation'])
 
     def subscribes_to(self) -> List[Tuple[Type, Callable]]:
