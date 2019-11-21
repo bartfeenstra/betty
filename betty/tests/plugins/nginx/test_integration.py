@@ -37,7 +37,7 @@ class NginxIntegrationTest(TestCase):
                     else:
                         print(line)
             subprocess.check_call(['docker', 'run', '--rm', '--name', IMAGE_NAME, '-d', '-v', '%s:/etc/nginx/conf.d/betty.conf:ro' % path.join(output_directory_path, 'nginx.conf'), '-v', '%s:/var/www/betty:ro' % path.join(output_directory_path, 'www'), CONTAINER_NAME])
-            self.address = 'http://%s' % subprocess.check_output(['docker', 'inspect', '-f', '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}', CONTAINER_NAME], encoding='utf-8').strip()
+            self.address = 'http://%s' % subprocess.check_output(['docker', 'inspect', '-f', '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}', CONTAINER_NAME]).decode('utf-8').strip()
             return self
 
         def __exit__(self, exc_type, exc_val, exc_tb):
