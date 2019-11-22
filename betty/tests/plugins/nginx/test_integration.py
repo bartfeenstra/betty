@@ -7,6 +7,7 @@ from unittest import TestCase
 
 import html5lib
 import requests
+from requests import Response
 
 CONTAINER_NAME = IMAGE_NAME = 'betty-test-nginx'
 
@@ -14,7 +15,7 @@ RESOURCES_PATH = path.join(path.dirname(path.dirname(
     path.dirname(__file__))), 'resources', 'nginx')
 
 
-class NginxIntegrationTest(TestCase):
+class NginxTest(TestCase):
     class Container:
         def __init__(self, configuration_template_file_path: str):
             self.address = None
@@ -63,39 +64,52 @@ class NginxIntegrationTest(TestCase):
         subprocess.check_call(
             ['docker', 'build', '-t', IMAGE_NAME, RESOURCES_PATH])
 
-    def assert_betty_html(self, content: str) -> None:
+    def assert_betty_html(self, response: Response) -> None:
+        self.assertEquals('text/html', response.headers['Content-Type'])
         parser = html5lib.HTMLParser()
-        parser.parse(content)
-        self.assertIn('Betty', content)
+        parser.parse(response.text)
+        self.assertIn('Betty', response.text)
+
+    def assert_betty_json(self, response: Response) -> None:
+        self.assertEquals('application/json', response.headers['Content-Type'])
+        self.assertIsNotNone(response.json())
 
     def test_front_page(self):
         with self.Container('betty-monolingual.json') as c:
             response = requests.get(c.address)
             self.assertEquals(200, response.status_code)
-            self.assert_betty_html(response.text)
+            self.assert_betty_html(response)
 
-    def test_404(self):
+    def test_default_html_404(self):
         with self.Container('betty-monolingual.json') as c:
             response = requests.get('%s/non-existent' % c.address)
             self.assertEquals(404, response.status_code)
-            self.assert_betty_html(response.text)
+            self.assert_betty_html(response)
 
-    def test_multilingual_front_page(self):
+    def test_negotiated_json_404(self):
+        with self.Container('betty-monolingual-content-negotiation.json') as c:
+            response = requests.get('%s/non-existent' % c.address, headers={
+                'Accept': 'application/json',
+            })
+            self.assertEquals(404, response.status_code)
+            self.assert_betty_json(response)
+
+    def test_default_localized_front_page(self):
         with self.Container('betty-multilingual.json') as c:
             response = requests.get(c.address)
             self.assertEquals(200, response.status_code)
             self.assertEquals('en', response.headers['Content-Language'])
             self.assertEquals('%s/en/' % c.address, response.url)
-            self.assert_betty_html(response.text)
+            self.assert_betty_html(response)
 
-    def test_multilingual_404(self):
+    def test_explicitly_localized_404(self):
         with self.Container('betty-multilingual.json') as c:
             response = requests.get('%s/nl/non-existent' % c.address)
             self.assertEquals(404, response.status_code)
             self.assertEquals('nl', response.headers['Content-Language'])
-            self.assert_betty_html(response.text)
+            self.assert_betty_html(response)
 
-    def test_multilingual_content_negotiation_front_page(self):
+    def test_negotiated_localized_front_page(self):
         with self.Container('betty-multilingual-content-negotiation.json') as c:
             response = requests.get(c.address, headers={
                 'Accept-Language': 'nl-NL',
@@ -103,13 +117,44 @@ class NginxIntegrationTest(TestCase):
             self.assertEquals(200, response.status_code)
             self.assertEquals('nl', response.headers['Content-Language'])
             self.assertEquals('%s/nl/' % c.address, response.url)
-            self.assert_betty_html(response.text)
+            self.assert_betty_html(response)
 
-    def test_multilingual_content_negotiation_404(self):
+    def test_negotiated_localized_default_html_404(self):
         with self.Container('betty-multilingual-content-negotiation.json') as c:
             response = requests.get('%s/non-existent' % c.address, headers={
                 'Accept-Language': 'nl-NL',
             })
             self.assertEquals(404, response.status_code)
             self.assertEquals('nl', response.headers['Content-Language'])
-            self.assert_betty_html(response.text)
+            self.assert_betty_html(response)
+
+    def test_negotiated_localized_negotiated_json_404(self):
+        with self.Container('betty-multilingual-content-negotiation.json') as c:
+            response = requests.get('%s/non-existent' % c.address, headers={
+                'Accept': 'application/json',
+                'Accept-Language': 'nl-NL',
+            })
+            self.assertEquals(404, response.status_code)
+            self.assert_betty_json(response)
+
+    def test_default_html_resource(self):
+        with self.Container('betty-monolingual-content-negotiation.json') as c:
+            response = requests.get('%s/place/' % c.address)
+            self.assertEquals(200, response.status_code)
+            self.assert_betty_html(response)
+
+    def test_negotiated_html_resource(self):
+        with self.Container('betty-monolingual-content-negotiation.json') as c:
+            response = requests.get('%s/place/' % c.address, headers={
+                'Accept': 'text/html',
+            })
+            self.assertEquals(200, response.status_code)
+            self.assert_betty_html(response)
+
+    def test_negotiated_json_resource(self):
+        with self.Container('betty-monolingual-content-negotiation.json') as c:
+            response = requests.get('%s/place/' % c.address, headers={
+                'Accept': 'application/json',
+            })
+            self.assertEquals(200, response.status_code)
+            self.assert_betty_json(response)
