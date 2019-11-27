@@ -7,18 +7,35 @@ server {
 	root {{ site.configuration.www_directory_path }};
 	# The cache lifetime.
 	add_header Cache-Control "max-age=86400";
+
+    {%- if plugins['betty.plugins.nginx.Nginx'].content_negotiation %}
+        set_by_lua_block $content_type_extension {
+            local available_content_types = {'text/html', 'application/json'}
+            local content_type_extensions = {}
+            content_type_extensions['text/html'] = 'html'
+            content_type_extensions['application/json'] = 'json'
+            local content_type = require('cone').negotiate(ngx.req.get_headers()['Accept'], available_content_types)
+            return content_type_extensions[content_type]
+        }
+    {%- else %}
+        set $content_type_extension html;
+    {%- endif %}
+
     {%- if site.configuration.multilingual %}
         location ~ ^/({{ site.configuration.locales.values() | map(attribute='alias') | join('|') }})(/|$) {
-            # Handle HTTP error responses.
             set $locale $1;
-            error_page 401 /$locale/.error/401.html;
-            error_page 403 /$locale/.error/403.html;
-            error_page 404 /$locale/.error/404.html;
+
+            add_header Content-Language "$locale" always;
+
+            # Handle HTTP error responses.
+            error_page 401 /$locale/.error/401.$content_type_extension;
+            error_page 403 /$locale/.error/403.$content_type_extension;
+            error_page 404 /$locale/.error/404.$content_type_extension;
             location ~ ^/$locale/\.error {
                 internal;
             }
 
-            index index.html;
+            index index.$content_type_extension;
             try_files $uri $uri/ =404;
         }
         location @localized_redirect {
@@ -43,14 +60,14 @@ server {
     {%- else %}
         location / {
             # Handle HTTP error responses.
-            error_page 401 /.error/401.html;
-            error_page 403 /.error/403.html;
-            error_page 404 /.error/404.html;
+            error_page 401 /.error/401.$content_type_extension;
+            error_page 403 /.error/403.$content_type_extension;
+            error_page 404 /.error/404.$content_type_extension;
             location /.error {
                 internal;
             }
 
-            index index.html;
+            index index.$content_type_extension;
             try_files $uri $uri/ =404;
         }
     {%- endif %}

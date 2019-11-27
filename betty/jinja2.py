@@ -5,7 +5,7 @@ from itertools import takewhile
 from json import dumps
 from os.path import join, exists
 from shutil import copy2
-from typing import Union, Any, Dict, Type, Optional, Callable, Iterable
+from typing import Union, Dict, Type, Optional, Callable, Iterable
 from urllib.parse import urlparse
 
 from PIL import Image
@@ -14,7 +14,7 @@ from geopy import units
 from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter
 from jinja2.filters import prepare_map, make_attrgetter
-from jinja2.runtime import Macro
+from jinja2.runtime import Macro, resolve_or_missing
 from markupsafe import Markup
 from resizeimage import resizeimage
 
@@ -26,7 +26,7 @@ from betty.json import JSONEncoder
 from betty.locale import format_date, negotiate_localizeds, Localized
 from betty.plugin import Plugin
 from betty.site import Site
-from betty.url import LocalizedUrlGenerator, StaticPathUrlGenerator
+from betty.url import SiteUrlGenerator, StaticPathUrlGenerator
 
 _root_loader = FileSystemLoader('/')
 
@@ -84,9 +84,9 @@ class Jinja2Provider:
 def create_environment(site: Site, default_locale: Optional[str] = None) -> Environment:
     if default_locale is None:
         default_locale = site.configuration.default_locale
+    url_generator = SiteUrlGenerator(site.configuration)
     template_directory_paths = list(
         [join(path, 'templates') for path in site.resources.paths])
-    url_generator = LocalizedUrlGenerator(site.configuration)
     environment = Environment(
         loader=FileSystemLoader(template_directory_paths),
         autoescape=select_autoescape(['html']),
@@ -112,23 +112,18 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
         default_locale, localizeds)
     environment.filters['sort_localizeds'] = contextfilter(
         lambda context, *args, **kwargs: _filter_sort_localizeds(context, default_locale, *args, **kwargs))
-
-    def _filter_json(data: Any) -> str:
-        try:
-            return dumps(data, cls=JSONEncoder.get_factory(url_generator))
-        except TypeError:
-            return ''
-
-    environment.filters['json'] = _filter_json
+    environment.filters['json'] = contextfilter(
+        lambda context, data, **kwargs: dumps(data, cls=JSONEncoder.get_factory(site.configuration, resolve_or_missing(context, 'locale'))))
     environment.filters['paragraphs'] = _filter_paragraphs
     environment.filters['format_date'] = lambda date: format_date(
         date, default_locale, site.translations[default_locale])
     environment.filters['format_degrees'] = _filter_format_degrees
     environment.globals['citer'] = _Citer()
 
-    def _filter_url(resource, locale=None, **kwargs):
-        return url_generator.generate(resource, locale=locale if locale else default_locale, **kwargs)
-
+    def _filter_url(resource, content_type=None, locale=None, **kwargs):
+        content_type = content_type if content_type else 'text/html'
+        locale = locale if locale else default_locale
+        return url_generator.generate(resource, content_type, locale=locale, **kwargs)
     environment.filters['url'] = _filter_url
     environment.filters['static_url'] = StaticPathUrlGenerator(
         site.configuration).generate

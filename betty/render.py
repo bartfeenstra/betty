@@ -14,7 +14,7 @@ from betty.fs import makedirs
 from betty.jinja2 import create_environment, render_tree
 from betty.json import JSONEncoder
 from betty.site import Site
-from betty.url import LocalizedUrlGenerator
+from betty.url import SiteUrlGenerator, StaticPathUrlGenerator
 
 
 class PostRenderEvent(Event):
@@ -47,28 +47,28 @@ def render(site: Site) -> None:
         render_tree(www_directory_path,
                     localized_environment, site.configuration)
 
-        _render_entity_type(site.configuration, localized_environment,
-                            site.ancestry.files.values(), 'file')
+        _render_entity_type(www_directory_path, site.ancestry.files.values(
+        ), 'file', site.configuration, locale, localized_environment)
         logger.info('Rendered %d files in %s.' %
                     (len(site.ancestry.files), locale))
-        _render_entity_type(site.configuration, localized_environment,
-                            site.ancestry.people.values(), 'person')
+        _render_entity_type(www_directory_path, site.ancestry.people.values(
+        ), 'person', site.configuration, locale, localized_environment)
         logger.info('Rendered %d people in %s.' %
                     (len(site.ancestry.people), locale))
-        _render_entity_type(site.configuration, localized_environment,
-                            site.ancestry.places.values(), 'place')
+        _render_entity_type(www_directory_path, site.ancestry.places.values(
+        ), 'place', site.configuration, locale, localized_environment)
         logger.info('Rendered %d places in %s.' %
                     (len(site.ancestry.places), locale))
-        _render_entity_type(site.configuration, localized_environment,
-                            site.ancestry.events.values(), 'event')
+        _render_entity_type(www_directory_path, site.ancestry.events.values(
+        ), 'event', site.configuration, locale, localized_environment)
         logger.info('Rendered %d events in %s.' %
                     (len(site.ancestry.events), locale))
-        _render_entity_type(site.configuration, localized_environment,
-                            site.ancestry.citations.values(), 'citation')
+        _render_entity_type(www_directory_path, site.ancestry.citations.values(
+        ), 'citation', site.configuration, locale, localized_environment)
         logger.info('Rendered %d citations in %s.' %
                     (len(site.ancestry.citations), locale))
-        _render_entity_type(site.configuration, localized_environment,
-                            site.ancestry.sources.values(), 'source')
+        _render_entity_type(www_directory_path, site.ancestry.sources.values(
+        ), 'source', site.configuration, locale, localized_environment)
         logger.info('Rendered %d sources in %s.' %
                     (len(site.ancestry.sources), locale))
     chmod(site.configuration.www_directory_path, 0o755)
@@ -93,9 +93,20 @@ def _create_json_resource(path: str) -> object:
     return _create_file(os.path.join(path, 'index.json'))
 
 
-def _render_entity_type(configuration: Configuration, environment: Environment, entities: Iterable[Any],
-                        entity_type_name: str) -> None:
-    entity_type_path = os.path.join(configuration.www_directory_path, entity_type_name)
+def _render_entity_type(www_directory_path: str, entities: Iterable[Any], entity_type_name: str,
+                        configuration: Configuration, locale: str, environment: Environment) -> None:
+    _render_entity_type_list_html(
+        www_directory_path, entities, entity_type_name, environment)
+    _render_entity_type_list_json(
+        www_directory_path, entities, entity_type_name, configuration)
+    for entity in entities:
+        _render_entity(www_directory_path, entity,
+                       entity_type_name, configuration, locale, environment)
+
+
+def _render_entity_type_list_html(www_directory_path: str, entities: Iterable[Any], entity_type_name: str,
+                                  environment: Environment) -> None:
+    entity_type_path = os.path.join(www_directory_path, entity_type_name)
     try:
         template = environment.get_template(
             'page/list-%s.html.j2' % entity_type_name)
@@ -107,21 +118,40 @@ def _render_entity_type(configuration: Configuration, environment: Environment, 
             }))
     except TemplateNotFound:
         pass
-    for entity in entities:
-        _render_entity(configuration, environment,
-                       entity, entity_type_name)
 
 
-def _render_entity(configuration: Configuration, environment: Environment, entity: Any, entity_type_name: str) -> None:
-    entity_path = os.path.join(configuration.www_directory_path, entity_type_name, entity.id)
+def _render_entity_type_list_json(www_directory_path: str, entities: Iterable[Any], entity_type_name: str, configuration: Configuration) -> None:
+    entity_type_path = os.path.join(www_directory_path, entity_type_name)
+    with _create_json_resource(entity_type_path) as f:
+        url_generator = SiteUrlGenerator(configuration)
+        data = {
+            '$schema': StaticPathUrlGenerator(configuration).generate('schema.json#/definitions/%sCollection' % entity_type_name, absolute=True),
+            'collection': []
+        }
+        for entity in entities:
+            data['collection'].append(url_generator.generate(
+                entity, 'application/json', absolute=True))
+        dump(data, f)
+
+
+def _render_entity(www_directory_path: str, entity: Any, entity_type_name: str, configuration: Configuration, locale: str, environment: Environment) -> None:
+    _render_entity_html(www_directory_path, entity,
+                        entity_type_name, environment)
+    _render_entity_json(www_directory_path, entity,
+                        entity_type_name, configuration, locale)
+
+
+def _render_entity_html(www_directory_path: str, entity: Any, entity_type_name: str, environment: Environment) -> None:
+    entity_path = os.path.join(www_directory_path, entity_type_name, entity.id)
     with _create_html_resource(entity_path) as f:
         f.write(environment.get_template('page/%s.html.j2' % entity_type_name).render({
             'resource': entity,
             'entity_type_name': entity_type_name,
             entity_type_name: entity,
         }))
-    url_generator = LocalizedUrlGenerator(configuration)
-    # @todo Most resource variable types are JSON-serializable (strings, for instance), but we do not want to serialize
-    # them as top-level resources. Or do we? Because *any* resource of *any* type has a canonical URL, which is an RDF ID?
+
+
+def _render_entity_json(www_directory_path: str, entity: Any, entity_type_name: str, configuration: Configuration, locale: str) -> None:
+    entity_path = os.path.join(www_directory_path, entity_type_name, entity.id)
     with _create_json_resource(entity_path) as f:
-        dump(entity, f, cls=JSONEncoder.get_factory(url_generator=url_generator))
+        dump(entity, f, cls=JSONEncoder.get_factory(configuration, locale))

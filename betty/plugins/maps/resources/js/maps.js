@@ -35,9 +35,9 @@ function initializePlaceList (placeList) {
   // Build place markers.
   const markers = []
   for (let placeDatum of placeData) {
-    let place = places[placeDatum.dataset.bettyPlaceId]
-    if (place.coordinates) {
-      let marker = L.marker([place.coordinates.latitude, place.coordinates.longitude], {
+    if (placeDatum.dataset.bettyPlaceId in places) {
+      let coordinates = places[placeDatum.dataset.bettyPlaceId]
+      let marker = L.marker([coordinates.latitude, coordinates.longitude], {
         icon: new BettyIcon()
       }).addTo(map)
       marker.bindPopup(placeDatum.innerHTML)
