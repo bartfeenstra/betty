@@ -42,7 +42,8 @@ class PathUrlGeneratorTest(TestCase):
     def test_generate_absolute(self, expected: str, resource: str):
         configuration = Configuration('/tmp', 'https://example.com')
         sut = PathResourceUrlGenerator(configuration)
-        self.assertEquals(expected, sut.generate(resource, 'text/html', absolute=True))
+        self.assertEquals(expected, sut.generate(
+            resource, 'text/html', absolute=True))
 
     def test_generate_with_invalid_value(self):
         configuration = Configuration('/tmp', 'https://example.com')
@@ -56,8 +57,10 @@ class PathUrlGeneratorTest(TestCase):
         configuration.locales['nl'] = LocaleConfiguration('nl')
         configuration.locales['en'] = LocaleConfiguration('en')
         sut = PathResourceUrlGenerator(configuration)
-        self.assertEquals('/nl/index.html', sut.generate('/index.html', 'text/html'))
-        self.assertEquals('/en/index.html', sut.generate('/index.html', 'text/html', locale='en'))
+        self.assertEquals('/nl/index.html',
+                          sut.generate('/index.html', 'text/html'))
+        self.assertEquals(
+            '/en/index.html', sut.generate('/index.html', 'text/html', locale='en'))
 
 
 class IdentifiableUrlGeneratorTest(TestCase):
@@ -65,7 +68,8 @@ class IdentifiableUrlGeneratorTest(TestCase):
         configuration = Configuration('/tmp', 'https://example.com')
         sut = IdentifiableResourceUrlGenerator(
             configuration, Identifiable, 'prefix/%s/index.%s')
-        self.assertEquals('/prefix/I1/index.html', sut.generate(Identifiable('I1'), 'text/html'))
+        self.assertEquals('/prefix/I1/index.html',
+                          sut.generate(Identifiable('I1'), 'text/html'))
 
     def test_generate_with_invalid_value(self):
         configuration = Configuration('/tmp', 'https://example.com')
@@ -83,7 +87,7 @@ class SiteUrlGeneratorTest(TestCase):
         ('/place/P1/index.html', Place('P1', [LocalizedName('Place 1')])),
         ('/file/F1/index.html', File('F1', '/tmp')),
         ('/source/S1/index.html', Source('S1', 'Source 1')),
-        ('/citation/C1/index.html', Citation('C1')),
+        ('/citation/C1/index.html', Citation('C1', Source('S1', 'Source 1'))),
     ])
     def test_generate(self, expected: str, resource: Any):
         configuration = Configuration('/tmp', 'https://example.com')

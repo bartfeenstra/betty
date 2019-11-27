@@ -142,7 +142,7 @@ class ParseXmlFileTestCase(TestCase):
         links = self.ancestry.sources['R0000'].links
         self.assertEquals(1, len(links))
         link = list(links)[0]
-        self.assertEquals('https://alexandria.example.com', link.uri)
+        self.assertEquals('https://alexandria.example.com', link.url)
         self.assertEquals('Library of Alexandria Catalogue', link.label)
 
     def test_source_from_source_should_include_title(self):

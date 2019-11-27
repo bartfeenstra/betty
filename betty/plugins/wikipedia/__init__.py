@@ -77,7 +77,7 @@ class Retriever:
         return response_data
 
     def one(self, language: str, link: Link) -> Optional[Entry]:
-        parts = urlparse(link.uri)
+        parts = urlparse(link.url)
         if parts.scheme not in ['http', 'https']:
             return None
         if not re.fullmatch(r'^[a-z]+\.wikipedia\.org$', parts.netloc, re.IGNORECASE):
@@ -106,7 +106,7 @@ class Retriever:
             return None
 
         page_data = page_response_data['query']['pages'][0]
-        return Entry(link.uri, page_data['title'], page_data['extract'])
+        return Entry(link.url, page_data['title'], page_data['extract'])
 
     def all(self, language: str, links: Iterable[Link]) -> Iterable[Entry]:
         for link in links:

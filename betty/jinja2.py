@@ -5,7 +5,7 @@ from itertools import takewhile
 from json import dumps
 from os.path import join, exists
 from shutil import copy2
-from typing import Union, Any, Dict, Type, Optional, Callable, Iterable
+from typing import Union, Dict, Type, Optional, Callable, Iterable
 from urllib.parse import urlparse
 
 from PIL import Image
@@ -14,7 +14,7 @@ from geopy import units
 from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter
 from jinja2.filters import prepare_map, make_attrgetter
-from jinja2.runtime import Macro
+from jinja2.runtime import Macro, resolve_or_missing
 from markupsafe import Markup
 from resizeimage import resizeimage
 
@@ -84,6 +84,7 @@ class Jinja2Provider:
 def create_environment(site: Site, default_locale: Optional[str] = None) -> Environment:
     if default_locale is None:
         default_locale = site.configuration.default_locale
+    url_generator = SiteUrlGenerator(site.configuration)
     template_directory_paths = list(
         [join(path, 'templates') for path in site.resources.paths])
     environment = Environment(
@@ -111,13 +112,13 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
         default_locale, localizeds)
     environment.filters['sort_localizeds'] = contextfilter(
         lambda context, *args, **kwargs: _filter_sort_localizeds(context, default_locale, *args, **kwargs))
-    environment.filters['json'] = _filter_json
+    environment.filters['json'] = contextfilter(
+        lambda context, data, **kwargs: dumps(data, cls=JSONEncoder.get_factory(site.configuration, resolve_or_missing(context, 'locale'))))
     environment.filters['paragraphs'] = _filter_paragraphs
     environment.filters['format_date'] = lambda date: format_date(
         date, default_locale, site.translations[default_locale])
     environment.filters['format_degrees'] = _filter_format_degrees
     environment.globals['citer'] = _Citer()
-    url_generator = SiteUrlGenerator(site.configuration)
 
     def _filter_url(resource, content_type=None, locale=None, **kwargs):
         content_type = content_type if content_type else 'text/html'
@@ -170,10 +171,6 @@ def _filter_flatten(items):
 
 def _filter_walk(item, attribute_name):
     return walk(item, attribute_name)
-
-
-def _filter_json(data: Any) -> Union[str, Markup]:
-    return dumps(data, cls=JSONEncoder)
 
 
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')

@@ -14,7 +14,7 @@ from betty.fs import makedirs
 from betty.jinja2 import create_environment, render_tree
 from betty.json import JSONEncoder
 from betty.site import Site
-from betty.url import SiteUrlGenerator
+from betty.url import SiteUrlGenerator, StaticPathUrlGenerator
 
 
 class PostRenderEvent(Event):
@@ -47,28 +47,28 @@ def render(site: Site) -> None:
         render_tree(www_directory_path,
                     localized_environment, site.configuration)
 
-        _render_entity_type(www_directory_path,
-                            site.ancestry.files.values(), 'file', site.configuration, localized_environment)
+        _render_entity_type(www_directory_path, site.ancestry.files.values(
+        ), 'file', site.configuration, locale, localized_environment)
         logger.info('Rendered %d files in %s.' %
                     (len(site.ancestry.files), locale))
         _render_entity_type(www_directory_path, site.ancestry.people.values(
-        ), 'person', site.configuration, localized_environment)
+        ), 'person', site.configuration, locale, localized_environment)
         logger.info('Rendered %d people in %s.' %
                     (len(site.ancestry.people), locale))
         _render_entity_type(www_directory_path, site.ancestry.places.values(
-        ), 'place', site.configuration, localized_environment)
+        ), 'place', site.configuration, locale, localized_environment)
         logger.info('Rendered %d places in %s.' %
                     (len(site.ancestry.places), locale))
         _render_entity_type(www_directory_path, site.ancestry.events.values(
-        ), 'event', site.configuration, localized_environment)
+        ), 'event', site.configuration, locale, localized_environment)
         logger.info('Rendered %d events in %s.' %
                     (len(site.ancestry.events), locale))
         _render_entity_type(www_directory_path, site.ancestry.citations.values(
-        ), 'citation', site.configuration, localized_environment)
+        ), 'citation', site.configuration, locale, localized_environment)
         logger.info('Rendered %d citations in %s.' %
                     (len(site.ancestry.citations), locale))
         _render_entity_type(www_directory_path, site.ancestry.sources.values(
-        ), 'source', site.configuration, localized_environment)
+        ), 'source', site.configuration, locale, localized_environment)
         logger.info('Rendered %d sources in %s.' %
                     (len(site.ancestry.sources), locale))
     chmod(site.configuration.www_directory_path, 0o755)
@@ -94,14 +94,14 @@ def _create_json_file(path: str) -> object:
 
 
 def _render_entity_type(www_directory_path: str, entities: Iterable[Any], entity_type_name: str,
-                        configuration: Configuration, environment: Environment) -> None:
+                        configuration: Configuration, locale: str, environment: Environment) -> None:
     _render_entity_type_list_html(
         www_directory_path, entities, entity_type_name, environment)
     _render_entity_type_list_json(
         www_directory_path, entities, entity_type_name, configuration)
     for entity in entities:
         _render_entity(www_directory_path, entity,
-                       entity_type_name, environment)
+                       entity_type_name, configuration, locale, environment)
 
 
 def _render_entity_type_list_html(www_directory_path: str, entities: Iterable[Any], entity_type_name: str,
@@ -124,17 +124,21 @@ def _render_entity_type_list_json(www_directory_path: str, entities: Iterable[An
     entity_type_path = os.path.join(www_directory_path, entity_type_name)
     with _create_json_file(entity_type_path) as f:
         url_generator = SiteUrlGenerator(configuration)
-        data = []
+        data = {
+            '$schema': StaticPathUrlGenerator(configuration).generate('schema.json#/definitions/%sCollection' % entity_type_name, absolute=True),
+            'collection': []
+        }
         for entity in entities:
-            data.append(url_generator.generate(
+            data['collection'].append(url_generator.generate(
                 entity, 'application/json', absolute=True))
-        dump(data, f, indent=4)
+        dump(data, f)
 
 
-def _render_entity(www_directory_path: str, entity: Any, entity_type_name: str, environment: Environment) -> None:
+def _render_entity(www_directory_path: str, entity: Any, entity_type_name: str, configuration: Configuration, locale: str, environment: Environment) -> None:
     _render_entity_html(www_directory_path, entity,
                         entity_type_name, environment)
-    _render_entity_json(www_directory_path, entity, entity_type_name)
+    _render_entity_json(www_directory_path, entity,
+                        entity_type_name, configuration, locale)
 
 
 def _render_entity_html(www_directory_path: str, entity: Any, entity_type_name: str, environment: Environment) -> None:
@@ -147,7 +151,7 @@ def _render_entity_html(www_directory_path: str, entity: Any, entity_type_name: 
         }))
 
 
-def _render_entity_json(www_directory_path: str, entity: Any, entity_type_name: str) -> None:
+def _render_entity_json(www_directory_path: str, entity: Any, entity_type_name: str, configuration: Configuration, locale: str) -> None:
     entity_path = os.path.join(www_directory_path, entity_type_name, entity.id)
     with _create_json_file(entity_path) as f:
-        dump(entity, f, cls=JSONEncoder, indent=4)
+        dump(entity, f, cls=JSONEncoder.get_factory(configuration, locale))

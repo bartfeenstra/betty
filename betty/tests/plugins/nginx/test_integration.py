@@ -6,6 +6,7 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 import html5lib
+import jsonschema
 import requests
 from requests import Response
 
@@ -72,7 +73,9 @@ class NginxTest(TestCase):
 
     def assert_betty_json(self, response: Response) -> None:
         self.assertEquals('application/json', response.headers['Content-Type'])
-        self.assertIsNotNone(response.json())
+        data = response.json()
+        with open(path.join(path.dirname(path.dirname(path.dirname(path.dirname(__file__)))), 'resources', 'public', 'static', 'schema.json')) as f:
+            jsonschema.validate(data, json.load(f))
 
     def test_front_page(self):
         with self.Container('betty-monolingual.json') as c:
