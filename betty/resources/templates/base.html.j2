@@ -10,7 +10,7 @@
     <meta name="generator" content="Betty (https://github.com/bartfeenstra/betty)"/>
     <meta name="og:title" content="{{ title | striptags }}"/>
     <meta name="og:site_name" content="{{ site.configuration.title }}"/>
-    {% if resource %}
+    {% if resource -%}
         {%- for file in resource.files | default([]) -%}
             {%- if file.type.startswith('image/') %}
                 <meta name="og:image" content="{{ file | image(600, 600) | static_url }}"/>
@@ -20,11 +20,14 @@
             {%- endif -%}
         {%- endfor -%}
         <link rel="canonical" href="{{ resource | url(absolute=true) }}"/>
-    {% endif %}
+        {% if resource.id -%}
+            <link rel="alternate" href="{{ resource | url(absolute=true, content_type='application/json') }}" type="application/json"/>
+        {%- endif -%}
+    {%- endif %}
     <meta name="og:image" content="/betty-512x512.png"/>
     <link rel="stylesheet" href="{{ '/betty.css' | static_url }}"/>
-    <link rel="icon" href="{{ '/betty.ico' | static_url }}">
-    <link rel="manifest" href="{{ '/betty.webmanifest' | static_url }}">
+    <link rel="icon" href="{{ '/betty.ico' | static_url }}"/>
+    <link rel="manifest" href="{{ '/betty.webmanifest' | static_url }}"/>
     <style id="js-visibility">
         .js-show {
             display: none;

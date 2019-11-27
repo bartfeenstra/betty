@@ -371,18 +371,15 @@ def _parse_citations(ancestry: _IntermediateAncestry, database: Element) -> None
 
 def _parse_citation(ancestry: _IntermediateAncestry, element: Element) -> None:
     handle = _xpath1(element, './@handle')
+    source_handle = _xpath1(element, './ns:sourceref/@hlink')
 
-    citation = Citation(_xpath1(element, './@id'))
+    citation = Citation(_xpath1(element, './@id'), ancestry.sources[source_handle])
 
     _parse_objref(ancestry, citation, element)
 
     page = _xpath1(element, './ns:page')
     if page is not None:
         citation.description = page.text
-
-    source_handle = _xpath1(element, './ns:sourceref/@hlink')
-    if source_handle is not None:
-        citation.source = ancestry.sources[source_handle]
 
     ancestry.citations[handle] = citation
 
