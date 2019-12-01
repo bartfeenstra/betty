@@ -28,6 +28,7 @@ class NginxTest(TestCase):
 	# The cache lifetime.
 	add_header Cache-Control "max-age=86400";
         set $content_type_extension html;
+    index index.$content_type_extension;
         location / {
             # Handle HTTP error responses.
             error_page 401 /.error/401.$content_type_extension;
@@ -37,7 +38,6 @@ class NginxTest(TestCase):
                 internal;
             }
 
-            index index.$content_type_extension;
             try_files $uri $uri/ =404;
         }
 }''' % configuration.www_directory_path  # noqa: E101 W191
@@ -64,6 +64,7 @@ class NginxTest(TestCase):
 	# The cache lifetime.
 	add_header Cache-Control "max-age=86400";
         set $content_type_extension html;
+    index index.$content_type_extension;
         location / {
             # Handle HTTP error responses.
             error_page 401 /.error/401.$content_type_extension;
@@ -73,7 +74,6 @@ class NginxTest(TestCase):
                 internal;
             }
 
-            index index.$content_type_extension;
             try_files $uri $uri/ =404;
         }
 }''' % configuration.www_directory_path  # noqa: E101 W191
@@ -103,6 +103,7 @@ class NginxTest(TestCase):
 	# The cache lifetime.
 	add_header Cache-Control "max-age=86400";
         set $content_type_extension html;
+    index index.$content_type_extension;
         location ~ ^/(en|nl)(/|$) {
             set $locale $1;
 
@@ -116,7 +117,6 @@ class NginxTest(TestCase):
                 internal;
             }
 
-            index index.$content_type_extension;
             try_files $uri $uri/ =404;
         }
         location @localized_redirect {
@@ -162,6 +162,7 @@ class NginxTest(TestCase):
             local content_type = require('cone').negotiate(ngx.req.get_headers()['Accept'], available_content_types)
             return content_type_extensions[content_type]
         }
+    index index.$content_type_extension;
         location ~ ^/(en|nl)(/|$) {
             set $locale $1;
 
@@ -175,7 +176,6 @@ class NginxTest(TestCase):
                 internal;
             }
 
-            index index.$content_type_extension;
             try_files $uri $uri/ =404;
         }
         location @localized_redirect {
@@ -225,6 +225,7 @@ class NginxTest(TestCase):
             local content_type = require('cone').negotiate(ngx.req.get_headers()['Accept'], available_content_types)
             return content_type_extensions[content_type]
         }
+    index index.$content_type_extension;
         location / {
             # Handle HTTP error responses.
             error_page 401 /.error/401.$content_type_extension;
@@ -234,7 +235,6 @@ class NginxTest(TestCase):
                 internal;
             }
 
-            index index.$content_type_extension;
             try_files $uri $uri/ =404;
         }
 }''' % configuration.www_directory_path  # noqa: E101 W191

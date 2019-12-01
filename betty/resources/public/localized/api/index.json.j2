@@ -1,0 +1,462 @@
+{
+  "openapi": "3.0.0",
+  "servers": [
+    {
+      "url": "{{ '/' | static_url(absolute=True) }}"
+    }
+  ],
+  "info": {
+    "title": "Betty",
+    "version": "dev"
+  },
+  "paths": {
+    "{{ '/{locale}/file/index.json' | static_url }}": {
+      "get": {
+        "summary": "Retrieve the collection of files.",
+        "responses": {
+          "200": {
+            "description": "The collection of files.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/fileCollection"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/locale"
+        }
+      ]
+    },
+    "{{ '/{locale}/file/{fileId}/index.json' | static_url }}": {
+      "get": {
+        "summary": "Retrieve a single file.",
+        "responses": {
+          "200": {
+            "description": "The file.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/file"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/locale"
+        },
+        {
+          "$ref": "#/components/parameters/id"
+        }
+      ]
+    },
+    "{{ '/{locale}/person/index.json' | static_url }}": {
+      "get": {
+        "summary": "Retrieve the collection of people.",
+        "responses": {
+          "200": {
+            "description": "The collection of people.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/personCollection"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/locale"
+        }
+      ]
+    },
+    "{{ '/{locale}/person/{personId}/index.json' | static_url }}": {
+      "get": {
+        "summary": "Retrieve a single person.",
+        "responses": {
+          "200": {
+            "description": "The person.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/person"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/locale"
+        },
+        {
+          "$ref": "#/components/parameters/id"
+        }
+      ]
+    },
+    "{{ '/{locale}/place/index.json' | static_url }}": {
+      "get": {
+        "summary": "Retrieve the collection of places.",
+        "responses": {
+          "200": {
+            "description": "The collection of places.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/placeCollection"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/locale"
+        }
+      ]
+    },
+    "{{ '/{locale}/place/{placeId}/index.json' | static_url }}": {
+      "get": {
+        "summary": "Retrieve a single place.",
+        "responses": {
+          "200": {
+            "description": "The place.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/place"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/locale"
+        },
+        {
+          "$ref": "#/components/parameters/id"
+        }
+      ]
+    },
+    "{{ '/{locale}/event/index.json' | static_url }}": {
+      "get": {
+        "summary": "Retrieve the collection of events.",
+        "responses": {
+          "200": {
+            "description": "The collection of events.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/eventCollection"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/locale"
+        }
+      ]
+    },
+    "{{ '/{locale}/event/{eventId}/index.json' | static_url }}": {
+      "get": {
+        "summary": "Retrieve a single event.",
+        "responses": {
+          "200": {
+            "description": "The event.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/event"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/locale"
+        },
+        {
+          "$ref": "#/components/parameters/id"
+        }
+      ]
+    },
+    "{{ '/{locale}/citation/index.json' | static_url }}": {
+      "get": {
+        "summary": "Retrieve the collection of citations.",
+        "responses": {
+          "200": {
+            "description": "The collection of citations.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/citationCollection"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/locale"
+        }
+      ]
+    },
+    "{{ '/{locale}/citation/{citationId}/index.json' | static_url }}": {
+      "get": {
+        "summary": "Retrieve a single citation.",
+        "responses": {
+          "200": {
+            "description": "The citation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/citation"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/locale"
+        },
+        {
+          "$ref": "#/components/parameters/id"
+        }
+      ]
+    },
+    "{{ '/{locale}/source/index.json' | static_url }}": {
+      "get": {
+        "summary": "Retrieve the collection of sources.",
+        "responses": {
+          "200": {
+            "description": "The collection of sources.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/sourceCollection"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/locale"
+        }
+      ]
+    },
+    "{{ '/{locale}/source/{sourceId}/index.json' | static_url }}": {
+      "get": {
+        "summary": "Retrieve a single source.",
+        "responses": {
+          "200": {
+            "description": "The source.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/source"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/locale"
+        },
+        {
+          "$ref": "#/components/parameters/id"
+        }
+      ]
+    }
+  },
+  "components": {
+    "responses": {
+      "401": {
+        "description": "Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "locale": {
+        "name": "locale",
+        "in": "path",
+        "required": true,
+        "description": "A BCP 47 locale identifier (https://www.ietf.org/rfc/bcp/bcp47.txt).",
+        "schema": {
+          "type": "string"
+        },
+        "example": "{{ site.configuration.locales[site.configuration.default_locale].alias }}"
+      },
+      "id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "The ID for the resource to retrieve.",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "schemas": {
+      "$ref": "{{ '/schema.json#/definitions' | static_url }}"
+    }
+  }
+}

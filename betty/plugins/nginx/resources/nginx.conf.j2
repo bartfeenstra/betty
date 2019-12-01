@@ -20,6 +20,7 @@ server {
     {%- else %}
         set $content_type_extension html;
     {%- endif %}
+    index index.$content_type_extension;
 
     {%- if site.configuration.multilingual %}
         location ~ ^/({{ site.configuration.locales.values() | map(attribute='alias') | join('|') }})(/|$) {
@@ -35,7 +36,6 @@ server {
                 internal;
             }
 
-            index index.$content_type_extension;
             try_files $uri $uri/ =404;
         }
         location @localized_redirect {
@@ -67,7 +67,6 @@ server {
                 internal;
             }
 
-            index index.$content_type_extension;
             try_files $uri $uri/ =404;
         }
     {%- endif %}
