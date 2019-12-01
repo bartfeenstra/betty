@@ -10,8 +10,6 @@ from betty.site import Site
 
 class NginxTest(TestCase):
     def test_post_render_config(self):
-        self.maxDiff = None
-
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
@@ -45,8 +43,6 @@ class NginxTest(TestCase):
                 self.assertEquals(expected, f.read())
 
     def test_post_render_config_with_clean_urls(self):
-        self.maxDiff = None
-
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
@@ -81,9 +77,6 @@ class NginxTest(TestCase):
                 self.assertEquals(expected, f.read())
 
     def test_post_render_config_multilingual(self):
-        pass
-        self.maxDiff = None
-
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
@@ -131,15 +124,11 @@ class NginxTest(TestCase):
                 self.assertEquals(expected, f.read())
 
     def test_post_render_config_multilingual_with_content_negotiation(self):
-        pass
-        self.maxDiff = None
-
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.plugins[Nginx] = {
-                'content_negotiation': True,
-            }
+            configuration.content_negotiation = True
+            configuration.plugins[Nginx] = {}
             configuration.locales.clear()
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
@@ -197,15 +186,11 @@ class NginxTest(TestCase):
                 self.assertEquals(expected, f.read())
 
     def test_post_render_config_with_content_negotiation(self):
-        pass
-        self.maxDiff = None
-
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.plugins[Nginx] = {
-                'content_negotiation': True,
-            }
+            configuration.content_negotiation = True
+            configuration.plugins[Nginx] = {}
             site = Site(configuration)
             render(site)
             expected = '''server {

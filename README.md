@@ -85,6 +85,8 @@ plugins:
 - `base_url` (required); The absolute, public URL at which the site will be published.
 - `root_path` (optional); The relative path under the public URL at which the site will be published.
 - `clean_urls` (optional); A boolean indicating whether to use clean URLs, e.g. `/path` instead of `/path/index.html`.
+- `content_negotiation` (optional, defaults to `false`): Enables dynamic content negotiation, but requires a web server
+    that supports it. Also see the `betty.plugins.nginx.Nginx` plugin.
 - `title` (optional); The site's title.
 - `locales` (optional); An array of locales, each of which is an object with the following keys:
     - `locale`(required): An [IETF BCP 47](https://tools.ietf.org/html/bcp47) language tag.
@@ -99,13 +101,11 @@ plugins:
         - `file`: the path to the *Gramps XML* or *Gramps XML Package* file.
     - `betty.plugin.maps.Maps`: Renders interactive maps using [Leaflet](https://leafletjs.com/).
     - `betty.plugin.nginx.Nginx`: Creates an [nginx](https://nginx.org) configuration file in the output directory.
-        Configuration: `{}`.
-        - `content_negotiation` (optional, defaults to `false`): Enables dynamic content negotiation. You must make sure
-            the nginx [Lua module](https://github.com/openresty/lua-nginx-module#readme) is enabled, and
-            [CONE](https://github.com/bartfeenstra/cone)'s
-            [cone.lua](https://raw.githubusercontent.com/bartfeenstra/cone/master/cone.lua) can be found by putting it
-            in nginx's [lua_package_path](https://github.com/openresty/lua-nginx-module#lua_package_path). Content
-            negotiation allows Betty to respond with your users' preferred locales.
+        Configuration: `{}`. If `content_negotiation` is enabled. You must make sure the nginx
+        [Lua module](https://github.com/openresty/lua-nginx-module#readme) is enabled, and
+        [CONE](https://github.com/bartfeenstra/cone)'s
+        [cone.lua](https://raw.githubusercontent.com/bartfeenstra/cone/master/cone.lua) can be found by putting it in
+        nginx's [lua_package_path](https://github.com/openresty/lua-nginx-module#lua_package_path).
     - `betty.plugin.privatizer.Privatizer`: Marks living people private. Configuration: `{}`.
     - `betty.plugin.search.Search`: Allows users to search through content.
     - `betty.plugin.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
