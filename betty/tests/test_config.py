@@ -102,6 +102,17 @@ class ConfigurationTest(TestCase):
         sut.clean_urls = clean_urls
         self.assertEquals(clean_urls, sut.clean_urls)
 
+    def test_content_negotiation(self):
+        sut = Configuration('/tmp/betty', 'https://example.com')
+        content_negotiation = True
+        sut.content_negotiation = content_negotiation
+        self.assertEquals(content_negotiation, sut.content_negotiation)
+
+    def test_clean_urls_implied_by_content_negotiation(self):
+        sut = Configuration('/tmp/betty', 'https://example.com')
+        sut.content_negotiation = True
+        self.assertTrue(sut.clean_urls)
+
 
 class FromTest(TestCase):
     _MINIMAL_CONFIG_DICT = {
@@ -134,6 +145,7 @@ class FromTest(TestCase):
         self.assertEquals('production', configuration.mode)
         self.assertEquals('/', configuration.root_path)
         self.assertFalse(configuration.clean_urls)
+        self.assertFalse(configuration.content_negotiation)
 
     def test_from_file_should_parse_title(self):
         title = 'My first Betty site'
@@ -187,6 +199,14 @@ class FromTest(TestCase):
         with self._write(config_dict) as f:
             configuration = from_file(f)
             self.assertEquals(clean_urls, configuration.clean_urls)
+
+    def test_from_file_should_content_negotiation(self):
+        content_negotiation = True
+        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
+        config_dict['content_negotiation'] = content_negotiation
+        with self._write(config_dict) as f:
+            configuration = from_file(f)
+            self.assertEquals(content_negotiation, configuration.content_negotiation)
 
     @parameterized.expand([
         ('production',),

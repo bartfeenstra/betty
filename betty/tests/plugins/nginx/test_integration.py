@@ -161,3 +161,29 @@ class NginxTest(TestCase):
             })
             self.assertEquals(200, response.status_code)
             self.assert_betty_json(response)
+
+    def test_default_html_static_resource(self):
+        with self.Container('betty-multilingual-content-negotiation.json') as c:
+            response = requests.get('%s/api/' % c.address)
+            self.assertEquals(200, response.status_code)
+            self.assert_betty_html(response)
+
+    def test_negotiated_html_static_resource(self):
+        with self.Container('betty-multilingual-content-negotiation.json') as c:
+            response = requests.get('%s/api/' % c.address, headers={
+                'Accept': 'text/html',
+            })
+            self.assertEquals(200, response.status_code)
+            self.assert_betty_html(response)
+
+    def test_negotiated_json_static_resource(self):
+        with self.Container('betty-multilingual-content-negotiation.json') as c:
+            response = requests.get('%s/api/' % c.address, headers={
+                'Accept': 'application/json',
+            })
+            self.assertEquals(200, response.status_code)
+            self.assert_betty_json(response)
+            # Assert this is the exact JSON resource we are looking for.
+            with open(path.join(path.dirname(path.dirname(path.dirname(__file__))), 'resources', 'openapi', 'schema.json')) as f:
+                schema = json.load(f)
+            jsonschema.validate(response.json(), schema)

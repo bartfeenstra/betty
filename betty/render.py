@@ -13,6 +13,8 @@ from betty.event import Event
 from betty.fs import makedirs
 from betty.jinja2 import create_environment, render_tree
 from betty.json import JSONEncoder
+from betty.locale import Translations
+from betty.openapi import build_specification
 from betty.site import Site
 from betty.url import SiteUrlGenerator, StaticPathUrlGenerator
 
@@ -71,6 +73,9 @@ def render(site: Site) -> None:
         ), 'source', site.configuration, locale, localized_environment)
         logger.info('Rendered %d sources in %s.' %
                     (len(site.ancestry.sources), locale))
+        with Translations(site.translations[locale]):
+            _render_openapi(www_directory_path, site)
+        logger.info('Rendered OpenAPI documentation.')
     chmod(site.configuration.www_directory_path, 0o755)
     for directory_path, subdirectory_names, file_names in os.walk(site.configuration.www_directory_path):
         for subdirectory_name in subdirectory_names:
@@ -155,3 +160,8 @@ def _render_entity_json(www_directory_path: str, entity: Any, entity_type_name: 
     entity_path = os.path.join(www_directory_path, entity_type_name, entity.id)
     with _create_json_resource(entity_path) as f:
         dump(entity, f, cls=JSONEncoder.get_factory(configuration, locale))
+
+
+def _render_openapi(www_directory_path: str, site: Site) -> None:
+    with open(join(www_directory_path, 'api', 'index.json'), 'w') as f:
+        dump(build_specification(site), f)
