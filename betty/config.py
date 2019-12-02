@@ -92,7 +92,7 @@ class Configuration:
 
     @property
     def clean_urls(self) -> bool:
-        return self._clean_urls
+        return self._clean_urls or self.content_negotiation
 
     @clean_urls.setter
     def clean_urls(self, clean_urls: bool):

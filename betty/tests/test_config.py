@@ -108,6 +108,11 @@ class ConfigurationTest(TestCase):
         sut.content_negotiation = content_negotiation
         self.assertEquals(content_negotiation, sut.content_negotiation)
 
+    def test_clean_urls_implied_by_content_negotiation(self):
+        sut = Configuration('/tmp/betty', 'https://example.com')
+        sut.content_negotiation = True
+        self.assertTrue(sut.clean_urls)
+
 
 class FromTest(TestCase):
     _MINIMAL_CONFIG_DICT = {

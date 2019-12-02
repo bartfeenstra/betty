@@ -86,7 +86,7 @@ plugins:
 - `root_path` (optional); The relative path under the public URL at which the site will be published.
 - `clean_urls` (optional); A boolean indicating whether to use clean URLs, e.g. `/path` instead of `/path/index.html`.
 - `content_negotiation` (optional, defaults to `false`): Enables dynamic content negotiation, but requires a web server
-    that supports it. Also see the `betty.plugins.nginx.Nginx` plugin.
+    that supports it. Also see the `betty.plugins.nginx.Nginx` plugin. This implies `clean_urls`.
 - `title` (optional); The site's title.
 - `locales` (optional); An array of locales, each of which is an object with the following keys:
     - `locale`(required): An [IETF BCP 47](https://tools.ietf.org/html/bcp47) language tag.
