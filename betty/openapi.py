@@ -99,6 +99,8 @@ def build_specification(site: Site) -> Dict:
             },
         },
     }
+
+    # Add resource operations.
     for resource in _get_resources():
         if site.configuration.content_negotiation:
             collection_path = '/%s/' % resource.name
@@ -142,6 +144,8 @@ def build_specification(site: Site) -> Dict:
                 },
             },
         })
+
+    # Add components for content negotiation.
     if site.configuration.content_negotiation:
         specification['components']['parameters']['Accept-Language'] = {
             'name': 'Accept-Language',
@@ -152,11 +156,24 @@ def build_specification(site: Site) -> Dict:
             },
             'example': site.configuration.locales[site.configuration.default_locale].alias
         }
-    specification['components']['schemas']['html'] = {
-        'type': 'string',
-        'description': 'An HTML5 document.'
-    }
-    responses = list(specification['components']['responses'].values())
+        specification['components']['schemas']['html'] = {
+            'type': 'string',
+            'description': 'An HTML5 document.'
+        }
+    else:
+        specification['components']['parameters']['locale'] = {
+            'name': 'locale',
+            'in': 'path',
+            'required': True,
+            'description': 'A locale name.',
+            'schema': {
+                'type': 'string',
+                'enum': list(site.configuration.locales.keys())
+            },
+            'example': site.configuration.locales[site.configuration.default_locale].alias
+        }
+
+    # Add default behavior to all requests.
     for path in specification['paths']:
         specification['paths'][path]['get']['responses'].update({
             '401': {
@@ -181,29 +198,22 @@ def build_specification(site: Site) -> Dict:
                     '$ref': '#/components/parameters/locale',
                 },
             ]
-        responses.append(specification['paths'][path]['get']['responses']['200'])
-    for response in responses:
-        response['content']['text/html'] = {
-            'schema': {
-                '$ref': '#/components/schemas/html'
+
+    # Add default behavior to all responses.
+    if site.configuration.content_negotiation:
+        responses = list(specification['components']['responses'].values())
+        for path in specification['paths']:
+            responses.append(specification['paths'][path]['get']['responses']['200'])
+        for response in responses:
+            response['content']['text/html'] = {
+                'schema': {
+                    '$ref': '#/components/schemas/html'
+                }
             }
-        }
-        if 'headers' not in response:
-            response['headers'] = {}
-        response['headers']['Content-Language'] = {
-            '$ref': '#/components/headers/Content-Language',
-        }
-    else:
-        specification['components']['parameters']['locale'] = {
-            'name': 'locale',
-            'in': 'path',
-            'required': True,
-            'description': 'A locale name.',
-            'schema': {
-                'type': 'string',
-                'enum': list(site.configuration.locales.keys())
-            },
-            'example': site.configuration.locales[site.configuration.default_locale].alias
-        }
+            if 'headers' not in response:
+                response['headers'] = {}
+            response['headers']['Content-Language'] = {
+                '$ref': '#/components/headers/Content-Language',
+            }
 
     return specification
