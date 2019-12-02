@@ -60,6 +60,33 @@ class Date:
         return self.parts < other.parts
 
 
+class Translations(gettext.NullTranslations):
+    _KEYS = ('_', 'gettext', 'ngettext', 'lgettext', 'lngettext')
+
+    def __init__(self, fallback: gettext.NullTranslations):
+        gettext.NullTranslations.__init__(self)
+        self._fallback = fallback
+        self._previous_context = {}
+
+    def __enter__(self):
+        import builtins
+        self._previous_context = {key: value for key, value in builtins.__dict__.items() if key in self._KEYS}
+        self.install()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.uninstall()
+
+    def uninstall(self):
+        import builtins
+        for key in self._KEYS:
+            try:
+                del builtins.__dict__[key]
+            except KeyError:
+                # The function may not have been installed.
+                pass
+        builtins.__dict__.update(self._previous_context)
+
+
 def validate_locale(locale: str) -> str:
     parse_locale(locale, '-')
     return locale

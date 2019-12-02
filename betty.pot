@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-10-19 14:28+0100\n"
+"POT-Creation-Date: 2019-12-02 21:08+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,28 +17,160 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: betty/locale.py:93
+#: betty/locale.py:120
 msgid "MMMM d, y"
 msgstr ""
 
-#: betty/locale.py:94
+#: betty/locale.py:121
 msgid "MMMM, y"
 msgstr ""
 
-#: betty/locale.py:95
+#: betty/locale.py:122
 msgid "y"
 msgstr ""
 
-#: betty/locale.py:96
+#: betty/locale.py:123
 msgid "MMMM d"
 msgstr ""
 
-#: betty/locale.py:97
+#: betty/locale.py:124
 msgid "MMMM"
 msgstr ""
 
-#: betty/locale.py:102
+#: betty/locale.py:129
 msgid "unknown date"
+msgstr ""
+
+#: betty/openapi.py:19
+msgid "Retrieve the collection of files."
+msgstr ""
+
+#: betty/openapi.py:19
+msgid "The collection of files."
+msgstr ""
+
+#: betty/openapi.py:19
+msgid "Retrieve a single file."
+msgstr ""
+
+#: betty/openapi.py:19
+msgid "The file."
+msgstr ""
+
+#: betty/openapi.py:20
+msgid "Retrieve the collection of people."
+msgstr ""
+
+#: betty/openapi.py:20
+msgid "The collection of people."
+msgstr ""
+
+#: betty/openapi.py:20
+msgid "Retrieve a single person."
+msgstr ""
+
+#: betty/openapi.py:20
+msgid "The person."
+msgstr ""
+
+#: betty/openapi.py:21
+msgid "Retrieve the collection of places."
+msgstr ""
+
+#: betty/openapi.py:21
+msgid "The collection of places."
+msgstr ""
+
+#: betty/openapi.py:21
+msgid "Retrieve a single place."
+msgstr ""
+
+#: betty/openapi.py:21
+msgid "The place."
+msgstr ""
+
+#: betty/openapi.py:22
+msgid "Retrieve the collection of events."
+msgstr ""
+
+#: betty/openapi.py:22
+msgid "The collection of events."
+msgstr ""
+
+#: betty/openapi.py:22
+msgid "Retrieve a single event."
+msgstr ""
+
+#: betty/openapi.py:22
+msgid "The event."
+msgstr ""
+
+#: betty/openapi.py:23
+msgid "Retrieve the collection of citations."
+msgstr ""
+
+#: betty/openapi.py:23
+msgid "The collection of citations."
+msgstr ""
+
+#: betty/openapi.py:23
+msgid "Retrieve a single citation."
+msgstr ""
+
+#: betty/openapi.py:23
+msgid "The citation."
+msgstr ""
+
+#: betty/openapi.py:24
+msgid "Retrieve the collection of sources."
+msgstr ""
+
+#: betty/openapi.py:24
+msgid "The collection of sources."
+msgstr ""
+
+#: betty/openapi.py:24
+msgid "Retrieve a single source."
+msgstr ""
+
+#: betty/openapi.py:24
+msgid "The source."
+msgstr ""
+
+#: betty/openapi.py:45 betty/resources/public/localized/.error/401.html.j2:2
+msgid "Unauthorized"
+msgstr ""
+
+#: betty/openapi.py:55
+msgid "Forbidden"
+msgstr ""
+
+#: betty/openapi.py:65
+msgid "Not found"
+msgstr ""
+
+#: betty/openapi.py:80
+msgid "The ID for the resource to retrieve."
+msgstr ""
+
+#: betty/openapi.py:88
+msgid ""
+"An HTTP [Content-Language](https://developer.mozilla.org/en-"
+"US/docs/Web/HTTP/Headers/Content-Language) header."
+msgstr ""
+
+#: betty/openapi.py:153
+msgid ""
+"An HTTP [Accept-Language](https://developer.mozilla.org/en-"
+"US/docs/Web/HTTP/Headers/Accept-Language) header."
+msgstr ""
+
+#: betty/openapi.py:161
+msgid "An HTML5 document."
+msgstr ""
+
+#: betty/openapi.py:168
+msgid "A locale name."
 msgstr ""
 
 #: betty/plugins/search/resources/templates/search-results-container.html.j2:3
@@ -64,28 +196,33 @@ msgstr ""
 msgid "Welcome to %(title)s"
 msgstr ""
 
-#: betty/resources/templates/base.html.j2:46
+#: betty/resources/public/localized/api/index.html.j2:4
+#: betty/resources/templates/footer.html.j2:2
+msgid "API documentation"
+msgstr ""
+
+#: betty/resources/templates/base.html.j2:52
 msgid "Menu"
 msgstr ""
 
-#: betty/resources/templates/base.html.j2:49
+#: betty/resources/templates/base.html.j2:55
 #: betty/resources/templates/page/list-person.html.j2:2
 msgid "People"
 msgstr ""
 
-#: betty/resources/templates/base.html.j2:50
+#: betty/resources/templates/base.html.j2:56
 #: betty/resources/templates/page/list-event.html.j2:2
 #: betty/resources/templates/page/person.html.j2:66
 #: betty/resources/templates/page/place.html.j2:24
 msgid "Events"
 msgstr ""
 
-#: betty/resources/templates/base.html.j2:51
+#: betty/resources/templates/base.html.j2:57
 #: betty/resources/templates/page/list-place.html.j2:2
 msgid "Places"
 msgstr ""
 
-#: betty/resources/templates/base.html.j2:52
+#: betty/resources/templates/base.html.j2:58
 #: betty/resources/templates/page/citation.html.j2:7
 #: betty/resources/templates/page/event.html.j2:45
 #: betty/resources/templates/page/list-file.html.j2:2
@@ -94,16 +231,16 @@ msgstr ""
 msgid "Media"
 msgstr ""
 
-#: betty/resources/templates/base.html.j2:53
+#: betty/resources/templates/base.html.j2:59
 #: betty/resources/templates/page/list-source.html.j2:2
 msgid "Sources"
 msgstr ""
 
-#: betty/resources/templates/base.html.j2:59
+#: betty/resources/templates/base.html.j2:65
 msgid "Language"
 msgstr ""
 
-#: betty/resources/templates/base.html.j2:80
+#: betty/resources/templates/base.html.j2:86
 msgid "References"
 msgstr ""
 
@@ -216,11 +353,8 @@ msgstr[1] ""
 msgid "Siblings"
 msgstr ""
 
-#: betty/resources/public/localized/.error/401.html.j2:2
-msgid "Unauthorized"
-msgstr ""
-
 #: betty/resources/public/localized/.error/401.html.j2:4
+#: betty/resources/public/localized/.error/401.json.j2:3
 msgid "I'm sorry, dear, but it seems you're not logged in."
 msgstr ""
 
@@ -229,6 +363,7 @@ msgid "Access denied"
 msgstr ""
 
 #: betty/resources/public/localized/.error/403.html.j2:4
+#: betty/resources/public/localized/.error/403.json.j2:3
 msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
 msgstr ""
 
@@ -237,6 +372,7 @@ msgid "Page not found"
 msgstr ""
 
 #: betty/resources/public/localized/.error/404.html.j2:4
+#: betty/resources/public/localized/.error/404.json.j2:3
 msgid "I'm sorry, dear, but it seems this page does not exist."
 msgstr ""
 

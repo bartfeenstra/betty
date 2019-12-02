@@ -8,7 +8,7 @@ server {
 	# The cache lifetime.
 	add_header Cache-Control "max-age=86400";
 
-    {%- if plugins['betty.plugins.nginx.Nginx'].content_negotiation %}
+    {%- if site.configuration.content_negotiation %}
         set_by_lua_block $content_type_extension {
             local available_content_types = {'text/html', 'application/json'}
             local content_type_extensions = {}
@@ -20,6 +20,7 @@ server {
     {%- else %}
         set $content_type_extension html;
     {%- endif %}
+    index index.$content_type_extension;
 
     {%- if site.configuration.multilingual %}
         location ~ ^/({{ site.configuration.locales.values() | map(attribute='alias') | join('|') }})(/|$) {
@@ -35,11 +36,10 @@ server {
                 internal;
             }
 
-            index index.$content_type_extension;
             try_files $uri $uri/ =404;
         }
         location @localized_redirect {
-            {%- if plugins['betty.plugins.nginx.Nginx'].content_negotiation %}
+            {%- if site.configuration.content_negotiation %}
                 set_by_lua_block $locale_alias {
                     local available_locales = {'{{ site.configuration.locales | join("', '") }}'}
                     local locale_aliases = {}
@@ -67,7 +67,6 @@ server {
                 internal;
             }
 
-            index index.$content_type_extension;
             try_files $uri $uri/ =404;
         }
     {%- endif %}

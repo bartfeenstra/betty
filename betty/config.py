@@ -47,6 +47,7 @@ class Configuration:
             '/') if not base_url.endswith('://') else base_url
         self._root_path = '/'
         self._clean_urls = False
+        self._content_negotiation = False
         self._title = 'Betty'
         self._plugins = {}
         self._mode = 'production'
@@ -91,11 +92,19 @@ class Configuration:
 
     @property
     def clean_urls(self) -> bool:
-        return self._clean_urls
+        return self._clean_urls or self.content_negotiation
 
     @clean_urls.setter
     def clean_urls(self, clean_urls: bool):
         self._clean_urls = clean_urls
+
+    @property
+    def content_negotiation(self) -> bool:
+        return self._content_negotiation
+
+    @content_negotiation.setter
+    def content_negotiation(self, content_negotiation: bool):
+        self._content_negotiation = content_negotiation
 
     @property
     def title(self) -> str:
@@ -148,6 +157,7 @@ ConfigurationSchema = Schema({
     Required('base_url'): All(str),
     'root_path': All(str),
     'clean_urls': All(bool),
+    'content_negotiation': bool,
     'mode': Any('development', 'production'),
     'resources': All(str, IsDir()),
     'plugins': MapDict(str, dict),
@@ -186,6 +196,9 @@ def _from_dict(site_directory_path: str, config_dict: Dict) -> Configuration:
 
     if 'clean_urls' in config_dict:
         configuration.clean_urls = config_dict['clean_urls']
+
+    if 'content_negotiation' in config_dict:
+        configuration.content_negotiation = config_dict['content_negotiation']
 
     if 'mode' in config_dict:
         configuration.mode = config_dict['mode']
