@@ -21,7 +21,7 @@ def _get_resources():
         _Resource('place', _('Retrieve the collection of places.'), _('The collection of places.'), _('Retrieve a single place.'), _('The place.')),
         _Resource('event', _('Retrieve the collection of events.'), _('The collection of events.'), _('Retrieve a single event.'), _('The event.')),
         _Resource('citation', _('Retrieve the collection of citations.'), _('The collection of citations.'), _('Retrieve a single citation.'), _('The citation.')),
-        _Resource('source', _('Retrieve the collection of sources.'), _('The collection of sources.'), _('Retrieve a single source.'), _('The filesource.')),
+        _Resource('source', _('Retrieve the collection of sources.'), _('The collection of sources.'), _('Retrieve a single source.'), _('The source.')),
     ]
 
 
@@ -42,7 +42,7 @@ def build_specification(site: Site) -> Dict:
         'components': {
             'responses': {
                 '401': {
-                    'description': 'Unauthorized',
+                    'description': _('Unauthorized'),
                     'content': {
                         'application/json': {
                             'schema': {
@@ -52,7 +52,7 @@ def build_specification(site: Site) -> Dict:
                     },
                 },
                 '403': {
-                    'description': 'Forbidden',
+                    'description': _('Forbidden'),
                     'content': {
                         'application/json': {
                             'schema': {
@@ -62,7 +62,7 @@ def build_specification(site: Site) -> Dict:
                     },
                 },
                 '404': {
-                    'description': 'Not found',
+                    'description': _('Not found'),
                     'content': {
                         'application/json': {
                             'schema': {
@@ -77,7 +77,7 @@ def build_specification(site: Site) -> Dict:
                     'name': 'id',
                     'in': 'path',
                     'required': True,
-                    'description': 'The ID for the resource to retrieve.',
+                    'description': _('The ID for the resource to retrieve.'),
                     'schema': {
                         'type': 'string',
                     },
@@ -85,7 +85,7 @@ def build_specification(site: Site) -> Dict:
             },
             'headers': {
                 'Content-Language': {
-                    'description': 'An HTTP [Content-Language](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Language) header.',
+                    'description': _('An HTTP [Content-Language](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Language) header.'),
                     'schema': {
                         'type': 'string',
                     },
@@ -150,27 +150,27 @@ def build_specification(site: Site) -> Dict:
         specification['components']['parameters']['Accept-Language'] = {
             'name': 'Accept-Language',
             'in': 'header',
-            'description': 'An HTTP [Accept-Language](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language) header.',
+            'description': _('An HTTP [Accept-Language](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language) header.'),
             'schema': {
-                'type': 'string'
+                'type': 'string',
             },
-            'example': site.configuration.locales[site.configuration.default_locale].alias
+            'example': site.configuration.locales[site.configuration.default_locale].alias,
         }
         specification['components']['schemas']['html'] = {
             'type': 'string',
-            'description': 'An HTML5 document.'
+            'description': _('An HTML5 document.'),
         }
     else:
         specification['components']['parameters']['locale'] = {
             'name': 'locale',
             'in': 'path',
             'required': True,
-            'description': 'A locale name.',
+            'description': _('A locale name.'),
             'schema': {
                 'type': 'string',
                 'enum': list(site.configuration.locales.keys())
             },
-            'example': site.configuration.locales[site.configuration.default_locale].alias
+            'example': site.configuration.locales[site.configuration.default_locale].alias,
         }
 
     # Add default behavior to all requests.
