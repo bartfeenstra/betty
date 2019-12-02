@@ -135,7 +135,7 @@ def _render_entity_type_list_json(www_directory_path: str, entities: Iterable[An
         }
         for entity in entities:
             data['collection'].append(url_generator.generate(
-                entity, 'application/json', absolute=True))
+                entity, 'application/ld+json', absolute=True))
         dump(data, f)
 
 

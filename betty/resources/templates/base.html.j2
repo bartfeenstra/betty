@@ -21,7 +21,7 @@
         {%- endfor -%}
         <link rel="canonical" href="{{ resource | url(absolute=true) }}"/>
         {% if resource.id -%}
-            <link rel="alternate" href="{{ resource | url(absolute=true, content_type='application/json') }}" type="application/ld+json"/>
+            <link rel="alternate" href="{{ resource | url(content_type='application/ld+json') }}" type="application/ld+json"/>
             <script type="application/ld+json">
               {{ resource | json }}
             </script>

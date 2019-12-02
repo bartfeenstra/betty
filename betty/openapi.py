@@ -44,7 +44,7 @@ def build_specification(site: Site) -> Dict:
                 '401': {
                     'description': _('Unauthorized'),
                     'content': {
-                        'application/json': {
+                        'application/ld+json': {
                             'schema': {
                                 '$ref': '#/components/schemas/betty/error',
                             },
@@ -54,7 +54,7 @@ def build_specification(site: Site) -> Dict:
                 '403': {
                     'description': _('Forbidden'),
                     'content': {
-                        'application/json': {
+                        'application/ld+json': {
                             'schema': {
                                 '$ref': '#/components/schemas/betty/error',
                             },
@@ -64,7 +64,7 @@ def build_specification(site: Site) -> Dict:
                 '404': {
                     'description': _('Not found'),
                     'content': {
-                        'application/json': {
+                        'application/ld+json': {
                             'schema': {
                                 '$ref': '#/components/schemas/betty/error',
                             },
@@ -116,7 +116,7 @@ def build_specification(site: Site) -> Dict:
                         '200': {
                             'description': resource.collection_response_description,
                             'content': {
-                                'application/json': {
+                                'application/ld+json': {
                                     'schema': {
                                         '$ref': '#/components/schemas/betty/%sCollection' % resource.name,
                                     },
@@ -133,7 +133,7 @@ def build_specification(site: Site) -> Dict:
                         '200': {
                             'description': resource.single_response_description,
                             'content': {
-                                'application/json': {
+                                'application/ld+json': {
                                     'schema': {
                                         '$ref': '#/components/schemas/betty/%s' % resource.name,
                                     },
