@@ -144,10 +144,10 @@ class NginxTest(TestCase):
 	# The cache lifetime.
 	add_header Cache-Control "max-age=86400";
         set_by_lua_block $content_type_extension {
-            local available_content_types = {'text/html', 'application/json'}
+            local available_content_types = {'text/html', 'application/ld+json'}
             local content_type_extensions = {}
             content_type_extensions['text/html'] = 'html'
-            content_type_extensions['application/json'] = 'json'
+            content_type_extensions['application/ld+json'] = 'json'
             local content_type = require('cone').negotiate(ngx.req.get_headers()['Accept'], available_content_types)
             return content_type_extensions[content_type]
         }
@@ -203,10 +203,10 @@ class NginxTest(TestCase):
 	# The cache lifetime.
 	add_header Cache-Control "max-age=86400";
         set_by_lua_block $content_type_extension {
-            local available_content_types = {'text/html', 'application/json'}
+            local available_content_types = {'text/html', 'application/ld+json'}
             local content_type_extensions = {}
             content_type_extensions['text/html'] = 'html'
-            content_type_extensions['application/json'] = 'json'
+            content_type_extensions['application/ld+json'] = 'json'
             local content_type = require('cone').negotiate(ngx.req.get_headers()['Accept'], available_content_types)
             return content_type_extensions[content_type]
         }
