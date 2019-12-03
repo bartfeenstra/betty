@@ -72,7 +72,7 @@ class NginxTest(TestCase):
         self.assertIn('Betty', response.text)
 
     def assert_betty_json(self, response: Response) -> None:
-        self.assertEquals('application/ld+json', response.headers['Content-Type'])
+        self.assertEquals('application/json', response.headers['Content-Type'])
         data = response.json()
         with open(path.join(path.dirname(path.dirname(path.dirname(path.dirname(__file__)))), 'resources', 'public', 'static', 'schema.json')) as f:
             jsonschema.validate(data, json.load(f))
@@ -92,7 +92,7 @@ class NginxTest(TestCase):
     def test_negotiated_json_404(self):
         with self.Container('betty-monolingual-content-negotiation.json') as c:
             response = requests.get('%s/non-existent' % c.address, headers={
-                'Accept': 'application/ld+json',
+                'Accept': 'application/json',
             })
             self.assertEquals(404, response.status_code)
             self.assert_betty_json(response)
@@ -134,7 +134,7 @@ class NginxTest(TestCase):
     def test_negotiated_localized_negotiated_json_404(self):
         with self.Container('betty-multilingual-content-negotiation.json') as c:
             response = requests.get('%s/non-existent' % c.address, headers={
-                'Accept': 'application/ld+json',
+                'Accept': 'application/json',
                 'Accept-Language': 'nl-NL',
             })
             self.assertEquals(404, response.status_code)
@@ -157,7 +157,7 @@ class NginxTest(TestCase):
     def test_negotiated_json_resource(self):
         with self.Container('betty-monolingual-content-negotiation.json') as c:
             response = requests.get('%s/place/' % c.address, headers={
-                'Accept': 'application/ld+json',
+                'Accept': 'application/json',
             })
             self.assertEquals(200, response.status_code)
             self.assert_betty_json(response)
@@ -179,7 +179,7 @@ class NginxTest(TestCase):
     def test_negotiated_json_static_resource(self):
         with self.Container('betty-multilingual-content-negotiation.json') as c:
             response = requests.get('%s/api/' % c.address, headers={
-                'Accept': 'application/ld+json',
+                'Accept': 'application/json',
             })
             self.assertEquals(200, response.status_code)
             self.assert_betty_json(response)

@@ -56,7 +56,7 @@ class JSONEncoder(stdjson.JSONEncoder):
         stdjson.JSONEncoder.default(self, o)
 
     def _generate_url(self, resource: Any):
-        return self._url_generator.generate(resource, 'application/ld+json', locale=self._locale)
+        return self._url_generator.generate(resource, 'application/json', locale=self._locale)
 
     def _encode_schema(self, encoded: Dict, defintion: str) -> None:
         encoded['$schema'] = self._static_url_generator.generate('schema.json#/definitions/%s' % defintion)
