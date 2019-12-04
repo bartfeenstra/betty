@@ -293,11 +293,13 @@ def _filter_image(site: Site, file: File, width: Optional[int] = None, height: O
     return destination_path
 
 
-def _filter_sort_localizeds(context, preferred_locale: str, localizeds: Iterable[Localized], localized_attribute: str, sort_attribute: str):
+def _filter_sort_localizeds(context, preferred_locale: str, localizeds: Iterable[Localized], localized_attribute: str,
+                            sort_attribute: str):
     get_localized_attr = make_attrgetter(
         context.environment, localized_attribute)
     get_sort_attr = make_attrgetter(context.environment, sort_attribute)
 
     def get_sort_key(x):
         return get_sort_attr(negotiate_localizeds(preferred_locale, get_localized_attr(x)))
+
     return sorted(localizeds, key=get_sort_key)

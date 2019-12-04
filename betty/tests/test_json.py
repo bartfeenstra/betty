@@ -17,7 +17,7 @@ class JSONEncoderTest(TestCase):
     def assert_encodes(self, expected, data, schema_definition: str):
         with TemporaryDirectory() as output_directory:
             configuration = Configuration(
-                output_directory, 'https://ancestry.example.com')
+                output_directory, '')
             encoded_data = stdjson.loads(stdjson.dumps(data, cls=JSONEncoder.get_factory(
                 configuration, configuration.default_locale)))
             json.validate(encoded_data, schema_definition, configuration)
@@ -28,6 +28,11 @@ class JSONEncoderTest(TestCase):
         longitude = -54.321
         coordinates = Point(latitude, longitude)
         expected = {
+            '@context': {
+                'latitude': 'https://schema.org/latitude',
+                'longitude': 'https://schema.org/longitude',
+            },
+            '@type': 'https://schema.org/GeoCoordinates',
             'latitude': latitude,
             'longitude': longitude,
         }
@@ -38,7 +43,12 @@ class JSONEncoderTest(TestCase):
         name = 'The Place'
         place = Place(place_id, [LocalizedName(name)])
         expected = {
-            '$schema': 'https://ancestry.example.com/schema.json#/definitions/place',
+            '$schema': '/schema.json#/definitions/place',
+            '@context': {
+                'encloses': 'https://schema.org/containsPlace',
+                'events': 'https://schema.org/event'
+            },
+            '@type': 'https://schema.org/Place',
             'id': place_id,
             'names': [
                 {
@@ -66,7 +76,14 @@ class JSONEncoderTest(TestCase):
             Link('https://example.com/the-place', 'The Place Online'))
         place.events.add(Event('E1', Event.Type.BIRTH))
         expected = {
-            '$schema': 'https://ancestry.example.com/schema.json#/definitions/place',
+            '$schema': '/schema.json#/definitions/place',
+            '@context': {
+                'encloses': 'https://schema.org/containsPlace',
+                'events': 'https://schema.org/event',
+                'enclosedBy': 'https://schema.org/containedInPlace',
+                'coordinates': 'https://schema.org/geo',
+            },
+            '@type': 'https://schema.org/Place',
             'id': place_id,
             'names': [
                 {
@@ -75,7 +92,7 @@ class JSONEncoderTest(TestCase):
                 },
             ],
             'events': [
-                'https://ancestry.example.com/event/E1/index.json',
+                '/event/E1/index.json',
             ],
             'links': [
                 {
@@ -84,13 +101,18 @@ class JSONEncoderTest(TestCase):
                 },
             ],
             'coordinates': {
+                '@context': {
+                    'latitude': 'https://schema.org/latitude',
+                    'longitude': 'https://schema.org/longitude',
+                },
+                '@type': 'https://schema.org/GeoCoordinates',
                 'latitude': latitude,
                 'longitude': longitude,
             },
             'encloses': [
-                'https://ancestry.example.com/place/the_enclosed_place/index.json',
+                '/place/the_enclosed_place/index.json',
             ],
-            'enclosedBy': 'https://ancestry.example.com/place/the_enclosing_place/index.json',
+            'enclosedBy': '/place/the_enclosing_place/index.json',
         }
         self.assert_encodes(expected, place, 'place')
 
@@ -98,7 +120,13 @@ class JSONEncoderTest(TestCase):
         person_id = 'the_person'
         person = Person(person_id)
         expected = {
-            '$schema': 'https://ancestry.example.com/schema.json#/definitions/person',
+            '$schema': '/schema.json#/definitions/person',
+            '@context': {
+                'parents': 'https://schema.org/parent',
+                'children': 'https://schema.org/child',
+                'siblings': 'https://schema.org/sibling',
+            },
+            '@type': 'https://schema.org/Person',
             'id': person_id,
             'parents': [],
             'children': [],
@@ -136,28 +164,39 @@ class JSONEncoderTest(TestCase):
         person.presences.add(presence)
 
         expected = {
-            '$schema': 'https://ancestry.example.com/schema.json#/definitions/person',
+            '$schema': '/schema.json#/definitions/person',
+            '@context': {
+                'individualName': 'https://schema.org/givenName',
+                'familyName': 'https://schema.org/familyName',
+                'parents': 'https://schema.org/parent',
+                'children': 'https://schema.org/child',
+                'siblings': 'https://schema.org/sibling',
+            },
+            '@type': 'https://schema.org/Person',
             'id': person_id,
             'familyName': person_family_name,
             'individualName': person_individual_name,
             'parents': [
-                'https://ancestry.example.com/person/the_parent/index.json',
+                '/person/the_parent/index.json',
             ],
             'children': [
-                'https://ancestry.example.com/person/the_child/index.json',
+                '/person/the_child/index.json',
             ],
             'siblings': [
-                'https://ancestry.example.com/person/the_sibling/index.json',
+                '/person/the_sibling/index.json',
             ],
             'private': False,
             'presences': [
                 {
+                    '@context': {
+                        'event': 'https://schema.org/performerIn',
+                    },
                     'role': Presence.Role.SUBJECT.value,
-                    'event': 'https://ancestry.example.com/event/the_event/index.json',
+                    'event': '/event/the_event/index.json',
                 },
             ],
             'citations': [
-                'https://ancestry.example.com/citation/the_citation/index.json',
+                '/citation/the_citation/index.json',
             ],
             'links': [
                 {
@@ -172,7 +211,7 @@ class JSONEncoderTest(TestCase):
         with NamedTemporaryFile() as f:
             file = File('the_file', f.name)
             expected = {
-                '$schema': 'https://ancestry.example.com/schema.json#/definitions/file',
+                '$schema': '/schema.json#/definitions/file',
                 'id': 'the_file',
                 'entities': [],
                 'notes': [],
@@ -186,11 +225,11 @@ class JSONEncoderTest(TestCase):
             file.notes.append(Note('The Note'))
             Person('the_person').files.add(file)
             expected = {
-                '$schema': 'https://ancestry.example.com/schema.json#/definitions/file',
+                '$schema': '/schema.json#/definitions/file',
                 'id': 'the_file',
                 'type': 'text/plain',
                 'entities': [
-                    'https://ancestry.example.com/person/the_person/index.json',
+                    '/person/the_person/index.json',
                 ],
                 'notes': [
                     {
@@ -203,7 +242,8 @@ class JSONEncoderTest(TestCase):
     def test_event_should_encode_minimal(self):
         event = Event('the_event', Event.Type.BIRTH)
         expected = {
-            '$schema': 'https://ancestry.example.com/schema.json#/definitions/event',
+            '$schema': '/schema.json#/definitions/event',
+            '@type': 'https://schema.org/Event',
             'id': 'the_event',
             'type': Event.Type.BIRTH.value,
             'presences': [],
@@ -220,31 +260,42 @@ class JSONEncoderTest(TestCase):
         event.presences.add(presence)
         event.citations.add(Citation('the_citation', Source('the_source', 'The Source')))
         expected = {
-            '$schema': 'https://ancestry.example.com/schema.json#/definitions/event',
+            '$schema': '/schema.json#/definitions/event',
+            '@context': {
+                'place': 'https://schema.org/location',
+            },
+            '@type': 'https://schema.org/Event',
             'id': 'the_event',
             'type': Event.Type.BIRTH.value,
             'presences': [
                 {
+                    '@context': {
+                        'person': 'https://schema.org/actor',
+                    },
                     'role': Presence.Role.SUBJECT.value,
-                    'person': 'https://ancestry.example.com/person/the_person/index.json',
+                    'person': '/person/the_person/index.json',
                 },
             ],
             'citations': [
-                'https://ancestry.example.com/citation/the_citation/index.json',
+                '/citation/the_citation/index.json',
             ],
             'date': {
                 'year': 2000,
                 'month': 1,
                 'day': 1,
             },
-            'place': 'https://ancestry.example.com/place/the_place/index.json',
+            'place': '/place/the_place/index.json',
         }
         self.assert_encodes(expected, event, 'event')
 
     def test_source_should_encode_minimal(self):
         source = Source('the_source', 'The Source')
         expected = {
-            '$schema': 'https://ancestry.example.com/schema.json#/definitions/source',
+            '$schema': '/schema.json#/definitions/source',
+            '@context': {
+                'name': 'https://schema.org/name',
+            },
+            '@type': 'https://schema.org/Thing',
             'id': 'the_source',
             'name': 'The Source',
             'contains': [],
@@ -264,16 +315,20 @@ class JSONEncoderTest(TestCase):
             Source('the_contained_source', 'The Contained Source'))
         source.citations.add(Citation('the_citation', Source('the_source', 'The Source')))
         expected = {
-            '$schema': 'https://ancestry.example.com/schema.json#/definitions/source',
+            '$schema': '/schema.json#/definitions/source',
+            '@context': {
+                'name': 'https://schema.org/name',
+            },
+            '@type': 'https://schema.org/Thing',
             'id': 'the_source',
             'name': 'The Source',
             'contains': [
-                'https://ancestry.example.com/source/the_contained_source/index.json',
+                '/source/the_contained_source/index.json',
             ],
             'citations': [
-                'https://ancestry.example.com/citation/the_citation/index.json',
+                '/citation/the_citation/index.json',
             ],
-            'containedBy': 'https://ancestry.example.com/source/the_containing_source/index.json',
+            'containedBy': '/source/the_containing_source/index.json',
             'date': {
                 'year': 2000,
                 'month': 1,
@@ -291,9 +346,10 @@ class JSONEncoderTest(TestCase):
     def test_citation_should_encode_minimal(self):
         citation = Citation('the_citation', Source('the_source', 'The Source'))
         expected = {
-            '$schema': 'https://ancestry.example.com/schema.json#/definitions/citation',
+            '$schema': '/schema.json#/definitions/citation',
+            '@type': 'https://schema.org/Thing',
             'id': 'the_citation',
-            'source': 'https://ancestry.example.com/source/the_source/index.json',
+            'source': '/source/the_source/index.json',
             'claims': [],
         }
         self.assert_encodes(expected, citation, 'citation')
@@ -303,11 +359,15 @@ class JSONEncoderTest(TestCase):
         citation.description = 'The Source Description'
         citation.claims.add(Event('the_event', Event.Type.BIRTH))
         expected = {
-            '$schema': 'https://ancestry.example.com/schema.json#/definitions/citation',
+            '$schema': '/schema.json#/definitions/citation',
+            '@context': {
+                'description': 'https://schema.org/description',
+            },
+            '@type': 'https://schema.org/Thing',
             'id': 'the_citation',
-            'source': 'https://ancestry.example.com/source/the_source/index.json',
+            'source': '/source/the_source/index.json',
             'claims': [
-                'https://ancestry.example.com/event/the_event/index.json'
+                '/event/the_event/index.json'
             ],
             'description': 'The Source Description',
         }
