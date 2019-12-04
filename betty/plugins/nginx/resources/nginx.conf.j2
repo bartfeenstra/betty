@@ -1,11 +1,18 @@
+{%- set server_name = urlparse(site.configuration.base_url)['netloc'] -%}
+{%- if site.configuration.base_url.startswith('https') %}
+    server {
+        listen 80;
+        server_name {{ server_name }};
+        return 301 https://$host$request_uri;
+    }
+{%- endif -%}
 server {
-	# The port to listen to.
-	listen 80;
-	# The publicly visible hostname.
-	server_name {{ urlparse(site.configuration.base_url)['netloc'] }};
-	# The path to the local web root.
+	listen {% if site.configuration.base_url.startswith('https') %}443 ssl http2{% else %}80{% endif %};
+	server_name {{ server_name }};
 	root {{ site.configuration.www_directory_path }};
-	# The cache lifetime.
+    {%- if site.configuration.base_url.startswith('https') %}
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    {%- endif %}
 	add_header Cache-Control "max-age=86400";
 
     {%- if site.configuration.content_negotiation %}
