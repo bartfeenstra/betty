@@ -90,11 +90,11 @@ def _create_file(path: str) -> object:
     return open(path, 'w')
 
 
-def _create_html_file(path: str) -> object:
+def _create_html_resource(path: str) -> object:
     return _create_file(os.path.join(path, 'index.html'))
 
 
-def _create_json_file(path: str) -> object:
+def _create_json_resource(path: str) -> object:
     return _create_file(os.path.join(path, 'index.json'))
 
 
@@ -115,7 +115,7 @@ def _render_entity_type_list_html(www_directory_path: str, entities: Iterable[An
     try:
         template = environment.get_template(
             'page/list-%s.html.j2' % entity_type_name)
-        with _create_html_file(entity_type_path) as f:
+        with _create_html_resource(entity_type_path) as f:
             f.write(template.render({
                 'resource': '/%s/index.html' % entity_type_name,
                 'entity_type_name': entity_type_name,
@@ -127,7 +127,7 @@ def _render_entity_type_list_html(www_directory_path: str, entities: Iterable[An
 
 def _render_entity_type_list_json(www_directory_path: str, entities: Iterable[Any], entity_type_name: str, configuration: Configuration) -> None:
     entity_type_path = os.path.join(www_directory_path, entity_type_name)
-    with _create_json_file(entity_type_path) as f:
+    with _create_json_resource(entity_type_path) as f:
         url_generator = SiteUrlGenerator(configuration)
         data = {
             '$schema': StaticPathUrlGenerator(configuration).generate('schema.json#/definitions/%sCollection' % entity_type_name, absolute=True),
@@ -148,7 +148,7 @@ def _render_entity(www_directory_path: str, entity: Any, entity_type_name: str, 
 
 def _render_entity_html(www_directory_path: str, entity: Any, entity_type_name: str, environment: Environment) -> None:
     entity_path = os.path.join(www_directory_path, entity_type_name, entity.id)
-    with _create_html_file(entity_path) as f:
+    with _create_html_resource(entity_path) as f:
         f.write(environment.get_template('page/%s.html.j2' % entity_type_name).render({
             'resource': entity,
             'entity_type_name': entity_type_name,
@@ -158,7 +158,7 @@ def _render_entity_html(www_directory_path: str, entity: Any, entity_type_name: 
 
 def _render_entity_json(www_directory_path: str, entity: Any, entity_type_name: str, configuration: Configuration, locale: str) -> None:
     entity_path = os.path.join(www_directory_path, entity_type_name, entity.id)
-    with _create_json_file(entity_path) as f:
+    with _create_json_resource(entity_path) as f:
         dump(entity, f, cls=JSONEncoder.get_factory(configuration, locale))
 
 

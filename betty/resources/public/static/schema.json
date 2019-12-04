@@ -31,6 +31,11 @@
         "$schema",
         "collection"
       ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
       "additionalProperties": false
     },
     "person": {
@@ -74,6 +79,11 @@
               "role",
               "event"
             ],
+            "patternProperties": {
+              "^@": {
+                "$ref": "#/definitions/jsonLd"
+              }
+            },
             "additionalProperties": false
           }
         },
@@ -103,6 +113,11 @@
         "presences",
         "private"
       ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
       "additionalProperties": false
     },
     "fileCollection": {
@@ -119,6 +134,11 @@
         "$schema",
         "collection"
       ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
       "additionalProperties": false
     },
     "file": {
@@ -150,6 +170,11 @@
         "notes",
         "entities"
       ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
       "additionalProperties": false
     },
     "eventCollection": {
@@ -166,6 +191,11 @@
         "$schema",
         "collection"
       ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
       "additionalProperties": false
     },
     "event": {
@@ -201,6 +231,11 @@
               "role",
               "person"
             ],
+            "patternProperties": {
+              "^@": {
+                "$ref": "#/definitions/jsonLd"
+              }
+            },
             "additionalProperties": false
           }
         },
@@ -218,6 +253,11 @@
         "presences",
         "citations"
       ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
       "additionalProperties": false
     },
     "placeCollection": {
@@ -234,6 +274,11 @@
         "$schema",
         "collection"
       ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
       "additionalProperties": false
     },
     "place": {
@@ -276,6 +321,11 @@
         "links",
         "events"
       ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
       "additionalProperties": false
     },
     "citationCollection": {
@@ -292,6 +342,11 @@
         "$schema",
         "collection"
       ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
       "additionalProperties": false
     },
     "citation": {
@@ -324,6 +379,11 @@
         "source",
         "claims"
       ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
       "additionalProperties": false
     },
     "sourceCollection": {
@@ -340,6 +400,11 @@
         "$schema",
         "collection"
       ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
       "additionalProperties": false
     },
     "source": {
@@ -383,12 +448,20 @@
         "links",
         "citations"
       ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
       "additionalProperties": false
     },
     "schema": {
       "type": "string",
       "format": "uri",
       "description": "A JSON Schema URI."
+    },
+    "jsonLd": {
+      "description": "A JSON-LD annotation."
     },
     "id": {
       "type": "string",
@@ -414,6 +487,11 @@
       "required": [
         "url"
       ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
       "additionalProperties": false
     },
     "localizedName": {
@@ -429,6 +507,11 @@
       "required": [
         "name"
       ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
       "additionalProperties": false
     },
     "description": {
@@ -451,6 +534,14 @@
           "type": "string"
         }
       },
+      "required": [
+        "text"
+      ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
       "additionalProperties": false
     },
     "date": {
@@ -464,6 +555,11 @@
         },
         "day": {
           "type": "number"
+        }
+      },
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
         }
       },
       "additionalProperties": false
@@ -482,6 +578,11 @@
         "latitude",
         "longitude"
       ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
       "additionalProperties": false
     },
     "places": {

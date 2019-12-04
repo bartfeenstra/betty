@@ -21,7 +21,10 @@
         {%- endfor -%}
         <link rel="canonical" href="{{ resource | url(absolute=true) }}"/>
         {% if resource.id -%}
-            <link rel="alternate" href="{{ resource | url(absolute=true, content_type='application/json') }}" type="application/json"/>
+            <link rel="alternate" href="{{ resource | url(content_type='application/json') }}" type="application/json"/>
+            <script type="application/ld+json">
+              {{ resource | json }}
+            </script>
         {%- endif -%}
     {%- endif %}
     <meta name="og:image" content="/betty-512x512.png"/>
