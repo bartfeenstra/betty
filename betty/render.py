@@ -1,9 +1,10 @@
+import asyncio
 import logging
 import os
 from json import dump
 from os import chmod
 from os.path import join
-from typing import Iterable, Any
+from typing import Iterable, Any, List
 
 from jinja2 import Environment, TemplateNotFound
 
@@ -29,13 +30,26 @@ class PostRenderEvent(Event):
 
 
 def render(site: Site) -> None:
-    logger = logging.getLogger()
     site.resources.copytree(join('public', 'static'),
                             site.configuration.www_directory_path)
     static_environment = create_environment(site)
     render_tree(site.configuration.www_directory_path,
                 static_environment, site.configuration)
     sass.render_tree(site.configuration.www_directory_path)
+    loop = asyncio.new_event_loop()
+    loop.run_until_complete(_render_localized(site))
+    loop.close()
+    chmod(site.configuration.www_directory_path, 0o755)
+    for directory_path, subdirectory_names, file_names in os.walk(site.configuration.www_directory_path):
+        for subdirectory_name in subdirectory_names:
+            chmod(join(directory_path, subdirectory_name), 0o755)
+        for file_name in file_names:
+            chmod(join(directory_path, file_name), 0o644)
+    site.event_dispatcher.dispatch(PostRenderEvent(static_environment))
+
+
+async def _render_localized(site: Site):
+    logger = logging.getLogger()
     for locale, locale_configuration in site.configuration.locales.items():
         localized_environment = create_environment(site, locale)
         if site.configuration.multilingual:
@@ -49,40 +63,26 @@ def render(site: Site) -> None:
         render_tree(www_directory_path,
                     localized_environment, site.configuration)
 
-        _render_entity_type(www_directory_path, site.ancestry.files.values(
-        ), 'file', site.configuration, locale, localized_environment)
-        logger.info('Rendered %d files in %s.' %
-                    (len(site.ancestry.files), locale))
-        _render_entity_type(www_directory_path, site.ancestry.people.values(
-        ), 'person', site.configuration, locale, localized_environment)
-        logger.info('Rendered %d people in %s.' %
-                    (len(site.ancestry.people), locale))
-        _render_entity_type(www_directory_path, site.ancestry.places.values(
-        ), 'place', site.configuration, locale, localized_environment)
-        logger.info('Rendered %d places in %s.' %
-                    (len(site.ancestry.places), locale))
-        _render_entity_type(www_directory_path, site.ancestry.events.values(
-        ), 'event', site.configuration, locale, localized_environment)
-        logger.info('Rendered %d events in %s.' %
-                    (len(site.ancestry.events), locale))
-        _render_entity_type(www_directory_path, site.ancestry.citations.values(
-        ), 'citation', site.configuration, locale, localized_environment)
-        logger.info('Rendered %d citations in %s.' %
-                    (len(site.ancestry.citations), locale))
-        _render_entity_type(www_directory_path, site.ancestry.sources.values(
-        ), 'source', site.configuration, locale, localized_environment)
-        logger.info('Rendered %d sources in %s.' %
-                    (len(site.ancestry.sources), locale))
+        await _render_entities(site, www_directory_path, locale, localized_environment)
+
         with Translations(site.translations[locale]):
             _render_openapi(www_directory_path, site)
         logger.info('Rendered OpenAPI documentation.')
-    chmod(site.configuration.www_directory_path, 0o755)
-    for directory_path, subdirectory_names, file_names in os.walk(site.configuration.www_directory_path):
-        for subdirectory_name in subdirectory_names:
-            chmod(join(directory_path, subdirectory_name), 0o755)
-        for file_name in file_names:
-            chmod(join(directory_path, file_name), 0o644)
-    site.event_dispatcher.dispatch(PostRenderEvent(localized_environment))
+
+
+async def _render_entities(site: Site, www_directory_path: str, locale: str, environment: Environment) -> None:
+    await _render_entity_type(www_directory_path, list(site.ancestry.files.values()
+                                                       ), 'file', site.configuration, locale, environment)
+    await _render_entity_type(www_directory_path, list(site.ancestry.people.values()
+                                                       ), 'person', site.configuration, locale, environment)
+    await _render_entity_type(www_directory_path, list(site.ancestry.places.values()
+                                                       ), 'place', site.configuration, locale, environment)
+    await _render_entity_type(www_directory_path, list(site.ancestry.events.values()
+                                                       ), 'event', site.configuration, locale, environment)
+    await _render_entity_type(www_directory_path, list(site.ancestry.citations.values()
+                                                       ), 'citation', site.configuration, locale, environment)
+    await _render_entity_type(www_directory_path, list(site.ancestry.sources.values()
+                                                       ), 'source', site.configuration, locale, environment)
 
 
 def _create_file(path: str) -> object:
@@ -98,15 +98,16 @@ def _create_json_resource(path: str) -> object:
     return _create_file(os.path.join(path, 'index.json'))
 
 
-def _render_entity_type(www_directory_path: str, entities: Iterable[Any], entity_type_name: str,
-                        configuration: Configuration, locale: str, environment: Environment) -> None:
+async def _render_entity_type(www_directory_path: str, entities: List[Any], entity_type_name: str,
+                              configuration: Configuration, locale: str, environment: Environment) -> None:
     _render_entity_type_list_html(
         www_directory_path, entities, entity_type_name, environment)
     _render_entity_type_list_json(
         www_directory_path, entities, entity_type_name, configuration)
     for entity in entities:
-        _render_entity(www_directory_path, entity,
-                       entity_type_name, configuration, locale, environment)
+        await _render_entity(www_directory_path, entity,
+                             entity_type_name, configuration, locale, environment)
+    logging.getLogger().info('Rendered %d %s entities in %s.' % (len(entities), entity_type_name, locale))
 
 
 def _render_entity_type_list_html(www_directory_path: str, entities: Iterable[Any], entity_type_name: str,
@@ -125,12 +126,14 @@ def _render_entity_type_list_html(www_directory_path: str, entities: Iterable[An
         pass
 
 
-def _render_entity_type_list_json(www_directory_path: str, entities: Iterable[Any], entity_type_name: str, configuration: Configuration) -> None:
+def _render_entity_type_list_json(www_directory_path: str, entities: Iterable[Any], entity_type_name: str,
+                                  configuration: Configuration) -> None:
     entity_type_path = os.path.join(www_directory_path, entity_type_name)
     with _create_json_resource(entity_type_path) as f:
         url_generator = SiteUrlGenerator(configuration)
         data = {
-            '$schema': StaticPathUrlGenerator(configuration).generate('schema.json#/definitions/%sCollection' % entity_type_name, absolute=True),
+            '$schema': StaticPathUrlGenerator(configuration).generate(
+                'schema.json#/definitions/%sCollection' % entity_type_name, absolute=True),
             'collection': []
         }
         for entity in entities:
@@ -139,14 +142,16 @@ def _render_entity_type_list_json(www_directory_path: str, entities: Iterable[An
         dump(data, f)
 
 
-def _render_entity(www_directory_path: str, entity: Any, entity_type_name: str, configuration: Configuration, locale: str, environment: Environment) -> None:
-    _render_entity_html(www_directory_path, entity,
-                        entity_type_name, environment)
-    _render_entity_json(www_directory_path, entity,
-                        entity_type_name, configuration, locale)
+async def _render_entity(www_directory_path: str, entity: Any, entity_type_name: str, configuration: Configuration,
+                         locale: str, environment: Environment) -> None:
+    await _render_entity_html(www_directory_path, entity,
+                              entity_type_name, environment)
+    await _render_entity_json(www_directory_path, entity,
+                              entity_type_name, configuration, locale)
 
 
-def _render_entity_html(www_directory_path: str, entity: Any, entity_type_name: str, environment: Environment) -> None:
+async def _render_entity_html(www_directory_path: str, entity: Any, entity_type_name: str,
+                              environment: Environment) -> None:
     entity_path = os.path.join(www_directory_path, entity_type_name, entity.id)
     with _create_html_resource(entity_path) as f:
         f.write(environment.get_template('page/%s.html.j2' % entity_type_name).render({
@@ -156,7 +161,8 @@ def _render_entity_html(www_directory_path: str, entity: Any, entity_type_name: 
         }))
 
 
-def _render_entity_json(www_directory_path: str, entity: Any, entity_type_name: str, configuration: Configuration, locale: str) -> None:
+async def _render_entity_json(www_directory_path: str, entity: Any, entity_type_name: str, configuration: Configuration,
+                              locale: str) -> None:
     entity_path = os.path.join(www_directory_path, entity_type_name, entity.id)
     with _create_json_resource(entity_path) as f:
         dump(entity, f, cls=JSONEncoder.get_factory(configuration, locale))
