@@ -62,12 +62,10 @@
     <div class="featured tree js-show" data-betty-person-id="{{ person.id }}"></div>
 
     {% set events = person.presences | map(attribute='event') | list %}
-    {% if events | rejectattr('date', 'none') | selectattr('date.complete') | list | length > 0 %}
-        <h2>{{ _('Events') }}</h2>
-        {% with person_context=person %}
-            {% include 'list-event.html.j2' %}
-        {% endwith %}
-    {% endif %}
+    <h2>{{ _('Events') }}</h2>
+    {% with person_context=person %}
+        {% include 'list-event.html.j2' %}
+    {% endwith %}
 
     {% set haveFiles = [person] %}
     {% set haveFiles = haveFiles + person.citations | list %}
