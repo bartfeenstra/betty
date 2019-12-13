@@ -1,7 +1,9 @@
 {% set ns = namespace(places={}) %}
 {% for place in site.ancestry.places.values() %}
-    {% do ns.places.update({
-        place.id: place.coordinates,
-    }) %}
+    {% if place.coordinates %}
+        {% do ns.places.update({
+            place.id: place.coordinates,
+        }) %}
+    {% endif %}
 {% endfor %}
 {{ ns.places | json }}
