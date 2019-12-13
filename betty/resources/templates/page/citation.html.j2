@@ -1,4 +1,5 @@
 {% extends 'base.html.j2' %}
+{%- import 'macro/claim.html.j2' as claimMacros -%}
 {% set title = citation.description %}
 {% block content %}
     {% include 'citation-meta.html.j2' %}
@@ -6,5 +7,15 @@
     {% if files | length > 0 %}
         <h2>{{ _('Media') }}</h2>
         {% include 'list-file.html.j2' %}
+    {% endif %}
+    {% if citation.claims | length > 0 %}
+        <h2>{{ _('References') }}</h2>
+        <ul class="entities">
+            {% for claim in citation.claims %}
+                <li class="{{ loop.cycle('odd', 'even') }}">
+                    <a href="{{ claim | url }}">{{ claimMacros.label(claim) }}</a>
+                </li>
+            {% endfor %}
+        </ul>
     {% endif %}
 {% endblock %}
