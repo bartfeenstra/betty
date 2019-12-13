@@ -373,7 +373,8 @@ def _parse_citation(ancestry: _IntermediateAncestry, element: Element) -> None:
     handle = _xpath1(element, './@handle')
     source_handle = _xpath1(element, './ns:sourceref/@hlink')
 
-    citation = Citation(_xpath1(element, './@id'), ancestry.sources[source_handle])
+    citation = Citation(_xpath1(element, './@id'),
+                        ancestry.sources[source_handle])
 
     _parse_objref(ancestry, citation, element)
 

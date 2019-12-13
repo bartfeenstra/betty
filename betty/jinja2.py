@@ -1,3 +1,4 @@
+import asyncio
 import os
 import re
 from importlib import import_module
@@ -21,7 +22,7 @@ from resizeimage import resizeimage
 from betty.ancestry import File, Citation, Event, Presence
 from betty.config import Configuration
 from betty.fs import iterfiles, makedirs, hashfile, is_hidden
-from betty.functools import walk
+from betty.functools import walk, asynciter
 from betty.json import JSONEncoder
 from betty.locale import format_date, negotiate_localizeds, Localized
 from betty.plugin import Plugin
@@ -88,12 +89,13 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
     template_directory_paths = list(
         [join(path, 'templates') for path in site.resources.paths])
     environment = Environment(
+        enable_async=True,
         loader=FileSystemLoader(template_directory_paths),
         autoescape=select_autoescape(['html']),
         extensions=[
             'jinja2.ext.do',
             'jinja2.ext.i18n',
-        ]
+        ],
     )
     environment.install_gettext_translations(site.translations[default_locale])
     environment.globals['site'] = site
@@ -137,13 +139,13 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
     return environment
 
 
-def render_tree(path: str, environment: Environment, configuration: Optional[Configuration] = None) -> None:
+async def render_tree(path: str, environment: Environment, configuration: Optional[Configuration] = None) -> None:
     for file_source_path in iterfiles(path):
         if file_source_path.endswith('.j2'):
-            render_file(file_source_path, environment, configuration)
+            await render_file(file_source_path, environment, configuration)
 
 
-def render_file(file_source_path: str, environment: Environment, configuration: Optional[Configuration] = None) -> None:
+async def render_file(file_source_path: str, environment: Environment, configuration: Optional[Configuration] = None) -> None:
     file_destination_path = file_source_path[:-3]
     data = {}
     if configuration is not None:
@@ -159,7 +161,7 @@ def render_file(file_source_path: str, environment: Environment, configuration: 
     template = _root_loader.load(
         environment, file_source_path, environment.globals)
     with open(file_destination_path, 'w') as f:
-        f.write(template.render(data))
+        f.write(await template.render_async(data))
     os.remove(file_source_path)
 
 
@@ -203,15 +205,19 @@ def _filter_format_degrees(degrees):
 
 
 @contextfilter
-def _filter_map(*args, **kwargs):
+async def _filter_map(*args, **kwargs):
     if len(args) == 3 and isinstance(args[2], Macro):
         seq = args[1]
         func = args[2]
     else:
         seq, func = prepare_map(args, kwargs)
     if seq:
-        for item in seq:
-            yield func(item)
+        async for item in asynciter(seq):
+            result = func(item)
+            if asyncio.iscoroutine(result):
+                yield await result
+            else:
+                yield result
 
 
 @contextfilter

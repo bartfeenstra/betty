@@ -206,7 +206,8 @@ class FromTest(TestCase):
         config_dict['content_negotiation'] = content_negotiation
         with self._write(config_dict) as f:
             configuration = from_file(f)
-            self.assertEquals(content_negotiation, configuration.content_negotiation)
+            self.assertEquals(content_negotiation,
+                              configuration.content_negotiation)
 
     @parameterized.expand([
         ('production',),

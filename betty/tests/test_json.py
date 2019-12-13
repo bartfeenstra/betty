@@ -158,7 +158,8 @@ class JSONEncoderTest(TestCase):
         person.private = False
         person.links.add(
             Link('https://example.com/the-person', 'The Person Online'))
-        person.citations.add(Citation('the_citation', Source('the_source', 'The Source')))
+        person.citations.add(
+            Citation('the_citation', Source('the_source', 'The Source')))
         presence = Presence(Presence.Role.SUBJECT)
         presence.event = Event('the_event', Event.Type.BIRTH)
         person.presences.add(presence)
@@ -258,7 +259,8 @@ class JSONEncoderTest(TestCase):
         presence = Presence(Presence.Role.SUBJECT)
         presence.person = Person('the_person')
         event.presences.add(presence)
-        event.citations.add(Citation('the_citation', Source('the_source', 'The Source')))
+        event.citations.add(
+            Citation('the_citation', Source('the_source', 'The Source')))
         expected = {
             '$schema': '/schema.json#/definitions/event',
             '@context': {
@@ -313,7 +315,8 @@ class JSONEncoderTest(TestCase):
             Link('https://example.com/the-person', 'The Person Online'))
         source.contains.add(
             Source('the_contained_source', 'The Contained Source'))
-        source.citations.add(Citation('the_citation', Source('the_source', 'The Source')))
+        source.citations.add(
+            Citation('the_citation', Source('the_source', 'The Source')))
         expected = {
             '$schema': '/schema.json#/definitions/source',
             '@context': {

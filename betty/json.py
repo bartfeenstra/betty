@@ -17,10 +17,12 @@ def validate(data: Any, schema_definition: str, configuration: Configuration) ->
     with open(path.join(path.dirname(__file__), 'resources', 'public', 'static', 'schema.json')) as f:
         schema = stdjson.load(f)
     # @todo Can we set the schema ID somehow without making the entire JSON schema file a Jinja2 template?
-    schema_id = StaticPathUrlGenerator(configuration).generate('schema.json', absolute=True)
+    schema_id = StaticPathUrlGenerator(
+        configuration).generate('schema.json', absolute=True)
     schema['$id'] = schema_id
     ref_resolver = RefResolver(schema_id, schema)
-    jsonschema.validate(data, schema['definitions'][schema_definition], resolver=ref_resolver)
+    jsonschema.validate(
+        data, schema['definitions'][schema_definition], resolver=ref_resolver)
 
 
 class JSONEncoder(stdjson.JSONEncoder):
@@ -59,7 +61,8 @@ class JSONEncoder(stdjson.JSONEncoder):
         return self._url_generator.generate(resource, 'application/json', locale=self._locale)
 
     def _encode_schema(self, encoded: Dict, defintion: str) -> None:
-        encoded['$schema'] = self._static_url_generator.generate('schema.json#/definitions/%s' % defintion)
+        encoded['$schema'] = self._static_url_generator.generate(
+            'schema.json#/definitions/%s' % defintion)
 
     def _encode_described(self, encoded: Dict, described: Described) -> None:
         if described.description is not None:
@@ -93,7 +96,8 @@ class JSONEncoder(stdjson.JSONEncoder):
         }
 
     def _encode_has_citations(self, encoded: Dict, has_citations: HasCitations) -> None:
-        encoded['citations'] = [self._generate_url(citation) for citation in has_citations.citations]
+        encoded['citations'] = [self._generate_url(
+            citation) for citation in has_citations.citations]
 
     def _encode_coordinates(self, coordinates: Point) -> Dict:
         return {
