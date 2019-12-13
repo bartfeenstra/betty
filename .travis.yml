@@ -32,11 +32,6 @@ matrix:
           python: '3.8'
           env:
               - NODE_VERSION=10
-        - name: 'Node.js 8'
-          dist: xenial
-          python: '3.8'
-          env:
-              - NODE_VERSION=8
         - name: 'Mac OS'
           dist: osx
           python: '3.8'
