@@ -20,12 +20,7 @@ from betty.url import SiteUrlGenerator, StaticPathUrlGenerator
 
 
 class PostRenderEvent(Event):
-    def __init__(self, environment: Environment):
-        self._environment = environment
-
-    @property
-    def environment(self) -> Environment:
-        return self._environment
+    pass
 
 
 def render(site: Site) -> None:
@@ -82,7 +77,7 @@ def render(site: Site) -> None:
             chmod(join(directory_path, subdirectory_name), 0o755)
         for file_name in file_names:
             chmod(join(directory_path, file_name), 0o644)
-    site.event_dispatcher.dispatch(PostRenderEvent(localized_environment))
+    site.event_dispatcher.dispatch(PostRenderEvent())
 
 
 def _create_file(path: str) -> object:
