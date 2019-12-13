@@ -2,7 +2,7 @@ import datetime
 import gettext
 import os
 from functools import total_ordering
-from typing import Optional, Tuple, Iterable
+from typing import Optional, Tuple, Iterable, Union
 
 from babel import dates, Locale, parse_locale, negotiate_locale
 
@@ -48,16 +48,48 @@ class Date:
         return self._year, self._month, self._day
 
     def __eq__(self, other):
+        if isinstance(other, Period):
+            other = other.start
         if not isinstance(other, Date):
             return NotImplemented
         return self.parts == other.parts
 
     def __lt__(self, other):
+        if isinstance(other, Period):
+            other = other.start
         if not isinstance(other, Date):
             return NotImplemented
         if None in self.parts or None in other.parts:
             return NotImplemented
         return self.parts < other.parts
+
+
+@total_ordering
+class Period:
+    def __init__(self, start: Optional[Date] = None, end: Optional[Date] = None):
+        self._start = start
+        self._end = end
+
+    def __eq__(self, other):
+        if isinstance(other, Period):
+            other = other.start
+        return self._start == other
+
+    def __lt__(self, other):
+        if isinstance(other, Period):
+            other = other.start
+        return self._start < other
+
+    @property
+    def start(self) -> Optional[Date]:
+        return self._start
+
+    @property
+    def end(self) -> Optional[Date]:
+        return self._end
+
+
+Datey = Union[Date, Period]
 
 
 class Translations(gettext.NullTranslations):
@@ -115,7 +147,13 @@ def open_translations(locale: str, directory_path: str) -> Optional[gettext.GNUT
         return None
 
 
-def format_date(date: Date, locale: str, translation: gettext.NullTranslations) -> str:
+def format_datey(date: Datey, locale: str, translation: gettext.NullTranslations) -> str:
+    if isinstance(date, Date):
+        return _format_date(date, locale, translation)
+    return _format_period(date, locale, translation)
+
+
+def _format_date(date: Date, locale: str, translation: gettext.NullTranslations) -> str:
     DATE_FORMATS = {
         (True, True, True): translation.gettext('MMMM d, y'),
         (True, True, False): translation.gettext('MMMM, y'),
@@ -129,3 +167,20 @@ def format_date(date: Date, locale: str, translation: gettext.NullTranslations) 
         return translation.gettext('unknown date')
     parts = map(lambda x: 1 if x is None else x, date.parts)
     return dates.format_date(datetime.date(*parts), format, Locale.parse(locale, '-'))
+
+
+def _format_period(period: Period, locale: str, translation: gettext.NullTranslations) -> str:
+    if period.start is not None and period.end is not None:
+        return translation.gettext('Between %(start)s and %(end)s') % {
+            'start': _format_date(period.start, locale, translation),
+            'end': _format_date(period.end, locale, translation),
+        }
+    if period.start is not None:
+        return translation.gettext('After %(start)s') % {
+            'start': _format_date(period.start, locale, translation),
+        }
+    if period.end is not None:
+        return translation.gettext('Before %(end)s') % {
+            'end': _format_date(period.end, locale, translation),
+        }
+    return translation.gettext('unknown date')

@@ -5,7 +5,7 @@ from typing import Dict, Optional, List, Iterable, Tuple, Set
 
 from geopy import Point
 
-from betty.locale import Date, Localized
+from betty.locale import Localized, Datey
 
 
 class EventHandlingSet:
@@ -54,11 +54,11 @@ class Dated:
         self._date = None
 
     @property
-    def date(self) -> Optional[Date]:
+    def date(self) -> Optional[Datey]:
         return self._date
 
     @date.setter
-    def date(self, date: Date):
+    def date(self, date: Datey):
         self._date = date
 
 
@@ -426,7 +426,7 @@ class Event(Identifiable, Dated, HasFiles, HasCitations):
         IMMIGRATION = 'immigration'
         EMIGRATION = 'emigration'
 
-    def __init__(self, event_id: str, event_type: Type, date: Optional[Date] = None, place: Optional[Place] = None):
+    def __init__(self, event_id: str, event_type: Type, date: Optional[Datey] = None, place: Optional[Place] = None):
         Identifiable.__init__(self, event_id)
         Dated.__init__(self)
         HasFiles.__init__(self)

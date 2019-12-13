@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-12-02 21:08+0000\n"
+"POT-Creation-Date: 2019-12-13 23:25+0000\n"
 "PO-Revision-Date: 2019-10-05 11:38+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -18,29 +18,44 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: betty/locale.py:120
+#: betty/locale.py:158
 msgid "MMMM d, y"
 msgstr "d MMMM y"
 
-#: betty/locale.py:121
+#: betty/locale.py:159
 msgid "MMMM, y"
 msgstr "MMMM y"
 
-#: betty/locale.py:122
+#: betty/locale.py:160
 msgid "y"
 msgstr "y"
 
-#: betty/locale.py:123
+#: betty/locale.py:161
 msgid "MMMM d"
 msgstr "d MMMM"
 
-#: betty/locale.py:124
+#: betty/locale.py:162
 msgid "MMMM"
 msgstr "MMMM"
 
-#: betty/locale.py:129
+#: betty/locale.py:167 betty/locale.py:186
 msgid "unknown date"
 msgstr "onbekend"
+
+#: betty/locale.py:174
+#, python-format
+msgid "Between %(start)s and %(end)s"
+msgstr "Tussen %(start)s en %(end)s"
+
+#: betty/locale.py:179
+#, python-format
+msgid "After %(start)s"
+msgstr "Na %(start)s"
+
+#: betty/locale.py:183
+#, python-format
+msgid "Before %(end)s"
+msgstr "Voor %(end)s"
 
 #: betty/openapi.py:19
 msgid "Retrieve the collection of files."
@@ -212,46 +227,48 @@ msgstr "Welkom bij %(title)s"
 msgid "API documentation"
 msgstr "API-documentatie"
 
-#: betty/resources/templates/base.html.j2:52
+#: betty/resources/templates/base.html.j2:55
 msgid "Menu"
 msgstr "Menu"
 
-#: betty/resources/templates/base.html.j2:55
+#: betty/resources/templates/base.html.j2:58
 #: betty/resources/templates/page/list-person.html.j2:2
 msgid "People"
 msgstr "Personen"
 
-#: betty/resources/templates/base.html.j2:56
+#: betty/resources/templates/base.html.j2:59
 #: betty/resources/templates/page/list-event.html.j2:2
 #: betty/resources/templates/page/person.html.j2:66
 #: betty/resources/templates/page/place.html.j2:24
 msgid "Events"
 msgstr "Gebeurtenissen"
 
-#: betty/resources/templates/base.html.j2:57
+#: betty/resources/templates/base.html.j2:60
 #: betty/resources/templates/page/list-place.html.j2:2
 msgid "Places"
 msgstr "Plaatsen"
 
-#: betty/resources/templates/base.html.j2:58
-#: betty/resources/templates/page/citation.html.j2:7
+#: betty/resources/templates/base.html.j2:61
+#: betty/resources/templates/page/citation.html.j2:8
 #: betty/resources/templates/page/event.html.j2:45
 #: betty/resources/templates/page/list-file.html.j2:2
 #: betty/resources/templates/page/person.html.j2:79
-#: betty/resources/templates/page/source.html.j2:10
+#: betty/resources/templates/page/source.html.j2:12
 msgid "Media"
 msgstr "Media"
 
-#: betty/resources/templates/base.html.j2:59
+#: betty/resources/templates/base.html.j2:62
 #: betty/resources/templates/page/list-source.html.j2:2
 msgid "Sources"
 msgstr "Bronnen"
 
-#: betty/resources/templates/base.html.j2:65
+#: betty/resources/templates/base.html.j2:68
 msgid "Language"
 msgstr "Taal"
 
-#: betty/resources/templates/base.html.j2:86
+#: betty/resources/templates/base.html.j2:89
+#: betty/resources/templates/page/citation.html.j2:12
+#: betty/resources/templates/page/source.html.j2:17
 msgid "References"
 msgstr "Referenties"
 

@@ -23,7 +23,7 @@ from betty.config import Configuration
 from betty.fs import iterfiles, makedirs, hashfile, is_hidden
 from betty.functools import walk
 from betty.json import JSONEncoder
-from betty.locale import format_date, negotiate_localizeds, Localized
+from betty.locale import negotiate_localizeds, Localized, format_datey
 from betty.plugin import Plugin
 from betty.site import Site
 from betty.url import SiteUrlGenerator, StaticPathUrlGenerator
@@ -115,7 +115,7 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
     environment.filters['json'] = contextfilter(
         lambda context, data, **kwargs: dumps(data, cls=JSONEncoder.get_factory(site.configuration, resolve_or_missing(context, 'locale'))))
     environment.filters['paragraphs'] = _filter_paragraphs
-    environment.filters['format_date'] = lambda date: format_date(
+    environment.filters['format_date'] = lambda date: format_datey(
         date, default_locale, site.translations[default_locale])
     environment.filters['format_degrees'] = _filter_format_degrees
     environment.globals['citer'] = _Citer()
