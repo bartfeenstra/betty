@@ -7,10 +7,8 @@ from subprocess import check_call
 from tempfile import mkdtemp
 from typing import Tuple, Dict, Iterable, Optional
 
-from jinja2 import Environment
-
 import betty
-from betty.fs import FileSystem
+from betty.jinja2 import create_environment
 from betty.plugin import Plugin
 from betty.render import PostRenderEvent, render_tree
 from betty.site import Site
@@ -50,36 +48,33 @@ def betty_instance_id():
 
 
 class Js(Plugin, JsPackageProvider):
-    def __init__(self, file_system: FileSystem, plugins: Dict, www_directory_path: str, cache_directory_path: str):
-        self._cache_directory_path = cache_directory_path
-        self._file_system = file_system
-        self._plugins = plugins
-        self._www_directory_path = www_directory_path
+    def __init__(self, site: Site):
+        self._site = site
 
     @classmethod
     def from_configuration_dict(cls, site: Site, configuration: Dict):
-        return cls(site.resources, site.plugins, site.configuration.www_directory_path,
-                   site.configuration.cache_directory_path)
+        return cls(site)
 
     def subscribes_to(self):
         return [
-            (PostRenderEvent, lambda event: self._render(event.environment)),
+            (PostRenderEvent, lambda event: self._render()),
         ]
 
     @property
     def resource_directory_path(self) -> Optional[str]:
         return '%s/resources' % dirname(__file__)
 
-    def _render(self, environment: Environment) -> None:
-        js_plugins = list([plugin for plugin in self._plugins.values(
+    def _render(self) -> None:
+        js_plugins = list([plugin for plugin in self._site.plugins.values(
         ) if isinstance(plugin, JsPackageProvider)])
         js_plugin_names = [plugin.name() for plugin in js_plugins]
         build_id = hashlib.md5(':'.join(js_plugin_names).encode()).hexdigest()
         build_directory_path = path.join(
-            self._cache_directory_path, self.name(), betty_instance_id(), build_id)
+            self._site.configuration.cache_directory_path, self.name(), betty_instance_id(), build_id)
 
         # Build plugins' JavaScript assets.
         dependencies = {}
+        environment = create_environment(self._site)
         for plugin in [self] + js_plugins:
             plugin_build_directory_path = path.join(
                 build_directory_path, plugin.name())
@@ -118,24 +113,24 @@ class Js(Plugin, JsPackageProvider):
                    cwd=js_plugin_build_directory_path)
 
         # Run Webpack.
-        self._file_system.copy2(path.join(self._www_directory_path, 'betty.css'), path.join(
+        self._site.resources.copy2(path.join(self._site.configuration.www_directory_path, 'betty.css'), path.join(
             js_plugin_build_directory_path, 'betty.css'))
         check_call(['npm', 'run', 'webpack'],
                    cwd=js_plugin_build_directory_path)
         try:
             shutil.copytree(path.join(build_directory_path, 'output', 'images'), path.join(
-                self._www_directory_path, 'images'))
+                self._site.configuration.www_directory_path, 'images'))
         except FileNotFoundError:
             # There may not be any images.
             pass
         shutil.copy2(path.join(build_directory_path, 'output', 'betty.css'), path.join(
-            self._www_directory_path, 'betty.css'))
+            self._site.configuration.www_directory_path, 'betty.css'))
         shutil.copy2(path.join(build_directory_path, 'output', 'betty.js'), path.join(
-            self._www_directory_path, 'betty.js'))
+            self._site.configuration.www_directory_path, 'betty.js'))
 
     @property
     def entry_points(self) -> Iterable[Tuple[str, str]]:
-        for plugin in self._plugins.values():
+        for plugin in self._site.plugins.values():
             if isinstance(plugin, JsEntryPointProvider):
                 entry_point_alias = 'betty%s' % hashlib.md5(
                     plugin.name().encode()).hexdigest()
