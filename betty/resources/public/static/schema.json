@@ -240,7 +240,7 @@
           }
         },
         "date": {
-          "$ref": "#/definitions/date"
+          "$ref": "#/definitions/datey"
         },
         "citations": {
           "$ref": "#/definitions/citations"
@@ -563,6 +563,28 @@
         }
       },
       "additionalProperties": false
+    },
+    "period": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "$ref": "#/definitions/date"
+        },
+        "end": {
+          "$ref": "#/definitions/date"
+        }
+      },
+      "additionalProperties": false
+    },
+    "datey": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/date"
+        },
+        {
+          "$ref": "#/definitions/period"
+        }
+      ]
     },
     "coordinates": {
       "type": "object",
