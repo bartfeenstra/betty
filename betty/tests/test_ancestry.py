@@ -4,7 +4,8 @@ from unittest.mock import Mock
 
 from parameterized import parameterized
 
-from betty.ancestry import EventHandlingSet, Person, Event, Place, Date, File, Note, Presence, LocalizedName
+from betty.ancestry import EventHandlingSet, Person, Event, Place, File, Note, Presence, LocalizedName
+from betty.locale import Date
 
 
 class EventHandlingSetTest(TestCase):

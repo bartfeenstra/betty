@@ -10,10 +10,11 @@ from lxml import etree
 from lxml.etree import XMLParser, Element
 from voluptuous import Schema, IsFile
 
-from betty.ancestry import Event, Place, Person, Ancestry, Date, Note, File, Link, Source, HasFiles, Citation, Name, \
-    IndividualName, FamilyName, Presence, LocalizedName, HasLinks
+from betty.ancestry import Ancestry, Place, File, Note, FamilyName, Name, Presence, Event, LocalizedName, Person, \
+    Source, Link, HasFiles, Citation, HasLinks, IndividualName
 from betty.config import validate_configuration
 from betty.fs import makedirs
+from betty.locale import Period, Datey, Date
 from betty.parse import ParseEvent
 from betty.plugin import Plugin
 from betty.site import Site
@@ -111,8 +112,28 @@ _DATE_PATTERN = re.compile(r'^.{4}((-.{2})?-.{2})?$')
 _DATE_PART_PATTERN = re.compile(r'^\d+$')
 
 
-def _parse_date(element: Element) -> Optional[Date]:
-    dateval = str(_xpath1(element, './ns:dateval/@val'))
+def _parse_date(element: Element) -> Optional[Datey]:
+    dateval_element = _xpath1(element, './ns:dateval[not(@cformat)]')
+    if dateval_element is not None:
+        dateval = str(_xpath1(dateval_element, './@val'))
+        dateval_type = _xpath1(dateval_element, './@type')
+        if dateval_type is None:
+            return _parse_dateval(dateval)
+        else:
+            dateval_type = str(dateval_type)
+            if dateval_type == 'before':
+                return Period(None, _parse_dateval(dateval))
+            if dateval_type == 'after':
+                return Period(_parse_dateval(dateval))
+    daterange_element = _xpath1(element, './ns:daterange[not(@cformat)]')
+    if daterange_element is not None:
+        start = _parse_dateval(str(_xpath1(daterange_element, './@start')))
+        end = _parse_dateval(str(_xpath1(daterange_element, './@stop')))
+        return Period(start, end)
+    return None
+
+
+def _parse_dateval(dateval: str) -> Optional[Date]:
     if _DATE_PATTERN.fullmatch(dateval):
         date_parts = [int(part) if _DATE_PART_PATTERN.fullmatch(
             part) else None for part in dateval.split('-')]
@@ -383,18 +404,15 @@ def _parse_citations(ancestry: _IntermediateAncestry, database: Element) -> None
 
 def _parse_citation(ancestry: _IntermediateAncestry, element: Element) -> None:
     handle = _xpath1(element, './@handle')
+    source_handle = _xpath1(element, './ns:sourceref/@hlink')
 
-    citation = Citation(_xpath1(element, './@id'))
+    citation = Citation(_xpath1(element, './@id'), ancestry.sources[source_handle])
 
     _parse_objref(ancestry, citation, element)
 
     page = _xpath1(element, './ns:page')
     if page is not None:
         citation.description = page.text
-
-    source_handle = _xpath1(element, './ns:sourceref/@hlink')
-    if source_handle is not None:
-        citation.source = ancestry.sources[source_handle]
 
     ancestry.citations[handle] = citation
 

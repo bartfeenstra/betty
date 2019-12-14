@@ -5,7 +5,7 @@ from typing import Dict, Optional, List, Iterable, Set
 
 from geopy import Point
 
-from betty.locale import Date, Localized
+from betty.locale import Localized, Datey
 
 
 class EventHandlingSet:
@@ -54,11 +54,11 @@ class Dated:
         self._date = None
 
     @property
-    def date(self) -> Optional[Date]:
+    def date(self) -> Optional[Datey]:
         return self._date
 
     @date.setter
-    def date(self, date: Date):
+    def date(self, date: Datey):
         self._date = date
 
 
@@ -94,17 +94,17 @@ class Described:
 
 
 class Link:
-    def __init__(self, uri: str, label: Optional[str] = None):
-        self._uri = uri
+    def __init__(self, url: str, label: Optional[str] = None):
+        self._url = url
         self._label = label
 
     @property
-    def uri(self) -> str:
-        return self._uri
+    def url(self) -> str:
+        return self._url
 
     @property
     def label(self) -> str:
-        return self._label if self._label else self._uri
+        return self._label if self._label else self._url
 
 
 class HasLinks:
@@ -127,7 +127,7 @@ class File(Identifiable, Described):
                                           lambda entity: entity.files.remove(self))
 
     @property
-    def path(self):
+    def path(self) -> str:
         return self._path
 
     @property
@@ -185,6 +185,7 @@ class HasFiles:
 class Source(Identifiable, Dated, HasFiles, HasLinks):
     def __init__(self, source_id: str, name: str):
         Identifiable.__init__(self, source_id)
+        Dated.__init__(self)
         HasFiles.__init__(self)
         HasLinks.__init__(self)
         self._name = name
@@ -243,11 +244,12 @@ class Source(Identifiable, Dated, HasFiles, HasLinks):
 
 
 class Citation(Identifiable, Described, HasFiles):
-    def __init__(self, citation_id: str):
+    def __init__(self, citation_id: str, source: Source):
         Identifiable.__init__(self, citation_id)
         HasFiles.__init__(self)
         Described.__init__(self)
-        self._source = None
+        self._source = source
+        source.citations.add(self)
         self._claims = EventHandlingSet(lambda claim: claim.citations.add(self),
                                         lambda claim: claim.citations.remove(self))
 
@@ -424,14 +426,14 @@ class Event(Identifiable, Dated, HasFiles, HasCitations):
         IMMIGRATION = 'immigration'
         EMIGRATION = 'emigration'
 
-    def __init__(self, event_id: str, entity_type: Type, date: Optional[Date] = None, place: Optional[Place] = None):
+    def __init__(self, event_id: str, event_type: Type, date: Optional[Datey] = None, place: Optional[Place] = None):
         Identifiable.__init__(self, event_id)
         Dated.__init__(self)
         HasFiles.__init__(self)
         HasCitations.__init__(self)
         self._date = date
         self._place = place
-        self._type = entity_type
+        self._type = event_type
 
         def handle_presence_addition(presence):
             presence.event = self

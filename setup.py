@@ -53,6 +53,7 @@ SETUP = {
             'coverage ~= 4.5',
             'flake8 ~= 3.7.0',
             'html5lib ~= 1.0.1',
+            'jsonschema ~= 3.2.0',
             'nose2 ~= 0.8',
             'parameterized ~= 0.6',
             'recommonmark ~= 0.4.0',

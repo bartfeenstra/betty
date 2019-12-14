@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-10-19 14:28+0100\n"
+"POT-Creation-Date: 2019-12-13 23:25+0000\n"
 "PO-Revision-Date: 2019-10-05 11:38+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -18,29 +18,180 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: betty/locale.py:93
+#: betty/locale.py:158
 msgid "MMMM d, y"
 msgstr "d MMMM y"
 
-#: betty/locale.py:94
+#: betty/locale.py:159
 msgid "MMMM, y"
 msgstr "MMMM y"
 
-#: betty/locale.py:95
+#: betty/locale.py:160
 msgid "y"
 msgstr "y"
 
-#: betty/locale.py:96
+#: betty/locale.py:161
 msgid "MMMM d"
 msgstr "d MMMM"
 
-#: betty/locale.py:97
+#: betty/locale.py:162
 msgid "MMMM"
 msgstr "MMMM"
 
-#: betty/locale.py:102
+#: betty/locale.py:167 betty/locale.py:186
 msgid "unknown date"
 msgstr "onbekend"
+
+#: betty/locale.py:174
+#, python-format
+msgid "Between %(start)s and %(end)s"
+msgstr "Tussen %(start)s en %(end)s"
+
+#: betty/locale.py:179
+#, python-format
+msgid "After %(start)s"
+msgstr "Na %(start)s"
+
+#: betty/locale.py:183
+#, python-format
+msgid "Before %(end)s"
+msgstr "Voor %(end)s"
+
+#: betty/openapi.py:19
+msgid "Retrieve the collection of files."
+msgstr "Haal de verzameling van bestanden op."
+
+#: betty/openapi.py:19
+msgid "The collection of files."
+msgstr "De verzameling van bestanden."
+
+#: betty/openapi.py:19
+msgid "Retrieve a single file."
+msgstr "Haal een enkel bestand op."
+
+#: betty/openapi.py:19
+msgid "The file."
+msgstr "Het bestand."
+
+#: betty/openapi.py:20
+msgid "Retrieve the collection of people."
+msgstr "Haal de verzameling van personen op."
+
+#: betty/openapi.py:20
+msgid "The collection of people."
+msgstr "De verzameling van personen."
+
+#: betty/openapi.py:20
+msgid "Retrieve a single person."
+msgstr "Haal een enkel persoon op."
+
+#: betty/openapi.py:20
+msgid "The person."
+msgstr "De persoon."
+
+#: betty/openapi.py:21
+msgid "Retrieve the collection of places."
+msgstr "Haal de verzameling van plaatsen op."
+
+#: betty/openapi.py:21
+msgid "The collection of places."
+msgstr "De verzameling van plaatsen."
+
+#: betty/openapi.py:21
+msgid "Retrieve a single place."
+msgstr "Haal een enkele plaats op."
+
+#: betty/openapi.py:21
+msgid "The place."
+msgstr "De plaats."
+
+#: betty/openapi.py:22
+msgid "Retrieve the collection of events."
+msgstr "Haal de verzameling van gebeurtenissen op."
+
+#: betty/openapi.py:22
+msgid "The collection of events."
+msgstr "De verzameling van gebeurtenissen."
+
+#: betty/openapi.py:22
+msgid "Retrieve a single event."
+msgstr "Haal een enkele gebeurtenis op."
+
+#: betty/openapi.py:22
+msgid "The event."
+msgstr "De gebeurtenis."
+
+#: betty/openapi.py:23
+msgid "Retrieve the collection of citations."
+msgstr "Haal de verzameling van verwijzingen op."
+
+#: betty/openapi.py:23
+msgid "The collection of citations."
+msgstr "De verzameling van verwijzingen."
+
+#: betty/openapi.py:23
+msgid "Retrieve a single citation."
+msgstr "Haal een enkele verwijzing op."
+
+#: betty/openapi.py:23
+msgid "The citation."
+msgstr "De verwijzing."
+
+#: betty/openapi.py:24
+msgid "Retrieve the collection of sources."
+msgstr "Haal de verzameling van bronnen op."
+
+#: betty/openapi.py:24
+msgid "The collection of sources."
+msgstr "De verzameling van bronnen."
+
+#: betty/openapi.py:24
+msgid "Retrieve a single source."
+msgstr "Haal een enkele bron op."
+
+#: betty/openapi.py:24
+msgid "The source."
+msgstr "De bron."
+
+#: betty/openapi.py:45 betty/resources/public/localized/.error/401.html.j2:2
+msgid "Unauthorized"
+msgstr "Onbevoegd"
+
+#: betty/openapi.py:55
+msgid "Forbidden"
+msgstr "Verboden"
+
+#: betty/openapi.py:65
+msgid "Not found"
+msgstr "Niet gevonden"
+
+#: betty/openapi.py:80
+msgid "The ID for the resource to retrieve."
+msgstr "Het ID van het op te halen document."
+
+#: betty/openapi.py:88
+msgid ""
+"An HTTP [Content-Language](https://developer.mozilla.org/en-"
+"US/docs/Web/HTTP/Headers/Content-Language) header."
+msgstr ""
+"Een HTTP [Content-Language](https://developer.mozilla.org/en-"
+"US/docs/Web/HTTP/Headers/Content-Language)-header."
+
+#: betty/openapi.py:153
+msgid ""
+"An HTTP [Accept-Language](https://developer.mozilla.org/en-"
+"US/docs/Web/HTTP/Headers/Accept-Language) header."
+msgstr ""
+"Een HTTP [Accept-Language](https://developer.mozilla.org/en-"
+"US/docs/Web/HTTP/Headers/Accept-Language)-header."
+
+#: betty/openapi.py:161
+msgid "An HTML5 document."
+msgstr "Een HTML5-document."
+
+#: betty/openapi.py:168
+msgid "A locale name."
+msgstr "De naam van een locale."
 
 #: betty/plugins/search/resources/templates/search-results-container.html.j2:3
 msgid ""
@@ -71,46 +222,53 @@ msgstr ""
 msgid "Welcome to %(title)s"
 msgstr "Welkom bij %(title)s"
 
-#: betty/resources/templates/base.html.j2:46
+#: betty/resources/public/localized/api/index.html.j2:4
+#: betty/resources/templates/footer.html.j2:2
+msgid "API documentation"
+msgstr "API-documentatie"
+
+#: betty/resources/templates/base.html.j2:55
 msgid "Menu"
 msgstr "Menu"
 
-#: betty/resources/templates/base.html.j2:49
+#: betty/resources/templates/base.html.j2:58
 #: betty/resources/templates/page/list-person.html.j2:2
 msgid "People"
 msgstr "Personen"
 
-#: betty/resources/templates/base.html.j2:50
+#: betty/resources/templates/base.html.j2:59
 #: betty/resources/templates/page/list-event.html.j2:2
 #: betty/resources/templates/page/person.html.j2:66
 #: betty/resources/templates/page/place.html.j2:24
 msgid "Events"
 msgstr "Gebeurtenissen"
 
-#: betty/resources/templates/base.html.j2:51
+#: betty/resources/templates/base.html.j2:60
 #: betty/resources/templates/page/list-place.html.j2:2
 msgid "Places"
 msgstr "Plaatsen"
 
-#: betty/resources/templates/base.html.j2:52
-#: betty/resources/templates/page/citation.html.j2:7
+#: betty/resources/templates/base.html.j2:61
+#: betty/resources/templates/page/citation.html.j2:8
 #: betty/resources/templates/page/event.html.j2:45
 #: betty/resources/templates/page/list-file.html.j2:2
 #: betty/resources/templates/page/person.html.j2:79
-#: betty/resources/templates/page/source.html.j2:10
+#: betty/resources/templates/page/source.html.j2:12
 msgid "Media"
 msgstr "Media"
 
-#: betty/resources/templates/base.html.j2:53
+#: betty/resources/templates/base.html.j2:62
 #: betty/resources/templates/page/list-source.html.j2:2
 msgid "Sources"
 msgstr "Bronnen"
 
-#: betty/resources/templates/base.html.j2:59
+#: betty/resources/templates/base.html.j2:68
 msgid "Language"
 msgstr "Taal"
 
-#: betty/resources/templates/base.html.j2:80
+#: betty/resources/templates/base.html.j2:89
+#: betty/resources/templates/page/citation.html.j2:12
+#: betty/resources/templates/page/source.html.j2:17
 msgid "References"
 msgstr "Referenties"
 
@@ -225,11 +383,8 @@ msgstr[1] "met %(parents)s:"
 msgid "Siblings"
 msgstr "Broers en zussen"
 
-#: betty/resources/public/localized/.error/401.html.j2:2
-msgid "Unauthorized"
-msgstr "Onbevoegd"
-
 #: betty/resources/public/localized/.error/401.html.j2:4
+#: betty/resources/public/localized/.error/401.json.j2:3
 msgid "I'm sorry, dear, but it seems you're not logged in."
 msgstr "Het spijt me, schat, maar het lijkt erop dat je niet ingelogd bent."
 
@@ -238,6 +393,7 @@ msgid "Access denied"
 msgstr "Verboden toegang"
 
 #: betty/resources/public/localized/.error/403.html.j2:4
+#: betty/resources/public/localized/.error/403.json.j2:3
 msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
 msgstr "Het spijt me, schat, maar het lijkt erop dat je deze pagina niet mag zien."
 
@@ -246,6 +402,7 @@ msgid "Page not found"
 msgstr "Pagina niet gevonden"
 
 #: betty/resources/public/localized/.error/404.html.j2:4
+#: betty/resources/public/localized/.error/404.json.j2:3
 msgid "I'm sorry, dear, but it seems this page does not exist."
 msgstr "Het spijt me, schat, maar het lijkt erop dat deze pagina niet bestaat."
 

@@ -10,33 +10,28 @@ from betty.site import Site
 
 class NginxTest(TestCase):
     def test_post_render_config(self):
-        self.maxDiff = None
-
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
-                output_directory_path, 'https://example.com')
+                output_directory_path, 'http://example.com')
             configuration.plugins[Nginx] = {}
             site = Site(configuration)
             render(site)
             expected = '''server {
-	# The port to listen to.
 	listen 80;
-	# The publicly visible hostname.
 	server_name example.com;
-	# The path to the local web root.
 	root %s;
-	# The cache lifetime.
 	add_header Cache-Control "max-age=86400";
+        set $content_type_extension html;
+    index index.$content_type_extension;
         location / {
             # Handle HTTP error responses.
-            error_page 401 /.error/401.html;
-            error_page 403 /.error/403.html;
-            error_page 404 /.error/404.html;
+            error_page 401 /.error/401.$content_type_extension;
+            error_page 403 /.error/403.$content_type_extension;
+            error_page 404 /.error/404.$content_type_extension;
             location /.error {
                 internal;
             }
 
-            index index.html;
             try_files $uri $uri/ =404;
         }
 }''' % configuration.www_directory_path  # noqa: E101 W191
@@ -44,34 +39,29 @@ class NginxTest(TestCase):
                 self.assertEquals(expected, f.read())
 
     def test_post_render_config_with_clean_urls(self):
-        self.maxDiff = None
-
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
-                output_directory_path, 'https://example.com')
+                output_directory_path, 'http://example.com')
             configuration.plugins[Nginx] = {}
             configuration.clean_urls = True
             site = Site(configuration)
             render(site)
             expected = '''server {
-	# The port to listen to.
 	listen 80;
-	# The publicly visible hostname.
 	server_name example.com;
-	# The path to the local web root.
 	root %s;
-	# The cache lifetime.
 	add_header Cache-Control "max-age=86400";
+        set $content_type_extension html;
+    index index.$content_type_extension;
         location / {
             # Handle HTTP error responses.
-            error_page 401 /.error/401.html;
-            error_page 403 /.error/403.html;
-            error_page 404 /.error/404.html;
+            error_page 401 /.error/401.$content_type_extension;
+            error_page 403 /.error/403.$content_type_extension;
+            error_page 404 /.error/404.$content_type_extension;
             location /.error {
                 internal;
             }
 
-            index index.html;
             try_files $uri $uri/ =404;
         }
 }''' % configuration.www_directory_path  # noqa: E101 W191
@@ -79,12 +69,9 @@ class NginxTest(TestCase):
                 self.assertEquals(expected, f.read())
 
     def test_post_render_config_multilingual(self):
-        pass
-        self.maxDiff = None
-
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
-                output_directory_path, 'https://example.com')
+                output_directory_path, 'http://example.com')
             configuration.plugins[Nginx] = {}
             configuration.locales.clear()
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
@@ -92,25 +79,25 @@ class NginxTest(TestCase):
             site = Site(configuration)
             render(site)
             expected = '''server {
-	# The port to listen to.
 	listen 80;
-	# The publicly visible hostname.
 	server_name example.com;
-	# The path to the local web root.
 	root %s;
-	# The cache lifetime.
 	add_header Cache-Control "max-age=86400";
+        set $content_type_extension html;
+    index index.$content_type_extension;
         location ~ ^/(en|nl)(/|$) {
-            # Handle HTTP error responses.
             set $locale $1;
-            error_page 401 /$locale/.error/401.html;
-            error_page 403 /$locale/.error/403.html;
-            error_page 404 /$locale/.error/404.html;
+
+            add_header Content-Language "$locale" always;
+
+            # Handle HTTP error responses.
+            error_page 401 /$locale/.error/401.$content_type_extension;
+            error_page 403 /$locale/.error/403.$content_type_extension;
+            error_page 404 /$locale/.error/404.$content_type_extension;
             location ~ ^/$locale/\.error {
                 internal;
             }
 
-            index index.html;
             try_files $uri $uri/ =404;
         }
         location @localized_redirect {
@@ -125,40 +112,43 @@ class NginxTest(TestCase):
                 self.assertEquals(expected, f.read())
 
     def test_post_render_config_multilingual_with_content_negotiation(self):
-        pass
-        self.maxDiff = None
-
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
-                output_directory_path, 'https://example.com')
-            configuration.plugins[Nginx] = {
-                'content_negotiation': True,
-            }
+                output_directory_path, 'http://example.com')
+            configuration.content_negotiation = True
+            configuration.plugins[Nginx] = {}
             configuration.locales.clear()
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
             site = Site(configuration)
             render(site)
             expected = '''server {
-	# The port to listen to.
 	listen 80;
-	# The publicly visible hostname.
 	server_name example.com;
-	# The path to the local web root.
 	root %s;
-	# The cache lifetime.
 	add_header Cache-Control "max-age=86400";
+        set_by_lua_block $content_type_extension {
+            local available_content_types = {'text/html', 'application/json'}
+            local content_type_extensions = {}
+            content_type_extensions['text/html'] = 'html'
+            content_type_extensions['application/json'] = 'json'
+            local content_type = require('cone').negotiate(ngx.req.get_headers()['Accept'], available_content_types)
+            return content_type_extensions[content_type]
+        }
+    index index.$content_type_extension;
         location ~ ^/(en|nl)(/|$) {
-            # Handle HTTP error responses.
             set $locale $1;
-            error_page 401 /$locale/.error/401.html;
-            error_page 403 /$locale/.error/403.html;
-            error_page 404 /$locale/.error/404.html;
+
+            add_header Content-Language "$locale" always;
+
+            # Handle HTTP error responses.
+            error_page 401 /$locale/.error/401.$content_type_extension;
+            error_page 403 /$locale/.error/403.$content_type_extension;
+            error_page 404 /$locale/.error/404.$content_type_extension;
             location ~ ^/$locale/\.error {
                 internal;
             }
 
-            index index.html;
             try_files $uri $uri/ =404;
         }
         location @localized_redirect {
@@ -174,6 +164,78 @@ class NginxTest(TestCase):
         }
         location / {
             try_files $uri @localized_redirect;
+        }
+}''' % configuration.www_directory_path  # noqa: E101 W191
+            with open(join(configuration.output_directory_path, 'nginx.conf')) as f:  # noqa: E101
+                self.assertEquals(expected, f.read())
+
+    def test_post_render_config_with_content_negotiation(self):
+        with TemporaryDirectory() as output_directory_path:
+            configuration = Configuration(
+                output_directory_path, 'http://example.com')
+            configuration.content_negotiation = True
+            configuration.plugins[Nginx] = {}
+            site = Site(configuration)
+            render(site)
+            expected = '''server {
+	listen 80;
+	server_name example.com;
+	root %s;
+	add_header Cache-Control "max-age=86400";
+        set_by_lua_block $content_type_extension {
+            local available_content_types = {'text/html', 'application/json'}
+            local content_type_extensions = {}
+            content_type_extensions['text/html'] = 'html'
+            content_type_extensions['application/json'] = 'json'
+            local content_type = require('cone').negotiate(ngx.req.get_headers()['Accept'], available_content_types)
+            return content_type_extensions[content_type]
+        }
+    index index.$content_type_extension;
+        location / {
+            # Handle HTTP error responses.
+            error_page 401 /.error/401.$content_type_extension;
+            error_page 403 /.error/403.$content_type_extension;
+            error_page 404 /.error/404.$content_type_extension;
+            location /.error {
+                internal;
+            }
+
+            try_files $uri $uri/ =404;
+        }
+}''' % configuration.www_directory_path  # noqa: E101 W191
+            with open(join(configuration.output_directory_path, 'nginx.conf')) as f:  # noqa: E101
+                self.assertEquals(expected, f.read())
+
+    def test_post_render_config_with_https(self):
+        with TemporaryDirectory() as output_directory_path:
+            configuration = Configuration(
+                output_directory_path, 'https://example.com')
+            configuration.plugins[Nginx] = {}
+            site = Site(configuration)
+            render(site)
+            expected = '''
+    server {
+        listen 80;
+        server_name example.com;
+        return 301 https://$host$request_uri;
+    }server {
+	listen 443 ssl http2;
+	server_name example.com;
+	root %s;
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+	add_header Cache-Control "max-age=86400";
+        set $content_type_extension html;
+    index index.$content_type_extension;
+        location / {
+            # Handle HTTP error responses.
+            error_page 401 /.error/401.$content_type_extension;
+            error_page 403 /.error/403.$content_type_extension;
+            error_page 404 /.error/404.$content_type_extension;
+            location /.error {
+                internal;
+            }
+
+            try_files $uri $uri/ =404;
         }
 }''' % configuration.www_directory_path  # noqa: E101 W191
             with open(join(configuration.output_directory_path, 'nginx.conf')) as f:  # noqa: E101
