@@ -21,6 +21,10 @@ class NginxTest(TestCase):
 	server_name example.com;
 	root %s;
 	add_header Cache-Control "max-age=86400";
+    gzip on;
+    gzip_disable "msie6";
+    gzip_vary on;
+    gzip_types text/html text/css application/javascript application/json application/xml;
         set $content_type_extension html;
     index index.$content_type_extension;
         location / {
@@ -51,6 +55,10 @@ class NginxTest(TestCase):
 	server_name example.com;
 	root %s;
 	add_header Cache-Control "max-age=86400";
+    gzip on;
+    gzip_disable "msie6";
+    gzip_vary on;
+    gzip_types text/html text/css application/javascript application/json application/xml;
         set $content_type_extension html;
     index index.$content_type_extension;
         location / {
@@ -83,6 +91,10 @@ class NginxTest(TestCase):
 	server_name example.com;
 	root %s;
 	add_header Cache-Control "max-age=86400";
+    gzip on;
+    gzip_disable "msie6";
+    gzip_vary on;
+    gzip_types text/html text/css application/javascript application/json application/xml;
         set $content_type_extension html;
     index index.$content_type_extension;
         location ~ ^/(en|nl)(/|$) {
@@ -127,6 +139,10 @@ class NginxTest(TestCase):
 	server_name example.com;
 	root %s;
 	add_header Cache-Control "max-age=86400";
+    gzip on;
+    gzip_disable "msie6";
+    gzip_vary on;
+    gzip_types text/html text/css application/javascript application/json application/xml;
         set_by_lua_block $content_type_extension {
             local available_content_types = {'text/html', 'application/json'}
             local content_type_extensions = {}
@@ -182,6 +198,10 @@ class NginxTest(TestCase):
 	server_name example.com;
 	root %s;
 	add_header Cache-Control "max-age=86400";
+    gzip on;
+    gzip_disable "msie6";
+    gzip_vary on;
+    gzip_types text/html text/css application/javascript application/json application/xml;
         set_by_lua_block $content_type_extension {
             local available_content_types = {'text/html', 'application/json'}
             local content_type_extensions = {}
@@ -224,6 +244,10 @@ class NginxTest(TestCase):
 	root %s;
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 	add_header Cache-Control "max-age=86400";
+    gzip on;
+    gzip_disable "msie6";
+    gzip_vary on;
+    gzip_types text/html text/css application/javascript application/json application/xml;
         set $content_type_extension html;
     index index.$content_type_extension;
         location / {
