@@ -9,7 +9,7 @@ from jsonschema import RefResolver
 from betty.ancestry import Place, Person, LocalizedName, Event, Citation, Source, Presence, Described, HasLinks, \
     HasCitations, Link, Dated, File, Note
 from betty.config import Configuration
-from betty.locale import Date
+from betty.locale import Date, Period
 from betty.url import StaticPathUrlGenerator, SiteUrlGenerator
 
 
@@ -39,6 +39,7 @@ class JSONEncoder(stdjson.JSONEncoder):
             Event.Type: self._encode_event_type,
             Presence.Role: self._encode_presence_role,
             Date: self._encode_date,
+            Period: self._encode_period,
             Citation: self._encode_citation,
             Source: self._encode_source,
             Link: self._encode_link,
@@ -81,6 +82,14 @@ class JSONEncoder(stdjson.JSONEncoder):
             encoded['month'] = date.month
         if date.day:
             encoded['day'] = date.day
+        return encoded
+
+    def _encode_period(self, date: Period) -> Dict:
+        encoded = {}
+        if date.start:
+            encoded['start'] = date.start
+        if date.end:
+            encoded['end'] = date.end
         return encoded
 
     def _encode_has_links(self, encoded: Dict, has_links: HasLinks) -> None:

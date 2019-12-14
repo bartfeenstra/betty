@@ -22,6 +22,22 @@
       <type>Death</type>
       <dateval val="????-12-31"/>
     </event>
+    <event handle="_e5608e53e64673d4de580972813" change="1576267921" id="E0003">
+      <type>Birth</type>
+      <dateval val="1970-01-01" type="before"/>
+    </event>
+    <event handle="_e5607546eb4379f7571bf5a447a" change="1576265295" id="E0004">
+      <type>Birth</type>
+      <dateval val="1970-01-01" type="after"/>
+    </event>
+    <event handle="_e560a44fed046f2f2d58662aac9" change="1576270227" id="E0005">
+      <type>Birth</type>
+      <dateval val="1349-01-01" cformat="Persian"/>
+    </event>
+    <event handle="_e560a4b89247276c3aaeb40b0b6" change="1576270269" id="E0006">
+      <type>Birth</type>
+      <daterange start="1970-01-01" stop="1999-12-31"/>
+    </event>
   </events>
   <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">

@@ -129,10 +129,35 @@ class ParseXmlFileTestCase(TestCase):
 
     def test_date_should_ignore_invalid_date_parts(self):
         date = self.ancestry.events['E0002'].date
-        self.assertIsNotNone(date)
         self.assertIsNone(date.year)
         self.assertEquals(12, date.month)
         self.assertEquals(31, date.day)
+
+    def test_date_should_ignore_calendar_format(self):
+        self.assertIsNone(self.ancestry.events['E0005'].date)
+
+    def test_date_should_parse_range(self):
+        date = self.ancestry.events['E0006'].date
+        self.assertEquals(1970, date.start.year)
+        self.assertEquals(1, date.start.month)
+        self.assertEquals(1, date.start.day)
+        self.assertEquals(1999, date.end.year)
+        self.assertEquals(12, date.end.month)
+        self.assertEquals(31, date.end.day)
+
+    def test_date_should_parse_before(self):
+        date = self.ancestry.events['E0003'].date
+        self.assertIsNone(date.start)
+        self.assertEquals(1970, date.end.year)
+        self.assertEquals(1, date.end.month)
+        self.assertEquals(1, date.end.day)
+
+    def test_date_should_parse_after(self):
+        date = self.ancestry.events['E0004'].date
+        self.assertIsNone(date.end)
+        self.assertEquals(1970, date.start.year)
+        self.assertEquals(1, date.start.month)
+        self.assertEquals(1, date.start.day)
 
     def test_source_from_repository_should_include_name(self):
         source = self.ancestry.sources['R0000']

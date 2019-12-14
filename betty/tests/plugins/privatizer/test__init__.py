@@ -5,8 +5,9 @@ from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.ancestry import Ancestry, Person, Event, Date, Presence
+from betty.ancestry import Ancestry, Person, Event, Presence
 from betty.config import Configuration
+from betty.locale import Date
 from betty.parse import parse
 from betty.plugins.privatizer import Privatizer
 from betty.site import Site

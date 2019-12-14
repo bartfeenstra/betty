@@ -1,16 +1,34 @@
 {%- import 'macro/event.html.j2' as eventMacros -%}
-<ul class="entities">
-    {%- for event in events | rejectattr('date', 'none') | selectattr('date.complete') | sort(attribute='date') %}
-        <li class="{{ loop.cycle('odd', 'even') }}">
-            {{ eventMacros.label(event, person_context=person_context | default(None)) }}
-            {% if person_context is not none %}
-                {% for presence in event.presences %}
-                    {% if presence.person == person_context and presence.role != PresenceRole.SUBJECT %}
-                        ({{ eventMacros.presence_role_label(presence) }})
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-            {% include 'event-meta.html.j2' %}
-        </li>
-    {%- endfor -%}
-</ul>
+{% set dated_events = [] %}
+{% for event in events | rejectattr('date', 'none') %}
+    {% if event.date.complete %}
+        {% do dated_events.append((event.date, event)) %}
+    {% endif %}
+    {% if event.date.start and event.date.start.complete %}
+        {% do dated_events.append((event.date.start, event)) %}
+    {% endif %}
+    {% if event.date.end and event.date.end.complete %}
+        {% do dated_events.append((event.date.end, event)) %}
+    {% endif %}
+{% endfor %}
+{% if dated_events | length > 0 %}
+    <ul class="entities">
+        {%- for date, event in dated_events | sort(attribute='0') %}
+            <li class="{{ loop.cycle('odd', 'even') }}">
+                {{ eventMacros.label(event, person_context=person_context | default(None)) }}
+                {% if person_context is not none %}
+                    {% for presence in event.presences %}
+                        {% if presence.person == person_context and presence.role != PresenceRole.SUBJECT %}
+                            ({{ eventMacros.presence_role_label(presence) }})
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                {% include 'event-meta.html.j2' %}
+            </li>
+        {%- endfor -%}
+    </ul>
+{% else %}
+    <p>
+        No known events.
+    </p>
+{% endif %}

@@ -3,6 +3,7 @@ from typing import List, Tuple, Callable
 
 from betty.ancestry import Ancestry, Person, Event, Presence
 from betty.functools import walk
+from betty.locale import Period
 from betty.parse import PostParseEvent
 from betty.plugin import Plugin
 
@@ -63,7 +64,12 @@ class Privatizer(Plugin):
         if event.date is None:
             return False
 
-        if event.date.year is None:
+        date = event.date
+
+        if isinstance(date, Period):
+            date = date.end
+
+        if date.year is None:
             return False
 
-        return event.date.year + self._lifetime_threshold * multiplier < datetime.now().year
+        return date.year + self._lifetime_threshold * multiplier < datetime.now().year
