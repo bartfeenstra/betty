@@ -8,6 +8,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Betty (https://github.com/bartfeenstra/betty)"/>
+    {% if site.configuration.author %}
+        <meta name="author" content="{{ site.configuration.author }}"/>
+    {% endif %}
     <meta name="og:title" content="{{ title | striptags }}"/>
     <meta name="og:site_name" content="{{ site.configuration.title }}"/>
     {% if resource -%}
