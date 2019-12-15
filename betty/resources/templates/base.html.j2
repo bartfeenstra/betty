@@ -23,7 +23,7 @@
         {% if resource.id -%}
             <link rel="alternate" href="{{ resource | url(content_type='application/json') }}" type="application/json"/>
             <script type="application/ld+json">
-              {{ resource | json }}
+              {{ resource | tojson }}
             </script>
         {%- endif -%}
     {%- endif %}
