@@ -1,2 +1,7 @@
+{% if site.configuration.author %}
+    <p>
+        {% trans author = site.configuration.author %}© Copyright {{ author }}, unless otherwise credited{% endtrans %}
+    </p>
+{% endif %}
 <p>{% trans %}A family history as told by <a href="https://github.com/bartfeenstra/betty">Betty👵</a>{% endtrans %}</p>
 <p><a href="{{ '/api/index.html' | url }}">{% trans %}API documentation{% endtrans %}</a></p>
