@@ -113,6 +113,16 @@ class ConfigurationTest(TestCase):
         sut.content_negotiation = True
         self.assertTrue(sut.clean_urls)
 
+    def test_author_without_author(self):
+        sut = Configuration('/tmp/betty', 'https://example.com')
+        self.assertIsNone(sut.author)
+
+    def test_author_with_author(self):
+        sut = Configuration('/tmp/betty', 'https://example.com')
+        author = 'Bart'
+        sut.author = author
+        self.assertEquals(author, sut.author)
+
 
 class FromTest(TestCase):
     _MINIMAL_CONFIG_DICT = {
@@ -142,6 +152,7 @@ class FromTest(TestCase):
         self.assertEquals(
             self._MINIMAL_CONFIG_DICT['base_url'], configuration.base_url)
         self.assertEquals('Betty', configuration.title)
+        self.assertIsNone(configuration.author)
         self.assertEquals('production', configuration.mode)
         self.assertEquals('/', configuration.root_path)
         self.assertFalse(configuration.clean_urls)
@@ -154,6 +165,14 @@ class FromTest(TestCase):
         with self._write(config_dict) as f:
             configuration = from_file(f)
             self.assertEquals(title, configuration.title)
+
+    def test_from_file_should_parse_author(self):
+        author = 'Bart'
+        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
+        config_dict['author'] = author
+        with self._write(config_dict) as f:
+            configuration = from_file(f)
+            self.assertEquals(author, configuration.author)
 
     def test_from_file_should_parse_locale_locale(self):
         locale = 'nl-NL'

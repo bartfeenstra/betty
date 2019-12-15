@@ -49,6 +49,7 @@ class Configuration:
         self._clean_urls = False
         self._content_negotiation = False
         self._title = 'Betty'
+        self._author = None
         self._plugins = {}
         self._mode = 'production'
         self._resources_directory_path = None
@@ -115,6 +116,14 @@ class Configuration:
         self._title = title
 
     @property
+    def author(self) -> Optional[str]:
+        return self._author
+
+    @author.setter
+    def author(self, author: str) -> None:
+        self._author = author
+
+    @property
     def mode(self) -> str:
         return self._mode
 
@@ -150,6 +159,7 @@ class Configuration:
 ConfigurationSchema = Schema({
     Required('output'): All(str),
     'title': All(str),
+    'author': str,
     'locales': All(list, [{
         Required('locale'): validate_locale,
         Required('alias', default=None): Any(str, None),
@@ -183,6 +193,9 @@ def _from_dict(site_directory_path: str, config_dict: Dict) -> Configuration:
 
     if 'title' in config_dict:
         configuration.title = config_dict['title']
+
+    if 'author' in config_dict:
+        configuration.author = config_dict['author']
 
     if 'locales' in config_dict:
         configuration.locales.clear()
