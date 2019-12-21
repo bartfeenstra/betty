@@ -475,84 +475,34 @@ class Event(Identifiable, Dated, HasFiles, HasCitations):
 
 
 @total_ordering
-class IndividualName:
-    def __init__(self, name: str = '', nick: str = ''):
-        self._name = name
-        self._nick = nick
-
-    def __eq__(self, other):
-        if not isinstance(other, IndividualName):
-            return NotImplemented
-        return self._name == other._name
-
-    def __gt__(self, other):
-        if not isinstance(other, IndividualName):
-            return NotImplemented
-        return self._name > other._name
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def nick(self) -> Optional[str]:
-        return self._nick
-
-
-@total_ordering
-class FamilyName:
-    def __init__(self, name: str, prefix: str = ''):
-        self._name = name
-        self._prefix = prefix
-
-    def __eq__(self, other):
-        if not isinstance(other, FamilyName):
-            return NotImplemented
-        return self._name, self._prefix == other._name, other._prefix
-
-    def __gt__(self, other):
-        if not isinstance(other, FamilyName):
-            return NotImplemented
-        return self._name, self._prefix > other._name, other._prefix
-
-    def __str__(self):
-        if self._prefix is None:
-            return self._name
-        return '%s %s' % (self._prefix, self._name)
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def prefix(self) -> str:
-        return self._prefix
-
-
-@total_ordering
-class Name(HasCitations):
-    def __init__(self, individual: Optional[IndividualName] = None, family: Optional[FamilyName] = None):
+class PersonName(Localized, HasCitations):
+    def __init__(self, individual: Optional[str] = None, affiliation: Optional[str] = None):
+        Localized.__init__(self)
         HasCitations.__init__(self)
         self._individual = individual
-        self._family = family
+        self._affiliation = affiliation
 
     def __eq__(self, other):
-        if not isinstance(other, Name):
+        if other is None:
+            return False
+        if not isinstance(other, PersonName):
             return NotImplemented
-        return self._family, self._individual == other._family, other._individual
+        return (self._affiliation or '', self._individual or '') == (other._affiliation or '', other._individual or '')
 
     def __gt__(self, other):
-        if not isinstance(other, Name):
+        if other is None:
+            return True
+        if not isinstance(other, PersonName):
             return NotImplemented
-        return self._family, self._individual > other._family, other._individual
+        return (self._affiliation or '', self._individual or '') > (other._affiliation or '', other._individual or '')
 
     @property
-    def individual(self) -> IndividualName:
+    def individual(self) -> str:
         return self._individual
 
     @property
-    def family(self) -> FamilyName:
-        return self._family
+    def affiliation(self) -> str:
+        return self._affiliation
 
 
 @total_ordering
@@ -562,8 +512,7 @@ class Person(Identifiable, HasFiles, HasCitations, HasLinks):
         HasFiles.__init__(self)
         HasCitations.__init__(self)
         HasLinks.__init__(self)
-        self._name = None
-        self._alternative_names = []
+        self._names = []
         self._parents = EventHandlingSet(lambda parent: parent.children.add(self),
                                          lambda parent: parent.children.remove(self))
         self._children = EventHandlingSet(lambda child: child.parents.add(self),
@@ -590,20 +539,19 @@ class Person(Identifiable, HasFiles, HasCitations, HasLinks):
         return self.id > other.id
 
     @property
-    def name(self) -> Optional[Name]:
-        return self._name
-
-    @name.setter
-    def name(self, name: Name):
-        self._name = name
+    def names(self) -> List[PersonName]:
+        return self._names
 
     @property
-    def alternative_names(self) -> List[Name]:
-        return self._alternative_names
+    def name(self) -> Optional[PersonName]:
+        try:
+            return self._names[0]
+        except IndexError:
+            return None
 
-    @alternative_names.setter
-    def alternative_names(self, names: Iterable[Name]):
-        self._alternative_names = list(names)
+    @property
+    def alternative_names(self) -> List[PersonName]:
+        return self._names[1:]
 
     @property
     def presences(self) -> Iterable:

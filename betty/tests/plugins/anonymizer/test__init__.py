@@ -1,7 +1,7 @@
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from unittest import TestCase
 
-from betty.ancestry import Ancestry, Person, Event, File, Presence
+from betty.ancestry import Ancestry, Person, Event, File, Presence, PersonName
 from betty.config import Configuration
 from betty.parse import parse
 from betty.plugins.anonymizer import Anonymizer, anonymize, anonymize_person
@@ -10,14 +10,12 @@ from betty.site import Site
 
 class AnonymizerTestCase(TestCase):
     def assert_anonymized(self, person: Person):
-        self.assertIsNone(person.name)
-        self.assertIsNone(person.alternative_names)
+        self.assertEquals(0, len(person.names))
         self.assertCountEqual([], person.presences)
         self.assertCountEqual([], person.files)
 
     def assert_not_anonymized(self, person: Person):
-        self.assertIsNotNone(person.name)
-        self.assertGreater(0, len(person.alternative_names))
+        self.assertEquals(1, len(person.names))
         self.assertNotEqual([], sorted(person.presences))
         self.assertNotEqual([], sorted(person.files))
 
@@ -46,6 +44,7 @@ class AnonymizeTest(AnonymizerTestCase):
     def test_anonymize_should_not_anonymize_public_person(self):
         with NamedTemporaryFile() as file_f:
             person = Person('P0')
+            person.names.append(PersonName('Janet', 'Dough'))
             presence = Presence(Presence.Role.SUBJECT)
             presence.event = Event('E0', Event.Type.BIRTH)
             person.presences.add(presence)

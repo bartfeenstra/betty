@@ -15,12 +15,12 @@
 {%- macro nameLabel(name) -%}
     <span class="person-label" typeof="foaf:Person">
     {% if name.individual -%}
-        <span property="foaf:individualName">{{ name.individual.name }}</span>
+        <span property="foaf:individualName">{{ name.individual }}</span>
     {%- else -%}
         …
     {%- endif -%}
-    {%- if name.family %}
-        <span property="foaf:familyName">{{ name.family }}</span>
+    {%- if name.affiliation %}
+        <span property="foaf:familyName">{{ name.affiliation }}</span>
     {%- endif -%}
     </span>
 {%- endmacro -%}
@@ -33,13 +33,13 @@
         <span class="private" title="This person's details are unavailable to protect their privacy.">private</span>
     {%- else -%}
         <span class="person-label" typeof="foaf:Person">
-        {%- if person.name.family -%}
-            <span property="foaf:familyName">{{ person.name.family }}</span>
+        {%- if person.name.affiliation -%}
+            <span property="foaf:familyName">{{ person.name.affiliation }}</span>
         {%- else -%}
             …
         {%- endif -%}
         , {% if person.name.individual -%}
-            <span property="foaf:individualName">{{ person.name.individual.name }}</span>
+            <span property="foaf:individualName">{{ person.name.individual }}</span>
         {%- else -%}
             …
         {%- endif -%}

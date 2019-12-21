@@ -7,7 +7,7 @@ from geopy import Point
 from jsonschema import RefResolver
 
 from betty.ancestry import Place, Person, LocalizedName, Event, Citation, Source, Presence, Described, HasLinks, \
-    HasCitations, Link, Dated, File, Note
+    HasCitations, Link, Dated, File, Note, PersonName
 from betty.config import Configuration
 from betty.locale import Date, Period
 from betty.url import StaticPathUrlGenerator, SiteUrlGenerator
@@ -17,10 +17,12 @@ def validate(data: Any, schema_definition: str, configuration: Configuration) ->
     with open(path.join(path.dirname(__file__), 'resources', 'public', 'static', 'schema.json')) as f:
         schema = stdjson.load(f)
     # @todo Can we set the schema ID somehow without making the entire JSON schema file a Jinja2 template?
-    schema_id = StaticPathUrlGenerator(configuration).generate('schema.json', absolute=True)
+    schema_id = StaticPathUrlGenerator(
+        configuration).generate('schema.json', absolute=True)
     schema['$id'] = schema_id
     ref_resolver = RefResolver(schema_id, schema)
-    jsonschema.validate(data, schema['definitions'][schema_definition], resolver=ref_resolver)
+    jsonschema.validate(
+        data, schema['definitions'][schema_definition], resolver=ref_resolver)
 
 
 class JSONEncoder(stdjson.JSONEncoder):
@@ -34,6 +36,7 @@ class JSONEncoder(stdjson.JSONEncoder):
             Place: self._encode_place,
             Point: self._encode_coordinates,
             Person: self._encode_person,
+            PersonName: self._encode_person_name,
             File: self._encode_file,
             Event: self._encode_event,
             Event.Type: self._encode_event_type,
@@ -60,7 +63,8 @@ class JSONEncoder(stdjson.JSONEncoder):
         return self._url_generator.generate(resource, 'application/json', locale=self._locale)
 
     def _encode_schema(self, encoded: Dict, defintion: str) -> None:
-        encoded['$schema'] = self._static_url_generator.generate('schema.json#/definitions/%s' % defintion)
+        encoded['$schema'] = self._static_url_generator.generate(
+            'schema.json#/definitions/%s' % defintion)
 
     def _encode_described(self, encoded: Dict, described: Described) -> None:
         if described.description is not None:
@@ -102,7 +106,8 @@ class JSONEncoder(stdjson.JSONEncoder):
         }
 
     def _encode_has_citations(self, encoded: Dict, has_citations: HasCitations) -> None:
-        encoded['citations'] = [self._generate_url(citation) for citation in has_citations.citations]
+        encoded['citations'] = [self._generate_url(
+            citation) for citation in has_citations.citations]
 
     def _encode_coordinates(self, coordinates: Point) -> Dict:
         return {
@@ -154,6 +159,7 @@ class JSONEncoder(stdjson.JSONEncoder):
             },
             '@type': 'https://schema.org/Person',
             'id': person.id,
+            'names': person.names,
             'parents': [self._generate_url(parent) for parent in person.parents],
             'children': [self._generate_url(child) for child in person.children],
             'siblings': [self._generate_url(sibling) for sibling in person.siblings],
@@ -166,15 +172,23 @@ class JSONEncoder(stdjson.JSONEncoder):
                 'event': self._generate_url(presence.event),
             } for presence in person.presences]
         }
-        if person.individual_name is not None:
-            encoded['@context']['individualName'] = 'https://schema.org/givenName'
-            encoded['individualName'] = person.individual_name
-        if person.family_name is not None:
-            encoded['@context']['familyName'] = 'https://schema.org/familyName'
-            encoded['familyName'] = person.family_name
         self._encode_schema(encoded, 'person')
         self._encode_has_citations(encoded, person)
         self._encode_has_links(encoded, person)
+        return encoded
+
+    def _encode_person_name(self, name: PersonName) -> Dict:
+        encoded = {}
+        if name.individual is not None or name.affiliation is not None:
+            encoded.update({
+                '@context': {},
+            })
+        if name.individual is not None:
+            encoded['@context']['individual'] = 'https://schema.org/givenName'
+            encoded['individual'] = name.individual
+        if name.affiliation is not None:
+            encoded['@context']['affiliation'] = 'https://schema.org/familyName'
+            encoded['affiliation'] = name.affiliation
         return encoded
 
     def _encode_file(self, file: File) -> Dict:

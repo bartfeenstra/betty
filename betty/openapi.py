@@ -16,12 +16,18 @@ class _Resource:
 
 def _get_resources():
     return [
-        _Resource('file', _('Retrieve the collection of files.'), _('The collection of files.'), _('Retrieve a single file.'), _('The file.')),
-        _Resource('person', _('Retrieve the collection of people.'), _('The collection of people.'), _('Retrieve a single person.'), _('The person.')),
-        _Resource('place', _('Retrieve the collection of places.'), _('The collection of places.'), _('Retrieve a single place.'), _('The place.')),
-        _Resource('event', _('Retrieve the collection of events.'), _('The collection of events.'), _('Retrieve a single event.'), _('The event.')),
-        _Resource('citation', _('Retrieve the collection of citations.'), _('The collection of citations.'), _('Retrieve a single citation.'), _('The citation.')),
-        _Resource('source', _('Retrieve the collection of sources.'), _('The collection of sources.'), _('Retrieve a single source.'), _('The source.')),
+        _Resource('file', _('Retrieve the collection of files.'), _(
+            'The collection of files.'), _('Retrieve a single file.'), _('The file.')),
+        _Resource('person', _('Retrieve the collection of people.'), _(
+            'The collection of people.'), _('Retrieve a single person.'), _('The person.')),
+        _Resource('place', _('Retrieve the collection of places.'), _(
+            'The collection of places.'), _('Retrieve a single place.'), _('The place.')),
+        _Resource('event', _('Retrieve the collection of events.'), _(
+            'The collection of events.'), _('Retrieve a single event.'), _('The event.')),
+        _Resource('citation', _('Retrieve the collection of citations.'), _(
+            'The collection of citations.'), _('Retrieve a single citation.'), _('The citation.')),
+        _Resource('source', _('Retrieve the collection of sources.'), _(
+            'The collection of sources.'), _('Retrieve a single source.'), _('The source.')),
     ]
 
 
@@ -203,7 +209,8 @@ def build_specification(site: Site) -> Dict:
     if site.configuration.content_negotiation:
         responses = list(specification['components']['responses'].values())
         for path in specification['paths']:
-            responses.append(specification['paths'][path]['get']['responses']['200'])
+            responses.append(
+                specification['paths'][path]['get']['responses']['200'])
         for response in responses:
             response['content']['text/html'] = {
                 'schema': {

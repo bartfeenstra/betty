@@ -53,8 +53,8 @@ class EventHandlingSetTest(TestCase):
 
 class PersonTest(TestCase):
     def test_parents_should_sync_references(self):
-        sut = Person('1', 'one')
-        parent = Person('2', 'two')
+        sut = Person('1')
+        parent = Person('2')
         sut.parents.add(parent)
         self.assertCountEqual([parent], sut.parents)
         self.assertCountEqual([sut], parent.children)

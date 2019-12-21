@@ -5,7 +5,7 @@ from unittest import TestCase
 from geopy import Point
 
 from betty import json
-from betty.ancestry import Place, Person, LocalizedName, Link, Event, Citation, Presence, Source, File, Note
+from betty.ancestry import Place, Person, LocalizedName, Link, Event, Citation, Presence, Source, File, Note, PersonName
 from betty.config import Configuration
 from betty.json import JSONEncoder
 from betty.locale import Date, Period
@@ -128,6 +128,7 @@ class JSONEncoderTest(TestCase):
             },
             '@type': 'https://schema.org/Person',
             'id': person_id,
+            'names': [],
             'parents': [],
             'children': [],
             'siblings': [],
@@ -150,15 +151,17 @@ class JSONEncoderTest(TestCase):
         sibling.parents.add(parent)
 
         person_id = 'the_person'
-        person_family_name = 'Person'
+        person_affiliation_name = 'Person'
         person_individual_name = 'The'
-        person = Person(person_id, person_individual_name, person_family_name)
+        person = Person(person_id)
+        person.names.append(PersonName(person_individual_name, person_affiliation_name))
         person.parents.add(parent)
         person.children.add(child)
         person.private = False
         person.links.add(
             Link('https://example.com/the-person', 'The Person Online'))
-        person.citations.add(Citation('the_citation', Source('the_source', 'The Source')))
+        person.citations.add(
+            Citation('the_citation', Source('the_source', 'The Source')))
         presence = Presence(Presence.Role.SUBJECT)
         presence.event = Event('the_event', Event.Type.BIRTH)
         person.presences.add(presence)
@@ -166,16 +169,22 @@ class JSONEncoderTest(TestCase):
         expected = {
             '$schema': '/schema.json#/definitions/person',
             '@context': {
-                'individualName': 'https://schema.org/givenName',
-                'familyName': 'https://schema.org/familyName',
                 'parents': 'https://schema.org/parent',
                 'children': 'https://schema.org/child',
                 'siblings': 'https://schema.org/sibling',
             },
             '@type': 'https://schema.org/Person',
             'id': person_id,
-            'familyName': person_family_name,
-            'individualName': person_individual_name,
+            'names': [
+                {
+                    '@context': {
+                        'individual': 'https://schema.org/givenName',
+                        'affiliation': 'https://schema.org/familyName',
+                    },
+                    'individual': person_individual_name,
+                    'affiliation': person_affiliation_name,
+                },
+            ],
             'parents': [
                 '/person/the_parent/index.json',
             ],
@@ -258,7 +267,8 @@ class JSONEncoderTest(TestCase):
         presence = Presence(Presence.Role.SUBJECT)
         presence.person = Person('the_person')
         event.presences.add(presence)
-        event.citations.add(Citation('the_citation', Source('the_source', 'The Source')))
+        event.citations.add(
+            Citation('the_citation', Source('the_source', 'The Source')))
         expected = {
             '$schema': '/schema.json#/definitions/event',
             '@context': {
@@ -320,7 +330,8 @@ class JSONEncoderTest(TestCase):
             Link('https://example.com/the-person', 'The Person Online'))
         source.contains.add(
             Source('the_contained_source', 'The Contained Source'))
-        source.citations.add(Citation('the_citation', Source('the_source', 'The Source')))
+        source.citations.add(
+            Citation('the_citation', Source('the_source', 'The Source')))
         expected = {
             '$schema': '/schema.json#/definitions/source',
             '@context': {

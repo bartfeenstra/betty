@@ -1,7 +1,7 @@
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from betty.ancestry import Person, Place, LocalizedName
+from betty.ancestry import Person, Place, LocalizedName, PersonName
 from betty.config import Configuration, LocaleConfiguration
 from betty.plugins.search import index, Search
 from betty.site import Site
@@ -33,7 +33,7 @@ class IndexTest(TestCase):
             person_id = 'P1'
             individual_name = 'Jane'
             person = Person(person_id)
-            person.individual_name = individual_name
+            person.names.append(PersonName(individual_name))
             site.ancestry.people[person_id] = person
             expected = [
                 {
@@ -46,7 +46,7 @@ class IndexTest(TestCase):
             ]
             self.assertEquals(expected, list(index(site)))
 
-    def test_person_with_family_name(self):
+    def test_person_with_affiliation_name(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
@@ -55,9 +55,9 @@ class IndexTest(TestCase):
             configuration.plugins[Search] = {}
             site = Site(configuration)
             person_id = 'P1'
-            family_name = 'Doughnut'
+            affiliation_name = 'Doughnut'
             person = Person(person_id)
-            person.family_name = family_name
+            person.names.append(PersonName(None, affiliation_name))
             site.ancestry.people[person_id] = person
             expected = [
                 {
@@ -70,7 +70,7 @@ class IndexTest(TestCase):
             ]
             self.assertEquals(expected, list(index(site)))
 
-    def test_person_with_individual_and_family_names(self):
+    def test_person_with_individual_and_affiliation_names(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
@@ -80,10 +80,9 @@ class IndexTest(TestCase):
             site = Site(configuration)
             person_id = 'P1'
             individual_name = 'Jane'
-            family_name = 'Doughnut'
+            affiliation_name = 'Doughnut'
             person = Person(person_id)
-            person.family_name = family_name
-            person.individual_name = individual_name
+            person.names.append(PersonName(individual_name, affiliation_name))
             site.ancestry.people[person_id] = person
             expected = [
                 {

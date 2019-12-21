@@ -10,8 +10,7 @@ from lxml import etree
 from lxml.etree import XMLParser, Element
 from voluptuous import Schema, IsFile
 
-from betty.ancestry import Ancestry, Place, File, Note, FamilyName, Name, Presence, Event, LocalizedName, Person, \
-    Source, Link, HasFiles, Citation, HasLinks, IndividualName
+from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, Event, LocalizedName, Person, Source, Link, HasFiles, Citation, HasLinks
 from betty.config import validate_configuration
 from betty.fs import makedirs
 from betty.locale import Period, Datey, Date
@@ -182,26 +181,33 @@ def _parse_people(ancestry: _IntermediateAncestry, database: Element):
 def _parse_person(ancestry: _IntermediateAncestry, element: Element):
     handle = _xpath1(element, './@handle')
     person = Person(str(_xpath1(element, './@id')))
+
+    names = []
     for name_element in _xpath(element, './ns:name'):
         is_alternative = _xpath1(name_element, './@alt') == '1'
-        nick_element = _xpath1(name_element, './ns:nick')
-        nick = '' if nick_element is None else nick_element.text
         individual_name_element = _xpath1(name_element, './ns:first')
-        individual_name = None if individual_name_element is None else IndividualName(individual_name_element.text, nick)
-        surname_elements = _xpath(name_element, './ns:surname')
+        individual_name = None if individual_name_element is None else individual_name_element.text
+        surname_elements = [surname_element for surname_element in _xpath(
+            name_element, './ns:surname') if surname_element.text is not None]
         if surname_elements:
             for surname_element in surname_elements:
                 if not is_alternative:
                     is_alternative = _xpath1(surname_element, './@prim') == '0'
-                family_name_prefix = _xpath1(surname_element, './@prefix')
-                family_name = FamilyName(surname_element.text, family_name_prefix)
-                name = Name(individual_name, family_name)
-                if is_alternative:
-                    person.alternative_names.append(name)
-                else:
-                    person.name = name
-        elif individual_name:
-            person.name = Name(individual_name)
+                affiliation_name = surname_element.text
+                surname_prefix = _xpath1(surname_element, './@prefix')
+                if surname_prefix is not None:
+                    affiliation_name = '%s %s' % (
+                        surname_prefix, affiliation_name)
+                names.append(
+                    (PersonName(individual_name, affiliation_name), is_alternative))
+        elif individual_name is not None:
+            names.append((PersonName(individual_name), is_alternative))
+    for name, is_alternative in names:
+        if is_alternative:
+            person.names.append(name)
+        else:
+            person.names.insert(0, name)
+
     person.presences = _parse_eventrefs(ancestry, element)
     if str(_xpath1(element, './@priv')) == '1':
         person.private = True
@@ -406,7 +412,8 @@ def _parse_citation(ancestry: _IntermediateAncestry, element: Element) -> None:
     handle = _xpath1(element, './@handle')
     source_handle = _xpath1(element, './ns:sourceref/@hlink')
 
-    citation = Citation(_xpath1(element, './@id'), ancestry.sources[source_handle])
+    citation = Citation(_xpath1(element, './@id'),
+                        ancestry.sources[source_handle])
 
     _parse_objref(ancestry, citation, element)
 

@@ -123,6 +123,10 @@ footer {
 }
 
 @media (min-width: 768px) {
+  .meta dl {
+    margin: 0;
+  }
+
   .meta dt,
   .meta dd {
     display: inline;
