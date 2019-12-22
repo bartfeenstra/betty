@@ -167,6 +167,13 @@ class ParseXmlFileTestCase(TestCase):
         self.assertEquals(1, date.start.month)
         self.assertEquals(1, date.start.day)
 
+    def test_date_should_parse_around(self):
+        date = self.ancestry.events['E0007'].date
+        self.assertEquals(1970, date.year)
+        self.assertEquals(1, date.month)
+        self.assertEquals(1, date.day)
+        self.assertTrue(date.fuzzy)
+
     def test_source_from_repository_should_include_name(self):
         source = self.ancestry.sources['R0000']
         self.assertEquals('Library of Alexandria', source.name)
