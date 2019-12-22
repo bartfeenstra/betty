@@ -23,6 +23,7 @@ h4,
 h5,
 h6 {
   color: #000;
+  margin-bottom: 0;
 }
 
 h1 {
@@ -371,7 +372,7 @@ figcaption {
   }
 
   .featured {
-    margin: 0 -3rem;
+    margin: 3rem -3rem 0 -3rem;
     width: calc(100% + 6rem);
   }
 

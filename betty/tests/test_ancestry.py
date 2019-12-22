@@ -4,15 +4,15 @@ from unittest.mock import Mock
 
 from parameterized import parameterized
 
-from betty.ancestry import EventHandlingSet, Person, Event, Place, File, Note, Presence, LocalizedName
+from betty.ancestry import EventHandlingSetList, Person, Event, Place, File, Note, Presence, LocalizedName, PersonName
 from betty.locale import Date
 
 
 class EventHandlingSetTest(TestCase):
     def test_list(self):
-        sut = EventHandlingSet()
+        sut = EventHandlingSetList()
         value = 'Some value'
-        sut.add(value)
+        sut.append(value)
         self.assertEquals([value], sut.list)
 
     def test_with_handler(self):
@@ -24,11 +24,11 @@ class EventHandlingSetTest(TestCase):
         def removal_handler(removed_value):
             reference.remove(removed_value)
 
-        sut = EventHandlingSet(addition_handler, removal_handler)
+        sut = EventHandlingSetList(addition_handler, removal_handler)
 
         value = 'A valuable value'
 
-        sut.add(value)
+        sut.append(value)
         self.assertCountEqual([value], sut)
         self.assertEquals([value], reference)
 
@@ -43,19 +43,29 @@ class EventHandlingSetTest(TestCase):
         self.assertEquals([], reference)
 
     def test_without_handler(self):
-        sut = EventHandlingSet()
+        sut = EventHandlingSetList()
         value = 'A valuable value'
-        sut.add(value)
+        sut.append(value)
         self.assertCountEqual([value], sut)
         sut.remove(value)
         self.assertCountEqual([], sut)
 
 
 class PersonTest(TestCase):
+    def test_names_should_sync_references(self):
+        sut = Person('1')
+        name = PersonName('Janet', 'Not a Girl')
+        sut.names.append(name)
+        self.assertCountEqual([name], sut.names)
+        self.assertEquals(sut, name.person)
+        sut.names.remove(name)
+        self.assertCountEqual([], sut.names)
+        self.assertIsNone(name.person)
+
     def test_parents_should_sync_references(self):
         sut = Person('1')
         parent = Person('2')
-        sut.parents.add(parent)
+        sut.parents.append(parent)
         self.assertCountEqual([parent], sut.parents)
         self.assertCountEqual([sut], parent.children)
         sut.parents.remove(parent)
@@ -65,7 +75,7 @@ class PersonTest(TestCase):
     def test_children_should_sync_references(self):
         sut = Person('1')
         child = Person('2')
-        sut.children.add(child)
+        sut.children.append(child)
         self.assertCountEqual([child], sut.children)
         self.assertCountEqual([sut], child.parents)
         sut.children.remove(child)
@@ -95,7 +105,7 @@ class PersonTest(TestCase):
     def test_presence_should_sync_references(self):
         presence = Presence(Presence.Role.SUBJECT)
         sut = Person('1')
-        sut.presences.add(presence)
+        sut.presences.append(presence)
         self.assertCountEqual([presence], sut.presences)
         self.assertEquals(sut, presence.person)
         sut.presences.remove(presence)
@@ -103,11 +113,23 @@ class PersonTest(TestCase):
         self.assertIsNone(presence.person)
 
 
+class PersonNameTest(TestCase):
+    def test_person_should_sync_references(self):
+        sut = PersonName('Janet', 'Not a Girl')
+        person = Person('1')
+        sut.person = person
+        self.assertEquals(person, sut.person)
+        self.assertCountEqual([sut], person.names)
+        sut.person = None
+        self.assertIsNone(sut.person)
+        self.assertCountEqual([], person.names)
+
+
 class PlaceTest(TestCase):
     def test_events_should_sync_references(self):
         sut = Place('1', [LocalizedName('one')])
         event = Event('1', Event.Type.BIRTH)
-        sut.events.add(event)
+        sut.events.append(event)
         self.assertIn(event, sut.events)
         self.assertEquals(sut, event.place)
         sut.events.remove(event)
@@ -117,7 +139,7 @@ class PlaceTest(TestCase):
     def test_encloses_should_sync_references(self):
         sut = Place('1', [LocalizedName('one')])
         enclosed_place = Place('2', [LocalizedName('two')])
-        sut.encloses.add(enclosed_place)
+        sut.encloses.append(enclosed_place)
         self.assertIn(enclosed_place, sut.encloses)
         self.assertEquals(sut, enclosed_place.enclosed_by)
         sut.encloses.remove(enclosed_place)
@@ -161,7 +183,7 @@ class EventTest(TestCase):
     def test_presence_should_sync_references(self):
         presence = Presence(Presence.Role.SUBJECT)
         sut = Event('1', Event.Type.BIRTH)
-        sut.presences.add(presence)
+        sut.presences.append(presence)
         self.assertCountEqual([presence], sut.presences)
         self.assertEquals(sut, presence.event)
         sut.presences.remove(presence)

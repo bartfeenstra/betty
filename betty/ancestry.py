@@ -8,7 +8,7 @@ from geopy import Point
 from betty.locale import Localized, Datey
 
 
-class EventHandlingSet:
+class EventHandlingSetList:
     def __init__(self, addition_handler=None, removal_handler=None):
         self._values = []
         self._addition_handler = addition_handler
@@ -18,16 +18,21 @@ class EventHandlingSet:
     def list(self) -> List:
         return list(self._values)
 
-    def add(self, *values):
-        for value in values:
-            self._add_one(value)
+    def prepend(self, *values):
+        for value in reversed(values):
+            if value in self._values:
+                return
+            self._values.insert(0, value)
+            if self._addition_handler is not None:
+                self._addition_handler(value)
 
-    def _add_one(self, value):
-        if value in self._values:
-            return
-        self._values.append(value)
-        if self._addition_handler is not None:
-            self._addition_handler(value)
+    def append(self, *values):
+        for value in values:
+            if value in self._values:
+                return
+            self._values.append(value)
+            if self._addition_handler is not None:
+                self._addition_handler(value)
 
     def remove(self, value):
         if value not in self._values:
@@ -40,7 +45,10 @@ class EventHandlingSet:
         for value in list(self._values):
             self.remove(value)
         for value in values:
-            self.add(value)
+            self.append(value)
+
+    def clear(self) -> None:
+        self.replace([])
 
     def __iter__(self):
         return self._values.__iter__()
@@ -123,8 +131,8 @@ class File(Identifiable, Described):
         self._path = path
         self._type = None
         self._notes = []
-        self._entities = EventHandlingSet(lambda entity: entity.files.add(self),
-                                          lambda entity: entity.files.remove(self))
+        self._entities = EventHandlingSetList(lambda entity: entity.files.append(self),
+                                              lambda entity: entity.files.remove(self))
 
     @property
     def path(self) -> str:
@@ -170,8 +178,8 @@ class File(Identifiable, Described):
 
 class HasFiles:
     def __init__(self):
-        self._files = EventHandlingSet(lambda file: file.entities.add(self),
-                                       lambda file: file.entities.remove(self))
+        self._files = EventHandlingSetList(lambda file: file.entities.append(self),
+                                           lambda file: file.entities.remove(self))
 
     @property
     def files(self) -> Iterable:
@@ -197,7 +205,7 @@ class Source(Identifiable, Dated, HasFiles, HasLinks):
         def handle_contains_removal(source):
             source.contained_by = None
 
-        self._contains = EventHandlingSet(
+        self._contains = EventHandlingSetList(
             handle_contains_addition, handle_contains_removal)
 
         def handle_citations_addition(citation):
@@ -206,7 +214,7 @@ class Source(Identifiable, Dated, HasFiles, HasLinks):
         def handle_citations_removal(citation):
             citation.source = None
 
-        self._citations = EventHandlingSet(
+        self._citations = EventHandlingSetList(
             handle_citations_addition, handle_citations_removal)
 
     @property
@@ -220,7 +228,7 @@ class Source(Identifiable, Dated, HasFiles, HasLinks):
         if previous_source is not None:
             previous_source.contains.remove(self)
         if source is not None:
-            source.contains.add(self)
+            source.contains.append(self)
 
     @property
     def contains(self) -> Iterable:
@@ -249,9 +257,9 @@ class Citation(Identifiable, Described, HasFiles):
         HasFiles.__init__(self)
         Described.__init__(self)
         self._source = source
-        source.citations.add(self)
-        self._claims = EventHandlingSet(lambda claim: claim.citations.add(self),
-                                        lambda claim: claim.citations.remove(self))
+        source.citations.append(self)
+        self._claims = EventHandlingSetList(lambda claim: claim.citations.append(self),
+                                            lambda claim: claim.citations.remove(self))
 
     @property
     def source(self) -> Source:
@@ -264,7 +272,7 @@ class Citation(Identifiable, Described, HasFiles):
         if previous_source is not None:
             previous_source.citations.remove(self)
         if source is not None:
-            source.citations.add(self)
+            source.citations.append(self)
 
     @property
     def claims(self) -> Iterable:
@@ -277,8 +285,8 @@ class Citation(Identifiable, Described, HasFiles):
 
 class HasCitations:
     def __init__(self):
-        self._citations = EventHandlingSet(lambda citation: citation.claims.add(self),
-                                           lambda citation: citation.claims.remove(self))
+        self._citations = EventHandlingSetList(lambda citation: citation.claims.append(self),
+                                               lambda citation: citation.claims.remove(self))
 
     @property
     def citations(self) -> Iterable:
@@ -324,7 +332,7 @@ class Place(Identifiable, HasLinks):
         def handle_event_removal(event: Event):
             event.place = None
 
-        self._events = EventHandlingSet(
+        self._events = EventHandlingSetList(
             handle_event_addition, handle_event_removal)
         self._enclosed_by = None
 
@@ -334,7 +342,7 @@ class Place(Identifiable, HasLinks):
         def handle_encloses_removal(place):
             place.enclosed_by = None
 
-        self._encloses = EventHandlingSet(
+        self._encloses = EventHandlingSetList(
             handle_encloses_addition, handle_encloses_removal)
 
     @property
@@ -364,7 +372,7 @@ class Place(Identifiable, HasLinks):
         if previous_place is not None:
             previous_place.encloses.remove(self)
         if place is not None:
-            place.encloses.add(self)
+            place.encloses.append(self)
 
     @property
     def encloses(self) -> Iterable:
@@ -397,7 +405,7 @@ class Presence:
         if previous_person is not None:
             previous_person.presences.remove(self)
         if person is not None:
-            person.presences.add(self)
+            person.presences.append(self)
 
     @property
     def event(self) -> 'Event':
@@ -410,7 +418,7 @@ class Presence:
         if previous_event is not None:
             previous_event.presences.remove(self)
         if event is not None:
-            event.presences.add(self)
+            event.presences.append(self)
 
 
 class Event(Identifiable, Dated, HasFiles, HasCitations):
@@ -441,7 +449,7 @@ class Event(Identifiable, Dated, HasFiles, HasCitations):
         def handle_presence_removal(presence):
             presence.event = None
 
-        self._presences = EventHandlingSet(
+        self._presences = EventHandlingSetList(
             handle_presence_addition, handle_presence_removal)
 
     @property
@@ -455,7 +463,7 @@ class Event(Identifiable, Dated, HasFiles, HasCitations):
         if previous_place is not None:
             previous_place.events.remove(self)
         if place is not None:
-            place.events.add(self)
+            place.events.append(self)
 
     @property
     def type(self):
@@ -479,6 +487,7 @@ class PersonName(Localized, HasCitations):
     def __init__(self, individual: Optional[str] = None, affiliation: Optional[str] = None):
         Localized.__init__(self)
         HasCitations.__init__(self)
+        self._person = None
         self._individual = individual
         self._affiliation = affiliation
 
@@ -497,6 +506,19 @@ class PersonName(Localized, HasCitations):
         return (self._affiliation or '', self._individual or '') > (other._affiliation or '', other._individual or '')
 
     @property
+    def person(self) -> Optional['Person']:
+        return self._person
+
+    @person.setter
+    def person(self, person: Optional['Person']):
+        previous_person = self._person
+        self._person = person
+        if previous_person is not None:
+            previous_person.names.remove(self)
+        if person is not None:
+            person.names.append(self)
+
+    @property
     def individual(self) -> str:
         return self._individual
 
@@ -512,11 +534,19 @@ class Person(Identifiable, HasFiles, HasCitations, HasLinks):
         HasFiles.__init__(self)
         HasCitations.__init__(self)
         HasLinks.__init__(self)
-        self._names = []
-        self._parents = EventHandlingSet(lambda parent: parent.children.add(self),
-                                         lambda parent: parent.children.remove(self))
-        self._children = EventHandlingSet(lambda child: child.parents.add(self),
-                                          lambda child: child.parents.remove(self))
+
+        def handle_name_addition(name):
+            name.person = self
+
+        def handle_name_removal(name):
+            name.person = None
+
+        self._names = EventHandlingSetList(
+            handle_name_addition, handle_name_removal)
+        self._parents = EventHandlingSetList(lambda parent: parent.children.append(self),
+                                             lambda parent: parent.children.remove(self))
+        self._children = EventHandlingSetList(lambda child: child.parents.append(self),
+                                              lambda child: child.parents.remove(self))
         self._private = None
 
         def handle_presence_addition(presence):
@@ -525,7 +555,7 @@ class Person(Identifiable, HasFiles, HasCitations, HasLinks):
         def handle_presence_removal(presence):
             presence.person = None
 
-        self._presences = EventHandlingSet(
+        self._presences = EventHandlingSetList(
             handle_presence_addition, handle_presence_removal)
 
     def __eq__(self, other):
@@ -539,19 +569,19 @@ class Person(Identifiable, HasFiles, HasCitations, HasLinks):
         return self.id > other.id
 
     @property
-    def names(self) -> List[PersonName]:
+    def names(self) -> Iterable:
         return self._names
 
     @property
     def name(self) -> Optional[PersonName]:
         try:
-            return self._names[0]
+            return self._names.list[0]
         except IndexError:
             return None
 
     @property
     def alternative_names(self) -> List[PersonName]:
-        return self._names[1:]
+        return self._names.list[1:]
 
     @property
     def presences(self) -> Iterable:

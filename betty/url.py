@@ -1,6 +1,6 @@
 from typing import Any, Type, Optional
 
-from betty.ancestry import Person, Citation, Source, File, Place, Event, Identifiable
+from betty.ancestry import Person, Citation, Source, File, Place, Event, Identifiable, PersonName
 from betty.config import Configuration
 from betty.content_type import EXTENSIONS
 
@@ -44,11 +44,22 @@ class IdentifiableResourceUrlGenerator(UrlGenerator):
         return _generate_from_path(self._configuration, self._pattern % (resource.id, EXTENSIONS[content_type]), **kwargs)
 
 
+class PersonNameUrlGenerator(UrlGenerator):
+    def __init__(self, person_url_generator: UrlGenerator):
+        self._person_url_generator = person_url_generator
+
+    def generate(self, name: PersonName, *args, **kwargs) -> str:
+        if not isinstance(name, PersonName):
+            raise ValueError('%s is not a %s' % (type(name), PersonName))
+        return self._person_url_generator.generate(name.person, *args, **kwargs)
+
+
 class SiteUrlGenerator(UrlGenerator):
     def __init__(self, configuration: Configuration):
+        person_url_generator = IdentifiableResourceUrlGenerator(configuration, Person, 'person/%s/index.%s')
         self._generators = [
-            IdentifiableResourceUrlGenerator(
-                configuration, Person, 'person/%s/index.%s'),
+            person_url_generator,
+            PersonNameUrlGenerator(person_url_generator),
             IdentifiableResourceUrlGenerator(
                 configuration, Event, 'event/%s/index.%s'),
             IdentifiableResourceUrlGenerator(

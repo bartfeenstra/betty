@@ -159,7 +159,7 @@ class JSONEncoder(stdjson.JSONEncoder):
             },
             '@type': 'https://schema.org/Person',
             'id': person.id,
-            'names': person.names,
+            'names': list(person.names),
             'parents': [self._generate_url(parent) for parent in person.parents],
             'children': [self._generate_url(child) for child in person.children],
             'siblings': [self._generate_url(sibling) for sibling in person.siblings],
