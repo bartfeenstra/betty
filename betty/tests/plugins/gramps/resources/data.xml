@@ -38,6 +38,10 @@
       <type>Birth</type>
       <daterange start="1970-01-01" stop="1999-12-31"/>
     </event>
+    <event handle="_e57c9e3bde21692aaed161a09cd" change="1577021208" id="E0007">
+      <type>Birth</type>
+      <dateval val="1970-01-01" type="about"/>
+    </event>
   </events>
   <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">

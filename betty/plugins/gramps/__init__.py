@@ -119,12 +119,17 @@ def _parse_date(element: Element) -> Optional[Datey]:
         dateval_type = _xpath1(dateval_element, './@type')
         if dateval_type is None:
             return _parse_dateval(dateval)
-        else:
-            dateval_type = str(dateval_type)
-            if dateval_type == 'before':
-                return Period(None, _parse_dateval(dateval))
-            if dateval_type == 'after':
-                return Period(_parse_dateval(dateval))
+        dateval_type = str(dateval_type)
+        if dateval_type == 'about':
+            date = _parse_dateval(dateval)
+            if date is None:
+                return None
+            date.fuzzy = True
+            return date
+        if dateval_type == 'before':
+            return Period(None, _parse_dateval(dateval))
+        if dateval_type == 'after':
+            return Period(_parse_dateval(dateval))
     daterange_element = _xpath1(element, './ns:daterange[not(@cformat)]')
     if daterange_element is not None:
         start = _parse_dateval(str(_xpath1(daterange_element, './@start')))

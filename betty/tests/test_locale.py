@@ -4,7 +4,7 @@ from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.locale import validate_locale, Localized, negotiate_localizeds, _format_date, Date
+from betty.locale import validate_locale, Localized, negotiate_localizeds, Date, format_datey
 
 
 class ValidateLocaleTest(TestCase):
@@ -72,4 +72,4 @@ class FormatDateTest(TestCase):
     def test(self, expected: str, date: Date):
         locale = 'en'
         translation = gettext.NullTranslations()
-        self.assertEquals(expected, _format_date(date, locale, translation))
+        self.assertEquals(expected, format_datey(date, locale, translation))

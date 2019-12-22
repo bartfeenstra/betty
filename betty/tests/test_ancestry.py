@@ -207,6 +207,12 @@ class DateTest(TestCase):
         sut = Date(day=day)
         self.assertEquals(day, sut.day)
 
+    def test_fuzzy(self):
+        fuzzy = True
+        sut = Date()
+        sut.fuzzy = fuzzy
+        self.assertEquals(fuzzy, sut.fuzzy)
+
     @parameterized.expand([
         (True, 1970, 1, 1),
         (False, None, 1, 1),
