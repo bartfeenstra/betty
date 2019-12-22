@@ -1,8 +1,8 @@
+import json as stdjson
 import os
 import re
 from importlib import import_module
 from itertools import takewhile
-from json import dumps
 from os.path import join, exists
 from shutil import copy2
 from typing import Union, Dict, Type, Optional, Callable, Iterable
@@ -15,6 +15,7 @@ from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter
 from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.runtime import Macro, resolve_or_missing
+from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup
 from resizeimage import resizeimage
 
@@ -112,8 +113,22 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
         default_locale, localizeds)
     environment.filters['sort_localizeds'] = contextfilter(
         lambda context, *args, **kwargs: _filter_sort_localizeds(context, default_locale, *args, **kwargs))
-    environment.filters['json'] = contextfilter(
-        lambda context, data, **kwargs: dumps(data, cls=JSONEncoder.get_factory(site.configuration, resolve_or_missing(context, 'locale'))))
+
+    # A filter to convert any value to JSON.
+    @contextfilter
+    def _filter_json(context, data, indent=None):
+        return stdjson.dumps(data, indent=indent,
+                             cls=JSONEncoder.get_factory(site.configuration, resolve_or_missing(context, 'locale')))
+
+    environment.filters['json'] = _filter_json
+
+    # Override Jinja2's built-in JSON filter, which escapes the JSON for use in HTML, to use Betty's own encoder.
+    @contextfilter
+    def _filter_tojson(context, data, indent=None):
+        return htmlsafe_json_dumps(data, indent=indent, dumper=lambda *args, **kwargs: _filter_json(context, *args, **kwargs))
+
+    environment.filters['tojson'] = _filter_tojson
+
     environment.filters['paragraphs'] = _filter_paragraphs
     environment.filters['format_date'] = lambda date: format_datey(
         date, default_locale, site.translations[default_locale])
@@ -124,6 +139,7 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
         content_type = content_type if content_type else 'text/html'
         locale = locale if locale else default_locale
         return url_generator.generate(resource, content_type, locale=locale, **kwargs)
+
     environment.filters['url'] = _filter_url
     environment.filters['static_url'] = StaticPathUrlGenerator(
         site.configuration).generate
