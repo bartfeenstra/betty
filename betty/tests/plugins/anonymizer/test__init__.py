@@ -1,7 +1,7 @@
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from unittest import TestCase
 
-from betty.ancestry import Ancestry, Person, Event, File, Presence
+from betty.ancestry import Ancestry, Person, Event, File, Presence, PersonName
 from betty.config import Configuration
 from betty.parse import parse
 from betty.plugins.anonymizer import Anonymizer, anonymize, anonymize_person
@@ -10,14 +10,12 @@ from betty.site import Site
 
 class AnonymizerTestCase(TestCase):
     def assert_anonymized(self, person: Person):
-        self.assertIsNone(person.individual_name)
-        self.assertIsNone(person.family_name)
+        self.assertEquals(0, len(person.names))
         self.assertCountEqual([], person.presences)
         self.assertCountEqual([], person.files)
 
     def assert_not_anonymized(self, person: Person):
-        self.assertIsNotNone(person.individual_name)
-        self.assertIsNotNone(person.family_name)
+        self.assertEquals(1, len(person.names))
         self.assertNotEqual([], sorted(person.presences))
         self.assertNotEqual([], sorted(person.files))
 
@@ -25,9 +23,9 @@ class AnonymizerTestCase(TestCase):
 class AnonymizeTest(AnonymizerTestCase):
     def test_anonymize_should_anonymize_private_person(self):
         with NamedTemporaryFile() as file_f:
-            person = Person('P0', 'Janet', 'Dough')
+            person = Person('P0')
             person.private = True
-            partner = Person('P1', 'Jenny', 'Donut')
+            partner = Person('P1')
             person_presence = Presence(Presence.Role.SUBJECT)
             person_presence.person = person
             partner_presence = Presence(Presence.Role.SUBJECT)
@@ -35,7 +33,7 @@ class AnonymizeTest(AnonymizerTestCase):
             event = Event('E0', Event.Type.MARRIAGE)
             event.presences = [person_presence, partner_presence]
             file = File('D0', file_f.name)
-            file.entities.add(person, partner)
+            file.entities.append(person, partner)
             ancestry = Ancestry()
             ancestry.people[person.id] = person
             anonymize(ancestry)
@@ -45,11 +43,12 @@ class AnonymizeTest(AnonymizerTestCase):
 
     def test_anonymize_should_not_anonymize_public_person(self):
         with NamedTemporaryFile() as file_f:
-            person = Person('P0', 'Janet', 'Dough')
+            person = Person('P0')
+            person.names.append(PersonName('Janet', 'Dough'))
             presence = Presence(Presence.Role.SUBJECT)
             presence.event = Event('E0', Event.Type.BIRTH)
-            person.presences.add(presence)
-            person.files.add(File('D0', file_f.name))
+            person.presences.append(presence)
+            person.files.append(File('D0', file_f.name))
             ancestry = Ancestry()
             ancestry.people[person.id] = person
             anonymize(ancestry)
@@ -63,15 +62,15 @@ class AnonymizeTest(AnonymizerTestCase):
         ancestry.people[person.id] = person
         child = Person('P1')
         child.private = True
-        person.children.add(child)
+        person.children.append(child)
         ancestry.people[child.id] = child
         grandchild = Person('P2')
         grandchild.private = True
-        child.children.add(grandchild)
+        child.children.append(grandchild)
         ancestry.people[grandchild.id] = grandchild
         great_grandchild = Person('P3')
         great_grandchild.private = True
-        grandchild.children.add(great_grandchild)
+        grandchild.children.append(great_grandchild)
         ancestry.people[great_grandchild.id] = great_grandchild
 
         anonymize(ancestry)
@@ -87,15 +86,15 @@ class AnonymizeTest(AnonymizerTestCase):
         ancestry.people[person.id] = person
         child = Person('P1')
         child.private = True
-        person.children.add(child)
+        person.children.append(child)
         ancestry.people[child.id] = child
         grandchild = Person('P2')
         grandchild.private = True
-        child.children.add(grandchild)
+        child.children.append(grandchild)
         ancestry.people[grandchild.id] = grandchild
         great_grandchild = Person('P3')
         great_grandchild.private = False
-        grandchild.children.add(great_grandchild)
+        grandchild.children.append(great_grandchild)
         ancestry.people[great_grandchild.id] = great_grandchild
 
         anonymize(ancestry)
@@ -110,10 +109,10 @@ class AnonymizePersonTest(AnonymizerTestCase):
         person.private = True
         child = Person('P1')
         child.private = True
-        person.children.add(child)
+        person.children.append(child)
         parent = Person('P2')
         parent.private = True
-        person.parents.add(parent)
+        person.parents.append(parent)
 
         anonymize_person(person)
         self.assertCountEqual([], person.parents)
@@ -123,10 +122,10 @@ class AnonymizePersonTest(AnonymizerTestCase):
         person.private = True
         child = Person('P1')
         child.private = False
-        person.children.add(child)
+        person.children.append(child)
         parent = Person('P2')
         parent.private = True
-        person.parents.add(parent)
+        person.parents.append(parent)
 
         anonymize_person(person)
         self.assertCountEqual([parent], person.parents)
@@ -136,10 +135,10 @@ class AnonymizePersonTest(AnonymizerTestCase):
         person.private = False
         child = Person('P1')
         child.private = True
-        person.children.add(child)
+        person.children.append(child)
         parent = Person('P2')
         parent.private = True
-        person.parents.add(parent)
+        person.parents.append(parent)
 
         anonymize_person(person)
         self.assertCountEqual([parent], person.parents)
@@ -149,10 +148,10 @@ class AnonymizePersonTest(AnonymizerTestCase):
         person.private = False
         child = Person('P1')
         child.private = False
-        person.children.add(child)
+        person.children.append(child)
         parent = Person('P2')
         parent.private = True
-        person.parents.add(parent)
+        person.parents.append(parent)
 
         anonymize_person(person)
         self.assertCountEqual([parent], person.parents)
@@ -166,12 +165,12 @@ class AnonymizerTest(AnonymizerTestCase):
             configuration.plugins[Anonymizer] = {}
             site = Site(configuration)
             with NamedTemporaryFile() as file_f:
-                person = Person('P0', 'Janet', 'Dough')
+                person = Person('P0')
                 person.private = True
                 presence = Presence(Presence.Role.SUBJECT)
                 presence.event = Event('E0', Event.Type.BIRTH)
-                person.presences.add(presence)
-                person.files.add(File('D0', file_f.name))
+                person.presences.append(presence)
+                person.files.append(File('D0', file_f.name))
                 site.ancestry.people[person.id] = person
                 parse(site)
                 self.assert_anonymized(person)

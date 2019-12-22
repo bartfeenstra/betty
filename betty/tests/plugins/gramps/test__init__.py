@@ -5,7 +5,7 @@ from unittest import TestCase
 from lxml import etree
 from lxml.etree import XMLParser
 
-from betty.ancestry import Event, Ancestry
+from betty.ancestry import Event, Ancestry, PersonName
 from betty.config import Configuration
 from betty.parse import parse
 from betty.plugins.gramps import extract_xml_file, parse_xml_file, Gramps
@@ -58,10 +58,18 @@ class ParseXmlFileTestCase(TestCase):
         event = self.ancestry.events['E0000']
         self.assertIn(event, place.events)
 
-    def test_person_should_include_individual_name(self):
+    def test_person_should_include_name(self):
         person = self.ancestry.people['I0000']
-        self.assertEquals('Jane', person.individual_name)
-        self.assertEquals('Doe', person.family_name)
+        expected = PersonName('Jane', 'Doe')
+        self.assertEquals(expected, person.name)
+
+    def test_person_should_include_alternative_names(self):
+        person = self.ancestry.people['I0000']
+        expected = [
+            PersonName('Jane', 'Doh'),
+            PersonName('Jen', 'Van Doughie'),
+        ]
+        self.assertEquals(expected, person.alternative_names)
 
     def test_person_should_include_birth(self):
         person = self.ancestry.people['I0000']
@@ -191,8 +199,8 @@ class GrampsTest(TestCase):
             site = Site(configuration)
             parse(site)
             self.assertEquals(
-                'Dough', site.ancestry.people['I0000'].family_name)
+                'Dough', site.ancestry.people['I0000'].name.affiliation)
             self.assertEquals(
-                'Janet', site.ancestry.people['I0000'].individual_name)
+                'Janet', site.ancestry.people['I0000'].name.individual)
             self.assertEquals(
                 '1px', site.ancestry.files['O0000'].description)

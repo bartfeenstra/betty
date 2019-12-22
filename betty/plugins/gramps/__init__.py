@@ -10,7 +10,8 @@ from lxml import etree
 from lxml.etree import XMLParser, Element
 from voluptuous import Schema, IsFile
 
-from betty.ancestry import Event, Place, Person, Ancestry, Note, File, Link, Source, HasFiles, Citation, Presence, HasLinks, LocalizedName
+from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, Event, LocalizedName, Person, Source, \
+    Link, HasFiles, Citation, HasLinks, HasCitations
 from betty.config import validate_configuration
 from betty.fs import makedirs
 from betty.locale import Period, Datey, Date
@@ -181,22 +182,41 @@ def _parse_people(ancestry: _IntermediateAncestry, database: Element):
 def _parse_person(ancestry: _IntermediateAncestry, element: Element):
     handle = _xpath1(element, './@handle')
     person = Person(str(_xpath1(element, './@id')))
-    individual_name_element = _xpath1(
-        element, './ns:name[@type="Birth Name"]/ns:first')
-    if individual_name_element is not None:
-        person.individual_name = individual_name_element.text
-    family_name_element = _xpath1(
-        element, './ns:name[@type="Birth Name"]/ns:surname')
-    if family_name_element is not None:
-        person.family_name = family_name_element.text
+
+    names = []
+    for name_element in _xpath(element, './ns:name'):
+        is_alternative = _xpath1(name_element, './@alt') == '1'
+        individual_name_element = _xpath1(name_element, './ns:first')
+        individual_name = None if individual_name_element is None else individual_name_element.text
+        surname_elements = [surname_element for surname_element in _xpath(
+            name_element, './ns:surname') if surname_element.text is not None]
+        if surname_elements:
+            for surname_element in surname_elements:
+                if not is_alternative:
+                    is_alternative = _xpath1(surname_element, './@prim') == '0'
+                affiliation_name = surname_element.text
+                surname_prefix = _xpath1(surname_element, './@prefix')
+                if surname_prefix is not None:
+                    affiliation_name = '%s %s' % (
+                        surname_prefix, affiliation_name)
+                name = PersonName(individual_name, affiliation_name)
+                _parse_citationref(ancestry, name, name_element)
+                names.append((name, is_alternative))
+        elif individual_name is not None:
+            name = PersonName(individual_name)
+            _parse_citationref(ancestry, name, name_element)
+            names.append((name, is_alternative))
+    for name, is_alternative in names:
+        if is_alternative:
+            person.names.append(name)
+        else:
+            person.names.prepend(name)
+
     person.presences = _parse_eventrefs(ancestry, element)
     if str(_xpath1(element, './@priv')) == '1':
         person.private = True
 
-    citation_handles = _xpath(element, './ns:citationref/@hlink')
-    for citation_handle in citation_handles:
-        person.citations.add(ancestry.citations[citation_handle])
-
+    _parse_citationref(ancestry, person, element)
     _parse_objref(ancestry, person, element)
     _parse_urls(person, element)
 
@@ -216,7 +236,7 @@ def _parse_family(ancestry: _IntermediateAncestry, element: Element):
     if father_handle:
         father = ancestry.people[father_handle]
         for presence in _parse_eventrefs(ancestry, element):
-            father.presences.add(presence)
+            father.presences.append(presence)
         parents.append(father)
 
     # Parse the mother.
@@ -224,7 +244,7 @@ def _parse_family(ancestry: _IntermediateAncestry, element: Element):
     if mother_handle:
         mother = ancestry.people[mother_handle]
         for presence in _parse_eventrefs(ancestry, element):
-            mother.presences.add(presence)
+            mother.presences.append(presence)
         parents.append(mother)
 
     # Parse the children.
@@ -232,7 +252,7 @@ def _parse_family(ancestry: _IntermediateAncestry, element: Element):
     for child_handle in child_handles:
         child = ancestry.people[child_handle]
         for parent in parents:
-            parent.children.add(child)
+            parent.children.append(child)
 
 
 def _parse_eventrefs(ancestry: _IntermediateAncestry, element: Element) -> Iterable[Presence]:
@@ -343,9 +363,7 @@ def _parse_event(ancestry: _IntermediateAncestry, element: Element):
 
     _parse_objref(ancestry, event, element)
 
-    citation_handles = _xpath(element, './ns:citationref/@hlink')
-    for citation_handle in citation_handles:
-        event.citations.add(ancestry.citations[citation_handle])
+    _parse_citationref(ancestry, event, element)
     ancestry.events[handle] = event
 
 
@@ -393,7 +411,8 @@ def _parse_citation(ancestry: _IntermediateAncestry, element: Element) -> None:
     handle = _xpath1(element, './@handle')
     source_handle = _xpath1(element, './ns:sourceref/@hlink')
 
-    citation = Citation(_xpath1(element, './@id'), ancestry.sources[source_handle])
+    citation = Citation(_xpath1(element, './@id'),
+                        ancestry.sources[source_handle])
 
     _parse_objref(ancestry, citation, element)
 
@@ -404,10 +423,16 @@ def _parse_citation(ancestry: _IntermediateAncestry, element: Element) -> None:
     ancestry.citations[handle] = citation
 
 
+def _parse_citationref(ancestry: _IntermediateAncestry, claim: HasCitations, element: Element):
+    citation_handles = _xpath(element, './ns:citationref/@hlink')
+    for citation_handle in citation_handles:
+        claim.citations.append(ancestry.citations[citation_handle])
+
+
 def _parse_objref(ancestry: _IntermediateAncestry, owner: HasFiles, element: Element):
     file_handles = _xpath(element, './ns:objref/@hlink')
     for file_handle in file_handles:
-        owner.files.add(ancestry.files[file_handle])
+        owner.files.append(ancestry.files[file_handle])
 
 
 def _parse_urls(owner: HasLinks, element: Element):

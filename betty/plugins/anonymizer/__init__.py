@@ -14,20 +14,27 @@ def anonymize(ancestry: Ancestry) -> None:
 
 
 def anonymize_person(person: Person) -> None:
-    person.individual_name = None
-    person.family_name = None
-    for presence in set(person.presences):
-        person.presences.remove(presence)
+    # Copy the names, because the original iterable will be altered inside the loop.
+    for name in list(person.names):
+        name.citations.clear()
+        name.person = None
+
+    # Copy the names, because the original iterable will be altered inside the loop.
+    for presence in list(person.presences):
+        presence.person = None
         event = presence.event
         if event is not None:
             for event_presence in event.presences:
                 event_presence.person = None
-            event.presences = []
-    for file in set(person.files):
-        file.entities = []
+            event.presences.clear()
+
+    # Copy the names, because the original iterable will be altered inside the loop.
+    for file in list(person.files):
+        file.entities.clear()
+
     # If a person is public themselves, or a node connecting other public persons, preserve their place in the graph.
     if person.private and not _has_public_descendants(person):
-        person.parents = set()
+        person.parents.clear()
 
 
 def _has_public_descendants(person: Person) -> bool:

@@ -1,25 +1,33 @@
-{% macro label(person, context=None) %}
+{%- import 'macro/citation.html.j2' as citationMacros -%}
+{% macro label(person, context=None, citations=True) %}
     {%- if context != person -%}
         <a href="{{ person | url }}">
     {%- endif -%}
     {%- if person.private -%}
         <span class="private" title="This person's details are unavailable to protect their privacy.">private</span>
     {%- else -%}
-        <span typeof="foaf:Person">
-        {% if person.individual_name -%}
-            <span property="foaf:individualName">{{ person.individual_name }}</span>
-        {%- else -%}
-            …
-        {%- endif -%}
-        {%- if person.family_name %}
-            <span property="foaf:familyName">{{ person.family_name }}</span>
-        {%- endif -%}
-        </span>
+        {{ nameLabel(person.name, citations=citations) }}
     {%- endif -%}
     {%- if context != person -%}
         </a>
     {%- endif -%}
 {% endmacro %}
+
+{%- macro nameLabel(name, citations=True) -%}
+    <span class="person-label" typeof="foaf:Person">
+    {% if name.individual -%}
+        <span property="foaf:individualName">{{ name.individual }}</span>
+    {%- else -%}
+        …
+    {%- endif -%}
+    {%- if name.affiliation %}
+        <span property="foaf:familyName">{{ name.affiliation }}</span>
+    {%- endif -%}
+    </span>
+    {% if citations %}
+        {{ citationMacros.cite(name.citations) }}
+    {% endif %}
+{%- endmacro -%}
 
 {% macro sortableLabel(person, link=True) %}
     {%- if link -%}
@@ -28,14 +36,14 @@
     {%- if person.private -%}
         <span class="private" title="This person's details are unavailable to protect their privacy.">private</span>
     {%- else -%}
-        <span typeof="foaf:Person">
-        {%- if person.family_name -%}
-            <span property="foaf:familyName">{{ person.family_name }}</span>
+        <span class="person-label" typeof="foaf:Person">
+        {%- if person.name.affiliation -%}
+            <span property="foaf:familyName">{{ person.name.affiliation }}</span>
         {%- else -%}
             …
         {%- endif -%}
-        , {% if person.individual_name -%}
-            <span property="foaf:individualName">{{ person.individual_name }}</span>
+        , {% if person.name.individual -%}
+            <span property="foaf:individualName">{{ person.name.individual }}</span>
         {%- else -%}
             …
         {%- endif -%}

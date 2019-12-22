@@ -7,7 +7,7 @@
             {% set ns.subjects = ns.subjects + [presence.person] %}
         {% endif %}
     {% endfor %}
-    {% set formattedSubjects = ns.subjects | sort(attribute="names") | map(personMacros.label) | join(", ") %}
+    {% set formattedSubjects = ns.subjects | sort(attribute='name') | map(personMacros.label) | join(', ') %}
     {%- if ns.subjects | length == 0 -%}
         {{ formattedEvent }}
     {% else %}

@@ -23,6 +23,7 @@ h4,
 h5,
 h6 {
   color: #000;
+  margin-bottom: 0;
 }
 
 h1 {
@@ -123,6 +124,10 @@ footer {
 }
 
 @media (min-width: 768px) {
+  .meta dl {
+    margin: 0;
+  }
+
   .meta dt,
   .meta dd {
     display: inline;
@@ -143,6 +148,15 @@ footer {
 .private {
   cursor: help;
   text-decoration: dotted underline;
+}
+
+.aka {
+  color: #777;
+  font-size: 0.9rem;
+}
+
+.aka .person-label {
+  font-style: italic;
 }
 
 /*
@@ -358,7 +372,7 @@ figcaption {
   }
 
   .featured {
-    margin: 0 -3rem;
+    margin: 3rem -3rem 0 -3rem;
     width: calc(100% + 6rem);
   }
 

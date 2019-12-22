@@ -56,19 +56,19 @@ class PrivatizerTest(TestCase):
             person = Person('P0')
             presence = Presence(Presence.Role.SUBJECT)
             presence.event = Event('E0', Event.Type.BIRTH)
-            person.presences.add(presence)
+            person.presences.append(presence)
             site.ancestry.people[person.id] = person
             parse(site)
             self.assertTrue(person.private)
 
     @_expand(0)
     def test_privatize_without_relatives(self, expected, private, event: Optional[Event]):
-        person = Person('P0', 'Janet', 'Dough')
+        person = Person('P0')
         person.private = private
         if event is not None:
             presence = Presence(Presence.Role.SUBJECT)
             presence.event = event
-            person.presences.add(presence)
+            person.presences.append(presence)
         ancestry = Ancestry()
         ancestry.people[person.id] = person
         sut = Privatizer()
@@ -77,14 +77,14 @@ class PrivatizerTest(TestCase):
 
     @_expand(1)
     def test_privatize_with_child(self, expected, private, event: Optional[Event]):
-        person = Person('P0', 'Janet', 'Dough')
+        person = Person('P0')
         person.private = private
         child = Person('P1')
         if event is not None:
             presence = Presence(Presence.Role.SUBJECT)
             presence.event = event
-            child.presences.add(presence)
-        person.children.add(child)
+            child.presences.append(presence)
+        person.children.append(child)
         ancestry = Ancestry()
         ancestry.people[person.id] = person
         ancestry.people[child.id] = child
@@ -94,16 +94,16 @@ class PrivatizerTest(TestCase):
 
     @_expand(2)
     def test_privatize_with_grandchild(self, expected, private, event: Optional[Event]):
-        person = Person('P0', 'Janet', 'Dough')
+        person = Person('P0')
         person.private = private
         child = Person('P1')
-        person.children.add(child)
+        person.children.append(child)
         grandchild = Person('P2')
         if event is not None:
             presence = Presence(Presence.Role.SUBJECT)
             presence.event = event
-            grandchild.presences.add(presence)
-        child.children.add(grandchild)
+            grandchild.presences.append(presence)
+        child.children.append(grandchild)
         ancestry = Ancestry()
         ancestry.people[person.id] = person
         ancestry.people[child.id] = child
@@ -114,18 +114,18 @@ class PrivatizerTest(TestCase):
 
     @_expand(3)
     def test_privatize_with_great_grandchild(self, expected, private, event: Optional[Event]):
-        person = Person('P0', 'Janet', 'Dough')
+        person = Person('P0')
         person.private = private
         child = Person('P1')
-        person.children.add(child)
+        person.children.append(child)
         grandchild = Person('P2')
-        child.children.add(grandchild)
+        child.children.append(grandchild)
         great_grandchild = Person('P2')
         if event is not None:
             presence = Presence(Presence.Role.SUBJECT)
             presence.event = event
-            great_grandchild.presences.add(presence)
-        grandchild.children.add(great_grandchild)
+            great_grandchild.presences.append(presence)
+        grandchild.children.append(great_grandchild)
         ancestry = Ancestry()
         ancestry.people[person.id] = person
         sut = Privatizer()
@@ -134,14 +134,14 @@ class PrivatizerTest(TestCase):
 
     @_expand(-1)
     def test_privatize_with_parent(self, expected, private, event: Optional[Event]):
-        person = Person('P0', 'Janet', 'Dough')
+        person = Person('P0')
         person.private = private
         parent = Person('P1')
         if event is not None:
             presence = Presence(Presence.Role.SUBJECT)
             presence.event = event
-            parent.presences.add(presence)
-        person.parents.add(parent)
+            parent.presences.append(presence)
+        person.parents.append(parent)
         ancestry = Ancestry()
         ancestry.people[person.id] = person
         ancestry.people[parent.id] = parent
@@ -151,16 +151,16 @@ class PrivatizerTest(TestCase):
 
     @_expand(-2)
     def test_privatize_with_grandparent(self, expected, private, event: Optional[Event]):
-        person = Person('P0', 'Janet', 'Dough')
+        person = Person('P0')
         person.private = private
         parent = Person('P1')
-        person.parents.add(parent)
+        person.parents.append(parent)
         grandparent = Person('P2')
         if event is not None:
             presence = Presence(Presence.Role.SUBJECT)
             presence.event = event
-            grandparent.presences.add(presence)
-        parent.parents.add(grandparent)
+            grandparent.presences.append(presence)
+        parent.parents.append(grandparent)
         ancestry = Ancestry()
         ancestry.people[person.id] = person
         ancestry.people[parent.id] = parent
@@ -171,18 +171,18 @@ class PrivatizerTest(TestCase):
 
     @_expand(-3)
     def test_privatize_with_great_grandparent(self, expected, private, event: Optional[Event]):
-        person = Person('P0', 'Janet', 'Dough')
+        person = Person('P0')
         person.private = private
         parent = Person('P1')
-        person.parents.add(parent)
+        person.parents.append(parent)
         grandparent = Person('P2')
-        parent.parents.add(grandparent)
+        parent.parents.append(grandparent)
         great_grandparent = Person('P2')
         if event is not None:
             presence = Presence(Presence.Role.SUBJECT)
             presence.event = event
-            great_grandparent.presences.add(presence)
-        grandparent.parents.add(great_grandparent)
+            great_grandparent.presences.append(presence)
+        grandparent.parents.append(great_grandparent)
         ancestry = Ancestry()
         ancestry.people[person.id] = person
         sut = Privatizer()

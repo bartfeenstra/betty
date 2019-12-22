@@ -43,12 +43,17 @@ def index(site: Site) -> Iterable:
             'person': person,
         })
     for person in site.ancestry.people.values():
-        if person.individual_name is None and person.family_name is None:
-            continue
-        yield {
-            'text': ' '.join([name.lower() for name in [person.individual_name, person.family_name] if name is not None]),
-            'results': {locale: render_person_result(locale, person) for locale in environments},
-        }
+        names = []
+        for name in person.names:
+            if name.individual is not None:
+                names.append(name.individual.lower())
+            if name.affiliation is not None:
+                names.append(name.affiliation.lower())
+        if names:
+            yield {
+                'text': ' '.join(names),
+                'results': {locale: render_person_result(locale, person) for locale in environments},
+            }
 
     def render_place_result(locale: str, place: Place):
         return environments[locale].get_template('search-result-place.html.j2').render({

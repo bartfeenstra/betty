@@ -28,14 +28,14 @@ class CleanTest(TestCase):
         onymous_event = Event('E0', Event.Type.BIRTH)
         onymous_event_presence = Presence(Presence.Role.SUBJECT)
         onymous_event_presence.person = Person('P0')
-        onymous_event.presences.add(onymous_event_presence)
+        onymous_event.presences.append(onymous_event_presence)
         ancestry.events[onymous_event.id] = onymous_event
 
         anonymous_event = Event('E1', Event.Type.BIRTH)
         ancestry.events[anonymous_event.id] = anonymous_event
 
         onymous_place = Place('P0', [LocalizedName('Amsterdam')])
-        onymous_place.events.add(onymous_event)
+        onymous_place.events.append(onymous_event)
         ancestry.places[onymous_place.id] = onymous_place
 
         anonymous_place = Place('P1', [LocalizedName('Almelo')])
@@ -43,9 +43,9 @@ class CleanTest(TestCase):
 
         onmyous_place_because_encloses_onmyous_places = Place(
             'P3', [LocalizedName('Netherlands')])
-        onmyous_place_because_encloses_onmyous_places.encloses.add(
+        onmyous_place_because_encloses_onmyous_places.encloses.append(
             onymous_place)
-        onmyous_place_because_encloses_onmyous_places.encloses.add(
+        onmyous_place_because_encloses_onmyous_places.encloses.append(
             anonymous_place)
         ancestry.places[
             onmyous_place_because_encloses_onmyous_places.id] = onmyous_place_because_encloses_onmyous_places

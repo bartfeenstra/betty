@@ -1,25 +1,31 @@
 {%- import 'macro/event.html.j2' as eventMacros -%}
+{%- import 'macro/person.html.j2' as personMacros -%}
 <div class="meta">
     {%- if person.private -%}
         <p>{{ _('This person\'s details are unavailable to protect their privacy.') }}</p>
-    {%- elif person.start or person.end %}
-        <dl>
-            {%- if person.start %}
-                <dt>{{ eventMacros.type_label(person.start) }}</dt>
-                <dd>
-                    {%- with event=person.start -%}
-                        {% include 'event-dimensions.html.j2' %}
-                    {%- endwith -%}
-                </dd>
-            {%- endif %}
-            {%- if person.end %}
-                <dt>{{ eventMacros.type_label(person.end) }}</dt>
-                <dd>
-                    {%- with event=person.end -%}
-                        {% include 'event-dimensions.html.j2' %}
-                    {%- endwith -%}
-                </dd>
-            {%- endif %}
-        </dl>
+    {%- else -%}
+        {%- if person.names | length > 1 -%}
+            <span class="aka">Also known as {{ person.alternative_names | map(personMacros.nameLabel) | join(', ') }}</span>
+        {%- endif -%}
+        {%- if person.start or person.end %}
+            <dl>
+                {%- if person.start %}
+                    <dt>{{ eventMacros.type_label(person.start) }}</dt>
+                    <dd>
+                        {%- with event=person.start -%}
+                            {% include 'event-dimensions.html.j2' %}
+                        {%- endwith -%}
+                    </dd>
+                {%- endif %}
+                {%- if person.end %}
+                    <dt>{{ eventMacros.type_label(person.end) }}</dt>
+                    <dd>
+                        {%- with event=person.end -%}
+                            {% include 'event-dimensions.html.j2' %}
+                        {%- endwith -%}
+                    </dd>
+                {%- endif %}
+            </dl>
+        {%- endif %}
     {%- endif %}
 </div>

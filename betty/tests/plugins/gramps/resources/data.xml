@@ -45,6 +45,13 @@
       <name type="Birth Name">
         <first>Jane</first>
         <surname>Doe</surname>
+        <surname prim="0">Doh</surname>
+        <title>Mx</title>
+        <nick>Jay</nick>
+      </name>
+      <name alt="1" type="Also Known As">
+        <first>Jen</first>
+        <surname prefix="Van">Doughie</surname>
       </name>
       <eventref hlink="_e1dd3ac2fa22e6fefa18f738bdd" role="Primary"/>
       <childof hlink="_e1dd3b84f9e5d832ffc17baa46c"/>

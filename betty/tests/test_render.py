@@ -36,7 +36,8 @@ class RenderTestCase(TestCase):
             self.site.configuration.www_directory_path, path.lstrip('/'))
         self.assertTrue(exists(file_path), '%s does not exist' % file_path)
         with open(file_path) as f:
-            json.validate(stdjson.load(f), schema_definition, self.site.configuration)
+            json.validate(stdjson.load(f), schema_definition,
+                          self.site.configuration)
         return file_path
 
 
@@ -82,7 +83,7 @@ class RenderTest(RenderTestCase):
         self.assert_betty_json('/person/index.json', 'personCollection')
 
     def test_person(self):
-        person = Person('PERSON1', 'Janet', 'Dough')
+        person = Person('PERSON1')
         self.site.ancestry.people[person.id] = person
         render(self.site)
         self.assert_betty_html('/person/%s/index.html' % person.id)
@@ -105,7 +106,8 @@ class RenderTest(RenderTestCase):
         self.site.ancestry.citations[citation.id] = citation
         render(self.site)
         self.assert_betty_html('/citation/%s/index.html' % citation.id)
-        self.assert_betty_json('/citation/%s/index.json' % citation.id, 'citation')
+        self.assert_betty_json('/citation/%s/index.json' %
+                               citation.id, 'citation')
 
     def test_sources(self):
         render(self.site)

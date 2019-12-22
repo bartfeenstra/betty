@@ -102,7 +102,8 @@ class Translations(gettext.NullTranslations):
 
     def __enter__(self):
         import builtins
-        self._previous_context = {key: value for key, value in builtins.__dict__.items() if key in self._KEYS}
+        self._previous_context = {
+            key: value for key, value in builtins.__dict__.items() if key in self._KEYS}
         self.install()
 
     def __exit__(self, exc_type, exc_val, exc_tb):

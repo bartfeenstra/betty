@@ -5,7 +5,7 @@ from unittest import TestCase
 from geopy import Point
 
 from betty import json
-from betty.ancestry import Place, Person, LocalizedName, Link, Event, Citation, Presence, Source, File, Note
+from betty.ancestry import Place, Person, LocalizedName, Link, Event, Citation, Presence, Source, File, Note, PersonName
 from betty.config import Configuration
 from betty.json import JSONEncoder
 from betty.locale import Date, Period
@@ -71,10 +71,10 @@ class JSONEncoderTest(TestCase):
         place = Place(place_id, [LocalizedName(name, locale)])
         place.coordinates = coordinates
         place.enclosed_by = Place('the_enclosing_place', [])
-        place.encloses.add(Place('the_enclosed_place', []))
+        place.encloses.append(Place('the_enclosed_place', []))
         place.links.add(
             Link('https://example.com/the-place', 'The Place Online'))
-        place.events.add(Event('E1', Event.Type.BIRTH))
+        place.events.append(Event('E1', Event.Type.BIRTH))
         expected = {
             '$schema': '/schema.json#/definitions/place',
             '@context': {
@@ -128,6 +128,7 @@ class JSONEncoderTest(TestCase):
             },
             '@type': 'https://schema.org/Person',
             'id': person_id,
+            'names': [],
             'parents': [],
             'children': [],
             'siblings': [],
@@ -147,35 +148,43 @@ class JSONEncoderTest(TestCase):
 
         sibling_id = 'the_sibling'
         sibling = Person(sibling_id)
-        sibling.parents.add(parent)
+        sibling.parents.append(parent)
 
         person_id = 'the_person'
-        person_family_name = 'Person'
+        person_affiliation_name = 'Person'
         person_individual_name = 'The'
-        person = Person(person_id, person_individual_name, person_family_name)
-        person.parents.add(parent)
-        person.children.add(child)
+        person = Person(person_id)
+        person.names.append(PersonName(person_individual_name, person_affiliation_name))
+        person.parents.append(parent)
+        person.children.append(child)
         person.private = False
         person.links.add(
             Link('https://example.com/the-person', 'The Person Online'))
-        person.citations.add(Citation('the_citation', Source('the_source', 'The Source')))
+        person.citations.append(
+            Citation('the_citation', Source('the_source', 'The Source')))
         presence = Presence(Presence.Role.SUBJECT)
         presence.event = Event('the_event', Event.Type.BIRTH)
-        person.presences.add(presence)
+        person.presences.append(presence)
 
         expected = {
             '$schema': '/schema.json#/definitions/person',
             '@context': {
-                'individualName': 'https://schema.org/givenName',
-                'familyName': 'https://schema.org/familyName',
                 'parents': 'https://schema.org/parent',
                 'children': 'https://schema.org/child',
                 'siblings': 'https://schema.org/sibling',
             },
             '@type': 'https://schema.org/Person',
             'id': person_id,
-            'familyName': person_family_name,
-            'individualName': person_individual_name,
+            'names': [
+                {
+                    '@context': {
+                        'individual': 'https://schema.org/givenName',
+                        'affiliation': 'https://schema.org/familyName',
+                    },
+                    'individual': person_individual_name,
+                    'affiliation': person_affiliation_name,
+                },
+            ],
             'parents': [
                 '/person/the_parent/index.json',
             ],
@@ -223,7 +232,7 @@ class JSONEncoderTest(TestCase):
             file = File('the_file', f.name)
             file.type = 'text/plain'
             file.notes.append(Note('The Note'))
-            Person('the_person').files.add(file)
+            Person('the_person').files.append(file)
             expected = {
                 '$schema': '/schema.json#/definitions/file',
                 'id': 'the_file',
@@ -257,8 +266,9 @@ class JSONEncoderTest(TestCase):
         event.place = Place('the_place', [LocalizedName('The Place')])
         presence = Presence(Presence.Role.SUBJECT)
         presence.person = Person('the_person')
-        event.presences.add(presence)
-        event.citations.add(Citation('the_citation', Source('the_source', 'The Source')))
+        event.presences.append(presence)
+        event.citations.append(
+            Citation('the_citation', Source('the_source', 'The Source')))
         expected = {
             '$schema': '/schema.json#/definitions/event',
             '@context': {
@@ -318,9 +328,10 @@ class JSONEncoderTest(TestCase):
             'the_containing_source', 'The Containing Source')
         source.links.add(
             Link('https://example.com/the-person', 'The Person Online'))
-        source.contains.add(
+        source.contains.append(
             Source('the_contained_source', 'The Contained Source'))
-        source.citations.add(Citation('the_citation', Source('the_source', 'The Source')))
+        source.citations.append(
+            Citation('the_citation', Source('the_source', 'The Source')))
         expected = {
             '$schema': '/schema.json#/definitions/source',
             '@context': {
@@ -364,7 +375,7 @@ class JSONEncoderTest(TestCase):
     def test_citation_should_encode_full(self):
         citation = Citation('the_citation', Source('the_source', 'The Source'))
         citation.description = 'The Source Description'
-        citation.claims.add(Event('the_event', Event.Type.BIRTH))
+        citation.claims.append(Event('the_event', Event.Type.BIRTH))
         expected = {
             '$schema': '/schema.json#/definitions/citation',
             '@context': {

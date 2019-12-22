@@ -47,11 +47,25 @@
         "id": {
           "$ref": "#/definitions/id"
         },
-        "individualName": {
-          "type": "string"
-        },
-        "familyName": {
-          "type": "string"
+        "names": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "individual": {
+                "type": "string"
+              },
+              "affiliation": {
+                "type": "string"
+              }
+            },
+            "patternProperties": {
+              "^@": {
+                "$ref": "#/definitions/jsonLd"
+              }
+            },
+            "additionalProperties": false
+          }
         },
         "parents": {
           "$ref": "#/definitions/people"
