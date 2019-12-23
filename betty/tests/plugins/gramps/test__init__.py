@@ -131,6 +131,10 @@ class ParseXmlFileTestCase(TestCase):
         self.assertCountEqual(
             expected_people, [presence.person for presence in event.presences])
 
+    def test_event_should_include_description(self):
+        event = self.ancestry.events['E0008']
+        self.assertEquals('Something happened!', event.description)
+
     def test_date_should_ignore_invalid_date(self):
         date = self.ancestry.events['E0001'].date
         self.assertIsNone(date)

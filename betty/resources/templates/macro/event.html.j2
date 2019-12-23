@@ -1,6 +1,9 @@
 {%- macro label(event, person_context=None) -%}
     {%- import 'macro/person.html.j2' as personMacros -%}
     {% set formattedEvent = '<a href="' + event | url + '">' + type_label(event) + '</a>' %}
+    {% if event.description is not none %}
+        {% set formattedEvent = formattedEvent + ' (' + event.description + ')' %}
+    {% endif %}
     {% set ns = namespace(subjects=[]) %}
     {% for presence in event.presences %}
         {% if PresenceRole.SUBJECT == presence.role and presence.person != person_context %}
@@ -35,6 +38,7 @@
         EventType.RESIDENCE: _('Residence'),
         EventType.IMMIGRATION: _('Immigration'),
         EventType.EMIGRATION: _('Emigration'),
+        EventType.OCCUPATION: _('Occupation'),
     } -%}
     {{ _type_labels[event.type] }}
 {%- endmacro -%}
