@@ -350,6 +350,7 @@ _EVENT_TYPE_MAP = {
     'Residence': Event.Type.RESIDENCE,
     'Immigration': Event.Type.IMMIGRATION,
     'Emigration': Event.Type.EMIGRATION,
+    'Occupation': Event.Type.OCCUPATION,
 }
 
 
@@ -366,8 +367,12 @@ def _parse_event(ancestry: _IntermediateAncestry, element: Element):
     if place_handle:
         event.place = ancestry.places[place_handle]
 
-    _parse_objref(ancestry, event, element)
+    # Parse the description.
+    description_element = _xpath1(element, './ns:description')
+    if description_element is not None:
+        event.description = description_element.text
 
+    _parse_objref(ancestry, event, element)
     _parse_citationref(ancestry, event, element)
     ancestry.events[handle] = event
 

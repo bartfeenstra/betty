@@ -42,6 +42,11 @@
       <type>Birth</type>
       <dateval val="1970-01-01" type="about"/>
     </event>
+    <event handle="_e56068c37402fda8741678a115a" change="1577021208" id="E0008">
+      <type>Birth</type>
+      <dateval val="1970-01-01"/>
+      <description>Something happened!</description>
+    </event>
   </events>
   <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">

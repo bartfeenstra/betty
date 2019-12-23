@@ -421,7 +421,7 @@ class Presence:
             event.presences.append(self)
 
 
-class Event(Identifiable, Dated, HasFiles, HasCitations):
+class Event(Identifiable, Dated, HasFiles, HasCitations, Described):
     class Type(Enum):
         BIRTH = 'birth'
         BAPTISM = 'baptism'
@@ -433,12 +433,14 @@ class Event(Identifiable, Dated, HasFiles, HasCitations):
         RESIDENCE = 'residence'
         IMMIGRATION = 'immigration'
         EMIGRATION = 'emigration'
+        OCCUPATION = 'occupation'
 
     def __init__(self, event_id: str, event_type: Type, date: Optional[Datey] = None, place: Optional[Place] = None):
         Identifiable.__init__(self, event_id)
         Dated.__init__(self)
         HasFiles.__init__(self)
         HasCitations.__init__(self)
+        Described.__init__(self)
         self._date = date
         self._place = place
         self._type = event_type
