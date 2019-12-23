@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-12-13 23:25+0000\n"
+"POT-Creation-Date: 2019-12-23 00:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,41 +17,46 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: betty/locale.py:158
-msgid "MMMM d, y"
-msgstr ""
-
-#: betty/locale.py:159
-msgid "MMMM, y"
-msgstr ""
-
-#: betty/locale.py:160
-msgid "y"
-msgstr ""
-
-#: betty/locale.py:161
-msgid "MMMM d"
-msgstr ""
-
-#: betty/locale.py:162
-msgid "MMMM"
-msgstr ""
-
-#: betty/locale.py:167 betty/locale.py:186
+#: betty/locale.py:170
 msgid "unknown date"
 msgstr ""
 
-#: betty/locale.py:174
+#: betty/locale.py:176
+#, python-format
+msgid "around %(date)s"
+msgstr ""
+
+#: betty/locale.py:186
+msgid "MMMM d, y"
+msgstr ""
+
+#: betty/locale.py:187
+msgid "MMMM, y"
+msgstr ""
+
+#: betty/locale.py:188
+msgid "y"
+msgstr ""
+
+#: betty/locale.py:189
+msgid "MMMM d"
+msgstr ""
+
+#: betty/locale.py:190
+msgid "MMMM"
+msgstr ""
+
+#: betty/locale.py:210
 #, python-format
 msgid "Between %(start)s and %(end)s"
 msgstr ""
 
-#: betty/locale.py:179
+#: betty/locale.py:215
 #, python-format
 msgid "After %(start)s"
 msgstr ""
 
-#: betty/locale.py:183
+#: betty/locale.py:219
 #, python-format
 msgid "Before %(end)s"
 msgstr ""
@@ -64,127 +69,127 @@ msgstr ""
 msgid "The collection of files."
 msgstr ""
 
-#: betty/openapi.py:19
+#: betty/openapi.py:20
 msgid "Retrieve a single file."
 msgstr ""
 
-#: betty/openapi.py:19
+#: betty/openapi.py:20
 msgid "The file."
 msgstr ""
 
-#: betty/openapi.py:20
+#: betty/openapi.py:21
 msgid "Retrieve the collection of people."
 msgstr ""
 
-#: betty/openapi.py:20
+#: betty/openapi.py:21
 msgid "The collection of people."
 msgstr ""
 
-#: betty/openapi.py:20
+#: betty/openapi.py:22
 msgid "Retrieve a single person."
 msgstr ""
 
-#: betty/openapi.py:20
+#: betty/openapi.py:22
 msgid "The person."
 msgstr ""
 
-#: betty/openapi.py:21
+#: betty/openapi.py:23
 msgid "Retrieve the collection of places."
 msgstr ""
 
-#: betty/openapi.py:21
+#: betty/openapi.py:23
 msgid "The collection of places."
 msgstr ""
 
-#: betty/openapi.py:21
+#: betty/openapi.py:24
 msgid "Retrieve a single place."
 msgstr ""
 
-#: betty/openapi.py:21
+#: betty/openapi.py:24
 msgid "The place."
 msgstr ""
 
-#: betty/openapi.py:22
+#: betty/openapi.py:25
 msgid "Retrieve the collection of events."
 msgstr ""
 
-#: betty/openapi.py:22
+#: betty/openapi.py:25
 msgid "The collection of events."
 msgstr ""
 
-#: betty/openapi.py:22
+#: betty/openapi.py:26
 msgid "Retrieve a single event."
 msgstr ""
 
-#: betty/openapi.py:22
+#: betty/openapi.py:26
 msgid "The event."
 msgstr ""
 
-#: betty/openapi.py:23
+#: betty/openapi.py:27
 msgid "Retrieve the collection of citations."
 msgstr ""
 
-#: betty/openapi.py:23
+#: betty/openapi.py:27
 msgid "The collection of citations."
 msgstr ""
 
-#: betty/openapi.py:23
+#: betty/openapi.py:28
 msgid "Retrieve a single citation."
 msgstr ""
 
-#: betty/openapi.py:23
+#: betty/openapi.py:28
 msgid "The citation."
 msgstr ""
 
-#: betty/openapi.py:24
+#: betty/openapi.py:29
 msgid "Retrieve the collection of sources."
 msgstr ""
 
-#: betty/openapi.py:24
+#: betty/openapi.py:29
 msgid "The collection of sources."
 msgstr ""
 
-#: betty/openapi.py:24
+#: betty/openapi.py:30
 msgid "Retrieve a single source."
 msgstr ""
 
-#: betty/openapi.py:24
+#: betty/openapi.py:30
 msgid "The source."
 msgstr ""
 
-#: betty/openapi.py:45 betty/resources/public/localized/.error/401.html.j2:2
+#: betty/openapi.py:51 betty/resources/public/localized/.error/401.html.j2:2
 msgid "Unauthorized"
 msgstr ""
 
-#: betty/openapi.py:55
+#: betty/openapi.py:61
 msgid "Forbidden"
 msgstr ""
 
-#: betty/openapi.py:65
+#: betty/openapi.py:71
 msgid "Not found"
 msgstr ""
 
-#: betty/openapi.py:80
+#: betty/openapi.py:86
 msgid "The ID for the resource to retrieve."
 msgstr ""
 
-#: betty/openapi.py:88
+#: betty/openapi.py:94
 msgid ""
 "An HTTP [Content-Language](https://developer.mozilla.org/en-"
 "US/docs/Web/HTTP/Headers/Content-Language) header."
 msgstr ""
 
-#: betty/openapi.py:153
+#: betty/openapi.py:159
 msgid ""
 "An HTTP [Accept-Language](https://developer.mozilla.org/en-"
 "US/docs/Web/HTTP/Headers/Accept-Language) header."
 msgstr ""
 
-#: betty/openapi.py:161
+#: betty/openapi.py:167
 msgid "An HTML5 document."
 msgstr ""
 
-#: betty/openapi.py:168
+#: betty/openapi.py:174
 msgid "A locale name."
 msgstr ""
 
@@ -212,50 +217,50 @@ msgid "Welcome to %(title)s"
 msgstr ""
 
 #: betty/resources/public/localized/api/index.html.j2:4
-#: betty/resources/templates/footer.html.j2:2
+#: betty/resources/templates/footer.html.j2:7
 msgid "API documentation"
 msgstr ""
 
-#: betty/resources/templates/base.html.j2:55
+#: betty/resources/templates/base.html.j2:58
 msgid "Menu"
 msgstr ""
 
-#: betty/resources/templates/base.html.j2:58
+#: betty/resources/templates/base.html.j2:61
 #: betty/resources/templates/page/list-person.html.j2:2
 msgid "People"
 msgstr ""
 
-#: betty/resources/templates/base.html.j2:59
+#: betty/resources/templates/base.html.j2:62
 #: betty/resources/templates/page/list-event.html.j2:2
-#: betty/resources/templates/page/person.html.j2:66
-#: betty/resources/templates/page/place.html.j2:24
+#: betty/resources/templates/page/person.html.j2:65
+#: betty/resources/templates/page/place.html.j2:23
 msgid "Events"
 msgstr ""
 
-#: betty/resources/templates/base.html.j2:60
+#: betty/resources/templates/base.html.j2:63
 #: betty/resources/templates/page/list-place.html.j2:2
 msgid "Places"
 msgstr ""
 
-#: betty/resources/templates/base.html.j2:61
+#: betty/resources/templates/base.html.j2:64
 #: betty/resources/templates/page/citation.html.j2:8
 #: betty/resources/templates/page/event.html.j2:45
 #: betty/resources/templates/page/list-file.html.j2:2
-#: betty/resources/templates/page/person.html.j2:79
+#: betty/resources/templates/page/person.html.j2:77
 #: betty/resources/templates/page/source.html.j2:12
 msgid "Media"
 msgstr ""
 
-#: betty/resources/templates/base.html.j2:62
+#: betty/resources/templates/base.html.j2:65
 #: betty/resources/templates/page/list-source.html.j2:2
 msgid "Sources"
 msgstr ""
 
-#: betty/resources/templates/base.html.j2:68
+#: betty/resources/templates/base.html.j2:71
 msgid "Language"
 msgstr ""
 
-#: betty/resources/templates/base.html.j2:89
+#: betty/resources/templates/base.html.j2:92
 #: betty/resources/templates/page/citation.html.j2:12
 #: betty/resources/templates/page/source.html.j2:17
 msgid "References"
@@ -271,71 +276,80 @@ msgstr ""
 msgid "in %(place)s"
 msgstr ""
 
-#: betty/resources/templates/footer.html.j2:1
+#: betty/resources/templates/footer.html.j2:3
+#, python-format
+msgid "© Copyright %(author)s, unless otherwise credited"
+msgstr ""
+
+#: betty/resources/templates/footer.html.j2:6
 msgid ""
 "A family history as told by <a "
 "href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
 msgstr ""
 
-#: betty/resources/templates/person-meta.html.j2:4
+#: betty/resources/templates/person-meta.html.j2:5
 msgid "This person's details are unavailable to protect their privacy."
 msgstr ""
 
-#: betty/resources/templates/macro/event.html.j2:15
+#: betty/resources/templates/macro/event.html.j2:18
 #, python-format
 msgid "%(event)s with %(subjects)s"
 msgstr ""
 
-#: betty/resources/templates/macro/event.html.j2:19
+#: betty/resources/templates/macro/event.html.j2:22
 #, python-format
 msgid "%(event)s of %(subjects)s"
 msgstr ""
 
-#: betty/resources/templates/macro/event.html.j2:28
+#: betty/resources/templates/macro/event.html.j2:31
 msgid "Birth"
 msgstr ""
 
-#: betty/resources/templates/macro/event.html.j2:29
+#: betty/resources/templates/macro/event.html.j2:32
 msgid "Baptism"
 msgstr ""
 
-#: betty/resources/templates/macro/event.html.j2:30
+#: betty/resources/templates/macro/event.html.j2:33
 msgid "Cremation"
 msgstr ""
 
-#: betty/resources/templates/macro/event.html.j2:31
+#: betty/resources/templates/macro/event.html.j2:34
 msgid "Death"
 msgstr ""
 
-#: betty/resources/templates/macro/event.html.j2:32
+#: betty/resources/templates/macro/event.html.j2:35
 msgid "Burial"
 msgstr ""
 
-#: betty/resources/templates/macro/event.html.j2:33
+#: betty/resources/templates/macro/event.html.j2:36
 msgid "Marriage"
 msgstr ""
 
-#: betty/resources/templates/macro/event.html.j2:34
+#: betty/resources/templates/macro/event.html.j2:37
 msgid "Marriage banns"
 msgstr ""
 
-#: betty/resources/templates/macro/event.html.j2:35
+#: betty/resources/templates/macro/event.html.j2:38
 msgid "Residence"
 msgstr ""
 
-#: betty/resources/templates/macro/event.html.j2:36
+#: betty/resources/templates/macro/event.html.j2:39
 msgid "Immigration"
 msgstr ""
 
-#: betty/resources/templates/macro/event.html.j2:37
+#: betty/resources/templates/macro/event.html.j2:40
 msgid "Emigration"
 msgstr ""
 
-#: betty/resources/templates/macro/event.html.j2:44
+#: betty/resources/templates/macro/event.html.j2:41
+msgid "Occupation"
+msgstr ""
+
+#: betty/resources/templates/macro/event.html.j2:48
 msgid "Subject"
 msgstr ""
 
-#: betty/resources/templates/macro/event.html.j2:45
+#: betty/resources/templates/macro/event.html.j2:49
 msgid "Witness"
 msgstr ""
 
