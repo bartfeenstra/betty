@@ -14,7 +14,6 @@ DOCKER_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__fil
                            'docker')
 
 ConfigurationSchema = Schema({
-    Required('content_negotiation', default=False): bool,
     Required('www_directory_path', default=None): Any(None, str),
     Required('https', default=None): Any(None, bool),
 })

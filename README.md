@@ -76,7 +76,8 @@ plugins:
     file: ./gramps.gpkg
   betty.plugins.maps.Maps: {}
   betty.plugins.nginx.Nginx:
-    content_negotiation: true
+    www_directory_path: /var/www/betty
+    https: true
   betty.plugins.privatizer.Privatizer: {}
   betty.plugins.search.Search: {}
   betty.plugins.trees.Trees: {}
@@ -103,11 +104,16 @@ plugins:
         - `file`: the path to the *Gramps XML* or *Gramps XML Package* file.
     - `betty.plugin.maps.Maps`: Renders interactive maps using [Leaflet](https://leafletjs.com/).
     - `betty.plugin.nginx.Nginx`: Creates an [nginx](https://nginx.org) configuration file in the output directory.
-        Configuration: `{}`. If `content_negotiation` is enabled. You must make sure the nginx
+        If `content_negotiation` is enabled. You must make sure the nginx
         [Lua module](https://github.com/openresty/lua-nginx-module#readme) is enabled, and
         [CONE](https://github.com/bartfeenstra/cone)'s
         [cone.lua](https://raw.githubusercontent.com/bartfeenstra/cone/master/cone.lua) can be found by putting it in
-        nginx's [lua_package_path](https://github.com/openresty/lua-nginx-module#lua_package_path).
+        nginx's [lua_package_path](https://github.com/openresty/lua-nginx-module#lua_package_path). Configuration:
+        - `www_directory_path` (optional): The public www directory where Betty will be deployed. Defaults to `www`
+            inside the output directory.
+        - `https` (optional): Whether or not nginx will be serving Betty over HTTPS. Most upstream nginx servers will
+            want to have this disabled, so the downstream server can terminate SSL and communicate over HTTP 2 instead.
+            Defaults to `true` if the base URL specifies HTTPS, or `false` otherwise.
     - `betty.plugin.privatizer.Privatizer`: Marks living people private. Configuration: `{}`.
     - `betty.plugin.search.Search`: Allows users to search through content.
     - `betty.plugin.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
