@@ -1,4 +1,3 @@
-import fileinput
 import json
 import subprocess
 from os import path
@@ -9,6 +8,8 @@ import html5lib
 import jsonschema
 import requests
 from requests import Response
+
+from betty.plugins.nginx import DOCKER_PATH
 
 CONTAINER_NAME = IMAGE_NAME = 'betty-test-nginx'
 
@@ -36,16 +37,13 @@ class NginxTest(TestCase):
                 json.dump(configuration, f)
             subprocess.check_call(
                 ['betty', '-c', configuration_file_path, 'generate'])
-            with fileinput.input(path.join(output_directory_path, 'nginx.conf'), inplace=True) as f:
-                for line in f:
-                    if 'root /tmp' in line:
-                        print('root /var/www/betty/;')
-                    else:
-                        print(line)
-            subprocess.check_call(['docker', 'run', '--rm', '--name', IMAGE_NAME, '-d', '-v', '%s:/etc/nginx/conf.d/betty.conf:ro' % path.join(
-                output_directory_path, 'nginx.conf'), '-v', '%s:/var/www/betty:ro' % path.join(output_directory_path, 'www'), CONTAINER_NAME])
+            subprocess.check_call(['docker', 'run', '--rm', '--name', CONTAINER_NAME, '-d', '-v',
+                                   '%s:/etc/nginx/conf.d/betty.conf:ro' % path.join(output_directory_path,
+                                                                                    'nginx.conf'), '-v',
+                                   '%s:/var/www/betty:ro' % path.join(output_directory_path, 'www'), IMAGE_NAME])
             self.address = 'http://%s' % subprocess.check_output(
-                ['docker', 'inspect', '-f', '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}', CONTAINER_NAME]).decode('utf-8').strip()
+                ['docker', 'inspect', '-f', '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}',
+                 CONTAINER_NAME]).decode('utf-8').strip()
             return self
 
         def __exit__(self, exc_type, exc_val, exc_tb):
@@ -63,7 +61,7 @@ class NginxTest(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         subprocess.check_call(
-            ['docker', 'build', '-t', IMAGE_NAME, RESOURCES_PATH])
+            ['docker', 'build', '-t', IMAGE_NAME, DOCKER_PATH])
 
     def assert_betty_html(self, response: Response) -> None:
         self.assertEquals('text/html', response.headers['Content-Type'])
@@ -74,7 +72,8 @@ class NginxTest(TestCase):
     def assert_betty_json(self, response: Response) -> None:
         self.assertEquals('application/json', response.headers['Content-Type'])
         data = response.json()
-        with open(path.join(path.dirname(path.dirname(path.dirname(path.dirname(__file__)))), 'resources', 'public', 'static', 'schema.json')) as f:
+        with open(path.join(path.dirname(path.dirname(path.dirname(path.dirname(__file__)))), 'resources', 'public',
+                            'static', 'schema.json')) as f:
             jsonschema.validate(data, json.load(f))
 
     def test_front_page(self):
@@ -184,6 +183,7 @@ class NginxTest(TestCase):
             self.assertEquals(200, response.status_code)
             self.assert_betty_json(response)
             # Assert this is the exact JSON resource we are looking for.
-            with open(path.join(path.dirname(path.dirname(path.dirname(__file__))), 'resources', 'openapi', 'schema.json')) as f:
+            with open(path.join(path.dirname(path.dirname(path.dirname(__file__))), 'resources', 'openapi',
+                                'schema.json')) as f:
                 schema = json.load(f)
             jsonschema.validate(response.json(), schema)
