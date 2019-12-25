@@ -42,8 +42,8 @@ class NginxTest(TestCase):
                         print('root /var/www/betty/;')
                     else:
                         print(line)
-            subprocess.check_call(['docker', 'run', '--rm', '--name', IMAGE_NAME, '-d', '-v', '%s:/etc/nginx/conf.d/betty.conf:ro' % path.join(
-                output_directory_path, 'nginx.conf'), '-v', '%s:/var/www/betty:ro' % path.join(output_directory_path, 'www'), CONTAINER_NAME])
+            subprocess.check_call(['docker', 'run', '--rm', '--name', CONTAINER_NAME, '-d', '-v', '%s:/etc/nginx/betty.conf:ro' % path.join(
+                output_directory_path, 'nginx.conf'), '-v', '%s:/var/www/betty:ro' % path.join(output_directory_path, 'www'), IMAGE_NAME])
             self.address = 'http://%s' % subprocess.check_output(
                 ['docker', 'inspect', '-f', '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}', CONTAINER_NAME]).decode('utf-8').strip()
             return self

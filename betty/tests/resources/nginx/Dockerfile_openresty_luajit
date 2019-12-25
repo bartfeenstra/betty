@@ -1,0 +1,74 @@
+FROM alpine:3
+ARG NGINX_VERSION=1.17.6
+ARG NGX_DEVEL_KIT_VERSION=0.3.1
+ARG OPENRESTY_LUAJIT_VERSION=2.1-20190912
+ARG LUA_NGINX_MODULE_VERSION=0.10.15
+ARG LUA_RESTY_CORE_VERSION=0.1.17
+RUN apk add --no-cache \
+        ca-certificates \
+        certbot \
+        gcc \
+        libressl \
+        linux-headers \
+        pcre \
+        zlib \
+    && \
+    apk add --no-cache --virtual .build-dependencies \
+        build-base \
+        libressl-dev \
+        pcre-dev \
+        zlib-dev \
+    && \
+    mkdir /betty
+WORKDIR /betty
+RUN wget -O ./nginx.tar.gz "http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz" \
+    && \
+    tar -xzvf ./nginx.tar.gz \
+    && \
+    wget -O ./ngx_devel_kit.tar.gz "https://github.com/simplresty/ngx_devel_kit/archive/v$NGX_DEVEL_KIT_VERSION.tar.gz"  \
+    && \
+    tar -xzvf ./ngx_devel_kit.tar.gz  \
+    && \
+    wget -O ./luajit2.tar.gz "https://github.com/openresty/luajit2/archive/v$OPENRESTY_LUAJIT_VERSION.tar.gz" \
+    && \
+    tar -xzvf ./luajit2.tar.gz \
+    && \
+    wget -O ./lua-nginx-module.tar.gz "https://github.com/openresty/lua-nginx-module/archive/v$LUA_NGINX_MODULE_VERSION.tar.gz" \
+    && \
+    tar -xzvf ./lua-nginx-module.tar.gz
+#    && \
+#    wget -O ./lua-resty-core.tar.gz "https://github.com/openresty/lua-resty-core/archive/v$LUA_RESTY_CORE_VERSION.tar.gz" \
+#    && \
+#    tar -xzvf ./lua-resty-core.tar.gz
+#WORKDIR "/betty/lua-resty-core-$LUA_RESTY_CORE_VERSION"
+#RUN make install
+WORKDIR "/betty/luajit2-$OPENRESTY_LUAJIT_VERSION"
+RUN make \
+    && \
+    make install \
+    && \
+    rm -r /betty/luajit2.tar.gz \
+    && \
+    rm -r "/betty/luajit2-$OPENRESTY_LUAJIT_VERSION"
+WORKDIR "/betty/nginx-$NGINX_VERSION"
+ARG LUAJIT_LIB=/usr/local/lib
+ARG LUAJIT_INC=/usr/local/include/luajit-2.1
+RUN ./configure \
+        --prefix=/etc/nginx \
+        --sbin-path=/usr/sbin/nginx \
+        --conf-path=/etc/nginx/nginx.conf \
+        --pid-path=/var/run/nginx.pid \
+        --lock-path=/var/run/nginx.lock \
+        --with-ld-opt="-Wl,-rpath,/usr/lib" \
+        --add-module="/betty/ngx_devel_kit-$NGX_DEVEL_KIT_VERSION" \
+        --add-module="/betty/lua-nginx-module-$LUA_NGINX_MODULE_VERSION" \
+    && \
+    make install \
+    && \
+    rm -r /betty/nginx.tar.gz \
+    && \
+    rm -r "/betty/nginx-$NGINX_VERSION" \
+    && \
+    apk del .build-dependencies
+COPY ./nginx.conf /etc/nginx/nginx.conf
+CMD ["nginx"]
