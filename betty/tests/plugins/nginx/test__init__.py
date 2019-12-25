@@ -24,7 +24,7 @@ class NginxTest(TestCase):
     gzip on;
     gzip_disable "msie6";
     gzip_vary on;
-    gzip_types text/html text/css application/javascript application/json application/xml;
+    gzip_types text/css application/javascript application/json application/xml;
         set $content_type_extension html;
     index index.$content_type_extension;
         location / {
@@ -39,7 +39,7 @@ class NginxTest(TestCase):
             try_files $uri $uri/ =404;
         }
 }''' % configuration.www_directory_path  # noqa: E101 W191
-            with open(join(configuration.output_directory_path, 'nginx.conf')) as f:  # noqa: E101
+            with open(join(configuration.output_directory_path, 'nginx', 'nginx.conf')) as f:  # noqa: E101
                 self.assertEquals(expected, f.read())
 
     def test_post_render_config_with_clean_urls(self):
@@ -58,7 +58,7 @@ class NginxTest(TestCase):
     gzip on;
     gzip_disable "msie6";
     gzip_vary on;
-    gzip_types text/html text/css application/javascript application/json application/xml;
+    gzip_types text/css application/javascript application/json application/xml;
         set $content_type_extension html;
     index index.$content_type_extension;
         location / {
@@ -73,7 +73,7 @@ class NginxTest(TestCase):
             try_files $uri $uri/ =404;
         }
 }''' % configuration.www_directory_path  # noqa: E101 W191
-            with open(join(configuration.output_directory_path, 'nginx.conf')) as f:  # noqa: E101
+            with open(join(configuration.output_directory_path, 'nginx', 'nginx.conf')) as f:  # noqa: E101
                 self.assertEquals(expected, f.read())
 
     def test_post_render_config_multilingual(self):
@@ -94,7 +94,7 @@ class NginxTest(TestCase):
     gzip on;
     gzip_disable "msie6";
     gzip_vary on;
-    gzip_types text/html text/css application/javascript application/json application/xml;
+    gzip_types text/css application/javascript application/json application/xml;
         set $content_type_extension html;
     index index.$content_type_extension;
         location ~ ^/(en|nl)(/|$) {
@@ -120,7 +120,7 @@ class NginxTest(TestCase):
             try_files $uri @localized_redirect;
         }
 }''' % configuration.www_directory_path  # noqa: E101 W191
-            with open(join(configuration.output_directory_path, 'nginx.conf')) as f:  # noqa: E101
+            with open(join(configuration.output_directory_path, 'nginx', 'nginx.conf')) as f:  # noqa: E101
                 self.assertEquals(expected, f.read())
 
     def test_post_render_config_multilingual_with_content_negotiation(self):
@@ -142,7 +142,7 @@ class NginxTest(TestCase):
     gzip on;
     gzip_disable "msie6";
     gzip_vary on;
-    gzip_types text/html text/css application/javascript application/json application/xml;
+    gzip_types text/css application/javascript application/json application/xml;
         set_by_lua_block $content_type_extension {
             local available_content_types = {'text/html', 'application/json'}
             local content_type_extensions = {}
@@ -182,7 +182,7 @@ class NginxTest(TestCase):
             try_files $uri @localized_redirect;
         }
 }''' % configuration.www_directory_path  # noqa: E101 W191
-            with open(join(configuration.output_directory_path, 'nginx.conf')) as f:  # noqa: E101
+            with open(join(configuration.output_directory_path, 'nginx', 'nginx.conf')) as f:  # noqa: E101
                 self.assertEquals(expected, f.read())
 
     def test_post_render_config_with_content_negotiation(self):
@@ -201,7 +201,7 @@ class NginxTest(TestCase):
     gzip on;
     gzip_disable "msie6";
     gzip_vary on;
-    gzip_types text/html text/css application/javascript application/json application/xml;
+    gzip_types text/css application/javascript application/json application/xml;
         set_by_lua_block $content_type_extension {
             local available_content_types = {'text/html', 'application/json'}
             local content_type_extensions = {}
@@ -223,7 +223,7 @@ class NginxTest(TestCase):
             try_files $uri $uri/ =404;
         }
 }''' % configuration.www_directory_path  # noqa: E101 W191
-            with open(join(configuration.output_directory_path, 'nginx.conf')) as f:  # noqa: E101
+            with open(join(configuration.output_directory_path, 'nginx', 'nginx.conf')) as f:  # noqa: E101
                 self.assertEquals(expected, f.read())
 
     def test_post_render_config_with_https(self):
@@ -247,7 +247,7 @@ class NginxTest(TestCase):
     gzip on;
     gzip_disable "msie6";
     gzip_vary on;
-    gzip_types text/html text/css application/javascript application/json application/xml;
+    gzip_types text/css application/javascript application/json application/xml;
         set $content_type_extension html;
     index index.$content_type_extension;
         location / {
@@ -262,5 +262,5 @@ class NginxTest(TestCase):
             try_files $uri $uri/ =404;
         }
 }''' % configuration.www_directory_path  # noqa: E101 W191
-            with open(join(configuration.output_directory_path, 'nginx.conf')) as f:  # noqa: E101
+            with open(join(configuration.output_directory_path, 'nginx', 'nginx.conf')) as f:  # noqa: E101
                 self.assertEquals(expected, f.read())
