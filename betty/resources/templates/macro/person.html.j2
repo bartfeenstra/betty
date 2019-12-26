@@ -1,5 +1,5 @@
 {%- import 'macro/citation.html.j2' as citationMacros -%}
-{% macro label(person, context=None, citations=True) %}
+{%- macro label(person, context=None) -%}
     {%- if context != person -%}
         <a href="{{ person | url }}">
     {%- endif -%}
@@ -11,11 +11,11 @@
     {%- if context != person -%}
         </a>
     {%- endif -%}
-{% endmacro %}
+{%- endmacro -%}
 
 {%- macro nameLabel(name, citations=True) -%}
     <span class="person-label" typeof="foaf:Person">
-    {% if name.individual -%}
+    {%- if name.individual -%}
         <span property="foaf:individualName">{{ name.individual }}</span>
     {%- else -%}
         …
@@ -24,12 +24,12 @@
         <span property="foaf:familyName">{{ name.affiliation }}</span>
     {%- endif -%}
     </span>
-    {% if citations %}
+    {%- if citations -%}
         {{ citationMacros.cite(name.citations) }}
-    {% endif %}
+    {%- endif -%}
 {%- endmacro -%}
 
-{% macro sortableLabel(person, link=True) %}
+{%- macro sortableLabel(person, link=True) -%}
     {%- if link -%}
         <a href="{{ person | url }}">
     {%- endif -%}
@@ -52,4 +52,4 @@
     {%- if link -%}
         </a>
     {%- endif -%}
-{% endmacro %}
+{%- endmacro -%}

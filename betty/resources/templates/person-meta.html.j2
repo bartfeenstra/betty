@@ -5,7 +5,7 @@
         <p>{{ _('This person\'s details are unavailable to protect their privacy.') }}</p>
     {%- else -%}
         {%- if person.names | length > 1 -%}
-            <span class="aka">Also known as {{ person.alternative_names | map(personMacros.nameLabel) | join(', ') }}</span>
+            <span class="aka">Also known as {{ person.alternative_names | map(personMacros.nameLabel, citations=True) | join(', ') }}</span>
         {%- endif -%}
         {%- if person.start or person.end %}
             <dl>
