@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-12-23 00:48+0000\n"
+"POT-Creation-Date: 2019-12-26 20:15+0000\n"
 "PO-Revision-Date: 2019-10-05 11:38+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -24,8 +24,8 @@ msgstr "onbekend"
 
 #: betty/locale.py:176
 #, python-format
-msgid "around %(date)s"
-msgstr "rond %(date)s"
+msgid "Around %(date)s"
+msgstr "Rond %(date)s"
 
 #: betty/locale.py:186
 msgid "MMMM d, y"
