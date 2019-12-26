@@ -5,13 +5,13 @@ from typing import List, Tuple, Callable, Type, Dict, Optional
 from voluptuous import Schema, Required, Any
 
 from betty.config import validate_configuration
+from betty.fs import makedirs
 from betty.jinja2 import render_file, create_environment
 from betty.plugin import Plugin
 from betty.render import PostRenderEvent
 from betty.site import Site
 
-DOCKER_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'resources',
-                           'docker')
+DOCKER_PATH = os.path.join(os.path.dirname(__file__), 'resources', 'docker')
 
 ConfigurationSchema = Schema({
     Required('www_directory_path', default=None): Any(None, str),
@@ -33,7 +33,6 @@ class Nginx(Plugin):
     def subscribes_to(self) -> List[Tuple[Type, Callable]]:
         return [
             (PostRenderEvent, lambda event: self._render_config()),
-            (PostRenderEvent, lambda event: self._copy_dockerfile()),
         ]
 
     @property
@@ -53,11 +52,14 @@ class Nginx(Plugin):
         return self._www_directory_path
 
     def _render_config(self) -> None:
-        file_name = 'nginx.conf.j2'
-        destination_file_path = os.path.join(self._site.configuration.output_directory_path, file_name)
-        self._site.resources.copy2(file_name, destination_file_path)
-        render_file(destination_file_path, create_environment(self._site))
+        output_directory_path = os.path.join(self._site.configuration.output_directory_path, 'nginx')
+        makedirs(output_directory_path)
 
-    def _copy_dockerfile(self) -> None:
-        copyfile(os.path.join(DOCKER_PATH, 'Dockerfile'),
-                 os.path.join(self._site.configuration.output_directory_path, 'Dockerfile'))
+        # Render the ngnix configuration.
+        file_name = 'nginx.conf.j2'
+        destination_file_path = os.path.join(output_directory_path, file_name)
+        self._site.resources.copy2(file_name, destination_file_path)
+
+        # Render the Dockerfile.
+        render_file(destination_file_path, create_environment(self._site))
+        copyfile(os.path.join(DOCKER_PATH, 'Dockerfile'), os.path.join(output_directory_path, 'Dockerfile'))
