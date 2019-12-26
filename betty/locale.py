@@ -173,7 +173,7 @@ def format_datey(date: Datey, locale: str, translation: gettext.NullTranslations
 def _format_date(date: Date, locale: str, translation: gettext.NullTranslations) -> str:
     formatted = _format_date_parts(date, locale, translation)
     if date.fuzzy:
-        formatted = translation.gettext('around %(date)s') % {
+        formatted = translation.gettext('Around %(date)s') % {
             'date': formatted,
         }
     return formatted
