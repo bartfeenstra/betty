@@ -1,8 +1,11 @@
 {% extends 'base.html.j2' %}
+{%- import 'macro/citation.html.j2' as citationMacros -%}
 {%- import 'macro/claim.html.j2' as claimMacros -%}
-{% set title = citation.description %}
+{% set title = citation.location %}
 {% block content %}
-    {% include 'citation-meta.html.j2' %}
+    <div class="meta">
+    {{ citationMacros.label(citation, citation) }}
+    </div>
     {% set files = citation.files %}
     {% if files | length > 0 %}
         <h2>{{ _('Media') }}</h2>
