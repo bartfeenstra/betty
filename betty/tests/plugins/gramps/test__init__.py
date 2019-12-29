@@ -193,6 +193,14 @@ class ParseXmlFileTestCase(TestCase):
         source = self.ancestry.sources['S0000']
         self.assertEquals('A Whisper', source.name)
 
+    def test_source_from_source_should_include_author(self):
+        source = self.ancestry.sources['S0000']
+        self.assertEquals('A Little Birdie', source.author)
+
+    def test_source_from_source_should_include_publisher(self):
+        source = self.ancestry.sources['S0000']
+        self.assertEquals('Somewhere over the rainbow', source.publisher)
+
     def test_source_from_source_should_include_repository(self):
         source = self.ancestry.sources['S0000']
         containing_source = self.ancestry.sources['R0000']

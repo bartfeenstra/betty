@@ -92,7 +92,7 @@
             <h2>{{ _('References') }}</h2>
             <ol>
             {% for number, citation in citer %}
-                <li id="reference-{{ number }}">{{ citationMacros.referenceLabel(citation) }}</li>
+                <li id="reference-{{ number }}" class="reference">{{ citationMacros.label(citation) }}</li>
             {% endfor %}
             </ol>
         </section>

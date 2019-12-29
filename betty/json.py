@@ -240,7 +240,7 @@ class JSONEncoder(stdjson.JSONEncoder):
             'claims': [self._generate_url(claim) for claim in citation.claims]
         }
         self._encode_schema(encoded, 'citation')
-        self._encode_described(encoded, citation)
+        self._encode_dated(encoded, citation)
         return encoded
 
     def _encode_source(self, source: Source) -> Dict:
@@ -254,6 +254,10 @@ class JSONEncoder(stdjson.JSONEncoder):
             'contains': [self._generate_url(contained) for contained in source.contains],
             'citations': [self._generate_url(citation) for citation in source.citations],
         }
+        if source.author is not None:
+            encoded['author'] = source.author
+        if source.publisher is not None:
+            encoded['publisher'] = source.publisher
         self._encode_schema(encoded, 'source')
         self._encode_dated(encoded, source)
         self._encode_has_links(encoded, source)
