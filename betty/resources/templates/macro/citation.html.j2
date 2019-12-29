@@ -10,7 +10,7 @@
     {%- endfor -%}
 {%- endmacro -%}
 
-{%- macro label(citation) -%}
+{%- macro label(citation, context=None) -%}
     {# Citation formatting is inspired by the MLA style guide(https://style.mla.org/) #}
     <span>
         {%- if citation.source.author -%}
@@ -23,7 +23,7 @@
             {%- endif -%}
         {%- endif -%}
         {%- if citation.location -%}
-            <span class="citation-location"><a href="{{ citation | url }}">{{ citation.location }}</a></span>
+                <span class="citation-location">{%- if context == citation -%}{{ citation.location }}{% else %}<a href="{{ citation | url }}">{{ citation.location }}</a>{%- endif -%}</span>
         {%- endif -%}
         {%- if citation.date -%}
             <span class="citation-date">{% trans date = citation.date | format_date %}Accessed {{ date }}{% endtrans %}</span>
