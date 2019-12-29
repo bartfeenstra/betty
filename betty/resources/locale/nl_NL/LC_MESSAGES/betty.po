@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-12-26 20:15+0000\n"
+"POT-Creation-Date: 2019-12-29 00:48+0000\n"
 "PO-Revision-Date: 2019-10-05 11:38+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -303,6 +303,11 @@ msgstr ""
 #: betty/resources/templates/person-meta.html.j2:5
 msgid "This person's details are unavailable to protect their privacy."
 msgstr "De gegevens van deze persoon zijn niet beschikbaar vanwege privacyredenen."
+
+#: betty/resources/templates/macro/citation.html.j2:29
+#, python-format
+msgid "Accessed %(date)s"
+msgstr "Opgevraagd op %(date)s"
 
 #: betty/resources/templates/macro/event.html.j2:18
 #, python-format

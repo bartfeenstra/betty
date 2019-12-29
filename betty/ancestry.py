@@ -197,6 +197,8 @@ class Source(Identifiable, Dated, HasFiles, HasLinks):
         HasFiles.__init__(self)
         HasLinks.__init__(self)
         self._name = name
+        self._author = None
+        self._publisher = None
         self._contained_by = None
 
         def handle_contains_addition(source):
@@ -250,16 +252,41 @@ class Source(Identifiable, Dated, HasFiles, HasLinks):
     def name(self, name: str):
         self._name = name
 
+    @property
+    def author(self) -> Optional[str]:
+        return self._author
 
-class Citation(Identifiable, Described, HasFiles):
+    @author.setter
+    def author(self, author: str):
+        self._author = author
+
+    @property
+    def publisher(self) -> Optional[str]:
+        return self._publisher
+
+    @publisher.setter
+    def publisher(self, publisher: str):
+        self._publisher = publisher
+
+
+class Citation(Identifiable, Dated, HasFiles):
     def __init__(self, citation_id: str, source: Source):
         Identifiable.__init__(self, citation_id)
+        Dated.__init__(self)
         HasFiles.__init__(self)
-        Described.__init__(self)
+        self._location = None
         self._source = source
         source.citations.append(self)
         self._claims = EventHandlingSetList(lambda claim: claim.citations.append(self),
                                             lambda claim: claim.citations.remove(self))
+
+    @property
+    def location(self) -> Optional[str]:
+        return self._location
+
+    @location.setter
+    def location(self, location: str):
+        self._location = location
 
     @property
     def source(self) -> Source:

@@ -433,6 +433,12 @@
         "name": {
           "type": "string"
         },
+        "author": {
+          "type": "string"
+        },
+        "publisher": {
+          "type": "string"
+        },
         "contains": {
           "type": "array",
           "items": {

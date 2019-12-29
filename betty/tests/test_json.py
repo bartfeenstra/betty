@@ -323,6 +323,8 @@ class JSONEncoderTest(TestCase):
 
     def test_source_should_encode_full(self):
         source = Source('the_source', 'The Source')
+        source.author = 'The Author'
+        source.publisher = 'The Publisher'
         source.date = Date(2000, 1, 1)
         source.contained_by = Source(
             'the_containing_source', 'The Containing Source')
@@ -340,6 +342,8 @@ class JSONEncoderTest(TestCase):
             '@type': 'https://schema.org/Thing',
             'id': 'the_source',
             'name': 'The Source',
+            'author': 'The Author',
+            'publisher': 'The Publisher',
             'contains': [
                 '/source/the_contained_source/index.json',
             ],
@@ -378,15 +382,11 @@ class JSONEncoderTest(TestCase):
         citation.claims.append(Event('the_event', Event.Type.BIRTH))
         expected = {
             '$schema': '/schema.json#/definitions/citation',
-            '@context': {
-                'description': 'https://schema.org/description',
-            },
             '@type': 'https://schema.org/Thing',
             'id': 'the_citation',
             'source': '/source/the_source/index.json',
             'claims': [
                 '/event/the_event/index.json'
             ],
-            'description': 'The Source Description',
         }
         self.assert_encodes(expected, citation, 'citation')

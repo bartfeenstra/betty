@@ -407,6 +407,17 @@ def _parse_source(ancestry: _IntermediateAncestry, element: Element) -> None:
     repository_source_handle = _xpath1(element, './ns:reporef/@hlink')
     if repository_source_handle is not None:
         source.contained_by = ancestry.sources[repository_source_handle]
+
+    # Parse the author.
+    sauthor_element = _xpath1(element, './ns:sauthor')
+    if sauthor_element is not None:
+        source.author = sauthor_element.text
+
+    # Parse the publication info.
+    spubinfo_element = _xpath1(element, './ns:spubinfo')
+    if spubinfo_element is not None:
+        source.publisher = spubinfo_element.text
+
     _parse_objref(ancestry, source, element)
 
     ancestry.sources[handle] = source
@@ -424,11 +435,12 @@ def _parse_citation(ancestry: _IntermediateAncestry, element: Element) -> None:
     citation = Citation(_xpath1(element, './@id'),
                         ancestry.sources[source_handle])
 
+    citation.date = _parse_date(element)
     _parse_objref(ancestry, citation, element)
 
     page = _xpath1(element, './ns:page')
     if page is not None:
-        citation.description = page.text
+        citation.location = page.text
 
     ancestry.citations[handle] = citation
 
