@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Tuple, Callable
 
-from betty.ancestry import Ancestry, Person, Event, Presence
+from betty.ancestry import Ancestry, Person, Event
 from betty.functools import walk
 from betty.locale import Period
 from betty.parse import PostParseEvent
