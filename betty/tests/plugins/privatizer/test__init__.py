@@ -23,10 +23,14 @@ def _expand(generation: int):
         (True, None, None),
         (True, True, None),
         (False, False, None),
-        # Deaths are special, and their existence prevents generation 0 from being private even without a date.
+        # Deaths and burials are special, and their existence prevents generation 0 from being private even without a
+        # date.
         (generation != 0, None, Event('E0', Event.Type.DEATH)),
         (True, True, Event('E0', Event.Type.DEATH)),
         (False, False, Event('E0', Event.Type.DEATH)),
+        (generation != 0, None, Event('E0', Event.Type.BURIAL)),
+        (True, True, Event('E0', Event.Type.BURIAL)),
+        (False, False, Event('E0', Event.Type.BURIAL)),
         # Regular events without dates do not affect privacy.
         (True, None, Event('E0', Event.Type.BIRTH)),
         (True, True, Event('E0', Event.Type.BIRTH)),
