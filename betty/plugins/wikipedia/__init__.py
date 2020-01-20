@@ -91,7 +91,10 @@ class Retriever:
             translations_uri = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=langlinks&lllimit=500&format=json&formatversion=2' % (
                 link_language, title)
             translations_response_data = self._request(translations_uri)
-            translations_data = translations_response_data['query']['pages'][0]['langlinks']
+            try:
+                translations_data = translations_response_data['query']['pages'][0]['langlinks']
+            except LookupError:
+                return None
             try:
                 title = next(
                     translation_data['title'] for translation_data in translations_data if translation_data['lang'] == language)
