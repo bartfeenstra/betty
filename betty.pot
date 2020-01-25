@@ -1,14 +1,14 @@
 # Translations template for Betty.
-# Copyright (C) 2019 Bart Feenstra & contributors
+# Copyright (C) 2020 Bart Feenstra & contributors
 # This file is distributed under the same license as the Betty project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-12-29 00:48+0000\n"
+"POT-Creation-Date: 2020-01-25 10:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -243,7 +243,7 @@ msgid "Places"
 msgstr ""
 
 #: betty/resources/templates/base.html.j2:64
-#: betty/resources/templates/page/citation.html.j2:8
+#: betty/resources/templates/page/citation.html.j2:11
 #: betty/resources/templates/page/event.html.j2:45
 #: betty/resources/templates/page/list-file.html.j2:2
 #: betty/resources/templates/page/person.html.j2:77
@@ -261,7 +261,7 @@ msgid "Language"
 msgstr ""
 
 #: betty/resources/templates/base.html.j2:92
-#: betty/resources/templates/page/citation.html.j2:12
+#: betty/resources/templates/page/citation.html.j2:15
 #: betty/resources/templates/page/source.html.j2:17
 msgid "References"
 msgstr ""
@@ -327,34 +327,38 @@ msgid "Burial"
 msgstr ""
 
 #: betty/resources/templates/macro/event.html.j2:36
-msgid "Marriage"
+msgid "Engagement"
 msgstr ""
 
 #: betty/resources/templates/macro/event.html.j2:37
-msgid "Marriage banns"
+msgid "Marriage"
 msgstr ""
 
 #: betty/resources/templates/macro/event.html.j2:38
-msgid "Residence"
+msgid "Marriage banns"
 msgstr ""
 
 #: betty/resources/templates/macro/event.html.j2:39
-msgid "Immigration"
+msgid "Residence"
 msgstr ""
 
 #: betty/resources/templates/macro/event.html.j2:40
-msgid "Emigration"
+msgid "Immigration"
 msgstr ""
 
 #: betty/resources/templates/macro/event.html.j2:41
+msgid "Emigration"
+msgstr ""
+
+#: betty/resources/templates/macro/event.html.j2:42
 msgid "Occupation"
 msgstr ""
 
-#: betty/resources/templates/macro/event.html.j2:48
+#: betty/resources/templates/macro/event.html.j2:49
 msgid "Subject"
 msgstr ""
 
-#: betty/resources/templates/macro/event.html.j2:49
+#: betty/resources/templates/macro/event.html.j2:50
 msgid "Witness"
 msgstr ""
 

@@ -455,6 +455,7 @@ class Event(Identifiable, Dated, HasFiles, HasCitations, Described):
         CREMATION = 'cremation'
         DEATH = 'death'
         BURIAL = 'burial'
+        ENGAGEMENT = 'engagement'
         MARRIAGE = 'marriage'
         MARRIAGE_BANNS = 'marriage-banns'
         RESIDENCE = 'residence'
