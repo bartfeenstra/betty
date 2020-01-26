@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-12-29 00:48+0000\n"
+"POT-Creation-Date: 2020-01-25 10:22+0000\n"
 "PO-Revision-Date: 2019-10-05 11:38+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -254,7 +254,7 @@ msgid "Places"
 msgstr "Plaatsen"
 
 #: betty/resources/templates/base.html.j2:64
-#: betty/resources/templates/page/citation.html.j2:8
+#: betty/resources/templates/page/citation.html.j2:11
 #: betty/resources/templates/page/event.html.j2:45
 #: betty/resources/templates/page/list-file.html.j2:2
 #: betty/resources/templates/page/person.html.j2:77
@@ -272,7 +272,7 @@ msgid "Language"
 msgstr "Taal"
 
 #: betty/resources/templates/base.html.j2:92
-#: betty/resources/templates/page/citation.html.j2:12
+#: betty/resources/templates/page/citation.html.j2:15
 #: betty/resources/templates/page/source.html.j2:17
 msgid "References"
 msgstr "Referenties"
@@ -340,34 +340,38 @@ msgid "Burial"
 msgstr "Begravenis"
 
 #: betty/resources/templates/macro/event.html.j2:36
+msgid "Engagement"
+msgstr "Verloving"
+
+#: betty/resources/templates/macro/event.html.j2:37
 msgid "Marriage"
 msgstr "Huwelijk"
 
-#: betty/resources/templates/macro/event.html.j2:37
+#: betty/resources/templates/macro/event.html.j2:38
 msgid "Marriage banns"
 msgstr "Ondertrouw"
 
-#: betty/resources/templates/macro/event.html.j2:38
+#: betty/resources/templates/macro/event.html.j2:39
 msgid "Residence"
 msgstr "Woonplaats"
 
-#: betty/resources/templates/macro/event.html.j2:39
+#: betty/resources/templates/macro/event.html.j2:40
 msgid "Immigration"
 msgstr "Immigratie"
 
-#: betty/resources/templates/macro/event.html.j2:40
+#: betty/resources/templates/macro/event.html.j2:41
 msgid "Emigration"
 msgstr "Emigratie"
 
-#: betty/resources/templates/macro/event.html.j2:41
+#: betty/resources/templates/macro/event.html.j2:42
 msgid "Occupation"
 msgstr "Beroep"
 
-#: betty/resources/templates/macro/event.html.j2:48
+#: betty/resources/templates/macro/event.html.j2:49
 msgid "Subject"
 msgstr "Onderwerp"
 
-#: betty/resources/templates/macro/event.html.j2:49
+#: betty/resources/templates/macro/event.html.j2:50
 msgid "Witness"
 msgstr "Getuige"
 
