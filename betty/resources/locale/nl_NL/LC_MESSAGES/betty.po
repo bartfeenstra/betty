@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-01-25 10:22+0000\n"
+"POT-Creation-Date: 2020-01-26 20:49+0000\n"
 "PO-Revision-Date: 2019-10-05 11:38+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -352,26 +352,30 @@ msgid "Marriage banns"
 msgstr "Ondertrouw"
 
 #: betty/resources/templates/macro/event.html.j2:39
+msgid "Divorce"
+msgstr "Scheiding"
+
+#: betty/resources/templates/macro/event.html.j2:40
 msgid "Residence"
 msgstr "Woonplaats"
 
-#: betty/resources/templates/macro/event.html.j2:40
+#: betty/resources/templates/macro/event.html.j2:41
 msgid "Immigration"
 msgstr "Immigratie"
 
-#: betty/resources/templates/macro/event.html.j2:41
+#: betty/resources/templates/macro/event.html.j2:42
 msgid "Emigration"
 msgstr "Emigratie"
 
-#: betty/resources/templates/macro/event.html.j2:42
+#: betty/resources/templates/macro/event.html.j2:43
 msgid "Occupation"
 msgstr "Beroep"
 
-#: betty/resources/templates/macro/event.html.j2:49
+#: betty/resources/templates/macro/event.html.j2:50
 msgid "Subject"
 msgstr "Onderwerp"
 
-#: betty/resources/templates/macro/event.html.j2:50
+#: betty/resources/templates/macro/event.html.j2:51
 msgid "Witness"
 msgstr "Getuige"
 
