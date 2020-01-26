@@ -69,6 +69,9 @@ class Privatizer(Plugin):
         if isinstance(date, Period):
             date = date.end
 
+        if date is None:
+            return False
+
         if date.year is None:
             return False
 
