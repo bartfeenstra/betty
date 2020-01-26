@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-01-25 10:22+0000\n"
+"POT-Creation-Date: 2020-01-26 20:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -339,26 +339,30 @@ msgid "Marriage banns"
 msgstr ""
 
 #: betty/resources/templates/macro/event.html.j2:39
-msgid "Residence"
+msgid "Divorce"
 msgstr ""
 
 #: betty/resources/templates/macro/event.html.j2:40
-msgid "Immigration"
+msgid "Residence"
 msgstr ""
 
 #: betty/resources/templates/macro/event.html.j2:41
-msgid "Emigration"
+msgid "Immigration"
 msgstr ""
 
 #: betty/resources/templates/macro/event.html.j2:42
+msgid "Emigration"
+msgstr ""
+
+#: betty/resources/templates/macro/event.html.j2:43
 msgid "Occupation"
 msgstr ""
 
-#: betty/resources/templates/macro/event.html.j2:49
+#: betty/resources/templates/macro/event.html.j2:50
 msgid "Subject"
 msgstr ""
 
-#: betty/resources/templates/macro/event.html.j2:50
+#: betty/resources/templates/macro/event.html.j2:51
 msgid "Witness"
 msgstr ""
 
