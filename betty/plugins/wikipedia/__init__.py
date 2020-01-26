@@ -93,7 +93,7 @@ class Retriever:
             translations_response_data = self._request(translations_uri)
             try:
                 translations_data = translations_response_data['query']['pages'][0]['langlinks']
-            except LookupError:
+            except (LookupError, TypeError):
                 return None
             try:
                 title = next(
