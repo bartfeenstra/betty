@@ -19,7 +19,7 @@ from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup
 from resizeimage import resizeimage
 
-from betty.ancestry import File, Citation, Event, Presence
+from betty.ancestry import File, Citation, Event, Presence, Identifiable
 from betty.config import Configuration
 from betty.fs import iterfiles, makedirs, hashfile, is_hidden
 from betty.functools import walk
@@ -128,6 +128,11 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
         return htmlsafe_json_dumps(data, indent=indent, dumper=lambda *args, **kwargs: _filter_json(context, *args, **kwargs))
 
     environment.filters['tojson'] = _filter_tojson
+
+    def _is_entity(x):
+        return isinstance(x, Identifiable)
+    environment.filters['is_entity'] = _is_entity
+    environment.tests['is_entity'] = _is_entity
 
     environment.filters['paragraphs'] = _filter_paragraphs
     environment.filters['format_date'] = lambda date: format_datey(

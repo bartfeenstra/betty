@@ -12,7 +12,7 @@
         <h2>{{ _('Media') }}</h2>
         {% include 'list-file.html.j2' %}
     {% endif %}
-    {% set claims = sources | map(attribute='citations') | flatten | map(attribute='claims') | flatten | list %}
+    {% set claims = sources | map(attribute='citations') | flatten | map(attribute='claims') | flatten | select('is_entity') | list %}
     {% if claims | length > 0 %}
         <h2>{{ _('References') }}</h2>
         <ul class="entities">
