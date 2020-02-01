@@ -28,6 +28,9 @@ class Date:
         self._day = day
         self._fuzzy = False
 
+    def __repr__(self):
+        return '%s.%s(%s, %s, %s)' % (self.__class__.__module__, self.__class__.__name__, self.year, self.month, self.day)
+
     @property
     def year(self) -> Optional[int]:
         return self._year
@@ -50,27 +53,23 @@ class Date:
 
     @property
     def complete(self) -> bool:
-        return self._year is not None and self._month is not None and self._day is not None
+        return self.year is not None and self.month is not None and self.day is not None
 
     @property
     def parts(self) -> Tuple[Optional[int], Optional[int], Optional[int]]:
-        return self._year, self._month, self._day
-
-    def __eq__(self, other):
-        if isinstance(other, Period):
-            other = other.start
-        if not isinstance(other, Date):
-            return NotImplemented
-        return self.parts == other.parts
+        return self.year, self.month, self.day
 
     def __lt__(self, other):
-        if isinstance(other, Period):
-            other = other.start
         if not isinstance(other, Date):
             return NotImplemented
         if None in self.parts or None in other.parts:
             return NotImplemented
         return self.parts < other.parts
+
+    def __eq__(self, other):
+        if not isinstance(other, Date):
+            return NotImplemented
+        return self.parts == other.parts
 
 
 @total_ordering
@@ -79,15 +78,60 @@ class Period:
         self._start = start
         self._end = end
 
-    def __eq__(self, other):
-        if isinstance(other, Period):
-            other = other.start
-        return self._start == other
+    def __repr__(self):
+        return '%s.%s(%s, %s)' % (self.__class__.__module__, self.__class__.__name__, repr(self.start), repr(self.end))
+
+    @property
+    def complete(self) -> bool:
+        return self.start is not None and self.start.complete or self.end is not None and self.end.complete
 
     def __lt__(self, other):
+        if not self.complete:
+            return NotImplemented
+
+        if not (isinstance(other, Date) or isinstance(other, Period)):
+            return NotImplemented
+
+        if not other.complete:
+            return NotImplemented
+
+        self_has_start = self.start is not None and self.start.complete
+        self_has_end = self.end is not None and self.end.complete
+
         if isinstance(other, Period):
-            other = other.start
-        return self._start < other
+            other_has_start = other.start is not None and other.start.complete
+            other_has_end = other.end is not None and other.end.complete
+
+            if self_has_start and other_has_start:
+                if self.start == other.start:
+                    # If both end dates are missing or incomplete, and therefore incomparable, we consider them equal.
+                    if (self.end is None or not self.end.complete) and (other.end is None or other.end.complete):
+                        return False
+                    if self_has_end and other_has_end:
+                        return self.end < other.end
+                    return other.end is None
+                return self.start < other.start
+
+            if self_has_start:
+                return self.start < other.end
+
+            if other_has_start:
+                return self.end <= other.start
+
+            return self.end < other.end
+
+        if not self_has_start:
+            return self.end < other
+        return self.start < other
+
+    def __eq__(self, other):
+        if isinstance(other, Date):
+            return False
+
+        if not isinstance(other, Period):
+            return NotImplemented
+
+        return (self.start, self.end) == (other.start, other.end)
 
     @property
     def start(self) -> Optional[Date]:

@@ -1,19 +1,8 @@
 {%- import 'macro/event.html.j2' as eventMacros -%}
-{% set dated_events = [] %}
-{% for event in events | rejectattr('date', 'none') %}
-    {% if event.date.complete %}
-        {% do dated_events.append((event.date, event)) %}
-    {% endif %}
-    {% if event.date.start and event.date.start.complete %}
-        {% do dated_events.append((event.date.start, event)) %}
-    {% endif %}
-    {% if event.date.end and event.date.end.complete %}
-        {% do dated_events.append((event.date.end, event)) %}
-    {% endif %}
-{% endfor %}
+{% set dated_events = events | rejectattr('date', 'none') | selectattr('date.complete') | sort(attribute='date') %}
 {% if dated_events | length > 0 %}
     <ul class="entities">
-        {%- for date, event in dated_events | sort(attribute='0') %}
+        {%- for event in dated_events %}
             <li class="{{ loop.cycle('odd', 'even') }}">
                 {{ eventMacros.label(event, person_context=person_context | default(None)) }}
                 {% if person_context is not none %}
