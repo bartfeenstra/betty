@@ -56,15 +56,6 @@ class Date:
     def parts(self) -> Tuple[Optional[int], Optional[int], Optional[int]]:
         return self._year, self._month, self._day
 
-    def __lt__(self, other):
-        if isinstance(other, Period):
-            other = other.start if other.start is not None else other.end
-        if not isinstance(other, Date):
-            return NotImplemented
-        if None in self.parts or None in other.parts:
-            return NotImplemented
-        return self.parts < other.parts
-
     def __eq__(self, other):
         if isinstance(other, Period):
             other = other.start
@@ -72,14 +63,14 @@ class Date:
             return NotImplemented
         return self.parts == other.parts
 
-    def __gt__(self, other):
+    def __lt__(self, other):
         if isinstance(other, Period):
-            other = other.end if other.end else other.start
+            other = other.start
         if not isinstance(other, Date):
             return NotImplemented
         if None in self.parts or None in other.parts:
             return NotImplemented
-        return self.parts > other.parts
+        return self.parts < other.parts
 
 
 @total_ordering
@@ -88,33 +79,12 @@ class Period:
         self._start = start
         self._end = end
 
-    def __lt__(self, other):
-        # @todo Neither has any dates.
-        # @todo Both have start dates.
-        # @todo (Both have start and end dates.)
-        # @todo Neither has start dates, both have end dates.
-        # @todo Self has start date, other has end date.
-        # @todo (Self has start and end date date, other has end date.)
-        # @todo Self has end date, other has start date.
-        # @todo (Self has end date, other has start and end date.)
-        if isinstance(other, Period):
-            other = other.start
-        return self._start < other
-
     def __eq__(self, other):
         if isinstance(other, Period):
             other = other.start
         return self._start == other
 
-    def __gt__(self, other):
-        # @todo Neither has any dates.
-        # @todo Both have end dates.
-        # @todo (Both have end and start dates.)
-        # @todo Neither has end dates, both have start dates.
-        # @todo Self has end date, other has start date.
-        # @todo (Self has end and start date date, other has start date.)
-        # @todo Self has start date, other has end date.
-        # @todo (Self has start date, other has end and start date.)
+    def __lt__(self, other):
         if isinstance(other, Period):
             other = other.start
         return self._start < other

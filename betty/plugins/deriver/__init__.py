@@ -26,7 +26,7 @@ class _Derivations:
 
 
 def derive(ancestry: Ancestry) -> None:
-    derivations =_Derivations()
+    derivations = _Derivations()
     for person in ancestry.people.values():
         _derive_person(person, derivations)
     logger = logging.getLogger()

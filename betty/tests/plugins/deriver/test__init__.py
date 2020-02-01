@@ -15,7 +15,7 @@ class DeriverTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.plugins[Privatizer] = {}
+            configuration.plugins[Deriver] = {}
             site = Site(configuration)
             person = Person('P0')
             presence = Presence(Presence.Role.SUBJECT)

@@ -1,7 +1,7 @@
 from enum import Enum
 from functools import total_ordering
 from os.path import splitext, basename
-from typing import Dict, Optional, List, Iterable, Set, Any
+from typing import Dict, Optional, List, Iterable, Set
 
 from geopy import Point
 
