@@ -1,7 +1,7 @@
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from unittest import TestCase
 
-from betty.ancestry import Ancestry, Person, Event, File, Presence, PersonName
+from betty.ancestry import Ancestry, Person, Event, File, Presence, PersonName, IdentifiableEvent
 from betty.config import Configuration
 from betty.parse import parse
 from betty.plugins.anonymizer import Anonymizer, anonymize, anonymize_person
@@ -30,7 +30,7 @@ class AnonymizeTest(AnonymizerTestCase):
             person_presence.person = person
             partner_presence = Presence(Presence.Role.SUBJECT)
             partner_presence.person = partner
-            event = Event('E0', Event.Type.MARRIAGE)
+            event = IdentifiableEvent('E0', Event.Type.MARRIAGE)
             event.presences = [person_presence, partner_presence]
             file = File('D0', file_f.name)
             file.entities.append(person, partner)
@@ -46,7 +46,7 @@ class AnonymizeTest(AnonymizerTestCase):
             person = Person('P0')
             person.names.append(PersonName('Janet', 'Dough'))
             presence = Presence(Presence.Role.SUBJECT)
-            presence.event = Event('E0', Event.Type.BIRTH)
+            presence.event = IdentifiableEvent('E0', Event.Type.BIRTH)
             person.presences.append(presence)
             person.files.append(File('D0', file_f.name))
             ancestry = Ancestry()
@@ -168,7 +168,7 @@ class AnonymizerTest(AnonymizerTestCase):
                 person = Person('P0')
                 person.private = True
                 presence = Presence(Presence.Role.SUBJECT)
-                presence.event = Event('E0', Event.Type.BIRTH)
+                presence.event = IdentifiableEvent('E0', Event.Type.BIRTH)
                 person.presences.append(presence)
                 person.files.append(File('D0', file_f.name))
                 site.ancestry.people[person.id] = person

@@ -5,7 +5,7 @@ from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.ancestry import Ancestry, Person, Event, Presence
+from betty.ancestry import Ancestry, Person, Presence, IdentifiableEvent, Event
 from betty.config import Configuration
 from betty.locale import Date
 from betty.parse import parse
@@ -25,28 +25,28 @@ def _expand(generation: int):
         (False, False, None),
         # Deaths and burials are special, and their existence prevents generation 0 from being private even without a
         # date.
-        (generation != 0, None, Event('E0', Event.Type.DEATH)),
-        (True, True, Event('E0', Event.Type.DEATH)),
-        (False, False, Event('E0', Event.Type.DEATH)),
-        (generation != 0, None, Event('E0', Event.Type.BURIAL)),
-        (True, True, Event('E0', Event.Type.BURIAL)),
-        (False, False, Event('E0', Event.Type.BURIAL)),
+        (generation != 0, None, IdentifiableEvent('E0', Event.Type.DEATH)),
+        (True, True, IdentifiableEvent('E0', Event.Type.DEATH)),
+        (False, False, IdentifiableEvent('E0', Event.Type.DEATH)),
+        (generation != 0, None, IdentifiableEvent('E0', Event.Type.BURIAL)),
+        (True, True, IdentifiableEvent('E0', Event.Type.BURIAL)),
+        (False, False, IdentifiableEvent('E0', Event.Type.BURIAL)),
         # Regular events without dates do not affect privacy.
-        (True, None, Event('E0', Event.Type.BIRTH)),
-        (True, True, Event('E0', Event.Type.BIRTH)),
-        (False, False, Event('E0', Event.Type.BIRTH)),
+        (True, None, IdentifiableEvent('E0', Event.Type.BIRTH)),
+        (True, True, IdentifiableEvent('E0', Event.Type.BIRTH)),
+        (False, False, IdentifiableEvent('E0', Event.Type.BIRTH)),
         # Regular events with incomplete dates do not affect privacy.
-        (True, None, Event('E0', Event.Type.BIRTH, date=Date())),
-        (True, True, Event('E0', Event.Type.BIRTH, date=Date())),
-        (False, False, Event('E0', Event.Type.BIRTH, date=Date())),
+        (True, None, IdentifiableEvent('E0', Event.Type.BIRTH, date=Date())),
+        (True, True, IdentifiableEvent('E0', Event.Type.BIRTH, date=Date())),
+        (False, False, IdentifiableEvent('E0', Event.Type.BIRTH, date=Date())),
         # Regular events under the lifetime threshold do not affect privacy.
-        (True, None, Event('E0', Event.Type.BIRTH, date=date_under_threshold)),
-        (True, True, Event('E0', Event.Type.BIRTH, date=date_under_threshold)),
-        (False, False, Event('E0', Event.Type.BIRTH, date=date_under_threshold)),
+        (True, None, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_under_threshold)),
+        (True, True, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_under_threshold)),
+        (False, False, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_under_threshold)),
         # Regular events over the lifetime threshold affect privacy.
-        (False, None, Event('E0', Event.Type.BIRTH, date=date_over_threshold)),
-        (True, True, Event('E0', Event.Type.BIRTH, date=date_over_threshold)),
-        (False, False, Event('E0', Event.Type.BIRTH, date=date_over_threshold)),
+        (False, None, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_over_threshold)),
+        (True, True, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_over_threshold)),
+        (False, False, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_over_threshold)),
     ])
 
 
@@ -59,7 +59,7 @@ class PrivatizerTest(TestCase):
             site = Site(configuration)
             person = Person('P0')
             presence = Presence(Presence.Role.SUBJECT)
-            presence.event = Event('E0', Event.Type.BIRTH)
+            presence.event = IdentifiableEvent('E0', Event.Type.BIRTH)
             person.presences.append(presence)
             site.ancestry.people[person.id] = person
             parse(site)

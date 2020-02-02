@@ -169,7 +169,7 @@ class JSONEncoder(stdjson.JSONEncoder):
             'presences': [],
         }
         for presence in person.presences:
-            if isinstance(presence, Identifiable):
+            if isinstance(presence.event, Identifiable):
                 encoded['presences'].append({
                     '@context': {
                         'event': 'https://schema.org/performerIn',
