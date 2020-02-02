@@ -11,10 +11,11 @@
         <h2>{{ _('Media') }}</h2>
         {% include 'list-file.html.j2' %}
     {% endif %}
-    {% if citation.claims | length > 0 %}
+    {% set claims = citation.claims | select('is_entity') | list %}
+    {% if claims | length > 0 %}
         <h2>{{ _('References') }}</h2>
         <ul class="entities">
-            {% for claim in citation.claims %}
+            {% for claim in claims %}
                 <li class="{{ loop.cycle('odd', 'even') }}">
                     <a href="{{ claim | url }}">{{ claimMacros.label(claim) }}</a>
                 </li>

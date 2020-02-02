@@ -8,7 +8,7 @@ import html5lib
 from lxml import etree
 
 from betty import json
-from betty.ancestry import Person, Event, Place, Source, LocalizedName, Citation, File
+from betty.ancestry import Person, Event, Place, Source, LocalizedName, Citation, File, IdentifiableEvent
 from betty.config import Configuration, LocaleConfiguration
 from betty.render import render
 from betty.site import Site
@@ -95,7 +95,7 @@ class RenderTest(RenderTestCase):
         self.assert_betty_json('/event/index.json', 'eventCollection')
 
     def test_event(self):
-        event = Event('EVENT1', Event.Type.BIRTH)
+        event = IdentifiableEvent('EVENT1', Event.Type.BIRTH)
         self.site.ancestry.events[event.id] = event
         render(self.site)
         self.assert_betty_html('/event/%s/index.html' % event.id)

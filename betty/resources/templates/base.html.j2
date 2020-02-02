@@ -23,7 +23,7 @@
             {%- endif -%}
         {%- endfor -%}
         <link rel="canonical" href="{{ resource | url(absolute=true) }}"/>
-        {% if resource.id -%}
+        {% if resource | is_entity -%}
             <link rel="alternate" href="{{ resource | url(content_type='application/json') }}" type="application/json"/>
             <script type="application/ld+json">
               {{ resource | tojson }}
