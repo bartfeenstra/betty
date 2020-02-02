@@ -72,6 +72,7 @@ resources: ./resources
 plugins:
   betty.plugins.anonymizer.Anonymizer: {}
   betty.plugins.cleaner.Cleaner: {}
+  betty.plugins.deriver.Deriver: {}
   betty.plugins.gramps.Gramps:
     file: ./gramps.gpkg
   betty.plugins.maps.Maps: {}
@@ -100,6 +101,7 @@ plugins:
 - `plugins` (optional): The plugins to enable. Keys are plugin names, and values are objects containing each plugin's configuration.
     - `betty.plugin.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `{}`.
     - `betty.plugin.cleaner.Cleaner`: Removes data (events, media, etc.) that have no relation to any people. Configuration: `{}`.
+    - `betty.plugin.deriver.Deriver`: Extends ancestries by deriving facts from existing information. Configuration: `{}`.
     - `betty.plugin.gramps.Gramps`: Parses a Gramps genealogy. Configuration:
         - `file`: the path to the *Gramps XML* or *Gramps XML Package* file.
     - `betty.plugin.maps.Maps`: Renders interactive maps using [Leaflet](https://leafletjs.com/).
