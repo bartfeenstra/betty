@@ -4,7 +4,8 @@ from unittest.mock import Mock
 
 from parameterized import parameterized
 
-from betty.ancestry import EventHandlingSetList, Person, Event, Place, File, Note, Presence, LocalizedName, PersonName
+from betty.ancestry import EventHandlingSetList, Person, Event, Place, File, Note, Presence, LocalizedName, PersonName, \
+    IdentifiableEvent
 from betty.locale import Date
 
 
@@ -128,7 +129,7 @@ class PersonNameTest(TestCase):
 class PlaceTest(TestCase):
     def test_events_should_sync_references(self):
         sut = Place('1', [LocalizedName('one')])
-        event = Event('1', Event.Type.BIRTH)
+        event = IdentifiableEvent('1', Event.Type.BIRTH)
         sut.events.append(event)
         self.assertIn(event, sut.events)
         self.assertEquals(sut, event.place)
@@ -159,7 +160,7 @@ class PlaceTest(TestCase):
 
 class EventTest(TestCase):
     def test_date(self):
-        sut = Event('1', Event.Type.BIRTH)
+        sut = IdentifiableEvent('1', Event.Type.BIRTH)
         self.assertIsNone(sut.date)
         date = Mock(Date)
         sut.date = date
@@ -167,12 +168,12 @@ class EventTest(TestCase):
 
     def test_type(self):
         event_type = Event.Type.BIRTH
-        sut = Event('1', event_type)
+        sut = IdentifiableEvent('1', event_type)
         self.assertEquals(event_type, sut.type)
 
     def test_place_should_sync_references(self):
         place = Place('1', [LocalizedName('one')])
-        sut = Event('1', Event.Type.BIRTH)
+        sut = IdentifiableEvent('1', Event.Type.BIRTH)
         sut.place = place
         self.assertEquals(place, sut.place)
         self.assertIn(sut, place.events)
@@ -182,7 +183,7 @@ class EventTest(TestCase):
 
     def test_presence_should_sync_references(self):
         presence = Presence(Presence.Role.SUBJECT)
-        sut = Event('1', Event.Type.BIRTH)
+        sut = IdentifiableEvent('1', Event.Type.BIRTH)
         sut.presences.append(presence)
         self.assertCountEqual([presence], sut.presences)
         self.assertEquals(sut, presence.event)

@@ -1,6 +1,9 @@
 {%- macro label(event, person_context=None) -%}
     {%- import 'macro/person.html.j2' as personMacros -%}
-    {% set formattedEvent = '<a href="' + event | url + '">' + type_label(event) + '</a>' %}
+    {%- set formattedEvent = type_label(event) -%}
+    {%- if event | is_entity -%}
+        {% set formattedEvent = '<a href="' + event | url + '">' + formattedEvent + '</a>' %}
+    {%- endif -%}
     {% if event.description is not none %}
         {% set formattedEvent = formattedEvent + ' (' + event.description + ')' %}
     {% endif %}

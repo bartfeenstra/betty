@@ -1,7 +1,7 @@
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from betty.ancestry import Ancestry, Person, Event, Place, Presence, LocalizedName
+from betty.ancestry import Ancestry, Person, Event, Place, Presence, LocalizedName, IdentifiableEvent
 from betty.config import Configuration
 from betty.parse import parse
 from betty.plugins.cleaner import Cleaner, clean
@@ -15,7 +15,7 @@ class CleanerTest(TestCase):
                 output_directory_path, 'https://example.com')
             configuration.plugins[Cleaner] = {}
             site = Site(configuration)
-            event = Event('E0', Event.Type.BIRTH)
+            event = IdentifiableEvent('E0', Event.Type.BIRTH)
             site.ancestry.events[event.id] = event
             parse(site)
             self.assertEquals({}, site.ancestry.events)
@@ -25,13 +25,13 @@ class CleanTest(TestCase):
     def test_clean(self):
         ancestry = Ancestry()
 
-        onymous_event = Event('E0', Event.Type.BIRTH)
+        onymous_event = IdentifiableEvent('E0', Event.Type.BIRTH)
         onymous_event_presence = Presence(Presence.Role.SUBJECT)
         onymous_event_presence.person = Person('P0')
         onymous_event.presences.append(onymous_event_presence)
         ancestry.events[onymous_event.id] = onymous_event
 
-        anonymous_event = Event('E1', Event.Type.BIRTH)
+        anonymous_event = IdentifiableEvent('E1', Event.Type.BIRTH)
         ancestry.events[anonymous_event.id] = anonymous_event
 
         onymous_place = Place('P0', [LocalizedName('Amsterdam')])

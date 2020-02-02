@@ -5,7 +5,8 @@ from unittest import TestCase
 from geopy import Point
 
 from betty import json
-from betty.ancestry import Place, Person, LocalizedName, Link, Event, Citation, Presence, Source, File, Note, PersonName
+from betty.ancestry import Place, Person, LocalizedName, Link, Event, Citation, Presence, Source, File, Note, \
+    PersonName, IdentifiableEvent
 from betty.config import Configuration
 from betty.json import JSONEncoder
 from betty.locale import Date, Period
@@ -74,7 +75,7 @@ class JSONEncoderTest(TestCase):
         place.encloses.append(Place('the_enclosed_place', []))
         place.links.add(
             Link('https://example.com/the-place', 'The Place Online'))
-        place.events.append(Event('E1', Event.Type.BIRTH))
+        place.events.append(IdentifiableEvent('E1', Event.Type.BIRTH))
         expected = {
             '$schema': '/schema.json#/definitions/place',
             '@context': {
@@ -163,7 +164,7 @@ class JSONEncoderTest(TestCase):
         person.citations.append(
             Citation('the_citation', Source('the_source', 'The Source')))
         presence = Presence(Presence.Role.SUBJECT)
-        presence.event = Event('the_event', Event.Type.BIRTH)
+        presence.event = IdentifiableEvent('the_event', Event.Type.BIRTH)
         person.presences.append(presence)
 
         expected = {
@@ -249,7 +250,7 @@ class JSONEncoderTest(TestCase):
             self.assert_encodes(expected, file, 'file')
 
     def test_event_should_encode_minimal(self):
-        event = Event('the_event', Event.Type.BIRTH)
+        event = IdentifiableEvent('the_event', Event.Type.BIRTH)
         expected = {
             '$schema': '/schema.json#/definitions/event',
             '@type': 'https://schema.org/Event',
@@ -261,7 +262,7 @@ class JSONEncoderTest(TestCase):
         self.assert_encodes(expected, event, 'event')
 
     def test_event_should_encode_full(self):
-        event = Event('the_event', Event.Type.BIRTH)
+        event = IdentifiableEvent('the_event', Event.Type.BIRTH)
         event.date = Period(Date(2000, 1, 1), Date(2019, 12, 31))
         event.place = Place('the_place', [LocalizedName('The Place')])
         presence = Presence(Presence.Role.SUBJECT)
@@ -379,7 +380,7 @@ class JSONEncoderTest(TestCase):
     def test_citation_should_encode_full(self):
         citation = Citation('the_citation', Source('the_source', 'The Source'))
         citation.description = 'The Source Description'
-        citation.claims.append(Event('the_event', Event.Type.BIRTH))
+        citation.claims.append(IdentifiableEvent('the_event', Event.Type.BIRTH))
         expected = {
             '$schema': '/schema.json#/definitions/citation',
             '@type': 'https://schema.org/Thing',

@@ -316,7 +316,7 @@ class HasCitations:
                                                lambda citation: citation.claims.remove(self))
 
     @property
-    def citations(self) -> Iterable:
+    def citations(self) -> EventHandlingSetList:
         return self._citations
 
     @citations.setter
@@ -448,7 +448,7 @@ class Presence:
             event.presences.append(self)
 
 
-class Event(Identifiable, Dated, HasFiles, HasCitations, Described):
+class Event(Dated, HasFiles, HasCitations, Described):
     class Type(Enum):
         BIRTH = 'birth'
         BAPTISM = 'baptism'
@@ -464,8 +464,7 @@ class Event(Identifiable, Dated, HasFiles, HasCitations, Described):
         EMIGRATION = 'emigration'
         OCCUPATION = 'occupation'
 
-    def __init__(self, event_id: str, event_type: Type, date: Optional[Datey] = None, place: Optional[Place] = None):
-        Identifiable.__init__(self, event_id)
+    def __init__(self, event_type: Type, date: Optional[Datey] = None, place: Optional[Place] = None):
         Dated.__init__(self)
         HasFiles.__init__(self)
         HasCitations.__init__(self)
@@ -511,6 +510,12 @@ class Event(Identifiable, Dated, HasFiles, HasCitations, Described):
     @presences.setter
     def presences(self, presences):
         self._presences.replace(presences)
+
+
+class IdentifiableEvent(Event, Identifiable):
+    def __init__(self, event_id: str, *args, **kwargs):
+        Identifiable.__init__(self, event_id)
+        Event.__init__(self, *args, **kwargs)
 
 
 @total_ordering
@@ -615,7 +620,7 @@ class Person(Identifiable, HasFiles, HasCitations, HasLinks):
         return self._names.list[1:]
 
     @property
-    def presences(self) -> Iterable:
+    def presences(self) -> EventHandlingSetList:
         return self._presences
 
     @presences.setter

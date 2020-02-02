@@ -7,9 +7,10 @@ from geopy import Point
 from jsonschema import RefResolver
 
 from betty.ancestry import Place, Person, LocalizedName, Event, Citation, Source, Presence, Described, HasLinks, \
-    HasCitations, Link, Dated, File, Note, PersonName
+    HasCitations, Link, Dated, File, Note, PersonName, IdentifiableEvent, Identifiable
 from betty.config import Configuration
 from betty.locale import Date, Period
+from betty.plugins.deriver import DerivedEvent
 from betty.url import StaticPathUrlGenerator, SiteUrlGenerator
 
 
@@ -38,7 +39,8 @@ class JSONEncoder(stdjson.JSONEncoder):
             Person: self._encode_person,
             PersonName: self._encode_person_name,
             File: self._encode_file,
-            Event: self._encode_event,
+            DerivedEvent: self._encode_event,
+            IdentifiableEvent: self._encode_identifiable_event,
             Event.Type: self._encode_event_type,
             Presence.Role: self._encode_presence_role,
             Date: self._encode_date,
@@ -164,14 +166,17 @@ class JSONEncoder(stdjson.JSONEncoder):
             'children': [self._generate_url(child) for child in person.children],
             'siblings': [self._generate_url(sibling) for sibling in person.siblings],
             'private': person.private,
-            'presences': [{
-                '@context': {
-                    'event': 'https://schema.org/performerIn',
-                },
-                'role': presence.role,
-                'event': self._generate_url(presence.event),
-            } for presence in person.presences]
+            'presences': [],
         }
+        for presence in person.presences:
+            if isinstance(presence.event, Identifiable):
+                encoded['presences'].append({
+                    '@context': {
+                        'event': 'https://schema.org/performerIn',
+                    },
+                    'role': presence.role,
+                    'event': self._generate_url(presence.event),
+                })
         self._encode_schema(encoded, 'person')
         self._encode_has_citations(encoded, person)
         self._encode_has_links(encoded, person)
@@ -205,7 +210,6 @@ class JSONEncoder(stdjson.JSONEncoder):
     def _encode_event(self, event: Event) -> Dict:
         encoded = {
             '@type': 'https://schema.org/Event',
-            'id': event.id,
             'type': event.type,
             'presences': [{
                 '@context': {
@@ -226,6 +230,11 @@ class JSONEncoder(stdjson.JSONEncoder):
             encoded['@context']['place'] = 'https://schema.org/location'
         return encoded
 
+    def _encode_identifiable_event(self, event: Event) -> Dict:
+        encoded = self._encode_event(event)
+        encoded['id'] = event.id
+        return encoded
+
     def _encode_event_type(self, event_type: Event.Type) -> str:
         return event_type.value
 
@@ -237,8 +246,11 @@ class JSONEncoder(stdjson.JSONEncoder):
             '@type': 'https://schema.org/Thing',
             'id': citation.id,
             'source': self._generate_url(citation.source),
-            'claims': [self._generate_url(claim) for claim in citation.claims]
+            'claims': []
         }
+        for claim in citation.claims:
+            if isinstance(claim, Identifiable):
+                encoded['claims'].append(self._generate_url(claim))
         self._encode_schema(encoded, 'citation')
         self._encode_dated(encoded, citation)
         return encoded

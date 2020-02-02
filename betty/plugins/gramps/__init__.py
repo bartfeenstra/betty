@@ -11,7 +11,7 @@ from lxml.etree import XMLParser, Element
 from voluptuous import Schema, IsFile
 
 from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, Event, LocalizedName, Person, Source, \
-    Link, HasFiles, Citation, HasLinks, HasCitations
+    Link, HasFiles, Citation, HasLinks, HasCitations, IdentifiableEvent
 from betty.config import validate_configuration
 from betty.fs import makedirs
 from betty.locale import Period, Datey, Date
@@ -360,7 +360,7 @@ def _parse_event(ancestry: _IntermediateAncestry, element: Element):
     handle = str(_xpath1(element, './@handle'))
     gramps_type = _xpath1(element, './ns:type')
 
-    event = Event(_xpath1(element, './@id'), _EVENT_TYPE_MAP[gramps_type.text])
+    event = IdentifiableEvent(_xpath1(element, './@id'), _EVENT_TYPE_MAP[gramps_type.text])
 
     event.date = _parse_date(element)
 
