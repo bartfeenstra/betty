@@ -120,9 +120,10 @@ class Period:
 
             return self.end < other.end
 
-        if not self_has_start:
-            return self.end < other
-        return self.start < other
+        if self_has_start:
+            return self.start < other
+        if self_has_end:
+            return self.end <= other
 
     def __eq__(self, other):
         if isinstance(other, Date):

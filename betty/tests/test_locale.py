@@ -99,7 +99,7 @@ class PeriodTest(TestCase):
 
     @parameterized.expand([
         (False, Date(1970, 2, 1)),
-        (False, Date(1970, 2, 2)),
+        (True, Date(1970, 2, 2)),
         (True, Date(1970, 2, 3)),
         (False, Period(Date(1970, 2, 1))),
         (True, Period(Date(1970, 2, 2))),
