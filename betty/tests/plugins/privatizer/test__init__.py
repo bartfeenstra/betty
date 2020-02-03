@@ -7,7 +7,7 @@ from parameterized import parameterized
 
 from betty.ancestry import Ancestry, Person, Presence, IdentifiableEvent, Event
 from betty.config import Configuration
-from betty.locale import Date
+from betty.locale import Date, Period
 from betty.parse import parse
 from betty.plugins.privatizer import Privatizer
 from betty.site import Site
@@ -17,18 +17,28 @@ def _expand(generation: int):
     multiplier = abs(generation) + 1 if generation < 0 else 1
     threshold_year = datetime.now().year - 100 * multiplier
     date_under_threshold = Date(threshold_year + 1, 1, 1)
+    period_start_under_threshold = Period(date_under_threshold)
+    period_end_under_threshold = Period(None, date_under_threshold)
     date_over_threshold = Date(threshold_year - 1, 1, 1)
+    period_start_over_threshold = Period(date_over_threshold)
+    period_end_over_threshold = Period(None, date_over_threshold)
     return parameterized.expand([
         # If there are no events for a person, their privacy does not change.
         (True, None, None),
         (True, True, None),
         (False, False, None),
-        # Deaths and burials are special, and their existence prevents generation 0 from being private even without a
-        # date.
-        (generation != 0, None, IdentifiableEvent('E0', Event.Type.DEATH)),
+        # Deaths and burials are special, and their existence prevents generation 0 from being private even without
+        # having passed the usual threshold.
+        (generation != 0, None, IdentifiableEvent('E0', Event.Type.DEATH, date=Date(datetime.now().year, datetime.now().month, datetime.now().day))),
+        (generation != 0, None, IdentifiableEvent('E0', Event.Type.DEATH, date=date_under_threshold)),
+        (True, None, IdentifiableEvent('E0', Event.Type.DEATH, date=period_start_under_threshold)),
+        (generation != 0, None, IdentifiableEvent('E0', Event.Type.DEATH, date=period_end_under_threshold)),
         (True, True, IdentifiableEvent('E0', Event.Type.DEATH)),
         (False, False, IdentifiableEvent('E0', Event.Type.DEATH)),
-        (generation != 0, None, IdentifiableEvent('E0', Event.Type.BURIAL)),
+        (generation != 0, None, IdentifiableEvent('E0', Event.Type.BURIAL, date=Date(datetime.now().year, datetime.now().month, datetime.now().day))),
+        (generation != 0, None, IdentifiableEvent('E0', Event.Type.BURIAL, date=date_under_threshold)),
+        (True, None, IdentifiableEvent('E0', Event.Type.BURIAL, date=period_start_under_threshold)),
+        (generation != 0, None, IdentifiableEvent('E0', Event.Type.BURIAL, date=period_end_under_threshold)),
         (True, True, IdentifiableEvent('E0', Event.Type.BURIAL)),
         (False, False, IdentifiableEvent('E0', Event.Type.BURIAL)),
         # Regular events without dates do not affect privacy.
@@ -43,10 +53,22 @@ def _expand(generation: int):
         (True, None, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_under_threshold)),
         (True, True, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_under_threshold)),
         (False, False, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_under_threshold)),
+        (True, None, IdentifiableEvent('E0', Event.Type.BIRTH, date=period_start_under_threshold)),
+        (True, True, IdentifiableEvent('E0', Event.Type.BIRTH, date=period_start_under_threshold)),
+        (False, False, IdentifiableEvent('E0', Event.Type.BIRTH, date=period_start_under_threshold)),
+        (True, None, IdentifiableEvent('E0', Event.Type.BIRTH, date=period_end_under_threshold)),
+        (True, True, IdentifiableEvent('E0', Event.Type.BIRTH, date=period_end_under_threshold)),
+        (False, False, IdentifiableEvent('E0', Event.Type.BIRTH, date=period_end_under_threshold)),
         # Regular events over the lifetime threshold affect privacy.
         (False, None, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_over_threshold)),
         (True, True, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_over_threshold)),
         (False, False, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_over_threshold)),
+        (False, None, IdentifiableEvent('E0', Event.Type.BIRTH, date=period_start_over_threshold)),
+        (True, True, IdentifiableEvent('E0', Event.Type.BIRTH, date=period_start_over_threshold)),
+        (False, False, IdentifiableEvent('E0', Event.Type.BIRTH, date=period_start_over_threshold)),
+        (False, None, IdentifiableEvent('E0', Event.Type.BIRTH, date=period_end_over_threshold)),
+        (True, True, IdentifiableEvent('E0', Event.Type.BIRTH, date=period_end_over_threshold)),
+        (False, False, IdentifiableEvent('E0', Event.Type.BIRTH, date=period_end_over_threshold)),
     ])
 
 
