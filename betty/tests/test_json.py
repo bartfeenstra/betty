@@ -9,7 +9,7 @@ from betty.ancestry import Place, Person, LocalizedName, Link, Event, Citation, 
     PersonName, IdentifiableEvent
 from betty.config import Configuration
 from betty.json import JSONEncoder
-from betty.locale import Date, Period
+from betty.locale import Date, DateRange
 
 
 class JSONEncoderTest(TestCase):
@@ -263,7 +263,7 @@ class JSONEncoderTest(TestCase):
 
     def test_event_should_encode_full(self):
         event = IdentifiableEvent('the_event', Event.Type.BIRTH)
-        event.date = Period(Date(2000, 1, 1), Date(2019, 12, 31))
+        event.date = DateRange(Date(2000, 1, 1), Date(2019, 12, 31))
         event.place = Place('the_place', [LocalizedName('The Place')])
         presence = Presence(Presence.Role.SUBJECT)
         presence.person = Person('the_person')

@@ -73,7 +73,7 @@ class Date:
 
 
 @total_ordering
-class Period:
+class DateRange:
     def __init__(self, start: Optional[Date] = None, end: Optional[Date] = None):
         self._start = start
         self._end = end
@@ -89,7 +89,7 @@ class Period:
         if not self.complete:
             return NotImplemented
 
-        if not (isinstance(other, Date) or isinstance(other, Period)):
+        if not (isinstance(other, Date) or isinstance(other, DateRange)):
             return NotImplemented
 
         if not other.complete:
@@ -98,7 +98,7 @@ class Period:
         self_has_start = self.start is not None and self.start.complete
         self_has_end = self.end is not None and self.end.complete
 
-        if isinstance(other, Period):
+        if isinstance(other, DateRange):
             other_has_start = other.start is not None and other.start.complete
             other_has_end = other.end is not None and other.end.complete
 
@@ -129,7 +129,7 @@ class Period:
         if isinstance(other, Date):
             return False
 
-        if not isinstance(other, Period):
+        if not isinstance(other, DateRange):
             return NotImplemented
 
         return (self.start, self.end) == (other.start, other.end)
@@ -143,7 +143,7 @@ class Period:
         return self._end
 
 
-Datey = Union[Date, Period]
+Datey = Union[Date, DateRange]
 
 
 class Translations(gettext.NullTranslations):
@@ -210,7 +210,7 @@ def format_datey(date: Datey, locale: str, translation: gettext.NullTranslations
     try:
         if isinstance(date, Date):
             return _format_date(date, locale, translation)
-        return _format_period(date, locale, translation)
+        return _format_date_range(date, locale, translation)
     except IncompleteDateError:
         return translation.gettext('unknown date')
 
@@ -242,13 +242,13 @@ def _format_date_parts(date: Date, locale: str, translation: gettext.NullTransla
     return dates.format_date(datetime.date(*parts), format, Locale.parse(locale, '-'))
 
 
-def _format_period(period: Period, locale: str, translation: gettext.NullTranslations) -> str:
+def _format_date_range(date_range: DateRange, locale: str, translation: gettext.NullTranslations) -> str:
     try:
-        formatted_start = _format_date_parts(period.start, locale, translation)
+        formatted_start = _format_date_parts(date_range.start, locale, translation)
     except IncompleteDateError:
         formatted_start = None
     try:
-        formatted_end = _format_date_parts(period.end, locale, translation)
+        formatted_end = _format_date_parts(date_range.end, locale, translation)
     except IncompleteDateError:
         formatted_end = None
     if formatted_start is not None and formatted_end is not None:
@@ -264,4 +264,4 @@ def _format_period(period: Period, locale: str, translation: gettext.NullTransla
         return translation.gettext('Before %(end)s') % {
             'end': formatted_end,
         }
-    raise IncompleteDateError('This period does not have enough parts to be rendered.')
+    raise IncompleteDateError('This date range does not have enough parts to be rendered.')

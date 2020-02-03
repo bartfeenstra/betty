@@ -4,7 +4,7 @@ from typing import List, Tuple, Callable, Set, Type
 
 from betty.ancestry import Ancestry, Person, Event
 from betty.functools import walk
-from betty.locale import Period, Date
+from betty.locale import DateRange, Date
 from betty.parse import PostParseEvent
 from betty.plugin import Plugin
 from betty.plugins.deriver import Deriver
@@ -78,7 +78,7 @@ class Privatizer(Plugin):
 
         date = event.date
 
-        if isinstance(date, Period):
+        if isinstance(date, DateRange):
             if date.end is not None:
                 date = date.end
             # A multiplier of 0 is only used for generation 0's end-of-life events. If those only have start dates, they
