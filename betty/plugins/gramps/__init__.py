@@ -14,7 +14,7 @@ from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, Ev
     Link, HasFiles, Citation, HasLinks, HasCitations, IdentifiableEvent
 from betty.config import validate_configuration
 from betty.fs import makedirs
-from betty.locale import Period, Datey, Date
+from betty.locale import DateRange, Datey, Date
 from betty.parse import ParseEvent
 from betty.plugin import Plugin
 from betty.site import Site
@@ -127,14 +127,14 @@ def _parse_date(element: Element) -> Optional[Datey]:
             date.fuzzy = True
             return date
         if dateval_type == 'before':
-            return Period(None, _parse_dateval(dateval))
+            return DateRange(None, _parse_dateval(dateval))
         if dateval_type == 'after':
-            return Period(_parse_dateval(dateval))
+            return DateRange(_parse_dateval(dateval))
     daterange_element = _xpath1(element, './ns:daterange[not(@cformat)]')
     if daterange_element is not None:
         start = _parse_dateval(str(_xpath1(daterange_element, './@start')))
         end = _parse_dateval(str(_xpath1(daterange_element, './@stop')))
-        return Period(start, end)
+        return DateRange(start, end)
     return None
 
 

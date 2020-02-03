@@ -584,7 +584,7 @@
       },
       "additionalProperties": false
     },
-    "period": {
+    "dateRange": {
       "type": "object",
       "properties": {
         "start": {
@@ -602,7 +602,7 @@
           "$ref": "#/definitions/date"
         },
         {
-          "$ref": "#/definitions/period"
+          "$ref": "#/definitions/dateRange"
         }
       ]
     },

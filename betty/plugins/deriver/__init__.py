@@ -4,7 +4,7 @@ from copy import copy
 from typing import List, Tuple, Callable, Optional, Dict
 
 from betty.ancestry import Ancestry, Person, Presence, Event
-from betty.locale import Period
+from betty.locale import DateRange
 from betty.parse import PostParseEvent
 from betty.plugin import Plugin
 
@@ -45,7 +45,7 @@ def _derive_event(person: Person, event_type: Event.Type, after: bool, derivatio
 
     event_dates = []
     for event in [presence.event for presence in person.presences if presence.event.type != event_type]:
-        if isinstance(event.date, Period):
+        if isinstance(event.date, DateRange):
             if event.date.start is not None and event.date.start.complete:
                 event_dates.append((event, event.date.start))
             if event.date.end is not None and event.date.end.complete:
@@ -59,7 +59,7 @@ def _derive_event(person: Person, event_type: Event.Type, after: bool, derivatio
         return
     derived_start_date = copy(threshold_date) if after else None
     derived_end_date = None if after else copy(threshold_date)
-    derived_event.date = Period(derived_start_date, derived_end_date)
+    derived_event.date = DateRange(derived_start_date, derived_end_date)
     for citation in threshold_event.citations:
         derived_event.citations.append(citation)
     presence = Presence(Presence.Role.SUBJECT)

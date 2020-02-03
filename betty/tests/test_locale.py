@@ -4,7 +4,7 @@ from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.locale import validate_locale, Localized, negotiate_localizeds, Date, format_datey, Period
+from betty.locale import validate_locale, Localized, negotiate_localizeds, Date, format_datey, DateRange
 
 
 class DateTest(TestCase):
@@ -79,87 +79,87 @@ class DateTest(TestCase):
         self.assertEquals(expected, Date(1970, 2, 2) > other)
 
 
-class PeriodTest(TestCase):
+class DateRangeTest(TestCase):
     @parameterized.expand([
         (False, Date(1970, 2, 1)),
         (False, Date(1970, 2, 2)),
         (True, Date(1970, 2, 3)),
-        (False, Period(Date(1970, 2, 1))),
-        (False, Period(Date(1970, 2, 2))),
-        (True, Period(Date(1970, 2, 3))),
-        (False, Period(None, Date(1970, 2, 1))),
-        (False, Period(None, Date(1970, 2, 2))),
-        (True, Period(None, Date(1970, 2, 3))),
-        (False, Period(Date(1970, 2, 1), Date(1970, 2, 2))),
-        (False, Period(Date(1970, 2, 2), Date(1970, 2, 3))),
-        (False, Period(Date(1970, 2, 1), Date(1970, 2, 3))),
+        (False, DateRange(Date(1970, 2, 1))),
+        (False, DateRange(Date(1970, 2, 2))),
+        (True, DateRange(Date(1970, 2, 3))),
+        (False, DateRange(None, Date(1970, 2, 1))),
+        (False, DateRange(None, Date(1970, 2, 2))),
+        (True, DateRange(None, Date(1970, 2, 3))),
+        (False, DateRange(Date(1970, 2, 1), Date(1970, 2, 2))),
+        (False, DateRange(Date(1970, 2, 2), Date(1970, 2, 3))),
+        (False, DateRange(Date(1970, 2, 1), Date(1970, 2, 3))),
     ])
     def test_lt_with_start_date(self, expected, other):
-        self.assertEquals(expected, Period(Date(1970, 2, 2)) < other)
+        self.assertEquals(expected, DateRange(Date(1970, 2, 2)) < other)
 
     @parameterized.expand([
         (False, Date(1970, 2, 1)),
         (True, Date(1970, 2, 2)),
         (True, Date(1970, 2, 3)),
-        (False, Period(Date(1970, 2, 1))),
-        (True, Period(Date(1970, 2, 2))),
-        (True, Period(Date(1970, 2, 3))),
-        (False, Period(None, Date(1970, 2, 1))),
-        (False, Period(None, Date(1970, 2, 2))),
-        (True, Period(None, Date(1970, 2, 3))),
-        (False, Period(Date(1970, 2, 1), Date(1970, 2, 2))),
-        (True, Period(Date(1970, 2, 2), Date(1970, 2, 3))),
-        (False, Period(Date(1970, 2, 1), Date(1970, 2, 3))),
+        (False, DateRange(Date(1970, 2, 1))),
+        (True, DateRange(Date(1970, 2, 2))),
+        (True, DateRange(Date(1970, 2, 3))),
+        (False, DateRange(None, Date(1970, 2, 1))),
+        (False, DateRange(None, Date(1970, 2, 2))),
+        (True, DateRange(None, Date(1970, 2, 3))),
+        (False, DateRange(Date(1970, 2, 1), Date(1970, 2, 2))),
+        (True, DateRange(Date(1970, 2, 2), Date(1970, 2, 3))),
+        (False, DateRange(Date(1970, 2, 1), Date(1970, 2, 3))),
     ])
     def test_lt_with_end_date(self, expected, other):
-        self.assertEquals(expected, Period(None, Date(1970, 2, 2)) < other)
+        self.assertEquals(expected, DateRange(None, Date(1970, 2, 2)) < other)
 
     @parameterized.expand([
         (False, Date(1970, 2, 1)),
         (True, Date(1970, 2, 2)),
         (True, Date(1970, 2, 3)),
-        (True, Period(Date(1970, 2, 1))),
-        (True, Period(Date(1970, 2, 2))),
-        (True, Period(Date(1970, 2, 3))),
-        (False, Period(None, Date(1970, 2, 1))),
-        (True, Period(None, Date(1970, 2, 2))),
-        (True, Period(None, Date(1970, 2, 3))),
-        (False, Period(Date(1970, 2, 1), Date(1970, 2, 2))),
-        (True, Period(Date(1970, 2, 2), Date(1970, 2, 3))),
-        (False, Period(Date(1970, 2, 1), Date(1970, 2, 3))),
+        (True, DateRange(Date(1970, 2, 1))),
+        (True, DateRange(Date(1970, 2, 2))),
+        (True, DateRange(Date(1970, 2, 3))),
+        (False, DateRange(None, Date(1970, 2, 1))),
+        (True, DateRange(None, Date(1970, 2, 2))),
+        (True, DateRange(None, Date(1970, 2, 3))),
+        (False, DateRange(Date(1970, 2, 1), Date(1970, 2, 2))),
+        (True, DateRange(Date(1970, 2, 2), Date(1970, 2, 3))),
+        (False, DateRange(Date(1970, 2, 1), Date(1970, 2, 3))),
     ])
     def test_lt_with_both_dates(self, expected, other):
-        self.assertEquals(expected, Period(Date(1970, 2, 1), Date(1970, 2, 3)) < other)
+        self.assertEquals(expected, DateRange(Date(1970, 2, 1), Date(1970, 2, 3)) < other)
 
     @parameterized.expand([
-        (True, Period(Date(1970, 2, 2))),
-        (False, Period(Date(1970, 2, None))),
-        (False, Period(Date(1970, None, 2))),
-        (False, Period(Date(None, 2, 2))),
-        (False, Period(Date(1970, None, None))),
-        (False, Period(Date(None, 2, None))),
-        (False, Period(Date(None, None, 2))),
+        (True, DateRange(Date(1970, 2, 2))),
+        (False, DateRange(Date(1970, 2, None))),
+        (False, DateRange(Date(1970, None, 2))),
+        (False, DateRange(Date(None, 2, 2))),
+        (False, DateRange(Date(1970, None, None))),
+        (False, DateRange(Date(None, 2, None))),
+        (False, DateRange(Date(None, None, 2))),
         (False, None),
     ])
     def test_eq(self, expected, other):
-        self.assertEquals(expected, Period(Date(1970, 2, 2)) == other)
+        self.assertEquals(expected, DateRange(Date(1970, 2, 2)) == other)
 
     @parameterized.expand([
         (True, Date(1970, 2, 1)),
         (True, Date(1970, 2, 2)),
         (False, Date(1970, 2, 3)),
-        (True, Period(Date(1970, 2, 1))),
-        (False, Period(Date(1970, 2, 2))),
-        (False, Period(Date(1970, 2, 3))),
-        (True, Period(None, Date(1970, 2, 1))),
-        (True, Period(None, Date(1970, 2, 2))),
-        (False, Period(None, Date(1970, 2, 3))),
-        (True, Period(Date(1970, 2, 1), Date(1970, 2, 2))),
-        (True, Period(Date(1970, 2, 2), Date(1970, 2, 3))),
-        (True, Period(Date(1970, 2, 1), Date(1970, 2, 3))),
+        (True, DateRange(Date(1970, 2, 1))),
+        (False, DateRange(Date(1970, 2, 2))),
+        (False, DateRange(Date(1970, 2, 3))),
+        (True, DateRange(None, Date(1970, 2, 1))),
+        (True, DateRange(None, Date(1970, 2, 2))),
+        (False, DateRange(None, Date(1970, 2, 3))),
+        (True, DateRange(Date(1970, 2, 1), Date(1970, 2, 2))),
+        (True, DateRange(Date(1970, 2, 2), Date(1970, 2, 3))),
+        (True, DateRange(Date(1970, 2, 1), Date(1970, 2, 3))),
     ])
     def test_gt(self, expected, other):
-        self.assertEquals(expected, Period(Date(1970, 2, 2)) > other)
+        self.assertEquals(expected, DateRange(Date(1970, 2, 2)) > other)
 
 
 class ValidateLocaleTest(TestCase):

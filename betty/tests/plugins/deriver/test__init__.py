@@ -5,7 +5,7 @@ from parameterized import parameterized
 
 from betty.ancestry import Person, Presence, IdentifiableEvent, Event
 from betty.config import Configuration
-from betty.locale import Period, Date, Datey
+from betty.locale import DateRange, Date, Datey
 from betty.parse import parse
 from betty.plugins.deriver import Deriver
 from betty.site import Site
@@ -25,8 +25,8 @@ class DeriverTest(TestCase):
             person.presences.append(other_presence)
             site.ancestry.people[person.id] = person
             parse(site)
-            self.assertEquals(Period(None, Date(1970, 1, 1)), person.start.date)
-            self.assertEquals(Period(Date(1970, 1, 1)), person.end.date)
+            self.assertEquals(DateRange(None, Date(1970, 1, 1)), person.start.date)
+            self.assertEquals(DateRange(Date(1970, 1, 1)), person.end.date)
 
     def test_derive_without_events(self):
         with TemporaryDirectory() as output_directory_path:
@@ -94,12 +94,12 @@ class DeriverTest(TestCase):
             site.ancestry.people[person.id] = person
             parse(site)
             self.assertIsNotNone(birth_presence.event.date)
-            self.assertEquals(Period(None, Date(1970, 1, 1)), birth_presence.event.date)
+            self.assertEquals(DateRange(None, Date(1970, 1, 1)), birth_presence.event.date)
 
     @parameterized.expand([
         (Date(1971, 1, 1),),
-        (Period(Date(1971, 1, 1)),),
-        (Period(None, Date(1971, 1, 1)),),
+        (DateRange(Date(1971, 1, 1)),),
+        (DateRange(None, Date(1971, 1, 1)),),
     ])
     def test_derive_birth_with_existing_event(self, other_date: Datey):
         with TemporaryDirectory() as output_directory_path:
@@ -118,7 +118,7 @@ class DeriverTest(TestCase):
             person.presences.append(irrelevant_presence)
             site.ancestry.people[person.id] = person
             parse(site)
-            self.assertEquals(Period(None, Date(1971, 1, 1)), person.start.date)
+            self.assertEquals(DateRange(None, Date(1971, 1, 1)), person.start.date)
 
     def test_derive_death_with_existing_death_with_date(self):
         with TemporaryDirectory() as output_directory_path:
@@ -161,12 +161,12 @@ class DeriverTest(TestCase):
             site.ancestry.people[person.id] = person
             parse(site)
             self.assertIsNotNone(death_presence.event.date)
-            self.assertEquals(Period(Date(1971, 1, 1)), death_presence.event.date)
+            self.assertEquals(DateRange(Date(1971, 1, 1)), death_presence.event.date)
 
     @parameterized.expand([
         (Date(1971, 1, 1),),
-        (Period(Date(1971, 1, 1)),),
-        (Period(None, Date(1971, 1, 1)),),
+        (DateRange(Date(1971, 1, 1)),),
+        (DateRange(None, Date(1971, 1, 1)),),
     ])
     def test_derive_death_with_existing_event(self, other_date: Datey):
         with TemporaryDirectory() as output_directory_path:
@@ -185,4 +185,4 @@ class DeriverTest(TestCase):
             person.presences.append(irrelevant_presence)
             site.ancestry.people[person.id] = person
             parse(site)
-            self.assertEquals(Period(Date(1971, 1, 1)), person.end.date)
+            self.assertEquals(DateRange(Date(1971, 1, 1)), person.end.date)
