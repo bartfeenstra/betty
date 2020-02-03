@@ -1,9 +1,10 @@
+import logging
 from datetime import datetime
 from typing import List, Tuple, Callable, Set, Type
 
 from betty.ancestry import Ancestry, Person, Event
 from betty.functools import walk
-from betty.locale import Period
+from betty.locale import Period, Date
 from betty.parse import PostParseEvent
 from betty.plugin import Plugin
 from betty.plugins.deriver import Deriver
@@ -23,8 +24,14 @@ class Privatizer(Plugin):
         )
 
     def privatize(self, ancestry: Ancestry) -> None:
+        privatized = 0
         for person in ancestry.people.values():
+            private = person.private
             self._privatize_person(person)
+            if private is None and person.private is True:
+                privatized += 1
+        logger = logging.getLogger()
+        logger.info('Privatized %d people because they are likely still alive.' % privatized)
 
     def _privatize_person(self, person: Person) -> None:
         # Don't change existing privacy.
@@ -35,7 +42,7 @@ class Privatizer(Plugin):
 
     def _person_is_private(self, person: Person) -> bool:
         # A dead person is not private, regardless of when they died.
-        if person.end is not None:
+        if person.end is not None and self._event_has_expired(person.end, 0):
             return False
 
         if self._person_has_expired(person, 1):
@@ -64,7 +71,7 @@ class Privatizer(Plugin):
         return False
 
     def _event_has_expired(self, event: Event, multiplier: int) -> bool:
-        assert multiplier > 0
+        assert multiplier >= 0
 
         if event.date is None:
             return False
@@ -72,12 +79,21 @@ class Privatizer(Plugin):
         date = event.date
 
         if isinstance(date, Period):
-            date = date.end
+            if date.end is not None:
+                date = date.end
+            # A multiplier of 0 is only used for generation 0's end-of-life events. If those only have start dates, they
+            # do not contain any information about by which date the event definitely has taken place, and therefore
+            # they MUST be checked using another method call with a multiplier of 1 to verify they lie far enough in the
+            # past.
+            elif multiplier != 0:
+                date = date.start
+            else:
+                return False
 
         if date is None:
             return False
 
-        if date.year is None:
+        if not date.complete:
             return False
 
-        return date.year + self._lifetime_threshold * multiplier < datetime.now().year
+        return date <= Date(datetime.now().year - self._lifetime_threshold * multiplier, datetime.now().month, datetime.now().day)
