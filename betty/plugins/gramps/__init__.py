@@ -353,6 +353,7 @@ _EVENT_TYPE_MAP = {
     'Immigration': Event.Type.IMMIGRATION,
     'Emigration': Event.Type.EMIGRATION,
     'Occupation': Event.Type.OCCUPATION,
+    'Retirement': Event.Type.RETIREMENT,
 }
 
 
