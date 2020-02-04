@@ -463,6 +463,7 @@ class Event(Dated, HasFiles, HasCitations, Described):
         IMMIGRATION = 'immigration'
         EMIGRATION = 'emigration'
         OCCUPATION = 'occupation'
+        RETIREMENT = 'retirement'
 
     def __init__(self, event_type: Type, date: Optional[Datey] = None, place: Optional[Place] = None):
         Dated.__init__(self)
