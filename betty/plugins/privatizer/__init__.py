@@ -18,10 +18,10 @@ class Privatizer(Plugin):
     def comes_after(cls) -> Set[Type]:
         return {Deriver}
 
-    def subscribes_to(self) -> List[Tuple[str, Callable]]:
-        return (
+    def subscribes_to(self) -> List[Tuple[Type, Callable]]:
+        return [
             (PostParseEvent, lambda event: self.privatize(event.ancestry)),
-        )
+        ]
 
     def privatize(self, ancestry: Ancestry) -> None:
         privatized = 0

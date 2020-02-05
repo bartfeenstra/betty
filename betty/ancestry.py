@@ -168,7 +168,7 @@ class File(Identifiable, Described):
         self._notes = notes
 
     @property
-    def entities(self) -> Iterable:
+    def entities(self) -> EventHandlingSetList:
         return self._entities
 
     @entities.setter
@@ -182,7 +182,7 @@ class HasFiles:
                                            lambda file: file.entities.remove(self))
 
     @property
-    def files(self) -> Iterable:
+    def files(self) -> EventHandlingSetList:
         return self._files
 
     @files.setter
@@ -385,7 +385,7 @@ class Place(Identifiable, HasLinks):
         self._coordinates = coordinates
 
     @property
-    def events(self) -> Iterable:
+    def events(self) -> EventHandlingSetList:
         return self._events
 
     @property
@@ -402,7 +402,7 @@ class Place(Identifiable, HasLinks):
             place.encloses.append(self)
 
     @property
-    def encloses(self) -> Iterable:
+    def encloses(self) -> EventHandlingSetList:
         return self._encloses
 
 
@@ -645,7 +645,7 @@ class Person(Identifiable, HasFiles, HasCitations, HasLinks):
         return None
 
     @property
-    def parents(self) -> Iterable:
+    def parents(self) -> EventHandlingSetList:
         return self._parents
 
     @parents.setter
@@ -653,7 +653,7 @@ class Person(Identifiable, HasFiles, HasCitations, HasLinks):
         self._parents.replace(parents)
 
     @property
-    def children(self) -> Iterable:
+    def children(self) -> EventHandlingSetList:
         return self._children
 
     @children.setter
@@ -712,7 +712,7 @@ class Ancestry:
         self._places = places
 
     @property
-    def events(self) -> Dict[str, Event]:
+    def events(self) -> Dict[str, IdentifiableEvent]:
         return self._events
 
     @events.setter

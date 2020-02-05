@@ -9,15 +9,17 @@ from betty.plugins.anonymizer import Anonymizer
 
 
 def clean(ancestry: Ancestry) -> None:
+    _clean_people(ancestry)
     _clean_events(ancestry)
     _clean_places(ancestry)
-    _clean_people(ancestry)
 
 
 def _clean_events(ancestry: Ancestry):
     for event in list(ancestry.events.values()):
-        if len(event.presences) == 0:
+        if len([presence for presence in event.presences if presence.person is not None]) == 0:
             event.place = None
+            event.citations.clear()
+            event.files.clear()
             del ancestry.events[event.id]
 
 
@@ -65,7 +67,7 @@ class Cleaner(Plugin):
     def comes_after(cls) -> Set[Type]:
         return {Anonymizer}
 
-    def subscribes_to(self) -> List[Tuple[str, Callable]]:
-        return (
+    def subscribes_to(self) -> List[Tuple[Type, Callable]]:
+        return [
             (PostParseEvent, lambda event: clean(event.ancestry)),
-        )
+        ]
