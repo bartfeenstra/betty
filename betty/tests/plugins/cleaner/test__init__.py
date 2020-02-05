@@ -1,7 +1,8 @@
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from betty.ancestry import Ancestry, Person, Event, Place, Presence, LocalizedName, IdentifiableEvent
+from betty.ancestry import Ancestry, Person, Event, Place, Presence, LocalizedName, IdentifiableEvent, Citation, Source, \
+    File
 from betty.config import Configuration
 from betty.parse import parse
 from betty.plugins.cleaner import Cleaner, clean
@@ -9,7 +10,7 @@ from betty.site import Site
 
 
 class CleanerTest(TestCase):
-    def test_post_parse(self):
+    def test_post_parse(self) -> None:
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
@@ -22,7 +23,7 @@ class CleanerTest(TestCase):
 
 
 class CleanTest(TestCase):
-    def test_clean(self):
+    def test_clean(self) -> None:
         ancestry = Ancestry()
 
         onymous_event = IdentifiableEvent('E0', Event.Type.BIRTH)
@@ -63,7 +64,32 @@ class CleanTest(TestCase):
         self.assertNotIn(
             anonymous_place, onmyous_place_because_encloses_onmyous_places.encloses)
 
-    def test_clean_should_clean_private_people_without_descendants(self):
+    def test_clean_should_clean_event(self) -> None:
+        ancestry = Ancestry()
+
+        source = Source('S1', 'The Source')
+        ancestry.sources[source.id] = source
+
+        citation = Citation('C1', source)
+        ancestry.citations[citation.id] = citation
+
+        file = File('F1', __file__)
+        ancestry.files[file.id] = file
+
+        event = IdentifiableEvent('E0', Event.Type.BIRTH)
+        presence = Presence(Presence.Role.SUBJECT)
+        event.presences.append(presence)
+        event.citations.append(citation)
+        event.files.append(file)
+        ancestry.events[event.id] = event
+
+        clean(ancestry)
+
+        self.assertNotIn(event.id, ancestry.events)
+        self.assertNotIn(event, citation.claims)
+        self.assertNotIn(event, file.entities)
+
+    def test_clean_should_clean_private_people_without_descendants(self) -> None:
         ancestry = Ancestry()
 
         person = Person('P0')

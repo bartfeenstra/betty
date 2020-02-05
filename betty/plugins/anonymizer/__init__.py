@@ -19,7 +19,7 @@ def anonymize_person(person: Person) -> None:
         name.citations.clear()
         name.person = None
 
-    # Copy the names, because the original iterable will be altered inside the loop.
+    # Copy the presences, because the original iterable will be altered inside the loop.
     for presence in list(person.presences):
         presence.person = None
         event = presence.event
@@ -28,7 +28,7 @@ def anonymize_person(person: Person) -> None:
                 event_presence.person = None
             event.presences.clear()
 
-    # Copy the names, because the original iterable will be altered inside the loop.
+    # Copy the files, because the original iterable will be altered inside the loop.
     for file in list(person.files):
         file.entities.clear()
 
@@ -49,7 +49,7 @@ class Anonymizer(Plugin):
     def comes_after(cls) -> Set[Type]:
         return {Privatizer}
 
-    def subscribes_to(self) -> List[Tuple[str, Callable]]:
-        return (
+    def subscribes_to(self) -> List[Tuple[Type, Callable]]:
+        return [
             (PostParseEvent, lambda event: anonymize(event.ancestry)),
-        )
+        ]
