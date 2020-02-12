@@ -459,6 +459,7 @@ class Event(Dated, HasFiles, HasCitations, Described):
         MARRIAGE = 'marriage'
         MARRIAGE_BANNS = 'marriage-banns'
         DIVORCE = 'divorce'
+        DIVORCE_FILING = 'divorce-filing'
         RESIDENCE = 'residence'
         IMMIGRATION = 'immigration'
         EMIGRATION = 'emigration'

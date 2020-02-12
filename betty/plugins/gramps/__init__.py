@@ -349,6 +349,7 @@ _EVENT_TYPE_MAP = {
     'Marriage': Event.Type.MARRIAGE,
     'Marriage Banns': Event.Type.MARRIAGE_BANNS,
     'Divorce': Event.Type.DIVORCE,
+    'Divorce Filing': Event.Type.DIVORCE_FILING,
     'Residence': Event.Type.RESIDENCE,
     'Immigration': Event.Type.IMMIGRATION,
     'Emigration': Event.Type.EMIGRATION,
