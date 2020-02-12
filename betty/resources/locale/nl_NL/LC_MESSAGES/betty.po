@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-01-26 20:49+0000\n"
+"POT-Creation-Date: 2020-02-12 00:05+0000\n"
 "PO-Revision-Date: 2019-10-05 11:38+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -18,46 +18,46 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: betty/locale.py:170
+#: betty/locale.py:215
 msgid "unknown date"
 msgstr "onbekend"
 
-#: betty/locale.py:176
+#: betty/locale.py:221
 #, python-format
 msgid "Around %(date)s"
 msgstr "Rond %(date)s"
 
-#: betty/locale.py:186
+#: betty/locale.py:231
 msgid "MMMM d, y"
 msgstr "d MMMM y"
 
-#: betty/locale.py:187
+#: betty/locale.py:232
 msgid "MMMM, y"
 msgstr "MMMM y"
 
-#: betty/locale.py:188
+#: betty/locale.py:233
 msgid "y"
 msgstr "y"
 
-#: betty/locale.py:189
+#: betty/locale.py:234
 msgid "MMMM d"
 msgstr "d MMMM"
 
-#: betty/locale.py:190
+#: betty/locale.py:235
 msgid "MMMM"
 msgstr "MMMM"
 
-#: betty/locale.py:210
+#: betty/locale.py:255
 #, python-format
 msgid "Between %(start)s and %(end)s"
 msgstr "Tussen %(start)s en %(end)s"
 
-#: betty/locale.py:215
+#: betty/locale.py:260
 #, python-format
 msgid "After %(start)s"
 msgstr "Na %(start)s"
 
-#: betty/locale.py:219
+#: betty/locale.py:264
 #, python-format
 msgid "Before %(end)s"
 msgstr "Voor %(end)s"
@@ -272,7 +272,7 @@ msgid "Language"
 msgstr "Taal"
 
 #: betty/resources/templates/base.html.j2:92
-#: betty/resources/templates/page/citation.html.j2:15
+#: betty/resources/templates/page/citation.html.j2:16
 #: betty/resources/templates/page/source.html.j2:17
 msgid "References"
 msgstr "Referenties"
@@ -309,73 +309,81 @@ msgstr "De gegevens van deze persoon zijn niet beschikbaar vanwege privacyredene
 msgid "Accessed %(date)s"
 msgstr "Opgevraagd op %(date)s"
 
-#: betty/resources/templates/macro/event.html.j2:18
+#: betty/resources/templates/macro/event.html.j2:21
 #, python-format
 msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s met %(subjects)s"
 
-#: betty/resources/templates/macro/event.html.j2:22
+#: betty/resources/templates/macro/event.html.j2:25
 #, python-format
 msgid "%(event)s of %(subjects)s"
 msgstr "%(event)s van %(subjects)s"
 
-#: betty/resources/templates/macro/event.html.j2:31
+#: betty/resources/templates/macro/event.html.j2:34
 msgid "Birth"
 msgstr "Geboorte"
 
-#: betty/resources/templates/macro/event.html.j2:32
+#: betty/resources/templates/macro/event.html.j2:35
 msgid "Baptism"
 msgstr "Doping"
 
-#: betty/resources/templates/macro/event.html.j2:33
+#: betty/resources/templates/macro/event.html.j2:36
 msgid "Cremation"
 msgstr "Crematie"
 
-#: betty/resources/templates/macro/event.html.j2:34
+#: betty/resources/templates/macro/event.html.j2:37
 msgid "Death"
 msgstr "Overlijden"
 
-#: betty/resources/templates/macro/event.html.j2:35
+#: betty/resources/templates/macro/event.html.j2:38
 msgid "Burial"
 msgstr "Begravenis"
 
-#: betty/resources/templates/macro/event.html.j2:36
+#: betty/resources/templates/macro/event.html.j2:39
 msgid "Engagement"
 msgstr "Verloving"
 
-#: betty/resources/templates/macro/event.html.j2:37
+#: betty/resources/templates/macro/event.html.j2:40
 msgid "Marriage"
 msgstr "Huwelijk"
 
-#: betty/resources/templates/macro/event.html.j2:38
+#: betty/resources/templates/macro/event.html.j2:41
 msgid "Marriage banns"
 msgstr "Ondertrouw"
 
-#: betty/resources/templates/macro/event.html.j2:39
+#: betty/resources/templates/macro/event.html.j2:42
 msgid "Divorce"
-msgstr "Scheiding"
+msgstr "Echtscheiding"
 
-#: betty/resources/templates/macro/event.html.j2:40
+#: betty/resources/templates/macro/event.html.j2:43
+msgid "Divorce filing"
+msgstr "Aanvraag echtscheiding"
+
+#: betty/resources/templates/macro/event.html.j2:44
 msgid "Residence"
 msgstr "Woonplaats"
 
-#: betty/resources/templates/macro/event.html.j2:41
+#: betty/resources/templates/macro/event.html.j2:45
 msgid "Immigration"
 msgstr "Immigratie"
 
-#: betty/resources/templates/macro/event.html.j2:42
+#: betty/resources/templates/macro/event.html.j2:46
 msgid "Emigration"
 msgstr "Emigratie"
 
-#: betty/resources/templates/macro/event.html.j2:43
+#: betty/resources/templates/macro/event.html.j2:47
 msgid "Occupation"
 msgstr "Beroep"
 
-#: betty/resources/templates/macro/event.html.j2:50
+#: betty/resources/templates/macro/event.html.j2:48
+msgid "Retirement"
+msgstr "Pensioen"
+
+#: betty/resources/templates/macro/event.html.j2:55
 msgid "Subject"
 msgstr "Onderwerp"
 
-#: betty/resources/templates/macro/event.html.j2:51
+#: betty/resources/templates/macro/event.html.j2:56
 msgid "Witness"
 msgstr "Getuige"
 
