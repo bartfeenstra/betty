@@ -452,6 +452,7 @@ class Event(Dated, HasFiles, HasCitations, Described):
     class Type(Enum):
         BIRTH = 'birth'
         BAPTISM = 'baptism'
+        ADOPTION = 'adoption'
         CREMATION = 'cremation'
         DEATH = 'death'
         BURIAL = 'burial'
