@@ -62,9 +62,11 @@ def _derive_event(person: Person, event_type: Event.Type, after: bool, derivatio
     derived_event.date = DateRange(derived_start_date, derived_end_date)
     for citation in threshold_event.citations:
         derived_event.citations.append(citation)
-    presence = Presence(Presence.Role.SUBJECT)
-    presence.event = derived_event
-    person.presences.append(presence)
+    if isinstance(derived_event, DerivedEvent):
+        presence = Presence(Presence.Role.SUBJECT)
+        presence.event = derived_event
+        person.presences.append(presence)
+
     derivations[event_type] += 1
 
 
