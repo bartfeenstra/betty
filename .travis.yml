@@ -17,11 +17,6 @@ matrix:
           python: '3.6'
           env:
               - NODE_VERSION=13
-        - name: 'Python 3.5'
-          dist: xenial
-          python: '3.5'
-          env:
-              - NODE_VERSION=13
         - name: 'Node.js 12'
           dist: xenial
           python: '3.8'
