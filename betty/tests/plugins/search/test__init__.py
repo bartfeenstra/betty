@@ -19,8 +19,10 @@ class IndexTest(TestCase):
             person_id = 'P1'
             person = Person(person_id)
             site.ancestry.people[person_id] = person
-            expected = []
-            self.assertEquals(expected, list(index(site)))
+
+            indexed = list(index(site))
+
+            self.assertEquals([], indexed)
 
     def test_person_with_individual_name(self):
         with TemporaryDirectory() as output_directory_path:
@@ -35,16 +37,12 @@ class IndexTest(TestCase):
             person = Person(person_id)
             person.names.append(PersonName(individual_name))
             site.ancestry.people[person_id] = person
-            expected = [
-                {
-                    'text': 'jane',
-                    'results': {
-                        'nl-NL': '\n<a href="/nl/person/P1/index.html" class="nav-secondary-action search-result-target">Jane</a>',
-                        'en-US': '\n<a href="/en/person/P1/index.html" class="nav-secondary-action search-result-target">Jane</a>',
-                    },
-                },
-            ]
-            self.assertEquals(expected, list(index(site)))
+
+            indexed = list(index(site))
+
+            self.assertEquals('jane', indexed[0]['text'])
+            self.assertIn('/nl/person/P1/index.html', indexed[0]['results']['nl-NL'])
+            self.assertIn('/en/person/P1/index.html', indexed[0]['results']['en-US'])
 
     def test_person_with_affiliation_name(self):
         with TemporaryDirectory() as output_directory_path:
@@ -59,16 +57,12 @@ class IndexTest(TestCase):
             person = Person(person_id)
             person.names.append(PersonName(None, affiliation_name))
             site.ancestry.people[person_id] = person
-            expected = [
-                {
-                    'text': 'doughnut',
-                    'results': {
-                        'nl-NL': '\n<a href="/nl/person/P1/index.html" class="nav-secondary-action search-result-target">… Doughnut</a>',
-                        'en-US': '\n<a href="/en/person/P1/index.html" class="nav-secondary-action search-result-target">… Doughnut</a>',
-                    },
-                },
-            ]
-            self.assertEquals(expected, list(index(site)))
+
+            indexed = list(index(site))
+
+            self.assertEquals('doughnut', indexed[0]['text'])
+            self.assertIn('/nl/person/P1/index.html', indexed[0]['results']['nl-NL'])
+            self.assertIn('/en/person/P1/index.html', indexed[0]['results']['en-US'])
 
     def test_person_with_individual_and_affiliation_names(self):
         with TemporaryDirectory() as output_directory_path:
@@ -84,16 +78,12 @@ class IndexTest(TestCase):
             person = Person(person_id)
             person.names.append(PersonName(individual_name, affiliation_name))
             site.ancestry.people[person_id] = person
-            expected = [
-                {
-                    'text': 'jane doughnut',
-                    'results': {
-                        'nl-NL': '\n<a href="/nl/person/P1/index.html" class="nav-secondary-action search-result-target">Jane Doughnut</a>',
-                        'en-US': '\n<a href="/en/person/P1/index.html" class="nav-secondary-action search-result-target">Jane Doughnut</a>',
-                    },
-                },
-            ]
-            self.assertEquals(expected, list(index(site)))
+
+            indexed = list(index(site))
+
+            self.assertEquals('jane doughnut', indexed[0]['text'])
+            self.assertIn('/nl/person/P1/index.html', indexed[0]['results']['nl-NL'])
+            self.assertIn('/en/person/P1/index.html', indexed[0]['results']['en-US'])
 
     def test_place(self):
         with TemporaryDirectory() as output_directory_path:
@@ -107,16 +97,12 @@ class IndexTest(TestCase):
             place = Place(place_id, [LocalizedName(
                 'Netherlands', 'en'), LocalizedName('Nederland', 'nl')])
             site.ancestry.places[place_id] = place
-            expected = [
-                {
-                    'text': 'netherlands nederland',
-                    'results': {
-                        'nl-NL': '\n<a href="/nl/place/P1/index.html" class="nav-secondary-action search-result-target">Nederland</a>',
-                        'en-US': '\n<a href="/en/place/P1/index.html" class="nav-secondary-action search-result-target">Netherlands</a>',
-                    },
-                },
-            ]
-            self.assertEquals(expected, list(index(site)))
+
+            indexed = list(index(site))
+
+            self.assertEquals('netherlands nederland', indexed[0]['text'])
+            self.assertIn('/nl/place/P1/index.html', indexed[0]['results']['nl-NL'])
+            self.assertIn('/en/place/P1/index.html', indexed[0]['results']['en-US'])
 
     def test_empty(self):
         with TemporaryDirectory() as output_directory_path:
@@ -126,5 +112,7 @@ class IndexTest(TestCase):
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
             configuration.plugins[Search] = {}
             site = Site(configuration)
-            expected = []
-            self.assertEquals(expected, list(index(site)))
+
+            indexed = list(index(site))
+
+            self.assertEquals([], indexed)

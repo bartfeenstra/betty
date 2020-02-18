@@ -1,12 +1,12 @@
-{%- macro label(place, context=None) -%}
+{%- macro label(place, context=None, embedded=False) -%}
     <address>
-        {{ _link(place) }}
-        {%- set enclosing_places = place | walk('enclosed_by') | takewhile('ne', None) | takewhile('ne', context) | list -%}
-        {%- if enclosing_places | length > 0 %} ({{ enclosing_places | map(_link) | join(', ') }}){%- endif -%}
+        {%- if not embedded -%}
+            <a href="{{ place | url }}">
+        {%- endif -%}
+        {%- set localized_name = place.names | negotiate_localizeds -%}
+        <span{% if localized_name.locale is not none %} lang="{{ localized_name.locale }}"{% endif %}>{{ localized_name }}</span>
+        {%- if not embedded -%}
+            </a>
+        {%- endif -%}
     </address>
-{%- endmacro -%}
-
-{% macro _link(place) -%}
-    {%- set localized_name = place.names | negotiate_localizeds -%}
-    <a href="{{ place | url }}"{% if localized_name.locale is not none %} lang="{{ localized_name.locale }}"{% endif %}>{{ localized_name }}</a>
 {%- endmacro -%}

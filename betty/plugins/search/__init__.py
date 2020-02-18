@@ -43,6 +43,8 @@ def index(site: Site) -> Iterable:
             'person': person,
         })
     for person in site.ancestry.people.values():
+        if person.private:
+            continue
         names = []
         for name in person.names:
             if name.individual is not None:

@@ -1,7 +1,13 @@
-{% if place.enclosed_by %}
+{% import 'macro/place.html.j2' as placeMacros %}
+{%- macro _embeddedPlaceLabel(name) -%}
+    {{ placeMacros.label(name, embedded=True) }}
+{%- endmacro -%}
+{%- if not embedded is defined -%}
+    {%- set embedded = False -%}
+{%- endif -%}
+{%- set enclosing_places = place | walk('enclosed_by') | takewhile('ne', None) | takewhile('ne', context) | list -%}
+{%- if enclosing_places | length > 0 %}
     <div class="meta">
-    in
-    {% import 'macro/place.html.j2' as placeMacros %}
-    {{ placeMacros.label(place.enclosed_by) }}
+    in {{ enclosing_places | map(_embeddedPlaceLabel if embedded else placeMacros.label) | join(', ') }}
     </div>
-{% endif %}
+{%- endif -%}
