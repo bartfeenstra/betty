@@ -11,7 +11,7 @@ from betty.locale import Date
 
 class EventHandlingSetTest(TestCase):
     def test_list(self):
-        sut = EventHandlingSetList()
+        sut = EventHandlingSetList(lambda _: None, lambda _: None)
         value = 'Some value'
         sut.append(value)
         self.assertEquals([value], sut.list)
@@ -42,14 +42,6 @@ class EventHandlingSetTest(TestCase):
         sut.remove(newvalue)
         self.assertCountEqual([], sut)
         self.assertEquals([], reference)
-
-    def test_without_handler(self):
-        sut = EventHandlingSetList()
-        value = 'A valuable value'
-        sut.append(value)
-        self.assertCountEqual([value], sut)
-        sut.remove(value)
-        self.assertCountEqual([], sut)
 
 
 class PersonTest(TestCase):

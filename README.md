@@ -30,7 +30,7 @@ secure**.
 ## Installation
 
 ### Requirements
-- **Python 3.5+**
+- **Python 3.6+**
 - Node.js 8+ (optional)
 
 ### Instructions

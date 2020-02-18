@@ -1,15 +1,17 @@
 from enum import Enum
 from functools import total_ordering
 from os.path import splitext, basename
-from typing import Dict, Optional, List, Iterable, Set
+from typing import Dict, Optional, List, Iterable, Set, Union, TypeVar, Generic, Callable
 
 from geopy import Point
 
 from betty.locale import Localized, Datey
 
+T = TypeVar('T')
 
-class EventHandlingSetList:
-    def __init__(self, addition_handler=None, removal_handler=None):
+
+class EventHandlingSetList(Generic[T]):
+    def __init__(self, addition_handler: Callable[[T], None], removal_handler: Callable[[T], None]):
         self._values = []
         self._addition_handler = addition_handler
         self._removal_handler = removal_handler
@@ -23,23 +25,20 @@ class EventHandlingSetList:
             if value in self._values:
                 return
             self._values.insert(0, value)
-            if self._addition_handler is not None:
-                self._addition_handler(value)
+            self._addition_handler(value)
 
     def append(self, *values):
         for value in values:
             if value in self._values:
                 return
             self._values.append(value)
-            if self._addition_handler is not None:
-                self._addition_handler(value)
+            self._addition_handler(value)
 
     def remove(self, value):
         if value not in self._values:
             return
         self._values.remove(value)
-        if self._removal_handler is not None:
-            self._removal_handler(value)
+        self._removal_handler(value)
 
     def replace(self, values: Iterable):
         for value in list(self._values):
@@ -55,6 +54,80 @@ class EventHandlingSetList:
 
     def __len__(self):
         return len(self._values)
+
+
+ManyAssociation = Union[EventHandlingSetList[T], Iterable]
+
+
+class _to_many:
+    def __init__(self, self_name: str, associated_name: str):
+        self._self_name = self_name
+        self._associated_name = associated_name
+
+    def __call__(self, cls):
+        _decorated_self_name = '_%s' % self._self_name
+        original_init = cls.__init__
+
+        def _init(decorated_self, *args, **kwargs):
+            association = EventHandlingSetList(self._create_addition_handler(decorated_self),
+                                               self._create_removal_handler(decorated_self))
+            setattr(decorated_self, _decorated_self_name, association)
+            original_init(decorated_self, *args, **kwargs)
+        cls.__init__ = _init
+        setattr(cls, self._self_name, property(
+            lambda decorated_self: getattr(decorated_self, _decorated_self_name),
+            lambda decorated_self, values: getattr(decorated_self, _decorated_self_name).replace(values),
+            lambda decorated_self: getattr(decorated_self, _decorated_self_name).clear(),
+        ))
+        return cls
+
+    def _create_addition_handler(self, decorated_self):
+        raise NotImplementedError
+
+    def _create_removal_handler(self, decorated_self):
+        raise NotImplementedError
+
+
+class many_to_many(_to_many):
+    def _create_addition_handler(self, decorated_self):
+        return lambda associated: getattr(associated, self._associated_name).append(decorated_self)
+
+    def _create_removal_handler(self, decorated_self):
+        return lambda associated: getattr(associated, self._associated_name).remove(decorated_self)
+
+
+class one_to_many(_to_many):
+    def _create_addition_handler(self, decorated_self):
+        return lambda associated: setattr(associated, self._associated_name, decorated_self)
+
+    def _create_removal_handler(self, decorated_self):
+        return lambda associated: setattr(associated, self._associated_name, None)
+
+
+def many_to_one(self_name: str, associated_name: str):
+    def decorator(cls):
+        _decorated_self_name = '_%s' % self_name
+        original_init = cls.__init__
+
+        def _init(decorated_self, *args, **kwargs):
+            setattr(decorated_self, _decorated_self_name, None)
+            original_init(decorated_self, *args, **kwargs)
+        cls.__init__ = _init
+
+        def _set(decorated_self, value):
+            previous_value = getattr(decorated_self, _decorated_self_name)
+            setattr(decorated_self, _decorated_self_name, value)
+            if previous_value is not None:
+                getattr(previous_value, associated_name).remove(decorated_self)
+            if value is not None:
+                getattr(value, associated_name).append(decorated_self)
+        setattr(cls, self_name, property(
+            lambda self: getattr(self, _decorated_self_name),
+            _set,
+            lambda self: setattr(self, _decorated_self_name, None),
+        ))
+        return cls
+    return decorator
 
 
 class Dated:
@@ -124,15 +197,16 @@ class HasLinks:
         return self._links
 
 
+@many_to_many('entities', 'files')
 class File(Identifiable, Described):
+    files: ManyAssociation
+
     def __init__(self, file_id: str, path: str):
         Identifiable.__init__(self, file_id)
         Described.__init__(self)
         self._path = path
         self._type = None
         self._notes = []
-        self._entities = EventHandlingSetList(lambda entity: entity.files.append(self),
-                                              lambda entity: entity.files.remove(self))
 
     @property
     def path(self) -> str:
@@ -167,29 +241,15 @@ class File(Identifiable, Described):
     def notes(self, notes: List[Note]):
         self._notes = notes
 
-    @property
-    def entities(self) -> EventHandlingSetList:
-        return self._entities
 
-    @entities.setter
-    def entities(self, entities: Iterable):
-        self._entities.replace(entities)
-
-
+@many_to_many('files', 'entities')
 class HasFiles:
-    def __init__(self):
-        self._files = EventHandlingSetList(lambda file: file.entities.append(self),
-                                           lambda file: file.entities.remove(self))
-
-    @property
-    def files(self) -> EventHandlingSetList:
-        return self._files
-
-    @files.setter
-    def files(self, files: Iterable):
-        self._files.replace(files)
+    files: ManyAssociation[File]
 
 
+@many_to_one('contained_by', 'contains')
+@one_to_many('contains', 'contained_by')
+@one_to_many('citations', 'source')
 class Source(Identifiable, Dated, HasFiles, HasLinks):
     def __init__(self, source_id: str, name: str):
         Identifiable.__init__(self, source_id)
@@ -199,50 +259,6 @@ class Source(Identifiable, Dated, HasFiles, HasLinks):
         self._name = name
         self._author = None
         self._publisher = None
-        self._contained_by = None
-
-        def handle_contains_addition(source):
-            source.contained_by = self
-
-        def handle_contains_removal(source):
-            source.contained_by = None
-
-        self._contains = EventHandlingSetList(
-            handle_contains_addition, handle_contains_removal)
-
-        def handle_citations_addition(citation):
-            citation.source = self
-
-        def handle_citations_removal(citation):
-            citation.source = None
-
-        self._citations = EventHandlingSetList(
-            handle_citations_addition, handle_citations_removal)
-
-    @property
-    def contained_by(self):
-        return self._contained_by
-
-    @contained_by.setter
-    def contained_by(self, source):
-        previous_source = self._contained_by
-        self._contained_by = source
-        if previous_source is not None:
-            previous_source.contains.remove(self)
-        if source is not None:
-            source.contains.append(self)
-
-    @property
-    def contains(self) -> Iterable:
-        return self._contains
-
-    @property
-    def citations(self) -> Iterable:
-        return self._citations
-
-    @citations.setter
-    def citations(self, citations: Iterable):
-        self._citations.replace(citations)
 
     @property
     def name(self) -> str:
@@ -269,16 +285,15 @@ class Source(Identifiable, Dated, HasFiles, HasLinks):
         self._publisher = publisher
 
 
+@many_to_many('claims', 'citations')
+@many_to_one('source', 'citations')
 class Citation(Identifiable, Dated, HasFiles):
     def __init__(self, citation_id: str, source: Source):
         Identifiable.__init__(self, citation_id)
         Dated.__init__(self)
         HasFiles.__init__(self)
         self._location = None
-        self._source = source
-        source.citations.append(self)
-        self._claims = EventHandlingSetList(lambda claim: claim.citations.append(self),
-                                            lambda claim: claim.citations.remove(self))
+        self.source = source
 
     @property
     def location(self) -> Optional[str]:
@@ -288,40 +303,10 @@ class Citation(Identifiable, Dated, HasFiles):
     def location(self, location: str):
         self._location = location
 
-    @property
-    def source(self) -> Source:
-        return self._source
 
-    @source.setter
-    def source(self, source: Source):
-        previous_source = self._source
-        self._source = source
-        if previous_source is not None:
-            previous_source.citations.remove(self)
-        if source is not None:
-            source.citations.append(self)
-
-    @property
-    def claims(self) -> Iterable:
-        return self._claims
-
-    @claims.setter
-    def claims(self, claims: Iterable):
-        self._claims.replace(claims)
-
-
+@many_to_many('citations', 'claims')
 class HasCitations:
-    def __init__(self):
-        self._citations = EventHandlingSetList(lambda citation: citation.claims.append(self),
-                                               lambda citation: citation.claims.remove(self))
-
-    @property
-    def citations(self) -> EventHandlingSetList:
-        return self._citations
-
-    @citations.setter
-    def citations(self, citations: Iterable):
-        self._citations.replace(citations)
+    citations: ManyAssociation[Citation]
 
 
 class LocalizedName(Localized):
@@ -346,31 +331,15 @@ class LocalizedName(Localized):
         return self._name
 
 
+@one_to_many('events', 'place')
+@many_to_one('enclosed_by', 'encloses')
+@one_to_many('encloses', 'enclosed_by')
 class Place(Identifiable, HasLinks):
     def __init__(self, place_id: str, names: List[LocalizedName]):
         Identifiable.__init__(self, place_id)
         HasLinks.__init__(self)
         self._names = names
         self._coordinates = None
-
-        def handle_event_addition(event: Event):
-            event.place = self
-
-        def handle_event_removal(event: Event):
-            event.place = None
-
-        self._events = EventHandlingSetList(
-            handle_event_addition, handle_event_removal)
-        self._enclosed_by = None
-
-        def handle_encloses_addition(place):
-            place.enclosed_by = self
-
-        def handle_encloses_removal(place):
-            place.enclosed_by = None
-
-        self._encloses = EventHandlingSetList(
-            handle_encloses_addition, handle_encloses_removal)
 
     @property
     def names(self) -> List[LocalizedName]:
@@ -384,29 +353,13 @@ class Place(Identifiable, HasLinks):
     def coordinates(self, coordinates: Point):
         self._coordinates = coordinates
 
-    @property
-    def events(self) -> EventHandlingSetList:
-        return self._events
 
-    @property
-    def enclosed_by(self):
-        return self._enclosed_by
-
-    @enclosed_by.setter
-    def enclosed_by(self, place):
-        previous_place = self._enclosed_by
-        self._enclosed_by = place
-        if previous_place is not None:
-            previous_place.encloses.remove(self)
-        if place is not None:
-            place.encloses.append(self)
-
-    @property
-    def encloses(self) -> EventHandlingSetList:
-        return self._encloses
-
-
+@many_to_one('person', 'presences')
+@many_to_one('event', 'presences')
 class Presence:
+    person: Optional['Person']
+    event: Optional['Event']
+
     class Role(Enum):
         SUBJECT = 'subject'
         WITNESS = 'witness'
@@ -421,34 +374,13 @@ class Presence:
     def role(self) -> 'Role':
         return self._role
 
-    @property
-    def person(self) -> 'Person':
-        return self._person
 
-    @person.setter
-    def person(self, person: 'Person'):
-        previous_person = self._person
-        self._person = person
-        if previous_person is not None:
-            previous_person.presences.remove(self)
-        if person is not None:
-            person.presences.append(self)
-
-    @property
-    def event(self) -> 'Event':
-        return self._event
-
-    @event.setter
-    def event(self, event: 'Event'):
-        previous_event = self._event
-        self._event = event
-        if previous_event is not None:
-            previous_event.presences.remove(self)
-        if event is not None:
-            event.presences.append(self)
-
-
+@many_to_one('place', 'events')
+@one_to_many('presences', 'event')
 class Event(Dated, HasFiles, HasCitations, Described):
+    place: Place
+    presences: ManyAssociation[Presence]
+
     class Type(Enum):
         BIRTH = 'birth'
         BAPTISM = 'baptism'
@@ -473,30 +405,7 @@ class Event(Dated, HasFiles, HasCitations, Described):
         HasCitations.__init__(self)
         Described.__init__(self)
         self._date = date
-        self._place = place
         self._type = event_type
-
-        def handle_presence_addition(presence):
-            presence.event = self
-
-        def handle_presence_removal(presence):
-            presence.event = None
-
-        self._presences = EventHandlingSetList(
-            handle_presence_addition, handle_presence_removal)
-
-    @property
-    def place(self) -> Optional[Place]:
-        return self._place
-
-    @place.setter
-    def place(self, place: Optional[Place]):
-        previous_place = self._place
-        self._place = place
-        if previous_place is not None:
-            previous_place.events.remove(self)
-        if place is not None:
-            place.events.append(self)
 
     @property
     def type(self):
@@ -506,14 +415,6 @@ class Event(Dated, HasFiles, HasCitations, Described):
     def type(self, event_type: Type):
         self._type = event_type
 
-    @property
-    def presences(self):
-        return self._presences
-
-    @presences.setter
-    def presences(self, presences):
-        self._presences.replace(presences)
-
 
 class IdentifiableEvent(Event, Identifiable):
     def __init__(self, event_id: str, *args, **kwargs):
@@ -522,11 +423,13 @@ class IdentifiableEvent(Event, Identifiable):
 
 
 @total_ordering
+@many_to_one('person', 'names')
 class PersonName(Localized, HasCitations):
+    person: Optional['Person']
+
     def __init__(self, individual: Optional[str] = None, affiliation: Optional[str] = None):
         Localized.__init__(self)
         HasCitations.__init__(self)
-        self._person = None
         self._individual = individual
         self._affiliation = affiliation
 
@@ -545,19 +448,6 @@ class PersonName(Localized, HasCitations):
         return (self._affiliation or '', self._individual or '') > (other._affiliation or '', other._individual or '')
 
     @property
-    def person(self) -> Optional['Person']:
-        return self._person
-
-    @person.setter
-    def person(self, person: Optional['Person']):
-        previous_person = self._person
-        self._person = person
-        if previous_person is not None:
-            previous_person.names.remove(self)
-        if person is not None:
-            person.names.append(self)
-
-    @property
     def individual(self) -> str:
         return self._individual
 
@@ -567,35 +457,22 @@ class PersonName(Localized, HasCitations):
 
 
 @total_ordering
+@many_to_many('parents', 'children')
+@many_to_many('children', 'parents')
+@one_to_many('presences', 'person')
+@one_to_many('names', 'person')
 class Person(Identifiable, HasFiles, HasCitations, HasLinks):
+    parents: ManyAssociation['Person']
+    children: ManyAssociation['Person']
+    presences: ManyAssociation[Presence]
+    names: ManyAssociation[PersonName]
+
     def __init__(self, person_id: str):
         Identifiable.__init__(self, person_id)
         HasFiles.__init__(self)
         HasCitations.__init__(self)
         HasLinks.__init__(self)
-
-        def handle_name_addition(name):
-            name.person = self
-
-        def handle_name_removal(name):
-            name.person = None
-
-        self._names = EventHandlingSetList(
-            handle_name_addition, handle_name_removal)
-        self._parents = EventHandlingSetList(lambda parent: parent.children.append(self),
-                                             lambda parent: parent.children.remove(self))
-        self._children = EventHandlingSetList(lambda child: child.parents.append(self),
-                                              lambda child: child.parents.remove(self))
         self._private = None
-
-        def handle_presence_addition(presence):
-            presence.person = self
-
-        def handle_presence_removal(presence):
-            presence.person = None
-
-        self._presences = EventHandlingSetList(
-            handle_presence_addition, handle_presence_removal)
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
@@ -608,10 +485,6 @@ class Person(Identifiable, HasFiles, HasCitations, HasLinks):
         return self.id > other.id
 
     @property
-    def names(self) -> EventHandlingSetList:
-        return self._names
-
-    @property
     def name(self) -> Optional[PersonName]:
         try:
             return self._names.list[0]
@@ -621,14 +494,6 @@ class Person(Identifiable, HasFiles, HasCitations, HasLinks):
     @property
     def alternative_names(self) -> List[PersonName]:
         return self._names.list[1:]
-
-    @property
-    def presences(self) -> EventHandlingSetList:
-        return self._presences
-
-    @presences.setter
-    def presences(self, presences: Iterable):
-        self._presences.replace(presences)
 
     @property
     def start(self) -> Optional[Event]:
@@ -645,22 +510,6 @@ class Person(Identifiable, HasFiles, HasCitations, HasLinks):
                 if presence.event.type == event_type and presence.role == Presence.Role.SUBJECT:
                     return presence.event
         return None
-
-    @property
-    def parents(self) -> EventHandlingSetList:
-        return self._parents
-
-    @parents.setter
-    def parents(self, parents: Iterable):
-        self._parents.replace(parents)
-
-    @property
-    def children(self) -> EventHandlingSetList:
-        return self._children
-
-    @children.setter
-    def children(self, children: Iterable):
-        self._children.replace(children)
 
     @property
     def siblings(self) -> List:
