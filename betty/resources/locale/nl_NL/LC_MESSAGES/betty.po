@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-02-17 17:51+0000\n"
+"POT-Creation-Date: 2020-02-18 13:01+0000\n"
 "PO-Revision-Date: 2019-10-05 11:38+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -198,6 +198,16 @@ msgstr "Een HTML5-document."
 msgid "A locale name."
 msgstr "De naam van een locale."
 
+#: betty/plugins/search/resources/templates/search-result-file.html.j2:4
+#: betty/resources/templates/base.html.j2:64
+#: betty/resources/templates/page/citation.html.j2:11
+#: betty/resources/templates/page/event.html.j2:45
+#: betty/resources/templates/page/list-file.html.j2:2
+#: betty/resources/templates/page/person.html.j2:77
+#: betty/resources/templates/page/source.html.j2:12
+msgid "Media"
+msgstr "Media"
+
 #: betty/plugins/search/resources/templates/search-results-container.html.j2:3
 msgid ""
 "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
@@ -253,15 +263,6 @@ msgstr "Gebeurtenissen"
 msgid "Places"
 msgstr "Plaatsen"
 
-#: betty/resources/templates/base.html.j2:64
-#: betty/resources/templates/page/citation.html.j2:11
-#: betty/resources/templates/page/event.html.j2:45
-#: betty/resources/templates/page/list-file.html.j2:2
-#: betty/resources/templates/page/person.html.j2:77
-#: betty/resources/templates/page/source.html.j2:12
-msgid "Media"
-msgstr "Media"
-
 #: betty/resources/templates/base.html.j2:65
 #: betty/resources/templates/page/list-source.html.j2:2
 msgid "Sources"
@@ -277,12 +278,12 @@ msgstr "Taal"
 msgid "References"
 msgstr "Referenties"
 
-#: betty/resources/templates/event-dimensions.html.j2:14
+#: betty/resources/templates/event-dimensions.html.j2:17
 #, python-format
 msgid "%(date)s in %(place)s"
 msgstr "%(date)s te %(place)s"
 
-#: betty/resources/templates/event-dimensions.html.j2:18
+#: betty/resources/templates/event-dimensions.html.j2:21
 #, python-format
 msgid "in %(place)s"
 msgstr "te %(place)s"
@@ -300,9 +301,16 @@ msgstr ""
 "Een familieverhaal verteld door <a "
 "href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
 
-#: betty/resources/templates/person-meta.html.j2:5
+#: betty/resources/templates/macro/person.html.j2:7
+#: betty/resources/templates/macro/person.html.j2:33
+#: betty/resources/templates/person-meta.html.j2:8
 msgid "This person's details are unavailable to protect their privacy."
 msgstr "De gegevens van deze persoon zijn niet beschikbaar vanwege privacyredenen."
+
+#: betty/resources/templates/person-meta.html.j2:11
+#, python-format
+msgid "Also known as %(names)s"
+msgstr "Ook bekend als %(names)s"
 
 #: betty/resources/templates/macro/citation.html.j2:29
 #, python-format
@@ -390,6 +398,11 @@ msgstr "Onderwerp"
 #: betty/resources/templates/macro/event.html.j2:57
 msgid "Witness"
 msgstr "Getuige"
+
+#: betty/resources/templates/macro/person.html.j2:7
+#: betty/resources/templates/macro/person.html.j2:33
+msgid "private"
+msgstr "privé"
 
 #: betty/resources/templates/page/event.html.j2:21
 msgid "Witnesses"

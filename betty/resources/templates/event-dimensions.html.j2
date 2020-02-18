@@ -1,5 +1,8 @@
 {%- import 'macro/place.html.j2' as placeMacros -%}
 {%- import 'macro/citation.html.j2' as citationMacros -%}
+{%- if not embedded is defined -%}
+    {%- set embedded = False -%}
+{%- endif -%}
 {% set formattedDate = none %}
 {% if event.date %}
     {% set formattedDate = event.date | format_date %}
@@ -7,7 +10,7 @@
 
 {% set formattedPlace = none %}
 {% if event.place and event.place != place_context %}
-    {% set formattedPlace = placeMacros.label(event.place, place_context) %}
+    {% set formattedPlace = placeMacros.label(event.place, place_context, embedded=embedded) %}
 {% endif -%}
 
 {% if formattedDate and formattedPlace %}
@@ -21,4 +24,6 @@
 {% else %}
     {{ formattedDate }}
 {%- endif %}
-{{ citationMacros.cite(event.citations) }}
+{%- if not embedded -%}
+    {{ citationMacros.cite(event.citations) }}
+{%- endif -%}

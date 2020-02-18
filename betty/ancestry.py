@@ -608,7 +608,7 @@ class Person(Identifiable, HasFiles, HasCitations, HasLinks):
         return self.id > other.id
 
     @property
-    def names(self) -> Iterable:
+    def names(self) -> EventHandlingSetList:
         return self._names
 
     @property
