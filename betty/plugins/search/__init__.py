@@ -1,7 +1,7 @@
 from os.path import dirname
 from typing import Optional, Iterable, Callable, Dict
 
-from betty.ancestry import Person, Place
+from betty.ancestry import Person, Place, File
 from betty.jinja2 import Jinja2Provider, create_environment
 from betty.plugin import Plugin
 from betty.plugins.js import Js, JsEntryPointProvider, JsPackageProvider
@@ -59,8 +59,18 @@ def index(site: Site) -> Iterable:
         return environments[locale].get_template('search-result-place.html.j2').render({
             'place': place,
         })
-    for place in site.ancestry.places.values():
+    for file in site.ancestry.places.values():
         yield {
-            'text': ' '.join(map(lambda x: x.name.lower(), place.names)),
-            'results': {locale: render_place_result(locale, place) for locale in environments},
+            'text': ' '.join(map(lambda x: x.name.lower(), file.names)),
+            'results': {locale: render_place_result(locale, file) for locale in environments},
+        }
+
+    def render_file_result(locale: str, file: File):
+        return environments[locale].get_template('search-result-file.html.j2').render({
+            'file': file,
+        })
+    for file in site.ancestry.files.values():
+        yield {
+            'text': file.description.lower(),
+            'results': {locale: render_file_result(locale, file) for locale in environments},
         }
