@@ -40,11 +40,9 @@
                         with {{ parents }}:
                     {%- endtrans %}
                 {% endif %}
-            <ul>
-                {% for child in siblings %}
-                    <li typeof="foaf:Person" property="rel:parentOf">{{ personMacros.label(child) }}</li>
-                {% endfor %}
-            </ul>
+            {% with persons=siblings, typeOf='foaf:Person', property='rel:parentOf' %}
+                {% include 'list-person.html.j2' %}
+            {% endwith %}
             </p>
         {% endfor %}
     {% endif %}
@@ -52,11 +50,9 @@
     {% set siblings = person.siblings | list %}
     {% if siblings | length > 0 %}
         <h2>{{ _('Siblings') }}</h2>
-        <ul>
-            {% for sibling in siblings %}
-                <li typeof="foaf:Person" property="rel:siblingOf">{{ personMacros.label(sibling) }}</li>
-            {% endfor %}
-        </ul>
+        {% with persons=siblings, typeOf='foaf:Person', property='rel:siblingOf' %}
+            {% include 'list-person.html.j2' %}
+        {% endwith %}
     {% endif %}
 
     <div class="featured tree js-show" data-betty-person-id="{{ person.id }}"></div>
