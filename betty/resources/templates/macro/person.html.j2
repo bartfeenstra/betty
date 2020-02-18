@@ -1,19 +1,19 @@
 {%- import 'macro/citation.html.j2' as citationMacros -%}
-{%- macro label(person, context=None) -%}
-    {%- if context != person -%}
+{%- macro label(person, context=None, embedded=False) -%}
+    {%- if not embedded and context != person -%}
         <a href="{{ person | url }}">
     {%- endif -%}
     {%- if person.private -%}
-        <span class="private" title="This person's details are unavailable to protect their privacy.">private</span>
+        <span class="private" title="{% trans %}This person's details are unavailable to protect their privacy.{% endtrans %}">{% trans %}private{% endtrans %}</span>
     {%- else -%}
-        {{ nameLabel(person.name, citations=citations) }}
+        {{ nameLabel(person.name, embedded=embedded) }}
     {%- endif -%}
-    {%- if context != person -%}
+    {%- if not embedded and context != person -%}
         </a>
     {%- endif -%}
 {%- endmacro -%}
 
-{%- macro nameLabel(name, citations=True) -%}
+{%- macro nameLabel(name, embedded=False) -%}
     <span class="person-label" typeof="foaf:Person">
     {%- if name.individual -%}
         <span property="foaf:individualName">{{ name.individual }}</span>
@@ -24,7 +24,7 @@
         <span property="foaf:familyName">{{ name.affiliation }}</span>
     {%- endif -%}
     </span>
-    {%- if citations -%}
+    {%- if not embedded -%}
         {{ citationMacros.cite(name.citations) }}
     {%- endif -%}
 {%- endmacro -%}
@@ -34,7 +34,7 @@
         <a href="{{ person | url }}">
     {%- endif -%}
     {%- if person.private -%}
-        <span class="private" title="This person's details are unavailable to protect their privacy.">private</span>
+        <span class="private" title="{% trans %}This person's details are unavailable to protect their privacy.{% endtrans %}">{% trans %}private{% endtrans %}</span>
     {%- else -%}
         <span class="person-label" typeof="foaf:Person">
         {%- if person.name.affiliation -%}

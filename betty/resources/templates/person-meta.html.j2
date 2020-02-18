@@ -1,11 +1,17 @@
 {%- import 'macro/event.html.j2' as eventMacros -%}
 {%- import 'macro/person.html.j2' as personMacros -%}
+{%- macro _embeddedPersonNameLabel(name) -%}
+    {{ personMacros.nameLabel(name, embedded=True) }}
+{%- endmacro -%}
+{%- if not embedded is defined -%}
+    {%- set embedded = False -%}
+{%- endif -%}
 <div class="meta">
     {%- if person.private -%}
-        <p>{{ _('This person\'s details are unavailable to protect their privacy.') }}</p>
+        <p>{% trans %}This person's details are unavailable to protect their privacy.{% endtrans %}</p>
     {%- else -%}
         {%- if person.names | length > 1 -%}
-            <span class="aka">Also known as {{ person.alternative_names | map(personMacros.nameLabel, citations=True) | join(', ') }}</span>
+            <span class="aka">{% trans names=person.alternative_names | map(_embeddedPersonNameLabel if embedded else personMacros.nameLabel) | join(', ') %}Also known as {{ names }}{% endtrans %}</span>
         {%- endif -%}
         {%- if person.start or person.end %}
             <dl>
