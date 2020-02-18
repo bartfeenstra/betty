@@ -33,9 +33,40 @@
   color: #000;
 }
 
+.nav-secondary li a.search-result-target {
+  display: flex;
+}
+
+.search-result-target {
+  flex-direction: column;
+}
+
+.search-result-preview .image {
+  border: 1px #eee solid;
+}
+
+.search-result-file-type {
+  color: #777;
+  font-size: 0.9rem;
+}
+
 @media (min-width: 768px) {
   #search-instructions {
     padding-left: 3rem;
     padding-right: 3rem;
+  }
+
+  .search-result-target {
+    flex-direction: row;
+  }
+
+  .search-result-description {
+    flex: auto;
+  }
+
+  .search-result-preview {
+    flex: none;
+    margin-right: 1rem;
+    order: -1;
   }
 }
