@@ -1,22 +1,17 @@
 import logging
 from datetime import datetime
-from typing import List, Tuple, Callable, Set, Type
+from typing import List, Tuple, Callable, Type
 
 from betty.ancestry import Ancestry, Person, Event
 from betty.functools import walk
 from betty.locale import DateRange, Date
 from betty.parse import PostParseEvent
 from betty.plugin import Plugin
-from betty.plugins.deriver import Deriver
 
 
 class Privatizer(Plugin):
     def __init__(self):
         self._lifetime_threshold = 100
-
-    @classmethod
-    def comes_after(cls) -> Set[Type]:
-        return {Deriver}
 
     def subscribes_to(self) -> List[Tuple[Type, Callable]]:
         return [
