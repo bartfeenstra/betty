@@ -20,6 +20,10 @@ class Localized:
         self._locale = locale
 
 
+class IncompleteDateError(ValueError):
+    pass
+
+
 @total_ordering
 class Date:
     def __init__(self, year: Optional[int] = None, month: Optional[int] = None, day: Optional[int] = None):
@@ -202,37 +206,38 @@ def open_translations(locale: str, directory_path: str) -> Optional[gettext.GNUT
         return None
 
 
-class IncompleteDateError(ValueError):
-    pass
+def format_datey(date: Datey, locale: str) -> str:
+    """
+    Formats a datey value into a human-readable string.
 
-
-def format_datey(date: Datey, locale: str, translation: gettext.NullTranslations) -> str:
+    This requires gettext translations to be installed. Use the Translations class to do this temporarily.
+    """
     try:
         if isinstance(date, Date):
-            return _format_date(date, locale, translation)
-        return _format_date_range(date, locale, translation)
+            return _format_date(date, locale)
+        return _format_date_range(date, locale)
     except IncompleteDateError:
-        return translation.gettext('unknown date')
+        return _('unknown date')
 
 
-def _format_date(date: Date, locale: str, translation: gettext.NullTranslations) -> str:
-    formatted = _format_date_parts(date, locale, translation)
+def _format_date(date: Date, locale: str) -> str:
+    formatted = _format_date_parts(date, locale)
     if date.fuzzy:
-        formatted = translation.gettext('Around %(date)s') % {
+        formatted = _('Around %(date)s') % {
             'date': formatted,
         }
     return formatted
 
 
-def _format_date_parts(date: Date, locale: str, translation: gettext.NullTranslations) -> str:
+def _format_date_parts(date: Date, locale: str) -> str:
     if date is None:
         raise IncompleteDateError('This date is None.')
     DATE_FORMATS = {
-        (True, True, True): translation.gettext('MMMM d, y'),
-        (True, True, False): translation.gettext('MMMM, y'),
-        (True, False, False): translation.gettext('y'),
-        (False, True, True): translation.gettext('MMMM d'),
-        (False, True, False): translation.gettext('MMMM'),
+        (True, True, True): _('MMMM d, y'),
+        (True, True, False): _('MMMM, y'),
+        (True, False, False): _('y'),
+        (False, True, True): _('MMMM d'),
+        (False, True, False): _('MMMM'),
     }
     try:
         format = DATE_FORMATS[tuple(map(lambda x: x is not None, date.parts))]
@@ -242,26 +247,26 @@ def _format_date_parts(date: Date, locale: str, translation: gettext.NullTransla
     return dates.format_date(datetime.date(*parts), format, Locale.parse(locale, '-'))
 
 
-def _format_date_range(date_range: DateRange, locale: str, translation: gettext.NullTranslations) -> str:
+def _format_date_range(date_range: DateRange, locale: str) -> str:
     try:
-        formatted_start = _format_date_parts(date_range.start, locale, translation)
+        formatted_start = _format_date_parts(date_range.start, locale)
     except IncompleteDateError:
         formatted_start = None
     try:
-        formatted_end = _format_date_parts(date_range.end, locale, translation)
+        formatted_end = _format_date_parts(date_range.end, locale)
     except IncompleteDateError:
         formatted_end = None
     if formatted_start is not None and formatted_end is not None:
-        return translation.gettext('Between %(start)s and %(end)s') % {
+        return _('Between %(start)s and %(end)s') % {
             'start': formatted_start,
             'end': formatted_end,
         }
     if formatted_start is not None:
-        return translation.gettext('After %(start)s') % {
+        return _('After %(start)s') % {
             'start': formatted_start,
         }
     if formatted_end is not None:
-        return translation.gettext('Before %(end)s') % {
+        return _('Before %(end)s') % {
             'end': formatted_end,
         }
     raise IncompleteDateError('This date range does not have enough parts to be rendered.')
