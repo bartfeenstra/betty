@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-02-18 13:01+0000\n"
+"POT-Creation-Date: 2020-02-20 02:17+0000\n"
 "PO-Revision-Date: 2019-10-05 11:38+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -18,46 +18,46 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: betty/locale.py:215
+#: betty/locale.py:220
 msgid "unknown date"
 msgstr "onbekend"
 
-#: betty/locale.py:221
+#: betty/locale.py:226
 #, python-format
 msgid "Around %(date)s"
 msgstr "Rond %(date)s"
 
-#: betty/locale.py:231
+#: betty/locale.py:236
 msgid "MMMM d, y"
 msgstr "d MMMM y"
 
-#: betty/locale.py:232
+#: betty/locale.py:237
 msgid "MMMM, y"
 msgstr "MMMM y"
 
-#: betty/locale.py:233
+#: betty/locale.py:238
 msgid "y"
 msgstr "y"
 
-#: betty/locale.py:234
+#: betty/locale.py:239
 msgid "MMMM d"
 msgstr "d MMMM"
 
-#: betty/locale.py:235
+#: betty/locale.py:240
 msgid "MMMM"
 msgstr "MMMM"
 
-#: betty/locale.py:255
+#: betty/locale.py:260
 #, python-format
 msgid "Between %(start)s and %(end)s"
 msgstr "Tussen %(start)s en %(end)s"
 
-#: betty/locale.py:260
+#: betty/locale.py:265
 #, python-format
 msgid "After %(start)s"
 msgstr "Na %(start)s"
 
-#: betty/locale.py:264
+#: betty/locale.py:269
 #, python-format
 msgid "Before %(end)s"
 msgstr "Voor %(end)s"
@@ -302,12 +302,12 @@ msgstr ""
 "href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
 
 #: betty/resources/templates/macro/person.html.j2:7
-#: betty/resources/templates/macro/person.html.j2:33
-#: betty/resources/templates/person-meta.html.j2:8
+#: betty/resources/templates/macro/person.html.j2:39
+#: betty/resources/templates/person-meta.html.j2:11
 msgid "This person's details are unavailable to protect their privacy."
 msgstr "De gegevens van deze persoon zijn niet beschikbaar vanwege privacyredenen."
 
-#: betty/resources/templates/person-meta.html.j2:11
+#: betty/resources/templates/person-meta.html.j2:14
 #, python-format
 msgid "Also known as %(names)s"
 msgstr "Ook bekend als %(names)s"
@@ -400,9 +400,14 @@ msgid "Witness"
 msgstr "Getuige"
 
 #: betty/resources/templates/macro/person.html.j2:7
-#: betty/resources/templates/macro/person.html.j2:33
+#: betty/resources/templates/macro/person.html.j2:39
 msgid "private"
-msgstr "privé"
+msgstr ""
+
+#: betty/resources/templates/macro/person.html.j2:11
+#: betty/resources/templates/macro/person.html.j2:54
+msgid "This person's name is unknown."
+msgstr "De naam van deze persoon is onbekend."
 
 #: betty/resources/templates/page/event.html.j2:21
 msgid "Witnesses"
