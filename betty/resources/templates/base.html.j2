@@ -13,7 +13,7 @@
     {% endif %}
     <meta name="og:title" content="{{ title | striptags }}"/>
     <meta name="og:site_name" content="{{ site.configuration.title }}"/>
-    {% if resource -%}
+    {% if resource is defined -%}
         {%- for file in resource.files | default([]) -%}
             {%- if file.type.startswith('image/') %}
                 <meta name="og:image" content="{{ file | image(600, 600) | static_url }}"/>
@@ -66,7 +66,7 @@
             </ul>
         </div>
     </div>
-    {%- if resource and site.configuration.multilingual %}
+    {%- if resource is defined and site.configuration.multilingual %}
         <div id="nav-locale" class="nav-primary-expandable">
             <h2 class="nav-primary-action">{{ _('Language') }}</h2>
             <div class="nav-primary-expanded">
