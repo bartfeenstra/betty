@@ -90,6 +90,7 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
         [join(path, 'templates') for path in site.resources.paths])
     environment = Environment(
         loader=FileSystemLoader(template_directory_paths),
+        undefined=StrictUndefined,
         autoescape=select_autoescape(['html']),
         extensions=[
             'jinja2.ext.do',

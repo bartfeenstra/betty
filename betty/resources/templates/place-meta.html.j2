@@ -5,7 +5,11 @@
 {%- if not embedded is defined -%}
     {%- set embedded = False -%}
 {%- endif -%}
-{%- set enclosing_places = place | walk('enclosed_by') | takewhile('ne', None) | takewhile('ne', context) | list -%}
+{%- set enclosing_places = place | walk('enclosed_by') | takewhile('ne', None) | list -%}
+{%- if context is defined -%}
+    {%- set enclosing_places = enclosing_places | takewhile('ne', context) -%}
+{%- endif -%}
+{%- set enclosing_places = enclosing_places | list -%}
 {%- if enclosing_places | length > 0 %}
     <div class="meta">
     in {{ enclosing_places | map(_embeddedPlaceLabel if embedded else placeMacros.label) | join(', ') }}

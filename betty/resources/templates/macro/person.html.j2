@@ -5,8 +5,10 @@
     {%- endif -%}
     {%- if person.private -%}
         <span class="private" title="{% trans %}This person's details are unavailable to protect their privacy.{% endtrans %}">{% trans %}private{% endtrans %}</span>
-    {%- else -%}
+    {%- elif person.name is not none -%}
         {{ nameLabel(person.name, embedded=embedded) }}
+    {%- else -%}
+        <span class="nn" title="{% trans %}This person's name is unknown.{% endtrans %}">n.n.</span>
     {%- endif -%}
     {%- if not embedded and context != person -%}
         </a>
@@ -15,12 +17,12 @@
 
 {%- macro nameLabel(name, embedded=False) -%}
     <span class="person-label" typeof="foaf:Person">
-    {%- if name.individual -%}
+    {%- if name.individual is not none -%}
         <span property="foaf:individualName">{{ name.individual }}</span>
     {%- else -%}
         …
     {%- endif -%}
-    {%- if name.affiliation %}
+    {%- if name.affiliation is not none %}
         <span property="foaf:familyName">{{ name.affiliation }}</span>
     {%- endif -%}
     </span>
@@ -35,19 +37,21 @@
     {%- endif -%}
     {%- if person.private -%}
         <span class="private" title="{% trans %}This person's details are unavailable to protect their privacy.{% endtrans %}">{% trans %}private{% endtrans %}</span>
-    {%- else -%}
+    {%- elif person.name is not none -%}
         <span class="person-label" typeof="foaf:Person">
-        {%- if person.name.affiliation -%}
+        {%- if person.name.affiliation is not none -%}
             <span property="foaf:familyName">{{ person.name.affiliation }}</span>
         {%- else -%}
             …
         {%- endif -%}
-        , {% if person.name.individual -%}
+        , {% if person.name.individual is not none -%}
             <span property="foaf:individualName">{{ person.name.individual }}</span>
         {%- else -%}
             …
         {%- endif -%}
         </span>
+    {% else %}
+        <span class="nn" title="{% trans %}This person's name is unknown.{% endtrans %}">n.n.</span>
     {%- endif -%}
     {%- if link -%}
         </a>

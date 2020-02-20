@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-02-20 00:09+0000\n"
+"POT-Creation-Date: 2020-02-20 02:31+0000\n"
 "PO-Revision-Date: 2019-10-05 11:38+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -274,7 +274,6 @@ msgid "Language"
 msgstr "Taal"
 
 #: betty/resources/templates/base.html.j2:92
-#: betty/resources/templates/page/source.html.j2:17
 msgid "References"
 msgstr "Referenties"
 
@@ -302,7 +301,7 @@ msgstr ""
 "href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
 
 #: betty/resources/templates/macro/person.html.j2:7
-#: betty/resources/templates/macro/person.html.j2:37
+#: betty/resources/templates/macro/person.html.j2:39
 #: betty/resources/templates/person-meta.html.j2:11
 msgid "This person's details are unavailable to protect their privacy."
 msgstr "De gegevens van deze persoon zijn niet beschikbaar vanwege privacyredenen."
@@ -312,20 +311,22 @@ msgstr "De gegevens van deze persoon zijn niet beschikbaar vanwege privacyredene
 msgid "Also known as %(names)s"
 msgstr "Ook bekend als %(names)s"
 
-#: betty/resources/templates/macro/citation.html.j2:29
-#, python-format
-msgid "Accessed %(date)s"
-msgstr "Opgevraagd op %(date)s"
-
+#: betty/resources/templates/label/event.html.j2:20
 #: betty/resources/templates/macro/event.html.j2:21
 #, python-format
 msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s met %(subjects)s"
 
+#: betty/resources/templates/label/event.html.j2:24
 #: betty/resources/templates/macro/event.html.j2:25
 #, python-format
 msgid "%(event)s of %(subjects)s"
 msgstr "%(event)s van %(subjects)s"
+
+#: betty/resources/templates/macro/citation.html.j2:29
+#, python-format
+msgid "Accessed %(date)s"
+msgstr "Opgevraagd op %(date)s"
 
 #: betty/resources/templates/macro/event.html.j2:34
 msgid "Birth"
@@ -404,11 +405,17 @@ msgid "Attendee"
 msgstr "Aanwezige"
 
 #: betty/resources/templates/macro/person.html.j2:7
-#: betty/resources/templates/macro/person.html.j2:37
+#: betty/resources/templates/macro/person.html.j2:39
 msgid "private"
 msgstr "privé"
 
-#: betty/resources/templates/page/citation.html.j2:22
+#: betty/resources/templates/macro/person.html.j2:11
+#: betty/resources/templates/macro/person.html.j2:54
+msgid "This person's name is unknown."
+msgstr "De naam van deze persoon is onbekend."
+
+#: betty/resources/templates/page/citation.html.j2:29
+#: betty/resources/templates/page/source.html.j2:17
 msgid "Facts"
 msgstr "Feiten"
 

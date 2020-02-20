@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-02-20 00:09+0000\n"
+"POT-Creation-Date: 2020-02-20 02:31+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -263,7 +263,6 @@ msgid "Language"
 msgstr ""
 
 #: betty/resources/templates/base.html.j2:92
-#: betty/resources/templates/page/source.html.j2:17
 msgid "References"
 msgstr ""
 
@@ -289,7 +288,7 @@ msgid ""
 msgstr ""
 
 #: betty/resources/templates/macro/person.html.j2:7
-#: betty/resources/templates/macro/person.html.j2:37
+#: betty/resources/templates/macro/person.html.j2:39
 #: betty/resources/templates/person-meta.html.j2:11
 msgid "This person's details are unavailable to protect their privacy."
 msgstr ""
@@ -299,19 +298,21 @@ msgstr ""
 msgid "Also known as %(names)s"
 msgstr ""
 
-#: betty/resources/templates/macro/citation.html.j2:29
-#, python-format
-msgid "Accessed %(date)s"
-msgstr ""
-
+#: betty/resources/templates/label/event.html.j2:20
 #: betty/resources/templates/macro/event.html.j2:21
 #, python-format
 msgid "%(event)s with %(subjects)s"
 msgstr ""
 
+#: betty/resources/templates/label/event.html.j2:24
 #: betty/resources/templates/macro/event.html.j2:25
 #, python-format
 msgid "%(event)s of %(subjects)s"
+msgstr ""
+
+#: betty/resources/templates/macro/citation.html.j2:29
+#, python-format
+msgid "Accessed %(date)s"
 msgstr ""
 
 #: betty/resources/templates/macro/event.html.j2:34
@@ -391,11 +392,17 @@ msgid "Attendee"
 msgstr ""
 
 #: betty/resources/templates/macro/person.html.j2:7
-#: betty/resources/templates/macro/person.html.j2:37
+#: betty/resources/templates/macro/person.html.j2:39
 msgid "private"
 msgstr ""
 
-#: betty/resources/templates/page/citation.html.j2:22
+#: betty/resources/templates/macro/person.html.j2:11
+#: betty/resources/templates/macro/person.html.j2:54
+msgid "This person's name is unknown."
+msgstr ""
+
+#: betty/resources/templates/page/citation.html.j2:29
+#: betty/resources/templates/page/source.html.j2:17
 msgid "Facts"
 msgstr ""
 

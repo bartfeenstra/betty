@@ -9,7 +9,7 @@
 {%- endif %}
 
 {% set formattedPlace = none %}
-{% if event.place and event.place != place_context %}
+{% if event.place and (place_context is not defined or event.place != place_context) %}
     {% set formattedPlace = placeMacros.label(event.place, place_context, embedded=embedded) %}
 {% endif -%}
 
