@@ -1,4 +1,0 @@
-{% macro label(claim) -%}
-    {%- import 'macro/' ~ claim.__class__.__name__ | lower ~ '.html.j2' as macros -%}
-    {{ macros.label(claim) }}
-{%- endmacro %}

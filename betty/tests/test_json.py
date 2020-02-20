@@ -373,20 +373,20 @@ class JSONEncoderTest(TestCase):
             '@type': 'https://schema.org/Thing',
             'id': 'the_citation',
             'source': '/source/the_source/index.json',
-            'claims': [],
+            'facts': [],
         }
         self.assert_encodes(expected, citation, 'citation')
 
     def test_citation_should_encode_full(self):
         citation = Citation('the_citation', Source('the_source', 'The Source'))
         citation.description = 'The Source Description'
-        citation.claims.append(IdentifiableEvent('the_event', Event.Type.BIRTH))
+        citation.facts.append(IdentifiableEvent('the_event', Event.Type.BIRTH))
         expected = {
             '$schema': '/schema.json#/definitions/citation',
             '@type': 'https://schema.org/Thing',
             'id': 'the_citation',
             'source': '/source/the_source/index.json',
-            'claims': [
+            'facts': [
                 '/event/the_event/index.json'
             ],
         }

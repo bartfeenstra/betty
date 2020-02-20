@@ -199,7 +199,7 @@ class HasLinks:
 
 @many_to_many('entities', 'files')
 class File(Identifiable, Described):
-    files: ManyAssociation
+    entities: ManyAssociation
 
     def __init__(self, file_id: str, path: str):
         Identifiable.__init__(self, file_id)
@@ -240,6 +240,20 @@ class File(Identifiable, Described):
     @notes.setter
     def notes(self, notes: List[Note]):
         self._notes = notes
+
+    @property
+    def sources(self) -> Iterable['Source']:
+        for entity in self.entities:
+            if isinstance(entity, Source):
+                yield entity
+            if isinstance(entity, Citation):
+                yield entity.source
+
+    @property
+    def citations(self) -> Iterable['Citation']:
+        for entity in self.entities:
+            if isinstance(entity, Citation):
+                yield entity
 
 
 @many_to_many('files', 'entities')
@@ -285,9 +299,11 @@ class Source(Identifiable, Dated, HasFiles, HasLinks):
         self._publisher = publisher
 
 
-@many_to_many('claims', 'citations')
+@many_to_many('facts', 'citations')
 @many_to_one('source', 'citations')
 class Citation(Identifiable, Dated, HasFiles):
+    source: Source
+
     def __init__(self, citation_id: str, source: Source):
         Identifiable.__init__(self, citation_id)
         Dated.__init__(self)
@@ -304,7 +320,7 @@ class Citation(Identifiable, Dated, HasFiles):
         self._location = location
 
 
-@many_to_many('citations', 'claims')
+@many_to_many('citations', 'facts')
 class HasCitations:
     citations: ManyAssociation[Citation]
 

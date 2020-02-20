@@ -1,4 +1,4 @@
 {%- import 'macro/person.html.j2' as personMacros -%}
 {% macro label(name) %}
-    {{ personMacros.label(name.person) }}
+    Name of {{ personMacros.label(name.person) }}
 {% endmacro %}

@@ -1,5 +1,5 @@
-{%- macro label(event, person_context=None) -%}
-    {%- import 'macro/person.html.j2' as personMacros -%}
+{%- import 'macro/person.html.j2' as personMacros -%}
+{%- macro label(event, citation_context=None, person_context=None) -%}
     {%- set formattedEvent = type_label(event) -%}
     {%- if event | is_entity -%}
         {% set formattedEvent = '<a href="' + event | url + '">' + formattedEvent + '</a>' %}
@@ -59,6 +59,6 @@
     {%- if presence.role in _role_labels -%}
         {{ _role_labels[presence.role] }}
     {%- else -%}
-        Attendee
+        {% trans %}Attendee{% endtrans %}
     {%- endif -%}
 {%- endmacro -%}

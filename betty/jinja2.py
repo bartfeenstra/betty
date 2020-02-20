@@ -14,7 +14,7 @@ from geopy import units
 from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter
 from jinja2.filters import prepare_map, make_attrgetter
-from jinja2.runtime import Macro, resolve_or_missing
+from jinja2.runtime import Macro, resolve_or_missing, StrictUndefined
 from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup
 from resizeimage import resizeimage
@@ -94,7 +94,7 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
         extensions=[
             'jinja2.ext.do',
             'jinja2.ext.i18n',
-        ]
+        ],
     )
     environment.install_gettext_translations(site.translations[default_locale])
     environment.globals['site'] = site

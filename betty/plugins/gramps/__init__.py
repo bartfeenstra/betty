@@ -450,10 +450,10 @@ def _parse_citation(ancestry: _IntermediateAncestry, element: Element) -> None:
     ancestry.citations[handle] = citation
 
 
-def _parse_citationref(ancestry: _IntermediateAncestry, claim: HasCitations, element: Element):
+def _parse_citationref(ancestry: _IntermediateAncestry, fact: HasCitations, element: Element):
     citation_handles = _xpath(element, './ns:citationref/@hlink')
     for citation_handle in citation_handles:
-        claim.citations.append(ancestry.citations[citation_handle])
+        fact.citations.append(ancestry.citations[citation_handle])
 
 
 def _parse_objref(ancestry: _IntermediateAncestry, owner: HasFiles, element: Element):

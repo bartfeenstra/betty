@@ -1,4 +1,5 @@
 {% extends 'base.html.j2' %}
+{%- import 'macro/source.html.j2' as sourceMacros -%}
 {% set title = file.description %}
 {% block content %}
     {% if file.type and file.type.startswith('image/') %}
@@ -13,5 +14,32 @@
         {% for note in file.notes %}
             {{ note.text | paragraphs }}
         {% endfor %}
+    {% endif %}
+
+{# @todo When looking at a piece of media, we want to know what is is we're supposed to be looking at.   #}
+{# @todo That means we want to render citation facts: events, names, whatever kind of information we extracted from this file.   #}
+{# @todo DO NOT RENDER CITATIONS/REFERENCES   #}
+{# @todo    #}
+{# @todo We also want to know which other files this one is related to. Maybe it's the left half of a record and we need to link to the right half as well.   #}
+{# @todo Related files may be found through citations associated with this file   #}
+{# @todo    #}
+{# @todo    #}
+{# @todo    #}
+{# @todo    #}
+
+
+
+{# @todo We need to render the source(s) for copyright   #}
+    {%- set sources = file.sources | list -%}
+    {% if sources | length  == 1 %}
+        <h2>{% trans %}Source{% endtrans %}</h2>
+        <p>{{ sourceMacros.link(sources | first) }}</p>
+    {% elif sources | length  > 1 %}
+        <h2>{% trans %}Sources{% endtrans %}</h2>
+        <ul>
+            {% for source in sources %}
+                <li>{{ sourceMacros.link(source) }}</li>
+            {% endfor %}
+        </ul>
     {% endif %}
 {% endblock %}
