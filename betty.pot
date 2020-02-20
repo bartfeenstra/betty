@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-02-18 13:01+0000\n"
+"POT-Creation-Date: 2020-02-20 02:17+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,46 +17,46 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: betty/locale.py:215
+#: betty/locale.py:220
 msgid "unknown date"
 msgstr ""
 
-#: betty/locale.py:221
+#: betty/locale.py:226
 #, python-format
 msgid "Around %(date)s"
 msgstr ""
 
-#: betty/locale.py:231
+#: betty/locale.py:236
 msgid "MMMM d, y"
 msgstr ""
 
-#: betty/locale.py:232
+#: betty/locale.py:237
 msgid "MMMM, y"
 msgstr ""
 
-#: betty/locale.py:233
+#: betty/locale.py:238
 msgid "y"
 msgstr ""
 
-#: betty/locale.py:234
+#: betty/locale.py:239
 msgid "MMMM d"
 msgstr ""
 
-#: betty/locale.py:235
+#: betty/locale.py:240
 msgid "MMMM"
-msgstr ""
-
-#: betty/locale.py:255
-#, python-format
-msgid "Between %(start)s and %(end)s"
 msgstr ""
 
 #: betty/locale.py:260
 #, python-format
+msgid "Between %(start)s and %(end)s"
+msgstr ""
+
+#: betty/locale.py:265
+#, python-format
 msgid "After %(start)s"
 msgstr ""
 
-#: betty/locale.py:264
+#: betty/locale.py:269
 #, python-format
 msgid "Before %(end)s"
 msgstr ""
@@ -289,12 +289,12 @@ msgid ""
 msgstr ""
 
 #: betty/resources/templates/macro/person.html.j2:7
-#: betty/resources/templates/macro/person.html.j2:33
-#: betty/resources/templates/person-meta.html.j2:8
+#: betty/resources/templates/macro/person.html.j2:39
+#: betty/resources/templates/person-meta.html.j2:11
 msgid "This person's details are unavailable to protect their privacy."
 msgstr ""
 
-#: betty/resources/templates/person-meta.html.j2:11
+#: betty/resources/templates/person-meta.html.j2:14
 #, python-format
 msgid "Also known as %(names)s"
 msgstr ""
@@ -387,8 +387,13 @@ msgid "Witness"
 msgstr ""
 
 #: betty/resources/templates/macro/person.html.j2:7
-#: betty/resources/templates/macro/person.html.j2:33
+#: betty/resources/templates/macro/person.html.j2:39
 msgid "private"
+msgstr ""
+
+#: betty/resources/templates/macro/person.html.j2:11
+#: betty/resources/templates/macro/person.html.j2:54
+msgid "This person's name is unknown."
 msgstr ""
 
 #: betty/resources/templates/page/event.html.j2:21

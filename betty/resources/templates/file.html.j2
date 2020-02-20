@@ -17,10 +17,10 @@
             <li><a href="{{ file | file | static_url }}" download="{{ file.name }}" title="Download this file">⇓</a></li>
             <li><a href="{{ file | url }}" title="More details">ℹ</a></li>
             <li><a href="#" title="Close this file">×</a></li>
-            {% if previous_file %}
+            {% if previous_file is defined %}
                 <li class="file-nav file-previous"><a href="#file-{{ previous_file.id }}" title="{{ previous_file.description }}">←</a></li>
             {% endif %}
-            {% if next_file %}
+            {% if next_file is defined %}
                 <li class="file-nav file-next"><a href="#file-{{ next_file.id }}" title="{{ next_file.description }}">→</a></li>
             {% endif %}
         </ul>
