@@ -112,7 +112,7 @@ def _render_entity_type_list_html(www_directory_path: str, entities: Iterable[An
             'page/list-%s.html.j2' % entity_type_name)
         with _create_html_resource(entity_type_path) as f:
             f.write(template.render({
-                'resource': '/%s/index.html' % entity_type_name,
+                'page_resource': '/%s/index.html' % entity_type_name,
                 'entity_type_name': entity_type_name,
                 'entities': entities,
             }))
@@ -145,7 +145,7 @@ def _render_entity_html(www_directory_path: str, entity: Any, entity_type_name: 
     entity_path = os.path.join(www_directory_path, entity_type_name, entity.id)
     with _create_html_resource(entity_path) as f:
         f.write(environment.get_template('page/%s.html.j2' % entity_type_name).render({
-            'resource': entity,
+            'page_resource': entity,
             'entity_type_name': entity_type_name,
             entity_type_name: entity,
         }))

@@ -33,13 +33,13 @@ class AnonymizeTest(AnonymizerTestCase):
             event = IdentifiableEvent('E0', Event.Type.MARRIAGE)
             event.presences = [person_presence, partner_presence]
             file = File('D0', file_f.name)
-            file.entities.append(person, partner)
+            file.resources.append(person, partner)
             ancestry = Ancestry()
             ancestry.people[person.id] = person
             anonymize(ancestry)
             self.assert_anonymized(person)
             self.assertCountEqual([], event.presences)
-            self.assertCountEqual([], file.entities)
+            self.assertCountEqual([], file.resources)
 
     def test_anonymize_should_not_anonymize_public_person(self):
         with NamedTemporaryFile() as file_f:

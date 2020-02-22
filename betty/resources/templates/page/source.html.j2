@@ -1,9 +1,7 @@
 {% extends 'base.html.j2' %}
-{%- import 'macro/citation.html.j2' as citationMacros -%}
-{%- import 'macro/claim.html.j2' as claimMacros -%}
-{% set title = source.name %}
-{% block content %}
-    {% include 'source-meta.html.j2' %}
+{% set page_title = source.name %}
+{% block page_content %}
+    {% include 'meta/source.html.j2' %}
     {% set sources = [source] + source | walk('contains') | list %}
     {% set haveFiles = sources %}
     {% set haveFiles = haveFiles + sources | map(attribute='citations') | flatten | list %}
@@ -12,13 +10,16 @@
         <h2>{{ _('Media') }}</h2>
         {% include 'list-file.html.j2' %}
     {% endif %}
-    {% set claims = sources | map(attribute='citations') | flatten | map(attribute='claims') | flatten | select('is_entity') | list %}
-    {% if claims | length > 0 %}
-        <h2>{{ _('References') }}</h2>
+    {% set facts = sources | map(attribute='citations') | flatten | map(attribute='facts') | flatten | select('resource') | list %}
+    {% if facts | length > 0 %}
+        <h2>{% trans %}Facts{% endtrans %}</h2>
         <ul class="entities">
-            {% for claim in claims %}
+            {% for fact in facts %}
                 <li class="{{ loop.cycle('odd', 'even') }}">
-                    <a href="{{ claim | url }}">{{ claimMacros.label(claim) }}</a>
+                    {% with resource=fact, source_context=source %}
+                        {% include 'label/resource.html.j2' %}
+                        {% include 'meta/resource.html.j2' %}
+                {% endwith %}
                 </li>
             {% endfor %}
         </ul>

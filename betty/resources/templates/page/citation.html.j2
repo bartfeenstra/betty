@@ -1,23 +1,24 @@
 {% extends 'base.html.j2' %}
-{%- import 'macro/citation.html.j2' as citationMacros -%}
-{%- import 'macro/claim.html.j2' as claimMacros -%}
-{% set title = citation.location %}
-{% block content %}
+{% set page_title = citation.location %}
+{% block page_content %}
     <div class="meta">
-    {{ citationMacros.label(citation, citation) }}
+    {%- include 'meta/citation.html.j2' -%}
     </div>
     {% set files = citation.files %}
     {% if files | length > 0 %}
         <h2>{{ _('Media') }}</h2>
         {% include 'list-file.html.j2' %}
     {% endif %}
-    {% set claims = citation.claims | select('is_entity') | list %}
-    {% if claims | length > 0 %}
-        <h2>{{ _('References') }}</h2>
+    {% set facts = citation.facts | select('resource') | list %}
+    {% if facts | length > 0 %}
+        <h2>{% trans %}Facts{% endtrans %}</h2>
         <ul class="entities">
-            {% for claim in claims %}
+            {% for fact in facts %}
                 <li class="{{ loop.cycle('odd', 'even') }}">
-                    <a href="{{ claim | url }}">{{ claimMacros.label(claim) }}</a>
+                    {%- with resource=fact, citation_context=citation -%}
+                        {%- include 'label/resource.html.j2' -%}
+                        {%- include 'meta/resource.html.j2' -%}
+                    {% endwith %}
                 </li>
             {% endfor %}
         </ul>

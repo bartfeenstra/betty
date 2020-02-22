@@ -1,8 +1,7 @@
-{% import 'macro/place.html.j2' as placeMacros %}
 {%- set embedded=True -%}
 <a href="{{ place | url }}" class="nav-secondary-action search-result-target">
     <div class="search-result-description">
-        {{ placeMacros.label(place) | striptags }}
-    {% include 'place-meta.html.j2' %}
+        {% include 'label/place.html.j2' %}
+        {% include 'meta/place.html.j2' %}
     </div>
 </a>

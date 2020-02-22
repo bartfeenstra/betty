@@ -2,8 +2,8 @@
 {%- set embedded=True -%}
 <a href="{{ person | url }}" class="nav-secondary-action search-result-target">
     <div class="search-result-description">
-        {{ personMacros.label(person, embedded=embedded) }}
-        {% include 'person-meta.html.j2' %}
+        {% include 'label/person.html.j2' %}
+        {% include 'meta/person.html.j2' %}
     </div>
     {%- if person.files | length > 0 -%}
         {% set file = person.files | first %}

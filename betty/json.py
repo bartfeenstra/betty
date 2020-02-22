@@ -199,7 +199,7 @@ class JSONEncoder(stdjson.JSONEncoder):
     def _encode_file(self, file: File) -> Dict:
         encoded = {
             'id': file.id,
-            'entities': [self._generate_url(entity) for entity in file.entities],
+            'entities': [self._generate_url(entity) for entity in file.resources],
             'notes': file.notes,
         }
         self._encode_schema(encoded, 'file')
@@ -246,11 +246,11 @@ class JSONEncoder(stdjson.JSONEncoder):
             '@type': 'https://schema.org/Thing',
             'id': citation.id,
             'source': self._generate_url(citation.source),
-            'claims': []
+            'facts': []
         }
-        for claim in citation.claims:
-            if isinstance(claim, Identifiable):
-                encoded['claims'].append(self._generate_url(claim))
+        for fact in citation.facts:
+            if isinstance(fact, Identifiable):
+                encoded['facts'].append(self._generate_url(fact))
         self._encode_schema(encoded, 'citation')
         self._encode_dated(encoded, citation)
         return encoded
