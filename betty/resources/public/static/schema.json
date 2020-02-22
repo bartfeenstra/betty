@@ -376,7 +376,7 @@
           "type": "string",
           "format": "uri"
         },
-        "claims": {
+        "facts": {
           "type": "array",
           "items": {
             "type": "string",
@@ -391,7 +391,7 @@
         "$schema",
         "id",
         "source",
-        "claims"
+        "facts"
       ],
       "patternProperties": {
         "^@": {

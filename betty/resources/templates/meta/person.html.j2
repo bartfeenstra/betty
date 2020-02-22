@@ -3,6 +3,7 @@
 {%- macro _embeddedPersonNameLabel(name) -%}
     {{ personMacros.nameLabel(name, embedded=True) }}
 {%- endmacro -%}
+{% set person = person | default(resource) %}
 {%- if not embedded is defined -%}
     {%- set embedded = False -%}
 {%- endif -%}
@@ -16,7 +17,7 @@
         {%- if person.start or person.end %}
             <dl>
                 {%- if person.start %}
-                    <dt>{{ eventMacros.type_label(person.start) }}</dt>
+                    <dt>{{ eventMacros.type_label(person.start.type) }}</dt>
                     <dd>
                         {%- with event=person.start -%}
                             {% include 'event-dimensions.html.j2' %}
@@ -24,7 +25,7 @@
                     </dd>
                 {%- endif %}
                 {%- if person.end %}
-                    <dt>{{ eventMacros.type_label(person.end) }}</dt>
+                    <dt>{{ eventMacros.type_label(person.end.type) }}</dt>
                     <dd>
                         {%- with event=person.end -%}
                             {% include 'event-dimensions.html.j2' %}

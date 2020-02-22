@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-02-20 02:17+0000\n"
+"POT-Creation-Date: 2020-02-22 17:24+0000\n"
 "PO-Revision-Date: 2019-10-05 11:38+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -199,12 +199,12 @@ msgid "A locale name."
 msgstr "De naam van een locale."
 
 #: betty/plugins/search/resources/templates/search-result-file.html.j2:4
-#: betty/resources/templates/base.html.j2:64
-#: betty/resources/templates/page/citation.html.j2:11
-#: betty/resources/templates/page/event.html.j2:45
+#: betty/resources/templates/base.html.j2:63
+#: betty/resources/templates/page/citation.html.j2:9
+#: betty/resources/templates/page/event.html.j2:49
 #: betty/resources/templates/page/list-file.html.j2:2
-#: betty/resources/templates/page/person.html.j2:77
-#: betty/resources/templates/page/source.html.j2:12
+#: betty/resources/templates/page/person.html.j2:84
+#: betty/resources/templates/page/source.html.j2:10
 msgid "Media"
 msgstr "Media"
 
@@ -242,48 +242,47 @@ msgstr "Welkom bij %(title)s"
 msgid "API documentation"
 msgstr "API-documentatie"
 
-#: betty/resources/templates/base.html.j2:58
+#: betty/resources/templates/base.html.j2:57
 msgid "Menu"
 msgstr "Menu"
 
-#: betty/resources/templates/base.html.j2:61
+#: betty/resources/templates/base.html.j2:60
 #: betty/resources/templates/page/list-person.html.j2:2
 msgid "People"
 msgstr "Personen"
 
-#: betty/resources/templates/base.html.j2:62
+#: betty/resources/templates/base.html.j2:61
 #: betty/resources/templates/page/list-event.html.j2:2
-#: betty/resources/templates/page/person.html.j2:65
+#: betty/resources/templates/page/person.html.j2:72
 #: betty/resources/templates/page/place.html.j2:23
 msgid "Events"
 msgstr "Gebeurtenissen"
 
-#: betty/resources/templates/base.html.j2:63
+#: betty/resources/templates/base.html.j2:62
 #: betty/resources/templates/page/list-place.html.j2:2
 msgid "Places"
 msgstr "Plaatsen"
 
-#: betty/resources/templates/base.html.j2:65
+#: betty/resources/templates/base.html.j2:64
+#: betty/resources/templates/page/file.html.j2:34
 #: betty/resources/templates/page/list-source.html.j2:2
 msgid "Sources"
 msgstr "Bronnen"
 
-#: betty/resources/templates/base.html.j2:71
+#: betty/resources/templates/base.html.j2:70
 msgid "Language"
 msgstr "Taal"
 
-#: betty/resources/templates/base.html.j2:92
-#: betty/resources/templates/page/citation.html.j2:16
-#: betty/resources/templates/page/source.html.j2:17
+#: betty/resources/templates/base.html.j2:91
 msgid "References"
 msgstr "Referenties"
 
-#: betty/resources/templates/event-dimensions.html.j2:17
+#: betty/resources/templates/event-dimensions.html.j2:20
 #, python-format
 msgid "%(date)s in %(place)s"
 msgstr "%(date)s te %(place)s"
 
-#: betty/resources/templates/event-dimensions.html.j2:21
+#: betty/resources/templates/event-dimensions.html.j2:24
 #, python-format
 msgid "in %(place)s"
 msgstr "te %(place)s"
@@ -301,119 +300,128 @@ msgstr ""
 "Een familieverhaal verteld door <a "
 "href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
 
-#: betty/resources/templates/macro/person.html.j2:7
-#: betty/resources/templates/macro/person.html.j2:39
-#: betty/resources/templates/person-meta.html.j2:11
-msgid "This person's details are unavailable to protect their privacy."
-msgstr "De gegevens van deze persoon zijn niet beschikbaar vanwege privacyredenen."
-
-#: betty/resources/templates/person-meta.html.j2:14
-#, python-format
-msgid "Also known as %(names)s"
-msgstr "Ook bekend als %(names)s"
-
-#: betty/resources/templates/macro/citation.html.j2:29
+#: betty/resources/templates/label/citation.html.j2:18
 #, python-format
 msgid "Accessed %(date)s"
 msgstr "Opgevraagd op %(date)s"
 
-#: betty/resources/templates/macro/event.html.j2:21
+#: betty/resources/templates/label/event.html.j2:25
 #, python-format
 msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s met %(subjects)s"
 
-#: betty/resources/templates/macro/event.html.j2:25
+#: betty/resources/templates/label/event.html.j2:29
 #, python-format
 msgid "%(event)s of %(subjects)s"
 msgstr "%(event)s van %(subjects)s"
 
-#: betty/resources/templates/macro/event.html.j2:34
-msgid "Birth"
-msgstr "Geboorte"
+#: betty/resources/templates/label/person.html.j2:10
+#: betty/resources/templates/macro/person.html.j2:24
+#: betty/resources/templates/meta/person.html.j2:12
+msgid "This person's details are unavailable to protect their privacy."
+msgstr "De gegevens van deze persoon zijn niet beschikbaar vanwege privacyredenen."
 
-#: betty/resources/templates/macro/event.html.j2:35
-msgid "Baptism"
-msgstr "Doping"
-
-#: betty/resources/templates/macro/event.html.j2:36
-msgid "Adoption"
-msgstr "Adoptie"
-
-#: betty/resources/templates/macro/event.html.j2:37
-msgid "Cremation"
-msgstr "Crematie"
-
-#: betty/resources/templates/macro/event.html.j2:38
-msgid "Death"
-msgstr "Overlijden"
-
-#: betty/resources/templates/macro/event.html.j2:39
-msgid "Burial"
-msgstr "Begravenis"
-
-#: betty/resources/templates/macro/event.html.j2:40
-msgid "Engagement"
-msgstr "Verloving"
-
-#: betty/resources/templates/macro/event.html.j2:41
-msgid "Marriage"
-msgstr "Huwelijk"
-
-#: betty/resources/templates/macro/event.html.j2:42
-msgid "Marriage banns"
-msgstr "Ondertrouw"
-
-#: betty/resources/templates/macro/event.html.j2:43
-msgid "Divorce"
-msgstr "Echtscheiding"
-
-#: betty/resources/templates/macro/event.html.j2:44
-msgid "Divorce filing"
-msgstr "Aanvraag echtscheiding"
-
-#: betty/resources/templates/macro/event.html.j2:45
-msgid "Residence"
-msgstr "Woonplaats"
-
-#: betty/resources/templates/macro/event.html.j2:46
-msgid "Immigration"
-msgstr "Immigratie"
-
-#: betty/resources/templates/macro/event.html.j2:47
-msgid "Emigration"
-msgstr "Emigratie"
-
-#: betty/resources/templates/macro/event.html.j2:48
-msgid "Occupation"
-msgstr "Beroep"
-
-#: betty/resources/templates/macro/event.html.j2:49
-msgid "Retirement"
-msgstr "Pensioen"
-
-#: betty/resources/templates/macro/event.html.j2:56
-msgid "Subject"
-msgstr "Onderwerp"
-
-#: betty/resources/templates/macro/event.html.j2:57
-msgid "Witness"
-msgstr "Getuige"
-
-#: betty/resources/templates/macro/person.html.j2:7
-#: betty/resources/templates/macro/person.html.j2:39
+#: betty/resources/templates/label/person.html.j2:10
+#: betty/resources/templates/macro/person.html.j2:24
 msgid "private"
-msgstr ""
+msgstr "privé"
 
-#: betty/resources/templates/macro/person.html.j2:11
-#: betty/resources/templates/macro/person.html.j2:54
+#: betty/resources/templates/label/person.html.j2:14
+#: betty/resources/templates/macro/person.html.j2:39
 msgid "This person's name is unknown."
 msgstr "De naam van deze persoon is onbekend."
 
-#: betty/resources/templates/page/event.html.j2:21
+#: betty/resources/templates/macro/event.html.j2:3
+msgid "Birth"
+msgstr "Geboorte"
+
+#: betty/resources/templates/macro/event.html.j2:4
+msgid "Baptism"
+msgstr "Doping"
+
+#: betty/resources/templates/macro/event.html.j2:5
+msgid "Adoption"
+msgstr "Adoptie"
+
+#: betty/resources/templates/macro/event.html.j2:6
+msgid "Cremation"
+msgstr "Crematie"
+
+#: betty/resources/templates/macro/event.html.j2:7
+msgid "Death"
+msgstr "Overlijden"
+
+#: betty/resources/templates/macro/event.html.j2:8
+msgid "Burial"
+msgstr "Begravenis"
+
+#: betty/resources/templates/macro/event.html.j2:9
+msgid "Engagement"
+msgstr "Verloving"
+
+#: betty/resources/templates/macro/event.html.j2:10
+msgid "Marriage"
+msgstr "Huwelijk"
+
+#: betty/resources/templates/macro/event.html.j2:11
+msgid "Marriage banns"
+msgstr "Ondertrouw"
+
+#: betty/resources/templates/macro/event.html.j2:12
+msgid "Divorce"
+msgstr "Echtscheiding"
+
+#: betty/resources/templates/macro/event.html.j2:13
+msgid "Divorce filing"
+msgstr "Aanvraag echtscheiding"
+
+#: betty/resources/templates/macro/event.html.j2:14
+msgid "Residence"
+msgstr "Woonplaats"
+
+#: betty/resources/templates/macro/event.html.j2:15
+msgid "Immigration"
+msgstr "Immigratie"
+
+#: betty/resources/templates/macro/event.html.j2:16
+msgid "Emigration"
+msgstr "Emigratie"
+
+#: betty/resources/templates/macro/event.html.j2:17
+msgid "Occupation"
+msgstr "Beroep"
+
+#: betty/resources/templates/macro/event.html.j2:18
+msgid "Retirement"
+msgstr "Pensioen"
+
+#: betty/resources/templates/macro/event.html.j2:25
+msgid "Subject"
+msgstr "Onderwerp"
+
+#: betty/resources/templates/macro/event.html.j2:26
+msgid "Witness"
+msgstr "Getuige"
+
+#: betty/resources/templates/macro/event.html.j2:31
+msgid "Attendee"
+msgstr "Aanwezige"
+
+#: betty/resources/templates/meta/person.html.j2:15
+#, python-format
+msgid "Also known as %(names)s"
+msgstr "Ook bekend als %(names)s"
+
+#: betty/resources/templates/page/citation.html.j2:14
+#: betty/resources/templates/page/source.html.j2:15
+msgid "Facts"
+msgstr "Feiten"
+
+#: betty/resources/templates/page/event.html.j2:25
 msgid "Witnesses"
 msgstr "Getuigen"
 
-#: betty/resources/templates/page/event.html.j2:36
+#: betty/resources/templates/page/event.html.j2:40
 msgid "Other attendees"
 msgstr "Overige aanwezigen"
 
@@ -421,22 +429,30 @@ msgstr "Overige aanwezigen"
 msgid "Notes"
 msgstr "Opmerkingen"
 
-#: betty/resources/templates/page/person.html.j2:22
+#: betty/resources/templates/page/file.html.j2:19
+msgid "Appearances"
+msgstr "Verschijningen"
+
+#: betty/resources/templates/page/file.html.j2:31
+msgid "Source"
+msgstr "Bron"
+
+#: betty/resources/templates/page/person.html.j2:26
 msgid "Parents"
 msgstr "Ouders"
 
-#: betty/resources/templates/page/person.html.j2:32
+#: betty/resources/templates/page/person.html.j2:39
 msgid "Children"
 msgstr "Kinderen"
 
-#: betty/resources/templates/page/person.html.j2:37
+#: betty/resources/templates/page/person.html.j2:44
 #, python-format
 msgid "with %(parents)s:"
 msgid_plural "with %(parents)s:"
 msgstr[0] "met %(parents)s:"
 msgstr[1] "met %(parents)s:"
 
-#: betty/resources/templates/page/person.html.j2:54
+#: betty/resources/templates/page/person.html.j2:61
 msgid "Siblings"
 msgstr "Broers en zussen"
 

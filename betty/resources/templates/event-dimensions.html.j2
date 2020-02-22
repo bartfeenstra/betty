@@ -1,16 +1,19 @@
-{%- import 'macro/place.html.j2' as placeMacros -%}
 {%- import 'macro/citation.html.j2' as citationMacros -%}
-{%- if not embedded is defined -%}
-    {%- set embedded = False -%}
-{%- endif -%}
+{% set embedded = embedded | default(False) %}
+{% set citation_context = citation_context | default(none) %}
+{% set place_context = place_context | default(none) %}
 {% set formattedDate = none %}
 {% if event.date %}
     {% set formattedDate = event.date | format_date %}
 {%- endif %}
 
 {% set formattedPlace = none %}
-{% if event.place and (place_context is not defined or event.place != place_context) %}
-    {% set formattedPlace = placeMacros.label(event.place, place_context, embedded=embedded) %}
+{% if event.place and event.place != place_context %}
+    {% set formattedPlace %}
+        {% with place=event.place %}
+            {% include 'label/place.html.j2' %}
+        {% endwith %}
+    {% endset %}
 {% endif -%}
 
 {% if formattedDate and formattedPlace %}
@@ -25,5 +28,5 @@
     {{ formattedDate }}
 {%- endif %}
 {%- if not embedded -%}
-    {{ citationMacros.cite(event.citations) }}
+    {{ citationMacros.cite(event.citations | reject('eq', citation_context)) }}
 {%- endif -%}
