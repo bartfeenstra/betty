@@ -19,7 +19,7 @@ from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup
 from resizeimage import resizeimage
 
-from betty.ancestry import File, Citation, Event, Presence, Identifiable
+from betty.ancestry import File, Citation, Event, Presence, Identifiable, Resource
 from betty.config import Configuration
 from betty.fs import iterfiles, makedirs, hashfile, is_hidden
 from betty.functools import walk
@@ -129,12 +129,8 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
         return htmlsafe_json_dumps(data, indent=indent, dumper=lambda *args, **kwargs: _filter_json(context, *args, **kwargs))
 
     environment.filters['tojson'] = _filter_tojson
-
-    def _is_entity(x):
-        return isinstance(x, Identifiable)
-    environment.filters['is_entity'] = _is_entity
-    environment.tests['is_entity'] = _is_entity
-
+    environment.tests['resource'] = lambda x: isinstance(x, Resource)
+    environment.tests['identifiable'] = lambda x: isinstance(x, Identifiable)
     environment.filters['paragraphs'] = _filter_paragraphs
 
     def _filter_format_date(date: Datey):
@@ -180,7 +176,7 @@ def render_file(file_source_path: str, environment: Environment, configuration: 
                 resource_parts = resource.lstrip('/').split('/')
                 if resource_parts[0] in map(lambda x: x.alias, configuration.locales.values()):
                     resource = '/'.join(resource_parts[1:])
-            data['resource'] = resource
+            data['page_resource'] = resource
     template = _root_loader.load(
         environment, file_source_path, environment.globals)
     with open(file_destination_path, 'w') as f:

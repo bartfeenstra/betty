@@ -1,36 +1,24 @@
 {% extends 'base.html.j2' %}
-{%- import 'macro/citation.html.j2' as citationMacros -%}
-{%- import 'macro/fact.html.j2' as factMacros -%}
-{% set title = citation.location %}
-{% block content %}
+{% set page_title = citation.location %}
+{% block page_content %}
     <div class="meta">
-    {{ citationMacros.label(citation, citation) }}
+    {%- include 'meta/citation.html.j2' -%}
     </div>
     {% set files = citation.files %}
     {% if files | length > 0 %}
         <h2>{{ _('Media') }}</h2>
         {% include 'list-file.html.j2' %}
     {% endif %}
-    {% set facts = citation.facts | select('is_entity') | list %}
-
-
-
-    {# @todo DO NOT RENDER CITATIONS/REFERENCES   #}
-
-{# @todo We keep calling these label macros from everywhere   #}
-{# @todo But they must also be context-aware   #}
-{# @todo However, not every macro needs to be aware of every type of context. If they do not render citations, they do not need to be citation-aware   #}
-{# @todo Also, not every caller knows which contexts the macro needs    #}
-{# @todo Can we convert these to template files instead, that just read the current variables, and if one with the correct name exists, use that as a context?   #}
-{# @todo    #}
-{# @todo    #}
-
+    {% set facts = citation.facts | select('resource') | list %}
     {% if facts | length > 0 %}
         <h2>{% trans %}Facts{% endtrans %}</h2>
         <ul class="entities">
             {% for fact in facts %}
                 <li class="{{ loop.cycle('odd', 'even') }}">
-                    <a href="{{ fact | url }}">{{ factMacros.label(fact, citation_context=citation) }}</a>
+                    {%- with resource=fact, citation_context=citation -%}
+                        {%- include 'label/resource.html.j2' -%}
+                        {%- include 'meta/resource.html.j2' -%}
+                    {% endwith %}
                 </li>
             {% endfor %}
         </ul>

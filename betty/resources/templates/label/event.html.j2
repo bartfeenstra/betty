@@ -1,6 +1,11 @@
-{%- import 'macro/person.html.j2' as personMacros -%}
-{%- set formattedEvent = type_label(event) -%}
-{%- if event | is_entity -%}
+{%- import 'macro/event.html.j2' as eventMacros -%}
+{% set event = event | default(resource) %}
+{% set person_context = person_context | default(None) %}
+{% macro personLabel(person) %}
+    {% include 'label/person.html.j2' %}
+{% endmacro %}
+{%- set formattedEvent = eventMacros.type_label(event.type) -%}
+{%- if event is identifiable -%}
     {% set formattedEvent = '<a href="' + event | url + '">' + formattedEvent + '</a>' %}
 {%- endif -%}
 {% if event.description is not none %}
@@ -12,7 +17,7 @@
         {% set ns.subjects = ns.subjects + [presence.person] %}
     {% endif %}
 {% endfor %}
-{% set formattedSubjects = ns.subjects | sort(attribute='name') | map(personMacros.label) | join(', ') %}
+{% set formattedSubjects = ns.subjects | sort(attribute='name') | map(personLabel) | join(', ') %}
 {%- if ns.subjects | length == 0 -%}
     {{ formattedEvent }}
 {% else %}

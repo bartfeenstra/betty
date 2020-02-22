@@ -199,7 +199,7 @@ class JSONEncoder(stdjson.JSONEncoder):
     def _encode_file(self, file: File) -> Dict:
         encoded = {
             'id': file.id,
-            'entities': [self._generate_url(entity) for entity in file.entities],
+            'entities': [self._generate_url(entity) for entity in file.resources],
             'notes': file.notes,
         }
         self._encode_schema(encoded, 'file')

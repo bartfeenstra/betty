@@ -1,35 +1,4 @@
-{%- import 'macro/person.html.j2' as personMacros -%}
-{%- macro label(event, citation_context=None, person_context=None) -%}
-    {%- set formattedEvent = type_label(event) -%}
-    {%- if event | is_entity -%}
-        {% set formattedEvent = '<a href="' + event | url + '">' + formattedEvent + '</a>' %}
-    {%- endif -%}
-    {% if event.description is not none %}
-        {% set formattedEvent = formattedEvent + ' (' + event.description + ')' %}
-    {% endif %}
-    {% set ns = namespace(subjects=[]) %}
-    {% for presence in event.presences %}
-        {% if PresenceRole.SUBJECT == presence.role and presence.person != person_context %}
-            {% set ns.subjects = ns.subjects + [presence.person] %}
-        {% endif %}
-    {% endfor %}
-    {% set formattedSubjects = ns.subjects | sort(attribute='name') | map(personMacros.label) | join(', ') %}
-    {%- if ns.subjects | length == 0 -%}
-        {{ formattedEvent }}
-    {% else %}
-        {%- if person_context is not none and person_context in (event.presences | selectattr('role', 'equalto', PresenceRole.SUBJECT) | map(attribute='person')) %}
-            {% trans event = formattedEvent, subjects = formattedSubjects -%}
-                {{ event }} with {{ subjects }}
-            {%- endtrans %}
-        {% else %}
-            {% trans event = formattedEvent, subjects = formattedSubjects -%}
-                {{ event }} of {{ subjects }}
-            {%- endtrans %}
-        {% endif -%}
-    {%- endif -%}
-{%- endmacro -%}
-
-{% macro type_label(event) -%}
+{% macro type_label(type) -%}
     {%- set _type_labels = {
         EventType.BIRTH: _('Birth'),
         EventType.BAPTISM: _('Baptism'),
@@ -48,16 +17,16 @@
         EventType.OCCUPATION: _('Occupation'),
         EventType.RETIREMENT: _('Retirement'),
     } -%}
-    {{ _type_labels[event.type] }}
+    {{ _type_labels[type] }}
 {%- endmacro -%}
 
-{% macro presence_role_label(presence) -%}
+{% macro presence_role_label(role) -%}
     {%- set _role_labels = {
         PresenceRole.SUBJECT: _('Subject'),
         PresenceRole.WITNESS: _('Witness'),
     } -%}
-    {%- if presence.role in _role_labels -%}
-        {{ _role_labels[presence.role] }}
+    {%- if role in _role_labels -%}
+        {{ _role_labels[role] }}
     {%- else -%}
         {% trans %}Attendee{% endtrans %}
     {%- endif -%}

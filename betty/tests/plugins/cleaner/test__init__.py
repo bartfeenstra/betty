@@ -87,7 +87,7 @@ class CleanTest(TestCase):
 
         self.assertNotIn(event.id, ancestry.events)
         self.assertNotIn(event, citation.facts)
-        self.assertNotIn(event, file.entities)
+        self.assertNotIn(event, file.resources)
 
     def test_clean_should_clean_private_people_without_descendants(self) -> None:
         ancestry = Ancestry()

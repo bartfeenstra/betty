@@ -1,20 +1,19 @@
 {% do citer.track() %}
-{%- import 'macro/citation.html.j2' as citationMacros -%}
 <!doctype html>
 <html lang="{{ locale }}"
       prefix="foaf: http://xmlns.com/foaf/0.1/ og: http://ogp.me/ns# rel: http://purl.org/vocab/relationship/">
 <head>
-    <title>{{ title | striptags }} - {{ site.configuration.title }}</title>
+    <title>{{ page_title | striptags }} - {{ site.configuration.title }}</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Betty (https://github.com/bartfeenstra/betty)"/>
     {% if site.configuration.author %}
         <meta name="author" content="{{ site.configuration.author }}"/>
     {% endif %}
-    <meta name="og:title" content="{{ title | striptags }}"/>
+    <meta name="og:title" content="{{ page_title | striptags }}"/>
     <meta name="og:site_name" content="{{ site.configuration.title }}"/>
-    {% if resource is defined -%}
-        {%- for file in resource.files | default([]) -%}
+    {% if page_resource is defined -%}
+        {%- for file in page_resource.files | default([]) -%}
             {%- if file.type.startswith('image/') %}
                 <meta name="og:image" content="{{ file | image(600, 600) | static_url }}"/>
                 {%- if file.description %}
@@ -22,11 +21,11 @@
                 {%- endif -%}
             {%- endif -%}
         {%- endfor -%}
-        <link rel="canonical" href="{{ resource | url(absolute=true) }}"/>
-        {% if resource | is_entity -%}
-            <link rel="alternate" href="{{ resource | url(content_type='application/json') }}" type="application/json"/>
+        <link rel="canonical" href="{{ page_resource | url(absolute=true) }}"/>
+        {% if page_resource is defined and page_resource is resource and resource is identifiable -%}
+            <link rel="alternate" href="{{ page_resource | url(content_type='application/json') }}" type="application/json"/>
             <script type="application/ld+json">
-              {{ resource | tojson }}
+              {{ page_resource | tojson }}
             </script>
         {%- endif -%}
     {%- endif %}
@@ -66,7 +65,7 @@
             </ul>
         </div>
     </div>
-    {%- if resource is defined and site.configuration.multilingual %}
+    {%- if page_resource is defined and site.configuration.multilingual %}
         <div id="nav-locale" class="nav-primary-expandable">
             <h2 class="nav-primary-action">{{ _('Language') }}</h2>
             <div class="nav-primary-expanded">
@@ -77,7 +76,7 @@
                     {% do ns.available_locales.append((available_locale, available_locale_data.get_display_name())) %}
                 {% endfor %}
                 {% for available_locale, available_locale_name in ns.available_locales | sort(attribute='1') %}
-                    <li><a href="{{ resource | url(locale=available_locale) }}" hreflang="{{ available_locale }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a></li>
+                    <li><a href="{{ page_resource | url(locale=available_locale) }}" hreflang="{{ available_locale }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a></li>
                 {% endfor %}
                 </ul>
             </div>
@@ -85,14 +84,14 @@
     {% endif -%}
 </nav>
 <div id="content">
-    <h1>{{ title }}</h1>
-    {%- block content -%}{%- endblock -%}
+    <h1>{{ page_title }}</h1>
+    {%- block page_content -%}{%- endblock -%}
     {% if citer | length > 0 %}
         <section class="references">
             <h2>{{ _('References') }}</h2>
             <ol>
             {% for number, citation in citer %}
-                <li id="reference-{{ number }}" class="reference">{{ citationMacros.label(citation) }}</li>
+                <li id="reference-{{ number }}" class="reference">{% include 'label/citation.html.j2' %}</li>
             {% endfor %}
             </ol>
         </section>

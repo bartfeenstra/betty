@@ -30,7 +30,7 @@ def anonymize_person(person: Person) -> None:
 
     # Copy the files, because the original iterable will be altered inside the loop.
     for file in list(person.files):
-        file.entities.clear()
+        file.resources.clear()
 
     # If a person is public themselves, or a node connecting other public persons, preserve their place in the graph.
     if person.private and not _has_public_descendants(person):

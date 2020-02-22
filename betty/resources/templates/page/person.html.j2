@@ -1,8 +1,12 @@
 {% extends 'base.html.j2' %}
 {% import 'macro/person.html.j2' as personMacros %}
-{% set title = personMacros.label(person, person) %}
-{% block content %}
-    {% include 'person-meta.html.j2' %}
+{%- set page_title -%}
+    {%- with embedded=True -%}
+        {%- include 'label/person.html.j2' -%}
+    {%- endwith -%}
+{%- endset -%}
+{% block page_content %}
+    {% include 'meta/person.html.j2' %}
 
     {% set places = person.presences | map(attribute='event.place') | reject('equalto', None) | unique | list %}
     {% if places | length > 0 %}
@@ -22,12 +26,15 @@
         <h2>{{ _('Parents') }}</h2>
         <ul>
             {% for parent in parents %}
-                <li typeof="foaf:Person" property="rel:childOf">{{ personMacros.label(parent) }}</li>
+                <li typeof="foaf:Person" property="rel:childOf">{%- with person=parent -%}{%- include 'label/person.html.j2' -%}{%- endwith -%}</li>
             {% endfor %}
         </ul>
     {% endif %}
 
     {% set children = person.children | list %}
+    {% macro otherParentLabel(parent) -%}
+        <span typeof="foaf:Person" property="rel:spouseOf">{% with person=parent, person_context=person %}{%- include 'label/person.html.j2' -%}{% endwith %}</span>
+    {%- endmacro %}
     {% if children | length > 0 %}
         <h2>{{ _('Children') }}</h2>
         {% for parents, siblings in children | groupby('parents.list') %}
@@ -42,7 +49,7 @@
                 {% endif %}
             <ul>
                 {% for child in siblings %}
-                    <li typeof="foaf:Person" property="rel:parentOf">{{ personMacros.label(child) }}</li>
+                    <li typeof="foaf:Person" property="rel:parentOf">{%- with person=child -%}{%- include 'label/person.html.j2' -%}{%- endwith -%}</li>
                 {% endfor %}
             </ul>
             </p>
@@ -54,7 +61,7 @@
         <h2>{{ _('Siblings') }}</h2>
         <ul>
             {% for sibling in siblings %}
-                <li typeof="foaf:Person" property="rel:siblingOf">{{ personMacros.label(sibling) }}</li>
+                <li typeof="foaf:Person" property="rel:siblingOf">{%- with person=sibling -%}{%- include 'label/person.html.j2' -%}{%- endwith -%}</li>
             {% endfor %}
         </ul>
     {% endif %}
@@ -78,7 +85,3 @@
         {% include 'list-file.html.j2' %}
     {% endif %}
 {% endblock %}
-
-{% macro otherParentLabel(person) -%}
-    <span typeof="foaf:Person" property="rel:spouseOf">{{ personMacros.label(person) }}</span>
-{%- endmacro %}

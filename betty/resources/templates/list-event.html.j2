@@ -1,18 +1,19 @@
 {%- import 'macro/event.html.j2' as eventMacros -%}
+{% set person_context = person_context | default(none) %}
 {% set dated_events = events | rejectattr('date', 'none') | selectattr('date.complete') | sort(attribute='date') %}
 {% if dated_events | length > 0 %}
     <ul class="entities">
         {%- for event in dated_events %}
             <li class="{{ loop.cycle('odd', 'even') }}">
-                {{ eventMacros.label(event, person_context=person_context | default(None)) }}
+                {% include 'label/event.html.j2' %}
                 {% if person_context is not none %}
                     {% for presence in event.presences %}
                         {% if person_context is defined and presence.person == person_context and presence.role != PresenceRole.SUBJECT %}
-                            ({{ eventMacros.presence_role_label(presence) }})
+                            ({{ eventMacros.presence_role_label(presence.role) }})
                         {% endif %}
                     {% endfor %}
                 {% endif %}
-                {% include 'event-meta.html.j2' %}
+                {% include 'meta/event.html.j2' %}
             </li>
         {%- endfor -%}
     </ul>

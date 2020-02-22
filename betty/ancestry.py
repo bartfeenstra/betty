@@ -130,6 +130,12 @@ def many_to_one(self_name: str, associated_name: str):
     return decorator
 
 
+class Resource:
+    @property
+    def resource_type_name(self) -> str:
+        raise NotImplementedError
+
+
 class Dated:
     def __init__(self):
         self._date = None
@@ -197,9 +203,10 @@ class HasLinks:
         return self._links
 
 
-@many_to_many('entities', 'files')
-class File(Identifiable, Described):
-    entities: ManyAssociation
+@many_to_many('resources', 'files')
+class File(Resource, Identifiable, Described):
+    resource_type_name = 'file'
+    resources: ManyAssociation
 
     def __init__(self, file_id: str, path: str):
         Identifiable.__init__(self, file_id)
@@ -243,7 +250,7 @@ class File(Identifiable, Described):
 
     @property
     def sources(self) -> Iterable['Source']:
-        for entity in self.entities:
+        for entity in self.resources:
             if isinstance(entity, Source):
                 yield entity
             if isinstance(entity, Citation):
@@ -251,12 +258,12 @@ class File(Identifiable, Described):
 
     @property
     def citations(self) -> Iterable['Citation']:
-        for entity in self.entities:
+        for entity in self.resources:
             if isinstance(entity, Citation):
                 yield entity
 
 
-@many_to_many('files', 'entities')
+@many_to_many('files', 'resources')
 class HasFiles:
     files: ManyAssociation[File]
 
@@ -264,7 +271,9 @@ class HasFiles:
 @many_to_one('contained_by', 'contains')
 @one_to_many('contains', 'contained_by')
 @one_to_many('citations', 'source')
-class Source(Identifiable, Dated, HasFiles, HasLinks):
+class Source(Resource, Identifiable, Dated, HasFiles, HasLinks):
+    resource_type_name = 'source'
+
     def __init__(self, source_id: str, name: str):
         Identifiable.__init__(self, source_id)
         Dated.__init__(self)
@@ -301,7 +310,8 @@ class Source(Identifiable, Dated, HasFiles, HasLinks):
 
 @many_to_many('facts', 'citations')
 @many_to_one('source', 'citations')
-class Citation(Identifiable, Dated, HasFiles):
+class Citation(Resource, Identifiable, Dated, HasFiles):
+    resource_type_name = 'citation'
     source: Source
 
     def __init__(self, citation_id: str, source: Source):
@@ -350,7 +360,9 @@ class LocalizedName(Localized):
 @one_to_many('events', 'place')
 @many_to_one('enclosed_by', 'encloses')
 @one_to_many('encloses', 'enclosed_by')
-class Place(Identifiable, HasLinks):
+class Place(Resource, Identifiable, HasLinks):
+    resource_type_name = 'place'
+
     def __init__(self, place_id: str, names: List[LocalizedName]):
         Identifiable.__init__(self, place_id)
         HasLinks.__init__(self)
@@ -393,7 +405,8 @@ class Presence:
 
 @many_to_one('place', 'events')
 @one_to_many('presences', 'event')
-class Event(Dated, HasFiles, HasCitations, Described):
+class Event(Resource, Dated, HasFiles, HasCitations, Described):
+    resource_type_name = 'event'
     place: Place
     presences: ManyAssociation[Presence]
 
@@ -477,7 +490,8 @@ class PersonName(Localized, HasCitations):
 @many_to_many('children', 'parents')
 @one_to_many('presences', 'person')
 @one_to_many('names', 'person')
-class Person(Identifiable, HasFiles, HasCitations, HasLinks):
+class Person(Resource, Identifiable, HasFiles, HasCitations, HasLinks):
+    resource_type_name = 'person'
     parents: ManyAssociation['Person']
     children: ManyAssociation['Person']
     presences: ManyAssociation[Presence]
