@@ -169,7 +169,7 @@ class PluginsTest(TestCase):
         with TemporaryDirectory() as www_directory_path:
             environment = create_environment(
                 Site(Configuration(www_directory_path, 'https://example.com')))
-            template = '{%- if "betty.UnknownModule.Plugin" in plugins %}true{% else %}false{% endif %}'
+            template = '{% if "betty.UnknownModule.Plugin" in plugins %}true{% else %}false{% endif %}'
             self.assertEquals(
                 'false', environment.from_string(template).render())
 
@@ -177,7 +177,7 @@ class PluginsTest(TestCase):
         with TemporaryDirectory() as www_directory_path:
             environment = create_environment(
                 Site(Configuration(www_directory_path, 'https://example.com')))
-            template = '{%- if "betty.UnknownPlugin" in plugins %}true{% else %}false{% endif %}'
+            template = '{% if "betty.UnknownPlugin" in plugins %}true{% else %}false{% endif %}'
             self.assertEquals(
                 'false', environment.from_string(template).render())
 
@@ -185,7 +185,7 @@ class PluginsTest(TestCase):
         with TemporaryDirectory() as www_directory_path:
             environment = create_environment(
                 Site(Configuration(www_directory_path, 'https://example.com')))
-            template = '{%- if "' + TestPlugin.__module__ + \
+            template = '{% if "' + TestPlugin.__module__ + \
                 '.TestPlugin" in plugins %}true{% else %}false{% endif %}'
             self.assertEquals(
                 'false', environment.from_string(template).render())
@@ -196,7 +196,7 @@ class PluginsTest(TestCase):
                 www_directory_path, 'https://example.com')
             configuration.plugins[TestPlugin] = {}
             environment = create_environment(Site(configuration))
-            template = '{%- if "' + TestPlugin.__module__ + \
+            template = '{% if "' + TestPlugin.__module__ + \
                 '.TestPlugin" in plugins %}true{% else %}false{% endif %}'
             self.assertEquals(
                 'true', environment.from_string(template).render())

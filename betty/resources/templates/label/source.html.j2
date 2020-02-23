@@ -1,9 +1,9 @@
-{%- set source = source | default(resource) -%}
-{%- set embedded = embedded | default(False) -%}
-{%- if not embedded -%}
+{% set source = source | default(resource) %}
+{% set embedded = embedded | default(False) %}
+{% if not embedded -%}
     <a href="{{ source | url }}">
 {%- endif -%}
 {{ source.name }}
 {%- if not embedded -%}
     </a>
-{%- endif -%}
+{%- endif %}

@@ -12,23 +12,23 @@
     {% endif %}
     <meta name="og:title" content="{{ page_title | striptags }}"/>
     <meta name="og:site_name" content="{{ site.configuration.title }}"/>
-    {% if page_resource is defined -%}
-        {%- for file in page_resource.files | default([]) -%}
-            {%- if file.type.startswith('image/') %}
+    {% if page_resource is defined %}
+        {% for file in page_resource.files | default([]) %}
+            {% if file.type.startswith('image/') %}
                 <meta name="og:image" content="{{ file | image(600, 600) | static_url }}"/>
-                {%- if file.description %}
+                {% if file.description %}
                     <meta name="og:image:description" content="{{ file.description }}"/>
-                {%- endif -%}
-            {%- endif -%}
-        {%- endfor -%}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
         <link rel="canonical" href="{{ page_resource | url(absolute=true) }}"/>
-        {% if page_resource is defined and page_resource is resource and resource is identifiable -%}
+        {% if page_resource is defined and page_resource is resource and resource is identifiable %}
             <link rel="alternate" href="{{ page_resource | url(content_type='application/json') }}" type="application/json"/>
             <script type="application/ld+json">
               {{ page_resource | tojson }}
             </script>
-        {%- endif -%}
-    {%- endif %}
+        {% endif %}
+    {% endif %}
     <meta name="og:image" content="/betty-512x512.png"/>
     <link rel="stylesheet" href="{{ '/betty.css' | static_url }}"/>
     <link rel="icon" href="{{ '/betty.ico' | static_url }}"/>
@@ -41,18 +41,18 @@
     <script>
         document.getElementById('js-visibility').innerHTML = '.js-hide{display:none;}'
     </script>
-    {%- if 'betty.plugins.js.Js' in plugins %}
+    {% if 'betty.plugins.js.Js' in plugins %}
     <script src="{{ '/betty.js' | static_url }}" defer></script>
-    {% endif -%}
+    {% endif %}
 </head>
 <body>
 <nav id="nav-primary">
     <a id="site-title" href="{{ '/index.html' | url }}" title="{{ site.configuration.title }}">{{ site.configuration.title }}</a>
-    {%- if 'betty.plugins.search.Search' in plugins %}
+    {% if 'betty.plugins.search.Search' in plugins %}
         <form id="search" autocomplete="off">
             <input id="search-query" type="search"/>
         </form>
-    {% endif -%}
+    {% endif %}
     <div id="nav-sections" class="nav-primary-expandable">
         <h2 class="nav-primary-action">{% trans %}Menu{% endtrans %}</h2>
         <div class="nav-primary-expanded">
@@ -65,7 +65,7 @@
             </ul>
         </div>
     </div>
-    {%- if page_resource is defined and site.configuration.multilingual %}
+    {% if page_resource is defined and site.configuration.multilingual %}
         <div id="nav-locale" class="nav-primary-expandable">
             <h2 class="nav-primary-action">{{ _('Language') }}</h2>
             <div class="nav-primary-expanded">
@@ -81,11 +81,11 @@
                 </ul>
             </div>
         </div>
-    {% endif -%}
+    {% endif %}
 </nav>
 <div id="content">
     <h1>{{ page_title }}</h1>
-    {%- block page_content -%}{%- endblock -%}
+    {% block page_content %}{% endblock %}
     {% if citer | length > 0 %}
         <section class="references">
             <h2>{{ _('References') }}</h2>

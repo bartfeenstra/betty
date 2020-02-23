@@ -1,26 +1,19 @@
-{%- import 'macro/citation.html.j2' as citationMacros -%}
+{% import 'macro/citation.html.j2' as citationMacros %}
 
-{%- macro nameLabel(name, embedded=False) -%}
+{% macro nameLabel(name, embedded=False) -%}
     <span class="person-label" typeof="foaf:Person">
-    {%- if name.individual is not none -%}
-        <span property="foaf:individualName">{{ name.individual }}</span>
-    {%- else -%}
-        …
-    {%- endif -%}
-    {%- if name.affiliation is not none %}
-        <span property="foaf:familyName">{{ name.affiliation }}</span>
-    {%- endif -%}
+    {%- if name.individual is not none %}<span property="foaf:individualName">{{ name.individual }}</span>{% else %}…{% endif %} {% if name.affiliation is not none %}<span property="foaf:familyName">{{ name.affiliation }}</span>{% endif -%}
     </span>
     {%- if not embedded -%}
         {{ citationMacros.cite(name.citations) }}
     {%- endif -%}
-{%- endmacro -%}
+{%- endmacro %}
 
-{%- macro sortableLabel(person, link=True) -%}
-    {%- if link -%}
+{% macro sortableLabel(person, link=True) %}
+    {% if link -%}
         <a href="{{ person | url }}">
-    {%- endif -%}
-    {%- if person.private -%}
+    {%- endif %}
+    {% if person.private -%}
         <span class="private" title="{% trans %}This person's details are unavailable to protect their privacy.{% endtrans %}">{% trans %}private{% endtrans %}</span>
     {%- elif person.name is not none -%}
         <span class="person-label" typeof="foaf:Person">
@@ -35,10 +28,10 @@
             …
         {%- endif -%}
         </span>
-    {% else %}
+    {%- else -%}
         <span class="nn" title="{% trans %}This person's name is unknown.{% endtrans %}">n.n.</span>
     {%- endif -%}
     {%- if link -%}
         </a>
     {%- endif -%}
-{%- endmacro -%}
+{% endmacro %}

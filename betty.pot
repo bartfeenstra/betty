@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-02-22 17:24+0000\n"
+"POT-Creation-Date: 2020-02-23 22:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -302,19 +302,19 @@ msgstr ""
 msgid "%(event)s of %(subjects)s"
 msgstr ""
 
-#: betty/resources/templates/label/person.html.j2:10
-#: betty/resources/templates/macro/person.html.j2:24
+#: betty/resources/templates/label/person.html.j2:9
+#: betty/resources/templates/macro/person.html.j2:17
 #: betty/resources/templates/meta/person.html.j2:12
 msgid "This person's details are unavailable to protect their privacy."
 msgstr ""
 
-#: betty/resources/templates/label/person.html.j2:10
-#: betty/resources/templates/macro/person.html.j2:24
+#: betty/resources/templates/label/person.html.j2:9
+#: betty/resources/templates/macro/person.html.j2:17
 msgid "private"
 msgstr ""
 
-#: betty/resources/templates/label/person.html.j2:14
-#: betty/resources/templates/macro/person.html.j2:39
+#: betty/resources/templates/label/person.html.j2:13
+#: betty/resources/templates/macro/person.html.j2:32
 msgid "This person's name is unknown."
 msgstr ""
 

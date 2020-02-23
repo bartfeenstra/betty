@@ -25,8 +25,10 @@ class NginxTest(TestCase):
     gzip_disable "msie6";
     gzip_vary on;
     gzip_types text/css application/javascript application/json application/xml;
+
         set $content_type_extension html;
     index index.$content_type_extension;
+
         location / {
             # Handle HTTP error responses.
             error_page 401 /.error/401.$content_type_extension;
@@ -59,8 +61,10 @@ class NginxTest(TestCase):
     gzip_disable "msie6";
     gzip_vary on;
     gzip_types text/css application/javascript application/json application/xml;
+
         set $content_type_extension html;
     index index.$content_type_extension;
+
         location / {
             # Handle HTTP error responses.
             error_page 401 /.error/401.$content_type_extension;
@@ -95,8 +99,10 @@ class NginxTest(TestCase):
     gzip_disable "msie6";
     gzip_vary on;
     gzip_types text/css application/javascript application/json application/xml;
+
         set $content_type_extension html;
     index index.$content_type_extension;
+
         location ~ ^/(en|nl)(/|$) {
             set $locale $1;
 
@@ -143,6 +149,7 @@ class NginxTest(TestCase):
     gzip_disable "msie6";
     gzip_vary on;
     gzip_types text/css application/javascript application/json application/xml;
+
         set_by_lua_block $content_type_extension {
             local available_content_types = {'text/html', 'application/json'}
             local content_type_extensions = {}
@@ -152,6 +159,7 @@ class NginxTest(TestCase):
             return content_type_extensions[content_type]
         }
     index index.$content_type_extension;
+
         location ~ ^/(en|nl)(/|$) {
             set $locale $1;
 
@@ -202,6 +210,7 @@ class NginxTest(TestCase):
     gzip_disable "msie6";
     gzip_vary on;
     gzip_types text/css application/javascript application/json application/xml;
+
         set_by_lua_block $content_type_extension {
             local available_content_types = {'text/html', 'application/json'}
             local content_type_extensions = {}
@@ -211,6 +220,7 @@ class NginxTest(TestCase):
             return content_type_extensions[content_type]
         }
     index index.$content_type_extension;
+
         location / {
             # Handle HTTP error responses.
             error_page 401 /.error/401.$content_type_extension;
@@ -233,12 +243,12 @@ class NginxTest(TestCase):
             configuration.plugins[Nginx] = {}
             site = Site(configuration)
             render(site)
-            expected = '''
-    server {
+            expected = '''    server {
         listen 80;
         server_name example.com;
         return 301 https://$host$request_uri;
-    }server {
+    }
+server {
 	listen 443 ssl http2;
 	server_name example.com;
 	root %s;
@@ -248,8 +258,10 @@ class NginxTest(TestCase):
     gzip_disable "msie6";
     gzip_vary on;
     gzip_types text/css application/javascript application/json application/xml;
+
         set $content_type_extension html;
     index index.$content_type_extension;
+
         location / {
             # Handle HTTP error responses.
             error_page 401 /.error/401.$content_type_extension;

@@ -1,5 +1,5 @@
 {% macro type_label(type) -%}
-    {%- set _type_labels = {
+    {% set _type_labels = {
         EventType.BIRTH: _('Birth'),
         EventType.BAPTISM: _('Baptism'),
         EventType.ADOPTION: _('Adoption'),
@@ -16,18 +16,18 @@
         EventType.EMIGRATION: _('Emigration'),
         EventType.OCCUPATION: _('Occupation'),
         EventType.RETIREMENT: _('Retirement'),
-    } -%}
+    } %}
     {{ _type_labels[type] }}
-{%- endmacro -%}
+{%- endmacro %}
 
 {% macro presence_role_label(role) -%}
-    {%- set _role_labels = {
+    {% set _role_labels = {
         PresenceRole.SUBJECT: _('Subject'),
         PresenceRole.WITNESS: _('Witness'),
-    } -%}
-    {%- if role in _role_labels -%}
+    } %}
+    {% if role in _role_labels %}
         {{ _role_labels[role] }}
-    {%- else -%}
+    {% else %}
         {% trans %}Attendee{% endtrans %}
-    {%- endif -%}
-{%- endmacro -%}
+    {% endif %}
+{%- endmacro %}
