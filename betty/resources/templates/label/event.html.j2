@@ -1,13 +1,13 @@
-{%- import 'macro/event.html.j2' as eventMacros -%}
+{% import 'macro/event.html.j2' as eventMacros %}
 {% set event = event | default(resource) %}
 {% set person_context = person_context | default(None) %}
 {% macro personLabel(person) %}
     {% include 'label/person.html.j2' %}
 {% endmacro %}
-{%- set formattedEvent = eventMacros.type_label(event.type) -%}
-{%- if event is identifiable -%}
+{% set formattedEvent = eventMacros.type_label(event.type) %}
+{% if event is identifiable %}
     {% set formattedEvent = '<a href="' + event | url + '">' + formattedEvent + '</a>' %}
-{%- endif -%}
+{% endif %}
 {% if event.description is not none %}
     {% set formattedEvent = formattedEvent + ' (' + event.description + ')' %}
 {% endif %}
@@ -18,10 +18,10 @@
     {% endif %}
 {% endfor %}
 {% set formattedSubjects = ns.subjects | sort(attribute='name') | map(personLabel) | join(', ') %}
-{%- if ns.subjects | length == 0 -%}
+{% if ns.subjects | length == 0 -%}
     {{ formattedEvent }}
-{% else %}
-    {%- if person_context is not none and person_context in (event.presences | selectattr('role', 'equalto', PresenceRole.SUBJECT) | map(attribute='person')) %}
+{%- else %}
+    {% if person_context is not none and person_context in (event.presences | selectattr('role', 'equalto', PresenceRole.SUBJECT) | map(attribute='person')) %}
         {% trans event = formattedEvent, subjects = formattedSubjects -%}
             {{ event }} with {{ subjects }}
         {%- endtrans %}

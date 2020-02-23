@@ -1,4 +1,4 @@
-{%- import 'macro/person.html.j2' as personMacros -%}
+{% import 'macro/person.html.j2' as personMacros %}
 {% macro label(name) %}
-    Name of {%- include 'label/person.html.j2' -%}
+    Name of {% include 'label/person.html.j2' %}
 {% endmacro %}

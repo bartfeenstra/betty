@@ -4,15 +4,15 @@
 <span>
     {%- if citation.source.author -%}
         <span class="citation-author">{{ citation.source.author }}</span>
-    {%- endif -%}
-    {%- if citation.source -%}
-        <span class="citation-title">{%- with source=citation.source -%}{%- include 'label/source.html.j2' -%}{%- endwith -%}</span>
+    {%- endif %}
+    {% if citation.source -%}
+        <span class="citation-title">{% with source=citation.source %}{% include 'label/source.html.j2' %}{% endwith %}</span>
         {%- if citation.source.publisher -%}
             <span class="citation-publisher">{{ citation.source.publisher }}</span>
         {%- endif -%}
-    {%- endif -%}
+    {% endif %}
     {%- if citation.location -%}
-            <span class="citation-location">{%- if citation_context == citation -%}{{ citation.location }}{% else %}<a href="{{ citation | url }}">{{ citation.location }}</a>{%- endif -%}</span>
+            <span class="citation-location">{% if citation_context == citation %}{{ citation.location }}{% else %}<a href="{{ citation | url }}">{{ citation.location }}</a>{% endif %}</span>
     {%- endif -%}
     {%- if citation.date -%}
         <span class="citation-date">{% trans date = citation.date | format_date %}Accessed {{ date }}{% endtrans %}</span>

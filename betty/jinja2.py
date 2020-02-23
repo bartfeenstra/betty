@@ -92,6 +92,8 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
         loader=FileSystemLoader(template_directory_paths),
         undefined=StrictUndefined,
         autoescape=select_autoescape(['html']),
+        trim_blocks=True,
+        lstrip_blocks=True,
         extensions=[
             'jinja2.ext.do',
             'jinja2.ext.i18n',

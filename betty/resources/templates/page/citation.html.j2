@@ -2,7 +2,7 @@
 {% set page_title = citation.location %}
 {% block page_content %}
     <div class="meta">
-    {%- include 'meta/citation.html.j2' -%}
+    {% include 'meta/citation.html.j2' %}
     </div>
     {% set files = citation.files %}
     {% if files | length > 0 %}
@@ -15,9 +15,9 @@
         <ul class="entities">
             {% for fact in facts %}
                 <li class="{{ loop.cycle('odd', 'even') }}">
-                    {%- with resource=fact, citation_context=citation -%}
-                        {%- include 'label/resource.html.j2' -%}
-                        {%- include 'meta/resource.html.j2' -%}
+                    {% with resource=fact, citation_context=citation %}
+                        {% include 'label/resource.html.j2' %}
+                        {% include 'meta/resource.html.j2' %}
                     {% endwith %}
                 </li>
             {% endfor %}
