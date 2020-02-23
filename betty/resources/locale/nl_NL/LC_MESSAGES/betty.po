@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-02-23 11:26+0000\n"
+"POT-Creation-Date: 2020-02-23 22:02+0000\n"
 "PO-Revision-Date: 2019-10-05 11:38+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -213,6 +213,9 @@ msgid ""
 "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
 "to exit the search. Next time, open the search with <kbd>s</kbd>."
 msgstr ""
+"Gebruik <kbd>↑</kbd> en <kbd>↓</kbd> om door de resultaten te bladeren, "
+"of <kbd>esc</kbd> om te stoppen met zoeken. Open het zoekformulier "
+"opnieuw met <kbd>s</kbd>."
 
 #: betty/plugins/wikipedia/resources/templates/wikipedia.html.j2:3
 #, python-format
@@ -277,12 +280,12 @@ msgstr "Referenties"
 #: betty/resources/templates/event-dimensions.html.j2:20
 #, python-format
 msgid "%(date)s in %(place)s"
-msgstr ""
+msgstr "%(date)s te %(place)s"
 
 #: betty/resources/templates/event-dimensions.html.j2:24
 #, python-format
 msgid "in %(place)s"
-msgstr ""
+msgstr "te %(place)s"
 
 #: betty/resources/templates/footer.html.j2:3
 #, python-format
@@ -305,26 +308,26 @@ msgstr "Opgevraagd op %(date)s"
 #: betty/resources/templates/label/event.html.j2:25
 #, python-format
 msgid "%(event)s with %(subjects)s"
-msgstr ""
+msgstr "%(event)s met %(subjects)s"
 
 #: betty/resources/templates/label/event.html.j2:29
 #, python-format
 msgid "%(event)s of %(subjects)s"
-msgstr ""
+msgstr "%(event)s van %(subjects)s"
 
 #: betty/resources/templates/label/person.html.j2:9
-#: betty/resources/templates/macro/person.html.j2:24
+#: betty/resources/templates/macro/person.html.j2:17
 #: betty/resources/templates/meta/person.html.j2:12
 msgid "This person's details are unavailable to protect their privacy."
 msgstr "De gegevens van deze persoon zijn niet beschikbaar vanwege privacyredenen."
 
 #: betty/resources/templates/label/person.html.j2:9
-#: betty/resources/templates/macro/person.html.j2:24
+#: betty/resources/templates/macro/person.html.j2:17
 msgid "private"
 msgstr "privé"
 
 #: betty/resources/templates/label/person.html.j2:13
-#: betty/resources/templates/macro/person.html.j2:39
+#: betty/resources/templates/macro/person.html.j2:32
 msgid "This person's name is unknown."
 msgstr "De naam van deze persoon is onbekend."
 
@@ -446,8 +449,8 @@ msgstr "Kinderen"
 #, python-format
 msgid "with %(parents)s:"
 msgid_plural "with %(parents)s:"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "met %(parents)s:"
+msgstr[1] "met %(parents)s:"
 
 #: betty/resources/templates/page/person.html.j2:61
 msgid "Siblings"
@@ -475,77 +478,4 @@ msgstr "Pagina niet gevonden"
 #: betty/resources/public/localized/.error/404.json.j2:3
 msgid "I'm sorry, dear, but it seems this page does not exist."
 msgstr "Het spijt me, schat, maar het lijkt erop dat deze pagina niet bestaat."
-
-#~ msgid ""
-#~ "Use <kbd>↑</kbd> and <kbd>↓</kbd> to "
-#~ "navigate results, or <kbd>esc</kbd> to "
-#~ "exit the search. Next time, open "
-#~ "the search with <kbd>s</kbd>."
-#~ msgstr ""
-#~ "Gebruik <kbd>↑</kbd> en <kbd>↓</kbd> om "
-#~ "door de resultaten te bladeren, of "
-#~ "<kbd>esc</kbd> om te stoppen met zoeken."
-#~ " Open het zoekformulier opnieuw met "
-#~ "<kbd>s</kbd>."
-
-#~ msgid "%(date)s in %(place)s"
-#~ msgstr "%(date)s te %(place)s"
-
-#~ msgid "in %(place)s"
-#~ msgstr "te %(place)s"
-
-#~ msgid "%(event)s with %(subjects)s"
-#~ msgstr "%(event)s met %(subjects)s"
-
-#~ msgid "%(event)s of %(subjects)s"
-#~ msgstr "%(event)s van %(subjects)s"
-
-#~ msgid "with %(parents)s:"
-#~ msgid_plural "with %(parents)s:"
-#~ msgstr[0] "met %(parents)s:"
-#~ msgstr[1] "met %(parents)s:"
-
-#~ msgid ""
-#~ "\n"
-#~ "            Use <kbd>↑</kbd> and <kbd>↓</kbd>"
-#~ " to navigate results, or <kbd>esc</kbd> "
-#~ "to exit the search. Next time, "
-#~ "open the search with <kbd>s</kbd>.\n"
-#~ "        "
-#~ msgstr ""
-
-#~ msgid ""
-#~ "\n"
-#~ "            %(event)s with %(subjects)s\n"
-#~ "        "
-#~ msgstr ""
-
-#~ msgid ""
-#~ "\n"
-#~ "            %(event)s of %(subjects)s\n"
-#~ "        "
-#~ msgstr ""
-
-#~ msgid ""
-#~ "\n"
-#~ "                        with %(parents)s:\n"
-#~ "                    "
-#~ msgid_plural ""
-#~ "\n"
-#~ "                        with %(parents)s:\n"
-#~ "                    "
-#~ msgstr[0] ""
-#~ msgstr[1] ""
-
-#~ msgid ""
-#~ "\n"
-#~ "        %(date)s in %(place)s\n"
-#~ "    "
-#~ msgstr ""
-
-#~ msgid ""
-#~ "\n"
-#~ "        in %(place)s\n"
-#~ "    "
-#~ msgstr ""
 
