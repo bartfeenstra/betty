@@ -144,7 +144,7 @@ class DateRange:
 
             if self_has_start and other_has_start:
                 if self.start == other.start:
-                    # If both end dates are missing or incomplete, and therefore incomparable, we consider them equal.
+                    # If both end dates are missing or incomparable, we consider them equal.
                     if (self.end is None or not self.end.comparable) and (other.end is None or other.end.comparable):
                         return False
                     if self_has_end and other_has_end:
