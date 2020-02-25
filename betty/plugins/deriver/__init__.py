@@ -51,11 +51,11 @@ def _derive_event(person: Person, event_type: Event.Type, after: bool, derivatio
     event_dates = []
     for event in [presence.event for presence in person.presences if presence.event.type != event_type]:
         if isinstance(event.date, DateRange):
-            if event.date.start is not None and event.date.start.complete:
+            if event.date.start is not None and event.date.start.comparable:
                 event_dates.append((event, event.date.start))
-            if event.date.end is not None and event.date.end.complete:
+            if event.date.end is not None and event.date.end.comparable:
                 event_dates.append((event, event.date.end))
-        elif event.date is not None and event.date.complete:
+        elif event.date is not None and event.date.comparable:
             event_dates.append((event, event.date))
     event_dates = sorted(event_dates, key=lambda x: x[1], reverse=after)
     try:

@@ -1,3 +1,4 @@
+import calendar
 import datetime
 import gettext
 import os
@@ -56,6 +57,10 @@ class Date:
         self._fuzzy = fuzzy
 
     @property
+    def comparable(self) -> bool:
+        return self._year is not None
+
+    @property
     def complete(self) -> bool:
         return self.year is not None and self.month is not None and self.day is not None
 
@@ -63,17 +68,48 @@ class Date:
     def parts(self) -> Tuple[Optional[int], Optional[int], Optional[int]]:
         return self.year, self.month, self.day
 
+    def to_range(self) -> 'DateRange':
+        if not self.comparable:
+            raise ValueError('Cannot convert non-comparable date %s to a date range.' % self)
+        if self.month is None:
+            month_start = 1
+            month_end = 12
+        else:
+            month_start = month_end = self.month
+        if self.day is None:
+            day_start = 1
+            day_end = calendar.monthrange(self.year, month_end)[1]
+        else:
+            day_start = day_end = self.day
+        return DateRange(Date(self.year, month_start, day_start), Date(self.year, month_end, day_end))
+
     def __lt__(self, other):
         if not isinstance(other, Date):
             return NotImplemented
-        if None in self.parts or None in other.parts:
+        selfish = self
+        if not selfish.comparable or not other.comparable:
             return NotImplemented
-        return self.parts < other.parts
+        if selfish.complete and other.complete:
+            return selfish.parts < other.parts
+        if not other.complete:
+            other = Date.to_range(other)
+        if not selfish.complete:
+            selfish = selfish.to_range()
+        return selfish < other
 
     def __eq__(self, other):
         if not isinstance(other, Date):
             return NotImplemented
-        return self.parts == other.parts
+        selfish = self
+        if not selfish.comparable or not other.comparable:
+            return NotImplemented
+        if selfish.complete and other.complete:
+            return selfish.parts == other.parts
+        if not other.complete:
+            other = Date.to_range(other)
+        if not selfish.complete:
+            selfish = selfish.to_range()
+        return selfish == other
 
 
 @total_ordering
@@ -86,30 +122,30 @@ class DateRange:
         return '%s.%s(%s, %s)' % (self.__class__.__module__, self.__class__.__name__, repr(self.start), repr(self.end))
 
     @property
-    def complete(self) -> bool:
-        return self.start is not None and self.start.complete or self.end is not None and self.end.complete
+    def comparable(self) -> bool:
+        return self.start is not None and self.start.comparable or self.end is not None and self.end.comparable
 
     def __lt__(self, other):
-        if not self.complete:
+        if not self.comparable:
             return NotImplemented
 
         if not (isinstance(other, Date) or isinstance(other, DateRange)):
             return NotImplemented
 
-        if not other.complete:
+        if not other.comparable:
             return NotImplemented
 
-        self_has_start = self.start is not None and self.start.complete
-        self_has_end = self.end is not None and self.end.complete
+        self_has_start = self.start is not None and self.start.comparable
+        self_has_end = self.end is not None and self.end.comparable
 
         if isinstance(other, DateRange):
-            other_has_start = other.start is not None and other.start.complete
-            other_has_end = other.end is not None and other.end.complete
+            other_has_start = other.start is not None and other.start.comparable
+            other_has_end = other.end is not None and other.end.comparable
 
             if self_has_start and other_has_start:
                 if self.start == other.start:
-                    # If both end dates are missing or incomplete, and therefore incomparable, we consider them equal.
-                    if (self.end is None or not self.end.complete) and (other.end is None or other.end.complete):
+                    # If both end dates are missing or incomparable, we consider them equal.
+                    if (self.end is None or not self.end.comparable) and (other.end is None or other.end.comparable):
                         return False
                     if self_has_end and other_has_end:
                         return self.end < other.end
