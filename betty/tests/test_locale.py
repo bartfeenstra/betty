@@ -32,6 +32,19 @@ class DateTest(TestCase):
     @parameterized.expand([
         (True, 1970, 1, 1),
         (False, None, 1, 1),
+        (True, 1970, None, 1),
+        (True, 1970, 1, None),
+        (False, None, None, 1),
+        (True, 1970, None, None),
+        (False, None, None, None),
+    ])
+    def test_comparable(self, expected, year, month, day):
+        sut = Date(year, month, day)
+        self.assertEquals(expected, sut.comparable)
+
+    @parameterized.expand([
+        (True, 1970, 1, 1),
+        (False, None, 1, 1),
         (False, 1970, None, 1),
         (False, 1970, 1, None),
         (False, None, None, 1),
@@ -41,6 +54,10 @@ class DateTest(TestCase):
     def test_complete(self, expected, year, month, day):
         sut = Date(year, month, day)
         self.assertEquals(expected, sut.complete)
+
+    def test_to_range_when_incomparable_should_raise(self):
+        with self.assertRaises(ValueError):
+            Date(None, 1, 1).to_range()
 
     @parameterized.expand([
         (1970, 1, 1),
@@ -53,6 +70,10 @@ class DateTest(TestCase):
         (False, Date(1970, 2, 1)),
         (False, Date(1970, 2, 2)),
         (True, Date(1970, 2, 3)),
+        (False, Date(1970)),
+        (False, Date(1970, 2)),
+        (True, Date(1971)),
+        (True, Date(1970, 3)),
     ])
     def test_lt(self, expected, other):
         self.assertEquals(expected, Date(1970, 2, 2) < other)
@@ -69,6 +90,7 @@ class DateTest(TestCase):
     ])
     def test_eq(self, expected, other):
         self.assertEquals(expected, Date(1970, 1, 1) == other)
+        self.assertEquals(expected, other == Date(1970, 1, 1))
 
     @parameterized.expand([
         (True, Date(1970, 2, 1)),

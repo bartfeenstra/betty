@@ -1,6 +1,6 @@
 {% import 'macro/event.html.j2' as eventMacros %}
 {% set person_context = person_context | default(none) %}
-{% set dated_events = events | rejectattr('date', 'none') | selectattr('date.complete') | sort(attribute='date') %}
+{% set dated_events = events | rejectattr('date', 'none') | selectattr('date.comparable') | sort(attribute='date') %}
 {% if dated_events | length > 0 %}
     <ul class="entities">
         {% for event in dated_events %}

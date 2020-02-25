@@ -88,7 +88,7 @@ class Privatizer(Plugin):
         if date is None:
             return False
 
-        if not date.complete:
+        if not date.comparable:
             return False
 
         return date <= Date(datetime.now().year - self._lifetime_threshold * multiplier, datetime.now().month, datetime.now().day)
