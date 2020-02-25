@@ -25,9 +25,9 @@
         PresenceRole.SUBJECT: _('Subject'),
         PresenceRole.WITNESS: _('Witness'),
     } %}
-    {% if role in _role_labels %}
+    {% if role in _role_labels -%}
         {{ _role_labels[role] }}
-    {% else %}
+    {%- else %}
         {% trans %}Attendee{% endtrans %}
     {% endif %}
 {%- endmacro %}
