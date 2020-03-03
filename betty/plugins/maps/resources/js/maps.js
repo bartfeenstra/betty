@@ -14,7 +14,7 @@ let mapCount = 0
 
 function initializePlaceLists () {
   const placeLists = document.getElementsByClassName('places')
-  for (let placeList of placeLists) {
+  for (const placeList of placeLists) {
     initializePlaceList(placeList)
   }
 }
@@ -25,7 +25,7 @@ function initializePlaceList (placeList) {
   const mapArea = placeList.getElementsByClassName('map')[0]
   mapArea.id = (++mapCount).toString()
 
-  let map = L.map(mapArea.id)
+  const map = L.map(mapArea.id)
 
   // Build the attribution layer.
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -34,10 +34,10 @@ function initializePlaceList (placeList) {
 
   // Build place markers.
   const markers = []
-  for (let placeDatum of placeData) {
+  for (const placeDatum of placeData) {
     if (placeDatum.dataset.bettyPlaceId in places) {
-      let coordinates = places[placeDatum.dataset.bettyPlaceId]
-      let marker = L.marker([coordinates.latitude, coordinates.longitude], {
+      const coordinates = places[placeDatum.dataset.bettyPlaceId]
+      const marker = L.marker([coordinates.latitude, coordinates.longitude], {
         icon: new BettyIcon()
       }).addTo(map)
       marker.bindPopup(placeDatum.innerHTML)
@@ -52,7 +52,7 @@ function initializePlaceList (placeList) {
   })
 }
 
-let BettyIcon = L.Icon.Default.extend({
+const BettyIcon = L.Icon.Default.extend({
   options: {
     imagePath: configuration.rootPath,
     iconUrl: leafletMarkerIconImage.replace(/^\/+/, ''),

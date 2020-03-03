@@ -1,0 +1,12 @@
+{% set resultContainerTemplate %}
+    {% include 'search/result-container.html.j2' %}
+{% endset %}
+{% set resultsContainerTemplate %}
+    {% include 'search/results-container.html.j2' %}
+{% endset %}
+
+{{ {
+    'resultContainerTemplate': resultContainerTemplate,
+    'resultsContainerTemplate': resultsContainerTemplate,
+    'index': search_index() | list
+} | json }}

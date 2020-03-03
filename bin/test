@@ -25,7 +25,9 @@ flake8 --config ./flake8.ini ./betty
 ./node_modules/.bin/stylelint "./**/*.css" "./**/*.sass" "./**/*.scss"
 
 # Test the JS code style.
-./node_modules/.bin/eslint "./**/*.js"
+while read -r configuration_path; do
+    ./node_modules/.bin/eslint -c "$configuration_path" "$(dirname "${configuration_path}")/**/*.js"
+done < <(find ./ -name .eslintrc.yaml)
 
 # Run unit tests with coverage.
 coverage erase

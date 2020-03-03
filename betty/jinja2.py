@@ -26,6 +26,7 @@ from betty.functools import walk
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, Translations
 from betty.plugin import Plugin
+from betty.search import index
 from betty.site import Site
 from betty.url import SiteUrlGenerator, StaticPathUrlGenerator
 
@@ -153,6 +154,7 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
     environment.filters['file'] = lambda *args: _filter_file(site, *args)
     environment.filters['image'] = lambda *args, **kwargs: _filter_image(
         site, *args, **kwargs)
+    environment.globals['search_index'] = lambda: index(site, environment)
     for plugin in site.plugins.values():
         if isinstance(plugin, Jinja2Provider):
             environment.globals.update(plugin.globals)

@@ -10,13 +10,13 @@ cytoscape.use(dagre)
 
 function initializeAncestryTrees () {
   const trees = document.getElementsByClassName('tree')
-  for (let tree of trees) {
+  for (const tree of trees) {
     initializeAncestryTree(tree, tree.dataset.bettyPersonId)
   }
 }
 
 function initializeAncestryTree (container, personId) {
-  let elements = {
+  const elements = {
     nodes: [],
     edges: []
   }
@@ -34,26 +34,26 @@ function initializeAncestryTree (container, personId) {
       {
         selector: 'node',
         style: {
-          'content': 'data(label)',
-          'shape': 'round-rectangle',
+          content: 'data(label)',
+          shape: 'round-rectangle',
           'text-valign': 'center',
           'text-halign': 'center',
           'background-color': '#eee',
-          'width': 'label',
-          'height': 'label',
-          'padding': '9px'
+          width: 'label',
+          height: 'label',
+          padding: '9px'
         }
       },
       {
         selector: 'node.public',
         style: {
-          'color': '#149988'
+          color: '#149988'
         }
       },
       {
         selector: 'node.public.hover',
         style: {
-          'color': '#2a615a'
+          color: '#2a615a'
         }
       },
       {
@@ -61,7 +61,7 @@ function initializeAncestryTree (container, personId) {
         style: {
           'curve-style': 'taxi',
           'taxi-direction': 'downward',
-          'width': 4,
+          width: 4,
           'target-arrow-shape': 'triangle',
           'line-color': '#777',
           'target-arrow-color': '#777'
@@ -100,8 +100,8 @@ function personToNode (person, nodes) {
 }
 
 function parentsToElements (child, elements) {
-  for (let parentId of child.parentIds) {
-    let parent = people[parentId]
+  for (const parentId of child.parentIds) {
+    const parent = people[parentId]
     elements.edges.push({
       data: {
         source: parent.id,
@@ -114,8 +114,8 @@ function parentsToElements (child, elements) {
 }
 
 function childrenToElements (parent, elements) {
-  for (let childId of parent.childIds) {
-    let child = people[childId]
+  for (const childId of parent.childIds) {
+    const child = people[childId]
     elements.edges.push({
       data: {
         source: parent.id,

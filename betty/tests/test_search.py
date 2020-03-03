@@ -3,7 +3,6 @@ from unittest import TestCase
 
 from betty.ancestry import Person, Place, LocalizedName, PersonName
 from betty.config import Configuration, LocaleConfiguration
-from betty.plugins.search import index, Search
 from betty.site import Site
 
 

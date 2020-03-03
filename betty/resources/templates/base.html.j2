@@ -1,6 +1,6 @@
 {% do citer.track() %}
 <!doctype html>
-<html lang="{{ locale }}"
+<html lang="{{ locale }}" data-betty-search-index="{{ '/search-index.json' | url }}"
       prefix="foaf: http://xmlns.com/foaf/0.1/ og: http://ogp.me/ns# rel: http://purl.org/vocab/relationship/">
 <head>
     <title>{{ page_title | striptags }} - {{ site.configuration.title }}</title>
@@ -41,6 +41,7 @@
     <script>
         document.getElementById('js-visibility').innerHTML = '.js-hide{display:none;}'
     </script>
+    <script src="{{ '/search.js' | static_url }}" defer></script>
     {% if 'betty.plugins.js.Js' in plugins %}
     <script src="{{ '/betty.js' | static_url }}" defer></script>
     {% endif %}
@@ -48,11 +49,9 @@
 <body>
 <nav id="nav-primary">
     <a id="site-title" href="{{ '/index.html' | url }}" title="{{ site.configuration.title }}">{{ site.configuration.title }}</a>
-    {% if 'betty.plugins.search.Search' in plugins %}
-        <form id="search" autocomplete="off">
-            <input id="search-query" type="search"/>
-        </form>
-    {% endif %}
+    <form id="search">
+        <input id="search-query" type="search"/>
+    </form>
     <div id="nav-sections" class="nav-primary-expandable">
         <h2 class="nav-primary-action">{% trans %}Menu{% endtrans %}</h2>
         <div class="nav-primary-expanded">

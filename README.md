@@ -80,7 +80,6 @@ plugins:
     www_directory_path: /var/www/betty
     https: true
   betty.plugins.privatizer.Privatizer: {}
-  betty.plugins.search.Search: {}
   betty.plugins.trees.Trees: {}
   betty.plugins.wikipedia.Wikipedia: {}
 ```
@@ -117,7 +116,6 @@ plugins:
             want to have this disabled, so the downstream server can terminate SSL and communicate over HTTP 2 instead.
             Defaults to `true` if the base URL specifies HTTPS, or `false` otherwise.
     - `betty.plugin.privatizer.Privatizer`: Marks living people private. Configuration: `{}`.
-    - `betty.plugin.search.Search`: Allows users to search through content.
     - `betty.plugin.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
     - `betty.plugin.wikipedia.Wikipedia`: Lets templates and other plugins retrieve complementary Wikipedia entries.
 
