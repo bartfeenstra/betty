@@ -2,13 +2,13 @@ from os.path import dirname
 from typing import Optional
 
 from betty.plugin import Plugin
-from betty.plugins.js import Js, JsEntryPointProvider, JsPackageProvider
+from betty.plugins.npm import Npm, WebpackEntryPointProvider, NpmPackageProvider
 
 
-class Maps(Plugin, JsPackageProvider, JsEntryPointProvider):
+class Maps(Plugin, NpmPackageProvider, WebpackEntryPointProvider):
     @classmethod
     def depends_on(cls):
-        return {Js}
+        return {Npm}
 
     @property
     def resource_directory_path(self) -> Optional[str]:

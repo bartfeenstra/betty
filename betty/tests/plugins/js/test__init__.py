@@ -3,7 +3,7 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 from betty.config import Configuration
-from betty.plugins.js import Js
+from betty.plugins.npm import Npm
 from betty.render import render
 from betty.site import Site
 
@@ -14,7 +14,7 @@ class JsTest(TestCase):
             configuration = Configuration(
                 output_directory_path, 'https://ancestry.example.com')
             configuration.mode = 'development'
-            configuration.plugins[Js] = {}
+            configuration.plugins[Npm] = {}
             site = Site(configuration)
             render(site)
             with open(join(configuration.www_directory_path, 'betty.js')) as f:
