@@ -207,13 +207,14 @@ class HasLinks:
 class File(Resource, Identifiable, Described):
     resource_type_name = 'file'
     resources: ManyAssociation
+    notes: List[Note]
 
     def __init__(self, file_id: str, path: str):
         Identifiable.__init__(self, file_id)
         Described.__init__(self)
         self._path = path
         self._type = None
-        self._notes = []
+        self.notes = []
 
     @property
     def path(self) -> str:
@@ -241,14 +242,6 @@ class File(Resource, Identifiable, Described):
         return extension if extension else None
 
     @property
-    def notes(self) -> List[Note]:
-        return self._notes
-
-    @notes.setter
-    def notes(self, notes: List[Note]):
-        self._notes = notes
-
-    @property
     def sources(self) -> Iterable['Source']:
         for entity in self.resources:
             if isinstance(entity, Source):
@@ -273,23 +266,16 @@ class HasFiles:
 @one_to_many('citations', 'source')
 class Source(Resource, Identifiable, Dated, HasFiles, HasLinks):
     resource_type_name = 'source'
+    name: str
 
     def __init__(self, source_id: str, name: str):
         Identifiable.__init__(self, source_id)
         Dated.__init__(self)
         HasFiles.__init__(self)
         HasLinks.__init__(self)
-        self._name = name
+        self.name = name
         self._author = None
         self._publisher = None
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @name.setter
-    def name(self, name: str):
-        self._name = name
 
     @property
     def author(self) -> Optional[str]:
@@ -374,7 +360,7 @@ class Place(Resource, Identifiable, HasLinks):
         return self._names
 
     @property
-    def coordinates(self) -> Point:
+    def coordinates(self) -> Optional[Point]:
         return self._coordinates
 
     @coordinates.setter
@@ -440,10 +426,6 @@ class Event(Resource, Dated, HasFiles, HasCitations, Described):
     def type(self):
         return self._type
 
-    @type.setter
-    def type(self, event_type: Type):
-        self._type = event_type
-
 
 class IdentifiableEvent(Event, Identifiable):
     def __init__(self, event_id: str, *args, **kwargs):
@@ -496,13 +478,14 @@ class Person(Resource, Identifiable, HasFiles, HasCitations, HasLinks):
     children: ManyAssociation['Person']
     presences: ManyAssociation[Presence]
     names: ManyAssociation[PersonName]
+    private: Optional[bool]
 
     def __init__(self, person_id: str):
         Identifiable.__init__(self, person_id)
         HasFiles.__init__(self)
         HasCitations.__init__(self)
         HasLinks.__init__(self)
-        self._private = None
+        self.private = None
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
@@ -550,68 +533,19 @@ class Person(Resource, Identifiable, HasFiles, HasCitations, HasLinks):
                     siblings.append(sibling)
         return siblings
 
-    @property
-    def private(self) -> Optional[bool]:
-        return self._private
-
-    @private.setter
-    def private(self, private: Optional[bool]):
-        self._private = private
-
 
 class Ancestry:
+    files: Dict[str, File]
+    people: Dict[str, Person]
+    places: Dict[str, Place]
+    events: Dict[str, IdentifiableEvent]
+    sources: Dict[str, Source]
+    citations: Dict[str, Citation]
+
     def __init__(self):
-        self._files = {}
-        self._people = {}
-        self._places = {}
-        self._events = {}
-        self._sources = {}
-        self._citations = {}
-
-    @property
-    def files(self) -> Dict[str, File]:
-        return self._files
-
-    @files.setter
-    def files(self, files: Dict[str, File]):
-        self._files = files
-
-    @property
-    def people(self) -> Dict[str, Person]:
-        return self._people
-
-    @people.setter
-    def people(self, people: Dict[str, Person]):
-        self._people = people
-
-    @property
-    def places(self) -> Dict[str, Place]:
-        return self._places
-
-    @places.setter
-    def places(self, places: Dict[str, Place]):
-        self._places = places
-
-    @property
-    def events(self) -> Dict[str, IdentifiableEvent]:
-        return self._events
-
-    @events.setter
-    def events(self, events: Dict[str, Event]):
-        self._events = events
-
-    @property
-    def sources(self) -> Dict[str, Source]:
-        return self._sources
-
-    @sources.setter
-    def sources(self, sources: Dict[str, Source]):
-        self._sources = sources
-
-    @property
-    def citations(self) -> Dict[str, Citation]:
-        return self._citations
-
-    @citations.setter
-    def citations(self, citations: Dict[str, Citation]):
-        self._citations = citations
+        self.files = {}
+        self.people = {}
+        self.places = {}
+        self.events = {}
+        self.sources = {}
+        self.citations = {}
