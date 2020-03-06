@@ -11,6 +11,7 @@ Betty is a static site generator for [Gramps](https://gramps-project.org/) XML f
 - [Usage](#usage)
   - [The command line](#the-command-line)
   - [Configuration files](#configuration-files)
+  - [Gramps](#gramps)
   - [The Python API](#the-python-api)
 - [Development](#development)
 - [Contributions](#contributions)
@@ -118,6 +119,13 @@ plugins:
     - `betty.plugin.privatizer.Privatizer`: Marks living people private. Configuration: `{}`.
     - `betty.plugin.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
     - `betty.plugin.wikipedia.Wikipedia`: Lets templates and other plugins retrieve complementary Wikipedia entries.
+
+### Gramps
+#### Privacy
+Gramps has built-in support for person privacy. To control privacy for events, files, sources, and citations, add a
+`betty:privacy` attribute to any of these types, with a value of `private` to explicitly declare the data always
+private or `public` to declare the data always public. Any other value will leave the privacy undecided. In such cases,
+the `betty.plugin.privatizer.Privatizer` may decide if the data is public or private.
 
 ### The Python API
 ```python
