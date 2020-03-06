@@ -9,16 +9,10 @@ from babel import dates, Locale, parse_locale, negotiate_locale
 
 
 class Localized:
+    locale: Optional[str]
+
     def __init__(self, locale: Optional[str] = None):
-        self._locale = locale
-
-    @property
-    def locale(self) -> Optional[str]:
-        return self._locale
-
-    @locale.setter
-    def locale(self, locale: Optional[str]) -> None:
-        self._locale = locale
+        self.locale = locale
 
 
 class IncompleteDateError(ValueError):

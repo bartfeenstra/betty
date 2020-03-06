@@ -206,10 +206,10 @@ class ValidateLocaleTest(TestCase):
 class NegotiateLocalizedsTest(TestCase):
     class DummyLocalized(Localized):
         def __eq__(self, other):
-            return self._locale == other._locale
+            return self.locale == other.locale
 
         def __repr__(self):
-            return '%s(%s)' % (self.__class__.__name__, self._locale)
+            return '%s(%s)' % (self.__class__.__name__, self.locale)
 
     @parameterized.expand([
         (DummyLocalized('nl'), 'nl', [DummyLocalized('nl')]),

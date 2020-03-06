@@ -136,6 +136,13 @@ class Resource:
         raise NotImplementedError
 
 
+class HasPrivacy:
+    private: Optional[bool]
+
+    def __init__(self):
+        self.private = None
+
+
 class Dated:
     def __init__(self):
         self._date = None
@@ -204,7 +211,7 @@ class HasLinks:
 
 
 @many_to_many('resources', 'files')
-class File(Resource, Identifiable, Described):
+class File(Resource, Identifiable, Described, HasPrivacy):
     resource_type_name = 'file'
     resources: ManyAssociation
     notes: List[Note]
@@ -212,6 +219,7 @@ class File(Resource, Identifiable, Described):
     def __init__(self, file_id: str, path: str):
         Identifiable.__init__(self, file_id)
         Described.__init__(self)
+        HasPrivacy.__init__(self)
         self._path = path
         self._type = None
         self.notes = []
@@ -264,7 +272,7 @@ class HasFiles:
 @many_to_one('contained_by', 'contains')
 @one_to_many('contains', 'contained_by')
 @one_to_many('citations', 'source')
-class Source(Resource, Identifiable, Dated, HasFiles, HasLinks):
+class Source(Resource, Identifiable, Dated, HasFiles, HasLinks, HasPrivacy):
     resource_type_name = 'source'
     name: str
 
@@ -273,6 +281,7 @@ class Source(Resource, Identifiable, Dated, HasFiles, HasLinks):
         Dated.__init__(self)
         HasFiles.__init__(self)
         HasLinks.__init__(self)
+        HasPrivacy.__init__(self)
         self.name = name
         self._author = None
         self._publisher = None
@@ -296,7 +305,7 @@ class Source(Resource, Identifiable, Dated, HasFiles, HasLinks):
 
 @many_to_many('facts', 'citations')
 @many_to_one('source', 'citations')
-class Citation(Resource, Identifiable, Dated, HasFiles):
+class Citation(Resource, Identifiable, Dated, HasFiles, HasPrivacy):
     resource_type_name = 'citation'
     source: Source
 
@@ -304,6 +313,7 @@ class Citation(Resource, Identifiable, Dated, HasFiles):
         Identifiable.__init__(self, citation_id)
         Dated.__init__(self)
         HasFiles.__init__(self)
+        HasPrivacy.__init__(self)
         self._location = None
         self.source = source
 
@@ -330,10 +340,10 @@ class LocalizedName(Localized):
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return NotImplemented
-        return self._name == other._name and self._locale == other._locale
+        return self._name == other._name and self.locale == other.locale
 
     def __repr__(self):
-        return '%s(%s, %s)' % (type(self).__name__, self._name, self._locale.__repr__())
+        return '%s(%s, %s)' % (type(self).__name__, self._name, self.locale.__repr__())
 
     def __str__(self):
         return self._name
@@ -391,7 +401,7 @@ class Presence:
 
 @many_to_one('place', 'events')
 @one_to_many('presences', 'event')
-class Event(Resource, Dated, HasFiles, HasCitations, Described):
+class Event(Resource, Dated, HasFiles, HasCitations, Described, HasPrivacy):
     resource_type_name = 'event'
     place: Place
     presences: ManyAssociation[Presence]
@@ -414,11 +424,12 @@ class Event(Resource, Dated, HasFiles, HasCitations, Described):
         OCCUPATION = 'occupation'
         RETIREMENT = 'retirement'
 
-    def __init__(self, event_type: Type, date: Optional[Datey] = None, place: Optional[Place] = None):
+    def __init__(self, event_type: Type, date: Optional[Datey] = None):
         Dated.__init__(self)
         HasFiles.__init__(self)
         HasCitations.__init__(self)
         Described.__init__(self)
+        HasPrivacy.__init__(self)
         self._date = date
         self._type = event_type
 
@@ -472,20 +483,19 @@ class PersonName(Localized, HasCitations):
 @many_to_many('children', 'parents')
 @one_to_many('presences', 'person')
 @one_to_many('names', 'person')
-class Person(Resource, Identifiable, HasFiles, HasCitations, HasLinks):
+class Person(Resource, Identifiable, HasFiles, HasCitations, HasLinks, HasPrivacy):
     resource_type_name = 'person'
     parents: ManyAssociation['Person']
     children: ManyAssociation['Person']
     presences: ManyAssociation[Presence]
     names: ManyAssociation[PersonName]
-    private: Optional[bool]
 
     def __init__(self, person_id: str):
         Identifiable.__init__(self, person_id)
         HasFiles.__init__(self)
         HasCitations.__init__(self)
         HasLinks.__init__(self)
-        self.private = None
+        HasPrivacy.__init__(self)
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
