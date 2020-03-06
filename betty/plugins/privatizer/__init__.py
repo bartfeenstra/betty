@@ -30,10 +30,16 @@ class Privatizer(Plugin):
 
     def _privatize_person(self, person: Person) -> None:
         # Don't change existing privacy.
-        if person.private is not None:
+        if person.private is None:
+            person.private = self._person_is_private(person)
+
+        if not person.private:
             return
 
-        person.private = self._person_is_private(person)
+        for file in person.files:
+            file.private = True
+        for citation in person.citations:
+            citation.private = True
 
     def _person_is_private(self, person: Person) -> bool:
         # A dead person is not private, regardless of when they died.

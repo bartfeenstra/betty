@@ -1,7 +1,7 @@
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from unittest import TestCase
 
-from betty.ancestry import Ancestry, Person, Event, File, Presence, PersonName, IdentifiableEvent
+from betty.ancestry import Ancestry, Person, Event, File, Presence, PersonName, IdentifiableEvent, Citation, Source
 from betty.config import Configuration
 from betty.parse import parse
 from betty.plugins.anonymizer import Anonymizer, anonymize, anonymize_person
@@ -155,6 +155,23 @@ class AnonymizePersonTest(AnonymizerTestCase):
 
         anonymize_person(person)
         self.assertCountEqual([parent], person.parents)
+
+    def test_anonymize_person_should_anonymize_names(self):
+        source = Source('S0', 'The Source')
+        citation = Citation('C0', source)
+        person = Person('P0')
+        person.private = True
+        name = PersonName('Jane', 'Dough')
+        name.citations.append(citation)
+
+        anonymize_person(person)
+        self.assertCountEqual([], citation.facts)
+
+    def test_anonymize_person_should_anonymize_files(self):
+        self.fail()
+
+    def test_anonymize_person_should_anonymize_citations(self):
+        self.fail()
 
 
 class AnonymizerTest(AnonymizerTestCase):

@@ -136,6 +136,13 @@ class Resource:
         raise NotImplementedError
 
 
+class HasPrivacy:
+    private: Optional[bool]
+
+    def __init__(self):
+        self.private = None
+
+
 class Dated:
     def __init__(self):
         self._date = None
@@ -204,13 +211,14 @@ class HasLinks:
 
 
 @many_to_many('resources', 'files')
-class File(Resource, Identifiable, Described):
+class File(Resource, Identifiable, Described, HasPrivacy):
     resource_type_name = 'file'
     resources: ManyAssociation
 
     def __init__(self, file_id: str, path: str):
         Identifiable.__init__(self, file_id)
         Described.__init__(self)
+        HasPrivacy.__init__(self)
         self._path = path
         self._type = None
         self._notes = []
@@ -271,14 +279,17 @@ class HasFiles:
 @many_to_one('contained_by', 'contains')
 @one_to_many('contains', 'contained_by')
 @one_to_many('citations', 'source')
-class Source(Resource, Identifiable, Dated, HasFiles, HasLinks):
+class Source(Resource, Dated, HasFiles, HasLinks, HasPrivacy):
     resource_type_name = 'source'
+    contained_by: 'Source'
+    contains: 'Source'
+    citations: 'Citation'
 
-    def __init__(self, source_id: str, name: str):
-        Identifiable.__init__(self, source_id)
+    def __init__(self, name: str):
         Dated.__init__(self)
         HasFiles.__init__(self)
         HasLinks.__init__(self)
+        HasPrivacy.__init__(self)
         self._name = name
         self._author = None
         self._publisher = None
@@ -308,16 +319,23 @@ class Source(Resource, Identifiable, Dated, HasFiles, HasLinks):
         self._publisher = publisher
 
 
+class IdentifiableSource(Source, Identifiable):
+    def __init__(self, source_id: str, *args, **kwargs):
+        Identifiable.__init__(self, source_id)
+        Source.__init__(self, *args, **kwargs)
+
+
 @many_to_many('facts', 'citations')
 @many_to_one('source', 'citations')
-class Citation(Resource, Identifiable, Dated, HasFiles):
+class Citation(Resource, Dated, HasFiles, HasPrivacy):
     resource_type_name = 'citation'
+    facts: ManyAssociation[Resource]
     source: Source
 
-    def __init__(self, citation_id: str, source: Source):
-        Identifiable.__init__(self, citation_id)
+    def __init__(self, source: Source):
         Dated.__init__(self)
         HasFiles.__init__(self)
+        HasPrivacy.__init__(self)
         self._location = None
         self.source = source
 
@@ -328,6 +346,12 @@ class Citation(Resource, Identifiable, Dated, HasFiles):
     @location.setter
     def location(self, location: str):
         self._location = location
+
+
+class IdentifiableCitation(Citation, Identifiable):
+    def __init__(self, citation_id: str, *args, **kwargs):
+        Identifiable.__init__(self, citation_id)
+        Citation.__init__(self, *args, **kwargs)
 
 
 @many_to_many('citations', 'facts')
@@ -490,7 +514,7 @@ class PersonName(Localized, HasCitations):
 @many_to_many('children', 'parents')
 @one_to_many('presences', 'person')
 @one_to_many('names', 'person')
-class Person(Resource, Identifiable, HasFiles, HasCitations, HasLinks):
+class Person(Resource, Identifiable, HasFiles, HasCitations, HasLinks, HasPrivacy):
     resource_type_name = 'person'
     parents: ManyAssociation['Person']
     children: ManyAssociation['Person']
@@ -502,7 +526,7 @@ class Person(Resource, Identifiable, HasFiles, HasCitations, HasLinks):
         HasFiles.__init__(self)
         HasCitations.__init__(self)
         HasLinks.__init__(self)
-        self._private = None
+        HasPrivacy.__init__(self)
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
@@ -550,14 +574,6 @@ class Person(Resource, Identifiable, HasFiles, HasCitations, HasLinks):
                     siblings.append(sibling)
         return siblings
 
-    @property
-    def private(self) -> Optional[bool]:
-        return self._private
-
-    @private.setter
-    def private(self, private: Optional[bool]):
-        self._private = private
-
 
 class Ancestry:
     def __init__(self):
@@ -597,21 +613,21 @@ class Ancestry:
         return self._events
 
     @events.setter
-    def events(self, events: Dict[str, Event]):
+    def events(self, events: Dict[str, IdentifiableEvent]):
         self._events = events
 
     @property
-    def sources(self) -> Dict[str, Source]:
+    def sources(self) -> Dict[str, IdentifiableSource]:
         return self._sources
 
     @sources.setter
-    def sources(self, sources: Dict[str, Source]):
+    def sources(self, sources: Dict[str, IdentifiableSource]):
         self._sources = sources
 
     @property
-    def citations(self) -> Dict[str, Citation]:
+    def citations(self) -> Dict[str, IdentifiableCitation]:
         return self._citations
 
     @citations.setter
-    def citations(self, citations: Dict[str, Citation]):
+    def citations(self, citations: Dict[str, IdentifiableCitation]):
         self._citations = citations

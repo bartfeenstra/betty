@@ -108,3 +108,27 @@ class CleanTest(TestCase):
         clean(ancestry)
 
         self.assertEquals(1, len(ancestry.people))
+
+    def test_clean_should_clean_file_without_resources(self) -> None:
+        self.fail()
+
+    def test_clean_should_keep_file_with_resources(self) -> None:
+        self.fail()
+
+    def test_clean_should_clean_citation_without_facts(self) -> None:
+        self.fail()
+
+    def test_clean_should_keep_citation_with_facts(self) -> None:
+        self.fail()
+
+    def test_clean_should_clean_source_without_citations(self) -> None:
+        self.fail()
+
+    def test_clean_should_keep_source_with_citations(self) -> None:
+        self.fail()
+
+    def test_clean_should_clean_source_with_contained_source_without_facts(self) -> None:
+        self.fail()
+
+    def test_clean_should_keep_source_with_contained_source_with_facts(self) -> None:
+        self.fail()
