@@ -124,7 +124,7 @@ def many_to_one(self_name: str, associated_name: str):
         setattr(cls, self_name, property(
             lambda self: getattr(self, _decorated_self_name),
             _set,
-            lambda self: setattr(self, _decorated_self_name, None),
+            lambda self: _set(self, None),
         ))
         return cls
     return decorator
