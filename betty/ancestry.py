@@ -17,43 +17,45 @@ class EventHandlingSetList(Generic[T]):
         self._removal_handler = removal_handler
 
     @property
-    def list(self) -> List:
+    def list(self) -> List[T]:
         return list(self._values)
 
-    def prepend(self, *values):
+    def prepend(self, *values: T) -> None:
         for value in reversed(values):
             if value in self._values:
                 continue
             self._values.insert(0, value)
             self._addition_handler(value)
 
-    def append(self, *values):
+    def append(self, *values: T) -> None:
         for value in values:
             if value in self._values:
                 continue
             self._values.append(value)
             self._addition_handler(value)
 
-    def remove(self, value):
-        if value not in self._values:
-            return
-        self._values.remove(value)
-        self._removal_handler(value)
-
-    def replace(self, values: Iterable):
-        for value in list(self._values):
-            self.remove(value)
+    def remove(self, *values: T) -> None:
         for value in values:
-            self.append(value)
+            if value not in self._values:
+                return
+            self._values.remove(value)
+            self._removal_handler(value)
+
+    def replace(self, *values: T) -> None:
+        self.remove(*list(self._values))
+        self.append(*values)
 
     def clear(self) -> None:
-        self.replace([])
+        self.replace()
 
     def __iter__(self):
         return self._values.__iter__()
 
     def __len__(self):
         return len(self._values)
+
+    def __getitem__(self, item):
+        return self._values[item]
 
 
 ManyAssociation = Union[EventHandlingSetList[T], Iterable]
@@ -76,7 +78,7 @@ class _to_many:
         cls.__init__ = _init
         setattr(cls, self._self_name, property(
             lambda decorated_self: getattr(decorated_self, _decorated_self_name),
-            lambda decorated_self, values: getattr(decorated_self, _decorated_self_name).replace(values),
+            lambda decorated_self, values: getattr(decorated_self, _decorated_self_name).replace(*values),
             lambda decorated_self: getattr(decorated_self, _decorated_self_name).clear(),
         ))
         return cls
