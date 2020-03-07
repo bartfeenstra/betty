@@ -306,14 +306,16 @@ def _filter_image(site: Site, file: File, width: Optional[int] = None, height: O
         output_file_path = join(file_directory_path, destination_name)
 
         try:
-            copy2(cache_file_path, output_file_path)
+            os.link(cache_file_path, output_file_path)
+        except FileExistsError:
+            pass
         except FileNotFoundError:
             if exists(output_file_path):
                 return destination_path
             makedirs(cache_directory_path)
             convert(image, size).save(cache_file_path)
             makedirs(file_directory_path)
-            copy2(cache_file_path, output_file_path)
+            os.link(cache_file_path, output_file_path)
 
     return destination_path
 
