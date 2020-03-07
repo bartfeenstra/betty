@@ -1,6 +1,7 @@
 from typing import List, Tuple, Callable, Set, Type
 
 from betty.ancestry import Ancestry, Person
+from betty.event import Event
 from betty.functools import walk
 from betty.parse import PostParseEvent
 from betty.plugin import Plugin
@@ -46,10 +47,10 @@ def _has_public_descendants(person: Person) -> bool:
 
 class Anonymizer(Plugin):
     @classmethod
-    def comes_after(cls) -> Set[Type]:
+    def comes_after(cls) -> Set[Type[Plugin]]:
         return {Privatizer}
 
-    def subscribes_to(self) -> List[Tuple[Type, Callable]]:
+    def subscribes_to(self) -> List[Tuple[Type[Event], Callable]]:
         return [
             (PostParseEvent, lambda event: anonymize(event.ancestry)),
         ]

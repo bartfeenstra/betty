@@ -2,6 +2,7 @@ from collections import defaultdict
 from typing import List, Tuple, Callable, Set, Type
 
 from betty.ancestry import Ancestry, Place
+from betty.event import Event
 from betty.graph import Graph, tsort
 from betty.parse import PostParseEvent
 from betty.plugin import Plugin
@@ -64,10 +65,10 @@ def _clean_people(ancestry: Ancestry) -> None:
 
 class Cleaner(Plugin):
     @classmethod
-    def comes_after(cls) -> Set[Type]:
+    def comes_after(cls) -> Set[Type[Plugin]]:
         return {Anonymizer}
 
-    def subscribes_to(self) -> List[Tuple[Type, Callable]]:
+    def subscribes_to(self) -> List[Tuple[Type[Event], Callable]]:
         return [
             (PostParseEvent, lambda event: clean(event.ancestry)),
         ]

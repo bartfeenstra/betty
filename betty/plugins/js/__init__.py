@@ -5,9 +5,10 @@ from os import path
 from os.path import dirname
 from subprocess import check_call
 from tempfile import mkdtemp
-from typing import Tuple, Dict, Iterable, Optional
+from typing import Tuple, Dict, Iterable, Optional, List, Callable, Type
 
 import betty
+from betty.event import Event
 from betty.jinja2 import create_environment
 from betty.plugin import Plugin
 from betty.render import PostRenderEvent, render_tree
@@ -55,7 +56,7 @@ class Js(Plugin, JsPackageProvider):
     def from_configuration_dict(cls, site: Site, configuration: Dict):
         return cls(site)
 
-    def subscribes_to(self):
+    def subscribes_to(self) -> List[Tuple[Type[Event], Callable]]:
         return [
             (PostRenderEvent, lambda event: self._render()),
         ]
