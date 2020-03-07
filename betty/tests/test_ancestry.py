@@ -40,18 +40,18 @@ class EventHandlingSetListTest(TestCase):
         added = []
         removed = []
         sut = EventHandlingSetList(lambda value: added.append(value), lambda value: removed.append(value))
-        sut.append(1, 2, 3)
-        sut.remove(2)
+        sut.append(1, 2, 3, 4)
+        sut.remove(4, 2)
         self.assertSequenceEqual([1, 3], sut)
-        self.assertSequenceEqual([1, 2, 3], added)
-        self.assertSequenceEqual([2], removed)
+        self.assertSequenceEqual([1, 2, 3, 4], added)
+        self.assertSequenceEqual([4, 2], removed)
 
     def test_replace(self):
         added = []
         removed = []
         sut = EventHandlingSetList(lambda value: added.append(value), lambda value: removed.append(value))
         sut.append(1, 2, 3)
-        sut.replace([4, 5, 6])
+        sut.replace(4, 5, 6)
         self.assertSequenceEqual([4, 5, 6], sut)
         self.assertSequenceEqual([1, 2, 3, 4, 5, 6], added)
         self.assertSequenceEqual([1, 2, 3], removed)
