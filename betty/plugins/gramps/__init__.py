@@ -177,7 +177,7 @@ def _parse_object(ancestry: _IntermediateAncestry, element: Element, gramps_file
     note_handles = _xpath(element, './ns:noteref/@hlink')
     for note_handle in note_handles:
         file.notes.append(ancestry.notes[note_handle])
-    _parse_attribute_privacy(file, element)
+    _parse_attribute_privacy(file, element, 'attribute')
     ancestry.files[handle] = file
 
 
@@ -377,7 +377,7 @@ def _parse_event(ancestry: _IntermediateAncestry, element: Element):
 
     _parse_objref(ancestry, event, element)
     _parse_citationref(ancestry, event, element)
-    _parse_attribute_privacy(event, element)
+    _parse_attribute_privacy(event, element, 'attribute')
     ancestry.events[handle] = event
 
 
@@ -423,7 +423,7 @@ def _parse_source(ancestry: _IntermediateAncestry, element: Element) -> None:
         source.publisher = spubinfo_element.text
 
     _parse_objref(ancestry, source, element)
-    _parse_attribute_privacy(source, element)
+    _parse_attribute_privacy(source, element, 'srcattribute')
 
     ancestry.sources[handle] = source
 
@@ -442,7 +442,7 @@ def _parse_citation(ancestry: _IntermediateAncestry, element: Element) -> None:
 
     citation.date = _parse_date(element)
     _parse_objref(ancestry, citation, element)
-    _parse_attribute_privacy(citation, element)
+    _parse_attribute_privacy(citation, element, 'srcattribute')
 
     page = _xpath1(element, './ns:page')
     if page is not None:
@@ -471,8 +471,8 @@ def _parse_urls(owner: HasLinks, element: Element):
         owner.links.add(Link(uri, label))
 
 
-def _parse_attribute_privacy(resource: HasPrivacy, element: Element) -> None:
-    privacy_value = _parse_attribute('privacy', element)
+def _parse_attribute_privacy(resource: HasPrivacy, element: Element, tag: str) -> None:
+    privacy_value = _parse_attribute('privacy', element, tag)
     if privacy_value is None:
         return
     if privacy_value == 'private':
@@ -484,8 +484,8 @@ def _parse_attribute_privacy(resource: HasPrivacy, element: Element) -> None:
     logging.getLogger().warning('The betty:privacy Gramps attribute must have a value of "public" or "private", but "%s" was given, which was ignored.' % privacy_value)
 
 
-def _parse_attribute(name: str, element: Element) -> Optional[str]:
-    return _xpath1(element, './ns:attribute[@type="betty:%s"]/@value' % name)
+def _parse_attribute(name: str, element: Element, tag: str) -> Optional[str]:
+    return _xpath1(element, './ns:%s[@type="betty:%s"]/@value' % (tag, name))
 
 
 GrampsConfigurationSchema = Schema({
