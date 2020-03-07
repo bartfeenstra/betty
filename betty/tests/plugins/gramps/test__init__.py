@@ -279,7 +279,7 @@ class ParseXmlFileTestCase(TestCase):
 <sources>
     <source handle="_e1dd686b04813540eb3503a342b" change="1558277217" id="S0000">
         <stitle>A Whisper</stitle>
-        <attribute type="betty:privacy" value="%s"/>
+        <srcattribute type="betty:privacy" value="%s"/>
     </source>
 </sources>
 """ % attribute_value)
@@ -298,9 +298,10 @@ class ParseXmlFileTestCase(TestCase):
     <citation handle="_e2c25a12a097a0b24bd9eae5090" change="1558277266" id="C0000">
         <confidence>2</confidence>
         <sourceref hlink="_e1dd686b04813540eb3503a342b"/>
-        <attribute type="betty:privacy" value="%s"/>
+        <srcattribute type="betty:privacy" value="%s"/>
     </citation>
-</citations><sources>
+</citations>
+<sources>
     <source handle="_e1dd686b04813540eb3503a342b" change="1558277217" id="S0000">
         <stitle>A Whisper</stitle>
     </source>
