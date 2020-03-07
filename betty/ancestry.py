@@ -213,7 +213,7 @@ class HasLinks:
 @many_to_many('resources', 'files')
 class File(Resource, Identifiable, Described, HasPrivacy):
     resource_type_name = 'file'
-    resources: ManyAssociation
+    resources: ManyAssociation[Resource]
     notes: List[Note]
 
     def __init__(self, file_id: str, path: str):
@@ -275,6 +275,9 @@ class HasFiles:
 class Source(Resource, Identifiable, Dated, HasFiles, HasLinks, HasPrivacy):
     resource_type_name = 'source'
     name: str
+    contained_by: 'Source'
+    contains: ManyAssociation['Source']
+    citations: ManyAssociation['Citation']
 
     def __init__(self, source_id: str, name: str):
         Identifiable.__init__(self, source_id)
@@ -308,6 +311,7 @@ class Source(Resource, Identifiable, Dated, HasFiles, HasLinks, HasPrivacy):
 class Citation(Resource, Identifiable, Dated, HasFiles, HasPrivacy):
     resource_type_name = 'citation'
     source: Source
+    facts: ManyAssociation[Resource]
 
     def __init__(self, citation_id: str, source: Source):
         Identifiable.__init__(self, citation_id)

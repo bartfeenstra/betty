@@ -1,6 +1,6 @@
 from typing import List, Tuple, Callable, Set, Type
 
-from betty.ancestry import Ancestry, Person
+from betty.ancestry import Ancestry, Person, Event, File, Citation, Source
 from betty.functools import walk
 from betty.parse import PostParseEvent
 from betty.plugin import Plugin
@@ -11,30 +11,29 @@ def anonymize(ancestry: Ancestry) -> None:
     for person in ancestry.people.values():
         if person.private:
             anonymize_person(person)
+    for event in ancestry.events.values():
+        if event.private:
+            anonymize_event(event)
+    for file in ancestry.files.values():
+        if file.private:
+            anonymize_file(file)
+    for source in ancestry.sources.values():
+        if source.private:
+            anonymize_source(source)
+    for citation in ancestry.citations.values():
+        if citation.private:
+            anonymize_citation(citation)
 
 
 def anonymize_person(person: Person) -> None:
-    # Copy the names, because the original iterable will be altered inside the loop.
-    for name in list(person.names):
-        name.citations.clear()
-        name.person = None
+    del person.citations
+    del person.files
+    del person.names
+    del person.presences
 
-    # Copy the presences, because the original iterable will be altered inside the loop.
-    for presence in list(person.presences):
-        presence.person = None
-        event = presence.event
-        if event is not None:
-            for event_presence in event.presences:
-                event_presence.person = None
-            event.presences.clear()
-
-    # Copy the files, because the original iterable will be altered inside the loop.
-    for file in list(person.files):
-        file.resources.clear()
-
-    # If a person is public themselves, or a node connecting other public persons, preserve their place in the graph.
-    if person.private and not _has_public_descendants(person):
-        person.parents.clear()
+    # If a person connects other public people, keep them in the person graph.
+    if not _has_public_descendants(person):
+        del person.parents
 
 
 def _has_public_descendants(person: Person) -> bool:
@@ -42,6 +41,29 @@ def _has_public_descendants(person: Person) -> bool:
         if not descendant.private:
             return True
     return False
+
+
+def anonymize_event(event: Event) -> None:
+    del event.citations
+    del event.files
+    del event.presences
+
+
+def anonymize_file(file: File) -> None:
+    del file.resources
+
+
+def anonymize_source(source: Source) -> None:
+    del source.citations
+    del source.contained_by
+    del source.contains
+    del source.files
+
+
+def anonymize_citation(citation: Citation) -> None:
+    del citation.facts
+    del citation.files
+    del citation.source
 
 
 class Anonymizer(Plugin):
