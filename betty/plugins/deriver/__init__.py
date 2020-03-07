@@ -4,6 +4,7 @@ from copy import copy
 from typing import List, Tuple, Callable, Optional, Dict, Set, Type
 
 from betty.ancestry import Ancestry, Person, Presence, Event
+from betty.event import Event as DispatchedEvent
 from betty.locale import DateRange
 from betty.parse import PostParseEvent
 from betty.plugin import Plugin
@@ -15,13 +16,13 @@ class DerivedEvent(Event):
 
 
 class Deriver(Plugin):
-    def subscribes_to(self) -> List[Tuple[str, Callable]]:
-        return (
+    def subscribes_to(self) -> List[Tuple[Type[DispatchedEvent], Callable]]:
+        return [
             (PostParseEvent, lambda event: derive(event.ancestry)),
-        )
+        ]
 
     @classmethod
-    def comes_after(cls) -> Set[Type]:
+    def comes_after(cls) -> Set[Type[Plugin]]:
         return {Cleaner}
 
 

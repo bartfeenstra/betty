@@ -2,7 +2,7 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 from betty.ancestry import Ancestry, Person, Event, Place, Presence, LocalizedName, IdentifiableEvent, Citation, Source, \
-    File
+    File, PersonName
 from betty.config import Configuration
 from betty.parse import parse
 from betty.plugins.cleaner import Cleaner, clean
@@ -76,20 +76,67 @@ class CleanTest(TestCase):
         file = File('F1', __file__)
         ancestry.files[file.id] = file
 
-        event = IdentifiableEvent('E0', Event.Type.BIRTH)
+        place = Place('P0', [LocalizedName('The Place')])
+        ancestry.places[place.id] = place
+
         presence = Presence(Presence.Role.SUBJECT)
+
+        event = IdentifiableEvent('E0', Event.Type.BIRTH)
         event.presences.append(presence)
         event.citations.append(citation)
         event.files.append(file)
+        event.place = place
         ancestry.events[event.id] = event
 
         clean(ancestry)
 
         self.assertNotIn(event.id, ancestry.events)
+        self.assertIsNone(event.place)
+        self.assertNotIn(event, place.events)
+        self.assertNotIn(place.id, ancestry.places)
         self.assertNotIn(event, citation.facts)
+        self.assertNotIn(citation.id, ancestry.citations)
         self.assertNotIn(event, file.resources)
+        self.assertNotIn(file.id, ancestry.files)
 
-    def test_clean_should_clean_private_people_without_descendants(self) -> None:
+    def test_clean_should_not_clean_event_with_presences_with_people(self) -> None:
+        ancestry = Ancestry()
+
+        source = Source('S1', 'The Source')
+        ancestry.sources[source.id] = source
+
+        citation = Citation('C1', source)
+        ancestry.citations[citation.id] = citation
+
+        file = File('F1', __file__)
+        ancestry.files[file.id] = file
+
+        place = Place('P0', [LocalizedName('The Place')])
+        ancestry.places[place.id] = place
+
+        person = Person('P0')
+
+        presence = Presence(Presence.Role.SUBJECT)
+        presence.person = person
+
+        event = IdentifiableEvent('E0', Event.Type.BIRTH)
+        event.presences.append(presence)
+        event.citations.append(citation)
+        event.files.append(file)
+        event.place = place
+        ancestry.events[event.id] = event
+
+        clean(ancestry)
+
+        self.assertEqual(event, ancestry.events[event.id])
+        self.assertIn(event, place.events)
+        self.assertEqual(place, ancestry.places[place.id])
+        self.assertIn(event, citation.facts)
+        self.assertEqual(citation, ancestry.citations[citation.id])
+        self.assertIn(event, file.resources)
+        self.assertEqual(file, ancestry.files[file.id])
+
+    def test_clean_should_clean_private_people(self) -> None:
         ancestry = Ancestry()
 
         person = Person('P0')
@@ -109,26 +156,154 @@ class CleanTest(TestCase):
 
         self.assertEquals(1, len(ancestry.people))
 
-    def test_clean_should_clean_file_without_resources(self) -> None:
-        self.fail()
+    def test_clean_should_clean_file(self) -> None:
+        ancestry = Ancestry()
 
-    def test_clean_should_keep_file_with_resources(self) -> None:
-        self.fail()
+        file = File('F0', __file__)
+        ancestry.files[file.id] = file
 
-    def test_clean_should_clean_citation_without_facts(self) -> None:
-        self.fail()
+        clean(ancestry)
 
-    def test_clean_should_keep_citation_with_facts(self) -> None:
-        self.fail()
+        self.assertNotIn(file.id, ancestry.files)
 
-    def test_clean_should_clean_source_without_citations(self) -> None:
-        self.fail()
+    def test_clean_should_not_clean_file_with_resources(self) -> None:
+        ancestry = Ancestry()
 
-    def test_clean_should_keep_source_with_citations(self) -> None:
-        self.fail()
+        person = Person('P0')
+        ancestry.people[person.id] = person
 
-    def test_clean_should_clean_source_with_contained_source_without_facts(self) -> None:
-        self.fail()
+        file = File('F0', __file__)
+        file.resources.append(person)
+        ancestry.files[file.id] = file
 
-    def test_clean_should_keep_source_with_contained_source_with_facts(self) -> None:
-        self.fail()
+        clean(ancestry)
+
+        self.assertEqual(file, ancestry.files[file.id])
+        self.assertIn(person, file.resources)
+        self.assertEqual(person, ancestry.people[person.id])
+
+    def test_clean_should_clean_source(self) -> None:
+        ancestry = Ancestry()
+
+        source = Source('S0', 'The source')
+        ancestry.sources[source.id] = source
+
+        clean(ancestry)
+
+        self.assertNotIn(source.id, ancestry.sources)
+
+    def test_clean_should_not_clean_source_with_citations(self) -> None:
+        ancestry = Ancestry()
+
+        source = Source('S0', 'The Source')
+        ancestry.sources[source.id] = source
+
+        citation = Citation('C0', source)
+        citation.facts.append(PersonName('Jane'))
+        ancestry.citations[citation.id] = citation
+
+        clean(ancestry)
+
+        self.assertEqual(source, ancestry.sources[source.id])
+        self.assertEqual(source, citation.source)
+        self.assertEqual(citation, ancestry.citations[citation.id])
+
+    def test_clean_should_not_clean_source_with_contained_by(self) -> None:
+        ancestry = Ancestry()
+
+        source = Source('S0', 'The Source')
+        ancestry.sources[source.id] = source
+
+        contained_by = Source('S1', 'The Source')
+        contained_by.contains.append(source)
+        ancestry.sources[contained_by.id] = contained_by
+
+        clean(ancestry)
+
+        self.assertEqual(source, ancestry.sources[source.id])
+        self.assertIn(source, contained_by.contains)
+        self.assertEqual(contained_by, ancestry.sources[contained_by.id])
+
+    def test_clean_should_not_clean_source_with_contains(self) -> None:
+        ancestry = Ancestry()
+
+        source = Source('S0', 'The Source')
+        ancestry.sources[source.id] = source
+
+        contains = Source('S1', 'The Source')
+        contains.contained_by = source
+        ancestry.sources[contains.id] = contains
+
+        clean(ancestry)
+
+        self.assertEqual(source, ancestry.sources[source.id])
+        self.assertEqual(source, contains.contained_by)
+        self.assertEqual(contains, ancestry.sources[contains.id])
+
+    def test_clean_should_not_clean_source_with_files(self) -> None:
+        ancestry = Ancestry()
+
+        source = Source('S0', 'The Source')
+        ancestry.sources[source.id] = source
+
+        file = File('F0', __file__)
+        file.resources.append(source)
+        ancestry.files[file.id] = file
+
+        clean(ancestry)
+
+        self.assertEqual(source, ancestry.sources[source.id])
+        self.assertIn(source, file.sources)
+        self.assertEqual(file, ancestry.files[file.id])
+
+    def test_clean_should_clean_citation(self) -> None:
+        ancestry = Ancestry()
+
+        source = Source('S0', 'The source')
+        ancestry.sources[source.id] = source
+
+        citation = Citation('C0', source)
+        ancestry.citations[citation.id] = citation
+
+        clean(ancestry)
+
+        self.assertNotIn(citation.id, ancestry.citations)
+
+    def test_clean_should_not_clean_citation_with_facts(self) -> None:
+        ancestry = Ancestry()
+
+        source = Source('S0', 'The Source')
+        ancestry.sources[source.id] = source
+
+        citation = Citation('C0', source)
+        citation.facts.append(PersonName('Jane'))
+        ancestry.citations[citation.id] = citation
+
+        fact = Person('P0')
+        fact.citations.append(citation)
+        ancestry.people[fact.id] = fact
+
+        clean(ancestry)
+
+        self.assertEqual(citation, ancestry.citations[citation.id])
+        self.assertIn(citation, fact.citations)
+        self.assertEqual(fact, ancestry.people[fact.id])
+
+    def test_clean_should_not_clean_citation_with_files(self) -> None:
+        ancestry = Ancestry()
+
+        source = Source('S0', 'The Source')
+        ancestry.sources[source.id] = source
+
+        citation = Citation('C0', source)
+        ancestry.citations[citation.id] = citation
+
+        file = File('F0', __file__)
+        file.resources.append(citation)
+        ancestry.files[file.id] = file
+
+        clean(ancestry)
+
+        self.assertEqual(source, ancestry.sources[source.id])
+        self.assertIn(source, file.sources)
+        self.assertEqual(file, ancestry.files[file.id])

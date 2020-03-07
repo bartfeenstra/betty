@@ -5,6 +5,7 @@ from typing import List, Tuple, Callable, Type, Dict, Optional
 from voluptuous import Schema, Required, Any
 
 from betty.config import validate_configuration
+from betty.event import Event
 from betty.fs import makedirs
 from betty.jinja2 import render_file, create_environment
 from betty.plugin import Plugin
@@ -30,7 +31,7 @@ class Nginx(Plugin):
         configuration = validate_configuration(ConfigurationSchema, configuration)
         return cls(site, configuration['www_directory_path'], configuration['https'])
 
-    def subscribes_to(self) -> List[Tuple[Type, Callable]]:
+    def subscribes_to(self) -> List[Tuple[Type[Event], Callable]]:
         return [
             (PostRenderEvent, lambda event: self._render_config()),
         ]

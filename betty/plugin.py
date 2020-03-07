@@ -1,5 +1,6 @@
 from typing import Callable, Tuple, Dict, Type, Set, List, Optional
 
+from betty.event import Event
 from betty.site import Site
 
 
@@ -13,18 +14,18 @@ class Plugin:
         return cls()
 
     @classmethod
-    def depends_on(cls) -> Set[Type]:
+    def depends_on(cls) -> Set[Type['Plugin']]:
         return set()
 
     @classmethod
-    def comes_after(cls) -> Set[Type]:
+    def comes_after(cls) -> Set[Type['Plugin']]:
         return set()
 
     @classmethod
-    def comes_before(cls) -> Set[Type]:
+    def comes_before(cls) -> Set[Type['Plugin']]:
         return set()
 
-    def subscribes_to(self) -> List[Tuple[Type, Callable]]:
+    def subscribes_to(self) -> List[Tuple[Type[Event], Callable]]:
         return []
 
     @property

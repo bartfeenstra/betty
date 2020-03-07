@@ -1,6 +1,7 @@
 from typing import List, Tuple, Callable, Set, Type, Optional
 
-from betty.ancestry import Ancestry, Person, Citation, File, Source
+from betty.ancestry import Ancestry, Person, File, Citation, Source, Event
+from betty.event import Event as DispatchedEvent
 from betty.functools import walk
 from betty.parse import PostParseEvent
 from betty.plugin import Plugin
@@ -24,71 +25,79 @@ class AnonymousCitation(Citation):
         self.facts.append(*other.facts)
 
 
-class AncestryAnonymizer:
-    def __init__(self, ancestry: Ancestry):
-        self._ancestry = ancestry
-        self._source = AnonymousSource()
-        self._citation = AnonymousCitation(self._source)
+def anonymize(ancestry: Ancestry) -> None:
+    anonymous_source = AnonymousSource()
+    anonymous_citation = AnonymousCitation(anonymous_source)
+    for person in ancestry.people.values():
+        if person.private:
+            anonymize_person(person)
+    for event in ancestry.events.values():
+        if event.private:
+            anonymize_event(event)
+    for file in ancestry.files.values():
+        if file.private:
+            anonymize_file(file)
+    for source in ancestry.sources.values():
+        if source.private:
+            anonymize_source(source, anonymous_source)
+    for citation in ancestry.citations.values():
+        if citation.private:
+            anonymize_citation(citation, anonymous_citation)
 
-    def anonymize(self) -> None:
-        for person in self._ancestry.people.values():
-            if person.private:
-                self.anonymize_person(person)
-        for file in self._ancestry.files.values():
-            if file.private:
-                self._anonymize_file(file)
-        for source in self._ancestry.sources.values():
-            if source.private:
-                self._anonymize_source(source)
-        for citation in self._ancestry.citations.values():
-            if citation.private:
-                self._anonymize_citation(citation)
 
-    def anonymize_person(self, person: Person) -> None:
-        # Copy the names, because the original iterable will be altered inside the loop.
-        for name in person.names:
-            for citation in person.citations:
-                self._anonymize_citation(citation)
-            name.citations.clear()
+def anonymize_person(person: Person) -> None:
+    del person.citations
+    del person.files
+    del person.names
+    del person.presences
 
-        # Copy the presences, because the original iterable will be altered inside the loop.
-        for presence in list(person.presences):
-            presence.person = None
-            event = presence.event
-            if event is not None:
-                for event_presence in event.presences:
-                    event_presence.person = None
-                event.presences.clear()
+    # If a person connects other public people, keep them in the person graph.
+    if not _has_public_descendants(person):
+        del person.parents
 
-        # If a person is public themselves, or a node connecting other public persons, preserve their place in the graph.
-        if person.private and not self._has_public_descendants(person):
-            person.parents.clear()
+    # If a person is public themselves, or a node connecting other public persons, preserve their place in the graph.
+    if person.private and not _has_public_descendants(person):
+        person.parents.clear()
 
-    def _has_public_descendants(self, person: Person) -> bool:
-        for descendant in walk(person, 'children'):
-            if not descendant.private:
-                return True
-        return False
 
-    def _anonymize_source(self, source: Source) -> None:
-        # @todo assimilate
-        pass
+def _has_public_descendants(person: Person) -> bool:
+    for descendant in walk(person, 'children'):
+        if not descendant.private:
+            return True
+    return False
 
-    def _anonymize_citation(self, citation: Citation) -> None:
-        # @todo assimilate
-        citation.source = None
-        citation.facts.clear()
 
-    def _anonymize_file(self, file: File) -> None:
-        file.resources.clear()
+def anonymize_event(event: Event) -> None:
+    del event.citations
+    del event.files
+    del event.presences
+
+
+def anonymize_file(file: File) -> None:
+    del file.resources
+
+
+def anonymize_source(source: Source, anonymous_source: AnonymousSource) -> None:
+    # @todo assimilate
+    del source.citations
+    del source.contained_by
+    del source.contains
+    del source.files
+
+
+def anonymize_citation(citation: Citation, anonymous_citation: AnonymousCitation) -> None:
+    # @todo assimilate
+    del citation.facts
+    del citation.files
+    del citation.source
 
 
 class Anonymizer(Plugin):
     @classmethod
-    def comes_after(cls) -> Set[Type]:
+    def comes_after(cls) -> Set[Type[Plugin]]:
         return {Privatizer}
 
-    def subscribes_to(self) -> List[Tuple[Type, Callable]]:
+    def subscribes_to(self) -> List[Tuple[Type[DispatchedEvent], Callable]]:
         return [
-            (PostParseEvent, lambda event: AncestryAnonymizer(event.ancestry).anonymize()),
+            (PostParseEvent, lambda event: anonymize(event.ancestry)),
         ]

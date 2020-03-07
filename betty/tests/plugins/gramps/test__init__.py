@@ -1,9 +1,11 @@
 from os.path import join, dirname, abspath
-from tempfile import TemporaryDirectory
+from tempfile import TemporaryDirectory, NamedTemporaryFile
+from typing import Optional
 from unittest import TestCase
 
 from lxml import etree
 from lxml.etree import XMLParser
+from parameterized import parameterized
 
 from betty.ancestry import Event, Ancestry, PersonName
 from betty.config import Configuration
@@ -37,9 +39,33 @@ class ExtractXmlFileTest(TestCase):
 class ParseXmlFileTestCase(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
+        # @todo Convert each test method to use self._parse(), so we can remove this shared XML file.
         cls.ancestry = Ancestry()
         parse_xml_file(cls.ancestry, join(
             dirname(abspath(__file__)), 'resources', 'data.xml'))
+
+    def _parse(self, xml: str) -> Ancestry:
+        with NamedTemporaryFile(mode='r+') as f:
+            f.write(xml.strip())
+            f.seek(0)
+            ancestry = Ancestry()
+            parse_xml_file(ancestry, f.name)
+            return ancestry
+
+    def _parse_partial(self, xml: str) -> Ancestry:
+        return self._parse("""
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"
+"http://gramps-project.org/xml/1.7.1/grampsxml.dtd">
+<database xmlns="http://gramps-project.org/xml/1.7.1/">
+  <header>
+    <created date="2019-03-09" version="4.2.8"/>
+    <researcher>
+    </researcher>
+  </header>
+  %s
+</database>
+""" % xml)
 
     def test_place_should_include_name(self):
         place = self.ancestry.places['P0000']
@@ -205,6 +231,83 @@ class ParseXmlFileTestCase(TestCase):
         source = self.ancestry.sources['S0000']
         containing_source = self.ancestry.sources['R0000']
         self.assertEquals(containing_source, source.contained_by)
+
+    @parameterized.expand([
+        (True, 'private'),
+        (False, 'public'),
+        (None, 'publi'),
+        (None, 'privat'),
+    ])
+    def test_event_should_include_privacy_from_attribute(self, expected: Optional[bool], attribute_value: str) -> None:
+        ancestry = self._parse_partial("""
+<events>
+    <event handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="E0000">
+        <type>Birth</type>
+        <attribute type="betty:privacy" value="%s"/>
+    </event>
+</events>
+""" % attribute_value)
+        event = ancestry.events['E0000']
+        self.assertEquals(expected, event.private)
+
+    @parameterized.expand([
+        (True, 'private'),
+        (False, 'public'),
+        (None, 'publi'),
+        (None, 'privat'),
+    ])
+    def test_file_should_include_privacy_from_attribute(self, expected: Optional[bool], attribute_value: str) -> None:
+        ancestry = self._parse_partial("""
+<objects>
+    <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
+        <file src="/tmp/file.txt" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <attribute type="betty:privacy" value="%s"/>
+    </object>
+</objects>
+""" % attribute_value)
+        file = ancestry.files['O0000']
+        self.assertEquals(expected, file.private)
+
+    @parameterized.expand([
+        (True, 'private'),
+        (False, 'public'),
+        (None, 'publi'),
+        (None, 'privat'),
+    ])
+    def test_source_from_source_should_include_privacy_from_attribute(self, expected: Optional[bool], attribute_value: str) -> None:
+        ancestry = self._parse_partial("""
+<sources>
+    <source handle="_e1dd686b04813540eb3503a342b" change="1558277217" id="S0000">
+        <stitle>A Whisper</stitle>
+        <attribute type="betty:privacy" value="%s"/>
+    </source>
+</sources>
+""" % attribute_value)
+        source = ancestry.sources['S0000']
+        self.assertEquals(expected, source.private)
+
+    @parameterized.expand([
+        (True, 'private'),
+        (False, 'public'),
+        (None, 'publi'),
+        (None, 'privat'),
+    ])
+    def test_citation_should_include_privacy_from_attribute(self, expected: Optional[bool], attribute_value: str) -> None:
+        ancestry = self._parse_partial("""
+<citations>
+    <citation handle="_e2c25a12a097a0b24bd9eae5090" change="1558277266" id="C0000">
+        <confidence>2</confidence>
+        <sourceref hlink="_e1dd686b04813540eb3503a342b"/>
+        <attribute type="betty:privacy" value="%s"/>
+    </citation>
+</citations><sources>
+    <source handle="_e1dd686b04813540eb3503a342b" change="1558277217" id="S0000">
+        <stitle>A Whisper</stitle>
+    </source>
+</sources>
+""" % attribute_value)
+        citation = ancestry.citations['C0000']
+        self.assertEquals(expected, citation.private)
 
 
 class GrampsTest(TestCase):

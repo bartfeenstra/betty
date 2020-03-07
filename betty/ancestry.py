@@ -124,7 +124,7 @@ def many_to_one(self_name: str, associated_name: str):
         setattr(cls, self_name, property(
             lambda self: getattr(self, _decorated_self_name),
             _set,
-            lambda self: setattr(self, _decorated_self_name, None),
+            lambda self: _set(self, None),
         ))
         return cls
     return decorator
@@ -213,7 +213,8 @@ class HasLinks:
 @many_to_many('resources', 'files')
 class File(Resource, Identifiable, Described, HasPrivacy):
     resource_type_name = 'file'
-    resources: ManyAssociation
+    resources: ManyAssociation[Resource]
+    notes: List[Note]
 
     def __init__(self, file_id: str, path: str):
         Identifiable.__init__(self, file_id)
@@ -221,7 +222,7 @@ class File(Resource, Identifiable, Described, HasPrivacy):
         HasPrivacy.__init__(self)
         self._path = path
         self._type = None
-        self._notes = []
+        self.notes = []
 
     @property
     def path(self) -> str:
@@ -249,14 +250,6 @@ class File(Resource, Identifiable, Described, HasPrivacy):
         return extension if extension else None
 
     @property
-    def notes(self) -> List[Note]:
-        return self._notes
-
-    @notes.setter
-    def notes(self, notes: List[Note]):
-        self._notes = notes
-
-    @property
     def sources(self) -> Iterable['Source']:
         for entity in self.resources:
             if isinstance(entity, Source):
@@ -281,26 +274,19 @@ class HasFiles:
 @one_to_many('citations', 'source')
 class Source(Resource, Dated, HasFiles, HasLinks, HasPrivacy):
     resource_type_name = 'source'
+    name: str
     contained_by: 'Source'
-    contains: 'Source'
-    citations: 'Citation'
+    contains: ManyAssociation['Source']
+    citations: ManyAssociation['Citation']
 
     def __init__(self, name: str):
         Dated.__init__(self)
         HasFiles.__init__(self)
         HasLinks.__init__(self)
         HasPrivacy.__init__(self)
-        self._name = name
+        self.name = name
         self._author = None
         self._publisher = None
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @name.setter
-    def name(self, name: str):
-        self._name = name
 
     @property
     def author(self) -> Optional[str]:
@@ -331,6 +317,7 @@ class Citation(Resource, Dated, HasFiles, HasPrivacy):
     resource_type_name = 'citation'
     facts: ManyAssociation[Resource]
     source: Source
+    facts: ManyAssociation[Resource]
 
     def __init__(self, source: Source):
         Dated.__init__(self)
@@ -368,10 +355,10 @@ class LocalizedName(Localized):
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return NotImplemented
-        return self._name == other._name and self._locale == other._locale
+        return self._name == other._name and self.locale == other.locale
 
     def __repr__(self):
-        return '%s(%s, %s)' % (type(self).__name__, self._name, self._locale.__repr__())
+        return '%s(%s, %s)' % (type(self).__name__, self._name, self.locale.__repr__())
 
     def __str__(self):
         return self._name
@@ -398,7 +385,7 @@ class Place(Resource, Identifiable, HasLinks):
         return self._names
 
     @property
-    def coordinates(self) -> Point:
+    def coordinates(self) -> Optional[Point]:
         return self._coordinates
 
     @coordinates.setter
@@ -429,7 +416,7 @@ class Presence:
 
 @many_to_one('place', 'events')
 @one_to_many('presences', 'event')
-class Event(Resource, Dated, HasFiles, HasCitations, Described):
+class Event(Resource, Dated, HasFiles, HasCitations, Described, HasPrivacy):
     resource_type_name = 'event'
     place: Place
     presences: ManyAssociation[Presence]
@@ -452,21 +439,18 @@ class Event(Resource, Dated, HasFiles, HasCitations, Described):
         OCCUPATION = 'occupation'
         RETIREMENT = 'retirement'
 
-    def __init__(self, event_type: Type, date: Optional[Datey] = None, place: Optional[Place] = None):
+    def __init__(self, event_type: Type, date: Optional[Datey] = None):
         Dated.__init__(self)
         HasFiles.__init__(self)
         HasCitations.__init__(self)
         Described.__init__(self)
+        HasPrivacy.__init__(self)
         self._date = date
         self._type = event_type
 
     @property
     def type(self):
         return self._type
-
-    @type.setter
-    def type(self, event_type: Type):
-        self._type = event_type
 
 
 class IdentifiableEvent(Event, Identifiable):
@@ -576,58 +560,17 @@ class Person(Resource, Identifiable, HasFiles, HasCitations, HasLinks, HasPrivac
 
 
 class Ancestry:
+    files: Dict[str, File]
+    people: Dict[str, Person]
+    places: Dict[str, Place]
+    events: Dict[str, IdentifiableEvent]
+    sources: Dict[str, IdentifiableSource]
+    citations: Dict[str, IdentifiableCitation]
+
     def __init__(self):
-        self._files = {}
-        self._people = {}
-        self._places = {}
-        self._events = {}
-        self._sources = {}
-        self._citations = {}
-
-    @property
-    def files(self) -> Dict[str, File]:
-        return self._files
-
-    @files.setter
-    def files(self, files: Dict[str, File]):
-        self._files = files
-
-    @property
-    def people(self) -> Dict[str, Person]:
-        return self._people
-
-    @people.setter
-    def people(self, people: Dict[str, Person]):
-        self._people = people
-
-    @property
-    def places(self) -> Dict[str, Place]:
-        return self._places
-
-    @places.setter
-    def places(self, places: Dict[str, Place]):
-        self._places = places
-
-    @property
-    def events(self) -> Dict[str, IdentifiableEvent]:
-        return self._events
-
-    @events.setter
-    def events(self, events: Dict[str, IdentifiableEvent]):
-        self._events = events
-
-    @property
-    def sources(self) -> Dict[str, IdentifiableSource]:
-        return self._sources
-
-    @sources.setter
-    def sources(self, sources: Dict[str, IdentifiableSource]):
-        self._sources = sources
-
-    @property
-    def citations(self) -> Dict[str, IdentifiableCitation]:
-        return self._citations
-
-    @citations.setter
-    def citations(self, citations: Dict[str, IdentifiableCitation]):
-        self._citations = citations
+        self.files = {}
+        self.people = {}
+        self.places = {}
+        self.events = {}
+        self.sources = {}
+        self.citations = {}
