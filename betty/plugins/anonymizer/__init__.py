@@ -1,6 +1,7 @@
 from typing import List, Tuple, Callable, Set, Type
 
-from betty.ancestry import Ancestry, Person, Event, File, Citation, Source
+from betty.ancestry import Ancestry, Person, File, Citation, Source, Event
+from betty.event import Event as DispatchedEvent
 from betty.functools import walk
 from betty.parse import PostParseEvent
 from betty.plugin import Plugin
@@ -68,10 +69,10 @@ def anonymize_citation(citation: Citation) -> None:
 
 class Anonymizer(Plugin):
     @classmethod
-    def comes_after(cls) -> Set[Type]:
+    def comes_after(cls) -> Set[Type[Plugin]]:
         return {Privatizer}
 
-    def subscribes_to(self) -> List[Tuple[Type, Callable]]:
+    def subscribes_to(self) -> List[Tuple[Type[DispatchedEvent], Callable]]:
         return [
             (PostParseEvent, lambda event: anonymize(event.ancestry)),
         ]

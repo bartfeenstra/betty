@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import List, Tuple, Callable, Type
 
 from betty.ancestry import Ancestry, Person, Event
+from betty.event import Event as DispatchedEvent
 from betty.functools import walk
 from betty.locale import DateRange, Date
 from betty.parse import PostParseEvent
@@ -13,7 +14,7 @@ class Privatizer(Plugin):
     def __init__(self):
         self._lifetime_threshold = 100
 
-    def subscribes_to(self) -> List[Tuple[Type, Callable]]:
+    def subscribes_to(self) -> List[Tuple[Type[DispatchedEvent], Callable]]:
         return [
             (PostParseEvent, lambda event: self.privatize(event.ancestry)),
         ]

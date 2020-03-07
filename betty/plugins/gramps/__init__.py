@@ -3,7 +3,7 @@ import logging
 import re
 import tarfile
 from os.path import join, dirname
-from typing import Tuple, Optional, Callable, List, Dict, Iterable
+from typing import Tuple, Optional, Callable, List, Dict, Iterable, Type
 
 from geopy import Point
 from lxml import etree
@@ -13,6 +13,7 @@ from voluptuous import Schema, IsFile
 from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, Event, LocalizedName, Person, Source, \
     Link, HasFiles, Citation, HasLinks, HasCitations, IdentifiableEvent, HasPrivacy
 from betty.config import validate_configuration
+from betty.event import Event as DispatchedEvent
 from betty.fs import makedirs
 from betty.locale import DateRange, Datey, Date
 from betty.parse import ParseEvent
@@ -506,7 +507,7 @@ class Gramps(Plugin):
         validate_configuration(GrampsConfigurationSchema, configuration)
         return cls(configuration['file'], join(site.configuration.cache_directory_path, 'gramps'))
 
-    def subscribes_to(self) -> List[Tuple[str, Callable]]:
+    def subscribes_to(self) -> List[Tuple[Type[DispatchedEvent], Callable]]:
         return [
             (ParseEvent, self._parse),
         ]

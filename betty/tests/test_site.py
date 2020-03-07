@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List, Tuple, Type, Callable, Set
 from unittest import TestCase
 
 from betty.ancestry import Ancestry
@@ -15,7 +15,7 @@ class TrackingEvent(Event):
 
 
 class TrackablePlugin(Plugin):
-    def subscribes_to(self):
+    def subscribes_to(self) -> List[Tuple[Type[Event], Callable]]:
         return [
             (TrackingEvent, self._track)
         ]
@@ -39,43 +39,43 @@ class ConfigurablePlugin(Plugin):
 
 class CyclicDependencyOnePlugin(Plugin):
     @classmethod
-    def depends_on(cls):
+    def depends_on(cls) -> Set[Type[Plugin]]:
         return {CyclicDependencyTwoPlugin}
 
 
 class CyclicDependencyTwoPlugin(Plugin):
     @classmethod
-    def depends_on(cls):
+    def depends_on(cls) -> Set[Type[Plugin]]:
         return {CyclicDependencyOnePlugin}
 
 
 class DependsOnNonConfigurablePluginPlugin(TrackablePlugin):
     @classmethod
-    def depends_on(cls):
+    def depends_on(cls) -> Set[Type[Plugin]]:
         return {NonConfigurablePlugin}
 
 
 class AlsoDependsOnNonConfigurablePluginPlugin(TrackablePlugin):
     @classmethod
-    def depends_on(cls):
+    def depends_on(cls) -> Set[Type[Plugin]]:
         return {NonConfigurablePlugin}
 
 
 class DependsOnNonConfigurablePluginPluginPlugin(TrackablePlugin):
     @classmethod
-    def depends_on(cls):
+    def depends_on(cls) -> Set[Type[Plugin]]:
         return {DependsOnNonConfigurablePluginPlugin}
 
 
 class ComesBeforeNonConfigurablePluginPlugin(TrackablePlugin):
     @classmethod
-    def comes_before(cls):
+    def comes_before(cls) -> Set[Type[Plugin]]:
         return {NonConfigurablePlugin}
 
 
 class ComesAfterNonConfigurablePluginPlugin(TrackablePlugin):
     @classmethod
-    def comes_after(cls):
+    def comes_after(cls) -> Set[Type[Plugin]]:
         return {NonConfigurablePlugin}
 
 

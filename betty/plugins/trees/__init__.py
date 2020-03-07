@@ -1,5 +1,5 @@
 from os.path import dirname
-from typing import Optional
+from typing import Optional, Type, Set
 
 from betty.plugin import Plugin
 from betty.plugins.js import Js, JsEntryPointProvider, JsPackageProvider
@@ -7,7 +7,7 @@ from betty.plugins.js import Js, JsEntryPointProvider, JsPackageProvider
 
 class Trees(Plugin, JsPackageProvider, JsEntryPointProvider):
     @classmethod
-    def depends_on(cls):
+    def depends_on(cls) -> Set[Type[Plugin]]:
         return {Js}
 
     @property
