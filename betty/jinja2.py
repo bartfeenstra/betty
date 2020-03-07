@@ -266,7 +266,7 @@ def _filter_file(site: Site, file: File) -> str:
         return destination_path
 
     makedirs(file_directory_path)
-    copy2(file.path, output_destination_path)
+    os.link(file.path, output_destination_path)
 
     return destination_path
 
