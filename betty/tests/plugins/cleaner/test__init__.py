@@ -1,8 +1,8 @@
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from betty.ancestry import Ancestry, Person, Event, Place, Presence, LocalizedName, IdentifiableEvent, Citation, Source, \
-    File, PersonName
+from betty.ancestry import Ancestry, Person, Event, Place, Presence, LocalizedName, IdentifiableEvent, File, \
+    PersonName, IdentifiableSource, IdentifiableCitation
 from betty.config import Configuration
 from betty.parse import parse
 from betty.plugins.cleaner import Cleaner, clean
@@ -67,10 +67,10 @@ class CleanTest(TestCase):
     def test_clean_should_clean_event(self) -> None:
         ancestry = Ancestry()
 
-        source = Source('S1', 'The Source')
+        source = IdentifiableSource('S1', 'The Source')
         ancestry.sources[source.id] = source
 
-        citation = Citation('C1', source)
+        citation = IdentifiableCitation('C1', source)
         ancestry.citations[citation.id] = citation
 
         file = File('F1', __file__)
@@ -102,10 +102,10 @@ class CleanTest(TestCase):
     def test_clean_should_not_clean_event_with_presences_with_people(self) -> None:
         ancestry = Ancestry()
 
-        source = Source('S1', 'The Source')
+        source = IdentifiableSource('S1', 'The Source')
         ancestry.sources[source.id] = source
 
-        citation = Citation('C1', source)
+        citation = IdentifiableCitation('C1', source)
         ancestry.citations[citation.id] = citation
 
         file = File('F1', __file__)
@@ -185,7 +185,7 @@ class CleanTest(TestCase):
     def test_clean_should_clean_source(self) -> None:
         ancestry = Ancestry()
 
-        source = Source('S0', 'The source')
+        source = IdentifiableSource('S0', 'The source')
         ancestry.sources[source.id] = source
 
         clean(ancestry)
@@ -195,10 +195,10 @@ class CleanTest(TestCase):
     def test_clean_should_not_clean_source_with_citations(self) -> None:
         ancestry = Ancestry()
 
-        source = Source('S0', 'The Source')
+        source = IdentifiableSource('S0', 'The Source')
         ancestry.sources[source.id] = source
 
-        citation = Citation('C0', source)
+        citation = IdentifiableCitation('C0', source)
         citation.facts.append(PersonName('Jane'))
         ancestry.citations[citation.id] = citation
 
@@ -211,10 +211,10 @@ class CleanTest(TestCase):
     def test_clean_should_not_clean_source_with_contained_by(self) -> None:
         ancestry = Ancestry()
 
-        source = Source('S0', 'The Source')
+        source = IdentifiableSource('S0', 'The Source')
         ancestry.sources[source.id] = source
 
-        contained_by = Source('S1', 'The Source')
+        contained_by = IdentifiableSource('S1', 'The Source')
         contained_by.contains.append(source)
         ancestry.sources[contained_by.id] = contained_by
 
@@ -227,10 +227,10 @@ class CleanTest(TestCase):
     def test_clean_should_not_clean_source_with_contains(self) -> None:
         ancestry = Ancestry()
 
-        source = Source('S0', 'The Source')
+        source = IdentifiableSource('S0', 'The Source')
         ancestry.sources[source.id] = source
 
-        contains = Source('S1', 'The Source')
+        contains = IdentifiableSource('S1', 'The Source')
         contains.contained_by = source
         ancestry.sources[contains.id] = contains
 
@@ -243,7 +243,7 @@ class CleanTest(TestCase):
     def test_clean_should_not_clean_source_with_files(self) -> None:
         ancestry = Ancestry()
 
-        source = Source('S0', 'The Source')
+        source = IdentifiableSource('S0', 'The Source')
         ancestry.sources[source.id] = source
 
         file = File('F0', __file__)
@@ -259,23 +259,24 @@ class CleanTest(TestCase):
     def test_clean_should_clean_citation(self) -> None:
         ancestry = Ancestry()
 
-        source = Source('S0', 'The source')
+        source = IdentifiableSource('S0', 'The source')
         ancestry.sources[source.id] = source
 
-        citation = Citation('C0', source)
+        citation = IdentifiableCitation('C0', source)
         ancestry.citations[citation.id] = citation
 
         clean(ancestry)
 
         self.assertNotIn(citation.id, ancestry.citations)
+        self.assertNotIn(citation, source.citations)
 
     def test_clean_should_not_clean_citation_with_facts(self) -> None:
         ancestry = Ancestry()
 
-        source = Source('S0', 'The Source')
+        source = IdentifiableSource('S0', 'The Source')
         ancestry.sources[source.id] = source
 
-        citation = Citation('C0', source)
+        citation = IdentifiableCitation('C0', source)
         citation.facts.append(PersonName('Jane'))
         ancestry.citations[citation.id] = citation
 
@@ -292,10 +293,10 @@ class CleanTest(TestCase):
     def test_clean_should_not_clean_citation_with_files(self) -> None:
         ancestry = Ancestry()
 
-        source = Source('S0', 'The Source')
+        source = IdentifiableSource('S0', 'The Source')
         ancestry.sources[source.id] = source
 
-        citation = Citation('C0', source)
+        citation = IdentifiableCitation('C0', source)
         ancestry.citations[citation.id] = citation
 
         file = File('F0', __file__)
@@ -304,6 +305,8 @@ class CleanTest(TestCase):
 
         clean(ancestry)
 
-        self.assertEqual(source, ancestry.sources[source.id])
-        self.assertIn(source, file.sources)
+        self.assertEqual(citation, ancestry.citations[citation.id])
+        self.assertIn(citation, file.citations)
         self.assertEqual(file, ancestry.files[file.id])
+        self.assertIn(citation, source.citations)
+        self.assertEqual(source, ancestry.sources[source.id])

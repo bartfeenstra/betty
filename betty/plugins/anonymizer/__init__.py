@@ -12,6 +12,12 @@ class AnonymousSource(Source):
     def __init__(self):
         Source.__init__(self, _('Private'))
 
+    def replace(self, other: Source) -> None:
+        self.citations.append(*other.citations)
+        self.contained_by = other.contained_by
+        self.contains.append(*other.contains)
+        self.files.append(*other.files)
+
 
 class AnonymousCitation(Citation):
     def __init__(self, source: Source):
@@ -21,8 +27,10 @@ class AnonymousCitation(Citation):
     def location(self) -> Optional[str]:
         return _("This citation has not been published in order to protect people's privacy.")
 
-    def assimilate(self, other: Citation) -> None:
+    def replace(self, other: Citation) -> None:
         self.facts.append(*other.facts)
+        self.files.append(*other.files)
+        self.source = other.source
 
 
 def anonymize(ancestry: Ancestry) -> None:
@@ -46,9 +54,11 @@ def anonymize(ancestry: Ancestry) -> None:
 
 
 def anonymize_person(person: Person) -> None:
+    for name in person.names:
+        del name.citations
+    del person.names
     del person.citations
     del person.files
-    del person.names
     del person.presences
 
     # If a person connects other public people, keep them in the person graph.
@@ -78,7 +88,7 @@ def anonymize_file(file: File) -> None:
 
 
 def anonymize_source(source: Source, anonymous_source: AnonymousSource) -> None:
-    # @todo assimilate
+    anonymous_source.replace(source)
     del source.citations
     del source.contained_by
     del source.contains
@@ -86,7 +96,7 @@ def anonymize_source(source: Source, anonymous_source: AnonymousSource) -> None:
 
 
 def anonymize_citation(citation: Citation, anonymous_citation: AnonymousCitation) -> None:
-    # @todo assimilate
+    anonymous_citation.replace(citation)
     del citation.facts
     del citation.files
     del citation.source

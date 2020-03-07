@@ -6,8 +6,8 @@ import jsonschema
 from geopy import Point
 from jsonschema import RefResolver
 
-from betty.ancestry import Place, Person, LocalizedName, Event, Citation, Source, Presence, Described, HasLinks, \
-    HasCitations, Link, Dated, File, Note, PersonName, IdentifiableEvent, Identifiable
+from betty.ancestry import Place, Person, LocalizedName, Event, Presence, Described, HasLinks, HasCitations, Link, \
+    Dated, File, Note, PersonName, IdentifiableEvent, Identifiable, IdentifiableSource, IdentifiableCitation
 from betty.config import Configuration
 from betty.locale import Date, DateRange
 from betty.plugins.deriver import DerivedEvent
@@ -45,8 +45,8 @@ class JSONEncoder(stdjson.JSONEncoder):
             Presence.Role: self._encode_presence_role,
             Date: self._encode_date,
             DateRange: self._encode_date_range,
-            Citation: self._encode_citation,
-            Source: self._encode_source,
+            IdentifiableCitation: self._encode_identifiable_citation,
+            IdentifiableSource: self._encode_identifiable_source,
             Link: self._encode_link,
             Note: self._encode_note,
         }
@@ -241,13 +241,14 @@ class JSONEncoder(stdjson.JSONEncoder):
     def _encode_presence_role(self, role: Presence.Role) -> str:
         return role.value
 
-    def _encode_citation(self, citation: Citation) -> Dict:
+    def _encode_identifiable_citation(self, citation: IdentifiableCitation) -> Dict:
         encoded = {
             '@type': 'https://schema.org/Thing',
             'id': citation.id,
-            'source': self._generate_url(citation.source),
             'facts': []
         }
+        if isinstance(citation.source, Identifiable):
+            encoded['source'] = self._generate_url(citation.source)
         for fact in citation.facts:
             if isinstance(fact, Identifiable):
                 encoded['facts'].append(self._generate_url(fact))
@@ -255,7 +256,7 @@ class JSONEncoder(stdjson.JSONEncoder):
         self._encode_dated(encoded, citation)
         return encoded
 
-    def _encode_source(self, source: Source) -> Dict:
+    def _encode_identifiable_source(self, source: IdentifiableSource) -> Dict:
         encoded = {
             '@context': {
                 'name': 'https://schema.org/name',

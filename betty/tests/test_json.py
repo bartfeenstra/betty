@@ -5,8 +5,8 @@ from unittest import TestCase
 from geopy import Point
 
 from betty import json
-from betty.ancestry import Place, Person, LocalizedName, Link, Event, Citation, Presence, Source, File, Note, \
-    PersonName, IdentifiableEvent
+from betty.ancestry import Place, Person, LocalizedName, Link, Event, Presence, Source, File, Note, PersonName, \
+    IdentifiableEvent, IdentifiableSource, IdentifiableCitation
 from betty.config import Configuration
 from betty.json import JSONEncoder
 from betty.locale import Date, DateRange
@@ -162,7 +162,7 @@ class JSONEncoderTest(TestCase):
         person.links.add(
             Link('https://example.com/the-person', 'The Person Online'))
         person.citations.append(
-            Citation('the_citation', Source('the_source', 'The Source')))
+            IdentifiableCitation('the_citation', Source('The Source')))
         presence = Presence(Presence.Role.SUBJECT)
         presence.event = IdentifiableEvent('the_event', Event.Type.BIRTH)
         person.presences.append(presence)
@@ -269,7 +269,7 @@ class JSONEncoderTest(TestCase):
         presence.person = Person('the_person')
         event.presences.append(presence)
         event.citations.append(
-            Citation('the_citation', Source('the_source', 'The Source')))
+            IdentifiableCitation('the_citation', Source('The Source')))
         expected = {
             '$schema': '/schema.json#/definitions/event',
             '@context': {
@@ -307,7 +307,7 @@ class JSONEncoderTest(TestCase):
         self.assert_encodes(expected, event, 'event')
 
     def test_source_should_encode_minimal(self):
-        source = Source('the_source', 'The Source')
+        source = IdentifiableSource('the_source', 'The Source')
         expected = {
             '$schema': '/schema.json#/definitions/source',
             '@context': {
@@ -323,18 +323,17 @@ class JSONEncoderTest(TestCase):
         self.assert_encodes(expected, source, 'source')
 
     def test_source_should_encode_full(self):
-        source = Source('the_source', 'The Source')
+        source = IdentifiableSource('the_source', 'The Source')
         source.author = 'The Author'
         source.publisher = 'The Publisher'
         source.date = Date(2000, 1, 1)
-        source.contained_by = Source(
+        source.contained_by = IdentifiableSource(
             'the_containing_source', 'The Containing Source')
         source.links.add(
             Link('https://example.com/the-person', 'The Person Online'))
         source.contains.append(
-            Source('the_contained_source', 'The Contained Source'))
-        source.citations.append(
-            Citation('the_citation', Source('the_source', 'The Source')))
+            IdentifiableSource('the_contained_source', 'The Contained Source'))
+        IdentifiableCitation('the_citation', source)
         expected = {
             '$schema': '/schema.json#/definitions/source',
             '@context': {
@@ -367,18 +366,17 @@ class JSONEncoderTest(TestCase):
         self.assert_encodes(expected, source, 'source')
 
     def test_citation_should_encode_minimal(self):
-        citation = Citation('the_citation', Source('the_source', 'The Source'))
+        citation = IdentifiableCitation('the_citation', Source('The Source'))
         expected = {
             '$schema': '/schema.json#/definitions/citation',
             '@type': 'https://schema.org/Thing',
             'id': 'the_citation',
-            'source': '/source/the_source/index.json',
             'facts': [],
         }
         self.assert_encodes(expected, citation, 'citation')
 
     def test_citation_should_encode_full(self):
-        citation = Citation('the_citation', Source('the_source', 'The Source'))
+        citation = IdentifiableCitation('the_citation', IdentifiableSource('the_source', 'The Source'))
         citation.description = 'The Source Description'
         citation.facts.append(IdentifiableEvent('the_event', Event.Type.BIRTH))
         expected = {

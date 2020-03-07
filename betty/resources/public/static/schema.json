@@ -390,7 +390,6 @@
       "required": [
         "$schema",
         "id",
-        "source",
         "facts"
       ],
       "patternProperties": {

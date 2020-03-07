@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import List, Tuple, Callable, Set, Type
 
-from betty.ancestry import Ancestry, Place, File, Source, Citation, IdentifiableEvent
+from betty.ancestry import Ancestry, Place, File, IdentifiableEvent, IdentifiableSource, IdentifiableCitation
 from betty.event import Event
 from betty.graph import Graph, tsort
 from betty.parse import PostParseEvent
@@ -88,7 +88,7 @@ def _clean_sources(ancestry: Ancestry) -> None:
         _clean_source(ancestry, source)
 
 
-def _clean_source(ancestry: Ancestry, source: Source) -> None:
+def _clean_source(ancestry: Ancestry, source: IdentifiableSource) -> None:
     if len(source.citations) > 0:
         return
 
@@ -109,7 +109,7 @@ def _clean_citations(ancestry: Ancestry) -> None:
         _clean_citation(ancestry, citation)
 
 
-def _clean_citation(ancestry: Ancestry, citation: Citation) -> None:
+def _clean_citation(ancestry: Ancestry, citation: IdentifiableCitation) -> None:
     if len(citation.facts) > 0:
         return
 
