@@ -23,14 +23,14 @@ class EventHandlingSetList(Generic[T]):
     def prepend(self, *values):
         for value in reversed(values):
             if value in self._values:
-                return
+                continue
             self._values.insert(0, value)
             self._addition_handler(value)
 
     def append(self, *values):
         for value in values:
             if value in self._values:
-                return
+                continue
             self._values.append(value)
             self._addition_handler(value)
 
@@ -112,32 +112,32 @@ class one_to_many(_to_many):
         return lambda associated: setattr(associated, self._associated_name, None)
 
 
-def many_to_one(self_name: str, associated_name: str, _removal_handler: Optional[Callable[[T], None]] = None):
+def many_to_one(self_name: str, associated_name: str, _delete_handler: Optional[Callable[[T], None]] = None):
     def decorator(cls):
         _decorated_self_name = '_%s' % self_name
         original_init = cls.__init__
 
         def _init(decorated_self, *args, **kwargs):
-            setattr(decorated_self, _decorated_self_name, None)
+            association = None
+            setattr(decorated_self, _decorated_self_name, association)
             original_init(decorated_self, *args, **kwargs)
         cls.__init__ = _init
 
         def _set(decorated_self, value):
             previous_value = getattr(decorated_self, _decorated_self_name)
+            if previous_value == value:
+                return
             setattr(decorated_self, _decorated_self_name, value)
             if previous_value is not None:
                 getattr(previous_value, associated_name).remove(decorated_self)
+                if value is None and _delete_handler is not None:
+                    _delete_handler(decorated_self)
             if value is not None:
                 getattr(value, associated_name).append(decorated_self)
-
-        def _delete(decorated_self):
-            _set(decorated_self, None)
-            if _removal_handler is not None:
-                _removal_handler()
         setattr(cls, self_name, property(
-            lambda self: getattr(self, _decorated_self_name),
+            lambda decorated_self: getattr(decorated_self, _decorated_self_name),
             _set,
-            _delete,
+            lambda decorated_self: _set(decorated_self, None),
         ))
         return cls
     return decorator
@@ -330,7 +330,6 @@ class Citation(Resource, Dated, HasFiles, HasPrivacy):
     resource_type_name = 'citation'
     facts: ManyAssociation[Resource]
     source: Source
-    facts: ManyAssociation[Resource]
 
     def __init__(self, source: Source):
         Dated.__init__(self)
@@ -418,8 +417,8 @@ class Presence:
         ATTENDEE = 'attendee'
 
     def __init__(self, person: 'Person', role: Role, event: 'Event'):
-        self.role = role
         self.person = person
+        self.role = role
         self.event = event
 
 

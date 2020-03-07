@@ -109,7 +109,7 @@ class JSONEncoder(stdjson.JSONEncoder):
 
     def _encode_has_citations(self, encoded: Dict, has_citations: HasCitations) -> None:
         encoded['citations'] = [self._generate_url(
-            citation) for citation in has_citations.citations]
+            citation) for citation in has_citations.citations if isinstance(citation, Identifiable)]
 
     def _encode_coordinates(self, coordinates: Point) -> Dict:
         return {

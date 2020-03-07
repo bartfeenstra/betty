@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import List, Tuple, Callable, Set, Type
 
-from betty.ancestry import Ancestry, Place, File, IdentifiableEvent, IdentifiableSource, IdentifiableCitation
+from betty.ancestry import Ancestry, Place, File, IdentifiableEvent, IdentifiableSource, IdentifiableCitation, Person
 from betty.event import Event
 from betty.graph import Graph, tsort
 from betty.parse import PostParseEvent
@@ -27,6 +27,7 @@ def _clean_event(ancestry: Ancestry, event: IdentifiableEvent) -> None:
     if len(event.presences) > 0:
         return
 
+    del event.presences
     del event.place
     del event.citations
     del event.files
@@ -67,8 +68,17 @@ def _clean_place(ancestry: Ancestry, place: Place) -> None:
 
 def _clean_people(ancestry: Ancestry) -> None:
     for person in list(ancestry.people.values()):
-        if person.private and len(person.children) == 0:
-            del ancestry.people[person.id]
+        _clean_person(ancestry, person)
+
+
+def _clean_person(ancestry: Ancestry, person: Person) -> None:
+    if not person.private:
+        return
+
+    if len(person.children) > 0:
+        return
+
+    del ancestry.people[person.id]
 
 
 def _clean_files(ancestry: Ancestry) -> None:

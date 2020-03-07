@@ -62,6 +62,57 @@ class CleanTest(TestCase):
         self.assertNotIn(
             anonymous_place, onmyous_place_because_encloses_onmyous_places.encloses)
 
+    def test_clean_should_not_clean_person_if_public(self):
+        ancestry = Ancestry()
+
+        person = Person('P0')
+        person.private = False
+        ancestry.people[person.id] = person
+
+        clean(ancestry)
+
+        self.assertEqual(person, ancestry.people[person.id])
+
+    def test_clean_should_clean_person_with_private_children(self) -> None:
+        ancestry = Ancestry()
+
+        person = Person('P0')
+        person.private = True
+        ancestry.people[person.id] = person
+        child = Person('P1')
+        child.private = True
+        ancestry.people[child.id] = child
+        grandchild = Person('P2')
+        grandchild.private = True
+        ancestry.people[grandchild.id] = grandchild
+        great_grandchild = Person('P3')
+        great_grandchild.private = True
+        ancestry.people[great_grandchild.id] = great_grandchild
+
+        clean(ancestry)
+
+        self.assertNotIn(person.id, ancestry.people)
+
+    def test_clean_should_not_clean_person_with_public_children(self):
+        ancestry = Ancestry()
+
+        person = Person('P0')
+        person.private = False
+        ancestry.people[person.id] = person
+        child = Person('P1')
+        child.private = True
+        ancestry.people[child.id] = child
+        grandchild = Person('P2')
+        grandchild.private = True
+        ancestry.people[grandchild.id] = grandchild
+        great_grandchild = Person('P3')
+        great_grandchild.private = False
+        ancestry.people[great_grandchild.id] = great_grandchild
+
+        clean(ancestry)
+
+        self.assertEqual(person, ancestry.people[person.id])
+
     def test_clean_should_clean_event(self) -> None:
         ancestry = Ancestry()
 
@@ -128,26 +179,6 @@ class CleanTest(TestCase):
         self.assertEqual(citation, ancestry.citations[citation.id])
         self.assertIn(event, file.resources)
         self.assertEqual(file, ancestry.files[file.id])
-
-    def test_clean_should_clean_private_people(self) -> None:
-        ancestry = Ancestry()
-
-        person = Person('P0')
-        person.private = False
-        ancestry.people[person.id] = person
-        child = Person('P1')
-        child.private = True
-        ancestry.people[child.id] = child
-        grandchild = Person('P2')
-        grandchild.private = True
-        ancestry.people[grandchild.id] = grandchild
-        great_grandchild = Person('P3')
-        great_grandchild.private = True
-        ancestry.people[great_grandchild.id] = great_grandchild
-
-        clean(ancestry)
-
-        self.assertEquals(1, len(ancestry.people))
 
     def test_clean_should_clean_file(self) -> None:
         ancestry = Ancestry()

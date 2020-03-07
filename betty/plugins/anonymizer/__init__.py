@@ -25,7 +25,7 @@ class AnonymousCitation(Citation):
 
     @property
     def location(self) -> Optional[str]:
-        return _("This citation has not been published in order to protect people's privacy.")
+        return _("This citation has not been published in order to protect people's privacy")
 
     def replace(self, other: Citation) -> None:
         self.facts.append(*other.facts)

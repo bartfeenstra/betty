@@ -126,9 +126,14 @@ class AnonymizePersonTest(TestCase):
 
     def test_should_remove_names(self) -> None:
         person = Person('P0')
-        person.names.append(PersonName('Jane', 'Doughh'))
+        name = PersonName('Jane', 'Dough')
+        source = Source('The Source')
+        citation = Citation(source)
+        name.citations.append(citation)
+        person.names.append(name)
         anonymize_person(person)
         self.assertEquals(0, len(person.names))
+        self.assertEquals(0, len(citation.facts))
 
     def test_should_remove_presences(self) -> None:
         person = Person('P0')
@@ -161,17 +166,6 @@ class AnonymizePersonTest(TestCase):
 
         anonymize_person(person)
         self.assertCountEqual([parent], person.parents)
-
-    def test_should_anonymize_names(self):
-        source = Source('The Source')
-        citation = Citation(source)
-        person = Person('P0')
-        person.private = True
-        name = PersonName('Jane', 'Dough')
-        name.citations.append(citation)
-        person.names.append(name)
-        anonymize_person(person)
-        self.assertCountEqual([], citation.facts)
 
 
 class AnonymizeEventTest(TestCase):
