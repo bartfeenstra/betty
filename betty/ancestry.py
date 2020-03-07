@@ -96,6 +96,14 @@ class many_to_many(_to_many):
         return lambda associated: getattr(associated, self._associated_name).remove(decorated_self)
 
 
+def bridged_many_to_many(left_associated_name: str, left_self_name: str, right_self_name: str, right_associated_name: str):
+    def decorator(cls):
+        cls = many_to_one(left_self_name, left_associated_name, lambda decorated_self: delattr(decorated_self, right_self_name))(cls)
+        cls = many_to_one(right_self_name, right_associated_name, lambda decorated_self: delattr(decorated_self, left_self_name))(cls)
+        return cls
+    return decorator
+
+
 class one_to_many(_to_many):
     def _create_addition_handler(self, decorated_self):
         return lambda associated: setattr(associated, self._associated_name, decorated_self)
@@ -104,7 +112,7 @@ class one_to_many(_to_many):
         return lambda associated: setattr(associated, self._associated_name, None)
 
 
-def many_to_one(self_name: str, associated_name: str):
+def many_to_one(self_name: str, associated_name: str, _removal_handler: Optional[Callable[[T], None]] = None):
     def decorator(cls):
         _decorated_self_name = '_%s' % self_name
         original_init = cls.__init__
@@ -121,10 +129,15 @@ def many_to_one(self_name: str, associated_name: str):
                 getattr(previous_value, associated_name).remove(decorated_self)
             if value is not None:
                 getattr(value, associated_name).append(decorated_self)
+
+        def _delete(decorated_self):
+            _set(decorated_self, None)
+            if _removal_handler is not None:
+                _removal_handler()
         setattr(cls, self_name, property(
             lambda self: getattr(self, _decorated_self_name),
             _set,
-            lambda self: _set(self, None),
+            _delete,
         ))
         return cls
     return decorator
@@ -382,25 +395,21 @@ class Place(Resource, Identifiable, HasLinks):
         self._coordinates = coordinates
 
 
-@many_to_one('person', 'presences')
-@many_to_one('event', 'presences')
+@bridged_many_to_many('presences', 'person', 'event', 'presences')
 class Presence:
     person: Optional['Person']
     event: Optional['Event']
+    role: 'Presence.Role'
 
     class Role(Enum):
         SUBJECT = 'subject'
         WITNESS = 'witness'
         ATTENDEE = 'attendee'
 
-    def __init__(self, role: Role):
-        self._role = role
-        self._person = None
-        self._event = None
-
-    @property
-    def role(self) -> 'Role':
-        return self._role
+    def __init__(self, person: 'Person', role: Role, event: 'Event'):
+        self.role = role
+        self.person = person
+        self.event = event
 
 
 @many_to_one('place', 'events')

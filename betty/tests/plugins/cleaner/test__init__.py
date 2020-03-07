@@ -27,9 +27,7 @@ class CleanTest(TestCase):
         ancestry = Ancestry()
 
         onymous_event = IdentifiableEvent('E0', Event.Type.BIRTH)
-        onymous_event_presence = Presence(Presence.Role.SUBJECT)
-        onymous_event_presence.person = Person('P0')
-        onymous_event.presences.append(onymous_event_presence)
+        Presence(Person('P0'), Presence.Role.SUBJECT, onymous_event)
         ancestry.events[onymous_event.id] = onymous_event
 
         anonymous_event = IdentifiableEvent('E1', Event.Type.BIRTH)
@@ -79,10 +77,7 @@ class CleanTest(TestCase):
         place = Place('P0', [LocalizedName('The Place')])
         ancestry.places[place.id] = place
 
-        presence = Presence(Presence.Role.SUBJECT)
-
         event = IdentifiableEvent('E0', Event.Type.BIRTH)
-        event.presences.append(presence)
         event.citations.append(citation)
         event.files.append(file)
         event.place = place
@@ -116,15 +111,13 @@ class CleanTest(TestCase):
 
         person = Person('P0')
 
-        presence = Presence(Presence.Role.SUBJECT)
-        presence.person = person
-
         event = IdentifiableEvent('E0', Event.Type.BIRTH)
-        event.presences.append(presence)
         event.citations.append(citation)
         event.files.append(file)
         event.place = place
         ancestry.events[event.id] = event
+
+        Presence(person, Presence.Role.SUBJECT, event)
 
         clean(ancestry)
 
