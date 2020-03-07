@@ -132,9 +132,13 @@ class AnonymizePersonTest(TestCase):
 
     def test_should_remove_presences(self) -> None:
         person = Person('P0')
-        person.presences.append(Presence(Presence.Role.SUBJECT))
+        event = Event(Event.Type.BIRTH)
+        presence = Presence(Presence.Role.SUBJECT)
+        presence.event = event
+        person.presences.append(presence)
         anonymize_person(person)
         self.assertEquals(0, len(person.presences))
+        self.assertEquals(0, len(event.presences))
 
     def test_should_remove_parents_without_public_descendants(self) -> None:
         person = Person('P0')

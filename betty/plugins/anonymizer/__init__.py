@@ -59,6 +59,8 @@ def anonymize_person(person: Person) -> None:
     del person.names
     del person.citations
     del person.files
+    for presence in person.presences:
+        del presence.event
     del person.presences
 
     # If a person connects other public people, keep them in the person graph.
