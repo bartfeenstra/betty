@@ -19,10 +19,8 @@ class DeriverTest(TestCase):
             configuration.plugins[Deriver] = {}
             site = Site(configuration)
             person = Person('P0')
-            other_presence = Presence(Presence.Role.SUBJECT)
-            other_presence.event = IdentifiableEvent('E0', Event.Type.MARRIAGE)
+            other_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.MARRIAGE))
             other_presence.event.date = Date(1970, 1, 1)
-            person.presences.append(other_presence)
             site.ancestry.people[person.id] = person
             parse(site)
             self.assertEquals(3, len(person.presences))
@@ -47,9 +45,7 @@ class DeriverTest(TestCase):
             configuration.plugins[Deriver] = {}
             site = Site(configuration)
             person = Person('P0')
-            presence = Presence(Presence.Role.SUBJECT)
-            presence.event = IdentifiableEvent('E0', Event.Type.MARRIAGE)
-            person.presences.append(presence)
+            Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.MARRIAGE))
             site.ancestry.people[person.id] = person
             parse(site)
             self.assertEquals(1, len(person.presences))
@@ -61,14 +57,10 @@ class DeriverTest(TestCase):
             configuration.plugins[Deriver] = {}
             site = Site(configuration)
             person = Person('P0')
-            birth_presence = Presence(Presence.Role.SUBJECT)
-            birth_presence.event = IdentifiableEvent('E0', Event.Type.BIRTH)
+            birth_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.BIRTH))
             birth_presence.event.date = Date(1970, 2, 1)
-            person.presences.append(birth_presence)
-            other_presence = Presence(Presence.Role.SUBJECT)
-            other_presence.event = IdentifiableEvent('E0', Event.Type.MARRIAGE)
+            other_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.MARRIAGE))
             other_presence.event.date = Date(1970, 1, 1)
-            person.presences.append(other_presence)
             site.ancestry.people[person.id] = person
             parse(site)
             self.assertEquals(3, len(person.presences))
@@ -82,17 +74,11 @@ class DeriverTest(TestCase):
             configuration.plugins[Deriver] = {}
             site = Site(configuration)
             person = Person('P0')
-            birth_presence = Presence(Presence.Role.SUBJECT)
-            birth_presence.event = IdentifiableEvent('E0', Event.Type.BIRTH)
-            person.presences.append(birth_presence)
-            other_presence = Presence(Presence.Role.SUBJECT)
-            other_presence.event = IdentifiableEvent('E0', Event.Type.MARRIAGE)
+            birth_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.BIRTH))
+            other_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.MARRIAGE))
             other_presence.event.date = Date(1970, 1, 1)
-            person.presences.append(other_presence)
-            irrelevant_presence = Presence(Presence.Role.SUBJECT)
-            irrelevant_presence.event = IdentifiableEvent('E1', Event.Type.DIVORCE)
+            irrelevant_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E1', Event.Type.DIVORCE))
             irrelevant_presence.event.date = Date(1971, 1, 1)
-            person.presences.append(irrelevant_presence)
             site.ancestry.people[person.id] = person
             parse(site)
             self.assertEquals(4, len(person.presences))
@@ -111,14 +97,10 @@ class DeriverTest(TestCase):
             configuration.plugins[Deriver] = {}
             site = Site(configuration)
             person = Person('P0')
-            other_presence = Presence(Presence.Role.SUBJECT)
-            other_presence.event = IdentifiableEvent('E0', Event.Type.MARRIAGE)
+            other_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.MARRIAGE))
             other_presence.event.date = other_date
-            person.presences.append(other_presence)
-            irrelevant_presence = Presence(Presence.Role.SUBJECT)
-            irrelevant_presence.event = IdentifiableEvent('E1', Event.Type.DIVORCE)
+            irrelevant_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E1', Event.Type.DIVORCE))
             irrelevant_presence.event.date = Date(1972, 1, 1)
-            person.presences.append(irrelevant_presence)
             site.ancestry.people[person.id] = person
             parse(site)
             self.assertEquals(4, len(person.presences))
@@ -131,13 +113,9 @@ class DeriverTest(TestCase):
             configuration.plugins[Deriver] = {}
             site = Site(configuration)
             person = Person('P0')
-            death_presence = Presence(Presence.Role.SUBJECT)
-            death_presence.event = IdentifiableEvent('E0', Event.Type.DEATH)
+            death_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.DEATH))
             death_presence.event.date = Date(1971, 2, 1)
-            person.presences.append(death_presence)
-            other_presence = Presence(Presence.Role.SUBJECT)
-            other_presence.event = IdentifiableEvent('E0', Event.Type.MARRIAGE)
-            other_presence.event.date = Date(1970, 1, 1)
+            other_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.MARRIAGE))
             person.presences.append(other_presence)
             site.ancestry.people[person.id] = person
             parse(site)
@@ -152,17 +130,11 @@ class DeriverTest(TestCase):
             configuration.plugins[Deriver] = {}
             site = Site(configuration)
             person = Person('P0')
-            death_presence = Presence(Presence.Role.SUBJECT)
-            death_presence.event = IdentifiableEvent('E0', Event.Type.DEATH)
-            person.presences.append(death_presence)
-            other_presence = Presence(Presence.Role.SUBJECT)
-            other_presence.event = IdentifiableEvent('E0', Event.Type.MARRIAGE)
+            death_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.DEATH))
+            other_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.MARRIAGE))
             other_presence.event.date = Date(1971, 1, 1)
-            person.presences.append(other_presence)
-            irrelevant_presence = Presence(Presence.Role.SUBJECT)
-            irrelevant_presence.event = IdentifiableEvent('E1', Event.Type.DIVORCE)
+            irrelevant_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E1', Event.Type.DIVORCE))
             irrelevant_presence.event.date = Date(1970, 1, 1)
-            person.presences.append(irrelevant_presence)
             site.ancestry.people[person.id] = person
             parse(site)
             self.assertEquals(4, len(person.presences))
@@ -181,14 +153,10 @@ class DeriverTest(TestCase):
             configuration.plugins[Deriver] = {}
             site = Site(configuration)
             person = Person('P0')
-            other_presence = Presence(Presence.Role.SUBJECT)
-            other_presence.event = IdentifiableEvent('E0', Event.Type.MARRIAGE)
+            other_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.MARRIAGE))
             other_presence.event.date = other_date
-            person.presences.append(other_presence)
-            irrelevant_presence = Presence(Presence.Role.SUBJECT)
-            irrelevant_presence.event = IdentifiableEvent('E1', Event.Type.DIVORCE)
+            irrelevant_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E1', Event.Type.DIVORCE))
             irrelevant_presence.event.date = Date(1970, 1, 1)
-            person.presences.append(irrelevant_presence)
             site.ancestry.people[person.id] = person
             parse(site)
             self.assertEquals(4, len(person.presences))

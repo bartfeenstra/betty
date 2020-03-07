@@ -163,9 +163,7 @@ class JSONEncoderTest(TestCase):
             Link('https://example.com/the-person', 'The Person Online'))
         person.citations.append(
             Citation('the_citation', Source('the_source', 'The Source')))
-        presence = Presence(Presence.Role.SUBJECT)
-        presence.event = IdentifiableEvent('the_event', Event.Type.BIRTH)
-        person.presences.append(presence)
+        Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('the_event', Event.Type.BIRTH))
 
         expected = {
             '$schema': '/schema.json#/definitions/person',
@@ -265,9 +263,7 @@ class JSONEncoderTest(TestCase):
         event = IdentifiableEvent('the_event', Event.Type.BIRTH)
         event.date = DateRange(Date(2000, 1, 1), Date(2019, 12, 31))
         event.place = Place('the_place', [LocalizedName('The Place')])
-        presence = Presence(Presence.Role.SUBJECT)
-        presence.person = Person('the_person')
-        event.presences.append(presence)
+        Presence(Person('the_person'), Presence.Role.SUBJECT, event)
         event.citations.append(
             Citation('the_citation', Source('the_source', 'The Source')))
         expected = {
