@@ -133,9 +133,7 @@ class AnonymizePersonTest(TestCase):
     def test_should_remove_presences(self) -> None:
         person = Person('P0')
         event = Event(Event.Type.BIRTH)
-        presence = Presence(Presence.Role.SUBJECT)
-        presence.event = event
-        person.presences.append(presence)
+        Presence(person, Presence.Role.SUBJECT, event)
         anonymize_person(person)
         self.assertEquals(0, len(person.presences))
         self.assertEquals(0, len(event.presences))
@@ -193,7 +191,8 @@ class AnonymizeEventTest(TestCase):
 
     def test_should_remove_presences(self) -> None:
         event = Event(Event.Type.BIRTH)
-        event.presences.append(Presence(Presence.Role.SUBJECT))
+        person = Person('P1')
+        Presence(person, Presence.Role.SUBJECT, event)
         anonymize_event(event)
         self.assertEquals(0, len(event.presences))
 

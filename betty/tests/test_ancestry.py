@@ -96,8 +96,9 @@ class PersonTest(TestCase):
         self.assertCountEqual([sibling], sut.siblings)
 
     def test_presence_should_sync_references(self):
-        presence = Presence(Presence.Role.SUBJECT)
+        event = Event(Event.Type.BIRTH)
         sut = Person('1')
+        presence = Presence(sut, Presence.Role.SUBJECT, event)
         sut.presences.append(presence)
         self.assertCountEqual([presence], sut.presences)
         self.assertEquals(sut, presence.person)
@@ -174,8 +175,9 @@ class EventTest(TestCase):
         self.assertNotIn(sut, place.events)
 
     def test_presence_should_sync_references(self):
-        presence = Presence(Presence.Role.SUBJECT)
+        person = Person('P1')
         sut = IdentifiableEvent('1', Event.Type.BIRTH)
+        presence = Presence(person, Presence.Role.SUBJECT, sut)
         sut.presences.append(presence)
         self.assertCountEqual([presence], sut.presences)
         self.assertEquals(sut, presence.event)

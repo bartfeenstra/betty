@@ -24,7 +24,7 @@ def _clean_events(ancestry: Ancestry) -> None:
 
 
 def _clean_event(ancestry: Ancestry, event: IdentifiableEvent) -> None:
-    if len([presence for presence in event.presences if presence.person is not None]) > 0:
+    if len(event.presences) > 0:
         return
 
     del event.place

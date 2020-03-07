@@ -3,7 +3,7 @@ import logging
 import re
 import tarfile
 from os.path import join, dirname
-from typing import Tuple, Optional, Callable, List, Dict, Iterable, Type
+from typing import Tuple, Optional, Callable, List, Dict, Type
 
 from geopy import Point
 from lxml import etree
@@ -219,7 +219,7 @@ def _parse_person(ancestry: _IntermediateAncestry, element: Element):
         else:
             person.names.prepend(name)
 
-    person.presences = _parse_eventrefs(ancestry, element)
+    _parse_eventrefs(ancestry, person, element)
     if str(_xpath1(element, './@priv')) == '1':
         person.private = True
 
@@ -242,16 +242,14 @@ def _parse_family(ancestry: _IntermediateAncestry, element: Element):
     father_handle = _xpath1(element, './ns:father/@hlink')
     if father_handle:
         father = ancestry.people[father_handle]
-        for presence in _parse_eventrefs(ancestry, element):
-            father.presences.append(presence)
+        _parse_eventrefs(ancestry, father, element)
         parents.append(father)
 
     # Parse the mother.
     mother_handle = _xpath1(element, './ns:mother/@hlink')
     if mother_handle:
         mother = ancestry.people[mother_handle]
-        for presence in _parse_eventrefs(ancestry, element):
-            mother.presences.append(presence)
+        _parse_eventrefs(ancestry, mother, element)
         parents.append(mother)
 
     # Parse the children.
@@ -262,10 +260,10 @@ def _parse_family(ancestry: _IntermediateAncestry, element: Element):
             parent.children.append(child)
 
 
-def _parse_eventrefs(ancestry: _IntermediateAncestry, element: Element) -> Iterable[Presence]:
+def _parse_eventrefs(ancestry: _IntermediateAncestry, person: Person, element: Element) -> None:
     eventrefs = _xpath(element, './ns:eventref')
     for eventref in eventrefs:
-        yield _parse_eventref(ancestry, eventref)
+        _parse_eventref(ancestry, person, eventref)
 
 
 _PRESENCE_ROLE_MAP = {
@@ -276,13 +274,11 @@ _PRESENCE_ROLE_MAP = {
 }
 
 
-def _parse_eventref(ancestry: _IntermediateAncestry, eventref: Element) -> Presence:
+def _parse_eventref(ancestry: _IntermediateAncestry, person: Person, eventref: Element) -> None:
     event_handle = _xpath1(eventref, './@hlink')
     gramps_presence_role = _xpath1(eventref, './@role')
     role = _PRESENCE_ROLE_MAP[gramps_presence_role] if gramps_presence_role in _PRESENCE_ROLE_MAP else Presence.Role.ATTENDEE
-    presence = Presence(role)
-    presence.event = ancestry.events[event_handle]
-    return presence
+    Presence(person, role, ancestry.events[event_handle])
 
 
 def _parse_places(ancestry: _IntermediateAncestry, database: Element):

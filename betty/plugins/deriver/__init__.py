@@ -69,9 +69,7 @@ def _derive_event(person: Person, event_type: Event.Type, after: bool, derivatio
     for citation in threshold_event.citations:
         derived_event.citations.append(citation)
     if isinstance(derived_event, DerivedEvent):
-        presence = Presence(Presence.Role.SUBJECT)
-        presence.event = derived_event
-        person.presences.append(presence)
+        Presence(person, Presence.Role.SUBJECT, derived_event)
 
     derivations[event_type] += 1
 
