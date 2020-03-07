@@ -11,7 +11,7 @@ from lxml.etree import XMLParser, Element
 from voluptuous import Schema, IsFile
 
 from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, Event, LocalizedName, Person, Source, \
-    Link, HasFiles, Citation, HasLinks, HasCitations, IdentifiableEvent
+    Link, HasFiles, Citation, HasLinks, HasCitations, IdentifiableEvent, HasPrivacy
 from betty.config import validate_configuration
 from betty.event import Event as DispatchedEvent
 from betty.fs import makedirs
@@ -59,7 +59,7 @@ def _xpath(element, selector: str) -> []:
     return element.xpath(selector, namespaces=_NS)
 
 
-def _xpath1(element, selector: str) -> []:
+def _xpath1(element, selector: str) -> Optional:
     elements = element.xpath(selector, namespaces=_NS)
     if elements:
         return elements[0]
@@ -177,6 +177,7 @@ def _parse_object(ancestry: _IntermediateAncestry, element: Element, gramps_file
     note_handles = _xpath(element, './ns:noteref/@hlink')
     for note_handle in note_handles:
         file.notes.append(ancestry.notes[note_handle])
+    _parse_attribute_privacy(file, element)
     ancestry.files[handle] = file
 
 
@@ -380,6 +381,7 @@ def _parse_event(ancestry: _IntermediateAncestry, element: Element):
 
     _parse_objref(ancestry, event, element)
     _parse_citationref(ancestry, event, element)
+    _parse_attribute_privacy(event, element)
     ancestry.events[handle] = event
 
 
@@ -425,6 +427,7 @@ def _parse_source(ancestry: _IntermediateAncestry, element: Element) -> None:
         source.publisher = spubinfo_element.text
 
     _parse_objref(ancestry, source, element)
+    _parse_attribute_privacy(source, element)
 
     ancestry.sources[handle] = source
 
@@ -443,6 +446,7 @@ def _parse_citation(ancestry: _IntermediateAncestry, element: Element) -> None:
 
     citation.date = _parse_date(element)
     _parse_objref(ancestry, citation, element)
+    _parse_attribute_privacy(citation, element)
 
     page = _xpath1(element, './ns:page')
     if page is not None:
@@ -469,6 +473,23 @@ def _parse_urls(owner: HasLinks, element: Element):
         uri = str(_xpath1(url_element, './@href'))
         label = str(_xpath1(url_element, './@description'))
         owner.links.add(Link(uri, label))
+
+
+def _parse_attribute_privacy(resource: HasPrivacy, element: Element) -> None:
+    privacy_value = _parse_attribute('privacy', element)
+    if privacy_value is None:
+        return
+    if privacy_value == 'private':
+        resource.private = True
+        return
+    if privacy_value == 'public':
+        resource.private = False
+        return
+    logging.getLogger().warning('The betty:privacy Gramps attribute must have a value of "public" or "private", but "%s" was given, which was ignored.' % privacy_value)
+
+
+def _parse_attribute(name: str, element: Element) -> Optional[str]:
+    return _xpath1(element, './ns:attribute[@type="betty:%s"]/@value' % name)
 
 
 GrampsConfigurationSchema = Schema({

@@ -1,112 +1,138 @@
-from tempfile import NamedTemporaryFile, TemporaryDirectory
+from tempfile import TemporaryDirectory
 from unittest import TestCase
+from unittest.mock import patch
 
-from betty.ancestry import Ancestry, Person, Event, File, Presence, PersonName, IdentifiableEvent
+from betty.ancestry import Ancestry, Person, File, Source, Citation, PersonName, Presence, Event, IdentifiableEvent
 from betty.config import Configuration
 from betty.parse import parse
-from betty.plugins.anonymizer import Anonymizer, anonymize, anonymize_person
+from betty.plugins.anonymizer import Anonymizer, anonymize, anonymize_person, anonymize_event, anonymize_file, \
+    anonymize_citation, anonymize_source
 from betty.site import Site
 
 
-class AnonymizerTestCase(TestCase):
-    def assert_anonymized(self, person: Person):
+class AnonymizeTest(TestCase):
+    @patch('betty.plugins.anonymizer.anonymize_person')
+    def test_with_public_person_should_not_anonymize(self, m_anonymize_person) -> None:
+        person = Person('P0')
+        person.private = False
+        ancestry = Ancestry()
+        ancestry.people[person.id] = person
+        anonymize(ancestry)
+        m_anonymize_person.assert_not_called()
+
+    @patch('betty.plugins.anonymizer.anonymize_person')
+    def test_with_private_person_should_anonymize(self, m_anonymize_person) -> None:
+        person = Person('P0')
+        person.private = True
+        ancestry = Ancestry()
+        ancestry.people[person.id] = person
+        anonymize(ancestry)
+        m_anonymize_person.assert_called_once_with(person)
+
+    @patch('betty.plugins.anonymizer.anonymize_event')
+    def test_with_public_event_should_not_anonymize(self, m_anonymize_event) -> None:
+        event = IdentifiableEvent('E0', Event.Type.BIRTH)
+        event.private = False
+        ancestry = Ancestry()
+        ancestry.events[event.id] = event
+        anonymize(ancestry)
+        m_anonymize_event.assert_not_called()
+
+    @patch('betty.plugins.anonymizer.anonymize_event')
+    def test_with_private_event_should_anonymize(self, m_anonymize_event) -> None:
+        event = IdentifiableEvent('E0', Event.Type.BIRTH)
+        event.private = True
+        ancestry = Ancestry()
+        ancestry.events[event.id] = event
+        anonymize(ancestry)
+        m_anonymize_event.assert_called_once_with(event)
+
+    @patch('betty.plugins.anonymizer.anonymize_file')
+    def test_with_public_file_should_not_anonymize(self, m_anonymize_file) -> None:
+        file = File('F0', __file__)
+        file.private = False
+        ancestry = Ancestry()
+        ancestry.files[file.id] = file
+        anonymize(ancestry)
+        m_anonymize_file.assert_not_called()
+
+    @patch('betty.plugins.anonymizer.anonymize_file')
+    def test_with_private_file_should_anonymize(self, m_anonymize_file) -> None:
+        file = File('F0', __file__)
+        file.private = True
+        ancestry = Ancestry()
+        ancestry.files[file.id] = file
+        anonymize(ancestry)
+        m_anonymize_file.assert_called_once_with(file)
+
+    @patch('betty.plugins.anonymizer.anonymize_source')
+    def test_with_public_source_should_not_anonymize(self, m_anonymize_source) -> None:
+        source = Source('S0', 'The Source')
+        source.private = False
+        ancestry = Ancestry()
+        ancestry.sources[source.id] = source
+        anonymize(ancestry)
+        m_anonymize_source.assert_not_called()
+
+    @patch('betty.plugins.anonymizer.anonymize_source')
+    def test_with_private_source_should_anonymize(self, m_anonymize_source) -> None:
+        source = Source('S0', 'The Source')
+        source.private = True
+        ancestry = Ancestry()
+        ancestry.sources[source.id] = source
+        anonymize(ancestry)
+        m_anonymize_source.assert_called_once_with(source)
+
+    @patch('betty.plugins.anonymizer.anonymize_citation')
+    def test_with_public_citation_should_not_anonymize(self, m_anonymize_citation) -> None:
+        source = Source('S0', 'The Source')
+        citation = Citation('C0', source)
+        citation.private = False
+        ancestry = Ancestry()
+        ancestry.citations[citation.id] = citation
+        anonymize(ancestry)
+        m_anonymize_citation.assert_not_called()
+
+    @patch('betty.plugins.anonymizer.anonymize_citation')
+    def test_with_private_citation_should_anonymize(self, m_anonymize_citation) -> None:
+        source = Source('S0', 'The Source')
+        citation = Citation('C0', source)
+        citation.private = True
+        ancestry = Ancestry()
+        ancestry.citations[citation.id] = citation
+        anonymize(ancestry)
+        m_anonymize_citation.assert_called_once_with(citation)
+
+
+class AnonymizePersonTest(TestCase):
+    def test_should_remove_citations(self) -> None:
+        person = Person('P0')
+        source = Source('S0', 'The Source')
+        citation = Citation('C0', source)
+        person.citations.append(citation)
+        anonymize_person(person)
+        self.assertEquals(0, len(person.citations))
+
+    def test_should_remove_files(self) -> None:
+        person = Person('P0')
+        person.files.append(File('F0', __file__))
+        anonymize_person(person)
+        self.assertEquals(0, len(person.files))
+
+    def test_should_remove_names(self) -> None:
+        person = Person('P0')
+        person.names.append(PersonName('Jane', 'Doughh'))
+        anonymize_person(person)
         self.assertEquals(0, len(person.names))
-        self.assertCountEqual([], person.presences)
-        self.assertCountEqual([], person.files)
 
-    def assert_not_anonymized(self, person: Person):
-        self.assertEquals(1, len(person.names))
-        self.assertNotEqual([], sorted(person.presences))
-        self.assertNotEqual([], sorted(person.files))
-
-
-class AnonymizeTest(AnonymizerTestCase):
-    def test_anonymize_should_anonymize_private_person(self):
-        with NamedTemporaryFile() as file_f:
-            person = Person('P0')
-            person.private = True
-            partner = Person('P1')
-            person_presence = Presence(Presence.Role.SUBJECT)
-            person_presence.person = person
-            partner_presence = Presence(Presence.Role.SUBJECT)
-            partner_presence.person = partner
-            event = IdentifiableEvent('E0', Event.Type.MARRIAGE)
-            event.presences = [person_presence, partner_presence]
-            file = File('D0', file_f.name)
-            file.resources.append(person, partner)
-            ancestry = Ancestry()
-            ancestry.people[person.id] = person
-            anonymize(ancestry)
-            self.assert_anonymized(person)
-            self.assertCountEqual([], event.presences)
-            self.assertCountEqual([], file.resources)
-
-    def test_anonymize_should_not_anonymize_public_person(self):
-        with NamedTemporaryFile() as file_f:
-            person = Person('P0')
-            person.names.append(PersonName('Janet', 'Dough'))
-            presence = Presence(Presence.Role.SUBJECT)
-            presence.event = IdentifiableEvent('E0', Event.Type.BIRTH)
-            person.presences.append(presence)
-            person.files.append(File('D0', file_f.name))
-            ancestry = Ancestry()
-            ancestry.people[person.id] = person
-            anonymize(ancestry)
-            self.assert_not_anonymized(person)
-
-    def test_anonymize_should_anonymize_people_without_public_descendants(self):
-        ancestry = Ancestry()
-
+    def test_should_remove_presences(self) -> None:
         person = Person('P0')
-        person.private = True
-        ancestry.people[person.id] = person
-        child = Person('P1')
-        child.private = True
-        person.children.append(child)
-        ancestry.people[child.id] = child
-        grandchild = Person('P2')
-        grandchild.private = True
-        child.children.append(grandchild)
-        ancestry.people[grandchild.id] = grandchild
-        great_grandchild = Person('P3')
-        great_grandchild.private = True
-        grandchild.children.append(great_grandchild)
-        ancestry.people[great_grandchild.id] = great_grandchild
+        person.presences.append(Presence(Presence.Role.SUBJECT))
+        anonymize_person(person)
+        self.assertEquals(0, len(person.presences))
 
-        anonymize(ancestry)
-        self.assertCountEqual([], person.children)
-        self.assertCountEqual([], child.children)
-        self.assertCountEqual([], grandchild.children)
-
-    def test_anonymize_should_not_anonymize_people_with_public_descendants(self):
-        ancestry = Ancestry()
-
+    def test_should_remove_parents_without_public_descendants(self) -> None:
         person = Person('P0')
-        person.private = True
-        ancestry.people[person.id] = person
-        child = Person('P1')
-        child.private = True
-        person.children.append(child)
-        ancestry.people[child.id] = child
-        grandchild = Person('P2')
-        grandchild.private = True
-        child.children.append(grandchild)
-        ancestry.people[grandchild.id] = grandchild
-        great_grandchild = Person('P3')
-        great_grandchild.private = False
-        grandchild.children.append(great_grandchild)
-        ancestry.people[great_grandchild.id] = great_grandchild
-
-        anonymize(ancestry)
-        self.assertCountEqual([child], person.children)
-        self.assertCountEqual([grandchild], child.children)
-        self.assertCountEqual([great_grandchild], grandchild.children)
-
-
-class AnonymizePersonTest(AnonymizerTestCase):
-    def test_anonymize_person_should_anonymize_parents_if_private_without_public_descendants(self):
-        person = Person('P0')
-        person.private = True
         child = Person('P1')
         child.private = True
         person.children.append(child)
@@ -117,35 +143,8 @@ class AnonymizePersonTest(AnonymizerTestCase):
         anonymize_person(person)
         self.assertCountEqual([], person.parents)
 
-    def test_anonymize_person_should_anonymize_parents_if_private_with_public_descendants(self):
+    def test_should_not_remove_parents_with_public_descendants(self) -> None:
         person = Person('P0')
-        person.private = True
-        child = Person('P1')
-        child.private = False
-        person.children.append(child)
-        parent = Person('P2')
-        parent.private = True
-        person.parents.append(parent)
-
-        anonymize_person(person)
-        self.assertCountEqual([parent], person.parents)
-
-    def test_anonymize_person_should_anonymize_parents_if_public_without_public_descendants(self):
-        person = Person('P0')
-        person.private = False
-        child = Person('P1')
-        child.private = True
-        person.children.append(child)
-        parent = Person('P2')
-        parent.private = True
-        person.parents.append(parent)
-
-        anonymize_person(person)
-        self.assertCountEqual([parent], person.parents)
-
-    def test_anonymize_person_should_anonymize_parents_if_public_with_public_descendants(self):
-        person = Person('P0')
-        person.private = False
         child = Person('P1')
         child.private = False
         person.children.append(child)
@@ -157,20 +156,97 @@ class AnonymizePersonTest(AnonymizerTestCase):
         self.assertCountEqual([parent], person.parents)
 
 
-class AnonymizerTest(AnonymizerTestCase):
-    def test_post_parse(self):
+class AnonymizeEventTest(TestCase):
+    def test_should_remove_citations(self) -> None:
+        event = Event(Event.Type.BIRTH)
+        source = Source('S0', 'The Source')
+        citation = Citation('C0', source)
+        event.citations.append(citation)
+        anonymize_event(event)
+        self.assertEquals(0, len(event.citations))
+
+    def test_should_remove_files(self) -> None:
+        event = Event(Event.Type.BIRTH)
+        event.files.append(File('F0', __file__))
+        anonymize_event(event)
+        self.assertEquals(0, len(event.files))
+
+    def test_should_remove_presences(self) -> None:
+        event = Event(Event.Type.BIRTH)
+        event.presences.append(Presence(Presence.Role.SUBJECT))
+        anonymize_event(event)
+        self.assertEquals(0, len(event.presences))
+
+
+class AnonymizeFileTest(TestCase):
+    def test_should_remove_resources(self) -> None:
+        file = File('F0', __file__)
+        file.resources.append(Person('P0'))
+        anonymize_file(file)
+        self.assertEquals(0, len(file.resources))
+
+
+class AnonymizeSourceTest(TestCase):
+    def test_should_remove_citations(self) -> None:
+        source = Source('S0', 'The Source')
+        citation = Citation('C0', source)
+        source.citations.append(citation)
+        anonymize_source(source)
+        self.assertEquals(0, len(source.citations))
+
+    def test_should_remove_contained_by(self) -> None:
+        source = Source('S0', 'The Source')
+        contained_by = Source('S1', 'The Source')
+        source.contained_by = contained_by
+        anonymize_source(source)
+        self.assertIsNone(source.contained_by)
+
+    def test_should_remove_contains(self) -> None:
+        source = Source('S0', 'The Source')
+        contains = Source('S1', 'The Source')
+        source.contains.append(contains)
+        anonymize_source(source)
+        self.assertEquals(0, len(source.contains))
+
+    def test_should_remove_files(self) -> None:
+        source = Source('S0', 'The Source')
+        source.files.append(File('F0', __file__))
+        anonymize_source(source)
+        self.assertEquals(0, len(source.files))
+
+
+class AnonymizeCitationTest(TestCase):
+    def test_should_remove_facts(self) -> None:
+        source = Source('S0', 'The Source')
+        citation = Citation('C0', source)
+        citation.facts.append(PersonName('Jane'))
+        anonymize_citation(citation)
+        self.assertEquals(0, len(citation.facts))
+
+    def test_should_remove_files(self) -> None:
+        source = Source('S0', 'The Source')
+        citation = Citation('C0', source)
+        citation.files.append(File('F0', __file__))
+        anonymize_citation(citation)
+        self.assertEquals(0, len(citation.files))
+
+    def test_should_remove_source(self) -> None:
+        source = Source('S0', 'The Source')
+        citation = Citation('C0', source)
+        anonymize_citation(citation)
+        self.assertIsNone(citation.source)
+
+
+class AnonymizerTest(TestCase):
+    def test_post_parse(self) -> None:
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
             configuration.plugins[Anonymizer] = {}
             site = Site(configuration)
-            with NamedTemporaryFile() as file_f:
-                person = Person('P0')
-                person.private = True
-                presence = Presence(Presence.Role.SUBJECT)
-                presence.event = IdentifiableEvent('E0', Event.Type.BIRTH)
-                person.presences.append(presence)
-                person.files.append(File('D0', file_f.name))
-                site.ancestry.people[person.id] = person
-                parse(site)
-                self.assert_anonymized(person)
+            person = Person('P0')
+            person.private = True
+            person.names.append(PersonName('Jane', 'Dough'))
+            site.ancestry.people[person.id] = person
+            parse(site)
+            self.assertEquals(0, len(person.names))
