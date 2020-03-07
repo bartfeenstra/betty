@@ -4,7 +4,6 @@ import re
 from importlib import import_module
 from itertools import takewhile
 from os.path import join, exists
-from shutil import copy2
 from typing import Union, Dict, Type, Optional, Callable, Iterable
 from urllib.parse import urlparse
 
