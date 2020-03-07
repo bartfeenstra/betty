@@ -23,14 +23,14 @@ class EventHandlingSetList(Generic[T]):
     def prepend(self, *values):
         for value in reversed(values):
             if value in self._values:
-                return
+                continue
             self._values.insert(0, value)
             self._addition_handler(value)
 
     def append(self, *values):
         for value in values:
             if value in self._values:
-                return
+                continue
             self._values.append(value)
             self._addition_handler(value)
 
@@ -54,6 +54,9 @@ class EventHandlingSetList(Generic[T]):
 
     def __len__(self):
         return len(self._values)
+
+    def __getitem__(self, item):
+        return self._values[item]
 
 
 ManyAssociation = Union[EventHandlingSetList[T], Iterable]

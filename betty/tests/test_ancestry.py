@@ -9,39 +9,95 @@ from betty.ancestry import EventHandlingSetList, Person, Event, Place, File, Not
 from betty.locale import Date
 
 
-class EventHandlingSetTest(TestCase):
+class EventHandlingSetListTest(TestCase):
+    def test_prepend(self):
+        added = []
+        removal_handler = Mock()
+        sut = EventHandlingSetList(lambda value: added.append(value), removal_handler)
+        sut.prepend(3)
+        sut.prepend(2)
+        sut.prepend(1)
+        # Prepend an already prepended value again, and assert that it was ignored.
+        sut.prepend(1)
+        self.assertSequenceEqual([1, 2, 3], sut)
+        self.assertSequenceEqual([3, 2, 1], added)
+        removal_handler.assert_not_called()
+
+    def test_append(self):
+        added = []
+        removal_handler = Mock()
+        sut = EventHandlingSetList(lambda value: added.append(value), removal_handler)
+        sut.append(3)
+        sut.append(2)
+        sut.append(1)
+        # Append an already appended value again, and assert that it was ignored.
+        sut.append(1)
+        self.assertSequenceEqual([3, 2, 1], sut)
+        self.assertSequenceEqual([3, 2, 1], added)
+        removal_handler.assert_not_called()
+
+    def test_remove(self):
+        added = []
+        removed = []
+        sut = EventHandlingSetList(lambda value: added.append(value), lambda value: removed.append(value))
+        sut.append(1, 2, 3)
+        sut.remove(2)
+        self.assertSequenceEqual([1, 3], sut)
+        self.assertSequenceEqual([1, 2, 3], added)
+        self.assertSequenceEqual([2], removed)
+
+    def test_replace(self):
+        added = []
+        removed = []
+        sut = EventHandlingSetList(lambda value: added.append(value), lambda value: removed.append(value))
+        sut.append(1, 2, 3)
+        sut.replace([4, 5, 6])
+        self.assertSequenceEqual([4, 5, 6], sut)
+        self.assertSequenceEqual([1, 2, 3, 4, 5, 6], added)
+        self.assertSequenceEqual([1, 2, 3], removed)
+
+    def test_clear(self):
+        added = []
+        removed = []
+        sut = EventHandlingSetList(lambda value: added.append(value), lambda value: removed.append(value))
+        sut.append(1, 2, 3)
+        sut.clear()
+        self.assertSequenceEqual([], sut)
+        self.assertSequenceEqual([1, 2, 3], added)
+        self.assertSequenceEqual([1, 2, 3], removed)
+
     def test_list(self):
         sut = EventHandlingSetList(lambda _: None, lambda _: None)
-        value = 'Some value'
-        sut.append(value)
-        self.assertEquals([value], sut.list)
+        sut.append(1, 2, 3)
+        self.assertEqual([1, 2, 3], sut.list)
 
-    def test_with_handler(self):
-        reference = []
+    def test_len(self):
+        sut = EventHandlingSetList(lambda _: None, lambda _: None)
+        sut.append(1, 2, 3)
+        self.assertEqual(3, len(sut))
 
-        def addition_handler(added_value):
-            reference.append(added_value)
+    def test_iter(self):
+        sut = EventHandlingSetList(lambda _: None, lambda _: None)
+        sut.append(1, 2, 3)
+        # list() gets all items through __iter__ and stores them in the same order.
+        self.assertSequenceEqual([1, 2, 3], list(sut))
 
-        def removal_handler(removed_value):
-            reference.remove(removed_value)
+    def test_getitem(self):
+        sut = EventHandlingSetList(lambda _: None, lambda _: None)
+        sut.append(1, 2, 3)
+        self.assertEqual(1, sut[0])
+        self.assertEqual(2, sut[1])
+        self.assertEqual(3, sut[2])
+        with self.assertRaises(IndexError):
+            sut[3]
 
-        sut = EventHandlingSetList(addition_handler, removal_handler)
-
-        value = 'A valuable value'
-
-        sut.append(value)
-        self.assertCountEqual([value], sut)
-        self.assertEquals([value], reference)
-
-        newvalue = 'A even more valuable value'
-
-        sut.replace([newvalue])
-        self.assertCountEqual([newvalue], sut)
-        self.assertEquals([newvalue], reference)
-
-        sut.remove(newvalue)
-        self.assertCountEqual([], sut)
-        self.assertEquals([], reference)
+    def test_set_like_functionality(self):
+        sut = EventHandlingSetList(lambda _: None, lambda _: None)
+        # Ensure duplicates are skipped.
+        sut.append(1, 2, 3, 1, 2, 3, 1, 2, 3)
+        # Ensure skipped duplicates do not affect further new values.
+        sut.append(1, 2, 3, 4, 5, 6, 7, 8, 9)
+        self.assertSequenceEqual([1, 2, 3, 4, 5, 6, 7, 8, 9], sut)
 
 
 class PersonTest(TestCase):
