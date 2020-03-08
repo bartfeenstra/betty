@@ -10,8 +10,8 @@ from lxml import etree
 from lxml.etree import XMLParser, Element
 from voluptuous import Schema, IsFile
 
-from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, Event, LocalizedName, Person, Source, \
-    Link, HasFiles, Citation, HasLinks, HasCitations, IdentifiableEvent, HasPrivacy
+from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, Event, LocalizedName, Person, Link, \
+    HasFiles, HasLinks, HasCitations, IdentifiableEvent, HasPrivacy, IdentifiableSource, IdentifiableCitation
 from betty.config import validate_configuration
 from betty.event import Event as DispatchedEvent
 from betty.fs import makedirs
@@ -389,8 +389,8 @@ def _parse_repositories(ancestry: _IntermediateAncestry, database: Element) -> N
 def _parse_repository(ancestry: _IntermediateAncestry, element: Element) -> None:
     handle = _xpath1(element, './@handle')
 
-    source = Source(_xpath1(element, './@id'),
-                    _xpath1(element, './ns:rname').text)
+    source = IdentifiableSource(_xpath1(element, './@id'),
+                                _xpath1(element, './ns:rname').text)
 
     _parse_urls(source, element)
 
@@ -405,8 +405,8 @@ def _parse_sources(ancestry: _IntermediateAncestry, database: Element):
 def _parse_source(ancestry: _IntermediateAncestry, element: Element) -> None:
     handle = _xpath1(element, './@handle')
 
-    source = Source(_xpath1(element, './@id'),
-                    _xpath1(element, './ns:stitle').text)
+    source = IdentifiableSource(_xpath1(element, './@id'),
+                                _xpath1(element, './ns:stitle').text)
 
     repository_source_handle = _xpath1(element, './ns:reporef/@hlink')
     if repository_source_handle is not None:
@@ -437,8 +437,8 @@ def _parse_citation(ancestry: _IntermediateAncestry, element: Element) -> None:
     handle = _xpath1(element, './@handle')
     source_handle = _xpath1(element, './ns:sourceref/@hlink')
 
-    citation = Citation(_xpath1(element, './@id'),
-                        ancestry.sources[source_handle])
+    citation = IdentifiableCitation(_xpath1(element, './@id'),
+                                    ancestry.sources[source_handle])
 
     citation.date = _parse_date(element)
     _parse_objref(ancestry, citation, element)

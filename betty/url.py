@@ -1,6 +1,7 @@
 from typing import Any, Type, Optional
 
-from betty.ancestry import Person, Citation, Source, File, Place, Event, Identifiable, PersonName
+from betty.ancestry import Person, File, Place, Identifiable, PersonName, IdentifiableSource, IdentifiableEvent, \
+    IdentifiableCitation
 from betty.config import Configuration
 from betty.content_type import EXTENSIONS
 
@@ -61,15 +62,15 @@ class SiteUrlGenerator(UrlGenerator):
             person_url_generator,
             PersonNameUrlGenerator(person_url_generator),
             IdentifiableResourceUrlGenerator(
-                configuration, Event, 'event/%s/index.%s'),
+                configuration, IdentifiableEvent, 'event/%s/index.%s'),
             IdentifiableResourceUrlGenerator(
                 configuration, Place, 'place/%s/index.%s'),
             IdentifiableResourceUrlGenerator(
                 configuration, File, 'file/%s/index.%s'),
             IdentifiableResourceUrlGenerator(
-                configuration, Source, 'source/%s/index.%s'),
+                configuration, IdentifiableSource, 'source/%s/index.%s'),
             IdentifiableResourceUrlGenerator(
-                configuration, Citation, 'citation/%s/index.%s'),
+                configuration, IdentifiableCitation, 'citation/%s/index.%s'),
             PathResourceUrlGenerator(configuration),
         ]
 

@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import List, Tuple, Callable, Set, Type
 
-from betty.ancestry import Ancestry, Place, File, Source, Citation, IdentifiableEvent
+from betty.ancestry import Ancestry, Place, File, IdentifiableEvent, IdentifiableSource, IdentifiableCitation, Person
 from betty.event import Event
 from betty.graph import Graph, tsort
 from betty.parse import PostParseEvent
@@ -27,6 +27,7 @@ def _clean_event(ancestry: Ancestry, event: IdentifiableEvent) -> None:
     if len(event.presences) > 0:
         return
 
+    del event.presences
     del event.place
     del event.citations
     del event.files
@@ -67,8 +68,17 @@ def _clean_place(ancestry: Ancestry, place: Place) -> None:
 
 def _clean_people(ancestry: Ancestry) -> None:
     for person in list(ancestry.people.values()):
-        if person.private and len(person.children) == 0:
-            del ancestry.people[person.id]
+        _clean_person(ancestry, person)
+
+
+def _clean_person(ancestry: Ancestry, person: Person) -> None:
+    if not person.private:
+        return
+
+    if len(person.children) > 0:
+        return
+
+    del ancestry.people[person.id]
 
 
 def _clean_files(ancestry: Ancestry) -> None:
@@ -88,7 +98,7 @@ def _clean_sources(ancestry: Ancestry) -> None:
         _clean_source(ancestry, source)
 
 
-def _clean_source(ancestry: Ancestry, source: Source) -> None:
+def _clean_source(ancestry: Ancestry, source: IdentifiableSource) -> None:
     if len(source.citations) > 0:
         return
 
@@ -109,7 +119,7 @@ def _clean_citations(ancestry: Ancestry) -> None:
         _clean_citation(ancestry, citation)
 
 
-def _clean_citation(ancestry: Ancestry, citation: Citation) -> None:
+def _clean_citation(ancestry: Ancestry, citation: IdentifiableCitation) -> None:
     if len(citation.facts) > 0:
         return
 

@@ -8,7 +8,8 @@ import html5lib
 from lxml import etree
 
 from betty import json
-from betty.ancestry import Person, Event, Place, Source, LocalizedName, Citation, File, IdentifiableEvent
+from betty.ancestry import Person, Event, Place, Source, LocalizedName, File, IdentifiableEvent, IdentifiableCitation, \
+    IdentifiableSource
 from betty.config import Configuration, LocaleConfiguration
 from betty.render import render
 from betty.site import Site
@@ -102,7 +103,7 @@ class RenderTest(RenderTestCase):
         self.assert_betty_json('/event/%s/index.json' % event.id, 'event')
 
     def test_citation(self):
-        citation = Citation('CITATION1', Source('SOURCE1', 'A Little Birdie'))
+        citation = IdentifiableCitation('CITATION1', Source('A Little Birdie'))
         self.site.ancestry.citations[citation.id] = citation
         render(self.site)
         self.assert_betty_html('/citation/%s/index.html' % citation.id)
@@ -115,7 +116,7 @@ class RenderTest(RenderTestCase):
         self.assert_betty_json('/source/index.json', 'sourceCollection')
 
     def test_source(self):
-        source = Source('SOURCE1', 'A Little Birdie')
+        source = IdentifiableSource('SOURCE1', 'A Little Birdie')
         self.site.ancestry.sources[source.id] = source
         render(self.site)
         self.assert_betty_html('/source/%s/index.html' % source.id)

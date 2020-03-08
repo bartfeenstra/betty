@@ -1,4 +1,4 @@
-from typing import List, Tuple, Callable, Set, Type
+from typing import List, Tuple, Callable, Set, Type, Optional
 
 from betty.ancestry import Ancestry, Person, File, Citation, Source, Event
 from betty.event import Event as DispatchedEvent
@@ -8,7 +8,32 @@ from betty.plugin import Plugin
 from betty.plugin.privatizer import Privatizer
 
 
+class AnonymousSource(Source):
+    def __init__(self):
+        Source.__init__(self, _('Private'))
+
+    def replace(self, other: Source) -> None:
+        self.citations.append(*other.citations)
+        self.contains.append(*other.contains)
+        self.files.append(*other.files)
+
+
+class AnonymousCitation(Citation):
+    def __init__(self, source: Source):
+        Citation.__init__(self, source)
+
+    @property
+    def location(self) -> Optional[str]:
+        return _("A citation is available, but has not been published in order to protect people's privacy")
+
+    def replace(self, other: Citation) -> None:
+        self.facts.append(*other.facts)
+        self.files.append(*other.files)
+
+
 def anonymize(ancestry: Ancestry) -> None:
+    anonymous_source = AnonymousSource()
+    anonymous_citation = AnonymousCitation(anonymous_source)
     for person in ancestry.people.values():
         if person.private:
             anonymize_person(person)
@@ -20,20 +45,24 @@ def anonymize(ancestry: Ancestry) -> None:
             anonymize_file(file)
     for source in ancestry.sources.values():
         if source.private:
-            anonymize_source(source)
+            anonymize_source(source, anonymous_source)
     for citation in ancestry.citations.values():
         if citation.private:
-            anonymize_citation(citation)
+            anonymize_citation(citation, anonymous_citation)
 
 
 def anonymize_person(person: Person) -> None:
+    for name in person.names:
+        del name.citations
+    del person.names
     del person.citations
     del person.files
-    del person.names
+    for presence in person.presences:
+        del presence.event
     del person.presences
 
     # If a person connects other public people, keep them in the person graph.
-    if not _has_public_descendants(person):
+    if person.private and not _has_public_descendants(person):
         del person.parents
 
 
@@ -54,14 +83,16 @@ def anonymize_file(file: File) -> None:
     del file.resources
 
 
-def anonymize_source(source: Source) -> None:
+def anonymize_source(source: Source, anonymous_source: AnonymousSource) -> None:
+    anonymous_source.replace(source)
     del source.citations
     del source.contained_by
     del source.contains
     del source.files
 
 
-def anonymize_citation(citation: Citation) -> None:
+def anonymize_citation(citation: Citation, anonymous_citation: AnonymousCitation) -> None:
+    anonymous_citation.replace(citation)
     del citation.facts
     del citation.files
     del citation.source

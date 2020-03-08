@@ -1,16 +1,21 @@
+import gettext
 from tempfile import TemporaryDirectory
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import patch, ANY
 
-from betty.ancestry import Ancestry, Person, File, Source, Citation, PersonName, Presence, Event, IdentifiableEvent
+from betty.ancestry import Ancestry, Person, File, Source, Citation, PersonName, Presence, Event, IdentifiableEvent, \
+    IdentifiableSource, IdentifiableCitation
 from betty.config import Configuration
 from betty.parse import parse
 from betty.plugin.anonymizer import Anonymizer, anonymize, anonymize_person, anonymize_event, anonymize_file, \
-    anonymize_citation, anonymize_source
+    anonymize_citation, anonymize_source, AnonymousSource, AnonymousCitation
 from betty.site import Site
 
 
 class AnonymizeTest(TestCase):
+    def setUp(self) -> None:
+        gettext.NullTranslations().install()
+
     @patch('betty.plugin.anonymizer.anonymize_person')
     def test_with_public_person_should_not_anonymize(self, m_anonymize_person) -> None:
         person = Person('P0')
@@ -67,7 +72,7 @@ class AnonymizeTest(TestCase):
 
     @patch('betty.plugin.anonymizer.anonymize_source')
     def test_with_public_source_should_not_anonymize(self, m_anonymize_source) -> None:
-        source = Source('S0', 'The Source')
+        source = IdentifiableSource('S0', 'The Source')
         source.private = False
         ancestry = Ancestry()
         ancestry.sources[source.id] = source
@@ -76,17 +81,17 @@ class AnonymizeTest(TestCase):
 
     @patch('betty.plugin.anonymizer.anonymize_source')
     def test_with_private_source_should_anonymize(self, m_anonymize_source) -> None:
-        source = Source('S0', 'The Source')
+        source = IdentifiableSource('S0', 'The Source')
         source.private = True
         ancestry = Ancestry()
         ancestry.sources[source.id] = source
         anonymize(ancestry)
-        m_anonymize_source.assert_called_once_with(source)
+        m_anonymize_source.assert_called_once_with(source, ANY)
 
     @patch('betty.plugin.anonymizer.anonymize_citation')
     def test_with_public_citation_should_not_anonymize(self, m_anonymize_citation) -> None:
-        source = Source('S0', 'The Source')
-        citation = Citation('C0', source)
+        source = Source('The Source')
+        citation = IdentifiableCitation('C0', source)
         citation.private = False
         ancestry = Ancestry()
         ancestry.citations[citation.id] = citation
@@ -95,20 +100,20 @@ class AnonymizeTest(TestCase):
 
     @patch('betty.plugin.anonymizer.anonymize_citation')
     def test_with_private_citation_should_anonymize(self, m_anonymize_citation) -> None:
-        source = Source('S0', 'The Source')
-        citation = Citation('C0', source)
+        source = Source('The Source')
+        citation = IdentifiableCitation('C0', source)
         citation.private = True
         ancestry = Ancestry()
         ancestry.citations[citation.id] = citation
         anonymize(ancestry)
-        m_anonymize_citation.assert_called_once_with(citation)
+        m_anonymize_citation.assert_called_once_with(citation, ANY)
 
 
 class AnonymizePersonTest(TestCase):
     def test_should_remove_citations(self) -> None:
         person = Person('P0')
-        source = Source('S0', 'The Source')
-        citation = Citation('C0', source)
+        source = Source('The Source')
+        citation = Citation(source)
         person.citations.append(citation)
         anonymize_person(person)
         self.assertEquals(0, len(person.citations))
@@ -121,18 +126,26 @@ class AnonymizePersonTest(TestCase):
 
     def test_should_remove_names(self) -> None:
         person = Person('P0')
-        person.names.append(PersonName('Jane', 'Doughh'))
+        name = PersonName('Jane', 'Dough')
+        source = Source('The Source')
+        citation = Citation(source)
+        name.citations.append(citation)
+        person.names.append(name)
         anonymize_person(person)
         self.assertEquals(0, len(person.names))
+        self.assertEquals(0, len(citation.facts))
 
     def test_should_remove_presences(self) -> None:
         person = Person('P0')
-        Presence(person, Presence.Role.SUBJECT, Event(Event.Type.BIRTH))
+        event = Event(Event.Type.BIRTH)
+        Presence(person, Presence.Role.SUBJECT, event)
         anonymize_person(person)
         self.assertEquals(0, len(person.presences))
+        self.assertEquals(0, len(event.presences))
 
     def test_should_remove_parents_without_public_descendants(self) -> None:
         person = Person('P0')
+        person.private = True
         child = Person('P1')
         child.private = True
         person.children.append(child)
@@ -145,6 +158,7 @@ class AnonymizePersonTest(TestCase):
 
     def test_should_not_remove_parents_with_public_descendants(self) -> None:
         person = Person('P0')
+        person.private = True
         child = Person('P1')
         child.private = False
         person.children.append(child)
@@ -159,8 +173,8 @@ class AnonymizePersonTest(TestCase):
 class AnonymizeEventTest(TestCase):
     def test_should_remove_citations(self) -> None:
         event = Event(Event.Type.BIRTH)
-        source = Source('S0', 'The Source')
-        citation = Citation('C0', source)
+        source = Source('The Source')
+        citation = Citation(source)
         event.citations.append(citation)
         anonymize_event(event)
         self.assertEquals(0, len(event.citations))
@@ -188,53 +202,77 @@ class AnonymizeFileTest(TestCase):
 
 
 class AnonymizeSourceTest(TestCase):
+    def setUp(self) -> None:
+        gettext.NullTranslations().install()
+
     def test_should_remove_citations(self) -> None:
-        source = Source('S0', 'The Source')
-        citation = Citation('C0', source)
+        source = IdentifiableSource('S0', 'The Source')
+        citation = Citation(source)
         source.citations.append(citation)
-        anonymize_source(source)
+        anonymous_source = AnonymousSource()
+        anonymize_source(source, anonymous_source)
         self.assertEquals(0, len(source.citations))
+        self.assertIn(citation, anonymous_source.citations)
 
     def test_should_remove_contained_by(self) -> None:
-        source = Source('S0', 'The Source')
-        contained_by = Source('S1', 'The Source')
+        source = IdentifiableSource('S0', 'The Source')
+        contained_by = Source('The Source')
         source.contained_by = contained_by
-        anonymize_source(source)
+        anonymous_source = AnonymousSource()
+        anonymize_source(source, anonymous_source)
         self.assertIsNone(source.contained_by)
 
     def test_should_remove_contains(self) -> None:
-        source = Source('S0', 'The Source')
-        contains = Source('S1', 'The Source')
+        source = IdentifiableSource('S0', 'The Source')
+        contains = Source('The Source')
         source.contains.append(contains)
-        anonymize_source(source)
+        anonymous_source = AnonymousSource()
+        anonymize_source(source, anonymous_source)
         self.assertEquals(0, len(source.contains))
+        self.assertIn(contains, anonymous_source.contains)
 
     def test_should_remove_files(self) -> None:
-        source = Source('S0', 'The Source')
-        source.files.append(File('F0', __file__))
-        anonymize_source(source)
+        source = IdentifiableSource('S0', 'The Source')
+        file = File('F0', __file__)
+        source.files.append(file)
+        anonymous_source = AnonymousSource()
+        anonymize_source(source, anonymous_source)
         self.assertEquals(0, len(source.files))
+        self.assertIn(file, anonymous_source.files)
 
 
 class AnonymizeCitationTest(TestCase):
+    def setUp(self) -> None:
+        gettext.NullTranslations().install()
+
     def test_should_remove_facts(self) -> None:
-        source = Source('S0', 'The Source')
-        citation = Citation('C0', source)
-        citation.facts.append(PersonName('Jane'))
-        anonymize_citation(citation)
+        source = Source('The Source')
+        citation = IdentifiableCitation('C0', source)
+        fact = PersonName('Jane')
+        citation.facts.append(fact)
+        anonymous_source = AnonymousSource()
+        anonymous_citation = AnonymousCitation(anonymous_source)
+        anonymize_citation(citation, anonymous_citation)
         self.assertEquals(0, len(citation.facts))
+        self.assertIn(fact, anonymous_citation.facts)
 
     def test_should_remove_files(self) -> None:
-        source = Source('S0', 'The Source')
-        citation = Citation('C0', source)
-        citation.files.append(File('F0', __file__))
-        anonymize_citation(citation)
+        source = Source('The Source')
+        citation = IdentifiableCitation('C0', source)
+        file = File('F0', __file__)
+        citation.files.append(file)
+        anonymous_source = AnonymousSource()
+        anonymous_citation = AnonymousCitation(anonymous_source)
+        anonymize_citation(citation, anonymous_citation)
         self.assertEquals(0, len(citation.files))
+        self.assertIn(file, anonymous_citation.files)
 
     def test_should_remove_source(self) -> None:
-        source = Source('S0', 'The Source')
-        citation = Citation('C0', source)
-        anonymize_citation(citation)
+        source = Source('The Source')
+        citation = IdentifiableCitation('C0', source)
+        anonymous_source = AnonymousSource()
+        anonymous_citation = AnonymousCitation(anonymous_source)
+        anonymize_citation(citation, anonymous_citation)
         self.assertIsNone(citation.source)
 
 

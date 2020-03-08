@@ -120,26 +120,26 @@ def many_to_one(self_name: str, associated_name: str, _removal_handler: Optional
         original_init = cls.__init__
 
         def _init(decorated_self, *args, **kwargs):
-            setattr(decorated_self, _decorated_self_name, None)
+            association = None
+            setattr(decorated_self, _decorated_self_name, association)
             original_init(decorated_self, *args, **kwargs)
         cls.__init__ = _init
 
         def _set(decorated_self, value):
             previous_value = getattr(decorated_self, _decorated_self_name)
+            if previous_value == value:
+                return
             setattr(decorated_self, _decorated_self_name, value)
             if previous_value is not None:
                 getattr(previous_value, associated_name).remove(decorated_self)
+                if value is None and _removal_handler is not None:
+                    _removal_handler(decorated_self)
             if value is not None:
                 getattr(value, associated_name).append(decorated_self)
-
-        def _delete(decorated_self):
-            _set(decorated_self, None)
-            if _removal_handler is not None:
-                _removal_handler()
         setattr(cls, self_name, property(
-            lambda self: getattr(self, _decorated_self_name),
+            lambda decorated_self: getattr(decorated_self, _decorated_self_name),
             _set,
-            _delete,
+            lambda decorated_self: _set(decorated_self, None),
         ))
         return cls
     return decorator
@@ -287,15 +287,14 @@ class HasFiles:
 @many_to_one('contained_by', 'contains')
 @one_to_many('contains', 'contained_by')
 @one_to_many('citations', 'source')
-class Source(Resource, Identifiable, Dated, HasFiles, HasLinks, HasPrivacy):
+class Source(Resource, Dated, HasFiles, HasLinks, HasPrivacy):
     resource_type_name = 'source'
     name: str
     contained_by: 'Source'
     contains: ManyAssociation['Source']
     citations: ManyAssociation['Citation']
 
-    def __init__(self, source_id: str, name: str):
-        Identifiable.__init__(self, source_id)
+    def __init__(self, name: str):
         Dated.__init__(self)
         HasFiles.__init__(self)
         HasLinks.__init__(self)
@@ -321,15 +320,20 @@ class Source(Resource, Identifiable, Dated, HasFiles, HasLinks, HasPrivacy):
         self._publisher = publisher
 
 
+class IdentifiableSource(Source, Identifiable):
+    def __init__(self, source_id: str, *args, **kwargs):
+        Identifiable.__init__(self, source_id)
+        Source.__init__(self, *args, **kwargs)
+
+
 @many_to_many('facts', 'citations')
 @many_to_one('source', 'citations')
-class Citation(Resource, Identifiable, Dated, HasFiles, HasPrivacy):
+class Citation(Resource, Dated, HasFiles, HasPrivacy):
     resource_type_name = 'citation'
-    source: Source
     facts: ManyAssociation[Resource]
+    source: Source
 
-    def __init__(self, citation_id: str, source: Source):
-        Identifiable.__init__(self, citation_id)
+    def __init__(self, source: Source):
         Dated.__init__(self)
         HasFiles.__init__(self)
         HasPrivacy.__init__(self)
@@ -343,6 +347,12 @@ class Citation(Resource, Identifiable, Dated, HasFiles, HasPrivacy):
     @location.setter
     def location(self, location: str):
         self._location = location
+
+
+class IdentifiableCitation(Citation, Identifiable):
+    def __init__(self, citation_id: str, *args, **kwargs):
+        Identifiable.__init__(self, citation_id)
+        Citation.__init__(self, *args, **kwargs)
 
 
 @many_to_many('citations', 'facts')
@@ -409,8 +419,8 @@ class Presence:
         ATTENDEE = 'attendee'
 
     def __init__(self, person: 'Person', role: Role, event: 'Event'):
-        self.role = role
         self.person = person
+        self.role = role
         self.event = event
 
 
@@ -564,8 +574,8 @@ class Ancestry:
     people: Dict[str, Person]
     places: Dict[str, Place]
     events: Dict[str, IdentifiableEvent]
-    sources: Dict[str, Source]
-    citations: Dict[str, Citation]
+    sources: Dict[str, IdentifiableSource]
+    citations: Dict[str, IdentifiableCitation]
 
     def __init__(self):
         self.files = {}

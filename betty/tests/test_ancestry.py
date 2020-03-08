@@ -313,3 +313,37 @@ class LocalizedNameTest(TestCase):
         name = 'Ikke'
         sut = LocalizedName(name)
         self.assertEquals(name, sut.name)
+
+
+class PresenceTest(TestCase):
+    def test_event_deletion_upon_person_deletion(self) -> None:
+        person = Person('P1')
+        event = Event(Event.Type.BIRTH)
+        sut = Presence(person, Presence.Role.SUBJECT, event)
+        del sut.person
+        self.assertIsNone(sut.event)
+        self.assertNotIn(sut, event.presences)
+
+    def test_event_deletion_upon_person_set_to_none(self) -> None:
+        person = Person('P1')
+        event = Event(Event.Type.BIRTH)
+        sut = Presence(person, Presence.Role.SUBJECT, event)
+        sut.person = None
+        self.assertIsNone(sut.event)
+        self.assertNotIn(sut, event.presences)
+
+    def test_person_deletion_upon_event_deletion(self) -> None:
+        person = Person('P1')
+        event = Event(Event.Type.BIRTH)
+        sut = Presence(person, Presence.Role.SUBJECT, event)
+        del sut.event
+        self.assertIsNone(sut.person)
+        self.assertNotIn(sut, person.presences)
+
+    def test_person_deletion_upon_event_set_to_none(self) -> None:
+        person = Person('P1')
+        event = Event(Event.Type.BIRTH)
+        sut = Presence(person, Presence.Role.SUBJECT, event)
+        sut.event = None
+        self.assertIsNone(sut.person)
+        self.assertNotIn(sut, person.presences)
