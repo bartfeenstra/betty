@@ -7,9 +7,10 @@ from geopy import Point
 from jsonschema import RefResolver
 
 from betty.ancestry import Place, Person, LocalizedName, Event, Presence, Described, HasLinks, HasCitations, Link, \
-    Dated, File, Note, PersonName, IdentifiableEvent, Identifiable, IdentifiableSource, IdentifiableCitation
+    Dated, File, Note, PersonName, IdentifiableEvent, Identifiable, IdentifiableSource, IdentifiableCitation, \
+    HasMediaType
 from betty.config import Configuration
-from betty.locale import Date, DateRange
+from betty.locale import Date, DateRange, Localized
 from betty.plugin.deriver import DerivedEvent
 from betty.url import StaticPathUrlGenerator, SiteUrlGenerator
 
@@ -98,6 +99,14 @@ class JSONEncoder(stdjson.JSONEncoder):
             encoded['end'] = date.end
         return encoded
 
+    def _encode_localized(self, encoded: Dict, localized: Localized) -> None:
+        if localized.locale is not None:
+            encoded['locale'] = localized.locale
+
+    def _encode_has_media_type(self, encoded: Dict, media: HasMediaType) -> None:
+        if media.media_type is not None:
+            encoded['mediaType'] = media.media_type
+
     def _encode_has_links(self, encoded: Dict, has_links: HasLinks) -> None:
         encoded['links'] = list(has_links.links)
 
@@ -109,8 +118,8 @@ class JSONEncoder(stdjson.JSONEncoder):
             encoded['label'] = link.label
         if link.relationship is not None:
             encoded['relationship'] = link.relationship
-        if link.locale is not None:
-            encoded['locale'] = link.locale
+        self._encode_localized(encoded, link)
+        self._encode_has_media_type(encoded, link)
         return encoded
 
     def _encode_has_citations(self, encoded: Dict, has_citations: HasCitations) -> None:
@@ -132,8 +141,7 @@ class JSONEncoder(stdjson.JSONEncoder):
         encoded = {
             'name': name.name,
         }
-        if name.locale:
-            encoded['locale'] = name.locale
+        self._encode_localized(encoded, name)
         return encoded
 
     def _encode_place(self, place: Place) -> Dict:
@@ -209,8 +217,7 @@ class JSONEncoder(stdjson.JSONEncoder):
             'notes': file.notes,
         }
         self._encode_schema(encoded, 'file')
-        if file.type is not None:
-            encoded['type'] = file.type
+        self._encode_has_media_type(encoded, file)
         return encoded
 
     def _encode_event(self, event: Event) -> Dict:

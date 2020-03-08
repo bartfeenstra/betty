@@ -14,7 +14,7 @@
     <meta name="og:site_name" content="{{ site.configuration.title }}"/>
     {% if page_resource is defined %}
         {% for file in page_resource.files | default([]) %}
-            {% if file.type.startswith('image/') %}
+            {% if file.media_type.startswith('image/') %}
                 <meta name="og:image" content="{{ file | image(600, 600) | static_url }}"/>
                 {% if file.description %}
                     <meta name="og:image:description" content="{{ file.description }}"/>

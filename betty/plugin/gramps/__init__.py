@@ -170,7 +170,7 @@ def _parse_object(ancestry: _IntermediateAncestry, element: Element, gramps_file
     file_path = join(dirname(gramps_file_path),
                      str(_xpath1(file_element, './@src')))
     file = File(entity_id, file_path)
-    file.type = str(_xpath1(file_element, './@mime'))
+    file.media_type = str(_xpath1(file_element, './@mime'))
     description = str(_xpath1(file_element, './@description'))
     if description:
         file.description = description
@@ -466,9 +466,12 @@ def _parse_objref(ancestry: _IntermediateAncestry, owner: HasFiles, element: Ele
 def _parse_urls(owner: HasLinks, element: Element):
     url_elements = _xpath(element, './ns:url')
     for url_element in url_elements:
-        uri = str(_xpath1(url_element, './@href'))
-        label = str(_xpath1(url_element, './@description'))
-        owner.links.add(Link(uri, label))
+        link = Link(str(_xpath1(url_element, './@href')))
+        link.relationship = 'external'
+        description_element = _xpath1(url_element, './@description')
+        if description_element is not None:
+            link.label = str(description_element)
+        owner.links.add(link)
 
 
 def _parse_attribute_privacy(resource: HasPrivacy, element: Element, tag: str) -> None:

@@ -73,8 +73,9 @@ class JSONEncoderTest(TestCase):
         place.coordinates = coordinates
         place.enclosed_by = Place('the_enclosing_place', [])
         place.encloses.append(Place('the_enclosed_place', []))
-        place.links.add(
-            Link('https://example.com/the-place', 'The Place Online'))
+        link = Link('https://example.com/the-place')
+        link.label = 'The Place Online'
+        place.links.add(link)
         place.events.append(IdentifiableEvent('E1', Event.Type.BIRTH))
         expected = {
             '$schema': '/schema.json#/definitions/place',
@@ -159,8 +160,9 @@ class JSONEncoderTest(TestCase):
         person.parents.append(parent)
         person.children.append(child)
         person.private = False
-        person.links.add(
-            Link('https://example.com/the-person', 'The Person Online'))
+        link = Link('https://example.com/the-person')
+        link.label = 'The Person Online'
+        person.links.add(link)
         person.citations.append(
             IdentifiableCitation('the_citation', Source('The Source')))
         Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('the_event', Event.Type.BIRTH))
@@ -229,13 +231,13 @@ class JSONEncoderTest(TestCase):
     def test_file_should_encode_full(self):
         with NamedTemporaryFile() as f:
             file = File('the_file', f.name)
-            file.type = 'text/plain'
+            file.media_type = 'text/plain'
             file.notes.append(Note('The Note'))
             Person('the_person').files.append(file)
             expected = {
                 '$schema': '/schema.json#/definitions/file',
                 'id': 'the_file',
-                'type': 'text/plain',
+                'mediaType': 'text/plain',
                 'entities': [
                     '/person/the_person/index.json',
                 ],
@@ -325,8 +327,9 @@ class JSONEncoderTest(TestCase):
         source.date = Date(2000, 1, 1)
         source.contained_by = IdentifiableSource(
             'the_containing_source', 'The Containing Source')
-        source.links.add(
-            Link('https://example.com/the-person', 'The Person Online'))
+        link = Link('https://example.com/the-source')
+        link.label = 'The Source Online'
+        source.links.add(link)
         source.contains.append(
             IdentifiableSource('the_contained_source', 'The Contained Source'))
         IdentifiableCitation('the_citation', source)
@@ -354,8 +357,8 @@ class JSONEncoderTest(TestCase):
             },
             'links': [
                 {
-                    'url': 'https://example.com/the-person',
-                    'label': 'The Person Online',
+                    'url': 'https://example.com/the-source',
+                    'label': 'The Source Online',
                 },
             ],
         }
@@ -394,11 +397,16 @@ class JSONEncoderTest(TestCase):
         self.assert_encodes(expected, link, 'link')
 
     def test_link_should_encode_full(self) -> None:
-        link = Link('https://example.com', label='The Link', relationship='external', locale='nl-NL')
+        link = Link('https://example.com')
+        link.label = 'The Link'
+        link.relationship = 'external'
+        link.locale = 'nl-NL'
+        link.media_type = 'text/html'
         expected = {
             'url': 'https://example.com',
             'relationship': 'external',
             'label': 'The Link',
             'locale': 'nl-NL',
+            'mediaType': 'text/html',
         }
         self.assert_encodes(expected, link, 'link')

@@ -164,8 +164,8 @@
         "id": {
           "$ref": "#/definitions/id"
         },
-        "type": {
-          "type": "string"
+        "mediaType": {
+          "$ref": "#/definitions/mediaType"
         },
         "notes": {
           "$ref": "#/definitions/notes"
@@ -486,6 +486,14 @@
       "type": "string",
       "description": "A unique resource ID."
     },
+    "locale": {
+      "type": "string",
+      "description": "A BCP 47 locale identifier (https://www.ietf.org/rfc/bcp/bcp47.txt)."
+    },
+    "mediaType": {
+      "type": "string",
+      "description": "An IANA media type (https://www.iana.org/assignments/media-types/media-types.xhtml)."
+    },
     "links": {
       "type": "array",
       "items": {
@@ -496,17 +504,23 @@
       "type": "object",
       "properties": {
         "label": {
-          "type": "string"
+          "type": "string",
+          "description": "The human-readable label, or link text."
         },
         "url": {
           "type": "string",
-          "format": "uri"
+          "format": "uri",
+          "description": "The full URL to the other resource."
         },
         "relationship": {
-          "type": "string"
+          "type": "string",
+          "description": "The relationship between this resource and the link target (https://en.wikipedia.org/wiki/Link_relation)."
         },
         "locale": {
-          "type": "string"
+          "$ref": "#/definitions/locale"
+        },
+        "mediaType": {
+          "$ref": "#/definitions/mediaType"
         }
       },
       "required": [
@@ -526,7 +540,7 @@
           "type": "string"
         },
         "locale": {
-          "type": "string"
+          "$ref": "#/definitions/locale"
         }
       },
       "required": [
