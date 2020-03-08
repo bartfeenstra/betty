@@ -102,10 +102,16 @@ class JSONEncoder(stdjson.JSONEncoder):
         encoded['links'] = list(has_links.links)
 
     def _encode_link(self, link: Link) -> Dict:
-        return {
+        encoded = {
             'url': link.url,
-            'label': link.label,
         }
+        if link.label is not None:
+            encoded['label'] = link.label
+        if link.relationship is not None:
+            encoded['relationship'] = link.relationship
+        if link.locale is not None:
+            encoded['locale'] = link.locale
+        return encoded
 
     def _encode_has_citations(self, encoded: Dict, has_citations: HasCitations) -> None:
         encoded['citations'] = [self._generate_url(

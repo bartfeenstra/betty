@@ -203,17 +203,27 @@ class Described:
 
 
 class Link:
-    def __init__(self, url: str, label: Optional[str] = None):
+    def __init__(self, url: str, label: Optional[str] = None, relationship: Optional[str] = None, locale: Optional[str] = None):
         self._url = url
         self._label = label
+        self._relationship = relationship
+        self._locale = locale
 
     @property
     def url(self) -> str:
         return self._url
 
     @property
-    def label(self) -> str:
-        return self._label if self._label else self._url
+    def relationship(self) -> Optional[str]:
+        return self._relationship
+
+    @property
+    def label(self) -> Optional[str]:
+        return self._label
+
+    @property
+    def locale(self) -> Optional[str]:
+        return self._locale
 
 
 class HasLinks:

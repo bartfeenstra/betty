@@ -501,6 +501,12 @@
         "url": {
           "type": "string",
           "format": "uri"
+        },
+        "relationship": {
+          "type": "string"
+        },
+        "locale": {
+          "type": "string"
         }
       },
       "required": [

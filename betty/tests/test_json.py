@@ -385,3 +385,20 @@ class JSONEncoderTest(TestCase):
             ],
         }
         self.assert_encodes(expected, citation, 'citation')
+
+    def test_link_should_encode_minimal(self) -> None:
+        link = Link('https://example.com')
+        expected = {
+            'url': 'https://example.com',
+        }
+        self.assert_encodes(expected, link, 'link')
+
+    def test_link_should_encode_full(self) -> None:
+        link = Link('https://example.com', label='The Link', relationship='external', locale='nl-NL')
+        expected = {
+            'url': 'https://example.com',
+            'relationship': 'external',
+            'label': 'The Link',
+            'locale': 'nl-NL',
+        }
+        self.assert_encodes(expected, link, 'link')
