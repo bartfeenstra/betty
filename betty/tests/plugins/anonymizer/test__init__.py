@@ -145,6 +145,7 @@ class AnonymizePersonTest(TestCase):
 
     def test_should_remove_parents_without_public_descendants(self) -> None:
         person = Person('P0')
+        person.private = True
         child = Person('P1')
         child.private = True
         person.children.append(child)
@@ -157,6 +158,7 @@ class AnonymizePersonTest(TestCase):
 
     def test_should_not_remove_parents_with_public_descendants(self) -> None:
         person = Person('P0')
+        person.private = True
         child = Person('P1')
         child.private = False
         person.children.append(child)

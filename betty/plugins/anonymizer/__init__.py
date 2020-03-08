@@ -62,12 +62,8 @@ def anonymize_person(person: Person) -> None:
     del person.presences
 
     # If a person connects other public people, keep them in the person graph.
-    if not _has_public_descendants(person):
-        del person.parents
-
-    # If a person is public themselves, or a node connecting other public persons, preserve their place in the graph.
     if person.private and not _has_public_descendants(person):
-        person.parents.clear()
+        del person.parents
 
 
 def _has_public_descendants(person: Person) -> bool:
