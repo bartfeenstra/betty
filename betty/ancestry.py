@@ -114,7 +114,7 @@ class one_to_many(_to_many):
         return lambda associated: setattr(associated, self._associated_name, None)
 
 
-def many_to_one(self_name: str, associated_name: str, _delete_handler: Optional[Callable[[T], None]] = None):
+def many_to_one(self_name: str, associated_name: str, _removal_handler: Optional[Callable[[T], None]] = None):
     def decorator(cls):
         _decorated_self_name = '_%s' % self_name
         original_init = cls.__init__
@@ -132,8 +132,8 @@ def many_to_one(self_name: str, associated_name: str, _delete_handler: Optional[
             setattr(decorated_self, _decorated_self_name, value)
             if previous_value is not None:
                 getattr(previous_value, associated_name).remove(decorated_self)
-                if value is None and _delete_handler is not None:
-                    _delete_handler(decorated_self)
+                if value is None and _removal_handler is not None:
+                    _removal_handler(decorated_self)
             if value is not None:
                 getattr(value, associated_name).append(decorated_self)
         setattr(cls, self_name, property(

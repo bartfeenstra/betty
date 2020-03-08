@@ -23,110 +23,129 @@ class Privatizer(Plugin):
         privatized = 0
         for person in ancestry.people.values():
             private = person.private
-            self._privatize_person(person)
+            privatize_person(person, self._lifetime_threshold)
             if private is None and person.private is True:
                 privatized += 1
         logger = logging.getLogger()
         logger.info('Privatized %d people because they are likely still alive.' % privatized)
 
         for citation in ancestry.citations.values():
-            self._privatize_citation(citation)
+            privatize_citation(citation)
 
         for source in ancestry.sources.values():
-            self._privatize_source(source)
+            privatize_source(source)
 
-    def _mark_private(self, has_privacy: HasPrivacy) -> None:
-        # Do not change existing explicit privacy declarations.
-        if has_privacy.private is None:
-            has_privacy.private = True
 
-    def _privatize_person(self, person: Person) -> None:
-        # Do not change existing explicit privacy declarations.
-        if person.private is None:
-            person.private = self._person_is_private(person)
+def _mark_private(has_privacy: HasPrivacy) -> None:
+    # Do not change existing explicit privacy declarations.
+    if has_privacy.private is None:
+        has_privacy.private = True
 
-        if not person.private:
-            return
 
-        for presence in person.presences:
-            if presence.role == Presence.Role.SUBJECT:
-                presence.event.private = True
-        for file in person.files:
-            self._mark_private(file)
-        for citation in person.citations:
-            self._mark_private(citation)
-            self._privatize_citation(citation)
+def privatize_person(person: Person, lifetime_threshold: int = 100) -> None:
+    # Do not change existing explicit privacy declarations.
+    if person.private is None:
+        person.private = _person_is_private(person, lifetime_threshold)
 
-    def _privatize_citation(self, citation: Citation) -> None:
-        if not citation.private:
-            return
+    if not person.private:
+        return
 
-        self._mark_private(citation.source)
-        self._privatize_source(citation.source)
-        for file in citation.files:
-            self._mark_private(file)
+    for presence in person.presences:
+        if presence.role == Presence.Role.SUBJECT:
+            _mark_private(presence.event)
+            privatize_event(presence.event)
+    for file in person.files:
+        _mark_private(file)
+    for citation in person.citations:
+        _mark_private(citation)
+        privatize_citation(citation)
 
-    def _privatize_source(self, source: Source) -> None:
-        if not source.private:
-            return
 
-        for file in source.files:
-            self._mark_private(file)
+def privatize_event(event: Event) -> None:
+    if not event.private:
+        return
 
-    def _person_is_private(self, person: Person) -> bool:
-        # A dead person is not private, regardless of when they died.
-        if person.end is not None and self._event_has_expired(person.end, 0):
-            return False
+    for file in event.files:
+        _mark_private(file)
+    for citation in event.citations:
+        _mark_private(citation)
+        privatize_citation(citation)
 
-        if self._person_has_expired(person, 1):
-            return False
 
-        def ancestors(person: Person, generation: int = -1):
-            for parent in person.parents:
-                yield generation, parent
-                yield from ancestors(parent, generation - 1)
+def privatize_citation(citation: Citation) -> None:
+    if not citation.private:
+        return
 
-        for generation, ancestor in ancestors(person):
-            if self._person_has_expired(ancestor, abs(generation) + 1):
-                return False
+    _mark_private(citation.source)
+    privatize_source(citation.source)
+    for file in citation.files:
+        _mark_private(file)
 
-        # If any descendant has any expired event, the person is considered not private.
-        for descendant in walk(person, 'children'):
-            if self._person_has_expired(descendant, 1):
-                return False
 
-        return True
+def privatize_source(source: Source) -> None:
+    if not source.private:
+        return
 
-    def _person_has_expired(self, person: Person, multiplier: int) -> bool:
-        for presence in person.presences:
-            if self._event_has_expired(presence.event, multiplier):
-                return True
+    for file in source.files:
+        _mark_private(file)
+
+
+def _person_is_private(person: Person, lifetime_threshold: int) -> bool:
+    # A dead person is not private, regardless of when they died.
+    if person.end is not None and _event_has_expired(person.end, lifetime_threshold, 0):
         return False
 
-    def _event_has_expired(self, event: Event, multiplier: int) -> bool:
-        assert multiplier >= 0
+    if _person_has_expired(person, lifetime_threshold, 1):
+        return False
 
-        if event.date is None:
+    def ancestors(person: Person, generation: int = -1):
+        for parent in person.parents:
+            yield generation, parent
+            yield from ancestors(parent, generation - 1)
+
+    for generation, ancestor in ancestors(person):
+        if _person_has_expired(ancestor, lifetime_threshold, abs(generation) + 1):
             return False
 
-        date = event.date
-
-        if isinstance(date, DateRange):
-            if date.end is not None:
-                date = date.end
-            # A multiplier of 0 is only used for generation 0's end-of-life events. If those only have start dates, they
-            # do not contain any information about by which date the event definitely has taken place, and therefore
-            # they MUST be checked using another method call with a multiplier of 1 to verify they lie far enough in the
-            # past.
-            elif multiplier != 0:
-                date = date.start
-            else:
-                return False
-
-        if date is None:
+    # If any descendant has any expired event, the person is considered not private.
+    for descendant in walk(person, 'children'):
+        if _person_has_expired(descendant, lifetime_threshold, 1):
             return False
 
-        if not date.comparable:
+    return True
+
+
+def _person_has_expired(person: Person, lifetime_threshold: int, multiplier: int) -> bool:
+    for presence in person.presences:
+        if _event_has_expired(presence.event, lifetime_threshold, multiplier):
+            return True
+    return False
+
+
+def _event_has_expired(event: Event, lifetime_threshold: int, multiplier: int) -> bool:
+    assert multiplier >= 0
+
+    if event.date is None:
+        return False
+
+    date = event.date
+
+    if isinstance(date, DateRange):
+        if date.end is not None:
+            date = date.end
+        # A multiplier of 0 is only used for generation 0's end-of-life events. If those only have start dates, they
+        # do not contain any information about by which date the event definitely has taken place, and therefore
+        # they MUST be checked using another method call with a multiplier of 1 to verify they lie far enough in the
+        # past.
+        elif multiplier != 0:
+            date = date.start
+        else:
             return False
 
-        return date <= Date(datetime.now().year - self._lifetime_threshold * multiplier, datetime.now().month, datetime.now().day)
+    if date is None:
+        return False
+
+    if not date.comparable:
+        return False
+
+    return date <= Date(datetime.now().year - lifetime_threshold * multiplier, datetime.now().month, datetime.now().day)

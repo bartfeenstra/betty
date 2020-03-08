@@ -14,7 +14,6 @@ class AnonymousSource(Source):
 
     def replace(self, other: Source) -> None:
         self.citations.append(*other.citations)
-        self.contained_by = other.contained_by
         self.contains.append(*other.contains)
         self.files.append(*other.files)
 
@@ -25,12 +24,11 @@ class AnonymousCitation(Citation):
 
     @property
     def location(self) -> Optional[str]:
-        return _("This citation has not been published in order to protect people's privacy")
+        return _("A citation is available, but has not been published in order to protect people's privacy")
 
     def replace(self, other: Citation) -> None:
         self.facts.append(*other.facts)
         self.files.append(*other.files)
-        self.source = other.source
 
 
 def anonymize(ancestry: Ancestry) -> None:

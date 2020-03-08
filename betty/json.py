@@ -264,8 +264,8 @@ class JSONEncoder(stdjson.JSONEncoder):
             '@type': 'https://schema.org/Thing',
             'id': source.id,
             'name': source.name,
-            'contains': [self._generate_url(contained) for contained in source.contains],
-            'citations': [self._generate_url(citation) for citation in source.citations],
+            'contains': [self._generate_url(contained) for contained in source.contains if isinstance(contained, Identifiable)],
+            'citations': [self._generate_url(citation) for citation in source.citations if isinstance(citation, Identifiable)],
         }
         if source.author is not None:
             encoded['author'] = source.author

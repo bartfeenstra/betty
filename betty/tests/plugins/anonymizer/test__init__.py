@@ -219,7 +219,6 @@ class AnonymizeSourceTest(TestCase):
         anonymous_source = AnonymousSource()
         anonymize_source(source, anonymous_source)
         self.assertIsNone(source.contained_by)
-        self.assertEqual(contained_by, anonymous_source.contained_by)
 
     def test_should_remove_contains(self) -> None:
         source = IdentifiableSource('S0', 'The Source')
@@ -273,7 +272,6 @@ class AnonymizeCitationTest(TestCase):
         anonymous_citation = AnonymousCitation(anonymous_source)
         anonymize_citation(citation, anonymous_citation)
         self.assertIsNone(citation.source)
-        self.assertEqual(source, anonymous_citation.source)
 
 
 class AnonymizerTest(TestCase):
