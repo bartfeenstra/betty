@@ -10,7 +10,7 @@ from betty.ancestry import Place, Person, LocalizedName, Event, Presence, Descri
     Dated, File, Note, PersonName, IdentifiableEvent, Identifiable, IdentifiableSource, IdentifiableCitation
 from betty.config import Configuration
 from betty.locale import Date, DateRange
-from betty.plugins.deriver import DerivedEvent
+from betty.plugin.deriver import DerivedEvent
 from betty.url import StaticPathUrlGenerator, SiteUrlGenerator
 
 
