@@ -1,6 +1,6 @@
 {% set place_context = place_context | default(None) %}
 <div class="places">
-    {% if 'betty.plugins.maps.Maps' in plugins %}
+    {% if 'betty.plugin.maps.Maps' in plugins %}
         <div class="featured map js-show"></div>
     {% endif %}
     <ul class="entities {% if canonical is not defined or not canonical %} js-hide{% endif %}">

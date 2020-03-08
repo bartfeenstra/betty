@@ -42,7 +42,7 @@
         document.getElementById('js-visibility').innerHTML = '.js-hide{display:none;}'
     </script>
     <script src="{{ '/search.js' | static_url }}" defer></script>
-    {% if 'betty.plugins.js.Js' in plugins %}
+    {% if 'betty.plugin.js.Js' in plugins %}
     <script src="{{ '/betty.js' | static_url }}" defer></script>
     {% endif %}
 </head>
