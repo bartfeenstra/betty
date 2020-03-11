@@ -23,7 +23,7 @@
         {% endfor %}
         <link rel="canonical" href="{{ page_resource | url(absolute=true) }}"/>
         {% if page_resource is defined and page_resource is resource and resource is identifiable %}
-            <link rel="alternate" href="{{ page_resource | url(content_type='application/json') }}" type="application/json"/>
+            <link rel="alternate" href="{{ page_resource | url(media_type='application/json') }}" type="application/json"/>
             <script type="application/ld+json">
               {{ page_resource | tojson }}
             </script>

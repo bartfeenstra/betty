@@ -7,9 +7,10 @@ from geopy import Point
 from betty import json
 from betty.ancestry import Place, Person, LocalizedName, Link, Event, Presence, Source, File, Note, PersonName, \
     IdentifiableEvent, IdentifiableSource, IdentifiableCitation
-from betty.config import Configuration
+from betty.config import Configuration, LocaleConfiguration
 from betty.json import JSONEncoder
 from betty.locale import Date, DateRange
+from betty.site import Site
 
 
 class JSONEncoderTest(TestCase):
@@ -19,8 +20,12 @@ class JSONEncoderTest(TestCase):
         with TemporaryDirectory() as output_directory:
             configuration = Configuration(
                 output_directory, '')
+            configuration.locales.clear()
+            configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
+            configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
+            site = Site(configuration)
             encoded_data = stdjson.loads(stdjson.dumps(data, cls=JSONEncoder.get_factory(
-                configuration, configuration.default_locale)))
+                site, configuration.default_locale)))
             json.validate(encoded_data, schema_definition, configuration)
             self.assertEquals(expected, encoded_data)
 
@@ -58,7 +63,23 @@ class JSONEncoderTest(TestCase):
             ],
             'encloses': [],
             'events': [],
-            'links': [],
+            'links': [
+                {
+                    'url': '/en/place/the_place/index.json',
+                    'relationship': 'canonical',
+                    'mediaType': 'application/json',
+                },
+                {
+                    'url': '/nl/place/the_place/index.json',
+                    'relationship': 'alternate',
+                    'locale': 'nl-NL',
+                },
+                {
+                    'url': '/en/place/the_place/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                },
+            ],
         }
         self.assert_encodes(expected, place, 'place')
 
@@ -94,9 +115,24 @@ class JSONEncoderTest(TestCase):
                 },
             ],
             'events': [
-                '/event/E1/index.json',
+                '/en/event/E1/index.json',
             ],
             'links': [
+                {
+                    'url': '/en/place/the_place/index.json',
+                    'relationship': 'canonical',
+                    'mediaType': 'application/json',
+                },
+                {
+                    'url': '/nl/place/the_place/index.json',
+                    'relationship': 'alternate',
+                    'locale': 'nl-NL',
+                },
+                {
+                    'url': '/en/place/the_place/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                },
                 {
                     'url': 'https://example.com/the-place',
                     'label': 'The Place Online',
@@ -112,9 +148,9 @@ class JSONEncoderTest(TestCase):
                 'longitude': longitude,
             },
             'encloses': [
-                '/place/the_enclosed_place/index.json',
+                '/en/place/the_enclosed_place/index.json',
             ],
-            'enclosedBy': '/place/the_enclosing_place/index.json',
+            'enclosedBy': '/en/place/the_enclosing_place/index.json',
         }
         self.assert_encodes(expected, place, 'place')
 
@@ -137,7 +173,23 @@ class JSONEncoderTest(TestCase):
             'private': None,
             'presences': [],
             'citations': [],
-            'links': [],
+            'links': [
+                {
+                    'url': '/en/person/the_person/index.json',
+                    'relationship': 'canonical',
+                    'mediaType': 'application/json',
+                },
+                {
+                    'url': '/nl/person/the_person/index.json',
+                    'relationship': 'alternate',
+                    'locale': 'nl-NL',
+                },
+                {
+                    'url': '/en/person/the_person/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                },
+            ],
         }
         self.assert_encodes(expected, person, 'person')
 
@@ -187,13 +239,13 @@ class JSONEncoderTest(TestCase):
                 },
             ],
             'parents': [
-                '/person/the_parent/index.json',
+                '/en/person/the_parent/index.json',
             ],
             'children': [
-                '/person/the_child/index.json',
+                '/en/person/the_child/index.json',
             ],
             'siblings': [
-                '/person/the_sibling/index.json',
+                '/en/person/the_sibling/index.json',
             ],
             'private': False,
             'presences': [
@@ -202,13 +254,28 @@ class JSONEncoderTest(TestCase):
                         'event': 'https://schema.org/performerIn',
                     },
                     'role': Presence.Role.SUBJECT.value,
-                    'event': '/event/the_event/index.json',
+                    'event': '/en/event/the_event/index.json',
                 },
             ],
             'citations': [
-                '/citation/the_citation/index.json',
+                '/en/citation/the_citation/index.json',
             ],
             'links': [
+                {
+                    'url': '/en/person/the_person/index.json',
+                    'relationship': 'canonical',
+                    'mediaType': 'application/json',
+                },
+                {
+                    'url': '/nl/person/the_person/index.json',
+                    'relationship': 'alternate',
+                    'locale': 'nl-NL',
+                },
+                {
+                    'url': '/en/person/the_person/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                },
                 {
                     'url': 'https://example.com/the-person',
                     'label': 'The Person Online',
@@ -225,6 +292,23 @@ class JSONEncoderTest(TestCase):
                 'id': 'the_file',
                 'entities': [],
                 'notes': [],
+                'links': [
+                    {
+                        'url': '/en/file/the_file/index.json',
+                        'relationship': 'canonical',
+                        'mediaType': 'application/json',
+                    },
+                    {
+                        'url': '/nl/file/the_file/index.json',
+                        'relationship': 'alternate',
+                        'locale': 'nl-NL',
+                    },
+                    {
+                        'url': '/en/file/the_file/index.html',
+                        'relationship': 'alternate',
+                        'mediaType': 'text/html',
+                    },
+                ],
             }
             self.assert_encodes(expected, file, 'file')
 
@@ -239,11 +323,28 @@ class JSONEncoderTest(TestCase):
                 'id': 'the_file',
                 'mediaType': 'text/plain',
                 'entities': [
-                    '/person/the_person/index.json',
+                    '/en/person/the_person/index.json',
                 ],
                 'notes': [
                     {
                         'text': 'The Note',
+                    },
+                ],
+                'links': [
+                    {
+                        'url': '/en/file/the_file/index.json',
+                        'relationship': 'canonical',
+                        'mediaType': 'application/json',
+                    },
+                    {
+                        'url': '/nl/file/the_file/index.json',
+                        'relationship': 'alternate',
+                        'locale': 'nl-NL',
+                    },
+                    {
+                        'url': '/en/file/the_file/index.html',
+                        'relationship': 'alternate',
+                        'mediaType': 'text/html',
                     },
                 ],
             }
@@ -258,6 +359,23 @@ class JSONEncoderTest(TestCase):
             'type': Event.Type.BIRTH.value,
             'presences': [],
             'citations': [],
+            'links': [
+                {
+                    'url': '/en/event/the_event/index.json',
+                    'relationship': 'canonical',
+                    'mediaType': 'application/json',
+                },
+                {
+                    'url': '/nl/event/the_event/index.json',
+                    'relationship': 'alternate',
+                    'locale': 'nl-NL',
+                },
+                {
+                    'url': '/en/event/the_event/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                },
+            ],
         }
         self.assert_encodes(expected, event, 'event')
 
@@ -282,11 +400,11 @@ class JSONEncoderTest(TestCase):
                         'person': 'https://schema.org/actor',
                     },
                     'role': Presence.Role.SUBJECT.value,
-                    'person': '/person/the_person/index.json',
+                    'person': '/en/person/the_person/index.json',
                 },
             ],
             'citations': [
-                '/citation/the_citation/index.json',
+                '/en/citation/the_citation/index.json',
             ],
             'date': {
                 'start': {
@@ -300,7 +418,24 @@ class JSONEncoderTest(TestCase):
                     'day': 31,
                 },
             },
-            'place': '/place/the_place/index.json',
+            'place': '/en/place/the_place/index.json',
+            'links': [
+                {
+                    'url': '/en/event/the_event/index.json',
+                    'relationship': 'canonical',
+                    'mediaType': 'application/json',
+                },
+                {
+                    'url': '/nl/event/the_event/index.json',
+                    'relationship': 'alternate',
+                    'locale': 'nl-NL',
+                },
+                {
+                    'url': '/en/event/the_event/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                },
+            ],
         }
         self.assert_encodes(expected, event, 'event')
 
@@ -316,7 +451,23 @@ class JSONEncoderTest(TestCase):
             'name': 'The Source',
             'contains': [],
             'citations': [],
-            'links': [],
+            'links': [
+                {
+                    'url': '/en/source/the_source/index.json',
+                    'relationship': 'canonical',
+                    'mediaType': 'application/json',
+                },
+                {
+                    'url': '/nl/source/the_source/index.json',
+                    'relationship': 'alternate',
+                    'locale': 'nl-NL',
+                },
+                {
+                    'url': '/en/source/the_source/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                },
+            ],
         }
         self.assert_encodes(expected, source, 'source')
 
@@ -344,18 +495,33 @@ class JSONEncoderTest(TestCase):
             'author': 'The Author',
             'publisher': 'The Publisher',
             'contains': [
-                '/source/the_contained_source/index.json',
+                '/en/source/the_contained_source/index.json',
             ],
             'citations': [
-                '/citation/the_citation/index.json',
+                '/en/citation/the_citation/index.json',
             ],
-            'containedBy': '/source/the_containing_source/index.json',
+            'containedBy': '/en/source/the_containing_source/index.json',
             'date': {
                 'year': 2000,
                 'month': 1,
                 'day': 1,
             },
             'links': [
+                {
+                    'url': '/en/source/the_source/index.json',
+                    'relationship': 'canonical',
+                    'mediaType': 'application/json',
+                },
+                {
+                    'url': '/nl/source/the_source/index.json',
+                    'relationship': 'alternate',
+                    'locale': 'nl-NL',
+                },
+                {
+                    'url': '/en/source/the_source/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                },
                 {
                     'url': 'https://example.com/the-source',
                     'label': 'The Source Online',
@@ -371,6 +537,23 @@ class JSONEncoderTest(TestCase):
             '@type': 'https://schema.org/Thing',
             'id': 'the_citation',
             'facts': [],
+            'links': [
+                {
+                    'url': '/en/citation/the_citation/index.json',
+                    'relationship': 'canonical',
+                    'mediaType': 'application/json',
+                },
+                {
+                    'url': '/nl/citation/the_citation/index.json',
+                    'relationship': 'alternate',
+                    'locale': 'nl-NL',
+                },
+                {
+                    'url': '/en/citation/the_citation/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                },
+            ],
         }
         self.assert_encodes(expected, citation, 'citation')
 
@@ -382,9 +565,26 @@ class JSONEncoderTest(TestCase):
             '$schema': '/schema.json#/definitions/citation',
             '@type': 'https://schema.org/Thing',
             'id': 'the_citation',
-            'source': '/source/the_source/index.json',
+            'source': '/en/source/the_source/index.json',
             'facts': [
-                '/event/the_event/index.json'
+                '/en/event/the_event/index.json'
+            ],
+            'links': [
+                {
+                    'url': '/en/citation/the_citation/index.json',
+                    'relationship': 'canonical',
+                    'mediaType': 'application/json',
+                },
+                {
+                    'url': '/nl/citation/the_citation/index.json',
+                    'relationship': 'alternate',
+                    'locale': 'nl-NL',
+                },
+                {
+                    'url': '/en/citation/the_citation/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                },
             ],
         }
         self.assert_encodes(expected, citation, 'citation')

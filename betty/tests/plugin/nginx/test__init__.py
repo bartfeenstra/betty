@@ -26,14 +26,14 @@ class NginxTest(TestCase):
     gzip_vary on;
     gzip_types text/css application/javascript application/json application/xml;
 
-        set $content_type_extension html;
-    index index.$content_type_extension;
+        set $media_type_extension html;
+    index index.$media_type_extension;
 
         location / {
             # Handle HTTP error responses.
-            error_page 401 /.error/401.$content_type_extension;
-            error_page 403 /.error/403.$content_type_extension;
-            error_page 404 /.error/404.$content_type_extension;
+            error_page 401 /.error/401.$media_type_extension;
+            error_page 403 /.error/403.$media_type_extension;
+            error_page 404 /.error/404.$media_type_extension;
             location /.error {
                 internal;
             }
@@ -62,14 +62,14 @@ class NginxTest(TestCase):
     gzip_vary on;
     gzip_types text/css application/javascript application/json application/xml;
 
-        set $content_type_extension html;
-    index index.$content_type_extension;
+        set $media_type_extension html;
+    index index.$media_type_extension;
 
         location / {
             # Handle HTTP error responses.
-            error_page 401 /.error/401.$content_type_extension;
-            error_page 403 /.error/403.$content_type_extension;
-            error_page 404 /.error/404.$content_type_extension;
+            error_page 401 /.error/401.$media_type_extension;
+            error_page 403 /.error/403.$media_type_extension;
+            error_page 404 /.error/404.$media_type_extension;
             location /.error {
                 internal;
             }
@@ -100,8 +100,8 @@ class NginxTest(TestCase):
     gzip_vary on;
     gzip_types text/css application/javascript application/json application/xml;
 
-        set $content_type_extension html;
-    index index.$content_type_extension;
+        set $media_type_extension html;
+    index index.$media_type_extension;
 
         location ~ ^/(en|nl)(/|$) {
             set $locale $1;
@@ -109,9 +109,9 @@ class NginxTest(TestCase):
             add_header Content-Language "$locale" always;
 
             # Handle HTTP error responses.
-            error_page 401 /$locale/.error/401.$content_type_extension;
-            error_page 403 /$locale/.error/403.$content_type_extension;
-            error_page 404 /$locale/.error/404.$content_type_extension;
+            error_page 401 /$locale/.error/401.$media_type_extension;
+            error_page 403 /$locale/.error/403.$media_type_extension;
+            error_page 404 /$locale/.error/404.$media_type_extension;
             location ~ ^/$locale/\.error {
                 internal;
             }
@@ -150,15 +150,15 @@ class NginxTest(TestCase):
     gzip_vary on;
     gzip_types text/css application/javascript application/json application/xml;
 
-        set_by_lua_block $content_type_extension {
-            local available_content_types = {'text/html', 'application/json'}
-            local content_type_extensions = {}
-            content_type_extensions['text/html'] = 'html'
-            content_type_extensions['application/json'] = 'json'
-            local content_type = require('cone').negotiate(ngx.req.get_headers()['Accept'], available_content_types)
-            return content_type_extensions[content_type]
+        set_by_lua_block $media_type_extension {
+            local available_media_types = {'text/html', 'application/json'}
+            local media_type_extensions = {}
+            media_type_extensions['text/html'] = 'html'
+            media_type_extensions['application/json'] = 'json'
+            local media_type = require('cone').negotiate(ngx.req.get_headers()['Accept'], available_media_types)
+            return media_type_extensions[media_type]
         }
-    index index.$content_type_extension;
+    index index.$media_type_extension;
 
         location ~ ^/(en|nl)(/|$) {
             set $locale $1;
@@ -166,9 +166,9 @@ class NginxTest(TestCase):
             add_header Content-Language "$locale" always;
 
             # Handle HTTP error responses.
-            error_page 401 /$locale/.error/401.$content_type_extension;
-            error_page 403 /$locale/.error/403.$content_type_extension;
-            error_page 404 /$locale/.error/404.$content_type_extension;
+            error_page 401 /$locale/.error/401.$media_type_extension;
+            error_page 403 /$locale/.error/403.$media_type_extension;
+            error_page 404 /$locale/.error/404.$media_type_extension;
             location ~ ^/$locale/\.error {
                 internal;
             }
@@ -211,21 +211,21 @@ class NginxTest(TestCase):
     gzip_vary on;
     gzip_types text/css application/javascript application/json application/xml;
 
-        set_by_lua_block $content_type_extension {
-            local available_content_types = {'text/html', 'application/json'}
-            local content_type_extensions = {}
-            content_type_extensions['text/html'] = 'html'
-            content_type_extensions['application/json'] = 'json'
-            local content_type = require('cone').negotiate(ngx.req.get_headers()['Accept'], available_content_types)
-            return content_type_extensions[content_type]
+        set_by_lua_block $media_type_extension {
+            local available_media_types = {'text/html', 'application/json'}
+            local media_type_extensions = {}
+            media_type_extensions['text/html'] = 'html'
+            media_type_extensions['application/json'] = 'json'
+            local media_type = require('cone').negotiate(ngx.req.get_headers()['Accept'], available_media_types)
+            return media_type_extensions[media_type]
         }
-    index index.$content_type_extension;
+    index index.$media_type_extension;
 
         location / {
             # Handle HTTP error responses.
-            error_page 401 /.error/401.$content_type_extension;
-            error_page 403 /.error/403.$content_type_extension;
-            error_page 404 /.error/404.$content_type_extension;
+            error_page 401 /.error/401.$media_type_extension;
+            error_page 403 /.error/403.$media_type_extension;
+            error_page 404 /.error/404.$media_type_extension;
             location /.error {
                 internal;
             }
@@ -259,14 +259,14 @@ server {
     gzip_vary on;
     gzip_types text/css application/javascript application/json application/xml;
 
-        set $content_type_extension html;
-    index index.$content_type_extension;
+        set $media_type_extension html;
+    index index.$media_type_extension;
 
         location / {
             # Handle HTTP error responses.
-            error_page 401 /.error/401.$content_type_extension;
-            error_page 403 /.error/403.$content_type_extension;
-            error_page 404 /.error/404.$content_type_extension;
+            error_page 401 /.error/401.$media_type_extension;
+            error_page 403 /.error/403.$media_type_extension;
+            error_page 404 /.error/404.$media_type_extension;
             location /.error {
                 internal;
             }

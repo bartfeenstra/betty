@@ -121,7 +121,7 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
     @contextfilter
     def _filter_json(context, data, indent=None):
         return stdjson.dumps(data, indent=indent,
-                             cls=JSONEncoder.get_factory(site.configuration, resolve_or_missing(context, 'locale')))
+                             cls=JSONEncoder.get_factory(site, resolve_or_missing(context, 'locale')))
 
     environment.filters['json'] = _filter_json
 
@@ -142,10 +142,10 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
     environment.filters['format_degrees'] = _filter_format_degrees
     environment.globals['citer'] = _Citer()
 
-    def _filter_url(resource, content_type=None, locale=None, **kwargs):
-        content_type = content_type if content_type else 'text/html'
+    def _filter_url(resource, media_type=None, locale=None, **kwargs):
+        media_type = media_type if media_type else 'text/html'
         locale = locale if locale else default_locale
-        return url_generator.generate(resource, content_type, locale=locale, **kwargs)
+        return url_generator.generate(resource, media_type, locale=locale, **kwargs)
 
     environment.filters['url'] = _filter_url
     environment.filters['static_url'] = StaticPathUrlGenerator(

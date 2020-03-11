@@ -176,6 +176,9 @@
             "type": "string",
             "format": "uri"
           }
+        },
+        "links": {
+          "$ref": "#/definitions/links"
         }
       },
       "required": [
@@ -258,6 +261,9 @@
         },
         "citations": {
           "$ref": "#/definitions/citations"
+        },
+        "links": {
+          "$ref": "#/definitions/links"
         }
       },
       "required": [
@@ -385,6 +391,9 @@
         },
         "description": {
           "$ref": "#/definitions/description"
+        },
+        "links": {
+          "$ref": "#/definitions/links"
         }
       },
       "required": [
