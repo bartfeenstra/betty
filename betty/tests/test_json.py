@@ -14,8 +14,6 @@ from betty.site import Site
 
 
 class JSONEncoderTest(TestCase):
-    maxDiff = None
-
     def assert_encodes(self, expected, data, schema_definition: str):
         with TemporaryDirectory() as output_directory:
             configuration = Configuration(
