@@ -202,18 +202,46 @@ class Described:
         self._description = description
 
 
-class Link:
-    def __init__(self, url: str, label: Optional[str] = None):
+class HasMediaType:
+    def __init__(self):
+        self._media_type = None
+
+    @property
+    def media_type(self) -> Optional[str]:
+        return self._media_type
+
+    @media_type.setter
+    def media_type(self, media_type: str):
+        self._media_type = media_type
+
+
+class Link(HasMediaType, Localized):
+    def __init__(self, url: str):
+        HasMediaType.__init__(self)
+        Localized.__init__(self)
         self._url = url
-        self._label = label
+        self._label = None
+        self._relationship = None
 
     @property
     def url(self) -> str:
         return self._url
 
     @property
-    def label(self) -> str:
-        return self._label if self._label else self._url
+    def relationship(self) -> Optional[str]:
+        return self._relationship
+
+    @relationship.setter
+    def relationship(self, relationship: str) -> None:
+        self._relationship = relationship
+
+    @property
+    def label(self) -> Optional[str]:
+        return self._label
+
+    @label.setter
+    def label(self, label: str) -> None:
+        self._label = label
 
 
 class HasLinks:
@@ -226,7 +254,7 @@ class HasLinks:
 
 
 @many_to_many('resources', 'files')
-class File(Resource, Identifiable, Described, HasPrivacy):
+class File(Resource, Identifiable, Described, HasPrivacy, HasMediaType):
     resource_type_name = 'file'
     resources: ManyAssociation[Resource]
     notes: List[Note]
@@ -235,21 +263,13 @@ class File(Resource, Identifiable, Described, HasPrivacy):
         Identifiable.__init__(self, file_id)
         Described.__init__(self)
         HasPrivacy.__init__(self)
+        HasMediaType.__init__(self)
         self._path = path
-        self._type = None
         self.notes = []
 
     @property
     def path(self) -> str:
         return self._path
-
-    @property
-    def type(self) -> Optional[str]:
-        return self._type
-
-    @type.setter
-    def type(self, file_type: str):
-        self._type = file_type
 
     @property
     def name(self) -> str:
