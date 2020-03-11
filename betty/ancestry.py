@@ -159,16 +159,10 @@ class HasPrivacy:
 
 
 class Dated:
+    date: Optional[Datey]
+
     def __init__(self):
-        self._date = None
-
-    @property
-    def date(self) -> Optional[Datey]:
-        return self._date
-
-    @date.setter
-    def date(self, date: Datey):
-        self._date = date
+        self.date = None
 
 
 class Note:
@@ -475,7 +469,7 @@ class Event(Resource, Dated, HasFiles, HasCitations, Described, HasPrivacy):
         HasCitations.__init__(self)
         Described.__init__(self)
         HasPrivacy.__init__(self)
-        self._date = date
+        self.date = date
         self._type = event_type
 
     @property

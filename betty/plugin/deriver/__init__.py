@@ -45,8 +45,15 @@ def _derive_person(person: Person, derivations: Dict) -> None:
 def _derive_event(person: Person, event_type: Event.Type, after: bool, derivations: Dict) -> None:
     derived_event = _get_primary_event(person, event_type)
     if derived_event is None:
-        derived_event = DerivedEvent(event_type)
-    if derived_event.date is not None:
+        derived_event = DerivedEvent(event_type, DateRange())
+    elif isinstance(derived_event.date, DateRange):
+        if after and derived_event.date.start is not None:
+            return
+        if not after and derived_event.date.end is not None:
+            return
+    elif derived_event.date is None:
+        derived_event.date = DateRange()
+    else:
         return
 
     event_dates = []
@@ -63,9 +70,10 @@ def _derive_event(person: Person, event_type: Event.Type, after: bool, derivatio
         threshold_event, threshold_date = event_dates[0]
     except IndexError:
         return
-    derived_start_date = copy(threshold_date) if after else None
-    derived_end_date = None if after else copy(threshold_date)
-    derived_event.date = DateRange(derived_start_date, derived_end_date)
+    if after:
+        derived_event.date.start = copy(threshold_date)
+    else:
+        derived_event.date.end = copy(threshold_date)
     for citation in threshold_event.citations:
         derived_event.citations.append(citation)
     if isinstance(derived_event, DerivedEvent):
