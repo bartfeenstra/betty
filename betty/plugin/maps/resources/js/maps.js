@@ -7,7 +7,6 @@ import leafletStyle from 'leaflet/dist/leaflet.css' // eslint-disable-line no-un
 import leafletMarkerIconImage from 'leaflet/dist/images/marker-icon.png'
 import leafletMarkerIcon2xImage from 'leaflet/dist/images/marker-icon-2x.png'
 import leafletMarkerShadowImage from 'leaflet/dist/images/marker-shadow.png'
-import places from './places.json'
 import configuration from './configuration.js'
 
 let mapCount = 0
@@ -20,8 +19,6 @@ function initializePlaceLists () {
 }
 
 function initializePlaceList (placeList) {
-  const placeData = placeList.querySelectorAll('[data-betty-place-id]')
-
   const mapArea = placeList.getElementsByClassName('map')[0]
   mapArea.id = (++mapCount).toString()
 
@@ -33,23 +30,26 @@ function initializePlaceList (placeList) {
   }).addTo(map)
 
   // Build place markers.
-  const markers = []
-  for (const placeDatum of placeData) {
-    if (placeDatum.dataset.bettyPlaceId in places) {
-      const coordinates = places[placeDatum.dataset.bettyPlaceId]
-      const marker = L.marker([coordinates.latitude, coordinates.longitude], {
-        icon: new BettyIcon()
-      }).addTo(map)
-      marker.bindPopup(placeDatum.innerHTML)
-      markers.push(marker)
-    }
-  }
-
-  // Set the map's position and zoom level.
-  const markerGroup = L.featureGroup(markers)
-  map.fitBounds(markerGroup.getBounds(), {
-    maxZoom: 9
-  })
+  const markerGroup = L.featureGroup()
+  Promise.all(Array.from(placeList.querySelectorAll('[data-betty-place]')).map((placeDatum) => {
+    return fetch(placeDatum.dataset.bettyPlace)
+      .then((response) => response.json())
+      .then((place) => {
+        if (!place.coordinates) {
+          return
+        }
+        const marker = L.marker([place.coordinates.latitude, place.coordinates.longitude], {
+          icon: new BettyIcon()
+        }).addTo(map)
+        marker.bindPopup(placeDatum.innerHTML)
+        markerGroup.addLayer(marker)
+      })
+  }))
+    .then(() => {
+      map.fitBounds(markerGroup.getBounds(), {
+        maxZoom: 9
+      })
+    })
 }
 
 const BettyIcon = L.Icon.Default.extend({

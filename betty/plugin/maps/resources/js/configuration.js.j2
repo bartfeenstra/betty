@@ -1,7 +1,3 @@
-'use strict'
-
-const configuration = {
-    rootPath: '{{ site.configuration.root_path }}',
-}
-
-export default configuration
+export default {{ {
+    'rootPath': site.configuration.root_path,
+} | json }}

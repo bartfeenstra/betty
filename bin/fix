@@ -11,4 +11,6 @@ autopep8 --in-place -r ./betty
 ./node_modules/.bin/stylelint --fix "./**/*.css" "./**/*.sass" "./**/*.scss"
 
 # Fix JS code style violations.
-./node_modules/.bin/eslint --fix "./**/*.js"
+while read -r configuration_path; do
+    ./node_modules/.bin/eslint --fix -c "$configuration_path" "$(dirname "${configuration_path}")/**/*.js"
+done < <(find ./ -name .eslintrc.yaml)
