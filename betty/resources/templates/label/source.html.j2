@@ -4,6 +4,6 @@
     <a href="{{ source | url }}">
 {%- endif -%}
 {{ source.name }}
-{%- if not embedded -%}
+{%- if not embedded and source is identifiable -%}
     </a>
 {%- endif %}
