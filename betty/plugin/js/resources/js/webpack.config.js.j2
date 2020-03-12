@@ -40,6 +40,26 @@ module.exports = {
         test: /\.css$/,
         use: [MiniCssExtractPlugin.loader, 'css-loader']
       },
+      {
+        test: /\.m?js$/,
+        exclude: /(node_modules|bower_components)/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: [
+              [
+                '@babel/preset-env',
+                {
+                  targets: {
+                    ie: '11',
+                  },
+                },
+              ],
+            ],
+            cacheDirectory: '{{ path.join(site.configuration.cache_directory_path, 'betty.plugin.js.Js', 'babel') }}',
+          },
+        },
+      },
       // Bundle Leaflet images.
       {
         test: /.*\.png$/,
