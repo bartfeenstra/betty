@@ -1,12 +1,13 @@
 from typing import Any, Type, Optional
 
-from betty.ancestry import Person, Citation, Source, File, Place, Event, Identifiable, PersonName
+from betty.ancestry import Person, File, Place, Identifiable, PersonName, IdentifiableSource, IdentifiableEvent, \
+    IdentifiableCitation
 from betty.config import Configuration
-from betty.content_type import EXTENSIONS
+from betty.media_type import EXTENSIONS
 
 
 class UrlGenerator:
-    def generate(self, resource: Any, content_type: str, absolute: bool = False, locale: Optional[str] = None) -> str:
+    def generate(self, resource: Any, media_type: str, absolute: bool = False, locale: Optional[str] = None) -> str:
         raise NotImplementedError
 
 
@@ -19,7 +20,7 @@ class PathResourceUrlGenerator(UrlGenerator):
     def __init__(self, configuration: Configuration):
         self._configuration = configuration
 
-    def generate(self, resource, content_type, **kwargs) -> str:
+    def generate(self, resource, media_type, **kwargs) -> str:
         return _generate_from_path(self._configuration, resource, localize=True, **kwargs)
 
 
@@ -37,11 +38,11 @@ class IdentifiableResourceUrlGenerator(UrlGenerator):
         self._type = identifiable_type
         self._pattern = pattern
 
-    def generate(self, resource: Identifiable, content_type, **kwargs) -> str:
+    def generate(self, resource: Identifiable, media_type, **kwargs) -> str:
         if not isinstance(resource, self._type):
             raise ValueError('%s is not a %s' % (type(resource), self._type))
         kwargs['localize'] = True
-        return _generate_from_path(self._configuration, self._pattern % (resource.id, EXTENSIONS[content_type]), **kwargs)
+        return _generate_from_path(self._configuration, self._pattern % (resource.id, EXTENSIONS[media_type]), **kwargs)
 
 
 class PersonNameUrlGenerator(UrlGenerator):
@@ -61,15 +62,15 @@ class SiteUrlGenerator(UrlGenerator):
             person_url_generator,
             PersonNameUrlGenerator(person_url_generator),
             IdentifiableResourceUrlGenerator(
-                configuration, Event, 'event/%s/index.%s'),
+                configuration, IdentifiableEvent, 'event/%s/index.%s'),
             IdentifiableResourceUrlGenerator(
                 configuration, Place, 'place/%s/index.%s'),
             IdentifiableResourceUrlGenerator(
                 configuration, File, 'file/%s/index.%s'),
             IdentifiableResourceUrlGenerator(
-                configuration, Source, 'source/%s/index.%s'),
+                configuration, IdentifiableSource, 'source/%s/index.%s'),
             IdentifiableResourceUrlGenerator(
-                configuration, Citation, 'citation/%s/index.%s'),
+                configuration, IdentifiableCitation, 'citation/%s/index.%s'),
             PathResourceUrlGenerator(configuration),
         ]
 

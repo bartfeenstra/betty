@@ -5,22 +5,25 @@ from unittest import TestCase
 from geopy import Point
 
 from betty import json
-from betty.ancestry import Place, Person, LocalizedName, Link, Event, Citation, Presence, Source, File, Note, \
-    PersonName, IdentifiableEvent
-from betty.config import Configuration
+from betty.ancestry import Place, Person, LocalizedName, Link, Event, Presence, Source, File, Note, PersonName, \
+    IdentifiableEvent, IdentifiableSource, IdentifiableCitation
+from betty.config import Configuration, LocaleConfiguration
 from betty.json import JSONEncoder
 from betty.locale import Date, DateRange
+from betty.site import Site
 
 
 class JSONEncoderTest(TestCase):
-    maxDiff = None
-
     def assert_encodes(self, expected, data, schema_definition: str):
         with TemporaryDirectory() as output_directory:
             configuration = Configuration(
                 output_directory, '')
+            configuration.locales.clear()
+            configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
+            configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
+            site = Site(configuration)
             encoded_data = stdjson.loads(stdjson.dumps(data, cls=JSONEncoder.get_factory(
-                configuration, configuration.default_locale)))
+                site, configuration.default_locale)))
             json.validate(encoded_data, schema_definition, configuration)
             self.assertEquals(expected, encoded_data)
 
@@ -58,7 +61,23 @@ class JSONEncoderTest(TestCase):
             ],
             'encloses': [],
             'events': [],
-            'links': [],
+            'links': [
+                {
+                    'url': '/en/place/the_place/index.json',
+                    'relationship': 'canonical',
+                    'mediaType': 'application/json',
+                },
+                {
+                    'url': '/nl/place/the_place/index.json',
+                    'relationship': 'alternate',
+                    'locale': 'nl-NL',
+                },
+                {
+                    'url': '/en/place/the_place/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                },
+            ],
         }
         self.assert_encodes(expected, place, 'place')
 
@@ -73,8 +92,9 @@ class JSONEncoderTest(TestCase):
         place.coordinates = coordinates
         place.enclosed_by = Place('the_enclosing_place', [])
         place.encloses.append(Place('the_enclosed_place', []))
-        place.links.add(
-            Link('https://example.com/the-place', 'The Place Online'))
+        link = Link('https://example.com/the-place')
+        link.label = 'The Place Online'
+        place.links.add(link)
         place.events.append(IdentifiableEvent('E1', Event.Type.BIRTH))
         expected = {
             '$schema': '/schema.json#/definitions/place',
@@ -93,9 +113,24 @@ class JSONEncoderTest(TestCase):
                 },
             ],
             'events': [
-                '/event/E1/index.json',
+                '/en/event/E1/index.json',
             ],
             'links': [
+                {
+                    'url': '/en/place/the_place/index.json',
+                    'relationship': 'canonical',
+                    'mediaType': 'application/json',
+                },
+                {
+                    'url': '/nl/place/the_place/index.json',
+                    'relationship': 'alternate',
+                    'locale': 'nl-NL',
+                },
+                {
+                    'url': '/en/place/the_place/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                },
                 {
                     'url': 'https://example.com/the-place',
                     'label': 'The Place Online',
@@ -111,9 +146,9 @@ class JSONEncoderTest(TestCase):
                 'longitude': longitude,
             },
             'encloses': [
-                '/place/the_enclosed_place/index.json',
+                '/en/place/the_enclosed_place/index.json',
             ],
-            'enclosedBy': '/place/the_enclosing_place/index.json',
+            'enclosedBy': '/en/place/the_enclosing_place/index.json',
         }
         self.assert_encodes(expected, place, 'place')
 
@@ -136,7 +171,23 @@ class JSONEncoderTest(TestCase):
             'private': None,
             'presences': [],
             'citations': [],
-            'links': [],
+            'links': [
+                {
+                    'url': '/en/person/the_person/index.json',
+                    'relationship': 'canonical',
+                    'mediaType': 'application/json',
+                },
+                {
+                    'url': '/nl/person/the_person/index.json',
+                    'relationship': 'alternate',
+                    'locale': 'nl-NL',
+                },
+                {
+                    'url': '/en/person/the_person/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                },
+            ],
         }
         self.assert_encodes(expected, person, 'person')
 
@@ -159,13 +210,12 @@ class JSONEncoderTest(TestCase):
         person.parents.append(parent)
         person.children.append(child)
         person.private = False
-        person.links.add(
-            Link('https://example.com/the-person', 'The Person Online'))
+        link = Link('https://example.com/the-person')
+        link.label = 'The Person Online'
+        person.links.add(link)
         person.citations.append(
-            Citation('the_citation', Source('the_source', 'The Source')))
-        presence = Presence(Presence.Role.SUBJECT)
-        presence.event = IdentifiableEvent('the_event', Event.Type.BIRTH)
-        person.presences.append(presence)
+            IdentifiableCitation('the_citation', Source('The Source')))
+        Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('the_event', Event.Type.BIRTH))
 
         expected = {
             '$schema': '/schema.json#/definitions/person',
@@ -187,13 +237,13 @@ class JSONEncoderTest(TestCase):
                 },
             ],
             'parents': [
-                '/person/the_parent/index.json',
+                '/en/person/the_parent/index.json',
             ],
             'children': [
-                '/person/the_child/index.json',
+                '/en/person/the_child/index.json',
             ],
             'siblings': [
-                '/person/the_sibling/index.json',
+                '/en/person/the_sibling/index.json',
             ],
             'private': False,
             'presences': [
@@ -202,13 +252,28 @@ class JSONEncoderTest(TestCase):
                         'event': 'https://schema.org/performerIn',
                     },
                     'role': Presence.Role.SUBJECT.value,
-                    'event': '/event/the_event/index.json',
+                    'event': '/en/event/the_event/index.json',
                 },
             ],
             'citations': [
-                '/citation/the_citation/index.json',
+                '/en/citation/the_citation/index.json',
             ],
             'links': [
+                {
+                    'url': '/en/person/the_person/index.json',
+                    'relationship': 'canonical',
+                    'mediaType': 'application/json',
+                },
+                {
+                    'url': '/nl/person/the_person/index.json',
+                    'relationship': 'alternate',
+                    'locale': 'nl-NL',
+                },
+                {
+                    'url': '/en/person/the_person/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                },
                 {
                     'url': 'https://example.com/the-person',
                     'label': 'The Person Online',
@@ -225,25 +290,59 @@ class JSONEncoderTest(TestCase):
                 'id': 'the_file',
                 'entities': [],
                 'notes': [],
+                'links': [
+                    {
+                        'url': '/en/file/the_file/index.json',
+                        'relationship': 'canonical',
+                        'mediaType': 'application/json',
+                    },
+                    {
+                        'url': '/nl/file/the_file/index.json',
+                        'relationship': 'alternate',
+                        'locale': 'nl-NL',
+                    },
+                    {
+                        'url': '/en/file/the_file/index.html',
+                        'relationship': 'alternate',
+                        'mediaType': 'text/html',
+                    },
+                ],
             }
             self.assert_encodes(expected, file, 'file')
 
     def test_file_should_encode_full(self):
         with NamedTemporaryFile() as f:
             file = File('the_file', f.name)
-            file.type = 'text/plain'
+            file.media_type = 'text/plain'
             file.notes.append(Note('The Note'))
             Person('the_person').files.append(file)
             expected = {
                 '$schema': '/schema.json#/definitions/file',
                 'id': 'the_file',
-                'type': 'text/plain',
+                'mediaType': 'text/plain',
                 'entities': [
-                    '/person/the_person/index.json',
+                    '/en/person/the_person/index.json',
                 ],
                 'notes': [
                     {
                         'text': 'The Note',
+                    },
+                ],
+                'links': [
+                    {
+                        'url': '/en/file/the_file/index.json',
+                        'relationship': 'canonical',
+                        'mediaType': 'application/json',
+                    },
+                    {
+                        'url': '/nl/file/the_file/index.json',
+                        'relationship': 'alternate',
+                        'locale': 'nl-NL',
+                    },
+                    {
+                        'url': '/en/file/the_file/index.html',
+                        'relationship': 'alternate',
+                        'mediaType': 'text/html',
                     },
                 ],
             }
@@ -258,6 +357,23 @@ class JSONEncoderTest(TestCase):
             'type': Event.Type.BIRTH.value,
             'presences': [],
             'citations': [],
+            'links': [
+                {
+                    'url': '/en/event/the_event/index.json',
+                    'relationship': 'canonical',
+                    'mediaType': 'application/json',
+                },
+                {
+                    'url': '/nl/event/the_event/index.json',
+                    'relationship': 'alternate',
+                    'locale': 'nl-NL',
+                },
+                {
+                    'url': '/en/event/the_event/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                },
+            ],
         }
         self.assert_encodes(expected, event, 'event')
 
@@ -265,11 +381,9 @@ class JSONEncoderTest(TestCase):
         event = IdentifiableEvent('the_event', Event.Type.BIRTH)
         event.date = DateRange(Date(2000, 1, 1), Date(2019, 12, 31))
         event.place = Place('the_place', [LocalizedName('The Place')])
-        presence = Presence(Presence.Role.SUBJECT)
-        presence.person = Person('the_person')
-        event.presences.append(presence)
+        Presence(Person('the_person'), Presence.Role.SUBJECT, event)
         event.citations.append(
-            Citation('the_citation', Source('the_source', 'The Source')))
+            IdentifiableCitation('the_citation', Source('The Source')))
         expected = {
             '$schema': '/schema.json#/definitions/event',
             '@context': {
@@ -284,11 +398,11 @@ class JSONEncoderTest(TestCase):
                         'person': 'https://schema.org/actor',
                     },
                     'role': Presence.Role.SUBJECT.value,
-                    'person': '/person/the_person/index.json',
+                    'person': '/en/person/the_person/index.json',
                 },
             ],
             'citations': [
-                '/citation/the_citation/index.json',
+                '/en/citation/the_citation/index.json',
             ],
             'date': {
                 'start': {
@@ -302,12 +416,29 @@ class JSONEncoderTest(TestCase):
                     'day': 31,
                 },
             },
-            'place': '/place/the_place/index.json',
+            'place': '/en/place/the_place/index.json',
+            'links': [
+                {
+                    'url': '/en/event/the_event/index.json',
+                    'relationship': 'canonical',
+                    'mediaType': 'application/json',
+                },
+                {
+                    'url': '/nl/event/the_event/index.json',
+                    'relationship': 'alternate',
+                    'locale': 'nl-NL',
+                },
+                {
+                    'url': '/en/event/the_event/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                },
+            ],
         }
         self.assert_encodes(expected, event, 'event')
 
     def test_source_should_encode_minimal(self):
-        source = Source('the_source', 'The Source')
+        source = IdentifiableSource('the_source', 'The Source')
         expected = {
             '$schema': '/schema.json#/definitions/source',
             '@context': {
@@ -318,23 +449,39 @@ class JSONEncoderTest(TestCase):
             'name': 'The Source',
             'contains': [],
             'citations': [],
-            'links': [],
+            'links': [
+                {
+                    'url': '/en/source/the_source/index.json',
+                    'relationship': 'canonical',
+                    'mediaType': 'application/json',
+                },
+                {
+                    'url': '/nl/source/the_source/index.json',
+                    'relationship': 'alternate',
+                    'locale': 'nl-NL',
+                },
+                {
+                    'url': '/en/source/the_source/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                },
+            ],
         }
         self.assert_encodes(expected, source, 'source')
 
     def test_source_should_encode_full(self):
-        source = Source('the_source', 'The Source')
+        source = IdentifiableSource('the_source', 'The Source')
         source.author = 'The Author'
         source.publisher = 'The Publisher'
         source.date = Date(2000, 1, 1)
-        source.contained_by = Source(
+        source.contained_by = IdentifiableSource(
             'the_containing_source', 'The Containing Source')
-        source.links.add(
-            Link('https://example.com/the-person', 'The Person Online'))
+        link = Link('https://example.com/the-source')
+        link.label = 'The Source Online'
+        source.links.add(link)
         source.contains.append(
-            Source('the_contained_source', 'The Contained Source'))
-        source.citations.append(
-            Citation('the_citation', Source('the_source', 'The Source')))
+            IdentifiableSource('the_contained_source', 'The Contained Source'))
+        IdentifiableCitation('the_citation', source)
         expected = {
             '$schema': '/schema.json#/definitions/source',
             '@context': {
@@ -346,12 +493,12 @@ class JSONEncoderTest(TestCase):
             'author': 'The Author',
             'publisher': 'The Publisher',
             'contains': [
-                '/source/the_contained_source/index.json',
+                '/en/source/the_contained_source/index.json',
             ],
             'citations': [
-                '/citation/the_citation/index.json',
+                '/en/citation/the_citation/index.json',
             ],
-            'containedBy': '/source/the_containing_source/index.json',
+            'containedBy': '/en/source/the_containing_source/index.json',
             'date': {
                 'year': 2000,
                 'month': 1,
@@ -359,35 +506,105 @@ class JSONEncoderTest(TestCase):
             },
             'links': [
                 {
-                    'url': 'https://example.com/the-person',
-                    'label': 'The Person Online',
+                    'url': '/en/source/the_source/index.json',
+                    'relationship': 'canonical',
+                    'mediaType': 'application/json',
+                },
+                {
+                    'url': '/nl/source/the_source/index.json',
+                    'relationship': 'alternate',
+                    'locale': 'nl-NL',
+                },
+                {
+                    'url': '/en/source/the_source/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                },
+                {
+                    'url': 'https://example.com/the-source',
+                    'label': 'The Source Online',
                 },
             ],
         }
         self.assert_encodes(expected, source, 'source')
 
     def test_citation_should_encode_minimal(self):
-        citation = Citation('the_citation', Source('the_source', 'The Source'))
+        citation = IdentifiableCitation('the_citation', Source('The Source'))
         expected = {
             '$schema': '/schema.json#/definitions/citation',
             '@type': 'https://schema.org/Thing',
             'id': 'the_citation',
-            'source': '/source/the_source/index.json',
             'facts': [],
+            'links': [
+                {
+                    'url': '/en/citation/the_citation/index.json',
+                    'relationship': 'canonical',
+                    'mediaType': 'application/json',
+                },
+                {
+                    'url': '/nl/citation/the_citation/index.json',
+                    'relationship': 'alternate',
+                    'locale': 'nl-NL',
+                },
+                {
+                    'url': '/en/citation/the_citation/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                },
+            ],
         }
         self.assert_encodes(expected, citation, 'citation')
 
     def test_citation_should_encode_full(self):
-        citation = Citation('the_citation', Source('the_source', 'The Source'))
+        citation = IdentifiableCitation('the_citation', IdentifiableSource('the_source', 'The Source'))
         citation.description = 'The Source Description'
         citation.facts.append(IdentifiableEvent('the_event', Event.Type.BIRTH))
         expected = {
             '$schema': '/schema.json#/definitions/citation',
             '@type': 'https://schema.org/Thing',
             'id': 'the_citation',
-            'source': '/source/the_source/index.json',
+            'source': '/en/source/the_source/index.json',
             'facts': [
-                '/event/the_event/index.json'
+                '/en/event/the_event/index.json'
+            ],
+            'links': [
+                {
+                    'url': '/en/citation/the_citation/index.json',
+                    'relationship': 'canonical',
+                    'mediaType': 'application/json',
+                },
+                {
+                    'url': '/nl/citation/the_citation/index.json',
+                    'relationship': 'alternate',
+                    'locale': 'nl-NL',
+                },
+                {
+                    'url': '/en/citation/the_citation/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                },
             ],
         }
         self.assert_encodes(expected, citation, 'citation')
+
+    def test_link_should_encode_minimal(self) -> None:
+        link = Link('https://example.com')
+        expected = {
+            'url': 'https://example.com',
+        }
+        self.assert_encodes(expected, link, 'link')
+
+    def test_link_should_encode_full(self) -> None:
+        link = Link('https://example.com')
+        link.label = 'The Link'
+        link.relationship = 'external'
+        link.locale = 'nl-NL'
+        link.media_type = 'text/html'
+        expected = {
+            'url': 'https://example.com',
+            'relationship': 'external',
+            'label': 'The Link',
+            'locale': 'nl-NL',
+            'mediaType': 'text/html',
+        }
+        self.assert_encodes(expected, link, 'link')

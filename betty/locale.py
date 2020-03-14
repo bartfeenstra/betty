@@ -9,16 +9,10 @@ from babel import dates, Locale, parse_locale, negotiate_locale
 
 
 class Localized:
+    locale: Optional[str]
+
     def __init__(self, locale: Optional[str] = None):
-        self._locale = locale
-
-    @property
-    def locale(self) -> Optional[str]:
-        return self._locale
-
-    @locale.setter
-    def locale(self, locale: Optional[str]) -> None:
-        self._locale = locale
+        self.locale = locale
 
 
 class IncompleteDateError(ValueError):
@@ -114,9 +108,12 @@ class Date:
 
 @total_ordering
 class DateRange:
+    start: Optional[Date]
+    end: Optional[Date]
+
     def __init__(self, start: Optional[Date] = None, end: Optional[Date] = None):
-        self._start = start
-        self._end = end
+        self.start = start
+        self.end = end
 
     def __repr__(self):
         return '%s.%s(%s, %s)' % (self.__class__.__module__, self.__class__.__name__, repr(self.start), repr(self.end))
@@ -173,14 +170,6 @@ class DateRange:
             return NotImplemented
 
         return (self.start, self.end) == (other.start, other.end)
-
-    @property
-    def start(self) -> Optional[Date]:
-        return self._start
-
-    @property
-    def end(self) -> Optional[Date]:
-        return self._end
 
 
 Datey = Union[Date, DateRange]

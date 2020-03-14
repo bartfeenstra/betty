@@ -4,7 +4,6 @@ import re
 from importlib import import_module
 from itertools import takewhile
 from os.path import join, exists
-from shutil import copy2
 from typing import Union, Dict, Type, Optional, Callable, Iterable
 from urllib.parse import urlparse
 
@@ -26,7 +25,6 @@ from betty.functools import walk
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, Translations
 from betty.plugin import Plugin
-from betty.render.html import HtmlProvider
 from betty.search import index
 from betty.site import Site
 from betty.url import SiteUrlGenerator, StaticPathUrlGenerator
@@ -84,6 +82,20 @@ class Jinja2Provider:
         return {}
 
 
+class HtmlProvider:
+    """
+    @todo This class has nothing to do with Jinja2, but placing it in the render module causes a circular dependency.
+    """
+
+    @property
+    def css_paths(self) -> Iterable[str]:
+        return []
+
+    @property
+    def js_paths(self) -> Iterable[str]:
+        return []
+
+
 def create_environment(site: Site, default_locale: Optional[str] = None) -> Environment:
     if default_locale is None:
         default_locale = site.configuration.default_locale
@@ -123,7 +135,7 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
     @contextfilter
     def _filter_json(context, data, indent=None):
         return stdjson.dumps(data, indent=indent,
-                             cls=JSONEncoder.get_factory(site.configuration, resolve_or_missing(context, 'locale')))
+                             cls=JSONEncoder.get_factory(site, resolve_or_missing(context, 'locale')))
 
     environment.filters['json'] = _filter_json
 
@@ -144,10 +156,10 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
     environment.filters['format_degrees'] = _filter_format_degrees
     environment.globals['citer'] = _Citer()
 
-    def _filter_url(resource, content_type=None, locale=None, **kwargs):
-        content_type = content_type if content_type else 'text/html'
+    def _filter_url(resource, media_type=None, locale=None, **kwargs):
+        media_type = media_type if media_type else 'text/html'
         locale = locale if locale else default_locale
-        return url_generator.generate(resource, content_type, locale=locale, **kwargs)
+        return url_generator.generate(resource, media_type, locale=locale, **kwargs)
 
     environment.filters['url'] = _filter_url
     environment.filters['static_url'] = StaticPathUrlGenerator(
@@ -157,6 +169,7 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
         site, *args, **kwargs)
     environment.globals['search_index'] = lambda: index(site, environment)
     environment.globals['html_providers'] = [plugin for plugin in site.plugins if isinstance(plugin, HtmlProvider)]
+    environment.globals['path'] = os.path
     for plugin in site.plugins.values():
         if isinstance(plugin, Jinja2Provider):
             environment.globals.update(plugin.globals)
@@ -268,7 +281,7 @@ def _filter_file(site: Site, file: File) -> str:
         return destination_path
 
     makedirs(file_directory_path)
-    copy2(file.path, output_destination_path)
+    os.link(file.path, output_destination_path)
 
     return destination_path
 
@@ -308,14 +321,16 @@ def _filter_image(site: Site, file: File, width: Optional[int] = None, height: O
         output_file_path = join(file_directory_path, destination_name)
 
         try:
-            copy2(cache_file_path, output_file_path)
+            os.link(cache_file_path, output_file_path)
+        except FileExistsError:
+            pass
         except FileNotFoundError:
             if exists(output_file_path):
                 return destination_path
             makedirs(cache_directory_path)
             convert(image, size).save(cache_file_path)
             makedirs(file_directory_path)
-            copy2(cache_file_path, output_file_path)
+            os.link(cache_file_path, output_file_path)
 
     return destination_path
 

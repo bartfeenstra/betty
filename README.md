@@ -11,6 +11,7 @@ Betty is a static site generator for [Gramps](https://gramps-project.org/) XML f
 - [Usage](#usage)
   - [The command line](#the-command-line)
   - [Configuration files](#configuration-files)
+  - [Gramps](#gramps)
   - [The Python API](#the-python-api)
 - [Development](#development)
 - [Contributions](#contributions)
@@ -70,25 +71,25 @@ locales:
   - locale: nl
 resources: ./resources
 plugins:
-  betty.plugins.anonymizer.Anonymizer: {}
-  betty.plugins.cleaner.Cleaner: {}
-  betty.plugins.deriver.Deriver: {}
-  betty.plugins.gramps.Gramps:
+  betty.plugin.anonymizer.Anonymizer: {}
+  betty.plugin.cleaner.Cleaner: {}
+  betty.plugin.deriver.Deriver: {}
+  betty.plugin.gramps.Gramps:
     file: ./gramps.gpkg
-  betty.plugins.maps.Maps: {}
-  betty.plugins.nginx.Nginx:
+  betty.plugin.maps.Maps: {}
+  betty.plugin.nginx.Nginx:
     www_directory_path: /var/www/betty
     https: true
-  betty.plugins.privatizer.Privatizer: {}
-  betty.plugins.trees.Trees: {}
-  betty.plugins.wikipedia.Wikipedia: {}
+  betty.plugin.privatizer.Privatizer: {}
+  betty.plugin.trees.Trees: {}
+  betty.plugin.wikipedia.Wikipedia: {}
 ```
 - `output` (required); The path to the directory in which to place the generated site.
 - `base_url` (required); The absolute, public URL at which the site will be published.
 - `root_path` (optional); The relative path under the public URL at which the site will be published.
 - `clean_urls` (optional); A boolean indicating whether to use clean URLs, e.g. `/path` instead of `/path/index.html`.
 - `content_negotiation` (optional, defaults to `false`): Enables dynamic content negotiation, but requires a web server
-    that supports it. Also see the `betty.plugins.nginx.Nginx` plugin. This implies `clean_urls`.
+    that supports it. Also see the `betty.plugin.nginx.Nginx` plugin. This implies `clean_urls`.
 - `title` (optional); The site's title.
 - `author` (optional); The site's author and copyright holder.
 - `locales` (optional); An array of locales, each of which is an object with the following keys:
@@ -118,6 +119,13 @@ plugins:
     - `betty.plugin.privatizer.Privatizer`: Marks living people private. Configuration: `{}`.
     - `betty.plugin.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
     - `betty.plugin.wikipedia.Wikipedia`: Lets templates and other plugins retrieve complementary Wikipedia entries.
+
+### Gramps
+#### Privacy
+Gramps has built-in support for person privacy. To control privacy for events, files, sources, and citations, add a
+`betty:privacy` attribute to any of these types, with a value of `private` to explicitly declare the data always
+private or `public` to declare the data always public. Any other value will leave the privacy undecided. In such cases,
+the `betty.plugin.privatizer.Privatizer` may decide if the data is public or private.
 
 ### The Python API
 ```python

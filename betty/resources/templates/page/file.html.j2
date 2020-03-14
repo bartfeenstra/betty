@@ -1,7 +1,7 @@
 {% extends 'base.html.j2' %}
 {% set page_title = file.description %}
 {% block page_content %}
-    {% if file.type and file.type.startswith('image/') %}
+    {% if file.media_type and file.media_type.startswith('image/') %}
         <div class="featured image">
             <a href="{{ file | file | static_url }}">
                 <img src="{{ file | image(1200, 1200) | static_url }}" alt="{{ file.description }}"/>

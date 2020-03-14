@@ -17,43 +17,45 @@ class EventHandlingSetList(Generic[T]):
         self._removal_handler = removal_handler
 
     @property
-    def list(self) -> List:
+    def list(self) -> List[T]:
         return list(self._values)
 
-    def prepend(self, *values):
+    def prepend(self, *values: T) -> None:
         for value in reversed(values):
             if value in self._values:
-                return
+                continue
             self._values.insert(0, value)
             self._addition_handler(value)
 
-    def append(self, *values):
+    def append(self, *values: T) -> None:
         for value in values:
             if value in self._values:
-                return
+                continue
             self._values.append(value)
             self._addition_handler(value)
 
-    def remove(self, value):
-        if value not in self._values:
-            return
-        self._values.remove(value)
-        self._removal_handler(value)
-
-    def replace(self, values: Iterable):
-        for value in list(self._values):
-            self.remove(value)
+    def remove(self, *values: T) -> None:
         for value in values:
-            self.append(value)
+            if value not in self._values:
+                return
+            self._values.remove(value)
+            self._removal_handler(value)
+
+    def replace(self, *values: T) -> None:
+        self.remove(*list(self._values))
+        self.append(*values)
 
     def clear(self) -> None:
-        self.replace([])
+        self.replace()
 
     def __iter__(self):
         return self._values.__iter__()
 
     def __len__(self):
         return len(self._values)
+
+    def __getitem__(self, item):
+        return self._values[item]
 
 
 ManyAssociation = Union[EventHandlingSetList[T], Iterable]
@@ -76,7 +78,7 @@ class _to_many:
         cls.__init__ = _init
         setattr(cls, self._self_name, property(
             lambda decorated_self: getattr(decorated_self, _decorated_self_name),
-            lambda decorated_self, values: getattr(decorated_self, _decorated_self_name).replace(values),
+            lambda decorated_self, values: getattr(decorated_self, _decorated_self_name).replace(*values),
             lambda decorated_self: getattr(decorated_self, _decorated_self_name).clear(),
         ))
         return cls
@@ -96,6 +98,14 @@ class many_to_many(_to_many):
         return lambda associated: getattr(associated, self._associated_name).remove(decorated_self)
 
 
+def bridged_many_to_many(left_associated_name: str, left_self_name: str, right_self_name: str, right_associated_name: str):
+    def decorator(cls):
+        cls = many_to_one(left_self_name, left_associated_name, lambda decorated_self: delattr(decorated_self, right_self_name))(cls)
+        cls = many_to_one(right_self_name, right_associated_name, lambda decorated_self: delattr(decorated_self, left_self_name))(cls)
+        return cls
+    return decorator
+
+
 class one_to_many(_to_many):
     def _create_addition_handler(self, decorated_self):
         return lambda associated: setattr(associated, self._associated_name, decorated_self)
@@ -104,27 +114,32 @@ class one_to_many(_to_many):
         return lambda associated: setattr(associated, self._associated_name, None)
 
 
-def many_to_one(self_name: str, associated_name: str):
+def many_to_one(self_name: str, associated_name: str, _removal_handler: Optional[Callable[[T], None]] = None):
     def decorator(cls):
         _decorated_self_name = '_%s' % self_name
         original_init = cls.__init__
 
         def _init(decorated_self, *args, **kwargs):
-            setattr(decorated_self, _decorated_self_name, None)
+            association = None
+            setattr(decorated_self, _decorated_self_name, association)
             original_init(decorated_self, *args, **kwargs)
         cls.__init__ = _init
 
         def _set(decorated_self, value):
             previous_value = getattr(decorated_self, _decorated_self_name)
+            if previous_value == value:
+                return
             setattr(decorated_self, _decorated_self_name, value)
             if previous_value is not None:
                 getattr(previous_value, associated_name).remove(decorated_self)
+                if value is None and _removal_handler is not None:
+                    _removal_handler(decorated_self)
             if value is not None:
                 getattr(value, associated_name).append(decorated_self)
         setattr(cls, self_name, property(
-            lambda self: getattr(self, _decorated_self_name),
+            lambda decorated_self: getattr(decorated_self, _decorated_self_name),
             _set,
-            lambda self: setattr(self, _decorated_self_name, None),
+            lambda decorated_self: _set(decorated_self, None),
         ))
         return cls
     return decorator
@@ -136,17 +151,18 @@ class Resource:
         raise NotImplementedError
 
 
-class Dated:
+class HasPrivacy:
+    private: Optional[bool]
+
     def __init__(self):
-        self._date = None
+        self.private = None
 
-    @property
-    def date(self) -> Optional[Datey]:
-        return self._date
 
-    @date.setter
-    def date(self, date: Datey):
-        self._date = date
+class Dated:
+    date: Optional[Datey]
+
+    def __init__(self):
+        self.date = None
 
 
 class Note:
@@ -180,18 +196,46 @@ class Described:
         self._description = description
 
 
-class Link:
-    def __init__(self, url: str, label: Optional[str] = None):
+class HasMediaType:
+    def __init__(self):
+        self._media_type = None
+
+    @property
+    def media_type(self) -> Optional[str]:
+        return self._media_type
+
+    @media_type.setter
+    def media_type(self, media_type: str):
+        self._media_type = media_type
+
+
+class Link(HasMediaType, Localized):
+    def __init__(self, url: str):
+        HasMediaType.__init__(self)
+        Localized.__init__(self)
         self._url = url
-        self._label = label
+        self._label = None
+        self._relationship = None
 
     @property
     def url(self) -> str:
         return self._url
 
     @property
-    def label(self) -> str:
-        return self._label if self._label else self._url
+    def relationship(self) -> Optional[str]:
+        return self._relationship
+
+    @relationship.setter
+    def relationship(self, relationship: str) -> None:
+        self._relationship = relationship
+
+    @property
+    def label(self) -> Optional[str]:
+        return self._label
+
+    @label.setter
+    def label(self, label: str) -> None:
+        self._label = label
 
 
 class HasLinks:
@@ -204,28 +248,22 @@ class HasLinks:
 
 
 @many_to_many('resources', 'files')
-class File(Resource, Identifiable, Described):
+class File(Resource, Identifiable, Described, HasPrivacy, HasMediaType):
     resource_type_name = 'file'
-    resources: ManyAssociation
+    resources: ManyAssociation[Resource]
+    notes: List[Note]
 
     def __init__(self, file_id: str, path: str):
         Identifiable.__init__(self, file_id)
         Described.__init__(self)
+        HasPrivacy.__init__(self)
+        HasMediaType.__init__(self)
         self._path = path
-        self._type = None
-        self._notes = []
+        self.notes = []
 
     @property
     def path(self) -> str:
         return self._path
-
-    @property
-    def type(self) -> Optional[str]:
-        return self._type
-
-    @type.setter
-    def type(self, file_type: str):
-        self._type = file_type
 
     @property
     def name(self) -> str:
@@ -239,14 +277,6 @@ class File(Resource, Identifiable, Described):
     def extension(self) -> Optional[str]:
         extension = splitext(self._path)[1][1:]
         return extension if extension else None
-
-    @property
-    def notes(self) -> List[Note]:
-        return self._notes
-
-    @notes.setter
-    def notes(self, notes: List[Note]):
-        self._notes = notes
 
     @property
     def sources(self) -> Iterable['Source']:
@@ -271,25 +301,21 @@ class HasFiles:
 @many_to_one('contained_by', 'contains')
 @one_to_many('contains', 'contained_by')
 @one_to_many('citations', 'source')
-class Source(Resource, Identifiable, Dated, HasFiles, HasLinks):
+class Source(Resource, Dated, HasFiles, HasLinks, HasPrivacy):
     resource_type_name = 'source'
+    name: str
+    contained_by: 'Source'
+    contains: ManyAssociation['Source']
+    citations: ManyAssociation['Citation']
 
-    def __init__(self, source_id: str, name: str):
-        Identifiable.__init__(self, source_id)
+    def __init__(self, name: str):
         Dated.__init__(self)
         HasFiles.__init__(self)
         HasLinks.__init__(self)
-        self._name = name
+        HasPrivacy.__init__(self)
+        self.name = name
         self._author = None
         self._publisher = None
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @name.setter
-    def name(self, name: str):
-        self._name = name
 
     @property
     def author(self) -> Optional[str]:
@@ -308,16 +334,23 @@ class Source(Resource, Identifiable, Dated, HasFiles, HasLinks):
         self._publisher = publisher
 
 
+class IdentifiableSource(Source, Identifiable):
+    def __init__(self, source_id: str, *args, **kwargs):
+        Identifiable.__init__(self, source_id)
+        Source.__init__(self, *args, **kwargs)
+
+
 @many_to_many('facts', 'citations')
 @many_to_one('source', 'citations')
-class Citation(Resource, Identifiable, Dated, HasFiles):
+class Citation(Resource, Dated, HasFiles, HasPrivacy):
     resource_type_name = 'citation'
+    facts: ManyAssociation[Resource]
     source: Source
 
-    def __init__(self, citation_id: str, source: Source):
-        Identifiable.__init__(self, citation_id)
+    def __init__(self, source: Source):
         Dated.__init__(self)
         HasFiles.__init__(self)
+        HasPrivacy.__init__(self)
         self._location = None
         self.source = source
 
@@ -328,6 +361,12 @@ class Citation(Resource, Identifiable, Dated, HasFiles):
     @location.setter
     def location(self, location: str):
         self._location = location
+
+
+class IdentifiableCitation(Citation, Identifiable):
+    def __init__(self, citation_id: str, *args, **kwargs):
+        Identifiable.__init__(self, citation_id)
+        Citation.__init__(self, *args, **kwargs)
 
 
 @many_to_many('citations', 'facts')
@@ -344,10 +383,10 @@ class LocalizedName(Localized):
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return NotImplemented
-        return self._name == other._name and self._locale == other._locale
+        return self._name == other._name and self.locale == other.locale
 
     def __repr__(self):
-        return '%s(%s, %s)' % (type(self).__name__, self._name, self._locale.__repr__())
+        return '%s(%s, %s)' % (type(self).__name__, self._name, self.locale.__repr__())
 
     def __str__(self):
         return self._name
@@ -374,7 +413,7 @@ class Place(Resource, Identifiable, HasLinks):
         return self._names
 
     @property
-    def coordinates(self) -> Point:
+    def coordinates(self) -> Optional[Point]:
         return self._coordinates
 
     @coordinates.setter
@@ -382,30 +421,26 @@ class Place(Resource, Identifiable, HasLinks):
         self._coordinates = coordinates
 
 
-@many_to_one('person', 'presences')
-@many_to_one('event', 'presences')
+@bridged_many_to_many('presences', 'person', 'event', 'presences')
 class Presence:
     person: Optional['Person']
     event: Optional['Event']
+    role: 'Presence.Role'
 
     class Role(Enum):
         SUBJECT = 'subject'
         WITNESS = 'witness'
         ATTENDEE = 'attendee'
 
-    def __init__(self, role: Role):
-        self._role = role
-        self._person = None
-        self._event = None
-
-    @property
-    def role(self) -> 'Role':
-        return self._role
+    def __init__(self, person: 'Person', role: Role, event: 'Event'):
+        self.person = person
+        self.role = role
+        self.event = event
 
 
 @many_to_one('place', 'events')
 @one_to_many('presences', 'event')
-class Event(Resource, Dated, HasFiles, HasCitations, Described):
+class Event(Resource, Dated, HasFiles, HasCitations, Described, HasPrivacy):
     resource_type_name = 'event'
     place: Place
     presences: ManyAssociation[Presence]
@@ -428,21 +463,18 @@ class Event(Resource, Dated, HasFiles, HasCitations, Described):
         OCCUPATION = 'occupation'
         RETIREMENT = 'retirement'
 
-    def __init__(self, event_type: Type, date: Optional[Datey] = None, place: Optional[Place] = None):
+    def __init__(self, event_type: Type, date: Optional[Datey] = None):
         Dated.__init__(self)
         HasFiles.__init__(self)
         HasCitations.__init__(self)
         Described.__init__(self)
-        self._date = date
+        HasPrivacy.__init__(self)
+        self.date = date
         self._type = event_type
 
     @property
     def type(self):
         return self._type
-
-    @type.setter
-    def type(self, event_type: Type):
-        self._type = event_type
 
 
 class IdentifiableEvent(Event, Identifiable):
@@ -490,7 +522,7 @@ class PersonName(Localized, HasCitations):
 @many_to_many('children', 'parents')
 @one_to_many('presences', 'person')
 @one_to_many('names', 'person')
-class Person(Resource, Identifiable, HasFiles, HasCitations, HasLinks):
+class Person(Resource, Identifiable, HasFiles, HasCitations, HasLinks, HasPrivacy):
     resource_type_name = 'person'
     parents: ManyAssociation['Person']
     children: ManyAssociation['Person']
@@ -502,7 +534,7 @@ class Person(Resource, Identifiable, HasFiles, HasCitations, HasLinks):
         HasFiles.__init__(self)
         HasCitations.__init__(self)
         HasLinks.__init__(self)
-        self._private = None
+        HasPrivacy.__init__(self)
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
@@ -550,68 +582,19 @@ class Person(Resource, Identifiable, HasFiles, HasCitations, HasLinks):
                     siblings.append(sibling)
         return siblings
 
-    @property
-    def private(self) -> Optional[bool]:
-        return self._private
-
-    @private.setter
-    def private(self, private: Optional[bool]):
-        self._private = private
-
 
 class Ancestry:
+    files: Dict[str, File]
+    people: Dict[str, Person]
+    places: Dict[str, Place]
+    events: Dict[str, IdentifiableEvent]
+    sources: Dict[str, IdentifiableSource]
+    citations: Dict[str, IdentifiableCitation]
+
     def __init__(self):
-        self._files = {}
-        self._people = {}
-        self._places = {}
-        self._events = {}
-        self._sources = {}
-        self._citations = {}
-
-    @property
-    def files(self) -> Dict[str, File]:
-        return self._files
-
-    @files.setter
-    def files(self, files: Dict[str, File]):
-        self._files = files
-
-    @property
-    def people(self) -> Dict[str, Person]:
-        return self._people
-
-    @people.setter
-    def people(self, people: Dict[str, Person]):
-        self._people = people
-
-    @property
-    def places(self) -> Dict[str, Place]:
-        return self._places
-
-    @places.setter
-    def places(self, places: Dict[str, Place]):
-        self._places = places
-
-    @property
-    def events(self) -> Dict[str, IdentifiableEvent]:
-        return self._events
-
-    @events.setter
-    def events(self, events: Dict[str, Event]):
-        self._events = events
-
-    @property
-    def sources(self) -> Dict[str, Source]:
-        return self._sources
-
-    @sources.setter
-    def sources(self, sources: Dict[str, Source]):
-        self._sources = sources
-
-    @property
-    def citations(self) -> Dict[str, Citation]:
-        return self._citations
-
-    @citations.setter
-    def citations(self, citations: Dict[str, Citation]):
-        self._citations = citations
+        self.files = {}
+        self.people = {}
+        self.places = {}
+        self.events = {}
+        self.sources = {}
+        self.citations = {}
