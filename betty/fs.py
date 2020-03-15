@@ -1,9 +1,11 @@
 import hashlib
 import os
+import shutil
 from collections import deque
-from os import walk
+from os import walk, path
 from os.path import join, dirname, exists, relpath, getmtime, basename
 from shutil import copy2
+from tempfile import mkdtemp
 from typing import Iterable
 
 
@@ -67,3 +69,24 @@ class FileSystem:
                     makedirs(dirname(file_destination_path))
                     copy2(file_source_path, file_destination_path)
         return destination_path
+
+
+class DirectoryBackup:
+    def __init__(self, root_path: str, backup_path: str):
+        self._root_path = root_path
+        self._backup_path = backup_path
+
+    def __enter__(self):
+        self._tmp = mkdtemp()
+        try:
+            shutil.move(path.join(self._root_path, self._backup_path), self._tmp)
+        except FileNotFoundError:
+            pass
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        try:
+            shutil.move(path.join(self._tmp, self._backup_path),
+                        path.join(self._root_path, self._backup_path))
+        except FileNotFoundError:
+            pass
+        shutil.rmtree(self._tmp)

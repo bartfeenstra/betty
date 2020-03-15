@@ -7,7 +7,7 @@ const path = require('path')
 module.exports = {
   mode: '{{ site.configuration.mode }}',
   entry: {
-    betty: path.resolve(__dirname, 'betty.js')
+    trees: path.resolve(__dirname, 'trees.js')
   },
   output: {
     path: path.resolve(__dirname, '..', 'output'),
@@ -18,7 +18,7 @@ module.exports = {
     splitChunks: {
       cacheGroups: {
         styles: {
-          name: 'betty',
+          name: 'trees',
           // Group all CSS files into a single file.
           test: /\.css$/,
           chunks: 'all',
@@ -56,21 +56,9 @@ module.exports = {
                 },
               ],
             ],
-            cacheDirectory: '{{ path.join(site.configuration.cache_directory_path, 'betty.plugin.js.Js', 'babel') }}',
+            cacheDirectory: '{{ path.join(site.configuration.cache_directory_path, 'betty.plugin.trees.Trees', 'babel') }}',
           },
         },
-      },
-      // Bundle Leaflet images.
-      {
-        test: /.*\.png$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: '/images/[hash].[ext]'
-            }
-          }
-        ]
       }
     ]
   }

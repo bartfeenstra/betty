@@ -82,6 +82,20 @@ class Jinja2Provider:
         return {}
 
 
+class HtmlProvider:
+    """
+    @todo This class has nothing to do with Jinja2, but placing it in the render module causes a circular dependency.
+    """
+
+    @property
+    def css_paths(self) -> Iterable[str]:
+        return []
+
+    @property
+    def js_paths(self) -> Iterable[str]:
+        return []
+
+
 def create_environment(site: Site, default_locale: Optional[str] = None) -> Environment:
     if default_locale is None:
         default_locale = site.configuration.default_locale
@@ -154,6 +168,7 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
     environment.filters['image'] = lambda *args, **kwargs: _filter_image(
         site, *args, **kwargs)
     environment.globals['search_index'] = lambda: index(site, environment)
+    environment.globals['html_providers'] = list([plugin for plugin in site.plugins.values() if isinstance(plugin, HtmlProvider)])
     environment.globals['path'] = os.path
     for plugin in site.plugins.values():
         if isinstance(plugin, Jinja2Provider):
