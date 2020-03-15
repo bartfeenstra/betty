@@ -168,7 +168,7 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
     environment.filters['image'] = lambda *args, **kwargs: _filter_image(
         site, *args, **kwargs)
     environment.globals['search_index'] = lambda: index(site, environment)
-    environment.globals['html_providers'] = [plugin for plugin in site.plugins if isinstance(plugin, HtmlProvider)]
+    environment.globals['html_providers'] = list([plugin for plugin in site.plugins.values() if isinstance(plugin, HtmlProvider)])
     environment.globals['path'] = os.path
     for plugin in site.plugins.values():
         if isinstance(plugin, Jinja2Provider):

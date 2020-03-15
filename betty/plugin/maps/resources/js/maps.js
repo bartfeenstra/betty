@@ -61,6 +61,4 @@ const BettyIcon = L.Icon.Default.extend({
   }
 })
 
-export {
-  initializePlaceLists as betty
-}
+document.addEventListener('DOMContentLoaded', initializePlaceLists)

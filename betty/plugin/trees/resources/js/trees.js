@@ -127,6 +127,4 @@ function childrenToElements (parent, elements) {
   }
 }
 
-export {
-  initializeAncestryTrees as betty
-}
+document.addEventListener('DOMContentLoaded', initializeAncestryTrees)

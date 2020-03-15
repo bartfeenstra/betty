@@ -17,10 +17,10 @@ class TreeTest(TestCase):
             configuration.plugins[Trees] = {}
             site = Site(configuration)
             render(site)
-            with open(join(configuration.www_directory_path, 'betty.js')) as f:
+            with open(join(configuration.www_directory_path, 'trees.js')) as f:
                 betty_js = f.read()
             self.assertIn('trees.js', betty_js)
             self.assertIn('trees.css', betty_js)
-            with open(join(configuration.www_directory_path, 'betty.css')) as f:
+            with open(join(configuration.www_directory_path, 'trees.css')) as f:
                 betty_css = f.read()
             self.assertIn('.tree', betty_css)
