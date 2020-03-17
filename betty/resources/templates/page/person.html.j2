@@ -23,7 +23,7 @@
 
     {% set parents = person.parents | list %}
     {% if parents | length > 0 %}
-        <h2>{{ _('Parents') }}</h2>
+        <h2>{% trans %}Parents{% endtrans %}</h2>
         <ul>
             {% for parent in parents %}
                 <li typeof="foaf:Person" property="rel:childOf">{% with person=parent %}{% include 'label/person.html.j2' %}{% endwith %}</li>
@@ -36,7 +36,7 @@
         <span typeof="foaf:Person" property="rel:spouseOf">{% with person=parent, person_context=person %}{% include 'label/person.html.j2' %}{% endwith %}</span>
     {%- endmacro %}
     {% if children | length > 0 %}
-        <h2>{{ _('Children') }}</h2>
+        <h2>{% trans %}Children{% endtrans %}</h2>
         {% for parents, siblings in children | groupby('parents.list') %}
             <p>
                 {% do parents.remove(person) %}
@@ -58,7 +58,7 @@
 
     {% set siblings = person.siblings | list %}
     {% if siblings | length > 0 %}
-        <h2>{{ _('Siblings') }}</h2>
+        <h2>{% trans %}Siblings{% endtrans %}</h2>
         <ul>
             {% for sibling in siblings %}
                 <li typeof="foaf:Person" property="rel:siblingOf">{% with person=sibling %}{% include 'label/person.html.j2' %}{% endwith %}</li>
@@ -83,7 +83,7 @@
     {% set haveFiles = haveFiles + events | map(attribute='citations') | flatten | map(attribute='source') | list %}
     {% set files = haveFiles | map(attribute='files') | flatten | unique | list %}
     {% if files | length > 0 %}
-        <h2>{{ _('Media') }}</h2>
+        <h2>{% trans %}Media{% endtrans %}</h2>
         {% include 'list-file.html.j2' %}
     {% endif %}
 {% endblock %}

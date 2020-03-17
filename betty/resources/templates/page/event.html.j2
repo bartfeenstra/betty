@@ -22,7 +22,7 @@
         {% endif %}
     {% endfor %}
     {% if ns.witnesses | length > 0 %}
-        <h2>{{ _('Witnesses') }}</h2>
+        <h2>{% trans %}Witnesses{% endtrans %}</h2>
         <ul>
             {% for witness in ns.witnesses %}
                 <li typeof="foaf:Person" property="rel:knowsOf">{% with person=witness %}{% include 'label/person.html.j2' %}{% endwith %}</li>
@@ -37,7 +37,7 @@
         {% endif %}
     {% endfor %}
     {% if ns.attendees | length > 0 %}
-        <h2>{{ _('Other attendees') }}</h2>
+        <h2>{% trans %}Other attendees{% endtrans %}</h2>
         <ul>
             {% for attendee in ns.attendees %}
                 <li typeof="foaf:Person" property="rel:knowsOf">{% with person=attendee %}{% include 'label/person.html.j2' %}{% endwith %}</li>
@@ -46,7 +46,7 @@
     {% endif %}
 
     {% if event.files | length > 0 %}
-        <h2>{{ _('Media') }}</h2>
+        <h2>{% trans %}Media{% endtrans %}</h2>
         {% with files=event.files %}
             {% include 'list-file.html.j2' %}
         {% endwith %}

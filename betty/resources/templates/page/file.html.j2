@@ -9,7 +9,7 @@
         </div>
     {% endif %}
     {% if file.notes %}
-        <h2>{{ _('Notes') }}</h2>
+        <h2>{% trans %}Notes{% endtrans %}</h2>
         {% for note in file.notes %}
             {{ note.text | paragraphs }}
         {% endfor %}
