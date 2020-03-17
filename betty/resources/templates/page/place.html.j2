@@ -19,9 +19,11 @@
         {% endwith %}
     {% endif %}
 
-    {% set events = place.events | list + place | walk('encloses') | map(attribute="events") | flatten | list %}
-    <h2>{{ _('Events') }}</h2>
-    {% with events=events, place_context=place %}
-        {% include 'list-event.html.j2' %}
-    {% endwith %}
+    {% set events = place.events | list + place | walk('encloses') | map(attribute="events") | flatten | rejectattr('date', 'none') | selectattr('date.comparable') | list %}
+    {% if events | length > 0 %}
+        <h2>{% trans %}Timeline{% endtrans %}</h2>
+        {% with events=events, place_context=place %}
+            {% include 'list-event.html.j2' %}
+        {% endwith %}
+    {% endif %}
 {% endblock %}

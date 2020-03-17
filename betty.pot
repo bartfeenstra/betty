@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-03-17 00:02+0000\n"
+"POT-Creation-Date: 2020-03-17 01:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -236,8 +236,6 @@ msgstr ""
 
 #: betty/resources/templates/base.html.j2:65
 #: betty/resources/templates/page/list-event.html.j2:2
-#: betty/resources/templates/page/person.html.j2:72
-#: betty/resources/templates/page/place.html.j2:23
 msgid "Events"
 msgstr ""
 
@@ -250,7 +248,7 @@ msgstr ""
 #: betty/resources/templates/page/citation.html.j2:9
 #: betty/resources/templates/page/event.html.j2:49
 #: betty/resources/templates/page/list-file.html.j2:2
-#: betty/resources/templates/page/person.html.j2:84
+#: betty/resources/templates/page/person.html.j2:86
 #: betty/resources/templates/page/source.html.j2:10
 #: betty/resources/templates/search/result-file.html.j2:4
 msgid "Media"
@@ -445,6 +443,11 @@ msgstr[1] ""
 
 #: betty/resources/templates/page/person.html.j2:61
 msgid "Siblings"
+msgstr ""
+
+#: betty/resources/templates/page/person.html.j2:73
+#: betty/resources/templates/page/place.html.j2:24
+msgid "Timeline"
 msgstr ""
 
 #: betty/resources/templates/search/results-container.html.j2:3
