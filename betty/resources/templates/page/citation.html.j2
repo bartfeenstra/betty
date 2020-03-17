@@ -6,7 +6,7 @@
     </div>
     {% set files = citation.files %}
     {% if files | length > 0 %}
-        <h2>{{ _('Media') }}</h2>
+        <h2>{% trans %}Media{% endtrans %}</h2>
         {% include 'list-file.html.j2' %}
     {% endif %}
     {% set facts = citation.facts | select('resource') | list %}

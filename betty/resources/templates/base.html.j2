@@ -61,17 +61,17 @@
         <h2 class="nav-primary-action">{% trans %}Menu{% endtrans %}</h2>
         <div class="nav-primary-expanded">
             <ul class="nav-secondary">
-                <li><a href="{{ '/person/index.html' | url }}">{{ _('People') }}</a></li>
-                <li><a href="{{ '/event/index.html' | url }}">{{ _('Events') }}</a></li>
-                <li><a href="{{ '/place/index.html' | url }}">{{ _('Places') }}</a></li>
-                <li><a href="{{ '/file/index.html' | url }}">{{ _('Media') }}</a></li>
-                <li><a href="{{ '/source/index.html' | url }}">{{ _('Sources') }}</a></li>
+                <li><a href="{{ '/person/index.html' | url }}">{% trans %}People{% endtrans %}</a></li>
+                <li><a href="{{ '/event/index.html' | url }}">{% trans %}Events{% endtrans %}</a></li>
+                <li><a href="{{ '/place/index.html' | url }}">{% trans %}Places{% endtrans %}</a></li>
+                <li><a href="{{ '/file/index.html' | url }}">{% trans %}Media{% endtrans %}</a></li>
+                <li><a href="{{ '/source/index.html' | url }}">{% trans %}Sources{% endtrans %}</a></li>
             </ul>
         </div>
     </div>
     {% if page_resource is defined and site.configuration.multilingual %}
         <div id="nav-locale" class="nav-primary-expandable">
-            <h2 class="nav-primary-action">{{ _('Language') }}</h2>
+            <h2 class="nav-primary-action">{% trans %}Language{% endtrans %}</h2>
             <div class="nav-primary-expanded">
                 <ul class="nav-secondary">
                 {% set ns = namespace(available_locales=[]) %}
@@ -92,7 +92,7 @@
     {% block page_content %}{% endblock %}
     {% if citer | length > 0 %}
         <section class="references">
-            <h2>{{ _('References') }}</h2>
+            <h2>{% trans %}References{% endtrans %}</h2>
             <ol>
             {% for number, citation in citer %}
                 <li id="reference-{{ number }}" class="reference">{% include 'label/citation.html.j2' %}</li>
