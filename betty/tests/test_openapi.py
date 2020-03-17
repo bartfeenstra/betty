@@ -23,6 +23,6 @@ class BuildSpecificationTest(TestCase):
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
             configuration.content_negotiation = content_negotiation
-            site = Site(configuration)
-            specification = build_specification(site)
+            with Site(configuration) as site:
+                specification = build_specification(site)
         jsonschema.validate(specification, schema)

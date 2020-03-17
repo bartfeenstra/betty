@@ -132,7 +132,7 @@ class Configuration:
         self._mode = mode
 
     @property
-    def plugins(self) -> Dict[Type, Dict]:
+    def plugins(self) -> Dict[Type['Plugin'], Dict]:
         return self._plugins
 
     @property

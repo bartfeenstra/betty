@@ -13,7 +13,6 @@ from betty.event import Event
 from betty.fs import makedirs
 from betty.jinja2 import create_environment, render_tree
 from betty.json import JSONEncoder
-from betty.locale import Translations
 from betty.openapi import build_specification
 from betty.site import Site
 from betty.url import SiteUrlGenerator, StaticPathUrlGenerator
@@ -27,50 +26,47 @@ def render(site: Site) -> None:
     logger = logging.getLogger()
     site.resources.copytree(join('public', 'static'),
                             site.configuration.www_directory_path)
-    static_environment = create_environment(site)
-    render_tree(site.configuration.www_directory_path,
-                static_environment, site.configuration)
+    environment = create_environment(site)
+    render_tree(site.configuration.www_directory_path, environment, site.configuration)
     sass.render_tree(site.configuration.www_directory_path)
     for locale, locale_configuration in site.configuration.locales.items():
-        localized_environment = create_environment(site, locale)
-        if site.configuration.multilingual:
-            www_directory_path = join(
-                site.configuration.www_directory_path, locale_configuration.alias)
-        else:
-            www_directory_path = site.configuration.www_directory_path
+        with site.with_locale(locale):
+            if site.configuration.multilingual:
+                www_directory_path = join(
+                    site.configuration.www_directory_path, locale_configuration.alias)
+            else:
+                www_directory_path = site.configuration.www_directory_path
 
-        site.resources.copytree(
-            join('public', 'localized'), www_directory_path)
-        render_tree(www_directory_path,
-                    localized_environment, site.configuration)
+            site.resources.copytree(
+                join('public', 'localized'), www_directory_path)
+            render_tree(www_directory_path, environment, site.configuration)
 
-        _render_entity_type(www_directory_path, site.ancestry.files.values(
-        ), 'file', site, locale, localized_environment)
-        logger.info('Rendered %d files in %s.' %
-                    (len(site.ancestry.files), locale))
-        _render_entity_type(www_directory_path, site.ancestry.people.values(
-        ), 'person', site, locale, localized_environment)
-        logger.info('Rendered %d people in %s.' %
-                    (len(site.ancestry.people), locale))
-        _render_entity_type(www_directory_path, site.ancestry.places.values(
-        ), 'place', site, locale, localized_environment)
-        logger.info('Rendered %d places in %s.' %
-                    (len(site.ancestry.places), locale))
-        _render_entity_type(www_directory_path, site.ancestry.events.values(
-        ), 'event', site, locale, localized_environment)
-        logger.info('Rendered %d events in %s.' %
-                    (len(site.ancestry.events), locale))
-        _render_entity_type(www_directory_path, site.ancestry.citations.values(
-        ), 'citation', site, locale, localized_environment)
-        logger.info('Rendered %d citations in %s.' %
-                    (len(site.ancestry.citations), locale))
-        _render_entity_type(www_directory_path, site.ancestry.sources.values(
-        ), 'source', site, locale, localized_environment)
-        logger.info('Rendered %d sources in %s.' %
-                    (len(site.ancestry.sources), locale))
-        with Translations(site.translations[locale]):
+            _render_entity_type(www_directory_path, site.ancestry.files.values(
+            ), 'file', site, locale, environment)
+            logger.info('Rendered %d files in %s.' %
+                        (len(site.ancestry.files), locale))
+            _render_entity_type(www_directory_path, site.ancestry.people.values(
+            ), 'person', site, locale, environment)
+            logger.info('Rendered %d people in %s.' %
+                        (len(site.ancestry.people), locale))
+            _render_entity_type(www_directory_path, site.ancestry.places.values(
+            ), 'place', site, locale, environment)
+            logger.info('Rendered %d places in %s.' %
+                        (len(site.ancestry.places), locale))
+            _render_entity_type(www_directory_path, site.ancestry.events.values(
+            ), 'event', site, locale, environment)
+            logger.info('Rendered %d events in %s.' %
+                        (len(site.ancestry.events), locale))
+            _render_entity_type(www_directory_path, site.ancestry.citations.values(
+            ), 'citation', site, locale, environment)
+            logger.info('Rendered %d citations in %s.' %
+                        (len(site.ancestry.citations), locale))
+            _render_entity_type(www_directory_path, site.ancestry.sources.values(
+            ), 'source', site, locale, environment)
+            logger.info('Rendered %d sources in %s.' %
+                        (len(site.ancestry.sources), locale))
             _render_openapi(www_directory_path, site)
-        logger.info('Rendered OpenAPI documentation.')
+            logger.info('Rendered OpenAPI documentation.')
     chmod(site.configuration.www_directory_path, 0o755)
     for directory_path, subdirectory_names, file_names in os.walk(site.configuration.www_directory_path):
         for subdirectory_name in subdirectory_names:

@@ -80,24 +80,24 @@ def main(args=None):
         if configuration:
             if configuration.mode == 'development':
                 logger.setLevel(logging.DEBUG)
-            site = Site(configuration)
-            commands = [GenerateCommand(site)]
-            for plugin in site.plugins.values():
-                if isinstance(plugin, CommandProvider):
-                    for command in plugin.commands:
-                        commands.append(command)
-            commands_parser = build_commands_parser(commands)
-            if betty_parsed_args['help']:
-                commands_parser.print_help()
-                commands_parser.exit()
-            commands_parsed_args = vars(
-                commands_parser.parse_args(betty_parsed_args['...']))
-            if '_betty_command_callback' not in commands_parsed_args:
-                commands_parser.print_usage()
-                commands_parser.exit(2)
-            callback = commands_parsed_args['_betty_command_callback']
-            del commands_parsed_args['_betty_command_callback']
-            callback(**commands_parsed_args)
+            with Site(configuration) as site:
+                commands = [GenerateCommand(site)]
+                for plugin in site.plugins.values():
+                    if isinstance(plugin, CommandProvider):
+                        for command in plugin.commands:
+                            commands.append(command)
+                commands_parser = build_commands_parser(commands)
+                if betty_parsed_args['help']:
+                    commands_parser.print_help()
+                    commands_parser.exit()
+                commands_parsed_args = vars(
+                    commands_parser.parse_args(betty_parsed_args['...']))
+                if '_betty_command_callback' not in commands_parsed_args:
+                    commands_parser.print_usage()
+                    commands_parser.exit(2)
+                callback = commands_parsed_args['_betty_command_callback']
+                del commands_parsed_args['_betty_command_callback']
+                callback(**commands_parsed_args)
             commands_parser.exit()
 
         betty_parser.print_help()

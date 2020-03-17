@@ -5,7 +5,7 @@ import os
 from functools import total_ordering
 from typing import Optional, Tuple, Iterable, Union
 
-from babel import dates, Locale, parse_locale, negotiate_locale
+from babel import dates, Locale as BabelLocale, parse_locale, negotiate_locale
 
 
 class Localized:
@@ -176,7 +176,7 @@ Datey = Union[Date, DateRange]
 
 
 class Translations(gettext.NullTranslations):
-    _KEYS = ('_', 'gettext', 'ngettext', 'lgettext', 'lngettext')
+    _KEYS = {'_', 'gettext', 'ngettext', 'lgettext', 'lngettext'}
 
     def __init__(self, fallback: gettext.NullTranslations):
         gettext.NullTranslations.__init__(self)
@@ -184,13 +184,16 @@ class Translations(gettext.NullTranslations):
         self._previous_context = {}
 
     def __enter__(self):
-        import builtins
-        self._previous_context = {
-            key: value for key, value in builtins.__dict__.items() if key in self._KEYS}
         self.install()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.uninstall()
+
+    def install(self, names=None):
+        import builtins
+        self._previous_context = {
+            key: value for key, value in builtins.__dict__.items() if key in self._KEYS}
+        self._fallback.install(self._KEYS)
 
     def uninstall(self):
         import builtins
@@ -269,7 +272,7 @@ def _format_date_parts(date: Date, locale: str) -> str:
     except KeyError:
         raise IncompleteDateError('This date does not have enough parts to be rendered.')
     parts = map(lambda x: 1 if x is None else x, date.parts)
-    return dates.format_date(datetime.date(*parts), format, Locale.parse(locale, '-'))
+    return dates.format_date(datetime.date(*parts), format, BabelLocale.parse(locale, '-'))
 
 
 def _format_date_range(date_range: DateRange, locale: str) -> str:

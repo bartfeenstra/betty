@@ -61,7 +61,7 @@ server {
                     return locale_aliases[locale]
                 }
             {% else %}
-                set $locale_alias {{ site.configuration.locales[site.configuration.default_locale].alias }};
+                set $locale_alias {{ site.configuration.locales[site.locale].alias }};
             {% endif %}
             return 301 /$locale_alias$uri;
         }

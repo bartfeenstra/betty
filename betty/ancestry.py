@@ -308,12 +308,13 @@ class Source(Resource, Dated, HasFiles, HasLinks, HasPrivacy):
     contains: ManyAssociation['Source']
     citations: ManyAssociation['Citation']
 
-    def __init__(self, name: str):
+    def __init__(self, name: Optional[str] = None):
         Dated.__init__(self)
         HasFiles.__init__(self)
         HasLinks.__init__(self)
         HasPrivacy.__init__(self)
-        self.name = name
+        if name is not None:
+            self.name = name
         self._author = None
         self._publisher = None
 
