@@ -69,15 +69,15 @@ class IndexTest(TestCase):
                 output_directory_path, 'https://example.com')
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
-            site = Site(configuration)
-            environment = create_environment(site, locale)
-            person_id = 'P1'
-            individual_name = 'Jane'
-            person = Person(person_id)
-            person.names.append(PersonName(individual_name))
-            site.ancestry.people[person_id] = person
+            with Site(configuration).with_locale(locale) as site:
+                environment = create_environment(site)
+                person_id = 'P1'
+                individual_name = 'Jane'
+                person = Person(person_id)
+                person.names.append(PersonName(individual_name))
+                site.ancestry.people[person_id] = person
 
-            indexed = list(index(site, environment))
+                indexed = list(index(site, environment))
 
             self.assertEquals('jane', indexed[0]['text'])
             self.assertIn(expected, indexed[0]['result'])
@@ -92,15 +92,15 @@ class IndexTest(TestCase):
                 output_directory_path, 'https://example.com')
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
-            site = Site(configuration)
-            environment = create_environment(site, locale)
-            person_id = 'P1'
-            affiliation_name = 'Doughnut'
-            person = Person(person_id)
-            person.names.append(PersonName(None, affiliation_name))
-            site.ancestry.people[person_id] = person
+            with Site(configuration).with_locale(locale) as site:
+                environment = create_environment(site)
+                person_id = 'P1'
+                affiliation_name = 'Doughnut'
+                person = Person(person_id)
+                person.names.append(PersonName(None, affiliation_name))
+                site.ancestry.people[person_id] = person
 
-            indexed = list(index(site, environment))
+                indexed = list(index(site, environment))
 
             self.assertEquals('doughnut', indexed[0]['text'])
             self.assertIn(expected, indexed[0]['result'])
@@ -115,16 +115,16 @@ class IndexTest(TestCase):
                 output_directory_path, 'https://example.com')
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
-            site = Site(configuration)
-            environment = create_environment(site, locale)
-            person_id = 'P1'
-            individual_name = 'Jane'
-            affiliation_name = 'Doughnut'
-            person = Person(person_id)
-            person.names.append(PersonName(individual_name, affiliation_name))
-            site.ancestry.people[person_id] = person
+            with Site(configuration).with_locale(locale) as site:
+                environment = create_environment(site)
+                person_id = 'P1'
+                individual_name = 'Jane'
+                affiliation_name = 'Doughnut'
+                person = Person(person_id)
+                person.names.append(PersonName(individual_name, affiliation_name))
+                site.ancestry.people[person_id] = person
 
-            indexed = list(index(site, environment))
+                indexed = list(index(site, environment))
 
             self.assertEquals('jane doughnut', indexed[0]['text'])
             self.assertIn(expected, indexed[0]['result'])
@@ -139,14 +139,14 @@ class IndexTest(TestCase):
                 output_directory_path, 'https://example.com')
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
-            site = Site(configuration)
-            environment = create_environment(site, locale)
-            place_id = 'P1'
-            place = Place(place_id, [LocalizedName(
-                'Netherlands', 'en'), LocalizedName('Nederland', 'nl')])
-            site.ancestry.places[place_id] = place
+            with Site(configuration).with_locale(locale) as site:
+                environment = create_environment(site)
+                place_id = 'P1'
+                place = Place(place_id, [LocalizedName(
+                    'Netherlands', 'en'), LocalizedName('Nederland', 'nl')])
+                site.ancestry.places[place_id] = place
 
-            indexed = list(index(site, environment))
+                indexed = list(index(site, environment))
 
             self.assertEquals('netherlands nederland', indexed[0]['text'])
             self.assertIn(expected, indexed[0]['result'])
@@ -177,14 +177,14 @@ class IndexTest(TestCase):
                 output_directory_path, 'https://example.com')
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
-            site = Site(configuration)
-            environment = create_environment(site, locale)
-            file_id = 'F1'
-            file = File(file_id, __file__)
-            file.description = '"file" is Dutch for "traffic jam"'
-            site.ancestry.files[file_id] = file
+            with Site(configuration).with_locale(locale) as site:
+                environment = create_environment(site)
+                file_id = 'F1'
+                file = File(file_id, __file__)
+                file.description = '"file" is Dutch for "traffic jam"'
+                site.ancestry.files[file_id] = file
 
-            indexed = list(index(site, environment))
+                indexed = list(index(site, environment))
 
             self.assertEquals('"file" is dutch for "traffic jam"', indexed[0]['text'])
             self.assertIn(expected, indexed[0]['result'])

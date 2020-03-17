@@ -23,7 +23,7 @@ from betty.config import Configuration
 from betty.fs import iterfiles, makedirs, hashfile, is_hidden
 from betty.functools import walk
 from betty.json import JSONEncoder
-from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, Translations
+from betty.locale import negotiate_localizeds, Localized, format_datey, Datey
 from betty.plugin import Plugin
 from betty.search import index
 from betty.site import Site
@@ -96,9 +96,7 @@ class HtmlProvider:
         return []
 
 
-def create_environment(site: Site, default_locale: Optional[str] = None) -> Environment:
-    if default_locale is None:
-        default_locale = site.configuration.default_locale
+def create_environment(site: Site) -> Environment:
     url_generator = SiteUrlGenerator(site.configuration)
     template_directory_paths = list(
         [join(path, 'templates') for path in site.resources.paths])
@@ -113,9 +111,16 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
             'jinja2.ext.i18n',
         ],
     )
-    environment.install_gettext_translations(site.translations[default_locale])
+
+    def _gettext(*args, **kwargs):
+        return gettext(*args, **kwargs)
+
+    def _ngettext(*args, **kwargs):
+        return ngettext(*args, **kwargs)
+    environment.install_gettext_callables(_gettext, _ngettext)
+    environment.policies['ext.i18n.trimmed'] = True
     environment.globals['site'] = site
-    environment.globals['locale'] = default_locale
+    environment.globals['locale'] = site.locale
     environment.globals['plugins'] = _Plugins(site.plugins)
     environment.globals['EventType'] = Event.Type
     environment.globals['PresenceRole'] = Presence.Role
@@ -126,10 +131,9 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
     environment.filters['takewhile'] = _filter_takewhile
     environment.filters['locale_get_data'] = lambda locale: Locale.parse(
         locale, '-')
-    environment.filters['negotiate_localizeds'] = lambda localizeds: negotiate_localizeds(
-        default_locale, localizeds)
-    environment.filters['sort_localizeds'] = contextfilter(
-        lambda context, *args, **kwargs: _filter_sort_localizeds(context, default_locale, *args, **kwargs))
+
+    environment.filters['negotiate_localizeds'] = _filter_negotiate_localizeds
+    environment.filters['sort_localizeds'] = _filter_sort_localizeds
 
     # A filter to convert any value to JSON.
     @contextfilter
@@ -149,16 +153,18 @@ def create_environment(site: Site, default_locale: Optional[str] = None) -> Envi
     environment.tests['identifiable'] = lambda x: isinstance(x, Identifiable)
     environment.filters['paragraphs'] = _filter_paragraphs
 
-    def _filter_format_date(date: Datey):
-        with Translations(site.translations[default_locale]):
-            return format_datey(date, default_locale)
+    @contextfilter
+    def _filter_format_date(context, date: Datey):
+        locale = resolve_or_missing(context, 'locale')
+        return format_datey(date, locale)
     environment.filters['format_date'] = _filter_format_date
     environment.filters['format_degrees'] = _filter_format_degrees
     environment.globals['citer'] = _Citer()
 
-    def _filter_url(resource, media_type=None, locale=None, **kwargs):
+    @contextfilter
+    def _filter_url(context, resource, media_type=None, locale=None, **kwargs):
         media_type = media_type if media_type else 'text/html'
-        locale = locale if locale else default_locale
+        locale = locale if locale else resolve_or_missing(context, 'locale')
         return url_generator.generate(resource, media_type, locale=locale, **kwargs)
 
     environment.filters['url'] = _filter_url
@@ -335,13 +341,20 @@ def _filter_image(site: Site, file: File, width: Optional[int] = None, height: O
     return destination_path
 
 
-def _filter_sort_localizeds(context, preferred_locale: str, localizeds: Iterable[Localized], localized_attribute: str,
-                            sort_attribute: str):
+@contextfilter
+def _filter_negotiate_localizeds(context, localizeds: Iterable[Localized]):
+    locale = resolve_or_missing(context, 'locale')
+    return negotiate_localizeds(locale, localizeds)
+
+
+@contextfilter
+def _filter_sort_localizeds(context, localizeds: Iterable[Localized], localized_attribute: str, sort_attribute: str):
+    locale = resolve_or_missing(context, 'locale')
     get_localized_attr = make_attrgetter(
         context.environment, localized_attribute)
     get_sort_attr = make_attrgetter(context.environment, sort_attribute)
 
     def get_sort_key(x):
-        return get_sort_attr(negotiate_localizeds(preferred_locale, get_localized_attr(x)))
+        return get_sort_attr(negotiate_localizeds(locale, get_localized_attr(x)))
 
     return sorted(localizeds, key=get_sort_key)

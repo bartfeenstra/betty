@@ -10,7 +10,11 @@ from betty.plugin.privatizer import Privatizer
 
 class AnonymousSource(Source):
     def __init__(self):
-        Source.__init__(self, _('Private'))
+        Source.__init__(self)
+
+    @property
+    def name(self) -> str:
+        return _('Private')
 
     def replace(self, other: Source) -> None:
         self.citations.append(*other.citations)

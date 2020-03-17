@@ -207,11 +207,12 @@ class FormatDateTest(TestCase):
         with TemporaryDirectory() as www_directory_path:
             configuration = Configuration(
                 www_directory_path, 'https://example.com')
-            environment = create_environment(Site(configuration))
-            template = '{{ date | format_date }}'
-            date = Date(1970, 1, 1)
-            self.assertEquals(
-                'January 1, 1970', environment.from_string(template).render(date=date))
+            with Site(configuration) as site:
+                environment = create_environment(site)
+                template = '{{ date | format_date }}'
+                date = Date(1970, 1, 1)
+                self.assertEquals(
+                    'January 1, 1970', environment.from_string(template).render(date=date))
 
 
 class SortLocalizedTest(TestCase):

@@ -1,6 +1,6 @@
 import gettext
-import logging
 from collections import defaultdict, OrderedDict
+from copy import copy
 from os.path import abspath, dirname, join
 from typing import Type, Dict
 
@@ -9,7 +9,7 @@ from betty.config import Configuration
 from betty.event import EventDispatcher
 from betty.fs import FileSystem
 from betty.graph import tsort, Graph
-from betty.locale import open_translations
+from betty.locale import open_translations, Translations
 
 
 class Site:
@@ -19,15 +19,31 @@ class Site:
         self._resources = FileSystem(
             join(dirname(abspath(__file__)), 'resources'))
         self._event_dispatcher = EventDispatcher()
+        self._locale = None
         self._translations = defaultdict(gettext.NullTranslations)
+        self._default_translations = None
         self._plugins = OrderedDict()
         self._init_plugins()
         self._init_event_listeners()
         self._init_resources()
         self._init_translations()
 
+    def __enter__(self):
+        self._default_translations = Translations(self.translations[self.locale])
+        self._default_translations.install()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._default_translations.uninstall()
+
+    @property
+    def locale(self) -> str:
+        if self._locale is not None:
+            return self._locale
+        return self._configuration.default_locale
+
     def _init_plugins(self) -> None:
-        def _extend_plugin_type_graph(graph: Graph, plugin_type: Type):
+        def _extend_plugin_type_graph(graph: Graph, plugin_type: Type['Plugin']):
             dependencies = plugin_type.depends_on()
             # Ensure each plugin type appears in the graph, even if they're isolated.
             graph.setdefault(plugin_type, set())
@@ -79,12 +95,6 @@ class Site:
                 if translations:
                     translations.add_fallback(self._translations[locale])
                     self._translations[locale] = translations
-        try:
-            self.translations[self._configuration.default_locale].install()
-        except KeyError:
-            logger = logging.getLogger()
-            logger.debug('No translations found for default locale %s.' %
-                         self._configuration.default_locale)
 
     @property
     def ancestry(self) -> Ancestry:
@@ -109,3 +119,8 @@ class Site:
     @property
     def translations(self) -> Dict[str, gettext.NullTranslations]:
         return self._translations
+
+    def with_locale(self, locale: str) -> 'Site':
+        site = copy(self)
+        site._locale = locale
+        return site

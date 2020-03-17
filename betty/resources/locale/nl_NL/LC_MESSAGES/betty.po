@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-02-23 22:02+0000\n"
+"POT-Creation-Date: 2020-03-17 00:02+0000\n"
 "PO-Revision-Date: 2019-10-05 11:38+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -18,46 +18,46 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: betty/locale.py:220
+#: betty/locale.py:248
 msgid "unknown date"
 msgstr "onbekend"
 
-#: betty/locale.py:226
+#: betty/locale.py:254
 #, python-format
 msgid "Around %(date)s"
 msgstr "Rond %(date)s"
 
-#: betty/locale.py:236
+#: betty/locale.py:264
 msgid "MMMM d, y"
 msgstr "d MMMM y"
 
-#: betty/locale.py:237
+#: betty/locale.py:265
 msgid "MMMM, y"
 msgstr "MMMM y"
 
-#: betty/locale.py:238
+#: betty/locale.py:266
 msgid "y"
 msgstr "y"
 
-#: betty/locale.py:239
+#: betty/locale.py:267
 msgid "MMMM d"
 msgstr "d MMMM"
 
-#: betty/locale.py:240
+#: betty/locale.py:268
 msgid "MMMM"
 msgstr "MMMM"
 
-#: betty/locale.py:260
+#: betty/locale.py:288
 #, python-format
 msgid "Between %(start)s and %(end)s"
 msgstr "Tussen %(start)s en %(end)s"
 
-#: betty/locale.py:265
+#: betty/locale.py:293
 #, python-format
 msgid "After %(start)s"
 msgstr "Na %(start)s"
 
-#: betty/locale.py:269
+#: betty/locale.py:297
 #, python-format
 msgid "Before %(end)s"
 msgstr "Voor %(end)s"
@@ -198,31 +198,24 @@ msgstr "Een HTML5-document."
 msgid "A locale name."
 msgstr "De naam van een locale."
 
-#: betty/plugins/search/resources/templates/search-result-file.html.j2:4
-#: betty/resources/templates/base.html.j2:63
-#: betty/resources/templates/page/citation.html.j2:9
-#: betty/resources/templates/page/event.html.j2:49
-#: betty/resources/templates/page/list-file.html.j2:2
-#: betty/resources/templates/page/person.html.j2:84
-#: betty/resources/templates/page/source.html.j2:10
-msgid "Media"
-msgstr "Media"
+#: betty/plugin/anonymizer/__init__.py:17
+msgid "Private"
+msgstr "Privé"
 
-#: betty/plugins/search/resources/templates/search-results-container.html.j2:3
+#: betty/plugin/anonymizer/__init__.py:31
 msgid ""
-"Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
-"to exit the search. Next time, open the search with <kbd>s</kbd>."
+"A citation is available, but has not been published in order to protect "
+"people's privacy"
 msgstr ""
-"Gebruik <kbd>↑</kbd> en <kbd>↓</kbd> om door de resultaten te bladeren, "
-"of <kbd>esc</kbd> om te stoppen met zoeken. Open het zoekformulier "
-"opnieuw met <kbd>s</kbd>."
+"Er is een verwijzing beschikbaar, maar deze is niet openbaar gemaakt om "
+"mensen hun privacy te beschermen"
 
-#: betty/plugins/wikipedia/resources/templates/wikipedia.html.j2:3
+#: betty/plugin/wikipedia/resources/templates/wikipedia.html.j2:3
 #, python-format
 msgid "Read more on <a href=\"%(uri)s\">Wikipedia</a>."
 msgstr "Lees verder op <a href=\"%(uri)s\">Wikipedia</a>."
 
-#: betty/plugins/wikipedia/resources/templates/wikipedia.html.j2:4
+#: betty/plugin/wikipedia/resources/templates/wikipedia.html.j2:4
 msgid ""
 "<a "
 "href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a>"
@@ -242,38 +235,48 @@ msgstr "Welkom bij %(title)s"
 msgid "API documentation"
 msgstr "API-documentatie"
 
-#: betty/resources/templates/base.html.j2:57
+#: betty/resources/templates/base.html.j2:61
 msgid "Menu"
 msgstr "Menu"
 
-#: betty/resources/templates/base.html.j2:60
+#: betty/resources/templates/base.html.j2:64
 #: betty/resources/templates/page/list-person.html.j2:2
 msgid "People"
 msgstr "Personen"
 
-#: betty/resources/templates/base.html.j2:61
+#: betty/resources/templates/base.html.j2:65
 #: betty/resources/templates/page/list-event.html.j2:2
 #: betty/resources/templates/page/person.html.j2:72
 #: betty/resources/templates/page/place.html.j2:23
 msgid "Events"
 msgstr "Gebeurtenissen"
 
-#: betty/resources/templates/base.html.j2:62
+#: betty/resources/templates/base.html.j2:66
 #: betty/resources/templates/page/list-place.html.j2:2
 msgid "Places"
 msgstr "Plaatsen"
 
-#: betty/resources/templates/base.html.j2:64
+#: betty/resources/templates/base.html.j2:67
+#: betty/resources/templates/page/citation.html.j2:9
+#: betty/resources/templates/page/event.html.j2:49
+#: betty/resources/templates/page/list-file.html.j2:2
+#: betty/resources/templates/page/person.html.j2:84
+#: betty/resources/templates/page/source.html.j2:10
+#: betty/resources/templates/search/result-file.html.j2:4
+msgid "Media"
+msgstr "Media"
+
+#: betty/resources/templates/base.html.j2:68
 #: betty/resources/templates/page/file.html.j2:34
 #: betty/resources/templates/page/list-source.html.j2:2
 msgid "Sources"
 msgstr "Bronnen"
 
-#: betty/resources/templates/base.html.j2:70
+#: betty/resources/templates/base.html.j2:74
 msgid "Language"
 msgstr "Taal"
 
-#: betty/resources/templates/base.html.j2:91
+#: betty/resources/templates/base.html.j2:95
 msgid "References"
 msgstr "Referenties"
 
@@ -455,6 +458,15 @@ msgstr[1] "met %(parents)s:"
 #: betty/resources/templates/page/person.html.j2:61
 msgid "Siblings"
 msgstr "Broers en zussen"
+
+#: betty/resources/templates/search/results-container.html.j2:3
+msgid ""
+"Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
+"to exit the search. Next time, open the search with <kbd>s</kbd>."
+msgstr ""
+"Gebruik <kbd>↑</kbd> en <kbd>↓</kbd> om door de resultaten te bladeren, "
+"of <kbd>esc</kbd> om te stoppen met zoeken. Open het zoekformulier "
+"opnieuw met <kbd>s</kbd>."
 
 #: betty/resources/public/localized/.error/401.html.j2:4
 #: betty/resources/public/localized/.error/401.json.j2:3
