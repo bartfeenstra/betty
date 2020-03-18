@@ -1,5 +1,6 @@
 from enum import Enum
 from functools import total_ordering
+from itertools import chain
 from os.path import splitext, basename
 from typing import Dict, Optional, List, Iterable, Set, Union, TypeVar, Generic, Callable
 
@@ -209,17 +210,16 @@ class HasMediaType:
         self._media_type = media_type
 
 
-class Link(HasMediaType, Localized):
+class Link(HasMediaType, Localized, Described):
+    url: str
+
     def __init__(self, url: str):
         HasMediaType.__init__(self)
         Localized.__init__(self)
-        self._url = url
+        Described.__init__(self)
+        self.url = url
         self._label = None
         self._relationship = None
-
-    @property
-    def url(self) -> str:
-        return self._url
 
     @property
     def relationship(self) -> Optional[str]:
@@ -599,3 +599,14 @@ class Ancestry:
         self.events = {}
         self.sources = {}
         self.citations = {}
+
+    @property
+    def resources(self) -> Iterable[Resource]:
+        return chain(
+            self.files.values(),
+            self.people.values(),
+            self.places.values(),
+            self.events.values(),
+            self.sources.values(),
+            self.citations.values(),
+        )

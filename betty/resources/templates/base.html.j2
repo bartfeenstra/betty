@@ -90,6 +90,23 @@
 <div id="content">
     <h1>{{ page_title }}</h1>
     {% block page_content %}{% endblock %}
+    {% if page_resource is has_links %}
+        {% set links = page_resource.links | rejectattr('label', 'none') %}
+        {% set links = links | select_localizeds | list + links | selectattr('locale', 'none') | list %}
+        {% if links | list | length > 0 %}
+            <h2>{% trans %}External links{% endtrans %}</h2>
+            <ul>
+            {% for link in page_resource.links %}
+                <li>
+                    <a href="{{ link.url }}"{% if link.locale is not none %} hreflang="{{ link.locale }}"{% endif %}{% if link.relationship is not none %} rel="{{ link.relationship }}"{% endif %}{% if link.media_type is not none %} type="{{ link.media_type }}"{% endif %}>{{ link.label }}</a>
+                    {% if link.description is not none %}
+                        <div class="meta">{{ link.description }}</div>
+                    {% endif %}
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endif %}
     {% if citer | length > 0 %}
         <section class="references">
             <h2>{% trans %}References{% endtrans %}</h2>

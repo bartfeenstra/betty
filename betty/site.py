@@ -121,6 +121,9 @@ class Site:
         return self._translations
 
     def with_locale(self, locale: str) -> 'Site':
+        if locale == self.locale:
+            return self
+
         site = copy(self)
         site._locale = locale
         return site

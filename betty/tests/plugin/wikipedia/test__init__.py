@@ -1,6 +1,6 @@
 from tempfile import TemporaryDirectory
 from time import sleep
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -11,15 +11,38 @@ from requests import RequestException
 from betty.ancestry import Link
 from betty.config import Configuration
 from betty.jinja2 import create_environment
-from betty.plugin.wikipedia import Entry, Wikipedia, Retriever
+from betty.plugin.wikipedia import Entry, Wikipedia, Retriever, NotAnEntryError, parse_url
 from betty.site import Site
+
+
+class ParseUrlTest(TestCase):
+    @parameterized.expand([
+        (('en', 'Amsterdam'), 'http://en.wikipedia.org/wiki/Amsterdam',),
+        (('nl', 'Amsterdam'), 'https://nl.wikipedia.org/wiki/Amsterdam',),
+        (('en', 'Amsterdam'), 'http://en.wikipedia.org/wiki/Amsterdam',),
+        (('en', 'Amsterdam'), 'https://en.wikipedia.org/wiki/Amsterdam/',),
+        (('en', 'Amsterdam'), 'https://en.wikipedia.org/wiki/Amsterdam/some-path',),
+        (('en', 'Amsterdam'), 'https://en.wikipedia.org/wiki/Amsterdam?some=query',),
+        (('en', 'Amsterdam'), 'https://en.wikipedia.org/wiki/Amsterdam#some-fragment',),
+    ])
+    def test_should_return(self, expected: Tuple[str, str],  url: str):
+        self.assertEquals(expected, parse_url(url))
+
+    @parameterized.expand([
+        ('',),
+        ('ftp://en.wikipedia.org/wiki/Amsterdam',),
+        ('https://en.wikipedia.org/w/index.php?title=Amsterdam&action=edit',),
+    ])
+    def test_should_error(self, url: str):
+        with self.assertRaises(NotAnEntryError):
+            parse_url(url)
 
 
 class EntryTest(TestCase):
     def test_uri(self):
         uri = 'https://en.wikipedia.org/wiki/Amsterdam'
         sut = Entry(uri, 'Title for Amsterdam', 'Content for Amsterdam')
-        self.assertEquals(uri, sut.uri)
+        self.assertEquals(uri, sut.url)
 
     def test_title(self):
         title = 'Amsterdam'
@@ -40,7 +63,7 @@ class RetrieverTest(TestCase):
         ('http://en.wikipedia.org/wiki/Amsterdam',),
     ])
     @requests_mock.mock()
-    def test_one_should_return_entry(self, page_uri: str, m_requests):
+    def test_for_link_should_return_entry(self, page_uri: str, m_requests):
         language = 'en'
         link = Link(page_uri)
         api_uri = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam&prop=extracts&exintro&format=json&formatversion=2'
@@ -81,28 +104,28 @@ class RetrieverTest(TestCase):
         with TemporaryDirectory() as cache_directory_path:
             retriever = Retriever(cache_directory_path, 1)
             # The first retrieval should make a successful request and set the cache.
-            entry_1 = retriever.one(language, link)
+            entry_1 = retriever.for_link(language, link)
             # The second retrieval should hit the cache from the first request.
-            entry_2 = retriever.one(language, link)
+            entry_2 = retriever.for_link(language, link)
             # The third retrieval should result in a failed request, and hit the cache from the first request.
             sleep(2)
-            entry_3 = retriever.one(language, link)
+            entry_3 = retriever.for_link(language, link)
             # The fourth retrieval should make a successful request and set the cache again.
-            entry_4 = retriever.one(language, link)
+            entry_4 = retriever.for_link(language, link)
             # The fifth retrieval should hit the cache from the fourth request.
-            entry_5 = retriever.one(language, link)
+            entry_5 = retriever.for_link(language, link)
         self.assertEquals(3, m_requests.call_count)
         for entry in [entry_1, entry_2, entry_3]:
-            self.assertEquals(page_uri, entry.uri)
+            self.assertEquals(page_uri, entry.url)
             self.assertEquals(title, entry.title)
             self.assertEquals(extract_1, entry.content)
         for entry in [entry_4, entry_5]:
-            self.assertEquals(page_uri, entry.uri)
+            self.assertEquals(page_uri, entry.url)
             self.assertEquals(title, entry.title)
             self.assertEquals(extract_4, entry.content)
 
     @requests_mock.mock()
-    def test_one_should_return_translated_entry(self, m_requests):
+    def test_for_link_should_return_translated_entry(self, m_requests):
         language = 'nl'
         page_uri = 'https://en.wikipedia.org/wiki/Amsterdam'
         link = Link(page_uri)
@@ -140,9 +163,9 @@ class RetrieverTest(TestCase):
                                 json=api_page_response_body_nl)
         with TemporaryDirectory() as cache_directory_path:
             retriever = Retriever(cache_directory_path, 1)
-            entry = retriever.one(language, link)
+            entry = retriever.for_link(language, link)
         self.assertEquals(2, m_requests.call_count)
-        self.assertEquals(page_uri, entry.uri)
+        self.assertEquals(page_uri, entry.url)
         self.assertEquals(title, entry.title)
         self.assertEquals(extract_nl, entry.content)
 
@@ -156,7 +179,7 @@ class RetrieverTest(TestCase):
         ],),
     ])
     @requests_mock.mock()
-    def test_one_should_return_none_if_no_translation_exists(self, langlinks: List[Dict], m_requests):
+    def test_for_link_should_return_none_if_no_translation_exists(self, langlinks: List[Dict], m_requests):
         language = 'nl'
         page_uri = 'https://en.wikipedia.org/wiki/Amsterdam'
         link = Link(page_uri)
@@ -174,7 +197,7 @@ class RetrieverTest(TestCase):
             'GET', translations_api_uri, json=api_translations_response_body_nl)
         with TemporaryDirectory() as cache_directory_path:
             retriever = Retriever(cache_directory_path, 1)
-            entry = retriever.one(language, link)
+            entry = retriever.for_link(language, link)
         self.assertEquals(1, m_requests.call_count)
         self.assertIsNone(entry)
 
@@ -188,24 +211,24 @@ class RetrieverTest(TestCase):
         ('https://ancestry.bartfeenstra.com',),
     ])
     @requests_mock.mock()
-    def test_one_should_ignore_unsupported_uris(self, page_uri: str, m_requests):
+    def test_for_link_should_ignore_unsupported_uris(self, page_uri: str, m_requests):
         language = 'uk'
         link = Link(page_uri)
         with TemporaryDirectory() as cache_directory_path:
-            entry = Retriever(cache_directory_path).one(language, link)
+            entry = Retriever(cache_directory_path).for_link(language, link)
         self.assertIsNone(entry)
         self.assertEquals(0, len(m_requests.request_history))
 
     @requests_mock.mock()
     @patch('sys.stderr')
-    def test_one_should_handle_request_errors(self, m_requests, _):
+    def test_for_link_should_handle_request_errors(self, m_requests, _):
         language = 'en'
         page_uri = 'https://en.wikipedia.org/wiki/Amsterdam'
         link = Link(page_uri)
         api_uri = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam&prop=extracts&exintro&format=json&formatversion=2'
         m_requests.register_uri('GET', api_uri, exc=RequestException)
         with TemporaryDirectory() as cache_directory_path:
-            entry = Retriever(cache_directory_path).one(language, link)
+            entry = Retriever(cache_directory_path).for_link(language, link)
         self.assertIsNone(entry)
 
     @parameterized.expand([
@@ -213,7 +236,7 @@ class RetrieverTest(TestCase):
         ('http://en.wikipedia.org/wiki/Amsterdam',),
     ])
     @requests_mock.mock()
-    def test_all_should_return_entry(self, page_uri: str, m_requests):
+    def test_for_resource_should_return_entry(self, page_uri: str, m_requests):
         language = 'en'
         link = Link(page_uri)
         api_uri = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam&prop=extracts&exintro&format=json&formatversion=2'
@@ -232,10 +255,10 @@ class RetrieverTest(TestCase):
         m_requests.register_uri('GET', api_uri, json=api_response_body)
         with TemporaryDirectory() as cache_directory_path:
             entries = list(
-                Retriever(cache_directory_path).all(language, [link]))
+                Retriever(cache_directory_path).for_resource(language, [link]))
         self.assertEquals(1, len(entries))
         entry = entries[0]
-        self.assertEquals(page_uri, entry.uri)
+        self.assertEquals(page_uri, entry.url)
         self.assertEquals(title, entry.title)
         self.assertEquals(extract, entry.content)
 

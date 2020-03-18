@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-03-17 01:05+0000\n"
+"POT-Creation-Date: 2020-03-18 02:18+0000\n"
 "PO-Revision-Date: 2019-10-05 11:38+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -210,12 +210,16 @@ msgstr ""
 "Er is een verwijzing beschikbaar, maar deze is niet openbaar gemaakt om "
 "mensen hun privacy te beschermen"
 
-#: betty/plugin/wikipedia/resources/templates/wikipedia.html.j2:3
-#, python-format
-msgid "Read more on <a href=\"%(uri)s\">Wikipedia</a>."
-msgstr "Lees verder op <a href=\"%(uri)s\">Wikipedia</a>."
+#: betty/plugin/wikipedia/__init__.py:204
+msgid "Read more on Wikipedia."
+msgstr "Lees verder op Wikipedia."
 
-#: betty/plugin/wikipedia/resources/templates/wikipedia.html.j2:4
+#: betty/plugin/wikipedia/resources/templates/wikipedia.html.j2:5
+#, python-format
+msgid "Read more on <a href=\"%(url)s\">Wikipedia</a>."
+msgstr "Lees verder op <a href=\"%(url)s\">Wikipedia</a>."
+
+#: betty/plugin/wikipedia/resources/templates/wikipedia.html.j2:7
 msgid ""
 "<a "
 "href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a>"
@@ -274,7 +278,11 @@ msgstr "Bronnen"
 msgid "Language"
 msgstr "Taal"
 
-#: betty/resources/templates/base.html.j2:95
+#: betty/resources/templates/base.html.j2:97
+msgid "External links"
+msgstr "Externe links"
+
+#: betty/resources/templates/base.html.j2:112
 msgid "References"
 msgstr "Referenties"
 

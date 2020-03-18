@@ -6,7 +6,7 @@ from unittest import TestCase
 from parameterized import parameterized
 
 from betty.ancestry import File, LocalizedName
-from betty.config import Configuration
+from betty.config import Configuration, LocaleConfiguration
 from betty.jinja2 import create_environment
 from betty.locale import Date
 from betty.plugin import Plugin
@@ -215,7 +215,7 @@ class FormatDateTest(TestCase):
                     'January 1, 1970', environment.from_string(template).render(date=date))
 
 
-class SortLocalizedTest(TestCase):
+class SortLocalizedsTest(TestCase):
     class WithLocalizedNames:
         def __init__(self, identifier, names: List[LocalizedName]):
             self.id = identifier
@@ -255,3 +255,35 @@ class SortLocalizedTest(TestCase):
             data = []
             self.assertEquals('[]', environment.from_string(
                 template).render(data=data))
+
+
+class SelectLocalizedsTest(TestCase):
+    @parameterized.expand([
+        ('', 'en', []),
+        ('Apple', 'en', [
+            LocalizedName('Apple', 'en')
+        ]),
+        ('Apple', 'en', [
+            LocalizedName('Apple', 'en-US')
+        ]),
+        ('Apple', 'en-US', [
+            LocalizedName('Apple', 'en')
+        ]),
+        ('', 'nl', [
+            LocalizedName('Apple', 'en')
+        ]),
+        ('', 'nl-NL', [
+            LocalizedName('Apple', 'en')
+        ]),
+    ])
+    def test(self, expected: str, locale: str, data):
+        with TemporaryDirectory() as www_directory_path:
+            configuration = Configuration(
+                www_directory_path, 'https://example.com')
+            configuration.locales.clear()
+            configuration.locales[locale] = LocaleConfiguration(locale)
+            with Site(configuration) as site:
+                environment = create_environment(site)
+                template = '{{ data | select_localizeds | map(attribute="name") | join(", ") }}'
+                self.assertEquals(expected, environment.from_string(
+                    template).render(data=data))
