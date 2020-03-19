@@ -6,7 +6,7 @@ from betty.config import Configuration
 from betty.media_type import EXTENSIONS
 
 
-class UrlGenerator:
+class LocalizedUrlGenerator:
     def generate(self, resource: Any, media_type: str, absolute: bool = False, locale: Optional[str] = None) -> str:
         raise NotImplementedError
 
@@ -16,7 +16,7 @@ class StaticUrlGenerator:
         raise NotImplementedError
 
 
-class PathResourceUrlGenerator(UrlGenerator):
+class LocalizedPathUrlGenerator(LocalizedUrlGenerator):
     def __init__(self, configuration: Configuration):
         self._configuration = configuration
 
@@ -32,7 +32,7 @@ class StaticPathUrlGenerator(StaticUrlGenerator):
         return _generate_from_path(self._configuration, resource, localize=False, **kwargs)
 
 
-class IdentifiableResourceUrlGenerator(UrlGenerator):
+class IdentifiableResourceUrlGenerator(LocalizedUrlGenerator):
     def __init__(self, configuration: Configuration, identifiable_type: Type[Identifiable], pattern: str):
         self._configuration = configuration
         self._type = identifiable_type
@@ -45,8 +45,8 @@ class IdentifiableResourceUrlGenerator(UrlGenerator):
         return _generate_from_path(self._configuration, self._pattern % (resource.id, EXTENSIONS[media_type]), **kwargs)
 
 
-class PersonNameUrlGenerator(UrlGenerator):
-    def __init__(self, person_url_generator: UrlGenerator):
+class PersonNameUrlGenerator(LocalizedUrlGenerator):
+    def __init__(self, person_url_generator: LocalizedUrlGenerator):
         self._person_url_generator = person_url_generator
 
     def generate(self, name: PersonName, *args, **kwargs) -> str:
@@ -55,7 +55,7 @@ class PersonNameUrlGenerator(UrlGenerator):
         return self._person_url_generator.generate(name.person, *args, **kwargs)
 
 
-class SiteUrlGenerator(UrlGenerator):
+class SiteUrlGenerator(LocalizedUrlGenerator):
     def __init__(self, configuration: Configuration):
         person_url_generator = IdentifiableResourceUrlGenerator(configuration, Person, 'person/%s/index.%s')
         self._generators = [
@@ -71,7 +71,7 @@ class SiteUrlGenerator(UrlGenerator):
                 configuration, IdentifiableSource, 'source/%s/index.%s'),
             IdentifiableResourceUrlGenerator(
                 configuration, IdentifiableCitation, 'citation/%s/index.%s'),
-            PathResourceUrlGenerator(configuration),
+            LocalizedPathUrlGenerator(configuration),
         ]
 
     def generate(self, resource: Any, *args, **kwargs) -> str:

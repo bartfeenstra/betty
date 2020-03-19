@@ -11,13 +11,11 @@ from betty.jinja2 import HtmlProvider, create_environment, render_tree
 from betty.plugin import Plugin
 from betty.render import PostRenderEvent
 from betty.site import Site
-from betty.url import StaticPathUrlGenerator
 
 
 class Trees(Plugin, HtmlProvider):
     def __init__(self, site: Site):
         self._site = site
-        self._url_generator = StaticPathUrlGenerator(site.configuration)
 
     @classmethod
     def from_configuration_dict(cls, site: Site, configuration: Dict):
@@ -67,11 +65,11 @@ class Trees(Plugin, HtmlProvider):
     @property
     def css_paths(self) -> Iterable[str]:
         return {
-            self._url_generator.generate('trees.css'),
+            self._site.static_url_generator.generate('trees.css'),
         }
 
     @property
     def js_paths(self) -> Iterable[str]:
         return {
-            self._url_generator.generate('trees.js'),
+            self._site.static_url_generator.generate('trees.js'),
         }

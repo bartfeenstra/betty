@@ -1,4 +1,4 @@
-from betty.url import PathResourceUrlGenerator, IdentifiableResourceUrlGenerator, SiteUrlGenerator
+from betty.url import LocalizedPathUrlGenerator, IdentifiableResourceUrlGenerator, SiteUrlGenerator
 from betty.config import Configuration, LocaleConfiguration
 from betty.ancestry import Person, Event, Place, File, Source, Identifiable, LocalizedName, IdentifiableEvent, \
     IdentifiableSource, IdentifiableCitation
@@ -8,7 +8,7 @@ from unittest import TestCase
 from parameterized import parameterized
 
 
-class PathUrlGeneratorTest(TestCase):
+class LocalizedPathUrlGeneratorTest(TestCase):
     @parameterized.expand([
         ('/', '/'),
         ('/index.html', '/index.html'),
@@ -21,7 +21,7 @@ class PathUrlGeneratorTest(TestCase):
     ])
     def test_generate(self, expected: str, resource: str):
         configuration = Configuration('/tmp', 'https://example.com')
-        sut = PathResourceUrlGenerator(configuration)
+        sut = LocalizedPathUrlGenerator(configuration)
         self.assertEquals(expected, sut.generate(resource, 'text/html'))
 
     @parameterized.expand([
@@ -33,7 +33,7 @@ class PathUrlGeneratorTest(TestCase):
     def test_generate_with_clean_urls(self, expected: str, resource: str):
         configuration = Configuration('/tmp', 'https://example.com')
         configuration.clean_urls = True
-        sut = PathResourceUrlGenerator(configuration)
+        sut = LocalizedPathUrlGenerator(configuration)
         self.assertEquals(expected, sut.generate(resource, 'text/html'))
 
     @parameterized.expand([
@@ -42,13 +42,13 @@ class PathUrlGeneratorTest(TestCase):
     ])
     def test_generate_absolute(self, expected: str, resource: str):
         configuration = Configuration('/tmp', 'https://example.com')
-        sut = PathResourceUrlGenerator(configuration)
+        sut = LocalizedPathUrlGenerator(configuration)
         self.assertEquals(expected, sut.generate(
             resource, 'text/html', absolute=True))
 
     def test_generate_with_invalid_value(self):
         configuration = Configuration('/tmp', 'https://example.com')
-        sut = PathResourceUrlGenerator(configuration)
+        sut = LocalizedPathUrlGenerator(configuration)
         with self.assertRaises(ValueError):
             sut.generate(9, 'text/html')
 
@@ -57,14 +57,14 @@ class PathUrlGeneratorTest(TestCase):
         configuration.locales.clear()
         configuration.locales['nl'] = LocaleConfiguration('nl')
         configuration.locales['en'] = LocaleConfiguration('en')
-        sut = PathResourceUrlGenerator(configuration)
+        sut = LocalizedPathUrlGenerator(configuration)
         self.assertEquals('/nl/index.html',
                           sut.generate('/index.html', 'text/html'))
         self.assertEquals(
             '/en/index.html', sut.generate('/index.html', 'text/html', locale='en'))
 
 
-class IdentifiableUrlGeneratorTest(TestCase):
+class IdentifiableResourceUrlGeneratorTest(TestCase):
     def test_generate(self):
         configuration = Configuration('/tmp', 'https://example.com')
         sut = IdentifiableResourceUrlGenerator(

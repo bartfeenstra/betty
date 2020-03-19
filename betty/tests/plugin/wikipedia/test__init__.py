@@ -25,7 +25,7 @@ class ParseUrlTest(TestCase):
         (('en', 'Amsterdam'), 'https://en.wikipedia.org/wiki/Amsterdam?some=query',),
         (('en', 'Amsterdam'), 'https://en.wikipedia.org/wiki/Amsterdam#some-fragment',),
     ])
-    def test_should_return(self, expected: Tuple[str, str],  url: str):
+    def test_should_return(self, expected: Tuple[str, str], url: str):
         self.assertEquals(expected, parse_url(url))
 
     @parameterized.expand([

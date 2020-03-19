@@ -27,7 +27,6 @@ from betty.locale import negotiate_localizeds, Localized, format_datey, Datey
 from betty.plugin import Plugin
 from betty.search import index
 from betty.site import Site
-from betty.url import SiteUrlGenerator, StaticPathUrlGenerator
 
 _root_loader = FileSystemLoader('/')
 
@@ -97,7 +96,6 @@ class HtmlProvider:
 
 
 def create_environment(site: Site) -> Environment:
-    url_generator = SiteUrlGenerator(site.configuration)
     template_directory_paths = list(
         [join(path, 'templates') for path in site.resources.paths])
     environment = Environment(
@@ -166,11 +164,10 @@ def create_environment(site: Site) -> Environment:
     def _filter_url(context, resource, media_type=None, locale=None, **kwargs):
         media_type = media_type if media_type else 'text/html'
         locale = locale if locale else resolve_or_missing(context, 'locale')
-        return url_generator.generate(resource, media_type, locale=locale, **kwargs)
+        return site.localized_url_generator.generate(resource, media_type, locale=locale, **kwargs)
 
     environment.filters['url'] = _filter_url
-    environment.filters['static_url'] = StaticPathUrlGenerator(
-        site.configuration).generate
+    environment.filters['static_url'] = site.static_url_generator.generate
     environment.filters['file'] = lambda *args: _filter_file(site, *args)
     environment.filters['image'] = lambda *args, **kwargs: _filter_image(
         site, *args, **kwargs)

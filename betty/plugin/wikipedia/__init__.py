@@ -26,7 +26,7 @@ class NotAnEntryError(ValueError):
     pass
 
 
-_URL_PATTERN = re.compile('^https?://([a-z]+)\.wikipedia\.org/wiki/([^/?#]+).*$')
+_URL_PATTERN = re.compile(r'^https?://([a-z]+)\.wikipedia\.org/wiki/([^/?#]+).*$')
 
 
 def parse_url(url: str) -> Tuple[str, str]:
