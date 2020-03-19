@@ -8,14 +8,12 @@ from typing import Iterable, Any
 from jinja2 import Environment, TemplateNotFound
 
 from betty import sass
-from betty.config import Configuration
 from betty.event import Event
 from betty.fs import makedirs
 from betty.jinja2 import create_environment, render_tree
 from betty.json import JSONEncoder
 from betty.openapi import build_specification
 from betty.site import Site
-from betty.url import SiteUrlGenerator, StaticPathUrlGenerator
 
 
 class PostRenderEvent(Event):
@@ -94,7 +92,7 @@ def _render_entity_type(www_directory_path: str, entities: Iterable[Any], entity
     _render_entity_type_list_html(
         www_directory_path, entities, entity_type_name, environment)
     _render_entity_type_list_json(
-        www_directory_path, entities, entity_type_name, site.configuration)
+        www_directory_path, entities, entity_type_name, site)
     for entity in entities:
         _render_entity(www_directory_path, entity,
                        entity_type_name, site, locale, environment)
@@ -116,16 +114,15 @@ def _render_entity_type_list_html(www_directory_path: str, entities: Iterable[An
         pass
 
 
-def _render_entity_type_list_json(www_directory_path: str, entities: Iterable[Any], entity_type_name: str, configuration: Configuration) -> None:
+def _render_entity_type_list_json(www_directory_path: str, entities: Iterable[Any], entity_type_name: str, site: Site) -> None:
     entity_type_path = os.path.join(www_directory_path, entity_type_name)
     with _create_json_resource(entity_type_path) as f:
-        url_generator = SiteUrlGenerator(configuration)
         data = {
-            '$schema': StaticPathUrlGenerator(configuration).generate('schema.json#/definitions/%sCollection' % entity_type_name, absolute=True),
+            '$schema': site.static_url_generator.generate('schema.json#/definitions/%sCollection' % entity_type_name, absolute=True),
             'collection': []
         }
         for entity in entities:
-            data['collection'].append(url_generator.generate(
+            data['collection'].append(site.localized_url_generator.generate(
                 entity, 'application/json', absolute=True))
         dump(data, f)
 

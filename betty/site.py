@@ -10,6 +10,7 @@ from betty.event import EventDispatcher
 from betty.fs import FileSystem
 from betty.graph import tsort, Graph
 from betty.locale import open_translations, Translations
+from betty.url import SiteUrlGenerator, StaticPathUrlGenerator, LocalizedUrlGenerator, StaticUrlGenerator
 
 
 class Site:
@@ -19,6 +20,8 @@ class Site:
         self._resources = FileSystem(
             join(dirname(abspath(__file__)), 'resources'))
         self._event_dispatcher = EventDispatcher()
+        self._localized_url_generator = SiteUrlGenerator(configuration)
+        self._static_url_generator = StaticPathUrlGenerator(configuration)
         self._locale = None
         self._translations = defaultdict(gettext.NullTranslations)
         self._default_translations = None
@@ -115,6 +118,14 @@ class Site:
     @property
     def event_dispatcher(self) -> EventDispatcher:
         return self._event_dispatcher
+
+    @property
+    def localized_url_generator(self) -> LocalizedUrlGenerator:
+        return self._localized_url_generator
+
+    @property
+    def static_url_generator(self) -> StaticUrlGenerator:
+        return self._static_url_generator
 
     @property
     def translations(self) -> Dict[str, gettext.NullTranslations]:

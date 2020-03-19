@@ -24,7 +24,7 @@ class JSONEncoderTest(TestCase):
             site = Site(configuration)
             encoded_data = stdjson.loads(stdjson.dumps(data, cls=JSONEncoder.get_factory(
                 site, configuration.default_locale)))
-            json.validate(encoded_data, schema_definition, configuration)
+            json.validate(encoded_data, schema_definition, site)
             self.assertEquals(expected, encoded_data)
 
     def test_coordinates_should_encode(self):

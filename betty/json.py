@@ -9,19 +9,16 @@ from jsonschema import RefResolver
 from betty.ancestry import Place, Person, LocalizedName, Event, Presence, Described, HasLinks, HasCitations, Link, \
     Dated, File, Note, PersonName, IdentifiableEvent, Identifiable, IdentifiableSource, IdentifiableCitation, \
     HasMediaType, Resource
-from betty.config import Configuration
 from betty.locale import Date, DateRange, Localized
 from betty.plugin.deriver import DerivedEvent
 from betty.site import Site
-from betty.url import StaticPathUrlGenerator, SiteUrlGenerator
 
 
-def validate(data: Any, schema_definition: str, configuration: Configuration) -> None:
+def validate(data: Any, schema_definition: str, site: Site) -> None:
     with open(path.join(path.dirname(__file__), 'resources', 'public', 'static', 'schema.json')) as f:
         schema = stdjson.load(f)
     # @todo Can we set the schema ID somehow without making the entire JSON schema file a Jinja2 template?
-    schema_id = StaticPathUrlGenerator(
-        configuration).generate('schema.json', absolute=True)
+    schema_id = site.static_url_generator.generate('schema.json', absolute=True)
     schema['$id'] = schema_id
     ref_resolver = RefResolver(schema_id, schema)
     jsonschema.validate(
@@ -32,8 +29,6 @@ class JSONEncoder(stdjson.JSONEncoder):
     def __init__(self, site: Site, locale: str, *args, **kwargs):
         stdjson.JSONEncoder.__init__(self, *args, **kwargs)
         self._site = site
-        self._url_generator = SiteUrlGenerator(site.configuration)
-        self._static_url_generator = StaticPathUrlGenerator(site.configuration)
         self._locale = locale
         self._mappers = {
             LocalizedName: self._encode_localized_name,
@@ -66,10 +61,10 @@ class JSONEncoder(stdjson.JSONEncoder):
 
     def _generate_url(self, resource: Any, media_type='application/json', locale=None):
         locale = self._locale if locale is None else locale
-        return self._url_generator.generate(resource, media_type, locale=locale)
+        return self._site.localized_url_generator.generate(resource, media_type, locale=locale)
 
     def _encode_schema(self, encoded: Dict, defintion: str) -> None:
-        encoded['$schema'] = self._static_url_generator.generate(
+        encoded['$schema'] = self._site.static_url_generator.generate(
             'schema.json#/definitions/%s' % defintion)
 
     def _encode_identifiable_resource(self, encoded: Dict, resource: Union[Identifiable, Resource]) -> None:
