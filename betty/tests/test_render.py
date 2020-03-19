@@ -37,8 +37,7 @@ class RenderTestCase(TestCase):
             self.site.configuration.www_directory_path, path.lstrip('/'))
         self.assertTrue(exists(file_path), '%s does not exist' % file_path)
         with open(file_path) as f:
-            json.validate(stdjson.load(f), schema_definition,
-                          self.site.configuration)
+            json.validate(stdjson.load(f), schema_definition, self.site)
         return file_path
 
 
