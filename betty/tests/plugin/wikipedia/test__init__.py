@@ -9,6 +9,7 @@ from parameterized import parameterized
 from requests import RequestException
 
 from betty.ancestry import Link
+from betty.cache import FileCache
 from betty.config import Configuration
 from betty.jinja2 import create_environment
 from betty.plugin.wikipedia import Entry, Wikipedia, Retriever
@@ -79,7 +80,8 @@ class RetrieverTest(TestCase):
             },
         ])
         with TemporaryDirectory() as cache_directory_path:
-            retriever = Retriever(cache_directory_path, 1)
+            cache = FileCache(cache_directory_path)
+            retriever = Retriever(cache, 1)
             # The first retrieval should make a successful request and set the cache.
             entry_1 = retriever.one(language, link)
             # The second retrieval should hit the cache from the first request.
@@ -139,7 +141,8 @@ class RetrieverTest(TestCase):
         m_requests.register_uri('GET', page_api_uri,
                                 json=api_page_response_body_nl)
         with TemporaryDirectory() as cache_directory_path:
-            retriever = Retriever(cache_directory_path, 1)
+            cache = FileCache(cache_directory_path)
+            retriever = Retriever(cache, 1)
             entry = retriever.one(language, link)
         self.assertEquals(2, m_requests.call_count)
         self.assertEquals(page_uri, entry.uri)
@@ -173,7 +176,8 @@ class RetrieverTest(TestCase):
         m_requests.register_uri(
             'GET', translations_api_uri, json=api_translations_response_body_nl)
         with TemporaryDirectory() as cache_directory_path:
-            retriever = Retriever(cache_directory_path, 1)
+            cache = FileCache(cache_directory_path)
+            retriever = Retriever(cache, 1)
             entry = retriever.one(language, link)
         self.assertEquals(1, m_requests.call_count)
         self.assertIsNone(entry)
@@ -205,7 +209,8 @@ class RetrieverTest(TestCase):
         api_uri = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam&prop=extracts&exintro&format=json&formatversion=2'
         m_requests.register_uri('GET', api_uri, exc=RequestException)
         with TemporaryDirectory() as cache_directory_path:
-            entry = Retriever(cache_directory_path).one(language, link)
+            cache = FileCache(cache_directory_path)
+            entry = Retriever(cache).one(language, link)
         self.assertIsNone(entry)
 
     @parameterized.expand([
@@ -231,8 +236,8 @@ class RetrieverTest(TestCase):
         }
         m_requests.register_uri('GET', api_uri, json=api_response_body)
         with TemporaryDirectory() as cache_directory_path:
-            entries = list(
-                Retriever(cache_directory_path).all(language, [link]))
+            cache = FileCache(cache_directory_path)
+            entries = list(Retriever(cache).all(language, [link]))
         self.assertEquals(1, len(entries))
         entry = entries[0]
         self.assertEquals(page_uri, entry.uri)

@@ -1,9 +1,8 @@
 import hashlib
 import logging
 import re
-from json import load
-from os.path import dirname, join, getmtime
-from time import time
+from json import loads
+from os.path import dirname
 from typing import Iterable, Optional, Dict, Callable
 from urllib.parse import urlparse
 
@@ -13,7 +12,7 @@ from jinja2 import environmentfilter
 from requests import RequestException
 
 from betty.ancestry import Link
-from betty.fs import makedirs
+from betty.cache import Cache, CacheMissError
 from betty.jinja2 import Jinja2Provider
 from betty.plugin import Plugin
 from betty.site import Site
@@ -39,29 +38,24 @@ class Entry:
 
 
 class Retriever:
-    def __init__(self, cache_directory_path: str, ttl: int = 86400):
-        self._cache_directory_path = join(cache_directory_path, 'wikipedia')
-        makedirs(self._cache_directory_path)
+    def __init__(self, cache: Cache, ttl: int = 86400):
+        self._cache = cache
         self._ttl = ttl
 
     def _request(self, uri: str) -> Optional[Dict]:
-        cache_file_path = join(self._cache_directory_path,
-                               hashlib.md5(uri.encode('utf-8')).hexdigest())
+        cache_key = hashlib.md5(uri.encode('utf-8')).hexdigest()
 
         response_data = None
         try:
-            if getmtime(cache_file_path) + self._ttl > time():
-                with open(cache_file_path) as f:
-                    response_data = load(f)
-        except FileNotFoundError:
+            response_data = loads(self._cache.get(cache_key, self._ttl))
+        except CacheMissError:
             pass
 
         if response_data is None:
             try:
                 response = requests.get(uri)
                 response_data = response.json()
-                with open(cache_file_path, 'w') as f:
-                    f.write(response.text)
+                self._cache.set(cache_key, response.text)
             except (RequestException, ValueError) as e:
                 logger = logging.getLogger()
                 logger.warn(
@@ -69,9 +63,8 @@ class Retriever:
 
         if response_data is None:
             try:
-                with open(cache_file_path) as f:
-                    response_data = load(f)
-            except FileNotFoundError:
+                response_data = loads(self._cache.get(cache_key))
+            except CacheMissError:
                 pass
 
         return response_data
@@ -108,6 +101,7 @@ class Retriever:
         if page_response_data is None:
             return None
 
+        # print(page_response_data['query']['pages'])
         page_data = page_response_data['query']['pages'][0]
         return Entry(link.url, page_data['title'], page_data['extract'])
 
@@ -124,7 +118,7 @@ class Wikipedia(Plugin, Jinja2Provider):
 
     @classmethod
     def from_configuration_dict(cls, site: Site, configuration: Dict):
-        return cls(Retriever(site.configuration.cache_directory_path))
+        return cls(Retriever(site.cache.with_scope('wikipedia')))
 
     @property
     def filters(self) -> Dict[str, Callable]:

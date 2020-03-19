@@ -5,6 +5,7 @@ from os.path import abspath, dirname, join
 from typing import Type, Dict
 
 from betty.ancestry import Ancestry
+from betty.cache import Cache, FileCache
 from betty.config import Configuration
 from betty.event import EventDispatcher
 from betty.fs import FileSystem
@@ -22,6 +23,7 @@ class Site:
         self._locale = None
         self._translations = defaultdict(gettext.NullTranslations)
         self._default_translations = None
+        self._cache = FileCache(configuration.cache_directory_path)
         self._plugins = OrderedDict()
         self._init_plugins()
         self._init_event_listeners()
@@ -119,6 +121,10 @@ class Site:
     @property
     def translations(self) -> Dict[str, gettext.NullTranslations]:
         return self._translations
+
+    @property
+    def cache(self) -> Cache:
+        return self._cache
 
     def with_locale(self, locale: str) -> 'Site':
         site = copy(self)

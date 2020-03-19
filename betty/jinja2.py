@@ -19,6 +19,7 @@ from markupsafe import Markup
 from resizeimage import resizeimage
 
 from betty.ancestry import File, Citation, Event, Presence, Identifiable, Resource
+from betty.cache import Cache
 from betty.config import Configuration
 from betty.fs import iterfiles, makedirs, hashfile, is_hidden
 from betty.functools import walk
@@ -171,8 +172,9 @@ def create_environment(site: Site) -> Environment:
     environment.filters['static_url'] = StaticPathUrlGenerator(
         site.configuration).generate
     environment.filters['file'] = lambda *args: _filter_file(site, *args)
+    image_cache = site.cache.with_scope('image')
     environment.filters['image'] = lambda *args, **kwargs: _filter_image(
-        site, *args, **kwargs)
+        site, image_cache, *args, **kwargs)
     environment.globals['search_index'] = lambda: index(site, environment)
     environment.globals['html_providers'] = list([plugin for plugin in site.plugins.values() if isinstance(plugin, HtmlProvider)])
     environment.globals['path'] = os.path
@@ -292,7 +294,7 @@ def _filter_file(site: Site, file: File) -> str:
     return destination_path
 
 
-def _filter_image(site: Site, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
+def _filter_image(site: Site, cache: Cache, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
     if width is None and height is None:
         raise ValueError('At least the width or height must be given.')
 
