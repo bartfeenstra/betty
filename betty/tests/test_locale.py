@@ -239,16 +239,16 @@ class NegotiateLocalizedsTest(TestCase):
         self.assertEquals(expected, negotiate_localizeds(
             preferred_locale, localizeds))
 
-    # def test_without_match_should_return_default(self):
-    #     preferred_locale = 'de'
-    #     localizeds = [self.DummyLocalized('nl'), self.DummyLocalized(
-    #         'en'), self.DummyLocalized('uk')]
-    #     self.assertEquals(self.DummyLocalized('nl'), negotiate_localizeds(
-    #         preferred_locale, localizeds))
-    #
-    # def test_without_localizeds_should_raise_error(self):
-    #     with self.assertRaises(ValueError):
-    #         negotiate_localizeds('nl', [])
+    def test_without_match_should_return_default(self):
+        preferred_locale = 'de'
+        localizeds = [self.DummyLocalized('nl'), self.DummyLocalized(
+            'en'), self.DummyLocalized('uk')]
+        self.assertEquals(self.DummyLocalized('nl'), negotiate_localizeds(
+            preferred_locale, localizeds))
+
+    def test_without_localizeds_should_raise_error(self):
+        with self.assertRaises(ValueError):
+            negotiate_localizeds('nl', [])
 
 
 class FormatDateTest(TestCase):
