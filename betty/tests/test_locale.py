@@ -1,10 +1,11 @@
 import gettext
-from typing import Iterable
+from typing import List, Optional
 from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.locale import validate_locale, Localized, negotiate_localizeds, Date, format_datey, DateRange, Translations
+from betty.locale import validate_locale, Localized, negotiate_localizeds, Date, format_datey, DateRange, Translations, \
+    negotiate_locale
 
 
 class DateTest(TestCase):
@@ -203,6 +204,20 @@ class ValidateLocaleTest(TestCase):
             validate_locale(locale)
 
 
+class NegotiateLocaleTest(TestCase):
+    @parameterized.expand([
+        ('nl', 'nl', ['nl']),
+        ('nl-NL', 'nl', ['nl-NL']),
+        ('nl', 'nl-NL', ['nl']),
+        ('nl-NL', 'nl-NL', ['nl', 'nl-BE', 'nl-NL']),
+        ('nl', 'nl', ['nl', 'en']),
+        ('nl', 'nl', ['en', 'nl']),
+        ('nl-NL', 'nl-BE', ['nl-NL'])
+    ])
+    def test(self, expected: Optional[str], preferred_locale: str, available_locales: List[str]):
+        self.assertEqual(expected, negotiate_locale(preferred_locale, available_locales))
+
+
 class NegotiateLocalizedsTest(TestCase):
     class DummyLocalized(Localized):
         def __eq__(self, other):
@@ -220,7 +235,7 @@ class NegotiateLocalizedsTest(TestCase):
         (DummyLocalized('nl'), 'nl', [
          DummyLocalized('en'), DummyLocalized('nl')]),
     ])
-    def test_with_match_should_return_match(self, expected: Localized, preferred_locale: str, localizeds: Iterable[Localized]):
+    def test_with_match_should_return_match(self, expected: Localized, preferred_locale: str, localizeds: List[Localized]):
         self.assertEquals(expected, negotiate_localizeds(
             preferred_locale, localizeds))
 
