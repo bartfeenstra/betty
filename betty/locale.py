@@ -3,9 +3,10 @@ import datetime
 import gettext
 import os
 from functools import total_ordering
-from typing import Optional, Tuple, Iterable, Union
+from typing import Optional, Tuple, Union, List
 
-from babel import dates, Locale as BabelLocale, parse_locale, negotiate_locale
+import babel
+from babel import dates, Locale as BabelLocale, parse_locale
 
 
 class Localized:
@@ -211,19 +212,29 @@ def validate_locale(locale: str) -> str:
     return locale
 
 
-def negotiate_localizeds(preferred_locale: str, localizeds: Iterable[Localized]) -> Localized:
-    localizeds = list(localizeds)
-    negotiated_locale = negotiate_locale([preferred_locale], map(
-        lambda localized: localized.locale, localizeds), '-')
+def negotiate_locale(preferred_locale: str, available_locales: List[str]) -> Optional[str]:
+    negotiated_locale = babel.negotiate_locale([preferred_locale], available_locales)
+    if negotiated_locale is not None:
+        return negotiated_locale
+    preferred_locale = preferred_locale.split('-', 1)[0]
+    for available_locale in available_locales:
+        negotiated_locale = babel.negotiate_locale([preferred_locale], [available_locale.split('-', 1)[0]])
+        if negotiated_locale is not None:
+            return available_locale
+
+
+def negotiate_localizeds(preferred_locale: str, localizeds: List[Localized]) -> Localized:
+    negotiated_locale = negotiate_locale(preferred_locale, [localized.locale for localized in localizeds if localized.locale is not None])
+    for localized in localizeds:
+        if localized.locale is None:
+            continue
     if negotiated_locale is None:
         if len(localizeds) > 0:
             return localizeds[0]
-        else:
-            raise ValueError(
-                'Cannot negotiate if there are no localized values.')
     for localized in localizeds:
         if localized.locale == negotiated_locale:
             return localized
+    raise ValueError('Cannot negotiate if there are no values.')
 
 
 def open_translations(locale: str, directory_path: str) -> Optional[gettext.GNUTranslations]:
