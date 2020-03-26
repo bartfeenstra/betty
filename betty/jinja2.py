@@ -8,7 +8,7 @@ from typing import Union, Dict, Type, Optional, Callable, Iterable
 from urllib.parse import urlparse
 
 from PIL import Image
-from babel import Locale, negotiate_locale
+from babel import Locale
 from geopy import units
 from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter
@@ -23,7 +23,7 @@ from betty.config import Configuration
 from betty.fs import iterfiles, makedirs, hashfile, is_hidden
 from betty.functools import walk
 from betty.json import JSONEncoder
-from betty.locale import negotiate_localizeds, Localized, format_datey, Datey
+from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale
 from betty.plugin import Plugin
 from betty.search import index
 from betty.site import Site
@@ -362,5 +362,5 @@ def _filter_sort_localizeds(context, localizeds: Iterable, localized_attribute: 
 def _filter_select_localizeds(context, localizeds: Iterable[Localized]):
     locale = resolve_or_missing(context, 'locale')
     for localized in localizeds:
-        if negotiate_locale([locale], [localized.locale], sep='-') is not None:
+        if negotiate_locale(locale, [localized.locale]) is not None:
             yield localized

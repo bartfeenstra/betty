@@ -93,10 +93,10 @@
     {% if page_resource is has_links %}
         {% set links = page_resource.links | rejectattr('label', 'none') %}
         {% set links = links | select_localizeds | list + links | selectattr('locale', 'none') | list %}
-        {% if links | list | length > 0 %}
+        {% if links | length > 0 %}
             <h2>{% trans %}External links{% endtrans %}</h2>
             <ul>
-            {% for link in page_resource.links %}
+            {% for link in links %}
                 <li>
                     <a href="{{ link.url }}"{% if link.locale is not none %} hreflang="{{ link.locale }}"{% endif %}{% if link.relationship is not none %} rel="{{ link.relationship }}"{% endif %}{% if link.media_type is not none %} type="{{ link.media_type }}"{% endif %}>{{ link.label }}</a>
                     {% if link.description is not none %}
