@@ -91,7 +91,6 @@ class Retriever:
             try:
                 response = requests.get(url)
                 response_data = response.json()
-                # @todo Why is this makedirs() call necessary? We already do this in self.__init__().
                 makedirs(self._cache_directory_path)
                 with open(cache_file_path, 'w') as f:
                     f.write(response.text)
