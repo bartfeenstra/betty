@@ -18,12 +18,12 @@ from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup
 from resizeimage import resizeimage
 
-from betty.ancestry import File, Citation, Event, Presence, Identifiable, Resource
+from betty.ancestry import File, Citation, Event, Presence, Identifiable, Resource, HasLinks
 from betty.config import Configuration
 from betty.fs import iterfiles, makedirs, hashfile, is_hidden
 from betty.functools import walk
 from betty.json import JSONEncoder
-from betty.locale import negotiate_localizeds, Localized, format_datey, Datey
+from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale
 from betty.plugin import Plugin
 from betty.search import index
 from betty.site import Site
@@ -129,9 +129,9 @@ def create_environment(site: Site) -> Environment:
     environment.filters['takewhile'] = _filter_takewhile
     environment.filters['locale_get_data'] = lambda locale: Locale.parse(
         locale, '-')
-
     environment.filters['negotiate_localizeds'] = _filter_negotiate_localizeds
     environment.filters['sort_localizeds'] = _filter_sort_localizeds
+    environment.filters['select_localizeds'] = _filter_select_localizeds
 
     # A filter to convert any value to JSON.
     @contextfilter
@@ -149,6 +149,7 @@ def create_environment(site: Site) -> Environment:
     environment.filters['tojson'] = _filter_tojson
     environment.tests['resource'] = lambda x: isinstance(x, Resource)
     environment.tests['identifiable'] = lambda x: isinstance(x, Identifiable)
+    environment.tests['has_links'] = lambda x: isinstance(x, HasLinks)
     environment.filters['paragraphs'] = _filter_paragraphs
 
     @contextfilter
@@ -345,7 +346,7 @@ def _filter_negotiate_localizeds(context, localizeds: Iterable[Localized]):
 
 
 @contextfilter
-def _filter_sort_localizeds(context, localizeds: Iterable[Localized], localized_attribute: str, sort_attribute: str):
+def _filter_sort_localizeds(context, localizeds: Iterable, localized_attribute: str, sort_attribute: str):
     locale = resolve_or_missing(context, 'locale')
     get_localized_attr = make_attrgetter(
         context.environment, localized_attribute)
@@ -355,3 +356,11 @@ def _filter_sort_localizeds(context, localizeds: Iterable[Localized], localized_
         return get_sort_attr(negotiate_localizeds(locale, get_localized_attr(x)))
 
     return sorted(localizeds, key=get_sort_key)
+
+
+@contextfilter
+def _filter_select_localizeds(context, localizeds: Iterable[Localized]):
+    locale = resolve_or_missing(context, 'locale')
+    for localized in localizeds:
+        if negotiate_locale(locale, [localized.locale]) is not None:
+            yield localized

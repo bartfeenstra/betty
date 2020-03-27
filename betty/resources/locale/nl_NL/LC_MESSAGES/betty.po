@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-03-17 01:05+0000\n"
+"POT-Creation-Date: 2020-03-25 23:01+0000\n"
 "PO-Revision-Date: 2019-10-05 11:38+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -18,163 +18,163 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: betty/locale.py:248
+#: betty/locale.py:256
 msgid "unknown date"
 msgstr "onbekend"
 
-#: betty/locale.py:254
+#: betty/locale.py:262
 #, python-format
 msgid "Around %(date)s"
 msgstr "Rond %(date)s"
 
-#: betty/locale.py:264
+#: betty/locale.py:272
 msgid "MMMM d, y"
 msgstr "d MMMM y"
 
-#: betty/locale.py:265
+#: betty/locale.py:273
 msgid "MMMM, y"
 msgstr "MMMM y"
 
-#: betty/locale.py:266
+#: betty/locale.py:274
 msgid "y"
 msgstr "y"
 
-#: betty/locale.py:267
+#: betty/locale.py:275
 msgid "MMMM d"
 msgstr "d MMMM"
 
-#: betty/locale.py:268
+#: betty/locale.py:276
 msgid "MMMM"
 msgstr "MMMM"
 
-#: betty/locale.py:288
+#: betty/locale.py:296
 #, python-format
 msgid "Between %(start)s and %(end)s"
 msgstr "Tussen %(start)s en %(end)s"
 
-#: betty/locale.py:293
+#: betty/locale.py:301
 #, python-format
 msgid "After %(start)s"
 msgstr "Na %(start)s"
 
-#: betty/locale.py:297
+#: betty/locale.py:305
 #, python-format
 msgid "Before %(end)s"
 msgstr "Voor %(end)s"
 
-#: betty/openapi.py:19
+#: betty/openapi.py:18
 msgid "Retrieve the collection of files."
 msgstr "Haal de verzameling van bestanden op."
 
-#: betty/openapi.py:19
+#: betty/openapi.py:18
 msgid "The collection of files."
 msgstr "De verzameling van bestanden."
 
-#: betty/openapi.py:20
+#: betty/openapi.py:19
 msgid "Retrieve a single file."
 msgstr "Haal een enkel bestand op."
 
-#: betty/openapi.py:20
+#: betty/openapi.py:19
 msgid "The file."
 msgstr "Het bestand."
 
-#: betty/openapi.py:21
+#: betty/openapi.py:20
 msgid "Retrieve the collection of people."
 msgstr "Haal de verzameling van personen op."
 
-#: betty/openapi.py:21
+#: betty/openapi.py:20
 msgid "The collection of people."
 msgstr "De verzameling van personen."
 
-#: betty/openapi.py:22
+#: betty/openapi.py:21
 msgid "Retrieve a single person."
 msgstr "Haal een enkel persoon op."
 
-#: betty/openapi.py:22
+#: betty/openapi.py:21
 msgid "The person."
 msgstr "De persoon."
 
-#: betty/openapi.py:23
+#: betty/openapi.py:22
 msgid "Retrieve the collection of places."
 msgstr "Haal de verzameling van plaatsen op."
 
-#: betty/openapi.py:23
+#: betty/openapi.py:22
 msgid "The collection of places."
 msgstr "De verzameling van plaatsen."
 
-#: betty/openapi.py:24
+#: betty/openapi.py:23
 msgid "Retrieve a single place."
 msgstr "Haal een enkele plaats op."
 
-#: betty/openapi.py:24
+#: betty/openapi.py:23
 msgid "The place."
 msgstr "De plaats."
 
-#: betty/openapi.py:25
+#: betty/openapi.py:24
 msgid "Retrieve the collection of events."
 msgstr "Haal de verzameling van gebeurtenissen op."
 
-#: betty/openapi.py:25
+#: betty/openapi.py:24
 msgid "The collection of events."
 msgstr "De verzameling van gebeurtenissen."
 
-#: betty/openapi.py:26
+#: betty/openapi.py:25
 msgid "Retrieve a single event."
 msgstr "Haal een enkele gebeurtenis op."
 
-#: betty/openapi.py:26
+#: betty/openapi.py:25
 msgid "The event."
 msgstr "De gebeurtenis."
 
-#: betty/openapi.py:27
+#: betty/openapi.py:26
 msgid "Retrieve the collection of citations."
 msgstr "Haal de verzameling van verwijzingen op."
 
-#: betty/openapi.py:27
+#: betty/openapi.py:26
 msgid "The collection of citations."
 msgstr "De verzameling van verwijzingen."
 
-#: betty/openapi.py:28
+#: betty/openapi.py:27
 msgid "Retrieve a single citation."
 msgstr "Haal een enkele verwijzing op."
 
-#: betty/openapi.py:28
+#: betty/openapi.py:27
 msgid "The citation."
 msgstr "De verwijzing."
 
-#: betty/openapi.py:29
+#: betty/openapi.py:28
 msgid "Retrieve the collection of sources."
 msgstr "Haal de verzameling van bronnen op."
 
-#: betty/openapi.py:29
+#: betty/openapi.py:28
 msgid "The collection of sources."
 msgstr "De verzameling van bronnen."
 
-#: betty/openapi.py:30
+#: betty/openapi.py:29
 msgid "Retrieve a single source."
 msgstr "Haal een enkele bron op."
 
-#: betty/openapi.py:30
+#: betty/openapi.py:29
 msgid "The source."
 msgstr "De bron."
 
-#: betty/openapi.py:51 betty/resources/public/localized/.error/401.html.j2:2
+#: betty/openapi.py:49 betty/resources/public/localized/.error/401.html.j2:2
 msgid "Unauthorized"
 msgstr "Onbevoegd"
 
-#: betty/openapi.py:61
+#: betty/openapi.py:59
 msgid "Forbidden"
 msgstr "Verboden"
 
-#: betty/openapi.py:71
+#: betty/openapi.py:69
 msgid "Not found"
 msgstr "Niet gevonden"
 
-#: betty/openapi.py:86
+#: betty/openapi.py:84
 msgid "The ID for the resource to retrieve."
 msgstr "Het ID van het op te halen document."
 
-#: betty/openapi.py:94
+#: betty/openapi.py:92
 msgid ""
 "An HTTP [Content-Language](https://developer.mozilla.org/en-"
 "US/docs/Web/HTTP/Headers/Content-Language) header."
@@ -182,7 +182,7 @@ msgstr ""
 "Een HTTP [Content-Language](https://developer.mozilla.org/en-"
 "US/docs/Web/HTTP/Headers/Content-Language)-header."
 
-#: betty/openapi.py:159
+#: betty/openapi.py:157
 msgid ""
 "An HTTP [Accept-Language](https://developer.mozilla.org/en-"
 "US/docs/Web/HTTP/Headers/Accept-Language) header."
@@ -190,11 +190,11 @@ msgstr ""
 "Een HTTP [Accept-Language](https://developer.mozilla.org/en-"
 "US/docs/Web/HTTP/Headers/Accept-Language)-header."
 
-#: betty/openapi.py:167
+#: betty/openapi.py:165
 msgid "An HTML5 document."
 msgstr "Een HTML5-document."
 
-#: betty/openapi.py:174
+#: betty/openapi.py:172
 msgid "A locale name."
 msgstr "De naam van een locale."
 
@@ -210,12 +210,16 @@ msgstr ""
 "Er is een verwijzing beschikbaar, maar deze is niet openbaar gemaakt om "
 "mensen hun privacy te beschermen"
 
-#: betty/plugin/wikipedia/resources/templates/wikipedia.html.j2:3
-#, python-format
-msgid "Read more on <a href=\"%(uri)s\">Wikipedia</a>."
-msgstr "Lees verder op <a href=\"%(uri)s\">Wikipedia</a>."
+#: betty/plugin/wikipedia/__init__.py:193
+msgid "Read more on Wikipedia."
+msgstr "Lees meer op Wikipedia."
 
-#: betty/plugin/wikipedia/resources/templates/wikipedia.html.j2:4
+#: betty/plugin/wikipedia/resources/templates/wikipedia.html.j2:5
+#, python-format
+msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
+msgstr "Lees verder op <a href=\"%(url)s\">Wikipedia</a>."
+
+#: betty/plugin/wikipedia/resources/templates/wikipedia.html.j2:7
 msgid ""
 "<a "
 "href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a>"
@@ -274,7 +278,11 @@ msgstr "Bronnen"
 msgid "Language"
 msgstr "Taal"
 
-#: betty/resources/templates/base.html.j2:95
+#: betty/resources/templates/base.html.j2:97
+msgid "External links"
+msgstr "Externe links"
+
+#: betty/resources/templates/base.html.j2:112
 msgid "References"
 msgstr "Referenties"
 

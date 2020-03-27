@@ -69,6 +69,10 @@ class Configuration:
     def cache_directory_path(self) -> str:
         return self._cache_directory_path
 
+    @cache_directory_path.setter
+    def cache_directory_path(self, cache_directory_path: str) -> None:
+        self._cache_directory_path = cache_directory_path
+
     @property
     def output_directory_path(self) -> str:
         return abspath(join(self._site_directory_path, self._output_directory_path))

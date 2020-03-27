@@ -225,9 +225,6 @@ def negotiate_locale(preferred_locale: str, available_locales: List[str]) -> Opt
 
 def negotiate_localizeds(preferred_locale: str, localizeds: List[Localized]) -> Localized:
     negotiated_locale = negotiate_locale(preferred_locale, [localized.locale for localized in localizeds if localized.locale is not None])
-    for localized in localizeds:
-        if localized.locale is None:
-            continue
     if negotiated_locale is None:
         if len(localizeds) > 0:
             return localizeds[0]

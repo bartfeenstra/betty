@@ -9,7 +9,7 @@ from betty.config import Configuration
 from betty.event import EventDispatcher
 from betty.fs import FileSystem
 from betty.graph import tsort, Graph
-from betty.locale import open_translations, Translations
+from betty.locale import open_translations, Translations, negotiate_locale
 from betty.url import SiteUrlGenerator, StaticPathUrlGenerator, LocalizedUrlGenerator, StaticUrlGenerator
 
 
@@ -132,6 +132,12 @@ class Site:
         return self._translations
 
     def with_locale(self, locale: str) -> 'Site':
+        locale = negotiate_locale(locale, list(self.configuration.locales.keys()))
+        if locale is None:
+            raise ValueError('Locale "%s" is not enabled.' % locale)
+        if locale == self.locale:
+            return self
+
         site = copy(self)
         site._locale = locale
         return site
