@@ -137,5 +137,8 @@ class Cleaner(Plugin):
 
     def subscribes_to(self) -> List[Tuple[Type[Event], Callable]]:
         return [
-            (PostParseEvent, lambda event: clean(event.ancestry)),
+            (PostParseEvent, self._clean),
         ]
+
+    async def _clean(self, event: PostParseEvent) -> None:
+        clean(event.ancestry)

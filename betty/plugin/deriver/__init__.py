@@ -18,8 +18,11 @@ class DerivedEvent(Event):
 class Deriver(Plugin):
     def subscribes_to(self) -> List[Tuple[Type[DispatchedEvent], Callable]]:
         return [
-            (PostParseEvent, lambda event: derive(event.ancestry)),
+            (PostParseEvent, self._derive),
         ]
+
+    async def _derive(self, event: PostParseEvent) -> None:
+        derive(event.ancestry)
 
     @classmethod
     def comes_after(cls) -> Set[Type[Plugin]]:

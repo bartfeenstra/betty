@@ -23,14 +23,14 @@ class Trees(Plugin, HtmlProvider):
 
     def subscribes_to(self) -> List[Tuple[Type[Event], Callable]]:
         return [
-            (PostRenderEvent, lambda event: self._render()),
+            (PostRenderEvent, self._render),
         ]
 
     @property
     def resource_directory_path(self) -> Optional[str]:
         return '%s/resources' % dirname(__file__)
 
-    def _render(self) -> None:
+    async def _render(self, event: PostRenderEvent) -> None:
         build_directory_path = path.join(self._site.configuration.cache_directory_path, self.name(), hashlib.md5(self.resource_directory_path.encode()).hexdigest())
 
         environment = create_environment(self._site)
@@ -43,7 +43,7 @@ class Trees(Plugin, HtmlProvider):
                 pass
             shutil.copytree(path.join(self.resource_directory_path, 'js'),
                             plugin_build_directory_path)
-        render_tree(plugin_build_directory_path, environment)
+        await render_tree(plugin_build_directory_path, environment)
 
         js_plugin_build_directory_path = path.join(
             build_directory_path, self.name())

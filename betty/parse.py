@@ -21,6 +21,6 @@ class PostParseEvent(Event):
         return self._ancestry
 
 
-def parse(site: Site) -> None:
-    site.event_dispatcher.dispatch(ParseEvent(site.ancestry))
-    site.event_dispatcher.dispatch(PostParseEvent(site.ancestry))
+async def parse(site: Site) -> None:
+    await site.event_dispatcher.dispatch(ParseEvent(site.ancestry))
+    await site.event_dispatcher.dispatch(PostParseEvent(site.ancestry))

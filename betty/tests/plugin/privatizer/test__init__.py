@@ -8,6 +8,7 @@ from parameterized import parameterized
 from betty.ancestry import Person, Presence, IdentifiableEvent, Event, Source, IdentifiableSource, File, \
     IdentifiableCitation
 from betty.config import Configuration
+from betty.functools import sync
 from betty.locale import Date, DateRange
 from betty.parse import parse
 from betty.plugin.privatizer import Privatizer, privatize_event, privatize_source, privatize_citation, privatize_person
@@ -74,31 +75,31 @@ def _expand_person(generation: int):
 
 
 class PrivatizerTest(TestCase):
-    def test_post_parse(self):
+    @sync
+    async def test_post_parse(self):
+        person = Person('P0')
+        Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.BIRTH))
+
+        source_file = File('F0', __file__)
+        source = IdentifiableSource('S0', 'The Source')
+        source.private = True
+        source.files.append(source_file)
+
+        citation_file = File('F0', __file__)
+        citation_source = Source('The Source')
+        citation = IdentifiableCitation('C0', citation_source)
+        citation.private = True
+        citation.files.append(citation_file)
+
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
             configuration.plugins[Privatizer] = {}
-            site = Site(configuration)
-
-            person = Person('P0')
-            Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.BIRTH))
-            site.ancestry.people[person.id] = person
-
-            source_file = File('F0', __file__)
-            source = IdentifiableSource('S0', 'The Source')
-            source.private = True
-            source.files.append(source_file)
-            site.ancestry.sources[source.id] = source
-
-            citation_file = File('F0', __file__)
-            citation_source = Source('The Source')
-            citation = IdentifiableCitation('C0', citation_source)
-            citation.private = True
-            citation.files.append(citation_file)
-            site.ancestry.citations[citation.id] = citation
-
-            parse(site)
+            async with Site(configuration) as site:
+                site.ancestry.people[person.id] = person
+                site.ancestry.sources[source.id] = source
+                site.ancestry.citations[citation.id] = citation
+                await parse(site)
 
             self.assertTrue(person.private)
             self.assertTrue(source_file.private)

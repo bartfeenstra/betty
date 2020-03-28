@@ -4,7 +4,7 @@ from glob import glob
 import sass
 
 
-def render_tree(path: str) -> None:
+async def render_tree(path: str) -> None:
     sass.compile(dirname=(path, path), output_style='compressed')
     for extension in ['sass', 'scss']:
         patterns = [

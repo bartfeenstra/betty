@@ -511,7 +511,7 @@ class Gramps(Plugin):
             (ParseEvent, self._parse),
         ]
 
-    def _parse(self, event: ParseEvent) -> None:
+    async def _parse(self, event: ParseEvent) -> None:
         xml_file_path = extract_xml_file(
             self._gramps_file_path, self._cache_directory_path)
         parse_xml_file(event.ancestry, xml_file_path)

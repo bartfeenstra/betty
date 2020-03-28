@@ -1,3 +1,4 @@
+import asyncio
 import json as stdjson
 import os
 import re
@@ -14,14 +15,14 @@ from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter
 from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.runtime import Macro, resolve_or_missing, StrictUndefined
-from jinja2.utils import htmlsafe_json_dumps
+from jinja2.utils import htmlsafe_json_dumps, Namespace as Jinja2Namespace
 from markupsafe import Markup
 from resizeimage import resizeimage
 
 from betty.ancestry import File, Citation, Event, Presence, Identifiable, Resource, HasLinks
 from betty.config import Configuration
 from betty.fs import iterfiles, makedirs, hashfile, is_hidden
-from betty.functools import walk
+from betty.functools import walk, asynciter
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale
 from betty.plugin import Plugin
@@ -95,10 +96,19 @@ class HtmlProvider:
         return []
 
 
+class Namespace(Jinja2Namespace):
+    def __getattribute__(self, item):
+        # Fix https://github.com/pallets/jinja/issues/1180.
+        if '__class__' == item:
+            return object.__getattribute__(self, item)
+        return Jinja2Namespace.__getattribute__(self, item)
+
+
 def create_environment(site: Site) -> Environment:
     template_directory_paths = list(
         [join(path, 'templates') for path in site.resources.paths])
     environment = Environment(
+        enable_async=True,
         loader=FileSystemLoader(template_directory_paths),
         undefined=StrictUndefined,
         autoescape=select_autoescape(['html']),
@@ -117,6 +127,8 @@ def create_environment(site: Site) -> Environment:
         return ngettext(*args, **kwargs)
     environment.install_gettext_callables(_gettext, _ngettext)
     environment.policies['ext.i18n.trimmed'] = True
+    # Fix https://github.com/pallets/jinja/issues/1180.
+    environment.globals['namespace'] = Namespace
     environment.globals['site'] = site
     environment.globals['locale'] = site.locale
     environment.globals['plugins'] = _Plugins(site.plugins)
@@ -181,13 +193,13 @@ def create_environment(site: Site) -> Environment:
     return environment
 
 
-def render_tree(path: str, environment: Environment, configuration: Optional[Configuration] = None) -> None:
+async def render_tree(path: str, environment: Environment, configuration: Optional[Configuration] = None) -> None:
     for file_source_path in iterfiles(path):
         if file_source_path.endswith('.j2'):
-            render_file(file_source_path, environment, configuration)
+            await render_file(file_source_path, environment, configuration)
 
 
-def render_file(file_source_path: str, environment: Environment, configuration: Optional[Configuration] = None) -> None:
+async def render_file(file_source_path: str, environment: Environment, configuration: Optional[Configuration] = None) -> None:
     file_destination_path = file_source_path[:-3]
     data = {}
     if configuration is not None:
@@ -203,13 +215,13 @@ def render_file(file_source_path: str, environment: Environment, configuration: 
     template = _root_loader.load(
         environment, file_source_path, environment.globals)
     with open(file_destination_path, 'w') as f:
-        f.write(template.render(data))
+        f.write(await template.render_async(data))
     os.remove(file_source_path)
 
 
-def _filter_flatten(items):
-    for item in items:
-        for child in item:
+async def _filter_flatten(items):
+    async for item in asynciter(items):
+        async for child in asynciter(item):
             yield child
 
 
@@ -247,15 +259,19 @@ def _filter_format_degrees(degrees):
 
 
 @contextfilter
-def _filter_map(*args, **kwargs):
+async def _filter_map(*args, **kwargs):
     if len(args) == 3 and isinstance(args[2], Macro):
         seq = args[1]
         func = args[2]
     else:
         seq, func = prepare_map(args, kwargs)
     if seq:
-        for item in seq:
-            yield func(item)
+        async for item in asynciter(seq):
+            result = func(item)
+            if asyncio.iscoroutine(result):
+                yield await result
+            else:
+                yield result
 
 
 @contextfilter

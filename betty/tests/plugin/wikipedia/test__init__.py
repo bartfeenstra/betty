@@ -4,12 +4,13 @@ from typing import Tuple, Optional
 from unittest import TestCase
 from unittest.mock import patch, call
 
-import requests_mock
+import aiohttp
+from aioresponses import aioresponses
 from parameterized import parameterized
-from requests import RequestException
 
 from betty.ancestry import Ancestry, Source, IdentifiableCitation, IdentifiableSource, Link
 from betty.config import Configuration, LocaleConfiguration
+from betty.functools import sync
 from betty.jinja2 import create_environment
 from betty.parse import parse
 from betty.plugin.wikipedia import Entry, Retriever, NotAnEntryError, parse_url, RetrievalError, Populator, Wikipedia
@@ -57,11 +58,11 @@ class EntryTest(TestCase):
 
 class RetrieverTest(TestCase):
     @parameterized.expand([
-        ([], {},),
-        ([
-            ('nl', 'Amsterdam'),
-            ('uk', 'Амстердам'),
-        ], {
+        ({}, {},),
+        ({
+            'nl': 'Amsterdam',
+            'uk': 'Амстердам',
+        }, {
             'langlinks': [
                 {
                     'lang': 'nl',
@@ -74,9 +75,10 @@ class RetrieverTest(TestCase):
             ],
         },),
     ])
-    @requests_mock.mock()
+    @aioresponses()
     @patch('sys.stderr')
-    def test_get_translations_should_return(self, expected, response_pages_json, m_stderr, m_requests) -> None:
+    @sync
+    async def test_get_translations_should_return(self, expected, response_pages_json, m_stderr, m_aioresponses) -> None:
         entry_language = 'en'
         entry_name = 'Amsterdam'
         api_url = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=langlinks&lllimit=500&format=json&formatversion=2' % (entry_language, entry_name)
@@ -85,32 +87,37 @@ class RetrieverTest(TestCase):
                 'pages': [response_pages_json],
             },
         }
-        m_requests.register_uri('GET', api_url, json=api_response_body)
+        m_aioresponses.get(api_url, payload=api_response_body)
         with TemporaryDirectory() as cache_directory_path:
-            translations = Retriever(cache_directory_path).get_translations(entry_language, entry_name)
+            async with aiohttp.ClientSession() as session:
+                translations = await Retriever(session, cache_directory_path).get_translations(entry_language, entry_name)
         self.assertEqual(expected, translations)
 
-    @requests_mock.mock()
+    @aioresponses()
     @patch('sys.stderr')
-    def test_get_translations_with_request_error_should_raise_retrieval_error(self, m_requests, m_stderr) -> None:
+    @sync
+    async def test_get_translations_with_client_error_should_raise_retrieval_error(self, m_aioresponses, m_stderr) -> None:
         entry_language = 'en'
         entry_name = 'Amsterdam'
         api_url = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=langlinks&lllimit=500&format=json&formatversion=2' % (entry_language, entry_name)
-        m_requests.register_uri('GET', api_url, exc=RequestException)
+        m_aioresponses.get(api_url, exception=aiohttp.ClientError())
         with TemporaryDirectory() as cache_directory_path:
             with self.assertRaises(RetrievalError):
-                Retriever(cache_directory_path).get_translations(entry_language, entry_name)
+                async with aiohttp.ClientSession() as session:
+                    await Retriever(session, cache_directory_path).get_translations(entry_language, entry_name)
 
-    @requests_mock.mock()
+    @aioresponses()
     @patch('sys.stderr')
-    def test_get_translations_with_invalid_json_response_should_raise_retrieval_error(self, m_requests, m_stderr) -> None:
+    @sync
+    async def test_get_translations_with_invalid_json_response_should_raise_retrieval_error(self, m_aioresponses, m_stderr) -> None:
         entry_language = 'en'
         entry_name = 'Amsterdam'
         api_url = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=langlinks&lllimit=500&format=json&formatversion=2' % (entry_language, entry_name)
-        m_requests.register_uri('GET', api_url, text='{Haha Im not rly JSON}')
+        m_aioresponses.get(api_url, body='{Haha Im not rly JSON}')
         with TemporaryDirectory() as cache_directory_path:
             with self.assertRaises(RetrievalError):
-                Retriever(cache_directory_path).get_translations(entry_language, entry_name)
+                async with aiohttp.ClientSession() as session:
+                    await Retriever(session, cache_directory_path).get_translations(entry_language, entry_name)
 
     @parameterized.expand([
         ({},),
@@ -128,19 +135,22 @@ class RetrieverTest(TestCase):
             }
         },),
     ])
-    @requests_mock.mock()
+    @aioresponses()
     @patch('sys.stderr')
-    def test_get_translations_with_unexpected_json_response_should_raise_retrieval_error(self, response_json, m_stderr, m_requests) -> None:
+    @sync
+    async def test_get_translations_with_unexpected_json_response_should_raise_retrieval_error(self, response_json, m_stderr, m_aioresponses) -> None:
         entry_language = 'en'
         entry_name = 'Amsterdam'
         api_url = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=langlinks&lllimit=500&format=json&formatversion=2' % (entry_language, entry_name)
-        m_requests.register_uri('GET', api_url, json=response_json)
+        m_aioresponses.get(api_url, payload=response_json)
         with TemporaryDirectory() as cache_directory_path:
             with self.assertRaises(RetrievalError):
-                Retriever(cache_directory_path).get_translations(entry_language, entry_name)
+                async with aiohttp.ClientSession() as session:
+                    await Retriever(session, cache_directory_path).get_translations(entry_language, entry_name)
 
-    @requests_mock.mock()
-    def test_get_entry_should_return(self, m_requests) -> None:
+    @aioresponses()
+    @sync
+    async def test_get_entry_should_return(self, m_aioresponses) -> None:
         entry_language = 'en'
         entry_name = 'Amsterdam'
         api_url = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam&prop=extracts&exintro&format=json&formatversion=2'
@@ -168,31 +178,23 @@ class RetrieverTest(TestCase):
                 ],
             }
         }
-        m_requests.get(api_url, [
-            {
-                'json': api_response_body_1,
-            },
-            {
-                'exc': RequestException,
-            },
-            {
-                'json': api_response_body_4,
-            },
-        ])
+        m_aioresponses.get(api_url, payload=api_response_body_1)
+        m_aioresponses.get(api_url, exception=aiohttp.ClientError())
+        m_aioresponses.get(api_url, payload=api_response_body_4)
         with TemporaryDirectory() as cache_directory_path:
-            retriever = Retriever(cache_directory_path, 1)
-            # The first retrieval should make a successful request and set the cache.
-            entry_1 = retriever.get_entry(entry_language, entry_name)
-            # The second retrieval should hit the cache from the first request.
-            entry_2 = retriever.get_entry(entry_language, entry_name)
-            # The third retrieval should result in a failed request, and hit the cache from the first request.
-            sleep(2)
-            entry_3 = retriever.get_entry(entry_language, entry_name)
-            # The fourth retrieval should make a successful request and set the cache again.
-            entry_4 = retriever.get_entry(entry_language, entry_name)
-            # The fifth retrieval should hit the cache from the fourth request.
-            entry_5 = retriever.get_entry(entry_language, entry_name)
-        self.assertEquals(3, m_requests.call_count)
+            async with aiohttp.ClientSession() as session:
+                retriever = Retriever(session, cache_directory_path, 1)
+                # The first retrieval should make a successful request and set the cache.
+                entry_1 = await retriever.get_entry(entry_language, entry_name)
+                # The second retrieval should hit the cache from the first request.
+                entry_2 = await retriever.get_entry(entry_language, entry_name)
+                # The third retrieval should result in a failed request, and hit the cache from the first request.
+                sleep(2)
+                entry_3 = await retriever.get_entry(entry_language, entry_name)
+                # The fourth retrieval should make a successful request and set the cache again.
+                entry_4 = await retriever.get_entry(entry_language, entry_name)
+                # The fifth retrieval should hit the cache from the fourth request.
+                entry_5 = await retriever.get_entry(entry_language, entry_name)
         for entry in [entry_1, entry_2, entry_3]:
             self.assertEquals(entry_url, entry.url)
             self.assertEquals(title, entry.title)
@@ -202,21 +204,25 @@ class RetrieverTest(TestCase):
             self.assertEquals(title, entry.title)
             self.assertEquals(extract_4, entry.content)
 
-    @requests_mock.mock()
+    @aioresponses()
     @patch('sys.stderr')
-    def test_get_entry_with_request_error_should_raise_retrieval_error(self, m_requests, m_stderr) -> None:
+    @sync
+    async def test_get_entry_with_client_error_should_raise_retrieval_error(self, m_aioresponses, m_stderr) -> None:
         entry_language = 'en'
         entry_name = 'Amsterdam'
         api_url = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam&prop=extracts&exintro&format=json&formatversion=2'
-        m_requests.register_uri('GET', api_url, exc=RequestException)
+        m_aioresponses.get(api_url, exception=aiohttp.ClientError())
         with TemporaryDirectory() as cache_directory_path:
-            with self.assertRaises(RetrievalError):
-                Retriever(cache_directory_path).get_entry(entry_language, entry_name)
+            async with aiohttp.ClientSession() as session:
+                retriever = Retriever(session, cache_directory_path)
+                with self.assertRaises(RetrievalError):
+                    await retriever.get_entry(entry_language, entry_name)
 
 
 class PopulatorTest(TestCase):
     @patch('betty.plugin.wikipedia.Retriever')
-    def test_populate_link_should_convert_http_to_https(self, m_retriever) -> None:
+    @sync
+    async def test_populate_link_should_convert_http_to_https(self, m_retriever) -> None:
         sut = Populator(m_retriever)
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         entry_language = 'nl'
@@ -225,8 +231,8 @@ class PopulatorTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                with Site(configuration) as site:
-                    sut.populate_link(link, site, entry_language)
+                async with Site(configuration) as site:
+                    await sut.populate_link(link, site, entry_language)
         self.assertEqual('https://en.wikipedia.org/wiki/Amsterdam', link.url)
 
     @parameterized.expand([
@@ -235,7 +241,8 @@ class PopulatorTest(TestCase):
         ('text/html', None),
     ])
     @patch('betty.plugin.wikipedia.Retriever')
-    def test_populate_link_should_set_media_type(self, expected: str, media_type: Optional[str], m_retriever) -> None:
+    @sync
+    async def test_populate_link_should_set_media_type(self, expected: str, media_type: Optional[str], m_retriever) -> None:
         sut = Populator(m_retriever)
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.media_type = media_type
@@ -244,8 +251,8 @@ class PopulatorTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                with Site(configuration) as site:
-                    sut.populate_link(link, site, 'en')
+                async with Site(configuration) as site:
+                    await sut.populate_link(link, site, 'en')
         self.assertEqual(expected, link.media_type)
 
     @parameterized.expand([
@@ -254,7 +261,8 @@ class PopulatorTest(TestCase):
         ('external', None),
     ])
     @patch('betty.plugin.wikipedia.Retriever')
-    def test_populate_link_should_set_relationship(self, expected: str, relationship: Optional[str], m_retriever) -> None:
+    @sync
+    async def test_populate_link_should_set_relationship(self, expected: str, relationship: Optional[str], m_retriever) -> None:
         sut = Populator(m_retriever)
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.relationship = relationship
@@ -263,8 +271,8 @@ class PopulatorTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                with Site(configuration) as site:
-                    sut.populate_link(link, site, 'en')
+                async with Site(configuration) as site:
+                    await sut.populate_link(link, site, 'en')
         self.assertEqual(expected, link.relationship)
 
     @parameterized.expand([
@@ -273,7 +281,8 @@ class PopulatorTest(TestCase):
         ('nl', 'en', 'nl'),
     ])
     @patch('betty.plugin.wikipedia.Retriever')
-    def test_populate_link_should_set_locale(self, expected: str, entry_language: str, locale: Optional[str], m_retriever) -> None:
+    @sync
+    async def test_populate_link_should_set_locale(self, expected: str, entry_language: str, locale: Optional[str], m_retriever) -> None:
         sut = Populator(m_retriever)
         link = Link('http://%s.wikipedia.org/wiki/Amsterdam' % entry_language)
         link.locale = locale
@@ -282,8 +291,8 @@ class PopulatorTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                with Site(configuration) as site:
-                    sut.populate_link(link, site, entry_language)
+                async with Site(configuration) as site:
+                    await sut.populate_link(link, site, entry_language)
         self.assertEqual(expected, link.locale)
 
     @parameterized.expand([
@@ -291,7 +300,8 @@ class PopulatorTest(TestCase):
         ('Read more on Wikipedia.', None),
     ])
     @patch('betty.plugin.wikipedia.Retriever')
-    def test_populate_link_should_set_description(self, expected: str, description: str, m_retriever) -> None:
+    @sync
+    async def test_populate_link_should_set_description(self, expected: str, description: str, m_retriever) -> None:
         sut = Populator(m_retriever)
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.description = description
@@ -301,8 +311,8 @@ class PopulatorTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                with Site(configuration) as site:
-                    sut.populate_link(link, site, entry_language)
+                async with Site(configuration) as site:
+                    await sut.populate_link(link, site, entry_language)
         self.assertEqual(expected, link.description)
 
     @parameterized.expand([
@@ -310,8 +320,10 @@ class PopulatorTest(TestCase):
         ('The city of Amsterdam', None),
     ])
     @patch('betty.plugin.wikipedia.Retriever')
-    def test_populate_link_should_set_label(self, expected: str, label: Optional[str], m_retriever) -> None:
+    @sync
+    async def test_populate_link_should_set_label(self, expected: str, label: Optional[str], m_retriever) -> None:
         sut = Populator(m_retriever)
+
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.label = label
         entry = Entry('en', 'The_city_of_Amsterdam', 'The city of Amsterdam', 'Amsterdam, such a lovely place!')
@@ -320,12 +332,15 @@ class PopulatorTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                with Site(configuration) as site:
-                    sut.populate_link(link, site, 'en', entry)
+                async with Site(configuration) as site:
+                    await sut.populate_link(link, site, 'en', entry)
         self.assertEqual(expected, link.label)
 
     @patch('betty.plugin.wikipedia.Retriever')
-    def test_populate_should_ignore_resource_without_link_support(self, m_retriever) -> None:
+    @sync
+    async def test_populate_should_ignore_resource_without_link_support(self, m_retriever) -> None:
+        sut = Populator(m_retriever)
+
         source = Source('The Source')
         resource = IdentifiableCitation('the_citation', source)
         ancestry = Ancestry()
@@ -335,12 +350,14 @@ class PopulatorTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                with Site(configuration) as site:
-                    sut = Populator(m_retriever)
-                sut.populate(ancestry, site)
+                async with Site(configuration) as site:
+                    await sut.populate(ancestry, site)
 
     @patch('betty.plugin.wikipedia.Retriever')
-    def test_populate_should_ignore_resource_without_links(self, m_retriever) -> None:
+    @sync
+    async def test_populate_should_ignore_resource_without_links(self, m_retriever) -> None:
+        sut = Populator(m_retriever)
+
         resource = IdentifiableSource('the_source', 'The Source')
         ancestry = Ancestry()
         ancestry.sources[resource.id] = resource
@@ -349,13 +366,15 @@ class PopulatorTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                with Site(configuration) as site:
-                    sut = Populator(m_retriever)
-                    sut.populate(ancestry, site)
+                async with Site(configuration) as site:
+                    await sut.populate(ancestry, site)
         self.assertSetEqual(set(), resource.links)
 
     @patch('betty.plugin.wikipedia.Retriever')
-    def test_populate_should_ignore_non_wikipedia_links(self, m_retriever) -> None:
+    @sync
+    async def test_populate_should_ignore_non_wikipedia_links(self, m_retriever) -> None:
+        sut = Populator(m_retriever)
+
         link = Link('https://example.com')
         resource = IdentifiableSource('the_source', 'The Source')
         resource.links.add(link)
@@ -366,13 +385,15 @@ class PopulatorTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                with Site(configuration) as site:
-                    sut = Populator(m_retriever)
-                    sut.populate(ancestry, site)
+                async with Site(configuration) as site:
+                    await sut.populate(ancestry, site)
         self.assertSetEqual({link}, resource.links)
 
-    @patch('betty.plugin.wikipedia.Retriever')
-    def test_populate_should_populate_existing_link(self, m_retriever) -> None:
+    @patch('betty.plugin.wikipedia.Retriever', spec=Retriever)
+    @sync
+    async def test_populate_should_populate_existing_link(self, m_retriever) -> None:
+        sut = Populator(m_retriever)
+
         entry_language = 'en'
         entry_name = 'Amsterdam'
         entry_title = 'Amsterdam'
@@ -390,9 +411,8 @@ class PopulatorTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                with Site(configuration) as site:
-                    sut = Populator(m_retriever)
-                    sut.populate(ancestry, site)
+                async with Site(configuration) as site:
+                    await sut.populate(ancestry, site)
         m_retriever.get_entry.assert_called_once_with(entry_language, entry_name)
         self.assertEqual(1, len(resource.links))
         self.assertEqual('Amsterdam', link.label)
@@ -401,8 +421,11 @@ class PopulatorTest(TestCase):
         self.assertIsNotNone(link.description)
         self.assertEqual('external', link.relationship)
 
-    @patch('betty.plugin.wikipedia.Retriever')
-    def test_populate_should_add_translation_links(self, m_retriever) -> None:
+    @patch('betty.plugin.wikipedia.Retriever', spec=Retriever)
+    @sync
+    async def test_populate_should_add_translation_links(self, m_retriever) -> None:
+        sut = Populator(m_retriever)
+
         entry_language = 'en'
         entry_name = 'Amsterdam'
         entry_title = 'Amsterdam'
@@ -418,10 +441,10 @@ class PopulatorTest(TestCase):
             added_entry
         ]
 
-        m_retriever.get_translations.return_value = [
-            (entry_language, entry_name),
-            (added_entry_language, added_entry_name),
-        ]
+        m_retriever.get_translations.return_value = {
+            entry_language: entry_name,
+            added_entry_language: added_entry_name,
+        }
 
         resource = IdentifiableSource('the_source', 'The Source')
         link_en = Link('https://en.wikipedia.org/wiki/Amsterdam')
@@ -436,9 +459,8 @@ class PopulatorTest(TestCase):
                 configuration.locales.clear()
                 configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
                 configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
-                with Site(configuration) as site:
-                    sut = Populator(m_retriever)
-                    sut.populate(ancestry, site)
+                async with Site(configuration) as site:
+                    await sut.populate(ancestry, site)
 
         m_retriever.get_entry.assert_has_calls([
             call(entry_language, entry_name),
@@ -455,8 +477,9 @@ class PopulatorTest(TestCase):
 
 
 class WikipediaTest(TestCase):
-    @requests_mock.mock()
-    def test_filter(self, m_requests) -> None:
+    @aioresponses()
+    @sync
+    async def test_filter(self, m_aioresponses) -> None:
         entry_url = 'https://en.wikipedia.org/wiki/Amsterdam'
         links = [
             Link(entry_url),
@@ -478,7 +501,7 @@ class WikipediaTest(TestCase):
                 ],
             }
         }
-        m_requests.register_uri('GET', api_url, json=api_response_body)
+        m_aioresponses.get(api_url, payload=api_response_body)
 
         with TemporaryDirectory() as output_directory_path:
             with TemporaryDirectory() as cache_directory_path:
@@ -486,14 +509,15 @@ class WikipediaTest(TestCase):
                     output_directory_path, 'https://ancestry.example.com')
                 configuration.cache_directory_path = cache_directory_path
                 configuration.plugins[Wikipedia] = {}
-
-                environment = create_environment(Site(configuration))
-                actual = environment.from_string(
-                    '{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}').render(links=links)
+                async with Site(configuration) as site:
+                    environment = create_environment(site)
+                    actual = await environment.from_string(
+                        '{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}').render_async(links=links)
         self.assertEquals(extract, actual)
 
-    @requests_mock.mock()
-    def test_post_parse(self, m_requests) -> None:
+    @aioresponses()
+    @sync
+    async def test_post_parse(self, m_aioresponses) -> None:
         resource = IdentifiableSource('the_source', 'The Source')
         link = Link('https://en.wikipedia.org/wiki/Amsterdam')
         resource.links.add(link)
@@ -510,7 +534,7 @@ class WikipediaTest(TestCase):
             }
         }
         entry_api_url = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam&prop=extracts&exintro&format=json&formatversion=2'
-        m_requests.register_uri('GET', entry_api_url, json=entry_api_response_body)
+        m_aioresponses.get(entry_api_url, payload=entry_api_response_body)
         translations_api_response_body = {
             'query': {
                 'pages': [
@@ -521,7 +545,7 @@ class WikipediaTest(TestCase):
             },
         }
         translations_api_url = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam&prop=langlinks&lllimit=500&format=json&formatversion=2'
-        m_requests.register_uri('GET', translations_api_url, json=translations_api_response_body)
+        m_aioresponses.get(translations_api_url, payload=translations_api_response_body)
 
         with TemporaryDirectory() as output_directory_path:
             with TemporaryDirectory() as cache_directory_path:
@@ -529,9 +553,9 @@ class WikipediaTest(TestCase):
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
                 configuration.plugins[Wikipedia] = {}
-                with Site(configuration) as site:
+                async with Site(configuration) as site:
                     site.ancestry.sources[resource.id] = resource
-                    parse(site)
+                    await parse(site)
 
         self.assertEqual(1, len(resource.links))
         self.assertEqual(entry_title, link.label)

@@ -33,7 +33,7 @@ class Nginx(Plugin):
 
     def subscribes_to(self) -> List[Tuple[Type[Event], Callable]]:
         return [
-            (PostRenderEvent, lambda event: self._render_config()),
+            (PostRenderEvent, self._render_config),
         ]
 
     @property
@@ -52,7 +52,7 @@ class Nginx(Plugin):
             return self._site.configuration.www_directory_path
         return self._www_directory_path
 
-    def _render_config(self) -> None:
+    async def _render_config(self, event: PostRenderEvent) -> None:
         output_directory_path = os.path.join(self._site.configuration.output_directory_path, 'nginx')
         makedirs(output_directory_path)
 
@@ -62,5 +62,5 @@ class Nginx(Plugin):
         self._site.resources.copy2(file_name, destination_file_path)
 
         # Render the Dockerfile.
-        render_file(destination_file_path, create_environment(self._site))
+        await render_file(destination_file_path, create_environment(self._site))
         copyfile(os.path.join(DOCKER_PATH, 'Dockerfile'), os.path.join(output_directory_path, 'Dockerfile'))

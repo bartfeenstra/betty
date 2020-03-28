@@ -9,6 +9,7 @@ from parameterized import parameterized
 
 from betty.ancestry import Event, Ancestry, PersonName
 from betty.config import Configuration
+from betty.functools import sync
 from betty.parse import parse
 from betty.plugin.gramps import extract_xml_file, parse_xml_file, Gramps
 from betty.site import Site
@@ -312,15 +313,16 @@ class ParseXmlFileTestCase(TestCase):
 
 
 class GrampsTest(TestCase):
-    def test_parse_event(self):
+    @sync
+    async def test_parse_event(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
             configuration.plugins[Gramps] = {
                 'file': join(dirname(abspath(__file__)), 'resources', 'minimal.gpkg')
             }
-            site = Site(configuration)
-            parse(site)
+            async with Site(configuration) as site:
+                await parse(site)
             self.assertEquals(
                 'Dough', site.ancestry.people['I0000'].name.affiliation)
             self.assertEquals(

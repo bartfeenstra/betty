@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import AsyncIterable, Dict
 
 from jinja2 import Environment
 
@@ -6,9 +6,9 @@ from betty.ancestry import Person, Place, File
 from betty.site import Site
 
 
-def index(site: Site, environment: Environment) -> Iterable:
-    def render_person_result(person: Person):
-        return environment.get_template('search/result-person.html.j2').render({
+async def index(site: Site, environment: Environment) -> AsyncIterable[Dict]:
+    async def render_person_result(person: Person):
+        return await environment.get_template('search/result-person.html.j2').render_async({
             'person': person,
         })
 
@@ -24,22 +24,22 @@ def index(site: Site, environment: Environment) -> Iterable:
         if names:
             yield {
                 'text': ' '.join(names),
-                'result': render_person_result(person),
+                'result': await render_person_result(person),
             }
 
-    def render_place_result(place: Place):
-        return environment.get_template('search/result-place.html.j2').render({
+    async def render_place_result(place: Place):
+        return await environment.get_template('search/result-place.html.j2').render_async({
             'place': place,
         })
 
     for place in site.ancestry.places.values():
         yield {
             'text': ' '.join(map(lambda x: x.name.lower(), place.names)),
-            'result': render_place_result(place),
+            'result': await render_place_result(place),
         }
 
-    def render_file_result(file: File):
-        return environment.get_template('search/result-file.html.j2').render({
+    async def render_file_result(file: File):
+        return await environment.get_template('search/result-file.html.j2').render_async({
             'file': file,
         })
 
@@ -47,5 +47,5 @@ def index(site: Site, environment: Environment) -> Iterable:
         if place.description is not None:
             yield {
                 'text': place.description.lower(),
-                'result': render_file_result(place),
+                'result': await render_file_result(place),
             }

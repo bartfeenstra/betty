@@ -31,7 +31,7 @@ secure**.
 ## Installation
 
 ### Requirements
-- **Python 3.6+**
+- **Python 3.8+**
 - Node.js 8+ (optional)
 
 ### Instructions
@@ -134,12 +134,13 @@ from betty.parse import parse
 from betty.render import render
 from betty.site import Site
 
-output_directory_path = '/var/www/betty'
-url = 'https://betty.example.com'
-configuration = Configuration(output_directory_path, url)
-with Site(configuration) as site:
-    parse(site)
-    render(site)
+async def generate():
+    output_directory_path = '/var/www/betty'
+    url = 'https://betty.example.com'
+    configuration = Configuration(output_directory_path, url)
+    async with Site(configuration) as site:
+        await parse(site)
+        await render(site)
 
 ```
 

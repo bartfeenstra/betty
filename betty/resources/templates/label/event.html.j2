@@ -21,7 +21,7 @@
 {% if ns.subjects | length == 0 -%}
     {{ formattedEvent }}
 {%- else %}
-    {% if person_context is not none and person_context in (event.presences | selectattr('role', 'equalto', PresenceRole.SUBJECT) | map(attribute='person')) %}
+    {% if person_context is not none and person_context in (event.presences | selectattr('role', 'equalto', PresenceRole.SUBJECT) | map(attribute='person') | list) %}
         {% trans event = formattedEvent, subjects = formattedSubjects -%}
             {{ event }} with {{ subjects }}
         {%- endtrans %}

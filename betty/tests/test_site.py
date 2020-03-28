@@ -4,6 +4,7 @@ from unittest import TestCase
 from betty.ancestry import Ancestry
 from betty.config import Configuration
 from betty.event import Event
+from betty.functools import sync
 from betty.graph import CyclicGraphError
 from betty.plugin import Plugin
 from betty.site import Site
@@ -20,7 +21,7 @@ class TrackablePlugin(Plugin):
             (TrackingEvent, self._track)
         ]
 
-    def _track(self, event: TrackingEvent):
+    async def _track(self, event: TrackingEvent) -> None:
         event.tracker.append(self)
 
 
@@ -85,122 +86,136 @@ class SiteTest(TestCase):
         'base_url': 'https://example.com',
     }
 
-    def test_ancestry_should_return(self):
+    @sync
+    async def test_ancestry_should_return(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        sut = Site(configuration)
-        self.assertIsInstance(sut.ancestry, Ancestry)
+        async with Site(configuration) as sut:
+            self.assertIsInstance(sut.ancestry, Ancestry)
 
-    def test_configuration_should_return(self):
+    @sync
+    async def test_configuration_should_return(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        sut = Site(configuration)
-        self.assertEquals(configuration, sut.configuration)
+        async with Site(configuration) as sut:
+            self.assertEquals(configuration, sut.configuration)
 
-    def test_with_one_plugin(self):
+    @sync
+    async def test_with_one_plugin(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.plugins[NonConfigurablePlugin] = {}
-        sut = Site(configuration)
-        self.assertEquals(1, len(sut.plugins))
-        self.assertIsInstance(
-            sut.plugins[NonConfigurablePlugin], NonConfigurablePlugin)
+        async with Site(configuration) as sut:
+            self.assertEquals(1, len(sut.plugins))
+            self.assertIsInstance(
+                sut.plugins[NonConfigurablePlugin], NonConfigurablePlugin)
 
-    def test_with_one_configurable_plugin(self):
+    @sync
+    async def test_with_one_configurable_plugin(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         check = 1337
         configuration.plugins[ConfigurablePlugin] = {
             'check': check,
         }
-        sut = Site(configuration)
-        self.assertEquals(1, len(sut.plugins))
-        self.assertIsInstance(
-            sut.plugins[ConfigurablePlugin], ConfigurablePlugin)
-        self.assertEquals(check, sut.plugins[ConfigurablePlugin].check)
+        async with Site(configuration) as sut:
+            self.assertEquals(1, len(sut.plugins))
+            self.assertIsInstance(
+                sut.plugins[ConfigurablePlugin], ConfigurablePlugin)
+            self.assertEquals(check, sut.plugins[ConfigurablePlugin].check)
 
-    def test_with_one_plugin_with_single_chained_dependency(self):
+    @sync
+    async def test_with_one_plugin_with_single_chained_dependency(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.plugins[DependsOnNonConfigurablePluginPluginPlugin] = {}
-        sut = Site(configuration)
-        event = TrackingEvent()
-        sut.event_dispatcher.dispatch(event)
-        self.assertEquals(3, len(event.tracker))
-        self.assertEquals(NonConfigurablePlugin, type(event.tracker[0]))
-        self.assertEquals(DependsOnNonConfigurablePluginPlugin,
-                          type(event.tracker[1]))
-        self.assertEquals(
-            DependsOnNonConfigurablePluginPluginPlugin, type(event.tracker[2]))
+        async with Site(configuration) as sut:
+            event = TrackingEvent()
+            await sut.event_dispatcher.dispatch(event)
+            self.assertEquals(3, len(event.tracker))
+            self.assertEquals(NonConfigurablePlugin, type(event.tracker[0]))
+            self.assertEquals(DependsOnNonConfigurablePluginPlugin,
+                              type(event.tracker[1]))
+            self.assertEquals(
+                DependsOnNonConfigurablePluginPluginPlugin, type(event.tracker[2]))
 
-    def test_with_multiple_plugins_with_duplicate_dependencies(self):
+    @sync
+    async def test_with_multiple_plugins_with_duplicate_dependencies(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.plugins[DependsOnNonConfigurablePluginPlugin] = {}
         configuration.plugins[AlsoDependsOnNonConfigurablePluginPlugin] = {}
-        sut = Site(configuration)
-        event = TrackingEvent()
-        sut.event_dispatcher.dispatch(event)
-        self.assertEquals(3, len(event.tracker))
-        self.assertEquals(NonConfigurablePlugin, type(event.tracker[0]))
-        self.assertIn(DependsOnNonConfigurablePluginPlugin, [
-            type(plugin) for plugin in event.tracker])
-        self.assertIn(AlsoDependsOnNonConfigurablePluginPlugin, [
-            type(plugin) for plugin in event.tracker])
+        async with Site(configuration) as sut:
+            event = TrackingEvent()
+            await sut.event_dispatcher.dispatch(event)
+            self.assertEquals(3, len(event.tracker))
+            self.assertEquals(NonConfigurablePlugin, type(event.tracker[0]))
+            self.assertIn(DependsOnNonConfigurablePluginPlugin, [
+                type(plugin) for plugin in event.tracker])
+            self.assertIn(AlsoDependsOnNonConfigurablePluginPlugin, [
+                type(plugin) for plugin in event.tracker])
 
-    def test_with_multiple_plugins_with_cyclic_dependencies(self):
+    @sync
+    async def test_with_multiple_plugins_with_cyclic_dependencies(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.plugins[CyclicDependencyOnePlugin] = {}
         with self.assertRaises(CyclicGraphError):
-            Site(configuration)
+            async with Site(configuration):
+                pass
 
-    def test_with_comes_before_with_other_plugin(self):
+    @sync
+    async def test_with_comes_before_with_other_plugin(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.plugins[NonConfigurablePlugin] = {}
         configuration.plugins[ComesBeforeNonConfigurablePluginPlugin] = {}
-        sut = Site(configuration)
-        event = TrackingEvent()
-        sut.event_dispatcher.dispatch(event)
-        self.assertEquals(2, len(event.tracker))
-        self.assertEquals(
-            ComesBeforeNonConfigurablePluginPlugin, type(event.tracker[0]))
-        self.assertEquals(NonConfigurablePlugin, type(event.tracker[1]))
+        async with Site(configuration) as sut:
+            event = TrackingEvent()
+            await sut.event_dispatcher.dispatch(event)
+            self.assertEquals(2, len(event.tracker))
+            self.assertEquals(
+                ComesBeforeNonConfigurablePluginPlugin, type(event.tracker[0]))
+            self.assertEquals(NonConfigurablePlugin, type(event.tracker[1]))
 
-    def test_with_comes_before_without_other_plugin(self):
+    @sync
+    async def test_with_comes_before_without_other_plugin(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.plugins[ComesBeforeNonConfigurablePluginPlugin] = {}
-        sut = Site(configuration)
-        event = TrackingEvent()
-        sut.event_dispatcher.dispatch(event)
-        self.assertEquals(1, len(event.tracker))
-        self.assertEquals(
-            ComesBeforeNonConfigurablePluginPlugin, type(event.tracker[0]))
+        async with Site(configuration) as sut:
+            event = TrackingEvent()
+            await sut.event_dispatcher.dispatch(event)
+            self.assertEquals(1, len(event.tracker))
+            self.assertEquals(
+                ComesBeforeNonConfigurablePluginPlugin, type(event.tracker[0]))
 
-    def test_with_comes_after_with_other_plugin(self):
+    @sync
+    async def test_with_comes_after_with_other_plugin(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.plugins[ComesAfterNonConfigurablePluginPlugin] = {}
         configuration.plugins[NonConfigurablePlugin] = {}
-        sut = Site(configuration)
-        event = TrackingEvent()
-        sut.event_dispatcher.dispatch(event)
-        self.assertEquals(2, len(event.tracker))
-        self.assertEquals(NonConfigurablePlugin, type(event.tracker[0]))
-        self.assertEquals(ComesAfterNonConfigurablePluginPlugin,
-                          type(event.tracker[1]))
+        async with Site(configuration) as sut:
+            event = TrackingEvent()
+            await sut.event_dispatcher.dispatch(event)
+            self.assertEquals(2, len(event.tracker))
+            self.assertEquals(NonConfigurablePlugin, type(event.tracker[0]))
+            self.assertEquals(ComesAfterNonConfigurablePluginPlugin,
+                              type(event.tracker[1]))
 
-    def test_with_comes_after_without_other_plugin(self):
+    @sync
+    async def test_with_comes_after_without_other_plugin(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.plugins[ComesAfterNonConfigurablePluginPlugin] = {}
-        sut = Site(configuration)
-        event = TrackingEvent()
-        sut.event_dispatcher.dispatch(event)
-        self.assertEquals(1, len(event.tracker))
-        self.assertEquals(ComesAfterNonConfigurablePluginPlugin,
-                          type(event.tracker[0]))
+        async with Site(configuration) as sut:
+            event = TrackingEvent()
+            await sut.event_dispatcher.dispatch(event)
+            self.assertEquals(1, len(event.tracker))
+            self.assertEquals(ComesAfterNonConfigurablePluginPlugin,
+                              type(event.tracker[0]))
 
-    def test_resources_without_resources_directory_path(self):
+    @sync
+    async def test_resources_without_resources_directory_path(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        sut = Site(configuration)
-        self.assertEquals(1, len(sut.resources.paths))
+        async with Site(configuration) as sut:
+            self.assertEquals(1, len(sut.resources.paths))
 
-    def test_resources_with_resources_directory_path(self):
+    @sync
+    async def test_resources_with_resources_directory_path(self):
         resources_directory_path = '/tmp/betty'
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.resources_directory_path = resources_directory_path
-        sut = Site(configuration)
-        self.assertEquals(2, len(sut.resources.paths))
-        self.assertEquals(resources_directory_path, sut.resources.paths[0])
+        async with Site(configuration) as sut:
+            self.assertEquals(2, len(sut.resources.paths))
+            self.assertEquals(resources_directory_path, sut.resources.paths[0])

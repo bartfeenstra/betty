@@ -34,7 +34,7 @@ class TestCommand(Command):
     def build_parser(self, add_parser: Callable):
         return add_parser('test')
 
-    def run(self, **kwargs):
+    async def run(self, **kwargs):
         raise TestCommandError
 
 

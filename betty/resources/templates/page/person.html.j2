@@ -8,7 +8,7 @@
 {% block page_content %}
     {% include 'meta/person.html.j2' %}
 
-    {% set places = person.presences | map(attribute='event.place') | reject('equalto', None) | unique | list %}
+    {% set places = person.presences | map(attribute='event.place') | reject('equalto', None) | list | unique | list %}
     {% if places | length > 0 %}
         {% with places=places %}
             {% include 'list-place.html.j2' %}
@@ -81,7 +81,7 @@
     {% set haveFiles = haveFiles + events %}
     {% set haveFiles = haveFiles + events | map(attribute='citations') | flatten | list %}
     {% set haveFiles = haveFiles + events | map(attribute='citations') | flatten | map(attribute='source') | list %}
-    {% set files = haveFiles | map(attribute='files') | flatten | unique | list %}
+    {% set files = haveFiles | map(attribute='files') | flatten | list | unique | list %}
     {% if files | length > 0 %}
         <h2>{% trans %}Media{% endtrans %}</h2>
         {% include 'list-file.html.j2' %}

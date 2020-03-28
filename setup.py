@@ -35,6 +35,7 @@ SETUP = {
         'Topic :: Software Development :: Code Generators',
     ],
     'install_requires': [
+        'aiohttp ~= 3.6.2',
         'babel ~= 2.7.0',
         'geopy ~= 1.18.1',
         'jinja2 ~= 2.10',
@@ -44,11 +45,11 @@ SETUP = {
         'markupsafe ~= 1.1.1',
         'python-resize-image ~= 1.1.18',
         'pyyaml ~= 5.1.2',
-        'requests ~= 2.22.0',
         'voluptuous ~= 0.11.7',
     ],
     'extras_require': {
         'development': [
+            'aioresponses ~= 0.6.3',
             'autopep8 ~= 1.4.3',
             'codecov ~= 2.0.15',
             'coverage ~= 4.5',
@@ -57,7 +58,6 @@ SETUP = {
             'nose2 ~= 0.8',
             'parameterized ~= 0.6',
             'recommonmark ~= 0.4.0',
-            'requests-mock ~= 1.6.0',
             'twine ~= 1.9.1',
             'wheel ~= 0.30.0',
         ],
