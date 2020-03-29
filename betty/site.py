@@ -1,6 +1,10 @@
 import gettext
 from collections import defaultdict, OrderedDict
-from contextlib import AsyncExitStack
+
+try:
+    from contextlib import AsyncExitStack
+except ImportError:
+    from async_exit_stack import AsyncExitStack
 from copy import copy
 from os.path import abspath, dirname, join
 from typing import Type, Dict

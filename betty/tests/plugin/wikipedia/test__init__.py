@@ -3,6 +3,10 @@ from time import sleep
 from typing import Tuple, Optional
 from unittest import TestCase
 from unittest.mock import patch, call
+try:
+    from unittest.mock import AsyncMock
+except ImportError:
+    from mock.mock import AsyncMock
 
 import aiohttp
 from aioresponses import aioresponses
@@ -389,7 +393,7 @@ class PopulatorTest(TestCase):
                     await sut.populate(ancestry, site)
         self.assertSetEqual({link}, resource.links)
 
-    @patch('betty.plugin.wikipedia.Retriever', spec=Retriever)
+    @patch('betty.plugin.wikipedia.Retriever', spec=Retriever, new_callable=AsyncMock)
     @sync
     async def test_populate_should_populate_existing_link(self, m_retriever) -> None:
         sut = Populator(m_retriever)
@@ -421,7 +425,7 @@ class PopulatorTest(TestCase):
         self.assertIsNotNone(link.description)
         self.assertEqual('external', link.relationship)
 
-    @patch('betty.plugin.wikipedia.Retriever', spec=Retriever)
+    @patch('betty.plugin.wikipedia.Retriever', spec=Retriever, new_callable=AsyncMock)
     @sync
     async def test_populate_should_add_translation_links(self, m_retriever) -> None:
         sut = Populator(m_retriever)

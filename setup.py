@@ -34,8 +34,10 @@ SETUP = {
         'Topic :: Sociology :: Genealogy',
         'Topic :: Software Development :: Code Generators',
     ],
+    'python_requires': '~= 3.6',
     'install_requires': [
         'aiohttp ~= 3.6.2',
+        'async-exit-stack ~= 1.0.0; python_version <= "3.6"',
         'babel ~= 2.7.0',
         'geopy ~= 1.18.1',
         'jinja2 ~= 2.10',
@@ -55,6 +57,7 @@ SETUP = {
             'coverage ~= 4.5',
             'flake8 ~= 3.7.0',
             'html5lib ~= 1.0.1',
+            'mock ~= 4.0.0; python_version <= "3.7"',
             'nose2 ~= 0.8',
             'parameterized ~= 0.6',
             'recommonmark ~= 0.4.0',
