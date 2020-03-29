@@ -12,7 +12,7 @@ from betty.plugin.cleaner import Cleaner
 
 
 class DerivedEvent(Event):
-    pass
+    pass  # pragma: no cover
 
 
 class Deriver(Plugin):

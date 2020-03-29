@@ -1,5 +1,6 @@
 import hashlib
 import shutil
+from contextlib import suppress
 from os import path
 from os.path import dirname
 from subprocess import check_call
@@ -37,10 +38,8 @@ class Maps(Plugin, HtmlProvider):
         plugin_build_directory_path = path.join(
             build_directory_path, self.name())
         with DirectoryBackup(plugin_build_directory_path, 'node_modules'):
-            try:
+            with suppress(FileNotFoundError):
                 shutil.rmtree(plugin_build_directory_path)
-            except FileNotFoundError:
-                pass
             shutil.copytree(path.join(self.resource_directory_path, 'js'),
                             plugin_build_directory_path)
         await render_tree(plugin_build_directory_path, environment)

@@ -6,11 +6,11 @@ Graph = Dict[Vertex, Set[Vertex]]
 
 
 class GraphError(BaseException):
-    pass
+    pass  # pragma: no cover
 
 
 class CyclicGraphError(GraphError):
-    pass
+    pass  # pragma: no cover
 
 
 def tsort(graph: Graph) -> Iterable[Vertex]:
