@@ -342,7 +342,8 @@ def _filter_image(site: Site, file: File, width: Optional[int] = None, height: O
 
         try:
             os.link(cache_file_path, output_file_path)
-        except FileExistsError: pass
+        except FileExistsError:
+            pass
         except FileNotFoundError:
             if exists(output_file_path):
                 return destination_path

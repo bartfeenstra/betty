@@ -32,7 +32,8 @@ class AssertExit:
         return True
 
 
-class TestCommandError(BaseException): pass
+class TestCommandError(BaseException):
+    pass
 
 
 class TestCommand(Command):

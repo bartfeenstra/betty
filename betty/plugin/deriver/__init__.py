@@ -11,7 +11,8 @@ from betty.plugin import Plugin
 from betty.plugin.cleaner import Cleaner
 
 
-class DerivedEvent(Event): pass
+class DerivedEvent(Event):
+    pass  # pragma: no cover
 
 
 class Deriver(Plugin):

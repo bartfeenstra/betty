@@ -5,9 +5,11 @@ from betty.site import Site
 
 
 class Plugin:
-    async def __aenter__(self): pass
+    async def __aenter__(self):
+        pass  # pragma: no cover
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb): pass
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        pass  # pragma: no cover
 
     @classmethod
     def name(cls) -> str:

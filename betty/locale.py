@@ -17,7 +17,8 @@ class Localized:
         self.locale = locale
 
 
-class IncompleteDateError(ValueError): pass
+class IncompleteDateError(ValueError):
+    pass  # pragma: no cover
 
 
 @total_ordering

@@ -8,11 +8,13 @@ from betty.media_type import EXTENSIONS
 
 
 class LocalizedUrlGenerator:
-    def generate(self, resource: Any, media_type: str, absolute: bool = False, locale: Optional[str] = None) -> str: raise NotImplementedError
+    def generate(self, resource: Any, media_type: str, absolute: bool = False, locale: Optional[str] = None) -> str:
+        raise NotImplementedError
 
 
 class StaticUrlGenerator:
-    def generate(self, resource: Any, absolute: bool = False, ) -> str: raise NotImplementedError
+    def generate(self, resource: Any, absolute: bool = False, ) -> str:
+        raise NotImplementedError
 
 
 class LocalizedPathUrlGenerator(LocalizedUrlGenerator):

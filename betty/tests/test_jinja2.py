@@ -161,7 +161,8 @@ class ImageTest(TestCase):
                     exists(join(configuration.www_directory_path, file_path[1:])))
 
 
-class TestPlugin(Plugin): pass
+class TestPlugin(Plugin):
+    pass
 
 
 class PluginsTest(TestCase):

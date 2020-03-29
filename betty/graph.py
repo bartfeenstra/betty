@@ -5,10 +5,12 @@ Edge = Tuple[Vertex, Vertex]
 Graph = Dict[Vertex, Set[Vertex]]
 
 
-class GraphError(BaseException): pass
+class GraphError(BaseException):
+    pass  # pragma: no cover
 
 
-class CyclicGraphError(GraphError): pass
+class CyclicGraphError(GraphError):
+    pass  # pragma: no cover
 
 
 def tsort(graph: Graph) -> Iterable[Vertex]:

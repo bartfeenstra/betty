@@ -178,7 +178,8 @@ ConfigurationSchema = Schema({
 })
 
 
-class ConfigurationError(ExternalContextError): pass
+class ConfigurationError(ExternalContextError):
+    pass  # pragma: no cover
 
 
 def validate_configuration(schema: Schema, configuration: Any) -> Any:

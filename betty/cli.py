@@ -14,14 +14,17 @@ from betty.site import Site
 
 
 class Command:
-    def build_parser(self, add_parser: Callable): raise NotImplementedError
+    def build_parser(self, add_parser: Callable):
+        raise NotImplementedError
 
-    async def run(self, **kwargs): raise NotImplementedError
+    async def run(self, **kwargs):
+        raise NotImplementedError
 
 
 class CommandProvider:
     @property
-    def commands(self) -> List[Command]: raise NotImplementedError
+    def commands(self) -> List[Command]:
+        raise NotImplementedError
 
 
 class GenerateCommand(Command):

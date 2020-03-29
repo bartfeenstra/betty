@@ -17,7 +17,8 @@ from betty.openapi import build_specification
 from betty.site import Site
 
 
-class PostRenderEvent(Event): pass
+class PostRenderEvent(Event):
+    pass  # pragma: no cover
 
 
 async def render(site: Site) -> None:
