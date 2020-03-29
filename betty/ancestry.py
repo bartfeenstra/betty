@@ -84,11 +84,9 @@ class _to_many:
         ))
         return cls
 
-    def _create_addition_handler(self, decorated_self):
-        raise NotImplementedError
+    def _create_addition_handler(self, decorated_self): raise NotImplementedError
 
-    def _create_removal_handler(self, decorated_self):
-        raise NotImplementedError
+    def _create_removal_handler(self, decorated_self): raise NotImplementedError
 
 
 class many_to_many(_to_many):
@@ -148,8 +146,7 @@ def many_to_one(self_name: str, associated_name: str, _removal_handler: Optional
 
 class Resource:
     @property
-    def resource_type_name(self) -> str:
-        raise NotImplementedError
+    def resource_type_name(self) -> str: raise NotImplementedError
 
 
 class HasPrivacy:

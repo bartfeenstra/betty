@@ -25,8 +25,7 @@ class TrackablePlugin(Plugin):
         event.tracker.append(self)
 
 
-class NonConfigurablePlugin(TrackablePlugin):
-    pass
+class NonConfigurablePlugin(TrackablePlugin): pass
 
 
 class ConfigurablePlugin(Plugin):
@@ -154,8 +153,7 @@ class SiteTest(TestCase):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.plugins[CyclicDependencyOnePlugin] = {}
         with self.assertRaises(CyclicGraphError):
-            async with Site(configuration):
-                pass
+            async with Site(configuration): pass
 
     @sync
     async def test_with_comes_before_with_other_plugin(self):

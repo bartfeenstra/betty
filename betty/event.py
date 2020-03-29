@@ -2,8 +2,7 @@ from collections import defaultdict
 from typing import Callable, Type
 
 
-class Event:
-    pass
+class Event: pass
 
 
 class EventDispatcher:

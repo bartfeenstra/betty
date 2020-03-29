@@ -1,5 +1,6 @@
 import argparse
 import logging
+from contextlib import suppress
 from os import getcwd
 from os.path import join
 from typing import Callable, Optional, List
@@ -13,17 +14,14 @@ from betty.site import Site
 
 
 class Command:
-    def build_parser(self, add_parser: Callable):
-        raise NotImplementedError
+    def build_parser(self, add_parser: Callable): raise NotImplementedError
 
-    async def run(self, **kwargs):
-        raise NotImplementedError
+    async def run(self, **kwargs): raise NotImplementedError
 
 
 class CommandProvider:
     @property
-    def commands(self) -> List[Command]:
-        raise NotImplementedError
+    def commands(self) -> List[Command]: raise NotImplementedError
 
 
 class GenerateCommand(Command):
@@ -62,11 +60,9 @@ def build_commands_parser(commands):
 def get_configuration(config_file_path: Optional[str]) -> Optional[Configuration]:
     if config_file_path is None:
         config_file_path = join(getcwd(), 'betty.json')
-    try:
+    with suppress(FileNotFoundError):
         with open(config_file_path) as f:
             return from_file(f)
-    except FileNotFoundError:
-        pass
 
 
 def main(args=None):

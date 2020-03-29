@@ -23,16 +23,13 @@ from betty.plugin import Plugin
 from betty.site import Site
 
 
-class WikipediaError(BaseException):
-    pass
+class WikipediaError(BaseException): pass
 
 
-class NotAnEntryError(WikipediaError, ValueError):
-    pass
+class NotAnEntryError(WikipediaError, ValueError): pass
 
 
-class RetrievalError(WikipediaError, RuntimeError):
-    pass
+class RetrievalError(WikipediaError, RuntimeError): pass
 
 
 _URL_PATTERN = re.compile(r'^https?://([a-z]+)\.wikipedia\.org/wiki/([^/?#]+).*$')

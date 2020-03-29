@@ -178,8 +178,7 @@ ConfigurationSchema = Schema({
 })
 
 
-class ConfigurationError(ExternalContextError):
-    pass
+class ConfigurationError(ExternalContextError): pass
 
 
 def validate_configuration(schema: Schema, configuration: Any) -> Any:

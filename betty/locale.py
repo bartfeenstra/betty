@@ -2,6 +2,7 @@ import calendar
 import datetime
 import gettext
 import os
+from contextlib import suppress
 from functools import total_ordering
 from typing import Optional, Tuple, Union, List
 
@@ -16,8 +17,7 @@ class Localized:
         self.locale = locale
 
 
-class IncompleteDateError(ValueError):
-    pass
+class IncompleteDateError(ValueError): pass
 
 
 @total_ordering
@@ -199,11 +199,9 @@ class Translations(gettext.NullTranslations):
     def uninstall(self):
         import builtins
         for key in self._KEYS:
-            try:
+            # The function may not have been installed.
+            with suppress(KeyError):
                 del builtins.__dict__[key]
-            except KeyError:
-                # The function may not have been installed.
-                pass
         builtins.__dict__.update(self._previous_context)
 
 

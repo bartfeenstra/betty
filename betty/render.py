@@ -1,5 +1,6 @@
 import logging
 import os
+from contextlib import suppress
 from json import dump
 from os import chmod
 from os.path import join
@@ -16,8 +17,7 @@ from betty.openapi import build_specification
 from betty.site import Site
 
 
-class PostRenderEvent(Event):
-    pass
+class PostRenderEvent(Event): pass
 
 
 async def render(site: Site) -> None:
@@ -102,7 +102,7 @@ async def _render_entity_type(www_directory_path: str, entities: Iterable[Any], 
 async def _render_entity_type_list_html(www_directory_path: str, entities: Iterable[Any], entity_type_name: str,
                                         environment: Environment) -> None:
     entity_type_path = os.path.join(www_directory_path, entity_type_name)
-    try:
+    with suppress(TemplateNotFound):
         template = environment.get_template(
             'page/list-%s.html.j2' % entity_type_name)
         with _create_html_resource(entity_type_path) as f:
@@ -111,8 +111,6 @@ async def _render_entity_type_list_html(www_directory_path: str, entities: Itera
                 'entity_type_name': entity_type_name,
                 'entities': entities,
             }))
-    except TemplateNotFound:
-        pass
 
 
 def _render_entity_type_list_json(www_directory_path: str, entities: Iterable[Any], entity_type_name: str, site: Site) -> None:

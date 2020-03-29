@@ -1,3 +1,4 @@
+from contextlib import suppress
 from typing import Any, Type, Optional
 
 from betty.ancestry import Person, File, Place, Identifiable, PersonName, IdentifiableSource, IdentifiableEvent, \
@@ -7,13 +8,11 @@ from betty.media_type import EXTENSIONS
 
 
 class LocalizedUrlGenerator:
-    def generate(self, resource: Any, media_type: str, absolute: bool = False, locale: Optional[str] = None) -> str:
-        raise NotImplementedError
+    def generate(self, resource: Any, media_type: str, absolute: bool = False, locale: Optional[str] = None) -> str: raise NotImplementedError
 
 
 class StaticUrlGenerator:
-    def generate(self, resource: Any, absolute: bool = False, ) -> str:
-        raise NotImplementedError
+    def generate(self, resource: Any, absolute: bool = False, ) -> str: raise NotImplementedError
 
 
 class LocalizedPathUrlGenerator(LocalizedUrlGenerator):
@@ -76,10 +75,8 @@ class SiteUrlGenerator(LocalizedUrlGenerator):
 
     def generate(self, resource: Any, *args, **kwargs) -> str:
         for generator in self._generators:
-            try:
+            with suppress(ValueError):
                 return generator.generate(resource, *args, **kwargs)
-            except ValueError:
-                pass
         raise ValueError('No URL generator found for %s.' % (
             resource if isinstance(resource, str) else type(resource)))
 
