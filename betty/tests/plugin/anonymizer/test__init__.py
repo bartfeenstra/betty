@@ -6,6 +6,7 @@ from unittest.mock import patch, ANY
 from betty.ancestry import Ancestry, Person, File, Source, Citation, PersonName, Presence, Event, IdentifiableEvent, \
     IdentifiableSource, IdentifiableCitation
 from betty.config import Configuration
+from betty.functools import sync
 from betty.parse import parse
 from betty.plugin.anonymizer import Anonymizer, anonymize, anonymize_person, anonymize_event, anonymize_file, \
     anonymize_citation, anonymize_source, AnonymousSource, AnonymousCitation
@@ -277,15 +278,16 @@ class AnonymizeCitationTest(TestCase):
 
 
 class AnonymizerTest(TestCase):
-    def test_post_parse(self) -> None:
+    @sync
+    async def test_post_parse(self) -> None:
+        person = Person('P0')
+        person.private = True
+        person.names.append(PersonName('Jane', 'Dough'))
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
             configuration.plugins[Anonymizer] = {}
-            site = Site(configuration)
-            person = Person('P0')
-            person.private = True
-            person.names.append(PersonName('Jane', 'Dough'))
-            site.ancestry.people[person.id] = person
-            parse(site)
-            self.assertEquals(0, len(person.names))
+            async with Site(configuration) as site:
+                site.ancestry.people[person.id] = person
+                await parse(site)
+        self.assertEquals(0, len(person.names))

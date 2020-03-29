@@ -3,20 +3,22 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 from betty.config import Configuration
+from betty.functools import sync
 from betty.plugin.trees import Trees
 from betty.render import render
 from betty.site import Site
 
 
 class TreeTest(TestCase):
-    def test_post_render_event(self):
+    @sync
+    async def test_post_render_event(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://ancestry.example.com')
             configuration.mode = 'development'
             configuration.plugins[Trees] = {}
-            site = Site(configuration)
-            render(site)
+            async with Site(configuration) as site:
+                await render(site)
             with open(join(configuration.www_directory_path, 'trees.js')) as f:
                 betty_js = f.read()
             self.assertIn('trees.js', betty_js)

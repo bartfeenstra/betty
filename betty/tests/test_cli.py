@@ -5,8 +5,14 @@ from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import List, Callable
 from unittest import TestCase
 from unittest.mock import patch
+try:
+    from unittest.mock import AsyncMock
+except ImportError:
+    from mock.mock import AsyncMock
 
-from betty.cli import main, CommandProvider, Command
+from betty.functools import sync
+
+from betty.cli import main, CommandProvider, Command, _main_async
 from betty.plugin import Plugin
 from betty.site import Site
 
@@ -34,7 +40,7 @@ class TestCommand(Command):
     def build_parser(self, add_parser: Callable):
         return add_parser('test')
 
-    def run(self, **kwargs):
+    async def run(self, **kwargs):
         raise TestCommandError
 
 
@@ -131,9 +137,10 @@ class GenerateCommandTest(TestCase):
     def assertExit(self, *args):
         return AssertExit(self, *args)
 
-    @patch('betty.render.render')
-    @patch('betty.parse.parse')
-    def test_run(self, parse, render):
+    @patch('betty.render.render', new_callable=AsyncMock)
+    @patch('betty.parse.parse', new_callable=AsyncMock)
+    @sync
+    async def test_run(self, m_parse, m_render):
         with NamedTemporaryFile(mode='w', suffix='.json') as config_file:
             with TemporaryDirectory() as output_directory_path:
                 url = 'https://example.com'
@@ -145,16 +152,16 @@ class GenerateCommandTest(TestCase):
                 config_file.seek(0)
 
                 with self.assertExit(0):
-                    main(['--config', config_file.name, 'generate'])
+                    await _main_async(['--config', config_file.name, 'generate'])
 
-                self.assertEquals(1, parse.call_count)
-                parse_args, parse_kwargs = parse.call_args
+                m_parse.assert_called_once()
+                parse_args, parse_kwargs = m_parse.await_args
                 self.assertEquals(1, len(parse_args))
                 self.assertIsInstance(parse_args[0], Site)
                 self.assertEquals({}, parse_kwargs)
 
-                self.assertEquals(1, render.call_count)
-                render_args, render_kwargs = render.call_args
+                m_render.assert_called_once()
+                render_args, render_kwargs = m_render.call_args
                 self.assertEquals(1, len(render_args))
                 self.assertIsInstance(render_args[0], Site)
                 self.assertEquals({}, render_kwargs)

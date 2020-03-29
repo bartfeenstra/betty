@@ -13,9 +13,9 @@ class EventDispatcher:
     def add_listener(self, event_type: Type[Event], listener: Callable):
         self._listeners[event_type].append(listener)
 
-    def dispatch(self, event: Event):
+    async def dispatch(self, event: Event):
         event_type = type(event)
         if event_type not in self._listeners:
             return
         for listener in self._listeners[event_type]:
-            listener(event)
+            await listener(event)

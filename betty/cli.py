@@ -7,6 +7,7 @@ from typing import Callable, Optional, List
 from betty import parse, render
 from betty.config import from_file, Configuration
 from betty.error import ExternalContextError
+from betty.functools import sync
 from betty.logging import CliHandler
 from betty.site import Site
 
@@ -15,7 +16,7 @@ class Command:
     def build_parser(self, add_parser: Callable):
         raise NotImplementedError
 
-    def run(self, **kwargs):
+    async def run(self, **kwargs):
         raise NotImplementedError
 
 
@@ -32,9 +33,9 @@ class GenerateCommand(Command):
     def build_parser(self, add_parser: Callable):
         return add_parser('generate', description='Generate a static site.')
 
-    def run(self):
-        parse.parse(self._site)
-        render.render(self._site)
+    async def run(self):
+        await parse.parse(self._site)
+        await render.render(self._site)
 
 
 def build_betty_parser():
@@ -54,7 +55,7 @@ def build_commands_parser(commands):
     subparsers = parser.add_subparsers()
     for command in commands:
         command_parser = command.build_parser(subparsers.add_parser)
-        command_parser.set_defaults(_betty_command_callback=command.run)
+        command_parser.set_defaults(_betty_command=command)
     return parser
 
 
@@ -69,6 +70,10 @@ def get_configuration(config_file_path: Optional[str]) -> Optional[Configuration
 
 
 def main(args=None):
+    sync(_main_async(args))
+
+
+async def _main_async(args):
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
     logger.addHandler(CliHandler())
@@ -80,7 +85,7 @@ def main(args=None):
         if configuration:
             if configuration.mode == 'development':
                 logger.setLevel(logging.DEBUG)
-            with Site(configuration) as site:
+            async with Site(configuration) as site:
                 commands = [GenerateCommand(site)]
                 for plugin in site.plugins.values():
                     if isinstance(plugin, CommandProvider):
@@ -92,12 +97,12 @@ def main(args=None):
                     commands_parser.exit()
                 commands_parsed_args = vars(
                     commands_parser.parse_args(betty_parsed_args['...']))
-                if '_betty_command_callback' not in commands_parsed_args:
+                if '_betty_command' not in commands_parsed_args:
                     commands_parser.print_usage()
                     commands_parser.exit(2)
-                callback = commands_parsed_args['_betty_command_callback']
-                del commands_parsed_args['_betty_command_callback']
-                callback(**commands_parsed_args)
+                command = commands_parsed_args['_betty_command']
+                del commands_parsed_args['_betty_command']
+                await command.run(**commands_parsed_args)
             commands_parser.exit()
 
         betty_parser.print_help()

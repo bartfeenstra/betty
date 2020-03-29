@@ -7,6 +7,7 @@ from parameterized import parameterized
 
 from betty.ancestry import File, LocalizedName
 from betty.config import Configuration, LocaleConfiguration
+from betty.functools import sync
 from betty.jinja2 import create_environment
 from betty.locale import Date
 from betty.plugin import Plugin
@@ -203,16 +204,16 @@ class PluginsTest(TestCase):
 
 
 class FormatDateTest(TestCase):
-    def test(self):
+    @sync
+    async def test(self):
         with TemporaryDirectory() as www_directory_path:
             configuration = Configuration(
                 www_directory_path, 'https://example.com')
-            with Site(configuration) as site:
+            async with Site(configuration) as site:
                 environment = create_environment(site)
                 template = '{{ date | format_date }}'
                 date = Date(1970, 1, 1)
-                self.assertEquals(
-                    'January 1, 1970', environment.from_string(template).render(date=date))
+                self.assertEquals('January 1, 1970', await environment.from_string(template).render_async(date=date))
 
 
 class SortLocalizedsTest(TestCase):
@@ -243,8 +244,7 @@ class SortLocalizedsTest(TestCase):
                     LocalizedName('1', 'en-US'),
                 ]),
             ]
-            self.assertEquals('[first, second, third]', environment.from_string(
-                template).render(data=data))
+            self.assertEquals('[first, second, third]', environment.from_string(template).render(data=data))
 
     def test_with_empty_iterable(self):
         with TemporaryDirectory() as www_directory_path:
@@ -253,8 +253,7 @@ class SortLocalizedsTest(TestCase):
             environment = create_environment(Site(configuration))
             template = '{{ data | sort_localizeds(localized_attribute="names", sort_attribute="name") }}'
             data = []
-            self.assertEquals('[]', environment.from_string(
-                template).render(data=data))
+            self.assertEquals('[]', environment.from_string(template).render(data=data))
 
 
 class SelectLocalizedsTest(TestCase):
@@ -276,14 +275,14 @@ class SelectLocalizedsTest(TestCase):
             LocalizedName('Apple', 'en')
         ]),
     ])
-    def test(self, expected: str, locale: str, data):
+    @sync
+    async def test(self, expected: str, locale: str, data):
         with TemporaryDirectory() as www_directory_path:
             configuration = Configuration(
                 www_directory_path, 'https://example.com')
             configuration.locales.clear()
             configuration.locales[locale] = LocaleConfiguration(locale)
-            with Site(configuration) as site:
+            async with Site(configuration) as site:
                 environment = create_environment(site)
                 template = '{{ data | select_localizeds | map(attribute="name") | join(", ") }}'
-                self.assertEquals(expected, environment.from_string(
-                    template).render(data=data))
+                self.assertEquals(expected, await environment.from_string(template).render_async(data=data))

@@ -11,6 +11,7 @@ from betty import json
 from betty.ancestry import Person, Event, Place, Source, LocalizedName, File, IdentifiableEvent, IdentifiableCitation, \
     IdentifiableSource
 from betty.config import Configuration, LocaleConfiguration
+from betty.functools import sync
 from betty.render import render
 from betty.site import Site
 
@@ -48,76 +49,88 @@ class RenderTest(RenderTestCase):
             self._outputDirectory.name, 'https://ancestry.example.com')
         self.site = Site(configuration)
 
-    def test_front_page(self):
-        render(self.site)
+    @sync
+    async def test_front_page(self):
+        await render(self.site)
         self.assert_betty_html('/index.html')
 
-    def test_files(self):
-        render(self.site)
+    @sync
+    async def test_files(self):
+        await render(self.site)
         self.assert_betty_html('/file/index.html')
         self.assert_betty_json('/file/index.json', 'fileCollection')
 
-    def test_file(self):
+    @sync
+    async def test_file(self):
         with NamedTemporaryFile() as f:
             file = File('PLACE1', f.name)
             self.site.ancestry.files[file.id] = file
-            render(self.site)
+            await render(self.site)
             self.assert_betty_html('/file/%s/index.html' % file.id)
             self.assert_betty_json('/file/%s/index.json' % file.id, 'file')
 
-    def test_places(self):
-        render(self.site)
+    @sync
+    async def test_places(self):
+        await render(self.site)
         self.assert_betty_html('/place/index.html')
         self.assert_betty_json('/place/index.json', 'placeCollection')
 
-    def test_place(self):
+    @sync
+    async def test_place(self):
         place = Place('PLACE1', [LocalizedName('one')])
         self.site.ancestry.places[place.id] = place
-        render(self.site)
+        await render(self.site)
         self.assert_betty_html('/place/%s/index.html' % place.id)
         self.assert_betty_json('/place/%s/index.json' % place.id, 'place')
 
-    def test_people(self):
-        render(self.site)
+    @sync
+    async def test_people(self):
+        await render(self.site)
         self.assert_betty_html('/person/index.html')
         self.assert_betty_json('/person/index.json', 'personCollection')
 
-    def test_person(self):
+    @sync
+    async def test_person(self):
         person = Person('PERSON1')
         self.site.ancestry.people[person.id] = person
-        render(self.site)
+        await render(self.site)
         self.assert_betty_html('/person/%s/index.html' % person.id)
         self.assert_betty_json('/person/%s/index.json' % person.id, 'person')
 
-    def test_events(self):
-        render(self.site)
+    @sync
+    async def test_events(self):
+        await render(self.site)
         self.assert_betty_html('/event/index.html')
         self.assert_betty_json('/event/index.json', 'eventCollection')
 
-    def test_event(self):
+    @sync
+    async def test_event(self):
         event = IdentifiableEvent('EVENT1', Event.Type.BIRTH)
         self.site.ancestry.events[event.id] = event
-        render(self.site)
+        await render(self.site)
         self.assert_betty_html('/event/%s/index.html' % event.id)
         self.assert_betty_json('/event/%s/index.json' % event.id, 'event')
 
-    def test_citation(self):
+    @sync
+    async def test_citation(self):
         citation = IdentifiableCitation('CITATION1', Source('A Little Birdie'))
         self.site.ancestry.citations[citation.id] = citation
-        render(self.site)
+        await render(self.site)
         self.assert_betty_html('/citation/%s/index.html' % citation.id)
         self.assert_betty_json('/citation/%s/index.json' %
                                citation.id, 'citation')
 
-    def test_sources(self):
-        render(self.site)
+    @sync
+    async def test_sources(self):
+        await render(self.site)
         self.assert_betty_html('/source/index.html')
         self.assert_betty_json('/source/index.json', 'sourceCollection')
 
-    def test_source(self):
+    @sync
+    async def test_source(self):
         source = IdentifiableSource('SOURCE1', 'A Little Birdie')
         self.site.ancestry.sources[source.id] = source
-        render(self.site)
+        await render(self.site)
         self.assert_betty_html('/source/%s/index.html' % source.id)
         self.assert_betty_json('/source/%s/index.json' % source.id, 'source')
 
@@ -132,14 +145,16 @@ class MultilingualTest(RenderTestCase):
         configuration.locales['en'] = LocaleConfiguration('en')
         self.site = Site(configuration)
 
-    def test_root_redirect(self):
-        render(self.site)
+    @sync
+    async def test_root_redirect(self):
+        await render(self.site)
         with open(self.assert_betty_html('/index.html')) as f:
             meta_redirect = '<meta http-equiv="refresh" content="0; url=/nl/index.html">'
             self.assertIn(meta_redirect, f.read())
 
-    def test_public_localized_resource(self):
-        render(self.site)
+    @sync
+    async def test_public_localized_resource(self):
+        await render(self.site)
         with open(self.assert_betty_html('/nl/index.html')) as f:
             translation_link = '<a href="/en/index.html" hreflang="en" lang="en" rel="alternate">English</a>'
             self.assertIn(translation_link, f.read())
@@ -147,10 +162,11 @@ class MultilingualTest(RenderTestCase):
             translation_link = '<a href="/nl/index.html" hreflang="nl" lang="nl" rel="alternate">Nederlands</a>'
             self.assertIn(translation_link, f.read())
 
-    def test_entity(self):
+    @sync
+    async def test_entity(self):
         person = Person('PERSON1')
         self.site.ancestry.people[person.id] = person
-        render(self.site)
+        await render(self.site)
         with open(self.assert_betty_html('/nl/person/%s/index.html' % person.id)) as f:
             translation_link = '<a href="/en/person/%s/index.html" hreflang="en" lang="en" rel="alternate">English</a>' % person.id
             self.assertIn(translation_link, f.read())
@@ -160,7 +176,8 @@ class MultilingualTest(RenderTestCase):
 
 
 class ResourceOverrideTest(RenderTestCase):
-    def test(self):
+    @sync
+    async def test(self):
         with TemporaryDirectory() as output_directory_path:
             with TemporaryDirectory() as resources_directory_path:
                 makedirs(join(resources_directory_path, 'public', 'localized'))
@@ -170,7 +187,7 @@ class ResourceOverrideTest(RenderTestCase):
                     output_directory_path, 'https://ancestry.example.com')
                 configuration.resources_directory_path = resources_directory_path
                 site = Site(configuration)
-                render(site)
+                await render(site)
                 with open(join(configuration.www_directory_path, 'index.html')) as f:
                     self.assertIn('Betty was here', f.read())
 
@@ -182,9 +199,9 @@ class SitemapRenderTest(RenderTestCase):
             self._outputDirectory.name, 'https://ancestry.example.com')
         self.site = Site(configuration)
 
-    def test_validate(self):
-
-        render(self.site)
+    @sync
+    async def test_validate(self):
+        await render(self.site)
         with open(path.join(path.dirname(__file__), 'resources', 'sitemap.xsd')) as f:
             schema_doc = etree.parse(f)
         schema = etree.XMLSchema(schema_doc)

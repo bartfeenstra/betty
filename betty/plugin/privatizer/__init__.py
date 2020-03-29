@@ -16,8 +16,11 @@ class Privatizer(Plugin):
 
     def subscribes_to(self) -> List[Tuple[Type[DispatchedEvent], Callable]]:
         return [
-            (PostParseEvent, lambda event: self.privatize(event.ancestry)),
+            (PostParseEvent, self._privatize),
         ]
+
+    async def _privatize(self, event: PostParseEvent) -> None:
+        self.privatize(event.ancestry)
 
     def privatize(self, ancestry: Ancestry) -> None:
         privatized = 0

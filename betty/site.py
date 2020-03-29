@@ -1,5 +1,10 @@
 import gettext
 from collections import defaultdict, OrderedDict
+
+try:
+    from contextlib import AsyncExitStack
+except ImportError:
+    from async_exit_stack import AsyncExitStack
 from copy import copy
 from os.path import abspath, dirname, join
 from typing import Type, Dict
@@ -15,6 +20,7 @@ from betty.url import SiteUrlGenerator, StaticPathUrlGenerator, LocalizedUrlGene
 
 class Site:
     def __init__(self, configuration: Configuration):
+        self._site_stack = []
         self._ancestry = Ancestry()
         self._configuration = configuration
         self._resources = FileSystem(
@@ -26,18 +32,31 @@ class Site:
         self._translations = defaultdict(gettext.NullTranslations)
         self._default_translations = None
         self._plugins = OrderedDict()
+        self._plugin_exit_stack = AsyncExitStack()
         self._init_plugins()
         self._init_event_listeners()
         self._init_resources()
         self._init_translations()
 
-    def __enter__(self):
+    async def __aenter__(self):
+        if not self._site_stack:
+            for plugin in self._plugins.values():
+                await self._plugin_exit_stack.enter_async_context(plugin)
+
         self._default_translations = Translations(self.translations[self.locale])
         self._default_translations.install()
+
+        self._site_stack.append(self)
+
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        self._site_stack.pop()
+
         self._default_translations.uninstall()
+
+        if not self._site_stack:
+            await self._plugin_exit_stack.aclose()
 
     @property
     def locale(self) -> str:

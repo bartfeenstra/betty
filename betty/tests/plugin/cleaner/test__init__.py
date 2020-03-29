@@ -4,22 +4,24 @@ from unittest import TestCase
 from betty.ancestry import Ancestry, Person, Event, Place, Presence, LocalizedName, IdentifiableEvent, File, \
     PersonName, IdentifiableSource, IdentifiableCitation
 from betty.config import Configuration
+from betty.functools import sync
 from betty.parse import parse
 from betty.plugin.cleaner import Cleaner, clean
 from betty.site import Site
 
 
 class CleanerTest(TestCase):
-    def test_post_parse(self) -> None:
+    @sync
+    async def test_post_parse(self) -> None:
+        event = IdentifiableEvent('E0', Event.Type.BIRTH)
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
             configuration.plugins[Cleaner] = {}
-            site = Site(configuration)
-            event = IdentifiableEvent('E0', Event.Type.BIRTH)
-            site.ancestry.events[event.id] = event
-            parse(site)
-            self.assertEquals({}, site.ancestry.events)
+            async with Site(configuration) as site:
+                site.ancestry.events[event.id] = event
+                await parse(site)
+                self.assertEquals({}, site.ancestry.events)
 
 
 class CleanTest(TestCase):

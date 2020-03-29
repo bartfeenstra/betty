@@ -3,19 +3,21 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 from betty.config import Configuration, LocaleConfiguration
+from betty.functools import sync
 from betty.plugin.nginx import Nginx
 from betty.render import render
 from betty.site import Site
 
 
 class NginxTest(TestCase):
-    def test_post_render_config(self):
+    @sync
+    async def test_post_render_config(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'http://example.com')
             configuration.plugins[Nginx] = {}
-            site = Site(configuration)
-            render(site)
+            async with Site(configuration) as site:
+                await render(site)
             expected = '''server {
 	listen 80;
 	server_name example.com;
@@ -44,14 +46,15 @@ class NginxTest(TestCase):
             with open(join(configuration.output_directory_path, 'nginx', 'nginx.conf')) as f:  # noqa: E101
                 self.assertEquals(expected, f.read())
 
-    def test_post_render_config_with_clean_urls(self):
+    @sync
+    async def test_post_render_config_with_clean_urls(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'http://example.com')
             configuration.plugins[Nginx] = {}
             configuration.clean_urls = True
-            site = Site(configuration)
-            render(site)
+            async with Site(configuration) as site:
+                await render(site)
             expected = '''server {
 	listen 80;
 	server_name example.com;
@@ -80,7 +83,8 @@ class NginxTest(TestCase):
             with open(join(configuration.output_directory_path, 'nginx', 'nginx.conf')) as f:  # noqa: E101
                 self.assertEquals(expected, f.read())
 
-    def test_post_render_config_multilingual(self):
+    @sync
+    async def test_post_render_config_multilingual(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'http://example.com')
@@ -88,8 +92,8 @@ class NginxTest(TestCase):
             configuration.locales.clear()
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
-            site = Site(configuration)
-            render(site)
+            async with Site(configuration) as site:
+                await render(site)
             expected = '''server {
 	listen 80;
 	server_name example.com;
@@ -129,7 +133,8 @@ class NginxTest(TestCase):
             with open(join(configuration.output_directory_path, 'nginx', 'nginx.conf')) as f:  # noqa: E101
                 self.assertEquals(expected, f.read())
 
-    def test_post_render_config_multilingual_with_content_negotiation(self):
+    @sync
+    async def test_post_render_config_multilingual_with_content_negotiation(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'http://example.com')
@@ -138,8 +143,8 @@ class NginxTest(TestCase):
             configuration.locales.clear()
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
-            site = Site(configuration)
-            render(site)
+            async with Site(configuration) as site:
+                await render(site)
             expected = '''server {
 	listen 80;
 	server_name example.com;
@@ -193,14 +198,15 @@ class NginxTest(TestCase):
             with open(join(configuration.output_directory_path, 'nginx', 'nginx.conf')) as f:  # noqa: E101
                 self.assertEquals(expected, f.read())
 
-    def test_post_render_config_with_content_negotiation(self):
+    @sync
+    async def test_post_render_config_with_content_negotiation(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'http://example.com')
             configuration.content_negotiation = True
             configuration.plugins[Nginx] = {}
-            site = Site(configuration)
-            render(site)
+            async with Site(configuration) as site:
+                await render(site)
             expected = '''server {
 	listen 80;
 	server_name example.com;
@@ -236,13 +242,14 @@ class NginxTest(TestCase):
             with open(join(configuration.output_directory_path, 'nginx', 'nginx.conf')) as f:  # noqa: E101
                 self.assertEquals(expected, f.read())
 
-    def test_post_render_config_with_https(self):
+    @sync
+    async def test_post_render_config_with_https(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
             configuration.plugins[Nginx] = {}
-            site = Site(configuration)
-            render(site)
+            async with Site(configuration) as site:
+                await render(site)
             expected = '''    server {
         listen 80;
         server_name example.com;

@@ -109,5 +109,8 @@ class Anonymizer(Plugin):
 
     def subscribes_to(self) -> List[Tuple[Type[DispatchedEvent], Callable]]:
         return [
-            (PostParseEvent, lambda event: anonymize(event.ancestry)),
+            (PostParseEvent, self._anonymize),
         ]
+
+    async def _anonymize(self, event: PostParseEvent) -> None:
+        anonymize(event.ancestry)
