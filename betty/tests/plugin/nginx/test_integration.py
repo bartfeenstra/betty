@@ -48,12 +48,12 @@ class NginxTest(TestCase):
 
         def __exit__(self, exc_type, exc_val, exc_tb):
             self.address = None
-            # self._cleanup_environment()
-            # self._working_directory.cleanup()
+            self._cleanup_environment()
+            self._working_directory.cleanup()
 
         def _cleanup_environment(self):
             try:
-                subprocess.check_call(['docker', 'stop', CONTAINER_NAME])
+                subprocess.check_call(['docker', 'stop', CONTAINER_NAME], stderr=subprocess.DEVNULL)
             except subprocess.CalledProcessError:
                 # Maybe the container wasn't running, and that is fine.
                 pass
