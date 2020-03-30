@@ -137,10 +137,10 @@ class GenerateCommandTest(TestCase):
     def assertExit(self, *args):
         return AssertExit(self, *args)
 
-    @patch('betty.render.render', new_callable=AsyncMock)
+    @patch('betty.generate.generate', new_callable=AsyncMock)
     @patch('betty.parse.parse', new_callable=AsyncMock)
     @sync
-    async def test_run(self, m_parse, m_render):
+    async def test_run(self, m_parse, m_generate):
         with NamedTemporaryFile(mode='w', suffix='.json') as config_file:
             with TemporaryDirectory() as output_directory_path:
                 url = 'https://example.com'
@@ -160,8 +160,8 @@ class GenerateCommandTest(TestCase):
                 self.assertIsInstance(parse_args[0], Site)
                 self.assertEquals({}, parse_kwargs)
 
-                m_render.assert_called_once()
-                render_args, render_kwargs = m_render.call_args
+                m_generate.assert_called_once()
+                render_args, render_kwargs = m_generate.call_args
                 self.assertEquals(1, len(render_args))
                 self.assertIsInstance(render_args[0], Site)
                 self.assertEquals({}, render_kwargs)
