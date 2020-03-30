@@ -36,7 +36,7 @@ class Trees(Plugin, HtmlProvider):
 
         plugin_build_directory_path = path.join(
             build_directory_path, self.name())
-        with DirectoryBackup(plugin_build_directory_path, 'node_modules'):
+        async with DirectoryBackup(plugin_build_directory_path, 'node_modules'):
             with suppress(FileNotFoundError):
                 shutil.rmtree(plugin_build_directory_path)
             shutil.copytree(path.join(self.resource_directory_path, 'js'),
@@ -51,7 +51,7 @@ class Trees(Plugin, HtmlProvider):
                    cwd=js_plugin_build_directory_path)
 
         # Run Webpack.
-        self._site.resources.copy2(path.join(self._site.configuration.www_directory_path, 'betty.css'), path.join(
+        await self._site.resources.copy2(path.join(self._site.configuration.www_directory_path, 'betty.css'), path.join(
             js_plugin_build_directory_path, 'betty.css'))
         check_call(['npm', 'run', 'webpack'],
                    cwd=js_plugin_build_directory_path)

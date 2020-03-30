@@ -22,8 +22,8 @@ class PostGenerateEvent(Event):
 
 async def generate(site: Site) -> None:
     logger = logging.getLogger()
-    site.resources.copytree(join('public', 'static'),
-                            site.configuration.www_directory_path)
+    await site.resources.copytree(join('public', 'static'),
+                                  site.configuration.www_directory_path)
     await site.renderer.render_tree(site.configuration.www_directory_path)
     for locale, locale_configuration in site.configuration.locales.items():
         async with site.with_locale(locale) as site:
@@ -34,8 +34,7 @@ async def generate(site: Site) -> None:
             else:
                 www_directory_path = site.configuration.www_directory_path
 
-            site.resources.copytree(
-                join('public', 'localized'), www_directory_path)
+            await site.resources.copytree(join('public', 'localized'), www_directory_path)
             await site.renderer.render_tree(www_directory_path)
 
             await _generate_entity_type(www_directory_path, site.ancestry.files.values(
