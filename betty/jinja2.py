@@ -13,6 +13,7 @@ from babel import Locale
 from geopy import units
 from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter
+from jinja2.asyncsupport import auto_await
 from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.runtime import Macro, resolve_or_missing, StrictUndefined
 from jinja2.utils import htmlsafe_json_dumps, Namespace as Jinja2Namespace
@@ -21,12 +22,13 @@ from resizeimage import resizeimage
 
 from betty.ancestry import File, Citation, Event, Presence, Identifiable, Resource, HasLinks
 from betty.config import Configuration
-from betty.fs import iterfiles, makedirs, hashfile, is_hidden
+from betty.fs import makedirs, hashfile, is_hidden, iterfiles
 from betty.functools import walk, asynciter
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale
 from betty.plugin import Plugin
-from betty.search import index
+from betty.render import Renderer
+from betty.search import Index
 from betty.site import Site
 
 _root_loader = FileSystemLoader('/')
@@ -183,7 +185,7 @@ def create_environment(site: Site) -> Environment:
     environment.filters['file'] = lambda *args: _filter_file(site, *args)
     environment.filters['image'] = lambda *args, **kwargs: _filter_image(
         site, *args, **kwargs)
-    environment.globals['search_index'] = lambda: index(site, environment)
+    environment.globals['search_index'] = lambda: Index(site).build()
     environment.globals['html_providers'] = list([plugin for plugin in site.plugins.values() if isinstance(plugin, HtmlProvider)])
     environment.globals['path'] = os.path
     for plugin in site.plugins.values():
@@ -193,30 +195,34 @@ def create_environment(site: Site) -> Environment:
     return environment
 
 
-async def render_tree(path: str, environment: Environment, configuration: Optional[Configuration] = None) -> None:
-    for file_source_path in iterfiles(path):
-        if file_source_path.endswith('.j2'):
-            await render_file(file_source_path, environment, configuration)
+class Jinja2Renderer(Renderer):
+    def __init__(self, environment: Environment, configuration: Configuration):
+        self._environment = environment
+        self._configuration = configuration
 
-
-async def render_file(file_source_path: str, environment: Environment, configuration: Optional[Configuration] = None) -> None:
-    file_destination_path = file_source_path[:-3]
-    data = {}
-    if configuration is not None:
-        if file_destination_path.startswith(configuration.www_directory_path) and not is_hidden(file_destination_path):
+    async def render_file(self, file_path: str) -> None:
+        if not file_path.endswith('.j2'):
+            return
+        file_destination_path = file_path[:-3]
+        data = {}
+        if file_destination_path.startswith(self._configuration.www_directory_path) and not is_hidden(file_destination_path):
             # Unix-style paths use forward slashes, so they are valid URL paths.
             resource = file_destination_path[len(
-                configuration.www_directory_path):]
-            if configuration.multilingual:
+                self._configuration.www_directory_path):]
+            if self._configuration.multilingual:
                 resource_parts = resource.lstrip('/').split('/')
-                if resource_parts[0] in map(lambda x: x.alias, configuration.locales.values()):
+                if resource_parts[0] in map(lambda x: x.alias, self._configuration.locales.values()):
                     resource = '/'.join(resource_parts[1:])
             data['page_resource'] = resource
-    template = _root_loader.load(
-        environment, file_source_path, environment.globals)
-    with open(file_destination_path, 'w') as f:
-        f.write(await template.render_async(data))
-    os.remove(file_source_path)
+        template = _root_loader.load(self._environment, file_path, self._environment.globals)
+        with open(file_destination_path, 'w') as f:
+            f.write(await template.render_async(data))
+        os.remove(file_path)
+
+    async def render_tree(self, tree_path: str) -> None:
+        await asyncio.gather(
+            *(self.render_file(file_path) for file_path in iterfiles(tree_path) if file_path.endswith('.j2')),
+        )
 
 
 async def _filter_flatten(items):
@@ -267,11 +273,7 @@ async def _filter_map(*args, **kwargs):
         seq, func = prepare_map(args, kwargs)
     if seq:
         async for item in asynciter(seq):
-            result = func(item)
-            if asyncio.iscoroutine(result):
-                yield await result
-            else:
-                yield result
+            yield await auto_await(func(item))
 
 
 @contextfilter

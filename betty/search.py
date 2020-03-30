@@ -1,20 +1,29 @@
-from typing import AsyncIterable, Dict
+import asyncio
+from typing import Dict, Iterable, Optional
 
-from jinja2 import Environment
-
-from betty.ancestry import Person, Place, File
+from betty.ancestry import Person, Place, File, Resource
 from betty.site import Site
 
 
-async def index(site: Site, environment: Environment) -> AsyncIterable[Dict]:
-    async def render_person_result(person: Person):
-        return await environment.get_template('search/result-person.html.j2').render_async({
-            'person': person,
+class Index:
+    def __init__(self, site: Site):
+        self._site = site
+
+    async def build(self) -> Iterable[Dict]:
+        return filter(None, await asyncio.gather(*[
+            *[self._build_person(person) for person in self._site.ancestry.people.values()],
+            *[self._build_place(place) for place in self._site.ancestry.places.values()],
+            *[self._build_file(file) for file in self._site.ancestry.files.values()],
+        ]))
+
+    async def _render_resource(self, resource: Resource):
+        return await self._site.jinja2_environment.get_template('search/result-%s.html.j2' % resource.resource_type_name).render_async({
+            resource.resource_type_name: resource,
         })
 
-    for person in site.ancestry.people.values():
+    async def _build_person(self, person: Person) -> Optional[Dict]:
         if person.private:
-            continue
+            return
         names = []
         for name in person.names:
             if name.individual is not None:
@@ -22,30 +31,20 @@ async def index(site: Site, environment: Environment) -> AsyncIterable[Dict]:
             if name.affiliation is not None:
                 names.append(name.affiliation.lower())
         if names:
-            yield {
+            return {
                 'text': ' '.join(names),
-                'result': await render_person_result(person),
+                'result': await self._render_resource(person),
             }
 
-    async def render_place_result(place: Place):
-        return await environment.get_template('search/result-place.html.j2').render_async({
-            'place': place,
-        })
-
-    for place in site.ancestry.places.values():
-        yield {
+    async def _build_place(self, place: Place) -> Optional[Dict]:
+        return {
             'text': ' '.join(map(lambda x: x.name.lower(), place.names)),
-            'result': await render_place_result(place),
+            'result': await self._render_resource(place),
         }
 
-    async def render_file_result(file: File):
-        return await environment.get_template('search/result-file.html.j2').render_async({
-            'file': file,
-        })
-
-    for place in site.ancestry.files.values():
-        if place.description is not None:
-            yield {
-                'text': place.description.lower(),
-                'result': await render_file_result(place),
+    async def _build_file(self, file: File) -> Optional[Dict]:
+        if file.description is not None:
+            return {
+                'text': file.description.lower(),
+                'result': await self._render_resource(file),
             }

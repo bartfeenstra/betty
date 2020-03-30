@@ -12,7 +12,7 @@
         <p>{% trans %}This person's details are unavailable to protect their privacy.{% endtrans %}</p>
     {% else %}
         {% if person.names | length > 1 %}
-            <span class="aka">{% trans names=person.alternative_names | map(_embeddedPersonNameLabel if embedded else personMacros.nameLabel) | join(', ') %}Also known as {{ names }}{% endtrans %}</span>
+            <span class="aka">{% trans names=person.alternative_names | map(_embeddedPersonNameLabel if embedded else personMacros.nameLabel) | list | join(', ') %}Also known as {{ names }}{% endtrans %}</span>
         {% endif %}
         {% if person.start or person.end %}
             <dl>

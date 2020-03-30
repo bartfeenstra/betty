@@ -5,7 +5,7 @@ from os import getcwd
 from os.path import join
 from typing import Callable, Optional, List
 
-from betty import parse, render
+from betty import generate, parse
 from betty.config import from_file, Configuration
 from betty.error import ExternalContextError
 from betty.functools import sync
@@ -36,7 +36,7 @@ class GenerateCommand(Command):
 
     async def run(self):
         await parse.parse(self._site)
-        await render.render(self._site)
+        await generate.generate(self._site)
 
 
 def build_betty_parser():

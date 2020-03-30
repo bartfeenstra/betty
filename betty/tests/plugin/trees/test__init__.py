@@ -4,8 +4,8 @@ from unittest import TestCase
 
 from betty.config import Configuration
 from betty.functools import sync
+from betty.generate import generate
 from betty.plugin.trees import Trees
-from betty.render import render
 from betty.site import Site
 
 
@@ -18,7 +18,7 @@ class TreeTest(TestCase):
             configuration.mode = 'development'
             configuration.plugins[Trees] = {}
             async with Site(configuration) as site:
-                await render(site)
+                await generate(site)
             with open(join(configuration.www_directory_path, 'trees.js')) as f:
                 betty_js = f.read()
             self.assertIn('trees.js', betty_js)

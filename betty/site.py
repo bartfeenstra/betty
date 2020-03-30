@@ -1,6 +1,11 @@
 import gettext
 from collections import defaultdict, OrderedDict
 
+from jinja2 import Environment
+
+from betty.render import Renderer, SequentialRenderer
+from betty.sass import SassRenderer
+
 try:
     from contextlib import AsyncExitStack
 except ImportError:
@@ -37,6 +42,8 @@ class Site:
         self._init_event_listeners()
         self._init_resources()
         self._init_translations()
+        self._jinja2_environment = None
+        self._renderer = None
 
     async def __aenter__(self):
         if not self._site_stack:
@@ -149,6 +156,25 @@ class Site:
     @property
     def translations(self) -> Dict[str, gettext.NullTranslations]:
         return self._translations
+
+    @property
+    def jinja2_environment(self) -> Environment:
+        if not self._jinja2_environment:
+            from betty.jinja2 import create_environment
+            self._jinja2_environment = create_environment(self)
+
+        return self._jinja2_environment
+
+    @property
+    def renderer(self) -> Renderer:
+        if not self._renderer:
+            from betty.jinja2 import Jinja2Renderer
+            self._renderer = SequentialRenderer([
+                Jinja2Renderer(self.jinja2_environment, self._configuration),
+                SassRenderer(),
+            ])
+
+        return self._renderer
 
     def with_locale(self, locale: str) -> 'Site':
         locale = negotiate_locale(locale, list(self.configuration.locales.keys()))
