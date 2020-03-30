@@ -58,7 +58,7 @@ class Nginx(Plugin):
         # Render the ngnix configuration.
         file_name = 'nginx.conf.j2'
         destination_file_path = os.path.join(output_directory_path, file_name)
-        self._site.resources.copy2(file_name, destination_file_path)
+        await self._site.resources.copy2(file_name, destination_file_path)
         await self._site.renderer.render_file(destination_file_path)
 
         # Render the Dockerfile.

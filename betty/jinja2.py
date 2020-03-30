@@ -221,7 +221,7 @@ class Jinja2Renderer(Renderer):
 
     async def render_tree(self, tree_path: str) -> None:
         await asyncio.gather(
-            *(self.render_file(file_path) for file_path in iterfiles(tree_path) if file_path.endswith('.j2')),
+            *[self.render_file(file_path) async for file_path in iterfiles(tree_path) if file_path.endswith('.j2')],
         )
 
 

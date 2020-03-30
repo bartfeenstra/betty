@@ -22,7 +22,7 @@ def walk(item, attribute_name):
         yield from walk(child, attribute_name)
 
 
-async def asynciter(items: Union[Iterable, AsyncIterable]) -> Iterable:
+async def asynciter(items: Union[Iterable, AsyncIterable]) -> AsyncIterable:
     if hasattr(items, '__aiter__'):
         async for item in items:
             yield item
