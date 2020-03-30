@@ -4,8 +4,8 @@ from unittest import TestCase
 
 from betty.config import Configuration, LocaleConfiguration
 from betty.functools import sync
+from betty.generate import generate
 from betty.plugin.nginx import Nginx
-from betty.render import render
 from betty.site import Site
 
 
@@ -17,7 +17,7 @@ class NginxTest(TestCase):
                 output_directory_path, 'http://example.com')
             configuration.plugins[Nginx] = {}
             async with Site(configuration) as site:
-                await render(site)
+                await generate(site)
             expected = '''server {
 	listen 80;
 	server_name example.com;
@@ -54,7 +54,7 @@ class NginxTest(TestCase):
             configuration.plugins[Nginx] = {}
             configuration.clean_urls = True
             async with Site(configuration) as site:
-                await render(site)
+                await generate(site)
             expected = '''server {
 	listen 80;
 	server_name example.com;
@@ -93,7 +93,7 @@ class NginxTest(TestCase):
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
             async with Site(configuration) as site:
-                await render(site)
+                await generate(site)
             expected = '''server {
 	listen 80;
 	server_name example.com;
@@ -144,7 +144,7 @@ class NginxTest(TestCase):
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
             async with Site(configuration) as site:
-                await render(site)
+                await generate(site)
             expected = '''server {
 	listen 80;
 	server_name example.com;
@@ -206,7 +206,7 @@ class NginxTest(TestCase):
             configuration.content_negotiation = True
             configuration.plugins[Nginx] = {}
             async with Site(configuration) as site:
-                await render(site)
+                await generate(site)
             expected = '''server {
 	listen 80;
 	server_name example.com;
@@ -249,7 +249,7 @@ class NginxTest(TestCase):
                 output_directory_path, 'https://example.com')
             configuration.plugins[Nginx] = {}
             async with Site(configuration) as site:
-                await render(site)
+                await generate(site)
             expected = '''    server {
         listen 80;
         server_name example.com;

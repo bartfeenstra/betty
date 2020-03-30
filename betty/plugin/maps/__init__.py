@@ -8,9 +8,9 @@ from typing import Optional, List, Tuple, Type, Callable, Dict, Iterable
 
 from betty.event import Event
 from betty.fs import DirectoryBackup
-from betty.jinja2 import HtmlProvider, create_environment, render_tree
+from betty.jinja2 import HtmlProvider
 from betty.plugin import Plugin
-from betty.render import PostRenderEvent
+from betty.generate import PostGenerateEvent
 from betty.site import Site
 
 
@@ -24,17 +24,16 @@ class Maps(Plugin, HtmlProvider):
 
     def subscribes_to(self) -> List[Tuple[Type[Event], Callable]]:
         return [
-            (PostRenderEvent, self._render),
+            (PostGenerateEvent, self._render),
         ]
 
     @property
     def resource_directory_path(self) -> Optional[str]:
         return '%s/resources' % dirname(__file__)
 
-    async def _render(self, event: PostRenderEvent) -> None:
+    async def _render(self, event: PostGenerateEvent) -> None:
         build_directory_path = path.join(self._site.configuration.cache_directory_path, self.name(), hashlib.md5(self.resource_directory_path.encode()).hexdigest())
 
-        environment = create_environment(self._site)
         plugin_build_directory_path = path.join(
             build_directory_path, self.name())
         with DirectoryBackup(plugin_build_directory_path, 'node_modules'):
@@ -42,7 +41,7 @@ class Maps(Plugin, HtmlProvider):
                 shutil.rmtree(plugin_build_directory_path)
             shutil.copytree(path.join(self.resource_directory_path, 'js'),
                             plugin_build_directory_path)
-        await render_tree(plugin_build_directory_path, environment)
+        await self._site.renderer.render_tree(plugin_build_directory_path)
 
         js_plugin_build_directory_path = path.join(
             build_directory_path, self.name())
