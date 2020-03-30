@@ -3,7 +3,7 @@ from typing import Callable, Type
 
 
 class Event:
-    pass
+    pass  # pragma: no cover
 
 
 class EventDispatcher:

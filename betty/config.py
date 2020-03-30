@@ -179,7 +179,7 @@ ConfigurationSchema = Schema({
 
 
 class ConfigurationError(ExternalContextError):
-    pass
+    pass  # pragma: no cover
 
 
 def validate_configuration(schema: Schema, configuration: Any) -> Any:

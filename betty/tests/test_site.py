@@ -26,7 +26,7 @@ class TrackablePlugin(Plugin):
 
 
 class NonConfigurablePlugin(TrackablePlugin):
-    pass
+    pass  # pragma: no cover
 
 
 class ConfigurablePlugin(Plugin):

@@ -2,6 +2,7 @@ import hashlib
 import os
 import shutil
 from collections import deque
+from contextlib import suppress
 from os import walk, path
 from os.path import join, dirname, exists, relpath, getmtime, basename
 from shutil import copy2
@@ -44,18 +45,14 @@ class FileSystem:
     def open(self, *file_paths: str):
         for file_path in file_paths:
             for fs_path in self._paths:
-                try:
+                with suppress(FileNotFoundError):
                     return open(join(fs_path, file_path))
-                except FileNotFoundError:
-                    pass
         raise FileNotFoundError
 
     def copy2(self, source_path: str, destination_path: str) -> str:
         for fs_path in self._paths:
-            try:
+            with suppress(FileNotFoundError):
                 return copy2(join(fs_path, source_path), destination_path)
-            except FileNotFoundError:
-                pass
         tried_paths = [join(fs_path, source_path) for fs_path in self._paths]
         raise FileNotFoundError('Could not find any of %s.' %
                                 ', '.join(tried_paths))
@@ -78,15 +75,11 @@ class DirectoryBackup:
 
     def __enter__(self):
         self._tmp = mkdtemp()
-        try:
+        with suppress(FileNotFoundError):
             shutil.move(path.join(self._root_path, self._backup_path), self._tmp)
-        except FileNotFoundError:
-            pass
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        try:
+        with suppress(FileNotFoundError):
             shutil.move(path.join(self._tmp, self._backup_path),
                         path.join(self._root_path, self._backup_path))
-        except FileNotFoundError:
-            pass
         shutil.rmtree(self._tmp)

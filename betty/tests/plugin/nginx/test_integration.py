@@ -1,5 +1,6 @@
 import json
 import subprocess
+from contextlib import suppress
 from os import path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
@@ -52,11 +53,9 @@ class NginxTest(TestCase):
             self._working_directory.cleanup()
 
         def _cleanup_environment(self):
-            try:
+            # Maybe the container wasn't running, and that is fine.
+            with suppress(subprocess.CalledProcessError):
                 subprocess.check_call(['docker', 'stop', CONTAINER_NAME], stderr=subprocess.DEVNULL)
-            except subprocess.CalledProcessError:
-                # Maybe the container wasn't running, and that is fine.
-                pass
 
     @classmethod
     def setUpClass(cls) -> None:

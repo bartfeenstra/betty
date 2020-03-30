@@ -2,6 +2,7 @@ import gzip
 import logging
 import re
 import tarfile
+from contextlib import suppress
 from os.path import join, dirname
 from typing import Tuple, Optional, Callable, List, Dict, Type
 
@@ -67,10 +68,8 @@ def _xpath1(element, selector: str) -> Optional:
 
 
 def extract_xml_file(gramps_file_path: str, cache_directory_path: str) -> str:
-    try:
+    with suppress(FileExistsError):
         makedirs(cache_directory_path)
-    except FileExistsError:
-        pass
     ungzipped_outer_file = gzip.open(gramps_file_path)
     xml_file_path = join(cache_directory_path, 'data.xml')
     logger = logging.getLogger()
@@ -324,11 +323,9 @@ def _parse_coordinates(element: Element) -> Optional[Point]:
     latitudeval = _xpath1(coord_element, './@lat')
     longitudeval = _xpath1(coord_element, './@long')
 
-    try:
+    # We could not parse/validate the Gramps coordinates, because they are too freeform.
+    with suppress(BaseException):
         return Point(latitudeval, longitudeval)
-    except BaseException:
-        # We could not parse/validate the Gramps coordinates, because they are too freeform.
-        pass
     return None
 
 
