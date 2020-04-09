@@ -5,9 +5,10 @@ import re
 from importlib import import_module
 from itertools import takewhile
 from os.path import join, exists
-from typing import Union, Dict, Type, Optional, Callable, Iterable
+from typing import Union, Dict, Type, Optional, Callable, Iterable, List
 from urllib.parse import urlparse
 
+import aiofiles
 from PIL import Image
 from babel import Locale
 from geopy import units
@@ -22,7 +23,7 @@ from resizeimage import resizeimage
 
 from betty.ancestry import File, Citation, Event, Presence, Identifiable, Resource, HasLinks
 from betty.config import Configuration
-from betty.fs import makedirs, hashfile, is_hidden, iterfiles
+from betty.fs import makedirs, hashfile, iterfiles
 from betty.functools import walk, asynciter
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale
@@ -149,7 +150,7 @@ def create_environment(site: Site) -> Environment:
 
     # A filter to convert any value to JSON.
     @contextfilter
-    def _filter_json(context, data, indent=None):
+    async def _filter_json(context, data, indent=None):
         return stdjson.dumps(data, indent=indent,
                              cls=JSONEncoder.get_factory(site, resolve_or_missing(context, 'locale')))
 
@@ -157,7 +158,7 @@ def create_environment(site: Site) -> Environment:
 
     # Override Jinja2's built-in JSON filter, which escapes the JSON for use in HTML, to use Betty's own encoder.
     @contextfilter
-    def _filter_tojson(context, data, indent=None):
+    async def _filter_tojson(context, data, indent=None):
         return htmlsafe_json_dumps(data, indent=indent, dumper=lambda *args, **kwargs: _filter_json(context, *args, **kwargs))
 
     environment.filters['tojson'] = _filter_tojson
@@ -167,7 +168,7 @@ def create_environment(site: Site) -> Environment:
     environment.filters['paragraphs'] = _filter_paragraphs
 
     @contextfilter
-    def _filter_format_date(context, date: Datey):
+    async def _filter_format_date(context, date: Datey):
         locale = resolve_or_missing(context, 'locale')
         return format_datey(date, locale)
     environment.filters['format_date'] = _filter_format_date
@@ -175,7 +176,7 @@ def create_environment(site: Site) -> Environment:
     environment.globals['citer'] = _Citer()
 
     @contextfilter
-    def _filter_url(context, resource, media_type=None, locale=None, **kwargs):
+    async def _filter_url(context, resource, media_type=None, locale=None, **kwargs):
         media_type = media_type if media_type else 'text/html'
         locale = locale if locale else resolve_or_missing(context, 'locale')
         return site.localized_url_generator.generate(resource, media_type, locale=locale, **kwargs)
@@ -205,7 +206,7 @@ class Jinja2Renderer(Renderer):
             return
         file_destination_path = file_path[:-3]
         data = {}
-        if file_destination_path.startswith(self._configuration.www_directory_path) and not is_hidden(file_destination_path):
+        if file_destination_path.startswith(self._configuration.www_directory_path):
             # Unix-style paths use forward slashes, so they are valid URL paths.
             resource = file_destination_path[len(
                 self._configuration.www_directory_path):]
@@ -215,7 +216,7 @@ class Jinja2Renderer(Renderer):
                     resource = '/'.join(resource_parts[1:])
             data['page_resource'] = resource
         template = _root_loader.load(self._environment, file_path, self._environment.globals)
-        with open(file_destination_path, 'w') as f:
+        async with aiofiles.open(file_destination_path, 'w') as f:
             f.write(await template.render_async(data))
         os.remove(file_path)
 
@@ -231,7 +232,7 @@ async def _filter_flatten(items):
             yield child
 
 
-def _filter_walk(item, attribute_name):
+async def _filter_walk(item, attribute_name):
     return walk(item, attribute_name)
 
 
@@ -239,7 +240,7 @@ _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
 
 
 @evalcontextfilter
-def _filter_paragraphs(eval_ctx, text: str) -> Union[str, Markup]:
+async def _filter_paragraphs(eval_ctx, text: str) -> Union[str, Markup]:
     """Converts newlines to <p> and <br> tags.
 
     Taken from http://jinja.pocoo.org/docs/2.10/api/#custom-filters."""
@@ -250,7 +251,7 @@ def _filter_paragraphs(eval_ctx, text: str) -> Union[str, Markup]:
     return result
 
 
-def _filter_format_degrees(degrees):
+async def _filter_format_degrees(degrees):
     arcminutes = units.arcminutes(degrees=degrees - int(degrees))
     arcseconds = units.arcseconds(arcminutes=arcminutes - int(arcminutes))
     format_dict = dict(
@@ -277,7 +278,7 @@ async def _filter_map(*args, **kwargs):
 
 
 @contextfilter
-def _filter_takewhile(context, seq, *args, **kwargs):
+async def _filter_takewhile(context, seq, *args, **kwargs):
     try:
         name = args[0]
         args = args[1:]
@@ -287,10 +288,10 @@ def _filter_takewhile(context, seq, *args, **kwargs):
     except LookupError:
         func = bool
     if seq:
-        yield from takewhile(func, seq)
+        return takewhile(func, seq)
 
 
-def _filter_file(site: Site, file: File) -> str:
+async def _filter_file(site: Site, file: File) -> str:
     file_directory_path = os.path.join(
         site.configuration.www_directory_path, 'file')
 
@@ -308,7 +309,7 @@ def _filter_file(site: Site, file: File) -> str:
     return destination_path
 
 
-def _filter_image(site: Site, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
+async def _filter_image(site: Site, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
     if width is None and height is None:
         raise ValueError('At least the width or height must be given.')
 
@@ -358,13 +359,13 @@ def _filter_image(site: Site, file: File, width: Optional[int] = None, height: O
 
 
 @contextfilter
-def _filter_negotiate_localizeds(context, localizeds: Iterable[Localized]):
+async def _filter_negotiate_localizeds(context, localizeds: List[Localized]):
     locale = resolve_or_missing(context, 'locale')
     return negotiate_localizeds(locale, localizeds)
 
 
 @contextfilter
-def _filter_sort_localizeds(context, localizeds: Iterable, localized_attribute: str, sort_attribute: str):
+async def _filter_sort_localizeds(context, localizeds: Iterable, localized_attribute: str, sort_attribute: str):
     locale = resolve_or_missing(context, 'locale')
     get_localized_attr = make_attrgetter(
         context.environment, localized_attribute)
@@ -377,7 +378,7 @@ def _filter_sort_localizeds(context, localizeds: Iterable, localized_attribute: 
 
 
 @contextfilter
-def _filter_select_localizeds(context, localizeds: Iterable[Localized]):
+async def _filter_select_localizeds(context, localizeds: Iterable[Localized]):
     locale = resolve_or_missing(context, 'locale')
     for localized in localizeds:
         if negotiate_locale(locale, [localized.locale]) is not None:

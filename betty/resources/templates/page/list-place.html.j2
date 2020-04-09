@@ -1,7 +1,7 @@
 {% extends 'base.html.j2' %}
 {% set page_title = _('Places') %}
 {% block page_content %}
-    {% with places=entities, canonical=True %}
+    {% with places=resources, canonical=True %}
         {% include 'list-place.html.j2' %}
     {% endwith %}
 {% endblock %}

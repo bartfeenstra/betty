@@ -1,7 +1,7 @@
 {% extends 'base.html.j2' %}
 {% set page_title = _('Events') %}
 {% block page_content %}
-    {% with events=entities %}
+    {% with events=resources %}
         {% include 'list-event.html.j2' %}
     {% endwith %}
 {% endblock %}

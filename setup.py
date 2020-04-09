@@ -36,6 +36,7 @@ SETUP = {
     ],
     'python_requires': '~= 3.6',
     'install_requires': [
+        'aiofiles ~= 0.4.0',
         'aiohttp ~= 3.6.2',
         'async-exit-stack ~= 1.0.0; python_version <= "3.6"',
         'babel ~= 2.7.0',
