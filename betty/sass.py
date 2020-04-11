@@ -1,7 +1,6 @@
 import os
 from glob import glob
 
-import aiofiles
 import sass
 
 from betty.render import Renderer
@@ -17,7 +16,6 @@ class SassRenderer(Renderer):
         os.remove(file_path)
 
     async def render_tree(self, tree_path: str) -> None:
-        return
         self._compile(dirname=(tree_path, tree_path))
         for extension in self._EXTENSIONS:
             patterns = [

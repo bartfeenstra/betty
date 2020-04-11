@@ -217,7 +217,7 @@ class Jinja2Renderer(Renderer):
             data['page_resource'] = resource
         template = _root_loader.load(self._environment, file_path, self._environment.globals)
         async with aiofiles.open(file_destination_path, 'w') as f:
-            f.write(await template.render_async(data))
+            await f.write(await template.render_async(data))
         os.remove(file_path)
 
     async def render_tree(self, tree_path: str) -> None:
@@ -240,7 +240,7 @@ _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
 
 
 @evalcontextfilter
-async def _filter_paragraphs(eval_ctx, text: str) -> Union[str, Markup]:
+def _filter_paragraphs(eval_ctx, text: str) -> Union[str, Markup]:
     """Converts newlines to <p> and <br> tags.
 
     Taken from http://jinja.pocoo.org/docs/2.10/api/#custom-filters."""
@@ -251,7 +251,7 @@ async def _filter_paragraphs(eval_ctx, text: str) -> Union[str, Markup]:
     return result
 
 
-async def _filter_format_degrees(degrees):
+def _filter_format_degrees(degrees):
     arcminutes = units.arcminutes(degrees=degrees - int(degrees))
     arcseconds = units.arcseconds(arcminutes=arcminutes - int(arcminutes))
     format_dict = dict(
@@ -291,7 +291,7 @@ async def _filter_takewhile(context, seq, *args, **kwargs):
         return takewhile(func, seq)
 
 
-async def _filter_file(site: Site, file: File) -> str:
+def _filter_file(site: Site, file: File) -> str:
     file_directory_path = os.path.join(
         site.configuration.www_directory_path, 'file')
 

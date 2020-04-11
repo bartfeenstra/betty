@@ -1,9 +1,5 @@
 import argparse
-import asyncio
-import cProfile
-import io
 import logging
-import pstats
 from contextlib import suppress
 from os import getcwd
 from os.path import join
@@ -73,15 +69,7 @@ def get_configuration(config_file_path: Optional[str]) -> Optional[Configuration
 
 
 def main(args=None):
-    with cProfile.Profile() as p:
-        try:
-            sync(_main_async(args))
-        except SystemExit:
-            pass
-    sortby = pstats.SortKey.CUMULATIVE
-    with open('/tmp/bettyprofile.txt', 'w') as f:
-        ps = pstats.Stats(p, stream=f).sort_stats(sortby)
-        ps.print_stats()
+    sync(_main_async(args))
 
 
 async def _main_async(args):

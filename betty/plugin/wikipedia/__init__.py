@@ -93,7 +93,7 @@ class Retriever:
                 async with self._session.get(url) as response:
                     response_data = await response.json()
                     async with aiofiles.open(cache_file_path, 'w') as f:
-                        f.write(await response.text())
+                        await f.write(await response.text())
             except aiohttp.ClientError as e:
                 logger.warning('Could not successfully connect to Wikipedia at %s: %s' % (url, e))
             except ValueError as e:
