@@ -19,7 +19,7 @@ class BuildSpecificationTest(TestCase):
     ])
     @sync
     async def test(self, content_negotiation: str):
-        with open(path.join(path.dirname(__file__), 'resources', 'openapi', 'schema.json')) as f:
+        with open(path.join(path.dirname(__file__), 'test_openapi_resources', 'schema.json')) as f:
             schema = stdjson.load(f)
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(

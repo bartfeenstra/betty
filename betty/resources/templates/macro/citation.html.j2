@@ -1,9 +1,9 @@
-{% macro cite(citations) %}
-    {% set ns = namespace(numberedCitations=[]) %}
-    {% for citation in citations %}
+{% macro cite(citations) -%}
+    {%- set ns = namespace(numberedCitations=[]) -%}
+    {%- for citation in citations -%}
         {% set ns.numberedCitations = ns.numberedCitations + [(citer.cite(citation), reference)] %}
-    {% endfor %}
-    {% for number, citation in ns.numberedCitations | sort(attribute=0) -%}
+    {%- endfor -%}
+    {%- for number, citation in ns.numberedCitations | sort(attribute=0) -%}
         <a href="#reference-{{ number }}" class="citation">[{{ number }}]</a>
-    {%- endfor %}
-{% endmacro %}
+    {%- endfor -%}
+{%- endmacro %}
