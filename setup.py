@@ -39,6 +39,7 @@ SETUP = {
         'aiohttp ~= 3.6.2',
         'async-exit-stack ~= 1.0.0; python_version <= "3.6"',
         'babel ~= 2.7.0',
+        'click ~= 7.1.1',
         'geopy ~= 1.18.1',
         'jinja2 ~= 2.10',
         'jsonschema ~= 3.2.0',
