@@ -1,6 +1,6 @@
 {% do citer.track() %}
 <!doctype html>
-<html lang="{{ locale }}" data-betty-search-index="{{ '/search-index.json' | url }}"
+<html lang="{{ locale }}"
       prefix="foaf: http://xmlns.com/foaf/0.1/ og: http://ogp.me/ns# rel: http://purl.org/vocab/relationship/">
 <head>
     <title>{{ page_title | striptags }} - {{ site.configuration.title }}</title>
@@ -54,7 +54,7 @@
 <body>
 <nav id="nav-primary">
     <a id="site-title" href="{{ '/index.html' | url }}" title="{{ site.configuration.title }}">{{ site.configuration.title }}</a>
-    <form id="search">
+    <form id="search" data-betty-search-index="{{ '/search-index.json' | url }}">
         <input id="search-query" type="search"/>
     </form>
     <div id="nav-sections" class="nav-primary-expandable">
