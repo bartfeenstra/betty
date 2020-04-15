@@ -1,70 +1,55 @@
 from json import dump
-from os import chdir, getcwd
-from os.path import join
+from os import path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
-from typing import List, Callable
+from typing import Callable, Dict
 from unittest import TestCase
 from unittest.mock import patch
+
+import click
+from click.testing import CliRunner
+
+import betty
+from betty import os
+from betty.plugin import Plugin
+
 try:
     from unittest.mock import AsyncMock
 except ImportError:
     from mock.mock import AsyncMock
 
-from betty.functools import sync
-
-from betty.cli import main, CommandProvider, Command, _main_async
-from betty.plugin import Plugin
+from betty.cli import main, CommandProvider, global_command
 from betty.site import Site
-
-
-class AssertExit:
-    def __init__(self, test_case: TestCase, expected_code: int):
-        self._test_case = test_case
-        self._expected_code = expected_code
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self._test_case.assertIsInstance(
-            exc_val, SystemExit, 'A system exit was expected, but it did not occur.')
-        self._test_case.assertEquals(self._expected_code, exc_val.code)
-        return True
 
 
 class TestCommandError(BaseException):
     pass
 
 
-class TestCommand(Command):
-    def build_parser(self, add_parser: Callable):
-        return add_parser('test')
-
-    async def run(self, **kwargs):
-        raise TestCommandError
-
-
 class TestPlugin(Plugin, CommandProvider):
     @property
-    def commands(self) -> List[Command]:
-        return [
-            TestCommand(),
-        ]
+    def commands(self) -> Dict[str, Callable]:
+        return {
+            'test': self._test_command,
+        }
+
+    @click.command(name='test')
+    @global_command
+    async def _test_command(self):
+        raise TestCommandError
 
 
 @patch('sys.stderr')
 @patch('sys.stdout')
 class MainTest(TestCase):
-    def assertExit(self, *args):
-        return AssertExit(self, *args)
-
     def test_without_arguments(self, _, __):
-        with self.assertExit(2):
-            main()
+        runner = CliRunner()
+        result = runner.invoke(main)
+        self.assertEqual(0, result.exit_code)
 
     def test_help_without_configuration(self, _, __):
-        with self.assertExit(0):
-            main(['--help'])
+        runner = CliRunner()
+        result = runner.invoke(main, ('--help',))
+        self.assertEqual(0, result.exit_code)
 
     def test_configuration_without_help(self, _, __):
         with NamedTemporaryFile(mode='w', suffix='.json') as config_file:
@@ -77,8 +62,9 @@ class MainTest(TestCase):
                 dump(config_dict, config_file)
                 config_file.seek(0)
 
-                with self.assertExit(2):
-                    main(['--config', config_file.name])
+                runner = CliRunner()
+                result = runner.invoke(main, ('-c', config_file.name))
+                self.assertEqual(2, result.exit_code)
 
     def test_help_with_configuration(self, _, __):
         with NamedTemporaryFile(mode='w', suffix='.json') as config_file:
@@ -94,8 +80,9 @@ class MainTest(TestCase):
                 dump(config_dict, config_file)
                 config_file.seek(0)
 
-                with self.assertExit(0):
-                    main(['--config', config_file.name, '--help'])
+                runner = CliRunner()
+                result = runner.invoke(main, ('-c', config_file.name, '--help',))
+                self.assertEqual(0, result.exit_code)
 
     def test_help_with_invalid_configuration(self, _, __):
         with NamedTemporaryFile(mode='w', suffix='.json') as config_file:
@@ -103,13 +90,14 @@ class MainTest(TestCase):
             dump(config_dict, config_file)
             config_file.seek(0)
 
-            with self.assertExit(1):
-                main(['--config', config_file.name, '--help'])
+            runner = CliRunner()
+            result = runner.invoke(main, ('-c', config_file.name, '--help',))
+            self.assertEqual(2, result.exit_code)
 
     def test_with_discovered_configuration(self, _, __):
-        with TemporaryDirectory() as cwd:
+        with TemporaryDirectory() as betty_site_path:
             with TemporaryDirectory() as output_directory_path:
-                with open(join(cwd, 'betty.json'), 'w') as config_file:
+                with open(path.join(betty_site_path, 'betty.json'), 'w') as config_file:
                     url = 'https://example.com'
                     config_dict = {
                         'output': output_directory_path,
@@ -119,28 +107,33 @@ class MainTest(TestCase):
                         },
                     }
                     dump(config_dict, config_file)
-                original_cwd = getcwd()
-                try:
-                    chdir(cwd)
-                    with self.assertExit(1):
-                        main(['test'])
-                finally:
-                    chdir(original_cwd)
-
-    @patch('argparse.ArgumentParser')
-    def test_with_keyboard_interrupt(self, parser, _, __):
-        parser.side_effect = KeyboardInterrupt
-        main()
+                with os.chdir(betty_site_path):
+                    runner = CliRunner()
+                    result = runner.invoke(main, ('test',))
+                    self.assertEqual(1, result.exit_code)
 
 
-class GenerateCommandTest(TestCase):
-    def assertExit(self, *args):
-        return AssertExit(self, *args)
+class ClearCachesTest(TestCase):
+    def test(self):
+        original_cache_directory_path = betty._CACHE_DIRECTORY_PATH
+        try:
+            with TemporaryDirectory() as cache_directory_path:
+                betty._CACHE_DIRECTORY_PATH = cache_directory_path
+                cached_file_path = path.join(cache_directory_path, 'KeepMeAroundPlease')
+                open(cached_file_path, 'w').close()
+                runner = CliRunner()
+                result = runner.invoke(main, ('clear-caches',))
+                self.assertEqual(0, result.exit_code)
+                with self.assertRaises(FileNotFoundError):
+                    open(cached_file_path)
+        finally:
+            betty._CACHE_DIRECTORY_PATH = original_cache_directory_path
 
+
+class GenerateTest(TestCase):
     @patch('betty.generate.generate', new_callable=AsyncMock)
     @patch('betty.parse.parse', new_callable=AsyncMock)
-    @sync
-    async def test_run(self, m_parse, m_generate):
+    def test(self, m_parse, m_generate):
         with NamedTemporaryFile(mode='w', suffix='.json') as config_file:
             with TemporaryDirectory() as output_directory_path:
                 url = 'https://example.com'
@@ -151,8 +144,9 @@ class GenerateCommandTest(TestCase):
                 dump(config_dict, config_file)
                 config_file.seek(0)
 
-                with self.assertExit(0):
-                    await _main_async(['--config', config_file.name, 'generate'])
+                runner = CliRunner()
+                result = runner.invoke(main, ('-c', config_file.name, 'generate',))
+                self.assertEqual(0, result.exit_code)
 
                 m_parse.assert_called_once()
                 parse_args, parse_kwargs = m_parse.await_args

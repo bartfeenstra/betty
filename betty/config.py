@@ -2,12 +2,12 @@ import json
 from collections import OrderedDict
 from importlib import import_module
 from os import getcwd, path
-from os.path import join, abspath, dirname
 from typing import Dict, Type, Optional
 
 import yaml
 from voluptuous import Schema, All, Required, Invalid, IsDir, Any
 
+from betty import _CACHE_DIRECTORY_PATH
 from betty.error import ExternalContextError
 from betty.locale import validate_locale
 from betty.voluptuous import MapDict
@@ -41,7 +41,7 @@ class LocaleConfiguration:
 class Configuration:
     def __init__(self, output_directory_path: str, base_url: str):
         self._site_directory_path = getcwd()
-        self._cache_directory_path = join(path.expanduser('~'), '.betty')
+        self._cache_directory_path = _CACHE_DIRECTORY_PATH
         self._output_directory_path = output_directory_path
         self._base_url = base_url.rstrip(
             '/') if not base_url.endswith('://') else base_url
@@ -63,7 +63,7 @@ class Configuration:
 
     @site_directory_path.setter
     def site_directory_path(self, site_directory_path: str) -> None:
-        self._site_directory_path = abspath(site_directory_path)
+        self._site_directory_path = path.abspath(site_directory_path)
 
     @property
     def cache_directory_path(self) -> str:
@@ -75,11 +75,11 @@ class Configuration:
 
     @property
     def output_directory_path(self) -> str:
-        return abspath(join(self._site_directory_path, self._output_directory_path))
+        return path.abspath(path.join(self._site_directory_path, self._output_directory_path))
 
     @property
     def www_directory_path(self) -> str:
-        return join(self.output_directory_path, 'www')
+        return path.join(self.output_directory_path, 'www')
 
     @property
     def base_url(self) -> str:
@@ -141,7 +141,7 @@ class Configuration:
 
     @property
     def resources_directory_path(self) -> Optional[str]:
-        return abspath(join(self._site_directory_path, self._resources_directory_path)) if self._resources_directory_path else None
+        return path.abspath(path.join(self._site_directory_path, self._resources_directory_path)) if self._resources_directory_path else None
 
     @resources_directory_path.setter
     def resources_directory_path(self, resources_directory_path: str) -> None:
@@ -265,6 +265,6 @@ def from_file(f) -> Configuration:
         raise ConfigurationError('Unknown file format "%s". Supported formats are: %s.' % (
             file_extension, ', '.join(_factories.keys())))
     try:
-        return factory(dirname(f.name), f.read())
+        return factory(path.dirname(f.name), f.read())
     except ConfigurationError as e:
-        raise e.add_context('In %s.' % abspath(f.name))
+        raise e.add_context('In %s.' % path.abspath(f.name))
