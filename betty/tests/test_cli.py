@@ -1,5 +1,5 @@
 from json import dump
-from os import path
+from os import path, makedirs
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import Callable, Dict
 from unittest import TestCase
@@ -117,7 +117,9 @@ class ClearCachesTest(TestCase):
     def test(self):
         original_cache_directory_path = betty._CACHE_DIRECTORY_PATH
         try:
-            with TemporaryDirectory() as cache_directory_path:
+            with TemporaryDirectory() as user_directory_path:
+                cache_directory_path = path.join(user_directory_path, '.betty')
+                makedirs(cache_directory_path)
                 betty._CACHE_DIRECTORY_PATH = cache_directory_path
                 cached_file_path = path.join(cache_directory_path, 'KeepMeAroundPlease')
                 open(cached_file_path, 'w').close()
