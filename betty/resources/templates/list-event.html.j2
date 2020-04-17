@@ -6,13 +6,6 @@
         {% for event in dated_events %}
             <li class="{{ loop.cycle('odd', 'even') }}">
                 {% include 'label/event.html.j2' %}
-                {% if person_context is not none %}
-                    {% for presence in event.presences %}
-                        {% if person_context is defined and presence.person == person_context and presence.role != PresenceRole.SUBJECT %}
-                            ({{ eventMacros.presence_role_label(presence.role) }})
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
                 {% include 'meta/event.html.j2' %}
             </li>
         {% endfor %}

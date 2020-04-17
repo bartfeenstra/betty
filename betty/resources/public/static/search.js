@@ -140,7 +140,7 @@ Search.prototype._performUncached = function(query) {
   this.perform = this._performCacheQuery
   var _this = this
   var indexRequest = new XMLHttpRequest()
-  indexRequest.open('GET', document.documentElement.dataset.bettySearchIndex)
+  indexRequest.open('GET', this._form.dataset.bettySearchIndex)
   indexRequest.addEventListener('load', function (e) {
     var index = JSON.parse(indexRequest.response)
     _this._index = index.index

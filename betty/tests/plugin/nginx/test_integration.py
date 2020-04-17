@@ -14,8 +14,7 @@ from betty.plugin.nginx import DOCKER_PATH
 
 CONTAINER_NAME = IMAGE_NAME = 'betty-test-nginx'
 
-RESOURCES_PATH = path.join(path.dirname(path.dirname(
-    path.dirname(__file__))), 'resources', 'nginx')
+RESOURCES_PATH = path.join(path.dirname(__file__), 'test_integration_resources')
 
 
 class NginxTest(TestCase):
@@ -182,7 +181,6 @@ class NginxTest(TestCase):
             self.assertEquals(200, response.status_code)
             self.assert_betty_json(response)
             # Assert this is the exact JSON resource we are looking for.
-            with open(path.join(path.dirname(path.dirname(path.dirname(__file__))), 'resources', 'openapi',
-                                'schema.json')) as f:
+            with open(path.join(path.dirname(__file__), 'test_integration_resources', 'schema.json')) as f:
                 schema = json.load(f)
             jsonschema.validate(response.json(), schema)

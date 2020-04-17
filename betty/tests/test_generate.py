@@ -202,7 +202,7 @@ class SitemapRenderTest(GenerateTestCase):
     @sync
     async def test_validate(self):
         await generate(self.site)
-        with open(path.join(path.dirname(__file__), 'resources', 'sitemap.xsd')) as f:
+        with open(path.join(path.dirname(__file__), 'test_generate_resources', 'sitemap.xsd')) as f:
             schema_doc = etree.parse(f)
         schema = etree.XMLSchema(schema_doc)
         with open(path.join(self.site.configuration.www_directory_path, 'sitemap.xml')) as f:
