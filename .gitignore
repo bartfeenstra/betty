@@ -7,6 +7,7 @@
 
 # Test artifacts.
 /.coverage
+/cypress/screenshots
 /cypress/site
 
 ### Third-party files.

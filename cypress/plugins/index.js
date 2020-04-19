@@ -28,8 +28,7 @@ module.exports = (on, config) => {
       }
       fs.writeFileSync(path.join(siteDirectoryPath, 'betty.json'), JSON.stringify(bettyConfiguration))
       fs.writeFileSync(path.join(siteDirectoryPath, 'gramps.xml'), gramps)
-      const pythonPath = path.join(config.fileServerFolder, '.tox', 'py38', 'bin', 'python')
-      childProcess.execSync(pythonPath + ' -m betty generate', {
+      childProcess.execSync(process.env.BETTY_PYTHON_PATH + ' -m betty generate', {
         cwd: siteDirectoryPath
       })
       return rootPath

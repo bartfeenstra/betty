@@ -150,6 +150,7 @@ First, [fork and clone](https://guides.github.com/activities/forking/) the repos
 
 ### Requirements
 - The installation requirements documented earlier.
+- Node.js
 - [Docker](https://www.docker.com/)
 - [jq](https://stedolan.github.io/jq/)
 - Bash (you're all good if `which bash` outputs a path in your terminal)
