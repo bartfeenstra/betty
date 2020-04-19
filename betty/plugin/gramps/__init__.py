@@ -1,14 +1,15 @@
 import gzip
+import hashlib
 import logging
 import re
 import tarfile
 from contextlib import suppress
-from os.path import join, dirname
+from os import path
 from typing import Tuple, Optional, Callable, List, Dict, Type
 
 from geopy import Point
 from lxml import etree
-from lxml.etree import XMLParser, Element
+from lxml.etree import Element
 from voluptuous import Schema, IsFile
 
 from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, Event, LocalizedName, Person, Link, \
@@ -67,33 +68,38 @@ def _xpath1(element, selector: str) -> Optional:
     return None
 
 
-def extract_xml_file(gramps_file_path: str, cache_directory_path: str) -> str:
+def parse_xml(site: Site, gramps_file_path: str) -> None:
+    cache_directory_path = path.join(site.configuration.cache_directory_path,
+                                     hashlib.md5(gramps_file_path.encode('utf-8')).hexdigest())
     with suppress(FileExistsError):
         makedirs(cache_directory_path)
-    ungzipped_outer_file = gzip.open(gramps_file_path)
-    xml_file_path = join(cache_directory_path, 'data.xml')
+
     logger = logging.getLogger()
-    logger.info('Extracting %s...' % xml_file_path)
-    with open(xml_file_path, 'wb') as xml_file:
+    logger.info('Parsing %s...' % gramps_file_path)
+
+    try:
+        gramps_file = gzip.open(gramps_file_path)
         try:
-            tarfile.open(fileobj=ungzipped_outer_file).extractall(
+            tarfile.open(fileobj=gramps_file).extractall(
                 cache_directory_path)
-            gramps_file_path = join(cache_directory_path, 'data.gramps')
-            xml_file.write(gzip.open(gramps_file_path).read())
+            gramps_file_path = path.join(cache_directory_path, 'data.gramps')
+            # Treat the file as a tar archive with media and a gzipped XML file.
+            _parse_tree(site.ancestry, etree.parse(gramps_file_path), cache_directory_path)
         except tarfile.ReadError:
-            xml_file.write(ungzipped_outer_file.read())
-    return xml_file_path
+            # Treat the file as a gzipped XML file.
+            _parse_tree(site.ancestry, etree.parse(gramps_file), path.dirname(gramps_file_path))
+    except gzip.BadGzipFile:
+        # Treat the file as plain XML.
+        _parse_tree(site.ancestry, etree.parse(gramps_file_path), path.dirname(gramps_file_path))
 
 
-def parse_xml_file(ancestry: Ancestry, file_path) -> None:
+def _parse_tree(ancestry: Ancestry, tree: etree.ElementTree(), tree_directory_path: str) -> None:
     logger = logging.getLogger()
-    parser = XMLParser()
-    tree = etree.parse(file_path, parser)
     database = tree.getroot()
     intermediate_ancestry = _IntermediateAncestry()
     _parse_notes(intermediate_ancestry, database)
     logger.info('Parsed %d notes.' % len(intermediate_ancestry.notes))
-    _parse_objects(intermediate_ancestry, database, file_path)
+    _parse_objects(intermediate_ancestry, database, tree_directory_path)
     logger.info('Parsed %d files.' % len(intermediate_ancestry.files))
     _parse_repositories(intermediate_ancestry, database)
     _parse_sources(intermediate_ancestry, database)
@@ -162,12 +168,11 @@ def _parse_objects(ancestry: _IntermediateAncestry, database: Element, gramps_fi
         _parse_object(ancestry, element, gramps_file_path)
 
 
-def _parse_object(ancestry: _IntermediateAncestry, element: Element, gramps_file_path):
+def _parse_object(ancestry: _IntermediateAncestry, element: Element, gramps_directory_path):
     handle = _xpath1(element, './@handle')
     entity_id = str(_xpath1(element, './@id'))
     file_element = _xpath1(element, './ns:file')
-    file_path = join(dirname(gramps_file_path),
-                     str(_xpath1(file_element, './@src')))
+    file_path = path.join(gramps_directory_path, str(_xpath1(file_element, './@src')))
     file = File(entity_id, file_path)
     file.media_type = str(_xpath1(file_element, './@mime'))
     description = str(_xpath1(file_element, './@description'))
@@ -494,14 +499,14 @@ GrampsConfigurationSchema = Schema({
 
 
 class Gramps(Plugin):
-    def __init__(self, gramps_file_path: str, cache_directory_path: str):
+    def __init__(self, site: Site, gramps_file_path: str):
+        self._site = site
         self._gramps_file_path = gramps_file_path
-        self._cache_directory_path = cache_directory_path
 
     @classmethod
     def from_configuration_dict(cls, site: Site, configuration: Dict):
         validate_configuration(GrampsConfigurationSchema, configuration)
-        return cls(configuration['file'], join(site.configuration.cache_directory_path, 'gramps'))
+        return cls(site, configuration['file'])
 
     def subscribes_to(self) -> List[Tuple[Type[DispatchedEvent], Callable]]:
         return [
@@ -509,6 +514,4 @@ class Gramps(Plugin):
         ]
 
     async def _parse(self, event: ParseEvent) -> None:
-        xml_file_path = extract_xml_file(
-            self._gramps_file_path, self._cache_directory_path)
-        parse_xml_file(event.ancestry, xml_file_path)
+        parse_xml(self._site, self._gramps_file_path)
