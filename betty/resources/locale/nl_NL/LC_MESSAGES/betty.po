@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-03-25 23:01+0000\n"
+"POT-Creation-Date: 2020-04-20 00:07+0100\n"
 "PO-Revision-Date: 2019-10-05 11:38+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -18,46 +18,46 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: betty/locale.py:256
+#: betty/locale.py:255
 msgid "unknown date"
 msgstr "onbekend"
 
-#: betty/locale.py:262
+#: betty/locale.py:261
 #, python-format
 msgid "Around %(date)s"
 msgstr "Rond %(date)s"
 
-#: betty/locale.py:272
+#: betty/locale.py:271
 msgid "MMMM d, y"
 msgstr "d MMMM y"
 
-#: betty/locale.py:273
+#: betty/locale.py:272
 msgid "MMMM, y"
 msgstr "MMMM y"
 
-#: betty/locale.py:274
+#: betty/locale.py:273
 msgid "y"
 msgstr "y"
 
-#: betty/locale.py:275
+#: betty/locale.py:274
 msgid "MMMM d"
 msgstr "d MMMM"
 
-#: betty/locale.py:276
+#: betty/locale.py:275
 msgid "MMMM"
 msgstr "MMMM"
 
-#: betty/locale.py:296
+#: betty/locale.py:295
 #, python-format
 msgid "Between %(start)s and %(end)s"
 msgstr "Tussen %(start)s en %(end)s"
 
-#: betty/locale.py:301
+#: betty/locale.py:300
 #, python-format
 msgid "After %(start)s"
 msgstr "Na %(start)s"
 
-#: betty/locale.py:305
+#: betty/locale.py:304
 #, python-format
 msgid "Before %(end)s"
 msgstr "Voor %(end)s"
@@ -210,7 +210,7 @@ msgstr ""
 "Er is een verwijzing beschikbaar, maar deze is niet openbaar gemaakt om "
 "mensen hun privacy te beschermen"
 
-#: betty/plugin/wikipedia/__init__.py:193
+#: betty/plugin/wikipedia/__init__.py:194
 msgid "Read more on Wikipedia."
 msgstr "Lees meer op Wikipedia."
 
@@ -314,29 +314,29 @@ msgstr ""
 msgid "Accessed %(date)s"
 msgstr "Opgevraagd op %(date)s"
 
-#: betty/resources/templates/label/event.html.j2:25
+#: betty/resources/templates/label/event.html.j2:21
 #, python-format
 msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s met %(subjects)s"
 
-#: betty/resources/templates/label/event.html.j2:29
+#: betty/resources/templates/label/event.html.j2:25
 #, python-format
 msgid "%(event)s of %(subjects)s"
 msgstr "%(event)s van %(subjects)s"
 
 #: betty/resources/templates/label/person.html.j2:9
-#: betty/resources/templates/macro/person.html.j2:17
+#: betty/resources/templates/macro/person.html.j2:23
 #: betty/resources/templates/meta/person.html.j2:12
 msgid "This person's details are unavailable to protect their privacy."
 msgstr "De gegevens van deze persoon zijn niet beschikbaar vanwege privacyredenen."
 
 #: betty/resources/templates/label/person.html.j2:9
-#: betty/resources/templates/macro/person.html.j2:17
+#: betty/resources/templates/macro/person.html.j2:23
 msgid "private"
 msgstr "privé"
 
 #: betty/resources/templates/label/person.html.j2:13
-#: betty/resources/templates/macro/person.html.j2:32
+#: betty/resources/templates/macro/person.html.j2:38
 msgid "This person's name is unknown."
 msgstr "De naam van deze persoon is onbekend."
 
@@ -404,15 +404,19 @@ msgstr "Beroep"
 msgid "Retirement"
 msgstr "Pensioen"
 
-#: betty/resources/templates/macro/event.html.j2:25
+#: betty/resources/templates/macro/event.html.j2:19
+msgid "Correspondence"
+msgstr "Correspondentie"
+
+#: betty/resources/templates/macro/event.html.j2:26
 msgid "Subject"
 msgstr "Onderwerp"
 
-#: betty/resources/templates/macro/event.html.j2:26
+#: betty/resources/templates/macro/event.html.j2:27
 msgid "Witness"
 msgstr "Getuige"
 
-#: betty/resources/templates/macro/event.html.j2:31
+#: betty/resources/templates/macro/event.html.j2:32
 msgid "Attendee"
 msgstr "Aanwezige"
 

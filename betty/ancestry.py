@@ -463,6 +463,7 @@ class Event(Resource, Dated, HasFiles, HasCitations, Described, HasPrivacy):
         EMIGRATION = 'emigration'
         OCCUPATION = 'occupation'
         RETIREMENT = 'retirement'
+        CORRESPONDENCE = 'correspondence'
 
     def __init__(self, event_type: Type, date: Optional[Datey] = None):
         Dated.__init__(self)

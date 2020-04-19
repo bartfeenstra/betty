@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-03-25 23:01+0000\n"
+"POT-Creation-Date: 2020-04-20 00:07+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,46 +17,46 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: betty/locale.py:256
+#: betty/locale.py:255
 msgid "unknown date"
 msgstr ""
 
-#: betty/locale.py:262
+#: betty/locale.py:261
 #, python-format
 msgid "Around %(date)s"
 msgstr ""
 
-#: betty/locale.py:272
+#: betty/locale.py:271
 msgid "MMMM d, y"
 msgstr ""
 
-#: betty/locale.py:273
+#: betty/locale.py:272
 msgid "MMMM, y"
 msgstr ""
 
-#: betty/locale.py:274
+#: betty/locale.py:273
 msgid "y"
 msgstr ""
 
-#: betty/locale.py:275
+#: betty/locale.py:274
 msgid "MMMM d"
 msgstr ""
 
-#: betty/locale.py:276
+#: betty/locale.py:275
 msgid "MMMM"
 msgstr ""
 
-#: betty/locale.py:296
+#: betty/locale.py:295
 #, python-format
 msgid "Between %(start)s and %(end)s"
 msgstr ""
 
-#: betty/locale.py:301
+#: betty/locale.py:300
 #, python-format
 msgid "After %(start)s"
 msgstr ""
 
-#: betty/locale.py:305
+#: betty/locale.py:304
 #, python-format
 msgid "Before %(end)s"
 msgstr ""
@@ -203,7 +203,7 @@ msgid ""
 "people's privacy"
 msgstr ""
 
-#: betty/plugin/wikipedia/__init__.py:193
+#: betty/plugin/wikipedia/__init__.py:194
 msgid "Read more on Wikipedia."
 msgstr ""
 
@@ -302,29 +302,29 @@ msgstr ""
 msgid "Accessed %(date)s"
 msgstr ""
 
-#: betty/resources/templates/label/event.html.j2:25
+#: betty/resources/templates/label/event.html.j2:21
 #, python-format
 msgid "%(event)s with %(subjects)s"
 msgstr ""
 
-#: betty/resources/templates/label/event.html.j2:29
+#: betty/resources/templates/label/event.html.j2:25
 #, python-format
 msgid "%(event)s of %(subjects)s"
 msgstr ""
 
 #: betty/resources/templates/label/person.html.j2:9
-#: betty/resources/templates/macro/person.html.j2:17
+#: betty/resources/templates/macro/person.html.j2:23
 #: betty/resources/templates/meta/person.html.j2:12
 msgid "This person's details are unavailable to protect their privacy."
 msgstr ""
 
 #: betty/resources/templates/label/person.html.j2:9
-#: betty/resources/templates/macro/person.html.j2:17
+#: betty/resources/templates/macro/person.html.j2:23
 msgid "private"
 msgstr ""
 
 #: betty/resources/templates/label/person.html.j2:13
-#: betty/resources/templates/macro/person.html.j2:32
+#: betty/resources/templates/macro/person.html.j2:38
 msgid "This person's name is unknown."
 msgstr ""
 
@@ -392,15 +392,19 @@ msgstr ""
 msgid "Retirement"
 msgstr ""
 
-#: betty/resources/templates/macro/event.html.j2:25
-msgid "Subject"
+#: betty/resources/templates/macro/event.html.j2:19
+msgid "Correspondence"
 msgstr ""
 
 #: betty/resources/templates/macro/event.html.j2:26
+msgid "Subject"
+msgstr ""
+
+#: betty/resources/templates/macro/event.html.j2:27
 msgid "Witness"
 msgstr ""
 
-#: betty/resources/templates/macro/event.html.j2:31
+#: betty/resources/templates/macro/event.html.j2:32
 msgid "Attendee"
 msgstr ""
 
