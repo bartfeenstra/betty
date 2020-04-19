@@ -88,7 +88,7 @@ def parse_xml(site: Site, gramps_file_path: str) -> None:
         except tarfile.ReadError:
             # Treat the file as a gzipped XML file.
             _parse_tree(site.ancestry, etree.parse(gramps_file), path.dirname(gramps_file_path))
-    except gzip.BadGzipFile:
+    except OSError:
         # Treat the file as plain XML.
         _parse_tree(site.ancestry, etree.parse(gramps_file_path), path.dirname(gramps_file_path))
 
