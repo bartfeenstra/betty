@@ -3,7 +3,7 @@
 <address>
     {%- if not embedded -%}
         <a href="{{ place | url }}">
-    {%- endif %}
+    {%- endif -%}
     {% set localized_name = place.names | negotiate_localizeds -%}
     <span{% if localized_name.locale is not none %} lang="{{ localized_name.locale }}"{% endif %}>{{ localized_name }}</span>
     {%- if not embedded -%}
