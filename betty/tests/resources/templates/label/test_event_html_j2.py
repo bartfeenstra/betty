@@ -28,6 +28,14 @@ class Test(TestCase):
         self.assertEqual(expected, actual)
 
     @sync
+    async def test_embedded_with_identifiable(self):
+        event = IdentifiableEvent('E0', Event.Type.BIRTH)
+        Presence(Person('P0'), Presence.Role.SUBJECT, event)
+        expected = 'Birth of <span class="nn" title="This person\'s name is unknown.">n.n.</span>'
+        actual = await self._render(event=event, embedded=True)
+        self.assertEqual(expected, actual)
+
+    @sync
     async def test_with_description(self):
         event = Event(Event.Type.BIRTH)
         event.description = 'Something happened!'
