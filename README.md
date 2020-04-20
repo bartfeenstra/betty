@@ -131,17 +131,19 @@ the `betty.plugin.privatizer.Privatizer` may decide if the data is public or pri
 ### The Python API
 ```python
 from betty.config import Configuration
+from betty.functools import sync
+from betty.generate import generate
 from betty.parse import parse
-from betty.render import render
 from betty.site import Site
 
+@sync
 async def generate():
     output_directory_path = '/var/www/betty'
     url = 'https://betty.example.com'
     configuration = Configuration(output_directory_path, url)
     async with Site(configuration) as site:
         await parse(site)
-        await render(site)
+        await generate(site)
 
 ```
 
