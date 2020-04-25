@@ -1,12 +1,25 @@
-from typing import Callable, Dict
+from os import path
 
-from voluptuous import Schema
+from voluptuous import Invalid
+
+from betty.importlib import import_any
 
 
-class MapDict:
-    def __init__(self, key_validator: Callable, value_validator: Callable):
-        self._key_validator = Schema(key_validator)
-        self._value_validator = Schema(value_validator)
+def Path():
+    def _path(v):
+        try:
+            return path.abspath(path.expanduser(v))
+        except TypeError as e:
+            raise Invalid(e)
 
-    def __call__(self, v: Dict):
-        return {self._key_validator(key): self._value_validator(value) for key, value in v.items()}
+    return _path
+
+
+def Importable():
+    def _importable(v):
+        try:
+            return import_any(v)
+        except ImportError as e:
+            raise Invalid(e)
+
+    return _importable

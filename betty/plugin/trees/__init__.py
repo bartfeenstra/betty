@@ -4,13 +4,13 @@ from contextlib import suppress
 from os import path
 from os.path import dirname
 from subprocess import check_call
-from typing import Optional, List, Tuple, Type, Callable, Dict, Iterable
+from typing import Optional, List, Tuple, Type, Callable, Iterable, Any
 
 from betty.event import Event
 from betty.fs import DirectoryBackup
 from betty.generate import PostGenerateEvent
 from betty.jinja2 import HtmlProvider
-from betty.plugin import Plugin
+from betty.plugin import Plugin, NO_CONFIGURATION
 from betty.site import Site
 
 
@@ -19,7 +19,7 @@ class Trees(Plugin, HtmlProvider):
         self._site = site
 
     @classmethod
-    def from_configuration_dict(cls, site: Site, configuration: Dict):
+    def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
         return cls(site)
 
     def subscribes_to(self) -> List[Tuple[Type[Event], Callable]]:

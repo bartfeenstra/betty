@@ -94,7 +94,7 @@ class PrivatizerTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.plugins[Privatizer] = {}
+            configuration.plugins[Privatizer] = None
             async with Site(configuration) as site:
                 site.ancestry.people[person.id] = person
                 site.ancestry.sources[source.id] = source

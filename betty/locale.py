@@ -7,7 +7,7 @@ from functools import total_ordering
 from typing import Optional, Tuple, Union, List
 
 import babel
-from babel import dates, Locale as BabelLocale, parse_locale
+from babel import dates, Locale
 
 
 class Localized:
@@ -30,7 +30,7 @@ class Date:
         self._fuzzy = False
 
     def __repr__(self):
-        return '%s.%s(%s, %s, %s)' % (self.__class__.__module__, self.__class__.__name__, self.year, self.month, self.day)
+        return '<%s.%s(%s, %s, %s)>' % (self.__class__.__module__, self.__class__.__name__, self.year, self.month, self.day)
 
     @property
     def year(self) -> Optional[int]:
@@ -206,11 +206,6 @@ class Translations(gettext.NullTranslations):
         builtins.__dict__.update(self._previous_context)
 
 
-def validate_locale(locale: str) -> str:
-    parse_locale(locale, '-')
-    return locale
-
-
 def negotiate_locale(preferred_locale: str, available_locales: List[str]) -> Optional[str]:
     negotiated_locale = babel.negotiate_locale([preferred_locale], available_locales)
     if negotiated_locale is not None:
@@ -279,7 +274,7 @@ def _format_date_parts(date: Date, locale: str) -> str:
     except KeyError:
         raise IncompleteDateError('This date does not have enough parts to be rendered.')
     parts = map(lambda x: 1 if x is None else x, date.parts)
-    return dates.format_date(datetime.date(*parts), format, BabelLocale.parse(locale, '-'))
+    return dates.format_date(datetime.date(*parts), format, Locale.parse(locale, '-'))
 
 
 def _format_date_range(date_range: DateRange, locale: str) -> str:

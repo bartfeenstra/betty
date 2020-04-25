@@ -2,9 +2,8 @@ import os
 from shutil import copyfile
 from typing import List, Tuple, Callable, Type, Dict, Optional
 
-from voluptuous import Schema, Required, Any
+from voluptuous import Schema, Required, Maybe
 
-from betty.config import validate_configuration
 from betty.event import Event
 from betty.fs import makedirs
 from betty.generate import PostGenerateEvent
@@ -13,21 +12,20 @@ from betty.site import Site
 
 DOCKER_PATH = os.path.join(os.path.dirname(__file__), 'resources', 'docker')
 
-ConfigurationSchema = Schema({
-    Required('www_directory_path', default=None): Any(None, str),
-    Required('https', default=None): Any(None, bool),
-})
-
 
 class Nginx(Plugin):
+    configuration_schema: Schema = Schema({
+        Required('www_directory_path', default=None): Maybe(str),
+        Required('https', default=None): Maybe(bool),
+    })
+
     def __init__(self, site: Site, www_directory_path: Optional[str] = None, https: Optional[bool] = None):
         self._https = https
         self._www_directory_path = www_directory_path
         self._site = site
 
     @classmethod
-    def from_configuration_dict(cls, site: Site, configuration: Dict):
-        configuration = validate_configuration(ConfigurationSchema, configuration)
+    def for_site(cls, site: Site, configuration: Dict):
         return cls(site, configuration['www_directory_path'], configuration['https'])
 
     def subscribes_to(self) -> List[Tuple[Type[Event], Callable]]:

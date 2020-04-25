@@ -1,6 +1,8 @@
 from typing import Dict, List, Tuple, Type, Callable, Set
 from unittest import TestCase
 
+from voluptuous import Schema, Required
+
 from betty.ancestry import Ancestry
 from betty.config import Configuration
 from betty.event import Event
@@ -30,11 +32,15 @@ class NonConfigurablePlugin(TrackablePlugin):
 
 
 class ConfigurablePlugin(Plugin):
+    configuration_schema: Schema = Schema({
+        Required('check'): lambda x: x
+    })
+
     def __init__(self, check):
         self.check = check
 
     @classmethod
-    def from_configuration_dict(cls, site: Site, configuration: Dict):
+    def for_site(cls, site: Site, configuration: Dict):
         return cls(configuration['check'])
 
 
@@ -101,7 +107,7 @@ class SiteTest(TestCase):
     @sync
     async def test_with_one_plugin(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        configuration.plugins[NonConfigurablePlugin] = {}
+        configuration.plugins[NonConfigurablePlugin] = None
         async with Site(configuration) as sut:
             self.assertEquals(1, len(sut.plugins))
             self.assertIsInstance(
@@ -123,7 +129,7 @@ class SiteTest(TestCase):
     @sync
     async def test_with_one_plugin_with_single_chained_dependency(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        configuration.plugins[DependsOnNonConfigurablePluginPluginPlugin] = {}
+        configuration.plugins[DependsOnNonConfigurablePluginPluginPlugin] = None
         async with Site(configuration) as sut:
             event = TrackingEvent()
             await sut.event_dispatcher.dispatch(event)
@@ -137,8 +143,8 @@ class SiteTest(TestCase):
     @sync
     async def test_with_multiple_plugins_with_duplicate_dependencies(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        configuration.plugins[DependsOnNonConfigurablePluginPlugin] = {}
-        configuration.plugins[AlsoDependsOnNonConfigurablePluginPlugin] = {}
+        configuration.plugins[DependsOnNonConfigurablePluginPlugin] = None
+        configuration.plugins[AlsoDependsOnNonConfigurablePluginPlugin] = None
         async with Site(configuration) as sut:
             event = TrackingEvent()
             await sut.event_dispatcher.dispatch(event)
@@ -152,7 +158,7 @@ class SiteTest(TestCase):
     @sync
     async def test_with_multiple_plugins_with_cyclic_dependencies(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        configuration.plugins[CyclicDependencyOnePlugin] = {}
+        configuration.plugins[CyclicDependencyOnePlugin] = None
         with self.assertRaises(CyclicGraphError):
             async with Site(configuration):
                 pass
@@ -160,8 +166,8 @@ class SiteTest(TestCase):
     @sync
     async def test_with_comes_before_with_other_plugin(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        configuration.plugins[NonConfigurablePlugin] = {}
-        configuration.plugins[ComesBeforeNonConfigurablePluginPlugin] = {}
+        configuration.plugins[NonConfigurablePlugin] = None
+        configuration.plugins[ComesBeforeNonConfigurablePluginPlugin] = None
         async with Site(configuration) as sut:
             event = TrackingEvent()
             await sut.event_dispatcher.dispatch(event)
@@ -173,7 +179,7 @@ class SiteTest(TestCase):
     @sync
     async def test_with_comes_before_without_other_plugin(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        configuration.plugins[ComesBeforeNonConfigurablePluginPlugin] = {}
+        configuration.plugins[ComesBeforeNonConfigurablePluginPlugin] = None
         async with Site(configuration) as sut:
             event = TrackingEvent()
             await sut.event_dispatcher.dispatch(event)
@@ -184,8 +190,8 @@ class SiteTest(TestCase):
     @sync
     async def test_with_comes_after_with_other_plugin(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        configuration.plugins[ComesAfterNonConfigurablePluginPlugin] = {}
-        configuration.plugins[NonConfigurablePlugin] = {}
+        configuration.plugins[ComesAfterNonConfigurablePluginPlugin] = None
+        configuration.plugins[NonConfigurablePlugin] = None
         async with Site(configuration) as sut:
             event = TrackingEvent()
             await sut.event_dispatcher.dispatch(event)
@@ -197,7 +203,7 @@ class SiteTest(TestCase):
     @sync
     async def test_with_comes_after_without_other_plugin(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        configuration.plugins[ComesAfterNonConfigurablePluginPlugin] = {}
+        configuration.plugins[ComesAfterNonConfigurablePluginPlugin] = None
         async with Site(configuration) as sut:
             event = TrackingEvent()
             await sut.event_dispatcher.dispatch(event)

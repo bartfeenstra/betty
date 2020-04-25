@@ -387,7 +387,7 @@ class LocalizedName(Localized):
         return self._name == other._name and self.locale == other.locale
 
     def __repr__(self):
-        return '%s(%s, %s)' % (type(self).__name__, self._name, self.locale.__repr__())
+        return '<%s.%s(%s, %s)>' % (self.__class__.__module__, self.__class__.__name__, self.name, repr(self.locale))
 
     def __str__(self):
         return self._name

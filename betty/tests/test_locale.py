@@ -4,8 +4,7 @@ from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.locale import validate_locale, Localized, negotiate_localizeds, Date, format_datey, DateRange, Translations, \
-    negotiate_locale
+from betty.locale import Localized, negotiate_localizeds, Date, format_datey, DateRange, Translations, negotiate_locale
 
 
 class DateTest(TestCase):
@@ -183,25 +182,6 @@ class DateRangeTest(TestCase):
     ])
     def test_gt(self, expected, other):
         self.assertEquals(expected, DateRange(Date(1970, 2, 2)) > other)
-
-
-class ValidateLocaleTest(TestCase):
-    @parameterized.expand([
-        ('nl',),
-        ('nl-NL',),
-        ('sr-Latn-CS',),
-    ])
-    def test_valid_value_should_pass_through(self, locale: str):
-        self.assertEquals(locale, validate_locale(locale))
-
-    @parameterized.expand([
-        ('',),
-        ('123',),
-        ('nl-nl-nl-nl',),
-    ])
-    def test_invalid_value_should_raise_error(self, locale: str):
-        with self.assertRaises(ValueError):
-            validate_locale(locale)
 
 
 class NegotiateLocaleTest(TestCase):

@@ -195,7 +195,7 @@ class PluginsTest(TestCase):
         with TemporaryDirectory() as www_directory_path:
             configuration = Configuration(
                 www_directory_path, 'https://example.com')
-            configuration.plugins[TestPlugin] = {}
+            configuration.plugins[TestPlugin] = None
             environment = create_environment(Site(configuration))
             template = '{% if "' + TestPlugin.__module__ + \
                 '.TestPlugin" in plugins %}true{% else %}false{% endif %}'

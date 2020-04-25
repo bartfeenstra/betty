@@ -512,7 +512,7 @@ class WikipediaTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://ancestry.example.com')
                 configuration.cache_directory_path = cache_directory_path
-                configuration.plugins[Wikipedia] = {}
+                configuration.plugins[Wikipedia] = None
                 async with Site(configuration) as site:
                     environment = create_environment(site)
                     actual = await environment.from_string(
@@ -556,7 +556,7 @@ class WikipediaTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                configuration.plugins[Wikipedia] = {}
+                configuration.plugins[Wikipedia] = None
                 async with Site(configuration) as site:
                     site.ancestry.sources[resource.id] = resource
                     await parse(site)

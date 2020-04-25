@@ -6,9 +6,9 @@ from betty.site import Site
 
 
 class PluginTest(TestCase):
-    def test_from_configuration_dict(self):
+    def test_for_site(self):
         site = Mock(Site)
-        plugin = Plugin.from_configuration_dict(site, {})
+        plugin = Plugin.for_site(site)
         self.assertIsInstance(plugin, Plugin)
 
     def test_depends_on(self):
@@ -16,5 +16,5 @@ class PluginTest(TestCase):
 
     def test_subscribes_to(self):
         site = Mock(Site)
-        plugin = Plugin.from_configuration_dict(site, {})
+        plugin = Plugin.for_site(site)
         self.assertEquals([], plugin.subscribes_to())

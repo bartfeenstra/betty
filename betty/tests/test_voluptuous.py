@@ -1,35 +1,51 @@
+from os import path
 from unittest import TestCase
 
+from parameterized import parameterized
 from voluptuous import Invalid
 
-from betty.voluptuous import MapDict
+from betty import os
+from betty.voluptuous import Path, Importable
 
 
-class MapDictTest(TestCase):
-    def test_with_empty_dict(self):
-        data = {}
-        sut = MapDict(str, str)
-        self.assertDictEqual(data, sut(data))
-
-    def test_with_valid_dict(self):
-        data = {
-            'SomeKey': 'SomeValue',
-        }
-        sut = MapDict(str, str)
-        self.assertDictEqual(data, sut(data))
-
-    def test_with_invalid_key(self):
-        data = {
-            9: 'SomeValue',
-        }
-        sut = MapDict(str, str)
+class PathTest(TestCase):
+    @parameterized.expand([
+        (3,),
+        ({},),
+        (True,),
+    ])
+    def test_with_invalid_type_should_raise_invalid(self, path_value):
         with self.assertRaises(Invalid):
-            sut(data)
+            Path()(path_value)
 
-    def test_with_invalid_value(self):
-        data = {
-            'SomeKey': 9,
-        }
-        sut = MapDict(str, str)
+    @parameterized.expand([
+        ('/foo/bar', '/foo/bar'),
+        (path.join(path.expanduser('~'), 'foo', 'bar'), '~/foo/bar'),
+        (path.join(path.expanduser('~'), 'foo', 'bar'), './foo/bar'),
+        (path.join(path.expanduser('~'), 'bar'), './foo/../bar'),
+    ])
+    def test_with_path_should_return(self, expected: str, path_value: str):
+        with os.chdir(path.expanduser('~')):
+            self.assertEqual(expected, Path()(path_value))
+
+
+class ImportableTest(TestCase):
+    @parameterized.expand([
+        (3,),
+        ({},),
+        (True,),
+    ])
+    def test_with_invalid_type_should_raise_invalid(self, importable_value):
         with self.assertRaises(Invalid):
-            sut(data)
+            Importable()(importable_value)
+
+    def test_with_unknown_module_should_raise_invalid(self):
+        with self.assertRaises(Invalid):
+            Importable()('foo.bar.Baz')
+
+    def test_with_unknown_type_should_raise_invalid(self):
+        with self.assertRaises(Invalid):
+            Importable()('%s.Foo' % self.__module__)
+
+    def test_with_importable_should_return(self):
+        self.assertEqual(self.__class__, Importable()('%s.%s' % (self.__module__, self.__class__.__name__)))

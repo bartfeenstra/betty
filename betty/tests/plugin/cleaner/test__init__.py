@@ -17,7 +17,7 @@ class CleanerTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.plugins[Cleaner] = {}
+            configuration.plugins[Cleaner] = None
             async with Site(configuration) as site:
                 site.ancestry.events[event.id] = event
                 await parse(site)

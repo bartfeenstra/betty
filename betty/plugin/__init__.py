@@ -1,10 +1,17 @@
-from typing import Callable, Tuple, Dict, Type, Set, List, Optional
+from typing import Callable, Tuple, Type, Set, List, Optional, Any
+
+from voluptuous import Schema
 
 from betty.event import Event
 from betty.site import Site
 
 
+NO_CONFIGURATION = None
+
+
 class Plugin:
+    configuration_schema: Schema = Schema(None)
+
     async def __aenter__(self):
         pass  # pragma: no cover
 
@@ -16,7 +23,13 @@ class Plugin:
         return '%s.%s' % (cls.__module__, cls.__name__)
 
     @classmethod
-    def from_configuration_dict(cls, site: Site, configuration: Dict):
+    def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
+        """
+        Creates a new instance for a specific site.
+        :param site: betty.site.Site
+        :param configuration: The configuration must be of the same type as returned by cls.configuration_schema.
+        :return: Self
+        """
         return cls()
 
     @classmethod

@@ -10,11 +10,11 @@ from typing import Tuple, Optional, Callable, List, Dict, Type
 from geopy import Point
 from lxml import etree
 from lxml.etree import Element
-from voluptuous import Schema, IsFile
+from voluptuous import Schema, IsFile, All
 
 from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, Event, LocalizedName, Person, Link, \
     HasFiles, HasLinks, HasCitations, IdentifiableEvent, HasPrivacy, IdentifiableSource, IdentifiableCitation
-from betty.config import validate_configuration
+from betty.config import Path
 from betty.event import Event as DispatchedEvent
 from betty.fs import makedirs
 from betty.locale import DateRange, Datey, Date
@@ -494,19 +494,17 @@ def _parse_attribute(name: str, element: Element, tag: str) -> Optional[str]:
     return _xpath1(element, './ns:%s[@type="betty:%s"]/@value' % (tag, name))
 
 
-GrampsConfigurationSchema = Schema({
-    'file': IsFile(),
-})
-
-
 class Gramps(Plugin):
+    configuration_schema: Schema = Schema({
+        'file': All(str, IsFile(), Path()),
+    })
+
     def __init__(self, site: Site, gramps_file_path: str):
         self._site = site
         self._gramps_file_path = gramps_file_path
 
     @classmethod
-    def from_configuration_dict(cls, site: Site, configuration: Dict):
-        validate_configuration(GrampsConfigurationSchema, configuration)
+    def for_site(cls, site: Site, configuration: Dict):
         return cls(site, configuration['file'])
 
     def subscribes_to(self) -> List[Tuple[Type[DispatchedEvent], Callable]]:

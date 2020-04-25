@@ -23,7 +23,7 @@ class DeriverTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.plugins[Deriver] = {}
+            configuration.plugins[Deriver] = None
             async with Site(configuration) as site:
                 site.ancestry.people[person.id] = person
                 await parse(site)
@@ -39,7 +39,7 @@ class DeriverTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.plugins[Deriver] = {}
+            configuration.plugins[Deriver] = None
             async with Site(configuration) as site:
                 site.ancestry.people[person.id] = person
                 await parse(site)
@@ -54,7 +54,7 @@ class DeriverTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.plugins[Deriver] = {}
+            configuration.plugins[Deriver] = None
             async with Site(configuration) as site:
                 site.ancestry.people[person.id] = person
                 await parse(site)
@@ -80,7 +80,7 @@ class DeriverTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.plugins[Deriver] = {}
+            configuration.plugins[Deriver] = None
             async with Site(configuration) as site:
                 site.ancestry.people[person.id] = person
                 await parse(site)
@@ -104,7 +104,7 @@ class DeriverTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.plugins[Deriver] = {}
+            configuration.plugins[Deriver] = None
             async with Site(configuration) as site:
                 site.ancestry.people[person.id] = person
                 await parse(site)
@@ -131,7 +131,7 @@ class DeriverTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.plugins[Deriver] = {}
+            configuration.plugins[Deriver] = None
             async with Site(configuration) as site:
                 site.ancestry.people[person.id] = person
                 await parse(site)
@@ -155,7 +155,7 @@ class DeriverTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.plugins[Deriver] = {}
+            configuration.plugins[Deriver] = None
             async with Site(configuration) as site:
                 site.ancestry.people[person.id] = person
                 await parse(site)

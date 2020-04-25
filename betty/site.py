@@ -72,6 +72,8 @@ class Site:
         return self._configuration.default_locale
 
     def _init_plugins(self) -> None:
+        from betty.plugin import NO_CONFIGURATION
+
         def _extend_plugin_type_graph(graph: Graph, plugin_type: Type['Plugin']):
             dependencies = plugin_type.depends_on()
             # Ensure each plugin type appears in the graph, even if they're isolated.
@@ -84,10 +86,10 @@ class Site:
 
         plugin_types_graph = defaultdict(set)
         # Add dependencies to the plugin graph.
-        for plugin_type in self._configuration.plugins.keys():
+        for plugin_type, _ in self._configuration.plugins:
             _extend_plugin_type_graph(plugin_types_graph, plugin_type)
         # Now all dependencies have been collected, extend the graph with optional plugin orders.
-        for plugin_type in self._configuration.plugins.keys():
+        for plugin_type, _ in self._configuration.plugins:
             for before in plugin_type.comes_before():
                 if before in plugin_types_graph:
                     plugin_types_graph[plugin_type].add(before)
@@ -97,8 +99,8 @@ class Site:
 
         for plugin_type in tsort(plugin_types_graph):
             plugin_configuration = self.configuration.plugins[
-                plugin_type] if plugin_type in self.configuration.plugins else {}
-            plugin = plugin_type.from_configuration_dict(
+                plugin_type] if plugin_type in self.configuration.plugins else NO_CONFIGURATION
+            plugin = plugin_type.for_site(
                 self, plugin_configuration)
             self._plugins[plugin_type] = plugin
 

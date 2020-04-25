@@ -16,7 +16,7 @@ class TreeTest(TestCase):
             configuration = Configuration(
                 output_directory_path, 'https://ancestry.example.com')
             configuration.mode = 'development'
-            configuration.plugins[Trees] = {}
+            configuration.plugins[Trees] = None
             async with Site(configuration) as site:
                 await generate(site)
             with open(join(configuration.www_directory_path, 'trees.js')) as f:
