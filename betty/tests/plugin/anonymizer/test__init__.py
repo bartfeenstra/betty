@@ -286,7 +286,7 @@ class AnonymizerTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.plugins[Anonymizer] = {}
+            configuration.plugins[Anonymizer] = None
             async with Site(configuration) as site:
                 site.ancestry.people[person.id] = person
                 await parse(site)

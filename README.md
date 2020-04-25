@@ -70,20 +70,21 @@ locales:
   - locale: en-US
     alias: en
   - locale: nl
-resources: ./resources
+resources_directory_path: ./resources
 plugins:
-  betty.plugin.anonymizer.Anonymizer: {}
-  betty.plugin.cleaner.Cleaner: {}
-  betty.plugin.deriver.Deriver: {}
+  betty.plugin.anonymizer.Anonymizer: ~
+  betty.plugin.cleaner.Cleaner: ~
+  betty.plugin.deriver.Deriver: ~
   betty.plugin.gramps.Gramps:
     file: ./gramps.gpkg
-  betty.plugin.maps.Maps: {}
+  betty.plugin.maps.Maps: ~
   betty.plugin.nginx.Nginx:
-    www_directory_path: /var/www/betty
+    www_direct
+ory_path: /var/www/betty
     https: true
-  betty.plugin.privatizer.Privatizer: {}
-  betty.plugin.trees.Trees: {}
-  betty.plugin.wikipedia.Wikipedia: {}
+  betty.plugin.privatizer.Privatizer: ~
+  betty.plugin.trees.Trees: ~
+  betty.plugin.wikipedia.Wikipedia: ~
 ```
 - `output` (required); The path to the directory in which to place the generated site.
 - `base_url` (required); The absolute, public URL at which the site will be published.
@@ -98,11 +99,12 @@ plugins:
     - `alias` (optional): A shorthand alias to use instead of the full language tag, such as when rendering URLs.
 
     If no locales are defined, Betty defaults to US English.
-- `resources` (optional); The path to a directory containing overrides for any of Betty's [resources](./betty/resources).
+- `resources_directory_path` (optional); The path to a directory containing overrides for any of Betty's
+    [resources](./betty/resources).
 - `plugins` (optional): The plugins to enable. Keys are plugin names, and values are objects containing each plugin's configuration.
-    - `betty.plugin.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `{}`.
-    - `betty.plugin.cleaner.Cleaner`: Removes data (events, media, etc.) that have no relation to any people. Configuration: `{}`.
-    - `betty.plugin.deriver.Deriver`: Extends ancestries by deriving facts from existing information. Configuration: `{}`.
+    - `betty.plugin.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `~`.
+    - `betty.plugin.cleaner.Cleaner`: Removes data (events, media, etc.) that have no relation to any people. Configuration: `~`.
+    - `betty.plugin.deriver.Deriver`: Extends ancestries by deriving facts from existing information. Configuration: `~`.
     - `betty.plugin.gramps.Gramps`: Parses a Gramps genealogy. Configuration:
         - `file`: the path to the *Gramps XML* or *Gramps XML Package* file.
     - `betty.plugin.maps.Maps`: Renders interactive maps using [Leaflet](https://leafletjs.com/).
@@ -117,7 +119,7 @@ plugins:
         - `https` (optional): Whether or not nginx will be serving Betty over HTTPS. Most upstream nginx servers will
             want to have this disabled, so the downstream server can terminate SSL and communicate over HTTP 2 instead.
             Defaults to `true` if the base URL specifies HTTPS, or `false` otherwise.
-    - `betty.plugin.privatizer.Privatizer`: Marks living people private. Configuration: `{}`.
+    - `betty.plugin.privatizer.Privatizer`: Marks living people private. Configuration: `~`.
     - `betty.plugin.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
     - `betty.plugin.wikipedia.Wikipedia`: Lets templates and other plugins retrieve complementary Wikipedia entries.
 

@@ -74,7 +74,7 @@ class MainTest(TestCase):
                     'output': output_directory_path,
                     'base_url': url,
                     'plugins': {
-                        TestPlugin.name(): {},
+                        TestPlugin.name(): None,
                     },
                 }
                 dump(config_dict, config_file)
@@ -103,7 +103,7 @@ class MainTest(TestCase):
                         'output': output_directory_path,
                         'base_url': url,
                         'plugins': {
-                            TestPlugin.name(): {},
+                            TestPlugin.name(): None,
                         },
                     }
                     dump(config_dict, config_file)

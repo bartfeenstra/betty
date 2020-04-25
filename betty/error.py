@@ -1,7 +1,9 @@
 from textwrap import indent
+from typing import List
 
 
-class ExternalContextError(RuntimeError):
+class ExternalContextError(Exception):
+
     """
     An error depending on Betty's external context, e.g. not caused by internal failure.
 
@@ -11,11 +13,11 @@ class ExternalContextError(RuntimeError):
     """
 
     def __init__(self, *args, **kwargs):
-        RuntimeError.__init__(self, *args, **kwargs)
-        self._contexts = []
+        super().__init__(*args, **kwargs)
+        self._contexts: List[str] = []
 
     def __str__(self):
-        return RuntimeError.__str__(self) + '\n' + indent('\n'.join(self._contexts), '- ')
+        return super().__str__() + '\n' + indent('\n'.join(self._contexts), '- ')
 
     def add_context(self, context: str):
         """

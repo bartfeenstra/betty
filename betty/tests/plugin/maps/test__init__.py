@@ -16,7 +16,7 @@ class MapsTest(TestCase):
             configuration = Configuration(
                 output_directory_path, 'https://ancestry.example.com')
             configuration.mode = 'development'
-            configuration.plugins[Maps] = {}
+            configuration.plugins[Maps] = None
             async with Site(configuration) as site:
                 await generate(site)
             with open(join(configuration.www_directory_path, 'maps.js')) as f:

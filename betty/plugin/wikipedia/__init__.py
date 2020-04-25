@@ -6,7 +6,7 @@ from contextlib import suppress
 from json import load
 from os.path import dirname, join, getmtime
 from time import time
-from typing import Optional, Dict, Callable, List, Tuple, Type, Iterable, Set
+from typing import Optional, Dict, Callable, List, Tuple, Type, Iterable, Set, Any
 
 import aiohttp
 from babel import parse_locale
@@ -19,7 +19,7 @@ from betty.fs import makedirs
 from betty.jinja2 import Jinja2Provider
 from betty.locale import Localized, negotiate_locale
 from betty.parse import PostParseEvent
-from betty.plugin import Plugin
+from betty.plugin import Plugin, NO_CONFIGURATION
 from betty.site import Site
 
 
@@ -211,7 +211,7 @@ class Wikipedia(Plugin, Jinja2Provider):
         await self._session.close()
 
     @classmethod
-    def from_configuration_dict(cls, site: Site, configuration: Dict):
+    def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
         return cls(site)
 
     def subscribes_to(self) -> List[Tuple[Type[Event], Callable]]:
