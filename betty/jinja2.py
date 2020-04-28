@@ -20,7 +20,7 @@ from jinja2.utils import htmlsafe_json_dumps, Namespace as Jinja2Namespace
 from markupsafe import Markup
 from resizeimage import resizeimage
 
-from betty.ancestry import File, Citation, Event, Presence, Identifiable, Resource, HasLinks
+from betty.ancestry import File, Citation, Event, Presence, Identifiable, Resource, HasLinks, HasFiles
 from betty.config import Configuration
 from betty.fs import makedirs, hashfile, is_hidden, iterfiles
 from betty.functools import walk, asynciter
@@ -163,6 +163,8 @@ def create_environment(site: Site) -> Environment:
     environment.tests['resource'] = lambda x: isinstance(x, Resource)
     environment.tests['identifiable'] = lambda x: isinstance(x, Identifiable)
     environment.tests['has_links'] = lambda x: isinstance(x, HasLinks)
+    environment.tests['has_files'] = lambda x: isinstance(x, HasFiles)
+    environment.tests['startswith'] = str.startswith
     environment.filters['paragraphs'] = _filter_paragraphs
 
     @contextfilter

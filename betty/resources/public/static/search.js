@@ -22,9 +22,11 @@ var previousKeyCodes = [
 
 function Search() {
   this._query = null
-  this._form = document.getElementById('search')
+  this._search = document.getElementById('search')
+  this._indexUrl = this._search.dataset.bettySearchIndex
+  this._form = this._search.getElementsByTagName('form').item(0)
   this._queryElement = document.getElementById('search-query')
-  this._resultsInjector = document.createElement('div')
+  this._resultsContainer = document.getElementById('search-results-container')
   var _this = this
 
   // Prevent default form submission behaviors, such as HTTP requests.
@@ -40,7 +42,7 @@ function Search() {
   this._queryElement.addEventListener('keydown', function (e) {
     _this._navigateResults(e.which)
   })
-  this._resultsInjector.addEventListener('keydown', function (e) {
+  this._resultsContainer.addEventListener('keydown', function (e) {
     _this._navigateResults(e.which)
   })
 
@@ -54,7 +56,7 @@ function Search() {
     _this.showSearchResults()
   })
   document.addEventListener('mousedown', function (e) {
-    if (!_this._queryElement.contains(e.target) && !_this._resultsInjector.contains(e.target)) {
+    if (!_this._queryElement.contains(e.target) && !_this._resultsContainer.contains(e.target)) {
       _this.hideSearchResults()
       _this._queryElement.blur()
     }
@@ -88,7 +90,7 @@ Search.prototype._navigateResults = function(keyCode) {
   } else if (nextKeyCodes.includes(keyCode)) {
     // If the focus lies on the query input element, focus on the first search result.
     if (document.activeElement === this._queryElement) {
-      this._resultsInjector.getElementsByClassName('search-result-target')[0].focus()
+      this._resultsContainer.getElementsByClassName('search-result-target')[0].focus()
       return
     }
     // If the focus lies on a search result, focus on the next search result if there is one.
@@ -102,18 +104,15 @@ Search.prototype._navigateResults = function(keyCode) {
 }
 
 Search.prototype._setSearchResults = function(results) {
-  this._resultsInjector.innerHTML = this._renderResults(results)
+  this._resultsContainer.innerHTML = this._renderResults(results)
 }
 
 Search.prototype.showSearchResults = function() {
-  document.body.appendChild(this._resultsInjector)
+  this._search.classList.add('focus')
 }
 
 Search.prototype.hideSearchResults = function() {
-  if (!this._resultsInjector.parentNode) {
-    return
-  }
-  this._resultsInjector.parentNode.removeChild(this._resultsInjector)
+  this._search.classList.remove('focus')
 }
 
 Search.prototype._performCacheQuery = function (query) {
@@ -127,7 +126,6 @@ Search.prototype._performFromCachedQuery = function () {
   this._setSearchResults(this._index.filter(function (result) {
     return _this._match(query, result.text)
   }))
-  _this.showSearchResults()
 }
 
 Search.prototype._performCached = function (query) {
@@ -140,7 +138,7 @@ Search.prototype._performUncached = function(query) {
   this.perform = this._performCacheQuery
   var _this = this
   var indexRequest = new XMLHttpRequest()
-  indexRequest.open('GET', this._form.dataset.bettySearchIndex)
+  indexRequest.open('GET', this._indexUrl)
   indexRequest.addEventListener('load', function (e) {
     var index = JSON.parse(indexRequest.response)
     _this._index = index.index
@@ -167,16 +165,16 @@ Search.prototype._match = function(query, haystack) {
 Search.prototype._renderResults = function(results) {
   var _this = this
   return this._resultsContainerTemplate
-      .replace('## results ##', results.map(function(result) {
+      .replace('<!-- betty-search-results -->', results.map(function(result) {
         return _this._renderResult(result)
       }).join(''))
 }
 
 Search.prototype._renderResult = function(result) {
   return this._resultContainerTemplate
-      .replace('## result ##', result.result)
+      .replace('<!-- betty-search-result -->', result.result)
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  new Search()
+  new Search('search')
 })

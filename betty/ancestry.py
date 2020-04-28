@@ -2,7 +2,7 @@ from enum import Enum
 from functools import total_ordering
 from itertools import chain
 from os.path import splitext, basename
-from typing import Dict, Optional, List, Iterable, Set, Union, TypeVar, Generic, Callable
+from typing import Dict, Optional, List, Iterable, Set, Union, TypeVar, Generic, Callable, Sequence
 
 from geopy import Point
 
@@ -297,6 +297,10 @@ class File(Resource, Identifiable, Described, HasPrivacy, HasMediaType):
 class HasFiles:
     files: ManyAssociation[File]
 
+    @property
+    def associated_files(self) -> Sequence[File]:
+        return self.files
+
 
 @many_to_one('contained_by', 'contains')
 @one_to_many('contains', 'contained_by')
@@ -478,6 +482,16 @@ class Event(Resource, Dated, HasFiles, HasCitations, Described, HasPrivacy):
     def type(self):
         return self._type
 
+    @property
+    def associated_files(self) -> Sequence[File]:
+        seen = set()
+        for has_citations in [self, *self.citations]:
+            for file in has_citations.files:
+                if file in seen:
+                    continue
+                seen.add(file)
+                yield file
+
 
 class IdentifiableEvent(Event, Identifiable):
     def __init__(self, event_id: str, *args, **kwargs):
@@ -583,6 +597,20 @@ class Person(Resource, Identifiable, HasFiles, HasCitations, HasLinks, HasPrivac
                 if sibling != self and sibling not in siblings:
                     siblings.append(sibling)
         return siblings
+
+    @property
+    def associated_files(self) -> Sequence[File]:
+        files = [
+            *self.files,
+            *[file for name in self.names for citation in name.citations for file in citation.associated_files],
+            *[file for presence in self.presences for file in presence.event.associated_files]
+        ]
+        seen = set()
+        for file in files:
+            if file in seen:
+                continue
+            seen.add(file)
+            yield file
 
 
 class Ancestry:
