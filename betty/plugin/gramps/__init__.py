@@ -357,6 +357,7 @@ _EVENT_TYPE_MAP = {
     'Occupation': Event.Type.OCCUPATION,
     'Retirement': Event.Type.RETIREMENT,
     'Correspondence': Event.Type.CORRESPONDENCE,
+    'Confirmation': Event.Type.CONFIRMATION,
 }
 
 
