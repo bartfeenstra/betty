@@ -2,7 +2,6 @@ import asyncio
 import json as stdjson
 import os
 import re
-from importlib import import_module
 from itertools import takewhile
 from os.path import join, exists
 from typing import Union, Dict, Type, Optional, Callable, Iterable
@@ -24,6 +23,7 @@ from betty.ancestry import File, Citation, Event, Presence, Identifiable, Resour
 from betty.config import Configuration
 from betty.fs import makedirs, hashfile, is_hidden, iterfiles
 from betty.functools import walk, asynciter
+from betty.importlib import import_any
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale
 from betty.plugin import Plugin
@@ -39,17 +39,13 @@ class _Plugins:
         self._plugins = plugins
 
     def __getitem__(self, plugin_type_name):
-        return self._plugins[self._type(plugin_type_name)]
+        return self._plugins[import_any(plugin_type_name)]
 
     def __contains__(self, plugin_type_name):
         try:
-            return self._type(plugin_type_name) in self._plugins
-        except (ImportError, AttributeError):
+            return import_any(plugin_type_name) in self._plugins
+        except ImportError:
             return False
-
-    def _type(self, plugin_type_name: str):
-        plugin_module_name, plugin_class_name = plugin_type_name.rsplit('.', 1)
-        return getattr(import_module(plugin_module_name), plugin_class_name)
 
 
 class _Citer:
