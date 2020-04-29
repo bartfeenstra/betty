@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-04-20 00:07+0100\n"
+"POT-Creation-Date: 2020-04-28 23:12+0100\n"
 "PO-Revision-Date: 2019-10-05 11:38+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -18,46 +18,46 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: betty/locale.py:255
+#: betty/locale.py:250
 msgid "unknown date"
 msgstr "onbekend"
 
-#: betty/locale.py:261
+#: betty/locale.py:256
 #, python-format
 msgid "Around %(date)s"
 msgstr "Rond %(date)s"
 
-#: betty/locale.py:271
+#: betty/locale.py:266
 msgid "MMMM d, y"
 msgstr "d MMMM y"
 
-#: betty/locale.py:272
+#: betty/locale.py:267
 msgid "MMMM, y"
 msgstr "MMMM y"
 
-#: betty/locale.py:273
+#: betty/locale.py:268
 msgid "y"
 msgstr "y"
 
-#: betty/locale.py:274
+#: betty/locale.py:269
 msgid "MMMM d"
 msgstr "d MMMM"
 
-#: betty/locale.py:275
+#: betty/locale.py:270
 msgid "MMMM"
 msgstr "MMMM"
 
-#: betty/locale.py:295
+#: betty/locale.py:290
 #, python-format
 msgid "Between %(start)s and %(end)s"
 msgstr "Tussen %(start)s en %(end)s"
 
-#: betty/locale.py:300
+#: betty/locale.py:295
 #, python-format
 msgid "After %(start)s"
 msgstr "Na %(start)s"
 
-#: betty/locale.py:304
+#: betty/locale.py:299
 #, python-format
 msgid "Before %(end)s"
 msgstr "Voor %(end)s"
@@ -314,12 +314,12 @@ msgstr ""
 msgid "Accessed %(date)s"
 msgstr "Opgevraagd op %(date)s"
 
-#: betty/resources/templates/label/event.html.j2:21
+#: betty/resources/templates/label/event.html.j2:22
 #, python-format
 msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s met %(subjects)s"
 
-#: betty/resources/templates/label/event.html.j2:25
+#: betty/resources/templates/label/event.html.j2:26
 #, python-format
 msgid "%(event)s of %(subjects)s"
 msgstr "%(event)s van %(subjects)s"
@@ -408,15 +408,19 @@ msgstr "Pensioen"
 msgid "Correspondence"
 msgstr "Correspondentie"
 
-#: betty/resources/templates/macro/event.html.j2:26
+#: betty/resources/templates/macro/event.html.j2:20
+msgid "Confirmation"
+msgstr "Geloofsbelijdenis"
+
+#: betty/resources/templates/macro/event.html.j2:27
 msgid "Subject"
 msgstr "Onderwerp"
 
-#: betty/resources/templates/macro/event.html.j2:27
+#: betty/resources/templates/macro/event.html.j2:28
 msgid "Witness"
 msgstr "Getuige"
 
-#: betty/resources/templates/macro/event.html.j2:32
+#: betty/resources/templates/macro/event.html.j2:33
 msgid "Attendee"
 msgstr "Aanwezige"
 
