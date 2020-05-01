@@ -74,7 +74,7 @@ class Configuration:
     locales: Dict[str, LocaleConfiguration]
     author: Optional[str]
     plugins: PluginsConfiguration
-    resources_directory_path: Optional[str]
+    assets_directory_path: Optional[str]
 
     def __init__(self, output_directory_path: str, base_url: str):
         self.cache_directory_path = _CACHE_DIRECTORY_PATH
@@ -88,7 +88,7 @@ class Configuration:
         self.author = None
         self.plugins = PluginsConfiguration()
         self.mode = 'production'
-        self.resources_directory_path = None
+        self.assets_directory_path = None
         self.locales = OrderedDict()
         default_locale = 'en-US'
         self.locales[default_locale] = LocaleConfiguration(default_locale)
@@ -154,7 +154,7 @@ _ConfigurationSchema = Schema(All({
     'clean_urls': All(bool),
     'content_negotiation': bool,
     'mode': Any('development', 'production'),
-    'resources_directory_path': All(str, IsDir(), Path()),
+    'assets_directory_path': All(str, IsDir(), Path()),
     'plugins': All(dict, lambda x: PluginsConfiguration({Importable()(plugin_type_name): plugin_configuration for plugin_type_name, plugin_configuration in x.items()})),
 }, _configuration))
 

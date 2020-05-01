@@ -104,7 +104,7 @@ class Namespace(Jinja2Namespace):
 
 def create_environment(site: Site) -> Environment:
     template_directory_paths = list(
-        [join(path, 'templates') for path in site.resources.paths])
+        [join(path, 'templates') for path in site.assets.paths])
     environment = Environment(
         enable_async=True,
         loader=FileSystemLoader(template_directory_paths),

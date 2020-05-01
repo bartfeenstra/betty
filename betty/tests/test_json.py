@@ -288,7 +288,7 @@ class JSONEncoderTest(TestCase):
             expected = {
                 '$schema': '/schema.json#/definitions/file',
                 'id': 'the_file',
-                'entities': [],
+                'resources': [],
                 'notes': [],
                 'links': [
                     {
@@ -320,7 +320,7 @@ class JSONEncoderTest(TestCase):
                 '$schema': '/schema.json#/definitions/file',
                 'id': 'the_file',
                 'mediaType': 'text/plain',
-                'entities': [
+                'resources': [
                     '/en/person/the_person/index.json',
                 ],
                 'notes': [
