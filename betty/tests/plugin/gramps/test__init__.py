@@ -248,6 +248,24 @@ class ParseXmlTest(TestCase):
         (None, 'publi'),
         (None, 'privat'),
     ])
+    def test_person_should_include_privacy_from_attribute(self, expected: Optional[bool], attribute_value: str) -> None:
+        ancestry = self._parse_partial("""
+<people>
+    <person handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="I0000">
+        <gender>U</gender>
+        <attribute type="betty:privacy" value="%s"/>
+    </person>
+</people>
+""" % attribute_value)
+        person = ancestry.people['I0000']
+        self.assertEquals(expected, person.private)
+
+    @parameterized.expand([
+        (True, 'private'),
+        (False, 'public'),
+        (None, 'publi'),
+        (None, 'privat'),
+    ])
     def test_event_should_include_privacy_from_attribute(self, expected: Optional[bool], attribute_value: str) -> None:
         ancestry = self._parse_partial("""
 <events>

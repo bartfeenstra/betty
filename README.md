@@ -125,10 +125,11 @@ ory_path: /var/www/betty
 
 ### Gramps
 #### Privacy
-Gramps has built-in support for person privacy. To control privacy for events, files, sources, and citations, add a
-`betty:privacy` attribute to any of these types, with a value of `private` to explicitly declare the data always
-private or `public` to declare the data always public. Any other value will leave the privacy undecided. In such cases,
-the `betty.plugin.privatizer.Privatizer` may decide if the data is public or private.
+Gramps has limited built-in support for people's privacy. To fully control privacy for people, as well as events, files,
+sources, and citations, add a `betty:privacy` attribute to any of these types, with a value of `private` to explicitly
+declare the data always private or `public` to declare the data always public. Any other value will leave the privacy
+undecided, as well as person records marked public using Gramps' built-in privacy selector. In such cases, the
+`betty.plugin.privatizer.Privatizer` may decide if the data is public or private.
 
 ### The Python API
 ```python
