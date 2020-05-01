@@ -28,8 +28,8 @@ class Site:
         self._site_stack = []
         self._ancestry = Ancestry()
         self._configuration = configuration
-        self._resources = FileSystem(
-            join(dirname(abspath(__file__)), 'resources'))
+        self._assets = FileSystem(
+            join(dirname(abspath(__file__)), 'assets'))
         self._event_dispatcher = EventDispatcher()
         self._localized_url_generator = SiteUrlGenerator(configuration)
         self._static_url_generator = StaticPathUrlGenerator(configuration)
@@ -40,7 +40,7 @@ class Site:
         self._plugin_exit_stack = AsyncExitStack()
         self._init_plugins()
         self._init_event_listeners()
-        self._init_resources()
+        self._init_assets()
         self._init_translations()
         self._jinja2_environment = None
         self._renderer = None
@@ -109,20 +109,20 @@ class Site:
             for event_name, listener in plugin.subscribes_to():
                 self._event_dispatcher.add_listener(event_name, listener)
 
-    def _init_resources(self) -> None:
+    def _init_assets(self) -> None:
         for plugin in self._plugins.values():
-            if plugin.resource_directory_path is not None:
-                self._resources.paths.appendleft(
-                    plugin.resource_directory_path)
-        if self._configuration.resources_directory_path:
-            self._resources.paths.appendleft(
-                self._configuration.resources_directory_path)
+            if plugin.assets_directory_path is not None:
+                self._assets.paths.appendleft(
+                    plugin.assets_directory_path)
+        if self._configuration.assets_directory_path:
+            self._assets.paths.appendleft(
+                self._configuration.assets_directory_path)
 
     def _init_translations(self) -> None:
         self._translations['en-US'] = gettext.NullTranslations()
         for locale in self._configuration.locales:
-            for resources_path in reversed(self._resources.paths):
-                translations = open_translations(locale, resources_path)
+            for assets_path in reversed(self._assets.paths):
+                translations = open_translations(locale, assets_path)
                 if translations:
                     translations.add_fallback(self._translations[locale])
                     self._translations[locale] = translations
@@ -140,8 +140,8 @@ class Site:
         return self._plugins
 
     @property
-    def resources(self) -> FileSystem:
-        return self._resources
+    def assets(self) -> FileSystem:
+        return self._assets
 
     @property
     def event_dispatcher(self) -> EventDispatcher:

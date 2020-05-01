@@ -15,7 +15,7 @@ from betty.site import Site
 
 
 def validate(data: Any, schema_definition: str, site: Site) -> None:
-    with open(path.join(path.dirname(__file__), 'resources', 'public', 'static', 'schema.json')) as f:
+    with open(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'schema.json')) as f:
         schema = stdjson.load(f)
     # @todo Can we set the schema ID somehow without making the entire JSON schema file a Jinja2 template?
     schema_id = site.static_url_generator.generate('schema.json', absolute=True)
@@ -238,7 +238,7 @@ class JSONEncoder(stdjson.JSONEncoder):
     def _encode_file(self, file: File) -> Dict:
         encoded = {
             'id': file.id,
-            'entities': [self._generate_url(entity) for entity in file.resources],
+            'resources': [self._generate_url(entity) for entity in file.resources],
             'notes': file.notes,
         }
         self._encode_schema(encoded, 'file')

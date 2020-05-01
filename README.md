@@ -70,7 +70,7 @@ locales:
   - locale: en-US
     alias: en
   - locale: nl
-resources_directory_path: ./resources
+assets_directory_path: ./resources
 plugins:
   betty.plugin.anonymizer.Anonymizer: ~
   betty.plugin.cleaner.Cleaner: ~
@@ -98,8 +98,8 @@ plugins:
     - `alias` (optional): A shorthand alias to use instead of the full language tag, such as when rendering URLs.
 
     If no locales are defined, Betty defaults to US English.
-- `resources_directory_path` (optional); The path to a directory containing overrides for any of Betty's
-    [resources](./betty/resources).
+- `assets_directory_path` (optional); The path to a directory containing overrides for any of Betty's
+    [assets](./betty/assets).
 - `plugins` (optional): The plugins to enable. Keys are plugin names, and values are objects containing each plugin's configuration.
     - `betty.plugin.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `~`.
     - `betty.plugin.cleaner.Cleaner`: Removes data (events, media, etc.) that have no relation to any people. Configuration: `~`.

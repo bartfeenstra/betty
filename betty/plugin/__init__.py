@@ -48,5 +48,5 @@ class Plugin:
         return []
 
     @property
-    def resource_directory_path(self) -> Optional[str]:
+    def assets_directory_path(self) -> Optional[str]:
         return None

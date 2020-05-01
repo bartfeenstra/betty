@@ -22,7 +22,7 @@ class ParseXmlTest(TestCase):
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with Site(configuration) as site:
                 cls.ancestry = site.ancestry
-                parse_xml(site, join(dirname(abspath(__file__)), 'resources', 'data.xml'))
+                parse_xml(site, join(dirname(abspath(__file__)), 'assets', 'data.xml'))
 
     @sync
     async def _parse(self, xml: str) -> Ancestry:
@@ -56,7 +56,7 @@ class ParseXmlTest(TestCase):
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with Site(configuration) as site:
                 gramps_file_path = join(
-                    dirname(abspath(__file__)), 'resources', 'minimal.xml')
+                    dirname(abspath(__file__)), 'assets', 'minimal.xml')
                 parse_xml(site, gramps_file_path)
 
     @sync
@@ -65,7 +65,7 @@ class ParseXmlTest(TestCase):
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with Site(configuration) as site:
                 gramps_file_path = join(
-                    dirname(abspath(__file__)), 'resources', 'minimal.gramps')
+                    dirname(abspath(__file__)), 'assets', 'minimal.gramps')
                 parse_xml(site, gramps_file_path)
 
     @sync
@@ -74,7 +74,7 @@ class ParseXmlTest(TestCase):
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with Site(configuration) as site:
                 gramps_file_path = join(
-                    dirname(abspath(__file__)), 'resources', 'minimal.gpkg')
+                    dirname(abspath(__file__)), 'assets', 'minimal.gpkg')
                 parse_xml(site, gramps_file_path)
 
     def test_place_should_include_name(self):
@@ -346,7 +346,7 @@ class GrampsTest(TestCase):
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
             configuration.plugins[Gramps] = {
-                'file': join(dirname(abspath(__file__)), 'resources', 'minimal.gpkg')
+                'file': join(dirname(abspath(__file__)), 'assets', 'minimal.gpkg')
             }
             async with Site(configuration) as site:
                 await parse(site)

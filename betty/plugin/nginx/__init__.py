@@ -10,7 +10,7 @@ from betty.generate import PostGenerateEvent
 from betty.plugin import Plugin
 from betty.site import Site
 
-DOCKER_PATH = os.path.join(os.path.dirname(__file__), 'resources', 'docker')
+DOCKER_PATH = os.path.join(os.path.dirname(__file__), 'assets', 'docker')
 
 
 class Nginx(Plugin):
@@ -34,8 +34,8 @@ class Nginx(Plugin):
         ]
 
     @property
-    def resource_directory_path(self) -> Optional[str]:
-        return '%s/resources' % os.path.dirname(__file__)
+    def assets_directory_path(self) -> Optional[str]:
+        return '%s/assets' % os.path.dirname(__file__)
 
     @property
     def https(self) -> bool:
@@ -56,7 +56,7 @@ class Nginx(Plugin):
         # Render the ngnix configuration.
         file_name = 'nginx.conf.j2'
         destination_file_path = os.path.join(output_directory_path, file_name)
-        await self._site.resources.copy2(file_name, destination_file_path)
+        await self._site.assets.copy2(file_name, destination_file_path)
         await self._site.renderer.render_file(destination_file_path)
 
         # Render the Dockerfile.
