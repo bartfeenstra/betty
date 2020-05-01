@@ -118,16 +118,16 @@ class ConfigurationTest(TestCase):
         expected = join(output_directory_path, 'www')
         self.assertEquals(expected, sut.www_directory_path)
 
-    def test_resources_directory_path_without_path(self):
+    def test_assets_directory_path_without_path(self):
         sut = Configuration('/tmp/betty', 'https://example.com')
-        self.assertIsNone(sut.resources_directory_path)
+        self.assertIsNone(sut.assets_directory_path)
 
-    def test_resources_directory_path_with_path(self):
+    def test_assets_directory_path_with_path(self):
         sut = Configuration('/tmp/betty', 'https://example.com')
-        resources_directory_path = '/tmp/betty-resources'
-        sut.resources_directory_path = resources_directory_path
-        self.assertEquals(resources_directory_path,
-                          sut.resources_directory_path)
+        assets_directory_path = '/tmp/betty-assets'
+        sut.assets_directory_path = assets_directory_path
+        self.assertEquals(assets_directory_path,
+                          sut.assets_directory_path)
 
     def test_root_path(self):
         sut = Configuration('/tmp/betty', 'https://example.com')
@@ -279,14 +279,14 @@ class FromTest(TestCase):
             configuration = from_file(f)
             self.assertEquals(mode, configuration.mode)
 
-    def test_from_file_should_parse_resources_directory_path(self):
-        with TemporaryDirectory() as resources_directory_path:
+    def test_from_file_should_parse_assets_directory_path(self):
+        with TemporaryDirectory() as assets_directory_path:
             config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-            config_dict['resources_directory_path'] = resources_directory_path
+            config_dict['assets_directory_path'] = assets_directory_path
             with self._write(config_dict) as f:
                 configuration = from_file(f)
-                self.assertEquals(resources_directory_path,
-                                  configuration.resources_directory_path)
+                self.assertEquals(assets_directory_path,
+                                  configuration.assets_directory_path)
 
     def test_from_file_should_parse_one_plugin_with_configuration(self):
         config_dict = dict(**self._MINIMAL_CONFIG_DICT)

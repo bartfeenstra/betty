@@ -170,7 +170,7 @@
         "notes": {
           "$ref": "#/definitions/notes"
         },
-        "entities": {
+        "resources": {
           "type": "array",
           "items": {
             "type": "string",
@@ -185,7 +185,7 @@
         "$schema",
         "id",
         "notes",
-        "entities"
+        "resources"
       ],
       "patternProperties": {
         "^@": {

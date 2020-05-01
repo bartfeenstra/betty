@@ -246,5 +246,5 @@ class Wikipedia(Plugin, Jinja2Provider):
             return
 
     @property
-    def resource_directory_path(self) -> Optional[str]:
-        return '%s/resources' % dirname(__file__)
+    def assets_directory_path(self) -> Optional[str]:
+        return '%s/assets' % dirname(__file__)

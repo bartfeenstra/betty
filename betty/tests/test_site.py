@@ -212,16 +212,16 @@ class SiteTest(TestCase):
                               type(event.tracker[0]))
 
     @sync
-    async def test_resources_without_resources_directory_path(self):
+    async def test_resources_without_assets_directory_path(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         async with Site(configuration) as sut:
-            self.assertEquals(1, len(sut.resources.paths))
+            self.assertEquals(1, len(sut.assets.paths))
 
     @sync
-    async def test_resources_with_resources_directory_path(self):
-        resources_directory_path = '/tmp/betty'
+    async def test_resources_with_assets_directory_path(self):
+        assets_directory_path = '/tmp/betty'
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        configuration.resources_directory_path = resources_directory_path
+        configuration.assets_directory_path = assets_directory_path
         async with Site(configuration) as sut:
-            self.assertEquals(2, len(sut.resources.paths))
-            self.assertEquals(resources_directory_path, sut.resources.paths[0])
+            self.assertEquals(2, len(sut.assets.paths))
+            self.assertEquals(assets_directory_path, sut.assets.paths[0])

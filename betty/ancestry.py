@@ -280,17 +280,17 @@ class File(Resource, Identifiable, Described, HasPrivacy, HasMediaType):
 
     @property
     def sources(self) -> Iterable['Source']:
-        for entity in self.resources:
-            if isinstance(entity, Source):
-                yield entity
-            if isinstance(entity, Citation):
-                yield entity.source
+        for resource in self.resources:
+            if isinstance(resource, Source):
+                yield resource
+            if isinstance(resource, Citation):
+                yield resource.source
 
     @property
     def citations(self) -> Iterable['Citation']:
-        for entity in self.resources:
-            if isinstance(entity, Citation):
-                yield entity
+        for resource in self.resources:
+            if isinstance(resource, Citation):
+                yield resource
 
 
 @many_to_many('files', 'resources')
