@@ -7,9 +7,11 @@ from betty.functools import sync
 from betty.generate import generate
 from betty.plugin.maps import Maps
 from betty.site import Site
+from betty.tests import patch_cache
 
 
 class MapsTest(TestCase):
+    @patch_cache
     @sync
     async def test_post_render_event(self):
         with TemporaryDirectory() as output_directory_path:
