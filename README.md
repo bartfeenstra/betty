@@ -79,8 +79,7 @@ plugins:
     file: ./gramps.gpkg
   betty.plugin.maps.Maps: ~
   betty.plugin.nginx.Nginx:
-    www_direct
-ory_path: /var/www/betty
+    www_directory_path: /var/www/betty
     https: true
   betty.plugin.privatizer.Privatizer: ~
   betty.plugin.trees.Trees: ~
