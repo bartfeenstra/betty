@@ -1,5 +1,5 @@
 from json import dump
-from os import path, makedirs
+from os import path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import Callable, Dict
 from unittest import TestCase
@@ -11,6 +11,7 @@ from click.testing import CliRunner
 import betty
 from betty import os
 from betty.plugin import Plugin
+from betty.tests import patch_cache
 
 try:
     from unittest.mock import AsyncMock
@@ -114,22 +115,17 @@ class MainTest(TestCase):
 
 
 class ClearCachesTest(TestCase):
+    @patch_cache
     def test(self):
-        original_cache_directory_path = betty._CACHE_DIRECTORY_PATH
-        try:
-            with TemporaryDirectory() as user_directory_path:
-                cache_directory_path = path.join(user_directory_path, '.betty')
-                makedirs(cache_directory_path)
-                betty._CACHE_DIRECTORY_PATH = cache_directory_path
-                cached_file_path = path.join(cache_directory_path, 'KeepMeAroundPlease')
-                open(cached_file_path, 'w').close()
-                runner = CliRunner()
-                result = runner.invoke(main, ('clear-caches',))
-                self.assertEqual(0, result.exit_code)
-                with self.assertRaises(FileNotFoundError):
-                    open(cached_file_path)
-        finally:
-            betty._CACHE_DIRECTORY_PATH = original_cache_directory_path
+        # @todo This fails because the command under test removes the entire cache directory itself, which the context
+        # manager also expects to be able to delete.
+        cached_file_path = path.join(betty._CACHE_DIRECTORY_PATH, 'KeepMeAroundPlease')
+        open(cached_file_path, 'w').close()
+        runner = CliRunner()
+        result = runner.invoke(main, ('clear-caches',))
+        self.assertEqual(0, result.exit_code)
+        with self.assertRaises(FileNotFoundError):
+            open(cached_file_path)
 
 
 class GenerateTest(TestCase):
