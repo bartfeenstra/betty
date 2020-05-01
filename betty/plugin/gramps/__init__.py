@@ -230,7 +230,7 @@ def _parse_person(ancestry: _IntermediateAncestry, element: Element):
     _parse_citationref(ancestry, person, element)
     _parse_objref(ancestry, person, element)
     _parse_urls(person, element)
-
+    _parse_attribute_privacy(person, element, 'attribute')
     ancestry.people[handle] = person
 
 
