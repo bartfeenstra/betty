@@ -8,8 +8,6 @@ from betty.site import Site
 
 
 class Test(TestCase):
-    maxDiff = None
-
     async def _render(self, **data):
         with TemporaryDirectory() as output_directory_path:
             async with Site(Configuration(output_directory_path, 'https://example.com')) as site:
@@ -18,7 +16,7 @@ class Test(TestCase):
     @sync
     async def test_without_enclosing_places(self):
         place = Place('P0', [LocalizedName('The Place')])
-        expected = ''
+        expected = '<div class="meta"></div>'
         actual = await self._render(place=place)
         self.assertEqual(expected, actual)
 

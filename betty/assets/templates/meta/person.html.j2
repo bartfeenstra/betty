@@ -1,38 +1,42 @@
-{% import 'macro/event.html.j2' as eventMacros %}
-{% import 'macro/person.html.j2' as personMacros %}
-{% macro _embeddedPersonNameLabel(name) %}
+{%- import 'macro/event.html.j2' as eventMacros -%}
+{%- import 'macro/person.html.j2' as personMacros -%}
+{%- macro _embeddedPersonNameLabel(name) -%}
     {{ personMacros.nameLabel(name, embedded=True) }}
-{% endmacro %}
-{% set person = person | default(resource) %}
-{% if not embedded is defined %}
-    {% set embedded = False %}
-{% endif %}
+{%- endmacro -%}
+{%- set person = person | default(resource) -%}
+{%- if not embedded is defined -%}
+    {%- set embedded = False -%}
+{%- endif -%}
 <div class="meta">
-    {% if person.private %}
-        <p>{% trans %}This person's details are unavailable to protect their privacy.{% endtrans %}</p>
-    {% else %}
-        {% if person.names | length > 1 %}
-            <span class="aka">{% trans names=person.alternative_names | map(_embeddedPersonNameLabel if embedded else personMacros.nameLabel) | list | join(', ') %}Also known as {{ names }}{% endtrans %}</span>
-        {% endif %}
-        {% if person.start or person.end %}
+    {%- if person.private -%}
+        <p>{%- trans -%}This person's details are unavailable to protect their privacy.{%- endtrans -%}</p>
+    {%- else -%}
+        {%- if person.names | length > 1 -%}
+            <span class="aka">{%- trans names=person.alternative_names | map(_embeddedPersonNameLabel if embedded else personMacros.nameLabel) | list | join(', ') -%}Also known as {{ names }}{%- endtrans -%}</span>
+        {%- endif -%}
+        {%- set formattedStart -%}
+            {%- if person.start -%}
+                {%- with event=person.start -%}
+                    {%- include 'event-dimensions.html.j2' -%}
+                {%- endwith -%}
+            {%- endif -%}
+        {%- endset -%}
+        {%- set formattedEnd -%}
+            {%- if person.end -%}
+                {%- with event=person.end -%}
+                    {%- include 'event-dimensions.html.j2' -%}
+                {%- endwith -%}
+            {%- endif -%}
+        {%- endset -%}
+        {%- if formattedStart or formattedEnd -%}
             <dl>
-                {% if person.start %}
-                    <dt>{{ eventMacros.type_label(person.start.type) }}</dt>
-                    <dd>
-                        {% with event=person.start %}
-                            {% include 'event-dimensions.html.j2' %}
-                        {% endwith %}
-                    </dd>
-                {% endif %}
-                {% if person.end %}
-                    <dt>{{ eventMacros.type_label(person.end.type) }}</dt>
-                    <dd>
-                        {% with event=person.end %}
-                            {% include 'event-dimensions.html.j2' %}
-                        {% endwith %}
-                    </dd>
-                {% endif %}
+                {%- if formattedStart -%}
+                    <dt>{{ eventMacros.type_label(person.start.type) }}</dt><dd>{{ formattedStart }}</dd>
+                {%- endif -%}
+                {%- if formattedEnd -%}
+                    <dt>{{ eventMacros.type_label(person.end.type) }}</dt><dd>{{ formattedEnd }}</dd>
+                {%- endif -%}
             </dl>
-        {% endif %}
-    {% endif %}
+        {%- endif -%}
+    {%- endif -%}
 </div>
