@@ -1,4 +1,3 @@
-{% import 'macro/event.html.j2' as eventMacros %}
 {% set person_context = person_context | default(none) %}
 {% set dated_events = events | rejectattr('date', 'none') | selectattr('date.comparable') | list | sort(attribute='date') %}
 {% if dated_events | length > 0 %}

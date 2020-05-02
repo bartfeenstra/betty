@@ -1,7 +1,7 @@
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from betty.ancestry import Person, Presence, Event, PersonName, Source, Citation
+from betty.ancestry import Person, Presence, Event, PersonName, Source, Citation, Birth, Subject, Death
 from betty.config import Configuration
 from betty.functools import sync
 from betty.locale import Date
@@ -53,7 +53,7 @@ class Test(TestCase):
     @sync
     async def test_with_start(self):
         person = Person('P0')
-        Presence(person, Presence.Role.SUBJECT, Event(Event.Type.BIRTH, Date(1970)))
+        Presence(person, Subject(), Event(Birth(), Date(1970)))
         expected = '<div class="meta"><dl><dt>Birth</dt><dd>1970</dd></dl></div>'
         actual = await self._render(person=person)
         self.assertEqual(expected, actual)
@@ -61,7 +61,7 @@ class Test(TestCase):
     @sync
     async def test_with_end(self):
         person = Person('P0')
-        Presence(person, Presence.Role.SUBJECT, Event(Event.Type.DEATH, Date(1970)))
+        Presence(person, Subject(), Event(Death(), Date(1970)))
         expected = '<div class="meta"><dl><dt>Death</dt><dd>1970</dd></dl></div>'
         actual = await self._render(person=person)
         self.assertEqual(expected, actual)
@@ -69,7 +69,7 @@ class Test(TestCase):
     @sync
     async def test_embedded(self):
         person = Person('P0')
-        Presence(person, Presence.Role.SUBJECT, Event(Event.Type.BIRTH, Date(1970)))
+        Presence(person, Subject(), Event(Birth(), Date(1970)))
         person.names.append(PersonName('Jane', 'Dough'))
         name = PersonName('Janet', 'Doughnut')
         name.citations.append(Citation(Source('The Source')))

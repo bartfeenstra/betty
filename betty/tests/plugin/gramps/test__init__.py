@@ -5,7 +5,7 @@ from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.ancestry import Event, Ancestry, PersonName
+from betty.ancestry import Ancestry, PersonName, Birth, Death
 from betty.config import Configuration
 from betty.functools import sync
 from betty.parse import parse
@@ -145,10 +145,10 @@ class ParseXmlTest(TestCase):
             self.assertCountEqual(expected_children, parent.children)
 
     def test_event_should_be_birth(self):
-        self.assertEquals(Event.Type.BIRTH, self.ancestry.events['E0000'].type)
+        self.assertIsInstance(self.ancestry.events['E0000'].type, Birth)
 
     def test_event_should_be_death(self):
-        self.assertEquals(Event.Type.DEATH, self.ancestry.events['E0002'].type)
+        self.assertIsInstance(self.ancestry.events['E0002'].type, Death)
 
     def test_event_should_include_place(self):
         event = self.ancestry.events['E0000']

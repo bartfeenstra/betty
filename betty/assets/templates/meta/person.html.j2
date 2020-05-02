@@ -1,4 +1,3 @@
-{%- import 'macro/event.html.j2' as eventMacros -%}
 {%- import 'macro/person.html.j2' as personMacros -%}
 {%- macro _embeddedPersonNameLabel(name) -%}
     {{ personMacros.nameLabel(name, embedded=True) }}
@@ -31,10 +30,10 @@
         {%- if formattedStart or formattedEnd -%}
             <dl>
                 {%- if formattedStart -%}
-                    <dt>{{ eventMacros.type_label(person.start.type) }}</dt><dd>{{ formattedStart }}</dd>
+                    <dt>{{ person.start.type.label }}</dt><dd>{{ formattedStart }}</dd>
                 {%- endif -%}
                 {%- if formattedEnd -%}
-                    <dt>{{ eventMacros.type_label(person.end.type) }}</dt><dd>{{ formattedEnd }}</dd>
+                    <dt>{{ person.end.type.label }}</dt><dd>{{ formattedEnd }}</dd>
                 {%- endif -%}
             </dl>
         {%- endif -%}

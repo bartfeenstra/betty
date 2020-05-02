@@ -1,8 +1,8 @@
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from betty.ancestry import Ancestry, Person, Event, Place, Presence, LocalizedName, IdentifiableEvent, File, \
-    PersonName, IdentifiableSource, IdentifiableCitation
+from betty.ancestry import Ancestry, Person, Place, Presence, LocalizedName, IdentifiableEvent, File, PersonName, \
+    IdentifiableSource, IdentifiableCitation, Subject, Birth
 from betty.config import Configuration
 from betty.functools import sync
 from betty.parse import parse
@@ -13,7 +13,7 @@ from betty.site import Site
 class CleanerTest(TestCase):
     @sync
     async def test_post_parse(self) -> None:
-        event = IdentifiableEvent('E0', Event.Type.BIRTH)
+        event = IdentifiableEvent('E0', Birth())
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
@@ -28,11 +28,11 @@ class CleanTest(TestCase):
     def test_clean(self) -> None:
         ancestry = Ancestry()
 
-        onymous_event = IdentifiableEvent('E0', Event.Type.BIRTH)
-        Presence(Person('P0'), Presence.Role.SUBJECT, onymous_event)
+        onymous_event = IdentifiableEvent('E0', Birth())
+        Presence(Person('P0'), Subject(), onymous_event)
         ancestry.events[onymous_event.id] = onymous_event
 
-        anonymous_event = IdentifiableEvent('E1', Event.Type.BIRTH)
+        anonymous_event = IdentifiableEvent('E1', Birth())
         ancestry.events[anonymous_event.id] = anonymous_event
 
         onymous_place = Place('P0', [LocalizedName('Amsterdam')])
@@ -130,7 +130,7 @@ class CleanTest(TestCase):
         place = Place('P0', [LocalizedName('The Place')])
         ancestry.places[place.id] = place
 
-        event = IdentifiableEvent('E0', Event.Type.BIRTH)
+        event = IdentifiableEvent('E0', Birth())
         event.citations.append(citation)
         event.files.append(file)
         event.place = place
@@ -164,13 +164,13 @@ class CleanTest(TestCase):
 
         person = Person('P0')
 
-        event = IdentifiableEvent('E0', Event.Type.BIRTH)
+        event = IdentifiableEvent('E0', Birth())
         event.citations.append(citation)
         event.files.append(file)
         event.place = place
         ancestry.events[event.id] = event
 
-        Presence(person, Presence.Role.SUBJECT, event)
+        Presence(person, Subject(), event)
 
         clean(ancestry)
 

@@ -5,8 +5,8 @@ from unittest import TestCase
 from geopy import Point
 
 from betty import json
-from betty.ancestry import Place, Person, LocalizedName, Link, Event, Presence, Source, File, Note, PersonName, \
-    IdentifiableEvent, IdentifiableSource, IdentifiableCitation
+from betty.ancestry import Place, Person, LocalizedName, Link, Presence, Source, File, Note, PersonName, \
+    IdentifiableEvent, IdentifiableSource, IdentifiableCitation, Subject, Birth
 from betty.config import Configuration, LocaleConfiguration
 from betty.json import JSONEncoder
 from betty.locale import Date, DateRange
@@ -95,7 +95,7 @@ class JSONEncoderTest(TestCase):
         link = Link('https://example.com/the-place')
         link.label = 'The Place Online'
         place.links.add(link)
-        place.events.append(IdentifiableEvent('E1', Event.Type.BIRTH))
+        place.events.append(IdentifiableEvent('E1', Birth()))
         expected = {
             '$schema': '/schema.json#/definitions/place',
             '@context': {
@@ -215,7 +215,7 @@ class JSONEncoderTest(TestCase):
         person.links.add(link)
         person.citations.append(
             IdentifiableCitation('the_citation', Source('The Source')))
-        Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('the_event', Event.Type.BIRTH))
+        Presence(person, Subject(), IdentifiableEvent('the_event', Birth()))
 
         expected = {
             '$schema': '/schema.json#/definitions/person',
@@ -251,7 +251,7 @@ class JSONEncoderTest(TestCase):
                     '@context': {
                         'event': 'https://schema.org/performerIn',
                     },
-                    'role': Presence.Role.SUBJECT.value,
+                    'role': 'subject',
                     'event': '/en/event/the_event/index.json',
                 },
             ],
@@ -349,12 +349,12 @@ class JSONEncoderTest(TestCase):
             self.assert_encodes(expected, file, 'file')
 
     def test_event_should_encode_minimal(self):
-        event = IdentifiableEvent('the_event', Event.Type.BIRTH)
+        event = IdentifiableEvent('the_event', Birth())
         expected = {
             '$schema': '/schema.json#/definitions/event',
             '@type': 'https://schema.org/Event',
             'id': 'the_event',
-            'type': Event.Type.BIRTH.value,
+            'type': 'birth',
             'presences': [],
             'citations': [],
             'links': [
@@ -378,10 +378,10 @@ class JSONEncoderTest(TestCase):
         self.assert_encodes(expected, event, 'event')
 
     def test_event_should_encode_full(self):
-        event = IdentifiableEvent('the_event', Event.Type.BIRTH)
+        event = IdentifiableEvent('the_event', Birth())
         event.date = DateRange(Date(2000, 1, 1), Date(2019, 12, 31))
         event.place = Place('the_place', [LocalizedName('The Place')])
-        Presence(Person('the_person'), Presence.Role.SUBJECT, event)
+        Presence(Person('the_person'), Subject(), event)
         event.citations.append(
             IdentifiableCitation('the_citation', Source('The Source')))
         expected = {
@@ -391,13 +391,13 @@ class JSONEncoderTest(TestCase):
             },
             '@type': 'https://schema.org/Event',
             'id': 'the_event',
-            'type': Event.Type.BIRTH.value,
+            'type': 'birth',
             'presences': [
                 {
                     '@context': {
                         'person': 'https://schema.org/actor',
                     },
-                    'role': Presence.Role.SUBJECT.value,
+                    'role': 'subject',
                     'person': '/en/person/the_person/index.json',
                 },
             ],
@@ -558,7 +558,7 @@ class JSONEncoderTest(TestCase):
     def test_citation_should_encode_full(self):
         citation = IdentifiableCitation('the_citation', IdentifiableSource('the_source', 'The Source'))
         citation.description = 'The Source Description'
-        citation.facts.append(IdentifiableEvent('the_event', Event.Type.BIRTH))
+        citation.facts.append(IdentifiableEvent('the_event', Birth()))
         expected = {
             '$schema': '/schema.json#/definitions/citation',
             '@type': 'https://schema.org/Thing',

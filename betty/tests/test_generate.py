@@ -1,15 +1,15 @@
+import json as stdjson
 from os import makedirs, path
 from os.path import join, exists
 from tempfile import TemporaryDirectory, NamedTemporaryFile
 from unittest import TestCase
-import json as stdjson
 
 import html5lib
 from lxml import etree
 
 from betty import json
-from betty.ancestry import Person, Event, Place, Source, LocalizedName, File, IdentifiableEvent, IdentifiableCitation, \
-    IdentifiableSource
+from betty.ancestry import Person, Place, Source, LocalizedName, File, IdentifiableEvent, IdentifiableCitation, \
+    IdentifiableSource, Birth
 from betty.config import Configuration, LocaleConfiguration
 from betty.functools import sync
 from betty.generate import generate
@@ -105,7 +105,7 @@ class RenderTest(GenerateTestCase):
 
     @sync
     async def test_event(self):
-        event = IdentifiableEvent('EVENT1', Event.Type.BIRTH)
+        event = IdentifiableEvent('EVENT1', Birth())
         self.site.ancestry.events[event.id] = event
         await generate(self.site)
         self.assert_betty_html('/event/%s/index.html' % event.id)

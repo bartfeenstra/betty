@@ -4,7 +4,7 @@ from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.ancestry import Person, Presence, IdentifiableEvent, Event
+from betty.ancestry import Person, Presence, IdentifiableEvent, Subject, Marriage, Birth, Divorce, Death
 from betty.config import Configuration
 from betty.functools import sync
 from betty.locale import DateRange, Date, Datey
@@ -17,7 +17,7 @@ class DeriverTest(TestCase):
     @sync
     async def test_post_parse(self):
         person = Person('P0')
-        other_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.MARRIAGE))
+        other_presence = Presence(person, Subject(), IdentifiableEvent('E0', Marriage()))
         other_presence.event.date = Date(1970, 1, 1)
 
         with TemporaryDirectory() as output_directory_path:
@@ -49,7 +49,7 @@ class DeriverTest(TestCase):
     @sync
     async def test_derive_with_events_without_dates(self):
         person = Person('P0')
-        Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.MARRIAGE))
+        Presence(person, Subject(), IdentifiableEvent('E0', Marriage()))
 
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
@@ -70,11 +70,11 @@ class DeriverTest(TestCase):
     @sync
     async def test_derive_birth_with_existing_birth(self, expected: Datey, existing_datey: Optional[Datey]):
         person = Person('P0')
-        birth_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.BIRTH))
+        birth_presence = Presence(person, Subject(), IdentifiableEvent('E0', Birth()))
         birth_presence.event.date = existing_datey
-        other_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.MARRIAGE))
+        other_presence = Presence(person, Subject(), IdentifiableEvent('E0', Marriage()))
         other_presence.event.date = Date(1970, 1, 1)
-        irrelevant_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E1', Event.Type.DIVORCE))
+        irrelevant_presence = Presence(person, Subject(), IdentifiableEvent('E1', Divorce()))
         irrelevant_presence.event.date = Date(1971, 1, 1)
 
         with TemporaryDirectory() as output_directory_path:
@@ -96,9 +96,9 @@ class DeriverTest(TestCase):
     @sync
     async def test_derive_birth_with_existing_event(self, other_date: Datey):
         person = Person('P0')
-        other_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.MARRIAGE))
+        other_presence = Presence(person, Subject(), IdentifiableEvent('E0', Marriage()))
         other_presence.event.date = other_date
-        irrelevant_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E1', Event.Type.DIVORCE))
+        irrelevant_presence = Presence(person, Subject(), IdentifiableEvent('E1', Divorce()))
         irrelevant_presence.event.date = Date(1972, 1, 1)
 
         with TemporaryDirectory() as output_directory_path:
@@ -121,11 +121,11 @@ class DeriverTest(TestCase):
     @sync
     async def test_derive_death_with_existing_death(self, expected: Datey, existing_datey: Optional[Datey]):
         person = Person('P0')
-        death_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.DEATH))
+        death_presence = Presence(person, Subject(), IdentifiableEvent('E0', Death()))
         death_presence.event.date = existing_datey
-        other_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.MARRIAGE))
+        other_presence = Presence(person, Subject(), IdentifiableEvent('E0', Marriage()))
         other_presence.event.date = Date(1971, 1, 1)
-        irrelevant_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E1', Event.Type.DIVORCE))
+        irrelevant_presence = Presence(person, Subject(), IdentifiableEvent('E1', Divorce()))
         irrelevant_presence.event.date = Date(1970, 1, 1)
 
         with TemporaryDirectory() as output_directory_path:
@@ -147,9 +147,9 @@ class DeriverTest(TestCase):
     @sync
     async def test_derive_death_with_existing_event(self, other_date: Datey):
         person = Person('P0')
-        other_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.MARRIAGE))
+        other_presence = Presence(person, Subject(), IdentifiableEvent('E0', Marriage()))
         other_presence.event.date = other_date
-        irrelevant_presence = Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E1', Event.Type.DIVORCE))
+        irrelevant_presence = Presence(person, Subject(), IdentifiableEvent('E1', Divorce()))
         irrelevant_presence.event.date = Date(1970, 1, 1)
 
         with TemporaryDirectory() as output_directory_path:
