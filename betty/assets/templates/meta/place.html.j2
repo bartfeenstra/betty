@@ -7,6 +7,8 @@
     {% set enclosing_places = enclosing_places | takewhile('ne', place_context) %}
 {%- endif -%}
 {%- set enclosing_places = enclosing_places | list -%}
+<div class="meta">
 {%- if enclosing_places | length > 0 -%}
-    <div class="meta">in {{ enclosing_places | map(_placeLabel) | join(', ') }}</div>
+    in {{ enclosing_places | map(_placeLabel) | join(', ') }}
 {%- endif -%}
+</div>
