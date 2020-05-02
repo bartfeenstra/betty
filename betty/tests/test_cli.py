@@ -117,8 +117,6 @@ class MainTest(TestCase):
 class ClearCachesTest(TestCase):
     @patch_cache
     def test(self):
-        # @todo This fails because the command under test removes the entire cache directory itself, which the context
-        # manager also expects to be able to delete.
         cached_file_path = path.join(betty._CACHE_DIRECTORY_PATH, 'KeepMeAroundPlease')
         open(cached_file_path, 'w').close()
         runner = CliRunner()
