@@ -1,16 +1,16 @@
-{% do citer.track() %}
+{%- do citer.track() -%}
 <!doctype html>
 <html lang="{{ locale }}"
       prefix="foaf: http://xmlns.com/foaf/0.1/ og: http://ogp.me/ns# rel: http://purl.org/vocab/relationship/">
 <head>
-    <title>{{ page_title | striptags }} - {{ site.configuration.title }}</title>
+    <title>{% if page_title is defined %}{{ page_title | striptags }} - {% endif %}{{ site.configuration.title }}</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Betty (https://github.com/bartfeenstra/betty)"/>
     {% if site.configuration.author %}
         <meta name="author" content="{{ site.configuration.author }}"/>
     {% endif %}
-    <meta name="og:title" content="{{ page_title | striptags }}"/>
+    <meta name="og:title" content="{%- if page_title is defined -%}{{ page_title | striptags }}{%- else -%}{{ site.configuration.title }}{%- endif -%}"/>
     <meta name="og:site_name" content="{{ site.configuration.title }}"/>
     {% if page_resource is defined %}
         {% for file in page_resource.files | default([]) %}
@@ -88,7 +88,9 @@
     {% endif %}
 </nav>
 <div id="content">
-    <h1>{{ page_title }}</h1>
+    {% if page_title is defined %}
+        <h1>{{ page_title }}</h1>
+    {% endif %}
     {% block page_content %}{% endblock %}
     {% if page_resource is has_links %}
         {% set links = page_resource.links | rejectattr('label', 'none') | list %}
