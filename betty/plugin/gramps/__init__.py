@@ -12,8 +12,10 @@ from lxml import etree
 from lxml.etree import Element
 from voluptuous import Schema, IsFile, All
 
-from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, Event, LocalizedName, Person, Link, \
-    HasFiles, HasLinks, HasCitations, IdentifiableEvent, HasPrivacy, IdentifiableSource, IdentifiableCitation
+from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, LocalizedName, Person, Link, HasFiles, \
+    HasLinks, HasCitations, IdentifiableEvent, HasPrivacy, IdentifiableSource, IdentifiableCitation, Subject, Witness, \
+    Attendee, Birth, Baptism, Adoption, Cremation, Death, Burial, Engagement, Marriage, MarriageBanns, Divorce, \
+    DivorceFiling, Residence, Immigration, Emigration, Occupation, Retirement, Correspondence, Confirmation
 from betty.config import Path
 from betty.event import Event as DispatchedEvent
 from betty.fs import makedirs
@@ -271,17 +273,17 @@ def _parse_eventrefs(ancestry: _IntermediateAncestry, person: Person, element: E
 
 
 _PRESENCE_ROLE_MAP = {
-    'Primary': Presence.Role.SUBJECT,
-    'Family': Presence.Role.SUBJECT,
-    'Witness': Presence.Role.WITNESS,
-    'Unknown': Presence.Role.ATTENDEE,
+    'Primary': Subject(),
+    'Family': Subject(),
+    'Witness': Witness(),
+    'Unknown': Attendee(),
 }
 
 
 def _parse_eventref(ancestry: _IntermediateAncestry, person: Person, eventref: Element) -> None:
     event_handle = _xpath1(eventref, './@hlink')
     gramps_presence_role = _xpath1(eventref, './@role')
-    role = _PRESENCE_ROLE_MAP[gramps_presence_role] if gramps_presence_role in _PRESENCE_ROLE_MAP else Presence.Role.ATTENDEE
+    role = _PRESENCE_ROLE_MAP[gramps_presence_role] if gramps_presence_role in _PRESENCE_ROLE_MAP else Attendee()
     Presence(person, role, ancestry.events[event_handle])
 
 
@@ -340,24 +342,24 @@ def _parse_events(ancestry: _IntermediateAncestry, database: Element):
 
 
 _EVENT_TYPE_MAP = {
-    'Birth': Event.Type.BIRTH,
-    'Baptism': Event.Type.BAPTISM,
-    'Adopted': Event.Type.ADOPTION,
-    'Cremation': Event.Type.CREMATION,
-    'Death': Event.Type.DEATH,
-    'Burial': Event.Type.BURIAL,
-    'Engagement': Event.Type.ENGAGEMENT,
-    'Marriage': Event.Type.MARRIAGE,
-    'Marriage Banns': Event.Type.MARRIAGE_BANNS,
-    'Divorce': Event.Type.DIVORCE,
-    'Divorce Filing': Event.Type.DIVORCE_FILING,
-    'Residence': Event.Type.RESIDENCE,
-    'Immigration': Event.Type.IMMIGRATION,
-    'Emigration': Event.Type.EMIGRATION,
-    'Occupation': Event.Type.OCCUPATION,
-    'Retirement': Event.Type.RETIREMENT,
-    'Correspondence': Event.Type.CORRESPONDENCE,
-    'Confirmation': Event.Type.CONFIRMATION,
+    'Birth': Birth(),
+    'Baptism': Baptism(),
+    'Adopted': Adoption(),
+    'Cremation': Cremation(),
+    'Death': Death(),
+    'Burial': Burial(),
+    'Engagement': Engagement(),
+    'Marriage': Marriage(),
+    'Marriage Banns': MarriageBanns(),
+    'Divorce': Divorce(),
+    'Divorce Filing': DivorceFiling(),
+    'Residence': Residence(),
+    'Immigration': Immigration(),
+    'Emigration': Emigration(),
+    'Occupation': Occupation(),
+    'Retirement': Retirement(),
+    'Correspondence': Correspondence(),
+    'Confirmation': Confirmation(),
 }
 
 

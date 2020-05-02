@@ -1,8 +1,7 @@
-from enum import Enum
 from functools import total_ordering
 from itertools import chain
 from os.path import splitext, basename
-from typing import Dict, Optional, List, Iterable, Set, Union, TypeVar, Generic, Callable
+from typing import Dict, Optional, List, Iterable, Set, Union, TypeVar, Generic, Callable, Type
 
 from geopy import Point
 
@@ -422,21 +421,244 @@ class Place(Resource, Identifiable, HasLinks):
         self._coordinates = coordinates
 
 
+class PresenceRole:
+    @property
+    def name(self) -> str:
+        raise NotImplementedError
+
+    @property
+    def label(self) -> str:
+        raise NotImplementedError
+
+
+class Subject(PresenceRole):
+    name = 'subject'
+
+    @property
+    def label(self) -> str:
+        return _('Subject')
+
+
+class Witness(PresenceRole):
+    name = 'witness'
+
+    @property
+    def label(self) -> str:
+        return _('Witness')
+
+
+class Attendee(PresenceRole):
+    name = 'attendee'
+
+    @property
+    def label(self) -> str:
+        return _('Attendee')
+
+
 @bridged_many_to_many('presences', 'person', 'event', 'presences')
 class Presence:
     person: Optional['Person']
     event: Optional['Event']
-    role: 'Presence.Role'
+    role: PresenceRole
 
-    class Role(Enum):
-        SUBJECT = 'subject'
-        WITNESS = 'witness'
-        ATTENDEE = 'attendee'
-
-    def __init__(self, person: 'Person', role: Role, event: 'Event'):
+    def __init__(self, person: 'Person', role: PresenceRole, event: 'Event'):
         self.person = person
         self.role = role
         self.event = event
+
+
+class EventType:
+    @property
+    def name(self) -> str:
+        raise NotImplementedError
+
+    @property
+    def label(self) -> str:
+        raise NotImplementedError
+
+    @classmethod
+    def comes_after(cls) -> Set[Type['EventType']]:
+        return set()
+
+    @classmethod
+    def comes_before(cls) -> Set[Type['EventType']]:
+        return set()
+
+
+class Birth(EventType):
+    name = 'birth'
+
+    @property
+    def label(self) -> str:
+        return _('Birth')
+
+
+class Baptism(EventType):
+    name = 'baptism'
+
+    @property
+    def label(self) -> str:
+        return _('Baptism')
+
+
+class Adoption(EventType):
+    name = 'adoption'
+
+    @property
+    def label(self) -> str:
+        return _('Adoption')
+
+
+class Cremation(EventType):
+    name = 'cremation'
+
+    @property
+    def label(self) -> str:
+        return _('Cremation')
+
+    @classmethod
+    def comes_after(cls) -> Set[Type['EventType']]:
+        return set(Death)
+
+
+class Death(EventType):
+    name = 'death'
+
+    @property
+    def label(self) -> str:
+        return _('Death')
+
+    @classmethod
+    def comes_after(cls) -> Set[Type['EventType']]:
+        return set(Birth)
+
+
+class Burial(EventType):
+    name = 'burial'
+
+    @property
+    def label(self) -> str:
+        return _('Burial')
+
+    @classmethod
+    def comes_after(cls) -> Set[Type['EventType']]:
+        return set(Death)
+
+
+class Engagement(EventType):
+    name = 'engagement'
+
+    @property
+    def label(self) -> str:
+        return _('Engagement')
+
+    @classmethod
+    def comes_before(cls) -> Set[Type['EventType']]:
+        return set(Marriage)
+
+
+class Marriage(EventType):
+    name = 'marriage'
+
+    @property
+    def label(self) -> str:
+        return _('Marriage')
+
+
+class MarriageBanns(EventType):
+    name = 'marriage-banns'
+
+    @property
+    def label(self) -> str:
+        return _('Marriage banns')
+
+    @classmethod
+    def comes_before(cls) -> Set[Type['EventType']]:
+        return set(Marriage)
+
+
+class Divorce(EventType):
+    name = 'divorce'
+
+    @property
+    def label(self) -> str:
+        return _('Divorce')
+
+    @classmethod
+    def comes_after(cls) -> Set[Type['EventType']]:
+        return set(Marriage)
+
+
+class DivorceFiling(EventType):
+    name = 'divorce-filing'
+
+    @property
+    def label(self) -> str:
+        return _('Divorce filing')
+
+    @classmethod
+    def comes_after(cls) -> Set[Type['EventType']]:
+        return set(Marriage)
+
+    @classmethod
+    def comes_before(cls) -> Set[Type['EventType']]:
+        return set(Divorce)
+
+
+class Residence(EventType):
+    name = 'residence'
+
+    @property
+    def label(self) -> str:
+        return _('Residence')
+
+
+class Immigration(EventType):
+    name = 'immigration'
+
+    @property
+    def label(self) -> str:
+        return _('Immigration')
+
+
+class Emigration(EventType):
+    name = 'emigration'
+
+    @property
+    def label(self) -> str:
+        return _('Emigration')
+
+
+class Occupation(EventType):
+    name = 'occupation'
+
+    @property
+    def label(self) -> str:
+        return _('Occupation')
+
+
+class Retirement(EventType):
+    name = 'retirement'
+
+    @property
+    def label(self) -> str:
+        return _('Retirement')
+
+
+class Correspondence(EventType):
+    name = 'correspondence'
+
+    @property
+    def label(self) -> str:
+        return _('Correspondence')
+
+
+class Confirmation(EventType):
+    name = 'confirmation'
+
+    @property
+    def label(self) -> str:
+        return _('Confirmation')
 
 
 @many_to_one('place', 'events')
@@ -446,27 +668,7 @@ class Event(Resource, Dated, HasFiles, HasCitations, Described, HasPrivacy):
     place: Place
     presences: ManyAssociation[Presence]
 
-    class Type(Enum):
-        BIRTH = 'birth'
-        BAPTISM = 'baptism'
-        ADOPTION = 'adoption'
-        CREMATION = 'cremation'
-        DEATH = 'death'
-        BURIAL = 'burial'
-        ENGAGEMENT = 'engagement'
-        MARRIAGE = 'marriage'
-        MARRIAGE_BANNS = 'marriage-banns'
-        DIVORCE = 'divorce'
-        DIVORCE_FILING = 'divorce-filing'
-        RESIDENCE = 'residence'
-        IMMIGRATION = 'immigration'
-        EMIGRATION = 'emigration'
-        OCCUPATION = 'occupation'
-        RETIREMENT = 'retirement'
-        CORRESPONDENCE = 'correspondence'
-        CONFIRMATION = 'confirmation'
-
-    def __init__(self, event_type: Type, date: Optional[Datey] = None):
+    def __init__(self, event_type: EventType, date: Optional[Datey] = None):
         Dated.__init__(self)
         HasFiles.__init__(self)
         HasCitations.__init__(self)
@@ -562,17 +764,17 @@ class Person(Resource, Identifiable, HasFiles, HasCitations, HasLinks, HasPrivac
 
     @property
     def start(self) -> Optional[Event]:
-        for event_type in [Event.Type.BIRTH, Event.Type.BAPTISM]:
+        for event_type in [Birth, Baptism]:
             for presence in self.presences:
-                if presence.event.type == event_type and presence.role == Presence.Role.SUBJECT:
+                if isinstance(presence.event.type, event_type) and isinstance(presence.role, Subject):
                     return presence.event
         return None
 
     @property
     def end(self) -> Optional[Event]:
-        for event_type in [Event.Type.DEATH, Event.Type.BURIAL]:
+        for event_type in [Death, Burial]:
             for presence in self.presences:
-                if presence.event.type == event_type and presence.role == Presence.Role.SUBJECT:
+                if isinstance(presence.event.type, event_type) and isinstance(presence.role, Subject):
                     return presence.event
         return None
 

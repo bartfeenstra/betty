@@ -1,11 +1,12 @@
-from betty.url import LocalizedPathUrlGenerator, IdentifiableResourceUrlGenerator, SiteUrlGenerator
-from betty.config import Configuration, LocaleConfiguration
-from betty.ancestry import Person, Event, Place, File, Source, Identifiable, LocalizedName, IdentifiableEvent, \
-    IdentifiableSource, IdentifiableCitation
 from typing import Any
 from unittest import TestCase
 
 from parameterized import parameterized
+
+from betty.ancestry import Person, Place, File, Source, Identifiable, LocalizedName, IdentifiableEvent, \
+    IdentifiableSource, IdentifiableCitation, Death
+from betty.config import Configuration, LocaleConfiguration
+from betty.url import LocalizedPathUrlGenerator, IdentifiableResourceUrlGenerator, SiteUrlGenerator
 
 
 class LocalizedPathUrlGeneratorTest(TestCase):
@@ -84,7 +85,7 @@ class SiteUrlGeneratorTest(TestCase):
     @parameterized.expand([
         ('/index.html', '/index.html'),
         ('/person/P1/index.html', Person('P1')),
-        ('/event/E1/index.html', IdentifiableEvent('E1', Event.Type.DEATH)),
+        ('/event/E1/index.html', IdentifiableEvent('E1', Death())),
         ('/place/P1/index.html', Place('P1', [LocalizedName('Place 1')])),
         ('/file/F1/index.html', File('F1', '/tmp')),
         ('/source/S1/index.html', IdentifiableSource('S1', 'Source 1')),

@@ -1,5 +1,4 @@
 {% extends 'base.html.j2' %}
-{% import 'macro/event.html.j2' as eventMacros %}
 {% import 'macro/person.html.j2' as personMacros %}
 {% set page_title %}
     {% with embedded=True %}
@@ -17,7 +16,7 @@
 
     {% set ns = namespace(witnesses=[]) %}
     {% for presence in event.presences %}
-        {% if PresenceRole.WITNESS == presence.role %}
+        {% if presence.role is witness_role %}
             {% set ns.witnesses = ns.witnesses + [presence.person] %}
         {% endif %}
     {% endfor %}
@@ -32,7 +31,7 @@
 
     {% set ns = namespace(attendees=[]) %}
     {% for presence in event.presences %}
-        {% if presence.role not in [PresenceRole.SUBJECT, PresenceRole.WITNESS] %}
+        {% if not presence.role is subject_role or not presence.role is witness_role %}
             {% set ns.attendees = ns.attendees + [presence.person] %}
         {% endif %}
     {% endfor %}

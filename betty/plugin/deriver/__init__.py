@@ -3,7 +3,7 @@ from collections import defaultdict
 from copy import copy
 from typing import List, Tuple, Callable, Optional, Dict, Set, Type
 
-from betty.ancestry import Ancestry, Person, Presence, Event
+from betty.ancestry import Ancestry, Person, Presence, Event, Subject, Birth, Death, EventType
 from betty.event import Event as DispatchedEvent
 from betty.locale import DateRange
 from betty.parse import PostParseEvent
@@ -36,17 +36,17 @@ def derive(ancestry: Ancestry) -> None:
             _derive_person(person, derivations)
     finally:
         logger = logging.getLogger()
-        logger.info('Created %d additional births derived from existing information.' % derivations[Event.Type.BIRTH])
-        logger.info('Created %d additional deaths derived from existing information.' % derivations[Event.Type.DEATH])
+        logger.info('Created %d additional births derived from existing information.' % derivations[Birth])
+        logger.info('Created %d additional deaths derived from existing information.' % derivations[Death])
 
 
 def _derive_person(person: Person, derivations: Dict) -> None:
-    _derive_event(person, Event.Type.BIRTH, False, derivations)
-    _derive_event(person, Event.Type.DEATH, True, derivations)
+    _derive_event(person, Birth(), False, derivations)
+    _derive_event(person, Death(), True, derivations)
 
 
-def _derive_event(person: Person, event_type: Event.Type, after: bool, derivations: Dict) -> None:
-    derived_event = _get_primary_event(person, event_type)
+def _derive_event(person: Person, event_type: EventType, after: bool, derivations: Dict) -> None:
+    derived_event = _get_primary_event(person, type(event_type))
     if derived_event is None:
         derived_event = DerivedEvent(event_type, DateRange())
     elif isinstance(derived_event.date, DateRange):
@@ -60,7 +60,7 @@ def _derive_event(person: Person, event_type: Event.Type, after: bool, derivatio
         return
 
     event_dates = []
-    for event in [presence.event for presence in person.presences if presence.event.type != event_type]:
+    for event in [presence.event for presence in person.presences if not isinstance(presence.event.type, type(event_type))]:
         if isinstance(event.date, DateRange):
             if event.date.start is not None and event.date.start.comparable:
                 event_dates.append((event, event.date.start))
@@ -80,13 +80,13 @@ def _derive_event(person: Person, event_type: Event.Type, after: bool, derivatio
     for citation in threshold_event.citations:
         derived_event.citations.append(citation)
     if isinstance(derived_event, DerivedEvent):
-        Presence(person, Presence.Role.SUBJECT, derived_event)
+        Presence(person, Subject(), derived_event)
 
     derivations[event_type] += 1
 
 
-def _get_primary_event(person: Person, event_type: Event.Type) -> Optional[Event]:
+def _get_primary_event(person: Person, event_type: Type[EventType]) -> Optional[Event]:
     for presence in person.presences:
-        if presence.role == Presence.Role.SUBJECT:
-            if presence.event.type == event_type:
+        if isinstance(presence.role, Subject):
+            if isinstance(presence.event.type, event_type):
                 return presence.event

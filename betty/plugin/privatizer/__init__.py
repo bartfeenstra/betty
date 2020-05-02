@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from typing import List, Tuple, Callable, Type
 
-from betty.ancestry import Ancestry, Person, Event, Citation, Source, Presence, HasPrivacy
+from betty.ancestry import Ancestry, Person, Event, Citation, Source, HasPrivacy, Subject
 from betty.event import Event as DispatchedEvent
 from betty.functools import walk
 from betty.locale import DateRange, Date
@@ -54,7 +54,7 @@ def privatize_person(person: Person, lifetime_threshold: int = 100) -> None:
         return
 
     for presence in person.presences:
-        if presence.role == Presence.Role.SUBJECT:
+        if isinstance(presence.role, Subject):
             _mark_private(presence.event)
             privatize_event(presence.event)
     for file in person.files:

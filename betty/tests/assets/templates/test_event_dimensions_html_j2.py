@@ -1,7 +1,7 @@
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from betty.ancestry import Event, Place, LocalizedName, Citation, Source
+from betty.ancestry import Event, Place, LocalizedName, Citation, Source, Birth
 from betty.config import Configuration
 from betty.functools import sync
 from betty.locale import Date
@@ -16,14 +16,14 @@ class Test(TestCase):
 
     @sync
     async def test_without_meta(self):
-        event = Event(Event.Type.BIRTH)
+        event = Event(Birth())
         expected = ''
         actual = await self._render(event=event)
         self.assertEqual(expected, actual)
 
     @sync
     async def test_with_date(self):
-        event = Event(Event.Type.BIRTH)
+        event = Event(Birth())
         event.date = Date(1970)
         expected = '1970'
         actual = await self._render(event=event)
@@ -31,7 +31,7 @@ class Test(TestCase):
 
     @sync
     async def test_with_place(self):
-        event = Event(Event.Type.BIRTH)
+        event = Event(Birth())
         event.place = Place('P0', [LocalizedName('The Place')])
         expected = 'in <address><a href="/place/P0/index.html"><span>The Place</span></a></address>'
         actual = await self._render(event=event)
@@ -39,7 +39,7 @@ class Test(TestCase):
 
     @sync
     async def test_with_place_is_place_context(self):
-        event = Event(Event.Type.BIRTH)
+        event = Event(Birth())
         place = Place('P0', [LocalizedName('The Place')])
         event.place = place
         expected = ''
@@ -48,7 +48,7 @@ class Test(TestCase):
 
     @sync
     async def test_with_date_and_place(self):
-        event = Event(Event.Type.BIRTH)
+        event = Event(Birth())
         event.date = Date(1970)
         event.place = Place('P0', [LocalizedName('The Place')])
         expected = '1970 in <address><a href="/place/P0/index.html"><span>The Place</span></a></address>'
@@ -57,7 +57,7 @@ class Test(TestCase):
 
     @sync
     async def test_with_citation(self):
-        event = Event(Event.Type.BIRTH)
+        event = Event(Birth())
         event.citations.append(Citation(Source('The Source')))
         expected = '<a href="#reference-1" class="citation">[1]</a>'
         actual = await self._render(event=event)
@@ -65,7 +65,7 @@ class Test(TestCase):
 
     @sync
     async def test_embedded(self):
-        event = Event(Event.Type.BIRTH)
+        event = Event(Birth())
         event.date = Date(1970)
         event.place = Place('P0', [LocalizedName('The Place')])
         event.citations.append(Citation(Source('The Source')))
