@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-01 23:45+0100\n"
+"POT-Creation-Date: 2020-05-02 21:33+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,90 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
+
+#: betty/ancestry.py:439
+msgid "Subject"
+msgstr ""
+
+#: betty/ancestry.py:447
+msgid "Witness"
+msgstr ""
+
+#: betty/ancestry.py:455
+msgid "Attendee"
+msgstr ""
+
+#: betty/ancestry.py:493
+msgid "Birth"
+msgstr ""
+
+#: betty/ancestry.py:501
+msgid "Baptism"
+msgstr ""
+
+#: betty/ancestry.py:509
+msgid "Adoption"
+msgstr ""
+
+#: betty/ancestry.py:517
+msgid "Cremation"
+msgstr ""
+
+#: betty/ancestry.py:529
+msgid "Death"
+msgstr ""
+
+#: betty/ancestry.py:541
+msgid "Burial"
+msgstr ""
+
+#: betty/ancestry.py:553
+msgid "Engagement"
+msgstr ""
+
+#: betty/ancestry.py:565
+msgid "Marriage"
+msgstr ""
+
+#: betty/ancestry.py:573
+msgid "Marriage banns"
+msgstr ""
+
+#: betty/ancestry.py:585
+msgid "Divorce"
+msgstr ""
+
+#: betty/ancestry.py:597
+msgid "Divorce filing"
+msgstr ""
+
+#: betty/ancestry.py:613
+msgid "Residence"
+msgstr ""
+
+#: betty/ancestry.py:621
+msgid "Immigration"
+msgstr ""
+
+#: betty/ancestry.py:629
+msgid "Emigration"
+msgstr ""
+
+#: betty/ancestry.py:637
+msgid "Occupation"
+msgstr ""
+
+#: betty/ancestry.py:645
+msgid "Retirement"
+msgstr ""
+
+#: betty/ancestry.py:653
+msgid "Correspondence"
+msgstr ""
+
+#: betty/ancestry.py:661
+msgid "Confirmation"
+msgstr ""
 
 #: betty/locale.py:250
 msgid "unknown date"
@@ -213,8 +297,9 @@ msgid "People"
 msgstr ""
 
 #: betty/assets/templates/base.html.j2:65
-#: betty/assets/templates/page/list-event.html.j2:2
-msgid "Events"
+#: betty/assets/templates/page/person.html.j2:73
+#: betty/assets/templates/page/place.html.j2:24
+msgid "Timeline"
 msgstr ""
 
 #: betty/assets/templates/base.html.j2:66
@@ -223,30 +308,20 @@ msgid "Places"
 msgstr ""
 
 #: betty/assets/templates/base.html.j2:67
-#: betty/assets/templates/page/citation.html.j2:9
-#: betty/assets/templates/page/event.html.j2:49
-#: betty/assets/templates/page/list-file.html.j2:2
-#: betty/assets/templates/page/person.html.j2:86
-#: betty/assets/templates/page/source.html.j2:10
-#: betty/assets/templates/search/result-file.html.j2:4
-msgid "Media"
-msgstr ""
-
-#: betty/assets/templates/base.html.j2:68
 #: betty/assets/templates/page/file.html.j2:34
 #: betty/assets/templates/page/list-source.html.j2:2
 msgid "Sources"
 msgstr ""
 
-#: betty/assets/templates/base.html.j2:74
+#: betty/assets/templates/base.html.j2:73
 msgid "Language"
 msgstr ""
 
-#: betty/assets/templates/base.html.j2:97
+#: betty/assets/templates/base.html.j2:98
 msgid "External links"
 msgstr ""
 
-#: betty/assets/templates/base.html.j2:112
+#: betty/assets/templates/base.html.j2:113
 msgid "References"
 msgstr ""
 
@@ -276,19 +351,19 @@ msgstr ""
 msgid "Accessed %(date)s"
 msgstr ""
 
-#: betty/assets/templates/label/event.html.j2:22
+#: betty/assets/templates/label/event.html.j2:21
 #, python-format
 msgid "%(event)s with %(subjects)s"
 msgstr ""
 
-#: betty/assets/templates/label/event.html.j2:26
+#: betty/assets/templates/label/event.html.j2:25
 #, python-format
 msgid "%(event)s of %(subjects)s"
 msgstr ""
 
 #: betty/assets/templates/label/person.html.j2:9
 #: betty/assets/templates/macro/person.html.j2:23
-#: betty/assets/templates/meta/person.html.j2:12
+#: betty/assets/templates/meta/person.html.j2:11
 msgid "This person's details are unavailable to protect their privacy."
 msgstr ""
 
@@ -302,93 +377,18 @@ msgstr ""
 msgid "This person's name is unknown."
 msgstr ""
 
-#: betty/assets/templates/macro/event.html.j2:3
-msgid "Birth"
-msgstr ""
-
-#: betty/assets/templates/macro/event.html.j2:4
-msgid "Baptism"
-msgstr ""
-
-#: betty/assets/templates/macro/event.html.j2:5
-msgid "Adoption"
-msgstr ""
-
-#: betty/assets/templates/macro/event.html.j2:6
-msgid "Cremation"
-msgstr ""
-
-#: betty/assets/templates/macro/event.html.j2:7
-msgid "Death"
-msgstr ""
-
-#: betty/assets/templates/macro/event.html.j2:8
-msgid "Burial"
-msgstr ""
-
-#: betty/assets/templates/macro/event.html.j2:9
-msgid "Engagement"
-msgstr ""
-
-#: betty/assets/templates/macro/event.html.j2:10
-msgid "Marriage"
-msgstr ""
-
-#: betty/assets/templates/macro/event.html.j2:11
-msgid "Marriage banns"
-msgstr ""
-
-#: betty/assets/templates/macro/event.html.j2:12
-msgid "Divorce"
-msgstr ""
-
-#: betty/assets/templates/macro/event.html.j2:13
-msgid "Divorce filing"
-msgstr ""
-
-#: betty/assets/templates/macro/event.html.j2:14
-msgid "Residence"
-msgstr ""
-
-#: betty/assets/templates/macro/event.html.j2:15
-msgid "Immigration"
-msgstr ""
-
-#: betty/assets/templates/macro/event.html.j2:16
-msgid "Emigration"
-msgstr ""
-
-#: betty/assets/templates/macro/event.html.j2:17
-msgid "Occupation"
-msgstr ""
-
-#: betty/assets/templates/macro/event.html.j2:18
-msgid "Retirement"
-msgstr ""
-
-#: betty/assets/templates/macro/event.html.j2:19
-msgid "Correspondence"
-msgstr ""
-
-#: betty/assets/templates/macro/event.html.j2:20
-msgid "Confirmation"
-msgstr ""
-
-#: betty/assets/templates/macro/event.html.j2:27
-msgid "Subject"
-msgstr ""
-
-#: betty/assets/templates/macro/event.html.j2:28
-msgid "Witness"
-msgstr ""
-
-#: betty/assets/templates/macro/event.html.j2:33
-msgid "Attendee"
-msgstr ""
-
-#: betty/assets/templates/meta/person.html.j2:15
+#: betty/assets/templates/meta/person.html.j2:14
 #, python-format
 msgid "Also known as %(names)s"
+msgstr ""
+
+#: betty/assets/templates/page/citation.html.j2:9
+#: betty/assets/templates/page/event.html.j2:48
+#: betty/assets/templates/page/list-file.html.j2:2
+#: betty/assets/templates/page/person.html.j2:86
+#: betty/assets/templates/page/source.html.j2:10
+#: betty/assets/templates/search/result-file.html.j2:4
+msgid "Media"
 msgstr ""
 
 #: betty/assets/templates/page/citation.html.j2:14
@@ -396,11 +396,11 @@ msgstr ""
 msgid "Facts"
 msgstr ""
 
-#: betty/assets/templates/page/event.html.j2:25
+#: betty/assets/templates/page/event.html.j2:24
 msgid "Witnesses"
 msgstr ""
 
-#: betty/assets/templates/page/event.html.j2:40
+#: betty/assets/templates/page/event.html.j2:39
 msgid "Other attendees"
 msgstr ""
 
@@ -414,6 +414,10 @@ msgstr ""
 
 #: betty/assets/templates/page/file.html.j2:31
 msgid "Source"
+msgstr ""
+
+#: betty/assets/templates/page/list-event.html.j2:2
+msgid "Events"
 msgstr ""
 
 #: betty/assets/templates/page/person.html.j2:26
@@ -433,11 +437,6 @@ msgstr[1] ""
 
 #: betty/assets/templates/page/person.html.j2:61
 msgid "Siblings"
-msgstr ""
-
-#: betty/assets/templates/page/person.html.j2:73
-#: betty/assets/templates/page/place.html.j2:24
-msgid "Timeline"
 msgstr ""
 
 #: betty/assets/templates/search/results-container.html.j2:3
