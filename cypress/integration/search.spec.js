@@ -10,7 +10,7 @@ context('Search', () => {
         cy.visit(rootPath)
         cy.get('#search-query')
           .type('Janet', {
-            delay: 100
+            delay: 1000
           })
           .type('{downarrow}')
         cy.get(':focus')

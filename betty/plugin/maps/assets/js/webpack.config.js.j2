@@ -1,0 +1,78 @@
+'use strict'
+
+const CleanWebpackPlugin = require('clean-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const path = require('path')
+
+module.exports = {
+  mode: '{{ site.configuration.mode }}',
+  entry: {
+    maps: path.resolve(__dirname, 'maps.js')
+  },
+  output: {
+    path: path.resolve(__dirname, '..', 'output'),
+    filename: '[name].js'
+  },
+  optimization: {
+    minimize: {% if site.configuration.mode == 'production' %}true{% else %}false{% endif %},
+    splitChunks: {
+      cacheGroups: {
+        styles: {
+          name: 'maps',
+          // Group all CSS files into a single file.
+          test: /\.css$/,
+          chunks: 'all',
+          enforce: true
+        }
+      }
+    }
+  },
+  plugins: [
+    new CleanWebpackPlugin(),
+    new MiniCssExtractPlugin({
+      path: path.resolve(__dirname, '..', 'output'),
+      filename: '[name].css'
+    })
+  ],
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [MiniCssExtractPlugin.loader, 'css-loader']
+      },
+      {
+        test: /\.m?js$/,
+        exclude: /(node_modules|bower_components)/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: [
+              [
+                '@babel/preset-env',
+                {
+                  targets: {
+                    ie: '11',
+                    ios: '9',
+                  },
+                },
+              ],
+            ],
+            cacheDirectory: '{{ path.join(site.configuration.cache_directory_path, 'betty.plugin.maps.Maps', 'babel') }}',
+          },
+        },
+      },
+      // Bundle Leaflet images.
+      {
+        test: /.*\.png$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '/images/[hash].[ext]'
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

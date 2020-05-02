@@ -2,7 +2,8 @@
 
 [![Build Status](https://travis-ci.org/bartfeenstra/betty.svg?branch=master)](https://travis-ci.org/bartfeenstra/betty) [![codecov](https://codecov.io/gh/bartfeenstra/betty/branch/master/graph/badge.svg)](https://codecov.io/gh/bartfeenstra/betty)
 
-Betty is a static site generator for [Gramps](https://gramps-project.org/) XML files.
+Betty is a static site generator for [Gramps](https://gramps-project.org/) and
+[GEDCOM](https://en.wikipedia.org/wiki/GEDCOM) family trees.
 
 ## Table of Contents
 
@@ -12,6 +13,7 @@ Betty is a static site generator for [Gramps](https://gramps-project.org/) XML f
   - [The command line](#the-command-line)
   - [Configuration files](#configuration-files)
   - [Gramps](#gramps)
+  - [GEDCOM files](#gedcom-files)
   - [The Python API](#the-python-api)
 - [Development](#development)
 - [Contributions](#contributions)
@@ -70,7 +72,7 @@ locales:
   - locale: en-US
     alias: en
   - locale: nl
-resources_directory_path: ./resources
+assets_directory_path: ./resources
 plugins:
   betty.plugin.anonymizer.Anonymizer: ~
   betty.plugin.cleaner.Cleaner: ~
@@ -79,8 +81,7 @@ plugins:
     file: ./gramps.gpkg
   betty.plugin.maps.Maps: ~
   betty.plugin.nginx.Nginx:
-    www_direct
-ory_path: /var/www/betty
+    www_directory_path: /var/www/betty
     https: true
   betty.plugin.privatizer.Privatizer: ~
   betty.plugin.trees.Trees: ~
@@ -99,8 +100,8 @@ ory_path: /var/www/betty
     - `alias` (optional): A shorthand alias to use instead of the full language tag, such as when rendering URLs.
 
     If no locales are defined, Betty defaults to US English.
-- `resources_directory_path` (optional); The path to a directory containing overrides for any of Betty's
-    [resources](./betty/resources).
+- `assets_directory_path` (optional); The path to a directory containing overrides for any of Betty's
+    [assets](./betty/assets).
 - `plugins` (optional): The plugins to enable. Keys are plugin names, and values are objects containing each plugin's configuration.
     - `betty.plugin.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `~`.
     - `betty.plugin.cleaner.Cleaner`: Removes data (events, media, etc.) that have no relation to any people. Configuration: `~`.
@@ -125,10 +126,20 @@ ory_path: /var/www/betty
 
 ### Gramps
 #### Privacy
-Gramps has built-in support for person privacy. To control privacy for events, files, sources, and citations, add a
-`betty:privacy` attribute to any of these types, with a value of `private` to explicitly declare the data always
-private or `public` to declare the data always public. Any other value will leave the privacy undecided. In such cases,
-the `betty.plugin.privatizer.Privatizer` may decide if the data is public or private.
+Gramps has limited built-in support for people's privacy. To fully control privacy for people, as well as events, files,
+sources, and citations, add a `betty:privacy` attribute to any of these types, with a value of `private` to explicitly
+declare the data always private or `public` to declare the data always public. Any other value will leave the privacy
+undecided, as well as person records marked public using Gramps' built-in privacy selector. In such cases, the
+`betty.plugin.privatizer.Privatizer` may decide if the data is public or private.
+
+### GEDCOM files
+To build a site from your GEDCOM files:
+1. Install and launch [Gramps](https://gramps-project.org/)
+1. Create a new family tree
+1. Import your GEDCOM file under *Family Trees* > *Import...*
+1. Export your family tree under *Family Trees* > *Export...*
+1. As output format, choose one of the *Gramps XML* options
+1. Follow the documentation to [configure your Betty site](#configuration-files) to parse the exported file
 
 ### The Python API
 ```python

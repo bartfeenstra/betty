@@ -6,16 +6,16 @@ import jsonschema
 from geopy import Point
 from jsonschema import RefResolver
 
-from betty.ancestry import Place, Person, LocalizedName, Event, Presence, Described, HasLinks, HasCitations, Link, \
-    Dated, File, Note, PersonName, IdentifiableEvent, Identifiable, IdentifiableSource, IdentifiableCitation, \
-    HasMediaType, Resource
+from betty.ancestry import Place, Person, LocalizedName, Event, Described, HasLinks, HasCitations, Link, Dated, File, \
+    Note, PersonName, IdentifiableEvent, Identifiable, IdentifiableSource, IdentifiableCitation, HasMediaType, Resource, \
+    PresenceRole, EventType
 from betty.locale import Date, DateRange, Localized
 from betty.plugin.deriver import DerivedEvent
 from betty.site import Site
 
 
 def validate(data: Any, schema_definition: str, site: Site) -> None:
-    with open(path.join(path.dirname(__file__), 'resources', 'public', 'static', 'schema.json')) as f:
+    with open(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'schema.json')) as f:
         schema = stdjson.load(f)
     # @todo Can we set the schema ID somehow without making the entire JSON schema file a Jinja2 template?
     schema_id = site.static_url_generator.generate('schema.json', absolute=True)
@@ -39,8 +39,8 @@ class JSONEncoder(stdjson.JSONEncoder):
             File: self._encode_file,
             DerivedEvent: self._encode_event,
             IdentifiableEvent: self._encode_identifiable_event,
-            Event.Type: self._encode_event_type,
-            Presence.Role: self._encode_presence_role,
+            EventType: self._encode_event_type,
+            PresenceRole: self._encode_presence_role,
             Date: self._encode_date,
             DateRange: self._encode_date_range,
             IdentifiableCitation: self._encode_identifiable_citation,
@@ -54,9 +54,9 @@ class JSONEncoder(stdjson.JSONEncoder):
         return lambda *args, **kwargs: cls(site, locale, *args, **kwargs)
 
     def default(self, o):
-        otype = type(o)
-        if otype in self._mappers:
-            return self._mappers[otype](o)
+        for mapper_type in self._mappers:
+            if isinstance(o, mapper_type):
+                return self._mappers[mapper_type](o)
         stdjson.JSONEncoder.default(self, o)
 
     def _generate_url(self, resource: Any, media_type='application/json', locale=None):
@@ -238,7 +238,7 @@ class JSONEncoder(stdjson.JSONEncoder):
     def _encode_file(self, file: File) -> Dict:
         encoded = {
             'id': file.id,
-            'entities': [self._generate_url(entity) for entity in file.resources],
+            'resources': [self._generate_url(entity) for entity in file.resources],
             'notes': file.notes,
         }
         self._encode_schema(encoded, 'file')
@@ -275,11 +275,11 @@ class JSONEncoder(stdjson.JSONEncoder):
         self._encode_identifiable_resource(encoded, event)
         return encoded
 
-    def _encode_event_type(self, event_type: Event.Type) -> str:
-        return event_type.value
+    def _encode_event_type(self, event_type: EventType) -> str:
+        return event_type.name
 
-    def _encode_presence_role(self, role: Presence.Role) -> str:
-        return role.value
+    def _encode_presence_role(self, role: PresenceRole) -> str:
+        return role.name
 
     def _encode_identifiable_citation(self, citation: IdentifiableCitation) -> Dict:
         encoded = {

@@ -5,7 +5,7 @@ from unittest.mock import Mock
 from parameterized import parameterized
 
 from betty.ancestry import EventHandlingSetList, Person, Event, Place, File, Note, Presence, LocalizedName, PersonName, \
-    IdentifiableEvent
+    IdentifiableEvent, Subject, Birth
 from betty.locale import Date
 
 
@@ -152,9 +152,9 @@ class PersonTest(TestCase):
         self.assertCountEqual([sibling], sut.siblings)
 
     def test_presence_should_sync_references(self):
-        event = Event(Event.Type.BIRTH)
+        event = Event(Birth())
         sut = Person('1')
-        presence = Presence(sut, Presence.Role.SUBJECT, event)
+        presence = Presence(sut, Subject(), event)
         sut.presences.append(presence)
         self.assertCountEqual([presence], sut.presences)
         self.assertEquals(sut, presence.person)
@@ -178,7 +178,7 @@ class PersonNameTest(TestCase):
 class PlaceTest(TestCase):
     def test_events_should_sync_references(self):
         sut = Place('1', [LocalizedName('one')])
-        event = IdentifiableEvent('1', Event.Type.BIRTH)
+        event = IdentifiableEvent('1', Birth())
         sut.events.append(event)
         self.assertIn(event, sut.events)
         self.assertEquals(sut, event.place)
@@ -209,20 +209,20 @@ class PlaceTest(TestCase):
 
 class EventTest(TestCase):
     def test_date(self):
-        sut = IdentifiableEvent('1', Event.Type.BIRTH)
+        sut = IdentifiableEvent('1', Birth())
         self.assertIsNone(sut.date)
         date = Mock(Date)
         sut.date = date
         self.assertEquals(date, sut.date)
 
     def test_type(self):
-        event_type = Event.Type.BIRTH
+        event_type = Birth()
         sut = IdentifiableEvent('1', event_type)
         self.assertEquals(event_type, sut.type)
 
     def test_place_should_sync_references(self):
         place = Place('1', [LocalizedName('one')])
-        sut = IdentifiableEvent('1', Event.Type.BIRTH)
+        sut = IdentifiableEvent('1', Birth())
         sut.place = place
         self.assertEquals(place, sut.place)
         self.assertIn(sut, place.events)
@@ -232,8 +232,8 @@ class EventTest(TestCase):
 
     def test_presence_should_sync_references(self):
         person = Person('P1')
-        sut = IdentifiableEvent('1', Event.Type.BIRTH)
-        presence = Presence(person, Presence.Role.SUBJECT, sut)
+        sut = IdentifiableEvent('1', Birth())
+        presence = Presence(person, Subject(), sut)
         sut.presences.append(presence)
         self.assertCountEqual([presence], sut.presences)
         self.assertEquals(sut, presence.event)
@@ -318,32 +318,32 @@ class LocalizedNameTest(TestCase):
 class PresenceTest(TestCase):
     def test_event_deletion_upon_person_deletion(self) -> None:
         person = Person('P1')
-        event = Event(Event.Type.BIRTH)
-        sut = Presence(person, Presence.Role.SUBJECT, event)
+        event = Event(Birth())
+        sut = Presence(person, Subject(), event)
         del sut.person
         self.assertIsNone(sut.event)
         self.assertNotIn(sut, event.presences)
 
     def test_event_deletion_upon_person_set_to_none(self) -> None:
         person = Person('P1')
-        event = Event(Event.Type.BIRTH)
-        sut = Presence(person, Presence.Role.SUBJECT, event)
+        event = Event(Birth())
+        sut = Presence(person, Subject(), event)
         sut.person = None
         self.assertIsNone(sut.event)
         self.assertNotIn(sut, event.presences)
 
     def test_person_deletion_upon_event_deletion(self) -> None:
         person = Person('P1')
-        event = Event(Event.Type.BIRTH)
-        sut = Presence(person, Presence.Role.SUBJECT, event)
+        event = Event(Birth())
+        sut = Presence(person, Subject(), event)
         del sut.event
         self.assertIsNone(sut.person)
         self.assertNotIn(sut, person.presences)
 
     def test_person_deletion_upon_event_set_to_none(self) -> None:
         person = Person('P1')
-        event = Event(Event.Type.BIRTH)
-        sut = Presence(person, Presence.Role.SUBJECT, event)
+        event = Event(Birth())
+        sut = Presence(person, Subject(), event)
         sut.event = None
         self.assertIsNone(sut.person)
         self.assertNotIn(sut, person.presences)

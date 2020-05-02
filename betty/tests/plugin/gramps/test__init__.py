@@ -5,7 +5,7 @@ from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.ancestry import Event, Ancestry, PersonName
+from betty.ancestry import Ancestry, PersonName, Birth, Death
 from betty.config import Configuration
 from betty.functools import sync
 from betty.parse import parse
@@ -22,7 +22,7 @@ class ParseXmlTest(TestCase):
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with Site(configuration) as site:
                 cls.ancestry = site.ancestry
-                parse_xml(site, join(dirname(abspath(__file__)), 'resources', 'data.xml'))
+                parse_xml(site, join(dirname(abspath(__file__)), 'assets', 'data.xml'))
 
     @sync
     async def _parse(self, xml: str) -> Ancestry:
@@ -56,7 +56,7 @@ class ParseXmlTest(TestCase):
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with Site(configuration) as site:
                 gramps_file_path = join(
-                    dirname(abspath(__file__)), 'resources', 'minimal.xml')
+                    dirname(abspath(__file__)), 'assets', 'minimal.xml')
                 parse_xml(site, gramps_file_path)
 
     @sync
@@ -65,7 +65,7 @@ class ParseXmlTest(TestCase):
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with Site(configuration) as site:
                 gramps_file_path = join(
-                    dirname(abspath(__file__)), 'resources', 'minimal.gramps')
+                    dirname(abspath(__file__)), 'assets', 'minimal.gramps')
                 parse_xml(site, gramps_file_path)
 
     @sync
@@ -74,7 +74,7 @@ class ParseXmlTest(TestCase):
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with Site(configuration) as site:
                 gramps_file_path = join(
-                    dirname(abspath(__file__)), 'resources', 'minimal.gpkg')
+                    dirname(abspath(__file__)), 'assets', 'minimal.gpkg')
                 parse_xml(site, gramps_file_path)
 
     def test_place_should_include_name(self):
@@ -145,10 +145,10 @@ class ParseXmlTest(TestCase):
             self.assertCountEqual(expected_children, parent.children)
 
     def test_event_should_be_birth(self):
-        self.assertEquals(Event.Type.BIRTH, self.ancestry.events['E0000'].type)
+        self.assertIsInstance(self.ancestry.events['E0000'].type, Birth)
 
     def test_event_should_be_death(self):
-        self.assertEquals(Event.Type.DEATH, self.ancestry.events['E0002'].type)
+        self.assertIsInstance(self.ancestry.events['E0002'].type, Death)
 
     def test_event_should_include_place(self):
         event = self.ancestry.events['E0000']
@@ -248,6 +248,24 @@ class ParseXmlTest(TestCase):
         (None, 'publi'),
         (None, 'privat'),
     ])
+    def test_person_should_include_privacy_from_attribute(self, expected: Optional[bool], attribute_value: str) -> None:
+        ancestry = self._parse_partial("""
+<people>
+    <person handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="I0000">
+        <gender>U</gender>
+        <attribute type="betty:privacy" value="%s"/>
+    </person>
+</people>
+""" % attribute_value)
+        person = ancestry.people['I0000']
+        self.assertEquals(expected, person.private)
+
+    @parameterized.expand([
+        (True, 'private'),
+        (False, 'public'),
+        (None, 'publi'),
+        (None, 'privat'),
+    ])
     def test_event_should_include_privacy_from_attribute(self, expected: Optional[bool], attribute_value: str) -> None:
         ancestry = self._parse_partial("""
 <events>
@@ -328,7 +346,7 @@ class GrampsTest(TestCase):
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
             configuration.plugins[Gramps] = {
-                'file': join(dirname(abspath(__file__)), 'resources', 'minimal.gpkg')
+                'file': join(dirname(abspath(__file__)), 'assets', 'minimal.gpkg')
             }
             async with Site(configuration) as site:
                 await parse(site)

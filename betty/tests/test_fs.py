@@ -32,14 +32,14 @@ class IterfilesTest(TestCase):
 class HashfileTest(TestCase):
     def test_hashfile_with_identical_file(self):
         file_path = join(dirname(dirname(__file__)),
-                         'resources', 'public', 'static', 'betty-16x16.png')
+                         'assets', 'public', 'static', 'betty-16x16.png')
         self.assertEquals(hashfile(file_path), hashfile(file_path))
 
     def test_hashfile_with_different_files(self):
         file_path_1 = join(dirname(dirname(__file__)),
-                           'resources', 'public', 'static', 'betty-16x16.png')
+                           'assets', 'public', 'static', 'betty-16x16.png')
         file_path_2 = join(dirname(dirname(__file__)),
-                           'resources', 'public', 'static', 'betty-512x512.png')
+                           'assets', 'public', 'static', 'betty-512x512.png')
         self.assertNotEquals(hashfile(file_path_1), hashfile(file_path_2))
 
 

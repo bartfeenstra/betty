@@ -19,7 +19,7 @@ from jinja2.utils import htmlsafe_json_dumps, Namespace as Jinja2Namespace
 from markupsafe import Markup
 from resizeimage import resizeimage
 
-from betty.ancestry import File, Citation, Event, Presence, Identifiable, Resource, HasLinks, HasFiles
+from betty.ancestry import File, Citation, Identifiable, Resource, HasLinks, HasFiles, Subject, Witness
 from betty.config import Configuration
 from betty.fs import makedirs, hashfile, is_hidden, iterfiles
 from betty.functools import walk, asynciter
@@ -104,7 +104,7 @@ class Namespace(Jinja2Namespace):
 
 def create_environment(site: Site) -> Environment:
     template_directory_paths = list(
-        [join(path, 'templates') for path in site.resources.paths])
+        [join(path, 'templates') for path in site.assets.paths])
     environment = Environment(
         enable_async=True,
         loader=FileSystemLoader(template_directory_paths),
@@ -129,8 +129,6 @@ def create_environment(site: Site) -> Environment:
     environment.globals['site'] = site
     environment.globals['locale'] = site.locale
     environment.globals['plugins'] = _Plugins(site.plugins)
-    environment.globals['EventType'] = Event.Type
-    environment.globals['PresenceRole'] = Presence.Role
     environment.globals['urlparse'] = urlparse
     environment.filters['map'] = _filter_map
     environment.filters['flatten'] = _filter_flatten
@@ -161,6 +159,8 @@ def create_environment(site: Site) -> Environment:
     environment.tests['has_links'] = lambda x: isinstance(x, HasLinks)
     environment.tests['has_files'] = lambda x: isinstance(x, HasFiles)
     environment.tests['startswith'] = str.startswith
+    environment.tests['subject_role'] = lambda x: isinstance(x, Subject)
+    environment.tests['witness_role'] = lambda x: isinstance(x, Witness)
     environment.filters['paragraphs'] = _filter_paragraphs
 
     @contextfilter

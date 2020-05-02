@@ -1,15 +1,15 @@
+import json as stdjson
 from os import makedirs, path
 from os.path import join, exists
 from tempfile import TemporaryDirectory, NamedTemporaryFile
 from unittest import TestCase
-import json as stdjson
 
 import html5lib
 from lxml import etree
 
 from betty import json
-from betty.ancestry import Person, Event, Place, Source, LocalizedName, File, IdentifiableEvent, IdentifiableCitation, \
-    IdentifiableSource
+from betty.ancestry import Person, Place, Source, LocalizedName, File, IdentifiableEvent, IdentifiableCitation, \
+    IdentifiableSource, Birth
 from betty.config import Configuration, LocaleConfiguration
 from betty.functools import sync
 from betty.generate import generate
@@ -105,7 +105,7 @@ class RenderTest(GenerateTestCase):
 
     @sync
     async def test_event(self):
-        event = IdentifiableEvent('EVENT1', Event.Type.BIRTH)
+        event = IdentifiableEvent('EVENT1', Birth())
         self.site.ancestry.events[event.id] = event
         await generate(self.site)
         self.assert_betty_html('/event/%s/index.html' % event.id)
@@ -179,13 +179,13 @@ class ResourceOverrideTest(GenerateTestCase):
     @sync
     async def test(self):
         with TemporaryDirectory() as output_directory_path:
-            with TemporaryDirectory() as resources_directory_path:
-                makedirs(join(resources_directory_path, 'public', 'localized'))
-                with open(join(resources_directory_path, 'public', 'localized', 'index.html.j2'), 'w') as f:
+            with TemporaryDirectory() as assets_directory_path:
+                makedirs(join(assets_directory_path, 'public', 'localized'))
+                with open(join(assets_directory_path, 'public', 'localized', 'index.html.j2'), 'w') as f:
                     f.write('{% block page_content %}Betty was here{% endblock %}')
                 configuration = Configuration(
                     output_directory_path, 'https://ancestry.example.com')
-                configuration.resources_directory_path = resources_directory_path
+                configuration.assets_directory_path = assets_directory_path
                 site = Site(configuration)
                 await generate(site)
                 with open(join(configuration.www_directory_path, 'index.html')) as f:
@@ -202,7 +202,7 @@ class SitemapRenderTest(GenerateTestCase):
     @sync
     async def test_validate(self):
         await generate(self.site)
-        with open(path.join(path.dirname(__file__), 'test_generate_resources', 'sitemap.xsd')) as f:
+        with open(path.join(path.dirname(__file__), 'test_generate_assets', 'sitemap.xsd')) as f:
             schema_doc = etree.parse(f)
         schema = etree.XMLSchema(schema_doc)
         with open(path.join(self.site.configuration.www_directory_path, 'sitemap.xml')) as f:

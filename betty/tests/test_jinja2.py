@@ -5,7 +5,7 @@ from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.ancestry import File, LocalizedName
+from betty.ancestry import File, LocalizedName, Subject, Attendee, Witness
 from betty.config import Configuration, LocaleConfiguration
 from betty.functools import sync
 from betty.jinja2 import create_environment
@@ -134,7 +134,7 @@ class FileTest(TestCase):
                     exists(join(configuration.www_directory_path, file_path[1:])))
 
 
-image_path = join(dirname(dirname(__file__)), 'resources',
+image_path = join(dirname(dirname(__file__)), 'assets',
                   'public', 'static', 'betty-512x512.png')
 
 
@@ -285,4 +285,40 @@ class SelectLocalizedsTest(TestCase):
             async with Site(configuration) as site:
                 environment = create_environment(site)
                 template = '{{ data | select_localizeds | map(attribute="name") | join(", ") }}'
+                self.assertEquals(expected, await environment.from_string(template).render_async(data=data))
+
+
+class IsSubjectRoleTest(TestCase):
+    @parameterized.expand([
+        ('true', Subject()),
+        ('false', Subject),
+        ('false', Attendee()),
+        ('false', 9),
+    ])
+    @sync
+    async def test(self, expected, data) -> None:
+        with TemporaryDirectory() as www_directory_path:
+            configuration = Configuration(
+                www_directory_path, 'https://example.com')
+            async with Site(configuration) as site:
+                environment = create_environment(site)
+                template = '{% if data is subject_role %}true{% else %}false{% endif %}'
+                self.assertEquals(expected, await environment.from_string(template).render_async(data=data))
+
+
+class IsWitnessRoleTest(TestCase):
+    @parameterized.expand([
+        ('true', Witness()),
+        ('false', Witness),
+        ('false', Attendee()),
+        ('false', 9),
+    ])
+    @sync
+    async def test(self, expected, data) -> None:
+        with TemporaryDirectory() as www_directory_path:
+            configuration = Configuration(
+                www_directory_path, 'https://example.com')
+            async with Site(configuration) as site:
+                environment = create_environment(site)
+                template = '{% if data is witness_role %}true{% else %}false{% endif %}'
                 self.assertEquals(expected, await environment.from_string(template).render_async(data=data))
