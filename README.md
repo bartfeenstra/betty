@@ -124,6 +124,14 @@ plugins:
     - `betty.plugin.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
     - `betty.plugin.wikipedia.Wikipedia`: Lets templates and other plugins retrieve complementary Wikipedia entries.
 
+### Translations
+Betty ships with the following translations:
+- US English (`en_US`)
+- Dutch (`nl_NL`)
+- Ukrainian (`uk`)
+
+Plugins and sites can override these translations, or provide translations for additional locales.
+
 ### Gramps
 #### Privacy
 Gramps has limited built-in support for people's privacy. To fully control privacy for people, as well as events, files,

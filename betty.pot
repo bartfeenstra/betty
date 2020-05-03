@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-02 21:33+0100\n"
+"POT-Creation-Date: 2020-05-03 16:58+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -62,7 +62,7 @@ msgid "Marriage"
 msgstr ""
 
 #: betty/ancestry.py:573
-msgid "Marriage banns"
+msgid "Announcement of marriage"
 msgstr ""
 
 #: betty/ancestry.py:585
@@ -70,7 +70,7 @@ msgid "Divorce"
 msgstr ""
 
 #: betty/ancestry.py:597
-msgid "Divorce filing"
+msgid "Announcement of divorce"
 msgstr ""
 
 #: betty/ancestry.py:613
