@@ -12,6 +12,7 @@ Betty is a static site generator for [Gramps](https://gramps-project.org/) and
 - [Usage](#usage)
   - [The command line](#the-command-line)
   - [Configuration files](#configuration-files)
+  - [Translations](#translations)
   - [Gramps](#gramps)
   - [GEDCOM files](#gedcom-files)
   - [The Python API](#the-python-api)
@@ -126,8 +127,8 @@ plugins:
 
 ### Translations
 Betty ships with the following translations:
-- US English (`en_US`)
-- Dutch (`nl_NL`)
+- US English (`en-US`)
+- Dutch (`nl-NL`)
 - Ukrainian (`uk`)
 
 Plugins and sites can override these translations, or provide translations for additional locales.
@@ -179,6 +180,14 @@ First, [fork and clone](https://guides.github.com/activities/forking/) the repos
 
 ### Installation
 In any existing Python environment, run `./bin/build-dev`.
+
+### Working on translations
+To add a new translation, run `./bin/init-translation $locale` where `$locale` is a
+[IETF BCP 47](https://tools.ietf.org/html/bcp47), but using underscores instead of dashes (`nl_NL` instead of `nl-NL`).
+
+After making changes to the translatable strings in the source code, run `./bin/extract-translatables`.
+
+After making changes to the translation files, run `./bin/compile-translatables`.
 
 ### Testing
 In any existing Python environment, run `./bin/test`.
