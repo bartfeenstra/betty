@@ -14,8 +14,8 @@ from voluptuous import Schema, IsFile, All
 
 from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, LocalizedName, Person, Link, HasFiles, \
     HasLinks, HasCitations, IdentifiableEvent, HasPrivacy, IdentifiableSource, IdentifiableCitation, Subject, Witness, \
-    Attendee, Birth, Baptism, Adoption, Cremation, Death, Burial, Engagement, Marriage, MarriageBanns, Divorce, \
-    DivorceFiling, Residence, Immigration, Emigration, Occupation, Retirement, Correspondence, Confirmation
+    Attendee, Birth, Baptism, Adoption, Cremation, Death, Burial, Engagement, Marriage, MarriageAnnouncement, Divorce, \
+    DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, Retirement, Correspondence, Confirmation
 from betty.config import Path
 from betty.event import Event as DispatchedEvent
 from betty.fs import makedirs
@@ -350,9 +350,9 @@ _EVENT_TYPE_MAP = {
     'Burial': Burial(),
     'Engagement': Engagement(),
     'Marriage': Marriage(),
-    'Marriage Banns': MarriageBanns(),
+    'Marriage Banns': MarriageAnnouncement(),
     'Divorce': Divorce(),
-    'Divorce Filing': DivorceFiling(),
+    'Divorce Filing': DivorceAnnouncement(),
     'Residence': Residence(),
     'Immigration': Immigration(),
     'Emigration': Emigration(),
