@@ -51,7 +51,7 @@ class Trees(Plugin, HtmlProvider):
                    cwd=js_plugin_build_directory_path)
 
         # Run Webpack.
-        await self._site.assets.copy2(path.join(self._site.configuration.www_directory_path, 'betty.css'), path.join(
+        await self._site.assets.copy(path.join(self._site.configuration.www_directory_path, 'betty.css'), path.join(
             js_plugin_build_directory_path, 'betty.css'))
         check_call(['npm', 'run', 'webpack'],
                    cwd=js_plugin_build_directory_path)

@@ -4,9 +4,9 @@ import shutil
 from collections import deque
 from contextlib import suppress
 from os import walk, path
-from os.path import join, dirname, exists, relpath, getmtime, basename
-from shutil import copy2
-from tempfile import mkdtemp
+from os.path import join, dirname, exists, relpath, getmtime
+from shutil import copy
+from tempfile import mkdtemp, TemporaryDirectory
 from typing import AsyncIterable
 
 
@@ -24,16 +24,29 @@ def hashfile(path: str) -> str:
     return hashlib.md5(':'.join([str(getmtime(path)), path]).encode('utf-8')).hexdigest()
 
 
-def is_hidden(path: str) -> bool:
-    if not path:
-        return False
-    name = basename(path)
-    while name:
-        name = basename(path)
-        if name.startswith('.'):
-            return True
-        path = dirname(path)
-    return False
+async def _copytree(source_path: str, destination_path: str):
+    async for file_source_path in iterfiles(source_path):
+        file_destination_path = join(destination_path, relpath(file_source_path, source_path))
+        if not exists(file_destination_path):
+            makedirs(dirname(file_destination_path))
+            copy(file_source_path, file_destination_path)
+
+
+class CopyTreeTo:
+    def __init__(self, file_system: 'FileSystem', source_path: str):
+        self._file_system = file_system
+        self._source_path = source_path
+
+    async def __aenter__(self):
+        self._intermediate_directory = TemporaryDirectory()
+        await self._file_system.copy_tree(self._source_path, self._intermediate_directory.name)
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        self._intermediate_directory.cleanup()
+
+    async def copy_to(self, destination_path: str) -> None:
+        await _copytree(self._intermediate_directory.name, destination_path)
 
 
 class FileSystem:
@@ -51,23 +64,22 @@ class FileSystem:
                     return open(join(fs_path, file_path))
         raise FileNotFoundError
 
-    async def copy2(self, source_path: str, destination_path: str) -> str:
+    async def copy(self, source_path: str, destination_path: str) -> str:
         for fs_path in self._paths:
             with suppress(FileNotFoundError):
-                return copy2(join(fs_path, source_path), destination_path)
+                return copy(join(fs_path, source_path), destination_path)
         tried_paths = [join(fs_path, source_path) for fs_path in self._paths]
         raise FileNotFoundError('Could not find any of %s.' %
                                 ', '.join(tried_paths))
 
-    async def copytree(self, source_path: str, destination_path: str) -> str:
+    async def copy_tree(self, source_path: str, destination_path: str) -> str:
+        makedirs(destination_path)
         for fs_path in self._paths:
-            async for file_source_path in iterfiles(join(fs_path, source_path)):
-                file_destination_path = join(destination_path, relpath(
-                    file_source_path, join(fs_path, source_path)))
-                if not exists(file_destination_path):
-                    makedirs(dirname(file_destination_path))
-                    copy2(file_source_path, file_destination_path)
+            await _copytree(join(fs_path, source_path), destination_path)
         return destination_path
+
+    def copy_tree_to(self, source_path: str) -> CopyTreeTo:
+        return CopyTreeTo(self, source_path)
 
 
 class DirectoryBackup:

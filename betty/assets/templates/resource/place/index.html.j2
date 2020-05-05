@@ -1,4 +1,5 @@
 {% extends 'base.html.j2' %}
+{% set place = file_resource %}
 {% set page_title = place.names | negotiate_localizeds %}
 {% block page_content %}
     {% include 'meta/place.html.j2' %}

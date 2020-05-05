@@ -1,4 +1,5 @@
 {% extends 'base.html.j2' %}
+{% set file = file_resource %}
 {% set page_title = file.description %}
 {% block page_content %}
     {% if file.media_type and file.media_type.startswith('image/') %}

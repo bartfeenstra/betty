@@ -3,19 +3,19 @@ from glob import glob
 
 import sass
 
-from betty.render import Renderer
+from betty.render import Renderer, FileArguments
 
 
 class SassRenderer(Renderer):
     _EXTENSIONS = ('sass', 'scss')
 
-    async def render_file(self, file_path: str) -> None:
+    async def render_file(self, file_path: str, file_arguments: FileArguments = None) -> None:
         if not file_path.endswith(self._EXTENSIONS):
             return
         self._compile(filename=file_path)
         os.remove(file_path)
 
-    async def render_tree(self, tree_path: str) -> None:
+    async def render_tree(self, tree_path: str, file_arguments: FileArguments = None) -> None:
         self._compile(dirname=(tree_path, tree_path))
         for extension in self._EXTENSIONS:
             patterns = [

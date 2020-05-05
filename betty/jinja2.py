@@ -21,13 +21,13 @@ from resizeimage import resizeimage
 
 from betty.ancestry import File, Citation, Identifiable, Resource, HasLinks, Subject, Witness
 from betty.config import Configuration
-from betty.fs import makedirs, hashfile, is_hidden, iterfiles
+from betty.fs import makedirs, hashfile, iterfiles
 from betty.functools import walk, asynciter
 from betty.importlib import import_any
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale
 from betty.plugin import Plugin
-from betty.render import Renderer
+from betty.render import Renderer, FileArguments
 from betty.search import Index
 from betty.site import Site
 
@@ -195,28 +195,20 @@ class Jinja2Renderer(Renderer):
         self._environment = environment
         self._configuration = configuration
 
-    async def render_file(self, file_path: str) -> None:
+    async def render_file(self, file_path: str, file_arguments: FileArguments = None) -> None:
         if not file_path.endswith('.j2'):
             return
         file_destination_path = file_path[:-3]
-        data = {}
-        if file_destination_path.startswith(self._configuration.www_directory_path) and not is_hidden(file_destination_path):
-            # Unix-style paths use forward slashes, so they are valid URL paths.
-            resource = file_destination_path[len(
-                self._configuration.www_directory_path):]
-            if self._configuration.multilingual:
-                resource_parts = resource.lstrip('/').split('/')
-                if resource_parts[0] in map(lambda x: x.alias, self._configuration.locales.values()):
-                    resource = '/'.join(resource_parts[1:])
-            data['page_resource'] = resource
         template = _root_loader.load(self._environment, file_path, self._environment.globals)
+        if file_arguments is None:
+            file_arguments = {}
         with open(file_destination_path, 'w') as f:
-            f.write(await template.render_async(data))
+            f.write(await template.render_async(**file_arguments))
         os.remove(file_path)
 
-    async def render_tree(self, tree_path: str) -> None:
+    async def render_tree(self, tree_path: str, file_arguments: FileArguments = None) -> None:
         await asyncio.gather(
-            *[self.render_file(file_path) async for file_path in iterfiles(tree_path) if file_path.endswith('.j2')],
+            *[self.render_file(file_path, file_arguments) async for file_path in iterfiles(tree_path) if file_path.endswith('.j2')],
         )
 
 

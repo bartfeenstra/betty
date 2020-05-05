@@ -4,9 +4,7 @@ from os.path import join, dirname
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from parameterized import parameterized
-
-from betty.fs import iterfiles, FileSystem, hashfile, is_hidden
+from betty.fs import iterfiles, FileSystem, hashfile
 from betty.functools import sync
 
 
@@ -41,23 +39,6 @@ class HashfileTest(TestCase):
         file_path_2 = join(dirname(dirname(__file__)),
                            'assets', 'public', 'static', 'betty-512x512.png')
         self.assertNotEquals(hashfile(file_path_1), hashfile(file_path_2))
-
-
-class IsHiddenTest(TestCase):
-    @parameterized.expand([
-        (True, '.betty'),
-        (True, '.betty.log'),
-        (True, '/etc/.betty/betty'),
-        (True, '/etc/.betty/betty.log'),
-        (False, ''),
-        (False, '/'),
-        (False, 'betty'),
-        (False, 'betty.log'),
-        (False, 'betty/betty.log'),
-        (False, '/etc/betty.log'),
-    ])
-    def test(self, expected, path):
-        self.assertEquals(expected, is_hidden(path))
 
 
 class FileSystemTest(TestCase):
@@ -151,9 +132,9 @@ class FileSystemTest(TestCase):
                 with TemporaryDirectory() as destination_path:
                     sut = FileSystem(source_path_1, source_path_2)
 
-                    await sut.copy2('apples', destination_path)
-                    await sut.copy2('oranges', destination_path)
-                    await sut.copy2('bananas', destination_path)
+                    await sut.copy('apples', destination_path)
+                    await sut.copy('oranges', destination_path)
+                    await sut.copy('bananas', destination_path)
 
                     with await sut.open(join(destination_path, 'apples')) as f:
                         self.assertEquals('apples', f.read())
@@ -163,7 +144,7 @@ class FileSystemTest(TestCase):
                         self.assertEquals('bananas', f.read())
 
                     with self.assertRaises(FileNotFoundError):
-                        await sut.copy2('mangos', destination_path)
+                        await sut.copy('mangos', destination_path)
 
     @sync
     async def test_copytree(self):
@@ -183,7 +164,7 @@ class FileSystemTest(TestCase):
                 with TemporaryDirectory() as destination_path:
                     sut = FileSystem(source_path_1, source_path_2)
 
-                    await sut.copytree('', destination_path)
+                    await sut.copy_tree('', destination_path)
 
                     with await sut.open(join(destination_path, 'basket', 'apples')) as f:
                         self.assertEquals('apples', f.read())
