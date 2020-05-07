@@ -26,7 +26,7 @@ class FlattenTest(TestCase):
             environment = create_environment(
                 Site(Configuration(www_directory_path, 'https://example.com')))
             self.assertEquals(
-                expected, environment.from_string(template).render())
+                expected, environment.from_string(template).render_tree())
 
 
 class WalkData:
@@ -49,7 +49,7 @@ class WalkTest(TestCase):
             environment = create_environment(
                 Site(Configuration(www_directory_path, 'https://example.com')))
             self.assertEquals(expected, environment.from_string(
-                template).render(data=data))
+                template).render_tree(data=data))
 
 
 class ParagraphsTest(TestCase):
@@ -63,7 +63,7 @@ class ParagraphsTest(TestCase):
             environment = create_environment(
                 Site(Configuration(www_directory_path, 'https://example.com')))
             self.assertEquals(
-                expected, environment.from_string(template).render())
+                expected, environment.from_string(template).render_tree())
 
 
 class FormatDegreesTest(TestCase):
@@ -76,7 +76,7 @@ class FormatDegreesTest(TestCase):
             environment = create_environment(
                 Site(Configuration(www_directory_path, 'https://example.com')))
             self.assertEquals(
-                expected, environment.from_string(template).render())
+                expected, environment.from_string(template).render_tree())
 
 
 class MapData:
@@ -97,7 +97,7 @@ class MapTest(TestCase):
             environment = create_environment(
                 Site(Configuration(www_directory_path, 'https://example.com')))
             self.assertEquals(expected, environment.from_string(
-                template).render(data=data))
+                template).render_tree(data=data))
 
 
 class TakewhileTest(TestCase):
@@ -113,7 +113,7 @@ class TakewhileTest(TestCase):
             environment = create_environment(
                 Site(Configuration(www_directory_path, 'https://example.com')))
             self.assertEquals(
-                expected, environment.from_string(template).render())
+                expected, environment.from_string(template).render_tree())
 
 
 class FileTest(TestCase):
@@ -127,7 +127,7 @@ class FileTest(TestCase):
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
             environment = create_environment(Site(configuration))
-            actual = environment.from_string(template).render(file=file)
+            actual = environment.from_string(template).render_tree(file=file)
             self.assertEquals(expected, actual)
             for file_path in actual.split(':'):
                 self.assertTrue(
@@ -154,7 +154,7 @@ class ImageTest(TestCase):
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
             environment = create_environment(Site(configuration))
-            actual = environment.from_string(template).render(file=file)
+            actual = environment.from_string(template).render_tree(file=file)
             self.assertEquals(expected, actual)
             for file_path in actual.split(':'):
                 self.assertTrue(
@@ -172,7 +172,7 @@ class PluginsTest(TestCase):
                 Site(Configuration(www_directory_path, 'https://example.com')))
             template = '{% if "betty.UnknownModule.Plugin" in plugins %}true{% else %}false{% endif %}'
             self.assertEquals(
-                'false', environment.from_string(template).render())
+                'false', environment.from_string(template).render_tree())
 
     def test_with_unknown_plugin_class(self):
         with TemporaryDirectory() as www_directory_path:
@@ -180,7 +180,7 @@ class PluginsTest(TestCase):
                 Site(Configuration(www_directory_path, 'https://example.com')))
             template = '{% if "betty.UnknownPlugin" in plugins %}true{% else %}false{% endif %}'
             self.assertEquals(
-                'false', environment.from_string(template).render())
+                'false', environment.from_string(template).render_tree())
 
     def test_with_disabled_plugin(self):
         with TemporaryDirectory() as www_directory_path:
@@ -189,7 +189,7 @@ class PluginsTest(TestCase):
             template = '{% if "' + TestPlugin.__module__ + \
                 '.TestPlugin" in plugins %}true{% else %}false{% endif %}'
             self.assertEquals(
-                'false', environment.from_string(template).render())
+                'false', environment.from_string(template).render_tree())
 
     def test_with_enabled_plugin(self):
         with TemporaryDirectory() as www_directory_path:
@@ -200,7 +200,7 @@ class PluginsTest(TestCase):
             template = '{% if "' + TestPlugin.__module__ + \
                 '.TestPlugin" in plugins %}true{% else %}false{% endif %}'
             self.assertEquals(
-                'true', environment.from_string(template).render())
+                'true', environment.from_string(template).render_tree())
 
 
 class FormatDateTest(TestCase):
@@ -244,7 +244,7 @@ class SortLocalizedsTest(TestCase):
                     LocalizedName('1', 'en-US'),
                 ]),
             ]
-            self.assertEquals('[first, second, third]', environment.from_string(template).render(data=data))
+            self.assertEquals('[first, second, third]', environment.from_string(template).render_tree(data=data))
 
     def test_with_empty_iterable(self):
         with TemporaryDirectory() as www_directory_path:
@@ -253,7 +253,7 @@ class SortLocalizedsTest(TestCase):
             environment = create_environment(Site(configuration))
             template = '{{ data | sort_localizeds(localized_attribute="names", sort_attribute="name") }}'
             data = []
-            self.assertEquals('[]', environment.from_string(template).render(data=data))
+            self.assertEquals('[]', environment.from_string(template).render_tree(data=data))
 
 
 class SelectLocalizedsTest(TestCase):

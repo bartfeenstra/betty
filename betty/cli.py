@@ -1,4 +1,6 @@
+import cProfile
 import logging
+import pstats
 import shutil
 from contextlib import suppress
 from functools import wraps
@@ -118,5 +120,7 @@ async def _clear_caches():
 @click.command(help='Generate a static site.')
 @site_command
 async def _generate(site: Site):
-    await parse.parse(site)
-    await generate.generate(site)
+    with cProfile.Profile() as pr:
+        await parse.parse(site)
+        await generate.generate(site)
+    pstats.Stats(pr).strip_dirs().sort_stats(pstats.SortKey.CUMULATIVE).print_stats()

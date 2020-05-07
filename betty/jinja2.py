@@ -7,6 +7,7 @@ from os.path import join, exists
 from typing import Union, Dict, Type, Optional, Callable, Iterable
 from urllib.parse import urlparse
 
+from aiofiles import os as aioos
 from PIL import Image
 from babel import Locale
 from geopy import units
@@ -27,7 +28,7 @@ from betty.importlib import import_any
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale
 from betty.plugin import Plugin
-from betty.render import Renderer, FileArguments
+from betty.render import Renderer, RenderArguments
 from betty.search import Index
 from betty.site import Site
 
@@ -195,7 +196,7 @@ class Jinja2Renderer(Renderer):
         self._environment = environment
         self._configuration = configuration
 
-    async def render_file(self, file_path: str, file_arguments: FileArguments = None) -> None:
+    async def _render_file(self, file_path: str, file_arguments: RenderArguments = None) -> None:
         if not file_path.endswith('.j2'):
             return
         file_destination_path = file_path[:-3]
@@ -204,11 +205,11 @@ class Jinja2Renderer(Renderer):
             file_arguments = {}
         with open(file_destination_path, 'w') as f:
             f.write(await template.render_async(**file_arguments))
-        os.remove(file_path)
+        await aioos.remove(file_path)
 
-    async def render_tree(self, tree_path: str, file_arguments: FileArguments = None) -> None:
+    async def render_tree(self, render_path: str, file_arguments: RenderArguments = None) -> None:
         await asyncio.gather(
-            *[self.render_file(file_path, file_arguments) async for file_path in iterfiles(tree_path) if file_path.endswith('.j2')],
+            *[self._render_file(file_path, file_arguments) for file_path in iterfiles(render_path)],
         )
 
 

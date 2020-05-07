@@ -6,6 +6,7 @@ from typing import Iterable, Any, Union
 
 from betty.ancestry import Resource, Identifiable
 from betty.event import Event
+from betty.fs import iterfiles
 from betty.openapi import build_specification
 from betty.site import Site
 
@@ -19,7 +20,7 @@ class PostGenerateEvent(Event):
 
 async def generate(site: Site) -> None:
     logger = logging.getLogger()
-    await site.assets.copy_tree(path.join('public', 'static'),
+    site.assets.copy_tree(path.join('public', 'static'),
                                 site.configuration.www_directory_path)
     await site.renderer.render_tree(site.configuration.www_directory_path)
     for locale, locale_configuration in site.configuration.locales.items():
@@ -30,7 +31,7 @@ async def generate(site: Site) -> None:
             else:
                 www_directory_path = site.configuration.www_directory_path
 
-            await site.assets.copy_tree(path.join('public', 'localized'), www_directory_path)
+            site.assets.copy_tree(path.join('public', 'localized'), www_directory_path)
             await site.renderer.render_tree(www_directory_path)
 
             await _generate_resource_type(www_directory_path, site.ancestry.files.values(
@@ -69,33 +70,20 @@ async def generate(site: Site) -> None:
 
 
 async def _generate_resource_type(www_directory_path: str, resources: Iterable[IdentifiableResource], resource_type_name: str, site: Site) -> None:
-    await _generate_resource_list(site, www_directory_path, resources, resource_type_name)
-    # @todo We now generate each resource in isolation.
-    # @todo This means that for each resource, the FileSystem goes over each FS path to copy files.
-    # @todo For each resource, the same files are overridden, added, and, in the future, removed.
-    # @todo If we need to copy a tree to many destinations, we want to 'compile' the steps above.
-    # @todo 1) Either refactor FileSystem.copytree() to become a context manager: `with FileSystem.copytree(source_path) as copytree: copytree(desination_path)`
-    # @todo 2) Or refactor FileSystem.copytree() to take an Iterable[str] destination_path argument.
-    # @todo Internally, FileSystem.copytree() would first copy all files to a temporary directory, from which everything is then copied to all destination directories.
-    # @todo If the destination directory does not exist, the source directory
-    # @todo
-    resource_template_directory_path = path.join('templates', 'resource', resource_type_name)
-    async with site.assets.copy_tree_to(resource_template_directory_path) as copy_tree_to:
-        for resource in resources:
-            destination_path = path.join(www_directory_path, resource.resource_type_name, resource.id)
-            await copy_tree_to.copy_to(destination_path)
-            await site.renderer.render_tree(destination_path, {
-                'file_resource': resource,
-            })
-
-
-async def _generate_resource_list(site: Site, www_directory_path: str, resources: Iterable[IdentifiableResource], resource_type_name: str, ) -> None:
-    template_directory_path = path.join('templates', 'resource-list', resource_type_name)
-    destination_path = path.join(www_directory_path, resource_type_name)
-    await site.assets.copy_tree(template_directory_path, destination_path)
-    await site.renderer.render_tree(destination_path, {
+    resources_template_directory_path = path.join('templates', 'resource-list', resource_type_name)
+    resources_destination_path = path.join(www_directory_path, resource_type_name)
+    site.assets.copy_tree(resources_template_directory_path, resources_destination_path)
+    await site.renderer.render_tree(resources_destination_path, {
         'file_resources': resources,
     })
+    resource_template_directory_path = path.join('templates', 'resource', resource_type_name)
+    with site.assets.copy_tree_to(resource_template_directory_path) as copy_tree_to:
+        for resource in resources:
+            resource_destination_path = path.join(www_directory_path, resource.resource_type_name, resource.id)
+            copy_tree_to(resource_destination_path)
+            await site.renderer.render_tree(resource_destination_path, {
+                'file_resource': resource,
+            })
 
 
 # @todo Move this to the list *.json.j2 files.
