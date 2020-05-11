@@ -1,35 +1,24 @@
 'use strict'
 
-var enterSearchKeyCodes = [
-  // "s".
-  83
-]
-
-var hideSearchKeyCodes = [
-  // Escape.
-  27
-]
-
-var nextKeyCodes = [
-  // Arrow down.
-  40
-]
-
-var previousKeyCodes = [
-  // Arrow up.
-  38
-]
+var _ENTER_SEARCH_KEYS = ['s']
+var _HIDE_SEARCH_KEYS = ['Escape']
+var _NEXT_RESULT_KEYS = ['ArrowDown']
+var _PREVIOUS_RESULT_KEYS = ['ArrowUp']
 
 function Search() {
   this._query = null
-  this._form = document.getElementById('search')
+  this._search = document.getElementById('search')
+  this._indexUrl = this._search.dataset.bettySearchIndex
+  this._form = this._search.getElementsByTagName('form').item(0)
   this._queryElement = document.getElementById('search-query')
-  this._resultsInjector = document.createElement('div')
+  this._resultsContainer = document.getElementById('search-results-container')
+  this._documentY = null
   var _this = this
 
   // Prevent default form submission behaviors, such as HTTP requests.
-  this._form.addEventListener('submit', function () {
-    return false
+  this._form.addEventListener('submit', function (e) {
+    e.preventDefault()
+    e.stopPropagation()
   })
 
   this._queryElement.addEventListener('keyup', function () {
@@ -38,37 +27,34 @@ function Search() {
 
   // Allow keyboard navigation through the results.
   this._queryElement.addEventListener('keydown', function (e) {
-    _this._navigateResults(e.which)
+    _this._navigateResults(e.key)
   })
-  this._resultsInjector.addEventListener('keydown', function (e) {
-    _this._navigateResults(e.which)
+  this._resultsContainer.addEventListener('keydown', function (e) {
+    _this._navigateResults(e.key)
   })
 
   // Allow navigation into and out of the search.
   document.addEventListener('keyup', function (e) {
-    if (enterSearchKeyCodes.includes(e.which)) {
+    if (_ENTER_SEARCH_KEYS.includes(e.key)) {
       _this._queryElement.focus()
+      _this.showSearchResults()
     }
   })
   this._queryElement.addEventListener('focus', function() {
     _this.showSearchResults()
   })
-  document.addEventListener('mousedown', function (e) {
-    if (!_this._queryElement.contains(e.target) && !_this._resultsInjector.contains(e.target)) {
-      _this.hideSearchResults()
-      _this._queryElement.blur()
-    }
+  _this._search.getElementsByClassName('overlay-close')[0].addEventListener('mouseup', function () {
+    _this.hideSearchResults()
   })
   document.addEventListener('keydown', function (e) {
-    if (hideSearchKeyCodes.includes(e.which)) {
+    if (_HIDE_SEARCH_KEYS.includes(e.key)) {
       _this.hideSearchResults()
-      _this._queryElement.blur()
     }
   })
 }
 
 Search.prototype._navigateResults = function(keyCode) {
-  if (previousKeyCodes.includes(keyCode)) {
+  if (_PREVIOUS_RESULT_KEYS.includes(keyCode)) {
     // If the focus lies on the query input element, do nothing, because there are no previous search results.
     if (document.activeElement === this._queryElement) {
       return
@@ -85,10 +71,13 @@ Search.prototype._navigateResults = function(keyCode) {
       // If no previous search result exists, focus on the query input element.
       this._queryElement.focus()
     }
-  } else if (nextKeyCodes.includes(keyCode)) {
+  } else if (_NEXT_RESULT_KEYS.includes(keyCode)) {
     // If the focus lies on the query input element, focus on the first search result.
     if (document.activeElement === this._queryElement) {
-      this._resultsInjector.getElementsByClassName('search-result-target')[0].focus()
+      var resultTargets = this._resultsContainer.getElementsByClassName('search-result-target')
+      if (0 in resultTargets) {
+        resultTargets[0].focus()
+      }
       return
     }
     // If the focus lies on a search result, focus on the next search result if there is one.
@@ -102,18 +91,35 @@ Search.prototype._navigateResults = function(keyCode) {
 }
 
 Search.prototype._setSearchResults = function(results) {
-  this._resultsInjector.innerHTML = this._renderResults(results)
+  this._resultsContainer.innerHTML = this._renderResults(results)
+  this._resultsContainer.scrollTo({
+    'top': 0,
+  })
 }
 
 Search.prototype.showSearchResults = function() {
-  document.body.appendChild(this._resultsInjector)
+  if (!this._documentY) {
+    this._documentY = window.scrollY
+  }
+  this._search.classList.add('overlay')
+  document.body.classList.add('has-overlay')
+  if (!this._search.contains(document.activeElement)) {
+      this._queryElement.focus()
+  }
 }
 
 Search.prototype.hideSearchResults = function() {
-  if (!this._resultsInjector.parentNode) {
-    return
+  if (this._search.contains(document.activeElement)) {
+      document.activeElement.blur()
   }
-  this._resultsInjector.parentNode.removeChild(this._resultsInjector)
+  this._search.classList.remove('overlay')
+  document.body.classList.remove('has-overlay')
+  if (this._documentY) {
+    window.scrollTo({
+      'top': this._documentY
+    })
+    this._documentY = null
+  }
 }
 
 Search.prototype._performCacheQuery = function (query) {
@@ -127,7 +133,6 @@ Search.prototype._performFromCachedQuery = function () {
   this._setSearchResults(this._index.filter(function (result) {
     return _this._match(query, result.text)
   }))
-  _this.showSearchResults()
 }
 
 Search.prototype._performCached = function (query) {
@@ -140,8 +145,8 @@ Search.prototype._performUncached = function(query) {
   this.perform = this._performCacheQuery
   var _this = this
   var indexRequest = new XMLHttpRequest()
-  indexRequest.open('GET', this._form.dataset.bettySearchIndex)
-  indexRequest.addEventListener('load', function (e) {
+  indexRequest.open('GET', this._indexUrl)
+  indexRequest.addEventListener('load', function () {
     var index = JSON.parse(indexRequest.response)
     _this._index = index.index
     _this._resultContainerTemplate = index.resultContainerTemplate
@@ -167,16 +172,16 @@ Search.prototype._match = function(query, haystack) {
 Search.prototype._renderResults = function(results) {
   var _this = this
   return this._resultsContainerTemplate
-      .replace('## results ##', results.map(function(result) {
+      .replace('<!-- betty-search-results -->', results.map(function(result) {
         return _this._renderResult(result)
       }).join(''))
 }
 
 Search.prototype._renderResult = function(result) {
   return this._resultContainerTemplate
-      .replace('## result ##', result.result)
+      .replace('<!-- betty-search-result -->', result.result)
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  new Search()
+  new Search('search')
 })

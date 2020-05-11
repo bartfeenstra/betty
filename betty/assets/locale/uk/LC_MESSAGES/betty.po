@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-03 16:58+0100\n"
+"POT-Creation-Date: 2020-05-11 12:41+0100\n"
 "PO-Revision-Date: 2020-05-02 22:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -19,87 +19,87 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: betty/ancestry.py:439
+#: betty/ancestry.py:443
 msgid "Subject"
 msgstr "Предмет"
 
-#: betty/ancestry.py:447
+#: betty/ancestry.py:451
 msgid "Witness"
 msgstr "Свідок"
 
-#: betty/ancestry.py:455
+#: betty/ancestry.py:459
 msgid "Attendee"
 msgstr "Відвідувач"
 
-#: betty/ancestry.py:493
+#: betty/ancestry.py:497
 msgid "Birth"
 msgstr "Народження"
 
-#: betty/ancestry.py:501
+#: betty/ancestry.py:505
 msgid "Baptism"
 msgstr "Хрещення"
 
-#: betty/ancestry.py:509
+#: betty/ancestry.py:513
 msgid "Adoption"
 msgstr "Усиновлення"
 
-#: betty/ancestry.py:517
+#: betty/ancestry.py:521
 msgid "Cremation"
 msgstr "Кремація"
 
-#: betty/ancestry.py:529
+#: betty/ancestry.py:533
 msgid "Death"
 msgstr "Смерть"
 
-#: betty/ancestry.py:541
+#: betty/ancestry.py:545
 msgid "Burial"
 msgstr "Поховання"
 
-#: betty/ancestry.py:553
+#: betty/ancestry.py:557
 msgid "Engagement"
 msgstr "Заручини"
 
-#: betty/ancestry.py:565
+#: betty/ancestry.py:569
 msgid "Marriage"
 msgstr "Шлюб"
 
-#: betty/ancestry.py:573
+#: betty/ancestry.py:577
 msgid "Announcement of marriage"
 msgstr "Оголошення шлюбу"
 
-#: betty/ancestry.py:585
+#: betty/ancestry.py:589
 msgid "Divorce"
 msgstr "Розлучення"
 
-#: betty/ancestry.py:597
+#: betty/ancestry.py:601
 msgid "Announcement of divorce"
 msgstr "Оголошення про розлучення"
 
-#: betty/ancestry.py:613
+#: betty/ancestry.py:617
 msgid "Residence"
 msgstr "Проживання"
 
-#: betty/ancestry.py:621
+#: betty/ancestry.py:625
 msgid "Immigration"
 msgstr "Імміграція"
 
-#: betty/ancestry.py:629
+#: betty/ancestry.py:633
 msgid "Emigration"
 msgstr "Еміграція"
 
-#: betty/ancestry.py:637
+#: betty/ancestry.py:641
 msgid "Occupation"
 msgstr "Праця"
 
-#: betty/ancestry.py:645
+#: betty/ancestry.py:649
 msgid "Retirement"
 msgstr "Вихід на пенсію"
 
-#: betty/ancestry.py:653
+#: betty/ancestry.py:657
 msgid "Correspondence"
 msgstr "Листування"
 
-#: betty/ancestry.py:661
+#: betty/ancestry.py:665
 msgid "Confirmation"
 msgstr "Миропомазання"
 
@@ -289,41 +289,60 @@ msgstr "Ласкаво просимо на %(title)s"
 msgid "API documentation"
 msgstr "Документація API"
 
-#: betty/assets/templates/base.html.j2:61
+#: betty/assets/templates/base.html.j2:68
+msgid "Exit the search"
+msgstr "Вийдіть із пошуку."
+
+#: betty/assets/templates/base.html.j2:74
+#, python-format
+msgid "E.g. \"%(example)s\""
+msgstr "Наприклад «%(example)s»"
+
+#: betty/assets/templates/base.html.j2:84
+msgid ""
+"Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
+"to exit the search. Search again with <kbd>s</kbd>."
+msgstr ""
+"Використовуйте <kbd>↑</kbd> і <kbd>↓</kbd> для"
+" переміщення по результатах або "
+"<kbd>esc</kbd> для виходу з пошуку. "
+"Шукайте знову за допомогою <kbd>s</kbd>."
+
+#: betty/assets/templates/base.html.j2:94
 msgid "Menu"
 msgstr "Меню"
 
-#: betty/assets/templates/base.html.j2:64
+#: betty/assets/templates/base.html.j2:97
 #: betty/assets/templates/page/list-person.html.j2:2
 msgid "People"
 msgstr "Люди"
 
-#: betty/assets/templates/base.html.j2:65
+#: betty/assets/templates/base.html.j2:98
 #: betty/assets/templates/page/person.html.j2:73
 #: betty/assets/templates/page/place.html.j2:24
 msgid "Timeline"
 msgstr "Хронологія"
 
-#: betty/assets/templates/base.html.j2:66
+#: betty/assets/templates/base.html.j2:99
 #: betty/assets/templates/page/list-place.html.j2:2
 msgid "Places"
 msgstr "Місця"
 
-#: betty/assets/templates/base.html.j2:67
+#: betty/assets/templates/base.html.j2:100
 #: betty/assets/templates/page/file.html.j2:34
 #: betty/assets/templates/page/list-source.html.j2:2
 msgid "Sources"
 msgstr "Джерела"
 
-#: betty/assets/templates/base.html.j2:73
+#: betty/assets/templates/base.html.j2:106
 msgid "Language"
 msgstr "Мова"
 
-#: betty/assets/templates/base.html.j2:98
+#: betty/assets/templates/base.html.j2:131
 msgid "External links"
 msgstr "Зовнішні посилання"
 
-#: betty/assets/templates/base.html.j2:113
+#: betty/assets/templates/base.html.j2:146
 msgid "References"
 msgstr "Референції"
 
@@ -389,7 +408,7 @@ msgstr "Також відомий як %(names)s"
 #: betty/assets/templates/page/citation.html.j2:9
 #: betty/assets/templates/page/event.html.j2:48
 #: betty/assets/templates/page/list-file.html.j2:2
-#: betty/assets/templates/page/person.html.j2:86
+#: betty/assets/templates/page/person.html.j2:81
 #: betty/assets/templates/page/source.html.j2:10
 #: betty/assets/templates/search/result-file.html.j2:4
 msgid "Media"
@@ -443,15 +462,6 @@ msgstr[2] ""
 #: betty/assets/templates/page/person.html.j2:61
 msgid "Siblings"
 msgstr "Брати і сестри"
-
-#: betty/assets/templates/search/results-container.html.j2:3
-msgid ""
-"Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
-"to exit the search. Next time, open the search with <kbd>s</kbd>."
-msgstr ""
-"Використовуйте <kbd>↑</kbd> і <kbd>↓</kbd> для переміщення по результатах"
-" або <kbd>esc</kbd> для виходу з пошуку. Наступного разу відкрийте пошук "
-"за допомогою <kbd>s</kbd>."
 
 #: betty/plugin/anonymizer/__init__.py:17
 msgid "Private"

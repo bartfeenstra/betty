@@ -76,12 +76,7 @@
         {% endwith %}
     {% endif %}
 
-    {% set haveFiles = [person] %}
-    {% set haveFiles = haveFiles + person.citations | list %}
-    {% set haveFiles = haveFiles + events %}
-    {% set haveFiles = haveFiles + events | map(attribute='citations') | flatten | list %}
-    {% set haveFiles = haveFiles + events | map(attribute='citations') | flatten | map(attribute='source') | list %}
-    {% set files = haveFiles | map(attribute='files') | flatten | list | unique | list %}
+    {% set files = person.associated_files | list %}
     {% if files | length > 0 %}
         <h2>{% trans %}Media{% endtrans %}</h2>
         {% include 'list-file.html.j2' %}
