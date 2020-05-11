@@ -187,4 +187,9 @@ class Site:
 
         site = copy(self)
         site._locale = locale
+
+        # Clear all locale-dependent lazy-loaded attributes.
+        site._jinja2_environment = None
+        site._renderer = None
+
         return site

@@ -569,12 +569,12 @@ class Marriage(EventType):
         return _('Marriage')
 
 
-class MarriageBanns(EventType):
-    name = 'marriage-banns'
+class MarriageAnnouncement(EventType):
+    name = 'marriage-announcement'
 
     @property
     def label(self) -> str:
-        return _('Marriage banns')
+        return _('Announcement of marriage')
 
     @classmethod
     def comes_before(cls) -> Set[Type['EventType']]:
@@ -593,12 +593,12 @@ class Divorce(EventType):
         return set(Marriage)
 
 
-class DivorceFiling(EventType):
-    name = 'divorce-filing'
+class DivorceAnnouncement(EventType):
+    name = 'divorce-announcement'
 
     @property
     def label(self) -> str:
-        return _('Divorce filing')
+        return _('Announcement of divorce')
 
     @classmethod
     def comes_after(cls) -> Set[Type['EventType']]:

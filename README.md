@@ -12,6 +12,7 @@ Betty is a static site generator for [Gramps](https://gramps-project.org/) and
 - [Usage](#usage)
   - [The command line](#the-command-line)
   - [Configuration files](#configuration-files)
+  - [Translations](#translations)
   - [Gramps](#gramps)
   - [GEDCOM files](#gedcom-files)
   - [The Python API](#the-python-api)
@@ -124,6 +125,14 @@ plugins:
     - `betty.plugin.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
     - `betty.plugin.wikipedia.Wikipedia`: Lets templates and other plugins retrieve complementary Wikipedia entries.
 
+### Translations
+Betty ships with the following translations:
+- US English (`en-US`)
+- Dutch (`nl-NL`)
+- Ukrainian (`uk`)
+
+Plugins and sites can override these translations, or provide translations for additional locales.
+
 ### Gramps
 #### Privacy
 Gramps has limited built-in support for people's privacy. To fully control privacy for people, as well as events, files,
@@ -171,6 +180,14 @@ First, [fork and clone](https://guides.github.com/activities/forking/) the repos
 
 ### Installation
 In any existing Python environment, run `./bin/build-dev`.
+
+### Working on translations
+To add a new translation, run `./bin/init-translation $locale` where `$locale` is a
+[IETF BCP 47](https://tools.ietf.org/html/bcp47), but using underscores instead of dashes (`nl_NL` instead of `nl-NL`).
+
+After making changes to the translatable strings in the source code, run `./bin/extract-translatables`.
+
+After making changes to the translation files, run `./bin/compile-translatables`.
 
 ### Testing
 In any existing Python environment, run `./bin/test`.

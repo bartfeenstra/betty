@@ -1,17 +1,19 @@
-# Translations template for Betty.
+# Ukrainian translations for Betty.
 # Copyright (C) 2020 Bart Feenstra & contributors
 # This file is distributed under the same license as the Betty project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-05-11 12:41+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2020-05-02 22:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,131 +21,131 @@ msgstr ""
 
 #: betty/ancestry.py:443
 msgid "Subject"
-msgstr ""
+msgstr "Предмет"
 
 #: betty/ancestry.py:451
 msgid "Witness"
-msgstr ""
+msgstr "Свідок"
 
 #: betty/ancestry.py:459
 msgid "Attendee"
-msgstr ""
+msgstr "Відвідувач"
 
 #: betty/ancestry.py:497
 msgid "Birth"
-msgstr ""
+msgstr "Народження"
 
 #: betty/ancestry.py:505
 msgid "Baptism"
-msgstr ""
+msgstr "Хрещення"
 
 #: betty/ancestry.py:513
 msgid "Adoption"
-msgstr ""
+msgstr "Усиновлення"
 
 #: betty/ancestry.py:521
 msgid "Cremation"
-msgstr ""
+msgstr "Кремація"
 
 #: betty/ancestry.py:533
 msgid "Death"
-msgstr ""
+msgstr "Смерть"
 
 #: betty/ancestry.py:545
 msgid "Burial"
-msgstr ""
+msgstr "Поховання"
 
 #: betty/ancestry.py:557
 msgid "Engagement"
-msgstr ""
+msgstr "Заручини"
 
 #: betty/ancestry.py:569
 msgid "Marriage"
-msgstr ""
+msgstr "Шлюб"
 
 #: betty/ancestry.py:577
 msgid "Announcement of marriage"
-msgstr ""
+msgstr "Оголошення шлюбу"
 
 #: betty/ancestry.py:589
 msgid "Divorce"
-msgstr ""
+msgstr "Розлучення"
 
 #: betty/ancestry.py:601
 msgid "Announcement of divorce"
-msgstr ""
+msgstr "Оголошення про розлучення"
 
 #: betty/ancestry.py:617
 msgid "Residence"
-msgstr ""
+msgstr "Проживання"
 
 #: betty/ancestry.py:625
 msgid "Immigration"
-msgstr ""
+msgstr "Імміграція"
 
 #: betty/ancestry.py:633
 msgid "Emigration"
-msgstr ""
+msgstr "Еміграція"
 
 #: betty/ancestry.py:641
 msgid "Occupation"
-msgstr ""
+msgstr "Праця"
 
 #: betty/ancestry.py:649
 msgid "Retirement"
-msgstr ""
+msgstr "Вихід на пенсію"
 
 #: betty/ancestry.py:657
 msgid "Correspondence"
-msgstr ""
+msgstr "Листування"
 
 #: betty/ancestry.py:665
 msgid "Confirmation"
-msgstr ""
+msgstr "Миропомазання"
 
 #: betty/locale.py:250
 msgid "unknown date"
-msgstr ""
+msgstr "невідома дата"
 
 #: betty/locale.py:256
 #, python-format
 msgid "Around %(date)s"
-msgstr ""
+msgstr "Близько %(date)s"
 
 #: betty/locale.py:266
 msgid "MMMM d, y"
-msgstr ""
+msgstr "d MMMM y року"
 
 #: betty/locale.py:267
 msgid "MMMM, y"
-msgstr ""
+msgstr "MMMM y року"
 
 #: betty/locale.py:268
 msgid "y"
-msgstr ""
+msgstr "y року"
 
 #: betty/locale.py:269
 msgid "MMMM d"
-msgstr ""
+msgstr "d MMMM"
 
 #: betty/locale.py:270
 msgid "MMMM"
-msgstr ""
+msgstr "MMMM"
 
 #: betty/locale.py:290
 #, python-format
 msgid "Between %(start)s and %(end)s"
-msgstr ""
+msgstr "У період з %(start)s по %(end)s"
 
 #: betty/locale.py:295
 #, python-format
 msgid "After %(start)s"
-msgstr ""
+msgstr "Після %(start)s"
 
 #: betty/locale.py:299
 #, python-format
 msgid "Before %(end)s"
-msgstr ""
+msgstr "До %(end)s"
 
 #: betty/openapi.py:18
 msgid "Retrieve the collection of files."
@@ -243,7 +245,7 @@ msgstr ""
 
 #: betty/assets/public/localized/.error/401.html.j2:2 betty/openapi.py:49
 msgid "Unauthorized"
-msgstr ""
+msgstr "Несанкціонована"
 
 #: betty/openapi.py:59
 msgid "Forbidden"
@@ -280,122 +282,128 @@ msgstr ""
 #: betty/assets/public/localized/index.html.j2:2
 #, python-format
 msgid "Welcome to %(title)s"
-msgstr ""
+msgstr "Ласкаво просимо на %(title)s"
 
 #: betty/assets/public/localized/api/index.html.j2:4
 #: betty/assets/templates/footer.html.j2:7
 msgid "API documentation"
-msgstr ""
+msgstr "Документація API"
 
 #: betty/assets/templates/base.html.j2:68
 msgid "Exit the search"
-msgstr ""
+msgstr "Вийдіть із пошуку."
 
 #: betty/assets/templates/base.html.j2:74
 #, python-format
 msgid "E.g. \"%(example)s\""
-msgstr ""
+msgstr "Наприклад «%(example)s»"
 
 #: betty/assets/templates/base.html.j2:84
 msgid ""
 "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
 "to exit the search. Search again with <kbd>s</kbd>."
 msgstr ""
+"Використовуйте <kbd>↑</kbd> і <kbd>↓</kbd> для"
+" переміщення по результатах або "
+"<kbd>esc</kbd> для виходу з пошуку. "
+"Шукайте знову за допомогою <kbd>s</kbd>."
 
 #: betty/assets/templates/base.html.j2:94
 msgid "Menu"
-msgstr ""
+msgstr "Меню"
 
 #: betty/assets/templates/base.html.j2:97
 #: betty/assets/templates/page/list-person.html.j2:2
 msgid "People"
-msgstr ""
+msgstr "Люди"
 
 #: betty/assets/templates/base.html.j2:98
 #: betty/assets/templates/page/person.html.j2:73
 #: betty/assets/templates/page/place.html.j2:24
 msgid "Timeline"
-msgstr ""
+msgstr "Хронологія"
 
 #: betty/assets/templates/base.html.j2:99
 #: betty/assets/templates/page/list-place.html.j2:2
 msgid "Places"
-msgstr ""
+msgstr "Місця"
 
 #: betty/assets/templates/base.html.j2:100
 #: betty/assets/templates/page/file.html.j2:34
 #: betty/assets/templates/page/list-source.html.j2:2
 msgid "Sources"
-msgstr ""
+msgstr "Джерела"
 
 #: betty/assets/templates/base.html.j2:106
 msgid "Language"
-msgstr ""
+msgstr "Мова"
 
 #: betty/assets/templates/base.html.j2:131
 msgid "External links"
-msgstr ""
+msgstr "Зовнішні посилання"
 
 #: betty/assets/templates/base.html.j2:146
 msgid "References"
-msgstr ""
+msgstr "Референції"
 
 #: betty/assets/templates/event-dimensions.html.j2:20
 #, python-format
 msgid "%(date)s in %(place)s"
-msgstr ""
+msgstr "%(date)s в %(place)s"
 
 #: betty/assets/templates/event-dimensions.html.j2:24
 #, python-format
 msgid "in %(place)s"
-msgstr ""
+msgstr "в %(place)s"
 
 #: betty/assets/templates/footer.html.j2:3
 #, python-format
 msgid "© Copyright %(author)s, unless otherwise credited"
-msgstr ""
+msgstr "© Авторське право %(author)s, якщо інше не зараховано"
 
 #: betty/assets/templates/footer.html.j2:6
 msgid ""
 "A family history as told by <a "
 "href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
 msgstr ""
+"Сімейна історія, яку розповіла <a "
+"href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
 
 #: betty/assets/templates/label/citation.html.j2:18
 #, python-format
 msgid "Accessed %(date)s"
-msgstr ""
+msgstr "Доступ %(date)s"
 
 #: betty/assets/templates/label/event.html.j2:21
 #, python-format
 msgid "%(event)s with %(subjects)s"
-msgstr ""
+msgstr "%(event)s з %(subjects)s"
 
 #: betty/assets/templates/label/event.html.j2:25
 #, python-format
 msgid "%(event)s of %(subjects)s"
-msgstr ""
+msgstr "%(event)s %(subjects)s"
 
 #: betty/assets/templates/label/person.html.j2:9
 #: betty/assets/templates/macro/person.html.j2:23
 #: betty/assets/templates/meta/person.html.j2:11
 msgid "This person's details are unavailable to protect their privacy."
-msgstr ""
+msgstr "Дані цієї особи недоступні для захисту їх конфіденційності."
 
 #: betty/assets/templates/label/person.html.j2:9
 #: betty/assets/templates/macro/person.html.j2:23
 msgid "private"
-msgstr ""
+msgstr "приватні"
 
 #: betty/assets/templates/label/person.html.j2:13
 #: betty/assets/templates/macro/person.html.j2:38
 msgid "This person's name is unknown."
-msgstr ""
+msgstr "Ім'я цієї людини невідоме."
 
 #: betty/assets/templates/meta/person.html.j2:14
 #, python-format
 msgid "Also known as %(names)s"
-msgstr ""
+msgstr "Також відомий як %(names)s"
 
 #: betty/assets/templates/page/citation.html.j2:9
 #: betty/assets/templates/page/event.html.j2:48
@@ -404,74 +412,77 @@ msgstr ""
 #: betty/assets/templates/page/source.html.j2:10
 #: betty/assets/templates/search/result-file.html.j2:4
 msgid "Media"
-msgstr ""
+msgstr "Медіа"
 
 #: betty/assets/templates/page/citation.html.j2:14
 #: betty/assets/templates/page/source.html.j2:15
 msgid "Facts"
-msgstr ""
+msgstr "Факти"
 
 #: betty/assets/templates/page/event.html.j2:24
 msgid "Witnesses"
-msgstr ""
+msgstr "Свідки"
 
 #: betty/assets/templates/page/event.html.j2:39
 msgid "Other attendees"
-msgstr ""
+msgstr "Інші відвідувачі"
 
 #: betty/assets/templates/page/file.html.j2:12
 msgid "Notes"
-msgstr ""
+msgstr "Примітки"
 
 #: betty/assets/templates/page/file.html.j2:19
 msgid "Appearances"
-msgstr ""
+msgstr "Знайдено в"
 
 #: betty/assets/templates/page/file.html.j2:31
 msgid "Source"
-msgstr ""
+msgstr "Джерело"
 
 #: betty/assets/templates/page/list-event.html.j2:2
 msgid "Events"
-msgstr ""
+msgstr "Події"
 
 #: betty/assets/templates/page/person.html.j2:26
 msgid "Parents"
-msgstr ""
+msgstr "Батьки"
 
 #: betty/assets/templates/page/person.html.j2:39
 msgid "Children"
-msgstr ""
+msgstr "Діти"
 
 #: betty/assets/templates/page/person.html.j2:44
 #, python-format
 msgid "with %(parents)s:"
 msgid_plural "with %(parents)s:"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "з %(parents)s:"
+msgstr[1] "з %(parents)s:"
+msgstr[2] ""
 
 #: betty/assets/templates/page/person.html.j2:61
 msgid "Siblings"
-msgstr ""
+msgstr "Брати і сестри"
 
 #: betty/plugin/anonymizer/__init__.py:17
 msgid "Private"
-msgstr ""
+msgstr "Приватні"
 
 #: betty/plugin/anonymizer/__init__.py:31
 msgid ""
 "A citation is available, but has not been published in order to protect "
 "people's privacy"
 msgstr ""
+"A citation is available, but has not been published in order to protect "
+"people's privacy"
 
 #: betty/plugin/wikipedia/__init__.py:194
 msgid "Read more on Wikipedia."
-msgstr ""
+msgstr "Детальніше читайте у Вікіпедії"
 
 #: betty/plugin/wikipedia/assets/templates/wikipedia.html.j2:5
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
-msgstr ""
+msgstr "Продовжуйте читати у <a href=\"%(url)s\">Вікіпедії</a>."
 
 #: betty/plugin/wikipedia/assets/templates/wikipedia.html.j2:7
 msgid ""
@@ -479,6 +490,8 @@ msgid ""
 "href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a>"
 " Wikipedia and its contributors."
 msgstr ""
+"<a href=\"https://uk.wikipedia.org/wiki/Вікіпедія:Авторські "
+"права\">Авторські права</a> на Вікіпедію та її дописувачів."
 
 #: betty/assets/public/localized/.error/401.html.j2:4
 #: betty/assets/public/localized/.error/401.json.j2:3
@@ -487,7 +500,7 @@ msgstr ""
 
 #: betty/assets/public/localized/.error/403.html.j2:2
 msgid "Access denied"
-msgstr ""
+msgstr "У доступі відмовлено"
 
 #: betty/assets/public/localized/.error/403.html.j2:4
 #: betty/assets/public/localized/.error/403.json.j2:3
@@ -496,7 +509,7 @@ msgstr ""
 
 #: betty/assets/public/localized/.error/404.html.j2:2
 msgid "Page not found"
-msgstr ""
+msgstr "Сторінку не знайдено"
 
 #: betty/assets/public/localized/.error/404.html.j2:4
 #: betty/assets/public/localized/.error/404.json.j2:3
