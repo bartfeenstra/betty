@@ -84,11 +84,11 @@ h2 {
 
 a {
   text-decoration: none;
-  color: #149988;
+  color: $link-inactive-color;
 }
 
 a:hover {
-  color: #2a615a;
+  color: $link-active-color;
 }
 
 dl,
@@ -391,7 +391,7 @@ figcaption {
 
 .nav-primary-expandable:hover .nav-primary-action {
   background-color: #fff;
-  color: #2a615a;
+  color: $link-active-color;
 }
 
 .nav-primary-expanded {
@@ -442,10 +442,6 @@ figcaption {
   width: 3rem;
 }
 
-#nav-sections:hover .nav-primary-action {
-  fill: #2a615a;
-}
-
 #nav-locale .nav-primary-action {
   background-image: url($language-svg-url);
   background-position: center;
@@ -453,10 +449,6 @@ figcaption {
   background-size: 2rem 2rem;
   text-indent: -999rem;
   width: 3rem;
-}
-
-#nav-locale:hover .nav-primary-action {
-  fill: #2a615a;
 }
 
 @media (min-width: 768px) {
@@ -635,7 +627,7 @@ kbd {
   background-color: #fff;
   border: none;
   border-bottom: 0.3rem dotted #eee;
-  color: #2a615a;
+  color: #000;
   padding: 0.3rem 0.55rem 0 0.55rem;
   width: calc(100% - 3rem);
 }
