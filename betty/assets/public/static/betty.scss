@@ -13,11 +13,16 @@ body {
   min-width: 300px;
   padding-bottom: 5rem;
   position: relative;
+  width: 100%;
 }
 
 body > * {
   position: relative;
   z-index: 1;
+}
+
+.has-overlay {
+  position: fixed;
 }
 
 #background-header {
@@ -40,8 +45,18 @@ body > * {
   width: 100%;
 }
 
+.has-overlay .background {
+  // Some browsers' performance degrades due to our layered background rendering, so disable it when unneeded.
+  display: none;
+}
+
 .has-page-image #page {
   filter: drop-shadow(0.3rem 0.3rem 2rem #777);
+}
+
+.has-overlay #page {
+  // Some browsers' performance degrades due to our layered background rendering, so disable it when unneeded.
+  filter: none;
 }
 
 /*
@@ -381,7 +396,7 @@ figcaption {
 
 .nav-primary-expanded {
   background-color: #fff;
-  border-bottom: 0.3em pink solid;
+  border-bottom: 0.3em $interaction-active-color solid;
   display: none;
   left: 0;
   margin: 0;
@@ -392,8 +407,7 @@ figcaption {
   z-index: 9999;
 }
 
-.nav-primary-expandable:hover .nav-primary-expanded,
-.nav-primary-expandable.focus .nav-primary-expanded {
+.nav-primary-expandable:hover .nav-primary-expanded {
   display: initial;
 }
 
@@ -490,7 +504,7 @@ figcaption {
     display: block !important;
     padding: 0 0 0 3.5rem;
     position: absolute;
-    width: 100%;
+    width: calc(100% - 3.5rem);
   }
 
   #nav-sections .nav-secondary li {
@@ -517,33 +531,123 @@ kbd {
 }
 
 /**
+ * Overlays.
+ */
+
+// Elements with this class must provide their own background to hide the rest of the document.
+.overlay {
+  height: 100vh;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100vw;
+  z-index: 999999999;
+}
+
+.overlay-controls {
+  display: none;
+  position: absolute;
+  // Start from the top right, where the close action will be placed.
+  right: 0;
+  top: 0;
+}
+
+.overlay .overlay-controls {
+  display: block;
+}
+
+.overlay-control {
+  cursor: pointer;
+  display: block;
+  float: right;
+  height: 3rem;
+  text-indent: -999rem;
+  width: 3rem;
+}
+
+.overlay-close {
+  background-image: url($close-svg-url);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 2rem 2rem;
+}
+
+/**
  * Search.
  */
 #search {
   float: left;
-  max-width: calc(100% - 9.5rem);
-  width: 30rem;
+  max-width: 30rem;
+  // Leave space for the site title and each of the two primary navigation actions.
+  width: calc(100% - 9rem);
 }
 
-#search-query {
-  -webkit-appearance: none;
-  background-color: rgba(255, 255, 255, 0.9);
-  border: 0.3rem solid #f7f7f7;
-  color: #777;
-  display: inline;
-  height: 2rem;
-  margin-top: 0.5rem;
-  padding: 0 0.25rem;
+#search.overlay {
+  background-color: #fff;
+  display: flex;
+  flex-flow: column;
+  max-width: none;
   width: 100%;
 }
 
-#search-query:focus,
-#search:hover #search-query {
+#search-query {
+  // Undo Safari's rounded corners.
+  -webkit-appearance: none;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 0.3rem solid #f7f7f7;
+  // Undo Safari's rounded corners.
+  border-radius: unset;
+  color: #777;
+  display: block;
+  float: left;
+  height: 2rem;
+  margin-top: 0.5rem;
+  padding: 0 0.25rem;
+  width: calc(100% - 2.5rem);
+}
+
+#search label[for="search-query"] {
+  background-color: $interaction-inactive-color;
+  background-image: url($search-svg-url);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 1.5rem 1.5rem;
+  cursor: pointer;
+  display: block;
+  float: left;
+  height: 2rem;
+  margin-top: 0.5rem;
+  text-indent: -999em;
+  width: 2rem;
+}
+
+#search label[for="search-query"]:hover,
+#search.overlay label[for="search-query"] {
+  background-color: $interaction-active-color;
+}
+
+#search.overlay form {
+  margin-left: 3rem;
+  width: calc(100% - 5.5rem);
+}
+
+#search.overlay #search-query {
   background-color: #fff;
-  border-bottom-width: 0.8rem;
-  border-color: #fff;
+  border: none;
+  border-bottom: 0.3rem dotted #eee;
   color: #2a615a;
-  height: 2.5rem;
+  padding: 0.3rem 0.55rem 0 0.55rem;
+  width: calc(100% - 3rem);
+}
+
+#search-expanded {
+  display: none;
+}
+
+#search.overlay #search-expanded {
+  display: flex;
+  flex-flow: column;
+  height: calc(100% - 6rem);
 }
 
 #search-instructions {
@@ -555,6 +659,32 @@ kbd {
 
 #search-instructions kbd {
   color: #000;
+}
+
+#search-results-twilight {
+  flex-grow: 1;
+  height: 100%;
+  position: relative;
+}
+
+#search-results-twilight::before {
+  background: linear-gradient(#fff, rgba(255, 255, 255, 0));
+  background-size: 3rem 10%;
+  background-repeat: repeat-x;
+  background-position: top;
+  bottom: 0;
+  content: '';
+  left: -3rem;
+  pointer-events: none;
+  position: absolute;
+  right: -3rem;
+  top: 0;
+}
+
+#search-results-container {
+  height: calc(100% - 3rem);
+  overflow: scroll;
+  padding-top: 3rem;
 }
 
 .nav-secondary li a.search-result-target {
@@ -575,6 +705,12 @@ kbd {
 }
 
 @media (min-width: 768px) {
+  #search.overlay form {
+    margin-left: 6rem;
+    margin-top: 3rem;
+    max-width: 30.5rem;
+  }
+
   #search-instructions {
     padding-left: 3rem;
     padding-right: 3rem;

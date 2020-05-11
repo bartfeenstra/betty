@@ -2,12 +2,12 @@
 
 {% macro nameLabel(name, embedded=False) -%}
     <span class="person-label" typeof="foaf:Person">
-    {%- if name.individual is not none -%}
+    {%- if name.individual -%}
         <span property="foaf:individualName">{{ name.individual }}</span>
     {%- else -%}
         …
     {%- endif -%}
-    {%- if name.affiliation is not none %} <span property="foaf:familyName">{{ name.affiliation }}</span>
+    {%- if name.affiliation %} <span property="foaf:familyName">{{ name.affiliation }}</span>
     {%- endif -%}
     </span>
     {%- if not embedded -%}

@@ -1,3 +1,4 @@
+{%- import 'macro/person.html.j2' as personMacros -%}
 {%- do citer.track() -%}
 <!doctype html>
 <html lang="{{ locale }}"
@@ -62,17 +63,31 @@
 <div id="page">
     <nav id="nav-primary">
         <a id="site-title" href="{{ '/index.html' | url }}" title="{{ site.configuration.title }}">{{ site.configuration.title }}</a>
-        <div id="search" class="nav-primary-expandable" data-betty-search-index="{{ '/search-index.json' | url }}">
+        <div id="search" class="js-show" data-betty-search-index="{{ '/search-index.json' | url }}">
+            <div class="overlay-controls">
+                <span class="overlay-control overlay-close" title="{% trans %}Exit the search{% endtrans %}">{% trans %}Exit the search{% endtrans %}</span>
+            </div>
             <form>
-                <input id="search-query" type="search" placeholder="..." />
+                {% set search_keywords_example_person_name = site.ancestry.people.values() | map(attribute='name') | first | default(none) %}
+                {% if search_keywords_example_person_name %}
+                    {% set search_keywords_example -%}
+                        {% trans example = personMacros.nameLabel(search_keywords_example_person_name, embedded=True) | striptags -%}
+                            E.g. "{{ example }}"
+                        {%- endtrans %}
+                    {%- endset %}
+                {% endif %}
+                <input id="search-query" type="search"{% if search_keywords_example is defined %} placeholder="{{ search_keywords_example | escape }}"{% endif %} />
+                <label for="search-query" title="Search">Search</label>
             </form>
-            <section class="nav-primary-expanded">
+            <section id="search-expanded">
                 <p id="search-instructions">
                     {% trans -%}
-                        Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> to exit the search. Open the search again with <kbd>s</kbd>.
+                        Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> to exit the search. Search again with <kbd>s</kbd>.
                     {%- endtrans %}
                 </p>
-                <div id="search-results-container"></div>
+                <div id="search-results-twilight">
+                    <div id="search-results-container"></div>
+                </div>
             </section>
         </div>
         <div id="nav-sections" class="nav-primary-expandable">
