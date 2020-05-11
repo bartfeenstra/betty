@@ -31,7 +31,7 @@
 
     {% set ns = namespace(attendees=[]) %}
     {% for presence in event.presences %}
-        {% if not presence.role is subject_role or not presence.role is witness_role %}
+        {% if not presence.role is subject_role and not presence.role is witness_role %}
             {% set ns.attendees = ns.attendees + [presence.person] %}
         {% endif %}
     {% endfor %}
