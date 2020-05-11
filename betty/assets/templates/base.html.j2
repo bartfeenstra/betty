@@ -54,6 +54,8 @@
 </head>
 {% if page_resource is has_files %}
     {% set page_image = page_resource.associated_files | selectattr('media_type', 'startswith', 'image/') | first %}
+{% elif site.configuration.theme.background_image_id and site.configuration.theme.background_image_id in site.ancestry.files %}
+    {% set page_image = site.ancestry.files[site.configuration.theme.background_image_id] %}
 {% endif %}
 <body{% if page_image is defined %} class="has-page-image"{% endif %}>
 {% if page_image is defined %}
