@@ -75,7 +75,7 @@ Search.prototype._navigateResults = function(keyCode) {
     // If the focus lies on the query input element, focus on the first search result.
     if (document.activeElement === this._queryElement) {
       var resultTargets = this._resultsContainer.getElementsByClassName('search-result-target')
-      if (resultTargets) {
+      if (0 in resultTargets) {
         resultTargets[0].focus()
       }
       return
