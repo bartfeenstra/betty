@@ -14,7 +14,7 @@ module.exports = {
     filename: '[name].js'
   },
   optimization: {
-    minimize: {% if site.configuration.mode == 'production' %}true{% else %}false{% endif %},
+    minimize: {{ (site.configuration.mode == 'production]') | tojson }},
     splitChunks: {
       cacheGroups: {
         styles: {
@@ -48,13 +48,9 @@ module.exports = {
           options: {
             presets: [
               [
-                '@babel/preset-env',
-                {
-                  targets: {
-                    ie: '11',
-                    ios: '9',
-                  },
-                },
+                '@babel/preset-env', {
+                    debug: {{ (site.configuration.mode == 'development') | tojson }},
+                }
               ],
             ],
             cacheDirectory: '{{ path.join(site.configuration.cache_directory_path, 'betty.plugin.trees.Trees', 'babel') }}',
