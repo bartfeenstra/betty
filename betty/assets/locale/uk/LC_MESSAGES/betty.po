@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-11 12:41+0100\n"
+"POT-Creation-Date: 2020-05-18 22:13+0100\n"
 "PO-Revision-Date: 2020-05-02 22:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -44,62 +44,66 @@ msgid "Adoption"
 msgstr "Усиновлення"
 
 #: betty/ancestry.py:521
-msgid "Cremation"
-msgstr "Кремація"
-
-#: betty/ancestry.py:533
 msgid "Death"
 msgstr "Смерть"
 
+#: betty/ancestry.py:533
+msgid "Funeral"
+msgstr "Похорон"
+
 #: betty/ancestry.py:545
+msgid "Cremation"
+msgstr "Кремація"
+
+#: betty/ancestry.py:557
 msgid "Burial"
 msgstr "Поховання"
 
-#: betty/ancestry.py:557
+#: betty/ancestry.py:569
 msgid "Engagement"
 msgstr "Заручини"
 
-#: betty/ancestry.py:569
+#: betty/ancestry.py:581
 msgid "Marriage"
 msgstr "Шлюб"
 
-#: betty/ancestry.py:577
+#: betty/ancestry.py:589
 msgid "Announcement of marriage"
 msgstr "Оголошення шлюбу"
 
-#: betty/ancestry.py:589
+#: betty/ancestry.py:601
 msgid "Divorce"
 msgstr "Розлучення"
 
-#: betty/ancestry.py:601
+#: betty/ancestry.py:613
 msgid "Announcement of divorce"
 msgstr "Оголошення про розлучення"
 
-#: betty/ancestry.py:617
+#: betty/ancestry.py:629
 msgid "Residence"
 msgstr "Проживання"
 
-#: betty/ancestry.py:625
+#: betty/ancestry.py:637
 msgid "Immigration"
 msgstr "Імміграція"
 
-#: betty/ancestry.py:633
+#: betty/ancestry.py:645
 msgid "Emigration"
 msgstr "Еміграція"
 
-#: betty/ancestry.py:641
+#: betty/ancestry.py:653
 msgid "Occupation"
 msgstr "Праця"
 
-#: betty/ancestry.py:649
+#: betty/ancestry.py:661
 msgid "Retirement"
 msgstr "Вихід на пенсію"
 
-#: betty/ancestry.py:657
+#: betty/ancestry.py:669
 msgid "Correspondence"
 msgstr "Листування"
 
-#: betty/ancestry.py:665
+#: betty/ancestry.py:677
 msgid "Confirmation"
 msgstr "Миропомазання"
 
@@ -289,60 +293,59 @@ msgstr "Ласкаво просимо на %(title)s"
 msgid "API documentation"
 msgstr "Документація API"
 
-#: betty/assets/templates/base.html.j2:68
+#: betty/assets/templates/base.html.j2:70
 msgid "Exit the search"
 msgstr "Вийдіть із пошуку."
 
-#: betty/assets/templates/base.html.j2:74
+#: betty/assets/templates/base.html.j2:76
 #, python-format
 msgid "E.g. \"%(example)s\""
 msgstr "Наприклад «%(example)s»"
 
-#: betty/assets/templates/base.html.j2:84
+#: betty/assets/templates/base.html.j2:86
 msgid ""
 "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
 "to exit the search. Search again with <kbd>s</kbd>."
 msgstr ""
-"Використовуйте <kbd>↑</kbd> і <kbd>↓</kbd> для"
-" переміщення по результатах або "
-"<kbd>esc</kbd> для виходу з пошуку. "
-"Шукайте знову за допомогою <kbd>s</kbd>."
+"Використовуйте <kbd>↑</kbd> і <kbd>↓</kbd> для переміщення по результатах"
+" або <kbd>esc</kbd> для виходу з пошуку. Шукайте знову за допомогою "
+"<kbd>s</kbd>."
 
-#: betty/assets/templates/base.html.j2:94
+#: betty/assets/templates/base.html.j2:96
 msgid "Menu"
 msgstr "Меню"
 
-#: betty/assets/templates/base.html.j2:97
+#: betty/assets/templates/base.html.j2:99
 #: betty/assets/templates/page/list-person.html.j2:2
 msgid "People"
 msgstr "Люди"
 
-#: betty/assets/templates/base.html.j2:98
+#: betty/assets/templates/base.html.j2:100
 #: betty/assets/templates/page/person.html.j2:73
 #: betty/assets/templates/page/place.html.j2:24
 msgid "Timeline"
 msgstr "Хронологія"
 
-#: betty/assets/templates/base.html.j2:99
+#: betty/assets/templates/base.html.j2:101
 #: betty/assets/templates/page/list-place.html.j2:2
 msgid "Places"
 msgstr "Місця"
 
-#: betty/assets/templates/base.html.j2:100
+#: betty/assets/templates/base.html.j2:102
 #: betty/assets/templates/page/file.html.j2:34
 #: betty/assets/templates/page/list-source.html.j2:2
 msgid "Sources"
 msgstr "Джерела"
 
-#: betty/assets/templates/base.html.j2:106
+#: betty/assets/templates/base.html.j2:108
 msgid "Language"
 msgstr "Мова"
 
-#: betty/assets/templates/base.html.j2:131
+#: betty/assets/templates/base.html.j2:133
 msgid "External links"
 msgstr "Зовнішні посилання"
 
-#: betty/assets/templates/base.html.j2:146
+#: betty/assets/templates/base.html.j2:148
 msgid "References"
 msgstr "Референції"
 
