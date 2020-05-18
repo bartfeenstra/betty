@@ -141,6 +141,11 @@ declare the data always private or `public` to declare the data always public. A
 undecided, as well as person records marked public using Gramps' built-in privacy selector. In such cases, the
 `betty.plugin.privatizer.Privatizer` may decide if the data is public or private.
 
+#### Event types
+Betty supports the following custom Gramps event types:
+- `Correspondence`
+- `Funeral`  
+
 ### GEDCOM files
 To build a site from your GEDCOM files:
 1. Install and launch [Gramps](https://gramps-project.org/)

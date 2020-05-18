@@ -513,18 +513,6 @@ class Adoption(EventType):
         return _('Adoption')
 
 
-class Cremation(EventType):
-    name = 'cremation'
-
-    @property
-    def label(self) -> str:
-        return _('Cremation')
-
-    @classmethod
-    def comes_after(cls) -> Set[Type['EventType']]:
-        return set(Death)
-
-
 class Death(EventType):
     name = 'death'
 
@@ -535,6 +523,30 @@ class Death(EventType):
     @classmethod
     def comes_after(cls) -> Set[Type['EventType']]:
         return set(Birth)
+
+
+class Funeral(EventType):
+    name = 'funeral'
+
+    @property
+    def label(self) -> str:
+        return _('Funeral')
+
+    @classmethod
+    def comes_after(cls) -> Set[Type['EventType']]:
+        return set(Death)
+
+
+class Cremation(EventType):
+    name = 'cremation'
+
+    @property
+    def label(self) -> str:
+        return _('Cremation')
+
+    @classmethod
+    def comes_after(cls) -> Set[Type['EventType']]:
+        return set(Death)
 
 
 class Burial(EventType):
