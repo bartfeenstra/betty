@@ -451,6 +451,14 @@ class Witness(PresenceRole):
         return _('Witness')
 
 
+class Beneficiary(PresenceRole):
+    name = 'beneficiary'
+
+    @property
+    def label(self) -> str:
+        return _('Beneficiary')
+
+
 class Attendee(PresenceRole):
     name = 'attendee'
 
@@ -555,6 +563,18 @@ class Burial(EventType):
     @property
     def label(self) -> str:
         return _('Burial')
+
+    @classmethod
+    def comes_after(cls) -> Set[Type['EventType']]:
+        return set(Death)
+
+
+class Will(EventType):
+    name = 'will'
+
+    @property
+    def label(self) -> str:
+        return _('Will')
 
     @classmethod
     def comes_after(cls) -> Set[Type['EventType']]:
