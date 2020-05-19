@@ -144,7 +144,12 @@ undecided, as well as person records marked public using Gramps' built-in privac
 #### Event types
 Betty supports the following custom Gramps event types:
 - `Correspondence`
-- `Funeral`  
+- `Funeral`
+- `Will`
+
+#### Event roles
+Betty supports the following custom Gramps event roles:
+- `Beneficiary`
 
 ### GEDCOM files
 To build a site from your GEDCOM files:

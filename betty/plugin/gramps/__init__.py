@@ -16,7 +16,7 @@ from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, Lo
     HasLinks, HasCitations, IdentifiableEvent, HasPrivacy, IdentifiableSource, IdentifiableCitation, Subject, Witness, \
     Attendee, Birth, Baptism, Adoption, Cremation, Death, Burial, Engagement, Marriage, MarriageAnnouncement, Divorce, \
     DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, Retirement, Correspondence, Confirmation, \
-    Funeral
+    Funeral, Will, Beneficiary
 from betty.config import Path
 from betty.event import Event as DispatchedEvent
 from betty.fs import makedirs
@@ -277,6 +277,7 @@ _PRESENCE_ROLE_MAP = {
     'Primary': Subject(),
     'Family': Subject(),
     'Witness': Witness(),
+    'Beneficiary': Beneficiary(),
     'Unknown': Attendee(),
 }
 
@@ -350,6 +351,7 @@ _EVENT_TYPE_MAP = {
     'Death': Death(),
     'Funeral': Funeral(),
     'Burial': Burial(),
+    'Will': Will(),
     'Engagement': Engagement(),
     'Marriage': Marriage(),
     'Marriage Banns': MarriageAnnouncement(),
