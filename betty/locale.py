@@ -23,38 +23,27 @@ class IncompleteDateError(ValueError):
 
 @total_ordering
 class Date:
+    year: Optional[int]
+    month: Optional[int]
+    day: Optional[int]
+    calculated: bool
+    estimated: bool
+    fuzzy: bool
+
     def __init__(self, year: Optional[int] = None, month: Optional[int] = None, day: Optional[int] = None):
-        self._year = year
-        self._month = month
-        self._day = day
-        self._fuzzy = False
+        self.year = year
+        self.month = month
+        self.day = day
+        self.estimated = False
+        self.calculated = False
+        self.fuzzy = False
 
     def __repr__(self):
         return '<%s.%s(%s, %s, %s)>' % (self.__class__.__module__, self.__class__.__name__, self.year, self.month, self.day)
 
     @property
-    def year(self) -> Optional[int]:
-        return self._year
-
-    @property
-    def month(self) -> Optional[int]:
-        return self._month
-
-    @property
-    def day(self) -> Optional[int]:
-        return self._day
-
-    @property
-    def fuzzy(self) -> bool:
-        return self._fuzzy
-
-    @fuzzy.setter
-    def fuzzy(self, fuzzy: bool) -> None:
-        self._fuzzy = fuzzy
-
-    @property
     def comparable(self) -> bool:
-        return self._year is not None
+        return self.year is not None
 
     @property
     def complete(self) -> bool:

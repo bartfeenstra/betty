@@ -184,15 +184,6 @@ class ParseXmlTest(TestCase):
     def test_date_should_ignore_calendar_format(self):
         self.assertIsNone(self.ancestry.events['E0005'].date)
 
-    def test_date_should_parse_range(self):
-        date = self.ancestry.events['E0006'].date
-        self.assertEquals(1970, date.start.year)
-        self.assertEquals(1, date.start.month)
-        self.assertEquals(1, date.start.day)
-        self.assertEquals(1999, date.end.year)
-        self.assertEquals(12, date.end.month)
-        self.assertEquals(31, date.end.day)
-
     def test_date_should_parse_before(self):
         date = self.ancestry.events['E0003'].date
         self.assertIsNone(date.start)
@@ -207,12 +198,128 @@ class ParseXmlTest(TestCase):
         self.assertEquals(1, date.start.month)
         self.assertEquals(1, date.start.day)
 
-    def test_date_should_parse_around(self):
+    def test_date_should_parse_calculated(self):
+        ancestry = self._parse_partial("""
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Birth</type>
+        <dateval val="1970-01-01" quality="calculated"/>
+    </event>
+</events>
+""")
+        date = ancestry.events['E0000'].date
+        self.assertEquals(1970, date.year)
+        self.assertEquals(1, date.month)
+        self.assertEquals(1, date.day)
+        self.assertTrue(date.calculated)
+
+    def test_date_should_parse_estimated(self):
+        ancestry = self._parse_partial("""
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Birth</type>
+        <dateval val="1970-01-01" quality="estimated"/>
+    </event>
+</events>
+""")
+        date = ancestry.events['E0000'].date
+        self.assertEquals(1970, date.year)
+        self.assertEquals(1, date.month)
+        self.assertEquals(1, date.day)
+        self.assertTrue(date.estimated)
+
+    def test_date_should_parse_about(self):
         date = self.ancestry.events['E0007'].date
         self.assertEquals(1970, date.year)
         self.assertEquals(1, date.month)
         self.assertEquals(1, date.day)
         self.assertTrue(date.fuzzy)
+
+    def test_daterange_should_parse_range(self):
+        ancestry = self._parse_partial("""
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Birth</type>
+        <daterange start="1970-01-01" stop="2000-12-31"/>
+    </event>
+</events>
+""")
+        date = ancestry.events['E0000'].date
+        self.assertEquals(1970, date.start.year)
+        self.assertEquals(1, date.start.month)
+        self.assertEquals(1, date.start.day)
+        self.assertEquals(2000, date.end.year)
+        self.assertEquals(12, date.end.month)
+        self.assertEquals(31, date.end.day)
+
+    def test_daterange_should_parse_calculated(self):
+        ancestry = self._parse_partial("""
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Birth</type>
+        <daterange start="1970-01-01" stop="2000-12-31" quality="calculated"/>
+    </event>
+</events>
+""")
+        date = ancestry.events['E0000'].date
+        self.assertTrue(date.start.calculated)
+        self.assertTrue(date.end.calculated)
+
+    def test_daterange_should_parse_estimated(self):
+        ancestry = self._parse_partial("""
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Birth</type>
+        <daterange start="1970-01-01" stop="2000-12-31" quality="estimated"/>
+    </event>
+</events>
+""")
+        date = ancestry.events['E0000'].date
+        self.assertTrue(date.start.estimated)
+        self.assertTrue(date.end.estimated)
+
+    def test_datespan_should_parse_range(self):
+        ancestry = self._parse_partial("""
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Birth</type>
+        <datespan start="1970-01-01" stop="2000-12-31"/>
+    </event>
+</events>
+""")
+        date = ancestry.events['E0000'].date
+        self.assertEquals(1970, date.start.year)
+        self.assertEquals(1, date.start.month)
+        self.assertEquals(1, date.start.day)
+        self.assertEquals(2000, date.end.year)
+        self.assertEquals(12, date.end.month)
+        self.assertEquals(31, date.end.day)
+
+    def test_datespan_should_parse_calculated(self):
+        ancestry = self._parse_partial("""
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Birth</type>
+        <datespan start="1970-01-01" stop="2000-12-31" quality="calculated"/>
+    </event>
+</events>
+""")
+        date = ancestry.events['E0000'].date
+        self.assertTrue(date.start.calculated)
+        self.assertTrue(date.end.calculated)
+
+    def test_datespan_should_parse_estimated(self):
+        ancestry = self._parse_partial("""
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Birth</type>
+        <datespan start="1970-01-01" stop="2000-12-31" quality="estimated"/>
+    </event>
+</events>
+""")
+        date = ancestry.events['E0000'].date
+        self.assertTrue(date.start.estimated)
+        self.assertTrue(date.end.estimated)
 
     def test_source_from_repository_should_include_name(self):
         source = self.ancestry.sources['R0000']
