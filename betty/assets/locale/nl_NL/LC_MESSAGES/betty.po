@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-18 22:13+0100\n"
+"POT-Creation-Date: 2020-05-25 01:15+0100\n"
 "PO-Revision-Date: 2019-10-05 11:38+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -27,82 +27,90 @@ msgid "Witness"
 msgstr "Getuige"
 
 #: betty/ancestry.py:459
+msgid "Beneficiary"
+msgstr "Begunstigde"
+
+#: betty/ancestry.py:467
 msgid "Attendee"
 msgstr "Aanwezige"
 
-#: betty/ancestry.py:497
+#: betty/ancestry.py:505
 msgid "Birth"
 msgstr "Geboorte"
 
-#: betty/ancestry.py:505
+#: betty/ancestry.py:513
 msgid "Baptism"
 msgstr "Doping"
 
-#: betty/ancestry.py:513
+#: betty/ancestry.py:521
 msgid "Adoption"
 msgstr "Adoptie"
 
-#: betty/ancestry.py:521
+#: betty/ancestry.py:529
 msgid "Death"
 msgstr "Overlijden"
 
-#: betty/ancestry.py:533
+#: betty/ancestry.py:541
 msgid "Funeral"
 msgstr "Uitvaart"
 
-#: betty/ancestry.py:545
+#: betty/ancestry.py:553
 msgid "Cremation"
 msgstr "Crematie"
 
-#: betty/ancestry.py:557
+#: betty/ancestry.py:565
 msgid "Burial"
 msgstr "Begravenis"
 
-#: betty/ancestry.py:569
+#: betty/ancestry.py:577
+msgid "Will"
+msgstr "Testament"
+
+#: betty/ancestry.py:589
 msgid "Engagement"
 msgstr "Verloving"
 
-#: betty/ancestry.py:581
+#: betty/ancestry.py:601
 msgid "Marriage"
 msgstr "Huwelijk"
 
-#: betty/ancestry.py:589
+#: betty/ancestry.py:609
 msgid "Announcement of marriage"
 msgstr "Huwelijksaankondiging"
 
-#: betty/ancestry.py:601
+#: betty/ancestry.py:621
 msgid "Divorce"
 msgstr "Echtscheiding"
 
-#: betty/ancestry.py:613
+#: betty/ancestry.py:633
 msgid "Announcement of divorce"
 msgstr "Scheidingsaankondiging"
 
-#: betty/ancestry.py:629
+#: betty/ancestry.py:649
 msgid "Residence"
 msgstr "Woonplaats"
 
-#: betty/ancestry.py:637
+#: betty/ancestry.py:657
 msgid "Immigration"
 msgstr "Immigratie"
 
-#: betty/ancestry.py:645
+#: betty/ancestry.py:665
 msgid "Emigration"
 msgstr "Emigratie"
 
-#: betty/ancestry.py:653
+#: betty/ancestry.py:673
 msgid "Occupation"
 msgstr "Beroep"
 
-#: betty/ancestry.py:661
+#: betty/ancestry.py:681
 msgid "Retirement"
 msgstr "Pensioen"
 
-#: betty/ancestry.py:669
+#: betty/ancestry.py:689
 msgid "Correspondence"
 msgstr "Correspondentie"
 
-#: betty/ancestry.py:677
+#: betty/ancestry.py:697
 msgid "Confirmation"
 msgstr "Geloofsbelijdenis"
 
