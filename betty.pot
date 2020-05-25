@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-18 22:13+0100\n"
+"POT-Creation-Date: 2020-05-25 01:15+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,82 +26,90 @@ msgid "Witness"
 msgstr ""
 
 #: betty/ancestry.py:459
+msgid "Beneficiary"
+msgstr ""
+
+#: betty/ancestry.py:467
 msgid "Attendee"
 msgstr ""
 
-#: betty/ancestry.py:497
+#: betty/ancestry.py:505
 msgid "Birth"
 msgstr ""
 
-#: betty/ancestry.py:505
+#: betty/ancestry.py:513
 msgid "Baptism"
 msgstr ""
 
-#: betty/ancestry.py:513
+#: betty/ancestry.py:521
 msgid "Adoption"
 msgstr ""
 
-#: betty/ancestry.py:521
+#: betty/ancestry.py:529
 msgid "Death"
 msgstr ""
 
-#: betty/ancestry.py:533
+#: betty/ancestry.py:541
 msgid "Funeral"
 msgstr ""
 
-#: betty/ancestry.py:545
+#: betty/ancestry.py:553
 msgid "Cremation"
 msgstr ""
 
-#: betty/ancestry.py:557
+#: betty/ancestry.py:565
 msgid "Burial"
 msgstr ""
 
-#: betty/ancestry.py:569
-msgid "Engagement"
-msgstr ""
-
-#: betty/ancestry.py:581
-msgid "Marriage"
+#: betty/ancestry.py:577
+msgid "Will"
 msgstr ""
 
 #: betty/ancestry.py:589
-msgid "Announcement of marriage"
+msgid "Engagement"
 msgstr ""
 
 #: betty/ancestry.py:601
+msgid "Marriage"
+msgstr ""
+
+#: betty/ancestry.py:609
+msgid "Announcement of marriage"
+msgstr ""
+
+#: betty/ancestry.py:621
 msgid "Divorce"
 msgstr ""
 
-#: betty/ancestry.py:613
+#: betty/ancestry.py:633
 msgid "Announcement of divorce"
 msgstr ""
 
-#: betty/ancestry.py:629
+#: betty/ancestry.py:649
 msgid "Residence"
 msgstr ""
 
-#: betty/ancestry.py:637
+#: betty/ancestry.py:657
 msgid "Immigration"
 msgstr ""
 
-#: betty/ancestry.py:645
+#: betty/ancestry.py:665
 msgid "Emigration"
 msgstr ""
 
-#: betty/ancestry.py:653
+#: betty/ancestry.py:673
 msgid "Occupation"
 msgstr ""
 
-#: betty/ancestry.py:661
+#: betty/ancestry.py:681
 msgid "Retirement"
 msgstr ""
 
-#: betty/ancestry.py:669
+#: betty/ancestry.py:689
 msgid "Correspondence"
 msgstr ""
 
-#: betty/ancestry.py:677
+#: betty/ancestry.py:697
 msgid "Confirmation"
 msgstr ""
 
