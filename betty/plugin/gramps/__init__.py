@@ -135,14 +135,15 @@ def _parse_date(element: Element) -> Optional[Datey]:
             date.fuzzy = True
             return date
         if dateval_type == 'before':
-            return DateRange(None, _parse_dateval(dateval_element, 'val'))
+            return DateRange(None, _parse_dateval(dateval_element, 'val'), end_is_boundary=True)
         if dateval_type == 'after':
-            return DateRange(_parse_dateval(dateval_element, 'val'))
-    daterange_or_datespan_element = _xpath1(element, './ns:daterange[not(@cformat)] | ./ns:datespan[not(@cformat)]')
-    if daterange_or_datespan_element is not None:
-        start = _parse_dateval(daterange_or_datespan_element, 'start')
-        end = _parse_dateval(daterange_or_datespan_element, 'stop')
-        return DateRange(start, end)
+            return DateRange(_parse_dateval(dateval_element, 'val'), start_is_boundary=True)
+    datespan_element = _xpath1(element, './ns:datespan[not(@cformat)]')
+    if datespan_element is not None:
+        return DateRange(_parse_dateval(datespan_element, 'start'), _parse_dateval(datespan_element, 'stop'))
+    daterange_element = _xpath1(element, './ns:daterange[not(@cformat)]')
+    if daterange_element is not None:
+        return DateRange(_parse_dateval(daterange_element, 'start'), _parse_dateval(daterange_element, 'stop'), start_is_boundary=True, end_is_boundary=True)
     return None
 
 

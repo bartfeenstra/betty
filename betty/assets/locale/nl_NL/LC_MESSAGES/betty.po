@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-25 01:15+0100\n"
+"POT-Creation-Date: 2020-05-29 18:41+0100\n"
 "PO-Revision-Date: 2019-10-05 11:38+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -114,49 +114,159 @@ msgstr "Correspondentie"
 msgid "Confirmation"
 msgstr "Geloofsbelijdenis"
 
-#: betty/locale.py:250
+#: betty/locale.py:243
 msgid "unknown date"
 msgstr "onbekend"
 
-#: betty/locale.py:256
+#: betty/locale.py:247
 #, python-format
-msgid "Around %(date)s"
-msgstr "Rond %(date)s"
+msgid "around %(date)s"
+msgstr "rond %(date)s"
 
-#: betty/locale.py:266
+#: betty/locale.py:248
+#, python-format
+msgid "%(date)s"
+msgstr "op %(date)s"
+
+#: betty/locale.py:259
 msgid "MMMM d, y"
 msgstr "d MMMM y"
 
-#: betty/locale.py:267
+#: betty/locale.py:260
 msgid "MMMM, y"
 msgstr "MMMM y"
 
-#: betty/locale.py:268
+#: betty/locale.py:261
 msgid "y"
 msgstr "y"
 
-#: betty/locale.py:269
+#: betty/locale.py:262
 msgid "MMMM d"
 msgstr "d MMMM"
 
-#: betty/locale.py:270
+#: betty/locale.py:263
 msgid "MMMM"
 msgstr "MMMM"
 
+#: betty/locale.py:279
+#, python-format
+msgid "from %(start_date)s until %(end_date)s"
+msgstr "vanaf %(start_date)s tot en met %(end_date)s"
+
+#: betty/locale.py:280
+#, python-format
+msgid "from %(start_date)s until sometime before %(end_date)s"
+msgstr "vanaf %(start_date)s tot ergens voor %(end_date)s"
+
+#: betty/locale.py:281
+#, python-format
+msgid "from %(start_date)s until around %(end_date)s"
+msgstr "vanaf %(start_date)s tot ongeveer %(end_date)s"
+
+#: betty/locale.py:282
+#, python-format
+msgid "from %(start_date)s until sometime before around %(end_date)s"
+msgstr "vanaf %(start_date)s tot ergens voor ongeveer %(end_date)s"
+
+#: betty/locale.py:283
+#, python-format
+msgid "from sometime after %(start_date)s until %(end_date)s"
+msgstr "van ergens na %(start_date)s tot en met %(end_date)s"
+
+#: betty/locale.py:284
+#, python-format
+msgid "sometime between %(start_date)s and %(end_date)s"
+msgstr "ergens tussen %(start_date)s en %(end_date)s"
+
+#: betty/locale.py:285
+#, python-format
+msgid "from sometime after %(start_date)s until around %(end_date)s"
+msgstr "van ergens na %(start_date)s tot ongeveer %(end_date)s"
+
+#: betty/locale.py:286
+#, python-format
+msgid "sometime between %(start_date)s and around %(end_date)s"
+msgstr "ergens tussen %(start_date)s en ongeveer %(end_date)s"
+
+#: betty/locale.py:287
+#, python-format
+msgid "from around %(start_date)s until %(end_date)s"
+msgstr "van ongeveer %(start_date)s tot en met %(end_date)s"
+
+#: betty/locale.py:288
+#, python-format
+msgid "from around %(start_date)s until sometime before %(end_date)s"
+msgstr "van ongeveer %(start_date)s tot ergens voor %(end_date)s"
+
+#: betty/locale.py:289
+#, python-format
+msgid "from around %(start_date)s until around %(end_date)s"
+msgstr "van ongeveer %(start_date)s tot ongeveer %(end_date)s"
+
 #: betty/locale.py:290
 #, python-format
-msgid "Between %(start)s and %(end)s"
-msgstr "Tussen %(start)s en %(end)s"
+msgid "from around %(start_date)s until sometime before around %(end_date)s"
+msgstr "van ongeveer %(start_date)s tot ergens voor ongeveer %(end_date)s"
+
+#: betty/locale.py:291
+#, python-format
+msgid "from sometime after around %(start_date)s until %(end_date)s"
+msgstr "van ergens na ongeveer %(start_date)s tot en met %(end_date)s"
+
+#: betty/locale.py:292
+#, python-format
+msgid "sometime between around %(start_date)s and %(end_date)s"
+msgstr "ergens tussen ongeveer %(start_date)s en %(end_date)s"
+
+#: betty/locale.py:293
+#, python-format
+msgid "from sometime after around %(start_date)s until around %(end_date)s"
+msgstr "van ergens na ongeveer %(start_date)s tot ongeveer %(end_date)s"
+
+#: betty/locale.py:294
+#, python-format
+msgid "sometime between around %(start_date)s and around %(end_date)s"
+msgstr "ergens tussen ongeveer %(start_date)s en ongeveer %(end_date)s"
 
 #: betty/locale.py:295
 #, python-format
-msgid "After %(start)s"
-msgstr "Na %(start)s"
+msgid "from %(start_date)s"
+msgstr "vanaf %(start_date)s"
+
+#: betty/locale.py:296
+#, python-format
+msgid "sometime after %(start_date)s"
+msgstr "ergens na %(start_date)s"
+
+#: betty/locale.py:297
+#, python-format
+msgid "from around %(start_date)s"
+msgstr "van ongeveer %(start_date)s"
+
+#: betty/locale.py:298
+#, python-format
+msgid "sometime after around %(start_date)s"
+msgstr "ergens na ongeveer %(start_date)s"
 
 #: betty/locale.py:299
 #, python-format
-msgid "Before %(end)s"
-msgstr "Voor %(end)s"
+msgid "until %(end_date)s"
+msgstr "tot en met %(end_date)s"
+
+#: betty/locale.py:300
+#, python-format
+msgid "sometime before %(end_date)s"
+msgstr "ergens voor %(end_date)s"
+
+#: betty/locale.py:301
+#, python-format
+msgid "until around %(end_date)s"
+msgstr "tot ongeveer %(end_date)s"
+
+#: betty/locale.py:302
+#, python-format
+msgid "sometime before around %(end_date)s"
+msgstr "ergens voor ongeveer %(start_date)s"
 
 #: betty/openapi.py:18
 msgid "Retrieve the collection of files."
