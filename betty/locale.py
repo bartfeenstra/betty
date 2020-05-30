@@ -26,16 +26,12 @@ class Date:
     year: Optional[int]
     month: Optional[int]
     day: Optional[int]
-    calculated: bool
-    estimated: bool
     fuzzy: bool
 
     def __init__(self, year: Optional[int] = None, month: Optional[int] = None, day: Optional[int] = None, calculated: bool = False, estimated: bool = False, fuzzy: bool = False):
         self.year = year
         self.month = month
         self.day = day
-        self.calculated = calculated
-        self.estimated = estimated
         self.fuzzy = fuzzy
 
     def __repr__(self):

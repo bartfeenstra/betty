@@ -154,10 +154,8 @@ def _parse_dateval(element: Element, value_attribute_name: str) -> Optional[Date
             part) else None for part in dateval.split('-')]
         date = Date(*date_parts)
         dateval_quality = _xpath1(element, './@quality')
-        if dateval_quality == 'calculated':
-            date.calculated = True
         if dateval_quality == 'estimated':
-            date.estimated = True
+            date.fuzzy = True
         return date
     return None
 
