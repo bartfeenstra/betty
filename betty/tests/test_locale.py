@@ -4,7 +4,8 @@ from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.locale import Localized, negotiate_localizeds, Date, format_datey, DateRange, Translations, negotiate_locale
+from betty.locale import Localized, negotiate_localizeds, Date, format_datey, DateRange, Translations, negotiate_locale, \
+    Datey
 
 
 class DateTest(TestCase):
@@ -231,17 +232,71 @@ class NegotiateLocalizedsTest(TestCase):
             negotiate_localizeds('nl', [])
 
 
+_FORMAT_DATE_TEST_PARAMETERS = [
+    # Dates that cannot be formatted.
+    ('unknown date', Date()),
+    ('unknown date', Date(None, None, 1)),
+    # Single dates.
+    ('January', Date(None, 1, None)),
+    ('around January', Date(None, 1, None, fuzzy=True)),
+    ('1970', Date(1970, None, None)),
+    ('around 1970', Date(1970, None, None, fuzzy=True)),
+    ('January, 1970', Date(1970, 1, None)),
+    ('around January, 1970', Date(1970, 1, None, fuzzy=True)),
+    ('January 1, 1970', Date(1970, 1, 1)),
+    ('around January 1, 1970', Date(1970, 1, 1, fuzzy=True)),
+    ('January 1', Date(None, 1, 1)),
+    ('around January 1', Date(None, 1, 1, fuzzy=True)),
+]
+
+
 class FormatDateTest(TestCase):
-    @parameterized.expand([
-        ('unknown date', Date()),
-        ('unknown date', Date(None, None, 1)),
-        ('January', Date(None, 1, None)),
-        ('1970', Date(1970, None, None)),
-        ('January, 1970', Date(1970, 1, None)),
-        ('January 1, 1970', Date(1970, 1, 1)),
-        ('January 1', Date(None, 1, 1)),
-    ])
-    def test(self, expected: str, date: Date):
+    @parameterized.expand(_FORMAT_DATE_TEST_PARAMETERS)
+    def test(self, expected: str, datey: Datey):
         locale = 'en'
         with Translations(gettext.NullTranslations()):
-            self.assertEquals(expected, format_datey(date, locale))
+            self.assertEquals(expected, format_datey(datey, locale))
+
+
+_FORMAT_DATE_RANGE_TEST_PARAMETERS = [
+    ('from January 1, 1970 until December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31))),
+    ('from January 1, 1970 until sometime before December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31), end_is_boundary=True)),
+    ('from January 1, 1970 until around December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31, fuzzy=True))),
+    ('from January 1, 1970 until sometime before around December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31, fuzzy=True), end_is_boundary=True)),
+    ('from sometime after January 1, 1970 until December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31), start_is_boundary=True)),
+    ('sometime between January 1, 1970 and December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31), start_is_boundary=True, end_is_boundary=True)),
+    ('from sometime after January 1, 1970 until around December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31, fuzzy=True), start_is_boundary=True)),
+    ('sometime between January 1, 1970 and around December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31, fuzzy=True), start_is_boundary=True, end_is_boundary=True)),
+    ('from around January 1, 1970 until December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31))),
+    ('from around January 1, 1970 until sometime before December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31), end_is_boundary=True)),
+    ('from around January 1, 1970 until around December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31, fuzzy=True))),
+    ('from around January 1, 1970 until sometime before around December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31, fuzzy=True), end_is_boundary=True)),
+    ('from sometime after around January 1, 1970 until December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31), start_is_boundary=True)),
+    ('sometime between around January 1, 1970 and December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31), start_is_boundary=True, end_is_boundary=True)),
+    ('from sometime after around January 1, 1970 until around December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31, fuzzy=True), start_is_boundary=True)),
+    ('sometime between around January 1, 1970 and around December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31, fuzzy=True), start_is_boundary=True, end_is_boundary=True)),
+    ('from January 1, 1970', DateRange(Date(1970, 1, 1))),
+    ('sometime after January 1, 1970', DateRange(Date(1970, 1, 1), start_is_boundary=True)),
+    ('from around January 1, 1970', DateRange(Date(1970, 1, 1, fuzzy=True))),
+    ('sometime after around January 1, 1970', DateRange(Date(1970, 1, 1, fuzzy=True), start_is_boundary=True)),
+    ('until December 31, 1999', DateRange(None, Date(1999, 12, 31))),
+    ('sometime before December 31, 1999', DateRange(None, Date(1999, 12, 31), end_is_boundary=True)),
+    ('until around December 31, 1999', DateRange(None, Date(1999, 12, 31, fuzzy=True))),
+    ('sometime before around December 31, 1999', DateRange(None, Date(1999, 12, 31, fuzzy=True), end_is_boundary=True)),
+]
+
+
+class FormatDateRangeTest(TestCase):
+    @parameterized.expand(_FORMAT_DATE_RANGE_TEST_PARAMETERS)
+    def test(self, expected: str, datey: Datey):
+        locale = 'en'
+        with Translations(gettext.NullTranslations()):
+            self.assertEquals(expected, format_datey(datey, locale))
+
+
+class FormatDateyTest(TestCase):
+    @parameterized.expand(_FORMAT_DATE_TEST_PARAMETERS + _FORMAT_DATE_RANGE_TEST_PARAMETERS)
+    def test(self, expected: str, datey: Datey):
+        locale = 'en'
+        with Translations(gettext.NullTranslations()):
+            self.assertEquals(expected, format_datey(datey, locale))

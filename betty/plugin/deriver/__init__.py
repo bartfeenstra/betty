@@ -75,8 +75,10 @@ def _derive_event(person: Person, event_type: EventType, after: bool, derivation
         return
     if after:
         derived_event.date.start = copy(threshold_date)
+        derived_event.date.start_is_boundary = True
     else:
         derived_event.date.end = copy(threshold_date)
+        derived_event.date.end_is_boundary = True
     for citation in threshold_event.citations:
         derived_event.citations.append(citation)
     if isinstance(derived_event, DerivedEvent):

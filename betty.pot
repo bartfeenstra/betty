@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-25 01:15+0100\n"
+"POT-Creation-Date: 2020-05-29 18:41+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -113,48 +113,158 @@ msgstr ""
 msgid "Confirmation"
 msgstr ""
 
-#: betty/locale.py:250
+#: betty/locale.py:243
 msgid "unknown date"
 msgstr ""
 
-#: betty/locale.py:256
+#: betty/locale.py:247
 #, python-format
-msgid "Around %(date)s"
+msgid "around %(date)s"
 msgstr ""
 
-#: betty/locale.py:266
+#: betty/locale.py:248
+#, python-format
+msgid "%(date)s"
+msgstr ""
+
+#: betty/locale.py:259
 msgid "MMMM d, y"
 msgstr ""
 
-#: betty/locale.py:267
+#: betty/locale.py:260
 msgid "MMMM, y"
 msgstr ""
 
-#: betty/locale.py:268
+#: betty/locale.py:261
 msgid "y"
 msgstr ""
 
-#: betty/locale.py:269
+#: betty/locale.py:262
 msgid "MMMM d"
 msgstr ""
 
-#: betty/locale.py:270
+#: betty/locale.py:263
 msgid "MMMM"
+msgstr ""
+
+#: betty/locale.py:279
+#, python-format
+msgid "from %(start_date)s until %(end_date)s"
+msgstr ""
+
+#: betty/locale.py:280
+#, python-format
+msgid "from %(start_date)s until sometime before %(end_date)s"
+msgstr ""
+
+#: betty/locale.py:281
+#, python-format
+msgid "from %(start_date)s until around %(end_date)s"
+msgstr ""
+
+#: betty/locale.py:282
+#, python-format
+msgid "from %(start_date)s until sometime before around %(end_date)s"
+msgstr ""
+
+#: betty/locale.py:283
+#, python-format
+msgid "from sometime after %(start_date)s until %(end_date)s"
+msgstr ""
+
+#: betty/locale.py:284
+#, python-format
+msgid "sometime between %(start_date)s and %(end_date)s"
+msgstr ""
+
+#: betty/locale.py:285
+#, python-format
+msgid "from sometime after %(start_date)s until around %(end_date)s"
+msgstr ""
+
+#: betty/locale.py:286
+#, python-format
+msgid "sometime between %(start_date)s and around %(end_date)s"
+msgstr ""
+
+#: betty/locale.py:287
+#, python-format
+msgid "from around %(start_date)s until %(end_date)s"
+msgstr ""
+
+#: betty/locale.py:288
+#, python-format
+msgid "from around %(start_date)s until sometime before %(end_date)s"
+msgstr ""
+
+#: betty/locale.py:289
+#, python-format
+msgid "from around %(start_date)s until around %(end_date)s"
 msgstr ""
 
 #: betty/locale.py:290
 #, python-format
-msgid "Between %(start)s and %(end)s"
+msgid "from around %(start_date)s until sometime before around %(end_date)s"
+msgstr ""
+
+#: betty/locale.py:291
+#, python-format
+msgid "from sometime after around %(start_date)s until %(end_date)s"
+msgstr ""
+
+#: betty/locale.py:292
+#, python-format
+msgid "sometime between around %(start_date)s and %(end_date)s"
+msgstr ""
+
+#: betty/locale.py:293
+#, python-format
+msgid "from sometime after around %(start_date)s until around %(end_date)s"
+msgstr ""
+
+#: betty/locale.py:294
+#, python-format
+msgid "sometime between around %(start_date)s and around %(end_date)s"
 msgstr ""
 
 #: betty/locale.py:295
 #, python-format
-msgid "After %(start)s"
+msgid "from %(start_date)s"
+msgstr ""
+
+#: betty/locale.py:296
+#, python-format
+msgid "sometime after %(start_date)s"
+msgstr ""
+
+#: betty/locale.py:297
+#, python-format
+msgid "from around %(start_date)s"
+msgstr ""
+
+#: betty/locale.py:298
+#, python-format
+msgid "sometime after around %(start_date)s"
 msgstr ""
 
 #: betty/locale.py:299
 #, python-format
-msgid "Before %(end)s"
+msgid "until %(end_date)s"
+msgstr ""
+
+#: betty/locale.py:300
+#, python-format
+msgid "sometime before %(end_date)s"
+msgstr ""
+
+#: betty/locale.py:301
+#, python-format
+msgid "until around %(end_date)s"
+msgstr ""
+
+#: betty/locale.py:302
+#, python-format
+msgid "sometime before around %(end_date)s"
 msgstr ""
 
 #: betty/openapi.py:18

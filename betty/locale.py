@@ -23,38 +23,27 @@ class IncompleteDateError(ValueError):
 
 @total_ordering
 class Date:
-    def __init__(self, year: Optional[int] = None, month: Optional[int] = None, day: Optional[int] = None):
-        self._year = year
-        self._month = month
-        self._day = day
-        self._fuzzy = False
+    year: Optional[int]
+    month: Optional[int]
+    day: Optional[int]
+    calculated: bool
+    estimated: bool
+    fuzzy: bool
+
+    def __init__(self, year: Optional[int] = None, month: Optional[int] = None, day: Optional[int] = None, calculated: bool = False, estimated: bool = False, fuzzy: bool = False):
+        self.year = year
+        self.month = month
+        self.day = day
+        self.calculated = calculated
+        self.estimated = estimated
+        self.fuzzy = fuzzy
 
     def __repr__(self):
         return '<%s.%s(%s, %s, %s)>' % (self.__class__.__module__, self.__class__.__name__, self.year, self.month, self.day)
 
     @property
-    def year(self) -> Optional[int]:
-        return self._year
-
-    @property
-    def month(self) -> Optional[int]:
-        return self._month
-
-    @property
-    def day(self) -> Optional[int]:
-        return self._day
-
-    @property
-    def fuzzy(self) -> bool:
-        return self._fuzzy
-
-    @fuzzy.setter
-    def fuzzy(self, fuzzy: bool) -> None:
-        self._fuzzy = fuzzy
-
-    @property
     def comparable(self) -> bool:
-        return self._year is not None
+        return self.year is not None
 
     @property
     def complete(self) -> bool:
@@ -111,11 +100,15 @@ class Date:
 @total_ordering
 class DateRange:
     start: Optional[Date]
+    start_is_boundary: bool
     end: Optional[Date]
+    end_is_boundary: bool
 
-    def __init__(self, start: Optional[Date] = None, end: Optional[Date] = None):
+    def __init__(self, start: Optional[Date] = None, end: Optional[Date] = None, start_is_boundary: bool = False, end_is_boundary: bool = False):
         self.start = start
+        self.start_is_boundary = start_is_boundary
         self.end = end
+        self.end_is_boundary = end_is_boundary
 
     def __repr__(self):
         return '%s.%s(%s, %s)' % (self.__class__.__module__, self.__class__.__name__, repr(self.start), repr(self.end))
@@ -244,59 +237,89 @@ def format_datey(date: Datey, locale: str) -> str:
     """
     try:
         if isinstance(date, Date):
-            return _format_date(date, locale)
-        return _format_date_range(date, locale)
+            return format_date(date, locale)
+        return format_date_range(date, locale)
     except IncompleteDateError:
         return _('unknown date')
 
 
-def _format_date(date: Date, locale: str) -> str:
-    formatted = _format_date_parts(date, locale)
-    if date.fuzzy:
-        formatted = _('Around %(date)s') % {
-            'date': formatted,
-        }
-    return formatted
+_FORMAT_DATE_FORMATTERS = {
+    (True,): lambda: _('around %(date)s'),
+    (False,): lambda: _('%(date)s'),
+}
+
+
+def format_date(date: Date, locale: str) -> str:
+    return _FORMAT_DATE_FORMATTERS[(date.fuzzy,)]() % {
+        'date': _format_date_parts(date, locale),
+    }
+
+
+_FORMAT_DATE_PARTS_FORMATTERS = {
+    (True, True, True): lambda: _('MMMM d, y'),
+    (True, True, False): lambda: _('MMMM, y'),
+    (True, False, False): lambda: _('y'),
+    (False, True, True): lambda: _('MMMM d'),
+    (False, True, False): lambda: _('MMMM'),
+}
 
 
 def _format_date_parts(date: Date, locale: str) -> str:
     if date is None:
         raise IncompleteDateError('This date is None.')
-    DATE_FORMATS = {
-        (True, True, True): _('MMMM d, y'),
-        (True, True, False): _('MMMM, y'),
-        (True, False, False): _('y'),
-        (False, True, True): _('MMMM d'),
-        (False, True, False): _('MMMM'),
-    }
     try:
-        format = DATE_FORMATS[tuple(map(lambda x: x is not None, date.parts))]
+        date_parts_format = _FORMAT_DATE_PARTS_FORMATTERS[tuple(map(lambda x: x is not None, date.parts))]()
     except KeyError:
         raise IncompleteDateError('This date does not have enough parts to be rendered.')
     parts = map(lambda x: 1 if x is None else x, date.parts)
-    return dates.format_date(datetime.date(*parts), format, Locale.parse(locale, '-'))
+    return dates.format_date(datetime.date(*parts), date_parts_format, Locale.parse(locale, '-'))
 
 
-def _format_date_range(date_range: DateRange, locale: str) -> str:
+_FORMAT_DATE_RANGE_FORMATTERS = {
+    (False, False, False, False): lambda: _('from %(start_date)s until %(end_date)s'),
+    (False, False, False, True): lambda: _('from %(start_date)s until sometime before %(end_date)s'),
+    (False, False, True, False): lambda: _('from %(start_date)s until around %(end_date)s'),
+    (False, False, True, True): lambda: _('from %(start_date)s until sometime before around %(end_date)s'),
+    (False, True, False, False): lambda: _('from sometime after %(start_date)s until %(end_date)s'),
+    (False, True, False, True): lambda: _('sometime between %(start_date)s and %(end_date)s'),
+    (False, True, True, False): lambda: _('from sometime after %(start_date)s until around %(end_date)s'),
+    (False, True, True, True): lambda: _('sometime between %(start_date)s and around %(end_date)s'),
+    (True, False, False, False): lambda: _('from around %(start_date)s until %(end_date)s'),
+    (True, False, False, True): lambda: _('from around %(start_date)s until sometime before %(end_date)s'),
+    (True, False, True, False): lambda: _('from around %(start_date)s until around %(end_date)s'),
+    (True, False, True, True): lambda: _('from around %(start_date)s until sometime before around %(end_date)s'),
+    (True, True, False, False): lambda: _('from sometime after around %(start_date)s until %(end_date)s'),
+    (True, True, False, True): lambda: _('sometime between around %(start_date)s and %(end_date)s'),
+    (True, True, True, False): lambda: _('from sometime after around %(start_date)s until around %(end_date)s'),
+    (True, True, True, True): lambda: _('sometime between around %(start_date)s and around %(end_date)s'),
+    (False, False, None, None): lambda: _('from %(start_date)s'),
+    (False, True, None, None): lambda: _('sometime after %(start_date)s'),
+    (True, False, None, None): lambda: _('from around %(start_date)s'),
+    (True, True, None, None): lambda: _('sometime after around %(start_date)s'),
+    (None, None, False, False): lambda: _('until %(end_date)s'),
+    (None, None, False, True): lambda: _('sometime before %(end_date)s'),
+    (None, None, True, False): lambda: _('until around %(end_date)s'),
+    (None, None, True, True): lambda: _('sometime before around %(end_date)s'),
+}
+
+
+def format_date_range(date_range: DateRange, locale: str) -> str:
+    formatter_configuration = ()
+    formatter_arguments = {}
+
     try:
-        formatted_start = _format_date_parts(date_range.start, locale)
+        formatter_arguments['start_date'] = _format_date_parts(date_range.start, locale)
+        formatter_configuration += (date_range.start.fuzzy, date_range.start_is_boundary)
     except IncompleteDateError:
-        formatted_start = None
+        formatter_configuration += (None, None)
+
     try:
-        formatted_end = _format_date_parts(date_range.end, locale)
+        formatter_arguments['end_date'] = _format_date_parts(date_range.end, locale)
+        formatter_configuration += (date_range.end.fuzzy, date_range.end_is_boundary)
     except IncompleteDateError:
-        formatted_end = None
-    if formatted_start is not None and formatted_end is not None:
-        return _('Between %(start)s and %(end)s') % {
-            'start': formatted_start,
-            'end': formatted_end,
-        }
-    if formatted_start is not None:
-        return _('After %(start)s') % {
-            'start': formatted_start,
-        }
-    if formatted_end is not None:
-        return _('Before %(end)s') % {
-            'end': formatted_end,
-        }
-    raise IncompleteDateError('This date range does not have enough parts to be rendered.')
+        formatter_configuration += (None, None)
+
+    if not formatter_arguments:
+        raise IncompleteDateError('This date range does not have enough parts to be rendered.')
+
+    return _FORMAT_DATE_RANGE_FORMATTERS[formatter_configuration]() % formatter_arguments

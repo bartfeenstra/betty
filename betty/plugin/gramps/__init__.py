@@ -124,34 +124,41 @@ _DATE_PART_PATTERN = re.compile(r'^\d+$')
 def _parse_date(element: Element) -> Optional[Datey]:
     dateval_element = _xpath1(element, './ns:dateval[not(@cformat)]')
     if dateval_element is not None:
-        dateval = str(_xpath1(dateval_element, './@val'))
         dateval_type = _xpath1(dateval_element, './@type')
         if dateval_type is None:
-            return _parse_dateval(dateval)
+            return _parse_dateval(dateval_element, 'val')
         dateval_type = str(dateval_type)
         if dateval_type == 'about':
-            date = _parse_dateval(dateval)
+            date = _parse_dateval(dateval_element, 'val')
             if date is None:
                 return None
             date.fuzzy = True
             return date
         if dateval_type == 'before':
-            return DateRange(None, _parse_dateval(dateval))
+            return DateRange(None, _parse_dateval(dateval_element, 'val'), end_is_boundary=True)
         if dateval_type == 'after':
-            return DateRange(_parse_dateval(dateval))
+            return DateRange(_parse_dateval(dateval_element, 'val'), start_is_boundary=True)
+    datespan_element = _xpath1(element, './ns:datespan[not(@cformat)]')
+    if datespan_element is not None:
+        return DateRange(_parse_dateval(datespan_element, 'start'), _parse_dateval(datespan_element, 'stop'))
     daterange_element = _xpath1(element, './ns:daterange[not(@cformat)]')
     if daterange_element is not None:
-        start = _parse_dateval(str(_xpath1(daterange_element, './@start')))
-        end = _parse_dateval(str(_xpath1(daterange_element, './@stop')))
-        return DateRange(start, end)
+        return DateRange(_parse_dateval(daterange_element, 'start'), _parse_dateval(daterange_element, 'stop'), start_is_boundary=True, end_is_boundary=True)
     return None
 
 
-def _parse_dateval(dateval: str) -> Optional[Date]:
+def _parse_dateval(element: Element, value_attribute_name: str) -> Optional[Date]:
+    dateval = str(_xpath1(element, './@%s' % value_attribute_name))
     if _DATE_PATTERN.fullmatch(dateval):
         date_parts = [int(part) if _DATE_PART_PATTERN.fullmatch(
             part) else None for part in dateval.split('-')]
-        return Date(*date_parts)
+        date = Date(*date_parts)
+        dateval_quality = _xpath1(element, './@quality')
+        if dateval_quality == 'calculated':
+            date.calculated = True
+        if dateval_quality == 'estimated':
+            date.estimated = True
+        return date
     return None
 
 
