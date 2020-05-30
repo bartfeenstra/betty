@@ -180,8 +180,6 @@ class ParseXmlTest(TestCase):
         self.assertIsNone(date.year)
         self.assertEquals(12, date.month)
         self.assertEquals(31, date.day)
-        self.assertFalse(date.calculated)
-        self.assertFalse(date.estimated)
         self.assertFalse(date.fuzzy)
 
     def test_date_should_ignore_calendar_format(self):
@@ -194,8 +192,6 @@ class ParseXmlTest(TestCase):
         self.assertEquals(1, date.end.month)
         self.assertEquals(1, date.end.day)
         self.assertTrue(date.end_is_boundary)
-        self.assertFalse(date.end.calculated)
-        self.assertFalse(date.end.estimated)
         self.assertFalse(date.end.fuzzy)
 
     def test_date_should_parse_after(self):
@@ -205,8 +201,6 @@ class ParseXmlTest(TestCase):
         self.assertEquals(1, date.start.month)
         self.assertEquals(1, date.start.day)
         self.assertTrue(date.start_is_boundary)
-        self.assertFalse(date.start.calculated)
-        self.assertFalse(date.start.estimated)
         self.assertFalse(date.start.fuzzy)
 
     def test_date_should_parse_calculated(self):
@@ -222,8 +216,6 @@ class ParseXmlTest(TestCase):
         self.assertEquals(1970, date.year)
         self.assertEquals(1, date.month)
         self.assertEquals(1, date.day)
-        self.assertTrue(date.calculated)
-        self.assertFalse(date.estimated)
         self.assertFalse(date.fuzzy)
 
     def test_date_should_parse_estimated(self):
@@ -239,17 +231,13 @@ class ParseXmlTest(TestCase):
         self.assertEquals(1970, date.year)
         self.assertEquals(1, date.month)
         self.assertEquals(1, date.day)
-        self.assertFalse(date.calculated)
-        self.assertTrue(date.estimated)
-        self.assertFalse(date.fuzzy)
+        self.assertTrue(date.fuzzy)
 
     def test_date_should_parse_about(self):
         date = self.ancestry.events['E0007'].date
         self.assertEquals(1970, date.year)
         self.assertEquals(1, date.month)
         self.assertEquals(1, date.day)
-        self.assertFalse(date.calculated)
-        self.assertFalse(date.estimated)
         self.assertTrue(date.fuzzy)
 
     def test_daterange_should_parse(self):
@@ -265,16 +253,12 @@ class ParseXmlTest(TestCase):
         self.assertEquals(1970, date.start.year)
         self.assertEquals(1, date.start.month)
         self.assertEquals(1, date.start.day)
-        self.assertFalse(date.start.calculated)
-        self.assertFalse(date.start.estimated)
         self.assertFalse(date.start.fuzzy)
         self.assertTrue(date.start_is_boundary)
         self.assertEquals(1999, date.end.year)
         self.assertEquals(12, date.end.month)
         self.assertEquals(31, date.end.day)
         self.assertTrue(date.end_is_boundary)
-        self.assertFalse(date.end.calculated)
-        self.assertFalse(date.end.estimated)
         self.assertFalse(date.end.fuzzy)
 
     def test_daterange_should_parse_calculated(self):
@@ -287,11 +271,7 @@ class ParseXmlTest(TestCase):
 </events>
 """)
         date = ancestry.events['E0000'].date
-        self.assertTrue(date.start.calculated)
-        self.assertFalse(date.start.estimated)
         self.assertFalse(date.start.fuzzy)
-        self.assertTrue(date.end.calculated)
-        self.assertFalse(date.end.estimated)
         self.assertFalse(date.end.fuzzy)
 
     def test_daterange_should_parse_estimated(self):
@@ -304,12 +284,8 @@ class ParseXmlTest(TestCase):
 </events>
 """)
         date = ancestry.events['E0000'].date
-        self.assertFalse(date.start.calculated)
-        self.assertTrue(date.start.estimated)
-        self.assertFalse(date.start.fuzzy)
-        self.assertFalse(date.end.calculated)
-        self.assertTrue(date.end.estimated)
-        self.assertFalse(date.end.fuzzy)
+        self.assertTrue(date.start.fuzzy)
+        self.assertTrue(date.end.fuzzy)
 
     def test_datespan_should_parse(self):
         ancestry = self._parse_partial("""
@@ -324,14 +300,10 @@ class ParseXmlTest(TestCase):
         self.assertEquals(1970, date.start.year)
         self.assertEquals(1, date.start.month)
         self.assertEquals(1, date.start.day)
-        self.assertFalse(date.start.calculated)
-        self.assertFalse(date.start.estimated)
         self.assertFalse(date.start.fuzzy)
         self.assertEquals(1999, date.end.year)
         self.assertEquals(12, date.end.month)
         self.assertEquals(31, date.end.day)
-        self.assertFalse(date.end.calculated)
-        self.assertFalse(date.end.estimated)
         self.assertFalse(date.end.fuzzy)
 
     def test_datespan_should_parse_calculated(self):
@@ -344,11 +316,7 @@ class ParseXmlTest(TestCase):
 </events>
 """)
         date = ancestry.events['E0000'].date
-        self.assertTrue(date.start.calculated)
-        self.assertFalse(date.start.estimated)
         self.assertFalse(date.start.fuzzy)
-        self.assertTrue(date.end.calculated)
-        self.assertFalse(date.end.estimated)
         self.assertFalse(date.end.fuzzy)
 
     def test_datespan_should_parse_estimated(self):
@@ -361,12 +329,8 @@ class ParseXmlTest(TestCase):
 </events>
 """)
         date = ancestry.events['E0000'].date
-        self.assertFalse(date.start.calculated)
-        self.assertTrue(date.start.estimated)
-        self.assertFalse(date.start.fuzzy)
-        self.assertFalse(date.end.calculated)
-        self.assertTrue(date.end.estimated)
-        self.assertFalse(date.end.fuzzy)
+        self.assertTrue(date.start.fuzzy)
+        self.assertTrue(date.end.fuzzy)
 
     def test_source_from_repository_should_include_name(self):
         source = self.ancestry.sources['R0000']
