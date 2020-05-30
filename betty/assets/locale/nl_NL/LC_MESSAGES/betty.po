@@ -266,7 +266,7 @@ msgstr "tot ongeveer %(end_date)s"
 #: betty/locale.py:302
 #, python-format
 msgid "sometime before around %(end_date)s"
-msgstr "ergens voor ongeveer %(start_date)s"
+msgstr "ergens voor ongeveer %(end_date)s"
 
 #: betty/openapi.py:18
 msgid "Retrieve the collection of files."
