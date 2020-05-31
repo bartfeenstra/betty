@@ -63,6 +63,7 @@ def derive(person: Person, event_type: EventType) -> None:
         with suppress(IndexError):
             reference_event, reference_date = event_dates[0]
             derived_event.date.end = copy(reference_date)
+            derived_event.date.end_is_boundary = True
             _update_event(reference_event, derived_event)
             derived = True
     if event_type.comes_after() and derived_event.date.start is None:
@@ -71,6 +72,7 @@ def derive(person: Person, event_type: EventType) -> None:
         with suppress(IndexError):
             reference_event, reference_date = event_dates[0]
             derived_event.date.start = copy(reference_date)
+            derived_event.date.start_is_boundary = True
             _update_event(reference_event, derived_event)
             derived = True
 

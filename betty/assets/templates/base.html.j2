@@ -57,7 +57,7 @@
 {% elif site.configuration.theme.background_image_id and site.configuration.theme.background_image_id in site.ancestry.files %}
     {% set page_image = site.ancestry.files[site.configuration.theme.background_image_id] %}
 {% endif %}
-<body{% if page_image is defined %} class="has-page-image"{% endif %}>
+<body>
 {% if page_image is defined %}
     <div id="background-header" class="background" style="background-image: url({{ page_image | image(600, 600) | static_url }});"></div>
     <div id="background-footer" class="background" style="background-image: url({{ page_image | image(600, 600) | static_url }});"></div>

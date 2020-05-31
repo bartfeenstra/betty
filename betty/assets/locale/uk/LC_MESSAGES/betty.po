@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-18 22:13+0100\n"
+"POT-Creation-Date: 2020-05-29 18:41+0100\n"
 "PO-Revision-Date: 2020-05-02 22:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -28,128 +28,246 @@ msgid "Witness"
 msgstr "Свідок"
 
 #: betty/ancestry.py:459
+msgid "Beneficiary"
+msgstr "Бенефіціар"
+
+#: betty/ancestry.py:467
 msgid "Attendee"
 msgstr "Відвідувач"
 
-#: betty/ancestry.py:497
+#: betty/ancestry.py:505
 msgid "Birth"
 msgstr "Народження"
 
-#: betty/ancestry.py:505
+#: betty/ancestry.py:513
 msgid "Baptism"
 msgstr "Хрещення"
 
-#: betty/ancestry.py:513
+#: betty/ancestry.py:521
 msgid "Adoption"
 msgstr "Усиновлення"
 
-#: betty/ancestry.py:521
+#: betty/ancestry.py:529
 msgid "Death"
 msgstr "Смерть"
 
-#: betty/ancestry.py:533
+#: betty/ancestry.py:541
 msgid "Funeral"
 msgstr "Похорон"
 
-#: betty/ancestry.py:545
+#: betty/ancestry.py:553
 msgid "Cremation"
 msgstr "Кремація"
 
-#: betty/ancestry.py:557
+#: betty/ancestry.py:565
 msgid "Burial"
 msgstr "Поховання"
 
-#: betty/ancestry.py:569
+#: betty/ancestry.py:577
+msgid "Will"
+msgstr "Заповіт"
+
+#: betty/ancestry.py:589
 msgid "Engagement"
 msgstr "Заручини"
 
-#: betty/ancestry.py:581
+#: betty/ancestry.py:601
 msgid "Marriage"
 msgstr "Шлюб"
 
-#: betty/ancestry.py:589
+#: betty/ancestry.py:609
 msgid "Announcement of marriage"
 msgstr "Оголошення шлюбу"
 
-#: betty/ancestry.py:601
+#: betty/ancestry.py:621
 msgid "Divorce"
 msgstr "Розлучення"
 
-#: betty/ancestry.py:613
+#: betty/ancestry.py:633
 msgid "Announcement of divorce"
 msgstr "Оголошення про розлучення"
 
-#: betty/ancestry.py:629
+#: betty/ancestry.py:649
 msgid "Residence"
 msgstr "Проживання"
 
-#: betty/ancestry.py:637
+#: betty/ancestry.py:657
 msgid "Immigration"
 msgstr "Імміграція"
 
-#: betty/ancestry.py:645
+#: betty/ancestry.py:665
 msgid "Emigration"
 msgstr "Еміграція"
 
-#: betty/ancestry.py:653
+#: betty/ancestry.py:673
 msgid "Occupation"
 msgstr "Праця"
 
-#: betty/ancestry.py:661
+#: betty/ancestry.py:681
 msgid "Retirement"
 msgstr "Вихід на пенсію"
 
-#: betty/ancestry.py:669
+#: betty/ancestry.py:689
 msgid "Correspondence"
 msgstr "Листування"
 
-#: betty/ancestry.py:677
+#: betty/ancestry.py:697
 msgid "Confirmation"
 msgstr "Миропомазання"
 
-#: betty/locale.py:250
+#: betty/locale.py:243
 msgid "unknown date"
 msgstr "невідома дата"
 
-#: betty/locale.py:256
+#: betty/locale.py:247
 #, python-format
-msgid "Around %(date)s"
-msgstr "Близько %(date)s"
+msgid "around %(date)s"
+msgstr "близько %(date)s"
 
-#: betty/locale.py:266
+#: betty/locale.py:248
+#, python-format
+msgid "%(date)s"
+msgstr "%(date)s"
+
+#: betty/locale.py:259
 msgid "MMMM d, y"
 msgstr "d MMMM y року"
 
-#: betty/locale.py:267
+#: betty/locale.py:260
 msgid "MMMM, y"
 msgstr "MMMM y року"
 
-#: betty/locale.py:268
+#: betty/locale.py:261
 msgid "y"
 msgstr "y року"
 
-#: betty/locale.py:269
+#: betty/locale.py:262
 msgid "MMMM d"
 msgstr "d MMMM"
 
-#: betty/locale.py:270
+#: betty/locale.py:263
 msgid "MMMM"
 msgstr "MMMM"
 
+#: betty/locale.py:279
+#, python-format
+msgid "from %(start_date)s until %(end_date)s"
+msgstr "з %(start_date)s до %(end_date)s"
+
+#: betty/locale.py:280
+#, python-format
+msgid "from %(start_date)s until sometime before %(end_date)s"
+msgstr "з %(start_date)s до десь раніше %(end_date)s"
+
+#: betty/locale.py:281
+#, python-format
+msgid "from %(start_date)s until around %(end_date)s"
+msgstr "з %(start_date)s до приблизно %(end_date)s"
+
+#: betty/locale.py:282
+#, python-format
+msgid "from %(start_date)s until sometime before around %(end_date)s"
+msgstr "з %(start_date)s до десь до %(end_date)s"
+
+#: betty/locale.py:283
+#, python-format
+msgid "from sometime after %(start_date)s until %(end_date)s"
+msgstr "десь після %(start_date)s до %(end_date)s"
+
+#: betty/locale.py:284
+#, python-format
+msgid "sometime between %(start_date)s and %(end_date)s"
+msgstr "десь між %(start_date)s та %(end_date)s"
+
+#: betty/locale.py:285
+#, python-format
+msgid "from sometime after %(start_date)s until around %(end_date)s"
+msgstr "десь після %(start_date)s приблизно до %(end_date)s"
+
+#: betty/locale.py:286
+#, python-format
+msgid "sometime between %(start_date)s and around %(end_date)s"
+msgstr "десь між %(start_date)s і близько %(end_date)s"
+
+#: betty/locale.py:287
+#, python-format
+msgid "from around %(start_date)s until %(end_date)s"
+msgstr "приблизно з %(start_date)s до %(end_date)s"
+
+#: betty/locale.py:288
+#, python-format
+msgid "from around %(start_date)s until sometime before %(end_date)s"
+msgstr "приблизно з %(start_date)s до десь раніше %(end_date)s"
+
+#: betty/locale.py:289
+#, python-format
+msgid "from around %(start_date)s until around %(end_date)s"
+msgstr "приблизно з %(start_date)s приблизно до %(end_date)s"
+
 #: betty/locale.py:290
 #, python-format
-msgid "Between %(start)s and %(end)s"
-msgstr "У період з %(start)s по %(end)s"
+msgid "from around %(start_date)s until sometime before around %(end_date)s"
+msgstr "приблизно з %(start_date)s до десь до %(end_date)s"
+
+#: betty/locale.py:291
+#, python-format
+msgid "from sometime after around %(start_date)s until %(end_date)s"
+msgstr "десь після %(start_date)s до %(end_date)s"
+
+#: betty/locale.py:292
+#, python-format
+msgid "sometime between around %(start_date)s and %(end_date)s"
+msgstr "десь між приблизно %(start_date)s та %(end_date)s"
+
+#: betty/locale.py:293
+#, python-format
+msgid "from sometime after around %(start_date)s until around %(end_date)s"
+msgstr "десь приблизно після %(start_date)s приблизно до %(end_date)s"
+
+#: betty/locale.py:294
+#, python-format
+msgid "sometime between around %(start_date)s and around %(end_date)s"
+msgstr "десь між приблизно %(start_date)s та приблизно %(end_date)s"
 
 #: betty/locale.py:295
 #, python-format
-msgid "After %(start)s"
-msgstr "Після %(start)s"
+msgid "from %(start_date)s"
+msgstr "з %(start_date)s"
+
+#: betty/locale.py:296
+#, python-format
+msgid "sometime after %(start_date)s"
+msgstr "десь після %(start_date)s"
+
+#: betty/locale.py:297
+#, python-format
+msgid "from around %(start_date)s"
+msgstr "приблизно з %(start_date)s"
+
+#: betty/locale.py:298
+#, python-format
+msgid "sometime after around %(start_date)s"
+msgstr "десь приблизно після %(start_date)s"
 
 #: betty/locale.py:299
 #, python-format
-msgid "Before %(end)s"
-msgstr "До %(end)s"
+msgid "until %(end_date)s"
+msgstr "до %(end_date)s"
+
+#: betty/locale.py:300
+#, python-format
+msgid "sometime before %(end_date)s"
+msgstr "десь до %(end_date)s"
+
+#: betty/locale.py:301
+#, python-format
+msgid "until around %(end_date)s"
+msgstr "приблизно до %(end_date)s"
+
+#: betty/locale.py:302
+#, python-format
+msgid "sometime before around %(end_date)s"
+msgstr "десь приблизно до %(end_date)s"
 
 #: betty/openapi.py:18
 msgid "Retrieve the collection of files."
@@ -291,7 +409,7 @@ msgstr "Ласкаво просимо на %(title)s"
 #: betty/assets/public/localized/api/index.html.j2:4
 #: betty/assets/templates/footer.html.j2:7
 msgid "API documentation"
-msgstr "Документація API"
+msgstr "документація API"
 
 #: betty/assets/templates/base.html.j2:70
 msgid "Exit the search"
@@ -375,7 +493,7 @@ msgstr ""
 #: betty/assets/templates/label/citation.html.j2:18
 #, python-format
 msgid "Accessed %(date)s"
-msgstr "Доступ %(date)s"
+msgstr "доступ %(date)s"
 
 #: betty/assets/templates/label/event.html.j2:21
 #, python-format

@@ -45,20 +45,6 @@ body > * {
   width: 100%;
 }
 
-.has-overlay .background {
-  // Some browsers' performance degrades due to our layered background rendering, so disable it when unneeded.
-  display: none;
-}
-
-.has-page-image #page {
-  filter: drop-shadow(0.3rem 0.3rem 2rem #777);
-}
-
-.has-overlay #page {
-  // Some browsers' performance degrades due to our layered background rendering, so disable it when unneeded.
-  filter: none;
-}
-
 /*
  * Text and links.
  */
@@ -360,10 +346,6 @@ figcaption {
   height: 3rem;
   text-indent: -999em;
   width: 3rem;
-}
-
-.has-page-image #site-title {
-  filter: grayscale(0.25);
 }
 
 #site-title:hover {
