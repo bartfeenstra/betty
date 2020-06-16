@@ -489,23 +489,47 @@ class EventType:
         raise NotImplementedError
 
     @classmethod
-    def comes_after(cls) -> Set[Type['EventType']]:
-        return set()
-
-    @classmethod
     def comes_before(cls) -> Set[Type['EventType']]:
         return set()
 
+    @classmethod
+    def comes_after(cls) -> Set[Type['EventType']]:
+        return set()
 
-class Birth(EventType):
+
+class DerivableEventType(EventType):
+    pass  # pragma: no cover
+
+
+class CreatableDerivableEventType(DerivableEventType):
+    pass  # pragma: no cover
+
+
+class PreBirthEventType(EventType):
+    pass  # pragma: no cover
+
+
+class LifeEventType(EventType):
+    pass  # pragma: no cover
+
+
+class PostDeathEventType(EventType):
+    pass  # pragma: no cover
+
+
+class Birth(CreatableDerivableEventType):
     name = 'birth'
 
     @property
     def label(self) -> str:
         return _('Birth')
 
+    @classmethod
+    def comes_before(cls) -> Set[Type[EventType]]:
+        return {LifeEventType}
 
-class Baptism(EventType):
+
+class Baptism(LifeEventType):
     name = 'baptism'
 
     @property
@@ -513,7 +537,7 @@ class Baptism(EventType):
         return _('Baptism')
 
 
-class Adoption(EventType):
+class Adoption(LifeEventType):
     name = 'adoption'
 
     @property
@@ -521,7 +545,7 @@ class Adoption(EventType):
         return _('Adoption')
 
 
-class Death(EventType):
+class Death(CreatableDerivableEventType):
     name = 'death'
 
     @property
@@ -529,8 +553,8 @@ class Death(EventType):
         return _('Death')
 
     @classmethod
-    def comes_after(cls) -> Set[Type['EventType']]:
-        return set(Birth)
+    def comes_after(cls) -> Set[Type[EventType]]:
+        return {LifeEventType}
 
 
 class Funeral(EventType):
@@ -541,35 +565,33 @@ class Funeral(EventType):
         return _('Funeral')
 
     @classmethod
-    def comes_after(cls) -> Set[Type['EventType']]:
-        return set(Death)
+    def comes_after(cls) -> Set[Type[EventType]]:
+        return {Death}
 
 
-class Cremation(EventType):
+class FinalDispositionEventType(PostDeathEventType, DerivableEventType):
+    @classmethod
+    def comes_after(cls) -> Set[Type[EventType]]:
+        return {Death}
+
+
+class Cremation(FinalDispositionEventType):
     name = 'cremation'
 
     @property
     def label(self) -> str:
         return _('Cremation')
 
-    @classmethod
-    def comes_after(cls) -> Set[Type['EventType']]:
-        return set(Death)
 
-
-class Burial(EventType):
+class Burial(FinalDispositionEventType):
     name = 'burial'
 
     @property
     def label(self) -> str:
         return _('Burial')
 
-    @classmethod
-    def comes_after(cls) -> Set[Type['EventType']]:
-        return set(Death)
 
-
-class Will(EventType):
+class Will(PostDeathEventType):
     name = 'will'
 
     @property
@@ -577,11 +599,11 @@ class Will(EventType):
         return _('Will')
 
     @classmethod
-    def comes_after(cls) -> Set[Type['EventType']]:
-        return set(Death)
+    def comes_after(cls) -> Set[Type[EventType]]:
+        return {Death}
 
 
-class Engagement(EventType):
+class Engagement(LifeEventType):
     name = 'engagement'
 
     @property
@@ -589,11 +611,11 @@ class Engagement(EventType):
         return _('Engagement')
 
     @classmethod
-    def comes_before(cls) -> Set[Type['EventType']]:
-        return set(Marriage)
+    def comes_before(cls) -> Set[Type[EventType]]:
+        return {Marriage}
 
 
-class Marriage(EventType):
+class Marriage(LifeEventType):
     name = 'marriage'
 
     @property
@@ -601,7 +623,7 @@ class Marriage(EventType):
         return _('Marriage')
 
 
-class MarriageAnnouncement(EventType):
+class MarriageAnnouncement(LifeEventType):
     name = 'marriage-announcement'
 
     @property
@@ -609,11 +631,11 @@ class MarriageAnnouncement(EventType):
         return _('Announcement of marriage')
 
     @classmethod
-    def comes_before(cls) -> Set[Type['EventType']]:
-        return set(Marriage)
+    def comes_before(cls) -> Set[Type[EventType]]:
+        return {Marriage}
 
 
-class Divorce(EventType):
+class Divorce(LifeEventType):
     name = 'divorce'
 
     @property
@@ -621,11 +643,11 @@ class Divorce(EventType):
         return _('Divorce')
 
     @classmethod
-    def comes_after(cls) -> Set[Type['EventType']]:
-        return set(Marriage)
+    def comes_after(cls) -> Set[Type[EventType]]:
+        return {Marriage}
 
 
-class DivorceAnnouncement(EventType):
+class DivorceAnnouncement(LifeEventType):
     name = 'divorce-announcement'
 
     @property
@@ -633,15 +655,15 @@ class DivorceAnnouncement(EventType):
         return _('Announcement of divorce')
 
     @classmethod
-    def comes_after(cls) -> Set[Type['EventType']]:
-        return set(Marriage)
+    def comes_after(cls) -> Set[Type[EventType]]:
+        return {Marriage}
 
     @classmethod
-    def comes_before(cls) -> Set[Type['EventType']]:
-        return set(Divorce)
+    def comes_before(cls) -> Set[Type[EventType]]:
+        return {Divorce}
 
 
-class Residence(EventType):
+class Residence(LifeEventType):
     name = 'residence'
 
     @property
@@ -649,7 +671,7 @@ class Residence(EventType):
         return _('Residence')
 
 
-class Immigration(EventType):
+class Immigration(LifeEventType):
     name = 'immigration'
 
     @property
@@ -657,7 +679,7 @@ class Immigration(EventType):
         return _('Immigration')
 
 
-class Emigration(EventType):
+class Emigration(LifeEventType):
     name = 'emigration'
 
     @property
@@ -665,7 +687,7 @@ class Emigration(EventType):
         return _('Emigration')
 
 
-class Occupation(EventType):
+class Occupation(LifeEventType):
     name = 'occupation'
 
     @property
@@ -673,7 +695,7 @@ class Occupation(EventType):
         return _('Occupation')
 
 
-class Retirement(EventType):
+class Retirement(LifeEventType):
     name = 'retirement'
 
     @property
@@ -689,12 +711,36 @@ class Correspondence(EventType):
         return _('Correspondence')
 
 
-class Confirmation(EventType):
+class Confirmation(LifeEventType):
     name = 'confirmation'
 
     @property
     def label(self) -> str:
         return _('Confirmation')
+
+
+EVENT_TYPE_TYPES = [
+    Birth,
+    Baptism,
+    Adoption,
+    Death,
+    Funeral,
+    Cremation,
+    Burial,
+    Will,
+    Engagement,
+    Marriage,
+    MarriageAnnouncement,
+    Divorce,
+    DivorceAnnouncement,
+    Residence,
+    Immigration,
+    Emigration,
+    Occupation,
+    Retirement,
+    Correspondence,
+    Confirmation,
+]
 
 
 @many_to_one('place', 'events')
@@ -712,6 +758,9 @@ class Event(Resource, Dated, HasFiles, HasCitations, Described, HasPrivacy):
         HasPrivacy.__init__(self)
         self.date = date
         self._type = event_type
+
+    def __repr__(self):
+        return '<%s.%s(%s, date=%s)>' % (self.__class__.__module__, self.__class__.__name__, repr(self.type), repr(self.date))
 
     @property
     def type(self):

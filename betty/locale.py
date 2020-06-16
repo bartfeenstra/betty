@@ -28,7 +28,7 @@ class Date:
     day: Optional[int]
     fuzzy: bool
 
-    def __init__(self, year: Optional[int] = None, month: Optional[int] = None, day: Optional[int] = None, calculated: bool = False, estimated: bool = False, fuzzy: bool = False):
+    def __init__(self, year: Optional[int] = None, month: Optional[int] = None, day: Optional[int] = None, fuzzy: bool = False):
         self.year = year
         self.month = month
         self.day = day
@@ -107,7 +107,7 @@ class DateRange:
         self.end_is_boundary = end_is_boundary
 
     def __repr__(self):
-        return '%s.%s(%s, %s)' % (self.__class__.__module__, self.__class__.__name__, repr(self.start), repr(self.end))
+        return '%s.%s(%s, %s, start_is_boundary=%s, end_is_boundary=%s)' % (self.__class__.__module__, self.__class__.__name__, repr(self.start), repr(self.end), repr(self.start_is_boundary), repr(self.end_is_boundary))
 
     @property
     def comparable(self) -> bool:
@@ -117,7 +117,7 @@ class DateRange:
         if not self.comparable:
             return NotImplemented
 
-        if not (isinstance(other, Date) or isinstance(other, DateRange)):
+        if not isinstance(other, (Date, DateRange)):
             return NotImplemented
 
         if not other.comparable:
@@ -160,7 +160,7 @@ class DateRange:
         if not isinstance(other, DateRange):
             return NotImplemented
 
-        return (self.start, self.end) == (other.start, other.end)
+        return (self.start, self.end, self.start_is_boundary, self.end_is_boundary) == (other.start, other.end, other.start_is_boundary, other.end_is_boundary)
 
 
 Datey = Union[Date, DateRange]
