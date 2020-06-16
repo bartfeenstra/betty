@@ -157,11 +157,6 @@ class DateRange:
 
         if not isinstance(other, DateRange):
             return NotImplemented
-        print('COMPARE')
-        print(self)
-        print(other)
-        print((self.start, self.end, self.start_is_boundary, self.end_is_boundary) == (other.start, other.end, other.start_is_boundary, other.end_is_boundary))
-
         return (self.start, self.end, self.start_is_boundary, self.end_is_boundary) == (other.start, other.end, other.start_is_boundary, other.end_is_boundary)
 
 
