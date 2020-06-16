@@ -506,15 +506,25 @@ class CreatableDerivableEventType(DerivableEventType):
 
 
 class PreBirthEventType(EventType):
-    pass  # pragma: no cover
+    @classmethod
+    def comes_before(cls) -> Set[Type['EventType']]:
+        return {Birth}
 
 
 class LifeEventType(EventType):
-    pass  # pragma: no cover
+    @classmethod
+    def comes_after(cls) -> Set[Type['EventType']]:
+        return {Birth}
+
+    @classmethod
+    def comes_before(cls) -> Set[Type['EventType']]:
+        return {Death}
 
 
 class PostDeathEventType(EventType):
-    pass  # pragma: no cover
+    @classmethod
+    def comes_after(cls) -> Set[Type['EventType']]:
+        return {Death}
 
 
 class Birth(CreatableDerivableEventType):
@@ -557,7 +567,7 @@ class Death(CreatableDerivableEventType):
         return {LifeEventType}
 
 
-class Funeral(EventType):
+class Funeral(PostDeathEventType, DerivableEventType):
     name = 'funeral'
 
     @property
