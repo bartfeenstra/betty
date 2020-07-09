@@ -3,6 +3,7 @@
     "cypress": "^4.10.0",
     "eslint": "^7.4.0",
     "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-compat": "^3.8.0",
     "eslint-plugin-cypress": "^2.11.1",
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-node": "^11.1.0",
