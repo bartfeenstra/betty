@@ -152,7 +152,7 @@ def _parse_dateval(element: Element, value_attribute_name: str) -> Optional[Date
     dateval = str(_xpath1(element, './@%s' % value_attribute_name))
     if _DATE_PATTERN.fullmatch(dateval):
         date_parts = [int(part) if _DATE_PART_PATTERN.fullmatch(
-            part) else None for part in dateval.split('-')]
+            part) and int(part) > 0 else None for part in dateval.split('-')]
         date = Date(*date_parts)
         dateval_quality = _xpath1(element, './@quality')
         if dateval_quality == 'estimated':

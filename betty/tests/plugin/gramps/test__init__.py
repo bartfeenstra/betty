@@ -8,6 +8,7 @@ from parameterized import parameterized
 from betty.ancestry import Ancestry, PersonName, Birth, Death
 from betty.config import Configuration
 from betty.functools import sync
+from betty.locale import Date
 from betty.parse import parse
 from betty.plugin.gramps import parse_xml, Gramps
 from betty.site import Site
@@ -171,16 +172,26 @@ class ParseXmlTest(TestCase):
         event = self.ancestry.events['E0008']
         self.assertEquals('Something happened!', event.description)
 
-    def test_date_should_ignore_invalid_date(self):
-        date = self.ancestry.events['E0001'].date
-        self.assertIsNone(date)
-
-    def test_date_should_ignore_invalid_date_parts(self):
-        date = self.ancestry.events['E0002'].date
-        self.assertIsNone(date.year)
-        self.assertEquals(12, date.month)
-        self.assertEquals(31, date.day)
-        self.assertFalse(date.fuzzy)
+    @parameterized.expand([
+        (Date(), '0000-00-00'),
+        (Date(None, None, 1), '0000-00-01'),
+        (Date(None, 1), '0000-01-00'),
+        (Date(None, 1, 1), '0000-01-01'),
+        (Date(1970), '1970-00-00'),
+        (Date(1970, None, 1), '1970-00-01'),
+        (Date(1970, 1), '1970-01-00'),
+        (Date(1970, 1, 1), '1970-01-01'),
+    ])
+    def test_date_should_parse_parts(self, expected: Date, dateval_val: str):
+        ancestry = self._parse_partial("""
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Birth</type>
+        <dateval val="%s" quality="calculated"/>
+    </event>
+</events>
+""" % dateval_val)
+        self.assertEquals(expected, ancestry.events['E0000'].date)
 
     def test_date_should_ignore_calendar_format(self):
         self.assertIsNone(self.ancestry.events['E0005'].date)

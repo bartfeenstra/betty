@@ -141,6 +141,10 @@ declare the data always private or `public` to declare the data always public. A
 undecided, as well as person records marked public using Gramps' built-in privacy selector. In such cases, the
 `betty.plugin.privatizer.Privatizer` may decide if the data is public or private.
 
+#### Dates
+For unknown date parts, set those to all zeroes and Betty will ignore them. For instance, `0000-12-31` will be parsed as
+"December 31", and `1970-01-00` as "January, 1970".
+
 #### Event types
 Betty supports the following custom Gramps event types:
 - `Correspondence`

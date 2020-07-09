@@ -1,6 +1,7 @@
 import calendar
 import datetime
 import gettext
+import operator
 import os
 from contextlib import suppress
 from functools import total_ordering
@@ -64,33 +65,30 @@ class Date:
             day_start = day_end = self.day
         return DateRange(Date(self.year, month_start, day_start), Date(self.year, month_end, day_end))
 
-    def __lt__(self, other):
+    def _compare(self, other, comparator):
         if not isinstance(other, Date):
             return NotImplemented
         selfish = self
         if not selfish.comparable or not other.comparable:
             return NotImplemented
         if selfish.complete and other.complete:
-            return selfish.parts < other.parts
+            return comparator(selfish.parts, other.parts)
         if not other.complete:
-            other = Date.to_range(other)
+            other = other.to_range()
         if not selfish.complete:
             selfish = selfish.to_range()
-        return selfish < other
+        return comparator(selfish, other)
+
+    def __lt__(self, other):
+        return self._compare(other, operator.lt)
 
     def __eq__(self, other):
         if not isinstance(other, Date):
             return NotImplemented
-        selfish = self
-        if not selfish.comparable or not other.comparable:
-            return NotImplemented
-        if selfish.complete and other.complete:
-            return selfish.parts == other.parts
-        if not other.complete:
-            other = Date.to_range(other)
-        if not selfish.complete:
-            selfish = selfish.to_range()
-        return selfish == other
+        return self.parts == other.parts
+
+    def __gt__(self, other):
+        return self._compare(other, operator.gt)
 
 
 @total_ordering
@@ -159,7 +157,6 @@ class DateRange:
 
         if not isinstance(other, DateRange):
             return NotImplemented
-
         return (self.start, self.end, self.start_is_boundary, self.end_is_boundary) == (other.start, other.end, other.start_is_boundary, other.end_is_boundary)
 
 
