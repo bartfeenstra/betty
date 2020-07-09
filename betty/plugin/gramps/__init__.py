@@ -22,6 +22,7 @@ from betty.event import Event as DispatchedEvent
 from betty.fs import makedirs
 from betty.locale import DateRange, Datey, Date
 from betty.parse import ParseEvent
+from betty.path import rootname
 from betty.plugin import Plugin
 from betty.site import Site
 
@@ -86,14 +87,14 @@ def parse_xml(site: Site, gramps_file_path: str) -> None:
             tarfile.open(fileobj=gramps_file).extractall(
                 cache_directory_path)
             gramps_file_path = path.join(cache_directory_path, 'data.gramps')
-            # Treat the file as a tar archive with media and a gzipped XML file.
+            # Treat the file as a tar archive (*.gpkg) with media and a gzipped XML file (./data.gz/data).
             _parse_tree(site.ancestry, etree.parse(gramps_file_path), cache_directory_path)
         except tarfile.ReadError:
-            # Treat the file as a gzipped XML file.
-            _parse_tree(site.ancestry, etree.parse(gramps_file), path.dirname(gramps_file_path))
+            # Treat the file as a gzipped XML file (*.gramps).
+            _parse_tree(site.ancestry, etree.parse(gramps_file), rootname(gramps_file_path))
     except OSError:
-        # Treat the file as plain XML.
-        _parse_tree(site.ancestry, etree.parse(gramps_file_path), path.dirname(gramps_file_path))
+        # Treat the file as plain XML (*.gramps).
+        _parse_tree(site.ancestry, etree.parse(gramps_file_path), rootname(gramps_file_path))
 
 
 def _parse_tree(ancestry: Ancestry, tree: etree.ElementTree(), tree_directory_path: str) -> None:

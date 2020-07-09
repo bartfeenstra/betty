@@ -7,7 +7,7 @@ import leafletStyle from 'leaflet/dist/leaflet.css' // eslint-disable-line no-un
 import leafletMarkerIconImage from 'leaflet/dist/images/marker-icon.png'
 import leafletMarkerIcon2xImage from 'leaflet/dist/images/marker-icon-2x.png'
 import leafletMarkerShadowImage from 'leaflet/dist/images/marker-shadow.png'
-import configuration from './configuration.js'
+import configuration from './configuration.json'
 
 let mapCount = 0
 
