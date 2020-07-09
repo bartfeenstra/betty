@@ -5,7 +5,7 @@ var _HIDE_SEARCH_KEYS = ['Escape']
 var _NEXT_RESULT_KEYS = ['ArrowDown']
 var _PREVIOUS_RESULT_KEYS = ['ArrowUp']
 
-function Search() {
+function Search () {
   this._query = null
   this._search = document.getElementById('search')
   this._indexUrl = this._search.dataset.bettySearchIndex
@@ -35,26 +35,26 @@ function Search() {
 
   // Allow navigation into and out of the search.
   document.addEventListener('keyup', function (e) {
-    if (_ENTER_SEARCH_KEYS.includes(e.key)) {
+    if (_ENTER_SEARCH_KEYS.indexOf(e.key) !== -1) {
       _this._queryElement.focus()
       _this.showSearchResults()
     }
   })
-  this._queryElement.addEventListener('focus', function() {
+  this._queryElement.addEventListener('focus', function () {
     _this.showSearchResults()
   })
   _this._search.getElementsByClassName('overlay-close')[0].addEventListener('mouseup', function () {
     _this.hideSearchResults()
   })
   document.addEventListener('keydown', function (e) {
-    if (_HIDE_SEARCH_KEYS.includes(e.key)) {
+    if (_HIDE_SEARCH_KEYS.indexOf(e.key) !== -1) {
       _this.hideSearchResults()
     }
   })
 }
 
-Search.prototype._navigateResults = function(keyCode) {
-  if (_PREVIOUS_RESULT_KEYS.includes(keyCode)) {
+Search.prototype._navigateResults = function (keyCode) {
+  if (_PREVIOUS_RESULT_KEYS.indexOf(keyCode) !== -1) {
     // If the focus lies on the query input element, do nothing, because there are no previous search results.
     if (document.activeElement === this._queryElement) {
       return
@@ -71,7 +71,7 @@ Search.prototype._navigateResults = function(keyCode) {
       // If no previous search result exists, focus on the query input element.
       this._queryElement.focus()
     }
-  } else if (_NEXT_RESULT_KEYS.includes(keyCode)) {
+  } else if (_NEXT_RESULT_KEYS.indexOf(keyCode) !== -1) {
     // If the focus lies on the query input element, focus on the first search result.
     if (document.activeElement === this._queryElement) {
       var resultTargets = this._resultsContainer.getElementsByClassName('search-result-target')
@@ -90,33 +90,31 @@ Search.prototype._navigateResults = function(keyCode) {
   }
 }
 
-Search.prototype._setSearchResults = function(results) {
+Search.prototype._setSearchResults = function (results) {
   this._resultsContainer.innerHTML = this._renderResults(results)
-  this._resultsContainer.scrollTo({
-    'top': 0,
-  })
+  this._resultsContainer.scrollTop = 0
 }
 
-Search.prototype.showSearchResults = function() {
+Search.prototype.showSearchResults = function () {
   if (!this._documentY) {
     this._documentY = window.scrollY
   }
   this._search.classList.add('overlay')
   document.body.classList.add('has-overlay')
   if (!this._search.contains(document.activeElement)) {
-      this._queryElement.focus()
+    this._queryElement.focus()
   }
 }
 
-Search.prototype.hideSearchResults = function() {
+Search.prototype.hideSearchResults = function () {
   if (this._search.contains(document.activeElement)) {
-      document.activeElement.blur()
+    document.activeElement.blur()
   }
   this._search.classList.remove('overlay')
   document.body.classList.remove('has-overlay')
   if (this._documentY) {
     window.scrollTo({
-      'top': this._documentY
+      top: this._documentY
     })
     this._documentY = null
   }
@@ -140,7 +138,7 @@ Search.prototype._performCached = function (query) {
   this._performFromCachedQuery()
 }
 
-Search.prototype._performUncached = function(query) {
+Search.prototype._performUncached = function (query) {
   this._query = query
   this.perform = this._performCacheQuery
   var _this = this
@@ -159,29 +157,30 @@ Search.prototype._performUncached = function(query) {
 
 Search.prototype.perform = Search.prototype._performUncached
 
-Search.prototype._match = function(query, haystack) {
+Search.prototype._match = function (query, haystack) {
   var queryParts = query.toLowerCase().split(/\s/)
   for (var i in queryParts) {
-    if (!haystack.includes(queryParts[i])) {
+    if (haystack.indexOf(queryParts[i]) === -1) {
       return false
     }
   }
   return true
 }
 
-Search.prototype._renderResults = function(results) {
+Search.prototype._renderResults = function (results) {
   var _this = this
   return this._resultsContainerTemplate
-      .replace('<!-- betty-search-results -->', results.map(function(result) {
-        return _this._renderResult(result)
-      }).join(''))
+    .replace('<!-- betty-search-results -->', results.map(function (result) {
+      return _this._renderResult(result)
+    }).join(''))
 }
 
-Search.prototype._renderResult = function(result) {
+Search.prototype._renderResult = function (result) {
   return this._resultContainerTemplate
-      .replace('<!-- betty-search-result -->', result.result)
+    .replace('<!-- betty-search-result -->', result.result)
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+  // eslint-disable-next-line no-new
   new Search('search')
 })
