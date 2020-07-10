@@ -1,4 +1,7 @@
 {
+  "engines": {
+    "node": ">= 10"
+  },
   "devDependencies": {
     "cypress": "^4.10.0",
     "eslint": "^7.4.0",
