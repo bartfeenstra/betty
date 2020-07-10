@@ -35,7 +35,7 @@ secure**.
 
 ### Requirements
 - **Python 3.6+**
-- Node.js 8+ (optional)
+- Node.js 10+ (optional)
 
 ### Instructions
 Run `pip install git+https://github.com/bartfeenstra/betty.git`.

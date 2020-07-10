@@ -1,5 +1,8 @@
 {
   "main": "maps.js",
+  "engines": {
+    "node": ">= 10"
+  },
   "dependencies": {
     "@babel/core": "^7.10.2",
     "@babel/preset-env": "^7.10.2",
