@@ -144,6 +144,8 @@ def derive(person: Person, event_type_type: Type[DerivableEventType]) -> Tuple[i
     # Gather any existing events that could be derived, or create a new derived event if needed.
     derivable_events = list(_get_derivable_events(person, event_type_type))
     if not derivable_events:
+        if list(filter(lambda x: isinstance(x.event.type, event_type_type), person.presences)):
+            return 0, 0
         if issubclass(event_type_type, CreatableDerivableEventType):
             derivable_events = [DerivedEvent(event_type_type())]
         else:
