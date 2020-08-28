@@ -155,6 +155,22 @@ Betty supports the following custom Gramps event types:
 Betty supports the following custom Gramps event roles:
 - `Beneficiary`
 
+#### Order & priority
+The order of lists of data, or the priority of individual bits of data, can be automatically determined by Betty in
+multiple different ways, such as by matching dates, or locales. When not enough details are available, or in case of
+ambiguity, the original order is preserved. If only a single item must be retrieved from the list, this will be the
+first item, optionally after sorting.
+
+For example, if a place has multiple names (which may be historical or translations), Betty may try to
+filter names by the given locale and date, and then indiscriminately pick the first one of the remaining names to
+display as the canonical name.
+
+Tips:
+- If you want one item to have priority over another, it should come before the other in a list (e.g. be higher up).
+- Items with more specific or complete data, such as locales or dates, should come before items with less specific or
+    complete data. However, items without dates at all are considered current and not historical.
+- Unofficial names or nicknames, should generally be put at the end of lists.
+
 ### GEDCOM files
 To build a site from your GEDCOM files:
 1. Install and launch [Gramps](https://gramps-project.org/)

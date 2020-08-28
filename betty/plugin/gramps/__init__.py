@@ -12,11 +12,11 @@ from lxml import etree
 from lxml.etree import Element
 from voluptuous import Schema, IsFile, All
 
-from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, LocalizedName, Person, Link, HasFiles, \
+from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, PlaceName, Person, Link, HasFiles, \
     HasLinks, HasCitations, IdentifiableEvent, HasPrivacy, IdentifiableSource, IdentifiableCitation, Subject, Witness, \
     Attendee, Birth, Baptism, Adoption, Cremation, Death, Burial, Engagement, Marriage, MarriageAnnouncement, Divorce, \
     DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, Retirement, Correspondence, Confirmation, \
-    Funeral, Will, Beneficiary
+    Funeral, Will, Beneficiary, Enclosure
 from betty.config import Path
 from betty.event import Event as DispatchedEvent
 from betty.fs import makedirs
@@ -51,9 +51,9 @@ class _IntermediateAncestry:
 
 
 class _IntermediatePlace:
-    def __init__(self, place: Place, enclosed_by_handle: Optional[str]):
+    def __init__(self, place: Place, enclosed_by_handles: List[str]):
         self.place = place
-        self.enclosed_by_handle = enclosed_by_handle
+        self.enclosed_by_handles = enclosed_by_handles
 
 
 _NS = {
@@ -299,9 +299,8 @@ def _parse_places(ancestry: _IntermediateAncestry, database: Element):
     intermediate_places = {handle: intermediate_place for handle, intermediate_place in
                            [_parse_place(element) for element in database.xpath('.//*[local-name()="placeobj"]')]}
     for intermediate_place in intermediate_places.values():
-        if intermediate_place.enclosed_by_handle is not None:
-            intermediate_place.place.enclosed_by = intermediate_places[
-                intermediate_place.enclosed_by_handle].place
+        for enclosed_by_handle in intermediate_place.enclosed_by_handles:
+            Enclosure(intermediate_place.place, intermediate_places[enclosed_by_handle].place)
     ancestry.places = {handle: intermediate_place.place for handle, intermediate_place in
                        intermediate_places.items()}
 
@@ -312,8 +311,9 @@ def _parse_place(element: Element) -> Tuple[str, _IntermediatePlace]:
     for name_element in _xpath(element, './ns:pname'):
         # The Gramps language is a single ISO language code, which is a valid BCP 47 locale.
         language = _xpath1(name_element, './@lang')
-        names.append(
-            LocalizedName(str(_xpath1(name_element, './@value')), language))
+        date = _parse_date(name_element)
+        name = PlaceName(str(_xpath1(name_element, './@value')), locale=language, date=date)
+        names.append(name)
 
     place = Place(_xpath1(element, './@id'), names)
 
@@ -321,12 +321,11 @@ def _parse_place(element: Element) -> Tuple[str, _IntermediatePlace]:
     if coordinates:
         place.coordinates = coordinates
 
-    # Set the first place reference as the place that encloses this place.
-    enclosed_by_handle = _xpath1(element, './ns:placeref/@hlink')
+    enclosed_by_handles = _xpath(element, './ns:placeref/@hlink')
 
     _parse_urls(place, element)
 
-    return handle, _IntermediatePlace(place, enclosed_by_handle)
+    return handle, _IntermediatePlace(place, enclosed_by_handles)
 
 
 def _parse_coordinates(element: Element) -> Optional[Point]:

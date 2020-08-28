@@ -317,8 +317,7 @@
           }
         },
         "enclosedBy": {
-          "type": "string",
-          "format": "uri"
+          "$ref": "#/definitions/places"
         },
         "encloses": {
           "$ref": "#/definitions/places"

@@ -69,6 +69,15 @@ class DateTest(TestCase):
 
     @parameterized.expand([
         (False, Date(1970, 2, 1)),
+        (True, Date(1970, 2, 2)),
+        (False, Date(1970, 2, 3)),
+        (False, DateRange()),
+    ])
+    def test_in(self, expected, other):
+        self.assertEquals(expected, other in Date(1970, 2, 2))
+
+    @parameterized.expand([
+        (False, Date(1970, 2, 1)),
         (False, Date(1970, 2, 2)),
         (True, Date(1970, 2, 3)),
         (False, Date(1970)),
@@ -103,6 +112,47 @@ class DateTest(TestCase):
 
 
 class DateRangeTest(TestCase):
+    _TEST_IN_PARAMETERS = [
+        (False, Date(1970, 2, 2), DateRange()),
+        (False, Date(1970, 2), DateRange()),
+        (False, Date(1970), DateRange()),
+        (False, Date(1970, 2, 1), DateRange(Date(1970, 2, 2))),
+        (True, Date(1970, 2, 2), DateRange(Date(1970, 2, 2))),
+        (True, Date(1970, 2, 3), DateRange(Date(1970, 2, 2))),
+        (True, Date(1970, 2, 1), DateRange(None, Date(1970, 2, 2))),
+        (True, Date(1970, 2, 2), DateRange(None, Date(1970, 2, 2))),
+        (False, Date(1970, 2, 3), DateRange(None, Date(1970, 2, 2))),
+        (False, Date(1969, 2, 1), DateRange(Date(1969, 2, 2), Date(1970, 2, 2))),
+        (True, Date(1970, 2, 1), DateRange(Date(1969, 2, 2), Date(1970, 2, 2))),
+        (False, Date(1971, 2, 1), DateRange(Date(1969, 2, 2), Date(1970, 2, 2))),
+        (True, DateRange(Date(1970, 2, 1)), DateRange(Date(1970, 2, 2))),
+        (True, DateRange(Date(1970, 2, 2)), DateRange(Date(1970, 2, 2))),
+        (True, DateRange(Date(1970, 2, 3)), DateRange(Date(1970, 2, 2))),
+        (False, DateRange(None, Date(1970, 2, 1)), DateRange(Date(1970, 2, 2))),
+        (True, DateRange(None, Date(1970, 2, 2)), DateRange(Date(1970, 2, 2))),
+        (True, DateRange(None, Date(1970, 2, 3)), DateRange(Date(1970, 2, 2))),
+        (True, DateRange(Date(1970, 2, 1)), DateRange(None, Date(1970, 2, 2))),
+        (True, DateRange(Date(1970, 2, 2)), DateRange(None, Date(1970, 2, 2))),
+        (False, DateRange(Date(1970, 2, 3)), DateRange(None, Date(1970, 2, 2))),
+        (True, DateRange(None, Date(1970, 2, 1)), DateRange(None, Date(1970, 2, 2))),
+        (True, DateRange(None, Date(1970, 2, 2)), DateRange(None, Date(1970, 2, 2))),
+        (True, DateRange(None, Date(1970, 2, 3)), DateRange(None, Date(1970, 2, 2))),
+        (True, DateRange(Date(1969, 2, 1)), DateRange(Date(1969, 2, 2), Date(1970, 2, 2))),
+        (True, DateRange(Date(1970, 2, 1)), DateRange(Date(1969, 2, 2), Date(1970, 2, 2))),
+        (False, DateRange(Date(1971, 2, 1)), DateRange(Date(1969, 2, 2), Date(1970, 2, 2))),
+        (False, DateRange(None, Date(1969, 2, 1)), DateRange(Date(1969, 2, 2), Date(1970, 2, 2))),
+        (True, DateRange(None, Date(1970, 2, 1)), DateRange(Date(1969, 2, 2), Date(1970, 2, 2))),
+        (True, DateRange(None, Date(1971, 2, 1)), DateRange(Date(1969, 2, 2), Date(1970, 2, 2))),
+        (False, DateRange(Date(1969, 2, 2), Date(1970, 2, 2)), DateRange(Date(1971, 2, 2), Date(1972, 2, 2))),
+        (True, DateRange(Date(1969, 2, 2), Date(1971, 2, 2)), DateRange(Date(1970, 2, 2), Date(1972, 2, 2))),
+        (True, DateRange(Date(1970, 2, 2), Date(1971, 2, 2)), DateRange(Date(1969, 2, 2), Date(1972, 2, 2))),
+    ]
+
+    # Mirror the arguments because we want the containment check to work in either direction.
+    @parameterized.expand(_TEST_IN_PARAMETERS + list(map(lambda x: (x[0], x[2], x[1]), _TEST_IN_PARAMETERS)))
+    def test_in(self, expected: bool, other: Datey, sut: DateRange):
+        self.assertEquals(expected, other in sut)
+
     @parameterized.expand([
         (False, Date(1970, 2, 1)),
         (False, Date(1970, 2, 2)),
@@ -215,6 +265,7 @@ class NegotiateLocalizedsTest(TestCase):
          DummyLocalized('nl'), DummyLocalized('en')]),
         (DummyLocalized('nl'), 'nl', [
          DummyLocalized('en'), DummyLocalized('nl')]),
+        (None, 'nl', []),
     ])
     def test_with_match_should_return_match(self, expected: Localized, preferred_locale: str, localizeds: List[Localized]):
         self.assertEquals(expected, negotiate_localizeds(
@@ -226,10 +277,6 @@ class NegotiateLocalizedsTest(TestCase):
             'en'), self.DummyLocalized('uk')]
         self.assertEquals(self.DummyLocalized('nl'), negotiate_localizeds(
             preferred_locale, localizeds))
-
-    def test_without_localizeds_should_raise_error(self):
-        with self.assertRaises(ValueError):
-            negotiate_localizeds('nl', [])
 
 
 _FORMAT_DATE_TEST_PARAMETERS = [

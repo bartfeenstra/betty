@@ -58,7 +58,7 @@ class EventHandlingSetList(Generic[T]):
         return self._values[item]
 
 
-ManyAssociation = Union[EventHandlingSetList[T], Iterable]
+ManyAssociation = Union[EventHandlingSetList[T], Sequence[T]]
 
 
 class _to_many:
@@ -146,9 +146,7 @@ def many_to_one(self_name: str, associated_name: str, _removal_handler: Optional
 
 
 class Resource:
-    @property
-    def resource_type_name(self) -> str:
-        raise NotImplementedError
+    resource_type_name = NotImplemented
 
 
 class HasPrivacy:
@@ -378,11 +376,12 @@ class HasCitations:
     citations: ManyAssociation[Citation]
 
 
-class LocalizedName(Localized):
-    def __init__(self, name: str, locale: Optional[str] = None):
+class PlaceName(Localized, Dated):
+    def __init__(self, name: str, locale: Optional[str] = None, date: Optional[Datey] = None):
         Localized.__init__(self)
         self._name = name
         self.locale = locale
+        self.date = date
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
@@ -400,20 +399,33 @@ class LocalizedName(Localized):
         return self._name
 
 
+@bridged_many_to_many('enclosed_by', 'encloses', 'enclosed_by', 'encloses')
+class Enclosure(Dated, HasCitations):
+    encloses: 'Place'
+    enclosed_by: 'Place'
+
+    def __init__(self, encloses: 'Place', enclosed_by: 'Place'):
+        Dated.__init__(self)
+        self.encloses = encloses
+        self.enclosed_by = enclosed_by
+
+
 @one_to_many('events', 'place')
-@many_to_one('enclosed_by', 'encloses')
+@one_to_many('enclosed_by', 'encloses')
 @one_to_many('encloses', 'enclosed_by')
 class Place(Resource, Identifiable, HasLinks):
     resource_type_name = 'place'
+    enclosed_by: ManyAssociation[Enclosure]
+    encloses: ManyAssociation[Enclosure]
 
-    def __init__(self, place_id: str, names: List[LocalizedName]):
+    def __init__(self, place_id: str, names: List[PlaceName]):
         Identifiable.__init__(self, place_id)
         HasLinks.__init__(self)
         self._names = names
         self._coordinates = None
 
     @property
-    def names(self) -> List[LocalizedName]:
+    def names(self) -> List[PlaceName]:
         return self._names
 
     @property
@@ -905,6 +917,16 @@ class Person(Resource, Identifiable, HasFiles, HasCitations, HasLinks, HasPrivac
                 continue
             seen.add(file)
             yield file
+
+
+RESOURCE_TYPES = [
+    Citation,
+    Event,
+    File,
+    Person,
+    Place,
+    Source,
+]
 
 
 class Ancestry:
