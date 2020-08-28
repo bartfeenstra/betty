@@ -146,9 +146,9 @@ def create_environment(site: Site) -> Environment:
         locale, '-')
     environment.filters['negotiate_localizeds'] = _filter_negotiate_localizeds
     environment.filters['sort_localizeds'] = _filter_sort_localizeds
-    environment.filters['select_localizeds'] = _filter_select_localizeds
+    environment.tests['localized'] = _test_localized
     environment.filters['negotiate_dateds'] = _filter_negotiate_dateds
-    environment.filters['select_dateds'] = _filter_select_dateds
+    environment.tests['dated'] = _test_dated
 
     # A filter to convert any value to JSON.
     @contextfilter
@@ -387,21 +387,19 @@ def _filter_sort_localizeds(context, localizeds: Iterable[Localized], localized_
 
 
 @contextfilter
-def _filter_select_localizeds(context, localizeds: Iterable[Localized]) -> Iterable[Localized]:
+def _test_localized(context, localized: Localized) -> bool:
     locale = resolve_or_missing(context, 'locale')
-    for localized in localizeds:
-        if negotiate_locale(locale, [localized.locale]) is not None:
-            yield localized
+    return negotiate_locale(locale, [localized.locale]) is not None
 
 
 @contextfilter
-def _filter_negotiate_dateds(context, dateds: Iterable[Dated], date: Optional[Datey]) -> Optional[Dated]:
+def _filter_negotiate_dateds(context, dateds: Iterable[Dated], date: Optional[Datey] = None) -> Optional[Dated]:
     with suppress(StopIteration):
-        return next(_filter_select_dateds(context, dateds, date))
+        return next(filter(lambda x: _test_dated(context, x, date), dateds))
 
 
 @contextfilter
-def _filter_select_dateds(context, dateds: Iterable[Dated], date: Optional[Datey]) -> Iterable[Dated]:
+def _test_dated(context, dated: Dated, date: Optional[Datey] = None) -> bool:
     if date is None:
         date = resolve_or_missing(context, 'current_date')
-    return filter(lambda dated: dated.date is None or dated.date.comparable and dated.date in date, dateds)
+    return dated.date is None or dated.date.comparable and dated.date in date

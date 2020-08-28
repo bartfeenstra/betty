@@ -1,7 +1,7 @@
 {% set place = place | default(resource) %}
 {% set embedded = embedded | default(False) %}
 <address>
-    {%- set names = place.names | select_dateds(date_context | default(none)) | list -%}
+    {%- set names = place.names | select('dated', date_context | default(none)) | list -%}
     {%- if names | length == 0 -%}
         {%- set names = place.names -%}
     {%- endif -%}

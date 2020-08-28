@@ -284,7 +284,7 @@ class SelectLocalizedsTest(TestCase):
             configuration.locales[locale] = LocaleConfiguration(locale)
             async with Site(configuration) as site:
                 environment = create_environment(site)
-                template = '{{ data | select_localizeds | map(attribute="name") | join(", ") }}'
+                template = '{{ data | select(\'localized\') | map(attribute="name") | join(", ") }}'
                 self.assertEquals(expected, await environment.from_string(template).render_async(data=data))
 
 
@@ -352,7 +352,7 @@ class SelectDatedsTest(TestCase):
                 www_directory_path, 'https://example.com')
             async with Site(configuration) as site:
                 environment = create_environment(site)
-                template = '{{ dateds | select_dateds(date=date) | join(", ") }}'
+                template = '{{ dateds | select(\'dated\', date) | join(", ") }}'
                 self.assertEquals(expected, await environment.from_string(template).render_async(**data))
 
 
