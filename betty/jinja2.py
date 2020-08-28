@@ -134,8 +134,7 @@ def create_environment(site: Site) -> Environment:
     environment.globals['site'] = site
     environment.globals['locale'] = site.locale
     today = datetime.date.today()
-    current_date = Date(today.year, today.month, today.day)
-    environment.globals['current_date'] = current_date
+    environment.globals['today'] = Date(today.year, today.month, today.day)
     environment.globals['plugins'] = _Plugins(site.plugins)
     environment.globals['urlparse'] = urlparse
     environment.filters['map'] = _filter_map
@@ -403,5 +402,5 @@ def _filter_negotiate_dateds(context, dateds: Iterable[Dated], date: Optional[Da
 @contextfilter
 def _filter_select_dateds(context, dateds: Iterable[Dated], date: Optional[Datey]) -> Iterable[Dated]:
     if date is None:
-        date = resolve_or_missing(context, 'current_date')
+        date = resolve_or_missing(context, 'today')
     return filter(lambda dated: dated.date is None or dated.date.comparable and dated.date in date, dateds)
