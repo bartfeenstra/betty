@@ -1,8 +1,8 @@
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from betty.ancestry import Ancestry, Person, Place, Presence, LocalizedName, IdentifiableEvent, File, PersonName, \
-    IdentifiableSource, IdentifiableCitation, Subject, Birth
+from betty.ancestry import Ancestry, Person, Place, Presence, PlaceName, IdentifiableEvent, File, PersonName, \
+    IdentifiableSource, IdentifiableCitation, Subject, Birth, Enclosure
 from betty.config import Configuration
 from betty.functools import sync
 from betty.parse import parse
@@ -35,19 +35,17 @@ class CleanTest(TestCase):
         anonymous_event = IdentifiableEvent('E1', Birth())
         ancestry.events[anonymous_event.id] = anonymous_event
 
-        onymous_place = Place('P0', [LocalizedName('Amsterdam')])
+        onymous_place = Place('P0', [PlaceName('Amsterdam')])
         onymous_place.events.append(onymous_event)
         ancestry.places[onymous_place.id] = onymous_place
 
-        anonymous_place = Place('P1', [LocalizedName('Almelo')])
+        anonymous_place = Place('P1', [PlaceName('Almelo')])
         ancestry.places[anonymous_place.id] = anonymous_place
 
         onmyous_place_because_encloses_onmyous_places = Place(
-            'P3', [LocalizedName('Netherlands')])
-        onmyous_place_because_encloses_onmyous_places.encloses.append(
-            onymous_place)
-        onmyous_place_because_encloses_onmyous_places.encloses.append(
-            anonymous_place)
+            'P3', [PlaceName('Netherlands')])
+        Enclosure(onymous_place, onmyous_place_because_encloses_onmyous_places)
+        Enclosure(anonymous_place, onmyous_place_because_encloses_onmyous_places)
         ancestry.places[
             onmyous_place_because_encloses_onmyous_places.id] = onmyous_place_because_encloses_onmyous_places
 
@@ -127,7 +125,7 @@ class CleanTest(TestCase):
         file = File('F1', __file__)
         ancestry.files[file.id] = file
 
-        place = Place('P0', [LocalizedName('The Place')])
+        place = Place('P0', [PlaceName('The Place')])
         ancestry.places[place.id] = place
 
         event = IdentifiableEvent('E0', Birth())
@@ -159,7 +157,7 @@ class CleanTest(TestCase):
         file = File('F1', __file__)
         ancestry.files[file.id] = file
 
-        place = Place('P0', [LocalizedName('The Place')])
+        place = Place('P0', [PlaceName('The Place')])
         ancestry.places[place.id] = place
 
         person = Person('P0')

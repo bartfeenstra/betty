@@ -8,7 +8,7 @@ import html5lib
 from lxml import etree
 
 from betty import json
-from betty.ancestry import Person, Place, Source, LocalizedName, File, IdentifiableEvent, IdentifiableCitation, \
+from betty.ancestry import Person, Place, Source, PlaceName, File, IdentifiableEvent, IdentifiableCitation, \
     IdentifiableSource, Birth
 from betty.config import Configuration, LocaleConfiguration
 from betty.functools import sync
@@ -77,7 +77,7 @@ class RenderTest(GenerateTestCase):
 
     @sync
     async def test_place(self):
-        place = Place('PLACE1', [LocalizedName('one')])
+        place = Place('PLACE1', [PlaceName('one')])
         self.site.ancestry.places[place.id] = place
         await generate(self.site)
         self.assert_betty_html('/place/%s/index.html' % place.id)

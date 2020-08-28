@@ -10,7 +10,7 @@
 {%- set formattedPlace = '' -%}
 {%- if event.place and event.place != place_context -%}
     {%- set formattedPlace -%}
-        {%- with place=event.place -%}
+        {%- with place=event.place, date_context=event.date -%}
             {%- include 'label/place.html.j2' -%}
         {%- endwith -%}
     {%- endset -%}

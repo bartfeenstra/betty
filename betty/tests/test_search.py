@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.ancestry import Person, Place, LocalizedName, PersonName, File
+from betty.ancestry import Person, Place, PlaceName, PersonName, File
 from betty.config import Configuration, LocaleConfiguration
 from betty.functools import sync
 from betty.search import Index
@@ -135,7 +135,7 @@ class IndexTest(TestCase):
     @sync
     async def test_place(self, expected: str, locale: str):
         place_id = 'P1'
-        place = Place(place_id, [LocalizedName('Netherlands', 'en'), LocalizedName('Nederland', 'nl')])
+        place = Place(place_id, [PlaceName('Netherlands', 'en'), PlaceName('Nederland', 'nl')])
 
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(

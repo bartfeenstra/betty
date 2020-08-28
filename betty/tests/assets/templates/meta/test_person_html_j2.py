@@ -1,18 +1,11 @@
-from tempfile import TemporaryDirectory
-from unittest import TestCase
-
 from betty.ancestry import Person, Presence, Event, PersonName, Source, Citation, Birth, Subject, Death
-from betty.config import Configuration
 from betty.functools import sync
 from betty.locale import Date
-from betty.site import Site
+from betty.tests.assets.templates import TemplateTestCase
 
 
-class Test(TestCase):
-    async def _render(self, **data):
-        with TemporaryDirectory() as output_directory_path:
-            async with Site(Configuration(output_directory_path, 'https://example.com')) as site:
-                return await site.jinja2_environment.get_template('meta/person.html.j2').render_async(**data)
+class Test(TemplateTestCase):
+    template = 'meta/person.html.j2'
 
     @sync
     async def test_without_meta(self):

@@ -4,8 +4,8 @@ from unittest.mock import Mock
 
 from parameterized import parameterized
 
-from betty.ancestry import EventHandlingSetList, Person, Event, Place, File, Note, Presence, LocalizedName, PersonName, \
-    IdentifiableEvent, Subject, Birth
+from betty.ancestry import EventHandlingSetList, Person, Event, Place, File, Note, Presence, PlaceName, PersonName, \
+    IdentifiableEvent, Subject, Birth, Enclosure
 from betty.locale import Date
 
 
@@ -177,7 +177,7 @@ class PersonNameTest(TestCase):
 
 class PlaceTest(TestCase):
     def test_events_should_sync_references(self):
-        sut = Place('1', [LocalizedName('one')])
+        sut = Place('1', [PlaceName('one')])
         event = IdentifiableEvent('1', Birth())
         sut.events.append(event)
         self.assertIn(event, sut.events)
@@ -187,24 +187,24 @@ class PlaceTest(TestCase):
         self.assertEquals(None, event.place)
 
     def test_encloses_should_sync_references(self):
-        sut = Place('1', [LocalizedName('one')])
-        enclosed_place = Place('2', [LocalizedName('two')])
-        sut.encloses.append(enclosed_place)
-        self.assertIn(enclosed_place, sut.encloses)
-        self.assertEquals(sut, enclosed_place.enclosed_by)
-        sut.encloses.remove(enclosed_place)
+        sut = Place('1', [PlaceName('one')])
+        enclosed_place = Place('2', [PlaceName('two')])
+        enclosure = Enclosure(enclosed_place, sut)
+        self.assertIn(enclosure, sut.encloses)
+        self.assertEquals(sut, enclosure.enclosed_by)
+        sut.encloses.remove(enclosure)
         self.assertCountEqual([], sut.encloses)
-        self.assertEquals(None, enclosed_place.enclosed_by)
+        self.assertIsNone(enclosure.enclosed_by)
 
     def test_enclosed_by_should_sync_references(self):
-        sut = Place('1', [LocalizedName('one')])
-        enclosing_place = Place('2', [LocalizedName('two')])
-        sut.enclosed_by = enclosing_place
-        self.assertEquals(enclosing_place, sut.enclosed_by)
-        self.assertIn(sut, enclosing_place.encloses)
-        sut.enclosed_by = None
-        self.assertIsNone(sut.enclosed_by)
-        self.assertCountEqual([], enclosing_place.encloses)
+        sut = Place('1', [PlaceName('one')])
+        enclosing_place = Place('2', [PlaceName('two')])
+        enclosure = Enclosure(sut, enclosing_place)
+        self.assertIn(enclosure, sut.enclosed_by)
+        self.assertEquals(sut, enclosure.encloses)
+        sut.enclosed_by.remove(enclosure)
+        self.assertCountEqual([], sut.enclosed_by)
+        self.assertIsNone(enclosure.encloses)
 
 
 class EventTest(TestCase):
@@ -221,7 +221,7 @@ class EventTest(TestCase):
         self.assertEquals(event_type, sut.type)
 
     def test_place_should_sync_references(self):
-        place = Place('1', [LocalizedName('one')])
+        place = Place('1', [PlaceName('one')])
         sut = IdentifiableEvent('1', Birth())
         sut.place = place
         self.assertEquals(place, sut.place)
@@ -295,23 +295,23 @@ class FileTest(TestCase):
 
 class LocalizedNameTest(TestCase):
     @parameterized.expand([
-        (True, LocalizedName('Ikke'), LocalizedName('Ikke')),
-        (True, LocalizedName('Ikke', 'nl-NL'), LocalizedName('Ikke', 'nl-NL')),
-        (False, LocalizedName('Ikke', 'nl-NL'), LocalizedName('Ikke', 'nl-BE')),
-        (False, LocalizedName('Ikke', 'nl-NL'), LocalizedName('Ik', 'nl-NL')),
-        (False, LocalizedName('Ikke'), LocalizedName('Ik')),
+        (True, PlaceName('Ikke'), PlaceName('Ikke')),
+        (True, PlaceName('Ikke', 'nl-NL'), PlaceName('Ikke', 'nl-NL')),
+        (False, PlaceName('Ikke', 'nl-NL'), PlaceName('Ikke', 'nl-BE')),
+        (False, PlaceName('Ikke', 'nl-NL'), PlaceName('Ik', 'nl-NL')),
+        (False, PlaceName('Ikke'), PlaceName('Ik')),
     ])
     def test_eq(self, expected, a, b):
         self.assertEquals(expected, a == b)
 
     def test_str(self):
         name = 'Ikke'
-        sut = LocalizedName(name)
+        sut = PlaceName(name)
         self.assertEquals(name, str(sut))
 
     def test_name(self):
         name = 'Ikke'
-        sut = LocalizedName(name)
+        sut = PlaceName(name)
         self.assertEquals(name, sut.name)
 
 
