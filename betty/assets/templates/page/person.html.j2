@@ -69,6 +69,25 @@
     <div class="featured tree js-show" data-betty-person-id="{{ person.id }}"></div>
 
     {% set events = person.presences | map(attribute='event') | rejectattr('date', 'none') | selectattr('date.comparable') | list %}
+    {% if person.start or person.end %}
+        {% set associated_people = [
+            person.parents | map(attribute='parents') | flatten,
+            person.parents,
+            person.children,
+            person.children | map(attribute='children') | flatten,
+        ] | flatten | list %}
+        {% set associated_events = [
+            associated_people | map(attribute='start'),
+            associated_people | map(attribute='end'),
+        ] | flatten | reject('none') | rejectattr('date', 'none') | selectattr('date.comparable') | list %}
+            {% if person.start is not none and person.start.date is not none and person.start.date.comparable %}
+                {% set associated_events = associated_events | rejectattr('date', 'lt', person.start.date) %}
+            {% endif %}
+            {% if person.end is not none and person.end.date is not none and person.end.date.comparable %}
+                {% set associated_events = associated_events | rejectattr('date', 'gt', person.end.date) %}
+            {% endif %}
+            {% set events = events + (associated_events | list) %}
+    {% endif %}
     {% if events | length > 0 %}
         <h2>{% trans %}Timeline{% endtrans %}</h2>
         {% with person_context=person %}
