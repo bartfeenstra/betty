@@ -3,11 +3,11 @@ from parameterized import parameterized
 from betty.ancestry import Place, PlaceName
 from betty.functools import sync
 from betty.locale import DateRange, Date
-from betty.tests.assets.templates import TemplateTestCase
+from betty.tests import TemplateTestCase
 
 
 class Test(TemplateTestCase):
-    template = 'label/place.html.j2'
+    template_file = 'label/place.html.j2'
 
     @parameterized.expand([
         ('<address><a href="/place/P0/index.html"><span>The Place</span></a></address>',
@@ -38,5 +38,5 @@ class Test(TemplateTestCase):
     ])
     @sync
     async def test(self, expected, data):
-        actual = await self._render(**data)
-        self.assertEqual(expected, actual)
+        async with self._render(data=data) as (actual, _):
+            self.assertEqual(expected, actual)
