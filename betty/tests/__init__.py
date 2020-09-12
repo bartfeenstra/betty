@@ -1,4 +1,8 @@
-from contextlib import suppress, asynccontextmanager
+from contextlib import suppress
+try:
+    from contextlib import asynccontextmanager
+except ImportError:
+    from async_generator import asynccontextmanager
 from tempfile import TemporaryDirectory
 from typing import Optional, Dict, Callable, Tuple
 from unittest import TestCase

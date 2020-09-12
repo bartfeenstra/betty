@@ -38,6 +38,7 @@ SETUP = {
     'install_requires': [
         'aiohttp ~= 3.6.2',
         'async-exit-stack ~= 1.0.0; python_version <= "3.6"',
+        'async_generator ~= 1.10; python_version <= "3.6"',
         'babel ~= 2.7.0',
         'click ~= 7.1.1',
         'geopy ~= 1.18.1',
