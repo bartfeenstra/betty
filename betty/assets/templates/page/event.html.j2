@@ -44,9 +44,10 @@
         </ul>
     {% endif %}
 
-    {% if event.files | length > 0 %}
+    {% set files = event.associated_files | list %}
+    {% if files | length > 0 %}
         <h2>{% trans %}Media{% endtrans %}</h2>
-        {% with files=event.files %}
+        {% with files=files %}
             {% include 'list-file.html.j2' %}
         {% endwith %}
     {% endif %}
