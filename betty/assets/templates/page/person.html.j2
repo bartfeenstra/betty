@@ -73,6 +73,8 @@
         {% set associated_people = [
             person.parents | map(attribute='parents') | flatten,
             person.parents,
+            person.parents | map(attribute='children') | flatten,
+            person.children | map(attribute='parents') | flatten,
             person.children,
             person.children | map(attribute='children') | flatten,
         ] | flatten | list %}
@@ -86,7 +88,7 @@
             {% if person.end is not none and person.end.date is not none and person.end.date.comparable %}
                 {% set associated_events = associated_events | rejectattr('date', 'gt', person.end.date) %}
             {% endif %}
-            {% set events = events + (associated_events | list) %}
+            {% set events = (events + (associated_events | list)) | unique | list %}
     {% endif %}
     {% if events | length > 0 %}
         <h2>{% trans %}Timeline{% endtrans %}</h2>
