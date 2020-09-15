@@ -4,8 +4,8 @@ from unittest.mock import Mock
 
 from parameterized import parameterized
 
-from betty.ancestry import EventHandlingSetList, Person, Event, Place, File, Note, Presence, LocalizedName, PersonName, \
-    IdentifiableEvent
+from betty.ancestry import EventHandlingSetList, Person, Event, Place, File, Note, Presence, PlaceName, PersonName, \
+    IdentifiableEvent, Subject, Birth, Enclosure
 from betty.locale import Date
 
 
@@ -152,9 +152,9 @@ class PersonTest(TestCase):
         self.assertCountEqual([sibling], sut.siblings)
 
     def test_presence_should_sync_references(self):
-        event = Event(Event.Type.BIRTH)
+        event = Event(Birth())
         sut = Person('1')
-        presence = Presence(sut, Presence.Role.SUBJECT, event)
+        presence = Presence(sut, Subject(), event)
         sut.presences.append(presence)
         self.assertCountEqual([presence], sut.presences)
         self.assertEquals(sut, presence.person)
@@ -177,8 +177,8 @@ class PersonNameTest(TestCase):
 
 class PlaceTest(TestCase):
     def test_events_should_sync_references(self):
-        sut = Place('1', [LocalizedName('one')])
-        event = IdentifiableEvent('1', Event.Type.BIRTH)
+        sut = Place('1', [PlaceName('one')])
+        event = IdentifiableEvent('1', Birth())
         sut.events.append(event)
         self.assertIn(event, sut.events)
         self.assertEquals(sut, event.place)
@@ -187,42 +187,42 @@ class PlaceTest(TestCase):
         self.assertEquals(None, event.place)
 
     def test_encloses_should_sync_references(self):
-        sut = Place('1', [LocalizedName('one')])
-        enclosed_place = Place('2', [LocalizedName('two')])
-        sut.encloses.append(enclosed_place)
-        self.assertIn(enclosed_place, sut.encloses)
-        self.assertEquals(sut, enclosed_place.enclosed_by)
-        sut.encloses.remove(enclosed_place)
+        sut = Place('1', [PlaceName('one')])
+        enclosed_place = Place('2', [PlaceName('two')])
+        enclosure = Enclosure(enclosed_place, sut)
+        self.assertIn(enclosure, sut.encloses)
+        self.assertEquals(sut, enclosure.enclosed_by)
+        sut.encloses.remove(enclosure)
         self.assertCountEqual([], sut.encloses)
-        self.assertEquals(None, enclosed_place.enclosed_by)
+        self.assertIsNone(enclosure.enclosed_by)
 
     def test_enclosed_by_should_sync_references(self):
-        sut = Place('1', [LocalizedName('one')])
-        enclosing_place = Place('2', [LocalizedName('two')])
-        sut.enclosed_by = enclosing_place
-        self.assertEquals(enclosing_place, sut.enclosed_by)
-        self.assertIn(sut, enclosing_place.encloses)
-        sut.enclosed_by = None
-        self.assertIsNone(sut.enclosed_by)
-        self.assertCountEqual([], enclosing_place.encloses)
+        sut = Place('1', [PlaceName('one')])
+        enclosing_place = Place('2', [PlaceName('two')])
+        enclosure = Enclosure(sut, enclosing_place)
+        self.assertIn(enclosure, sut.enclosed_by)
+        self.assertEquals(sut, enclosure.encloses)
+        sut.enclosed_by.remove(enclosure)
+        self.assertCountEqual([], sut.enclosed_by)
+        self.assertIsNone(enclosure.encloses)
 
 
 class EventTest(TestCase):
     def test_date(self):
-        sut = IdentifiableEvent('1', Event.Type.BIRTH)
+        sut = IdentifiableEvent('1', Birth())
         self.assertIsNone(sut.date)
         date = Mock(Date)
         sut.date = date
         self.assertEquals(date, sut.date)
 
     def test_type(self):
-        event_type = Event.Type.BIRTH
+        event_type = Birth()
         sut = IdentifiableEvent('1', event_type)
         self.assertEquals(event_type, sut.type)
 
     def test_place_should_sync_references(self):
-        place = Place('1', [LocalizedName('one')])
-        sut = IdentifiableEvent('1', Event.Type.BIRTH)
+        place = Place('1', [PlaceName('one')])
+        sut = IdentifiableEvent('1', Birth())
         sut.place = place
         self.assertEquals(place, sut.place)
         self.assertIn(sut, place.events)
@@ -232,8 +232,8 @@ class EventTest(TestCase):
 
     def test_presence_should_sync_references(self):
         person = Person('P1')
-        sut = IdentifiableEvent('1', Event.Type.BIRTH)
-        presence = Presence(person, Presence.Role.SUBJECT, sut)
+        sut = IdentifiableEvent('1', Birth())
+        presence = Presence(person, Subject(), sut)
         sut.presences.append(presence)
         self.assertCountEqual([presence], sut.presences)
         self.assertEquals(sut, presence.event)
@@ -295,55 +295,55 @@ class FileTest(TestCase):
 
 class LocalizedNameTest(TestCase):
     @parameterized.expand([
-        (True, LocalizedName('Ikke'), LocalizedName('Ikke')),
-        (True, LocalizedName('Ikke', 'nl-NL'), LocalizedName('Ikke', 'nl-NL')),
-        (False, LocalizedName('Ikke', 'nl-NL'), LocalizedName('Ikke', 'nl-BE')),
-        (False, LocalizedName('Ikke', 'nl-NL'), LocalizedName('Ik', 'nl-NL')),
-        (False, LocalizedName('Ikke'), LocalizedName('Ik')),
+        (True, PlaceName('Ikke'), PlaceName('Ikke')),
+        (True, PlaceName('Ikke', 'nl-NL'), PlaceName('Ikke', 'nl-NL')),
+        (False, PlaceName('Ikke', 'nl-NL'), PlaceName('Ikke', 'nl-BE')),
+        (False, PlaceName('Ikke', 'nl-NL'), PlaceName('Ik', 'nl-NL')),
+        (False, PlaceName('Ikke'), PlaceName('Ik')),
     ])
     def test_eq(self, expected, a, b):
         self.assertEquals(expected, a == b)
 
     def test_str(self):
         name = 'Ikke'
-        sut = LocalizedName(name)
+        sut = PlaceName(name)
         self.assertEquals(name, str(sut))
 
     def test_name(self):
         name = 'Ikke'
-        sut = LocalizedName(name)
+        sut = PlaceName(name)
         self.assertEquals(name, sut.name)
 
 
 class PresenceTest(TestCase):
     def test_event_deletion_upon_person_deletion(self) -> None:
         person = Person('P1')
-        event = Event(Event.Type.BIRTH)
-        sut = Presence(person, Presence.Role.SUBJECT, event)
+        event = Event(Birth())
+        sut = Presence(person, Subject(), event)
         del sut.person
         self.assertIsNone(sut.event)
         self.assertNotIn(sut, event.presences)
 
     def test_event_deletion_upon_person_set_to_none(self) -> None:
         person = Person('P1')
-        event = Event(Event.Type.BIRTH)
-        sut = Presence(person, Presence.Role.SUBJECT, event)
+        event = Event(Birth())
+        sut = Presence(person, Subject(), event)
         sut.person = None
         self.assertIsNone(sut.event)
         self.assertNotIn(sut, event.presences)
 
     def test_person_deletion_upon_event_deletion(self) -> None:
         person = Person('P1')
-        event = Event(Event.Type.BIRTH)
-        sut = Presence(person, Presence.Role.SUBJECT, event)
+        event = Event(Birth())
+        sut = Presence(person, Subject(), event)
         del sut.event
         self.assertIsNone(sut.person)
         self.assertNotIn(sut, person.presences)
 
     def test_person_deletion_upon_event_set_to_none(self) -> None:
         person = Person('P1')
-        event = Event(Event.Type.BIRTH)
-        sut = Presence(person, Presence.Role.SUBJECT, event)
+        event = Event(Birth())
+        sut = Presence(person, Subject(), event)
         sut.event = None
         self.assertIsNone(sut.person)
         self.assertNotIn(sut, person.presences)

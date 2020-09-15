@@ -69,11 +69,12 @@ async def _init_ctx(ctx, configuration_file_path: Optional[str] = None) -> None:
     for try_configuration_file_path in try_configuration_file_paths:
         with suppress(FileNotFoundError):
             with open(try_configuration_file_path) as f:
-                logging.getLogger().info('Loading the site from %s...' % try_configuration_file_path)
+                logger.info('Loading the site from %s...' % try_configuration_file_path)
                 try:
                     configuration = from_file(f)
                 except ConfigurationError as e:
-                    raise BadParameter(str(e))
+                    logger.error(str(e))
+                    exit(2)
             site = Site(configuration)
             async with site:
                 ctx.obj['commands']['generate'] = _generate

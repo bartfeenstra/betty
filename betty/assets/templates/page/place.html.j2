@@ -1,0 +1,29 @@
+{% extends 'base.html.j2' %}
+{% set page_title = place.names | negotiate_localizeds %}
+{% block page_content %}
+    {% include 'meta/place.html.j2' %}
+
+    {% set places = place | walk('encloses') | select('place_resource') | list %}
+    {% if place.coordinates %}
+        {% set places = places + [place] %}
+    {% endif %}
+    {% if places | length > 0 %}
+        {% with place_context=place %}
+            {% include 'list-place.html.j2' %}
+        {% endwith %}
+    {% endif %}
+
+    {% if 'betty.plugin.wikipedia.Wikipedia' in plugins %}
+        {% with entity=place %}
+            {% include 'wikipedia.html.j2' %}
+        {% endwith %}
+    {% endif %}
+
+    {% set events = place.events | list + place | walk('encloses') | select('place_resource') | map(attribute="events") | flatten | rejectattr('date', 'none') | selectattr('date.comparable') | list %}
+    {% if events | length > 0 %}
+        <h2>{% trans %}Timeline{% endtrans %}</h2>
+        {% with events=events, place_context=place %}
+            {% include 'list-event.html.j2' %}
+        {% endwith %}
+    {% endif %}
+{% endblock %}

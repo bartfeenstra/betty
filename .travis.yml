@@ -2,21 +2,21 @@ language: python
 
 matrix:
     include:
-        - name: 'Latest: Linux, Python 3.8 & Node.js 13'
+        - name: 'Latest: Linux, Python 3.8 & Node.js 14'
           dist: xenial
           python: '3.8'
           env:
-              - NODE_VERSION=13
+              - NODE_VERSION=14
         - name: 'Python 3.7'
           dist: xenial
           python: '3.7'
           env:
-              - NODE_VERSION=13
+              - NODE_VERSION=14
         - name: 'Python 3.6'
           dist: xenial
           python: '3.6'
           env:
-              - NODE_VERSION=13
+              - NODE_VERSION=14
         - name: 'Node.js 12'
           dist: xenial
           python: '3.8'
@@ -31,12 +31,7 @@ matrix:
           dist: osx
           python: '3.8'
           env:
-              - NODE_VERSION=13
-
-addons:
-  apt:
-    packages:
-      - jq
+              - NODE_VERSION=14
 
 cache:
     pip: true

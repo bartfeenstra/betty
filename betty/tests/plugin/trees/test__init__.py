@@ -7,16 +7,18 @@ from betty.functools import sync
 from betty.generate import generate
 from betty.plugin.trees import Trees
 from betty.site import Site
+from betty.tests import patch_cache
 
 
-class TreeTest(TestCase):
+class TreesTest(TestCase):
+    @patch_cache
     @sync
     async def test_post_render_event(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://ancestry.example.com')
             configuration.mode = 'development'
-            configuration.plugins[Trees] = {}
+            configuration.plugins[Trees] = None
             async with Site(configuration) as site:
                 await generate(site)
             with open(join(configuration.www_directory_path, 'trees.js')) as f:

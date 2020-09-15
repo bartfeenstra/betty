@@ -39,8 +39,7 @@ async def generate(site: Site) -> None:
 
 
 async def _generate_static(site: Site) -> None:
-    await site.resources.copytree(join('public', 'static'),
-                                  site.configuration.www_directory_path)
+    await site.assets.copytree(join('public', 'static'), site.configuration.www_directory_path)
     await site.renderer.render_tree(site.configuration.www_directory_path)
 
 
@@ -56,7 +55,7 @@ async def _generate_localized(site: Site, locale_configuration: LocaleConfigurat
         else:
             www_directory_path = site.configuration.www_directory_path
 
-        await site.resources.copytree(join('public', 'localized'), www_directory_path)
+        await site.assets.copytree(join('public', 'localized'), www_directory_path)
         await site.renderer.render_tree(www_directory_path)
         await _generate_resource_type(www_directory_path, site.ancestry.files.values(), 'file', site, locale_configuration.locale, environment)
         await _generate_resource_type(www_directory_path, site.ancestry.people.values(), 'person', site, locale_configuration.locale, environment)

@@ -28,20 +28,20 @@ class Site:
         self._site_stack = []
         self._ancestry = Ancestry()
         self._configuration = configuration
-        self._resources = FileSystem(
-            join(dirname(abspath(__file__)), 'resources'))
+        self._assets = FileSystem(
+            join(dirname(abspath(__file__)), 'assets'))
         self._event_dispatcher = EventDispatcher()
         self._localized_url_generator = SiteUrlGenerator(configuration)
         self._static_url_generator = StaticPathUrlGenerator(configuration)
         self._locale = None
         self._translations = defaultdict(gettext.NullTranslations)
+        self._default_locale = None
         self._default_translations = None
         self._plugins = OrderedDict()
         self._plugin_exit_stack = AsyncExitStack()
         self._init_plugins()
         self._init_event_listeners()
-        self._init_resources()
-        self._init_translations()
+        self._init_assets()
         self._jinja2_environment = None
         self._renderer = None
 
@@ -50,8 +50,13 @@ class Site:
             for plugin in self._plugins.values():
                 await self._plugin_exit_stack.enter_async_context(plugin)
 
-        self._default_translations = Translations(self.translations[self.locale])
-        self._default_translations.install()
+        if not self._translations:
+            await self._init_translations()
+
+        if self._default_locale != self.locale:
+            self._default_translations = Translations(self.translations[self.locale])
+            self._default_translations.install()
+            self._default_locale = self.locale
 
         self._site_stack.append(self)
 
@@ -72,6 +77,8 @@ class Site:
         return self._configuration.default_locale
 
     def _init_plugins(self) -> None:
+        from betty.plugin import NO_CONFIGURATION
+
         def _extend_plugin_type_graph(graph: Graph, plugin_type: Type['Plugin']):
             dependencies = plugin_type.depends_on()
             # Ensure each plugin type appears in the graph, even if they're isolated.
@@ -84,10 +91,10 @@ class Site:
 
         plugin_types_graph = defaultdict(set)
         # Add dependencies to the plugin graph.
-        for plugin_type in self._configuration.plugins.keys():
+        for plugin_type, _ in self._configuration.plugins:
             _extend_plugin_type_graph(plugin_types_graph, plugin_type)
         # Now all dependencies have been collected, extend the graph with optional plugin orders.
-        for plugin_type in self._configuration.plugins.keys():
+        for plugin_type, _ in self._configuration.plugins:
             for before in plugin_type.comes_before():
                 if before in plugin_types_graph:
                     plugin_types_graph[plugin_type].add(before)
@@ -97,8 +104,8 @@ class Site:
 
         for plugin_type in tsort(plugin_types_graph):
             plugin_configuration = self.configuration.plugins[
-                plugin_type] if plugin_type in self.configuration.plugins else {}
-            plugin = plugin_type.from_configuration_dict(
+                plugin_type] if plugin_type in self.configuration.plugins else NO_CONFIGURATION
+            plugin = plugin_type.for_site(
                 self, plugin_configuration)
             self._plugins[plugin_type] = plugin
 
@@ -107,20 +114,20 @@ class Site:
             for event_name, listener in plugin.subscribes_to():
                 self._event_dispatcher.add_listener(event_name, listener)
 
-    def _init_resources(self) -> None:
+    def _init_assets(self) -> None:
         for plugin in self._plugins.values():
-            if plugin.resource_directory_path is not None:
-                self._resources.paths.appendleft(
-                    plugin.resource_directory_path)
-        if self._configuration.resources_directory_path:
-            self._resources.paths.appendleft(
-                self._configuration.resources_directory_path)
+            if plugin.assets_directory_path is not None:
+                self._assets.paths.appendleft(
+                    plugin.assets_directory_path)
+        if self._configuration.assets_directory_path:
+            self._assets.paths.appendleft(
+                self._configuration.assets_directory_path)
 
-    def _init_translations(self) -> None:
+    async def _init_translations(self) -> None:
         self._translations['en-US'] = gettext.NullTranslations()
         for locale in self._configuration.locales:
-            for resources_path in reversed(self._resources.paths):
-                translations = open_translations(locale, resources_path)
+            for assets_path in reversed(self._assets.paths):
+                translations = await open_translations(locale, assets_path)
                 if translations:
                     translations.add_fallback(self._translations[locale])
                     self._translations[locale] = translations
@@ -138,8 +145,8 @@ class Site:
         return self._plugins
 
     @property
-    def resources(self) -> FileSystem:
-        return self._resources
+    def assets(self) -> FileSystem:
+        return self._assets
 
     @property
     def event_dispatcher(self) -> EventDispatcher:
@@ -185,4 +192,9 @@ class Site:
 
         site = copy(self)
         site._locale = locale
+
+        # Clear all locale-dependent lazy-loaded attributes.
+        site._jinja2_environment = None
+        site._renderer = None
+
         return site

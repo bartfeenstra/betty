@@ -1,23 +1,28 @@
 import gzip
+import hashlib
 import logging
 import re
 import tarfile
 from contextlib import suppress
-from os.path import join, dirname
+from os import path
 from typing import Tuple, Optional, Callable, List, Dict, Type
 
 from geopy import Point
 from lxml import etree
-from lxml.etree import XMLParser, Element
-from voluptuous import Schema, IsFile
+from lxml.etree import Element
+from voluptuous import Schema, IsFile, All
 
-from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, Event, LocalizedName, Person, Link, \
-    HasFiles, HasLinks, HasCitations, IdentifiableEvent, HasPrivacy, IdentifiableSource, IdentifiableCitation
-from betty.config import validate_configuration
+from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, PlaceName, Person, Link, HasFiles, \
+    HasLinks, HasCitations, IdentifiableEvent, HasPrivacy, IdentifiableSource, IdentifiableCitation, Subject, Witness, \
+    Attendee, Birth, Baptism, Adoption, Cremation, Death, Burial, Engagement, Marriage, MarriageAnnouncement, Divorce, \
+    DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, Retirement, Correspondence, Confirmation, \
+    Funeral, Will, Beneficiary, Enclosure
+from betty.config import Path
 from betty.event import Event as DispatchedEvent
 from betty.fs import makedirs
 from betty.locale import DateRange, Datey, Date
 from betty.parse import ParseEvent
+from betty.path import rootname
 from betty.plugin import Plugin
 from betty.site import Site
 
@@ -46,9 +51,9 @@ class _IntermediateAncestry:
 
 
 class _IntermediatePlace:
-    def __init__(self, place: Place, enclosed_by_handle: Optional[str]):
+    def __init__(self, place: Place, enclosed_by_handles: List[str]):
         self.place = place
-        self.enclosed_by_handle = enclosed_by_handle
+        self.enclosed_by_handles = enclosed_by_handles
 
 
 _NS = {
@@ -67,33 +72,38 @@ def _xpath1(element, selector: str) -> Optional:
     return None
 
 
-def extract_xml_file(gramps_file_path: str, cache_directory_path: str) -> str:
+def parse_xml(site: Site, gramps_file_path: str) -> None:
+    cache_directory_path = path.join(site.configuration.cache_directory_path,
+                                     hashlib.md5(gramps_file_path.encode('utf-8')).hexdigest())
     with suppress(FileExistsError):
         makedirs(cache_directory_path)
-    ungzipped_outer_file = gzip.open(gramps_file_path)
-    xml_file_path = join(cache_directory_path, 'data.xml')
+
     logger = logging.getLogger()
-    logger.info('Extracting %s...' % xml_file_path)
-    with open(xml_file_path, 'wb') as xml_file:
+    logger.info('Parsing %s...' % gramps_file_path)
+
+    try:
+        gramps_file = gzip.open(gramps_file_path)
         try:
-            tarfile.open(fileobj=ungzipped_outer_file).extractall(
+            tarfile.open(fileobj=gramps_file).extractall(
                 cache_directory_path)
-            gramps_file_path = join(cache_directory_path, 'data.gramps')
-            xml_file.write(gzip.open(gramps_file_path).read())
+            gramps_file_path = path.join(cache_directory_path, 'data.gramps')
+            # Treat the file as a tar archive (*.gpkg) with media and a gzipped XML file (./data.gz/data).
+            _parse_tree(site.ancestry, etree.parse(gramps_file_path), cache_directory_path)
         except tarfile.ReadError:
-            xml_file.write(ungzipped_outer_file.read())
-    return xml_file_path
+            # Treat the file as a gzipped XML file (*.gramps).
+            _parse_tree(site.ancestry, etree.parse(gramps_file), rootname(gramps_file_path))
+    except OSError:
+        # Treat the file as plain XML (*.gramps).
+        _parse_tree(site.ancestry, etree.parse(gramps_file_path), rootname(gramps_file_path))
 
 
-def parse_xml_file(ancestry: Ancestry, file_path) -> None:
+def _parse_tree(ancestry: Ancestry, tree: etree.ElementTree(), tree_directory_path: str) -> None:
     logger = logging.getLogger()
-    parser = XMLParser()
-    tree = etree.parse(file_path, parser)
     database = tree.getroot()
     intermediate_ancestry = _IntermediateAncestry()
     _parse_notes(intermediate_ancestry, database)
     logger.info('Parsed %d notes.' % len(intermediate_ancestry.notes))
-    _parse_objects(intermediate_ancestry, database, file_path)
+    _parse_objects(intermediate_ancestry, database, tree_directory_path)
     logger.info('Parsed %d files.' % len(intermediate_ancestry.files))
     _parse_repositories(intermediate_ancestry, database)
     _parse_sources(intermediate_ancestry, database)
@@ -115,34 +125,39 @@ _DATE_PART_PATTERN = re.compile(r'^\d+$')
 def _parse_date(element: Element) -> Optional[Datey]:
     dateval_element = _xpath1(element, './ns:dateval[not(@cformat)]')
     if dateval_element is not None:
-        dateval = str(_xpath1(dateval_element, './@val'))
         dateval_type = _xpath1(dateval_element, './@type')
         if dateval_type is None:
-            return _parse_dateval(dateval)
+            return _parse_dateval(dateval_element, 'val')
         dateval_type = str(dateval_type)
         if dateval_type == 'about':
-            date = _parse_dateval(dateval)
+            date = _parse_dateval(dateval_element, 'val')
             if date is None:
                 return None
             date.fuzzy = True
             return date
         if dateval_type == 'before':
-            return DateRange(None, _parse_dateval(dateval))
+            return DateRange(None, _parse_dateval(dateval_element, 'val'), end_is_boundary=True)
         if dateval_type == 'after':
-            return DateRange(_parse_dateval(dateval))
+            return DateRange(_parse_dateval(dateval_element, 'val'), start_is_boundary=True)
+    datespan_element = _xpath1(element, './ns:datespan[not(@cformat)]')
+    if datespan_element is not None:
+        return DateRange(_parse_dateval(datespan_element, 'start'), _parse_dateval(datespan_element, 'stop'))
     daterange_element = _xpath1(element, './ns:daterange[not(@cformat)]')
     if daterange_element is not None:
-        start = _parse_dateval(str(_xpath1(daterange_element, './@start')))
-        end = _parse_dateval(str(_xpath1(daterange_element, './@stop')))
-        return DateRange(start, end)
+        return DateRange(_parse_dateval(daterange_element, 'start'), _parse_dateval(daterange_element, 'stop'), start_is_boundary=True, end_is_boundary=True)
     return None
 
 
-def _parse_dateval(dateval: str) -> Optional[Date]:
+def _parse_dateval(element: Element, value_attribute_name: str) -> Optional[Date]:
+    dateval = str(_xpath1(element, './@%s' % value_attribute_name))
     if _DATE_PATTERN.fullmatch(dateval):
         date_parts = [int(part) if _DATE_PART_PATTERN.fullmatch(
-            part) else None for part in dateval.split('-')]
-        return Date(*date_parts)
+            part) and int(part) > 0 else None for part in dateval.split('-')]
+        date = Date(*date_parts)
+        dateval_quality = _xpath1(element, './@quality')
+        if dateval_quality == 'estimated':
+            date.fuzzy = True
+        return date
     return None
 
 
@@ -162,12 +177,11 @@ def _parse_objects(ancestry: _IntermediateAncestry, database: Element, gramps_fi
         _parse_object(ancestry, element, gramps_file_path)
 
 
-def _parse_object(ancestry: _IntermediateAncestry, element: Element, gramps_file_path):
+def _parse_object(ancestry: _IntermediateAncestry, element: Element, gramps_directory_path):
     handle = _xpath1(element, './@handle')
     entity_id = str(_xpath1(element, './@id'))
     file_element = _xpath1(element, './ns:file')
-    file_path = join(dirname(gramps_file_path),
-                     str(_xpath1(file_element, './@src')))
+    file_path = path.join(gramps_directory_path, str(_xpath1(file_element, './@src')))
     file = File(entity_id, file_path)
     file.media_type = str(_xpath1(file_element, './@mime'))
     description = str(_xpath1(file_element, './@description'))
@@ -225,7 +239,7 @@ def _parse_person(ancestry: _IntermediateAncestry, element: Element):
     _parse_citationref(ancestry, person, element)
     _parse_objref(ancestry, person, element)
     _parse_urls(person, element)
-
+    _parse_attribute_privacy(person, element, 'attribute')
     ancestry.people[handle] = person
 
 
@@ -266,17 +280,18 @@ def _parse_eventrefs(ancestry: _IntermediateAncestry, person: Person, element: E
 
 
 _PRESENCE_ROLE_MAP = {
-    'Primary': Presence.Role.SUBJECT,
-    'Family': Presence.Role.SUBJECT,
-    'Witness': Presence.Role.WITNESS,
-    'Unknown': Presence.Role.ATTENDEE,
+    'Primary': Subject(),
+    'Family': Subject(),
+    'Witness': Witness(),
+    'Beneficiary': Beneficiary(),
+    'Unknown': Attendee(),
 }
 
 
 def _parse_eventref(ancestry: _IntermediateAncestry, person: Person, eventref: Element) -> None:
     event_handle = _xpath1(eventref, './@hlink')
     gramps_presence_role = _xpath1(eventref, './@role')
-    role = _PRESENCE_ROLE_MAP[gramps_presence_role] if gramps_presence_role in _PRESENCE_ROLE_MAP else Presence.Role.ATTENDEE
+    role = _PRESENCE_ROLE_MAP[gramps_presence_role] if gramps_presence_role in _PRESENCE_ROLE_MAP else Attendee()
     Presence(person, role, ancestry.events[event_handle])
 
 
@@ -284,9 +299,8 @@ def _parse_places(ancestry: _IntermediateAncestry, database: Element):
     intermediate_places = {handle: intermediate_place for handle, intermediate_place in
                            [_parse_place(element) for element in database.xpath('.//*[local-name()="placeobj"]')]}
     for intermediate_place in intermediate_places.values():
-        if intermediate_place.enclosed_by_handle is not None:
-            intermediate_place.place.enclosed_by = intermediate_places[
-                intermediate_place.enclosed_by_handle].place
+        for enclosed_by_handle in intermediate_place.enclosed_by_handles:
+            Enclosure(intermediate_place.place, intermediate_places[enclosed_by_handle].place)
     ancestry.places = {handle: intermediate_place.place for handle, intermediate_place in
                        intermediate_places.items()}
 
@@ -297,8 +311,9 @@ def _parse_place(element: Element) -> Tuple[str, _IntermediatePlace]:
     for name_element in _xpath(element, './ns:pname'):
         # The Gramps language is a single ISO language code, which is a valid BCP 47 locale.
         language = _xpath1(name_element, './@lang')
-        names.append(
-            LocalizedName(str(_xpath1(name_element, './@value')), language))
+        date = _parse_date(name_element)
+        name = PlaceName(str(_xpath1(name_element, './@value')), locale=language, date=date)
+        names.append(name)
 
     place = Place(_xpath1(element, './@id'), names)
 
@@ -306,12 +321,11 @@ def _parse_place(element: Element) -> Tuple[str, _IntermediatePlace]:
     if coordinates:
         place.coordinates = coordinates
 
-    # Set the first place reference as the place that encloses this place.
-    enclosed_by_handle = _xpath1(element, './ns:placeref/@hlink')
+    enclosed_by_handles = _xpath(element, './ns:placeref/@hlink')
 
     _parse_urls(place, element)
 
-    return handle, _IntermediatePlace(place, enclosed_by_handle)
+    return handle, _IntermediatePlace(place, enclosed_by_handles)
 
 
 def _parse_coordinates(element: Element) -> Optional[Point]:
@@ -335,22 +349,26 @@ def _parse_events(ancestry: _IntermediateAncestry, database: Element):
 
 
 _EVENT_TYPE_MAP = {
-    'Birth': Event.Type.BIRTH,
-    'Baptism': Event.Type.BAPTISM,
-    'Adopted': Event.Type.ADOPTION,
-    'Cremation': Event.Type.CREMATION,
-    'Death': Event.Type.DEATH,
-    'Burial': Event.Type.BURIAL,
-    'Engagement': Event.Type.ENGAGEMENT,
-    'Marriage': Event.Type.MARRIAGE,
-    'Marriage Banns': Event.Type.MARRIAGE_BANNS,
-    'Divorce': Event.Type.DIVORCE,
-    'Divorce Filing': Event.Type.DIVORCE_FILING,
-    'Residence': Event.Type.RESIDENCE,
-    'Immigration': Event.Type.IMMIGRATION,
-    'Emigration': Event.Type.EMIGRATION,
-    'Occupation': Event.Type.OCCUPATION,
-    'Retirement': Event.Type.RETIREMENT,
+    'Birth': Birth(),
+    'Baptism': Baptism(),
+    'Adopted': Adoption(),
+    'Cremation': Cremation(),
+    'Death': Death(),
+    'Funeral': Funeral(),
+    'Burial': Burial(),
+    'Will': Will(),
+    'Engagement': Engagement(),
+    'Marriage': Marriage(),
+    'Marriage Banns': MarriageAnnouncement(),
+    'Divorce': Divorce(),
+    'Divorce Filing': DivorceAnnouncement(),
+    'Residence': Residence(),
+    'Immigration': Immigration(),
+    'Emigration': Emigration(),
+    'Occupation': Occupation(),
+    'Retirement': Retirement(),
+    'Correspondence': Correspondence(),
+    'Confirmation': Confirmation(),
 }
 
 
@@ -488,20 +506,18 @@ def _parse_attribute(name: str, element: Element, tag: str) -> Optional[str]:
     return _xpath1(element, './ns:%s[@type="betty:%s"]/@value' % (tag, name))
 
 
-GrampsConfigurationSchema = Schema({
-    'file': IsFile(),
-})
-
-
 class Gramps(Plugin):
-    def __init__(self, gramps_file_path: str, cache_directory_path: str):
+    configuration_schema: Schema = Schema({
+        'file': All(str, IsFile(), Path()),
+    })
+
+    def __init__(self, site: Site, gramps_file_path: str):
+        self._site = site
         self._gramps_file_path = gramps_file_path
-        self._cache_directory_path = cache_directory_path
 
     @classmethod
-    def from_configuration_dict(cls, site: Site, configuration: Dict):
-        validate_configuration(GrampsConfigurationSchema, configuration)
-        return cls(configuration['file'], join(site.configuration.cache_directory_path, 'gramps'))
+    def for_site(cls, site: Site, configuration: Dict):
+        return cls(site, configuration['file'])
 
     def subscribes_to(self) -> List[Tuple[Type[DispatchedEvent], Callable]]:
         return [
@@ -509,6 +525,4 @@ class Gramps(Plugin):
         ]
 
     async def _parse(self, event: ParseEvent) -> None:
-        xml_file_path = extract_xml_file(
-            self._gramps_file_path, self._cache_directory_path)
-        parse_xml_file(event.ancestry, xml_file_path)
+        parse_xml(self._site, self._gramps_file_path)

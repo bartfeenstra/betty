@@ -1,6 +1,5 @@
 import json
 from collections import OrderedDict
-from os import getcwd
 from os.path import join
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import Any, Dict
@@ -8,9 +7,77 @@ from unittest import TestCase
 
 import yaml
 from parameterized import parameterized
+from voluptuous import Schema, Required
 
-from betty.config import from_file, Configuration, ConfigurationError, LocaleConfiguration
+from betty.config import from_file, Configuration, ConfigurationError, LocaleConfiguration, PluginsConfiguration
 from betty.plugin import Plugin
+from betty.site import Site
+
+
+class NonConfigurablePlugin(Plugin):
+    pass  # pragma: no cover
+
+
+class ConfigurablePlugin(Plugin):
+    configuration_schema: Schema = Schema({
+        Required('check'): lambda x: x
+    })
+
+    def __init__(self, check):
+        self.check = check
+
+    @classmethod
+    def for_site(cls, site: Site, configuration: Dict):
+        return cls(configuration['check'])
+
+
+class PluginsConfigurationTest(TestCase):
+    def test_init_from_dict_with_valid_configuration_should_set(self):
+        plugin_configuration = {
+            'check': 1337,
+        }
+        plugins_configuration_dict = {
+            ConfigurablePlugin: plugin_configuration,
+        }
+        sut = PluginsConfiguration(plugins_configuration_dict)
+        self.assertEqual(plugin_configuration, sut[ConfigurablePlugin])
+
+    def test_init_from_dict_with_invalid_configuration_should_raise_configuration_error(self):
+        plugin_configuration = 1337
+        plugins_configuration_dict = {
+            ConfigurablePlugin: plugin_configuration,
+        }
+        with self.assertRaises(ConfigurationError):
+            PluginsConfiguration(plugins_configuration_dict)
+
+    def test_setitem_and_getitem_with_valid_configuration_should_set_and_return(self):
+        plugin_configuration = {
+            'check': 1337,
+        }
+        sut = PluginsConfiguration()
+        sut[ConfigurablePlugin] = plugin_configuration
+        self.assertEqual(plugin_configuration, sut[ConfigurablePlugin])
+
+    def test_setitem_with_invalid_configuration_should_raise_configuration_error(self):
+        plugin_configuration = 1337
+        sut = PluginsConfiguration()
+        with self.assertRaises(ConfigurationError):
+            sut[ConfigurablePlugin] = plugin_configuration
+
+    def test_contains(self):
+        sut = PluginsConfiguration()
+        sut[NonConfigurablePlugin] = None
+        self.assertIn(NonConfigurablePlugin, sut)
+
+    def test_iter(self):
+        sut = PluginsConfiguration()
+        sut[NonConfigurablePlugin] = None
+        self.assertSequenceEqual([(NonConfigurablePlugin, None)], list(sut))
+
+    def test_len(self):
+        sut = PluginsConfiguration()
+        sut[NonConfigurablePlugin] = None
+        self.assertEqual(1, len(sut))
 
 
 class LocaleConfigurationTest(TestCase):
@@ -40,28 +107,10 @@ class LocaleConfigurationTest(TestCase):
 
 
 class ConfigurationTest(TestCase):
-    def test_site_directory_path_with_cwd(self):
-        sut = Configuration('/tmp/betty', 'https://example.com')
-        self.assertEquals(getcwd(), sut.site_directory_path)
-
-    def test_site_directory_path_with_path(self):
-        sut = Configuration('/tmp/betty', 'https://example.com')
-        site_directory_path = '/tmp/betty-working-directory'
-        sut.site_directory_path = site_directory_path
-        self.assertEquals(site_directory_path, sut.site_directory_path)
-
-    def test_output_directory_path_with_absolute_path(self):
+    def test_output_directory_path(self):
         output_directory_path = '/tmp/betty'
         sut = Configuration(output_directory_path, 'https://example.com')
         self.assertEquals(output_directory_path, sut.output_directory_path)
-
-    def test_output_directory_path_with_relative_path(self):
-        output_directory_path = './betty'
-        sut = Configuration(output_directory_path, 'https://example.com')
-        site_directory_path = '/tmp/betty-working-directory'
-        sut.site_directory_path = site_directory_path
-        self.assertEquals('/tmp/betty-working-directory/betty',
-                          sut.output_directory_path)
 
     def test_www_directory_path_with_absolute_path(self):
         output_directory_path = '/tmp/betty'
@@ -69,25 +118,16 @@ class ConfigurationTest(TestCase):
         expected = join(output_directory_path, 'www')
         self.assertEquals(expected, sut.www_directory_path)
 
-    def test_resources_directory_path_without_path(self):
+    def test_assets_directory_path_without_path(self):
         sut = Configuration('/tmp/betty', 'https://example.com')
-        self.assertIsNone(sut.resources_directory_path)
+        self.assertIsNone(sut.assets_directory_path)
 
-    def test_resources_directory_path_with_absolute_path(self):
+    def test_assets_directory_path_with_path(self):
         sut = Configuration('/tmp/betty', 'https://example.com')
-        resources_directory_path = '/tmp/betty-resources'
-        sut.resources_directory_path = resources_directory_path
-        self.assertEquals(resources_directory_path,
-                          sut.resources_directory_path)
-
-    def test_resources_directory_path_with_relative_path(self):
-        sut = Configuration('/tmp/betty', 'https://example.com')
-        site_directory_path = '/tmp/betty-working-directory'
-        sut.site_directory_path = site_directory_path
-        resources_directory_path = './betty-resources'
-        sut.resources_directory_path = resources_directory_path
-        self.assertEquals(
-            '/tmp/betty-working-directory/betty-resources', sut.resources_directory_path)
+        assets_directory_path = '/tmp/betty-assets'
+        sut.assets_directory_path = assets_directory_path
+        self.assertEquals(assets_directory_path,
+                          sut.assets_directory_path)
 
     def test_root_path(self):
         sut = Configuration('/tmp/betty', 'https://example.com')
@@ -239,14 +279,14 @@ class FromTest(TestCase):
             configuration = from_file(f)
             self.assertEquals(mode, configuration.mode)
 
-    def test_from_file_should_parse_resources_directory_path(self):
-        with TemporaryDirectory() as resources_directory_path:
+    def test_from_file_should_parse_assets_directory_path(self):
+        with TemporaryDirectory() as assets_directory_path:
             config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-            config_dict['resources'] = resources_directory_path
+            config_dict['assets_directory_path'] = assets_directory_path
             with self._write(config_dict) as f:
                 configuration = from_file(f)
-                self.assertEquals(resources_directory_path,
-                                  configuration.resources_directory_path)
+                self.assertEquals(assets_directory_path,
+                                  configuration.assets_directory_path)
 
     def test_from_file_should_parse_one_plugin_with_configuration(self):
         config_dict = dict(**self._MINIMAL_CONFIG_DICT)
@@ -254,44 +294,26 @@ class FromTest(TestCase):
             'check': 1337,
         }
         config_dict['plugins'] = {
-            Plugin.name(): plugin_configuration,
+            ConfigurablePlugin.name(): plugin_configuration,
         }
         with self._write(config_dict) as f:
             configuration = from_file(f)
             expected = {
-                Plugin: plugin_configuration,
+                ConfigurablePlugin: plugin_configuration,
             }
-            self.assertEquals(expected, configuration.plugins)
+            self.assertEquals(expected, dict(configuration.plugins))
 
     def test_from_file_should_parse_one_plugin_without_configuration(self):
         config_dict = dict(**self._MINIMAL_CONFIG_DICT)
         config_dict['plugins'] = {
-            Plugin.name(): {},
+            NonConfigurablePlugin.name(): None,
         }
         with self._write(config_dict) as f:
             configuration = from_file(f)
             expected = {
-                Plugin: {},
+                NonConfigurablePlugin: None,
             }
-            self.assertEquals(expected, configuration.plugins)
-
-    def test_from_file_should_error_if_unknown_plugin_type_module(self):
-        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['plugins'] = {
-            'foo.bar.Baz': {},
-        }
-        with self._write(config_dict) as f:
-            with self.assertRaises(ImportError):
-                from_file(f)
-
-    def test_from_file_should_error_if_unknown_plugin_type(self):
-        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['plugins'] = {
-            '%s.Foo' % self.__module__: {},
-        }
-        with self._write(config_dict) as f:
-            with self.assertRaises(AttributeError):
-                from_file(f)
+            self.assertEquals(expected, dict(configuration.plugins))
 
     def test_from_file_should_error_unknown_format(self):
         with self._writes('', 'abc') as f:

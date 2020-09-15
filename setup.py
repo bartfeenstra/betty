@@ -36,9 +36,10 @@ SETUP = {
     ],
     'python_requires': '~= 3.6',
     'install_requires': [
-        'aiofiles ~= 0.4.0',
+        'aiofiles ~= 0.5.0',
         'aiohttp ~= 3.6.2',
         'async-exit-stack ~= 1.0.0; python_version <= "3.6"',
+        'async_generator ~= 1.10; python_version <= "3.6"',
         'babel ~= 2.7.0',
         'click ~= 7.1.1',
         'geopy ~= 1.18.1',
@@ -82,7 +83,7 @@ SETUP = {
     ],
     'include_package_data': True,
     'package_data': {
-        'betty': glob(join(dirname(abspath(__file__)), 'betty', 'resources', '**'), recursive=True) + glob(join(dirname(abspath(__file__)), 'betty', 'plugins', '*', 'resources', '**'), recursive=True),
+        'betty': glob(join(dirname(abspath(__file__)), 'betty', 'assets', '**'), recursive=True) + glob(join(dirname(abspath(__file__)), 'betty', 'plugin', '*', 'assets', '**'), recursive=True),
     },
 }
 

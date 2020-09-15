@@ -1,8 +1,7 @@
-from enum import Enum
 from functools import total_ordering
 from itertools import chain
 from os.path import splitext, basename
-from typing import Dict, Optional, List, Iterable, Set, Union, TypeVar, Generic, Callable
+from typing import Dict, Optional, List, Iterable, Set, Union, TypeVar, Generic, Callable, Sequence, Type
 
 from geopy import Point
 
@@ -59,7 +58,7 @@ class EventHandlingSetList(Generic[T]):
         return self._values[item]
 
 
-ManyAssociation = Union[EventHandlingSetList[T], Iterable]
+ManyAssociation = Union[EventHandlingSetList[T], Sequence[T]]
 
 
 class _to_many:
@@ -147,9 +146,7 @@ def many_to_one(self_name: str, associated_name: str, _removal_handler: Optional
 
 
 class Resource:
-    @property
-    def resource_type_name(self) -> str:
-        raise NotImplementedError
+    resource_type_name = NotImplemented
 
 
 class HasPrivacy:
@@ -280,22 +277,26 @@ class File(Resource, Identifiable, Described, HasPrivacy, HasMediaType):
 
     @property
     def sources(self) -> Iterable['Source']:
-        for entity in self.resources:
-            if isinstance(entity, Source):
-                yield entity
-            if isinstance(entity, Citation):
-                yield entity.source
+        for resource in self.resources:
+            if isinstance(resource, Source):
+                yield resource
+            if isinstance(resource, Citation):
+                yield resource.source
 
     @property
     def citations(self) -> Iterable['Citation']:
-        for entity in self.resources:
-            if isinstance(entity, Citation):
-                yield entity
+        for resource in self.resources:
+            if isinstance(resource, Citation):
+                yield resource
 
 
 @many_to_many('files', 'resources')
 class HasFiles:
     files: ManyAssociation[File]
+
+    @property
+    def associated_files(self) -> Sequence[File]:
+        return self.files
 
 
 @many_to_one('contained_by', 'contains')
@@ -375,11 +376,12 @@ class HasCitations:
     citations: ManyAssociation[Citation]
 
 
-class LocalizedName(Localized):
-    def __init__(self, name: str, locale: Optional[str] = None):
+class PlaceName(Localized, Dated):
+    def __init__(self, name: str, locale: Optional[str] = None, date: Optional[Datey] = None):
         Localized.__init__(self)
         self._name = name
         self.locale = locale
+        self.date = date
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
@@ -387,7 +389,7 @@ class LocalizedName(Localized):
         return self._name == other._name and self.locale == other.locale
 
     def __repr__(self):
-        return '%s(%s, %s)' % (type(self).__name__, self._name, self.locale.__repr__())
+        return '<%s.%s(%s, %s)>' % (self.__class__.__module__, self.__class__.__name__, self.name, repr(self.locale))
 
     def __str__(self):
         return self._name
@@ -397,20 +399,33 @@ class LocalizedName(Localized):
         return self._name
 
 
+@bridged_many_to_many('enclosed_by', 'encloses', 'enclosed_by', 'encloses')
+class Enclosure(Dated, HasCitations):
+    encloses: 'Place'
+    enclosed_by: 'Place'
+
+    def __init__(self, encloses: 'Place', enclosed_by: 'Place'):
+        Dated.__init__(self)
+        self.encloses = encloses
+        self.enclosed_by = enclosed_by
+
+
 @one_to_many('events', 'place')
-@many_to_one('enclosed_by', 'encloses')
+@one_to_many('enclosed_by', 'encloses')
 @one_to_many('encloses', 'enclosed_by')
 class Place(Resource, Identifiable, HasLinks):
     resource_type_name = 'place'
+    enclosed_by: ManyAssociation[Enclosure]
+    encloses: ManyAssociation[Enclosure]
 
-    def __init__(self, place_id: str, names: List[LocalizedName]):
+    def __init__(self, place_id: str, names: List[PlaceName]):
         Identifiable.__init__(self, place_id)
         HasLinks.__init__(self)
         self._names = names
         self._coordinates = None
 
     @property
-    def names(self) -> List[LocalizedName]:
+    def names(self) -> List[PlaceName]:
         return self._names
 
     @property
@@ -422,21 +437,332 @@ class Place(Resource, Identifiable, HasLinks):
         self._coordinates = coordinates
 
 
+class PresenceRole:
+    @property
+    def name(self) -> str:
+        raise NotImplementedError
+
+    @property
+    def label(self) -> str:
+        raise NotImplementedError
+
+
+class Subject(PresenceRole):
+    name = 'subject'
+
+    @property
+    def label(self) -> str:
+        return _('Subject')
+
+
+class Witness(PresenceRole):
+    name = 'witness'
+
+    @property
+    def label(self) -> str:
+        return _('Witness')
+
+
+class Beneficiary(PresenceRole):
+    name = 'beneficiary'
+
+    @property
+    def label(self) -> str:
+        return _('Beneficiary')
+
+
+class Attendee(PresenceRole):
+    name = 'attendee'
+
+    @property
+    def label(self) -> str:
+        return _('Attendee')
+
+
 @bridged_many_to_many('presences', 'person', 'event', 'presences')
 class Presence:
     person: Optional['Person']
     event: Optional['Event']
-    role: 'Presence.Role'
+    role: PresenceRole
 
-    class Role(Enum):
-        SUBJECT = 'subject'
-        WITNESS = 'witness'
-        ATTENDEE = 'attendee'
-
-    def __init__(self, person: 'Person', role: Role, event: 'Event'):
+    def __init__(self, person: 'Person', role: PresenceRole, event: 'Event'):
         self.person = person
         self.role = role
         self.event = event
+
+
+class EventType:
+    @property
+    def name(self) -> str:
+        raise NotImplementedError
+
+    @property
+    def label(self) -> str:
+        raise NotImplementedError
+
+    @classmethod
+    def comes_before(cls) -> Set[Type['EventType']]:
+        return set()
+
+    @classmethod
+    def comes_after(cls) -> Set[Type['EventType']]:
+        return set()
+
+
+class DerivableEventType(EventType):
+    pass  # pragma: no cover
+
+
+class CreatableDerivableEventType(DerivableEventType):
+    pass  # pragma: no cover
+
+
+class PreBirthEventType(EventType):
+    @classmethod
+    def comes_before(cls) -> Set[Type['EventType']]:
+        return {Birth}
+
+
+class LifeEventType(EventType):
+    @classmethod
+    def comes_after(cls) -> Set[Type['EventType']]:
+        return {Birth}
+
+    @classmethod
+    def comes_before(cls) -> Set[Type['EventType']]:
+        return {Death}
+
+
+class PostDeathEventType(EventType):
+    @classmethod
+    def comes_after(cls) -> Set[Type['EventType']]:
+        return {Death}
+
+
+class Birth(CreatableDerivableEventType):
+    name = 'birth'
+
+    @property
+    def label(self) -> str:
+        return _('Birth')
+
+    @classmethod
+    def comes_before(cls) -> Set[Type[EventType]]:
+        return {LifeEventType}
+
+
+class Baptism(LifeEventType):
+    name = 'baptism'
+
+    @property
+    def label(self) -> str:
+        return _('Baptism')
+
+
+class Adoption(LifeEventType):
+    name = 'adoption'
+
+    @property
+    def label(self) -> str:
+        return _('Adoption')
+
+
+class Death(CreatableDerivableEventType):
+    name = 'death'
+
+    @property
+    def label(self) -> str:
+        return _('Death')
+
+    @classmethod
+    def comes_after(cls) -> Set[Type[EventType]]:
+        return {LifeEventType}
+
+
+class Funeral(PostDeathEventType, DerivableEventType):
+    name = 'funeral'
+
+    @property
+    def label(self) -> str:
+        return _('Funeral')
+
+    @classmethod
+    def comes_after(cls) -> Set[Type[EventType]]:
+        return {Death}
+
+
+class FinalDispositionEventType(PostDeathEventType, DerivableEventType):
+    @classmethod
+    def comes_after(cls) -> Set[Type[EventType]]:
+        return {Death}
+
+
+class Cremation(FinalDispositionEventType):
+    name = 'cremation'
+
+    @property
+    def label(self) -> str:
+        return _('Cremation')
+
+
+class Burial(FinalDispositionEventType):
+    name = 'burial'
+
+    @property
+    def label(self) -> str:
+        return _('Burial')
+
+
+class Will(PostDeathEventType):
+    name = 'will'
+
+    @property
+    def label(self) -> str:
+        return _('Will')
+
+    @classmethod
+    def comes_after(cls) -> Set[Type[EventType]]:
+        return {Death}
+
+
+class Engagement(LifeEventType):
+    name = 'engagement'
+
+    @property
+    def label(self) -> str:
+        return _('Engagement')
+
+    @classmethod
+    def comes_before(cls) -> Set[Type[EventType]]:
+        return {Marriage}
+
+
+class Marriage(LifeEventType):
+    name = 'marriage'
+
+    @property
+    def label(self) -> str:
+        return _('Marriage')
+
+
+class MarriageAnnouncement(LifeEventType):
+    name = 'marriage-announcement'
+
+    @property
+    def label(self) -> str:
+        return _('Announcement of marriage')
+
+    @classmethod
+    def comes_before(cls) -> Set[Type[EventType]]:
+        return {Marriage}
+
+
+class Divorce(LifeEventType):
+    name = 'divorce'
+
+    @property
+    def label(self) -> str:
+        return _('Divorce')
+
+    @classmethod
+    def comes_after(cls) -> Set[Type[EventType]]:
+        return {Marriage}
+
+
+class DivorceAnnouncement(LifeEventType):
+    name = 'divorce-announcement'
+
+    @property
+    def label(self) -> str:
+        return _('Announcement of divorce')
+
+    @classmethod
+    def comes_after(cls) -> Set[Type[EventType]]:
+        return {Marriage}
+
+    @classmethod
+    def comes_before(cls) -> Set[Type[EventType]]:
+        return {Divorce}
+
+
+class Residence(LifeEventType):
+    name = 'residence'
+
+    @property
+    def label(self) -> str:
+        return _('Residence')
+
+
+class Immigration(LifeEventType):
+    name = 'immigration'
+
+    @property
+    def label(self) -> str:
+        return _('Immigration')
+
+
+class Emigration(LifeEventType):
+    name = 'emigration'
+
+    @property
+    def label(self) -> str:
+        return _('Emigration')
+
+
+class Occupation(LifeEventType):
+    name = 'occupation'
+
+    @property
+    def label(self) -> str:
+        return _('Occupation')
+
+
+class Retirement(LifeEventType):
+    name = 'retirement'
+
+    @property
+    def label(self) -> str:
+        return _('Retirement')
+
+
+class Correspondence(EventType):
+    name = 'correspondence'
+
+    @property
+    def label(self) -> str:
+        return _('Correspondence')
+
+
+class Confirmation(LifeEventType):
+    name = 'confirmation'
+
+    @property
+    def label(self) -> str:
+        return _('Confirmation')
+
+
+EVENT_TYPE_TYPES = [
+    Birth,
+    Baptism,
+    Adoption,
+    Death,
+    Funeral,
+    Cremation,
+    Burial,
+    Will,
+    Engagement,
+    Marriage,
+    MarriageAnnouncement,
+    Divorce,
+    DivorceAnnouncement,
+    Residence,
+    Immigration,
+    Emigration,
+    Occupation,
+    Retirement,
+    Correspondence,
+    Confirmation,
+]
 
 
 @many_to_one('place', 'events')
@@ -446,25 +772,7 @@ class Event(Resource, Dated, HasFiles, HasCitations, Described, HasPrivacy):
     place: Place
     presences: ManyAssociation[Presence]
 
-    class Type(Enum):
-        BIRTH = 'birth'
-        BAPTISM = 'baptism'
-        ADOPTION = 'adoption'
-        CREMATION = 'cremation'
-        DEATH = 'death'
-        BURIAL = 'burial'
-        ENGAGEMENT = 'engagement'
-        MARRIAGE = 'marriage'
-        MARRIAGE_BANNS = 'marriage-banns'
-        DIVORCE = 'divorce'
-        DIVORCE_FILING = 'divorce-filing'
-        RESIDENCE = 'residence'
-        IMMIGRATION = 'immigration'
-        EMIGRATION = 'emigration'
-        OCCUPATION = 'occupation'
-        RETIREMENT = 'retirement'
-
-    def __init__(self, event_type: Type, date: Optional[Datey] = None):
+    def __init__(self, event_type: EventType, date: Optional[Datey] = None):
         Dated.__init__(self)
         HasFiles.__init__(self)
         HasCitations.__init__(self)
@@ -473,9 +781,22 @@ class Event(Resource, Dated, HasFiles, HasCitations, Described, HasPrivacy):
         self.date = date
         self._type = event_type
 
+    def __repr__(self):
+        return '<%s.%s(%s, date=%s)>' % (self.__class__.__module__, self.__class__.__name__, repr(self.type), repr(self.date))
+
     @property
     def type(self):
         return self._type
+
+    @property
+    def associated_files(self) -> Sequence[File]:
+        seen = set()
+        for has_citations in [self, *self.citations]:
+            for file in has_citations.files:
+                if file in seen:
+                    continue
+                seen.add(file)
+                yield file
 
 
 class IdentifiableEvent(Event, Identifiable):
@@ -560,17 +881,17 @@ class Person(Resource, Identifiable, HasFiles, HasCitations, HasLinks, HasPrivac
 
     @property
     def start(self) -> Optional[Event]:
-        for event_type in [Event.Type.BIRTH, Event.Type.BAPTISM]:
+        for event_type in [Birth, Baptism]:
             for presence in self.presences:
-                if presence.event.type == event_type and presence.role == Presence.Role.SUBJECT:
+                if isinstance(presence.event.type, event_type) and isinstance(presence.role, Subject):
                     return presence.event
         return None
 
     @property
     def end(self) -> Optional[Event]:
-        for event_type in [Event.Type.DEATH, Event.Type.BURIAL]:
+        for event_type in [Death, Burial]:
             for presence in self.presences:
-                if presence.event.type == event_type and presence.role == Presence.Role.SUBJECT:
+                if isinstance(presence.event.type, event_type) and isinstance(presence.role, Subject):
                     return presence.event
         return None
 
@@ -582,6 +903,30 @@ class Person(Resource, Identifiable, HasFiles, HasCitations, HasLinks, HasPrivac
                 if sibling != self and sibling not in siblings:
                     siblings.append(sibling)
         return siblings
+
+    @property
+    def associated_files(self) -> Sequence[File]:
+        files = [
+            *self.files,
+            *[file for name in self.names for citation in name.citations for file in citation.associated_files],
+            *[file for presence in self.presences for file in presence.event.associated_files]
+        ]
+        seen = set()
+        for file in files:
+            if file in seen:
+                continue
+            seen.add(file)
+            yield file
+
+
+RESOURCE_TYPES = [
+    Citation,
+    Event,
+    File,
+    Person,
+    Place,
+    Source,
+]
 
 
 class Ancestry:

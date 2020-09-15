@@ -3,11 +3,17 @@ import os
 import shutil
 from collections import deque
 from contextlib import suppress
+try:
+    from contextlib import asynccontextmanager
+except ImportError:
+    from async_generator import asynccontextmanager
 from os import walk, path
 from os.path import join, dirname, exists, relpath, getmtime, basename
 from shutil import copy2
 from tempfile import mkdtemp
 from typing import AsyncIterable
+
+import aiofiles
 
 
 async def iterfiles(path: str) -> AsyncIterable[str]:
@@ -44,11 +50,14 @@ class FileSystem:
     def paths(self) -> deque:
         return self._paths
 
+    @asynccontextmanager
     async def open(self, *file_paths: str):
         for file_path in file_paths:
             for fs_path in self._paths:
                 with suppress(FileNotFoundError):
-                    return open(join(fs_path, file_path))
+                    async with aiofiles.open(join(fs_path, file_path)) as f:
+                        yield f
+                        return
         raise FileNotFoundError
 
     async def copy2(self, source_path: str, destination_path: str) -> str:

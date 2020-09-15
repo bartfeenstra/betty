@@ -1,6 +1,7 @@
 import os
 from glob import glob
 
+import aiofiles.os
 import sass
 
 from betty.render import Renderer
@@ -13,7 +14,7 @@ class SassRenderer(Renderer):
         if not file_path.endswith(self._EXTENSIONS):
             return
         self._compile(filename=file_path)
-        os.remove(file_path)
+        await aiofiles.os.remove(file_path)
 
     async def render_tree(self, tree_path: str) -> None:
         self._compile(dirname=(tree_path, tree_path))
@@ -26,7 +27,7 @@ class SassRenderer(Renderer):
             ]
             for pattern in patterns:
                 for file_path in glob(pattern):
-                    os.remove(file_path)
+                    await aiofiles.os.remove(file_path)
 
     def _compile(self, **kwargs) -> None:
         sass.compile(output_style='compressed', **kwargs)

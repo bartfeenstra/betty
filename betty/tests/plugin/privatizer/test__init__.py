@@ -6,7 +6,7 @@ from unittest import TestCase
 from parameterized import parameterized
 
 from betty.ancestry import Person, Presence, IdentifiableEvent, Event, Source, IdentifiableSource, File, \
-    IdentifiableCitation
+    IdentifiableCitation, Subject, Attendee, Birth, Marriage, Death, Burial
 from betty.config import Configuration
 from betty.functools import sync
 from betty.locale import Date, DateRange
@@ -31,46 +31,46 @@ def _expand_person(generation: int):
         (False, False, None),
         # Deaths and burials are special, and their existence prevents generation 0 from being private even without
         # having passed the usual threshold.
-        (generation != 0, None, IdentifiableEvent('E0', Event.Type.DEATH, date=Date(datetime.now().year, datetime.now().month, datetime.now().day))),
-        (generation != 0, None, IdentifiableEvent('E0', Event.Type.DEATH, date=date_under_threshold)),
-        (True, None, IdentifiableEvent('E0', Event.Type.DEATH, date=date_range_start_under_threshold)),
-        (generation != 0, None, IdentifiableEvent('E0', Event.Type.DEATH, date=date_range_end_under_threshold)),
-        (True, True, IdentifiableEvent('E0', Event.Type.DEATH)),
-        (False, False, IdentifiableEvent('E0', Event.Type.DEATH)),
-        (generation != 0, None, IdentifiableEvent('E0', Event.Type.BURIAL, date=Date(datetime.now().year, datetime.now().month, datetime.now().day))),
-        (generation != 0, None, IdentifiableEvent('E0', Event.Type.BURIAL, date=date_under_threshold)),
-        (True, None, IdentifiableEvent('E0', Event.Type.BURIAL, date=date_range_start_under_threshold)),
-        (generation != 0, None, IdentifiableEvent('E0', Event.Type.BURIAL, date=date_range_end_under_threshold)),
-        (True, True, IdentifiableEvent('E0', Event.Type.BURIAL)),
-        (False, False, IdentifiableEvent('E0', Event.Type.BURIAL)),
+        (generation != 0, None, IdentifiableEvent('E0', Death(), date=Date(datetime.now().year, datetime.now().month, datetime.now().day))),
+        (generation != 0, None, IdentifiableEvent('E0', Death(), date=date_under_threshold)),
+        (True, None, IdentifiableEvent('E0', Death(), date=date_range_start_under_threshold)),
+        (generation != 0, None, IdentifiableEvent('E0', Death(), date=date_range_end_under_threshold)),
+        (True, True, IdentifiableEvent('E0', Death())),
+        (False, False, IdentifiableEvent('E0', Death())),
+        (generation != 0, None, IdentifiableEvent('E0', Burial(), date=Date(datetime.now().year, datetime.now().month, datetime.now().day))),
+        (generation != 0, None, IdentifiableEvent('E0', Burial(), date=date_under_threshold)),
+        (True, None, IdentifiableEvent('E0', Burial(), date=date_range_start_under_threshold)),
+        (generation != 0, None, IdentifiableEvent('E0', Burial(), date=date_range_end_under_threshold)),
+        (True, True, IdentifiableEvent('E0', Burial())),
+        (False, False, IdentifiableEvent('E0', Burial())),
         # Regular events without dates do not affect privacy.
-        (True, None, IdentifiableEvent('E0', Event.Type.BIRTH)),
-        (True, True, IdentifiableEvent('E0', Event.Type.BIRTH)),
-        (False, False, IdentifiableEvent('E0', Event.Type.BIRTH)),
+        (True, None, IdentifiableEvent('E0', Birth())),
+        (True, True, IdentifiableEvent('E0', Birth())),
+        (False, False, IdentifiableEvent('E0', Birth())),
         # Regular events with incomplete dates do not affect privacy.
-        (True, None, IdentifiableEvent('E0', Event.Type.BIRTH, date=Date())),
-        (True, True, IdentifiableEvent('E0', Event.Type.BIRTH, date=Date())),
-        (False, False, IdentifiableEvent('E0', Event.Type.BIRTH, date=Date())),
+        (True, None, IdentifiableEvent('E0', Birth(), date=Date())),
+        (True, True, IdentifiableEvent('E0', Birth(), date=Date())),
+        (False, False, IdentifiableEvent('E0', Birth(), date=Date())),
         # Regular events under the lifetime threshold do not affect privacy.
-        (True, None, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_under_threshold)),
-        (True, True, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_under_threshold)),
-        (False, False, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_under_threshold)),
-        (True, None, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_range_start_under_threshold)),
-        (True, True, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_range_start_under_threshold)),
-        (False, False, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_range_start_under_threshold)),
-        (True, None, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_range_end_under_threshold)),
-        (True, True, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_range_end_under_threshold)),
-        (False, False, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_range_end_under_threshold)),
+        (True, None, IdentifiableEvent('E0', Birth(), date=date_under_threshold)),
+        (True, True, IdentifiableEvent('E0', Birth(), date=date_under_threshold)),
+        (False, False, IdentifiableEvent('E0', Birth(), date=date_under_threshold)),
+        (True, None, IdentifiableEvent('E0', Birth(), date=date_range_start_under_threshold)),
+        (True, True, IdentifiableEvent('E0', Birth(), date=date_range_start_under_threshold)),
+        (False, False, IdentifiableEvent('E0', Birth(), date=date_range_start_under_threshold)),
+        (True, None, IdentifiableEvent('E0', Birth(), date=date_range_end_under_threshold)),
+        (True, True, IdentifiableEvent('E0', Birth(), date=date_range_end_under_threshold)),
+        (False, False, IdentifiableEvent('E0', Birth(), date=date_range_end_under_threshold)),
         # Regular events over the lifetime threshold affect privacy.
-        (False, None, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_over_threshold)),
-        (True, True, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_over_threshold)),
-        (False, False, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_over_threshold)),
-        (False, None, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_range_start_over_threshold)),
-        (True, True, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_range_start_over_threshold)),
-        (False, False, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_range_start_over_threshold)),
-        (False, None, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_range_end_over_threshold)),
-        (True, True, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_range_end_over_threshold)),
-        (False, False, IdentifiableEvent('E0', Event.Type.BIRTH, date=date_range_end_over_threshold)),
+        (False, None, IdentifiableEvent('E0', Birth(), date=date_over_threshold)),
+        (True, True, IdentifiableEvent('E0', Birth(), date=date_over_threshold)),
+        (False, False, IdentifiableEvent('E0', Birth(), date=date_over_threshold)),
+        (False, None, IdentifiableEvent('E0', Birth(), date=date_range_start_over_threshold)),
+        (True, True, IdentifiableEvent('E0', Birth(), date=date_range_start_over_threshold)),
+        (False, False, IdentifiableEvent('E0', Birth(), date=date_range_start_over_threshold)),
+        (False, None, IdentifiableEvent('E0', Birth(), date=date_range_end_over_threshold)),
+        (True, True, IdentifiableEvent('E0', Birth(), date=date_range_end_over_threshold)),
+        (False, False, IdentifiableEvent('E0', Birth(), date=date_range_end_over_threshold)),
     ])
 
 
@@ -78,7 +78,7 @@ class PrivatizerTest(TestCase):
     @sync
     async def test_post_parse(self):
         person = Person('P0')
-        Presence(person, Presence.Role.SUBJECT, IdentifiableEvent('E0', Event.Type.BIRTH))
+        Presence(person, Subject(), IdentifiableEvent('E0', Birth()))
 
         source_file = File('F0', __file__)
         source = IdentifiableSource('S0', 'The Source')
@@ -94,7 +94,7 @@ class PrivatizerTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.plugins[Privatizer] = {}
+            configuration.plugins[Privatizer] = None
             async with Site(configuration) as site:
                 site.ancestry.people[person.id] = person
                 site.ancestry.sources[source.id] = source
@@ -112,15 +112,15 @@ class PrivatizerTest(TestCase):
         citation_file = File('F1', __file__)
         citation = IdentifiableCitation('C0', source)
         citation.files.append(citation_file)
-        event_as_subject = Event(Event.Type.BIRTH)
-        event_as_attendee = Event(Event.Type.MARRIAGE)
+        event_as_subject = Event(Birth())
+        event_as_attendee = Event(Marriage())
         person_file = File('F2', __file__)
         person = Person('P0')
         person.private = False
         person.citations.append(citation)
         person.files.append(person_file)
-        Presence(person, Presence.Role.SUBJECT, event_as_subject)
-        Presence(person, Presence.Role.ATTENDEE, event_as_attendee)
+        Presence(person, Subject(), event_as_subject)
+        Presence(person, Attendee(), event_as_attendee)
         privatize_person(person)
         self.assertEqual(False, person.private)
         self.assertIsNone(citation.private)
@@ -138,15 +138,15 @@ class PrivatizerTest(TestCase):
         citation_file = File('F1', __file__)
         citation = IdentifiableCitation('C0', source)
         citation.files.append(citation_file)
-        event_as_subject = Event(Event.Type.BIRTH)
-        event_as_attendee = Event(Event.Type.MARRIAGE)
+        event_as_subject = Event(Birth())
+        event_as_attendee = Event(Marriage())
         person_file = File('F2', __file__)
         person = Person('P0')
         person.private = True
         person.citations.append(citation)
         person.files.append(person_file)
-        Presence(person, Presence.Role.SUBJECT, event_as_subject)
-        Presence(person, Presence.Role.ATTENDEE, event_as_attendee)
+        Presence(person, Subject(), event_as_subject)
+        Presence(person, Attendee(), event_as_attendee)
         privatize_person(person)
         self.assertTrue(person.private)
         self.assertTrue(citation.private)
@@ -162,7 +162,7 @@ class PrivatizerTest(TestCase):
         person = Person('P0')
         person.private = private
         if event is not None:
-            Presence(person, Presence.Role.SUBJECT, event)
+            Presence(person, Subject(), event)
         privatize_person(person)
         self.assertEquals(expected, person.private)
 
@@ -172,7 +172,7 @@ class PrivatizerTest(TestCase):
         person.private = private
         child = Person('P1')
         if event is not None:
-            Presence(child, Presence.Role.SUBJECT, event)
+            Presence(child, Subject(), event)
         person.children.append(child)
         privatize_person(person)
         self.assertEquals(expected, person.private)
@@ -185,7 +185,7 @@ class PrivatizerTest(TestCase):
         person.children.append(child)
         grandchild = Person('P2')
         if event is not None:
-            Presence(grandchild, Presence.Role.SUBJECT, event)
+            Presence(grandchild, Subject(), event)
         child.children.append(grandchild)
         privatize_person(person)
         self.assertEquals(expected, person.private)
@@ -200,7 +200,7 @@ class PrivatizerTest(TestCase):
         child.children.append(grandchild)
         great_grandchild = Person('P2')
         if event is not None:
-            Presence(great_grandchild, Presence.Role.SUBJECT, event)
+            Presence(great_grandchild, Subject(), event)
         grandchild.children.append(great_grandchild)
         privatize_person(person)
         self.assertEquals(expected, person.private)
@@ -211,7 +211,7 @@ class PrivatizerTest(TestCase):
         person.private = private
         parent = Person('P1')
         if event is not None:
-            Presence(parent, Presence.Role.SUBJECT, event)
+            Presence(parent, Subject(), event)
         person.parents.append(parent)
         privatize_person(person)
         self.assertEquals(expected, person.private)
@@ -224,7 +224,7 @@ class PrivatizerTest(TestCase):
         person.parents.append(parent)
         grandparent = Person('P2')
         if event is not None:
-            Presence(grandparent, Presence.Role.SUBJECT, event)
+            Presence(grandparent, Subject(), event)
         parent.parents.append(grandparent)
         privatize_person(person)
         self.assertEquals(expected, person.private)
@@ -239,7 +239,7 @@ class PrivatizerTest(TestCase):
         parent.parents.append(grandparent)
         great_grandparent = Person('P2')
         if event is not None:
-            Presence(great_grandparent, Presence.Role.SUBJECT, event)
+            Presence(great_grandparent, Subject(), event)
         grandparent.parents.append(great_grandparent)
         privatize_person(person)
         self.assertEquals(expected, person.private)
@@ -252,12 +252,12 @@ class PrivatizerTest(TestCase):
         citation = IdentifiableCitation('C0', source)
         citation.files.append(citation_file)
         event_file = File('F1', __file__)
-        event = Event(Event.Type.BIRTH)
+        event = Event(Birth())
         event.private = False
         event.citations.append(citation)
         event.files.append(event_file)
         person = Person('P0')
-        Presence(person, Presence.Role.SUBJECT, event)
+        Presence(person, Subject(), event)
         privatize_event(event)
         self.assertEqual(False, event.private)
         self.assertIsNone(event_file.private)
@@ -275,12 +275,12 @@ class PrivatizerTest(TestCase):
         citation = IdentifiableCitation('C0', source)
         citation.files.append(citation_file)
         event_file = File('F1', __file__)
-        event = Event(Event.Type.BIRTH)
+        event = Event(Birth())
         event.private = True
         event.citations.append(citation)
         event.files.append(event_file)
         person = Person('P0')
-        Presence(person, Presence.Role.SUBJECT, event)
+        Presence(person, Subject(), event)
         privatize_event(event)
         self.assertTrue(event.private)
         self.assertTrue(event_file.private)

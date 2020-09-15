@@ -2,7 +2,8 @@
 
 [![Build Status](https://travis-ci.org/bartfeenstra/betty.svg?branch=master)](https://travis-ci.org/bartfeenstra/betty) [![codecov](https://codecov.io/gh/bartfeenstra/betty/branch/master/graph/badge.svg)](https://codecov.io/gh/bartfeenstra/betty)
 
-Betty is a static site generator for [Gramps](https://gramps-project.org/) XML files.
+Betty is a static site generator for [Gramps](https://gramps-project.org/) and
+[GEDCOM](https://en.wikipedia.org/wiki/GEDCOM) family trees.
 
 ## Table of Contents
 
@@ -11,7 +12,9 @@ Betty is a static site generator for [Gramps](https://gramps-project.org/) XML f
 - [Usage](#usage)
   - [The command line](#the-command-line)
   - [Configuration files](#configuration-files)
+  - [Translations](#translations)
   - [Gramps](#gramps)
+  - [GEDCOM files](#gedcom-files)
   - [The Python API](#the-python-api)
 - [Development](#development)
 - [Contributions](#contributions)
@@ -32,7 +35,7 @@ secure**.
 
 ### Requirements
 - **Python 3.6+**
-- Node.js 8+ (optional)
+- Node.js 10+ (optional)
 
 ### Instructions
 Run `pip install git+https://github.com/bartfeenstra/betty.git`.
@@ -70,20 +73,20 @@ locales:
   - locale: en-US
     alias: en
   - locale: nl
-resources: ./resources
+assets_directory_path: ./resources
 plugins:
-  betty.plugin.anonymizer.Anonymizer: {}
-  betty.plugin.cleaner.Cleaner: {}
-  betty.plugin.deriver.Deriver: {}
+  betty.plugin.anonymizer.Anonymizer: ~
+  betty.plugin.cleaner.Cleaner: ~
+  betty.plugin.deriver.Deriver: ~
   betty.plugin.gramps.Gramps:
     file: ./gramps.gpkg
-  betty.plugin.maps.Maps: {}
+  betty.plugin.maps.Maps: ~
   betty.plugin.nginx.Nginx:
     www_directory_path: /var/www/betty
     https: true
-  betty.plugin.privatizer.Privatizer: {}
-  betty.plugin.trees.Trees: {}
-  betty.plugin.wikipedia.Wikipedia: {}
+  betty.plugin.privatizer.Privatizer: ~
+  betty.plugin.trees.Trees: ~
+  betty.plugin.wikipedia.Wikipedia: ~
 ```
 - `output` (required); The path to the directory in which to place the generated site.
 - `base_url` (required); The absolute, public URL at which the site will be published.
@@ -98,11 +101,12 @@ plugins:
     - `alias` (optional): A shorthand alias to use instead of the full language tag, such as when rendering URLs.
 
     If no locales are defined, Betty defaults to US English.
-- `resources` (optional); The path to a directory containing overrides for any of Betty's [resources](./betty/resources).
+- `assets_directory_path` (optional); The path to a directory containing overrides for any of Betty's
+    [assets](./betty/assets).
 - `plugins` (optional): The plugins to enable. Keys are plugin names, and values are objects containing each plugin's configuration.
-    - `betty.plugin.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `{}`.
-    - `betty.plugin.cleaner.Cleaner`: Removes data (events, media, etc.) that have no relation to any people. Configuration: `{}`.
-    - `betty.plugin.deriver.Deriver`: Extends ancestries by deriving facts from existing information. Configuration: `{}`.
+    - `betty.plugin.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `~`.
+    - `betty.plugin.cleaner.Cleaner`: Removes data (events, media, etc.) that have no relation to any people. Configuration: `~`.
+    - `betty.plugin.deriver.Deriver`: Extends ancestries by deriving facts from existing information. Configuration: `~`.
     - `betty.plugin.gramps.Gramps`: Parses a Gramps genealogy. Configuration:
         - `file`: the path to the *Gramps XML* or *Gramps XML Package* file.
     - `betty.plugin.maps.Maps`: Renders interactive maps using [Leaflet](https://leafletjs.com/).
@@ -117,31 +121,81 @@ plugins:
         - `https` (optional): Whether or not nginx will be serving Betty over HTTPS. Most upstream nginx servers will
             want to have this disabled, so the downstream server can terminate SSL and communicate over HTTP 2 instead.
             Defaults to `true` if the base URL specifies HTTPS, or `false` otherwise.
-    - `betty.plugin.privatizer.Privatizer`: Marks living people private. Configuration: `{}`.
+    - `betty.plugin.privatizer.Privatizer`: Marks living people private. Configuration: `~`.
     - `betty.plugin.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
     - `betty.plugin.wikipedia.Wikipedia`: Lets templates and other plugins retrieve complementary Wikipedia entries.
 
+### Translations
+Betty ships with the following translations:
+- US English (`en-US`)
+- Dutch (`nl-NL`)
+- Ukrainian (`uk`)
+
+Plugins and sites can override these translations, or provide translations for additional locales.
+
 ### Gramps
 #### Privacy
-Gramps has built-in support for person privacy. To control privacy for events, files, sources, and citations, add a
-`betty:privacy` attribute to any of these types, with a value of `private` to explicitly declare the data always
-private or `public` to declare the data always public. Any other value will leave the privacy undecided. In such cases,
-the `betty.plugin.privatizer.Privatizer` may decide if the data is public or private.
+Gramps has limited built-in support for people's privacy. To fully control privacy for people, as well as events, files,
+sources, and citations, add a `betty:privacy` attribute to any of these types, with a value of `private` to explicitly
+declare the data always private or `public` to declare the data always public. Any other value will leave the privacy
+undecided, as well as person records marked public using Gramps' built-in privacy selector. In such cases, the
+`betty.plugin.privatizer.Privatizer` may decide if the data is public or private.
+
+#### Dates
+For unknown date parts, set those to all zeroes and Betty will ignore them. For instance, `0000-12-31` will be parsed as
+"December 31", and `1970-01-00` as "January, 1970".
+
+#### Event types
+Betty supports the following custom Gramps event types:
+- `Correspondence`
+- `Funeral`
+- `Will`
+
+#### Event roles
+Betty supports the following custom Gramps event roles:
+- `Beneficiary`
+
+#### Order & priority
+The order of lists of data, or the priority of individual bits of data, can be automatically determined by Betty in
+multiple different ways, such as by matching dates, or locales. When not enough details are available, or in case of
+ambiguity, the original order is preserved. If only a single item must be retrieved from the list, this will be the
+first item, optionally after sorting.
+
+For example, if a place has multiple names (which may be historical or translations), Betty may try to
+filter names by the given locale and date, and then indiscriminately pick the first one of the remaining names to
+display as the canonical name.
+
+Tips:
+- If you want one item to have priority over another, it should come before the other in a list (e.g. be higher up).
+- Items with more specific or complete data, such as locales or dates, should come before items with less specific or
+    complete data. However, items without dates at all are considered current and not historical.
+- Unofficial names or nicknames, should generally be put at the end of lists.
+
+### GEDCOM files
+To build a site from your GEDCOM files:
+1. Install and launch [Gramps](https://gramps-project.org/)
+1. Create a new family tree
+1. Import your GEDCOM file under *Family Trees* > *Import...*
+1. Export your family tree under *Family Trees* > *Export...*
+1. As output format, choose one of the *Gramps XML* options
+1. Follow the documentation to [configure your Betty site](#configuration-files) to parse the exported file
 
 ### The Python API
 ```python
 from betty.config import Configuration
+from betty.functools import sync
+from betty.generate import generate
 from betty.parse import parse
-from betty.render import render
 from betty.site import Site
 
+@sync
 async def generate():
     output_directory_path = '/var/www/betty'
     url = 'https://betty.example.com'
     configuration = Configuration(output_directory_path, url)
     async with Site(configuration) as site:
         await parse(site)
-        await render(site)
+        await generate(site)
 
 ```
 
@@ -150,12 +204,20 @@ First, [fork and clone](https://guides.github.com/activities/forking/) the repos
 
 ### Requirements
 - The installation requirements documented earlier.
+- Node.js
 - [Docker](https://www.docker.com/)
-- [jq](https://stedolan.github.io/jq/)
 - Bash (you're all good if `which bash` outputs a path in your terminal)
 
 ### Installation
 In any existing Python environment, run `./bin/build-dev`.
+
+### Working on translations
+To add a new translation, run `./bin/init-translation $locale` where `$locale` is a
+[IETF BCP 47](https://tools.ietf.org/html/bcp47), but using underscores instead of dashes (`nl_NL` instead of `nl-NL`).
+
+After making changes to the translatable strings in the source code, run `./bin/extract-translatables`.
+
+After making changes to the translation files, run `./bin/compile-translatables`.
 
 ### Testing
 In any existing Python environment, run `./bin/test`.

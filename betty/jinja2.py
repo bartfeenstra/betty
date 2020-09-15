@@ -1,14 +1,15 @@
 import asyncio
+import datetime
 import json as stdjson
 import os
 import re
-from importlib import import_module
+from contextlib import suppress
 from itertools import takewhile
 from os.path import join, exists
-from typing import Union, Dict, Type, Optional, Callable, Iterable, List
+from typing import Union, Dict, Type, Optional, Callable, Iterable
 from urllib.parse import urlparse
 
-import aiofiles
+import aiofiles.os
 from PIL import Image
 from babel import Locale
 from geopy import units
@@ -21,12 +22,14 @@ from jinja2.utils import htmlsafe_json_dumps, Namespace as Jinja2Namespace
 from markupsafe import Markup
 from resizeimage import resizeimage
 
-from betty.ancestry import File, Citation, Event, Presence, Identifiable, Resource, HasLinks
+from betty.ancestry import File, Citation, Identifiable, Resource, HasLinks, HasFiles, Subject, Witness, Dated, \
+    RESOURCE_TYPES
 from betty.config import Configuration
 from betty.fs import makedirs, hashfile, iterfiles
 from betty.functools import walk, asynciter
+from betty.importlib import import_any
 from betty.json import JSONEncoder
-from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale
+from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange
 from betty.plugin import Plugin
 from betty.render import Renderer
 from betty.search import Index
@@ -40,17 +43,13 @@ class _Plugins:
         self._plugins = plugins
 
     def __getitem__(self, plugin_type_name):
-        return self._plugins[self._type(plugin_type_name)]
+        return self._plugins[import_any(plugin_type_name)]
 
     def __contains__(self, plugin_type_name):
         try:
-            return self._type(plugin_type_name) in self._plugins
-        except (ImportError, AttributeError):
+            return import_any(plugin_type_name) in self._plugins
+        except ImportError:
             return False
-
-    def _type(self, plugin_type_name: str):
-        plugin_module_name, plugin_class_name = plugin_type_name.rsplit('.', 1)
-        return getattr(import_module(plugin_module_name), plugin_class_name)
 
 
 class _Citer:
@@ -109,7 +108,7 @@ class Namespace(Jinja2Namespace):
 
 def create_environment(site: Site) -> Environment:
     template_directory_paths = list(
-        [join(path, 'templates') for path in site.resources.paths])
+        [join(path, 'templates') for path in site.assets.paths])
     environment = Environment(
         enable_async=True,
         loader=FileSystemLoader(template_directory_paths),
@@ -121,6 +120,8 @@ def create_environment(site: Site) -> Environment:
             'jinja2.ext.i18n',
         ],
     )
+    if site.configuration.mode == 'development':
+        environment.add_extension('jinja2.ext.debug')
 
     def _gettext(*args, **kwargs):
         return gettext(*args, **kwargs)
@@ -133,9 +134,9 @@ def create_environment(site: Site) -> Environment:
     environment.globals['namespace'] = Namespace
     environment.globals['site'] = site
     environment.globals['locale'] = site.locale
+    today = datetime.date.today()
+    environment.globals['today'] = Date(today.year, today.month, today.day)
     environment.globals['plugins'] = _Plugins(site.plugins)
-    environment.globals['EventType'] = Event.Type
-    environment.globals['PresenceRole'] = Presence.Role
     environment.globals['urlparse'] = urlparse
     environment.filters['map'] = _filter_map
     environment.filters['flatten'] = _filter_flatten
@@ -146,24 +147,36 @@ def create_environment(site: Site) -> Environment:
     environment.filters['negotiate_localizeds'] = _filter_negotiate_localizeds
     environment.filters['sort_localizeds'] = _filter_sort_localizeds
     environment.filters['select_localizeds'] = _filter_select_localizeds
+    environment.filters['negotiate_dateds'] = _filter_negotiate_dateds
+    environment.filters['select_dateds'] = _filter_select_dateds
+
+    def _dump_json(context, data, indent):
+        return stdjson.dumps(data, indent=indent,
+                             cls=JSONEncoder.get_factory(site, resolve_or_missing(context, 'locale')))
 
     # A filter to convert any value to JSON.
     @contextfilter
     async def _filter_json(context, data, indent=None):
-        return stdjson.dumps(data, indent=indent,
-                             cls=JSONEncoder.get_factory(site, resolve_or_missing(context, 'locale')))
+        return _dump_json(context, data, indent)
 
     environment.filters['json'] = _filter_json
 
     # Override Jinja2's built-in JSON filter, which escapes the JSON for use in HTML, to use Betty's own encoder.
     @contextfilter
     async def _filter_tojson(context, data, indent=None):
-        return htmlsafe_json_dumps(data, indent=indent, dumper=lambda *args, **kwargs: _filter_json(context, *args, **kwargs))
+        return htmlsafe_json_dumps(data, indent=indent, dumper=lambda *args, **kwargs: _dump_json(context, *args, **kwargs))
 
     environment.filters['tojson'] = _filter_tojson
     environment.tests['resource'] = lambda x: isinstance(x, Resource)
     environment.tests['identifiable'] = lambda x: isinstance(x, Identifiable)
     environment.tests['has_links'] = lambda x: isinstance(x, HasLinks)
+    environment.tests['has_files'] = lambda x: isinstance(x, HasFiles)
+    environment.tests['startswith'] = str.startswith
+    environment.tests['subject_role'] = lambda x: isinstance(x, Subject)
+    environment.tests['witness_role'] = lambda x: isinstance(x, Witness)
+    environment.tests['date_range'] = lambda x: isinstance(x, DateRange)
+    for resource_type in RESOURCE_TYPES:
+        environment.tests['%s_resource' % resource_type.resource_type_name] = lambda x: isinstance(x, Witness)
     environment.filters['paragraphs'] = _filter_paragraphs
 
     @contextfilter
@@ -217,7 +230,7 @@ class Jinja2Renderer(Renderer):
         template = _root_loader.load(self._environment, file_path, self._environment.globals)
         async with aiofiles.open(file_destination_path, 'w') as f:
             await f.write(await template.render_async(data))
-        os.remove(file_path)
+        await aiofiles.os.remove(file_path)
 
     async def render_tree(self, tree_path: str) -> None:
         await asyncio.gather(
@@ -286,8 +299,8 @@ async def _filter_takewhile(context, seq, *args, **kwargs):
             return context.environment.call_test(name, item, args, kwargs)
     except LookupError:
         func = bool
-    if seq:
-        return takewhile(func, seq)
+
+    return takewhile(func, seq)
 
 
 def _filter_file(site: Site, file: File) -> str:
@@ -358,27 +371,40 @@ async def _filter_image(site: Site, file: File, width: Optional[int] = None, hei
 
 
 @contextfilter
-async def _filter_negotiate_localizeds(context, localizeds: List[Localized]):
+async def _filter_negotiate_localizeds(context, localizeds: Iterable[Localized]) -> Optional[Localized]:
     locale = resolve_or_missing(context, 'locale')
-    return negotiate_localizeds(locale, localizeds)
+    return negotiate_localizeds(locale, list(localizeds))
 
 
 @contextfilter
-async def _filter_sort_localizeds(context, localizeds: Iterable, localized_attribute: str, sort_attribute: str):
+async def _filter_sort_localizeds(context, localizeds: Iterable[Localized], localized_attribute: str, sort_attribute: str) -> Iterable[Localized]:
     locale = resolve_or_missing(context, 'locale')
     get_localized_attr = make_attrgetter(
         context.environment, localized_attribute)
     get_sort_attr = make_attrgetter(context.environment, sort_attribute)
 
-    def get_sort_key(x):
+    def _get_sort_key(x):
         return get_sort_attr(negotiate_localizeds(locale, get_localized_attr(x)))
 
-    return sorted(localizeds, key=get_sort_key)
+    return sorted(localizeds, key=_get_sort_key)
 
 
 @contextfilter
-async def _filter_select_localizeds(context, localizeds: Iterable[Localized]):
+async def _filter_select_localizeds(context, localizeds: Iterable[Localized]) -> Iterable[Localized]:
     locale = resolve_or_missing(context, 'locale')
     for localized in localizeds:
         if negotiate_locale(locale, [localized.locale]) is not None:
             yield localized
+
+
+@contextfilter
+def _filter_negotiate_dateds(context, dateds: Iterable[Dated], date: Optional[Datey]) -> Optional[Dated]:
+    with suppress(StopIteration):
+        return next(_filter_select_dateds(context, dateds, date))
+
+
+@contextfilter
+def _filter_select_dateds(context, dateds: Iterable[Dated], date: Optional[Datey]) -> Iterable[Dated]:
+    if date is None:
+        date = resolve_or_missing(context, 'today')
+    return filter(lambda dated: dated.date is None or dated.date.comparable and dated.date in date, dateds)

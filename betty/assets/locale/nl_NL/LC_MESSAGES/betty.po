@@ -1,0 +1,642 @@
+# Dutch translations for PROJECT.
+# Copyright (C) 2019 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2020-05-29 18:41+0100\n"
+"PO-Revision-Date: 2019-10-05 11:38+0100\n"
+"Last-Translator: \n"
+"Language: nl\n"
+"Language-Team: nl <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: betty/ancestry.py:443
+msgid "Subject"
+msgstr "Onderwerp"
+
+#: betty/ancestry.py:451
+msgid "Witness"
+msgstr "Getuige"
+
+#: betty/ancestry.py:459
+msgid "Beneficiary"
+msgstr "Begunstigde"
+
+#: betty/ancestry.py:467
+msgid "Attendee"
+msgstr "Aanwezige"
+
+#: betty/ancestry.py:505
+msgid "Birth"
+msgstr "Geboorte"
+
+#: betty/ancestry.py:513
+msgid "Baptism"
+msgstr "Doping"
+
+#: betty/ancestry.py:521
+msgid "Adoption"
+msgstr "Adoptie"
+
+#: betty/ancestry.py:529
+msgid "Death"
+msgstr "Overlijden"
+
+#: betty/ancestry.py:541
+msgid "Funeral"
+msgstr "Uitvaart"
+
+#: betty/ancestry.py:553
+msgid "Cremation"
+msgstr "Crematie"
+
+#: betty/ancestry.py:565
+msgid "Burial"
+msgstr "Begravenis"
+
+#: betty/ancestry.py:577
+msgid "Will"
+msgstr "Testament"
+
+#: betty/ancestry.py:589
+msgid "Engagement"
+msgstr "Verloving"
+
+#: betty/ancestry.py:601
+msgid "Marriage"
+msgstr "Huwelijk"
+
+#: betty/ancestry.py:609
+msgid "Announcement of marriage"
+msgstr "Huwelijksaankondiging"
+
+#: betty/ancestry.py:621
+msgid "Divorce"
+msgstr "Echtscheiding"
+
+#: betty/ancestry.py:633
+msgid "Announcement of divorce"
+msgstr "Scheidingsaankondiging"
+
+#: betty/ancestry.py:649
+msgid "Residence"
+msgstr "Woonplaats"
+
+#: betty/ancestry.py:657
+msgid "Immigration"
+msgstr "Immigratie"
+
+#: betty/ancestry.py:665
+msgid "Emigration"
+msgstr "Emigratie"
+
+#: betty/ancestry.py:673
+msgid "Occupation"
+msgstr "Beroep"
+
+#: betty/ancestry.py:681
+msgid "Retirement"
+msgstr "Pensioen"
+
+#: betty/ancestry.py:689
+msgid "Correspondence"
+msgstr "Correspondentie"
+
+#: betty/ancestry.py:697
+msgid "Confirmation"
+msgstr "Geloofsbelijdenis"
+
+#: betty/locale.py:243
+msgid "unknown date"
+msgstr "onbekend"
+
+#: betty/locale.py:247
+#, python-format
+msgid "around %(date)s"
+msgstr "rond %(date)s"
+
+#: betty/locale.py:248
+#, python-format
+msgid "%(date)s"
+msgstr "op %(date)s"
+
+#: betty/locale.py:259
+msgid "MMMM d, y"
+msgstr "d MMMM y"
+
+#: betty/locale.py:260
+msgid "MMMM, y"
+msgstr "MMMM y"
+
+#: betty/locale.py:261
+msgid "y"
+msgstr "y"
+
+#: betty/locale.py:262
+msgid "MMMM d"
+msgstr "d MMMM"
+
+#: betty/locale.py:263
+msgid "MMMM"
+msgstr "MMMM"
+
+#: betty/locale.py:279
+#, python-format
+msgid "from %(start_date)s until %(end_date)s"
+msgstr "vanaf %(start_date)s tot en met %(end_date)s"
+
+#: betty/locale.py:280
+#, python-format
+msgid "from %(start_date)s until sometime before %(end_date)s"
+msgstr "vanaf %(start_date)s tot ergens voor %(end_date)s"
+
+#: betty/locale.py:281
+#, python-format
+msgid "from %(start_date)s until around %(end_date)s"
+msgstr "vanaf %(start_date)s tot ongeveer %(end_date)s"
+
+#: betty/locale.py:282
+#, python-format
+msgid "from %(start_date)s until sometime before around %(end_date)s"
+msgstr "vanaf %(start_date)s tot ergens voor ongeveer %(end_date)s"
+
+#: betty/locale.py:283
+#, python-format
+msgid "from sometime after %(start_date)s until %(end_date)s"
+msgstr "van ergens na %(start_date)s tot en met %(end_date)s"
+
+#: betty/locale.py:284
+#, python-format
+msgid "sometime between %(start_date)s and %(end_date)s"
+msgstr "ergens tussen %(start_date)s en %(end_date)s"
+
+#: betty/locale.py:285
+#, python-format
+msgid "from sometime after %(start_date)s until around %(end_date)s"
+msgstr "van ergens na %(start_date)s tot ongeveer %(end_date)s"
+
+#: betty/locale.py:286
+#, python-format
+msgid "sometime between %(start_date)s and around %(end_date)s"
+msgstr "ergens tussen %(start_date)s en ongeveer %(end_date)s"
+
+#: betty/locale.py:287
+#, python-format
+msgid "from around %(start_date)s until %(end_date)s"
+msgstr "van ongeveer %(start_date)s tot en met %(end_date)s"
+
+#: betty/locale.py:288
+#, python-format
+msgid "from around %(start_date)s until sometime before %(end_date)s"
+msgstr "van ongeveer %(start_date)s tot ergens voor %(end_date)s"
+
+#: betty/locale.py:289
+#, python-format
+msgid "from around %(start_date)s until around %(end_date)s"
+msgstr "van ongeveer %(start_date)s tot ongeveer %(end_date)s"
+
+#: betty/locale.py:290
+#, python-format
+msgid "from around %(start_date)s until sometime before around %(end_date)s"
+msgstr "van ongeveer %(start_date)s tot ergens voor ongeveer %(end_date)s"
+
+#: betty/locale.py:291
+#, python-format
+msgid "from sometime after around %(start_date)s until %(end_date)s"
+msgstr "van ergens na ongeveer %(start_date)s tot en met %(end_date)s"
+
+#: betty/locale.py:292
+#, python-format
+msgid "sometime between around %(start_date)s and %(end_date)s"
+msgstr "ergens tussen ongeveer %(start_date)s en %(end_date)s"
+
+#: betty/locale.py:293
+#, python-format
+msgid "from sometime after around %(start_date)s until around %(end_date)s"
+msgstr "van ergens na ongeveer %(start_date)s tot ongeveer %(end_date)s"
+
+#: betty/locale.py:294
+#, python-format
+msgid "sometime between around %(start_date)s and around %(end_date)s"
+msgstr "ergens tussen ongeveer %(start_date)s en ongeveer %(end_date)s"
+
+#: betty/locale.py:295
+#, python-format
+msgid "from %(start_date)s"
+msgstr "vanaf %(start_date)s"
+
+#: betty/locale.py:296
+#, python-format
+msgid "sometime after %(start_date)s"
+msgstr "ergens na %(start_date)s"
+
+#: betty/locale.py:297
+#, python-format
+msgid "from around %(start_date)s"
+msgstr "van ongeveer %(start_date)s"
+
+#: betty/locale.py:298
+#, python-format
+msgid "sometime after around %(start_date)s"
+msgstr "ergens na ongeveer %(start_date)s"
+
+#: betty/locale.py:299
+#, python-format
+msgid "until %(end_date)s"
+msgstr "tot en met %(end_date)s"
+
+#: betty/locale.py:300
+#, python-format
+msgid "sometime before %(end_date)s"
+msgstr "ergens voor %(end_date)s"
+
+#: betty/locale.py:301
+#, python-format
+msgid "until around %(end_date)s"
+msgstr "tot ongeveer %(end_date)s"
+
+#: betty/locale.py:302
+#, python-format
+msgid "sometime before around %(end_date)s"
+msgstr "ergens voor ongeveer %(end_date)s"
+
+#: betty/openapi.py:18
+msgid "Retrieve the collection of files."
+msgstr "Haal de verzameling van bestanden op."
+
+#: betty/openapi.py:18
+msgid "The collection of files."
+msgstr "De verzameling van bestanden."
+
+#: betty/openapi.py:19
+msgid "Retrieve a single file."
+msgstr "Haal een enkel bestand op."
+
+#: betty/openapi.py:19
+msgid "The file."
+msgstr "Het bestand."
+
+#: betty/openapi.py:20
+msgid "Retrieve the collection of people."
+msgstr "Haal de verzameling van personen op."
+
+#: betty/openapi.py:20
+msgid "The collection of people."
+msgstr "De verzameling van personen."
+
+#: betty/openapi.py:21
+msgid "Retrieve a single person."
+msgstr "Haal een enkel persoon op."
+
+#: betty/openapi.py:21
+msgid "The person."
+msgstr "De persoon."
+
+#: betty/openapi.py:22
+msgid "Retrieve the collection of places."
+msgstr "Haal de verzameling van plaatsen op."
+
+#: betty/openapi.py:22
+msgid "The collection of places."
+msgstr "De verzameling van plaatsen."
+
+#: betty/openapi.py:23
+msgid "Retrieve a single place."
+msgstr "Haal een enkele plaats op."
+
+#: betty/openapi.py:23
+msgid "The place."
+msgstr "De plaats."
+
+#: betty/openapi.py:24
+msgid "Retrieve the collection of events."
+msgstr "Haal de verzameling van gebeurtenissen op."
+
+#: betty/openapi.py:24
+msgid "The collection of events."
+msgstr "De verzameling van gebeurtenissen."
+
+#: betty/openapi.py:25
+msgid "Retrieve a single event."
+msgstr "Haal een enkele gebeurtenis op."
+
+#: betty/openapi.py:25
+msgid "The event."
+msgstr "De gebeurtenis."
+
+#: betty/openapi.py:26
+msgid "Retrieve the collection of citations."
+msgstr "Haal de verzameling van verwijzingen op."
+
+#: betty/openapi.py:26
+msgid "The collection of citations."
+msgstr "De verzameling van verwijzingen."
+
+#: betty/openapi.py:27
+msgid "Retrieve a single citation."
+msgstr "Haal een enkele verwijzing op."
+
+#: betty/openapi.py:27
+msgid "The citation."
+msgstr "De verwijzing."
+
+#: betty/openapi.py:28
+msgid "Retrieve the collection of sources."
+msgstr "Haal de verzameling van bronnen op."
+
+#: betty/openapi.py:28
+msgid "The collection of sources."
+msgstr "De verzameling van bronnen."
+
+#: betty/openapi.py:29
+msgid "Retrieve a single source."
+msgstr "Haal een enkele bron op."
+
+#: betty/openapi.py:29
+msgid "The source."
+msgstr "De bron."
+
+#: betty/assets/public/localized/.error/401.html.j2:2 betty/openapi.py:49
+msgid "Unauthorized"
+msgstr "Onbevoegd"
+
+#: betty/openapi.py:59
+msgid "Forbidden"
+msgstr "Verboden"
+
+#: betty/openapi.py:69
+msgid "Not found"
+msgstr "Niet gevonden"
+
+#: betty/openapi.py:84
+msgid "The ID for the resource to retrieve."
+msgstr "Het ID van het op te halen document."
+
+#: betty/openapi.py:92
+msgid ""
+"An HTTP [Content-Language](https://developer.mozilla.org/en-"
+"US/docs/Web/HTTP/Headers/Content-Language) header."
+msgstr ""
+"Een HTTP [Content-Language](https://developer.mozilla.org/en-"
+"US/docs/Web/HTTP/Headers/Content-Language)-header."
+
+#: betty/openapi.py:157
+msgid ""
+"An HTTP [Accept-Language](https://developer.mozilla.org/en-"
+"US/docs/Web/HTTP/Headers/Accept-Language) header."
+msgstr ""
+"Een HTTP [Accept-Language](https://developer.mozilla.org/en-"
+"US/docs/Web/HTTP/Headers/Accept-Language)-header."
+
+#: betty/openapi.py:165
+msgid "An HTML5 document."
+msgstr "Een HTML5-document."
+
+#: betty/openapi.py:172
+msgid "A locale name."
+msgstr "De naam van een locale."
+
+#: betty/assets/public/localized/index.html.j2:2
+#, python-format
+msgid "Welcome to %(title)s"
+msgstr "Welkom bij %(title)s"
+
+#: betty/assets/public/localized/api/index.html.j2:4
+#: betty/assets/templates/footer.html.j2:7
+msgid "API documentation"
+msgstr "API-documentatie"
+
+#: betty/assets/templates/base.html.j2:70
+msgid "Exit the search"
+msgstr "Stop met zoeken"
+
+#: betty/assets/templates/base.html.j2:76
+#, python-format
+msgid "E.g. \"%(example)s\""
+msgstr "Bijvoorbeeld \"%(example)s\""
+
+#: betty/assets/templates/base.html.j2:86
+msgid ""
+"Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
+"to exit the search. Search again with <kbd>s</kbd>."
+msgstr ""
+"Gebruik <kbd>↑</kbd> en <kbd>↓</kbd> om door de resultaten te bladeren, "
+"of <kbd>esc</kbd> om te stoppen met zoeken. Zoek opnieuw met "
+"<kbd>s</kbd>."
+
+#: betty/assets/templates/base.html.j2:96
+msgid "Menu"
+msgstr "Menu"
+
+#: betty/assets/templates/base.html.j2:99
+#: betty/assets/templates/page/list-person.html.j2:2
+msgid "People"
+msgstr "Personen"
+
+#: betty/assets/templates/base.html.j2:100
+#: betty/assets/templates/page/person.html.j2:73
+#: betty/assets/templates/page/place.html.j2:24
+msgid "Timeline"
+msgstr "Tijdlijn"
+
+#: betty/assets/templates/base.html.j2:101
+#: betty/assets/templates/page/list-place.html.j2:2
+msgid "Places"
+msgstr "Plaatsen"
+
+#: betty/assets/templates/base.html.j2:102
+#: betty/assets/templates/page/file.html.j2:34
+#: betty/assets/templates/page/list-source.html.j2:2
+msgid "Sources"
+msgstr "Bronnen"
+
+#: betty/assets/templates/base.html.j2:108
+msgid "Language"
+msgstr "Taal"
+
+#: betty/assets/templates/base.html.j2:133
+msgid "External links"
+msgstr "Externe links"
+
+#: betty/assets/templates/base.html.j2:148
+msgid "References"
+msgstr "Referenties"
+
+#: betty/assets/templates/event-dimensions.html.j2:20
+#, python-format
+msgid "%(date)s in %(place)s"
+msgstr "%(date)s te %(place)s"
+
+#: betty/assets/templates/event-dimensions.html.j2:24
+#, python-format
+msgid "in %(place)s"
+msgstr "te %(place)s"
+
+#: betty/assets/templates/footer.html.j2:3
+#, python-format
+msgid "© Copyright %(author)s, unless otherwise credited"
+msgstr "© Copyright %(author)s, tenzij anders vermeld"
+
+#: betty/assets/templates/footer.html.j2:6
+msgid ""
+"A family history as told by <a "
+"href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
+msgstr ""
+"Een familieverhaal verteld door <a "
+"href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
+
+#: betty/assets/templates/label/citation.html.j2:18
+#, python-format
+msgid "Accessed %(date)s"
+msgstr "Opgevraagd op %(date)s"
+
+#: betty/assets/templates/label/event.html.j2:21
+#, python-format
+msgid "%(event)s with %(subjects)s"
+msgstr "%(event)s met %(subjects)s"
+
+#: betty/assets/templates/label/event.html.j2:25
+#, python-format
+msgid "%(event)s of %(subjects)s"
+msgstr "%(event)s van %(subjects)s"
+
+#: betty/assets/templates/label/person.html.j2:9
+#: betty/assets/templates/macro/person.html.j2:23
+#: betty/assets/templates/meta/person.html.j2:11
+msgid "This person's details are unavailable to protect their privacy."
+msgstr "De gegevens van deze persoon zijn niet beschikbaar vanwege privacyredenen."
+
+#: betty/assets/templates/label/person.html.j2:9
+#: betty/assets/templates/macro/person.html.j2:23
+msgid "private"
+msgstr "privé"
+
+#: betty/assets/templates/label/person.html.j2:13
+#: betty/assets/templates/macro/person.html.j2:38
+msgid "This person's name is unknown."
+msgstr "De naam van deze persoon is onbekend."
+
+#: betty/assets/templates/meta/person.html.j2:14
+#, python-format
+msgid "Also known as %(names)s"
+msgstr "Ook bekend als %(names)s"
+
+#: betty/assets/templates/page/citation.html.j2:9
+#: betty/assets/templates/page/event.html.j2:48
+#: betty/assets/templates/page/list-file.html.j2:2
+#: betty/assets/templates/page/person.html.j2:81
+#: betty/assets/templates/page/source.html.j2:10
+#: betty/assets/templates/search/result-file.html.j2:4
+msgid "Media"
+msgstr "Media"
+
+#: betty/assets/templates/page/citation.html.j2:14
+#: betty/assets/templates/page/source.html.j2:15
+msgid "Facts"
+msgstr "Feiten"
+
+#: betty/assets/templates/page/event.html.j2:24
+msgid "Witnesses"
+msgstr "Getuigen"
+
+#: betty/assets/templates/page/event.html.j2:39
+msgid "Other attendees"
+msgstr "Overige aanwezigen"
+
+#: betty/assets/templates/page/file.html.j2:12
+msgid "Notes"
+msgstr "Opmerkingen"
+
+#: betty/assets/templates/page/file.html.j2:19
+msgid "Appearances"
+msgstr "Verschijningen"
+
+#: betty/assets/templates/page/file.html.j2:31
+msgid "Source"
+msgstr "Bron"
+
+#: betty/assets/templates/page/list-event.html.j2:2
+msgid "Events"
+msgstr "Gebeurtenissen"
+
+#: betty/assets/templates/page/person.html.j2:26
+msgid "Parents"
+msgstr "Ouders"
+
+#: betty/assets/templates/page/person.html.j2:39
+msgid "Children"
+msgstr "Kinderen"
+
+#: betty/assets/templates/page/person.html.j2:44
+#, python-format
+msgid "with %(parents)s:"
+msgid_plural "with %(parents)s:"
+msgstr[0] "met %(parents)s:"
+msgstr[1] "met %(parents)s:"
+
+#: betty/assets/templates/page/person.html.j2:61
+msgid "Siblings"
+msgstr "Broers en zussen"
+
+#: betty/plugin/anonymizer/__init__.py:17
+msgid "Private"
+msgstr "Privé"
+
+#: betty/plugin/anonymizer/__init__.py:31
+msgid ""
+"A citation is available, but has not been published in order to protect "
+"people's privacy"
+msgstr ""
+"Er is een verwijzing beschikbaar, maar deze is niet openbaar gemaakt om "
+"mensen hun privacy te beschermen"
+
+#: betty/plugin/wikipedia/__init__.py:194
+msgid "Read more on Wikipedia."
+msgstr "Lees meer op Wikipedia."
+
+#: betty/plugin/wikipedia/assets/templates/wikipedia.html.j2:5
+#, python-format
+msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
+msgstr "Lees verder op <a href=\"%(url)s\">Wikipedia</a>."
+
+#: betty/plugin/wikipedia/assets/templates/wikipedia.html.j2:7
+msgid ""
+"<a "
+"href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a>"
+" Wikipedia and its contributors."
+msgstr ""
+"<a "
+"href=\"https://nl.wikipedia.org/wiki/Wikipedia:Auteursrechten\">Copyright</a>"
+" Wikipedia en bijdragers."
+
+#: betty/assets/public/localized/.error/401.html.j2:4
+#: betty/assets/public/localized/.error/401.json.j2:3
+msgid "I'm sorry, dear, but it seems you're not logged in."
+msgstr "Het spijt me, schat, maar het lijkt erop dat je niet ingelogd bent."
+
+#: betty/assets/public/localized/.error/403.html.j2:2
+msgid "Access denied"
+msgstr "Verboden toegang"
+
+#: betty/assets/public/localized/.error/403.html.j2:4
+#: betty/assets/public/localized/.error/403.json.j2:3
+msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
+msgstr "Het spijt me, schat, maar het lijkt erop dat je deze pagina niet mag zien."
+
+#: betty/assets/public/localized/.error/404.html.j2:2
+msgid "Page not found"
+msgstr "Pagina niet gevonden"
+
+#: betty/assets/public/localized/.error/404.html.j2:4
+#: betty/assets/public/localized/.error/404.json.j2:3
+msgid "I'm sorry, dear, but it seems this page does not exist."
+msgstr "Het spijt me, schat, maar het lijkt erop dat deze pagina niet bestaat."
+

@@ -1,0 +1,105 @@
+{% extends 'base.html.j2' %}
+{% import 'macro/person.html.j2' as personMacros %}
+{% set page_title %}
+    {% with embedded=True %}
+        {% include 'label/person.html.j2' %}
+    {% endwith %}
+{% endset %}
+{% block page_content %}
+    {% include 'meta/person.html.j2' %}
+
+    {% set places = person.presences | map(attribute='event.place') | reject('equalto', None) | list | unique | list %}
+    {% if places | length > 0 %}
+        {% with places=places %}
+            {% include 'list-place.html.j2' %}
+        {% endwith %}
+    {% endif %}
+
+    {% if 'betty.plugin.wikipedia.Wikipedia' in plugins %}
+        {% with entity=person %}
+            {% include 'wikipedia.html.j2' %}
+        {% endwith %}
+    {% endif %}
+
+    {% set parents = person.parents | list %}
+    {% if parents | length > 0 %}
+        <h2>{% trans %}Parents{% endtrans %}</h2>
+        <ul>
+            {% for parent in parents %}
+                <li typeof="foaf:Person" property="rel:childOf">{% with person=parent %}{% include 'label/person.html.j2' %}{% endwith %}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% set children = person.children | list %}
+    {% macro otherParentLabel(parent) -%}
+        <span typeof="foaf:Person" property="rel:spouseOf">{% with person=parent, person_context=person %}{% include 'label/person.html.j2' %}{% endwith %}</span>
+    {%- endmacro %}
+    {% if children | length > 0 %}
+        <h2>{% trans %}Children{% endtrans %}</h2>
+        {% for parents, siblings in children | groupby('parents.list') %}
+            <p>
+                {% do parents.remove(person) %}
+                {% if parents | length > 0 %}
+                    {% trans count = parents | length, parents = parents | map(otherParentLabel) | join(', ') -%}
+                        with {{ parents }}:
+                    {%- pluralize -%}
+                        with {{ parents }}:
+                    {%- endtrans %}
+                {% endif %}
+            </p>
+            <ul>
+                {% for child in siblings %}
+                    <li typeof="foaf:Person" property="rel:parentOf">{% with person=child %}{% include 'label/person.html.j2' %}{% endwith %}</li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    {% endif %}
+
+    {% set siblings = person.siblings | list %}
+    {% if siblings | length > 0 %}
+        <h2>{% trans %}Siblings{% endtrans %}</h2>
+        <ul>
+            {% for sibling in siblings %}
+                <li typeof="foaf:Person" property="rel:siblingOf">{% with person=sibling %}{% include 'label/person.html.j2' %}{% endwith %}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <div class="featured tree js-show" data-betty-person-id="{{ person.id }}"></div>
+
+    {% set events = person.presences | map(attribute='event') | rejectattr('date', 'none') | selectattr('date.comparable') | list %}
+    {% if person.start or person.end %}
+        {% set associated_people = [
+            person.parents | map(attribute='parents') | flatten,
+            person.parents,
+            person.parents | map(attribute='children') | flatten,
+            person.children | map(attribute='parents') | flatten,
+            person.children,
+            person.children | map(attribute='children') | flatten,
+        ] | flatten | list %}
+        {% set associated_events = [
+            associated_people | map(attribute='start'),
+            associated_people | map(attribute='end'),
+        ] | flatten | reject('none') | rejectattr('date', 'none') | selectattr('date.comparable') | list %}
+            {% if person.start is not none and person.start.date is not none and person.start.date.comparable %}
+                {% set associated_events = associated_events | rejectattr('date', 'lt', person.start.date) %}
+            {% endif %}
+            {% if person.end is not none and person.end.date is not none and person.end.date.comparable %}
+                {% set associated_events = associated_events | rejectattr('date', 'gt', person.end.date) %}
+            {% endif %}
+            {% set events = (events + (associated_events | list)) | unique | list %}
+    {% endif %}
+    {% if events | length > 0 %}
+        <h2>{% trans %}Timeline{% endtrans %}</h2>
+        {% with person_context=person %}
+            {% include 'list-event.html.j2' %}
+        {% endwith %}
+    {% endif %}
+
+    {% set files = person.associated_files | list %}
+    {% if files | length > 0 %}
+        <h2>{% trans %}Media{% endtrans %}</h2>
+        {% include 'list-file.html.j2' %}
+    {% endif %}
+{% endblock %}

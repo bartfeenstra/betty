@@ -7,16 +7,18 @@ from betty.functools import sync
 from betty.generate import generate
 from betty.plugin.maps import Maps
 from betty.site import Site
+from betty.tests import patch_cache
 
 
 class MapsTest(TestCase):
+    @patch_cache
     @sync
     async def test_post_render_event(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://ancestry.example.com')
             configuration.mode = 'development'
-            configuration.plugins[Maps] = {}
+            configuration.plugins[Maps] = None
             async with Site(configuration) as site:
                 await generate(site)
             with open(join(configuration.www_directory_path, 'maps.js')) as f:

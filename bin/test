@@ -22,14 +22,17 @@ done
 flake8 --config ./flake8.ini ./betty
 
 # Test the CSS code style.
-./node_modules/.bin/stylelint "./**/*.css" "./**/*.sass" "./**/*.scss"
+./node_modules/.bin/stylelint "./betty/**/*.css" "./betty/**/*.sass" "./betty/**/*.scss"
 
 # Test the JS code style.
 while read -r configuration_path; do
     ./node_modules/.bin/eslint -c "$configuration_path" "$(dirname "${configuration_path}")/**/*.js"
 done < <(find ./ -name .eslintrc.yaml)
 
-# Run unit tests with coverage.
+# Run Python unit and integration tests with coverage.
 coverage erase
 coverage run -m nose2
 coverage report -m
+
+# Run end-to-end (e2e) tests.
+BETTY_PYTHON_PATH="$(command -v python)" ./node_modules/.bin/cypress run

@@ -3,55 +3,38 @@ from tempfile import TemporaryDirectory, NamedTemporaryFile
 from typing import Optional
 from unittest import TestCase
 
-from lxml import etree
-from lxml.etree import XMLParser
 from parameterized import parameterized
 
-from betty.ancestry import Event, Ancestry, PersonName
+from betty.ancestry import Ancestry, PersonName, Birth, Death
 from betty.config import Configuration
 from betty.functools import sync
+from betty.locale import Date
 from betty.parse import parse
-from betty.plugin.gramps import extract_xml_file, parse_xml_file, Gramps
+from betty.plugin.gramps import parse_xml, Gramps
 from betty.site import Site
 
 
-class ExtractXmlFileTest(TestCase):
-    def test_gramps_xml(self):
-        with TemporaryDirectory() as cache_directory_path:
-            gramps_file_path = join(
-                dirname(abspath(__file__)), 'resources', 'minimal.gramps')
-            xml_file_path = extract_xml_file(
-                gramps_file_path, cache_directory_path)
-            with open(xml_file_path) as f:
-                parser = XMLParser()
-                etree.parse(f, parser)
-
-    def test_portable_gramps_xml_package(self):
-        with TemporaryDirectory() as cache_directory_path:
-            gramps_file_path = join(
-                dirname(abspath(__file__)), 'resources', 'minimal.gpkg')
-            xml_file_path = extract_xml_file(
-                gramps_file_path, cache_directory_path)
-            with open(xml_file_path) as f:
-                parser = XMLParser()
-                etree.parse(f, parser)
-
-
-class ParseXmlFileTestCase(TestCase):
+class ParseXmlTest(TestCase):
     @classmethod
-    def setUpClass(cls) -> None:
+    @sync
+    async def setUpClass(cls) -> None:
         # @todo Convert each test method to use self._parse(), so we can remove this shared XML file.
-        cls.ancestry = Ancestry()
-        parse_xml_file(cls.ancestry, join(
-            dirname(abspath(__file__)), 'resources', 'data.xml'))
+        with TemporaryDirectory() as output_directory_path:
+            configuration = Configuration(output_directory_path, 'https://example.com')
+            async with Site(configuration) as site:
+                cls.ancestry = site.ancestry
+                parse_xml(site, join(dirname(abspath(__file__)), 'assets', 'data.xml'))
 
-    def _parse(self, xml: str) -> Ancestry:
-        with NamedTemporaryFile(mode='r+') as f:
-            f.write(xml.strip())
-            f.seek(0)
-            ancestry = Ancestry()
-            parse_xml_file(ancestry, f.name)
-            return ancestry
+    @sync
+    async def _parse(self, xml: str) -> Ancestry:
+        with TemporaryDirectory() as output_directory_path:
+            configuration = Configuration(output_directory_path, 'https://example.com')
+            async with Site(configuration) as site:
+                with NamedTemporaryFile(mode='r+') as f:
+                    f.write(xml.strip())
+                    f.seek(0)
+                    parse_xml(site, f.name)
+                    return site.ancestry
 
     def _parse_partial(self, xml: str) -> Ancestry:
         return self._parse("""
@@ -67,6 +50,33 @@ class ParseXmlFileTestCase(TestCase):
   %s
 </database>
 """ % xml)
+
+    @sync
+    async def test_xml(self):
+        with TemporaryDirectory() as output_directory_path:
+            configuration = Configuration(output_directory_path, 'https://example.com')
+            async with Site(configuration) as site:
+                gramps_file_path = join(
+                    dirname(abspath(__file__)), 'assets', 'minimal.xml')
+                parse_xml(site, gramps_file_path)
+
+    @sync
+    async def test_xml_gz(self):
+        with TemporaryDirectory() as output_directory_path:
+            configuration = Configuration(output_directory_path, 'https://example.com')
+            async with Site(configuration) as site:
+                gramps_file_path = join(
+                    dirname(abspath(__file__)), 'assets', 'minimal.gramps')
+                parse_xml(site, gramps_file_path)
+
+    @sync
+    async def test_xml_tar_gz(self):
+        with TemporaryDirectory() as output_directory_path:
+            configuration = Configuration(output_directory_path, 'https://example.com')
+            async with Site(configuration) as site:
+                gramps_file_path = join(
+                    dirname(abspath(__file__)), 'assets', 'minimal.gpkg')
+                parse_xml(site, gramps_file_path)
 
     def test_place_should_include_name(self):
         place = self.ancestry.places['P0000']
@@ -136,10 +146,10 @@ class ParseXmlFileTestCase(TestCase):
             self.assertCountEqual(expected_children, parent.children)
 
     def test_event_should_be_birth(self):
-        self.assertEquals(Event.Type.BIRTH, self.ancestry.events['E0000'].type)
+        self.assertIsInstance(self.ancestry.events['E0000'].type, Birth)
 
     def test_event_should_be_death(self):
-        self.assertEquals(Event.Type.DEATH, self.ancestry.events['E0002'].type)
+        self.assertIsInstance(self.ancestry.events['E0002'].type, Death)
 
     def test_event_should_include_place(self):
         event = self.ancestry.events['E0000']
@@ -162,27 +172,29 @@ class ParseXmlFileTestCase(TestCase):
         event = self.ancestry.events['E0008']
         self.assertEquals('Something happened!', event.description)
 
-    def test_date_should_ignore_invalid_date(self):
-        date = self.ancestry.events['E0001'].date
-        self.assertIsNone(date)
-
-    def test_date_should_ignore_invalid_date_parts(self):
-        date = self.ancestry.events['E0002'].date
-        self.assertIsNone(date.year)
-        self.assertEquals(12, date.month)
-        self.assertEquals(31, date.day)
+    @parameterized.expand([
+        (Date(), '0000-00-00'),
+        (Date(None, None, 1), '0000-00-01'),
+        (Date(None, 1), '0000-01-00'),
+        (Date(None, 1, 1), '0000-01-01'),
+        (Date(1970), '1970-00-00'),
+        (Date(1970, None, 1), '1970-00-01'),
+        (Date(1970, 1), '1970-01-00'),
+        (Date(1970, 1, 1), '1970-01-01'),
+    ])
+    def test_date_should_parse_parts(self, expected: Date, dateval_val: str):
+        ancestry = self._parse_partial("""
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Birth</type>
+        <dateval val="%s" quality="calculated"/>
+    </event>
+</events>
+""" % dateval_val)
+        self.assertEquals(expected, ancestry.events['E0000'].date)
 
     def test_date_should_ignore_calendar_format(self):
         self.assertIsNone(self.ancestry.events['E0005'].date)
-
-    def test_date_should_parse_range(self):
-        date = self.ancestry.events['E0006'].date
-        self.assertEquals(1970, date.start.year)
-        self.assertEquals(1, date.start.month)
-        self.assertEquals(1, date.start.day)
-        self.assertEquals(1999, date.end.year)
-        self.assertEquals(12, date.end.month)
-        self.assertEquals(31, date.end.day)
 
     def test_date_should_parse_before(self):
         date = self.ancestry.events['E0003'].date
@@ -190,6 +202,8 @@ class ParseXmlFileTestCase(TestCase):
         self.assertEquals(1970, date.end.year)
         self.assertEquals(1, date.end.month)
         self.assertEquals(1, date.end.day)
+        self.assertTrue(date.end_is_boundary)
+        self.assertFalse(date.end.fuzzy)
 
     def test_date_should_parse_after(self):
         date = self.ancestry.events['E0004'].date
@@ -197,13 +211,137 @@ class ParseXmlFileTestCase(TestCase):
         self.assertEquals(1970, date.start.year)
         self.assertEquals(1, date.start.month)
         self.assertEquals(1, date.start.day)
+        self.assertTrue(date.start_is_boundary)
+        self.assertFalse(date.start.fuzzy)
 
-    def test_date_should_parse_around(self):
+    def test_date_should_parse_calculated(self):
+        ancestry = self._parse_partial("""
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Birth</type>
+        <dateval val="1970-01-01" quality="calculated"/>
+    </event>
+</events>
+""")
+        date = ancestry.events['E0000'].date
+        self.assertEquals(1970, date.year)
+        self.assertEquals(1, date.month)
+        self.assertEquals(1, date.day)
+        self.assertFalse(date.fuzzy)
+
+    def test_date_should_parse_estimated(self):
+        ancestry = self._parse_partial("""
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Birth</type>
+        <dateval val="1970-01-01" quality="estimated"/>
+    </event>
+</events>
+""")
+        date = ancestry.events['E0000'].date
+        self.assertEquals(1970, date.year)
+        self.assertEquals(1, date.month)
+        self.assertEquals(1, date.day)
+        self.assertTrue(date.fuzzy)
+
+    def test_date_should_parse_about(self):
         date = self.ancestry.events['E0007'].date
         self.assertEquals(1970, date.year)
         self.assertEquals(1, date.month)
         self.assertEquals(1, date.day)
         self.assertTrue(date.fuzzy)
+
+    def test_daterange_should_parse(self):
+        ancestry = self._parse_partial("""
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Birth</type>
+        <daterange start="1970-01-01" stop="1999-12-31"/>
+    </event>
+</events>
+""")
+        date = ancestry.events['E0000'].date
+        self.assertEquals(1970, date.start.year)
+        self.assertEquals(1, date.start.month)
+        self.assertEquals(1, date.start.day)
+        self.assertFalse(date.start.fuzzy)
+        self.assertTrue(date.start_is_boundary)
+        self.assertEquals(1999, date.end.year)
+        self.assertEquals(12, date.end.month)
+        self.assertEquals(31, date.end.day)
+        self.assertTrue(date.end_is_boundary)
+        self.assertFalse(date.end.fuzzy)
+
+    def test_daterange_should_parse_calculated(self):
+        ancestry = self._parse_partial("""
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Birth</type>
+        <daterange start="1970-01-01" stop="1999-12-31" quality="calculated"/>
+    </event>
+</events>
+""")
+        date = ancestry.events['E0000'].date
+        self.assertFalse(date.start.fuzzy)
+        self.assertFalse(date.end.fuzzy)
+
+    def test_daterange_should_parse_estimated(self):
+        ancestry = self._parse_partial("""
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Birth</type>
+        <daterange start="1970-01-01" stop="1999-12-31" quality="estimated"/>
+    </event>
+</events>
+""")
+        date = ancestry.events['E0000'].date
+        self.assertTrue(date.start.fuzzy)
+        self.assertTrue(date.end.fuzzy)
+
+    def test_datespan_should_parse(self):
+        ancestry = self._parse_partial("""
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Birth</type>
+        <datespan start="1970-01-01" stop="1999-12-31"/>
+    </event>
+</events>
+""")
+        date = ancestry.events['E0000'].date
+        self.assertEquals(1970, date.start.year)
+        self.assertEquals(1, date.start.month)
+        self.assertEquals(1, date.start.day)
+        self.assertFalse(date.start.fuzzy)
+        self.assertEquals(1999, date.end.year)
+        self.assertEquals(12, date.end.month)
+        self.assertEquals(31, date.end.day)
+        self.assertFalse(date.end.fuzzy)
+
+    def test_datespan_should_parse_calculated(self):
+        ancestry = self._parse_partial("""
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Birth</type>
+        <datespan start="1970-01-01" stop="1999-12-31" quality="calculated"/>
+    </event>
+</events>
+""")
+        date = ancestry.events['E0000'].date
+        self.assertFalse(date.start.fuzzy)
+        self.assertFalse(date.end.fuzzy)
+
+    def test_datespan_should_parse_estimated(self):
+        ancestry = self._parse_partial("""
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Birth</type>
+        <datespan start="1970-01-01" stop="1999-12-31" quality="estimated"/>
+    </event>
+</events>
+""")
+        date = ancestry.events['E0000'].date
+        self.assertTrue(date.start.fuzzy)
+        self.assertTrue(date.end.fuzzy)
 
     def test_source_from_repository_should_include_name(self):
         source = self.ancestry.sources['R0000']
@@ -232,6 +370,24 @@ class ParseXmlFileTestCase(TestCase):
         source = self.ancestry.sources['S0000']
         containing_source = self.ancestry.sources['R0000']
         self.assertEquals(containing_source, source.contained_by)
+
+    @parameterized.expand([
+        (True, 'private'),
+        (False, 'public'),
+        (None, 'publi'),
+        (None, 'privat'),
+    ])
+    def test_person_should_include_privacy_from_attribute(self, expected: Optional[bool], attribute_value: str) -> None:
+        ancestry = self._parse_partial("""
+<people>
+    <person handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="I0000">
+        <gender>U</gender>
+        <attribute type="betty:privacy" value="%s"/>
+    </person>
+</people>
+""" % attribute_value)
+        person = ancestry.people['I0000']
+        self.assertEquals(expected, person.private)
 
     @parameterized.expand([
         (True, 'private'),
@@ -319,7 +475,7 @@ class GrampsTest(TestCase):
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
             configuration.plugins[Gramps] = {
-                'file': join(dirname(abspath(__file__)), 'resources', 'minimal.gpkg')
+                'file': join(dirname(abspath(__file__)), 'assets', 'minimal.gpkg')
             }
             async with Site(configuration) as site:
                 await parse(site)

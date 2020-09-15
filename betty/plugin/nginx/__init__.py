@@ -2,32 +2,30 @@ import os
 from shutil import copyfile
 from typing import List, Tuple, Callable, Type, Dict, Optional
 
-from voluptuous import Schema, Required, Any
+from voluptuous import Schema, Required, Maybe
 
-from betty.config import validate_configuration
 from betty.event import Event
 from betty.fs import makedirs
 from betty.generate import PostGenerateEvent
 from betty.plugin import Plugin
 from betty.site import Site
 
-DOCKER_PATH = os.path.join(os.path.dirname(__file__), 'resources', 'docker')
-
-ConfigurationSchema = Schema({
-    Required('www_directory_path', default=None): Any(None, str),
-    Required('https', default=None): Any(None, bool),
-})
+DOCKER_PATH = os.path.join(os.path.dirname(__file__), 'assets', 'docker')
 
 
 class Nginx(Plugin):
+    configuration_schema: Schema = Schema({
+        Required('www_directory_path', default=None): Maybe(str),
+        Required('https', default=None): Maybe(bool),
+    })
+
     def __init__(self, site: Site, www_directory_path: Optional[str] = None, https: Optional[bool] = None):
         self._https = https
         self._www_directory_path = www_directory_path
         self._site = site
 
     @classmethod
-    def from_configuration_dict(cls, site: Site, configuration: Dict):
-        configuration = validate_configuration(ConfigurationSchema, configuration)
+    def for_site(cls, site: Site, configuration: Dict):
         return cls(site, configuration['www_directory_path'], configuration['https'])
 
     def subscribes_to(self) -> List[Tuple[Type[Event], Callable]]:
@@ -36,8 +34,8 @@ class Nginx(Plugin):
         ]
 
     @property
-    def resource_directory_path(self) -> Optional[str]:
-        return '%s/resources' % os.path.dirname(__file__)
+    def assets_directory_path(self) -> Optional[str]:
+        return '%s/assets' % os.path.dirname(__file__)
 
     @property
     def https(self) -> bool:
@@ -58,7 +56,7 @@ class Nginx(Plugin):
         # Render the ngnix configuration.
         file_name = 'nginx.conf.j2'
         destination_file_path = os.path.join(output_directory_path, file_name)
-        await self._site.resources.copy2(file_name, destination_file_path)
+        await self._site.assets.copy2(file_name, destination_file_path)
         await self._site.renderer.render_file(destination_file_path)
 
         # Render the Dockerfile.

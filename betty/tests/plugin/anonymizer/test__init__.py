@@ -4,7 +4,7 @@ from unittest import TestCase
 from unittest.mock import patch, ANY
 
 from betty.ancestry import Ancestry, Person, File, Source, Citation, PersonName, Presence, Event, IdentifiableEvent, \
-    IdentifiableSource, IdentifiableCitation
+    IdentifiableSource, IdentifiableCitation, Birth, Subject
 from betty.config import Configuration
 from betty.functools import sync
 from betty.parse import parse
@@ -37,7 +37,7 @@ class AnonymizeTest(TestCase):
 
     @patch('betty.plugin.anonymizer.anonymize_event')
     def test_with_public_event_should_not_anonymize(self, m_anonymize_event) -> None:
-        event = IdentifiableEvent('E0', Event.Type.BIRTH)
+        event = IdentifiableEvent('E0', Birth())
         event.private = False
         ancestry = Ancestry()
         ancestry.events[event.id] = event
@@ -46,7 +46,7 @@ class AnonymizeTest(TestCase):
 
     @patch('betty.plugin.anonymizer.anonymize_event')
     def test_with_private_event_should_anonymize(self, m_anonymize_event) -> None:
-        event = IdentifiableEvent('E0', Event.Type.BIRTH)
+        event = IdentifiableEvent('E0', Birth())
         event.private = True
         ancestry = Ancestry()
         ancestry.events[event.id] = event
@@ -138,8 +138,8 @@ class AnonymizePersonTest(TestCase):
 
     def test_should_remove_presences(self) -> None:
         person = Person('P0')
-        event = Event(Event.Type.BIRTH)
-        Presence(person, Presence.Role.SUBJECT, event)
+        event = Event(Birth())
+        Presence(person, Subject(), event)
         anonymize_person(person)
         self.assertEquals(0, len(person.presences))
         self.assertEquals(0, len(event.presences))
@@ -173,7 +173,7 @@ class AnonymizePersonTest(TestCase):
 
 class AnonymizeEventTest(TestCase):
     def test_should_remove_citations(self) -> None:
-        event = Event(Event.Type.BIRTH)
+        event = Event(Birth())
         source = Source('The Source')
         citation = Citation(source)
         event.citations.append(citation)
@@ -181,15 +181,15 @@ class AnonymizeEventTest(TestCase):
         self.assertEquals(0, len(event.citations))
 
     def test_should_remove_files(self) -> None:
-        event = Event(Event.Type.BIRTH)
+        event = Event(Birth())
         event.files.append(File('F0', __file__))
         anonymize_event(event)
         self.assertEquals(0, len(event.files))
 
     def test_should_remove_presences(self) -> None:
-        event = Event(Event.Type.BIRTH)
+        event = Event(Birth())
         person = Person('P1')
-        Presence(person, Presence.Role.SUBJECT, event)
+        Presence(person, Subject(), event)
         anonymize_event(event)
         self.assertEquals(0, len(event.presences))
 
@@ -286,7 +286,7 @@ class AnonymizerTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.plugins[Anonymizer] = {}
+            configuration.plugins[Anonymizer] = None
             async with Site(configuration) as site:
                 site.ancestry.people[person.id] = person
                 await parse(site)

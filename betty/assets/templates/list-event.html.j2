@@ -1,0 +1,12 @@
+{% set person_context = person_context | default(none) %}
+{% set dated_events = events | rejectattr('date', 'none') | selectattr('date.comparable') | list | sort(attribute='date') %}
+{% if dated_events | length > 0 %}
+    <ul class="entities">
+        {% for event in dated_events %}
+            <li class="{{ loop.cycle('odd', 'even') }}">
+                {% include 'label/event.html.j2' %}
+                {% include 'meta/event.html.j2' %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
