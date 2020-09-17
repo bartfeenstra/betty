@@ -406,6 +406,7 @@ class Enclosure(Dated, HasCitations):
 
     def __init__(self, encloses: 'Place', enclosed_by: 'Place'):
         Dated.__init__(self)
+        HasCitations.__init__(self)
         self.encloses = encloses
         self.enclosed_by = enclosed_by
 
