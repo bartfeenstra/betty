@@ -90,13 +90,13 @@ class MapTest(TemplateTestCase):
             self.assertEquals(expected, actual)
 
 
-class TakewhileTest(TemplateTestCase):
+class SelectwhileTest(TemplateTestCase):
     @parameterized.expand([
-        ('', '{{ [] | takewhile("ne", None) | join(", ") }}'),
+        ('', '{{ [] | selectwhile("ne", None) | join(", ") }}'),
         ('kiwi, apple',
-         '{{ ["kiwi", "apple", None, "banana", None] | takewhile | join(", ") }}'),
+         '{{ ["kiwi", "apple", None, "banana", None] | selectwhile | join(", ") }}'),
         ('kiwi, apple',
-         '{{ ["kiwi", "apple", None, "banana", None] | takewhile("ne", None) | join(", ") }}'),
+         '{{ ["kiwi", "apple", None, "banana", None] | selectwhile("ne", None) | join(", ") }}'),
     ])
     @sync
     async def test(self, expected, template):

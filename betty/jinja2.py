@@ -140,7 +140,7 @@ def create_environment(site: Site) -> Environment:
     environment.filters['map'] = _filter_map
     environment.filters['flatten'] = _filter_flatten
     environment.filters['walk'] = _filter_walk
-    environment.filters['takewhile'] = _filter_takewhile
+    environment.filters['selectwhile'] = _filter_selectwhile
     environment.filters['locale_get_data'] = lambda locale: Locale.parse(
         locale, '-')
     environment.filters['negotiate_localizeds'] = _filter_negotiate_localizeds
@@ -286,7 +286,7 @@ async def _filter_map(*args, **kwargs):
 
 
 @contextfilter
-def _filter_takewhile(context, seq, *args, **kwargs):
+def _filter_selectwhile(context, seq, *args, **kwargs):
     try:
         name = args[0]
         args = args[1:]
