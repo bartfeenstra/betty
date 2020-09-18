@@ -1,5 +1,8 @@
-from os.path import exists, join, dirname
+from os import makedirs
+from os.path import exists, join, dirname, basename
+from tempfile import TemporaryDirectory, NamedTemporaryFile
 from typing import List, Dict, Optional, Iterable
+from unittest import TestCase
 
 from parameterized import parameterized
 
@@ -8,7 +11,34 @@ from betty.config import Configuration, LocaleConfiguration
 from betty.functools import sync
 from betty.locale import Date, Datey, DateRange, Localized
 from betty.plugin import Plugin
+from betty.site import Site
 from betty.tests import TemplateTestCase
+
+
+class TemplateVarsBuilderTest(TestCase):
+    @sync
+    async def test(self):
+        carrier = []
+
+        def _builder(vars):
+            carrier.append(True)
+        with TemporaryDirectory() as output_directory_path:
+            configuration = Configuration(output_directory_path, 'https://example.com')
+            configuration.mode = 'development'
+            site = Site(configuration)
+            with TemporaryDirectory() as assets_directory_path:
+                site.assets.paths.append(assets_directory_path)
+                templates_directory_path = join(assets_directory_path, 'templates')
+                makedirs(templates_directory_path)
+                with NamedTemporaryFile(dir=templates_directory_path) as template_file:
+                    template_name = basename(template_file.name)
+                    async with site:
+                        environment = site.jinja2_environment
+                        environment.template_vars_builders[template_name] = _builder
+                        template = environment.get_template(template_name)
+                        self.assertEquals(_builder, template.build_vars)
+                        await template.render_async()
+                        self.assertIn(True, carrier)
 
 
 class FlattenTest(TemplateTestCase):

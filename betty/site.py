@@ -5,6 +5,7 @@ from jinja2 import Environment
 
 from betty.render import Renderer, SequentialRenderer
 from betty.sass import SassRenderer
+from betty.templates import VARS_BUILDERS
 
 try:
     from contextlib import AsyncExitStack
@@ -162,8 +163,9 @@ class Site:
     @property
     def jinja2_environment(self) -> Environment:
         if not self._jinja2_environment:
-            from betty.jinja2 import create_environment
-            self._jinja2_environment = create_environment(self)
+            from betty.jinja2 import BettyEnvironment
+            self._jinja2_environment = BettyEnvironment(self)
+            self._jinja2_environment.template_vars_builders = VARS_BUILDERS
 
         return self._jinja2_environment
 

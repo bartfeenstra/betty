@@ -8,7 +8,6 @@ from typing import Iterable, Any
 
 from jinja2 import Environment, TemplateNotFound
 
-from betty import jinja2
 from betty.event import Event
 from betty.fs import makedirs
 from betty.json import JSONEncoder
@@ -27,7 +26,6 @@ async def generate(site: Site) -> None:
     await site.renderer.render_tree(site.configuration.www_directory_path)
     for locale, locale_configuration in site.configuration.locales.items():
         async with site.with_locale(locale) as site:
-            environment = jinja2.create_environment(site)
             if site.configuration.multilingual:
                 www_directory_path = join(
                     site.configuration.www_directory_path, locale_configuration.alias)
@@ -38,27 +36,27 @@ async def generate(site: Site) -> None:
             await site.renderer.render_tree(www_directory_path)
 
             await _generate_entity_type(www_directory_path, site.ancestry.files.values(
-            ), 'file', site, locale, environment)
+            ), 'file', site, locale, site.jinja2_environment)
             logger.info('Rendered %d files in %s.' %
                         (len(site.ancestry.files), locale))
             await _generate_entity_type(www_directory_path, site.ancestry.people.values(
-            ), 'person', site, locale, environment)
+            ), 'person', site, locale, site.jinja2_environment)
             logger.info('Rendered %d people in %s.' %
                         (len(site.ancestry.people), locale))
             await _generate_entity_type(www_directory_path, site.ancestry.places.values(
-            ), 'place', site, locale, environment)
+            ), 'place', site, locale, site.jinja2_environment)
             logger.info('Rendered %d places in %s.' %
                         (len(site.ancestry.places), locale))
             await _generate_entity_type(www_directory_path, site.ancestry.events.values(
-            ), 'event', site, locale, environment)
+            ), 'event', site, locale, site.jinja2_environment)
             logger.info('Rendered %d events in %s.' %
                         (len(site.ancestry.events), locale))
             await _generate_entity_type(www_directory_path, site.ancestry.citations.values(
-            ), 'citation', site, locale, environment)
+            ), 'citation', site, locale, site.jinja2_environment)
             logger.info('Rendered %d citations in %s.' %
                         (len(site.ancestry.citations), locale))
             await _generate_entity_type(www_directory_path, site.ancestry.sources.values(
-            ), 'source', site, locale, environment)
+            ), 'source', site, locale, site.jinja2_environment)
             logger.info('Rendered %d sources in %s.' %
                         (len(site.ancestry.sources), locale))
             _generate_openapi(www_directory_path, site)
