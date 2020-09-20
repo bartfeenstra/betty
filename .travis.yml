@@ -9,7 +9,7 @@ matrix:
               - NODE_VERSION=14
         - name: 'Python 3.9'
           dist: xenial
-          python: '3.9'
+          python: '3.9-dev'
           env:
               - NODE_VERSION=14
         - name: 'Python 3.7'
