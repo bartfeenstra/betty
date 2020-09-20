@@ -1,3 +1,4 @@
+from __future__ import annotations
 from functools import total_ordering
 from itertools import chain
 from os.path import splitext, basename
@@ -276,7 +277,7 @@ class File(Resource, Identifiable, Described, HasPrivacy, HasMediaType):
         return extension if extension else None
 
     @property
-    def sources(self) -> Iterable['Source']:
+    def sources(self) -> Iterable[Source]:
         for resource in self.resources:
             if isinstance(resource, Source):
                 yield resource
@@ -284,7 +285,7 @@ class File(Resource, Identifiable, Described, HasPrivacy, HasMediaType):
                 yield resource.source
 
     @property
-    def citations(self) -> Iterable['Citation']:
+    def citations(self) -> Iterable[Citation]:
         for resource in self.resources:
             if isinstance(resource, Citation):
                 yield resource
@@ -305,9 +306,9 @@ class HasFiles:
 class Source(Resource, Dated, HasFiles, HasLinks, HasPrivacy):
     resource_type_name = 'source'
     name: str
-    contained_by: 'Source'
-    contains: ManyAssociation['Source']
-    citations: ManyAssociation['Citation']
+    contained_by: Source
+    contains: ManyAssociation[Source]
+    citations: ManyAssociation[Citation]
 
     def __init__(self, name: Optional[str] = None):
         Dated.__init__(self)
@@ -401,10 +402,10 @@ class PlaceName(Localized, Dated):
 
 @bridged_many_to_many('enclosed_by', 'encloses', 'enclosed_by', 'encloses')
 class Enclosure(Dated, HasCitations):
-    encloses: 'Place'
-    enclosed_by: 'Place'
+    encloses: Place
+    enclosed_by: Place
 
-    def __init__(self, encloses: 'Place', enclosed_by: 'Place'):
+    def __init__(self, encloses: Place, enclosed_by: Place):
         Dated.__init__(self)
         HasCitations.__init__(self)
         self.encloses = encloses
@@ -482,11 +483,11 @@ class Attendee(PresenceRole):
 
 @bridged_many_to_many('presences', 'person', 'event', 'presences')
 class Presence:
-    person: Optional['Person']
-    event: Optional['Event']
+    person: Optional[Person]
+    event: Optional[Event]
     role: PresenceRole
 
-    def __init__(self, person: 'Person', role: PresenceRole, event: 'Event'):
+    def __init__(self, person: Person, role: PresenceRole, event: Event):
         self.person = person
         self.role = role
         self.event = event
@@ -502,11 +503,11 @@ class EventType:
         raise NotImplementedError
 
     @classmethod
-    def comes_before(cls) -> Set[Type['EventType']]:
+    def comes_before(cls) -> Set[Type[EventType]]:
         return set()
 
     @classmethod
-    def comes_after(cls) -> Set[Type['EventType']]:
+    def comes_after(cls) -> Set[Type[EventType]]:
         return set()
 
 
@@ -520,23 +521,23 @@ class CreatableDerivableEventType(DerivableEventType):
 
 class PreBirthEventType(EventType):
     @classmethod
-    def comes_before(cls) -> Set[Type['EventType']]:
+    def comes_before(cls) -> Set[Type[EventType]]:
         return {Birth}
 
 
 class LifeEventType(EventType):
     @classmethod
-    def comes_after(cls) -> Set[Type['EventType']]:
+    def comes_after(cls) -> Set[Type[EventType]]:
         return {Birth}
 
     @classmethod
-    def comes_before(cls) -> Set[Type['EventType']]:
+    def comes_before(cls) -> Set[Type[EventType]]:
         return {Death}
 
 
 class PostDeathEventType(EventType):
     @classmethod
-    def comes_after(cls) -> Set[Type['EventType']]:
+    def comes_after(cls) -> Set[Type[EventType]]:
         return {Death}
 
 
@@ -809,7 +810,7 @@ class IdentifiableEvent(Event, Identifiable):
 @total_ordering
 @many_to_one('person', 'names')
 class PersonName(Localized, HasCitations):
-    person: Optional['Person']
+    person: Optional[Person]
 
     def __init__(self, individual: Optional[str] = None, affiliation: Optional[str] = None):
         Localized.__init__(self)
@@ -847,8 +848,8 @@ class PersonName(Localized, HasCitations):
 @one_to_many('names', 'person')
 class Person(Resource, Identifiable, HasFiles, HasCitations, HasLinks, HasPrivacy):
     resource_type_name = 'person'
-    parents: ManyAssociation['Person']
-    children: ManyAssociation['Person']
+    parents: ManyAssociation[Person]
+    children: ManyAssociation[Person]
     presences: ManyAssociation[Presence]
     names: ManyAssociation[PersonName]
 
