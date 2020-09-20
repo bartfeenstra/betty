@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Callable, Tuple, Type, Set, List, Optional, Any
 
 from voluptuous import Schema
@@ -33,15 +34,15 @@ class Plugin:
         return cls()
 
     @classmethod
-    def depends_on(cls) -> Set[Type['Plugin']]:
+    def depends_on(cls) -> Set[Type[Plugin]]:
         return set()
 
     @classmethod
-    def comes_after(cls) -> Set[Type['Plugin']]:
+    def comes_after(cls) -> Set[Type[Plugin]]:
         return set()
 
     @classmethod
-    def comes_before(cls) -> Set[Type['Plugin']]:
+    def comes_before(cls) -> Set[Type[Plugin]]:
         return set()
 
     def subscribes_to(self) -> List[Tuple[Type[Event], Callable]]:

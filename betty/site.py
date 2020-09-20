@@ -1,3 +1,4 @@
+from __future__ import annotations
 import gettext
 from collections import defaultdict, OrderedDict
 
@@ -5,10 +6,7 @@ from betty.queue import SetQueue
 from betty.render import Renderer, SequentialRenderer
 from betty.sass import SassRenderer
 
-try:
-    from contextlib import AsyncExitStack
-except ImportError:
-    from async_exit_stack import AsyncExitStack
+from contextlib import AsyncExitStack
 from copy import copy
 from os.path import abspath, dirname, join
 from typing import Type, Dict
@@ -182,7 +180,7 @@ class Site:
 
         return self._renderer
 
-    def with_locale(self, locale: str) -> 'Site':
+    def with_locale(self, locale: str) -> Site:
         locale = negotiate_locale(locale, list(self.configuration.locales.keys()))
         if locale is None:
             raise ValueError('Locale "%s" is not enabled.' % locale)
