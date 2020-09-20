@@ -13,11 +13,11 @@ from PIL import Image
 from babel import Locale
 from geopy import units
 from geopy.format import DEGREES_FORMAT
-from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter
+from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter, Template
 from jinja2.asyncsupport import auto_await
 from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.runtime import Macro, resolve_or_missing, StrictUndefined
-from jinja2.utils import htmlsafe_json_dumps, Namespace as Jinja2Namespace
+from jinja2.utils import htmlsafe_json_dumps, Namespace
 from markupsafe import Markup
 from resizeimage import resizeimage
 
@@ -97,111 +97,119 @@ class HtmlProvider:
         return []
 
 
-class Namespace(Jinja2Namespace):
+class BettyNamespace(Namespace):
     def __getattribute__(self, item):
         # Fix https://github.com/pallets/jinja/issues/1180.
         if '__class__' == item:
             return object.__getattribute__(self, item)
-        return Jinja2Namespace.__getattribute__(self, item)
+        return Namespace.__getattribute__(self, item)
 
 
-def create_environment(site: Site) -> Environment:
-    template_directory_paths = list(
-        [join(path, 'templates') for path in site.assets.paths])
-    environment = Environment(
-        enable_async=True,
-        loader=FileSystemLoader(template_directory_paths),
-        undefined=StrictUndefined,
-        autoescape=select_autoescape(['html']),
-        trim_blocks=True,
-        extensions=[
-            'jinja2.ext.do',
-            'jinja2.ext.i18n',
-        ],
-    )
-    if site.configuration.mode == 'development':
-        environment.add_extension('jinja2.ext.debug')
+class BettyEnvironment(Environment):
+    site: Site
 
-    def _gettext(*args, **kwargs):
-        return gettext(*args, **kwargs)
+    def __init__(self, site: Site):
+        template_directory_paths = [join(path, 'templates') for path in site.assets.paths]
 
-    def _ngettext(*args, **kwargs):
-        return ngettext(*args, **kwargs)
-    environment.install_gettext_callables(_gettext, _ngettext)
-    environment.policies['ext.i18n.trimmed'] = True
-    # Fix https://github.com/pallets/jinja/issues/1180.
-    environment.globals['namespace'] = Namespace
-    environment.globals['site'] = site
-    environment.globals['locale'] = site.locale
-    today = datetime.date.today()
-    environment.globals['today'] = Date(today.year, today.month, today.day)
-    environment.globals['plugins'] = _Plugins(site.plugins)
-    environment.globals['urlparse'] = urlparse
-    environment.filters['map'] = _filter_map
-    environment.filters['flatten'] = _filter_flatten
-    environment.filters['walk'] = _filter_walk
-    environment.filters['selectwhile'] = _filter_selectwhile
-    environment.filters['locale_get_data'] = lambda locale: Locale.parse(
-        locale, '-')
-    environment.filters['negotiate_localizeds'] = _filter_negotiate_localizeds
-    environment.filters['sort_localizeds'] = _filter_sort_localizeds
-    environment.filters['select_localizeds'] = _filter_select_localizeds
-    environment.filters['negotiate_dateds'] = _filter_negotiate_dateds
-    environment.filters['select_dateds'] = _filter_select_dateds
+        Environment.__init__(self,
+                             enable_async=True,
+                             loader=FileSystemLoader(template_directory_paths),
+                             undefined=StrictUndefined,
+                             autoescape=select_autoescape(['html']),
+                             trim_blocks=True,
+                             extensions=[
+                                 'jinja2.ext.do',
+                                 'jinja2.ext.i18n',
+                             ],
+                             )
 
-    # A filter to convert any value to JSON.
-    @contextfilter
-    def _filter_json(context, data, indent=None):
-        return stdjson.dumps(data, indent=indent,
-                             cls=JSONEncoder.get_factory(site, resolve_or_missing(context, 'locale')))
+        self.site = site
 
-    environment.filters['json'] = _filter_json
+        if site.configuration.mode == 'development':
+            self.add_extension('jinja2.ext.debug')
 
-    # Override Jinja2's built-in JSON filter, which escapes the JSON for use in HTML, to use Betty's own encoder.
-    @contextfilter
-    def _filter_tojson(context, data, indent=None):
-        return htmlsafe_json_dumps(data, indent=indent, dumper=lambda *args, **kwargs: _filter_json(context, *args, **kwargs))
+        def _gettext(*args, **kwargs):
+            return gettext(*args, **kwargs)
 
-    environment.filters['tojson'] = _filter_tojson
-    environment.tests['resource'] = lambda x: isinstance(x, Resource)
-    environment.tests['identifiable'] = lambda x: isinstance(x, Identifiable)
-    environment.tests['has_links'] = lambda x: isinstance(x, HasLinks)
-    environment.tests['has_files'] = lambda x: isinstance(x, HasFiles)
-    environment.tests['startswith'] = str.startswith
-    environment.tests['subject_role'] = lambda x: isinstance(x, Subject)
-    environment.tests['witness_role'] = lambda x: isinstance(x, Witness)
-    environment.tests['date_range'] = lambda x: isinstance(x, DateRange)
-    for resource_type in RESOURCE_TYPES:
-        environment.tests['%s_resource' % resource_type.resource_type_name] = lambda x: isinstance(x, Witness)
-    environment.filters['paragraphs'] = _filter_paragraphs
+        def _ngettext(*args, **kwargs):
+            return ngettext(*args, **kwargs)
+        self.install_gettext_callables(_gettext, _ngettext)
+        self.policies['ext.i18n.trimmed'] = True
+        # Fix https://github.com/pallets/jinja/issues/1180.
+        self.globals['namespace'] = BettyNamespace
+        self.globals['site'] = site
+        self.globals['locale'] = site.locale
+        today = datetime.date.today()
+        self.globals['today'] = Date(today.year, today.month, today.day)
+        self.globals['plugins'] = _Plugins(site.plugins)
+        self.globals['urlparse'] = urlparse
+        self.filters['map'] = _filter_map
+        self.filters['flatten'] = _filter_flatten
+        self.filters['walk'] = _filter_walk
+        self.filters['selectwhile'] = _filter_selectwhile
+        self.filters['locale_get_data'] = lambda locale: Locale.parse(
+            locale, '-')
+        self.filters['negotiate_localizeds'] = _filter_negotiate_localizeds
+        self.filters['sort_localizeds'] = _filter_sort_localizeds
+        self.filters['select_localizeds'] = _filter_select_localizeds
+        self.filters['negotiate_dateds'] = _filter_negotiate_dateds
+        self.filters['select_dateds'] = _filter_select_dateds
 
-    @contextfilter
-    def _filter_format_date(context, date: Datey):
-        locale = resolve_or_missing(context, 'locale')
-        return format_datey(date, locale)
-    environment.filters['format_date'] = _filter_format_date
-    environment.filters['format_degrees'] = _filter_format_degrees
-    environment.globals['citer'] = _Citer()
+        # A filter to convert any value to JSON.
+        @contextfilter
+        def _filter_json(context, data, indent=None):
+            return stdjson.dumps(data, indent=indent,
+                                 cls=JSONEncoder.get_factory(site, resolve_or_missing(context, 'locale')))
 
-    @contextfilter
-    def _filter_url(context, resource, media_type=None, locale=None, **kwargs):
-        media_type = media_type if media_type else 'text/html'
-        locale = locale if locale else resolve_or_missing(context, 'locale')
-        return site.localized_url_generator.generate(resource, media_type, locale=locale, **kwargs)
+        self.filters['json'] = _filter_json
 
-    environment.filters['url'] = _filter_url
-    environment.filters['static_url'] = site.static_url_generator.generate
-    environment.filters['file'] = lambda *args: _filter_file(site, *args)
-    environment.filters['image'] = lambda *args, **kwargs: _filter_image(
-        site, *args, **kwargs)
-    environment.globals['search_index'] = lambda: Index(site).build()
-    environment.globals['html_providers'] = list([plugin for plugin in site.plugins.values() if isinstance(plugin, HtmlProvider)])
-    environment.globals['path'] = os.path
-    for plugin in site.plugins.values():
-        if isinstance(plugin, Jinja2Provider):
-            environment.globals.update(plugin.globals)
-            environment.filters.update(plugin.filters)
-    return environment
+        # Override Jinja2's built-in JSON filter, which escapes the JSON for use in HTML, to use Betty's own encoder.
+        @contextfilter
+        def _filter_tojson(context, data, indent=None):
+            return htmlsafe_json_dumps(data, indent=indent, dumper=lambda *args, **kwargs: _filter_json(context, *args, **kwargs))
+
+        self.filters['tojson'] = _filter_tojson
+        self.tests['resource'] = lambda x: isinstance(x, Resource)
+        self.tests['identifiable'] = lambda x: isinstance(x, Identifiable)
+        self.tests['has_links'] = lambda x: isinstance(x, HasLinks)
+        self.tests['has_files'] = lambda x: isinstance(x, HasFiles)
+        self.tests['startswith'] = str.startswith
+        self.tests['subject_role'] = lambda x: isinstance(x, Subject)
+        self.tests['witness_role'] = lambda x: isinstance(x, Witness)
+        self.tests['date_range'] = lambda x: isinstance(x, DateRange)
+        for resource_type in RESOURCE_TYPES:
+            self.tests['%s_resource' % resource_type.resource_type_name] = lambda x: isinstance(x, Witness)
+        self.filters['paragraphs'] = _filter_paragraphs
+
+        @contextfilter
+        def _filter_format_date(context, date: Datey):
+            locale = resolve_or_missing(context, 'locale')
+            return format_datey(date, locale)
+        self.filters['format_date'] = _filter_format_date
+        self.filters['format_degrees'] = _filter_format_degrees
+        self.globals['citer'] = _Citer()
+
+        @contextfilter
+        def _filter_url(context, resource, media_type=None, locale=None, **kwargs):
+            media_type = media_type if media_type else 'text/html'
+            locale = locale if locale else resolve_or_missing(context, 'locale')
+            return site.localized_url_generator.generate(resource, media_type, locale=locale, **kwargs)
+
+        self.filters['url'] = _filter_url
+        self.filters['static_url'] = site.static_url_generator.generate
+        self.filters['file'] = lambda *args: _filter_file(site, *args)
+        self.filters['image'] = lambda *args, **kwargs: _filter_image(
+            site, *args, **kwargs)
+        self.globals['search_index'] = lambda: Index(site).build()
+        self.globals['html_providers'] = list([plugin for plugin in site.plugins.values() if isinstance(plugin, HtmlProvider)])
+        self.globals['path'] = os.path
+        for plugin in site.plugins.values():
+            if isinstance(plugin, Jinja2Provider):
+                self.globals.update(plugin.globals)
+                self.filters.update(plugin.filters)
+
+
+Template.environment_class = BettyEnvironment
 
 
 class Jinja2Renderer(Renderer):

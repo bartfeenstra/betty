@@ -1,8 +1,7 @@
 import gettext
 from collections import defaultdict, OrderedDict
 
-from jinja2 import Environment
-
+from betty.queue import SetQueue
 from betty.render import Renderer, SequentialRenderer
 from betty.sass import SassRenderer
 
@@ -44,6 +43,7 @@ class Site:
         self._init_translations()
         self._jinja2_environment = None
         self._renderer = None
+        self._queue = SetQueue()
 
     async def __aenter__(self):
         if not self._site_stack:
@@ -53,6 +53,8 @@ class Site:
         self._default_translations = Translations(self.translations[self.locale])
         self._default_translations.install()
 
+        await self._queue.consume()
+
         self._site_stack.append(self)
 
         return self
@@ -61,6 +63,8 @@ class Site:
         self._site_stack.pop()
 
         self._default_translations.uninstall()
+
+        await self._queue.join()
 
         if not self._site_stack:
             await self._plugin_exit_stack.aclose()
@@ -160,10 +164,10 @@ class Site:
         return self._translations
 
     @property
-    def jinja2_environment(self) -> Environment:
+    def jinja2_environment(self) -> 'betty.jinja2.BettyEnvironment':
         if not self._jinja2_environment:
-            from betty.jinja2 import create_environment
-            self._jinja2_environment = create_environment(self)
+            from betty.jinja2 import BettyEnvironment
+            self._jinja2_environment = BettyEnvironment(self)
 
         return self._jinja2_environment
 
