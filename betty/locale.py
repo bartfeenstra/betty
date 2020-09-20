@@ -1,3 +1,4 @@
+from __future__ import annotations
 import calendar
 import datetime
 import gettext
@@ -50,7 +51,7 @@ class Date:
     def parts(self) -> Tuple[Optional[int], Optional[int], Optional[int]]:
         return self.year, self.month, self.day
 
-    def to_range(self) -> 'DateRange':
+    def to_range(self) -> DateRange:
         if not self.comparable:
             raise ValueError('Cannot convert non-comparable date %s to a date range.' % self)
         if self.month is None:

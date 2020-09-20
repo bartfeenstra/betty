@@ -1,3 +1,4 @@
+from __future__ import annotations
 import gettext
 from collections import defaultdict, OrderedDict
 
@@ -178,7 +179,7 @@ class Site:
 
         return self._renderer
 
-    def with_locale(self, locale: str) -> 'Site':
+    def with_locale(self, locale: str) -> Site:
         locale = negotiate_locale(locale, list(self.configuration.locales.keys()))
         if locale is None:
             raise ValueError('Locale "%s" is not enabled.' % locale)
