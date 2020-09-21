@@ -7,14 +7,14 @@ matrix:
           python: '3.8'
           env:
               - NODE_VERSION=14
-        - name: 'Python 3.9'
-          dist: xenial
-          python: '3.9-dev'
-          env:
-              - NODE_VERSION=14
         - name: 'Python 3.7'
           dist: xenial
           python: '3.7'
+          env:
+              - NODE_VERSION=14
+        - name: 'Python 3.6'
+          dist: xenial
+          python: '3.6'
           env:
               - NODE_VERSION=14
         - name: 'Node.js 12'
