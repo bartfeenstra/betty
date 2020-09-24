@@ -164,6 +164,13 @@ def create_environment(site: Site) -> Environment:
 
     environment.filters['tojson'] = _filter_tojson
     environment.tests['resource'] = lambda x: isinstance(x, Resource)
+
+    def _build_test_resource_type(resource_type: Type[Resource]):
+        def _test_resource(x):
+            return isinstance(x, resource_type)
+        return _test_resource
+    for resource_type in RESOURCE_TYPES:
+        environment.tests['%s_resource' % resource_type.resource_type_name] = _build_test_resource_type(resource_type)
     environment.tests['identifiable'] = lambda x: isinstance(x, Identifiable)
     environment.tests['has_links'] = lambda x: isinstance(x, HasLinks)
     environment.tests['has_files'] = lambda x: isinstance(x, HasFiles)
@@ -171,8 +178,6 @@ def create_environment(site: Site) -> Environment:
     environment.tests['subject_role'] = lambda x: isinstance(x, Subject)
     environment.tests['witness_role'] = lambda x: isinstance(x, Witness)
     environment.tests['date_range'] = lambda x: isinstance(x, DateRange)
-    for resource_type in RESOURCE_TYPES:
-        environment.tests['%s_resource' % resource_type.resource_type_name] = lambda x: isinstance(x, Witness)
     environment.filters['paragraphs'] = _filter_paragraphs
 
     @contextfilter
