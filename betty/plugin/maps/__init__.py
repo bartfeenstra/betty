@@ -8,7 +8,7 @@ from typing import Optional, List, Tuple, Type, Callable, Iterable, Any
 
 from betty.event import Event
 from betty.fs import DirectoryBackup
-from betty.jinja2 import HtmlProvider
+from betty.html import HtmlProvider
 from betty.plugin import Plugin, NO_CONFIGURATION
 from betty.generate import PostGenerateEvent
 from betty.site import Site
