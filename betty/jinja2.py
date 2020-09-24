@@ -309,20 +309,20 @@ def _filter_selectwhile(context, seq, *args, **kwargs):
 
 
 async def _filter_file(site: Site, file: File) -> str:
-    file_directory_path = os.path.join(
-        site.configuration.www_directory_path, 'file')
+    file_directory_path = os.path.join(site.configuration.www_directory_path, 'file')
 
     destination_name = '%s.%s' % (file.id, file.extension)
-    destination_path = '/file/%s' % destination_name
+    destination_public_path = '/file/%s' % destination_name
 
     with suppress(AcquiredError):
         site.locks.acquire((_filter_file, file))
         site.executor.submit(_do_filter_file, file.path, file_directory_path, destination_name)
 
-    return destination_path
+    return destination_public_path
 
 
 def _do_filter_file(file_path: str, destination_directory_path: str, destination_name: str) -> None:
+    makedirs(destination_directory_path)
     destination_file_path = os.path.join(destination_directory_path, destination_name)
     os.link(file_path, destination_file_path)
 
@@ -360,11 +360,12 @@ async def _filter_image(site: Site, file: File, width: Optional[int] = None, hei
         cache_directory_path = join(site.configuration.cache_directory_path, 'image')
         site.executor.submit(_do_filter_image, file.path, cache_directory_path, file_directory_path, destination_name, convert, size)
 
-    destination_path = '/file/%s' % destination_name
-    return destination_path
+    destination_public_path = '/file/%s' % destination_name
+    return destination_public_path
 
 
 def _do_filter_image(file_path: str, cache_directory_path: str, destination_directory_path: str, destination_name: str, convert: Callable, size: Tuple[int, int]) -> None:
+    makedirs(destination_directory_path)
     cache_file_path = join(cache_directory_path, '%s-%s' % (hashfile(file_path), destination_name))
     destination_file_path = join(destination_directory_path, destination_name)
 
