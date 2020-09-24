@@ -26,6 +26,7 @@ from betty.ancestry import File, Citation, Identifiable, Resource, HasLinks, Has
 from betty.config import Configuration
 from betty.fs import makedirs, hashfile, is_hidden, iterfiles
 from betty.functools import walk, asynciter
+from betty.html import HtmlProvider
 from betty.importlib import import_any
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange
@@ -81,20 +82,6 @@ class Jinja2Provider:
     @property
     def filters(self) -> Dict[str, Callable]:
         return {}
-
-
-class HtmlProvider:
-    """
-    @todo This class has nothing to do with Jinja2, but placing it in the render module causes a circular dependency.
-    """
-
-    @property
-    def css_paths(self) -> Iterable[str]:
-        return []
-
-    @property
-    def js_paths(self) -> Iterable[str]:
-        return []
 
 
 class Namespace(Jinja2Namespace):
