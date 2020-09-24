@@ -203,7 +203,7 @@ class Wikipedia(Plugin, Jinja2Provider):
 
     async def __aenter__(self):
         self._session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit_per_host=5))
-        self._retriever = Retriever(self._session, self._site.configuration.cache_directory_path)
+        self._retriever = Retriever(self._session, join(self._site.configuration.cache_directory_path, self.name()))
         self._populator = Populator(self._retriever)
         return self
 
