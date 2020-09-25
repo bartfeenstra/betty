@@ -1,18 +1,23 @@
 import logging
 from datetime import datetime
-from typing import List, Tuple, Callable, Type
+from typing import List, Tuple, Callable, Type, Any
 
 from betty.ancestry import Ancestry, Person, Event, Citation, Source, HasPrivacy, Subject
 from betty.event import Event as DispatchedEvent
 from betty.functools import walk
 from betty.locale import DateRange, Date
 from betty.parse import PostParseEvent
-from betty.plugin import Plugin
+from betty.plugin import Plugin, NO_CONFIGURATION
+from betty.site import Site
 
 
 class Privatizer(Plugin):
-    def __init__(self):
-        self._lifetime_threshold = 100
+    def __init__(self, lifetime_threshold: int):
+        self._lifetime_threshold = lifetime_threshold
+
+    @classmethod
+    def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
+        return cls(site.configuration.lifetime_threshold)
 
     def subscribes_to(self) -> List[Tuple[Type[DispatchedEvent], Callable]]:
         return [
@@ -45,7 +50,7 @@ def _mark_private(has_privacy: HasPrivacy) -> None:
         has_privacy.private = True
 
 
-def privatize_person(person: Person, lifetime_threshold: int = 100) -> None:
+def privatize_person(person: Person, lifetime_threshold: int = 125) -> None:
     # Do not change existing explicit privacy declarations.
     if person.private is None:
         person.private = _person_is_private(person, lifetime_threshold)

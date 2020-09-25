@@ -69,6 +69,7 @@ root_path: /betty
 clean_urls: true
 title: Betty's ancestry
 author: Bart Feenstra
+lifetime_threshold: 125
 locales:
   - locale: en-US
     alias: en
@@ -96,6 +97,8 @@ plugins:
     that supports it. Also see the `betty.plugin.nginx.Nginx` plugin. This implies `clean_urls`.
 - `title` (optional); The site's title.
 - `author` (optional); The site's author and copyright holder.
+- `lifetime_threshold` (optional); The number of years people are expected to live at most, e.g. after which they're
+    presumed to have died. Defaults to `125`.
 - `locales` (optional); An array of locales, each of which is an object with the following keys:
     - `locale`(required): An [IETF BCP 47](https://tools.ietf.org/html/bcp47) language tag.
     - `alias` (optional): A shorthand alias to use instead of the full language tag, such as when rendering URLs.

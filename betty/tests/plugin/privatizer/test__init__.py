@@ -17,7 +17,7 @@ from betty.site import Site
 
 def _expand_person(generation: int):
     multiplier = abs(generation) + 1 if generation < 0 else 1
-    threshold_year = datetime.now().year - 100 * multiplier
+    threshold_year = datetime.now().year - 125 * multiplier
     date_under_threshold = Date(threshold_year + 1, 1, 1)
     date_range_start_under_threshold = DateRange(date_under_threshold)
     date_range_end_under_threshold = DateRange(None, date_under_threshold)
