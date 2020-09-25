@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import List, Tuple, Callable, Type, Any
+from typing import Any, List, Tuple, Type, Callable, Optional
 
 from betty.ancestry import Ancestry, Person, Event, Citation, Source, HasPrivacy, Subject
 from betty.event import Event as DispatchedEvent
@@ -50,7 +50,7 @@ def _mark_private(has_privacy: HasPrivacy) -> None:
         has_privacy.private = True
 
 
-def privatize_person(person: Person, lifetime_threshold: int = 125) -> None:
+def privatize_person(person: Person, lifetime_threshold: int) -> None:
     # Do not change existing explicit privacy declarations.
     if person.private is None:
         person.private = _person_is_private(person, lifetime_threshold)
@@ -100,8 +100,11 @@ def privatize_source(source: Source) -> None:
 
 def _person_is_private(person: Person, lifetime_threshold: int) -> bool:
     # A dead person is not private, regardless of when they died.
-    if person.end is not None and _event_has_expired(person.end, lifetime_threshold, 0):
-        return False
+    if person.end is not None:
+        if person.end.date is None:
+            return False
+        if _event_has_expired(person.end, lifetime_threshold, 0):
+            return False
 
     if _person_has_expired(person, lifetime_threshold, 1):
         return False
@@ -133,22 +136,19 @@ def _person_has_expired(person: Person, lifetime_threshold: int, multiplier: int
 def _event_has_expired(event: Event, lifetime_threshold: int, multiplier: int) -> bool:
     assert multiplier >= 0
 
-    if event.date is None:
-        return False
-
     date = event.date
 
     if isinstance(date, DateRange):
-        if date.end is not None:
-            date = date.end
-        # A multiplier of 0 is only used for generation 0's end-of-life events. If those only have start dates, they
-        # do not contain any information about by which date the event definitely has taken place, and therefore
-        # they MUST be checked using another method call with a multiplier of 1 to verify they lie far enough in the
-        # past.
-        elif multiplier != 0:
-            date = date.start
-        else:
-            return False
+        # We can only determine event expiration with certainty if we have an end date to work with. Someone born in
+        # 2000 can have a valid birth event with a start date of 1800, which does nothing to help us determine
+        # expiration.
+        date = date.end
+
+    return _date_has_expired(date, lifetime_threshold, multiplier)
+
+
+def _date_has_expired(date: Optional[Date], lifetime_threshold: int, multiplier: int) -> bool:
+    assert multiplier >= 0
 
     if date is None:
         return False
