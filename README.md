@@ -245,7 +245,7 @@ To add a new translation, run `./bin/init-translation $locale` where `$locale` i
 
 After making changes to the translatable strings in the source code, run `./bin/extract-translatables`.
 
-After making changes to the translation files, run `./bin/compile-translatables`.
+After making changes to the translation files, run `./bin/compile-translations`.
 
 ### Testing
 In any existing Python environment, run `./bin/test`.
