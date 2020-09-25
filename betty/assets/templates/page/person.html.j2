@@ -66,7 +66,7 @@
         </ul>
     {% endif %}
 
-    <div class="featured tree js-show" data-betty-person-id="{{ person.id }}"></div>
+    <div class="featured tree js-show" data-betty-person-id="{{ person.id }}" data-betty-people="{{ 'people.json' | url }}"></div>
 
     {% set events = person.presences | map(attribute='event') | rejectattr('date', 'none') | selectattr('date.comparable') | list %}
     {% if person.start or person.end %}

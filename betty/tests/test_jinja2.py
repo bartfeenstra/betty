@@ -1,9 +1,9 @@
 from os.path import exists, join, dirname
-from typing import List, Dict, Optional, Iterable
+from typing import List, Dict, Optional, Iterable, Type
 
 from parameterized import parameterized
 
-from betty.ancestry import File, PlaceName, Subject, Attendee, Witness, Dated
+from betty.ancestry import File, PlaceName, Subject, Attendee, Witness, Dated, Resource, Person, Place
 from betty.config import Configuration, LocaleConfiguration
 from betty.functools import sync
 from betty.locale import Date, Datey, DateRange, Localized
@@ -348,6 +348,24 @@ class IsWitnessRoleTest(TemplateTestCase):
     @sync
     async def test(self, expected, data) -> None:
         template = '{% if data is witness_role %}true{% else %}false{% endif %}'
+        async with self._render(template_string=template, data={
+            'data': data,
+        }) as (actual, _):
+            self.assertEquals(expected, actual)
+
+
+class TestResourceTypeTest(TemplateTestCase):
+    @parameterized.expand([
+        ('true', Person, Person('P1')),
+        ('false', Person, Place('P1', [PlaceName('The Place')])),
+        ('true', Place, Place('P1', [PlaceName('The Place')])),
+        ('false', Place, Person('P1')),
+        ('false', Place, 999),
+        ('false', Person, object()),
+    ])
+    @sync
+    async def test(self, expected, resource_type: Type[Resource], data) -> None:
+        template = f'{{% if data is {resource_type.resource_type_name}_resource %}}true{{% else %}}false{{% endif %}}'
         async with self._render(template_string=template, data={
             'data': data,
         }) as (actual, _):

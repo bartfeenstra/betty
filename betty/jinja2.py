@@ -26,6 +26,7 @@ from betty.ancestry import File, Citation, Identifiable, Resource, HasLinks, Has
 from betty.config import Configuration
 from betty.fs import makedirs, hashfile, is_hidden, iterfiles
 from betty.functools import walk, asynciter
+from betty.html import HtmlProvider
 from betty.importlib import import_any
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange
@@ -82,20 +83,6 @@ class Jinja2Provider:
     @property
     def filters(self) -> Dict[str, Callable]:
         return {}
-
-
-class HtmlProvider:
-    """
-    @todo This class has nothing to do with Jinja2, but placing it in the render module causes a circular dependency.
-    """
-
-    @property
-    def css_paths(self) -> Iterable[str]:
-        return []
-
-    @property
-    def js_paths(self) -> Iterable[str]:
-        return []
 
 
 class BettyNamespace(Namespace):
@@ -171,6 +158,13 @@ class BettyEnvironment(Environment):
 
         self.filters['tojson'] = _filter_tojson
         self.tests['resource'] = lambda x: isinstance(x, Resource)
+
+        def _build_test_resource_type(resource_type: Type[Resource]):
+            def _test_resource(x):
+                return isinstance(x, resource_type)
+            return _test_resource
+        for resource_type in RESOURCE_TYPES:
+            self.tests['%s_resource' % resource_type.resource_type_name] = _build_test_resource_type(resource_type)
         self.tests['identifiable'] = lambda x: isinstance(x, Identifiable)
         self.tests['has_links'] = lambda x: isinstance(x, HasLinks)
         self.tests['has_files'] = lambda x: isinstance(x, HasFiles)
@@ -178,8 +172,6 @@ class BettyEnvironment(Environment):
         self.tests['subject_role'] = lambda x: isinstance(x, Subject)
         self.tests['witness_role'] = lambda x: isinstance(x, Witness)
         self.tests['date_range'] = lambda x: isinstance(x, DateRange)
-        for resource_type in RESOURCE_TYPES:
-            self.tests['%s_resource' % resource_type.resource_type_name] = lambda x: isinstance(x, Witness)
         self.filters['paragraphs'] = _filter_paragraphs
 
         @contextfilter
