@@ -17,7 +17,7 @@ from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, Fi
 from jinja2.asyncsupport import auto_await
 from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.runtime import Macro, resolve_or_missing, StrictUndefined
-from jinja2.utils import htmlsafe_json_dumps, Namespace
+from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup
 from resizeimage import resizeimage
 
@@ -85,14 +85,6 @@ class Jinja2Provider:
         return {}
 
 
-class BettyNamespace(Namespace):
-    def __getattribute__(self, item):
-        # Fix https://github.com/pallets/jinja/issues/1180.
-        if '__class__' == item:
-            return object.__getattribute__(self, item)
-        return Namespace.__getattribute__(self, item)
-
-
 class BettyEnvironment(Environment):
     site: Site
 
@@ -123,8 +115,6 @@ class BettyEnvironment(Environment):
             return ngettext(*args, **kwargs)
         self.install_gettext_callables(_gettext, _ngettext)
         self.policies['ext.i18n.trimmed'] = True
-        # Fix https://github.com/pallets/jinja/issues/1180.
-        self.globals['namespace'] = BettyNamespace
         self.globals['site'] = site
         self.globals['locale'] = site.locale
         today = datetime.date.today()
