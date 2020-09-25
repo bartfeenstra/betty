@@ -16,6 +16,7 @@ Betty is a static site generator for [Gramps](https://gramps-project.org/) and
   - [Gramps](#gramps)
   - [GEDCOM files](#gedcom-files)
   - [The Python API](#the-python-api)
+  - [Docker](#docker)
 - [Development](#development)
 - [Contributions](#contributions)
 - [License](#license)
