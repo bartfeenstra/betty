@@ -129,7 +129,10 @@ class Retriever:
         url = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=extracts&exintro&format=json&formatversion=2' % (
             language, name)
         page_data = await self._get_page_data(url)
-        return Entry(language, name, page_data['title'], page_data['extract'])
+        try:
+            return Entry(language, name, page_data['title'], page_data['extract'])
+        except KeyError as e:
+            raise RetrievalError('Could not successfully parse the JSON content returned by %s: %s' % (url, e))
 
 
 class Populator:
@@ -154,7 +157,8 @@ class Populator:
 
             entry = None
             if link.label is None:
-                entry = await self._retriever.get_entry(entry_language, entry_name)
+                with suppress(RetrievalError):
+                    entry = await self._retriever.get_entry(entry_language, entry_name)
             await self.populate_link(link, site, entry_language, entry)
 
         for entry_language, entry_name in list(entry_links):
@@ -192,9 +196,8 @@ class Populator:
             with suppress(ValueError):
                 async with site.with_locale(link.locale):
                     link.description = _('Read more on Wikipedia.')
-        if entry is not None:
-            if link.label is None:
-                link.label = entry.title
+        if entry is not None and link.label is None:
+            link.label = entry.title
 
 
 class Wikipedia(Plugin, Jinja2Provider):
