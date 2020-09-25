@@ -73,7 +73,7 @@ def _xpath1(element, selector: str) -> Optional:
 
 
 def parse_xml(site: Site, gramps_file_path: str) -> None:
-    cache_directory_path = path.join(site.configuration.cache_directory_path,
+    cache_directory_path = path.join(site.configuration.cache_directory_path, Gramps.name(),
                                      hashlib.md5(gramps_file_path.encode('utf-8')).hexdigest())
     with suppress(FileExistsError):
         makedirs(cache_directory_path)
