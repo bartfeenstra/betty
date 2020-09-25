@@ -38,7 +38,7 @@ secure**.
 - Node.js 10+ (optional)
 
 ### Instructions
-Run `pip install git+https://github.com/bartfeenstra/betty.git`.
+Run `pip install betty`.
 
 ## Usage
 
