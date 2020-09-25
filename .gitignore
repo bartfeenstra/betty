@@ -1,6 +1,8 @@
 # Build artifacts.
 /.tox
 /betty.egg-info
+/build
+/dist
 /node_modules
 /package-lock.json
 *.pyc
@@ -9,7 +11,3 @@
 /.coverage
 /cypress/screenshots
 /cypress/site
-
-### Third-party files.
-/vendor
-
