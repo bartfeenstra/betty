@@ -117,15 +117,12 @@ class FileTest(TemplateTestCase):
         }) as (actual, site):
             self.assertEquals(expected, actual)
             for file_path in actual.split(':'):
-                self.assertTrue(
-                    exists(join(site.configuration.www_directory_path, file_path[1:])))
-
-
-image_path = join(dirname(dirname(__file__)), 'assets',
-                  'public', 'static', 'betty-512x512.png')
+                self.assertTrue(exists(join(site.configuration.www_directory_path, file_path[1:])))
 
 
 class ImageTest(TemplateTestCase):
+    image_path = join(dirname(dirname(__file__)), 'assets', 'public', 'static', 'betty-512x512.png')
+
     @parameterized.expand([
         ('/file/F1-99x-.png',
          '{{ file | image(width=99) }}', File('F1', image_path)),
@@ -143,8 +140,7 @@ class ImageTest(TemplateTestCase):
         }) as (actual, site):
             self.assertEquals(expected, actual)
             for file_path in actual.split(':'):
-                self.assertTrue(
-                    exists(join(site.configuration.www_directory_path, file_path[1:])))
+                self.assertTrue(exists(join(site.configuration.www_directory_path, file_path[1:])))
 
 
 class TestPlugin(Plugin):
