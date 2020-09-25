@@ -17,7 +17,7 @@ from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, Fi
 from jinja2.asyncsupport import auto_await
 from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.runtime import Macro, resolve_or_missing, StrictUndefined
-from jinja2.utils import htmlsafe_json_dumps, Namespace as Jinja2Namespace
+from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup
 from resizeimage import resizeimage
 
@@ -84,14 +84,6 @@ class Jinja2Provider:
         return {}
 
 
-class Namespace(Jinja2Namespace):
-    def __getattribute__(self, item):
-        # Fix https://github.com/pallets/jinja/issues/1180.
-        if '__class__' == item:
-            return object.__getattribute__(self, item)
-        return Jinja2Namespace.__getattribute__(self, item)
-
-
 def create_environment(site: Site) -> Environment:
     template_directory_paths = list(
         [join(path, 'templates') for path in site.assets.paths])
@@ -116,8 +108,6 @@ def create_environment(site: Site) -> Environment:
         return ngettext(*args, **kwargs)
     environment.install_gettext_callables(_gettext, _ngettext)
     environment.policies['ext.i18n.trimmed'] = True
-    # Fix https://github.com/pallets/jinja/issues/1180.
-    environment.globals['namespace'] = Namespace
     environment.globals['site'] = site
     environment.globals['locale'] = site.locale
     today = datetime.date.today()
