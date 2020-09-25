@@ -16,7 +16,7 @@ from betty.site import Site
 
 
 def _expand_person(generation: int):
-    lifetime_threshold = 100
+    lifetime_threshold = 125
     multiplier = abs(generation) + 1 if generation < 0 else 1
     lifetime_threshold_year = datetime.now().year - lifetime_threshold * multiplier
     date_under_lifetime_threshold = Date(lifetime_threshold_year + 1, 1, 1)
@@ -126,7 +126,7 @@ class PrivatizerTest(TestCase):
         person.files.append(person_file)
         Presence(person, Subject(), event_as_subject)
         Presence(person, Attendee(), event_as_attendee)
-        privatize_person(person, 100)
+        privatize_person(person, 125)
         self.assertEqual(False, person.private)
         self.assertIsNone(citation.private)
         self.assertIsNone(source.private)
@@ -152,7 +152,7 @@ class PrivatizerTest(TestCase):
         person.files.append(person_file)
         Presence(person, Subject(), event_as_subject)
         Presence(person, Attendee(), event_as_attendee)
-        privatize_person(person, 100)
+        privatize_person(person, 125)
         self.assertTrue(person.private)
         self.assertTrue(citation.private)
         self.assertTrue(source.private)
@@ -168,7 +168,7 @@ class PrivatizerTest(TestCase):
         person.private = private
         if event is not None:
             Presence(person, Subject(), event)
-        privatize_person(person, 100)
+        privatize_person(person, 125)
         self.assertEquals(expected, person.private)
 
     @_expand_person(1)
@@ -179,7 +179,7 @@ class PrivatizerTest(TestCase):
         if event is not None:
             Presence(child, Subject(), event)
         person.children.append(child)
-        privatize_person(person, 100)
+        privatize_person(person, 125)
         self.assertEquals(expected, person.private)
 
     @_expand_person(2)
@@ -192,7 +192,7 @@ class PrivatizerTest(TestCase):
         if event is not None:
             Presence(grandchild, Subject(), event)
         child.children.append(grandchild)
-        privatize_person(person, 100)
+        privatize_person(person, 125)
         self.assertEquals(expected, person.private)
 
     @_expand_person(3)
@@ -207,7 +207,7 @@ class PrivatizerTest(TestCase):
         if event is not None:
             Presence(great_grandchild, Subject(), event)
         grandchild.children.append(great_grandchild)
-        privatize_person(person, 100)
+        privatize_person(person, 125)
         self.assertEquals(expected, person.private)
 
     @_expand_person(-1)
@@ -218,7 +218,7 @@ class PrivatizerTest(TestCase):
         if event is not None:
             Presence(parent, Subject(), event)
         person.parents.append(parent)
-        privatize_person(person, 100)
+        privatize_person(person, 125)
         self.assertEquals(expected, person.private)
 
     @_expand_person(-2)
@@ -231,7 +231,7 @@ class PrivatizerTest(TestCase):
         if event is not None:
             Presence(grandparent, Subject(), event)
         parent.parents.append(grandparent)
-        privatize_person(person, 100)
+        privatize_person(person, 125)
         self.assertEquals(expected, person.private)
 
     @_expand_person(-3)
@@ -246,7 +246,7 @@ class PrivatizerTest(TestCase):
         if event is not None:
             Presence(great_grandparent, Subject(), event)
         grandparent.parents.append(great_grandparent)
-        privatize_person(person, 100)
+        privatize_person(person, 125)
         self.assertEquals(expected, person.private)
 
     def test_privatize_event_should_not_privatize_if_public(self):

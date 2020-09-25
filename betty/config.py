@@ -5,7 +5,7 @@ from typing import Dict, Type, Optional, List, Callable
 
 import yaml
 from babel import parse_locale
-from voluptuous import Schema, All, Required, Invalid, IsDir, Any
+from voluptuous import Schema, All, Required, Invalid, IsDir, Any, Range
 
 from betty import _CACHE_DIRECTORY_PATH, os
 from betty.error import ExternalContextError
@@ -83,6 +83,7 @@ class Configuration:
     plugins: PluginsConfiguration
     assets_directory_path: Optional[str]
     theme: ThemeConfiguration
+    lifetime_threshold: int
 
     def __init__(self, output_directory_path: str, base_url: str):
         self.cache_directory_path = _CACHE_DIRECTORY_PATH
@@ -101,6 +102,7 @@ class Configuration:
         default_locale = 'en-US'
         self.locales[default_locale] = LocaleConfiguration(default_locale)
         self.theme = ThemeConfiguration()
+        self.lifetime_threshold = 125
 
     @property
     def www_directory_path(self) -> str:
@@ -164,12 +166,12 @@ def _configuration(config_dict: Dict) -> Configuration:
 
 _ConfigurationSchema = Schema(All({
     Required('output'): All(str, Path()),
-    'title': All(str),
+    'title': str,
     'author': str,
     'locales': All(list, _locales_configuration),
-    Required('base_url'): All(str),
-    'root_path': All(str),
-    'clean_urls': All(bool),
+    Required('base_url'): str,
+    'root_path': str,
+    'clean_urls': bool,
     'content_negotiation': bool,
     'mode': Any('development', 'production'),
     'assets_directory_path': All(str, IsDir(), Path()),
@@ -177,6 +179,7 @@ _ConfigurationSchema = Schema(All({
     Required('theme', default=dict): All({
         'background_image_id': str,
     }, _theme_configuration),
+    'lifetime_threshold': All(int, Range(min=1)),
 }, _configuration))
 
 
