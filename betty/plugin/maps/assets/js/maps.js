@@ -11,7 +11,7 @@ import { GestureHandling } from 'leaflet-gesture-handling'
 import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css' // eslint-disable-line no-unused-vars
 import configuration from './configuration.json'
 
-L.Map.addInitHook('addHandler', 'gestureHandling', GestureHandling);
+L.Map.addInitHook('addHandler', 'gestureHandling', GestureHandling)
 
 let mapCount = 0
 
@@ -27,7 +27,7 @@ function initializePlaceList (placeList) {
   mapArea.id = (++mapCount).toString()
 
   const map = L.map(mapArea.id, {
-      gestureHandling: true,
+    gestureHandling: true
   })
 
   // Build the attribution layer.
