@@ -15,6 +15,10 @@ from betty.openapi import build_specification
 from betty.site import Site
 
 
+class PostStaticGenerateEvent(Event):
+    pass  # pragma: no cover
+
+
 class PostGenerateEvent(Event):
     pass  # pragma: no cover
 
@@ -24,6 +28,7 @@ async def generate(site: Site) -> None:
     await site.assets.copytree(join('public', 'static'),
                                site.configuration.www_directory_path)
     await site.renderer.render_tree(site.configuration.www_directory_path)
+    await site.event_dispatcher.dispatch(PostStaticGenerateEvent())
     for locale, locale_configuration in site.configuration.locales.items():
         async with site.with_locale(locale) as site:
             if site.configuration.multilingual:

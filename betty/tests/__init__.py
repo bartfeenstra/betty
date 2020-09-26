@@ -67,4 +67,8 @@ class TemplateTestCase(TestCase):
             if update_configuration is not None:
                 update_configuration(configuration)
             async with Site(configuration) as site:
-                yield await template_factory(site.jinja2_environment, template).render_async(**data), site
+                rendered = await template_factory(site.jinja2_environment, template).render_async(**data)
+                # We want to keep the site around, but we must make sure all dispatched tasks are done, so we shut down
+                # the executor. Crude, but effective.
+                site.executor.shutdown()
+                yield rendered, site

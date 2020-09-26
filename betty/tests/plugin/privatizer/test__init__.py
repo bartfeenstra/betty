@@ -5,8 +5,8 @@ from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.ancestry import Person, Presence, IdentifiableEvent, Event, Source, IdentifiableSource, File, \
-    IdentifiableCitation, Subject, Attendee, Birth, Marriage, Death, Burial
+from betty.ancestry import Person, Presence, Event, Source, IdentifiableSource, File, \
+    IdentifiableCitation, Subject, Attendee, Birth, Marriage, Death
 from betty.config import Configuration
 from betty.functools import sync
 from betty.locale import Date, DateRange
@@ -16,61 +16,66 @@ from betty.site import Site
 
 
 def _expand_person(generation: int):
+    lifetime_threshold = 125
     multiplier = abs(generation) + 1 if generation < 0 else 1
-    threshold_year = datetime.now().year - 100 * multiplier
-    date_under_threshold = Date(threshold_year + 1, 1, 1)
-    date_range_start_under_threshold = DateRange(date_under_threshold)
-    date_range_end_under_threshold = DateRange(None, date_under_threshold)
-    date_over_threshold = Date(threshold_year - 1, 1, 1)
-    date_range_start_over_threshold = DateRange(date_over_threshold)
-    date_range_end_over_threshold = DateRange(None, date_over_threshold)
+    lifetime_threshold_year = datetime.now().year - lifetime_threshold * multiplier
+    date_under_lifetime_threshold = Date(lifetime_threshold_year + 1, 1, 1)
+    date_range_start_under_lifetime_threshold = DateRange(date_under_lifetime_threshold)
+    date_range_end_under_lifetime_threshold = DateRange(None, date_under_lifetime_threshold)
+    date_over_lifetime_threshold = Date(lifetime_threshold_year - 1, 1, 1)
+    date_range_start_over_lifetime_threshold = DateRange(date_over_lifetime_threshold)
+    date_range_end_over_lifetime_threshold = DateRange(None, date_over_lifetime_threshold)
     return parameterized.expand([
-        # If there are no events for a person, their privacy does not change.
+        # If there are no events for a person, they are private.
         (True, None, None),
         (True, True, None),
         (False, False, None),
-        # Deaths and burials are special, and their existence prevents generation 0 from being private even without
-        # having passed the usual threshold.
-        (generation != 0, None, IdentifiableEvent('E0', Death(), date=Date(datetime.now().year, datetime.now().month, datetime.now().day))),
-        (generation != 0, None, IdentifiableEvent('E0', Death(), date=date_under_threshold)),
-        (True, None, IdentifiableEvent('E0', Death(), date=date_range_start_under_threshold)),
-        (generation != 0, None, IdentifiableEvent('E0', Death(), date=date_range_end_under_threshold)),
-        (True, True, IdentifiableEvent('E0', Death())),
-        (False, False, IdentifiableEvent('E0', Death())),
-        (generation != 0, None, IdentifiableEvent('E0', Burial(), date=Date(datetime.now().year, datetime.now().month, datetime.now().day))),
-        (generation != 0, None, IdentifiableEvent('E0', Burial(), date=date_under_threshold)),
-        (True, None, IdentifiableEvent('E0', Burial(), date=date_range_start_under_threshold)),
-        (generation != 0, None, IdentifiableEvent('E0', Burial(), date=date_range_end_under_threshold)),
-        (True, True, IdentifiableEvent('E0', Burial())),
-        (False, False, IdentifiableEvent('E0', Burial())),
+
+        # Deaths and other end-of-life events are special, but only for the person whose privacy is being checked:
+        # - If they're present without dates, the person isn't private.
+        # - If they're present and their dates or date ranges' end dates are in the past, the person isn't private.
+        (generation != 0, None, Event(Death(), date=Date(datetime.now().year, datetime.now().month, datetime.now().day))),
+        (generation != 0, None, Event(Death(), date=date_under_lifetime_threshold)),
+        (True, None, Event(Death(), date=date_range_start_under_lifetime_threshold)),
+        (generation != 0, None, Event(Death(), date=date_range_end_under_lifetime_threshold)),
+        (False, None, Event(Death(), date=date_over_lifetime_threshold)),
+        (True, None, Event(Death(), date=date_range_start_over_lifetime_threshold)),
+        (False, None, Event(Death(), date=date_range_end_over_lifetime_threshold)),
+        (True, True, Event(Death())),
+        (False, False, Event(Death())),
+        (generation != 0, None, Event(Death())),
+
         # Regular events without dates do not affect privacy.
-        (True, None, IdentifiableEvent('E0', Birth())),
-        (True, True, IdentifiableEvent('E0', Birth())),
-        (False, False, IdentifiableEvent('E0', Birth())),
+        (True, None, Event(Birth())),
+        (True, True, Event(Birth())),
+        (False, False, Event(Birth())),
+
         # Regular events with incomplete dates do not affect privacy.
-        (True, None, IdentifiableEvent('E0', Birth(), date=Date())),
-        (True, True, IdentifiableEvent('E0', Birth(), date=Date())),
-        (False, False, IdentifiableEvent('E0', Birth(), date=Date())),
+        (True, None, Event(Birth(), date=Date())),
+        (True, True, Event(Birth(), date=Date())),
+        (False, False, Event(Birth(), date=Date())),
+
         # Regular events under the lifetime threshold do not affect privacy.
-        (True, None, IdentifiableEvent('E0', Birth(), date=date_under_threshold)),
-        (True, True, IdentifiableEvent('E0', Birth(), date=date_under_threshold)),
-        (False, False, IdentifiableEvent('E0', Birth(), date=date_under_threshold)),
-        (True, None, IdentifiableEvent('E0', Birth(), date=date_range_start_under_threshold)),
-        (True, True, IdentifiableEvent('E0', Birth(), date=date_range_start_under_threshold)),
-        (False, False, IdentifiableEvent('E0', Birth(), date=date_range_start_under_threshold)),
-        (True, None, IdentifiableEvent('E0', Birth(), date=date_range_end_under_threshold)),
-        (True, True, IdentifiableEvent('E0', Birth(), date=date_range_end_under_threshold)),
-        (False, False, IdentifiableEvent('E0', Birth(), date=date_range_end_under_threshold)),
+        (True, None, Event(Birth(), date=date_under_lifetime_threshold)),
+        (True, True, Event(Birth(), date=date_under_lifetime_threshold)),
+        (False, False, Event(Birth(), date=date_under_lifetime_threshold)),
+        (True, None, Event(Birth(), date=date_range_start_under_lifetime_threshold)),
+        (True, True, Event(Birth(), date=date_range_start_under_lifetime_threshold)),
+        (False, False, Event(Birth(), date=date_range_start_under_lifetime_threshold)),
+        (True, None, Event(Birth(), date=date_range_end_under_lifetime_threshold)),
+        (True, True, Event(Birth(), date=date_range_end_under_lifetime_threshold)),
+        (False, False, Event(Birth(), date=date_range_end_under_lifetime_threshold)),
+
         # Regular events over the lifetime threshold affect privacy.
-        (False, None, IdentifiableEvent('E0', Birth(), date=date_over_threshold)),
-        (True, True, IdentifiableEvent('E0', Birth(), date=date_over_threshold)),
-        (False, False, IdentifiableEvent('E0', Birth(), date=date_over_threshold)),
-        (False, None, IdentifiableEvent('E0', Birth(), date=date_range_start_over_threshold)),
-        (True, True, IdentifiableEvent('E0', Birth(), date=date_range_start_over_threshold)),
-        (False, False, IdentifiableEvent('E0', Birth(), date=date_range_start_over_threshold)),
-        (False, None, IdentifiableEvent('E0', Birth(), date=date_range_end_over_threshold)),
-        (True, True, IdentifiableEvent('E0', Birth(), date=date_range_end_over_threshold)),
-        (False, False, IdentifiableEvent('E0', Birth(), date=date_range_end_over_threshold)),
+        (False, None, Event(Birth(), date=date_over_lifetime_threshold)),
+        (True, True, Event(Birth(), date=date_over_lifetime_threshold)),
+        (False, False, Event(Birth(), date=date_over_lifetime_threshold)),
+        (True, None, Event(Birth(), date=date_range_start_over_lifetime_threshold)),
+        (True, True, Event(Birth(), date=date_range_start_over_lifetime_threshold)),
+        (False, False, Event(Birth(), date=date_range_start_over_lifetime_threshold)),
+        (False, None, Event(Birth(), date=date_range_end_over_lifetime_threshold)),
+        (True, True, Event(Birth(), date=date_range_end_over_lifetime_threshold)),
+        (False, False, Event(Birth(), date=date_range_end_over_lifetime_threshold)),
     ])
 
 
@@ -78,7 +83,7 @@ class PrivatizerTest(TestCase):
     @sync
     async def test_post_parse(self):
         person = Person('P0')
-        Presence(person, Subject(), IdentifiableEvent('E0', Birth()))
+        Presence(person, Subject(), Event(Birth()))
 
         source_file = File('F0', __file__)
         source = IdentifiableSource('S0', 'The Source')
@@ -121,7 +126,7 @@ class PrivatizerTest(TestCase):
         person.files.append(person_file)
         Presence(person, Subject(), event_as_subject)
         Presence(person, Attendee(), event_as_attendee)
-        privatize_person(person)
+        privatize_person(person, 125)
         self.assertEqual(False, person.private)
         self.assertIsNone(citation.private)
         self.assertIsNone(source.private)
@@ -147,7 +152,7 @@ class PrivatizerTest(TestCase):
         person.files.append(person_file)
         Presence(person, Subject(), event_as_subject)
         Presence(person, Attendee(), event_as_attendee)
-        privatize_person(person)
+        privatize_person(person, 125)
         self.assertTrue(person.private)
         self.assertTrue(citation.private)
         self.assertTrue(source.private)
@@ -163,7 +168,7 @@ class PrivatizerTest(TestCase):
         person.private = private
         if event is not None:
             Presence(person, Subject(), event)
-        privatize_person(person)
+        privatize_person(person, 125)
         self.assertEquals(expected, person.private)
 
     @_expand_person(1)
@@ -174,7 +179,7 @@ class PrivatizerTest(TestCase):
         if event is not None:
             Presence(child, Subject(), event)
         person.children.append(child)
-        privatize_person(person)
+        privatize_person(person, 125)
         self.assertEquals(expected, person.private)
 
     @_expand_person(2)
@@ -187,7 +192,7 @@ class PrivatizerTest(TestCase):
         if event is not None:
             Presence(grandchild, Subject(), event)
         child.children.append(grandchild)
-        privatize_person(person)
+        privatize_person(person, 125)
         self.assertEquals(expected, person.private)
 
     @_expand_person(3)
@@ -202,7 +207,7 @@ class PrivatizerTest(TestCase):
         if event is not None:
             Presence(great_grandchild, Subject(), event)
         grandchild.children.append(great_grandchild)
-        privatize_person(person)
+        privatize_person(person, 125)
         self.assertEquals(expected, person.private)
 
     @_expand_person(-1)
@@ -213,7 +218,7 @@ class PrivatizerTest(TestCase):
         if event is not None:
             Presence(parent, Subject(), event)
         person.parents.append(parent)
-        privatize_person(person)
+        privatize_person(person, 125)
         self.assertEquals(expected, person.private)
 
     @_expand_person(-2)
@@ -226,7 +231,7 @@ class PrivatizerTest(TestCase):
         if event is not None:
             Presence(grandparent, Subject(), event)
         parent.parents.append(grandparent)
-        privatize_person(person)
+        privatize_person(person, 125)
         self.assertEquals(expected, person.private)
 
     @_expand_person(-3)
@@ -241,7 +246,7 @@ class PrivatizerTest(TestCase):
         if event is not None:
             Presence(great_grandparent, Subject(), event)
         grandparent.parents.append(great_grandparent)
-        privatize_person(person)
+        privatize_person(person, 125)
         self.assertEquals(expected, person.private)
 
     def test_privatize_event_should_not_privatize_if_public(self):

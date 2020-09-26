@@ -16,6 +16,7 @@ Betty is a static site generator for [Gramps](https://gramps-project.org/) and
   - [Gramps](#gramps)
   - [GEDCOM files](#gedcom-files)
   - [The Python API](#the-python-api)
+  - [Docker](#docker)
 - [Development](#development)
 - [Contributions](#contributions)
 - [License](#license)
@@ -38,7 +39,7 @@ secure**.
 - Node.js 10+ (optional)
 
 ### Instructions
-Run `pip install git+https://github.com/bartfeenstra/betty.git`.
+Run `pip install betty`.
 
 ## Usage
 
@@ -69,6 +70,7 @@ root_path: /betty
 clean_urls: true
 title: Betty's ancestry
 author: Bart Feenstra
+lifetime_threshold: 125
 locales:
   - locale: en-US
     alias: en
@@ -96,6 +98,8 @@ plugins:
     that supports it. Also see the `betty.plugin.nginx.Nginx` plugin. This implies `clean_urls`.
 - `title` (optional); The site's title.
 - `author` (optional); The site's author and copyright holder.
+- `lifetime_threshold` (optional); The number of years people are expected to live at most, e.g. after which they're
+    presumed to have died. Defaults to `125`.
 - `locales` (optional); An array of locales, each of which is an object with the following keys:
     - `locale`(required): An [IETF BCP 47](https://tools.ietf.org/html/bcp47) language tag.
     - `alias` (optional): A shorthand alias to use instead of the full language tag, such as when rendering URLs.
@@ -110,12 +114,14 @@ plugins:
     - `betty.plugin.gramps.Gramps`: Parses a Gramps genealogy. Configuration:
         - `file`: the path to the *Gramps XML* or *Gramps XML Package* file.
     - `betty.plugin.maps.Maps`: Renders interactive maps using [Leaflet](https://leafletjs.com/).
-    - `betty.plugin.nginx.Nginx`: Creates an [nginx](https://nginx.org) configuration file in the output directory.
-        If `content_negotiation` is enabled. You must make sure the nginx
+    - `betty.plugin.nginx.Nginx`: Creates an [nginx](https://nginx.org) configuration file and `Dockerfile` in the
+        output directory. If `content_negotiation` is enabled. You must make sure the nginx
         [Lua module](https://github.com/openresty/lua-nginx-module#readme) is enabled, and
         [CONE](https://github.com/bartfeenstra/cone)'s
         [cone.lua](https://raw.githubusercontent.com/bartfeenstra/cone/master/cone.lua) can be found by putting it in
-        nginx's [lua_package_path](https://github.com/openresty/lua-nginx-module#lua_package_path). Configuration:
+        nginx's [lua_package_path](https://github.com/openresty/lua-nginx-module#lua_package_path). This is done
+        automatically when using the `Dockerfile`.
+        Configuration:
         - `www_directory_path` (optional): The public www directory where Betty will be deployed. Defaults to `www`
             inside the output directory.
         - `https` (optional): Whether or not nginx will be serving Betty over HTTPS. Most upstream nginx servers will
@@ -199,6 +205,29 @@ async def generate():
 
 ```
 
+### Docker
+The `betty.plugin.nginx.Nginx` plugin generates `./nginx/Dockerfile` inside your Betty site's output directory. This
+image includes all dependencies needed to serve your Betty site over HTTP (port 80).
+
+To run Betty using this Docker image, configure the plugin as follows:
+```yaml
+# ...
+plugins:
+    betty.plugin.nginx.Nginx:
+        www_directory_path: /var/www/betty/
+        https: false
+``` 
+Then generate your site, and when starting the container based on the generated image, mount `./nginx/nginx.conf` and
+`./www` from the output directory to `/etc/nginx/conf.d/betty.conf` and `/var/www/betty` respectively.
+
+You can choose to mount the container's port 80 to a port on your host machine, or set up a load balancer to proxy
+traffic to the container.
+
+#### HTTPS/SSL
+The Docker image does not currently support secure connections
+([read more](https://github.com/bartfeenstra/betty/issues/511)). For HTTPS support, you will have to set up a separate
+web server to terminate SSL, and forward all traffic to the container over HTTP.  
+
 ## Development
 First, [fork and clone](https://guides.github.com/activities/forking/) the repository, and navigate to its root directory.
 
@@ -217,7 +246,7 @@ To add a new translation, run `./bin/init-translation $locale` where `$locale` i
 
 After making changes to the translatable strings in the source code, run `./bin/extract-translatables`.
 
-After making changes to the translation files, run `./bin/compile-translatables`.
+After making changes to the translation files, run `./bin/compile-translations`.
 
 ### Testing
 In any existing Python environment, run `./bin/test`.

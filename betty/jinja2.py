@@ -5,20 +5,19 @@ import os
 import re
 from contextlib import suppress
 from itertools import takewhile
-from os.path import join, exists
-from typing import Union, Dict, Type, Optional, Callable, Iterable, Any
+from os.path import join
+from typing import Iterable, Optional, Callable, Tuple, Union, Dict, Type, Any
 from urllib.parse import urlparse
 
 from PIL import Image
 from babel import Locale
 from geopy import units
 from geopy.format import DEGREES_FORMAT
-from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, \
-    contextfilter, Template
+from jinja2 import contextfilter, escape, FileSystemLoader, Template, Environment, select_autoescape
 from jinja2.asyncsupport import auto_await
-from jinja2.filters import prepare_map, make_attrgetter
+from jinja2.filters import prepare_map, make_attrgetter, evalcontextfilter
 from jinja2.runtime import Macro, resolve_or_missing, StrictUndefined
-from jinja2.utils import htmlsafe_json_dumps, Namespace
+from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup
 from resizeimage import resizeimage
 
@@ -27,9 +26,11 @@ from betty.ancestry import File, Citation, Identifiable, Resource, HasLinks, Has
 from betty.config import Configuration
 from betty.fs import makedirs, hashfile, is_hidden, iterfiles
 from betty.functools import walk, asynciter
+from betty.html import HtmlProvider
 from betty.importlib import import_any
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange
+from betty.lock import AcquiredError
 from betty.plugin import Plugin
 from betty.render import Renderer
 from betty.search import Index
@@ -84,28 +85,6 @@ class Jinja2Provider:
         return {}
 
 
-class HtmlProvider:
-    """
-    @todo This class has nothing to do with Jinja2, but placing it in the render module causes a circular dependency.
-    """
-
-    @property
-    def css_paths(self) -> Iterable[str]:
-        return []
-
-    @property
-    def js_paths(self) -> Iterable[str]:
-        return []
-
-
-class BettyNamespace(Namespace):
-    def __getattribute__(self, item):
-        # Fix https://github.com/pallets/jinja/issues/1180.
-        if '__class__' == item:
-            return object.__getattribute__(self, item)
-        return Namespace.__getattribute__(self, item)
-
-
 class BettyTemplate(Template):
     def render(self, *args, **kwargs):
         vars = dict(*args, **kwargs)
@@ -138,6 +117,7 @@ class BettyEnvironment(Environment):
     def __init__(self, site: Site):
         self.site = site
         template_directory_paths = [join(path, 'templates') for path in site.assets.paths]
+
         Environment.__init__(self,
                              enable_async=True,
                              loader=FileSystemLoader(template_directory_paths),
@@ -162,8 +142,6 @@ class BettyEnvironment(Environment):
             return ngettext(*args, **kwargs)
         self.install_gettext_callables(_gettext, _ngettext)
         self.policies['ext.i18n.trimmed'] = True
-        # Fix https://github.com/pallets/jinja/issues/1180.
-        self.globals['namespace'] = BettyNamespace
         self.globals['site'] = site
         self.globals['locale'] = site.locale
         today = datetime.date.today()
@@ -197,6 +175,13 @@ class BettyEnvironment(Environment):
 
         self.filters['tojson'] = _filter_tojson
         self.tests['resource'] = lambda x: isinstance(x, Resource)
+
+        def _build_test_resource_type(resource_type: Type[Resource]):
+            def _test_resource(x):
+                return isinstance(x, resource_type)
+            return _test_resource
+        for resource_type in RESOURCE_TYPES:
+            self.tests['%s_resource' % resource_type.resource_type_name] = _build_test_resource_type(resource_type)
         self.tests['identifiable'] = lambda x: isinstance(x, Identifiable)
         self.tests['has_links'] = lambda x: isinstance(x, HasLinks)
         self.tests['has_files'] = lambda x: isinstance(x, HasFiles)
@@ -204,8 +189,6 @@ class BettyEnvironment(Environment):
         self.tests['subject_role'] = lambda x: isinstance(x, Subject)
         self.tests['witness_role'] = lambda x: isinstance(x, Witness)
         self.tests['date_range'] = lambda x: isinstance(x, DateRange)
-        for resource_type in RESOURCE_TYPES:
-            self.tests['%s_resource' % resource_type.resource_type_name] = lambda x: isinstance(x, Witness)
         self.filters['paragraphs'] = _filter_paragraphs
 
         @contextfilter
@@ -341,25 +324,26 @@ def _filter_selectwhile(context, seq, *args, **kwargs):
         yield from takewhile(func, seq)
 
 
-def _filter_file(site: Site, file: File) -> str:
-    file_directory_path = os.path.join(
-        site.configuration.www_directory_path, 'file')
+async def _filter_file(site: Site, file: File) -> str:
+    file_directory_path = os.path.join(site.configuration.www_directory_path, 'file')
 
     destination_name = '%s.%s' % (file.id, file.extension)
-    destination_path = '/file/%s' % destination_name
-    output_destination_path = os.path.join(
-        file_directory_path, destination_name)
+    destination_public_path = '/file/%s' % destination_name
 
-    if exists(output_destination_path):
-        return destination_path
+    with suppress(AcquiredError):
+        site.locks.acquire((_filter_file, file))
+        site.executor.submit(_do_filter_file, file.path, file_directory_path, destination_name)
 
-    makedirs(file_directory_path)
-    os.link(file.path, output_destination_path)
-
-    return destination_path
+    return destination_public_path
 
 
-def _filter_image(site: Site, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
+def _do_filter_file(file_path: str, destination_directory_path: str, destination_name: str) -> None:
+    makedirs(destination_directory_path)
+    destination_file_path = os.path.join(destination_directory_path, destination_name)
+    os.link(file_path, destination_file_path)
+
+
+async def _filter_image(site: Site, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
     if width is None and height is None:
         raise ValueError('At least the width or height must be given.')
 
@@ -386,26 +370,29 @@ def _filter_image(site: Site, file: File, width: Optional[int] = None, height: O
             site.configuration.www_directory_path, 'file')
         destination_name = '%s-%s.%s' % (file.id, suffix %
                                          size, file.extension)
-        destination_path = '/file/%s' % destination_name
-        cache_directory_path = join(
-            site.configuration.cache_directory_path, 'image')
-        cache_file_path = join(cache_directory_path, '%s-%s' %
-                               (hashfile(file.path), destination_name))
-        output_file_path = join(file_directory_path, destination_name)
 
-        try:
-            os.link(cache_file_path, output_file_path)
-        except FileExistsError:
-            pass
-        except FileNotFoundError:
-            if exists(output_file_path):
-                return destination_path
-            makedirs(cache_directory_path)
+    with suppress(AcquiredError):
+        site.locks.acquire((_filter_image, file, width, height))
+        cache_directory_path = join(site.configuration.cache_directory_path, 'image')
+        site.executor.submit(_do_filter_image, file.path, cache_directory_path, file_directory_path, destination_name, convert, size)
+
+    destination_public_path = '/file/%s' % destination_name
+    return destination_public_path
+
+
+def _do_filter_image(file_path: str, cache_directory_path: str, destination_directory_path: str, destination_name: str, convert: Callable, size: Tuple[int, int]) -> None:
+    makedirs(destination_directory_path)
+    cache_file_path = join(cache_directory_path, '%s-%s' % (hashfile(file_path), destination_name))
+    destination_file_path = join(destination_directory_path, destination_name)
+
+    try:
+        os.link(cache_file_path, destination_file_path)
+    except FileNotFoundError:
+        makedirs(cache_directory_path)
+        with Image.open(file_path) as image:
             convert(image, size).save(cache_file_path)
-            makedirs(file_directory_path)
-            os.link(cache_file_path, output_file_path)
-
-    return destination_path
+        makedirs(destination_directory_path)
+        os.link(cache_file_path, destination_file_path)
 
 
 @contextfilter

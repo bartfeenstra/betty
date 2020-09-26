@@ -1,12 +1,12 @@
 from os import makedirs
-from os.path import exists, join, dirname, basename
+from os.path import join, basename, exists, dirname
 from tempfile import TemporaryDirectory, NamedTemporaryFile
-from typing import List, Dict, Optional, Iterable
+from typing import List, Iterable, Dict, Type, Optional
 from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.ancestry import File, PlaceName, Subject, Attendee, Witness, Dated
+from betty.ancestry import File, PlaceName, Subject, Attendee, Witness, Dated, Resource, Person, Place
 from betty.config import Configuration, LocaleConfiguration
 from betty.functools import sync
 from betty.locale import Date, Datey, DateRange, Localized
@@ -147,15 +147,12 @@ class FileTest(TemplateTestCase):
         }) as (actual, site):
             self.assertEquals(expected, actual)
             for file_path in actual.split(':'):
-                self.assertTrue(
-                    exists(join(site.configuration.www_directory_path, file_path[1:])))
-
-
-image_path = join(dirname(dirname(__file__)), 'assets',
-                  'public', 'static', 'betty-512x512.png')
+                self.assertTrue(exists(join(site.configuration.www_directory_path, file_path[1:])))
 
 
 class ImageTest(TemplateTestCase):
+    image_path = join(dirname(dirname(__file__)), 'assets', 'public', 'static', 'betty-512x512.png')
+
     @parameterized.expand([
         ('/file/F1-99x-.png',
          '{{ file | image(width=99) }}', File('F1', image_path)),
@@ -173,8 +170,7 @@ class ImageTest(TemplateTestCase):
         }) as (actual, site):
             self.assertEquals(expected, actual)
             for file_path in actual.split(':'):
-                self.assertTrue(
-                    exists(join(site.configuration.www_directory_path, file_path[1:])))
+                self.assertTrue(exists(join(site.configuration.www_directory_path, file_path[1:])))
 
 
 class TestPlugin(Plugin):
@@ -382,6 +378,24 @@ class IsWitnessRoleTest(TemplateTestCase):
     @sync
     async def test(self, expected, data) -> None:
         template = '{% if data is witness_role %}true{% else %}false{% endif %}'
+        async with self._render(template_string=template, data={
+            'data': data,
+        }) as (actual, _):
+            self.assertEquals(expected, actual)
+
+
+class TestResourceTypeTest(TemplateTestCase):
+    @parameterized.expand([
+        ('true', Person, Person('P1')),
+        ('false', Person, Place('P1', [PlaceName('The Place')])),
+        ('true', Place, Place('P1', [PlaceName('The Place')])),
+        ('false', Place, Person('P1')),
+        ('false', Place, 999),
+        ('false', Person, object()),
+    ])
+    @sync
+    async def test(self, expected, resource_type: Type[Resource], data) -> None:
+        template = f'{{% if data is {resource_type.resource_type_name}_resource %}}true{{% else %}}false{{% endif %}}'
         async with self._render(template_string=template, data={
             'data': data,
         }) as (actual, _):

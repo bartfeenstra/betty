@@ -1,5 +1,5 @@
-<div class="file">
-    <a href="#file-{{ file.id }}" class="file-summary">
+<div class="file" id="file-{{ file.id }}">
+    <a href="#file-extended-{{ file.id }}" class="file-extended-open file-summary">
         {% if file.media_type and file.media_type.startswith('image/') %}
             <figure>
                 <img src="{{ file | image(600, 600) | static_url }}" alt="{{ file.description }}"/>
@@ -11,17 +11,17 @@
             {{ file.description }}
         {% endif %}
     </a>
-    <div id="file-{{ file.id }}" class="file-extended">
+    <div id="file-extended-{{ file.id }}" class="file-extended">
         <ul class="file-controls">
             <li><a href="{{ file | file | static_url }}" title="View original in full">⇔</a></li>
             <li><a href="{{ file | file | static_url }}" download="{{ file.name }}" title="Download this file">⇓</a></li>
             <li><a href="{{ file | url }}" title="More details">ℹ</a></li>
-            <li><a href="#" title="Close this file">×</a></li>
+            <li><a href="#file-{{ file.id }}" title="Close this file" class="file-extended-close">×</a></li>
             {% if previous_file is defined %}
-                <li class="file-nav file-previous"><a href="#file-{{ previous_file.id }}" title="{{ previous_file.description }}">←</a></li>
+                <li class="file-nav file-previous"><a href="#file-extended-{{ previous_file.id }}" title="{{ previous_file.description }}">←</a></li>
             {% endif %}
             {% if next_file is defined %}
-                <li class="file-nav file-next"><a href="#file-{{ next_file.id }}" title="{{ next_file.description }}">→</a></li>
+                <li class="file-nav file-next"><a href="#file-extended-{{ next_file.id }}" title="{{ next_file.description }}">→</a></li>
             {% endif %}
         </ul>
         <div class="file-content">

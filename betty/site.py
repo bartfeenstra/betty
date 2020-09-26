@@ -1,8 +1,11 @@
 import gettext
 from collections import defaultdict, OrderedDict
+from concurrent.futures._base import Executor
+from concurrent.futures.process import ProcessPoolExecutor
 
 from jinja2 import Environment
 
+from betty.lock import Locks
 from betty.render import Renderer, SequentialRenderer
 from betty.sass import SassRenderer
 from betty.templates import VARS_BUILDERS
@@ -45,6 +48,8 @@ class Site:
         self._init_translations()
         self._jinja2_environment = None
         self._renderer = None
+        self._executor = None
+        self._locks = Locks()
 
     async def __aenter__(self):
         if not self._site_stack:
@@ -53,6 +58,9 @@ class Site:
 
         self._default_translations = Translations(self.translations[self.locale])
         self._default_translations.install()
+
+        if self._executor is None:
+            self._executor = ProcessPoolExecutor()
 
         self._site_stack.append(self)
 
@@ -64,6 +72,8 @@ class Site:
         self._default_translations.uninstall()
 
         if not self._site_stack:
+            self._executor.shutdown()
+            self._executor = None
             await self._plugin_exit_stack.aclose()
 
     @property
@@ -137,7 +147,7 @@ class Site:
         return self._configuration
 
     @property
-    def plugins(self) -> Dict:
+    def plugins(self) -> Dict[Type['Plugin'], 'Plugin']:
         return self._plugins
 
     @property
@@ -179,6 +189,16 @@ class Site:
             ])
 
         return self._renderer
+
+    @property
+    def executor(self) -> Executor:
+        if self._executor is None:
+            raise RuntimeError("Cannot get the executor before this site's context is entered.")
+        return self._executor
+
+    @property
+    def locks(self) -> Locks:
+        return self._locks
 
     def with_locale(self, locale: str) -> 'Site':
         locale = negotiate_locale(locale, list(self.configuration.locales.keys()))
