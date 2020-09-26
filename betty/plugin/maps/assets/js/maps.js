@@ -7,7 +7,11 @@ import leafletStyle from 'leaflet/dist/leaflet.css' // eslint-disable-line no-un
 import leafletMarkerIconImage from 'leaflet/dist/images/marker-icon.png'
 import leafletMarkerIcon2xImage from 'leaflet/dist/images/marker-icon-2x.png'
 import leafletMarkerShadowImage from 'leaflet/dist/images/marker-shadow.png'
+import { GestureHandling } from 'leaflet-gesture-handling'
+import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css' // eslint-disable-line no-unused-vars
 import configuration from './configuration.json'
+
+L.Map.addInitHook('addHandler', 'gestureHandling', GestureHandling);
 
 let mapCount = 0
 
@@ -22,7 +26,9 @@ function initializePlaceList (placeList) {
   const mapArea = placeList.getElementsByClassName('map')[0]
   mapArea.id = (++mapCount).toString()
 
-  const map = L.map(mapArea.id)
+  const map = L.map(mapArea.id, {
+      gestureHandling: true,
+  })
 
   // Build the attribution layer.
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
