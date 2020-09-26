@@ -42,6 +42,7 @@
     <script>
         document.getElementById('js-visibility').innerHTML = '.js-hide{display:none;}'
     </script>
+    <script src="{{ '/file.js' | static_url }}" defer></script>
     <script src="{{ '/search.js' | static_url }}" defer></script>
     {% for html_provider in html_providers %}
         {% for css_path in html_provider.css_paths %}
