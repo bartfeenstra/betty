@@ -1,0 +1,6 @@
+{{ {
+    'mode': site.configuration.mode,
+    'minimize': site.configuration.mode == 'production',
+    'debug': site.configuration.mode == 'development',
+    'cacheDirectory': path.join(site.configuration.cache_directory_path, 'betty.plugin.trees.Trees', 'babel'),
+} | tojson }}

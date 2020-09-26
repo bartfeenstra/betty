@@ -1,0 +1,26 @@
+{% extends 'base.html.j2' %}
+{% set page_title = citation.location %}
+{% block page_content %}
+    <div class="meta">
+    {% include 'meta/citation.html.j2' %}
+    </div>
+    {% set files = citation.files %}
+    {% if files | length > 0 %}
+        <h2>{% trans %}Media{% endtrans %}</h2>
+        {% include 'list-file.html.j2' %}
+    {% endif %}
+    {% set facts = citation.facts | select('resource') | list %}
+    {% if facts | length > 0 %}
+        <h2>{% trans %}Facts{% endtrans %}</h2>
+        <ul class="entities">
+            {% for fact in facts %}
+                <li class="{{ loop.cycle('odd', 'even') }}">
+                    {% with resource=fact, citation_context=citation %}
+                        {% include 'label/resource.html.j2' %}
+                        {% include 'meta/resource.html.j2' %}
+                    {% endwith %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,700 @@
+{
+  "$schema": "http://json-schema.org/draft-05/schema#",
+  "definitions": {
+    "error": {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "$ref": "#/definitions/schema"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "$schema",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "personCollection": {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "$ref": "#/definitions/schema"
+        },
+        "collection": {
+          "$ref": "#/definitions/people"
+        }
+      },
+      "required": [
+        "$schema",
+        "collection"
+      ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
+      "additionalProperties": false
+    },
+    "person": {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "$ref": "#/definitions/schema"
+        },
+        "id": {
+          "$ref": "#/definitions/id"
+        },
+        "names": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "individual": {
+                "type": "string"
+              },
+              "affiliation": {
+                "type": "string"
+              }
+            },
+            "patternProperties": {
+              "^@": {
+                "$ref": "#/definitions/jsonLd"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "parents": {
+          "$ref": "#/definitions/people"
+        },
+        "children": {
+          "$ref": "#/definitions/people"
+        },
+        "siblings": {
+          "$ref": "#/definitions/people"
+        },
+        "presences": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "role": {
+                "$ref": "#/definitions/role"
+              },
+              "event": {
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": [
+              "role",
+              "event"
+            ],
+            "patternProperties": {
+              "^@": {
+                "$ref": "#/definitions/jsonLd"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "links": {
+          "$ref": "#/definitions/links"
+        },
+        "citations": {
+          "$ref": "#/definitions/citations"
+        },
+        "private": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "$schema",
+        "id",
+        "parents",
+        "children",
+        "siblings",
+        "presences",
+        "private"
+      ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
+      "additionalProperties": false
+    },
+    "fileCollection": {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "$ref": "#/definitions/schema"
+        },
+        "collection": {
+          "$ref": "#/definitions/files"
+        }
+      },
+      "required": [
+        "$schema",
+        "collection"
+      ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
+      "additionalProperties": false
+    },
+    "file": {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "$ref": "#/definitions/schema"
+        },
+        "id": {
+          "$ref": "#/definitions/id"
+        },
+        "mediaType": {
+          "$ref": "#/definitions/mediaType"
+        },
+        "notes": {
+          "$ref": "#/definitions/notes"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "links": {
+          "$ref": "#/definitions/links"
+        }
+      },
+      "required": [
+        "$schema",
+        "id",
+        "notes",
+        "resources"
+      ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
+      "additionalProperties": false
+    },
+    "eventCollection": {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "$ref": "#/definitions/schema"
+        },
+        "collection": {
+          "$ref": "#/definitions/events"
+        }
+      },
+      "required": [
+        "$schema",
+        "collection"
+      ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
+      "additionalProperties": false
+    },
+    "event": {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "$ref": "#/definitions/schema"
+        },
+        "id": {
+          "$ref": "#/definitions/id"
+        },
+        "type": {
+          "type": "string"
+        },
+        "place": {
+          "type": "string",
+          "format": "uri"
+        },
+        "presences": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "role": {
+                "$ref": "#/definitions/role"
+              },
+              "person": {
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": [
+              "role",
+              "person"
+            ],
+            "patternProperties": {
+              "^@": {
+                "$ref": "#/definitions/jsonLd"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "date": {
+          "$ref": "#/definitions/datey"
+        },
+        "citations": {
+          "$ref": "#/definitions/citations"
+        },
+        "links": {
+          "$ref": "#/definitions/links"
+        }
+      },
+      "required": [
+        "$schema",
+        "id",
+        "type",
+        "presences",
+        "citations"
+      ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
+      "additionalProperties": false
+    },
+    "placeCollection": {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "$ref": "#/definitions/schema"
+        },
+        "collection": {
+          "$ref": "#/definitions/places"
+        }
+      },
+      "required": [
+        "$schema",
+        "collection"
+      ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
+      "additionalProperties": false
+    },
+    "place": {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "$ref": "#/definitions/schema"
+        },
+        "id": {
+          "$ref": "#/definitions/id"
+        },
+        "names": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/localizedName"
+          }
+        },
+        "enclosedBy": {
+          "$ref": "#/definitions/places"
+        },
+        "encloses": {
+          "$ref": "#/definitions/places"
+        },
+        "coordinates": {
+          "$ref": "#/definitions/coordinates"
+        },
+        "links": {
+          "$ref": "#/definitions/links"
+        },
+        "events": {
+          "$ref": "#/definitions/events"
+        }
+      },
+      "required": [
+        "$schema",
+        "id",
+        "names",
+        "encloses",
+        "links",
+        "events"
+      ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
+      "additionalProperties": false
+    },
+    "citationCollection": {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "$ref": "#/definitions/schema"
+        },
+        "collection": {
+          "$ref": "#/definitions/citations"
+        }
+      },
+      "required": [
+        "$schema",
+        "collection"
+      ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
+      "additionalProperties": false
+    },
+    "citation": {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "$ref": "#/definitions/schema"
+        },
+        "id": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string",
+          "format": "uri"
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "description": {
+          "$ref": "#/definitions/description"
+        },
+        "links": {
+          "$ref": "#/definitions/links"
+        }
+      },
+      "required": [
+        "$schema",
+        "id",
+        "facts"
+      ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
+      "additionalProperties": false
+    },
+    "sourceCollection": {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "$ref": "#/definitions/schema"
+        },
+        "collection": {
+          "$ref": "#/definitions/sources"
+        }
+      },
+      "required": [
+        "$schema",
+        "collection"
+      ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "$ref": "#/definitions/schema"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "author": {
+          "type": "string"
+        },
+        "publisher": {
+          "type": "string"
+        },
+        "contains": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "containedBy": {
+          "type": "string",
+          "format": "uri"
+        },
+        "links": {
+          "$ref": "#/definitions/links"
+        },
+        "citations": {
+          "$ref": "#/definitions/citations"
+        },
+        "date": {
+          "$ref": "#/definitions/date"
+        }
+      },
+      "required": [
+        "$schema",
+        "id",
+        "name",
+        "contains",
+        "links",
+        "citations"
+      ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
+      "additionalProperties": false
+    },
+    "schema": {
+      "type": "string",
+      "format": "uri",
+      "description": "A JSON Schema URI."
+    },
+    "jsonLd": {
+      "description": "A JSON-LD annotation."
+    },
+    "id": {
+      "type": "string",
+      "description": "A unique resource ID."
+    },
+    "locale": {
+      "type": "string",
+      "description": "A BCP 47 locale identifier (https://www.ietf.org/rfc/bcp/bcp47.txt)."
+    },
+    "mediaType": {
+      "type": "string",
+      "description": "An IANA media type (https://www.iana.org/assignments/media-types/media-types.xhtml)."
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/link"
+      }
+    },
+    "link": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string",
+          "description": "The human-readable label, or link text."
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "The full URL to the other resource."
+        },
+        "relationship": {
+          "type": "string",
+          "description": "The relationship between this resource and the link target (https://en.wikipedia.org/wiki/Link_relation)."
+        },
+        "locale": {
+          "$ref": "#/definitions/locale"
+        },
+        "mediaType": {
+          "$ref": "#/definitions/mediaType"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
+      "additionalProperties": false
+    },
+    "localizedName": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "locale": {
+          "$ref": "#/definitions/locale"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
+      "additionalProperties": false
+    },
+    "description": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string",
+      "description": "A person's role in an event."
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/note"
+      }
+    },
+    "note": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
+      "additionalProperties": false
+    },
+    "date": {
+      "type": "object",
+      "properties": {
+        "year": {
+          "type": "number"
+        },
+        "month": {
+          "type": "number"
+        },
+        "day": {
+          "type": "number"
+        }
+      },
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
+      "additionalProperties": false
+    },
+    "dateRange": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "$ref": "#/definitions/date"
+        },
+        "end": {
+          "$ref": "#/definitions/date"
+        }
+      },
+      "additionalProperties": false
+    },
+    "datey": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/date"
+        },
+        {
+          "$ref": "#/definitions/dateRange"
+        }
+      ]
+    },
+    "coordinates": {
+      "type": "object",
+      "properties": {
+        "latitude": {
+          "type": "number"
+        },
+        "longitude": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "latitude",
+        "longitude"
+      ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
+      "additionalProperties": false
+    },
+    "places": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    },
+    "citations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    },
+    "people": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    }
+  }
+}

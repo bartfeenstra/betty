@@ -1,0 +1,20 @@
+{# Citation formatting is inspired by the MLA style guide(https://style.mla.org/) #}
+{% set citation = citation | default(resource) %}
+{% set citation_context = citation_context | default(None) %}
+<span>
+    {% if citation.source -%}
+        {%- if citation.source.author -%}
+            <span class="citation-author">{{ citation.source.author }}</span>
+        {%- endif %}
+        <span class="citation-title">{% with source=citation.source %}{% include 'label/source.html.j2' %}{% endwith %}</span>
+        {%- if citation.source.publisher -%}
+            <span class="citation-publisher">{{ citation.source.publisher }}</span>
+        {%- endif -%}
+    {% endif %}
+    {%- if citation.location -%}
+            <span class="citation-location">{% if citation_context == citation %}{{ citation.location }}{% else %}{% if citation is identifiable %}<a href="{{ citation | url }}">{% endif %}{{ citation.location }}{% if citation is identifiable %}</a>{% endif %}{% endif %}</span>
+    {%- endif -%}
+    {%- if citation.date -%}
+        <span class="citation-date">{% trans date = citation.date | format_date %}Accessed {{ date }}{% endtrans %}</span>
+    {%- endif -%}
+</span>

@@ -8,7 +8,9 @@ cd "$(dirname "$0")/.."
 autopep8 --in-place -r ./betty
 
 # Fix CSS code style violations.
-./node_modules/.bin/stylelint --fix "./**/*.css" "./**/*.sass" "./**/*.scss"
+./node_modules/.bin/stylelint --fix "./betty/**/*.css" "./betty/**/*.sass" "./betty/**/*.scss"
 
 # Fix JS code style violations.
-./node_modules/.bin/eslint --fix "./**/*.js"
+while read -r configuration_path; do
+    ./node_modules/.bin/eslint --fix -c "$configuration_path" "$(dirname "${configuration_path}")/**/*.js"
+done < <(find ./ -name .eslintrc.yaml)

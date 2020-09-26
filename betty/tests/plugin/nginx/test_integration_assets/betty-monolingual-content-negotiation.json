@@ -1,0 +1,9 @@
+{
+  "base_url": "http://example.com",
+  "content_negotiation": true,
+  "plugins": {
+    "betty.plugin.nginx.Nginx": {
+      "www_directory_path": "/var/www/betty/"
+    }
+  }
+}

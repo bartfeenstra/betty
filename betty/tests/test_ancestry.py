@@ -4,52 +4,100 @@ from unittest.mock import Mock
 
 from parameterized import parameterized
 
-from betty.ancestry import EventHandlingSetList, Person, Event, Place, File, Note, Presence, LocalizedName, PersonName, \
-    IdentifiableEvent
+from betty.ancestry import EventHandlingSetList, Person, Event, Place, File, Note, Presence, PlaceName, PersonName, \
+    IdentifiableEvent, Subject, Birth, Enclosure
 from betty.locale import Date
 
 
-class EventHandlingSetTest(TestCase):
+class EventHandlingSetListTest(TestCase):
+    def test_prepend(self):
+        added = []
+        removal_handler = Mock()
+        sut = EventHandlingSetList(lambda value: added.append(value), removal_handler)
+        sut.prepend(3)
+        sut.prepend(2)
+        sut.prepend(1)
+        # Prepend an already prepended value again, and assert that it was ignored.
+        sut.prepend(1)
+        self.assertSequenceEqual([1, 2, 3], sut)
+        self.assertSequenceEqual([3, 2, 1], added)
+        removal_handler.assert_not_called()
+
+    def test_append(self):
+        added = []
+        removal_handler = Mock()
+        sut = EventHandlingSetList(lambda value: added.append(value), removal_handler)
+        sut.append(3)
+        sut.append(2)
+        sut.append(1)
+        # Append an already appended value again, and assert that it was ignored.
+        sut.append(1)
+        self.assertSequenceEqual([3, 2, 1], sut)
+        self.assertSequenceEqual([3, 2, 1], added)
+        removal_handler.assert_not_called()
+
+    def test_remove(self):
+        added = []
+        removed = []
+        sut = EventHandlingSetList(lambda value: added.append(value), lambda value: removed.append(value))
+        sut.append(1, 2, 3, 4)
+        sut.remove(4, 2)
+        self.assertSequenceEqual([1, 3], sut)
+        self.assertSequenceEqual([1, 2, 3, 4], added)
+        self.assertSequenceEqual([4, 2], removed)
+
+    def test_replace(self):
+        added = []
+        removed = []
+        sut = EventHandlingSetList(lambda value: added.append(value), lambda value: removed.append(value))
+        sut.append(1, 2, 3)
+        sut.replace(4, 5, 6)
+        self.assertSequenceEqual([4, 5, 6], sut)
+        self.assertSequenceEqual([1, 2, 3, 4, 5, 6], added)
+        self.assertSequenceEqual([1, 2, 3], removed)
+
+    def test_clear(self):
+        added = []
+        removed = []
+        sut = EventHandlingSetList(lambda value: added.append(value), lambda value: removed.append(value))
+        sut.append(1, 2, 3)
+        sut.clear()
+        self.assertSequenceEqual([], sut)
+        self.assertSequenceEqual([1, 2, 3], added)
+        self.assertSequenceEqual([1, 2, 3], removed)
+
     def test_list(self):
-        sut = EventHandlingSetList()
-        value = 'Some value'
-        sut.append(value)
-        self.assertEquals([value], sut.list)
+        sut = EventHandlingSetList(lambda _: None, lambda _: None)
+        sut.append(1, 2, 3)
+        self.assertEqual([1, 2, 3], sut.list)
 
-    def test_with_handler(self):
-        reference = []
+    def test_len(self):
+        sut = EventHandlingSetList(lambda _: None, lambda _: None)
+        sut.append(1, 2, 3)
+        self.assertEqual(3, len(sut))
 
-        def addition_handler(added_value):
-            reference.append(added_value)
+    def test_iter(self):
+        sut = EventHandlingSetList(lambda _: None, lambda _: None)
+        sut.append(1, 2, 3)
+        # list() gets all items through __iter__ and stores them in the same order.
+        self.assertSequenceEqual([1, 2, 3], list(sut))
 
-        def removal_handler(removed_value):
-            reference.remove(removed_value)
+    def test_getitem(self):
+        sut = EventHandlingSetList(lambda _: None, lambda _: None)
+        sut.append(1, 2, 3)
+        self.assertEqual(1, sut[0])
+        self.assertEqual(2, sut[1])
+        self.assertEqual(3, sut[2])
+        with self.assertRaises(IndexError):
+            sut[3]
 
-        sut = EventHandlingSetList(addition_handler, removal_handler)
-
-        value = 'A valuable value'
-
-        sut.append(value)
-        self.assertCountEqual([value], sut)
-        self.assertEquals([value], reference)
-
-        newvalue = 'A even more valuable value'
-
-        sut.replace([newvalue])
-        self.assertCountEqual([newvalue], sut)
-        self.assertEquals([newvalue], reference)
-
-        sut.remove(newvalue)
-        self.assertCountEqual([], sut)
-        self.assertEquals([], reference)
-
-    def test_without_handler(self):
-        sut = EventHandlingSetList()
-        value = 'A valuable value'
-        sut.append(value)
-        self.assertCountEqual([value], sut)
-        sut.remove(value)
-        self.assertCountEqual([], sut)
+    def test_set_like_functionality(self):
+        sut = EventHandlingSetList(lambda _: None, lambda _: None)
+        # Ensure duplicates are skipped.
+        sut.append(1, 2, 3, 1, 2, 3, 1, 2, 3)
+        # Ensure skipped duplicates do not affect further new values.
+        sut.append(1, 2, 3, 4, 5, 6, 7, 8, 9)
+        self.assertSequenceEqual([1, 2, 3, 4, 5, 6, 7, 8, 9], sut)
 
 
 class PersonTest(TestCase):
@@ -104,8 +152,9 @@ class PersonTest(TestCase):
         self.assertCountEqual([sibling], sut.siblings)
 
     def test_presence_should_sync_references(self):
-        presence = Presence(Presence.Role.SUBJECT)
+        event = Event(Birth())
         sut = Person('1')
+        presence = Presence(sut, Subject(), event)
         sut.presences.append(presence)
         self.assertCountEqual([presence], sut.presences)
         self.assertEquals(sut, presence.person)
@@ -128,8 +177,8 @@ class PersonNameTest(TestCase):
 
 class PlaceTest(TestCase):
     def test_events_should_sync_references(self):
-        sut = Place('1', [LocalizedName('one')])
-        event = IdentifiableEvent('1', Event.Type.BIRTH)
+        sut = Place('1', [PlaceName('one')])
+        event = IdentifiableEvent('1', Birth())
         sut.events.append(event)
         self.assertIn(event, sut.events)
         self.assertEquals(sut, event.place)
@@ -138,42 +187,42 @@ class PlaceTest(TestCase):
         self.assertEquals(None, event.place)
 
     def test_encloses_should_sync_references(self):
-        sut = Place('1', [LocalizedName('one')])
-        enclosed_place = Place('2', [LocalizedName('two')])
-        sut.encloses.append(enclosed_place)
-        self.assertIn(enclosed_place, sut.encloses)
-        self.assertEquals(sut, enclosed_place.enclosed_by)
-        sut.encloses.remove(enclosed_place)
+        sut = Place('1', [PlaceName('one')])
+        enclosed_place = Place('2', [PlaceName('two')])
+        enclosure = Enclosure(enclosed_place, sut)
+        self.assertIn(enclosure, sut.encloses)
+        self.assertEquals(sut, enclosure.enclosed_by)
+        sut.encloses.remove(enclosure)
         self.assertCountEqual([], sut.encloses)
-        self.assertEquals(None, enclosed_place.enclosed_by)
+        self.assertIsNone(enclosure.enclosed_by)
 
     def test_enclosed_by_should_sync_references(self):
-        sut = Place('1', [LocalizedName('one')])
-        enclosing_place = Place('2', [LocalizedName('two')])
-        sut.enclosed_by = enclosing_place
-        self.assertEquals(enclosing_place, sut.enclosed_by)
-        self.assertIn(sut, enclosing_place.encloses)
-        sut.enclosed_by = None
-        self.assertIsNone(sut.enclosed_by)
-        self.assertCountEqual([], enclosing_place.encloses)
+        sut = Place('1', [PlaceName('one')])
+        enclosing_place = Place('2', [PlaceName('two')])
+        enclosure = Enclosure(sut, enclosing_place)
+        self.assertIn(enclosure, sut.enclosed_by)
+        self.assertEquals(sut, enclosure.encloses)
+        sut.enclosed_by.remove(enclosure)
+        self.assertCountEqual([], sut.enclosed_by)
+        self.assertIsNone(enclosure.encloses)
 
 
 class EventTest(TestCase):
     def test_date(self):
-        sut = IdentifiableEvent('1', Event.Type.BIRTH)
+        sut = IdentifiableEvent('1', Birth())
         self.assertIsNone(sut.date)
         date = Mock(Date)
         sut.date = date
         self.assertEquals(date, sut.date)
 
     def test_type(self):
-        event_type = Event.Type.BIRTH
+        event_type = Birth()
         sut = IdentifiableEvent('1', event_type)
         self.assertEquals(event_type, sut.type)
 
     def test_place_should_sync_references(self):
-        place = Place('1', [LocalizedName('one')])
-        sut = IdentifiableEvent('1', Event.Type.BIRTH)
+        place = Place('1', [PlaceName('one')])
+        sut = IdentifiableEvent('1', Birth())
         sut.place = place
         self.assertEquals(place, sut.place)
         self.assertIn(sut, place.events)
@@ -182,8 +231,9 @@ class EventTest(TestCase):
         self.assertNotIn(sut, place.events)
 
     def test_presence_should_sync_references(self):
-        presence = Presence(Presence.Role.SUBJECT)
-        sut = IdentifiableEvent('1', Event.Type.BIRTH)
+        person = Person('P1')
+        sut = IdentifiableEvent('1', Birth())
+        presence = Presence(person, Subject(), sut)
         sut.presences.append(presence)
         self.assertCountEqual([presence], sut.presences)
         self.assertEquals(sut, presence.event)
@@ -245,21 +295,55 @@ class FileTest(TestCase):
 
 class LocalizedNameTest(TestCase):
     @parameterized.expand([
-        (True, LocalizedName('Ikke'), LocalizedName('Ikke')),
-        (True, LocalizedName('Ikke', 'nl-NL'), LocalizedName('Ikke', 'nl-NL')),
-        (False, LocalizedName('Ikke', 'nl-NL'), LocalizedName('Ikke', 'nl-BE')),
-        (False, LocalizedName('Ikke', 'nl-NL'), LocalizedName('Ik', 'nl-NL')),
-        (False, LocalizedName('Ikke'), LocalizedName('Ik')),
+        (True, PlaceName('Ikke'), PlaceName('Ikke')),
+        (True, PlaceName('Ikke', 'nl-NL'), PlaceName('Ikke', 'nl-NL')),
+        (False, PlaceName('Ikke', 'nl-NL'), PlaceName('Ikke', 'nl-BE')),
+        (False, PlaceName('Ikke', 'nl-NL'), PlaceName('Ik', 'nl-NL')),
+        (False, PlaceName('Ikke'), PlaceName('Ik')),
     ])
     def test_eq(self, expected, a, b):
         self.assertEquals(expected, a == b)
 
     def test_str(self):
         name = 'Ikke'
-        sut = LocalizedName(name)
+        sut = PlaceName(name)
         self.assertEquals(name, str(sut))
 
     def test_name(self):
         name = 'Ikke'
-        sut = LocalizedName(name)
+        sut = PlaceName(name)
         self.assertEquals(name, sut.name)
+
+
+class PresenceTest(TestCase):
+    def test_event_deletion_upon_person_deletion(self) -> None:
+        person = Person('P1')
+        event = Event(Birth())
+        sut = Presence(person, Subject(), event)
+        del sut.person
+        self.assertIsNone(sut.event)
+        self.assertNotIn(sut, event.presences)
+
+    def test_event_deletion_upon_person_set_to_none(self) -> None:
+        person = Person('P1')
+        event = Event(Birth())
+        sut = Presence(person, Subject(), event)
+        sut.person = None
+        self.assertIsNone(sut.event)
+        self.assertNotIn(sut, event.presences)
+
+    def test_person_deletion_upon_event_deletion(self) -> None:
+        person = Person('P1')
+        event = Event(Birth())
+        sut = Presence(person, Subject(), event)
+        del sut.event
+        self.assertIsNone(sut.person)
+        self.assertNotIn(sut, person.presences)
+
+    def test_person_deletion_upon_event_set_to_none(self) -> None:
+        person = Person('P1')
+        event = Event(Birth())
+        sut = Presence(person, Subject(), event)
+        sut.event = None
+        self.assertIsNone(sut.person)
+        self.assertNotIn(sut, person.presences)

@@ -1,0 +1,14 @@
+{% set place_context = place_context | default(None) %}
+<div class="places">
+    {% if 'betty.plugin.maps.Maps' in plugins %}
+        <div class="featured map js-show"></div>
+    {% endif %}
+    <ul class="entities {% if canonical is not defined or not canonical %} js-hide{% endif %}">
+        {% for place in places | sort_localizeds(localized_attribute='names', sort_attribute='name') %}
+            <li class="{{ loop.cycle('odd', 'even') }}" data-betty-place="{{ place | url(media_type='application/json') }}">
+                {% include 'label/place.html.j2' %}
+                {% include 'meta/place.html.j2' %}
+            </li>
+        {% endfor %}
+    </ul>
+</div>

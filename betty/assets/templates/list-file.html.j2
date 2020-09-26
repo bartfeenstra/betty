@@ -1,0 +1,12 @@
+{% set files = files | list %}
+<div class="files featured">
+    {% for file in files %}
+        {% if files[loop.index0 - 1] is defined %}
+            {% set previous_file = files[loop.index0 - 1] %}
+        {% endif %}
+        {% if files[loop.index0 + 1] is defined %}
+            {% set next_file = files[loop.index0 + 1] %}
+        {% endif %}
+        {% include 'file.html.j2' %}
+    {% endfor %}
+</div>

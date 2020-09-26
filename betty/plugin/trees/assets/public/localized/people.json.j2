@@ -1,0 +1,18 @@
+{% set ns = namespace(people={}) %}
+{% for person in site.ancestry.people.values() %}
+    {% set personLabel %}
+        {% with embedded=True %}
+            {% include 'label/person.html.j2' %}
+        {% endwith %}
+    {% endset %}
+    {% do ns.people.update({
+        person.id: {
+            'id': person.id,
+            'label': personLabel | striptags,
+            'url': person | url,
+            'parentIds': person.parents | map(attribute='id') | list,
+            'childIds': person.children | map(attribute='id') | list,
+        }
+    }) %}
+{% endfor %}
+{{ ns.people | json }}

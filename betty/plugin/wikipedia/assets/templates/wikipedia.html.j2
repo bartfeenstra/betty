@@ -1,0 +1,8 @@
+{% set entries = entity.links | wikipedia | list %}
+{% if entries | length > 0 %}
+    {% for entry in entries %}
+        {{ entry.content | safe }}
+        <p>{% trans url = entry.url %}Continue reading on <a href="{{ url }}">Wikipedia</a>.{% endtrans %}</p>
+    {% endfor %}
+    <small>{% trans %}<a href="https://en.wikipedia.org/wiki/Wikipedia:Copyrights">Copyright</a> Wikipedia and its contributors.{% endtrans %}</small>
+{% endif %}

@@ -1,7 +1,6 @@
 from typing import Dict
 
 from betty.site import Site
-from betty.url import StaticPathUrlGenerator
 
 
 class _Resource:
@@ -32,12 +31,11 @@ def _get_resources():
 
 
 def build_specification(site: Site) -> Dict:
-    url_generator = StaticPathUrlGenerator(site.configuration)
     specification = {
         'openapi': '3.0.0',
         'servers': [
             {
-                'url': url_generator.generate('/', absolute=True),
+                'url': site.static_url_generator.generate('/', absolute=True),
             }
         ],
         'info': {
@@ -100,7 +98,7 @@ def build_specification(site: Site) -> Dict:
             },
             'schemas': {
                 'betty': {
-                    '$ref': url_generator.generate('/schema.json#/definitions'),
+                    '$ref': site.static_url_generator.generate('/schema.json#/definitions'),
                 },
             },
         },

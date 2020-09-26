@@ -1,7 +1,0 @@
-{% extends 'base.html.j2' %}
-{% set title = _('People') %}
-{% block content %}
-    {% with persons=entities %}
-        {% include 'list-person.html.j2' %}
-    {% endwith %}
-{% endblock %}

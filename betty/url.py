@@ -1,12 +1,14 @@
+from contextlib import suppress
 from typing import Any, Type, Optional
 
-from betty.ancestry import Person, Citation, Source, File, Place, Event, Identifiable, PersonName
+from betty.ancestry import Person, File, Place, Identifiable, PersonName, IdentifiableSource, IdentifiableEvent, \
+    IdentifiableCitation
 from betty.config import Configuration
-from betty.content_type import EXTENSIONS
+from betty.media_type import EXTENSIONS
 
 
-class UrlGenerator:
-    def generate(self, resource: Any, content_type: str, absolute: bool = False, locale: Optional[str] = None) -> str:
+class LocalizedUrlGenerator:
+    def generate(self, resource: Any, media_type: str, absolute: bool = False, locale: Optional[str] = None) -> str:
         raise NotImplementedError
 
 
@@ -15,11 +17,11 @@ class StaticUrlGenerator:
         raise NotImplementedError
 
 
-class PathResourceUrlGenerator(UrlGenerator):
+class LocalizedPathUrlGenerator(LocalizedUrlGenerator):
     def __init__(self, configuration: Configuration):
         self._configuration = configuration
 
-    def generate(self, resource, content_type, **kwargs) -> str:
+    def generate(self, resource, media_type, **kwargs) -> str:
         return _generate_from_path(self._configuration, resource, localize=True, **kwargs)
 
 
@@ -31,21 +33,21 @@ class StaticPathUrlGenerator(StaticUrlGenerator):
         return _generate_from_path(self._configuration, resource, localize=False, **kwargs)
 
 
-class IdentifiableResourceUrlGenerator(UrlGenerator):
+class IdentifiableResourceUrlGenerator(LocalizedUrlGenerator):
     def __init__(self, configuration: Configuration, identifiable_type: Type[Identifiable], pattern: str):
         self._configuration = configuration
         self._type = identifiable_type
         self._pattern = pattern
 
-    def generate(self, resource: Identifiable, content_type, **kwargs) -> str:
+    def generate(self, resource: Identifiable, media_type, **kwargs) -> str:
         if not isinstance(resource, self._type):
             raise ValueError('%s is not a %s' % (type(resource), self._type))
         kwargs['localize'] = True
-        return _generate_from_path(self._configuration, self._pattern % (resource.id, EXTENSIONS[content_type]), **kwargs)
+        return _generate_from_path(self._configuration, self._pattern % (resource.id, EXTENSIONS[media_type]), **kwargs)
 
 
-class PersonNameUrlGenerator(UrlGenerator):
-    def __init__(self, person_url_generator: UrlGenerator):
+class PersonNameUrlGenerator(LocalizedUrlGenerator):
+    def __init__(self, person_url_generator: LocalizedUrlGenerator):
         self._person_url_generator = person_url_generator
 
     def generate(self, name: PersonName, *args, **kwargs) -> str:
@@ -54,31 +56,29 @@ class PersonNameUrlGenerator(UrlGenerator):
         return self._person_url_generator.generate(name.person, *args, **kwargs)
 
 
-class SiteUrlGenerator(UrlGenerator):
+class SiteUrlGenerator(LocalizedUrlGenerator):
     def __init__(self, configuration: Configuration):
         person_url_generator = IdentifiableResourceUrlGenerator(configuration, Person, 'person/%s/index.%s')
         self._generators = [
             person_url_generator,
             PersonNameUrlGenerator(person_url_generator),
             IdentifiableResourceUrlGenerator(
-                configuration, Event, 'event/%s/index.%s'),
+                configuration, IdentifiableEvent, 'event/%s/index.%s'),
             IdentifiableResourceUrlGenerator(
                 configuration, Place, 'place/%s/index.%s'),
             IdentifiableResourceUrlGenerator(
                 configuration, File, 'file/%s/index.%s'),
             IdentifiableResourceUrlGenerator(
-                configuration, Source, 'source/%s/index.%s'),
+                configuration, IdentifiableSource, 'source/%s/index.%s'),
             IdentifiableResourceUrlGenerator(
-                configuration, Citation, 'citation/%s/index.%s'),
-            PathResourceUrlGenerator(configuration),
+                configuration, IdentifiableCitation, 'citation/%s/index.%s'),
+            LocalizedPathUrlGenerator(configuration),
         ]
 
     def generate(self, resource: Any, *args, **kwargs) -> str:
         for generator in self._generators:
-            try:
+            with suppress(ValueError):
                 return generator.generate(resource, *args, **kwargs)
-            except ValueError:
-                pass
         raise ValueError('No URL generator found for %s.' % (
             resource if isinstance(resource, str) else type(resource)))
 

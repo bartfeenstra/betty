@@ -1,25 +1,24 @@
 import json as stdjson
 from os import path
-from typing import Dict, Any
+from typing import Dict, Any, Union
 
 import jsonschema
 from geopy import Point
 from jsonschema import RefResolver
 
-from betty.ancestry import Place, Person, LocalizedName, Event, Citation, Source, Presence, Described, HasLinks, \
-    HasCitations, Link, Dated, File, Note, PersonName, IdentifiableEvent, Identifiable
-from betty.config import Configuration
-from betty.locale import Date, DateRange
-from betty.plugins.deriver import DerivedEvent
-from betty.url import StaticPathUrlGenerator, SiteUrlGenerator
+from betty.ancestry import Place, Person, PlaceName, Event, Described, HasLinks, HasCitations, Link, Dated, File, \
+    Note, PersonName, IdentifiableEvent, Identifiable, IdentifiableSource, IdentifiableCitation, HasMediaType, Resource, \
+    PresenceRole, EventType
+from betty.locale import Date, DateRange, Localized
+from betty.plugin.deriver import DerivedEvent
+from betty.site import Site
 
 
-def validate(data: Any, schema_definition: str, configuration: Configuration) -> None:
-    with open(path.join(path.dirname(__file__), 'resources', 'public', 'static', 'schema.json')) as f:
+def validate(data: Any, schema_definition: str, site: Site) -> None:
+    with open(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'schema.json')) as f:
         schema = stdjson.load(f)
     # @todo Can we set the schema ID somehow without making the entire JSON schema file a Jinja2 template?
-    schema_id = StaticPathUrlGenerator(
-        configuration).generate('schema.json', absolute=True)
+    schema_id = site.static_url_generator.generate('schema.json', absolute=True)
     schema['$id'] = schema_id
     ref_resolver = RefResolver(schema_id, schema)
     jsonschema.validate(
@@ -27,13 +26,12 @@ def validate(data: Any, schema_definition: str, configuration: Configuration) ->
 
 
 class JSONEncoder(stdjson.JSONEncoder):
-    def __init__(self, configuration: Configuration, locale: str, *args, **kwargs):
+    def __init__(self, site: Site, locale: str, *args, **kwargs):
         stdjson.JSONEncoder.__init__(self, *args, **kwargs)
-        self._url_generator = SiteUrlGenerator(configuration)
-        self._static_url_generator = StaticPathUrlGenerator(configuration)
+        self._site = site
         self._locale = locale
         self._mappers = {
-            LocalizedName: self._encode_localized_name,
+            PlaceName: self._encode_localized_name,
             Place: self._encode_place,
             Point: self._encode_coordinates,
             Person: self._encode_person,
@@ -41,32 +39,55 @@ class JSONEncoder(stdjson.JSONEncoder):
             File: self._encode_file,
             DerivedEvent: self._encode_event,
             IdentifiableEvent: self._encode_identifiable_event,
-            Event.Type: self._encode_event_type,
-            Presence.Role: self._encode_presence_role,
+            EventType: self._encode_event_type,
+            PresenceRole: self._encode_presence_role,
             Date: self._encode_date,
             DateRange: self._encode_date_range,
-            Citation: self._encode_citation,
-            Source: self._encode_source,
+            IdentifiableCitation: self._encode_identifiable_citation,
+            IdentifiableSource: self._encode_identifiable_source,
             Link: self._encode_link,
             Note: self._encode_note,
         }
 
     @classmethod
-    def get_factory(cls, configuration: Configuration, locale: str):
-        return lambda *args, **kwargs: cls(configuration, locale, *args, **kwargs)
+    def get_factory(cls, site: Site, locale: str):
+        return lambda *args, **kwargs: cls(site, locale, *args, **kwargs)
 
     def default(self, o):
-        otype = type(o)
-        if otype in self._mappers:
-            return self._mappers[otype](o)
+        for mapper_type in self._mappers:
+            if isinstance(o, mapper_type):
+                return self._mappers[mapper_type](o)
         stdjson.JSONEncoder.default(self, o)
 
-    def _generate_url(self, resource: Any):
-        return self._url_generator.generate(resource, 'application/json', locale=self._locale)
+    def _generate_url(self, resource: Any, media_type='application/json', locale=None):
+        locale = self._locale if locale is None else locale
+        return self._site.localized_url_generator.generate(resource, media_type, locale=locale)
 
     def _encode_schema(self, encoded: Dict, defintion: str) -> None:
-        encoded['$schema'] = self._static_url_generator.generate(
+        encoded['$schema'] = self._site.static_url_generator.generate(
             'schema.json#/definitions/%s' % defintion)
+
+    def _encode_identifiable_resource(self, encoded: Dict, resource: Union[Identifiable, Resource]) -> None:
+        if 'links' not in encoded:
+            encoded['links'] = []
+
+        canonical = Link(self._generate_url(resource))
+        canonical.relationship = 'canonical'
+        canonical.media_type = 'application/json'
+        encoded['links'].append(canonical)
+
+        for locale in self._site.configuration.locales:
+            if locale == self._locale:
+                continue
+            translation = Link(self._generate_url(resource, locale=locale))
+            translation.relationship = 'alternate'
+            translation.locale = locale
+            encoded['links'].append(translation)
+
+        html = Link(self._generate_url(resource, media_type='text/html'))
+        html.relationship = 'alternate'
+        html.media_type = 'text/html'
+        encoded['links'].append(html)
 
     def _encode_described(self, encoded: Dict, described: Described) -> None:
         if described.description is not None:
@@ -98,18 +119,35 @@ class JSONEncoder(stdjson.JSONEncoder):
             encoded['end'] = date.end
         return encoded
 
+    def _encode_localized(self, encoded: Dict, localized: Localized) -> None:
+        if localized.locale is not None:
+            encoded['locale'] = localized.locale
+
+    def _encode_has_media_type(self, encoded: Dict, media: HasMediaType) -> None:
+        if media.media_type is not None:
+            encoded['mediaType'] = media.media_type
+
     def _encode_has_links(self, encoded: Dict, has_links: HasLinks) -> None:
-        encoded['links'] = list(has_links.links)
+        if 'links' not in encoded:
+            encoded['links'] = []
+        for link in has_links.links:
+            encoded['links'].append(link)
 
     def _encode_link(self, link: Link) -> Dict:
-        return {
+        encoded = {
             'url': link.url,
-            'label': link.label,
         }
+        if link.label is not None:
+            encoded['label'] = link.label
+        if link.relationship is not None:
+            encoded['relationship'] = link.relationship
+        self._encode_localized(encoded, link)
+        self._encode_has_media_type(encoded, link)
+        return encoded
 
     def _encode_has_citations(self, encoded: Dict, has_citations: HasCitations) -> None:
         encoded['citations'] = [self._generate_url(
-            citation) for citation in has_citations.citations]
+            citation) for citation in has_citations.citations if isinstance(citation, Identifiable)]
 
     def _encode_coordinates(self, coordinates: Point) -> Dict:
         return {
@@ -122,34 +160,33 @@ class JSONEncoder(stdjson.JSONEncoder):
             'longitude': coordinates.longitude,
         }
 
-    def _encode_localized_name(self, name: LocalizedName) -> Dict:
+    def _encode_localized_name(self, name: PlaceName) -> Dict:
         encoded = {
             'name': name.name,
         }
-        if name.locale:
-            encoded['locale'] = name.locale
+        self._encode_localized(encoded, name)
         return encoded
 
     def _encode_place(self, place: Place) -> Dict:
         encoded = {
             '@context': {
                 'events': 'https://schema.org/event',
+                'enclosedBy': 'https://schema.org/containedInPlace',
                 'encloses': 'https://schema.org/containsPlace',
             },
             '@type': 'https://schema.org/Place',
             'id': place.id,
             'names': place.names,
             'events': [self._generate_url(event) for event in place.events],
-            'encloses': [self._generate_url(enclosed) for enclosed in place.encloses]
+            'enclosedBy': [self._generate_url(enclosure.enclosed_by) for enclosure in place.enclosed_by],
+            'encloses': [self._generate_url(enclosure.encloses) for enclosure in place.encloses],
         }
         self._encode_schema(encoded, 'place')
+        self._encode_identifiable_resource(encoded, place)
         self._encode_has_links(encoded, place)
         if place.coordinates is not None:
             encoded['coordinates'] = place.coordinates
             encoded['@context']['coordinates'] = 'https://schema.org/geo'
-        if place.enclosed_by is not None:
-            encoded['enclosedBy'] = self._generate_url(place.enclosed_by)
-            encoded['@context']['enclosedBy'] = 'https://schema.org/containedInPlace'
         return encoded
 
     def _encode_person(self, person: Person) -> Dict:
@@ -178,6 +215,7 @@ class JSONEncoder(stdjson.JSONEncoder):
                     'event': self._generate_url(presence.event),
                 })
         self._encode_schema(encoded, 'person')
+        self._encode_identifiable_resource(encoded, person)
         self._encode_has_citations(encoded, person)
         self._encode_has_links(encoded, person)
         return encoded
@@ -199,12 +237,12 @@ class JSONEncoder(stdjson.JSONEncoder):
     def _encode_file(self, file: File) -> Dict:
         encoded = {
             'id': file.id,
-            'entities': [self._generate_url(entity) for entity in file.entities],
+            'resources': [self._generate_url(entity) for entity in file.resources],
             'notes': file.notes,
         }
         self._encode_schema(encoded, 'file')
-        if file.type is not None:
-            encoded['type'] = file.type
+        self._encode_identifiable_resource(encoded, file)
+        self._encode_has_media_type(encoded, file)
         return encoded
 
     def _encode_event(self, event: Event) -> Dict:
@@ -233,29 +271,32 @@ class JSONEncoder(stdjson.JSONEncoder):
     def _encode_identifiable_event(self, event: Event) -> Dict:
         encoded = self._encode_event(event)
         encoded['id'] = event.id
+        self._encode_identifiable_resource(encoded, event)
         return encoded
 
-    def _encode_event_type(self, event_type: Event.Type) -> str:
-        return event_type.value
+    def _encode_event_type(self, event_type: EventType) -> str:
+        return event_type.name
 
-    def _encode_presence_role(self, role: Presence.Role) -> str:
-        return role.value
+    def _encode_presence_role(self, role: PresenceRole) -> str:
+        return role.name
 
-    def _encode_citation(self, citation: Citation) -> Dict:
+    def _encode_identifiable_citation(self, citation: IdentifiableCitation) -> Dict:
         encoded = {
             '@type': 'https://schema.org/Thing',
             'id': citation.id,
-            'source': self._generate_url(citation.source),
-            'claims': []
+            'facts': []
         }
-        for claim in citation.claims:
-            if isinstance(claim, Identifiable):
-                encoded['claims'].append(self._generate_url(claim))
+        if isinstance(citation.source, Identifiable):
+            encoded['source'] = self._generate_url(citation.source)
+        for fact in citation.facts:
+            if isinstance(fact, Identifiable):
+                encoded['facts'].append(self._generate_url(fact))
         self._encode_schema(encoded, 'citation')
+        self._encode_identifiable_resource(encoded, citation)
         self._encode_dated(encoded, citation)
         return encoded
 
-    def _encode_source(self, source: Source) -> Dict:
+    def _encode_identifiable_source(self, source: IdentifiableSource) -> Dict:
         encoded = {
             '@context': {
                 'name': 'https://schema.org/name',
@@ -263,14 +304,15 @@ class JSONEncoder(stdjson.JSONEncoder):
             '@type': 'https://schema.org/Thing',
             'id': source.id,
             'name': source.name,
-            'contains': [self._generate_url(contained) for contained in source.contains],
-            'citations': [self._generate_url(citation) for citation in source.citations],
+            'contains': [self._generate_url(contained) for contained in source.contains if isinstance(contained, Identifiable)],
+            'citations': [self._generate_url(citation) for citation in source.citations if isinstance(citation, Identifiable)],
         }
         if source.author is not None:
             encoded['author'] = source.author
         if source.publisher is not None:
             encoded['publisher'] = source.publisher
         self._encode_schema(encoded, 'source')
+        self._encode_identifiable_resource(encoded, source)
         self._encode_dated(encoded, source)
         self._encode_has_links(encoded, source)
         if source.contained_by is not None:

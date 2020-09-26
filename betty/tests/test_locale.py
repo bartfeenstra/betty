@@ -1,10 +1,11 @@
 import gettext
-from typing import Iterable
+from typing import List, Optional
 from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.locale import validate_locale, Localized, negotiate_localizeds, Date, format_datey, DateRange
+from betty.locale import Localized, negotiate_localizeds, Date, format_datey, DateRange, Translations, negotiate_locale, \
+    Datey
 
 
 class DateTest(TestCase):
@@ -32,6 +33,19 @@ class DateTest(TestCase):
     @parameterized.expand([
         (True, 1970, 1, 1),
         (False, None, 1, 1),
+        (True, 1970, None, 1),
+        (True, 1970, 1, None),
+        (False, None, None, 1),
+        (True, 1970, None, None),
+        (False, None, None, None),
+    ])
+    def test_comparable(self, expected, year, month, day):
+        sut = Date(year, month, day)
+        self.assertEquals(expected, sut.comparable)
+
+    @parameterized.expand([
+        (True, 1970, 1, 1),
+        (False, None, 1, 1),
         (False, 1970, None, 1),
         (False, 1970, 1, None),
         (False, None, None, 1),
@@ -42,6 +56,10 @@ class DateTest(TestCase):
         sut = Date(year, month, day)
         self.assertEquals(expected, sut.complete)
 
+    def test_to_range_when_incomparable_should_raise(self):
+        with self.assertRaises(ValueError):
+            Date(None, 1, 1).to_range()
+
     @parameterized.expand([
         (1970, 1, 1),
         (None, None, None),
@@ -51,8 +69,21 @@ class DateTest(TestCase):
 
     @parameterized.expand([
         (False, Date(1970, 2, 1)),
+        (True, Date(1970, 2, 2)),
+        (False, Date(1970, 2, 3)),
+        (False, DateRange()),
+    ])
+    def test_in(self, expected, other):
+        self.assertEquals(expected, other in Date(1970, 2, 2))
+
+    @parameterized.expand([
+        (False, Date(1970, 2, 1)),
         (False, Date(1970, 2, 2)),
         (True, Date(1970, 2, 3)),
+        (False, Date(1970)),
+        (False, Date(1970, 2)),
+        (True, Date(1971)),
+        (True, Date(1970, 3)),
     ])
     def test_lt(self, expected, other):
         self.assertEquals(expected, Date(1970, 2, 2) < other)
@@ -69,6 +100,7 @@ class DateTest(TestCase):
     ])
     def test_eq(self, expected, other):
         self.assertEquals(expected, Date(1970, 1, 1) == other)
+        self.assertEquals(expected, other == Date(1970, 1, 1))
 
     @parameterized.expand([
         (True, Date(1970, 2, 1)),
@@ -80,6 +112,47 @@ class DateTest(TestCase):
 
 
 class DateRangeTest(TestCase):
+    _TEST_IN_PARAMETERS = [
+        (False, Date(1970, 2, 2), DateRange()),
+        (False, Date(1970, 2), DateRange()),
+        (False, Date(1970), DateRange()),
+        (False, Date(1970, 2, 1), DateRange(Date(1970, 2, 2))),
+        (True, Date(1970, 2, 2), DateRange(Date(1970, 2, 2))),
+        (True, Date(1970, 2, 3), DateRange(Date(1970, 2, 2))),
+        (True, Date(1970, 2, 1), DateRange(None, Date(1970, 2, 2))),
+        (True, Date(1970, 2, 2), DateRange(None, Date(1970, 2, 2))),
+        (False, Date(1970, 2, 3), DateRange(None, Date(1970, 2, 2))),
+        (False, Date(1969, 2, 1), DateRange(Date(1969, 2, 2), Date(1970, 2, 2))),
+        (True, Date(1970, 2, 1), DateRange(Date(1969, 2, 2), Date(1970, 2, 2))),
+        (False, Date(1971, 2, 1), DateRange(Date(1969, 2, 2), Date(1970, 2, 2))),
+        (True, DateRange(Date(1970, 2, 1)), DateRange(Date(1970, 2, 2))),
+        (True, DateRange(Date(1970, 2, 2)), DateRange(Date(1970, 2, 2))),
+        (True, DateRange(Date(1970, 2, 3)), DateRange(Date(1970, 2, 2))),
+        (False, DateRange(None, Date(1970, 2, 1)), DateRange(Date(1970, 2, 2))),
+        (True, DateRange(None, Date(1970, 2, 2)), DateRange(Date(1970, 2, 2))),
+        (True, DateRange(None, Date(1970, 2, 3)), DateRange(Date(1970, 2, 2))),
+        (True, DateRange(Date(1970, 2, 1)), DateRange(None, Date(1970, 2, 2))),
+        (True, DateRange(Date(1970, 2, 2)), DateRange(None, Date(1970, 2, 2))),
+        (False, DateRange(Date(1970, 2, 3)), DateRange(None, Date(1970, 2, 2))),
+        (True, DateRange(None, Date(1970, 2, 1)), DateRange(None, Date(1970, 2, 2))),
+        (True, DateRange(None, Date(1970, 2, 2)), DateRange(None, Date(1970, 2, 2))),
+        (True, DateRange(None, Date(1970, 2, 3)), DateRange(None, Date(1970, 2, 2))),
+        (True, DateRange(Date(1969, 2, 1)), DateRange(Date(1969, 2, 2), Date(1970, 2, 2))),
+        (True, DateRange(Date(1970, 2, 1)), DateRange(Date(1969, 2, 2), Date(1970, 2, 2))),
+        (False, DateRange(Date(1971, 2, 1)), DateRange(Date(1969, 2, 2), Date(1970, 2, 2))),
+        (False, DateRange(None, Date(1969, 2, 1)), DateRange(Date(1969, 2, 2), Date(1970, 2, 2))),
+        (True, DateRange(None, Date(1970, 2, 1)), DateRange(Date(1969, 2, 2), Date(1970, 2, 2))),
+        (True, DateRange(None, Date(1971, 2, 1)), DateRange(Date(1969, 2, 2), Date(1970, 2, 2))),
+        (False, DateRange(Date(1969, 2, 2), Date(1970, 2, 2)), DateRange(Date(1971, 2, 2), Date(1972, 2, 2))),
+        (True, DateRange(Date(1969, 2, 2), Date(1971, 2, 2)), DateRange(Date(1970, 2, 2), Date(1972, 2, 2))),
+        (True, DateRange(Date(1970, 2, 2), Date(1971, 2, 2)), DateRange(Date(1969, 2, 2), Date(1972, 2, 2))),
+    ]
+
+    # Mirror the arguments because we want the containment check to work in either direction.
+    @parameterized.expand(_TEST_IN_PARAMETERS + list(map(lambda x: (x[0], x[2], x[1]), _TEST_IN_PARAMETERS)))
+    def test_in(self, expected: bool, other: Datey, sut: DateRange):
+        self.assertEquals(expected, other in sut)
+
     @parameterized.expand([
         (False, Date(1970, 2, 1)),
         (False, Date(1970, 2, 2)),
@@ -162,32 +235,27 @@ class DateRangeTest(TestCase):
         self.assertEquals(expected, DateRange(Date(1970, 2, 2)) > other)
 
 
-class ValidateLocaleTest(TestCase):
+class NegotiateLocaleTest(TestCase):
     @parameterized.expand([
-        ('nl',),
-        ('nl-NL',),
-        ('sr-Latn-CS',),
+        ('nl', 'nl', ['nl']),
+        ('nl-NL', 'nl', ['nl-NL']),
+        ('nl', 'nl-NL', ['nl']),
+        ('nl-NL', 'nl-NL', ['nl', 'nl-BE', 'nl-NL']),
+        ('nl', 'nl', ['nl', 'en']),
+        ('nl', 'nl', ['en', 'nl']),
+        ('nl-NL', 'nl-BE', ['nl-NL'])
     ])
-    def test_valid_value_should_pass_through(self, locale: str):
-        self.assertEquals(locale, validate_locale(locale))
-
-    @parameterized.expand([
-        ('',),
-        ('123',),
-        ('nl-nl-nl-nl',),
-    ])
-    def test_invalid_value_should_raise_error(self, locale: str):
-        with self.assertRaises(ValueError):
-            validate_locale(locale)
+    def test(self, expected: Optional[str], preferred_locale: str, available_locales: List[str]):
+        self.assertEqual(expected, negotiate_locale(preferred_locale, available_locales))
 
 
 class NegotiateLocalizedsTest(TestCase):
     class DummyLocalized(Localized):
         def __eq__(self, other):
-            return self._locale == other._locale
+            return self.locale == other.locale
 
         def __repr__(self):
-            return '%s(%s)' % (self.__class__.__name__, self._locale)
+            return '%s(%s)' % (self.__class__.__name__, self.locale)
 
     @parameterized.expand([
         (DummyLocalized('nl'), 'nl', [DummyLocalized('nl')]),
@@ -197,8 +265,9 @@ class NegotiateLocalizedsTest(TestCase):
          DummyLocalized('nl'), DummyLocalized('en')]),
         (DummyLocalized('nl'), 'nl', [
          DummyLocalized('en'), DummyLocalized('nl')]),
+        (None, 'nl', []),
     ])
-    def test_with_match_should_return_match(self, expected: Localized, preferred_locale: str, localizeds: Iterable[Localized]):
+    def test_with_match_should_return_match(self, expected: Localized, preferred_locale: str, localizeds: List[Localized]):
         self.assertEquals(expected, negotiate_localizeds(
             preferred_locale, localizeds))
 
@@ -209,22 +278,72 @@ class NegotiateLocalizedsTest(TestCase):
         self.assertEquals(self.DummyLocalized('nl'), negotiate_localizeds(
             preferred_locale, localizeds))
 
-    def test_without_localizeds_should_raise_error(self):
-        with self.assertRaises(ValueError):
-            negotiate_localizeds('nl', [])
+
+_FORMAT_DATE_TEST_PARAMETERS = [
+    # Dates that cannot be formatted.
+    ('unknown date', Date()),
+    ('unknown date', Date(None, None, 1)),
+    # Single dates.
+    ('January', Date(None, 1, None)),
+    ('around January', Date(None, 1, None, fuzzy=True)),
+    ('1970', Date(1970, None, None)),
+    ('around 1970', Date(1970, None, None, fuzzy=True)),
+    ('January, 1970', Date(1970, 1, None)),
+    ('around January, 1970', Date(1970, 1, None, fuzzy=True)),
+    ('January 1, 1970', Date(1970, 1, 1)),
+    ('around January 1, 1970', Date(1970, 1, 1, fuzzy=True)),
+    ('January 1', Date(None, 1, 1)),
+    ('around January 1', Date(None, 1, 1, fuzzy=True)),
+]
 
 
 class FormatDateTest(TestCase):
-    @parameterized.expand([
-        ('unknown date', Date()),
-        ('unknown date', Date(None, None, 1)),
-        ('January', Date(None, 1, None)),
-        ('1970', Date(1970, None, None)),
-        ('January, 1970', Date(1970, 1, None)),
-        ('January 1, 1970', Date(1970, 1, 1)),
-        ('January 1', Date(None, 1, 1)),
-    ])
-    def test(self, expected: str, date: Date):
+    @parameterized.expand(_FORMAT_DATE_TEST_PARAMETERS)
+    def test(self, expected: str, datey: Datey):
         locale = 'en'
-        translation = gettext.NullTranslations()
-        self.assertEquals(expected, format_datey(date, locale, translation))
+        with Translations(gettext.NullTranslations()):
+            self.assertEquals(expected, format_datey(datey, locale))
+
+
+_FORMAT_DATE_RANGE_TEST_PARAMETERS = [
+    ('from January 1, 1970 until December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31))),
+    ('from January 1, 1970 until sometime before December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31), end_is_boundary=True)),
+    ('from January 1, 1970 until around December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31, fuzzy=True))),
+    ('from January 1, 1970 until sometime before around December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31, fuzzy=True), end_is_boundary=True)),
+    ('from sometime after January 1, 1970 until December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31), start_is_boundary=True)),
+    ('sometime between January 1, 1970 and December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31), start_is_boundary=True, end_is_boundary=True)),
+    ('from sometime after January 1, 1970 until around December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31, fuzzy=True), start_is_boundary=True)),
+    ('sometime between January 1, 1970 and around December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31, fuzzy=True), start_is_boundary=True, end_is_boundary=True)),
+    ('from around January 1, 1970 until December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31))),
+    ('from around January 1, 1970 until sometime before December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31), end_is_boundary=True)),
+    ('from around January 1, 1970 until around December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31, fuzzy=True))),
+    ('from around January 1, 1970 until sometime before around December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31, fuzzy=True), end_is_boundary=True)),
+    ('from sometime after around January 1, 1970 until December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31), start_is_boundary=True)),
+    ('sometime between around January 1, 1970 and December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31), start_is_boundary=True, end_is_boundary=True)),
+    ('from sometime after around January 1, 1970 until around December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31, fuzzy=True), start_is_boundary=True)),
+    ('sometime between around January 1, 1970 and around December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31, fuzzy=True), start_is_boundary=True, end_is_boundary=True)),
+    ('from January 1, 1970', DateRange(Date(1970, 1, 1))),
+    ('sometime after January 1, 1970', DateRange(Date(1970, 1, 1), start_is_boundary=True)),
+    ('from around January 1, 1970', DateRange(Date(1970, 1, 1, fuzzy=True))),
+    ('sometime after around January 1, 1970', DateRange(Date(1970, 1, 1, fuzzy=True), start_is_boundary=True)),
+    ('until December 31, 1999', DateRange(None, Date(1999, 12, 31))),
+    ('sometime before December 31, 1999', DateRange(None, Date(1999, 12, 31), end_is_boundary=True)),
+    ('until around December 31, 1999', DateRange(None, Date(1999, 12, 31, fuzzy=True))),
+    ('sometime before around December 31, 1999', DateRange(None, Date(1999, 12, 31, fuzzy=True), end_is_boundary=True)),
+]
+
+
+class FormatDateRangeTest(TestCase):
+    @parameterized.expand(_FORMAT_DATE_RANGE_TEST_PARAMETERS)
+    def test(self, expected: str, datey: Datey):
+        locale = 'en'
+        with Translations(gettext.NullTranslations()):
+            self.assertEquals(expected, format_datey(datey, locale))
+
+
+class FormatDateyTest(TestCase):
+    @parameterized.expand(_FORMAT_DATE_TEST_PARAMETERS + _FORMAT_DATE_RANGE_TEST_PARAMETERS)
+    def test(self, expected: str, datey: Datey):
+        locale = 'en'
+        with Translations(gettext.NullTranslations()):
+            self.assertEquals(expected, format_datey(datey, locale))

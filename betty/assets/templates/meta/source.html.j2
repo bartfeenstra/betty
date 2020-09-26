@@ -1,0 +1,8 @@
+{% set source = source | default(resource) %}
+<div class="meta">
+{% if source.contained_by %}
+    {% with source=source.contained_by %}
+        {% include 'label/source.html.j2' %}
+    {% endwith %}
+{% endif %}
+</div>

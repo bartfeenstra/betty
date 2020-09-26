@@ -1,0 +1,41 @@
+{% extends 'base.html.j2' %}
+{% set page_title = file.description %}
+{% block page_content %}
+    {% if file.media_type and file.media_type.startswith('image/') %}
+        <div class="featured image">
+            <a href="{{ file | file | static_url }}">
+                <img src="{{ file | image(1200, 1200) | static_url }}" alt="{{ file.description }}"/>
+            </a>
+        </div>
+    {% endif %}
+    {% if file.notes %}
+        <h2>{% trans %}Notes{% endtrans %}</h2>
+        {% for note in file.notes %}
+            {{ note.text | paragraphs }}
+        {% endfor %}
+    {% endif %}
+    {% set resources = file.resources | select('resource') | list %}
+    {% if resources | length > 0 %}
+        <h2>{% trans %}Appearances{% endtrans %}</h2>
+        <ul class="entities">
+            {% for resource in resources %}
+                <li class="{{ loop.cycle('odd', 'even') }}">
+                    {% include 'label/resource.html.j2' %}
+                    {% include 'meta/resource.html.j2' %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    {% set sources = file.sources | list %}
+    {% if sources | length  == 1 %}
+        <h2>{% trans %}Source{% endtrans %}</h2>
+        <p>{% with source=sources | first %}{% include 'label/source.html.j2' %}{% endwith %}</p>
+    {% elif sources | length  > 1 %}
+        <h2>{% trans %}Sources{% endtrans %}</h2>
+        <ul>
+            {% for source in sources %}
+                <li>{% include 'label/source.html.j2' %}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}

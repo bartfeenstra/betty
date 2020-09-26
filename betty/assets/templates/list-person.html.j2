@@ -1,0 +1,9 @@
+{%- import 'macro/person.html.j2' as personMacros -%}
+<ul class="entities">
+    {%- for person in (persons | rejectattr('name', 'none') | list | sort(attribute='name')) %}
+        <li class="{{ loop.cycle('odd', 'even') }}" {% if typeOf %} typeof="{{ typeOf }}"{% endif %} {% if property %}property="{{ property }}"{% endif %}>
+            {{ personMacros.sortableLabel(person) }}
+            {% include 'meta/person.html.j2' %}
+        </li>
+    {%- endfor -%}
+</ul>
