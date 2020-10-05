@@ -1,5 +1,25 @@
 @import 'betty-variables';
 
+/**
+ * Utilities.
+ */
+.visually-hidden {
+  -webkit-clip-path: inset(50%);
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+/**
+ * The main page.
+ */
 html {
   height: 100%;
 }
@@ -66,6 +86,7 @@ h1 {
 h2 {
   font-weight: normal;
   font-size: 1.3rem;
+  margin-top: 3rem;
 }
 
 a {
@@ -143,6 +164,7 @@ address {
  * Entity lists.
  */
 .entities {
+  margin: 0;
   padding: 0;
 }
 
@@ -229,6 +251,58 @@ footer {
 
 .aka .person-label {
   font-style: italic;
+}
+
+.family {
+  margin: 3rem 0;
+}
+
+@media (min-width: 768px) {
+  .family {
+    display: grid;
+  }
+
+  .family-description {
+    position: relative;
+  }
+
+  .family-description-content {
+    border-bottom: 0.3rem solid #f7f7f7;
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
+    width: calc(100% - 3rem);
+  }
+
+  .family:nth-child(even) {
+    grid-template-columns: 1fr 2fr;
+
+    .family-description {
+      border-right: 0.3rem solid #f7f7f7;
+    }
+
+    .family-description-content {
+      padding-right: 3em;
+      text-align: right;
+    }
+  }
+
+  .family:nth-child(odd) {
+    grid-template-columns: 2fr 1fr;
+
+    .family-description {
+      order: 1;
+      border-left: 0.3rem solid #f7f7f7;
+    }
+
+    .family-description-content {
+      padding-left: 3em;
+    }
+  }
+
+  .family-description p {
+    font-size: 1.2rem;
+  }
 }
 
 /*

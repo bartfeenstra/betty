@@ -18,7 +18,7 @@
             {% if file.media_type.startswith('image/') %}
                 <meta name="og:image" content="{{ file | image(600, 600) | static_url }}"/>
                 {% if file.description %}
-                    <meta name="og:image:description" content="{{ file.description }}"/>
+                    <meta name="og:image:description" content="{{ file.description | escape }}"/>
                 {% endif %}
             {% endif %}
         {% endfor %}
@@ -137,7 +137,7 @@
                     <li>
                         <a href="{{ link.url }}"{% if link.locale is not none %} hreflang="{{ link.locale }}"{% endif %}{% if link.relationship is not none %} rel="{{ link.relationship }}"{% endif %}{% if link.media_type is not none %} type="{{ link.media_type }}"{% endif %}>{{ link.label }}</a>
                         {% if link.description is not none %}
-                            <div class="meta">{{ link.description }}</div>
+                            <div class="meta">{{ link.description | escape }}</div>
                         {% endif %}
                     </li>
                 {% endfor %}
