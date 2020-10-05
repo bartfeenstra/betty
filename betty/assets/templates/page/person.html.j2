@@ -22,48 +22,104 @@
     {% endif %}
 
     {% set parents = person.parents | list %}
-    {% if parents | length > 0 %}
-        <h2>{% trans %}Parents{% endtrans %}</h2>
-        <ul>
-            {% for parent in parents %}
-                <li typeof="foaf:Person" property="rel:childOf">{% with person=parent %}{% include 'label/person.html.j2' %}{% endwith %}</li>
-            {% endfor %}
-        </ul>
+    {% set siblings = person.siblings | list %}
+    {% set children = person.children | list %}
+
+    {% set has_family =  parents | length > 0 or siblings | length > 0 or children | length > 0 %}
+
+    {% if has_family %}
+        <section>
+        <h2 class="visually-hidden">Family</h2>
     {% endif %}
 
-    {% set children = person.children | list %}
-    {% macro otherParentLabel(parent) -%}
-        <span typeof="foaf:Person" property="rel:spouseOf">{% with person=parent, person_context=person %}{% include 'label/person.html.j2' %}{% endwith %}</span>
-    {%- endmacro %}
+    {% if parents | length > 0 or siblings | length > 0 %}
+        <div class="family">
+            <div class="family-description">
+                <div class="family-description-content">
+                    <p>
+                        {% if parents | length > 0 %}
+                            {% macro parentLabel(parent) -%}
+                                <span typeof="foaf:Person" property="rel:childOf">{% with person=parent, person_context=person %}{% include 'label/person.html.j2' %}{% endwith %}</span>
+                            {%- endmacro %}
+                            {% if person.name and person.name.individual %}
+                                {% trans personIndividualName = person.name.individual, parentLabels = parents | map(parentLabel) | join(', ') %}{{ personIndividualName }} is the child of {{ parentLabels }}.{% endtrans %}
+                            {% else %}
+                                {% trans parentLabels = parents | map(parentLabel) | join(', ') %}They are the child of {{ parentLabels }}.{% endtrans %}
+                            {% endif %}
+                        {% endif %}
+                        {% if siblings | length > 0 %}
+                            {%- trans siblingCount = siblings | length -%}
+                                They grew up with a sibling.
+                            {%- pluralize -%}
+                                They grew up with {{ siblingCount }} siblings.
+                            {%- endtrans -%}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            {% if siblings | length > 0 %}
+                <div class="family-breakdown">
+                    {% with persons=siblings, typeOf='foaf:Person', property='rel:siblingOf' %}
+                        {% include 'list-person.html.j2' %}
+                    {% endwith %}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
     {% if children | length > 0 %}
-        <h2>{% trans %}Children{% endtrans %}</h2>
-        {% for parents, siblings in children | groupby('parents.list') %}
-            <p>
-                {% do parents.remove(person) %}
-                {% if parents | length > 0 %}
-                    {% trans count = parents | length, parents = parents | map(otherParentLabel) | join(', ') -%}
-                        with {{ parents }}:
-                    {%- pluralize -%}
-                        with {{ parents }}:
-                    {%- endtrans %}
-                {% endif %}
-            </p>
-            <ul>
-                {% for child in siblings %}
-                    <li typeof="foaf:Person" property="rel:parentOf">{% with person=child %}{% include 'label/person.html.j2' %}{% endwith %}</li>
-                {% endfor %}
-            </ul>
+        {% macro coParentLabel(parent) -%}
+            <span typeof="foaf:Person" property="rel:spouseOf">{% with person=parent, person_context=person %}{% include 'label/person.html.j2' %}{% endwith %}</span>
+        {%- endmacro %}
+        {% for parents, perParentChildren in children | groupby('parents.list') %}
+            <div class="family">
+                <div class="family-description">
+                    <div class="family-description-content">
+                        <p>
+                            {% do parents.remove(person) %}
+                            {%- if parents | length > 0 -%}
+                                {%- if person.name and person.name.individual -%}
+                                    {%- trans childCount = perParentChildren | length, personIndividualName = person.name.individual, coParentLabels = parents | map(coParentLabel) | join(', ') -%}
+                                        {{ personIndividualName }} had a child with {{ coParentLabels }}.
+                                    {%- pluralize -%}
+                                        {{ personIndividualName }} had {{ childCount }} children with {{ coParentLabels }}.
+                                    {%- endtrans -%}
+                                {%- else -%}
+                                    {%- trans childCount = perParentChildren | length, coParentLabels = parents | map(coParentLabel) | join(', ') -%}
+                                        They had a child with {{ coParentLabels }}.
+                                    {%- pluralize -%}
+                                        They had {{ childCount }} children with {{ coParentLabels }}.
+                                    {%- endtrans -%}
+                                {%- endif -%}
+                            {%- else -%}
+                                {%- if person.name and person.name.individual -%}
+                                    {%- trans childCount = perParentChildren | length, personIndividualName = person.name.individual -%}
+                                        {{ personIndividualName }} had a child.
+                                    {%- pluralize -%}
+                                        {{ personIndividualName }} had {{ childCount }} children.
+                                    {%- endtrans -%}
+                                {%- else -%}
+                                    {%- trans childCount = perParentChildren | length -%}
+                                        They had a child.
+                                    {%- pluralize -%}
+                                        They had {{ childCount }} children.
+                                    {%- endtrans -%}
+                                {%- endif -%}
+                            {%- endif -%}
+                        </p>
+                    </div>
+                </div>
+                {% with persons=perParentChildren, typeOf='foaf:Person', property='rel:parentOf' %}
+                    <div class="family-breakdown">
+                        {% include 'list-person.html.j2' %}
+                    </div>
+                {% endwith %}
+            </div>
         {% endfor %}
     {% endif %}
 
-    {% set siblings = person.siblings | list %}
-    {% if siblings | length > 0 %}
-        <h2>{% trans %}Siblings{% endtrans %}</h2>
-        <ul>
-            {% for sibling in siblings %}
-                <li typeof="foaf:Person" property="rel:siblingOf">{% with person=sibling %}{% include 'label/person.html.j2' %}{% endwith %}</li>
-            {% endfor %}
-        </ul>
+    {% if has_family %}
+        </section>
     {% endif %}
 
     <div class="featured tree js-show" data-betty-person-id="{{ person.id }}" data-betty-people="{{ 'people.json' | url }}"></div>
