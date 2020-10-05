@@ -271,7 +271,6 @@ footer {
     position: absolute;
     top: 50%;
     transform: translate(0, -50%);
-    width: calc(100% - 3rem);
   }
 
   .family:nth-child(even) {
@@ -283,6 +282,7 @@ footer {
 
     .family-description-content {
       padding-right: 3em;
+      right: 0;
       text-align: right;
     }
   }
