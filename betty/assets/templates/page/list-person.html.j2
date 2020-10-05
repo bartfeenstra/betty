@@ -1,7 +1,7 @@
 {% extends 'base.html.j2' %}
-{% set title = _('People') %}
-{% block content %}
-    {% with persons=entities | rejectattr('private', 'eq', True) %}
+{% set page_title = _('People') %}
+{% block page_content %}
+    {% with persons=entities | rejectattr('private', 'eq', True), group_by_affiliation=True %}
         {% include 'list-person.html.j2' %}
     {% endwith %}
 {% endblock %}
