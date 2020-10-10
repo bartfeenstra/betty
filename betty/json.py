@@ -202,7 +202,7 @@ class JSONEncoder(stdjson.JSONEncoder):
             'parents': [self._generate_url(parent) for parent in person.parents],
             'children': [self._generate_url(child) for child in person.children],
             'siblings': [self._generate_url(sibling) for sibling in person.siblings],
-            'private': person.private,
+            'private': bool(person.private),
             'presences': [],
         }
         for presence in person.presences:
