@@ -16,7 +16,7 @@ from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, Pl
     HasLinks, HasCitations, IdentifiableEvent, HasPrivacy, IdentifiableSource, IdentifiableCitation, Subject, Witness, \
     Attendee, Birth, Baptism, Adoption, Cremation, Death, Burial, Engagement, Marriage, MarriageAnnouncement, Divorce, \
     DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, Retirement, Correspondence, Confirmation, \
-    Funeral, Will, Beneficiary, Enclosure
+    Funeral, Will, Beneficiary, Enclosure, UnknownEventType
 from betty.config import Path
 from betty.event import Event as DispatchedEvent
 from betty.fs import makedirs
@@ -374,9 +374,17 @@ _EVENT_TYPE_MAP = {
 
 def _parse_event(ancestry: _IntermediateAncestry, element: Element):
     handle = str(_xpath1(element, './@handle'))
+    event_id = _xpath1(element, './@id')
     gramps_type = _xpath1(element, './ns:type')
 
-    event = IdentifiableEvent(_xpath1(element, './@id'), _EVENT_TYPE_MAP[gramps_type.text])
+    try:
+        event_type = _EVENT_TYPE_MAP[gramps_type.text]
+    except KeyError:
+        event_type = UnknownEventType()
+        logging.getLogger().warning(
+            'Betty is unfamiliar with Gramps event "%s"\'s type of "%s". The event was imported, but its type was set to "%s".' % (event_id, gramps_type.text, event_type.label))
+
+    event = IdentifiableEvent(event_id, event_type)
 
     event.date = _parse_date(element)
 
