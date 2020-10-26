@@ -16,7 +16,7 @@ from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, Pl
     HasLinks, HasCitations, IdentifiableEvent, HasPrivacy, IdentifiableSource, IdentifiableCitation, Subject, Witness, \
     Attendee, Birth, Baptism, Adoption, Cremation, Death, Burial, Engagement, Marriage, MarriageAnnouncement, Divorce, \
     DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, Retirement, Correspondence, Confirmation, \
-    Funeral, Will, Beneficiary, Enclosure, UnknownEventType
+    Funeral, Will, Beneficiary, Enclosure, UnknownEventType, Missing
 from betty.config import Path
 from betty.event import Event as DispatchedEvent
 from betty.fs import makedirs
@@ -369,6 +369,7 @@ _EVENT_TYPE_MAP = {
     'Retirement': Retirement(),
     'Correspondence': Correspondence(),
     'Confirmation': Confirmation(),
+    'Missing': Missing(),
 }
 
 
