@@ -510,6 +510,14 @@ class EventType:
         return set()
 
 
+class UnknownEventType(EventType):
+    name = 'unknown'
+
+    @property
+    def label(self) -> str:
+        return _('Unknown')
+
+
 class DerivableEventType(EventType):
     pass  # pragma: no cover
 
