@@ -155,6 +155,7 @@ For unknown date parts, set those to all zeroes and Betty will ignore them. For 
 Betty supports the following custom Gramps event types:
 - `Correspondence`
 - `Funeral`
+- `Missing`
 - `Will`
 
 #### Event roles

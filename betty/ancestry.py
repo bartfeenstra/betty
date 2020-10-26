@@ -750,6 +750,14 @@ class Confirmation(LifeEventType):
         return _('Confirmation')
 
 
+class Missing(LifeEventType):
+    name = 'missing'
+
+    @property
+    def label(self) -> str:
+        return _('Missing')
+
+
 EVENT_TYPE_TYPES = [
     Birth,
     Baptism,
