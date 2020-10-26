@@ -1,14 +1,18 @@
 import asyncio
 import datetime
+import hashlib
 import json as stdjson
+import logging
 import os
 import re
 from contextlib import suppress
 from itertools import takewhile
-from os.path import join
+from os.path import join, getmtime, exists
+from time import time
 from typing import Union, Dict, Type, Optional, Callable, Iterable, Tuple
 from urllib.parse import urlparse
 
+import aiohttp
 from PIL import Image
 from babel import Locale
 from geopy import units
@@ -16,7 +20,7 @@ from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter, Template
 from jinja2.asyncsupport import auto_await
 from jinja2.filters import prepare_map, make_attrgetter
-from jinja2.runtime import Macro, resolve_or_missing, StrictUndefined
+from jinja2.runtime import Macro, resolve_or_missing, StrictUndefined, Context, Undefined
 from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup
 from resizeimage import resizeimage
@@ -113,6 +117,7 @@ class BettyEnvironment(Environment):
 
         def _ngettext(*args, **kwargs):
             return ngettext(*args, **kwargs)
+
         self.install_gettext_callables(_gettext, _ngettext)
         self.policies['ext.i18n.trimmed'] = True
         self.globals['site'] = site
@@ -144,7 +149,8 @@ class BettyEnvironment(Environment):
         # Override Jinja2's built-in JSON filter, which escapes the JSON for use in HTML, to use Betty's own encoder.
         @contextfilter
         def _filter_tojson(context, data, indent=None):
-            return htmlsafe_json_dumps(data, indent=indent, dumper=lambda *args, **kwargs: _filter_json(context, *args, **kwargs))
+            return htmlsafe_json_dumps(data, indent=indent,
+                                       dumper=lambda *args, **kwargs: _filter_json(context, *args, **kwargs))
 
         self.filters['tojson'] = _filter_tojson
         self.tests['resource'] = lambda x: isinstance(x, Resource)
@@ -152,7 +158,9 @@ class BettyEnvironment(Environment):
         def _build_test_resource_type(resource_type: Type[Resource]):
             def _test_resource(x):
                 return isinstance(x, resource_type)
+
             return _test_resource
+
         for resource_type in RESOURCE_TYPES:
             self.tests['%s_resource' % resource_type.resource_type_name] = _build_test_resource_type(resource_type)
         self.tests['identifiable'] = lambda x: isinstance(x, Identifiable)
@@ -168,6 +176,7 @@ class BettyEnvironment(Environment):
         def _filter_format_date(context, date: Datey):
             locale = resolve_or_missing(context, 'locale')
             return format_datey(date, locale)
+
         self.filters['format_date'] = _filter_format_date
         self.filters['format_degrees'] = _filter_format_degrees
         self.globals['citer'] = _Citer()
@@ -180,12 +189,15 @@ class BettyEnvironment(Environment):
 
         self.filters['url'] = _filter_url
         self.filters['static_url'] = site.static_url_generator.generate
+        self.filters['fetch'] = lambda *args: _filter_fetch(site, *args)
         self.filters['file'] = lambda *args: _filter_file(site, *args)
         self.filters['image'] = lambda *args, **kwargs: _filter_image(
             site, *args, **kwargs)
         self.globals['search_index'] = lambda: Index(site).build()
-        self.globals['html_providers'] = list([plugin for plugin in site.plugins.values() if isinstance(plugin, HtmlProvider)])
+        self.globals['html_providers'] = list(
+            [plugin for plugin in site.plugins.values() if isinstance(plugin, HtmlProvider)])
         self.globals['path'] = os.path
+        self.filters['is_active'] = _filter_is_active
         for plugin in site.plugins.values():
             if isinstance(plugin, Jinja2Provider):
                 self.globals.update(plugin.globals)
@@ -205,7 +217,8 @@ class Jinja2Renderer(Renderer):
             return
         file_destination_path = file_path[:-3]
         data = {}
-        if file_destination_path.startswith(self._configuration.www_directory_path) and not is_hidden(file_destination_path):
+        if file_destination_path.startswith(self._configuration.www_directory_path) and not is_hidden(
+                file_destination_path):
             # Unix-style paths use forward slashes, so they are valid URL paths.
             resource = file_destination_path[len(
                 self._configuration.www_directory_path):]
@@ -290,6 +303,39 @@ def _filter_selectwhile(context, seq, *args, **kwargs):
         yield from takewhile(func, seq)
 
 
+async def _filter_fetch(site: Site, url: str) -> str:
+    cache_directory_path = join(site.configuration.cache_directory_path, 'jinja2', 'file')
+    makedirs(cache_directory_path)
+    destination_name = hashlib.md5(url.encode('utf-8')).hexdigest()
+    cache_file_path = join(cache_directory_path, destination_name)
+    destination_directory_path = os.path.join(site.configuration.www_directory_path, 'file')
+    makedirs(destination_directory_path)
+    destination_file_path = os.path.join(destination_directory_path, destination_name)
+    destination_public_path = '/file/%s' % destination_name
+
+    ttl = 86400
+    with suppress(FileNotFoundError):
+        if getmtime(cache_file_path) + ttl > time():
+            os.link(cache_file_path, destination_file_path)
+            return destination_public_path
+
+    logger = logging.getLogger()
+    try:
+        async with site.http_client.get(url) as response:
+            with open(cache_file_path, 'wb') as f:
+                f.write(await response.read())
+                os.link(cache_file_path, destination_file_path)
+                return destination_public_path
+    except aiohttp.ClientError as e:
+        logger.warning('Could not successfully connect to %s: %s' % (url, e))
+
+    if exists(cache_file_path):
+        os.link(cache_file_path, destination_file_path)
+        return destination_public_path
+    else:
+        raise RuntimeError('Could neither fetch %s, nor find an old version in the cache.' % url)
+
+
 async def _filter_file(site: Site, file: File) -> str:
     file_directory_path = os.path.join(site.configuration.www_directory_path, 'file')
 
@@ -340,13 +386,15 @@ async def _filter_image(site: Site, file: File, width: Optional[int] = None, hei
     with suppress(AcquiredError):
         site.locks.acquire((_filter_image, file, width, height))
         cache_directory_path = join(site.configuration.cache_directory_path, 'image')
-        site.executor.submit(_do_filter_image, file.path, cache_directory_path, file_directory_path, destination_name, convert, size)
+        site.executor.submit(_do_filter_image, file.path, cache_directory_path, file_directory_path, destination_name,
+                             convert, size)
 
     destination_public_path = '/file/%s' % destination_name
     return destination_public_path
 
 
-def _do_filter_image(file_path: str, cache_directory_path: str, destination_directory_path: str, destination_name: str, convert: Callable, size: Tuple[int, int]) -> None:
+def _do_filter_image(file_path: str, cache_directory_path: str, destination_directory_path: str, destination_name: str,
+                     convert: Callable, size: Tuple[int, int]) -> None:
     makedirs(destination_directory_path)
     cache_file_path = join(cache_directory_path, '%s-%s' % (hashfile(file_path), destination_name))
     destination_file_path = join(destination_directory_path, destination_name)
@@ -399,3 +447,41 @@ def _filter_select_dateds(context, dateds: Iterable[Dated], date: Optional[Datey
     if date is None:
         date = resolve_or_missing(context, 'today')
     return filter(lambda dated: dated.date is None or dated.date.comparable and dated.date in date, dateds)
+
+
+def _url_path(configuration: Configuration, url: str) -> str:
+    prefixes = [configuration.base_url, configuration.root_path]
+    for prefix in prefixes:
+        if url.startswith(prefix):
+            url = url[len(prefix) - 1:]
+
+    last_slash_position = url.rindex('/')
+    last_dot_position = url.rfind('.')
+    if last_dot_position > last_slash_position and url[last_slash_position:last_dot_position + 1] == '/index.':
+        url = url[:last_slash_position]
+
+    return '/' + url.strip('/')
+
+
+@contextfilter
+def _filter_is_active(context: Context, url: str, media_type: str = 'text/html') -> bool:
+    page_resource = context.resolve('page_resource')
+
+    if isinstance(page_resource, Undefined):
+        return False
+
+    site = context.environment.site
+    configuration = site.configuration
+    url_generator = site.localized_url_generator
+
+    url_path = _url_path(configuration, url)
+    locale = context.resolve('locale')
+    page_resource_url_path = _url_path(configuration, url_generator.generate(page_resource, media_type=media_type, locale=locale))
+
+    if url_path == page_resource_url_path:
+        return True
+
+    if page_resource_url_path.startswith(url_path):
+        return True
+
+    return False

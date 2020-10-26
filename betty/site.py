@@ -3,6 +3,7 @@ from collections import defaultdict, OrderedDict
 from concurrent.futures._base import Executor
 from concurrent.futures.process import ProcessPoolExecutor
 
+import aiohttp
 from jinja2 import Environment
 
 from betty.lock import Locks
@@ -39,16 +40,17 @@ class Site:
         self._locale = None
         self._translations = defaultdict(gettext.NullTranslations)
         self._default_translations = None
+        self._jinja2_environment = None
+        self._renderer = None
+        self._http_client = None
+        self._executor = None
+        self._locks = Locks()
         self._plugins = OrderedDict()
         self._plugin_exit_stack = AsyncExitStack()
         self._init_plugins()
         self._init_event_listeners()
         self._init_assets()
         self._init_translations()
-        self._jinja2_environment = None
-        self._renderer = None
-        self._executor = None
-        self._locks = Locks()
 
     async def __aenter__(self):
         if not self._site_stack:
@@ -71,9 +73,9 @@ class Site:
         self._default_translations.uninstall()
 
         if not self._site_stack:
+            await self._plugin_exit_stack.aclose()
             self._executor.shutdown()
             self._executor = None
-            await self._plugin_exit_stack.aclose()
 
     @property
     def locale(self) -> str:
@@ -187,6 +189,12 @@ class Site:
             ])
 
         return self._renderer
+
+    @property
+    def http_client(self) -> aiohttp.ClientSession:
+        if self._http_client is None:
+            self._http_client = aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit_per_host=5))
+        return self._http_client
 
     @property
     def executor(self) -> Executor:

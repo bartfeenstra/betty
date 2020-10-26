@@ -10,15 +10,31 @@
 
     {% set places = person.presences | map(attribute='event.place') | reject('equalto', None) | list | unique | list %}
     {% if places | length > 0 %}
-        {% with places=places %}
-            {% include 'list-place.html.j2' %}
-        {% endwith %}
+        <section id="places">
+            <h2 class="js-hide">
+                {% trans %}Places{% endtrans %}
+                {% with url = page_resource | url ~ '#places'%}
+                    {% include 'permalink.html.j2' %}
+                {% endwith %}
+            </h2>
+            {% with places=places %}
+                {% include 'list-place.html.j2' %}
+            {% endwith %}
+        </section>
     {% endif %}
 
     {% if 'betty.plugin.wikipedia.Wikipedia' in plugins %}
-        {% with entity=person %}
-            {% include 'wikipedia.html.j2' %}
-        {% endwith %}
+        <section id="wikipedia">
+            <h2 class="visually-hidden">
+                {% trans %}About{% endtrans %}
+                {% with url = page_resource | url ~ '#wikipedia'%}
+                    {% include 'permalink.html.j2' %}
+                {% endwith %}
+            </h2>
+            {% with entity=person %}
+                {% include 'wikipedia.html.j2' %}
+            {% endwith %}
+        </section>
     {% endif %}
 
     {% set parents = person.parents | list %}
@@ -28,8 +44,13 @@
     {% set has_family =  parents | length > 0 or siblings | length > 0 or children | length > 0 %}
 
     {% if has_family %}
-        <section>
-        <h2 class="visually-hidden">Family</h2>
+        <section id="family">
+            <h2>
+                {% trans %}Family{% endtrans %}
+                {% with url = page_resource | url ~ '#family'%}
+                    {% include 'permalink.html.j2' %}
+                {% endwith %}
+            </h2>
     {% endif %}
 
     {% if parents | length > 0 or siblings | length > 0 %}
@@ -122,7 +143,9 @@
         </section>
     {% endif %}
 
-    <div class="featured tree js-show" data-betty-person-id="{{ person.id }}" data-betty-people="{{ 'people.json' | url }}"></div>
+    <div class="featured js-show">
+        <div class="tree" data-betty-person-id="{{ person.id }}" data-betty-people="{{ 'people.json' | url }}"></div>
+    </div>
 
     {% set events = person.presences | map(attribute='event') | rejectattr('date', 'none') | selectattr('date.comparable') | list %}
     {% if person.start or person.end %}
@@ -147,15 +170,29 @@
             {% set events = (events + (associated_events | list)) | unique | list %}
     {% endif %}
     {% if events | length > 0 %}
-        <h2>{% trans %}Timeline{% endtrans %}</h2>
-        {% with person_context=person %}
-            {% include 'list-event.html.j2' %}
-        {% endwith %}
+        <section id="timeline">
+            <h2>
+                {% trans %}Timeline{% endtrans %}
+                {% with url = page_resource | url ~ '#timeline'%}
+                    {% include 'permalink.html.j2' %}
+                {% endwith %}
+            </h2>
+            {% with person_context=person %}
+                {% include 'list-event.html.j2' %}
+            {% endwith %}
+        </section>
     {% endif %}
 
     {% set files = person.associated_files | list %}
     {% if files | length > 0 %}
-        <h2>{% trans %}Media{% endtrans %}</h2>
-        {% include 'list-file.html.j2' %}
+        <section id="media">
+            <h2>
+                {% trans %}Media{% endtrans %}
+                {% with url = page_resource | url ~ '#media'%}
+                    {% include 'permalink.html.j2' %}
+                {% endwith %}
+            </h2>
+            {% include 'list-file.html.j2' %}
+        </section>
     {% endif %}
 {% endblock %}

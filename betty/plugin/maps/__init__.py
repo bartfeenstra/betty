@@ -39,6 +39,7 @@ class Maps(Plugin, HtmlProvider):
             with suppress(FileNotFoundError):
                 shutil.rmtree(build_directory_path)
             shutil.copytree(path.join(self.assets_directory_path, 'js'), build_directory_path)
+            await self._site.assets.copy2(path.join('public', 'static', 'css', 'variables.scss.j2'), path.join(build_directory_path, 'variables.scss.j2'))
         await self._site.renderer.render_tree(build_directory_path)
 
         self._site.executor.submit(_do_render, build_directory_path, self._site.configuration.www_directory_path)
@@ -46,13 +47,13 @@ class Maps(Plugin, HtmlProvider):
     @property
     def css_paths(self) -> Iterable[str]:
         return {
-            self._site.static_url_generator.generate('maps.css'),
+            self._site.static_url_generator.generate('css/maps.css'),
         }
 
     @property
     def js_paths(self) -> Iterable[str]:
         return {
-            self._site.static_url_generator.generate('maps.js'),
+            self._site.static_url_generator.generate('js/maps.js'),
         }
 
 
@@ -64,5 +65,5 @@ def _do_render(build_directory_path: str, www_directory_path: str) -> None:
     check_call(['npm', 'run', 'webpack'], cwd=build_directory_path)
     output_directory_path = path.join(path.dirname(build_directory_path), 'output')
     shutil.copytree(path.join(output_directory_path, 'images'), path.join(www_directory_path, 'images'))
-    shutil.copy2(path.join(output_directory_path, 'maps.css'), path.join(www_directory_path, 'maps.css'))
-    shutil.copy2(path.join(output_directory_path, 'maps.js'), path.join(www_directory_path, 'maps.js'))
+    shutil.copy2(path.join(output_directory_path, 'maps.css'), path.join(www_directory_path, 'css', 'maps.css'))
+    shutil.copy2(path.join(output_directory_path, 'maps.js'), path.join(www_directory_path, 'js', 'maps.js'))

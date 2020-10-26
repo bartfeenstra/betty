@@ -46,13 +46,13 @@ class Trees(Plugin, HtmlProvider):
     @property
     def css_paths(self) -> Iterable[str]:
         return {
-            self._site.static_url_generator.generate('trees.css'),
+            self._site.static_url_generator.generate('css/trees.css'),
         }
 
     @property
     def js_paths(self) -> Iterable[str]:
         return {
-            self._site.static_url_generator.generate('trees.js'),
+            self._site.static_url_generator.generate('js/trees.js'),
         }
 
 
@@ -63,5 +63,5 @@ def _do_render(build_directory_path: str, www_directory_path: str) -> None:
     # Run Webpack.
     check_call(['npm', 'run', 'webpack'], cwd=build_directory_path)
     output_directory_path = path.join(path.dirname(build_directory_path), 'output')
-    shutil.copy2(path.join(output_directory_path, 'trees.css'), path.join(www_directory_path, 'trees.css'))
-    shutil.copy2(path.join(output_directory_path, 'trees.js'), path.join(www_directory_path, 'trees.js'))
+    shutil.copy2(path.join(output_directory_path, 'trees.css'), path.join(www_directory_path, 'css', 'trees.css'))
+    shutil.copy2(path.join(output_directory_path, 'trees.js'), path.join(www_directory_path, 'js', 'trees.js'))

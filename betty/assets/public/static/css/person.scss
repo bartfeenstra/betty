@@ -1,0 +1,64 @@
+@import 'variables.scss';
+
+.nn,
+.private {
+  cursor: help;
+  text-decoration: dotted underline;
+}
+
+.aka .person-label {
+  font-style: italic;
+}
+
+.family {
+  margin: $section2-margin-top 0;
+}
+
+@media (min-width: 768px) {
+  .family {
+    display: grid;
+    margin-top: $section2-margin-top-wide;
+  }
+
+  .family-description {
+    position: relative;
+  }
+
+  .family-description-content {
+    border-bottom: 0.3rem solid #f7f7f7;
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
+  }
+
+  .family:nth-child(even) {
+    grid-template-columns: 1fr 2fr;
+
+    .family-description {
+      border-right: 0.3rem solid #f7f7f7;
+    }
+
+    .family-description-content {
+      padding-right: 3em;
+      right: 0;
+      text-align: right;
+    }
+  }
+
+  .family:nth-child(odd) {
+    grid-template-columns: 2fr 1fr;
+
+    .family-description {
+      order: 1;
+      border-left: 0.3rem solid #f7f7f7;
+    }
+
+    .family-description-content {
+      padding-left: 3em;
+    }
+  }
+
+  .family-description p {
+    font-size: 1.2rem;
+  }
+}

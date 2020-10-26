@@ -203,15 +203,8 @@ class Populator:
 class Wikipedia(Plugin, Jinja2Provider):
     def __init__(self, site: Site):
         self._site = site
-
-    async def __aenter__(self):
-        self._session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit_per_host=5))
-        self._retriever = Retriever(self._session, join(self._site.configuration.cache_directory_path, self.name()))
+        self._retriever = Retriever(self._site.http_client, join(self._site.configuration.cache_directory_path, self.name()))
         self._populator = Populator(self._retriever)
-        return self
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self._session.close()
 
     @classmethod
     def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):

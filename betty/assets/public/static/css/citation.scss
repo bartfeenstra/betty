@@ -1,0 +1,55 @@
+@import 'variables.scss';
+
+.citation {
+  font-size: 0.8rem;
+  vertical-align: super;
+}
+
+#references {
+  font-size: 0.9rem;
+}
+
+#references ol {
+  margin-top: $section2-margin-top;
+}
+@media (min-width: 768px) {
+  #references ol {
+    margin-top: $section2-margin-top-wide;
+  }
+}
+
+.reference {
+  padding: 0.3rem;
+
+  &:target {
+    background-color: #eee;
+  }
+}
+
+.citation-author::after {
+  content: ". ";
+}
+
+.citation-title {
+  font-style: italic;
+
+  &::before {
+    content: "\"";
+  }
+
+  &::after {
+    content: "\". ";
+  }
+}
+
+.citation-publisher::after {
+  content: ", ";
+}
+
+.citation-location::after {
+  content: ". ";
+}
+
+.citation-date::after {
+  content: ". ";
+}

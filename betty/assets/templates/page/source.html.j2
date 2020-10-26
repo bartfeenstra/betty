@@ -15,7 +15,7 @@
         <h2>{% trans %}Facts{% endtrans %}</h2>
         <ul class="entities">
             {% for fact in facts %}
-                <li class="{{ loop.cycle('odd', 'even') }}">
+                <li>
                     {% with resource=fact, source_context=source %}
                         {% include 'label/resource.html.j2' %}
                         {% include 'meta/resource.html.j2' %}

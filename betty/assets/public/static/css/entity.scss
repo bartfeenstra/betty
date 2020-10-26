@@ -1,0 +1,13 @@
+.entities {
+  margin: 0;
+  padding: 0;
+
+  & li {
+    list-style: none;
+    padding: 0.5em;
+
+    &:nth-child(odd) {
+      background-color: #f7f7f7;
+    }
+  }
+}

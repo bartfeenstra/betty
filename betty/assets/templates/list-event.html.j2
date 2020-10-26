@@ -3,7 +3,7 @@
 {% if dated_events | length > 0 %}
     <ul class="entities">
         {% for event in dated_events %}
-            <li class="{{ loop.cycle('odd', 'even') }}">
+            <li>
                 {% include 'label/event.html.j2' %}
                 {% include 'meta/event.html.j2' %}
             </li>

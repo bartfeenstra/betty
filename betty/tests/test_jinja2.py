@@ -370,3 +370,18 @@ class TestResourceTypeTest(TemplateTestCase):
             'data': data,
         }) as (actual, _):
             self.assertEquals(expected, actual)
+
+
+class FilterIsActiveTest(TemplateTestCase):
+    @parameterized.expand([
+        ('true', '/index.html', '/index.html'),
+        ('true', '/index.html', '/betty/index.html'),
+        ('true', '/betty/index.html', '/betty/lankester/index.html'),
+    ])
+    @sync
+    async def test(self, expected, data, page_resource: str) -> None:
+        template = f'{{% set page_resource = "{ page_resource }" %}}{{% if data | is_active %}}true{{% else %}}false{{% endif %}}'
+        async with self._render(template_string=template, data={
+            'data': data,
+        }) as (actual, _):
+            self.assertEquals(expected, actual)

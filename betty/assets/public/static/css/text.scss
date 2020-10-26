@@ -1,0 +1,64 @@
+@import 'variables.scss';
+
+html {
+  font-family: 'Fira Sans', sans-serif;
+}
+
+h1,
+h2 {
+  color: #000;
+  margin-bottom: 0;
+}
+
+h1 {
+  font-weight: normal;
+  font-size: 2.5rem;
+  margin-top: 4rem;
+}
+
+h2 {
+  font-weight: normal;
+  font-size: 2.2rem;
+  margin-top: 3rem;
+}
+
+a {
+  text-decoration: none;
+  color: $link-inactive-color;
+
+  &:hover {
+    color: $link-active-color;
+  }
+}
+
+.permalink {
+  color: #777;
+  font-size: 1.5rem;
+  font-style: italic;
+
+  &::before {
+    content: '#';
+  }
+}
+
+.permalink:hover {
+  color: $link-active-color;
+}
+
+dl,
+p,
+li {
+  line-height: 1.5;
+}
+
+address {
+  display: inline;
+  font-style: normal;
+}
+
+kbd {
+  background-color: #f7f7f7;
+  border: 1px solid #777;
+  border-radius: 0.3rem;
+  padding: 0 0.3rem;
+}

@@ -49,13 +49,15 @@ function initializeAncestryTree (tree, personId) {
           {
             selector: 'node.public',
             style: {
-              color: '#149988'
+              color: '#149988',
+              'font-family': "'Fira Sans', serif"
             }
           },
           {
             selector: 'node.public.hover',
             style: {
-              color: '#2a615a'
+              color: '#2a615a',
+              cursor: 'pointer'
             }
           },
           {
