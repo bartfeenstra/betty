@@ -388,10 +388,15 @@ figcaption {
   max-width: 100%;
 }
 
-.file-extended:target img {
+.file-extended:target .file-content {
   display: block;
   margin: auto;
-  max-height: calc(100vh - 3rem);
+  height: calc(100vh - 3rem);
+}
+
+.file-extended:target iframe {
+  height: 100%;
+  width: 100%;
 }
 
 .file-extended:target figcaption {
