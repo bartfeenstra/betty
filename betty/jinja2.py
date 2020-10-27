@@ -332,7 +332,7 @@ async def _filter_image(site: Site, file: File, width: Optional[int] = None, hei
         if file.media_type.startswith('image/'):
             task = _execute_filter_image_image
             destination_name += '.' + extension(file.path)
-        elif file.media_type and file.media_type == 'application/pdf':
+        elif file.media_type == 'application/pdf':
             task = _execute_filter_image_application_pdf
             destination_name += '.' + 'jpg'
         else:
