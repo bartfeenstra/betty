@@ -6,9 +6,10 @@ import re
 from contextlib import suppress
 from itertools import takewhile
 from os.path import join
-from typing import Union, Dict, Type, Optional, Callable, Iterable, Tuple
+from typing import Union, Dict, Type, Optional, Callable, Iterable
 from urllib.parse import urlparse
 
+import pdf2image
 from PIL import Image
 from babel import Locale
 from geopy import units
@@ -31,6 +32,8 @@ from betty.importlib import import_any
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange
 from betty.lock import AcquiredError
+from betty.media_type import MediaType
+from betty.path import extension
 from betty.plugin import Plugin
 from betty.render import Renderer
 from betty.search import Index
@@ -121,6 +124,7 @@ class BettyEnvironment(Environment):
         self.globals['today'] = Date(today.year, today.month, today.day)
         self.globals['plugins'] = _Plugins(site.plugins)
         self.globals['urlparse'] = urlparse
+        self.filters['parse_media_type'] = MediaType.from_string
         self.filters['map'] = _filter_map
         self.filters['flatten'] = _filter_flatten
         self.filters['walk'] = _filter_walk
@@ -313,40 +317,48 @@ async def _filter_image(site: Site, file: File, width: Optional[int] = None, hei
     if width is None and height is None:
         raise ValueError('At least the width or height must be given.')
 
-    with Image.open(file.path) as image:
-        if width is not None:
-            width = min(width, image.width)
-        if height is not None:
-            height = min(height, image.height)
+    destination_name = '%s-' % file.id
+    if width is None:
+        destination_name += '-x%d' % height
+    elif height is None:
+        destination_name += '%dx-' % width
+    else:
+        destination_name += '%dx%d' % (width, height)
 
-        if width is None:
-            size = height
-            suffix = '-x%d'
-            convert = resizeimage.resize_height
-        elif height is None:
-            size = width
-            suffix = '%dx-'
-            convert = resizeimage.resize_width
+    file_directory_path = os.path.join(
+        site.configuration.www_directory_path, 'file')
+
+    if file.media_type:
+        if file.media_type.startswith('image/'):
+            task = _execute_filter_image_image
+            destination_name += '.' + extension(file.path)
+        elif file.media_type and file.media_type == 'application/pdf':
+            task = _execute_filter_image_application_pdf
+            destination_name += '.' + 'jpg'
         else:
-            size = (width, height)
-            suffix = '%dx%d'
-            convert = resizeimage.resize_cover
-
-        file_directory_path = os.path.join(
-            site.configuration.www_directory_path, 'file')
-        destination_name = '%s-%s.%s' % (file.id, suffix %
-                                         size, file.extension)
+            raise ValueError('Cannot convert a file of media type "%s" to an image.' % file.media_type)
+    else:
+        raise ValueError('Cannot convert a file without a media type to an image.')
 
     with suppress(AcquiredError):
         site.locks.acquire((_filter_image, file, width, height))
         cache_directory_path = join(site.configuration.cache_directory_path, 'image')
-        site.executor.submit(_do_filter_image, file.path, cache_directory_path, file_directory_path, destination_name, convert, size)
+        site.executor.submit(task, file.path, cache_directory_path, file_directory_path, destination_name, width, height)
 
     destination_public_path = '/file/%s' % destination_name
+
     return destination_public_path
 
 
-def _do_filter_image(file_path: str, cache_directory_path: str, destination_directory_path: str, destination_name: str, convert: Callable, size: Tuple[int, int]) -> None:
+def _execute_filter_image_image(file_path: str, *args, **kwargs) -> None:
+    _execute_filter_image(Image.open(file_path), file_path, *args, **kwargs)
+
+
+def _execute_filter_image_application_pdf(file_path: str, *args, **kwargs) -> None:
+    _execute_filter_image(pdf2image.convert_from_path(file_path, fmt='jpeg')[0], file_path, *args, **kwargs)
+
+
+def _execute_filter_image(image: Image, file_path: str, cache_directory_path: str, destination_directory_path: str, destination_name: str, width: int, height: int) -> None:
     makedirs(destination_directory_path)
     cache_file_path = join(cache_directory_path, '%s-%s' % (hashfile(file_path), destination_name))
     destination_file_path = join(destination_directory_path, destination_name)
@@ -355,7 +367,21 @@ def _do_filter_image(file_path: str, cache_directory_path: str, destination_dire
         os.link(cache_file_path, destination_file_path)
     except FileNotFoundError:
         makedirs(cache_directory_path)
-        with Image.open(file_path) as image:
+        with image:
+            if width is not None:
+                width = min(width, image.width)
+            if height is not None:
+                height = min(height, image.height)
+
+            if width is None:
+                size = height
+                convert = resizeimage.resize_height
+            elif height is None:
+                size = width
+                convert = resizeimage.resize_width
+            else:
+                size = (width, height)
+                convert = resizeimage.resize_cover
             convert(image, size).save(cache_file_path)
         makedirs(destination_directory_path)
         os.link(cache_file_path, destination_file_path)
