@@ -42,9 +42,13 @@
                                 <span typeof="foaf:Person" property="rel:childOf">{% with person=parent, person_context=person %}{% include 'label/person.html.j2' %}{% endwith %}</span>
                             {%- endmacro %}
                             {% if person.name and person.name.individual %}
-                                {% trans personIndividualName = person.name.individual, parentLabels = parents | map(parentLabel) | join(', ') %}{{ personIndividualName }} is the child of {{ parentLabels }}.{% endtrans %}
+                                {% trans personIndividualName = person.name.individual, parentLabels = parents | map(parentLabel) | join(', ') %}
+                                    {{ personIndividualName }} is the child of {{ parentLabels }}.
+                                {% endtrans %}
                             {% else %}
-                                {% trans parentLabels = parents | map(parentLabel) | join(', ') %}They are the child of {{ parentLabels }}.{% endtrans %}
+                                {% trans parentLabels = parents | map(parentLabel) | join(', ') %}
+                                    They are the child of {{ parentLabels }}.
+                                {% endtrans %}
                             {% endif %}
                         {% endif %}
                         {% if siblings | length > 0 %}
@@ -55,6 +59,24 @@
                             {%- endtrans -%}
                         {% endif %}
                     </p>
+                    {% set ancestral_affiliation_names = person | walk('parents') | map(attribute='names') | flatten | map(attribute='affiliation') | reject('none') | list | set | sort %}
+                    {% if ancestral_affiliation_names | length > 0 %}
+                        <p>
+                            {%- trans -%}
+                                Ancestral names include
+                            {%- endtrans %}
+                            {{ ancestral_affiliation_names[:3] | join(', ') -}}
+                            {%- if ancestral_affiliation_names | length <= 3 -%}
+                                .
+                            {%- else %},
+                                {% with content_if_hidden = '...',
+                                    content_if_shown = ancestral_affiliation_names[3:] | join(', ') ~ '.',
+                                    items = ancestral_affiliation_names[3:] -%}
+                                    {%- include 'show-countable.html.j2' -%}
+                                {%- endwith -%}
+                            {%- endif -%}
+                        </p>
+                    {% endif %}
                 </div>
             </div>
             {% if siblings | length > 0 %}
@@ -107,6 +129,24 @@
                                 {%- endif -%}
                             {%- endif -%}
                         </p>
+                        {% set descendant_affiliation_names = person | walk('children') | map(attribute='names') | flatten | map(attribute='affiliation') | reject('none') | list | set | sort %}
+                        {% if descendant_affiliation_names | length > 0 %}
+                            <p>
+                                {%- trans -%}
+                                    Descendant names include
+                                {%- endtrans %}
+                                {{ descendant_affiliation_names[:3] | join(', ') -}}
+                                    {%- if descendant_affiliation_names | length <= 3 -%}
+                                        .
+                                    {%- else %},
+                                    {% with content_if_hidden = '...',
+                                        content_if_shown = descendant_affiliation_names[3:] | join(', ') ~ '.',
+                                        items = descendant_affiliation_names[3:] -%}
+                                        {%- include 'show-countable.html.j2' -%}
+                                    {%- endwith -%}
+                                {%- endif -%}
+                            </p>
+                        {% endif %}
                     </div>
                 </div>
                 {% with persons=perParentChildren, typeOf='foaf:Person', property='rel:parentOf' %}

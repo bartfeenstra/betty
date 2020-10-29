@@ -125,6 +125,7 @@ class BettyEnvironment(Environment):
         self.globals['plugins'] = _Plugins(site.plugins)
         self.globals['urlparse'] = urlparse
         self.filters['parse_media_type'] = MediaType.from_string
+        self.filters['set'] = set
         self.filters['map'] = _filter_map
         self.filters['flatten'] = _filter_flatten
         self.filters['walk'] = _filter_walk
