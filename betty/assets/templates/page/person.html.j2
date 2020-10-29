@@ -42,13 +42,9 @@
                                 <span typeof="foaf:Person" property="rel:childOf">{% with person=parent, person_context=person %}{% include 'label/person.html.j2' %}{% endwith %}</span>
                             {%- endmacro %}
                             {% if person.name and person.name.individual %}
-                                {% trans personIndividualName = person.name.individual, parentLabels = parents | map(parentLabel) | join(', ') %}
-                                    {{ personIndividualName }} is the child of {{ parentLabels }}.
-                                {% endtrans %}
+                                {% trans personIndividualName = person.name.individual, parentLabels = parents | map(parentLabel) | join(', ') %}{{ personIndividualName }} is the child of {{ parentLabels }}.{% endtrans %}
                             {% else %}
-                                {% trans parentLabels = parents | map(parentLabel) | join(', ') %}
-                                    They are the child of {{ parentLabels }}.
-                                {% endtrans %}
+                                {% trans parentLabels = parents | map(parentLabel) | join(', ') %}They are the child of {{ parentLabels }}.{% endtrans %}
                             {% endif %}
                         {% endif %}
                         {% if siblings | length > 0 %}
