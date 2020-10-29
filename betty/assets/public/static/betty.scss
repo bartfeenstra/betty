@@ -160,6 +160,40 @@ address {
   content: ". ";
 }
 
+.with-js {
+  .show {
+    &.show-shown {
+      .show-if-hidden {
+        display: none;
+      }
+
+      .show-if-shown {
+        display: inline;
+      }
+    }
+
+    .show-if-hidden {
+      display: inline;
+    }
+
+    .show-if-shown {
+      display: none;
+    }
+  }
+
+  .show-toggle {
+    color: $link-inactive-color;
+    cursor: pointer;
+    font-size: 0.8rem;
+    vertical-align: super;
+    white-space: nowrap;
+
+    &:hover {
+      color: $link-active-color;
+    }
+  }
+}
+
 /*
  * Entity lists.
  */
@@ -268,7 +302,7 @@ footer {
 
   .family-description-content {
     border-bottom: 0.3rem solid #f7f7f7;
-    position: absolute;
+    position: relative;
     top: 50%;
     transform: translate(0, -50%);
   }
@@ -629,10 +663,15 @@ kbd {
  * Search.
  */
 #search {
+  display: none;
   float: left;
   max-width: 30rem;
   // Leave space for the site title and each of the two primary navigation actions.
   width: calc(100% - 9rem);
+}
+
+.with-js #search {
+  display: block;
 }
 
 #search.overlay {
