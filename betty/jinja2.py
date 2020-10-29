@@ -25,7 +25,7 @@ from resizeimage import resizeimage
 from betty.ancestry import File, Citation, Identifiable, Resource, HasLinks, HasFiles, Subject, Witness, Dated, \
     RESOURCE_TYPES
 from betty.config import Configuration
-from betty.fs import makedirs, hashfile, is_hidden, iterfiles
+from betty.fs import makedirs, hashfile, iterfiles
 from betty.functools import walk, asynciter
 from betty.html import HtmlProvider
 from betty.importlib import import_any
@@ -210,7 +210,7 @@ class Jinja2Renderer(Renderer):
             return
         file_destination_path = file_path[:-3]
         data = {}
-        if file_destination_path.startswith(self._configuration.www_directory_path) and not is_hidden(file_destination_path):
+        if file_destination_path.startswith(self._configuration.www_directory_path):
             # Unix-style paths use forward slashes, so they are valid URL paths.
             resource = file_destination_path[len(
                 self._configuration.www_directory_path):]
