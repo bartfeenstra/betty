@@ -21,10 +21,10 @@ class TreesTest(TestCase):
             configuration.plugins[Trees] = None
             async with Site(configuration) as site:
                 await generate(site)
-            with open(join(configuration.www_directory_path, 'trees.js')) as f:
-                betty_js = f.read()
-            self.assertIn('trees.js', betty_js)
-            self.assertIn('trees.css', betty_js)
-            with open(join(configuration.www_directory_path, 'trees.css')) as f:
-                betty_css = f.read()
-            self.assertIn('.tree', betty_css)
+            with open(join(configuration.www_directory_path, 'js', 'trees.js')) as f:
+                trees_js = f.read()
+            self.assertIn('trees.js', trees_js)
+            self.assertIn('trees.css', trees_js)
+            with open(join(configuration.www_directory_path, 'css', 'trees.css')) as f:
+                trees_css = f.read()
+            self.assertIn('.tree', trees_css)

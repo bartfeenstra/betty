@@ -2,7 +2,7 @@
 
 import * as L from 'leaflet'
 import leafletStyle from 'leaflet/dist/leaflet.css' // eslint-disable-line no-unused-vars
-import mapsStyle from './maps.css' // eslint-disable-line no-unused-vars
+import mapsStyle from '../css/maps.css' // eslint-disable-line no-unused-vars
 import leafletMarkerIconImage from 'leaflet/dist/images/marker-icon.png'
 import leafletMarkerIcon2xImage from 'leaflet/dist/images/marker-icon-2x.png'
 import leafletMarkerShadowImage from 'leaflet/dist/images/marker-shadow.png'

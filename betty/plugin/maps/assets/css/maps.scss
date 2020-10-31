@@ -1,0 +1,27 @@
+@import 'variables.scss';
+
+.with-js {
+  .map {
+    height: 75vh;
+  }
+
+  .leaflet-container {
+    background-color: #f7f7f7;
+    font-family: 'Fira Sans', sans-serif;
+    font-size: 1rem;
+  }
+
+  .leaflet-container a {
+    color: $link-inactive-color;
+
+    &:hover {
+      color: $link-active-color;
+    }
+  }
+
+  .with-map .entities {
+    height: 0;
+    visibility: hidden;
+    width: 0;
+  }
+}

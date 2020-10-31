@@ -5,7 +5,7 @@ from unittest import TestCase
 
 from parameterized import parameterized
 
-from betty.ancestry import Ancestry, PersonName, Birth, Death
+from betty.ancestry import Ancestry, PersonName, Birth, Death, UnknownEventType
 from betty.config import Configuration
 from betty.functools import sync
 from betty.locale import Date
@@ -150,6 +150,17 @@ class ParseXmlTest(TestCase):
 
     def test_event_should_be_death(self):
         self.assertIsInstance(self.ancestry.events['E0002'].type, Death)
+
+    def test_event_should_parse_unknown(self):
+        ancestry = self._parse_partial("""
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>SomeEventThatIUsedToKnow</type>
+        <dateval val="0000-00-00" quality="calculated"/>
+    </event>
+</events>
+""")
+        self.assertIsInstance(ancestry.events['E0000'].type, UnknownEventType)
 
     def test_event_should_include_place(self):
         event = self.ancestry.events['E0000']

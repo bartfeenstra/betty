@@ -36,6 +36,7 @@
     <link rel="manifest" href="{{ '/betty.webmanifest' | static_url }}"/>
     <script src="{{ '/js/file.js' | static_url }}" defer></script>
     <script src="{{ '/js/search.js' | static_url }}" defer></script>
+    <script src="{{ '/js/show.js' | static_url }}" defer></script>
     {% for html_provider in html_providers %}
         {% for css_path in html_provider.css_paths %}
             <link rel="stylesheet" href="{{ css_path }}"/>
@@ -51,9 +52,9 @@
     {% set page_image = site.ancestry.files[site.configuration.theme.background_image_id] %}
 {% endif %}
 <body>
-    <script>
-        document.body.classList.add('with-js');
-    </script>
+<script>
+    document.body.classList.add('with-js');
+</script>
 {% if page_image is defined %}
     <div id="background-header" class="background" style="background-image: url({{ page_image | image(600, 600) | static_url }});"></div>
     <div id="background-footer" class="background" style="background-image: url({{ page_image | image(600, 600) | static_url }});"></div>
@@ -61,7 +62,7 @@
 <div id="page">
     <nav id="nav-primary">
         <a id="site-title" href="{{ '/index.html' | url }}" title="{{ site.configuration.title }}">{{ site.configuration.title }}</a>
-        <div id="search" class="js-show" data-betty-search-index="{{ '/search-index.json' | url }}">
+        <div id="search" data-betty-search-index="{{ '/search-index.json' | url }}">
             <div class="overlay-controls">
                 <span class="overlay-control overlay-close" title="{% trans %}Exit the search{% endtrans %}">{% trans %}Exit the search{% endtrans %}</span>
             </div>

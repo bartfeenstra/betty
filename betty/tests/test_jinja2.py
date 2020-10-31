@@ -125,13 +125,13 @@ class ImageTest(TemplateTestCase):
 
     @parameterized.expand([
         ('/file/F1-99x-.png',
-         '{{ file | image(width=99) }}', File('F1', image_path)),
+         '{{ file | image(width=99) }}', File('F1', image_path, media_type='image/png')),
         ('/file/F1--x99.png',
-         '{{ file | image(height=99) }}', File('F1', image_path)),
+         '{{ file | image(height=99) }}', File('F1', image_path, media_type='image/png')),
         ('/file/F1-99x99.png',
-         '{{ file | image(width=99, height=99) }}', File('F1', image_path)),
+         '{{ file | image(width=99, height=99) }}', File('F1', image_path, media_type='image/png')),
         ('/file/F1-99x99.png:/file/F1-99x99.png',
-         '{{ file | image(width=99, height=99) }}:{{ file | image(width=99, height=99) }}', File('F1', image_path)),
+         '{{ file | image(width=99, height=99) }}:{{ file | image(width=99, height=99) }}', File('F1', image_path, media_type='image/png')),
     ])
     @sync
     async def test(self, expected, template, file):

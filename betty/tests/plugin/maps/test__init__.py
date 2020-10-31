@@ -21,10 +21,10 @@ class MapsTest(TestCase):
             configuration.plugins[Maps] = None
             async with Site(configuration) as site:
                 await generate(site)
-            with open(join(configuration.www_directory_path, 'maps.js')) as f:
-                betty_js = f.read()
-            self.assertIn('maps.js', betty_js)
-            self.assertIn('maps.css', betty_js)
-            with open(join(configuration.www_directory_path, 'maps.css')) as f:
-                betty_css = f.read()
-            self.assertIn('.map', betty_css)
+            with open(join(configuration.www_directory_path, 'js', 'maps.js')) as f:
+                maps_js = f.read()
+            self.assertIn('maps.js', maps_js)
+            self.assertIn('maps.css', maps_js)
+            with open(join(configuration.www_directory_path, 'css', 'maps.css')) as f:
+                maps_css = f.read()
+            self.assertIn('.map', maps_css)

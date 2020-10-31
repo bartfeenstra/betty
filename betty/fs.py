@@ -36,6 +36,14 @@ def is_hidden(path: str) -> bool:
     return False
 
 
+async def copytree(source_path: str, destination_path: str) -> None:
+    async for file_source_path in iterfiles(source_path):
+        file_destination_path = join(destination_path, relpath(
+            file_source_path, source_path))
+        makedirs(dirname(file_destination_path))
+        copy2(file_source_path, file_destination_path)
+
+
 class FileSystem:
     def __init__(self, *paths):
         self._paths = deque(paths)

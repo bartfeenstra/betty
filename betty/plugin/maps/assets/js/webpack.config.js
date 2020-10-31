@@ -5,13 +5,15 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const path = require('path')
 const configuration = require('./webpack.config.json')
 
+const buildDirectoryPath = path.dirname(path.dirname(__dirname))
+
 module.exports = {
   mode: configuration.mode,
   entry: {
-    maps: path.resolve(__dirname, 'maps.js')
+    maps: path.resolve(buildDirectoryPath, 'assets', 'js', 'maps.js')
   },
   output: {
-    path: path.resolve(__dirname, '..', 'output'),
+    path: path.resolve(buildDirectoryPath, 'output', 'js'),
     filename: '[name].js'
   },
   optimization: {
@@ -31,8 +33,7 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new MiniCssExtractPlugin({
-      path: path.resolve(__dirname, '..', 'output'),
-      filename: '[name].css'
+      filename: path.join('..', 'css', '[name].css')
     })
   ],
   module: {
@@ -67,7 +68,8 @@ module.exports = {
           {
             loader: 'file-loader',
             options: {
-              name: '/images/[hash].[ext]'
+              outputPath: path.join('..', 'images'),
+              name: '[hash].[ext]'
             }
           }
         ]

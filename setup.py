@@ -47,6 +47,7 @@ SETUP = {
         'libsass ~= 0.19.2',
         'lxml ~= 4.3.1',
         'markupsafe ~= 1.1.1',
+        'pdf2image ~= 1.14.0 ',
         'python-resize-image ~= 1.1.18',
         'pyyaml ~= 5.1.2',
         'voluptuous ~= 0.11.7',

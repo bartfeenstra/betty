@@ -1,0 +1,6 @@
+<figure>
+    <img src="{{ file | image(1200, 1200) | static_url }}" class="image-fit"{% if file.description %} alt="{{ file.description | escape }}" title="{{ file.description | escape }}"{% endif %}/>
+    {% if file.description %}
+        <figcaption>{{ file.description | escape }}</figcaption>
+    {% endif %}
+</figure>

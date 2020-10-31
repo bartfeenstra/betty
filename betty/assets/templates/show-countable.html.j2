@@ -1,0 +1,9 @@
+{% set show_more_label %}
+    {%- trans name_count = items | length -%}
+        show {{ name_count }} more
+    {%- pluralize -%}
+        show {{ name_count }} more
+    {%- endtrans -%}
+{% endset %}
+{% set show_less_label = _('show fewer') %}
+{% include 'show.html.j2' %}

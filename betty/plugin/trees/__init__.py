@@ -38,7 +38,7 @@ class Trees(Plugin, HtmlProvider):
         async with DirectoryBackup(build_directory_path, 'node_modules'):
             with suppress(FileNotFoundError):
                 shutil.rmtree(build_directory_path)
-            shutil.copytree(path.join(self.assets_directory_path, 'js'), build_directory_path)
+            shutil.copytree(path.join(self.assets_directory_path), build_directory_path)
         await self._site.renderer.render_tree(build_directory_path)
 
         self._site.executor.submit(_do_render, build_directory_path, self._site.configuration.www_directory_path)
@@ -57,11 +57,12 @@ class Trees(Plugin, HtmlProvider):
 
 
 def _do_render(build_directory_path: str, www_directory_path: str) -> None:
+    js_build_directory_path = path.join(build_directory_path, 'js')
     # Install third-party dependencies.
-    check_call(['npm', 'install', '--production'], cwd=build_directory_path)
+    check_call(['npm', 'install', '--production'], cwd=js_build_directory_path)
 
     # Run Webpack.
-    check_call(['npm', 'run', 'webpack'], cwd=build_directory_path)
+    check_call(['npm', 'run', 'webpack'], cwd=js_build_directory_path)
     output_directory_path = path.join(path.dirname(build_directory_path), 'output')
     shutil.copy2(path.join(output_directory_path, 'trees.css'), path.join(www_directory_path, 'css', 'trees.css'))
     shutil.copy2(path.join(output_directory_path, 'trees.js'), path.join(www_directory_path, 'js', 'trees.js'))

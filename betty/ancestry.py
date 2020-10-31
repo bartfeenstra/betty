@@ -6,6 +6,7 @@ from typing import Dict, Optional, List, Iterable, Set, Union, TypeVar, Generic,
 from geopy import Point
 
 from betty.locale import Localized, Datey
+from betty.path import extension
 
 T = TypeVar('T')
 
@@ -250,11 +251,12 @@ class File(Resource, Identifiable, Described, HasPrivacy, HasMediaType):
     resources: ManyAssociation[Resource]
     notes: List[Note]
 
-    def __init__(self, file_id: str, path: str):
+    def __init__(self, file_id: str, path: str, media_type: Optional[str] = None):
         Identifiable.__init__(self, file_id)
         Described.__init__(self)
         HasPrivacy.__init__(self)
         HasMediaType.__init__(self)
+        self.media_type = media_type
         self._path = path
         self.notes = []
 
@@ -272,8 +274,7 @@ class File(Resource, Identifiable, Described, HasPrivacy, HasMediaType):
 
     @property
     def extension(self) -> Optional[str]:
-        extension = splitext(self._path)[1][1:]
-        return extension if extension else None
+        return extension(self._path)
 
     @property
     def sources(self) -> Iterable['Source']:
@@ -510,6 +511,14 @@ class EventType:
         return set()
 
 
+class UnknownEventType(EventType):
+    name = 'unknown'
+
+    @property
+    def label(self) -> str:
+        return _('Unknown')
+
+
 class DerivableEventType(EventType):
     pass  # pragma: no cover
 
@@ -740,6 +749,14 @@ class Confirmation(LifeEventType):
     @property
     def label(self) -> str:
         return _('Confirmation')
+
+
+class Missing(LifeEventType):
+    name = 'missing'
+
+    @property
+    def label(self) -> str:
+        return _('Missing')
 
 
 EVENT_TYPE_TYPES = [

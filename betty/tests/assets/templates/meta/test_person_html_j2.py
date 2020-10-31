@@ -55,7 +55,7 @@ class Test(TemplateTestCase):
     async def test_with_start(self):
         person = Person('P0')
         Presence(person, Subject(), Event(Birth(), Date(1970)))
-        expected = '<div class="meta"><dl><dt>Birth</dt><dd>1970</dd></dl></div>'
+        expected = '<div class="meta"><dl><div class="meta-item"><dt>Birth</dt><dd>1970</dd></div></dl></div>'
         async with self._render(data={
             'person': person,
         }) as (actual, _):
@@ -65,7 +65,7 @@ class Test(TemplateTestCase):
     async def test_with_end(self):
         person = Person('P0')
         Presence(person, Subject(), Event(Death(), Date(1970)))
-        expected = '<div class="meta"><dl><dt>Death</dt><dd>1970</dd></dl></div>'
+        expected = '<div class="meta"><dl><div class="meta-item"><dt>Death</div><dd>1970</dd></div></dl></div>'
         async with self._render(data={
             'person': person,
         }) as (actual, _):
@@ -79,7 +79,7 @@ class Test(TemplateTestCase):
         name = PersonName('Janet', 'Doughnut')
         name.citations.append(Citation(Source('The Source')))
         person.names.append(name)
-        expected = '<div class="meta"><span class="aka">Also known as <span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Janet</span> <span property="foaf:familyName">Doughnut</span></span></span><dl><dt>Birth</dt><dd>1970</dd></dl></div>'
+        expected = '<div class="meta"><span class="aka">Also known as <span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Janet</span> <span property="foaf:familyName">Doughnut</span></span></span><dl><div class="meta-item"><dt>Birth</dt></div><dd>1970</dd></dl></div>'
         async with self._render(data={
             'person': person,
             'embedded': True,
