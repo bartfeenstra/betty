@@ -6,6 +6,7 @@ from os import chmod
 from os.path import join
 from typing import Iterable, Any
 
+from babel import Locale
 from jinja2 import Environment, TemplateNotFound
 
 from betty.event import Event
@@ -40,32 +41,33 @@ async def generate(site: Site) -> None:
             await site.assets.copytree(join('public', 'localized'), www_directory_path)
             await site.renderer.render_tree(www_directory_path)
 
+            locale_label = Locale.parse(locale, '-').get_display_name()
             await _generate_entity_type(www_directory_path, site.ancestry.files.values(
             ), 'file', site, locale, site.jinja2_environment)
-            logger.info('Rendered %d files in %s.' %
-                        (len(site.ancestry.files), locale))
+            logger.info('Generated pages for %d files in %s.' %
+                        (len(site.ancestry.files), locale_label))
             await _generate_entity_type(www_directory_path, site.ancestry.people.values(
             ), 'person', site, locale, site.jinja2_environment)
-            logger.info('Rendered %d people in %s.' %
-                        (len(site.ancestry.people), locale))
+            logger.info('Generated pages for %d people in %s.' %
+                        (len(site.ancestry.people), locale_label))
             await _generate_entity_type(www_directory_path, site.ancestry.places.values(
             ), 'place', site, locale, site.jinja2_environment)
-            logger.info('Rendered %d places in %s.' %
-                        (len(site.ancestry.places), locale))
+            logger.info('Generated pages for %d places in %s.' %
+                        (len(site.ancestry.places), locale_label))
             await _generate_entity_type(www_directory_path, site.ancestry.events.values(
             ), 'event', site, locale, site.jinja2_environment)
-            logger.info('Rendered %d events in %s.' %
-                        (len(site.ancestry.events), locale))
+            logger.info('Generated pages for %d events in %s.' %
+                        (len(site.ancestry.events), locale_label))
             await _generate_entity_type(www_directory_path, site.ancestry.citations.values(
             ), 'citation', site, locale, site.jinja2_environment)
-            logger.info('Rendered %d citations in %s.' %
-                        (len(site.ancestry.citations), locale))
+            logger.info('Generated pages for %d citations in %s.' %
+                        (len(site.ancestry.citations), locale_label))
             await _generate_entity_type(www_directory_path, site.ancestry.sources.values(
             ), 'source', site, locale, site.jinja2_environment)
-            logger.info('Rendered %d sources in %s.' %
-                        (len(site.ancestry.sources), locale))
+            logger.info('Generated pages for %d sources in %s.' %
+                        (len(site.ancestry.sources), locale_label))
             _generate_openapi(www_directory_path, site)
-            logger.info('Rendered OpenAPI documentation.')
+            logger.info('Generated OpenAPI documentation in %s.', locale_label)
     chmod(site.configuration.www_directory_path, 0o755)
     for directory_path, subdirectory_names, file_names in os.walk(site.configuration.www_directory_path):
         for subdirectory_name in subdirectory_names:
