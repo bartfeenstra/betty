@@ -1,4 +1,4 @@
-{% set server_name = urlparse(site.configuration.base_url)['netloc'] -%}
+{% set server_name = parse_url(site.configuration.base_url)['netloc'] -%}
 {% if plugins['betty.plugin.nginx.Nginx'].https %}
     server {
         listen 80;
