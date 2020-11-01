@@ -3,6 +3,7 @@ import datetime
 import json as stdjson
 import os
 import re
+import warnings
 from contextlib import suppress
 from itertools import takewhile
 from os.path import join
@@ -11,6 +12,7 @@ from urllib.parse import urlparse
 
 import pdf2image
 from PIL import Image
+from PIL.Image import DecompressionBombWarning
 from babel import Locale
 from geopy import units
 from geopy.format import DEGREES_FORMAT
@@ -352,11 +354,19 @@ async def _filter_image(site: Site, file: File, width: Optional[int] = None, hei
 
 
 def _execute_filter_image_image(file_path: str, *args, **kwargs) -> None:
-    _execute_filter_image(Image.open(file_path), file_path, *args, **kwargs)
+    with warnings.catch_warnings():
+        # Ignore warnings about decompression bombs, because we know where the files come from.
+        warnings.simplefilter('ignore', category=DecompressionBombWarning)
+        image = Image.open(file_path)
+    _execute_filter_image(image, file_path, *args, **kwargs)
 
 
 def _execute_filter_image_application_pdf(file_path: str, *args, **kwargs) -> None:
-    _execute_filter_image(pdf2image.convert_from_path(file_path, fmt='jpeg')[0], file_path, *args, **kwargs)
+    with warnings.catch_warnings():
+        # Ignore warnings about decompression bombs, because we know where the files come from.
+        warnings.simplefilter('ignore', category=DecompressionBombWarning)
+        image = pdf2image.convert_from_path(file_path, fmt='jpeg')[0]
+    _execute_filter_image(image, file_path, *args, **kwargs)
 
 
 def _execute_filter_image(image: Image, file_path: str, cache_directory_path: str, destination_directory_path: str, destination_name: str, width: int, height: int) -> None:
