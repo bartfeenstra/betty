@@ -5,6 +5,7 @@ from concurrent.futures.process import ProcessPoolExecutor
 
 from jinja2 import Environment
 
+from betty.concurrent import ExceptionRaisingExecutor
 from betty.lock import Locks
 from betty.render import Renderer, SequentialRenderer
 from betty.sass import SassRenderer
@@ -59,7 +60,7 @@ class Site:
         self._default_translations.install()
 
         if self._executor is None:
-            self._executor = ProcessPoolExecutor()
+            self._executor = ExceptionRaisingExecutor(ProcessPoolExecutor())
 
         self._site_stack.append(self)
 
