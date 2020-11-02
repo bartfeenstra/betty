@@ -1,5 +1,6 @@
 import logging
 import shutil
+import sys
 from contextlib import suppress
 from functools import wraps
 from os import getcwd
@@ -27,13 +28,18 @@ def _command(f, is_site_command: bool):
     @wraps(f)
     @sync
     async def _command(*args, **kwargs):
-        if is_site_command:
-            site = get_current_context().obj['site']
-            args = (site, *args)
-            async with site:
+        try:
+            if is_site_command:
+                site = get_current_context().obj['site']
+                args = (site, *args)
+                async with site:
+                    await f(*args, **kwargs)
+            else:
                 await f(*args, **kwargs)
-        else:
-            await f(*args, **kwargs)
+        except Exception as e:
+            logger = logging.getLogger()
+            logger.exception(e)
+            sys.exit(1)
     return _command
 
 
