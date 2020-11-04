@@ -1,3 +1,4 @@
+
 # Betty 👵
 
 [![Build Status](https://travis-ci.org/bartfeenstra/betty.svg?branch=master)](https://travis-ci.org/bartfeenstra/betty) [![codecov](https://codecov.io/gh/bartfeenstra/betty/branch/master/graph/badge.svg)](https://codecov.io/gh/bartfeenstra/betty)
@@ -39,7 +40,10 @@ secure**.
 - Node.js 10+ (optional)
 
 ### Instructions
-Run `pip install betty`.
+Run `pip install betty` to install the latest stable release.
+
+To install the latest development version, run `pip install git+https://github.com/bartfeenstra/betty.git`. If you want
+the latest source code, read the [development](#development) documentation.
 
 ## Usage
 
