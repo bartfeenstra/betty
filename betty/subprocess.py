@@ -1,9 +1,13 @@
 import subprocess as stdsubprocess
+from tempfile import TemporaryFile
 
 
 def run(*args, **kwargs) -> stdsubprocess.CompletedProcess:
-    kwargs['capture_output'] = True
-    process = stdsubprocess.run(*args, **kwargs)
-    if process.returncode != 0:
-        raise RuntimeError(process.stdout.decode('utf-8'))
-    return process
+    with TemporaryFile() as f:
+        kwargs['stdout'] = f
+        kwargs['stderr'] = f
+        process = stdsubprocess.run(*args, **kwargs)
+        if process.returncode != 0:
+            f.seek(0)
+            raise RuntimeError(f.read().decode('utf-8'))
+        return process
