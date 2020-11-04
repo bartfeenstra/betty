@@ -1,5 +1,4 @@
 {% extends 'base.html.j2' %}
-{% import 'macro/person.html.j2' as personMacros %}
 {% set page_title %}
     {% with embedded=True %}
         {% include 'label/person.html.j2' %}
@@ -38,20 +37,20 @@
                 <div class="family-description-content">
                     <p>
                         {% if parents | length > 0 %}
-                            {% macro parentLabel(parent) -%}
+                            {% macro parent_label(parent) -%}
                                 <span typeof="foaf:Person" property="rel:childOf">{% with person=parent, person_context=person %}{% include 'label/person.html.j2' %}{% endwith %}</span>
                             {%- endmacro %}
                             {% if person.name and person.name.individual %}
-                                {% trans personIndividualName = person.name.individual, parentLabels = parents | map(parentLabel) | join(', ') %}{{ personIndividualName }} is the child of {{ parentLabels }}.{% endtrans %}
+                                {% trans person_individual_name = person.name.individual, parent_labels = parents | map(parent_label) | join(', ') %}{{ person_individual_name }} is the child of {{ parent_labels }}.{% endtrans %}
                             {% else %}
-                                {% trans parentLabels = parents | map(parentLabel) | join(', ') %}They are the child of {{ parentLabels }}.{% endtrans %}
+                                {% trans parent_labels = parents | map(parent_label) | join(', ') %}They are the child of {{ parent_labels }}.{% endtrans %}
                             {% endif %}
                         {% endif %}
                         {% if siblings | length > 0 %}
-                            {%- trans siblingCount = siblings | length -%}
+                            {%- trans sibling_count = siblings | length -%}
                                 They grew up with a sibling.
                             {%- pluralize -%}
-                                They grew up with {{ siblingCount }} siblings.
+                                They grew up with {{ sibling_count }} siblings.
                             {%- endtrans -%}
                         {% endif %}
                     </p>
@@ -77,7 +76,7 @@
             </div>
             {% if siblings | length > 0 %}
                 <div class="family-breakdown">
-                    {% with persons=siblings, typeOf='foaf:Person', property='rel:siblingOf' %}
+                    {% with persons=siblings, type_of='foaf:Person', property='rel:siblingOf' %}
                         {% include 'list-person.html.j2' %}
                     {% endwith %}
                 </div>
@@ -86,10 +85,10 @@
     {% endif %}
 
     {% if children | length > 0 %}
-        {% macro coParentLabel(parent) -%}
+        {% macro co_parent_label(parent) -%}
             <span typeof="foaf:Person" property="rel:spouseOf">{% with person=parent, person_context=person %}{% include 'label/person.html.j2' %}{% endwith %}</span>
         {%- endmacro %}
-        {% for parents, perParentChildren in children | groupby('parents.list') %}
+        {% for parents, per_parent_children in children | groupby('parents.list') %}
             <div class="family">
                 <div class="family-description">
                     <div class="family-description-content">
@@ -97,30 +96,30 @@
                             {% do parents.remove(person) %}
                             {%- if parents | length > 0 -%}
                                 {%- if person.name and person.name.individual -%}
-                                    {%- trans childCount = perParentChildren | length, personIndividualName = person.name.individual, coParentLabels = parents | map(coParentLabel) | join(', ') -%}
-                                        {{ personIndividualName }} had a child with {{ coParentLabels }}.
+                                    {%- trans child_count = per_parent_children | length, person_individual_name = person.name.individual, coparent_labels = parents | map(co_parent_label) | join(', ') -%}
+                                        {{ person_individual_name }} had a child with {{ coparent_labels }}.
                                     {%- pluralize -%}
-                                        {{ personIndividualName }} had {{ childCount }} children with {{ coParentLabels }}.
+                                        {{ person_individual_name }} had {{ child_count }} children with {{ coparent_labels }}.
                                     {%- endtrans -%}
                                 {%- else -%}
-                                    {%- trans childCount = perParentChildren | length, coParentLabels = parents | map(coParentLabel) | join(', ') -%}
-                                        They had a child with {{ coParentLabels }}.
+                                    {%- trans child_count = per_parent_children | length, coparent_labels = parents | map(co_parent_label) | join(', ') -%}
+                                        They had a child with {{ coparent_labels }}.
                                     {%- pluralize -%}
-                                        They had {{ childCount }} children with {{ coParentLabels }}.
+                                        They had {{ child_count }} children with {{ coparent_labels }}.
                                     {%- endtrans -%}
                                 {%- endif -%}
                             {%- else -%}
                                 {%- if person.name and person.name.individual -%}
-                                    {%- trans childCount = perParentChildren | length, personIndividualName = person.name.individual -%}
-                                        {{ personIndividualName }} had a child.
+                                    {%- trans child_count = per_parent_children | length, person_individual_name = person.name.individual -%}
+                                        {{ person_individual_name }} had a child.
                                     {%- pluralize -%}
-                                        {{ personIndividualName }} had {{ childCount }} children.
+                                        {{ person_individual_name }} had {{ child_count }} children.
                                     {%- endtrans -%}
                                 {%- else -%}
-                                    {%- trans childCount = perParentChildren | length -%}
+                                    {%- trans child_count = per_parent_children | length -%}
                                         They had a child.
                                     {%- pluralize -%}
-                                        They had {{ childCount }} children.
+                                        They had {{ child_count }} children.
                                     {%- endtrans -%}
                                 {%- endif -%}
                             {%- endif -%}
@@ -145,7 +144,7 @@
                         {% endif %}
                     </div>
                 </div>
-                {% with persons=perParentChildren, typeOf='foaf:Person', property='rel:parentOf' %}
+                {% with persons=per_parent_children, type_of='foaf:Person', property='rel:parentOf' %}
                     <div class="family-breakdown">
                         {% include 'list-person.html.j2' %}
                     </div>

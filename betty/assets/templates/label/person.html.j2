@@ -1,4 +1,4 @@
-{% import 'macro/person.html.j2' as personMacros %}
+{% import 'macro/person.html.j2' as person_macros %}
 {% set person = person | default(resource) %}
 {% set embedded = embedded | default(False) %}
 {% set person_context = person_context | default(False) %}
@@ -8,7 +8,7 @@
 {% if person.private -%}
     <span class="private" title="{% trans %}This person's details are unavailable to protect their privacy.{% endtrans %}">{% trans %}private{% endtrans %}</span>
 {%- elif person.name is not none -%}
-    {{ personMacros.nameLabel(person.name, embedded=embedded or person_context is not none and person_context != person) }}
+    {{ person_macros.name_label(person.name, embedded=embedded or person_context is not none and person_context != person) }}
 {%- else -%}
     <span class="nn" title="{% trans %}This person's name is unknown.{% endtrans %}">n.n.</span>
 {%- endif %}

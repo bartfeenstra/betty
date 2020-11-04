@@ -596,20 +596,20 @@ msgstr "Gebeurtenissen"
 
 #: betty/assets/templates/page/person.html.j2:45
 #, python-format
-msgid "%(personIndividualName)s is the child of %(parentLabels)s."
-msgstr "%(personIndividualName)s is het kind van %(parentLabels)s."
+msgid "%(person_individual_name)s is the child of %(parent_labels)s."
+msgstr "%(person_individual_name)s is het kind van %(parent_labels)s."
 
 #: betty/assets/templates/page/person.html.j2:47
 #, python-format
-msgid "They are the child of %(parentLabels)s."
-msgstr "Men is het kind van %(parentLabels)s."
+msgid "They are the child of %(parent_labels)s."
+msgstr "Men is het kind van %(parent_labels)s."
 
 #: betty/assets/templates/page/person.html.j2:51
 #, python-format
 msgid "They grew up with a sibling."
-msgid_plural "They grew up with %(siblingCount)s siblings."
+msgid_plural "They grew up with %(sibling_count)s siblings."
 msgstr[0] "Men groeide op met een brus."
-msgstr[1] "Men groeide op met %(siblingCount)s brussen."
+msgstr[1] "Men groeide op met %(sibling_count)s brussen."
 
 #: betty/assets/templates/page/person.html.j2:61
 msgid "Ancestral names include"
@@ -617,35 +617,35 @@ msgstr "De voorouders heetten"
 
 #: betty/assets/templates/page/person.html.j2:100
 #, python-format
-msgid "%(personIndividualName)s had a child with %(coParentLabels)s."
+msgid "%(person_individual_name)s had a child with %(co_parent_labels)s."
 msgid_plural ""
-"%(personIndividualName)s had %(childCount)s children with "
-"%(coParentLabels)s."
-msgstr[0] "%(personIndividualName)s had een kind met %(coParentLabels)s."
+"%(person_individual_name)s had %(child_count)s children with "
+"%(co_parent_labels)s."
+msgstr[0] "%(person_individual_name)s had een kind met %(co_parent_labels)s."
 msgstr[1] ""
-"%(personIndividualName)s had %(childCount)s kinderen met "
-"%(coParentLabels)s."
+"%(person_individual_name)s had %(child_count)s kinderen met "
+"%(co_parent_labels)s."
 
 #: betty/assets/templates/page/person.html.j2:106
 #, python-format
-msgid "They had a child with %(coParentLabels)s."
-msgid_plural "They had %(childCount)s children with %(coParentLabels)s."
-msgstr[0] "Men had een kind met %(coParentLabels)s."
-msgstr[1] "Men had %(childCount)s kinderen met %(coParentLabels)s."
+msgid "They had a child with %(co_parent_labels)s."
+msgid_plural "They had %(child_count)s children with %(co_parent_labels)s."
+msgstr[0] "Men had een kind met %(co_parent_labels)s."
+msgstr[1] "Men had %(child_count)s kinderen met %(co_parent_labels)s."
 
 #: betty/assets/templates/page/person.html.j2:114
 #, python-format
-msgid "%(personIndividualName)s had a child."
-msgid_plural "%(personIndividualName)s had %(childCount)s children."
-msgstr[0] "%(personIndividualName)s had een kind."
-msgstr[1] "%(personIndividualName)s had %(childCount)s kinderen."
+msgid "%(person_individual_name)s had a child."
+msgid_plural "%(person_individual_name)s had %(child_count)s children."
+msgstr[0] "%(person_individual_name)s had een kind."
+msgstr[1] "%(person_individual_name)s had %(child_count)s kinderen."
 
 #: betty/assets/templates/page/person.html.j2:120
 #, python-format
 msgid "They had a child."
-msgid_plural "They had %(childCount)s children."
+msgid_plural "They had %(child_count)s children."
 msgstr[0] "Men had een kind."
-msgstr[1] "Men had %(childCount)skinderen."
+msgstr[1] "Men had %(child_count)skinderen."
 
 #: betty/assets/templates/page/person.html.j2:131
 msgid "Descendant names include"
