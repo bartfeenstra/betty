@@ -1,7 +1,7 @@
 import logging
 import shutil
 import sys
-from contextlib import suppress
+from contextlib import suppress, contextmanager
 from functools import wraps
 from os import getcwd
 from os.path import join
@@ -12,7 +12,8 @@ from click import BadParameter, get_current_context
 
 import betty
 from betty import generate, parse
-from betty.config import from_file, ConfigurationError
+from betty.config import from_file
+from betty.error import ExternalContextError
 from betty.functools import sync
 from betty.logging import CliHandler
 from betty.site import Site
@@ -24,22 +25,31 @@ class CommandProvider:
         raise NotImplementedError
 
 
+@contextmanager
+def catch_exceptions():
+    try:
+        yield
+    except Exception as e:
+        logger = logging.getLogger()
+        if isinstance(e, ExternalContextError):
+            logger.error(str(e))
+        else:
+            logger.exception(e)
+        sys.exit(1)
+
+
 def _command(f, is_site_command: bool):
     @wraps(f)
+    @catch_exceptions()
     @sync
     async def _command(*args, **kwargs):
-        try:
-            if is_site_command:
-                site = get_current_context().obj['site']
-                args = (site, *args)
-                async with site:
-                    await f(*args, **kwargs)
-            else:
+        if is_site_command:
+            site = get_current_context().obj['site']
+            args = (site, *args)
+            async with site:
                 await f(*args, **kwargs)
-        except Exception as e:
-            logger = logging.getLogger()
-            logger.exception(e)
-            sys.exit(1)
+        else:
+            await f(*args, **kwargs)
     return _command
 
 
@@ -76,11 +86,7 @@ async def _init_ctx(ctx, configuration_file_path: Optional[str] = None) -> None:
         with suppress(FileNotFoundError):
             with open(try_configuration_file_path) as f:
                 logger.info('Loading the site from %s...' % try_configuration_file_path)
-                try:
-                    configuration = from_file(f)
-                except ConfigurationError as e:
-                    logger.error(str(e))
-                    exit(2)
+                configuration = from_file(f)
             site = Site(configuration)
             async with site:
                 ctx.obj['commands']['generate'] = _generate
@@ -98,10 +104,12 @@ async def _init_ctx(ctx, configuration_file_path: Optional[str] = None) -> None:
 
 
 class _BettyCommands(click.MultiCommand):
+    @catch_exceptions()
     def list_commands(self, ctx):
         _init_ctx(ctx)
         return list(ctx.obj['commands'].keys())
 
+    @catch_exceptions()
     def get_command(self, ctx, cmd_name):
         _init_ctx(ctx)
         return ctx.obj['commands'][cmd_name]

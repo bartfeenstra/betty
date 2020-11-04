@@ -1,11 +1,12 @@
 import hashlib
+import logging
 import shutil
 from contextlib import suppress
 from os import path
 from os.path import dirname
-from subprocess import check_call
 from typing import Optional, List, Tuple, Type, Callable, Iterable, Any
 
+from betty import subprocess
 from betty.event import Event
 from betty.fs import DirectoryBackup
 from betty.html import HtmlProvider
@@ -58,11 +59,13 @@ class Maps(Plugin, HtmlProvider):
 
 def _do_render(build_directory_path: str, www_directory_path: str) -> None:
     # Install third-party dependencies.
-    check_call(['npm', 'install', '--production'], cwd=build_directory_path)
+    subprocess.run(['npm', 'install', '--production'], cwd=build_directory_path)
 
     # Run Webpack.
-    check_call(['npm', 'run', 'webpack'], cwd=build_directory_path)
+    subprocess.run(['npm', 'run', 'webpack'], cwd=build_directory_path)
     output_directory_path = path.join(path.dirname(build_directory_path), 'output')
     shutil.copytree(path.join(output_directory_path, 'images'), path.join(www_directory_path, 'images'))
     shutil.copy2(path.join(output_directory_path, 'maps.css'), path.join(www_directory_path, 'maps.css'))
     shutil.copy2(path.join(output_directory_path, 'maps.js'), path.join(www_directory_path, 'maps.js'))
+
+    logging.getLogger().info('Built the interactive maps.')

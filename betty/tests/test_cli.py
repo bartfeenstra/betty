@@ -93,7 +93,7 @@ class MainTest(TestCase):
 
             runner = CliRunner()
             result = runner.invoke(main, ('-c', config_file.name, '--help',))
-            self.assertEqual(2, result.exit_code)
+            self.assertEqual(1, result.exit_code)
 
     def test_with_discovered_configuration(self, _, __):
         with TemporaryDirectory() as betty_site_path:
