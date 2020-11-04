@@ -1,28 +1,28 @@
 {%- set event = event | default(resource) -%}
 {%- set embedded = embedded | default(False) -%}
 {%- set person_context = person_context | default(None) -%}
-{%- macro personLabel(person) -%}
+{%- macro person_label(person) -%}
     {% include 'label/person.html.j2' %}
 {%- endmacro -%}
-{%- set formattedEvent = event.type.label -%}
+{%- set formatted_event = event.type.label -%}
 {%- if event is identifiable and not embedded -%}
-    {% set formattedEvent = '<a href="' + event | url + '">' + formattedEvent + '</a>' %}
+    {% set formatted_event = '<a href="' + event | url + '">' + formatted_event + '</a>' %}
 {%- endif -%}
 {%- if event.description is not none -%}
-    {% set formattedEvent = formattedEvent + ' (' + event.description + ')' %}
+    {% set formatted_event = formatted_event + ' (' + event.description + ')' %}
 {%- endif -%}
 {%- set subjects = event.presences | selectattr('role', 'subject_role') | map(attribute='person') | list -%}
 {%- set non_context_subjects = subjects | reject('eq', person_context) | list -%}
-{%- set formatted_subjects = non_context_subjects | sort(attribute='name') | map(personLabel) | join(', ') %}
+{%- set formatted_subjects = non_context_subjects | sort(attribute='name') | map(person_label) | join(', ') %}
 {%- if non_context_subjects | length == 0 -%}
-    {{ formattedEvent }}
+    {{ formatted_event }}
 {%- else -%}
     {%- if person_context in subjects -%}
-        {% trans event = formattedEvent, subjects = formatted_subjects -%}
+        {% trans event = formatted_event, subjects = formatted_subjects -%}
             {{ event }} with {{ subjects }}
         {%- endtrans %}
     {%- else -%}
-        {% trans event = formattedEvent, subjects = formatted_subjects -%}
+        {% trans event = formatted_event, subjects = formatted_subjects -%}
             {{ event }} of {{ subjects }}
         {%- endtrans %}
     {%- endif -%}
