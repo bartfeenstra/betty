@@ -1,7 +1,7 @@
 from concurrent.futures.thread import ThreadPoolExecutor
-from unittest import TestCase
 
 from betty.concurrent import ExceptionRaisingExecutor
+from betty.tests import TestCase
 
 
 class ExceptionRaisingExecutorTest(TestCase):

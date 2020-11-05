@@ -1,5 +1,4 @@
 from tempfile import TemporaryFile, NamedTemporaryFile
-from unittest import TestCase
 from unittest.mock import Mock
 
 from parameterized import parameterized
@@ -7,6 +6,7 @@ from parameterized import parameterized
 from betty.ancestry import EventHandlingSetList, Person, Event, Place, File, Note, Presence, PlaceName, PersonName, \
     IdentifiableEvent, Subject, Birth, Enclosure
 from betty.locale import Date
+from betty.tests import TestCase
 
 
 class EventHandlingSetListTest(TestCase):

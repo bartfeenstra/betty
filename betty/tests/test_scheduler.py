@@ -3,10 +3,10 @@ from asyncio import sleep
 from concurrent.futures.thread import ThreadPoolExecutor
 from os import path
 from tempfile import TemporaryDirectory
-from unittest import TestCase
 
 from betty.functools import sync
 from betty.scheduler import ExecutorScheduler, JoiningError
+from betty.tests import TestCase
 
 
 def _executor_scheduler_test_task(carrier_file_path: str, *args, **kwargs):

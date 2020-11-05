@@ -1,5 +1,4 @@
 from tempfile import TemporaryDirectory
-from unittest import TestCase
 
 from parameterized import parameterized
 
@@ -8,6 +7,7 @@ from betty.config import Configuration, LocaleConfiguration
 from betty.functools import sync
 from betty.search import Index
 from betty.site import Site
+from betty.tests import TestCase
 
 
 class IndexTest(TestCase):

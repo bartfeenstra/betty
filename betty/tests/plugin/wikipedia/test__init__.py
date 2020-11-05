@@ -1,8 +1,10 @@
 from tempfile import TemporaryDirectory
 from time import sleep
 from typing import Tuple, Optional
-from unittest import TestCase
 from unittest.mock import patch, call
+
+from betty.tests import TestCase
+
 try:
     from unittest.mock import AsyncMock
 except ImportError:

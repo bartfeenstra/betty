@@ -2,7 +2,6 @@ from json import dump
 from os import path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import Callable, Dict
-from unittest import TestCase
 from unittest.mock import patch
 
 import click
@@ -11,7 +10,7 @@ from click.testing import CliRunner
 import betty
 from betty import os
 from betty.plugin import Plugin
-from betty.tests import patch_cache
+from betty.tests import patch_cache, TestCase
 
 try:
     from unittest.mock import AsyncMock

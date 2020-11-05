@@ -1,6 +1,5 @@
 import gettext
 from tempfile import TemporaryDirectory
-from unittest import TestCase
 from unittest.mock import patch, ANY
 
 from betty.ancestry import Ancestry, Person, File, Source, Citation, PersonName, Presence, Event, IdentifiableEvent, \
@@ -11,6 +10,7 @@ from betty.parse import parse
 from betty.plugin.anonymizer import Anonymizer, anonymize, anonymize_person, anonymize_event, anonymize_file, \
     anonymize_citation, anonymize_source, AnonymousSource, AnonymousCitation
 from betty.site import Site
+from betty.tests import TestCase
 
 
 class AnonymizeTest(TestCase):

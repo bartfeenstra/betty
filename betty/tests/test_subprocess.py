@@ -1,7 +1,7 @@
-from subprocess import CompletedProcess
-from unittest import TestCase
+from subprocess import CompletedProcess, CalledProcessError
 
 from betty import subprocess
+from betty.tests import TestCase
 
 
 class RunTest(TestCase):
@@ -10,5 +10,5 @@ class RunTest(TestCase):
         self.assertIsInstance(process, CompletedProcess)
 
     def test_with_errors(self):
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(CalledProcessError):
             subprocess.run(['false'])

@@ -1,7 +1,6 @@
 from datetime import datetime
 from tempfile import TemporaryDirectory
 from typing import Optional
-from unittest import TestCase
 
 from parameterized import parameterized
 
@@ -13,6 +12,7 @@ from betty.locale import Date, DateRange
 from betty.parse import parse
 from betty.plugin.privatizer import Privatizer, privatize_event, privatize_source, privatize_citation, privatize_person
 from betty.site import Site
+from betty.tests import TestCase
 
 
 def _expand_person(generation: int):

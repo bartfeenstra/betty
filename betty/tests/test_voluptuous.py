@@ -1,10 +1,10 @@
 from os import path
-from unittest import TestCase
 
 from parameterized import parameterized
 from voluptuous import Invalid
 
 from betty import os
+from betty.tests import TestCase
 from betty.voluptuous import Path, Importable
 
 
