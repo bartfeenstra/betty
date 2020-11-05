@@ -54,7 +54,7 @@ jobs:
 
       - name: Install APT dependencies
         if: startsWith(runner.os, 'Linux')
-        run: sudo apt-get install libxml2-dev
+        run: sudo apt-get install libxml2-dev libxslt1-dev
 
       - name: Build the development environment
         run: |
