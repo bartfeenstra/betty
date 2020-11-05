@@ -1,6 +1,6 @@
 # Betty 👵
 
-[![codecov](https://codecov.io/gh/bartfeenstra/betty/branch/master/graph/badge.svg)](https://codecov.io/gh/bartfeenstra/betty)
+![Tests](https://github.com/bartfeenstra/betty/workflows/Test/badge.svg) [![codecov](https://codecov.io/gh/bartfeenstra/betty/branch/master/graph/badge.svg)](https://codecov.io/gh/bartfeenstra/betty)
 
 Betty is a static site generator for [Gramps](https://gramps-project.org/) and
 [GEDCOM](https://en.wikipedia.org/wiki/GEDCOM) family trees.
