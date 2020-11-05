@@ -37,6 +37,7 @@ secure**.
 ### Requirements
 - **Python 3.6+**
 - Node.js 10+ (optional)
+- Linux, Mac OS, or Windows
 
 ### Instructions
 Run `pip install betty` to install the latest stable release.
