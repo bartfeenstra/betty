@@ -67,6 +67,7 @@ jobs:
       - name: Build the development environment
         run: |
           ./bin/build-dev
+        shell: bash
 
       - name: Get the pip cache directory path
         id: pip-cache
@@ -97,6 +98,7 @@ jobs:
       - name: Run the tests
         run: |
           ./bin/test
+        shell: bash
 
       - name: Upload code coverage
         uses: codecov/codecov-action@v1
