@@ -52,6 +52,10 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
+      - name: Install APT dependencies
+        if: startsWith(runner.os, 'Linux')
+        run: apt-get install libxml2-dev
+
       - name: Build the development environment
         run: |
           ./bin/build-dev
