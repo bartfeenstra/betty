@@ -5,7 +5,6 @@ import os
 import re
 import warnings
 from contextlib import suppress
-from itertools import takewhile
 from os.path import join
 from typing import Union, Dict, Type, Optional, Callable, Iterable
 from urllib.parse import urlparse
@@ -131,7 +130,6 @@ class BettyEnvironment(Environment):
         self.filters['map'] = _filter_map
         self.filters['flatten'] = _filter_flatten
         self.filters['walk'] = _filter_walk
-        self.filters['selectwhile'] = _filter_selectwhile
         self.filters['locale_get_data'] = lambda locale: Locale.parse(
             locale, '-')
         self.filters['negotiate_localizeds'] = _filter_negotiate_localizeds
@@ -165,7 +163,7 @@ class BettyEnvironment(Environment):
         self.tests['identifiable'] = lambda x: isinstance(x, Identifiable)
         self.tests['has_links'] = lambda x: isinstance(x, HasLinks)
         self.tests['has_files'] = lambda x: isinstance(x, HasFiles)
-        self.tests['startswith'] = str.startswith
+        self.tests['starts_with'] = str.startswith
         self.tests['subject_role'] = lambda x: isinstance(x, Subject)
         self.tests['witness_role'] = lambda x: isinstance(x, Witness)
         self.tests['date_range'] = lambda x: isinstance(x, DateRange)
@@ -281,20 +279,6 @@ async def _filter_map(*args, **kwargs):
     if seq:
         async for item in asynciter(seq):
             yield await auto_await(func(item))
-
-
-@contextfilter
-def _filter_selectwhile(context, seq, *args, **kwargs):
-    try:
-        name = args[0]
-        args = args[1:]
-
-        def func(item):
-            return context.environment.call_test(name, item, args, kwargs)
-    except LookupError:
-        func = bool
-    if seq:
-        yield from takewhile(func, seq)
 
 
 async def _filter_file(site: Site, file: File) -> str:
