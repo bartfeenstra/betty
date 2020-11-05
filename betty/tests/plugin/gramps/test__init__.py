@@ -1,7 +1,6 @@
 from os.path import join, dirname, abspath
 from tempfile import TemporaryDirectory, NamedTemporaryFile
 from typing import Optional
-from unittest import TestCase
 
 from parameterized import parameterized
 
@@ -12,12 +11,14 @@ from betty.locale import Date
 from betty.parse import parse
 from betty.plugin.gramps import parse_xml, Gramps
 from betty.site import Site
+from betty.tests import TestCase
 
 
 class ParseXmlTest(TestCase):
     @classmethod
     @sync
     async def setUpClass(cls) -> None:
+        TestCase.setUpClass()
         # @todo Convert each test method to use self._parse(), so we can remove this shared XML file.
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://example.com')

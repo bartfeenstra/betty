@@ -1,7 +1,6 @@
-from unittest import TestCase
-
 from betty.functools import sync
 from betty.lock import Locks, AcquiredError
+from betty.tests import TestCase
 
 
 class LocksTest(TestCase):

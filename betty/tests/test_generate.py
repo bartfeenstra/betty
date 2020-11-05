@@ -2,7 +2,6 @@ import json as stdjson
 from os import makedirs, path
 from os.path import join, exists
 from tempfile import TemporaryDirectory, NamedTemporaryFile
-from unittest import TestCase
 
 import html5lib
 from lxml import etree
@@ -14,6 +13,7 @@ from betty.config import Configuration, LocaleConfiguration
 from betty.functools import sync
 from betty.generate import generate
 from betty.site import Site
+from betty.tests import TestCase
 
 
 class GenerateTestCase(TestCase):

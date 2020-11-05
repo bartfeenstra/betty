@@ -1,11 +1,11 @@
 from typing import Any
-from unittest import TestCase
 
 from parameterized import parameterized
 
 from betty.ancestry import Person, Place, File, Source, Identifiable, PlaceName, IdentifiableEvent, \
     IdentifiableSource, IdentifiableCitation, Death
 from betty.config import Configuration, LocaleConfiguration
+from betty.tests import TestCase
 from betty.url import LocalizedPathUrlGenerator, IdentifiableResourceUrlGenerator, SiteUrlGenerator
 
 

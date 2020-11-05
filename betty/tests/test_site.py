@@ -1,5 +1,4 @@
 from typing import Dict, List, Tuple, Type, Callable, Set
-from unittest import TestCase
 
 from voluptuous import Schema, Required
 
@@ -10,6 +9,7 @@ from betty.functools import sync
 from betty.graph import CyclicGraphError
 from betty.plugin import Plugin
 from betty.site import Site
+from betty.tests import TestCase
 
 
 class TrackingEvent(Event):

@@ -1,8 +1,8 @@
-from unittest import TestCase
 from unittest.mock import Mock
 
 from betty.plugin import Plugin
 from betty.site import Site
+from betty.tests import TestCase
 
 
 class PluginTest(TestCase):

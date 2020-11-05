@@ -1,11 +1,11 @@
 import gettext
 from typing import List, Optional
-from unittest import TestCase
 
 from parameterized import parameterized
 
 from betty.locale import Localized, negotiate_localizeds, Date, format_datey, DateRange, Translations, negotiate_locale, \
     Datey
+from betty.tests import TestCase
 
 
 class DateTest(TestCase):

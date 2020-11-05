@@ -1,6 +1,5 @@
-from unittest import TestCase
-
 from betty.error import ExternalContextError
+from betty.tests import TestCase
 
 
 class ExternalContextErrorTest(TestCase):

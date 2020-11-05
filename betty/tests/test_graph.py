@@ -1,6 +1,5 @@
-from unittest import TestCase
-
 from betty.graph import tsort, CyclicGraphError
+from betty.tests import TestCase
 
 
 class TSortTest(TestCase):
