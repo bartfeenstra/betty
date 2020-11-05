@@ -39,8 +39,9 @@ jobs:
             node: '14'
 
     steps:
-      - uses: actions/checkout@v2
-          -
+      - name: Check out the source code
+        uses: actions/checkout@v2
+
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v2
         with:
@@ -51,7 +52,7 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Build the development encironment
+      - name: Build the development environment
         run: |
           ./bin/build-dev
 
