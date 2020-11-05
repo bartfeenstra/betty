@@ -1,5 +1,7 @@
 import json
 import subprocess
+import sys
+import unittest
 from contextlib import suppress
 from os import path
 from tempfile import TemporaryDirectory
@@ -17,6 +19,7 @@ CONTAINER_NAME = IMAGE_NAME = 'betty-test-nginx'
 RESOURCES_PATH = path.join(path.dirname(__file__), 'test_integration_assets')
 
 
+@unittest.skipIf(sys.platform == 'darwin', 'Mac OS does not natively support Docker.')
 class NginxTest(TestCase):
     class Container:
         def __init__(self, configuration_template_file_path: str):

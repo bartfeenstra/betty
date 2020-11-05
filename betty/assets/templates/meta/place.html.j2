@@ -1,18 +1,18 @@
 {%- set embedded = embedded | default(False) -%}
-{%- macro _enclosedByPlaceLabel(place) -%}
+{%- macro _enclosed_by_place_label(place) -%}
     {%- set enclosed_by = place.enclosed_by | negotiate_dateds(date_context | default(none)) -%}
     {%- if enclosed_by is not none and (place_context is not defined or place_context != enclosed_by.enclosed_by) -%}
         {%- with place=enclosed_by.enclosed_by -%}
             {%- include 'label/place.html.j2' -%}
         {%- endwith -%}
-        {%- set place_label = _enclosedByPlaceLabel(enclosed_by.enclosed_by) -%}
+        {%- set place_label = _enclosed_by_place_label(enclosed_by.enclosed_by) -%}
         {%- if place_label -%}
             , {{ place_label }}
         {%- endif -%}
     {%- endif -%}
 {%- endmacro -%}
 <div class="meta">
-    {%- set enclosed_by_label = _enclosedByPlaceLabel(place) -%}
+    {%- set enclosed_by_label = _enclosed_by_place_label(place) -%}
     {%- if enclosed_by_label -%}
         in {{ enclosed_by_label }}
     {%- endif -%}
