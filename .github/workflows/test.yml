@@ -56,6 +56,10 @@ jobs:
         if: startsWith(runner.os, 'Linux')
         run: sudo apt-get install libxml2-dev libxslt1-dev
 
+      - name: Install Homebrew dependencies
+        if: startsWith(runner.os, 'macOS')
+        run: brew install shellcheck
+
       - name: Build the development environment
         run: |
           ./bin/build-dev
