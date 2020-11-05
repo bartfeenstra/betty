@@ -9,6 +9,8 @@ from os.path import join
 from typing import Union, Dict, Type, Optional, Callable, Iterable
 from urllib.parse import urlparse
 
+import aiofiles
+from aiofiles import os as aiofilesos
 import pdf2image
 from PIL import Image
 from PIL.Image import DecompressionBombWarning
@@ -220,9 +222,9 @@ class Jinja2Renderer(Renderer):
                     resource = '/'.join(resource_parts[1:])
             data['page_resource'] = resource
         template = _root_loader.load(self._environment, file_path, self._environment.globals)
-        with open(file_destination_path, 'w') as f:
-            f.write(await template.render_async(data))
-        os.remove(file_path)
+        async with aiofiles.open(file_destination_path, 'w') as f:
+            await f.write(await template.render_async(data))
+        await aiofilesos.remove(file_path)
 
     async def render_tree(self, tree_path: str) -> None:
         await asyncio.gather(

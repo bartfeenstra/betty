@@ -1,13 +1,14 @@
 import asyncio
 import hashlib
+import json
 import logging
 import re
 from contextlib import suppress
-from json import load
 from os.path import dirname, join, getmtime
 from time import time
 from typing import Optional, Dict, Callable, List, Tuple, Type, Iterable, Set, Any
 
+import aiofiles
 import aiohttp
 from babel import parse_locale
 from jinja2 import contextfilter
@@ -83,16 +84,16 @@ class Retriever:
         response_data = None
         with suppress(FileNotFoundError):
             if getmtime(cache_file_path) + self._ttl > time():
-                with open(cache_file_path) as f:
-                    response_data = load(f)
+                async with aiofiles.open(cache_file_path) as f:
+                    response_data = json.loads(await f.read())
 
         if response_data is None:
             logger = logging.getLogger()
             try:
                 async with self._session.get(url) as response:
                     response_data = await response.json()
-                    with open(cache_file_path, 'w') as f:
-                        f.write(await response.text())
+                    async with aiofiles.open(cache_file_path, 'w') as f:
+                        await f.write(await response.text())
             except aiohttp.ClientError as e:
                 logger.warning('Could not successfully connect to Wikipedia at %s: %s' % (url, e))
             except ValueError as e:
@@ -100,8 +101,8 @@ class Retriever:
 
         if response_data is None:
             try:
-                with open(cache_file_path) as f:
-                    response_data = load(f)
+                async with aiofiles.open(cache_file_path) as f:
+                    response_data = json.loads(await f.read())
             except FileNotFoundError:
                 raise RetrievalError('Could neither fetch %s, nor find an old version in the cache.' % url)
 
