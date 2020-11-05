@@ -37,6 +37,10 @@ jobs:
             os: macos-latest
             python: '3.8'
             node: '14'
+          - name: 'Windows'
+            os: windows-latest
+            python: '3.8'
+            node: '14'
 
     steps:
       - name: Check out the source code
