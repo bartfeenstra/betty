@@ -36,7 +36,7 @@ class TestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        logging.disable()
+        logging.disable(logging.CRITICAL)
 
     @classmethod
     def tearDownClass(cls) -> None:
