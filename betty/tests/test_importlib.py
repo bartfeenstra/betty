@@ -1,8 +1,7 @@
-from unittest import TestCase
-
 from parameterized import parameterized
 
 from betty.importlib import import_any
+from betty.tests import TestCase
 
 
 class ImportAnyTest(TestCase):

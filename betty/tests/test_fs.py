@@ -2,10 +2,10 @@ import os
 from os import mkdir
 from os.path import join, dirname
 from tempfile import TemporaryDirectory
-from unittest import TestCase
 
 from betty.fs import iterfiles, FileSystem, hashfile
 from betty.functools import sync
+from betty.tests import TestCase
 
 
 class IterfilesTest(TestCase):

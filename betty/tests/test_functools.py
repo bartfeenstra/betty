@@ -1,6 +1,5 @@
-from unittest import TestCase
-
 from betty.functools import sync
+from betty.tests import TestCase
 
 
 class SyncTest(TestCase):

@@ -1,82 +1,72 @@
 from os.path import exists, join, dirname
-from tempfile import TemporaryDirectory
-from typing import List
-from unittest import TestCase
+from typing import List, Dict, Optional, Iterable, Type
 
 from parameterized import parameterized
 
-from betty.ancestry import File, LocalizedName, Subject, Attendee, Witness
+from betty.ancestry import File, PlaceName, Subject, Attendee, Witness, Dated, Resource, Person, Place
 from betty.config import Configuration, LocaleConfiguration
 from betty.functools import sync
-from betty.jinja2 import create_environment
-from betty.locale import Date
+from betty.locale import Date, Datey, DateRange, Localized
 from betty.plugin import Plugin
-from betty.site import Site
+from betty.tests import TemplateTestCase
 
 
-class FlattenTest(TestCase):
+class FlattenTest(TemplateTestCase):
     @parameterized.expand([
         ('', '{{ [] | flatten | join(", ") }}'),
         ('', '{{ [[], [], []] | flatten | join(", ") }}'),
         ('kiwi, apple, banana',
          '{{ [["kiwi"], ["apple"], ["banana"]] | flatten | join(", ") }}'),
     ])
-    def test(self, expected, template):
-        with TemporaryDirectory() as www_directory_path:
-            environment = create_environment(
-                Site(Configuration(www_directory_path, 'https://example.com')))
-            self.assertEquals(
-                expected, environment.from_string(template).render_tree())
+    @sync
+    async def test(self, expected, template):
+        async with self._render(template_string=template) as (actual, _):
+            self.assertEquals(expected, actual)
 
 
-class WalkData:
-    def __init__(self, label, children=None):
-        self._label = label
-        self.children = children or []
+class WalkTest(TemplateTestCase):
+    class WalkData:
+        def __init__(self, label, children=None):
+            self._label = label
+            self.children = children or []
 
-    def __str__(self):
-        return self._label
+        def __str__(self):
+            return self._label
 
-
-class WalkTest(TestCase):
     @parameterized.expand([
         ('', '{{ data | walk("children") | join }}', WalkData('parent')),
         ('child1, child1child1, child2', '{{ data | walk("children") | join(", ") }}',
          WalkData('parent', [WalkData('child1', [WalkData('child1child1')]), WalkData('child2')])),
     ])
-    def test(self, expected, template, data):
-        with TemporaryDirectory() as www_directory_path:
-            environment = create_environment(
-                Site(Configuration(www_directory_path, 'https://example.com')))
-            self.assertEquals(expected, environment.from_string(
-                template).render_tree(data=data))
+    @sync
+    async def test(self, expected, template, data):
+        async with self._render(template_string=template, data={
+            'data': data,
+        }) as (actual, _):
+            self.assertEquals(expected, actual)
 
 
-class ParagraphsTest(TestCase):
+class ParagraphsTest(TemplateTestCase):
     @parameterized.expand([
         ('<p></p>', '{{ "" | paragraphs }}'),
         ('<p>Apples <br>\n and <br>\n oranges</p>',
          '{{ "Apples \n and \n oranges" | paragraphs }}'),
     ])
-    def test(self, expected, template):
-        with TemporaryDirectory() as www_directory_path:
-            environment = create_environment(
-                Site(Configuration(www_directory_path, 'https://example.com')))
-            self.assertEquals(
-                expected, environment.from_string(template).render_tree())
+    @sync
+    async def test(self, expected, template):
+        async with self._render(template_string=template) as (actual, _):
+            self.assertEquals(expected, actual)
 
 
-class FormatDegreesTest(TestCase):
+class FormatDegreesTest(TemplateTestCase):
     @parameterized.expand([
         ('0° 0&#39; 0&#34;', '{{ 0 | format_degrees }}'),
         ('52° 22&#39; 1&#34;', '{{ 52.367 | format_degrees }}'),
     ])
-    def test(self, expected, template):
-        with TemporaryDirectory() as www_directory_path:
-            environment = create_environment(
-                Site(Configuration(www_directory_path, 'https://example.com')))
-            self.assertEquals(
-                expected, environment.from_string(template).render_tree())
+    @sync
+    async def test(self, expected, template):
+        async with self._render(template_string=template) as (actual, _):
+            self.assertEquals(expected, actual)
 
 
 class MapData:
@@ -84,7 +74,7 @@ class MapData:
         self.label = label
 
 
-class MapTest(TestCase):
+class MapTest(TemplateTestCase):
     @parameterized.expand([
         ('kiwi, apple, banana', '{{ data | map(attribute="label") | join(", ") }}',
          [MapData('kiwi'), MapData('apple'), MapData('banana')]),
@@ -92,203 +82,233 @@ class MapTest(TestCase):
          '{% macro print_string(value) %}{% if value is none %}None{% else %}{{ value }}{% endif %}{% endmacro %}{{ ["kiwi", None, "apple", None, "banana"] | map(print_string) | join(", ") }}',
          {}),
     ])
-    def test(self, expected, template, data):
-        with TemporaryDirectory() as www_directory_path:
-            environment = create_environment(
-                Site(Configuration(www_directory_path, 'https://example.com')))
-            self.assertEquals(expected, environment.from_string(
-                template).render_tree(data=data))
+    @sync
+    async def test(self, expected, template, data):
+        async with self._render(template_string=template, data={
+            'data': data,
+        }) as (actual, _):
+            self.assertEquals(expected, actual)
 
 
-class TakewhileTest(TestCase):
-    @parameterized.expand([
-        ('', '{{ [] | takewhile("ne", None) | join(", ") }}'),
-        ('kiwi, apple',
-         '{{ ["kiwi", "apple", None, "banana", None] | takewhile | join(", ") }}'),
-        ('kiwi, apple',
-         '{{ ["kiwi", "apple", None, "banana", None] | takewhile("ne", None) | join(", ") }}'),
-    ])
-    def test(self, expected, template):
-        with TemporaryDirectory() as www_directory_path:
-            environment = create_environment(
-                Site(Configuration(www_directory_path, 'https://example.com')))
-            self.assertEquals(
-                expected, environment.from_string(template).render_tree())
-
-
-class FileTest(TestCase):
+class FileTest(TemplateTestCase):
     @parameterized.expand([
         ('/file/F1.py', '{{ file | file }}', File('F1', __file__)),
         ('/file/F1.py:/file/F1.py',
          '{{ file | file }}:{{ file | file }}', File('F1', __file__)),
     ])
-    def test(self, expected, template, file):
-        with TemporaryDirectory() as output_directory_path:
-            configuration = Configuration(
-                output_directory_path, 'https://example.com')
-            environment = create_environment(Site(configuration))
-            actual = environment.from_string(template).render_tree(file=file)
+    @sync
+    async def test(self, expected, template, file):
+        async with self._render(template_string=template, data={
+            'file': file,
+        }) as (actual, site):
             self.assertEquals(expected, actual)
             for file_path in actual.split(':'):
-                self.assertTrue(
-                    exists(join(configuration.www_directory_path, file_path[1:])))
+                self.assertTrue(exists(join(site.configuration.www_directory_path, file_path[1:])))
 
 
-image_path = join(dirname(dirname(__file__)), 'assets',
-                  'public', 'static', 'betty-512x512.png')
+class ImageTest(TemplateTestCase):
+    image_path = join(dirname(dirname(__file__)), 'assets', 'public', 'static', 'betty-512x512.png')
 
-
-class ImageTest(TestCase):
     @parameterized.expand([
         ('/file/F1-99x-.png',
-         '{{ file | image(width=99) }}', File('F1', image_path)),
+         '{{ file | image(width=99) }}', File('F1', image_path, media_type='image/png')),
         ('/file/F1--x99.png',
-         '{{ file | image(height=99) }}', File('F1', image_path)),
+         '{{ file | image(height=99) }}', File('F1', image_path, media_type='image/png')),
         ('/file/F1-99x99.png',
-         '{{ file | image(width=99, height=99) }}', File('F1', image_path)),
+         '{{ file | image(width=99, height=99) }}', File('F1', image_path, media_type='image/png')),
         ('/file/F1-99x99.png:/file/F1-99x99.png',
-         '{{ file | image(width=99, height=99) }}:{{ file | image(width=99, height=99) }}', File('F1', image_path)),
+         '{{ file | image(width=99, height=99) }}:{{ file | image(width=99, height=99) }}', File('F1', image_path, media_type='image/png')),
     ])
-    def test(self, expected, template, file):
-        with TemporaryDirectory() as output_directory_path:
-            configuration = Configuration(
-                output_directory_path, 'https://example.com')
-            environment = create_environment(Site(configuration))
-            actual = environment.from_string(template).render_tree(file=file)
+    @sync
+    async def test(self, expected, template, file):
+        async with self._render(template_string=template, data={
+            'file': file,
+        }) as (actual, site):
             self.assertEquals(expected, actual)
             for file_path in actual.split(':'):
-                self.assertTrue(
-                    exists(join(configuration.www_directory_path, file_path[1:])))
+                self.assertTrue(exists(join(site.configuration.www_directory_path, file_path[1:])))
 
 
 class TestPlugin(Plugin):
     pass
 
 
-class PluginsTest(TestCase):
-    def test_with_unknown_plugin_module(self):
-        with TemporaryDirectory() as www_directory_path:
-            environment = create_environment(
-                Site(Configuration(www_directory_path, 'https://example.com')))
-            template = '{% if "betty.UnknownModule.Plugin" in plugins %}true{% else %}false{% endif %}'
-            self.assertEquals(
-                'false', environment.from_string(template).render_tree())
+class PluginsTest(TemplateTestCase):
+    @sync
+    async def test_with_unknown_plugin_module(self):
+        template = '{% if "betty.UnknownModule.Plugin" in plugins %}true{% else %}false{% endif %}'
+        async with self._render(template_string=template) as (actual, _):
+            self.assertEquals('false', actual)
 
-    def test_with_unknown_plugin_class(self):
-        with TemporaryDirectory() as www_directory_path:
-            environment = create_environment(
-                Site(Configuration(www_directory_path, 'https://example.com')))
-            template = '{% if "betty.UnknownPlugin" in plugins %}true{% else %}false{% endif %}'
-            self.assertEquals(
-                'false', environment.from_string(template).render_tree())
+    @sync
+    async def test_with_unknown_plugin_class(self):
+        template = '{% if "betty.UnknownPlugin" in plugins %}true{% else %}false{% endif %}'
+        async with self._render(template_string=template) as (actual, _):
+            self.assertEquals('false', actual)
 
-    def test_with_disabled_plugin(self):
-        with TemporaryDirectory() as www_directory_path:
-            environment = create_environment(
-                Site(Configuration(www_directory_path, 'https://example.com')))
-            template = '{% if "' + TestPlugin.__module__ + \
-                '.TestPlugin" in plugins %}true{% else %}false{% endif %}'
-            self.assertEquals(
-                'false', environment.from_string(template).render_tree())
+    @sync
+    async def test_with_disabled_plugin(self):
+        template = '{% if "' + TestPlugin.__module__ + '.TestPlugin" in plugins %}true{% else %}false{% endif %}'
+        async with self._render(template_string=template) as (actual, _):
+            self.assertEquals('false', actual)
 
-    def test_with_enabled_plugin(self):
-        with TemporaryDirectory() as www_directory_path:
-            configuration = Configuration(
-                www_directory_path, 'https://example.com')
+    @sync
+    async def test_with_enabled_plugin(self):
+        template = '{% if "' + TestPlugin.__module__ + '.TestPlugin" in plugins %}true{% else %}false{% endif %}'
+
+        def _update_configuration(configuration: Configuration) -> None:
             configuration.plugins[TestPlugin] = None
-            environment = create_environment(Site(configuration))
-            template = '{% if "' + TestPlugin.__module__ + \
-                '.TestPlugin" in plugins %}true{% else %}false{% endif %}'
-            self.assertEquals(
-                'true', environment.from_string(template).render_tree())
+        async with self._render(template_string=template, update_configuration=_update_configuration) as (actual, _):
+            self.assertEquals('true', actual)
 
 
-class FormatDateTest(TestCase):
+class FormatDateTest(TemplateTestCase):
     @sync
     async def test(self):
-        with TemporaryDirectory() as www_directory_path:
-            configuration = Configuration(
-                www_directory_path, 'https://example.com')
-            async with Site(configuration) as site:
-                environment = create_environment(site)
-                template = '{{ date | format_date }}'
-                date = Date(1970, 1, 1)
-                self.assertEquals('January 1, 1970', await environment.from_string(template).render_async(date=date))
+        template = '{{ date | format_date }}'
+        date = Date(1970, 1, 1)
+        async with self._render(template_string=template, data={
+            'date': date,
+        }) as (actual, _):
+            self.assertEquals('January 1, 1970', actual)
 
 
-class SortLocalizedsTest(TestCase):
+class SortLocalizedsTest(TemplateTestCase):
     class WithLocalizedNames:
-        def __init__(self, identifier, names: List[LocalizedName]):
+        def __init__(self, identifier, names: List[PlaceName]):
             self.id = identifier
             self.names = names
 
         def __repr__(self):
             return self.id
 
-    def test(self):
-        with TemporaryDirectory() as www_directory_path:
-            configuration = Configuration(
-                www_directory_path, 'https://example.com')
-            environment = create_environment(Site(configuration))
-            template = '{{ data | sort_localizeds(localized_attribute="names", sort_attribute="name") }}'
-            data = [
-                self.WithLocalizedNames('third', [
-                    LocalizedName('3', 'nl-NL'),
-                ]),
-                self.WithLocalizedNames('second', [
-                    LocalizedName('2', 'en'),
-                    LocalizedName('1', 'nl-NL'),
-                ]),
-                self.WithLocalizedNames('first', [
-                    LocalizedName('2', 'nl-NL'),
-                    LocalizedName('1', 'en-US'),
-                ]),
-            ]
-            self.assertEquals('[first, second, third]', environment.from_string(template).render_tree(data=data))
+    @sync
+    async def test(self):
+        template = '{{ data | sort_localizeds(localized_attribute="names", sort_attribute="name") }}'
+        data = [
+            self.WithLocalizedNames('third', [
+                PlaceName('3', 'nl-NL'),
+            ]),
+            self.WithLocalizedNames('second', [
+                PlaceName('2', 'en'),
+                PlaceName('1', 'nl-NL'),
+            ]),
+            self.WithLocalizedNames('first', [
+                PlaceName('2', 'nl-NL'),
+                PlaceName('1', 'en-US'),
+            ]),
+        ]
+        async with self._render(template_string=template, data={
+            'data': data,
+        }) as (actual, _):
+            self.assertEquals('[first, second, third]', actual)
 
-    def test_with_empty_iterable(self):
-        with TemporaryDirectory() as www_directory_path:
-            configuration = Configuration(
-                www_directory_path, 'https://example.com')
-            environment = create_environment(Site(configuration))
-            template = '{{ data | sort_localizeds(localized_attribute="names", sort_attribute="name") }}'
-            data = []
-            self.assertEquals('[]', environment.from_string(template).render_tree(data=data))
+    @sync
+    async def test_with_empty_iterable(self):
+        template = '{{ data | sort_localizeds(localized_attribute="names", sort_attribute="name") }}'
+        async with self._render(template_string=template, data={
+            'data': [],
+        }) as (actual, _):
+            self.assertEquals('[]', actual)
 
 
-class SelectLocalizedsTest(TestCase):
+class SelectLocalizedsTest(TemplateTestCase):
     @parameterized.expand([
         ('', 'en', []),
         ('Apple', 'en', [
-            LocalizedName('Apple', 'en')
+            PlaceName('Apple', 'en')
         ]),
         ('Apple', 'en', [
-            LocalizedName('Apple', 'en-US')
+            PlaceName('Apple', 'en-US')
         ]),
         ('Apple', 'en-US', [
-            LocalizedName('Apple', 'en')
+            PlaceName('Apple', 'en')
         ]),
         ('', 'nl', [
-            LocalizedName('Apple', 'en')
+            PlaceName('Apple', 'en')
         ]),
         ('', 'nl-NL', [
-            LocalizedName('Apple', 'en')
+            PlaceName('Apple', 'en')
         ]),
     ])
     @sync
-    async def test(self, expected: str, locale: str, data):
-        with TemporaryDirectory() as www_directory_path:
-            configuration = Configuration(
-                www_directory_path, 'https://example.com')
+    async def test(self, expected: str, locale: str, data: Iterable[Localized]):
+        template = '{{ data | select_localizeds | map(attribute="name") | join(", ") }}'
+
+        def _update_configuration(configuration: Configuration) -> None:
             configuration.locales.clear()
             configuration.locales[locale] = LocaleConfiguration(locale)
-            async with Site(configuration) as site:
-                environment = create_environment(site)
-                template = '{{ data | select_localizeds | map(attribute="name") | join(", ") }}'
-                self.assertEquals(expected, await environment.from_string(template).render_async(data=data))
+        async with self._render(template_string=template, data={
+            'data': data,
+        }, update_configuration=_update_configuration) as (actual, _):
+            self.assertEquals(expected, actual)
 
 
-class IsSubjectRoleTest(TestCase):
+class SelectDatedsTest(TemplateTestCase):
+    class DatedDummy(Dated):
+        def __init__(self, value: str, date: Optional[Datey] = None):
+            Dated.__init__(self)
+            self._value = value
+            self.date = date
+
+        def __str__(self):
+            return self._value
+
+    @parameterized.expand([
+        ('Apple', {
+            'dateds': [
+                DatedDummy('Apple'),
+            ],
+            'date': None,
+        }),
+        ('Apple', {
+            'dateds': [
+                DatedDummy('Apple'),
+            ],
+            'date': Date(),
+        }),
+        ('Apple', {
+            'dateds': [
+                DatedDummy('Apple'),
+            ],
+            'date': Date(1970, 1, 1),
+        }),
+        ('', {
+            'dateds': [
+                DatedDummy('Apple', Date(1970, 1, 1)),
+            ],
+            'date': None,
+        }),
+        ('', {
+            'dateds': [
+                DatedDummy('Apple', Date(1970, 1, 1)),
+            ],
+            'date': Date(),
+        }),
+        ('Apple', {
+            'dateds': [
+                DatedDummy('Apple', Date(1970, 1, 1)),
+            ],
+            'date': Date(1970, 1, 1),
+        }),
+        ('Apple, Strawberry', {
+            'dateds': [
+                DatedDummy('Apple', Date(1971, 1, 1)),
+                DatedDummy('Strawberry', Date(1970, 1, 1)),
+                DatedDummy('Banana', Date(1969, 1, 1)),
+                DatedDummy('Orange', Date(1972, 12, 31)),
+            ],
+            'date': DateRange(Date(1970, 1, 1), Date(1971, 1, 1)),
+        }),
+    ])
+    @sync
+    async def test(self, expected: str, data: Dict):
+        template = '{{ dateds | select_dateds(date=date) | join(", ") }}'
+        async with self._render(template_string=template, data=data) as (actual, _):
+            self.assertEquals(expected, actual)
+
+
+class IsSubjectRoleTest(TemplateTestCase):
     @parameterized.expand([
         ('true', Subject()),
         ('false', Subject),
@@ -297,16 +317,14 @@ class IsSubjectRoleTest(TestCase):
     ])
     @sync
     async def test(self, expected, data) -> None:
-        with TemporaryDirectory() as www_directory_path:
-            configuration = Configuration(
-                www_directory_path, 'https://example.com')
-            async with Site(configuration) as site:
-                environment = create_environment(site)
-                template = '{% if data is subject_role %}true{% else %}false{% endif %}'
-                self.assertEquals(expected, await environment.from_string(template).render_async(data=data))
+        template = '{% if data is subject_role %}true{% else %}false{% endif %}'
+        async with self._render(template_string=template, data={
+            'data': data,
+        }) as (actual, _):
+            self.assertEquals(expected, actual)
 
 
-class IsWitnessRoleTest(TestCase):
+class IsWitnessRoleTest(TemplateTestCase):
     @parameterized.expand([
         ('true', Witness()),
         ('false', Witness),
@@ -315,10 +333,26 @@ class IsWitnessRoleTest(TestCase):
     ])
     @sync
     async def test(self, expected, data) -> None:
-        with TemporaryDirectory() as www_directory_path:
-            configuration = Configuration(
-                www_directory_path, 'https://example.com')
-            async with Site(configuration) as site:
-                environment = create_environment(site)
-                template = '{% if data is witness_role %}true{% else %}false{% endif %}'
-                self.assertEquals(expected, await environment.from_string(template).render_async(data=data))
+        template = '{% if data is witness_role %}true{% else %}false{% endif %}'
+        async with self._render(template_string=template, data={
+            'data': data,
+        }) as (actual, _):
+            self.assertEquals(expected, actual)
+
+
+class TestResourceTypeTest(TemplateTestCase):
+    @parameterized.expand([
+        ('true', Person, Person('P1')),
+        ('false', Person, Place('P1', [PlaceName('The Place')])),
+        ('true', Place, Place('P1', [PlaceName('The Place')])),
+        ('false', Place, Person('P1')),
+        ('false', Place, 999),
+        ('false', Person, object()),
+    ])
+    @sync
+    async def test(self, expected, resource_type: Type[Resource], data) -> None:
+        template = f'{{% if data is {resource_type.resource_type_name}_resource %}}true{{% else %}}false{{% endif %}}'
+        async with self._render(template_string=template, data={
+            'data': data,
+        }) as (actual, _):
+            self.assertEquals(expected, actual)

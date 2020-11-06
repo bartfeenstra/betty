@@ -1,8 +1,10 @@
 from tempfile import TemporaryDirectory
 from time import sleep
 from typing import Tuple, Optional
-from unittest import TestCase
 from unittest.mock import patch, call
+
+from betty.tests import TestCase
+
 try:
     from unittest.mock import AsyncMock
 except ImportError:
@@ -15,7 +17,6 @@ from parameterized import parameterized
 from betty.ancestry import Ancestry, Source, IdentifiableCitation, IdentifiableSource, Link
 from betty.config import Configuration, LocaleConfiguration
 from betty.functools import sync
-from betty.jinja2 import create_environment
 from betty.parse import parse
 from betty.plugin.wikipedia import Entry, Retriever, NotAnEntryError, parse_url, RetrievalError, Populator, Wikipedia
 from betty.site import Site
@@ -514,8 +515,7 @@ class WikipediaTest(TestCase):
                 configuration.cache_directory_path = cache_directory_path
                 configuration.plugins[Wikipedia] = None
                 async with Site(configuration) as site:
-                    environment = create_environment(site)
-                    actual = await environment.from_string(
+                    actual = await site.jinja2_environment.from_string(
                         '{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}').render_async(links=links)
         self.assertEquals(extract, actual)
 

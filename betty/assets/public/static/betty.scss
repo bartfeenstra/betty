@@ -1,5 +1,25 @@
 @import 'betty-variables';
 
+/**
+ * Utilities.
+ */
+.visually-hidden {
+  -webkit-clip-path: inset(50%);
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+/**
+ * The main page.
+ */
 html {
   height: 100%;
 }
@@ -8,9 +28,41 @@ body {
   background-color: #fff;
   color: #333;
   font-family: sans-serif;
-  height: 100%;
   margin: 0;
+  min-height: 100%;
   min-width: 300px;
+  padding-bottom: 5rem;
+  position: relative;
+  width: 100%;
+}
+
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+.has-overlay {
+  position: fixed;
+}
+
+#background-header {
+  background-position: center;
+  height: 9rem;
+  z-index: -1;
+}
+
+#background-footer {
+  background-position: bottom center;
+  bottom: 0;
+  height: 100%;
+  z-index: -2;
+}
+
+.background {
+  background-size: cover;
+  filter: blur(2px) grayscale(50%);
+  position: absolute;
+  width: 100%;
 }
 
 /*
@@ -34,15 +86,16 @@ h1 {
 h2 {
   font-weight: normal;
   font-size: 1.3rem;
+  margin-top: 3rem;
 }
 
 a {
   text-decoration: none;
-  color: #149988;
+  color: $link-inactive-color;
 }
 
 a:hover {
-  color: #2a615a;
+  color: $link-active-color;
 }
 
 dl,
@@ -68,6 +121,7 @@ address {
 
 .references {
   font-size: 0.9rem;
+  margin-top: 3rem;
 }
 
 .reference {
@@ -106,10 +160,45 @@ address {
   content: ". ";
 }
 
+.with-js {
+  .show {
+    &.show-shown {
+      .show-if-hidden {
+        display: none;
+      }
+
+      .show-if-shown {
+        display: inline;
+      }
+    }
+
+    .show-if-hidden {
+      display: inline;
+    }
+
+    .show-if-shown {
+      display: none;
+    }
+  }
+
+  .show-toggle {
+    color: $link-inactive-color;
+    cursor: pointer;
+    font-size: 0.8rem;
+    vertical-align: super;
+    white-space: nowrap;
+
+    &:hover {
+      color: $link-active-color;
+    }
+  }
+}
+
 /*
  * Entity lists.
  */
 .entities {
+  margin: 0;
   padding: 0;
 }
 
@@ -128,9 +217,10 @@ address {
  */
 
 footer {
-  background-color: #eee;
+  background-color: #fff;
   color: #777;
-  padding: 3rem 1rem;
+  margin-top: 5rem;
+  padding: 1rem;
 }
 
 /*
@@ -138,7 +228,7 @@ footer {
  */
 
 #content {
-  background-color: white;
+  background-color: #fff;
   clear: both;
   padding: 0 1rem 3rem 1rem;
   display: inline-block;
@@ -176,7 +266,7 @@ footer {
   }
 
   .meta dt::after {
-    content: ':';
+    content: ': ';
   }
 
   .meta dd {
@@ -195,6 +285,58 @@ footer {
 
 .aka .person-label {
   font-style: italic;
+}
+
+.family {
+  margin: 3rem 0;
+}
+
+@media (min-width: 768px) {
+  .family {
+    display: grid;
+  }
+
+  .family-description {
+    position: relative;
+  }
+
+  .family-description-content {
+    border-bottom: 0.3rem solid #f7f7f7;
+    position: relative;
+    top: 50%;
+    transform: translate(0, -50%);
+  }
+
+  .family:nth-child(even) {
+    grid-template-columns: 1fr 2fr;
+
+    .family-description {
+      border-right: 0.3rem solid #f7f7f7;
+    }
+
+    .family-description-content {
+      padding-right: 3em;
+      right: 0;
+      text-align: right;
+    }
+  }
+
+  .family:nth-child(odd) {
+    grid-template-columns: 2fr 1fr;
+
+    .family-description {
+      order: 1;
+      border-left: 0.3rem solid #f7f7f7;
+    }
+
+    .family-description-content {
+      padding-left: 3em;
+    }
+  }
+
+  .family-description p {
+    font-size: 1.2rem;
+  }
 }
 
 /*
@@ -254,11 +396,11 @@ figcaption {
   display: inline-block;
 }
 
-.file-previous {
+.file-extended-previous {
   float: left;
 }
 
-.file-next {
+.file-extended-next {
   float: right;
 }
 
@@ -280,10 +422,15 @@ figcaption {
   max-width: 100%;
 }
 
-.file-extended:target img {
+.file-extended:target .file-content {
   display: block;
   margin: auto;
-  max-height: calc(100vh - 3rem);
+  height: calc(100vh - 3rem);
+}
+
+.file-extended:target iframe {
+  height: 100%;
+  width: 100%;
 }
 
 .file-extended:target figcaption {
@@ -307,24 +454,24 @@ figcaption {
   background-position: center;
   background-repeat: no-repeat;
   display: block;
+  filter: grayscale(0.25);
   float: left;
   height: 3rem;
-  opacity: 0.7;
   text-indent: -999em;
   width: 3rem;
 }
 
 #site-title:hover {
-  opacity: 1;
+  filter: grayscale(0);
 }
 
 #nav-primary {
-  background-color: #fff;
   font-size: 1.1rem;
   height: 3rem;
 }
 
 .nav-primary-action {
+  background-color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
   display: block;
   float: right;
@@ -337,9 +484,14 @@ figcaption {
   width: 25%;
 }
 
+.nav-primary-expandable:hover .nav-primary-action {
+  background-color: #fff;
+  color: $link-active-color;
+}
+
 .nav-primary-expanded {
   background-color: #fff;
-  border-bottom: 0.5em pink solid;
+  border-bottom: 0.3em $interaction-active-color solid;
   display: none;
   left: 0;
   margin: 0;
@@ -352,11 +504,6 @@ figcaption {
 
 .nav-primary-expandable:hover .nav-primary-expanded {
   display: initial;
-}
-
-.nav-primary-expandable:hover .nav-primary-action {
-  color: white;
-  background-color: #f7f7f7;
 }
 
 .nav-secondary {
@@ -381,20 +528,20 @@ figcaption {
   background-color: #f7f7f7;
 }
 
-#nav-sections h2 {
+#nav-sections .nav-primary-action {
   background-image: url($menu-svg-url);
   background-position: center;
   background-repeat: no-repeat;
-  background-size: 2.5rem 2.5rem;
+  background-size: 2rem 2rem;
   text-indent: -999rem;
   width: 3rem;
 }
 
-#nav-locale h2 {
+#nav-locale .nav-primary-action {
   background-image: url($language-svg-url);
   background-position: center;
   background-repeat: no-repeat;
-  background-size: 2.5rem 2.5rem;
+  background-size: 2rem 2rem;
   text-indent: -999rem;
   width: 3rem;
 }
@@ -416,7 +563,7 @@ figcaption {
   }
 
   footer {
-    padding: 3rem;
+    margin: 5rem 3rem 0 3rem;
   }
 
   .nav-primary-expanded {
@@ -435,15 +582,16 @@ figcaption {
   #nav-sections .nav-primary-expanded {
     border: 0;
     display: initial;
+    z-index: 0;
   }
 
   #nav-sections .nav-secondary {
     border: 0;
     clear: both;
     display: block !important;
-    padding: 0 0 0 2rem;
+    padding: 0 0 0 3.5rem;
     position: absolute;
-    width: 100%;
+    width: calc(100% - 3.5rem);
   }
 
   #nav-sections .nav-secondary li {
@@ -451,9 +599,14 @@ figcaption {
   }
 
   #nav-sections .nav-secondary li a {
+    background-color: rgba(255, 255, 255, 0.9);
     float: left;
     line-height: 3rem;
     padding: 0 1em;
+  }
+
+  #nav-sections .nav-secondary li a:hover {
+    background-color: #fff;
   }
 }
 
@@ -465,42 +618,165 @@ kbd {
 }
 
 /**
+ * Overlays.
+ */
+
+// Elements with this class must provide their own background to hide the rest of the document.
+.overlay {
+  height: 100vh;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100vw;
+  z-index: 999999999;
+}
+
+.overlay-controls {
+  display: none;
+  position: absolute;
+  // Start from the top right, where the close action will be placed.
+  right: 0;
+  top: 0;
+}
+
+.overlay .overlay-controls {
+  display: block;
+}
+
+.overlay-control {
+  cursor: pointer;
+  display: block;
+  float: right;
+  height: 3rem;
+  text-indent: -999rem;
+  width: 3rem;
+}
+
+.overlay-close {
+  background-image: url($close-svg-url);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 2rem 2rem;
+}
+
+/**
  * Search.
  */
 #search {
+  display: none;
   float: left;
-  max-width: calc(100% - 9rem);
-  width: 30rem;
+  max-width: 30rem;
+  // Leave space for the site title and each of the two primary navigation actions.
+  width: calc(100% - 9rem);
 }
 
-#search-query {
-  -webkit-appearance: none;
-  border: 3px solid #eee;
-  color: #777;
-  display: inline;
-  height: 2rem;
-  margin-top: 0.5rem;
-  padding: 0 0.25rem;
+.with-js #search {
+  display: block;
+}
+
+#search.overlay {
+  background-color: #fff;
+  display: flex;
+  flex-flow: column;
+  max-width: none;
   width: 100%;
 }
 
-#search-query:focus {
-  border-color: #777;
-  color: #000;
+#search-query {
+  // Undo Safari's rounded corners.
+  -webkit-appearance: none;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 0.3rem solid #f7f7f7;
+  // Undo Safari's rounded corners.
+  border-radius: unset;
+  color: #777;
+  display: block;
+  float: left;
+  height: 2rem;
+  margin-top: 0.5rem;
+  padding: 0 0.25rem;
+  width: calc(100% - 2.5rem);
 }
 
-#search-results.nav-primary-expanded {
-  display: initial;
+#search label[for="search-query"] {
+  background-color: $interaction-inactive-color;
+  background-image: url($search-svg-url);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 1.5rem 1.5rem;
+  cursor: pointer;
+  display: block;
+  float: left;
+  height: 2rem;
+  margin-top: 0.5rem;
+  text-indent: -999em;
+  width: 2rem;
+}
+
+#search label[for="search-query"]:hover,
+#search.overlay label[for="search-query"] {
+  background-color: $interaction-active-color;
+}
+
+#search.overlay form {
+  margin-left: 3rem;
+  width: calc(100% - 5.5rem);
+}
+
+#search.overlay #search-query {
+  background-color: #fff;
+  border: none;
+  border-bottom: 0.3rem dotted #eee;
+  color: #000;
+  padding: 0.3rem 0.55rem 0 0.55rem;
+  width: calc(100% - 3rem);
+}
+
+#search-expanded {
+  display: none;
+}
+
+#search.overlay #search-expanded {
+  display: flex;
+  flex-flow: column;
+  height: calc(100% - 6rem);
 }
 
 #search-instructions {
   color: #777;
+  font-size: 0.9rem;
   padding-left: 1rem;
   padding-right: 1rem;
 }
 
 #search-instructions kbd {
   color: #000;
+}
+
+#search-results-twilight {
+  flex-grow: 1;
+  height: 100%;
+  position: relative;
+}
+
+#search-results-twilight::before {
+  background: linear-gradient(#fff, rgba(255, 255, 255, 0));
+  background-size: 3rem 10%;
+  background-repeat: repeat-x;
+  background-position: top;
+  bottom: 0;
+  content: '';
+  left: -3rem;
+  pointer-events: none;
+  position: absolute;
+  right: -3rem;
+  top: 0;
+}
+
+#search-results-container {
+  height: calc(100% - 3rem);
+  overflow: scroll;
+  padding-top: 3rem;
 }
 
 .nav-secondary li a.search-result-target {
@@ -521,6 +797,12 @@ kbd {
 }
 
 @media (min-width: 768px) {
+  #search.overlay form {
+    margin-left: 6rem;
+    margin-top: 3rem;
+    max-width: 30.5rem;
+  }
+
   #search-instructions {
     padding-left: 3rem;
     padding-right: 3rem;

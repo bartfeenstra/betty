@@ -36,17 +36,18 @@ SETUP = {
     ],
     'python_requires': '~= 3.6',
     'install_requires': [
-        'aiofiles ~= 0.5.0',
         'aiohttp ~= 3.6.2',
         'async-exit-stack ~= 1.0.0; python_version <= "3.6"',
+        'async_generator ~= 1.10; python_version <= "3.6"',
         'babel ~= 2.7.0',
         'click ~= 7.1.1',
         'geopy ~= 1.18.1',
-        'jinja2 ~= 2.10',
+        'jinja2 ~= 2.11.2',
         'jsonschema ~= 3.2.0',
         'libsass ~= 0.19.2',
         'lxml ~= 4.3.1',
         'markupsafe ~= 1.1.1',
+        'pdf2image ~= 1.14.0 ',
         'python-resize-image ~= 1.1.18',
         'pyyaml ~= 5.1.2',
         'voluptuous ~= 0.11.7',
@@ -82,7 +83,7 @@ SETUP = {
     ],
     'include_package_data': True,
     'package_data': {
-        'betty': glob(join(dirname(abspath(__file__)), 'betty', 'assets', '**'), recursive=True) + glob(join(dirname(abspath(__file__)), 'betty', 'plugins', '*', 'assets', '**'), recursive=True),
+        'betty': glob(join(dirname(abspath(__file__)), 'betty', 'assets', '**'), recursive=True) + glob(join(dirname(abspath(__file__)), 'betty', 'plugin', '*', 'assets', '**'), recursive=True),
     },
 }
 

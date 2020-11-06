@@ -38,10 +38,11 @@ def _clean_places(ancestry: Ancestry) -> None:
     places = list(ancestry.places.values())
 
     def _extend_place_graph(graph: Graph, enclosing_place: Place) -> None:
-        enclosed_places = enclosing_place.encloses
+        enclosures = enclosing_place.encloses
         # Ensure each place appears in the graph, even if they're anonymous.
         graph.setdefault(enclosing_place, set())
-        for enclosed_place in enclosed_places:
+        for enclosure in enclosures:
+            enclosed_place = enclosure.encloses
             seen_enclosed_place = enclosed_place in graph
             graph[enclosed_place].add(enclosing_place)
             if not seen_enclosed_place:

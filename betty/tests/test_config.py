@@ -3,7 +3,6 @@ from collections import OrderedDict
 from os.path import join
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import Any, Dict
-from unittest import TestCase
 
 import yaml
 from parameterized import parameterized
@@ -12,6 +11,7 @@ from voluptuous import Schema, Required
 from betty.config import from_file, Configuration, ConfigurationError, LocaleConfiguration, PluginsConfiguration
 from betty.plugin import Plugin
 from betty.site import Site
+from betty.tests import TestCase
 
 
 class NonConfigurablePlugin(Plugin):

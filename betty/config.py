@@ -5,7 +5,7 @@ from typing import Dict, Type, Optional, List, Callable
 
 import yaml
 from babel import parse_locale
-from voluptuous import Schema, All, Required, Invalid, IsDir, Any
+from voluptuous import Schema, All, Required, Invalid, IsDir, Any, Range
 
 from betty import _CACHE_DIRECTORY_PATH, os
 from betty.error import ExternalContextError
@@ -66,6 +66,13 @@ class PluginsConfiguration:
         return len(self._plugins_configuration)
 
 
+class ThemeConfiguration:
+    background_image_id: Optional[str]
+
+    def __init__(self):
+        self.background_image_id = None
+
+
 class Configuration:
     cache_directory_path: str
     content_negotiation: bool
@@ -75,6 +82,8 @@ class Configuration:
     author: Optional[str]
     plugins: PluginsConfiguration
     assets_directory_path: Optional[str]
+    theme: ThemeConfiguration
+    lifetime_threshold: int
 
     def __init__(self, output_directory_path: str, base_url: str):
         self.cache_directory_path = _CACHE_DIRECTORY_PATH
@@ -92,6 +101,8 @@ class Configuration:
         self.locales = OrderedDict()
         default_locale = 'en-US'
         self.locales[default_locale] = LocaleConfiguration(default_locale)
+        self.theme = ThemeConfiguration()
+        self.lifetime_threshold = 125
 
     @property
     def www_directory_path(self) -> str:
@@ -134,6 +145,15 @@ def _locales_configuration(configuration: List):
     return locales_configuration
 
 
+def _theme_configuration(config_dict: Dict) -> ThemeConfiguration:
+    theme_configuration = ThemeConfiguration()
+
+    for key, value in config_dict.items():
+        setattr(theme_configuration, key, value)
+
+    return theme_configuration
+
+
 def _configuration(config_dict: Dict) -> Configuration:
     configuration = Configuration(
         config_dict.pop('output'), config_dict.pop('base_url'))
@@ -146,16 +166,20 @@ def _configuration(config_dict: Dict) -> Configuration:
 
 _ConfigurationSchema = Schema(All({
     Required('output'): All(str, Path()),
-    'title': All(str),
+    'title': str,
     'author': str,
     'locales': All(list, _locales_configuration),
-    Required('base_url'): All(str),
-    'root_path': All(str),
-    'clean_urls': All(bool),
+    Required('base_url'): str,
+    'root_path': str,
+    'clean_urls': bool,
     'content_negotiation': bool,
     'mode': Any('development', 'production'),
     'assets_directory_path': All(str, IsDir(), Path()),
     'plugins': All(dict, lambda x: PluginsConfiguration({Importable()(plugin_type_name): plugin_configuration for plugin_type_name, plugin_configuration in x.items()})),
+    Required('theme', default=dict): All({
+        'background_image_id': str,
+    }, _theme_configuration),
+    'lifetime_threshold': All(int, Range(min=1)),
 }, _configuration))
 
 

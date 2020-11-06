@@ -1,24 +1,25 @@
 'use strict'
 
-const CleanWebpackPlugin = require('clean-webpack-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const path = require('path')
+const configuration = require('./webpack.config.json')
 
 module.exports = {
-  mode: '{{ site.configuration.mode }}',
+  mode: configuration.mode,
   entry: {
-    trees: path.resolve(__dirname, 'trees.js')
+    maps: path.resolve(__dirname, 'maps.js')
   },
   output: {
     path: path.resolve(__dirname, '..', 'output'),
     filename: '[name].js'
   },
   optimization: {
-    minimize: {% if site.configuration.mode == 'production' %}true{% else %}false{% endif %},
+    minimize: configuration.minimize,
     splitChunks: {
       cacheGroups: {
         styles: {
-          name: 'trees',
+          name: 'maps',
           // Group all CSS files into a single file.
           test: /\.css$/,
           chunks: 'all',
@@ -41,25 +42,35 @@ module.exports = {
         use: [MiniCssExtractPlugin.loader, 'css-loader']
       },
       {
-        test: /\.m?js$/,
-        exclude: /(node_modules|bower_components)/,
+        test: /\.js$/,
+        exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
           options: {
             presets: [
               [
-                '@babel/preset-env',
-                {
-                  targets: {
-                    ie: '11',
-                    ios: '9',
-                  },
-                },
-              ],
+                '@babel/preset-env', {
+                  debug: configuration.debug,
+                  useBuiltIns: 'usage',
+                  corejs: 3
+                }
+              ]
             ],
-            cacheDirectory: '{{ path.join(site.configuration.cache_directory_path, 'betty.plugin.trees.Trees', 'babel') }}',
-          },
-        },
+            cacheDirectory: configuration.cacheDirectory
+          }
+        }
+      },
+      // Bundle Leaflet images.
+      {
+        test: /.*\.png$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '/images/[hash].[ext]'
+            }
+          }
+        ]
       }
     ]
   }

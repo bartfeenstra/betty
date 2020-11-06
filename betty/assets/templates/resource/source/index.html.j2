@@ -4,14 +4,14 @@
 {% block page_content %}
     {% include 'meta/source.html.j2' %}
     {% set sources = [source] + source | walk('contains') | list %}
-    {% set haveFiles = sources %}
-    {% set haveFiles = haveFiles + sources | map(attribute='citations') | flatten | list %}
-    {% set files = haveFiles | map(attribute='files') | flatten | list | unique | list %}
+    {% set have_files = sources %}
+    {% set have_files = have_files + sources | map(attribute='citations') | flatten | list %}
+    {% set files = have_files | map(attribute='files') | flatten | list | unique | list %}
     {% if files | length > 0 %}
         <h2>{% trans %}Media{% endtrans %}</h2>
         {% include 'list-file.html.j2' %}
     {% endif %}
-    {% set facts = sources | map(attribute='citations') | flatten | map(attribute='facts') | flatten | select('resource') | list %}
+    {% set facts = sources | map(attribute='citations') | flatten | map(attribute='facts') | flatten | select('resource') | list | set | list %}
     {% if facts | length > 0 %}
         <h2>{% trans %}Facts{% endtrans %}</h2>
         <ul class="entities">

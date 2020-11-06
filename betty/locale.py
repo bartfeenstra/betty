@@ -1,6 +1,7 @@
 import calendar
 import datetime
 import gettext
+import operator
 import os
 from contextlib import suppress
 from functools import total_ordering
@@ -23,38 +24,23 @@ class IncompleteDateError(ValueError):
 
 @total_ordering
 class Date:
-    def __init__(self, year: Optional[int] = None, month: Optional[int] = None, day: Optional[int] = None):
-        self._year = year
-        self._month = month
-        self._day = day
-        self._fuzzy = False
+    year: Optional[int]
+    month: Optional[int]
+    day: Optional[int]
+    fuzzy: bool
+
+    def __init__(self, year: Optional[int] = None, month: Optional[int] = None, day: Optional[int] = None, fuzzy: bool = False):
+        self.year = year
+        self.month = month
+        self.day = day
+        self.fuzzy = fuzzy
 
     def __repr__(self):
         return '<%s.%s(%s, %s, %s)>' % (self.__class__.__module__, self.__class__.__name__, self.year, self.month, self.day)
 
     @property
-    def year(self) -> Optional[int]:
-        return self._year
-
-    @property
-    def month(self) -> Optional[int]:
-        return self._month
-
-    @property
-    def day(self) -> Optional[int]:
-        return self._day
-
-    @property
-    def fuzzy(self) -> bool:
-        return self._fuzzy
-
-    @fuzzy.setter
-    def fuzzy(self, fuzzy: bool) -> None:
-        self._fuzzy = fuzzy
-
-    @property
     def comparable(self) -> bool:
-        return self._year is not None
+        return self.year is not None
 
     @property
     def complete(self) -> bool:
@@ -79,59 +65,118 @@ class Date:
             day_start = day_end = self.day
         return DateRange(Date(self.year, month_start, day_start), Date(self.year, month_end, day_end))
 
-    def __lt__(self, other):
+    def _compare(self, other, comparator):
         if not isinstance(other, Date):
             return NotImplemented
         selfish = self
         if not selfish.comparable or not other.comparable:
             return NotImplemented
         if selfish.complete and other.complete:
-            return selfish.parts < other.parts
+            return comparator(selfish.parts, other.parts)
         if not other.complete:
-            other = Date.to_range(other)
+            other = other.to_range()
         if not selfish.complete:
             selfish = selfish.to_range()
-        return selfish < other
+        return comparator(selfish, other)
+
+    def __contains__(self, other):
+        if isinstance(other, Date):
+            return self == other
+        if isinstance(other, DateRange):
+            return self in other
+        raise TypeError('Expected to check a %s, but a %s was given' % (type(Datey), type(other)))
+
+    def __lt__(self, other):
+        return self._compare(other, operator.lt)
+
+    def __le__(self, other):
+        return self._compare(other, operator.le)
 
     def __eq__(self, other):
         if not isinstance(other, Date):
             return NotImplemented
-        selfish = self
-        if not selfish.comparable or not other.comparable:
-            return NotImplemented
-        if selfish.complete and other.complete:
-            return selfish.parts == other.parts
-        if not other.complete:
-            other = Date.to_range(other)
-        if not selfish.complete:
-            selfish = selfish.to_range()
-        return selfish == other
+        return self.parts == other.parts
+
+    def __ge__(self, other):
+        return self._compare(other, operator.ge)
+
+    def __gt__(self, other):
+        return self._compare(other, operator.gt)
 
 
 @total_ordering
 class DateRange:
     start: Optional[Date]
+    start_is_boundary: bool
     end: Optional[Date]
+    end_is_boundary: bool
 
-    def __init__(self, start: Optional[Date] = None, end: Optional[Date] = None):
+    def __init__(self, start: Optional[Date] = None, end: Optional[Date] = None, start_is_boundary: bool = False, end_is_boundary: bool = False):
         self.start = start
+        self.start_is_boundary = start_is_boundary
         self.end = end
+        self.end_is_boundary = end_is_boundary
 
     def __repr__(self):
-        return '%s.%s(%s, %s)' % (self.__class__.__module__, self.__class__.__name__, repr(self.start), repr(self.end))
+        return '%s.%s(%s, %s, start_is_boundary=%s, end_is_boundary=%s)' % (self.__class__.__module__, self.__class__.__name__, repr(self.start), repr(self.end), repr(self.start_is_boundary), repr(self.end_is_boundary))
 
     @property
     def comparable(self) -> bool:
         return self.start is not None and self.start.comparable or self.end is not None and self.end.comparable
 
-    def __lt__(self, other):
+    def __contains__(self, other):
         if not self.comparable:
+            return False
+
+        if isinstance(other, Date):
+            others = [other]
+        elif isinstance(other, DateRange):
+            if not other.comparable:
+                return False
+            others = []
+            if other.start is not None and other.start.comparable:
+                others.append(other.start)
+            if other.end is not None and other.end.comparable:
+                others.append(other.end)
+        else:
+            raise TypeError('Expected to check a %s, but a %s was given' % (type(Datey), type(other)))
+
+        if self.start is not None and self.end is not None:
+            if isinstance(other, DateRange) and (other.start is None or other.end is None):
+                if other.start is None:
+                    return self.start <= other.end or self.end <= other.end
+                if other.end is None:
+                    return self.start >= other.start or self.end >= other.start
+            for another in others:
+                if self.start <= another <= self.end:
+                    return True
+            if isinstance(other, DateRange):
+                for selfdate in [self.start, self.end]:
+                    if other.start <= selfdate <= other.end:
+                        return True
+
+        elif self.start is not None:
+            # Two date ranges with start dates only always overlap.
+            if isinstance(other, DateRange) and other.end is None:
+                return True
+
+            for other in others:
+                if self.start <= other:
+                    return True
+        elif self.end is not None:
+            # Two date ranges with end dates only always overlap.
+            if isinstance(other, DateRange) and other.start is None:
+                return True
+
+            for other in others:
+                if other <= self.end:
+                    return True
+
+    def __lt__(self, other):
+        if not isinstance(other, (Date, DateRange)):
             return NotImplemented
 
-        if not (isinstance(other, Date) or isinstance(other, DateRange)):
-            return NotImplemented
-
-        if not other.comparable:
+        if not self.comparable or not other.comparable:
             return NotImplemented
 
         self_has_start = self.start is not None and self.start.comparable
@@ -170,8 +215,7 @@ class DateRange:
 
         if not isinstance(other, DateRange):
             return NotImplemented
-
-        return (self.start, self.end) == (other.start, other.end)
+        return (self.start, self.end, self.start_is_boundary, self.end_is_boundary) == (other.start, other.end, other.start_is_boundary, other.end_is_boundary)
 
 
 Datey = Union[Date, DateRange]
@@ -217,15 +261,17 @@ def negotiate_locale(preferred_locale: str, available_locales: List[str]) -> Opt
             return available_locale
 
 
-def negotiate_localizeds(preferred_locale: str, localizeds: List[Localized]) -> Localized:
+def negotiate_localizeds(preferred_locale: str, localizeds: List[Localized]) -> Optional[Localized]:
     negotiated_locale = negotiate_locale(preferred_locale, [localized.locale for localized in localizeds if localized.locale is not None])
-    if negotiated_locale is None:
-        if len(localizeds) > 0:
-            return localizeds[0]
+    if negotiated_locale is not None:
+        for localized in localizeds:
+            if localized.locale == negotiated_locale:
+                return localized
     for localized in localizeds:
-        if localized.locale == negotiated_locale:
+        if localized.locale is None:
             return localized
-    raise ValueError('Cannot negotiate if there are no values.')
+    with suppress(IndexError):
+        return localizeds[0]
 
 
 def open_translations(locale: str, directory_path: str) -> Optional[gettext.GNUTranslations]:
@@ -244,59 +290,89 @@ def format_datey(date: Datey, locale: str) -> str:
     """
     try:
         if isinstance(date, Date):
-            return _format_date(date, locale)
-        return _format_date_range(date, locale)
+            return format_date(date, locale)
+        return format_date_range(date, locale)
     except IncompleteDateError:
         return _('unknown date')
 
 
-def _format_date(date: Date, locale: str) -> str:
-    formatted = _format_date_parts(date, locale)
-    if date.fuzzy:
-        formatted = _('Around %(date)s') % {
-            'date': formatted,
-        }
-    return formatted
+_FORMAT_DATE_FORMATTERS = {
+    (True,): lambda: _('around %(date)s'),
+    (False,): lambda: _('%(date)s'),
+}
+
+
+def format_date(date: Date, locale: str) -> str:
+    return _FORMAT_DATE_FORMATTERS[(date.fuzzy,)]() % {
+        'date': _format_date_parts(date, locale),
+    }
+
+
+_FORMAT_DATE_PARTS_FORMATTERS = {
+    (True, True, True): lambda: _('MMMM d, y'),
+    (True, True, False): lambda: _('MMMM, y'),
+    (True, False, False): lambda: _('y'),
+    (False, True, True): lambda: _('MMMM d'),
+    (False, True, False): lambda: _('MMMM'),
+}
 
 
 def _format_date_parts(date: Date, locale: str) -> str:
     if date is None:
         raise IncompleteDateError('This date is None.')
-    DATE_FORMATS = {
-        (True, True, True): _('MMMM d, y'),
-        (True, True, False): _('MMMM, y'),
-        (True, False, False): _('y'),
-        (False, True, True): _('MMMM d'),
-        (False, True, False): _('MMMM'),
-    }
     try:
-        format = DATE_FORMATS[tuple(map(lambda x: x is not None, date.parts))]
+        date_parts_format = _FORMAT_DATE_PARTS_FORMATTERS[tuple(map(lambda x: x is not None, date.parts))]()
     except KeyError:
         raise IncompleteDateError('This date does not have enough parts to be rendered.')
     parts = map(lambda x: 1 if x is None else x, date.parts)
-    return dates.format_date(datetime.date(*parts), format, Locale.parse(locale, '-'))
+    return dates.format_date(datetime.date(*parts), date_parts_format, Locale.parse(locale, '-'))
 
 
-def _format_date_range(date_range: DateRange, locale: str) -> str:
+_FORMAT_DATE_RANGE_FORMATTERS = {
+    (False, False, False, False): lambda: _('from %(start_date)s until %(end_date)s'),
+    (False, False, False, True): lambda: _('from %(start_date)s until sometime before %(end_date)s'),
+    (False, False, True, False): lambda: _('from %(start_date)s until around %(end_date)s'),
+    (False, False, True, True): lambda: _('from %(start_date)s until sometime before around %(end_date)s'),
+    (False, True, False, False): lambda: _('from sometime after %(start_date)s until %(end_date)s'),
+    (False, True, False, True): lambda: _('sometime between %(start_date)s and %(end_date)s'),
+    (False, True, True, False): lambda: _('from sometime after %(start_date)s until around %(end_date)s'),
+    (False, True, True, True): lambda: _('sometime between %(start_date)s and around %(end_date)s'),
+    (True, False, False, False): lambda: _('from around %(start_date)s until %(end_date)s'),
+    (True, False, False, True): lambda: _('from around %(start_date)s until sometime before %(end_date)s'),
+    (True, False, True, False): lambda: _('from around %(start_date)s until around %(end_date)s'),
+    (True, False, True, True): lambda: _('from around %(start_date)s until sometime before around %(end_date)s'),
+    (True, True, False, False): lambda: _('from sometime after around %(start_date)s until %(end_date)s'),
+    (True, True, False, True): lambda: _('sometime between around %(start_date)s and %(end_date)s'),
+    (True, True, True, False): lambda: _('from sometime after around %(start_date)s until around %(end_date)s'),
+    (True, True, True, True): lambda: _('sometime between around %(start_date)s and around %(end_date)s'),
+    (False, False, None, None): lambda: _('from %(start_date)s'),
+    (False, True, None, None): lambda: _('sometime after %(start_date)s'),
+    (True, False, None, None): lambda: _('from around %(start_date)s'),
+    (True, True, None, None): lambda: _('sometime after around %(start_date)s'),
+    (None, None, False, False): lambda: _('until %(end_date)s'),
+    (None, None, False, True): lambda: _('sometime before %(end_date)s'),
+    (None, None, True, False): lambda: _('until around %(end_date)s'),
+    (None, None, True, True): lambda: _('sometime before around %(end_date)s'),
+}
+
+
+def format_date_range(date_range: DateRange, locale: str) -> str:
+    formatter_configuration = ()
+    formatter_arguments = {}
+
     try:
-        formatted_start = _format_date_parts(date_range.start, locale)
+        formatter_arguments['start_date'] = _format_date_parts(date_range.start, locale)
+        formatter_configuration += (date_range.start.fuzzy, date_range.start_is_boundary)
     except IncompleteDateError:
-        formatted_start = None
+        formatter_configuration += (None, None)
+
     try:
-        formatted_end = _format_date_parts(date_range.end, locale)
+        formatter_arguments['end_date'] = _format_date_parts(date_range.end, locale)
+        formatter_configuration += (date_range.end.fuzzy, date_range.end_is_boundary)
     except IncompleteDateError:
-        formatted_end = None
-    if formatted_start is not None and formatted_end is not None:
-        return _('Between %(start)s and %(end)s') % {
-            'start': formatted_start,
-            'end': formatted_end,
-        }
-    if formatted_start is not None:
-        return _('After %(start)s') % {
-            'start': formatted_start,
-        }
-    if formatted_end is not None:
-        return _('Before %(end)s') % {
-            'end': formatted_end,
-        }
-    raise IncompleteDateError('This date range does not have enough parts to be rendered.')
+        formatter_configuration += (None, None)
+
+    if not formatter_arguments:
+        raise IncompleteDateError('This date range does not have enough parts to be rendered.')
+
+    return _FORMAT_DATE_RANGE_FORMATTERS[formatter_configuration]() % formatter_arguments

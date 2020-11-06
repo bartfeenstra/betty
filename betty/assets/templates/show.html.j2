@@ -1,0 +1,6 @@
+<span class="show">
+    <span class="show-content, show-if-hidden" aria-hidden="true">{{ content_if_hidden }}</span>
+    <span class="show-content, show-if-shown">{{ content_if_shown }}</span>
+    <span class="show-toggle show-if-hidden" aria-hidden="true">[{{ show_more_label | default(_('show more')) }}]</span>
+    <span class="show-toggle show-if-shown" aria-hidden="true">[{{ show_less_label | default(_('show less')) }}]</span>
+</span>

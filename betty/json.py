@@ -6,7 +6,7 @@ import jsonschema
 from geopy import Point
 from jsonschema import RefResolver
 
-from betty.ancestry import Place, Person, LocalizedName, Event, Described, HasLinks, HasCitations, Link, Dated, File, \
+from betty.ancestry import Place, Person, PlaceName, Event, Described, HasLinks, HasCitations, Link, Dated, File, \
     Note, PersonName, IdentifiableEvent, Identifiable, IdentifiableSource, IdentifiableCitation, HasMediaType, Resource, \
     PresenceRole, EventType
 from betty.locale import Date, DateRange, Localized
@@ -31,7 +31,7 @@ class JSONEncoder(stdjson.JSONEncoder):
         self._site = site
         self._locale = locale
         self._mappers = {
-            LocalizedName: self._encode_localized_name,
+            PlaceName: self._encode_localized_name,
             Place: self._encode_place,
             Point: self._encode_coordinates,
             Person: self._encode_person,
@@ -160,7 +160,7 @@ class JSONEncoder(stdjson.JSONEncoder):
             'longitude': coordinates.longitude,
         }
 
-    def _encode_localized_name(self, name: LocalizedName) -> Dict:
+    def _encode_localized_name(self, name: PlaceName) -> Dict:
         encoded = {
             'name': name.name,
         }
@@ -171,13 +171,15 @@ class JSONEncoder(stdjson.JSONEncoder):
         encoded = {
             '@context': {
                 'events': 'https://schema.org/event',
+                'enclosedBy': 'https://schema.org/containedInPlace',
                 'encloses': 'https://schema.org/containsPlace',
             },
             '@type': 'https://schema.org/Place',
             'id': place.id,
             'names': place.names,
             'events': [self._generate_url(event) for event in place.events],
-            'encloses': [self._generate_url(enclosed) for enclosed in place.encloses]
+            'enclosedBy': [self._generate_url(enclosure.enclosed_by) for enclosure in place.enclosed_by],
+            'encloses': [self._generate_url(enclosure.encloses) for enclosure in place.encloses],
         }
         self._encode_schema(encoded, 'place')
         self._encode_identifiable_resource(encoded, place)
@@ -185,9 +187,6 @@ class JSONEncoder(stdjson.JSONEncoder):
         if place.coordinates is not None:
             encoded['coordinates'] = place.coordinates
             encoded['@context']['coordinates'] = 'https://schema.org/geo'
-        if place.enclosed_by is not None:
-            encoded['enclosedBy'] = self._generate_url(place.enclosed_by)
-            encoded['@context']['enclosedBy'] = 'https://schema.org/containedInPlace'
         return encoded
 
     def _encode_person(self, person: Person) -> Dict:

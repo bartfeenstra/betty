@@ -1,32 +1,32 @@
-{%- import 'macro/citation.html.j2' as citationMacros -%}
+{%- import 'macro/citation.html.j2' as citation_macros -%}
 {%- set embedded = embedded | default(False) -%}
 {%- set citation_context = citation_context | default(none) -%}
 {%- set place_context = place_context | default(none) -%}
-{%- set formattedDate = '' -%}
+{%- set formatted_date = '' -%}
 {%- if event.date -%}
-    {%- set formattedDate = event.date | format_date -%}
+    {%- set formatted_date = event.date | format_date -%}
 {%- endif -%}
 
-{%- set formattedPlace = '' -%}
+{%- set formatted_place = '' -%}
 {%- if event.place and event.place != place_context -%}
-    {%- set formattedPlace -%}
-        {%- with place=event.place -%}
+    {%- set formatted_place -%}
+        {%- with place=event.place, date_context=event.date -%}
             {%- include 'label/place.html.j2' -%}
         {%- endwith -%}
     {%- endset -%}
 {%- endif -%}
 
-{%- if formattedDate and formattedPlace -%}
-    {%- trans date=formattedDate, place=formattedPlace -%}
+{%- if formatted_date and formatted_place -%}
+    {%- trans date=formatted_date, place=formatted_place -%}
         {{ date }} in {{ place }}
     {%- endtrans -%}
-{%- elif formattedPlace -%}
-    {%- trans place=formattedPlace -%}
+{%- elif formatted_place -%}
+    {%- trans place=formatted_place -%}
         in {{ place }}
     {%- endtrans -%}
 {%- else -%}
-    {{ formattedDate }}
+    {{ formatted_date }}
 {%- endif -%}
 {%- if not embedded -%}
-    {{ citationMacros.cite(event.citations | reject('eq', citation_context)) }}
+    {{ citation_macros.cite(event.citations | reject('eq', citation_context)) }}
 {%- endif -%}

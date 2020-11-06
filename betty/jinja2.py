@@ -1,32 +1,40 @@
 import asyncio
+import datetime
 import json as stdjson
 import os
 import re
-from itertools import takewhile
-from os.path import join, exists
+import warnings
+from contextlib import suppress
+from os.path import join
 from typing import Union, Dict, Type, Optional, Callable, Iterable
 from urllib.parse import urlparse
 
-from aiofiles import os as aioos
+import pdf2image
 from PIL import Image
+from PIL.Image import DecompressionBombWarning
 from babel import Locale
 from geopy import units
 from geopy.format import DEGREES_FORMAT
-from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter
+from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter, Template
 from jinja2.asyncsupport import auto_await
 from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.runtime import Macro, resolve_or_missing, StrictUndefined
-from jinja2.utils import htmlsafe_json_dumps, Namespace as Jinja2Namespace
+from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup
 from resizeimage import resizeimage
 
-from betty.ancestry import File, Citation, Identifiable, Resource, HasLinks, Subject, Witness
+from betty.ancestry import File, Citation, Identifiable, Resource, HasLinks, HasFiles, Subject, Witness, Dated, \
+    RESOURCE_TYPES
 from betty.config import Configuration
 from betty.fs import makedirs, hashfile, iterfiles
 from betty.functools import walk, asynciter
+from betty.html import HtmlProvider
 from betty.importlib import import_any
 from betty.json import JSONEncoder
-from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale
+from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange
+from betty.lock import AcquiredError
+from betty.media_type import MediaType
+from betty.path import extension
 from betty.plugin import Plugin
 from betty.render import Renderer, RenderArguments
 from betty.search import Index
@@ -81,114 +89,115 @@ class Jinja2Provider:
         return {}
 
 
-class HtmlProvider:
-    """
-    @todo This class has nothing to do with Jinja2, but placing it in the render module causes a circular dependency.
-    """
+class BettyEnvironment(Environment):
+    site: Site
 
-    @property
-    def css_paths(self) -> Iterable[str]:
-        return []
+    def __init__(self, site: Site):
+        template_directory_paths = [join(path, 'templates') for path in site.assets.paths]
 
-    @property
-    def js_paths(self) -> Iterable[str]:
-        return []
+        Environment.__init__(self,
+                             enable_async=True,
+                             loader=FileSystemLoader(template_directory_paths),
+                             undefined=StrictUndefined,
+                             autoescape=select_autoescape(['html']),
+                             trim_blocks=True,
+                             extensions=[
+                                 'jinja2.ext.do',
+                                 'jinja2.ext.i18n',
+                             ],
+                             )
+
+        self.site = site
+
+        if site.configuration.mode == 'development':
+            self.add_extension('jinja2.ext.debug')
+
+        def _gettext(*args, **kwargs):
+            return gettext(*args, **kwargs)
+
+        def _ngettext(*args, **kwargs):
+            return ngettext(*args, **kwargs)
+        self.install_gettext_callables(_gettext, _ngettext)
+        self.policies['ext.i18n.trimmed'] = True
+        self.globals['site'] = site
+        self.globals['locale'] = site.locale
+        today = datetime.date.today()
+        self.globals['today'] = Date(today.year, today.month, today.day)
+        self.globals['plugins'] = _Plugins(site.plugins)
+        self.globals['parse_url'] = urlparse
+        self.filters['parse_media_type'] = MediaType.from_string
+        self.filters['set'] = set
+        self.filters['map'] = _filter_map
+        self.filters['flatten'] = _filter_flatten
+        self.filters['walk'] = _filter_walk
+        self.filters['locale_get_data'] = lambda locale: Locale.parse(
+            locale, '-')
+        self.filters['negotiate_localizeds'] = _filter_negotiate_localizeds
+        self.filters['sort_localizeds'] = _filter_sort_localizeds
+        self.filters['select_localizeds'] = _filter_select_localizeds
+        self.filters['negotiate_dateds'] = _filter_negotiate_dateds
+        self.filters['select_dateds'] = _filter_select_dateds
+
+        # A filter to convert any value to JSON.
+        @contextfilter
+        def _filter_json(context, data, indent=None):
+            return stdjson.dumps(data, indent=indent,
+                                 cls=JSONEncoder.get_factory(site, resolve_or_missing(context, 'locale')))
+
+        self.filters['json'] = _filter_json
+
+        # Override Jinja2's built-in JSON filter, which escapes the JSON for use in HTML, to use Betty's own encoder.
+        @contextfilter
+        def _filter_tojson(context, data, indent=None):
+            return htmlsafe_json_dumps(data, indent=indent, dumper=lambda *args, **kwargs: _filter_json(context, *args, **kwargs))
+
+        self.filters['tojson'] = _filter_tojson
+        self.tests['resource'] = lambda x: isinstance(x, Resource)
+
+        def _build_test_resource_type(resource_type: Type[Resource]):
+            def _test_resource(x):
+                return isinstance(x, resource_type)
+            return _test_resource
+        for resource_type in RESOURCE_TYPES:
+            self.tests['%s_resource' % resource_type.resource_type_name] = _build_test_resource_type(resource_type)
+        self.tests['identifiable'] = lambda x: isinstance(x, Identifiable)
+        self.tests['has_links'] = lambda x: isinstance(x, HasLinks)
+        self.tests['has_files'] = lambda x: isinstance(x, HasFiles)
+        self.tests['starts_with'] = str.startswith
+        self.tests['subject_role'] = lambda x: isinstance(x, Subject)
+        self.tests['witness_role'] = lambda x: isinstance(x, Witness)
+        self.tests['date_range'] = lambda x: isinstance(x, DateRange)
+        self.filters['paragraphs'] = _filter_paragraphs
+
+        @contextfilter
+        def _filter_format_date(context, date: Datey):
+            locale = resolve_or_missing(context, 'locale')
+            return format_datey(date, locale)
+        self.filters['format_date'] = _filter_format_date
+        self.filters['format_degrees'] = _filter_format_degrees
+        self.globals['citer'] = _Citer()
+
+        @contextfilter
+        def _filter_url(context, resource, media_type=None, locale=None, **kwargs):
+            media_type = media_type if media_type else 'text/html'
+            locale = locale if locale else resolve_or_missing(context, 'locale')
+            return site.localized_url_generator.generate(resource, media_type, locale=locale, **kwargs)
+
+        self.filters['url'] = _filter_url
+        self.filters['static_url'] = site.static_url_generator.generate
+        self.filters['file'] = lambda *args: _filter_file(site, *args)
+        self.filters['image'] = lambda *args, **kwargs: _filter_image(
+            site, *args, **kwargs)
+        self.globals['search_index'] = lambda: Index(site).build()
+        self.globals['html_providers'] = list([plugin for plugin in site.plugins.values() if isinstance(plugin, HtmlProvider)])
+        self.globals['path'] = os.path
+        for plugin in site.plugins.values():
+            if isinstance(plugin, Jinja2Provider):
+                self.globals.update(plugin.globals)
+                self.filters.update(plugin.filters)
 
 
-class Namespace(Jinja2Namespace):
-    def __getattribute__(self, item):
-        # Fix https://github.com/pallets/jinja/issues/1180.
-        if '__class__' == item:
-            return object.__getattribute__(self, item)
-        return Jinja2Namespace.__getattribute__(self, item)
-
-
-def create_environment(site: Site) -> Environment:
-    template_directory_paths = list(
-        [join(path, 'templates') for path in site.assets.paths])
-    environment = Environment(
-        enable_async=True,
-        loader=FileSystemLoader(template_directory_paths),
-        undefined=StrictUndefined,
-        autoescape=select_autoescape(['html']),
-        trim_blocks=True,
-        extensions=[
-            'jinja2.ext.do',
-            'jinja2.ext.i18n',
-        ],
-    )
-
-    def _gettext(*args, **kwargs):
-        return gettext(*args, **kwargs)
-
-    def _ngettext(*args, **kwargs):
-        return ngettext(*args, **kwargs)
-    environment.install_gettext_callables(_gettext, _ngettext)
-    environment.policies['ext.i18n.trimmed'] = True
-    # Fix https://github.com/pallets/jinja/issues/1180.
-    environment.globals['namespace'] = Namespace
-    environment.globals['site'] = site
-    environment.globals['locale'] = site.locale
-    environment.globals['plugins'] = _Plugins(site.plugins)
-    environment.globals['urlparse'] = urlparse
-    environment.filters['map'] = _filter_map
-    environment.filters['flatten'] = _filter_flatten
-    environment.filters['walk'] = _filter_walk
-    environment.filters['takewhile'] = _filter_takewhile
-    environment.filters['locale_get_data'] = lambda locale: Locale.parse(
-        locale, '-')
-    environment.filters['negotiate_localizeds'] = _filter_negotiate_localizeds
-    environment.filters['sort_localizeds'] = _filter_sort_localizeds
-    environment.filters['select_localizeds'] = _filter_select_localizeds
-
-    # A filter to convert any value to JSON.
-    @contextfilter
-    def _filter_json(context, data, indent=None):
-        return stdjson.dumps(data, indent=indent,
-                             cls=JSONEncoder.get_factory(site, resolve_or_missing(context, 'locale')))
-
-    environment.filters['json'] = _filter_json
-
-    # Override Jinja2's built-in JSON filter, which escapes the JSON for use in HTML, to use Betty's own encoder.
-    @contextfilter
-    def _filter_tojson(context, data, indent=None):
-        return htmlsafe_json_dumps(data, indent=indent, dumper=lambda *args, **kwargs: _filter_json(context, *args, **kwargs))
-
-    environment.filters['tojson'] = _filter_tojson
-    environment.tests['resource'] = lambda x: isinstance(x, Resource)
-    environment.tests['identifiable'] = lambda x: isinstance(x, Identifiable)
-    environment.tests['has_links'] = lambda x: isinstance(x, HasLinks)
-    environment.tests['subject_role'] = lambda x: isinstance(x, Subject)
-    environment.tests['witness_role'] = lambda x: isinstance(x, Witness)
-    environment.filters['paragraphs'] = _filter_paragraphs
-
-    @contextfilter
-    def _filter_format_date(context, date: Datey):
-        locale = resolve_or_missing(context, 'locale')
-        return format_datey(date, locale)
-    environment.filters['format_date'] = _filter_format_date
-    environment.filters['format_degrees'] = _filter_format_degrees
-    environment.globals['citer'] = _Citer()
-
-    @contextfilter
-    def _filter_url(context, resource, media_type=None, locale=None, **kwargs):
-        media_type = media_type if media_type else 'text/html'
-        locale = locale if locale else resolve_or_missing(context, 'locale')
-        return site.localized_url_generator.generate(resource, media_type, locale=locale, **kwargs)
-
-    environment.filters['url'] = _filter_url
-    environment.filters['static_url'] = site.static_url_generator.generate
-    environment.filters['file'] = lambda *args: _filter_file(site, *args)
-    environment.filters['image'] = lambda *args, **kwargs: _filter_image(
-        site, *args, **kwargs)
-    environment.globals['search_index'] = lambda: Index(site).build()
-    environment.globals['html_providers'] = list([plugin for plugin in site.plugins.values() if isinstance(plugin, HtmlProvider)])
-    environment.globals['path'] = os.path
-    for plugin in site.plugins.values():
-        if isinstance(plugin, Jinja2Provider):
-            environment.globals.update(plugin.globals)
-            environment.filters.update(plugin.filters)
-    return environment
+Template.environment_class = BettyEnvironment
 
 
 class Jinja2Renderer(Renderer):
@@ -205,7 +214,7 @@ class Jinja2Renderer(Renderer):
             file_arguments = {}
         with open(file_destination_path, 'w') as f:
             f.write(await template.render_async(**file_arguments))
-        await aioos.remove(file_path)
+        os.remove(file_path)
 
     async def render_tree(self, render_path: str, file_arguments: RenderArguments = None) -> None:
         await asyncio.gather(
@@ -264,109 +273,142 @@ async def _filter_map(*args, **kwargs):
             yield await auto_await(func(item))
 
 
-@contextfilter
-def _filter_takewhile(context, seq, *args, **kwargs):
-    try:
-        name = args[0]
-        args = args[1:]
-
-        def func(item):
-            return context.environment.call_test(name, item, args, kwargs)
-    except LookupError:
-        func = bool
-    if seq:
-        yield from takewhile(func, seq)
-
-
-def _filter_file(site: Site, file: File) -> str:
-    file_directory_path = os.path.join(
-        site.configuration.www_directory_path, 'file')
+async def _filter_file(site: Site, file: File) -> str:
+    file_directory_path = os.path.join(site.configuration.www_directory_path, 'file')
 
     destination_name = '%s.%s' % (file.id, file.extension)
-    destination_path = '/file/%s' % destination_name
-    output_destination_path = os.path.join(
-        file_directory_path, destination_name)
+    destination_public_path = '/file/%s' % destination_name
 
-    if exists(output_destination_path):
-        return destination_path
+    with suppress(AcquiredError):
+        site.locks.acquire((_filter_file, file))
+        site.executor.submit(_do_filter_file, file.path, file_directory_path, destination_name)
 
-    makedirs(file_directory_path)
-    os.link(file.path, output_destination_path)
-
-    return destination_path
+    return destination_public_path
 
 
-def _filter_image(site: Site, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
+def _do_filter_file(file_path: str, destination_directory_path: str, destination_name: str) -> None:
+    makedirs(destination_directory_path)
+    destination_file_path = os.path.join(destination_directory_path, destination_name)
+    os.link(file_path, destination_file_path)
+
+
+async def _filter_image(site: Site, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
     if width is None and height is None:
         raise ValueError('At least the width or height must be given.')
 
-    with Image.open(file.path) as image:
-        if width is not None:
-            width = min(width, image.width)
-        if height is not None:
-            height = min(height, image.height)
+    destination_name = '%s-' % file.id
+    if width is None:
+        destination_name += '-x%d' % height
+    elif height is None:
+        destination_name += '%dx-' % width
+    else:
+        destination_name += '%dx%d' % (width, height)
 
-        if width is None:
-            size = height
-            suffix = '-x%d'
-            convert = resizeimage.resize_height
-        elif height is None:
-            size = width
-            suffix = '%dx-'
-            convert = resizeimage.resize_width
+    file_directory_path = os.path.join(
+        site.configuration.www_directory_path, 'file')
+
+    if file.media_type:
+        if file.media_type.startswith('image/'):
+            task = _execute_filter_image_image
+            destination_name += '.' + extension(file.path)
+        elif file.media_type == 'application/pdf':
+            task = _execute_filter_image_application_pdf
+            destination_name += '.' + 'jpg'
         else:
-            size = (width, height)
-            suffix = '%dx%d'
-            convert = resizeimage.resize_cover
+            raise ValueError('Cannot convert a file of media type "%s" to an image.' % file.media_type)
+    else:
+        raise ValueError('Cannot convert a file without a media type to an image.')
 
-        file_directory_path = os.path.join(
-            site.configuration.www_directory_path, 'file')
-        destination_name = '%s-%s.%s' % (file.id, suffix %
-                                         size, file.extension)
-        destination_path = '/file/%s' % destination_name
-        cache_directory_path = join(
-            site.configuration.cache_directory_path, 'image')
-        cache_file_path = join(cache_directory_path, '%s-%s' %
-                               (hashfile(file.path), destination_name))
-        output_file_path = join(file_directory_path, destination_name)
+    with suppress(AcquiredError):
+        site.locks.acquire((_filter_image, file, width, height))
+        cache_directory_path = join(site.configuration.cache_directory_path, 'image')
+        site.executor.submit(task, file.path, cache_directory_path, file_directory_path, destination_name, width, height)
 
-        try:
-            os.link(cache_file_path, output_file_path)
-        except FileExistsError:
-            pass
-        except FileNotFoundError:
-            if exists(output_file_path):
-                return destination_path
-            makedirs(cache_directory_path)
+    destination_public_path = '/file/%s' % destination_name
+
+    return destination_public_path
+
+
+def _execute_filter_image_image(file_path: str, *args, **kwargs) -> None:
+    with warnings.catch_warnings():
+        # Ignore warnings about decompression bombs, because we know where the files come from.
+        warnings.simplefilter('ignore', category=DecompressionBombWarning)
+        image = Image.open(file_path)
+    _execute_filter_image(image, file_path, *args, **kwargs)
+
+
+def _execute_filter_image_application_pdf(file_path: str, *args, **kwargs) -> None:
+    with warnings.catch_warnings():
+        # Ignore warnings about decompression bombs, because we know where the files come from.
+        warnings.simplefilter('ignore', category=DecompressionBombWarning)
+        image = pdf2image.convert_from_path(file_path, fmt='jpeg')[0]
+    _execute_filter_image(image, file_path, *args, **kwargs)
+
+
+def _execute_filter_image(image: Image, file_path: str, cache_directory_path: str, destination_directory_path: str, destination_name: str, width: int, height: int) -> None:
+    makedirs(destination_directory_path)
+    cache_file_path = join(cache_directory_path, '%s-%s' % (hashfile(file_path), destination_name))
+    destination_file_path = join(destination_directory_path, destination_name)
+
+    try:
+        os.link(cache_file_path, destination_file_path)
+    except FileNotFoundError:
+        makedirs(cache_directory_path)
+        with image:
+            if width is not None:
+                width = min(width, image.width)
+            if height is not None:
+                height = min(height, image.height)
+
+            if width is None:
+                size = height
+                convert = resizeimage.resize_height
+            elif height is None:
+                size = width
+                convert = resizeimage.resize_width
+            else:
+                size = (width, height)
+                convert = resizeimage.resize_cover
             convert(image, size).save(cache_file_path)
-            makedirs(file_directory_path)
-            os.link(cache_file_path, output_file_path)
-
-    return destination_path
+        makedirs(destination_directory_path)
+        os.link(cache_file_path, destination_file_path)
 
 
 @contextfilter
-def _filter_negotiate_localizeds(context, localizeds: Iterable[Localized]):
+def _filter_negotiate_localizeds(context, localizeds: Iterable[Localized]) -> Optional[Localized]:
     locale = resolve_or_missing(context, 'locale')
-    return negotiate_localizeds(locale, localizeds)
+    return negotiate_localizeds(locale, list(localizeds))
 
 
 @contextfilter
-def _filter_sort_localizeds(context, localizeds: Iterable, localized_attribute: str, sort_attribute: str):
+def _filter_sort_localizeds(context, localizeds: Iterable[Localized], localized_attribute: str, sort_attribute: str) -> Iterable[Localized]:
     locale = resolve_or_missing(context, 'locale')
     get_localized_attr = make_attrgetter(
         context.environment, localized_attribute)
     get_sort_attr = make_attrgetter(context.environment, sort_attribute)
 
-    def get_sort_key(x):
+    def _get_sort_key(x):
         return get_sort_attr(negotiate_localizeds(locale, get_localized_attr(x)))
 
-    return sorted(localizeds, key=get_sort_key)
+    return sorted(localizeds, key=_get_sort_key)
 
 
 @contextfilter
-def _filter_select_localizeds(context, localizeds: Iterable[Localized]):
+def _filter_select_localizeds(context, localizeds: Iterable[Localized]) -> Iterable[Localized]:
     locale = resolve_or_missing(context, 'locale')
     for localized in localizeds:
         if negotiate_locale(locale, [localized.locale]) is not None:
             yield localized
+
+
+@contextfilter
+def _filter_negotiate_dateds(context, dateds: Iterable[Dated], date: Optional[Datey]) -> Optional[Dated]:
+    with suppress(StopIteration):
+        return next(_filter_select_dateds(context, dateds, date))
+
+
+@contextfilter
+def _filter_select_dateds(context, dateds: Iterable[Dated], date: Optional[Datey]) -> Iterable[Dated]:
+    if date is None:
+        date = resolve_or_missing(context, 'today')
+    return filter(lambda dated: dated.date is None or dated.date.comparable and dated.date in date, dateds)

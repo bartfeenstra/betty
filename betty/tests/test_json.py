@@ -1,16 +1,16 @@
 import json as stdjson
 from tempfile import TemporaryDirectory, NamedTemporaryFile
-from unittest import TestCase
 
 from geopy import Point
 
 from betty import json
-from betty.ancestry import Place, Person, LocalizedName, Link, Presence, Source, File, Note, PersonName, \
-    IdentifiableEvent, IdentifiableSource, IdentifiableCitation, Subject, Birth
+from betty.ancestry import Place, Person, PlaceName, Link, Presence, Source, File, Note, PersonName, \
+    IdentifiableEvent, IdentifiableSource, IdentifiableCitation, Subject, Birth, Enclosure
 from betty.config import Configuration, LocaleConfiguration
 from betty.json import JSONEncoder
 from betty.locale import Date, DateRange
 from betty.site import Site
+from betty.tests import TestCase
 
 
 class JSONEncoderTest(TestCase):
@@ -45,10 +45,11 @@ class JSONEncoderTest(TestCase):
     def test_place_should_encode_minimal(self):
         place_id = 'the_place'
         name = 'The Place'
-        place = Place(place_id, [LocalizedName(name)])
+        place = Place(place_id, [PlaceName(name)])
         expected = {
             '$schema': '/schema.json#/definitions/place',
             '@context': {
+                'enclosedBy': 'https://schema.org/containedInPlace',
                 'encloses': 'https://schema.org/containsPlace',
                 'events': 'https://schema.org/event'
             },
@@ -59,6 +60,7 @@ class JSONEncoderTest(TestCase):
                     'name': name,
                 },
             ],
+            'enclosedBy': [],
             'encloses': [],
             'events': [],
             'links': [
@@ -88,10 +90,10 @@ class JSONEncoderTest(TestCase):
         latitude = 12.345
         longitude = -54.321
         coordinates = Point(latitude, longitude)
-        place = Place(place_id, [LocalizedName(name, locale)])
+        place = Place(place_id, [PlaceName(name, locale)])
         place.coordinates = coordinates
-        place.enclosed_by = Place('the_enclosing_place', [])
-        place.encloses.append(Place('the_enclosed_place', []))
+        Enclosure(place, Place('the_enclosing_place', []))
+        Enclosure(Place('the_enclosed_place', []), place)
         link = Link('https://example.com/the-place')
         link.label = 'The Place Online'
         place.links.add(link)
@@ -99,9 +101,9 @@ class JSONEncoderTest(TestCase):
         expected = {
             '$schema': '/schema.json#/definitions/place',
             '@context': {
+                'enclosedBy': 'https://schema.org/containedInPlace',
                 'encloses': 'https://schema.org/containsPlace',
                 'events': 'https://schema.org/event',
-                'enclosedBy': 'https://schema.org/containedInPlace',
                 'coordinates': 'https://schema.org/geo',
             },
             '@type': 'https://schema.org/Place',
@@ -148,7 +150,9 @@ class JSONEncoderTest(TestCase):
             'encloses': [
                 '/en/place/the_enclosed_place/index.json',
             ],
-            'enclosedBy': '/en/place/the_enclosing_place/index.json',
+            'enclosedBy': [
+                '/en/place/the_enclosing_place/index.json',
+            ],
         }
         self.assert_encodes(expected, place, 'place')
 
@@ -380,7 +384,7 @@ class JSONEncoderTest(TestCase):
     def test_event_should_encode_full(self):
         event = IdentifiableEvent('the_event', Birth())
         event.date = DateRange(Date(2000, 1, 1), Date(2019, 12, 31))
-        event.place = Place('the_place', [LocalizedName('The Place')])
+        event.place = Place('the_place', [PlaceName('The Place')])
         Presence(Person('the_person'), Subject(), event)
         event.citations.append(
             IdentifiableCitation('the_citation', Source('The Source')))

@@ -1,6 +1,5 @@
 {% extends 'base.html.j2' %}
 {% set event = file_resource %}
-{% import 'macro/person.html.j2' as personMacros %}
 {% set page_title %}
     {% with embedded=True %}
         {% include 'label/event.html.j2' %}
@@ -32,7 +31,7 @@
 
     {% set ns = namespace(attendees=[]) %}
     {% for presence in event.presences %}
-        {% if not presence.role is subject_role or not presence.role is witness_role %}
+        {% if not presence.role is subject_role and not presence.role is witness_role %}
             {% set ns.attendees = ns.attendees + [presence.person] %}
         {% endif %}
     {% endfor %}
@@ -45,9 +44,10 @@
         </ul>
     {% endif %}
 
-    {% if event.files | length > 0 %}
+    {% set files = event.associated_files | list %}
+    {% if files | length > 0 %}
         <h2>{% trans %}Media{% endtrans %}</h2>
-        {% with files=event.files %}
+        {% with files=files %}
             {% include 'list-file.html.j2' %}
         {% endwith %}
     {% endif %}

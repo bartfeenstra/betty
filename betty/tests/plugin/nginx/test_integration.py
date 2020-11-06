@@ -1,22 +1,26 @@
 import json
-import subprocess
+import subprocess as stdsubprocess
+import sys
+import unittest
 from contextlib import suppress
 from os import path
 from tempfile import TemporaryDirectory
-from unittest import TestCase
 
 import html5lib
 import jsonschema
 import requests
 from requests import Response
 
+from betty import subprocess
 from betty.plugin.nginx import DOCKER_PATH
+from betty.tests import TestCase
 
 CONTAINER_NAME = IMAGE_NAME = 'betty-test-nginx'
 
 RESOURCES_PATH = path.join(path.dirname(__file__), 'test_integration_assets')
 
 
+@unittest.skipIf(sys.platform == 'darwin', 'Mac OS does not natively support Docker.')
 class NginxTest(TestCase):
     class Container:
         def __init__(self, configuration_template_file_path: str):
@@ -35,15 +39,14 @@ class NginxTest(TestCase):
                 self._working_directory.name, 'betty.json')
             with open(configuration_file_path, 'w') as f:
                 json.dump(configuration, f)
-            subprocess.check_call(
-                ['betty', '-c', configuration_file_path, 'generate'])
-            subprocess.check_call(['docker', 'run', '--rm', '--name', CONTAINER_NAME, '-d', '-v',
-                                   '%s:/etc/nginx/conf.d/betty.conf:ro' % path.join(output_directory_path,
-                                                                                    'nginx', 'nginx.conf'), '-v',
-                                   '%s:/var/www/betty:ro' % path.join(output_directory_path, 'www'), IMAGE_NAME])
-            self.address = 'http://%s' % subprocess.check_output(
+            subprocess.run(['betty', '-c', configuration_file_path, 'generate'])
+            subprocess.run(['docker', 'run', '--rm', '--name', CONTAINER_NAME, '-d', '-v',
+                            '%s:/etc/nginx/conf.d/betty.conf:ro' % path.join(output_directory_path, 'nginx',
+                                                                             'nginx.conf'), '-v',
+                            '%s:/var/www/betty:ro' % path.join(output_directory_path, 'www'), IMAGE_NAME])
+            self.address = 'http://%s' % subprocess.run(
                 ['docker', 'inspect', '-f', '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}',
-                 CONTAINER_NAME]).decode('utf-8').strip()
+                 CONTAINER_NAME]).stdout.decode('utf-8').strip()
             return self
 
         def __exit__(self, exc_type, exc_val, exc_tb):
@@ -53,12 +56,12 @@ class NginxTest(TestCase):
 
         def _cleanup_environment(self):
             # Maybe the container wasn't running, and that is fine.
-            with suppress(subprocess.CalledProcessError):
-                subprocess.check_call(['docker', 'stop', CONTAINER_NAME], stderr=subprocess.DEVNULL)
+            with suppress(stdsubprocess.CalledProcessError):
+                subprocess.run(['docker', 'stop', CONTAINER_NAME])
 
     @classmethod
     def setUpClass(cls) -> None:
-        subprocess.check_call(
+        subprocess.run(
             ['docker', 'build', '-t', IMAGE_NAME, DOCKER_PATH])
 
     def assert_betty_html(self, response: Response) -> None:

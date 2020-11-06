@@ -1,14 +1,19 @@
 {%- set embedded = embedded | default(False) -%}
-{%- macro _placeLabel(place) -%}
-    {%- include 'label/place.html.j2' -%}
+{%- macro _enclosed_by_place_label(place) -%}
+    {%- set enclosed_by = place.enclosed_by | negotiate_dateds(date_context | default(none)) -%}
+    {%- if enclosed_by is not none and (place_context is not defined or place_context != enclosed_by.enclosed_by) -%}
+        {%- with place=enclosed_by.enclosed_by -%}
+            {%- include 'label/place.html.j2' -%}
+        {%- endwith -%}
+        {%- set place_label = _enclosed_by_place_label(enclosed_by.enclosed_by) -%}
+        {%- if place_label -%}
+            , {{ place_label }}
+        {%- endif -%}
+    {%- endif -%}
 {%- endmacro -%}
-{%- set enclosing_places = place | walk('enclosed_by') | takewhile('ne', None) | list -%}
-{%- if place_context is defined -%}
-    {% set enclosing_places = enclosing_places | takewhile('ne', place_context) %}
-{%- endif -%}
-{%- set enclosing_places = enclosing_places | list -%}
 <div class="meta">
-{%- if enclosing_places | length > 0 -%}
-    in {{ enclosing_places | map(_placeLabel) | join(', ') }}
-{%- endif -%}
+    {%- set enclosed_by_label = _enclosed_by_place_label(place) -%}
+    {%- if enclosed_by_label -%}
+        in {{ enclosed_by_label }}
+    {%- endif -%}
 </div>
