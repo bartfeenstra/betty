@@ -38,10 +38,10 @@
     <script src="{{ '/search.js' | static_url }}" defer></script>
     <script src="{{ '/show.js' | static_url }}" defer></script>
     {% for html_provider in html_providers %}
-        {% for css_path in html_provider.css_paths %}
+        {% for css_path in html_provider.public_css_paths %}
             <link rel="stylesheet" href="{{ css_path }}"/>
         {% endfor %}
-        {% for js_path in html_provider.js_paths %}
+        {% for js_path in html_provider.public_js_paths %}
             <script src="{{ js_path }}" defer></script>
         {% endfor %}
     {% endfor %}

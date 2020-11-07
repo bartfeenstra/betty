@@ -42,13 +42,13 @@ class Maps(Plugin, HtmlProvider, PostStaticGenerator):
         self._site.executor.submit(_do_render, build_directory_path, self._site.configuration.www_directory_path)
 
     @property
-    def css_paths(self) -> Iterable[str]:
+    def public_css_paths(self) -> Iterable[str]:
         return {
             self._site.static_url_generator.generate('maps.css'),
         }
 
     @property
-    def js_paths(self) -> Iterable[str]:
+    def public_js_paths(self) -> Iterable[str]:
         return {
             self._site.static_url_generator.generate('maps.js'),
         }
