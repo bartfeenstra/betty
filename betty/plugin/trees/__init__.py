@@ -4,18 +4,17 @@ import shutil
 from contextlib import suppress
 from os import path
 from os.path import dirname
-from typing import Optional, List, Tuple, Type, Callable, Iterable, Any
+from typing import Optional, Iterable, Any
 
 from betty import subprocess
-from betty.event import Event
 from betty.fs import DirectoryBackup
-from betty.generate import PostStaticGenerateEvent
+from betty.generate import PostStaticGenerator
 from betty.html import HtmlProvider
 from betty.plugin import Plugin, NO_CONFIGURATION
 from betty.site import Site
 
 
-class Trees(Plugin, HtmlProvider):
+class Trees(Plugin, HtmlProvider, PostStaticGenerator):
     def __init__(self, site: Site):
         self._site = site
 
@@ -23,16 +22,14 @@ class Trees(Plugin, HtmlProvider):
     def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
         return cls(site)
 
-    def subscribes_to(self) -> List[Tuple[Type[Event], Callable]]:
-        return [
-            (PostStaticGenerateEvent, self._render),
-        ]
+    async def post_static_generate(self) -> None:
+        await self._render()
 
     @property
     def assets_directory_path(self) -> Optional[str]:
         return '%s/assets' % dirname(__file__)
 
-    async def _render(self, _: PostStaticGenerateEvent) -> None:
+    async def _render(self) -> None:
         build_directory_path = path.join(self._site.configuration.cache_directory_path, self.name(),
                                          hashlib.md5(self.assets_directory_path.encode()).hexdigest(), 'build')
 

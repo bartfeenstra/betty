@@ -14,11 +14,11 @@ import aiohttp
 from aioresponses import aioresponses
 from parameterized import parameterized
 
-from betty.ancestry import Ancestry, Source, IdentifiableCitation, IdentifiableSource, Link
+from betty.ancestry import Source, IdentifiableCitation, IdentifiableSource, Link
 from betty.config import Configuration, LocaleConfiguration
 from betty.functools import sync
 from betty.parse import parse
-from betty.plugin.wikipedia import Entry, Retriever, NotAnEntryError, parse_url, RetrievalError, Populator, Wikipedia
+from betty.plugin.wikipedia import Entry, Retriever, NotAnEntryError, parse_url, RetrievalError, _Populator, Wikipedia
 from betty.site import Site
 
 
@@ -228,7 +228,6 @@ class PopulatorTest(TestCase):
     @patch('betty.plugin.wikipedia.Retriever')
     @sync
     async def test_populate_link_should_convert_http_to_https(self, m_retriever) -> None:
-        sut = Populator(m_retriever)
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         entry_language = 'nl'
         with TemporaryDirectory() as output_directory_path:
@@ -237,7 +236,8 @@ class PopulatorTest(TestCase):
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
                 async with Site(configuration) as site:
-                    await sut.populate_link(link, site, entry_language)
+                    sut = _Populator(site, m_retriever)
+                    await sut.populate_link(link, entry_language)
         self.assertEqual('https://en.wikipedia.org/wiki/Amsterdam', link.url)
 
     @parameterized.expand([
@@ -248,7 +248,6 @@ class PopulatorTest(TestCase):
     @patch('betty.plugin.wikipedia.Retriever')
     @sync
     async def test_populate_link_should_set_media_type(self, expected: str, media_type: Optional[str], m_retriever) -> None:
-        sut = Populator(m_retriever)
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.media_type = media_type
         with TemporaryDirectory() as output_directory_path:
@@ -257,7 +256,8 @@ class PopulatorTest(TestCase):
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
                 async with Site(configuration) as site:
-                    await sut.populate_link(link, site, 'en')
+                    sut = _Populator(site, m_retriever)
+                    await sut.populate_link(link, 'en')
         self.assertEqual(expected, link.media_type)
 
     @parameterized.expand([
@@ -268,7 +268,6 @@ class PopulatorTest(TestCase):
     @patch('betty.plugin.wikipedia.Retriever')
     @sync
     async def test_populate_link_should_set_relationship(self, expected: str, relationship: Optional[str], m_retriever) -> None:
-        sut = Populator(m_retriever)
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.relationship = relationship
         with TemporaryDirectory() as output_directory_path:
@@ -277,7 +276,8 @@ class PopulatorTest(TestCase):
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
                 async with Site(configuration) as site:
-                    await sut.populate_link(link, site, 'en')
+                    sut = _Populator(site, m_retriever)
+                    await sut.populate_link(link, 'en')
         self.assertEqual(expected, link.relationship)
 
     @parameterized.expand([
@@ -288,7 +288,6 @@ class PopulatorTest(TestCase):
     @patch('betty.plugin.wikipedia.Retriever')
     @sync
     async def test_populate_link_should_set_locale(self, expected: str, entry_language: str, locale: Optional[str], m_retriever) -> None:
-        sut = Populator(m_retriever)
         link = Link('http://%s.wikipedia.org/wiki/Amsterdam' % entry_language)
         link.locale = locale
         with TemporaryDirectory() as output_directory_path:
@@ -297,7 +296,8 @@ class PopulatorTest(TestCase):
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
                 async with Site(configuration) as site:
-                    await sut.populate_link(link, site, entry_language)
+                    sut = _Populator(site, m_retriever)
+                    await sut.populate_link(link, entry_language)
         self.assertEqual(expected, link.locale)
 
     @parameterized.expand([
@@ -307,7 +307,6 @@ class PopulatorTest(TestCase):
     @patch('betty.plugin.wikipedia.Retriever')
     @sync
     async def test_populate_link_should_set_description(self, expected: str, description: str, m_retriever) -> None:
-        sut = Populator(m_retriever)
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.description = description
         entry_language = 'en'
@@ -317,7 +316,8 @@ class PopulatorTest(TestCase):
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
                 async with Site(configuration) as site:
-                    await sut.populate_link(link, site, entry_language)
+                    sut = _Populator(site, m_retriever)
+                    await sut.populate_link(link, entry_language)
         self.assertEqual(expected, link.description)
 
     @parameterized.expand([
@@ -327,8 +327,6 @@ class PopulatorTest(TestCase):
     @patch('betty.plugin.wikipedia.Retriever')
     @sync
     async def test_populate_link_should_set_label(self, expected: str, label: Optional[str], m_retriever) -> None:
-        sut = Populator(m_retriever)
-
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.label = label
         entry = Entry('en', 'The_city_of_Amsterdam', 'The city of Amsterdam', 'Amsterdam, such a lovely place!')
@@ -338,67 +336,60 @@ class PopulatorTest(TestCase):
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
                 async with Site(configuration) as site:
-                    await sut.populate_link(link, site, 'en', entry)
+                    sut = _Populator(site, m_retriever)
+                    await sut.populate_link(link, 'en', entry)
         self.assertEqual(expected, link.label)
 
     @patch('betty.plugin.wikipedia.Retriever')
     @sync
     async def test_populate_should_ignore_resource_without_link_support(self, m_retriever) -> None:
-        sut = Populator(m_retriever)
-
         source = Source('The Source')
         resource = IdentifiableCitation('the_citation', source)
-        ancestry = Ancestry()
-        ancestry.citations[resource.id] = resource
         with TemporaryDirectory() as output_directory_path:
             with TemporaryDirectory() as cache_directory_path:
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
                 async with Site(configuration) as site:
-                    await sut.populate(ancestry, site)
+                    site.ancestry.citations[resource.id] = resource
+                    sut = _Populator(site, m_retriever)
+                    await sut.populate()
 
     @patch('betty.plugin.wikipedia.Retriever')
     @sync
     async def test_populate_should_ignore_resource_without_links(self, m_retriever) -> None:
-        sut = Populator(m_retriever)
-
         resource = IdentifiableSource('the_source', 'The Source')
-        ancestry = Ancestry()
-        ancestry.sources[resource.id] = resource
         with TemporaryDirectory() as output_directory_path:
             with TemporaryDirectory() as cache_directory_path:
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
                 async with Site(configuration) as site:
-                    await sut.populate(ancestry, site)
+                    site.ancestry.sources[resource.id] = resource
+                    sut = _Populator(site, m_retriever)
+                    await sut.populate()
         self.assertSetEqual(set(), resource.links)
 
     @patch('betty.plugin.wikipedia.Retriever')
     @sync
     async def test_populate_should_ignore_non_wikipedia_links(self, m_retriever) -> None:
-        sut = Populator(m_retriever)
-
         link = Link('https://example.com')
         resource = IdentifiableSource('the_source', 'The Source')
         resource.links.add(link)
-        ancestry = Ancestry()
-        ancestry.sources[resource.id] = resource
         with TemporaryDirectory() as output_directory_path:
             with TemporaryDirectory() as cache_directory_path:
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
                 async with Site(configuration) as site:
-                    await sut.populate(ancestry, site)
+                    site.ancestry.sources[resource.id] = resource
+                    sut = _Populator(site, m_retriever)
+                    await sut.populate()
         self.assertSetEqual({link}, resource.links)
 
     @patch('betty.plugin.wikipedia.Retriever', spec=Retriever, new_callable=AsyncMock)
     @sync
     async def test_populate_should_populate_existing_link(self, m_retriever) -> None:
-        sut = Populator(m_retriever)
-
         entry_language = 'en'
         entry_name = 'Amsterdam'
         entry_title = 'Amsterdam'
@@ -409,15 +400,15 @@ class PopulatorTest(TestCase):
         resource = IdentifiableSource('the_source', 'The Source')
         link = Link('https://en.wikipedia.org/wiki/Amsterdam')
         resource.links.add(link)
-        ancestry = Ancestry()
-        ancestry.sources[resource.id] = resource
         with TemporaryDirectory() as output_directory_path:
             with TemporaryDirectory() as cache_directory_path:
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
                 async with Site(configuration) as site:
-                    await sut.populate(ancestry, site)
+                    site.ancestry.sources[resource.id] = resource
+                    sut = _Populator(site, m_retriever)
+                    await sut.populate()
         m_retriever.get_entry.assert_called_once_with(entry_language, entry_name)
         self.assertEqual(1, len(resource.links))
         self.assertEqual('Amsterdam', link.label)
@@ -429,8 +420,6 @@ class PopulatorTest(TestCase):
     @patch('betty.plugin.wikipedia.Retriever', spec=Retriever, new_callable=AsyncMock)
     @sync
     async def test_populate_should_add_translation_links(self, m_retriever) -> None:
-        sut = Populator(m_retriever)
-
         entry_language = 'en'
         entry_name = 'Amsterdam'
         entry_title = 'Amsterdam'
@@ -454,8 +443,6 @@ class PopulatorTest(TestCase):
         resource = IdentifiableSource('the_source', 'The Source')
         link_en = Link('https://en.wikipedia.org/wiki/Amsterdam')
         resource.links.add(link_en)
-        ancestry = Ancestry()
-        ancestry.sources[resource.id] = resource
         with TemporaryDirectory() as output_directory_path:
             with TemporaryDirectory() as cache_directory_path:
                 configuration = Configuration(
@@ -465,7 +452,9 @@ class PopulatorTest(TestCase):
                 configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
                 configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
                 async with Site(configuration) as site:
-                    await sut.populate(ancestry, site)
+                    site.ancestry.sources[resource.id] = resource
+                    sut = _Populator(site, m_retriever)
+                    await sut.populate()
 
         m_retriever.get_entry.assert_has_calls([
             call(entry_language, entry_name),
