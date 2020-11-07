@@ -3,9 +3,9 @@ from typing import Set
 
 class HtmlProvider:
     @property
-    def css_paths(self) -> Set[str]:
+    def public_css_paths(self) -> Set[str]:
         return set()
 
     @property
-    def js_paths(self) -> Set[str]:
+    def public_js_paths(self) -> Set[str]:
         return set()
