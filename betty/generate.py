@@ -9,19 +9,20 @@ from typing import Iterable, Any
 from babel import Locale
 from jinja2 import Environment, TemplateNotFound
 
-from betty.event import Event
 from betty.fs import makedirs
 from betty.json import JSONEncoder
 from betty.openapi import build_specification
 from betty.site import Site
 
 
-class PostStaticGenerateEvent(Event):
-    pass  # pragma: no cover
+class PostStaticGenerator:
+    async def post_static_generate(self) -> None:
+        raise NotImplementedError
 
 
-class PostGenerateEvent(Event):
-    pass  # pragma: no cover
+class PostGenerator:
+    async def post_generate(self) -> None:
+        raise NotImplementedError
 
 
 async def generate(site: Site) -> None:
@@ -29,7 +30,7 @@ async def generate(site: Site) -> None:
     await site.assets.copytree(join('public', 'static'),
                                site.configuration.www_directory_path)
     await site.renderer.render_tree(site.configuration.www_directory_path)
-    await site.event_dispatcher.dispatch(PostStaticGenerateEvent())
+    await site.dispatcher.dispatch(PostStaticGenerator, 'post_static_generate')()
     for locale, locale_configuration in site.configuration.locales.items():
         async with site.with_locale(locale) as site:
             if site.configuration.multilingual:
@@ -74,7 +75,7 @@ async def generate(site: Site) -> None:
             chmod(join(directory_path, subdirectory_name), 0o755)
         for file_name in file_names:
             chmod(join(directory_path, file_name), 0o644)
-    await site.event_dispatcher.dispatch(PostGenerateEvent())
+    await site.dispatcher.dispatch(PostGenerator, 'post_generate')()
 
 
 def _create_file(path: str) -> object:

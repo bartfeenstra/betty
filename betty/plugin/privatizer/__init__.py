@@ -1,31 +1,26 @@
 import logging
 from datetime import datetime
-from typing import Any, List, Tuple, Type, Callable, Optional
+from typing import Any, Optional
 
 from betty.ancestry import Ancestry, Person, Event, Citation, Source, HasPrivacy, Subject
-from betty.event import Event as DispatchedEvent
 from betty.functools import walk
 from betty.locale import DateRange, Date
-from betty.parse import PostParseEvent
+from betty.parse import PostParser
 from betty.plugin import Plugin, NO_CONFIGURATION
 from betty.site import Site
 
 
-class Privatizer(Plugin):
-    def __init__(self, lifetime_threshold: int):
+class Privatizer(Plugin, PostParser):
+    def __init__(self, ancestry: Ancestry, lifetime_threshold: int):
+        self._ancestry = ancestry
         self._lifetime_threshold = lifetime_threshold
 
     @classmethod
     def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
-        return cls(site.configuration.lifetime_threshold)
+        return cls(site.ancestry, site.configuration.lifetime_threshold)
 
-    def subscribes_to(self) -> List[Tuple[Type[DispatchedEvent], Callable]]:
-        return [
-            (PostParseEvent, self._privatize),
-        ]
-
-    async def _privatize(self, event: PostParseEvent) -> None:
-        self.privatize(event.ancestry)
+    async def post_parse(self) -> None:
+        self.privatize(self._ancestry)
 
     def privatize(self, ancestry: Ancestry) -> None:
         privatized = 0

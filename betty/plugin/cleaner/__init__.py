@@ -1,12 +1,12 @@
 from collections import defaultdict
-from typing import List, Tuple, Callable, Set, Type
+from typing import Set, Type, Any
 
 from betty.ancestry import Ancestry, Place, File, IdentifiableEvent, IdentifiableSource, IdentifiableCitation, Person
-from betty.event import Event
 from betty.graph import Graph, tsort
-from betty.parse import PostParseEvent
-from betty.plugin import Plugin
+from betty.parse import PostParser
+from betty.plugin import Plugin, NO_CONFIGURATION
 from betty.plugin.anonymizer import Anonymizer
+from betty.site import Site
 
 
 def clean(ancestry: Ancestry) -> None:
@@ -131,15 +131,17 @@ def _clean_citation(ancestry: Ancestry, citation: IdentifiableCitation) -> None:
     del ancestry.citations[citation.id]
 
 
-class Cleaner(Plugin):
+class Cleaner(Plugin, PostParser):
+    def __init__(self, ancestry: Ancestry):
+        self._ancestry = ancestry
+
+    @classmethod
+    def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
+        return cls(site.ancestry)
+
     @classmethod
     def comes_after(cls) -> Set[Type[Plugin]]:
         return {Anonymizer}
 
-    def subscribes_to(self) -> List[Tuple[Type[Event], Callable]]:
-        return [
-            (PostParseEvent, self._clean),
-        ]
-
-    async def _clean(self, event: PostParseEvent) -> None:
-        clean(event.ancestry)
+    async def post_parse(self) -> None:
+        clean(self._ancestry)
