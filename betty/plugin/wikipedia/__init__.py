@@ -6,19 +6,18 @@ from contextlib import suppress
 from json import load
 from os.path import dirname, join, getmtime
 from time import time
-from typing import Optional, Dict, Callable, List, Tuple, Type, Iterable, Set, Any
+from typing import Optional, Dict, Callable, Tuple, Iterable, Set, Any
 
 import aiohttp
 from babel import parse_locale
 from jinja2 import contextfilter
 from jinja2.runtime import resolve_or_missing
 
-from betty.ancestry import Link, Ancestry, HasLinks, Resource
-from betty.event import Event
+from betty.ancestry import Link, HasLinks, Resource
 from betty.fs import makedirs
 from betty.jinja2 import Jinja2Provider
 from betty.locale import Localized, negotiate_locale
-from betty.parse import PostParseEvent
+from betty.parse import PostParser
 from betty.plugin import Plugin, NO_CONFIGURATION
 from betty.site import Site
 
@@ -135,15 +134,16 @@ class Retriever:
             raise RetrievalError('Could not successfully parse the JSON content returned by %s: %s' % (url, e))
 
 
-class Populator:
-    def __init__(self, retriever: Retriever):
+class _Populator:
+    def __init__(self, site: Site, retriever: Retriever):
+        self._site = site
         self._retriever = retriever
 
-    async def populate(self, ancestry: Ancestry, site: Site) -> None:
-        locales = set(site.configuration.locales)
-        await asyncio.gather(*[self._populate_resource(resource, site, locales) for resource in ancestry.resources])
+    async def populate(self) -> None:
+        locales = set(self._site.configuration.locales)
+        await asyncio.gather(*[self._populate_resource(resource, locales) for resource in self._site.ancestry.resources])
 
-    async def _populate_resource(self, resource: Resource, site: Site, locales: Set[str]) -> None:
+    async def _populate_resource(self, resource: Resource, locales: Set[str]) -> None:
         if not isinstance(resource, HasLinks):
             return
 
@@ -159,7 +159,7 @@ class Populator:
             if link.label is None:
                 with suppress(RetrievalError):
                     entry = await self._retriever.get_entry(entry_language, entry_name)
-            await self.populate_link(link, site, entry_language, entry)
+            await self.populate_link(link, entry_language, entry)
 
         for entry_language, entry_name in list(entry_links):
             entry_translations = await self._retriever.get_translations(entry_language, entry_name)
@@ -178,11 +178,11 @@ class Populator:
                 except RetrievalError:
                     continue
                 added_link = Link(added_entry.url)
-                await self.populate_link(added_link, site, added_entry_language, added_entry)
+                await self.populate_link(added_link, added_entry_language, added_entry)
                 resource.links.add(added_link)
                 entry_links.add((added_entry_language, added_entry_name))
 
-    async def populate_link(self, link: Link, site: Site, entry_language: str, entry: Optional[Entry] = None) -> None:
+    async def populate_link(self, link: Link, entry_language: str, entry: Optional[Entry] = None) -> None:
         if link.url.startswith('http:'):
             link.url = 'https:' + link.url[5:]
         if link.media_type is None:
@@ -194,20 +194,20 @@ class Populator:
         if link.description is None:
             # There are valid reasons for links in locales that aren't supported.
             with suppress(ValueError):
-                async with site.with_locale(link.locale):
+                async with self._site.with_locale(link.locale):
                     link.description = _('Read more on Wikipedia.')
         if entry is not None and link.label is None:
             link.label = entry.title
 
 
-class Wikipedia(Plugin, Jinja2Provider):
+class Wikipedia(Plugin, Jinja2Provider, PostParser):
     def __init__(self, site: Site):
         self._site = site
 
     async def __aenter__(self):
         self._session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit_per_host=5))
         self._retriever = Retriever(self._session, join(self._site.configuration.cache_directory_path, self.name()))
-        self._populator = Populator(self._retriever)
+        self._populator = _Populator(self._site, self._retriever)
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
@@ -217,13 +217,8 @@ class Wikipedia(Plugin, Jinja2Provider):
     def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
         return cls(site)
 
-    def subscribes_to(self) -> List[Tuple[Type[Event], Callable]]:
-        return [
-            (PostParseEvent, self._populate),
-        ]
-
-    async def _populate(self, event: PostParseEvent) -> None:
-        await self._populator.populate(event.ancestry, self._site)
+    async def post_parse(self) -> None:
+        await self._populator.populate()
 
     @property
     def filters(self) -> Dict[str, Callable]:

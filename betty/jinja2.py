@@ -212,6 +212,15 @@ class Jinja2Renderer(Renderer):
         template = _root_loader.load(self._environment, file_path, self._environment.globals)
         if file_arguments is None:
             file_arguments = {}
+        if 'file_resource' not in file_arguments and file_destination_path.startswith(self._configuration.www_directory_path):
+            # Unix-style paths use forward slashes, so they are valid URL paths.
+            resource = file_destination_path[len(
+                self._configuration.www_directory_path):]
+            if self._configuration.multilingual:
+                resource_parts = resource.lstrip('/').split('/')
+                if resource_parts[0] in map(lambda x: x.alias, self._configuration.locales.values()):
+                    resource = '/'.join(resource_parts[1:])
+            file_arguments['file_resource'] = resource
         with open(file_destination_path, 'w') as f:
             f.write(await template.render_async(**file_arguments))
         os.remove(file_path)

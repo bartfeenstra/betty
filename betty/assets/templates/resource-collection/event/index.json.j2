@@ -1,0 +1,4 @@
+{{ {
+    '$schema': 'schema.json#/definitions/eventCollection' | static_url(absolute=True),
+    'collection': file_resources | list,
+} | json }}

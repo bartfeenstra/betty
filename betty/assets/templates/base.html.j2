@@ -13,8 +13,8 @@
     {% endif %}
     <meta name="og:title" content="{%- if page_title is defined -%}{{ page_title | striptags }}{%- else -%}{{ site.configuration.title }}{%- endif -%}"/>
     <meta name="og:site_name" content="{{ site.configuration.title }}"/>
-    {% if page_resource is defined and page_recource is has_files %}
-        {% for file in page_resource.files %}
+    {% if file_resource is defined and file_resource is has_files %}
+        {% for file in file_resource.files %}
             {% if file.media_type.startswith('image/') %}
                 <meta name="og:image" content="{{ file | image(600, 600) | static_url }}"/>
                 {% if file.description %}
@@ -22,11 +22,11 @@
                 {% endif %}
             {% endif %}
         {% endfor %}
-        <link rel="canonical" href="{{ page_resource | url(absolute=true) }}"/>
-        {% if page_resource is defined and page_resource is resource and resource is identifiable %}
-            <link rel="alternate" href="{{ page_resource | url(media_type='application/json') }}" type="application/json"/>
+        <link rel="canonical" href="{{ file_resource | url(absolute=true) }}"/>
+        {% if file_resource is defined and file_resource is resource and resource is identifiable %}
+            <link rel="alternate" href="{{ file_resource | url(media_type='application/json') }}" type="application/json"/>
             <script type="application/ld+json">
-              {{ page_resource | tojson }}
+              {{ file_resource | tojson }}
             </script>
         {% endif %}
     {% endif %}
@@ -38,16 +38,16 @@
     <script src="{{ '/search.js' | static_url }}" defer></script>
     <script src="{{ '/show.js' | static_url }}" defer></script>
     {% for html_provider in html_providers %}
-        {% for css_path in html_provider.css_paths %}
+        {% for css_path in html_provider.public_css_paths %}
             <link rel="stylesheet" href="{{ css_path }}"/>
         {% endfor %}
-        {% for js_path in html_provider.js_paths %}
+        {% for js_path in html_provider.public_js_paths %}
             <script src="{{ js_path }}" defer></script>
         {% endfor %}
     {% endfor %}
 </head>
-{% if page_resource is has_files %}
-    {% set page_image = page_resource.associated_files | selectattr('media_type', 'starts_with', 'image/') | first %}
+{% if file_resource is has_files %}
+    {% set page_image = file_resource.associated_files | selectattr('media_type', 'starts_with', 'image/') | first %}
 {% elif site.configuration.theme.background_image_id and site.configuration.theme.background_image_id in site.ancestry.files %}
     {% set page_image = site.ancestry.files[site.configuration.theme.background_image_id] %}
 {% endif %}
@@ -100,7 +100,7 @@
                 </ul>
             </div>
         </div>
-        {% if page_resource is defined and site.configuration.multilingual %}
+        {% if file_resource is defined and site.configuration.multilingual %}
             <div id="nav-locale" class="nav-primary-expandable">
                 <h2 class="nav-primary-action">{% trans %}Language{% endtrans %}</h2>
                 <div class="nav-primary-expanded">
@@ -111,7 +111,7 @@
                         {% do ns.available_locales.append((available_locale, available_locale_data.get_display_name())) %}
                     {% endfor %}
                     {% for available_locale, available_locale_name in ns.available_locales | sort(attribute='1') %}
-                        <li><a href="{{ page_resource | url(locale=available_locale) }}" hreflang="{{ available_locale }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a></li>
+                        <li><a href="{{ file_resource | url(locale=available_locale) }}" hreflang="{{ available_locale }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a></li>
                     {% endfor %}
                     </ul>
                 </div>
@@ -123,8 +123,8 @@
             <h1>{{ page_title }}</h1>
         {% endif %}
         {% block page_content %}{% endblock %}
-        {% if page_resource is has_links %}
-            {% set links = page_resource.links | rejectattr('label', 'none') | list %}
+        {% if file_resource is has_links %}
+            {% set links = file_resource.links | rejectattr('label', 'none') | list %}
             {% set links = links | select_localizeds | list + links | selectattr('locale', 'none') | list %}
             {% if links | length > 0 %}
                 <h2>{% trans %}External links{% endtrans %}</h2>

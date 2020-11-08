@@ -9,8 +9,7 @@ from betty.tests import TestCase
 
 
 class IterfilesTest(TestCase):
-    @sync
-    async def test_iterfiles(self):
+    def test_iterfiles(self):
         with TemporaryDirectory() as path:
             subdirpath = join(path, 'subdir')
             mkdir(subdirpath)
@@ -18,7 +17,7 @@ class IterfilesTest(TestCase):
             open(join(path, '.hiddenrootfile'), 'a').close()
             open(join(subdirpath, 'subdirfile'), 'a').close()
             actual = [actualpath[len(path) + 1:]
-                      async for actualpath in iterfiles(path)]
+                      for actualpath in iterfiles(path)]
         expected = [
             '.hiddenrootfile',
             'rootfile',
@@ -43,81 +42,7 @@ class HashfileTest(TestCase):
 
 class FileSystemTest(TestCase):
     @sync
-    async def test_open(self):
-        with TemporaryDirectory() as source_path_1:
-            with TemporaryDirectory() as source_path_2:
-                with open(join(source_path_1, 'apples'), 'w') as f:
-                    f.write('apples')
-                with open(join(source_path_2, 'apples'), 'w') as f:
-                    f.write('notapples')
-                with open(join(source_path_1, 'oranges'), 'w') as f:
-                    f.write('oranges')
-                with open(join(source_path_2, 'bananas'), 'w') as f:
-                    f.write('bananas')
-
-                sut = FileSystem(source_path_1, source_path_2)
-
-                with await sut.open('apples') as f:
-                    self.assertEquals('apples', f.read())
-                with await sut.open('oranges') as f:
-                    self.assertEquals('oranges', f.read())
-                with await sut.open('bananas') as f:
-                    self.assertEquals('bananas', f.read())
-
-                with self.assertRaises(FileNotFoundError):
-                    with await sut.open('mangos'):
-                        pass
-
-    @sync
-    async def test_open_with_first_file_path_alternative_first_source_path(self):
-        with TemporaryDirectory() as source_path_1:
-            with TemporaryDirectory() as source_path_2:
-                with open(join(source_path_1, 'pinkladies'), 'w') as f:
-                    f.write('pinkladies')
-                with open(join(source_path_2, 'pinkladies'), 'w') as f:
-                    f.write('notpinkladies')
-                with open(join(source_path_1, 'apples'), 'w') as f:
-                    f.write('notpinkladies')
-                with open(join(source_path_2, 'apples'), 'w') as f:
-                    f.write('notpinkladies')
-
-                sut = FileSystem(source_path_1, source_path_2)
-
-                with await sut.open('pinkladies', 'apples') as f:
-                    self.assertEquals('pinkladies', f.read())
-
-    @sync
-    async def test_open_with_first_file_path_alternative_second_source_path(self):
-        with TemporaryDirectory() as source_path_1:
-            with TemporaryDirectory() as source_path_2:
-                with open(join(source_path_2, 'pinkladies'), 'w') as f:
-                    f.write('pinkladies')
-                with open(join(source_path_1, 'apples'), 'w') as f:
-                    f.write('notpinkladies')
-                with open(join(source_path_2, 'apples'), 'w') as f:
-                    f.write('notpinkladies')
-
-                sut = FileSystem(source_path_1, source_path_2)
-
-                with await sut.open('pinkladies', 'apples') as f:
-                    self.assertEquals('pinkladies', f.read())
-
-    @sync
-    async def test_open_with_second_file_path_alternative_first_source_path(self):
-        with TemporaryDirectory() as source_path_1:
-            with TemporaryDirectory() as source_path_2:
-                with open(join(source_path_1, 'apples'), 'w') as f:
-                    f.write('apples')
-                with open(join(source_path_2, 'apples'), 'w') as f:
-                    f.write('notapples')
-
-                sut = FileSystem(source_path_1, source_path_2)
-
-                with await sut.open('pinkladies', 'apples') as f:
-                    self.assertEquals('apples', f.read())
-
-    @sync
-    async def test_copy2(self):
+    async def test_copy(self):
         with TemporaryDirectory() as source_path_1:
             with TemporaryDirectory() as source_path_2:
                 with open(join(source_path_1, 'apples'), 'w') as f:
@@ -132,22 +57,22 @@ class FileSystemTest(TestCase):
                 with TemporaryDirectory() as destination_path:
                     sut = FileSystem(source_path_1, source_path_2)
 
-                    await sut.copy('apples', destination_path)
-                    await sut.copy('oranges', destination_path)
-                    await sut.copy('bananas', destination_path)
+                    await sut.copy('apples', join(destination_path, 'apples'))
+                    await sut.copy('oranges', join(destination_path, 'oranges'))
+                    await sut.copy('bananas', join(destination_path, 'bananas'))
 
-                    with await sut.open(join(destination_path, 'apples')) as f:
+                    with open(join(destination_path, 'apples')) as f:
                         self.assertEquals('apples', f.read())
-                    with await sut.open(join(destination_path, 'oranges')) as f:
+                    with open(join(destination_path, 'oranges')) as f:
                         self.assertEquals('oranges', f.read())
-                    with await sut.open(join(destination_path, 'bananas')) as f:
+                    with open(join(destination_path, 'bananas')) as f:
                         self.assertEquals('bananas', f.read())
 
                     with self.assertRaises(FileNotFoundError):
                         await sut.copy('mangos', destination_path)
 
     @sync
-    async def test_copytree(self):
+    async def test_copy_tree(self):
         with TemporaryDirectory() as source_path_1:
             os.makedirs(join(source_path_1, 'basket'))
             with TemporaryDirectory() as source_path_2:
@@ -166,9 +91,9 @@ class FileSystemTest(TestCase):
 
                     await sut.copy_tree('', destination_path)
 
-                    with await sut.open(join(destination_path, 'basket', 'apples')) as f:
+                    with open(join(destination_path, 'basket', 'apples')) as f:
                         self.assertEquals('apples', f.read())
-                    with await sut.open(join(destination_path, 'basket', 'oranges')) as f:
+                    with open(join(destination_path, 'basket', 'oranges')) as f:
                         self.assertEquals('oranges', f.read())
-                    with await sut.open(join(destination_path, 'basket', 'bananas')) as f:
+                    with open(join(destination_path, 'basket', 'bananas')) as f:
                         self.assertEquals('bananas', f.read())

@@ -42,7 +42,7 @@ class GenerateTestCase(TestCase):
         return file_path
 
 
-class RenderTest(GenerateTestCase):
+class GenerateTest(GenerateTestCase):
     def setUp(self):
         GenerateTestCase.setUp(self)
         configuration = Configuration(
@@ -53,12 +53,6 @@ class RenderTest(GenerateTestCase):
     async def test_front_page(self):
         await generate(self.site)
         self.assert_betty_html('/index.html')
-
-    @sync
-    async def test_files(self):
-        await generate(self.site)
-        self.assert_betty_html('/file/index.html')
-        self.assert_betty_json('/file/index.json', 'fileCollection')
 
     @sync
     async def test_file(self):

@@ -2,7 +2,7 @@
 {% set people = file_resources %}
 {% set page_title = _('People') %}
 {% block page_content %}
-    {% with persons=entities | rejectattr('private', 'eq', True), group_by_affiliation=True %}
+    {% with persons=people | rejectattr('private', 'eq', True), group_by_affiliation=True %}
         {% include 'list-person.html.j2' %}
     {% endwith %}
 {% endblock %}

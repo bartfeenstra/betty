@@ -1,11 +1,11 @@
-from typing import List, Tuple, Callable, Set, Type, Optional
+from typing import Set, Type, Optional, Any
 
 from betty.ancestry import Ancestry, Person, File, Citation, Source, Event
-from betty.event import Event as DispatchedEvent
 from betty.functools import walk
-from betty.parse import PostParseEvent
-from betty.plugin import Plugin
+from betty.parse import PostParser
+from betty.plugin import Plugin, NO_CONFIGURATION
 from betty.plugin.privatizer import Privatizer
+from betty.site import Site
 
 
 class AnonymousSource(Source):
@@ -102,15 +102,17 @@ def anonymize_citation(citation: Citation, anonymous_citation: AnonymousCitation
     del citation.source
 
 
-class Anonymizer(Plugin):
+class Anonymizer(Plugin, PostParser):
+    def __init__(self, ancestry: Ancestry):
+        self._ancestry = ancestry
+
+    @classmethod
+    def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
+        return cls(site.ancestry)
+
     @classmethod
     def comes_after(cls) -> Set[Type[Plugin]]:
         return {Privatizer}
 
-    def subscribes_to(self) -> List[Tuple[Type[DispatchedEvent], Callable]]:
-        return [
-            (PostParseEvent, self._anonymize),
-        ]
-
-    async def _anonymize(self, event: PostParseEvent) -> None:
-        anonymize(event.ancestry)
+    async def post_parse(self) -> None:
+        anonymize(self._ancestry)

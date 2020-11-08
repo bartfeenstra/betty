@@ -1,19 +1,18 @@
 import os
 from shutil import copyfile
-from typing import List, Tuple, Callable, Type, Dict, Optional
+from typing import Optional, Any
 
 from voluptuous import Schema, Required, Maybe
 
-from betty.event import Event
 from betty.fs import makedirs
-from betty.generate import PostGenerateEvent
-from betty.plugin import Plugin
+from betty.generate import PostGenerator
+from betty.plugin import Plugin, NO_CONFIGURATION
 from betty.site import Site
 
 DOCKER_PATH = os.path.join(os.path.dirname(__file__), 'assets', 'docker')
 
 
-class Nginx(Plugin):
+class Nginx(Plugin, PostGenerator):
     configuration_schema: Schema = Schema({
         Required('www_directory_path', default=None): Maybe(str),
         Required('https', default=None): Maybe(bool),
@@ -25,13 +24,11 @@ class Nginx(Plugin):
         self._site = site
 
     @classmethod
-    def for_site(cls, site: Site, configuration: Dict):
+    def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
         return cls(site, configuration['www_directory_path'], configuration['https'])
 
-    def subscribes_to(self) -> List[Tuple[Type[Event], Callable]]:
-        return [
-            (PostGenerateEvent, self._generate_config),
-        ]
+    async def post_generate(self) -> None:
+        await self._generate_config()
 
     @property
     def assets_directory_path(self) -> Optional[str]:
@@ -49,14 +46,14 @@ class Nginx(Plugin):
             return self._site.configuration.www_directory_path
         return self._www_directory_path
 
-    async def _generate_config(self, event: PostGenerateEvent) -> None:
+    async def _generate_config(self) -> None:
         output_directory_path = os.path.join(self._site.configuration.output_directory_path, 'nginx')
         makedirs(output_directory_path)
 
         # Render the ngnix configuration.
         file_name = 'nginx.conf.j2'
         destination_file_path = os.path.join(output_directory_path, file_name)
-        self._site.assets.copy(file_name, destination_file_path)
+        await self._site.assets.copy(file_name, destination_file_path)
         await self._site.renderer.render_tree(output_directory_path)
 
         # Render the Dockerfile.
