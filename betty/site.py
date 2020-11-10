@@ -8,7 +8,7 @@ from jinja2 import Environment
 from betty.concurrent import ExceptionRaisingExecutor
 from betty.dispatch import Dispatcher
 from betty.lock import Locks
-from betty.render import Renderer, SequentialRenderer
+from betty.render import SequentialRenderer
 from betty.sass import SassRenderer
 
 try:
@@ -178,7 +178,7 @@ class Site:
         return self._jinja2_environment
 
     @property
-    def renderer(self) -> Renderer:
+    def renderer(self) -> SequentialRenderer:
         if not self._renderer:
             from betty.jinja2 import Jinja2Renderer
             self._renderer = SequentialRenderer([

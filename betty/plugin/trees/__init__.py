@@ -37,7 +37,7 @@ class Trees(Plugin, HtmlProvider, PostStaticGenerator):
             with suppress(FileNotFoundError):
                 shutil.rmtree(build_directory_path)
             shutil.copytree(path.join(self.assets_directory_path, 'js'), build_directory_path)
-        await self._site.renderer.render_tree(build_directory_path)
+        await self._site.renderer.render_directory(build_directory_path)
 
         self._site.executor.submit(_do_render, build_directory_path, self._site.configuration.www_directory_path)
 

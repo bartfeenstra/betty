@@ -53,8 +53,8 @@ class Nginx(Plugin, PostGenerator):
         # Render the ngnix configuration.
         file_name = 'nginx.conf.j2'
         destination_file_path = os.path.join(output_directory_path, file_name)
-        await self._site.assets.copy(file_name, destination_file_path)
-        await self._site.renderer.render_tree(output_directory_path)
+        await self._site.assets.copy_file(file_name, destination_file_path)
+        await self._site.renderer.render_directory(output_directory_path)
 
         # Render the Dockerfile.
         copyfile(os.path.join(DOCKER_PATH, 'Dockerfile'), os.path.join(output_directory_path, 'Dockerfile'))

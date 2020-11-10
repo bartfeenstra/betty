@@ -1,4 +1,4 @@
 {{ {
     '$schema': 'schema.json#/definitions/sourceCollection' | static_url(absolute=True),
     'collection': file_resources | list,
-} | json }}
+} | json | safe }}

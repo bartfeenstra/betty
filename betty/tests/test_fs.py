@@ -57,9 +57,9 @@ class FileSystemTest(TestCase):
                 with TemporaryDirectory() as destination_path:
                     sut = FileSystem(source_path_1, source_path_2)
 
-                    await sut.copy('apples', join(destination_path, 'apples'))
-                    await sut.copy('oranges', join(destination_path, 'oranges'))
-                    await sut.copy('bananas', join(destination_path, 'bananas'))
+                    await sut.copy_file('apples', join(destination_path, 'apples'))
+                    await sut.copy_file('oranges', join(destination_path, 'oranges'))
+                    await sut.copy_file('bananas', join(destination_path, 'bananas'))
 
                     with open(join(destination_path, 'apples')) as f:
                         self.assertEquals('apples', f.read())
@@ -69,7 +69,7 @@ class FileSystemTest(TestCase):
                         self.assertEquals('bananas', f.read())
 
                     with self.assertRaises(FileNotFoundError):
-                        await sut.copy('mangos', destination_path)
+                        await sut.copy_file('mangos', destination_path)
 
     @sync
     async def test_copy_tree(self):
@@ -89,7 +89,7 @@ class FileSystemTest(TestCase):
                 with TemporaryDirectory() as destination_path:
                     sut = FileSystem(source_path_1, source_path_2)
 
-                    await sut.copy_tree('', destination_path)
+                    await sut.copy_directory('', destination_path)
 
                     with open(join(destination_path, 'basket', 'apples')) as f:
                         self.assertEquals('apples', f.read())
