@@ -22,18 +22,13 @@ def walk(item, attribute_name):
         yield from walk(child, attribute_name)
 
 
-async def asynciter(items: Union[Iterable, AsyncIterable]) -> AsyncIterable:
-    if hasattr(items, '__aiter__'):
-        async for item in items:
-            yield item
-        return
-    for item in items:
-        yield item
-
-
 def sync(f):
     if iscoroutine(f):
-        return asyncio.get_event_loop().run_until_complete(f)
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = asyncio.get_event_loop()
+        return loop.run_until_complete(f)
     elif iscoroutinefunction(f):
         @wraps(f)
         def _synced(*args, **kwargs):

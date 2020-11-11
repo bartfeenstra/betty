@@ -10,8 +10,8 @@
             'id': person.id,
             'label': person_label | striptags,
             'url': person | url,
-            'parentIds': person.parents | map(attribute='id') | list,
-            'childIds': person.children | map(attribute='id') | list,
+            'parentIds': person.parents | list,
+            'childIds': person.children | list,
         }
     }) %}
 {% endfor %}
