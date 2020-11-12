@@ -9,15 +9,16 @@ class Index:
     def __init__(self, site: Site):
         self._site = site
 
-    async def build(self) -> Iterable[Dict]:
-        return filter(None, await asyncio.gather(*[
-            *[self._build_person(person) for person in self._site.ancestry.people.values()],
-            *[self._build_place(place) for place in self._site.ancestry.places.values()],
-            *[self._build_file(file) for file in self._site.ancestry.files.values()],
-        ]))
+    def build(self) -> Iterable[Dict]:
+        return [{}]
+        # return filter(None, await asyncio.gather(*[
+        #     *[self._build_person(person) for person in self._site.ancestry.people.values()],
+        #     *[self._build_place(place) for place in self._site.ancestry.places.values()],
+        #     *[self._build_file(file) for file in self._site.ancestry.files.values()],
+        # ]))
 
     async def _render_resource(self, resource: Resource):
-        return await self._site.jinja2_environment.get_template('search/result-%s.html.j2' % resource.resource_type_name).render_async({
+        return self._site.jinja2_environment.get_template('search/result-%s.html.j2' % resource.resource_type_name).render({
             resource.resource_type_name: resource,
         })
 

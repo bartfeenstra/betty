@@ -16,7 +16,6 @@ from babel import Locale
 from geopy import units
 from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter, Template
-from jinja2.asyncsupport import auto_await
 from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.runtime import Macro, resolve_or_missing, StrictUndefined
 from jinja2.utils import htmlsafe_json_dumps
@@ -27,7 +26,6 @@ from betty.ancestry import File, Citation, Identifiable, Resource, HasLinks, Has
     RESOURCE_TYPES
 from betty.config import Configuration
 from betty.fs import makedirs, hashfile, iterfiles
-from betty.functools import walk, asynciter
 from betty.html import HtmlProvider
 from betty.importlib import import_any
 from betty.json import JSONEncoder
@@ -36,7 +34,7 @@ from betty.lock import AcquiredError
 from betty.media_type import MediaType
 from betty.path import extension
 from betty.plugin import Plugin
-from betty.render import Renderer
+from betty.render import Renderer, TemplateArguments
 from betty.search import Index
 from betty.site import Site
 
@@ -96,7 +94,7 @@ class BettyEnvironment(Environment):
         template_directory_paths = [join(path, 'templates') for path in site.assets.paths]
 
         Environment.__init__(self,
-                             enable_async=True,
+                             # enable_async=True,
                              loader=FileSystemLoader(template_directory_paths),
                              undefined=StrictUndefined,
                              autoescape=select_autoescape(['html']),
@@ -201,16 +199,33 @@ Template.environment_class = BettyEnvironment
 
 
 class Jinja2Renderer(Renderer):
+    _EXTENSIONS = {'j2'}
+
     def __init__(self, environment: Environment, configuration: Configuration):
         self._environment = environment
         self._configuration = configuration
 
-    async def render_file(self, file_path: str) -> None:
-        if not file_path.endswith('.j2'):
-            return
+    def _assert_file_path(self, file_path: str) -> None:
+        if not self.consumes_file_path(file_path):
+            raise ValueError('Cannot consume "%s".' % file_path)
+
+    def consumes_file_path(self, file_path: str) -> bool:
+        return file_path.endswith('.j2')
+
+    def update_file_path(self, file_path: str) -> str:
+        self._assert_file_path(file_path)
+        return file_path[:-3]
+
+    async def render_string(self, template: str, template_arguments: TemplateArguments = None) -> str:
+        return self._environment.from_string(template).render(**template_arguments)
+
+    async def render_file(self, file_path: str, template_arguments: TemplateArguments = None) -> None:
+        self._assert_file_path(file_path)
         file_destination_path = file_path[:-3]
-        data = {}
-        if file_destination_path.startswith(self._configuration.www_directory_path):
+        template = _root_loader.load(self._environment, file_path, self._environment.globals)
+        if template_arguments is None:
+            template_arguments = {}
+        if 'file_resource' not in template_arguments and file_destination_path.startswith(self._configuration.www_directory_path):
             # Unix-style paths use forward slashes, so they are valid URL paths.
             resource = file_destination_path[len(
                 self._configuration.www_directory_path):]
@@ -218,21 +233,23 @@ class Jinja2Renderer(Renderer):
                 resource_parts = resource.lstrip('/').split('/')
                 if resource_parts[0] in map(lambda x: x.alias, self._configuration.locales.values()):
                     resource = '/'.join(resource_parts[1:])
-            data['page_resource'] = resource
-        template = _root_loader.load(self._environment, file_path, self._environment.globals)
+            template_arguments['file_resource'] = resource
         with open(file_destination_path, 'w') as f:
-            f.write(await template.render_async(data))
+            f.write(template.render(**template_arguments))
         os.remove(file_path)
 
-    async def render_tree(self, tree_path: str) -> None:
-        await asyncio.gather(
-            *[self.render_file(file_path) async for file_path in iterfiles(tree_path) if file_path.endswith('.j2')],
-        )
+    async def render_directory(self, directory_path: str, template_arguments: TemplateArguments = None) -> None:
+        # await asyncio.gather(
+        #     *[self.render_file(file_path, template_arguments) for file_path in iterfiles(directory_path) if self.consumes_file_path(file_path)],
+        # )
+        for file_path in iterfiles(directory_path):
+            if self.consumes_file_path(file_path):
+                await self.render_file(file_path, template_arguments)
 
 
-async def _filter_flatten(items):
-    async for item in asynciter(items):
-        async for child in asynciter(item):
+def _filter_flatten(items):
+    for item in items:
+        for child in item:
             yield child
 
 
@@ -270,18 +287,18 @@ def _filter_format_degrees(degrees):
 
 
 @contextfilter
-async def _filter_map(*args, **kwargs):
+def _filter_map(*args, **kwargs):
     if len(args) == 3 and isinstance(args[2], Macro):
         seq = args[1]
         func = args[2]
     else:
         seq, func = prepare_map(args, kwargs)
     if seq:
-        async for item in asynciter(seq):
-            yield await auto_await(func(item))
+        for item in seq:
+            yield func(item)
 
 
-async def _filter_file(site: Site, file: File) -> str:
+def _filter_file(site: Site, file: File) -> str:
     file_directory_path = os.path.join(site.configuration.www_directory_path, 'file')
 
     destination_name = '%s.%s' % (file.id, file.extension)
@@ -300,7 +317,7 @@ def _do_filter_file(file_path: str, destination_directory_path: str, destination
     os.link(file_path, destination_file_path)
 
 
-async def _filter_image(site: Site, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
+def _filter_image(site: Site, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
     if width is None and height is None:
         raise ValueError('At least the width or height must be given.')
 

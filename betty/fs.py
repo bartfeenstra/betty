@@ -4,58 +4,78 @@ import shutil
 from collections import deque
 from contextlib import suppress
 from os import walk, path
-from os.path import join, dirname, exists, relpath, getmtime
-from shutil import copy2
 from tempfile import mkdtemp
-from typing import AsyncIterable
+from typing import Iterable, Dict
 
 
-async def iterfiles(path: str) -> AsyncIterable[str]:
-    for dir_path, _, filenames in walk(path):
+def iterfiles(file_path: str) -> Iterable[str]:
+    for dir_path, _, filenames in walk(file_path):
         for filename in filenames:
-            yield join(dir_path, filename)
+            yield path.join(dir_path, filename)
 
 
-def makedirs(path: str) -> None:
-    os.makedirs(path, 0o755, True)
+def makedirs(file_path: str) -> None:
+    os.makedirs(file_path, 0o755, True)
 
 
-def hashfile(path: str) -> str:
-    return hashlib.md5(':'.join([str(getmtime(path)), path]).encode('utf-8')).hexdigest()
+def hashfile(file_path: str) -> str:
+    return hashlib.md5(':'.join([str(path.getmtime(file_path)), file_path]).encode('utf-8')).hexdigest()
+
+
+async def copy_directory(source_path: str, destination_path: str):
+    for file_source_path in iterfiles(source_path):
+        file_destination_path = path.join(destination_path, path.relpath(file_source_path, source_path))
+        try:
+            shutil.copy2(file_source_path, file_destination_path)
+        except FileNotFoundError:
+            makedirs(path.dirname(file_destination_path))
+            shutil.copy2(file_source_path, file_destination_path)
 
 
 class FileSystem:
-    def __init__(self, *paths):
+    def __init__(self, *paths: str):
+        """
+        :param paths: The paths to each individual layer of the file system, from high to low priority.
+        """
         self._paths = deque(paths)
 
     @property
     def paths(self) -> deque:
         return self._paths
 
-    async def open(self, *file_paths: str):
-        for file_path in file_paths:
-            for fs_path in self._paths:
-                with suppress(FileNotFoundError):
-                    return open(join(fs_path, file_path))
-        raise FileNotFoundError
+    async def copy_file(self, source_path: str, destination_path: str) -> None:
+        makedirs(path.dirname(destination_path))
 
-    async def copy2(self, source_path: str, destination_path: str) -> str:
         for fs_path in self._paths:
             with suppress(FileNotFoundError):
-                return copy2(join(fs_path, source_path), destination_path)
-        tried_paths = [join(fs_path, source_path) for fs_path in self._paths]
-        raise FileNotFoundError('Could not find any of %s.' %
-                                ', '.join(tried_paths))
+                return shutil.copyfile(path.join(fs_path, source_path), destination_path)
 
-    async def copytree(self, source_path: str, destination_path: str) -> str:
-        for fs_path in self._paths:
-            async for file_source_path in iterfiles(join(fs_path, source_path)):
-                file_destination_path = join(destination_path, relpath(
-                    file_source_path, join(fs_path, source_path)))
-                if not exists(file_destination_path):
-                    makedirs(dirname(file_destination_path))
-                    copy2(file_source_path, file_destination_path)
-        return destination_path
+        tried_paths = [path. join(fs_path, source_path) for fs_path in self._paths]
+        raise FileNotFoundError('Could not find any of %s.' % ', '.join(tried_paths))
+
+    async def copy_directory(self, source_path: str, destination_path: str) -> None:
+        makedirs(destination_path)
+
+        tries = []
+        for fs_path in reversed(self._paths):
+            try:
+                await copy_directory(path.join(fs_path, source_path), destination_path)
+                tries.append(True)
+            except FileNotFoundError:
+                tries.append(False)
+
+        if True not in tries:
+            tried_paths = [path. join(fs_path, source_path) for fs_path in self._paths]
+            raise FileNotFoundError('Could not find any of %s.' % ', '.join(tried_paths))
+
+    def iterfiles(self, directory_path: str) -> Dict[str, str]:
+        file_paths = {}
+        for fs_path in reversed(self._paths):
+            for dir_path, _, filenames in walk(directory_path):
+                for filename in filenames:
+                    file_path = path.join(dir_path, filename)
+                    file_paths[path.relpath(file_path, fs_path)] = file_path
+        return file_paths
 
 
 class DirectoryBackup:

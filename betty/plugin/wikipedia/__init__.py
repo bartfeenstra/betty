@@ -15,6 +15,7 @@ from jinja2.runtime import resolve_or_missing
 
 from betty.ancestry import Link, HasLinks, Resource
 from betty.fs import makedirs
+from betty.functools import sync
 from betty.jinja2 import Jinja2Provider
 from betty.locale import Localized, negotiate_locale
 from betty.parse import PostParser
@@ -227,6 +228,7 @@ class Wikipedia(Plugin, Jinja2Provider, PostParser):
         }
 
     @contextfilter
+    @sync
     async def _filter_wikipedia_links(self, context, links: Iterable[Link]) -> Iterable[Entry]:
         locale = parse_locale(resolve_or_missing(context, 'locale'), '-')[0]
         return filter(None, await asyncio.gather(*[self._filter_wikipedia_link(locale, link) for link in links]))
