@@ -1,3 +1,5 @@
+
+
 # Betty 👵
 
 ![Tests](https://github.com/bartfeenstra/betty/workflows/Test/badge.svg) [![codecov](https://codecov.io/gh/bartfeenstra/betty/branch/master/graph/badge.svg)](https://codecov.io/gh/bartfeenstra/betty)
@@ -62,6 +64,7 @@ Options:
 Commands:
   clear-caches  Clear all caches.
   generate      Generate a static site.
+  serve         Serve a generated site.
 ```
 
 ### Configuration files

@@ -11,7 +11,7 @@ import click
 from click import BadParameter, get_current_context
 
 import betty
-from betty import generate, parse
+from betty import generate, parse, serve
 from betty.config import from_file
 from betty.error import ExternalContextError
 from betty.functools import sync
@@ -85,11 +85,12 @@ async def _init_ctx(ctx, configuration_file_path: Optional[str] = None) -> None:
     for try_configuration_file_path in try_configuration_file_paths:
         with suppress(FileNotFoundError):
             with open(try_configuration_file_path) as f:
-                logger.info('Loading the site from %s...' % try_configuration_file_path)
+                logger.info('Loading the site from %s.' % try_configuration_file_path)
                 configuration = from_file(f)
             site = Site(configuration)
             async with site:
                 ctx.obj['commands']['generate'] = _generate
+                ctx.obj['commands']['serve'] = _serve
                 for plugin in site.plugins.values():
                     if isinstance(plugin, CommandProvider):
                         for command_name, command in plugin.commands.items():
@@ -134,3 +135,10 @@ async def _clear_caches():
 async def _generate(site: Site):
     await parse.parse(site)
     await generate.generate(site)
+
+
+@click.command(help='Serve a generated site.')
+@click.option('--port', '-p', 'port', help='The localhost port at which to serve the site.', default=serve.DEFAULT_PORT, show_default=True)
+@site_command
+async def _serve(site: Site, port: int):
+    serve.serve(site.configuration.www_directory_path, port)
