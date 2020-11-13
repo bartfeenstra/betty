@@ -5,6 +5,8 @@ import webbrowser
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 from io import StringIO
 
+from betty.os import chdir
+
 DEFAULT_PORT = 8000
 
 
@@ -16,9 +18,7 @@ def serve(www_directory_path: str, port: int = DEFAULT_PORT) -> None:
 
 
 def _start_http_server(www_directory_path: str, port: int) -> None:
-    class RequestHandler(SimpleHTTPRequestHandler):
-        def __init__(self, *args, **kwargs):
-            SimpleHTTPRequestHandler.__init__(self, *args, directory=www_directory_path, **kwargs)
-    server = HTTPServer(('', port), RequestHandler)
-    with contextlib.redirect_stderr(StringIO()):
-        server.serve_forever()
+    with chdir(www_directory_path):
+        server = HTTPServer(('', port), SimpleHTTPRequestHandler)
+        with contextlib.redirect_stderr(StringIO()):
+            server.serve_forever()
