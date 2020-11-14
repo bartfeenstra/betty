@@ -9,7 +9,6 @@ trap tear_down INT TERM EXIT
 working_directory_path=$(mktemp -d)
 
 function tear_down() {
-    docker stop betty-test-nginx 1>/dev/null || true
     rm -r "$working_directory_path"
 }
 
