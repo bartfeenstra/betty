@@ -2,14 +2,10 @@ from textwrap import indent
 from typing import List
 
 
-class ExternalContextError(Exception):
+class ContextError(Exception):
 
     """
-    An error depending on Betty's external context, e.g. not caused by internal failure.
-
-    This type of error is fatal, but fixing it does not require knowledge of Betty's internals or the stack trace
-    leading to the error. Instead, the error message must provide contextual information, and the error may be caught,
-    its description extended using wrap(), and re-raised.
+    An error with a stack of contextual messages.
     """
 
     def __init__(self, *args, **kwargs):
@@ -28,3 +24,13 @@ class ExternalContextError(Exception):
         """
         self._contexts.append(context)
         return self
+
+
+class UserFacingError(Exception):
+    """
+    A user-facing error.
+
+    This type of error is fatal, but fixing it does not require knowledge of Betty's internals or the stack trace
+    leading to the error. It must therefore have an end-user-friendly message, and its stack trace must not be shown.
+    """
+    pass
