@@ -6,12 +6,7 @@ import docker
 from docker.errors import DockerException, NotFound
 from docker.models.containers import Container
 
-from betty.error import UserFacingError
 from betty.serve import Server
-
-
-class DockerError(UserFacingError, RuntimeError):
-    pass
 
 
 class DockerizedNginxServer(Server):
