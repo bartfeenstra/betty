@@ -10,7 +10,7 @@ import click
 from click import BadParameter, get_current_context
 
 import betty
-from betty import generate, parse, serve
+from betty import generate, parse
 from betty.config import from_file
 from betty.error import UserFacingError
 from betty.functools import sync
@@ -142,13 +142,10 @@ async def _generate(site: Site):
 
 
 @click.command(help='Serve a generated site.')
-@click.option('--port', '-p', 'port', help='The localhost port at which to serve the site.', default=serve.DEFAULT_PORT, show_default=True)
 @site_command
-async def _serve(site: Site, port: int):
+async def _serve(site: Site):
     if not path.isdir(site.configuration.www_directory_path):
         raise CommandValueError('Web root directory "%s" does not exist.' % site.configuration.www_directory_path)
-    if 0 > port > 65535:
-        raise CommandValueError('The port must be a value ranging from 0 to 65535.')
-    with SiteServer(site, port):
+    with SiteServer(site):
         while True:
             pass

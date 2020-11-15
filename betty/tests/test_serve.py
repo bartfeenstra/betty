@@ -16,9 +16,9 @@ class BuiltinServerTest(TestCase):
         with TemporaryDirectory() as www_directory_path:
             with open(path.join(www_directory_path, 'index.html'), 'w') as f:
                 f.write(content)
-            with BuiltinServer(www_directory_path, 8000):
+            with BuiltinServer(www_directory_path) as server:
                 # Wait for the server to start.
                 sleep(1)
-                response = requests.get('http://localhost:8000')
+                response = requests.get(server.public_url)
                 self.assertEquals(200, response.status_code)
                 self.assertEquals(content, response.content.decode('utf-8'))

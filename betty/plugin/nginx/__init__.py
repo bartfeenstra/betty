@@ -1,18 +1,20 @@
 import os
 from shutil import copyfile
-from typing import Optional, Any
+from typing import Optional, Any, Iterable
 
 from voluptuous import Schema, Required, Maybe
 
 from betty.fs import makedirs
 from betty.generate import PostGenerator
 from betty.plugin import Plugin, NO_CONFIGURATION
+from betty.plugin.nginx.serve import DockerizedNginxServer
+from betty.serve import ServerProvider, Server
 from betty.site import Site
 
 DOCKER_PATH = os.path.join(os.path.dirname(__file__), 'assets', 'docker')
 
 
-class Nginx(Plugin, PostGenerator):
+class Nginx(Plugin, PostGenerator, ServerProvider):
     configuration_schema: Schema = Schema({
         Required('www_directory_path', default=None): Maybe(str),
         Required('https', default=None): Maybe(bool),
@@ -26,6 +28,11 @@ class Nginx(Plugin, PostGenerator):
     @classmethod
     def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
         return cls(site, configuration['www_directory_path'], configuration['https'])
+
+    @property
+    def servers(self) -> Iterable[Server]:
+        if DockerizedNginxServer.is_available():
+            return [DockerizedNginxServer(self._site.configuration.www_directory_path, self._site.configuration.output_directory_path)]
 
     async def post_generate(self) -> None:
         await self._generate_config()
