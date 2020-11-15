@@ -1,6 +1,5 @@
 import contextlib
 import logging
-import multiprocessing
 import threading
 import webbrowser
 from http.server import SimpleHTTPRequestHandler, HTTPServer
@@ -12,7 +11,7 @@ from docker.errors import DockerException
 from docker.models.containers import Container
 
 from betty.error import UserFacingError
-from betty.os import chdir
+from betty.os import ChDir
 from betty.plugin.nginx import Nginx
 from betty.site import Site
 
@@ -57,31 +56,21 @@ class BuiltinServer(Server):
     def __init__(self, www_directory_path: str, port: int):
         self._port = port
         self._www_directory_path = www_directory_path
-        self._process = None
-        self._server = None
-        self._parent_connection, self._child_connection = multiprocessing.Pipe(True)
+        self._http_server = None
+        self._cwd = None
 
     def __enter__(self) -> None:
-        self._server = HTTPServer(('', self._port), SimpleHTTPRequestHandler)
-        self._process = multiprocessing.Process(target=self._serve, args=(self._child_connection,))
-        self._process.start()
+        self._http_server = HTTPServer(('', self._port), SimpleHTTPRequestHandler)
+        self._cwd = ChDir(self._www_directory_path).change()
+        threading.Thread(target=self._serve).start()
 
-    def _serve(self, connection: multiprocessing.connection.Connection) -> None:
-        try:
-            with chdir(self._www_directory_path):
-                with contextlib.redirect_stderr(StringIO()):
-                    threading.Thread(target=self._server.serve_forever).start()
-                    if connection.recv():
-                        self._server.shutdown()
-        except BaseException as e:
-            connection.send(e)
-            connection.close()
+    def _serve(self):
+        with contextlib.redirect_stderr(StringIO()):
+            self._http_server.serve_forever()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self._parent_connection.send(True)
-        self._process.join()
-        if self._parent_connection.poll():
-            raise self._parent_connection.recv()
+        self._http_server.shutdown()
+        self._cwd.revert()
 
 
 class DockerServerError(UserFacingError, RuntimeError):
@@ -122,8 +111,6 @@ class DockerServer(Server):
     def _stop(self) -> None:
         if self._container is not None:
             self._container.stop()
-
-
 
     @property
     def _container(self) -> Container:

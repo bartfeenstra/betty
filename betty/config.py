@@ -226,7 +226,7 @@ def from_file(f) -> Configuration:
             file_extension, ', '.join(_from_format_factories.keys())))
     # Change the working directory to allow relative paths to be resolved against the configuration file's directory
     # path.
-    with os.chdir(path.dirname(f.name)):
+    with os.ChDir(path.dirname(f.name)):
         try:
             return factory(f.read())
         except ConfigurationValueError as e:
