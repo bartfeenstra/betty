@@ -17,12 +17,6 @@ class DockerizedNginxServer(Server):
         self._output_directory_path = output_directory_path
         self._client = docker.from_env()
 
-    @property
-    def public_url(self) -> str:
-        if self._container is not None:
-            return 'http://%s' % self._client.api.inspect_container(self._TAG)['NetworkSettings']['Networks']['bridge']['IPAddress']
-        raise RuntimeError('Cannot determine the public URL until this server\'s context has been entered.')
-
     def __enter__(self) -> Server:
         # Stop any containers that may have been left over.
         self._stop()
@@ -42,7 +36,7 @@ class DockerizedNginxServer(Server):
             },
         })
         self._container.exec_run(['nginx', '-s', 'reload'])
-        return self
+        return 'http://%s' % self._client.api.inspect_container(self._TAG)['NetworkSettings']['Networks']['bridge']['IPAddress']
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._stop()
