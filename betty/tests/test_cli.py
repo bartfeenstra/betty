@@ -107,7 +107,7 @@ class MainTest(TestCase):
                         },
                     }
                     dump(config_dict, config_file)
-                with os.chdir(betty_site_path):
+                with os.ChDir(betty_site_path):
                     runner = CliRunner()
                     result = runner.invoke(main, ('test',))
                     self.assertEqual(1, result.exit_code)

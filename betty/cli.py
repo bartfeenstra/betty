@@ -3,20 +3,24 @@ import shutil
 import sys
 from contextlib import suppress, contextmanager
 from functools import wraps
-from os import getcwd
-from os.path import join
+from os import getcwd, path
 from typing import Callable, Dict, Optional
 
 import click
 from click import BadParameter, get_current_context
 
 import betty
-from betty import generate, parse
+from betty import generate, parse, serve
 from betty.config import from_file
-from betty.error import ExternalContextError
+from betty.error import UserFacingError
 from betty.functools import sync
 from betty.logging import CliHandler
+from betty.serve import SiteServer
 from betty.site import Site
+
+
+class CommandValueError(UserFacingError, ValueError):
+    pass
 
 
 class CommandProvider:
@@ -31,7 +35,7 @@ def catch_exceptions():
         yield
     except Exception as e:
         logger = logging.getLogger()
-        if isinstance(e, ExternalContextError):
+        if isinstance(e, UserFacingError):
             logger.error(str(e))
         else:
             logger.exception(e)
@@ -78,18 +82,19 @@ async def _init_ctx(ctx, configuration_file_path: Optional[str] = None) -> None:
     }
 
     if configuration_file_path is None:
-        try_configuration_file_paths = [join(getcwd(), 'betty.%s' % extension) for extension in {'json', 'yaml', 'yml'}]
+        try_configuration_file_paths = [path.join(getcwd(), 'betty.%s' % extension) for extension in {'json', 'yaml', 'yml'}]
     else:
         try_configuration_file_paths = [configuration_file_path]
 
     for try_configuration_file_path in try_configuration_file_paths:
         with suppress(FileNotFoundError):
             with open(try_configuration_file_path) as f:
-                logger.info('Loading the site from %s...' % try_configuration_file_path)
+                logger.info('Loading the site from %s.' % try_configuration_file_path)
                 configuration = from_file(f)
             site = Site(configuration)
             async with site:
                 ctx.obj['commands']['generate'] = _generate
+                ctx.obj['commands']['serve'] = _serve
                 for plugin in site.plugins.values():
                     if isinstance(plugin, CommandProvider):
                         for command_name, command in plugin.commands.items():
@@ -134,3 +139,16 @@ async def _clear_caches():
 async def _generate(site: Site):
     await parse.parse(site)
     await generate.generate(site)
+
+
+@click.command(help='Serve a generated site.')
+@click.option('--port', '-p', 'port', help='The localhost port at which to serve the site.', default=serve.DEFAULT_PORT, show_default=True)
+@site_command
+async def _serve(site: Site, port: int):
+    if not path.isdir(site.configuration.www_directory_path):
+        raise CommandValueError('Web root directory "%s" does not exist.' % site.configuration.www_directory_path)
+    if 0 > port > 65535:
+        raise CommandValueError('The port must be a value ranging from 0 to 65535.')
+    with SiteServer(site, port):
+        while True:
+            pass

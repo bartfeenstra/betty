@@ -62,6 +62,7 @@ Options:
 Commands:
   clear-caches  Clear all caches.
   generate      Generate a static site.
+  serve         Serve a generated site.
 ```
 
 ### Configuration files

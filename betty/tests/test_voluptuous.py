@@ -25,7 +25,7 @@ class PathTest(TestCase):
         (path.join(path.expanduser('~'), 'bar'), './foo/../bar'),
     ])
     def test_with_path_should_return(self, expected: str, path_value: str):
-        with os.chdir(path.expanduser('~')):
+        with os.ChDir(path.expanduser('~')):
             self.assertEqual(expected, Path()(path_value))
 
 

@@ -15,7 +15,7 @@ class ReadmeTest(TestCase):
             }
             with open(path.join(betty_site_path, 'betty.json'), 'w') as f:
                 json.dump(configuration, f)
-            with os.chdir(betty_site_path):
+            with os.ChDir(betty_site_path):
                 expected = subprocess.run(['betty', '--help']).stdout
             with open('README.md') as f:
                 actual = f.read().encode()
