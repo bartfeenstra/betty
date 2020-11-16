@@ -1,6 +1,7 @@
 import logging
 import shutil
 import sys
+import time
 from contextlib import suppress, contextmanager
 from functools import wraps
 from os import getcwd, path
@@ -148,4 +149,4 @@ async def _serve(site: Site):
         raise CommandValueError('Web root directory "%s" does not exist.' % site.configuration.www_directory_path)
     with SiteServer(site):
         while True:
-            pass
+            time.sleep(999999999)
