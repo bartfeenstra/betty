@@ -147,6 +147,6 @@ async def _generate(site: Site):
 async def _serve(site: Site):
     if not path.isdir(site.configuration.www_directory_path):
         raise CommandValueError('Web root directory "%s" does not exist.' % site.configuration.www_directory_path)
-    with SiteServer(site):
+    async with SiteServer(site):
         while True:
             time.sleep(999999999)

@@ -1,8 +1,6 @@
 import json
-import subprocess as stdsubprocess
 import sys
 import unittest
-from contextlib import suppress
 from os import path
 from tempfile import TemporaryDirectory
 
@@ -11,58 +9,41 @@ import jsonschema
 import requests
 from requests import Response
 
-from betty import subprocess
-from betty.plugin.nginx import DOCKER_PATH
+from betty import generate
+from betty.config import from_file
+from betty.functools import sync
+from betty.plugin.nginx.serve import DockerizedNginxServer
+from betty.serve import Server
+from betty.site import Site
 from betty.tests import TestCase
-
-CONTAINER_NAME = IMAGE_NAME = 'betty-test-nginx'
-
-RESOURCES_PATH = path.join(path.dirname(__file__), 'test_integration_assets')
 
 
 @unittest.skipIf(sys.platform == 'darwin', 'Mac OS does not natively support Docker.')
 class NginxTest(TestCase):
-    class Container:
+    class NginxTestServer(Server):
         def __init__(self, configuration_template_file_path: str):
-            self.address = None
-            self._configuration_template_file_path = configuration_template_file_path
+            with open(path.join(path.dirname(__file__), 'test_integration_assets', configuration_template_file_path)) as f:
+                self._configuration = from_file(f)
+            self._output_directory = None
+            self._server = None
 
-        def __enter__(self):
-            self._cleanup_environment()
-            self._working_directory = TemporaryDirectory()
-            with open(path.join(RESOURCES_PATH, self._configuration_template_file_path)) as f:
-                configuration = json.load(f)
-            output_directory_path = path.join(
-                self._working_directory.name, 'output')
-            configuration['output'] = output_directory_path
-            configuration_file_path = path.join(
-                self._working_directory.name, 'betty.json')
-            with open(configuration_file_path, 'w') as f:
-                json.dump(configuration, f)
-            subprocess.run(['betty', '-c', configuration_file_path, 'generate'])
-            subprocess.run(['docker', 'run', '--rm', '--name', CONTAINER_NAME, '-d', '-v',
-                            '%s:/etc/nginx/conf.d/betty.conf:ro' % path.join(output_directory_path, 'nginx',
-                                                                             'nginx.conf'), '-v',
-                            '%s:/var/www/betty:ro' % path.join(output_directory_path, 'www'), IMAGE_NAME])
-            self.address = 'http://%s' % subprocess.run(
-                ['docker', 'inspect', '-f', '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}',
-                 CONTAINER_NAME]).stdout.decode('utf-8').strip()
+        async def start(self) -> Server:
+            self._output_directory = TemporaryDirectory()
+            self._configuration.output_directory_path = self._output_directory.name
+            site = Site(self._configuration)
+            async with site:
+                await generate.generate(site)
+            self._server = DockerizedNginxServer(site)
+            await self._server.start()
             return self
 
-        def __exit__(self, exc_type, exc_val, exc_tb):
-            self.address = None
-            self._cleanup_environment()
-            self._working_directory.cleanup()
+        async def stop(self) -> None:
+            await self._server.stop()
+            self._output_directory.cleanup()
 
-        def _cleanup_environment(self):
-            # Maybe the container wasn't running, and that is fine.
-            with suppress(stdsubprocess.CalledProcessError):
-                subprocess.run(['docker', 'stop', CONTAINER_NAME])
-
-    @classmethod
-    def setUpClass(cls) -> None:
-        subprocess.run(
-            ['docker', 'build', '-t', IMAGE_NAME, DOCKER_PATH])
+        @property
+        def public_url(self) -> str:
+            return self._server.public_url
 
     def assert_betty_html(self, response: Response) -> None:
         self.assertEquals('text/html', response.headers['Content-Type'])
@@ -77,108 +58,122 @@ class NginxTest(TestCase):
                             'static', 'schema.json')) as f:
             jsonschema.validate(data, json.load(f))
 
-    def test_front_page(self):
-        with self.Container('betty-monolingual.json') as c:
-            response = requests.get(c.address)
+    @sync
+    async def test_front_page(self):
+        async with self.NginxTestServer('betty-monolingual.json') as server:
+            response = requests.get(server.public_url)
             self.assertEquals(200, response.status_code)
             self.assert_betty_html(response)
 
-    def test_default_html_404(self):
-        with self.Container('betty-monolingual.json') as c:
-            response = requests.get('%s/non-existent' % c.address)
+    @sync
+    async def test_default_html_404(self):
+        async with self.NginxTestServer('betty-monolingual.json') as server:
+            response = requests.get('%s/non-existent' % server.public_url)
             self.assertEquals(404, response.status_code)
             self.assert_betty_html(response)
 
-    def test_negotiated_json_404(self):
-        with self.Container('betty-monolingual-content-negotiation.json') as c:
-            response = requests.get('%s/non-existent' % c.address, headers={
+    @sync
+    async def test_negotiated_json_404(self):
+        async with self.NginxTestServer('betty-monolingual-content-negotiation.json') as server:
+            response = requests.get('%s/non-existent' % server.public_url, headers={
                 'Accept': 'application/json',
             })
             self.assertEquals(404, response.status_code)
             self.assert_betty_json(response)
 
-    def test_default_localized_front_page(self):
-        with self.Container('betty-multilingual.json') as c:
-            response = requests.get(c.address)
+    @sync
+    async def test_default_localized_front_page(self):
+        async with self.NginxTestServer('betty-multilingual.json') as server:
+            response = requests.get(server.public_url)
             self.assertEquals(200, response.status_code)
             self.assertEquals('en', response.headers['Content-Language'])
-            self.assertEquals('%s/en/' % c.address, response.url)
+            self.assertEquals('%s/en/' % server.public_url, response.url)
             self.assert_betty_html(response)
 
-    def test_explicitly_localized_404(self):
-        with self.Container('betty-multilingual.json') as c:
-            response = requests.get('%s/nl/non-existent' % c.address)
+    @sync
+    async def test_explicitly_localized_404(self):
+        async with self.NginxTestServer('betty-multilingual.json') as server:
+            response = requests.get('%s/nl/non-existent' % server.public_url)
             self.assertEquals(404, response.status_code)
             self.assertEquals('nl', response.headers['Content-Language'])
             self.assert_betty_html(response)
 
-    def test_negotiated_localized_front_page(self):
-        with self.Container('betty-multilingual-content-negotiation.json') as c:
-            response = requests.get(c.address, headers={
+    @sync
+    async def test_negotiated_localized_front_page(self):
+        async with self.NginxTestServer('betty-multilingual-content-negotiation.json') as server:
+            response = requests.get(server.public_url, headers={
                 'Accept-Language': 'nl-NL',
             })
             self.assertEquals(200, response.status_code)
             self.assertEquals('nl', response.headers['Content-Language'])
-            self.assertEquals('%s/nl/' % c.address, response.url)
+            self.assertEquals('%s/nl/' % server.public_url, response.url)
             self.assert_betty_html(response)
 
-    def test_negotiated_localized_default_html_404(self):
-        with self.Container('betty-multilingual-content-negotiation.json') as c:
-            response = requests.get('%s/non-existent' % c.address, headers={
+    @sync
+    async def test_negotiated_localized_default_html_404(self):
+        async with self.NginxTestServer('betty-multilingual-content-negotiation.json') as server:
+            response = requests.get('%s/non-existent' % server.public_url, headers={
                 'Accept-Language': 'nl-NL',
             })
             self.assertEquals(404, response.status_code)
             self.assertEquals('nl', response.headers['Content-Language'])
             self.assert_betty_html(response)
 
-    def test_negotiated_localized_negotiated_json_404(self):
-        with self.Container('betty-multilingual-content-negotiation.json') as c:
-            response = requests.get('%s/non-existent' % c.address, headers={
+    @sync
+    async def test_negotiated_localized_negotiated_json_404(self):
+        async with self.NginxTestServer('betty-multilingual-content-negotiation.json') as server:
+            response = requests.get('%s/non-existent' % server.public_url, headers={
                 'Accept': 'application/json',
                 'Accept-Language': 'nl-NL',
             })
             self.assertEquals(404, response.status_code)
             self.assert_betty_json(response)
 
-    def test_default_html_resource(self):
-        with self.Container('betty-monolingual-content-negotiation.json') as c:
-            response = requests.get('%s/place/' % c.address)
+    @sync
+    async def test_default_html_resource(self):
+        async with self.NginxTestServer('betty-monolingual-content-negotiation.json') as server:
+            response = requests.get('%s/place/' % server.public_url)
             self.assertEquals(200, response.status_code)
             self.assert_betty_html(response)
 
-    def test_negotiated_html_resource(self):
-        with self.Container('betty-monolingual-content-negotiation.json') as c:
-            response = requests.get('%s/place/' % c.address, headers={
+    @sync
+    async def test_negotiated_html_resource(self):
+        async with self.NginxTestServer('betty-monolingual-content-negotiation.json') as server:
+            response = requests.get('%s/place/' % server.public_url, headers={
                 'Accept': 'text/html',
             })
             self.assertEquals(200, response.status_code)
             self.assert_betty_html(response)
 
-    def test_negotiated_json_resource(self):
-        with self.Container('betty-monolingual-content-negotiation.json') as c:
-            response = requests.get('%s/place/' % c.address, headers={
+    @sync
+    async def test_negotiated_json_resource(self):
+        async with self.NginxTestServer('betty-monolingual-content-negotiation.json') as server:
+            response = requests.get('%s/place/' % server.public_url, headers={
                 'Accept': 'application/json',
             })
             self.assertEquals(200, response.status_code)
             self.assert_betty_json(response)
 
-    def test_default_html_static_resource(self):
-        with self.Container('betty-multilingual-content-negotiation.json') as c:
-            response = requests.get('%s/api/' % c.address)
+    @sync
+    async def test_default_html_static_resource(self):
+        async with self.NginxTestServer('betty-multilingual-content-negotiation.json') as server:
+            response = requests.get('%s/api/' % server.public_url)
             self.assertEquals(200, response.status_code)
             self.assert_betty_html(response)
 
-    def test_negotiated_html_static_resource(self):
-        with self.Container('betty-multilingual-content-negotiation.json') as c:
-            response = requests.get('%s/api/' % c.address, headers={
+    @sync
+    async def test_negotiated_html_static_resource(self):
+        async with self.NginxTestServer('betty-multilingual-content-negotiation.json') as server:
+            response = requests.get('%s/api/' % server.public_url, headers={
                 'Accept': 'text/html',
             })
             self.assertEquals(200, response.status_code)
             self.assert_betty_html(response)
 
-    def test_negotiated_json_static_resource(self):
-        with self.Container('betty-multilingual-content-negotiation.json') as c:
-            response = requests.get('%s/api/' % c.address, headers={
+    @sync
+    async def test_negotiated_json_static_resource(self):
+        async with self.NginxTestServer('betty-multilingual-content-negotiation.json') as server:
+            response = requests.get('%s/api/' % server.public_url, headers={
                 'Accept': 'application/json',
             })
             self.assertEquals(200, response.status_code)

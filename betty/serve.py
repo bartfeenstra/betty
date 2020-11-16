@@ -5,21 +5,45 @@ import webbrowser
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 from io import StringIO
 from typing import Iterable
+
+from betty.error import UserFacingError
 from betty.os import ChDir
 from betty.site import Site
 
 DEFAULT_PORT = 8000
 
 
+class ServerNotStartedError(RuntimeError):
+    pass
+
+
+class OsError(UserFacingError, OSError):
+    pass
+
+
 class Server:
-    def __enter__(self) -> str:
+    async def start(self) -> 'Server':
         """
-        :return: The public URL (string).
+        Starts the server.
+        :return: The public URL.
         """
         pass
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    async def stop(self) -> None:
+        """
+        Stops the server.
+        """
         pass
+
+    @property
+    def public_url(self) -> str:
+        raise NotImplementedError
+
+    async def __aenter__(self) -> 'Server':
+        return await self.start()
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.stop()
 
 
 class ServerProvider:
@@ -39,15 +63,19 @@ class SiteServer(Server):
             return next(servers)
         return BuiltinServer(self._site.configuration.www_directory_path)
 
-    def __enter__(self) -> str:
+    async def start(self) -> Server:
         self._server = self._get_server()
-        public_url = self._server.__enter__()
-        logging.getLogger().info('Serving your site at %s...' % public_url)
-        webbrowser.open_new_tab(public_url)
-        return public_url
+        await self._server.start()
+        logging.getLogger().info('Serving your site at %s...' % self.public_url)
+        webbrowser.open_new_tab(self.public_url)
+        return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self._server.__exit__(exc_type, exc_val, exc_tb)
+    @property
+    def public_url(self) -> str:
+        return self._server.public_url
+
+    async def stop(self) -> None:
+        await self._server.stop()
 
 
 class BuiltinServer(Server):
@@ -55,21 +83,30 @@ class BuiltinServer(Server):
         self._www_directory_path = www_directory_path
         self._http_server = None
         self._cwd = None
+        self._port = None
 
-    def __enter__(self) -> str:
+    async def start(self) -> Server:
         logging.getLogger().info('Starting Python\'s built-in web server...')
-        for port in range(DEFAULT_PORT, 65535):
+        for self._port in range(DEFAULT_PORT, 65535):
             with contextlib.suppress(OSError):
-                self._http_server = HTTPServer(('', port), SimpleHTTPRequestHandler)
+                self._http_server = HTTPServer(('', self._port), SimpleHTTPRequestHandler)
                 break
+        if self._http_server is None:
+            raise OsError('Cannot find an available port to bind the web server to.')
         self._cwd = ChDir(self._www_directory_path).change()
         threading.Thread(target=self._serve).start()
-        return 'http://localhost:%d' % port
+        return self
+
+    @property
+    def public_url(self) -> str:
+        if self._port is not None:
+            return 'http://localhost:%d' % self._port
+        raise ServerNotStartedError('Cannot determine the public URL if the server has not started yet.')
 
     def _serve(self):
         with contextlib.redirect_stderr(StringIO()):
             self._http_server.serve_forever()
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    async def stop(self) -> None:
         self._http_server.shutdown()
         self._cwd.revert()

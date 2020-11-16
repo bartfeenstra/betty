@@ -1,53 +1,44 @@
 import logging
-from contextlib import suppress
 from os import path
+from tempfile import TemporaryDirectory
 
 import docker
-from docker.errors import DockerException, NotFound
-from docker.models.containers import Container
+from docker.errors import DockerException
 
-from betty.serve import Server
+from betty.plugin.nginx import Nginx, generate_dockerfile_file
+from betty.plugin.nginx.docker import Container
+from betty.serve import Server, ServerNotStartedError
+from betty.site import Site
 
 
 class DockerizedNginxServer(Server):
-    _TAG = 'betty-serve'
+    def __init__(self, site: Site):
+        self._site = site
+        self._container = None
+        self._output_directory = None
 
-    def __init__(self, www_directory_path: str, output_directory_path: str):
-        self._www_directory_path = www_directory_path
-        self._output_directory_path = output_directory_path
-        self._client = docker.from_env()
-
-    def __enter__(self) -> Server:
-        # Stop any containers that may have been left over.
-        self._stop()
-
+    async def start(self) -> Server:
         logging.getLogger().info('Starting a Dockerized nginx web server...')
-        nginx_directory_path = path.join(self._output_directory_path, 'nginx')
-        nginx_conf_file_path = path.join(nginx_directory_path, 'nginx.conf')
-        self._client.images.build(path=nginx_directory_path, tag=self._TAG)
-        self._client.containers.run(self._TAG, name=self._TAG, auto_remove=True, detach=True, volumes={
-            nginx_conf_file_path: {
-                'bind': '/etc/nginx/conf.d/betty.conf',
-                'mode': 'ro',
-            },
-            self._www_directory_path: {
-                'bind': '/var/www/betty',
-                'mode': 'ro',
-            },
-        })
-        self._container.exec_run(['nginx', '-s', 'reload'])
-        return 'http://%s' % self._client.api.inspect_container(self._TAG)['NetworkSettings']['Networks']['bridge']['IPAddress']
+        self._output_directory = TemporaryDirectory()
+        nginx_configuration_file_path = path.join(self._output_directory.name, 'nginx.conf')
+        docker_directory_path = path.join(self._output_directory.name, 'docker')
+        dockerfile_file_path = path.join(docker_directory_path, 'Dockerfile')
+        async with self._site:
+            await self._site.plugins[Nginx].generate_configuration_file(destination_file_path=nginx_configuration_file_path, https=False, www_directory_path='/var/www/betty')
+            await generate_dockerfile_file(destination_file_path=dockerfile_file_path)
+        self._container = Container(self._site.configuration.www_directory_path, docker_directory_path, nginx_configuration_file_path, 'betty-serve')
+        self._container.start()
+        return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self._stop()
-
-    def _stop(self) -> None:
-        with suppress(NotFound):
-            self._container.stop()
+    async def stop(self) -> None:
+        self._container.stop()
+        self._output_directory.cleanup()
 
     @property
-    def _container(self) -> Container:
-        return self._client.containers.get(self._TAG)
+    def public_url(self) -> str:
+        if self._container is not None:
+            return 'http://%s' % self._container.ip
+        raise ServerNotStartedError('Cannot determine the public URL if the server has not started yet.')
 
     @classmethod
     def is_available(cls) -> bool:
