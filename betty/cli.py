@@ -1,6 +1,7 @@
 import logging
 import shutil
 import sys
+import time
 from contextlib import suppress, contextmanager
 from functools import wraps
 from os import getcwd, path
@@ -151,4 +152,4 @@ async def _serve(site: Site, port: int):
         raise CommandValueError('The port must be a value ranging from 0 to 65535.')
     with SiteServer(site, port):
         while True:
-            pass
+            time.sleep(999999999)
