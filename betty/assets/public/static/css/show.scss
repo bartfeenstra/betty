@@ -1,0 +1,35 @@
+@import 'variables.scss';
+
+.with-js {
+  .show {
+    &.show-shown {
+      .show-if-hidden {
+        display: none;
+      }
+
+      .show-if-shown {
+        display: inline;
+      }
+    }
+
+    .show-if-hidden {
+      display: inline;
+    }
+
+    .show-if-shown {
+      display: none;
+    }
+  }
+
+  .show-toggle {
+    color: $link-inactive-color;
+    cursor: pointer;
+    font-size: 0.8rem;
+    vertical-align: super;
+    white-space: nowrap;
+
+    &:hover {
+      color: $link-active-color;
+    }
+  }
+}

@@ -1,0 +1,28 @@
+.meta {
+  color: #777;
+  display: block;
+  font-size: 0.9rem;
+
+  & dt {
+    font-weight: bold;
+  }
+}
+
+@media (min-width: 768px) {
+  .meta dl {
+    margin: 0;
+  }
+
+  .meta dt,
+  .meta dd {
+    display: inline;
+  }
+
+  .meta dt::after {
+    content: ': ';
+  }
+
+  .meta dd {
+    margin: 0 3em 0 0;
+  }
+}
