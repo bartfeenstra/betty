@@ -1,0 +1,102 @@
+.files {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-gap: 30px;
+}
+
+.file {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.file-summary {
+  display: block;
+  width: 100%;
+}
+
+.file-extended {
+  display: none;
+}
+
+.file-extended:target {
+  background-color: #000;
+  display: initial;
+  height: 100vh;
+  left: 0;
+  overflow-y: scroll;
+  position: fixed;
+  top: 0;
+  width: 100vw;
+  z-index: 99999;
+}
+
+figure {
+  margin: 0;
+}
+
+figcaption {
+  padding: 0.5rem;
+}
+
+.file-controls {
+  border: 0;
+  display: block !important;
+  height: 3rem;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  width: 100%;
+}
+
+.file-controls li {
+  display: inline-block;
+}
+
+.file-extended-previous {
+  float: left;
+}
+
+.file-extended-next {
+  float: right;
+}
+
+.file-controls li a {
+  color: #ccc;
+  float: right;
+  font-size: 1.1rem;
+  line-height: 3rem;
+  padding: 0 0.5rem;
+
+  &:hover {
+    color: #fff;
+  }
+}
+
+.file img {
+  display: block;
+  margin: auto;
+  max-width: 100%;
+}
+
+.file-extended:target .file-content {
+  display: block;
+  margin: auto;
+  height: calc(100vh - 3rem);
+}
+
+.file-extended:target iframe {
+  height: 100%;
+  width: 100%;
+}
+
+.file-extended:target figcaption {
+  display: none;
+}
+
+.featured.image img {
+  cursor: zoom-in;
+  display: block;
+  margin: auto;
+  max-height: 75vh;
+  max-width: 100%;
+}
