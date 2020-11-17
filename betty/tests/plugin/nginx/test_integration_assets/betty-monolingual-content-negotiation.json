@@ -1,4 +1,5 @@
 {
+  "output": "",
   "base_url": "http://example.com",
   "content_negotiation": true,
   "plugins": {

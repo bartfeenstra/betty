@@ -7,7 +7,6 @@ import warnings
 from contextlib import suppress
 from os.path import join
 from typing import Union, Dict, Type, Optional, Callable, Iterable
-from urllib.parse import urlparse
 
 import pdf2image
 from PIL import Image
@@ -124,7 +123,6 @@ class BettyEnvironment(Environment):
         today = datetime.date.today()
         self.globals['today'] = Date(today.year, today.month, today.day)
         self.globals['plugins'] = _Plugins(site.plugins)
-        self.globals['parse_url'] = urlparse
         self.filters['parse_media_type'] = MediaType.from_string
         self.filters['set'] = set
         self.filters['map'] = _filter_map
