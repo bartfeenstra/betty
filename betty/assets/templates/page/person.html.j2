@@ -96,16 +96,16 @@
                             {% do parents.remove(person) %}
                             {%- if parents | length > 0 -%}
                                 {%- if person.name and person.name.individual -%}
-                                    {%- trans child_count = per_parent_children | length, person_individual_name = person.name.individual, coparent_labels = parents | map(co_parent_label) | join(', ') -%}
-                                        {{ person_individual_name }} had a child with {{ coparent_labels }}.
+                                    {%- trans child_count = per_parent_children | length, person_individual_name = person.name.individual, co_parent_labels = parents | map(co_parent_label) | join(', ') -%}
+                                        {{ person_individual_name }} had a child with {{ co_parent_labels }}.
                                     {%- pluralize -%}
-                                        {{ person_individual_name }} had {{ child_count }} children with {{ coparent_labels }}.
+                                        {{ person_individual_name }} had {{ child_count }} children with {{ co_parent_labels }}.
                                     {%- endtrans -%}
                                 {%- else -%}
-                                    {%- trans child_count = per_parent_children | length, coparent_labels = parents | map(co_parent_label) | join(', ') -%}
-                                        They had a child with {{ coparent_labels }}.
+                                    {%- trans child_count = per_parent_children | length, co_parent_labels = parents | map(co_parent_label) | join(', ') -%}
+                                        They had a child with {{ co_parent_labels }}.
                                     {%- pluralize -%}
-                                        They had {{ child_count }} children with {{ coparent_labels }}.
+                                        They had {{ child_count }} children with {{ co_parent_labels }}.
                                     {%- endtrans -%}
                                 {%- endif -%}
                             {%- else -%}
