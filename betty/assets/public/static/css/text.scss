@@ -30,6 +30,28 @@ a {
   }
 }
 
+.permalink {
+  color: #777;
+  display: none;
+
+  &::before {
+    content: '#';
+  }
+}
+
+h1:hover .permalink,
+h2:hover .permalink,
+h3:hover .permalink,
+h4:hover .permalink,
+h5:hover .permalink,
+h6:hover .permalink {
+  display: inline;
+}
+
+.permalink:hover {
+  color: $link-active-color;
+}
+
 dl,
 p,
 li {
