@@ -505,7 +505,7 @@ msgstr ""
 
 #: betty/assets/templates/permalink.html.j2:1
 msgid "Permanent link to this section."
-msgstr ""
+msgstr "Permanente link naar dit onderdeel."
 
 #: betty/assets/templates/show-countable.html.j2:2
 #, python-format
