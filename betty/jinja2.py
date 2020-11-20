@@ -6,7 +6,7 @@ import re
 import warnings
 from contextlib import suppress
 from os.path import join
-from typing import Union, Dict, Type, Optional, Callable, Iterable
+from typing import Union, Dict, Type, Optional, Callable, Iterable, AsyncIterable
 
 import pdf2image
 from PIL import Image
@@ -24,7 +24,6 @@ from resizeimage import resizeimage
 
 from betty.ancestry import File, Citation, Identifiable, Resource, HasLinks, HasFiles, Subject, Witness, Dated, \
     RESOURCE_TYPES
-from betty.asyncio import asynciter
 from betty.config import Configuration
 from betty.fs import makedirs, hashfile, iterfiles
 from betty.functools import walk
@@ -230,8 +229,8 @@ class Jinja2Renderer(Renderer):
 
 
 async def _filter_flatten(items):
-    async for item in asynciter(items):
-        async for child in asynciter(item):
+    async for item in _asynciter(items):
+        async for child in _asynciter(item):
             yield child
 
 
@@ -276,7 +275,7 @@ async def _filter_map(*args, **kwargs):
     else:
         seq, func = prepare_map(args, kwargs)
     if seq:
-        async for item in asynciter(seq):
+        async for item in _asynciter(seq):
             yield await auto_await(func(item))
 
 
@@ -419,3 +418,12 @@ def _filter_select_dateds(context, dateds: Iterable[Dated], date: Optional[Datey
     if date is None:
         date = resolve_or_missing(context, 'today')
     return filter(lambda dated: dated.date is None or dated.date.comparable and dated.date in date, dateds)
+
+
+async def _asynciter(items: Union[Iterable, AsyncIterable]) -> AsyncIterable:
+    if hasattr(items, '__aiter__'):
+        async for item in items:
+            yield item
+        return
+    for item in items:
+        yield item
