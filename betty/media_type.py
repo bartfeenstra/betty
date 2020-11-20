@@ -22,6 +22,8 @@ class MediaType:
         type_part, parameters = cgi.parse_header(media_type)
         try:
             type, subtype = type_part.split('/')
+            if not subtype:
+                raise ValueError('The subtype must not be empty.')
         except ValueError:
             raise InvalidMediaType('"%s" is not a valid media type.', media_type)
 
@@ -32,21 +34,15 @@ class MediaType:
         return self._type
 
     @property
-    def subtype(self) -> Optional[str]:
+    def subtype(self) -> str:
         return self._subtype
 
     @property
     def subtypes(self) -> List[str]:
-        if self._subtype is None:
-            return []
-
         return self._subtype.split('+')[0].split('.')
 
     @property
     def suffix(self) -> Optional[str]:
-        if self._subtype is None:
-            return None
-
         if '+' not in self._subtype:
             return None
 
