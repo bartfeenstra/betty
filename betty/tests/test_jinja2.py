@@ -5,7 +5,7 @@ from parameterized import parameterized
 
 from betty.ancestry import File, PlaceName, Subject, Attendee, Witness, Dated, Resource, Person, Place
 from betty.config import Configuration, LocaleConfiguration
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.locale import Date, Datey, DateRange, Localized
 from betty.plugin import Plugin
 from betty.tests import TemplateTestCase

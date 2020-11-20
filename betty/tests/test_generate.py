@@ -10,7 +10,7 @@ from betty import json
 from betty.ancestry import Person, Place, Source, PlaceName, File, IdentifiableEvent, IdentifiableCitation, \
     IdentifiableSource, Birth
 from betty.config import Configuration, LocaleConfiguration
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.generate import generate
 from betty.site import Site
 from betty.tests import TestCase

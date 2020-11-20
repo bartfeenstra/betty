@@ -14,7 +14,7 @@ import betty
 from betty import generate, parse
 from betty.config import from_file
 from betty.error import UserFacingError
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.logging import CliHandler
 from betty.serve import SiteServer
 from betty.site import Site

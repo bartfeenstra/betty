@@ -3,7 +3,7 @@ from tempfile import TemporaryDirectory
 from betty.ancestry import Ancestry, Person, Place, Presence, PlaceName, IdentifiableEvent, File, PersonName, \
     IdentifiableSource, IdentifiableCitation, Subject, Birth, Enclosure
 from betty.config import Configuration
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.parse import parse
 from betty.plugin.cleaner import Cleaner, clean
 from betty.site import Site

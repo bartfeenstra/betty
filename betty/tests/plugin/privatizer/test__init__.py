@@ -7,7 +7,7 @@ from parameterized import parameterized
 from betty.ancestry import Person, Presence, Event, Source, IdentifiableSource, File, \
     IdentifiableCitation, Subject, Attendee, Birth, Marriage, Death
 from betty.config import Configuration
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.locale import Date, DateRange
 from betty.parse import parse
 from betty.plugin.privatizer import Privatizer, privatize_event, privatize_source, privatize_citation, privatize_person

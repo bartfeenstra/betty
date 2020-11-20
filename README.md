@@ -195,7 +195,7 @@ To build a site from your GEDCOM files:
 ### The Python API
 ```python
 from betty.config import Configuration
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.generate import generate
 from betty.parse import parse
 from betty.site import Site

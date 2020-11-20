@@ -16,7 +16,7 @@ from parameterized import parameterized
 
 from betty.ancestry import Source, IdentifiableCitation, IdentifiableSource, Link
 from betty.config import Configuration, LocaleConfiguration
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.parse import parse
 from betty.plugin.wikipedia import Entry, Retriever, NotAnEntryError, parse_url, RetrievalError, _Populator, Wikipedia
 from betty.site import Site
