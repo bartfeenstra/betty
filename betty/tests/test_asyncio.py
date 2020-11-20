@@ -66,3 +66,7 @@ class SyncTest(TestCase):
                 return expected
         actual = sync(_Sync())()
         self.assertEqual(expected, actual)
+
+    def test_unsychronizable(self) -> None:
+        with self.assertRaises(ValueError):
+            sync(True)
