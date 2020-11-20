@@ -2,7 +2,7 @@ from typing import Optional, List, Dict
 
 from parameterized import parameterized
 
-from betty.media_type import MediaType
+from betty.media_type import MediaType, InvalidMediaType
 from betty.tests import TestCase
 
 
@@ -30,3 +30,13 @@ class MediaTypeTest(TestCase):
         self.assertEquals(expected_subtypes, sut.subtypes)
         self.assertEquals(expected_suffix, sut.suffix)
         self.assertEquals(expected_parameters, sut.parameters)
+
+    @parameterized.expand([
+        ('',),
+        ('/',),
+        ('text',),
+        ('text/',),
+    ])
+    def test_from_string_should_raise_value_error(self, media_type: str):
+        with self.assertRaises(InvalidMediaType):
+            MediaType.from_string(media_type)
