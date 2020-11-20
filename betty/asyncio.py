@@ -2,16 +2,6 @@ import asyncio
 import inspect
 from contextlib import suppress
 from functools import wraps
-from typing import Iterable, AsyncIterable, Union
-
-
-async def asynciter(items: Union[Iterable, AsyncIterable]) -> AsyncIterable:
-    if hasattr(items, '__aiter__'):
-        async for item in items:
-            yield item
-        return
-    for item in items:
-        yield item
 
 
 def _wrap_sync(f):
