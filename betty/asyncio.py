@@ -5,24 +5,6 @@ from functools import wraps
 from typing import Iterable, AsyncIterable, Union
 
 
-def walk(item, attribute_name):
-    children = getattr(item, attribute_name)
-
-    # If the child has the requested attribute, yield it,
-    if hasattr(children, attribute_name):
-        yield children
-        yield from walk(children, attribute_name)
-
-    # Otherwise loop over the children and yield their attributes.
-    try:
-        children = iter(children)
-    except TypeError:
-        return
-    for child in children:
-        yield child
-        yield from walk(child, attribute_name)
-
-
 async def asynciter(items: Union[Iterable, AsyncIterable]) -> AsyncIterable:
     if hasattr(items, '__aiter__'):
         async for item in items:
