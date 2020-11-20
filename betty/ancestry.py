@@ -347,7 +347,7 @@ class IdentifiableSource(Source, Identifiable):
 @many_to_one('source', 'citations')
 class Citation(Resource, Dated, HasFiles, HasPrivacy):
     resource_type_name = 'citation'
-    facts: ManyAssociation[Resource]
+    facts: ManyAssociation['HasCitations']
     source: Source
 
     def __init__(self, source: Source):
