@@ -209,7 +209,7 @@ def _from_yaml(config_yaml: str) -> Configuration:
 
 
 # These factories must take a single argument, which is the configuration in their format, as a string. They must return
-# Configuration, or raise ConfigurationError.
+# Configuration, or raise ConfigurationValueError.
 _from_format_factories: Dict[str, Callable[[str], Configuration]] = {
     '.json': _from_json,
     '.yaml': _from_yaml,

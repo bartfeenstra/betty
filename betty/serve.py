@@ -22,7 +22,7 @@ class OsError(UserFacingError, OSError):
 
 
 class Server:
-    async def start(self) -> 'Server':
+    async def start(self) -> None:
         """
         Starts the server.
         :return: The public URL.
@@ -40,7 +40,8 @@ class Server:
         raise NotImplementedError
 
     async def __aenter__(self) -> 'Server':
-        return await self.start()
+        await self.start()
+        return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.stop()
@@ -63,12 +64,11 @@ class SiteServer(Server):
             return next(servers)
         return BuiltinServer(self._site.configuration.www_directory_path)
 
-    async def start(self) -> Server:
+    async def start(self) -> None:
         self._server = self._get_server()
         await self._server.start()
         logging.getLogger().info('Serving your site at %s...' % self.public_url)
         webbrowser.open_new_tab(self.public_url)
-        return self
 
     @property
     def public_url(self) -> str:
@@ -85,7 +85,7 @@ class BuiltinServer(Server):
         self._cwd = None
         self._port = None
 
-    async def start(self) -> Server:
+    async def start(self) -> None:
         logging.getLogger().info('Starting Python\'s built-in web server...')
         for self._port in range(DEFAULT_PORT, 65535):
             with contextlib.suppress(OSError):
@@ -95,7 +95,6 @@ class BuiltinServer(Server):
             raise OsError('Cannot find an available port to bind the web server to.')
         self._cwd = ChDir(self._www_directory_path).change()
         threading.Thread(target=self._serve).start()
-        return self
 
     @property
     def public_url(self) -> str:

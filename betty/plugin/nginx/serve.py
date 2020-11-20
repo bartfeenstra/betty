@@ -17,7 +17,7 @@ class DockerizedNginxServer(Server):
         self._container = None
         self._output_directory = None
 
-    async def start(self) -> Server:
+    async def start(self) -> None:
         logging.getLogger().info('Starting a Dockerized nginx web server...')
         self._output_directory = TemporaryDirectory()
         nginx_configuration_file_path = path.join(self._output_directory.name, 'nginx.conf')
@@ -28,7 +28,6 @@ class DockerizedNginxServer(Server):
             await generate_dockerfile_file(destination_file_path=dockerfile_file_path)
         self._container = Container(self._site.configuration.www_directory_path, docker_directory_path, nginx_configuration_file_path, 'betty-serve')
         self._container.start()
-        return self
 
     async def stop(self) -> None:
         self._container.stop()
