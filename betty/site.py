@@ -1,11 +1,13 @@
 import gettext
 from collections import defaultdict, OrderedDict
 from concurrent.futures._base import Executor
-from concurrent.futures.process import ProcessPoolExecutor
+from concurrent.futures.thread import ThreadPoolExecutor
 
 import aiohttp
 from jinja2 import Environment
 
+from betty.concurrent import ExceptionRaisingExecutor
+from betty.dispatch import Dispatcher
 from betty.lock import Locks
 from betty.render import Renderer, SequentialRenderer
 from betty.sass import SassRenderer
@@ -20,7 +22,6 @@ from typing import Type, Dict
 
 from betty.ancestry import Ancestry
 from betty.config import Configuration
-from betty.event import EventDispatcher
 from betty.fs import FileSystem
 from betty.graph import tsort, Graph
 from betty.locale import open_translations, Translations, negotiate_locale
@@ -34,7 +35,7 @@ class Site:
         self._configuration = configuration
         self._assets = FileSystem(
             join(dirname(abspath(__file__)), 'assets'))
-        self._event_dispatcher = EventDispatcher()
+        self._dispatcher = Dispatcher()
         self._localized_url_generator = SiteUrlGenerator(configuration)
         self._static_url_generator = StaticPathUrlGenerator(configuration)
         self._locale = None
@@ -48,7 +49,7 @@ class Site:
         self._plugins = OrderedDict()
         self._plugin_exit_stack = AsyncExitStack()
         self._init_plugins()
-        self._init_event_listeners()
+        self._init_dispatch_handlers()
         self._init_assets()
         self._init_translations()
 
@@ -61,7 +62,7 @@ class Site:
         self._default_translations.install()
 
         if self._executor is None:
-            self._executor = ProcessPoolExecutor()
+            self._executor = ExceptionRaisingExecutor(ThreadPoolExecutor())
 
         self._site_stack.append(self)
 
@@ -116,10 +117,9 @@ class Site:
                 self, plugin_configuration)
             self._plugins[plugin_type] = plugin
 
-    def _init_event_listeners(self) -> None:
+    def _init_dispatch_handlers(self) -> None:
         for plugin in self._plugins.values():
-            for event_name, listener in plugin.subscribes_to():
-                self._event_dispatcher.add_listener(event_name, listener)
+            self._dispatcher.append_handler(plugin)
 
     def _init_assets(self) -> None:
         for plugin in self._plugins.values():
@@ -156,8 +156,8 @@ class Site:
         return self._assets
 
     @property
-    def event_dispatcher(self) -> EventDispatcher:
-        return self._event_dispatcher
+    def dispatcher(self) -> Dispatcher:
+        return self._dispatcher
 
     @property
     def localized_url_generator(self) -> LocalizedUrlGenerator:

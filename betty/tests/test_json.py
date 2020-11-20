@@ -1,6 +1,5 @@
 import json as stdjson
 from tempfile import TemporaryDirectory, NamedTemporaryFile
-from unittest import TestCase
 
 from geopy import Point
 
@@ -11,6 +10,7 @@ from betty.config import Configuration, LocaleConfiguration
 from betty.json import JSONEncoder
 from betty.locale import Date, DateRange
 from betty.site import Site
+from betty.tests import TestCase
 
 
 class JSONEncoderTest(TestCase):

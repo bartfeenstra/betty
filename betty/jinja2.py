@@ -5,16 +5,16 @@ import json as stdjson
 import logging
 import os
 import re
+import warnings
 from contextlib import suppress
-from itertools import takewhile
-from os.path import join, getmtime, exists
+from os.path import join, exists, getmtime
 from time import time
-from typing import Dict, Callable, Type, Union, Optional, Iterable
-from urllib.parse import urlparse
+from typing import Optional, Iterable, Union, Type, Callable, Dict
 
 import aiohttp
 import pdf2image
 from PIL import Image
+from PIL.Image import DecompressionBombWarning
 from babel import Locale
 from geopy import units
 from geopy.format import DEGREES_FORMAT
@@ -29,7 +29,7 @@ from resizeimage import resizeimage
 from betty.ancestry import File, Citation, Identifiable, Resource, HasLinks, HasFiles, Subject, Witness, Dated, \
     RESOURCE_TYPES
 from betty.config import Configuration
-from betty.fs import makedirs, hashfile, is_hidden, iterfiles
+from betty.fs import makedirs, hashfile, iterfiles
 from betty.functools import walk, asynciter
 from betty.html import HtmlProvider
 from betty.importlib import import_any
@@ -128,13 +128,11 @@ class BettyEnvironment(Environment):
         today = datetime.date.today()
         self.globals['today'] = Date(today.year, today.month, today.day)
         self.globals['plugins'] = _Plugins(site.plugins)
-        self.globals['urlparse'] = urlparse
         self.filters['parse_media_type'] = MediaType.from_string
         self.filters['set'] = set
         self.filters['map'] = _filter_map
         self.filters['flatten'] = _filter_flatten
         self.filters['walk'] = _filter_walk
-        self.filters['selectwhile'] = _filter_selectwhile
         self.filters['locale_get_data'] = lambda locale: Locale.parse(
             locale, '-')
         self.filters['negotiate_localizeds'] = _filter_negotiate_localizeds
@@ -171,7 +169,7 @@ class BettyEnvironment(Environment):
         self.tests['identifiable'] = lambda x: isinstance(x, Identifiable)
         self.tests['has_links'] = lambda x: isinstance(x, HasLinks)
         self.tests['has_files'] = lambda x: isinstance(x, HasFiles)
-        self.tests['startswith'] = str.startswith
+        self.tests['starts_with'] = str.startswith
         self.tests['subject_role'] = lambda x: isinstance(x, Subject)
         self.tests['witness_role'] = lambda x: isinstance(x, Witness)
         self.tests['date_range'] = lambda x: isinstance(x, DateRange)
@@ -193,7 +191,12 @@ class BettyEnvironment(Environment):
             return site.localized_url_generator.generate(resource, media_type, locale=locale, **kwargs)
 
         self.filters['url'] = _filter_url
-        self.filters['static_url'] = site.static_url_generator.generate
+
+        async def _filter_static_url(resource, *args, **kwargs):
+            resource = await auto_await(resource)
+            return site.static_url_generator.generate(resource, *args, **kwargs)
+
+        self.filters['static_url'] = _filter_static_url
         self.filters['fetch'] = lambda *args: _filter_fetch(site, *args)
         self.filters['file'] = lambda *args: _filter_file(site, *args)
         self.filters['image'] = lambda *args, **kwargs: _filter_image(
@@ -222,8 +225,7 @@ class Jinja2Renderer(Renderer):
             return
         file_destination_path = file_path[:-3]
         data = {}
-        if file_destination_path.startswith(self._configuration.www_directory_path) and not is_hidden(
-                file_destination_path):
+        if file_destination_path.startswith(self._configuration.www_directory_path):
             # Unix-style paths use forward slashes, so they are valid URL paths.
             resource = file_destination_path[len(
                 self._configuration.www_directory_path):]
@@ -294,22 +296,8 @@ async def _filter_map(*args, **kwargs):
             yield await auto_await(func(item))
 
 
-@contextfilter
-def _filter_selectwhile(context, seq, *args, **kwargs):
-    try:
-        name = args[0]
-        args = args[1:]
-
-        def func(item):
-            return context.environment.call_test(name, item, args, kwargs)
-    except LookupError:
-        func = bool
-    if seq:
-        yield from takewhile(func, seq)
-
-
 async def _filter_fetch(site: Site, url: str) -> str:
-    cache_directory_path = join(site.configuration.cache_directory_path, 'jinja2', 'file')
+    cache_directory_path = join(site.configuration.cache_directory_path, 'jinja2', 'fetch')
     makedirs(cache_directory_path)
     destination_name = hashlib.md5(url.encode('utf-8')).hexdigest()
     cache_file_path = join(cache_directory_path, destination_name)
@@ -398,11 +386,19 @@ async def _filter_image(site: Site, file: File, width: Optional[int] = None, hei
 
 
 def _execute_filter_image_image(file_path: str, *args, **kwargs) -> None:
-    _execute_filter_image(Image.open(file_path), file_path, *args, **kwargs)
+    with warnings.catch_warnings():
+        # Ignore warnings about decompression bombs, because we know where the files come from.
+        warnings.simplefilter('ignore', category=DecompressionBombWarning)
+        image = Image.open(file_path)
+    _execute_filter_image(image, file_path, *args, **kwargs)
 
 
 def _execute_filter_image_application_pdf(file_path: str, *args, **kwargs) -> None:
-    _execute_filter_image(pdf2image.convert_from_path(file_path, fmt='jpeg')[0], file_path, *args, **kwargs)
+    with warnings.catch_warnings():
+        # Ignore warnings about decompression bombs, because we know where the files come from.
+        warnings.simplefilter('ignore', category=DecompressionBombWarning)
+        image = pdf2image.convert_from_path(file_path, fmt='jpeg')[0]
+    _execute_filter_image(image, file_path, *args, **kwargs)
 
 
 def _execute_filter_image(image: Image, file_path: str, cache_directory_path: str, destination_directory_path: str, destination_name: str, width: int, height: int) -> None:

@@ -27,13 +27,7 @@
 }
 
 @media (min-width: 768px) {
-  .meta {
-    .meta-item {
-      display: block;
-    }
-
-    dd {
-      margin: 0 3em 0 0;
-    }
+  .meta dd {
+    margin: 0 3em 0 0;
   }
 }

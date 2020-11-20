@@ -1,26 +1,16 @@
-from betty.ancestry import Ancestry
-from betty.event import Event
 from betty.site import Site
 
 
-class ParseEvent(Event):
-    def __init__(self, ancestry: Ancestry):
-        self._ancestry = ancestry
-
-    @property
-    def ancestry(self):
-        return self._ancestry
+class Parser:
+    async def parse(self) -> None:
+        raise NotImplementedError
 
 
-class PostParseEvent(Event):
-    def __init__(self, ancestry: Ancestry):
-        self._ancestry = ancestry
-
-    @property
-    def ancestry(self):
-        return self._ancestry
+class PostParser:
+    async def post_parse(self) -> None:
+        raise NotImplementedError
 
 
 async def parse(site: Site) -> None:
-    await site.event_dispatcher.dispatch(ParseEvent(site.ancestry))
-    await site.event_dispatcher.dispatch(PostParseEvent(site.ancestry))
+    await site.dispatcher.dispatch(Parser, 'parse')()
+    await site.dispatcher.dispatch(PostParser, 'post_parse')()

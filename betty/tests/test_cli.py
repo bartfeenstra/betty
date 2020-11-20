@@ -2,7 +2,6 @@ from json import dump
 from os import path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import Callable, Dict
-from unittest import TestCase
 from unittest.mock import patch
 
 import click
@@ -11,7 +10,7 @@ from click.testing import CliRunner
 import betty
 from betty import os
 from betty.plugin import Plugin
-from betty.tests import patch_cache
+from betty.tests import patch_cache, TestCase
 
 try:
     from unittest.mock import AsyncMock
@@ -93,7 +92,7 @@ class MainTest(TestCase):
 
             runner = CliRunner()
             result = runner.invoke(main, ('-c', config_file.name, '--help',))
-            self.assertEqual(2, result.exit_code)
+            self.assertEqual(1, result.exit_code)
 
     def test_with_discovered_configuration(self, _, __):
         with TemporaryDirectory() as betty_site_path:
@@ -108,7 +107,7 @@ class MainTest(TestCase):
                         },
                     }
                     dump(config_dict, config_file)
-                with os.chdir(betty_site_path):
+                with os.ChDir(betty_site_path):
                     runner = CliRunner()
                     result = runner.invoke(main, ('test',))
                     self.assertEqual(1, result.exit_code)

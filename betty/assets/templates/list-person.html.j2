@@ -1,9 +1,9 @@
-{%- import 'macro/person.html.j2' as personMacros -%}
+{%- import 'macro/person.html.j2' as person_macros -%}
 <ul class="entities">
     {%- for person in (persons | rejectattr('name', 'none') | list | sort(attribute='name')) %}
-        <li {% if typeOf is defined %} typeof="{{ typeOf }}"{% endif %} {% if property is defined %}property="{{ property }}"{% endif %}>
+        <li{% if type_of is defined %} typeOf="{{ type_of }}"{% endif %} {% if property is defined %}property="{{ property }}"{% endif %}>
             {% if group_by_affiliation is defined and group_by_affiliation %}
-                {{ personMacros.sortableLabel(person) }}
+                {{ person_macros.sortable_label(person) }}
             {% else %}
                 {% include 'label/person.html.j2' %}
             {% endif %}

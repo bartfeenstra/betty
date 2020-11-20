@@ -13,7 +13,7 @@ class LocalizedUrlGenerator:
 
 
 class StaticUrlGenerator:
-    def generate(self, resource: Any, absolute: bool = False, ) -> str:
+    def generate(self, resource: Any, absolute: bool = False) -> str:
         raise NotImplementedError
 
 

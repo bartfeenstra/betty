@@ -31,20 +31,6 @@ a {
   }
 }
 
-.permalink {
-  color: #777;
-  font-size: 1.5rem;
-  font-style: italic;
-
-  &::before {
-    content: '#';
-  }
-}
-
-.permalink:hover {
-  color: $link-active-color;
-}
-
 dl,
 p,
 li {

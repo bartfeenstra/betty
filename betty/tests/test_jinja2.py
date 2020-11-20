@@ -90,20 +90,6 @@ class MapTest(TemplateTestCase):
             self.assertEquals(expected, actual)
 
 
-class SelectwhileTest(TemplateTestCase):
-    @parameterized.expand([
-        ('', '{{ [] | selectwhile("ne", None) | join(", ") }}'),
-        ('kiwi, apple',
-         '{{ ["kiwi", "apple", None, "banana", None] | selectwhile | join(", ") }}'),
-        ('kiwi, apple',
-         '{{ ["kiwi", "apple", None, "banana", None] | selectwhile("ne", None) | join(", ") }}'),
-    ])
-    @sync
-    async def test(self, expected, template):
-        async with self._render(template_string=template) as (actual, _):
-            self.assertEquals(expected, actual)
-
-
 class FileTest(TemplateTestCase):
     @parameterized.expand([
         ('/file/F1.py', '{{ file | file }}', File('F1', __file__)),

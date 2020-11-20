@@ -1,6 +1,6 @@
 # Betty 👵
 
-[![Build Status](https://travis-ci.org/bartfeenstra/betty.svg?branch=master)](https://travis-ci.org/bartfeenstra/betty) [![codecov](https://codecov.io/gh/bartfeenstra/betty/branch/master/graph/badge.svg)](https://codecov.io/gh/bartfeenstra/betty)
+![Tests](https://github.com/bartfeenstra/betty/workflows/Test/badge.svg) [![codecov](https://codecov.io/gh/bartfeenstra/betty/branch/master/graph/badge.svg)](https://codecov.io/gh/bartfeenstra/betty)
 
 Betty is a static site generator for [Gramps](https://gramps-project.org/) and
 [GEDCOM](https://en.wikipedia.org/wiki/GEDCOM) family trees.
@@ -37,9 +37,13 @@ secure**.
 ### Requirements
 - **Python 3.6+**
 - Node.js 10+ (optional)
+- Linux or Mac OS
 
 ### Instructions
-Run `pip install betty`.
+Run `pip install betty` to install the latest stable release.
+
+To install the latest development version, run `pip install git+https://github.com/bartfeenstra/betty.git`. If you want
+the latest source code, read the [development](#development) documentation.
 
 ## Usage
 
@@ -59,6 +63,7 @@ Options:
 Commands:
   clear-caches  Clear all caches.
   generate      Generate a static site.
+  serve         Serve a generated site.
 ```
 
 ### Configuration files

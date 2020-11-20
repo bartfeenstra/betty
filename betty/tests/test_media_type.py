@@ -1,9 +1,9 @@
 from typing import Optional, List, Dict
-from unittest import TestCase
 
 from parameterized import parameterized
 
 from betty.media_type import MediaType
+from betty.tests import TestCase
 
 
 class MediaTypeTest(TestCase):

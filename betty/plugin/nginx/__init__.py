@@ -1,19 +1,17 @@
-import os
-from shutil import copyfile
-from typing import List, Tuple, Callable, Type, Dict, Optional
+from os import path
+from typing import Optional, Any, Iterable
+from urllib.parse import urlparse
 
 from voluptuous import Schema, Required, Maybe
 
-from betty.event import Event
-from betty.fs import makedirs
-from betty.generate import PostGenerateEvent
-from betty.plugin import Plugin
+from betty.generate import PostGenerator
+from betty.plugin import Plugin, NO_CONFIGURATION
+from betty.plugin.nginx.artifact import generate_configuration_file, generate_dockerfile_file
+from betty.serve import ServerProvider, Server
 from betty.site import Site
 
-DOCKER_PATH = os.path.join(os.path.dirname(__file__), 'assets', 'docker')
 
-
-class Nginx(Plugin):
+class Nginx(Plugin, PostGenerator, ServerProvider):
     configuration_schema: Schema = Schema({
         Required('www_directory_path', default=None): Maybe(str),
         Required('https', default=None): Maybe(bool),
@@ -25,17 +23,24 @@ class Nginx(Plugin):
         self._site = site
 
     @classmethod
-    def for_site(cls, site: Site, configuration: Dict):
+    def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
         return cls(site, configuration['www_directory_path'], configuration['https'])
 
-    def subscribes_to(self) -> List[Tuple[Type[Event], Callable]]:
-        return [
-            (PostGenerateEvent, self._generate_config),
-        ]
+    @property
+    def servers(self) -> Iterable[Server]:
+        from betty.plugin.nginx.serve import DockerizedNginxServer
+
+        if DockerizedNginxServer.is_available():
+            return [DockerizedNginxServer(self._site)]
+        return []
+
+    async def post_generate(self) -> None:
+        await self.generate_configuration_file()
+        await self._generate_dockerfile_file()
 
     @property
     def assets_directory_path(self) -> Optional[str]:
-        return '%s/assets' % os.path.dirname(__file__)
+        return '%s/assets' % path.dirname(__file__)
 
     @property
     def https(self) -> bool:
@@ -49,15 +54,19 @@ class Nginx(Plugin):
             return self._site.configuration.www_directory_path
         return self._www_directory_path
 
-    async def _generate_config(self, event: PostGenerateEvent) -> None:
-        output_directory_path = os.path.join(self._site.configuration.output_directory_path, 'nginx')
-        makedirs(output_directory_path)
+    async def generate_configuration_file(self, destination_file_path: Optional[str] = None, **kwargs) -> None:
+        kwargs = dict({
+            'content_negotiation': self._site.configuration.content_negotiation,
+            'https': self._site.plugins[Nginx].https,
+            'locale': self._site.locale,
+            'locales': self._site.configuration.locales,
+            'multilingual': self._site.configuration.multilingual,
+            'server_name': urlparse(self._site.configuration.base_url).netloc,
+            'www_directory_path': self._site.configuration.www_directory_path,
+        }, **kwargs)
+        if destination_file_path is None:
+            destination_file_path = path.join(self._site.configuration.output_directory_path, 'nginx', 'nginx.conf')
+        await generate_configuration_file(destination_file_path, self._site.jinja2_environment, **kwargs)
 
-        # Render the ngnix configuration.
-        file_name = 'nginx.conf.j2'
-        destination_file_path = os.path.join(output_directory_path, file_name)
-        await self._site.assets.copy2(file_name, destination_file_path)
-        await self._site.renderer.render_file(destination_file_path)
-
-        # Render the Dockerfile.
-        copyfile(os.path.join(DOCKER_PATH, 'Dockerfile'), os.path.join(output_directory_path, 'Dockerfile'))
+    async def _generate_dockerfile_file(self) -> None:
+        await generate_dockerfile_file(path.join(self._site.configuration.output_directory_path, 'nginx', 'docker', 'Dockerfile'))

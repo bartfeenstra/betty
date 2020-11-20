@@ -4,7 +4,7 @@ import shutil
 from collections import deque
 from contextlib import suppress
 from os import walk, path
-from os.path import join, dirname, exists, relpath, getmtime, basename
+from os.path import join, dirname, exists, relpath, getmtime
 from shutil import copy2
 from tempfile import mkdtemp
 from typing import AsyncIterable
@@ -22,18 +22,6 @@ def makedirs(path: str) -> None:
 
 def hashfile(path: str) -> str:
     return hashlib.md5(':'.join([str(getmtime(path)), path]).encode('utf-8')).hexdigest()
-
-
-def is_hidden(path: str) -> bool:
-    if not path:
-        return False
-    name = basename(path)
-    while name:
-        name = basename(path)
-        if name.startswith('.'):
-            return True
-        path = dirname(path)
-    return False
 
 
 async def copytree(source_path: str, destination_path: str) -> None:

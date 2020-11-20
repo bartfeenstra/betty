@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-10-29 01:57+0000\n"
+"POT-Creation-Date: 2020-11-18 23:28+0000\n"
 "PO-Revision-Date: 2019-10-05 11:38+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -450,18 +450,20 @@ msgid "People"
 msgstr "Personen"
 
 #: betty/assets/templates/base.html.j2:97
-#: betty/assets/templates/page/person.html.j2:186
-#: betty/assets/templates/page/place.html.j2:24
+#: betty/assets/templates/page/person.html.j2:204
+#: betty/assets/templates/page/place.html.j2:42
 msgid "Timeline"
 msgstr "Tijdlijn"
 
 #: betty/assets/templates/base.html.j2:98
 #: betty/assets/templates/page/list-place.html.j2:2
+#: betty/assets/templates/page/person.html.j2:14
+#: betty/assets/templates/page/place.html.j2:13
 msgid "Places"
 msgstr "Plaatsen"
 
 #: betty/assets/templates/base.html.j2:99
-#: betty/assets/templates/page/file.html.j2:34
+#: betty/assets/templates/page/file.html.j2:55
 #: betty/assets/templates/page/list-source.html.j2:2
 msgid "Sources"
 msgstr "Bronnen"
@@ -470,11 +472,11 @@ msgstr "Bronnen"
 msgid "Language"
 msgstr "Taal"
 
-#: betty/assets/templates/base.html.j2:130
+#: betty/assets/templates/base.html.j2:132
 msgid "External links"
 msgstr "Externe links"
 
-#: betty/assets/templates/base.html.j2:145
+#: betty/assets/templates/base.html.j2:153
 msgid "References"
 msgstr "Referenties"
 
@@ -500,6 +502,10 @@ msgid ""
 msgstr ""
 "Een familieverhaal verteld door <a "
 "href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
+
+#: betty/assets/templates/permalink.html.j2:1
+msgid "Permanent link to this section."
+msgstr "Permanente link naar dit onderdeel."
 
 #: betty/assets/templates/show-countable.html.j2:2
 #, python-format
@@ -556,37 +562,37 @@ msgstr "De naam van deze persoon is onbekend."
 msgid "Also known as %(names)s"
 msgstr "Ook bekend als %(names)s"
 
-#: betty/assets/templates/page/citation.html.j2:9
-#: betty/assets/templates/page/event.html.j2:49
+#: betty/assets/templates/page/citation.html.j2:11
+#: betty/assets/templates/page/event.html.j2:48
 #: betty/assets/templates/page/list-file.html.j2:2
-#: betty/assets/templates/page/person.html.j2:194
+#: betty/assets/templates/page/person.html.j2:219
 #: betty/assets/templates/page/source.html.j2:10
 #: betty/assets/templates/search/result-file.html.j2:4
 msgid "Media"
 msgstr "Media"
 
-#: betty/assets/templates/page/citation.html.j2:14
+#: betty/assets/templates/page/citation.html.j2:23
 #: betty/assets/templates/page/source.html.j2:15
 msgid "Facts"
 msgstr "Feiten"
 
-#: betty/assets/templates/page/event.html.j2:24
+#: betty/assets/templates/page/event.html.j2:23
 msgid "Witnesses"
 msgstr "Getuigen"
 
-#: betty/assets/templates/page/event.html.j2:39
+#: betty/assets/templates/page/event.html.j2:38
 msgid "Other attendees"
 msgstr "Overige aanwezigen"
 
-#: betty/assets/templates/page/file.html.j2:12
+#: betty/assets/templates/page/file.html.j2:14
 msgid "Notes"
 msgstr "Opmerkingen"
 
-#: betty/assets/templates/page/file.html.j2:19
+#: betty/assets/templates/page/file.html.j2:28
 msgid "Appearances"
 msgstr "Verschijningen"
 
-#: betty/assets/templates/page/file.html.j2:31
+#: betty/assets/templates/page/file.html.j2:48
 msgid "Source"
 msgstr "Bron"
 
@@ -594,62 +600,74 @@ msgstr "Bron"
 msgid "Events"
 msgstr "Gebeurtenissen"
 
-#: betty/assets/templates/page/person.html.j2:45
-#, python-format
-msgid "%(personIndividualName)s is the child of %(parentLabels)s."
-msgstr "%(personIndividualName)s is het kind van %(parentLabels)s."
+#: betty/assets/templates/page/person.html.j2:28
+msgid "About"
+msgstr ""
 
-#: betty/assets/templates/page/person.html.j2:47
-#, python-format
-msgid "They are the child of %(parentLabels)s."
-msgstr "Men is het kind van %(parentLabels)s."
+#: betty/assets/templates/page/person.html.j2:48
+msgid "Family"
+msgstr ""
 
-#: betty/assets/templates/page/person.html.j2:51
+#: betty/assets/templates/page/person.html.j2:63
+#, python-format
+msgid "%(person_individual_name)s is the child of %(parent_labels)s."
+msgstr "%(person_individual_name)s is het kind van %(parent_labels)s."
+
+#: betty/assets/templates/page/person.html.j2:65
+#, python-format
+msgid "They are the child of %(parent_labels)s."
+msgstr "Men is het kind van %(parent_labels)s."
+
+#: betty/assets/templates/page/person.html.j2:69
 #, python-format
 msgid "They grew up with a sibling."
-msgid_plural "They grew up with %(siblingCount)s siblings."
+msgid_plural "They grew up with %(sibling_count)s siblings."
 msgstr[0] "Men groeide op met een brus."
-msgstr[1] "Men groeide op met %(siblingCount)s brussen."
+msgstr[1] "Men groeide op met %(sibling_count)s brussen."
 
-#: betty/assets/templates/page/person.html.j2:61
+#: betty/assets/templates/page/person.html.j2:79
 msgid "Ancestral names include"
 msgstr "De voorouders heetten"
 
-#: betty/assets/templates/page/person.html.j2:100
+#: betty/assets/templates/page/person.html.j2:118
 #, python-format
-msgid "%(personIndividualName)s had a child with %(coParentLabels)s."
+msgid "%(person_individual_name)s had a child with %(co_parent_labels)s."
 msgid_plural ""
-"%(personIndividualName)s had %(childCount)s children with "
-"%(coParentLabels)s."
-msgstr[0] "%(personIndividualName)s had een kind met %(coParentLabels)s."
+"%(person_individual_name)s had %(child_count)s children with "
+"%(co_parent_labels)s."
+msgstr[0] "%(person_individual_name)s had een kind met %(co_parent_labels)s."
 msgstr[1] ""
-"%(personIndividualName)s had %(childCount)s kinderen met "
-"%(coParentLabels)s."
+"%(person_individual_name)s had %(child_count)s kinderen met "
+"%(co_parent_labels)s."
 
-#: betty/assets/templates/page/person.html.j2:106
+#: betty/assets/templates/page/person.html.j2:124
 #, python-format
-msgid "They had a child with %(coParentLabels)s."
-msgid_plural "They had %(childCount)s children with %(coParentLabels)s."
-msgstr[0] "Men had een kind met %(coParentLabels)s."
-msgstr[1] "Men had %(childCount)s kinderen met %(coParentLabels)s."
+msgid "They had a child with %(co_parent_labels)s."
+msgid_plural "They had %(child_count)s children with %(co_parent_labels)s."
+msgstr[0] "Men had een kind met %(co_parent_labels)s."
+msgstr[1] "Men had %(child_count)s kinderen met %(co_parent_labels)s."
 
-#: betty/assets/templates/page/person.html.j2:114
+#: betty/assets/templates/page/person.html.j2:132
 #, python-format
-msgid "%(personIndividualName)s had a child."
-msgid_plural "%(personIndividualName)s had %(childCount)s children."
-msgstr[0] "%(personIndividualName)s had een kind."
-msgstr[1] "%(personIndividualName)s had %(childCount)s kinderen."
+msgid "%(person_individual_name)s had a child."
+msgid_plural "%(person_individual_name)s had %(child_count)s children."
+msgstr[0] "%(person_individual_name)s had een kind."
+msgstr[1] "%(person_individual_name)s had %(child_count)s kinderen."
 
-#: betty/assets/templates/page/person.html.j2:120
+#: betty/assets/templates/page/person.html.j2:138
 #, python-format
 msgid "They had a child."
-msgid_plural "They had %(childCount)s children."
+msgid_plural "They had %(child_count)s children."
 msgstr[0] "Men had een kind."
-msgstr[1] "Men had %(childCount)skinderen."
+msgstr[1] "Men had %(child_count)skinderen."
 
-#: betty/assets/templates/page/person.html.j2:131
+#: betty/assets/templates/page/person.html.j2:149
 msgid "Descendant names include"
 msgstr "De nakomelingen heten"
+
+#: betty/assets/templates/page/place.html.j2:27
+msgid "Wikipedia"
+msgstr ""
 
 #: betty/plugin/anonymizer/__init__.py:17
 msgid "Private"

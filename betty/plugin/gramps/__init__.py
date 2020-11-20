@@ -5,7 +5,7 @@ import re
 import tarfile
 from contextlib import suppress
 from os import path
-from typing import Tuple, Optional, Callable, List, Dict, Type
+from typing import Tuple, Optional, List, Any
 
 from geopy import Point
 from lxml import etree
@@ -18,12 +18,11 @@ from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, Pl
     DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, Retirement, Correspondence, Confirmation, \
     Funeral, Will, Beneficiary, Enclosure, UnknownEventType, Missing
 from betty.config import Path
-from betty.event import Event as DispatchedEvent
 from betty.fs import makedirs
 from betty.locale import DateRange, Datey, Date
-from betty.parse import ParseEvent
+from betty.parse import Parser
 from betty.path import rootname
-from betty.plugin import Plugin
+from betty.plugin import Plugin, NO_CONFIGURATION
 from betty.site import Site
 
 
@@ -106,8 +105,12 @@ def _parse_tree(ancestry: Ancestry, tree: etree.ElementTree(), tree_directory_pa
     _parse_objects(intermediate_ancestry, database, tree_directory_path)
     logger.info('Parsed %d files.' % len(intermediate_ancestry.files))
     _parse_repositories(intermediate_ancestry, database)
+    repository_count = len(intermediate_ancestry.sources)
+    logger.info('Parsed %d repositories as sources.' % repository_count)
     _parse_sources(intermediate_ancestry, database)
+    logger.info('Parsed %d sources.' % (len(intermediate_ancestry.sources) - repository_count))
     _parse_citations(intermediate_ancestry, database)
+    logger.info('Parsed %d citations.' % len(intermediate_ancestry.citations))
     _parse_places(intermediate_ancestry, database)
     logger.info('Parsed %d places.' % len(intermediate_ancestry.places))
     _parse_events(intermediate_ancestry, database)
@@ -515,7 +518,7 @@ def _parse_attribute(name: str, element: Element, tag: str) -> Optional[str]:
     return _xpath1(element, './ns:%s[@type="betty:%s"]/@value' % (tag, name))
 
 
-class Gramps(Plugin):
+class Gramps(Plugin, Parser):
     configuration_schema: Schema = Schema({
         'file': All(str, IsFile(), Path()),
     })
@@ -525,13 +528,8 @@ class Gramps(Plugin):
         self._gramps_file_path = gramps_file_path
 
     @classmethod
-    def for_site(cls, site: Site, configuration: Dict):
+    def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
         return cls(site, configuration['file'])
 
-    def subscribes_to(self) -> List[Tuple[Type[DispatchedEvent], Callable]]:
-        return [
-            (ParseEvent, self._parse),
-        ]
-
-    async def _parse(self, event: ParseEvent) -> None:
+    async def parse(self) -> None:
         parse_xml(self._site, self._gramps_file_path)

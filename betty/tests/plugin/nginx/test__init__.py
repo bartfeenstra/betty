@@ -2,13 +2,13 @@ import re
 from os.path import join
 from tempfile import TemporaryDirectory
 from typing import Optional
-from unittest import TestCase
 
 from betty.config import Configuration, LocaleConfiguration
 from betty.functools import sync
 from betty.generate import generate
 from betty.plugin.nginx import Nginx
 from betty.site import Site
+from betty.tests import TestCase
 
 
 class NginxTest(TestCase):

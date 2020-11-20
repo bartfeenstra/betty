@@ -1,5 +1,4 @@
-{% set server_name = urlparse(site.configuration.base_url)['netloc'] -%}
-{% if plugins['betty.plugin.nginx.Nginx'].https %}
+{% if https %}
     server {
         listen 80;
         server_name {{ server_name }};
@@ -7,10 +6,10 @@
     }
 {% endif %}
 server {
-	listen {% if plugins['betty.plugin.nginx.Nginx'].https %}443 ssl http2{% else %}80{% endif %};
+	listen {% if https %}443 ssl http2{% else %}80{% endif %};
 	server_name {{ server_name }};
-	root {{ plugins['betty.plugin.nginx.Nginx'].www_directory_path }};
-    {% if plugins['betty.plugin.nginx.Nginx'].https %}
+	root {{ www_directory_path }};
+    {% if https %}
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
     {% endif %}
 	add_header Cache-Control "max-age=86400";
@@ -19,7 +18,7 @@ server {
     gzip_vary on;
     gzip_types text/css application/javascript application/json application/xml;
 
-    {% if site.configuration.content_negotiation %}
+    {% if content_negotiation %}
         set_by_lua_block $media_type_extension {
             local available_media_types = {'text/html', 'application/json'}
             local media_type_extensions = {}
@@ -33,8 +32,8 @@ server {
     {% endif %}
     index index.$media_type_extension;
 
-    {% if site.configuration.multilingual %}
-        location ~ ^/({{ site.configuration.locales.values() | map(attribute='alias') | join('|') }})(/|$) {
+    {% if multilingual %}
+        location ~ ^/({{ locales.values() | map(attribute='alias') | join('|') }})(/|$) {
             set $locale $1;
 
             add_header Content-Language "$locale" always;
@@ -50,18 +49,18 @@ server {
             try_files $uri $uri/ =404;
         }
         location @localized_redirect {
-            {% if site.configuration.content_negotiation %}
+            {% if content_negotiation %}
                 set_by_lua_block $locale_alias {
-                    local available_locales = {'{{ site.configuration.locales | join("', '") }}'}
+                    local available_locales = {'{{ locales | join("', '") }}'}
                     local locale_aliases = {}
-                    {% for locale in site.configuration.locales %}
-                        locale_aliases['{{ locale }}'] = '{{ site.configuration.locales[locale].alias }}'
+                    {% for locale in locales %}
+                        locale_aliases['{{ locale }}'] = '{{ locales[locale].alias }}'
                     {% endfor %}
                     local locale = require('cone').negotiate(ngx.req.get_headers()['Accept-Language'], available_locales)
                     return locale_aliases[locale]
                 }
             {% else %}
-                set $locale_alias {{ site.configuration.locales[site.locale].alias }};
+                set $locale_alias {{ locales[locale].alias }};
             {% endif %}
             return 301 /$locale_alias$uri;
         }

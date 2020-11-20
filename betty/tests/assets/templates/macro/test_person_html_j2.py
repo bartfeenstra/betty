@@ -4,7 +4,7 @@ from betty.tests import TemplateTestCase
 
 
 class TestNameLabel(TemplateTestCase):
-    template_string = '{% import \'macro/person.html.j2\' as personMacros %}{{ personMacros.nameLabel(name, embedded=embedded if embedded is defined else False) }}'
+    template_string = '{% import \'macro/person.html.j2\' as personMacros %}{{ personMacros.name_label(name, embedded=embedded if embedded is defined else False) }}'
 
     @sync
     async def test_with_full_name(self):

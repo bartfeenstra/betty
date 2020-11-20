@@ -1,4 +1,4 @@
-{%- import 'macro/person.html.j2' as personMacros -%}
+{%- import 'macro/person.html.j2' as person_macros -%}
 {%- do citer.track() -%}
 <!doctype html>
 <html lang="{{ locale }}"
@@ -38,16 +38,16 @@
     <script src="{{ '/js/search.js' | static_url }}" defer></script>
     <script src="{{ '/js/show.js' | static_url }}" defer></script>
     {% for html_provider in html_providers %}
-        {% for css_path in html_provider.css_paths %}
+        {% for css_path in html_provider.public_css_paths %}
             <link rel="stylesheet" href="{{ css_path }}"/>
         {% endfor %}
-        {% for js_path in html_provider.js_paths %}
+        {% for js_path in html_provider.public_js_paths %}
             <script src="{{ js_path }}" defer></script>
         {% endfor %}
     {% endfor %}
 </head>
 {% if page_resource is has_files %}
-    {% set page_image = page_resource.associated_files | selectattr('media_type', 'startswith', 'image/') | first %}
+    {% set page_image = page_resource.associated_files | selectattr('media_type', 'starts_with', 'image/') | first %}
 {% elif site.configuration.theme.background_image_id and site.configuration.theme.background_image_id in site.ancestry.files %}
     {% set page_image = site.ancestry.files[site.configuration.theme.background_image_id] %}
 {% endif %}
@@ -70,7 +70,7 @@
                 {% set search_keywords_example_person_name = site.ancestry.people.values() | map(attribute='name') | first | default(none) %}
                 {% if search_keywords_example_person_name %}
                     {% set search_keywords_example -%}
-                        {% trans example = personMacros.nameLabel(search_keywords_example_person_name, embedded=True) | striptags -%}
+                        {% trans example = person_macros.name_label(search_keywords_example_person_name, embedded=True) | striptags -%}
                             E.g. "{{ example }}"
                         {%- endtrans %}
                     {%- endset %}

@@ -1,6 +1,5 @@
 from tempfile import TemporaryDirectory
 from typing import Optional, Set, Type
-from unittest import TestCase
 from parameterized import parameterized
 
 from betty.ancestry import Person, Presence, Subject, EventType, CreatableDerivableEventType, \
@@ -11,6 +10,7 @@ from betty.locale import DateRange, Date, Datey
 from betty.parse import parse
 from betty.plugin.deriver import derive, Deriver
 from betty.site import Site
+from betty.tests import TestCase
 
 
 class Ignored(EventType):
