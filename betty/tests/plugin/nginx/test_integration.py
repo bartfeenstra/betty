@@ -27,7 +27,7 @@ class NginxTest(TestCase):
             self._output_directory = None
             self._server = None
 
-        async def start(self) -> Server:
+        async def start(self) -> None:
             self._output_directory = TemporaryDirectory()
             self._configuration.output_directory_path = self._output_directory.name
             site = Site(self._configuration)
@@ -35,7 +35,6 @@ class NginxTest(TestCase):
                 await generate.generate(site)
             self._server = DockerizedNginxServer(site)
             await self._server.start()
-            return self
 
         async def stop(self) -> None:
             await self._server.stop()
