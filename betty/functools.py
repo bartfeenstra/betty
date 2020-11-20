@@ -1,4 +1,7 @@
-def walk(item, attribute_name):
+from typing import Any, Iterable
+
+
+def walk(item: Any, attribute_name: str) -> Iterable[Any]:
     children = getattr(item, attribute_name)
 
     # If the child has the requested attribute, yield it,
