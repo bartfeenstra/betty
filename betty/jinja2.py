@@ -6,7 +6,7 @@ import re
 import warnings
 from contextlib import suppress
 from os.path import join
-from typing import Union, Dict, Type, Optional, Callable, Iterable, AsyncIterable
+from typing import Union, Dict, Type, Optional, Callable, Iterable, AsyncIterable, Any, Iterator
 
 import pdf2image
 from PIL import Image
@@ -17,7 +17,8 @@ from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter, Template
 from jinja2.asyncsupport import auto_await
 from jinja2.filters import prepare_map, make_attrgetter
-from jinja2.runtime import Macro, resolve_or_missing, StrictUndefined
+from jinja2.nodes import EvalContext
+from jinja2.runtime import Macro, resolve_or_missing, StrictUndefined, Context
 from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup
 from resizeimage import resizeimage
@@ -49,21 +50,20 @@ class _Plugins:
     def __getitem__(self, plugin_type_name):
         return self._plugins[import_any(plugin_type_name)]
 
-    def __contains__(self, plugin_type_name):
-        try:
+    def __contains__(self, plugin_type_name) -> bool:
+        with suppress(ImportError):
             return import_any(plugin_type_name) in self._plugins
-        except ImportError:
-            return False
+        return False
 
 
 class _Citer:
     def __init__(self):
         self._citations = []
 
-    def __iter__(self):
+    def __iter__(self) -> Iterable[Citation]:
         return enumerate(self._citations, 1)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._citations)
 
     def cite(self, citation: Citation) -> int:
@@ -71,10 +71,10 @@ class _Citer:
             self._citations.append(citation)
         return self._citations.index(citation) + 1
 
-    def track(self):
+    def track(self) -> None:
         self.clear()
 
-    def clear(self):
+    def clear(self) -> None:
         self._citations = []
 
 
@@ -111,18 +111,33 @@ class BettyEnvironment(Environment):
         if site.configuration.mode == 'development':
             self.add_extension('jinja2.ext.debug')
 
-        def _gettext(*args, **kwargs):
-            return gettext(*args, **kwargs)
+        self._init_i18n()
+        self._init_globals()
+        self._init_filters()
+        self._init_tests()
+        self._init_plugins()
 
-        def _ngettext(*args, **kwargs):
-            return ngettext(*args, **kwargs)
-        self.install_gettext_callables(_gettext, _ngettext)
+    def _init_i18n(self) -> None:
+        # Wrap the callables so they always call the built-ins available runtime, because those change when the current
+        # locale does.
+        self.install_gettext_callables(
+            lambda *args, **kwargs: gettext(*args, **kwargs),
+            lambda *args, **kwargs: ngettext(*args, **kwargs),
+        )
         self.policies['ext.i18n.trimmed'] = True
-        self.globals['site'] = site
-        self.globals['locale'] = site.locale
+
+    def _init_globals(self) -> None:
+        self.globals['site'] = self.site
+        self.globals['locale'] = self.site.locale
         today = datetime.date.today()
         self.globals['today'] = Date(today.year, today.month, today.day)
-        self.globals['plugins'] = _Plugins(site.plugins)
+        self.globals['plugins'] = _Plugins(self.site.plugins)
+        self.globals['citer'] = _Citer()
+        self.globals['search_index'] = lambda: Index(self.site).build()
+        self.globals['html_providers'] = list([plugin for plugin in self.site.plugins.values() if isinstance(plugin, HtmlProvider)])
+        self.globals['path'] = os.path
+
+    def _init_filters(self) -> None:
         self.filters['parse_media_type'] = MediaType.from_string
         self.filters['set'] = set
         self.filters['map'] = _filter_map
@@ -135,21 +150,17 @@ class BettyEnvironment(Environment):
         self.filters['select_localizeds'] = _filter_select_localizeds
         self.filters['negotiate_dateds'] = _filter_negotiate_dateds
         self.filters['select_dateds'] = _filter_select_dateds
-
-        # A filter to convert any value to JSON.
-        @contextfilter
-        def _filter_json(context, data, indent=None):
-            return stdjson.dumps(data, indent=indent,
-                                 cls=JSONEncoder.get_factory(site, resolve_or_missing(context, 'locale')))
-
         self.filters['json'] = _filter_json
-
-        # Override Jinja2's built-in JSON filter, which escapes the JSON for use in HTML, to use Betty's own encoder.
-        @contextfilter
-        def _filter_tojson(context, data, indent=None):
-            return htmlsafe_json_dumps(data, indent=indent, dumper=lambda *args, **kwargs: _filter_json(context, *args, **kwargs))
-
         self.filters['tojson'] = _filter_tojson
+        self.filters['paragraphs'] = _filter_paragraphs
+        self.filters['format_date'] = _filter_format_date
+        self.filters['format_degrees'] = _filter_format_degrees
+        self.filters['url'] = _filter_url
+        self.filters['static_url'] = self.site.static_url_generator.generate
+        self.filters['file'] = lambda *args: _filter_file(self.site, *args)
+        self.filters['image'] = lambda *args, **kwargs: _filter_image(self.site, *args, **kwargs)
+
+    def _init_tests(self) -> None:
         self.tests['resource'] = lambda x: isinstance(x, Resource)
 
         def _build_test_resource_type(resource_type: Type[Resource]):
@@ -165,31 +176,9 @@ class BettyEnvironment(Environment):
         self.tests['subject_role'] = lambda x: isinstance(x, Subject)
         self.tests['witness_role'] = lambda x: isinstance(x, Witness)
         self.tests['date_range'] = lambda x: isinstance(x, DateRange)
-        self.filters['paragraphs'] = _filter_paragraphs
 
-        @contextfilter
-        def _filter_format_date(context, date: Datey):
-            locale = resolve_or_missing(context, 'locale')
-            return format_datey(date, locale)
-        self.filters['format_date'] = _filter_format_date
-        self.filters['format_degrees'] = _filter_format_degrees
-        self.globals['citer'] = _Citer()
-
-        @contextfilter
-        def _filter_url(context, resource, media_type=None, locale=None, **kwargs):
-            media_type = media_type if media_type else 'text/html'
-            locale = locale if locale else resolve_or_missing(context, 'locale')
-            return site.localized_url_generator.generate(resource, media_type, locale=locale, **kwargs)
-
-        self.filters['url'] = _filter_url
-        self.filters['static_url'] = site.static_url_generator.generate
-        self.filters['file'] = lambda *args: _filter_file(site, *args)
-        self.filters['image'] = lambda *args, **kwargs: _filter_image(
-            site, *args, **kwargs)
-        self.globals['search_index'] = lambda: Index(site).build()
-        self.globals['html_providers'] = list([plugin for plugin in site.plugins.values() if isinstance(plugin, HtmlProvider)])
-        self.globals['path'] = os.path
-        for plugin in site.plugins.values():
+    def _init_plugins(self) -> None:
+        for plugin in self.site.plugins.values():
             if isinstance(plugin, Jinja2Provider):
                 self.globals.update(plugin.globals)
                 self.filters.update(plugin.filters)
@@ -228,13 +217,39 @@ class Jinja2Renderer(Renderer):
         )
 
 
-async def _filter_flatten(items):
+@contextfilter
+def _filter_url(context: Context, resource: Any, media_type: Optional[str] = None, locale: Optional[str] = None, **kwargs) -> str:
+    media_type = 'text/html' if media_type is None else media_type
+    locale = locale if locale else resolve_or_missing(context, 'locale')
+    return context.environment.site.localized_url_generator.generate(resource, media_type, locale=locale, **kwargs)
+
+
+@contextfilter
+def _filter_json(context: Context, data: Any, indent: Optional[int] = None) -> str:
+    """
+    Converts a value to a JSON string.
+    """
+    return stdjson.dumps(data, indent=indent,
+                         cls=JSONEncoder.get_factory(context.environment.site, resolve_or_missing(context, 'locale')))
+
+
+@contextfilter
+def _filter_tojson(context: Context, data: Any, indent: Optional[int] = None) -> str:
+    """
+    Converts a value to a JSON string safe for use in an HTML document.
+
+    This mimics Jinja2's built-in JSON filter, but uses Betty's own JSON encoder.
+    """
+    return htmlsafe_json_dumps(data, indent=indent, dumper=lambda *args, **kwargs: _filter_json(context, *args, **kwargs))
+
+
+async def _filter_flatten(items: Union[Iterable, AsyncIterable]) -> Iterable:
     async for item in _asynciter(items):
         async for child in _asynciter(item):
             yield child
 
 
-def _filter_walk(item, attribute_name):
+def _filter_walk(item: Any, attribute_name: str) -> Iterable[Any]:
     return walk(item, attribute_name)
 
 
@@ -242,7 +257,7 @@ _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
 
 
 @evalcontextfilter
-def _filter_paragraphs(eval_ctx, text: str) -> Union[str, Markup]:
+def _filter_paragraphs(eval_ctx: EvalContext, text: str) -> Union[str, Markup]:
     """Converts newlines to <p> and <br> tags.
 
     Taken from http://jinja.pocoo.org/docs/2.10/api/#custom-filters."""
@@ -253,7 +268,7 @@ def _filter_paragraphs(eval_ctx, text: str) -> Union[str, Markup]:
     return result
 
 
-def _filter_format_degrees(degrees):
+def _filter_format_degrees(degrees: int) -> str:
     arcminutes = units.arcminutes(degrees=degrees - int(degrees))
     arcseconds = units.arcseconds(arcminutes=arcminutes - int(arcminutes))
     format_dict = dict(
@@ -269,6 +284,11 @@ def _filter_format_degrees(degrees):
 
 @contextfilter
 async def _filter_map(*args, **kwargs):
+    """
+    Maps an iterable's values.
+
+    This mimics Jinja2's built-in map filter, but allows macros as callbacks.
+    """
     if len(args) == 3 and isinstance(args[2], Macro):
         seq = args[1]
         func = args[2]
@@ -381,13 +401,13 @@ def _execute_filter_image(image: Image, file_path: str, cache_directory_path: st
 
 
 @contextfilter
-def _filter_negotiate_localizeds(context, localizeds: Iterable[Localized]) -> Optional[Localized]:
+def _filter_negotiate_localizeds(context: Context, localizeds: Iterable[Localized]) -> Optional[Localized]:
     locale = resolve_or_missing(context, 'locale')
     return negotiate_localizeds(locale, list(localizeds))
 
 
 @contextfilter
-def _filter_sort_localizeds(context, localizeds: Iterable[Localized], localized_attribute: str, sort_attribute: str) -> Iterable[Localized]:
+def _filter_sort_localizeds(context: Context, localizeds: Iterable[Localized], localized_attribute: str, sort_attribute: str) -> Iterable[Localized]:
     locale = resolve_or_missing(context, 'locale')
     get_localized_attr = make_attrgetter(
         context.environment, localized_attribute)
@@ -400,7 +420,7 @@ def _filter_sort_localizeds(context, localizeds: Iterable[Localized], localized_
 
 
 @contextfilter
-def _filter_select_localizeds(context, localizeds: Iterable[Localized]) -> Iterable[Localized]:
+def _filter_select_localizeds(context: Context, localizeds: Iterable[Localized]) -> Iterable[Localized]:
     locale = resolve_or_missing(context, 'locale')
     for localized in localizeds:
         if negotiate_locale(locale, [localized.locale]) is not None:
@@ -408,16 +428,22 @@ def _filter_select_localizeds(context, localizeds: Iterable[Localized]) -> Itera
 
 
 @contextfilter
-def _filter_negotiate_dateds(context, dateds: Iterable[Dated], date: Optional[Datey]) -> Optional[Dated]:
+def _filter_negotiate_dateds(context: Context, dateds: Iterable[Dated], date: Optional[Datey]) -> Optional[Dated]:
     with suppress(StopIteration):
         return next(_filter_select_dateds(context, dateds, date))
 
 
 @contextfilter
-def _filter_select_dateds(context, dateds: Iterable[Dated], date: Optional[Datey]) -> Iterable[Dated]:
+def _filter_select_dateds(context: Context, dateds: Iterable[Dated], date: Optional[Datey]) -> Iterator[Dated]:
     if date is None:
         date = resolve_or_missing(context, 'today')
     return filter(lambda dated: dated.date is None or dated.date.comparable and dated.date in date, dateds)
+
+
+@contextfilter
+def _filter_format_date(context: Context, date: Datey) -> str:
+    locale = resolve_or_missing(context, 'locale')
+    return format_datey(date, locale)
 
 
 async def _asynciter(items: Union[Iterable, AsyncIterable]) -> AsyncIterable:
