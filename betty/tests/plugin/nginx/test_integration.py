@@ -11,7 +11,7 @@ from requests import Response
 
 from betty import generate
 from betty.config import from_file
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.plugin.nginx.serve import DockerizedNginxServer
 from betty.serve import Server
 from betty.site import Site

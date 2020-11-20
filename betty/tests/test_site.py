@@ -4,7 +4,7 @@ from voluptuous import Schema, Required
 
 from betty.ancestry import Ancestry
 from betty.config import Configuration
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.graph import CyclicGraphError
 from betty.plugin import Plugin, NO_CONFIGURATION
 from betty.site import Site

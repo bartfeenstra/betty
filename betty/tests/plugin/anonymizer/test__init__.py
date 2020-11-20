@@ -5,7 +5,7 @@ from unittest.mock import patch, ANY
 from betty.ancestry import Ancestry, Person, File, Source, Citation, PersonName, Presence, Event, IdentifiableEvent, \
     IdentifiableSource, IdentifiableCitation, Birth, Subject
 from betty.config import Configuration
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.parse import parse
 from betty.plugin.anonymizer import Anonymizer, anonymize, anonymize_person, anonymize_event, anonymize_file, \
     anonymize_citation, anonymize_source, AnonymousSource, AnonymousCitation

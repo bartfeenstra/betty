@@ -24,9 +24,10 @@ from resizeimage import resizeimage
 
 from betty.ancestry import File, Citation, Identifiable, Resource, HasLinks, HasFiles, Subject, Witness, Dated, \
     RESOURCE_TYPES
+from betty.asyncio import asynciter
 from betty.config import Configuration
 from betty.fs import makedirs, hashfile, iterfiles
-from betty.functools import walk, asynciter
+from betty.functools import walk
 from betty.html import HtmlProvider
 from betty.importlib import import_any
 from betty.json import JSONEncoder

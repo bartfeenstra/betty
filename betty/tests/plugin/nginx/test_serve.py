@@ -7,7 +7,7 @@ from time import sleep
 import requests
 
 from betty.config import Configuration
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.plugin.nginx import Nginx
 from betty.plugin.nginx.serve import DockerizedNginxServer
 from betty.site import Site

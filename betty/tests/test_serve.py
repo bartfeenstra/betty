@@ -4,7 +4,7 @@ from time import sleep
 
 import requests
 
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.serve import BuiltinServer
 from betty.tests import TestCase
 

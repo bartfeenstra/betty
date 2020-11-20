@@ -4,7 +4,7 @@ from os.path import join, dirname
 from tempfile import TemporaryDirectory
 
 from betty.fs import iterfiles, FileSystem, hashfile
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.tests import TestCase
 
 

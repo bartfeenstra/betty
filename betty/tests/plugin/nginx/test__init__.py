@@ -4,7 +4,7 @@ from tempfile import TemporaryDirectory
 from typing import Optional
 
 from betty.config import Configuration, LocaleConfiguration
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.generate import generate
 from betty.plugin.nginx import Nginx
 from betty.site import Site

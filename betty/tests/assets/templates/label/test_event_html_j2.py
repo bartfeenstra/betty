@@ -1,5 +1,5 @@
 from betty.ancestry import Person, Event, IdentifiableEvent, Presence, Subject, Witness, Birth, Marriage
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.tests import TemplateTestCase
 
 
