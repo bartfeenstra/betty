@@ -24,7 +24,7 @@ class FlattenTest(TemplateTestCase):
             self.assertEquals(expected, actual)
 
 
-class WalkTest(TemplateTestCase):
+class WalkToManyTest(TemplateTestCase):
     class WalkData:
         def __init__(self, label, children=None):
             self._label = label
@@ -34,8 +34,8 @@ class WalkTest(TemplateTestCase):
             return self._label
 
     @parameterized.expand([
-        ('', '{{ data | walk("children") | join }}', WalkData('parent')),
-        ('child1, child1child1, child2', '{{ data | walk("children") | join(", ") }}',
+        ('', '{{ data | walk_to_many("children") | join }}', WalkData('parent')),
+        ('child1, child1child1, child2', '{{ data | walk_to_many("children") | join(", ") }}',
          WalkData('parent', [WalkData('child1', [WalkData('child1child1')]), WalkData('child2')])),
     ])
     @sync

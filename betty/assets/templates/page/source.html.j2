@@ -2,7 +2,7 @@
 {% set page_title = source.name %}
 {% block page_content %}
     {% include 'meta/source.html.j2' %}
-    {% set sources = [source] + source | walk('contains') | list %}
+    {% set sources = [source] + source | walk_to_many('contains') | list %}
     {% set have_files = sources %}
     {% set have_files = have_files + sources | map(attribute='citations') | flatten | list %}
     {% set files = have_files | map(attribute='files') | flatten | list | unique | list %}
