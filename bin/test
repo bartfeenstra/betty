@@ -34,4 +34,4 @@ coverage run -m nose2
 coverage report -m
 
 # Run end-to-end (e2e) tests.
-BETTY_PYTHON_PATH="$(command -v python)" ./node_modules/.bin/cypress run
+./node_modules/.bin/cypress run
