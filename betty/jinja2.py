@@ -44,11 +44,14 @@ _root_loader = FileSystemLoader('/')
 
 
 class _Plugins:
-    def __init__(self, plugins: Dict[Type, Plugin]):
+    def __init__(self, plugins: Dict[Type[Plugin], Plugin]):
         self._plugins = plugins
 
     def __getitem__(self, plugin_type_name):
-        return self._plugins[import_any(plugin_type_name)]
+        try:
+            return self._plugins[import_any(plugin_type_name)]
+        except ImportError:
+            raise KeyError('Unknown plugin "%s".' % plugin_type_name)
 
     def __contains__(self, plugin_type_name) -> bool:
         with suppress(ImportError):
