@@ -10,6 +10,7 @@ from betty.ancestry import Place, Person, PlaceName, Event, Described, HasLinks,
     Note, PersonName, IdentifiableEvent, Identifiable, IdentifiableSource, IdentifiableCitation, HasMediaType, Resource, \
     PresenceRole, EventType
 from betty.locale import Date, DateRange, Localized
+from betty.media_type import MediaType
 from betty.plugin.deriver import DerivedEvent
 from betty.site import Site
 
@@ -47,6 +48,7 @@ class JSONEncoder(stdjson.JSONEncoder):
             IdentifiableSource: self._encode_identifiable_source,
             Link: self._encode_link,
             Note: self._encode_note,
+            MediaType: self._encode_media_type,
         }
 
     @classmethod
@@ -323,3 +325,6 @@ class JSONEncoder(stdjson.JSONEncoder):
         return {
             'text': note.text,
         }
+
+    def _encode_media_type(self, media_type: MediaType) -> str:
+        return str(media_type)

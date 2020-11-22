@@ -15,7 +15,7 @@
     <meta name="og:site_name" content="{{ site.configuration.title }}"/>
     {% if page_resource is defined and page_recource is has_files %}
         {% for file in page_resource.files %}
-            {% if file.media_type.startswith('image/') %}
+            {% if file.media_type.type == 'image' %}
                 <meta name="og:image" content="{{ file | image(600, 600) | static_url }}"/>
                 {% if file.description %}
                     <meta name="og:image:description" content="{{ file.description | escape }}"/>
@@ -47,7 +47,7 @@
     {% endfor %}
 </head>
 {% if page_resource is has_files %}
-    {% set page_image = page_resource.associated_files | selectattr('media_type', 'starts_with', 'image/') | first %}
+    {% set page_image = page_resource.associated_files | selectattr('media_type.type', 'eq', 'image') | first %}
 {% elif site.configuration.theme.background_image_id and site.configuration.theme.background_image_id in site.ancestry.files %}
     {% set page_image = site.ancestry.files[site.configuration.theme.background_image_id] %}
 {% endif %}

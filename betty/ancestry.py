@@ -6,6 +6,7 @@ from typing import Dict, Optional, List, Iterable, Set, Union, TypeVar, Generic,
 from geopy import Point
 
 from betty.locale import Localized, Datey
+from betty.media_type import MediaType
 from betty.path import extension
 
 T = TypeVar('T')
@@ -201,7 +202,7 @@ class Described:
 
 
 class HasMediaType:
-    media_type: Optional[str]
+    media_type: Optional[MediaType]
 
     def __init__(self):
         self.media_type = None
@@ -235,7 +236,7 @@ class File(Resource, Identifiable, Described, HasPrivacy, HasMediaType, HasNotes
     resources: ManyAssociation['HasFiles']
     notes: List[Note]
 
-    def __init__(self, file_id: str, path: str, media_type: Optional[str] = None):
+    def __init__(self, file_id: str, path: str, media_type: Optional[MediaType] = None):
         Identifiable.__init__(self, file_id)
         Described.__init__(self)
         HasPrivacy.__init__(self)
