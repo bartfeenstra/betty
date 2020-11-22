@@ -4,14 +4,6 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
-trap tear_down INT TERM EXIT
-
-working_directory_path=$(mktemp -d)
-
-function tear_down() {
-    rm -r "$working_directory_path"
-}
-
 # Lint the shell scripts.
 for file in ./bin/*; do
     shellcheck -x "$file"
