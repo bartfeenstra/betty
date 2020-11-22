@@ -1,7 +1,7 @@
 from typing import Set, Type, Any
 
 from betty.ancestry import Ancestry, Person, File, Citation, Source, Event
-from betty.functools import walk_to_many
+from betty.functools import walk
 from betty.parse import PostParser
 from betty.plugin import Plugin, NO_CONFIGURATION
 from betty.plugin.privatizer import Privatizer
@@ -68,7 +68,7 @@ def anonymize_person(person: Person) -> None:
 
 
 def _has_public_descendants(person: Person) -> bool:
-    for descendant in walk_to_many(person, 'children'):
+    for descendant in walk(person, 'children'):
         if not descendant.private:
             return True
     return False

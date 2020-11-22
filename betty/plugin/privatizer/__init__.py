@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Any, Optional
 
 from betty.ancestry import Ancestry, Person, Event, Citation, Source, HasPrivacy, Subject
-from betty.functools import walk_to_many
+from betty.functools import walk
 from betty.locale import DateRange, Date
 from betty.parse import PostParser
 from betty.plugin import Plugin, NO_CONFIGURATION
@@ -114,7 +114,7 @@ def _person_is_private(person: Person, lifetime_threshold: int) -> bool:
             return False
 
     # If any descendant has any expired event, the person is considered not private.
-    for descendant in walk_to_many(person, 'children'):
+    for descendant in walk(person, 'children'):
         if _person_has_expired(descendant, lifetime_threshold, 1):
             return False
 
