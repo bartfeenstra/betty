@@ -47,6 +47,7 @@ git tag "$VERSION"
 # Build and publish the package.
 python setup.py sdist
 python setup.py bdist_wheel --universal
+twine check ./dist/*
 twine upload --repository-url https://upload.pypi.org/legacy/ ./dist/*
 
 # Revert back to master.
