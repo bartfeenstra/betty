@@ -17,6 +17,7 @@ from betty.ancestry import Link, HasLinks, Resource
 from betty.fs import makedirs
 from betty.jinja2 import Jinja2Provider
 from betty.locale import Localized, negotiate_locale
+from betty.media_type import MediaType
 from betty.parse import PostParser
 from betty.plugin import Plugin, NO_CONFIGURATION
 from betty.site import Site
@@ -186,7 +187,7 @@ class _Populator:
         if link.url.startswith('http:'):
             link.url = 'https:' + link.url[5:]
         if link.media_type is None:
-            link.media_type = 'text/html'
+            link.media_type = MediaType('text/html')
         if link.relationship is None:
             link.relationship = 'external'
         if link.locale is None:

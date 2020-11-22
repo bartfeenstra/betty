@@ -9,6 +9,7 @@ from betty.ancestry import Place, Person, PlaceName, Link, Presence, Source, Fil
 from betty.config import Configuration, LocaleConfiguration
 from betty.json import JSONEncoder
 from betty.locale import Date, DateRange
+from betty.media_type import MediaType
 from betty.site import Site
 from betty.tests import TestCase
 
@@ -317,7 +318,7 @@ class JSONEncoderTest(TestCase):
     def test_file_should_encode_full(self):
         with NamedTemporaryFile() as f:
             file = File('the_file', f.name)
-            file.media_type = 'text/plain'
+            file.media_type = MediaType('text/plain')
             file.notes.append(Note('The Note'))
             Person('the_person').files.append(file)
             expected = {
@@ -603,7 +604,7 @@ class JSONEncoderTest(TestCase):
         link.label = 'The Link'
         link.relationship = 'external'
         link.locale = 'nl-NL'
-        link.media_type = 'text/html'
+        link.media_type = MediaType('text/html')
         expected = {
             'url': 'https://example.com',
             'relationship': 'external',

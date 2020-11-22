@@ -20,6 +20,7 @@ from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, Pl
 from betty.config import Path
 from betty.fs import makedirs
 from betty.locale import DateRange, Datey, Date
+from betty.media_type import MediaType
 from betty.parse import Parser
 from betty.path import rootname
 from betty.plugin import Plugin, NO_CONFIGURATION
@@ -186,7 +187,7 @@ def _parse_object(ancestry: _IntermediateAncestry, element: Element, gramps_dire
     file_element = _xpath1(element, './ns:file')
     file_path = path.join(gramps_directory_path, str(_xpath1(file_element, './@src')))
     file = File(entity_id, file_path)
-    file.media_type = str(_xpath1(file_element, './@mime'))
+    file.media_type = MediaType(str(_xpath1(file_element, './@mime')))
     description = str(_xpath1(file_element, './@description'))
     if description:
         file.description = description
