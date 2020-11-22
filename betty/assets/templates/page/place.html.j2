@@ -9,13 +9,13 @@
     {% endif %}
     {% if places | length > 0 %}
         <section id="places">
-            <h2 class="js-hide">
+            <h2 class="js-visually-hidden">
                 {% trans %}Places{% endtrans %}
                 {% with url = page_resource | url ~ '#places'%}
                     {% include 'permalink.html.j2' %}
                 {% endwith %}
             </h2>
-            {% with place_context = place %}
+            {% with place_context = place, map_hides_list = True %}
                 {% include 'list-place.html.j2' %}
             {% endwith %}
         </section>

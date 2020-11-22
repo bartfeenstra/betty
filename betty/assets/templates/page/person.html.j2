@@ -10,13 +10,13 @@
     {% set places = person.presences | map(attribute='event.place') | reject('equalto', None) | list | unique | list %}
     {% if places | length > 0 %}
         <section id="places">
-            <h2 class="js-hide">
+            <h2 class="js-visually-hidden">
                 {% trans %}Places{% endtrans %}
                 {% with url = page_resource | url ~ '#places'%}
                     {% include 'permalink.html.j2' %}
                 {% endwith %}
             </h2>
-            {% with places=places %}
+            {% with map_hides_list = true %}
                 {% include 'list-place.html.j2' %}
             {% endwith %}
         </section>
