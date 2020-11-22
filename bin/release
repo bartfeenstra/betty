@@ -41,7 +41,7 @@ git add VERSION
 git commit -m "Release version $VERSION."
 git tag "$VERSION"
 
-# Build and publish the package.
+# Build and publish the package.s
 ./bin/build-package
 twine upload --repository-url https://upload.pypi.org/legacy/ ./dist/*
 
