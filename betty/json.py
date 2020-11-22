@@ -275,10 +275,10 @@ class JSONEncoder(stdjson.JSONEncoder):
         return encoded
 
     def _encode_event_type(self, event_type: EventType) -> str:
-        return event_type.name
+        return event_type.name()
 
     def _encode_presence_role(self, role: PresenceRole) -> str:
-        return role.name
+        return role.name()
 
     def _encode_identifiable_citation(self, citation: IdentifiableCitation) -> Dict:
         encoded = {

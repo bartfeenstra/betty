@@ -171,7 +171,7 @@ class BettyEnvironment(Environment):
                 return isinstance(x, resource_type)
             return _test_resource
         for resource_type in RESOURCE_TYPES:
-            self.tests['%s_resource' % resource_type.resource_type_name] = _build_test_resource_type(resource_type)
+            self.tests['%s_resource' % resource_type.resource_type_name()] = _build_test_resource_type(resource_type)
         self.tests['identifiable'] = lambda x: isinstance(x, Identifiable)
         self.tests['has_links'] = lambda x: isinstance(x, HasLinks)
         self.tests['has_files'] = lambda x: isinstance(x, HasFiles)

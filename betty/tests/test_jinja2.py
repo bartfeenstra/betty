@@ -474,7 +474,7 @@ class TestResourceTest(TemplateTestCase):
     ])
     @sync
     async def test(self, expected, resource_type: Type[Resource], data) -> None:
-        template = f'{{% if data is {resource_type.resource_type_name}_resource %}}true{{% else %}}false{{% endif %}}'
+        template = f'{{% if data is {resource_type.resource_type_name()}_resource %}}true{{% else %}}false{{% endif %}}'
         async with self._render(template_string=template, data={
             'data': data,
         }) as (actual, _):
