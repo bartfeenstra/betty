@@ -32,9 +32,6 @@ if ! git diff-index --quiet HEAD --; then
     exit 1
 fi
 
-# Prepare the workspace directories.
-rm -rf betty.egg-info build dist
-
 # Create the release branch.
 git checkout -b "$BRANCH"
 
@@ -45,9 +42,7 @@ git commit -m "Release version $VERSION."
 git tag "$VERSION"
 
 # Build and publish the package.
-python setup.py sdist
-python setup.py bdist_wheel --universal
-twine check ./dist/*
+./bin/build-package
 twine upload --repository-url https://upload.pypi.org/legacy/ ./dist/*
 
 # Revert back to master.

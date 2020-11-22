@@ -21,7 +21,8 @@ SETUP = {
     'long_description_content_type': 'text/markdown',
     'version': VERSION,
     'license': 'GPLv3',
-    'author': 'Bart Feenstra',
+    'author': 'Bart Feenstra & contributors',
+    'author_email': 'bart@mynameisbart.com',
     'url': 'https://github.com/bartfeenstra/betty',
     'classifiers': [
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
