@@ -27,7 +27,7 @@ from betty.ancestry import File, Citation, Identifiable, Resource, HasLinks, Has
     RESOURCE_TYPES
 from betty.config import Configuration
 from betty.fs import makedirs, hashfile, iterfiles
-from betty.functools import walk_to_many
+from betty.functools import walk
 from betty.html import HtmlProvider
 from betty.importlib import import_any
 from betty.json import JSONEncoder
@@ -145,7 +145,7 @@ class BettyEnvironment(Environment):
         self.filters['set'] = set
         self.filters['map'] = _filter_map
         self.filters['flatten'] = _filter_flatten
-        self.filters['walk_to_many'] = _filter_walk_to_many
+        self.filters['walk'] = _filter_walk
         self.filters['locale_get_data'] = lambda locale: Locale.parse(
             locale, '-')
         self.filters['negotiate_localizeds'] = _filter_negotiate_localizeds
@@ -252,8 +252,8 @@ async def _filter_flatten(items: Union[Iterable, AsyncIterable]) -> Iterable:
             yield child
 
 
-def _filter_walk_to_many(item: Any, attribute_name: str) -> Iterable[Any]:
-    return walk_to_many(item, attribute_name)
+def _filter_walk(item: Any, attribute_name: str) -> Iterable[Any]:
+    return walk(item, attribute_name)
 
 
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')

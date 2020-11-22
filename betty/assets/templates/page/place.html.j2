@@ -3,7 +3,7 @@
 {% block page_content %}
     {% include 'meta/place.html.j2' %}
 
-    {% set places = place | walk_to_many('encloses') | select('place_resource') | list %}
+    {% set places = place | walk('encloses') | select('place_resource') | list %}
     {% if place.coordinates %}
         {% set places = places + [place] %}
     {% endif %}
@@ -35,7 +35,7 @@
         </section>
     {% endif %}
 
-    {% set events = place.events | list + place | walk_to_many('encloses') | select('place_resource') | map(attribute="events") | flatten | rejectattr('date', 'none') | selectattr('date.comparable') | list %}
+    {% set events = place.events | list + place | walk('encloses') | select('place_resource') | map(attribute="events") | flatten | rejectattr('date', 'none') | selectattr('date.comparable') | list %}
     {% if events | length > 0 %}
         <section id="timeline">
             <h2>

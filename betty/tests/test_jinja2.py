@@ -92,7 +92,7 @@ class FilterFlattenTest(TemplateTestCase):
             self.assertEquals(expected, actual)
 
 
-class FilterWalkToManyTest(TemplateTestCase):
+class FilterWalkTest(TemplateTestCase):
     class WalkData:
         def __init__(self, label, children=None):
             self._label = label
@@ -102,8 +102,8 @@ class FilterWalkToManyTest(TemplateTestCase):
             return self._label
 
     @parameterized.expand([
-        ('', '{{ data | walk_to_many("children") | join }}', WalkData('parent')),
-        ('child1, child1child1, child2', '{{ data | walk_to_many("children") | join(", ") }}',
+        ('', '{{ data | walk("children") | join }}', WalkData('parent')),
+        ('child1, child1child1, child2', '{{ data | walk("children") | join(", ") }}',
          WalkData('parent', [WalkData('child1', [WalkData('child1child1')]), WalkData('child2')])),
     ])
     @sync
