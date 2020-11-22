@@ -1,4 +1,4 @@
-from typing import Set, Type, Optional, Any
+from typing import Set, Type, Any
 
 from betty.ancestry import Ancestry, Person, File, Citation, Source, Event
 from betty.functools import walk_to_many
@@ -25,10 +25,7 @@ class AnonymousSource(Source):
 class AnonymousCitation(Citation):
     def __init__(self, source: Source):
         Citation.__init__(self, source)
-
-    @property
-    def location(self) -> Optional[str]:
-        return _("A citation is available, but has not been published in order to protect people's privacy")
+        self.location = _("A citation is available, but has not been published in order to protect people's privacy")
 
     def replace(self, other: Citation) -> None:
         self.facts.append(*other.facts)
