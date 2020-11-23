@@ -21,7 +21,8 @@ SETUP = {
     'long_description_content_type': 'text/markdown',
     'version': VERSION,
     'license': 'GPLv3',
-    'author': 'Bart Feenstra',
+    'author': 'Bart Feenstra & contributors',
+    'author_email': 'bart@mynameisbart.com',
     'url': 'https://github.com/bartfeenstra/betty',
     'classifiers': [
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
@@ -71,7 +72,7 @@ SETUP = {
             'recommonmark ~= 0.4.0',
             'setuptools ~= 50.3.2',
             'twine ~= 3.2.0',
-            'wheel ~= 0.30.0',
+            'wheel ~= 0.35.1',
         ],
     },
     'entry_points': {
