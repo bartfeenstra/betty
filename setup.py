@@ -72,7 +72,7 @@ SETUP = {
             'recommonmark ~= 0.4.0',
             'setuptools ~= 50.3.2',
             'twine ~= 3.2.0',
-            'wheel ~= 0.30.0',
+            'wheel ~= 0.35.1',
         ],
     },
     'entry_points': {
