@@ -64,6 +64,10 @@ jobs:
         if: startsWith(runner.os, 'macOS')
         run: brew install shellcheck
 
+      - name: Install Chcolatey dependencies
+        if: startsWith(runner.os, 'Windows')
+        run: choco install shellcheck
+
       - name: Build the development environment
         run: |
           ./bin/build-dev
