@@ -167,11 +167,26 @@ class Dated:
         self.date = None
 
 
-class Note:
+class Identifiable:
+    def __init__(self, identifiable_id: str):
+        self._id = identifiable_id
+
+    @property
+    def id(self) -> str:
+        return self._id
+
+
+class Note(Resource, Identifiable):
     text: str
 
-    def __init__(self, text: str):
+    def __init__(self, note_id: str, text: str):
+        Resource.__init__(self)
+        Identifiable.__init__(self, note_id)
         self._text = text
+
+    @classmethod
+    def resource_type_name(cls) -> str:
+        return 'note'
 
     @property
     def text(self):
@@ -183,15 +198,6 @@ class HasNotes:
 
     def __init__(self):
         self.notes = []
-
-
-class Identifiable:
-    def __init__(self, identifiable_id: str):
-        self._id = identifiable_id
-
-    @property
-    def id(self) -> str:
-        return self._id
 
 
 class Described:
@@ -994,6 +1000,7 @@ class Ancestry:
     events: Dict[str, IdentifiableEvent]
     sources: Dict[str, IdentifiableSource]
     citations: Dict[str, IdentifiableCitation]
+    notes: Dict[str, Note]
 
     def __init__(self):
         self.files = {}
@@ -1002,6 +1009,7 @@ class Ancestry:
         self.events = {}
         self.sources = {}
         self.citations = {}
+        self.notes = {}
 
     @property
     def resources(self) -> Iterable[Resource]:
@@ -1012,4 +1020,5 @@ class Ancestry:
             self.events.values(),
             self.sources.values(),
             self.citations.values(),
+            self.notes.values(),
         )

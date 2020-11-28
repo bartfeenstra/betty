@@ -122,9 +122,14 @@ class DatedTest(TestCase):
 
 
 class NoteTest(TestCase):
+    def test_id(self) -> None:
+        note_id = 'N1'
+        sut = Note(note_id, 'Betty wrote this.')
+        self.assertEquals(note_id, sut.id)
+
     def test_text(self) -> None:
         text = 'Betty wrote this.'
-        sut = Note(text)
+        sut = Note('N1', text)
         self.assertEquals(text, sut.text)
 
 

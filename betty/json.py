@@ -239,8 +239,8 @@ class JSONEncoder(stdjson.JSONEncoder):
     def _encode_file(self, file: File) -> Dict:
         encoded = {
             'id': file.id,
-            'resources': [self._generate_url(entity) for entity in file.resources],
-            'notes': file.notes,
+            'resources': [self._generate_url(resource) for resource in file.resources],
+            'notes': [self._generate_url(note) for note in file.notes],
         }
         self._encode_schema(encoded, 'file')
         self._encode_identifiable_resource(encoded, file)
@@ -322,9 +322,13 @@ class JSONEncoder(stdjson.JSONEncoder):
         return encoded
 
     def _encode_note(self, note: Note) -> Dict:
-        return {
+        encoded = {
+            '@type': 'https://schema.org/Thing',
+            'id': note.id,
             'text': note.text,
         }
+        self._encode_schema(encoded, 'note')
+        return encoded
 
     def _encode_media_type(self, media_type: MediaType) -> str:
         return str(media_type)
