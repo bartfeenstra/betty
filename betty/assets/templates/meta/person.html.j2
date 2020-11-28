@@ -6,7 +6,7 @@
 {%- if not embedded is defined -%}
     {%- set embedded = False -%}
 {%- endif -%}
-<div class="meta">
+<div class="meta person-meta">
     {%- if person.private -%}
         <p>{%- trans -%}This person's details are unavailable to protect their privacy.{%- endtrans -%}</p>
     {%- else -%}
@@ -30,10 +30,14 @@
         {%- if formatted_start or formatted_end -%}
             <dl>
                 {%- if formatted_start -%}
-                    <dt>{{ person.start.type.label }}</dt><dd>{{ formatted_start }}</dd>
+                    <div>
+                        <dt>{{ person.start.type.label }}</dt><dd>{{ formatted_start }}</dd>
+                    </div>
                 {%- endif -%}
                 {%- if formatted_end -%}
-                    <dt>{{ person.end.type.label }}</dt><dd>{{ formatted_end }}</dd>
+                    <div>
+                        <dt>{{ person.end.type.label }}</dt><dd>{{ formatted_end }}</dd>
+                    </div>
                 {%- endif -%}
             </dl>
         {%- endif -%}
