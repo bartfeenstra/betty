@@ -9,10 +9,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: 'Latest: Linux, Python 3.9 & Node.js 14'
+          - name: 'Latest: Linux, Python 3.9 & Node.js 15'
             os: ubuntu-latest
             python: '3.9'
-            node: '14'
+            node: '15'
           - name: 'Python 3.8'
             os: ubuntu-latest
             python: '3.8'
@@ -24,6 +24,10 @@ jobs:
           - name: 'Python 3.6'
             os: ubuntu-latest
             python: '3.6'
+            node: '14'
+          - name: 'Node.js 14'
+            os: ubuntu-latest
+            python: '3.9'
             node: '14'
           - name: 'Node.js 12'
             os: ubuntu-latest
