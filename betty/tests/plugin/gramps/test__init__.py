@@ -1,5 +1,5 @@
 from os.path import join, dirname, abspath
-from tempfile import TemporaryDirectory, NamedTemporaryFile
+from tempfile import TemporaryDirectory
 from typing import Optional
 
 from parameterized import parameterized
@@ -9,9 +9,18 @@ from betty.config import Configuration
 from betty.asyncio import sync
 from betty.locale import Date
 from betty.parse import parse
-from betty.plugin.gramps import parse_xml, Gramps
+from betty.path import rootname
+from betty.plugin.gramps import parse_xml, Gramps, parse_gpkg_file, parse_gramps_file
 from betty.site import Site
 from betty.tests import TestCase
+
+
+class ParseGrampsTest(TestCase):
+    pass
+
+
+class ParseGpkgTest(TestCase):
+    pass
 
 
 class ParseXmlTest(TestCase):
@@ -24,17 +33,17 @@ class ParseXmlTest(TestCase):
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with Site(configuration) as site:
                 cls.ancestry = site.ancestry
-                parse_xml(site, join(dirname(abspath(__file__)), 'assets', 'data.xml'))
+                xml_file_path = join(dirname(abspath(__file__)), 'assets', 'data.xml')
+                with open(xml_file_path) as f:
+                    parse_xml(site, f.read(), rootname(xml_file_path))
 
     @sync
     async def _parse(self, xml: str) -> Ancestry:
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with Site(configuration) as site:
-                with NamedTemporaryFile(mode='r+') as f:
-                    f.write(xml.strip())
-                    f.seek(0)
-                    parse_xml(site, f.name)
+                with TemporaryDirectory() as tree_directory_path:
+                    parse_xml(site, xml.strip(), tree_directory_path)
                     return site.ancestry
 
     def _parse_partial(self, xml: str) -> Ancestry:
@@ -53,31 +62,29 @@ class ParseXmlTest(TestCase):
 """ % xml)
 
     @sync
-    async def test_xml(self):
+    async def test_parse_xml(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with Site(configuration) as site:
-                gramps_file_path = join(
-                    dirname(abspath(__file__)), 'assets', 'minimal.xml')
-                parse_xml(site, gramps_file_path)
+                gramps_file_path = join(dirname(abspath(__file__)), 'assets', 'minimal.xml')
+                with open(gramps_file_path) as f:
+                    parse_xml(site, f.read(), rootname(gramps_file_path))
 
     @sync
-    async def test_xml_gz(self):
+    async def test_parse_gramps(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with Site(configuration) as site:
-                gramps_file_path = join(
-                    dirname(abspath(__file__)), 'assets', 'minimal.gramps')
-                parse_xml(site, gramps_file_path)
+                gramps_file_path = join(dirname(abspath(__file__)), 'assets', 'minimal.gramps')
+                parse_gramps_file(site, gramps_file_path)
 
     @sync
-    async def test_xml_tar_gz(self):
+    async def test_parse_gpkg(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with Site(configuration) as site:
-                gramps_file_path = join(
-                    dirname(abspath(__file__)), 'assets', 'minimal.gpkg')
-                parse_xml(site, gramps_file_path)
+                gramps_file_path = join(dirname(abspath(__file__)), 'assets', 'minimal.gpkg')
+                parse_gpkg_file(site, gramps_file_path)
 
     def test_place_should_include_name(self):
         place = self.ancestry.places['P0000']
