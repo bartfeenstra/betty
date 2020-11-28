@@ -35,11 +35,11 @@ def parse_file(site: Site, file_path: str) -> None:
     logger.info('Parsing %s...' % file_path)
 
     with suppress(GrampsParseFileError):
-        parse_gpkg_file(site, file_path)
+        parse_gpkg(site, file_path)
         return
 
     with suppress(GrampsParseFileError):
-        parse_gramps_file(site, file_path)
+        parse_gramps(site, file_path)
         return
 
     with suppress(GrampsParseFileError):
@@ -51,29 +51,32 @@ def parse_file(site: Site, file_path: str) -> None:
     raise GrampsParseFileError('Could not parse "%s" as a *.gpkg, a *.gramps, or an *.xml family tree.' % file_path)
 
 
-def parse_gramps_file(site: Site, file_path: str) -> None:
+def parse_gramps(site: Site, gramps: str) -> None:
     try:
-        with gzip.open(file_path) as f:
+        with gzip.open(gramps) as f:
             xml = f.read()
-        parse_xml(site, xml, rootname(file_path))
+        parse_xml(site, xml, rootname(gramps))
     except OSError:
         raise GrampsParseFileError()
 
 
-def parse_gpkg_file(site: Site, file_path: str) -> None:
+def parse_gpkg(site: Site, gpkg: str) -> None:
     try:
-        tar_file = gzip.open(file_path)
+        tar_file = gzip.open(gpkg)
         try:
             with TemporaryDirectory() as cache_directory_path:
                 tarfile.open(fileobj=tar_file).extractall(cache_directory_path)
-                parse_gramps_file(site, path.join(cache_directory_path, 'data.gramps'))
+                parse_gramps(site, path.join(cache_directory_path, 'data.gramps'))
         except tarfile.ReadError:
-            raise GrampsParseFileError('Could not read "%s" as a *.tar file after un-gzipping it.' % file_path)
+            raise GrampsParseFileError('Could not read "%s" as a *.tar file after un-gzipping it.' % gpkg)
     except OSError:
-        raise GrampsParseFileError('Could not un-gzip "%s".' % file_path)
+        raise GrampsParseFileError('Could not un-gzip "%s".' % gpkg)
 
 
 def parse_xml(site: Site, xml: str, gramps_tree_directory_path: str) -> None:
+    with suppress(FileNotFoundError, OSError):
+        with open(xml) as f:
+            xml = f.read()
     try:
         tree = ElementTree.ElementTree(ElementTree.fromstring(xml))
     except ElementTree.ParseError as e:

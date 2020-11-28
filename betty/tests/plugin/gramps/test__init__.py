@@ -10,7 +10,7 @@ from betty.asyncio import sync
 from betty.locale import Date
 from betty.parse import parse
 from betty.path import rootname
-from betty.plugin.gramps import parse_xml, Gramps, parse_gpkg_file, parse_gramps_file
+from betty.plugin.gramps import parse_xml, Gramps, parse_gpkg, parse_gramps
 from betty.site import Site
 from betty.tests import TestCase
 
@@ -62,7 +62,7 @@ class ParseXmlTest(TestCase):
 """ % xml)
 
     @sync
-    async def test_parse_xml(self):
+    async def test_parse_xml_with_string(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with Site(configuration) as site:
@@ -71,12 +71,20 @@ class ParseXmlTest(TestCase):
                     parse_xml(site, f.read(), rootname(gramps_file_path))
 
     @sync
+    async def test_parse_xml_with_file_path(self):
+        with TemporaryDirectory() as output_directory_path:
+            configuration = Configuration(output_directory_path, 'https://example.com')
+            async with Site(configuration) as site:
+                gramps_file_path = join(dirname(abspath(__file__)), 'assets', 'minimal.xml')
+                parse_xml(site, gramps_file_path, rootname(gramps_file_path))
+
+    @sync
     async def test_parse_gramps(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with Site(configuration) as site:
                 gramps_file_path = join(dirname(abspath(__file__)), 'assets', 'minimal.gramps')
-                parse_gramps_file(site, gramps_file_path)
+                parse_gramps(site, gramps_file_path)
 
     @sync
     async def test_parse_gpkg(self):
@@ -84,7 +92,7 @@ class ParseXmlTest(TestCase):
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with Site(configuration) as site:
                 gramps_file_path = join(dirname(abspath(__file__)), 'assets', 'minimal.gpkg')
-                parse_gpkg_file(site, gramps_file_path)
+                parse_gpkg(site, gramps_file_path)
 
     def test_place_should_include_name(self):
         place = self.ancestry.places['P0000']
