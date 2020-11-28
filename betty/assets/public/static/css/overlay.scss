@@ -1,0 +1,43 @@
+@import 'variables.scss';
+
+.has-overlay {
+  position: fixed;
+}
+
+// Elements with this class must provide their own background to hide the rest of the document.
+.overlay {
+  height: 100vh;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100vw;
+  z-index: 999999999;
+}
+
+.overlay-controls {
+  display: none;
+  position: absolute;
+  // Start from the top right, where the close action will be placed.
+  right: 0;
+  top: 0;
+}
+
+.overlay .overlay-controls {
+  display: block;
+}
+
+.overlay-control {
+  cursor: pointer;
+  display: block;
+  float: right;
+  height: 3rem;
+  text-indent: -999rem;
+  width: 3rem;
+}
+
+.overlay-close {
+  background-image: url($close-svg-url);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 2rem 2rem;
+}

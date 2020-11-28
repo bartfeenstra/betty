@@ -1,13 +1,13 @@
 import logging
-from typing import List, Tuple, Callable, Set, Type, Iterable
+from typing import List, Tuple, Set, Type, Iterable, Any
 
 from betty.ancestry import Person, Presence, Event, Subject, EventType, EVENT_TYPE_TYPES, DerivableEventType, \
-    CreatableDerivableEventType
-from betty.event import Event as DispatchedEvent
+    CreatableDerivableEventType, Ancestry
 from betty.locale import DateRange, Date
-from betty.parse import PostParseEvent
-from betty.plugin import Plugin
+from betty.parse import PostParser
+from betty.plugin import Plugin, NO_CONFIGURATION
 from betty.plugin.privatizer import Privatizer
+from betty.site import Site
 
 
 class DerivedEvent(Event):
@@ -20,20 +20,25 @@ class DerivedDate(Date):
         return cls(date.year, date.month, date.day, fuzzy=date.fuzzy)
 
 
-class Deriver(Plugin):
-    def subscribes_to(self) -> List[Tuple[Type[DispatchedEvent], Callable]]:
-        return [
-            (PostParseEvent, self._derive),
-        ]
+class Deriver(Plugin, PostParser):
+    def __init__(self, ancestry: Ancestry):
+        self._ancestry = ancestry
 
-    async def _derive(self, event: PostParseEvent) -> None:
+    @classmethod
+    def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
+        return cls(site.ancestry)
+
+    async def post_parse(self,) -> None:
+        await self.derive(self._ancestry)
+
+    async def derive(self, ancestry: Ancestry) -> None:
         logger = logging.getLogger()
         for event_type_type in EVENT_TYPE_TYPES:
             event_type = event_type_type()
             if isinstance(event_type, DerivableEventType):
                 created_derivations = 0
                 updated_derivations = 0
-                for person in event.ancestry.people.values():
+                for person in ancestry.people.values():
                     created, updated = derive(person, event_type_type)
                     created_derivations += created
                     updated_derivations += updated

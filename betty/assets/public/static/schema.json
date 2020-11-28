@@ -482,6 +482,52 @@
       },
       "additionalProperties": false
     },
+    "noteCollection": {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "$ref": "#/definitions/schema"
+        },
+        "collection": {
+          "$ref": "#/definitions/notes"
+        }
+      },
+      "required": [
+        "$schema",
+        "collection"
+      ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
+      "additionalProperties": false
+    },
+    "note": {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "$ref": "#/definitions/schema"
+        },
+        "id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "$schema",
+        "id",
+        "text"
+      ],
+      "patternProperties": {
+        "^@": {
+          "$ref": "#/definitions/jsonLd"
+        }
+      },
+      "additionalProperties": false
+    },
     "schema": {
       "type": "string",
       "format": "uri",
@@ -567,29 +613,6 @@
     "role": {
       "type": "string",
       "description": "A person's role in an event."
-    },
-    "notes": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/note"
-      }
-    },
-    "note": {
-      "type": "object",
-      "properties": {
-        "text": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "text"
-      ],
-      "patternProperties": {
-        "^@": {
-          "$ref": "#/definitions/jsonLd"
-        }
-      },
-      "additionalProperties": false
     },
     "date": {
       "type": "object",
@@ -683,6 +706,13 @@
       }
     },
     "sources": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    },
+    "notes": {
       "type": "array",
       "items": {
         "type": "string",

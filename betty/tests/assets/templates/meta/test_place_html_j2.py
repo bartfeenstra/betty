@@ -1,5 +1,5 @@
 from betty.ancestry import PlaceName, Place, Enclosure
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.tests import TemplateTestCase
 
 

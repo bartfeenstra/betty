@@ -1,5 +1,5 @@
 from betty.ancestry import PersonName, Citation, Source
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.tests import TemplateTestCase
 
 

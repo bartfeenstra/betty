@@ -8,7 +8,7 @@ from babel import parse_locale
 from voluptuous import Schema, All, Required, Invalid, IsDir, Any, Range
 
 from betty import _CACHE_DIRECTORY_PATH, os
-from betty.error import ExternalContextError
+from betty.error import ContextError, UserFacingError
 from betty.voluptuous import Path, Importable
 
 
@@ -51,7 +51,7 @@ class PluginsConfiguration:
         try:
             self._plugins_configuration[plugin_type] = plugin_type.configuration_schema(plugin_configuration)
         except Invalid as e:
-            raise ConfigurationError(e)
+            raise ConfigurationValueError(e)
 
     def __getitem__(self, item):
         return self._plugins_configuration[item]
@@ -183,7 +183,7 @@ _ConfigurationSchema = Schema(All({
 }, _configuration))
 
 
-class ConfigurationError(ExternalContextError, ValueError):
+class ConfigurationValueError(ContextError, UserFacingError, ValueError):
     pass  # pragma: no cover
 
 
@@ -191,25 +191,25 @@ def _from_voluptuous(config_builtin: Any) -> Configuration:
     try:
         return _ConfigurationSchema(config_builtin)
     except Invalid as e:
-        raise ConfigurationError(e)
+        raise ConfigurationValueError(e)
 
 
 def _from_json(config_json: str) -> Configuration:
     try:
         return _from_voluptuous(json.loads(config_json))
     except json.JSONDecodeError as e:
-        raise ConfigurationError('Invalid JSON: %s.' % e)
+        raise ConfigurationValueError('Invalid JSON: %s.' % e)
 
 
 def _from_yaml(config_yaml: str) -> Configuration:
     try:
         return _from_voluptuous(yaml.safe_load(config_yaml))
     except yaml.YAMLError as e:
-        raise ConfigurationError('Invalid YAML: %s' % e)
+        raise ConfigurationValueError('Invalid YAML: %s' % e)
 
 
 # These factories must take a single argument, which is the configuration in their format, as a string. They must return
-# Configuration, or raise ConfigurationError.
+# Configuration, or raise ConfigurationValueError.
 _from_format_factories: Dict[str, Callable[[str], Configuration]] = {
     '.json': _from_json,
     '.yaml': _from_yaml,
@@ -222,12 +222,12 @@ def from_file(f) -> Configuration:
     try:
         factory = _from_format_factories[file_extension]
     except KeyError:
-        raise ConfigurationError('Unknown file format "%s". Supported formats are: %s.' % (
+        raise ConfigurationValueError('Unknown file format "%s". Supported formats are: %s.' % (
             file_extension, ', '.join(_from_format_factories.keys())))
     # Change the working directory to allow relative paths to be resolved against the configuration file's directory
     # path.
-    with os.chdir(path.dirname(f.name)):
+    with os.ChDir(path.dirname(f.name)):
         try:
             return factory(f.read())
-        except ConfigurationError as e:
+        except ConfigurationValueError as e:
             raise e.add_context('in %s' % path.abspath(f.name))

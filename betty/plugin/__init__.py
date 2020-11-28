@@ -1,8 +1,7 @@
-from typing import Callable, Tuple, Type, Set, List, Optional, Any
+from typing import Type, Set, Optional, Any
 
 from voluptuous import Schema
 
-from betty.event import Event
 from betty.site import Site
 
 
@@ -43,9 +42,6 @@ class Plugin:
     @classmethod
     def comes_before(cls) -> Set[Type['Plugin']]:
         return set()
-
-    def subscribes_to(self) -> List[Tuple[Type[Event], Callable]]:
-        return []
 
     @property
     def assets_directory_path(self) -> Optional[str]:

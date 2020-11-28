@@ -32,8 +32,6 @@ def patch_cache(f):
 
 
 class TestCase(unittest.TestCase):
-    _logging_handler = logging.NullHandler()
-
     @classmethod
     def setUpClass(cls) -> None:
         logging.disable(logging.CRITICAL)

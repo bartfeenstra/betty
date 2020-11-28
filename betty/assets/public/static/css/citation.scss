@@ -1,0 +1,45 @@
+.citation {
+  font-size: 0.8rem;
+  vertical-align: super;
+}
+
+#references {
+  font-size: 0.9rem;
+  margin-top: 3rem;
+}
+
+.reference {
+  padding: 0.3rem;
+
+  &:target {
+    background-color: #eee;
+  }
+}
+
+.citation-author::after {
+  content: ". ";
+}
+
+.citation-title {
+  font-style: italic;
+
+  &::before {
+    content: "\"";
+  }
+
+  &::after {
+    content: "\". ";
+  }
+}
+
+.citation-publisher::after {
+  content: ", ";
+}
+
+.citation-location::after {
+  content: ". ";
+}
+
+.citation-date::after {
+  content: ". ";
+}

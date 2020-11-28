@@ -1,6 +1,6 @@
 # Betty 👵
 
-![Tests](https://github.com/bartfeenstra/betty/workflows/Test/badge.svg) [![codecov](https://codecov.io/gh/bartfeenstra/betty/branch/master/graph/badge.svg)](https://codecov.io/gh/bartfeenstra/betty)
+![Test status](https://github.com/bartfeenstra/betty/workflows/Test/badge.svg) [![Code coverage](https://codecov.io/gh/bartfeenstra/betty/branch/master/graph/badge.svg)](https://codecov.io/gh/bartfeenstra/betty) [![PyPI releases](https://badge.fury.io/py/betty.svg)](https://pypi.org/project/betty/) [![Supported Python versions](https://img.shields.io/pypi/pyversions/betty.svg?logo=python&logoColor=FBE072)](https://pypi.org/project/betty/) [![Recent downloads](https://img.shields.io/pypi/dm/betty.svg)](https://pypi.org/project/betty/) [![Follow Betty on Twitter](https://img.shields.io/twitter/follow/Betty_Project.svg?label=Betty_Project&style=flat&logo=twitter&logoColor=4FADFF)](https://twitter.com/Betty_Project) 
 
 Betty is a static site generator for [Gramps](https://gramps-project.org/) and
 [GEDCOM](https://en.wikipedia.org/wiki/GEDCOM) family trees.
@@ -63,6 +63,7 @@ Options:
 Commands:
   clear-caches  Clear all caches.
   generate      Generate a static site.
+  serve         Serve a generated site.
 ```
 
 ### Configuration files
@@ -194,7 +195,7 @@ To build a site from your GEDCOM files:
 ### The Python API
 ```python
 from betty.config import Configuration
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.generate import generate
 from betty.parse import parse
 from betty.site import Site

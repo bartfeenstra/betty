@@ -1,7 +1,7 @@
 from parameterized import parameterized
 
 from betty.ancestry import Place, PlaceName
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.locale import DateRange, Date
 from betty.tests import TemplateTestCase
 

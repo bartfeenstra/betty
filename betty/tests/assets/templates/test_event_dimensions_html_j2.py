@@ -1,5 +1,5 @@
 from betty.ancestry import Event, Place, PlaceName, Citation, Source, Birth
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.locale import Date
 from betty.tests import TemplateTestCase
 

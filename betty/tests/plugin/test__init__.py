@@ -13,8 +13,3 @@ class PluginTest(TestCase):
 
     def test_depends_on(self):
         self.assertEquals(set(), Plugin.depends_on())
-
-    def test_subscribes_to(self):
-        site = Mock(Site)
-        plugin = Plugin.for_site(site)
-        self.assertEquals([], plugin.subscribes_to())
