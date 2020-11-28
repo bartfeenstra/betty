@@ -287,6 +287,16 @@ class JSONEncoderTest(TestCase):
         }
         self.assert_encodes(expected, person, 'person')
 
+    def test_note_should_encode_minimal(self):
+        note = Note('the_note', 'The Note')
+        expected = {
+            '$schema': '/schema.json#/definitions/note',
+            '@type': 'https://schema.org/Thing',
+            'id': 'the_note',
+            'text': 'The Note',
+        }
+        self.assert_encodes(expected, note, 'note')
+
     def test_file_should_encode_minimal(self):
         with NamedTemporaryFile() as f:
             file = File('the_file', f.name)
@@ -317,9 +327,10 @@ class JSONEncoderTest(TestCase):
 
     def test_file_should_encode_full(self):
         with NamedTemporaryFile() as f:
+            note = Note('the_note', 'The Note')
             file = File('the_file', f.name)
             file.media_type = MediaType('text/plain')
-            file.notes.append(Note('The Note'))
+            file.notes.append(note)
             Person('the_person').files.append(file)
             expected = {
                 '$schema': '/schema.json#/definitions/file',
@@ -329,9 +340,7 @@ class JSONEncoderTest(TestCase):
                     '/en/person/the_person/index.json',
                 ],
                 'notes': [
-                    {
-                        'text': 'The Note',
-                    },
+                    '/en/note/the_note/index.json',
                 ],
                 'links': [
                     {

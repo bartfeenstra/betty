@@ -67,6 +67,10 @@ async def generate(site: Site) -> None:
             ), 'source', site, locale, site.jinja2_environment)
             logger.info('Generated pages for %d sources in %s.' %
                         (len(site.ancestry.sources), locale_label))
+            _generate_entity_type_list_json(www_directory_path, site.ancestry.notes.values(), 'note', site)
+            for note in site.ancestry.notes.values():
+                _generate_entity_json(www_directory_path, note, 'note', site, locale)
+            logger.info('Generated pages for %d notes in %s.' % (len(site.ancestry.notes), locale_label))
             _generate_openapi(www_directory_path, site)
             logger.info('Generated OpenAPI documentation in %s.', locale_label)
     chmod(site.configuration.www_directory_path, 0o755)

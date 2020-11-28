@@ -48,6 +48,7 @@ class _IntermediateAncestry:
             source.id: source for source in self.sources.values()}
         ancestry.citations = {
             citation.id: citation for citation in self.citations.values()}
+        ancestry.notes = {note.id: note for note in self.notes.values()}
 
 
 class _IntermediatePlace:
@@ -172,8 +173,9 @@ def _parse_notes(ancestry: _IntermediateAncestry, database: Element):
 
 def _parse_note(ancestry: _IntermediateAncestry, element: Element):
     handle = _xpath1(element, './@handle')
+    note_id = str(_xpath1(element, './@id'))
     text = _xpath1(element, './ns:text/text()')
-    ancestry.notes[handle] = Note(text)
+    ancestry.notes[handle] = Note(note_id, text)
 
 
 def _parse_objects(ancestry: _IntermediateAncestry, database: Element, gramps_file_path: str):

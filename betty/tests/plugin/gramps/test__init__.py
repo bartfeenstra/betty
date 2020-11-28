@@ -479,6 +479,17 @@ class ParseXmlTest(TestCase):
         citation = ancestry.citations['C0000']
         self.assertEquals(expected, citation.private)
 
+    def test_note_should_include_text(self) -> None:
+        ancestry = self._parse_partial("""
+<notes>
+    <note handle="_e1cb35d7e6c1984b0e8361e1aee" change="1551643112" id="N0000" type="Transcript">
+        <text>I left this for you.</text>
+    </note>
+</notes>
+""")
+        note = ancestry.notes['N0000']
+        self.assertEquals('I left this for you.', note.text)
+
 
 class GrampsTest(TestCase):
     @sync
