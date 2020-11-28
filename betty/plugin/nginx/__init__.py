@@ -62,7 +62,7 @@ class Nginx(Plugin, PostGenerator, ServerProvider):
             'locales': self._site.configuration.locales,
             'multilingual': self._site.configuration.multilingual,
             'server_name': urlparse(self._site.configuration.base_url).netloc,
-            'www_directory_path': self._site.configuration.www_directory_path,
+            'www_directory_path': self._site.plugins[Nginx].www_directory_path,
         }, **kwargs)
         if destination_file_path is None:
             destination_file_path = path.join(self._site.configuration.output_directory_path, 'nginx', 'nginx.conf')

@@ -4,14 +4,6 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
-trap tear_down INT TERM EXIT
-
-working_directory_path=$(mktemp -d)
-
-function tear_down() {
-    rm -r "$working_directory_path"
-}
-
 # Lint the shell scripts.
 for file in ./bin/*; do
     shellcheck -x "$file"
@@ -35,3 +27,13 @@ coverage report -m
 
 # Run end-to-end (e2e) tests.
 ./node_modules/.bin/cypress run
+
+# Test the built Python package.
+set +e
+build_output="$(./bin/build-package 2>&1)"
+build_exit_code=$?
+set -e
+if [ $build_exit_code -ne 0 ]; then
+  echo "$build_output"
+  exit $build_exit_code
+fi

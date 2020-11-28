@@ -3,6 +3,7 @@ from time import sleep
 from typing import Tuple, Optional
 from unittest.mock import patch, call
 
+from betty.media_type import MediaType
 from betty.tests import TestCase
 
 try:
@@ -241,13 +242,13 @@ class PopulatorTest(TestCase):
         self.assertEqual('https://en.wikipedia.org/wiki/Amsterdam', link.url)
 
     @parameterized.expand([
-        ('text/plain', 'text/plain'),
-        ('text/html', 'text/html'),
-        ('text/html', None),
+        (MediaType('text/plain'), MediaType('text/plain')),
+        (MediaType('text/html'), MediaType('text/html')),
+        (MediaType('text/html'), None),
     ])
     @patch('betty.plugin.wikipedia.Retriever')
     @sync
-    async def test_populate_link_should_set_media_type(self, expected: str, media_type: Optional[str], m_retriever) -> None:
+    async def test_populate_link_should_set_media_type(self, expected: MediaType, media_type: Optional[MediaType], m_retriever) -> None:
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.media_type = media_type
         with TemporaryDirectory() as output_directory_path:
@@ -413,7 +414,7 @@ class PopulatorTest(TestCase):
         self.assertEqual(1, len(resource.links))
         self.assertEqual('Amsterdam', link.label)
         self.assertEqual('en', link.locale)
-        self.assertEqual('text/html', link.media_type)
+        self.assertEqual(MediaType('text/html'), link.media_type)
         self.assertIsNotNone(link.description)
         self.assertEqual('external', link.relationship)
 
@@ -465,7 +466,7 @@ class PopulatorTest(TestCase):
         link_nl = resource.links.difference({link_en}).pop()
         self.assertEqual('Amsterdam', link_nl.label)
         self.assertEqual('nl', link_nl.locale)
-        self.assertEqual('text/html', link_nl.media_type)
+        self.assertEqual(MediaType('text/html'), link_nl.media_type)
         self.assertIsNotNone(link_nl.description)
         self.assertEqual('external', link_nl.relationship)
 
@@ -553,6 +554,6 @@ class WikipediaTest(TestCase):
         self.assertEqual(1, len(resource.links))
         self.assertEqual(entry_title, link.label)
         self.assertEqual('en', link.locale)
-        self.assertEqual('text/html', link.media_type)
+        self.assertEqual(MediaType('text/html'), link.media_type)
         self.assertIsNotNone(link.description)
         self.assertEqual('external', link.relationship)

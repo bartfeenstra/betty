@@ -12,22 +12,15 @@ class InvalidMediaType(ValueError):
 
 
 class MediaType:
-    def __init__(self, type: str, subtype: str, parameters: Dict[str, str]):
-        self._type = type
-        self._subtype = subtype
-        self._parameters = parameters
-
-    @classmethod
-    def from_string(cls, media_type: str) -> 'MediaType':
-        type_part, parameters = cgi.parse_header(media_type)
+    def __init__(self, media_type: str):
+        self._str = media_type
+        type_part, self._parameters = cgi.parse_header(media_type)
         try:
-            type, subtype = type_part.split('/')
-            if not subtype:
+            self._type, self._subtype = type_part.split('/')
+            if not self._subtype:
                 raise ValueError('The subtype must not be empty.')
         except ValueError:
             raise InvalidMediaType('"%s" is not a valid media type.', media_type)
-
-        return cls(type, subtype, parameters)
 
     @property
     def type(self) -> str:
@@ -51,3 +44,11 @@ class MediaType:
     @property
     def parameters(self) -> Dict[str, str]:
         return self._parameters
+
+    def __str__(self):
+        return self._str
+
+    def __eq__(self, other):
+        if not isinstance(other, MediaType):
+            return NotImplemented
+        return (self.type, self.subtype, self.parameters) == (other.type, other.subtype, other.parameters)

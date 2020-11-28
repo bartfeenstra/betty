@@ -1,4 +1,6 @@
 import json as stdjson
+import sys
+import unittest
 from os import makedirs, path
 from os.path import join, exists
 from tempfile import TemporaryDirectory, NamedTemporaryFile
@@ -192,6 +194,7 @@ class ResourceOverrideTest(GenerateTestCase):
                     self.assertIn('Betty was here', f.read())
 
 
+@unittest.skipIf(sys.platform == 'win32', 'lxml cannot be installed directly onto vanilla Windows.')
 class SitemapRenderTest(GenerateTestCase):
     def setUp(self):
         GenerateTestCase.setUp(self)

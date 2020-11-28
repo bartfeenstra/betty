@@ -14,6 +14,7 @@ from betty.ancestry import EventHandlingSetList, Person, Event, Place, File, Not
     Engagement, Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, Emigration, \
     Correspondence, Occupation, Retirement, Confirmation, Missing, EVENT_TYPE_TYPES, RESOURCE_TYPES, Resource
 from betty.locale import Date, Translations
+from betty.media_type import MediaType
 from betty.tests import TestCase
 
 
@@ -121,9 +122,14 @@ class DatedTest(TestCase):
 
 
 class NoteTest(TestCase):
+    def test_id(self) -> None:
+        note_id = 'N1'
+        sut = Note(note_id, 'Betty wrote this.')
+        self.assertEquals(note_id, sut.id)
+
     def test_text(self) -> None:
         text = 'Betty wrote this.'
-        sut = Note(text)
+        sut = Note('N1', text)
         self.assertEquals(text, sut.text)
 
 
@@ -215,7 +221,7 @@ class FileTest(TestCase):
         file_path = '/tmp/betty'
         sut = File(file_id, file_path)
         self.assertIsNone(sut.media_type)
-        media_type = 'text/plain'
+        media_type = MediaType('text/plain')
         sut.media_type = media_type
         self.assertEquals(media_type, sut.media_type)
 

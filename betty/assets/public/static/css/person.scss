@@ -8,6 +8,29 @@
   font-style: italic;
 }
 
+.person-meta {
+  dl {
+    margin: 0;
+  }
+
+  dt {
+    font-weight: bold;
+
+    &::after {
+      content: ': ';
+    }
+  }
+
+  dt,
+  dd {
+    display: inline;
+  }
+
+  dd {
+    margin: 0 3em 0 0;
+  }
+}
+
 .family {
   margin: 3rem 0;
 }

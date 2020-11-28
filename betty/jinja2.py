@@ -33,7 +33,6 @@ from betty.importlib import import_any
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange
 from betty.lock import AcquiredError
-from betty.media_type import MediaType
 from betty.path import extension
 from betty.plugin import Plugin
 from betty.render import Renderer
@@ -141,7 +140,6 @@ class BettyEnvironment(Environment):
         self.globals['path'] = os.path
 
     def _init_filters(self) -> None:
-        self.filters['parse_media_type'] = MediaType.from_string
         self.filters['set'] = set
         self.filters['map'] = _filter_map
         self.filters['flatten'] = _filter_flatten
@@ -337,10 +335,10 @@ async def _filter_image(site: Site, file: File, width: Optional[int] = None, hei
         site.configuration.www_directory_path, 'file')
 
     if file.media_type:
-        if file.media_type.startswith('image/'):
+        if file.media_type.type == 'image':
             task = _execute_filter_image_image
             destination_name += '.' + extension(file.path)
-        elif file.media_type == 'application/pdf':
+        elif file.media_type.type == 'application' and file.media_type.subtype == 'pdf':
             task = _execute_filter_image_application_pdf
             destination_name += '.' + 'jpg'
         else:

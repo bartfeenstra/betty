@@ -11,6 +11,7 @@ from betty.config import Configuration, LocaleConfiguration
 from betty.asyncio import sync
 from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider
 from betty.locale import Date, Datey, DateRange, Localized
+from betty.media_type import MediaType
 from betty.plugin import Plugin
 from betty.site import Site
 from betty.tests import TemplateTestCase
@@ -178,13 +179,13 @@ class FilterImageTest(TemplateTestCase):
 
     @parameterized.expand([
         ('/file/F1-99x-.png',
-         '{{ file | image(width=99) }}', File('F1', image_path, media_type='image/png')),
+         '{{ file | image(width=99) }}', File('F1', image_path, media_type=MediaType('image/png'))),
         ('/file/F1--x99.png',
-         '{{ file | image(height=99) }}', File('F1', image_path, media_type='image/png')),
+         '{{ file | image(height=99) }}', File('F1', image_path, media_type=MediaType('image/png'))),
         ('/file/F1-99x99.png',
-         '{{ file | image(width=99, height=99) }}', File('F1', image_path, media_type='image/png')),
+         '{{ file | image(width=99, height=99) }}', File('F1', image_path, media_type=MediaType('image/png'))),
         ('/file/F1-99x99.png:/file/F1-99x99.png',
-         '{{ file | image(width=99, height=99) }}:{{ file | image(width=99, height=99) }}', File('F1', image_path, media_type='image/png')),
+         '{{ file | image(width=99, height=99) }}:{{ file | image(width=99, height=99) }}', File('F1', image_path, media_type=MediaType('image/png'))),
     ])
     @sync
     async def test(self, expected, template, file):
@@ -197,7 +198,7 @@ class FilterImageTest(TemplateTestCase):
 
     @sync
     async def test_without_width(self):
-        file = File('F1', self.image_path, media_type='image/png')
+        file = File('F1', self.image_path, media_type=MediaType('image/png'))
         with self.assertRaises(ValueError):
             async with self._render(template_string='{{ file | image }}', data={
                 'file': file,

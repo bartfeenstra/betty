@@ -6,6 +6,7 @@ from typing import Dict, Optional, List, Iterable, Set, Union, TypeVar, Generic,
 from geopy import Point
 
 from betty.locale import Localized, Datey
+from betty.media_type import MediaType
 from betty.path import extension
 
 T = TypeVar('T')
@@ -166,11 +167,26 @@ class Dated:
         self.date = None
 
 
-class Note:
+class Identifiable:
+    def __init__(self, identifiable_id: str):
+        self._id = identifiable_id
+
+    @property
+    def id(self) -> str:
+        return self._id
+
+
+class Note(Resource, Identifiable):
     text: str
 
-    def __init__(self, text: str):
+    def __init__(self, note_id: str, text: str):
+        Resource.__init__(self)
+        Identifiable.__init__(self, note_id)
         self._text = text
+
+    @classmethod
+    def resource_type_name(cls) -> str:
+        return 'note'
 
     @property
     def text(self):
@@ -184,15 +200,6 @@ class HasNotes:
         self.notes = []
 
 
-class Identifiable:
-    def __init__(self, identifiable_id: str):
-        self._id = identifiable_id
-
-    @property
-    def id(self) -> str:
-        return self._id
-
-
 class Described:
     description: Optional[str]
 
@@ -201,7 +208,7 @@ class Described:
 
 
 class HasMediaType:
-    media_type: Optional[str]
+    media_type: Optional[MediaType]
 
     def __init__(self):
         self.media_type = None
@@ -235,7 +242,7 @@ class File(Resource, Identifiable, Described, HasPrivacy, HasMediaType, HasNotes
     resources: ManyAssociation['HasFiles']
     notes: List[Note]
 
-    def __init__(self, file_id: str, path: str, media_type: Optional[str] = None):
+    def __init__(self, file_id: str, path: str, media_type: Optional[MediaType] = None):
         Identifiable.__init__(self, file_id)
         Described.__init__(self)
         HasPrivacy.__init__(self)
@@ -304,8 +311,7 @@ class Source(Resource, Dated, HasFiles, HasLinks, HasPrivacy):
         HasFiles.__init__(self)
         HasLinks.__init__(self)
         HasPrivacy.__init__(self)
-        if name is not None:
-            self.name = name
+        self.name = name
         self.author = None
         self.publisher = None
 
@@ -993,6 +999,7 @@ class Ancestry:
     events: Dict[str, IdentifiableEvent]
     sources: Dict[str, IdentifiableSource]
     citations: Dict[str, IdentifiableCitation]
+    notes: Dict[str, Note]
 
     def __init__(self):
         self.files = {}
@@ -1001,6 +1008,7 @@ class Ancestry:
         self.events = {}
         self.sources = {}
         self.citations = {}
+        self.notes = {}
 
     @property
     def resources(self) -> Iterable[Resource]:
@@ -1011,4 +1019,5 @@ class Ancestry:
             self.events.values(),
             self.sources.values(),
             self.citations.values(),
+            self.notes.values(),
         )

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+cd "$(dirname "$0")/.."
+
+# Prepare the workspace directories.
+rm -rf betty.egg-info build dist
+
+# Build the package.
+python setup.py sdist
+python setup.py bdist_wheel --universal
+twine check ./dist/*

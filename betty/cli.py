@@ -116,7 +116,8 @@ class _BettyCommands(click.MultiCommand):
     @catch_exceptions()
     def get_command(self, ctx, cmd_name):
         _init_ctx(ctx)
-        return ctx.obj['commands'][cmd_name]
+        with suppress(KeyError):
+            return ctx.obj['commands'][cmd_name]
 
 
 @click.command(cls=_BettyCommands)

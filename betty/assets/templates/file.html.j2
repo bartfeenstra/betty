@@ -7,17 +7,16 @@
 ] %}
 
 {% if file.media_type %}
-    {% set media_type = file.media_type | parse_media_type %}
-    {% do summary_media_type_paths.append('file-summary--' ~ media_type.type ~ '.html.j2') %}
-    {% do summary_media_type_paths.append('file-summary--' ~ media_type.type ~ '--' ~ media_type.subtypes | join('---') ~ '.html.j2') %}
-    {% if media_type.suffix %}
-        {% do summary_media_type_paths.append('file-summary--' ~ media_type.type ~ '--' ~ media_type.subtypes | join('---') ~ '----' ~ media_type.suffix ~ '.html.j2') %}
+    {% do summary_media_type_paths.append('file-summary--' ~ file.media_type.type ~ '.html.j2') %}
+    {% do summary_media_type_paths.append('file-summary--' ~ file.media_type.type ~ '--' ~ file.media_type.subtypes | join('---') ~ '.html.j2') %}
+    {% if file.media_type.suffix %}
+        {% do summary_media_type_paths.append('file-summary--' ~ file.media_type.type ~ '--' ~ file.media_type.subtypes | join('---') ~ '----' ~ file.media_type.suffix ~ '.html.j2') %}
     {% endif %}
 
-    {% do extended_media_type_paths.append('file-extended--' ~ media_type.type ~ '.html.j2') %}
-    {% do extended_media_type_paths.append('file-extended--' ~ media_type.type ~ '--' ~ media_type.subtypes | join('---') ~ '.html.j2') %}
-    {% if media_type.suffix %}
-        {% do extended_media_type_paths.append('file-extended--' ~ media_type.type ~ '--' ~ media_type.subtypes | join('---') ~ '----' ~ media_type.suffix ~ '.html.j2') %}
+    {% do extended_media_type_paths.append('file-extended--' ~ file.media_type.type ~ '.html.j2') %}
+    {% do extended_media_type_paths.append('file-extended--' ~ file.media_type.type ~ '--' ~ file.media_type.subtypes | join('---') ~ '.html.j2') %}
+    {% if file.media_type.suffix %}
+        {% do extended_media_type_paths.append('file-extended--' ~ file.media_type.type ~ '--' ~ file.media_type.subtypes | join('---') ~ '----' ~ file.media_type.suffix ~ '.html.j2') %}
     {% endif %}
 {% endif %}
 
