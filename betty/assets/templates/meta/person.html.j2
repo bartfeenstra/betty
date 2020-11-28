@@ -30,14 +30,10 @@
         {%- if formatted_start or formatted_end -%}
             <dl>
                 {%- if formatted_start -%}
-                    <div>
-                        <dt>{{ person.start.type.label }}</dt><dd>{{ formatted_start }}</dd>
-                    </div>
+                    <div><dt>{{ person.start.type.label }}</dt><dd>{{ formatted_start }}</dd></div>
                 {%- endif -%}
                 {%- if formatted_end -%}
-                    <div>
-                        <dt>{{ person.end.type.label }}</dt><dd>{{ formatted_end }}</dd>
-                    </div>
+                    <div><dt>{{ person.end.type.label }}</dt><dd>{{ formatted_end }}</dd></div>
                 {%- endif -%}
             </dl>
         {%- endif -%}
