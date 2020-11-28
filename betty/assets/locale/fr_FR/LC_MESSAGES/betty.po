@@ -1,0 +1,746 @@
+# French translations for PROJECT.
+# Copyright (C) 2019 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2020-11-18 23:28+0000\n"
+"PO-Revision-Date: 2020-11-27 19:49+0100\n"
+"Last-Translator: \n"
+"Language: fr\n"
+"Language-Team: fr <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+"X-Generator: Poedit 2.4.2\n"
+
+#: betty/ancestry.py:457
+msgid "Subject"
+msgstr "Sujet"
+
+#: betty/ancestry.py:465
+msgid "Witness"
+msgstr "Témoin"
+
+#: betty/ancestry.py:473
+msgid "Beneficiary"
+msgstr "Bénéficiaire"
+
+#: betty/ancestry.py:481
+msgid "Attendee"
+msgstr "Participant"
+
+#: betty/ancestry.py:519
+msgid "Unknown"
+msgstr "Inconnu"
+
+#: betty/ancestry.py:557
+msgid "Birth"
+msgstr "Naissance"
+
+#: betty/ancestry.py:569
+msgid "Baptism"
+msgstr "Baptême"
+
+#: betty/ancestry.py:577
+msgid "Adoption"
+msgstr "Adoption"
+
+#: betty/ancestry.py:585
+msgid "Death"
+msgstr "Décès"
+
+#: betty/ancestry.py:597
+msgid "Funeral"
+msgstr "Funérailles"
+
+#: betty/ancestry.py:615
+msgid "Cremation"
+msgstr "Crémation"
+
+#: betty/ancestry.py:623
+msgid "Burial"
+msgstr "Enterrement"
+
+#: betty/ancestry.py:631
+msgid "Will"
+msgstr "Testament"
+
+#: betty/ancestry.py:643
+msgid "Engagement"
+msgstr "Fiançailles"
+
+#: betty/ancestry.py:655
+msgid "Marriage"
+msgstr "Mariage"
+
+#: betty/ancestry.py:663
+msgid "Announcement of marriage"
+msgstr "Bans de mariage"
+
+#: betty/ancestry.py:675
+msgid "Divorce"
+msgstr "Divorce"
+
+#: betty/ancestry.py:687
+msgid "Announcement of divorce"
+msgstr "Annonce de divorce"
+
+#: betty/ancestry.py:703
+msgid "Residence"
+msgstr "Résidence"
+
+#: betty/ancestry.py:711
+msgid "Immigration"
+msgstr "Immigration"
+
+#: betty/ancestry.py:719
+msgid "Emigration"
+msgstr "Emigration"
+
+#: betty/ancestry.py:727
+msgid "Occupation"
+msgstr "Profession"
+
+#: betty/ancestry.py:735
+msgid "Retirement"
+msgstr "Retraite"
+
+#: betty/ancestry.py:743
+msgid "Correspondence"
+msgstr "Correspondance"
+
+#: betty/ancestry.py:751
+msgid "Confirmation"
+msgstr "Confirmation"
+
+#: betty/ancestry.py:759
+msgid "Missing"
+msgstr "Manquant"
+
+#: betty/locale.py:296
+msgid "unknown date"
+msgstr "date inconnue"
+
+#: betty/locale.py:300
+#, python-format
+msgid "around %(date)s"
+msgstr "vers %(date)s"
+
+#: betty/locale.py:301
+#, python-format
+msgid "%(date)s"
+msgstr "le %(date)s"
+
+#: betty/locale.py:312
+msgid "MMMM d, y"
+msgstr "d MMMM y"
+
+#: betty/locale.py:313
+msgid "MMMM, y"
+msgstr "MMMM y"
+
+#: betty/locale.py:314
+msgid "y"
+msgstr "y"
+
+#: betty/locale.py:315
+msgid "MMMM d"
+msgstr "d MMMM"
+
+#: betty/locale.py:316
+msgid "MMMM"
+msgstr "MMMM"
+
+#: betty/locale.py:332
+#, python-format
+msgid "from %(start_date)s until %(end_date)s"
+msgstr "du %(start_date)s au %(end_date)s OK2"
+
+#: betty/locale.py:333
+#, python-format
+msgid "from %(start_date)s until sometime before %(end_date)s"
+msgstr "du %(start_date)s jusqu'à quelques temps avant le %(end_date)s OK2"
+
+#: betty/locale.py:334
+#, python-format
+msgid "from %(start_date)s until around %(end_date)s"
+msgstr "du %(start_date)s jusqu'à environ le %(end_date)s OK2"
+
+#: betty/locale.py:335
+#, python-format
+msgid "from %(start_date)s until sometime before around %(end_date)s"
+msgstr ""
+"du %(start_date)s jusqu'approximativement quelques temps avant le %(end_date)s "
+"OK2"
+
+#: betty/locale.py:336
+#, python-format
+msgid "from sometime after %(start_date)s until %(end_date)s"
+msgstr ""
+"d'approximativement quelques temps après le %(start_date)s jusqu'au %(end_date)s "
+"OK2"
+
+#: betty/locale.py:337
+#, python-format
+msgid "sometime between %(start_date)s and %(end_date)s"
+msgstr "quelques temps entre le %(start_date)s et le %(end_date)s OK3"
+
+#: betty/locale.py:338
+#, python-format
+msgid "from sometime after %(start_date)s until around %(end_date)s"
+msgstr ""
+"entre quelque temps après le %(start_date)s et jusqu'approximativement le "
+"%(end_date)s OK3"
+
+#: betty/locale.py:339
+#, python-format
+msgid "sometime between %(start_date)s and around %(end_date)s"
+msgstr ""
+"quelques temps entre le %(start_date)s et approximativement le %(end_date)s OK3"
+
+#: betty/locale.py:340
+#, python-format
+msgid "from around %(start_date)s until %(end_date)s"
+msgstr "entre approximativement le %(start_date)s et jusqu'au %(end_date)s OK3"
+
+#: betty/locale.py:341
+#, python-format
+msgid "from around %(start_date)s until sometime before %(end_date)s"
+msgstr ""
+"entre approximativement le %(start_date)s et jusqu'à quelques temps avant le "
+"%(end_date)s OK3"
+
+#: betty/locale.py:342
+#, python-format
+msgid "from around %(start_date)s until around %(end_date)s"
+msgstr ""
+"entre approximativement le %(start_date)s et jusqu'approximativement le "
+"%(end_date)s OK3"
+
+#: betty/locale.py:343
+#, python-format
+msgid "from around %(start_date)s until sometime before around %(end_date)s"
+msgstr ""
+"entre approximativement le %(start_date)s et jusqu'approximativement quelques "
+"temps avant le %(end_date)s OK3"
+
+#: betty/locale.py:344
+#, python-format
+msgid "from sometime after around %(start_date)s until %(end_date)s"
+msgstr ""
+"entre approximativement quelques temps après le %(start_date)s et jusqu'au "
+"%(end_date)s OK3"
+
+#: betty/locale.py:345
+#, python-format
+msgid "sometime between around %(start_date)s and %(end_date)s"
+msgstr ""
+"quelques temps entre approximativement le %(start_date)s et le %(end_date)s OK3"
+
+#: betty/locale.py:346
+#, python-format
+msgid "from sometime after around %(start_date)s until around %(end_date)s"
+msgstr ""
+"entre approximativement après le %(start_date)s et jusqu'approximativement le "
+"%(end_date)s OK3"
+
+#: betty/locale.py:347
+#, python-format
+msgid "sometime between around %(start_date)s and around %(end_date)s"
+msgstr ""
+"quelques temps entre approximativement le %(start_date)s et approximativement le "
+"%(end_date)s OK3"
+
+#: betty/locale.py:348
+#, python-format
+msgid "from %(start_date)s"
+msgstr "à partir du %(start_date)s"
+
+#: betty/locale.py:349
+#, python-format
+msgid "sometime after %(start_date)s"
+msgstr "quelques temps après le %(start_date)s"
+
+#: betty/locale.py:350
+#, python-format
+msgid "from around %(start_date)s"
+msgstr "à partir d'environ le %(start_date)s"
+
+#: betty/locale.py:351
+#, python-format
+msgid "sometime after around %(start_date)s"
+msgstr "environ après le %(start_date)s"
+
+#: betty/locale.py:352
+#, python-format
+msgid "until %(end_date)s"
+msgstr "jusqu'au %(end_date)s"
+
+#: betty/locale.py:353
+#, python-format
+msgid "sometime before %(end_date)s"
+msgstr "quelques temps avant le %(end_date)s"
+
+#: betty/locale.py:354
+#, python-format
+msgid "until around %(end_date)s"
+msgstr "approximativement jusqu'au %(end_date)s"
+
+#: betty/locale.py:355
+#, python-format
+msgid "sometime before around %(end_date)s"
+msgstr "approximativement quelques temps avant le %(end_date)s"
+
+#: betty/openapi.py:18
+msgid "Retrieve the collection of files."
+msgstr "Récupération de l'ensemble des fichiers."
+
+#: betty/openapi.py:18
+msgid "The collection of files."
+msgstr "L'ensemble des fichiers."
+
+#: betty/openapi.py:19
+msgid "Retrieve a single file."
+msgstr "Récupération d'un seul fichier."
+
+#: betty/openapi.py:19
+msgid "The file."
+msgstr "Le fichier."
+
+#: betty/openapi.py:20
+msgid "Retrieve the collection of people."
+msgstr "Récupération de l'ensemble des individus."
+
+#: betty/openapi.py:20
+msgid "The collection of people."
+msgstr "L'ensemble des individus."
+
+#: betty/openapi.py:21
+msgid "Retrieve a single person."
+msgstr "Récupération d'un individu."
+
+#: betty/openapi.py:21
+msgid "The person."
+msgstr "L'individu."
+
+#: betty/openapi.py:22
+msgid "Retrieve the collection of places."
+msgstr "Récupération de l'ensemble des lieux."
+
+#: betty/openapi.py:22
+msgid "The collection of places."
+msgstr "L'ensemble des lieux."
+
+#: betty/openapi.py:23
+msgid "Retrieve a single place."
+msgstr "Récupération d'un seul lieu."
+
+#: betty/openapi.py:23
+msgid "The place."
+msgstr "Le lieu."
+
+#: betty/openapi.py:24
+msgid "Retrieve the collection of events."
+msgstr "Récupération de l'ensemble des événements."
+
+#: betty/openapi.py:24
+msgid "The collection of events."
+msgstr "L'ensemble des événements."
+
+#: betty/openapi.py:25
+msgid "Retrieve a single event."
+msgstr "Récupération d'un seul évènement."
+
+#: betty/openapi.py:25
+msgid "The event."
+msgstr "L'événement."
+
+#: betty/openapi.py:26
+msgid "Retrieve the collection of citations."
+msgstr "Récupération de l'ensemble des citations."
+
+#: betty/openapi.py:26
+msgid "The collection of citations."
+msgstr "L'ensemble des citations."
+
+#: betty/openapi.py:27
+msgid "Retrieve a single citation."
+msgstr "Récupération d'une seule citation."
+
+#: betty/openapi.py:27
+msgid "The citation."
+msgstr "La citation."
+
+#: betty/openapi.py:28
+msgid "Retrieve the collection of sources."
+msgstr "Récupération de l'ensemble des sources."
+
+#: betty/openapi.py:28
+msgid "The collection of sources."
+msgstr "L'ensemble des sources."
+
+#: betty/openapi.py:29
+msgid "Retrieve a single source."
+msgstr "Récupération d'une seule source."
+
+#: betty/openapi.py:29
+msgid "The source."
+msgstr "La source."
+
+#: betty/assets/public/localized/.error/401.html.j2:2 betty/openapi.py:49
+msgid "Unauthorized"
+msgstr "Non autorisé"
+
+#: betty/openapi.py:59
+msgid "Forbidden"
+msgstr "Interdit"
+
+#: betty/openapi.py:69
+msgid "Not found"
+msgstr "Non trouvé"
+
+#: betty/openapi.py:84
+msgid "The ID for the resource to retrieve."
+msgstr "L'ID de la ressource à récupérer."
+
+#: betty/openapi.py:92
+msgid ""
+"An HTTP [Content-Language](https://developer.mozilla.org/en-US/docs/Web/HTTP/"
+"Headers/Content-Language) header."
+msgstr ""
+"Un header HTTP [Content-Language](https://developer.mozilla.org/en-US/docs/Web/"
+"HTTP/Headers/Content-Language)."
+
+#: betty/openapi.py:157
+msgid ""
+"An HTTP [Accept-Language](https://developer.mozilla.org/en-US/docs/Web/HTTP/"
+"Headers/Accept-Language) header."
+msgstr ""
+"Un header HTTP [Accept-Language](https://developer.mozilla.org/en-US/docs/Web/"
+"HTTP/Headers/Accept-Language)."
+
+#: betty/openapi.py:165
+msgid "An HTML5 document."
+msgstr "Un document HTML5."
+
+#: betty/openapi.py:172
+msgid "A locale name."
+msgstr "Un nom de language."
+
+#: betty/assets/public/localized/index.html.j2:2
+#, python-format
+msgid "Welcome to %(title)s"
+msgstr "Bienvenue à %(title)s"
+
+#: betty/assets/public/localized/api/index.html.j2:4
+#: betty/assets/templates/footer.html.j2:7
+msgid "API documentation"
+msgstr "documentation de l'API"
+
+#: betty/assets/templates/base.html.j2:67
+msgid "Exit the search"
+msgstr "Abondonner la recherche"
+
+#: betty/assets/templates/base.html.j2:73
+#, python-format
+msgid "E.g. \"%(example)s\""
+msgstr "Par exemple \"%(example)s\""
+
+#: betty/assets/templates/base.html.j2:83
+msgid ""
+"Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> to exit "
+"the search. Search again with <kbd>s</kbd>."
+msgstr ""
+"Utilisez <kbd>↑</kbd> et <kbd>↓</kbd> pour parcourir les résultats, ou <kbd>esc</"
+"kbd> pour abondonner la recherche. Relancez la recherche avec <kbd>s</kbd>."
+
+#: betty/assets/templates/base.html.j2:93
+msgid "Menu"
+msgstr "Menu"
+
+#: betty/assets/templates/base.html.j2:96
+#: betty/assets/templates/page/list-person.html.j2:2
+msgid "People"
+msgstr "Individu"
+
+#: betty/assets/templates/base.html.j2:97
+#: betty/assets/templates/page/person.html.j2:204
+#: betty/assets/templates/page/place.html.j2:42
+msgid "Timeline"
+msgstr "Chronologie "
+
+#: betty/assets/templates/base.html.j2:98
+#: betty/assets/templates/page/list-place.html.j2:2
+#: betty/assets/templates/page/person.html.j2:14
+#: betty/assets/templates/page/place.html.j2:13
+msgid "Places"
+msgstr "Lieux"
+
+#: betty/assets/templates/base.html.j2:99
+#: betty/assets/templates/page/file.html.j2:55
+#: betty/assets/templates/page/list-source.html.j2:2
+msgid "Sources"
+msgstr "Sources"
+
+#: betty/assets/templates/base.html.j2:105
+msgid "Language"
+msgstr "Langage"
+
+#: betty/assets/templates/base.html.j2:132
+msgid "External links"
+msgstr "Liens externes"
+
+#: betty/assets/templates/base.html.j2:153
+msgid "References"
+msgstr "Références"
+
+#: betty/assets/templates/event-dimensions.html.j2:20
+#, python-format
+msgid "%(date)s in %(place)s"
+msgstr "%(date)s à %(place)s"
+
+#: betty/assets/templates/event-dimensions.html.j2:24
+#, python-format
+msgid "in %(place)s"
+msgstr "à %(place)s"
+
+#: betty/assets/templates/footer.html.j2:3
+#, python-format
+msgid "© Copyright %(author)s, unless otherwise credited"
+msgstr "© Copyright %(author)s, sauf crédit contraire"
+
+#: betty/assets/templates/footer.html.j2:6
+msgid ""
+"A family history as told by <a href=\"https://github.com/bartfeenstra/betty"
+"\">Betty👵</a>"
+msgstr ""
+"Une histoire familiale racontée par<a href=\"https://github.com/bartfeenstra/"
+"betty\">Betty👵</a>"
+
+#: betty/assets/templates/permalink.html.j2:1
+msgid "Permanent link to this section."
+msgstr "Permaliens vers ce paragraphe."
+
+#: betty/assets/templates/show-countable.html.j2:2
+#, python-format
+msgid "show %(name_count)s more"
+msgid_plural "show %(name_count)s more"
+msgstr[0] "voir un(e) de plus"
+msgstr[1] "voir %(name_count)s de plus"
+
+#: betty/assets/templates/show-countable.html.j2:8
+msgid "show fewer"
+msgstr "voir moins"
+
+#: betty/assets/templates/show.html.j2:4
+msgid "show more"
+msgstr "voir plus"
+
+#: betty/assets/templates/show.html.j2:5
+msgid "show less"
+msgstr "voir moins"
+
+#: betty/assets/templates/label/citation.html.j2:18
+#, python-format
+msgid "Accessed %(date)s"
+msgstr "Accédé le %(date)s"
+
+#: betty/assets/templates/label/event.html.j2:21
+#, python-format
+msgid "%(event)s with %(subjects)s"
+msgstr "%(event)s avec %(subjects)s"
+
+#: betty/assets/templates/label/event.html.j2:25
+#, python-format
+msgid "%(event)s of %(subjects)s"
+msgstr "%(event)s de  %(subjects)s"
+
+#: betty/assets/templates/label/person.html.j2:9
+#: betty/assets/templates/macro/person.html.j2:23
+#: betty/assets/templates/meta/person.html.j2:11
+msgid "This person's details are unavailable to protect their privacy."
+msgstr ""
+"Les détails concernant cette personne ne sont pas disponibles afin de protéger "
+"sa vie privée."
+
+#: betty/assets/templates/label/person.html.j2:9
+#: betty/assets/templates/macro/person.html.j2:23
+msgid "private"
+msgstr "privé"
+
+#: betty/assets/templates/label/person.html.j2:13
+#: betty/assets/templates/macro/person.html.j2:38
+msgid "This person's name is unknown."
+msgstr "Le nom de la personne est inconnu."
+
+#: betty/assets/templates/meta/person.html.j2:14
+#, python-format
+msgid "Also known as %(names)s"
+msgstr "Aussi connu comme %(names)s"
+
+#: betty/assets/templates/page/citation.html.j2:11
+#: betty/assets/templates/page/event.html.j2:48
+#: betty/assets/templates/page/list-file.html.j2:2
+#: betty/assets/templates/page/person.html.j2:219
+#: betty/assets/templates/page/source.html.j2:10
+#: betty/assets/templates/search/result-file.html.j2:4
+msgid "Media"
+msgstr "Média"
+
+#: betty/assets/templates/page/citation.html.j2:23
+#: betty/assets/templates/page/source.html.j2:15
+msgid "Facts"
+msgstr "Faits"
+
+#: betty/assets/templates/page/event.html.j2:23
+msgid "Witnesses"
+msgstr "Témoins"
+
+#: betty/assets/templates/page/event.html.j2:38
+msgid "Other attendees"
+msgstr "Autres participants"
+
+#: betty/assets/templates/page/file.html.j2:14
+msgid "Notes"
+msgstr "Notes"
+
+#: betty/assets/templates/page/file.html.j2:28
+msgid "Appearances"
+msgstr "Caractéristiques"
+
+#: betty/assets/templates/page/file.html.j2:48
+msgid "Source"
+msgstr "Source"
+
+#: betty/assets/templates/page/list-event.html.j2:2
+msgid "Events"
+msgstr "Evénements"
+
+#: betty/assets/templates/page/person.html.j2:28
+msgid "About"
+msgstr "A propos"
+
+#: betty/assets/templates/page/person.html.j2:48
+msgid "Family"
+msgstr "Famille"
+
+#: betty/assets/templates/page/person.html.j2:63
+#, python-format
+msgid "%(person_individual_name)s is the child of %(parent_labels)s."
+msgstr "%(person_individual_name)s est l'enfant de %(parent_labels)s."
+
+#: betty/assets/templates/page/person.html.j2:65
+#, python-format
+msgid "They are the child of %(parent_labels)s."
+msgstr "Ce sont les enfants de %(parent_labels)s."
+
+#: betty/assets/templates/page/person.html.j2:69
+#, python-format
+msgid "They grew up with a sibling."
+msgid_plural "They grew up with %(sibling_count)s siblings."
+msgstr[0] "Ils ont grandi avec un frère ou une sœur."
+msgstr[1] "Ils ont grandi avec %(sibling_count)s frères ou sœurs."
+
+#: betty/assets/templates/page/person.html.j2:79
+msgid "Ancestral names include"
+msgstr "Les noms ancestraux incluent"
+
+#: betty/assets/templates/page/person.html.j2:118
+#, python-format
+msgid "%(person_individual_name)s had a child with %(co_parent_labels)s."
+msgid_plural ""
+"%(person_individual_name)s had %(child_count)s children with "
+"%(co_parent_labels)s."
+msgstr[0] "%(person_individual_name)s a eu un enfant %(co_parent_labels)s."
+msgstr[1] ""
+"%(person_individual_name)s a eu %(child_count)s enfants avec "
+"%(co_parent_labels)s."
+
+#: betty/assets/templates/page/person.html.j2:124
+#, python-format
+msgid "They had a child with %(co_parent_labels)s."
+msgid_plural "They had %(child_count)s children with %(co_parent_labels)s."
+msgstr[0] "Ils ont eu un enfant avec %(co_parent_labels)s."
+msgstr[1] "Ils ont eu %(child_count)s enfants avec %(co_parent_labels)s."
+
+#: betty/assets/templates/page/person.html.j2:132
+#, python-format
+msgid "%(person_individual_name)s had a child."
+msgid_plural "%(person_individual_name)s had %(child_count)s children."
+msgstr[0] "%(person_individual_name)s a eu un enfant."
+msgstr[1] "%(person_individual_name)s a eu %(child_count)s enfants."
+
+#: betty/assets/templates/page/person.html.j2:138
+#, python-format
+msgid "They had a child."
+msgid_plural "They had %(child_count)s children."
+msgstr[0] "Ils ont eu un enfant."
+msgstr[1] "Ils ont eu %(child_count)s enfants."
+
+#: betty/assets/templates/page/person.html.j2:149
+msgid "Descendant names include"
+msgstr "Les noms de descendants incluent"
+
+#: betty/assets/templates/page/place.html.j2:27
+msgid "Wikipedia"
+msgstr "Wikipedia"
+
+#: betty/plugin/anonymizer/__init__.py:17
+msgid "Private"
+msgstr "Privé"
+
+#: betty/plugin/anonymizer/__init__.py:31
+msgid ""
+"A citation is available, but has not been published in order to protect people's "
+"privacy"
+msgstr ""
+"Une citation existe mais elle n'a pas été publiée afin de protéger la vie privée "
+"des individus."
+
+#: betty/plugin/wikipedia/__init__.py:198
+msgid "Read more on Wikipedia."
+msgstr "Voir plus sur Wikipedia."
+
+#: betty/plugin/wikipedia/assets/templates/wikipedia.html.j2:5
+#, python-format
+msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
+msgstr "Poursuivez votre lecture sur <a href=\"%(url)s\">Wikipedia</a>."
+
+#: betty/plugin/wikipedia/assets/templates/wikipedia.html.j2:7
+msgid ""
+"<a href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a> "
+"Wikipedia and its contributors."
+msgstr ""
+"<a href=\"https://nl.wikipedia.org/wiki/Wikipedia:Auteursrechten\">Copyright</a> "
+"Wikipedia et ses contributeurs."
+
+#: betty/assets/public/localized/.error/401.html.j2:4
+#: betty/assets/public/localized/.error/401.json.j2:3
+msgid "I'm sorry, dear, but it seems you're not logged in."
+msgstr "Je suis désolé mon cher, mais il semble que vous ne soyez pas connecté."
+
+#: betty/assets/public/localized/.error/403.html.j2:2
+msgid "Access denied"
+msgstr "Accès refusé"
+
+#: betty/assets/public/localized/.error/403.html.j2:4
+#: betty/assets/public/localized/.error/403.json.j2:3
+msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
+msgstr ""
+"Je suis désolé mon cher, mais il semble que vous ne soyez pas autorisé à voir "
+"cette page."
+
+#: betty/assets/public/localized/.error/404.html.j2:2
+msgid "Page not found"
+msgstr "Page non trouvée"
+
+#: betty/assets/public/localized/.error/404.html.j2:4
+#: betty/assets/public/localized/.error/404.json.j2:3
+msgid "I'm sorry, dear, but it seems this page does not exist."
+msgstr "Je suis désolé mon cher, mais il semble que cette page n'existe pas."
