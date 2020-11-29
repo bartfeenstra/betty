@@ -1,15 +1,14 @@
 import gettext
-import glob
-from os import path
-from unittest import TestCase
+from os import path, listdir
 
-_LOCALES_DIRECTORY_PATH = path.join(path.dirname(path.dirname(path.dirname(path.dirname(__file__)))), 'assets', 'locale')
+from betty.locale import open_translations
+from betty.tests import TestCase
+
+_ASSETS_DIRECTORY_PATH = path.join(path.dirname(path.dirname(path.dirname(path.dirname(__file__)))), 'assets')
 
 
 class TranslationsTest(TestCase):
     def test(self) -> None:
-        locale_paths = glob.glob(path.join(_LOCALES_DIRECTORY_PATH, '**'))
-        for locale_path in locale_paths:
-            locale_directory_name = path.basename(locale_path)
-            with open(path.join(_LOCALES_DIRECTORY_PATH, locale_directory_name, 'LC_MESSAGES', 'betty.mo'), 'rb') as f:
-                gettext.GNUTranslations(f)
+        for locale_path_name in listdir(path.join(_ASSETS_DIRECTORY_PATH, 'locale')):
+            locale = locale_path_name.replace('_', '-')
+            self.assertIsInstance(open_translations(locale, _ASSETS_DIRECTORY_PATH), gettext.NullTranslations)
