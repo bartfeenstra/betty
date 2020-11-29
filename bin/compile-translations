@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+echo 'Betty now compiles translations automatically, and it is no longer required to run this command.'
