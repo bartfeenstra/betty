@@ -311,8 +311,7 @@ class Source(Resource, Dated, HasFiles, HasLinks, HasPrivacy):
         HasFiles.__init__(self)
         HasLinks.__init__(self)
         HasPrivacy.__init__(self)
-        if name is not None:
-            self.name = name
+        self.name = name
         self.author = None
         self.publisher = None
 
