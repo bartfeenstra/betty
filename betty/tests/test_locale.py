@@ -1,10 +1,12 @@
 import gettext
+from os import makedirs, path
+from tempfile import TemporaryDirectory
 from typing import List, Optional
 
 from parameterized import parameterized
 
 from betty.locale import Localized, negotiate_localizeds, Date, format_datey, DateRange, Translations, negotiate_locale, \
-    Datey
+    Datey, open_translations
 from betty.tests import TestCase
 
 
@@ -347,3 +349,40 @@ class FormatDateyTest(TestCase):
         locale = 'en'
         with Translations(gettext.NullTranslations()):
             self.assertEquals(expected, format_datey(datey, locale))
+
+
+class OpenTranslationsTest(TestCase):
+    def test(self) -> None:
+        locale = 'nl-NL'
+        locale_path_name = 'nl_NL'
+        with TemporaryDirectory() as assets_directory_path:
+            lc_messages_directory_path = path.join(assets_directory_path, 'locale', locale_path_name, 'LC_MESSAGES')
+            makedirs(lc_messages_directory_path)
+            po = """
+# Dutch translations for PROJECT.
+# Copyright (C) 2019 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2020-11-18 23:28+0000\n"
+"PO-Revision-Date: 2019-10-05 11:38+0100\n"
+"Last-Translator: \n"
+"Language: nl\n"
+"Language-Team: nl <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: betty/ancestry.py:457
+msgid "Subject"
+msgstr "Onderwerp"
+"""
+            with open(path.join(lc_messages_directory_path, 'betty.po'), 'w') as f:
+                f.write(po)
+            self.assertIsInstance(open_translations(locale, assets_directory_path), gettext.NullTranslations)

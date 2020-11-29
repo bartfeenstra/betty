@@ -2,13 +2,18 @@ import calendar
 import datetime
 import gettext
 import operator
-import os
+import shutil
+from os import path, makedirs
 from contextlib import suppress
 from functools import total_ordering
 from typing import Optional, Tuple, Union, List
 
 import babel
 from babel import dates, Locale
+from babel.messages.frontend import CommandLineInterface
+
+from betty import _CACHE_DIRECTORY_PATH
+from betty.fs import hashfile
 
 
 class Localized:
@@ -275,11 +280,27 @@ def negotiate_localizeds(preferred_locale: str, localizeds: List[Localized]) -> 
 
 
 def open_translations(locale: str, directory_path: str) -> Optional[gettext.GNUTranslations]:
+    locale_path_name = locale.replace('-', '_')
+    po_file_path = path.join(directory_path, 'locale', locale_path_name, 'LC_MESSAGES', 'betty.po')
     try:
-        with open(os.path.join(directory_path, 'locale', locale.replace('-', '_'), 'LC_MESSAGES', 'betty.mo'), 'rb') as f:
-            return gettext.GNUTranslations(f)
+        translation_version = hashfile(po_file_path)
     except FileNotFoundError:
         return None
+    translation_cache_directory_path = path.join(_CACHE_DIRECTORY_PATH, 'translations', translation_version)
+    cache_directory_path = path.join(translation_cache_directory_path, locale_path_name, 'LC_MESSAGES')
+    mo_file_path = path.join(cache_directory_path, 'betty.mo')
+
+    with suppress(FileNotFoundError):
+        with open(mo_file_path, 'rb') as f:
+            return gettext.GNUTranslations(f)
+
+    makedirs(cache_directory_path, exist_ok=True)
+    with suppress(FileExistsError):
+        shutil.copyfile(po_file_path, path.join(cache_directory_path, 'betty.po'))
+
+    CommandLineInterface().run(['', 'compile', '-d', translation_cache_directory_path, '-l', locale_path_name, '-D', 'betty'])
+    with open(mo_file_path, 'rb') as f:
+        return gettext.GNUTranslations(f)
 
 
 def format_datey(date: Datey, locale: str) -> str:
