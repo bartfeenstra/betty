@@ -5,7 +5,8 @@ import os
 import re
 import warnings
 from contextlib import suppress
-from os.path import join
+from os.path import join, relpath
+from pathlib import Path
 from typing import Union, Dict, Type, Optional, Callable, Iterable, AsyncIterable, Any, Iterator
 
 import pdf2image
@@ -33,13 +34,11 @@ from betty.importlib import import_any
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange
 from betty.lock import AcquiredError
-from betty.path import extension
+from betty.path import extension, rootname
 from betty.plugin import Plugin
 from betty.render import Renderer
 from betty.search import Index
 from betty.site import Site
-
-_root_loader = FileSystemLoader('/')
 
 
 class _Plugins:
@@ -199,16 +198,16 @@ class Jinja2Renderer(Renderer):
         file_destination_path = file_path[:-3]
         data = {}
         if file_destination_path.startswith(self._configuration.www_directory_path):
-            # Unix-style paths use forward slashes, so they are valid URL paths.
-            resource = file_destination_path[len(
-                self._configuration.www_directory_path):]
+            resource = '/'.join(Path(file_destination_path[len(self._configuration.www_directory_path):]).parts)
             if self._configuration.multilingual:
                 resource_parts = resource.lstrip('/').split('/')
                 if resource_parts[0] in map(lambda x: x.alias, self._configuration.locales.values()):
                     resource = '/'.join(resource_parts[1:])
             data['page_resource'] = resource
-        template = _root_loader.load(self._environment, file_path, self._environment.globals)
-        with open(file_destination_path, 'w') as f:
+        with open(file_path, encoding='utf-8') as f:
+            template_code = f.read()
+        template = self._environment.from_string(template_code)
+        with open(file_destination_path, 'w', encoding='utf-8') as f:
             f.write(await template.render_async(data))
         os.remove(file_path)
 
