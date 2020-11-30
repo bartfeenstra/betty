@@ -17,7 +17,6 @@ npm run stylelint "./betty/**/*.css" "./betty/**/*.sass" "./betty/**/*.scss"
 
 # Test the JS code style.
 while read -r configuration_path; do
-  echo npm run eslint -c "$configuration_path" "$(dirname "${configuration_path}")/**/*.js"
     npm run eslint -c "$configuration_path" "$(dirname "${configuration_path}")/**/*.js"
 done < <(find ./ -name .eslintrc.yaml)
 
