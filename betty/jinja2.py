@@ -5,7 +5,7 @@ import os
 import re
 import warnings
 from contextlib import suppress
-from os.path import join, relpath
+from os.path import join
 from pathlib import Path
 from typing import Union, Dict, Type, Optional, Callable, Iterable, AsyncIterable, Any, Iterator
 
@@ -34,7 +34,7 @@ from betty.importlib import import_any
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange
 from betty.lock import AcquiredError
-from betty.path import extension, rootname
+from betty.path import extension
 from betty.plugin import Plugin
 from betty.render import Renderer
 from betty.search import Index
