@@ -34,6 +34,7 @@ from betty.importlib import import_any
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange
 from betty.lock import AcquiredError
+from betty.os import link_or_copy
 from betty.path import extension, rootname
 from betty.plugin import Plugin
 from betty.render import Renderer
@@ -204,7 +205,9 @@ class Jinja2Renderer(Renderer):
                 if resource_parts[0] in map(lambda x: x.alias, self._configuration.locales.values()):
                     resource = '/'.join(resource_parts[1:])
             data['page_resource'] = resource
-        template = FileSystemLoader(rootname(file_path)).load(self._environment, relpath(file_path, rootname(file_path)), self._environment.globals)
+        root_path = rootname(file_path)
+        template_name = '/'.join(Path(relpath(file_path, root_path)).parts)
+        template = FileSystemLoader(root_path).load(self._environment, template_name, self._environment.globals)
         with open(file_destination_path, 'w') as f:
             f.write(await template.render_async(data))
         os.remove(file_path)
@@ -313,7 +316,7 @@ async def _filter_file(site: Site, file: File) -> str:
 def _do_filter_file(file_path: str, destination_directory_path: str, destination_name: str) -> None:
     makedirs(destination_directory_path)
     destination_file_path = os.path.join(destination_directory_path, destination_name)
-    os.link(file_path, destination_file_path)
+    link_or_copy(file_path, destination_file_path)
 
 
 async def _filter_image(site: Site, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
@@ -375,7 +378,7 @@ def _execute_filter_image(image: Image, file_path: str, cache_directory_path: st
     destination_file_path = join(destination_directory_path, destination_name)
 
     try:
-        os.link(cache_file_path, destination_file_path)
+        link_or_copy(cache_file_path, destination_file_path)
     except FileNotFoundError:
         makedirs(cache_directory_path)
         with image:
@@ -395,7 +398,7 @@ def _execute_filter_image(image: Image, file_path: str, cache_directory_path: st
                 convert = resizeimage.resize_cover
             convert(image, size).save(cache_file_path)
         makedirs(destination_directory_path)
-        os.link(cache_file_path, destination_file_path)
+        link_or_copy(cache_file_path, destination_file_path)
 
 
 @contextfilter
