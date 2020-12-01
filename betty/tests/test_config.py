@@ -168,7 +168,6 @@ class ConfigurationTest(TestCase):
 class FromTest(TestCase):
     @contextmanager
     def _build_minimal_config(self) -> Dict:
-        # @todo Create a temporary directory and remove it upon exiting.
         output_directory = TemporaryDirectory()
         try:
             yield {
