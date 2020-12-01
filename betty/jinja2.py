@@ -35,7 +35,7 @@ from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange
 from betty.lock import AcquiredError
 from betty.os import link_or_copy
-from betty.path import extension, rootname
+from betty.path import rootname, extension
 from betty.plugin import Plugin
 from betty.render import Renderer
 from betty.search import Index
