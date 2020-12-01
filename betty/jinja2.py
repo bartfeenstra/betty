@@ -207,7 +207,7 @@ class Jinja2Renderer(Renderer):
         with open(file_path) as f:
             template_code = f.read()
         template = self._environment.from_string(template_code)
-        with open(file_destination_path, 'w', encoding='utf-8') as f:
+        with open(file_destination_path, 'w') as f:
             f.write(await template.render_async(data))
         os.remove(file_path)
 
