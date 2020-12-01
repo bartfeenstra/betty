@@ -5,7 +5,7 @@ import os
 import re
 import warnings
 from contextlib import suppress
-from os.path import join
+from os.path import join, relpath
 from pathlib import Path
 from typing import Union, Dict, Type, Optional, Callable, Iterable, AsyncIterable, Any, Iterator
 
@@ -34,7 +34,7 @@ from betty.importlib import import_any
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange
 from betty.lock import AcquiredError
-from betty.path import extension
+from betty.path import extension, rootname
 from betty.plugin import Plugin
 from betty.render import Renderer
 from betty.search import Index
@@ -204,9 +204,7 @@ class Jinja2Renderer(Renderer):
                 if resource_parts[0] in map(lambda x: x.alias, self._configuration.locales.values()):
                     resource = '/'.join(resource_parts[1:])
             data['page_resource'] = resource
-        with open(file_path) as f:
-            template_code = f.read()
-        template = self._environment.from_string(template_code)
+        template = FileSystemLoader(rootname(file_path)).load(self._environment, relpath(file_path, rootname(file_path)), self._environment.globals)
         with open(file_destination_path, 'w') as f:
             f.write(await template.render_async(data))
         os.remove(file_path)
