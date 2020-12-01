@@ -163,4 +163,4 @@ async def _serve(site: Site):
         raise CommandValueError('Web root directory "%s" does not exist.' % site.configuration.www_directory_path)
     async with serve.SiteServer(site):
         while True:
-            time.sleep(999999999)
+            time.sleep(999)
