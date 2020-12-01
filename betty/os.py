@@ -1,4 +1,12 @@
 import os
+import shutil
+
+
+def link_or_copy(source_path: str, destination_path: str) -> None:
+    try:
+        os.link(source_path, destination_path)
+    except OSError:
+        shutil.copyfile(source_path, destination_path)
 
 
 class ChDir:
