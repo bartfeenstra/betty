@@ -22,7 +22,7 @@ done < <(find ./ -name .eslintrc.yaml)
 
 # Run Python unit and integration tests with coverage.
 coverage erase
-coverage run -m nose2
+PYTHONUTF8=1 coverage run -m nose2
 coverage report -m
 
 # Run end-to-end (e2e) tests.

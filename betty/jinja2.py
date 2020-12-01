@@ -204,7 +204,7 @@ class Jinja2Renderer(Renderer):
                 if resource_parts[0] in map(lambda x: x.alias, self._configuration.locales.values()):
                     resource = '/'.join(resource_parts[1:])
             data['page_resource'] = resource
-        with open(file_path, encoding='utf-8') as f:
+        with open(file_path) as f:
             template_code = f.read()
         template = self._environment.from_string(template_code)
         with open(file_destination_path, 'w', encoding='utf-8') as f:

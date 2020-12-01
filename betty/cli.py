@@ -1,5 +1,7 @@
 import logging
+import os
 import shutil
+import subprocess
 import sys
 import time
 from contextlib import suppress, contextmanager
@@ -120,6 +122,19 @@ class _BettyCommands(click.MultiCommand):
             return ctx.obj['commands'][cmd_name]
 
 
+def ensure_utf8(f: Callable) -> Callable:
+    if not sys.platform.startswith('win32'):
+        return f
+    with suppress(KeyError):
+        if os.environ['PYTHONUTF8'] == '1':
+            return f
+
+    env = os.environ
+    env['PYTHONUTF8'] = '1'
+    subprocess.run(sys.argv, env=env)
+
+
+@ensure_utf8
 @click.command(cls=_BettyCommands)
 @click.option('--configuration', '-c', 'site', is_eager=True, help='The path to a Betty site configuration file. Defaults to betty.json|yaml|yml in the current working directory. This will make additional commands available.', callback=_init_ctx)
 def main(site):
