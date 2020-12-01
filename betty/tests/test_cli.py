@@ -85,7 +85,6 @@ class MainTest(TestCase):
 
                 runner = CliRunner()
                 result = runner.invoke(main, ('-c', config_file.name, '--help',))
-                print(result.stdout)
                 self.assertEqual(0, result.exit_code)
 
     def test_help_with_invalid_configuration_file_path(self, _, __):
