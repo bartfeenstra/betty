@@ -138,6 +138,21 @@ class FilterFormatDegreesTest(TemplateTestCase):
             self.assertEquals(expected, actual)
 
 
+class FilterUniqueTest(TemplateTestCase):
+    @sync
+    async def test(self):
+        data = [
+            999,
+            {},
+            999,
+            {},
+        ]
+        async with self._render(template_string='{{ data | unique | join(", ") }}', data={
+            'data': data,
+        }) as (actual, _):
+            self.assertEquals('999, {}', actual)
+
+
 class FilterMapTest(TemplateTestCase):
     class MapData:
         def __init__(self, label):
