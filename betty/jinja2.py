@@ -199,7 +199,7 @@ class Jinja2Renderer(Renderer):
         file_destination_path = file_path[:-3]
         data = {}
         if file_destination_path.startswith(self._configuration.www_directory_path):
-            resource = '/'.join(Path(file_destination_path[len(self._configuration.www_directory_path):]).parts)
+            resource = '/'.join(Path(file_destination_path[len(self._configuration.www_directory_path):].strip(os.sep)).parts)
             if self._configuration.multilingual:
                 resource_parts = resource.lstrip('/').split('/')
                 if resource_parts[0] in map(lambda x: x.alias, self._configuration.locales.values()):
