@@ -141,6 +141,7 @@ class BettyEnvironment(Environment):
 
     def _init_filters(self) -> None:
         self.filters['set'] = set
+        self.filters['unique'] = _filter_unique
         self.filters['map'] = _filter_map
         self.filters['flatten'] = _filter_flatten
         self.filters['walk'] = _filter_walk
@@ -281,6 +282,14 @@ def _filter_format_degrees(degrees: int) -> str:
         seconds=round(abs(arcseconds))
     )
     return DEGREES_FORMAT % format_dict
+
+
+async def _filter_unique(items: Iterable) -> Iterator:
+    seen = []
+    async for item in _asynciter(items):
+        if item not in seen:
+            yield item
+            seen.append(item)
 
 
 @contextfilter
