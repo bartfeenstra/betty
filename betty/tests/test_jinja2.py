@@ -382,6 +382,25 @@ class FilterSelectLocalizedsTest(TemplateTestCase):
         }, update_configuration=_update_configuration) as (actual, _):
             self.assertEquals(expected, actual)
 
+    @sync
+    async def test_include_unspecified(self):
+        template = '{{ data | select_localizeds(include_unspecified=true) | map(attribute="name") | join(", ") }}'
+        data = [
+            PlaceName('Apple', 'zxx'),
+            PlaceName('Apple', 'und'),
+            PlaceName('Apple', 'mul'),
+            PlaceName('Apple', 'mis'),
+            PlaceName('Apple', None),
+        ]
+
+        def _update_configuration(configuration: Configuration) -> None:
+            configuration.locales.clear()
+            configuration.locales['en-US'] = LocaleConfiguration('en-US')
+        async with self._render(template_string=template, data={
+            'data': data,
+        }, update_configuration=_update_configuration) as (actual, _):
+            self.assertEquals('Apple, Apple, Apple, Apple, Apple', actual)
+
 
 class FilterSelectDatedsTest(TemplateTestCase):
     class DatedDummy(Dated):
