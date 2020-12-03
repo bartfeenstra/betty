@@ -33,6 +33,7 @@ from betty.importlib import import_any
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange
 from betty.lock import AcquiredError
+from betty.os import link_or_copy
 from betty.path import extension
 from betty.plugin import Plugin
 from betty.render import Renderer
@@ -325,7 +326,7 @@ async def _filter_file(site: Site, file: File) -> str:
 def _do_filter_file(file_path: str, destination_directory_path: str, destination_name: str) -> None:
     makedirs(destination_directory_path)
     destination_file_path = os.path.join(destination_directory_path, destination_name)
-    os.link(file_path, destination_file_path)
+    link_or_copy(file_path, destination_file_path)
 
 
 async def _filter_image(site: Site, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
@@ -387,7 +388,7 @@ def _execute_filter_image(image: Image, file_path: str, cache_directory_path: st
     destination_file_path = join(destination_directory_path, destination_name)
 
     try:
-        os.link(cache_file_path, destination_file_path)
+        link_or_copy(cache_file_path, destination_file_path)
     except FileNotFoundError:
         makedirs(cache_directory_path)
         with image:
@@ -407,7 +408,7 @@ def _execute_filter_image(image: Image, file_path: str, cache_directory_path: st
                 convert = resizeimage.resize_cover
             convert(image, size).save(cache_file_path)
         makedirs(destination_directory_path)
-        os.link(cache_file_path, destination_file_path)
+        link_or_copy(cache_file_path, destination_file_path)
 
 
 @contextfilter
