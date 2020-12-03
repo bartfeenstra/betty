@@ -10,6 +10,7 @@ from betty.ancestry import Place, Person, PlaceName, Event, Described, HasLinks,
     Note, PersonName, IdentifiableEvent, Identifiable, IdentifiableSource, IdentifiableCitation, HasMediaType, Resource, \
     PresenceRole, EventType
 from betty.locale import Date, DateRange, Localized
+from betty.media_type import MediaType
 from betty.plugin.deriver import DerivedEvent
 from betty.site import Site
 
@@ -47,6 +48,7 @@ class JSONEncoder(stdjson.JSONEncoder):
             IdentifiableSource: self._encode_identifiable_source,
             Link: self._encode_link,
             Note: self._encode_note,
+            MediaType: self._encode_media_type,
         }
 
     @classmethod
@@ -237,8 +239,8 @@ class JSONEncoder(stdjson.JSONEncoder):
     def _encode_file(self, file: File) -> Dict:
         encoded = {
             'id': file.id,
-            'resources': [self._generate_url(entity) for entity in file.resources],
-            'notes': file.notes,
+            'resources': [self._generate_url(resource) for resource in file.resources],
+            'notes': [self._generate_url(note) for note in file.notes],
         }
         self._encode_schema(encoded, 'file')
         self._encode_identifiable_resource(encoded, file)
@@ -275,10 +277,10 @@ class JSONEncoder(stdjson.JSONEncoder):
         return encoded
 
     def _encode_event_type(self, event_type: EventType) -> str:
-        return event_type.name
+        return event_type.name()
 
     def _encode_presence_role(self, role: PresenceRole) -> str:
-        return role.name
+        return role.name()
 
     def _encode_identifiable_citation(self, citation: IdentifiableCitation) -> Dict:
         encoded = {
@@ -320,6 +322,13 @@ class JSONEncoder(stdjson.JSONEncoder):
         return encoded
 
     def _encode_note(self, note: Note) -> Dict:
-        return {
+        encoded = {
+            '@type': 'https://schema.org/Thing',
+            'id': note.id,
             'text': note.text,
         }
+        self._encode_schema(encoded, 'note')
+        return encoded
+
+    def _encode_media_type(self, media_type: MediaType) -> str:
+        return str(media_type)

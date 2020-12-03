@@ -3,15 +3,15 @@ from collections import OrderedDict
 from os.path import join
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import Any, Dict
-from unittest import TestCase
 
 import yaml
 from parameterized import parameterized
 from voluptuous import Schema, Required
 
-from betty.config import from_file, Configuration, ConfigurationError, LocaleConfiguration, PluginsConfiguration
+from betty.config import from_file, Configuration, ConfigurationValueError, LocaleConfiguration, PluginsConfiguration
 from betty.plugin import Plugin
 from betty.site import Site
+from betty.tests import TestCase
 
 
 class NonConfigurablePlugin(Plugin):
@@ -47,7 +47,7 @@ class PluginsConfigurationTest(TestCase):
         plugins_configuration_dict = {
             ConfigurablePlugin: plugin_configuration,
         }
-        with self.assertRaises(ConfigurationError):
+        with self.assertRaises(ConfigurationValueError):
             PluginsConfiguration(plugins_configuration_dict)
 
     def test_setitem_and_getitem_with_valid_configuration_should_set_and_return(self):
@@ -61,7 +61,7 @@ class PluginsConfigurationTest(TestCase):
     def test_setitem_with_invalid_configuration_should_raise_configuration_error(self):
         plugin_configuration = 1337
         sut = PluginsConfiguration()
-        with self.assertRaises(ConfigurationError):
+        with self.assertRaises(ConfigurationValueError):
             sut[ConfigurablePlugin] = plugin_configuration
 
     def test_contains(self):
@@ -317,21 +317,21 @@ class FromTest(TestCase):
 
     def test_from_file_should_error_unknown_format(self):
         with self._writes('', 'abc') as f:
-            with self.assertRaises(ConfigurationError):
+            with self.assertRaises(ConfigurationValueError):
                 from_file(f)
 
     def test_from_file_should_error_if_invalid_json(self):
         with self._writes('', 'json') as f:
-            with self.assertRaises(ConfigurationError):
+            with self.assertRaises(ConfigurationValueError):
                 from_file(f)
 
     def test_from_file_should_error_if_invalid_yaml(self):
         with self._writes('"foo', 'yaml') as f:
-            with self.assertRaises(ConfigurationError):
+            with self.assertRaises(ConfigurationValueError):
                 from_file(f)
 
     def test_from_file_should_error_if_invalid_config(self):
         config_dict = {}
         with self._write(config_dict) as f:
-            with self.assertRaises(ConfigurationError):
+            with self.assertRaises(ConfigurationValueError):
                 from_file(f)

@@ -1,0 +1,14 @@
+.entities {
+  margin: 0;
+  padding: 0;
+
+  & li {
+    list-style: none;
+    margin-top: 0.5em;
+    padding: 0.5em;
+
+    &.even {
+      background-color: #f7f7f7;
+    }
+  }
+}

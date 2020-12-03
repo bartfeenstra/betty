@@ -1,40 +1,46 @@
+{% set summary_media_type_paths = [
+    'file-summary.html.j2',
+] %}
+
+{% set extended_media_type_paths = [
+    'file-extended.html.j2',
+] %}
+
+{% if file.media_type %}
+    {% do summary_media_type_paths.append('file-summary--' ~ file.media_type.type ~ '.html.j2') %}
+    {% do summary_media_type_paths.append('file-summary--' ~ file.media_type.type ~ '--' ~ file.media_type.subtypes | join('---') ~ '.html.j2') %}
+    {% if file.media_type.suffix %}
+        {% do summary_media_type_paths.append('file-summary--' ~ file.media_type.type ~ '--' ~ file.media_type.subtypes | join('---') ~ '----' ~ file.media_type.suffix ~ '.html.j2') %}
+    {% endif %}
+
+    {% do extended_media_type_paths.append('file-extended--' ~ file.media_type.type ~ '.html.j2') %}
+    {% do extended_media_type_paths.append('file-extended--' ~ file.media_type.type ~ '--' ~ file.media_type.subtypes | join('---') ~ '.html.j2') %}
+    {% if file.media_type.suffix %}
+        {% do extended_media_type_paths.append('file-extended--' ~ file.media_type.type ~ '--' ~ file.media_type.subtypes | join('---') ~ '----' ~ file.media_type.suffix ~ '.html.j2') %}
+    {% endif %}
+{% endif %}
+
 <div class="file" id="file-{{ file.id }}">
     <a href="#file-extended-{{ file.id }}" class="file-extended-open file-summary">
-        {% if file.media_type and file.media_type.startswith('image/') %}
-            <figure>
-                <img src="{{ file | image(600, 600) | static_url }}" alt="{{ file.description }}"/>
-                {% if file.description %}
-                    <figcaption>{{ file.description }}</figcaption>
-                {% endif %}
-            </figure>
-        {% else %}
-            {{ file.description }}
-        {% endif %}
+        <div class="file-summary">
+            {% include summary_media_type_paths | reverse | list %}
+        </div>
     </a>
     <div id="file-extended-{{ file.id }}" class="file-extended">
         <ul class="file-controls">
             <li><a href="{{ file | file | static_url }}" title="View original in full">⇔</a></li>
-            <li><a href="{{ file | file | static_url }}" download="{{ file.name }}" title="Download this file">⇓</a></li>
+            <li><a href="{{ file | file | static_url }}" download="{{ file.name | escape }}" title="Download this file">⇓</a></li>
             <li><a href="{{ file | url }}" title="More details">ℹ</a></li>
             <li class="file-extended-close"><a href="#file-{{ file.id }}" title="Close this file">×</a></li>
             {% if previous_file is defined %}
-                <li class="file-nav file-extended-previous"><a href="#file-extended-{{ previous_file.id }}" title="{{ previous_file.description }}">←</a></li>
+                <li class="file-nav file-extended-previous"><a href="#file-extended-{{ previous_file.id }}" title="{{ previous_file.description | escape }}">←</a></li>
             {% endif %}
             {% if next_file is defined %}
-                <li class="file-nav file-extended-next"><a href="#file-extended-{{ next_file.id }}" title="{{ next_file.description }}">→</a></li>
+                <li class="file-nav file-extended-next"><a href="#file-extended-{{ next_file.id }}" title="{{ next_file.description | escape }}">→</a></li>
             {% endif %}
         </ul>
         <div class="file-content">
-            {% if file.media_type and file.media_type.startswith('image/') %}
-                <figure>
-                    <img src="{{ file | image(1200, 1200) | static_url }}" alt="{{ file.description }}" title="{{ file.description }}" class="image-fit"/>
-                    {% if file.description %}
-                        <figcaption>{{ file.description }}</figcaption>
-                    {% endif %}
-                </figure>
-            {% else %}
-                {{ file.description }}
-            {% endif %}
+            {% include extended_media_type_paths | reverse | list %}
         </div>
     </div>
 </div>

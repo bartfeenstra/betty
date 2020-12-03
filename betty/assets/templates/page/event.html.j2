@@ -1,5 +1,4 @@
 {% extends 'base.html.j2' %}
-{% import 'macro/person.html.j2' as personMacros %}
 {% set page_title %}
     {% with embedded=True %}
         {% include 'label/event.html.j2' %}
@@ -9,7 +8,7 @@
     {% include 'meta/event.html.j2' %}
 
     {% if event.place %}
-        {% with places=[event.place] %}
+        {% with places=[event.place], map_hides_list = true %}
             {% include 'list-place.html.j2' %}
         {% endwith %}
     {% endif %}

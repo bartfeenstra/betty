@@ -1,39 +1,39 @@
-{%- import 'macro/person.html.j2' as personMacros -%}
-{%- macro _embeddedPersonNameLabel(name) -%}
-    {{ personMacros.nameLabel(name, embedded=True) }}
+{%- import 'macro/person.html.j2' as person_macros -%}
+{%- macro _embedded_person_name_label(name) -%}
+    {{ person_macros.name_label(name, embedded=True) }}
 {%- endmacro -%}
 {%- set person = person | default(resource) -%}
 {%- if not embedded is defined -%}
     {%- set embedded = False -%}
 {%- endif -%}
-<div class="meta">
+<div class="meta person-meta">
     {%- if person.private -%}
         <p>{%- trans -%}This person's details are unavailable to protect their privacy.{%- endtrans -%}</p>
     {%- else -%}
         {%- if person.names | length > 1 -%}
-            <span class="aka">{%- trans names=person.alternative_names | map(_embeddedPersonNameLabel if embedded else personMacros.nameLabel) | list | join(', ') -%}Also known as {{ names }}{%- endtrans -%}</span>
+            <span class="aka">{%- trans names=person.alternative_names | map(_embedded_person_name_label if embedded else person_macros.name_label) | list | join(', ') -%}Also known as {{ names }}{%- endtrans -%}</span>
         {%- endif -%}
-        {%- set formattedStart -%}
+        {%- set formatted_start -%}
             {%- if person.start -%}
                 {%- with event=person.start -%}
                     {%- include 'event-dimensions.html.j2' -%}
                 {%- endwith -%}
             {%- endif -%}
         {%- endset -%}
-        {%- set formattedEnd -%}
+        {%- set formatted_end -%}
             {%- if person.end -%}
                 {%- with event=person.end -%}
                     {%- include 'event-dimensions.html.j2' -%}
                 {%- endwith -%}
             {%- endif -%}
         {%- endset -%}
-        {%- if formattedStart or formattedEnd -%}
+        {%- if formatted_start or formatted_end -%}
             <dl>
-                {%- if formattedStart -%}
-                    <dt>{{ person.start.type.label }}</dt><dd>{{ formattedStart }}</dd>
+                {%- if formatted_start -%}
+                    <div><dt>{{ person.start.type.label }}</dt><dd>{{ formatted_start }}</dd></div>
                 {%- endif -%}
-                {%- if formattedEnd -%}
-                    <dt>{{ person.end.type.label }}</dt><dd>{{ formattedEnd }}</dd>
+                {%- if formatted_end -%}
+                    <div><dt>{{ person.end.type.label }}</dt><dd>{{ formatted_end }}</dd></div>
                 {%- endif -%}
             </dl>
         {%- endif -%}

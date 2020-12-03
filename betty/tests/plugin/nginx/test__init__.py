@@ -2,13 +2,13 @@ import re
 from os.path import join
 from tempfile import TemporaryDirectory
 from typing import Optional
-from unittest import TestCase
 
 from betty.config import Configuration, LocaleConfiguration
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.generate import generate
 from betty.plugin.nginx import Nginx
 from betty.site import Site
+from betty.tests import TestCase
 
 
 class NginxTest(TestCase):
@@ -295,4 +295,47 @@ server {
     }
 }
 ''' % configuration.www_directory_path
+            await self._assert_configuration_equals(expected, configuration)
+
+    @sync
+    async def test_post_render_config_with_overridden_www_directory_path(self):
+        with TemporaryDirectory() as output_directory_path:
+            configuration = Configuration(
+                output_directory_path, 'https://example.com')
+            configuration.plugins[Nginx] = {
+                'www_directory_path': '/tmp/overridden-www'
+            }
+            expected = r'''
+server {
+    listen 80;
+    server_name example.com;
+    return 301 https://$host$request_uri;
+}
+server {
+    listen 443 ssl http2;
+    server_name example.com;
+    root /tmp/overridden-www;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header Cache-Control "max-age=86400";
+    gzip on;
+    gzip_disable "msie6";
+    gzip_vary on;
+    gzip_types text/css application/javascript application/json application/xml;
+
+    set $media_type_extension html;
+    index index.$media_type_extension;
+
+    location / {
+        # Handle HTTP error responses.
+        error_page 401 /.error/401.$media_type_extension;
+        error_page 403 /.error/403.$media_type_extension;
+        error_page 404 /.error/404.$media_type_extension;
+        location /.error {
+            internal;
+    }
+
+    try_files $uri $uri/ =404;
+    }
+}
+'''
             await self._assert_configuration_equals(expected, configuration)

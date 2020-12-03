@@ -1,13 +1,12 @@
 from os.path import join
 from tempfile import TemporaryDirectory
-from unittest import TestCase
 
 from betty.config import Configuration
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.generate import generate
 from betty.plugin.trees import Trees
 from betty.site import Site
-from betty.tests import patch_cache
+from betty.tests import patch_cache, TestCase
 
 
 class TreesTest(TestCase):

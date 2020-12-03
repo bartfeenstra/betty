@@ -1,16 +1,16 @@
 from tempfile import TemporaryDirectory
 from typing import Optional, Set, Type
-from unittest import TestCase
 from parameterized import parameterized
 
 from betty.ancestry import Person, Presence, Subject, EventType, CreatableDerivableEventType, \
     DerivableEventType, Event, Residence
 from betty.config import Configuration
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.locale import DateRange, Date, Datey
 from betty.parse import parse
 from betty.plugin.deriver import derive, Deriver
 from betty.site import Site
+from betty.tests import TestCase
 
 
 class Ignored(EventType):

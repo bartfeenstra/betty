@@ -1,10 +1,10 @@
 from os import path
-from unittest import TestCase
 
 from parameterized import parameterized
 from voluptuous import Invalid
 
 from betty import os
+from betty.tests import TestCase
 from betty.voluptuous import Path, Importable
 
 
@@ -25,7 +25,7 @@ class PathTest(TestCase):
         (path.join(path.expanduser('~'), 'bar'), './foo/../bar'),
     ])
     def test_with_path_should_return(self, expected: str, path_value: str):
-        with os.chdir(path.expanduser('~')):
+        with os.ChDir(path.expanduser('~')):
             self.assertEqual(expected, Path()(path_value))
 
 

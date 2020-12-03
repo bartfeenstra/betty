@@ -1,6 +1,5 @@
 import json as stdjson
 from tempfile import TemporaryDirectory, NamedTemporaryFile
-from unittest import TestCase
 
 from geopy import Point
 
@@ -10,7 +9,9 @@ from betty.ancestry import Place, Person, PlaceName, Link, Presence, Source, Fil
 from betty.config import Configuration, LocaleConfiguration
 from betty.json import JSONEncoder
 from betty.locale import Date, DateRange
+from betty.media_type import MediaType
 from betty.site import Site
+from betty.tests import TestCase
 
 
 class JSONEncoderTest(TestCase):
@@ -286,6 +287,16 @@ class JSONEncoderTest(TestCase):
         }
         self.assert_encodes(expected, person, 'person')
 
+    def test_note_should_encode_minimal(self):
+        note = Note('the_note', 'The Note')
+        expected = {
+            '$schema': '/schema.json#/definitions/note',
+            '@type': 'https://schema.org/Thing',
+            'id': 'the_note',
+            'text': 'The Note',
+        }
+        self.assert_encodes(expected, note, 'note')
+
     def test_file_should_encode_minimal(self):
         with NamedTemporaryFile() as f:
             file = File('the_file', f.name)
@@ -316,9 +327,10 @@ class JSONEncoderTest(TestCase):
 
     def test_file_should_encode_full(self):
         with NamedTemporaryFile() as f:
+            note = Note('the_note', 'The Note')
             file = File('the_file', f.name)
-            file.media_type = 'text/plain'
-            file.notes.append(Note('The Note'))
+            file.media_type = MediaType('text/plain')
+            file.notes.append(note)
             Person('the_person').files.append(file)
             expected = {
                 '$schema': '/schema.json#/definitions/file',
@@ -328,9 +340,7 @@ class JSONEncoderTest(TestCase):
                     '/en/person/the_person/index.json',
                 ],
                 'notes': [
-                    {
-                        'text': 'The Note',
-                    },
+                    '/en/note/the_note/index.json',
                 ],
                 'links': [
                     {
@@ -603,7 +613,7 @@ class JSONEncoderTest(TestCase):
         link.label = 'The Link'
         link.relationship = 'external'
         link.locale = 'nl-NL'
-        link.media_type = 'text/html'
+        link.media_type = MediaType('text/html')
         expected = {
             'url': 'https://example.com',
             'relationship': 'external',

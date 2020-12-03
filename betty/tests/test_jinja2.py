@@ -1,18 +1,19 @@
-from os import makedirs
-from os.path import join, basename, exists, dirname
+from os import makedirs, path
 from tempfile import TemporaryDirectory, NamedTemporaryFile
 from typing import List, Iterable, Dict, Type, Optional
-from unittest import TestCase
+from unittest.mock import Mock
 
 from parameterized import parameterized
 
-from betty.ancestry import File, PlaceName, Subject, Attendee, Witness, Dated, Resource, Person, Place
+from betty.ancestry import File, PlaceName, Subject, Attendee, Witness, Dated, Resource, Person, Place, Citation
 from betty.config import Configuration, LocaleConfiguration
-from betty.functools import sync
+from betty.asyncio import sync
+from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider
 from betty.locale import Date, Datey, DateRange, Localized
+from betty.media_type import MediaType
 from betty.plugin import Plugin
 from betty.site import Site
-from betty.tests import TemplateTestCase
+from betty.tests import TemplateTestCase, TestCase
 
 
 class TemplateVarsBuilderTest(TestCase):
@@ -28,10 +29,10 @@ class TemplateVarsBuilderTest(TestCase):
             site = Site(configuration)
             with TemporaryDirectory() as assets_directory_path:
                 site.assets.paths.append(assets_directory_path)
-                templates_directory_path = join(assets_directory_path, 'templates')
+                templates_directory_path = path.join(assets_directory_path, 'templates')
                 makedirs(templates_directory_path)
                 with NamedTemporaryFile(dir=templates_directory_path) as template_file:
-                    template_name = basename(template_file.name)
+                    template_name = path.basename(template_file.name)
                     async with site:
                         environment = site.jinja2_environment
                         environment.template_vars_builders[template_name] = _builder
@@ -41,7 +42,70 @@ class TemplateVarsBuilderTest(TestCase):
                         self.assertIn(True, carrier)
 
 
-class FlattenTest(TemplateTestCase):
+class Jinja2ProviderTest(TestCase):
+    def test_globals(self) -> None:
+        sut = Jinja2Provider()
+        self.assertIsInstance(sut.globals, dict)
+
+    def test_filters(self) -> None:
+        sut = Jinja2Provider()
+        self.assertIsInstance(sut.filters, dict)
+
+
+class Jinja2RendererTest(TestCase):
+    @sync
+    async def test_render_file(self) -> None:
+        with TemporaryDirectory() as output_directory_path:
+            configuration = Configuration(output_directory_path, 'https://ancestry.example.com')
+            async with Site(configuration) as site:
+                sut = Jinja2Renderer(site.jinja2_environment, configuration)
+                template = '{% if true %}true{% endif %}'
+                expected_output = 'true'
+                with TemporaryDirectory() as working_directory_path:
+                    template_file_path = path.join(working_directory_path, 'betty.txt.j2')
+                    with open(template_file_path, 'w') as f:
+                        f.write(template)
+                    await sut.render_file(template_file_path)
+                    with open(path.join(working_directory_path, 'betty.txt')) as f:
+                        self.assertEquals(expected_output, f.read().strip())
+                    self.assertFalse(path.exists(template_file_path))
+
+    @sync
+    async def test_render_file_should_ignore_non_sass_or_scss(self) -> None:
+        with TemporaryDirectory() as output_directory_path:
+            configuration = Configuration(output_directory_path, 'https://ancestry.example.com')
+            async with Site(configuration) as site:
+                sut = Jinja2Renderer(site.jinja2_environment, configuration)
+                template = '{% if true %}true{% endif %}'
+                with TemporaryDirectory() as working_directory_path:
+                    template_file_path = path.join(working_directory_path, 'betty.txt')
+                    with open(template_file_path, 'w') as f:
+                        f.write(template)
+                    await sut.render_file(template_file_path)
+                    with open(path.join(working_directory_path, 'betty.txt')) as f:
+                        self.assertEquals(template, f.read())
+
+    @sync
+    async def test_render_tree(self) -> None:
+        with TemporaryDirectory() as output_directory_path:
+            configuration = Configuration(output_directory_path, 'https://ancestry.example.com')
+            async with Site(configuration) as site:
+                sut = Jinja2Renderer(site.jinja2_environment, configuration)
+                template = '{% if true %}true{% endif %}'
+                expected_output = 'true'
+                with TemporaryDirectory() as working_directory_path:
+                    working_subdirectory_path = path.join(working_directory_path, 'sub')
+                    makedirs(working_subdirectory_path)
+                    scss_file_path = path.join(working_subdirectory_path, 'betty.txt.j2')
+                    with open(scss_file_path, 'w') as f:
+                        f.write(template)
+                    await sut.render_tree(working_directory_path)
+                    with open(path.join(working_subdirectory_path, 'betty.txt')) as f:
+                        self.assertEquals(expected_output, f.read().strip())
+                    self.assertFalse(path.exists(scss_file_path))
+
+
+class FilterFlattenTest(TemplateTestCase):
     @parameterized.expand([
         ('', '{{ [] | flatten | join(", ") }}'),
         ('', '{{ [[], [], []] | flatten | join(", ") }}'),
@@ -54,7 +118,7 @@ class FlattenTest(TemplateTestCase):
             self.assertEquals(expected, actual)
 
 
-class WalkTest(TemplateTestCase):
+class FilterWalkTest(TemplateTestCase):
     class WalkData:
         def __init__(self, label, children=None):
             self._label = label
@@ -76,7 +140,7 @@ class WalkTest(TemplateTestCase):
             self.assertEquals(expected, actual)
 
 
-class ParagraphsTest(TemplateTestCase):
+class FilterParagraphsTest(TemplateTestCase):
     @parameterized.expand([
         ('<p></p>', '{{ "" | paragraphs }}'),
         ('<p>Apples <br>\n and <br>\n oranges</p>',
@@ -88,7 +152,7 @@ class ParagraphsTest(TemplateTestCase):
             self.assertEquals(expected, actual)
 
 
-class FormatDegreesTest(TemplateTestCase):
+class FilterFormatDegreesTest(TemplateTestCase):
     @parameterized.expand([
         ('0° 0&#39; 0&#34;', '{{ 0 | format_degrees }}'),
         ('52° 22&#39; 1&#34;', '{{ 52.367 | format_degrees }}'),
@@ -99,12 +163,11 @@ class FormatDegreesTest(TemplateTestCase):
             self.assertEquals(expected, actual)
 
 
-class MapData:
-    def __init__(self, label):
-        self.label = label
+class FilterMapTest(TemplateTestCase):
+    class MapData:
+        def __init__(self, label):
+            self.label = label
 
-
-class MapTest(TemplateTestCase):
     @parameterized.expand([
         ('kiwi, apple, banana', '{{ data | map(attribute="label") | join(", ") }}',
          [MapData('kiwi'), MapData('apple'), MapData('banana')]),
@@ -120,21 +183,7 @@ class MapTest(TemplateTestCase):
             self.assertEquals(expected, actual)
 
 
-class SelectwhileTest(TemplateTestCase):
-    @parameterized.expand([
-        ('', '{{ [] | selectwhile("ne", None) | join(", ") }}'),
-        ('kiwi, apple',
-         '{{ ["kiwi", "apple", None, "banana", None] | selectwhile | join(", ") }}'),
-        ('kiwi, apple',
-         '{{ ["kiwi", "apple", None, "banana", None] | selectwhile("ne", None) | join(", ") }}'),
-    ])
-    @sync
-    async def test(self, expected, template):
-        async with self._render(template_string=template) as (actual, _):
-            self.assertEquals(expected, actual)
-
-
-class FileTest(TemplateTestCase):
+class FilterFileTest(TemplateTestCase):
     @parameterized.expand([
         ('/file/F1.py', '{{ file | file }}', File('F1', __file__)),
         ('/file/F1.py:/file/F1.py',
@@ -147,21 +196,21 @@ class FileTest(TemplateTestCase):
         }) as (actual, site):
             self.assertEquals(expected, actual)
             for file_path in actual.split(':'):
-                self.assertTrue(exists(join(site.configuration.www_directory_path, file_path[1:])))
+                self.assertTrue(path.exists(path.join(site.configuration.www_directory_path, file_path[1:])))
 
 
-class ImageTest(TemplateTestCase):
-    image_path = join(dirname(dirname(__file__)), 'assets', 'public', 'static', 'betty-512x512.png')
+class FilterImageTest(TemplateTestCase):
+    image_path = path.join(path.dirname(path.dirname(__file__)), 'assets', 'public', 'static', 'betty-512x512.png')
 
     @parameterized.expand([
         ('/file/F1-99x-.png',
-         '{{ file | image(width=99) }}', File('F1', image_path)),
+         '{{ file | image(width=99) }}', File('F1', image_path, media_type=MediaType('image/png'))),
         ('/file/F1--x99.png',
-         '{{ file | image(height=99) }}', File('F1', image_path)),
+         '{{ file | image(height=99) }}', File('F1', image_path, media_type=MediaType('image/png'))),
         ('/file/F1-99x99.png',
-         '{{ file | image(width=99, height=99) }}', File('F1', image_path)),
+         '{{ file | image(width=99, height=99) }}', File('F1', image_path, media_type=MediaType('image/png'))),
         ('/file/F1-99x99.png:/file/F1-99x99.png',
-         '{{ file | image(width=99, height=99) }}:{{ file | image(width=99, height=99) }}', File('F1', image_path)),
+         '{{ file | image(width=99, height=99) }}:{{ file | image(width=99, height=99) }}', File('F1', image_path, media_type=MediaType('image/png'))),
     ])
     @sync
     async def test(self, expected, template, file):
@@ -170,40 +219,96 @@ class ImageTest(TemplateTestCase):
         }) as (actual, site):
             self.assertEquals(expected, actual)
             for file_path in actual.split(':'):
-                self.assertTrue(exists(join(site.configuration.www_directory_path, file_path[1:])))
+                self.assertTrue(path.exists(path.join(site.configuration.www_directory_path, file_path[1:])))
+
+    @sync
+    async def test_without_width(self):
+        file = File('F1', self.image_path, media_type=MediaType('image/png'))
+        with self.assertRaises(ValueError):
+            async with self._render(template_string='{{ file | image }}', data={
+                'file': file,
+            }):
+                pass
 
 
 class TestPlugin(Plugin):
+    """
+    This class must be top-level. Otherwise it cannot be imported by its fully qualified name.
+    """
     pass
 
 
-class PluginsTest(TemplateTestCase):
+class GlobalPluginsTest(TemplateTestCase):
     @sync
-    async def test_with_unknown_plugin_module(self):
-        template = '{% if "betty.UnknownModule.Plugin" in plugins %}true{% else %}false{% endif %}'
+    async def test_getitem_with_unknown_plugin(self):
+        template = '{{ plugins["betty.UnknownPlugin"] | default("false") }}'
         async with self._render(template_string=template) as (actual, _):
             self.assertEquals('false', actual)
 
     @sync
-    async def test_with_unknown_plugin_class(self):
-        template = '{% if "betty.UnknownPlugin" in plugins %}true{% else %}false{% endif %}'
+    async def test_getitem_with_disabled_plugin(self):
+        template = '{{ plugins["%s"] | default("false") }}' % TestPlugin.name()
         async with self._render(template_string=template) as (actual, _):
             self.assertEquals('false', actual)
 
     @sync
-    async def test_with_disabled_plugin(self):
-        template = '{% if "' + TestPlugin.__module__ + '.TestPlugin" in plugins %}true{% else %}false{% endif %}'
-        async with self._render(template_string=template) as (actual, _):
-            self.assertEquals('false', actual)
-
-    @sync
-    async def test_with_enabled_plugin(self):
-        template = '{% if "' + TestPlugin.__module__ + '.TestPlugin" in plugins %}true{% else %}false{% endif %}'
+    async def test_getitem_with_enabled_plugin(self):
+        template = '{%% if plugins["%s"] is not none %%}true{%% else %%}false{%% endif %%}' % TestPlugin.name()
 
         def _update_configuration(configuration: Configuration) -> None:
             configuration.plugins[TestPlugin] = None
         async with self._render(template_string=template, update_configuration=_update_configuration) as (actual, _):
             self.assertEquals('true', actual)
+
+    @sync
+    async def test_contains_with_unknown_plugin(self):
+        template = '{% if "betty.UnknownPlugin" in plugins %}true{% else %}false{% endif %}'
+        async with self._render(template_string=template) as (actual, _):
+            self.assertEquals('false', actual)
+
+    @sync
+    async def test_contains_with_disabled_plugin(self):
+        template = '{%% if "%s" in plugins %%}true{%% else %%}false{%% endif %%}' % TestPlugin.name()
+        async with self._render(template_string=template) as (actual, _):
+            self.assertEquals('false', actual)
+
+    @sync
+    async def test_contains_with_enabled_plugin(self):
+        template = '{%% if "%s" in plugins %%}true{%% else %%}false{%% endif %%}' % TestPlugin.name()
+
+        def _update_configuration(configuration: Configuration) -> None:
+            configuration.plugins[TestPlugin] = None
+        async with self._render(template_string=template, update_configuration=_update_configuration) as (actual, _):
+            self.assertEquals('true', actual)
+
+
+class GlobalCiterTest(TemplateTestCase):
+    @sync
+    async def test_cite(self):
+        citation1 = Mock(Citation)
+        citation2 = Mock(Citation)
+        sut = _Citer()
+        self.assertEquals(1, sut.cite(citation1))
+        self.assertEquals(2, sut.cite(citation2))
+        self.assertEquals(1, sut.cite(citation1))
+
+    @sync
+    async def test_iter(self):
+        citation1 = Mock(Citation)
+        citation2 = Mock(Citation)
+        sut = _Citer()
+        sut.cite(citation1)
+        sut.cite(citation2)
+        self.assertEquals([(1, citation1), (2, citation2)], list(sut))
+
+    @sync
+    async def test_len(self):
+        citation1 = Mock(Citation)
+        citation2 = Mock(Citation)
+        sut = _Citer()
+        sut.cite(citation1)
+        sut.cite(citation2)
+        self.assertEquals(2, len(sut))
 
 
 class FormatDateTest(TemplateTestCase):
@@ -217,7 +322,7 @@ class FormatDateTest(TemplateTestCase):
             self.assertEquals('January 1, 1970', actual)
 
 
-class SortLocalizedsTest(TemplateTestCase):
+class FilterSortLocalizedsTest(TemplateTestCase):
     class WithLocalizedNames:
         def __init__(self, identifier, names: List[PlaceName]):
             self.id = identifier
@@ -256,7 +361,7 @@ class SortLocalizedsTest(TemplateTestCase):
             self.assertEquals('[]', actual)
 
 
-class SelectLocalizedsTest(TemplateTestCase):
+class FilterSelectLocalizedsTest(TemplateTestCase):
     @parameterized.expand([
         ('', 'en', []),
         ('Apple', 'en', [
@@ -288,7 +393,7 @@ class SelectLocalizedsTest(TemplateTestCase):
             self.assertEquals(expected, actual)
 
 
-class SelectDatedsTest(TemplateTestCase):
+class FilterSelectDatedsTest(TemplateTestCase):
     class DatedDummy(Dated):
         def __init__(self, value: str, date: Optional[Datey] = None):
             Dated.__init__(self)
@@ -352,7 +457,7 @@ class SelectDatedsTest(TemplateTestCase):
             self.assertEquals(expected, actual)
 
 
-class IsSubjectRoleTest(TemplateTestCase):
+class TestSubjectRoleTest(TemplateTestCase):
     @parameterized.expand([
         ('true', Subject()),
         ('false', Subject),
@@ -368,7 +473,7 @@ class IsSubjectRoleTest(TemplateTestCase):
             self.assertEquals(expected, actual)
 
 
-class IsWitnessRoleTest(TemplateTestCase):
+class TestWitnessRoleTest(TemplateTestCase):
     @parameterized.expand([
         ('true', Witness()),
         ('false', Witness),
@@ -384,7 +489,7 @@ class IsWitnessRoleTest(TemplateTestCase):
             self.assertEquals(expected, actual)
 
 
-class TestResourceTypeTest(TemplateTestCase):
+class TestResourceTest(TemplateTestCase):
     @parameterized.expand([
         ('true', Person, Person('P1')),
         ('false', Person, Place('P1', [PlaceName('The Place')])),
@@ -395,7 +500,7 @@ class TestResourceTypeTest(TemplateTestCase):
     ])
     @sync
     async def test(self, expected, resource_type: Type[Resource], data) -> None:
-        template = f'{{% if data is {resource_type.resource_type_name}_resource %}}true{{% else %}}false{{% endif %}}'
+        template = f'{{% if data is {resource_type.resource_type_name()}_resource %}}true{{% else %}}false{{% endif %}}'
         async with self._render(template_string=template, data={
             'data': data,
         }) as (actual, _):

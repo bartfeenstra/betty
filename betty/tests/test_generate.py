@@ -1,8 +1,9 @@
 import json as stdjson
+import sys
+import unittest
 from os import makedirs, path
 from os.path import join, exists
 from tempfile import TemporaryDirectory, NamedTemporaryFile
-from unittest import TestCase
 
 import html5lib
 from lxml import etree
@@ -11,9 +12,10 @@ from betty import json
 from betty.ancestry import Person, Place, Source, PlaceName, File, IdentifiableEvent, IdentifiableCitation, \
     IdentifiableSource, Birth
 from betty.config import Configuration, LocaleConfiguration
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.generate import generate
 from betty.site import Site
+from betty.tests import TestCase
 
 
 class GenerateTestCase(TestCase):
@@ -192,6 +194,7 @@ class ResourceOverrideTest(GenerateTestCase):
                     self.assertIn('Betty was here', f.read())
 
 
+@unittest.skipIf(sys.platform == 'win32', 'lxml cannot be installed directly onto vanilla Windows.')
 class SitemapRenderTest(GenerateTestCase):
     def setUp(self):
         GenerateTestCase.setUp(self)

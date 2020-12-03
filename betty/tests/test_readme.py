@@ -1,10 +1,9 @@
 import json
 from os import path
-from subprocess import check_output
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from betty import os
+from betty import os, subprocess
 
 
 class ReadmeTest(TestCase):
@@ -16,8 +15,8 @@ class ReadmeTest(TestCase):
             }
             with open(path.join(betty_site_path, 'betty.json'), 'w') as f:
                 json.dump(configuration, f)
-            with os.chdir(betty_site_path):
-                expected = check_output(['betty', '--help'])
+            with os.ChDir(betty_site_path):
+                expected = subprocess.run(['betty', '--help']).stdout
             with open('README.md') as f:
                 actual = f.read().encode()
             self.assertIn(expected, actual)

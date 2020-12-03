@@ -1,15 +1,15 @@
 import json as stdjson
 from os import path
 from tempfile import TemporaryDirectory
-from unittest import TestCase
 
 import jsonschema
 from parameterized import parameterized
 
 from betty.config import Configuration
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.openapi import build_specification
 from betty.site import Site
+from betty.tests import TestCase
 
 
 class BuildSpecificationTest(TestCase):

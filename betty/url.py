@@ -2,7 +2,7 @@ from contextlib import suppress
 from typing import Any, Type, Optional
 
 from betty.ancestry import Person, File, Place, Identifiable, PersonName, IdentifiableSource, IdentifiableEvent, \
-    IdentifiableCitation
+    IdentifiableCitation, Note
 from betty.config import Configuration
 from betty.media_type import EXTENSIONS
 
@@ -72,6 +72,7 @@ class SiteUrlGenerator(LocalizedUrlGenerator):
                 configuration, IdentifiableSource, 'source/%s/index.%s'),
             IdentifiableResourceUrlGenerator(
                 configuration, IdentifiableCitation, 'citation/%s/index.%s'),
+            IdentifiableResourceUrlGenerator(configuration, Note, 'note/%s/index.%s'),
             LocalizedPathUrlGenerator(configuration),
         ]
 

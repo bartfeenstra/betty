@@ -1,8 +1,8 @@
-from unittest import TestCase
 from unittest.mock import Mock
 
 from betty.plugin import Plugin
 from betty.site import Site
+from betty.tests import TestCase
 
 
 class PluginTest(TestCase):
@@ -13,8 +13,3 @@ class PluginTest(TestCase):
 
     def test_depends_on(self):
         self.assertEquals(set(), Plugin.depends_on())
-
-    def test_subscribes_to(self):
-        site = Mock(Site)
-        plugin = Plugin.for_site(site)
-        self.assertEquals([], plugin.subscribes_to())

@@ -1,11 +1,11 @@
 <a href="{{ file | url }}" class="nav-secondary-action search-result-target">
     <div class="search-result-description">
-        {{ file.description }}
+        {{ file.description | escape }}
         <div class="search-result-file-type">{% trans %}Media{% endtrans %}</div>
     </div>
-    {% if file.media_type and file.media_type.startswith('image/') %}
+    {% if file.media_type and file.media_type.type== 'image' %}
         <div class="search-result-preview">
-            <img src="{{ file | image(45, 45) | static_url }}" alt="{{ file.description }}" class="image"/>
+            <img src="{{ file | image(45, 45) | static_url }}" class="image"{% if file.description %} alt="{{ file.description | escape }}"{% endif %}/>
         </div>
     {% endif %}
 </a>

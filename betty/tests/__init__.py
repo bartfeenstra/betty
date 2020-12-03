@@ -1,3 +1,4 @@
+import logging
 from contextlib import suppress
 try:
     from contextlib import asynccontextmanager
@@ -5,7 +6,7 @@ except ImportError:
     from async_generator import asynccontextmanager
 from tempfile import TemporaryDirectory
 from typing import Optional, Dict, Callable, Tuple
-from unittest import TestCase
+import unittest
 
 from jinja2 import Environment, Template
 
@@ -28,6 +29,16 @@ def patch_cache(f):
                 cache_directory.cleanup()
 
     return _patch_cache
+
+
+class TestCase(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        logging.disable(logging.CRITICAL)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        logging.disable(logging.NOTSET)
 
 
 class TemplateTestCase(TestCase):

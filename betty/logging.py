@@ -1,3 +1,4 @@
+import logging
 import sys
 from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET, StreamHandler
 
@@ -15,12 +16,11 @@ class CliHandler(StreamHandler):
     def __init__(self):
         StreamHandler.__init__(self, sys.stderr)
 
-    def format(self, record):
+    def format(self, record: logging.LogRecord) -> str:
         s = StreamHandler.format(self, record)
         for level, color in self.COLOR_LEVELS:
             if record.levelno >= level:
                 return self._color(s, color)
-        return s
 
     def _color(self, s: str, color: int) -> str:
         return '\033[%dm%s\033[0m' % (color, s)

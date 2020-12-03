@@ -1,16 +1,53 @@
 import gettext
 from tempfile import TemporaryDirectory
-from unittest import TestCase
-from unittest.mock import patch, ANY
+from unittest.mock import patch, ANY, Mock
 
 from betty.ancestry import Ancestry, Person, File, Source, Citation, PersonName, Presence, Event, IdentifiableEvent, \
-    IdentifiableSource, IdentifiableCitation, Birth, Subject
+    IdentifiableSource, IdentifiableCitation, Birth, Subject, HasCitations
 from betty.config import Configuration
-from betty.functools import sync
+from betty.asyncio import sync
 from betty.parse import parse
 from betty.plugin.anonymizer import Anonymizer, anonymize, anonymize_person, anonymize_event, anonymize_file, \
     anonymize_citation, anonymize_source, AnonymousSource, AnonymousCitation
 from betty.site import Site
+from betty.tests import TestCase
+
+
+class AnonymousSourceTest(TestCase):
+    def test_name(self):
+        self.assertIsInstance(AnonymousSource().name, str)
+
+    def test_replace(self):
+        citations = [Citation(Source())]
+        contains = [Source()]
+        files = [Mock(File)]
+        sut = AnonymousSource()
+        other = AnonymousSource()
+        other.citations = citations
+        other.contains = contains
+        other.files = files
+        sut.replace(other)
+        self.assertEquals(citations, list(sut.citations))
+        self.assertEquals(contains, list(sut.contains))
+        self.assertEquals(files, list(sut.files))
+
+
+class AnonymousCitationTest(TestCase):
+    def test_location(self):
+        source = Mock(Source)
+        self.assertIsInstance(AnonymousCitation(source).location, str)
+
+    def test_replace(self):
+        facts = [HasCitations()]
+        files = [File('F1', __file__)]
+        source = Mock(Source)
+        sut = AnonymousCitation(source)
+        other = AnonymousCitation(source)
+        other.facts = facts
+        other.files = files
+        sut.replace(other)
+        self.assertEquals(facts, list(sut.facts))
+        self.assertEquals(files, list(sut.files))
 
 
 class AnonymizeTest(TestCase):

@@ -1,4 +1,3 @@
-{% import 'macro/person.html.j2' as personMacros %}
 {% set embedded=True %}
 <a href="{{ person | url }}" class="nav-secondary-action search-result-target">
     <div class="search-result-description">
@@ -7,9 +6,9 @@
     </div>
     {% if person.files | length > 0 %}
         {% set file = person.files | first %}
-        {% if file.media_type and file.media_type.startswith('image/') %}
+        {% if file.media_type and file.media_type.type == 'image' %}
             <div class="search-result-preview">
-                <img src="{{ file | image(45, 45) | static_url }}" alt="{{ file.description }}" class="image"/>
+                <img src="{{ file | image(45, 45) | static_url }}" class="image"{% if file.description %} alt="{{ file.description | escape }}"{% endif %}/>
             </div>
         {% endif %}
     {% endif %}

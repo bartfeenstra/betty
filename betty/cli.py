@@ -1,20 +1,26 @@
 import logging
 import shutil
-from contextlib import suppress
+import sys
+import time
+from contextlib import suppress, contextmanager
 from functools import wraps
-from os import getcwd
-from os.path import join
+from os import getcwd, path
 from typing import Callable, Dict, Optional
 
 import click
-from click import BadParameter, get_current_context
+from click import get_current_context
 
 import betty
-from betty import generate, parse
-from betty.config import from_file, ConfigurationError
-from betty.functools import sync
+from betty import generate, parse, serve
+from betty.config import from_file
+from betty.error import UserFacingError
+from betty.asyncio import sync
 from betty.logging import CliHandler
 from betty.site import Site
+
+
+class CommandValueError(UserFacingError, ValueError):
+    pass
 
 
 class CommandProvider:
@@ -23,8 +29,22 @@ class CommandProvider:
         raise NotImplementedError
 
 
+@contextmanager
+def catch_exceptions():
+    try:
+        yield
+    except Exception as e:
+        logger = logging.getLogger()
+        if isinstance(e, UserFacingError):
+            logger.error(str(e))
+        else:
+            logger.exception(e)
+        sys.exit(1)
+
+
 def _command(f, is_site_command: bool):
     @wraps(f)
+    @catch_exceptions()
     @sync
     async def _command(*args, **kwargs):
         if is_site_command:
@@ -45,6 +65,7 @@ def site_command(f):
     return _command(f, True)
 
 
+@catch_exceptions()
 @sync
 async def _init_ctx(ctx, configuration_file_path: Optional[str] = None) -> None:
     ctx.ensure_object(dict)
@@ -62,43 +83,41 @@ async def _init_ctx(ctx, configuration_file_path: Optional[str] = None) -> None:
     }
 
     if configuration_file_path is None:
-        try_configuration_file_paths = [join(getcwd(), 'betty.%s' % extension) for extension in {'json', 'yaml', 'yml'}]
+        try_configuration_file_paths = [path.join(getcwd(), 'betty.%s' % extension) for extension in {'json', 'yaml', 'yml'}]
     else:
         try_configuration_file_paths = [configuration_file_path]
 
     for try_configuration_file_path in try_configuration_file_paths:
         with suppress(FileNotFoundError):
             with open(try_configuration_file_path) as f:
-                logger.info('Loading the site from %s...' % try_configuration_file_path)
-                try:
-                    configuration = from_file(f)
-                except ConfigurationError as e:
-                    logger.error(str(e))
-                    exit(2)
+                logger.info('Loading the site from %s.' % try_configuration_file_path)
+                configuration = from_file(f)
             site = Site(configuration)
             async with site:
                 ctx.obj['commands']['generate'] = _generate
+                ctx.obj['commands']['serve'] = _serve
                 for plugin in site.plugins.values():
                     if isinstance(plugin, CommandProvider):
                         for command_name, command in plugin.commands.items():
-                            if command_name in ctx.obj['commands']:
-                                raise BadParameter('Plugin %s defines command "%s" which has already been defined.' % (plugin.name, command_name))
                             ctx.obj['commands'][command_name] = command
             ctx.obj['site'] = site
             return
 
     if configuration_file_path is not None:
-        raise BadParameter('Configuration file "%s" does not exist.' % configuration_file_path)
+        raise CommandValueError('Configuration file "%s" does not exist.' % configuration_file_path)
 
 
 class _BettyCommands(click.MultiCommand):
+    @catch_exceptions()
     def list_commands(self, ctx):
         _init_ctx(ctx)
         return list(ctx.obj['commands'].keys())
 
+    @catch_exceptions()
     def get_command(self, ctx, cmd_name):
         _init_ctx(ctx)
-        return ctx.obj['commands'][cmd_name]
+        with suppress(KeyError):
+            return ctx.obj['commands'][cmd_name]
 
 
 @click.command(cls=_BettyCommands)
@@ -120,3 +139,13 @@ async def _clear_caches():
 async def _generate(site: Site):
     await parse.parse(site)
     await generate.generate(site)
+
+
+@click.command(help='Serve a generated site.')
+@site_command
+async def _serve(site: Site):
+    if not path.isdir(site.configuration.www_directory_path):
+        raise CommandValueError('Web root directory "%s" does not exist.' % site.configuration.www_directory_path)
+    async with serve.SiteServer(site):
+        while True:
+            time.sleep(999999999)

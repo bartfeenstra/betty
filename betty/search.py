@@ -17,8 +17,8 @@ class Index:
         ]))
 
     async def _render_resource(self, resource: Resource):
-        return await self._site.jinja2_environment.get_template('search/result-%s.html.j2' % resource.resource_type_name).render_async({
-            resource.resource_type_name: resource,
+        return await self._site.jinja2_environment.get_template('search/result-%s.html.j2' % resource.resource_type_name()).render_async({
+            resource.resource_type_name(): resource,
         })
 
     async def _build_person(self, person: Person) -> Optional[Dict]:

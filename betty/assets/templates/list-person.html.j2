@@ -1,0 +1,13 @@
+{%- import 'macro/person.html.j2' as person_macros -%}
+<ul class="entities">
+    {%- for person in (persons | rejectattr('name', 'none') | list | sort(attribute='name')) %}
+        <li class="{{ loop.cycle('odd', 'even') }}" {% if type_of is defined %} typeOf="{{ type_of }}"{% endif %} {% if property is defined %}property="{{ property }}"{% endif %}>
+            {% if group_by_affiliation is defined and group_by_affiliation %}
+                {{ person_macros.sortable_label(person) }}
+            {% else %}
+                {% include 'label/person.html.j2' %}
+            {% endif %}
+            {% include 'meta/person.html.j2' %}
+        </li>
+    {%- endfor -%}
+</ul>
