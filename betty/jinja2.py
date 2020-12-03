@@ -141,7 +141,6 @@ class BettyEnvironment(Environment):
         self.globals['path'] = os.path
 
     def _init_filters(self) -> None:
-        self.filters['set'] = set
         self.filters['unique'] = _filter_unique
         self.filters['map'] = _filter_map
         self.filters['flatten'] = _filter_flatten
