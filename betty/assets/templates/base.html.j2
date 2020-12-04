@@ -125,7 +125,7 @@
         {% block page_content %}{% endblock %}
         {% if page_resource is has_links %}
             {% set links = page_resource.links | rejectattr('label', 'none') | list %}
-            {% set links = links | select_localizeds | list + links | selectattr('locale', 'none') | list %}
+            {% set links = links | select_localizeds(include_unspecified=true) | list + links | selectattr('locale', 'none') | list %}
             {% if links | length > 0 %}
                 <section id="external-links">
                     <h2>
