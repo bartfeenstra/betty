@@ -430,10 +430,12 @@ def _filter_sort_localizeds(context: Context, localizeds: Iterable[Localized], l
 
 
 @contextfilter
-def _filter_select_localizeds(context: Context, localizeds: Iterable[Localized]) -> Iterable[Localized]:
+def _filter_select_localizeds(context: Context, localizeds: Iterable[Localized], include_unspecified: bool = False) -> Iterable[Localized]:
     locale = resolve_or_missing(context, 'locale')
     for localized in localizeds:
-        if negotiate_locale(locale, [localized.locale]) is not None:
+        if include_unspecified and localized.locale in {None, 'mis', 'mul', 'und', 'zxx'}:
+            yield localized
+        if localized.locale is not None and negotiate_locale(locale, [localized.locale]) is not None:
             yield localized
 
 
