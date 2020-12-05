@@ -23,16 +23,11 @@ class OsError(UserFacingError, OSError):
 
 class Server:
     async def start(self) -> None:
-        """
-        Starts the server.
-        :return: The public URL.
-        """
+        """Start the server."""
         pass
 
     async def stop(self) -> None:
-        """
-        Stops the server.
-        """
+        """Stop the server."""
         pass
 
     @property

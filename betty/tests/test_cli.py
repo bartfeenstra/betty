@@ -1,4 +1,6 @@
+import html
 import unittest
+from gettext import NullTranslations
 from json import dump
 from os import path, makedirs
 from tempfile import TemporaryDirectory
@@ -10,8 +12,10 @@ from click.testing import CliRunner
 
 import betty
 from betty import os
+from betty.about import copyright_message
 from betty.error import UserFacingError
 from betty.extension import Extension
+from betty.locale import Translations
 from betty.serve import Server
 from betty.tests import patch_cache, TestCase
 
@@ -205,10 +209,17 @@ class _KeyboardInterruptedServer(Server):
     async def start(self) -> None:
         raise KeyboardInterrupt
 
+    async def stop(self) -> None:
+        pass
+
+    @property
+    def public_url(self) -> str:
+        return ''
+
 
 class ServeTest(TestCase):
     @patch('betty.serve.AppServer', new_callable=lambda: _KeyboardInterruptedServer)
-    def test(self, m_server):
+    def test(self, m_server: _KeyboardInterruptedServer):
         with TemporaryDirectory() as working_directory_path:
             configuration_file_path = path.join(working_directory_path, 'betty.json')
             with TemporaryDirectory() as output_directory_path:
@@ -241,3 +252,22 @@ class ServeTest(TestCase):
                 runner = CliRunner()
                 result = runner.invoke(main, ('-c', configuration_file_path, 'serve',), catch_exceptions=False)
                 self.assertEqual(1, result.exit_code)
+
+
+class DocumentTest(TestCase):
+    @patch('betty.serve.BuiltinServer', new_callable=lambda: _KeyboardInterruptedServer)
+    def test_with_serve(self, m_server: _KeyboardInterruptedServer):
+        runner = CliRunner()
+        result = runner.invoke(main, ('document', '--serve'), catch_exceptions=False)
+        self.assertEqual(0, result.exit_code)
+
+    def test_with_output_directory(self):
+        with TemporaryDirectory() as output_directory_path:
+            runner = CliRunner()
+            result = runner.invoke(main, ('document', '--output', output_directory_path), catch_exceptions=False)
+            self.assertEqual(0, result.exit_code)
+            with open(path.join(output_directory_path, 'index.html')) as f:
+                documentation_index = f.read()
+            self.assertIn('Betty', documentation_index)
+            with Translations(NullTranslations()):
+                self.assertIn(html.escape(copyright_message()), documentation_index)

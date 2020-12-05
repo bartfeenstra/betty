@@ -57,12 +57,12 @@ class Nginx(Extension, Generator, ServerProvider):
     async def generate_configuration_file(self, destination_file_path: Optional[str] = None, **kwargs) -> None:
         kwargs = dict({
             'content_negotiation': self._app.configuration.content_negotiation,
-            'https': self._app.extensions[Nginx].https,
+            'https': self.https,
             'locale': self._app.locale,
             'locales': self._app.configuration.locales,
             'multilingual': self._app.configuration.multilingual,
             'server_name': urlparse(self._app.configuration.base_url).netloc,
-            'www_directory_path': self._app.extensions[Nginx].www_directory_path,
+            'www_directory_path': self.www_directory_path,
         }, **kwargs)
         if destination_file_path is None:
             destination_file_path = path.join(self._app.configuration.output_directory_path, 'nginx', 'nginx.conf')

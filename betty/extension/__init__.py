@@ -27,10 +27,17 @@ class Extension:
     @classmethod
     def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
         """
-        Creates a new instance for a specific app.
-        :param app: betty.app.App
-        :param configuration: The configuration must be of the same type as returned by cls.configuration_schema.
-        :return: Self
+        Create a new instance for a specific app.
+
+        Parameters
+        ----------
+        configuration
+            The configuration must be of the same type as returned by cls.configuration_schema.
+
+        Returns
+        -------
+        Extension
+
         """
         return cls()
 

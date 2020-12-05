@@ -4,17 +4,21 @@ import shutil
 import subprocess
 import sys
 import time
+import webbrowser
 from contextlib import suppress, contextmanager
 from functools import wraps
 from os import getcwd, path
+from tempfile import TemporaryDirectory
 from typing import Callable, Dict, Optional
 
 import click
 from click import get_current_context
 
 import betty
-from betty import generate, load, serve, about
+from betty import generate, load, serve
+from betty.about import version_label
 from betty.config import from_file
+from betty.documentation import build
 from betty.error import UserFacingError
 from betty.asyncio import sync
 from betty.logging import CliHandler
@@ -85,6 +89,7 @@ async def _init_ctx(ctx, configuration_file_path: Optional[str] = None) -> None:
     logger.addHandler(CliHandler())
 
     ctx.obj['commands'] = {
+        'document': _document,
         'clear-caches': _clear_caches,
     }
 
@@ -144,7 +149,7 @@ def ensure_utf8(f: Callable) -> Callable:
 @ensure_utf8
 @click.command(cls=_BettyCommands)
 @click.option('--configuration', '-c', 'app', is_eager=True, help='The path to a Betty configuration file. Defaults to betty.json|yaml|yml in the current working directory. This will make additional commands available.', callback=_init_ctx)
-@click.version_option(about.version(), prog_name='Betty')
+@click.version_option(version_label(), prog_name='Betty')
 def main(app):
     pass
 
@@ -172,3 +177,28 @@ async def _serve(app: App):
     async with serve.AppServer(app):
         while True:
             time.sleep(999)
+
+
+@click.command(help='View the documentation.')
+@click.option('--output', 'output_directory_path', help='The path to the output directory to which to render the documentation. Defaults to a temporary directory.')
+@click.option('--serve/--no-serve', 'serve_documentation', help='View the documentation in a browser window.', default=False)
+@global_command
+async def _document(output_directory_path: Optional[str], serve_documentation: bool):
+    logger = logging.getLogger()
+    output_directory = None
+    if output_directory_path is None:
+        output_directory = TemporaryDirectory()
+        output_directory_path = output_directory.name
+        logger.info('Generating the documentation to %s...' % output_directory_path)
+    try:
+        build(output_directory_path)
+
+        if serve_documentation:
+            async with serve.BuiltinServer(output_directory_path) as server:
+                logger.info('Serving the Betty documentation at %s...' % server.public_url)
+                webbrowser.open_new_tab(server.public_url)
+                while True:
+                    time.sleep(999)
+    finally:
+        if output_directory is not None:
+            output_directory.cleanup()

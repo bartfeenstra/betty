@@ -308,7 +308,7 @@ def open_translations(locale: str, directory_path: str) -> Optional[gettext.GNUT
 
 def format_datey(date: Datey, locale: str) -> str:
     """
-    Formats a datey value into a human-readable string.
+    Format a datey value into a human-readable string.
 
     This requires gettext translations to be installed. Use the Translations class to do this temporarily.
     """

@@ -1,6 +1,6 @@
 import gettext
 from collections import defaultdict, OrderedDict
-from concurrent.futures._base import Executor
+from concurrent.futures import Executor
 from concurrent.futures.thread import ThreadPoolExecutor
 
 from jinja2 import Environment
@@ -16,7 +16,7 @@ except ImportError:
     from async_exit_stack import AsyncExitStack
 from copy import copy
 from os.path import abspath, dirname, join
-from typing import Type, Dict
+from typing import Dict
 
 from betty.ancestry import Ancestry
 from betty.config import Configuration
@@ -124,7 +124,15 @@ class App:
         return self._configuration
 
     @property
-    def extensions(self) -> Dict[Type['Extension'], 'Extension']:
+    def extensions(self):
+        """
+        Get all enabled extensions.
+
+        Returns
+        -------
+        Dict[Type[betty.extension.Extension], betty.extension.Extension]
+
+        """
         return self._extensions
 
     @property

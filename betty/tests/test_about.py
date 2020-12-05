@@ -4,4 +4,9 @@ from betty.tests import TestCase
 
 class VersionTest(TestCase):
     def test(self):
-        self.assertIsInstance(about.version(), str)
+        self.assertIsNone(about.version())
+
+
+class VersionLabelTest(TestCase):
+    def test(self):
+        self.assertIsInstance(about.version_label(), str)

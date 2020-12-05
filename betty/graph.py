@@ -18,8 +18,9 @@ def tsort_grouped(graph: Graph) -> List[Set[Vertex]]:
     Sorts a graph topologically.
 
     This function uses the algorithm described by Kahn (1962), with the following additional properties:
-    - Stable for stable graphs (sorted dictionaries).
-    - Optimized for concurrent processing: each item of the returned first-level list is a second-level list of vertices
+
+    * Stable for stable graphs (sorted dictionaries).
+    * Optimized for concurrent processing: each item of the returned first-level list is a second-level list of vertices
       that can be processed concurrently. Second-level lists are sorted to optimize (reduce) total processing time.
     """
     edges = list(_graph_to_edges(graph))

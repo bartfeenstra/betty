@@ -1,0 +1,19 @@
+{% if betty_available_versions_and_urls | length > 1 %}
+    <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+        <span class="fa fa-book">Other versions</span>
+        v: {{ betty_current_version }}
+        <span class="fa fa-caret-down"></span>
+    </span>
+        <div class="rst-other-versions">
+            <dl>
+                <dt>Versions</dt>
+                {% for version, url in betty_available_versions_and_urls %}
+                    {% if version == betty_current_version %} <strong> {% endif %}
+                    <dd><a href="{{ url }}">{{ version }}</a></dd>
+                    {% if version == betty_current_version %} </strong> {% endif %}
+                {% endfor %}
+            </dl>
+        </div>
+    </div>
+{% endif %}

@@ -7,6 +7,7 @@ import yaml
 from babel import parse_locale
 from voluptuous import Schema, All, Required, Invalid, IsDir, Any, Range
 
+import betty
 from betty import _CACHE_DIRECTORY_PATH, os
 from betty.error import ContextError, UserFacingError
 from betty.voluptuous import Path, Importable
@@ -80,7 +81,7 @@ class Configuration:
     mode: str
     locales: Dict[str, LocaleConfiguration]
     author: Optional[str]
-    extensions: Dict[Type['Extension'], Any]
+    extensions: Dict[Type['betty.extension.Extension'], Any]
     assets_directory_path: Optional[str]
     theme: ThemeConfiguration
     lifetime_threshold: int
