@@ -129,9 +129,12 @@ def ensure_utf8(f: Callable) -> Callable:
         if os.environ['PYTHONUTF8'] == '1':
             return f
 
-    env = os.environ
-    env['PYTHONUTF8'] = '1'
-    subprocess.run(sys.argv, env=env)
+    @wraps(f)
+    def _with_utf8(*args, **kwargs):
+        env = os.environ
+        env['PYTHONUTF8'] = '1'
+        subprocess.run(sys.argv, env=env)
+    return _with_utf8
 
 
 @ensure_utf8
