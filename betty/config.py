@@ -1,5 +1,5 @@
 import json
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from os import path
 from typing import Dict, Type, Optional, List, Callable
 
@@ -71,6 +71,53 @@ class ThemeConfiguration:
 
     def __init__(self):
         self.background_image_id = None
+
+
+class ObserverRegistry:
+    def __init__(self, observable):
+        self.observable = observable
+        self.observers = defaultdict(list)
+
+    def setter(self, f):
+        self.observers['set'].append(f)
+
+    def getter(self, f):
+        self.observers['get'].append(f)
+
+    def deleter(self, f):
+        self.observers['delete'].append(f)
+
+
+class observableproperty(property):
+    """"""
+    def __init__(self, *args, **kwargs):
+        """
+        Initializes a new instance.
+
+        This has the exact same signature as property().
+        """
+        super().__init__(*args, **kwargs)
+        self._registry = ObserverRegistry(self)
+
+    def observe(self):
+
+    def __set__(self, instance, value):
+        super().__set__(instance, value)
+        for observer in self._registry.observers['set']:
+            # @todo Can we add observers to specific instances only?
+            observer(instance, value)
+
+    def __get__(self, instance, owner):
+        super().__get__(instance, owner)
+        for observer in self._registry.observers['get']:
+            # @todo Can we add observers to specific instances only?
+            observer(instance, owner)
+
+    def __delete__(self, instance):
+        super().__delete__(instance)
+        for observer in self._registry.observers['delete']:
+            # @todo Can we add observers to specific instances only?
+            observer(instance)
 
 
 class Configuration:
