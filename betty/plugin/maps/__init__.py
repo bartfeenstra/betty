@@ -65,7 +65,8 @@ def _do_render(build_directory_path: str, www_directory_path: str) -> None:
     # Run Webpack.
     subprocess.run(['npm', 'run', 'webpack'], cwd=build_directory_path, shell=shell)
     output_directory_path = path.join(path.dirname(build_directory_path), 'output')
-    shutil.copytree(path.join(output_directory_path, 'images'), path.join(www_directory_path, 'images'))
+    with suppress(FileExistsError):
+        shutil.copytree(path.join(output_directory_path, 'images'), path.join(www_directory_path, 'images'))
     shutil.copy2(path.join(output_directory_path, 'maps.css'), path.join(www_directory_path, 'maps.css'))
     shutil.copy2(path.join(output_directory_path, 'maps.js'), path.join(www_directory_path, 'maps.js'))
 
