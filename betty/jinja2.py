@@ -34,7 +34,7 @@ from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange
 from betty.lock import AcquiredError
 from betty.os import link_or_copy
-from betty.path import extension
+from betty.path import extension as path_extension
 from betty.extension import Extension
 from betty.render import Renderer
 from betty.search import Index
@@ -346,7 +346,7 @@ async def _filter_image(site: Site, file: File, width: Optional[int] = None, hei
     if file.media_type:
         if file.media_type.type == 'image':
             task = _execute_filter_image_image
-            destination_name += '.' + extension(file.path)
+            destination_name += '.' + path_extension(file.path)
         elif file.media_type.type == 'application' and file.media_type.subtype == 'pdf':
             task = _execute_filter_image_application_pdf
             destination_name += '.' + 'jpg'
