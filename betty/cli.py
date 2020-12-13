@@ -98,9 +98,9 @@ async def _init_ctx(ctx, configuration_file_path: Optional[str] = None) -> None:
             async with site:
                 ctx.obj['commands']['generate'] = _generate
                 ctx.obj['commands']['serve'] = _serve
-                for plugin in site.plugins.values():
-                    if isinstance(plugin, CommandProvider):
-                        for command_name, command in plugin.commands.items():
+                for extension in site.extensions.values():
+                    if isinstance(extension, CommandProvider):
+                        for command_name, command in extension.commands.items():
                             ctx.obj['commands'][command_name] = command
             ctx.obj['site'] = site
             return

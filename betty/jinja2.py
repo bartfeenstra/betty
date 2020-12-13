@@ -35,26 +35,26 @@ from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange
 from betty.lock import AcquiredError
 from betty.os import link_or_copy
-from betty.path import rootname, extension
-from betty.plugin import Plugin
+from betty.path import extension as path_extension, rootname
+from betty.extension import Extension
 from betty.render import Renderer
 from betty.search import Index
 from betty.site import Site
 
 
-class _Plugins:
-    def __init__(self, plugins: Dict[Type[Plugin], Plugin]):
-        self._plugins = plugins
+class _Extensions:
+    def __init__(self, extensions: Dict[Type[Extension], Extension]):
+        self._extensions = extensions
 
-    def __getitem__(self, plugin_type_name):
+    def __getitem__(self, extension_type_name):
         try:
-            return self._plugins[import_any(plugin_type_name)]
+            return self._extensions[import_any(extension_type_name)]
         except ImportError:
-            raise KeyError('Unknown plugin "%s".' % plugin_type_name)
+            raise KeyError('Unknown extension "%s".' % extension_type_name)
 
-    def __contains__(self, plugin_type_name) -> bool:
+    def __contains__(self, extension_type_name) -> bool:
         with suppress(ImportError):
-            return import_any(plugin_type_name) in self._plugins
+            return import_any(extension_type_name) in self._extensions
         return False
 
 
@@ -117,7 +117,7 @@ class BettyEnvironment(Environment):
         self._init_globals()
         self._init_filters()
         self._init_tests()
-        self._init_plugins()
+        self._init_extensions()
 
     def _init_i18n(self) -> None:
         # Wrap the callables so they always call the built-ins available runtime, because those change when the current
@@ -133,10 +133,10 @@ class BettyEnvironment(Environment):
         self.globals['locale'] = self.site.locale
         today = datetime.date.today()
         self.globals['today'] = Date(today.year, today.month, today.day)
-        self.globals['plugins'] = _Plugins(self.site.plugins)
+        self.globals['extensions'] = _Extensions(self.site.extensions)
         self.globals['citer'] = _Citer()
         self.globals['search_index'] = lambda: Index(self.site).build()
-        self.globals['html_providers'] = list([plugin for plugin in self.site.plugins.values() if isinstance(plugin, HtmlProvider)])
+        self.globals['html_providers'] = list([extension for extension in self.site.extensions.values() if isinstance(extension, HtmlProvider)])
         self.globals['path'] = os.path
 
     def _init_filters(self) -> None:
@@ -178,11 +178,11 @@ class BettyEnvironment(Environment):
         self.tests['witness_role'] = lambda x: isinstance(x, Witness)
         self.tests['date_range'] = lambda x: isinstance(x, DateRange)
 
-    def _init_plugins(self) -> None:
-        for plugin in self.site.plugins.values():
-            if isinstance(plugin, Jinja2Provider):
-                self.globals.update(plugin.globals)
-                self.filters.update(plugin.filters)
+    def _init_extensions(self) -> None:
+        for extension in self.site.extensions.values():
+            if isinstance(extension, Jinja2Provider):
+                self.globals.update(extension.globals)
+                self.filters.update(extension.filters)
 
 
 Template.environment_class = BettyEnvironment
@@ -345,7 +345,7 @@ async def _filter_image(site: Site, file: File, width: Optional[int] = None, hei
     if file.media_type:
         if file.media_type.type == 'image':
             task = _execute_filter_image_image
-            destination_name += '.' + extension(file.path)
+            destination_name += '.' + path_extension(file.path)
         elif file.media_type.type == 'application' and file.media_type.subtype == 'pdf':
             task = _execute_filter_image_application_pdf
             destination_name += '.' + 'jpg'

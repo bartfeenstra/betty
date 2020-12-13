@@ -40,30 +40,30 @@ class LocaleConfiguration:
         return self._alias
 
 
-class PluginsConfiguration:
-    def __init__(self, plugins_configuration: Dict[Type['Plugin'], Optional[Any]] = None):
-        self._plugins_configuration = {}
-        if plugins_configuration is not None:
-            for plugin_type, plugin_configuration in plugins_configuration.items():
-                self[plugin_type] = plugin_configuration
+class ExtensionsConfiguration:
+    def __init__(self, extensions_configuration: Dict[Type['Extension'], Optional[Any]] = None):
+        self._extensions_configuration = {}
+        if extensions_configuration is not None:
+            for extension_type, extension_configuration in extensions_configuration.items():
+                self[extension_type] = extension_configuration
 
-    def __setitem__(self, plugin_type: Type['Plugin'], plugin_configuration: Optional[Any] = None):
+    def __setitem__(self, extension_type: Type['Extension'], extension_configuration: Optional[Any] = None):
         try:
-            self._plugins_configuration[plugin_type] = plugin_type.configuration_schema(plugin_configuration)
+            self._extensions_configuration[extension_type] = extension_type.configuration_schema(extension_configuration)
         except Invalid as e:
             raise ConfigurationValueError(e)
 
     def __getitem__(self, item):
-        return self._plugins_configuration[item]
+        return self._extensions_configuration[item]
 
     def __contains__(self, item):
-        return item in self._plugins_configuration
+        return item in self._extensions_configuration
 
     def __iter__(self):
-        yield from self._plugins_configuration.items()
+        yield from self._extensions_configuration.items()
 
     def __len__(self):
-        return len(self._plugins_configuration)
+        return len(self._extensions_configuration)
 
 
 class ThemeConfiguration:
@@ -80,7 +80,7 @@ class Configuration:
     mode: str
     locales: Dict[str, LocaleConfiguration]
     author: Optional[str]
-    plugins: PluginsConfiguration
+    extensions: ExtensionsConfiguration
     assets_directory_path: Optional[str]
     theme: ThemeConfiguration
     lifetime_threshold: int
@@ -95,7 +95,7 @@ class Configuration:
         self.content_negotiation = False
         self.title = 'Betty'
         self.author = None
-        self.plugins = PluginsConfiguration()
+        self.extensions = ExtensionsConfiguration()
         self.mode = 'production'
         self.assets_directory_path = None
         self.locales = OrderedDict()
@@ -175,7 +175,7 @@ _ConfigurationSchema = Schema(All({
     'content_negotiation': bool,
     'mode': Any('development', 'production'),
     'assets_directory_path': All(str, IsDir(), Path()),
-    'plugins': All(dict, lambda x: PluginsConfiguration({Importable()(plugin_type_name): plugin_configuration for plugin_type_name, plugin_configuration in x.items()})),
+    'extensions': All(dict, lambda x: ExtensionsConfiguration({Importable()(extension_type_name): extension_configuration for extension_type_name, extension_configuration in x.items()})),
     Required('theme', default=dict): All({
         'background_image_id': str,
     }, _theme_configuration),
