@@ -11,7 +11,7 @@ from betty.ancestry import Place, Person, PlaceName, Event, Described, HasLinks,
     PresenceRole, EventType
 from betty.locale import Date, DateRange, Localized
 from betty.media_type import MediaType
-from betty.plugin.deriver import DerivedEvent
+from betty.extension.deriver import DerivedEvent
 from betty.site import Site
 
 

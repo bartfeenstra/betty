@@ -1,0 +1,22 @@
+{
+  "main": "trees.js",
+  "engines": {
+    "node": ">= 10"
+  },
+  "dependencies": {
+    "@babel/core": "^7.12.10",
+    "@babel/preset-env": "^7.12.10",
+    "babel-loader": "^8.2.2",
+    "clean-webpack-plugin": "^3.0.0",
+    "core-js": "^3.8.1",
+    "css-loader": "^5.0.1",
+    "cytoscape": "^3.17.0",
+    "cytoscape-dagre": "^2.3.2",
+    "mini-css-extract-plugin": "^1.3.3",
+    "webpack": "^5.10.1",
+    "webpack-cli": "^4.2.0"
+  },
+  "scripts": {
+    "webpack": "webpack --config ./webpack.config.js"
+  }
+}

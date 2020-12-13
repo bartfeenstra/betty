@@ -1,9 +1,9 @@
 from os import path
+from tempfile import TemporaryDirectory
 
 from parameterized import parameterized
 from voluptuous import Invalid
 
-from betty import os
 from betty.tests import TestCase
 from betty.voluptuous import Path, Importable
 
@@ -18,15 +18,16 @@ class PathTest(TestCase):
         with self.assertRaises(Invalid):
             Path()(path_value)
 
-    @parameterized.expand([
-        ('/foo/bar', '/foo/bar'),
-        (path.join(path.expanduser('~'), 'foo', 'bar'), '~/foo/bar'),
-        (path.join(path.expanduser('~'), 'foo', 'bar'), './foo/bar'),
-        (path.join(path.expanduser('~'), 'bar'), './foo/../bar'),
-    ])
-    def test_with_path_should_return(self, expected: str, path_value: str):
-        with os.ChDir(path.expanduser('~')):
-            self.assertEqual(expected, Path()(path_value))
+    def test_with_absolute_path(self):
+        with TemporaryDirectory() as directory_path:
+            self.assertEqual(directory_path, Path()(directory_path))
+
+    def test_with_expanduser(self):
+        self.assertEqual(path.join(path.expanduser('~'), 'foo', 'bar'), Path()(path.join(path.expanduser('~'), 'foo', 'bar')))
+
+    def test_with_relative_path_made_absolute(self):
+        with TemporaryDirectory() as directory_path:
+            self.assertEqual(path.join(directory_path, 'sibling'), Path()(path.join(directory_path, 'child', '..', 'sibling', '.')))
 
 
 class ImportableTest(TestCase):

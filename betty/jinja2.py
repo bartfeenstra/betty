@@ -5,7 +5,8 @@ import os
 import re
 import warnings
 from contextlib import suppress
-from os.path import join
+from os.path import join, relpath
+from pathlib import Path
 from typing import Union, Dict, Type, Optional, Callable, Iterable, AsyncIterable, Any, Iterator
 
 import pdf2image
@@ -33,28 +34,27 @@ from betty.importlib import import_any
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange
 from betty.lock import AcquiredError
-from betty.path import extension
-from betty.plugin import Plugin
+from betty.os import link_or_copy
+from betty.path import extension as path_extension, rootname
+from betty.extension import Extension
 from betty.render import Renderer
 from betty.search import Index
 from betty.site import Site
 
-_root_loader = FileSystemLoader('/')
 
+class _Extensions:
+    def __init__(self, extensions: Dict[Type[Extension], Extension]):
+        self._extensions = extensions
 
-class _Plugins:
-    def __init__(self, plugins: Dict[Type[Plugin], Plugin]):
-        self._plugins = plugins
-
-    def __getitem__(self, plugin_type_name):
+    def __getitem__(self, extension_type_name):
         try:
-            return self._plugins[import_any(plugin_type_name)]
+            return self._extensions[import_any(extension_type_name)]
         except ImportError:
-            raise KeyError('Unknown plugin "%s".' % plugin_type_name)
+            raise KeyError('Unknown extension "%s".' % extension_type_name)
 
-    def __contains__(self, plugin_type_name) -> bool:
+    def __contains__(self, extension_type_name) -> bool:
         with suppress(ImportError):
-            return import_any(plugin_type_name) in self._plugins
+            return import_any(extension_type_name) in self._extensions
         return False
 
 
@@ -117,7 +117,7 @@ class BettyEnvironment(Environment):
         self._init_globals()
         self._init_filters()
         self._init_tests()
-        self._init_plugins()
+        self._init_extensions()
 
     def _init_i18n(self) -> None:
         # Wrap the callables so they always call the built-ins available runtime, because those change when the current
@@ -133,14 +133,14 @@ class BettyEnvironment(Environment):
         self.globals['locale'] = self.site.locale
         today = datetime.date.today()
         self.globals['today'] = Date(today.year, today.month, today.day)
-        self.globals['plugins'] = _Plugins(self.site.plugins)
+        self.globals['extensions'] = _Extensions(self.site.extensions)
         self.globals['citer'] = _Citer()
         self.globals['search_index'] = lambda: Index(self.site).build()
-        self.globals['html_providers'] = list([plugin for plugin in self.site.plugins.values() if isinstance(plugin, HtmlProvider)])
+        self.globals['html_providers'] = list([extension for extension in self.site.extensions.values() if isinstance(extension, HtmlProvider)])
         self.globals['path'] = os.path
 
     def _init_filters(self) -> None:
-        self.filters['set'] = set
+        self.filters['unique'] = _filter_unique
         self.filters['map'] = _filter_map
         self.filters['flatten'] = _filter_flatten
         self.filters['walk'] = _filter_walk
@@ -178,11 +178,11 @@ class BettyEnvironment(Environment):
         self.tests['witness_role'] = lambda x: isinstance(x, Witness)
         self.tests['date_range'] = lambda x: isinstance(x, DateRange)
 
-    def _init_plugins(self) -> None:
-        for plugin in self.site.plugins.values():
-            if isinstance(plugin, Jinja2Provider):
-                self.globals.update(plugin.globals)
-                self.filters.update(plugin.filters)
+    def _init_extensions(self) -> None:
+        for extension in self.site.extensions.values():
+            if isinstance(extension, Jinja2Provider):
+                self.globals.update(extension.globals)
+                self.filters.update(extension.filters)
 
 
 Template.environment_class = BettyEnvironment
@@ -199,15 +199,15 @@ class Jinja2Renderer(Renderer):
         file_destination_path = file_path[:-3]
         data = {}
         if file_destination_path.startswith(self._configuration.www_directory_path):
-            # Unix-style paths use forward slashes, so they are valid URL paths.
-            resource = file_destination_path[len(
-                self._configuration.www_directory_path):]
+            resource = '/'.join(Path(file_destination_path[len(self._configuration.www_directory_path):].strip(os.sep)).parts)
             if self._configuration.multilingual:
                 resource_parts = resource.lstrip('/').split('/')
                 if resource_parts[0] in map(lambda x: x.alias, self._configuration.locales.values()):
                     resource = '/'.join(resource_parts[1:])
             data['page_resource'] = resource
-        template = _root_loader.load(self._environment, file_path, self._environment.globals)
+        root_path = rootname(file_path)
+        template_name = '/'.join(Path(relpath(file_path, root_path)).parts)
+        template = FileSystemLoader(root_path).load(self._environment, template_name, self._environment.globals)
         with open(file_destination_path, 'w') as f:
             f.write(await template.render_async(data))
         os.remove(file_path)
@@ -283,6 +283,14 @@ def _filter_format_degrees(degrees: int) -> str:
     return DEGREES_FORMAT % format_dict
 
 
+async def _filter_unique(items: Iterable) -> Iterator:
+    seen = []
+    async for item in _asynciter(items):
+        if item not in seen:
+            yield item
+            seen.append(item)
+
+
 @contextfilter
 async def _filter_map(*args, **kwargs):
     """
@@ -316,7 +324,7 @@ async def _filter_file(site: Site, file: File) -> str:
 def _do_filter_file(file_path: str, destination_directory_path: str, destination_name: str) -> None:
     makedirs(destination_directory_path)
     destination_file_path = os.path.join(destination_directory_path, destination_name)
-    os.link(file_path, destination_file_path)
+    link_or_copy(file_path, destination_file_path)
 
 
 async def _filter_image(site: Site, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
@@ -337,7 +345,7 @@ async def _filter_image(site: Site, file: File, width: Optional[int] = None, hei
     if file.media_type:
         if file.media_type.type == 'image':
             task = _execute_filter_image_image
-            destination_name += '.' + extension(file.path)
+            destination_name += '.' + path_extension(file.path)
         elif file.media_type.type == 'application' and file.media_type.subtype == 'pdf':
             task = _execute_filter_image_application_pdf
             destination_name += '.' + 'jpg'
@@ -378,7 +386,7 @@ def _execute_filter_image(image: Image, file_path: str, cache_directory_path: st
     destination_file_path = join(destination_directory_path, destination_name)
 
     try:
-        os.link(cache_file_path, destination_file_path)
+        link_or_copy(cache_file_path, destination_file_path)
     except FileNotFoundError:
         makedirs(cache_directory_path)
         with image:
@@ -398,7 +406,7 @@ def _execute_filter_image(image: Image, file_path: str, cache_directory_path: st
                 convert = resizeimage.resize_cover
             convert(image, size).save(cache_file_path)
         makedirs(destination_directory_path)
-        os.link(cache_file_path, destination_file_path)
+        link_or_copy(cache_file_path, destination_file_path)
 
 
 @contextfilter
@@ -421,10 +429,12 @@ def _filter_sort_localizeds(context: Context, localizeds: Iterable[Localized], l
 
 
 @contextfilter
-def _filter_select_localizeds(context: Context, localizeds: Iterable[Localized]) -> Iterable[Localized]:
+def _filter_select_localizeds(context: Context, localizeds: Iterable[Localized], include_unspecified: bool = False) -> Iterable[Localized]:
     locale = resolve_or_missing(context, 'locale')
     for localized in localizeds:
-        if negotiate_locale(locale, [localized.locale]) is not None:
+        if include_unspecified and localized.locale in {None, 'mis', 'mul', 'und', 'zxx'}:
+            yield localized
+        if localized.locale is not None and negotiate_locale(locale, [localized.locale]) is not None:
             yield localized
 
 

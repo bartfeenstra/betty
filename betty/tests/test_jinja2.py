@@ -12,7 +12,7 @@ from betty.asyncio import sync
 from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider
 from betty.locale import Date, Datey, DateRange, Localized
 from betty.media_type import MediaType
-from betty.plugin import Plugin
+from betty.extension import Extension
 from betty.site import Site
 from betty.tests import TemplateTestCase
 
@@ -138,6 +138,21 @@ class FilterFormatDegreesTest(TemplateTestCase):
             self.assertEquals(expected, actual)
 
 
+class FilterUniqueTest(TemplateTestCase):
+    @sync
+    async def test(self):
+        data = [
+            999,
+            {},
+            999,
+            {},
+        ]
+        async with self._render(template_string='{{ data | unique | join(", ") }}', data={
+            'data': data,
+        }) as (actual, _):
+            self.assertEquals('999, {}', actual)
+
+
 class FilterMapTest(TemplateTestCase):
     class MapData:
         def __init__(self, label):
@@ -206,53 +221,53 @@ class FilterImageTest(TemplateTestCase):
                 pass
 
 
-class TestPlugin(Plugin):
+class TestExtension(Extension):
     """
     This class must be top-level. Otherwise it cannot be imported by its fully qualified name.
     """
     pass
 
 
-class GlobalPluginsTest(TemplateTestCase):
+class GlobalExtensionsTest(TemplateTestCase):
     @sync
-    async def test_getitem_with_unknown_plugin(self):
-        template = '{{ plugins["betty.UnknownPlugin"] | default("false") }}'
+    async def test_getitem_with_unknown_extension(self):
+        template = '{{ extensions["betty.UnknownPlugin"] | default("false") }}'
         async with self._render(template_string=template) as (actual, _):
             self.assertEquals('false', actual)
 
     @sync
-    async def test_getitem_with_disabled_plugin(self):
-        template = '{{ plugins["%s"] | default("false") }}' % TestPlugin.name()
+    async def test_getitem_with_disabled_extension(self):
+        template = '{{ extensions["%s"] | default("false") }}' % TestExtension.name()
         async with self._render(template_string=template) as (actual, _):
             self.assertEquals('false', actual)
 
     @sync
-    async def test_getitem_with_enabled_plugin(self):
-        template = '{%% if plugins["%s"] is not none %%}true{%% else %%}false{%% endif %%}' % TestPlugin.name()
+    async def test_getitem_with_enabled_extension(self):
+        template = '{%% if extensions["%s"] is not none %%}true{%% else %%}false{%% endif %%}' % TestExtension.name()
 
         def _update_configuration(configuration: Configuration) -> None:
-            configuration.plugins[TestPlugin] = None
+            configuration.extensions[TestExtension] = None
         async with self._render(template_string=template, update_configuration=_update_configuration) as (actual, _):
             self.assertEquals('true', actual)
 
     @sync
-    async def test_contains_with_unknown_plugin(self):
-        template = '{% if "betty.UnknownPlugin" in plugins %}true{% else %}false{% endif %}'
+    async def test_contains_with_unknown_extension(self):
+        template = '{% if "betty.UnknownExtension" in extensions %}true{% else %}false{% endif %}'
         async with self._render(template_string=template) as (actual, _):
             self.assertEquals('false', actual)
 
     @sync
-    async def test_contains_with_disabled_plugin(self):
-        template = '{%% if "%s" in plugins %%}true{%% else %%}false{%% endif %%}' % TestPlugin.name()
+    async def test_contains_with_disabled_extension(self):
+        template = '{%% if "%s" in extensions %%}true{%% else %%}false{%% endif %%}' % TestExtension.name()
         async with self._render(template_string=template) as (actual, _):
             self.assertEquals('false', actual)
 
     @sync
-    async def test_contains_with_enabled_plugin(self):
-        template = '{%% if "%s" in plugins %%}true{%% else %%}false{%% endif %%}' % TestPlugin.name()
+    async def test_contains_with_enabled_extension(self):
+        template = '{%% if "%s" in extensions %%}true{%% else %%}false{%% endif %%}' % TestExtension.name()
 
         def _update_configuration(configuration: Configuration) -> None:
-            configuration.plugins[TestPlugin] = None
+            configuration.extensions[TestExtension] = None
         async with self._render(template_string=template, update_configuration=_update_configuration) as (actual, _):
             self.assertEquals('true', actual)
 
@@ -366,6 +381,25 @@ class FilterSelectLocalizedsTest(TemplateTestCase):
             'data': data,
         }, update_configuration=_update_configuration) as (actual, _):
             self.assertEquals(expected, actual)
+
+    @sync
+    async def test_include_unspecified(self):
+        template = '{{ data | select_localizeds(include_unspecified=true) | map(attribute="name") | join(", ") }}'
+        data = [
+            PlaceName('Apple', 'zxx'),
+            PlaceName('Apple', 'und'),
+            PlaceName('Apple', 'mul'),
+            PlaceName('Apple', 'mis'),
+            PlaceName('Apple', None),
+        ]
+
+        def _update_configuration(configuration: Configuration) -> None:
+            configuration.locales.clear()
+            configuration.locales['en-US'] = LocaleConfiguration('en-US')
+        async with self._render(template_string=template, data={
+            'data': data,
+        }, update_configuration=_update_configuration) as (actual, _):
+            self.assertEquals('Apple, Apple, Apple, Apple, Apple', actual)
 
 
 class FilterSelectDatedsTest(TemplateTestCase):

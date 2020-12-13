@@ -1,5 +1,6 @@
 import json
 from collections import OrderedDict
+from contextlib import contextmanager
 from os.path import join
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import Any, Dict
@@ -8,17 +9,17 @@ import yaml
 from parameterized import parameterized
 from voluptuous import Schema, Required
 
-from betty.config import from_file, Configuration, ConfigurationValueError, LocaleConfiguration, PluginsConfiguration
-from betty.plugin import Plugin
+from betty.config import ExtensionsConfiguration, ConfigurationValueError, LocaleConfiguration, Configuration, from_file
+from betty.extension import Extension, NO_CONFIGURATION
 from betty.site import Site
 from betty.tests import TestCase
 
 
-class NonConfigurablePlugin(Plugin):
+class NonConfigurableExtension(Extension):
     pass  # pragma: no cover
 
 
-class ConfigurablePlugin(Plugin):
+class ConfigurableExtension(Extension):
     configuration_schema: Schema = Schema({
         Required('check'): lambda x: x
     })
@@ -27,56 +28,56 @@ class ConfigurablePlugin(Plugin):
         self.check = check
 
     @classmethod
-    def for_site(cls, site: Site, configuration: Dict):
+    def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
         return cls(configuration['check'])
 
 
-class PluginsConfigurationTest(TestCase):
+class ExtensionsConfigurationTest(TestCase):
     def test_init_from_dict_with_valid_configuration_should_set(self):
-        plugin_configuration = {
+        extension_configuration = {
             'check': 1337,
         }
-        plugins_configuration_dict = {
-            ConfigurablePlugin: plugin_configuration,
+        extension_configuration_dict = {
+            ConfigurableExtension: extension_configuration,
         }
-        sut = PluginsConfiguration(plugins_configuration_dict)
-        self.assertEqual(plugin_configuration, sut[ConfigurablePlugin])
+        sut = ExtensionsConfiguration(extension_configuration_dict)
+        self.assertEqual(extension_configuration, sut[ConfigurableExtension])
 
     def test_init_from_dict_with_invalid_configuration_should_raise_configuration_error(self):
-        plugin_configuration = 1337
-        plugins_configuration_dict = {
-            ConfigurablePlugin: plugin_configuration,
+        extension_configuration = 1337
+        extension_configuration_dict = {
+            ConfigurableExtension: extension_configuration,
         }
         with self.assertRaises(ConfigurationValueError):
-            PluginsConfiguration(plugins_configuration_dict)
+            ExtensionsConfiguration(extension_configuration_dict)
 
     def test_setitem_and_getitem_with_valid_configuration_should_set_and_return(self):
-        plugin_configuration = {
+        extension_configuration = {
             'check': 1337,
         }
-        sut = PluginsConfiguration()
-        sut[ConfigurablePlugin] = plugin_configuration
-        self.assertEqual(plugin_configuration, sut[ConfigurablePlugin])
+        sut = ExtensionsConfiguration()
+        sut[ConfigurableExtension] = extension_configuration
+        self.assertEqual(extension_configuration, sut[ConfigurableExtension])
 
     def test_setitem_with_invalid_configuration_should_raise_configuration_error(self):
-        plugin_configuration = 1337
-        sut = PluginsConfiguration()
+        extension_configuration = 1337
+        sut = ExtensionsConfiguration()
         with self.assertRaises(ConfigurationValueError):
-            sut[ConfigurablePlugin] = plugin_configuration
+            sut[ConfigurableExtension] = extension_configuration
 
     def test_contains(self):
-        sut = PluginsConfiguration()
-        sut[NonConfigurablePlugin] = None
-        self.assertIn(NonConfigurablePlugin, sut)
+        sut = ExtensionsConfiguration()
+        sut[NonConfigurableExtension] = None
+        self.assertIn(NonConfigurableExtension, sut)
 
     def test_iter(self):
-        sut = PluginsConfiguration()
-        sut[NonConfigurablePlugin] = None
-        self.assertSequenceEqual([(NonConfigurablePlugin, None)], list(sut))
+        sut = ExtensionsConfiguration()
+        sut[NonConfigurableExtension] = None
+        self.assertSequenceEqual([(NonConfigurableExtension, None)], list(sut))
 
     def test_len(self):
-        sut = PluginsConfiguration()
-        sut[NonConfigurablePlugin] = None
+        sut = ExtensionsConfiguration()
+        sut[NonConfigurableExtension] = None
         self.assertEqual(1, len(sut))
 
 
@@ -165,10 +166,16 @@ class ConfigurationTest(TestCase):
 
 
 class FromTest(TestCase):
-    _MINIMAL_CONFIG_DICT = {
-        'output': '/tmp/path/to/site',
-        'base_url': 'https://example.com',
-    }
+    @contextmanager
+    def _build_minimal_config(self) -> Dict:
+        output_directory = TemporaryDirectory()
+        try:
+            yield {
+                'output': output_directory.name,
+                'base_url': 'https://example.com',
+            }
+        finally:
+            output_directory.cleanup()
 
     def _writes(self, config: str, extension: str):
         f = NamedTemporaryFile(mode='r+', suffix='.' + extension)
@@ -185,33 +192,32 @@ class FromTest(TestCase):
         ('yml', yaml.safe_dump),
     ])
     def test_from_file_should_parse_minimal(self, extension, dumper):
-        with self._writes(dumper(self._MINIMAL_CONFIG_DICT), extension) as f:
-            configuration = from_file(f)
-        self.assertEquals(
-            self._MINIMAL_CONFIG_DICT['output'], configuration.output_directory_path)
-        self.assertEquals(
-            self._MINIMAL_CONFIG_DICT['base_url'], configuration.base_url)
-        self.assertEquals('Betty', configuration.title)
-        self.assertIsNone(configuration.author)
-        self.assertEquals('production', configuration.mode)
-        self.assertEquals('/', configuration.root_path)
-        self.assertFalse(configuration.clean_urls)
-        self.assertFalse(configuration.content_negotiation)
+        with self._build_minimal_config() as config_dict:
+            with self._writes(dumper(config_dict), extension) as f:
+                configuration = from_file(f)
+            self.assertEquals(config_dict['output'], configuration.output_directory_path)
+            self.assertEquals(config_dict['base_url'], configuration.base_url)
+            self.assertEquals('Betty', configuration.title)
+            self.assertIsNone(configuration.author)
+            self.assertEquals('production', configuration.mode)
+            self.assertEquals('/', configuration.root_path)
+            self.assertFalse(configuration.clean_urls)
+            self.assertFalse(configuration.content_negotiation)
 
     def test_from_file_should_parse_title(self):
         title = 'My first Betty site'
-        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['title'] = title
-        with self._write(config_dict) as f:
-            configuration = from_file(f)
+        with self._build_minimal_config() as config_dict:
+            config_dict['title'] = title
+            with self._write(config_dict) as f:
+                configuration = from_file(f)
             self.assertEquals(title, configuration.title)
 
     def test_from_file_should_parse_author(self):
         author = 'Bart'
-        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['author'] = author
-        with self._write(config_dict) as f:
-            configuration = from_file(f)
+        with self._build_minimal_config() as config_dict:
+            config_dict['author'] = author
+            with self._write(config_dict) as f:
+                configuration = from_file(f)
             self.assertEquals(author, configuration.author)
 
     def test_from_file_should_parse_locale_locale(self):
@@ -219,10 +225,10 @@ class FromTest(TestCase):
         locale_config = {
             'locale': locale,
         }
-        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['locales'] = [locale_config]
-        with self._write(config_dict) as f:
-            configuration = from_file(f)
+        with self._build_minimal_config() as config_dict:
+            config_dict['locales'] = [locale_config]
+            with self._write(config_dict) as f:
+                configuration = from_file(f)
             self.assertDictEqual(OrderedDict({
                 locale: LocaleConfiguration(locale),
             }), configuration.locales)
@@ -234,10 +240,10 @@ class FromTest(TestCase):
             'locale': locale,
             'alias': alias,
         }
-        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['locales'] = [locale_config]
-        with self._write(config_dict) as f:
-            configuration = from_file(f)
+        with self._build_minimal_config() as config_dict:
+            config_dict['locales'] = [locale_config]
+            with self._write(config_dict) as f:
+                configuration = from_file(f)
             self.assertDictEqual(OrderedDict({
                 locale: LocaleConfiguration(locale, alias),
             }), configuration.locales)
@@ -245,75 +251,73 @@ class FromTest(TestCase):
     def test_from_file_should_root_path(self):
         configured_root_path = '/betty'
         expected_root_path = '/betty/'
-        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['root_path'] = configured_root_path
-        with self._write(config_dict) as f:
-            configuration = from_file(f)
+        with self._build_minimal_config() as config_dict:
+            config_dict['root_path'] = configured_root_path
+            with self._write(config_dict) as f:
+                configuration = from_file(f)
             self.assertEquals(expected_root_path, configuration.root_path)
 
     def test_from_file_should_clean_urls(self):
         clean_urls = True
-        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['clean_urls'] = clean_urls
-        with self._write(config_dict) as f:
-            configuration = from_file(f)
+        with self._build_minimal_config() as config_dict:
+            config_dict['clean_urls'] = clean_urls
+            with self._write(config_dict) as f:
+                configuration = from_file(f)
             self.assertEquals(clean_urls, configuration.clean_urls)
 
     def test_from_file_should_content_negotiation(self):
         content_negotiation = True
-        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['content_negotiation'] = content_negotiation
-        with self._write(config_dict) as f:
-            configuration = from_file(f)
-            self.assertEquals(content_negotiation,
-                              configuration.content_negotiation)
+        with self._build_minimal_config() as config_dict:
+            config_dict['content_negotiation'] = content_negotiation
+            with self._write(config_dict) as f:
+                configuration = from_file(f)
+            self.assertEquals(content_negotiation, configuration.content_negotiation)
 
     @parameterized.expand([
         ('production',),
         ('development',),
     ])
     def test_from_file_should_parse_mode(self, mode: str):
-        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['mode'] = mode
-        with self._write(config_dict) as f:
-            configuration = from_file(f)
+        with self._build_minimal_config() as config_dict:
+            config_dict['mode'] = mode
+            with self._write(config_dict) as f:
+                configuration = from_file(f)
             self.assertEquals(mode, configuration.mode)
 
     def test_from_file_should_parse_assets_directory_path(self):
         with TemporaryDirectory() as assets_directory_path:
-            config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-            config_dict['assets_directory_path'] = assets_directory_path
+            with self._build_minimal_config() as config_dict:
+                config_dict['assets_directory_path'] = assets_directory_path
+                with self._write(config_dict) as f:
+                    configuration = from_file(f)
+                self.assertEquals(assets_directory_path, configuration.assets_directory_path)
+
+    def test_from_file_should_parse_one_extension_with_configuration(self):
+        with self._build_minimal_config() as config_dict:
+            extension_configuration = {
+                'check': 1337,
+            }
+            config_dict['extensions'] = {
+                ConfigurableExtension.name(): extension_configuration,
+            }
             with self._write(config_dict) as f:
                 configuration = from_file(f)
-                self.assertEquals(assets_directory_path,
-                                  configuration.assets_directory_path)
-
-    def test_from_file_should_parse_one_plugin_with_configuration(self):
-        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        plugin_configuration = {
-            'check': 1337,
-        }
-        config_dict['plugins'] = {
-            ConfigurablePlugin.name(): plugin_configuration,
-        }
-        with self._write(config_dict) as f:
-            configuration = from_file(f)
             expected = {
-                ConfigurablePlugin: plugin_configuration,
+                ConfigurableExtension: extension_configuration,
             }
-            self.assertEquals(expected, dict(configuration.plugins))
+            self.assertEquals(expected, dict(configuration.extensions))
 
-    def test_from_file_should_parse_one_plugin_without_configuration(self):
-        config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['plugins'] = {
-            NonConfigurablePlugin.name(): None,
-        }
-        with self._write(config_dict) as f:
-            configuration = from_file(f)
-            expected = {
-                NonConfigurablePlugin: None,
+    def test_from_file_should_parse_one_extension_without_configuration(self):
+        with self._build_minimal_config() as config_dict:
+            config_dict['extensions'] = {
+                NonConfigurableExtension.name(): None,
             }
-            self.assertEquals(expected, dict(configuration.plugins))
+            with self._write(config_dict) as f:
+                configuration = from_file(f)
+            expected = {
+                NonConfigurableExtension: None,
+            }
+            self.assertEquals(expected, dict(configuration.extensions))
 
     def test_from_file_should_error_unknown_format(self):
         with self._writes('', 'abc') as f:

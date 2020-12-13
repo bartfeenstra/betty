@@ -59,7 +59,7 @@ class SiteServer(Server):
         self._server = None
 
     def _get_server(self) -> Server:
-        servers = (server for plugin in self._site.plugins.values() if isinstance(plugin, ServerProvider) for server in plugin.servers)
+        servers = (server for extension in self._site.extensions.values() if isinstance(extension, ServerProvider) for server in extension.servers)
         with contextlib.suppress(StopIteration):
             return next(servers)
         return BuiltinServer(self._site.configuration.www_directory_path)

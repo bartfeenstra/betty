@@ -1,5 +1,7 @@
 import logging
+import os
 import shutil
+import subprocess
 import sys
 import time
 from contextlib import suppress, contextmanager
@@ -96,9 +98,9 @@ async def _init_ctx(ctx, configuration_file_path: Optional[str] = None) -> None:
             async with site:
                 ctx.obj['commands']['generate'] = _generate
                 ctx.obj['commands']['serve'] = _serve
-                for plugin in site.plugins.values():
-                    if isinstance(plugin, CommandProvider):
-                        for command_name, command in plugin.commands.items():
+                for extension in site.extensions.values():
+                    if isinstance(extension, CommandProvider):
+                        for command_name, command in extension.commands.items():
                             ctx.obj['commands'][command_name] = command
             ctx.obj['site'] = site
             return
@@ -120,6 +122,22 @@ class _BettyCommands(click.MultiCommand):
             return ctx.obj['commands'][cmd_name]
 
 
+def ensure_utf8(f: Callable) -> Callable:
+    if not sys.platform.startswith('win32'):
+        return f
+    with suppress(KeyError):
+        if os.environ['PYTHONUTF8'] == '1':
+            return f
+
+    @wraps(f)
+    def _with_utf8(*args, **kwargs):
+        env = os.environ
+        env['PYTHONUTF8'] = '1'
+        subprocess.run(sys.argv, env=env)
+    return _with_utf8
+
+
+@ensure_utf8
 @click.command(cls=_BettyCommands)
 @click.option('--configuration', '-c', 'site', is_eager=True, help='The path to a Betty site configuration file. Defaults to betty.json|yaml|yml in the current working directory. This will make additional commands available.', callback=_init_ctx)
 def main(site):
@@ -148,4 +166,4 @@ async def _serve(site: Site):
         raise CommandValueError('Web root directory "%s" does not exist.' % site.configuration.www_directory_path)
     async with serve.SiteServer(site):
         while True:
-            time.sleep(999999999)
+            time.sleep(999)

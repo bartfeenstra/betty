@@ -20,10 +20,10 @@ module.exports = (on, config) => {
       bettyConfiguration.base_url = 'https://example.com'
       const rootPath = '/cypress/site/output/www'
       bettyConfiguration.root_path = rootPath
-      if (!('plugins' in bettyConfiguration)) {
-        bettyConfiguration.plugins = {}
+      if (!('extensions' in bettyConfiguration)) {
+        bettyConfiguration.extensions = {}
       }
-      bettyConfiguration.plugins['betty.plugin.gramps.Gramps'] = {
+      bettyConfiguration.extensions['betty.extension.gramps.Gramps'] = {
         file: path.join(siteDirectoryPath, 'gramps.xml')
       }
       fs.writeFileSync(path.join(siteDirectoryPath, 'betty.json'), JSON.stringify(bettyConfiguration))
