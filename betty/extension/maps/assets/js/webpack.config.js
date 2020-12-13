@@ -31,7 +31,6 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new MiniCssExtractPlugin({
-      path: path.resolve(__dirname, '..', 'output'),
       filename: '[name].css'
     })
   ],
@@ -39,7 +38,17 @@ module.exports = {
     rules: [
       {
         test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader']
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              publicPath: '/'
+            }
+          },
+          {
+            loader: 'css-loader'
+          }
+        ]
       },
       {
         test: /\.js$/,
@@ -67,7 +76,8 @@ module.exports = {
           {
             loader: 'file-loader',
             options: {
-              name: '/images/[hash].[ext]'
+              name: 'images/[hash].[ext]',
+              publicPath: '/'
             }
           }
         ]

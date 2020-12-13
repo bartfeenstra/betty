@@ -18,7 +18,7 @@ from betty.site import Site
 from betty.tests import TestCase
 
 
-@unittest.skipIf(sys.platform == 'darwin', 'Mac OS does not natively support Docker.')
+@unittest.skipIf(sys.platform in {'darwin', 'win32'}, 'Mac OS and Windows do not natively support Docker.')
 class NginxTest(TestCase):
     class NginxTestServer(Server):
         def __init__(self, configuration_template_file_path: str):
