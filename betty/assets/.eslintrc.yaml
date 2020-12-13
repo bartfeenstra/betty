@@ -8,3 +8,5 @@ extends:
   - standard
   - eslint:recommended
   - plugin:compat/recommended
+rules:
+  no-var: off
