@@ -670,11 +670,11 @@ msgstr "Імена нащадків є"
 msgid "Wikipedia"
 msgstr ""
 
-#: betty/plugin/anonymizer/__init__.py:17
+#: betty/extension/anonymizer/__init__.py:17
 msgid "Private"
 msgstr "Приватні"
 
-#: betty/plugin/anonymizer/__init__.py:31
+#: betty/extension/anonymizer/__init__.py:31
 msgid ""
 "A citation is available, but has not been published in order to protect "
 "people's privacy"
@@ -682,16 +682,16 @@ msgstr ""
 "A citation is available, but has not been published in order to protect "
 "people's privacy"
 
-#: betty/plugin/wikipedia/__init__.py:198
+#: betty/extension/wikipedia/__init__.py:198
 msgid "Read more on Wikipedia."
 msgstr "Детальніше читайте у Вікіпедії"
 
-#: betty/plugin/wikipedia/assets/templates/wikipedia.html.j2:5
+#: betty/extension/wikipedia/assets/templates/wikipedia.html.j2:5
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Продовжуйте читати у <a href=\"%(url)s\">Вікіпедії</a>."
 
-#: betty/plugin/wikipedia/assets/templates/wikipedia.html.j2:7
+#: betty/extension/wikipedia/assets/templates/wikipedia.html.j2:7
 msgid ""
 "<a "
 "href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a>"

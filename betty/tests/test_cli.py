@@ -11,7 +11,7 @@ from click.testing import CliRunner
 import betty
 from betty import os
 from betty.error import UserFacingError
-from betty.plugin import Plugin
+from betty.extension import Extension
 from betty.serve import Server
 from betty.tests import patch_cache, TestCase
 
@@ -28,7 +28,7 @@ class TestCommandError(BaseException):
     pass
 
 
-class TestPlugin(Plugin, CommandProvider):
+class TestExtension(Extension, CommandProvider):
     @property
     def commands(self) -> Dict[str, Callable]:
         return {
@@ -76,8 +76,8 @@ class MainTest(TestCase):
                 config_dict = {
                     'output': output_directory_path,
                     'base_url': url,
-                    'plugins': {
-                        TestPlugin.name(): None,
+                    'extensions': {
+                        TestExtension.name(): None,
                     },
                 }
                 dump(config_dict, config_file)
@@ -113,8 +113,8 @@ class MainTest(TestCase):
                     config_dict = {
                         'output': output_directory_path,
                         'base_url': url,
-                        'plugins': {
-                            TestPlugin.name(): None,
+                        'extensions': {
+                            TestExtension.name(): None,
                         },
                     }
                     dump(config_dict, config_file)

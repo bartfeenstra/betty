@@ -8,17 +8,17 @@ import yaml
 from parameterized import parameterized
 from voluptuous import Schema, Required
 
-from betty.config import from_file, Configuration, ConfigurationValueError, LocaleConfiguration, PluginsConfiguration
-from betty.plugin import Plugin
+from betty.config import from_file, Configuration, ConfigurationValueError, LocaleConfiguration, ExtensionsConfiguration
+from betty.extension import Extension
 from betty.site import Site
 from betty.tests import TestCase
 
 
-class NonConfigurablePlugin(Plugin):
+class NonConfigurableExtension(Extension):
     pass  # pragma: no cover
 
 
-class ConfigurablePlugin(Plugin):
+class ConfigurableExtension(Extension):
     configuration_schema: Schema = Schema({
         Required('check'): lambda x: x
     })
@@ -31,52 +31,52 @@ class ConfigurablePlugin(Plugin):
         return cls(configuration['check'])
 
 
-class PluginsConfigurationTest(TestCase):
+class ExtensionsConfigurationTest(TestCase):
     def test_init_from_dict_with_valid_configuration_should_set(self):
-        plugin_configuration = {
+        extension_configuration = {
             'check': 1337,
         }
-        plugins_configuration_dict = {
-            ConfigurablePlugin: plugin_configuration,
+        extension_configuration_dict = {
+            ConfigurableExtension: extension_configuration,
         }
-        sut = PluginsConfiguration(plugins_configuration_dict)
-        self.assertEqual(plugin_configuration, sut[ConfigurablePlugin])
+        sut = ExtensionsConfiguration(extension_configuration_dict)
+        self.assertEqual(extension_configuration, sut[ConfigurableExtension])
 
     def test_init_from_dict_with_invalid_configuration_should_raise_configuration_error(self):
-        plugin_configuration = 1337
-        plugins_configuration_dict = {
-            ConfigurablePlugin: plugin_configuration,
+        extension_configuration = 1337
+        extension_configuration_dict = {
+            ConfigurableExtension: extension_configuration,
         }
         with self.assertRaises(ConfigurationValueError):
-            PluginsConfiguration(plugins_configuration_dict)
+            ExtensionsConfiguration(extension_configuration_dict)
 
     def test_setitem_and_getitem_with_valid_configuration_should_set_and_return(self):
-        plugin_configuration = {
+        extension_configuration = {
             'check': 1337,
         }
-        sut = PluginsConfiguration()
-        sut[ConfigurablePlugin] = plugin_configuration
-        self.assertEqual(plugin_configuration, sut[ConfigurablePlugin])
+        sut = ExtensionsConfiguration()
+        sut[ConfigurableExtension] = extension_configuration
+        self.assertEqual(extension_configuration, sut[ConfigurableExtension])
 
     def test_setitem_with_invalid_configuration_should_raise_configuration_error(self):
-        plugin_configuration = 1337
-        sut = PluginsConfiguration()
+        extension_configuration = 1337
+        sut = ExtensionsConfiguration()
         with self.assertRaises(ConfigurationValueError):
-            sut[ConfigurablePlugin] = plugin_configuration
+            sut[ConfigurableExtension] = extension_configuration
 
     def test_contains(self):
-        sut = PluginsConfiguration()
-        sut[NonConfigurablePlugin] = None
-        self.assertIn(NonConfigurablePlugin, sut)
+        sut = ExtensionsConfiguration()
+        sut[NonConfigurableExtension] = None
+        self.assertIn(NonConfigurableExtension, sut)
 
     def test_iter(self):
-        sut = PluginsConfiguration()
-        sut[NonConfigurablePlugin] = None
-        self.assertSequenceEqual([(NonConfigurablePlugin, None)], list(sut))
+        sut = ExtensionsConfiguration()
+        sut[NonConfigurableExtension] = None
+        self.assertSequenceEqual([(NonConfigurableExtension, None)], list(sut))
 
     def test_len(self):
-        sut = PluginsConfiguration()
-        sut[NonConfigurablePlugin] = None
+        sut = ExtensionsConfiguration()
+        sut[NonConfigurableExtension] = None
         self.assertEqual(1, len(sut))
 
 
@@ -288,32 +288,32 @@ class FromTest(TestCase):
                 self.assertEquals(assets_directory_path,
                                   configuration.assets_directory_path)
 
-    def test_from_file_should_parse_one_plugin_with_configuration(self):
+    def test_from_file_should_parse_one_extension_with_configuration(self):
         config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        plugin_configuration = {
+        extension_configuration = {
             'check': 1337,
         }
-        config_dict['plugins'] = {
-            ConfigurablePlugin.name(): plugin_configuration,
+        config_dict['extensions'] = {
+            ConfigurableExtension.name(): extension_configuration,
         }
         with self._write(config_dict) as f:
             configuration = from_file(f)
             expected = {
-                ConfigurablePlugin: plugin_configuration,
+                ConfigurableExtension: extension_configuration,
             }
-            self.assertEquals(expected, dict(configuration.plugins))
+            self.assertEquals(expected, dict(configuration.extensions))
 
-    def test_from_file_should_parse_one_plugin_without_configuration(self):
+    def test_from_file_should_parse_one_extension_without_configuration(self):
         config_dict = dict(**self._MINIMAL_CONFIG_DICT)
-        config_dict['plugins'] = {
-            NonConfigurablePlugin.name(): None,
+        config_dict['extensions'] = {
+            NonConfigurableExtension.name(): None,
         }
         with self._write(config_dict) as f:
             configuration = from_file(f)
             expected = {
-                NonConfigurablePlugin: None,
+                NonConfigurableExtension: None,
             }
-            self.assertEquals(expected, dict(configuration.plugins))
+            self.assertEquals(expected, dict(configuration.extensions))
 
     def test_from_file_should_error_unknown_format(self):
         with self._writes('', 'abc') as f:

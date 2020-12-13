@@ -40,9 +40,9 @@ class Site:
         self._locale = None
         self._translations = defaultdict(gettext.NullTranslations)
         self._default_translations = None
-        self._plugins = OrderedDict()
-        self._plugin_exit_stack = AsyncExitStack()
-        self._init_plugins()
+        self._extensions = OrderedDict()
+        self._extension_exit_stack = AsyncExitStack()
+        self._init_extensions()
         self._init_dispatch_handlers()
         self._init_assets()
         self._init_translations()
@@ -53,8 +53,8 @@ class Site:
 
     async def __aenter__(self):
         if not self._site_stack:
-            for plugin in self._plugins.values():
-                await self._plugin_exit_stack.enter_async_context(plugin)
+            for extension in self._extensions.values():
+                await self._extension_exit_stack.enter_async_context(extension)
 
         self._default_translations = Translations(self.translations[self.locale])
         self._default_translations.install()
@@ -74,7 +74,7 @@ class Site:
         if not self._site_stack:
             self._executor.shutdown()
             self._executor = None
-            await self._plugin_exit_stack.aclose()
+            await self._extension_exit_stack.aclose()
 
     @property
     def locale(self) -> str:
@@ -82,48 +82,48 @@ class Site:
             return self._locale
         return self._configuration.default_locale
 
-    def _init_plugins(self) -> None:
-        from betty.plugin import NO_CONFIGURATION
+    def _init_extensions(self) -> None:
+        from betty.extension import NO_CONFIGURATION
 
-        def _extend_plugin_type_graph(graph: Graph, plugin_type: Type['Plugin']):
-            dependencies = plugin_type.depends_on()
-            # Ensure each plugin type appears in the graph, even if they're isolated.
-            graph.setdefault(plugin_type, set())
+        def _extend_extension_type_graph(graph: Graph, extension_type: Type['Extension']):
+            dependencies = extension_type.depends_on()
+            # Ensure each extension type appears in the graph, even if they're isolated.
+            graph.setdefault(extension_type, set())
             for dependency in dependencies:
                 seen_dependency = dependency in graph
-                graph[dependency].add(plugin_type)
+                graph[dependency].add(extension_type)
                 if not seen_dependency:
-                    _extend_plugin_type_graph(graph, dependency)
+                    _extend_extension_type_graph(graph, dependency)
 
-        plugin_types_graph = defaultdict(set)
-        # Add dependencies to the plugin graph.
-        for plugin_type, _ in self._configuration.plugins:
-            _extend_plugin_type_graph(plugin_types_graph, plugin_type)
-        # Now all dependencies have been collected, extend the graph with optional plugin orders.
-        for plugin_type, _ in self._configuration.plugins:
-            for before in plugin_type.comes_before():
-                if before in plugin_types_graph:
-                    plugin_types_graph[plugin_type].add(before)
-            for after in plugin_type.comes_after():
-                if after in plugin_types_graph:
-                    plugin_types_graph[after].add(plugin_type)
+        extension_types_graph = defaultdict(set)
+        # Add dependencies to the extension graph.
+        for extension_type, _ in self._configuration.extensions:
+            _extend_extension_type_graph(extension_types_graph, extension_type)
+        # Now all dependencies have been collected, extend the graph with optional extension orders.
+        for extension_type, _ in self._configuration.extensions:
+            for before in extension_type.comes_before():
+                if before in extension_types_graph:
+                    extension_types_graph[extension_type].add(before)
+            for after in extension_type.comes_after():
+                if after in extension_types_graph:
+                    extension_types_graph[after].add(extension_type)
 
-        for plugin_type in tsort(plugin_types_graph):
-            plugin_configuration = self.configuration.plugins[
-                plugin_type] if plugin_type in self.configuration.plugins else NO_CONFIGURATION
-            plugin = plugin_type.for_site(
-                self, plugin_configuration)
-            self._plugins[plugin_type] = plugin
+        for extension_type in tsort(extension_types_graph):
+            extension_configuration = self.configuration.extensions[
+                extension_type] if extension_type in self.configuration.extensions else NO_CONFIGURATION
+            extension = extension_type.for_site(
+                self, extension_configuration)
+            self._extensions[extension_type] = extension
 
     def _init_dispatch_handlers(self) -> None:
-        for plugin in self._plugins.values():
-            self._dispatcher.append_handler(plugin)
+        for extension in self._extensions.values():
+            self._dispatcher.append_handler(extension)
 
     def _init_assets(self) -> None:
-        for plugin in self._plugins.values():
-            if plugin.assets_directory_path is not None:
+        for extension in self._extensions.values():
+            if extension.assets_directory_path is not None:
                 self._assets.paths.appendleft(
-                    plugin.assets_directory_path)
+                    extension.assets_directory_path)
         if self._configuration.assets_directory_path:
             self._assets.paths.appendleft(
                 self._configuration.assets_directory_path)
@@ -146,8 +146,8 @@ class Site:
         return self._configuration
 
     @property
-    def plugins(self) -> Dict[Type['Plugin'], 'Plugin']:
-        return self._plugins
+    def extensions(self) -> Dict[Type['Extension'], 'Extension']:
+        return self._extensions
 
     @property
     def assets(self) -> FileSystem:
