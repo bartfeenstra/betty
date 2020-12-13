@@ -21,7 +21,7 @@ class DockerizedNginxServerTest(TestCase):
         content = 'Hello, and welcome to my site!'
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://example.com')
-            configuration.extensions[Nginx] = {}
+            configuration.extensions[Nginx] = Nginx.configuration_schema({})
             makedirs(configuration.www_directory_path)
             with open(path.join(configuration.www_directory_path, 'index.html'), 'w') as f:
                 f.write(content)
