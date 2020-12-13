@@ -11,7 +11,7 @@ from betty.asyncio import sync
 from betty.locale import Date, DateRange
 from betty.parse import parse
 from betty.extension.privatizer import Privatizer, privatize_event, privatize_source, privatize_citation, privatize_person
-from betty.site import Site
+from betty.app import App
 from betty.tests import TestCase
 
 
@@ -100,11 +100,11 @@ class PrivatizerTest(TestCase):
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
             configuration.extensions[Privatizer] = None
-            async with Site(configuration) as site:
-                site.ancestry.people[person.id] = person
-                site.ancestry.sources[source.id] = source
-                site.ancestry.citations[citation.id] = citation
-                await parse(site)
+            async with App(configuration) as app:
+                app.ancestry.people[person.id] = person
+                app.ancestry.sources[source.id] = source
+                app.ancestry.citations[citation.id] = citation
+                await parse(app)
 
             self.assertTrue(person.private)
             self.assertTrue(source_file.private)

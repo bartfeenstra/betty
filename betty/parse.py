@@ -1,4 +1,4 @@
-from betty.site import Site
+from betty.app import App
 
 
 class Parser:
@@ -11,6 +11,6 @@ class PostParser:
         raise NotImplementedError
 
 
-async def parse(site: Site) -> None:
-    await site.dispatcher.dispatch(Parser, 'parse')()
-    await site.dispatcher.dispatch(PostParser, 'post_parse')()
+async def parse(app: App) -> None:
+    await app.dispatcher.dispatch(Parser, 'parse')()
+    await app.dispatcher.dispatch(PostParser, 'post_parse')()

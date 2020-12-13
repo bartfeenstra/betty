@@ -5,7 +5,7 @@ from betty.config import Configuration
 from betty.asyncio import sync
 from betty.generate import generate
 from betty.extension.maps import Maps
-from betty.site import Site
+from betty.app import App
 from betty.tests import patch_cache, TestCase
 
 
@@ -18,8 +18,8 @@ class MapsTest(TestCase):
                 output_directory_path, 'https://ancestry.example.com')
             configuration.mode = 'development'
             configuration.extensions[Maps] = None
-            async with Site(configuration) as site:
-                await generate(site)
+            async with App(configuration) as app:
+                await generate(app)
             with open(join(configuration.www_directory_path, 'maps.js')) as f:
                 betty_js = f.read()
             self.assertIn('maps.js', betty_js)

@@ -5,7 +5,7 @@ from betty.functools import walk
 from betty.parse import PostParser
 from betty.extension import Extension, NO_CONFIGURATION
 from betty.extension.privatizer import Privatizer
-from betty.site import Site
+from betty.app import App
 
 
 class AnonymousSource(Source):
@@ -100,8 +100,8 @@ class Anonymizer(Extension, PostParser):
         self._ancestry = ancestry
 
     @classmethod
-    def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
-        return cls(site.ancestry)
+    def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
+        return cls(app.ancestry)
 
     @classmethod
     def comes_after(cls) -> Set[Type[Extension]]:

@@ -12,16 +12,16 @@ from betty.fs import DirectoryBackup
 from betty.generate import PostStaticGenerator
 from betty.html import HtmlProvider
 from betty.extension import Extension, NO_CONFIGURATION
-from betty.site import Site
+from betty.app import App
 
 
 class Maps(Extension, HtmlProvider, PostStaticGenerator):
-    def __init__(self, site: Site):
-        self._site = site
+    def __init__(self, app: App):
+        self._app = app
 
     @classmethod
-    def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
-        return cls(site)
+    def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
+        return cls(app)
 
     async def post_static_generate(self) -> None:
         await self._render()
@@ -31,27 +31,27 @@ class Maps(Extension, HtmlProvider, PostStaticGenerator):
         return '%s/assets' % dirname(__file__)
 
     async def _render(self) -> None:
-        build_directory_path = path.join(self._site.configuration.cache_directory_path, self.name(),
+        build_directory_path = path.join(self._app.configuration.cache_directory_path, self.name(),
                                          hashlib.md5(self.assets_directory_path.encode()).hexdigest(), 'build')
 
         async with DirectoryBackup(build_directory_path, 'node_modules'):
             with suppress(FileNotFoundError):
                 shutil.rmtree(build_directory_path)
             shutil.copytree(path.join(self.assets_directory_path, 'js'), build_directory_path)
-        await self._site.renderer.render_tree(build_directory_path)
+        await self._app.renderer.render_tree(build_directory_path)
 
-        self._site.executor.submit(_do_render, build_directory_path, self._site.configuration.www_directory_path)
+        self._app.executor.submit(_do_render, build_directory_path, self._app.configuration.www_directory_path)
 
     @property
     def public_css_paths(self) -> Iterable[str]:
         return {
-            self._site.static_url_generator.generate('maps.css'),
+            self._app.static_url_generator.generate('maps.css'),
         }
 
     @property
     def public_js_paths(self) -> Iterable[str]:
         return {
-            self._site.static_url_generator.generate('maps.js'),
+            self._app.static_url_generator.generate('maps.js'),
         }
 
 

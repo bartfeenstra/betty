@@ -7,7 +7,7 @@ from betty.config import Configuration, LocaleConfiguration
 from betty.asyncio import sync
 from betty.generate import generate
 from betty.extension.nginx import Nginx
-from betty.site import Site
+from betty.app import App
 from betty.tests import TestCase
 
 
@@ -24,8 +24,8 @@ class NginxTest(TestCase):
         return match.group(1)
 
     async def _assert_configuration_equals(self, expected: str, configuration: Configuration):
-        async with Site(configuration) as site:
-            await generate(site)
+        async with App(configuration) as app:
+            await generate(app)
         with open(join(configuration.output_directory_path, 'nginx', 'nginx.conf')) as f:
             actual = f.read()
         self.assertEqual(self._normalize_configuration(expected), self._normalize_configuration(actual))

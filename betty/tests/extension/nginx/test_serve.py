@@ -10,7 +10,7 @@ from betty.config import Configuration
 from betty.asyncio import sync
 from betty.extension.nginx import Nginx
 from betty.extension.nginx.serve import DockerizedNginxServer
-from betty.site import Site
+from betty.app import App
 from betty.tests import TestCase
 
 
@@ -25,8 +25,8 @@ class DockerizedNginxServerTest(TestCase):
             makedirs(configuration.www_directory_path)
             with open(path.join(configuration.www_directory_path, 'index.html'), 'w') as f:
                 f.write(content)
-            async with Site(configuration) as site:
-                async with DockerizedNginxServer(site) as server:
+            async with App(configuration) as app:
+                async with DockerizedNginxServer(app) as server:
                     # Wait for the server to start.
                     sleep(1)
                     response = requests.get(server.public_url)

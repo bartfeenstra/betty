@@ -9,7 +9,7 @@ from betty.asyncio import sync
 from betty.parse import parse
 from betty.extension.anonymizer import Anonymizer, anonymize, anonymize_person, anonymize_event, anonymize_file, \
     anonymize_citation, anonymize_source, AnonymousSource, AnonymousCitation
-from betty.site import Site
+from betty.app import App
 from betty.tests import TestCase
 
 
@@ -324,7 +324,7 @@ class AnonymizerTest(TestCase):
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
             configuration.extensions[Anonymizer] = None
-            async with Site(configuration) as site:
-                site.ancestry.people[person.id] = person
-                await parse(site)
+            async with App(configuration) as app:
+                app.ancestry.people[person.id] = person
+                await parse(app)
         self.assertEquals(0, len(person.names))

@@ -24,18 +24,18 @@ from betty.config import Configuration
 from betty.fs import FileSystem
 from betty.graph import tsort, Graph
 from betty.locale import open_translations, Translations, negotiate_locale
-from betty.url import SiteUrlGenerator, StaticPathUrlGenerator, LocalizedUrlGenerator, StaticUrlGenerator
+from betty.url import AppUrlGenerator, StaticPathUrlGenerator, LocalizedUrlGenerator, StaticUrlGenerator
 
 
-class Site:
+class App:
     def __init__(self, configuration: Configuration):
-        self._site_stack = []
+        self._app_stack = []
         self._ancestry = Ancestry()
         self._configuration = configuration
         self._assets = FileSystem(
             join(dirname(abspath(__file__)), 'assets'))
         self._dispatcher = Dispatcher()
-        self._localized_url_generator = SiteUrlGenerator(configuration)
+        self._localized_url_generator = AppUrlGenerator(configuration)
         self._static_url_generator = StaticPathUrlGenerator(configuration)
         self._locale = None
         self._translations = defaultdict(gettext.NullTranslations)
@@ -52,7 +52,7 @@ class Site:
         self._locks = Locks()
 
     async def __aenter__(self):
-        if not self._site_stack:
+        if not self._app_stack:
             for extension in self._extensions.values():
                 await self._extension_exit_stack.enter_async_context(extension)
 
@@ -62,16 +62,16 @@ class Site:
         if self._executor is None:
             self._executor = ExceptionRaisingExecutor(ProcessPoolExecutor())
 
-        self._site_stack.append(self)
+        self._app_stack.append(self)
 
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        self._site_stack.pop()
+        self._app_stack.pop()
 
         self._default_translations.uninstall()
 
-        if not self._site_stack:
+        if not self._app_stack:
             self._executor.shutdown()
             self._executor = None
             await self._extension_exit_stack.aclose()
@@ -111,7 +111,7 @@ class Site:
         for extension_type in tsort(extension_types_graph):
             extension_configuration = self.configuration.extensions[
                 extension_type] if extension_type in self.configuration.extensions else NO_CONFIGURATION
-            extension = extension_type.for_site(
+            extension = extension_type.new_for_app(
                 self, extension_configuration)
             self._extensions[extension_type] = extension
 
@@ -191,25 +191,25 @@ class Site:
     @property
     def executor(self) -> Executor:
         if self._executor is None:
-            raise RuntimeError("Cannot get the executor before this site's context is entered.")
+            raise RuntimeError("Cannot get the executor before this app's context is entered.")
         return self._executor
 
     @property
     def locks(self) -> Locks:
         return self._locks
 
-    def with_locale(self, locale: str) -> 'Site':
+    def with_locale(self, locale: str) -> 'App':
         locale = negotiate_locale(locale, list(self.configuration.locales.keys()))
         if locale is None:
             raise ValueError('Locale "%s" is not enabled.' % locale)
         if locale == self.locale:
             return self
 
-        site = copy(self)
-        site._locale = locale
+        app = copy(self)
+        app._locale = locale
 
         # Clear all locale-dependent lazy-loaded attributes.
-        site._jinja2_environment = None
-        site._renderer = None
+        app._jinja2_environment = None
+        app._renderer = None
 
-        return site
+        return app

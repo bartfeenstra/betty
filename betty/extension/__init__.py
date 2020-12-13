@@ -2,7 +2,7 @@ from typing import Type, Set, Optional, Any
 
 from voluptuous import Schema
 
-from betty.site import Site
+from betty.app import App
 
 
 NO_CONFIGURATION = None
@@ -22,10 +22,10 @@ class Extension:
         return '%s.%s' % (cls.__module__, cls.__name__)
 
     @classmethod
-    def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
+    def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
         """
-        Creates a new instance for a specific site.
-        :param site: betty.site.Site
+        Creates a new instance for a specific app.
+        :param app: betty.app.App
         :param configuration: The configuration must be of the same type as returned by cls.configuration_schema.
         :return: Self
         """

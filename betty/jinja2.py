@@ -39,7 +39,7 @@ from betty.path import extension as path_extension, rootname
 from betty.extension import Extension
 from betty.render import Renderer
 from betty.search import Index
-from betty.site import Site
+from betty.app import App
 
 
 class _Extensions:
@@ -91,10 +91,10 @@ class Jinja2Provider:
 
 
 class BettyEnvironment(Environment):
-    site: Site
+    app: App
 
-    def __init__(self, site: Site):
-        template_directory_paths = [join(path, 'templates') for path in site.assets.paths]
+    def __init__(self, app: App):
+        template_directory_paths = [join(path, 'templates') for path in app.assets.paths]
 
         Environment.__init__(self,
                              enable_async=True,
@@ -108,9 +108,9 @@ class BettyEnvironment(Environment):
                              ],
                              )
 
-        self.site = site
+        self.app = app
 
-        if site.configuration.mode == 'development':
+        if app.configuration.mode == 'development':
             self.add_extension('jinja2.ext.debug')
 
         self._init_i18n()
@@ -129,14 +129,14 @@ class BettyEnvironment(Environment):
         self.policies['ext.i18n.trimmed'] = True
 
     def _init_globals(self) -> None:
-        self.globals['site'] = self.site
-        self.globals['locale'] = self.site.locale
+        self.globals['app'] = self.app
+        self.globals['locale'] = self.app.locale
         today = datetime.date.today()
         self.globals['today'] = Date(today.year, today.month, today.day)
-        self.globals['extensions'] = _Extensions(self.site.extensions)
+        self.globals['extensions'] = _Extensions(self.app.extensions)
         self.globals['citer'] = _Citer()
-        self.globals['search_index'] = lambda: Index(self.site).build()
-        self.globals['html_providers'] = list([extension for extension in self.site.extensions.values() if isinstance(extension, HtmlProvider)])
+        self.globals['search_index'] = lambda: Index(self.app).build()
+        self.globals['html_providers'] = list([extension for extension in self.app.extensions.values() if isinstance(extension, HtmlProvider)])
         self.globals['path'] = os.path
 
     def _init_filters(self) -> None:
@@ -157,9 +157,9 @@ class BettyEnvironment(Environment):
         self.filters['format_date'] = _filter_format_date
         self.filters['format_degrees'] = _filter_format_degrees
         self.filters['url'] = _filter_url
-        self.filters['static_url'] = self.site.static_url_generator.generate
-        self.filters['file'] = lambda *args: _filter_file(self.site, *args)
-        self.filters['image'] = lambda *args, **kwargs: _filter_image(self.site, *args, **kwargs)
+        self.filters['static_url'] = self.app.static_url_generator.generate
+        self.filters['file'] = lambda *args: _filter_file(self.app, *args)
+        self.filters['image'] = lambda *args, **kwargs: _filter_image(self.app, *args, **kwargs)
 
     def _init_tests(self) -> None:
         self.tests['resource'] = lambda x: isinstance(x, Resource)
@@ -179,7 +179,7 @@ class BettyEnvironment(Environment):
         self.tests['date_range'] = lambda x: isinstance(x, DateRange)
 
     def _init_extensions(self) -> None:
-        for extension in self.site.extensions.values():
+        for extension in self.app.extensions.values():
             if isinstance(extension, Jinja2Provider):
                 self.globals.update(extension.globals)
                 self.filters.update(extension.filters)
@@ -222,7 +222,7 @@ class Jinja2Renderer(Renderer):
 def _filter_url(context: Context, resource: Any, media_type: Optional[str] = None, locale: Optional[str] = None, **kwargs) -> str:
     media_type = 'text/html' if media_type is None else media_type
     locale = locale if locale else resolve_or_missing(context, 'locale')
-    return context.environment.site.localized_url_generator.generate(resource, media_type, locale=locale, **kwargs)
+    return context.environment.app.localized_url_generator.generate(resource, media_type, locale=locale, **kwargs)
 
 
 @contextfilter
@@ -231,7 +231,7 @@ def _filter_json(context: Context, data: Any, indent: Optional[int] = None) -> s
     Converts a value to a JSON string.
     """
     return stdjson.dumps(data, indent=indent,
-                         cls=JSONEncoder.get_factory(context.environment.site, resolve_or_missing(context, 'locale')))
+                         cls=JSONEncoder.get_factory(context.environment.app, resolve_or_missing(context, 'locale')))
 
 
 @contextfilter
@@ -308,15 +308,15 @@ async def _filter_map(*args, **kwargs):
             yield await auto_await(func(item))
 
 
-async def _filter_file(site: Site, file: File) -> str:
-    file_directory_path = os.path.join(site.configuration.www_directory_path, 'file')
+async def _filter_file(app: App, file: File) -> str:
+    file_directory_path = os.path.join(app.configuration.www_directory_path, 'file')
 
     destination_name = '%s.%s' % (file.id, file.extension)
     destination_public_path = '/file/%s' % destination_name
 
     with suppress(AcquiredError):
-        site.locks.acquire((_filter_file, file))
-        site.executor.submit(_do_filter_file, file.path, file_directory_path, destination_name)
+        app.locks.acquire((_filter_file, file))
+        app.executor.submit(_do_filter_file, file.path, file_directory_path, destination_name)
 
     return destination_public_path
 
@@ -327,7 +327,7 @@ def _do_filter_file(file_path: str, destination_directory_path: str, destination
     link_or_copy(file_path, destination_file_path)
 
 
-async def _filter_image(site: Site, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
+async def _filter_image(app: App, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
     if width is None and height is None:
         raise ValueError('At least the width or height must be given.')
 
@@ -340,7 +340,7 @@ async def _filter_image(site: Site, file: File, width: Optional[int] = None, hei
         destination_name += '%dx%d' % (width, height)
 
     file_directory_path = os.path.join(
-        site.configuration.www_directory_path, 'file')
+        app.configuration.www_directory_path, 'file')
 
     if file.media_type:
         if file.media_type.type == 'image':
@@ -355,9 +355,9 @@ async def _filter_image(site: Site, file: File, width: Optional[int] = None, hei
         raise ValueError('Cannot convert a file without a media type to an image.')
 
     with suppress(AcquiredError):
-        site.locks.acquire((_filter_image, file, width, height))
-        cache_directory_path = join(site.configuration.cache_directory_path, 'image')
-        site.executor.submit(task, file.path, cache_directory_path, file_directory_path, destination_name, width, height)
+        app.locks.acquire((_filter_image, file, width, height))
+        cache_directory_path = join(app.configuration.cache_directory_path, 'image')
+        app.executor.submit(task, file.path, cache_directory_path, file_directory_path, destination_name, width, height)
 
     destination_public_path = '/file/%s' % destination_name
 

@@ -7,7 +7,7 @@ from betty.functools import walk
 from betty.locale import DateRange, Date
 from betty.parse import PostParser
 from betty.extension import Extension, NO_CONFIGURATION
-from betty.site import Site
+from betty.app import App
 
 
 class Privatizer(Extension, PostParser):
@@ -16,8 +16,8 @@ class Privatizer(Extension, PostParser):
         self._lifetime_threshold = lifetime_threshold
 
     @classmethod
-    def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
-        return cls(site.ancestry, site.configuration.lifetime_threshold)
+    def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
+        return cls(app.ancestry, app.configuration.lifetime_threshold)
 
     async def post_parse(self) -> None:
         self.privatize(self._ancestry)

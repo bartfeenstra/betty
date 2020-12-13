@@ -18,7 +18,7 @@ from betty.config import from_file
 from betty.error import UserFacingError
 from betty.asyncio import sync
 from betty.logging import CliHandler
-from betty.site import Site
+from betty.app import App
 
 
 class CommandValueError(UserFacingError, ValueError):
@@ -48,15 +48,15 @@ def catch_exceptions():
         sys.exit(1)
 
 
-def _command(f, is_site_command: bool):
+def _command(f, is_app_command: bool):
     @wraps(f)
     @catch_exceptions()
     @sync
     async def _command(*args, **kwargs):
-        if is_site_command:
-            site = get_current_context().obj['site']
-            args = (site, *args)
-            async with site:
+        if is_app_command:
+            app = get_current_context().obj['app']
+            args = (app, *args)
+            async with app:
                 await f(*args, **kwargs)
         else:
             await f(*args, **kwargs)
@@ -67,7 +67,7 @@ def global_command(f):
     return _command(f, False)
 
 
-def site_command(f):
+def app_command(f):
     return _command(f, True)
 
 
@@ -96,17 +96,17 @@ async def _init_ctx(ctx, configuration_file_path: Optional[str] = None) -> None:
     for try_configuration_file_path in try_configuration_file_paths:
         with suppress(FileNotFoundError):
             with open(try_configuration_file_path) as f:
-                logger.info('Loading the site from %s.' % try_configuration_file_path)
+                logger.info('Loading the configuration from %s.' % try_configuration_file_path)
                 configuration = from_file(f)
-            site = Site(configuration)
-            async with site:
+            app = App(configuration)
+            async with app:
                 ctx.obj['commands']['generate'] = _generate
                 ctx.obj['commands']['serve'] = _serve
-                for extension in site.extensions.values():
+                for extension in app.extensions.values():
                     if isinstance(extension, CommandProvider):
                         for command_name, command in extension.commands.items():
                             ctx.obj['commands'][command_name] = command
-            ctx.obj['site'] = site
+            ctx.obj['app'] = app
             return
 
     if configuration_file_path is not None:
@@ -143,8 +143,8 @@ def ensure_utf8(f: Callable) -> Callable:
 
 @ensure_utf8
 @click.command(cls=_BettyCommands)
-@click.option('--configuration', '-c', 'site', is_eager=True, help='The path to a Betty site configuration file. Defaults to betty.json|yaml|yml in the current working directory. This will make additional commands available.', callback=_init_ctx)
-def main(site):
+@click.option('--configuration', '-c', 'app', is_eager=True, help='The path to a Betty configuration file. Defaults to betty.json|yaml|yml in the current working directory. This will make additional commands available.', callback=_init_ctx)
+def main(app):
     pass
 
 
@@ -157,17 +157,17 @@ async def _clear_caches():
 
 
 @click.command(help='Generate a static site.')
-@site_command
-async def _generate(site: Site):
-    await parse.parse(site)
-    await generate.generate(site)
+@app_command
+async def _generate(app: App):
+    await parse.parse(app)
+    await generate.generate(app)
 
 
 @click.command(help='Serve a generated site.')
-@site_command
-async def _serve(site: Site):
-    if not path.isdir(site.configuration.www_directory_path):
-        raise CommandValueError('Web root directory "%s" does not exist.' % site.configuration.www_directory_path)
-    async with serve.SiteServer(site):
+@app_command
+async def _serve(app: App):
+    if not path.isdir(app.configuration.www_directory_path):
+        raise CommandValueError('Web root directory "%s" does not exist.' % app.configuration.www_directory_path)
+    async with serve.AppServer(app):
         while True:
             time.sleep(999)

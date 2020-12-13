@@ -9,7 +9,7 @@ from betty.asyncio import sync
 from betty.locale import DateRange, Date, Datey
 from betty.parse import parse
 from betty.extension.deriver import derive, Deriver
-from betty.site import Site
+from betty.app import App
 from betty.tests import TestCase
 
 
@@ -70,9 +70,9 @@ class DeriverTest(TestCase):
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
             configuration.extensions[Deriver] = None
-            async with Site(configuration) as site:
-                site.ancestry.people[person.id] = person
-                await parse(site)
+            async with App(configuration) as app:
+                app.ancestry.people[person.id] = person
+                await parse(app)
 
         self.assertEquals(3, len(person.presences))
         self.assertEquals(DateRange(None, Date(1970, 1, 1), end_is_boundary=True), person.start.date)

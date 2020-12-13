@@ -14,7 +14,7 @@ from betty.config import from_file
 from betty.asyncio import sync
 from betty.extension.nginx.serve import DockerizedNginxServer
 from betty.serve import Server
-from betty.site import Site
+from betty.app import App
 from betty.tests import TestCase
 
 
@@ -30,10 +30,10 @@ class NginxTest(TestCase):
         async def start(self) -> None:
             self._output_directory = TemporaryDirectory()
             self._configuration.output_directory_path = self._output_directory.name
-            site = Site(self._configuration)
-            async with site:
-                await generate.generate(site)
-            self._server = DockerizedNginxServer(site)
+            app = App(self._configuration)
+            async with app:
+                await generate.generate(app)
+            self._server = DockerizedNginxServer(app)
             await self._server.start()
 
         async def stop(self) -> None:

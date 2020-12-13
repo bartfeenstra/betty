@@ -1,6 +1,6 @@
-{% if site.configuration.author %}
+{% if app.configuration.author %}
     <p>
-        {% trans author = site.configuration.author %}© Copyright {{ author }}, unless otherwise credited{% endtrans %}
+        {% trans author = app.configuration.author %}© Copyright {{ author }}, unless otherwise credited{% endtrans %}
     </p>
 {% endif %}
 <p>{% trans %}A family history as told by <a href="https://github.com/bartfeenstra/betty">Betty👵</a>{% endtrans %}</p>

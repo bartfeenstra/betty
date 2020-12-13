@@ -53,10 +53,10 @@ After installation, Betty can be used via the `betty` command:
 Usage: betty [OPTIONS] COMMAND [ARGS]...
 
 Options:
-  -c, --configuration TEXT  The path to a Betty site configuration file.
-                            Defaults to betty.json|yaml|yml in the current
-                            working directory. This will make additional
-                            commands available.
+  -c, --configuration TEXT  The path to a Betty configuration file. Defaults
+                            to betty.json|yaml|yml in the current working
+                            directory. This will make additional commands
+                            available.
 
   --help                    Show this message and exit.
 
@@ -193,21 +193,23 @@ To build a site from your GEDCOM files:
 1. Follow the documentation to [configure your Betty site](#configuration-files) to parse the exported file
 
 ### The Python API
+
 ```python
 from betty.config import Configuration
 from betty.asyncio import sync
 from betty.generate import generate
 from betty.parse import parse
-from betty.site import Site
+from betty.app import App
+
 
 @sync
 async def generate():
     output_directory_path = '/var/www/betty'
     url = 'https://betty.example.com'
     configuration = Configuration(output_directory_path, url)
-    async with Site(configuration) as site:
-        await parse(site)
-        await generate(site)
+    async with App(configuration) as app:
+        await parse(app)
+        await generate(app)
 
 ```
 

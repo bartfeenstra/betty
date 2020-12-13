@@ -12,7 +12,7 @@ from jinja2 import Environment, TemplateNotFound
 from betty.fs import makedirs
 from betty.json import JSONEncoder
 from betty.openapi import build_specification
-from betty.site import Site
+from betty.app import App
 
 
 class PostStaticGenerator:
@@ -25,61 +25,60 @@ class PostGenerator:
         raise NotImplementedError
 
 
-async def generate(site: Site) -> None:
+async def generate(app: App) -> None:
     logger = logging.getLogger()
-    await site.assets.copytree(join('public', 'static'),
-                               site.configuration.www_directory_path)
-    await site.renderer.render_tree(site.configuration.www_directory_path)
-    await site.dispatcher.dispatch(PostStaticGenerator, 'post_static_generate')()
-    for locale, locale_configuration in site.configuration.locales.items():
-        async with site.with_locale(locale) as site:
-            if site.configuration.multilingual:
+    await app.assets.copytree(join('public', 'static'), app.configuration.www_directory_path)
+    await app.renderer.render_tree(app.configuration.www_directory_path)
+    await app.dispatcher.dispatch(PostStaticGenerator, 'post_static_generate')()
+    for locale, locale_configuration in app.configuration.locales.items():
+        async with app.with_locale(locale) as app:
+            if app.configuration.multilingual:
                 www_directory_path = join(
-                    site.configuration.www_directory_path, locale_configuration.alias)
+                    app.configuration.www_directory_path, locale_configuration.alias)
             else:
-                www_directory_path = site.configuration.www_directory_path
+                www_directory_path = app.configuration.www_directory_path
 
-            await site.assets.copytree(join('public', 'localized'), www_directory_path)
-            await site.renderer.render_tree(www_directory_path)
+            await app.assets.copytree(join('public', 'localized'), www_directory_path)
+            await app.renderer.render_tree(www_directory_path)
 
             locale_label = Locale.parse(locale, '-').get_display_name()
-            await _generate_entity_type(www_directory_path, site.ancestry.files.values(
-            ), 'file', site, locale, site.jinja2_environment)
+            await _generate_entity_type(www_directory_path, app.ancestry.files.values(
+            ), 'file', app, locale, app.jinja2_environment)
             logger.info('Generated pages for %d files in %s.' %
-                        (len(site.ancestry.files), locale_label))
-            await _generate_entity_type(www_directory_path, site.ancestry.people.values(
-            ), 'person', site, locale, site.jinja2_environment)
+                        (len(app.ancestry.files), locale_label))
+            await _generate_entity_type(www_directory_path, app.ancestry.people.values(
+            ), 'person', app, locale, app.jinja2_environment)
             logger.info('Generated pages for %d people in %s.' %
-                        (len(site.ancestry.people), locale_label))
-            await _generate_entity_type(www_directory_path, site.ancestry.places.values(
-            ), 'place', site, locale, site.jinja2_environment)
+                        (len(app.ancestry.people), locale_label))
+            await _generate_entity_type(www_directory_path, app.ancestry.places.values(
+            ), 'place', app, locale, app.jinja2_environment)
             logger.info('Generated pages for %d places in %s.' %
-                        (len(site.ancestry.places), locale_label))
-            await _generate_entity_type(www_directory_path, site.ancestry.events.values(
-            ), 'event', site, locale, site.jinja2_environment)
+                        (len(app.ancestry.places), locale_label))
+            await _generate_entity_type(www_directory_path, app.ancestry.events.values(
+            ), 'event', app, locale, app.jinja2_environment)
             logger.info('Generated pages for %d events in %s.' %
-                        (len(site.ancestry.events), locale_label))
-            await _generate_entity_type(www_directory_path, site.ancestry.citations.values(
-            ), 'citation', site, locale, site.jinja2_environment)
+                        (len(app.ancestry.events), locale_label))
+            await _generate_entity_type(www_directory_path, app.ancestry.citations.values(
+            ), 'citation', app, locale, app.jinja2_environment)
             logger.info('Generated pages for %d citations in %s.' %
-                        (len(site.ancestry.citations), locale_label))
-            await _generate_entity_type(www_directory_path, site.ancestry.sources.values(
-            ), 'source', site, locale, site.jinja2_environment)
+                        (len(app.ancestry.citations), locale_label))
+            await _generate_entity_type(www_directory_path, app.ancestry.sources.values(
+            ), 'source', app, locale, app.jinja2_environment)
             logger.info('Generated pages for %d sources in %s.' %
-                        (len(site.ancestry.sources), locale_label))
-            _generate_entity_type_list_json(www_directory_path, site.ancestry.notes.values(), 'note', site)
-            for note in site.ancestry.notes.values():
-                _generate_entity_json(www_directory_path, note, 'note', site, locale)
-            logger.info('Generated pages for %d notes in %s.' % (len(site.ancestry.notes), locale_label))
-            _generate_openapi(www_directory_path, site)
+                        (len(app.ancestry.sources), locale_label))
+            _generate_entity_type_list_json(www_directory_path, app.ancestry.notes.values(), 'note', app)
+            for note in app.ancestry.notes.values():
+                _generate_entity_json(www_directory_path, note, 'note', app, locale)
+            logger.info('Generated pages for %d notes in %s.' % (len(app.ancestry.notes), locale_label))
+            _generate_openapi(www_directory_path, app)
             logger.info('Generated OpenAPI documentation in %s.', locale_label)
-    chmod(site.configuration.www_directory_path, 0o755)
-    for directory_path, subdirectory_names, file_names in os.walk(site.configuration.www_directory_path):
+    chmod(app.configuration.www_directory_path, 0o755)
+    for directory_path, subdirectory_names, file_names in os.walk(app.configuration.www_directory_path):
         for subdirectory_name in subdirectory_names:
             chmod(join(directory_path, subdirectory_name), 0o755)
         for file_name in file_names:
             chmod(join(directory_path, file_name), 0o644)
-    await site.dispatcher.dispatch(PostGenerator, 'post_generate')()
+    await app.dispatcher.dispatch(PostGenerator, 'post_generate')()
 
 
 def _create_file(path: str) -> object:
@@ -95,15 +94,15 @@ def _create_json_resource(path: str) -> object:
     return _create_file(os.path.join(path, 'index.json'))
 
 
-async def _generate_entity_type(www_directory_path: str, entities: Iterable[Any], entity_type_name: str, site: Site,
+async def _generate_entity_type(www_directory_path: str, entities: Iterable[Any], entity_type_name: str, app: App,
                                 locale: str, environment: Environment) -> None:
     await _generate_entity_type_list_html(
         www_directory_path, entities, entity_type_name, environment)
     _generate_entity_type_list_json(
-        www_directory_path, entities, entity_type_name, site)
+        www_directory_path, entities, entity_type_name, app)
     for entity in entities:
         await _generate_entity(www_directory_path, entity,
-                               entity_type_name, site, locale, environment)
+                               entity_type_name, app, locale, environment)
 
 
 async def _generate_entity_type_list_html(www_directory_path: str, entities: Iterable[Any], entity_type_name: str,
@@ -120,24 +119,24 @@ async def _generate_entity_type_list_html(www_directory_path: str, entities: Ite
             }))
 
 
-def _generate_entity_type_list_json(www_directory_path: str, entities: Iterable[Any], entity_type_name: str, site: Site) -> None:
+def _generate_entity_type_list_json(www_directory_path: str, entities: Iterable[Any], entity_type_name: str, app: App) -> None:
     entity_type_path = os.path.join(www_directory_path, entity_type_name)
     with _create_json_resource(entity_type_path) as f:
         data = {
-            '$schema': site.static_url_generator.generate('schema.json#/definitions/%sCollection' % entity_type_name, absolute=True),
+            '$schema': app.static_url_generator.generate('schema.json#/definitions/%sCollection' % entity_type_name, absolute=True),
             'collection': []
         }
         for entity in entities:
-            data['collection'].append(site.localized_url_generator.generate(
+            data['collection'].append(app.localized_url_generator.generate(
                 entity, 'application/json', absolute=True))
         dump(data, f)
 
 
-async def _generate_entity(www_directory_path: str, entity: Any, entity_type_name: str, site: Site, locale: str, environment: Environment) -> None:
+async def _generate_entity(www_directory_path: str, entity: Any, entity_type_name: str, app: App, locale: str, environment: Environment) -> None:
     await _generate_entity_html(www_directory_path, entity,
                                 entity_type_name, environment)
     _generate_entity_json(www_directory_path, entity,
-                          entity_type_name, site, locale)
+                          entity_type_name, app, locale)
 
 
 async def _generate_entity_html(www_directory_path: str, entity: Any, entity_type_name: str, environment: Environment) -> None:
@@ -150,12 +149,12 @@ async def _generate_entity_html(www_directory_path: str, entity: Any, entity_typ
         }))
 
 
-def _generate_entity_json(www_directory_path: str, entity: Any, entity_type_name: str, site: Site, locale: str) -> None:
+def _generate_entity_json(www_directory_path: str, entity: Any, entity_type_name: str, app: App, locale: str) -> None:
     entity_path = os.path.join(www_directory_path, entity_type_name, entity.id)
     with _create_json_resource(entity_path) as f:
-        dump(entity, f, cls=JSONEncoder.get_factory(site, locale))
+        dump(entity, f, cls=JSONEncoder.get_factory(app, locale))
 
 
-def _generate_openapi(www_directory_path: str, site: Site) -> None:
+def _generate_openapi(www_directory_path: str, app: App) -> None:
     with open(join(www_directory_path, 'api', 'index.json'), 'w') as f:
-        dump(build_specification(site), f)
+        dump(build_specification(app), f)

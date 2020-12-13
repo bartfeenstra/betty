@@ -13,7 +13,7 @@ from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider
 from betty.locale import Date, Datey, DateRange, Localized
 from betty.media_type import MediaType
 from betty.extension import Extension
-from betty.site import Site
+from betty.app import App
 from betty.tests import TemplateTestCase
 
 
@@ -32,8 +32,8 @@ class Jinja2RendererTest(TestCase):
     async def test_render_file(self) -> None:
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://ancestry.example.com')
-            async with Site(configuration) as site:
-                sut = Jinja2Renderer(site.jinja2_environment, configuration)
+            async with App(configuration) as app:
+                sut = Jinja2Renderer(app.jinja2_environment, configuration)
                 template = '{% if true %}true{% endif %}'
                 expected_output = 'true'
                 with TemporaryDirectory() as working_directory_path:
@@ -49,8 +49,8 @@ class Jinja2RendererTest(TestCase):
     async def test_render_file_should_ignore_non_sass_or_scss(self) -> None:
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://ancestry.example.com')
-            async with Site(configuration) as site:
-                sut = Jinja2Renderer(site.jinja2_environment, configuration)
+            async with App(configuration) as app:
+                sut = Jinja2Renderer(app.jinja2_environment, configuration)
                 template = '{% if true %}true{% endif %}'
                 with TemporaryDirectory() as working_directory_path:
                     template_file_path = path.join(working_directory_path, 'betty.txt')
@@ -64,8 +64,8 @@ class Jinja2RendererTest(TestCase):
     async def test_render_tree(self) -> None:
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://ancestry.example.com')
-            async with Site(configuration) as site:
-                sut = Jinja2Renderer(site.jinja2_environment, configuration)
+            async with App(configuration) as app:
+                sut = Jinja2Renderer(app.jinja2_environment, configuration)
                 template = '{% if true %}true{% endif %}'
                 expected_output = 'true'
                 with TemporaryDirectory() as working_directory_path:
@@ -183,10 +183,10 @@ class FilterFileTest(TemplateTestCase):
     async def test(self, expected, template, file):
         async with self._render(template_string=template, data={
             'file': file,
-        }) as (actual, site):
+        }) as (actual, app):
             self.assertEquals(expected, actual)
             for file_path in actual.split(':'):
-                self.assertTrue(path.exists(path.join(site.configuration.www_directory_path, file_path[1:])))
+                self.assertTrue(path.exists(path.join(app.configuration.www_directory_path, file_path[1:])))
 
 
 class FilterImageTest(TemplateTestCase):
@@ -206,10 +206,10 @@ class FilterImageTest(TemplateTestCase):
     async def test(self, expected, template, file):
         async with self._render(template_string=template, data={
             'file': file,
-        }) as (actual, site):
+        }) as (actual, app):
             self.assertEquals(expected, actual)
             for file_path in actual.split(':'):
-                self.assertTrue(path.exists(path.join(site.configuration.www_directory_path, file_path[1:])))
+                self.assertTrue(path.exists(path.join(app.configuration.www_directory_path, file_path[1:])))
 
     @sync
     async def test_without_width(self):

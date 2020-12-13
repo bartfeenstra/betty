@@ -20,7 +20,7 @@ from betty.locale import Localized, negotiate_locale
 from betty.media_type import MediaType
 from betty.parse import PostParser
 from betty.extension import Extension, NO_CONFIGURATION
-from betty.site import Site
+from betty.app import App
 
 
 class WikipediaError(BaseException):
@@ -136,13 +136,13 @@ class Retriever:
 
 
 class _Populator:
-    def __init__(self, site: Site, retriever: Retriever):
-        self._site = site
+    def __init__(self, app: App, retriever: Retriever):
+        self._app = app
         self._retriever = retriever
 
     async def populate(self) -> None:
-        locales = set(self._site.configuration.locales)
-        await asyncio.gather(*[self._populate_resource(resource, locales) for resource in self._site.ancestry.resources])
+        locales = set(self._app.configuration.locales)
+        await asyncio.gather(*[self._populate_resource(resource, locales) for resource in self._app.ancestry.resources])
 
     async def _populate_resource(self, resource: Resource, locales: Set[str]) -> None:
         if not isinstance(resource, HasLinks):
@@ -195,28 +195,28 @@ class _Populator:
         if link.description is None:
             # There are valid reasons for links in locales that aren't supported.
             with suppress(ValueError):
-                async with self._site.with_locale(link.locale):
+                async with self._app.with_locale(link.locale):
                     link.description = _('Read more on Wikipedia.')
         if entry is not None and link.label is None:
             link.label = entry.title
 
 
 class Wikipedia(Extension, Jinja2Provider, PostParser):
-    def __init__(self, site: Site):
-        self._site = site
+    def __init__(self, app: App):
+        self._app = app
 
     async def __aenter__(self):
         self._session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit_per_host=5))
-        self._retriever = Retriever(self._session, join(self._site.configuration.cache_directory_path, self.name()))
-        self._populator = _Populator(self._site, self._retriever)
+        self._retriever = Retriever(self._session, join(self._app.configuration.cache_directory_path, self.name()))
+        self._populator = _Populator(self._app, self._retriever)
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self._session.close()
 
     @classmethod
-    def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
-        return cls(site)
+    def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
+        return cls(app)
 
     async def post_parse(self) -> None:
         await self._populator.populate()

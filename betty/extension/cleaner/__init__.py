@@ -6,7 +6,7 @@ from betty.graph import Graph, tsort
 from betty.parse import PostParser
 from betty.extension import Extension, NO_CONFIGURATION
 from betty.extension.anonymizer import Anonymizer
-from betty.site import Site
+from betty.app import App
 
 
 def clean(ancestry: Ancestry) -> None:
@@ -136,8 +136,8 @@ class Cleaner(Extension, PostParser):
         self._ancestry = ancestry
 
     @classmethod
-    def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
-        return cls(site.ancestry)
+    def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
+        return cls(app.ancestry)
 
     @classmethod
     def comes_after(cls) -> Set[Type[Extension]]:

@@ -6,7 +6,7 @@ from betty.ancestry import Person, Place, PlaceName, PersonName, File
 from betty.config import Configuration, LocaleConfiguration
 from betty.asyncio import sync
 from betty.search import Index
-from betty.site import Site
+from betty.app import App
 from betty.tests import TestCase
 
 
@@ -18,8 +18,8 @@ class IndexTest(TestCase):
                 output_directory_path, 'https://example.com')
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
-            async with Site(configuration) as site:
-                indexed = [item for item in await Index(site).build()]
+            async with App(configuration) as app:
+                indexed = [item for item in await Index(app).build()]
 
         self.assertEquals([], indexed)
 
@@ -33,9 +33,9 @@ class IndexTest(TestCase):
                 output_directory_path, 'https://example.com')
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
-            async with Site(configuration) as site:
-                site.ancestry.people[person_id] = person
-                indexed = [item for item in await Index(site).build()]
+            async with App(configuration) as app:
+                app.ancestry.people[person_id] = person
+                indexed = [item for item in await Index(app).build()]
 
         self.assertEquals([], indexed)
 
@@ -52,9 +52,9 @@ class IndexTest(TestCase):
                 output_directory_path, 'https://example.com')
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
-            async with Site(configuration) as site:
-                site.ancestry.people[person_id] = person
-                indexed = [item for item in await Index(site).build()]
+            async with App(configuration) as app:
+                app.ancestry.people[person_id] = person
+                indexed = [item for item in await Index(app).build()]
 
         self.assertEquals([], indexed)
 
@@ -74,9 +74,9 @@ class IndexTest(TestCase):
                 output_directory_path, 'https://example.com')
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
-            async with Site(configuration).with_locale(locale) as site:
-                site.ancestry.people[person_id] = person
-                indexed = [item for item in await Index(site).build()]
+            async with App(configuration).with_locale(locale) as app:
+                app.ancestry.people[person_id] = person
+                indexed = [item for item in await Index(app).build()]
 
         self.assertEquals('jane', indexed[0]['text'])
         self.assertIn(expected, indexed[0]['result'])
@@ -97,9 +97,9 @@ class IndexTest(TestCase):
                 output_directory_path, 'https://example.com')
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
-            async with Site(configuration).with_locale(locale) as site:
-                site.ancestry.people[person_id] = person
-                indexed = [item for item in await Index(site).build()]
+            async with App(configuration).with_locale(locale) as app:
+                app.ancestry.people[person_id] = person
+                indexed = [item for item in await Index(app).build()]
 
         self.assertEquals('doughnut', indexed[0]['text'])
         self.assertIn(expected, indexed[0]['result'])
@@ -121,9 +121,9 @@ class IndexTest(TestCase):
                 output_directory_path, 'https://example.com')
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
-            async with Site(configuration).with_locale(locale) as site:
-                site.ancestry.people[person_id] = person
-                indexed = [item for item in await Index(site).build()]
+            async with App(configuration).with_locale(locale) as app:
+                app.ancestry.people[person_id] = person
+                indexed = [item for item in await Index(app).build()]
 
         self.assertEquals('jane doughnut', indexed[0]['text'])
         self.assertIn(expected, indexed[0]['result'])
@@ -142,9 +142,9 @@ class IndexTest(TestCase):
                 output_directory_path, 'https://example.com')
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
-            async with Site(configuration).with_locale(locale) as site:
-                site.ancestry.places[place_id] = place
-                indexed = [item for item in await Index(site).build()]
+            async with App(configuration).with_locale(locale) as app:
+                app.ancestry.places[place_id] = place
+                indexed = [item for item in await Index(app).build()]
 
         self.assertEquals('netherlands nederland', indexed[0]['text'])
         self.assertIn(expected, indexed[0]['result'])
@@ -159,9 +159,9 @@ class IndexTest(TestCase):
                 output_directory_path, 'https://example.com')
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
-            async with Site(configuration) as site:
-                site.ancestry.files[file_id] = file
-                indexed = [item for item in await Index(site).build()]
+            async with App(configuration) as app:
+                app.ancestry.files[file_id] = file
+                indexed = [item for item in await Index(app).build()]
 
         self.assertEquals([], indexed)
 
@@ -180,9 +180,9 @@ class IndexTest(TestCase):
                 output_directory_path, 'https://example.com')
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
-            async with Site(configuration).with_locale(locale) as site:
-                site.ancestry.files[file_id] = file
-                indexed = [item for item in await Index(site).build()]
+            async with App(configuration).with_locale(locale) as app:
+                app.ancestry.files[file_id] = file
+                indexed = [item for item in await Index(app).build()]
 
         self.assertEquals('"file" is dutch for "traffic jam"', indexed[0]['text'])
         self.assertIn(expected, indexed[0]['result'])
