@@ -1,0 +1,2 @@
+# Ensure all Bash files use \n for line endings, and Git doesn't convert those to \r\n on Windows.
+/bin/* text autocrlf=false eol=lf
