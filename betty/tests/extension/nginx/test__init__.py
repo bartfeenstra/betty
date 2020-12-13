@@ -35,7 +35,7 @@ class NginxTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'http://example.com')
-            configuration.extensions[Nginx] = {}
+            configuration.extensions[Nginx] = Nginx.configuration_schema({})
             expected = r'''
 server {
     listen 80;
@@ -70,7 +70,7 @@ server {
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'http://example.com')
-            configuration.extensions[Nginx] = {}
+            configuration.extensions[Nginx] = Nginx.configuration_schema({})
             configuration.clean_urls = True
             expected = r'''
 server {
@@ -106,7 +106,7 @@ server {
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'http://example.com')
-            configuration.extensions[Nginx] = {}
+            configuration.extensions[Nginx] = Nginx.configuration_schema({})
             configuration.locales.clear()
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
@@ -156,7 +156,7 @@ server {
             configuration = Configuration(
                 output_directory_path, 'http://example.com')
             configuration.content_negotiation = True
-            configuration.extensions[Nginx] = {}
+            configuration.extensions[Nginx] = Nginx.configuration_schema({})
             configuration.locales.clear()
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
@@ -220,7 +220,7 @@ server {
             configuration = Configuration(
                 output_directory_path, 'http://example.com')
             configuration.content_negotiation = True
-            configuration.extensions[Nginx] = {}
+            configuration.extensions[Nginx] = Nginx.configuration_schema({})
             expected = r'''
 server {
     listen 80;
@@ -261,7 +261,7 @@ server {
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.extensions[Nginx] = {}
+            configuration.extensions[Nginx] = Nginx.configuration_schema({})
             expected = r'''
 server {
     listen 80;
@@ -302,9 +302,9 @@ server {
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.extensions[Nginx] = {
+            configuration.extensions[Nginx] = Nginx.configuration_schema({
                 'www_directory_path': '/tmp/overridden-www'
-            }
+            })
             expected = r'''
 server {
     listen 80;
