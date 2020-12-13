@@ -1,7 +1,7 @@
 'use strict'
 
-const { CleanWebpackPlugin } = require('clean-webpack-extension')
-const MiniCssExtractPlugin = require('mini-css-extract-extension')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const path = require('path')
 const configuration = require('./webpack.config.json')
 
