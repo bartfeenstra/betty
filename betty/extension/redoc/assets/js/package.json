@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "redoc": "^2.0.0-rc.45"
+  }
+}

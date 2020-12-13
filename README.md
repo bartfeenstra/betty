@@ -92,6 +92,7 @@ extensions:
     www_directory_path: /var/www/betty
     https: true
   betty.extension.privatizer.Privatizer: ~
+  betty.extension.redoc.ReDoc: ~
   betty.extension.trees.Trees: ~
   betty.extension.wikipedia.Wikipedia: ~
 ```
@@ -133,6 +134,7 @@ extensions:
             want to have this disabled, so the downstream server can terminate SSL and communicate over HTTP 2 instead.
             Defaults to `true` if the base URL specifies HTTPS, or `false` otherwise.
     - `betty.extension.privatizer.Privatizer`: Marks living people private. Configuration: `~`.
+    - `betty.extension.redoc.ReDoc`: Renders interactive and user-friendly HTTP API documentation using [ReDoc](https://github.com/Redocly/redoc).
     - `betty.extension.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
     - `betty.extension.wikipedia.Wikipedia`: Lets templates and other extensions retrieve complementary Wikipedia entries.
 

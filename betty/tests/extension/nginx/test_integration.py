@@ -156,28 +156,21 @@ class NginxTest(TestCase):
     @sync
     async def test_default_html_static_resource(self):
         async with self.NginxTestServer('betty-multilingual-content-negotiation.json') as server:
-            response = requests.get('%s/api/' % server.public_url)
-            self.assertEquals(200, response.status_code)
+            response = requests.get('%s/non-existent-path/' % server.public_url)
             self.assert_betty_html(response)
 
     @sync
     async def test_negotiated_html_static_resource(self):
         async with self.NginxTestServer('betty-multilingual-content-negotiation.json') as server:
-            response = requests.get('%s/api/' % server.public_url, headers={
+            response = requests.get('%s/non-existent-path/' % server.public_url, headers={
                 'Accept': 'text/html',
             })
-            self.assertEquals(200, response.status_code)
             self.assert_betty_html(response)
 
     @sync
     async def test_negotiated_json_static_resource(self):
         async with self.NginxTestServer('betty-multilingual-content-negotiation.json') as server:
-            response = requests.get('%s/api/' % server.public_url, headers={
+            response = requests.get('%s/non-existent-path/' % server.public_url, headers={
                 'Accept': 'application/json',
             })
-            self.assertEquals(200, response.status_code)
             self.assert_betty_json(response)
-            # Assert this is the exact JSON resource we are looking for.
-            with open(path.join(path.dirname(__file__), 'test_integration_assets', 'schema.json')) as f:
-                schema = json.load(f)
-            jsonschema.validate(response.json(), schema)
