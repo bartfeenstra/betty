@@ -58,6 +58,7 @@ Options:
                             working directory. This will make additional
                             commands available.
 
+  --version                 Show the version and exit.
   --help                    Show this message and exit.
 
 Commands:
