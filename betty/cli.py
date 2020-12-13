@@ -13,7 +13,7 @@ import click
 from click import get_current_context
 
 import betty
-from betty import generate, parse, serve
+from betty import generate, parse, serve, about
 from betty.config import from_file
 from betty.error import UserFacingError
 from betty.asyncio import sync
@@ -144,6 +144,7 @@ def ensure_utf8(f: Callable) -> Callable:
 @ensure_utf8
 @click.command(cls=_BettyCommands)
 @click.option('--configuration', '-c', 'app', is_eager=True, help='The path to a Betty configuration file. Defaults to betty.json|yaml|yml in the current working directory. This will make additional commands available.', callback=_init_ctx)
+@click.version_option(about.version(), prog_name='Betty')
 def main(app):
     pass
 

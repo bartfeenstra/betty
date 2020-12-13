@@ -1,5 +1,6 @@
 from typing import Dict
 
+from betty import about
 from betty.app import App
 
 
@@ -40,7 +41,7 @@ def build_specification(app: App) -> Dict:
         ],
         'info': {
             'title': 'Betty',
-            'version': 'dev'
+            'version': about.version()
         },
         'paths': {},
         'components': {
