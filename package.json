@@ -15,5 +15,10 @@
     "stylelint": "^13.6.1",
     "stylelint-config-standard": "^20.0.0",
     "stylelint-no-unsupported-browser-features": "^4.0.0"
+  },
+  "scripts": {
+    "cypress": "cypress",
+    "eslint": "eslint",
+    "stylelint": "stylelint"
   }
 }
