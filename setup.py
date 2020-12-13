@@ -51,7 +51,6 @@ SETUP = {
         'jinja2 ~= 2.11',
         'jsonschema ~= 3.2',
         'libsass ~= 0.20',
-        'lxml ~= 4.6',
         'markupsafe ~= 1.1',
         'pdf2image ~= 1.14 ',
         'python-resize-image ~= 1.1',
