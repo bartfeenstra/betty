@@ -156,5 +156,7 @@ def _generate_entity_json(www_directory_path: str, entity: Any, entity_type_name
 
 
 def _generate_openapi(www_directory_path: str, app: App) -> None:
-    with open(join(www_directory_path, 'api', 'index.json'), 'w') as f:
+    api_directory_path = join(www_directory_path, 'api')
+    makedirs(api_directory_path)
+    with open(join(api_directory_path, 'index.json'), 'w') as f:
         dump(build_specification(app), f)
