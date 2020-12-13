@@ -1,7 +1,7 @@
 import json
 from collections import OrderedDict
 from os import path
-from typing import Dict, Type, Optional, List, Callable
+from typing import Dict, Optional, List, Callable, Type
 
 import yaml
 from babel import parse_locale
@@ -40,30 +40,30 @@ class LocaleConfiguration:
         return self._alias
 
 
-class ExtensionsConfiguration:
-    def __init__(self, extensions_configuration: Dict[Type['Extension'], Optional[Any]] = None):
-        self._extensions_configuration = {}
-        if extensions_configuration is not None:
-            for extension_type, extension_configuration in extensions_configuration.items():
-                self[extension_type] = extension_configuration
+def _extensions_configuration_schema(extensions_configuration_dict: Optional[Dict[str, Any]] = None):
+    from betty.extension import Extension
 
-    def __setitem__(self, extension_type: Type['Extension'], extension_configuration: Optional[Any] = None):
+    # Validate the extension type names, and import the types.
+    extension_types_by_name = {}
+    for extension_type_name in extensions_configuration_dict.keys():
+        extension_type = Importable()(extension_type_name)
         try:
-            self._extensions_configuration[extension_type] = extension_type.configuration_schema(extension_configuration)
-        except Invalid as e:
-            raise ConfigurationValueError(e)
+            if not issubclass(extension_type, Extension):
+                raise Invalid('"%s" is not a Betty extension.' % extension_type_name)
+        except TypeError:
+            raise Invalid('"%s" is not a Betty extension.' % extension_type_name)
+        extension_types_by_name[extension_type_name] = extension_type
 
-    def __getitem__(self, item):
-        return self._extensions_configuration[item]
+    # Validate each extension's configuration.
+    schema = Schema({
+        extension_type_name: extension_types_by_name[extension_type_name].configuration_schema for extension_type_name in extensions_configuration_dict.keys()
+    })
+    typed_extensions_configuration_dict = schema(extensions_configuration_dict)
 
-    def __contains__(self, item):
-        return item in self._extensions_configuration
-
-    def __iter__(self):
-        yield from self._extensions_configuration.items()
-
-    def __len__(self):
-        return len(self._extensions_configuration)
+    # Return fully typed and coerced extension types and their configurations.
+    return {
+        extension_types_by_name[extension_type_name]: typed_extensions_configuration_dict[extension_type_name] for extension_type_name in extensions_configuration_dict.keys()
+    }
 
 
 class ThemeConfiguration:
@@ -80,7 +80,7 @@ class Configuration:
     mode: str
     locales: Dict[str, LocaleConfiguration]
     author: Optional[str]
-    extensions: ExtensionsConfiguration
+    extensions: Dict[Type['Extension'], Any]
     assets_directory_path: Optional[str]
     theme: ThemeConfiguration
     lifetime_threshold: int
@@ -95,7 +95,7 @@ class Configuration:
         self.content_negotiation = False
         self.title = 'Betty'
         self.author = None
-        self.extensions = ExtensionsConfiguration()
+        self.extensions = {}
         self.mode = 'production'
         self.assets_directory_path = None
         self.locales = OrderedDict()
@@ -145,20 +145,20 @@ def _locales_configuration(configuration: List):
     return locales_configuration
 
 
-def _theme_configuration(config_dict: Dict) -> ThemeConfiguration:
+def _theme_configuration(configuration_dict: Dict) -> ThemeConfiguration:
     theme_configuration = ThemeConfiguration()
 
-    for key, value in config_dict.items():
+    for key, value in configuration_dict.items():
         setattr(theme_configuration, key, value)
 
     return theme_configuration
 
 
-def _configuration(config_dict: Dict) -> Configuration:
+def _configuration(configuration_dict: Dict) -> Configuration:
     configuration = Configuration(
-        config_dict.pop('output'), config_dict.pop('base_url'))
+        configuration_dict.pop('output'), configuration_dict.pop('base_url'))
 
-    for key, value in config_dict.items():
+    for key, value in configuration_dict.items():
         setattr(configuration, key, value)
 
     return configuration
@@ -175,7 +175,7 @@ _ConfigurationSchema = Schema(All({
     'content_negotiation': bool,
     'mode': Any('development', 'production'),
     'assets_directory_path': All(str, IsDir(), Path()),
-    'extensions': All(dict, lambda x: ExtensionsConfiguration({Importable()(extension_type_name): extension_configuration for extension_type_name, extension_configuration in x.items()})),
+    'extensions': All(dict, _extensions_configuration_schema),
     Required('theme', default=dict): All({
         'background_image_id': str,
     }, _theme_configuration),
@@ -187,23 +187,23 @@ class ConfigurationValueError(ContextError, UserFacingError, ValueError):
     pass  # pragma: no cover
 
 
-def _from_voluptuous(config_builtin: Any) -> Configuration:
+def _from_dict(configuration_dict: Dict) -> Configuration:
     try:
-        return _ConfigurationSchema(config_builtin)
+        return _ConfigurationSchema(configuration_dict)
     except Invalid as e:
         raise ConfigurationValueError(e)
 
 
-def _from_json(config_json: str) -> Configuration:
+def from_json(configuration_json: str) -> Configuration:
     try:
-        return _from_voluptuous(json.loads(config_json))
+        return _from_dict(json.loads(configuration_json))
     except json.JSONDecodeError as e:
         raise ConfigurationValueError('Invalid JSON: %s.' % e)
 
 
-def _from_yaml(config_yaml: str) -> Configuration:
+def from_yaml(configuration_yaml: str) -> Configuration:
     try:
-        return _from_voluptuous(yaml.safe_load(config_yaml))
+        return _from_dict(yaml.safe_load(configuration_yaml))
     except yaml.YAMLError as e:
         raise ConfigurationValueError('Invalid YAML: %s' % e)
 
@@ -211,9 +211,9 @@ def _from_yaml(config_yaml: str) -> Configuration:
 # These factories must take a single argument, which is the configuration in their format, as a string. They must return
 # Configuration, or raise ConfigurationValueError.
 _from_format_factories: Dict[str, Callable[[str], Configuration]] = {
-    '.json': _from_json,
-    '.yaml': _from_yaml,
-    '.yml': _from_yaml,
+    '.json': from_json,
+    '.yaml': from_yaml,
+    '.yml': from_yaml,
 }
 
 

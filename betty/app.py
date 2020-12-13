@@ -97,10 +97,10 @@ class App:
 
         extension_types_graph = defaultdict(set)
         # Add dependencies to the extension graph.
-        for extension_type, _ in self._configuration.extensions:
+        for extension_type in self._configuration.extensions.keys():
             _extend_extension_type_graph(extension_types_graph, extension_type)
         # Now all dependencies have been collected, extend the graph with optional extension orders.
-        for extension_type, _ in self._configuration.extensions:
+        for extension_type in self._configuration.extensions.keys():
             for before in extension_type.comes_before():
                 if before in extension_types_graph:
                     extension_types_graph[extension_type].add(before)
