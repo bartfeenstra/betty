@@ -146,6 +146,14 @@ class CatchExceptionsTest(unittest.TestCase):
             self.assertIn('Traceback', watcher.output[0])
 
 
+class VersionTest(TestCase):
+    def test(self):
+        runner = CliRunner()
+        result = runner.invoke(main, ('--version'), catch_exceptions=False)
+        self.assertEqual(0, result.exit_code)
+        self.assertIn('Betty', result.stdout)
+
+
 class ClearCachesTest(TestCase):
     @patch_cache
     def test(self):
