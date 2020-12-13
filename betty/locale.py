@@ -1,8 +1,10 @@
 import calendar
+import contextlib
 import datetime
 import gettext
 import operator
 import shutil
+from io import StringIO
 from os import path, makedirs
 from contextlib import suppress
 from functools import total_ordering
@@ -298,7 +300,8 @@ def open_translations(locale: str, directory_path: str) -> Optional[gettext.GNUT
     with suppress(FileExistsError):
         shutil.copyfile(po_file_path, path.join(cache_directory_path, 'betty.po'))
 
-    CommandLineInterface().run(['', 'compile', '-d', translation_cache_directory_path, '-l', locale_path_name, '-D', 'betty'])
+    with contextlib.redirect_stdout(StringIO()):
+        CommandLineInterface().run(['', 'compile', '-d', translation_cache_directory_path, '-l', locale_path_name, '-D', 'betty'])
     with open(mo_file_path, 'rb') as f:
         return gettext.GNUTranslations(f)
 
