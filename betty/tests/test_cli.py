@@ -21,7 +21,7 @@ except ImportError:
     from mock.mock import AsyncMock
 
 from betty.cli import main, CommandProvider, global_command, catch_exceptions
-from betty.site import Site
+from betty.app import App
 
 
 class TestCommandError(BaseException):
@@ -109,9 +109,9 @@ class MainTest(TestCase):
             self.assertEqual(1, result.exit_code)
 
     def test_with_discovered_configuration(self, _, __):
-        with TemporaryDirectory() as betty_site_path:
+        with TemporaryDirectory() as working_directory_path:
             with TemporaryDirectory() as output_directory_path:
-                with open(path.join(betty_site_path, 'betty.json'), 'w') as config_file:
+                with open(path.join(working_directory_path, 'betty.json'), 'w') as config_file:
                     url = 'https://example.com'
                     config_dict = {
                         'output': output_directory_path,
@@ -121,7 +121,7 @@ class MainTest(TestCase):
                         },
                     }
                     dump(config_dict, config_file)
-                with os.ChDir(betty_site_path):
+                with os.ChDir(working_directory_path):
                     runner = CliRunner()
                     result = runner.invoke(main, ('test',), catch_exceptions=False)
                     self.assertEqual(1, result.exit_code)
@@ -180,13 +180,13 @@ class GenerateTest(TestCase):
                 m_parse.assert_called_once()
                 parse_args, parse_kwargs = m_parse.await_args
                 self.assertEquals(1, len(parse_args))
-                self.assertIsInstance(parse_args[0], Site)
+                self.assertIsInstance(parse_args[0], App)
                 self.assertEquals({}, parse_kwargs)
 
                 m_generate.assert_called_once()
                 render_args, render_kwargs = m_generate.call_args
                 self.assertEquals(1, len(render_args))
-                self.assertIsInstance(render_args[0], Site)
+                self.assertIsInstance(render_args[0], App)
                 self.assertEquals({}, render_kwargs)
 
 
@@ -199,7 +199,7 @@ class _KeyboardInterruptedServer(Server):
 
 
 class ServeTest(TestCase):
-    @patch('betty.serve.SiteServer', new_callable=lambda: _KeyboardInterruptedServer)
+    @patch('betty.serve.AppServer', new_callable=lambda: _KeyboardInterruptedServer)
     def test(self, m_server):
         with TemporaryDirectory() as working_directory_path:
             configuration_file_path = path.join(working_directory_path, 'betty.json')

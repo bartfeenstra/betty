@@ -6,7 +6,7 @@ from betty.config import Configuration
 from betty.asyncio import sync
 from betty.parse import parse
 from betty.extension.cleaner import Cleaner, clean
-from betty.site import Site
+from betty.app import App
 from betty.tests import TestCase
 
 
@@ -18,10 +18,10 @@ class CleanerTest(TestCase):
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
             configuration.extensions[Cleaner] = None
-            async with Site(configuration) as site:
-                site.ancestry.events[event.id] = event
-                await parse(site)
-                self.assertEquals({}, site.ancestry.events)
+            async with App(configuration) as app:
+                app.ancestry.events[event.id] = event
+                await parse(app)
+                self.assertEquals({}, app.ancestry.events)
 
 
 class CleanTest(TestCase):

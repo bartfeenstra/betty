@@ -11,7 +11,7 @@ from voluptuous import Schema, Required
 
 from betty.config import ExtensionsConfiguration, ConfigurationValueError, LocaleConfiguration, Configuration, from_file
 from betty.extension import Extension, NO_CONFIGURATION
-from betty.site import Site
+from betty.app import App
 from betty.tests import TestCase
 
 
@@ -28,7 +28,7 @@ class ConfigurableExtension(Extension):
         self.check = check
 
     @classmethod
-    def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
+    def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
         return cls(configuration['check'])
 
 

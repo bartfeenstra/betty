@@ -8,7 +8,7 @@ from typing import Iterable
 
 from betty.error import UserFacingError
 from betty.os import ChDir
-from betty.site import Site
+from betty.app import App
 
 DEFAULT_PORT = 8000
 
@@ -53,16 +53,16 @@ class ServerProvider:
         raise NotImplementedError
 
 
-class SiteServer(Server):
-    def __init__(self, site: Site):
-        self._site = site
+class AppServer(Server):
+    def __init__(self, app: App):
+        self._app = app
         self._server = None
 
     def _get_server(self) -> Server:
-        servers = (server for extension in self._site.extensions.values() if isinstance(extension, ServerProvider) for server in extension.servers)
+        servers = (server for extension in self._app.extensions.values() if isinstance(extension, ServerProvider) for server in extension.servers)
         with contextlib.suppress(StopIteration):
             return next(servers)
-        return BuiltinServer(self._site.configuration.www_directory_path)
+        return BuiltinServer(self._app.configuration.www_directory_path)
 
     async def start(self) -> None:
         self._server = self._get_server()

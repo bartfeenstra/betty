@@ -1,14 +1,14 @@
 from unittest.mock import Mock
 
 from betty.extension import Extension
-from betty.site import Site
+from betty.app import App
 from betty.tests import TestCase
 
 
 class ExtensionTest(TestCase):
-    def test_for_site(self):
-        site = Mock(Site)
-        extension = Extension.for_site(site)
+    def test_new_for_app(self):
+        app = Mock(App)
+        extension = Extension.new_for_app(app)
         self.assertIsInstance(extension, Extension)
 
     def test_depends_on(self):

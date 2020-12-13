@@ -10,7 +10,7 @@ from betty.config import Configuration, LocaleConfiguration
 from betty.json import JSONEncoder
 from betty.locale import Date, DateRange
 from betty.media_type import MediaType
-from betty.site import Site
+from betty.app import App
 from betty.tests import TestCase
 
 
@@ -22,10 +22,10 @@ class JSONEncoderTest(TestCase):
             configuration.locales.clear()
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
-            site = Site(configuration)
+            app = App(configuration)
             encoded_data = stdjson.loads(stdjson.dumps(data, cls=JSONEncoder.get_factory(
-                site, configuration.default_locale)))
-            json.validate(encoded_data, schema_definition, site)
+                app, configuration.default_locale)))
+            json.validate(encoded_data, schema_definition, app)
             self.assertEquals(expected, encoded_data)
 
     def test_coordinates_should_encode(self):

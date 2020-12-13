@@ -20,7 +20,7 @@ from betty.config import Configuration, LocaleConfiguration
 from betty.asyncio import sync
 from betty.parse import parse
 from betty.extension.wikipedia import Entry, Retriever, NotAnEntryError, parse_url, RetrievalError, _Populator, Wikipedia
-from betty.site import Site
+from betty.app import App
 
 
 class ParseUrlTest(TestCase):
@@ -236,8 +236,8 @@ class PopulatorTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                async with Site(configuration) as site:
-                    sut = _Populator(site, m_retriever)
+                async with App(configuration) as app:
+                    sut = _Populator(app, m_retriever)
                     await sut.populate_link(link, entry_language)
         self.assertEqual('https://en.wikipedia.org/wiki/Amsterdam', link.url)
 
@@ -256,8 +256,8 @@ class PopulatorTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                async with Site(configuration) as site:
-                    sut = _Populator(site, m_retriever)
+                async with App(configuration) as app:
+                    sut = _Populator(app, m_retriever)
                     await sut.populate_link(link, 'en')
         self.assertEqual(expected, link.media_type)
 
@@ -276,8 +276,8 @@ class PopulatorTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                async with Site(configuration) as site:
-                    sut = _Populator(site, m_retriever)
+                async with App(configuration) as app:
+                    sut = _Populator(app, m_retriever)
                     await sut.populate_link(link, 'en')
         self.assertEqual(expected, link.relationship)
 
@@ -296,8 +296,8 @@ class PopulatorTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                async with Site(configuration) as site:
-                    sut = _Populator(site, m_retriever)
+                async with App(configuration) as app:
+                    sut = _Populator(app, m_retriever)
                     await sut.populate_link(link, entry_language)
         self.assertEqual(expected, link.locale)
 
@@ -316,8 +316,8 @@ class PopulatorTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                async with Site(configuration) as site:
-                    sut = _Populator(site, m_retriever)
+                async with App(configuration) as app:
+                    sut = _Populator(app, m_retriever)
                     await sut.populate_link(link, entry_language)
         self.assertEqual(expected, link.description)
 
@@ -336,8 +336,8 @@ class PopulatorTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                async with Site(configuration) as site:
-                    sut = _Populator(site, m_retriever)
+                async with App(configuration) as app:
+                    sut = _Populator(app, m_retriever)
                     await sut.populate_link(link, 'en', entry)
         self.assertEqual(expected, link.label)
 
@@ -351,9 +351,9 @@ class PopulatorTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                async with Site(configuration) as site:
-                    site.ancestry.citations[resource.id] = resource
-                    sut = _Populator(site, m_retriever)
+                async with App(configuration) as app:
+                    app.ancestry.citations[resource.id] = resource
+                    sut = _Populator(app, m_retriever)
                     await sut.populate()
 
     @patch('betty.extension.wikipedia.Retriever')
@@ -365,9 +365,9 @@ class PopulatorTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                async with Site(configuration) as site:
-                    site.ancestry.sources[resource.id] = resource
-                    sut = _Populator(site, m_retriever)
+                async with App(configuration) as app:
+                    app.ancestry.sources[resource.id] = resource
+                    sut = _Populator(app, m_retriever)
                     await sut.populate()
         self.assertSetEqual(set(), resource.links)
 
@@ -382,9 +382,9 @@ class PopulatorTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                async with Site(configuration) as site:
-                    site.ancestry.sources[resource.id] = resource
-                    sut = _Populator(site, m_retriever)
+                async with App(configuration) as app:
+                    app.ancestry.sources[resource.id] = resource
+                    sut = _Populator(app, m_retriever)
                     await sut.populate()
         self.assertSetEqual({link}, resource.links)
 
@@ -406,9 +406,9 @@ class PopulatorTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                async with Site(configuration) as site:
-                    site.ancestry.sources[resource.id] = resource
-                    sut = _Populator(site, m_retriever)
+                async with App(configuration) as app:
+                    app.ancestry.sources[resource.id] = resource
+                    sut = _Populator(app, m_retriever)
                     await sut.populate()
         m_retriever.get_entry.assert_called_once_with(entry_language, entry_name)
         self.assertEqual(1, len(resource.links))
@@ -452,9 +452,9 @@ class PopulatorTest(TestCase):
                 configuration.locales.clear()
                 configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
                 configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
-                async with Site(configuration) as site:
-                    site.ancestry.sources[resource.id] = resource
-                    sut = _Populator(site, m_retriever)
+                async with App(configuration) as app:
+                    app.ancestry.sources[resource.id] = resource
+                    sut = _Populator(app, m_retriever)
                     await sut.populate()
 
         m_retriever.get_entry.assert_has_calls([
@@ -478,7 +478,7 @@ class WikipediaTest(TestCase):
         entry_url = 'https://en.wikipedia.org/wiki/Amsterdam'
         links = [
             Link(entry_url),
-            # Add a link to Wikipedia, but using a locale that's not used by the site, to test it's ignored.
+            # Add a link to Wikipedia, but using a locale that's not used by the app, to test it's ignored.
             Link('https://nl.wikipedia.org/wiki/Amsterdam'),
             # Add a link that doesn't point to Wikipedia at all to test it's ignored.
             Link('https://example.com'),
@@ -504,8 +504,8 @@ class WikipediaTest(TestCase):
                     output_directory_path, 'https://ancestry.example.com')
                 configuration.cache_directory_path = cache_directory_path
                 configuration.extensions[Wikipedia] = None
-                async with Site(configuration) as site:
-                    actual = await site.jinja2_environment.from_string(
+                async with App(configuration) as app:
+                    actual = await app.jinja2_environment.from_string(
                         '{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}').render_async(links=links)
         self.assertEquals(extract, actual)
 
@@ -547,9 +547,9 @@ class WikipediaTest(TestCase):
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
                 configuration.extensions[Wikipedia] = None
-                async with Site(configuration) as site:
-                    site.ancestry.sources[resource.id] = resource
-                    await parse(site)
+                async with App(configuration) as app:
+                    app.ancestry.sources[resource.id] = resource
+                    await parse(app)
 
         self.assertEqual(1, len(resource.links))
         self.assertEqual(entry_title, link.label)

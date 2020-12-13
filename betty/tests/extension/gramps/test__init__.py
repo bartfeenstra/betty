@@ -11,7 +11,7 @@ from betty.locale import Date
 from betty.parse import parse
 from betty.path import rootname
 from betty.extension.gramps import parse_xml, Gramps, parse_gpkg, parse_gramps
-from betty.site import Site
+from betty.app import App
 from betty.tests import TestCase
 
 
@@ -31,20 +31,20 @@ class ParseXmlTest(TestCase):
         # @todo Convert each test method to use self._parse(), so we can remove this shared XML file.
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://example.com')
-            async with Site(configuration) as site:
-                cls.ancestry = site.ancestry
+            async with App(configuration) as app:
+                cls.ancestry = app.ancestry
                 xml_file_path = join(dirname(abspath(__file__)), 'assets', 'data.xml')
                 with open(xml_file_path) as f:
-                    parse_xml(site, f.read(), rootname(xml_file_path))
+                    parse_xml(app, f.read(), rootname(xml_file_path))
 
     @sync
     async def _parse(self, xml: str) -> Ancestry:
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://example.com')
-            async with Site(configuration) as site:
+            async with App(configuration) as app:
                 with TemporaryDirectory() as tree_directory_path:
-                    parse_xml(site, xml.strip(), tree_directory_path)
-                    return site.ancestry
+                    parse_xml(app, xml.strip(), tree_directory_path)
+                    return app.ancestry
 
     def _parse_partial(self, xml: str) -> Ancestry:
         return self._parse("""
@@ -65,34 +65,34 @@ class ParseXmlTest(TestCase):
     async def test_parse_xml_with_string(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://example.com')
-            async with Site(configuration) as site:
+            async with App(configuration) as app:
                 gramps_file_path = join(dirname(abspath(__file__)), 'assets', 'minimal.xml')
                 with open(gramps_file_path) as f:
-                    parse_xml(site, f.read(), rootname(gramps_file_path))
+                    parse_xml(app, f.read(), rootname(gramps_file_path))
 
     @sync
     async def test_parse_xml_with_file_path(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://example.com')
-            async with Site(configuration) as site:
+            async with App(configuration) as app:
                 gramps_file_path = join(dirname(abspath(__file__)), 'assets', 'minimal.xml')
-                parse_xml(site, gramps_file_path, rootname(gramps_file_path))
+                parse_xml(app, gramps_file_path, rootname(gramps_file_path))
 
     @sync
     async def test_parse_gramps(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://example.com')
-            async with Site(configuration) as site:
+            async with App(configuration) as app:
                 gramps_file_path = join(dirname(abspath(__file__)), 'assets', 'minimal.gramps')
-                parse_gramps(site, gramps_file_path)
+                parse_gramps(app, gramps_file_path)
 
     @sync
     async def test_parse_gpkg(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://example.com')
-            async with Site(configuration) as site:
+            async with App(configuration) as app:
                 gramps_file_path = join(dirname(abspath(__file__)), 'assets', 'minimal.gpkg')
-                parse_gpkg(site, gramps_file_path)
+                parse_gpkg(app, gramps_file_path)
 
     def test_place_should_include_name(self):
         place = self.ancestry.places['P0000']
@@ -515,11 +515,11 @@ class GrampsTest(TestCase):
             configuration.extensions[Gramps] = {
                 'file': join(dirname(abspath(__file__)), 'assets', 'minimal.gpkg')
             }
-            async with Site(configuration) as site:
-                await parse(site)
+            async with App(configuration) as app:
+                await parse(app)
             self.assertEquals(
-                'Dough', site.ancestry.people['I0000'].name.affiliation)
+                'Dough', app.ancestry.people['I0000'].name.affiliation)
             self.assertEquals(
-                'Janet', site.ancestry.people['I0000'].name.individual)
+                'Janet', app.ancestry.people['I0000'].name.individual)
             self.assertEquals(
-                '1px', site.ancestry.files['O0000'].description)
+                '1px', app.ancestry.files['O0000'].description)

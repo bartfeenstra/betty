@@ -23,57 +23,57 @@ from betty.media_type import MediaType
 from betty.parse import Parser
 from betty.path import rootname
 from betty.extension import Extension, NO_CONFIGURATION
-from betty.site import Site
+from betty.app import App
 
 
 class GrampsParseFileError(UserFacingError):
     pass
 
 
-def parse_file(site: Site, file_path: str) -> None:
+def parse_file(app: App, file_path: str) -> None:
     logger = logging.getLogger()
     logger.info('Parsing %s...' % file_path)
 
     with suppress(GrampsParseFileError):
-        parse_gpkg(site, file_path)
+        parse_gpkg(app, file_path)
         return
 
     with suppress(GrampsParseFileError):
-        parse_gramps(site, file_path)
+        parse_gramps(app, file_path)
         return
 
     with suppress(GrampsParseFileError):
         with open(file_path) as f:
             xml = f.read()
-        parse_xml(site, xml, rootname(file_path))
+        parse_xml(app, xml, rootname(file_path))
         return
 
     raise GrampsParseFileError('Could not parse "%s" as a *.gpkg, a *.gramps, or an *.xml family tree.' % file_path)
 
 
-def parse_gramps(site: Site, gramps: str) -> None:
+def parse_gramps(app: App, gramps: str) -> None:
     try:
         with gzip.open(gramps) as f:
             xml = f.read()
-        parse_xml(site, xml, rootname(gramps))
+        parse_xml(app, xml, rootname(gramps))
     except OSError:
         raise GrampsParseFileError()
 
 
-def parse_gpkg(site: Site, gpkg: str) -> None:
+def parse_gpkg(app: App, gpkg: str) -> None:
     try:
         tar_file = gzip.open(gpkg)
         try:
             with TemporaryDirectory() as cache_directory_path:
                 tarfile.open(fileobj=tar_file).extractall(cache_directory_path)
-                parse_gramps(site, path.join(cache_directory_path, 'data.gramps'))
+                parse_gramps(app, path.join(cache_directory_path, 'data.gramps'))
         except tarfile.ReadError:
             raise GrampsParseFileError('Could not read "%s" as a *.tar file after un-gzipping it.' % gpkg)
     except OSError:
         raise GrampsParseFileError('Could not un-gzip "%s".' % gpkg)
 
 
-def parse_xml(site: Site, xml: str, gramps_tree_directory_path: str) -> None:
+def parse_xml(app: App, xml: str, gramps_tree_directory_path: str) -> None:
     with suppress(FileNotFoundError, OSError):
         with open(xml) as f:
             xml = f.read()
@@ -81,7 +81,7 @@ def parse_xml(site: Site, xml: str, gramps_tree_directory_path: str) -> None:
         tree = ElementTree.ElementTree(ElementTree.fromstring(xml))
     except ElementTree.ParseError as e:
         raise GrampsParseFileError(e)
-    _parse_tree(site.ancestry, tree, gramps_tree_directory_path)
+    _parse_tree(app.ancestry, tree, gramps_tree_directory_path)
 
 
 class _IntermediateAncestry:
@@ -545,13 +545,13 @@ class Gramps(Extension, Parser):
         'file': All(str, IsFile(), Path()),
     })
 
-    def __init__(self, site: Site, gramps_file_path: str):
-        self._site = site
+    def __init__(self, app: App, gramps_file_path: str):
+        self._app = app
         self._gramps_file_path = gramps_file_path
 
     @classmethod
-    def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
-        return cls(site, configuration['file'])
+    def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
+        return cls(app, configuration['file'])
 
     async def parse(self) -> None:
-        parse_file(self._site, self._gramps_file_path)
+        parse_file(self._app, self._gramps_file_path)

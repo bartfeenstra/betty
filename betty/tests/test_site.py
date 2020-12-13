@@ -7,7 +7,7 @@ from betty.config import Configuration
 from betty.asyncio import sync
 from betty.graph import CyclicGraphError
 from betty.extension import Extension, NO_CONFIGURATION
-from betty.site import Site
+from betty.app import App
 from betty.tests import TestCase
 
 
@@ -34,7 +34,7 @@ class ConfigurableExtension(Extension):
         self.check = check
 
     @classmethod
-    def for_site(cls, site: Site, configuration: Any = NO_CONFIGURATION):
+    def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
         return cls(configuration['check'])
 
 
@@ -89,20 +89,20 @@ class SiteTest(TestCase):
     @sync
     async def test_ancestry_should_return(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        async with Site(configuration) as sut:
+        async with App(configuration) as sut:
             self.assertIsInstance(sut.ancestry, Ancestry)
 
     @sync
     async def test_configuration_should_return(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        async with Site(configuration) as sut:
+        async with App(configuration) as sut:
             self.assertEquals(configuration, sut.configuration)
 
     @sync
     async def test_with_one_extension(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.extensions[NonConfigurableExtension] = None
-        async with Site(configuration) as sut:
+        async with App(configuration) as sut:
             self.assertEquals(1, len(sut.extensions))
             self.assertIsInstance(
                 sut.extensions[NonConfigurableExtension], NonConfigurableExtension)
@@ -114,7 +114,7 @@ class SiteTest(TestCase):
         configuration.extensions[ConfigurableExtension] = {
             'check': check,
         }
-        async with Site(configuration) as sut:
+        async with App(configuration) as sut:
             self.assertEquals(1, len(sut.extensions))
             self.assertIsInstance(
                 sut.extensions[ConfigurableExtension], ConfigurableExtension)
@@ -124,7 +124,7 @@ class SiteTest(TestCase):
     async def test_with_one_extension_with_single_chained_dependency(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.extensions[DependsOnNonConfigurableExtensionExtensionExtension] = None
-        async with Site(configuration) as sut:
+        async with App(configuration) as sut:
             carrier = []
             await sut.dispatcher.dispatch(Tracker, 'track')(carrier)
             self.assertEquals(3, len(carrier))
@@ -139,7 +139,7 @@ class SiteTest(TestCase):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.extensions[DependsOnNonConfigurableExtensionExtension] = None
         configuration.extensions[AlsoDependsOnNonConfigurableExtensionExtension] = None
-        async with Site(configuration) as sut:
+        async with App(configuration) as sut:
             carrier = []
             await sut.dispatcher.dispatch(Tracker, 'track')(carrier)
             self.assertEquals(3, len(carrier))
@@ -154,7 +154,7 @@ class SiteTest(TestCase):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.extensions[CyclicDependencyOneExtension] = None
         with self.assertRaises(CyclicGraphError):
-            async with Site(configuration):
+            async with App(configuration):
                 pass
 
     @sync
@@ -162,7 +162,7 @@ class SiteTest(TestCase):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.extensions[NonConfigurableExtension] = None
         configuration.extensions[ComesBeforeNonConfigurableExtensionExtension] = None
-        async with Site(configuration) as sut:
+        async with App(configuration) as sut:
             carrier = []
             await sut.dispatcher.dispatch(Tracker, 'track')(carrier)
             self.assertEquals(2, len(carrier))
@@ -174,7 +174,7 @@ class SiteTest(TestCase):
     async def test_with_comes_before_without_other_extension(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.extensions[ComesBeforeNonConfigurableExtensionExtension] = None
-        async with Site(configuration) as sut:
+        async with App(configuration) as sut:
             carrier = []
             await sut.dispatcher.dispatch(Tracker, 'track')(carrier)
             self.assertEquals(1, len(carrier))
@@ -186,7 +186,7 @@ class SiteTest(TestCase):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.extensions[ComesAfterNonConfigurableExtensionExtension] = None
         configuration.extensions[NonConfigurableExtension] = None
-        async with Site(configuration) as sut:
+        async with App(configuration) as sut:
             carrier = []
             await sut.dispatcher.dispatch(Tracker, 'track')(carrier)
             self.assertEquals(2, len(carrier))
@@ -198,7 +198,7 @@ class SiteTest(TestCase):
     async def test_with_comes_after_without_other_extension(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.extensions[ComesAfterNonConfigurableExtensionExtension] = None
-        async with Site(configuration) as sut:
+        async with App(configuration) as sut:
             carrier = []
             await sut.dispatcher.dispatch(Tracker, 'track')(carrier)
             self.assertEquals(1, len(carrier))
@@ -208,7 +208,7 @@ class SiteTest(TestCase):
     @sync
     async def test_resources_without_assets_directory_path(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        async with Site(configuration) as sut:
+        async with App(configuration) as sut:
             self.assertEquals(1, len(sut.assets.paths))
 
     @sync
@@ -216,6 +216,6 @@ class SiteTest(TestCase):
         assets_directory_path = '/tmp/betty'
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.assets_directory_path = assets_directory_path
-        async with Site(configuration) as sut:
+        async with App(configuration) as sut:
             self.assertEquals(2, len(sut.assets.paths))
             self.assertEquals(assets_directory_path, sut.assets.paths[0])

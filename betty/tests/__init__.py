@@ -12,7 +12,7 @@ from jinja2 import Environment, Template
 
 import betty
 from betty.config import Configuration
-from betty.site import Site
+from betty.app import App
 
 
 def patch_cache(f):
@@ -52,7 +52,7 @@ class TemplateTestCase(TestCase):
             raise RuntimeError(f'{class_name} must define either `{class_name}.template_string` or `{class_name}.template_file`, but not both.')
 
     @asynccontextmanager
-    async def _render(self, data: Optional[Dict] = None, template_file: Optional[Template] = None, template_string: Optional[str] = None, update_configuration: Optional[Callable[[Configuration], None]] = None) -> Tuple[str, Site]:
+    async def _render(self, data: Optional[Dict] = None, template_file: Optional[Template] = None, template_string: Optional[str] = None, update_configuration: Optional[Callable[[Configuration], None]] = None) -> Tuple[str, App]:
         if template_string is not None and template_file is not None:
             raise RuntimeError('You must define either `template_string` or `template_file`, but not both.')
         if template_string is not None:
@@ -77,9 +77,9 @@ class TemplateTestCase(TestCase):
             configuration.mode = 'development'
             if update_configuration is not None:
                 update_configuration(configuration)
-            async with Site(configuration) as site:
-                rendered = await template_factory(site.jinja2_environment, template).render_async(**data)
-                # We want to keep the site around, but we must make sure all dispatched tasks are done, so we shut down
+            async with App(configuration) as app:
+                rendered = await template_factory(app.jinja2_environment, template).render_async(**data)
+                # We want to keep the app around, but we must make sure all dispatched tasks are done, so we shut down
                 # the executor. Crude, but effective.
-                site.executor.shutdown()
-                yield rendered, site
+                app.executor.shutdown()
+                yield rendered, app

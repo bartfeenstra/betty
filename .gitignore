@@ -10,4 +10,4 @@
 # Test artifacts.
 /.coverage
 /cypress/screenshots
-/cypress/site
+/cypress/app

@@ -1,6 +1,6 @@
 from typing import Dict
 
-from betty.site import Site
+from betty.app import App
 
 
 class _Resource:
@@ -30,12 +30,12 @@ def _get_resources():
     ]
 
 
-def build_specification(site: Site) -> Dict:
+def build_specification(app: App) -> Dict:
     specification = {
         'openapi': '3.0.0',
         'servers': [
             {
-                'url': site.static_url_generator.generate('/', absolute=True),
+                'url': app.static_url_generator.generate('/', absolute=True),
             }
         ],
         'info': {
@@ -93,12 +93,12 @@ def build_specification(site: Site) -> Dict:
                     'schema': {
                         'type': 'string',
                     },
-                    'example': site.configuration.default_locale,
+                    'example': app.configuration.default_locale,
                 },
             },
             'schemas': {
                 'betty': {
-                    '$ref': site.static_url_generator.generate('/schema.json#/definitions'),
+                    '$ref': app.static_url_generator.generate('/schema.json#/definitions'),
                 },
             },
         },
@@ -106,7 +106,7 @@ def build_specification(site: Site) -> Dict:
 
     # Add resource operations.
     for resource in _get_resources():
-        if site.configuration.content_negotiation:
+        if app.configuration.content_negotiation:
             collection_path = '/%s/' % resource.name
             single_path = '/%s/{id}/' % resource.name
         else:
@@ -150,7 +150,7 @@ def build_specification(site: Site) -> Dict:
         })
 
     # Add components for content negotiation.
-    if site.configuration.content_negotiation:
+    if app.configuration.content_negotiation:
         specification['components']['parameters']['Accept-Language'] = {
             'name': 'Accept-Language',
             'in': 'header',
@@ -158,7 +158,7 @@ def build_specification(site: Site) -> Dict:
             'schema': {
                 'type': 'string',
             },
-            'example': site.configuration.locales[site.configuration.default_locale].alias,
+            'example': app.configuration.locales[app.configuration.default_locale].alias,
         }
         specification['components']['schemas']['html'] = {
             'type': 'string',
@@ -172,9 +172,9 @@ def build_specification(site: Site) -> Dict:
             'description': _('A locale name.'),
             'schema': {
                 'type': 'string',
-                'enum': list(site.configuration.locales.keys())
+                'enum': list(app.configuration.locales.keys())
             },
-            'example': site.configuration.locales[site.configuration.default_locale].alias,
+            'example': app.configuration.locales[app.configuration.default_locale].alias,
         }
 
     # Add default behavior to all requests.
@@ -190,7 +190,7 @@ def build_specification(site: Site) -> Dict:
                 '$ref': '#/components/responses/404',
             },
         })
-        if site.configuration.content_negotiation:
+        if app.configuration.content_negotiation:
             specification['paths'][path]['parameters'] = [
                 {
                     '$ref': '#/components/parameters/Accept-Language',
@@ -204,7 +204,7 @@ def build_specification(site: Site) -> Dict:
             ]
 
     # Add default behavior to all responses.
-    if site.configuration.content_negotiation:
+    if app.configuration.content_negotiation:
         responses = list(specification['components']['responses'].values())
         for path in specification['paths']:
             responses.append(

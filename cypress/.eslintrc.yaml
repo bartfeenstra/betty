@@ -5,4 +5,4 @@ plugins:
 env:
   cypress/globals: true
 ignorePatterns:
-  - site/
+  - app/
