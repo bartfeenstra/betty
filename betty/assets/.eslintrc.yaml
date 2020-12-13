@@ -7,4 +7,4 @@ env:
 extends:
   - standard
   - eslint:recommended
-  - extension:compat/recommended
+  - plugin:compat/recommended
