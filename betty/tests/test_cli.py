@@ -216,7 +216,7 @@ class ServeTest(TestCase):
 
                 runner = CliRunner()
                 result = runner.invoke(main, ('-c', configuration_file_path, 'serve',), catch_exceptions=False)
-                self.assertEqual(1, result.exit_code)
+                self.assertEqual(0, result.exit_code)
 
     def test_without_www_directory_should_error(self):
         with TemporaryDirectory() as working_directory_path:

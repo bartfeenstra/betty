@@ -35,6 +35,10 @@ class CommandProvider:
 def catch_exceptions():
     try:
         yield
+    except KeyboardInterrupt:
+        print('Quitting...')
+        sys.exit(0)
+        pass
     except Exception as e:
         logger = logging.getLogger()
         if isinstance(e, UserFacingError):
