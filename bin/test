@@ -13,7 +13,7 @@ done
 flake8 --config ./flake8.ini ./betty
 
 # Test the CSS code style.
-npm run stylelint -- "./betty/**/*.css" "./betty/**/*.sass" "./betty/**/*.scss"
+npm run stylelint -- "./betty/**/*.css"
 
 # Test the JS code style.
 while read -r configuration_path; do

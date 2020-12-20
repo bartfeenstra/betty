@@ -46,21 +46,6 @@ class Jinja2RendererTest(TestCase):
                     self.assertFalse(path.exists(template_file_path))
 
     @sync
-    async def test_render_file_should_ignore_non_sass_or_scss(self) -> None:
-        with TemporaryDirectory() as output_directory_path:
-            configuration = Configuration(output_directory_path, 'https://ancestry.example.com')
-            async with App(configuration) as app:
-                sut = Jinja2Renderer(app.jinja2_environment, configuration)
-                template = '{% if true %}true{% endif %}'
-                with TemporaryDirectory() as working_directory_path:
-                    template_file_path = path.join(working_directory_path, 'betty.txt')
-                    with open(template_file_path, 'w') as f:
-                        f.write(template)
-                    await sut.render_file(template_file_path)
-                    with open(path.join(working_directory_path, 'betty.txt')) as f:
-                        self.assertEquals(template, f.read())
-
-    @sync
     async def test_render_tree(self) -> None:
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://ancestry.example.com')
