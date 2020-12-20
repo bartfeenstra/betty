@@ -43,7 +43,7 @@ jobs:
             node: '15'
           - name: 'Windows'
             os: windows-latest
-            python: '3.8'
+            python: '3.9'
             node: '15'
 
     steps:
