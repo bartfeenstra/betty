@@ -37,7 +37,8 @@ secure**.
 ### Requirements
 - **Python 3.6+**
 - Node.js 10+ (optional)
-- Linux, Mac OS, or Windows
+- Linux, Mac OS, or Windows. On Windows you are encouraged to use Python 3.6, 3.7, or 3.8, because one of Betty's
+  dependencies (libsass) cannot be installed automatically when using Python 3.9.
 
 ### Instructions
 Run `pip install betty` to install the latest stable release.
