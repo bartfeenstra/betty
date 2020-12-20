@@ -66,10 +66,10 @@ figcaption {
   font-size: 1.1rem;
   line-height: 3rem;
   padding: 0 0.5rem;
+}
 
-  &:hover {
-    color: #fff;
-  }
+.file-controls li a:hover {
+  color: #fff;
 }
 
 .file img {

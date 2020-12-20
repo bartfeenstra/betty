@@ -10,10 +10,10 @@
 
 .reference {
   padding: 0.3rem;
+}
 
-  &:target {
-    background-color: #eee;
-  }
+.reference:target {
+  background-color: #eee;
 }
 
 .citation-author::after {
@@ -22,14 +22,14 @@
 
 .citation-title {
   font-style: italic;
+}
 
-  &::before {
-    content: "\"";
-  }
+.citation-title::before {
+  content: "\"";
+}
 
-  &::after {
-    content: "\". ";
-  }
+.citation-title::after {
+  content: "\". ";
 }
 
 .citation-publisher::after {

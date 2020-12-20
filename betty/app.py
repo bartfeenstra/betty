@@ -9,7 +9,6 @@ from betty.concurrent import ExceptionRaisingExecutor
 from betty.dispatch import Dispatcher
 from betty.lock import Locks
 from betty.render import Renderer, SequentialRenderer
-from betty.sass import SassRenderer
 
 try:
     from contextlib import AsyncExitStack
@@ -183,7 +182,6 @@ class App:
             from betty.jinja2 import Jinja2Renderer
             self._renderer = SequentialRenderer([
                 Jinja2Renderer(self.jinja2_environment, self._configuration),
-                SassRenderer(),
             ])
 
         return self._renderer
