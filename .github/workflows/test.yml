@@ -16,15 +16,15 @@ jobs:
           - name: 'Python 3.8'
             os: ubuntu-latest
             python: '3.8'
-            node: '14'
+            node: '15'
           - name: 'Python 3.7'
             os: ubuntu-latest
             python: '3.7'
-            node: '14'
+            node: '15'
           - name: 'Python 3.6'
             os: ubuntu-latest
             python: '3.6'
-            node: '14'
+            node: '15'
           - name: 'Node.js 14'
             os: ubuntu-latest
             python: '3.9'
@@ -40,11 +40,11 @@ jobs:
           - name: 'Mac OS'
             os: macos-latest
             python: '3.9'
-            node: '14'
+            node: '15'
           - name: 'Windows'
             os: windows-latest
             python: '3.8'
-            node: '14'
+            node: '15'
 
     steps:
       - name: Check out the source code
