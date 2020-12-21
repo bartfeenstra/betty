@@ -1,0 +1,82 @@
+.nn,
+.private {
+  cursor: help;
+  text-decoration: dotted underline;
+}
+
+.aka .person-label {
+  font-style: italic;
+}
+
+.person-meta dl {
+  margin: 0;
+}
+
+.person-meta dt {
+  font-weight: bold;
+}
+
+.person-meta dt::after {
+  content: ': ';
+}
+
+.person-meta dt,
+.person-meta dd {
+  display: inline;
+}
+
+.person-meta dd {
+  margin: 0 3em 0 0;
+}
+
+.family {
+  margin: 3rem 0;
+}
+
+@media (min-width: 768px) {
+  .family {
+    display: grid;
+  }
+
+  .family-description {
+    position: relative;
+  }
+
+  .family-description p {
+    font-size: 1.2rem;
+  }
+
+  .family-description-content {
+    border-bottom: 0.3rem solid #f7f7f7;
+    position: relative;
+    top: 50%;
+    transform: translate(0, -50%);
+  }
+
+  .family:nth-child(even) {
+    grid-template-columns: 1fr 2fr;
+  }
+
+  .family:nth-child(even) .family-description {
+    border-right: 0.3rem solid #f7f7f7;
+  }
+
+  .family:nth-child(even) .family-description-content {
+    padding-right: 3em;
+    right: 0;
+    text-align: right;
+  }
+
+  .family:nth-child(odd) {
+    grid-template-columns: 2fr 1fr;
+  }
+
+  .family:nth-child(odd) .family-description {
+    order: 1;
+    border-left: 0.3rem solid #f7f7f7;
+  }
+
+  .family:nth-child(odd) .family-description-content {
+    padding-left: 3em;
+  }
+}

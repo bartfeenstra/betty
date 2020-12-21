@@ -1,0 +1,41 @@
+@import 'variables.css';
+
+.has-overlay {
+  position: fixed;
+}
+
+.overlay {
+  height: 100vh;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100vw;
+  z-index: 999999999;
+}
+
+.overlay-controls {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.overlay .overlay-controls {
+  display: block;
+}
+
+.overlay-control {
+  cursor: pointer;
+  display: block;
+  float: right;
+  height: 3rem;
+  text-indent: -999rem;
+  width: 3rem;
+}
+
+.overlay-close {
+  background-image: var(--close-svg-url);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 2rem 2rem;
+}

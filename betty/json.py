@@ -11,15 +11,15 @@ from betty.ancestry import Place, Person, PlaceName, Event, Described, HasLinks,
     PresenceRole, EventType
 from betty.locale import Date, DateRange, Localized
 from betty.media_type import MediaType
-from betty.plugin.deriver import DerivedEvent
-from betty.site import Site
+from betty.extension.deriver import DerivedEvent
+from betty.app import App
 
 
-def validate(data: Any, schema_definition: str, site: Site) -> None:
+def validate(data: Any, schema_definition: str, app: App) -> None:
     with open(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'schema.json')) as f:
         schema = stdjson.load(f)
     # @todo Can we set the schema ID somehow without making the entire JSON schema file a Jinja2 template?
-    schema_id = site.static_url_generator.generate('schema.json', absolute=True)
+    schema_id = app.static_url_generator.generate('schema.json', absolute=True)
     schema['$id'] = schema_id
     ref_resolver = RefResolver(schema_id, schema)
     jsonschema.validate(
@@ -27,9 +27,9 @@ def validate(data: Any, schema_definition: str, site: Site) -> None:
 
 
 class JSONEncoder(stdjson.JSONEncoder):
-    def __init__(self, site: Site, locale: str, *args, **kwargs):
+    def __init__(self, app: App, locale: str, *args, **kwargs):
         stdjson.JSONEncoder.__init__(self, *args, **kwargs)
-        self._site = site
+        self._app = app
         self._locale = locale
         self._mappers = {
             PlaceName: self._encode_localized_name,
@@ -52,8 +52,8 @@ class JSONEncoder(stdjson.JSONEncoder):
         }
 
     @classmethod
-    def get_factory(cls, site: Site, locale: str):
-        return lambda *args, **kwargs: cls(site, locale, *args, **kwargs)
+    def get_factory(cls, app: App, locale: str):
+        return lambda *args, **kwargs: cls(app, locale, *args, **kwargs)
 
     def default(self, o):
         for mapper_type in self._mappers:
@@ -63,10 +63,10 @@ class JSONEncoder(stdjson.JSONEncoder):
 
     def _generate_url(self, resource: Any, media_type='application/json', locale=None):
         locale = self._locale if locale is None else locale
-        return self._site.localized_url_generator.generate(resource, media_type, locale=locale)
+        return self._app.localized_url_generator.generate(resource, media_type, locale=locale)
 
     def _encode_schema(self, encoded: Dict, defintion: str) -> None:
-        encoded['$schema'] = self._site.static_url_generator.generate(
+        encoded['$schema'] = self._app.static_url_generator.generate(
             'schema.json#/definitions/%s' % defintion)
 
     def _encode_identifiable_resource(self, encoded: Dict, resource: Union[Identifiable, Resource]) -> None:
@@ -78,7 +78,7 @@ class JSONEncoder(stdjson.JSONEncoder):
         canonical.media_type = 'application/json'
         encoded['links'].append(canonical)
 
-        for locale in self._site.configuration.locales:
+        for locale in self._app.configuration.locales:
             if locale == self._locale:
                 continue
             translation = Link(self._generate_url(resource, locale=locale))

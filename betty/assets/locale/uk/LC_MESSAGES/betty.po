@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-11-18 23:28+0000\n"
+"POT-Creation-Date: 2020-12-13 17:46+0000\n"
 "PO-Revision-Date: 2020-05-02 22:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -17,37 +17,37 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.7.0\n"
+"Generated-By: Babel 2.9.0\n"
 
-#: betty/ancestry.py:457
+#: betty/ancestry.py:441
 msgid "Subject"
 msgstr "Предмет"
 
-#: betty/ancestry.py:465
+#: betty/ancestry.py:451
 msgid "Witness"
 msgstr "Свідок"
 
-#: betty/ancestry.py:473
+#: betty/ancestry.py:461
 msgid "Beneficiary"
 msgstr "Бенефіціар"
 
-#: betty/ancestry.py:481
+#: betty/ancestry.py:471
 msgid "Attendee"
 msgstr "Відвідувач"
 
-#: betty/ancestry.py:519
+#: betty/ancestry.py:511
 msgid "Unknown"
 msgstr "Невідомо"
 
-#: betty/ancestry.py:557
+#: betty/ancestry.py:551
 msgid "Birth"
 msgstr "Народження"
 
-#: betty/ancestry.py:569
+#: betty/ancestry.py:565
 msgid "Baptism"
 msgstr "Хрещення"
 
-#: betty/ancestry.py:577
+#: betty/ancestry.py:575
 msgid "Adoption"
 msgstr "Усиновлення"
 
@@ -55,224 +55,224 @@ msgstr "Усиновлення"
 msgid "Death"
 msgstr "Смерть"
 
-#: betty/ancestry.py:597
+#: betty/ancestry.py:599
 msgid "Funeral"
 msgstr "Похорон"
 
-#: betty/ancestry.py:615
+#: betty/ancestry.py:619
 msgid "Cremation"
 msgstr "Кремація"
 
-#: betty/ancestry.py:623
+#: betty/ancestry.py:629
 msgid "Burial"
 msgstr "Поховання"
 
-#: betty/ancestry.py:631
+#: betty/ancestry.py:639
 msgid "Will"
 msgstr "Заповіт"
 
-#: betty/ancestry.py:643
+#: betty/ancestry.py:653
 msgid "Engagement"
 msgstr "Заручини"
 
-#: betty/ancestry.py:655
+#: betty/ancestry.py:667
 msgid "Marriage"
 msgstr "Шлюб"
 
-#: betty/ancestry.py:663
+#: betty/ancestry.py:677
 msgid "Announcement of marriage"
 msgstr "Оголошення шлюбу"
 
-#: betty/ancestry.py:675
+#: betty/ancestry.py:691
 msgid "Divorce"
 msgstr "Розлучення"
 
-#: betty/ancestry.py:687
+#: betty/ancestry.py:705
 msgid "Announcement of divorce"
 msgstr "Оголошення про розлучення"
 
-#: betty/ancestry.py:703
+#: betty/ancestry.py:723
 msgid "Residence"
 msgstr "Проживання"
 
-#: betty/ancestry.py:711
+#: betty/ancestry.py:733
 msgid "Immigration"
 msgstr "Імміграція"
 
-#: betty/ancestry.py:719
+#: betty/ancestry.py:743
 msgid "Emigration"
 msgstr "Еміграція"
 
-#: betty/ancestry.py:727
+#: betty/ancestry.py:753
 msgid "Occupation"
 msgstr "Праця"
 
-#: betty/ancestry.py:735
+#: betty/ancestry.py:763
 msgid "Retirement"
 msgstr "Вихід на пенсію"
 
-#: betty/ancestry.py:743
+#: betty/ancestry.py:773
 msgid "Correspondence"
 msgstr "Листування"
 
-#: betty/ancestry.py:751
+#: betty/ancestry.py:783
 msgid "Confirmation"
 msgstr "Миропомазання"
 
-#: betty/ancestry.py:759
+#: betty/ancestry.py:793
 msgid "Missing"
 msgstr "Відсутній"
 
-#: betty/locale.py:296
+#: betty/locale.py:320
 msgid "unknown date"
 msgstr "невідома дата"
 
-#: betty/locale.py:300
+#: betty/locale.py:324
 #, python-format
 msgid "around %(date)s"
 msgstr "близько %(date)s"
 
-#: betty/locale.py:301
+#: betty/locale.py:325
 #, python-format
 msgid "%(date)s"
 msgstr "%(date)s"
 
-#: betty/locale.py:312
+#: betty/locale.py:336
 msgid "MMMM d, y"
 msgstr "d MMMM y року"
 
-#: betty/locale.py:313
+#: betty/locale.py:337
 msgid "MMMM, y"
 msgstr "MMMM y року"
 
-#: betty/locale.py:314
+#: betty/locale.py:338
 msgid "y"
 msgstr "y року"
 
-#: betty/locale.py:315
+#: betty/locale.py:339
 msgid "MMMM d"
 msgstr "d MMMM"
 
-#: betty/locale.py:316
+#: betty/locale.py:340
 msgid "MMMM"
 msgstr "MMMM"
 
-#: betty/locale.py:332
+#: betty/locale.py:356
 #, python-format
 msgid "from %(start_date)s until %(end_date)s"
 msgstr "з %(start_date)s до %(end_date)s"
 
-#: betty/locale.py:333
+#: betty/locale.py:357
 #, python-format
 msgid "from %(start_date)s until sometime before %(end_date)s"
 msgstr "з %(start_date)s до десь раніше %(end_date)s"
 
-#: betty/locale.py:334
+#: betty/locale.py:358
 #, python-format
 msgid "from %(start_date)s until around %(end_date)s"
 msgstr "з %(start_date)s до приблизно %(end_date)s"
 
-#: betty/locale.py:335
+#: betty/locale.py:359
 #, python-format
 msgid "from %(start_date)s until sometime before around %(end_date)s"
 msgstr "з %(start_date)s до десь до %(end_date)s"
 
-#: betty/locale.py:336
+#: betty/locale.py:360
 #, python-format
 msgid "from sometime after %(start_date)s until %(end_date)s"
 msgstr "десь після %(start_date)s до %(end_date)s"
 
-#: betty/locale.py:337
+#: betty/locale.py:361
 #, python-format
 msgid "sometime between %(start_date)s and %(end_date)s"
 msgstr "десь між %(start_date)s та %(end_date)s"
 
-#: betty/locale.py:338
+#: betty/locale.py:362
 #, python-format
 msgid "from sometime after %(start_date)s until around %(end_date)s"
 msgstr "десь після %(start_date)s приблизно до %(end_date)s"
 
-#: betty/locale.py:339
+#: betty/locale.py:363
 #, python-format
 msgid "sometime between %(start_date)s and around %(end_date)s"
 msgstr "десь між %(start_date)s і близько %(end_date)s"
 
-#: betty/locale.py:340
+#: betty/locale.py:364
 #, python-format
 msgid "from around %(start_date)s until %(end_date)s"
 msgstr "приблизно з %(start_date)s до %(end_date)s"
 
-#: betty/locale.py:341
+#: betty/locale.py:365
 #, python-format
 msgid "from around %(start_date)s until sometime before %(end_date)s"
 msgstr "приблизно з %(start_date)s до десь раніше %(end_date)s"
 
-#: betty/locale.py:342
+#: betty/locale.py:366
 #, python-format
 msgid "from around %(start_date)s until around %(end_date)s"
 msgstr "приблизно з %(start_date)s приблизно до %(end_date)s"
 
-#: betty/locale.py:343
+#: betty/locale.py:367
 #, python-format
 msgid "from around %(start_date)s until sometime before around %(end_date)s"
 msgstr "приблизно з %(start_date)s до десь до %(end_date)s"
 
-#: betty/locale.py:344
+#: betty/locale.py:368
 #, python-format
 msgid "from sometime after around %(start_date)s until %(end_date)s"
 msgstr "десь після %(start_date)s до %(end_date)s"
 
-#: betty/locale.py:345
+#: betty/locale.py:369
 #, python-format
 msgid "sometime between around %(start_date)s and %(end_date)s"
 msgstr "десь між приблизно %(start_date)s та %(end_date)s"
 
-#: betty/locale.py:346
+#: betty/locale.py:370
 #, python-format
 msgid "from sometime after around %(start_date)s until around %(end_date)s"
 msgstr "десь приблизно після %(start_date)s приблизно до %(end_date)s"
 
-#: betty/locale.py:347
+#: betty/locale.py:371
 #, python-format
 msgid "sometime between around %(start_date)s and around %(end_date)s"
 msgstr "десь між приблизно %(start_date)s та приблизно %(end_date)s"
 
-#: betty/locale.py:348
+#: betty/locale.py:372
 #, python-format
 msgid "from %(start_date)s"
 msgstr "з %(start_date)s"
 
-#: betty/locale.py:349
+#: betty/locale.py:373
 #, python-format
 msgid "sometime after %(start_date)s"
 msgstr "десь після %(start_date)s"
 
-#: betty/locale.py:350
+#: betty/locale.py:374
 #, python-format
 msgid "from around %(start_date)s"
 msgstr "приблизно з %(start_date)s"
 
-#: betty/locale.py:351
+#: betty/locale.py:375
 #, python-format
 msgid "sometime after around %(start_date)s"
 msgstr "десь приблизно після %(start_date)s"
 
-#: betty/locale.py:352
+#: betty/locale.py:376
 #, python-format
 msgid "until %(end_date)s"
 msgstr "до %(end_date)s"
 
-#: betty/locale.py:353
+#: betty/locale.py:377
 #, python-format
 msgid "sometime before %(end_date)s"
 msgstr "десь до %(end_date)s"
 
-#: betty/locale.py:354
+#: betty/locale.py:378
 #, python-format
 msgid "until around %(end_date)s"
 msgstr "приблизно до %(end_date)s"
 
-#: betty/locale.py:355
+#: betty/locale.py:379
 #, python-format
 msgid "sometime before around %(end_date)s"
 msgstr "десь приблизно до %(end_date)s"
@@ -670,11 +670,11 @@ msgstr "Імена нащадків є"
 msgid "Wikipedia"
 msgstr ""
 
-#: betty/plugin/anonymizer/__init__.py:17
+#: betty/extension/anonymizer/__init__.py:13
 msgid "Private"
 msgstr "Приватні"
 
-#: betty/plugin/anonymizer/__init__.py:31
+#: betty/extension/anonymizer/__init__.py:24
 msgid ""
 "A citation is available, but has not been published in order to protect "
 "people's privacy"
@@ -682,16 +682,16 @@ msgstr ""
 "A citation is available, but has not been published in order to protect "
 "people's privacy"
 
-#: betty/plugin/wikipedia/__init__.py:198
+#: betty/extension/wikipedia/__init__.py:199
 msgid "Read more on Wikipedia."
 msgstr "Детальніше читайте у Вікіпедії"
 
-#: betty/plugin/wikipedia/assets/templates/wikipedia.html.j2:5
+#: betty/extension/wikipedia/assets/templates/wikipedia.html.j2:5
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Продовжуйте читати у <a href=\"%(url)s\">Вікіпедії</a>."
 
-#: betty/plugin/wikipedia/assets/templates/wikipedia.html.j2:7
+#: betty/extension/wikipedia/assets/templates/wikipedia.html.j2:7
 msgid ""
 "<a "
 "href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a>"

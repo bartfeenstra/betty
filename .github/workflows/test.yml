@@ -16,15 +16,15 @@ jobs:
           - name: 'Python 3.8'
             os: ubuntu-latest
             python: '3.8'
-            node: '14'
+            node: '15'
           - name: 'Python 3.7'
             os: ubuntu-latest
             python: '3.7'
-            node: '14'
+            node: '15'
           - name: 'Python 3.6'
             os: ubuntu-latest
             python: '3.6'
-            node: '14'
+            node: '15'
           - name: 'Node.js 14'
             os: ubuntu-latest
             python: '3.9'
@@ -40,7 +40,11 @@ jobs:
           - name: 'Mac OS'
             os: macos-latest
             python: '3.9'
-            node: '14'
+            node: '15'
+          - name: 'Windows'
+            os: windows-latest
+            python: '3.9'
+            node: '15'
 
     steps:
       - name: Check out the source code
@@ -64,9 +68,14 @@ jobs:
         if: startsWith(runner.os, 'macOS')
         run: brew install shellcheck
 
+      - name: Install Chocolatey dependencies
+        if: startsWith(runner.os, 'Windows')
+        run: choco install shellcheck
+
       - name: Build the development environment
         run: |
           ./bin/build-dev
+        shell: bash
 
       - name: Get the pip cache directory path
         id: pip-cache
@@ -97,6 +106,7 @@ jobs:
       - name: Run the tests
         run: |
           ./bin/test
+        shell: bash
 
       - name: Upload code coverage
         uses: codecov/codecov-action@v1

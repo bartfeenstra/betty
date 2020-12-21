@@ -11,25 +11,25 @@ module.exports = (on, config) => {
   on('task', {
     generate (args) {
       const [bettyConfiguration, gramps] = args
-      const siteDirectoryPath = path.join(config.fileServerFolder, 'cypress', 'site')
-      fs.mkdirSync(siteDirectoryPath, {
+      const appDirectoryPath = path.join(config.fileServerFolder, 'cypress', 'app')
+      fs.mkdirSync(appDirectoryPath, {
         recursive: true
       })
-      bettyConfiguration.output = path.join(siteDirectoryPath, 'output')
+      bettyConfiguration.output = path.join(appDirectoryPath, 'output')
       // We do not know the real base URL, but as Betty requires one, set an obviously fake value.
       bettyConfiguration.base_url = 'https://example.com'
-      const rootPath = '/cypress/site/output/www'
+      const rootPath = '/cypress/app/output/www'
       bettyConfiguration.root_path = rootPath
-      if (!('plugins' in bettyConfiguration)) {
-        bettyConfiguration.plugins = {}
+      if (!('extensions' in bettyConfiguration)) {
+        bettyConfiguration.extensions = {}
       }
-      bettyConfiguration.plugins['betty.plugin.gramps.Gramps'] = {
-        file: path.join(siteDirectoryPath, 'gramps.xml')
+      bettyConfiguration.extensions['betty.extension.gramps.Gramps'] = {
+        file: path.join(appDirectoryPath, 'gramps.xml')
       }
-      fs.writeFileSync(path.join(siteDirectoryPath, 'betty.json'), JSON.stringify(bettyConfiguration))
-      fs.writeFileSync(path.join(siteDirectoryPath, 'gramps.xml'), gramps)
+      fs.writeFileSync(path.join(appDirectoryPath, 'betty.json'), JSON.stringify(bettyConfiguration))
+      fs.writeFileSync(path.join(appDirectoryPath, 'gramps.xml'), gramps)
       childProcess.execSync('betty generate', {
-        cwd: siteDirectoryPath
+        cwd: appDirectoryPath
       })
       return rootPath
     }

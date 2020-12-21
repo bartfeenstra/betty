@@ -37,7 +37,7 @@ secure**.
 ### Requirements
 - **Python 3.6+**
 - Node.js 10+ (optional)
-- Linux or Mac OS
+- Linux, Mac OS, or Windows
 
 ### Instructions
 Run `pip install betty` to install the latest stable release.
@@ -53,11 +53,12 @@ After installation, Betty can be used via the `betty` command:
 Usage: betty [OPTIONS] COMMAND [ARGS]...
 
 Options:
-  -c, --configuration TEXT  The path to a Betty site configuration file.
-                            Defaults to betty.json|yaml|yml in the current
-                            working directory. This will make additional
-                            commands available.
+  -c, --configuration TEXT  The path to a Betty configuration file. Defaults
+                            to betty.json|yaml|yml in the current working
+                            directory. This will make additional commands
+                            available.
 
+  --version                 Show the version and exit.
   --help                    Show this message and exit.
 
 Commands:
@@ -81,26 +82,27 @@ locales:
     alias: en
   - locale: nl
 assets_directory_path: ./resources
-plugins:
-  betty.plugin.anonymizer.Anonymizer: ~
-  betty.plugin.cleaner.Cleaner: ~
-  betty.plugin.deriver.Deriver: ~
-  betty.plugin.gramps.Gramps:
+extensions:
+  betty.extension.anonymizer.Anonymizer: ~
+  betty.extension.cleaner.Cleaner: ~
+  betty.extension.deriver.Deriver: ~
+  betty.extension.gramps.Gramps:
     file: ./gramps.gpkg
-  betty.plugin.maps.Maps: ~
-  betty.plugin.nginx.Nginx:
+  betty.extension.maps.Maps: ~
+  betty.extension.nginx.Nginx:
     www_directory_path: /var/www/betty
     https: true
-  betty.plugin.privatizer.Privatizer: ~
-  betty.plugin.trees.Trees: ~
-  betty.plugin.wikipedia.Wikipedia: ~
+  betty.extension.privatizer.Privatizer: ~
+  betty.extension.redoc.ReDoc: ~
+  betty.extension.trees.Trees: ~
+  betty.extension.wikipedia.Wikipedia: ~
 ```
 - `output` (required); The path to the directory in which to place the generated site.
 - `base_url` (required); The absolute, public URL at which the site will be published.
 - `root_path` (optional); The relative path under the public URL at which the site will be published.
 - `clean_urls` (optional); A boolean indicating whether to use clean URLs, e.g. `/path` instead of `/path/index.html`.
 - `content_negotiation` (optional, defaults to `false`): Enables dynamic content negotiation, but requires a web server
-    that supports it. Also see the `betty.plugin.nginx.Nginx` plugin. This implies `clean_urls`.
+    that supports it. Also see the `betty.extension.nginx.Nginx` extension. This implies `clean_urls`.
 - `title` (optional); The site's title.
 - `author` (optional); The site's author and copyright holder.
 - `lifetime_threshold` (optional); The number of years people are expected to live at most, e.g. after which they're
@@ -112,14 +114,14 @@ plugins:
     If no locales are defined, Betty defaults to US English.
 - `assets_directory_path` (optional); The path to a directory containing overrides for any of Betty's
     [assets](./betty/assets).
-- `plugins` (optional): The plugins to enable. Keys are plugin names, and values are objects containing each plugin's configuration.
-    - `betty.plugin.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `~`.
-    - `betty.plugin.cleaner.Cleaner`: Removes data (events, media, etc.) that have no relation to any people. Configuration: `~`.
-    - `betty.plugin.deriver.Deriver`: Extends ancestries by deriving facts from existing information. Configuration: `~`.
-    - `betty.plugin.gramps.Gramps`: Parses a Gramps genealogy. Configuration:
+- `extensions` (optional): The extensions to enable. Keys are extension names, and values are objects containing each extension's configuration.
+    - `betty.extension.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `~`.
+    - `betty.extension.cleaner.Cleaner`: Removes data (events, media, etc.) that have no relation to any people. Configuration: `~`.
+    - `betty.extension.deriver.Deriver`: Extends ancestries by deriving facts from existing information. Configuration: `~`.
+    - `betty.extension.gramps.Gramps`: Parses a Gramps genealogy. Configuration:
         - `file`: the path to the *Gramps XML* or *Gramps XML Package* file.
-    - `betty.plugin.maps.Maps`: Renders interactive maps using [Leaflet](https://leafletjs.com/).
-    - `betty.plugin.nginx.Nginx`: Creates an [nginx](https://nginx.org) configuration file and `Dockerfile` in the
+    - `betty.extension.maps.Maps`: Renders interactive maps using [Leaflet](https://leafletjs.com/).
+    - `betty.extension.nginx.Nginx`: Creates an [nginx](https://nginx.org) configuration file and `Dockerfile` in the
         output directory. If `content_negotiation` is enabled. You must make sure the nginx
         [Lua module](https://github.com/openresty/lua-nginx-module#readme) is enabled, and
         [CONE](https://github.com/bartfeenstra/cone)'s
@@ -132,9 +134,10 @@ plugins:
         - `https` (optional): Whether or not nginx will be serving Betty over HTTPS. Most upstream nginx servers will
             want to have this disabled, so the downstream server can terminate SSL and communicate over HTTP 2 instead.
             Defaults to `true` if the base URL specifies HTTPS, or `false` otherwise.
-    - `betty.plugin.privatizer.Privatizer`: Marks living people private. Configuration: `~`.
-    - `betty.plugin.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
-    - `betty.plugin.wikipedia.Wikipedia`: Lets templates and other plugins retrieve complementary Wikipedia entries.
+    - `betty.extension.privatizer.Privatizer`: Marks living people private. Configuration: `~`.
+    - `betty.extension.redoc.ReDoc`: Renders interactive and user-friendly HTTP API documentation using [ReDoc](https://github.com/Redocly/redoc).
+    - `betty.extension.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
+    - `betty.extension.wikipedia.Wikipedia`: Lets templates and other extensions retrieve complementary Wikipedia entries.
 
 ### Translations
 Betty ships with the following translations:
@@ -142,7 +145,7 @@ Betty ships with the following translations:
 - Dutch (`nl-NL`)
 - Ukrainian (`uk`)
 
-Plugins and sites can override these translations, or provide translations for additional locales.
+Extensions and sites can override these translations, or provide translations for additional locales.
 
 ### Gramps
 #### Privacy
@@ -150,7 +153,7 @@ Gramps has limited built-in support for people's privacy. To fully control priva
 sources, and citations, add a `betty:privacy` attribute to any of these types, with a value of `private` to explicitly
 declare the data always private or `public` to declare the data always public. Any other value will leave the privacy
 undecided, as well as person records marked public using Gramps' built-in privacy selector. In such cases, the
-`betty.plugin.privatizer.Privatizer` may decide if the data is public or private.
+`betty.extension.privatizer.Privatizer` may decide if the data is public or private.
 
 #### Dates
 For unknown date parts, set those to all zeroes and Betty will ignore them. For instance, `0000-12-31` will be parsed as
@@ -193,33 +196,35 @@ To build a site from your GEDCOM files:
 1. Follow the documentation to [configure your Betty site](#configuration-files) to parse the exported file
 
 ### The Python API
+
 ```python
 from betty.config import Configuration
 from betty.asyncio import sync
 from betty.generate import generate
 from betty.parse import parse
-from betty.site import Site
+from betty.app import App
+
 
 @sync
 async def generate():
     output_directory_path = '/var/www/betty'
     url = 'https://betty.example.com'
     configuration = Configuration(output_directory_path, url)
-    async with Site(configuration) as site:
-        await parse(site)
-        await generate(site)
+    async with App(configuration) as app:
+        await parse(app)
+        await generate(app)
 
 ```
 
 ### Docker
-The `betty.plugin.nginx.Nginx` plugin generates `./nginx/Dockerfile` inside your Betty site's output directory. This
-image includes all dependencies needed to serve your Betty site over HTTP (port 80).
+The `betty.extension.nginx.Nginx` extension generates `./nginx/Dockerfile` inside your Betty site's output directory.
+This image includes all dependencies needed to serve your Betty site over HTTP (port 80).
 
-To run Betty using this Docker image, configure the plugin as follows:
+To run Betty using this Docker image, configure the extension as follows:
 ```yaml
 # ...
-plugins:
-    betty.plugin.nginx.Nginx:
+extensions:
+    betty.extension.nginx.Nginx:
         www_directory_path: /var/www/betty/
         https: false
 ``` 

@@ -1,0 +1,49 @@
+@import 'variables.css';
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #000;
+  margin-bottom: 0;
+}
+
+h1 {
+  font-weight: normal;
+  font-size: 1.6rem;
+}
+
+h2 {
+  font-weight: normal;
+  font-size: 1.3rem;
+  margin-top: 3rem;
+}
+
+a {
+  text-decoration: none;
+  color: var(--link-inactive-color);
+}
+
+a:hover {
+  color: var(--link-active-color);
+}
+
+dl,
+p,
+li {
+  line-height: 1.5;
+}
+
+address {
+  display: inline;
+  font-style: normal;
+}
+
+kbd {
+  background-color: #f7f7f7;
+  border: 1px solid #777;
+  border-radius: 0.3rem;
+  padding: 0 0.3rem;
+}

@@ -13,7 +13,11 @@ def _wrap_sync(f):
 
 def sync(f):
     if inspect.iscoroutine(f):
-        return asyncio.get_event_loop().run_until_complete(f)
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+        return loop.run_until_complete(f)
 
     if inspect.iscoroutinefunction(f):
         return _wrap_sync(f)

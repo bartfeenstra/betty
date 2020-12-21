@@ -8,7 +8,7 @@ cd "$(dirname "$0")/.."
 autopep8 --in-place -r ./betty
 
 # Fix CSS code style violations.
-./node_modules/.bin/stylelint --fix "./betty/**/*.css" "./betty/**/*.sass" "./betty/**/*.scss"
+./node_modules/.bin/stylelint --fix "./betty/**/*.css"
 
 # Fix JS code style violations.
 while read -r configuration_path; do

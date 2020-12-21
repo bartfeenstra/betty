@@ -56,7 +56,7 @@ class PersonNameUrlGenerator(LocalizedUrlGenerator):
         return self._person_url_generator.generate(name.person, *args, **kwargs)
 
 
-class SiteUrlGenerator(LocalizedUrlGenerator):
+class AppUrlGenerator(LocalizedUrlGenerator):
     def __init__(self, configuration: Configuration):
         person_url_generator = IdentifiableResourceUrlGenerator(configuration, Person, 'person/%s/index.%s')
         self._generators = [

@@ -1,0 +1,29 @@
+@import 'variables.css';
+
+.with-js .show.show-shown .show-if-hidden {
+  display: none;
+}
+
+.with-js .show.show-shown .show-if-shown {
+  display: inline;
+}
+
+.with-js .show .show-if-hidden {
+  display: inline;
+}
+
+.with-js .show .show-if-shown {
+  display: none;
+}
+
+.with-js .show-toggle {
+  color: var(--link-inactive-color);
+  cursor: pointer;
+  font-size: 0.8rem;
+  vertical-align: super;
+  white-space: nowrap;
+}
+
+.with-js .show-toggle:hover {
+  color: var(--link-active-color);
+}

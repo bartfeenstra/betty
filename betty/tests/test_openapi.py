@@ -8,7 +8,7 @@ from parameterized import parameterized
 from betty.config import Configuration
 from betty.asyncio import sync
 from betty.openapi import build_specification
-from betty.site import Site
+from betty.app import App
 from betty.tests import TestCase
 
 
@@ -25,6 +25,6 @@ class BuildSpecificationTest(TestCase):
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
             configuration.content_negotiation = content_negotiation
-            async with Site(configuration) as site:
-                specification = build_specification(site)
+            async with App(configuration) as app:
+                specification = build_specification(app)
         jsonschema.validate(specification, schema)

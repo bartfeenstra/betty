@@ -6,7 +6,7 @@ from betty.ancestry import Person, Place, File, Source, Identifiable, PlaceName,
     IdentifiableSource, IdentifiableCitation, Death
 from betty.config import Configuration, LocaleConfiguration
 from betty.tests import TestCase
-from betty.url import LocalizedPathUrlGenerator, IdentifiableResourceUrlGenerator, SiteUrlGenerator
+from betty.url import LocalizedPathUrlGenerator, IdentifiableResourceUrlGenerator, AppUrlGenerator
 
 
 class LocalizedPathUrlGeneratorTest(TestCase):
@@ -93,11 +93,11 @@ class SiteUrlGeneratorTest(TestCase):
     ])
     def test_generate(self, expected: str, resource: Any):
         configuration = Configuration('/tmp', 'https://example.com')
-        sut = SiteUrlGenerator(configuration)
+        sut = AppUrlGenerator(configuration)
         self.assertEquals(expected, sut.generate(resource, 'text/html'))
 
     def test_generate_with_invalid_value(self):
         configuration = Configuration('/tmp', 'https://example.com')
-        sut = SiteUrlGenerator(configuration)
+        sut = AppUrlGenerator(configuration)
         with self.assertRaises(ValueError):
             sut.generate(9, 'text/html')
