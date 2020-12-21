@@ -2,6 +2,7 @@ import asyncio
 import hashlib
 import logging
 import re
+from concurrent.futures import as_completed
 from contextlib import suppress
 from json import load
 from os.path import dirname, join, getmtime
@@ -14,13 +15,14 @@ from jinja2 import contextfilter
 from jinja2.runtime import resolve_or_missing
 
 from betty.ancestry import Link, HasLinks, Resource
+from betty.app import App
+from betty.asyncio import sync
+from betty.extension import Extension, NO_CONFIGURATION
 from betty.fs import makedirs
 from betty.jinja2 import Jinja2Provider
 from betty.locale import Localized, negotiate_locale
 from betty.media_type import MediaType
 from betty.parse import PostParser
-from betty.extension import Extension, NO_CONFIGURATION
-from betty.app import App
 
 
 class WikipediaError(BaseException):
@@ -38,7 +40,7 @@ class RetrievalError(WikipediaError, RuntimeError):
 _URL_PATTERN = re.compile(r'^https?://([a-z]+)\.wikipedia\.org/wiki/([^/?#]+).*$')
 
 
-def parse_url(url: str) -> Tuple[str, str]:
+def _parse_url(url: str) -> Tuple[str, str]:
     match = _URL_PATTERN.fullmatch(url)
     if match is None:
         raise NotAnEntryError
@@ -69,7 +71,7 @@ class Entry(Localized):
         return self._content
 
 
-class Retriever:
+class _Retriever:
     def __init__(self, session: aiohttp.ClientSession, cache_directory_path: str, ttl: int = 86400):
         self._cache_directory_path = join(cache_directory_path, 'wikipedia')
         makedirs(self._cache_directory_path)
@@ -136,7 +138,7 @@ class Retriever:
 
 
 class _Populator:
-    def __init__(self, app: App, retriever: Retriever):
+    def __init__(self, app: App, retriever: _Retriever):
         self._app = app
         self._retriever = retriever
 
@@ -151,7 +153,7 @@ class _Populator:
         entry_links = set()
         for link in resource.links:
             try:
-                entry_language, entry_name = parse_url(link.url)
+                entry_language, entry_name = _parse_url(link.url)
                 entry_links.add((entry_language, entry_name))
             except NotAnEntryError:
                 continue
@@ -207,7 +209,7 @@ class Wikipedia(Extension, Jinja2Provider, PostParser):
 
     async def __aenter__(self):
         self._session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit_per_host=5))
-        self._retriever = Retriever(self._session, join(self._app.configuration.cache_directory_path, self.name()))
+        self._retriever = _Retriever(self._session, join(self._app.configuration.cache_directory_path, self.name()))
         self._populator = _Populator(self._app, self._retriever)
         return self
 
@@ -228,13 +230,15 @@ class Wikipedia(Extension, Jinja2Provider, PostParser):
         }
 
     @contextfilter
-    async def _filter_wikipedia_links(self, context, links: Iterable[Link]) -> Iterable[Entry]:
+    def _filter_wikipedia_links(self, context, links: Iterable[Link]) -> Iterable[Entry]:
         locale = parse_locale(resolve_or_missing(context, 'locale'), '-')[0]
-        return filter(None, await asyncio.gather(*[self._filter_wikipedia_link(locale, link) for link in links]))
+        futures = [self._app.executor.submit(self._filter_wikipedia_link, locale, link) for link in links]
+        return filter(None, [future.result() for future in as_completed(futures)])
 
+    @sync
     async def _filter_wikipedia_link(self, locale: str, link: Link) -> Optional[Entry]:
         try:
-            entry_language, entry_name = parse_url(link.url)
+            entry_language, entry_name = _parse_url(link.url)
         except NotAnEntryError:
             return
         if negotiate_locale(locale, [entry_language]) is None:

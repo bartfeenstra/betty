@@ -1,7 +1,7 @@
 import gettext
 from collections import defaultdict, OrderedDict
 from concurrent.futures._base import Executor
-from concurrent.futures.process import ProcessPoolExecutor
+from concurrent.futures.thread import ThreadPoolExecutor
 
 from jinja2 import Environment
 
@@ -59,7 +59,7 @@ class App:
         self._default_translations.install()
 
         if self._executor is None:
-            self._executor = ExceptionRaisingExecutor(ProcessPoolExecutor())
+            self._executor = ExceptionRaisingExecutor(ThreadPoolExecutor())
 
         self._app_stack.append(self)
 

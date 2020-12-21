@@ -78,7 +78,7 @@ class TemplateTestCase(TestCase):
             if update_configuration is not None:
                 update_configuration(configuration)
             async with App(configuration) as app:
-                rendered = await template_factory(app.jinja2_environment, template).render_async(**data)
+                rendered = template_factory(app.jinja2_environment, template).render(**data)
                 # We want to keep the app around, but we must make sure all dispatched tasks are done, so we shut down
                 # the executor. Crude, but effective.
                 app.executor.shutdown()

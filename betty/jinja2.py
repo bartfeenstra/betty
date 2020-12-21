@@ -7,7 +7,7 @@ import warnings
 from contextlib import suppress
 from os.path import join, relpath
 from pathlib import Path
-from typing import Union, Dict, Type, Optional, Callable, Iterable, AsyncIterable, Any, Iterator
+from typing import Dict, Callable, Iterable, Type, Optional, Any, Union, Iterator
 
 import pdf2image
 from PIL import Image
@@ -16,7 +16,6 @@ from babel import Locale
 from geopy import units
 from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter, Template
-from jinja2.asyncsupport import auto_await
 from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.nodes import EvalContext
 from jinja2.runtime import Macro, resolve_or_missing, StrictUndefined, Context
@@ -97,7 +96,6 @@ class BettyEnvironment(Environment):
         template_directory_paths = [join(path, 'templates') for path in app.assets.paths]
 
         Environment.__init__(self,
-                             enable_async=True,
                              loader=FileSystemLoader(template_directory_paths),
                              undefined=StrictUndefined,
                              autoescape=select_autoescape(['html']),
@@ -209,7 +207,7 @@ class Jinja2Renderer(Renderer):
         template_name = '/'.join(Path(relpath(file_path, root_path)).parts)
         template = FileSystemLoader(root_path).load(self._environment, template_name, self._environment.globals)
         with open(file_destination_path, 'w') as f:
-            f.write(await template.render_async(data))
+            f.write(template.render(data))
         os.remove(file_path)
 
     async def render_tree(self, tree_path: str) -> None:
@@ -244,9 +242,9 @@ def _filter_tojson(context: Context, data: Any, indent: Optional[int] = None) ->
     return htmlsafe_json_dumps(data, indent=indent, dumper=lambda *args, **kwargs: _filter_json(context, *args, **kwargs))
 
 
-async def _filter_flatten(items: Union[Iterable, AsyncIterable]) -> Iterable:
-    async for item in _asynciter(items):
-        async for child in _asynciter(item):
+def _filter_flatten(items: Union[Iterable, Iterable]) -> Iterable:
+    for item in items:
+        for child in item:
             yield child
 
 
@@ -283,16 +281,16 @@ def _filter_format_degrees(degrees: int) -> str:
     return DEGREES_FORMAT % format_dict
 
 
-async def _filter_unique(items: Iterable) -> Iterator:
+def _filter_unique(items: Iterable) -> Iterator:
     seen = []
-    async for item in _asynciter(items):
+    for item in items:
         if item not in seen:
             yield item
             seen.append(item)
 
 
 @contextfilter
-async def _filter_map(*args, **kwargs):
+def _filter_map(*args, **kwargs):
     """
     Maps an iterable's values.
 
@@ -304,11 +302,11 @@ async def _filter_map(*args, **kwargs):
     else:
         seq, func = prepare_map(args, kwargs)
     if seq:
-        async for item in _asynciter(seq):
-            yield await auto_await(func(item))
+        for item in seq:
+            yield func(item)
 
 
-async def _filter_file(app: App, file: File) -> str:
+def _filter_file(app: App, file: File) -> str:
     file_directory_path = os.path.join(app.configuration.www_directory_path, 'file')
 
     destination_name = '%s.%s' % (file.id, file.extension)
@@ -327,7 +325,7 @@ def _do_filter_file(file_path: str, destination_directory_path: str, destination
     link_or_copy(file_path, destination_file_path)
 
 
-async def _filter_image(app: App, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
+def _filter_image(app: App, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
     if width is None and height is None:
         raise ValueError('At least the width or height must be given.')
 
@@ -455,12 +453,3 @@ def _filter_select_dateds(context: Context, dateds: Iterable[Dated], date: Optio
 def _filter_format_date(context: Context, date: Datey) -> str:
     locale = resolve_or_missing(context, 'locale')
     return format_datey(date, locale)
-
-
-async def _asynciter(items: Union[Iterable, AsyncIterable]) -> AsyncIterable:
-    if hasattr(items, '__aiter__'):
-        async for item in items:
-            yield item
-        return
-    for item in items:
-        yield item

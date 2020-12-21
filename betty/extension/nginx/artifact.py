@@ -14,7 +14,7 @@ async def generate_configuration_file(destination_file_path: str, jinja2_environ
     template = FileSystemLoader(root_path).load(jinja2_environment, configuration_file_template_name, jinja2_environment.globals)
     makedirs(path.dirname(destination_file_path))
     with open(destination_file_path, 'w') as f:
-        f.write(await template.render_async(kwargs))
+        f.write(template.render(kwargs))
 
 
 async def generate_dockerfile_file(destination_file_path: str) -> None:

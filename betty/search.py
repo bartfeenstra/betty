@@ -1,4 +1,3 @@
-import asyncio
 from typing import Dict, Iterable, Optional
 
 from betty.ancestry import Person, Place, File, Resource
@@ -9,19 +8,19 @@ class Index:
     def __init__(self, app: App):
         self._app = app
 
-    async def build(self) -> Iterable[Dict]:
-        return filter(None, await asyncio.gather(*[
+    def build(self) -> Iterable[Dict]:
+        return filter(None, [
             *[self._build_person(person) for person in self._app.ancestry.people.values()],
             *[self._build_place(place) for place in self._app.ancestry.places.values()],
             *[self._build_file(file) for file in self._app.ancestry.files.values()],
-        ]))
+        ])
 
-    async def _render_resource(self, resource: Resource):
-        return await self._app.jinja2_environment.get_template('search/result-%s.html.j2' % resource.resource_type_name()).render_async({
+    def _render_resource(self, resource: Resource):
+        return self._app.jinja2_environment.get_template('search/result-%s.html.j2' % resource.resource_type_name()).render({
             resource.resource_type_name(): resource,
         })
 
-    async def _build_person(self, person: Person) -> Optional[Dict]:
+    def _build_person(self, person: Person) -> Optional[Dict]:
         if person.private:
             return
         names = []
@@ -33,18 +32,18 @@ class Index:
         if names:
             return {
                 'text': ' '.join(names),
-                'result': await self._render_resource(person),
+                'result': self._render_resource(person),
             }
 
-    async def _build_place(self, place: Place) -> Optional[Dict]:
+    def _build_place(self, place: Place) -> Optional[Dict]:
         return {
             'text': ' '.join(map(lambda x: x.name.lower(), place.names)),
-            'result': await self._render_resource(place),
+            'result': self._render_resource(place),
         }
 
-    async def _build_file(self, file: File) -> Optional[Dict]:
+    def _build_file(self, file: File) -> Optional[Dict]:
         if file.description is not None:
             return {
                 'text': file.description.lower(),
-                'result': await self._render_resource(file),
+                'result': self._render_resource(file),
             }

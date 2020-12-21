@@ -112,7 +112,7 @@ async def _generate_entity_type_list_html(www_directory_path: str, entities: Ite
         template = environment.get_template(
             'page/list-%s.html.j2' % entity_type_name)
         with _create_html_resource(entity_type_path) as f:
-            f.write(await template.render_async({
+            f.write(template.render({
                 'page_resource': '/%s/index.html' % entity_type_name,
                 'entity_type_name': entity_type_name,
                 'entities': entities,
@@ -142,7 +142,7 @@ async def _generate_entity(www_directory_path: str, entity: Any, entity_type_nam
 async def _generate_entity_html(www_directory_path: str, entity: Any, entity_type_name: str, environment: Environment) -> None:
     entity_path = os.path.join(www_directory_path, entity_type_name, entity.id)
     with _create_html_resource(entity_path) as f:
-        f.write(await environment.get_template('page/%s.html.j2' % entity_type_name).render_async({
+        f.write(environment.get_template('page/%s.html.j2' % entity_type_name).render({
             'page_resource': entity,
             'entity_type_name': entity_type_name,
             entity_type_name: entity,
