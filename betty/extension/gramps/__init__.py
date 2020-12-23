@@ -5,7 +5,7 @@ import tarfile
 from contextlib import suppress
 from os import path
 from tempfile import TemporaryDirectory
-from typing import Tuple, Optional, List, Any
+from typing import Tuple, Optional, List, Any, Dict
 from xml.etree import ElementTree
 
 from geopy import Point
@@ -15,7 +15,7 @@ from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, Pl
     HasLinks, HasCitations, IdentifiableEvent, HasPrivacy, IdentifiableSource, IdentifiableCitation, Subject, Witness, \
     Attendee, Birth, Baptism, Adoption, Cremation, Death, Burial, Engagement, Marriage, MarriageAnnouncement, Divorce, \
     DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, Retirement, Correspondence, Confirmation, \
-    Funeral, Will, Beneficiary, Enclosure, UnknownEventType, Missing
+    Funeral, Will, Beneficiary, Enclosure, UnknownEventType, Missing, Event, Source, Citation
 from betty.config import Path
 from betty.error import UserFacingError
 from betty.locale import DateRange, Datey, Date
@@ -81,27 +81,7 @@ def parse_xml(app: App, xml: str, gramps_tree_directory_path: str) -> None:
         tree = ElementTree.ElementTree(ElementTree.fromstring(xml))
     except ElementTree.ParseError as e:
         raise GrampsParseFileError(e)
-    _parse_tree(app.ancestry, tree, gramps_tree_directory_path)
-
-
-class _IntermediateAncestry:
-    def __init__(self):
-        self.notes = {}
-        self.files = {}
-        self.places = {}
-        self.events = {}
-        self.people = {}
-        self.sources = {}
-        self.citations = {}
-
-    def populate(self, ancestry: Ancestry):
-        ancestry.files = {file.id: file for file in self.files.values()}
-        ancestry.people = {person.id: person for person in self.people.values()}
-        ancestry.places = {place.id: place for place in self.places.values()}
-        ancestry.events = {event.id: event for event in self.events.values()}
-        ancestry.sources = {source.id: source for source in self.sources.values()}
-        ancestry.citations = {citation.id: citation for citation in self.citations.values()}
-        ancestry.notes = {note.id: note for note in self.notes.values()}
+    _Parser(app.ancestry, tree, gramps_tree_directory_path).parse()
 
 
 class _IntermediatePlace:
@@ -110,42 +90,92 @@ class _IntermediatePlace:
         self.enclosed_by_handles = enclosed_by_handles
 
 
+class _IntermediateFile:
+    def __init__(self, file: File, citation_handles: List[str]):
+        self.file = file
+        self.citation_handles = citation_handles
+
+
+class _Parser(Parser):
+    _notes: Dict[str, Note]
+    _files: Dict[str, _IntermediateFile]
+    _places: Dict[str, Place]
+    _events: Dict[str, Event]
+    _people: Dict[str, Person]
+    _sources: Dict[str, Source]
+    _citations: Dict[str, Citation]
+
+    def __init__(self, ancestry: Ancestry, tree: ElementTree.ElementTree, gramps_tree_directory_path: str):
+        self._ancestry = ancestry
+        self._tree = tree
+        self._gramps_tree_directory_path = gramps_tree_directory_path
+        self._notes = {}
+        self._files = {}
+        self._places = {}
+        self._events = {}
+        self._people = {}
+        self._sources = {}
+        self._citations = {}
+
+    def _populate_ancestry(self):
+        self._ancestry.files = {file.file.id: file.file for file in self._files.values()}
+        self._ancestry.people = {person.id: person for person in self._people.values()}
+        self._ancestry.places = {place.id: place for place in self._places.values()}
+        self._ancestry.events = {event.id: event for event in self._events.values()}
+        self._ancestry.sources = {source.id: source for source in self._sources.values()}
+        self._ancestry.citations = {citation.id: citation for citation in self._citations.values()}
+        self._ancestry.notes = {note.id: note for note in self._notes.values()}
+
+    def parse(self) -> None:
+        logger = logging.getLogger()
+
+        database = self._tree.getroot()
+
+        _parse_notes(self, database)
+        logger.info('Parsed %d notes.' % len(self._notes))
+
+        _parse_objects(self, database, self._gramps_tree_directory_path)
+        logger.info('Parsed %d files.' % len(self._files))
+
+        _parse_repositories(self, database)
+        repository_count = len(self._sources)
+        logger.info('Parsed %d repositories as sources.' % repository_count)
+
+        _parse_sources(self, database)
+        logger.info('Parsed %d sources.' % (len(self._sources) - repository_count))
+
+        _parse_citations(self, database)
+        logger.info('Parsed %d citations.' % len(self._citations))
+
+        for file in self._files.values():
+            for citation_handle in file.citation_handles:
+                file.file.citations.append(self._citations[citation_handle])
+
+        _parse_places(self, database)
+        logger.info('Parsed %d places.' % len(self._places))
+
+        _parse_events(self, database)
+        logger.info('Parsed %d events.' % len(self._events))
+
+        _parse_people(self, database)
+        logger.info('Parsed %d people.' % len(self._people))
+
+        _parse_families(self, database)
+
+        self._populate_ancestry()
+
+
 _NS = {
     'ns': 'http://gramps-project.org/xml/1.7.1/',
 }
 
 
-def _xpath(element, selector: str) -> List[Any]:
+def _xpath(element: ElementTree.Element, selector: str) -> List[ElementTree.Element]:
     return element.findall(selector, namespaces=_NS)
 
 
-def _xpath1(element, selector: str) -> Optional:
+def _xpath1(element: ElementTree.Element, selector: str) -> Optional[ElementTree.Element]:
     return element.find(selector, namespaces=_NS)
-
-
-def _parse_tree(ancestry: Ancestry, tree: ElementTree.ElementTree, gramps_tree_directory_path: str) -> None:
-    logger = logging.getLogger()
-    database = tree.getroot()
-    intermediate_ancestry = _IntermediateAncestry()
-    _parse_notes(intermediate_ancestry, database)
-    logger.info('Parsed %d notes.' % len(intermediate_ancestry.notes))
-    _parse_objects(intermediate_ancestry, database, gramps_tree_directory_path)
-    logger.info('Parsed %d files.' % len(intermediate_ancestry.files))
-    _parse_repositories(intermediate_ancestry, database)
-    repository_count = len(intermediate_ancestry.sources)
-    logger.info('Parsed %d repositories as sources.' % repository_count)
-    _parse_sources(intermediate_ancestry, database)
-    logger.info('Parsed %d sources.' % (len(intermediate_ancestry.sources) - repository_count))
-    _parse_citations(intermediate_ancestry, database)
-    logger.info('Parsed %d citations.' % len(intermediate_ancestry.citations))
-    _parse_places(intermediate_ancestry, database)
-    logger.info('Parsed %d places.' % len(intermediate_ancestry.places))
-    _parse_events(intermediate_ancestry, database)
-    logger.info('Parsed %d events.' % len(intermediate_ancestry.events))
-    _parse_people(intermediate_ancestry, database)
-    logger.info('Parsed %d people.' % len(intermediate_ancestry.people))
-    _parse_families(intermediate_ancestry, database)
-    intermediate_ancestry.populate(ancestry)
 
 
 _DATE_PATTERN = re.compile(r'^.{4}((-.{2})?-.{2})?$')
@@ -191,24 +221,24 @@ def _parse_dateval(element: ElementTree.Element, value_attribute_name: str) -> O
     return None
 
 
-def _parse_notes(ancestry: _IntermediateAncestry, database: ElementTree.Element):
+def _parse_notes(parser: _Parser, database: ElementTree.Element):
     for element in _xpath(database, './ns:notes/ns:note'):
-        _parse_note(ancestry, element)
+        _parse_note(parser, element)
 
 
-def _parse_note(ancestry: _IntermediateAncestry, element: ElementTree.Element):
+def _parse_note(parser: _Parser, element: ElementTree.Element):
     handle = element.get('handle')
     note_id = element.get('id')
     text = _xpath1(element, './ns:text').text
-    ancestry.notes[handle] = Note(note_id, text)
+    parser._notes[handle] = Note(note_id, text)
 
 
-def _parse_objects(ancestry: _IntermediateAncestry, database: ElementTree.Element, gramps_tree_directory_path: str):
+def _parse_objects(parser: _Parser, database: ElementTree.Element, gramps_tree_directory_path: str):
     for element in _xpath(database, './ns:objects/ns:object'):
-        _parse_object(ancestry, element, gramps_tree_directory_path)
+        _parse_object(parser, element, gramps_tree_directory_path)
 
 
-def _parse_object(ancestry: _IntermediateAncestry, element: ElementTree.Element, gramps_tree_directory_path):
+def _parse_object(parser: _Parser, element: ElementTree.Element, gramps_tree_directory_path):
     handle = element.get('handle')
     entity_id = element.get('id')
     file_element = _xpath1(element, './ns:file')
@@ -220,17 +250,17 @@ def _parse_object(ancestry: _IntermediateAncestry, element: ElementTree.Element,
         file.description = description
     note_handle_elements = _xpath(element, './ns:noteref')
     for note_handle_element in note_handle_elements:
-        file.notes.append(ancestry.notes[note_handle_element.get('hlink')])
+        file.notes.append(parser._notes[note_handle_element.get('hlink')])
     _parse_attribute_privacy(file, element, 'attribute')
-    ancestry.files[handle] = file
+    parser._files[handle] = _IntermediateFile(file, _parse_citationref_as_handles(element))
 
 
-def _parse_people(ancestry: _IntermediateAncestry, database: ElementTree.Element):
+def _parse_people(parser: _Parser, database: ElementTree.Element):
     for element in _xpath(database, './ns:people/ns:person'):
-        _parse_person(ancestry, element)
+        _parse_person(parser, element)
 
 
-def _parse_person(ancestry: _IntermediateAncestry, element: ElementTree.Element):
+def _parse_person(parser: _Parser, element: ElementTree.Element):
     handle = element.get('handle')
     person = Person(element.get('id'))
 
@@ -251,11 +281,11 @@ def _parse_person(ancestry: _IntermediateAncestry, element: ElementTree.Element)
                     affiliation_name = '%s %s' % (
                         surname_prefix, affiliation_name)
                 name = PersonName(individual_name, affiliation_name)
-                _parse_citationref(ancestry, name, name_element)
+                _parse_citationref(parser, name, name_element)
                 names.append((name, is_alternative))
         elif individual_name is not None:
             name = PersonName(individual_name)
-            _parse_citationref(ancestry, name, name_element)
+            _parse_citationref(parser, name, name_element)
             names.append((name, is_alternative))
     for name, is_alternative in names:
         if is_alternative:
@@ -263,51 +293,51 @@ def _parse_person(ancestry: _IntermediateAncestry, element: ElementTree.Element)
         else:
             person.names.prepend(name)
 
-    _parse_eventrefs(ancestry, person, element)
+    _parse_eventrefs(parser, person, element)
     if element.get('priv') == '1':
         person.private = True
 
-    _parse_citationref(ancestry, person, element)
-    _parse_objref(ancestry, person, element)
+    _parse_citationref(parser, person, element)
+    _parse_objref(parser, person, element)
     _parse_urls(person, element)
     _parse_attribute_privacy(person, element, 'attribute')
-    ancestry.people[handle] = person
+    parser._people[handle] = person
 
 
-def _parse_families(ancestry: _IntermediateAncestry, database: ElementTree.Element):
+def _parse_families(parser: _Parser, database: ElementTree.Element):
     for element in _xpath(database, './ns:families/ns:family'):
-        _parse_family(ancestry, element)
+        _parse_family(parser, element)
 
 
-def _parse_family(ancestry: _IntermediateAncestry, element: ElementTree.Element):
+def _parse_family(parser: _Parser, element: ElementTree.Element):
     parents = []
 
     # Parse the father.
     father_handle_element = _xpath1(element, './ns:father')
     if father_handle_element is not None:
-        father = ancestry.people[father_handle_element.get('hlink')]
-        _parse_eventrefs(ancestry, father, element)
+        father = parser._people[father_handle_element.get('hlink')]
+        _parse_eventrefs(parser, father, element)
         parents.append(father)
 
     # Parse the mother.
     mother_handle_element = _xpath1(element, './ns:mother')
     if mother_handle_element is not None:
-        mother = ancestry.people[mother_handle_element.get('hlink')]
-        _parse_eventrefs(ancestry, mother, element)
+        mother = parser._people[mother_handle_element.get('hlink')]
+        _parse_eventrefs(parser, mother, element)
         parents.append(mother)
 
     # Parse the children.
     child_handle_elements = _xpath(element, './ns:childref')
     for child_handle_element in child_handle_elements:
-        child = ancestry.people[child_handle_element.get('hlink')]
+        child = parser._people[child_handle_element.get('hlink')]
         for parent in parents:
             parent.children.append(child)
 
 
-def _parse_eventrefs(ancestry: _IntermediateAncestry, person: Person, element: ElementTree.Element) -> None:
+def _parse_eventrefs(parser: _Parser, person: Person, element: ElementTree.Element) -> None:
     eventrefs = _xpath(element, './ns:eventref')
     for eventref in eventrefs:
-        _parse_eventref(ancestry, person, eventref)
+        _parse_eventref(parser, person, eventref)
 
 
 _PRESENCE_ROLE_MAP = {
@@ -319,21 +349,21 @@ _PRESENCE_ROLE_MAP = {
 }
 
 
-def _parse_eventref(ancestry: _IntermediateAncestry, person: Person, eventref: ElementTree.Element) -> None:
+def _parse_eventref(parser: _Parser, person: Person, eventref: ElementTree.Element) -> None:
     event_handle = eventref.get('hlink')
     gramps_presence_role = eventref.get('role')
     role = _PRESENCE_ROLE_MAP[gramps_presence_role] if gramps_presence_role in _PRESENCE_ROLE_MAP else Attendee()
-    Presence(person, role, ancestry.events[event_handle])
+    Presence(person, role, parser._events[event_handle])
 
 
-def _parse_places(ancestry: _IntermediateAncestry, database: ElementTree.Element):
+def _parse_places(parser: _Parser, database: ElementTree.Element):
     intermediate_places = {handle: intermediate_place for handle, intermediate_place in
                            [_parse_place(element) for element in _xpath(database, './ns:places/ns:placeobj')]}
     for intermediate_place in intermediate_places.values():
         for enclosed_by_handle in intermediate_place.enclosed_by_handles:
             Enclosure(intermediate_place.place, intermediate_places[enclosed_by_handle].place)
-    ancestry.places = {handle: intermediate_place.place for handle, intermediate_place in
-                       intermediate_places.items()}
+    parser._places = {handle: intermediate_place.place for handle, intermediate_place in
+                      intermediate_places.items()}
 
 
 def _parse_place(element: ElementTree.Element) -> Tuple[str, _IntermediatePlace]:
@@ -371,9 +401,9 @@ def _parse_coordinates(element: ElementTree.Element) -> Optional[Point]:
     return None
 
 
-def _parse_events(ancestry: _IntermediateAncestry, database: ElementTree.Element):
+def _parse_events(parser: _Parser, database: ElementTree.Element):
     for element in _xpath(database, './ns:events/ns:event'):
-        _parse_event(ancestry, element)
+        _parse_event(parser, element)
 
 
 _EVENT_TYPE_MAP = {
@@ -401,7 +431,7 @@ _EVENT_TYPE_MAP = {
 }
 
 
-def _parse_event(ancestry: _IntermediateAncestry, element: ElementTree.Element):
+def _parse_event(parser: _Parser, element: ElementTree.Element):
     handle = element.get('handle')
     event_id = element.get('id')
     gramps_type = _xpath1(element, './ns:type')
@@ -420,47 +450,47 @@ def _parse_event(ancestry: _IntermediateAncestry, element: ElementTree.Element):
     # Parse the event place.
     place_handle_element = _xpath1(element, './ns:place')
     if place_handle_element is not None:
-        event.place = ancestry.places[place_handle_element.get('hlink')]
+        event.place = parser._places[place_handle_element.get('hlink')]
 
     # Parse the description.
     description_element = _xpath1(element, './ns:description')
     if description_element is not None:
         event.description = description_element.text
 
-    _parse_objref(ancestry, event, element)
-    _parse_citationref(ancestry, event, element)
+    _parse_objref(parser, event, element)
+    _parse_citationref(parser, event, element)
     _parse_attribute_privacy(event, element, 'attribute')
-    ancestry.events[handle] = event
+    parser._events[handle] = event
 
 
-def _parse_repositories(ancestry: _IntermediateAncestry, database: ElementTree.Element) -> None:
+def _parse_repositories(parser: _Parser, database: ElementTree.Element) -> None:
     for element in _xpath(database, './ns:repositories/ns:repository'):
-        _parse_repository(ancestry, element)
+        _parse_repository(parser, element)
 
 
-def _parse_repository(ancestry: _IntermediateAncestry, element: ElementTree.Element) -> None:
+def _parse_repository(parser: _Parser, element: ElementTree.Element) -> None:
     handle = element.get('handle')
 
     source = IdentifiableSource(element.get('id'), _xpath1(element, './ns:rname').text)
 
     _parse_urls(source, element)
 
-    ancestry.sources[handle] = source
+    parser._sources[handle] = source
 
 
-def _parse_sources(ancestry: _IntermediateAncestry, database: ElementTree.Element):
+def _parse_sources(parser: _Parser, database: ElementTree.Element):
     for element in _xpath(database, './ns:sources/ns:source'):
-        _parse_source(ancestry, element)
+        _parse_source(parser, element)
 
 
-def _parse_source(ancestry: _IntermediateAncestry, element: ElementTree.Element) -> None:
+def _parse_source(parser: _Parser, element: ElementTree.Element) -> None:
     handle = element.get('handle')
 
     source = IdentifiableSource(element.get('id'), _xpath1(element, './ns:stitle').text)
 
     repository_source_handle_element = _xpath1(element, './ns:reporef')
     if repository_source_handle_element is not None:
-        source.contained_by = ancestry.sources[repository_source_handle_element.get('hlink')]
+        source.contained_by = parser._sources[repository_source_handle_element.get('hlink')]
 
     # Parse the author.
     sauthor_element = _xpath1(element, './ns:sauthor')
@@ -472,44 +502,51 @@ def _parse_source(ancestry: _IntermediateAncestry, element: ElementTree.Element)
     if spubinfo_element is not None:
         source.publisher = spubinfo_element.text
 
-    _parse_objref(ancestry, source, element)
+    _parse_objref(parser, source, element)
     _parse_attribute_privacy(source, element, 'srcattribute')
 
-    ancestry.sources[handle] = source
+    parser._sources[handle] = source
 
 
-def _parse_citations(ancestry: _IntermediateAncestry, database: ElementTree.Element) -> None:
+def _parse_citations(parser: _Parser, database: ElementTree.Element) -> None:
     for element in _xpath(database, './ns:citations/ns:citation'):
-        _parse_citation(ancestry, element)
+        _parse_citation(parser, element)
 
 
-def _parse_citation(ancestry: _IntermediateAncestry, element: ElementTree.Element) -> None:
+def _parse_citation(parser: _Parser, element: ElementTree.Element) -> None:
     handle = element.get('handle')
     source_handle = _xpath1(element, './ns:sourceref').get('hlink')
 
-    citation = IdentifiableCitation(element.get('id'), ancestry.sources[source_handle])
+    citation = IdentifiableCitation(element.get('id'), parser._sources[source_handle])
 
     citation.date = _parse_date(element)
-    _parse_objref(ancestry, citation, element)
+    _parse_objref(parser, citation, element)
     _parse_attribute_privacy(citation, element, 'srcattribute')
 
     page = _xpath1(element, './ns:page')
     if page is not None:
         citation.location = page.text
 
-    ancestry.citations[handle] = citation
+    parser._citations[handle] = citation
 
 
-def _parse_citationref(ancestry: _IntermediateAncestry, fact: HasCitations, element: ElementTree.Element):
+def _parse_citationref(parser: _Parser, fact: HasCitations, element: ElementTree.Element):
+    for citation_handle in _parse_citationref_as_handles(element):
+        fact.citations.append(parser._citations[citation_handle])
+
+
+def _parse_citationref_as_handles(element: ElementTree.Element) -> List[str]:
+    handles = []
     citation_handle_elements = _xpath(element, './ns:citationref')
     for citation_handle_element in citation_handle_elements:
-        fact.citations.append(ancestry.citations[citation_handle_element.get('hlink')])
+        handles.append(citation_handle_element.get('hlink'))
+    return handles
 
 
-def _parse_objref(ancestry: _IntermediateAncestry, owner: HasFiles, element: ElementTree.Element):
+def _parse_objref(parser: _Parser, owner: HasFiles, element: ElementTree.Element):
     files = _xpath(element, './ns:objref')
     for file_handle in files:
-        owner.files.append(ancestry.files[file_handle.get('hlink')])
+        owner.files.append(parser._files[file_handle.get('hlink')].file)
 
 
 def _parse_urls(owner: HasLinks, element: ElementTree.Element):

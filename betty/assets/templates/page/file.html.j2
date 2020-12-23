@@ -40,25 +40,20 @@
             </ul>
         </section>
     {% endif %}
-    {% set sources = file.sources | list %}
-    {% if sources | length  > 0 %}
+    {% set citations = file.citations | list %}
+    {% if citations | length  > 0 %}
         <section id="sources">
-            {% if sources | length == 1 %}
             <h2>
-                {% trans %}Source{% endtrans %}
+                {% trans %}Sources{% endtrans %}
                 {% with url = page_resource | url ~ '#sources'%}
                     {% include 'permalink.html.j2' %}
                 {% endwith %}
             </h2>
-                <p>{% with source=sources | first %}{% include 'label/source.html.j2' %}{% endwith %}</p>
-            {% elif sources | length  > 1 %}
-                <h2>{% trans %}Sources{% endtrans %}</h2>
-                <ul>
-                    {% for source in sources %}
-                        <li>{% include 'label/source.html.j2' %}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+            <ul>
+            {% for citation in citations %}
+                <li>{% include 'label/citation.html.j2' %}</li>
+            {% endfor %}
+            </ul>
         </section>
     {% endif %}
 {% endblock %}
