@@ -84,9 +84,18 @@ figcaption {
   height: calc(100vh - 3rem);
 }
 
-.file-extended:target iframe {
+.file-content object {
   height: 100%;
   width: 100%;
+}
+
+.file-content-fallback-message {
+  color: #fff;
+  text-align: center;
+  padding: 1rem;
+  position: relative;
+  top: 50%;
+  transform: translate(0, -50%);
 }
 
 .file-extended:target figcaption {
