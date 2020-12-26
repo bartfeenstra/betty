@@ -143,17 +143,16 @@
                                         {%- endif -%}
                                     {%- endif -%}
                                 </p>
-                                {% set descendant_affiliation_names = person | walk('children') | map(attribute='names') | flatten | map(attribute='affiliation') | reject('none') | unique | list | sort %}
+                                {% set descendant_affiliation_names = per_parent_children | map(attribute='names') | flatten | map(attribute='affiliation') | reject('none') | unique | list | sort %}
                                 {% if descendant_affiliation_names | length > 0 %}
                                     <p>
                                         {%- trans -%}
                                             Descendant names include
-                                        {%- endtrans %}
-                                        {{ descendant_affiliation_names[:3] | join(', ') -}}
+                                        {%- endtrans %} {{ descendant_affiliation_names[:3] | join(', ') -}}
                                             {%- if descendant_affiliation_names | length <= 3 -%}
                                                 .
                                             {%- else %},
-                                            {% with content_if_hidden = '...',
+                                            {%- with content_if_hidden = '...',
                                                 content_if_shown = descendant_affiliation_names[3:] | join(', ') ~ '.',
                                                 items = descendant_affiliation_names[3:] -%}
                                                 {%- include 'show-countable.html.j2' -%}
