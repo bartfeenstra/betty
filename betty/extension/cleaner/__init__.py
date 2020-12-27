@@ -91,6 +91,9 @@ def _clean_file(ancestry: Ancestry, file: File) -> None:
     if len(file.resources) > 0:
         return
 
+    if len(file.citations) > 0:
+        return
+
     del ancestry.files[file.id]
 
 

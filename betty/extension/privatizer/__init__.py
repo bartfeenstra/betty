@@ -1,8 +1,8 @@
 import logging
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Optional, List
 
-from betty.ancestry import Ancestry, Person, Event, Citation, Source, HasPrivacy, Subject
+from betty.ancestry import Ancestry, Person, Event, Citation, Source, HasPrivacy, Subject, File, HasFiles, HasCitations
 from betty.functools import walk
 from betty.locale import DateRange, Date
 from betty.parse import PostParser
@@ -20,23 +20,32 @@ class Privatizer(Extension, PostParser):
         return cls(app.ancestry, app.configuration.lifetime_threshold)
 
     async def post_parse(self) -> None:
-        self.privatize(self._ancestry)
+        privatize(self._ancestry, self._lifetime_threshold)
 
-    def privatize(self, ancestry: Ancestry) -> None:
-        privatized = 0
-        for person in ancestry.people.values():
-            private = person.private
-            privatize_person(person, self._lifetime_threshold)
-            if private is None and person.private is True:
-                privatized += 1
-        logger = logging.getLogger()
-        logger.info('Privatized %d people because they are likely still alive.' % privatized)
 
-        for citation in ancestry.citations.values():
-            privatize_citation(citation)
+def privatize(ancestry: Ancestry, lifetime_threshold: int = 125) -> None:
+    seen = []
 
-        for source in ancestry.sources.values():
-            privatize_source(source)
+    privatized = 0
+    for person in ancestry.people.values():
+        private = person.private
+        _privatize_person(person, seen, lifetime_threshold)
+        if private is None and person.private is True:
+            privatized += 1
+    logger = logging.getLogger()
+    logger.info('Privatized %d people because they are likely still alive.' % privatized)
+
+    for citation in ancestry.citations.values():
+        _privatize_citation(citation, seen)
+
+    for source in ancestry.sources.values():
+        _privatize_source(source, seen)
+
+    for event in ancestry.events.values():
+        _privatize_event(event, seen)
+
+    for file in ancestry.files.values():
+        _privatize_file(file, seen)
 
 
 def _mark_private(has_privacy: HasPrivacy) -> None:
@@ -45,7 +54,7 @@ def _mark_private(has_privacy: HasPrivacy) -> None:
         has_privacy.private = True
 
 
-def privatize_person(person: Person, lifetime_threshold: int) -> None:
+def _privatize_person(person: Person, seen: List, lifetime_threshold: int) -> None:
     # Do not change existing explicit privacy declarations.
     if person.private is None:
         person.private = _person_is_private(person, lifetime_threshold)
@@ -56,41 +65,69 @@ def privatize_person(person: Person, lifetime_threshold: int) -> None:
     for presence in person.presences:
         if isinstance(presence.role, Subject):
             _mark_private(presence.event)
-            privatize_event(presence.event)
-    for file in person.files:
-        _mark_private(file)
-    for citation in person.citations:
-        _mark_private(citation)
-        privatize_citation(citation)
+            _privatize_event(presence.event, seen)
+
+    _privatize_has_citations(person, seen)
+    _privatize_has_files(person, seen)
 
 
-def privatize_event(event: Event) -> None:
+def _privatize_event(event: Event, seen: List) -> None:
     if not event.private:
         return
 
-    for file in event.files:
-        _mark_private(file)
-    for citation in event.citations:
+    if event in seen:
+        return
+    seen.append(event)
+
+    _privatize_has_citations(event, seen)
+    _privatize_has_files(event, seen)
+
+
+def _privatize_has_citations(has_citations: HasCitations, seen: List) -> None:
+    for citation in has_citations.citations:
         _mark_private(citation)
-        privatize_citation(citation)
+        _privatize_citation(citation, seen)
 
 
-def privatize_citation(citation: Citation) -> None:
+def _privatize_citation(citation: Citation, seen: List) -> None:
     if not citation.private:
         return
 
+    if citation in seen:
+        return
+    seen.append(citation)
+
     _mark_private(citation.source)
-    privatize_source(citation.source)
-    for file in citation.files:
-        _mark_private(file)
+    _privatize_source(citation.source, seen)
+    _privatize_has_files(citation, seen)
 
 
-def privatize_source(source: Source) -> None:
+def _privatize_source(source: Source, seen: List) -> None:
     if not source.private:
         return
 
-    for file in source.files:
+    if source in seen:
+        return
+    seen.append(source)
+
+    _privatize_has_files(source, seen)
+
+
+def _privatize_has_files(has_files: HasFiles, seen: List) -> None:
+    for file in has_files.files:
         _mark_private(file)
+        _privatize_file(file, seen)
+
+
+def _privatize_file(file: File, seen: List) -> None:
+    if not file.private:
+        return
+
+    if file in seen:
+        return
+    seen.append(file)
+
+    _privatize_has_citations(file, seen)
 
 
 def _person_is_private(person: Person, lifetime_threshold: int) -> bool:
