@@ -1,7 +1,7 @@
 from tempfile import TemporaryDirectory
 
 from betty.ancestry import Ancestry, Person, Place, Presence, PlaceName, IdentifiableEvent, File, PersonName, \
-    IdentifiableSource, IdentifiableCitation, Subject, Birth, Enclosure
+    IdentifiableSource, IdentifiableCitation, Subject, Birth, Enclosure, Source
 from betty.config import Configuration
 from betty.asyncio import sync
 from betty.parse import parse
@@ -206,6 +206,24 @@ class CleanTest(TestCase):
         self.assertIn(person, file.resources)
         self.assertEqual(person, ancestry.people[person.id])
 
+    def test_clean_should_not_clean_file_with_citations(self) -> None:
+        ancestry = Ancestry()
+
+        source = Source()
+
+        citation = IdentifiableCitation('C1', source)
+        ancestry.citations[citation.id] = citation
+
+        file = File('F0', __file__)
+        file.citations.append(citation)
+        ancestry.files[file.id] = file
+
+        clean(ancestry)
+
+        self.assertEqual(file, ancestry.files[file.id])
+        self.assertIn(citation, file.citations)
+        self.assertEqual(citation, ancestry.citations[citation.id])
+
     def test_clean_should_clean_source(self) -> None:
         ancestry = Ancestry()
 
@@ -267,17 +285,17 @@ class CleanTest(TestCase):
     def test_clean_should_not_clean_source_with_files(self) -> None:
         ancestry = Ancestry()
 
-        source = IdentifiableSource('S0', 'The Source')
-        ancestry.sources[source.id] = source
-
         file = File('F0', __file__)
-        file.resources.append(source)
         ancestry.files[file.id] = file
+
+        source = IdentifiableSource('S0', 'The Source')
+        source.files.append(file)
+        ancestry.sources[source.id] = source
 
         clean(ancestry)
 
         self.assertEqual(source, ancestry.sources[source.id])
-        self.assertIn(source, file.sources)
+        self.assertIn(source, file.resources)
         self.assertEqual(file, ancestry.files[file.id])
 
     def test_clean_should_clean_citation(self) -> None:
@@ -320,17 +338,16 @@ class CleanTest(TestCase):
         source = IdentifiableSource('S0', 'The Source')
         ancestry.sources[source.id] = source
 
-        citation = IdentifiableCitation('C0', source)
-        ancestry.citations[citation.id] = citation
-
         file = File('F0', __file__)
-        file.resources.append(citation)
         ancestry.files[file.id] = file
+
+        citation = IdentifiableCitation('C0', source)
+        citation.files.append(file)
+        ancestry.citations[citation.id] = citation
 
         clean(ancestry)
 
         self.assertEqual(citation, ancestry.citations[citation.id])
-        self.assertIn(citation, file.citations)
         self.assertEqual(file, ancestry.files[file.id])
         self.assertIn(citation, source.citations)
         self.assertEqual(source, ancestry.sources[source.id])

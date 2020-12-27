@@ -1,0 +1,9 @@
+{% set file = file | default(resource) %}
+{% set embedded = embedded | default(False) %}
+{% if not embedded -%}
+    <a href="{{ file | url }}">
+{%- endif -%}
+{{ file.description }}
+{%- if not embedded -%}
+    </a>
+{%- endif %}
