@@ -42,10 +42,12 @@
     {% endif %}
     {% set citations = file.citations | list %}
     {% if citations | length  > 0 %}
-        <section id="sources">
+        {# These are the citations for the file itself. This assumes no other citations are tracked on the page and #}
+        {# rendered by base.html.j2. #}
+        <section id="references">
             <h2>
-                {% trans %}Sources{% endtrans %}
-                {% with url = page_resource | url ~ '#sources'%}
+                {% trans %}References{% endtrans %}
+                {% with url = page_resource | url ~ '#references'%}
                     {% include 'permalink.html.j2' %}
                 {% endwith %}
             </h2>
