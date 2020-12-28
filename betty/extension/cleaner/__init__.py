@@ -2,7 +2,7 @@ from collections import defaultdict
 from typing import Set, Type, Any
 
 from betty.ancestry import Ancestry, Place, File, IdentifiableEvent, IdentifiableSource, IdentifiableCitation, Person
-from betty.graph import Graph, tsort
+from betty.graph import Graph, tsort_grouped
 from betty.parse import PostParser
 from betty.extension import Extension, NO_CONFIGURATION
 from betty.extension.anonymizer import Anonymizer
@@ -52,8 +52,9 @@ def _clean_places(ancestry: Ancestry) -> None:
     for place in places:
         _extend_place_graph(places_graph, place)
 
-    for place in tsort(places_graph):
-        _clean_place(ancestry, place)
+    for grouped_places in tsort_grouped(places_graph):
+        for place in grouped_places:
+            _clean_place(ancestry, place)
 
 
 def _clean_place(ancestry: Ancestry, place: Place) -> None:

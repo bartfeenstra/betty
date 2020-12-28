@@ -4,14 +4,14 @@ from urllib.parse import urlparse
 
 from voluptuous import Schema, Required, Maybe
 
-from betty.generate import PostGenerator
+from betty.generate import Generator
 from betty.extension import Extension, NO_CONFIGURATION
 from betty.extension.nginx.artifact import generate_configuration_file, generate_dockerfile_file
 from betty.serve import ServerProvider, Server
 from betty.app import App
 
 
-class Nginx(Extension, PostGenerator, ServerProvider):
+class Nginx(Extension, Generator, ServerProvider):
     configuration_schema: Schema = Schema({
         Required('www_directory_path', default=None): Maybe(str),
         Required('https', default=None): Maybe(bool),
@@ -34,7 +34,7 @@ class Nginx(Extension, PostGenerator, ServerProvider):
             return [DockerizedNginxServer(self._app)]
         return []
 
-    async def post_generate(self) -> None:
+    async def generate(self) -> None:
         await self.generate_configuration_file()
         await self._generate_dockerfile_file()
 

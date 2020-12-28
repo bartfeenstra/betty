@@ -9,12 +9,12 @@ from typing import Optional, Any
 
 from betty import subprocess
 from betty.fs import DirectoryBackup
-from betty.generate import PostStaticGenerator
+from betty.generate import Generator
 from betty.extension import Extension, NO_CONFIGURATION
 from betty.app import App
 
 
-class ReDoc(Extension, PostStaticGenerator):
+class ReDoc(Extension, Generator):
     def __init__(self, app: App):
         self._app = app
 
@@ -22,7 +22,7 @@ class ReDoc(Extension, PostStaticGenerator):
     def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
         return cls(app)
 
-    async def post_static_generate(self) -> None:
+    async def generate(self) -> None:
         await self._render()
 
     @property
