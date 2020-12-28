@@ -59,13 +59,13 @@ class ExtensionDispatcher(Dispatcher):
         target_extensions = {type(extension): extension for extension in self._extensions if isinstance(extension, target_type)}
         target_extension_graph = build_extension_type_graph(set(target_extensions.keys()))
 
-        async def _dispatch(*args, **kwargs) -> TargetedDispatcher:
-            # @todo This must ensure group order!
-            return await asyncio.gather(*[
-                asyncio.gather(*[
-                    getattr(target_extensions[target_extension_type], target_method_name)(*args, **kwargs) for target_extension_type in target_extension_type_group
+        async def _dispatch(*args, **kwargs) -> List[Any]:
+            return [
+                await asyncio.gather(*[
+                    getattr(target_extensions[target_extension_type], target_method_name)(*args, **kwargs) for
+                    target_extension_type in target_extension_type_group
                 ]) for target_extension_type_group in tsort_grouped(target_extension_graph)
-            ])
+            ]
         return _dispatch
 
 

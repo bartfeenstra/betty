@@ -42,7 +42,7 @@ class App:
         self._extensions = OrderedDict()
         self._extension_exit_stack = AsyncExitStack()
         self._init_extensions()
-        self._init_dispatch_handlers()
+        self._init_dispatcher()
         self._init_assets()
         self._init_translations()
         self._jinja2_environment = None
@@ -92,7 +92,7 @@ class App:
                     self, extension_configuration)
                 self._extensions[extension_type] = extension
 
-    def _init_dispatch_handlers(self) -> None:
+    def _init_dispatcher(self) -> None:
         from betty.extension import ExtensionDispatcher
 
         self._dispatcher = ExtensionDispatcher(self._extensions.values())
