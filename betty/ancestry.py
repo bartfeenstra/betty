@@ -237,8 +237,13 @@ class HasLinks:
         return self._links
 
 
+@many_to_many('citations', 'facts')
+class HasCitations:
+    citations: ManyAssociation['Citation']
+
+
 @many_to_many('resources', 'files')
-class File(Resource, Identifiable, Described, HasPrivacy, HasMediaType, HasNotes):
+class File(Resource, Identifiable, Described, HasPrivacy, HasMediaType, HasNotes, HasCitations):
     resources: ManyAssociation['HasFiles']
     notes: List[Note]
 
@@ -248,6 +253,7 @@ class File(Resource, Identifiable, Described, HasPrivacy, HasMediaType, HasNotes
         HasPrivacy.__init__(self)
         HasMediaType.__init__(self)
         HasNotes.__init__(self)
+        HasCitations.__init__(self)
         self._path = path
         self.media_type = media_type
 
@@ -270,20 +276,6 @@ class File(Resource, Identifiable, Described, HasPrivacy, HasMediaType, HasNotes
     @property
     def extension(self) -> Optional[str]:
         return extension(self._path)
-
-    @property
-    def sources(self) -> Iterable['Source']:
-        for resource in self.resources:
-            if isinstance(resource, Source):
-                yield resource
-            if isinstance(resource, Citation):
-                yield resource.source
-
-    @property
-    def citations(self) -> Iterable['Citation']:
-        for resource in self.resources:
-            if isinstance(resource, Citation):
-                yield resource
 
 
 @many_to_many('files', 'resources')
@@ -349,11 +341,6 @@ class IdentifiableCitation(Citation, Identifiable):
     def __init__(self, citation_id: str, *args, **kwargs):
         Identifiable.__init__(self, citation_id)
         Citation.__init__(self, *args, **kwargs)
-
-
-@many_to_many('citations', 'facts')
-class HasCitations:
-    citations: ManyAssociation[Citation]
 
 
 class PlaceName(Localized, Dated):
@@ -970,7 +957,7 @@ class Person(Resource, Identifiable, HasFiles, HasCitations, HasLinks, HasPrivac
     def associated_files(self) -> Sequence[File]:
         files = [
             *self.files,
-            *[file for name in self.names for citation in name.citations for file in citation.associated_files],
+            *[file for name in self.names for citation in name._citations for file in citation.associated_files],
             *[file for presence in self.presences for file in presence.event.associated_files]
         ]
         # Preserve the original order.

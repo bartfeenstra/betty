@@ -271,27 +271,11 @@ class FileTest(TestCase):
         sut.resources = resources
         self.assertCountEqual(resources, sut.resources)
 
-    def test_sources(self) -> None:
-        file_id = 'BETTY01'
-        file_path = '/tmp/betty'
-        sut = File(file_id, file_path)
-        self.assertCountEqual([], sut.resources)
-        source = Mock(Source)
-        citation_source = Mock(Source)
-        citation = Citation(citation_source)
-        resources = [citation, source, Mock(HasFiles)]
-        sut.resources = resources
-        self.assertCountEqual([citation_source, source], sut.sources)
-
     def test_citations(self) -> None:
         file_id = 'BETTY01'
         file_path = '/tmp/betty'
         sut = File(file_id, file_path)
-        self.assertCountEqual([], sut.resources)
-        citation = Mock(Citation)
-        resources = [citation, Mock(HasFiles)]
-        sut.resources = resources
-        self.assertCountEqual([citation], sut.citations)
+        self.assertCountEqual([], sut.citations)
 
     def test_name(self) -> None:
         file_id = 'BETTY01'
