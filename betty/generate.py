@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 from contextlib import suppress
@@ -15,21 +16,23 @@ from betty.openapi import build_specification
 from betty.app import App
 
 
-class PostStaticGenerator:
-    async def post_static_generate(self) -> None:
-        raise NotImplementedError
-
-
-class PostGenerator:
-    async def post_generate(self) -> None:
+class Generator:
+    async def generate(self) -> None:
         raise NotImplementedError
 
 
 async def generate(app: App) -> None:
+
+    await asyncio.gather(*[
+        _generate(app),
+        app.dispatcher.dispatch(Generator, 'generate')(),
+    ])
+
+
+async def _generate(app: App) -> None:
     logger = logging.getLogger()
     await app.assets.copytree(join('public', 'static'), app.configuration.www_directory_path)
     await app.renderer.render_tree(app.configuration.www_directory_path)
-    await app.dispatcher.dispatch(PostStaticGenerator, 'post_static_generate')()
     for locale, locale_configuration in app.configuration.locales.items():
         async with app.with_locale(locale) as app:
             if app.configuration.multilingual:
@@ -78,7 +81,6 @@ async def generate(app: App) -> None:
             chmod(join(directory_path, subdirectory_name), 0o755)
         for file_name in file_names:
             chmod(join(directory_path, file_name), 0o644)
-    await app.dispatcher.dispatch(PostGenerator, 'post_generate')()
 
 
 def _create_file(path: str) -> object:

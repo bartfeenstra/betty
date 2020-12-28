@@ -21,7 +21,7 @@ from typing import Type, Dict
 from betty.ancestry import Ancestry
 from betty.config import Configuration
 from betty.fs import FileSystem
-from betty.graph import tsort, Graph
+from betty.graph import tsort_grouped
 from betty.locale import open_translations, Translations, negotiate_locale
 from betty.url import AppUrlGenerator, StaticPathUrlGenerator, LocalizedUrlGenerator, StaticUrlGenerator
 
@@ -33,7 +33,7 @@ class App:
         self._configuration = configuration
         self._assets = FileSystem(
             join(dirname(abspath(__file__)), 'assets'))
-        self._dispatcher = Dispatcher()
+        self._dispatcher = None
         self._localized_url_generator = AppUrlGenerator(configuration)
         self._static_url_generator = StaticPathUrlGenerator(configuration)
         self._locale = None
@@ -42,7 +42,7 @@ class App:
         self._extensions = OrderedDict()
         self._extension_exit_stack = AsyncExitStack()
         self._init_extensions()
-        self._init_dispatch_handlers()
+        self._init_dispatcher()
         self._init_assets()
         self._init_translations()
         self._jinja2_environment = None
@@ -82,41 +82,20 @@ class App:
         return self._configuration.default_locale
 
     def _init_extensions(self) -> None:
-        from betty.extension import NO_CONFIGURATION
+        from betty.extension import build_extension_type_graph, NO_CONFIGURATION
 
-        def _extend_extension_type_graph(graph: Graph, extension_type: Type['Extension']):
-            dependencies = extension_type.depends_on()
-            # Ensure each extension type appears in the graph, even if they're isolated.
-            graph.setdefault(extension_type, set())
-            for dependency in dependencies:
-                seen_dependency = dependency in graph
-                graph[dependency].add(extension_type)
-                if not seen_dependency:
-                    _extend_extension_type_graph(graph, dependency)
+        for grouped_extension_types in tsort_grouped(build_extension_type_graph(set(self._configuration.extensions.keys()))):
+            for extension_type in grouped_extension_types:
+                extension_configuration = self.configuration.extensions[
+                    extension_type] if extension_type in self.configuration.extensions else NO_CONFIGURATION
+                extension = extension_type.new_for_app(
+                    self, extension_configuration)
+                self._extensions[extension_type] = extension
 
-        extension_types_graph = defaultdict(set)
-        # Add dependencies to the extension graph.
-        for extension_type in self._configuration.extensions.keys():
-            _extend_extension_type_graph(extension_types_graph, extension_type)
-        # Now all dependencies have been collected, extend the graph with optional extension orders.
-        for extension_type in self._configuration.extensions.keys():
-            for before in extension_type.comes_before():
-                if before in extension_types_graph:
-                    extension_types_graph[extension_type].add(before)
-            for after in extension_type.comes_after():
-                if after in extension_types_graph:
-                    extension_types_graph[after].add(extension_type)
+    def _init_dispatcher(self) -> None:
+        from betty.extension import ExtensionDispatcher
 
-        for extension_type in tsort(extension_types_graph):
-            extension_configuration = self.configuration.extensions[
-                extension_type] if extension_type in self.configuration.extensions else NO_CONFIGURATION
-            extension = extension_type.new_for_app(
-                self, extension_configuration)
-            self._extensions[extension_type] = extension
-
-    def _init_dispatch_handlers(self) -> None:
-        for extension in self._extensions.values():
-            self._dispatcher.append_handler(extension)
+        self._dispatcher = ExtensionDispatcher(self._extensions.values())
 
     def _init_assets(self) -> None:
         for extension in self._extensions.values():
