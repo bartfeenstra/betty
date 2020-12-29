@@ -36,7 +36,7 @@ class LoadXmlTest(TestCase):
                 cls.ancestry = app.ancestry
                 xml_file_path = join(dirname(abspath(__file__)), 'assets', 'data.xml')
                 with open(xml_file_path) as f:
-                    load_xml(app, f.read(), rootname(xml_file_path))
+                    load_xml(app.ancestry, f.read(), rootname(xml_file_path))
 
     @sync
     async def load(self, xml: str) -> Ancestry:
@@ -44,7 +44,7 @@ class LoadXmlTest(TestCase):
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with App(configuration) as app:
                 with TemporaryDirectory() as tree_directory_path:
-                    load_xml(app, xml.strip(), tree_directory_path)
+                    load_xml(app.ancestry, xml.strip(), tree_directory_path)
                     return app.ancestry
 
     def _load_partial(self, xml: str) -> Ancestry:
@@ -69,7 +69,7 @@ class LoadXmlTest(TestCase):
             async with App(configuration) as app:
                 gramps_file_path = join(dirname(abspath(__file__)), 'assets', 'minimal.xml')
                 with open(gramps_file_path) as f:
-                    load_xml(app, f.read(), rootname(gramps_file_path))
+                    load_xml(app.ancestry, f.read(), rootname(gramps_file_path))
 
     @sync
     async def test_load_xml_with_file_path(self):
@@ -77,7 +77,7 @@ class LoadXmlTest(TestCase):
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with App(configuration) as app:
                 gramps_file_path = join(dirname(abspath(__file__)), 'assets', 'minimal.xml')
-                load_xml(app, gramps_file_path, rootname(gramps_file_path))
+                load_xml(app.ancestry, gramps_file_path, rootname(gramps_file_path))
 
     @sync
     async def test_load_gramps(self):
@@ -85,7 +85,7 @@ class LoadXmlTest(TestCase):
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with App(configuration) as app:
                 gramps_file_path = join(dirname(abspath(__file__)), 'assets', 'minimal.gramps')
-                load_gramps(app, gramps_file_path)
+                load_gramps(app.ancestry, gramps_file_path)
 
     @sync
     async def test_load_gpkg(self):
@@ -93,7 +93,7 @@ class LoadXmlTest(TestCase):
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with App(configuration) as app:
                 gramps_file_path = join(dirname(abspath(__file__)), 'assets', 'minimal.gpkg')
-                load_gpkg(app, gramps_file_path)
+                load_gpkg(app.ancestry, gramps_file_path)
 
     def test_place_should_include_name(self):
         place = self.ancestry.places['P0000']
