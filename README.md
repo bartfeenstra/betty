@@ -142,6 +142,7 @@ plugins:
 Betty ships with the following translations:
 - US English (`en-US`)
 - Dutch (`nl-NL`)
+- French (`fr-FR`)
 - Ukrainian (`uk`)
 
 Plugins and sites can override these translations, or provide translations for additional locales.
