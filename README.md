@@ -87,7 +87,8 @@ extensions:
   betty.extension.cleaner.Cleaner: ~
   betty.extension.deriver.Deriver: ~
   betty.extension.gramps.Gramps:
-    file: ./gramps.gpkg
+    family_trees:
+      - file: ./gramps.gpkg
   betty.extension.maps.Maps: ~
   betty.extension.nginx.Nginx:
     www_directory_path: /var/www/betty
@@ -118,8 +119,9 @@ extensions:
     - `betty.extension.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `~`.
     - `betty.extension.cleaner.Cleaner`: Removes data (events, media, etc.) that have no relation to any people. Configuration: `~`.
     - `betty.extension.deriver.Deriver`: Extends ancestries by deriving facts from existing information. Configuration: `~`.
-    - `betty.extension.gramps.Gramps`: Loads a Gramps family tree. Configuration:
-        - `file`: the path to the *Gramps XML* or *Gramps XML Package* file.
+    - `betty.extension.gramps.Gramps`: Loads Gramps family trees. Configuration:
+        - `family_trees`: An array defining zero or more Gramps family trees to load. Each item is an object with the following keys:
+            - `file`: the path to a *Gramps XML* or *Gramps XML Package* file.
     - `betty.extension.maps.Maps`: Renders interactive maps using [Leaflet](https://leafletjs.com/).
     - `betty.extension.nginx.Nginx`: Creates an [nginx](https://nginx.org) configuration file and `Dockerfile` in the
         output directory. If `content_negotiation` is enabled. You must make sure the nginx
