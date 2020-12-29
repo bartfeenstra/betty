@@ -9,7 +9,7 @@ from betty.ancestry import Person, Presence, Event, Source, IdentifiableSource, 
 from betty.config import Configuration
 from betty.asyncio import sync
 from betty.locale import Date, DateRange
-from betty.parse import parse
+from betty.load import load
 from betty.extension.privatizer import Privatizer, privatize
 from betty.app import App
 from betty.tests import TestCase
@@ -81,7 +81,7 @@ def _expand_person(generation: int):
 
 class PrivatizerTest(TestCase):
     @sync
-    async def test_post_parse(self):
+    async def test_post_load(self):
         person = Person('P0')
         Presence(person, Subject(), Event(Birth()))
 
@@ -104,7 +104,7 @@ class PrivatizerTest(TestCase):
                 app.ancestry.people[person.id] = person
                 app.ancestry.sources[source.id] = source
                 app.ancestry.citations[citation.id] = citation
-                await parse(app)
+                await load(app)
 
             self.assertTrue(person.private)
             self.assertTrue(source_file.private)

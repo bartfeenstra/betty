@@ -5,12 +5,12 @@ from typing import Any, Optional, List
 from betty.ancestry import Ancestry, Person, Event, Citation, Source, HasPrivacy, Subject, File, HasFiles, HasCitations
 from betty.functools import walk
 from betty.locale import DateRange, Date
-from betty.parse import PostParser
+from betty.load import PostLoader
 from betty.extension import Extension, NO_CONFIGURATION
 from betty.app import App
 
 
-class Privatizer(Extension, PostParser):
+class Privatizer(Extension, PostLoader):
     def __init__(self, ancestry: Ancestry, lifetime_threshold: int):
         self._ancestry = ancestry
         self._lifetime_threshold = lifetime_threshold
@@ -19,7 +19,7 @@ class Privatizer(Extension, PostParser):
     def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
         return cls(app.ancestry, app.configuration.lifetime_threshold)
 
-    async def post_parse(self) -> None:
+    async def post_load(self) -> None:
         privatize(self._ancestry, self._lifetime_threshold)
 
 

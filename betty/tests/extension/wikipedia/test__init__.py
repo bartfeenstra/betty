@@ -18,7 +18,7 @@ from parameterized import parameterized
 from betty.ancestry import Source, IdentifiableCitation, IdentifiableSource, Link
 from betty.config import Configuration, LocaleConfiguration
 from betty.asyncio import sync
-from betty.parse import parse
+from betty.load import load
 from betty.extension.wikipedia import Entry, _Retriever, NotAnEntryError, _parse_url, RetrievalError, _Populator, Wikipedia
 from betty.app import App
 
@@ -511,7 +511,7 @@ class WikipediaTest(TestCase):
 
     @aioresponses()
     @sync
-    async def test_post_parse(self, m_aioresponses) -> None:
+    async def test_post_load(self, m_aioresponses) -> None:
         resource = IdentifiableSource('the_source', 'The Source')
         link = Link('https://en.wikipedia.org/wiki/Amsterdam')
         resource.links.add(link)
@@ -549,7 +549,7 @@ class WikipediaTest(TestCase):
                 configuration.extensions[Wikipedia] = None
                 async with App(configuration) as app:
                     app.ancestry.sources[resource.id] = resource
-                    await parse(app)
+                    await load(app)
 
         self.assertEqual(1, len(resource.links))
         self.assertEqual(entry_title, link.label)

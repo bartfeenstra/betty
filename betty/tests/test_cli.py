@@ -168,7 +168,7 @@ class ClearCachesTest(TestCase):
 
 class GenerateTest(TestCase):
     @patch('betty.generate.generate', new_callable=AsyncMock)
-    @patch('betty.parse.parse', new_callable=AsyncMock)
+    @patch('betty.load.load', new_callable=AsyncMock)
     def test(self, m_parse, m_generate):
         with TemporaryDirectory() as working_directory_path:
             configuration_file_path = path.join(working_directory_path, 'betty.json')

@@ -7,7 +7,7 @@ from betty.ancestry import Person, Presence, Subject, EventType, CreatableDeriva
 from betty.config import Configuration
 from betty.asyncio import sync
 from betty.locale import DateRange, Date, Datey
-from betty.parse import parse
+from betty.load import load
 from betty.extension.deriver import derive, Deriver
 from betty.app import App
 from betty.tests import TestCase
@@ -72,7 +72,7 @@ class DeriverTest(TestCase):
             configuration.extensions[Deriver] = None
             async with App(configuration) as app:
                 app.ancestry.people[person.id] = person
-                await parse(app)
+                await load(app)
 
         self.assertEquals(3, len(person.presences))
         self.assertEquals(DateRange(None, Date(1970, 1, 1), end_is_boundary=True), person.start.date)

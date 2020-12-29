@@ -118,7 +118,7 @@ extensions:
     - `betty.extension.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `~`.
     - `betty.extension.cleaner.Cleaner`: Removes data (events, media, etc.) that have no relation to any people. Configuration: `~`.
     - `betty.extension.deriver.Deriver`: Extends ancestries by deriving facts from existing information. Configuration: `~`.
-    - `betty.extension.gramps.Gramps`: Parses a Gramps genealogy. Configuration:
+    - `betty.extension.gramps.Gramps`: Loads a Gramps family tree. Configuration:
         - `file`: the path to the *Gramps XML* or *Gramps XML Package* file.
     - `betty.extension.maps.Maps`: Renders interactive maps using [Leaflet](https://leafletjs.com/).
     - `betty.extension.nginx.Nginx`: Creates an [nginx](https://nginx.org) configuration file and `Dockerfile` in the
@@ -193,7 +193,7 @@ To build a site from your GEDCOM files:
 1. Import your GEDCOM file under *Family Trees* > *Import...*
 1. Export your family tree under *Family Trees* > *Export...*
 1. As output format, choose one of the *Gramps XML* options
-1. Follow the documentation to [configure your Betty site](#configuration-files) to parse the exported file
+1. Follow the documentation to [configure your Betty site](#configuration-files) to load the exported file
 
 ### The Python API
 
@@ -201,7 +201,7 @@ To build a site from your GEDCOM files:
 from betty.config import Configuration
 from betty.asyncio import sync
 from betty.generate import generate
-from betty.parse import parse
+from betty.load import load
 from betty.app import App
 
 
@@ -211,7 +211,7 @@ async def generate():
     url = 'https://betty.example.com'
     configuration = Configuration(output_directory_path, url)
     async with App(configuration) as app:
-        await parse(app)
+        await load(app)
         await generate(app)
 
 ```
