@@ -13,7 +13,7 @@ import click
 from click import get_current_context
 
 import betty
-from betty import generate, parse, serve, about
+from betty import generate, load, serve, about
 from betty.config import from_file
 from betty.error import UserFacingError
 from betty.asyncio import sync
@@ -160,7 +160,7 @@ async def _clear_caches():
 @click.command(help='Generate a static site.')
 @app_command
 async def _generate(app: App):
-    await parse.parse(app)
+    await load.load(app)
     await generate.generate(app)
 
 

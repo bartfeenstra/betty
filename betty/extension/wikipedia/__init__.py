@@ -22,7 +22,7 @@ from betty.fs import makedirs
 from betty.jinja2 import Jinja2Provider
 from betty.locale import Localized, negotiate_locale
 from betty.media_type import MediaType
-from betty.parse import PostParser
+from betty.load import PostLoader
 
 
 class WikipediaError(BaseException):
@@ -203,7 +203,7 @@ class _Populator:
             link.label = entry.title
 
 
-class Wikipedia(Extension, Jinja2Provider, PostParser):
+class Wikipedia(Extension, Jinja2Provider, PostLoader):
     def __init__(self, app: App):
         self._app = app
 
@@ -220,7 +220,7 @@ class Wikipedia(Extension, Jinja2Provider, PostParser):
     def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
         return cls(app)
 
-    async def post_parse(self) -> None:
+    async def post_load(self) -> None:
         await self._populator.populate()
 
     @property

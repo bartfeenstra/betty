@@ -4,7 +4,7 @@ from betty.ancestry import Ancestry, Person, Place, Presence, PlaceName, Identif
     IdentifiableSource, IdentifiableCitation, Subject, Birth, Enclosure, Source
 from betty.config import Configuration
 from betty.asyncio import sync
-from betty.parse import parse
+from betty.load import load
 from betty.extension.cleaner import Cleaner, clean
 from betty.app import App
 from betty.tests import TestCase
@@ -20,7 +20,7 @@ class CleanerTest(TestCase):
             configuration.extensions[Cleaner] = None
             async with App(configuration) as app:
                 app.ancestry.events[event.id] = event
-                await parse(app)
+                await load(app)
                 self.assertEquals({}, app.ancestry.events)
 
 

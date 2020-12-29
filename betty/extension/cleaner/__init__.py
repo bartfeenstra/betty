@@ -3,7 +3,7 @@ from typing import Set, Type, Any
 
 from betty.ancestry import Ancestry, Place, File, IdentifiableEvent, IdentifiableSource, IdentifiableCitation, Person
 from betty.graph import Graph, tsort_grouped
-from betty.parse import PostParser
+from betty.load import PostLoader
 from betty.extension import Extension, NO_CONFIGURATION
 from betty.extension.anonymizer import Anonymizer
 from betty.app import App
@@ -135,7 +135,7 @@ def _clean_citation(ancestry: Ancestry, citation: IdentifiableCitation) -> None:
     del ancestry.citations[citation.id]
 
 
-class Cleaner(Extension, PostParser):
+class Cleaner(Extension, PostLoader):
     def __init__(self, ancestry: Ancestry):
         self._ancestry = ancestry
 
@@ -147,5 +147,5 @@ class Cleaner(Extension, PostParser):
     def comes_after(cls) -> Set[Type[Extension]]:
         return {Anonymizer}
 
-    async def post_parse(self) -> None:
+    async def post_load(self) -> None:
         clean(self._ancestry)

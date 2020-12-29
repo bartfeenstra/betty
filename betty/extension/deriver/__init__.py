@@ -4,7 +4,7 @@ from typing import List, Tuple, Set, Type, Iterable, Any
 from betty.ancestry import Person, Presence, Event, Subject, EventType, EVENT_TYPE_TYPES, DerivableEventType, \
     CreatableDerivableEventType, Ancestry
 from betty.locale import DateRange, Date
-from betty.parse import PostParser
+from betty.load import PostLoader
 from betty.extension import Extension, NO_CONFIGURATION
 from betty.extension.privatizer import Privatizer
 from betty.app import App
@@ -20,7 +20,7 @@ class DerivedDate(Date):
         return cls(date.year, date.month, date.day, fuzzy=date.fuzzy)
 
 
-class Deriver(Extension, PostParser):
+class Deriver(Extension, PostLoader):
     def __init__(self, ancestry: Ancestry):
         self._ancestry = ancestry
 
@@ -28,7 +28,7 @@ class Deriver(Extension, PostParser):
     def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
         return cls(app.ancestry)
 
-    async def post_parse(self,) -> None:
+    async def post_load(self, ) -> None:
         await self.derive(self._ancestry)
 
     async def derive(self, ancestry: Ancestry) -> None:
