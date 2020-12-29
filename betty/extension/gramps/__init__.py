@@ -32,7 +32,7 @@ class GrampsLoadFileError(UserFacingError):
 
 def load_file(app: App, file_path: str) -> None:
     logger = logging.getLogger()
-    logger.info('Parsing %s...' % file_path)
+    logger.info('Loading %s...' % file_path)
 
     with suppress(GrampsLoadFileError):
         load_gpkg(app, file_path)
@@ -118,13 +118,20 @@ class _Loader(Loader):
         self._citations = {}
 
     def _populate_ancestry(self):
-        self._ancestry.files = {file.file.id: file.file for file in self._files.values()}
-        self._ancestry.people = {person.id: person for person in self._people.values()}
-        self._ancestry.places = {place.id: place for place in self._places.values()}
-        self._ancestry.events = {event.id: event for event in self._events.values()}
-        self._ancestry.sources = {source.id: source for source in self._sources.values()}
-        self._ancestry.citations = {citation.id: citation for citation in self._citations.values()}
-        self._ancestry.notes = {note.id: note for note in self._notes.values()}
+        for file in self._files.values():
+            self._ancestry.files[file.file.id] = file.file
+        for person in self._people.values():
+            self._ancestry.people[person.id] = person
+        for place in self._places.values():
+            self._ancestry.places[place.id] = place
+        for event in self._events.values():
+            self._ancestry.events[event.id] = event
+        for source in self._sources.values():
+            self._ancestry.sources[source.id] = source
+        for citation in self._citations.values():
+            self._ancestry.citations[citation.id] = citation
+        for note in self._notes.values():
+            self._ancestry.notes[note.id] = note
 
     def load(self) -> None:
         logger = logging.getLogger()
@@ -577,18 +584,38 @@ def _load_attribute(name: str, element: ElementTree.Element, tag: str) -> Option
         return attribute_element.get('value')
 
 
-class Gramps(Extension, Loader):
-    configuration_schema: Schema = Schema({
+class FamilyTreeConfiguration:
+    def __init__(self, file_path: str):
+        self.file_path = file_path
+
+    def __eq__(self, other):
+        return self.file_path == other.file_path
+
+
+def _family_tree_configurations_schema(family_trees_configuration_dict: Any) -> List[FamilyTreeConfiguration]:
+    schema = Schema({
         'file': All(str, IsFile(), Path()),
     })
+    family_trees_configuration = []
+    for family_tree_configuration_dict in family_trees_configuration_dict:
+        schema(family_tree_configuration_dict)
+        family_trees_configuration.append(FamilyTreeConfiguration(family_tree_configuration_dict['file']))
+    return family_trees_configuration
 
-    def __init__(self, app: App, gramps_file_path: str):
+
+class Gramps(Extension, Loader):
+    configuration_schema: Schema = Schema({
+        'family_trees': All(list, _family_tree_configurations_schema),
+    })
+
+    def __init__(self, app: App, family_trees_configuration: List[FamilyTreeConfiguration]):
         self._app = app
-        self._gramps_file_path = gramps_file_path
+        self._family_trees_configuration = family_trees_configuration
 
     @classmethod
     def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
-        return cls(app, configuration['file'])
+        return cls(app, configuration['family_trees'])
 
     async def load(self) -> None:
-        load_file(self._app, self._gramps_file_path)
+        for family_tree_configuration in self._family_trees_configuration:
+            load_file(self._app, family_tree_configuration.file_path)
