@@ -91,7 +91,13 @@ SETUP = {
     ],
     'include_package_data': True,
     'package_data': {
-        'betty': glob(join(dirname(abspath(__file__)), 'betty', 'assets', '**'), recursive=True) + glob(join(dirname(abspath(__file__)), 'betty', 'extension', '*', 'assets', '**'), recursive=True),
+        'betty': [
+                     join(dirname(__file__), 'VERSION'),
+                 ]
+                 +
+                 glob(join(dirname(abspath(__file__)), 'betty', 'assets', '**'), recursive=True)
+                 +
+                 glob(join(dirname(abspath(__file__)), 'betty', 'extension', '*', 'assets', '**'), recursive=True),
     },
 }
 
