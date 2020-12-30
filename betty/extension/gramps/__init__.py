@@ -30,50 +30,50 @@ class GrampsLoadFileError(UserFacingError):
     pass
 
 
-def load_file(app: App, file_path: str) -> None:
+def load_file(ancestry: Ancestry, file_path: str) -> None:
     logger = logging.getLogger()
     logger.info('Loading %s...' % file_path)
 
     with suppress(GrampsLoadFileError):
-        load_gpkg(app, file_path)
+        load_gpkg(ancestry, file_path)
         return
 
     with suppress(GrampsLoadFileError):
-        load_gramps(app, file_path)
+        load_gramps(ancestry, file_path)
         return
 
     with suppress(GrampsLoadFileError):
         with open(file_path) as f:
             xml = f.read()
-        load_xml(app, xml, rootname(file_path))
+        load_xml(ancestry, xml, rootname(file_path))
         return
 
     raise GrampsLoadFileError('Could not load "%s" as a *.gpkg, a *.gramps, or an *.xml family tree.' % file_path)
 
 
-def load_gramps(app: App, gramps: str) -> None:
+def load_gramps(ancestry: Ancestry, gramps: str) -> None:
     try:
         with gzip.open(gramps) as f:
             xml = f.read()
-        load_xml(app, xml, rootname(gramps))
+        load_xml(ancestry, xml, rootname(gramps))
     except OSError:
         raise GrampsLoadFileError()
 
 
-def load_gpkg(app: App, gpkg: str) -> None:
+def load_gpkg(ancestry: Ancestry, gpkg: str) -> None:
     try:
         tar_file = gzip.open(gpkg)
         try:
             with TemporaryDirectory() as cache_directory_path:
                 tarfile.open(fileobj=tar_file).extractall(cache_directory_path)
-                load_gramps(app, path.join(cache_directory_path, 'data.gramps'))
+                load_gramps(ancestry, path.join(cache_directory_path, 'data.gramps'))
         except tarfile.ReadError:
             raise GrampsLoadFileError('Could not read "%s" as a *.tar file after un-gzipping it.' % gpkg)
     except OSError:
         raise GrampsLoadFileError('Could not un-gzip "%s".' % gpkg)
 
 
-def load_xml(app: App, xml: str, gramps_tree_directory_path: str) -> None:
+def load_xml(ancestry: Ancestry, xml: str, gramps_tree_directory_path: str) -> None:
     with suppress(FileNotFoundError, OSError):
         with open(xml) as f:
             xml = f.read()
@@ -81,7 +81,7 @@ def load_xml(app: App, xml: str, gramps_tree_directory_path: str) -> None:
         tree = ElementTree.ElementTree(ElementTree.fromstring(xml))
     except ElementTree.ParseError as e:
         raise GrampsLoadFileError(e)
-    _Loader(app.ancestry, tree, gramps_tree_directory_path).load()
+    _Loader(ancestry, tree, gramps_tree_directory_path).load()
 
 
 class _IntermediatePlace:
@@ -608,14 +608,14 @@ class Gramps(Extension, Loader):
         'family_trees': All(list, _family_tree_configurations_schema),
     })
 
-    def __init__(self, app: App, family_trees_configuration: List[FamilyTreeConfiguration]):
-        self._app = app
+    def __init__(self, ancestry: Ancestry, family_trees_configuration: List[FamilyTreeConfiguration]):
+        self._ancestry = ancestry
         self._family_trees_configuration = family_trees_configuration
 
     @classmethod
     def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
-        return cls(app, configuration['family_trees'])
+        return cls(app.ancestry, configuration['family_trees'])
 
     async def load(self) -> None:
         for family_tree_configuration in self._family_trees_configuration:
-            load_file(self._app, family_tree_configuration.file_path)
+            load_file(self._ancestry, family_tree_configuration.file_path)
