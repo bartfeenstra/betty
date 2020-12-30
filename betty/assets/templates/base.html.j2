@@ -93,10 +93,18 @@
             <h2 class="nav-primary-action">{% trans %}Menu{% endtrans %}</h2>
             <div class="nav-primary-expanded">
                 <ul class="nav-secondary">
-                <li><a href="{{ '/person/index.html' | url }}">{% trans %}People{% endtrans %}</a></li>
-                <li><a href="{{ '/event/index.html' | url }}">{% trans %}Timeline{% endtrans %}</a></li>
-                <li><a href="{{ '/place/index.html' | url }}">{% trans %}Places{% endtrans %}</a></li>
-                <li><a href="{{ '/source/index.html' | url }}">{% trans %}Sources{% endtrans %}</a></li>
+                    {% if app.ancestry.people | length > 0 %}
+                        <li><a href="{{ '/person/index.html' | url }}">{% trans %}People{% endtrans %}</a></li>
+                    {% endif %}
+                    {% if app.ancestry.events | length > 0 %}
+                        <li><a href="{{ '/event/index.html' | url }}">{% trans %}Timeline{% endtrans %}</a></li>
+                    {% endif %}
+                    {% if app.ancestry.places | length > 0 %}
+                        <li><a href="{{ '/place/index.html' | url }}">{% trans %}Places{% endtrans %}</a></li>
+                    {% endif %}
+                    {% if app.ancestry.sources | length > 0 %}
+                        <li><a href="{{ '/source/index.html' | url }}">{% trans %}Sources{% endtrans %}</a></li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

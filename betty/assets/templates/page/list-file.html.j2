@@ -1,7 +1,11 @@
 {% extends 'base.html.j2' %}
 {% set page_title = _('Media') %}
 {% block page_content %}
-    {% with files=entities %}
-        {% include 'list-file.html.j2' %}
-    {% endwith %}
+    {% if entities | length > 0 %}
+        {% with files=entities %}
+            {% include 'list-file.html.j2' %}
+        {% endwith %}
+    {% else %}
+        <p>{% trans %}I'm sorry, dear, but it seems there are no media.{% endtrans %}</p>
+    {% endif %}
 {% endblock %}
