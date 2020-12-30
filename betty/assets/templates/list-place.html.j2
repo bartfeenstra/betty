@@ -1,6 +1,6 @@
 {% set place_context = place_context | default(None) %}
 <div class="places{% if 'betty.plugin.maps.Maps' in plugins %} with-map{% endif %}">
-    {% if 'betty.plugin.maps.Maps' in plugins %}
+    {% if 'betty.plugin.maps.Maps' in plugins and places | rejectattr('coordinates', 'none') | list | length > 0 %}
         <div class="featured map"></div>
     {% endif %}
     <ul class="entities{% if map_hides_list | default(false) %} js-visually-hidden{% endif %}">

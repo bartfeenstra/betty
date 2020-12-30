@@ -1,7 +1,11 @@
 {% extends 'base.html.j2' %}
 {% set page_title = _('Events') %}
 {% block page_content %}
-    {% with events=entities %}
-        {% include 'list-event.html.j2' %}
-    {% endwith %}
+    {% if entities | length > 0 %}
+        {% with events=entities %}
+            {% include 'list-event.html.j2' %}
+        {% endwith %}
+    {% else %}
+        <p>{% trans %}I'm sorry, dear, but it seems there are no events.{% endtrans %}</p>
+    {% endif %}
 {% endblock %}
