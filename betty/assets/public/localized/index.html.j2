@@ -1,2 +1,36 @@
 {% extends 'base.html.j2' %}
 {% set page_title = _('Welcome to %(title)s') | format(title=site.configuration.title) %}
+{% block page_content %}
+    <p>
+        {% trans %}
+            Hello dear, welcome to your new family history website.
+        {% endtrans %}
+    </p>
+    <p>
+        {% trans %}
+            Build your site by adding content to the family history you load into Betty, such as people, places, source
+            citations, and media.
+        {% endtrans %}
+    </p>
+    {% set template_override_template %}
+        {% raw %}
+            {% extends 'base.html.j2' %}
+            {% set page_title = _('Welcome to %(title)s') | format(title=site.configuration.title) %}
+            {% block page_content %}
+                {# Remove this line, and replace it with your own front page content. #}
+            {% endblock %}
+        {% endraw %}
+    {% endset %}
+    {% trans template_override_subdirectory_path = path.join('public', 'localized'), template_override_template = template_override_template %}
+        You can customize this page you are looking at right now:
+        <ol>
+            <li>Create an <strong>assets</strong> directory. You can call this anything and put this anywhere, but a good start is to call it <code>assets</code> and put it in the same directory as your Betty configuration file.</li>
+            <li>In your Betty configuration file, add <code>assets_directory_path: assets</code>, where <code>assets</code> should be whatever the path to and name of your assets directory path is.</li>
+            <li>Inside the assets directory, create the subdirectories <code>{{ template_override_subdirectory_path }}</code>, and in there, the file <code>index.html.j2</code>. This file will replace the page you are seeing now.</li>
+            <li>Open <code>index.html.j2</code> in your favorite code editor, and add the following code:
+                <pre><code>{{ template_override_template }}</code></pre>
+            </li>
+            <li>Customize this code to suit your needs. Then regenerate your site, and reload this page.</li>
+        </ol>
+    {% endtrans %}
+{% endblock %}
