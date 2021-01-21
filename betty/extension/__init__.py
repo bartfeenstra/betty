@@ -63,7 +63,7 @@ class ExtensionDispatcher(Dispatcher):
             return [
                 await asyncio.gather(*[
                     getattr(target_extensions[target_extension_type], target_method_name)(*args, **kwargs) for
-                    target_extension_type in target_extension_type_group
+                    target_extension_type in target_extension_type_group if issubclass(target_extension_type, target_type)
                 ]) for target_extension_type_group in tsort_grouped(target_extension_graph)
             ]
         return _dispatch

@@ -13,7 +13,7 @@ import click
 from click import get_current_context
 
 import betty
-from betty import generate, load, serve, about
+from betty import generate, load, serve, about, demo
 from betty.config import from_file
 from betty.error import UserFacingError
 from betty.asyncio import sync
@@ -86,6 +86,7 @@ async def _init_ctx(ctx, configuration_file_path: Optional[str] = None) -> None:
 
     ctx.obj['commands'] = {
         'clear-caches': _clear_caches,
+        'demo': _demo,
     }
 
     if configuration_file_path is None:
@@ -155,6 +156,14 @@ async def _clear_caches():
     with suppress(FileNotFoundError):
         shutil.rmtree(betty._CACHE_DIRECTORY_PATH)
     logging.getLogger().info('All caches cleared.')
+
+
+@click.command(help='Explore a demonstration site.')
+@global_command
+async def _demo():
+    async with demo.DemoServer():
+        while True:
+            time.sleep(999)
 
 
 @click.command(help='Generate a static site.')

@@ -1,11 +1,11 @@
 from os import path
-from typing import Optional, Any, Iterable
+from typing import Optional, Iterable, Dict
 from urllib.parse import urlparse
 
-from voluptuous import Schema, Required, Maybe
+from voluptuous import Schema
 
 from betty.generate import Generator
-from betty.extension import Extension, NO_CONFIGURATION
+from betty.extension import Extension
 from betty.extension.nginx.artifact import generate_configuration_file, generate_dockerfile_file
 from betty.serve import ServerProvider, Server
 from betty.app import App
@@ -13,8 +13,8 @@ from betty.app import App
 
 class Nginx(Extension, Generator, ServerProvider):
     configuration_schema: Schema = Schema({
-        Required('www_directory_path', default=None): Maybe(str),
-        Required('https', default=None): Maybe(bool),
+        'www_directory_path': str,
+        'https': bool,
     })
 
     def __init__(self, app: App, www_directory_path: Optional[str] = None, https: Optional[bool] = None):
@@ -23,7 +23,9 @@ class Nginx(Extension, Generator, ServerProvider):
         self._app = app
 
     @classmethod
-    def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
+    def new_for_app(cls, app: App, configuration: Dict):
+        configuration.setdefault('www_directory_path', app.configuration.www_directory_path)
+        configuration.setdefault('https', None)
         return cls(app, configuration['www_directory_path'], configuration['https'])
 
     @property

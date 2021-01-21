@@ -50,7 +50,7 @@ class App:
         self._executor = None
         self._locks = Locks()
 
-    async def __aenter__(self):
+    async def enter(self):
         if not self._app_stack:
             for extension in self._extensions.values():
                 await self._extension_exit_stack.enter_async_context(extension)
@@ -65,7 +65,7 @@ class App:
 
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def exit(self):
         self._app_stack.pop()
 
         self._default_translations.uninstall()
@@ -74,6 +74,12 @@ class App:
             self._executor.shutdown()
             self._executor = None
             await self._extension_exit_stack.aclose()
+
+    async def __aenter__(self) -> 'App':
+        return await self.enter()
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.exit()
 
     @property
     def locale(self) -> str:
