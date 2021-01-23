@@ -63,6 +63,7 @@ Options:
 
 Commands:
   clear-caches  Clear all caches.
+  demo          Explore a demonstration site.
   generate      Generate a static site.
   serve         Serve a generated site.
 ```
@@ -118,6 +119,7 @@ extensions:
 - `extensions` (optional): The extensions to enable. Keys are extension names, and values are objects containing each extension's configuration.
     - `betty.extension.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `~`.
     - `betty.extension.cleaner.Cleaner`: Removes data (events, media, etc.) that have no relation to any people. Configuration: `~`.
+    - `betty.extension.demo.Demo`: Loads demonstrative content and functionality that shows what Betty can do. Configuration: `~`.
     - `betty.extension.deriver.Deriver`: Extends ancestries by deriving facts from existing information. Configuration: `~`.
     - `betty.extension.gramps.Gramps`: Loads Gramps family trees. Configuration:
         - `family_trees`: An array defining zero or more Gramps family trees to load. Each item is an object with the following keys:

@@ -166,6 +166,14 @@ class ClearCachesTest(TestCase):
             open(cached_file_path)
 
 
+class DemoTest(TestCase):
+    @patch('betty.serve.AppServer', new_callable=lambda: _KeyboardInterruptedServer)
+    def test(self, m_server):
+        runner = CliRunner()
+        result = runner.invoke(main, ('demo',), catch_exceptions=False)
+        self.assertEqual(0, result.exit_code)
+
+
 class GenerateTest(TestCase):
     @patch('betty.generate.generate', new_callable=AsyncMock)
     @patch('betty.load.load', new_callable=AsyncMock)
