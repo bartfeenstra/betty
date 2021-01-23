@@ -2,8 +2,9 @@ from os import path
 from typing import Optional, Iterable, Dict
 from urllib.parse import urlparse
 
-from voluptuous import Schema
+from voluptuous import Schema, Invalid
 
+from betty.config import ConfigurationValueError
 from betty.generate import Generator
 from betty.extension import Extension
 from betty.extension.nginx.artifact import generate_configuration_file, generate_dockerfile_file
@@ -21,6 +22,13 @@ class Nginx(Extension, Generator, ServerProvider):
         self._https = https
         self._www_directory_path = www_directory_path
         self._app = app
+
+    @classmethod
+    def validate_configuration(cls, configuration: Optional[Dict]) -> Dict:
+        try:
+            return cls.configuration_schema(configuration)
+        except Invalid as e:
+            raise ConfigurationValueError(e)
 
     @classmethod
     def new_for_app(cls, app: App, configuration: Dict):

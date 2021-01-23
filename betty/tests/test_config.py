@@ -3,11 +3,11 @@ from collections import OrderedDict
 from contextlib import contextmanager
 from os.path import join
 from tempfile import NamedTemporaryFile, TemporaryDirectory
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import yaml
 from parameterized import parameterized
-from voluptuous import Schema, Required
+from voluptuous import Schema, Required, Invalid
 
 from betty.config import ConfigurationValueError, LocaleConfiguration, Configuration, from_file, _from_dict, from_json, \
     from_yaml
@@ -121,6 +121,13 @@ class ConfigurableExtension(Extension):
         Required('check'): lambda x: x,
         Required('default', default='I will always be there for you.'): lambda x: x,
     })
+
+    @classmethod
+    def validate_configuration(cls, configuration: Optional[Dict]) -> Dict:
+        try:
+            return cls.configuration_schema(configuration)
+        except Invalid as e:
+            raise ConfigurationValueError(e)
 
     def __init__(self, check, default):
         self.check = check

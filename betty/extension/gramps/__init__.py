@@ -9,14 +9,14 @@ from typing import Tuple, Optional, List, Any, Dict
 from xml.etree import ElementTree
 
 from geopy import Point
-from voluptuous import Schema, IsFile, All
+from voluptuous import Schema, IsFile, All, Invalid
 
 from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, PlaceName, Person, Link, HasFiles, \
     HasLinks, HasCitations, IdentifiableEvent, HasPrivacy, IdentifiableSource, IdentifiableCitation, Subject, Witness, \
     Attendee, Birth, Baptism, Adoption, Cremation, Death, Burial, Engagement, Marriage, MarriageAnnouncement, Divorce, \
     DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, Retirement, Correspondence, Confirmation, \
     Funeral, Will, Beneficiary, Enclosure, UnknownEventType, Missing, Event, Source, Citation
-from betty.config import Path
+from betty.config import Path, ConfigurationValueError
 from betty.error import UserFacingError
 from betty.locale import DateRange, Datey, Date
 from betty.media_type import MediaType
@@ -611,6 +611,13 @@ class Gramps(Extension, Loader):
     def __init__(self, ancestry: Ancestry, family_trees_configuration: List[FamilyTreeConfiguration]):
         self._ancestry = ancestry
         self._family_trees_configuration = family_trees_configuration
+
+    @classmethod
+    def validate_configuration(cls, configuration: Optional[Dict]) -> Dict:
+        try:
+            return cls.configuration_schema(configuration)
+        except Invalid as e:
+            raise ConfigurationValueError(e)
 
     @classmethod
     def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
