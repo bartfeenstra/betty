@@ -1,10 +1,9 @@
 import asyncio
 from collections import defaultdict
-from typing import Type, Set, Optional, Any, List
-
-from voluptuous import Schema
+from typing import Type, Set, Optional, Any, List, Dict
 
 from betty.app import App
+from betty.config import ConfigurationValueError
 from betty.dispatch import Dispatcher, TargetedDispatcher
 from betty.graph import Graph, tsort_grouped
 
@@ -12,8 +11,6 @@ NO_CONFIGURATION = None
 
 
 class Extension:
-    configuration_schema: Schema = Schema(None)
-
     async def __aenter__(self):
         pass  # pragma: no cover
 
@@ -23,6 +20,23 @@ class Extension:
     @classmethod
     def name(cls) -> str:
         return '%s.%s' % (cls.__module__, cls.__name__)
+
+    @classmethod
+    def validate_configuration(cls, configuration: Optional[Dict]) -> Any:
+        """
+        Validate a configuration dictionary, and return the configuration in whatever format this extension requires.
+
+        Returns
+        -------
+        The configuration in whatever format this extension requires.
+
+        Raises
+        ------
+        betty.config.ConfigurationValueError
+        """
+        if configuration is not None:
+            raise ConfigurationValueError('Extension %s does not take any configuration, so its configuration must be None.' % cls.name())
+        return None
 
     @classmethod
     def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):

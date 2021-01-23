@@ -56,7 +56,7 @@ def _extensions_configuration_schema(extensions_configuration_dict: Optional[Dic
 
     # Validate each extension's configuration.
     schema = Schema({
-        extension_type_name: extension_types_by_name[extension_type_name].configuration_schema for extension_type_name in extensions_configuration_dict.keys()
+        extension_type_name: extension_types_by_name[extension_type_name].validate_configuration for extension_type_name in extensions_configuration_dict.keys()
     })
     typed_extensions_configuration_dict = schema(extensions_configuration_dict)
 

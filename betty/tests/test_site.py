@@ -1,9 +1,9 @@
-from typing import List, Type, Set, Any
+from typing import List, Type, Set, Any, Dict, Optional
 
-from voluptuous import Schema, Required
+from voluptuous import Schema, Required, Invalid
 
 from betty.ancestry import Ancestry
-from betty.config import Configuration
+from betty.config import Configuration, ConfigurationValueError
 from betty.asyncio import sync
 from betty.graph import CyclicGraphError
 from betty.extension import Extension, NO_CONFIGURATION
@@ -32,6 +32,13 @@ class ConfigurableExtension(Extension):
 
     def __init__(self, check):
         self.check = check
+
+    @classmethod
+    def validate_configuration(cls, configuration: Optional[Dict]) -> Dict:
+        try:
+            return cls.configuration_schema(configuration)
+        except Invalid as e:
+            raise ConfigurationValueError(e)
 
     @classmethod
     def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
