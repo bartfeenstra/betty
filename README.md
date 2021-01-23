@@ -64,6 +64,7 @@ Options:
 
 Commands:
   clear-caches  Clear all caches.
+  demo          Explore a demonstration site.
   generate      Generate a static site.
   serve         Serve a generated site.
 ```
@@ -117,6 +118,7 @@ plugins:
 - `plugins` (optional): The plugins to enable. Keys are plugin names, and values are objects containing each plugin's configuration.
     - `betty.plugin.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `~`.
     - `betty.plugin.cleaner.Cleaner`: Removes data (events, media, etc.) that have no relation to any people. Configuration: `~`.
+    - `betty.extension.demo.Demo`: Loads demonstrative content and functionality that shows what Betty can do. Configuration: `~`.
     - `betty.plugin.deriver.Deriver`: Extends ancestries by deriving facts from existing information. Configuration: `~`.
     - `betty.plugin.gramps.Gramps`: Parses a Gramps genealogy. Configuration:
         - `file`: the path to the *Gramps XML* or *Gramps XML Package* file.
