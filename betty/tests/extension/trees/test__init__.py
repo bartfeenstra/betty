@@ -1,6 +1,6 @@
 from tempfile import TemporaryDirectory
 
-from betty.config import Configuration
+from betty.config import Configuration, ExtensionConfiguration
 from betty.asyncio import sync
 from betty.generate import generate
 from betty.extension.trees import Trees
@@ -15,7 +15,7 @@ class TreesTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://ancestry.example.com')
             configuration.mode = 'development'
-            configuration.extensions[Trees] = None
+            configuration.extensions.add(ExtensionConfiguration(Trees))
             async with App(configuration) as app:
                 await generate(app)
             with open(configuration.www_directory_path / 'trees.js', encoding='utf-8') as f:

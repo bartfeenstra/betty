@@ -20,9 +20,10 @@ while read -r configuration_path; do
     npm run eslint -- -c "$configuration_path" "$(dirname "${configuration_path}")/**/*.js"
 done < <(find ./ -name .eslintrc.yaml)
 
-# Run Python unit and integration tests with coverage.
+# Run Python tests with coverage.
 coverage erase
-coverage run -m nose2
+coverage run --append -m nose2
+coverage run --append -m pytest
 coverage report -m
 
 # Run end-to-end (e2e) tests.

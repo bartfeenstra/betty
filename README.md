@@ -1,3 +1,4 @@
+
 # Betty 👵
 
 ![Test status](https://github.com/bartfeenstra/betty/workflows/Test/badge.svg) [![Code coverage](https://codecov.io/gh/bartfeenstra/betty/branch/master/graph/badge.svg)](https://codecov.io/gh/bartfeenstra/betty) [![PyPI releases](https://badge.fury.io/py/betty.svg)](https://pypi.org/project/betty/) [![Supported Python versions](https://img.shields.io/pypi/pyversions/betty.svg?logo=python&logoColor=FBE072)](https://pypi.org/project/betty/) [![Recent downloads](https://img.shields.io/pypi/dm/betty.svg)](https://pypi.org/project/betty/) [![Follow Betty on Twitter](https://img.shields.io/twitter/follow/Betty_Project.svg?label=Betty_Project&style=flat&logo=twitter&logoColor=4FADFF)](https://twitter.com/Betty_Project) 
@@ -63,6 +64,7 @@ Options:
 Commands:
   clear-caches  Clear all caches.
   demo          Explore a demonstration site.
+  gui           Open Betty's graphical user interface (GUI).
   generate      Generate a static site.
   serve         Serve a generated site.
 ```
@@ -81,6 +83,8 @@ locales:
   - locale: en-US
     alias: en
   - locale: nl
+theme:
+  background_image_id: O0301
 assets_directory_path: ./resources
 extensions:
   betty.extension.anonymizer.Anonymizer: ~
@@ -113,8 +117,10 @@ extensions:
     - `alias` (optional): A shorthand alias to use instead of the full language tag, such as when rendering URLs.
 
     If no locales are defined, Betty defaults to US English.
-- `assets_directory_path` (optional); The path to a directory containing overrides for any of Betty's
-    [assets](./betty/assets).
+- `assets` (optional); The path to a directory containing overrides for any of Betty's [assets](./betty/assets).
+- `theme` (optional); Theme configuration. Keys are the following:
+  - `background_image_id` (optional); The ID of the file entity whose (image) file to use for page backgrounds if a page
+      does not provide any image media itself.
 - `extensions` (optional): The extensions to enable. Keys are extension names, and values are objects containing each extension's configuration.
     - `betty.extension.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `~`.
     - `betty.extension.cleaner.Cleaner`: Removes data (events, media, etc.) that have no relation to any people. Configuration: `~`.

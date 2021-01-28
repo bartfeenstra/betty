@@ -4,7 +4,7 @@ from parameterized import parameterized
 
 from betty.ancestry import Person, Presence, Subject, EventType, CreatableDerivableEventType, \
     DerivableEventType, Event, Residence
-from betty.config import Configuration
+from betty.config import Configuration, ExtensionConfiguration
 from betty.asyncio import sync
 from betty.locale import DateRange, Date, Datey
 from betty.load import load
@@ -69,7 +69,7 @@ class DeriverTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.extensions[Deriver] = None
+            configuration.extensions.add(ExtensionConfiguration(Deriver))
             async with App(configuration) as app:
                 app.ancestry.people[person.id] = person
                 await load(app)

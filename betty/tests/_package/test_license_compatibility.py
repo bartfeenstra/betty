@@ -9,6 +9,11 @@ import piplicenses
 
 
 class PackageLicensesTest(TestCase):
+    _GPL_V3_COMPATIBLE_DISTRIBUTIONS = (
+        'PyQt5-sip',
+        'graphlib-backport',  # Released under the Python Software Foundation License.
+    )
+
     _GPL_V3_COMPATIBLE_LICENSES = (
         'Apache Software License',
         'BSD License',
@@ -40,7 +45,7 @@ class PackageLicensesTest(TestCase):
             yield name
             for dependency in get_distribution(name).requires():
                 yield from _get_dependency_distribution_names(dependency.project_name)
-        distribution_names = list(_get_dependency_distribution_names('betty'))
+        distribution_names = list(filter(lambda x: x not in self._GPL_V3_COMPATIBLE_DISTRIBUTIONS, _get_dependency_distribution_names('betty')))
 
         piplicenses_stdout = io.StringIO()
         argv = sys.argv

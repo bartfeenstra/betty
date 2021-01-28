@@ -7,7 +7,7 @@ from unittest.mock import Mock
 from parameterized import parameterized
 
 from betty.ancestry import File, PlaceName, Subject, Attendee, Witness, Dated, Resource, Person, Place, Citation
-from betty.config import Configuration, LocaleConfiguration
+from betty.config import Configuration, LocaleConfiguration, ExtensionConfiguration
 from betty.asyncio import sync
 from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider
 from betty.locale import Date, Datey, DateRange, Localized
@@ -238,7 +238,7 @@ class GlobalExtensionsTest(TemplateTestCase):
         template = '{%% if extensions["%s"] is not none %%}true{%% else %%}false{%% endif %%}' % TestExtension.name()
 
         def _update_configuration(configuration: Configuration) -> None:
-            configuration.extensions[TestExtension] = None
+            configuration.extensions.add(ExtensionConfiguration(TestExtension))
         async with self._render(template_string=template, update_configuration=_update_configuration) as (actual, _):
             self.assertEquals('true', actual)
 
@@ -259,7 +259,7 @@ class GlobalExtensionsTest(TemplateTestCase):
         template = '{%% if "%s" in extensions %%}true{%% else %%}false{%% endif %%}' % TestExtension.name()
 
         def _update_configuration(configuration: Configuration) -> None:
-            configuration.extensions[TestExtension] = None
+            configuration.extensions.add(ExtensionConfiguration(TestExtension))
         async with self._render(template_string=template, update_configuration=_update_configuration) as (actual, _):
             self.assertEquals('true', actual)
 
@@ -367,8 +367,7 @@ class FilterSelectLocalizedsTest(TemplateTestCase):
         template = '{{ data | select_localizeds | map(attribute="name") | join(", ") }}'
 
         def _update_configuration(configuration: Configuration) -> None:
-            configuration.locales.clear()
-            configuration.locales[locale] = LocaleConfiguration(locale)
+            configuration.locales.replace([LocaleConfiguration(locale)])
         async with self._render(template_string=template, data={
             'data': data,
         }, update_configuration=_update_configuration) as (actual, _):
@@ -386,8 +385,7 @@ class FilterSelectLocalizedsTest(TemplateTestCase):
         ]
 
         def _update_configuration(configuration: Configuration) -> None:
-            configuration.locales.clear()
-            configuration.locales['en-US'] = LocaleConfiguration('en-US')
+            configuration.locales.replace([LocaleConfiguration('en-US')])
         async with self._render(template_string=template, data={
             'data': data,
         }, update_configuration=_update_configuration) as (actual, _):

@@ -114,9 +114,9 @@
                 <div class="nav-primary-expanded">
                     <ul class="nav-secondary">
                     {% set ns = namespace(available_locales=[]) %}
-                    {% for available_locale in app.configuration.locales %}
-                        {% set available_locale_data = app.configuration.locales[available_locale].alias | locale_get_data %}
-                        {% do ns.available_locales.append((available_locale, available_locale_data.get_display_name())) %}
+                    {% for available_locale_configuration in app.configuration.locales %}
+                        {% set available_locale_data = available_locale_configuration.alias | locale_get_data %}
+                        {% do ns.available_locales.append((available_locale_configuration.locale, available_locale_data.get_display_name())) %}
                     {% endfor %}
                     {% for available_locale, available_locale_name in ns.available_locales | sort(attribute='1') %}
                         <li><a href="{{ page_resource | url(locale=available_locale) }}" hreflang="{{ available_locale }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a></li>

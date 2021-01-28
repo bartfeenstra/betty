@@ -16,9 +16,9 @@ from requests import Response
 
 from betty import generate
 from betty.ancestry import File
-from betty.config import from_file, Configuration
+from betty.config import from_file, Configuration, ExtensionConfiguration
 from betty.asyncio import sync
-from betty.extension.nginx import Nginx
+from betty.extension.nginx import Nginx, NginxConfiguration
 from betty.extension.nginx.serve import DockerizedNginxServer
 from betty.serve import Server
 from betty.app import App
@@ -189,7 +189,10 @@ class NginxTest(TestCase):
     async def test_betty_0_3_file_path(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'http://example.com')
-            configuration.extensions[Nginx] = {}
+            configuration.extensions.add(ExtensionConfiguration(
+                Nginx,
+                configuration=NginxConfiguration('/var/www/betty'),
+            ))
             app = App(configuration)
             file_id = 'FILE1'
             app.ancestry.files[file_id] = File(file_id, __file__)

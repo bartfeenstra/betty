@@ -17,14 +17,14 @@ from betty.tests import TestCase
 class JSONEncoderTest(TestCase):
     def assert_encodes(self, expected, data, schema_definition: str):
         with TemporaryDirectory() as output_directory:
-            configuration = Configuration(
-                output_directory, '')
-            configuration.locales.clear()
-            configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
-            configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
+            configuration = Configuration(output_directory, 'https://example.com')
+            configuration.locales.replace([
+                LocaleConfiguration('en-US', 'en'),
+                LocaleConfiguration('nl-NL', 'nl'),
+            ])
             app = App(configuration)
             encoded_data = stdjson.loads(stdjson.dumps(data, cls=JSONEncoder.get_factory(
-                app, configuration.default_locale)))
+                app, configuration.locales.default.locale)))
             json.validate(encoded_data, schema_definition, app)
             self.assertEquals(expected, encoded_data)
 

@@ -16,8 +16,10 @@ class IndexTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
-            configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
+            configuration.locales.replace([
+                LocaleConfiguration('en-US', 'en'),
+                LocaleConfiguration('nl-NL', 'nl'),
+            ])
             async with App(configuration) as app:
                 indexed = [item for item in Index(app).build()]
 
@@ -31,8 +33,10 @@ class IndexTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
-            configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
+            configuration.locales.replace([
+                LocaleConfiguration('en-US', 'en'),
+                LocaleConfiguration('nl-NL', 'nl'),
+            ])
             async with App(configuration) as app:
                 app.ancestry.people[person_id] = person
                 indexed = [item for item in Index(app).build()]
@@ -50,8 +54,10 @@ class IndexTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
-            configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
+            configuration.locales.replace([
+                LocaleConfiguration('en-US', 'en'),
+                LocaleConfiguration('nl-NL', 'nl'),
+            ])
             async with App(configuration) as app:
                 app.ancestry.people[person_id] = person
                 indexed = [item for item in Index(app).build()]
@@ -72,8 +78,10 @@ class IndexTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
-            configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
+            configuration.locales.replace([
+                LocaleConfiguration('en-US', 'en'),
+                LocaleConfiguration('nl-NL', 'nl'),
+            ])
             async with App(configuration).with_locale(locale) as app:
                 app.ancestry.people[person_id] = person
                 indexed = [item for item in Index(app).build()]
@@ -95,8 +103,10 @@ class IndexTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
-            configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
+            configuration.locales.replace([
+                LocaleConfiguration('en-US', 'en'),
+                LocaleConfiguration('nl-NL', 'nl'),
+            ])
             async with App(configuration).with_locale(locale) as app:
                 app.ancestry.people[person_id] = person
                 indexed = [item for item in Index(app).build()]
@@ -119,8 +129,10 @@ class IndexTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
-            configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
+            configuration.locales.replace([
+                LocaleConfiguration('en-US', 'en'),
+                LocaleConfiguration('nl-NL', 'nl'),
+            ])
             async with App(configuration).with_locale(locale) as app:
                 app.ancestry.people[person_id] = person
                 indexed = [item for item in Index(app).build()]
@@ -140,8 +152,10 @@ class IndexTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
-            configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
+            configuration.locales.replace([
+                LocaleConfiguration('en-US', 'en'),
+                LocaleConfiguration('nl-NL', 'nl'),
+            ])
             async with App(configuration).with_locale(locale) as app:
                 app.ancestry.places[place_id] = place
                 indexed = [item for item in Index(app).build()]
@@ -157,8 +171,10 @@ class IndexTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
-            configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
+            configuration.locales.replace([
+                LocaleConfiguration('en-US', 'en'),
+                LocaleConfiguration('nl-NL', 'nl'),
+            ])
             async with App(configuration) as app:
                 app.ancestry.files[file_id] = file
                 indexed = [item for item in Index(app).build()]
@@ -178,8 +194,10 @@ class IndexTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
-            configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
+            configuration.locales.replace([
+                LocaleConfiguration('en-US', 'en'),
+                LocaleConfiguration('nl-NL', 'nl'),
+            ])
             async with App(configuration).with_locale(locale) as app:
                 app.ancestry.files[file_id] = file
                 indexed = [item for item in Index(app).build()]

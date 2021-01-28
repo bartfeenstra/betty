@@ -2,11 +2,11 @@ from collections import defaultdict
 from typing import Set, Type
 
 from betty.ancestry import Ancestry, Place, File, IdentifiableEvent, IdentifiableSource, IdentifiableCitation, Person
-from betty.graph import Graph, tsort_grouped
+from betty.graph import Graph, tsort
+from betty.gui import GuiBuilder
 from betty.load import PostLoader
 from betty.extension import Extension
 from betty.extension.anonymizer import Anonymizer
-from betty.app import App, AppAwareFactory
 
 
 def clean(ancestry: Ancestry) -> None:
@@ -52,9 +52,8 @@ def _clean_places(ancestry: Ancestry) -> None:
     for place in places:
         _extend_place_graph(places_graph, place)
 
-    for grouped_places in tsort_grouped(places_graph):
-        for place in grouped_places:
-            _clean_place(ancestry, place)
+    for place in tsort(places_graph):
+        _clean_place(ancestry, place)
 
 
 def _clean_place(ancestry: Ancestry, place: Place) -> None:
@@ -135,17 +134,18 @@ def _clean_citation(ancestry: Ancestry, citation: IdentifiableCitation) -> None:
     del ancestry.citations[citation.id]
 
 
-class Cleaner(Extension, AppAwareFactory, PostLoader):
-    def __init__(self, ancestry: Ancestry):
-        self._ancestry = ancestry
-
-    @classmethod
-    def new_for_app(cls, app: App, *args, **kwargs):
-        return cls(app.ancestry)
-
+class Cleaner(Extension, PostLoader, GuiBuilder):
     @classmethod
     def comes_after(cls) -> Set[Type[Extension]]:
         return {Anonymizer}
 
     async def post_load(self) -> None:
-        clean(self._ancestry)
+        clean(self._app.ancestry)
+
+    @classmethod
+    def gui_name(cls) -> str:
+        return _('Cleaner')
+
+    @classmethod
+    def gui_description(cls) -> str:
+        return _('Remove people, events, places, files, sources, and citations if they have no relationships with any other resources. Enable the Privatizer and Anonymizer as well to make this most effective.')

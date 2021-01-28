@@ -1,11 +1,12 @@
 import re
+import sys
 from tempfile import TemporaryDirectory
 from typing import Optional
 
-from betty.config import Configuration, LocaleConfiguration
+from betty.config import Configuration, LocaleConfiguration, ExtensionConfiguration
 from betty.asyncio import sync
 from betty.generate import generate
-from betty.extension.nginx import Nginx
+from betty.extension.nginx import Nginx, NginxConfiguration
 from betty.app import App
 from betty.tests import TestCase
 
@@ -34,7 +35,7 @@ class NginxTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'http://example.com')
-            configuration.extensions[Nginx] = Nginx.configuration_schema({})
+            configuration.extensions.add(ExtensionConfiguration(Nginx))
             expected = r'''
 server {
     listen 80;
@@ -69,7 +70,7 @@ server {
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'http://example.com')
-            configuration.extensions[Nginx] = Nginx.configuration_schema({})
+            configuration.extensions.add(ExtensionConfiguration(Nginx))
             configuration.clean_urls = True
             expected = r'''
 server {
@@ -105,10 +106,11 @@ server {
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'http://example.com')
-            configuration.extensions[Nginx] = Nginx.configuration_schema({})
-            configuration.locales.clear()
-            configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
-            configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
+            configuration.extensions.add(ExtensionConfiguration(Nginx))
+            configuration.locales.replace([
+                LocaleConfiguration('en-US', 'en'),
+                LocaleConfiguration('nl-NL', 'nl'),
+            ])
             expected = r'''
 server {
     listen 80;
@@ -155,10 +157,11 @@ server {
             configuration = Configuration(
                 output_directory_path, 'http://example.com')
             configuration.content_negotiation = True
-            configuration.extensions[Nginx] = Nginx.configuration_schema({})
-            configuration.locales.clear()
-            configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
-            configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
+            configuration.extensions.add(ExtensionConfiguration(Nginx))
+            configuration.locales.replace([
+                LocaleConfiguration('en-US', 'en'),
+                LocaleConfiguration('nl-NL', 'nl'),
+            ])
             expected = r'''
 server {
     listen 80;
@@ -219,7 +222,7 @@ server {
             configuration = Configuration(
                 output_directory_path, 'http://example.com')
             configuration.content_negotiation = True
-            configuration.extensions[Nginx] = Nginx.configuration_schema({})
+            configuration.extensions.add(ExtensionConfiguration(Nginx))
             expected = r'''
 server {
     listen 80;
@@ -260,7 +263,7 @@ server {
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.extensions[Nginx] = Nginx.configuration_schema({})
+            configuration.extensions.add(ExtensionConfiguration(Nginx))
             expected = r'''
 server {
     listen 80;
@@ -301,9 +304,10 @@ server {
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.extensions[Nginx] = Nginx.configuration_schema({
-                'www_directory_path': '/tmp/overridden-www'
-            })
+            configuration.extensions.add(ExtensionConfiguration(Nginx, True, NginxConfiguration(
+                www_directory_path='/tmp/overridden-www',
+            )))
+            expected_root_path = '\\tmp\\overridden-www' if sys.platform == 'win32' else '/tmp/overridden-www'
             expected = r'''
 server {
     listen 80;
@@ -313,7 +317,7 @@ server {
 server {
     listen 443 ssl http2;
     server_name example.com;
-    root /tmp/overridden-www;
+    root %s;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
     add_header Cache-Control "max-age=86400";
     gzip on;
@@ -336,5 +340,5 @@ server {
     try_files $uri $uri/ =404;
     }
 }
-'''
+''' % expected_root_path
             await self._assert_configuration_equals(expected, configuration)

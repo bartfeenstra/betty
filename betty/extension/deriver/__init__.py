@@ -3,11 +3,11 @@ from typing import List, Tuple, Set, Type, Iterable
 
 from betty.ancestry import Person, Presence, Event, Subject, EventType, EVENT_TYPE_TYPES, DerivableEventType, \
     CreatableDerivableEventType, Ancestry
+from betty.gui import GuiBuilder
 from betty.locale import DateRange, Date
 from betty.load import PostLoader
 from betty.extension import Extension
 from betty.extension.privatizer import Privatizer
-from betty.app import App, AppAwareFactory
 
 
 class DerivedEvent(Event):
@@ -20,16 +20,9 @@ class DerivedDate(Date):
         return cls(date.year, date.month, date.day, fuzzy=date.fuzzy)
 
 
-class Deriver(Extension, AppAwareFactory, PostLoader):
-    def __init__(self, ancestry: Ancestry):
-        self._ancestry = ancestry
-
-    @classmethod
-    def new_for_app(cls, app: App, *args, **kwargs):
-        return cls(app.ancestry)
-
+class Deriver(Extension, PostLoader, GuiBuilder):
     async def post_load(self) -> None:
-        await self.derive(self._ancestry)
+        await self.derive(self._app.ancestry)
 
     async def derive(self, ancestry: Ancestry) -> None:
         logger = logging.getLogger()
@@ -49,6 +42,14 @@ class Deriver(Extension, AppAwareFactory, PostLoader):
     @classmethod
     def comes_before(cls) -> Set[Type[Extension]]:
         return {Privatizer}
+
+    @classmethod
+    def gui_name(cls) -> str:
+        return _('Deriver')
+
+    @classmethod
+    def gui_description(cls) -> str:
+        return _('Create events such as births and deaths by deriving their details from existing information.')
 
 
 class _DateDeriver:

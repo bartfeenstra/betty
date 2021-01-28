@@ -1,5 +1,5 @@
 from typing import Set, Type
-from betty.extension import Extension, build_extension_type_graph
+from betty.extension import Extension, build_extension_type_graph, discover_extension_types
 from betty.tests import TestCase
 
 
@@ -159,3 +159,11 @@ class BuildExtensionTypeGraphTest(TestCase):
             ComesAfterExtension: set(),
         }
         self.assertDictEqual(expected, dict(build_extension_type_graph(extension_types)))
+
+
+class DiscoverExtensionTypesTest(TestCase):
+    def test(self):
+        extension_types = discover_extension_types()
+        self.assertLessEqual(1, len(extension_types))
+        for extension_type in extension_types:
+            self.assertTrue(issubclass(extension_type, Extension))

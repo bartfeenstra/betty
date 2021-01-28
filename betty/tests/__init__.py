@@ -1,3 +1,4 @@
+import functools
 import logging
 from contextlib import suppress
 from pathlib import Path
@@ -19,6 +20,7 @@ from betty.app import App
 
 
 def patch_cache(f):
+    @functools.wraps(f)
     def _patch_cache(*args, **kwargs):
         original_cache_directory_path = fs.CACHE_DIRECTORY_PATH
         cache_directory = TemporaryDirectory()

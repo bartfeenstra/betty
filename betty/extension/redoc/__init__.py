@@ -10,17 +10,10 @@ from betty import subprocess
 from betty.fs import DirectoryBackup
 from betty.generate import Generator
 from betty.extension import Extension
-from betty.app import App, AppAwareFactory
+from betty.gui import GuiBuilder
 
 
-class ReDoc(Extension, AppAwareFactory, Generator):
-    def __init__(self, app: App):
-        self._app = app
-
-    @classmethod
-    def new_for_app(cls, app: App, *args, **kwargs):
-        return cls(app)
-
+class ReDoc(Extension, Generator, GuiBuilder):
     async def generate(self) -> None:
         await self._render()
 
@@ -38,6 +31,14 @@ class ReDoc(Extension, AppAwareFactory, Generator):
         await self._app.renderer.render_tree(build_directory_path)
 
         self._app.executor.submit(_do_render, build_directory_path, self._app.configuration.www_directory_path)
+
+    @classmethod
+    def gui_name(cls) -> str:
+        return 'ReDoc'
+
+    @classmethod
+    def gui_description(cls) -> str:
+        return _('Display the HTTP API documentation in a user-friendly way using <a href="https://github.com/Redocly/redoc">ReDoc</a>.')
 
 
 def _do_render(build_directory_path: Path, www_directory_path: Path) -> None:

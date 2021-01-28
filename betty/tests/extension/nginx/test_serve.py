@@ -5,9 +5,9 @@ from time import sleep
 
 import requests
 
-from betty.config import Configuration
+from betty.config import Configuration, ExtensionConfiguration
 from betty.asyncio import sync
-from betty.extension.nginx import Nginx
+from betty.extension.nginx import Nginx, NginxConfiguration
 from betty.extension.nginx.serve import DockerizedNginxServer
 from betty.app import App
 from betty.tests import TestCase
@@ -19,8 +19,11 @@ class DockerizedNginxServerTest(TestCase):
     async def test(self):
         content = 'Hello, and welcome to my site!'
         with TemporaryDirectory() as output_directory_path:
-            configuration = Configuration(output_directory_path, 'https://example.com')
-            configuration.extensions[Nginx] = Nginx.configuration_schema({})
+            configuration = Configuration(output_directory_path, 'http://example.com')
+            configuration.extensions.add(ExtensionConfiguration(
+                Nginx,
+                configuration=NginxConfiguration('/var/www/betty'),
+            ))
             configuration.www_directory_path.mkdir(parents=True)
             with open(configuration.www_directory_path / 'index.html', 'w') as f:
                 f.write(content)

@@ -1,11 +1,11 @@
 from pathlib import Path
-from typing import List, Type, Set, Dict, Optional
+from typing import List, Type, Set, Dict
 
 from voluptuous import Schema, Required, Invalid
 
 from betty import extension
 from betty.ancestry import Ancestry
-from betty.config import Configuration, ConfigurationValueError
+from betty.config import Configuration, ConfigurationError, ExtensionConfiguration
 from betty.asyncio import sync
 from betty.graph import CyclicGraphError
 from betty.app import App
@@ -26,20 +26,33 @@ class NonConfigurableExtension(TrackableExtension):
     pass  # pragma: no cover
 
 
+class ConfigurableExtensionConfiguration(extension.Configuration):
+    def __init__(self, check):
+        super().__init__()
+        self.check = check
+
+
 class ConfigurableExtension(extension.ConfigurableExtension):
     configuration_schema: Schema = Schema({
         Required('check'): lambda x: x
-    })
-
-    def __init__(self, check):
-        self.check = check
+    }, lambda configuration_dict: ConfigurableExtensionConfiguration(**configuration_dict))
 
     @classmethod
-    def validate_configuration(cls, configuration: Optional[Dict]) -> Dict:
+    def default_configuration(cls) -> extension.Configuration:
+        return ConfigurableExtensionConfiguration(None)
+
+    @classmethod
+    def configuration_from_dict(cls, configuration_dict: Dict) -> ConfigurableExtensionConfiguration:
         try:
-            return cls.configuration_schema(configuration)
+            return cls.configuration_schema(configuration_dict)
         except Invalid as e:
-            raise ConfigurationValueError(e)
+            raise ConfigurationError(e)
+
+    @classmethod
+    def configuration_to_dict(cls, configuration: ConfigurableExtensionConfiguration) -> Dict:
+        return {
+            'check': configuration.check
+        }
 
 
 class CyclicDependencyOneExtension(extension.Extension):
@@ -91,43 +104,39 @@ class AppTest(TestCase):
     }
 
     @sync
-    async def test_ancestry_should_return(self):
+    async def test_ancestry(self) -> None:
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         async with App(configuration) as sut:
             self.assertIsInstance(sut.ancestry, Ancestry)
 
     @sync
-    async def test_configuration_should_return(self):
+    async def test_configuration(self) -> None:
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         async with App(configuration) as sut:
             self.assertEquals(configuration, sut.configuration)
 
     @sync
-    async def test_with_one_extension(self):
+    async def test_extensions_with_one_extension(self) -> None:
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        configuration.extensions[NonConfigurableExtension] = None
+        configuration.extensions.add(ExtensionConfiguration(NonConfigurableExtension))
         async with App(configuration) as sut:
-            self.assertEquals(1, len(sut.extensions))
-            self.assertIsInstance(
-                sut.extensions[NonConfigurableExtension], NonConfigurableExtension)
+            self.assertIsInstance(sut.extensions[NonConfigurableExtension], NonConfigurableExtension)
 
     @sync
-    async def test_with_one_configurable_extension(self):
+    async def test_extensions_with_one_configurable_extension(self) -> None:
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         check = 1337
-        configuration.extensions[ConfigurableExtension] = {
-            'check': check,
-        }
+        configuration.extensions.add(ExtensionConfiguration(ConfigurableExtension, True, ConfigurableExtensionConfiguration(
+            check=check,
+        )))
         async with App(configuration) as sut:
-            self.assertEquals(1, len(sut.extensions))
-            self.assertIsInstance(
-                sut.extensions[ConfigurableExtension], ConfigurableExtension)
-            self.assertEquals(check, sut.extensions[ConfigurableExtension].check)
+            self.assertIsInstance(sut.extensions[ConfigurableExtension], ConfigurableExtension)
+            self.assertEquals(check, sut.extensions[ConfigurableExtension]._configuration.check)
 
     @sync
-    async def test_with_one_extension_with_single_chained_dependency(self):
+    async def test_extensions_with_one_extension_with_single_chained_dependency(self) -> None:
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        configuration.extensions[DependsOnNonConfigurableExtensionExtensionExtension] = None
+        configuration.extensions.add(ExtensionConfiguration(DependsOnNonConfigurableExtensionExtensionExtension))
         async with App(configuration) as sut:
             carrier = []
             await sut.dispatcher.dispatch(Tracker, 'track')(carrier)
@@ -139,10 +148,10 @@ class AppTest(TestCase):
                 DependsOnNonConfigurableExtensionExtensionExtension, type(carrier[2]))
 
     @sync
-    async def test_with_multiple_extensions_with_duplicate_dependencies(self):
+    async def test_extensions_with_multiple_extensions_with_duplicate_dependencies(self) -> None:
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        configuration.extensions[DependsOnNonConfigurableExtensionExtension] = None
-        configuration.extensions[AlsoDependsOnNonConfigurableExtensionExtension] = None
+        configuration.extensions.add(ExtensionConfiguration(DependsOnNonConfigurableExtensionExtension))
+        configuration.extensions.add(ExtensionConfiguration(AlsoDependsOnNonConfigurableExtensionExtension))
         async with App(configuration) as sut:
             carrier = []
             await sut.dispatcher.dispatch(Tracker, 'track')(carrier)
@@ -154,18 +163,18 @@ class AppTest(TestCase):
                 type(extension) for extension in carrier])
 
     @sync
-    async def test_with_multiple_extensions_with_cyclic_dependencies(self):
+    async def test_extensions_with_multiple_extensions_with_cyclic_dependencies(self) -> None:
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        configuration.extensions[CyclicDependencyOneExtension] = None
+        configuration.extensions.add(ExtensionConfiguration(CyclicDependencyOneExtension))
         with self.assertRaises(CyclicGraphError):
-            async with App(configuration):
-                pass
+            async with App(configuration) as sut:
+                sut.extensions
 
     @sync
-    async def test_with_comes_before_with_other_extension(self):
+    async def test_extensions_with_comes_before_with_other_extension(self) -> None:
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        configuration.extensions[NonConfigurableExtension] = None
-        configuration.extensions[ComesBeforeNonConfigurableExtensionExtension] = None
+        configuration.extensions.add(ExtensionConfiguration(NonConfigurableExtension))
+        configuration.extensions.add(ExtensionConfiguration(ComesBeforeNonConfigurableExtensionExtension))
         async with App(configuration) as sut:
             carrier = []
             await sut.dispatcher.dispatch(Tracker, 'track')(carrier)
@@ -175,9 +184,9 @@ class AppTest(TestCase):
             self.assertEquals(NonConfigurableExtension, type(carrier[1]))
 
     @sync
-    async def test_with_comes_before_without_other_extension(self):
+    async def test_extensions_with_comes_before_without_other_extension(self) -> None:
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        configuration.extensions[ComesBeforeNonConfigurableExtensionExtension] = None
+        configuration.extensions.add(ExtensionConfiguration(ComesBeforeNonConfigurableExtensionExtension))
         async with App(configuration) as sut:
             carrier = []
             await sut.dispatcher.dispatch(Tracker, 'track')(carrier)
@@ -186,10 +195,10 @@ class AppTest(TestCase):
                 ComesBeforeNonConfigurableExtensionExtension, type(carrier[0]))
 
     @sync
-    async def test_with_comes_after_with_other_extension(self):
+    async def test_extensions_with_comes_after_with_other_extension(self) -> None:
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        configuration.extensions[ComesAfterNonConfigurableExtensionExtension] = None
-        configuration.extensions[NonConfigurableExtension] = None
+        configuration.extensions.add(ExtensionConfiguration(ComesAfterNonConfigurableExtensionExtension))
+        configuration.extensions.add(ExtensionConfiguration(NonConfigurableExtension))
         async with App(configuration) as sut:
             carrier = []
             await sut.dispatcher.dispatch(Tracker, 'track')(carrier)
@@ -199,9 +208,9 @@ class AppTest(TestCase):
                               type(carrier[1]))
 
     @sync
-    async def test_with_comes_after_without_other_extension(self):
+    async def test_extensions_with_comes_after_without_other_extension(self) -> None:
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
-        configuration.extensions[ComesAfterNonConfigurableExtensionExtension] = None
+        configuration.extensions.add(ExtensionConfiguration(ComesAfterNonConfigurableExtensionExtension))
         async with App(configuration) as sut:
             carrier = []
             await sut.dispatcher.dispatch(Tracker, 'track')(carrier)
@@ -210,13 +219,32 @@ class AppTest(TestCase):
                               type(carrier[0]))
 
     @sync
-    async def test_assets_without_assets_directory_path(self):
+    async def test_extensions_addition_to_configuration(self) -> None:
+        configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
+        async with App(configuration) as sut:
+            # Get the extensions before making configuration changes to warm the cache.
+            sut.extensions
+            configuration.extensions.add(ExtensionConfiguration(NonConfigurableExtension))
+            self.assertIsInstance(sut.extensions[NonConfigurableExtension], NonConfigurableExtension)
+
+    @sync
+    async def test_extensions_removal_from_configuration(self) -> None:
+        configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
+        configuration.extensions.add(ExtensionConfiguration(NonConfigurableExtension))
+        async with App(configuration) as sut:
+            # Get the extensions before making configuration changes to warm the cache.
+            sut.extensions
+            del configuration.extensions[NonConfigurableExtension]
+            self.assertNotIn(NonConfigurableExtension, sut.extensions)
+
+    @sync
+    async def test_assets_without_assets_directory_path(self) -> None:
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         async with App(configuration) as sut:
             self.assertEquals(1, len(sut.assets.paths))
 
     @sync
-    async def test_assets_with_assets_directory_path(self):
+    async def test_assets_with_assets_directory_path(self) -> None:
         assets_directory_path = Path('/tmp/betty')
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.assets_directory_path = assets_directory_path

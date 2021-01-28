@@ -4,23 +4,23 @@ from typing import Optional, List
 
 from betty.ancestry import Ancestry, Person, Event, Citation, Source, HasPrivacy, Subject, File, HasFiles, HasCitations
 from betty.functools import walk
+from betty.gui import GuiBuilder
 from betty.locale import DateRange, Date
 from betty.load import PostLoader
 from betty.extension import Extension
-from betty.app import App, AppAwareFactory
 
 
-class Privatizer(Extension, AppAwareFactory, PostLoader):
-    def __init__(self, ancestry: Ancestry, lifetime_threshold: int):
-        self._ancestry = ancestry
-        self._lifetime_threshold = lifetime_threshold
+class Privatizer(Extension, PostLoader, GuiBuilder):
+    async def post_load(self) -> None:
+        privatize(self._app.ancestry, self._app.configuration.lifetime_threshold)
 
     @classmethod
-    def new_for_app(cls, app: App, *args, **kwargs):
-        return cls(app.ancestry, app.configuration.lifetime_threshold)
+    def gui_name(cls) -> str:
+        return _('Privatizer')
 
-    async def post_load(self) -> None:
-        privatize(self._ancestry, self._lifetime_threshold)
+    @classmethod
+    def gui_description(cls) -> str:
+        return _('Determine if people can be proven to have died. If not, mark them and their related resources private, but only if they are not already explicitly marked public or private. Enable the Anonymizer and Cleaner as well to make this most effective.')
 
 
 def privatize(ancestry: Ancestry, lifetime_threshold: int = 125) -> None:

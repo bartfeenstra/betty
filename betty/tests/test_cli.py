@@ -78,7 +78,7 @@ class MainTest(TestCase):
                     'output': output_directory_path,
                     'base_url': url,
                     'extensions': {
-                        TestExtension.name(): None,
+                        TestExtension.name(): {},
                     },
                 }
                 with open(configuration_file_path, 'w') as f:
