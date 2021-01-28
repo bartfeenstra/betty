@@ -15,10 +15,11 @@ from jinja2 import contextfilter
 from jinja2.runtime import resolve_or_missing
 
 from betty.ancestry import Link, HasLinks, Resource
-from betty.app import App, AppAwareFactory
+from betty.app import App
 from betty.asyncio import sync
 from betty.extension import Extension
 from betty.fs import makedirs
+from betty.gui import GuiBuilder
 from betty.jinja2 import Jinja2Provider
 from betty.locale import Localized, negotiate_locale
 from betty.media_type import MediaType
@@ -203,10 +204,7 @@ class _Populator:
             link.label = entry.title
 
 
-class Wikipedia(Extension, AppAwareFactory, Jinja2Provider, PostLoader):
-    def __init__(self, app: App):
-        self._app = app
-
+class Wikipedia(Extension, Jinja2Provider, PostLoader, GuiBuilder):
     async def __aenter__(self):
         self._session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit_per_host=5))
         self._retriever = _Retriever(self._session, join(self._app.configuration.cache_directory_path, self.name()))
@@ -215,10 +213,6 @@ class Wikipedia(Extension, AppAwareFactory, Jinja2Provider, PostLoader):
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self._session.close()
-
-    @classmethod
-    def new_for_app(cls, app: App, *args, **kwargs):
-        return cls(app)
 
     async def post_load(self) -> None:
         await self._populator.populate()
@@ -251,3 +245,7 @@ class Wikipedia(Extension, AppAwareFactory, Jinja2Provider, PostLoader):
     @property
     def assets_directory_path(self) -> Optional[str]:
         return '%s/assets' % dirname(__file__)
+
+    @classmethod
+    def gui_name(cls) -> str:
+        return 'Wikipedia'

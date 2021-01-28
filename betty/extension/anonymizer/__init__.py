@@ -2,10 +2,10 @@ from typing import Set, Type
 
 from betty.ancestry import Ancestry, Person, File, Citation, Source, Event
 from betty.functools import walk
+from betty.gui import GuiBuilder
 from betty.load import PostLoader
 from betty.extension import Extension
 from betty.extension.privatizer import Privatizer
-from betty.app import App, AppAwareFactory
 
 
 class AnonymousSource(Source):
@@ -95,17 +95,14 @@ def anonymize_citation(citation: Citation, anonymous_citation: AnonymousCitation
     del citation.source
 
 
-class Anonymizer(Extension, AppAwareFactory, PostLoader):
-    def __init__(self, ancestry: Ancestry):
-        self._ancestry = ancestry
-
-    @classmethod
-    def new_for_app(cls, app: App, *args, **kwargs):
-        return cls(app.ancestry)
-
+class Anonymizer(Extension, PostLoader, GuiBuilder):
     @classmethod
     def comes_after(cls) -> Set[Type[Extension]]:
         return {Privatizer}
 
     async def post_load(self) -> None:
-        anonymize(self._ancestry)
+        anonymize(self._app.ancestry)
+
+    @classmethod
+    def gui_name(cls) -> str:
+        return _('Anonymizer')

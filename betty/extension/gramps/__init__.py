@@ -8,22 +8,26 @@ from tempfile import TemporaryDirectory
 from typing import Tuple, Optional, List, Any, Dict
 from xml.etree import ElementTree
 
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QFormLayout, QPushButton, QFileDialog, QLineEdit, QHBoxLayout, QLabel, QVBoxLayout, \
+    QGridLayout
 from geopy import Point
-from voluptuous import Schema, IsFile, All, Invalid
+from voluptuous import Schema, All, Invalid, Required
 
 from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, PlaceName, Person, Link, HasFiles, \
     HasLinks, HasCitations, IdentifiableEvent, HasPrivacy, IdentifiableSource, IdentifiableCitation, Subject, Witness, \
     Attendee, Birth, Baptism, Adoption, Cremation, Death, Burial, Engagement, Marriage, MarriageAnnouncement, Divorce, \
     DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, Retirement, Correspondence, Confirmation, \
     Funeral, Will, Beneficiary, Enclosure, UnknownEventType, Missing, Event, Source, Citation
-from betty.config import Path, ConfigurationValueError
+from betty.config import Path, ConfigurationError
 from betty.error import UserFacingError
+from betty.gui import GuiBuilder, catch_exceptions, BettyWindow, mark_valid, mark_invalid
 from betty.locale import DateRange, Datey, Date
 from betty.media_type import MediaType
 from betty.load import Loader
 from betty.path import rootname
-from betty.extension import ConfigurableExtension
-from betty.app import App, AppAwareFactory
+from betty.extension import ConfigurableExtension, Configuration
+from betty.react import ReactiveList, reactive
 
 
 class GrampsLoadFileError(UserFacingError):
@@ -96,7 +100,7 @@ class _IntermediateFile:
         self.citation_handles = citation_handles
 
 
-class _Loader(Loader):
+class _Loader:
     _notes: Dict[str, Note]
     _files: Dict[str, _IntermediateFile]
     _places: Dict[str, Place]
@@ -584,45 +588,217 @@ def _load_attribute(name: str, element: ElementTree.Element, tag: str) -> Option
         return attribute_element.get('value')
 
 
+@reactive
 class FamilyTreeConfiguration:
     def __init__(self, file_path: str):
         self.file_path = file_path
 
     def __eq__(self, other):
-        return self.file_path == other.file_path
+        if not isinstance(other, FamilyTreeConfiguration):
+            return False
+        return self._file_path == other.file_path
+
+    @reactive
+    @property
+    def file_path(self) -> str:
+        return self._file_path
+
+    @file_path.setter
+    def file_path(self, file_path: str) -> None:
+        if file_path == '':
+            raise ConfigurationError('The family tree file path must not be empty.')
+        self._file_path = file_path
 
 
 def _family_tree_configurations_schema(family_trees_configuration_dict: Any) -> List[FamilyTreeConfiguration]:
     schema = Schema({
-        'file': All(str, IsFile(), Path()),
+        'file': All(str, Path()),
     })
-    family_trees_configuration = []
+    family_trees_configuration = ReactiveList()
     for family_tree_configuration_dict in family_trees_configuration_dict:
         schema(family_tree_configuration_dict)
         family_trees_configuration.append(FamilyTreeConfiguration(family_tree_configuration_dict['file']))
     return family_trees_configuration
 
 
-class Gramps(ConfigurableExtension, AppAwareFactory, Loader):
-    configuration_schema: Schema = Schema({
-        'family_trees': All(list, _family_tree_configurations_schema),
-    })
-
-    def __init__(self, ancestry: Ancestry, family_trees: List[FamilyTreeConfiguration]):
-        self._ancestry = ancestry
+class GrampsConfiguration(Configuration):
+    def __init__(self, family_trees: List[FamilyTreeConfiguration]):
+        super().__init__()
         self._family_trees = family_trees
+        family_trees.react(self)
+
+    @property
+    def family_trees(self) -> List[FamilyTreeConfiguration]:
+        return self._family_trees
+
+
+_GrampsConfigurationSchema = Schema(All({
+    Required('family_trees'): All(list, _family_tree_configurations_schema),
+}, lambda configuration_dict: GrampsConfiguration(**configuration_dict)))
+
+
+class Gramps(ConfigurableExtension, Loader, GuiBuilder):
+    @classmethod
+    def default_configuration(cls) -> Configuration:
+        return GrampsConfiguration(ReactiveList())
 
     @classmethod
-    def validate_configuration(cls, configuration: Optional[Dict]) -> Dict:
+    def configuration_from_dict(cls, configuration_dict: Dict) -> GrampsConfiguration:
         try:
-            return cls.configuration_schema(configuration)
+            return _GrampsConfigurationSchema(configuration_dict)
         except Invalid as e:
-            raise ConfigurationValueError(e)
+            raise ConfigurationError(e)
 
     @classmethod
-    def new_for_app(cls, app: App, *args, **kwargs):
-        return cls(app.ancestry, *args, **kwargs)
+    def configuration_to_dict(cls, configuration: GrampsConfiguration) -> Dict:
+        return {
+            'family_trees': [
+                {
+                    'file': family_tree.file_path,
+                }
+                for family_tree in configuration.family_trees
+            ]
+        }
 
     async def load(self) -> None:
-        for family_tree in self._family_trees:
-            load_file(self._ancestry, family_tree.file_path)
+        for family_tree in self._configuration.family_trees:
+            load_file(self._app.ancestry, family_tree.file_path)
+
+    @classmethod
+    def gui_name(cls) -> str:
+        return 'Gramps'
+
+    def gui_build(self) -> Optional[QWidget]:
+        return _GrampsGuiWidget(self._configuration)
+
+
+@reactive
+class _GrampsGuiWidget(QWidget):
+    def __init__(self, configuration: GrampsConfiguration, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._configuration = configuration
+        self._layout = QVBoxLayout()
+        self.setLayout(self._layout)
+
+        self._family_trees_widget = None
+
+        self._gui_build_family_trees()
+        self._gramps_add_family_tree = QPushButton('Add a family tree')
+        self._gramps_add_family_tree.released.connect(self._add_family_tree)
+        self._layout.addWidget(self._gramps_add_family_tree, 1)
+
+    @reactive(on_trigger_call=True)
+    def _gui_build_family_trees(self) -> None:
+        if self._family_trees_widget is not None:
+            self._layout.removeWidget(self._family_trees_widget)
+            self._family_trees_widget.setParent(None)
+            del self._family_trees_widget
+        self._family_trees_widget = QWidget()
+        family_trees_layout = QGridLayout()
+        self._family_trees_widget.setLayout(family_trees_layout)
+        for i, family_tree in enumerate(self._configuration.family_trees):
+            def _change_family_tree() -> None:
+                # @todo Check if the window is open already.
+                # @todo Keep a register of instances by index `i`.
+                family_tree_window = _EditFamilyTreeWindow(self._configuration.family_trees, family_tree, self)
+                family_tree_window.show()
+            family_trees_layout.addWidget(QLabel(family_tree.file_path), i, 0)
+            change_family_tree_button = QPushButton('Change')
+            change_family_tree_button.released.connect(_change_family_tree)
+            family_trees_layout.addWidget(change_family_tree_button, i, 1)
+        self._layout.insertWidget(0, self._family_trees_widget, alignment=Qt.AlignTop)
+
+    def _add_family_tree(self):
+        family_tree_window = _AddFamilyTreeWindow(self._configuration.family_trees, None, self)
+        family_tree_window.show()
+
+
+class _FamilyTreeWindow(BettyWindow):
+    width = 500
+    height = 100
+    title = 'Gramps family tree'
+
+    def __init__(self, family_trees: List[FamilyTreeConfiguration], family_tree: Optional[FamilyTreeConfiguration], *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._family_trees = family_trees
+        self.family_tree = family_tree
+
+        self._layout = QFormLayout()
+
+        self._widget = QWidget()
+        self._widget.setLayout(self._layout)
+
+        self.setCentralWidget(self._widget)
+
+        def _update_configuration_file_path(file_path: str) -> None:
+            try:
+                if self.family_tree is None:
+                    self.family_tree = FamilyTreeConfiguration(file_path)
+                else:
+                    self.family_tree.file_path = file_path
+                mark_valid(self._widget._gramps_file_path)
+            except ConfigurationError as e:
+                mark_invalid(self._widget._gramps_file_path, str(e))
+        self._widget._gramps_file_path = QLineEdit()
+        self._widget._gramps_file_path.setText('' if self.family_tree is None else self.family_tree.file_path)
+        self._widget._gramps_file_path.textChanged.connect(_update_configuration_file_path)
+        file_path_layout = QHBoxLayout()
+        file_path_layout.addWidget(self._widget._gramps_file_path)
+
+        @catch_exceptions
+        def find_family_tree_file_path() -> None:
+            found_family_tree_file_path, _ = QFileDialog.getOpenFileName(
+                self._widget,
+                'Load the family tree from...',
+                directory=self._widget._gramps_file_path.text(),
+            )
+            if '' != found_family_tree_file_path:
+                self._widget._gramps_file_path.setText(found_family_tree_file_path)
+        self._widget._gramps_file_path_find = QPushButton('...')
+        self._widget._gramps_file_path_find.released.connect(find_family_tree_file_path)
+        file_path_layout.addWidget(self._widget._gramps_file_path_find)
+        self._layout.addRow('File path', file_path_layout)
+
+    @reactive
+    @property
+    def family_tree(self) -> Optional[FamilyTreeConfiguration]:
+        return self._family_tree
+
+    @family_tree.setter
+    def family_tree(self, family_tree=Optional[FamilyTreeConfiguration]) -> None:
+        self._family_tree = family_tree
+
+
+class _AddFamilyTreeWindow(_FamilyTreeWindow):
+    title = 'Add a family tree'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._widget._gramps_cancel = QPushButton('Cancel')
+        self._widget._gramps_cancel.released.connect(self.close)
+        self._layout.addWidget(self._widget._gramps_cancel)
+
+        @catch_exceptions
+        def save_and_close_family_tree() -> None:
+            self._family_trees.append(self.family_tree)
+            self.close()
+        self._widget._gramps_save_and_close = QPushButton('Save and close')
+        self._widget._gramps_save_and_close.released.connect(save_and_close_family_tree)
+        self._layout.addWidget(self._widget._gramps_save_and_close)
+
+
+# @todo What if two of these are opened at the same time? It could allow people to remove a tree twice, the second time resulting in an error.
+class _EditFamilyTreeWindow(_FamilyTreeWindow):
+    title = 'Change family tree'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        @catch_exceptions
+        def remove_family_tree() -> None:
+            self._family_trees.remove(self.family_tree)
+            self.close()
+        self._widget._gramps_remove = QPushButton('Remove')
+        self._widget._gramps_remove.released.connect(remove_family_tree)
+        self._layout.addWidget(self._widget._gramps_remove)

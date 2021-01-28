@@ -17,8 +17,7 @@ from betty.tests import TestCase
 class JSONEncoderTest(TestCase):
     def assert_encodes(self, expected, data, schema_definition: str):
         with TemporaryDirectory() as output_directory:
-            configuration = Configuration(
-                output_directory, '')
+            configuration = Configuration(output_directory, 'https://example.com')
             configuration.locales.clear()
             configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
             configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')

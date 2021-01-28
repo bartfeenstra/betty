@@ -24,6 +24,7 @@ done < <(find ./ -name .eslintrc.yaml)
 coverage erase
 PYTHONUTF8=1 coverage run -m nose2
 coverage report -m
+pytest ./betty/pytests
 
 # Run end-to-end (e2e) tests.
 npm run cypress -- run

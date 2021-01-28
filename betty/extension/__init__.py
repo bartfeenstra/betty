@@ -2,18 +2,21 @@ import asyncio
 from collections import defaultdict
 from typing import Type, Set, Optional, Any, List, Dict
 
+import betty
 from betty.dispatch import Dispatcher, TargetedDispatcher
 from betty.graph import Graph, tsort_grouped
+from betty.react import reactive
 
 
 class Extension:
     """
     Integrate optional functionality with the Betty app.
 
-    Extensions that require betty.app.App must implement betty.app.AppAwareFactory.
-
     Extensions that take configuration must implement betty.extension.ConfigurableExtension.
     """
+
+    def __init__(self, app: 'betty.app.App'):
+        self._app = app
 
     async def __aenter__(self):
         pass  # pragma: no cover
@@ -42,20 +45,55 @@ class Extension:
         return None
 
 
+@reactive
+class Configuration:
+    def __init__(self):
+        pass
+
+
 class ConfigurableExtension(Extension):
+    def __init__(self, app: 'betty.app.App', configuration: Configuration):
+        super().__init__(app)
+        self._configuration = configuration
+
     @classmethod
-    def validate_configuration(cls, configuration: Optional[Dict]) -> Dict:
+    def default_configuration(cls) -> Configuration:
         """
-        Validate and optionally convert the extension's configuration dictionary.
+        Builds a default configuration object.
 
         Returns
         -------
-        Dict[str, Any]
-            Keys map to self.__init__()'s keyword arguments. Values are whatever the keyword arguments accept.
+        betty.extension.Configuration
+            A reactive object specific to this extension.
+        """
+
+        raise NotImplementedError
+
+    @classmethod
+    def configuration_from_dict(cls, configuration_dict: Dict) -> Configuration:
+        """
+        Validate and convert the extension's configuration dictionary to a configuration object.
+
+        Returns
+        -------
+        betty.extension.Configuration
+            A reactive object specific to this extension.
 
         Raises
         ------
         betty.config.ConfigurationValueError
+        """
+
+        raise NotImplementedError
+
+    @classmethod
+    def configuration_to_dict(cls, configuration: Configuration) -> Dict:
+        """
+        Convert a configuration object for this extension to a configuration dictionary.
+
+        Returns
+        -------
+        Dict[str, Any]
         """
 
         raise NotImplementedError

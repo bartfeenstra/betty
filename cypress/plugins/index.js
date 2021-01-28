@@ -24,11 +24,14 @@ module.exports = (on, config) => {
         bettyConfiguration.extensions = {}
       }
       bettyConfiguration.extensions['betty.extension.gramps.Gramps'] = {
-        family_trees: [
-          {
-            file: path.join(appDirectoryPath, 'gramps.xml')
-          }
-        ]
+        enabled: true,
+        configuration: {
+          family_trees: [
+            {
+              file: path.join(appDirectoryPath, 'gramps.xml')
+            }
+          ]
+        }
       }
       fs.writeFileSync(path.join(appDirectoryPath, 'betty.json'), JSON.stringify(bettyConfiguration))
       fs.writeFileSync(path.join(appDirectoryPath, 'gramps.xml'), gramps)

@@ -1,5 +1,5 @@
 import gettext
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 from concurrent.futures._base import Executor
 from concurrent.futures.thread import ThreadPoolExecutor
 
@@ -9,6 +9,7 @@ from betty.concurrent import ExceptionRaisingExecutor
 from betty.dispatch import Dispatcher
 from betty.extension import Extension, build_extension_type_graph, ConfigurableExtension
 from betty.lock import Locks
+from betty.react import reactive, ReactiveDict
 from betty.render import Renderer, SequentialRenderer
 
 try:
@@ -22,38 +23,38 @@ from typing import Type, Dict
 from betty.ancestry import Ancestry
 from betty.config import Configuration
 from betty.fs import FileSystem
-from betty.graph import tsort_grouped
+from betty.graph import tsort
 from betty.locale import open_translations, Translations, negotiate_locale
 from betty.url import AppUrlGenerator, StaticPathUrlGenerator, LocalizedUrlGenerator, StaticUrlGenerator
 
 
+@reactive
 class App:
     def __init__(self, configuration: Configuration):
         self._app_stack = []
         self._ancestry = Ancestry()
         self._configuration = configuration
-        self._assets = FileSystem(
-            join(dirname(abspath(__file__)), 'assets'))
+        self._assets = FileSystem()
         self._dispatcher = None
         self._localized_url_generator = AppUrlGenerator(configuration)
         self._static_url_generator = StaticPathUrlGenerator(configuration)
         self._locale = None
         self._translations = defaultdict(gettext.NullTranslations)
         self._default_translations = None
-        self._extensions = OrderedDict()
+        self._extensions = ReactiveDict()
         self._extension_exit_stack = AsyncExitStack()
-        self._init_extensions()
-        self._init_dispatcher()
-        self._init_assets()
-        self._init_translations()
         self._jinja2_environment = None
         self._renderer = None
         self._executor = None
         self._locks = Locks()
 
+    @property
+    def configuration(self) -> Configuration:
+        return self._configuration
+
     async def enter(self):
         if not self._app_stack:
-            for extension in self._extensions.values():
+            for extension in self.extensions.values():
                 await self._extension_exit_stack.enter_async_context(extension)
 
         self._default_translations = Translations(self.translations[self.locale])
@@ -88,63 +89,60 @@ class App:
             return self._locale
         return self._configuration.default_locale
 
-    def _init_extensions(self) -> None:
-        for grouped_extension_types in tsort_grouped(build_extension_type_graph(set(self._configuration.extensions.keys()))):
-            for extension_type in grouped_extension_types:
-                extension_args = []
-                if issubclass(extension_type, ConfigurableExtension) and extension_type in self.configuration.extensions:
-                    extension_kwargs = self.configuration.extensions[extension_type]
-                else:
-                    extension_kwargs = {}
-
-                if issubclass(extension_type, AppAwareFactory):
-                    extension = extension_type.new_for_app(self, *extension_args, **extension_kwargs)
-                else:
-                    extension = extension_type(*extension_args, **extension_kwargs)
-
-                self._extensions[extension_type] = extension
-
-    def _init_dispatcher(self) -> None:
-        from betty.extension import ExtensionDispatcher
-
-        self._dispatcher = ExtensionDispatcher(self._extensions.values())
-
-    def _init_assets(self) -> None:
-        for extension in self._extensions.values():
-            if extension.assets_directory_path is not None:
-                self._assets.paths.appendleft(
-                    extension.assets_directory_path)
-        if self._configuration.assets_directory_path:
-            self._assets.paths.appendleft(
-                self._configuration.assets_directory_path)
-
-    def _init_translations(self) -> None:
-        self._translations['en-US'] = gettext.NullTranslations()
-        for locale in self._configuration.locales:
-            for assets_path in reversed(self._assets.paths):
-                translations = open_translations(locale, assets_path)
-                if translations:
-                    translations.add_fallback(self._translations[locale])
-                    self._translations[locale] = translations
-
     @property
     def ancestry(self) -> Ancestry:
         return self._ancestry
 
     @property
-    def configuration(self) -> Configuration:
-        return self._configuration
-
-    @property
     def extensions(self) -> Dict[Type[Extension], Extension]:
+        extensions_enabled_in_configuration = {
+            extension_configuration.extension_type
+            for extension_configuration in self._configuration.extensions.values()
+            if extension_configuration.enabled
+        }
+        extension_types = tsort(build_extension_type_graph(extensions_enabled_in_configuration))
+
+        # Remove disabled extensions.
+        for extension_type in list(self._extensions):
+            if extension_type not in extension_types:
+                del self._extensions[extension_type]
+
+        # Add enabled extensions.
+        for extension_type in extension_types:
+            if extension_type not in self._extensions:
+                if issubclass(extension_type, ConfigurableExtension):
+                    if extension_type not in self._configuration.extensions or self._configuration.extensions[extension_type].extension_type_configuration is None:
+                        configuration = extension_type.default_configuration()
+                    else:
+                        configuration = self._configuration.extensions[extension_type].extension_type_configuration
+                    extension = extension_type(self, configuration)
+                else:
+                    extension = extension_type(self)
+
+                self._extensions[extension_type] = extension
+
         return self._extensions
 
+    @reactive(on_trigger=(lambda app: app._assets.paths.clear(),))
     @property
     def assets(self) -> FileSystem:
+        if len(self._assets.paths) == 0:
+            self._assets.paths.appendleft(join(dirname(abspath(__file__)), 'assets'))
+            for extension in self.extensions.values():
+                if extension.assets_directory_path is not None:
+                    self._assets.paths.appendleft(extension.assets_directory_path)
+            if self._configuration.assets_directory_path:
+                self._assets.paths.appendleft(self._configuration.assets_directory_path)
+
         return self._assets
 
     @property
     def dispatcher(self) -> Dispatcher:
+        if self._dispatcher is None:
+            from betty.extension import ExtensionDispatcher
+
+            self._dispatcher = ExtensionDispatcher(list(self.extensions.values()))
+
         return self._dispatcher
 
     @property
@@ -155,10 +153,21 @@ class App:
     def static_url_generator(self) -> StaticUrlGenerator:
         return self._static_url_generator
 
+    @reactive(on_trigger=(lambda app: app._translations.clear(),))
     @property
     def translations(self) -> Dict[str, gettext.NullTranslations]:
+        if len(self._translations) == 0:
+            self._translations['en-US'] = gettext.NullTranslations()
+            for locale in self._configuration.locales:
+                for assets_path in reversed(self._assets.paths):
+                    translations = open_translations(locale, assets_path)
+                    if translations:
+                        translations.add_fallback(self._translations[locale])
+                        self._translations[locale] = translations
+
         return self._translations
 
+    @reactive(on_trigger=(lambda app: setattr(app, '_jinja2_environment', None),))
     @property
     def jinja2_environment(self) -> Environment:
         if not self._jinja2_environment:
@@ -167,10 +176,12 @@ class App:
 
         return self._jinja2_environment
 
+    @reactive(on_trigger=(lambda app: setattr(app, '_renderer', None),))
     @property
     def renderer(self) -> Renderer:
         if not self._renderer:
             from betty.jinja2 import Jinja2Renderer
+
             self._renderer = SequentialRenderer([
                 Jinja2Renderer(self.jinja2_environment, self._configuration),
             ])
@@ -202,26 +213,3 @@ class App:
         app._renderer = None
 
         return app
-
-
-class AppAwareFactory:
-    @classmethod
-    def new_for_app(cls, app: App, *args, **kwargs):
-        """
-        Create a new instance of cls based on a Betty app.
-
-        Parameters
-        ----------
-        betty.app.App
-            The Betty app.
-        *args
-            Any additional arguments passed on to cls.__init__().
-        *kwargs
-            Any additional keyword arguments passed on to cls.__init__().
-
-        Returns
-        -------
-        cls
-        """
-
-        raise NotImplementedError

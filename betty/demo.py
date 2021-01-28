@@ -2,7 +2,7 @@ from tempfile import TemporaryDirectory
 
 from betty import generate, load, serve
 from betty.app import App
-from betty.config import Configuration, LocaleConfiguration
+from betty.config import Configuration, LocaleConfiguration, ExtensionConfiguration
 from betty.extension.demo import Demo
 from betty.extension.nginx import Nginx
 from betty.serve import Server
@@ -21,9 +21,9 @@ class DemoServer(Server):
     async def start(self) -> None:
         self._output_directory = TemporaryDirectory()
         configuration = Configuration(self._output_directory.name, 'https://example.com')
-        configuration.extensions[Demo] = None
+        configuration.extensions[Demo] = ExtensionConfiguration(Demo)
         # The Nginx extension allows content negotiation if Docker is also available.
-        configuration.extensions[Nginx] = {}
+        configuration.extensions[Nginx] = ExtensionConfiguration(Nginx)
         # Include all of the translations Betty ships with.
         locale_configurations = [
             LocaleConfiguration('en-US', 'en'),

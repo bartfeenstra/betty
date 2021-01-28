@@ -1,6 +1,7 @@
 [run]
 source = betty
 omit = */test*.py
+    betty/gui.py
 
 [report]
 exclude_lines =

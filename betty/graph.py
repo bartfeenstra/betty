@@ -1,8 +1,8 @@
-from typing import Iterable, Tuple, Set, Dict, List, Hashable
+from typing import Iterable, Tuple, Dict, List, Hashable, Sequence, Set
 
 Vertex = Hashable
 Edge = Tuple[Vertex, Vertex]
-Graph = Dict[Vertex, Set[Vertex]]
+Graph = Dict[Vertex, Sequence[Vertex]]
 
 
 class GraphError(BaseException):
@@ -11,6 +11,32 @@ class GraphError(BaseException):
 
 class CyclicGraphError(GraphError):
     pass  # pragma: no cover
+
+
+def tsort(graph: Graph) -> List[Vertex]:
+    """
+    Sorts a graph topologically.
+
+    This function uses the algorithm described by Kahn (1962), with the following additional properties:
+    - Stable for stable graphs (sorted dictionaries).
+    """
+    edges = list(_graph_to_edges(graph))
+    sorted_vertices = []
+    outdegree_vertices = list([edge[0] for edge in edges if not _is_target(edge[0], edges)])
+    while outdegree_vertices:
+        outdegree_vertex = outdegree_vertices.pop()
+        if outdegree_vertex not in sorted_vertices:
+            sorted_vertices.append(outdegree_vertex)
+        outdegree_vertex_edges = list([edge for edge in edges if edge[0] == outdegree_vertex])
+        while outdegree_vertex_edges:
+            edge = outdegree_vertex_edges.pop()
+            edges.remove(edge)
+            if not _is_target(edge[1], edges):
+                outdegree_vertices.append(edge[1])
+    if edges:
+        raise CyclicGraphError
+    isolated_vertices = list(graph.keys() - sorted_vertices)
+    return sorted_vertices + isolated_vertices
 
 
 def tsort_grouped(graph: Graph) -> List[Set[Vertex]]:

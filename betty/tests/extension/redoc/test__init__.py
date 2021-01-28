@@ -1,7 +1,7 @@
 from os import path
 from tempfile import TemporaryDirectory
 
-from betty.config import Configuration
+from betty.config import Configuration, ExtensionConfiguration
 from betty.asyncio import sync
 from betty.extension.redoc import ReDoc
 from betty.generate import generate
@@ -15,7 +15,7 @@ class ReDocTest(TestCase):
     async def test(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://ancestry.example.com')
-            configuration.extensions[ReDoc] = None
+            configuration.extensions[ReDoc] = ExtensionConfiguration(ReDoc)
             async with App(configuration) as app:
                 await generate(app)
             self.assertTrue(path.isfile(path.join(output_directory_path, 'www', 'api', 'index.html')))

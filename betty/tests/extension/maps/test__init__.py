@@ -1,7 +1,7 @@
 from os.path import join
 from tempfile import TemporaryDirectory
 
-from betty.config import Configuration
+from betty.config import Configuration, ExtensionConfiguration
 from betty.asyncio import sync
 from betty.generate import generate
 from betty.extension.maps import Maps
@@ -17,7 +17,7 @@ class MapsTest(TestCase):
             configuration = Configuration(
                 output_directory_path, 'https://ancestry.example.com')
             configuration.mode = 'development'
-            configuration.extensions[Maps] = None
+            configuration.extensions[Maps] = ExtensionConfiguration(Maps)
             async with App(configuration) as app:
                 await generate(app)
             with open(join(configuration.www_directory_path, 'maps.js')) as f:

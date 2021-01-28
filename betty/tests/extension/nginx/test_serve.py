@@ -6,7 +6,7 @@ from time import sleep
 
 import requests
 
-from betty.config import Configuration
+from betty.config import Configuration, ExtensionConfiguration
 from betty.asyncio import sync
 from betty.extension.nginx import Nginx
 from betty.extension.nginx.serve import DockerizedNginxServer
@@ -21,7 +21,7 @@ class DockerizedNginxServerTest(TestCase):
         content = 'Hello, and welcome to my site!'
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://example.com')
-            configuration.extensions[Nginx] = Nginx.configuration_schema({})
+            configuration.extensions[Nginx] = ExtensionConfiguration(Nginx)
             makedirs(configuration.www_directory_path)
             with open(path.join(configuration.www_directory_path, 'index.html'), 'w') as f:
                 f.write(content)

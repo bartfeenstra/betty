@@ -11,7 +11,6 @@ from betty.ancestry import Place, Person, PlaceName, Event, Described, HasLinks,
     PresenceRole, EventType
 from betty.locale import Date, DateRange, Localized
 from betty.media_type import MediaType
-from betty.extension.deriver import DerivedEvent
 from betty.app import App
 
 
@@ -28,6 +27,8 @@ def validate(data: Any, schema_definition: str, app: App) -> None:
 
 class JSONEncoder(stdjson.JSONEncoder):
     def __init__(self, app: App, locale: str, *args, **kwargs):
+        from betty.extension.deriver import DerivedEvent
+
         stdjson.JSONEncoder.__init__(self, *args, **kwargs)
         self._app = app
         self._locale = locale

@@ -1,6 +1,5 @@
 import logging
 import os
-import shutil
 import subprocess
 import sys
 import time
@@ -12,17 +11,13 @@ from typing import Callable, Dict, Optional
 import click
 from click import get_current_context
 
-import betty
-from betty import generate, load, serve, about, demo
-from betty.config import from_file
+from betty import about, cache, demo, generate, load, serve
+from betty.config import from_file, ConfigurationError
 from betty.error import UserFacingError
 from betty.asyncio import sync
+from betty.gui import BettyApplication, ProjectWindow, WelcomeWindow
 from betty.logging import CliHandler
 from betty.app import App
-
-
-class CommandValueError(UserFacingError, ValueError):
-    pass
 
 
 class CommandProvider:
@@ -51,15 +46,10 @@ def catch_exceptions():
 def _command(f, is_app_command: bool):
     @wraps(f)
     @catch_exceptions()
-    @sync
-    async def _command(*args, **kwargs):
+    def _command(*args, **kwargs):
         if is_app_command:
-            app = get_current_context().obj['app']
-            args = (app, *args)
-            async with app:
-                await f(*args, **kwargs)
-        else:
-            await f(*args, **kwargs)
+            args = (get_current_context().obj['app'], *args)
+        f(*args, **kwargs)
     return _command
 
 
@@ -87,6 +77,7 @@ async def _init_ctx(ctx, configuration_file_path: Optional[str] = None) -> None:
     ctx.obj['commands'] = {
         'clear-caches': _clear_caches,
         'demo': _demo,
+        'gui': _gui,
     }
 
     if configuration_file_path is None:
@@ -111,7 +102,7 @@ async def _init_ctx(ctx, configuration_file_path: Optional[str] = None) -> None:
             return
 
     if configuration_file_path is not None:
-        raise CommandValueError('Configuration file "%s" does not exist.' % configuration_file_path)
+        raise ConfigurationError('Configuration file "%s" does not exist.' % configuration_file_path)
 
 
 class _BettyCommands(click.MultiCommand):
@@ -152,32 +143,49 @@ def main(app):
 
 @click.command(help='Clear all caches.')
 @global_command
+@sync
 async def _clear_caches():
-    with suppress(FileNotFoundError):
-        shutil.rmtree(betty._CACHE_DIRECTORY_PATH)
-    logging.getLogger().info('All caches cleared.')
+    await cache.clear()
 
 
 @click.command(help='Explore a demonstration site.')
 @global_command
+@sync
 async def _demo():
     async with demo.DemoServer():
         while True:
             time.sleep(999)
 
 
+@click.command(help="Open Betty's graphical user interface (GUI).")
+@global_command
+@click.option('--configuration', '-c', 'configuration_file_path', is_eager=True, help='The path to a Betty configuration file. Defaults to betty.json|yaml|yml in the current working directory.')
+def _gui(configuration_file_path: Optional[str]):
+    app = BettyApplication(sys.argv)
+    if configuration_file_path is None:
+        window = WelcomeWindow()
+    else:
+        window = ProjectWindow(configuration_file_path)
+    window.show()
+    sys.exit(app.exec_())
+
+
 @click.command(help='Generate a static site.')
 @app_command
+@sync
 async def _generate(app: App):
-    await load.load(app)
-    await generate.generate(app)
+    async with app:
+        await load.load(app)
+        await generate.generate(app)
 
 
 @click.command(help='Serve a generated site.')
 @app_command
+@sync
 async def _serve(app: App):
-    if not path.isdir(app.configuration.www_directory_path):
-        raise CommandValueError('Web root directory "%s" does not exist.' % app.configuration.www_directory_path)
-    async with serve.AppServer(app):
-        while True:
-            time.sleep(999)
+    async with app:
+        if not path.isdir(app.configuration.www_directory_path):
+            raise ConfigurationError('Web root directory "%s" does not exist.' % app.configuration.www_directory_path)
+        async with serve.AppServer(app):
+            while True:
+                time.sleep(999)

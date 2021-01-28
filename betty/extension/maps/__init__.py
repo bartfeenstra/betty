@@ -10,19 +10,12 @@ from typing import Optional, Iterable
 from betty import subprocess
 from betty.fs import DirectoryBackup
 from betty.generate import Generator
+from betty.gui import GuiBuilder
 from betty.html import HtmlProvider
 from betty.extension import Extension
-from betty.app import App, AppAwareFactory
 
 
-class Maps(Extension, AppAwareFactory, HtmlProvider, Generator):
-    def __init__(self, app: App):
-        self._app = app
-
-    @classmethod
-    def new_for_app(cls, app: App, *args, **kwargs):
-        return cls(app)
-
+class Maps(Extension, HtmlProvider, Generator, GuiBuilder):
     async def generate(self) -> None:
         await self._render()
 
@@ -53,6 +46,10 @@ class Maps(Extension, AppAwareFactory, HtmlProvider, Generator):
         return {
             self._app.static_url_generator.generate('maps.js'),
         }
+
+    @classmethod
+    def gui_name(cls) -> str:
+        return _('Maps')
 
 
 def _do_render(build_directory_path: str, www_directory_path: str) -> None:
