@@ -1,17 +1,9 @@
 from typing import Set, Type
-from unittest.mock import Mock
-
-from betty.app import App
 from betty.extension import Extension, build_extension_type_graph
 from betty.tests import TestCase
 
 
 class ExtensionTest(TestCase):
-    def test_new_for_app(self):
-        app = Mock(App)
-        extension = Extension.new_for_app(app)
-        self.assertIsInstance(extension, Extension)
-
     def test_depends_on(self):
         self.assertEquals(set(), Extension.depends_on())
 

@@ -22,8 +22,8 @@ from betty.locale import DateRange, Datey, Date
 from betty.media_type import MediaType
 from betty.load import Loader
 from betty.path import rootname
-from betty.extension import Extension, NO_CONFIGURATION
-from betty.app import App
+from betty.extension import ConfigurableExtension
+from betty.app import App, AppAwareFactory
 
 
 class GrampsLoadFileError(UserFacingError):
@@ -603,14 +603,14 @@ def _family_tree_configurations_schema(family_trees_configuration_dict: Any) -> 
     return family_trees_configuration
 
 
-class Gramps(Extension, Loader):
+class Gramps(ConfigurableExtension, AppAwareFactory, Loader):
     configuration_schema: Schema = Schema({
         'family_trees': All(list, _family_tree_configurations_schema),
     })
 
-    def __init__(self, ancestry: Ancestry, family_trees_configuration: List[FamilyTreeConfiguration]):
+    def __init__(self, ancestry: Ancestry, family_trees: List[FamilyTreeConfiguration]):
         self._ancestry = ancestry
-        self._family_trees_configuration = family_trees_configuration
+        self._family_trees = family_trees
 
     @classmethod
     def validate_configuration(cls, configuration: Optional[Dict]) -> Dict:
@@ -620,9 +620,9 @@ class Gramps(Extension, Loader):
             raise ConfigurationValueError(e)
 
     @classmethod
-    def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
-        return cls(app.ancestry, configuration['family_trees'])
+    def new_for_app(cls, app: App, *args, **kwargs):
+        return cls(app.ancestry, *args, **kwargs)
 
     async def load(self) -> None:
-        for family_tree_configuration in self._family_trees_configuration:
-            load_file(self._ancestry, family_tree_configuration.file_path)
+        for family_tree in self._family_trees:
+            load_file(self._ancestry, family_tree.file_path)

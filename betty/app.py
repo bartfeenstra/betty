@@ -7,6 +7,7 @@ from jinja2 import Environment
 
 from betty.concurrent import ExceptionRaisingExecutor
 from betty.dispatch import Dispatcher
+from betty.extension import Extension, build_extension_type_graph, ConfigurableExtension
 from betty.lock import Locks
 from betty.render import Renderer, SequentialRenderer
 
@@ -88,14 +89,19 @@ class App:
         return self._configuration.default_locale
 
     def _init_extensions(self) -> None:
-        from betty.extension import build_extension_type_graph, NO_CONFIGURATION
-
         for grouped_extension_types in tsort_grouped(build_extension_type_graph(set(self._configuration.extensions.keys()))):
             for extension_type in grouped_extension_types:
-                extension_configuration = self.configuration.extensions[
-                    extension_type] if extension_type in self.configuration.extensions else NO_CONFIGURATION
-                extension = extension_type.new_for_app(
-                    self, extension_configuration)
+                extension_args = []
+                if issubclass(extension_type, ConfigurableExtension) and extension_type in self.configuration.extensions:
+                    extension_kwargs = self.configuration.extensions[extension_type]
+                else:
+                    extension_kwargs = {}
+
+                if issubclass(extension_type, AppAwareFactory):
+                    extension = extension_type.new_for_app(self, *extension_args, **extension_kwargs)
+                else:
+                    extension = extension_type(*extension_args, **extension_kwargs)
+
                 self._extensions[extension_type] = extension
 
     def _init_dispatcher(self) -> None:
@@ -130,7 +136,7 @@ class App:
         return self._configuration
 
     @property
-    def extensions(self) -> Dict[Type['Extension'], 'Extension']:
+    def extensions(self) -> Dict[Type[Extension], Extension]:
         return self._extensions
 
     @property
@@ -196,3 +202,26 @@ class App:
         app._renderer = None
 
         return app
+
+
+class AppAwareFactory:
+    @classmethod
+    def new_for_app(cls, app: App, *args, **kwargs):
+        """
+        Create a new instance of cls based on a Betty app.
+
+        Parameters
+        ----------
+        betty.app.App
+            The Betty app.
+        *args
+            Any additional arguments passed on to cls.__init__().
+        *kwargs
+            Any additional keyword arguments passed on to cls.__init__().
+
+        Returns
+        -------
+        cls
+        """
+
+        raise NotImplementedError

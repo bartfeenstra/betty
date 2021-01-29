@@ -1,22 +1,22 @@
-from typing import Any, Set, Type
+from typing import Set, Type
 
 from geopy import Point
 
 from betty.ancestry import Place, PlaceName, Person, Ancestry, Presence, Subject, Birth, IdentifiableEvent, \
     PersonName, IdentifiableSource, IdentifiableCitation, Link, Death, Marriage
-from betty.app import App
-from betty.extension import Extension, NO_CONFIGURATION
+from betty.app import App, AppAwareFactory
+from betty.extension import Extension
 from betty.extension.wikipedia import Wikipedia
 from betty.load import Loader
 from betty.locale import Date, DateRange
 
 
-class Demo(Extension, Loader):
+class Demo(Extension, AppAwareFactory, Loader):
     def __init__(self, ancestry: Ancestry):
         self._ancestry = ancestry
 
     @classmethod
-    def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
+    def new_for_app(cls, app: App, *args, **kwargs):
         return cls(app.ancestry)
 
     @classmethod

@@ -7,7 +7,7 @@ from contextlib import suppress
 from json import load
 from os.path import dirname, join, getmtime
 from time import time
-from typing import Optional, Dict, Callable, Tuple, Iterable, Set, Any
+from typing import Optional, Dict, Callable, Tuple, Iterable, Set
 
 import aiohttp
 from babel import parse_locale
@@ -15,9 +15,9 @@ from jinja2 import contextfilter
 from jinja2.runtime import resolve_or_missing
 
 from betty.ancestry import Link, HasLinks, Resource
-from betty.app import App
+from betty.app import App, AppAwareFactory
 from betty.asyncio import sync
-from betty.extension import Extension, NO_CONFIGURATION
+from betty.extension import Extension
 from betty.fs import makedirs
 from betty.jinja2 import Jinja2Provider
 from betty.locale import Localized, negotiate_locale
@@ -203,7 +203,7 @@ class _Populator:
             link.label = entry.title
 
 
-class Wikipedia(Extension, Jinja2Provider, PostLoader):
+class Wikipedia(Extension, AppAwareFactory, Jinja2Provider, PostLoader):
     def __init__(self, app: App):
         self._app = app
 
@@ -217,7 +217,7 @@ class Wikipedia(Extension, Jinja2Provider, PostLoader):
         await self._session.close()
 
     @classmethod
-    def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
+    def new_for_app(cls, app: App, *args, **kwargs):
         return cls(app)
 
     async def post_load(self) -> None:

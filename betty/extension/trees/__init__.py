@@ -5,22 +5,22 @@ import sys
 from contextlib import suppress
 from os import path
 from os.path import dirname
-from typing import Optional, Iterable, Any
+from typing import Optional, Iterable
 
 from betty import subprocess
 from betty.fs import DirectoryBackup
 from betty.generate import Generator
 from betty.html import HtmlProvider
-from betty.extension import Extension, NO_CONFIGURATION
-from betty.app import App
+from betty.extension import Extension
+from betty.app import App, AppAwareFactory
 
 
-class Trees(Extension, HtmlProvider, Generator):
+class Trees(Extension, AppAwareFactory, HtmlProvider, Generator):
     def __init__(self, app: App):
         self._app = app
 
     @classmethod
-    def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
+    def new_for_app(cls, app: App, *args, **kwargs):
         return cls(app)
 
     async def generate(self) -> None:

@@ -1,22 +1,22 @@
 import logging
 from datetime import datetime
-from typing import Any, Optional, List
+from typing import Optional, List
 
 from betty.ancestry import Ancestry, Person, Event, Citation, Source, HasPrivacy, Subject, File, HasFiles, HasCitations
 from betty.functools import walk
 from betty.locale import DateRange, Date
 from betty.load import PostLoader
-from betty.extension import Extension, NO_CONFIGURATION
-from betty.app import App
+from betty.extension import Extension
+from betty.app import App, AppAwareFactory
 
 
-class Privatizer(Extension, PostLoader):
+class Privatizer(Extension, AppAwareFactory, PostLoader):
     def __init__(self, ancestry: Ancestry, lifetime_threshold: int):
         self._ancestry = ancestry
         self._lifetime_threshold = lifetime_threshold
 
     @classmethod
-    def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
+    def new_for_app(cls, app: App, *args, **kwargs):
         return cls(app.ancestry, app.configuration.lifetime_threshold)
 
     async def post_load(self) -> None:

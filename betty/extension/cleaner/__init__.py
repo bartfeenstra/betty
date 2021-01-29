@@ -1,12 +1,12 @@
 from collections import defaultdict
-from typing import Set, Type, Any
+from typing import Set, Type
 
 from betty.ancestry import Ancestry, Place, File, IdentifiableEvent, IdentifiableSource, IdentifiableCitation, Person
 from betty.graph import Graph, tsort_grouped
 from betty.load import PostLoader
-from betty.extension import Extension, NO_CONFIGURATION
+from betty.extension import Extension
 from betty.extension.anonymizer import Anonymizer
-from betty.app import App
+from betty.app import App, AppAwareFactory
 
 
 def clean(ancestry: Ancestry) -> None:
@@ -135,12 +135,12 @@ def _clean_citation(ancestry: Ancestry, citation: IdentifiableCitation) -> None:
     del ancestry.citations[citation.id]
 
 
-class Cleaner(Extension, PostLoader):
+class Cleaner(Extension, AppAwareFactory, PostLoader):
     def __init__(self, ancestry: Ancestry):
         self._ancestry = ancestry
 
     @classmethod
-    def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
+    def new_for_app(cls, app: App, *args, **kwargs):
         return cls(app.ancestry)
 
     @classmethod
