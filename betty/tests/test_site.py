@@ -1,12 +1,12 @@
-from typing import List, Type, Set, Any, Dict, Optional
+from typing import List, Type, Set, Dict, Optional
 
 from voluptuous import Schema, Required, Invalid
 
+from betty import extension
 from betty.ancestry import Ancestry
 from betty.config import Configuration, ConfigurationValueError
 from betty.asyncio import sync
 from betty.graph import CyclicGraphError
-from betty.extension import Extension, NO_CONFIGURATION
 from betty.app import App
 from betty.tests import TestCase
 
@@ -16,7 +16,7 @@ class Tracker:
         raise NotImplementedError
 
 
-class TrackableExtension(Extension, Tracker):
+class TrackableExtension(extension.Extension, Tracker):
     async def track(self, carrier: List):
         carrier.append(self)
 
@@ -25,7 +25,7 @@ class NonConfigurableExtension(TrackableExtension):
     pass  # pragma: no cover
 
 
-class ConfigurableExtension(Extension):
+class ConfigurableExtension(extension.ConfigurableExtension):
     configuration_schema: Schema = Schema({
         Required('check'): lambda x: x
     })
@@ -40,50 +40,46 @@ class ConfigurableExtension(Extension):
         except Invalid as e:
             raise ConfigurationValueError(e)
 
-    @classmethod
-    def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
-        return cls(configuration['check'])
 
-
-class CyclicDependencyOneExtension(Extension):
+class CyclicDependencyOneExtension(extension.Extension):
     @classmethod
-    def depends_on(cls) -> Set[Type[Extension]]:
+    def depends_on(cls) -> Set[Type[extension.Extension]]:
         return {CyclicDependencyTwoExtension}
 
 
-class CyclicDependencyTwoExtension(Extension):
+class CyclicDependencyTwoExtension(extension.Extension):
     @classmethod
-    def depends_on(cls) -> Set[Type[Extension]]:
+    def depends_on(cls) -> Set[Type[extension.Extension]]:
         return {CyclicDependencyOneExtension}
 
 
 class DependsOnNonConfigurableExtensionExtension(TrackableExtension):
     @classmethod
-    def depends_on(cls) -> Set[Type[Extension]]:
+    def depends_on(cls) -> Set[Type[extension.Extension]]:
         return {NonConfigurableExtension}
 
 
 class AlsoDependsOnNonConfigurableExtensionExtension(TrackableExtension):
     @classmethod
-    def depends_on(cls) -> Set[Type[Extension]]:
+    def depends_on(cls) -> Set[Type[extension.Extension]]:
         return {NonConfigurableExtension}
 
 
 class DependsOnNonConfigurableExtensionExtensionExtension(TrackableExtension):
     @classmethod
-    def depends_on(cls) -> Set[Type[Extension]]:
+    def depends_on(cls) -> Set[Type[extension.Extension]]:
         return {DependsOnNonConfigurableExtensionExtension}
 
 
 class ComesBeforeNonConfigurableExtensionExtension(TrackableExtension):
     @classmethod
-    def comes_before(cls) -> Set[Type[Extension]]:
+    def comes_before(cls) -> Set[Type[extension.Extension]]:
         return {NonConfigurableExtension}
 
 
 class ComesAfterNonConfigurableExtensionExtension(TrackableExtension):
     @classmethod
-    def comes_after(cls) -> Set[Type[Extension]]:
+    def comes_after(cls) -> Set[Type[extension.Extension]]:
         return {NonConfigurableExtension}
 
 

@@ -5,21 +5,21 @@ import sys
 from contextlib import suppress
 from os import path
 from os.path import dirname
-from typing import Optional, Any
+from typing import Optional
 
 from betty import subprocess
 from betty.fs import DirectoryBackup
 from betty.generate import Generator
-from betty.extension import Extension, NO_CONFIGURATION
-from betty.app import App
+from betty.extension import Extension
+from betty.app import App, AppAwareFactory
 
 
-class ReDoc(Extension, Generator):
+class ReDoc(Extension, AppAwareFactory, Generator):
     def __init__(self, app: App):
         self._app = app
 
     @classmethod
-    def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
+    def new_for_app(cls, app: App, *args, **kwargs):
         return cls(app)
 
     async def generate(self) -> None:

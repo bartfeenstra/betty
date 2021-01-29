@@ -6,13 +6,13 @@ from voluptuous import Schema, Invalid
 
 from betty.config import ConfigurationValueError
 from betty.generate import Generator
-from betty.extension import Extension
+from betty.extension import ConfigurableExtension
 from betty.extension.nginx.artifact import generate_configuration_file, generate_dockerfile_file
 from betty.serve import ServerProvider, Server
-from betty.app import App
+from betty.app import App, AppAwareFactory
 
 
-class Nginx(Extension, Generator, ServerProvider):
+class Nginx(ConfigurableExtension, AppAwareFactory, Generator, ServerProvider):
     configuration_schema: Schema = Schema({
         'www_directory_path': str,
         'https': bool,
@@ -31,10 +31,10 @@ class Nginx(Extension, Generator, ServerProvider):
             raise ConfigurationValueError(e)
 
     @classmethod
-    def new_for_app(cls, app: App, configuration: Dict):
-        configuration.setdefault('www_directory_path', app.configuration.www_directory_path)
-        configuration.setdefault('https', None)
-        return cls(app, configuration['www_directory_path'], configuration['https'])
+    def new_for_app(cls, app: App, *args, **kwargs):
+        kwargs.setdefault('www_directory_path', app.configuration.www_directory_path)
+        kwargs.setdefault('https', None)
+        return cls(app, *args, **kwargs)
 
     @property
     def servers(self) -> Iterable[Server]:

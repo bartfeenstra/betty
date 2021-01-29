@@ -9,6 +9,7 @@ from voluptuous import Schema, All, Required, Invalid, IsDir, Any, Range
 
 from betty import _CACHE_DIRECTORY_PATH, os
 from betty.error import ContextError, UserFacingError
+from betty.extension import Extension, ConfigurableExtension
 from betty.voluptuous import Path, Importable
 
 
@@ -56,7 +57,7 @@ def _extensions_configuration_schema(extensions_configuration_dict: Optional[Dic
 
     # Validate each extension's configuration.
     schema = Schema({
-        extension_type_name: extension_types_by_name[extension_type_name].validate_configuration for extension_type_name in extensions_configuration_dict.keys()
+        extension_type_name: _build_extension_configuration_schema(extension_types_by_name[extension_type_name]) for extension_type_name in extensions_configuration_dict.keys()
     })
     typed_extensions_configuration_dict = schema(extensions_configuration_dict)
 
@@ -64,6 +65,18 @@ def _extensions_configuration_schema(extensions_configuration_dict: Optional[Dic
     return {
         extension_types_by_name[extension_type_name]: typed_extensions_configuration_dict[extension_type_name] for extension_type_name in extensions_configuration_dict.keys()
     }
+
+
+def _build_extension_configuration_schema(extension_type: Type[Extension]):
+    def _extension_configuration_schema(extension_configuration_dict: Optional[Dict[str, Any]]):
+        if issubclass(extension_type, ConfigurableExtension):
+            if extension_configuration_dict is None:
+                return
+            return extension_type.validate_configuration(extension_configuration_dict)
+        elif extension_configuration_dict is not None:
+            raise Invalid('Extension %s is not configurable, so its configuration must be left empty.')
+
+    return _extension_configuration_schema
 
 
 class ThemeConfiguration:
@@ -80,7 +93,7 @@ class Configuration:
     mode: str
     locales: Dict[str, LocaleConfiguration]
     author: Optional[str]
-    extensions: Dict[Type['Extension'], Any]
+    extensions: Dict[Type[Extension], Any]
     assets_directory_path: Optional[str]
     theme: ThemeConfiguration
     lifetime_threshold: int

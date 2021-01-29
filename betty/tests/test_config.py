@@ -9,10 +9,9 @@ import yaml
 from parameterized import parameterized
 from voluptuous import Schema, Required, Invalid
 
+from betty import extension
 from betty.config import ConfigurationValueError, LocaleConfiguration, Configuration, from_file, _from_dict, from_json, \
     from_yaml
-from betty.extension import Extension, NO_CONFIGURATION
-from betty.app import App
 from betty.tests import TestCase
 
 
@@ -112,11 +111,11 @@ class ConfigurationTest(TestCase):
         self.assertEquals(author, sut.author)
 
 
-class NonConfigurableExtension(Extension):
+class NonConfigurableExtension(extension.Extension):
     pass  # pragma: no cover
 
 
-class ConfigurableExtension(Extension):
+class ConfigurableExtension(extension.ConfigurableExtension):
     configuration_schema: Schema = Schema({
         Required('check'): lambda x: x,
         Required('default', default='I will always be there for you.'): lambda x: x,
@@ -132,10 +131,6 @@ class ConfigurableExtension(Extension):
     def __init__(self, check, default):
         self.check = check
         self.default = default
-
-    @classmethod
-    def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
-        return cls(configuration['check'], configuration['default'])
 
 
 class FromDictTest(TestCase):

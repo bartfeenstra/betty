@@ -2,15 +2,19 @@ import asyncio
 from collections import defaultdict
 from typing import Type, Set, Optional, Any, List, Dict
 
-from betty.app import App
-from betty.config import ConfigurationValueError
 from betty.dispatch import Dispatcher, TargetedDispatcher
 from betty.graph import Graph, tsort_grouped
 
-NO_CONFIGURATION = None
-
 
 class Extension:
+    """
+    Integrate optional functionality with the Betty app.
+
+    Extensions that require betty.app.App must implement betty.app.AppAwareFactory.
+
+    Extensions that take configuration must implement betty.extension.ConfigurableExtension.
+    """
+
     async def __aenter__(self):
         pass  # pragma: no cover
 
@@ -20,33 +24,6 @@ class Extension:
     @classmethod
     def name(cls) -> str:
         return '%s.%s' % (cls.__module__, cls.__name__)
-
-    @classmethod
-    def validate_configuration(cls, configuration: Optional[Dict]) -> Any:
-        """
-        Validate a configuration dictionary, and return the configuration in whatever format this extension requires.
-
-        Returns
-        -------
-        The configuration in whatever format this extension requires.
-
-        Raises
-        ------
-        betty.config.ConfigurationValueError
-        """
-        if configuration is not None:
-            raise ConfigurationValueError('Extension %s does not take any configuration, so its configuration must be None.' % cls.name())
-        return None
-
-    @classmethod
-    def new_for_app(cls, app: App, configuration: Any = NO_CONFIGURATION):
-        """
-        Creates a new instance for a specific app.
-        :param app: betty.app.App
-        :param configuration: The configuration must be of the same type as returned by cls.configuration_schema.
-        :return: Self
-        """
-        return cls()
 
     @classmethod
     def depends_on(cls) -> Set[Type['Extension']]:
@@ -65,8 +42,27 @@ class Extension:
         return None
 
 
+class ConfigurableExtension(Extension):
+    @classmethod
+    def validate_configuration(cls, configuration: Optional[Dict]) -> Dict:
+        """
+        Validate and optionally convert the extension's configuration dictionary.
+
+        Returns
+        -------
+        Dict[str, Any]
+            Keys map to self.__init__()'s keyword arguments. Values are whatever the keyword arguments accept.
+
+        Raises
+        ------
+        betty.config.ConfigurationValueError
+        """
+
+        raise NotImplementedError
+
+
 class ExtensionDispatcher(Dispatcher):
-    def __init__(self, extensions: List['Extension']):
+    def __init__(self, extensions: List[Extension]):
         self._extensions = extensions
 
     def dispatch(self, target_type: Type, target_method_name: str) -> TargetedDispatcher:
@@ -100,7 +96,7 @@ def build_extension_type_graph(extension_types: Set[Type[Extension]]) -> Graph:
     return extension_types_graph
 
 
-def _extend_extension_type_graph(graph: Graph, extension_type: Type['Extension']) -> None:
+def _extend_extension_type_graph(graph: Graph, extension_type: Type[Extension]) -> None:
     dependencies = extension_type.depends_on()
     # Ensure each extension type appears in the graph, even if they're isolated.
     graph.setdefault(extension_type, set())
