@@ -83,7 +83,7 @@ class ComesAfterNonConfigurableExtensionExtension(TrackableExtension):
         return {NonConfigurableExtension}
 
 
-class SiteTest(TestCase):
+class AppTest(TestCase):
     _MINIMAL_CONFIGURATION_ARGS = {
         'output_directory_path': '/tmp/path/to/site',
         'base_url': 'https://example.com',
