@@ -81,7 +81,7 @@ class IdentifiableResourceUrlGeneratorTest(TestCase):
             sut.generate(9, 'text/html')
 
 
-class SiteUrlGeneratorTest(TestCase):
+class AppUrlGeneratorTest(TestCase):
     @parameterized.expand([
         ('/index.html', '/index.html'),
         ('/person/P1/index.html', Person('P1')),
