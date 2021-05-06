@@ -74,6 +74,7 @@ SETUP = {
             'nose2 ~= 0.10',
             'parameterized ~= 0.8',
             'pytest ~= 6.2.2',
+            'pytest-cov ~= 2.11.1',
             'pytest-mock ~= 3.5.1',
             'pytest-qt ~= 3.3.0',
             'pytest-xvfb ~= 2.0.0',

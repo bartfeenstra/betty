@@ -1,7 +1,6 @@
 import json
 import os
 from os import path
-from unittest import mock
 
 import pytest
 from PyQt5 import QtCore
@@ -47,7 +46,7 @@ class TestWelcomeWindow(QTest):
         configuration_file_path = tmpdir.join('betty.json')
         # Purposefully leave the file empty so it is invalid.
         configuration_file_path.write('')
-        mocker.patch.object(QFileDialog, 'getOpenFileName', mock.MagicMock(return_value=[configuration_file_path, None]))
+        mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[configuration_file_path, None]))
         qtbot.mouseClick(sut.open_project_button, QtCore.Qt.LeftButton)
 
         error = self.assert_error(ExceptionError)
@@ -64,7 +63,7 @@ class TestWelcomeWindow(QTest):
             'output': str(tmpdir.join('output')),
             'base_url': 'https://example.com',
         }))
-        mocker.patch.object(QFileDialog, 'getOpenFileName', mock.MagicMock(return_value=[configuration_file_path, None]))
+        mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[configuration_file_path, None]))
         qtbot.mouseClick(sut.open_project_button, QtCore.Qt.LeftButton)
 
         self.assert_window(ProjectWindow)
@@ -138,7 +137,7 @@ class TestProjectWindow(QTest):
         sut.show()
 
         save_as_configuration_file_path = tmpdir.join('save-as', 'betty.json')
-        mocker.patch.object(QFileDialog, 'getSaveFileName', mock.MagicMock(return_value=[save_as_configuration_file_path, None]))
+        mocker.patch.object(QFileDialog, 'getSaveFileName', mocker.MagicMock(return_value=[save_as_configuration_file_path, None]))
         self.navigate(sut, ['project_menu', 'save_project_as_action'])
 
         with open(save_as_configuration_file_path) as f:

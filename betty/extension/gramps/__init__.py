@@ -696,32 +696,29 @@ class _GrampsGuiWidget(QWidget):
         self._family_trees_widget = QWidget()
         family_trees_layout = QGridLayout()
         self._family_trees_widget.setLayout(family_trees_layout)
+        self._family_trees_widget._remove_buttons = []
         for i, family_tree in enumerate(self._configuration.family_trees):
-            def _change_family_tree() -> None:
-                # @todo Check if the window is open already.
-                # @todo Keep a register of instances by index `i`.
-                family_tree_window = _EditFamilyTreeWindow(self._configuration.family_trees, family_tree, self)
-                family_tree_window.show()
+            def _remove_family_tree() -> None:
+                del self._configuration.family_trees[i]
             family_trees_layout.addWidget(QLabel(family_tree.file_path), i, 0)
-            change_family_tree_button = QPushButton('Change')
-            change_family_tree_button.released.connect(_change_family_tree)
-            family_trees_layout.addWidget(change_family_tree_button, i, 1)
+            self._family_trees_widget._remove_buttons.insert(i, QPushButton('Remove'))
+            self._family_trees_widget._remove_buttons[i].released.connect(_remove_family_tree)
+            family_trees_layout.addWidget(self._family_trees_widget._remove_buttons[i], i, 1)
         self._layout.insertWidget(0, self._family_trees_widget, alignment=Qt.AlignTop)
 
     def _add_family_tree(self):
-        family_tree_window = _AddFamilyTreeWindow(self._configuration.family_trees, None, self)
+        family_tree_window = _AddFamilyTreeWindow(self._configuration.family_trees, self)
         family_tree_window.show()
 
 
-class _FamilyTreeWindow(BettyWindow):
+class _AddFamilyTreeWindow(BettyWindow):
     width = 500
     height = 100
-    title = 'Gramps family tree'
+    title = 'Add a family tree'
 
-    def __init__(self, family_trees: List[FamilyTreeConfiguration], family_tree: Optional[FamilyTreeConfiguration], *args, **kwargs):
+    def __init__(self, family_trees: List[FamilyTreeConfiguration], *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._family_trees = family_trees
-        self.family_tree = family_tree
 
         self._layout = QFormLayout()
 
@@ -730,17 +727,25 @@ class _FamilyTreeWindow(BettyWindow):
 
         self.setCentralWidget(self._widget)
 
+        self._widget._gramps_cancel = QPushButton('Cancel')
+        self._widget._gramps_cancel.released.connect(self.close)
+        self._layout.addWidget(self._widget._gramps_cancel)
+
+        @catch_exceptions
+        def save_and_close_family_tree() -> None:
+            self._family_trees.append(self.family_tree)
+            self.close()
+        self._widget._gramps_save_and_close = QPushButton('Save and close')
+        self._widget._gramps_save_and_close.released.connect(save_and_close_family_tree)
+        self._layout.addWidget(self._widget._gramps_save_and_close)
+
         def _update_configuration_file_path(file_path: str) -> None:
             try:
-                if self.family_tree is None:
-                    self.family_tree = FamilyTreeConfiguration(file_path)
-                else:
-                    self.family_tree.file_path = file_path
+                self.family_tree = FamilyTreeConfiguration(file_path)
                 mark_valid(self._widget._gramps_file_path)
             except ConfigurationError as e:
                 mark_invalid(self._widget._gramps_file_path, str(e))
         self._widget._gramps_file_path = QLineEdit()
-        self._widget._gramps_file_path.setText('' if self.family_tree is None else self.family_tree.file_path)
         self._widget._gramps_file_path.textChanged.connect(_update_configuration_file_path)
         file_path_layout = QHBoxLayout()
         file_path_layout.addWidget(self._widget._gramps_file_path)
@@ -758,47 +763,3 @@ class _FamilyTreeWindow(BettyWindow):
         self._widget._gramps_file_path_find.released.connect(find_family_tree_file_path)
         file_path_layout.addWidget(self._widget._gramps_file_path_find)
         self._layout.addRow('File path', file_path_layout)
-
-    @reactive
-    @property
-    def family_tree(self) -> Optional[FamilyTreeConfiguration]:
-        return self._family_tree
-
-    @family_tree.setter
-    def family_tree(self, family_tree=Optional[FamilyTreeConfiguration]) -> None:
-        self._family_tree = family_tree
-
-
-class _AddFamilyTreeWindow(_FamilyTreeWindow):
-    title = 'Add a family tree'
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self._widget._gramps_cancel = QPushButton('Cancel')
-        self._widget._gramps_cancel.released.connect(self.close)
-        self._layout.addWidget(self._widget._gramps_cancel)
-
-        @catch_exceptions
-        def save_and_close_family_tree() -> None:
-            self._family_trees.append(self.family_tree)
-            self.close()
-        self._widget._gramps_save_and_close = QPushButton('Save and close')
-        self._widget._gramps_save_and_close.released.connect(save_and_close_family_tree)
-        self._layout.addWidget(self._widget._gramps_save_and_close)
-
-
-# @todo What if two of these are opened at the same time? It could allow people to remove a tree twice, the second time resulting in an error.
-class _EditFamilyTreeWindow(_FamilyTreeWindow):
-    title = 'Change family tree'
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        @catch_exceptions
-        def remove_family_tree() -> None:
-            self._family_trees.remove(self.family_tree)
-            self.close()
-        self._widget._gramps_remove = QPushButton('Remove')
-        self._widget._gramps_remove.released.connect(remove_family_tree)
-        self._layout.addWidget(self._widget._gramps_remove)

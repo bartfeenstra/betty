@@ -20,11 +20,11 @@ while read -r configuration_path; do
     npm run eslint -- -c "$configuration_path" "$(dirname "${configuration_path}")/**/*.js"
 done < <(find ./ -name .eslintrc.yaml)
 
-# Run Python unit and integration tests with coverage.
+# Run Python tests with coverage.
 coverage erase
-PYTHONUTF8=1 coverage run -m nose2
+PYTHONUTF8=1 coverage run -a -m nose2
+PYTHONUTF8=1 coverage run -a -m pytest
 coverage report -m
-pytest ./betty/pytests
 
 # Run end-to-end (e2e) tests.
 npm run cypress -- run
