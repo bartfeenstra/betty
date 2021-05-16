@@ -2,8 +2,9 @@ import asyncio
 from collections import defaultdict
 from typing import Type, Set, Optional, Any, List, Dict
 
+from tsorted import tsorted_grouped, Graph
+
 from betty.dispatch import Dispatcher, TargetedDispatcher
-from betty.graph import Graph, tsort_grouped
 
 
 class Extension:
@@ -74,7 +75,7 @@ class ExtensionDispatcher(Dispatcher):
                 await asyncio.gather(*[
                     getattr(target_extensions[target_extension_type], target_method_name)(*args, **kwargs) for
                     target_extension_type in target_extension_type_group if issubclass(target_extension_type, target_type)
-                ]) for target_extension_type_group in tsort_grouped(target_extension_graph)
+                ]) for target_extension_type_group in tsorted_grouped(target_extension_graph)
             ]
         return _dispatch
 

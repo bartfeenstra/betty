@@ -56,6 +56,7 @@ SETUP = {
         'pdf2image ~= 1.14 ',
         'python-resize-image ~= 1.1',
         'pyyaml ~= 5.4',
+        'tsorted ~= 0.1',
         'voluptuous ~= 0.12',
     ],
     'extras_require': {

@@ -1,12 +1,12 @@
 from typing import List, Type, Set, Dict, Optional
 
+from tsorted import CyclicGraphError
 from voluptuous import Schema, Required, Invalid
 
 from betty import extension
 from betty.ancestry import Ancestry
 from betty.config import Configuration, ConfigurationValueError
 from betty.asyncio import sync
-from betty.graph import CyclicGraphError
 from betty.app import App
 from betty.tests import TestCase
 

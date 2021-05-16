@@ -4,6 +4,7 @@ from concurrent.futures._base import Executor
 from concurrent.futures.thread import ThreadPoolExecutor
 
 from jinja2 import Environment
+from tsorted import tsorted_grouped
 
 from betty.concurrent import ExceptionRaisingExecutor
 from betty.dispatch import Dispatcher
@@ -22,7 +23,6 @@ from typing import Type, Dict
 from betty.ancestry import Ancestry
 from betty.config import Configuration
 from betty.fs import FileSystem
-from betty.graph import tsort_grouped
 from betty.locale import open_translations, Translations, negotiate_locale
 from betty.url import AppUrlGenerator, StaticPathUrlGenerator, LocalizedUrlGenerator, StaticUrlGenerator
 
@@ -89,7 +89,7 @@ class App:
         return self._configuration.default_locale
 
     def _init_extensions(self) -> None:
-        for grouped_extension_types in tsort_grouped(build_extension_type_graph(set(self._configuration.extensions.keys()))):
+        for grouped_extension_types in tsorted_grouped(build_extension_type_graph(set(self._configuration.extensions.keys()))):
             for extension_type in grouped_extension_types:
                 extension_args = []
                 if issubclass(extension_type, ConfigurableExtension) and extension_type in self.configuration.extensions:
