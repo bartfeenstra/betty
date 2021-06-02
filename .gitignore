@@ -16,6 +16,9 @@ __pycache__
 
 # PyInstaller build artifacts.
 
+# Snap build artifacts.
+*.snap
+
 # Test artifacts.
 /.coverage
 /.coverage.*

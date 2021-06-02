@@ -1,0 +1,200 @@
+#name: betty
+#title: Betty
+#base: core18
+### @todo Make this a template variable
+#version: '0.1' # just for humans, typically '1.2+git' or '1.3.2'
+#summary: Betty is a static ancestry site generator.
+#description: |
+#  Betty generates static websites from Gramps and GEDCOM family trees. This means that once your site has been
+#  generated, you will not need any special software to publish it. It's fast and secure.
+#
+#  - Builds pages for people, places, events, and media.
+#  - Renders interactive maps.
+#  - Fully multilingual: localize the site to one or more languages of your choice.
+#  - Responsive, and mobile- and touch-friendly interface.
+#  - Privacy and anonymization filters for living people.
+#icon: ./betty/assets/public/static/betty-512x512.png
+#license: GPL-3.0
+#
+## @todo Make this a template variable
+#grade: devel # must be 'stable' to release into candidate/stable channels
+## @todo Make this a template variable
+##confinement: devmode # use 'strict' once you have the right plugs and slots
+#confinement: strict # use 'strict' once you have the right plugs and slots
+#
+#parts:
+#  betty:
+#    plugin: python
+#    source: .
+#    filesets:
+#      excludes:
+#        # Build artifacts.
+#        - -.tox
+#        - -betty.egg-info
+#        - -build
+#        - -dist
+#        - -node_modules
+#        - -package-lock.json
+#        - -*.pyc
+#
+#        # Test artifacts.
+#        - -.coverage
+#        - -cypress/screenshots
+#        - -cypress/app
+#    stage:
+#      - $excludes
+#    stage-packages:
+#      - libfreetype6
+#      - libpng16-16
+#      - libqt5core5a
+#      - libqt53danimation5
+#      - libqt53dcore5
+#      - libqt53dinput5
+#      - libqt53dlogic5
+#      - libqt53dquick5
+#      - libqt53dquickscene2d5
+#      - libqt53drender5
+##      - libqt5gamepad5-dev
+#      - libwayland-cursor0
+#      - libwayland-egl1
+#
+#
+#      # @todo FROM https://pakjiddat.netlify.app/posts/creating-snaps-for-pyqt5-applications
+#      - libdouble-conversion1
+#      - libdrm2
+#      - libegl1
+#      - libfontconfig1
+##      - libfreetype6
+#      - libgbm1
+#      - libgl1
+#      - libglvnd0
+#      - libglx0
+#      - libgraphite2-3
+#      - libharfbuzz0b
+#      - libice6
+#      - libicu60
+#      - libjpeg-turbo8
+##      - libpng16-16
+#      - libsm6
+#      - libwayland-server0
+#      - libx11-6
+#      - libx11-xcb1
+#      - libxau6
+#      - libxcb-glx0
+#      - libxcb-xkb1
+#      - libxcb1
+#      - libxdmcp6
+#      - libxkbcommon-x11-0
+#      - libxkbcommon0
+#      - libxrender1
+#    # See 'snapcraft plugins'
+#  desktop:
+#    plugin: dump
+#    source: .
+#    organize:
+#      snap/local/betty.desktop: /usr/share/applications/betty.desktop
+#    after:
+#      - betty
+#
+#apps:
+#  betty:
+#    command: betty
+#    environment:
+#      LC_ALL: C.UTF-8
+#      LANG: C.UTF-8
+#    plugs:
+#      - home
+#      - network
+#      - network-bind
+#      - removable-media
+#    desktop: /usr/share/applications/betty.desktop
+
+
+
+name: betty
+base: core18
+license: GPL-3.0
+adopt-info: betty
+
+# @todo Make this a template variable
+grade: devel # must be 'stable' to release into candidate/stable channels
+# @todo Make this a template variable
+confinement: devmode # use 'strict' once you have the right plugs and slots
+
+parts:
+  betty:
+    parse-info:
+      - ./snap/local/betty.metainfo.xml
+    plugin: python
+    source: .
+#    stage-snaps:
+#      - kde-frameworks-5-core18-sdk
+#      - kde-frameworks-5-core18
+#    stage-packages:
+#      - libmpfr-dev
+#      - libgmp-dev
+#      - kdoctools-dev
+#      - libmpfr6
+#      - libgmp10
+#      # @todo FROM https://pakjiddat.netlify.app/posts/creating-snaps-for-pyqt5-applications
+#      - libdouble-conversion1
+#      - libdrm2
+#      - libegl1
+#      - libfontconfig1
+#      - libfreetype6
+#      - libgbm1
+#      - libgl1
+#      - libglvnd0
+#      - libglx0
+#      - libgraphite2-3
+#      - libharfbuzz0b
+#      - libice6
+#      - libicu60
+#      - libjpeg-turbo8
+#      - libpng16-16
+#      - libsm6
+#      - libwayland-server0
+#      - libx11-6
+#      - libx11-xcb1
+#      - libxau6
+#      - libxcb-glx0
+#      - libxcb-xkb1
+#      - libxcb1
+#      - libxdmcp6
+#      - libxkbcommon-x11-0
+#      - libxkbcommon0
+#      - libxrender1
+#      # @todo FROM https://stackoverflow.com/questions/56638781/rstudio-is-not-running-on-ubuntu-16-04-qt-qpa-xcb-could-not-connect-to-displa
+#      - libqt5x11extras5
+#      - libqt5x11extras5-dev
+#    configflags:
+#      - "-DKDE_INSTALL_USE_QT_SYS_PATHS=ON"
+#      - "-DCMAKE_INSTALL_PREFIX=/usr"
+#      - "-DCMAKE_BUILD_TYPE=Release"
+#      - "-DENABLE_TESTING=OFF"
+#      - "-DBUILD_TESTING=OFF"
+#      - "-DKDE_SKIP_TEST_SETTINGS=ON"
+#    build-environment:
+#      - QT_QPA_PLATFORM: wayland
+
+apps:
+  betty:
+    common-id: com.bartfeenstra.betty
+    command: betty
+    environment:
+      QT_QPA_PLATFORM: wayland
+    extensions:
+      - kde-neon
+    plugs:
+      - home
+      - opengl
+      - network
+      - network-bind
+      - removable-media
+      # @todo https://pakjiddat.netlify.app/posts/creating-snaps-for-pyqt5-applications
+#      - desktop
+#      - desktop-legacy
+#      - x11
+      - unity7
+      - wayland
+#      - opengl

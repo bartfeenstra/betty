@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Betty
+Comment=Betty is a static ancestry site generator.
+Exec=betty gui
+Icon=${SNAP}/usr/share/applications/app-icon.svg
+Terminal=false
+Type=Application
+Version=0.0.0
