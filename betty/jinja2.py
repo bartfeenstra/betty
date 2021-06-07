@@ -92,7 +92,7 @@ class BettyEnvironment(Environment):
     app: App
 
     def __init__(self, app: App):
-        template_directory_paths = [str(path / 'templates') for path in app.assets.paths]
+        template_directory_paths = [str(path / 'templates') for path, _ in app.assets.paths]
 
         Environment.__init__(self,
                              loader=FileSystemLoader(template_directory_paths),
@@ -206,7 +206,7 @@ class Jinja2Renderer(Renderer):
         root_path = rootname(file_path)
         template_name = '/'.join(Path(file_path).relative_to(root_path).parts)
         template = FileSystemLoader(root_path).load(self._environment, template_name, self._environment.globals)
-        with open(file_destination_path_str, 'w') as f:
+        with open(file_destination_path_str, 'w', encoding='utf-8') as f:
             f.write(template.render(data))
         os.remove(file_path)
 

@@ -1,7 +1,5 @@
 import logging
-import os
 import shutil
-import subprocess
 import sys
 import time
 from contextlib import suppress, contextmanager
@@ -126,22 +124,6 @@ class _BettyCommands(click.MultiCommand):
             return ctx.obj['commands'][cmd_name]
 
 
-def ensure_utf8(f: Callable) -> Callable:
-    if not sys.platform.startswith('win32'):
-        return f
-    with suppress(KeyError):
-        if os.environ['PYTHONUTF8'] == '1':
-            return f
-
-    @wraps(f)
-    def _with_utf8(*args, **kwargs):
-        env = os.environ
-        env['PYTHONUTF8'] = '1'
-        subprocess.run(sys.argv, env=env)
-    return _with_utf8
-
-
-@ensure_utf8
 @click.command(cls=_BettyCommands)
 @click.option('--configuration', '-c', 'app', is_eager=True, help='The path to a Betty configuration file. Defaults to betty.json|yaml|yml in the current working directory. This will make additional commands available.', callback=_init_ctx)
 @click.version_option(about.version(), prog_name='Betty')
@@ -180,3 +162,6 @@ async def _serve(app: App):
     async with serve.AppServer(app):
         while True:
             time.sleep(999)
+
+if __name__ == "__main__":
+    main()

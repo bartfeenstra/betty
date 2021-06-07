@@ -12,7 +12,7 @@ from typing import Optional, Dict, Callable, Tuple, Iterable, Set
 
 import aiohttp
 from babel import parse_locale
-from jinja2 import contextfilter
+from jinja2 import pass_context
 
 from betty.ancestry import Link, HasLinks, Resource
 from betty.app import App, AppAwareFactory
@@ -83,15 +83,15 @@ class _Retriever:
         response_data = None
         with suppress(FileNotFoundError):
             if getmtime(cache_file_path) + self._ttl > time():
-                with open(cache_file_path) as f:
+                with open(cache_file_path, encoding='utf-8') as f:
                     response_data = load(f)
 
         if response_data is None:
             logger = logging.getLogger()
             try:
                 async with self._session.get(url) as response:
-                    response_data = await response.json()
-                    with open(cache_file_path, 'w') as f:
+                    response_data = await response.json(encoding='utf-8')
+                    with open(cache_file_path, 'w', encoding='utf-8') as f:
                         f.write(await response.text())
             except aiohttp.ClientError as e:
                 logger.warning('Could not successfully connect to Wikipedia at %s: %s' % (url, e))
@@ -100,7 +100,7 @@ class _Retriever:
 
         if response_data is None:
             try:
-                with open(cache_file_path) as f:
+                with open(cache_file_path, encoding='utf-8') as f:
                     response_data = load(f)
             except FileNotFoundError:
                 raise RetrievalError('Could neither fetch %s, nor find an old version in the cache.' % url)
@@ -227,7 +227,7 @@ class Wikipedia(Extension, AppAwareFactory, Jinja2Provider, PostLoader):
             'wikipedia': self._filter_wikipedia_links,
         }
 
-    @contextfilter
+    @pass_context
     def _filter_wikipedia_links(self, context, links: Iterable[Link]) -> Iterable[Entry]:
         locale = parse_locale(context.resolve_or_missing('locale'), '-')[0]
         futures = [self._app.executor.submit(self._filter_wikipedia_link, locale, link) for link in links]

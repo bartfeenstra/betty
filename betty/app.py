@@ -32,7 +32,7 @@ class App:
         self._app_stack = []
         self._ancestry = Ancestry()
         self._configuration = configuration
-        self._assets = FileSystem(Path(__file__).parent / 'assets')
+        self._assets = FileSystem((Path(__file__).parent / 'assets', 'utf-8'))
         self._dispatcher = None
         self._localized_url_generator = AppUrlGenerator(configuration)
         self._static_url_generator = StaticPathUrlGenerator(configuration)
@@ -111,16 +111,14 @@ class App:
     def _init_assets(self) -> None:
         for extension in self._extensions.values():
             if extension.assets_directory_path is not None:
-                self._assets.paths.appendleft(
-                    extension.assets_directory_path)
+                self._assets.paths.appendleft((extension.assets_directory_path, 'utf-8'))
         if self._configuration.assets_directory_path:
-            self._assets.paths.appendleft(
-                self._configuration.assets_directory_path)
+            self._assets.paths.appendleft((self._configuration.assets_directory_path, None))
 
     def _init_translations(self) -> None:
         self._translations['en-US'] = gettext.NullTranslations()
         for locale in self._configuration.locales:
-            for assets_path in reversed(self._assets.paths):
+            for assets_path, _ in reversed(self._assets.paths):
                 translations = open_translations(locale, assets_path)
                 if translations:
                     translations.add_fallback(self._translations[locale])

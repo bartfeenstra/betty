@@ -49,7 +49,7 @@ class FileSystemTest(TestCase):
                 with open(Path(source_path_2) / 'bananas', 'w') as f:
                     f.write('bananas')
 
-                sut = FileSystem(source_path_1, source_path_2)
+                sut = FileSystem((source_path_1, None), (source_path_2, None))
 
                 with await sut.open('apples') as f:
                     self.assertEquals('apples', f.read())
@@ -75,7 +75,7 @@ class FileSystemTest(TestCase):
                 with open(Path(source_path_2) / 'apples', 'w') as f:
                     f.write('notpinkladies')
 
-                sut = FileSystem(source_path_1, source_path_2)
+                sut = FileSystem((source_path_1, None), (source_path_2, None))
 
                 with await sut.open('pinkladies', 'apples') as f:
                     self.assertEquals('pinkladies', f.read())
@@ -91,7 +91,7 @@ class FileSystemTest(TestCase):
                 with open(Path(source_path_2) / 'apples', 'w') as f:
                     f.write('notpinkladies')
 
-                sut = FileSystem(source_path_1, source_path_2)
+                sut = FileSystem((source_path_1, None), (source_path_2, None))
 
                 with await sut.open('pinkladies', 'apples') as f:
                     self.assertEquals('pinkladies', f.read())
@@ -105,7 +105,7 @@ class FileSystemTest(TestCase):
                 with open(Path(source_path_2) / 'apples', 'w') as f:
                     f.write('notapples')
 
-                sut = FileSystem(source_path_1, source_path_2)
+                sut = FileSystem((source_path_1, None), (source_path_2, None))
 
                 with await sut.open('pinkladies', 'apples') as f:
                     self.assertEquals('apples', f.read())
@@ -124,7 +124,7 @@ class FileSystemTest(TestCase):
                     f.write('bananas')
 
                 with TemporaryDirectory() as destination_path:
-                    sut = FileSystem(source_path_1, source_path_2)
+                    sut = FileSystem((source_path_1, None), (source_path_2, None))
 
                     await sut.copy2('apples', destination_path)
                     await sut.copy2('oranges', destination_path)
@@ -156,7 +156,7 @@ class FileSystemTest(TestCase):
                     f.write('bananas')
 
                 with TemporaryDirectory() as destination_path:
-                    sut = FileSystem(source_path_1, source_path_2)
+                    sut = FileSystem((source_path_1, None), (source_path_2, None))
 
                     await sut.copytree('', destination_path)
 
