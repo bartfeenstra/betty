@@ -7,7 +7,7 @@ import warnings
 from contextlib import suppress
 from os.path import join, relpath
 from pathlib import Path
-from typing import Dict, Callable, Iterable, Type, Optional, Any, Union, Iterator
+from typing import Dict, Callable, Iterable, Type, Optional, Any, Union, Iterator, AsyncIterable
 
 import pdf2image
 from PIL import Image
@@ -15,10 +15,10 @@ from PIL.Image import DecompressionBombWarning
 from babel import Locale
 from geopy import units
 from geopy.format import DEGREES_FORMAT
-from jinja2 import Environment, select_autoescape, evalcontextfilter, escape, FileSystemLoader, contextfilter, Template
+from jinja2 import Environment, select_autoescape, escape, FileSystemLoader, pass_context, pass_eval_context, Template
 from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.nodes import EvalContext
-from jinja2.runtime import Macro, resolve_or_missing, StrictUndefined, Context
+from jinja2.runtime import StrictUndefined, Context, Macro
 from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup
 from resizeimage import resizeimage
@@ -216,30 +216,30 @@ class Jinja2Renderer(Renderer):
         )
 
 
-@contextfilter
+@pass_context
 def _filter_url(context: Context, resource: Any, media_type: Optional[str] = None, locale: Optional[str] = None, **kwargs) -> str:
     media_type = 'text/html' if media_type is None else media_type
-    locale = locale if locale else resolve_or_missing(context, 'locale')
+    locale = locale if locale else context.resolve_or_missing('locale')
     return context.environment.app.localized_url_generator.generate(resource, media_type, locale=locale, **kwargs)
 
 
-@contextfilter
+@pass_context
 def _filter_json(context: Context, data: Any, indent: Optional[int] = None) -> str:
     """
     Converts a value to a JSON string.
     """
     return stdjson.dumps(data, indent=indent,
-                         cls=JSONEncoder.get_factory(context.environment.app, resolve_or_missing(context, 'locale')))
+                         cls=JSONEncoder.get_factory(context.environment.app, context.resolve_or_missing('locale')))
 
 
-@contextfilter
+@pass_context
 def _filter_tojson(context: Context, data: Any, indent: Optional[int] = None) -> str:
     """
     Converts a value to a JSON string safe for use in an HTML document.
 
     This mimics Jinja2's built-in JSON filter, but uses Betty's own JSON encoder.
     """
-    return htmlsafe_json_dumps(data, indent=indent, dumper=lambda *args, **kwargs: _filter_json(context, *args, **kwargs))
+    return htmlsafe_json_dumps(data, indent=indent, dumps=lambda *args, **kwargs: _filter_json(context, *args, **kwargs))
 
 
 def _filter_flatten(items: Union[Iterable, Iterable]) -> Iterable:
@@ -255,7 +255,7 @@ def _filter_walk(item: Any, attribute_name: str) -> Iterable[Any]:
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
 
 
-@evalcontextfilter
+@pass_eval_context
 def _filter_paragraphs(eval_ctx: EvalContext, text: str) -> Union[str, Markup]:
     """Converts newlines to <p> and <br> tags.
 
@@ -289,20 +289,19 @@ def _filter_unique(items: Iterable) -> Iterator:
             seen.append(item)
 
 
-@contextfilter
-def _filter_map(*args, **kwargs):
+@pass_context
+def _filter_map(context: Context, value: Union[AsyncIterable, Iterable], *args: Any, **kwargs: Any,):
     """
     Maps an iterable's values.
 
     This mimics Jinja2's built-in map filter, but allows macros as callbacks.
     """
-    if len(args) == 3 and isinstance(args[2], Macro):
-        seq = args[1]
-        func = args[2]
-    else:
-        seq, func = prepare_map(args, kwargs)
-    if seq:
-        for item in seq:
+    if value:
+        if len(args) > 0 and isinstance(args[0], Macro):
+            func = args[0]
+        else:
+            func = prepare_map(context, args, kwargs)
+        for item in value:
             yield func(item)
 
 
@@ -407,15 +406,15 @@ def _execute_filter_image(image: Image, file_path: str, cache_directory_path: st
         link_or_copy(cache_file_path, destination_file_path)
 
 
-@contextfilter
+@pass_context
 def _filter_negotiate_localizeds(context: Context, localizeds: Iterable[Localized]) -> Optional[Localized]:
-    locale = resolve_or_missing(context, 'locale')
+    locale = context.resolve_or_missing('locale')
     return negotiate_localizeds(locale, list(localizeds))
 
 
-@contextfilter
+@pass_context
 def _filter_sort_localizeds(context: Context, localizeds: Iterable[Localized], localized_attribute: str, sort_attribute: str) -> Iterable[Localized]:
-    locale = resolve_or_missing(context, 'locale')
+    locale = context.resolve_or_missing('locale')
     get_localized_attr = make_attrgetter(
         context.environment, localized_attribute)
     get_sort_attr = make_attrgetter(context.environment, sort_attribute)
@@ -426,9 +425,9 @@ def _filter_sort_localizeds(context: Context, localizeds: Iterable[Localized], l
     return sorted(localizeds, key=_get_sort_key)
 
 
-@contextfilter
+@pass_context
 def _filter_select_localizeds(context: Context, localizeds: Iterable[Localized], include_unspecified: bool = False) -> Iterable[Localized]:
-    locale = resolve_or_missing(context, 'locale')
+    locale = context.resolve_or_missing('locale')
     for localized in localizeds:
         if include_unspecified and localized.locale in {None, 'mis', 'mul', 'und', 'zxx'}:
             yield localized
@@ -436,20 +435,20 @@ def _filter_select_localizeds(context: Context, localizeds: Iterable[Localized],
             yield localized
 
 
-@contextfilter
+@pass_context
 def _filter_negotiate_dateds(context: Context, dateds: Iterable[Dated], date: Optional[Datey]) -> Optional[Dated]:
     with suppress(StopIteration):
         return next(_filter_select_dateds(context, dateds, date))
 
 
-@contextfilter
+@pass_context
 def _filter_select_dateds(context: Context, dateds: Iterable[Dated], date: Optional[Datey]) -> Iterator[Dated]:
     if date is None:
-        date = resolve_or_missing(context, 'today')
+        date = context.resolve_or_missing('today')
     return filter(lambda dated: dated.date is None or dated.date.comparable and dated.date in date, dateds)
 
 
-@contextfilter
+@pass_context
 def _filter_format_date(context: Context, date: Datey) -> str:
-    locale = resolve_or_missing(context, 'locale')
+    locale = context.resolve_or_missing('locale')
     return format_datey(date, locale)

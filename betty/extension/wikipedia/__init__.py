@@ -12,7 +12,6 @@ from typing import Optional, Dict, Callable, Tuple, Iterable, Set
 import aiohttp
 from babel import parse_locale
 from jinja2 import contextfilter
-from jinja2.runtime import resolve_or_missing
 
 from betty.ancestry import Link, HasLinks, Resource
 from betty.app import App, AppAwareFactory
@@ -231,7 +230,7 @@ class Wikipedia(Extension, AppAwareFactory, Jinja2Provider, PostLoader):
 
     @contextfilter
     def _filter_wikipedia_links(self, context, links: Iterable[Link]) -> Iterable[Entry]:
-        locale = parse_locale(resolve_or_missing(context, 'locale'), '-')[0]
+        locale = parse_locale(context.resolve_or_missing('locale'), '-')[0]
         futures = [self._app.executor.submit(self._filter_wikipedia_link, locale, link) for link in links]
         return filter(None, [future.result() for future in as_completed(futures)])
 
