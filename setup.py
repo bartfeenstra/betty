@@ -48,7 +48,7 @@ SETUP = {
         'async_generator ~= 1.10; python_version <= "3.6"',
         'babel ~= 2.9',
         'click ~= 8.0.1',
-        'docker ~= 4.4',
+        'docker ~= 5.0.0',
         'geopy ~= 2.1',
         'jinja2 ~= 2.11',
         'jsonschema ~= 3.2',
