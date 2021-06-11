@@ -64,8 +64,7 @@ SETUP = {
             'autopep8 ~= 1.5',
             'codecov ~= 2.1',
             'coverage ~= 5.5',
-            # flake8 3.8 fails on circular imports caused by string-based type hints.
-            'flake8 ~= 3.7.0',
+            'flake8 ~= 3.9.2',
             'html5lib ~= 1.1',
             'mock ~= 4.0; python_version <= "3.7"',
             'lxml ~= 4.6',
