@@ -71,7 +71,7 @@ SETUP = {
             'lxml ~= 4.6',
             'nose2 ~= 0.10',
             'parameterized ~= 0.8',
-            'setuptools ~= 54.2',
+            'setuptools ~= 57.0.0',
             'twine ~= 3.4',
             'wheel ~= 0.36',
         ],
