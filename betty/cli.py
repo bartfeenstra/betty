@@ -10,7 +10,7 @@ from os import getcwd, path
 from typing import Callable, Dict, Optional
 
 import click
-from click import get_current_context
+from click import get_current_context, Context, Option
 
 import betty
 from betty import generate, load, serve, about, demo
@@ -73,7 +73,7 @@ def app_command(f):
 
 @catch_exceptions()
 @sync
-async def _init_ctx(ctx, configuration_file_path: Optional[str] = None) -> None:
+async def _init_ctx(ctx: Context, _: Optional[Option] = None, configuration_file_path: Optional[str] = None) -> None:
     ctx.ensure_object(dict)
 
     if 'initialized' in ctx.obj:
@@ -116,12 +116,12 @@ async def _init_ctx(ctx, configuration_file_path: Optional[str] = None) -> None:
 
 class _BettyCommands(click.MultiCommand):
     @catch_exceptions()
-    def list_commands(self, ctx):
+    def list_commands(self, ctx: Context):
         _init_ctx(ctx)
         return list(ctx.obj['commands'].keys())
 
     @catch_exceptions()
-    def get_command(self, ctx, cmd_name):
+    def get_command(self, ctx: Context, cmd_name: str):
         _init_ctx(ctx)
         with suppress(KeyError):
             return ctx.obj['commands'][cmd_name]
