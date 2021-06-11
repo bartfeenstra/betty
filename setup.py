@@ -47,7 +47,7 @@ SETUP = {
         'async-exit-stack ~= 1.0; python_version <= "3.6"',
         'async_generator ~= 1.10; python_version <= "3.6"',
         'babel ~= 2.9',
-        'click ~= 7.1',
+        'click ~= 8.0.1',
         'docker ~= 4.4',
         'geopy ~= 2.1',
         'jinja2 ~= 2.11',

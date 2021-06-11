@@ -57,7 +57,6 @@ Options:
                             to betty.json|yaml|yml in the current working
                             directory. This will make additional commands
                             available.
-
   --version                 Show the version and exit.
   --help                    Show this message and exit.
 
