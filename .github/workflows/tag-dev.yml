@@ -1,0 +1,22 @@
+name: Tag development releases
+
+on:
+  push:
+    branches:
+      - master
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the source code
+        uses: actions/checkout@v2
+
+      - name: Tag the development release
+        run: git tag master-dev
+
+      - name: Push the tag
+        run: git push origin master-dev
