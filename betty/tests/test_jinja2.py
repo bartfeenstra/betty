@@ -1,4 +1,4 @@
-from os import makedirs, path
+from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import List, Dict, Optional, Iterable, Type
 from unittest import TestCase
@@ -37,13 +37,13 @@ class Jinja2RendererTest(TestCase):
                 template = '{% if true %}true{% endif %}'
                 expected_output = 'true'
                 with TemporaryDirectory() as working_directory_path:
-                    template_file_path = path.join(working_directory_path, 'betty.txt.j2')
+                    template_file_path = Path(working_directory_path) / 'betty.txt.j2'
                     with open(template_file_path, 'w') as f:
                         f.write(template)
                     await sut.render_file(template_file_path)
-                    with open(path.join(working_directory_path, 'betty.txt')) as f:
+                    with open(Path(working_directory_path) / 'betty.txt') as f:
                         self.assertEquals(expected_output, f.read().strip())
-                    self.assertFalse(path.exists(template_file_path))
+                    self.assertFalse(template_file_path.exists())
 
     @sync
     async def test_render_tree(self) -> None:
@@ -54,15 +54,15 @@ class Jinja2RendererTest(TestCase):
                 template = '{% if true %}true{% endif %}'
                 expected_output = 'true'
                 with TemporaryDirectory() as working_directory_path:
-                    working_subdirectory_path = path.join(working_directory_path, 'sub')
-                    makedirs(working_subdirectory_path)
-                    scss_file_path = path.join(working_subdirectory_path, 'betty.txt.j2')
+                    working_subdirectory_path = Path(working_directory_path) / 'sub'
+                    working_subdirectory_path.mkdir(parents=True)
+                    scss_file_path = Path(working_subdirectory_path) / 'betty.txt.j2'
                     with open(scss_file_path, 'w') as f:
                         f.write(template)
                     await sut.render_tree(working_directory_path)
-                    with open(path.join(working_subdirectory_path, 'betty.txt')) as f:
+                    with open(Path(working_subdirectory_path) / 'betty.txt') as f:
                         self.assertEquals(expected_output, f.read().strip())
-                    self.assertFalse(path.exists(scss_file_path))
+                    self.assertFalse(scss_file_path.exists())
 
 
 class FilterFlattenTest(TemplateTestCase):
@@ -160,9 +160,16 @@ class FilterMapTest(TemplateTestCase):
 
 class FilterFileTest(TemplateTestCase):
     @parameterized.expand([
-        ('/file/F1.py', '{{ file | file }}', File('F1', __file__)),
-        ('/file/F1.py:/file/F1.py',
-         '{{ file | file }}:{{ file | file }}', File('F1', __file__)),
+        (
+            '/file/F1/file/test_jinja2.py',
+            '{{ file | file }}',
+            File('F1', Path(__file__)),
+        ),
+        (
+            '/file/F1/file/test_jinja2.py:/file/F1/file/test_jinja2.py',
+            '{{ file | file }}:{{ file | file }}',
+            File('F1', Path(__file__)),
+        ),
     ])
     @sync
     async def test(self, expected, template, file):
@@ -171,11 +178,11 @@ class FilterFileTest(TemplateTestCase):
         }) as (actual, app):
             self.assertEquals(expected, actual)
             for file_path in actual.split(':'):
-                self.assertTrue(path.exists(path.join(app.configuration.www_directory_path, file_path[1:])))
+                self.assertTrue((app.configuration.www_directory_path / file_path[1:]).exists())
 
 
 class FilterImageTest(TemplateTestCase):
-    image_path = path.join(path.dirname(path.dirname(__file__)), 'assets', 'public', 'static', 'betty-512x512.png')
+    image_path = Path(__file__).parents[1] / 'assets' / 'public' / 'static' / 'betty-512x512.png'
 
     @parameterized.expand([
         ('/file/F1-99x-.png',
@@ -194,7 +201,7 @@ class FilterImageTest(TemplateTestCase):
         }) as (actual, app):
             self.assertEquals(expected, actual)
             for file_path in actual.split(':'):
-                self.assertTrue(path.exists(path.join(app.configuration.www_directory_path, file_path[1:])))
+                self.assertTrue((app.configuration.www_directory_path / file_path[1:]).exists())
 
     @sync
     async def test_without_width(self):

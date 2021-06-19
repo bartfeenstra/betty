@@ -1,4 +1,4 @@
-from os.path import join, dirname, abspath
+from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Optional, Any, Dict
 
@@ -34,7 +34,7 @@ class LoadXmlTest(TestCase):
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with App(configuration) as app:
                 cls.ancestry = app.ancestry
-                xml_file_path = join(dirname(abspath(__file__)), 'assets', 'data.xml')
+                xml_file_path = Path(__file__).parent / 'assets' / 'data.xml'
                 with open(xml_file_path) as f:
                     load_xml(app.ancestry, f.read(), rootname(xml_file_path))
 
@@ -44,7 +44,7 @@ class LoadXmlTest(TestCase):
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with App(configuration) as app:
                 with TemporaryDirectory() as tree_directory_path:
-                    load_xml(app.ancestry, xml.strip(), tree_directory_path)
+                    load_xml(app.ancestry, xml.strip(), Path(tree_directory_path))
                     return app.ancestry
 
     def _load_partial(self, xml: str) -> Ancestry:
@@ -67,7 +67,7 @@ class LoadXmlTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with App(configuration) as app:
-                gramps_file_path = join(dirname(abspath(__file__)), 'assets', 'minimal.xml')
+                gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'
                 with open(gramps_file_path) as f:
                     load_xml(app.ancestry, f.read(), rootname(gramps_file_path))
 
@@ -76,7 +76,7 @@ class LoadXmlTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with App(configuration) as app:
-                gramps_file_path = join(dirname(abspath(__file__)), 'assets', 'minimal.xml')
+                gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'
                 load_xml(app.ancestry, gramps_file_path, rootname(gramps_file_path))
 
     @sync
@@ -84,7 +84,7 @@ class LoadXmlTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with App(configuration) as app:
-                gramps_file_path = join(dirname(abspath(__file__)), 'assets', 'minimal.gramps')
+                gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.gramps'
                 load_gramps(app.ancestry, gramps_file_path)
 
     @sync
@@ -92,7 +92,7 @@ class LoadXmlTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://example.com')
             async with App(configuration) as app:
-                gramps_file_path = join(dirname(abspath(__file__)), 'assets', 'minimal.gpkg')
+                gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.gpkg'
                 load_gpkg(app.ancestry, gramps_file_path)
 
     def test_place_should_include_name(self):
@@ -657,12 +657,13 @@ class GrampsTest(TestCase):
   </notes>
 </database>
 """.strip()
-        with TemporaryDirectory() as working_directory:
-            gramps_family_tree_one_path = join(working_directory, 'one.xml')
+        with TemporaryDirectory() as working_directory_path_str:
+            working_directory_path = Path(working_directory_path_str)
+            gramps_family_tree_one_path = working_directory_path / 'one.xml'
             with open(gramps_family_tree_one_path, mode='w') as f:
                 f.write(family_tree_one_xml)
 
-            gramps_family_tree_two_path = join(working_directory, 'two.xml')
+            gramps_family_tree_two_path = working_directory_path / 'two.xml'
             with open(gramps_family_tree_two_path, mode='w') as f:
                 f.write(family_tree_two_xml)
 

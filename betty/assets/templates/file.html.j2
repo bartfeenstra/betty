@@ -29,7 +29,7 @@
     <div id="file-extended-{{ file.id }}" class="file-extended">
         <ul class="file-controls">
             <li><a href="{{ file | file | static_url }}" title="View original in full">⇔</a></li>
-            <li><a href="{{ file | file | static_url }}" download="{{ file.name | escape }}" title="Download this file">⇓</a></li>
+            <li><a href="{{ file | file | static_url }}" download="{{ file.path.name | escape }}" title="Download this file">⇓</a></li>
             <li><a href="{{ file | url }}" title="More details">ℹ</a></li>
             <li class="file-extended-close"><a href="#file-{{ file.id }}" title="Close this file">×</a></li>
             {% if previous_file is defined %}

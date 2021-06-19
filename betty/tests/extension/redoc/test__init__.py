@@ -1,4 +1,4 @@
-from os import path
+from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from betty.config import Configuration
@@ -13,10 +13,11 @@ class ReDocTest(TestCase):
     @patch_cache
     @sync
     async def test(self):
-        with TemporaryDirectory() as output_directory_path:
+        with TemporaryDirectory() as output_directory_path_str:
+            output_directory_path = Path(output_directory_path_str)
             configuration = Configuration(output_directory_path, 'https://ancestry.example.com')
             configuration.extensions[ReDoc] = None
             async with App(configuration) as app:
                 await generate(app)
-            self.assertTrue(path.isfile(path.join(output_directory_path, 'www', 'api', 'index.html')))
-            self.assertTrue(path.isfile(path.join(output_directory_path, 'www', 'redoc.js')))
+            self.assertTrue((output_directory_path / 'www' / 'api' / 'index.html').is_file())
+            self.assertTrue((output_directory_path / 'www' / 'redoc.js').is_file())

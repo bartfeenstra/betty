@@ -1,5 +1,5 @@
 import json as stdjson
-from os import path
+from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import jsonschema
@@ -19,7 +19,7 @@ class BuildSpecificationTest(TestCase):
     ])
     @sync
     async def test(self, content_negotiation: str):
-        with open(path.join(path.dirname(__file__), 'test_openapi_assets', 'schema.json')) as f:
+        with open(Path(__file__).parent / 'test_openapi_assets' / 'schema.json') as f:
             schema = stdjson.load(f)
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(

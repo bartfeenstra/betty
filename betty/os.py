@@ -1,8 +1,11 @@
 import os
 import shutil
+from typing import Union
+
+PathLike = Union[str, os.PathLike]
 
 
-def link_or_copy(source_path: str, destination_path: str) -> None:
+def link_or_copy(source_path: PathLike, destination_path: PathLike) -> None:
     try:
         os.link(source_path, destination_path)
     except OSError:
@@ -10,7 +13,7 @@ def link_or_copy(source_path: str, destination_path: str) -> None:
 
 
 class ChDir:
-    def __init__(self, directory_path: str):
+    def __init__(self, directory_path: PathLike):
         self._directory_path = directory_path
         self._owd = None
 

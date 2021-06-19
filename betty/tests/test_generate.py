@@ -1,8 +1,7 @@
 import json as stdjson
 import sys
 import unittest
-from os import makedirs, path
-from os.path import join, exists
+from pathlib import Path
 from tempfile import TemporaryDirectory, NamedTemporaryFile
 
 import html5lib
@@ -20,25 +19,23 @@ from betty.tests import TestCase
 
 class GenerateTestCase(TestCase):
     def setUp(self):
-        self._outputDirectory = TemporaryDirectory()
+        self._output_directory = TemporaryDirectory()
         self.app = None
 
     def tearDown(self):
-        self._outputDirectory.cleanup()
+        self._output_directory.cleanup()
 
-    def assert_betty_html(self, path: str) -> str:
-        file_path = join(
-            self.app.configuration.www_directory_path, path.lstrip('/'))
-        self.assertTrue(exists(file_path), '%s does not exist' % file_path)
+    def assert_betty_html(self, url_path: str) -> Path:
+        file_path = self.app.configuration.www_directory_path / Path(url_path.lstrip('/'))
+        self.assertTrue(file_path.exists(), '%s does not exist' % file_path)
         with open(file_path) as f:
             parser = html5lib.HTMLParser(strict=True)
             parser.parse(f)
         return file_path
 
-    def assert_betty_json(self, path: str, schema_definition: str) -> str:
-        file_path = join(
-            self.app.configuration.www_directory_path, path.lstrip('/'))
-        self.assertTrue(exists(file_path), '%s does not exist' % file_path)
+    def assert_betty_json(self, url_path: str, schema_definition: str) -> str:
+        file_path = self.app.configuration.www_directory_path / Path(url_path.lstrip('/'))
+        self.assertTrue(file_path.exists(), '%s does not exist' % file_path)
         with open(file_path) as f:
             json.validate(stdjson.load(f), schema_definition, self.app)
         return file_path
@@ -47,8 +44,7 @@ class GenerateTestCase(TestCase):
 class RenderTest(GenerateTestCase):
     def setUp(self):
         GenerateTestCase.setUp(self)
-        configuration = Configuration(
-            self._outputDirectory.name, 'https://ancestry.example.com')
+        configuration = Configuration(self._output_directory.name, 'https://ancestry.example.com')
         self.app = App(configuration)
 
     @sync
@@ -64,8 +60,9 @@ class RenderTest(GenerateTestCase):
 
     @sync
     async def test_file(self):
+        # @todo This fails somewhere in file.html.j2, very likely because of jinja2._filter_file()
         with NamedTemporaryFile() as f:
-            file = File('PLACE1', f.name)
+            file = File('FILE1', Path(f.name))
             self.app.ancestry.files[file.id] = file
             await generate(self.app)
             self.assert_betty_html('/file/%s/index.html' % file.id)
@@ -140,8 +137,7 @@ class RenderTest(GenerateTestCase):
 class MultilingualTest(GenerateTestCase):
     def setUp(self):
         GenerateTestCase.setUp(self)
-        configuration = Configuration(
-            self._outputDirectory.name, 'https://ancestry.example.com')
+        configuration = Configuration(self._output_directory.name, 'https://ancestry.example.com')
         configuration.locales.clear()
         configuration.locales['nl'] = LocaleConfiguration('nl')
         configuration.locales['en'] = LocaleConfiguration('en')
@@ -181,16 +177,18 @@ class ResourceOverrideTest(GenerateTestCase):
     @sync
     async def test(self):
         with TemporaryDirectory() as output_directory_path:
-            with TemporaryDirectory() as assets_directory_path:
-                makedirs(join(assets_directory_path, 'public', 'localized'))
-                with open(join(assets_directory_path, 'public', 'localized', 'index.html.j2'), 'w') as f:
+            with TemporaryDirectory() as assets_directory_path_str:
+                assets_directory_path = Path(assets_directory_path_str)
+                localized_assets_directory_path = Path(assets_directory_path) / 'public' / 'localized'
+                localized_assets_directory_path.mkdir(parents=True)
+                with open(str(localized_assets_directory_path / 'index.html.j2'), 'w') as f:
                     f.write('{% block page_content %}Betty was here{% endblock %}')
                 configuration = Configuration(
                     output_directory_path, 'https://ancestry.example.com')
                 configuration.assets_directory_path = assets_directory_path
                 app = App(configuration)
                 await generate(app)
-                with open(join(configuration.www_directory_path, 'index.html')) as f:
+                with open(configuration.www_directory_path / 'index.html') as f:
                     self.assertIn('Betty was here', f.read())
 
 
@@ -198,16 +196,15 @@ class ResourceOverrideTest(GenerateTestCase):
 class SitemapRenderTest(GenerateTestCase):
     def setUp(self):
         GenerateTestCase.setUp(self)
-        configuration = Configuration(
-            self._outputDirectory.name, 'https://ancestry.example.com')
+        configuration = Configuration(self._output_directory.name, 'https://ancestry.example.com')
         self.app = App(configuration)
 
     @sync
     async def test_validate(self):
         await generate(self.app)
-        with open(path.join(path.dirname(__file__), 'test_generate_assets', 'sitemap.xsd')) as f:
+        with open(Path(__file__).parent / 'test_generate_assets' / 'sitemap.xsd') as f:
             schema_doc = etree.parse(f)
         schema = etree.XMLSchema(schema_doc)
-        with open(path.join(self.app.configuration.www_directory_path, 'sitemap.xml')) as f:
+        with open(self.app.configuration.www_directory_path / 'sitemap.xml') as f:
             sitemap_doc = etree.parse(f)
         schema.validate(sitemap_doc)

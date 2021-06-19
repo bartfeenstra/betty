@@ -1,5 +1,5 @@
 import gettext
-from os import makedirs, path
+from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import List, Optional
 
@@ -355,9 +355,10 @@ class OpenTranslationsTest(TestCase):
     def test(self) -> None:
         locale = 'nl-NL'
         locale_path_name = 'nl_NL'
-        with TemporaryDirectory() as assets_directory_path:
-            lc_messages_directory_path = path.join(assets_directory_path, 'locale', locale_path_name, 'LC_MESSAGES')
-            makedirs(lc_messages_directory_path)
+        with TemporaryDirectory() as assets_directory_path_str:
+            assets_directory_path = Path(assets_directory_path_str)
+            lc_messages_directory_path = assets_directory_path / 'locale' / locale_path_name / 'LC_MESSAGES'
+            lc_messages_directory_path.mkdir(parents=True)
             po = """
 # Dutch translations for PROJECT.
 # Copyright (C) 2019 ORGANIZATION
@@ -383,6 +384,6 @@ msgstr ""
 msgid "Subject"
 msgstr "Onderwerp"
 """
-            with open(path.join(lc_messages_directory_path, 'betty.po'), 'w') as f:
+            with open(lc_messages_directory_path / 'betty.po', 'w') as f:
                 f.write(po)
             self.assertIsInstance(open_translations(locale, assets_directory_path), gettext.NullTranslations)

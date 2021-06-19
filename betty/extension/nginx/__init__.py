@@ -1,4 +1,4 @@
-from os import path
+from pathlib import Path
 from typing import Optional, Iterable, Dict
 from urllib.parse import urlparse
 
@@ -18,7 +18,7 @@ class Nginx(ConfigurableExtension, AppAwareFactory, Generator, ServerProvider):
         'https': bool,
     })
 
-    def __init__(self, app: App, www_directory_path: Optional[str] = None, https: Optional[bool] = None):
+    def __init__(self, app: App, www_directory_path: Optional[Path] = None, https: Optional[bool] = None):
         self._https = https
         self._www_directory_path = www_directory_path
         self._app = app
@@ -49,8 +49,8 @@ class Nginx(ConfigurableExtension, AppAwareFactory, Generator, ServerProvider):
         await self._generate_dockerfile_file()
 
     @property
-    def assets_directory_path(self) -> Optional[str]:
-        return '%s/assets' % path.dirname(__file__)
+    def assets_directory_path(self) -> Optional[Path]:
+        return Path(__file__).parent / 'assets'
 
     @property
     def https(self) -> bool:
@@ -59,7 +59,7 @@ class Nginx(ConfigurableExtension, AppAwareFactory, Generator, ServerProvider):
         return self._https
 
     @property
-    def www_directory_path(self) -> str:
+    def www_directory_path(self) -> Path:
         if self._www_directory_path is None:
             return self._app.configuration.www_directory_path
         return self._www_directory_path
@@ -75,8 +75,8 @@ class Nginx(ConfigurableExtension, AppAwareFactory, Generator, ServerProvider):
             'www_directory_path': self._app.extensions[Nginx].www_directory_path,
         }, **kwargs)
         if destination_file_path is None:
-            destination_file_path = path.join(self._app.configuration.output_directory_path, 'nginx', 'nginx.conf')
+            destination_file_path = self._app.configuration.output_directory_path / 'nginx' / 'nginx.conf'
         await generate_configuration_file(destination_file_path, self._app.jinja2_environment, **kwargs)
 
     async def _generate_dockerfile_file(self) -> None:
-        await generate_dockerfile_file(path.join(self._app.configuration.output_directory_path, 'nginx', 'docker', 'Dockerfile'))
+        await generate_dockerfile_file(self._app.configuration.output_directory_path / 'nginx' / 'docker' / 'Dockerfile')

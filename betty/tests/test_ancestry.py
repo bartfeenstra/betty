@@ -1,5 +1,6 @@
 from gettext import NullTranslations
-from tempfile import TemporaryFile, NamedTemporaryFile
+from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import Any
 from unittest.mock import Mock
 
@@ -203,13 +204,13 @@ class FileTest(TestCase):
 
     def test_id(self) -> None:
         file_id = 'BETTY01'
-        file_path = '/tmp/betty'
+        file_path = Path('~')
         sut = File(file_id, file_path)
         self.assertEquals(file_id, sut.id)
 
     def test_private(self) -> None:
         file_id = 'BETTY01'
-        file_path = '/tmp/betty'
+        file_path = Path('~')
         sut = File(file_id, file_path)
         self.assertIsNone(sut.private)
         private = True
@@ -218,35 +219,29 @@ class FileTest(TestCase):
 
     def test_media_type(self) -> None:
         file_id = 'BETTY01'
-        file_path = '/tmp/betty'
+        file_path = Path('~')
         sut = File(file_id, file_path)
         self.assertIsNone(sut.media_type)
         media_type = MediaType('text/plain')
         sut.media_type = media_type
         self.assertEquals(media_type, sut.media_type)
 
-    def test_path(self) -> None:
-        with TemporaryFile() as f:
+    def test_path_with_path(self) -> None:
+        with NamedTemporaryFile() as f:
             file_id = 'BETTY01'
-            sut = File(file_id, f.name)
-            self.assertEquals(f.name, sut.path)
+            file_path = Path(f.name)
+            sut = File(file_id, file_path)
+            self.assertEquals(file_path, sut.path)
 
-    def test_extension_with_extension(self) -> None:
-        extension = 'betty'
-        with NamedTemporaryFile(suffix='.%s' % extension) as f:
-            file_id = 'BETTY01'
-            sut = File(file_id, f.name)
-            self.assertEquals(extension, sut.extension)
-
-    def test_extension_without_extension(self) -> None:
+    def test_path_with_str(self) -> None:
         with NamedTemporaryFile() as f:
             file_id = 'BETTY01'
             sut = File(file_id, f.name)
-            self.assertIsNone(sut.extension)
+            self.assertEquals(Path(f.name), sut.path)
 
     def test_description(self) -> None:
         file_id = 'BETTY01'
-        file_path = '/tmp/betty'
+        file_path = Path('~')
         sut = File(file_id, file_path)
         self.assertIsNone(sut.description)
         description = 'Hi, my name is Betty!'
@@ -255,7 +250,7 @@ class FileTest(TestCase):
 
     def test_notes(self) -> None:
         file_id = 'BETTY01'
-        file_path = '/tmp/betty'
+        file_path = Path('~')
         sut = File(file_id, file_path)
         self.assertCountEqual([], sut.notes)
         notes = [Mock(Note), Mock(Note)]
@@ -264,7 +259,7 @@ class FileTest(TestCase):
 
     def test_resources(self) -> None:
         file_id = 'BETTY01'
-        file_path = '/tmp/betty'
+        file_path = Path('~')
         sut = File(file_id, file_path)
         self.assertCountEqual([], sut.resources)
         resources = [Mock(HasFiles), Mock(HasFiles)]
@@ -273,27 +268,9 @@ class FileTest(TestCase):
 
     def test_citations(self) -> None:
         file_id = 'BETTY01'
-        file_path = '/tmp/betty'
+        file_path = Path('~')
         sut = File(file_id, file_path)
         self.assertCountEqual([], sut.citations)
-
-    def test_name(self) -> None:
-        file_id = 'BETTY01'
-        file_path = '/tmp/betty.png'
-        sut = File(file_id, file_path)
-        self.assertEquals('betty.png', sut.name)
-
-    def test_basename(self) -> None:
-        file_id = 'BETTY01'
-        file_path = '/tmp/betty.png'
-        sut = File(file_id, file_path)
-        self.assertEquals('/tmp/betty', sut.basename)
-
-    def test_extension(self) -> None:
-        file_id = 'BETTY01'
-        file_path = '/tmp/betty.png'
-        sut = File(file_id, file_path)
-        self.assertEquals('png', sut.extension)
 
 
 class HasFilesTest(TestCase):

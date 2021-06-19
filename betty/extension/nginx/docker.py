@@ -4,9 +4,11 @@ import docker
 from docker.errors import NotFound
 from docker.models.containers import Container as DockerContainer
 
+from betty.os import PathLike
+
 
 class Container:
-    def __init__(self, www_directory_path: str, docker_directory_path: str, nginx_configuration_file_path: str, name: str):
+    def __init__(self, www_directory_path: PathLike, docker_directory_path: PathLike, nginx_configuration_file_path: PathLike, name: str):
         self._name = name
         self._docker_directory_path = docker_directory_path
         self._nginx_configuration_file_path = nginx_configuration_file_path
@@ -23,7 +25,7 @@ class Container:
         # Stop any containers that may have been left over.
         self.stop()
 
-        self._client.images.build(path=self._docker_directory_path, tag=self._name)
+        self._client.images.build(path=str(self._docker_directory_path), tag=self._name)
         self._client.containers.run(self._name, name=self._name, auto_remove=True, detach=True, volumes={
             self._nginx_configuration_file_path: {
                 'bind': '/etc/nginx/conf.d/betty.conf',

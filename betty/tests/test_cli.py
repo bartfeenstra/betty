@@ -1,6 +1,6 @@
 import unittest
 from json import dump
-from os import path, makedirs
+from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Callable, Dict
 from unittest.mock import patch
@@ -8,8 +8,7 @@ from unittest.mock import patch
 import click
 from click.testing import CliRunner
 
-import betty
-from betty import os
+from betty import os, fs
 from betty.error import UserFacingError
 from betty.extension import Extension
 from betty.serve import Server
@@ -56,7 +55,7 @@ class MainTest(TestCase):
 
     def test_configuration_without_help(self, _, __):
         with TemporaryDirectory() as working_directory_path:
-            configuration_file_path = path.join(working_directory_path, 'betty.json')
+            configuration_file_path = Path(working_directory_path) / 'betty.json'
             with TemporaryDirectory() as output_directory_path:
                 url = 'https://example.com'
                 config_dict = {
@@ -72,7 +71,7 @@ class MainTest(TestCase):
 
     def test_help_with_configuration(self, _, __):
         with TemporaryDirectory() as working_directory_path:
-            configuration_file_path = path.join(working_directory_path, 'betty.json')
+            configuration_file_path = Path(working_directory_path) / 'betty.json'
             with TemporaryDirectory() as output_directory_path:
                 url = 'https://example.com'
                 config_dict = {
@@ -91,7 +90,7 @@ class MainTest(TestCase):
 
     def test_help_with_invalid_configuration_file_path(self, _, __):
         with TemporaryDirectory() as working_directory_path:
-            configuration_file_path = path.join(working_directory_path, 'non-existent-betty.json')
+            configuration_file_path = Path(working_directory_path) / 'non-existent-betty.json'
 
             runner = CliRunner()
             result = runner.invoke(main, ('-c', configuration_file_path, '--help',), catch_exceptions=False)
@@ -99,7 +98,7 @@ class MainTest(TestCase):
 
     def test_help_with_invalid_configuration(self, _, __):
         with TemporaryDirectory() as working_directory_path:
-            configuration_file_path = path.join(working_directory_path, 'betty.json')
+            configuration_file_path = Path(working_directory_path) / 'betty.json'
             config_dict = {}
             with open(configuration_file_path, 'w') as f:
                 dump(config_dict, f)
@@ -111,7 +110,7 @@ class MainTest(TestCase):
     def test_with_discovered_configuration(self, _, __):
         with TemporaryDirectory() as working_directory_path:
             with TemporaryDirectory() as output_directory_path:
-                with open(path.join(working_directory_path, 'betty.json'), 'w') as config_file:
+                with open(Path(working_directory_path) / 'betty.json', 'w') as config_file:
                     url = 'https://example.com'
                     config_dict = {
                         'output': output_directory_path,
@@ -157,7 +156,7 @@ class VersionTest(TestCase):
 class ClearCachesTest(TestCase):
     @patch_cache
     def test(self):
-        cached_file_path = path.join(betty._CACHE_DIRECTORY_PATH, 'KeepMeAroundPlease')
+        cached_file_path = Path(fs.CACHE_DIRECTORY_PATH) / 'KeepMeAroundPlease'
         open(cached_file_path, 'w').close()
         runner = CliRunner()
         result = runner.invoke(main, ('clear-caches',), catch_exceptions=False)
@@ -179,7 +178,7 @@ class GenerateTest(TestCase):
     @patch('betty.load.load', new_callable=AsyncMock)
     def test(self, m_parse, m_generate):
         with TemporaryDirectory() as working_directory_path:
-            configuration_file_path = path.join(working_directory_path, 'betty.json')
+            configuration_file_path = Path(working_directory_path) / 'betty.json'
             with TemporaryDirectory() as output_directory_path:
                 url = 'https://example.com'
                 config_dict = {
@@ -218,10 +217,10 @@ class ServeTest(TestCase):
     @patch('betty.serve.AppServer', new_callable=lambda: _KeyboardInterruptedServer)
     def test(self, m_server):
         with TemporaryDirectory() as working_directory_path:
-            configuration_file_path = path.join(working_directory_path, 'betty.json')
+            configuration_file_path = Path(working_directory_path) / 'betty.json'
             with TemporaryDirectory() as output_directory_path:
-                www_directory_path = path.join(output_directory_path, 'www')
-                makedirs(www_directory_path)
+                www_directory_path = Path(output_directory_path) / 'www'
+                www_directory_path.mkdir(parents=True)
                 url = 'https://example.com'
                 config_dict = {
                     'output': output_directory_path,
@@ -236,7 +235,7 @@ class ServeTest(TestCase):
 
     def test_without_www_directory_should_error(self):
         with TemporaryDirectory() as working_directory_path:
-            configuration_file_path = path.join(working_directory_path, 'betty.json')
+            configuration_file_path = Path(working_directory_path) / 'betty.json'
             with TemporaryDirectory() as output_directory_path:
                 url = 'https://example.com'
                 config_dict = {

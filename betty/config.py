@@ -1,16 +1,17 @@
 import json
 from collections import OrderedDict
-from os import path
+from pathlib import Path
 from typing import Dict, Optional, List, Callable, Type
 
 import yaml
 from babel import parse_locale
 from voluptuous import Schema, All, Required, Invalid, IsDir, Any, Range
 
-from betty import _CACHE_DIRECTORY_PATH, os
+from betty import os, fs
 from betty.error import ContextError, UserFacingError
 from betty.extension import Extension, ConfigurableExtension
-from betty.voluptuous import Path, Importable
+from betty.os import PathLike
+from betty.voluptuous import Path as VoluptuousPath, Importable
 
 
 class LocaleConfiguration:
@@ -98,9 +99,9 @@ class Configuration:
     theme: ThemeConfiguration
     lifetime_threshold: int
 
-    def __init__(self, output_directory_path: str, base_url: str):
-        self.cache_directory_path = _CACHE_DIRECTORY_PATH
-        self.output_directory_path = output_directory_path
+    def __init__(self, output_directory_path: PathLike, base_url: str):
+        self.cache_directory_path = fs.CACHE_DIRECTORY_PATH
+        self.output_directory_path = Path(output_directory_path)
         self.base_url = base_url.rstrip(
             '/') if not base_url.endswith('://') else base_url
         self._root_path = '/'
@@ -118,8 +119,8 @@ class Configuration:
         self.lifetime_threshold = 125
 
     @property
-    def www_directory_path(self) -> str:
-        return path.join(self.output_directory_path, 'www')
+    def www_directory_path(self) -> Path:
+        return self.output_directory_path / 'www'
 
     @property
     def root_path(self) -> str:
@@ -178,7 +179,7 @@ def _configuration(configuration_dict: Dict) -> Configuration:
 
 
 _ConfigurationSchema = Schema(All({
-    Required('output'): All(str, Path()),
+    Required('output'): All(str, VoluptuousPath()),
     'title': str,
     'author': str,
     'locales': All(list, _locales_configuration),
@@ -187,7 +188,7 @@ _ConfigurationSchema = Schema(All({
     'clean_urls': bool,
     'content_negotiation': bool,
     'mode': Any('development', 'production'),
-    'assets_directory_path': All(str, IsDir(), Path()),
+    'assets_directory_path': All(str, IsDir(), VoluptuousPath()),
     'extensions': All(dict, _extensions_configuration_schema),
     Required('theme', default=dict): All({
         'background_image_id': str,
@@ -231,7 +232,8 @@ _from_format_factories: Dict[str, Callable[[str], Configuration]] = {
 
 
 def from_file(f) -> Configuration:
-    file_base_name, file_extension = path.splitext(f.name)
+    file_path = Path(f.name)
+    file_extension = file_path.suffix
     try:
         factory = _from_format_factories[file_extension]
     except KeyError:
@@ -239,8 +241,8 @@ def from_file(f) -> Configuration:
             file_extension, ', '.join(_from_format_factories.keys())))
     # Change the working directory to allow relative paths to be resolved against the configuration file's directory
     # path.
-    with os.ChDir(path.dirname(f.name)):
+    with os.ChDir(Path(f.name).parent):
         try:
             return factory(f.read())
         except ConfigurationValueError as e:
-            raise e.add_context('in %s' % path.abspath(f.name))
+            raise e.add_context('in %s' % file_path.resolve())

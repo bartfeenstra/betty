@@ -1,5 +1,6 @@
 import asyncio
 from collections import defaultdict
+from pathlib import Path
 from typing import Type, Set, Optional, Any, List, Dict
 
 from betty.dispatch import Dispatcher, TargetedDispatcher
@@ -38,7 +39,7 @@ class Extension:
         return set()
 
     @property
-    def assets_directory_path(self) -> Optional[str]:
+    def assets_directory_path(self) -> Optional[Path]:
         return None
 
 

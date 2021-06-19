@@ -1,6 +1,5 @@
 import sys
 import unittest
-from os import path, makedirs
 from tempfile import TemporaryDirectory
 from time import sleep
 
@@ -22,8 +21,8 @@ class DockerizedNginxServerTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://example.com')
             configuration.extensions[Nginx] = Nginx.configuration_schema({})
-            makedirs(configuration.www_directory_path)
-            with open(path.join(configuration.www_directory_path, 'index.html'), 'w') as f:
+            configuration.www_directory_path.mkdir(parents=True)
+            with open(configuration.www_directory_path / 'index.html', 'w') as f:
                 f.write(content)
             async with App(configuration) as app:
                 async with DockerizedNginxServer(app) as server:

@@ -5,7 +5,8 @@ import re
 from concurrent.futures import as_completed
 from contextlib import suppress
 from json import load
-from os.path import dirname, join, getmtime
+from os.path import getmtime
+from pathlib import Path
 from time import time
 from typing import Optional, Dict, Callable, Tuple, Iterable, Set
 
@@ -17,7 +18,6 @@ from betty.ancestry import Link, HasLinks, Resource
 from betty.app import App, AppAwareFactory
 from betty.asyncio import sync
 from betty.extension import Extension
-from betty.fs import makedirs
 from betty.jinja2 import Jinja2Provider
 from betty.locale import Localized, negotiate_locale
 from betty.media_type import MediaType
@@ -71,15 +71,14 @@ class Entry(Localized):
 
 
 class _Retriever:
-    def __init__(self, session: aiohttp.ClientSession, cache_directory_path: str, ttl: int = 86400):
-        self._cache_directory_path = join(cache_directory_path, 'wikipedia')
-        makedirs(self._cache_directory_path)
+    def __init__(self, session: aiohttp.ClientSession, cache_directory_path: Path, ttl: int = 86400):
+        self._cache_directory_path = cache_directory_path / 'wikipedia'
+        self._cache_directory_path.mkdir(exist_ok=True, parents=True)
         self._ttl = ttl
         self._session = session
 
     async def _request(self, url: str) -> Dict:
-        cache_file_path = join(self._cache_directory_path,
-                               hashlib.md5(url.encode('utf-8')).hexdigest())
+        cache_file_path = self._cache_directory_path / hashlib.md5(url.encode('utf-8')).hexdigest()
 
         response_data = None
         with suppress(FileNotFoundError):
@@ -208,7 +207,7 @@ class Wikipedia(Extension, AppAwareFactory, Jinja2Provider, PostLoader):
 
     async def __aenter__(self):
         self._session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit_per_host=5))
-        self._retriever = _Retriever(self._session, join(self._app.configuration.cache_directory_path, self.name()))
+        self._retriever = _Retriever(self._session, self._app.configuration.cache_directory_path / self.name())
         self._populator = _Populator(self._app, self._retriever)
         return self
 
@@ -248,5 +247,5 @@ class Wikipedia(Extension, AppAwareFactory, Jinja2Provider, PostLoader):
             return
 
     @property
-    def assets_directory_path(self) -> Optional[str]:
-        return '%s/assets' % dirname(__file__)
+    def assets_directory_path(self) -> Optional[Path]:
+        return Path(__file__).parent / 'assets'
