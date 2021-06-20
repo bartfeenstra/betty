@@ -1,8 +1,8 @@
-from os import path
+from pathlib import Path
 
 
 def version() -> str:
-    with open(path.join(path.dirname(path.dirname(__file__)), 'VERSION')) as f:
+    with open(Path(__file__).parents[1] / 'VERSION') as f:
         release_version = f.read().strip()
     if release_version == '0.0.0':
         return 'development'

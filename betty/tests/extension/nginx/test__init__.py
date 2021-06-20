@@ -1,5 +1,4 @@
 import re
-from os.path import join
 from tempfile import TemporaryDirectory
 from typing import Optional
 
@@ -26,7 +25,7 @@ class NginxTest(TestCase):
     async def _assert_configuration_equals(self, expected: str, configuration: Configuration):
         async with App(configuration) as app:
             await generate(app)
-        with open(join(configuration.output_directory_path, 'nginx', 'nginx.conf')) as f:
+        with open(configuration.output_directory_path / 'nginx' / 'nginx.conf') as f:
             actual = f.read()
         self.assertEqual(self._normalize_configuration(expected), self._normalize_configuration(actual))
 

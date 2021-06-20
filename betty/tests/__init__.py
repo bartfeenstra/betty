@@ -1,5 +1,9 @@
 import logging
 from contextlib import suppress
+from pathlib import Path
+
+from betty import fs
+
 try:
     from contextlib import asynccontextmanager
 except ImportError:
@@ -10,20 +14,19 @@ import unittest
 
 from jinja2 import Environment, Template
 
-import betty
 from betty.config import Configuration
 from betty.app import App
 
 
 def patch_cache(f):
     def _patch_cache(*args, **kwargs):
-        original_cache_directory_path = betty._CACHE_DIRECTORY_PATH
+        original_cache_directory_path = fs.CACHE_DIRECTORY_PATH
         cache_directory = TemporaryDirectory()
-        betty._CACHE_DIRECTORY_PATH = cache_directory.name
+        fs.CACHE_DIRECTORY_PATH = Path(cache_directory.name)
         try:
             f(*args, **kwargs)
         finally:
-            betty._CACHE_DIRECTORY_PATH = original_cache_directory_path
+            fs.CACHE_DIRECTORY_PATH = original_cache_directory_path
             # Pythons 3.6 and 3.7 do not allow the temporary directory to have been removed already.
             with suppress(FileNotFoundError):
                 cache_directory.cleanup()

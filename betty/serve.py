@@ -7,7 +7,7 @@ from io import StringIO
 from typing import Iterable
 
 from betty.error import UserFacingError
-from betty.os import ChDir
+from betty.os import ChDir, PathLike
 from betty.app import App
 
 DEFAULT_PORT = 8000
@@ -79,7 +79,7 @@ class AppServer(Server):
 
 
 class BuiltinServer(Server):
-    def __init__(self, www_directory_path: str):
+    def __init__(self, www_directory_path: PathLike):
         self._www_directory_path = www_directory_path
         self._http_server = None
         self._cwd = None

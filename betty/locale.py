@@ -5,16 +5,16 @@ import gettext
 import operator
 import shutil
 from io import StringIO
-from os import path, makedirs
 from contextlib import suppress
 from functools import total_ordering
+from pathlib import Path
 from typing import Optional, Tuple, Union, List
 
 import babel
 from babel import dates, Locale
 from babel.messages.frontend import CommandLineInterface
 
-from betty import _CACHE_DIRECTORY_PATH
+from betty import fs
 from betty.fs import hashfile
 
 
@@ -281,24 +281,24 @@ def negotiate_localizeds(preferred_locale: str, localizeds: List[Localized]) -> 
         return localizeds[0]
 
 
-def open_translations(locale: str, directory_path: str) -> Optional[gettext.GNUTranslations]:
+def open_translations(locale: str, directory_path: Path) -> Optional[gettext.GNUTranslations]:
     locale_path_name = locale.replace('-', '_')
-    po_file_path = path.join(directory_path, 'locale', locale_path_name, 'LC_MESSAGES', 'betty.po')
+    po_file_path = directory_path / 'locale' / locale_path_name / 'LC_MESSAGES' / 'betty.po'
     try:
         translation_version = hashfile(po_file_path)
     except FileNotFoundError:
         return None
-    translation_cache_directory_path = path.join(_CACHE_DIRECTORY_PATH, 'translations', translation_version)
-    cache_directory_path = path.join(translation_cache_directory_path, locale_path_name, 'LC_MESSAGES')
-    mo_file_path = path.join(cache_directory_path, 'betty.mo')
+    translation_cache_directory_path = fs.CACHE_DIRECTORY_PATH / 'translations' / translation_version
+    cache_directory_path = translation_cache_directory_path / locale_path_name / 'LC_MESSAGES'
+    mo_file_path = cache_directory_path / 'betty.mo'
 
     with suppress(FileNotFoundError):
         with open(mo_file_path, 'rb') as f:
             return gettext.GNUTranslations(f)
 
-    makedirs(cache_directory_path, exist_ok=True)
+    cache_directory_path.mkdir(exist_ok=True, parents=True)
     with suppress(FileExistsError):
-        shutil.copyfile(po_file_path, path.join(cache_directory_path, 'betty.po'))
+        shutil.copyfile(po_file_path, cache_directory_path / 'betty.po')
 
     with contextlib.redirect_stdout(StringIO()):
         CommandLineInterface().run(['', 'compile', '-d', translation_cache_directory_path, '-l', locale_path_name, '-D', 'betty'])

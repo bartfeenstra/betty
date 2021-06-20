@@ -1,17 +1,13 @@
 """Integrates Betty with Python's setuptools."""
 
-import os
-from glob import glob
-from os.path import abspath, dirname, join
-
 from setuptools import setup, find_packages
 
-ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
+from betty.fs import ROOT_DIRECTORY_PATH
 
-with open('/'.join((ROOT_PATH, 'VERSION'))) as f:
+with open(ROOT_DIRECTORY_PATH / 'VERSION') as f:
     VERSION = f.read()
 
-with open('/'.join((ROOT_PATH, 'README.md'))) as f:
+with open(ROOT_DIRECTORY_PATH / 'README.md') as f:
     long_description = f.read()
 
 SETUP = {
@@ -90,13 +86,11 @@ SETUP = {
     ],
     'include_package_data': True,
     'package_data': {
-        'betty': [
-                     join(dirname(__file__), 'VERSION'),
-                 ]
-                 +
-                 glob(join(dirname(abspath(__file__)), 'betty', 'assets', '**'), recursive=True)
-                 +
-                 glob(join(dirname(abspath(__file__)), 'betty', 'extension', '*', 'assets', '**'), recursive=True),
+        'betty': list(map(str, [
+             ROOT_DIRECTORY_PATH / 'VERSION',
+             *(ROOT_DIRECTORY_PATH / 'betty' / 'assets').glob('**'),
+             *(ROOT_DIRECTORY_PATH / 'betty' / 'extension' / '*' / 'assets').glob('**'),
+        ])),
     },
 }
 

@@ -1,7 +1,7 @@
 import json
 from collections import OrderedDict
 from contextlib import contextmanager
-from os.path import join
+from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import Any, Dict, Optional
 
@@ -55,57 +55,57 @@ class LocaleConfigurationTest(TestCase):
 
 class ConfigurationTest(TestCase):
     def test_output_directory_path(self):
-        output_directory_path = '/tmp/betty'
+        output_directory_path = Path('~')
         sut = Configuration(output_directory_path, 'https://example.com')
         self.assertEquals(output_directory_path, sut.output_directory_path)
 
     def test_www_directory_path_with_absolute_path(self):
-        output_directory_path = '/tmp/betty'
+        output_directory_path = Path('~')
         sut = Configuration(output_directory_path, 'https://example.com')
-        expected = join(output_directory_path, 'www')
+        expected = output_directory_path / 'www'
         self.assertEquals(expected, sut.www_directory_path)
 
     def test_assets_directory_path_without_path(self):
-        sut = Configuration('/tmp/betty', 'https://example.com')
+        sut = Configuration('~', 'https://example.com')
         self.assertIsNone(sut.assets_directory_path)
 
     def test_assets_directory_path_with_path(self):
-        sut = Configuration('/tmp/betty', 'https://example.com')
+        sut = Configuration('~', 'https://example.com')
         assets_directory_path = '/tmp/betty-assets'
         sut.assets_directory_path = assets_directory_path
         self.assertEquals(assets_directory_path,
                           sut.assets_directory_path)
 
     def test_root_path(self):
-        sut = Configuration('/tmp/betty', 'https://example.com')
+        sut = Configuration('~', 'https://example.com')
         configured_root_path = '/betty'
         expected_root_path = '/betty/'
         sut.root_path = configured_root_path
         self.assertEquals(expected_root_path, sut.root_path)
 
     def test_clean_urls(self):
-        sut = Configuration('/tmp/betty', 'https://example.com')
+        sut = Configuration('~', 'https://example.com')
         clean_urls = True
         sut.clean_urls = clean_urls
         self.assertEquals(clean_urls, sut.clean_urls)
 
     def test_content_negotiation(self):
-        sut = Configuration('/tmp/betty', 'https://example.com')
+        sut = Configuration('~', 'https://example.com')
         content_negotiation = True
         sut.content_negotiation = content_negotiation
         self.assertEquals(content_negotiation, sut.content_negotiation)
 
     def test_clean_urls_implied_by_content_negotiation(self):
-        sut = Configuration('/tmp/betty', 'https://example.com')
+        sut = Configuration('~', 'https://example.com')
         sut.content_negotiation = True
         self.assertTrue(sut.clean_urls)
 
     def test_author_without_author(self):
-        sut = Configuration('/tmp/betty', 'https://example.com')
+        sut = Configuration('~', 'https://example.com')
         self.assertIsNone(sut.author)
 
     def test_author_with_author(self):
-        sut = Configuration('/tmp/betty', 'https://example.com')
+        sut = Configuration('~', 'https://example.com')
         author = 'Bart'
         sut.author = author
         self.assertEquals(author, sut.author)
@@ -142,7 +142,7 @@ class FromDictTest(TestCase):
     def test_should_parse_minimal(self, extension, dumper) -> None:
         with _build_minimal_config() as configuration_dict:
             configuration = _from_dict(configuration_dict)
-            self.assertEquals(configuration_dict['output'], configuration.output_directory_path)
+            self.assertEquals(Path(configuration_dict['output']).expanduser().resolve(), configuration.output_directory_path)
             self.assertEquals(configuration_dict['base_url'], configuration.base_url)
             self.assertEquals('Betty', configuration.title)
             self.assertIsNone(configuration.author)
@@ -228,7 +228,7 @@ class FromDictTest(TestCase):
             with _build_minimal_config() as configuration_dict:
                 configuration_dict['assets_directory_path'] = assets_directory_path
                 configuration = _from_dict(configuration_dict)
-                self.assertEquals(assets_directory_path, configuration.assets_directory_path)
+                self.assertEquals(Path(assets_directory_path).expanduser().resolve(), configuration.assets_directory_path)
 
     def test_should_parse_one_extension_with_configuration(self) -> None:
         with _build_minimal_config() as configuration_dict:

@@ -1,14 +1,14 @@
 import gettext
-from os import path, listdir
+from os import listdir
+from pathlib import Path
 
 from betty.locale import open_translations
 from betty.tests import TestCase
 
-_ASSETS_DIRECTORY_PATH = path.join(path.dirname(path.dirname(path.dirname(path.dirname(__file__)))), 'assets')
-
 
 class TranslationsTest(TestCase):
     def test(self) -> None:
-        for locale_path_name in listdir(path.join(_ASSETS_DIRECTORY_PATH, 'locale')):
+        assets_directory_path = Path(__file__).parents[3] / 'assets'
+        for locale_path_name in listdir(assets_directory_path / 'locale'):
             locale = locale_path_name.replace('_', '-')
-            self.assertIsInstance(open_translations(locale, _ASSETS_DIRECTORY_PATH), gettext.NullTranslations)
+            self.assertIsInstance(open_translations(locale, assets_directory_path), gettext.NullTranslations)

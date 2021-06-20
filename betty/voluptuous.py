@@ -1,4 +1,4 @@
-from os import path
+import pathlib
 
 from voluptuous import Invalid
 
@@ -8,7 +8,7 @@ from betty.importlib import import_any
 def Path():
     def _path(v):
         try:
-            return path.abspath(path.expanduser(v))
+            return pathlib.Path(v).expanduser().resolve()
         except TypeError as e:
             raise Invalid(e)
 

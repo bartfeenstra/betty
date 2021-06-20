@@ -1,4 +1,4 @@
-from os import path
+import pathlib
 from tempfile import TemporaryDirectory
 
 from parameterized import parameterized
@@ -20,14 +20,14 @@ class PathTest(TestCase):
 
     def test_with_absolute_path(self):
         with TemporaryDirectory() as directory_path:
-            self.assertEqual(directory_path, Path()(directory_path))
+            self.assertEqual(pathlib.Path(directory_path).expanduser().resolve(), Path()(directory_path))
 
     def test_with_expanduser(self):
-        self.assertEqual(path.join(path.expanduser('~'), 'foo', 'bar'), Path()(path.join(path.expanduser('~'), 'foo', 'bar')))
+        self.assertEqual(pathlib.Path.home().resolve() / 'foo' / 'bar', Path()(str(pathlib.Path('~') / 'foo' / 'bar')))
 
     def test_with_relative_path_made_absolute(self):
         with TemporaryDirectory() as directory_path:
-            self.assertEqual(path.join(directory_path, 'sibling'), Path()(path.join(directory_path, 'child', '..', 'sibling', '.')))
+            self.assertEqual((pathlib.Path(directory_path) / 'sibling').expanduser().resolve(), Path()(pathlib.Path(directory_path) / 'child' / '..' / 'sibling' / '.'))
 
 
 class ImportableTest(TestCase):

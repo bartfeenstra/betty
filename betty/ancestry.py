@@ -1,13 +1,13 @@
 from functools import total_ordering
 from itertools import chain
-from os.path import splitext, basename
+from pathlib import Path
 from typing import Dict, Optional, List, Iterable, Set, Union, TypeVar, Generic, Callable, Sequence, Type
 
 from geopy import Point
 
 from betty.locale import Localized, Datey
 from betty.media_type import MediaType
-from betty.path import extension
+from betty.os import PathLike
 
 T = TypeVar('T')
 
@@ -247,14 +247,14 @@ class File(Resource, Identifiable, Described, HasPrivacy, HasMediaType, HasNotes
     resources: ManyAssociation['HasFiles']
     notes: List[Note]
 
-    def __init__(self, file_id: str, path: str, media_type: Optional[MediaType] = None):
+    def __init__(self, file_id: str, path: PathLike, media_type: Optional[MediaType] = None):
         Identifiable.__init__(self, file_id)
         Described.__init__(self)
         HasPrivacy.__init__(self)
         HasMediaType.__init__(self)
         HasNotes.__init__(self)
         HasCitations.__init__(self)
-        self._path = path
+        self._path = Path(path)
         self.media_type = media_type
 
     @classmethod
@@ -262,20 +262,8 @@ class File(Resource, Identifiable, Described, HasPrivacy, HasMediaType, HasNotes
         return 'file'
 
     @property
-    def path(self) -> str:
+    def path(self) -> Path:
         return self._path
-
-    @property
-    def name(self) -> str:
-        return basename(self._path)
-
-    @property
-    def basename(self) -> str:
-        return splitext(self._path)[0]
-
-    @property
-    def extension(self) -> Optional[str]:
-        return extension(self._path)
 
 
 @many_to_many('files', 'resources')

@@ -1,5 +1,5 @@
 import logging
-from os import path
+from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import docker
@@ -20,9 +20,9 @@ class DockerizedNginxServer(Server):
     async def start(self) -> None:
         logging.getLogger().info('Starting a Dockerized nginx web server...')
         self._output_directory = TemporaryDirectory()
-        nginx_configuration_file_path = path.join(self._output_directory.name, 'nginx.conf')
-        docker_directory_path = path.join(self._output_directory.name, 'docker')
-        dockerfile_file_path = path.join(docker_directory_path, 'Dockerfile')
+        nginx_configuration_file_path = Path(self._output_directory.name) / 'nginx.conf'
+        docker_directory_path = Path(self._output_directory.name) / 'docker'
+        dockerfile_file_path = docker_directory_path / 'Dockerfile'
         async with self._app:
             await self._app.extensions[Nginx].generate_configuration_file(destination_file_path=nginx_configuration_file_path, https=False, www_directory_path='/var/www/betty')
             await generate_dockerfile_file(destination_file_path=dockerfile_file_path)

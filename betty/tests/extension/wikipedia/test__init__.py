@@ -1,3 +1,4 @@
+from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import sleep
 from typing import Tuple, Optional
@@ -96,7 +97,7 @@ class RetrieverTest(TestCase):
         m_aioresponses.get(api_url, payload=api_response_body)
         with TemporaryDirectory() as cache_directory_path:
             async with aiohttp.ClientSession() as session:
-                translations = await _Retriever(session, cache_directory_path).get_translations(entry_language, entry_name)
+                translations = await _Retriever(session, Path(cache_directory_path)).get_translations(entry_language, entry_name)
         self.assertEqual(expected, translations)
 
     @aioresponses()
@@ -110,7 +111,7 @@ class RetrieverTest(TestCase):
         with TemporaryDirectory() as cache_directory_path:
             with self.assertRaises(RetrievalError):
                 async with aiohttp.ClientSession() as session:
-                    await _Retriever(session, cache_directory_path).get_translations(entry_language, entry_name)
+                    await _Retriever(session, Path(cache_directory_path)).get_translations(entry_language, entry_name)
 
     @aioresponses()
     @patch('sys.stderr')
@@ -123,7 +124,7 @@ class RetrieverTest(TestCase):
         with TemporaryDirectory() as cache_directory_path:
             with self.assertRaises(RetrievalError):
                 async with aiohttp.ClientSession() as session:
-                    await _Retriever(session, cache_directory_path).get_translations(entry_language, entry_name)
+                    await _Retriever(session, Path(cache_directory_path)).get_translations(entry_language, entry_name)
 
     @parameterized.expand([
         ({},),
@@ -152,7 +153,7 @@ class RetrieverTest(TestCase):
         with TemporaryDirectory() as cache_directory_path:
             with self.assertRaises(RetrievalError):
                 async with aiohttp.ClientSession() as session:
-                    await _Retriever(session, cache_directory_path).get_translations(entry_language, entry_name)
+                    await _Retriever(session, Path(cache_directory_path)).get_translations(entry_language, entry_name)
 
     @aioresponses()
     @sync
@@ -189,7 +190,7 @@ class RetrieverTest(TestCase):
         m_aioresponses.get(api_url, payload=api_response_body_4)
         with TemporaryDirectory() as cache_directory_path:
             async with aiohttp.ClientSession() as session:
-                retriever = _Retriever(session, cache_directory_path, 1)
+                retriever = _Retriever(session, Path(cache_directory_path), 1)
                 # The first retrieval should make a successful request and set the cache.
                 entry_1 = await retriever.get_entry(entry_language, entry_name)
                 # The second retrieval should hit the cache from the first request.
@@ -220,7 +221,7 @@ class RetrieverTest(TestCase):
         m_aioresponses.get(api_url, exception=aiohttp.ClientError())
         with TemporaryDirectory() as cache_directory_path:
             async with aiohttp.ClientSession() as session:
-                retriever = _Retriever(session, cache_directory_path)
+                retriever = _Retriever(session, Path(cache_directory_path))
                 with self.assertRaises(RetrievalError):
                     await retriever.get_entry(entry_language, entry_name)
 
@@ -502,7 +503,7 @@ class WikipediaTest(TestCase):
             with TemporaryDirectory() as cache_directory_path:
                 configuration = Configuration(
                     output_directory_path, 'https://ancestry.example.com')
-                configuration.cache_directory_path = cache_directory_path
+                configuration.cache_directory_path = Path(cache_directory_path)
                 configuration.extensions[Wikipedia] = None
                 async with App(configuration) as app:
                     actual = app.jinja2_environment.from_string(
@@ -545,7 +546,7 @@ class WikipediaTest(TestCase):
             with TemporaryDirectory() as cache_directory_path:
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
-                configuration.cache_directory_path = cache_directory_path
+                configuration.cache_directory_path = Path(cache_directory_path)
                 configuration.extensions[Wikipedia] = None
                 async with App(configuration) as app:
                     app.ancestry.sources[resource.id] = resource

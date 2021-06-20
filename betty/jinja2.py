@@ -5,7 +5,6 @@ import os
 import re
 import warnings
 from contextlib import suppress
-from os.path import join, relpath
 from pathlib import Path
 from typing import Dict, Callable, Iterable, Type, Optional, Any, Union, Iterator, AsyncIterable
 
@@ -26,15 +25,15 @@ from resizeimage import resizeimage
 from betty.ancestry import File, Citation, Identifiable, Resource, HasLinks, HasFiles, Subject, Witness, Dated, \
     RESOURCE_TYPES
 from betty.config import Configuration
-from betty.fs import makedirs, hashfile, iterfiles
+from betty.fs import hashfile, iterfiles
 from betty.functools import walk
 from betty.html import HtmlProvider
 from betty.importlib import import_any
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange
 from betty.lock import AcquiredError
-from betty.os import link_or_copy
-from betty.path import extension as path_extension, rootname
+from betty.os import link_or_copy, PathLike
+from betty.path import rootname
 from betty.extension import Extension
 from betty.render import Renderer
 from betty.search import Index
@@ -93,7 +92,7 @@ class BettyEnvironment(Environment):
     app: App
 
     def __init__(self, app: App):
-        template_directory_paths = [join(path, 'templates') for path in app.assets.paths]
+        template_directory_paths = [str(path / 'templates') for path in app.assets.paths]
 
         Environment.__init__(self,
                              loader=FileSystemLoader(template_directory_paths),
@@ -191,28 +190,29 @@ class Jinja2Renderer(Renderer):
         self._environment = environment
         self._configuration = configuration
 
-    async def render_file(self, file_path: str) -> None:
-        if not file_path.endswith('.j2'):
+    async def render_file(self, file_path: PathLike) -> None:
+        file_path_str = str(file_path)
+        if not file_path_str.endswith('.j2'):
             return
-        file_destination_path = file_path[:-3]
+        file_destination_path_str = file_path_str[:-3]
         data = {}
-        if file_destination_path.startswith(self._configuration.www_directory_path):
-            resource = '/'.join(Path(file_destination_path[len(self._configuration.www_directory_path):].strip(os.sep)).parts)
+        if file_destination_path_str.startswith(str(self._configuration.www_directory_path)):
+            resource = '/'.join(Path(file_destination_path_str[len(str(self._configuration.www_directory_path)):].strip(os.sep)).parts)
             if self._configuration.multilingual:
                 resource_parts = resource.lstrip('/').split('/')
                 if resource_parts[0] in map(lambda x: x.alias, self._configuration.locales.values()):
                     resource = '/'.join(resource_parts[1:])
             data['page_resource'] = resource
         root_path = rootname(file_path)
-        template_name = '/'.join(Path(relpath(file_path, root_path)).parts)
+        template_name = '/'.join(Path(file_path).relative_to(root_path).parts)
         template = FileSystemLoader(root_path).load(self._environment, template_name, self._environment.globals)
-        with open(file_destination_path, 'w') as f:
+        with open(file_destination_path_str, 'w') as f:
             f.write(template.render(data))
         os.remove(file_path)
 
-    async def render_tree(self, tree_path: str) -> None:
+    async def render_tree(self, tree_path: PathLike) -> None:
         await asyncio.gather(
-            *[self.render_file(file_path) async for file_path in iterfiles(tree_path) if file_path.endswith('.j2')],
+            *[self.render_file(file_path) async for file_path in iterfiles(tree_path) if str(file_path).endswith('.j2')],
         )
 
 
@@ -306,22 +306,17 @@ def _filter_map(context: Context, value: Union[AsyncIterable, Iterable], *args: 
 
 
 def _filter_file(app: App, file: File) -> str:
-    file_directory_path = os.path.join(app.configuration.www_directory_path, 'file')
-
-    destination_name = '%s.%s' % (file.id, file.extension)
-    destination_public_path = '/file/%s' % destination_name
-
     with suppress(AcquiredError):
         app.locks.acquire((_filter_file, file))
-        app.executor.submit(_do_filter_file, file.path, file_directory_path, destination_name)
+        file_destination_path = app.configuration.www_directory_path / 'file' / file.id / 'file' / file.path.name
+        app.executor.submit(_do_filter_file, Path(file.path), file_destination_path)
 
-    return destination_public_path
+    return f'/file/{file.id}/file/{file.path.name}'
 
 
-def _do_filter_file(file_path: str, destination_directory_path: str, destination_name: str) -> None:
-    makedirs(destination_directory_path)
-    destination_file_path = os.path.join(destination_directory_path, destination_name)
-    link_or_copy(file_path, destination_file_path)
+def _do_filter_file(file_source_path: Path, file_destination_path: Path) -> None:
+    file_destination_path.parent.mkdir(exist_ok=True, parents=True)
+    link_or_copy(file_source_path, file_destination_path)
 
 
 def _filter_image(app: App, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
@@ -336,13 +331,12 @@ def _filter_image(app: App, file: File, width: Optional[int] = None, height: Opt
     else:
         destination_name += '%dx%d' % (width, height)
 
-    file_directory_path = os.path.join(
-        app.configuration.www_directory_path, 'file')
+    file_directory_path = app.configuration.www_directory_path / 'file'
 
     if file.media_type:
         if file.media_type.type == 'image':
             task = _execute_filter_image_image
-            destination_name += '.' + path_extension(file.path)
+            destination_name += Path(file.path).suffix
         elif file.media_type.type == 'application' and file.media_type.subtype == 'pdf':
             task = _execute_filter_image_application_pdf
             destination_name += '.' + 'jpg'
@@ -353,15 +347,15 @@ def _filter_image(app: App, file: File, width: Optional[int] = None, height: Opt
 
     with suppress(AcquiredError):
         app.locks.acquire((_filter_image, file, width, height))
-        cache_directory_path = join(app.configuration.cache_directory_path, 'image')
-        app.executor.submit(task, file.path, cache_directory_path, file_directory_path, destination_name, width, height)
+        cache_directory_path = app.configuration.cache_directory_path / 'image'
+        app.executor.submit(task, Path(file.path), cache_directory_path, file_directory_path, destination_name, width, height)
 
     destination_public_path = '/file/%s' % destination_name
 
     return destination_public_path
 
 
-def _execute_filter_image_image(file_path: str, *args, **kwargs) -> None:
+def _execute_filter_image_image(file_path: Path, *args, **kwargs) -> None:
     with warnings.catch_warnings():
         # Ignore warnings about decompression bombs, because we know where the files come from.
         warnings.simplefilter('ignore', category=DecompressionBombWarning)
@@ -369,7 +363,7 @@ def _execute_filter_image_image(file_path: str, *args, **kwargs) -> None:
     _execute_filter_image(image, file_path, *args, **kwargs)
 
 
-def _execute_filter_image_application_pdf(file_path: str, *args, **kwargs) -> None:
+def _execute_filter_image_application_pdf(file_path: Path, *args, **kwargs) -> None:
     with warnings.catch_warnings():
         # Ignore warnings about decompression bombs, because we know where the files come from.
         warnings.simplefilter('ignore', category=DecompressionBombWarning)
@@ -377,15 +371,15 @@ def _execute_filter_image_application_pdf(file_path: str, *args, **kwargs) -> No
     _execute_filter_image(image, file_path, *args, **kwargs)
 
 
-def _execute_filter_image(image: Image, file_path: str, cache_directory_path: str, destination_directory_path: str, destination_name: str, width: int, height: int) -> None:
-    makedirs(destination_directory_path)
-    cache_file_path = join(cache_directory_path, '%s-%s' % (hashfile(file_path), destination_name))
-    destination_file_path = join(destination_directory_path, destination_name)
+def _execute_filter_image(image: Image, file_path: Path, cache_directory_path: Path, destination_directory_path: Path, destination_name: str, width: int, height: int) -> None:
+    destination_directory_path.mkdir(exist_ok=True, parents=True)
+    cache_file_path = cache_directory_path / ('%s-%s' % (hashfile(file_path), destination_name))
+    destination_file_path = destination_directory_path / destination_name
 
     try:
         link_or_copy(cache_file_path, destination_file_path)
     except FileNotFoundError:
-        makedirs(cache_directory_path)
+        cache_directory_path.mkdir(exist_ok=True, parents=True)
         with image:
             if width is not None:
                 width = min(width, image.width)
@@ -402,7 +396,7 @@ def _execute_filter_image(image: Image, file_path: str, cache_directory_path: st
                 size = (width, height)
                 convert = resizeimage.resize_cover
             convert(image, size).save(cache_file_path)
-        makedirs(destination_directory_path)
+        destination_directory_path.mkdir(exist_ok=True, parents=True)
         link_or_copy(cache_file_path, destination_file_path)
 
 

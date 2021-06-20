@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import List, Type, Set, Dict, Optional
 
 from voluptuous import Schema, Required, Invalid
@@ -216,7 +217,7 @@ class AppTest(TestCase):
 
     @sync
     async def test_resources_with_assets_directory_path(self):
-        assets_directory_path = '/tmp/betty'
+        assets_directory_path = Path('/tmp/betty')
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.assets_directory_path = assets_directory_path
         async with App(configuration) as sut:

@@ -3,7 +3,6 @@ import logging
 import re
 import tarfile
 from contextlib import suppress
-from os import path
 from tempfile import TemporaryDirectory
 from typing import Tuple, Optional, List, Any, Dict
 from xml.etree import ElementTree
@@ -21,9 +20,11 @@ from betty.error import UserFacingError
 from betty.locale import DateRange, Datey, Date
 from betty.media_type import MediaType
 from betty.load import Loader
+from betty.os import PathLike
 from betty.path import rootname
 from betty.extension import ConfigurableExtension
 from betty.app import App, AppAwareFactory
+from betty.voluptuous import Path as VoluptuousPath
 
 
 class GrampsLoadFileError(UserFacingError):
@@ -51,7 +52,7 @@ def load_file(ancestry: Ancestry, file_path: str) -> None:
     raise GrampsLoadFileError('Could not load "%s" as a *.gpkg, a *.gramps, or an *.xml family tree.' % file_path)
 
 
-def load_gramps(ancestry: Ancestry, gramps: str) -> None:
+def load_gramps(ancestry: Ancestry, gramps: PathLike) -> None:
     try:
         with gzip.open(gramps) as f:
             xml = f.read()
@@ -60,20 +61,20 @@ def load_gramps(ancestry: Ancestry, gramps: str) -> None:
         raise GrampsLoadFileError()
 
 
-def load_gpkg(ancestry: Ancestry, gpkg: str) -> None:
+def load_gpkg(ancestry: Ancestry, gpkg: PathLike) -> None:
     try:
         tar_file = gzip.open(gpkg)
         try:
             with TemporaryDirectory() as cache_directory_path:
                 tarfile.open(fileobj=tar_file).extractall(cache_directory_path)
-                load_gramps(ancestry, path.join(cache_directory_path, 'data.gramps'))
+                load_gramps(ancestry, Path(cache_directory_path) / 'data.gramps')
         except tarfile.ReadError:
             raise GrampsLoadFileError('Could not read "%s" as a *.tar file after un-gzipping it.' % gpkg)
     except OSError:
         raise GrampsLoadFileError('Could not un-gzip "%s".' % gpkg)
 
 
-def load_xml(ancestry: Ancestry, xml: str, gramps_tree_directory_path: str) -> None:
+def load_xml(ancestry: Ancestry, xml: str, gramps_tree_directory_path: Path) -> None:
     with suppress(FileNotFoundError, OSError):
         with open(xml) as f:
             xml = f.read()
@@ -105,7 +106,7 @@ class _Loader(Loader):
     _sources: Dict[str, Source]
     _citations: Dict[str, Citation]
 
-    def __init__(self, ancestry: Ancestry, tree: ElementTree.ElementTree, gramps_tree_directory_path: str):
+    def __init__(self, ancestry: Ancestry, tree: ElementTree.ElementTree, gramps_tree_directory_path: Path):
         self._ancestry = ancestry
         self._tree = tree
         self._gramps_tree_directory_path = gramps_tree_directory_path
@@ -240,16 +241,16 @@ def _load_note(loader: _Loader, element: ElementTree.Element):
     loader._notes[handle] = Note(note_id, text)
 
 
-def _load_objects(loader: _Loader, database: ElementTree.Element, gramps_tree_directory_path: str):
+def _load_objects(loader: _Loader, database: ElementTree.Element, gramps_tree_directory_path: Path):
     for element in _xpath(database, './ns:objects/ns:object'):
         _load_object(loader, element, gramps_tree_directory_path)
 
 
-def _load_object(loader: _Loader, element: ElementTree.Element, gramps_tree_directory_path):
+def _load_object(loader: _Loader, element: ElementTree.Element, gramps_tree_directory_path: Path):
     handle = element.get('handle')
     entity_id = element.get('id')
     file_element = _xpath1(element, './ns:file')
-    file_path = path.join(gramps_tree_directory_path, file_element.get('src'))
+    file_path = gramps_tree_directory_path / file_element.get('src')
     file = File(entity_id, file_path)
     file.media_type = MediaType(file_element.get('mime'))
     description = file_element.get('description')
@@ -594,7 +595,7 @@ class FamilyTreeConfiguration:
 
 def _family_tree_configurations_schema(family_trees_configuration_dict: Any) -> List[FamilyTreeConfiguration]:
     schema = Schema({
-        'file': All(str, IsFile(), Path()),
+        'file': All(str, IsFile(), VoluptuousPath()),
     })
     family_trees_configuration = []
     for family_tree_configuration_dict in family_trees_configuration_dict:

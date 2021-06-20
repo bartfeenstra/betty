@@ -12,8 +12,7 @@ from typing import Callable, Dict, Optional
 import click
 from click import get_current_context, Context, Option
 
-import betty
-from betty import generate, load, serve, about, demo
+from betty import generate, load, serve, about, demo, fs
 from betty.config import from_file
 from betty.error import UserFacingError
 from betty.asyncio import sync
@@ -154,7 +153,7 @@ def main(app):
 @global_command
 async def _clear_caches():
     with suppress(FileNotFoundError):
-        shutil.rmtree(betty._CACHE_DIRECTORY_PATH)
+        shutil.rmtree(fs.CACHE_DIRECTORY_PATH)
     logging.getLogger().info('All caches cleared.')
 
 

@@ -2,6 +2,7 @@ import gettext
 from collections import defaultdict, OrderedDict
 from concurrent.futures._base import Executor
 from concurrent.futures.thread import ThreadPoolExecutor
+from pathlib import Path
 
 from jinja2 import Environment
 
@@ -16,7 +17,6 @@ try:
 except ImportError:
     from async_exit_stack import AsyncExitStack
 from copy import copy
-from os.path import abspath, dirname, join
 from typing import Type, Dict
 
 from betty.ancestry import Ancestry
@@ -32,8 +32,7 @@ class App:
         self._app_stack = []
         self._ancestry = Ancestry()
         self._configuration = configuration
-        self._assets = FileSystem(
-            join(dirname(abspath(__file__)), 'assets'))
+        self._assets = FileSystem(Path(__file__).parent / 'assets')
         self._dispatcher = None
         self._localized_url_generator = AppUrlGenerator(configuration)
         self._static_url_generator = StaticPathUrlGenerator(configuration)
