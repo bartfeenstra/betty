@@ -1,0 +1,50 @@
+name: Build and publish the Windows executable
+
+on:
+  push:
+    tags:
+      - master-dev
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.x-dev'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Check out the source code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Build the development environment
+        run: |
+          ./bin/build-dev
+        shell: bash
+
+      - name: Get the pip cache directory path
+        id: pip-cache
+        run: |
+          echo "::set-output name=dir::$(pip cache dir)"
+
+      - name: Cache the pip cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.pip-cache.outputs.dir }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Build the executable
+        run: |
+          ./bin/build-pyinstaller
+        shell: bash
+
+      - name: Publish the executable
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: ./dist/betty.exe

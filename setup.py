@@ -2,12 +2,13 @@
 
 from setuptools import setup, find_packages
 
+from betty._package import get_data_paths
 from betty.fs import ROOT_DIRECTORY_PATH
 
-with open(ROOT_DIRECTORY_PATH / 'VERSION') as f:
+with open(ROOT_DIRECTORY_PATH / 'VERSION', encoding='utf-8') as f:
     VERSION = f.read()
 
-with open(ROOT_DIRECTORY_PATH / 'README.md') as f:
+with open(ROOT_DIRECTORY_PATH / 'README.md', encoding='utf-8') as f:
     long_description = f.read()
 
 SETUP = {
@@ -66,6 +67,8 @@ SETUP = {
             'lxml ~= 4.6',
             'nose2 ~= 0.10',
             'parameterized ~= 0.8',
+            'pip-licenses ~= 3.3',
+            'pyinstaller ~= 4.3',
             'setuptools ~= 57.0.0',
             'twine ~= 3.4',
             'wheel ~= 0.36',
@@ -86,11 +89,7 @@ SETUP = {
     ],
     'include_package_data': True,
     'package_data': {
-        'betty': list(map(str, [
-             ROOT_DIRECTORY_PATH / 'VERSION',
-             *(ROOT_DIRECTORY_PATH / 'betty' / 'assets').glob('**'),
-             *(ROOT_DIRECTORY_PATH / 'betty' / 'extension' / '*' / 'assets').glob('**'),
-        ])),
+        'betty': list(map(str, get_data_paths()))
     },
 }
 

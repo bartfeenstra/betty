@@ -210,16 +210,16 @@ class AppTest(TestCase):
                               type(carrier[0]))
 
     @sync
-    async def test_resources_without_assets_directory_path(self):
+    async def test_assets_without_assets_directory_path(self):
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         async with App(configuration) as sut:
             self.assertEquals(1, len(sut.assets.paths))
 
     @sync
-    async def test_resources_with_assets_directory_path(self):
+    async def test_assets_with_assets_directory_path(self):
         assets_directory_path = Path('/tmp/betty')
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.assets_directory_path = assets_directory_path
         async with App(configuration) as sut:
             self.assertEquals(2, len(sut.assets.paths))
-            self.assertEquals(assets_directory_path, sut.assets.paths[0])
+            self.assertEquals((assets_directory_path, None), sut.assets.paths[0])

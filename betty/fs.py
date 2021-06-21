@@ -7,7 +7,7 @@ from os.path import getmtime
 from pathlib import Path
 from shutil import copy2
 from tempfile import mkdtemp
-from typing import AsyncIterable
+from typing import AsyncIterable, Optional, Tuple
 
 from betty.os import PathLike
 
@@ -28,8 +28,8 @@ def hashfile(path: PathLike) -> str:
 
 
 class FileSystem:
-    def __init__(self, *paths: PathLike):
-        self._paths = deque(map(Path, paths))
+    def __init__(self, *paths: Tuple[PathLike, Optional[str]]):
+        self._paths = deque([(Path(fs_path), fs_encoding) for fs_path, fs_encoding in paths])
 
     @property
     def paths(self) -> deque:
@@ -37,22 +37,22 @@ class FileSystem:
 
     async def open(self, *file_paths: PathLike):
         for file_path in map(Path, file_paths):
-            for fs_path in self._paths:
+            for fs_path, fs_encoding in self._paths:
                 with suppress(FileNotFoundError):
-                    return open(fs_path / file_path)
+                    return open(fs_path / file_path, encoding=fs_encoding)
         raise FileNotFoundError
 
     async def copy2(self, source_path: PathLike, destination_path: PathLike) -> Path:
-        for fs_path in self._paths:
+        for fs_path, _ in self._paths:
             with suppress(FileNotFoundError):
                 return copy2(fs_path / source_path, destination_path)
-        tried_paths = [str(fs_path / source_path) for fs_path in self._paths]
+        tried_paths = [str(fs_path / source_path) for fs_path, _ in self._paths]
         raise FileNotFoundError('Could not find any of %s.' % ', '.join(tried_paths))
 
     async def copytree(self, source_path: PathLike, destination_path: PathLike) -> Path:
         source_path = Path(source_path)
         destination_path = Path(destination_path)
-        for fs_path in self._paths:
+        for fs_path, _ in self._paths:
             async for file_source_path in iterfiles(fs_path / source_path):
                 file_destination_path = destination_path / file_source_path.relative_to(fs_path / source_path)
                 if not file_destination_path.exists():

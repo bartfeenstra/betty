@@ -82,7 +82,7 @@ async def _generate(app: App) -> None:
 
 def _create_file(path: Path) -> object:
     path.parent.mkdir(exist_ok=True, parents=True)
-    return open(path, 'w')
+    return open(path, 'w', encoding='utf-8')
 
 
 def _create_html_resource(path: Path) -> object:
@@ -157,5 +157,5 @@ def _generate_entity_json(www_directory_path: Path, entity: Any, entity_type_nam
 def _generate_openapi(www_directory_path: Path, app: App) -> None:
     api_directory_path = www_directory_path / 'api'
     api_directory_path.mkdir(exist_ok=True, parents=True)
-    with open(api_directory_path / 'index.json', 'w') as f:
+    with open(api_directory_path / 'index.json', 'w', encoding='utf-8') as f:
         dump(build_specification(app), f)

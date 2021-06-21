@@ -18,10 +18,10 @@ class MapsTest(TestCase):
             configuration.extensions[Maps] = None
             async with App(configuration) as app:
                 await generate(app)
-            with open(configuration.www_directory_path / 'maps.js') as f:
+            with open(configuration.www_directory_path / 'maps.js', encoding='utf-8') as f:
                 betty_js = f.read()
             self.assertIn('maps.js', betty_js)
             self.assertIn('maps.css', betty_js)
-            with open(configuration.www_directory_path / 'maps.css') as f:
+            with open(configuration.www_directory_path / 'maps.css', encoding='utf-8') as f:
                 betty_css = f.read()
             self.assertIn('.map', betty_css)

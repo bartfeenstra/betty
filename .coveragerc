@@ -1,6 +1,8 @@
 [run]
 source = betty
-omit = */test*.py
+omit =
+    betty/_package/*
+    */test*.py
 
 [report]
 exclude_lines =
