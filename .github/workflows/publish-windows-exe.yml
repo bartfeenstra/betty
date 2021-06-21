@@ -45,6 +45,6 @@ jobs:
       - name: Publish the executable
         uses: softprops/action-gh-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT }}
         with:
           files: ./dist/betty.exe
