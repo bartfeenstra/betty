@@ -13,6 +13,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Delete any previous tags
+        run: git push --delete origin "$(git rev-parse --abbrev-ref HEAD)-dev"
+
       - name: Check out the source code
         uses: actions/checkout@v2
 
@@ -20,4 +23,4 @@ jobs:
         run: git tag "$(git rev-parse --abbrev-ref HEAD)-dev"
 
       - name: Push the tag
-        run: git push -f origin "$(git rev-parse --abbrev-ref HEAD)-dev"
+        run: git push origin "$(git rev-parse --abbrev-ref HEAD)-dev"
