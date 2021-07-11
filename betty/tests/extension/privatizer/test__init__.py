@@ -6,7 +6,7 @@ from parameterized import parameterized
 
 from betty.ancestry import Person, Presence, Event, Source, IdentifiableSource, File, \
     IdentifiableCitation, Subject, Attendee, Birth, Marriage, Death, Ancestry, IdentifiableEvent, Citation
-from betty.config import Configuration
+from betty.config import Configuration, ExtensionConfiguration
 from betty.asyncio import sync
 from betty.locale import Date, DateRange
 from betty.load import load
@@ -99,7 +99,7 @@ class PrivatizerTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.extensions[Privatizer] = None
+            configuration.extensions.add(ExtensionConfiguration(Privatizer))
             async with App(configuration) as app:
                 app.ancestry.people[person.id] = person
                 app.ancestry.sources[source.id] = source

@@ -4,36 +4,41 @@ import re
 import tarfile
 from contextlib import suppress
 from tempfile import TemporaryDirectory
-from typing import Tuple, Optional, List, Any, Dict
+from typing import Tuple, Optional, List, Any, Dict, Union
 from xml.etree import ElementTree
 
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QFormLayout, QPushButton, QFileDialog, QLineEdit, QHBoxLayout, QVBoxLayout, \
+    QGridLayout
 from geopy import Point
-from voluptuous import Schema, IsFile, All, Invalid
+from reactives import reactive, ReactiveList
+from voluptuous import Schema, All, Invalid, Required
 
 from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, PlaceName, Person, Link, HasFiles, \
     HasLinks, HasCitations, IdentifiableEvent, HasPrivacy, IdentifiableSource, IdentifiableCitation, Subject, Witness, \
     Attendee, Birth, Baptism, Adoption, Cremation, Death, Burial, Engagement, Marriage, MarriageAnnouncement, Divorce, \
     DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, Retirement, Correspondence, Confirmation, \
     Funeral, Will, Beneficiary, Enclosure, UnknownEventType, Missing, Event, Source, Citation
-from betty.config import Path, ConfigurationValueError
+from betty.config import Path, ConfigurationError
 from betty.error import UserFacingError
+from betty.gui import GuiBuilder, catch_exceptions, BettyWindow, mark_valid, mark_invalid, Text
 from betty.locale import DateRange, Datey, Date
 from betty.media_type import MediaType
 from betty.load import Loader
 from betty.os import PathLike
 from betty.path import rootname
-from betty.extension import ConfigurableExtension
-from betty.app import App, AppAwareFactory
 from betty.voluptuous import Path as VoluptuousPath
+from betty.extension import ConfigurableExtension, Configuration
 
 
 class GrampsLoadFileError(UserFacingError):
     pass
 
 
-def load_file(ancestry: Ancestry, file_path: str) -> None:
+def load_file(ancestry: Ancestry, file_path: PathLike) -> None:
+    file_path = Path(file_path)
     logger = logging.getLogger()
-    logger.info('Loading %s...' % file_path)
+    logger.info('Loading %s...' % str(file_path))
 
     with suppress(GrampsLoadFileError):
         load_gpkg(ancestry, file_path)
@@ -46,35 +51,38 @@ def load_file(ancestry: Ancestry, file_path: str) -> None:
     with suppress(GrampsLoadFileError):
         with open(file_path) as f:
             xml = f.read()
-        load_xml(ancestry, xml, rootname(file_path))
+        load_xml(ancestry, xml, file_path.anchor)
         return
 
     raise GrampsLoadFileError('Could not load "%s" as a *.gpkg, a *.gramps, or an *.xml family tree.' % file_path)
 
 
-def load_gramps(ancestry: Ancestry, gramps: PathLike) -> None:
+def load_gramps(ancestry: Ancestry, gramps_path: PathLike) -> None:
+    gramps_path = Path(gramps_path)
     try:
-        with gzip.open(gramps) as f:
+        with gzip.open(gramps_path) as f:
             xml = f.read()
-        load_xml(ancestry, xml, rootname(gramps))
+        load_xml(ancestry, xml, rootname(gramps_path))
     except OSError:
         raise GrampsLoadFileError()
 
 
-def load_gpkg(ancestry: Ancestry, gpkg: PathLike) -> None:
+def load_gpkg(ancestry: Ancestry, gpkg_path: PathLike) -> None:
+    gpkg_path = Path(gpkg_path)
     try:
-        tar_file = gzip.open(gpkg)
+        tar_file = gzip.open(gpkg_path)
         try:
             with TemporaryDirectory() as cache_directory_path:
                 tarfile.open(fileobj=tar_file).extractall(cache_directory_path)
                 load_gramps(ancestry, Path(cache_directory_path) / 'data.gramps')
         except tarfile.ReadError:
-            raise GrampsLoadFileError('Could not read "%s" as a *.tar file after un-gzipping it.' % gpkg)
+            raise GrampsLoadFileError('Could not read "%s" as a *.tar file after un-gzipping it.' % gpkg_path)
     except OSError:
-        raise GrampsLoadFileError('Could not un-gzip "%s".' % gpkg)
+        raise GrampsLoadFileError('Could not un-gzip "%s".' % gpkg_path)
 
 
-def load_xml(ancestry: Ancestry, xml: str, gramps_tree_directory_path: Path) -> None:
+def load_xml(ancestry: Ancestry, xml: Union[str, PathLike], gramps_tree_directory_path: PathLike) -> None:
+    gramps_tree_directory_path = Path(gramps_tree_directory_path)
     with suppress(FileNotFoundError, OSError):
         with open(xml) as f:
             xml = f.read()
@@ -97,7 +105,7 @@ class _IntermediateFile:
         self.citation_handles = citation_handles
 
 
-class _Loader(Loader):
+class _Loader:
     _notes: Dict[str, Note]
     _files: Dict[str, _IntermediateFile]
     _places: Dict[str, Place]
@@ -585,45 +593,193 @@ def _load_attribute(name: str, element: ElementTree.Element, tag: str) -> Option
         return attribute_element.get('value')
 
 
+@reactive
 class FamilyTreeConfiguration:
-    def __init__(self, file_path: str):
+    def __init__(self, file_path: PathLike):
         self.file_path = file_path
 
     def __eq__(self, other):
-        return self.file_path == other.file_path
+        if not isinstance(other, FamilyTreeConfiguration):
+            return False
+        return self._file_path == other.file_path
+
+    @reactive
+    @property
+    def file_path(self) -> Path:
+        return self._file_path
+
+    @file_path.setter
+    def file_path(self, file_path: PathLike) -> None:
+        self._file_path = Path(file_path)
 
 
 def _family_tree_configurations_schema(family_trees_configuration_dict: Any) -> List[FamilyTreeConfiguration]:
     schema = Schema({
-        'file': All(str, IsFile(), VoluptuousPath()),
+        'file': All(str, VoluptuousPath()),
     })
-    family_trees_configuration = []
+    family_trees_configuration = ReactiveList()
     for family_tree_configuration_dict in family_trees_configuration_dict:
         schema(family_tree_configuration_dict)
         family_trees_configuration.append(FamilyTreeConfiguration(family_tree_configuration_dict['file']))
     return family_trees_configuration
 
 
-class Gramps(ConfigurableExtension, AppAwareFactory, Loader):
-    configuration_schema: Schema = Schema({
-        'family_trees': All(list, _family_tree_configurations_schema),
-    })
-
-    def __init__(self, ancestry: Ancestry, family_trees: List[FamilyTreeConfiguration]):
-        self._ancestry = ancestry
+class GrampsConfiguration(Configuration):
+    def __init__(self, family_trees: List[FamilyTreeConfiguration]):
+        super().__init__()
         self._family_trees = family_trees
+        family_trees.react(self)
+
+    @property
+    def family_trees(self) -> List[FamilyTreeConfiguration]:
+        return self._family_trees
+
+
+_GrampsConfigurationSchema = Schema(All({
+    Required('family_trees'): All(list, _family_tree_configurations_schema),
+}, lambda configuration_dict: GrampsConfiguration(**configuration_dict)))
+
+
+class Gramps(ConfigurableExtension, Loader, GuiBuilder):
+    @classmethod
+    def default_configuration(cls) -> Configuration:
+        return GrampsConfiguration(ReactiveList())
 
     @classmethod
-    def validate_configuration(cls, configuration: Optional[Dict]) -> Dict:
+    def configuration_from_dict(cls, configuration_dict: Dict) -> GrampsConfiguration:
         try:
-            return cls.configuration_schema(configuration)
+            return _GrampsConfigurationSchema(configuration_dict)
         except Invalid as e:
-            raise ConfigurationValueError(e)
+            raise ConfigurationError(e)
 
     @classmethod
-    def new_for_app(cls, app: App, *args, **kwargs):
-        return cls(app.ancestry, *args, **kwargs)
+    def configuration_to_dict(cls, configuration: GrampsConfiguration) -> Dict:
+        return {
+            'family_trees': [
+                {
+                    'file': str(family_tree.file_path),
+                }
+                for family_tree in configuration.family_trees
+            ]
+        }
 
     async def load(self) -> None:
-        for family_tree in self._family_trees:
-            load_file(self._ancestry, family_tree.file_path)
+        for family_tree in self._configuration.family_trees:
+            load_file(self._app.ancestry, family_tree.file_path)
+
+    @classmethod
+    def gui_name(cls) -> str:
+        return 'Gramps'
+
+    @classmethod
+    def gui_description(cls) -> str:
+        return _('Load <a href="https://gramps-project.org/">Gramps</a> family trees.')
+
+    def gui_build(self) -> Optional[QWidget]:
+        return _GrampsGuiWidget(self._configuration)
+
+
+@reactive
+class _GrampsGuiWidget(QWidget):
+    def __init__(self, configuration: GrampsConfiguration, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._configuration = configuration
+        self._layout = QVBoxLayout()
+        self.setLayout(self._layout)
+
+        self._family_trees_widget = None
+
+        self._build_family_trees()
+        self._add_family_tree_button = QPushButton('Add a family tree')
+        self._add_family_tree_button.released.connect(self._add_family_tree)
+        self._layout.addWidget(self._add_family_tree_button, 1)
+
+    @reactive(on_trigger_call=True)
+    def _build_family_trees(self) -> None:
+        if self._family_trees_widget is not None:
+            self._layout.removeWidget(self._family_trees_widget)
+            self._family_trees_widget.setParent(None)
+            del self._family_trees_widget
+        self._family_trees_widget = QWidget()
+        family_trees_layout = QGridLayout()
+        self._family_trees_widget.setLayout(family_trees_layout)
+        self._family_trees_widget._remove_buttons = []
+        for i, family_tree in enumerate(self._configuration.family_trees):
+            def _remove_family_tree() -> None:
+                del self._configuration.family_trees[i]
+            family_trees_layout.addWidget(Text(str(family_tree.file_path)), i, 0)
+            self._family_trees_widget._remove_buttons.insert(i, QPushButton('Remove'))
+            self._family_trees_widget._remove_buttons[i].released.connect(_remove_family_tree)
+            family_trees_layout.addWidget(self._family_trees_widget._remove_buttons[i], i, 1)
+        self._layout.insertWidget(0, self._family_trees_widget, alignment=Qt.AlignTop)
+
+    def _add_family_tree(self):
+        window = _AddFamilyTreeWindow(self._configuration.family_trees, self)
+        window.show()
+
+
+class _AddFamilyTreeWindow(BettyWindow):
+    width = 500
+    height = 100
+    title = 'Add a family tree'
+
+    def __init__(self, family_trees: List[FamilyTreeConfiguration], *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._family_trees = family_trees
+        self._family_tree = None
+
+        self._layout = QFormLayout()
+
+        self._widget = QWidget()
+        self._widget.setLayout(self._layout)
+
+        self.setCentralWidget(self._widget)
+
+        def _update_configuration_file_path(file_path: str) -> None:
+            if not file_path:
+                self._widget._save_and_close.setDisabled(True)
+                return
+            try:
+                if self._family_tree is None:
+                    self._family_tree = FamilyTreeConfiguration(file_path)
+                else:
+                    self._family_tree.file_path = Path(file_path)
+                mark_valid(self._widget._file_path)
+                self._widget._save_and_close.setDisabled(False)
+            except ConfigurationError as e:
+                mark_invalid(self._widget._file_path, str(e))
+                self._widget._save_and_close.setDisabled(True)
+        self._widget._file_path = QLineEdit()
+        self._widget._file_path.textChanged.connect(_update_configuration_file_path)
+        file_path_layout = QHBoxLayout()
+        file_path_layout.addWidget(self._widget._file_path)
+
+        @catch_exceptions
+        def find_family_tree_file_path() -> None:
+            found_family_tree_file_path, _ = QFileDialog.getOpenFileName(
+                self._widget,
+                'Load the family tree from...',
+                directory=self._widget._file_path.text(),
+            )
+            if '' != found_family_tree_file_path:
+                self._widget._file_path.setText(found_family_tree_file_path)
+        self._widget._file_path_find = QPushButton('...')
+        self._widget._file_path_find.released.connect(find_family_tree_file_path)
+        file_path_layout.addWidget(self._widget._file_path_find)
+        self._layout.addRow('File path', file_path_layout)
+
+        buttons_layout = QHBoxLayout()
+        self._layout.addRow(buttons_layout)
+
+        @catch_exceptions
+        def save_and_close_family_tree() -> None:
+            self._family_trees.append(self._family_tree)
+            self.close()
+        self._widget._save_and_close = QPushButton('Save and close')
+        self._widget._save_and_close.setDisabled(True)
+        self._widget._save_and_close.released.connect(save_and_close_family_tree)
+        buttons_layout.addWidget(self._widget._save_and_close)
+
+        self._widget._cancel = QPushButton('Cancel')
+        self._widget._cancel.released.connect(self.close)
+        buttons_layout.addWidget(self._widget._cancel)

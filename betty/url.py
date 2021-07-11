@@ -88,12 +88,13 @@ def _generate_from_path(configuration: Configuration, path: str, localize: bool 
     if not isinstance(path, str):
         raise ValueError('%s is not a string.' % type(path))
     url = configuration.base_url if absolute else ''
-    url += configuration.root_path
+    url += '/'
+    if configuration.root_path:
+        url += configuration.root_path + '/'
     if localize and configuration.multilingual:
-        if locale is None:
-            locale = configuration.default_locale
-        url += configuration.locales[locale].alias + '/'
-    url += path.lstrip('/')
-    if configuration.clean_urls and (path.endswith('/index.html') or path == 'index.html'):
+        locale_configuration = configuration.locales.default if locale is None else configuration.locales[locale]
+        url += locale_configuration.alias + '/'
+    url += path.strip('/')
+    if configuration.clean_urls and url.endswith('/index.html'):
         url = url[:-10]
-    return url
+    return url.rstrip('/')

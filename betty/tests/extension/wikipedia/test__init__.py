@@ -17,7 +17,7 @@ from aioresponses import aioresponses
 from parameterized import parameterized
 
 from betty.ancestry import Source, IdentifiableCitation, IdentifiableSource, Link
-from betty.config import Configuration, LocaleConfiguration
+from betty.config import Configuration, LocaleConfiguration, ExtensionConfiguration
 from betty.asyncio import sync
 from betty.load import load
 from betty.extension.wikipedia import Entry, _Retriever, NotAnEntryError, _parse_url, RetrievalError, _Populator, Wikipedia
@@ -450,9 +450,10 @@ class PopulatorTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
-                configuration.locales.clear()
-                configuration.locales['en-US'] = LocaleConfiguration('en-US', 'en')
-                configuration.locales['nl-NL'] = LocaleConfiguration('nl-NL', 'nl')
+                configuration.locales.replace([
+                    LocaleConfiguration('en-US', 'en'),
+                    LocaleConfiguration('nl-NL', 'nl'),
+                ])
                 async with App(configuration) as app:
                     app.ancestry.sources[resource.id] = resource
                     sut = _Populator(app, m_retriever)
@@ -504,7 +505,7 @@ class WikipediaTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://ancestry.example.com')
                 configuration.cache_directory_path = Path(cache_directory_path)
-                configuration.extensions[Wikipedia] = None
+                configuration.extensions.add(ExtensionConfiguration(Wikipedia))
                 async with App(configuration) as app:
                     actual = app.jinja2_environment.from_string(
                         '{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}').render(links=links)
@@ -547,7 +548,7 @@ class WikipediaTest(TestCase):
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = Path(cache_directory_path)
-                configuration.extensions[Wikipedia] = None
+                configuration.extensions.add(ExtensionConfiguration(Wikipedia))
                 async with App(configuration) as app:
                     app.ancestry.sources[resource.id] = resource
                     await load(app)

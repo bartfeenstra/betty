@@ -1,17 +1,18 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Optional, Any, Dict
+from typing import Optional
 
 from parameterized import parameterized
-from voluptuous import Invalid
+from reactives import ReactiveList
 
 from betty.ancestry import Ancestry, PersonName, Birth, Death, UnknownEventType
-from betty.config import Configuration
+from betty.config import Configuration, ExtensionConfiguration
 from betty.asyncio import sync
 from betty.locale import Date
 from betty.load import load
 from betty.path import rootname
-from betty.extension.gramps import load_xml, Gramps, load_gpkg, load_gramps, FamilyTreeConfiguration
+from betty.extension.gramps import load_xml, Gramps, load_gpkg, load_gramps, FamilyTreeConfiguration, \
+    GrampsConfiguration
 from betty.app import App
 from betty.tests import TestCase
 
@@ -508,51 +509,6 @@ class LoadXmlTest(TestCase):
 
 
 class GrampsTest(TestCase):
-    @parameterized.expand([
-        ({}, {}),
-        ({
-            'family_trees': [],
-        },
-            {
-            'family_trees': [],
-        }),
-        ({
-            'family_trees': [
-                FamilyTreeConfiguration(__file__),
-            ],
-        },
-            {
-            'family_trees': [
-                {
-                    'file': __file__,
-                }
-            ],
-        }),
-    ])
-    @sync
-    async def test_configuration_schema_with_valid_configuration(self, expected: Dict, configuration: Dict):
-        self.assertEquals(expected, Gramps.configuration_schema(configuration))
-
-    @parameterized.expand([
-        ({
-            'family_trees': None,
-        }),
-        ({
-            'family_trees': {},
-        }),
-        ({
-            'family_trees': [
-                {
-                    'file': '/non-existent-file',
-                },
-            ],
-        }),
-    ])
-    @sync
-    async def test_configuration_schema_with_invalid_configuration(self, configuration: Any):
-        with self.assertRaises(Invalid):
-            Gramps.configuration_schema(configuration)
-
     @sync
     async def test_load_multiple_family_trees(self):
         family_tree_one_xml = """
@@ -669,14 +625,13 @@ class GrampsTest(TestCase):
 
             with TemporaryDirectory() as output_directory_path:
                 configuration = Configuration(output_directory_path, 'https://example.com')
-                configuration.extensions[Gramps] = {
-                    'family_trees': [
+                configuration.extensions.add(ExtensionConfiguration(Gramps, True, GrampsConfiguration(
+                    family_trees=ReactiveList([
                         FamilyTreeConfiguration(gramps_family_tree_one_path),
                         FamilyTreeConfiguration(gramps_family_tree_two_path),
-                    ]
-                }
-                app = App(configuration)
-                async with app:
+                    ])
+                )))
+                async with App(configuration) as app:
                     await load(app)
                 self.assertIn('O0001', app.ancestry.files)
                 self.assertIn('O0002', app.ancestry.files)

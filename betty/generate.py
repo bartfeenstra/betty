@@ -37,7 +37,8 @@ async def _generate(app: App) -> None:
     logger = logging.getLogger()
     await app.assets.copytree(Path('public') / 'static', app.configuration.www_directory_path)
     await app.renderer.render_tree(app.configuration.www_directory_path)
-    for locale, locale_configuration in app.configuration.locales.items():
+    for locale_configuration in app.configuration.locales:
+        locale = locale_configuration.locale
         async with app.with_locale(locale) as app:
             if app.configuration.multilingual:
                 www_directory_path = app.configuration.www_directory_path / locale_configuration.alias

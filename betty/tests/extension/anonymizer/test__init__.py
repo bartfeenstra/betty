@@ -4,7 +4,7 @@ from unittest.mock import patch, ANY, Mock
 
 from betty.ancestry import Ancestry, Person, File, Source, Citation, PersonName, Presence, Event, IdentifiableEvent, \
     IdentifiableSource, IdentifiableCitation, Birth, Subject, HasCitations
-from betty.config import Configuration
+from betty.config import Configuration, ExtensionConfiguration
 from betty.asyncio import sync
 from betty.load import load
 from betty.extension.anonymizer import Anonymizer, anonymize, anonymize_person, anonymize_event, anonymize_file, \
@@ -323,7 +323,7 @@ class AnonymizerTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.extensions[Anonymizer] = None
+            configuration.extensions.add(ExtensionConfiguration(Anonymizer))
             async with App(configuration) as app:
                 app.ancestry.people[person.id] = person
                 await load(app)

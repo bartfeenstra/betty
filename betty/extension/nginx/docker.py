@@ -1,7 +1,7 @@
 from contextlib import suppress
 
 import docker
-from docker.errors import NotFound
+from docker.errors import NotFound, APIError
 from docker.models.containers import Container as DockerContainer
 
 from betty.os import PathLike
@@ -41,6 +41,9 @@ class Container:
     def stop(self) -> None:
         with suppress(NotFound):
             self._container.stop()
+            # Containers may under certain circumstances be left in a state where auto-removal does not work.
+            with suppress(APIError):
+                self._container.remove()
 
     @property
     def _container(self) -> DockerContainer:

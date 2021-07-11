@@ -4,7 +4,9 @@
   "content_negotiation": true,
   "extensions": {
     "betty.extension.nginx.Nginx": {
-      "www_directory_path": "/var/www/betty/"
+      "configuration": {
+        "www_directory_path": "/var/www/betty/"
+      }
     }
   },
   "locales": [

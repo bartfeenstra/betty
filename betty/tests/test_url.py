@@ -11,12 +11,12 @@ from betty.url import LocalizedPathUrlGenerator, IdentifiableResourceUrlGenerato
 
 class LocalizedPathUrlGeneratorTest(TestCase):
     @parameterized.expand([
-        ('/', '/'),
+        ('', '/'),
         ('/index.html', '/index.html'),
         ('/example', 'example'),
         ('/example', '/example'),
-        ('/example/', 'example/'),
-        ('/example/', '/example/'),
+        ('/example', 'example/'),
+        ('/example', '/example/'),
         ('/example/index.html', 'example/index.html'),
         ('/example/index.html', '/example/index.html'),
     ])
@@ -26,10 +26,10 @@ class LocalizedPathUrlGeneratorTest(TestCase):
         self.assertEquals(expected, sut.generate(resource, 'text/html'))
 
     @parameterized.expand([
-        ('/', 'index.html'),
-        ('/', '/index.html'),
-        ('/example/', 'example/index.html'),
-        ('/example/', '/example/index.html'),
+        ('', 'index.html'),
+        ('', '/index.html'),
+        ('/example', 'example/index.html'),
+        ('/example', '/example/index.html'),
     ])
     def test_generate_with_clean_urls(self, expected: str, resource: str):
         configuration = Configuration('/tmp', 'https://example.com')
@@ -38,7 +38,7 @@ class LocalizedPathUrlGeneratorTest(TestCase):
         self.assertEquals(expected, sut.generate(resource, 'text/html'))
 
     @parameterized.expand([
-        ('https://example.com/', '/'),
+        ('https://example.com', '/'),
         ('https://example.com/example', 'example'),
     ])
     def test_generate_absolute(self, expected: str, resource: str):
@@ -55,9 +55,10 @@ class LocalizedPathUrlGeneratorTest(TestCase):
 
     def test_generate_multilingual(self):
         configuration = Configuration('/tmp', 'https://example.com')
-        configuration.locales.clear()
-        configuration.locales['nl'] = LocaleConfiguration('nl')
-        configuration.locales['en'] = LocaleConfiguration('en')
+        configuration.locales.replace([
+            LocaleConfiguration('nl'),
+            LocaleConfiguration('en'),
+        ])
         sut = LocalizedPathUrlGenerator(configuration)
         self.assertEquals('/nl/index.html',
                           sut.generate('/index.html', 'text/html'))

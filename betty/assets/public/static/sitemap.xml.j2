@@ -7,10 +7,10 @@
     {% set identifiables = identifiables + app.ancestry.files.values() | list %}
     {% set identifiables = identifiables + app.ancestry.sources.values() | list %}
     {% set identifiables = identifiables + app.ancestry.citations.values() | list %}
-    {% for locale in app.configuration.locales %}
+    {% for locale_configuration in app.configuration.locales %}
         {% for identifiable in identifiables %}
             <url>
-                <loc>{{ identifiable | url(absolute=true, locale=locale) }}</loc>
+                <loc>{{ identifiable | url(absolute=true, locale=locale_configuration.locale) }}</loc>
             </url>
         {% endfor %}
     {% endfor %}

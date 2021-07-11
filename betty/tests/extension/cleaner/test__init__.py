@@ -2,7 +2,7 @@ from tempfile import TemporaryDirectory
 
 from betty.ancestry import Ancestry, Person, Place, Presence, PlaceName, IdentifiableEvent, File, PersonName, \
     IdentifiableSource, IdentifiableCitation, Subject, Birth, Enclosure, Source
-from betty.config import Configuration
+from betty.config import Configuration, ExtensionConfiguration
 from betty.asyncio import sync
 from betty.load import load
 from betty.extension.cleaner import Cleaner, clean
@@ -17,7 +17,7 @@ class CleanerTest(TestCase):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
-            configuration.extensions[Cleaner] = None
+            configuration.extensions.add(ExtensionConfiguration(Cleaner))
             async with App(configuration) as app:
                 app.ancestry.events[event.id] = event
                 await load(app)

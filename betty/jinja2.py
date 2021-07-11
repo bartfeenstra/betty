@@ -34,14 +34,13 @@ from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, n
 from betty.lock import AcquiredError
 from betty.os import link_or_copy, PathLike
 from betty.path import rootname
-from betty.extension import Extension
 from betty.render import Renderer
 from betty.search import Index
-from betty.app import App
+from betty.app import App, Extensions
 
 
 class _Extensions:
-    def __init__(self, extensions: Dict[Type[Extension], Extension]):
+    def __init__(self, extensions: Extensions):
         self._extensions = extensions
 
     def __getitem__(self, extension_type_name):
@@ -51,8 +50,8 @@ class _Extensions:
             raise KeyError('Unknown extension "%s".' % extension_type_name)
 
     def __contains__(self, extension_type_name) -> bool:
-        with suppress(ImportError):
-            return import_any(extension_type_name) in self._extensions
+        with suppress(ImportError, KeyError):
+            return self._extensions[import_any(extension_type_name)]
         return False
 
 
@@ -133,7 +132,7 @@ class BettyEnvironment(Environment):
         self.globals['extensions'] = _Extensions(self.app.extensions)
         self.globals['citer'] = _Citer()
         self.globals['search_index'] = lambda: Index(self.app).build()
-        self.globals['html_providers'] = list([extension for extension in self.app.extensions.values() if isinstance(extension, HtmlProvider)])
+        self.globals['html_providers'] = list([extension for extension in self.app.extensions if isinstance(extension, HtmlProvider)])
         self.globals['path'] = os.path
 
     def _init_filters(self) -> None:
@@ -176,7 +175,7 @@ class BettyEnvironment(Environment):
         self.tests['date_range'] = lambda x: isinstance(x, DateRange)
 
     def _init_extensions(self) -> None:
-        for extension in self.app.extensions.values():
+        for extension in self.app.extensions:
             if isinstance(extension, Jinja2Provider):
                 self.globals.update(extension.globals)
                 self.filters.update(extension.filters)
@@ -200,7 +199,7 @@ class Jinja2Renderer(Renderer):
             resource = '/'.join(Path(file_destination_path_str[len(str(self._configuration.www_directory_path)):].strip(os.sep)).parts)
             if self._configuration.multilingual:
                 resource_parts = resource.lstrip('/').split('/')
-                if resource_parts[0] in map(lambda x: x.alias, self._configuration.locales.values()):
+                if resource_parts[0] in map(lambda x: x.alias, self._configuration.locales):
                     resource = '/'.join(resource_parts[1:])
             data['page_resource'] = resource
         root_path = rootname(file_path)

@@ -15,9 +15,10 @@ from babel import parse_locale
 from jinja2 import pass_context
 
 from betty.ancestry import Link, HasLinks, Resource
-from betty.app import App, AppAwareFactory
+from betty.app import App
 from betty.asyncio import sync
 from betty.extension import Extension
+from betty.gui import GuiBuilder
 from betty.jinja2 import Jinja2Provider
 from betty.locale import Localized, negotiate_locale
 from betty.media_type import MediaType
@@ -141,7 +142,7 @@ class _Populator:
         self._retriever = retriever
 
     async def populate(self) -> None:
-        locales = set(self._app.configuration.locales)
+        locales = set(map(lambda x: x.alias, self._app.configuration.locales))
         await asyncio.gather(*[self._populate_resource(resource, locales) for resource in self._app.ancestry.resources])
 
     async def _populate_resource(self, resource: Resource, locales: Set[str]) -> None:
@@ -201,22 +202,11 @@ class _Populator:
             link.label = entry.title
 
 
-class Wikipedia(Extension, AppAwareFactory, Jinja2Provider, PostLoader):
-    def __init__(self, app: App):
-        self._app = app
-
-    async def __aenter__(self):
-        self._session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit_per_host=5))
-        self._retriever = _Retriever(self._session, self._app.configuration.cache_directory_path / self.name())
+class Wikipedia(Extension, Jinja2Provider, PostLoader, GuiBuilder):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._retriever = _Retriever(self._app.http_client, self._app.configuration.cache_directory_path / self.name())
         self._populator = _Populator(self._app, self._retriever)
-        return self
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self._session.close()
-
-    @classmethod
-    def new_for_app(cls, app: App, *args, **kwargs):
-        return cls(app)
 
     async def post_load(self) -> None:
         await self._populator.populate()
@@ -249,3 +239,16 @@ class Wikipedia(Extension, AppAwareFactory, Jinja2Provider, PostLoader):
     @property
     def assets_directory_path(self) -> Optional[Path]:
         return Path(__file__).parent / 'assets'
+
+    @classmethod
+    def gui_name(cls) -> str:
+        return 'Wikipedia'
+
+    @classmethod
+    def gui_description(cls) -> str:
+        return _("""
+Display <a href="https://www.wikipedia.org/">Wikipedia</a> summaries for resources with external links. In your custom <a href="https://jinja2docs.readthedocs.io/en/stable/">Jinja2</a> templates, use the following: <pre><code>
+{% with entity=resource_with_links %}
+    {% include 'wikipedia.html.j2' %}
+{% endwith %}
+</code></pre>""")
