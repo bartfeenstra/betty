@@ -62,3 +62,5 @@ jobs:
         with:
           files: ./dist/betty.exe
           tag_name: ${{ env.betty_tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
