@@ -61,4 +61,4 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: ./dist/betty.exe
-          tag_name: '{{ env.betty_tag }}'
+          tag_name: ${{ env.betty_tag }}

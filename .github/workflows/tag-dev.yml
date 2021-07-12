@@ -19,7 +19,7 @@ jobs:
           echo "betty_tag=$(git rev-parse --abbrev-ref HEAD)-dev" >> $GITHUB_ENV
 
       - name: Tag the development release
-        run: git tag '{{ env.betty_tag }}'
+        run: git tag ${{ env.betty_tag }}
 
       - name: Push the tag
-        run: git push --force origin '{{ env.betty_tag }}'
+        run: git push --force origin ${{ env.betty_tag }}
