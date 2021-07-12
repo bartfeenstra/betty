@@ -14,5 +14,8 @@ jobs:
       - name: Check out the source code
         uses: actions/checkout@v2
 
+      - name: Tag the development release
+        run: git tag "$(git rev-parse --abbrev-ref HEAD)-dev""
+
       - name: Push the tag
-        run: 'curl -X POST -H "Authorization: token ${{ secrets.PAT }}" -d "{\"ref\": \"refs/tags/$(git rev-parse --abbrev-ref HEAD)-dev\",\"sha\": \"$(git rev-parse HEAD)\"}" https://api.github.com/repos/bartfeenstra/betty/git/refs'
+        run: git push --force origin "$(git rev-parse --abbrev-ref HEAD)-dev"
