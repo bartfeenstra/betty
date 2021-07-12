@@ -5,8 +5,6 @@ on:
     branches:
       - master
       - '[0-9].[0-9].x'
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
 
 jobs:
   build:
@@ -16,5 +14,11 @@ jobs:
       - name: Check out the source code
         uses: actions/checkout@v2
 
+      - name: Determine the tag
+        run: echo "betty_tag=$(git rev-parse --abbrev-ref HEAD)-dev" >> $GITHUB_ENV
+
+      - name: Tag the development release
+        run: git tag ${{ env.betty_tag }}
+
       - name: Push the tag
-        run: 'curl -X POST -H "Authorization: token ${{ secrets.PAT }}" -d "{\"ref\": \"refs/tags/$(git rev-parse --abbrev-ref HEAD)-dev\",\"sha\": \"$(git rev-parse HEAD)\"}" https://api.github.com/repos/bartfeenstra/betty/git/refs'
+        run: git push --force origin ${{ env.betty_tag }}

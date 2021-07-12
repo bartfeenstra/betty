@@ -6,6 +6,11 @@ on:
       - master-dev
       - '[0-9]+.[0-9]+.[0-9]+'
       - '[0-9]+.[0-9]+.x-dev'
+  workflow_run:
+    workflows:
+      - Tag development releases
+    type:
+      - complete
 
 jobs:
   build:
@@ -14,37 +19,45 @@ jobs:
       - name: Check out the source code
         uses: actions/checkout@v2
 
+      - name: Determine the tag for branch builds
+        if: startsWith(github.ref, 'refs/heads/')
+        run: echo "betty_tag=$(git rev-parse --abbrev-ref HEAD)-dev" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Determine the tag for tag builds
+        if: startsWith(github.ref, 'refs/tags/')
+        run: echo "betty_tag=$(echo '{{ github.ref }}' | awk '{print substr($1,11)}')" >> $GITHUB_ENV
+        shell: bash
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.9'
 
       - name: Build the development environment
-        run: |
-          ./bin/build-dev
+        run: ./bin/build-dev
         shell: bash
 
       - name: Get the pip cache directory path
         id: pip-cache
-        run: |
-          echo "::set-output name=dir::$(pip cache dir)"
+        run: echo "::set-output name=dir::$(pip cache dir)"
+        shell: bash
 
       - name: Cache the pip cache
         uses: actions/cache@v2
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
           key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          restore-keys: ${{ runner.os }}-pip-
 
       - name: Build the executable
-        run: |
-          ./bin/build-pyinstaller
+        run: ./bin/build-pyinstaller
         shell: bash
 
       - name: Publish the executable
         uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
         with:
           files: ./dist/betty.exe
+          tag_name: ${{ env.betty_tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
