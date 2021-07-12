@@ -29,6 +29,10 @@ jobs:
         run: |
           echo "betty_tag=$(echo '{{ github.ref }}' | awk '{print substr($1,11)}')" >> $GITHUB_ENV
 
+      - name: Debug the tag
+        run: |
+          echo ${{ env.betty_tag }}
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -61,6 +65,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: ./dist/betty.exe
-          tag_name: ${{ env.betty_tag }}
+          tag_name: 9.9.9
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
