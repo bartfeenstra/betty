@@ -19,7 +19,6 @@ jobs:
         run: echo "betty_tag=$(echo '{{ github.ref }}' | awk '{print substr($1,11)}')" >> $GITHUB_ENV
         shell: bash
 
-      # @todo How to determine if any release exists for the given tag at all?
       - name: Get ID of the previous release, if there is any
         run: 'echo "betty_release_id=$(curl -H ''Accept: application/vnd.github.v3+json'' https://api.github.com/repos/bartfeenstra/betty/releases/tags/master-dev | jq -r ''.id'')" >> $GITHUB_ENV'
         shell: bash
@@ -29,7 +28,7 @@ jobs:
         shell: bash
 
       - name: Delete the previous tag, if there is any
-        run: git push --delete --force origin "$(git rev-parse --abbrev-ref HEAD)-dev"
+        run: git push --delete --force origin "$(git rev-parse --abbrev-ref HEAD)-dev" || true
         shell: bash
 
       - name: Tag the release

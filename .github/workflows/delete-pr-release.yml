@@ -1,0 +1,28 @@
+name: Publish releases
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  delete-pr-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the source code
+        uses: actions/checkout@v2
+
+      - name: Determine the tag
+        run: echo "betty_tag=$(git rev-parse --abbrev-ref HEAD)-dev" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Get ID of the previous release, if there is any
+        run: 'echo "betty_release_id=$(curl -H ''Accept: application/vnd.github.v3+json'' https://api.github.com/repos/bartfeenstra/betty/releases/tags/master-dev | jq -r ''.id'')" >> $GITHUB_ENV'
+        shell: bash
+
+      - name: Delete the previous release, if there is any
+        run: 'curl -X DELETE -H ''Accept: application/vnd.github.v3+json'' https://api.github.com/repos/bartfeenstra/betty/releases/${{ env.betty_release_id }}'
+        shell: bash
+
+      - name: Delete the previous tag, if there is any
+        run: git push --delete --force origin "$(git rev-parse --abbrev-ref HEAD)-dev" || true
+        shell: bash
