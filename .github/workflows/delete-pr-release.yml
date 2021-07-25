@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Determine the tag
-        run: echo "betty_tag=${GITHUB_BASE_REF#refs/*/}-dev" >> $GITHUB_ENV
+        run: echo "betty_tag=${GITHUB_HEAD_REF#refs/*/}-dev" >> $GITHUB_ENV
         shell: bash
 
       - name: Get ID of the previous release, if there is any
