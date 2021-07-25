@@ -9,18 +9,12 @@ jobs:
       - name: Check out the source code
         uses: actions/checkout@v2
 
-      - name: Determine the tag for branch builds
-        if: startsWith(github.ref, 'refs/heads/')
-        run: echo "betty_tag=$(git rev-parse --abbrev-ref HEAD)-dev" >> $GITHUB_ENV
-        shell: bash
-
-      - name: Determine the tag for tag builds
-        if: startsWith(github.ref, 'refs/tags/')
-        run: echo "betty_tag=$(echo '{{ github.ref }}' | awk '{print substr($1,11)}')" >> $GITHUB_ENV
+      - name: Determine the tag
+        run: echo "betty_tag=${GITHUB_REF#refs/*/}-dev" >> $GITHUB_ENV
         shell: bash
 
       - name: Get ID of the previous release, if there is any
-        run: 'echo "betty_release_id=$(curl -H ''Accept: application/vnd.github.v3+json'' https://api.github.com/repos/bartfeenstra/betty/releases/tags/master-dev | jq -r ''.id'')" >> $GITHUB_ENV'
+        run: 'echo "betty_release_id=$(curl -H ''Accept: application/vnd.github.v3+json'' https://api.github.com/repos/bartfeenstra/betty/releases/tags/${{ env.betty_tag }} | jq -r ''.id'')" >> $GITHUB_ENV'
         shell: bash
 
       - name: Delete the previous release, if there is any
