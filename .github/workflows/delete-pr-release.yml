@@ -15,14 +15,14 @@ jobs:
         run: echo "betty_tag=${GITHUB_HEAD_REF#refs/*/}-dev" >> $GITHUB_ENV
         shell: bash
 
-      - name: Get ID of the previous release, if there is any
-        run: 'echo "betty_release_id=$(curl -H ''Accept: application/vnd.github.v3+json'' https://api.github.com/repos/bartfeenstra/betty/releases/tags/${{ env.betty_tag }} | jq -r ''.id'')" >> $GITHUB_ENV'
+      - name: Get ID of the previous release
+        run: 'echo "betty_release_id=$(curl -f -H ''Accept: application/vnd.github.v3+json'' https://api.github.com/repos/bartfeenstra/betty/releases/tags/${{ env.betty_tag }} | jq -r ''.id'')" >> $GITHUB_ENV'
         shell: bash
 
-      - name: Delete the previous release, if there is any
-        run: 'curl -X DELETE -H "Accept: application/vnd.github.v3+json" --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/bartfeenstra/betty/releases/${{ env.betty_release_id }}'
+      - name: Delete the previous release
+        run: 'curl -f -X DELETE -H "Accept: application/vnd.github.v3+json" --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/bartfeenstra/betty/releases/${{ env.betty_release_id }}'
         shell: bash
 
-      - name: Delete the previous tag, if there is any
-        run: git push --delete --force origin "$(git rev-parse --abbrev-ref HEAD)-dev" || true
+      - name: Delete the tag
+        run: git push --delete --force origin "${{ env.betty_tag }}"
         shell: bash
