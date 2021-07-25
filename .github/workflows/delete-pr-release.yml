@@ -1,4 +1,4 @@
-name: Publish releases
+name: Delete PR releases
 
 on:
   pull_request:
@@ -12,11 +12,11 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Determine the tag
-        run: echo "betty_tag=$(git rev-parse --abbrev-ref HEAD)-dev" >> $GITHUB_ENV
+        run: echo "betty_tag=${GITHUB_REF#refs/*/}-dev" >> $GITHUB_ENV
         shell: bash
 
       - name: Get ID of the previous release, if there is any
-        run: 'echo "betty_release_id=$(curl -H ''Accept: application/vnd.github.v3+json'' https://api.github.com/repos/bartfeenstra/betty/releases/tags/master-dev | jq -r ''.id'')" >> $GITHUB_ENV'
+        run: 'echo "betty_release_id=$(curl -H ''Accept: application/vnd.github.v3+json'' https://api.github.com/repos/bartfeenstra/betty/releases/tags/${{ env.betty_tag }} | jq -r ''.id'')" >> $GITHUB_ENV'
         shell: bash
 
       - name: Delete the previous release, if there is any
