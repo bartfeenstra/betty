@@ -25,9 +25,8 @@ if __name__ == "__main__":
         if dev_branch_response.status_code != 404:
             continue
 
-        requests.get(
+        requests.delete(
             f'https://api.github.com/repos/bartfeenstra/betty/releases/{dev_release["id"]}',
-            method='DELETE',
             headers={
                 'Authorization': f'Bearer {environ["GITHUB_TOKEN"]}',
             },
