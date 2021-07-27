@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+from os import environ
+
+import requests
+
+if __name__ == "__main__":
+    releases_response = requests.get(
+        'https://api.github.com/repos/bartfeenstra/betty/releases',
+        headers={
+            'Accept': 'application/vnd.github.v3+json',
+        },
+    )
+    releases_response.raise_for_status()
+
+    for dev_release in releases_response.json():
+        if not dev_release['tag_name'].endswith('-dev'):
+            continue
+
+        dev_release_branch_name = dev_release['tag_name'][:-4]
+
+        dev_branch_response = requests.get(
+            f'https://api.github.com/repos/bartfeenstra/betty/branches/{dev_release_branch_name}', headers={
+                'Accept': 'application/vnd.github.v3+json',
+            })
+        if dev_branch_response.status_code != 404:
+            continue
+
+        requests.get(
+            f'https://api.github.com/repos/bartfeenstra/betty/releases/{dev_release["id"]}',
+            method='DELETE',
+            headers={
+                'Authorization': f'Bearer {environ["GITHUB_TOKEN"]}',
+            },
+        ).raise_for_status()
