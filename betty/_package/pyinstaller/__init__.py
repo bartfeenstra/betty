@@ -31,7 +31,7 @@ def a_pyz_exe():
         *collect_submodules(),
         'babel.numbers'
     ]
-    a = Analysis(['betty/cli.py'],
+    a = Analysis(['betty/_package/pyinstaller/main.py'],
                  pathex=['./'],
                  binaries=[],
                  datas=datas,
@@ -58,6 +58,6 @@ def a_pyz_exe():
               upx=True,
               upx_exclude=[],
               runtime_tmpdir=None,
-              console=True,
+              console=False,
               icon=str(ROOT_DIRECTORY_PATH / 'betty' / 'assets' / 'public' / 'static' / 'betty.ico'))
     return a, pyz, exe

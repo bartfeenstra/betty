@@ -143,7 +143,7 @@ async def _demo():
 @global_command
 @click.option('--configuration', '-c', 'configuration_file_path', is_eager=True, help='The path to a Betty configuration file. Defaults to betty.json|yaml|yml in the current working directory.')
 def _gui(configuration_file_path: Optional[str]):
-    app = BettyApplication(sys.argv)
+    app = BettyApplication([sys.argv[0]])
     if configuration_file_path is None:
         window = _WelcomeWindow()
     else:
