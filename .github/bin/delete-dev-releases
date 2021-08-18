@@ -1,47 +1,95 @@
 #!/usr/bin/env python
 from os import environ
+from typing import List, Dict
 
 import requests
 
-if __name__ == "__main__":
+
+def page(endpoint: str) -> List[Dict]:
     # Get all releases by paging over the endpoint.
-    releases = []
-    releases_page = 0
+    resources = []
+    page = 0
     while True:
-        releases_page += 1
-        releases_response = requests.get(
-            f'https://api.github.com/repos/bartfeenstra/betty/releases?per_page=100&page={releases_page}',
+        page += 1
+        response = requests.get(
+            f'{endpoint}?per_page=100&page={page}',
             headers={
                 'Accept': 'application/vnd.github.v3+json',
                 'Authorization': f'Bearer {environ["GITHUB_TOKEN"]}',
             },
         )
-        releases_response.raise_for_status()
-        page_releases = releases_response.json()
-        if not page_releases:
+        response.raise_for_status()
+        page_resources = response.json()
+        if not page_resources:
             break
-        releases += page_releases
+        resources += page_resources
+    return resources
+
+
+def branch_exists(branch_name: str) -> bool:
+    branch_response = requests.get(
+        f'https://api.github.com/repos/bartfeenstra/betty/branches/{branch_name}',
+        headers={
+            'Accept': 'application/vnd.github.v3+json',
+        },
+    )
+    return branch_response.status_code != 404
+
+
+def delete_releases() -> None:
+    # Get all releases by paging over the endpoint.
+    releases = page('https://api.github.com/repos/bartfeenstra/betty/releases')
 
     for release in releases:
-        # Ignore non-development releases.
-        if not release['tag_name'].endswith('-dev'):
-            continue
+        delete_release(release)
 
-        dev_release_branch_name = release['tag_name'][:-4]
 
-        # Ignore this release if a corresponding branch exists.
-        dev_branch_response = requests.get(
-            f'https://api.github.com/repos/bartfeenstra/betty/branches/{dev_release_branch_name}',
-            headers={
-                'Accept': 'application/vnd.github.v3+json',
-            },
-        )
-        if dev_branch_response.status_code != 404:
-            continue
+def delete_release(release: Dict) -> None:
+    # Ignore non-development releases.
+    if not release['tag_name'].endswith('-dev'):
+        return
 
-        requests.delete(
-            f'https://api.github.com/repos/bartfeenstra/betty/releases/{release["id"]}',
-            headers={
-                'Authorization': f'Bearer {environ["GITHUB_TOKEN"]}',
-            },
-        ).raise_for_status()
+    dev_release_branch_name = release['tag_name'][:-4]
+
+    # Ignore this release if a corresponding branch exists.
+    if branch_exists(dev_release_branch_name):
+        return
+
+    requests.delete(
+        f'https://api.github.com/repos/bartfeenstra/betty/releases/{release["id"]}',
+        headers={
+            'Authorization': f'Bearer {environ["GITHUB_TOKEN"]}',
+        },
+    ).raise_for_status()
+
+
+def delete_tags() -> None:
+    # Get all tags by paging over the endpoint.
+    tags = page('https://api.github.com/repos/bartfeenstra/betty/tags')
+
+    for tag in tags:
+        delete_tag(tag)
+
+
+def delete_tag(tag: Dict) -> None:
+    # Ignore non-development tags.
+    if not tag['name'].endswith('-dev'):
+        return
+
+    dev_tag_branch_name = tag['name'][:-4]
+
+    # Ignore this tag if a corresponding branch exists.
+    if branch_exists(dev_tag_branch_name):
+        return
+
+    requests.delete(
+        f'https://api.github.com/repos/bartfeenstra/betty/git/refs/tags/{tag["name"]}',
+        headers={
+            'Authorization': f'Bearer {environ["GITHUB_TOKEN"]}',
+        },
+    ).raise_for_status()
+
+
+if __name__ == "__main__":
+    delete_releases()
+    delete_tags()
