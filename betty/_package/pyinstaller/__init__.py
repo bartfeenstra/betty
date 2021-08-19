@@ -6,6 +6,7 @@ from PyInstaller.building.build_main import Analysis
 from PyInstaller.utils.hooks import collect_submodules as pyinstaller_collect_submodules
 
 from betty._package import get_data_paths
+from betty._package.pyinstaller.hooks import HOOKS_DIRECTORY_PATH
 from betty.fs import ROOT_DIRECTORY_PATH
 
 
@@ -36,7 +37,7 @@ def a_pyz_exe():
                  binaries=[],
                  datas=datas,
                  hiddenimports=hiddenimports,
-                 hookspath=[],
+                 hookspath=[str(HOOKS_DIRECTORY_PATH)],
                  runtime_hooks=[],
                  excludes=[],
                  win_no_prefer_redirects=False,
