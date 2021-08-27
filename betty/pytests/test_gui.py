@@ -8,9 +8,11 @@ from PyQt5.QtWidgets import QFileDialog
 from babel import Locale
 
 from betty import fs
-from betty.config import ConfigurationError, LocaleConfiguration
+from betty.app import App
+from betty.asyncio import sync
+from betty.config import ConfigurationError, LocaleConfiguration, Configuration
 from betty.gui import BettyMainWindow, _WelcomeWindow, ProjectWindow, _AboutBettyWindow, ExceptionError, \
-    _AddLocaleWindow
+    _AddLocaleWindow, _GenerateWindow, _ServeWindow
 from betty.tests import patch_cache
 
 
@@ -277,3 +279,32 @@ def test_project_window_save_project_as_should_create_duplicate_configuration_fi
         ],
         'lifetime_threshold': 125,
     }
+
+
+@sync
+async def test_generate_window_close_button_should_close_window(assert_not_window, navigate, qtbot, tmpdir) -> None:
+    configuration = Configuration(tmpdir, 'https://example.com')
+    async with App(configuration) as app:
+        sut = _GenerateWindow(app)
+        qtbot.addWidget(sut)
+
+        with qtbot.waitSignal(sut._thread.finished):
+            sut.show()
+
+        qtbot.mouseClick(sut._close_button, QtCore.Qt.LeftButton)
+        assert_not_window(_GenerateWindow)
+
+
+@sync
+async def test_generate_window_serve_button_should_open_serve_window(assert_window, mocker, navigate, qtbot, tmpdir) -> None:
+    mocker.patch('webbrowser.open_new_tab')
+    configuration = Configuration(tmpdir, 'https://example.com')
+    async with App(configuration) as app:
+        sut = _GenerateWindow(app)
+        qtbot.addWidget(sut)
+
+        with qtbot.waitSignal(sut._thread.finished):
+            sut.show()
+
+        qtbot.mouseClick(sut._serve_button, QtCore.Qt.LeftButton)
+        assert_window(_ServeWindow)

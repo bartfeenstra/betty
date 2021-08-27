@@ -14,7 +14,7 @@ from typing import Sequence, Type, Optional, Union
 from urllib.parse import urlparse
 
 from PyQt5 import QtCore
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, QObject
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtWidgets import QApplication, QDesktopWidget, QFileDialog, QMainWindow, QAction, qApp, QVBoxLayout, QLabel, \
     QWidget, QPushButton, QMessageBox, QLineEdit, QCheckBox, QFormLayout, QHBoxLayout, QGridLayout, QLayout, \
@@ -664,42 +664,191 @@ class ProjectWindow(BettyMainWindow):
             to_file(f, self._configuration)
 
     @catch_exceptions
-    @sync
-    async def _generate(self) -> None:
-        await load.load(self._app)
-        await generate.generate(self._app)
+    def _generate(self) -> None:
+        generate_window = _GenerateWindow(self._app, self)
+        generate_window.show()
 
     @catch_exceptions
     def _serve(self) -> None:
-        server_window = _ServeWindow(self._app, self)
-        server_window.show()
+        serve_window = _ServeWindow.get_instance(self._app, self)
+        serve_window.show()
 
 
-class _ServeWindow(BettyWindow):
+class LogRecord(Text):
+    _LEVELS = [
+        logging.CRITICAL,
+        logging.ERROR,
+        logging.WARNING,
+        logging.INFO,
+        logging.DEBUG,
+        logging.NOTSET,
+    ]
+
+    _formatter = logging.Formatter()
+
+    def __init__(self, record: logging.LogRecord, *args, **kwargs):
+        super().__init__(self._formatter.format(record), *args, **kwargs)
+        self.setProperty('level', self._normalize_level(record.levelno))
+
+    def _normalize_level(self, record_level: int) -> int:
+        for level in self._LEVELS:
+            if record_level >= level:
+                return level
+
+
+class LogRecordViewer(QWidget):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._log_record_layout = QVBoxLayout()
+        self.setLayout(self._log_record_layout)
+
+    def log(self, record: logging.LogRecord) -> None:
+        self._log_record_layout.addWidget(LogRecord(record))
+
+
+class _LogRecordViewerHandlerObject(QObject):
+    """
+    Provide a signal got logging handlers to log records to a LogRecordViewer in the main (GUI) thread.
+    """
+    log = pyqtSignal(logging.LogRecord)
+
+    def __init__(self, viewer: LogRecordViewer):
+        super().__init__()
+        self.log.connect(viewer.log, Qt.QueuedConnection)
+
+
+class LogRecordViewerHandler(logging.Handler):
+    log = pyqtSignal(logging.LogRecord)
+
+    def __init__(self, viewer: LogRecordViewer):
+        super().__init__()
+        self._object = _LogRecordViewerHandlerObject(viewer)
+
+    def emit(self, record: logging.LogRecord) -> None:
+        self._object.log.emit(record)
+
+
+class _GenerateThread(QThread):
+    def __init__(self, app: App, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._app = app
+
+    @sync
+    async def run(self) -> None:
+        await load.load(self._app)
+        await generate.generate(self._app)
+
+
+class _GenerateWindow(BettyWindow):
     width = 500
     height = 100
-    title = 'Serving Betty...'
+    title = 'Generating your site...'
 
     def __init__(self, app: App, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._app = app
-        self._server = None
-
-        if not path.isdir(self._app.configuration.www_directory_path):
-            self.close()
-            raise ConfigurationError('Web root directory "%s" does not exist.' % self._app.configuration.www_directory_path)
-
-        self._server = serve.AppServer(self._app)
-        self.start()
+        self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowFlags(self.windowFlags() ^ Qt.WindowCloseButtonHint)
 
         central_layout = QVBoxLayout()
         central_widget = QWidget()
         central_widget.setLayout(central_layout)
         self.setCentralWidget(central_widget)
 
+        self._log_record_viewer = LogRecordViewer()
+        central_layout.addWidget(self._log_record_viewer)
+
+        button_layout = QHBoxLayout()
+        central_layout.addLayout(button_layout)
+
+        self._close_button = QPushButton('Close')
+        self._close_button.setDisabled(True)
+        self._close_button.released.connect(self.close)
+        button_layout.addWidget(self._close_button)
+
+        self._serve_button = QPushButton('View site')
+        self._serve_button.setDisabled(True)
+        self._serve_button.released.connect(self._serve)
+        button_layout.addWidget(self._serve_button)
+
+        self._app = app
+        self._logging_handler = LogRecordViewerHandler(self._log_record_viewer)
+        self._thread = _GenerateThread(self._app)
+        self._thread.finished.connect(self._finish_generate)
+
+    @catch_exceptions
+    def _serve(self) -> None:
+        serve_window = _ServeWindow.get_instance(self._app, self)
+        serve_window.show()
+
+    def show(self) -> None:
+        super().show()
+        load.getLogger().addHandler(self._logging_handler)
+        generate.getLogger().addHandler(self._logging_handler)
+        self._thread.start()
+
+    def _finish_generate(self) -> None:
+        load.getLogger().removeHandler(self._logging_handler)
+        generate.getLogger().removeHandler(self._logging_handler)
+        self._close_button.setDisabled(False)
+        self._serve_button.setDisabled(False)
+
+
+class _ServeThread(QThread):
+    server_started = pyqtSignal()
+
+    def __init__(self, app: App, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._app = app
+        self.server = serve.AppServer(self._app)
+
+    @sync
+    async def run(self) -> None:
+        await self.server.start()
+        self.server_started.emit()
+
+    @sync
+    async def stop(self) -> None:
+        await self.server.stop()
+
+
+class _ServeWindow(BettyWindow):
+    """
+    Show a window that controls the site server.
+
+    To prevent multiple servers from being run simultaneously, do not instantiate this class directly, but call the
+    get_instance() method.
+    """
+
+    width = 500
+    height = 100
+    title = 'Serving Betty...'
+    _instance = None
+
+    def __init__(self, app: App, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._app = app
+        self._thread = None
+
+        if not path.isdir(self._app.configuration.www_directory_path):
+            self.close()
+            raise ConfigurationError('Web root directory "%s" does not exist.' % self._app.configuration.www_directory_path)
+
+    @classmethod
+    def get_instance(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = cls(*args, **kwargs)
+        return cls._instance
+
+    def _server_started(self) -> None:
+        central_layout = QVBoxLayout()
+        central_widget = QWidget()
+        central_widget.setLayout(central_layout)
+        self.setCentralWidget(central_widget)
+
         instruction = Text('\n'.join([
-            'You can now view your site at <a href="%s">%s</a>.' % (self._server.public_url, self._server.public_url),
+            'You can now view your site at <a href="%s">%s</a>.' % (self._thread.server.public_url, self._thread.server.public_url),
             'Keep this window open to keep the server running.',
         ]))
         instruction.setAlignment(QtCore.Qt.AlignCenter)
@@ -709,17 +858,19 @@ class _ServeWindow(BettyWindow):
         stop_server_button.released.connect(self.close)
         central_layout.addWidget(stop_server_button)
 
-    @sync
-    async def start(self) -> None:
-        await self._server.start()
+    def show(self) -> None:
+        super().show()
+        # Explicitly activate this window in case it existed and was shown before, but requested again.
+        self.activateWindow()
+        if self._thread is None:
+            self._thread = _ServeThread(self._app)
+            self._thread.server_started.connect(self._server_started)
+            self._thread.start()
 
     @sync
-    async def stop(self) -> None:
-        if self._server is not None:
-            await self._server.stop()
-
     def close(self) -> bool:
-        self.stop()
+        self._thread.stop()
+        self._instance = None
         return super().close()
 
 
@@ -746,6 +897,7 @@ class BettyApplication(QApplication):
             color: #333333;
             margin-bottom: 0.3em;
         }
+
         QLineEdit[invalid="true"] {
             border: 1px solid red;
             color: red;
@@ -753,6 +905,24 @@ class BettyApplication(QApplication):
 
         QPushButton[pane-selector="true"] {
             padding: 10px;
+        }
+
+        LogRecord[level="50"],
+        LogRecord[level="40"] {
+            color: red;
+        }
+
+        LogRecord[level="30"] {
+            color: yellow;
+        }
+
+        LogRecord[level="20"] {
+            color: green;
+        }
+
+        LogRecord[level="10"],
+        LogRecord[level="0"] {
+            color: white;
         }
         """
 

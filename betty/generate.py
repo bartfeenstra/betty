@@ -14,6 +14,10 @@ from betty.openapi import build_specification
 from betty.app import App
 
 
+def getLogger() -> logging.Logger:
+    return logging.getLogger(__name__)
+
+
 class Generator:
     async def generate(self) -> None:
         raise NotImplementedError
@@ -34,7 +38,7 @@ async def generate(app: App) -> None:
 
 
 async def _generate(app: App) -> None:
-    logger = logging.getLogger()
+    logger = getLogger()
     await app.assets.copytree(Path('public') / 'static', app.configuration.www_directory_path)
     await app.renderer.render_tree(app.configuration.www_directory_path)
     for locale_configuration in app.configuration.locales:

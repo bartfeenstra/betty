@@ -1,4 +1,10 @@
+import logging
+
 from betty.app import App
+
+
+def getLogger() -> logging.Logger:
+    return logging.getLogger(__name__)
 
 
 class Loader:
