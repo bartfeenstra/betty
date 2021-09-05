@@ -7,7 +7,7 @@ from docker.errors import DockerException
 
 from betty.extension.nginx import Nginx, generate_dockerfile_file
 from betty.extension.nginx.docker import Container
-from betty.serve import Server, ServerNotStartedError
+from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
 from betty.app import App
 
 
@@ -37,7 +37,7 @@ class DockerizedNginxServer(Server):
     def public_url(self) -> str:
         if self._container is not None:
             return 'http://%s' % self._container.ip
-        raise ServerNotStartedError('Cannot determine the public URL if the server has not started yet.')
+        raise NoPublicUrlBecauseServerNotStartedError()
 
     @classmethod
     def is_available(cls) -> bool:

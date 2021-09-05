@@ -17,6 +17,11 @@ class ServerNotStartedError(RuntimeError):
     pass
 
 
+class NoPublicUrlBecauseServerNotStartedError(ServerNotStartedError):
+    def __init__(self):
+        super().__init__('Cannot get the public URL for a server that has not started yet.')
+
+
 class OsError(UserFacingError, OSError):
     pass
 
@@ -72,6 +77,8 @@ class AppServer(Server):
 
     @property
     def public_url(self) -> str:
+        if self._server is None:
+            raise NoPublicUrlBecauseServerNotStartedError()
         return self._server.public_url
 
     async def stop(self) -> None:
@@ -82,7 +89,6 @@ class BuiltinServer(Server):
     def __init__(self, www_directory_path: PathLike):
         self._www_directory_path = www_directory_path
         self._http_server = None
-        self._cwd = None
         self._port = None
 
     async def start(self) -> None:
@@ -93,19 +99,19 @@ class BuiltinServer(Server):
                 break
         if self._http_server is None:
             raise OsError('Cannot find an available port to bind the web server to.')
-        self._cwd = ChDir(self._www_directory_path).change()
         threading.Thread(target=self._serve).start()
 
     @property
     def public_url(self) -> str:
         if self._port is not None:
             return 'http://localhost:%d' % self._port
-        raise ServerNotStartedError('Cannot determine the public URL if the server has not started yet.')
+        raise NoPublicUrlBecauseServerNotStartedError()
 
     def _serve(self):
         with contextlib.redirect_stderr(StringIO()):
-            self._http_server.serve_forever()
+            with ChDir(self._www_directory_path):
+                self._http_server.serve_forever()
 
     async def stop(self) -> None:
-        self._http_server.shutdown()
-        self._cwd.revert()
+        if self._http_server is not None:
+            self._http_server.shutdown()

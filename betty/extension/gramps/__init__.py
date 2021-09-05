@@ -1,5 +1,4 @@
 import gzip
-import logging
 import re
 import tarfile
 from contextlib import suppress
@@ -24,7 +23,7 @@ from betty.error import UserFacingError
 from betty.gui import GuiBuilder, catch_exceptions, BettyWindow, mark_valid, mark_invalid, Text
 from betty.locale import DateRange, Datey, Date
 from betty.media_type import MediaType
-from betty.load import Loader
+from betty.load import Loader, getLogger
 from betty.os import PathLike
 from betty.path import rootname
 from betty.voluptuous import Path as VoluptuousPath
@@ -37,7 +36,7 @@ class GrampsLoadFileError(UserFacingError):
 
 def load_file(ancestry: Ancestry, file_path: PathLike) -> None:
     file_path = Path(file_path)
-    logger = logging.getLogger()
+    logger = getLogger()
     logger.info('Loading %s...' % str(file_path))
 
     with suppress(GrampsLoadFileError):
@@ -143,7 +142,7 @@ class _Loader:
             self._ancestry.notes[note.id] = note
 
     def load(self) -> None:
-        logger = logging.getLogger()
+        logger = getLogger()
 
         database = self._tree.getroot()
 
@@ -456,7 +455,7 @@ def _load_event(loader: _Loader, element: ElementTree.Element):
         event_type = _EVENT_TYPE_MAP[gramps_type.text]
     except KeyError:
         event_type = UnknownEventType()
-        logging.getLogger().warning(
+        getLogger().warning(
             'Betty is unfamiliar with Gramps event "%s"\'s type of "%s". The event was imported, but its type was set to "%s".' % (event_id, gramps_type.text, event_type.label))
 
     event = IdentifiableEvent(event_id, event_type)
@@ -584,7 +583,7 @@ def _load_attribute_privacy(resource: HasPrivacy, element: ElementTree.Element, 
     if privacy_value == 'public':
         resource.private = False
         return
-    logging.getLogger().warning('The betty:privacy Gramps attribute must have a value of "public" or "private", but "%s" was given, which was ignored.' % privacy_value)
+    getLogger().warning('The betty:privacy Gramps attribute must have a value of "public" or "private", but "%s" was given, which was ignored.' % privacy_value)
 
 
 def _load_attribute(name: str, element: ElementTree.Element, tag: str) -> Optional[str]:
