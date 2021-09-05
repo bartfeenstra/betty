@@ -47,6 +47,7 @@ SETUP = {
         'click ~= 8.0.1',
         'docker ~= 5.0.0',
         'geopy ~= 2.1',
+        'graphlib-backport ~= 1.0; python_version < "3.9"',
         'importlib-metadata ~= 4.0',
         'jinja2 ~= 3.0.1',
         'jsonschema ~= 3.2',

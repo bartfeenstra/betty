@@ -1,3 +1,7 @@
+try:
+    from graphlib import CycleError
+except ImportError:
+    from graphlib_backport import CycleError
 from pathlib import Path
 from typing import List, Type, Set, Dict
 
@@ -7,7 +11,6 @@ from betty import extension
 from betty.ancestry import Ancestry
 from betty.config import Configuration, ConfigurationError, ExtensionConfiguration
 from betty.asyncio import sync
-from betty.graph import CyclicGraphError
 from betty.app import App
 from betty.tests import TestCase
 
@@ -166,7 +169,7 @@ class AppTest(TestCase):
     async def test_extensions_with_multiple_extensions_with_cyclic_dependencies(self) -> None:
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.extensions.add(ExtensionConfiguration(CyclicDependencyOneExtension))
-        with self.assertRaises(CyclicGraphError):
+        with self.assertRaises(CycleError):
             async with App(configuration) as sut:
                 sut.extensions
 

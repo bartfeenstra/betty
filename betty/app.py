@@ -1,7 +1,11 @@
 import gettext
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 from concurrent.futures._base import Executor
 from concurrent.futures.thread import ThreadPoolExecutor
+try:
+    from graphlib import TopologicalSorter
+except ImportError:
+    from graphlib_backport import TopologicalSorter
 from pathlib import Path
 
 import aiohttp
@@ -10,7 +14,7 @@ from reactives import reactive, Scope
 
 from betty.concurrent import ExceptionRaisingExecutor
 from betty.dispatch import Dispatcher
-from betty.extension import build_extension_type_graph, ConfigurableExtension, Extension
+from betty.extension import _build_extension_type_graph, ConfigurableExtension, Extension, Extensions
 from betty.lock import Locks
 from betty.render import Renderer, SequentialRenderer
 
@@ -19,43 +23,43 @@ try:
 except ImportError:
     from async_exit_stack import AsyncExitStack
 from copy import copy
-from typing import Type, Dict, Optional, Iterable, Sequence
+from typing import Type, Dict, Sequence, List
 
 from betty.ancestry import Ancestry
 from betty.config import Configuration
 from betty.fs import FileSystem
-from betty.graph import tsort
 from betty.locale import open_translations, Translations, negotiate_locale
 from betty.url import AppUrlGenerator, StaticPathUrlGenerator, LocalizedUrlGenerator, StaticUrlGenerator
 
 
 @reactive
-class Extensions:
-    def __init__(self, extensions: Optional[Sequence[Extension]] = None):
-        self._extensions = OrderedDict()
-        if extensions is not None:
-            for extension in extensions:
-                self._extensions[extension.extension_type] = extension
+class _AppExtensions(Extensions):
+    def __init__(self):
+        self._extensions = []
 
     @Scope.register_self
     def __getitem__(self, extension_type: Type[Extension]) -> Extension:
-        return self._extensions[extension_type]
+        for extension in self.flatten():
+            if type(extension) == extension_type:
+                return extension
+        raise KeyError(f'Unknown extension of type "{extension_type}"')
 
     @Scope.register_self
-    def __iter__(self) -> Iterable[Extension]:
-        return (extension for extension in self._extensions.values())
+    def __iter__(self) -> Sequence[Sequence[Extension]]:
+        # Use a generator so we discourage calling code from storing the result.
+        for batch in self._extensions:
+            yield (extension for extension in batch)
 
     @Scope.register_self
-    def __eq__(self, other):
-        if not isinstance(other, Extensions):
-            return NotImplemented
-        return self._extensions == other._extensions
+    def __contains__(self, extension_type: Type[Extension]) -> bool:
+        for extension in self.flatten():
+            if type(extension) == extension_type:
+                return True
+        return False
 
-    def _add(self, extension: Extension) -> None:
-        self._extensions[type(extension)] = extension
-
-    def _remove(self, extension_type: Type[Extension]) -> None:
-        del self._extensions[extension_type]
+    def _update(self, extensions: List[List[Extension]]) -> None:
+        self._extensions = extensions
+        self.react.trigger()
 
 
 @reactive
@@ -72,7 +76,7 @@ class App:
         self._locale = None
         self._translations = defaultdict(gettext.NullTranslations)
         self._default_translations = None
-        self._extensions = Extensions()
+        self._extensions = None
         self._extension_exit_stack = AsyncExitStack()
         self._jinja2_environment = None
         self._renderer = None
@@ -86,7 +90,7 @@ class App:
 
     async def enter(self):
         if not self._app_stack:
-            for extension in self.extensions:
+            for extension in self.extensions.flatten():
                 await self._extension_exit_stack.enter_async_context(extension)
 
         self._default_translations = Translations(self.translations[self.locale])
@@ -138,41 +142,49 @@ class App:
 
     @property
     def extensions(self) -> Extensions:
-        extensions_enabled_in_configuration = {
+        if self._extensions is None:
+            self._extensions = _AppExtensions()
+            self._update_extensions()
+            self._configuration.extensions.react(self._update_extensions)
+
+        return self._extensions
+
+    def _update_extensions(self) -> None:
+        extension_types_enabled_in_configuration = {
             extension_configuration.extension_type
             for extension_configuration in self._configuration.extensions
             if extension_configuration.enabled
         }
-        extension_types = tsort(build_extension_type_graph(extensions_enabled_in_configuration))
 
-        # Remove disabled extensions.
-        for extension in list(self._extensions):
-            extension_type = type(extension)
-            if extension_type not in extension_types:
-                self._extensions._remove(extension_type)
+        extension_types_sorter = TopologicalSorter(
+            _build_extension_type_graph(extension_types_enabled_in_configuration)
+        )
+        extension_types_sorter.prepare()
 
-        # Add enabled extensions.
-        for extension_type in extension_types:
-            if extension_type not in self._extensions:
+        extensions = []
+        while extension_types_sorter.is_active():
+            extension_types_batch = extension_types_sorter.get_ready()
+            extensions_batch = []
+            for extension_type in extension_types_batch:
                 if issubclass(extension_type, ConfigurableExtension):
-                    if extension_type not in extensions_enabled_in_configuration or self._configuration.extensions[extension_type].extension_type_configuration is None:
+                    if extension_type not in extension_types_enabled_in_configuration or self._configuration.extensions[extension_type].extension_type_configuration is None:
                         configuration = extension_type.default_configuration()
                     else:
                         configuration = self._configuration.extensions[extension_type].extension_type_configuration
                     extension = extension_type(self, configuration)
                 else:
                     extension = extension_type(self)
-
-                self._extensions._add(extension)
-
-        return self._extensions
+                extensions_batch.append(extension)
+                extension_types_sorter.done(extension_type)
+            extensions.append(extensions_batch)
+        self._extensions._update(extensions)
 
     @reactive(on_trigger=(lambda app: app._assets.paths.clear(),))
     @property
     def assets(self) -> FileSystem:
         if len(self._assets.paths) == 0:
             self._assets.paths.appendleft((Path(__file__).resolve().parent / 'assets', 'utf-8'))
-            for extension in self.extensions:
+            for extension in self.extensions.flatten():
                 if extension.assets_directory_path is not None:
                     self._assets.paths.appendleft((extension.assets_directory_path, 'utf-8'))
             if self._configuration.assets_directory_path:
@@ -185,7 +197,7 @@ class App:
         if self._dispatcher is None:
             from betty.extension import ExtensionDispatcher
 
-            self._dispatcher = ExtensionDispatcher(list(self.extensions))
+            self._dispatcher = ExtensionDispatcher(self.extensions)
 
         return self._dispatcher
 

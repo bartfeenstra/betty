@@ -1,8 +1,11 @@
 from collections import defaultdict
-from typing import Set, Type
+try:
+    from graphlib import TopologicalSorter
+except ImportError:
+    from graphlib_backport import TopologicalSorter
+from typing import Set, Type, Dict
 
 from betty.ancestry import Ancestry, Place, File, IdentifiableEvent, IdentifiableSource, IdentifiableCitation, Person
-from betty.graph import Graph, tsort
 from betty.gui import GuiBuilder
 from betty.load import PostLoader
 from betty.extension import Extension
@@ -37,14 +40,14 @@ def _clean_event(ancestry: Ancestry, event: IdentifiableEvent) -> None:
 def _clean_places(ancestry: Ancestry) -> None:
     places = list(ancestry.places.values())
 
-    def _extend_place_graph(graph: Graph, enclosing_place: Place) -> None:
+    def _extend_place_graph(graph: Dict, enclosing_place: Place) -> None:
         enclosures = enclosing_place.encloses
         # Ensure each place appears in the graph, even if they're anonymous.
         graph.setdefault(enclosing_place, set())
         for enclosure in enclosures:
             enclosed_place = enclosure.encloses
             seen_enclosed_place = enclosed_place in graph
-            graph[enclosed_place].add(enclosing_place)
+            graph[enclosing_place].add(enclosed_place)
             if not seen_enclosed_place:
                 _extend_place_graph(graph, enclosed_place)
 
@@ -52,7 +55,7 @@ def _clean_places(ancestry: Ancestry) -> None:
     for place in places:
         _extend_place_graph(places_graph, place)
 
-    for place in tsort(places_graph):
+    for place in TopologicalSorter(places_graph).static_order():
         _clean_place(ancestry, place)
 
 

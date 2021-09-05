@@ -616,7 +616,7 @@ class _ProjectExtensionConfigurationPane(QWidget):
 
         extension_enabled = QCheckBox('Enable %s' % extension_type.gui_name())
         extension_enabled.setChecked(extension_type in self._app.extensions)
-        extension_enabled.setDisabled(extension_type in itertools.chain([enabled_extension_type.depends_on() for enabled_extension_type in self._app.extensions]))
+        extension_enabled.setDisabled(extension_type in itertools.chain([enabled_extension_type.depends_on() for enabled_extension_type in self._app.extensions.flatten()]))
         extension_enabled.toggled.connect(_update_enabled)
         enable_layout.addRow(extension_enabled)
 
