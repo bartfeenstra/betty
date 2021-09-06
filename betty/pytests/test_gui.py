@@ -12,8 +12,24 @@ from betty.app import App
 from betty.asyncio import sync
 from betty.config import ConfigurationError, LocaleConfiguration, Configuration
 from betty.gui import BettyMainWindow, _WelcomeWindow, ProjectWindow, _AboutBettyWindow, ExceptionError, \
-    _AddLocaleWindow, _GenerateWindow, _ServeWindow
+    _AddLocaleWindow, _GenerateWindow, _ServeAppWindow, _ServeDemoWindow
 from betty.tests import patch_cache
+
+
+@patch_cache
+def test_betty_main_window_view_demo_site(assert_window, mocker, navigate, qtbot):
+    mocker.patch('webbrowser.open_new_tab')
+    mocker.patch('betty.gui._ServeDemoWindow._start')
+
+    sut = BettyMainWindow()
+    qtbot.addWidget(sut)
+    sut.show()
+
+    cached_file_path = path.join(fs.CACHE_DIRECTORY_PATH, 'KeepMeAroundPlease')
+    open(cached_file_path, 'w').close()
+    navigate(sut, ['betty_menu', '_demo_action'])
+
+    assert_window(_ServeDemoWindow)
 
 
 @patch_cache
@@ -70,6 +86,19 @@ def test_welcome_window_open_project_with_valid_file_should_show_project_window(
     qtbot.mouseClick(sut.open_project_button, QtCore.Qt.LeftButton)
 
     assert_window(ProjectWindow)
+
+
+def test_welcome_window_view_demo_site(assert_window, mocker, qtbot) -> None:
+    mocker.patch('webbrowser.open_new_tab')
+    mocker.patch('betty.gui._ServeDemoWindow._start')
+
+    sut = _WelcomeWindow()
+    qtbot.addWidget(sut)
+    sut.show()
+
+    qtbot.mouseClick(sut.demo_button, QtCore.Qt.LeftButton)
+
+    assert_window(_ServeDemoWindow)
 
 
 def test_project_window_general_configuration_title(qtbot, minimal_configuration_file_path) -> None:
@@ -307,4 +336,4 @@ async def test_generate_window_serve_button_should_open_serve_window(assert_wind
             sut.show()
 
         qtbot.mouseClick(sut._serve_button, QtCore.Qt.LeftButton)
-        assert_window(_ServeWindow)
+        assert_window(_ServeAppWindow)
