@@ -14,10 +14,10 @@ from pathlib import Path
 from typing import Sequence, Type, Optional, Union
 from urllib.parse import urlparse
 
-from PyQt5 import QtCore
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, QObject
-from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtWidgets import QApplication, QDesktopWidget, QFileDialog, QMainWindow, QAction, qApp, QVBoxLayout, QLabel, \
+from PyQt6 import QtCore
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QObject
+from PyQt6.QtGui import QIcon, QFont, QScreen, QAction
+from PyQt6.QtWidgets import QApplication, QFileDialog, QMainWindow, QVBoxLayout, QLabel, \
     QWidget, QPushButton, QMessageBox, QLineEdit, QCheckBox, QFormLayout, QHBoxLayout, QGridLayout, QLayout, \
     QStackedLayout, QComboBox, QButtonGroup, QRadioButton
 from babel import Locale
@@ -128,7 +128,7 @@ class BettyWindow(QMainWindow):
         self.setWindowTitle(self.title)
         self.setWindowIcon(QIcon(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'betty-512x512.png')))
         geometry = self.frameGeometry()
-        geometry.moveCenter(QDesktopWidget().availableGeometry().center())
+        geometry.moveCenter(QScreen().availableGeometry().center())
         self.move(geometry.topLeft())
 
 
@@ -139,10 +139,6 @@ class BettyMainWindow(BettyWindow):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setWindowIcon(QIcon(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'betty-512x512.png')))
-        geometry = self.frameGeometry()
-        geometry.moveCenter(QDesktopWidget().availableGeometry().center())
-        self.move(geometry.topLeft())
         self._initialize_menu()
 
     def _initialize_menu(self) -> None:
@@ -170,7 +166,7 @@ class BettyMainWindow(BettyWindow):
 
         exit_action = QAction('Exit', self)
         exit_action.setShortcut('Ctrl+Q')
-        exit_action.triggered.connect(qApp.quit)
+        exit_action.triggered.connect(QApplication.instance().quit)
         self.betty_menu.addAction(exit_action)
 
         self.help_menu = menu_bar.addMenu('&Help')

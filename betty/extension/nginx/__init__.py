@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional, Iterable, Dict
 
-from PyQt5.QtWidgets import QFormLayout, QButtonGroup, QRadioButton, QWidget, QHBoxLayout, QLineEdit, \
+from PyQt6.QtWidgets import QFormLayout, QButtonGroup, QRadioButton, QWidget, QHBoxLayout, QLineEdit, \
     QFileDialog, QPushButton
 from reactives import reactive
 from voluptuous import Schema, Invalid, All, Any

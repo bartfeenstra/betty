@@ -3,8 +3,8 @@ import json
 from typing import Union, List, Type, Dict
 
 import pytest
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QWidget, QApplication
+from PyQt6 import QtCore
+from PyQt6.QtWidgets import QMainWindow, QMenu, QAction, QWidget, QApplication
 
 from betty.gui import Error
 

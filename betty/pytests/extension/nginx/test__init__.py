@@ -1,5 +1,5 @@
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QFileDialog
+from PyQt6 import QtCore
+from PyQt6.QtWidgets import QFileDialog
 
 from betty.app import App
 from betty.asyncio import sync

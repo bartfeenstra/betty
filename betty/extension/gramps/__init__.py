@@ -6,8 +6,8 @@ from tempfile import TemporaryDirectory
 from typing import Tuple, Optional, List, Any, Dict, Union
 from xml.etree import ElementTree
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QFormLayout, QPushButton, QFileDialog, QLineEdit, QHBoxLayout, QVBoxLayout, \
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QWidget, QFormLayout, QPushButton, QFileDialog, QLineEdit, QHBoxLayout, QVBoxLayout, \
     QGridLayout
 from geopy import Point
 from reactives import reactive, ReactiveList
