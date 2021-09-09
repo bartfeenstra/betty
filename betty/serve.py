@@ -89,6 +89,12 @@ class AppServer(Server):
         await self._server.stop()
 
 
+class _BuiltinServerRequestHandler(SimpleHTTPRequestHandler):
+    def end_headers(self) -> None:
+        self.send_header('Cache-Control', 'no-cache')
+        super().end_headers()
+
+
 class BuiltinServer(Server):
     def __init__(self, www_directory_path: PathLike):
         self._www_directory_path = www_directory_path
@@ -99,7 +105,7 @@ class BuiltinServer(Server):
         logging.getLogger().info('Starting Python\'s built-in web server...')
         for self._port in range(DEFAULT_PORT, 65535):
             with contextlib.suppress(OSError):
-                self._http_server = HTTPServer(('', self._port), SimpleHTTPRequestHandler)
+                self._http_server = HTTPServer(('', self._port), _BuiltinServerRequestHandler)
                 break
         if self._http_server is None:
             raise OsError('Cannot find an available port to bind the web server to.')
