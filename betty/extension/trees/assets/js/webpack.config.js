@@ -6,7 +6,7 @@ const path = require('path')
 const configuration = require('./webpack.config.json')
 
 module.exports = {
-  mode: configuration.mode,
+  mode: configuration.debug ? 'development' : 'production',
   entry: {
     trees: path.resolve(__dirname, 'trees.js')
   },
@@ -15,7 +15,7 @@ module.exports = {
     filename: '[name].js'
   },
   optimization: {
-    minimize: configuration.minimize,
+    minimize: !configuration.debug,
     splitChunks: {
       cacheGroups: {
         styles: {

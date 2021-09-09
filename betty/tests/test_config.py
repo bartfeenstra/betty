@@ -378,7 +378,7 @@ class FromDictTest(TestCase):
             self.assertEquals(configuration_dict['base_url'], configuration.base_url)
             self.assertEquals('Betty', configuration.title)
             self.assertIsNone(configuration.author)
-            self.assertEquals('production', configuration.mode)
+            self.assertFalse(configuration.debug)
             self.assertEquals('', configuration.root_path)
             self.assertFalse(configuration.clean_urls)
             self.assertFalse(configuration.content_negotiation)
@@ -442,14 +442,14 @@ class FromDictTest(TestCase):
             self.assertEquals(content_negotiation, configuration.content_negotiation)
 
     @parameterized.expand([
-        ('production',),
-        ('development',),
+        (True,),
+        (False,),
     ])
-    def test_should_load_mode(self, mode: str) -> None:
+    def test_should_load_debug(self, debug: bool) -> None:
         with _build_minimal_configuration_dict() as configuration_dict:
-            configuration_dict['mode'] = mode
+            configuration_dict['debug'] = debug
             configuration = _from_dict(configuration_dict)
-            self.assertEquals(mode, configuration.mode)
+            self.assertEquals(debug, configuration.debug)
 
     def test_should_load_assets_directory_path(self) -> None:
         with TemporaryDirectory() as assets_directory_path:
@@ -563,7 +563,7 @@ class ToDictTest(TestCase):
             self.assertEquals(configuration_dict['base_url'], configuration.base_url)
             self.assertEquals('Betty', configuration.title)
             self.assertIsNone(configuration.author)
-            self.assertEquals('production', configuration.mode)
+            self.assertEquals(False, configuration.debug)
             self.assertEquals('', configuration.root_path)
             self.assertFalse(configuration.clean_urls)
             self.assertFalse(configuration.content_negotiation)
@@ -630,14 +630,14 @@ class ToDictTest(TestCase):
             self.assertEquals(content_negotiation, configuration_dict['content_negotiation'])
 
     @parameterized.expand([
-        ('production',),
-        ('development',),
+        (True,),
+        (False,),
     ])
-    def test_should_dump_mode(self, mode: str) -> None:
+    def test_should_dump_debug(self, debug: bool) -> None:
         with _build_minimal_configuration() as configuration:
-            configuration.mode = mode
+            configuration.debug = debug
             configuration_dict = _to_dict(configuration)
-            self.assertEquals(mode, configuration_dict['mode'])
+            self.assertEquals(debug, configuration_dict['debug'])
 
     def test_should_dump_assets_directory_path(self) -> None:
         with TemporaryDirectory() as assets_directory_path:

@@ -12,7 +12,7 @@ server {
     {% if extensions['betty.extension.nginx.Nginx'].https %}
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
     {% endif %}
-	add_header Cache-Control "max-age=86400";
+    add_header Cache-Control "max-age=86400";
     gzip on;
     gzip_disable "msie6";
     gzip_vary on;

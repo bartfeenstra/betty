@@ -131,15 +131,15 @@ def test_project_window_general_configuration_lifetime_threshold_with_zero_input
     assert sut._app.configuration.lifetime_threshold == original_lifetime_threshold
 
 
-def test_project_window_general_configuration_mode(qtbot, minimal_configuration_file_path) -> None:
+def test_project_window_general_configuration_debug(qtbot, minimal_configuration_file_path) -> None:
     sut = ProjectWindow(minimal_configuration_file_path)
     qtbot.addWidget(sut)
     sut.show()
 
-    sut._general_configuration_pane._development_mode.setChecked(True)
-    assert sut._app.configuration.mode == 'development'
-    sut._general_configuration_pane._development_mode.setChecked(False)
-    assert sut._app.configuration.mode == 'production'
+    sut._general_configuration_pane._development_debug.setChecked(True)
+    assert sut._app.configuration.debug
+    sut._general_configuration_pane._development_debug.setChecked(False)
+    assert not sut._app.configuration.debug
 
 
 def test_project_window_general_configuration_clean_urls(qtbot, minimal_configuration_file_path) -> None:
@@ -271,7 +271,7 @@ def test_project_window_save_project_as_should_create_duplicate_configuration_fi
         'root_path': '',
         'clean_urls': False,
         'content_negotiation': False,
-        'mode': 'production',
+        'debug': False,
         'locales': [
             {
                 'locale': 'en-US',

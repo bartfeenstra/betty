@@ -274,7 +274,7 @@ class Configuration:
         self.author = None
         self._extensions = ExtensionsConfiguration()
         self._extensions.react(self)
-        self.mode = 'production'
+        self._debug = False
         self.assets_directory_path = None
         self._locales = LocalesConfiguration()
         self._locales.react(self)
@@ -392,12 +392,12 @@ class Configuration:
 
     @reactive
     @property
-    def mode(self) -> str:
-        return self._mode
+    def debug(self) -> bool:
+        return self._debug
 
-    @mode.setter
-    def mode(self, mode: str):
-        self._mode = mode
+    @debug.setter
+    def debug(self, debug: bool) -> None:
+        self._debug = debug
 
     @reactive
     @property
@@ -470,7 +470,7 @@ _ConfigurationSchema = Schema(All({
     'root_path': str,
     'clean_urls': bool,
     'content_negotiation': bool,
-    'mode': Any('development', 'production'),
+    'debug': bool,
     'assets': All(str, IsDir(), VoluptuousPath()),
     'extensions': All(dict, _extensions_configuration),
     Required('theme', default=dict): All({
@@ -541,8 +541,8 @@ def _to_dict(configuration: Configuration) -> Dict:
         configuration_dict['author'] = configuration.author
     if configuration.content_negotiation is not None:
         configuration_dict['content_negotiation'] = configuration.content_negotiation
-    if configuration.mode is not None:
-        configuration_dict['mode'] = configuration.mode
+    if configuration.debug is not None:
+        configuration_dict['debug'] = configuration.debug
     if configuration.assets_directory_path is not None:
         configuration_dict['assets'] = str(configuration.assets_directory_path)
     if len(configuration.locales) > 0:

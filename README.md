@@ -74,6 +74,7 @@ Configuration files are written in YAML (`*.yaml` or `*.yml`) or JSON (`*.json`)
 ```yaml
 output: /var/www/betty
 base_url: https://ancestry.example.com
+debug: true
 root_path: /betty
 clean_urls: true
 title: Betty's ancestry
@@ -104,6 +105,8 @@ extensions:
 ```
 - `output` (required); The path to the directory in which to place the generated site.
 - `base_url` (required); The absolute, public URL at which the site will be published.
+- `debug` (optional): `true` to output more detailed logs and disable optimizations that make debugging harder. Defaults
+    to `false`.
 - `root_path` (optional); The relative path under the public URL at which the site will be published.
 - `clean_urls` (optional); A boolean indicating whether to use clean URLs, e.g. `/path` instead of `/path/index.html`.
 - `content_negotiation` (optional, defaults to `false`): Enables dynamic content negotiation, but requires a web server

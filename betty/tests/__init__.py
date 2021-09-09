@@ -79,7 +79,7 @@ class TemplateTestCase(TestCase):
             data = {}
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://example.com')
-            configuration.mode = 'development'
+            configuration.debug = True
             if update_configuration is not None:
                 update_configuration(configuration)
             async with App(configuration) as app:

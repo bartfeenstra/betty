@@ -1,6 +1,4 @@
 {{ {
-    'mode': app.configuration.mode,
-    'minimize': app.configuration.mode == 'production',
-    'debug': app.configuration.mode == 'development',
+    'debug': app.debug,
     'cacheDirectory': path.join(app.configuration.cache_directory_path, 'betty.extension.trees.Trees', 'babel'),
 } | tojson }}

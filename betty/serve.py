@@ -27,6 +27,10 @@ class OsError(UserFacingError, OSError):
 
 
 class Server:
+    """
+    Provide a development web server.
+    """
+
     async def start(self) -> None:
         """
         Starts the server.
