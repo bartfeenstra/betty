@@ -355,12 +355,12 @@ class _ProjectGeneralConfigurationPane(QWidget):
         self._form.addRow(Caption('Where to search for asset files, such as templates and translations.'))
 
     def _build_mode(self) -> None:
-        def _update_configuration_mode(mode: bool) -> None:
-            self._app.configuration.mode = 'development' if mode else 'production'
-        self._development_mode = QCheckBox('Development mode')
-        self._development_mode.setChecked(self._app.configuration.mode == 'development')
-        self._development_mode.toggled.connect(_update_configuration_mode)
-        self._form.addRow(self._development_mode)
+        def _update_configuration_debug(mode: bool) -> None:
+            self._app.configuration.debug = mode
+        self._development_debug = QCheckBox('Debugging mode')
+        self._development_debug.setChecked(self._app.configuration.debug)
+        self._development_debug.toggled.connect(_update_configuration_debug)
+        self._form.addRow(self._development_debug)
         self._form.addRow(Caption('Output more detailed logs and disable optimizations that make debugging harder.'))
 
     def _build_clean_urls(self) -> None:

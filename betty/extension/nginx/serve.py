@@ -13,7 +13,7 @@ from betty.app import App
 
 class DockerizedNginxServer(Server):
     def __init__(self, app: App):
-        self._app = app
+        self._app = app.with_debug(True)
         self._container = None
         self._output_directory = None
 

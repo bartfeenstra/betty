@@ -106,7 +106,7 @@ class BettyEnvironment(Environment):
 
         self.app = app
 
-        if app.configuration.mode == 'development':
+        if app.debug:
             self.add_extension('jinja2.ext.debug')
 
         self._init_i18n()

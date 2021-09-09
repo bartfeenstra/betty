@@ -68,6 +68,7 @@ class App:
         self._dispatcher = None
         self._localized_url_generator = AppUrlGenerator(configuration)
         self._static_url_generator = StaticPathUrlGenerator(configuration)
+        self._debug = None
         self._locale = None
         self._translations = defaultdict(gettext.NullTranslations)
         self._default_translations = None
@@ -118,6 +119,12 @@ class App:
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.exit()
+
+    @property
+    def debug(self) -> bool:
+        if self._debug is not None:
+            return self._debug
+        return self._configuration.debug
 
     @property
     def locale(self) -> str:
@@ -254,5 +261,11 @@ class App:
         # Clear all locale-dependent lazy-loaded attributes.
         app._jinja2_environment = None
         app._renderer = None
+
+        return app
+
+    def with_debug(self, debug: bool) -> 'App':
+        app = copy(self)
+        app._debug = debug
 
         return app

@@ -14,7 +14,7 @@ class MapsTest(TestCase):
     async def test_post_render_event(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://ancestry.example.com')
-            configuration.mode = 'development'
+            configuration.debug = True
             configuration.extensions.add(ExtensionConfiguration(Maps))
             async with App(configuration) as app:
                 await generate(app)
