@@ -34,3 +34,4 @@ class DockerizedNginxServerTest(TestCase):
                     response = requests.get(server.public_url)
                     self.assertEquals(200, response.status_code)
                     self.assertEquals(content, response.content.decode('utf-8'))
+                    self.assertEquals('no-cache', response.headers['Cache-Control'])
