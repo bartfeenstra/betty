@@ -1,6 +1,5 @@
 from pathlib import Path
 from typing import Optional, Iterable, Dict
-from urllib.parse import urlparse
 
 from PyQt5.QtWidgets import QFormLayout, QButtonGroup, QRadioButton, QWidget, QHBoxLayout, QLineEdit, \
     QFileDialog, QPushButton
@@ -76,8 +75,8 @@ class Nginx(ConfigurableExtension, Generator, ServerProvider, GuiBuilder):
         return []
 
     async def generate(self) -> None:
-        await self.generate_configuration_file()
-        await self._generate_dockerfile_file()
+        await generate_configuration_file(self._app)
+        await generate_dockerfile_file(self._app)
 
     @property
     def assets_directory_path(self) -> Optional[Path]:
@@ -94,17 +93,6 @@ class Nginx(ConfigurableExtension, Generator, ServerProvider, GuiBuilder):
         if self._configuration.www_directory_path is None:
             return self._app.configuration.www_directory_path
         return self._configuration.www_directory_path
-
-    async def generate_configuration_file(self, destination_file_path: Optional[str] = None, **kwargs) -> None:
-        kwargs = dict({
-            'server_name': urlparse(self._app.configuration.base_url).netloc,
-        }, **kwargs)
-        if destination_file_path is None:
-            destination_file_path = self._app.configuration.output_directory_path / 'nginx' / 'nginx.conf'
-        await generate_configuration_file(destination_file_path, self._app.jinja2_environment, **kwargs)
-
-    async def _generate_dockerfile_file(self) -> None:
-        await generate_dockerfile_file(self._app.configuration.output_directory_path / 'nginx' / 'docker' / 'Dockerfile')
 
     @classmethod
     def gui_name(cls) -> str:
