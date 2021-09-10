@@ -1,4 +1,4 @@
-{% if extensions['betty.extension.nginx.Nginx'].https %}
+{% if https %}
     server {
         listen 80;
         server_name {{ server_name }};
@@ -6,10 +6,10 @@
     }
 {% endif %}
 server {
-	listen {% if extensions['betty.extension.nginx.Nginx'].https %}443 ssl http2{% else %}80{% endif %};
+	listen {% if https %}443 ssl http2{% else %}80{% endif %};
 	server_name {{ server_name }};
-	root {{ extensions['betty.extension.nginx.Nginx'].www_directory_path }};
-    {% if extensions['betty.extension.nginx.Nginx'].https %}
+	root {{ www_directory_path }};
+    {% if https %}
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
     {% endif %}
     {% if app.debug %}
