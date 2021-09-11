@@ -6,6 +6,7 @@ import re
 import traceback
 import webbrowser
 from collections import OrderedDict
+from contextlib import suppress
 from datetime import datetime
 from functools import wraps
 from os import path
@@ -154,10 +155,14 @@ class BettyMainWindow(BettyWindow):
         new_project_action.triggered.connect(lambda _: self.new_project())
         self.betty_menu.addAction(new_project_action)
 
-        open_project_action = QAction('Open a project...', self)
+        open_project_action = QAction('Open project...', self)
         open_project_action.setShortcut('Ctrl+O')
         open_project_action.triggered.connect(lambda _: self.open_project())
         self.betty_menu.addAction(open_project_action)
+
+        self.betty_menu._demo_action = QAction('View demo site...', self)
+        self.betty_menu._demo_action.triggered.connect(lambda _: self._demo())
+        self.betty_menu.addAction(self.betty_menu._demo_action)
 
         self.betty_menu.clear_caches_action = QAction('Clear all caches', self)
         self.betty_menu.clear_caches_action.triggered.connect(lambda _: self.clear_caches())
@@ -210,27 +215,77 @@ class BettyMainWindow(BettyWindow):
         self.close()
 
     @catch_exceptions
+    def _demo(self) -> None:
+        serve_window = _ServeDemoWindow.get_instance(self)
+        serve_window.show()
+
+    @catch_exceptions
     @sync
     async def clear_caches(self) -> None:
         await cache.clear()
 
 
+class _WelcomeText(Text):
+    pass
+
+
+class _WelcomeTitle(_WelcomeText):
+    pass
+
+
+class _WelcomeHeading(_WelcomeText):
+    pass
+
+
+class _WelcomeAction(QPushButton):
+    pass
+
+
 class _WelcomeWindow(BettyMainWindow):
+    # Allow the window to be as narrow as it can be.
+    width = 1
+    # This is a best guess at the minimum required height, because if we set this to 1, like the width, some of the
+    # text will be clipped.
+    height = 450
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         central_layout = QVBoxLayout()
+        central_layout.addStretch()
         central_widget = QWidget()
         central_widget.setLayout(central_layout)
         self.setCentralWidget(central_widget)
 
-        self.open_project_button = QPushButton('Open a project', self)
-        self.open_project_button.released.connect(self.open_project)
-        central_layout.addWidget(self.open_project_button)
+        welcome = _WelcomeTitle('Welcome to Betty')
+        welcome.setAlignment(QtCore.Qt.AlignCenter)
+        central_layout.addWidget(welcome)
 
-        self.new_project_button = QPushButton('Create a new project', self)
+        welcome_caption = _WelcomeText('Betty is a static site generator for your <a href="https://gramps-project.org/">Gramps</a> and <a href="https://en.wikipedia.org/wiki/GEDCOM">GEDCOM</a> family trees.')
+        central_layout.addWidget(welcome_caption)
+
+        project_instruction = _WelcomeHeading('Work on a new or existing site of your own')
+        project_instruction.setAlignment(QtCore.Qt.AlignCenter)
+        central_layout.addWidget(project_instruction)
+
+        project_layout = QHBoxLayout()
+        central_layout.addLayout(project_layout)
+
+        self.open_project_button = _WelcomeAction('Open an existing project', self)
+        self.open_project_button.released.connect(self.open_project)
+        project_layout.addWidget(self.open_project_button)
+
+        self.new_project_button = _WelcomeAction('Create a new project', self)
         self.new_project_button.released.connect(self.new_project)
-        central_layout.addWidget(self.new_project_button)
+        project_layout.addWidget(self.new_project_button)
+
+        demo_instruction = _WelcomeHeading('View a demonstration of what a Betty site looks like')
+        demo_instruction.setAlignment(QtCore.Qt.AlignCenter)
+        central_layout.addWidget(demo_instruction)
+
+        self.demo_button = _WelcomeAction('View a demo site', self)
+        self.demo_button.released.connect(self._demo)
+        central_layout.addWidget(self.demo_button)
 
 
 class _PaneButton(QPushButton):
@@ -670,7 +725,7 @@ class ProjectWindow(BettyMainWindow):
 
     @catch_exceptions
     def _serve(self) -> None:
-        serve_window = _ServeWindow.get_instance(self._app, self)
+        serve_window = _ServeAppWindow.get_instance(self._app, self)
         serve_window.show()
 
 
@@ -778,7 +833,7 @@ class _GenerateWindow(BettyWindow):
 
     @catch_exceptions
     def _serve(self) -> None:
-        serve_window = _ServeWindow.get_instance(self._app, self)
+        serve_window = _ServeAppWindow.get_instance(self._app, self)
         serve_window.show()
 
     def show(self) -> None:
@@ -797,19 +852,18 @@ class _GenerateWindow(BettyWindow):
 class _ServeThread(QThread):
     server_started = pyqtSignal()
 
-    def __init__(self, app: App, *args, **kwargs):
+    def __init__(self, server: serve.Server, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._app = app
-        self.server = serve.AppServer(self._app)
+        self._server = server
 
     @sync
     async def run(self) -> None:
-        await self.server.start()
+        await self._server.start()
         self.server_started.emit()
 
     @sync
     async def stop(self) -> None:
-        await self.server.stop()
+        await self._server.stop()
 
 
 class _ServeWindow(BettyWindow):
@@ -822,18 +876,22 @@ class _ServeWindow(BettyWindow):
 
     width = 500
     height = 100
-    title = 'Serving Betty...'
     _instance = None
 
-    def __init__(self, app: App, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._app = app
         self._thread = None
+        self._server = NotImplemented
 
-        if not path.isdir(self._app.configuration.www_directory_path):
-            self.close()
-            raise ConfigurationError('Web root directory "%s" does not exist.' % self._app.configuration.www_directory_path)
+        self._central_layout = QVBoxLayout()
+        central_widget = QWidget()
+        central_widget.setLayout(self._central_layout)
+        self.setCentralWidget(central_widget)
+
+        self._loading_instruction = Text('Loading...')
+        self._loading_instruction.setAlignment(QtCore.Qt.AlignCenter)
+        self._central_layout.addWidget(self._loading_instruction)
 
     @classmethod
     def get_instance(cls, *args, **kwargs):
@@ -841,37 +899,95 @@ class _ServeWindow(BettyWindow):
             cls._instance = cls(*args, **kwargs)
         return cls._instance
 
+    def _build_instruction(self) -> str:
+        raise NotImplementedError
+
     def _server_started(self) -> None:
-        central_layout = QVBoxLayout()
-        central_widget = QWidget()
-        central_widget.setLayout(central_layout)
-        self.setCentralWidget(central_widget)
+        # The server may have been stopped before this method was called.
+        if self._server is None:
+            return
 
-        instruction = Text('\n'.join([
-            'You can now view your site at <a href="%s">%s</a>.' % (self._thread.server.public_url, self._thread.server.public_url),
-            'Keep this window open to keep the server running.',
-        ]))
-        instruction.setAlignment(QtCore.Qt.AlignCenter)
-        central_layout.addWidget(instruction)
+        self._loading_instruction.close()
 
-        stop_server_button = QPushButton('Stop the server', self)
+        instance_instruction = Text(self._build_instruction())
+        instance_instruction.setAlignment(QtCore.Qt.AlignCenter)
+        self._central_layout.addWidget(instance_instruction)
+
+        general_instruction = Text('Keep this window open to keep the site running.')
+        general_instruction.setAlignment(QtCore.Qt.AlignCenter)
+        self._central_layout.addWidget(general_instruction)
+
+        stop_server_button = QPushButton('Stop the site', self)
         stop_server_button.released.connect(self.close)
-        central_layout.addWidget(stop_server_button)
+        self._central_layout.addWidget(stop_server_button)
 
     def show(self) -> None:
         super().show()
         # Explicitly activate this window in case it existed and was shown before, but requested again.
         self.activateWindow()
+        self._start()
+
+    def _start(self) -> None:
         if self._thread is None:
-            self._thread = _ServeThread(self._app)
+            self._thread = _ServeThread(self._server)
             self._thread.server_started.connect(self._server_started)
             self._thread.start()
 
     @sync
     def close(self) -> bool:
-        self._thread.stop()
-        self._instance = None
+        self._stop()
         return super().close()
+
+    def _stop(self) -> None:
+        with suppress(AttributeError):
+            self._thread.stop()
+        self._thread = None
+        self._server = None
+        self.__class__._instance = None
+
+
+class _ServeAppWindow(_ServeWindow):
+    """
+    Show a window that controls an application's site server.
+
+    To prevent multiple servers from being run simultaneously, do not instantiate this class directly, but call the
+    get_instance() method.
+    """
+
+    title = 'Serving your site...'
+
+    def __init__(self, app: App, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._server = serve.AppServer(app)
+
+        if not path.isdir(app.configuration.www_directory_path):
+            self.close()
+            raise ConfigurationError('Web root directory "%s" does not exist.' % app.configuration.www_directory_path)
+
+    def _build_instruction(self) -> str:
+        return f'You can now view your site at <a href="{self._server.public_url}">{self._server.public_url}</a>.'
+
+
+class _ServeDemoWindow(_ServeWindow):
+    """
+    Show a window that controls the demo site server.
+
+    To prevent multiple servers from being run simultaneously, do not instantiate this class directly, but call the
+    get_instance() method.
+    """
+
+    title = 'Serving the Betty demo...'
+
+    def __init__(self, *args, **kwargs):
+        from betty import demo
+
+        super().__init__(*args, **kwargs)
+
+        self._server = demo.DemoServer()
+
+    def _build_instruction(self) -> str:
+        return f'You can now view a Betty demonstration site at <a href="{self._server.public_url}">{self._server.public_url}</a>.'
 
 
 class _AboutBettyWindow(BettyWindow):
@@ -923,6 +1039,24 @@ class BettyApplication(QApplication):
         LogRecord[level="10"],
         LogRecord[level="0"] {
             color: white;
+        }
+
+        _WelcomeText {
+            padding: 10px;
+        }
+
+        _WelcomeTitle {
+            font-size: 20px;
+            padding: 10px;
+        }
+
+        _WelcomeHeading {
+            font-size: 16px;
+            margin-top: 50px;
+        }
+
+        _WelcomeAction {
+            padding: 10px;
         }
         """
 
