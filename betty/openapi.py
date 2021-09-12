@@ -2,6 +2,7 @@ from typing import Dict
 
 from betty import about
 from betty.app import App
+from betty.media_type import EXTENSIONS
 
 
 class _Resource:
@@ -152,6 +153,14 @@ def build_specification(app: App) -> Dict:
 
     # Add components for content negotiation.
     if app.configuration.content_negotiation:
+        specification['components']['parameters']['Accept'] = {
+            'name': 'Accept',
+            'in': 'header',
+            'description': _('An HTTP [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header.'),
+            'schema': {
+                'enum': list(EXTENSIONS.keys()),
+            },
+        }
         specification['components']['parameters']['Accept-Language'] = {
             'name': 'Accept-Language',
             'in': 'header',
@@ -193,6 +202,9 @@ def build_specification(app: App) -> Dict:
         })
         if app.configuration.content_negotiation:
             specification['paths'][path]['parameters'] = [
+                {
+                    '$ref': '#/components/parameters/Accept',
+                },
                 {
                     '$ref': '#/components/parameters/Accept-Language',
                 },
