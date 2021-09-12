@@ -1,4 +1,4 @@
-{% set entries = entity.links | wikipedia | list %}
+{% set entries = resource.links | wikipedia | list %}
 {% if entries | length > 0 %}
     {% for entry in entries %}
         {{ entry.content | safe }}
