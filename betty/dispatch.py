@@ -1,6 +1,6 @@
-from typing import Type, List, Any, Callable
+from typing import Type, Any, Sequence, Callable, Awaitable
 
-TargetedDispatcher = Callable[[], List[Any]]
+TargetedDispatcher = Callable[..., Awaitable[Sequence[Any]]]
 
 
 class Dispatcher:

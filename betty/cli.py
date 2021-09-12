@@ -92,7 +92,7 @@ async def _init_ctx(ctx: Context, _: Optional[Option] = None, configuration_file
             async with app:
                 ctx.obj['commands']['generate'] = _generate
                 ctx.obj['commands']['serve'] = _serve
-                for extension in app.extensions:
+                for extension in app.extensions.flatten():
                     if isinstance(extension, CommandProvider):
                         for command_name, command in extension.commands.items():
                             ctx.obj['commands'][command_name] = command

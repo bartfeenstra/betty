@@ -51,7 +51,7 @@ class _Extensions:
 
     def __contains__(self, extension_type_name) -> bool:
         with suppress(ImportError, KeyError):
-            return self._extensions[import_any(extension_type_name)]
+            return import_any(extension_type_name) in self._extensions
         return False
 
 
@@ -132,7 +132,7 @@ class BettyEnvironment(Environment):
         self.globals['extensions'] = _Extensions(self.app.extensions)
         self.globals['citer'] = _Citer()
         self.globals['search_index'] = lambda: Index(self.app).build()
-        self.globals['html_providers'] = list([extension for extension in self.app.extensions if isinstance(extension, HtmlProvider)])
+        self.globals['html_providers'] = list([extension for extension in self.app.extensions.flatten() if isinstance(extension, HtmlProvider)])
         self.globals['path'] = os.path
 
     def _init_filters(self) -> None:
@@ -175,7 +175,7 @@ class BettyEnvironment(Environment):
         self.tests['date_range'] = lambda x: isinstance(x, DateRange)
 
     def _init_extensions(self) -> None:
-        for extension in self.app.extensions:
+        for extension in self.app.extensions.flatten():
             if isinstance(extension, Jinja2Provider):
                 self.globals.update(extension.globals)
                 self.filters.update(extension.filters)

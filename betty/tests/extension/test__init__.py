@@ -1,5 +1,5 @@
 from typing import Set, Type
-from betty.extension import Extension, build_extension_type_graph, discover_extension_types
+from betty.extension import Extension, _build_extension_type_graph, discover_extension_types
 from betty.tests import TestCase
 
 
@@ -16,7 +16,7 @@ class ExtensionTest(TestCase):
 
 class BuildExtensionTypeGraphTest(TestCase):
     def test_without_extension_types(self) -> None:
-        self.assertEquals({}, build_extension_type_graph(set()))
+        self.assertEquals({}, _build_extension_type_graph(set()))
 
     def test_with_isolated_extension_types(self) -> None:
         class IsolatedExtensionOne(Extension):
@@ -32,7 +32,7 @@ class BuildExtensionTypeGraphTest(TestCase):
             IsolatedExtensionOne: set(),
             IsolatedExtensionTwo: set(),
         }
-        self.assertEquals(expected, build_extension_type_graph(extension_types))
+        self.assertEquals(expected, _build_extension_type_graph(extension_types))
 
     def test_with_unknown_dependencies(self) -> None:
         class IsDependencyExtension(Extension):
@@ -46,10 +46,10 @@ class BuildExtensionTypeGraphTest(TestCase):
             HasDependencyExtension,
         }
         expected = {
-            IsDependencyExtension: {HasDependencyExtension},
-            HasDependencyExtension: set(),
+            HasDependencyExtension: {IsDependencyExtension},
+            IsDependencyExtension: set(),
         }
-        self.assertDictEqual(expected, dict(build_extension_type_graph(extension_types)))
+        self.assertDictEqual(expected, dict(_build_extension_type_graph(extension_types)))
 
     def test_with_known_dependencies(self) -> None:
         class IsDependencyExtension(Extension):
@@ -64,10 +64,10 @@ class BuildExtensionTypeGraphTest(TestCase):
             IsDependencyExtension,
         }
         expected = {
-            IsDependencyExtension: {HasDependencyExtension},
-            HasDependencyExtension: set(),
+            HasDependencyExtension: {IsDependencyExtension},
+            IsDependencyExtension: set(),
         }
-        self.assertDictEqual(expected, dict(build_extension_type_graph(extension_types)))
+        self.assertDictEqual(expected, dict(_build_extension_type_graph(extension_types)))
 
     def test_with_nested_dependencies(self) -> None:
         class IsDependencyExtension(Extension):
@@ -86,11 +86,11 @@ class BuildExtensionTypeGraphTest(TestCase):
             HasDependencyExtension,
         }
         expected = {
-            IsDependencyExtension: {IsAndHasDependencyExtension},
-            IsAndHasDependencyExtension: {HasDependencyExtension},
-            HasDependencyExtension: set(),
+            IsAndHasDependencyExtension: {IsDependencyExtension},
+            HasDependencyExtension: {IsAndHasDependencyExtension},
+            IsDependencyExtension: set(),
         }
-        self.assertDictEqual(expected, dict(build_extension_type_graph(extension_types)))
+        self.assertDictEqual(expected, dict(_build_extension_type_graph(extension_types)))
 
     def test_with_unknown_comes_after(self) -> None:
         class ComesBeforeExtension(Extension):
@@ -106,7 +106,7 @@ class BuildExtensionTypeGraphTest(TestCase):
         expected = {
             ComesAfterExtension: set(),
         }
-        self.assertDictEqual(expected, dict(build_extension_type_graph(extension_types)))
+        self.assertDictEqual(expected, dict(_build_extension_type_graph(extension_types)))
 
     def test_with_known_comes_after(self) -> None:
         class ComesBeforeExtension(Extension):
@@ -121,10 +121,10 @@ class BuildExtensionTypeGraphTest(TestCase):
             ComesAfterExtension,
         }
         expected = {
-            ComesBeforeExtension: {ComesAfterExtension},
-            ComesAfterExtension: set(),
+            ComesAfterExtension: {ComesBeforeExtension},
+            ComesBeforeExtension: set(),
         }
-        self.assertDictEqual(expected, dict(build_extension_type_graph(extension_types)))
+        self.assertDictEqual(expected, dict(_build_extension_type_graph(extension_types)))
 
     def test_with_unknown_comes_before(self) -> None:
         class ComesAfterExtension(Extension):
@@ -140,7 +140,7 @@ class BuildExtensionTypeGraphTest(TestCase):
         expected = {
             ComesBeforeExtension: set(),
         }
-        self.assertDictEqual(expected, dict(build_extension_type_graph(extension_types)))
+        self.assertDictEqual(expected, dict(_build_extension_type_graph(extension_types)))
 
     def test_with_known_comes_before(self) -> None:
         class ComesAfterExtension(Extension):
@@ -155,10 +155,10 @@ class BuildExtensionTypeGraphTest(TestCase):
             ComesBeforeExtension,
         }
         expected = {
-            ComesBeforeExtension: {ComesAfterExtension},
-            ComesAfterExtension: set(),
+            ComesAfterExtension: {ComesBeforeExtension},
+            ComesBeforeExtension: set(),
         }
-        self.assertDictEqual(expected, dict(build_extension_type_graph(extension_types)))
+        self.assertDictEqual(expected, dict(_build_extension_type_graph(extension_types)))
 
 
 class DiscoverExtensionTypesTest(TestCase):
