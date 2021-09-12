@@ -1,19 +1,18 @@
-from contextlib import suppress
-
 import docker
-from docker.errors import NotFound, APIError
 from docker.models.containers import Container as DockerContainer
 
 from betty.os import PathLike
 
 
 class Container:
-    def __init__(self, www_directory_path: PathLike, docker_directory_path: PathLike, nginx_configuration_file_path: PathLike, name: str):
-        self._name = name
+    _IMAGE_TAG = 'betty-serve'
+
+    def __init__(self, www_directory_path: PathLike, docker_directory_path: PathLike, nginx_configuration_file_path: PathLike):
         self._docker_directory_path = docker_directory_path
         self._nginx_configuration_file_path = nginx_configuration_file_path
         self._www_directory_path = www_directory_path
         self._client = docker.from_env()
+        self._container = None
 
     def __enter__(self) -> None:
         self.start()
@@ -22,11 +21,8 @@ class Container:
         self.stop()
 
     def start(self) -> None:
-        # Stop any containers that may have been left over.
-        self.stop()
-
-        self._client.images.build(path=str(self._docker_directory_path), tag=self._name)
-        self._client.containers.run(self._name, name=self._name, auto_remove=True, detach=True, volumes={
+        self._client.images.build(path=str(self._docker_directory_path), tag=self._IMAGE_TAG)
+        self._container = self._client.containers.create(self._IMAGE_TAG, auto_remove=True, detach=True, volumes={
             self._nginx_configuration_file_path: {
                 'bind': '/etc/nginx/conf.d/betty.conf',
                 'mode': 'ro',
@@ -36,19 +32,12 @@ class Container:
                 'mode': 'ro',
             },
         })
+        self._container.start()
         self._container.exec_run(['nginx', '-s', 'reload'])
 
     def stop(self) -> None:
-        with suppress(NotFound):
-            self._container.stop()
-            # Containers may under certain circumstances be left in a state where auto-removal does not work.
-            with suppress(APIError):
-                self._container.remove()
-
-    @property
-    def _container(self) -> DockerContainer:
-        return self._client.containers.get(self._name)
+        self._container.stop()
 
     @property
     def ip(self) -> DockerContainer:
-        return self._client.api.inspect_container(self._name)['NetworkSettings']['Networks']['bridge']['IPAddress']
+        return self._client.api.inspect_container(self._container.id)['NetworkSettings']['Networks']['bridge']['IPAddress']

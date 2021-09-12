@@ -26,7 +26,7 @@ class DockerizedNginxServer(Server):
         async with self._app:
             await generate_configuration_file(self._app, destination_file_path=nginx_configuration_file_path, https=False, www_directory_path='/var/www/betty')
             await generate_dockerfile_file(self._app, destination_file_path=dockerfile_file_path)
-        self._container = Container(self._app.configuration.www_directory_path, docker_directory_path, nginx_configuration_file_path, 'betty-serve')
+        self._container = Container(self._app.configuration.www_directory_path, docker_directory_path, nginx_configuration_file_path)
         self._container.start()
 
     async def stop(self) -> None:
