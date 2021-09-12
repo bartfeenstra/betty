@@ -68,9 +68,10 @@ class AppServer(Server):
         self._server = None
 
     def _get_server(self) -> Server:
-        servers = (server for extension in self._app.extensions.flatten() if isinstance(extension, ServerProvider) for server in extension.servers)
-        with contextlib.suppress(StopIteration):
-            return next(servers)
+        for extension in self._app.extensions.flatten():
+            if isinstance(extension, ServerProvider):
+                for server in extension.servers:
+                    return server
         return BuiltinServer(self._app.configuration.www_directory_path)
 
     async def start(self) -> None:
