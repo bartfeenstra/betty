@@ -151,27 +151,27 @@ class MultilingualTest(GenerateTestCase):
             meta_redirect = '<meta http-equiv="refresh" content="0; url=/nl/index.html">'
             self.assertIn(meta_redirect, f.read())
 
-    # @sync
-    # async def test_public_localized_resource(self):
-    #     await generate(self.app)
-    #     with open(self.assert_betty_html('/nl/index.html')) as f:
-    #         translation_link = '<a href="/en/index.html" hreflang="en" lang="en" rel="alternate">English</a>'
-    #         self.assertIn(translation_link, f.read())
-    #     with open(self.assert_betty_html('/en/index.html')) as f:
-    #         translation_link = '<a href="/nl/index.html" hreflang="nl" lang="nl" rel="alternate">Nederlands</a>'
-    #         self.assertIn(translation_link, f.read())
-    #
-    # @sync
-    # async def test_entity(self):
-    #     person = Person('PERSON1')
-    #     self.app.ancestry.people[person.id] = person
-    #     await generate(self.app)
-    #     with open(self.assert_betty_html('/nl/person/%s/index.html' % person.id)) as f:
-    #         translation_link = '<a href="/en/person/%s/index.html" hreflang="en" lang="en" rel="alternate">English</a>' % person.id
-    #         self.assertIn(translation_link, f.read())
-    #     with open(self.assert_betty_html('/en/person/%s/index.html' % person.id)) as f:
-    #         translation_link = '<a href="/nl/person/%s/index.html" hreflang="nl" lang="nl" rel="alternate">Nederlands</a>' % person.id
-    #         self.assertIn(translation_link, f.read())
+    @sync
+    async def test_public_localized_resource(self):
+        await generate(self.app)
+        with open(self.assert_betty_html('/nl/index.html')) as f:
+            translation_link = '<a href="/en/index.html" hreflang="en" lang="en" rel="alternate">English</a>'
+            self.assertIn(translation_link, f.read())
+        with open(self.assert_betty_html('/en/index.html')) as f:
+            translation_link = '<a href="/nl/index.html" hreflang="nl" lang="nl" rel="alternate">Nederlands</a>'
+            self.assertIn(translation_link, f.read())
+
+    @sync
+    async def test_entity(self):
+        person = Person('PERSON1')
+        self.app.ancestry.people[person.id] = person
+        await generate(self.app)
+        with open(self.assert_betty_html('/nl/person/%s/index.html' % person.id)) as f:
+            translation_link = '<a href="/en/person/%s/index.html" hreflang="en" lang="en" rel="alternate">English</a>' % person.id
+            self.assertIn(translation_link, f.read())
+        with open(self.assert_betty_html('/en/person/%s/index.html' % person.id)) as f:
+            translation_link = '<a href="/nl/person/%s/index.html" hreflang="nl" lang="nl" rel="alternate">Nederlands</a>' % person.id
+            self.assertIn(translation_link, f.read())
 
 
 class ResourceOverrideTest(GenerateTestCase):
