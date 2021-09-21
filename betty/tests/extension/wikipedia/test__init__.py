@@ -353,7 +353,7 @@ class PopulatorTest(TestCase):
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
                 async with App(configuration) as app:
-                    app.ancestry.citations[resource.id] = resource
+                    app.ancestry.citations.add(resource)
                     sut = _Populator(app, m_retriever)
                     await sut.populate()
 
@@ -367,7 +367,7 @@ class PopulatorTest(TestCase):
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
                 async with App(configuration) as app:
-                    app.ancestry.sources[resource.id] = resource
+                    app.ancestry.sources.add(resource)
                     sut = _Populator(app, m_retriever)
                     await sut.populate()
         self.assertSetEqual(set(), resource.links)
@@ -384,7 +384,7 @@ class PopulatorTest(TestCase):
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
                 async with App(configuration) as app:
-                    app.ancestry.sources[resource.id] = resource
+                    app.ancestry.sources.add(resource)
                     sut = _Populator(app, m_retriever)
                     await sut.populate()
         self.assertSetEqual({link}, resource.links)
@@ -408,7 +408,7 @@ class PopulatorTest(TestCase):
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
                 async with App(configuration) as app:
-                    app.ancestry.sources[resource.id] = resource
+                    app.ancestry.sources.add(resource)
                     sut = _Populator(app, m_retriever)
                     await sut.populate()
         m_retriever.get_entry.assert_called_once_with(entry_language, entry_name)
@@ -455,7 +455,7 @@ class PopulatorTest(TestCase):
                     LocaleConfiguration('nl-NL', 'nl'),
                 ])
                 async with App(configuration) as app:
-                    app.ancestry.sources[resource.id] = resource
+                    app.ancestry.sources.add(resource)
                     sut = _Populator(app, m_retriever)
                     await sut.populate()
 
@@ -550,7 +550,7 @@ class WikipediaTest(TestCase):
                 configuration.cache_directory_path = Path(cache_directory_path)
                 configuration.extensions.add(ExtensionConfiguration(Wikipedia))
                 async with App(configuration) as app:
-                    app.ancestry.sources[resource.id] = resource
+                    app.ancestry.sources.add(resource)
                     await load(app)
 
         self.assertEqual(1, len(resource.links))

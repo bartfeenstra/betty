@@ -67,7 +67,7 @@
                 <span class="overlay-control overlay-close" title="{% trans %}Exit the search{% endtrans %}">{% trans %}Exit the search{% endtrans %}</span>
             </div>
             <form>
-                {% set search_keywords_example_person_name = app.ancestry.people.values() | map(attribute='name') | first | default(none) %}
+                {% set search_keywords_example_person_name = app.ancestry.people | map(attribute='name') | first | default(none) %}
                 {% if search_keywords_example_person_name %}
                     {% set search_keywords_example -%}
                         {% trans example = person_macros.name_label(search_keywords_example_person_name, embedded=True) | striptags -%}

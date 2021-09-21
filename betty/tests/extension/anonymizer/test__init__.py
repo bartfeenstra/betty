@@ -59,7 +59,7 @@ class AnonymizeTest(TestCase):
         person = Person('P0')
         person.private = False
         ancestry = Ancestry()
-        ancestry.people[person.id] = person
+        ancestry.people.add(person)
         anonymize(ancestry)
         m_anonymize_person.assert_not_called()
 
@@ -68,7 +68,7 @@ class AnonymizeTest(TestCase):
         person = Person('P0')
         person.private = True
         ancestry = Ancestry()
-        ancestry.people[person.id] = person
+        ancestry.people.add(person)
         anonymize(ancestry)
         m_anonymize_person.assert_called_once_with(person)
 
@@ -77,7 +77,7 @@ class AnonymizeTest(TestCase):
         event = IdentifiableEvent('E0', Birth())
         event.private = False
         ancestry = Ancestry()
-        ancestry.events[event.id] = event
+        ancestry.events.add(event)
         anonymize(ancestry)
         m_anonymize_event.assert_not_called()
 
@@ -86,7 +86,7 @@ class AnonymizeTest(TestCase):
         event = IdentifiableEvent('E0', Birth())
         event.private = True
         ancestry = Ancestry()
-        ancestry.events[event.id] = event
+        ancestry.events.add(event)
         anonymize(ancestry)
         m_anonymize_event.assert_called_once_with(event)
 
@@ -95,7 +95,7 @@ class AnonymizeTest(TestCase):
         file = File('F0', __file__)
         file.private = False
         ancestry = Ancestry()
-        ancestry.files[file.id] = file
+        ancestry.files.add(file)
         anonymize(ancestry)
         m_anonymize_file.assert_not_called()
 
@@ -104,7 +104,7 @@ class AnonymizeTest(TestCase):
         file = File('F0', __file__)
         file.private = True
         ancestry = Ancestry()
-        ancestry.files[file.id] = file
+        ancestry.files.add(file)
         anonymize(ancestry)
         m_anonymize_file.assert_called_once_with(file)
 
@@ -113,7 +113,7 @@ class AnonymizeTest(TestCase):
         source = IdentifiableSource('S0', 'The Source')
         source.private = False
         ancestry = Ancestry()
-        ancestry.sources[source.id] = source
+        ancestry.sources.add(source)
         anonymize(ancestry)
         m_anonymize_source.assert_not_called()
 
@@ -122,7 +122,7 @@ class AnonymizeTest(TestCase):
         source = IdentifiableSource('S0', 'The Source')
         source.private = True
         ancestry = Ancestry()
-        ancestry.sources[source.id] = source
+        ancestry.sources.add(source)
         anonymize(ancestry)
         m_anonymize_source.assert_called_once_with(source, ANY)
 
@@ -132,7 +132,7 @@ class AnonymizeTest(TestCase):
         citation = IdentifiableCitation('C0', source)
         citation.private = False
         ancestry = Ancestry()
-        ancestry.citations[citation.id] = citation
+        ancestry.citations.add(citation)
         anonymize(ancestry)
         m_anonymize_citation.assert_not_called()
 
@@ -142,7 +142,7 @@ class AnonymizeTest(TestCase):
         citation = IdentifiableCitation('C0', source)
         citation.private = True
         ancestry = Ancestry()
-        ancestry.citations[citation.id] = citation
+        ancestry.citations.add(citation)
         anonymize(ancestry)
         m_anonymize_citation.assert_called_once_with(citation, ANY)
 
@@ -325,6 +325,6 @@ class AnonymizerTest(TestCase):
                 output_directory_path, 'https://example.com')
             configuration.extensions.add(ExtensionConfiguration(Anonymizer))
             async with App(configuration) as app:
-                app.ancestry.people[person.id] = person
+                app.ancestry.people.add(person)
                 await load(app)
         self.assertEquals(0, len(person.names))

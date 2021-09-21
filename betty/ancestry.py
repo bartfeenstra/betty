@@ -1,7 +1,7 @@
 from functools import total_ordering
 from itertools import chain
 from pathlib import Path
-from typing import Dict, Optional, List, Iterable, Set, Union, TypeVar, Generic, Callable, Sequence, Type
+from typing import Optional, List, Iterable, Set, Union, TypeVar, Generic, Callable, Sequence, Type
 
 from geopy import Point
 
@@ -151,6 +151,9 @@ class Resource:
     @classmethod
     def resource_type_name(cls) -> str:
         raise NotImplementedError
+
+
+ResourceT = TypeVar('ResourceT', bound=Resource)
 
 
 class HasPrivacy:
@@ -964,35 +967,72 @@ RESOURCE_TYPES = [
     Person,
     Place,
     Source,
+    Note,
 ]
 
 
+class _AncestryResources(Generic[ResourceT]):
+    def __init__(self):
+        self._resources = []
+
+    def __getitem__(self, resource_id: str) -> ResourceT:
+        """
+        Gets a resource by its ID, if it is also Identifiable.
+        """
+        for resource in self._resources:
+            if isinstance(resource, Identifiable) and resource.id == resource_id:
+                return resource
+        raise KeyError(f'This collection does not contain an identifiable resource with ID "{resource_id}".')
+
+    def __contains__(self, resource_or_id: Union[ResourceT, str]) -> bool:
+        if isinstance(resource_or_id, Resource):
+            return resource_or_id in self._resources
+        for resource in self._resources:
+            if isinstance(resource, Identifiable) and resource.id == resource_or_id:
+                return True
+        return False
+
+    def __iter__(self) -> Iterable[ResourceT]:
+        yield from self._resources
+
+    def __len__(self) -> int:
+        return len(self._resources)
+
+    def add(self, resource: ResourceT) -> None:
+        if resource in self._resources:
+            pass
+        self._resources.append(resource)
+
+    def remove(self, resource: ResourceT) -> None:
+        self._resources.remove(resource)
+
+
 class Ancestry:
-    files: Dict[str, File]
-    people: Dict[str, Person]
-    places: Dict[str, Place]
-    events: Dict[str, IdentifiableEvent]
-    sources: Dict[str, IdentifiableSource]
-    citations: Dict[str, IdentifiableCitation]
-    notes: Dict[str, Note]
+    files: _AncestryResources[File]
+    people: _AncestryResources[Person]
+    places: _AncestryResources[Place]
+    events: _AncestryResources[Event]
+    sources: _AncestryResources[Source]
+    citations: _AncestryResources[Citation]
+    notes: _AncestryResources[Note]
 
     def __init__(self):
-        self.files = {}
-        self.people = {}
-        self.places = {}
-        self.events = {}
-        self.sources = {}
-        self.citations = {}
-        self.notes = {}
+        self.files = _AncestryResources()
+        self.people = _AncestryResources()
+        self.places = _AncestryResources()
+        self.events = _AncestryResources()
+        self.sources = _AncestryResources()
+        self.citations = _AncestryResources()
+        self.notes = _AncestryResources()
 
     @property
     def resources(self) -> Iterable[Resource]:
         return chain(
-            self.files.values(),
-            self.people.values(),
-            self.places.values(),
-            self.events.values(),
-            self.sources.values(),
-            self.citations.values(),
-            self.notes.values(),
+            self.files,
+            self.people,
+            self.places,
+            self.events,
+            self.sources,
+            self.citations,
+            self.notes,
         )

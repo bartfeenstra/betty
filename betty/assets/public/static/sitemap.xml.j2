@@ -1,16 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-    {% set identifiables = [] %}
-    {% set identifiables = identifiables + app.ancestry.people.values() | list %}
-    {% set identifiables = identifiables + app.ancestry.events.values() | list %}
-    {% set identifiables = identifiables + app.ancestry.places.values() | list %}
-    {% set identifiables = identifiables + app.ancestry.files.values() | list %}
-    {% set identifiables = identifiables + app.ancestry.sources.values() | list %}
-    {% set identifiables = identifiables + app.ancestry.citations.values() | list %}
     {% for locale_configuration in app.configuration.locales %}
-        {% for identifiable in identifiables %}
+        {% for resource in app.ancestry.resources | select('identifiable') %}
             <url>
-                <loc>{{ identifiable | url(absolute=true, locale=locale_configuration.locale) }}</loc>
+                <loc>{{ resource | url(absolute=true, locale=locale_configuration.locale) }}</loc>
             </url>
         {% endfor %}
     {% endfor %}

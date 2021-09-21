@@ -27,7 +27,7 @@ def privatize(ancestry: Ancestry, lifetime_threshold: int = 125) -> None:
     seen = []
 
     privatized = 0
-    for person in ancestry.people.values():
+    for person in ancestry.people:
         private = person.private
         _privatize_person(person, seen, lifetime_threshold)
         if private is None and person.private is True:
@@ -35,16 +35,16 @@ def privatize(ancestry: Ancestry, lifetime_threshold: int = 125) -> None:
     logger = logging.getLogger()
     logger.info('Privatized %d people because they are likely still alive.' % privatized)
 
-    for citation in ancestry.citations.values():
+    for citation in ancestry.citations:
         _privatize_citation(citation, seen)
 
-    for source in ancestry.sources.values():
+    for source in ancestry.sources:
         _privatize_source(source, seen)
 
-    for event in ancestry.events.values():
+    for event in ancestry.events:
         _privatize_event(event, seen)
 
-    for file in ancestry.files.values():
+    for file in ancestry.files:
         _privatize_file(file, seen)
 
 

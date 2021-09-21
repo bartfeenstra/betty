@@ -24,7 +24,7 @@ server {
 
     {% if app.ancestry.files | length > 0 %}
         # Redirect Betty <0.3 file paths to Betty 0.3 file paths.
-        {% for file in app.ancestry.files.values() %}
+        {% for file in app.ancestry.files %}
             location /file/{{ file.id }}{{ file.path.suffix }} {
                 return 301 /file/{{ file.id }}/file/{{ file.path.name }};
             }

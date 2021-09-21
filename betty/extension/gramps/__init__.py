@@ -127,19 +127,19 @@ class _Loader:
 
     def _populate_ancestry(self):
         for file in self._files.values():
-            self._ancestry.files[file.file.id] = file.file
+            self._ancestry.files.add(file.file)
         for person in self._people.values():
-            self._ancestry.people[person.id] = person
+            self._ancestry.people.add(person)
         for place in self._places.values():
-            self._ancestry.places[place.id] = place
+            self._ancestry.places.add(place)
         for event in self._events.values():
-            self._ancestry.events[event.id] = event
+            self._ancestry.events.add(event)
         for source in self._sources.values():
-            self._ancestry.sources[source.id] = source
+            self._ancestry.sources.add(source)
         for citation in self._citations.values():
-            self._ancestry.citations[citation.id] = citation
+            self._ancestry.citations.add(citation)
         for note in self._notes.values():
-            self._ancestry.notes[note.id] = note
+            self._ancestry.notes.add(note)
 
     def load(self) -> None:
         logger = getLogger()

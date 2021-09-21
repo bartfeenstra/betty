@@ -71,7 +71,7 @@ class DeriverTest(TestCase):
                 output_directory_path, 'https://example.com')
             configuration.extensions.add(ExtensionConfiguration(Deriver))
             async with App(configuration) as app:
-                app.ancestry.people[person.id] = person
+                app.ancestry.people.add(person)
                 await load(app)
 
         self.assertEquals(3, len(person.presences))
