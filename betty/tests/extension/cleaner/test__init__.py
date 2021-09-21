@@ -19,9 +19,9 @@ class CleanerTest(TestCase):
                 output_directory_path, 'https://example.com')
             configuration.extensions.add(ExtensionConfiguration(Cleaner))
             async with App(configuration) as app:
-                app.ancestry.events[event.id] = event
+                app.ancestry.events.add(event)
                 await load(app)
-                self.assertEquals({}, app.ancestry.events)
+                self.assertEquals([], list(app.ancestry.events))
 
 
 class CleanTest(TestCase):
@@ -30,34 +30,28 @@ class CleanTest(TestCase):
 
         onymous_event = IdentifiableEvent('E0', Birth())
         Presence(Person('P0'), Subject(), onymous_event)
-        ancestry.events[onymous_event.id] = onymous_event
+        ancestry.events.add(onymous_event)
 
         anonymous_event = IdentifiableEvent('E1', Birth())
-        ancestry.events[anonymous_event.id] = anonymous_event
+        ancestry.events.add(anonymous_event)
 
         onymous_place = Place('P0', [PlaceName('Amsterdam')])
         onymous_place.events.append(onymous_event)
-        ancestry.places[onymous_place.id] = onymous_place
+        ancestry.places.add(onymous_place)
 
         anonymous_place = Place('P1', [PlaceName('Almelo')])
-        ancestry.places[anonymous_place.id] = anonymous_place
+        ancestry.places.add(anonymous_place)
 
         onmyous_place_because_encloses_onmyous_places = Place(
             'P3', [PlaceName('Netherlands')])
         Enclosure(onymous_place, onmyous_place_because_encloses_onmyous_places)
         Enclosure(anonymous_place, onmyous_place_because_encloses_onmyous_places)
-        ancestry.places[
-            onmyous_place_because_encloses_onmyous_places.id] = onmyous_place_because_encloses_onmyous_places
+        ancestry.places.add(onmyous_place_because_encloses_onmyous_places)
 
         clean(ancestry)
 
-        self.assertDictEqual({
-            onymous_event.id: onymous_event,
-        }, ancestry.events)
-        self.assertDictEqual({
-            onymous_place.id: onymous_place,
-            onmyous_place_because_encloses_onmyous_places.id: onmyous_place_because_encloses_onmyous_places,
-        }, ancestry.places)
+        self.assertEquals([onymous_event], list(ancestry.events))
+        self.assertEquals([onymous_place, onmyous_place_because_encloses_onmyous_places], list(ancestry.places))
 
         self.assertNotIn(
             anonymous_place, onmyous_place_because_encloses_onmyous_places.encloses)
@@ -67,7 +61,7 @@ class CleanTest(TestCase):
 
         person = Person('P0')
         person.private = False
-        ancestry.people[person.id] = person
+        ancestry.people.add(person)
 
         clean(ancestry)
 
@@ -78,16 +72,16 @@ class CleanTest(TestCase):
 
         person = Person('P0')
         person.private = True
-        ancestry.people[person.id] = person
+        ancestry.people.add(person)
         child = Person('P1')
         child.private = True
-        ancestry.people[child.id] = child
+        ancestry.people.add(child)
         grandchild = Person('P2')
         grandchild.private = True
-        ancestry.people[grandchild.id] = grandchild
+        ancestry.people.add(grandchild)
         great_grandchild = Person('P3')
         great_grandchild.private = True
-        ancestry.people[great_grandchild.id] = great_grandchild
+        ancestry.people.add(great_grandchild)
 
         clean(ancestry)
 
@@ -98,16 +92,16 @@ class CleanTest(TestCase):
 
         person = Person('P0')
         person.private = False
-        ancestry.people[person.id] = person
+        ancestry.people.add(person)
         child = Person('P1')
         child.private = True
-        ancestry.people[child.id] = child
+        ancestry.people.add(child)
         grandchild = Person('P2')
         grandchild.private = True
-        ancestry.people[grandchild.id] = grandchild
+        ancestry.people.add(grandchild)
         great_grandchild = Person('P3')
         great_grandchild.private = False
-        ancestry.people[great_grandchild.id] = great_grandchild
+        ancestry.people.add(great_grandchild)
 
         clean(ancestry)
 
@@ -117,22 +111,22 @@ class CleanTest(TestCase):
         ancestry = Ancestry()
 
         source = IdentifiableSource('S1', 'The Source')
-        ancestry.sources[source.id] = source
+        ancestry.sources.add(source)
 
         citation = IdentifiableCitation('C1', source)
-        ancestry.citations[citation.id] = citation
+        ancestry.citations.add(citation)
 
         file = File('F1', __file__)
-        ancestry.files[file.id] = file
+        ancestry.files.add(file)
 
         place = Place('P0', [PlaceName('The Place')])
-        ancestry.places[place.id] = place
+        ancestry.places.add(place)
 
         event = IdentifiableEvent('E0', Birth())
         event.citations.append(citation)
         event.files.append(file)
         event.place = place
-        ancestry.events[event.id] = event
+        ancestry.events.add(event)
 
         clean(ancestry)
 
@@ -149,16 +143,16 @@ class CleanTest(TestCase):
         ancestry = Ancestry()
 
         source = IdentifiableSource('S1', 'The Source')
-        ancestry.sources[source.id] = source
+        ancestry.sources.add(source)
 
         citation = IdentifiableCitation('C1', source)
-        ancestry.citations[citation.id] = citation
+        ancestry.citations.add(citation)
 
         file = File('F1', __file__)
-        ancestry.files[file.id] = file
+        ancestry.files.add(file)
 
         place = Place('P0', [PlaceName('The Place')])
-        ancestry.places[place.id] = place
+        ancestry.places.add(place)
 
         person = Person('P0')
 
@@ -166,7 +160,7 @@ class CleanTest(TestCase):
         event.citations.append(citation)
         event.files.append(file)
         event.place = place
-        ancestry.events[event.id] = event
+        ancestry.events.add(event)
 
         Presence(person, Subject(), event)
 
@@ -184,7 +178,7 @@ class CleanTest(TestCase):
         ancestry = Ancestry()
 
         file = File('F0', __file__)
-        ancestry.files[file.id] = file
+        ancestry.files.add(file)
 
         clean(ancestry)
 
@@ -194,11 +188,11 @@ class CleanTest(TestCase):
         ancestry = Ancestry()
 
         person = Person('P0')
-        ancestry.people[person.id] = person
+        ancestry.people.add(person)
 
         file = File('F0', __file__)
         file.resources.append(person)
-        ancestry.files[file.id] = file
+        ancestry.files.add(file)
 
         clean(ancestry)
 
@@ -212,11 +206,11 @@ class CleanTest(TestCase):
         source = Source()
 
         citation = IdentifiableCitation('C1', source)
-        ancestry.citations[citation.id] = citation
+        ancestry.citations.add(citation)
 
         file = File('F0', __file__)
         file.citations.append(citation)
-        ancestry.files[file.id] = file
+        ancestry.files.add(file)
 
         clean(ancestry)
 
@@ -228,7 +222,7 @@ class CleanTest(TestCase):
         ancestry = Ancestry()
 
         source = IdentifiableSource('S0', 'The source')
-        ancestry.sources[source.id] = source
+        ancestry.sources.add(source)
 
         clean(ancestry)
 
@@ -238,11 +232,11 @@ class CleanTest(TestCase):
         ancestry = Ancestry()
 
         source = IdentifiableSource('S0', 'The Source')
-        ancestry.sources[source.id] = source
+        ancestry.sources.add(source)
 
         citation = IdentifiableCitation('C0', source)
         citation.facts.append(PersonName('Jane'))
-        ancestry.citations[citation.id] = citation
+        ancestry.citations.add(citation)
 
         clean(ancestry)
 
@@ -254,11 +248,11 @@ class CleanTest(TestCase):
         ancestry = Ancestry()
 
         source = IdentifiableSource('S0', 'The Source')
-        ancestry.sources[source.id] = source
+        ancestry.sources.add(source)
 
         contained_by = IdentifiableSource('S1', 'The Source')
         contained_by.contains.append(source)
-        ancestry.sources[contained_by.id] = contained_by
+        ancestry.sources.add(contained_by)
 
         clean(ancestry)
 
@@ -270,11 +264,11 @@ class CleanTest(TestCase):
         ancestry = Ancestry()
 
         source = IdentifiableSource('S0', 'The Source')
-        ancestry.sources[source.id] = source
+        ancestry.sources.add(source)
 
         contains = IdentifiableSource('S1', 'The Source')
         contains.contained_by = source
-        ancestry.sources[contains.id] = contains
+        ancestry.sources.add(contains)
 
         clean(ancestry)
 
@@ -286,11 +280,11 @@ class CleanTest(TestCase):
         ancestry = Ancestry()
 
         file = File('F0', __file__)
-        ancestry.files[file.id] = file
+        ancestry.files.add(file)
 
         source = IdentifiableSource('S0', 'The Source')
         source.files.append(file)
-        ancestry.sources[source.id] = source
+        ancestry.sources.add(source)
 
         clean(ancestry)
 
@@ -302,10 +296,10 @@ class CleanTest(TestCase):
         ancestry = Ancestry()
 
         source = IdentifiableSource('S0', 'The source')
-        ancestry.sources[source.id] = source
+        ancestry.sources.add(source)
 
         citation = IdentifiableCitation('C0', source)
-        ancestry.citations[citation.id] = citation
+        ancestry.citations.add(citation)
 
         clean(ancestry)
 
@@ -316,15 +310,15 @@ class CleanTest(TestCase):
         ancestry = Ancestry()
 
         source = IdentifiableSource('S0', 'The Source')
-        ancestry.sources[source.id] = source
+        ancestry.sources.add(source)
 
         citation = IdentifiableCitation('C0', source)
         citation.facts.append(PersonName('Jane'))
-        ancestry.citations[citation.id] = citation
+        ancestry.citations.add(citation)
 
         fact = Person('P0')
         fact.citations.append(citation)
-        ancestry.people[fact.id] = fact
+        ancestry.people.add(fact)
 
         clean(ancestry)
 
@@ -336,14 +330,14 @@ class CleanTest(TestCase):
         ancestry = Ancestry()
 
         source = IdentifiableSource('S0', 'The Source')
-        ancestry.sources[source.id] = source
+        ancestry.sources.add(source)
 
         file = File('F0', __file__)
-        ancestry.files[file.id] = file
+        ancestry.files.add(file)
 
         citation = IdentifiableCitation('C0', source)
         citation.files.append(file)
-        ancestry.citations[citation.id] = citation
+        ancestry.citations.add(citation)
 
         clean(ancestry)
 

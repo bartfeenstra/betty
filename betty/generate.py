@@ -53,32 +53,26 @@ async def _generate(app: App) -> None:
             await app.renderer.render_tree(www_directory_path)
 
             locale_label = Locale.parse(locale, '-').get_display_name()
-            await _generate_entity_type(www_directory_path, app.ancestry.files.values(
-            ), 'file', app, locale, app.jinja2_environment)
+            await _generate_entity_type(www_directory_path, app.ancestry.files, 'file', app, locale, app.jinja2_environment)
             logger.info('Generated pages for %d files in %s.' %
                         (len(app.ancestry.files), locale_label))
-            await _generate_entity_type(www_directory_path, app.ancestry.people.values(
-            ), 'person', app, locale, app.jinja2_environment)
+            await _generate_entity_type(www_directory_path, app.ancestry.people, 'person', app, locale, app.jinja2_environment)
             logger.info('Generated pages for %d people in %s.' %
                         (len(app.ancestry.people), locale_label))
-            await _generate_entity_type(www_directory_path, app.ancestry.places.values(
-            ), 'place', app, locale, app.jinja2_environment)
+            await _generate_entity_type(www_directory_path, app.ancestry.places, 'place', app, locale, app.jinja2_environment)
             logger.info('Generated pages for %d places in %s.' %
                         (len(app.ancestry.places), locale_label))
-            await _generate_entity_type(www_directory_path, app.ancestry.events.values(
-            ), 'event', app, locale, app.jinja2_environment)
+            await _generate_entity_type(www_directory_path, app.ancestry.events, 'event', app, locale, app.jinja2_environment)
             logger.info('Generated pages for %d events in %s.' %
                         (len(app.ancestry.events), locale_label))
-            await _generate_entity_type(www_directory_path, app.ancestry.citations.values(
-            ), 'citation', app, locale, app.jinja2_environment)
+            await _generate_entity_type(www_directory_path, app.ancestry.citations, 'citation', app, locale, app.jinja2_environment)
             logger.info('Generated pages for %d citations in %s.' %
                         (len(app.ancestry.citations), locale_label))
-            await _generate_entity_type(www_directory_path, app.ancestry.sources.values(
-            ), 'source', app, locale, app.jinja2_environment)
+            await _generate_entity_type(www_directory_path, app.ancestry.sources, 'source', app, locale, app.jinja2_environment)
             logger.info('Generated pages for %d sources in %s.' %
                         (len(app.ancestry.sources), locale_label))
-            _generate_entity_type_list_json(www_directory_path, app.ancestry.notes.values(), 'note', app)
-            for note in app.ancestry.notes.values():
+            _generate_entity_type_list_json(www_directory_path, app.ancestry.notes, 'note', app)
+            for note in app.ancestry.notes:
                 _generate_entity_json(www_directory_path, note, 'note', app, locale)
             logger.info('Generated pages for %d notes in %s.' % (len(app.ancestry.notes), locale_label))
             _generate_openapi(www_directory_path, app)

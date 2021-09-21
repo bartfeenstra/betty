@@ -195,7 +195,7 @@ class NginxTest(TestCase):
             ))
             app = App(configuration)
             file_id = 'FILE1'
-            app.ancestry.files[file_id] = File(file_id, __file__)
+            app.ancestry.files.add(File(file_id, __file__))
             async with self.NginxTestServer(app) as server:
                 response = requests.get(f'{server.public_url}/file/{file_id}.py', headers={
                     'Accept': 'application/json',

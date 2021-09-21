@@ -10,9 +10,9 @@ class Index:
 
     def build(self) -> Iterable[Dict]:
         return filter(None, [
-            *[self._build_person(person) for person in self._app.ancestry.people.values()],
-            *[self._build_place(place) for place in self._app.ancestry.places.values()],
-            *[self._build_file(file) for file in self._app.ancestry.files.values()],
+            *[self._build_person(person) for person in self._app.ancestry.people],
+            *[self._build_place(place) for place in self._app.ancestry.places],
+            *[self._build_file(file) for file in self._app.ancestry.files],
         ])
 
     def _render_resource(self, resource: Resource):

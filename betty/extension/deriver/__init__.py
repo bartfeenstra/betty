@@ -31,7 +31,7 @@ class Deriver(Extension, PostLoader, GuiBuilder):
             if isinstance(event_type, DerivableEventType):
                 created_derivations = 0
                 updated_derivations = 0
-                for person in ancestry.people.values():
+                for person in ancestry.people:
                     created, updated = derive(person, event_type_type)
                     created_derivations += created
                     updated_derivations += updated

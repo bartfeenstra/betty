@@ -31,19 +31,19 @@ class AnonymousCitation(Citation):
 def anonymize(ancestry: Ancestry) -> None:
     anonymous_source = AnonymousSource()
     anonymous_citation = AnonymousCitation(anonymous_source)
-    for person in ancestry.people.values():
+    for person in ancestry.people:
         if person.private:
             anonymize_person(person)
-    for event in ancestry.events.values():
+    for event in ancestry.events:
         if event.private:
             anonymize_event(event)
-    for file in ancestry.files.values():
+    for file in ancestry.files:
         if file.private:
             anonymize_file(file)
-    for source in ancestry.sources.values():
+    for source in ancestry.sources:
         if source.private:
             anonymize_source(source, anonymous_source)
-    for citation in ancestry.citations.values():
+    for citation in ancestry.citations:
         if citation.private:
             anonymize_citation(citation, anonymous_citation)
 

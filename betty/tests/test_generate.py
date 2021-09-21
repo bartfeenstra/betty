@@ -63,7 +63,7 @@ class RenderTest(GenerateTestCase):
         # @todo This fails somewhere in file.html.j2, very likely because of jinja2._filter_file()
         with NamedTemporaryFile() as f:
             file = File('FILE1', Path(f.name))
-            self.app.ancestry.files[file.id] = file
+            self.app.ancestry.files.add(file)
             await generate(self.app)
             self.assert_betty_html('/file/%s/index.html' % file.id)
             self.assert_betty_json('/file/%s/index.json' % file.id, 'file')
@@ -77,7 +77,7 @@ class RenderTest(GenerateTestCase):
     @sync
     async def test_place(self):
         place = Place('PLACE1', [PlaceName('one')])
-        self.app.ancestry.places[place.id] = place
+        self.app.ancestry.places.add(place)
         await generate(self.app)
         self.assert_betty_html('/place/%s/index.html' % place.id)
         self.assert_betty_json('/place/%s/index.json' % place.id, 'place')
@@ -91,7 +91,7 @@ class RenderTest(GenerateTestCase):
     @sync
     async def test_person(self):
         person = Person('PERSON1')
-        self.app.ancestry.people[person.id] = person
+        self.app.ancestry.people.add(person)
         await generate(self.app)
         self.assert_betty_html('/person/%s/index.html' % person.id)
         self.assert_betty_json('/person/%s/index.json' % person.id, 'person')
@@ -105,7 +105,7 @@ class RenderTest(GenerateTestCase):
     @sync
     async def test_event(self):
         event = IdentifiableEvent('EVENT1', Birth())
-        self.app.ancestry.events[event.id] = event
+        self.app.ancestry.events.add(event)
         await generate(self.app)
         self.assert_betty_html('/event/%s/index.html' % event.id)
         self.assert_betty_json('/event/%s/index.json' % event.id, 'event')
@@ -113,7 +113,7 @@ class RenderTest(GenerateTestCase):
     @sync
     async def test_citation(self):
         citation = IdentifiableCitation('CITATION1', Source('A Little Birdie'))
-        self.app.ancestry.citations[citation.id] = citation
+        self.app.ancestry.citations.add(citation)
         await generate(self.app)
         self.assert_betty_html('/citation/%s/index.html' % citation.id)
         self.assert_betty_json('/citation/%s/index.json' %
@@ -128,7 +128,7 @@ class RenderTest(GenerateTestCase):
     @sync
     async def test_source(self):
         source = IdentifiableSource('SOURCE1', 'A Little Birdie')
-        self.app.ancestry.sources[source.id] = source
+        self.app.ancestry.sources.add(source)
         await generate(self.app)
         self.assert_betty_html('/source/%s/index.html' % source.id)
         self.assert_betty_json('/source/%s/index.json' % source.id, 'source')
@@ -164,7 +164,7 @@ class MultilingualTest(GenerateTestCase):
     @sync
     async def test_entity(self):
         person = Person('PERSON1')
-        self.app.ancestry.people[person.id] = person
+        self.app.ancestry.people.add(person)
         await generate(self.app)
         with open(self.assert_betty_html('/nl/person/%s/index.html' % person.id)) as f:
             translation_link = '<a href="/en/person/%s/index.html" hreflang="en" lang="en" rel="alternate">English</a>' % person.id

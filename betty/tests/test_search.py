@@ -38,7 +38,7 @@ class IndexTest(TestCase):
                 LocaleConfiguration('nl-NL', 'nl'),
             ])
             async with App(configuration) as app:
-                app.ancestry.people[person_id] = person
+                app.ancestry.people.add(person)
                 indexed = [item for item in Index(app).build()]
 
         self.assertEquals([], indexed)
@@ -59,7 +59,7 @@ class IndexTest(TestCase):
                 LocaleConfiguration('nl-NL', 'nl'),
             ])
             async with App(configuration) as app:
-                app.ancestry.people[person_id] = person
+                app.ancestry.people.add(person)
                 indexed = [item for item in Index(app).build()]
 
         self.assertEquals([], indexed)
@@ -83,7 +83,7 @@ class IndexTest(TestCase):
                 LocaleConfiguration('nl-NL', 'nl'),
             ])
             async with App(configuration).with_locale(locale) as app:
-                app.ancestry.people[person_id] = person
+                app.ancestry.people.add(person)
                 indexed = [item for item in Index(app).build()]
 
         self.assertEquals('jane', indexed[0]['text'])
@@ -108,7 +108,7 @@ class IndexTest(TestCase):
                 LocaleConfiguration('nl-NL', 'nl'),
             ])
             async with App(configuration).with_locale(locale) as app:
-                app.ancestry.people[person_id] = person
+                app.ancestry.people.add(person)
                 indexed = [item for item in Index(app).build()]
 
         self.assertEquals('doughnut', indexed[0]['text'])
@@ -134,7 +134,7 @@ class IndexTest(TestCase):
                 LocaleConfiguration('nl-NL', 'nl'),
             ])
             async with App(configuration).with_locale(locale) as app:
-                app.ancestry.people[person_id] = person
+                app.ancestry.people.add(person)
                 indexed = [item for item in Index(app).build()]
 
         self.assertEquals('jane doughnut', indexed[0]['text'])
@@ -157,7 +157,7 @@ class IndexTest(TestCase):
                 LocaleConfiguration('nl-NL', 'nl'),
             ])
             async with App(configuration).with_locale(locale) as app:
-                app.ancestry.places[place_id] = place
+                app.ancestry.places.add(place)
                 indexed = [item for item in Index(app).build()]
 
         self.assertEquals('netherlands nederland', indexed[0]['text'])
@@ -176,7 +176,7 @@ class IndexTest(TestCase):
                 LocaleConfiguration('nl-NL', 'nl'),
             ])
             async with App(configuration) as app:
-                app.ancestry.files[file_id] = file
+                app.ancestry.files.add(file)
                 indexed = [item for item in Index(app).build()]
 
         self.assertEquals([], indexed)
@@ -199,7 +199,7 @@ class IndexTest(TestCase):
                 LocaleConfiguration('nl-NL', 'nl'),
             ])
             async with App(configuration).with_locale(locale) as app:
-                app.ancestry.files[file_id] = file
+                app.ancestry.files.add(file)
                 indexed = [item for item in Index(app).build()]
 
         self.assertEquals('"file" is dutch for "traffic jam"', indexed[0]['text'])

@@ -1,5 +1,5 @@
 {% set ns = namespace(people={}) %}
-{% for person in app.ancestry.people.values() %}
+{% for person in app.ancestry.people %}
     {% set person_label %}
         {% with embedded=True %}
             {% include 'label/person.html.j2' %}
