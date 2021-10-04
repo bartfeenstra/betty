@@ -23,7 +23,6 @@ SETUP = {
     'url': 'https://github.com/bartfeenstra/betty',
     'classifiers': [
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
@@ -38,7 +37,7 @@ SETUP = {
         'Natural Language :: English',
         'Natural Language :: Ukrainian',
     ],
-    'python_requires': '~= 3.7',
+    'python_requires': '~= 3.8',
     'install_requires': [
         'aiofiles ~= 0.8.0',
         'aiohttp ~= 3.8.1',
@@ -66,7 +65,6 @@ SETUP = {
             'coverage ~= 6.3',
             'flake8 ~= 4.0.1',
             'html5lib ~= 1.1',
-            'mock ~= 4.0; python_version <= "3.7"',
             'lxml ~= 4.7.1',
             'nose2 ~= 0.10',
             'parameterized ~= 0.8.1',

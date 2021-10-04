@@ -1,5 +1,4 @@
 import builtins
-import sys
 from gettext import NullTranslations
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -19,13 +18,9 @@ class TranslationsTest(TestCase):
         'lgettext': 'lgettext',
         'lngettext': 'lngettext',
         'ngettext': 'ngettext',
+        'npgettext': 'npgettext',
+        'pgettext': 'pgettext',
     }
-    # *pgettext() functions are available after Python 3.7.
-    if sys.version_info.minor > 7:
-        _GETTEXT_BUILTINS_TO_TRANSLATIONS_METHODS.update({
-            'npgettext': 'npgettext',
-            'pgettext': 'pgettext',
-        })
 
     def assert_gettext_builtins(self, translations: NullTranslations) -> None:
         for builtin_name, translations_method_name in self._GETTEXT_BUILTINS_TO_TRANSLATIONS_METHODS.items():

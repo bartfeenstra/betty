@@ -12,7 +12,7 @@ from babel.core import parse_locale, Locale
 
 from betty import fs, os
 from betty.app.extension import ListExtensions, Extension, ConfigurableExtension, Extensions, \
-    build_extension_type_graph, ExtensionDispatcher
+    build_extension_type_graph, ExtensionDispatcher, CyclicDependencyError
 from betty.environment import Environment
 from betty.error import ensure_context
 
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 from betty.importlib import import_any
 
 try:
-    from graphlib import TopologicalSorter
+    from graphlib import TopologicalSorter, CycleError
 except ImportError:
     from graphlib_backport import TopologicalSorter
 from pathlib import Path
@@ -31,7 +31,7 @@ import aiohttp
 from jinja2 import Environment as Jinja2Environment
 from reactives import reactive, scope
 
-from betty.concurrent import ExceptionRaisingExecutor
+from betty.concurrent import ExceptionRaisingAwaitableExecutor
 from betty.dispatch import Dispatcher
 from betty.lock import Locks
 from betty.render import Renderer, SequentialRenderer
@@ -392,11 +392,11 @@ class Configuration(GenericConfiguration):
 
     @reactive
     @property
-    def cache_directory_path(self) -> str:
+    def cache_directory_path(self) -> Path:
         return self._cache_directory_path
 
     @cache_directory_path.setter
-    def cache_directory_path(self, cache_directory_path: str) -> None:
+    def cache_directory_path(self, cache_directory_path: Path) -> None:
         self._cache_directory_path = cache_directory_path
 
     @reactive
@@ -599,7 +599,7 @@ class Configuration(GenericConfiguration):
 
 
 @reactive
-class App(Configurable, Environment):
+class App(Configurable[Configuration], Environment):
     def __init__(self, configuration: Configuration):
         from betty.url import AppUrlGenerator, StaticPathUrlGenerator
 
@@ -630,7 +630,8 @@ class App(Configurable, Environment):
         await self._wait_for_threads()
 
     async def _wait_for_threads(self) -> None:
-        del self.executor
+        if self._executor:
+            await self._executor.wait()
 
     async def activate(self) -> None:
         if self._active:
@@ -692,16 +693,19 @@ class App(Configurable, Environment):
         return self._extensions
 
     def _update_extensions(self) -> None:
-        extension_types_enabled_in_configuration = {
-            app_extension_configuration.extension_type
-            for app_extension_configuration in self._configuration.extensions
-            if app_extension_configuration.enabled
-        }
+        extension_types_enabled_in_configuration = set()
+        for app_extension_configuration in self._configuration.extensions:
+            if app_extension_configuration.enabled:
+                app_extension_configuration.extension_type.requires().assert_met()
+                extension_types_enabled_in_configuration.add(app_extension_configuration.extension_type)
 
         extension_types_sorter = TopologicalSorter(
             build_extension_type_graph(extension_types_enabled_in_configuration)
         )
-        extension_types_sorter.prepare()
+        try:
+            extension_types_sorter.prepare()
+        except CycleError:
+            raise CyclicDependencyError([app_extension_configuration.extension_type for app_extension_configuration in self._configuration.extensions])
 
         extensions = []
         while extension_types_sorter.is_active():
@@ -727,8 +731,8 @@ class App(Configurable, Environment):
         if len(self._assets.paths) == 0:
             self._assets.paths.appendleft((ASSETS_DIRECTORY_PATH, 'utf-8'))
             for extension in self.extensions.flatten():
-                if extension.assets_directory_path is not None:
-                    self._assets.paths.appendleft((extension.assets_directory_path, 'utf-8'))
+                if extension.assets_directory_path() is not None:
+                    self._assets.paths.appendleft((extension.assets_directory_path(), 'utf-8'))
             if self._configuration.assets_directory_path:
                 self._assets.paths.appendleft((self._configuration.assets_directory_path, None))
 
@@ -803,14 +807,8 @@ class App(Configurable, Environment):
     @property
     def executor(self) -> Executor:
         if self._executor is None:
-            self._executor = ExceptionRaisingExecutor(ThreadPoolExecutor())
+            self._executor = ExceptionRaisingAwaitableExecutor(ThreadPoolExecutor())
         return self._executor
-
-    @executor.deleter
-    def executor(self) -> None:
-        if self._executor is not None:
-            self._executor.shutdown()
-            self._executor = None
 
     @property
     def locks(self) -> Locks:

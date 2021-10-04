@@ -2,33 +2,63 @@ from __future__ import annotations
 
 import asyncio
 from collections import defaultdict
-from pathlib import Path
-from typing import Dict, List, Optional, Set, Type, Sequence, Any, Generic, TYPE_CHECKING
+from typing import Generic, TYPE_CHECKING, Iterable
+
+from betty.requirement import Requirer, AllRequirements
 
 if TYPE_CHECKING:
     from betty.app import App
-
 try:
     from importlib.metadata import entry_points
 except ImportError:
     from importlib_metadata import entry_points
 
 from betty.config import Configurable, ConfigurationT
+from pathlib import Path
+from typing import Type, Set, Optional, Any, List, Dict, Sequence, TypeVar
+
 from betty.dispatch import Dispatcher, TargetedDispatcher
 from betty.environment import Environment
 from betty.importlib import import_any
 from reactives import reactive, scope
 
 
-class Extension(Environment):
+class CyclicDependencyError(BaseException):
+    def __init__(self, extensions: Iterable[Type[Extension]]):
+        extension_names = ', '.join([extension.name() for extension in extensions])
+        super().__init__(f'The following extensions have cyclic dependencies: {extension_names}')
+
+
+class Dependencies(AllRequirements):
+    def __init__(self, extension_type: Type[Extension]):
+        for dependency in extension_type.depends_on():
+            try:
+                dependency_requirements = [dependency.requires() for dependency in extension_type.depends_on()]
+            except RecursionError:
+                raise CyclicDependencyError([dependency])
+        super().__init__(dependency_requirements)
+        self._extension_type = extension_type
+
+    @property
+    def summary(self) -> str:
+        dependency_names = ', '.join(map(lambda x: x.name(), self._extension_type.depends_on()))
+        return f'{self._extension_type.name()} depends on {dependency_names}.'
+
+
+class Extension(Environment, Requirer):
     """
     Integrate optional functionality with the Betty app.
 
     Extensions that take configuration must implement betty.app.ConfigurableExtension.
     """
 
-    def __init__(self, app: App):
+    def __init__(self, app: App, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._app = app
+
+    @classmethod
+    def requires(cls) -> AllRequirements:
+        return AllRequirements([Dependencies(cls)] if cls.depends_on() else [])
 
     @classmethod
     def name(cls) -> str:
@@ -46,14 +76,64 @@ class Extension(Environment):
     def comes_before(cls) -> Set[Type[Extension]]:
         return set()
 
-    @property
-    def assets_directory_path(self) -> Optional[Path]:
+    @classmethod
+    def assets_directory_path(cls) -> Optional[Path]:
         return None
 
 
 class ConfigurableExtension(Configurable, Extension, Generic[ConfigurationT]):
     def __init__(self, app: App, configuration: ConfigurationT):
         super().__init__(configuration, app)
+
+
+ExtensionT = TypeVar('ExtensionT', bound=Extension)
+
+
+@reactive
+class Extensions:
+    def __getitem__(self, extension_type: Type[ExtensionT]) -> ExtensionT:
+        raise NotImplementedError
+
+    def __iter__(self) -> Sequence[Sequence[Extension]]:
+        raise NotImplementedError
+
+    def flatten(self) -> Sequence[Extension]:
+        for batch in self:
+            yield from batch
+
+    def __contains__(self, extension_type: Type[Extension]) -> bool:
+        raise NotImplementedError
+
+
+class ListExtensions(Extensions):
+    def __init__(self, extensions: List[List[Extension]]):
+        self._extensions = extensions
+
+    @scope.register_self
+    def __getitem__(self, extension_type: Type[Extension]) -> Extension:
+        for extension in self.flatten():
+            if type(extension) == extension_type:
+                return extension
+        raise KeyError(f'Unknown extension of type "{extension_type}"')
+
+    @scope.register_self
+    def __iter__(self) -> Sequence[Sequence[Extension]]:
+        # Use a generator so we discourage calling code from storing the result.
+        for batch in self._extensions:
+            yield (extension for extension in batch)
+
+    @scope.register_self
+    def __contains__(self, extension_type: Type[Extension]) -> bool:
+        for extension in self.flatten():
+            if type(extension) == extension_type:
+                return True
+        return False
+
+
+@reactive
+class Configuration:
+    def __init__(self):
+        pass
 
     @classmethod
     def default_configuration(cls) -> ConfigurationT:
@@ -115,44 +195,3 @@ def _extend_extension_type_graph(graph: Dict, extension_type: Type[Extension]) -
 
 def discover_extension_types() -> Set[Type[Extension]]:
     return {import_any(entry_point.value) for entry_point in entry_points()['betty.extensions']}
-
-
-@reactive
-class Extensions:
-    def __getitem__(self, extension_type: Type[Extension]) -> Extension:
-        raise NotImplementedError
-
-    def __iter__(self) -> Sequence[Sequence[Extension]]:
-        raise NotImplementedError
-
-    def flatten(self) -> Sequence[Extension]:
-        for batch in self:
-            yield from batch
-
-    def __contains__(self, extension_type: Type[Extension]) -> bool:
-        raise NotImplementedError
-
-
-class ListExtensions(Extensions):
-    def __init__(self, extensions: List[List[Extension]]):
-        self._extensions = extensions
-
-    @scope.register_self
-    def __getitem__(self, extension_type: Type[Extension]) -> Extension:
-        for extension in self.flatten():
-            if type(extension) == extension_type:
-                return extension
-        raise KeyError(f'Unknown extension of type "{extension_type}"')
-
-    @scope.register_self
-    def __iter__(self) -> Sequence[Sequence[Extension]]:
-        # Use a generator, so we discourage calling code from storing the result.
-        for batch in self._extensions:
-            yield (extension for extension in batch)
-
-    @scope.register_self
-    def __contains__(self, extension_type: Type[Extension]) -> bool:
-        for extension in self.flatten():
-            if type(extension) == extension_type:
-                return True
-        return False

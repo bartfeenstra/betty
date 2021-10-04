@@ -7,18 +7,20 @@ from betty import load, generate, serve
 from betty.app import App, Configuration, AppExtensionConfiguration, LocaleConfiguration
 from betty.app.extension import Extension
 from betty.http_api_doc import HttpApiDoc
-from betty.serve import Server
-from betty.wikipedia import Wikipedia
-from betty.model.ancestry import Place, PlaceName, Person, Presence, Subject, Birth, PersonName, Link, Death, Marriage, \
-    Source, Citation, Event
 from betty.load import Loader
 from betty.locale import Date, DateRange
+from betty.maps import Maps
+from betty.model.ancestry import Place, PlaceName, Person, Presence, Subject, Birth, PersonName, Link, Death, Marriage, \
+    Source, Citation, Event
+from betty.serve import Server
+from betty.trees import Trees
+from betty.wikipedia import Wikipedia
 
 
 class Demo(Extension, Loader):
     @classmethod
     def depends_on(cls) -> Set[Type[Extension]]:
-        return {HttpApiDoc, Wikipedia}
+        return {HttpApiDoc, Maps, Trees, Wikipedia}
 
     async def load(self) -> None:
         amsterdam = Place('betty-demo-amsterdam', [PlaceName('Amsterdam')])

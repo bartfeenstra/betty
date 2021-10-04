@@ -11,7 +11,7 @@ module.exports = {
     trees: path.resolve(__dirname, 'trees.js')
   },
   output: {
-    path: path.resolve(__dirname, '..', 'output'),
+    path: path.resolve(__dirname, 'webpack-build'),
     filename: '[name].js'
   },
   optimization: {

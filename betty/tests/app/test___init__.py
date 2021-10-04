@@ -1,8 +1,4 @@
 from contextlib import contextmanager
-try:
-    from graphlib import CycleError
-except ImportError:
-    from graphlib_backport import CycleError
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Dict, Any, Type, List, Set
@@ -12,7 +8,7 @@ from reactives.tests import assert_reactor_called, assert_in_scope, assert_scope
 
 from betty import app
 from betty.app import Configuration, LocaleConfiguration, LocalesConfiguration, AppExtensionConfiguration, Extension, \
-    AppExtensionsConfiguration, ConfigurationError, ConfigurableExtension, App
+    AppExtensionsConfiguration, ConfigurationError, ConfigurableExtension, App, CyclicDependencyError
 from betty.asyncio import sync
 from betty.config import Configuration as GenericConfiguration
 from betty.model.ancestry import Ancestry
@@ -817,7 +813,7 @@ class AppTest(TestCase):
     async def test_extensions_with_multiple_extensions_with_cyclic_dependencies(self) -> None:
         configuration = Configuration(**self._MINIMAL_CONFIGURATION_ARGS)
         configuration.extensions.add(AppExtensionConfiguration(CyclicDependencyOneExtension))
-        with self.assertRaises(CycleError):
+        with self.assertRaises(CyclicDependencyError):
             async with App(configuration) as sut:
                 sut.extensions
 

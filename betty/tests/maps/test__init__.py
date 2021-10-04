@@ -10,7 +10,7 @@ from betty.tests import patch_cache, TestCase
 class MapsTest(TestCase):
     @patch_cache
     @sync
-    async def test_post_render_event(self):
+    async def test_post_generate_event(self):
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(output_directory_path, 'https://ancestry.example.com')
             configuration.debug = True
@@ -20,7 +20,6 @@ class MapsTest(TestCase):
             with open(configuration.www_directory_path / 'maps.js', encoding='utf-8') as f:
                 betty_js = f.read()
             self.assertIn('maps.js', betty_js)
-            self.assertIn('maps.css', betty_js)
             with open(configuration.www_directory_path / 'maps.css', encoding='utf-8') as f:
                 betty_css = f.read()
             self.assertIn('.map', betty_css)
