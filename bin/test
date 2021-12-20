@@ -31,7 +31,7 @@ npm run cypress -- run
 
 # Test the built Python packages.
 PACKAGE_COMMANDS=(./bin/build-pyinstaller ./bin/build-setuptools)
-for package_command in ${PACKAGE_COMMANDS[*]}; do
+for package_command in "${PACKAGE_COMMANDS[@]}"; do
   echo "Testing package build command $package_command..."
   set +e
   build_output="$($package_command 2>&1)"
