@@ -47,12 +47,6 @@ class LocalizedPathUrlGeneratorTest(TestCase):
         self.assertEquals(expected, sut.generate(
             resource, 'text/html', absolute=True))
 
-    def test_generate_with_invalid_value(self):
-        configuration = Configuration('/tmp', 'https://example.com')
-        sut = LocalizedPathUrlGenerator(configuration)
-        with self.assertRaises(ValueError):
-            sut.generate(9, 'text/html')
-
     def test_generate_multilingual(self):
         configuration = Configuration('/tmp', 'https://example.com')
         configuration.locales.replace([
@@ -73,13 +67,6 @@ class IdentifiableResourceUrlGeneratorTest(TestCase):
             configuration, Identifiable, 'prefix/%s/index.%s')
         self.assertEquals('/prefix/I1/index.html',
                           sut.generate(Identifiable('I1'), 'text/html'))
-
-    def test_generate_with_invalid_value(self):
-        configuration = Configuration('/tmp', 'https://example.com')
-        sut = IdentifiableResourceUrlGenerator(
-            configuration, Identifiable, 'prefix/%s/index.html')
-        with self.assertRaises(ValueError):
-            sut.generate(9, 'text/html')
 
 
 class AppUrlGeneratorTest(TestCase):
