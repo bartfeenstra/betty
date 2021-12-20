@@ -2,6 +2,8 @@ import gettext
 from collections import defaultdict
 from concurrent.futures._base import Executor
 from concurrent.futures.thread import ThreadPoolExecutor
+from contextlib import AsyncExitStack
+
 try:
     from graphlib import TopologicalSorter
 except ImportError:
@@ -18,10 +20,6 @@ from betty.extension import _build_extension_type_graph, ConfigurableExtension, 
 from betty.lock import Locks
 from betty.render import Renderer, SequentialRenderer
 
-try:
-    from contextlib import AsyncExitStack
-except ImportError:
-    from async_exit_stack import AsyncExitStack
 from copy import copy
 from typing import Type, Dict, Sequence, List
 

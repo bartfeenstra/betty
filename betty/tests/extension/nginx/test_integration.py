@@ -1,13 +1,9 @@
 import json
 import sys
 import unittest
+from contextlib import asynccontextmanager
 from pathlib import Path
 from tempfile import TemporaryDirectory
-
-try:
-    from contextlib import asynccontextmanager
-except ImportError:
-    from async_generator import asynccontextmanager
 
 import html5lib
 import jsonschema
@@ -16,12 +12,12 @@ from requests import Response
 
 from betty import generate
 from betty.ancestry import File
-from betty.config import from_file, Configuration, ExtensionConfiguration
+from betty.app import App
 from betty.asyncio import sync
+from betty.config import from_file, Configuration, ExtensionConfiguration
 from betty.extension.nginx import Nginx, NginxConfiguration
 from betty.extension.nginx.serve import DockerizedNginxServer
 from betty.serve import Server
-from betty.app import App
 from betty.tests import TestCase
 
 
