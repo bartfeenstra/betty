@@ -36,7 +36,7 @@ secure**.
 ## Installation
 
 ### Requirements
-- **Python 3.6+**
+- **Python 3.7+**
 - Node.js 10+ (optional)
 - Linux, Mac OS, or Windows
 

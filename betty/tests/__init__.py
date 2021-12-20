@@ -1,22 +1,16 @@
 import functools
 import logging
-from contextlib import suppress
+import unittest
+from contextlib import suppress, asynccontextmanager
 from pathlib import Path
-
-from betty import fs
-
-try:
-    from contextlib import asynccontextmanager
-except ImportError:
-    from async_generator import asynccontextmanager
 from tempfile import TemporaryDirectory
 from typing import Optional, Dict, Callable, Tuple
-import unittest
 
 from jinja2 import Environment, Template
 
-from betty.config import Configuration
+from betty import fs
 from betty.app import App
+from betty.config import Configuration
 
 
 def patch_cache(f):
@@ -29,7 +23,7 @@ def patch_cache(f):
             f(*args, **kwargs)
         finally:
             fs.CACHE_DIRECTORY_PATH = original_cache_directory_path
-            # Pythons 3.6 and 3.7 do not allow the temporary directory to have been removed already.
+            # Python 3.7 does not allow the temporary directory to have been removed already.
             with suppress(FileNotFoundError):
                 cache_directory.cleanup()
 
