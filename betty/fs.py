@@ -7,11 +7,15 @@ from os.path import getmtime
 from pathlib import Path
 from shutil import copy2
 from tempfile import mkdtemp
-from typing import AsyncIterable, Optional, Tuple
+from typing import AsyncIterable, Optional, Tuple, AsyncContextManager
 
+import aiofiles
+
+from betty import _ROOT_DIRECTORY_PATH
 from betty.os import PathLike
 
-ROOT_DIRECTORY_PATH = Path(__file__).resolve().parents[1]
+
+ROOT_DIRECTORY_PATH = _ROOT_DIRECTORY_PATH
 
 
 CACHE_DIRECTORY_PATH = Path.home() / '.betty'
@@ -28,6 +32,24 @@ def hashfile(path: PathLike) -> str:
 
 
 class FileSystem:
+    class _Open:
+        def __init__(self, fs: 'FileSystem', file_paths: Tuple[PathLike]):
+            self._fs = fs
+            self._file_paths = file_paths
+            self._file = None
+
+        async def __aenter__(self):
+            for file_path in map(Path, self._file_paths):
+                for fs_path, fs_encoding in self._fs._paths:
+                    with suppress(FileNotFoundError):
+                        self._file = aiofiles.open(fs_path / file_path, encoding=fs_encoding)
+                        return await self._file.__aenter__()
+            raise FileNotFoundError
+
+        async def __aexit__(self, exc_type, exc_val, exc_tb):
+            if self._file is not None:
+                await self._file.__aexit__(None, None, None)
+
     def __init__(self, *paths: Tuple[PathLike, Optional[str]]):
         self._paths = deque([(Path(fs_path), fs_encoding) for fs_path, fs_encoding in paths])
 
@@ -35,12 +57,8 @@ class FileSystem:
     def paths(self) -> deque:
         return self._paths
 
-    async def open(self, *file_paths: PathLike):
-        for file_path in map(Path, file_paths):
-            for fs_path, fs_encoding in self._paths:
-                with suppress(FileNotFoundError):
-                    return open(fs_path / file_path, encoding=fs_encoding)
-        raise FileNotFoundError
+    def open(self, *file_paths: PathLike) -> AsyncContextManager[object]:
+        return self._Open(self, file_paths)
 
     async def copy2(self, source_path: PathLike, destination_path: PathLike) -> Path:
         for fs_path, _ in self._paths:

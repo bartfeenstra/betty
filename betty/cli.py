@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import sys
 import time
@@ -170,7 +171,4 @@ async def _serve(app: App):
             raise UserFacingError('Web root directory "%s" does not exist.' % app.configuration.www_directory_path)
         async with serve.AppServer(app):
             while True:
-                time.sleep(999)
-
-if __name__ == "__main__":
-    main()
+                await asyncio.sleep(999)

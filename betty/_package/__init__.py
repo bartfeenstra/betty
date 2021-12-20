@@ -3,7 +3,7 @@ from glob import glob
 from pathlib import Path
 from typing import List
 
-from betty.fs import ROOT_DIRECTORY_PATH
+from betty import _ROOT_DIRECTORY_PATH as ROOT_DIRECTORY_PATH
 
 
 def get_data_paths() -> List[Path]:

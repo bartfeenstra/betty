@@ -17,7 +17,8 @@ from betty.string import upper_camel_case_to_lower_camel_case
 
 def validate(data: Any, schema_definition: str, app: App) -> None:
     with open(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'schema.json'), encoding='utf-8') as f:
-        schema = stdjson.load(f)
+        json_data = f.read()
+    schema = stdjson.loads(json_data)
     # @todo Can we set the schema ID somehow without making the entire JSON schema file a Jinja2 template?
     schema_id = app.static_url_generator.generate('schema.json', absolute=True)
     schema['$id'] = schema_id

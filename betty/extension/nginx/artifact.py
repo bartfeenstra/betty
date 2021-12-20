@@ -3,6 +3,7 @@ from shutil import copyfile
 from typing import Optional
 from urllib.parse import urlparse
 
+import aiofiles
 from jinja2 import FileSystemLoader
 
 from betty.app import App
@@ -23,8 +24,8 @@ async def generate_configuration_file(app: App, destination_file_path: Optional[
     configuration_file_template_name = '/'.join((Path(__file__).parent / 'assets' / 'nginx.conf.j2').relative_to(root_path).parts)
     template = FileSystemLoader(root_path).load(app.jinja2_environment, configuration_file_template_name, app.jinja2_environment.globals)
     destination_file_path.parent.mkdir(exist_ok=True, parents=True)
-    with open(destination_file_path, 'w', encoding='utf-8') as f:
-        f.write(template.render(kwargs))
+    async with aiofiles.open(destination_file_path, 'w', encoding='utf-8') as f:
+        await f.write(template.render(kwargs))
 
 
 async def generate_dockerfile_file(app: App, destination_file_path: Optional[str] = None) -> None:

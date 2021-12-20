@@ -2,8 +2,8 @@
 
 from setuptools import setup, find_packages
 
+from betty import _ROOT_DIRECTORY_PATH as ROOT_DIRECTORY_PATH
 from betty._package import get_data_paths
-from betty.fs import ROOT_DIRECTORY_PATH
 
 with open(ROOT_DIRECTORY_PATH / 'VERSION', encoding='utf-8') as f:
     VERSION = f.read()
@@ -39,6 +39,7 @@ SETUP = {
     ],
     'python_requires': '~= 3.7',
     'install_requires': [
+        'aiofiles ~= 0.8.0',
         'aiohttp ~= 3.7',
         'babel ~= 2.9',
         'click ~= 8.0.1',
