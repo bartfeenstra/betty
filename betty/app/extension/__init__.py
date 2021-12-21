@@ -170,11 +170,10 @@ def format_extension_type(extension_type: Type[Extension]) -> str:
 
 
 class ConfigurableExtension(Extension, Generic[ConfigurationT], Configurable[ConfigurationT]):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, configuration: ConfigurationT | None = None, **kwargs):
         assert type(self) != ConfigurableExtension
-        if 'configuration' not in kwargs or kwargs['configuration'] is None:
-            kwargs['configuration'] = self.default_configuration()
         super().__init__(*args, **kwargs)
+        self._configuration = configuration or self.default_configuration()
 
     @classmethod
     def default_configuration(cls) -> ConfigurationT:

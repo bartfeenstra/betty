@@ -1,8 +1,6 @@
 import functools
 import inspect
 from contextlib import contextmanager, ExitStack
-from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import Optional, Dict, Callable, ContextManager, Iterator, Tuple, TypeVar, Set, Type
 
 from jinja2.environment import Template
@@ -10,6 +8,7 @@ from jinja2.environment import Template
 from betty import fs
 from betty.app import App, Extension
 from betty.jinja2 import Environment
+from betty.tempfile import TemporaryDirectory
 
 T = TypeVar('T')
 
@@ -19,7 +18,7 @@ def patch_cache(f):
     async def _patch_cache(*args, **kwargs) -> None:
         original_cache_directory_path = fs.CACHE_DIRECTORY_PATH
         cache_directory = TemporaryDirectory()
-        fs.CACHE_DIRECTORY_PATH = Path(cache_directory.name)
+        fs.CACHE_DIRECTORY_PATH = cache_directory.path
         try:
             result = f(*args, **kwargs)
             if inspect.iscoroutinefunction(f):

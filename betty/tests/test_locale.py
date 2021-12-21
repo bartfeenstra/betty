@@ -5,7 +5,6 @@ import subprocess
 import sys
 from gettext import NullTranslations
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import List, Optional, Iterator, Set, Tuple
 
 import pytest
@@ -13,6 +12,7 @@ import pytest
 from betty.fs import FileSystem, ROOT_DIRECTORY_PATH
 from betty.locale import Localized, negotiate_localizeds, Date, format_datey, DateRange, Translations, negotiate_locale, \
     Datey, TranslationsInstallationError, TranslationsRepository
+from betty.tempfile import TemporaryDirectory
 
 
 class TestPotFile:
@@ -42,7 +42,7 @@ class TestPotFile:
             subprocess.check_call(
                 (
                     'bash',
-                    Path() / 'bin' / 'extract-translatables',
+                    Path.cwd() / 'bin' / 'extract-translatables',
                 ),
                 cwd=working_directory_path,
                 stderr=subprocess.DEVNULL,
@@ -50,12 +50,12 @@ class TestPotFile:
                 shell=sys.platform == 'win32',
             )
             actual_pot_contents = self._readlines(ROOT_DIRECTORY_PATH)
-            expected_pot_contents = self._readlines(Path(working_directory_path))
+            expected_pot_contents = self._readlines(working_directory_path)
             diff = difflib.unified_diff(
                 list(actual_pot_contents),
                 list(expected_pot_contents),
             )
-            assert 0 == len(list(diff)), f'The gettext *.po files are not up to date. Did you run {Path() / "bin" / "extract-translatables"}?'
+            assert 0 == len(list(diff)), f'The gettext *.po files are not up to date. Did you run {Path.cwd() / "bin" / "extract-translatables"}?'
 
 
 class TestTranslations:
@@ -492,10 +492,9 @@ class TestTranslationsRepository:
     def test_getitem(self) -> None:
         locale = 'nl-NL'
         locale_path_name = 'nl_NL'
-        with TemporaryDirectory() as assets_directory_path_str:
-            fs = FileSystem((assets_directory_path_str, None))
+        with TemporaryDirectory() as assets_directory_path:
+            fs = FileSystem((assets_directory_path, None))
             sut = TranslationsRepository(fs)
-            assets_directory_path = Path(assets_directory_path_str)
             lc_messages_directory_path = assets_directory_path / 'locale' / locale_path_name / 'LC_MESSAGES'
             lc_messages_directory_path.mkdir(parents=True)
             po = """

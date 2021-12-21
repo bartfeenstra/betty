@@ -1,13 +1,14 @@
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Optional, Iterable, MutableSequence
 
 from reactives.collections import ReactiveMutableSequence
 from reactives.instance.property import reactive_property
 
-from betty.config import Configuration, DumpedConfigurationImport, DumpedConfigurationExport, DumpedConfigurationDict
-from betty.config.dump import DumpedConfigurationList
+from betty.config import Configuration, DumpedConfiguration, VoidableDumpedConfiguration, DumpedConfigurationDict
+from betty.config.dump import DumpedConfigurationList, minimize
 from betty.config.load import Loader, Field
-from betty.os import PathLike
 
 try:
     from typing_extensions import TypeGuard
@@ -16,9 +17,9 @@ except ModuleNotFoundError:
 
 
 class FamilyTreeConfiguration(Configuration):
-    def __init__(self, file_path: Optional[PathLike] = None):
+    def __init__(self, file_path: Path | None = None):
         super().__init__()
-        self.file_path = file_path  # type: ignore[assignment]
+        self.file_path = file_path
 
     def __eq__(self, other):
         if not isinstance(other, FamilyTreeConfiguration):
@@ -27,14 +28,14 @@ class FamilyTreeConfiguration(Configuration):
 
     @property
     @reactive_property
-    def file_path(self) -> Optional[Path]:
+    def file_path(self) -> Path | None:
         return self._file_path
 
     @file_path.setter
-    def file_path(self, file_path: Optional[PathLike]) -> None:
-        self._file_path = Path(file_path) if file_path else None
+    def file_path(self, file_path: Path | None) -> None:
+        self._file_path = file_path
 
-    def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
+    def load(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> None:
         loader.assert_record(dumped_configuration, {
             'file': Field(
                 True,
@@ -43,7 +44,7 @@ class FamilyTreeConfiguration(Configuration):
             )
         })
 
-    def dump(self) -> DumpedConfigurationExport:
+    def dump(self) -> VoidableDumpedConfiguration:
         return {
             'file': str(self.file_path),
         }
@@ -61,7 +62,7 @@ class GrampsConfiguration(Configuration):
     def family_trees(self) -> MutableSequence[FamilyTreeConfiguration]:
         return self._family_trees
 
-    def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
+    def load(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> None:
         loader.assert_record(dumped_configuration, {
             'family_trees': Field(
                 True,
@@ -69,24 +70,24 @@ class GrampsConfiguration(Configuration):
             ),
         })
 
-    def _load_family_trees(self, dumped_configuration, loader: Loader) -> TypeGuard[DumpedConfigurationList[DumpedConfigurationImport]]:
+    def _load_family_trees(self, dumped_configuration, loader: Loader) -> TypeGuard[DumpedConfigurationList[DumpedConfiguration]]:
         loader.on_commit(self._family_trees.clear)
         return loader.assert_sequence(
             dumped_configuration,
             self._load_family_tree,  # type: ignore
         )
 
-    def _load_family_tree(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> TypeGuard[DumpedConfigurationDict[DumpedConfigurationImport]]:
+    def _load_family_tree(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> TypeGuard[DumpedConfigurationDict[DumpedConfiguration]]:
         with loader.context() as errors:
             family_tree_configuration = FamilyTreeConfiguration()
             family_tree_configuration.load(dumped_configuration, loader)
             loader.on_commit(lambda: self._family_trees.append(family_tree_configuration))
         return errors.valid
 
-    def dump(self) -> DumpedConfigurationExport:
+    def dump(self) -> VoidableDumpedConfiguration:
         return {
             'family_trees': [
-                family_tree.dump()
+                minimize(family_tree.dump(), False)
                 for family_tree in self.family_trees
             ]
         }

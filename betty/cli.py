@@ -4,7 +4,7 @@ import sys
 import time
 from contextlib import suppress, contextmanager
 from functools import wraps
-from os import getcwd, path
+from pathlib import Path
 from typing import Callable, Dict, Optional, TYPE_CHECKING
 
 from PyQt6.QtWidgets import QMainWindow
@@ -92,9 +92,13 @@ async def _init_ctx(ctx: Context, __: Optional[Option] = None, configuration_fil
     ctx.obj['app'] = app
 
     if configuration_file_path is None:
-        try_configuration_file_paths = [path.join(getcwd(), 'betty.%s' % extension) for extension in {'json', 'yaml', 'yml'}]
+        try_configuration_file_paths = [
+            Path.cwd() / f'betty{extension}'
+            for extension
+            in {'.json', '.yaml', '.yml'}
+        ]
     else:
-        try_configuration_file_paths = [path.join(getcwd(), configuration_file_path)]
+        try_configuration_file_paths = [Path.cwd() / configuration_file_path]
 
     with app:
         for try_configuration_file_path in try_configuration_file_paths:
@@ -127,7 +131,14 @@ class _BettyCommands(click.MultiCommand):
 
 
 @click.command(cls=_BettyCommands)
-@click.option('--configuration', '-c', 'app', is_eager=True, help='The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory. This will make additional commands available.', callback=_init_ctx)
+@click.option(
+    '--configuration',
+    '-c',
+    'app',
+    is_eager=True,
+    help='The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory. This will make additional commands available.',
+    callback=_init_ctx,
+)
 @click.version_option(about.version(), message=about.report(), prog_name='Betty')
 def main(app):
     pass
@@ -152,9 +163,16 @@ async def _demo():
 
 @click.command(help="Open Betty's graphical user interface (GUI).")
 @global_command
-@click.option('--configuration', '-c', 'configuration_file_path', is_eager=True, help='The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory.')
+@click.option(
+    '--configuration',
+    '-c',
+    'configuration_file_path',
+    is_eager=True,
+    help='The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory.',
+    callback=Path,
+)
 @sync
-async def _gui(configuration_file_path: Optional[str]):
+async def _gui(configuration_file_path: Optional[Path]):
     with App() as app:
         qapp = BettyApplication([sys.argv[0]])
         window: QMainWindow
@@ -179,7 +197,7 @@ async def _generate(app: App):
 @app_command
 @sync
 async def _serve(app: App):
-    if not path.isdir(app.project.configuration.www_directory_path):
+    if not app.project.configuration.www_directory_path.is_dir():
         logging.getLogger().error('Web root directory "%s" does not exist.' % app.project.configuration.www_directory_path)
         return
     async with serve.AppServer(app):

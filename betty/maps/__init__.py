@@ -27,6 +27,7 @@ class Maps(UserFacingExtension, CssProvider, JsProvider, Generator, NpmBuilder):
         logging.getLogger().info('Built the interactive maps.')
 
     def _copy_npm_build(self, source_directory_path: Path, destination_directory_path: Path) -> None:
+        destination_directory_path.mkdir(parents=True, exist_ok=True)
         copy2(source_directory_path / 'maps.css', destination_directory_path / 'maps.css')
         copy2(source_directory_path / 'maps.js', destination_directory_path / 'maps.js')
         with suppress(FileNotFoundError):
@@ -38,7 +39,8 @@ class Maps(UserFacingExtension, CssProvider, JsProvider, Generator, NpmBuilder):
 
     async def generate(self) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
-        self._copy_npm_build(assets_directory_path, self.app.project.configuration.www_directory_path)
+        self.app.static_www_directory_path.mkdir(parents=True, exist_ok=True)
+        self._copy_npm_build(assets_directory_path, self.app.static_www_directory_path)
 
     @classmethod
     def assets_directory_path(cls) -> Optional[Path]:

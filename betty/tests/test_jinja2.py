@@ -1,5 +1,4 @@
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import List, Dict, Optional, Iterable, Type, ContextManager
 from unittest.mock import Mock
 
@@ -12,6 +11,7 @@ from betty.media_type import MediaType
 from betty.model import get_entity_type_name
 from betty.model.ancestry import File, PlaceName, Subject, Attendee, Witness, Dated, Entity, Person, Place, Citation
 from betty.string import camel_case_to_snake_case
+from betty.tempfile import TemporaryDirectory
 from betty.tests import TemplateTestCase
 
 
@@ -32,29 +32,13 @@ class TestJinja2Renderer:
             template = '{% if true %}true{% endif %}'
             expected_output = 'true'
             with TemporaryDirectory() as working_directory_path:
-                template_file_path = Path(working_directory_path) / 'betty.txt.j2'
+                template_file_path = working_directory_path / 'betty.txt.j2'
                 with open(template_file_path, 'w') as f:
                     f.write(template)
                 await sut.render_file(template_file_path)
                 with open(Path(working_directory_path) / 'betty.txt') as f:
                     assert expected_output == f.read().strip()
                 assert not template_file_path.exists()
-
-    async def test_render_tree(self) -> None:
-        with App() as app:
-            sut = Jinja2Renderer(app.jinja2_environment, app.project.configuration)
-            template = '{% if true %}true{% endif %}'
-            expected_output = 'true'
-            with TemporaryDirectory() as working_directory_path:
-                working_subdirectory_path = Path(working_directory_path) / 'sub'
-                working_subdirectory_path.mkdir(parents=True)
-                scss_file_path = Path(working_subdirectory_path) / 'betty.txt.j2'
-                with open(scss_file_path, 'w') as f:
-                    f.write(template)
-                await sut.render_tree(working_directory_path)
-                with open(Path(working_subdirectory_path) / 'betty.txt') as f:
-                    assert expected_output == f.read().strip()
-                assert not scss_file_path.exists()
 
 
 class FilterFlattenTest(TemplateTestCase):

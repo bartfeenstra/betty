@@ -14,7 +14,7 @@ class TestBuiltinServer:
             os.makedirs(app.project.configuration.www_directory_path)
             with open(app.project.configuration.www_directory_path / 'index.html', 'w') as f:
                 f.write(content)
-            async with BuiltinServer(app) as server:
+            async with BuiltinServer(app.project) as server:
                 # Wait for the server to start.
                 sleep(1)
                 response = requests.get(server.public_url)

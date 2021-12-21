@@ -1,4 +1,3 @@
-import asyncio
 import datetime
 import json as stdjson
 import os
@@ -7,7 +6,7 @@ import warnings
 from contextlib import suppress
 from pathlib import Path
 from typing import Dict, Callable, Iterable, Type, Optional, Any, Union, Iterator, ContextManager, cast, \
-    AsyncContextManager, MutableMapping, List, TYPE_CHECKING
+    AsyncContextManager, MutableMapping, List, TYPE_CHECKING, Set
 
 import aiofiles
 import pdf2image
@@ -29,7 +28,7 @@ from markupsafe import Markup, escape
 from betty import _resizeimage
 from betty.app import App
 from betty.asyncio import sync
-from betty.fs import hashfile, iterfiles, CACHE_DIRECTORY_PATH
+from betty.fs import hashfile, CACHE_DIRECTORY_PATH
 from betty.functools import walk
 from betty.html import CssProvider, JsProvider
 from betty.json import JSONEncoder
@@ -38,7 +37,7 @@ from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, n
 from betty.lock import AcquiredError
 from betty.model import Entity, get_entity_type_name, GeneratedEntityId
 from betty.model.ancestry import File, Citation, HasLinks, HasFiles, Subject, Witness, Dated
-from betty.os import link_or_copy, PathLike
+from betty.os import link_or_copy
 from betty.path import rootname
 from betty.project import ProjectConfiguration
 from betty.render import Renderer
@@ -228,14 +227,19 @@ class Jinja2Renderer(Renderer):
         self._environment = environment
         self._configuration = configuration
 
-    async def render_file(self, file_path: PathLike) -> None:
-        file_path_str = str(file_path)
-        if not file_path_str.endswith('.j2'):
-            return
-        file_destination_path_str = file_path_str[:-3]
+    @property
+    def file_extensions(self) -> Set[str]:
+        return {'.j2'}
+
+    async def render_file(self, file_path: Path) -> Path:
+        file_destination_path = file_path.parent / file_path.stem
         data = {}
-        if file_destination_path_str.startswith(str(self._configuration.www_directory_path)):
-            resource = '/'.join(Path(file_destination_path_str[len(str(self._configuration.www_directory_path)):].strip(os.sep)).parts)
+        try:
+            relative_file_destination_path = file_destination_path.relative_to(self._configuration.www_directory_path)
+        except ValueError:
+            pass
+        else:
+            resource = '/'.join(relative_file_destination_path.parts)
             if self._configuration.multilingual:
                 resource_parts = resource.lstrip('/').split('/')
                 if resource_parts[0] in map(lambda x: x.alias, self._configuration.locales):
@@ -244,14 +248,10 @@ class Jinja2Renderer(Renderer):
         root_path = rootname(file_path)
         template_name = '/'.join(Path(file_path).relative_to(root_path).parts)
         template = FileSystemLoader(root_path).load(self._environment, template_name, self._environment.globals)
-        async with aiofiles.open(file_destination_path_str, 'w', encoding='utf-8') as f:
+        async with aiofiles.open(file_destination_path, 'w', encoding='utf-8') as f:
             await f.write(template.render(data))
         os.remove(file_path)
-
-    async def render_tree(self, tree_path: PathLike) -> None:
-        await asyncio.gather(
-            *[self.render_file(file_path) async for file_path in iterfiles(tree_path) if str(file_path).endswith('.j2')],
-        )
+        return file_destination_path
 
 
 @pass_context
@@ -345,7 +345,7 @@ def _filter_file(app: App, file: File) -> str:
     with suppress(AcquiredError):
         app.locks.acquire((_filter_file, file))
         file_destination_path = app.project.configuration.www_directory_path / 'file' / file.id / 'file' / file.path.name
-        app.executor.submit(_do_filter_file, file.path, file_destination_path)
+        app.do_in_thread(lambda: _do_filter_file(file.path, file_destination_path))
 
     return f'/file/{file.id}/file/{file.path.name}'
 
@@ -383,7 +383,7 @@ def _filter_image(app: App, file: File, width: Optional[int] = None, height: Opt
     with suppress(AcquiredError):
         app.locks.acquire((_filter_image, file, width, height))
         cache_directory_path = CACHE_DIRECTORY_PATH / 'image'
-        app.executor.submit(task, file.path, cache_directory_path, file_directory_path, destination_name, width, height)
+        app.do_in_thread(lambda: task(file.path, cache_directory_path, file_directory_path, destination_name, width, height))
 
     destination_public_path = '/file/%s' % destination_name
 

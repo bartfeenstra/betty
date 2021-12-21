@@ -104,7 +104,7 @@ class _AddFamilyTreeWindow(BettyWindow):
                 return
             try:
                 if self._family_tree is None:
-                    self._family_tree = FamilyTreeConfiguration(file_path)
+                    self._family_tree = FamilyTreeConfiguration(Path(file_path))
                 else:
                     self._family_tree.file_path = Path(file_path)
                 mark_valid(self._file_path)

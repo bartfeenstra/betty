@@ -1,3 +1,4 @@
+from pathlib import Path
 from unittest.mock import patch, ANY, Mock
 
 from betty.anonymizer import anonymize, anonymize_person, anonymize_event, anonymize_file, anonymize_citation, \
@@ -46,7 +47,7 @@ class TestAnonymousCitation:
             pass
         ancestry = Ancestry()
         facts = [_HasCitations()]
-        files = [File('F1', __file__)]
+        files = [File('F1', Path(__file__))]
         source = Mock(Source)
         sut = AnonymousCitation(source)
         other = Citation(None, source)
@@ -98,7 +99,7 @@ class TestAnonymize:
 
     @patch('betty.anonymizer.anonymize_file')
     def test_with_public_file_should_not_anonymize(self, m_anonymize_file) -> None:
-        file = File('F0', __file__)
+        file = File('F0', Path(__file__))
         file.private = False
         ancestry = Ancestry()
         ancestry.entities.append(file)
@@ -107,7 +108,7 @@ class TestAnonymize:
 
     @patch('betty.anonymizer.anonymize_file')
     def test_with_private_file_should_anonymize(self, m_anonymize_file) -> None:
-        file = File('F0', __file__)
+        file = File('F0', Path(__file__))
         file.private = True
         ancestry = Ancestry()
         ancestry.entities.append(file)
@@ -164,7 +165,7 @@ class TestAnonymizePerson:
 
     def test_should_remove_files(self) -> None:
         person = Person('P0')
-        person.files.append(File('F0', __file__))
+        person.files.append(File('F0', Path(__file__)))
         anonymize_person(person)
         assert 0 == len(person.files)
 
@@ -224,7 +225,7 @@ class TestAnonymizeEvent:
 
     def test_should_remove_files(self) -> None:
         event = Event(None, Birth())
-        event.files.append(File('F0', __file__))
+        event.files.append(File('F0', Path(__file__)))
         anonymize_event(event)
         assert 0 == len(event.files)
 
@@ -238,7 +239,7 @@ class TestAnonymizeEvent:
 
 class TestAnonymizeFile:
     def test_should_remove_entity(self) -> None:
-        file = File('F0', __file__)
+        file = File('F0', Path(__file__))
         file.entities.append(Person('P0'))
         anonymize_file(file)
         assert 0 == len(file.entities)
@@ -281,7 +282,7 @@ class TestAnonymizeSource:
         ancestry = Ancestry()
         source = Source('S0', 'The Source')
         ancestry.entities.append(source)
-        file = File('F0', __file__)
+        file = File('F0', Path(__file__))
         source.files.append(file)
         anonymous_source = AnonymousSource()
         anonymize_source(source, ancestry, anonymous_source)
@@ -308,7 +309,7 @@ class TestAnonymizeCitation:
         source = Source('The Source')
         citation = Citation('C0', source)
         ancestry.entities.append(citation)
-        file = File('F0', __file__)
+        file = File('F0', Path(__file__))
         citation.files.append(file)
         anonymous_source = AnonymousSource()
         anonymous_citation = AnonymousCitation(anonymous_source)

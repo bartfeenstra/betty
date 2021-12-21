@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -94,7 +95,7 @@ class TestAppUrlGenerator:
         ('/person/P1/index.html', Person('P1')),
         ('/event/E1/index.html', Event('E1', Death())),
         ('/place/P1/index.html', Place('P1', [PlaceName('Place 1')])),
-        ('/file/F1/index.html', File('F1', '/tmp')),
+        ('/file/F1/index.html', File('F1', Path('/tmp'))),
         ('/source/S1/index.html', Source('S1', 'Source 1')),
         ('/citation/C1/index.html', Citation('C1', Source('Source 1'))),
     ])

@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
@@ -16,15 +17,15 @@ from betty.tests.conftest import AssertNotWindow, AssertInvalid, AssertWindow, N
 
 
 class TestProjectWindow:
-    def test_save_project_as_should_create_duplicate_configuration_file(self, mocker: MockerFixture, navigate: Navigate, qtbot: QtBot, tmpdir) -> None:
+    def test_save_project_as_should_create_duplicate_configuration_file(self, mocker: MockerFixture, navigate: Navigate, qtbot: QtBot, tmp_path: Path) -> None:
         configuration = ProjectConfiguration()
-        configuration.write(tmpdir.join('betty.json'))
+        configuration.write(tmp_path / 'betty.json')
         with App() as app:
             sut = ProjectWindow(app)
             qtbot.addWidget(sut)
             sut.show()
 
-            save_as_configuration_file_path = tmpdir.join('save-as', 'betty.json')
+            save_as_configuration_file_path = tmp_path / 'save-as' / 'betty.json'
             mocker.patch.object(QFileDialog, 'getSaveFileName', mocker.MagicMock(return_value=[save_as_configuration_file_path, None]))
             navigate(sut, ['save_project_as_action'])
 

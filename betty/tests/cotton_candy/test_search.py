@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from betty.app import App
@@ -145,7 +147,7 @@ class TestIndex:
 
     def test_file_without_description(self):
         file_id = 'F1'
-        file = File(file_id, __file__)
+        file = File(file_id, Path(__file__))
 
         with App() as app:
             app.project.configuration.extensions.enable(CottonCandy)
@@ -164,7 +166,7 @@ class TestIndex:
     ])
     def test_file(self, expected: str, locale: str):
         file_id = 'F1'
-        file = File(file_id, __file__)
+        file = File(file_id, Path(__file__))
         file.description = '"file" is Dutch for "traffic jam"'
 
         with App() as app:

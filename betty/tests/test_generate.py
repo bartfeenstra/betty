@@ -156,8 +156,9 @@ class TestGenerate:
 
     async def test_citation(self):
         with App() as app:
-            citation = Citation('CITATION1', Source('A Little Birdie'))
-            app.project.ancestry.entities.append(citation)
+            source = Source('A Little Birdie')
+            citation = Citation('CITATION1', source)
+            app.project.ancestry.entities.append(citation, source)
             await generate(app)
         assert_betty_html(app, '/citation/%s/index.html' % citation.id)
         assert_betty_json(app, '/citation/%s/index.json' % citation.id, 'citation')
@@ -180,7 +181,7 @@ class TestGenerate:
 class TestResourceOverride:
     async def test(self):
         with App() as app:
-            localized_assets_directory_path = Path(app.project.configuration.assets_directory_path) / 'public' / 'localized'
+            localized_assets_directory_path = Path(app.project.configuration.assets_directory_path) / 'public' / 'static'
             localized_assets_directory_path.mkdir(parents=True)
             with open(str(localized_assets_directory_path / 'index.html.j2'), 'w') as f:
                 f.write('{% block page_content %}Betty was here{% endblock %}')

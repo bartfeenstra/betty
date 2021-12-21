@@ -63,7 +63,7 @@ def test_remove_family_tree(qtbot) -> None:
             Gramps,
             extension_configuration=GrampsConfiguration(
                 family_trees=ReactiveMutableSequence([
-                    FamilyTreeConfiguration('/tmp/family-tree.gpkg'),
+                    FamilyTreeConfiguration(Path('/tmp/family-tree.gpkg')),
                 ])
             ),
         ))

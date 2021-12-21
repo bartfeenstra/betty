@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import weakref
-from concurrent.futures._base import Executor
+import asyncio
+from concurrent.futures import Executor, ProcessPoolExecutor
 from concurrent.futures.thread import ThreadPoolExecutor
 from contextlib import contextmanager, ExitStack, suppress
 from gettext import NullTranslations
 from pathlib import Path
-from typing import List, Type, TYPE_CHECKING, Set, Iterator, Optional
+import os as stdos
+from typing import Iterator, List, Optional, Type, TYPE_CHECKING, Set, Callable, Awaitable
 
 import aiohttp
 from babel.core import parse_locale
@@ -18,7 +20,7 @@ from betty.app.extension import ListExtensions, Extension, Extensions, build_ext
     CyclicDependencyError, ExtensionDispatcher, ConfigurableExtension, discover_extension_types
 from betty.asyncio import sync
 from betty.concurrent import ExceptionRaisingAwaitableExecutor
-from betty.config import FileBasedConfiguration, DumpedConfigurationImport, Configurable, DumpedConfigurationExport
+from betty.config import FileBasedConfiguration, DumpedConfiguration, Configurable, VoidableDumpedConfiguration
 from betty.config.load import ConfigurationValidationError, Loader, Field
 from betty.dispatch import Dispatcher
 from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH, HOME_DIRECTORY_PATH
@@ -90,16 +92,16 @@ class AppConfiguration(FileBasedConfiguration):
             raise ConfigurationValidationError(_('{locale} is not a valid IETF BCP 47 language tag.').format(locale=locale))
         self._locale = locale
 
-    def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
+    def load(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> None:
         loader.assert_record(dumped_configuration, {
             'locale': Field(
-                True,
+                False,
                 loader.assert_str,  # type: ignore
                 lambda x: loader.assert_setattr(self, 'locale', x),
             ),
         })
 
-    def dump(self) -> DumpedConfigurationExport:
+    def dump(self) -> VoidableDumpedConfiguration:
         dumped_configuration = {}
         if self._locale is not None:
             dumped_configuration['locale'] = self.locale
@@ -108,11 +110,11 @@ class AppConfiguration(FileBasedConfiguration):
 
 
 class App(Configurable[AppConfiguration], ReactiveInstance):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, configuration: AppConfiguration | None = None, project: Project | None = None, *args, **kwargs):
         from betty.url import AppUrlGenerator, StaticPathUrlGenerator
 
         super().__init__(*args, **kwargs)
-        self._configuration = AppConfiguration()
+        self._configuration = configuration or AppConfiguration()
         with suppress(FileNotFoundError):
             with Translations():
                 self.configuration.read()
@@ -120,35 +122,43 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         self._acquired = False
         self._extensions = _AppExtensions()
         self._extensions_initialized = False
-        self._project = Project()
-        self._assets = FileSystem()
-        self._dispatcher = None
-        self._entity_types = None
-        self._event_types = None
+        self._project = project or Project()
+        self._assets: FileSystem | None = None
+        self._dispatcher: ExtensionDispatcher | None = None
+        self._entity_types: Set[Type[Entity]] | None = None
+        self._event_types: Set[Type[EventType]] | None = None
         self._url_generator = AppUrlGenerator(self)
         self._static_url_generator = StaticPathUrlGenerator(self.project.configuration)
-        self._debug = None
         self._locale: Optional[str] = None
         self._translations: Optional[TranslationsRepository] = None
+        self._locale = None
         self._default_translations = None
         self._acquire_contexts = ExitStack()
-        self._jinja2_environment = None
-        self._renderer = None
-        self._executor = None
+        self._jinja2_environment: Environment | None = None
+        self._renderer: Renderer | None = None
+        self.__thread_pool_executor: ExceptionRaisingAwaitableExecutor | None = None
+        self.__process_pool_executor: ExceptionRaisingAwaitableExecutor | None = None
         self._locks = Locks()
-        self._http_client = None
+        self._http_client: aiohttp.ClientSession | None = None
 
-    def __copy__(self) -> Self:  # type: ignore
-        copied = type(self)()
-        copied._project = self._project
-        return copied
+    def __getstate__(self) -> None:
+        raise RuntimeError(f'{self.__class__} MUST NOT be pickled. Pickle {self.__class__}.project instead.')
+
+    def __copy__(self) -> Self:
+        raise RuntimeError(f'{self.__class__} MUST NOT be copied. Copy {self.__class__}.project instead.')
+
+    def __deepcopy__(self, _) -> None:
+        raise RuntimeError(f'{self.__class__} MUST NOT be copied. Copy {self.__class__}.project instead.')
 
     def wait(self) -> None:
         self._wait_for_threads()
+        self._wait_for_processes()
 
     def _wait_for_threads(self) -> None:
-        if self._executor:
-            self._executor.wait()
+        del self._thread_pool_executor
+
+    def _wait_for_processes(self) -> None:
+        del self._process_pool_executor
 
     def acquire(self) -> None:
         if self._acquired:
@@ -268,25 +278,20 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
     @property
     @reactive_property(on_trigger_delete=True)
     def assets(self) -> FileSystem:
-        if len(self._assets) == 0:
-            self._build_assets()
-
+        if self._assets is None:
+            self._assets = FileSystem()
+            self._assets.prepend(ASSETS_DIRECTORY_PATH, 'utf-8')
+            for extension in self.extensions.flatten():
+                extension_assets_directory_path = extension.assets_directory_path()
+                if extension_assets_directory_path is not None:
+                    self._assets.prepend(extension_assets_directory_path, 'utf-8')
+            if self.project.configuration.assets_directory_path:
+                self._assets.prepend(self.project.configuration.assets_directory_path)
         return self._assets
 
     @assets.deleter
     def assets(self) -> None:
-        # Proactively rebuild the assets, so the assets file system can be reused.
-        self._build_assets()
-
-    def _build_assets(self) -> None:
-        self._assets.clear()
-        self._assets.prepend(ASSETS_DIRECTORY_PATH, 'utf-8')
-        for extension in self.extensions.flatten():
-            extension_assets_directory_path = extension.assets_directory_path()
-            if extension_assets_directory_path is not None:
-                self._assets.prepend(extension_assets_directory_path, 'utf-8')
-        if self.project.configuration.assets_directory_path:
-            self._assets.prepend(self.project.configuration.assets_directory_path)
+        self._assets = None
 
     @property
     def dispatcher(self) -> Dispatcher:
@@ -294,6 +299,16 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
             self._dispatcher = ExtensionDispatcher(self.extensions)
 
         return self._dispatcher
+
+    @property
+    def www_directory_path(self) -> Path:
+        if self.project.configuration.multilingual:
+            return self.static_www_directory_path / self.project.configuration.locales[self.locale].alias
+        return self.static_www_directory_path
+
+    @property
+    def static_www_directory_path(self) -> Path:
+        return self.project.configuration.www_directory_path
 
     @property
     def url_generator(self) -> ContentNegotiationUrlGenerator:
@@ -339,10 +354,37 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         self._renderer = None
 
     @property
-    def executor(self) -> Executor:
-        if self._executor is None:
-            self._executor = ExceptionRaisingAwaitableExecutor(ThreadPoolExecutor())
-        return self._executor
+    def concurrency(self) -> int:
+        # Assume that any machine that runs Betty has at least two CPU cores.
+        return stdos.cpu_count() or 2
+
+    @property
+    def _thread_pool_executor(self) -> Executor:
+        if self.__thread_pool_executor is None:
+            self.__thread_pool_executor = ExceptionRaisingAwaitableExecutor(ThreadPoolExecutor(self.concurrency))
+        return self.__thread_pool_executor
+
+    @_thread_pool_executor.deleter
+    def _thread_pool_executor(self) -> None:
+        if self.__thread_pool_executor is not None:
+            self.__thread_pool_executor.wait()
+
+    def do_in_thread(self, task: Callable[[], None]) -> Awaitable[None]:
+        return asyncio.get_event_loop().run_in_executor(self._thread_pool_executor, task)
+
+    @property
+    def _process_pool_executor(self) -> Executor:
+        if self.__process_pool_executor is None:
+            self.__process_pool_executor = ExceptionRaisingAwaitableExecutor(ProcessPoolExecutor(self.concurrency))
+        return self.__process_pool_executor
+
+    @_process_pool_executor.deleter
+    def _process_pool_executor(self) -> None:
+        if self.__process_pool_executor is not None:
+            self.__process_pool_executor.wait()
+
+    def do_in_process(self, task: Callable[[], None]) -> Awaitable[None]:
+        return asyncio.get_event_loop().run_in_executor(self._process_pool_executor, task)
 
     @property
     def locks(self) -> Locks:

@@ -1,5 +1,3 @@
-from pathlib import Path
-from tempfile import TemporaryDirectory
 from time import sleep
 from typing import Tuple, Optional, Any
 from unittest.mock import call
@@ -10,6 +8,7 @@ from pytest_mock import MockerFixture
 
 from betty.media_type import MediaType
 from betty.project import LocaleConfiguration, ExtensionConfiguration
+from betty.tempfile import TemporaryDirectory
 from betty.tests import patch_cache
 
 try:
@@ -96,7 +95,7 @@ class TestRetriever:
         aioresponses.get(api_url, payload=api_response_body)
         with TemporaryDirectory() as cache_directory_path:
             async with aiohttp.ClientSession() as session:
-                translations = await _Retriever(session, Path(cache_directory_path)).get_translations(entry_language, entry_name)
+                translations = await _Retriever(session, cache_directory_path).get_translations(entry_language, entry_name)
         assert expected == translations
 
     async def test_get_translations_with_client_error_should_raise_retrieval_error(self, aioresponses: aioresponses, mocker: MockerFixture) -> None:
@@ -108,7 +107,7 @@ class TestRetriever:
         with TemporaryDirectory() as cache_directory_path:
             with pytest.raises(RetrievalError):
                 async with aiohttp.ClientSession() as session:
-                    await _Retriever(session, Path(cache_directory_path)).get_translations(entry_language, entry_name)
+                    await _Retriever(session, cache_directory_path).get_translations(entry_language, entry_name)
 
     async def test_get_translations_with_invalid_json_response_should_raise_retrieval_error(self, aioresponses: aioresponses, mocker: MockerFixture) -> None:
         mocker.patch('sys.stderr')
@@ -119,7 +118,7 @@ class TestRetriever:
         with TemporaryDirectory() as cache_directory_path:
             with pytest.raises(RetrievalError):
                 async with aiohttp.ClientSession() as session:
-                    await _Retriever(session, Path(cache_directory_path)).get_translations(entry_language, entry_name)
+                    await _Retriever(session, cache_directory_path).get_translations(entry_language, entry_name)
 
     @pytest.mark.parametrize('response_json', [
         {},
@@ -146,7 +145,7 @@ class TestRetriever:
         with TemporaryDirectory() as cache_directory_path:
             with pytest.raises(RetrievalError):
                 async with aiohttp.ClientSession() as session:
-                    await _Retriever(session, Path(cache_directory_path)).get_translations(entry_language, entry_name)
+                    await _Retriever(session, cache_directory_path).get_translations(entry_language, entry_name)
 
     async def test_get_entry_should_return(self, aioresponses: aioresponses) -> None:
         entry_language = 'en'
@@ -181,7 +180,7 @@ class TestRetriever:
         aioresponses.get(api_url, payload=api_response_body_4)
         with TemporaryDirectory() as cache_directory_path:
             async with aiohttp.ClientSession() as session:
-                retriever = _Retriever(session, Path(cache_directory_path), 1)
+                retriever = _Retriever(session, cache_directory_path, 1)
                 # The first retrieval should make a successful request and set the cache.
                 entry_1 = await retriever.get_entry(entry_language, entry_name)
                 # The second retrieval should hit the cache from the first request.
@@ -210,7 +209,7 @@ class TestRetriever:
         aioresponses.get(api_url, exception=aiohttp.ClientError())
         with TemporaryDirectory() as cache_directory_path:
             async with aiohttp.ClientSession() as session:
-                retriever = _Retriever(session, Path(cache_directory_path))
+                retriever = _Retriever(session, cache_directory_path)
                 with pytest.raises(RetrievalError):
                     await retriever.get_entry(entry_language, entry_name)
 

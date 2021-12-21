@@ -1,6 +1,7 @@
 import webbrowser
 from datetime import datetime
 from os import path
+from pathlib import Path
 from typing import TYPE_CHECKING
 from urllib.parse import urlencode
 
@@ -138,7 +139,7 @@ class BettyMainWindow(BettyWindow):
         )
         if not configuration_file_path:
             return
-        self._app.project.configuration.read(configuration_file_path)
+        self._app.project.configuration.read(Path(configuration_file_path))
         project_window = ProjectWindow(self._app)
         project_window.show()
         self.close()
@@ -156,7 +157,7 @@ class BettyMainWindow(BettyWindow):
         if not configuration_file_path:
             return
         configuration = ProjectConfiguration()
-        configuration.write(configuration_file_path)
+        configuration.write(Path(configuration_file_path))
         project_window = ProjectWindow(self._app)
         project_window.show()
         self.close()

@@ -1,4 +1,5 @@
 import json as stdjson
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 from geopy import Point
@@ -314,7 +315,7 @@ class TestJSONEncoder:
 
     def test_file_should_encode_minimal(self):
         with NamedTemporaryFile() as f:
-            file = File('the_file', f.name)
+            file = File('the_file', Path(f.name))
             expected = {
                 '$schema': '/schema.json#/definitions/file',
                 'id': 'the_file',
@@ -343,7 +344,7 @@ class TestJSONEncoder:
     def test_file_should_encode_full(self):
         with NamedTemporaryFile() as f:
             note = Note('the_note', 'The Note')
-            file = File('the_file', f.name)
+            file = File('the_file', Path(f.name))
             file.media_type = MediaType('text/plain')
             file.notes.append(note)
             Person('the_person').files.append(file)

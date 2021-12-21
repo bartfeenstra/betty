@@ -29,7 +29,8 @@ class HttpApiDoc(UserFacingExtension, Generator, NpmBuilder):
 
     async def generate(self) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
-        copy2(assets_directory_path / 'http-api-doc.js', self.app.project.configuration.www_directory_path / 'http-api-doc.js')
+        self.app.static_www_directory_path.mkdir(parents=True, exist_ok=True)
+        copy2(assets_directory_path / 'http-api-doc.js', self.app.static_www_directory_path / 'http-api-doc.js')
 
     @classmethod
     def assets_directory_path(cls) -> Optional[Path]:

@@ -1,7 +1,5 @@
 import os
 from json import dump
-from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import Callable, Dict
 from unittest.mock import patch
 
@@ -10,11 +8,12 @@ import pytest
 from click.testing import CliRunner
 
 from betty import fs
-from betty.config import DumpedConfigurationImport
+from betty.config import DumpedConfiguration
 from betty.error import UserFacingError
 from betty.os import ChDir
 from betty.project import ProjectConfiguration, ExtensionConfiguration
 from betty.serve import Server
+from betty.tempfile import TemporaryDirectory
 from betty.tests import patch_cache
 
 try:
@@ -73,7 +72,7 @@ class TestMain:
 
     def test_help_with_invalid_configuration_file_path(self, _, __):
         with TemporaryDirectory() as working_directory_path:
-            configuration_file_path = Path(working_directory_path) / 'non-existent-betty.json'
+            configuration_file_path = working_directory_path / 'non-existent-betty.json'
 
             runner = CliRunner()
             result = runner.invoke(main, ('-c', str(configuration_file_path), '--help',), catch_exceptions=False)
@@ -81,8 +80,8 @@ class TestMain:
 
     def test_help_with_invalid_configuration(self, _, __):
         with TemporaryDirectory() as working_directory_path:
-            configuration_file_path = Path(working_directory_path) / 'betty.json'
-            dumped_configuration: DumpedConfigurationImport = {}
+            configuration_file_path = working_directory_path / 'betty.json'
+            dumped_configuration: DumpedConfiguration = {}
             with open(configuration_file_path, 'w') as f:
                 dump(dumped_configuration, f)
 
@@ -92,9 +91,9 @@ class TestMain:
 
     def test_with_discovered_configuration(self, _, __):
         with TemporaryDirectory() as working_directory_path:
-            with open(Path(working_directory_path) / 'betty.json', 'w') as config_file:
+            with open(working_directory_path / 'betty.json', 'w') as config_file:
                 url = 'https://example.com'
-                dumped_configuration: DumpedConfigurationImport = {
+                dumped_configuration: DumpedConfiguration = {
                     'base_url': url,
                     'extensions': {
                         DummyExtension.name(): None,
@@ -135,7 +134,7 @@ class TestVersion:
 class TestClearCaches:
     @patch_cache
     def test(self):
-        cached_file_path = Path(fs.CACHE_DIRECTORY_PATH) / 'KeepMeAroundPlease'
+        cached_file_path = fs.CACHE_DIRECTORY_PATH / 'KeepMeAroundPlease'
         open(cached_file_path, 'w').close()
         runner = CliRunner()
         result = runner.invoke(main, ('clear-caches',), catch_exceptions=False)

@@ -48,6 +48,7 @@ SETUP = {
         'aiohttp ~= 3.8, >= 3.8.1',
         'babel ~= 2.12, >= 2.12.0',
         'click ~= 8.1, >= 8.1.2',
+        'dill ~= 0.3, >= 0.3.6',
         'geopy ~= 2.3, >= 2.3.0',
         'graphlib-backport ~= 1.0, >= 1.0.3; python_version < "3.9"',
         'jinja2 ~= 3.1, >= 3.1.1',

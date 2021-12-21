@@ -1,21 +1,24 @@
+from __future__ import annotations
+
 import os
 import shutil
-from typing import Union, Optional
+from contextlib import suppress
+from pathlib import Path
 
-PathLike = Union[str, os.PathLike]
 
-
-def link_or_copy(source_path: PathLike, destination_path: PathLike) -> None:
+def link_or_copy(source_path: Path, destination_path: Path) -> None:
     try:
-        os.link(source_path, destination_path)
+        with suppress(FileExistsError):
+            os.link(source_path, destination_path)
     except OSError:
-        shutil.copyfile(source_path, destination_path)
+        with suppress(shutil.SameFileError):
+            shutil.copyfile(source_path, destination_path)
 
 
 class ChDir:
-    def __init__(self, directory_path: PathLike):
+    def __init__(self, directory_path: Path):
         self._directory_path = directory_path
-        self._owd: Optional[str] = None
+        self._owd: str | None = None
 
     def __enter__(self) -> None:
         self.change()
@@ -23,11 +26,10 @@ class ChDir:
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         self.revert()
 
-    def change(self) -> 'ChDir':
+    def change(self) -> None:
         self._owd = os.getcwd()
         os.makedirs(self._directory_path, exist_ok=True)
         os.chdir(self._directory_path)
-        return self
 
     def revert(self) -> None:
         owd = self._owd

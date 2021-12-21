@@ -1,5 +1,6 @@
 import json
 from os import path
+from pathlib import Path
 
 import pytest
 from PyQt6.QtCore import Qt
@@ -60,15 +61,15 @@ class TestBettyMainWindow:
 
 
 class TestWelcomeWindow:
-    def test_open_project_with_invalid_file_should_error(self, assert_error, mocker: MockerFixture, qtbot: QtBot, tmpdir) -> None:
+    def test_open_project_with_invalid_file_should_error(self, assert_error, mocker: MockerFixture, qtbot: QtBot, tmp_path: Path) -> None:
         with App() as app:
             sut = WelcomeWindow(app)
             qtbot.addWidget(sut)
             sut.show()
 
-            configuration_file_path = tmpdir.join('betty.json')
+            configuration_file_path = tmp_path / 'betty.json'
             # Purposefully leave the file empty so it is invalid.
-            configuration_file_path.write('')
+            configuration_file_path.write_text('')
             mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[configuration_file_path, None]))
             qtbot.mouseClick(sut.open_project_button, Qt.MouseButton.LeftButton)
 

@@ -54,28 +54,27 @@ class TranslationsLocaleCollector(ReactiveInstance):
 
     @reactive_method(on_trigger_call=True)
     def _set_translatables(self) -> None:
-        with self._app.acquire_locale():
-            self._configuration_locale_label.setText(_('Locale'))
-            locale = self.locale.currentData()
-            if locale:
-                translations_locale = negotiate_locale(
-                    locale,
-                    set(self._app.translations.locales),
-                )
-                if translations_locale is None:
-                    self._configuration_locale_caption.setText(_('There are no translations for {locale_name}.').format(
-                        locale_name=get_display_name(locale, self._app.locale),
-                    ))
+        self._configuration_locale_label.setText(_('Locale'))
+        locale = self.locale.currentData()
+        if locale:
+            translations_locale = negotiate_locale(
+                locale,
+                set(self._app.translations.locales),
+            )
+            if translations_locale is None:
+                self._configuration_locale_caption.setText(_('There are no translations for {locale_name}.').format(
+                    locale_name=get_display_name(locale, self._app.locale),
+                ))
+            else:
+                negotiated_locale_translations_coverage = self._app.translations.coverage(translations_locale)
+                if 'en-US' == translations_locale:
+                    negotiated_locale_translations_coverage_percentage = 100
                 else:
-                    negotiated_locale_translations_coverage = self._app.translations.coverage(translations_locale)
-                    if 'en-US' == translations_locale:
-                        negotiated_locale_translations_coverage_percentage = 100
-                    else:
-                        negotiated_locale_translations_coverage_percentage = round(100 / (negotiated_locale_translations_coverage[1] / negotiated_locale_translations_coverage[0]))
-                    self._configuration_locale_caption.setText(_('The translations for {locale_name} are {coverage_percentage}% complete.').format(
-                        locale_name=get_display_name(translations_locale, self._app.locale),
-                        coverage_percentage=round(negotiated_locale_translations_coverage_percentage)
-                    ))
+                    negotiated_locale_translations_coverage_percentage = round(100 / (negotiated_locale_translations_coverage[1] / negotiated_locale_translations_coverage[0]))
+                self._configuration_locale_caption.setText(_('The translations for {locale_name} are {coverage_percentage}% complete.').format(
+                    locale_name=get_display_name(translations_locale, self._app.locale),
+                    coverage_percentage=round(negotiated_locale_translations_coverage_percentage)
+                ))
 
 
 class _LocalizedObject(ReactiveInstance):
@@ -89,8 +88,7 @@ class _LocalizedObject(ReactiveInstance):
 
     @reactive_method(on_trigger_call=True)
     def _set_translatables(self) -> None:
-        with self._app.acquire_locale():
-            self._do_set_translatables()
+        self._do_set_translatables()
 
     def _do_set_translatables(self) -> None:
         pass

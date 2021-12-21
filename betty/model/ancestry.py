@@ -1,18 +1,18 @@
 from __future__ import annotations
 
 from contextlib import suppress
+import copy
 from functools import total_ordering
 from pathlib import Path
-from typing import List, Optional, Set, TYPE_CHECKING, Iterable, Any
+from typing import Optional, Set, List, Dict, TYPE_CHECKING, Iterable, Any
 
 from geopy import Point
 
 from betty.locale import Localized, Datey
 from betty.media_type import MediaType
 from betty.model import many_to_many, Entity, one_to_many, many_to_one, many_to_one_to_many, \
-    MultipleTypesEntityCollection, EntityCollection, UserFacingEntity, EntityVariation
+    MultipleTypesEntityCollection, EntityCollection, UserFacingEntity, EntityVariation, FlattenedEntityCollection
 from betty.model.event_type import EventType, StartOfLifeEventType, EndOfLifeEventType
-from betty.os import PathLike
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -22,7 +22,7 @@ class HasPrivacy:
     private: Optional[bool]
 
     def __init__(self, *args, **kwargs):
-        assert type(self) != HasPrivacy
+        assert issubclass(self.__class__, HasPrivacy)
         super().__init__(*args, **kwargs)
         self.private = None
 
@@ -31,7 +31,7 @@ class Dated:
     date: Optional[Datey]
 
     def __init__(self, *args, **kwargs):
-        assert type(self) != Dated
+        assert issubclass(self.__class__, Dated)
         super().__init__(*args, **kwargs)
         self.date = None
 
@@ -40,7 +40,7 @@ class Dated:
 class Note(UserFacingEntity, Entity):
     entity: HasNotes
 
-    def __init__(self, note_id: str, text: str):
+    def __init__(self, note_id: str | None, text: str):
         super().__init__(note_id)
         self._text = text
 
@@ -64,7 +64,7 @@ class Note(UserFacingEntity, Entity):
 @one_to_many('notes', 'entity')
 class HasNotes(EntityVariation):
     def __init__(self, *args, **kwargs):
-        assert type(self) != HasNotes
+        assert issubclass(self.__class__, HasNotes)
         super().__init__(*args, **kwargs)
 
     @property
@@ -84,7 +84,7 @@ class Described:
     description: Optional[str]
 
     def __init__(self, *args, **kwargs):
-        assert type(self) != Described
+        assert issubclass(self.__class__, Described)
         super().__init__(*args, **kwargs)
         self.description = None
 
@@ -93,7 +93,7 @@ class HasMediaType:
     media_type: Optional[MediaType]
 
     def __init__(self, *args, **kwargs):
-        assert type(self) != HasMediaType
+        assert issubclass(self.__class__, HasMediaType)
         super().__init__(*args, **kwargs)
         self.media_type = None
 
@@ -112,7 +112,7 @@ class Link(HasMediaType, Localized, Described):
 
 class HasLinks:
     def __init__(self, *args, **kwargs):
-        assert type(self) != HasLinks
+        assert issubclass(self.__class__, HasLinks)
         super().__init__(*args, **kwargs)
         self._links = set()
 
@@ -124,7 +124,7 @@ class HasLinks:
 @many_to_many('citations', 'facts')
 class HasCitations(EntityVariation):
     def __init__(self, *args, **kwargs):
-        assert type(self) != HasCitations
+        assert issubclass(self.__class__, HasCitations)
         super().__init__(*args, **kwargs)
 
     @property
@@ -142,9 +142,9 @@ class HasCitations(EntityVariation):
 
 @many_to_many('entities', 'files')
 class File(Described, HasPrivacy, HasMediaType, HasNotes, HasCitations, UserFacingEntity, Entity):
-    def __init__(self, file_id: Optional[str], path: PathLike, media_type: Optional[MediaType] = None, *args, **kwargs):
+    def __init__(self, file_id: Optional[str], path: Path, media_type: Optional[MediaType] = None, *args, **kwargs):
         super().__init__(file_id, *args, **kwargs)
-        self._path = Path(path)
+        self._path = path
         self.media_type = media_type
 
     @property
@@ -179,7 +179,7 @@ class File(Described, HasPrivacy, HasMediaType, HasNotes, HasCitations, UserFaci
 @many_to_many('files', 'entities')
 class HasFiles(EntityVariation):
     def __init__(self, *args, **kwargs):
-        assert type(self) != HasFiles
+        assert issubclass(self.__class__, HasFiles)
         super().__init__(*args, **kwargs)
 
     @property
@@ -691,6 +691,26 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, UserFacingEntity, Ent
 class Ancestry:
     def __init__(self):
         self._entities = MultipleTypesEntityCollection()
+
+    def __copy__(self) -> Ancestry:
+        copied = self.__class__()
+        copied.entities.append(*self.entities)
+        return copied
+
+    def __deepcopy__(self, memo: Dict) -> Ancestry:
+        copied = self.__class__()
+        copied.entities.append(*[copy.deepcopy(entity, memo) for entity in self.entities])
+        return copied
+
+    def __getstate__(self) -> FlattenedEntityCollection:
+        entities = FlattenedEntityCollection()
+        entities.add_entity(*self.entities)
+
+        return entities
+
+    def __setstate__(self, state: FlattenedEntityCollection):
+        self._entities = MultipleTypesEntityCollection()
+        self._entities.append(*state.unflatten())
 
     @property
     def entities(self) -> MultipleTypesEntityCollection:

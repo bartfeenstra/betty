@@ -3,11 +3,13 @@ from __future__ import annotations
 import copy
 import functools
 import operator
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from functools import reduce
 from typing import TypeVar, Generic, Callable, List, Optional, Iterable, Any, Type, Union, Set, overload, cast, \
-    Iterator, TYPE_CHECKING
+    Iterator, TYPE_CHECKING, Tuple
+
+from betty.string import camel_case_to_kebab_case
 
 try:
     from typing_extensions import Self
@@ -34,17 +36,21 @@ class GeneratedEntityId(str):
 
     _last_id = 0
 
-    def __new__(cls, entity_id: Optional[str] = None):
-        if entity_id is None:
+    def __new__(
+        cls,
+        entity_id_or_type: str | Type[Entity],
+    ):
+        if isinstance(entity_id_or_type, type):
             cls._last_id += 1
-            entity_id = f'betty-generated-entity-id-{cls._last_id}'
-        return super().__new__(cls, entity_id)
+            entity_id_or_type = f'betty-generated-{camel_case_to_kebab_case(get_entity_type_name(entity_id_or_type))}-id-{cls._last_id}'
+        return super().__new__(cls, entity_id_or_type)
 
 
 class Entity:
-    def __init__(self, entity_id: Optional[str] = None, *args, **kwargs):
-        get_entity_type(self)
-        self._id = GeneratedEntityId() if entity_id is None else entity_id
+    def __init__(self, entity_id: str | None = None, *args, **kwargs):
+        if __debug__:
+            get_entity_type(self)
+        self._id = GeneratedEntityId(self.__class__) if entity_id is None else entity_id
         super().__init__(*args, **kwargs)
 
     @property
@@ -202,12 +208,13 @@ class _EntityTypeAssociation(Generic[EntityT]):
     cls: Type[EntityT]
     attr_name: str
     cardinality: Cardinality
-    init_value_factory: Optional[Callable[[EntityT], EntityCollection]] = None
+    init_value_factory: Callable[..., EntityCollection] | None = None
+    init_value_arguments: Tuple[Any, ...] = field(default_factory=tuple)
 
     def init_value(self, owner: EntityT) -> Optional[EntityCollection]:
         if self.init_value_factory is None:
             return None
-        return self.init_value_factory(owner)
+        return self.init_value_factory(owner, *self.init_value_arguments)
 
 
 class _EntityTypeAssociationRegistry:
@@ -312,7 +319,7 @@ class SingleTypeEntityCollection(Generic[EntityT], EntityCollection[EntityT]):
             return self._getitem_by_indices(key)
         if isinstance(key, str):
             return self._getitem_by_entity_id(key)
-        raise TypeError(f'Cannot find entities by {type(key)}.')
+        raise TypeError(f'Cannot find entities by {repr(key)}.')
 
     def _getitem_by_index(self, index: int) -> EntityT:
         return self._entities[index]
@@ -338,7 +345,7 @@ class SingleTypeEntityCollection(Generic[EntityT], EntityCollection[EntityT]):
             return self._delitem_by_indices(key)
         if isinstance(key, str):
             return self._delitem_by_entity_id(key)
-        raise TypeError(f'Cannot find entities by {type(key)}.')
+        raise TypeError(f'Cannot find entities by {repr(key)}.')
 
     def _delitem_by_entity(self, entity: EntityT) -> None:
         self.remove(entity)
@@ -445,7 +452,7 @@ class MultipleTypesEntityCollection(EntityCollection[Entity]):
     def __repr__(self) -> str:
         return f'{object.__repr__(self)}(entity_types={", ".join(map(get_entity_type_name, self._collections.keys()))}, length={len(self)})'
 
-    def _get_collection(self, entity_type: Type[EntityT]) -> SingleTypeEntityCollection[EntityT]:
+    def _get_collection(self, entity_type: Type[EntityU]) -> SingleTypeEntityCollection[EntityU]:
         assert issubclass(entity_type, Entity)
         try:
             return self._collections[entity_type]
@@ -469,7 +476,7 @@ class MultipleTypesEntityCollection(EntityCollection[Entity]):
     def __getitem__(self, key: Type[EntityT]) -> SingleTypeEntityCollection[EntityT]:
         pass
 
-    def __getitem__(self, key: Union[int, slice, str, Type[EntityT]]) -> Union[Entity, SingleTypeEntityCollection]:
+    def __getitem__(self, key: int | slice | str | Type[Entity]) -> Entity | SingleTypeEntityCollection[Entity] | SingleTypeEntityCollection[EntityT]:
         if isinstance(key, int):
             return self._getitem_by_index(key)
         if isinstance(key, slice):
@@ -478,7 +485,7 @@ class MultipleTypesEntityCollection(EntityCollection[Entity]):
             return self._getitem_by_entity_type_name(key)
         if isinstance(key, type) and issubclass(key, Entity):
             return self._getitem_by_entity_type(key)
-        raise TypeError(f'Cannot find entities by {type(key)}.')
+        raise TypeError(f'Cannot find entities by {repr(key)}.')
 
     def _getitem_by_entity_type(self, entity_type: Type[EntityT]) -> SingleTypeEntityCollection[EntityT]:
         return self._get_collection(entity_type)
@@ -503,7 +510,7 @@ class MultipleTypesEntityCollection(EntityCollection[Entity]):
             return self._delitem_by_indices(key)
         if isinstance(key, str):
             return self._delitem_by_entity_type_name(key)
-        raise TypeError(f'Cannot find entities by {type(key)}.')
+        raise TypeError(f'Cannot find entities by {repr(key)}.')
 
     def _delitem_by_entity_type(self, entity_type: Type[Entity]) -> None:
         self._get_collection(entity_type).clear()
@@ -527,7 +534,7 @@ class MultipleTypesEntityCollection(EntityCollection[Entity]):
     def _delitem_by_entity_type_name(self, entity_type_name: str) -> None:
         self._delitem_by_entity_type(get_entity_type(entity_type_name))
 
-    def __iter__(self) -> Iterator[EntityT]:
+    def __iter__(self) -> Iterator[Entity]:
         for collection in self._collections.values():
             for entity in collection:
                 yield entity
@@ -535,36 +542,36 @@ class MultipleTypesEntityCollection(EntityCollection[Entity]):
     def __len__(self) -> int:
         return sum(map(len, self._collections.values()))
 
-    def __contains__(self, value: Union[EntityT, Any]) -> bool:
+    def __contains__(self, value: Union[Entity, Any]) -> bool:
         if isinstance(value, Entity):
             return self._contains_by_entity(value)
         return False
 
-    def _contains_by_entity(self, other_entity: EntityT) -> bool:
+    def _contains_by_entity(self, other_entity: Entity) -> bool:
         for entity in self:  # type: ignore
             if other_entity is entity:
                 return True
         return False
 
-    def prepend(self, *entities: EntityT) -> None:
+    def prepend(self, *entities: Entity) -> None:
         for entity in entities:
             self[get_entity_type(unflatten(entity))].prepend(entity)
 
-    def append(self, *entities: EntityT) -> None:
+    def append(self, *entities: Entity) -> None:
         for entity in entities:
             self[get_entity_type(unflatten(entity))].append(entity)
 
-    def remove(self, *entities: EntityT) -> None:
+    def remove(self, *entities: Entity) -> None:
         for entity in entities:
             self[get_entity_type(unflatten(entity))].remove(entity)
 
-    def replace(self, *entities: EntityT) -> None:
+    def replace(self, *entities: Entity) -> None:
         self.clear()
         for entity in entities:
             self.append(entity)
 
     def clear(self) -> None:
-        for collection in self._collections:
+        for collection in self._collections.values():
             collection.clear()
 
     def __add__(self, other) -> MultipleTypesEntityCollection:
@@ -625,10 +632,17 @@ class _OneToOne(_ToOne):
 
 
 class _ManyToOne(_ToOne):
-    def __init__(self, owner_attr_name: str, associate_attr_name: str, _on_remove: Optional[Callable[[Entity], None]] = None):
+    def __init__(
+        self,
+        owner_attr_name: str,
+        associate_attr_name: str,
+        _on_remove: Callable[..., None] | None = None,
+        _on_remove_arguments: Tuple[Any, ...] | None = None,
+    ):
         super().__init__(owner_attr_name)
         self._associate_attr_name = associate_attr_name
         self._on_remove = _on_remove
+        self._on_remove_arguments = _on_remove_arguments or ()
 
     def _set(self, owner: Entity, entity: Optional[Entity]) -> None:
         previous_entity = getattr(owner, self._owner_private_attr_name)
@@ -638,7 +652,7 @@ class _ManyToOne(_ToOne):
         if previous_entity is not None:
             getattr(previous_entity, self._associate_attr_name).remove(owner)
             if entity is None and self._on_remove is not None:
-                self._on_remove(owner)
+                self._on_remove(owner, *self._on_remove_arguments)
         if entity is not None:
             getattr(entity, self._associate_attr_name).append(owner)
 
@@ -647,20 +661,27 @@ class _ToMany:
     def __init__(self, owner_attr_name: str):
         self._owner_attr_name = owner_attr_name
         self._owner_private_attr_name = f'_{owner_attr_name}'
+        self._entity_collection_factory: Callable[..., EntityCollection] = self.__class__._create_single_type_entity_collection
+        self._entity_collection_arguments: Tuple[Any, ...] = ()
 
-    def __call__(self, cls: EntityTypeT) -> EntityTypeT:
+    @classmethod
+    def _create_single_type_entity_collection(cls, _: Entity) -> EntityCollection:
+        return SingleTypeEntityCollection(Entity)
+
+    def __call__(self, cls: Type[EntityT]) -> Type[EntityT]:
         _EntityTypeAssociationRegistry.register(_EntityTypeAssociation(
             cls,
             self._owner_attr_name,
             _EntityTypeAssociation.Cardinality.MANY,
-            self._create_entity_collection,
+            self._entity_collection_factory,
+            self._entity_collection_arguments,
         ))
         original_init = cls.__init__
 
         @functools.wraps(original_init)
         def _init(owner: Entity, *args, **kwargs):
             assert isinstance(owner, Entity), f'{owner} is not an {Entity}.'
-            entities = self._create_entity_collection(owner)
+            entities = self._entity_collection_factory(owner, *self._entity_collection_arguments)
             setattr(owner, self._owner_private_attr_name, entities)
             original_init(owner, *args, **kwargs)
         cls.__init__ = _init  # type: ignore
@@ -676,9 +697,6 @@ class _ToMany:
 
     def _delete(self, owner: Entity) -> None:
         self._get(owner).clear()
-
-    def _create_entity_collection(self, owner: Entity) -> EntityCollection:
-        return SingleTypeEntityCollection(Entity)
 
 
 class _BidirectionalToMany(_ToMany):
@@ -709,8 +727,14 @@ class _OneToManyAssociateCollection(_BidirectionalAssociateCollection):
 
 
 class _OneToMany(_BidirectionalToMany):
-    def _create_entity_collection(self, owner: Entity) -> EntityCollection:
-        return _OneToManyAssociateCollection(owner, Entity, self._associate_attr_name)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._entity_collection_factory = self.__class__._create_one_to_many_associate_collection
+        self._entity_collection_arguments = (self._associate_attr_name,)
+
+    @classmethod
+    def _create_one_to_many_associate_collection(cls, owner: Entity, associate_attr_name: str) -> EntityCollection:
+        return _OneToManyAssociateCollection(owner, Entity, associate_attr_name)
 
 
 class _ManyToManyAssociateCollection(_BidirectionalAssociateCollection):
@@ -722,12 +746,14 @@ class _ManyToManyAssociateCollection(_BidirectionalAssociateCollection):
 
 
 class _ManyToMany(_BidirectionalToMany):
-    def _create_entity_collection(self, owner: Entity) -> EntityCollection:
-        return _ManyToManyAssociateCollection(
-            owner,
-            Entity,
-            self._associate_attr_name,
-        )
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._entity_collection_factory = self.__class__._create_many_to_many_associate_collection
+        self._entity_collection_arguments = (self._associate_attr_name,)
+
+    @classmethod
+    def _create_many_to_many_associate_collection(cls, owner: Entity, associate_attr_name: str) -> EntityCollection:
+        return _ManyToManyAssociateCollection(owner, Entity, associate_attr_name)
 
 
 def many_to_one_to_many(left_associate_attr_name: str, left_owner_attr_name: str, right_owner_attr_name: str, right_associate_attr_name: str):
@@ -735,12 +761,14 @@ def many_to_one_to_many(left_associate_attr_name: str, left_owner_attr_name: str
         cls = many_to_one(
             left_owner_attr_name,
             left_associate_attr_name,
-            lambda owner: delattr(owner, right_owner_attr_name),
+            delattr,
+            (right_owner_attr_name,),
         )(cls)
         cls = many_to_one(
             right_owner_attr_name,
             right_associate_attr_name,
-            lambda owner: delattr(owner, left_owner_attr_name),
+            delattr,
+            (left_owner_attr_name,),
         )(cls)
         return cls
     return decorator
@@ -770,7 +798,7 @@ def unflatten(entity: Entity) -> Entity:
     return entity
 
 
-@dataclass
+@dataclass(frozen=True)
 class _FlattenedAssociation:
     owner_type: Type[Entity]
     owner_id: str

@@ -27,7 +27,7 @@ from betty.gui.serve import ServeAppWindow
 from betty.gui.text import Text, Caption
 from betty.locale import rfc_1766_to_bcp_47, get_display_name
 from betty.model import UserFacingEntity
-from betty.project import LocaleConfiguration
+from betty.project import LocaleConfiguration, Project
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -336,8 +336,7 @@ class _AddLocaleWindow(BettyWindow):
         if alias == '':
             alias = None
         try:
-            with self._app.acquire_locale():
-                self._app.project.configuration.locales.add(LocaleConfiguration(locale, alias))
+            self._app.project.configuration.locales.add(LocaleConfiguration(locale, alias))
         except ConfigurationValidationError as e:
             mark_invalid(self._alias, str(e))
             return
@@ -517,17 +516,17 @@ class ProjectWindow(BettyMainWindow):
 
 
 class _GenerateThread(QThread):
-    def __init__(self, app: App, generate_window: _GenerateWindow, *args, **kwargs):
+    def __init__(self, project: Project, generate_window: _GenerateWindow, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._app = app
+        self._project = project
         self._generate_window = generate_window
 
     @sync
     async def run(self) -> None:
         with catch_exceptions(parent=self._generate_window, close_parent=True):
-            with self._app:
-                await load.load(self._app)
-                await generate.generate(self._app)
+            with App(project=self._project) as app:
+                await load.load(app)
+                await generate.generate(app)
 
 
 class _GenerateWindow(BettyWindow):
@@ -562,7 +561,7 @@ class _GenerateWindow(BettyWindow):
         button_layout.addWidget(self._serve_button)
 
         self._logging_handler = LogRecordViewerHandler(self._log_record_viewer)
-        self._thread = _GenerateThread(copy.copy(self._app), self)
+        self._thread = _GenerateThread(self._app.project, self)
         self._thread.finished.connect(self._finish_generate)  # type: ignore
 
     @property

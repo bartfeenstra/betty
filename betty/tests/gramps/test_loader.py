@@ -1,5 +1,4 @@
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import Optional
 
 import pytest
@@ -10,6 +9,7 @@ from betty.locale import Date, DateRange
 from betty.model.ancestry import Ancestry, PersonName, Citation, Note, Source, File, Event, Person, Place
 from betty.model.event_type import Birth, Death, UnknownEventType
 from betty.path import rootname
+from betty.tempfile import TemporaryDirectory
 
 
 class TestLoadGramps:
@@ -40,7 +40,7 @@ class TestLoadXml:
     def load(self, xml: str) -> Ancestry:
         with App() as app:
             with TemporaryDirectory() as tree_directory_path:
-                load_xml(app.project.ancestry, xml.strip(), Path(tree_directory_path))
+                load_xml(app.project.ancestry, xml.strip(), tree_directory_path)
                 return app.project.ancestry
 
     def _load_partial(self, xml: str) -> Ancestry:
@@ -86,6 +86,24 @@ class TestLoadXml:
         event = test_load_xml_ancestry.entities[Event]['E0000']
         assert place == event.place
         assert event in place.events
+
+    def test_place_should_include_enclosed_by(self):
+        ancestry = self._load_partial("""
+<places>
+    <placeobj handle="_e7692ea23775e80643fe4fcf91" change="1552125653" id="P0000" type="Unknown">
+    </placeobj>
+    <placeobj handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1552125653" id="P0001" type="Unknown">
+    </placeobj>
+    <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0002" type="Unknown">
+        <placeref hlink="_e7692ea23775e80643fe4fcf91"/>
+        <placeref hlink="_e2b5e77b4cc5c91c9ed60a6cb39"/>
+    </placeobj>
+</places>
+""")
+        assert ancestry.entities[Place]['P0000'] == ancestry.entities[Place]['P0002'].enclosed_by[0].enclosed_by
+        assert ancestry.entities[Place]['P0001'] == ancestry.entities[Place]['P0002'].enclosed_by[1].enclosed_by
+        assert ancestry.entities[Place]['P0002'] == ancestry.entities[Place]['P0000'].encloses[0].encloses
+        assert ancestry.entities[Place]['P0002'] == ancestry.entities[Place]['P0001'].encloses[0].encloses
 
     def test_person_should_include_name(self, test_load_xml_ancestry):
         person = test_load_xml_ancestry.entities[Person]['I0000']

@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Iterator, Type, Dict, Union, Callable, Optional, Tuple, Any, ContextManager, List, \
     Generic
 
-from betty.config.dump import DumpedConfigurationImport, DumpedConfigurationImportT, DumpedConfigurationImportU, \
+from betty.config.dump import DumpedConfiguration, DumpedConfigurationT, DumpedConfigurationU, \
     DumpedConfigurationTypeT, DumpedConfigurationType, DumpedConfigurationDict, DumpedConfigurationList
 from betty.config.error import ConfigurationError, ConfigurationErrorCollection
 
@@ -44,55 +44,55 @@ _TYPE_VIOLATION_ERROR_MESSAGE_BUILDERS: Dict[Type, Callable[[], str]] = {
 
 ConfigurationValueAssertFunction: TypeAlias = Callable[
     [
-        DumpedConfigurationImport,
+        DumpedConfiguration,
         'Loader',
     ],
-    TypeGuard[DumpedConfigurationImportT],
+    TypeGuard[DumpedConfigurationT],
 ]
 
 
 ConfigurationValueAssertLoaderMethod: TypeAlias = Callable[
     [
-        DumpedConfigurationImport,
+        DumpedConfiguration,
     ],
-    TypeGuard[DumpedConfigurationImportT],
+    TypeGuard[DumpedConfigurationT],
 ]
 
 
 ConfigurationValueAssert: TypeAlias = Union[
-    ConfigurationValueAssertFunction[DumpedConfigurationImportT],
-    ConfigurationValueAssertLoaderMethod[DumpedConfigurationImportT],
+    ConfigurationValueAssertFunction[DumpedConfigurationT],
+    ConfigurationValueAssertLoaderMethod[DumpedConfigurationT],
 ]
 
 
 ConfigurationKeyAndValueAssert: TypeAlias = Callable[
     [
-        DumpedConfigurationImport,
+        DumpedConfiguration,
         'Loader',
         str,
     ],
-    TypeGuard[DumpedConfigurationImportT],
+    TypeGuard[DumpedConfigurationT],
 ]
 
 
 ConfigurationAssert: TypeAlias = Union[
-    ConfigurationValueAssert[DumpedConfigurationImportT],
-    ConfigurationKeyAndValueAssert[DumpedConfigurationImportT],
+    ConfigurationValueAssert[DumpedConfigurationT],
+    ConfigurationKeyAndValueAssert[DumpedConfigurationT],
 ]
 
 
 Committer = Callable[[], None]
 
 
-FieldCommitter = Callable[[DumpedConfigurationImportT], None]
+FieldCommitter = Callable[[DumpedConfigurationT], None]
 
 
-class Field(Generic[DumpedConfigurationImportT]):
+class Field(Generic[DumpedConfigurationT]):
     def __init__(
             self,
             required: bool,
-            configuration_assert: ConfigurationAssert[DumpedConfigurationImportT],
-            committer: Optional[FieldCommitter[DumpedConfigurationImportT]] = None,
+            configuration_assert: ConfigurationAssert[DumpedConfigurationT],
+            committer: Optional[FieldCommitter[DumpedConfigurationT]] = None,
     ):
         self._required = required
         self._configuration_assert = configuration_assert
@@ -103,10 +103,10 @@ class Field(Generic[DumpedConfigurationImportT]):
         return self._required
 
     @property
-    def configuration_assert(self) -> ConfigurationAssert[DumpedConfigurationImportT]:
+    def configuration_assert(self) -> ConfigurationAssert[DumpedConfigurationT]:
         return self._configuration_assert
 
-    def commit(self, dumped_configuration: DumpedConfigurationImportT) -> None:
+    def commit(self, dumped_configuration: DumpedConfigurationT) -> None:
         if self._committer:
             self._committer(dumped_configuration)
 
@@ -158,7 +158,7 @@ class Loader:
             for committer in self._committers:
                 committer()
 
-    def _assert(self, dumped_configuration: DumpedConfigurationImport, configuration_assert: ConfigurationAssert[DumpedConfigurationImportT], configuration_key: Optional[str] = None) -> TypeGuard[DumpedConfigurationImportT]:
+    def _assert(self, dumped_configuration: DumpedConfiguration, configuration_assert: ConfigurationAssert[DumpedConfigurationT], configuration_key: Optional[str] = None) -> TypeGuard[DumpedConfigurationT]:
         args: List[Any] = [dumped_configuration]
         if configuration_assert not in map(lambda x: x[1], inspect.getmembers(self)):
             args.append(self)
@@ -166,28 +166,28 @@ class Loader:
             args.append(configuration_key)
         return configuration_assert(*args)
 
-    def _assert_type(self, dumped_configuration: DumpedConfigurationImportU, configuration_value_required_type: Type[DumpedConfigurationTypeT], configuration_value_disallowed_type: Optional[Type[DumpedConfigurationType]] = None) -> TypeGuard[DumpedConfigurationTypeT]:
+    def _assert_type(self, dumped_configuration: DumpedConfigurationU, configuration_value_required_type: Type[DumpedConfigurationTypeT], configuration_value_disallowed_type: Optional[Type[DumpedConfigurationType]] = None) -> TypeGuard[DumpedConfigurationTypeT]:
         if isinstance(dumped_configuration, configuration_value_required_type) and (not configuration_value_disallowed_type or not isinstance(dumped_configuration, configuration_value_disallowed_type)):
             return True
         self.error(ConfigurationValidationError(_TYPE_VIOLATION_ERROR_MESSAGE_BUILDERS[configuration_value_required_type]()))
         return False
 
-    def assert_bool(self, dumped_configuration: DumpedConfigurationImport) -> TypeGuard[bool]:
+    def assert_bool(self, dumped_configuration: DumpedConfiguration) -> TypeGuard[bool]:
         return self._assert_type(dumped_configuration, bool)
 
-    def assert_int(self, dumped_configuration: DumpedConfigurationImport) -> TypeGuard[int]:
+    def assert_int(self, dumped_configuration: DumpedConfiguration) -> TypeGuard[int]:
         return self._assert_type(dumped_configuration, int, bool)
 
-    def assert_float(self, dumped_configuration: DumpedConfigurationImport) -> TypeGuard[float]:
+    def assert_float(self, dumped_configuration: DumpedConfiguration) -> TypeGuard[float]:
         return self._assert_type(dumped_configuration, float)
 
-    def assert_str(self, dumped_configuration: DumpedConfigurationImport) -> TypeGuard[str]:
+    def assert_str(self, dumped_configuration: DumpedConfiguration) -> TypeGuard[str]:
         return self._assert_type(dumped_configuration, str)
 
-    def assert_list(self, dumped_configuration: DumpedConfigurationImport) -> TypeGuard[DumpedConfigurationList]:
+    def assert_list(self, dumped_configuration: DumpedConfiguration) -> TypeGuard[DumpedConfigurationList]:
         return self._assert_type(dumped_configuration, list)
 
-    def assert_sequence(self, dumped_configuration: DumpedConfigurationImport, configuration_value_assert: ConfigurationValueAssert[DumpedConfigurationImportT]) -> TypeGuard[DumpedConfigurationList[DumpedConfigurationImportT]]:
+    def assert_sequence(self, dumped_configuration: DumpedConfiguration, configuration_value_assert: ConfigurationValueAssert[DumpedConfigurationT]) -> TypeGuard[DumpedConfigurationList[DumpedConfigurationT]]:
         with self.context() as errors:
             if self.assert_list(dumped_configuration):
                 for i, dumped_configuration_item in enumerate(dumped_configuration):
@@ -195,17 +195,17 @@ class Loader:
                         self._assert(dumped_configuration_item, configuration_value_assert)
         return errors.valid
 
-    def assert_dict(self, dumped_configuration: DumpedConfigurationImport) -> TypeGuard[DumpedConfigurationDict[int]]:
+    def assert_dict(self, dumped_configuration: DumpedConfiguration) -> TypeGuard[DumpedConfigurationDict[int]]:
         return self._assert_type(dumped_configuration, dict)
 
     @contextmanager
     def _assert_key(
         self,
-        dumped_configuration: DumpedConfigurationImport,
+        dumped_configuration: DumpedConfiguration,
         configuration_key: str,
-        configuration_assert: ConfigurationAssert[DumpedConfigurationImportT],
+        configuration_assert: ConfigurationAssert[DumpedConfigurationT],
         required: bool,
-    ) -> Iterator[Tuple[DumpedConfigurationImport, bool]]:
+    ) -> Iterator[Tuple[DumpedConfiguration, bool]]:
         if self.assert_dict(dumped_configuration):
             with self.context(configuration_key):
                 if configuration_key in dumped_configuration:
@@ -221,10 +221,10 @@ class Loader:
 
     def assert_required_key(
         self,
-        dumped_configuration: DumpedConfigurationImport,
+        dumped_configuration: DumpedConfiguration,
         configuration_key: str,
-        configuration_assert: ConfigurationAssert[DumpedConfigurationImportT],
-    ) -> ContextManager[Tuple[DumpedConfigurationImport, bool]]:
+        configuration_assert: ConfigurationAssert[DumpedConfigurationT],
+    ) -> ContextManager[Tuple[DumpedConfiguration, bool]]:
         return self._assert_key(  # type: ignore
             dumped_configuration,
             configuration_key,
@@ -234,10 +234,10 @@ class Loader:
 
     def assert_optional_key(
         self,
-        dumped_configuration: DumpedConfigurationImport,
+        dumped_configuration: DumpedConfiguration,
         configuration_key: str,
-        configuration_assert: ConfigurationAssert[DumpedConfigurationImportT],
-    ) -> ContextManager[Tuple[Optional[DumpedConfigurationImportT], bool]]:
+        configuration_assert: ConfigurationAssert[DumpedConfigurationT],
+    ) -> ContextManager[Tuple[Optional[DumpedConfigurationT], bool]]:
         return self._assert_key(  # type: ignore
             dumped_configuration,
             configuration_key,
@@ -245,7 +245,7 @@ class Loader:
             False,
         )
 
-    def assert_mapping(self, dumped_configuration: DumpedConfigurationImport, configuration_assert: ConfigurationAssert[DumpedConfigurationImportT]) -> TypeGuard[Dict[str, DumpedConfigurationImportT]]:
+    def assert_mapping(self, dumped_configuration: DumpedConfiguration, configuration_assert: ConfigurationAssert[DumpedConfigurationT]) -> TypeGuard[Dict[str, DumpedConfigurationT]]:
         with self.context() as errors:
             if self.assert_dict(dumped_configuration):
                 for configuration_key, dumped_configuration_item in dumped_configuration.items():
@@ -255,9 +255,9 @@ class Loader:
 
     def assert_record(
             self,
-            dumped_configuration: DumpedConfigurationImport,
+            dumped_configuration: DumpedConfiguration,
             fields: Dict[str, Field],
-    ) -> TypeGuard[Dict[str, DumpedConfigurationImport]]:
+    ) -> TypeGuard[Dict[str, DumpedConfiguration]]:
         if not fields:
             raise ValueError('One or more fields are required.')
         with self.context() as errors:
@@ -277,13 +277,13 @@ class Loader:
                             field.commit(dumped_configuration_item)
         return errors.valid
 
-    def assert_path(self, dumped_path: DumpedConfigurationImport) -> TypeGuard[str]:
+    def assert_path(self, dumped_path: DumpedConfiguration) -> TypeGuard[str]:
         if self.assert_str(dumped_path):
             Path(dumped_path).expanduser().resolve()
             return True
         return False
 
-    def assert_directory_path(self, dumped_path: DumpedConfigurationImport) -> TypeGuard[str]:
+    def assert_directory_path(self, dumped_path: DumpedConfiguration) -> TypeGuard[str]:
         if self.assert_str(dumped_path):
             self.assert_path(dumped_path)
             if path.isdir(dumped_path):

@@ -1,4 +1,5 @@
-import copy
+from __future__ import annotations
+
 from os import path
 from typing import TYPE_CHECKING
 
@@ -37,6 +38,10 @@ class _ServeThread(QThread):
         self._app.release()
 
 
+# @todo Regardless of the server, we want it to be run in a subprocess
+# @todo
+# @todo
+# @todo
 class _ServeWindow(BettyWindow):
     """
     Show a window that controls the site server.
@@ -52,7 +57,7 @@ class _ServeWindow(BettyWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._thread = None
+        self._thread: _ServeThread | None = None
         self._server: Server
 
         self._central_layout = QVBoxLayout()
@@ -101,7 +106,7 @@ class _ServeWindow(BettyWindow):
 
     def _start(self) -> None:
         if self._thread is None:
-            self._thread = _ServeThread(copy.copy(self._app), self._server)
+            self._thread = _ServeThread(self._app, self._server)
             self._thread.server_started.connect(self._server_started)
             self._thread.start()
 

@@ -1,34 +1,17 @@
 from __future__ import annotations
 
 import copy
-import pickle
 from typing import Optional, Any, Iterator, Tuple, List
 
+import dill as pickle
 import pytest
 
-from betty.model import GeneratedEntityId, get_entity_type_name, Entity, get_entity_type, _EntityTypeAssociation, \
+from betty.model import get_entity_type_name, Entity, get_entity_type, _EntityTypeAssociation, \
     _EntityTypeAssociationRegistry, SingleTypeEntityCollection, _AssociateCollection, MultipleTypesEntityCollection, \
     one_to_many, many_to_one_to_many, FlattenedEntityCollection, many_to_many, \
     EntityCollection, to_many, many_to_one, to_one, one_to_one, EntityVariation, EntityTypeInvalidError, \
     EntityTypeImportError
 from betty.model.ancestry import Person
-
-
-class TestGeneratedEntityid:
-    def test_pickle(self) -> None:
-        sut = GeneratedEntityId()
-        unpickled_sut = pickle.loads(pickle.dumps(sut))
-        assert sut == unpickled_sut
-
-    def test_copy(self) -> None:
-        sut = GeneratedEntityId()
-        copied_sut = copy.copy(sut)
-        assert sut == copied_sut
-
-    def test_deepcopy(self) -> None:
-        sut = GeneratedEntityId()
-        copied_sut = copy.deepcopy(sut)
-        assert sut == copied_sut
 
 
 class EntityTestEntity(Entity):

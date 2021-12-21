@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import OrderedDict
 from contextlib import suppress
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Type, List, Any, Sequence, cast, Iterator, Generic, MutableMapping
+from typing import TYPE_CHECKING, Optional, Type, List, Any, Sequence, cast, Iterator, Generic, final, Tuple
 from urllib.parse import urlparse
 
 from babel.core import parse_locale
@@ -12,9 +12,9 @@ from reactives.instance.property import reactive_property
 
 from betty.app import Extension, ConfigurableExtension
 from betty.classtools import repr_instance
-from betty.config import Configuration, DumpedConfigurationImport, Configurable, FileBasedConfiguration, \
-    ConfigurationMapping, DumpedConfigurationExport, DumpedConfigurationDict
-from betty.config.dump import minimize, minimize_dict
+from betty.config import Configuration, DumpedConfiguration, Configurable, FileBasedConfiguration, \
+    ConfigurationMapping, VoidableDumpedConfiguration, DumpedConfigurationDict
+from betty.config.dump import minimize, VoidableDumpedConfigurationDict
 from betty.config.load import ConfigurationValidationError, Loader, Field
 from betty.config.validate import validate_positive_number
 from betty.importlib import import_any
@@ -85,7 +85,7 @@ class EntityReference(Configuration, Generic[EntityT]):
     def entity_type_constraint(self) -> Optional[Type[EntityT]]:
         return self._entity_type_constraint
 
-    def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
+    def load(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> None:
         if self._entity_type_constraint is None:
             loader.assert_record(dumped_configuration, {
                 'entity_type': Field(
@@ -101,14 +101,14 @@ class EntityReference(Configuration, Generic[EntityT]):
         elif loader.assert_str(dumped_configuration):
             loader.assert_setattr(self, 'entity_id', dumped_configuration)
 
-    def _load_entity_type(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> TypeGuard[str]:
+    def _load_entity_type(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> TypeGuard[str]:
         with loader.context() as errors:
             if loader.assert_str(dumped_configuration):
                 with loader.catch():
                     loader.assert_setattr(self, 'entity_type', get_entity_type(dumped_configuration))
         return errors.valid
 
-    def dump(self) -> DumpedConfigurationExport:
+    def dump(self) -> VoidableDumpedConfiguration:
         if self._entity_id is None:
             return Void
         if self._entity_type_constraint is None:
@@ -164,7 +164,7 @@ class EntityReferenceCollection(Configuration):
         self._entity_references.append(entity_reference)
         self.react.trigger()
 
-    def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
+    def load(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> None:
         if loader.assert_list(dumped_configuration):
             loader.on_commit(self._entity_references.clear)
             loader.assert_sequence(
@@ -172,16 +172,16 @@ class EntityReferenceCollection(Configuration):
                 self._load_entity_reference,  # type: ignore
             )
 
-    def _load_entity_reference(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> TypeGuard[DumpedConfigurationDict[DumpedConfigurationImport]]:
+    def _load_entity_reference(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> TypeGuard[DumpedConfigurationDict[DumpedConfiguration]]:
         with loader.context() as errors:
             entity_reference = EntityReference(entity_type_constraint=self._entity_type_constraint)
             entity_reference.load(dumped_configuration, loader)
             loader.on_commit(lambda: self._entity_references.append(entity_reference))
         return errors.valid
 
-    def dump(self) -> DumpedConfigurationExport:
+    def dump(self) -> VoidableDumpedConfiguration:
         return minimize([
-            entity_reference.dump()
+            minimize(entity_reference.dump(), False)
             for entity_reference
             in self._entity_references
         ])
@@ -226,7 +226,7 @@ class ExtensionConfiguration(Configuration):
     def extension_configuration(self) -> Optional[Configuration]:
         return self._extension_configuration
 
-    def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
+    def load(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> None:
         loader.assert_record(dumped_configuration, {
             'enabled': Field(
                 False,
@@ -239,7 +239,7 @@ class ExtensionConfiguration(Configuration):
             ),
         })
 
-    def _load_extension_configuration(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> TypeGuard[DumpedConfigurationDict[DumpedConfigurationImport]]:
+    def _load_extension_configuration(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> TypeGuard[DumpedConfigurationDict[DumpedConfiguration]]:
         extension_type = self.extension_type
         if issubclass(extension_type, ConfigurableExtension):
             cast(ExtensionConfiguration, self.extension_configuration).load(dumped_configuration, loader)
@@ -249,11 +249,11 @@ class ExtensionConfiguration(Configuration):
         )))
         return False
 
-    def dump(self) -> DumpedConfigurationExport:
-        return minimize_dict({
+    def dump(self) -> VoidableDumpedConfiguration:
+        return minimize({
             'enabled': self.enabled,
-            'configuration': self.extension_configuration.dump() if issubclass(self.extension_type, Configurable) and self.extension_configuration else Void,
-        }, True)
+            'configuration': minimize(self.extension_configuration.dump()) if issubclass(self.extension_type, Configurable) and self.extension_configuration else Void,
+        })
 
 
 class ExtensionConfigurationMapping(ConfigurationMapping[Type[Extension], ExtensionConfiguration]):
@@ -317,7 +317,7 @@ class EntityTypeConfiguration(Configuration):
             raise ValueError(f'Cannot generate HTML pages for entity types that do not inherit from {UserFacingEntity.__module__}.{UserFacingEntity.__name__}.')
         self._generate_html_list = generate_html_list
 
-    def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
+    def load(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> None:
         loader.assert_record(dumped_configuration, {
             'generate_html_list': Field(
                 False,
@@ -326,10 +326,10 @@ class EntityTypeConfiguration(Configuration):
             ),
         })
 
-    def dump(self) -> DumpedConfigurationExport:
-        return minimize_dict({
+    def dump(self) -> VoidableDumpedConfiguration:
+        return minimize({
             'generate_html_list': Void if self._generate_html_list is None else self._generate_html_list,
-        }, True)
+        })
 
 
 class EntityTypeConfigurationMapping(ConfigurationMapping[Type[Entity], EntityTypeConfiguration]):
@@ -441,14 +441,14 @@ class LocaleConfigurationCollection(Configuration):
         self._configurations.move_to_end(configuration.locale, False)
         self.react.trigger()
 
-    def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
+    def load(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> None:
         loader.on_commit(self._configurations.clear)
         loader.assert_sequence(
             dumped_configuration,
             self._load_locale,  # type: ignore
         )
 
-    def _load_locale(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> TypeGuard[DumpedConfigurationDict[DumpedConfigurationImport]]:
+    def _load_locale(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> TypeGuard[DumpedConfigurationDict[DumpedConfiguration]]:
         if loader.assert_dict(dumped_configuration):
             with loader.assert_required_key(
                 dumped_configuration,
@@ -472,7 +472,7 @@ class LocaleConfigurationCollection(Configuration):
                         return True
         return False
 
-    def dump(self) -> DumpedConfigurationExport:
+    def dump(self) -> VoidableDumpedConfiguration:
         dumped_configuration = []
         for locale_configuration in self:
             dumped_locale_configuration = {
@@ -484,6 +484,7 @@ class LocaleConfigurationCollection(Configuration):
         return dumped_configuration
 
 
+@final
 class ProjectConfiguration(FileBasedConfiguration):
     def __init__(self, base_url: Optional[str] = None):
         super().__init__()
@@ -618,7 +619,7 @@ class ProjectConfiguration(FileBasedConfiguration):
         validate_positive_number(lifetime_threshold)
         self._lifetime_threshold = lifetime_threshold
 
-    def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
+    def load(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> None:
         loader.assert_record(
             dumped_configuration,
             {
@@ -677,8 +678,8 @@ class ProjectConfiguration(FileBasedConfiguration):
             },
         )
 
-    def dump(self) -> DumpedConfigurationExport:
-        dumped_configuration: MutableMapping[str, DumpedConfigurationExport] = {
+    def dump(self) -> DumpedConfiguration:
+        dumped_configuration: VoidableDumpedConfigurationDict = {
             'base_url': self.base_url,
             'title': self.title,
         }
@@ -698,7 +699,7 @@ class ProjectConfiguration(FileBasedConfiguration):
         if self.lifetime_threshold is not None:
             dumped_configuration['lifetime_threshold'] = self.lifetime_threshold
 
-        return minimize(dumped_configuration)
+        return minimize(dumped_configuration, False)
 
 
 class Project(Configurable[ProjectConfiguration]):
@@ -706,6 +707,17 @@ class Project(Configurable[ProjectConfiguration]):
         super().__init__()
         self._configuration = ProjectConfiguration()
         self._ancestry = Ancestry()
+
+    def __getstate__(self) -> Tuple[DumpedConfiguration, Path, Ancestry]:
+        return self._configuration.dump(), self._configuration.configuration_file_path, self._ancestry
+
+    def __setstate__(self, state: Tuple[DumpedConfiguration, Path, Ancestry]) -> None:
+        dumped_configuration, configuration_file_path, self._ancestry = state
+        self._configuration = ProjectConfiguration()
+        self._configuration.configuration_file_path = configuration_file_path
+        loader = Loader()
+        self._configuration.load(dumped_configuration, loader)
+        loader.commit()
 
     @property
     def ancestry(self) -> Ancestry:

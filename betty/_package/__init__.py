@@ -29,7 +29,7 @@ def is_data_file(file_path: Path) -> bool:
 
 
 def get_data_paths() -> Dict[str, Iterator[Path]]:
-    with ChDir(f'{ROOT_DIRECTORY_PATH}/betty'):
+    with ChDir(ROOT_DIRECTORY_PATH / 'betty'):
         return {
             'betty': filter(is_data_file, [
                 Path('py.typed'),

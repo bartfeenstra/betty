@@ -11,13 +11,13 @@ from pathlib import Path
 from subprocess import CalledProcessError
 from typing import Sequence, Set, Optional, Type, TYPE_CHECKING
 
-from aiofiles.tempfile import TemporaryDirectory
-
 from betty import subprocess
 from betty.app.extension import Extension, discover_extension_types
 from betty.app.extension.requirement import Requirement, AnyRequirement, AllRequirements
 from betty.asyncio import sync
 from betty.cache import CacheScope
+from betty.fs import iterfiles
+from betty.tempfile import TemporaryDirectory
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -150,8 +150,8 @@ async def _build_assets_to_directory_path(extension: Extension | NpmBuilder, ass
     with suppress(FileNotFoundError):
         shutil.rmtree(assets_directory_path)
     os.makedirs(assets_directory_path)
-    async with TemporaryDirectory() as working_directory_path:
-        await extension.npm_build(Path(working_directory_path), assets_directory_path)
+    with TemporaryDirectory() as working_directory_path:
+        await extension.npm_build(working_directory_path, assets_directory_path)
 
 
 class _Npm(Extension):
@@ -186,7 +186,8 @@ class _Npm(Extension):
             working_directory_path,
             dirs_exist_ok=True,
         )
-        await self.app.renderer.render_tree(working_directory_path)
+        async for file_path in iterfiles(working_directory_path):
+            await self._app.renderer.render_file(file_path)
         await npm(['install', '--production'], cwd=working_directory_path)
 
     def _get_cached_assets_build_directory_path(self, extension_type: Type[Extension | NpmBuilder]) -> Path:
