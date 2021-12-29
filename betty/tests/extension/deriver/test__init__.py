@@ -2,7 +2,7 @@ from tempfile import TemporaryDirectory
 from typing import Optional, Set, Type
 from parameterized import parameterized
 
-from betty.ancestry import Person, Presence, Subject, EventType, CreatableDerivableEventType, \
+from betty.model.ancestry import Person, Presence, Subject, EventType, CreatableDerivableEventType, \
     DerivableEventType, Event, Residence
 from betty.config import Configuration, ExtensionConfiguration
 from betty.asyncio import sync
@@ -63,7 +63,7 @@ class DeriverTest(TestCase):
     @sync
     async def test_post_parse(self):
         person = Person('P0')
-        reference_presence = Presence(person, Subject(), Event(Residence()))
+        reference_presence = Presence(person, Subject(), Event(None, Residence()))
         reference_presence.event.date = Date(1970, 1, 1)
 
         with TemporaryDirectory() as output_directory_path:
@@ -71,7 +71,7 @@ class DeriverTest(TestCase):
                 output_directory_path, 'https://example.com')
             configuration.extensions.add(ExtensionConfiguration(Deriver))
             async with App(configuration) as app:
-                app.ancestry.people.add(person)
+                app.ancestry.entities.append(person)
                 await load(app)
 
         self.assertEquals(3, len(person.presences))
@@ -109,7 +109,7 @@ class DeriveTest(TestCase):
     @sync
     async def test_derive_create_derivable_events_without_reference_events(self, event_type_type: Type[DerivableEventType]):
         person = Person('P0')
-        derivable_event = Event(Ignored())
+        derivable_event = Event(None, Ignored())
         Presence(person, Subject(), derivable_event)
 
         created, updated = derive(person, event_type_type)
@@ -130,8 +130,8 @@ class DeriveTest(TestCase):
     @sync
     async def test_derive_update_derivable_event_without_reference_events(self, event_type_type: Type[DerivableEventType]):
         person = Person('P0')
-        Presence(person, Subject(), Event(Ignored()))
-        derivable_event = Event(event_type_type())
+        Presence(person, Subject(), Event(None, Ignored()))
+        derivable_event = Event(None, event_type_type())
         Presence(person, Subject(), derivable_event)
 
         created, updated = derive(person, event_type_type)
@@ -192,9 +192,9 @@ class DeriveTest(TestCase):
     async def test_derive_update_comes_before_derivable_event(self, expected_datey: Optional[Datey], before_datey: Optional[Datey], derivable_datey: Optional[Datey]):
         expected_updates = 0 if expected_datey == derivable_datey else 1
         person = Person('P0')
-        Presence(person, Subject(), Event(Ignored(), Date(0, 0, 0)))
-        Presence(person, Subject(), Event(ComesBeforeReference(), before_datey))
-        derivable_event = Event(ComesBeforeDerivable(), derivable_datey)
+        Presence(person, Subject(), Event(None, Ignored(), Date(0, 0, 0)))
+        Presence(person, Subject(), Event(None, ComesBeforeReference(), before_datey))
+        derivable_event = Event(None, ComesBeforeDerivable(), derivable_datey)
         Presence(person, Subject(), derivable_event)
 
         created, updated = derive(person, ComesBeforeDerivable)
@@ -216,8 +216,8 @@ class DeriveTest(TestCase):
     async def test_derive_create_comes_before_derivable_event(self, expected_datey: Optional[Datey], before_datey: Optional[Datey]):
         expected_creations = 0 if expected_datey is None else 1
         person = Person('P0')
-        Presence(person, Subject(), Event(Ignored(), Date(0, 0, 0)))
-        Presence(person, Subject(), Event(ComesBeforeReference(), before_datey))
+        Presence(person, Subject(), Event(None, Ignored(), Date(0, 0, 0)))
+        Presence(person, Subject(), Event(None, ComesBeforeReference(), before_datey))
 
         created, updated = derive(person, ComesBeforeCreatableDerivable)
 
@@ -282,9 +282,9 @@ class DeriveTest(TestCase):
     async def test_derive_update_comes_after_derivable_event(self, expected_datey: Optional[Datey], after_datey: Optional[Datey], derivable_datey: Optional[Datey]):
         expected_updates = 0 if expected_datey == derivable_datey else 1
         person = Person('P0')
-        Presence(person, Subject(), Event(Ignored(), Date(0, 0, 0)))
-        Presence(person, Subject(), Event(ComesAfterReference(), after_datey))
-        derivable_event = Event(ComesAfterDerivable(), derivable_datey)
+        Presence(person, Subject(), Event(None, Ignored(), Date(0, 0, 0)))
+        Presence(person, Subject(), Event(None, ComesAfterReference(), after_datey))
+        derivable_event = Event(None, ComesAfterDerivable(), derivable_datey)
         Presence(person, Subject(), derivable_event)
 
         created, updated = derive(person, ComesAfterDerivable)
@@ -307,8 +307,8 @@ class DeriveTest(TestCase):
     async def test_derive_create_comes_after_derivable_event(self, expected_datey: Optional[Datey], after_datey: Optional[Datey]):
         expected_creations = 0 if expected_datey is None else 1
         person = Person('P0')
-        Presence(person, Subject(), Event(Ignored(), Date(0, 0, 0)))
-        Presence(person, Subject(), Event(ComesAfterReference(), after_datey))
+        Presence(person, Subject(), Event(None, Ignored(), Date(0, 0, 0)))
+        Presence(person, Subject(), Event(None, ComesAfterReference(), after_datey))
 
         created, updated = derive(person, ComesAfterCreatableDerivable)
 

@@ -21,8 +21,8 @@
             {% endfor %}
         </section>
     {% endif %}
-    {% set resources = file.resources | select('resource') | list %}
-    {% if resources | length > 0 %}
+    {% set entities = file.entities | reject('generated_entity_id') | list %}
+    {% if entities | length > 0 %}
         <section id="appearances">
             <h2>
                 {% trans %}Appearances{% endtrans %}
@@ -31,10 +31,10 @@
                 {% endwith %}
             </h2>
             <ul class="entities">
-                {% for resource in resources %}
+                {% for entity in entities %}
                     <li class="{{ loop.cycle('odd', 'even') }}">
-                        {% include 'label/resource.html.j2' %}
-                        {% include 'meta/resource.html.j2' %}
+                        {% include 'label/entity.html.j2' %}
+                        {% include 'meta/entity.html.j2' %}
                     </li>
                 {% endfor %}
             </ul>

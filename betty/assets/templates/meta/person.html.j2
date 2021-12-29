@@ -2,7 +2,7 @@
 {%- macro _embedded_person_name_label(name) -%}
     {{ person_macros.name_label(name, embedded=True) }}
 {%- endmacro -%}
-{%- set person = person | default(resource) -%}
+{%- set person = person | default(entity) -%}
 {%- if not embedded is defined -%}
     {%- set embedded = False -%}
 {%- endif -%}

@@ -1,0 +1,1 @@
+{% include 'label/' ~ entity.entity_type() | entity_type_name | camel_case_to_kebab_case ~ '.html.j2' %}

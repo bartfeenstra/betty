@@ -23,7 +23,7 @@
             {% endif %}
         {% endfor %}
         <link rel="canonical" href="{{ page_resource | url(absolute=true) }}"/>
-        {% if page_resource is defined and page_resource is resource and resource is identifiable %}
+        {% if page_resource is defined and page_resource is entity and resource is not generated_entity_id %}
             <link rel="alternate" href="{{ page_resource | url(media_type='application/json') }}" type="application/json"/>
             <script type="application/ld+json">
               {{ page_resource | tojson }}
@@ -48,8 +48,8 @@
 </head>
 {% if page_resource is has_files %}
     {% set page_image = page_resource.associated_files | selectattr('media_type.type', 'eq', 'image') | first %}
-{% elif app.configuration.theme.background_image_id and app.configuration.theme.background_image_id in app.ancestry.files %}
-    {% set page_image = app.ancestry.files[app.configuration.theme.background_image_id] %}
+{% elif app.configuration.theme.background_image_id and app.configuration.theme.background_image_id in app.ancestry.entities['File'] %}
+    {% set page_image = app.ancestry.entities['File'][app.configuration.theme.background_image_id] %}
 {% endif %}
 <body>
 <script>
@@ -67,7 +67,7 @@
                 <span class="overlay-control overlay-close" title="{% trans %}Exit the search{% endtrans %}">{% trans %}Exit the search{% endtrans %}</span>
             </div>
             <form>
-                {% set search_keywords_example_person_name = app.ancestry.people | map(attribute='name') | first | default(none) %}
+                {% set search_keywords_example_person_name = app.ancestry.entities['Person'] | map(attribute='name') | first | default(none) %}
                 {% if search_keywords_example_person_name %}
                     {% set search_keywords_example -%}
                         {% trans example = person_macros.name_label(search_keywords_example_person_name, embedded=True) | striptags -%}
@@ -93,16 +93,16 @@
             <h2 class="nav-primary-action">{% trans %}Menu{% endtrans %}</h2>
             <div class="nav-primary-expanded">
                 <ul class="nav-secondary">
-                    {% if app.ancestry.people | length > 0 %}
+                    {% if app.ancestry.entities['Person'] | length > 0 %}
                         <li><a href="{{ '/person/index.html' | url }}">{% trans %}People{% endtrans %}</a></li>
                     {% endif %}
-                    {% if app.ancestry.events | length > 0 %}
+                    {% if app.ancestry.entities['Event'] | length > 0 %}
                         <li><a href="{{ '/event/index.html' | url }}">{% trans %}Timeline{% endtrans %}</a></li>
                     {% endif %}
-                    {% if app.ancestry.places | length > 0 %}
+                    {% if app.ancestry.entities['Place'] | length > 0 %}
                         <li><a href="{{ '/place/index.html' | url }}">{% trans %}Places{% endtrans %}</a></li>
                     {% endif %}
-                    {% if app.ancestry.sources | length > 0 %}
+                    {% if app.ancestry.entities['Source'] | length > 0 %}
                         <li><a href="{{ '/source/index.html' | url }}">{% trans %}Sources{% endtrans %}</a></li>
                     {% endif %}
                 </ul>

@@ -5,6 +5,7 @@ from betty.asyncio import sync
 from betty.config import Configuration, ExtensionConfiguration
 from betty.extension.demo import Demo
 from betty.load import load
+from betty.model.ancestry import Person, Place, Event, Source, Citation
 from betty.tests import TestCase
 
 
@@ -16,8 +17,8 @@ class DemoTest(TestCase):
             configuration.extensions.add(ExtensionConfiguration(Demo))
             async with App(configuration) as app:
                 await load(app)
-            self.assertNotEqual(0, len(app.ancestry.people))
-            self.assertNotEqual(0, len(app.ancestry.places))
-            self.assertNotEqual(0, len(app.ancestry.events))
-            self.assertNotEqual(0, len(app.ancestry.sources))
-            self.assertNotEqual(0, len(app.ancestry.citations))
+            self.assertNotEqual(0, len(app.ancestry.entities[Person]))
+            self.assertNotEqual(0, len(app.ancestry.entities[Place]))
+            self.assertNotEqual(0, len(app.ancestry.entities[Event]))
+            self.assertNotEqual(0, len(app.ancestry.entities[Source]))
+            self.assertNotEqual(0, len(app.ancestry.entities[Citation]))

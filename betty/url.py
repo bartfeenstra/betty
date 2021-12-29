@@ -1,8 +1,8 @@
 from contextlib import suppress
-from typing import Any, Type, Optional
+from typing import Any, Optional, Type
 
-from betty.ancestry import Person, File, Place, Identifiable, PersonName, IdentifiableSource, IdentifiableEvent, \
-    IdentifiableCitation, Note
+from betty.model import Entity
+from betty.model.ancestry import PersonName, Event, Place, File, Source, Citation, Note, Person
 from betty.config import Configuration
 from betty.media_type import EXTENSIONS
 
@@ -33,17 +33,17 @@ class StaticPathUrlGenerator(StaticUrlGenerator):
         return _generate_from_path(self._configuration, resource, localize=False, **kwargs)
 
 
-class IdentifiableResourceUrlGenerator(LocalizedUrlGenerator):
-    def __init__(self, configuration: Configuration, identifiable_type: Type[Identifiable], pattern: str):
+class _EntityUrlGenerator(LocalizedUrlGenerator):
+    def __init__(self, configuration: Configuration, entity_type: Type[Entity], pattern: str):
         self._configuration = configuration
-        self._type = identifiable_type
+        self._entity_type = entity_type
         self._pattern = pattern
 
-    def generate(self, resource: Identifiable, media_type, **kwargs) -> str:
-        if not isinstance(resource, self._type):
-            raise ValueError('%s is not a %s' % (type(resource), self._type))
+    def generate(self, entity: Entity, media_type, **kwargs) -> str:
+        if not isinstance(entity, self._entity_type):
+            raise ValueError('%s is not a %s' % (type(entity), self._entity_type))
         kwargs['localize'] = True
-        return _generate_from_path(self._configuration, self._pattern % (resource.id, EXTENSIONS[media_type]), **kwargs)
+        return _generate_from_path(self._configuration, self._pattern % (entity.id, EXTENSIONS[media_type]), **kwargs)
 
 
 class PersonNameUrlGenerator(LocalizedUrlGenerator):
@@ -58,21 +58,16 @@ class PersonNameUrlGenerator(LocalizedUrlGenerator):
 
 class AppUrlGenerator(LocalizedUrlGenerator):
     def __init__(self, configuration: Configuration):
-        person_url_generator = IdentifiableResourceUrlGenerator(configuration, Person, 'person/%s/index.%s')
+        person_url_generator = _EntityUrlGenerator(configuration, Person, 'person/%s/index.%s')
         self._generators = [
             person_url_generator,
             PersonNameUrlGenerator(person_url_generator),
-            IdentifiableResourceUrlGenerator(
-                configuration, IdentifiableEvent, 'event/%s/index.%s'),
-            IdentifiableResourceUrlGenerator(
-                configuration, Place, 'place/%s/index.%s'),
-            IdentifiableResourceUrlGenerator(
-                configuration, File, 'file/%s/index.%s'),
-            IdentifiableResourceUrlGenerator(
-                configuration, IdentifiableSource, 'source/%s/index.%s'),
-            IdentifiableResourceUrlGenerator(
-                configuration, IdentifiableCitation, 'citation/%s/index.%s'),
-            IdentifiableResourceUrlGenerator(configuration, Note, 'note/%s/index.%s'),
+            _EntityUrlGenerator(configuration, Event, 'event/%s/index.%s'),
+            _EntityUrlGenerator(configuration, Place, 'place/%s/index.%s'),
+            _EntityUrlGenerator(configuration, File, 'file/%s/index.%s'),
+            _EntityUrlGenerator(configuration, Source, 'source/%s/index.%s'),
+            _EntityUrlGenerator(configuration, Citation, 'citation/%s/index.%s'),
+            _EntityUrlGenerator(configuration, Note, 'note/%s/index.%s'),
             LocalizedPathUrlGenerator(configuration),
         ]
 

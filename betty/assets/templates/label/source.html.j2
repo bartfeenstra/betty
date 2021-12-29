@@ -1,9 +1,9 @@
-{% set source = source | default(resource) %}
+{% set source = source | default(entity) %}
 {% set embedded = embedded | default(False) %}
-{% if not embedded and source is identifiable -%}
+{% if not embedded and source is not generated_entity_id -%}
     <a href="{{ source | url }}">
 {%- endif -%}
 {{ source.name }}
-{%- if not embedded and source is identifiable -%}
+{%- if not embedded and source is not generated_entity_id -%}
     </a>
 {%- endif %}

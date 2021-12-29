@@ -10,6 +10,7 @@ from babel import Locale
 from jinja2 import Environment, TemplateNotFound
 
 from betty.json import JSONEncoder
+from betty.model.ancestry import File, Person, Place, Event, Citation, Source, Note
 from betty.openapi import build_specification
 from betty.app import App
 
@@ -53,28 +54,28 @@ async def _generate(app: App) -> None:
             await app.renderer.render_tree(www_directory_path)
 
             locale_label = Locale.parse(locale, '-').get_display_name()
-            await _generate_entity_type(www_directory_path, app.ancestry.files, 'file', app, locale, app.jinja2_environment)
+            await _generate_entity_type(www_directory_path, app.ancestry.entities[File], 'file', app, locale, app.jinja2_environment)
             logger.info('Generated pages for %d files in %s.' %
-                        (len(app.ancestry.files), locale_label))
-            await _generate_entity_type(www_directory_path, app.ancestry.people, 'person', app, locale, app.jinja2_environment)
+                        (len(app.ancestry.entities[File]), locale_label))
+            await _generate_entity_type(www_directory_path, app.ancestry.entities[Person], 'person', app, locale, app.jinja2_environment)
             logger.info('Generated pages for %d people in %s.' %
-                        (len(app.ancestry.people), locale_label))
-            await _generate_entity_type(www_directory_path, app.ancestry.places, 'place', app, locale, app.jinja2_environment)
+                        (len(app.ancestry.entities[Person]), locale_label))
+            await _generate_entity_type(www_directory_path, app.ancestry.entities[Place], 'place', app, locale, app.jinja2_environment)
             logger.info('Generated pages for %d places in %s.' %
-                        (len(app.ancestry.places), locale_label))
-            await _generate_entity_type(www_directory_path, app.ancestry.events, 'event', app, locale, app.jinja2_environment)
+                        (len(app.ancestry.entities[Place]), locale_label))
+            await _generate_entity_type(www_directory_path, app.ancestry.entities[Event], 'event', app, locale, app.jinja2_environment)
             logger.info('Generated pages for %d events in %s.' %
-                        (len(app.ancestry.events), locale_label))
-            await _generate_entity_type(www_directory_path, app.ancestry.citations, 'citation', app, locale, app.jinja2_environment)
+                        (len(app.ancestry.entities[Event]), locale_label))
+            await _generate_entity_type(www_directory_path, app.ancestry.entities[Citation], 'citation', app, locale, app.jinja2_environment)
             logger.info('Generated pages for %d citations in %s.' %
-                        (len(app.ancestry.citations), locale_label))
-            await _generate_entity_type(www_directory_path, app.ancestry.sources, 'source', app, locale, app.jinja2_environment)
+                        (len(app.ancestry.entities[Citation]), locale_label))
+            await _generate_entity_type(www_directory_path, app.ancestry.entities[Source], 'source', app, locale, app.jinja2_environment)
             logger.info('Generated pages for %d sources in %s.' %
-                        (len(app.ancestry.sources), locale_label))
-            _generate_entity_type_list_json(www_directory_path, app.ancestry.notes, 'note', app)
-            for note in app.ancestry.notes:
+                        (len(app.ancestry.entities[Source]), locale_label))
+            _generate_entity_type_list_json(www_directory_path, app.ancestry.entities[Note], 'note', app)
+            for note in app.ancestry.entities[Note]:
                 _generate_entity_json(www_directory_path, note, 'note', app, locale)
-            logger.info('Generated pages for %d notes in %s.' % (len(app.ancestry.notes), locale_label))
+            logger.info('Generated pages for %d notes in %s.' % (len(app.ancestry.entities[Note]), locale_label))
             _generate_openapi(www_directory_path, app)
             logger.info('Generated OpenAPI documentation in %s.', locale_label)
 

@@ -8,7 +8,7 @@ from typing import List, Type, Set, Dict
 from voluptuous import Schema, Required, Invalid
 
 from betty import extension
-from betty.ancestry import Ancestry
+from betty.model.ancestry import Ancestry
 from betty.config import Configuration, ConfigurationError, ExtensionConfiguration
 from betty.asyncio import sync
 from betty.app import App

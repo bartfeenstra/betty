@@ -1,4 +1,4 @@
-from betty.ancestry import Person, PersonName
+from betty.model.ancestry import Person, PersonName
 from betty.asyncio import sync
 from betty.tests import TemplateTestCase
 
@@ -9,7 +9,7 @@ class Test(TemplateTestCase):
     @sync
     async def test_with_name(self):
         person = Person('P0')
-        person.names.append(PersonName('Jane', 'Dough'))
+        PersonName(person, 'Jane', 'Dough')
         expected = '<a href="/person/P0/index.html"><span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span> <span property="foaf:familyName">Dough</span></span></a>'
         async with self._render(data={
             'person': person,
@@ -56,11 +56,11 @@ class Test(TemplateTestCase):
             self.assertEqual(expected, actual)
 
     @sync
-    async def test_with_resource(self):
+    async def test_with_entity(self):
         person = Person('P0')
-        person.names.append(PersonName('Jane', 'Dough'))
+        PersonName(person, 'Jane', 'Dough')
         expected = '<a href="/person/P0/index.html"><span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span> <span property="foaf:familyName">Dough</span></span></a>'
         async with self._render(data={
-            'resource': person,
+            'entity': person,
         }) as (actual, _):
             self.assertEqual(expected, actual)

@@ -1,4 +1,4 @@
-from betty.ancestry import Event, Place, PlaceName, Citation, Source, Birth
+from betty.model.ancestry import Event, Place, PlaceName, Citation, Source, Birth
 from betty.asyncio import sync
 from betty.locale import Date
 from betty.tests import TemplateTestCase
@@ -9,7 +9,7 @@ class Test(TemplateTestCase):
 
     @sync
     async def test_without_meta(self):
-        event = Event(Birth())
+        event = Event(None, Birth())
         expected = ''
         async with self._render(data={
             'event': event,
@@ -18,7 +18,7 @@ class Test(TemplateTestCase):
 
     @sync
     async def test_with_date(self):
-        event = Event(Birth())
+        event = Event(None, Birth())
         event.date = Date(1970)
         expected = '1970'
         async with self._render(data={
@@ -28,7 +28,7 @@ class Test(TemplateTestCase):
 
     @sync
     async def test_with_place(self):
-        event = Event(Birth())
+        event = Event(None, Birth())
         event.place = Place('P0', [PlaceName('The Place')])
         expected = 'in <address><a href="/place/P0/index.html"><span>The Place</span></a></address>'
         async with self._render(data={
@@ -38,7 +38,7 @@ class Test(TemplateTestCase):
 
     @sync
     async def test_with_place_is_place_context(self):
-        event = Event(Birth())
+        event = Event(None, Birth())
         place = Place('P0', [PlaceName('The Place')])
         event.place = place
         expected = ''
@@ -50,7 +50,7 @@ class Test(TemplateTestCase):
 
     @sync
     async def test_with_date_and_place(self):
-        event = Event(Birth())
+        event = Event(None, Birth())
         event.date = Date(1970)
         event.place = Place('P0', [PlaceName('The Place')])
         expected = '1970 in <address><a href="/place/P0/index.html"><span>The Place</span></a></address>'
@@ -61,8 +61,8 @@ class Test(TemplateTestCase):
 
     @sync
     async def test_with_citation(self):
-        event = Event(Birth())
-        event.citations.append(Citation(Source('The Source')))
+        event = Event(None, Birth())
+        event.citations.append(Citation(None, Source(None, 'The Source')))
         expected = '<a href="#reference-1" class="citation">[1]</a>'
         async with self._render(data={
             'event': event,
@@ -71,10 +71,10 @@ class Test(TemplateTestCase):
 
     @sync
     async def test_embedded(self):
-        event = Event(Birth())
+        event = Event(None, Birth())
         event.date = Date(1970)
         event.place = Place('P0', [PlaceName('The Place')])
-        event.citations.append(Citation(Source('The Source')))
+        event.citations.append(Citation(None, Source(None, 'The Source')))
         expected = '1970 in <address><span>The Place</span></address>'
         async with self._render(data={
             'event': event,

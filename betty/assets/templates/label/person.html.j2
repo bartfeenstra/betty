@@ -1,5 +1,5 @@
 {% import 'macro/person.html.j2' as person_macros %}
-{% set person = person | default(resource) %}
+{% set person = person | default(entity) %}
 {% set embedded = embedded | default(False) %}
 {% set person_context = person_context | default(False) %}
 {% if not embedded and person_context != person -%}

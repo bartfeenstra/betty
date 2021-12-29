@@ -4,8 +4,8 @@ from tempfile import TemporaryDirectory, NamedTemporaryFile
 from geopy import Point
 
 from betty import json
-from betty.ancestry import Place, Person, PlaceName, Link, Presence, Source, File, Note, PersonName, \
-    IdentifiableEvent, IdentifiableSource, IdentifiableCitation, Subject, Birth, Enclosure
+from betty.model.ancestry import Place, Person, PlaceName, Link, Presence, Source, File, Note, PersonName, \
+    Subject, Birth, Enclosure, Citation, Event
 from betty.config import Configuration, LocaleConfiguration
 from betty.json import JSONEncoder
 from betty.locale import Date, DateRange
@@ -98,7 +98,7 @@ class JSONEncoderTest(TestCase):
         link = Link('https://example.com/the-place')
         link.label = 'The Place Online'
         place.links.add(link)
-        place.events.append(IdentifiableEvent('E1', Birth()))
+        place.events.append(Event('E1', Birth()))
         expected = {
             '$schema': '/schema.json#/definitions/place',
             '@context': {
@@ -211,7 +211,7 @@ class JSONEncoderTest(TestCase):
         person_affiliation_name = 'Person'
         person_individual_name = 'The'
         person = Person(person_id)
-        person.names.append(PersonName(person_individual_name, person_affiliation_name))
+        PersonName(person, person_individual_name, person_affiliation_name)
         person.parents.append(parent)
         person.children.append(child)
         person.private = False
@@ -219,8 +219,8 @@ class JSONEncoderTest(TestCase):
         link.label = 'The Person Online'
         person.links.add(link)
         person.citations.append(
-            IdentifiableCitation('the_citation', Source('The Source')))
-        Presence(person, Subject(), IdentifiableEvent('the_event', Birth()))
+            Citation('the_citation', Source('The Source')))
+        Presence(person, Subject(), Event('the_event', Birth()))
 
         expected = {
             '$schema': '/schema.json#/definitions/person',
@@ -294,6 +294,23 @@ class JSONEncoderTest(TestCase):
             '@type': 'https://schema.org/Thing',
             'id': 'the_note',
             'text': 'The Note',
+            'links': [
+                {
+                    'url': '/en/note/the_note/index.json',
+                    'relationship': 'canonical',
+                    'mediaType': 'application/json',
+                },
+                {
+                    'url': '/nl/note/the_note/index.json',
+                    'relationship': 'alternate',
+                    'locale': 'nl-NL',
+                },
+                {
+                    'url': '/en/note/the_note/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                },
+            ],
         }
         self.assert_encodes(expected, note, 'note')
 
@@ -303,7 +320,7 @@ class JSONEncoderTest(TestCase):
             expected = {
                 '$schema': '/schema.json#/definitions/file',
                 'id': 'the_file',
-                'resources': [],
+                'entities': [],
                 'notes': [],
                 'links': [
                     {
@@ -336,7 +353,7 @@ class JSONEncoderTest(TestCase):
                 '$schema': '/schema.json#/definitions/file',
                 'id': 'the_file',
                 'mediaType': 'text/plain',
-                'resources': [
+                'entities': [
                     '/en/person/the_person/index.json',
                 ],
                 'notes': [
@@ -363,7 +380,7 @@ class JSONEncoderTest(TestCase):
             self.assert_encodes(expected, file, 'file')
 
     def test_event_should_encode_minimal(self):
-        event = IdentifiableEvent('the_event', Birth())
+        event = Event('the_event', Birth())
         expected = {
             '$schema': '/schema.json#/definitions/event',
             '@type': 'https://schema.org/Event',
@@ -392,12 +409,12 @@ class JSONEncoderTest(TestCase):
         self.assert_encodes(expected, event, 'event')
 
     def test_event_should_encode_full(self):
-        event = IdentifiableEvent('the_event', Birth())
+        event = Event('the_event', Birth())
         event.date = DateRange(Date(2000, 1, 1), Date(2019, 12, 31))
         event.place = Place('the_place', [PlaceName('The Place')])
         Presence(Person('the_person'), Subject(), event)
         event.citations.append(
-            IdentifiableCitation('the_citation', Source('The Source')))
+            Citation('the_citation', Source('The Source')))
         expected = {
             '$schema': '/schema.json#/definitions/event',
             '@context': {
@@ -452,7 +469,7 @@ class JSONEncoderTest(TestCase):
         self.assert_encodes(expected, event, 'event')
 
     def test_source_should_encode_minimal(self):
-        source = IdentifiableSource('the_source', 'The Source')
+        source = Source('the_source', 'The Source')
         expected = {
             '$schema': '/schema.json#/definitions/source',
             '@context': {
@@ -484,18 +501,18 @@ class JSONEncoderTest(TestCase):
         self.assert_encodes(expected, source, 'source')
 
     def test_source_should_encode_full(self):
-        source = IdentifiableSource('the_source', 'The Source')
+        source = Source('the_source', 'The Source')
         source.author = 'The Author'
         source.publisher = 'The Publisher'
         source.date = Date(2000, 1, 1)
-        source.contained_by = IdentifiableSource(
+        source.contained_by = Source(
             'the_containing_source', 'The Containing Source')
         link = Link('https://example.com/the-source')
         link.label = 'The Source Online'
         source.links.add(link)
         source.contains.append(
-            IdentifiableSource('the_contained_source', 'The Contained Source'))
-        IdentifiableCitation('the_citation', source)
+            Source('the_contained_source', 'The Contained Source'))
+        Citation('the_citation', source)
         expected = {
             '$schema': '/schema.json#/definitions/source',
             '@context': {
@@ -543,7 +560,7 @@ class JSONEncoderTest(TestCase):
         self.assert_encodes(expected, source, 'source')
 
     def test_citation_should_encode_minimal(self):
-        citation = IdentifiableCitation('the_citation', Source('The Source'))
+        citation = Citation('the_citation', Source(None, 'The Source'))
         expected = {
             '$schema': '/schema.json#/definitions/citation',
             '@type': 'https://schema.org/Thing',
@@ -570,9 +587,9 @@ class JSONEncoderTest(TestCase):
         self.assert_encodes(expected, citation, 'citation')
 
     def test_citation_should_encode_full(self):
-        citation = IdentifiableCitation('the_citation', IdentifiableSource('the_source', 'The Source'))
+        citation = Citation('the_citation', Source('the_source', 'The Source'))
         citation.description = 'The Source Description'
-        citation.facts.append(IdentifiableEvent('the_event', Birth()))
+        citation.facts.append(Event('the_event', Birth()))
         expected = {
             '$schema': '/schema.json#/definitions/citation',
             '@type': 'https://schema.org/Thing',

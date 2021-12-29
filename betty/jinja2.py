@@ -22,8 +22,8 @@ from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup
 from resizeimage import resizeimage
 
-from betty.ancestry import File, Citation, Identifiable, Resource, HasLinks, HasFiles, Subject, Witness, Dated, \
-    RESOURCE_TYPES
+from betty.model import Entity, get_entity_type_name, GeneratedEntityId
+from betty.model.ancestry import File, Citation, HasLinks, HasFiles, Subject, Witness, Dated, ENTITY_TYPES
 from betty.config import Configuration
 from betty.fs import hashfile, iterfiles
 from betty.functools import walk
@@ -37,6 +37,7 @@ from betty.path import rootname
 from betty.render import Renderer
 from betty.search import Index
 from betty.app import App, Extensions
+from betty.string import camel_case_to_snake_case, camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
 
 
 class _Extensions:
@@ -156,17 +157,21 @@ class BettyEnvironment(Environment):
         self.filters['static_url'] = self.app.static_url_generator.generate
         self.filters['file'] = lambda *args: _filter_file(self.app, *args)
         self.filters['image'] = lambda *args, **kwargs: _filter_image(self.app, *args, **kwargs)
+        self.filters['entity_type_name'] = get_entity_type_name
+        self.filters['camel_case_to_snake_case'] = camel_case_to_snake_case
+        self.filters['camel_case_to_kebab_case'] = camel_case_to_kebab_case
+        self.filters['upper_camel_case_to_lower_camel_case'] = upper_camel_case_to_lower_camel_case
 
     def _init_tests(self) -> None:
-        self.tests['resource'] = lambda x: isinstance(x, Resource)
+        self.tests['entity'] = lambda x: isinstance(x, Entity)
 
-        def _build_test_resource_type(resource_type: Type[Resource]):
+        def _build_test_entity_type(resource_type: Type[Entity]):
             def _test_resource(x):
                 return isinstance(x, resource_type)
             return _test_resource
-        for resource_type in RESOURCE_TYPES:
-            self.tests['%s_resource' % resource_type.resource_type_name()] = _build_test_resource_type(resource_type)
-        self.tests['identifiable'] = lambda x: isinstance(x, Identifiable)
+        for entity_type in ENTITY_TYPES:
+            self.tests[f'{camel_case_to_snake_case(get_entity_type_name(entity_type))}_entity'] = _build_test_entity_type(entity_type)
+        self.tests['generated_entity_id'] = lambda x: isinstance(x, Entity) and isinstance(x.id, GeneratedEntityId) or isinstance(x, GeneratedEntityId)
         self.tests['has_links'] = lambda x: isinstance(x, HasLinks)
         self.tests['has_files'] = lambda x: isinstance(x, HasFiles)
         self.tests['starts_with'] = str.startswith

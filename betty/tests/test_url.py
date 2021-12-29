@@ -2,11 +2,11 @@ from typing import Any
 
 from parameterized import parameterized
 
-from betty.ancestry import Person, Place, File, Source, Identifiable, PlaceName, IdentifiableEvent, \
-    IdentifiableSource, IdentifiableCitation, Death
+from betty.model import Entity
+from betty.model.ancestry import Person, Place, File, Source, Death, PlaceName, Event, Citation
 from betty.config import Configuration, LocaleConfiguration
 from betty.tests import TestCase
-from betty.url import LocalizedPathUrlGenerator, IdentifiableResourceUrlGenerator, AppUrlGenerator
+from betty.url import LocalizedPathUrlGenerator, _EntityUrlGenerator, AppUrlGenerator
 
 
 class LocalizedPathUrlGeneratorTest(TestCase):
@@ -66,18 +66,18 @@ class LocalizedPathUrlGeneratorTest(TestCase):
             '/en/index.html', sut.generate('/index.html', 'text/html', locale='en'))
 
 
-class IdentifiableResourceUrlGeneratorTest(TestCase):
+class EntityUrlGeneratorTest(TestCase):
+    class UrlyEntity(Entity):
+        pass
+
     def test_generate(self):
         configuration = Configuration('/tmp', 'https://example.com')
-        sut = IdentifiableResourceUrlGenerator(
-            configuration, Identifiable, 'prefix/%s/index.%s')
-        self.assertEquals('/prefix/I1/index.html',
-                          sut.generate(Identifiable('I1'), 'text/html'))
+        sut = _EntityUrlGenerator(configuration, self.UrlyEntity, 'prefix/%s/index.%s')
+        self.assertEquals('/prefix/I1/index.html', sut.generate(self.UrlyEntity('I1'), 'text/html'))
 
     def test_generate_with_invalid_value(self):
         configuration = Configuration('/tmp', 'https://example.com')
-        sut = IdentifiableResourceUrlGenerator(
-            configuration, Identifiable, 'prefix/%s/index.html')
+        sut = _EntityUrlGenerator(configuration, self.UrlyEntity, 'prefix/%s/index.html')
         with self.assertRaises(ValueError):
             sut.generate(9, 'text/html')
 
@@ -86,11 +86,11 @@ class AppUrlGeneratorTest(TestCase):
     @parameterized.expand([
         ('/index.html', '/index.html'),
         ('/person/P1/index.html', Person('P1')),
-        ('/event/E1/index.html', IdentifiableEvent('E1', Death())),
+        ('/event/E1/index.html', Event('E1', Death())),
         ('/place/P1/index.html', Place('P1', [PlaceName('Place 1')])),
         ('/file/F1/index.html', File('F1', '/tmp')),
-        ('/source/S1/index.html', IdentifiableSource('S1', 'Source 1')),
-        ('/citation/C1/index.html', IdentifiableCitation('C1', Source('Source 1'))),
+        ('/source/S1/index.html', Source('S1', 'Source 1')),
+        ('/citation/C1/index.html', Citation('C1', Source('Source 1'))),
     ])
     def test_generate(self, expected: str, resource: Any):
         configuration = Configuration('/tmp', 'https://example.com')

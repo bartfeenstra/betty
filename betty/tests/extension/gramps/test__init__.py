@@ -5,7 +5,8 @@ from typing import Optional
 from parameterized import parameterized
 from reactives import ReactiveList
 
-from betty.ancestry import Ancestry, PersonName, Birth, Death, UnknownEventType
+from betty.model.ancestry import Ancestry, PersonName, Birth, Death, UnknownEventType, Citation, Note, Source, File, \
+    Event, Person, Place
 from betty.config import Configuration, ExtensionConfiguration
 from betty.asyncio import sync
 from betty.locale import Date
@@ -97,77 +98,77 @@ class LoadXmlTest(TestCase):
                 load_gpkg(app.ancestry, gramps_file_path)
 
     def test_place_should_include_name(self):
-        place = self.ancestry.places['P0000']
+        place = self.ancestry.entities[Place]['P0000']
         names = place.names
         self.assertEquals(1, len(names))
         name = names[0]
         self.assertEquals('Amsterdam', name.name)
 
     def test_place_should_include_coordinates(self):
-        place = self.ancestry.places['P0000']
+        place = self.ancestry.entities[Place]['P0000']
         self.assertAlmostEquals(52.366667, place.coordinates.latitude)
         self.assertAlmostEquals(4.9, place.coordinates.longitude)
 
     def test_place_should_include_events(self):
-        place = self.ancestry.places['P0000']
-        event = self.ancestry.events['E0000']
+        place = self.ancestry.entities[Place]['P0000']
+        event = self.ancestry.entities[Event]['E0000']
         self.assertIn(event, place.events)
 
     def test_person_should_include_name(self):
-        person = self.ancestry.people['I0000']
-        expected = PersonName('Jane', 'Doe')
+        person = self.ancestry.entities[Person]['I0000']
+        expected = PersonName(person, 'Jane', 'Doe')
         self.assertEquals(expected, person.name)
 
     def test_person_should_include_alternative_names(self):
-        person = self.ancestry.people['I0000']
+        person = self.ancestry.entities[Person]['I0000']
         expected = [
-            PersonName('Jane', 'Doh'),
-            PersonName('Jen', 'Van Doughie'),
+            PersonName(person, 'Jane', 'Doh'),
+            PersonName(person, 'Jen', 'Van Doughie'),
         ]
         self.assertEquals(expected, person.alternative_names)
 
     def test_person_should_include_birth(self):
-        person = self.ancestry.people['I0000']
+        person = self.ancestry.entities[Person]['I0000']
         self.assertEquals('E0000', person.start.id)
 
     def test_person_should_include_death(self):
-        person = self.ancestry.people['I0003']
+        person = self.ancestry.entities[Person]['I0003']
         self.assertEquals('E0002', person.end.id)
 
     def test_person_should_be_private(self):
-        person = self.ancestry.people['I0003']
+        person = self.ancestry.entities[Person]['I0003']
         self.assertTrue(person.private)
 
     def test_person_should_not_be_private(self):
-        person = self.ancestry.people['I0002']
+        person = self.ancestry.entities[Person]['I0002']
         self.assertFalse(person.private)
 
     def test_person_should_include_citation(self):
-        person = self.ancestry.people['I0000']
-        citation = self.ancestry.citations['C0000']
+        person = self.ancestry.entities[Person]['I0000']
+        citation = self.ancestry.entities[Citation]['C0000']
         self.assertIn(citation, person.citations)
 
     def test_family_should_set_parents(self):
-        expected_parents = [self.ancestry.people['I0002'],
-                            self.ancestry.people['I0003']]
-        children = [self.ancestry.people['I0000'],
-                    self.ancestry.people['I0001']]
+        expected_parents = [self.ancestry.entities[Person]['I0002'],
+                            self.ancestry.entities[Person]['I0003']]
+        children = [self.ancestry.entities[Person]['I0000'],
+                    self.ancestry.entities[Person]['I0001']]
         for child in children:
             self.assertCountEqual(expected_parents, child.parents)
 
     def test_family_should_set_children(self):
-        parents = [self.ancestry.people['I0002'],
-                   self.ancestry.people['I0003']]
-        expected_children = [self.ancestry.people['I0000'],
-                             self.ancestry.people['I0001']]
+        parents = [self.ancestry.entities[Person]['I0002'],
+                   self.ancestry.entities[Person]['I0003']]
+        expected_children = [self.ancestry.entities[Person]['I0000'],
+                             self.ancestry.entities[Person]['I0001']]
         for parent in parents:
             self.assertCountEqual(expected_children, parent.children)
 
     def test_event_should_be_birth(self):
-        self.assertIsInstance(self.ancestry.events['E0000'].type, Birth)
+        self.assertIsInstance(self.ancestry.entities[Event]['E0000'].type, Birth)
 
     def test_event_should_be_death(self):
-        self.assertIsInstance(self.ancestry.events['E0002'].type, Death)
+        self.assertIsInstance(self.ancestry.entities[Event]['E0002'].type, Death)
 
     def test_event_should_load_unknown(self):
         ancestry = self._load_partial("""
@@ -178,27 +179,27 @@ class LoadXmlTest(TestCase):
     </event>
 </events>
 """)
-        self.assertIsInstance(ancestry.events['E0000'].type, UnknownEventType)
+        self.assertIsInstance(ancestry.entities[Event]['E0000'].type, UnknownEventType)
 
     def test_event_should_include_place(self):
-        event = self.ancestry.events['E0000']
-        place = self.ancestry.places['P0000']
+        event = self.ancestry.entities[Event]['E0000']
+        place = self.ancestry.entities[Place]['P0000']
         self.assertEquals(place, event.place)
 
     def test_event_should_include_date(self):
-        event = self.ancestry.events['E0000']
+        event = self.ancestry.entities[Event]['E0000']
         self.assertEquals(1970, event.date.year)
         self.assertEquals(1, event.date.month)
         self.assertEquals(1, event.date.day)
 
     def test_event_should_include_people(self):
-        event = self.ancestry.events['E0000']
-        expected_people = [self.ancestry.people['I0000']]
+        event = self.ancestry.entities[Event]['E0000']
+        expected_people = [self.ancestry.entities[Person]['I0000']]
         self.assertCountEqual(
             expected_people, [presence.person for presence in event.presences])
 
     def test_event_should_include_description(self):
-        event = self.ancestry.events['E0008']
+        event = self.ancestry.entities[Event]['E0008']
         self.assertEquals('Something happened!', event.description)
 
     @parameterized.expand([
@@ -220,13 +221,13 @@ class LoadXmlTest(TestCase):
     </event>
 </events>
 """ % dateval_val)
-        self.assertEquals(expected, ancestry.events['E0000'].date)
+        self.assertEquals(expected, ancestry.entities[Event]['E0000'].date)
 
     def test_date_should_ignore_calendar_format(self):
-        self.assertIsNone(self.ancestry.events['E0005'].date)
+        self.assertIsNone(self.ancestry.entities[Event]['E0005'].date)
 
     def test_date_should_load_before(self):
-        date = self.ancestry.events['E0003'].date
+        date = self.ancestry.entities[Event]['E0003'].date
         self.assertIsNone(date.start)
         self.assertEquals(1970, date.end.year)
         self.assertEquals(1, date.end.month)
@@ -235,7 +236,7 @@ class LoadXmlTest(TestCase):
         self.assertFalse(date.end.fuzzy)
 
     def test_date_should_load_after(self):
-        date = self.ancestry.events['E0004'].date
+        date = self.ancestry.entities[Event]['E0004'].date
         self.assertIsNone(date.end)
         self.assertEquals(1970, date.start.year)
         self.assertEquals(1, date.start.month)
@@ -252,7 +253,7 @@ class LoadXmlTest(TestCase):
     </event>
 </events>
 """)
-        date = ancestry.events['E0000'].date
+        date = ancestry.entities[Event]['E0000'].date
         self.assertEquals(1970, date.year)
         self.assertEquals(1, date.month)
         self.assertEquals(1, date.day)
@@ -267,14 +268,14 @@ class LoadXmlTest(TestCase):
     </event>
 </events>
 """)
-        date = ancestry.events['E0000'].date
+        date = ancestry.entities[Event]['E0000'].date
         self.assertEquals(1970, date.year)
         self.assertEquals(1, date.month)
         self.assertEquals(1, date.day)
         self.assertTrue(date.fuzzy)
 
     def test_date_should_load_about(self):
-        date = self.ancestry.events['E0007'].date
+        date = self.ancestry.entities[Event]['E0007'].date
         self.assertEquals(1970, date.year)
         self.assertEquals(1, date.month)
         self.assertEquals(1, date.day)
@@ -289,7 +290,7 @@ class LoadXmlTest(TestCase):
     </event>
 </events>
 """)
-        date = ancestry.events['E0000'].date
+        date = ancestry.entities[Event]['E0000'].date
         self.assertEquals(1970, date.start.year)
         self.assertEquals(1, date.start.month)
         self.assertEquals(1, date.start.day)
@@ -310,7 +311,7 @@ class LoadXmlTest(TestCase):
     </event>
 </events>
 """)
-        date = ancestry.events['E0000'].date
+        date = ancestry.entities[Event]['E0000'].date
         self.assertFalse(date.start.fuzzy)
         self.assertFalse(date.end.fuzzy)
 
@@ -323,7 +324,7 @@ class LoadXmlTest(TestCase):
     </event>
 </events>
 """)
-        date = ancestry.events['E0000'].date
+        date = ancestry.entities[Event]['E0000'].date
         self.assertTrue(date.start.fuzzy)
         self.assertTrue(date.end.fuzzy)
 
@@ -336,7 +337,7 @@ class LoadXmlTest(TestCase):
     </event>
 </events>
 """)
-        date = ancestry.events['E0000'].date
+        date = ancestry.entities[Event]['E0000'].date
         self.assertEquals(1970, date.start.year)
         self.assertEquals(1, date.start.month)
         self.assertEquals(1, date.start.day)
@@ -355,7 +356,7 @@ class LoadXmlTest(TestCase):
     </event>
 </events>
 """)
-        date = ancestry.events['E0000'].date
+        date = ancestry.entities[Event]['E0000'].date
         self.assertFalse(date.start.fuzzy)
         self.assertFalse(date.end.fuzzy)
 
@@ -368,36 +369,36 @@ class LoadXmlTest(TestCase):
     </event>
 </events>
 """)
-        date = ancestry.events['E0000'].date
+        date = ancestry.entities[Event]['E0000'].date
         self.assertTrue(date.start.fuzzy)
         self.assertTrue(date.end.fuzzy)
 
     def test_source_from_repository_should_include_name(self):
-        source = self.ancestry.sources['R0000']
+        source = self.ancestry.entities[Source]['R0000']
         self.assertEquals('Library of Alexandria', source.name)
 
     def test_source_from_repository_should_include_link(self):
-        links = self.ancestry.sources['R0000'].links
+        links = self.ancestry.entities[Source]['R0000'].links
         self.assertEquals(1, len(links))
         link = list(links)[0]
         self.assertEquals('https://alexandria.example.com', link.url)
         self.assertEquals('Library of Alexandria Catalogue', link.label)
 
     def test_source_from_source_should_include_title(self):
-        source = self.ancestry.sources['S0000']
+        source = self.ancestry.entities[Source]['S0000']
         self.assertEquals('A Whisper', source.name)
 
     def test_source_from_source_should_include_author(self):
-        source = self.ancestry.sources['S0000']
+        source = self.ancestry.entities[Source]['S0000']
         self.assertEquals('A Little Birdie', source.author)
 
     def test_source_from_source_should_include_publisher(self):
-        source = self.ancestry.sources['S0000']
+        source = self.ancestry.entities[Source]['S0000']
         self.assertEquals('Somewhere over the rainbow', source.publisher)
 
     def test_source_from_source_should_include_repository(self):
-        source = self.ancestry.sources['S0000']
-        containing_source = self.ancestry.sources['R0000']
+        source = self.ancestry.entities[Source]['S0000']
+        containing_source = self.ancestry.entities[Source]['R0000']
         self.assertEquals(containing_source, source.contained_by)
 
     @parameterized.expand([
@@ -415,7 +416,7 @@ class LoadXmlTest(TestCase):
     </person>
 </people>
 """ % attribute_value)
-        person = ancestry.people['I0000']
+        person = ancestry.entities[Person]['I0000']
         self.assertEquals(expected, person.private)
 
     @parameterized.expand([
@@ -433,7 +434,7 @@ class LoadXmlTest(TestCase):
     </event>
 </events>
 """ % attribute_value)
-        event = ancestry.events['E0000']
+        event = ancestry.entities[Event]['E0000']
         self.assertEquals(expected, event.private)
 
     @parameterized.expand([
@@ -451,7 +452,7 @@ class LoadXmlTest(TestCase):
     </object>
 </objects>
 """ % attribute_value)
-        file = ancestry.files['O0000']
+        file = ancestry.entities[File]['O0000']
         self.assertEquals(expected, file.private)
 
     @parameterized.expand([
@@ -469,7 +470,7 @@ class LoadXmlTest(TestCase):
     </source>
 </sources>
 """ % attribute_value)
-        source = ancestry.sources['S0000']
+        source = ancestry.entities[Source]['S0000']
         self.assertEquals(expected, source.private)
 
     @parameterized.expand([
@@ -493,7 +494,7 @@ class LoadXmlTest(TestCase):
     </source>
 </sources>
 """ % attribute_value)
-        citation = ancestry.citations['C0000']
+        citation = ancestry.entities[Citation]['C0000']
         self.assertEquals(expected, citation.private)
 
     def test_note_should_include_text(self) -> None:
@@ -504,7 +505,7 @@ class LoadXmlTest(TestCase):
     </note>
 </notes>
 """)
-        note = ancestry.notes['N0000']
+        note = ancestry.entities[Note]['N0000']
         self.assertEquals('I left this for you.', note.text)
 
 
@@ -633,19 +634,19 @@ class GrampsTest(TestCase):
                 )))
                 async with App(configuration) as app:
                     await load(app)
-                self.assertIn('O0001', app.ancestry.files)
-                self.assertIn('O0002', app.ancestry.files)
-                self.assertIn('I0001', app.ancestry.people)
-                self.assertIn('I0002', app.ancestry.people)
-                self.assertIn('P0001', app.ancestry.places)
-                self.assertIn('P0002', app.ancestry.places)
-                self.assertIn('E0001', app.ancestry.events)
-                self.assertIn('E0002', app.ancestry.events)
-                self.assertIn('S0001', app.ancestry.sources)
-                self.assertIn('S0002', app.ancestry.sources)
-                self.assertIn('R0001', app.ancestry.sources)
-                self.assertIn('R0002', app.ancestry.sources)
-                self.assertIn('C0001', app.ancestry.citations)
-                self.assertIn('C0002', app.ancestry.citations)
-                self.assertIn('N0001', app.ancestry.notes)
-                self.assertIn('N0002', app.ancestry.notes)
+                self.assertIn('O0001', app.ancestry.entities[File])
+                self.assertIn('O0002', app.ancestry.entities[File])
+                self.assertIn('I0001', app.ancestry.entities[Person])
+                self.assertIn('I0002', app.ancestry.entities[Person])
+                self.assertIn('P0001', app.ancestry.entities[Place])
+                self.assertIn('P0002', app.ancestry.entities[Place])
+                self.assertIn('E0001', app.ancestry.entities[Event])
+                self.assertIn('E0002', app.ancestry.entities[Event])
+                self.assertIn('S0001', app.ancestry.entities[Source])
+                self.assertIn('S0002', app.ancestry.entities[Source])
+                self.assertIn('R0001', app.ancestry.entities[Source])
+                self.assertIn('R0002', app.ancestry.entities[Source])
+                self.assertIn('C0001', app.ancestry.entities[Citation])
+                self.assertIn('C0002', app.ancestry.entities[Citation])
+                self.assertIn('N0001', app.ancestry.entities[Note])
+                self.assertIn('N0002', app.ancestry.entities[Note])

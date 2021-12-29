@@ -1,4 +1,4 @@
-from betty.ancestry import Person, Presence, Event, PersonName, Source, Citation, Birth, Subject, Death
+from betty.model.ancestry import Person, Presence, Event, PersonName, Source, Citation, Birth, Subject, Death
 from betty.asyncio import sync
 from betty.locale import Date
 from betty.tests import TemplateTestCase
@@ -29,10 +29,9 @@ class Test(TemplateTestCase):
     @sync
     async def test_with_one_alternative_name(self):
         person = Person('P0')
-        person.names.append(PersonName('Jane', 'Dough'))
-        name = PersonName('Janet', 'Doughnut')
-        name.citations.append(Citation(Source('The Source')))
-        person.names.append(name)
+        PersonName(person, 'Jane', 'Dough')
+        name = PersonName(person, 'Janet', 'Doughnut')
+        name.citations.append(Citation(None, Source(None, 'The Source')))
         expected = '<div class="meta person-meta"><span class="aka">Also known as <span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Janet</span> <span property="foaf:familyName">Doughnut</span></span><a href="#reference-1" class="citation">[1]</a></span></div>'
         async with self._render(data={
             'person': person,
@@ -42,9 +41,9 @@ class Test(TemplateTestCase):
     @sync
     async def test_with_multiple_alternative_names(self):
         person = Person('P0')
-        person.names.append(PersonName('Jane', 'Dough'))
-        person.names.append(PersonName('Janet', 'Doughnut'))
-        person.names.append(PersonName('Janetar', 'Of Doughnuton'))
+        PersonName(person, 'Jane', 'Dough')
+        PersonName(person, 'Janet', 'Doughnut')
+        PersonName(person, 'Janetar', 'Of Doughnuton')
         expected = '<div class="meta person-meta"><span class="aka">Also known as <span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Janet</span> <span property="foaf:familyName">Doughnut</span></span>, <span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Janetar</span> <span property="foaf:familyName">Of Doughnuton</span></span></span></div>'
         async with self._render(data={
             'person': person,
@@ -54,7 +53,7 @@ class Test(TemplateTestCase):
     @sync
     async def test_with_start(self):
         person = Person('P0')
-        Presence(person, Subject(), Event(Birth(), Date(1970)))
+        Presence(person, Subject(), Event(None, Birth(), Date(1970)))
         expected = '<div class="meta person-meta"><dl><div><dt>Birth</dt><dd>1970</dd></div></dl></div>'
         async with self._render(data={
             'person': person,
@@ -64,7 +63,7 @@ class Test(TemplateTestCase):
     @sync
     async def test_with_end(self):
         person = Person('P0')
-        Presence(person, Subject(), Event(Death(), Date(1970)))
+        Presence(person, Subject(), Event(None, Death(), Date(1970)))
         expected = '<div class="meta person-meta"><dl><div><dt>Death</dt><dd>1970</dd></div></dl></div>'
         async with self._render(data={
             'person': person,
@@ -74,11 +73,10 @@ class Test(TemplateTestCase):
     @sync
     async def test_embedded(self):
         person = Person('P0')
-        Presence(person, Subject(), Event(Birth(), Date(1970)))
-        person.names.append(PersonName('Jane', 'Dough'))
-        name = PersonName('Janet', 'Doughnut')
-        name.citations.append(Citation(Source('The Source')))
-        person.names.append(name)
+        Presence(person, Subject(), Event(None, Birth(), Date(1970)))
+        PersonName(person, 'Jane', 'Dough')
+        name = PersonName(person, 'Janet', 'Doughnut')
+        name.citations.append(Citation(None, Source(None, 'The Source')))
         expected = '<div class="meta person-meta"><span class="aka">Also known as <span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Janet</span> <span property="foaf:familyName">Doughnut</span></span></span><dl><div><dt>Birth</dt><dd>1970</dd></div></dl></div>'
         async with self._render(data={
             'person': person,

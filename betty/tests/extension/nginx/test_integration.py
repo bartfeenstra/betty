@@ -11,7 +11,7 @@ import requests
 from requests import Response
 
 from betty import generate
-from betty.ancestry import File
+from betty.model.ancestry import File
 from betty.app import App
 from betty.asyncio import sync
 from betty.config import from_file, Configuration, ExtensionConfiguration
@@ -191,7 +191,7 @@ class NginxTest(TestCase):
             ))
             app = App(configuration)
             file_id = 'FILE1'
-            app.ancestry.files.add(File(file_id, __file__))
+            app.ancestry.entities.append(File(file_id, __file__))
             async with self.NginxTestServer(app) as server:
                 response = requests.get(f'{server.public_url}/file/{file_id}.py', headers={
                     'Accept': 'application/json',

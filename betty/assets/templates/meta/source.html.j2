@@ -1,4 +1,4 @@
-{% set source = source | default(resource) %}
+{% set source = source | default(entity) %}
 <div class="meta">
 {% if source.contained_by %}
     {% with source=source.contained_by %}

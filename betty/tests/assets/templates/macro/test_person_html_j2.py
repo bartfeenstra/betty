@@ -1,4 +1,4 @@
-from betty.ancestry import PersonName, Citation, Source
+from betty.model.ancestry import PersonName, Citation, Source, Person
 from betty.asyncio import sync
 from betty.tests import TemplateTestCase
 
@@ -8,7 +8,8 @@ class TestNameLabel(TemplateTestCase):
 
     @sync
     async def test_with_full_name(self):
-        name = PersonName('Jane', 'Dough')
+        person = Person(None)
+        name = PersonName(person, 'Jane', 'Dough')
         expected = '<span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span> <span property="foaf:familyName">Dough</span></span>'
         async with self._render(data={
             'name': name,
@@ -17,7 +18,8 @@ class TestNameLabel(TemplateTestCase):
 
     @sync
     async def test_with_individual_name(self):
-        name = PersonName('Jane')
+        person = Person(None)
+        name = PersonName(person, 'Jane')
         expected = '<span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span></span>'
         async with self._render(data={
             'name': name,
@@ -26,7 +28,8 @@ class TestNameLabel(TemplateTestCase):
 
     @sync
     async def test_with_affiliation_name(self):
-        name = PersonName(None, 'Dough')
+        person = Person(None)
+        name = PersonName(person, None, 'Dough')
         expected = '<span class="person-label" typeof="foaf:Person">… <span property="foaf:familyName">Dough</span></span>'
         async with self._render(data={
             'name': name,
@@ -35,9 +38,10 @@ class TestNameLabel(TemplateTestCase):
 
     @sync
     async def test_embedded(self):
-        name = PersonName('Jane', 'Dough')
-        source = Source()
-        citation = Citation(source)
+        person = Person(None)
+        name = PersonName(person, 'Jane', 'Dough')
+        source = Source(None)
+        citation = Citation(None, source)
         name.citations.append(citation)
         expected = '<span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span> <span property="foaf:familyName">Dough</span></span>'
         async with self._render(data={
@@ -48,9 +52,10 @@ class TestNameLabel(TemplateTestCase):
 
     @sync
     async def test_with_citation(self):
-        name = PersonName('Jane')
-        source = Source()
-        citation = Citation(source)
+        person = Person(None)
+        name = PersonName(person, 'Jane')
+        source = Source(None)
+        citation = Citation(None, source)
         name.citations.append(citation)
         expected = '<span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span></span><a href="#reference-1" class="citation">[1]</a>'
         async with self._render(data={

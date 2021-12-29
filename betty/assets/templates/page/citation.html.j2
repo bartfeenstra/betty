@@ -16,7 +16,7 @@
             {% include 'list-file.html.j2' %}
         </section>
     {% endif %}
-    {% set facts = citation.facts | select('resource') | list %}
+    {% set facts = citation.facts | reject('generated_entity_id') | list %}
     {% if facts | length > 0 %}
         <section id="facts">
             <h2>
@@ -28,9 +28,9 @@
             <ul class="entities">
                 {% for fact in facts %}
                     <li class="{{ loop.cycle('odd', 'even') }}">
-                        {% with resource=fact, citation_context=citation %}
-                            {% include 'label/resource.html.j2' %}
-                            {% include 'meta/resource.html.j2' %}
+                        {% with entity=fact, citation_context=citation %}
+                            {% include 'label/entity.html.j2' %}
+                            {% include 'meta/entity.html.j2' %}
                         {% endwith %}
                     </li>
                 {% endfor %}
