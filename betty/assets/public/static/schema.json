@@ -170,7 +170,7 @@
         "notes": {
           "$ref": "#/definitions/notes"
         },
-        "resources": {
+        "entities": {
           "type": "array",
           "items": {
             "type": "string",
@@ -185,7 +185,7 @@
         "$schema",
         "id",
         "notes",
-        "resources"
+        "entities"
       ],
       "patternProperties": {
         "^@": {
@@ -512,6 +512,9 @@
         "id": {
           "type": "string"
         },
+        "links": {
+          "$ref": "#/definitions/links"
+        },
         "text": {
           "type": "string"
         }
@@ -519,6 +522,7 @@
       "required": [
         "$schema",
         "id",
+        "links",
         "text"
       ],
       "patternProperties": {
@@ -538,7 +542,7 @@
     },
     "id": {
       "type": "string",
-      "description": "A unique resource ID."
+      "description": "A unique ID."
     },
     "locale": {
       "type": "string",

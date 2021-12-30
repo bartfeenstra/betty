@@ -6,7 +6,8 @@ from unittest.mock import Mock
 
 from parameterized import parameterized
 
-from betty.ancestry import File, PlaceName, Subject, Attendee, Witness, Dated, Resource, Person, Place, Citation
+from betty.model import get_entity_type_name
+from betty.model.ancestry import File, PlaceName, Subject, Attendee, Witness, Dated, Entity, Person, Place, Citation
 from betty.config import Configuration, LocaleConfiguration, ExtensionConfiguration
 from betty.asyncio import sync
 from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider
@@ -14,6 +15,7 @@ from betty.locale import Date, Datey, DateRange, Localized
 from betty.media_type import MediaType
 from betty.extension import Extension
 from betty.app import App
+from betty.string import camel_case_to_snake_case
 from betty.tests import TemplateTestCase
 
 
@@ -498,8 +500,8 @@ class TestResourceTest(TemplateTestCase):
         ('false', Person, object()),
     ])
     @sync
-    async def test(self, expected, resource_type: Type[Resource], data) -> None:
-        template = f'{{% if data is {resource_type.resource_type_name()}_resource %}}true{{% else %}}false{{% endif %}}'
+    async def test(self, expected, entity_type: Type[Entity], data) -> None:
+        template = f'{{% if data is {camel_case_to_snake_case(get_entity_type_name(entity_type))}_entity %}}true{{% else %}}false{{% endif %}}'
         async with self._render(template_string=template, data={
             'data': data,
         }) as (actual, _):

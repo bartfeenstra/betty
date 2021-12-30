@@ -1,17 +1,18 @@
 import logging
-from typing import List, Tuple, Set, Type, Iterable
+from typing import List, Tuple, Set, Type, Iterable, Optional
 
-from betty.ancestry import Person, Presence, Event, Subject, EventType, EVENT_TYPE_TYPES, DerivableEventType, \
+from betty.model.ancestry import Person, Presence, Event, Subject, EventType, EVENT_TYPE_TYPES, DerivableEventType, \
     CreatableDerivableEventType, Ancestry
 from betty.gui import GuiBuilder
-from betty.locale import DateRange, Date
+from betty.locale import DateRange, Date, Datey
 from betty.load import PostLoader
 from betty.extension import Extension
 from betty.extension.privatizer import Privatizer
 
 
 class DerivedEvent(Event):
-    pass  # pragma: no cover
+    def __init__(self, event_type: EventType, date: Optional[Datey] = None):
+        super().__init__(None, event_type, date)
 
 
 class DerivedDate(Date):
@@ -31,7 +32,7 @@ class Deriver(Extension, PostLoader, GuiBuilder):
             if isinstance(event_type, DerivableEventType):
                 created_derivations = 0
                 updated_derivations = 0
-                for person in ancestry.people:
+                for person in ancestry.entities[Person]:
                     created, updated = derive(person, event_type_type)
                     created_derivations += created
                     updated_derivations += updated

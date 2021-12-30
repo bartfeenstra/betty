@@ -13,21 +13,21 @@ from geopy import Point
 from reactives import reactive, ReactiveList
 from voluptuous import Schema, All, Invalid, Required
 
-from betty.ancestry import Ancestry, Place, File, Note, PersonName, Presence, PlaceName, Person, Link, HasFiles, \
-    HasLinks, HasCitations, IdentifiableEvent, HasPrivacy, IdentifiableSource, IdentifiableCitation, Subject, Witness, \
-    Attendee, Birth, Baptism, Adoption, Cremation, Death, Burial, Engagement, Marriage, MarriageAnnouncement, Divorce, \
-    DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, Retirement, Correspondence, Confirmation, \
-    Funeral, Will, Beneficiary, Enclosure, UnknownEventType, Missing, Event, Source, Citation
 from betty.config import Path, ConfigurationError
 from betty.error import UserFacingError
+from betty.extension import ConfigurableExtension, Configuration
 from betty.gui import GuiBuilder, catch_exceptions, BettyWindow, mark_valid, mark_invalid, Text
+from betty.load import Loader, getLogger
 from betty.locale import DateRange, Datey, Date
 from betty.media_type import MediaType
-from betty.load import Loader, getLogger
+from betty.model.ancestry import Ancestry, Place, File, Note, PersonName, Presence, PlaceName, Person, Link, HasFiles, \
+    HasLinks, HasCitations, HasPrivacy, Subject, Witness, Attendee, Birth, Baptism, Adoption, Cremation, Death, Burial, \
+    Engagement, Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, Emigration, \
+    Occupation, Retirement, Correspondence, Confirmation, Funeral, Will, Beneficiary, Enclosure, UnknownEventType, \
+    Missing, Event, Source, Citation
 from betty.os import PathLike
 from betty.path import rootname
 from betty.voluptuous import Path as VoluptuousPath
-from betty.extension import ConfigurableExtension, Configuration
 
 
 class GrampsLoadFileError(UserFacingError):
@@ -127,19 +127,19 @@ class _Loader:
 
     def _populate_ancestry(self):
         for file in self._files.values():
-            self._ancestry.files.add(file.file)
+            self._ancestry.entities.append(file.file)
         for person in self._people.values():
-            self._ancestry.people.add(person)
+            self._ancestry.entities.append(person)
         for place in self._places.values():
-            self._ancestry.places.add(place)
+            self._ancestry.entities.append(place)
         for event in self._events.values():
-            self._ancestry.events.add(event)
+            self._ancestry.entities.append(event)
         for source in self._sources.values():
-            self._ancestry.sources.add(source)
+            self._ancestry.entities.append(source)
         for citation in self._citations.values():
-            self._ancestry.citations.add(citation)
+            self._ancestry.entities.append(citation)
         for note in self._notes.values():
-            self._ancestry.notes.add(note)
+            self._ancestry.entities[Note].append(note)
 
     def load(self) -> None:
         logger = getLogger()
@@ -279,8 +279,8 @@ def _load_person(loader: _Loader, element: ElementTree.Element):
     handle = element.get('handle')
     person = Person(element.get('id'))
 
-    names = []
-    for name_element in _xpath(element, './ns:name'):
+    name_elements = sorted(_xpath(element, './ns:name'), key=lambda x: x.get('alt') == '1')
+    for name_element in name_elements:
         is_alternative = name_element.get('alt') == '1'
         individual_name_element = _xpath1(name_element, './ns:first')
         individual_name = None if individual_name_element is None else individual_name_element.text
@@ -295,18 +295,11 @@ def _load_person(loader: _Loader, element: ElementTree.Element):
                 if surname_prefix is not None:
                     affiliation_name = '%s %s' % (
                         surname_prefix, affiliation_name)
-                name = PersonName(individual_name, affiliation_name)
+                name = PersonName(person, individual_name, affiliation_name)
                 _load_citationref(loader, name, name_element)
-                names.append((name, is_alternative))
         elif individual_name is not None:
-            name = PersonName(individual_name)
+            name = PersonName(person, individual_name)
             _load_citationref(loader, name, name_element)
-            names.append((name, is_alternative))
-    for name, is_alternative in names:
-        if is_alternative:
-            person.names.append(name)
-        else:
-            person.names.prepend(name)
 
     _load_eventrefs(loader, person, element)
     if element.get('priv') == '1':
@@ -458,7 +451,7 @@ def _load_event(loader: _Loader, element: ElementTree.Element):
         getLogger().warning(
             'Betty is unfamiliar with Gramps event "%s"\'s type of "%s". The event was imported, but its type was set to "%s".' % (event_id, gramps_type.text, event_type.label))
 
-    event = IdentifiableEvent(event_id, event_type)
+    event = Event(event_id, event_type)
 
     event.date = _load_date(element)
 
@@ -486,7 +479,7 @@ def _load_repositories(loader: _Loader, database: ElementTree.Element) -> None:
 def _load_repository(loader: _Loader, element: ElementTree.Element) -> None:
     handle = element.get('handle')
 
-    source = IdentifiableSource(element.get('id'), _xpath1(element, './ns:rname').text)
+    source = Source(element.get('id'), _xpath1(element, './ns:rname').text)
 
     _load_urls(source, element)
 
@@ -501,7 +494,7 @@ def _load_sources(loader: _Loader, database: ElementTree.Element):
 def _load_source(loader: _Loader, element: ElementTree.Element) -> None:
     handle = element.get('handle')
 
-    source = IdentifiableSource(element.get('id'), _xpath1(element, './ns:stitle').text)
+    source = Source(element.get('id'), _xpath1(element, './ns:stitle').text)
 
     repository_source_handle_element = _xpath1(element, './ns:reporef')
     if repository_source_handle_element is not None:
@@ -532,7 +525,7 @@ def _load_citation(loader: _Loader, element: ElementTree.Element) -> None:
     handle = element.get('handle')
     source_handle = _xpath1(element, './ns:sourceref').get('hlink')
 
-    citation = IdentifiableCitation(element.get('id'), loader._sources[source_handle])
+    citation = Citation(element.get('id'), loader._sources[source_handle])
 
     citation.date = _load_date(element)
     _load_objref(loader, citation, element)

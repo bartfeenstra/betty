@@ -1,4 +1,4 @@
-from betty.ancestry import PlaceName, Place, Enclosure
+from betty.model.ancestry import PlaceName, Place, Enclosure
 from betty.asyncio import sync
 from betty.tests import TemplateTestCase
 

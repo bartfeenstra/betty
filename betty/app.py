@@ -23,7 +23,7 @@ from betty.render import Renderer, SequentialRenderer
 from copy import copy
 from typing import Type, Dict, Sequence, List
 
-from betty.ancestry import Ancestry
+from betty.model.ancestry import Ancestry
 from betty.config import Configuration
 from betty.fs import FileSystem
 from betty.locale import open_translations, Translations, negotiate_locale

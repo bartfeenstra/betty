@@ -5,7 +5,7 @@ except ImportError:
     from graphlib_backport import TopologicalSorter
 from typing import Set, Type, Dict
 
-from betty.ancestry import Ancestry, Place, File, Person, Event, Source, Citation
+from betty.model.ancestry import Ancestry, Place, File, Person, Event, Source, Citation
 from betty.gui import GuiBuilder
 from betty.load import PostLoader
 from betty.extension import Extension
@@ -22,7 +22,7 @@ def clean(ancestry: Ancestry) -> None:
 
 
 def _clean_events(ancestry: Ancestry) -> None:
-    for event in ancestry.events:
+    for event in ancestry.entities[Event]:
         _clean_event(ancestry, event)
 
 
@@ -34,11 +34,11 @@ def _clean_event(ancestry: Ancestry, event: Event) -> None:
     del event.place
     del event.citations
     del event.files
-    ancestry.events.remove(event)
+    del ancestry.entities[Event][event]
 
 
 def _clean_places(ancestry: Ancestry) -> None:
-    places = list(ancestry.places)
+    places = ancestry.entities[Place]
 
     def _extend_place_graph(graph: Dict, enclosing_place: Place) -> None:
         enclosures = enclosing_place.encloses
@@ -67,11 +67,11 @@ def _clean_place(ancestry: Ancestry, place: Place) -> None:
         return
 
     del place.enclosed_by
-    ancestry.places.remove(place)
+    del ancestry.entities[Place][place]
 
 
 def _clean_people(ancestry: Ancestry) -> None:
-    for person in list(ancestry.people):
+    for person in ancestry.entities[Person]:
         _clean_person(ancestry, person)
 
 
@@ -82,26 +82,26 @@ def _clean_person(ancestry: Ancestry, person: Person) -> None:
     if len(person.children) > 0:
         return
 
-    ancestry.people.remove(person)
+    del ancestry.entities[Person][person]
 
 
 def _clean_files(ancestry: Ancestry) -> None:
-    for file in list(ancestry.files):
+    for file in ancestry.entities[File]:
         _clean_file(ancestry, file)
 
 
 def _clean_file(ancestry: Ancestry, file: File) -> None:
-    if len(file.resources) > 0:
+    if len(file.entities) > 0:
         return
 
     if len(file.citations) > 0:
         return
 
-    ancestry.files.remove(file)
+    del ancestry.entities[File][file]
 
 
 def _clean_sources(ancestry: Ancestry) -> None:
-    for source in list(ancestry.sources):
+    for source in ancestry.entities[Source]:
         _clean_source(ancestry, source)
 
 
@@ -118,11 +118,11 @@ def _clean_source(ancestry: Ancestry, source: Source) -> None:
     if len(source.files) > 0:
         return
 
-    ancestry.sources.remove(source)
+    del ancestry.entities[Source][source]
 
 
 def _clean_citations(ancestry: Ancestry) -> None:
-    for citation in list(ancestry.citations):
+    for citation in ancestry.entities[Citation]:
         _clean_citation(ancestry, citation)
 
 
@@ -134,7 +134,7 @@ def _clean_citation(ancestry: Ancestry, citation: Citation) -> None:
         return
 
     del citation.source
-    ancestry.citations.remove(citation)
+    del ancestry.entities[Citation][citation]
 
 
 class Cleaner(Extension, PostLoader, GuiBuilder):

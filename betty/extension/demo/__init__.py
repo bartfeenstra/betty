@@ -2,8 +2,8 @@ from typing import Set, Type
 
 from geopy import Point
 
-from betty.ancestry import Place, PlaceName, Person, Presence, Subject, Birth, IdentifiableEvent, \
-    PersonName, IdentifiableSource, IdentifiableCitation, Link, Death, Marriage
+from betty.model.ancestry import Place, PlaceName, Person, Presence, Subject, Birth, PersonName, Link, Death, Marriage, \
+    Source, Citation, Event
 from betty.extension import Extension
 from betty.extension.redoc import ReDoc
 from betty.extension.wikipedia import Wikipedia
@@ -20,132 +20,132 @@ class Demo(Extension, Loader):
         amsterdam = Place('betty-demo-amsterdam', [PlaceName('Amsterdam')])
         amsterdam.coordinates = Point(52.366667, 4.9)
         amsterdam.links.add(Link('https://nl.wikipedia.org/wiki/Amsterdam'))
-        self._app.ancestry.places.add(amsterdam)
+        self._app.ancestry.entities.append(amsterdam)
 
         ilpendam = Place('betty-demo-ilpendam', [PlaceName('Ilpendam')])
         ilpendam.coordinates = Point(52.465556, 4.951111)
         ilpendam.links.add(Link('https://nl.wikipedia.org/wiki/Ilpendam'))
-        self._app.ancestry.places.add(ilpendam)
+        self._app.ancestry.entities.append(ilpendam)
 
-        personal_accounts = IdentifiableSource('betty-demo-personal-accounts', 'Personal accounts')
-        self._app.ancestry.sources.add(personal_accounts)
+        personal_accounts = Source('betty-demo-personal-accounts', 'Personal accounts')
+        self._app.ancestry.entities.append(personal_accounts)
 
-        cite_first_person_account = IdentifiableCitation('betty-demo-first-person-account', personal_accounts)
-        self._app.ancestry.citations.add(cite_first_person_account)
+        cite_first_person_account = Citation('betty-demo-first-person-account', personal_accounts)
+        self._app.ancestry.entities.append(cite_first_person_account)
 
-        bevolkingsregister_amsterdam = IdentifiableSource('betty-demo-bevolkingsregister-amsterdam', 'Bevolkingsregister Amsterdam')
+        bevolkingsregister_amsterdam = Source('betty-demo-bevolkingsregister-amsterdam', 'Bevolkingsregister Amsterdam')
         bevolkingsregister_amsterdam.author = 'Gemeente Amsterdam'
         bevolkingsregister_amsterdam.publisher = 'Gemeente Amsterdam'
-        self._app.ancestry.sources.add(bevolkingsregister_amsterdam)
+        self._app.ancestry.entities.append(bevolkingsregister_amsterdam)
 
         david_marinus_lankester = Person('betty-demo-david-marinus-lankester')
-        david_marinus_lankester.names.append(PersonName('David Marinus', 'Lankester'))
-        self._app.ancestry.people.add(david_marinus_lankester)
+        PersonName(david_marinus_lankester, 'David Marinus', 'Lankester')
+        self._app.ancestry.entities.append(david_marinus_lankester)
 
         geertruida_van_ling = Person('betty-demo-geertruida-van-ling')
-        geertruida_van_ling.names.append(PersonName('Geertruida', 'Van Ling'))
-        self._app.ancestry.people.add(geertruida_van_ling)
+        PersonName(geertruida_van_ling, 'Geertruida', 'Van Ling')
+        self._app.ancestry.entities.append(geertruida_van_ling)
 
-        marriage_of_dirk_jacobus_lankester_and_jannigje_palsen = IdentifiableEvent('betty-demo-marriage-of-dirk-jacobus-lankester-and-jannigje-palsen', Marriage(), Date(1922, 7, 4))
+        marriage_of_dirk_jacobus_lankester_and_jannigje_palsen = Event('betty-demo-marriage-of-dirk-jacobus-lankester-and-jannigje-palsen', Marriage(), Date(1922, 7, 4))
         marriage_of_dirk_jacobus_lankester_and_jannigje_palsen.place = ilpendam
-        self._app.ancestry.events.add(marriage_of_dirk_jacobus_lankester_and_jannigje_palsen)
+        self._app.ancestry.entities.append(marriage_of_dirk_jacobus_lankester_and_jannigje_palsen)
 
-        birth_of_dirk_jacobus_lankester = IdentifiableEvent('betty-demo-birth-of-dirk-jacobus-lankester', Birth(), Date(1897, 8, 25))
+        birth_of_dirk_jacobus_lankester = Event('betty-demo-birth-of-dirk-jacobus-lankester', Birth(), Date(1897, 8, 25))
         birth_of_dirk_jacobus_lankester.place = amsterdam
-        self._app.ancestry.events.add(birth_of_dirk_jacobus_lankester)
+        self._app.ancestry.entities.append(birth_of_dirk_jacobus_lankester)
 
-        death_of_dirk_jacobus_lankester = IdentifiableEvent('betty-demo-death-of-dirk-jacobus-lankester', Death(), Date(1986, 8, 18))
+        death_of_dirk_jacobus_lankester = Event('betty-demo-death-of-dirk-jacobus-lankester', Death(), Date(1986, 8, 18))
         death_of_dirk_jacobus_lankester.place = amsterdam
-        self._app.ancestry.events.add(death_of_dirk_jacobus_lankester)
+        self._app.ancestry.entities.append(death_of_dirk_jacobus_lankester)
 
         dirk_jacobus_lankester = Person('betty-demo-dirk-jacobus-lankester')
-        dirk_jacobus_lankester.names.append(PersonName('Dirk Jacobus', 'Lankester'))
+        PersonName(dirk_jacobus_lankester, 'Dirk Jacobus', 'Lankester')
         Presence(dirk_jacobus_lankester, Subject(), birth_of_dirk_jacobus_lankester)
         Presence(dirk_jacobus_lankester, Subject(), death_of_dirk_jacobus_lankester)
         Presence(dirk_jacobus_lankester, Subject(), marriage_of_dirk_jacobus_lankester_and_jannigje_palsen)
         dirk_jacobus_lankester.parents.append(david_marinus_lankester, geertruida_van_ling)
-        self._app.ancestry.people.add(dirk_jacobus_lankester)
+        self._app.ancestry.entities.append(dirk_jacobus_lankester)
 
-        birth_of_marinus_david_lankester = IdentifiableEvent('betty-demo-birth-of-marinus-david', Birth(), DateRange(Date(1874, 1, 15), Date(1874, 3, 21), start_is_boundary=True, end_is_boundary=True))
+        birth_of_marinus_david_lankester = Event('betty-demo-birth-of-marinus-david', Birth(), DateRange(Date(1874, 1, 15), Date(1874, 3, 21), start_is_boundary=True, end_is_boundary=True))
         birth_of_marinus_david_lankester.place = amsterdam
-        self._app.ancestry.events.add(birth_of_marinus_david_lankester)
+        self._app.ancestry.entities.append(birth_of_marinus_david_lankester)
 
-        death_of_marinus_david_lankester = IdentifiableEvent('betty-demo-death-of-marinus-david', Death(), Date(1971))
+        death_of_marinus_david_lankester = Event('betty-demo-death-of-marinus-david', Death(), Date(1971))
         death_of_marinus_david_lankester.place = amsterdam
-        self._app.ancestry.events.add(death_of_marinus_david_lankester)
+        self._app.ancestry.entities.append(death_of_marinus_david_lankester)
 
         marinus_david_lankester = Person('betty-demo-marinus-david-lankester')
-        marinus_david_lankester.names.append(PersonName('Marinus David', 'Lankester'))
+        PersonName(marinus_david_lankester, 'Marinus David', 'Lankester')
         Presence(marinus_david_lankester, Subject(), birth_of_marinus_david_lankester)
         Presence(marinus_david_lankester, Subject(), death_of_marinus_david_lankester)
         marinus_david_lankester.parents.append(david_marinus_lankester, geertruida_van_ling)
-        self._app.ancestry.people.add(marinus_david_lankester)
+        self._app.ancestry.entities.append(marinus_david_lankester)
 
-        birth_of_jacoba_gesina_lankester = IdentifiableEvent('betty-demo-birth-of-jacoba-gesina', Birth(), Date(1900, 3, 14))
+        birth_of_jacoba_gesina_lankester = Event('betty-demo-birth-of-jacoba-gesina', Birth(), Date(1900, 3, 14))
         birth_of_jacoba_gesina_lankester.place = amsterdam
-        self._app.ancestry.events.add(birth_of_jacoba_gesina_lankester)
+        self._app.ancestry.entities.append(birth_of_jacoba_gesina_lankester)
 
         jacoba_gesina_lankester = Person('betty-demo-jacoba-gesina-lankester')
-        jacoba_gesina_lankester.names.append(PersonName('Jacoba Gesina', 'Lankester'))
+        PersonName(jacoba_gesina_lankester, 'Jacoba Gesina', 'Lankester')
         Presence(jacoba_gesina_lankester, Subject(), birth_of_jacoba_gesina_lankester)
         jacoba_gesina_lankester.parents.append(david_marinus_lankester, geertruida_van_ling)
-        self._app.ancestry.people.add(jacoba_gesina_lankester)
+        self._app.ancestry.entities.append(jacoba_gesina_lankester)
 
         jannigje_palsen = Person('betty-demo-jannigje-palsen')
-        jannigje_palsen.names.append(PersonName('Jannigje', 'Palsen'))
+        PersonName(jannigje_palsen, 'Jannigje', 'Palsen')
         Presence(jannigje_palsen, Subject(), marriage_of_dirk_jacobus_lankester_and_jannigje_palsen)
-        self._app.ancestry.people.add(jannigje_palsen)
+        self._app.ancestry.entities.append(jannigje_palsen)
 
-        marriage_of_johan_de_boer_and_liberta_lankester = IdentifiableEvent('betty-demo-marriage-of-johan-de-boer-and-liberta-lankester', Marriage(), Date(1953, 6, 19))
+        marriage_of_johan_de_boer_and_liberta_lankester = Event('betty-demo-marriage-of-johan-de-boer-and-liberta-lankester', Marriage(), Date(1953, 6, 19))
         marriage_of_johan_de_boer_and_liberta_lankester.place = amsterdam
-        self._app.ancestry.events.add(marriage_of_johan_de_boer_and_liberta_lankester)
+        self._app.ancestry.entities.append(marriage_of_johan_de_boer_and_liberta_lankester)
 
-        cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam = IdentifiableCitation('betty-demo-birth-of-liberta-lankester-from-bevolkingsregister-amsterdam', bevolkingsregister_amsterdam)
+        cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam = Citation('betty-demo-birth-of-liberta-lankester-from-bevolkingsregister-amsterdam', bevolkingsregister_amsterdam)
         cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam.location = 'Amsterdam'
-        self._app.ancestry.citations.add(cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam)
+        self._app.ancestry.entities.append(cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam)
 
-        birth_of_liberta_lankester = IdentifiableEvent('betty-demo-birth-of-liberta-lankester', Birth(), Date(1929, 12, 22))
+        birth_of_liberta_lankester = Event('betty-demo-birth-of-liberta-lankester', Birth(), Date(1929, 12, 22))
         birth_of_liberta_lankester.place = amsterdam
         birth_of_liberta_lankester.citations.append(cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam)
-        self._app.ancestry.events.add(birth_of_liberta_lankester)
+        self._app.ancestry.entities.append(birth_of_liberta_lankester)
 
-        death_of_liberta_lankester = IdentifiableEvent('betty-demo-death-of-liberta-lankester', Death(), Date(2015, 1, 17))
+        death_of_liberta_lankester = Event('betty-demo-death-of-liberta-lankester', Death(), Date(2015, 1, 17))
         death_of_liberta_lankester.place = amsterdam
         death_of_liberta_lankester.citations.append(cite_first_person_account)
-        self._app.ancestry.events.add(death_of_liberta_lankester)
+        self._app.ancestry.entities.append(death_of_liberta_lankester)
 
         liberta_lankester = Person('betty-demo-liberta-lankester')
-        liberta_lankester.names.append(PersonName('Liberta', 'Lankester'))
-        liberta_lankester.names.append(PersonName('Betty'))
+        PersonName(liberta_lankester, 'Liberta', 'Lankester')
+        PersonName(liberta_lankester, 'Betty')
         Presence(liberta_lankester, Subject(), birth_of_liberta_lankester)
         Presence(liberta_lankester, Subject(), death_of_liberta_lankester)
         Presence(liberta_lankester, Subject(), marriage_of_johan_de_boer_and_liberta_lankester)
         liberta_lankester.parents.append(dirk_jacobus_lankester, jannigje_palsen)
-        self._app.ancestry.people.add(liberta_lankester)
+        self._app.ancestry.entities.append(liberta_lankester)
 
-        birth_of_johan_de_boer = IdentifiableEvent('betty-demo-birth-of-johan-de-boer', Birth(), Date(1930, 6, 20))
+        birth_of_johan_de_boer = Event('betty-demo-birth-of-johan-de-boer', Birth(), Date(1930, 6, 20))
         birth_of_johan_de_boer.place = amsterdam
-        self._app.ancestry.events.add(birth_of_johan_de_boer)
+        self._app.ancestry.entities.append(birth_of_johan_de_boer)
 
-        death_of_johan_de_boer = IdentifiableEvent('betty-demo-death-of-johan-de-boer', Death(), Date(1999, 3, 10))
+        death_of_johan_de_boer = Event('betty-demo-death-of-johan-de-boer', Death(), Date(1999, 3, 10))
         death_of_johan_de_boer.place = amsterdam
         death_of_johan_de_boer.citations.append(cite_first_person_account)
-        self._app.ancestry.events.add(death_of_johan_de_boer)
+        self._app.ancestry.entities.append(death_of_johan_de_boer)
 
         johan_de_boer = Person('betty-demo-johan-de-boer')
-        johan_de_boer.names.append(PersonName('Johan', 'De Boer'))
-        johan_de_boer.names.append(PersonName('Hans'))
+        PersonName(johan_de_boer, 'Johan', 'De Boer')
+        PersonName(johan_de_boer, 'Hans')
         Presence(johan_de_boer, Subject(), birth_of_johan_de_boer)
         Presence(johan_de_boer, Subject(), death_of_johan_de_boer)
         Presence(johan_de_boer, Subject(), marriage_of_johan_de_boer_and_liberta_lankester)
-        self._app.ancestry.people.add(johan_de_boer)
+        self._app.ancestry.entities.append(johan_de_boer)
 
         parent_of_bart_feenstra_child_of_liberta_lankester = Person('betty-demo-parent-of-bart-feenstra-child-of-liberta-lankester')
-        parent_of_bart_feenstra_child_of_liberta_lankester.names.append(PersonName('Bart\'s parent'))
+        PersonName(parent_of_bart_feenstra_child_of_liberta_lankester, 'Bart\'s parent')
         parent_of_bart_feenstra_child_of_liberta_lankester.parents.append(johan_de_boer, liberta_lankester)
-        self._app.ancestry.people.add(parent_of_bart_feenstra_child_of_liberta_lankester)
+        self._app.ancestry.entities.append(parent_of_bart_feenstra_child_of_liberta_lankester)
 
         bart_feenstra = Person('betty-demo-bart-feenstra')
-        bart_feenstra.names.append(PersonName('Bart', 'Feenstra'))
+        PersonName(bart_feenstra, 'Bart', 'Feenstra')
         bart_feenstra.parents.append(parent_of_bart_feenstra_child_of_liberta_lankester)
-        self._app.ancestry.people.add(bart_feenstra)
+        self._app.ancestry.entities.append(bart_feenstra)

@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from typing import Optional, List
 
-from betty.ancestry import Ancestry, Person, Event, Citation, Source, HasPrivacy, Subject, File, HasFiles, HasCitations
+from betty.model.ancestry import Ancestry, Person, Event, Citation, Source, HasPrivacy, Subject, File, HasFiles, HasCitations
 from betty.functools import walk
 from betty.gui import GuiBuilder
 from betty.locale import DateRange, Date
@@ -27,7 +27,7 @@ def privatize(ancestry: Ancestry, lifetime_threshold: int = 125) -> None:
     seen = []
 
     privatized = 0
-    for person in ancestry.people:
+    for person in ancestry.entities[Person]:
         private = person.private
         _privatize_person(person, seen, lifetime_threshold)
         if private is None and person.private is True:
@@ -35,16 +35,16 @@ def privatize(ancestry: Ancestry, lifetime_threshold: int = 125) -> None:
     logger = logging.getLogger()
     logger.info('Privatized %d people because they are likely still alive.' % privatized)
 
-    for citation in ancestry.citations:
+    for citation in ancestry.entities[Citation]:
         _privatize_citation(citation, seen)
 
-    for source in ancestry.sources:
+    for source in ancestry.entities[Source]:
         _privatize_source(source, seen)
 
-    for event in ancestry.events:
+    for event in ancestry.entities[Event]:
         _privatize_event(event, seen)
 
-    for file in ancestry.files:
+    for file in ancestry.entities[File]:
         _privatize_file(file, seen)
 
 

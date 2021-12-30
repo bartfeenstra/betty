@@ -1,6 +1,6 @@
 from typing import Set, Type
 
-from betty.ancestry import Ancestry, Person, File, Citation, Source, Event
+from betty.model.ancestry import Ancestry, Person, File, Citation, Source, Event
 from betty.functools import walk
 from betty.gui import GuiBuilder
 from betty.load import PostLoader
@@ -9,8 +9,10 @@ from betty.extension.privatizer import Privatizer
 
 
 class AnonymousSource(Source):
+    _ID = 'betty-anonymous-source'
+
     def __init__(self):
-        Source.__init__(self, _('Private'))
+        super().__init__(self._ID, _('Private'))
 
     def replace(self, other: Source) -> None:
         self.citations.append(*other.citations)
@@ -19,8 +21,10 @@ class AnonymousSource(Source):
 
 
 class AnonymousCitation(Citation):
+    _ID = 'betty-anonymous-citation'
+
     def __init__(self, source: Source):
-        Citation.__init__(self, source)
+        super().__init__(self._ID, source)
         self.location = _("A citation is available, but has not been published in order to protect people's privacy")
 
     def replace(self, other: Citation) -> None:
@@ -28,22 +32,24 @@ class AnonymousCitation(Citation):
         self.files.append(*other.files)
 
 
-def anonymize(ancestry: Ancestry) -> None:
-    anonymous_source = AnonymousSource()
-    anonymous_citation = AnonymousCitation(anonymous_source)
-    for person in ancestry.people:
+def anonymize(ancestry: Ancestry, anonymous_citation: AnonymousCitation) -> None:
+    anonymous_source = anonymous_citation.source
+    if not isinstance(anonymous_source, AnonymousSource):
+        raise ValueError(f"The anonymous citation's source must be a {AnonymousSource}")
+
+    for person in ancestry.entities[Person]:
         if person.private:
             anonymize_person(person)
-    for event in ancestry.events:
+    for event in ancestry.entities[Event]:
         if event.private:
             anonymize_event(event)
-    for file in ancestry.files:
+    for file in ancestry.entities[File]:
         if file.private:
             anonymize_file(file)
-    for source in ancestry.sources:
+    for source in ancestry.entities[Source]:
         if source.private:
             anonymize_source(source, anonymous_source)
-    for citation in ancestry.citations:
+    for citation in ancestry.entities[Citation]:
         if citation.private:
             anonymize_citation(citation, anonymous_citation)
 
@@ -77,7 +83,7 @@ def anonymize_event(event: Event) -> None:
 
 
 def anonymize_file(file: File) -> None:
-    del file.resources
+    del file.entities
 
 
 def anonymize_source(source: Source, anonymous_source: AnonymousSource) -> None:
@@ -101,7 +107,7 @@ class Anonymizer(Extension, PostLoader, GuiBuilder):
         return {Privatizer}
 
     async def post_load(self) -> None:
-        anonymize(self._app.ancestry)
+        anonymize(self._app.ancestry, AnonymousCitation(AnonymousSource()))
 
     @classmethod
     def gui_name(cls) -> str:

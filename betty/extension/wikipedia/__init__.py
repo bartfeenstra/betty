@@ -14,7 +14,7 @@ import aiohttp
 from babel import parse_locale
 from jinja2 import pass_context
 
-from betty.ancestry import Link, HasLinks, Resource
+from betty.model.ancestry import Link, HasLinks, Entity
 from betty.app import App
 from betty.asyncio import sync
 from betty.extension import Extension
@@ -143,14 +143,14 @@ class _Populator:
 
     async def populate(self) -> None:
         locales = set(map(lambda x: x.alias, self._app.configuration.locales))
-        await asyncio.gather(*[self._populate_resource(resource, locales) for resource in self._app.ancestry.resources])
+        await asyncio.gather(*[self._populate_entity(entity, locales) for entity in self._app.ancestry.entities])
 
-    async def _populate_resource(self, resource: Resource, locales: Set[str]) -> None:
-        if not isinstance(resource, HasLinks):
+    async def _populate_entity(self, entity: Entity, locales: Set[str]) -> None:
+        if not isinstance(entity, HasLinks):
             return
 
         entry_links = set()
-        for link in resource.links:
+        for link in entity.links:
             try:
                 entry_language, entry_name = _parse_url(link.url)
                 entry_links.add((entry_language, entry_name))
@@ -181,7 +181,7 @@ class _Populator:
                     continue
                 added_link = Link(added_entry.url)
                 await self.populate_link(added_link, added_entry_language, added_entry)
-                resource.links.add(added_link)
+                entity.links.add(added_link)
                 entry_links.add((added_entry_language, added_entry_name))
 
     async def populate_link(self, link: Link, entry_language: str, entry: Optional[Entry] = None) -> None:

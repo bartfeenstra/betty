@@ -16,7 +16,7 @@ import aiohttp
 from aioresponses import aioresponses
 from parameterized import parameterized
 
-from betty.ancestry import Source, IdentifiableCitation, IdentifiableSource, Link
+from betty.model.ancestry import Source, Link, Citation
 from betty.config import Configuration, LocaleConfiguration, ExtensionConfiguration
 from betty.asyncio import sync
 from betty.load import load
@@ -346,28 +346,28 @@ class PopulatorTest(TestCase):
     @sync
     async def test_populate_should_ignore_resource_without_link_support(self, m_retriever) -> None:
         source = Source('The Source')
-        resource = IdentifiableCitation('the_citation', source)
+        resource = Citation('the_citation', source)
         with TemporaryDirectory() as output_directory_path:
             with TemporaryDirectory() as cache_directory_path:
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
                 async with App(configuration) as app:
-                    app.ancestry.citations.add(resource)
+                    app.ancestry.entities.append(resource)
                     sut = _Populator(app, m_retriever)
                     await sut.populate()
 
     @patch('betty.extension.wikipedia._Retriever')
     @sync
     async def test_populate_should_ignore_resource_without_links(self, m_retriever) -> None:
-        resource = IdentifiableSource('the_source', 'The Source')
+        resource = Source('the_source', 'The Source')
         with TemporaryDirectory() as output_directory_path:
             with TemporaryDirectory() as cache_directory_path:
                 configuration = Configuration(
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
                 async with App(configuration) as app:
-                    app.ancestry.sources.add(resource)
+                    app.ancestry.entities.append(resource)
                     sut = _Populator(app, m_retriever)
                     await sut.populate()
         self.assertSetEqual(set(), resource.links)
@@ -376,7 +376,7 @@ class PopulatorTest(TestCase):
     @sync
     async def test_populate_should_ignore_non_wikipedia_links(self, m_retriever) -> None:
         link = Link('https://example.com')
-        resource = IdentifiableSource('the_source', 'The Source')
+        resource = Source('the_source', 'The Source')
         resource.links.add(link)
         with TemporaryDirectory() as output_directory_path:
             with TemporaryDirectory() as cache_directory_path:
@@ -384,7 +384,7 @@ class PopulatorTest(TestCase):
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
                 async with App(configuration) as app:
-                    app.ancestry.sources.add(resource)
+                    app.ancestry.entities.append(resource)
                     sut = _Populator(app, m_retriever)
                     await sut.populate()
         self.assertSetEqual({link}, resource.links)
@@ -399,7 +399,7 @@ class PopulatorTest(TestCase):
         entry = Entry(entry_language, entry_name, entry_title, entry_content)
         m_retriever.get_entry.return_value = entry
 
-        resource = IdentifiableSource('the_source', 'The Source')
+        resource = Source('the_source', 'The Source')
         link = Link('https://en.wikipedia.org/wiki/Amsterdam')
         resource.links.add(link)
         with TemporaryDirectory() as output_directory_path:
@@ -408,7 +408,7 @@ class PopulatorTest(TestCase):
                     output_directory_path, 'https://example.com')
                 configuration.cache_directory_path = cache_directory_path
                 async with App(configuration) as app:
-                    app.ancestry.sources.add(resource)
+                    app.ancestry.entities.append(resource)
                     sut = _Populator(app, m_retriever)
                     await sut.populate()
         m_retriever.get_entry.assert_called_once_with(entry_language, entry_name)
@@ -442,7 +442,7 @@ class PopulatorTest(TestCase):
             added_entry_language: added_entry_name,
         }
 
-        resource = IdentifiableSource('the_source', 'The Source')
+        resource = Source('the_source', 'The Source')
         link_en = Link('https://en.wikipedia.org/wiki/Amsterdam')
         resource.links.add(link_en)
         with TemporaryDirectory() as output_directory_path:
@@ -455,7 +455,7 @@ class PopulatorTest(TestCase):
                     LocaleConfiguration('nl-NL', 'nl'),
                 ])
                 async with App(configuration) as app:
-                    app.ancestry.sources.add(resource)
+                    app.ancestry.entities.append(resource)
                     sut = _Populator(app, m_retriever)
                     await sut.populate()
 
@@ -514,7 +514,7 @@ class WikipediaTest(TestCase):
     @aioresponses()
     @sync
     async def test_post_load(self, m_aioresponses) -> None:
-        resource = IdentifiableSource('the_source', 'The Source')
+        resource = Source('the_source', 'The Source')
         link = Link('https://en.wikipedia.org/wiki/Amsterdam')
         resource.links.add(link)
         entry_title = 'Amstelredam'
@@ -550,7 +550,7 @@ class WikipediaTest(TestCase):
                 configuration.cache_directory_path = Path(cache_directory_path)
                 configuration.extensions.add(ExtensionConfiguration(Wikipedia))
                 async with App(configuration) as app:
-                    app.ancestry.sources.add(resource)
+                    app.ancestry.entities.append(resource)
                     await load(app)
 
         self.assertEqual(1, len(resource.links))

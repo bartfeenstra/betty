@@ -1,57 +1,57 @@
 from tempfile import TemporaryDirectory
 
-from betty.ancestry import Ancestry, Person, Place, Presence, PlaceName, IdentifiableEvent, File, PersonName, \
-    IdentifiableSource, IdentifiableCitation, Subject, Birth, Enclosure, Source
-from betty.config import Configuration, ExtensionConfiguration
-from betty.asyncio import sync
-from betty.load import load
-from betty.extension.cleaner import Cleaner, clean
 from betty.app import App
+from betty.asyncio import sync
+from betty.config import Configuration, ExtensionConfiguration
+from betty.extension.cleaner import Cleaner, clean
+from betty.load import load
+from betty.model.ancestry import Ancestry, Person, Place, Presence, PlaceName, File, PersonName, Subject, Birth, \
+    Enclosure, Source, Citation, Event
 from betty.tests import TestCase
 
 
 class CleanerTest(TestCase):
     @sync
     async def test_post_parse(self) -> None:
-        event = IdentifiableEvent('E0', Birth())
+        event = Event('E0', Birth())
         with TemporaryDirectory() as output_directory_path:
             configuration = Configuration(
                 output_directory_path, 'https://example.com')
             configuration.extensions.add(ExtensionConfiguration(Cleaner))
             async with App(configuration) as app:
-                app.ancestry.events.add(event)
+                app.ancestry.entities.append(event)
                 await load(app)
-                self.assertEquals([], list(app.ancestry.events))
+                self.assertEquals([], list(app.ancestry.entities[Event]))
 
 
 class CleanTest(TestCase):
     def test_clean(self) -> None:
         ancestry = Ancestry()
 
-        onymous_event = IdentifiableEvent('E0', Birth())
+        onymous_event = Event('E0', Birth())
         Presence(Person('P0'), Subject(), onymous_event)
-        ancestry.events.add(onymous_event)
+        ancestry.entities.append(onymous_event)
 
-        anonymous_event = IdentifiableEvent('E1', Birth())
-        ancestry.events.add(anonymous_event)
+        anonymous_event = Event('E1', Birth())
+        ancestry.entities.append(anonymous_event)
 
         onymous_place = Place('P0', [PlaceName('Amsterdam')])
         onymous_place.events.append(onymous_event)
-        ancestry.places.add(onymous_place)
+        ancestry.entities.append(onymous_place)
 
         anonymous_place = Place('P1', [PlaceName('Almelo')])
-        ancestry.places.add(anonymous_place)
+        ancestry.entities.append(anonymous_place)
 
         onmyous_place_because_encloses_onmyous_places = Place(
             'P3', [PlaceName('Netherlands')])
         Enclosure(onymous_place, onmyous_place_because_encloses_onmyous_places)
         Enclosure(anonymous_place, onmyous_place_because_encloses_onmyous_places)
-        ancestry.places.add(onmyous_place_because_encloses_onmyous_places)
+        ancestry.entities.append(onmyous_place_because_encloses_onmyous_places)
 
         clean(ancestry)
 
-        self.assertEquals([onymous_event], list(ancestry.events))
-        self.assertEquals([onymous_place, onmyous_place_because_encloses_onmyous_places], list(ancestry.places))
+        self.assertEquals([onymous_event], list(ancestry.entities[Event]))
+        self.assertEquals([onymous_place, onmyous_place_because_encloses_onmyous_places], list(ancestry.entities[Place]))
 
         self.assertNotIn(
             anonymous_place, onmyous_place_because_encloses_onmyous_places.encloses)
@@ -61,287 +61,287 @@ class CleanTest(TestCase):
 
         person = Person('P0')
         person.private = False
-        ancestry.people.add(person)
+        ancestry.entities.append(person)
 
         clean(ancestry)
 
-        self.assertEqual(person, ancestry.people[person.id])
+        self.assertEqual(person, ancestry.entities[Person][person.id])
 
     def test_clean_should_clean_person_with_private_children(self) -> None:
         ancestry = Ancestry()
 
         person = Person('P0')
         person.private = True
-        ancestry.people.add(person)
+        ancestry.entities.append(person)
         child = Person('P1')
         child.private = True
-        ancestry.people.add(child)
+        ancestry.entities.append(child)
         grandchild = Person('P2')
         grandchild.private = True
-        ancestry.people.add(grandchild)
+        ancestry.entities.append(grandchild)
         great_grandchild = Person('P3')
         great_grandchild.private = True
-        ancestry.people.add(great_grandchild)
+        ancestry.entities.append(great_grandchild)
 
         clean(ancestry)
 
-        self.assertNotIn(person.id, ancestry.people)
+        self.assertNotIn(person.id, ancestry.entities[Person])
 
     def test_clean_should_not_clean_person_with_public_children(self):
         ancestry = Ancestry()
 
         person = Person('P0')
         person.private = False
-        ancestry.people.add(person)
+        ancestry.entities.append(person)
         child = Person('P1')
         child.private = True
-        ancestry.people.add(child)
+        ancestry.entities.append(child)
         grandchild = Person('P2')
         grandchild.private = True
-        ancestry.people.add(grandchild)
+        ancestry.entities.append(grandchild)
         great_grandchild = Person('P3')
         great_grandchild.private = False
-        ancestry.people.add(great_grandchild)
+        ancestry.entities.append(great_grandchild)
 
         clean(ancestry)
 
-        self.assertEqual(person, ancestry.people[person.id])
+        self.assertEqual(person, ancestry.entities[Person][person.id])
 
     def test_clean_should_clean_event(self) -> None:
         ancestry = Ancestry()
 
-        source = IdentifiableSource('S1', 'The Source')
-        ancestry.sources.add(source)
+        source = Source('S1', 'The Source')
+        ancestry.entities.append(source)
 
-        citation = IdentifiableCitation('C1', source)
-        ancestry.citations.add(citation)
+        citation = Citation('C1', source)
+        ancestry.entities.append(citation)
 
         file = File('F1', __file__)
-        ancestry.files.add(file)
+        ancestry.entities.append(file)
 
         place = Place('P0', [PlaceName('The Place')])
-        ancestry.places.add(place)
+        ancestry.entities.append(place)
 
-        event = IdentifiableEvent('E0', Birth())
+        event = Event('E0', Birth())
         event.citations.append(citation)
         event.files.append(file)
         event.place = place
-        ancestry.events.add(event)
+        ancestry.entities.append(event)
 
         clean(ancestry)
 
-        self.assertNotIn(event.id, ancestry.events)
+        self.assertNotIn(event.id, ancestry.entities[Event])
         self.assertIsNone(event.place)
         self.assertNotIn(event, place.events)
-        self.assertNotIn(place.id, ancestry.places)
+        self.assertNotIn(place.id, ancestry.entities[Place])
         self.assertNotIn(event, citation.facts)
-        self.assertNotIn(citation.id, ancestry.citations)
-        self.assertNotIn(event, file.resources)
-        self.assertNotIn(file.id, ancestry.files)
+        self.assertNotIn(citation.id, ancestry.entities[Citation])
+        self.assertNotIn(event, file.entities)
+        self.assertNotIn(file.id, ancestry.entities[File])
 
     def test_clean_should_not_clean_event_with_presences_with_people(self) -> None:
         ancestry = Ancestry()
 
-        source = IdentifiableSource('S1', 'The Source')
-        ancestry.sources.add(source)
+        source = Source('S1', 'The Source')
+        ancestry.entities.append(source)
 
-        citation = IdentifiableCitation('C1', source)
-        ancestry.citations.add(citation)
+        citation = Citation('C1', source)
+        ancestry.entities.append(citation)
 
         file = File('F1', __file__)
-        ancestry.files.add(file)
+        ancestry.entities.append(file)
 
         place = Place('P0', [PlaceName('The Place')])
-        ancestry.places.add(place)
+        ancestry.entities.append(place)
 
         person = Person('P0')
 
-        event = IdentifiableEvent('E0', Birth())
+        event = Event('E0', Birth())
         event.citations.append(citation)
         event.files.append(file)
         event.place = place
-        ancestry.events.add(event)
+        ancestry.entities.append(event)
 
         Presence(person, Subject(), event)
 
         clean(ancestry)
 
-        self.assertEqual(event, ancestry.events[event.id])
+        self.assertEqual(event, ancestry.entities[Event][event.id])
         self.assertIn(event, place.events)
-        self.assertEqual(place, ancestry.places[place.id])
+        self.assertEqual(place, ancestry.entities[Place][place.id])
         self.assertIn(event, citation.facts)
-        self.assertEqual(citation, ancestry.citations[citation.id])
-        self.assertIn(event, file.resources)
-        self.assertEqual(file, ancestry.files[file.id])
+        self.assertEqual(citation, ancestry.entities[Citation][citation.id])
+        self.assertIn(event, file.entities)
+        self.assertEqual(file, ancestry.entities[File][file.id])
 
     def test_clean_should_clean_file(self) -> None:
         ancestry = Ancestry()
 
         file = File('F0', __file__)
-        ancestry.files.add(file)
+        ancestry.entities.append(file)
 
         clean(ancestry)
 
-        self.assertNotIn(file.id, ancestry.files)
+        self.assertNotIn(file.id, ancestry.entities[File])
 
-    def test_clean_should_not_clean_file_with_resources(self) -> None:
+    def test_clean_should_not_clean_file_with_entities(self) -> None:
         ancestry = Ancestry()
 
         person = Person('P0')
-        ancestry.people.add(person)
+        ancestry.entities.append(person)
 
         file = File('F0', __file__)
-        file.resources.append(person)
-        ancestry.files.add(file)
+        file.entities.append(person)
+        ancestry.entities.append(file)
 
         clean(ancestry)
 
-        self.assertEqual(file, ancestry.files[file.id])
-        self.assertIn(person, file.resources)
-        self.assertEqual(person, ancestry.people[person.id])
+        self.assertEqual(file, ancestry.entities[File][file.id])
+        self.assertIn(person, file.entities)
+        self.assertEqual(person, ancestry.entities[Person][person.id])
 
     def test_clean_should_not_clean_file_with_citations(self) -> None:
         ancestry = Ancestry()
 
-        source = Source()
+        source = Source(None)
 
-        citation = IdentifiableCitation('C1', source)
-        ancestry.citations.add(citation)
+        citation = Citation('C1', source)
+        ancestry.entities.append(citation)
 
         file = File('F0', __file__)
         file.citations.append(citation)
-        ancestry.files.add(file)
+        ancestry.entities.append(file)
 
         clean(ancestry)
 
-        self.assertEqual(file, ancestry.files[file.id])
+        self.assertEqual(file, ancestry.entities[File][file.id])
         self.assertIn(citation, file.citations)
-        self.assertEqual(citation, ancestry.citations[citation.id])
+        self.assertEqual(citation, ancestry.entities[Citation][citation.id])
 
     def test_clean_should_clean_source(self) -> None:
         ancestry = Ancestry()
 
-        source = IdentifiableSource('S0', 'The source')
-        ancestry.sources.add(source)
+        source = Source('S0', 'The source')
+        ancestry.entities.append(source)
 
         clean(ancestry)
 
-        self.assertNotIn(source.id, ancestry.sources)
+        self.assertNotIn(source.id, ancestry.entities[Source])
 
     def test_clean_should_not_clean_source_with_citations(self) -> None:
         ancestry = Ancestry()
 
-        source = IdentifiableSource('S0', 'The Source')
-        ancestry.sources.add(source)
+        source = Source('S0', 'The Source')
+        ancestry.entities.append(source)
 
-        citation = IdentifiableCitation('C0', source)
-        citation.facts.append(PersonName('Jane'))
-        ancestry.citations.add(citation)
+        citation = Citation('C0', source)
+        citation.facts.append(PersonName(Person(None), 'Jane'))
+        ancestry.entities.append(citation)
 
         clean(ancestry)
 
-        self.assertEqual(source, ancestry.sources[source.id])
+        self.assertEqual(source, ancestry.entities[Source][source.id])
         self.assertEqual(source, citation.source)
-        self.assertEqual(citation, ancestry.citations[citation.id])
+        self.assertEqual(citation, ancestry.entities[Citation][citation.id])
 
     def test_clean_should_not_clean_source_with_contained_by(self) -> None:
         ancestry = Ancestry()
 
-        source = IdentifiableSource('S0', 'The Source')
-        ancestry.sources.add(source)
+        source = Source('S0', 'The Source')
+        ancestry.entities.append(source)
 
-        contained_by = IdentifiableSource('S1', 'The Source')
+        contained_by = Source('S1', 'The Source')
         contained_by.contains.append(source)
-        ancestry.sources.add(contained_by)
+        ancestry.entities.append(contained_by)
 
         clean(ancestry)
 
-        self.assertEqual(source, ancestry.sources[source.id])
+        self.assertEqual(source, ancestry.entities[Source][source.id])
         self.assertIn(source, contained_by.contains)
-        self.assertEqual(contained_by, ancestry.sources[contained_by.id])
+        self.assertEqual(contained_by, ancestry.entities[Source][contained_by.id])
 
     def test_clean_should_not_clean_source_with_contains(self) -> None:
         ancestry = Ancestry()
 
-        source = IdentifiableSource('S0', 'The Source')
-        ancestry.sources.add(source)
+        source = Source('S0', 'The Source')
+        ancestry.entities.append(source)
 
-        contains = IdentifiableSource('S1', 'The Source')
+        contains = Source('S1', 'The Source')
         contains.contained_by = source
-        ancestry.sources.add(contains)
+        ancestry.entities.append(contains)
 
         clean(ancestry)
 
-        self.assertEqual(source, ancestry.sources[source.id])
+        self.assertEqual(source, ancestry.entities[Source][source.id])
         self.assertEqual(source, contains.contained_by)
-        self.assertEqual(contains, ancestry.sources[contains.id])
+        self.assertEqual(contains, ancestry.entities[Source][contains.id])
 
     def test_clean_should_not_clean_source_with_files(self) -> None:
         ancestry = Ancestry()
 
         file = File('F0', __file__)
-        ancestry.files.add(file)
+        ancestry.entities.append(file)
 
-        source = IdentifiableSource('S0', 'The Source')
+        source = Source('S0', 'The Source')
         source.files.append(file)
-        ancestry.sources.add(source)
+        ancestry.entities.append(source)
 
         clean(ancestry)
 
-        self.assertEqual(source, ancestry.sources[source.id])
-        self.assertIn(source, file.resources)
-        self.assertEqual(file, ancestry.files[file.id])
+        self.assertEqual(source, ancestry.entities[Source][source.id])
+        self.assertIn(source, file.entities)
+        self.assertEqual(file, ancestry.entities[File][file.id])
 
     def test_clean_should_clean_citation(self) -> None:
         ancestry = Ancestry()
 
-        source = IdentifiableSource('S0', 'The source')
-        ancestry.sources.add(source)
+        source = Source('S0', 'The source')
+        ancestry.entities.append(source)
 
-        citation = IdentifiableCitation('C0', source)
-        ancestry.citations.add(citation)
+        citation = Citation('C0', source)
+        ancestry.entities.append(citation)
 
         clean(ancestry)
 
-        self.assertNotIn(citation.id, ancestry.citations)
+        self.assertNotIn(citation.id, ancestry.entities[Citation])
         self.assertNotIn(citation, source.citations)
 
     def test_clean_should_not_clean_citation_with_facts(self) -> None:
         ancestry = Ancestry()
 
-        source = IdentifiableSource('S0', 'The Source')
-        ancestry.sources.add(source)
+        source = Source('S0', 'The Source')
+        ancestry.entities.append(source)
 
-        citation = IdentifiableCitation('C0', source)
-        citation.facts.append(PersonName('Jane'))
-        ancestry.citations.add(citation)
+        citation = Citation('C0', source)
+        citation.facts.append(PersonName(Person(None), 'Jane'))
+        ancestry.entities.append(citation)
 
         fact = Person('P0')
         fact.citations.append(citation)
-        ancestry.people.add(fact)
+        ancestry.entities.append(fact)
 
         clean(ancestry)
 
-        self.assertEqual(citation, ancestry.citations[citation.id])
+        self.assertEqual(citation, ancestry.entities[Citation][citation.id])
         self.assertIn(citation, fact.citations)
-        self.assertEqual(fact, ancestry.people[fact.id])
+        self.assertEqual(fact, ancestry.entities[Person][fact.id])
 
     def test_clean_should_not_clean_citation_with_files(self) -> None:
         ancestry = Ancestry()
 
-        source = IdentifiableSource('S0', 'The Source')
-        ancestry.sources.add(source)
+        source = Source('S0', 'The Source')
+        ancestry.entities.append(source)
 
         file = File('F0', __file__)
-        ancestry.files.add(file)
+        ancestry.entities.append(file)
 
-        citation = IdentifiableCitation('C0', source)
+        citation = Citation('C0', source)
         citation.files.append(file)
-        ancestry.citations.add(citation)
+        ancestry.entities.append(citation)
 
         clean(ancestry)
 
-        self.assertEqual(citation, ancestry.citations[citation.id])
-        self.assertEqual(file, ancestry.files[file.id])
+        self.assertEqual(citation, ancestry.entities[Citation][citation.id])
+        self.assertEqual(file, ancestry.entities[File][file.id])
         self.assertIn(citation, source.citations)
-        self.assertEqual(source, ancestry.sources[source.id])
+        self.assertEqual(source, ancestry.entities[Source][source.id])

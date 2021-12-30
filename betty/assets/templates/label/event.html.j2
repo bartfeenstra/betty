@@ -1,11 +1,11 @@
-{%- set event = event | default(resource) -%}
+{%- set event = event | default(entity) -%}
 {%- set embedded = embedded | default(False) -%}
 {%- set person_context = person_context | default(None) -%}
 {%- macro person_label(person) -%}
     {% include 'label/person.html.j2' %}
 {%- endmacro -%}
 {%- set formatted_event = event.type.label -%}
-{%- if event is identifiable and not embedded -%}
+{%- if event is not generated_entity_id and not embedded -%}
     {% set formatted_event = '<a href="' + event | url + '">' + formatted_event + '</a>' %}
 {%- endif -%}
 {%- if event.description is not none -%}

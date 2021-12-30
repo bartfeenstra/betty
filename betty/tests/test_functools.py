@@ -1,8 +1,8 @@
-from typing import Any
+from typing import Any, List
 
 from parameterized import parameterized
 
-from betty.functools import walk
+from betty.functools import walk, slice_to_range
 from betty.tests import TestCase
 
 
@@ -56,3 +56,17 @@ class WalkTest(TestCase):
         actual = walk(item, 'child')
         expected = [child, grandchild]
         self.assertEquals(expected, list(actual))
+
+
+class SliceToRangeTest(TestCase):
+    @parameterized.expand([
+        ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], slice(0, 16, 1)),
+        ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], slice(0, None, 1)),
+        ([0], slice(None, 1, 1)),
+        ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], slice(None, None, 1)),
+        ([9, 10, 11, 12, 13, 14, 15], slice(9, None, 1)),
+        ([0, 3, 6, 9, 12, 15], slice(None, None, 3)),
+    ])
+    def test(self, expected_range_items: List[int], ranged_slice: slice) -> None:
+        iterable = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+        self.assertEqual(expected_range_items, list(slice_to_range(ranged_slice, iterable)))

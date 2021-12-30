@@ -1,4 +1,4 @@
-{% set place = place | default(resource) %}
+{% set place = place | default(entity) %}
 {% set embedded = embedded | default(False) %}
 <address>
     {%- set names = place.names | select_dateds(date_context | default(none)) | list -%}

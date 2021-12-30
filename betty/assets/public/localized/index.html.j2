@@ -9,7 +9,7 @@
     {% if 'betty.extension.demo.Demo' in extensions %}
         <p>
             {% set liberta_lankester_label -%}
-                {%- with person = app.ancestry.people['betty-demo-liberta-lankester'] -%}
+                {%- with person = app.ancestry.entities['Person']['betty-demo-liberta-lankester'] -%}
                     {% include 'label/person.html.j2' %}
                 {%- endwith -%}
             {%- endset %}
