@@ -19,9 +19,24 @@ def walk(item: Any, attribute_name: str) -> Iterable[Any]:
         yield from walk(child, attribute_name)
 
 
-def slice_to_range(ranged_slice: slice, iterable: Sized) -> Iterable[int]:
-    return range(
-        0 if ranged_slice.start is None else ranged_slice.start,
-        len(iterable) if ranged_slice.stop is None else ranged_slice.stop,
-        1 if ranged_slice.step is None else ranged_slice.step,
-    )
+def slice_to_range(indices: slice, iterable: Sized) -> Iterable[int]:
+    length = len(iterable)
+
+    if indices.start is None:
+        start = 0
+    else:
+        # Ensure the stop index is within range.
+        start = max(-length, min(length, indices.start))
+
+    if indices.stop is None:
+        stop = max(0, length)
+    else:
+        # Ensure the stop index is within range.
+        stop = max(-length, min(length, indices.stop))
+
+    if indices.step is None:
+        step = 1
+    else:
+        step = indices.step
+
+    return range(start, stop, step)

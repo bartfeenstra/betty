@@ -121,11 +121,13 @@ class LoadXmlTest(TestCase):
 
     def test_person_should_include_alternative_names(self):
         person = self.ancestry.entities[Person]['I0000']
-        expected = [
-            PersonName(person, 'Jane', 'Doh'),
-            PersonName(person, 'Jen', 'Van Doughie'),
-        ]
-        self.assertEquals(expected, person.alternative_names)
+        self.assertEqual(2, len(person.alternative_names))
+        self.assertIs(person, person.alternative_names[0].person)
+        self.assertEquals('Jane', person.alternative_names[0].individual)
+        self.assertEquals('Doh', person.alternative_names[0].affiliation)
+        self.assertIs(person, person.alternative_names[1].person)
+        self.assertEquals('Jen', person.alternative_names[1].individual)
+        self.assertEquals('Van Doughie', person.alternative_names[1].affiliation)
 
     def test_person_should_include_birth(self):
         person = self.ancestry.entities[Person]['I0000']
