@@ -6,8 +6,8 @@ from geopy import Point
 
 from betty.locale import Localized, Datey
 from betty.media_type import MediaType
-from betty.model import EntityCollection, many_to_many, Entity, one_to_many, many_to_one, many_to_one_to_many, \
-    GroupedEntityCollection
+from betty.model import many_to_many, Entity, one_to_many, many_to_one, many_to_one_to_many, \
+    MultipleTypesEntityCollection, EntityCollection
 from betty.os import PathLike
 
 
@@ -25,7 +25,10 @@ class Dated:
         self.date = None
 
 
+@many_to_one('entity', 'notes')
 class Note(Entity):
+    entity: 'HasNotes'
+
     def __init__(self, note_id: str, text: str):
         Entity.__init__(self, note_id)
         self._text = text
@@ -35,11 +38,9 @@ class Note(Entity):
         return self._text
 
 
+@one_to_many('notes', 'entity')
 class HasNotes:
-    notes: List[Note]
-
-    def __init__(self):
-        self.notes = []
+    notes: EntityCollection[Note]
 
 
 class Described:
@@ -85,9 +86,9 @@ class HasCitations:
 
 
 @many_to_many('entities', 'files')
+@many_to_many('notes', 'entity')
 class File(Entity, Described, HasPrivacy, HasMediaType, HasNotes, HasCitations):
     entities: EntityCollection['HasFiles']
-    notes: List[Note]
 
     def __init__(self, file_id: Optional[str], path: PathLike, media_type: Optional[MediaType] = None):
         Entity.__init__(self, file_id)
@@ -160,7 +161,7 @@ class PlaceName(Localized, Dated):
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
-            return NotImplemented
+            return NotImplemented  # pragma: no cover
         return self._name == other._name and self.locale == other.locale
 
     def __repr__(self):
@@ -667,14 +668,14 @@ class PersonName(Entity, Localized, HasCitations):
         if other is None:
             return False
         if not isinstance(other, PersonName):
-            return NotImplemented
+            return NotImplemented  # pragma: no cover
         return (self._affiliation or '', self._individual or '') == (other._affiliation or '', other._individual or '')
 
     def __gt__(self, other):
         if other is None:
             return True
         if not isinstance(other, PersonName):
-            return NotImplemented
+            return NotImplemented  # pragma: no cover
         return (self._affiliation or '', self._individual or '') > (other._affiliation or '', other._individual or '')
 
     @property
@@ -706,12 +707,12 @@ class Person(Entity, HasFiles, HasCitations, HasLinks, HasPrivacy):
 
     def __eq__(self, other):
         if not isinstance(other, Person):
-            return NotImplemented
+            return NotImplemented  # pragma: no cover
         return self.id == other.id
 
     def __gt__(self, other):
         if not isinstance(other, Person):
-            return NotImplemented
+            return NotImplemented  # pragma: no cover
         return self.id > other.id
 
     @property
@@ -722,7 +723,7 @@ class Person(Entity, HasFiles, HasCitations, HasLinks, HasPrivacy):
             return None
 
     @property
-    def alternative_names(self) -> List[PersonName]:
+    def alternative_names(self) -> EntityCollection[PersonName]:
         return self.names[1:]
 
     @property
@@ -782,8 +783,8 @@ ENTITY_TYPES = [
 
 class Ancestry:
     def __init__(self):
-        self._entities = GroupedEntityCollection()
+        self._entities = MultipleTypesEntityCollection()
 
     @property
-    def entities(self) -> GroupedEntityCollection:
+    def entities(self) -> MultipleTypesEntityCollection:
         return self._entities

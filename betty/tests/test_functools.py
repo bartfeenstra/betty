@@ -66,6 +66,8 @@ class SliceToRangeTest(TestCase):
         ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], slice(None, None, 1)),
         ([9, 10, 11, 12, 13, 14, 15], slice(9, None, 1)),
         ([0, 3, 6, 9, 12, 15], slice(None, None, 3)),
+        # Test a slice that is longer than the iterable.
+        ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], slice(0, 99)),
     ])
     def test(self, expected_range_items: List[int], ranged_slice: slice) -> None:
         iterable = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]

@@ -44,9 +44,12 @@ class NoteTest(TestCase):
 
 
 class HasNotesTest(TestCase):
+    class _HasNotes(HasNotes, Entity):
+        pass
+
     def test_notes(self) -> None:
-        sut = HasNotes()
-        self.assertEquals([], sut.notes)
+        sut = self._HasNotes()
+        self.assertSequenceEqual([], sut.notes)
 
 
 class DescribedTest(TestCase):
@@ -1018,7 +1021,7 @@ class PersonTest(TestCase):
         sut = Person('P1')
         PersonName(sut, 'Janet', 'Not a Girl')
         alternative_name = PersonName(sut, 'Janet', 'Still not a Girl')
-        self.assertEquals([alternative_name], sut.alternative_names)
+        self.assertSequenceEqual([alternative_name], sut.alternative_names)
 
     def test_start(self) -> None:
         start = Event(None, Birth())
