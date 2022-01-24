@@ -1,3 +1,4 @@
+from __future__ import annotations
 import logging
 from typing import List, Tuple, Set, Type, Iterable, Optional
 
@@ -17,7 +18,7 @@ class DerivedEvent(Event):
 
 class DerivedDate(Date):
     @classmethod
-    def derive(cls, date: Date) -> 'DerivedDate':
+    def derive(cls, date: Date) -> DerivedDate:
         return cls(date.year, date.month, date.day, fuzzy=date.fuzzy)
 
 

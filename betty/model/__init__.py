@@ -1,3 +1,4 @@
+from __future__ import annotations
 import copy
 import operator
 from collections import defaultdict
@@ -34,7 +35,7 @@ class Entity:
         self._id = GeneratedEntityId() if entity_id is None else entity_id
 
     @classmethod
-    def entity_type(cls) -> Type['EntityT']:
+    def entity_type(cls) -> Type[EntityT]:
         for ancestor_cls in cls.__mro__:
             if Entity in ancestor_cls.__bases__:
                 return ancestor_cls
@@ -103,7 +104,7 @@ class EntityCollection(Generic[EntityT]):
     def __len__(self) -> int:
         raise NotImplementedError
 
-    def __getitem__(self, key: Union[EntityT, int, slice]) -> Union[EntityT, 'EntityCollection[EntityT]']:
+    def __getitem__(self, key: Union[EntityT, int, slice]) -> Union[EntityT, EntityCollection[EntityT]]:
         raise TypeError(f'Cannot get entities by {type(key)}.')
 
     def __delitem__(self, key: Union[EntityT, int, slice]) -> None:
@@ -112,7 +113,7 @@ class EntityCollection(Generic[EntityT]):
     def __contains__(self, entity: EntityT) -> bool:
         raise NotImplementedError
 
-    def __add__(self, other) -> 'EntityCollection':
+    def __add__(self, other) -> EntityCollection:
         raise NotImplementedError
 
 
@@ -129,7 +130,7 @@ class SingleTypeEntityCollection(EntityCollection[EntityT]):
             self._copy_entities(copied)
         return copied
 
-    def _copy_entities(self, copied: 'SingleTypeEntityCollection'):
+    def _copy_entities(self, copied: SingleTypeEntityCollection):
         for entity in self:
             copied.append(entity)
 
@@ -281,7 +282,7 @@ class _AssociateCollection(SingleTypeEntityCollection[EntityT], Generic[EntityT,
     def _on_remove(self, associate: EntityT) -> None:
         raise NotImplementedError
 
-    def copy_for_owner(self, owner: EntityU) -> '_AssociateCollection':
+    def copy_for_owner(self, owner: EntityU) -> _AssociateCollection:
         # We cannot check for identity or equality, because owner is a copy of self._owner, and may have undergone
         # .additional changes
         assert owner.__class__ is self._owner.__class__, f'{owner.__class__} must be identical to the existing owner, which is a {self._owner.__class__}.'
@@ -542,7 +543,7 @@ class FlattenedEntity(Entity):
         super().__init__(entity_id)
         self._entity = entity
 
-    def entity_type(self) -> Type['EntityT']:
+    def entity_type(self) -> Type[EntityT]:
         return self._entity.entity_type()
 
     def unflatten(self) -> Entity:

@@ -1,3 +1,4 @@
+from __future__ import annotations
 import asyncio
 from collections import defaultdict
 
@@ -24,7 +25,7 @@ class Extension:
     Extensions that take configuration must implement betty.extension.ConfigurableExtension.
     """
 
-    def __init__(self, app: 'betty.app.App'):
+    def __init__(self, app: betty.app.App):
         self._app = app
 
     async def __aenter__(self):
@@ -38,15 +39,15 @@ class Extension:
         return '%s.%s' % (cls.__module__, cls.__name__)
 
     @classmethod
-    def depends_on(cls) -> Set[Type['Extension']]:
+    def depends_on(cls) -> Set[Type[Extension]]:
         return set()
 
     @classmethod
-    def comes_after(cls) -> Set[Type['Extension']]:
+    def comes_after(cls) -> Set[Type[Extension]]:
         return set()
 
     @classmethod
-    def comes_before(cls) -> Set[Type['Extension']]:
+    def comes_before(cls) -> Set[Type[Extension]]:
         return set()
 
     @property
@@ -77,7 +78,7 @@ class Configuration:
 
 
 class ConfigurableExtension(Extension):
-    def __init__(self, app: 'betty.app.App', configuration: Configuration):
+    def __init__(self, app: betty.app.App, configuration: Configuration):
         super().__init__(app)
         self._configuration = configuration
 
