@@ -1,4 +1,4 @@
-from tempfile import TemporaryDirectory
+from aiofiles.tempfile import TemporaryDirectory
 
 from betty import generate, load, serve
 from betty.app import App
@@ -20,7 +20,8 @@ class DemoServer(Server):
 
     async def start(self) -> None:
         self._output_directory = TemporaryDirectory()
-        configuration = Configuration(self._output_directory.name, 'https://example.com')
+        output_directory_path = await self._output_directory.__aenter__()
+        configuration = Configuration(output_directory_path, 'https://example.com')
         configuration.extensions.add(ExtensionConfiguration(Demo))
         # The Nginx extension allows content negotiation if Docker is also available.
         configuration.extensions.add(ExtensionConfiguration(Nginx))
@@ -45,4 +46,4 @@ class DemoServer(Server):
         if self._app is not None:
             await self._app.exit()
         if self._output_directory is not None:
-            self._output_directory.cleanup()
+            self._output_directory.__aexit__(None, None, None)

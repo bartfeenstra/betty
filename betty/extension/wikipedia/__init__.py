@@ -1,15 +1,16 @@
 import asyncio
 import hashlib
+import json
 import logging
 import re
 from concurrent.futures import as_completed
 from contextlib import suppress
-from json import load
 from os.path import getmtime
 from pathlib import Path
 from time import time
 from typing import Optional, Dict, Callable, Tuple, Iterable, Set
 
+import aiofiles
 import aiohttp
 from babel import parse_locale
 from jinja2 import pass_context
@@ -84,16 +85,18 @@ class _Retriever:
         response_data = None
         with suppress(FileNotFoundError):
             if getmtime(cache_file_path) + self._ttl > time():
-                with open(cache_file_path, encoding='utf-8') as f:
-                    response_data = load(f)
+                async with aiofiles.open(cache_file_path, encoding='utf-8') as f:
+                    json_data = await f.read()
+                response_data = json.loads(json_data)
 
         if response_data is None:
             logger = logging.getLogger()
             try:
                 async with self._session.get(url) as response:
                     response_data = await response.json(encoding='utf-8')
-                    with open(cache_file_path, 'w', encoding='utf-8') as f:
-                        f.write(await response.text())
+                    json_data = await response.text()
+                    async with aiofiles.open(cache_file_path, 'w', encoding='utf-8') as f:
+                        await f.write(json_data)
             except aiohttp.ClientError as e:
                 logger.warning('Could not successfully connect to Wikipedia at %s: %s' % (url, e))
             except ValueError as e:
@@ -101,8 +104,9 @@ class _Retriever:
 
         if response_data is None:
             try:
-                with open(cache_file_path, encoding='utf-8') as f:
-                    response_data = load(f)
+                async with aiofiles.open(cache_file_path, encoding='utf-8') as f:
+                    json_data = await f.read()
+                response_data = json.loads(json_data)
             except FileNotFoundError:
                 raise RetrievalError('Could neither fetch %s, nor find an old version in the cache.' % url)
 

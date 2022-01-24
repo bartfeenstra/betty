@@ -7,6 +7,7 @@ from tempfile import TemporaryDirectory
 from typing import Optional, List, Any, Dict, Union, Iterable
 from xml.etree import ElementTree
 
+import aiofiles
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QFormLayout, QPushButton, QFileDialog, QLineEdit, QHBoxLayout, QVBoxLayout, \
     QGridLayout
@@ -50,8 +51,8 @@ async def load_file(ancestry: Ancestry, file_path: PathLike) -> None:
         return
 
     with suppress(GrampsLoadFileError):
-        with open(file_path) as f:
-            xml = f.read()
+        async with aiofiles.open(file_path) as f:
+            xml = await f.read()
         load_xml(ancestry, xml, file_path.anchor)
         return
 

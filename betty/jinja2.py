@@ -8,6 +8,7 @@ from contextlib import suppress
 from pathlib import Path
 from typing import Dict, Callable, Iterable, Type, Optional, Any, Union, Iterator, AsyncIterable
 
+import aiofiles
 import pdf2image
 from PIL import Image
 from PIL.Image import DecompressionBombWarning
@@ -210,8 +211,8 @@ class Jinja2Renderer(Renderer):
         root_path = rootname(file_path)
         template_name = '/'.join(Path(file_path).relative_to(root_path).parts)
         template = FileSystemLoader(root_path).load(self._environment, template_name, self._environment.globals)
-        with open(file_destination_path_str, 'w', encoding='utf-8') as f:
-            f.write(template.render(data))
+        async with aiofiles.open(file_destination_path_str, 'w', encoding='utf-8') as f:
+            await f.write(template.render(data))
         os.remove(file_path)
 
     async def render_tree(self, tree_path: PathLike) -> None:
