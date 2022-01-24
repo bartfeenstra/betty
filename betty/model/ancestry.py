@@ -1,3 +1,4 @@
+from __future__ import annotations
 from functools import total_ordering
 from pathlib import Path
 from typing import Optional, List, Set, Sequence, Type
@@ -27,7 +28,7 @@ class Dated:
 
 @many_to_one('entity', 'notes')
 class Note(Entity):
-    entity: 'HasNotes'
+    entity: HasNotes
 
     def __init__(self, note_id: str, text: str):
         Entity.__init__(self, note_id)
@@ -82,13 +83,13 @@ class HasLinks:
 
 @many_to_many('citations', 'facts')
 class HasCitations:
-    citations: EntityCollection['Citation']
+    citations: EntityCollection[Citation]
 
 
 @many_to_many('entities', 'files')
 @many_to_many('notes', 'entity')
 class File(Entity, Described, HasPrivacy, HasMediaType, HasNotes, HasCitations):
-    entities: EntityCollection['HasFiles']
+    entities: EntityCollection[HasFiles]
 
     def __init__(self, file_id: Optional[str], path: PathLike, media_type: Optional[MediaType] = None):
         Entity.__init__(self, file_id)
@@ -119,9 +120,9 @@ class HasFiles:
 @one_to_many('citations', 'source')
 class Source(Entity, Dated, HasFiles, HasLinks, HasPrivacy):
     name: Optional[str]
-    contained_by: 'Source'
-    contains: EntityCollection['Source']
-    citations: EntityCollection['Citation']
+    contained_by: Source
+    contains: EntityCollection[Source]
+    citations: EntityCollection[Citation]
     author: Optional[str]
     publisher: Optional[str]
 
@@ -139,7 +140,7 @@ class Source(Entity, Dated, HasFiles, HasLinks, HasPrivacy):
 @many_to_many('facts', 'citations')
 @many_to_one('source', 'citations')
 class Citation(Entity, Dated, HasFiles, HasPrivacy):
-    facts: EntityCollection['HasCitations']
+    facts: EntityCollection[HasCitations]
     source: Source
     location: Optional[str]
 
@@ -177,10 +178,10 @@ class PlaceName(Localized, Dated):
 
 @many_to_one_to_many('enclosed_by', 'encloses', 'enclosed_by', 'encloses')
 class Enclosure(Entity, Dated, HasCitations):
-    encloses: 'Place'
-    enclosed_by: 'Place'
+    encloses: Place
+    enclosed_by: Place
 
-    def __init__(self, encloses: 'Place', enclosed_by: 'Place'):
+    def __init__(self, encloses: Place, enclosed_by: Place):
         Entity.__init__(self)
         Dated.__init__(self)
         HasCitations.__init__(self)
@@ -266,11 +267,11 @@ class Attendee(PresenceRole):
 
 @many_to_one_to_many('presences', 'person', 'event', 'presences')
 class Presence(Entity):
-    person: Optional['Person']
-    event: Optional['Event']
+    person: Optional[Person]
+    event: Optional[Event]
     role: PresenceRole
 
-    def __init__(self, person: 'Person', role: PresenceRole, event: 'Event'):
+    def __init__(self, person: Person, role: PresenceRole, event: Event):
         Entity.__init__(self)
         self.person = person
         self.role = role
@@ -287,11 +288,11 @@ class EventType:
         raise NotImplementedError
 
     @classmethod
-    def comes_before(cls) -> Set[Type['EventType']]:
+    def comes_before(cls) -> Set[Type[EventType]]:
         return set()
 
     @classmethod
-    def comes_after(cls) -> Set[Type['EventType']]:
+    def comes_after(cls) -> Set[Type[EventType]]:
         return set()
 
 
@@ -315,23 +316,23 @@ class CreatableDerivableEventType(DerivableEventType):
 
 class PreBirthEventType(EventType):
     @classmethod
-    def comes_before(cls) -> Set[Type['EventType']]:
+    def comes_before(cls) -> Set[Type[EventType]]:
         return {Birth}
 
 
 class LifeEventType(EventType):
     @classmethod
-    def comes_after(cls) -> Set[Type['EventType']]:
+    def comes_after(cls) -> Set[Type[EventType]]:
         return {Birth}
 
     @classmethod
-    def comes_before(cls) -> Set[Type['EventType']]:
+    def comes_before(cls) -> Set[Type[EventType]]:
         return {Death}
 
 
 class PostDeathEventType(EventType):
     @classmethod
-    def comes_after(cls) -> Set[Type['EventType']]:
+    def comes_after(cls) -> Set[Type[EventType]]:
         return {Death}
 
 
@@ -652,9 +653,9 @@ class Event(Entity, Dated, HasFiles, HasCitations, Described, HasPrivacy):
 @total_ordering
 @many_to_one('person', 'names')
 class PersonName(Entity, Localized, HasCitations):
-    person: 'Person'
+    person: Person
 
-    def __init__(self, person: 'Person', individual: Optional[str] = None, affiliation: Optional[str] = None):
+    def __init__(self, person: Person, individual: Optional[str] = None, affiliation: Optional[str] = None):
         Entity.__init__(self)
         Localized.__init__(self)
         HasCitations.__init__(self)
@@ -693,8 +694,8 @@ class PersonName(Entity, Localized, HasCitations):
 @one_to_many('presences', 'person')
 @one_to_many('names', 'person')
 class Person(Entity, HasFiles, HasCitations, HasLinks, HasPrivacy):
-    parents: EntityCollection['Person']
-    children: EntityCollection['Person']
+    parents: EntityCollection[Person]
+    children: EntityCollection[Person]
     presences: EntityCollection[Presence]
     names: EntityCollection[PersonName]
 

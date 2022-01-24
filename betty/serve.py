@@ -1,3 +1,4 @@
+from __future__ import annotations
 import contextlib
 import logging
 import threading
@@ -48,7 +49,7 @@ class Server:
     def public_url(self) -> str:
         raise NotImplementedError
 
-    async def __aenter__(self) -> 'Server':
+    async def __aenter__(self) -> Server:
         await self.start()
         return self
 

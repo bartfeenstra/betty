@@ -1,3 +1,4 @@
+from __future__ import annotations
 import gettext
 from collections import defaultdict
 from concurrent.futures._base import Executor
@@ -116,7 +117,7 @@ class App:
 
             await self._extension_exit_stack.aclose()
 
-    async def __aenter__(self) -> 'App':
+    async def __aenter__(self) -> App:
         return await self.enter()
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
@@ -258,7 +259,7 @@ class App:
             self._http_client = aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit_per_host=5))
         return self._http_client
 
-    def with_locale(self, locale: str) -> 'App':
+    def with_locale(self, locale: str) -> App:
         locale = negotiate_locale(locale, [locale_configuration.locale for locale_configuration in self.configuration.locales])
         if locale is None:
             raise ValueError('Locale "%s" is not enabled.' % locale)
@@ -274,7 +275,7 @@ class App:
 
         return app
 
-    def with_debug(self, debug: bool) -> 'App':
+    def with_debug(self, debug: bool) -> App:
         app = copy(self)
         app._debug = debug
 
