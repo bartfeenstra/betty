@@ -78,7 +78,5 @@ class TemplateTestCase(TestCase):
                 update_configuration(configuration)
             async with App(configuration) as app:
                 rendered = template_factory(app.jinja2_environment, template).render(**data)
-                # We want to keep the app around, but we must make sure all dispatched tasks are done, so we shut down
-                # the executor. Crude, but effective.
-                app.executor.shutdown()
+                await app.wait()
                 yield rendered, app

@@ -14,6 +14,7 @@ import aiofiles
 import aiohttp
 from babel import parse_locale
 from jinja2 import pass_context
+from reactives import reactive
 
 from betty.model.ancestry import Link, HasLinks, Entity
 from betty.app import App
@@ -73,11 +74,11 @@ class Entry(Localized):
 
 
 class _Retriever:
-    def __init__(self, session: aiohttp.ClientSession, cache_directory_path: Path, ttl: int = 86400):
+    def __init__(self, http_client: aiohttp.ClientSession, cache_directory_path: Path, ttl: int = 86400):
         self._cache_directory_path = cache_directory_path / 'wikipedia'
         self._cache_directory_path.mkdir(exist_ok=True, parents=True)
         self._ttl = ttl
-        self._session = session
+        self._http_client = http_client
 
     async def _request(self, url: str) -> Dict:
         cache_file_path = self._cache_directory_path / hashlib.md5(url.encode('utf-8')).hexdigest()
@@ -92,7 +93,7 @@ class _Retriever:
         if response_data is None:
             logger = logging.getLogger()
             try:
-                async with self._session.get(url) as response:
+                async with self._http_client.get(url) as response:
                     response_data = await response.json(encoding='utf-8')
                     json_data = await response.text()
                     async with aiofiles.open(cache_file_path, 'w', encoding='utf-8') as f:
@@ -206,14 +207,29 @@ class _Populator:
             link.label = entry.title
 
 
+@reactive
 class Wikipedia(Extension, Jinja2Provider, PostLoader, GuiBuilder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._retriever = _Retriever(self._app.http_client, self._app.configuration.cache_directory_path / self.name())
-        self._populator = _Populator(self._app, self._retriever)
+        self.__retriever = None
+        self.__populator = None
 
     async def post_load(self) -> None:
         await self._populator.populate()
+
+    @reactive(on_trigger=(lambda wikipedia: setattr(wikipedia, '__retriever', None),))
+    @property
+    def _retriever(self) -> _Retriever:
+        if self.__retriever is None:
+            self.__retriever = _Retriever(self._app.http_client, self._app.configuration.cache_directory_path / self.name())
+        return self.__retriever
+
+    @reactive(on_trigger=(lambda wikipedia: setattr(wikipedia, '__populator', None),))
+    @property
+    def _populator(self) -> _Populator:
+        if self.__populator is None:
+            self.__populator = _Populator(self._app, self._retriever)
+        return self.__populator
 
     @property
     def filters(self) -> Dict[str, Callable]:
