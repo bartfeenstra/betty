@@ -217,19 +217,27 @@ class Wikipedia(Extension, Jinja2Provider, PostLoader, GuiBuilder):
     async def post_load(self) -> None:
         await self._populator.populate()
 
-    @reactive(on_trigger=(lambda wikipedia: setattr(wikipedia, '__retriever', None),))
+    @reactive
     @property
     def _retriever(self) -> _Retriever:
         if self.__retriever is None:
             self.__retriever = _Retriever(self._app.http_client, self._app.configuration.cache_directory_path / self.name())
         return self.__retriever
 
-    @reactive(on_trigger=(lambda wikipedia: setattr(wikipedia, '__populator', None),))
+    @_retriever.deleter
+    def _retriever(self) -> None:
+        self.__retriever = None
+
+    @reactive
     @property
     def _populator(self) -> _Populator:
         if self.__populator is None:
             self.__populator = _Populator(self._app, self._retriever)
         return self.__populator
+
+    @_populator.deleter
+    def _populator(self) -> None:
+        self.__populator = None
 
     @property
     def filters(self) -> Dict[str, Callable]:
