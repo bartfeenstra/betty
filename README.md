@@ -129,7 +129,6 @@ extensions:
             - `file`: the path to a *Gramps XML* or *Gramps XML Package* file.
     - `betty.extension.privatizer.Privatizer`: Marks living people private. Configuration: `~`.
     - `betty.extension.redoc.ReDoc`: Renders interactive and user-friendly HTTP API documentation using [ReDoc](https://github.com/Redocly/redoc).
-    - `betty.extension.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
     - `betty.extension.wikipedia.Wikipedia`: Lets templates and other extensions retrieve complementary Wikipedia entries.
 
 ### Translations
