@@ -93,7 +93,6 @@ SETUP = {
             'betty.extension.demo.Demo=betty.extension.demo.Demo',
             'betty.extension.deriver.Deriver=betty.extension.deriver.Deriver',
             'betty.extension.gramps.Gramps=betty.extension.gramps.Gramps',
-            'betty.extension.maps.Maps=betty.extension.maps.Maps',
             'betty.extension.privatizer.Privatizer=betty.extension.privatizer.Privatizer',
             'betty.extension.redoc.ReDoc=betty.extension.redoc.ReDoc',
             'betty.extension.trees.Trees=betty.extension.trees.Trees',
