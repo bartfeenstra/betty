@@ -94,7 +94,6 @@ extensions:
     family_trees:
       - file: ./gramps.gpkg
   betty.extension.privatizer.Privatizer: ~
-  betty.extension.redoc.ReDoc: ~
   betty.extension.trees.Trees: ~
   betty.extension.wikipedia.Wikipedia: ~
 ```
@@ -128,7 +127,6 @@ extensions:
         - `family_trees`: An array defining zero or more Gramps family trees to load. Each item is an object with the following keys:
             - `file`: the path to a *Gramps XML* or *Gramps XML Package* file.
     - `betty.extension.privatizer.Privatizer`: Marks living people private. Configuration: `~`.
-    - `betty.extension.redoc.ReDoc`: Renders interactive and user-friendly HTTP API documentation using [ReDoc](https://github.com/Redocly/redoc).
     - `betty.extension.wikipedia.Wikipedia`: Lets templates and other extensions retrieve complementary Wikipedia entries.
 
 ### Translations

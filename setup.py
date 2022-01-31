@@ -94,7 +94,6 @@ SETUP = {
             'betty.extension.deriver.Deriver=betty.extension.deriver.Deriver',
             'betty.extension.gramps.Gramps=betty.extension.gramps.Gramps',
             'betty.extension.privatizer.Privatizer=betty.extension.privatizer.Privatizer',
-            'betty.extension.redoc.ReDoc=betty.extension.redoc.ReDoc',
             'betty.extension.wikipedia.Wikipedia=betty.extension.wikipedia.Wikipedia',
         ],
     },

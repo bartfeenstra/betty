@@ -1,3 +1,4 @@
+from contextlib import suppress
 from typing import Set, Type
 
 from geopy import Point
@@ -5,7 +6,6 @@ from geopy import Point
 from betty.model.ancestry import Place, PlaceName, Person, Presence, Subject, Birth, PersonName, Link, Death, Marriage, \
     Source, Citation, Event
 from betty.extension import Extension
-from betty.extension.redoc import ReDoc
 from betty.extension.wikipedia import Wikipedia
 from betty.load import Loader
 from betty.locale import Date, DateRange
@@ -14,7 +14,11 @@ from betty.locale import Date, DateRange
 class Demo(Extension, Loader):
     @classmethod
     def depends_on(cls) -> Set[Type[Extension]]:
-        return {ReDoc, Wikipedia}
+        dependencies = {Wikipedia}
+        with suppress(ImportError):
+            from betty_http_api_doc.extension import HttpApiDoc
+            dependencies.add(HttpApiDoc)
+        return dependencies
 
     async def load(self) -> None:
         amsterdam = Place('betty-demo-amsterdam', [PlaceName('Amsterdam')])
