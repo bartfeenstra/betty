@@ -95,9 +95,6 @@ extensions:
     family_trees:
       - file: ./gramps.gpkg
   betty.extension.maps.Maps: ~
-  betty.extension.nginx.Nginx:
-    www_directory_path: /var/www/betty
-    https: true
   betty.extension.privatizer.Privatizer: ~
   betty.extension.redoc.ReDoc: ~
   betty.extension.trees.Trees: ~
@@ -110,7 +107,7 @@ extensions:
 - `root_path` (optional); The relative path under the public URL at which the site will be published.
 - `clean_urls` (optional); A boolean indicating whether to use clean URLs, e.g. `/path` instead of `/path/index.html`.
 - `content_negotiation` (optional, defaults to `false`): Enables dynamic content negotiation, but requires a web server
-    that supports it. Also see the `betty.extension.nginx.Nginx` extension. This implies `clean_urls`.
+    that supports it. This implies `clean_urls`.
 - `title` (optional); The site's title.
 - `author` (optional); The site's author and copyright holder.
 - `lifetime_threshold` (optional); The number of years people are expected to live at most, e.g. after which they're
@@ -133,19 +130,6 @@ extensions:
         - `family_trees`: An array defining zero or more Gramps family trees to load. Each item is an object with the following keys:
             - `file`: the path to a *Gramps XML* or *Gramps XML Package* file.
     - `betty.extension.maps.Maps`: Renders interactive maps using [Leaflet](https://leafletjs.com/).
-    - `betty.extension.nginx.Nginx`: Creates an [nginx](https://nginx.org) configuration file and `Dockerfile` in the
-        output directory. If `content_negotiation` is enabled. You must make sure the nginx
-        [Lua module](https://github.com/openresty/lua-nginx-module#readme) is enabled, and
-        [CONE](https://github.com/bartfeenstra/cone)'s
-        [cone.lua](https://raw.githubusercontent.com/bartfeenstra/cone/master/cone.lua) can be found by putting it in
-        nginx's [lua_package_path](https://github.com/openresty/lua-nginx-module#lua_package_path). This is done
-        automatically when using the `Dockerfile`.
-        Configuration:
-        - `www_directory_path` (optional): The public www directory where Betty will be deployed. Defaults to `www`
-            inside the output directory.
-        - `https` (optional): Whether or not nginx will be serving Betty over HTTPS. Most upstream nginx servers will
-            want to have this disabled, so the downstream server can terminate SSL and communicate over HTTP 2 instead.
-            Defaults to `true` if the base URL specifies HTTPS, or `false` otherwise.
     - `betty.extension.privatizer.Privatizer`: Marks living people private. Configuration: `~`.
     - `betty.extension.redoc.ReDoc`: Renders interactive and user-friendly HTTP API documentation using [ReDoc](https://github.com/Redocly/redoc).
     - `betty.extension.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
@@ -228,29 +212,6 @@ async def generate():
         await generate(app)
 
 ```
-
-### Docker
-The `betty.extension.nginx.Nginx` extension generates `./nginx/Dockerfile` inside your Betty site's output directory.
-This image includes all dependencies needed to serve your Betty site over HTTP (port 80).
-
-To run Betty using this Docker image, configure the extension as follows:
-```yaml
-# ...
-extensions:
-    betty.extension.nginx.Nginx:
-        www_directory_path: /var/www/betty/
-        https: false
-``` 
-Then generate your site, and when starting the container based on the generated image, mount `./nginx/nginx.conf` and
-`./www` from the output directory to `/etc/nginx/conf.d/betty.conf` and `/var/www/betty` respectively.
-
-You can choose to mount the container's port 80 to a port on your host machine, or set up a load balancer to proxy
-traffic to the container.
-
-#### HTTPS/SSL
-The Docker image does not currently support secure connections
-([read more](https://github.com/bartfeenstra/betty/issues/511)). For HTTPS support, you will have to set up a separate
-web server to terminate SSL, and forward all traffic to the container over HTTP.  
 
 ## Development
 First, [fork and clone](https://guides.github.com/activities/forking/) the repository, and navigate to its root directory.

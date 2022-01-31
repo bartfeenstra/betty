@@ -4,7 +4,6 @@ from betty import generate, load, serve
 from betty.app import App
 from betty.config import Configuration, LocaleConfiguration, ExtensionConfiguration
 from betty.extension.demo import Demo
-from betty.extension.nginx import Nginx
 from betty.serve import Server
 
 
@@ -23,8 +22,6 @@ class DemoServer(Server):
         output_directory_path = await self._output_directory.__aenter__()
         configuration = Configuration(output_directory_path, 'https://example.com')
         configuration.extensions.add(ExtensionConfiguration(Demo))
-        # The Nginx extension allows content negotiation if Docker is also available.
-        configuration.extensions.add(ExtensionConfiguration(Nginx))
         # Include all of the translations Betty ships with.
         configuration.locales.replace([
             LocaleConfiguration('en-US', 'en'),
