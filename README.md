@@ -27,7 +27,6 @@ Betty generates generates a [static site](https://en.wikipedia.org/wiki/Static_w
 This means that once your site has been generated, you will not need any special software to publish it. It's **fast and
 secure**.
 - Builds pages for people, places, events, and media.
-- Renders interactive maps.
 - Fully multilingual: localize the site to one or more languages of your choice.
 - [Responsive](https://en.wikipedia.org/wiki/Responsive_web_design), and mobile- and touch-friendly interface.
 - Privacy and anonymization filters for living people.
@@ -94,7 +93,6 @@ extensions:
   betty.extension.gramps.Gramps:
     family_trees:
       - file: ./gramps.gpkg
-  betty.extension.maps.Maps: ~
   betty.extension.privatizer.Privatizer: ~
   betty.extension.redoc.ReDoc: ~
   betty.extension.trees.Trees: ~
@@ -129,7 +127,6 @@ extensions:
     - `betty.extension.gramps.Gramps`: Loads Gramps family trees. Configuration:
         - `family_trees`: An array defining zero or more Gramps family trees to load. Each item is an object with the following keys:
             - `file`: the path to a *Gramps XML* or *Gramps XML Package* file.
-    - `betty.extension.maps.Maps`: Renders interactive maps using [Leaflet](https://leafletjs.com/).
     - `betty.extension.privatizer.Privatizer`: Marks living people private. Configuration: `~`.
     - `betty.extension.redoc.ReDoc`: Renders interactive and user-friendly HTTP API documentation using [ReDoc](https://github.com/Redocly/redoc).
     - `betty.extension.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
