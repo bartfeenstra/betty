@@ -95,7 +95,6 @@ SETUP = {
             'betty.extension.gramps.Gramps=betty.extension.gramps.Gramps',
             'betty.extension.privatizer.Privatizer=betty.extension.privatizer.Privatizer',
             'betty.extension.redoc.ReDoc=betty.extension.redoc.ReDoc',
-            'betty.extension.trees.Trees=betty.extension.trees.Trees',
             'betty.extension.wikipedia.Wikipedia=betty.extension.wikipedia.Wikipedia',
         ],
     },
