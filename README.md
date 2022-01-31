@@ -17,7 +17,6 @@ Betty is a static site generator for your [Gramps](https://gramps-project.org/) 
   - [Gramps](#gramps)
   - [GEDCOM files](#gedcom-files)
   - [The Python API](#the-python-api)
-  - [Docker](#docker)
 - [Development](#development)
 - [Contributions](#contributions)
 - [License](#license)
@@ -36,7 +35,6 @@ secure**.
 
 ### Requirements
 - **Python 3.7+**
-- Node.js 10+ (optional)
 - Linux, Mac OS, or Windows
 
 ### Instructions
@@ -213,7 +211,6 @@ First, [fork and clone](https://guides.github.com/activities/forking/) the repos
 ### Requirements
 - The installation requirements documented earlier.
 - Node.js
-- [Docker](https://www.docker.com/)
 - Bash (you're all good if `which bash` outputs a path in your terminal)
 
 ### Installation

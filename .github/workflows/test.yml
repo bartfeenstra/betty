@@ -9,42 +9,21 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: 'Latest: Linux, Python 3.9 & Node.js 15'
+          - name: 'Latest: Linux, Python 3.9'
             os: ubuntu-latest
             python: '3.9'
-            node: '15'
           - name: 'Python 3.8'
             os: ubuntu-latest
             python: '3.8'
-            node: '15'
           - name: 'Python 3.7'
             os: ubuntu-latest
             python: '3.7'
-            node: '15'
-          - name: 'Node.js 16'
-            os: ubuntu-latest
-            python: '3.9'
-            node: '16'
-          - name: 'Node.js 14'
-            os: ubuntu-latest
-            python: '3.9'
-            node: '14'
-          - name: 'Node.js 12'
-            os: ubuntu-latest
-            python: '3.9'
-            node: '12'
-          - name: 'Node.js 10'
-            os: ubuntu-latest
-            python: '3.9'
-            node: '10'
           - name: 'Mac OS'
             os: macos-latest
             python: '3.9'
-            node: '15'
           - name: 'Windows'
             os: windows-latest
             python: '3.9'
-            node: '15'
 
     steps:
       - name: Check out the source code
@@ -55,10 +34,8 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
-      - name: Set up Node.js ${{ matrix.node }}
+      - name: Set up Node.js
         uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node }}
 
       - name: Install APT dependencies
         if: startsWith(runner.os, 'Linux')

@@ -43,7 +43,6 @@ SETUP = {
         'aiohttp ~= 3.8.1',
         'babel ~= 2.9.1',
         'click ~= 8.0.3',
-        'docker ~= 5.0.0',
         'geopy ~= 2.2.0',
         'graphlib-backport ~= 1.0; python_version < "3.9"',
         # This is a loose constraint because of conflicts between click 8.0.3 and flake8 4.0.1.
