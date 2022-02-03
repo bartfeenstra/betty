@@ -4,7 +4,7 @@ from collections import defaultdict
 
 from pathlib import Path
 
-from reactives import reactive
+from reactives import reactive, scope
 
 from betty.importlib import import_any
 
@@ -71,6 +71,31 @@ class Extensions:
         raise NotImplementedError
 
 
+class ListExtensions(Extensions):
+    def __init__(self, extensions: List[List[Extension]]):
+        self._extensions = extensions
+
+    @scope.register_self
+    def __getitem__(self, extension_type: Type[Extension]) -> Extension:
+        for extension in self.flatten():
+            if type(extension) == extension_type:
+                return extension
+        raise KeyError(f'Unknown extension of type "{extension_type}"')
+
+    @scope.register_self
+    def __iter__(self) -> Sequence[Sequence[Extension]]:
+        # Use a generator so we discourage calling code from storing the result.
+        for batch in self._extensions:
+            yield (extension for extension in batch)
+
+    @scope.register_self
+    def __contains__(self, extension_type: Type[Extension]) -> bool:
+        for extension in self.flatten():
+            if type(extension) == extension_type:
+                return True
+        return False
+
+
 @reactive
 class Configuration:
     def __init__(self):
@@ -129,13 +154,23 @@ class ExtensionDispatcher(Dispatcher):
     def __init__(self, extensions: Extensions):
         self._extensions = extensions
 
-    def dispatch(self, target_type: Type, target_method_name: str) -> TargetedDispatcher:
+    def dispatch(self, target_type: Type) -> TargetedDispatcher:
+        target_method_names = [method_name for method_name in dir(target_type) if not method_name.startswith('_')]
+        if len(target_method_names) != 1:
+            raise ValueError(f"A dispatch's target type must have a single method to dispatch to, but {target_type} has {len(target_method_names)}.")
+        target_method_name = target_method_names[0]
+
         async def _dispatch(*args, **kwargs) -> List[Any]:
             return [
-                await asyncio.gather(*[
-                    getattr(target_extension, target_method_name)(*args, **kwargs) for
-                    target_extension in target_extension_batch if isinstance(target_extension, target_type)
-                ]) for target_extension_batch in self._extensions
+                result
+                for target_extension_batch
+                in self._extensions
+                for result
+                in await asyncio.gather(*[
+                    getattr(target_extension, target_method_name)(*args, **kwargs)
+                    for target_extension in target_extension_batch
+                    if isinstance(target_extension, target_type)
+                ])
             ]
         return _dispatch
 

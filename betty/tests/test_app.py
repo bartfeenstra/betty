@@ -142,7 +142,7 @@ class AppTest(TestCase):
         configuration.extensions.add(ExtensionConfiguration(DependsOnNonConfigurableExtensionExtensionExtension))
         async with App(configuration) as sut:
             carrier = []
-            await sut.dispatcher.dispatch(Tracker, 'track')(carrier)
+            await sut.dispatcher.dispatch(Tracker)(carrier)
             self.assertEquals(3, len(carrier))
             self.assertEquals(NonConfigurableExtension, type(carrier[0]))
             self.assertEquals(DependsOnNonConfigurableExtensionExtension,
@@ -157,7 +157,7 @@ class AppTest(TestCase):
         configuration.extensions.add(ExtensionConfiguration(AlsoDependsOnNonConfigurableExtensionExtension))
         async with App(configuration) as sut:
             carrier = []
-            await sut.dispatcher.dispatch(Tracker, 'track')(carrier)
+            await sut.dispatcher.dispatch(Tracker)(carrier)
             self.assertEquals(3, len(carrier))
             self.assertEquals(NonConfigurableExtension, type(carrier[0]))
             self.assertIn(DependsOnNonConfigurableExtensionExtension, [
@@ -180,7 +180,7 @@ class AppTest(TestCase):
         configuration.extensions.add(ExtensionConfiguration(ComesBeforeNonConfigurableExtensionExtension))
         async with App(configuration) as sut:
             carrier = []
-            await sut.dispatcher.dispatch(Tracker, 'track')(carrier)
+            await sut.dispatcher.dispatch(Tracker)(carrier)
             self.assertEquals(2, len(carrier))
             self.assertEquals(
                 ComesBeforeNonConfigurableExtensionExtension, type(carrier[0]))
@@ -192,7 +192,7 @@ class AppTest(TestCase):
         configuration.extensions.add(ExtensionConfiguration(ComesBeforeNonConfigurableExtensionExtension))
         async with App(configuration) as sut:
             carrier = []
-            await sut.dispatcher.dispatch(Tracker, 'track')(carrier)
+            await sut.dispatcher.dispatch(Tracker)(carrier)
             self.assertEquals(1, len(carrier))
             self.assertEquals(
                 ComesBeforeNonConfigurableExtensionExtension, type(carrier[0]))
@@ -204,7 +204,7 @@ class AppTest(TestCase):
         configuration.extensions.add(ExtensionConfiguration(NonConfigurableExtension))
         async with App(configuration) as sut:
             carrier = []
-            await sut.dispatcher.dispatch(Tracker, 'track')(carrier)
+            await sut.dispatcher.dispatch(Tracker)(carrier)
             self.assertEquals(2, len(carrier))
             self.assertEquals(NonConfigurableExtension, type(carrier[0]))
             self.assertEquals(ComesAfterNonConfigurableExtensionExtension,
@@ -216,7 +216,7 @@ class AppTest(TestCase):
         configuration.extensions.add(ExtensionConfiguration(ComesAfterNonConfigurableExtensionExtension))
         async with App(configuration) as sut:
             carrier = []
-            await sut.dispatcher.dispatch(Tracker, 'track')(carrier)
+            await sut.dispatcher.dispatch(Tracker)(carrier)
             self.assertEquals(1, len(carrier))
             self.assertEquals(ComesAfterNonConfigurableExtensionExtension,
                               type(carrier[0]))

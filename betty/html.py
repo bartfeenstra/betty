@@ -1,11 +1,13 @@
-from typing import Set
+from typing import List
 
 
-class HtmlProvider:
+class CssProvider:
     @property
-    def public_css_paths(self) -> Set[str]:
-        return set()
+    def public_css_paths(self) -> List[str]:
+        raise NotImplementedError
 
+
+class JsProvider:
     @property
-    def public_js_paths(self) -> Set[str]:
-        return set()
+    def public_js_paths(self) -> List[str]:
+        raise NotImplementedError

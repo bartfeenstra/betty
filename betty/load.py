@@ -18,6 +18,6 @@ class PostLoader:
 
 
 async def load(app: App) -> None:
-    await app.dispatcher.dispatch(Loader, 'load')()
-    await app.dispatcher.dispatch(PostLoader, 'post_load')()
+    await app.dispatcher.dispatch(Loader)()
+    await app.dispatcher.dispatch(PostLoader)()
     await app.wait()
