@@ -67,18 +67,21 @@ jobs:
           ./bin/build-dev
         shell: bash
 
-      - name: Get the pip cache directory path
-        id: pip-cache
-        run: |
-          echo "::set-output name=dir::$(pip cache dir)"
-
-      - name: Cache the pip cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.pip-cache.outputs.dir }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+# @todo Disable caching for now, because it somehow causes random test failures because the gettext functions (_(),
+# @todo gettext(), etc) are mysteriously no longer set. This cannot be reproduced locally, but only during Github
+# @todo Actions builds.
+#      - name: Get the pip cache directory path
+#        id: pip-cache
+#        run: |
+#          echo "::set-output name=dir::$(pip cache dir)"
+#
+#      - name: Cache the pip cache
+#        uses: actions/cache@v2
+#        with:
+#          path: ${{ steps.pip-cache.outputs.dir }}
+#          key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
+#          restore-keys: |
+#            ${{ runner.os }}-pip-
 
       - name: Get the npm cache directory path
         id: npm-cache
