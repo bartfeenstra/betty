@@ -44,6 +44,7 @@ async def generate(app: App) -> None:
             os.chmod(directory_path / subdirectory_name, 0o755)
         for file_name in file_names:
             os.chmod(directory_path / file_name, 0o644)
+    await app.wait()
 
 
 async def _generate(app: App) -> None:
@@ -52,7 +53,7 @@ async def _generate(app: App) -> None:
     await app.renderer.render_tree(app.configuration.www_directory_path)
     for locale_configuration in app.configuration.locales:
         locale = locale_configuration.locale
-        async with app.with_locale(locale) as app:
+        async with app.with_locale(locale):
             if app.configuration.multilingual:
                 www_directory_path = app.configuration.www_directory_path / locale_configuration.alias
             else:

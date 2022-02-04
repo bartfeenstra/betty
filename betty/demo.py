@@ -31,7 +31,7 @@ class DemoServer(Server):
         ])
         self._app = App(configuration)
         self._server = None
-        await self._app.enter()
+        await self._app.activate()
         await load.load(self._app)
         await generate.generate(self._app)
         self._server = serve.AppServer(self._app)
@@ -41,6 +41,6 @@ class DemoServer(Server):
         if self._server is not None:
             await self._server.stop()
         if self._app is not None:
-            await self._app.exit()
+            await self._app.deactivate()
         if self._output_directory is not None:
             self._output_directory.__aexit__(None, None, None)

@@ -8,6 +8,7 @@ from betty.config import Configuration, ExtensionConfiguration
 from betty.extension.anonymizer import Anonymizer, anonymize, anonymize_person, anonymize_event, anonymize_file, \
     anonymize_citation, anonymize_source, AnonymousSource, AnonymousCitation
 from betty.load import load
+from betty.locale import Translations
 from betty.model import Entity
 from betty.model.ancestry import Ancestry, Person, File, Source, Citation, PersonName, Presence, Event, Birth, Subject, \
     HasCitations
@@ -15,6 +16,13 @@ from betty.tests import TestCase
 
 
 class AnonymousSourceTest(TestCase):
+    def setUp(self) -> None:
+        self._translations = Translations(gettext.NullTranslations())
+        self._translations.install()
+
+    def tearDown(self) -> None:
+        self._translations.uninstall()
+
     def test_name(self):
         self.assertIsInstance(AnonymousSource().name, str)
 
@@ -34,6 +42,13 @@ class AnonymousSourceTest(TestCase):
 
 
 class AnonymousCitationTest(TestCase):
+    def setUp(self) -> None:
+        self._translations = Translations(gettext.NullTranslations())
+        self._translations.install()
+
+    def tearDown(self) -> None:
+        self._translations.uninstall()
+
     def test_location(self):
         source = Mock(Source)
         self.assertIsInstance(AnonymousCitation(source).location, str)
@@ -55,7 +70,11 @@ class AnonymousCitationTest(TestCase):
 
 class AnonymizeTest(TestCase):
     def setUp(self) -> None:
-        gettext.NullTranslations().install()
+        self._translations = Translations(gettext.NullTranslations())
+        self._translations.install()
+
+    def tearDown(self) -> None:
+        self._translations.uninstall()
 
     @patch('betty.extension.anonymizer.anonymize_person')
     def test_with_public_person_should_not_anonymize(self, m_anonymize_person) -> None:
@@ -243,7 +262,11 @@ class AnonymizeFileTest(TestCase):
 
 class AnonymizeSourceTest(TestCase):
     def setUp(self) -> None:
-        gettext.NullTranslations().install()
+        self._translations = Translations(gettext.NullTranslations())
+        self._translations.install()
+
+    def tearDown(self) -> None:
+        self._translations.uninstall()
 
     def test_should_remove_citations(self) -> None:
         source = Source('S0', 'The Source')
@@ -283,7 +306,11 @@ class AnonymizeSourceTest(TestCase):
 
 class AnonymizeCitationTest(TestCase):
     def setUp(self) -> None:
-        gettext.NullTranslations().install()
+        self._translations = Translations(gettext.NullTranslations())
+        self._translations.install()
+
+    def tearDown(self) -> None:
+        self._translations.uninstall()
 
     def test_should_remove_facts(self) -> None:
         source = Source('The Source')

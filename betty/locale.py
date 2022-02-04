@@ -9,7 +9,7 @@ from io import StringIO
 from contextlib import suppress
 from functools import total_ordering
 from pathlib import Path
-from typing import Optional, Tuple, Union, List
+from typing import Optional, Tuple, Union, List, Dict, Callable
 
 import babel
 from babel import dates, Locale
@@ -230,12 +230,12 @@ Datey = Union[Date, DateRange]
 
 
 class Translations(gettext.NullTranslations):
-    _KEYS = {'_', 'gettext', 'ngettext', 'lgettext', 'lngettext'}
+    _KEYS = ('_', 'gettext', 'lgettext', 'lngettext', 'ngettext', 'npgettext', 'pgettext')
 
     def __init__(self, fallback: gettext.NullTranslations):
         gettext.NullTranslations.__init__(self)
         self._fallback = fallback
-        self._previous_context = {}
+        self._previous_context: Optional[Dict[str, Callable]] = None
 
     def __enter__(self):
         self.install()
@@ -243,19 +243,32 @@ class Translations(gettext.NullTranslations):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.uninstall()
 
-    def install(self, names=None):
+    def install(self, _=None):
         import builtins
+
+        if self._previous_context is not None:
+            raise RuntimeError('These translations are installed already.')
+
         self._previous_context = {
-            key: value for key, value in builtins.__dict__.items() if key in self._KEYS}
+            key: value
+            for key, value
+            in builtins.__dict__.items()
+            if key in self._KEYS
+        }
         self._fallback.install(self._KEYS)
 
     def uninstall(self):
         import builtins
+
+        if self._previous_context is None:
+            raise RuntimeError('These translations are not yet installed.')
+
         for key in self._KEYS:
             # The function may not have been installed.
             with suppress(KeyError):
                 del builtins.__dict__[key]
         builtins.__dict__.update(self._previous_context)
+        self._previous_context = None
 
 
 def negotiate_locale(preferred_locale: str, available_locales: List[str]) -> Optional[str]:

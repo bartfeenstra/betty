@@ -682,11 +682,11 @@ class ProjectWindow(BettyMainWindow):
 
     @sync
     async def init(self):
-        await self._app.enter()
+        await self._app.activate()
 
     @sync
     async def close(self):
-        await self._app.exit()
+        await self._app.deactivate()
 
     def _initialize_menu(self) -> None:
         super()._initialize_menu()

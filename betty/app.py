@@ -3,7 +3,7 @@ import gettext
 from collections import defaultdict
 from concurrent.futures._base import Executor
 from concurrent.futures.thread import ThreadPoolExecutor
-from contextlib import AsyncExitStack
+from contextlib import AsyncExitStack, asynccontextmanager
 
 try:
     from graphlib import TopologicalSorter
@@ -21,7 +21,6 @@ from betty.extension import _build_extension_type_graph, ConfigurableExtension, 
 from betty.lock import Locks
 from betty.render import Renderer, SequentialRenderer
 
-from copy import copy
 from typing import Type, Dict, Sequence, List
 
 from betty.model.ancestry import Ancestry
@@ -64,7 +63,7 @@ class _AppExtensions(Extensions):
 @reactive
 class App:
     def __init__(self, configuration: Configuration):
-        self._app_stack = []
+        self._active = False
         self._ancestry = Ancestry()
         self._configuration = configuration
         self._assets = FileSystem()
@@ -76,7 +75,7 @@ class App:
         self._translations = defaultdict(gettext.NullTranslations)
         self._default_translations = None
         self._extensions = None
-        self._extension_exit_stack = AsyncExitStack()
+        self._activation_exit_stack = AsyncExitStack()
         self._jinja2_environment = None
         self._renderer = None
         self._executor = None
@@ -87,48 +86,48 @@ class App:
     def configuration(self) -> Configuration:
         return self._configuration
 
-    async def enter(self):
-        if not self._app_stack:
-            for extension in self.extensions.flatten():
-                await self._extension_exit_stack.enter_async_context(extension)
+    async def wait(self) -> None:
+        await self._wait_for_threads()
 
-        self._default_translations = Translations(self.translations[self.locale])
-        self._default_translations.install()
+    async def _wait_for_threads(self) -> None:
+        del self.executor
 
-        if self._executor is None:
-            self._executor = ExceptionRaisingExecutor(ThreadPoolExecutor())
+    async def activate(self) -> App:
+        if self._active:
+            raise RuntimeError('This application is active already.')
+        self._active = True
 
-        self._app_stack.append(self)
+        await self._wait_for_threads()
+
+        await self._activation_exit_stack.enter_async_context(self.with_locale(self.locale))
+        for extension in self.extensions.flatten():
+            await self._activation_exit_stack.enter_async_context(extension)
 
         return self
 
-    async def exit(self):
-        self._app_stack.pop()
+    async def deactivate(self):
+        if not self._active:
+            raise RuntimeError('This application is not yet active.')
+        self._active = False
 
-        self._default_translations.uninstall()
+        await self._wait_for_threads()
 
-        if not self._app_stack:
-            self._executor.shutdown()
-            self._executor = None
-
-            if self._http_client is not None:
-                await self._http_client.close()
-                self._http_client = None
-
-            await self._extension_exit_stack.aclose()
+        await self._activation_exit_stack.aclose()
 
     async def __aenter__(self) -> App:
-        return await self.enter()
+        return await self.activate()
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self.exit()
+        await self.deactivate()
 
+    @reactive
     @property
     def debug(self) -> bool:
         if self._debug is not None:
             return self._debug
         return self._configuration.debug
 
+    @reactive
     @property
     def locale(self) -> str:
         if self._locale is not None:
@@ -222,7 +221,7 @@ class App:
 
         return self._translations
 
-    @reactive(on_trigger=(lambda app: setattr(app, '_jinja2_environment', None),))
+    @reactive(on_trigger=(lambda app: delattr(app, '_jinja2_environment'),))
     @property
     def jinja2_environment(self) -> Environment:
         if not self._jinja2_environment:
@@ -231,7 +230,11 @@ class App:
 
         return self._jinja2_environment
 
-    @reactive(on_trigger=(lambda app: setattr(app, '_renderer', None),))
+    @jinja2_environment.deleter
+    def jinja2_environment(self) -> None:
+        self._jinja2_environment = None
+
+    @reactive(on_trigger=(lambda app: delattr(app, '_renderer'),))
     @property
     def renderer(self) -> Renderer:
         if not self._renderer:
@@ -243,40 +246,76 @@ class App:
 
         return self._renderer
 
+    @renderer.deleter
+    def renderer(self) -> None:
+        self._renderer = None
+
     @property
     def executor(self) -> Executor:
         if self._executor is None:
-            raise RuntimeError("Cannot get the executor before this app's context is entered.")
+            self._executor = ExceptionRaisingExecutor(ThreadPoolExecutor())
         return self._executor
+
+    @executor.deleter
+    def executor(self) -> None:
+        if self._executor is not None:
+            self._executor.shutdown()
+            self._executor = None
 
     @property
     def locks(self) -> Locks:
         return self._locks
 
+    @reactive(on_trigger=(lambda app: delattr(app, 'http_client'),))
     @property
     def http_client(self) -> aiohttp.ClientSession:
         if self._http_client is None:
             self._http_client = aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit_per_host=5))
         return self._http_client
 
-    def with_locale(self, locale: str) -> App:
+    @http_client.deleter
+    def http_client(self) -> None:
+        if self._http_client is not None:
+            self._http_client.close()
+            self._http_client = None
+
+    @asynccontextmanager
+    async def with_locale(self, locale: str) -> App:
+        """
+        Temporarily change this application's locale and the global gettext translations.
+        """
         locale = negotiate_locale(locale, [locale_configuration.locale for locale_configuration in self.configuration.locales])
+
         if locale is None:
             raise ValueError('Locale "%s" is not enabled.' % locale)
-        if locale == self.locale:
-            return self
 
-        app = copy(self)
-        app._locale = locale
+        previous_locale = self._locale
+        if locale == previous_locale:
+            yield self
+            return
+        await self._wait_for_threads()
 
-        # Clear all locale-dependent lazy-loaded attributes.
-        app._jinja2_environment = None
-        app._renderer = None
+        self._locale = locale
+        with Translations(self.translations[locale]):
+            self.react.getattr('locale').react.trigger()
+            yield self
+            await self._wait_for_threads()
 
-        return app
+        self._locale = previous_locale
+        self.react.getattr('locale').react.trigger()
 
-    def with_debug(self, debug: bool) -> App:
-        app = copy(self)
-        app._debug = debug
+    @asynccontextmanager
+    async def with_debug(self, debug: bool) -> App:
+        previous_debug = self.debug
+        if debug == previous_debug:
+            yield self
+            return
+        await self._wait_for_threads()
 
-        return app
+        self._debug = debug
+        self.react.getattr('debug').react.trigger()
+        yield self
+        await self._wait_for_threads()
+
+        self._debug = previous_debug
+        self.react.getattr('debug').react.trigger()
