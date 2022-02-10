@@ -1,10 +1,12 @@
 from __future__ import annotations
+
+import builtins
 import calendar
 import contextlib
 import datetime
-import gettext
 import operator
 import shutil
+from gettext import NullTranslations, GNUTranslations
 from io import StringIO
 from contextlib import suppress
 from functools import total_ordering
@@ -229,13 +231,35 @@ class DateRange:
 Datey = Union[Date, DateRange]
 
 
-class Translations(gettext.NullTranslations):
-    _KEYS = ('_', 'gettext', 'lgettext', 'lngettext', 'ngettext', 'npgettext', 'pgettext')
+class TranslationsError(BaseException):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-    def __init__(self, fallback: gettext.NullTranslations):
-        gettext.NullTranslations.__init__(self)
+
+class TranslationsInstallationError(RuntimeError, TranslationsError):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+class Translations(NullTranslations):
+    _Context = Optional[Dict[str, Callable]]
+
+    _GETTEXT_BUILTINS = (
+        '_',
+        'gettext',
+        'lgettext',
+        'lngettext',
+        'ngettext',
+        'npgettext',
+        'pgettext',
+    )
+
+    _stack: List[Translations] = []
+
+    def __init__(self, fallback: NullTranslations):
+        super().__init__()
         self._fallback = fallback
-        self._previous_context: Optional[Dict[str, Callable]] = None
+        self._previous_context: Translations._Context = None
 
     def __enter__(self):
         self.install()
@@ -244,31 +268,36 @@ class Translations(gettext.NullTranslations):
         self.uninstall()
 
     def install(self, _=None):
-        import builtins
-
         if self._previous_context is not None:
-            raise RuntimeError('These translations are installed already.')
+            raise TranslationsInstallationError('These translations are installed already.')
 
-        self._previous_context = {
-            key: value
-            for key, value
-            in builtins.__dict__.items()
-            if key in self._KEYS
-        }
-        self._fallback.install(self._KEYS)
+        self._previous_context = self._get_current_context()
+        super().install(self._GETTEXT_BUILTINS)
+
+        Translations._stack.insert(0, self)
 
     def uninstall(self):
-        import builtins
-
         if self._previous_context is None:
-            raise RuntimeError('These translations are not yet installed.')
+            raise TranslationsInstallationError('These translations are not yet installed.')
 
-        for key in self._KEYS:
-            # The function may not have been installed.
+        if self != Translations._stack[0]:
+            raise TranslationsInstallationError(f'These translations were not the last to be installed. {Translations._stack.index(self)} other translation(s) must be uninstalled before these translations can be uninstalled as well.')
+        del Translations._stack[0]
+
+        for key in self._GETTEXT_BUILTINS:
+            # Built-ins are not owned by Betty, so allow for them to have disappeared.
             with suppress(KeyError):
                 del builtins.__dict__[key]
         builtins.__dict__.update(self._previous_context)
         self._previous_context = None
+
+    def _get_current_context(self) -> _Context:
+        return {
+            key: value
+            for key, value
+            in builtins.__dict__.items()
+            if key in self._GETTEXT_BUILTINS
+        }
 
 
 def negotiate_locale(preferred_locale: str, available_locales: List[str]) -> Optional[str]:
@@ -295,7 +324,7 @@ def negotiate_localizeds(preferred_locale: str, localizeds: List[Localized]) -> 
         return localizeds[0]
 
 
-def open_translations(locale: str, directory_path: Path) -> Optional[gettext.GNUTranslations]:
+def open_translations(locale: str, directory_path: Path) -> Optional[GNUTranslations]:
     locale_path_name = locale.replace('-', '_')
     po_file_path = directory_path / 'locale' / locale_path_name / 'LC_MESSAGES' / 'betty.po'
     try:
@@ -308,7 +337,7 @@ def open_translations(locale: str, directory_path: Path) -> Optional[gettext.GNU
 
     with suppress(FileNotFoundError):
         with open(mo_file_path, 'rb') as f:
-            return gettext.GNUTranslations(f)
+            return GNUTranslations(f)
 
     cache_directory_path.mkdir(exist_ok=True, parents=True)
     with suppress(FileExistsError):
@@ -317,7 +346,7 @@ def open_translations(locale: str, directory_path: Path) -> Optional[gettext.GNU
     with contextlib.redirect_stdout(StringIO()):
         CommandLineInterface().run(['', 'compile', '-d', translation_cache_directory_path, '-l', locale_path_name, '-D', 'betty'])
     with open(mo_file_path, 'rb') as f:
-        return gettext.GNUTranslations(f)
+        return GNUTranslations(f)
 
 
 def format_datey(date: Datey, locale: str) -> str:

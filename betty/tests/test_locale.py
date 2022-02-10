@@ -1,4 +1,6 @@
-import gettext
+import builtins
+import sys
+from gettext import NullTranslations
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import List, Optional
@@ -6,8 +8,105 @@ from typing import List, Optional
 from parameterized import parameterized
 
 from betty.locale import Localized, negotiate_localizeds, Date, format_datey, DateRange, Translations, negotiate_locale, \
-    Datey, open_translations
+    Datey, open_translations, TranslationsInstallationError
 from betty.tests import TestCase
+
+
+class TranslationsTest(TestCase):
+    _GETTEXT_BUILTINS_TO_TRANSLATIONS_METHODS = {
+        '_': 'gettext',
+        'gettext': 'gettext',
+        'lgettext': 'lgettext',
+        'lngettext': 'lngettext',
+        'ngettext': 'ngettext',
+    }
+    # *pgettext() functions are available after Python 3.7.
+    if sys.version_info.minor > 7:
+        _GETTEXT_BUILTINS_TO_TRANSLATIONS_METHODS.update({
+            'npgettext': 'npgettext',
+            'pgettext': 'pgettext',
+        })
+
+    def assert_gettext_builtins(self, translations: NullTranslations) -> None:
+        for builtin_name, translations_method_name in self._GETTEXT_BUILTINS_TO_TRANSLATIONS_METHODS.items():
+            self.assertIn(builtin_name, builtins.__dict__)
+            self.assertEqual(getattr(translations, translations_method_name), builtins.__dict__[builtin_name])
+
+    def assert_no_gettext_builtins(self) -> None:
+        for builtin_name in self._GETTEXT_BUILTINS_TO_TRANSLATIONS_METHODS:
+            self.assertNotIn(builtin_name, builtins.__dict__)
+
+    def test_install_uninstall(self) -> None:
+        sut_one = Translations(NullTranslations())
+        sut_two = Translations(NullTranslations())
+        sut_one.install()
+        self.assert_gettext_builtins(sut_one)
+        sut_two.install()
+        self.assert_gettext_builtins(sut_two)
+        sut_two.uninstall()
+        self.assert_gettext_builtins(sut_one)
+        sut_one.uninstall()
+        self.assert_no_gettext_builtins()
+
+    def test_install_uninstall_out_of_order_should_fail(self) -> None:
+        sut_one = Translations(NullTranslations())
+        sut_two = Translations(NullTranslations())
+        sut_one.install()
+        self.assert_gettext_builtins(sut_one)
+        sut_two.install()
+        self.assert_gettext_builtins(sut_two)
+        with self.assertRaises(TranslationsInstallationError):
+            sut_one.uninstall()
+
+        # Clean up the global environment.
+        sut_two.uninstall()
+        sut_one.uninstall()
+
+    def test_install_reentry_without_uninstall_should_fail(self) -> None:
+        sut = Translations(NullTranslations())
+        sut.install()
+        with self.assertRaises(TranslationsInstallationError):
+            sut.install()
+
+        # Clean up the global environment.
+        sut.uninstall()
+
+    def test_install_reentry(self) -> None:
+        sut = Translations(NullTranslations())
+        sut.install()
+        self.assert_gettext_builtins(sut)
+        sut.uninstall()
+        self.assert_no_gettext_builtins()
+        sut.install()
+        self.assert_gettext_builtins(sut)
+        sut.uninstall()
+        self.assert_no_gettext_builtins()
+
+    def test_context_manager(self) -> None:
+        sut_one = Translations(NullTranslations())
+        sut_two = Translations(NullTranslations())
+        with sut_one:
+            self.assert_gettext_builtins(sut_one)
+            with sut_two:
+                self.assert_gettext_builtins(sut_two)
+            self.assert_gettext_builtins(sut_one)
+        self.assert_no_gettext_builtins()
+
+    def test_context_manager_reentry_without_exit_should_fail(self) -> None:
+        sut = Translations(NullTranslations())
+        with sut:
+            with self.assertRaises(TranslationsInstallationError):
+                with sut:
+                    pass
+
+    def test_context_manager_reentry(self) -> None:
+        sut = Translations(NullTranslations())
+        with sut:
+            self.assert_gettext_builtins(sut)
+        self.assert_no_gettext_builtins()
+        with sut:
+            self.assert_gettext_builtins(sut)
+        self.assert_no_gettext_builtins()
 
 
 class DateTest(TestCase):
@@ -303,7 +402,7 @@ class FormatDateTest(TestCase):
     @parameterized.expand(_FORMAT_DATE_TEST_PARAMETERS)
     def test(self, expected: str, datey: Datey):
         locale = 'en'
-        with Translations(gettext.NullTranslations()):
+        with Translations(NullTranslations()):
             self.assertEquals(expected, format_datey(datey, locale))
 
 
@@ -339,7 +438,7 @@ class FormatDateRangeTest(TestCase):
     @parameterized.expand(_FORMAT_DATE_RANGE_TEST_PARAMETERS)
     def test(self, expected: str, datey: Datey):
         locale = 'en'
-        with Translations(gettext.NullTranslations()):
+        with Translations(NullTranslations()):
             self.assertEquals(expected, format_datey(datey, locale))
 
 
@@ -347,7 +446,7 @@ class FormatDateyTest(TestCase):
     @parameterized.expand(_FORMAT_DATE_TEST_PARAMETERS + _FORMAT_DATE_RANGE_TEST_PARAMETERS)
     def test(self, expected: str, datey: Datey):
         locale = 'en'
-        with Translations(gettext.NullTranslations()):
+        with Translations(NullTranslations()):
             self.assertEquals(expected, format_datey(datey, locale))
 
 
@@ -386,4 +485,4 @@ msgstr "Onderwerp"
 """
             with open(lc_messages_directory_path / 'betty.po', 'w') as f:
                 f.write(po)
-            self.assertIsInstance(open_translations(locale, assets_directory_path), gettext.NullTranslations)
+            self.assertIsInstance(open_translations(locale, assets_directory_path), NullTranslations)

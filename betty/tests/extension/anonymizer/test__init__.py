@@ -1,4 +1,4 @@
-import gettext
+from gettext import NullTranslations
 from tempfile import TemporaryDirectory
 from unittest.mock import patch, ANY, Mock
 
@@ -17,7 +17,7 @@ from betty.tests import TestCase
 
 class AnonymousSourceTest(TestCase):
     def setUp(self) -> None:
-        self._translations = Translations(gettext.NullTranslations())
+        self._translations = Translations(NullTranslations())
         self._translations.install()
 
     def tearDown(self) -> None:
@@ -43,7 +43,7 @@ class AnonymousSourceTest(TestCase):
 
 class AnonymousCitationTest(TestCase):
     def setUp(self) -> None:
-        self._translations = Translations(gettext.NullTranslations())
+        self._translations = Translations(NullTranslations())
         self._translations.install()
 
     def tearDown(self) -> None:
@@ -70,7 +70,7 @@ class AnonymousCitationTest(TestCase):
 
 class AnonymizeTest(TestCase):
     def setUp(self) -> None:
-        self._translations = Translations(gettext.NullTranslations())
+        self._translations = Translations(NullTranslations())
         self._translations.install()
 
     def tearDown(self) -> None:
@@ -262,7 +262,7 @@ class AnonymizeFileTest(TestCase):
 
 class AnonymizeSourceTest(TestCase):
     def setUp(self) -> None:
-        self._translations = Translations(gettext.NullTranslations())
+        self._translations = Translations(NullTranslations())
         self._translations.install()
 
     def tearDown(self) -> None:
@@ -306,7 +306,7 @@ class AnonymizeSourceTest(TestCase):
 
 class AnonymizeCitationTest(TestCase):
     def setUp(self) -> None:
-        self._translations = Translations(gettext.NullTranslations())
+        self._translations = Translations(NullTranslations())
         self._translations.install()
 
     def tearDown(self) -> None:

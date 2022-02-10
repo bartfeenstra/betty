@@ -1,4 +1,4 @@
-import gettext
+from gettext import NullTranslations
 from os import listdir
 from pathlib import Path
 
@@ -11,4 +11,4 @@ class TranslationsTest(TestCase):
         assets_directory_path = Path(__file__).parents[3] / 'assets'
         for locale_path_name in listdir(assets_directory_path / 'locale'):
             locale = locale_path_name.replace('_', '-')
-            self.assertIsInstance(open_translations(locale, assets_directory_path), gettext.NullTranslations)
+            self.assertIsInstance(open_translations(locale, assets_directory_path), NullTranslations)
