@@ -3,8 +3,9 @@ import json
 from typing import Union, List, Type, Dict
 
 import pytest
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QWidget, QApplication
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QAction
+from PyQt6.QtWidgets import QMainWindow, QMenu, QWidget, QApplication
 
 from betty.gui import Error
 
@@ -55,7 +56,7 @@ def navigate(qtbot):
             attribute = attributes.pop(0)
             item = getattr(item, attribute)
             if isinstance(item, QMenu):
-                qtbot.mouseClick(item, QtCore.Qt.LeftButton)
+                qtbot.mouseClick(item, Qt.MouseButton.LeftButton)
             elif isinstance(item, QAction):
                 item.trigger()
             else:

@@ -8,8 +8,8 @@ from typing import Optional, List, Any, Dict, Union, Iterable
 from xml.etree import ElementTree
 
 import aiofiles
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QFormLayout, QPushButton, QFileDialog, QLineEdit, QHBoxLayout, QVBoxLayout, \
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QWidget, QFormLayout, QPushButton, QFileDialog, QLineEdit, QHBoxLayout, QVBoxLayout, \
     QGridLayout
 from geopy import Point
 from reactives import reactive, ReactiveList
@@ -683,7 +683,7 @@ class _GrampsGuiWidget(QWidget):
             self._family_trees_widget._remove_buttons.insert(i, QPushButton('Remove'))
             self._family_trees_widget._remove_buttons[i].released.connect(_remove_family_tree)
             family_trees_layout.addWidget(self._family_trees_widget._remove_buttons[i], i, 1)
-        self._layout.insertWidget(0, self._family_trees_widget, alignment=Qt.AlignTop)
+        self._layout.insertWidget(0, self._family_trees_widget, alignment=Qt.AlignmentFlag.AlignTop)
 
     def _add_family_tree(self):
         window = _AddFamilyTreeWindow(self._configuration.family_trees, self)

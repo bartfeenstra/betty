@@ -14,10 +14,9 @@ from pathlib import Path
 from typing import Sequence, Type, Optional, Union
 from urllib.parse import urlparse
 
-from PyQt5 import QtCore
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, QObject
-from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtWidgets import QApplication, QDesktopWidget, QFileDialog, QMainWindow, QAction, qApp, QVBoxLayout, QLabel, \
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QObject, QCoreApplication
+from PyQt6.QtGui import QIcon, QFont, QAction
+from PyQt6.QtWidgets import QApplication, QFileDialog, QMainWindow, QVBoxLayout, QLabel, \
     QWidget, QPushButton, QMessageBox, QLineEdit, QCheckBox, QFormLayout, QHBoxLayout, QGridLayout, QLayout, \
     QStackedLayout, QComboBox, QButtonGroup, QRadioButton
 from babel import Locale
@@ -94,16 +93,16 @@ class UnexpectedExceptionError(ExceptionError):
     def __init__(self, exception: Exception, *args, **kwargs):
         super(UnexpectedExceptionError, self).__init__(exception, *args, **kwargs)
         self.setText('An unexpected error occurred and Betty could not complete the task. Please <a href="https://github.com/bartfeenstra/betty/issues">report this problem</a> and include the following details, so the team behind Betty can address it.')
-        self.setTextFormat(Qt.RichText)
+        self.setTextFormat(Qt.TextFormat.RichText)
         self.setDetailedText(''.join(traceback.format_exception(type(exception), exception, exception.__traceback__)))
 
 
 class Text(QLabel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setTextFormat(Qt.RichText)
+        self.setTextFormat(Qt.TextFormat.RichText)
         self.setWordWrap(True)
-        self.setTextInteractionFlags(Qt.LinksAccessibleByKeyboard | Qt.LinksAccessibleByMouse | Qt.TextSelectableByKeyboard | Qt.TextSelectableByMouse)
+        self.setTextInteractionFlags(Qt.TextInteractionFlag.LinksAccessibleByKeyboard | Qt.TextInteractionFlag.LinksAccessibleByMouse | Qt.TextInteractionFlag.TextSelectableByKeyboard | Qt.TextInteractionFlag.TextSelectableByMouse)
         self.setOpenExternalLinks(True)
 
 
@@ -128,7 +127,7 @@ class BettyWindow(QMainWindow):
         self.setWindowTitle(self.title)
         self.setWindowIcon(QIcon(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'betty-512x512.png')))
         geometry = self.frameGeometry()
-        geometry.moveCenter(QDesktopWidget().availableGeometry().center())
+        geometry.moveCenter(QApplication.primaryScreen().availableGeometry().center())
         self.move(geometry.topLeft())
 
 
@@ -140,9 +139,6 @@ class BettyMainWindow(BettyWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setWindowIcon(QIcon(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'betty-512x512.png')))
-        geometry = self.frameGeometry()
-        geometry.moveCenter(QDesktopWidget().availableGeometry().center())
-        self.move(geometry.topLeft())
         self._initialize_menu()
 
     def _initialize_menu(self) -> None:
@@ -170,7 +166,7 @@ class BettyMainWindow(BettyWindow):
 
         exit_action = QAction('Exit', self)
         exit_action.setShortcut('Ctrl+Q')
-        exit_action.triggered.connect(qApp.quit)
+        exit_action.triggered.connect(QCoreApplication.quit)
         self.betty_menu.addAction(exit_action)
 
         self.help_menu = menu_bar.addMenu('&Help')
@@ -258,14 +254,14 @@ class _WelcomeWindow(BettyMainWindow):
         self.setCentralWidget(central_widget)
 
         welcome = _WelcomeTitle('Welcome to Betty')
-        welcome.setAlignment(QtCore.Qt.AlignCenter)
+        welcome.setAlignment(Qt.AlignmentFlag.AlignCenter)
         central_layout.addWidget(welcome)
 
         welcome_caption = _WelcomeText('Betty is a static site generator for your <a href="https://gramps-project.org/">Gramps</a> and <a href="https://en.wikipedia.org/wiki/GEDCOM">GEDCOM</a> family trees.')
         central_layout.addWidget(welcome_caption)
 
         project_instruction = _WelcomeHeading('Work on a new or existing site of your own')
-        project_instruction.setAlignment(QtCore.Qt.AlignCenter)
+        project_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
         central_layout.addWidget(project_instruction)
 
         project_layout = QHBoxLayout()
@@ -280,7 +276,7 @@ class _WelcomeWindow(BettyMainWindow):
         project_layout.addWidget(self.new_project_button)
 
         demo_instruction = _WelcomeHeading('View a demonstration of what a Betty site looks like')
-        demo_instruction.setAlignment(QtCore.Qt.AlignCenter)
+        demo_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
         central_layout.addWidget(demo_instruction)
 
         self.demo_button = _WelcomeAction('View a demo site', self)
@@ -293,7 +289,7 @@ class _PaneButton(QPushButton):
         super().__init__(*args, **kwargs)
         self.setProperty('pane-selector', 'true')
         self.setFlat(panes_layout.currentWidget() != pane)
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.released.connect(lambda: [pane_selectors_layout.itemAt(i).widget().setFlat(True) for i in range(0, pane_selectors_layout.count())])
         self.released.connect(lambda: self.setFlat(False))
         self.released.connect(lambda: panes_layout.setCurrentWidget(pane))
@@ -493,7 +489,7 @@ class _ProjectLocalizationConfigurationPane(QWidget):
         self._locales_configuration_widget.setLayout(self._locales_configuration_layout)
         self._locales_configuration_widget._remove_buttons = {}
         self._locales_configuration_widget._default_buttons = {}
-        self._layout.insertWidget(0, self._locales_configuration_widget, alignment=Qt.AlignTop)
+        self._layout.insertWidget(0, self._locales_configuration_widget, alignment=Qt.AlignmentFlag.AlignTop)
 
         for i, locale_configuration in enumerate(sorted(
                 self._app.configuration.locales,
@@ -586,7 +582,7 @@ class _ProjectExtensionConfigurationPane(QWidget):
         self._app = app
 
         layout = QVBoxLayout()
-        layout.setAlignment(QtCore.Qt.AlignTop)
+        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.setLayout(layout)
 
         enable_layout = QFormLayout()
@@ -645,10 +641,10 @@ class ProjectWindow(BettyMainWindow):
         self.setCentralWidget(central_widget)
 
         pane_selectors_layout = QVBoxLayout()
-        central_layout.addLayout(pane_selectors_layout, 0, 0, Qt.AlignTop | Qt.AlignLeft)
+        central_layout.addLayout(pane_selectors_layout, 0, 0, Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
 
         panes_layout = QStackedLayout()
-        central_layout.addLayout(panes_layout, 0, 1, Qt.AlignTop | Qt.AlignRight)
+        central_layout.addLayout(panes_layout, 0, 1, Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight)
 
         self._general_configuration_pane = _ProjectGeneralConfigurationPane(self._app)
         panes_layout.addWidget(self._general_configuration_pane)
@@ -769,7 +765,7 @@ class _LogRecordViewerHandlerObject(QObject):
 
     def __init__(self, viewer: LogRecordViewer):
         super().__init__()
-        self.log.connect(viewer.log, Qt.QueuedConnection)
+        self.log.connect(viewer.log, Qt.ConnectionType.QueuedConnection)
 
 
 class LogRecordViewerHandler(logging.Handler):
@@ -802,8 +798,8 @@ class _GenerateWindow(BettyWindow):
     def __init__(self, app: App, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.setWindowModality(Qt.ApplicationModal)
-        self.setWindowFlags(self.windowFlags() ^ Qt.WindowCloseButtonHint)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.setWindowFlags(self.windowFlags() ^ Qt.WindowType.WindowCloseButtonHint)
 
         central_layout = QVBoxLayout()
         central_widget = QWidget()
@@ -890,7 +886,7 @@ class _ServeWindow(BettyWindow):
         self.setCentralWidget(central_widget)
 
         self._loading_instruction = Text('Loading...')
-        self._loading_instruction.setAlignment(QtCore.Qt.AlignCenter)
+        self._loading_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._central_layout.addWidget(self._loading_instruction)
 
     @classmethod
@@ -910,11 +906,11 @@ class _ServeWindow(BettyWindow):
         self._loading_instruction.close()
 
         instance_instruction = Text(self._build_instruction())
-        instance_instruction.setAlignment(QtCore.Qt.AlignCenter)
+        instance_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._central_layout.addWidget(instance_instruction)
 
         general_instruction = Text('Keep this window open to keep the site running.')
-        general_instruction.setAlignment(QtCore.Qt.AlignCenter)
+        general_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._central_layout.addWidget(general_instruction)
 
         stop_server_button = QPushButton('Stop the site', self)
@@ -1003,7 +999,7 @@ class _AboutBettyWindow(BettyWindow):
             'Copyright 2019-%s <a href="twitter.com/bartFeenstra">Bart Feenstra</a> & contributors. Betty is made available to you under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License, Version 3</a> (GPLv3).' % datetime.now().year,
             'Follow Betty on <a href="https://twitter.com/Betty_Project">Twitter</a> and <a href="https://github.com/bartfeenstra/betty">Github</a>.'
         ])))
-        label.setAlignment(QtCore.Qt.AlignCenter)
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setCentralWidget(label)
 
 
