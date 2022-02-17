@@ -150,7 +150,7 @@ def _gui(configuration_file_path: Optional[str]):
     else:
         window = ProjectWindow(configuration_file_path)
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 @click.command(help='Generate a static site.')
