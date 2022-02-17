@@ -92,6 +92,7 @@ extensions:
   betty.extension.gramps.Gramps:
     family_trees:
       - file: ./gramps.gpkg
+  betty.extension.http_api_doc.HttpApiDoc: ~
   betty.extension.maps.Maps: ~
   betty.extension.privatizer.Privatizer: ~
   betty.extension.trees.Trees: ~
@@ -126,6 +127,7 @@ extensions:
     - `betty.extension.gramps.Gramps`: Loads Gramps family trees. Configuration:
         - `family_trees`: An array defining zero or more Gramps family trees to load. Each item is an object with the following keys:
             - `file`: the path to a *Gramps XML* or *Gramps XML Package* file.
+    - `betty.extension.http_api_doc.HttpApiDoc`: Renders interactive and user-friendly HTTP API documentation using [ReDoc](https://github.com/Redocly/redoc).
     - `betty.extension.maps.Maps`: Renders interactive maps using [Leaflet](https://leafletjs.com/).
     - `betty.extension.privatizer.Privatizer`: Marks living people private. Configuration: `~`.
     - `betty.extension.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
