@@ -3,8 +3,8 @@ import os
 from os import path
 
 import pytest
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QFileDialog
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QFileDialog
 from babel import Locale
 
 from betty import fs
@@ -65,7 +65,7 @@ def test_welcome_window_open_project_with_invalid_file_should_error(assert_error
     # Purposefully leave the file empty so it is invalid.
     configuration_file_path.write('')
     mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[configuration_file_path, None]))
-    qtbot.mouseClick(sut.open_project_button, QtCore.Qt.LeftButton)
+    qtbot.mouseClick(sut.open_project_button, Qt.MouseButton.LeftButton)
 
     error = assert_error(ExceptionError)
     assert isinstance(error.exception, ConfigurationError)
@@ -83,7 +83,7 @@ def test_welcome_window_open_project_with_valid_file_should_show_project_window(
         'base_url': 'https://example.com',
     }))
     mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[configuration_file_path, None]))
-    qtbot.mouseClick(sut.open_project_button, QtCore.Qt.LeftButton)
+    qtbot.mouseClick(sut.open_project_button, Qt.MouseButton.LeftButton)
 
     assert_window(ProjectWindow)
 
@@ -96,7 +96,7 @@ def test_welcome_window_view_demo_site(assert_window, mocker, qtbot) -> None:
     qtbot.addWidget(sut)
     sut.show()
 
-    qtbot.mouseClick(sut.demo_button, QtCore.Qt.LeftButton)
+    qtbot.mouseClick(sut.demo_button, Qt.MouseButton.LeftButton)
 
     assert_window(_ServeDemoWindow)
 
@@ -208,7 +208,7 @@ def test_project_window_localization_configuration_add_locale(qtbot, assert_not_
     qtbot.addWidget(sut)
     sut.show()
 
-    qtbot.mouseClick(sut._localization_configuration_pane._add_locale_button, QtCore.Qt.LeftButton)
+    qtbot.mouseClick(sut._localization_configuration_pane._add_locale_button, Qt.MouseButton.LeftButton)
     add_locale_window = assert_window(_AddLocaleWindow)
 
     locale = 'nl-NL'
@@ -216,7 +216,7 @@ def test_project_window_localization_configuration_add_locale(qtbot, assert_not_
     add_locale_window._locale.setCurrentText(Locale.parse(locale, '-').get_display_name())
     add_locale_window._alias.setText(alias)
 
-    qtbot.mouseClick(add_locale_window._save_and_close, QtCore.Qt.LeftButton)
+    qtbot.mouseClick(add_locale_window._save_and_close, Qt.MouseButton.LeftButton)
     assert_not_window(_AddLocaleWindow)
 
     assert locale in sut._configuration.locales
@@ -242,7 +242,7 @@ def test_project_window_localization_configuration_remove_locale(qtbot, minimal_
     qtbot.addWidget(sut)
     sut.show()
 
-    qtbot.mouseClick(sut._localization_configuration_pane._locales_configuration_widget._remove_buttons[locale], QtCore.Qt.LeftButton)
+    qtbot.mouseClick(sut._localization_configuration_pane._locales_configuration_widget._remove_buttons[locale], Qt.MouseButton.LeftButton)
 
     assert locale not in sut._configuration.locales
 
@@ -320,7 +320,7 @@ async def test_generate_window_close_button_should_close_window(assert_not_windo
         with qtbot.waitSignal(sut._thread.finished):
             sut.show()
 
-        qtbot.mouseClick(sut._close_button, QtCore.Qt.LeftButton)
+        qtbot.mouseClick(sut._close_button, Qt.MouseButton.LeftButton)
         assert_not_window(_GenerateWindow)
 
 
@@ -335,5 +335,5 @@ async def test_generate_window_serve_button_should_open_serve_window(assert_wind
         with qtbot.waitSignal(sut._thread.finished):
             sut.show()
 
-        qtbot.mouseClick(sut._serve_button, QtCore.Qt.LeftButton)
+        qtbot.mouseClick(sut._serve_button, Qt.MouseButton.LeftButton)
         assert_window(_ServeAppWindow)

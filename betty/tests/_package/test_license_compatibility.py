@@ -10,7 +10,7 @@ import piplicenses
 
 class PackageLicensesTest(TestCase):
     _GPL_V3_COMPATIBLE_DISTRIBUTIONS = (
-        'PyQt5-sip',
+        'PyQt6-sip',
         'graphlib-backport',  # Released under the Python Software Foundation License.
     )
 
