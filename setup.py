@@ -95,6 +95,7 @@ SETUP = {
             'betty.extension.gramps.Gramps=betty.extension.gramps.Gramps',
             'betty.extension.maps.Maps=betty.extension.maps.Maps',
             'betty.extension.privatizer.Privatizer=betty.extension.privatizer.Privatizer',
+            'betty.extension.http_api_doc.HttpApiDoc=betty.extension.http_api_doc.HttpApiDoc',
             'betty.extension.trees.Trees=betty.extension.trees.Trees',
             'betty.extension.wikipedia.Wikipedia=betty.extension.wikipedia.Wikipedia',
         ],
