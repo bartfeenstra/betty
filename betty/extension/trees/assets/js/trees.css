@@ -1,0 +1,4 @@
+.with-js .tree {
+  /* Trees are full width, so leave enough vertical space for scrolling. */
+  height: 50vh;
+}
