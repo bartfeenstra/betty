@@ -128,6 +128,7 @@ extensions:
             - `file`: the path to a *Gramps XML* or *Gramps XML Package* file.
     - `betty.extension.maps.Maps`: Renders interactive maps using [Leaflet](https://leafletjs.com/).
     - `betty.extension.privatizer.Privatizer`: Marks living people private. Configuration: `~`.
+    - `betty.extension.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
     - `betty.extension.wikipedia.Wikipedia`: Lets templates and other extensions retrieve complementary Wikipedia entries.
 
 ### Translations
