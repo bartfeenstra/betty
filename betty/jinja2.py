@@ -23,12 +23,12 @@ from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup
 from resizeimage import resizeimage
 
+from betty.html import CssProvider, JsProvider
 from betty.model import Entity, get_entity_type_name, GeneratedEntityId
 from betty.model.ancestry import File, Citation, HasLinks, HasFiles, Subject, Witness, Dated, ENTITY_TYPES
 from betty.config import Configuration
 from betty.fs import hashfile, iterfiles
 from betty.functools import walk
-from betty.html import HtmlProvider
 from betty.importlib import import_any
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange
@@ -134,7 +134,19 @@ class BettyEnvironment(Environment):
         self.globals['extensions'] = _Extensions(self.app.extensions)
         self.globals['citer'] = _Citer()
         self.globals['search_index'] = lambda: Index(self.app).build()
-        self.globals['html_providers'] = list([extension for extension in self.app.extensions.flatten() if isinstance(extension, HtmlProvider)])
+        # Ideally we would use the Dispatcher for this. However, it is asynchronous only.
+        self.globals['public_css_paths'] = [
+            path
+            for extension in self.app.extensions.flatten()
+            if isinstance(extension, CssProvider)
+            for path in extension.public_css_paths
+        ]
+        self.globals['public_js_paths'] = [
+            path
+            for extension in self.app.extensions.flatten()
+            if isinstance(extension, JsProvider)
+            for path in extension.public_js_paths
+        ]
         self.globals['path'] = os.path
 
     def _init_filters(self) -> None:

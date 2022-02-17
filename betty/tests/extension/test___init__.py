@@ -1,5 +1,11 @@
-from typing import Set, Type
-from betty.extension import Extension, _build_extension_type_graph, discover_extension_types
+from tempfile import TemporaryDirectory
+from typing import Set, Type, Any
+
+from betty.app import App
+from betty.asyncio import sync
+from betty.config import Configuration
+from betty.extension import Extension, _build_extension_type_graph, discover_extension_types, ExtensionDispatcher, \
+    ListExtensions
 from betty.tests import TestCase
 
 
@@ -12,6 +18,34 @@ class ExtensionTest(TestCase):
 
     def test_comes_before(self):
         self.assertEquals(set(), Extension.comes_before())
+
+
+class ExtensionDispatcherTest(TestCase):
+    class _Multiplier:
+        async def multiply(self, term: int) -> Any:
+            raise NotImplementedError
+
+    class _MultiplyingExtension(_Multiplier, Extension):
+        def __init__(self, app: App, multiplier: int):
+            super().__init__(app)
+            self._multiplier = multiplier
+
+        async def multiply(self, term: int) -> Any:
+            return self._multiplier * term
+
+    @sync
+    async def test(self) -> None:
+        with TemporaryDirectory() as output_directory_path:
+            configuration = Configuration(output_directory_path, 'https://example.com')
+            async with App(configuration) as app:
+                extensions = ListExtensions([
+                    [self._MultiplyingExtension(app, 1), self._MultiplyingExtension(app, 3)],
+                    [self._MultiplyingExtension(app, 2), self._MultiplyingExtension(app, 4)]
+                ])
+                sut = ExtensionDispatcher(extensions)
+                actual_returned_somethings = await sut.dispatch(self._Multiplier)(3)
+                expected_returned_somethings = [3, 9, 6, 12]
+                self.assertEqual(expected_returned_somethings, actual_returned_somethings)
 
 
 class BuildExtensionTypeGraphTest(TestCase):

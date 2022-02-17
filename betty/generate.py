@@ -35,7 +35,7 @@ class Generator:
 async def generate(app: App) -> None:
     await asyncio.gather(
         _generate(app),
-        app.dispatcher.dispatch(Generator, 'generate')(),
+        app.dispatcher.dispatch(Generator)(),
     )
     os.chmod(app.configuration.output_directory_path, 0o755)
     for directory_path_str, subdirectory_names, file_names in os.walk(app.configuration.output_directory_path):

@@ -4,5 +4,5 @@ TargetedDispatcher = Callable[..., Awaitable[Sequence[Any]]]
 
 
 class Dispatcher:
-    def dispatch(self, target_type: Type, target_method_name: str) -> TargetedDispatcher:
+    def dispatch(self, target_type: Type) -> TargetedDispatcher:
         raise NotImplementedError

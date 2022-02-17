@@ -13,15 +13,15 @@ from pathlib import Path
 
 import aiohttp
 from jinja2 import Environment
-from reactives import reactive, scope
+from reactives import reactive
 
 from betty.concurrent import ExceptionRaisingExecutor
 from betty.dispatch import Dispatcher
-from betty.extension import _build_extension_type_graph, ConfigurableExtension, Extension, Extensions
+from betty.extension import _build_extension_type_graph, ConfigurableExtension, Extension, Extensions, ListExtensions
 from betty.lock import Locks
 from betty.render import Renderer, SequentialRenderer
 
-from typing import Type, Dict, Sequence, List
+from typing import Dict, List
 
 from betty.model.ancestry import Ancestry
 from betty.config import Configuration
@@ -31,29 +31,9 @@ from betty.url import AppUrlGenerator, StaticPathUrlGenerator, LocalizedUrlGener
 
 
 @reactive
-class _AppExtensions(Extensions):
+class _AppExtensions(ListExtensions):
     def __init__(self):
-        self._extensions = []
-
-    @scope.register_self
-    def __getitem__(self, extension_type: Type[Extension]) -> Extension:
-        for extension in self.flatten():
-            if type(extension) == extension_type:
-                return extension
-        raise KeyError(f'Unknown extension of type "{extension_type}"')
-
-    @scope.register_self
-    def __iter__(self) -> Sequence[Sequence[Extension]]:
-        # Use a generator so we discourage calling code from storing the result.
-        for batch in self._extensions:
-            yield (extension for extension in batch)
-
-    @scope.register_self
-    def __contains__(self, extension_type: Type[Extension]) -> bool:
-        for extension in self.flatten():
-            if type(extension) == extension_type:
-                return True
-        return False
+        super().__init__([])
 
     def _update(self, extensions: List[List[Extension]]) -> None:
         self._extensions = extensions
