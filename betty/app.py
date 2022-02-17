@@ -1,9 +1,9 @@
 from __future__ import annotations
-import gettext
 from collections import defaultdict
 from concurrent.futures._base import Executor
 from concurrent.futures.thread import ThreadPoolExecutor
 from contextlib import AsyncExitStack, asynccontextmanager
+from gettext import NullTranslations
 
 try:
     from graphlib import TopologicalSorter
@@ -72,7 +72,7 @@ class App:
         self._static_url_generator = StaticPathUrlGenerator(configuration)
         self._debug = None
         self._locale = None
-        self._translations = defaultdict(gettext.NullTranslations)
+        self._translations = defaultdict(NullTranslations)
         self._default_translations = None
         self._extensions = None
         self._activation_exit_stack = AsyncExitStack()
@@ -99,9 +99,13 @@ class App:
 
         await self._wait_for_threads()
 
-        await self._activation_exit_stack.enter_async_context(self.with_locale(self.locale))
-        for extension in self.extensions.flatten():
-            await self._activation_exit_stack.enter_async_context(extension)
+        try:
+            await self._activation_exit_stack.enter_async_context(self.with_locale(self.locale))
+            for extension in self.extensions.flatten():
+                await self._activation_exit_stack.enter_async_context(extension)
+        except BaseException:
+            await self.deactivate()
+            raise
 
         return self
 
@@ -209,9 +213,9 @@ class App:
 
     @reactive(on_trigger=(lambda app: app._translations.clear(),))
     @property
-    def translations(self) -> Dict[str, gettext.NullTranslations]:
+    def translations(self) -> Dict[str, NullTranslations]:
         if len(self._translations) == 0:
-            self._translations['en-US'] = gettext.NullTranslations()
+            self._translations['en-US'] = NullTranslations()
             for locale_configuration in self._configuration.locales:
                 for assets_path, _ in reversed(self._assets.paths):
                     translations = open_translations(locale_configuration.locale, assets_path)

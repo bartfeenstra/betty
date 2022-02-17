@@ -1,8 +1,7 @@
-from unittest import TestCase
-
 from parameterized import parameterized
 
 from betty.string import camel_case_to_snake_case, camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
+from betty.tests import TestCase
 
 
 class CamelCaseToSnakeCaseTest(TestCase):

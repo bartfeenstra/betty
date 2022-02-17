@@ -45,7 +45,7 @@ class TemplateTestCase(TestCase):
     template_file = None
 
     def __init__(self, *args, **kwargs):
-        TestCase.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         if self.template_string is not None and self.template_file is not None:
             class_name = self.__class__.__name__
             raise RuntimeError(f'{class_name} must define either `{class_name}.template_string` or `{class_name}.template_file`, but not both.')

@@ -32,15 +32,17 @@ class DemoServer(Server):
         self._app = App(configuration)
         self._server = None
         await self._app.activate()
-        await load.load(self._app)
-        await generate.generate(self._app)
-        self._server = serve.AppServer(self._app)
-        await self._server.start()
+        try:
+            await load.load(self._app)
+            await generate.generate(self._app)
+            self._server = serve.AppServer(self._app)
+            await self._server.start()
+        except BaseException:
+            await self._app.deactivate()
+            raise
 
     async def stop(self) -> None:
-        if self._server is not None:
-            await self._server.stop()
-        if self._app is not None:
-            await self._app.deactivate()
+        await self._server.stop()
+        await self._app.deactivate()
         if self._output_directory is not None:
             self._output_directory.__aexit__(None, None, None)

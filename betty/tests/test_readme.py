@@ -1,9 +1,9 @@
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest import TestCase
 
 from betty import os, subprocess
+from betty.tests import TestCase
 
 
 class ReadmeTest(TestCase):

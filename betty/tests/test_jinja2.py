@@ -1,7 +1,6 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import List, Dict, Optional, Iterable, Type
-from unittest import TestCase
 from unittest.mock import Mock
 
 from parameterized import parameterized
@@ -16,7 +15,7 @@ from betty.media_type import MediaType
 from betty.extension import Extension
 from betty.app import App
 from betty.string import camel_case_to_snake_case
-from betty.tests import TemplateTestCase
+from betty.tests import TemplateTestCase, TestCase
 
 
 class Jinja2ProviderTest(TestCase):
