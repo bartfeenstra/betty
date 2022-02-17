@@ -13,7 +13,7 @@ from pathlib import Path
 
 import aiohttp
 from jinja2 import Environment
-from reactives import reactive, Scope
+from reactives import reactive, scope
 
 from betty.concurrent import ExceptionRaisingExecutor
 from betty.dispatch import Dispatcher
@@ -35,20 +35,20 @@ class _AppExtensions(Extensions):
     def __init__(self):
         self._extensions = []
 
-    @Scope.register_self
+    @scope.register_self
     def __getitem__(self, extension_type: Type[Extension]) -> Extension:
         for extension in self.flatten():
             if type(extension) == extension_type:
                 return extension
         raise KeyError(f'Unknown extension of type "{extension_type}"')
 
-    @Scope.register_self
+    @scope.register_self
     def __iter__(self) -> Sequence[Sequence[Extension]]:
         # Use a generator so we discourage calling code from storing the result.
         for batch in self._extensions:
             yield (extension for extension in batch)
 
-    @Scope.register_self
+    @scope.register_self
     def __contains__(self, extension_type: Type[Extension]) -> bool:
         for extension in self.flatten():
             if type(extension) == extension_type:
@@ -181,7 +181,7 @@ class App:
             extensions.append(extensions_batch)
         self._extensions._update(extensions)
 
-    @reactive(on_trigger=(lambda app: app._assets.paths.clear(),))
+    @reactive
     @property
     def assets(self) -> FileSystem:
         if len(self._assets.paths) == 0:
@@ -193,6 +193,10 @@ class App:
                 self._assets.paths.appendleft((self._configuration.assets_directory_path, None))
 
         return self._assets
+
+    @assets.deleter
+    def assets(self) -> None:
+        self._assets.paths.clear()
 
     @property
     def dispatcher(self) -> Dispatcher:
@@ -211,7 +215,7 @@ class App:
     def static_url_generator(self) -> StaticUrlGenerator:
         return self._static_url_generator
 
-    @reactive(on_trigger=(lambda app: app._translations.clear(),))
+    @reactive
     @property
     def translations(self) -> Dict[str, NullTranslations]:
         if len(self._translations) == 0:
@@ -225,7 +229,11 @@ class App:
 
         return self._translations
 
-    @reactive(on_trigger=(lambda app: delattr(app, '_jinja2_environment'),))
+    @translations.deleter
+    def translations(self) -> None:
+        self._translations.clear()
+
+    @reactive
     @property
     def jinja2_environment(self) -> Environment:
         if not self._jinja2_environment:
@@ -238,7 +246,7 @@ class App:
     def jinja2_environment(self) -> None:
         self._jinja2_environment = None
 
-    @reactive(on_trigger=(lambda app: delattr(app, '_renderer'),))
+    @reactive
     @property
     def renderer(self) -> Renderer:
         if not self._renderer:
@@ -270,7 +278,7 @@ class App:
     def locks(self) -> Locks:
         return self._locks
 
-    @reactive(on_trigger=(lambda app: delattr(app, 'http_client'),))
+    @reactive
     @property
     def http_client(self) -> aiohttp.ClientSession:
         if self._http_client is None:

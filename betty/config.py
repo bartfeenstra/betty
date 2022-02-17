@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 
 import yaml
 from babel import parse_locale, Locale
-from reactives import reactive, Scope, isreactive
+from reactives import reactive, scope, is_reactive
 from voluptuous import Schema, All, Required, Invalid, IsDir, Any, Range
 
 from betty import fs
@@ -59,7 +59,7 @@ class LocalesConfiguration:
         self._configurations = OrderedDict()
         self.replace(configurations)
 
-    @Scope.register_self
+    @scope.register_self
     def __getitem__(self, locale: str) -> LocaleConfiguration:
         return self._configurations[locale]
 
@@ -69,25 +69,25 @@ class LocalesConfiguration:
         del self._configurations[locale]
         self.react.trigger()
 
-    @Scope.register_self
+    @scope.register_self
     def __iter__(self) -> Iterable[LocaleConfiguration]:
         return (configuration for configuration in self._configurations.values())
 
-    @Scope.register_self
+    @scope.register_self
     def __len__(self) -> int:
         return len(self._configurations)
 
-    @Scope.register_self
+    @scope.register_self
     def __eq__(self, other):
         if not isinstance(other, LocalesConfiguration):
             return NotImplemented
         return self._configurations == other._configurations
 
-    @Scope.register_self
+    @scope.register_self
     def __contains__(self, item):
         return item in self._configurations
 
-    @Scope.register_self
+    @scope.register_self
     def __repr__(self):
         return '<%s %s>' % (self.__class__.__name__, repr(list(self._configurations.values())))
 
@@ -170,14 +170,14 @@ class ExtensionsConfiguration:
                 self.add(configuration)
 
     def _wire(self, value) -> None:
-        if isreactive(value):
+        if is_reactive(value):
             value.react(self)
 
     def _unwire(self, value) -> None:
-        if isreactive(value):
+        if is_reactive(value):
             value.react.shutdown(self)
 
-    @Scope.register_self
+    @scope.register_self
     def __getitem__(self, extension_type: Type[Extension]) -> ExtensionConfiguration:
         return self._configurations[extension_type]
 
@@ -187,15 +187,15 @@ class ExtensionsConfiguration:
         del self._configurations[extension_type]
         self.react.trigger()
 
-    @Scope.register_self
+    @scope.register_self
     def __iter__(self) -> Iterable[ExtensionConfiguration]:
         return (configuration for configuration in self._configurations.values())
 
-    @Scope.register_self
+    @scope.register_self
     def __len__(self) -> int:
         return len(self._configurations)
 
-    @Scope.register_self
+    @scope.register_self
     def __eq__(self, other):
         if not isinstance(other, ExtensionsConfiguration):
             return NotImplemented
