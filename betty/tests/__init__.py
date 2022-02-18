@@ -9,8 +9,7 @@ from typing import Optional, Dict, Callable, Tuple
 from jinja2 import Environment, Template
 
 from betty import fs
-from betty.app import App
-from betty.config import Configuration
+from betty.app import App, Configuration
 
 
 def patch_cache(f):

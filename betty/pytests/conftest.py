@@ -32,7 +32,7 @@ def qapp(qapp_args):
 
 
 @pytest.fixture
-def minimal_configuration_dict(tmpdir) -> Dict:
+def minimal_dumped_app_configuration(tmpdir) -> Dict:
     output_directory_path = str(tmpdir.join('output'))
     base_url = 'https://example.com'
     return {
@@ -42,10 +42,10 @@ def minimal_configuration_dict(tmpdir) -> Dict:
 
 
 @pytest.fixture
-def minimal_configuration_file_path(minimal_configuration_dict, tmpdir) -> str:
+def minimal_configuration_file_path(minimal_dumped_app_configuration, tmpdir) -> str:
     configuration_file_path = tmpdir.join('betty.json')
     with open(configuration_file_path, 'w') as f:
-        json.dump(minimal_configuration_dict, f)
+        json.dump(minimal_dumped_app_configuration, f)
     return configuration_file_path
 
 

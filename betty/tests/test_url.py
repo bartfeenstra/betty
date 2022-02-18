@@ -2,9 +2,9 @@ from typing import Any
 
 from parameterized import parameterized
 
+from betty.app import Configuration, LocaleConfiguration
 from betty.model import Entity
 from betty.model.ancestry import Person, Place, File, Source, Death, PlaceName, Event, Citation
-from betty.config import Configuration, LocaleConfiguration
 from betty.tests import TestCase
 from betty.url import LocalizedPathUrlGenerator, _EntityUrlGenerator, AppUrlGenerator
 

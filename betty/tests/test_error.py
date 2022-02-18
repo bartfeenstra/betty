@@ -2,7 +2,7 @@ from betty.error import ContextError
 from betty.tests import TestCase
 
 
-class ExternalContextErrorTest(TestCase):
+class ContextErrorTest(TestCase):
     def test__str__(self):
         message = 'Something went wrong!'
         context = 'Somewhere, at some point...'

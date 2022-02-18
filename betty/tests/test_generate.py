@@ -8,11 +8,10 @@ import html5lib
 from lxml import etree
 
 from betty import json
-from betty.model.ancestry import Person, Place, Source, PlaceName, File, Birth, Event, Citation
-from betty.config import Configuration, LocaleConfiguration
+from betty.app import App, Configuration, LocaleConfiguration
 from betty.asyncio import sync
 from betty.generate import generate
-from betty.app import App
+from betty.model.ancestry import Person, Place, Source, PlaceName, File, Birth, Event, Citation
 from betty.tests import TestCase
 
 

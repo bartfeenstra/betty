@@ -10,7 +10,6 @@ from click.testing import CliRunner
 
 from betty import os, fs
 from betty.error import UserFacingError
-from betty.extension import Extension
 from betty.serve import Server
 from betty.tests import patch_cache, TestCase
 
@@ -20,7 +19,7 @@ except ImportError:
     from mock.mock import AsyncMock
 
 from betty.cli import main, CommandProvider, global_command, catch_exceptions
-from betty.app import App
+from betty.app import App, Extension
 
 
 class TestCommandError(BaseException):

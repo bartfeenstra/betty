@@ -5,15 +5,13 @@ from unittest.mock import Mock
 
 from parameterized import parameterized
 
-from betty.model import get_entity_type_name
-from betty.model.ancestry import File, PlaceName, Subject, Attendee, Witness, Dated, Entity, Person, Place, Citation
-from betty.config import Configuration, LocaleConfiguration, ExtensionConfiguration
+from betty.app import App, Configuration, Extension, AppExtensionConfiguration, LocaleConfiguration
 from betty.asyncio import sync
 from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider
 from betty.locale import Date, Datey, DateRange, Localized
 from betty.media_type import MediaType
-from betty.extension import Extension
-from betty.app import App
+from betty.model import get_entity_type_name
+from betty.model.ancestry import File, PlaceName, Subject, Attendee, Witness, Dated, Entity, Person, Place, Citation
 from betty.string import camel_case_to_snake_case
 from betty.tests import TemplateTestCase, TestCase
 
@@ -239,7 +237,7 @@ class GlobalExtensionsTest(TemplateTestCase):
         template = '{%% if extensions["%s"] is not none %%}true{%% else %%}false{%% endif %%}' % TestExtension.name()
 
         def _update_configuration(configuration: Configuration) -> None:
-            configuration.extensions.add(ExtensionConfiguration(TestExtension))
+            configuration.extensions.add(AppExtensionConfiguration(TestExtension))
         async with self._render(template_string=template, update_configuration=_update_configuration) as (actual, _):
             self.assertEquals('true', actual)
 
@@ -260,7 +258,7 @@ class GlobalExtensionsTest(TemplateTestCase):
         template = '{%% if "%s" in extensions %%}true{%% else %%}false{%% endif %%}' % TestExtension.name()
 
         def _update_configuration(configuration: Configuration) -> None:
-            configuration.extensions.add(ExtensionConfiguration(TestExtension))
+            configuration.extensions.add(AppExtensionConfiguration(TestExtension))
         async with self._render(template_string=template, update_configuration=_update_configuration) as (actual, _):
             self.assertEquals('true', actual)
 

@@ -2,11 +2,10 @@ from tempfile import TemporaryDirectory
 
 from parameterized import parameterized
 
-from betty.model.ancestry import Person, Place, PlaceName, PersonName, File
-from betty.config import Configuration, LocaleConfiguration
+from betty.app import App, Configuration, LocaleConfiguration
 from betty.asyncio import sync
+from betty.model.ancestry import Person, Place, PlaceName, PersonName, File
 from betty.search import Index
-from betty.app import App
 from betty.tests import TestCase
 
 

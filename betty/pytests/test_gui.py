@@ -8,9 +8,9 @@ from PyQt6.QtWidgets import QFileDialog
 from babel import Locale
 
 from betty import fs
-from betty.app import App
+from betty.app import App, Configuration, LocaleConfiguration
 from betty.asyncio import sync
-from betty.config import ConfigurationError, LocaleConfiguration, Configuration
+from betty.config import ConfigurationError
 from betty.gui import BettyMainWindow, _WelcomeWindow, ProjectWindow, _AboutBettyWindow, ExceptionError, \
     _AddLocaleWindow, _GenerateWindow, _ServeAppWindow, _ServeDemoWindow
 from betty.tests import patch_cache
@@ -223,7 +223,7 @@ def test_project_window_localization_configuration_add_locale(qtbot, assert_not_
     assert sut._configuration.locales[locale].alias == alias
 
 
-def test_project_window_localization_configuration_remove_locale(qtbot, minimal_configuration_dict, tmpdir) -> None:
+def test_project_window_localization_configuration_remove_locale(qtbot, minimal_dumped_app_configuration, tmpdir) -> None:
     locale = 'de-DE'
     configuration_file_path = tmpdir.join('betty.json')
     with open(configuration_file_path, 'w') as f:
@@ -236,7 +236,7 @@ def test_project_window_localization_configuration_remove_locale(qtbot, minimal_
                     'locale': locale
                 },
             ],
-            **minimal_configuration_dict}, f)
+            **minimal_dumped_app_configuration}, f)
 
     sut = ProjectWindow(configuration_file_path)
     qtbot.addWidget(sut)
@@ -247,7 +247,7 @@ def test_project_window_localization_configuration_remove_locale(qtbot, minimal_
     assert locale not in sut._configuration.locales
 
 
-def test_project_window_localization_configuration_default_locale(qtbot, minimal_configuration_dict, tmpdir) -> None:
+def test_project_window_localization_configuration_default_locale(qtbot, minimal_dumped_app_configuration, tmpdir) -> None:
     locale = 'de-DE'
     configuration_file_path = tmpdir.join('betty.json')
     with open(configuration_file_path, 'w') as f:
@@ -260,7 +260,7 @@ def test_project_window_localization_configuration_default_locale(qtbot, minimal
                     'locale': locale
                 },
             ],
-            **minimal_configuration_dict}, f)
+            **minimal_dumped_app_configuration}, f)
 
     sut = ProjectWindow(configuration_file_path)
     qtbot.addWidget(sut)
@@ -291,9 +291,9 @@ def test_project_window_save_project_as_should_create_duplicate_configuration_fi
     navigate(sut, ['project_menu', 'save_project_as_action'])
 
     with open(save_as_configuration_file_path) as f:
-        save_as_configuration_dict = json.load(f)
+        save_as_dumped_app_configuration = json.load(f)
 
-    assert save_as_configuration_dict == {
+    assert save_as_dumped_app_configuration == {
         'output': output_directory_path,
         'base_url': base_url,
         'title': 'Betty',
@@ -301,12 +301,16 @@ def test_project_window_save_project_as_should_create_duplicate_configuration_fi
         'clean_urls': False,
         'content_negotiation': False,
         'debug': False,
+        'lifetime_threshold': 125,
+        'extensions': {},
         'locales': [
             {
                 'locale': 'en-US',
             }
         ],
-        'lifetime_threshold': 125,
+        'theme': {
+            'background_image_id': None,
+        },
     }
 
 

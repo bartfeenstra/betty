@@ -1,5 +1,6 @@
+from contextlib import contextmanager
 from textwrap import indent
-from typing import List
+from typing import List, Optional
 
 
 class ContextError(Exception):
@@ -8,9 +9,9 @@ class ContextError(Exception):
     An error with a stack of contextual messages.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, contexts: Optional[List[str]] = None, **kwargs):
         super().__init__(*args, **kwargs)
-        self._contexts: List[str] = []
+        self._contexts: List[str] = [] if contexts is None else contexts
 
     def __str__(self):
         return super().__str__() + '\n' + indent('\n'.join(self._contexts), '- ')
@@ -24,6 +25,16 @@ class ContextError(Exception):
         """
         self._contexts.append(context)
         return self
+
+
+@contextmanager
+def ensure_context(*contexts: str) -> None:
+    try:
+        yield
+    except ContextError as e:
+        for context in contexts:
+            e.add_context(context)
+        raise
 
 
 class UserFacingError(Exception):
