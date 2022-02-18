@@ -24,15 +24,15 @@ from babel.localedata import locale_identifiers
 from reactives import reactive, ReactorController
 
 from betty import cache, generate, serve, about, load
-from betty.app import App
+from betty.app import App, LocaleConfiguration, LocalesConfiguration, Extension, AppExtensionConfiguration, \
+    Configuration
+from betty.app.extension import discover_extension_types
 from betty.asyncio import sync
-from betty.config import FORMAT_LOADERS, from_file, to_file, Configuration, ConfigurationError, ExtensionConfiguration, \
-    LocalesConfiguration, LocaleConfiguration
+from betty.config import from_file, to_file, ConfigurationError, APP_CONFIGURATION_FORMATS
 from betty.error import UserFacingError
-from betty.extension import Extension, discover_extension_types
 from betty.importlib import import_any
 
-_CONFIGURATION_FILE_FILTER = 'Betty configuration (%s)' % ' '.join(map(lambda format: '*%s' % format, FORMAT_LOADERS))
+_CONFIGURATION_FILE_FILTER = 'Betty configuration (%s)' % ' '.join(map(lambda format: '*%s' % format, APP_CONFIGURATION_FORMATS))
 
 
 class GuiBuilder:
@@ -594,7 +594,7 @@ class _ProjectExtensionConfigurationPane(QWidget):
             try:
                 self._app.configuration.extensions[extension_type].enabled = enabled
             except KeyError:
-                self._app.configuration.extensions.add(ExtensionConfiguration(
+                self._app.configuration.extensions.add(AppExtensionConfiguration(
                     extension_type,
                     enabled,
                 ))
@@ -625,7 +625,7 @@ class _ProjectExtensionConfigurationPane(QWidget):
 class ProjectWindow(BettyMainWindow):
     def __init__(self, configuration_file_path: str, *args, **kwargs):
         with open(configuration_file_path) as f:
-            self._configuration = from_file(f)
+            self._configuration = from_file(f, Configuration)
         self._configuration.react.react_weakref(self._save_configuration)
         self._app = App(self._configuration)
         self._configuration_file_path = configuration_file_path

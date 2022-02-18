@@ -4,16 +4,15 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
 from reactives import ReactiveList
 
-from betty.app import App
+from betty.app import App, Configuration, AppExtensionConfiguration
 from betty.asyncio import sync
-from betty.config import Configuration, ExtensionConfiguration
-from betty.extension.gramps import Gramps, _AddFamilyTreeWindow, GrampsConfiguration, FamilyTreeConfiguration
+from betty.gramps import Gramps, _AddFamilyTreeWindow, GrampsConfiguration, FamilyTreeConfiguration
 
 
 @sync
 async def test_add_family_tree_set_path(assert_not_window, assert_window, tmpdir, qtbot) -> None:
     configuration = Configuration(tmpdir, 'https://example.com')
-    configuration.extensions.add(ExtensionConfiguration(Gramps))
+    configuration.extensions.add(AppExtensionConfiguration(Gramps))
     async with App(configuration) as app:
         sut = app.extensions[Gramps]
         widget = sut.gui_build()
@@ -37,7 +36,7 @@ async def test_add_family_tree_set_path(assert_not_window, assert_window, tmpdir
 @sync
 async def test_add_family_tree_find_path(assert_window, mocker, tmpdir, qtbot) -> None:
     configuration = Configuration(tmpdir, 'https://example.com')
-    configuration.extensions.add(ExtensionConfiguration(Gramps))
+    configuration.extensions.add(AppExtensionConfiguration(Gramps))
     async with App(configuration) as app:
         sut = app.extensions[Gramps]
         widget = sut.gui_build()
@@ -60,9 +59,9 @@ async def test_add_family_tree_find_path(assert_window, mocker, tmpdir, qtbot) -
 @sync
 async def test_remove_family_tree(tmpdir, qtbot) -> None:
     configuration = Configuration(tmpdir, 'https://example.com')
-    configuration.extensions.add(ExtensionConfiguration(
+    configuration.extensions.add(AppExtensionConfiguration(
         Gramps,
-        configuration=GrampsConfiguration(
+        extension_configuration=GrampsConfiguration(
             family_trees=ReactiveList([
                 FamilyTreeConfiguration('/tmp/family-tree.gpkg'),
             ])

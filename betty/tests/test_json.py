@@ -4,14 +4,13 @@ from tempfile import TemporaryDirectory, NamedTemporaryFile
 from geopy import Point
 
 from betty import json
+from betty.app import App, Configuration, LocaleConfiguration
 from betty.asyncio import sync
-from betty.model.ancestry import Place, Person, PlaceName, Link, Presence, Source, File, Note, PersonName, \
-    Subject, Birth, Enclosure, Citation, Event
-from betty.config import Configuration, LocaleConfiguration
 from betty.json import JSONEncoder
 from betty.locale import Date, DateRange
 from betty.media_type import MediaType
-from betty.app import App
+from betty.model.ancestry import Place, Person, PlaceName, Link, Presence, Source, File, Note, PersonName, \
+    Subject, Birth, Enclosure, Citation, Event
 from betty.tests import TestCase
 
 

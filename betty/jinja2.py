@@ -26,7 +26,6 @@ from resizeimage import resizeimage
 from betty.html import CssProvider, JsProvider
 from betty.model import Entity, get_entity_type_name, GeneratedEntityId
 from betty.model.ancestry import File, Citation, HasLinks, HasFiles, Subject, Witness, Dated, ENTITY_TYPES
-from betty.config import Configuration
 from betty.fs import hashfile, iterfiles
 from betty.functools import walk
 from betty.importlib import import_any
@@ -37,7 +36,7 @@ from betty.os import link_or_copy, PathLike
 from betty.path import rootname
 from betty.render import Renderer
 from betty.search import Index
-from betty.app import App, Extensions
+from betty.app import App, Extensions, Configuration
 from betty.string import camel_case_to_snake_case, camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
 
 
@@ -94,7 +93,6 @@ class BettyEnvironment(Environment):
 
     def __init__(self, app: App):
         template_directory_paths = [str(path / 'templates') for path, _ in app.assets.paths]
-
         Environment.__init__(self,
                              loader=FileSystemLoader(template_directory_paths),
                              undefined=StrictUndefined,

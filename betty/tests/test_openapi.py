@@ -5,10 +5,9 @@ from tempfile import TemporaryDirectory
 import jsonschema
 from parameterized import parameterized
 
-from betty.config import Configuration
 from betty.asyncio import sync
 from betty.openapi import build_specification
-from betty.app import App
+from betty.app import App, Configuration
 from betty.tests import TestCase
 
 

@@ -1,9 +1,10 @@
+from __future__ import annotations
 from contextlib import suppress
 from typing import Any, Optional, Type
 
+from betty.app import Configuration
 from betty.model import Entity
 from betty.model.ancestry import PersonName, Event, Place, File, Source, Citation, Note, Person
-from betty.config import Configuration
 from betty.media_type import EXTENSIONS
 
 

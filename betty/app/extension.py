@@ -1,0 +1,158 @@
+from __future__ import annotations
+
+import asyncio
+from collections import defaultdict
+from pathlib import Path
+from typing import Dict, List, Optional, Set, Type, Sequence, Any, Generic, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from betty.app import App
+
+try:
+    from importlib.metadata import entry_points
+except ImportError:
+    from importlib_metadata import entry_points
+
+from betty.config import Configurable, ConfigurationT
+from betty.dispatch import Dispatcher, TargetedDispatcher
+from betty.environment import Environment
+from betty.importlib import import_any
+from reactives import reactive, scope
+
+
+class Extension(Environment):
+    """
+    Integrate optional functionality with the Betty app.
+
+    Extensions that take configuration must implement betty.app.ConfigurableExtension.
+    """
+
+    def __init__(self, app: App):
+        self._app = app
+
+    @classmethod
+    def name(cls) -> str:
+        return '%s.%s' % (cls.__module__, cls.__name__)
+
+    @classmethod
+    def depends_on(cls) -> Set[Type[Extension]]:
+        return set()
+
+    @classmethod
+    def comes_after(cls) -> Set[Type[Extension]]:
+        return set()
+
+    @classmethod
+    def comes_before(cls) -> Set[Type[Extension]]:
+        return set()
+
+    @property
+    def assets_directory_path(self) -> Optional[Path]:
+        return None
+
+
+class ConfigurableExtension(Configurable, Extension, Generic[ConfigurationT]):
+    def __init__(self, app: App, configuration: ConfigurationT):
+        super().__init__(configuration, app)
+
+    @classmethod
+    def default_configuration(cls) -> ConfigurationT:
+        raise NotImplementedError
+
+
+class ExtensionDispatcher(Dispatcher):
+    def __init__(self, extensions: Extensions):
+        self._extensions = extensions
+
+    def dispatch(self, target_type: Type) -> TargetedDispatcher:
+        target_method_names = [method_name for method_name in dir(target_type) if not method_name.startswith('_')]
+        if len(target_method_names) != 1:
+            raise ValueError(f"A dispatch's target type must have a single method to dispatch to, but {target_type} has {len(target_method_names)}.")
+        target_method_name = target_method_names[0]
+
+        async def _dispatch(*args, **kwargs) -> List[Any]:
+            return [
+                result
+                for target_extension_batch
+                in self._extensions
+                for result
+                in await asyncio.gather(*[
+                    getattr(target_extension, target_method_name)(*args, **kwargs)
+                    for target_extension in target_extension_batch
+                    if isinstance(target_extension, target_type)
+                ])
+            ]
+        return _dispatch
+
+
+def build_extension_type_graph(extension_types: Set[Type[Extension]]) -> Dict:
+    extension_types_graph = defaultdict(set)
+    # Add dependencies to the extension graph.
+    for extension_type in extension_types:
+        _extend_extension_type_graph(extension_types_graph, extension_type)
+    # Now all dependencies have been collected, extend the graph with optional extension orders.
+    for extension_type in extension_types:
+        for before in extension_type.comes_before():
+            if before in extension_types_graph:
+                extension_types_graph[before].add(extension_type)
+        for after in extension_type.comes_after():
+            if after in extension_types_graph:
+                extension_types_graph[extension_type].add(after)
+
+    return extension_types_graph
+
+
+def _extend_extension_type_graph(graph: Dict, extension_type: Type[Extension]) -> None:
+    dependencies = extension_type.depends_on()
+    # Ensure each extension type appears in the graph, even if they're isolated.
+    graph.setdefault(extension_type, set())
+    for dependency in dependencies:
+        seen_dependency = dependency in graph
+        graph[extension_type].add(dependency)
+        if not seen_dependency:
+            _extend_extension_type_graph(graph, dependency)
+
+
+def discover_extension_types() -> Set[Type[Extension]]:
+    return {import_any(entry_point.value) for entry_point in entry_points()['betty.extensions']}
+
+
+@reactive
+class Extensions:
+    def __getitem__(self, extension_type: Type[Extension]) -> Extension:
+        raise NotImplementedError
+
+    def __iter__(self) -> Sequence[Sequence[Extension]]:
+        raise NotImplementedError
+
+    def flatten(self) -> Sequence[Extension]:
+        for batch in self:
+            yield from batch
+
+    def __contains__(self, extension_type: Type[Extension]) -> bool:
+        raise NotImplementedError
+
+
+class ListExtensions(Extensions):
+    def __init__(self, extensions: List[List[Extension]]):
+        self._extensions = extensions
+
+    @scope.register_self
+    def __getitem__(self, extension_type: Type[Extension]) -> Extension:
+        for extension in self.flatten():
+            if type(extension) == extension_type:
+                return extension
+        raise KeyError(f'Unknown extension of type "{extension_type}"')
+
+    @scope.register_self
+    def __iter__(self) -> Sequence[Sequence[Extension]]:
+        # Use a generator, so we discourage calling code from storing the result.
+        for batch in self._extensions:
+            yield (extension for extension in batch)
+
+    @scope.register_self
+    def __contains__(self, extension_type: Type[Extension]) -> bool:
+        for extension in self.flatten():
+            if type(extension) == extension_type:
+                return True
+        return False

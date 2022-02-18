@@ -86,17 +86,17 @@ theme:
   background_image_id: O0301
 assets_directory_path: ./resources
 extensions:
-  betty.extension.anonymizer.Anonymizer: ~
-  betty.extension.cleaner.Cleaner: ~
-  betty.extension.deriver.Deriver: ~
-  betty.extension.gramps.Gramps:
+  betty.anonymizer.Anonymizer: ~
+  betty.cleaner.Cleaner: ~
+  betty.deriver.Deriver: ~
+  betty.gramps.Gramps:
     family_trees:
       - file: ./gramps.gpkg
-  betty.extension.http_api_doc.HttpApiDoc: ~
-  betty.extension.maps.Maps: ~
-  betty.extension.privatizer.Privatizer: ~
-  betty.extension.trees.Trees: ~
-  betty.extension.wikipedia.Wikipedia: ~
+  betty.http_api_doc.HttpApiDoc: ~
+  betty.maps.Maps: ~
+  betty.privatizer.Privatizer: ~
+  betty.trees.Trees: ~
+  betty.wikipedia.Wikipedia: ~
 ```
 - `output` (required); The path to the directory in which to place the generated site.
 - `base_url` (required); The absolute, public URL at which the site will be published.
@@ -120,18 +120,18 @@ extensions:
   - `background_image_id` (optional); The ID of the file entity whose (image) file to use for page backgrounds if a page
       does not provide any image media itself.
 - `extensions` (optional): The extensions to enable. Keys are extension names, and values are objects containing each extension's configuration.
-    - `betty.extension.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `~`.
-    - `betty.extension.cleaner.Cleaner`: Removes data (events, media, etc.) that have no relation to any people. Configuration: `~`.
-    - `betty.extension.demo.Demo`: Loads demonstrative content and functionality that shows what Betty can do. Configuration: `~`.
-    - `betty.extension.deriver.Deriver`: Extends ancestries by deriving facts from existing information. Configuration: `~`.
-    - `betty.extension.gramps.Gramps`: Loads Gramps family trees. Configuration:
+    - `betty.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `~`.
+    - `betty.cleaner.Cleaner`: Removes data (events, media, etc.) that have no relation to any people. Configuration: `~`.
+    - `betty.demo.Demo`: Loads demonstrative content and functionality that shows what Betty can do. Configuration: `~`.
+    - `betty.deriver.Deriver`: Extends ancestries by deriving facts from existing information. Configuration: `~`.
+    - `betty.gramps.Gramps`: Loads Gramps family trees. Configuration:
         - `family_trees`: An array defining zero or more Gramps family trees to load. Each item is an object with the following keys:
             - `file`: the path to a *Gramps XML* or *Gramps XML Package* file.
-    - `betty.extension.http_api_doc.HttpApiDoc`: Renders interactive and user-friendly HTTP API documentation using [ReDoc](https://github.com/Redocly/redoc).
-    - `betty.extension.maps.Maps`: Renders interactive maps using [Leaflet](https://leafletjs.com/).
-    - `betty.extension.privatizer.Privatizer`: Marks living people private. Configuration: `~`.
-    - `betty.extension.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
-    - `betty.extension.wikipedia.Wikipedia`: Lets templates and other extensions retrieve complementary Wikipedia entries.
+    - `betty.http_api_doc.HttpApiDoc`: Renders interactive and user-friendly HTTP API documentation using [ReDoc](https://github.com/Redocly/redoc).
+    - `betty.maps.Maps`: Renders interactive maps using [Leaflet](https://leafletjs.com/).
+    - `betty.privatizer.Privatizer`: Marks living people private. Configuration: `~`.
+    - `betty.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
+    - `betty.wikipedia.Wikipedia`: Lets templates and other extensions retrieve complementary Wikipedia entries.
 
 ### Translations
 Betty ships with the following translations:
@@ -148,7 +148,7 @@ Gramps has limited built-in support for people's privacy. To fully control priva
 sources, and citations, add a `betty:privacy` attribute to any of these types, with a value of `private` to explicitly
 declare the data always private or `public` to declare the data always public. Any other value will leave the privacy
 undecided, as well as person records marked public using Gramps' built-in privacy selector. In such cases, the
-`betty.extension.privatizer.Privatizer` may decide if the data is public or private.
+`betty.privatizer.Privatizer` may decide if the data is public or private.
 
 #### Dates
 For unknown date parts, set those to all zeroes and Betty will ignore them. For instance, `0000-12-31` will be parsed as
@@ -193,7 +193,7 @@ To build a site from your GEDCOM files:
 ### The Python API
 
 ```python
-from betty.config import Configuration
+from betty.app import Configuration
 from betty.asyncio import sync
 from betty.generate import generate
 from betty.load import load
