@@ -31,12 +31,23 @@ from betty.os import PathLike
 from betty.path import rootname
 
 
-class GrampsLoadFileError(UserFacingError):
-    pass
+class GrampsError(UserFacingError):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+class GrampsLoadFileError(GrampsError, RuntimeError):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+class GrampsFileNotFoundError(GrampsError, FileNotFoundError):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 
 async def load_file(ancestry: Ancestry, file_path: PathLike) -> None:
-    file_path = Path(file_path)
+    file_path = Path(file_path).resolve()
     logger = getLogger()
     logger.info('Loading %s...' % str(file_path))
 
@@ -48,9 +59,12 @@ async def load_file(ancestry: Ancestry, file_path: PathLike) -> None:
         load_gramps(ancestry, file_path)
         return
 
-    with suppress(GrampsLoadFileError):
+    try:
         async with aiofiles.open(file_path) as f:
             xml = await f.read()
+    except FileNotFoundError:
+        raise GrampsFileNotFoundError(f'Could not find the file "{file_path}".') from None
+    with suppress(GrampsLoadFileError):
         load_xml(ancestry, xml, file_path.anchor)
         return
 
@@ -58,7 +72,7 @@ async def load_file(ancestry: Ancestry, file_path: PathLike) -> None:
 
 
 def load_gramps(ancestry: Ancestry, gramps_path: PathLike) -> None:
-    gramps_path = Path(gramps_path)
+    gramps_path = Path(gramps_path).resolve()
     try:
         with gzip.open(gramps_path) as f:
             xml = f.read()
@@ -68,7 +82,7 @@ def load_gramps(ancestry: Ancestry, gramps_path: PathLike) -> None:
 
 
 def load_gpkg(ancestry: Ancestry, gpkg_path: PathLike) -> None:
-    gpkg_path = Path(gpkg_path)
+    gpkg_path = Path(gpkg_path).resolve()
     try:
         tar_file = gzip.open(gpkg_path)
         try:
@@ -82,7 +96,7 @@ def load_gpkg(ancestry: Ancestry, gpkg_path: PathLike) -> None:
 
 
 def load_xml(ancestry: Ancestry, xml: Union[str, PathLike], gramps_tree_directory_path: PathLike) -> None:
-    gramps_tree_directory_path = Path(gramps_tree_directory_path)
+    gramps_tree_directory_path = Path(gramps_tree_directory_path).resolve()
     with suppress(FileNotFoundError, OSError):
         with open(xml) as f:
             xml = f.read()

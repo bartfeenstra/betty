@@ -5,26 +5,26 @@ from typing import Union, List, Type, Dict
 import pytest
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
-from PyQt6.QtWidgets import QMainWindow, QMenu, QWidget, QApplication
+from PyQt6.QtWidgets import QMainWindow, QMenu, QWidget
 
-from betty.gui import Error
+from betty.gui import Error, BettyApplication
 
 
 @pytest.fixture(scope="function")
 def qapp(qapp_args):
     """
-    Fixture that instantiates the QApplication instance that will be used by
+    Fixture that instantiates the BettyApplication instance that will be used by
     the tests.
 
-    You can use the ``qapp`` fixture in tests which require a ``QApplication``
+    You can use the ``qapp`` fixture in tests which require a ``BettyApplication``
     to run, but where you don't need full ``qtbot`` functionality.
 
     This overrides pytest-qt's built-in qapp fixture and adds forced garbage collection after each function.
     """
-    app = QApplication.instance()
+    app = BettyApplication.instance()
     if app is None:
         global _qapp_instance
-        _qapp_instance = QApplication(qapp_args)
+        _qapp_instance = BettyApplication(qapp_args)
         yield _qapp_instance
     else:
         yield app  # pragma: no cover
@@ -74,9 +74,17 @@ def assert_window(assert_top_level_widget):
 
 
 @pytest.fixture
-def assert_error(assert_top_level_widget):
+def assert_error(qapp, qtbot):
     def _assert_error(error_type: Type[Error]) -> Error:
-        return assert_top_level_widget(error_type)
+        widget = None
+
+        def _assert_error_modal():
+            nonlocal widget
+            widget = qapp.activeModalWidget()
+            assert isinstance(widget, error_type)
+        qtbot.waitUntil(_assert_error_modal)
+        qtbot.addWidget(widget)
+        return widget
     return _assert_error
 
 

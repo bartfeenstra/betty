@@ -1,4 +1,6 @@
+from __future__ import annotations
 import copy
+import functools
 import itertools
 import logging
 import os
@@ -8,14 +10,13 @@ import webbrowser
 from collections import OrderedDict
 from contextlib import suppress
 from datetime import datetime
-from functools import wraps
 from os import path
 from pathlib import Path
-from typing import Sequence, Type, Optional, Union
+from typing import Sequence, Type, Optional, Union, Callable, Any, List
 from urllib.parse import urlparse
 
-from PyQt6.QtCore import Qt, QThread, pyqtSignal, QObject, QCoreApplication
-from PyQt6.QtGui import QIcon, QFont, QAction
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QCoreApplication, QMetaObject, Q_ARG
+from PyQt6.QtGui import QIcon, QFont, QAction, QCloseEvent
 from PyQt6.QtWidgets import QApplication, QFileDialog, QMainWindow, QVBoxLayout, QLabel, \
     QWidget, QPushButton, QMessageBox, QLineEdit, QCheckBox, QFormLayout, QHBoxLayout, QGridLayout, QLayout, \
     QStackedLayout, QComboBox, QButtonGroup, QRadioButton
@@ -48,20 +49,56 @@ class GuiBuilder:
         return None
 
 
-def catch_exceptions(f):
-    @wraps(f)
-    def _catch_exceptions(*args, **kwargs):
-        try:
-            f(*args, **kwargs)
-        except Exception as e:
-            if isinstance(e, UserFacingError):
-                error = ExceptionError(e)
-            else:
-                logging.getLogger().exception(e)
-                error = UnexpectedExceptionError(e)
-            error.show()
+class _ExceptionCatcher:
+    def __init__(
+            self,
+            f: Optional[Callable] = None,
+            parent: Optional[QWidget] = None,
+            close_parent: bool = False,
+            instance: Optional[QWidget] = None,
+    ):
+        if f:
+            functools.update_wrapper(self, f)
+        self._f = f
+        if close_parent and not parent:
+            raise ValueError('No parent was given to close.')
+        self._parent = instance if parent is None else parent
+        self._close_parent = close_parent
+        self._instance = instance
 
-    return _catch_exceptions
+    def __get__(self, instance, owner=None) -> Any:
+        if instance is None:
+            return self
+        assert isinstance(instance, QWidget)
+        return type(self)(self._f, instance, self._close_parent, instance)
+
+    def __call__(self, *args, **kwargs):
+        if not self._f:
+            raise RuntimeError('This exception catcher is not callable, but you can use it as a context manager instead using a `with` statement.')
+        if self._instance:
+            args = (self._instance, *args)
+        with self:
+            return self._f(*args, **kwargs)
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_val is None:
+            return
+        QMetaObject.invokeMethod(
+            BettyApplication.instance(),
+            '_catch_exception',
+            Qt.ConnectionType.QueuedConnection,
+            Q_ARG(Exception, exc_val),
+            Q_ARG(QObject, self._parent),
+            Q_ARG(bool, self._close_parent),
+        )
+        return True
+
+
+# Alias the class so its original name follows the PEP code style, but the alias follows the decorator code style.
+catch_exceptions = _ExceptionCatcher
 
 
 def mark_valid(widget: QWidget) -> None:
@@ -77,21 +114,44 @@ def mark_invalid(widget: QWidget, reason: str) -> None:
 
 
 class Error(QMessageBox):
-    def __init__(self, message: str, *args, **kwargs):
-        super(Error, self).__init__(*args, **kwargs)
+    _errors: List[Error] = []
+
+    def __init__(
+            self,
+            message: str,
+            *args,
+            close_parent: bool = False,
+            **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        self._close_parent = close_parent
         self.setWindowTitle('Error - Betty')
         self.setText(message)
+        Error._errors.append(self)
+
+        standard_button = QMessageBox.StandardButton.Close
+        self.setStandardButtons(standard_button)
+        self.button(QMessageBox.StandardButton.Close).setIcon(QIcon())
+        self.setDefaultButton(QMessageBox.StandardButton.Close)
+        self.setEscapeButton(QMessageBox.StandardButton.Close)
+        self.button(QMessageBox.StandardButton.Close).clicked.connect(self.close)
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        Error._errors.remove(self)
+        if self._close_parent:
+            self.parent().close()
+        super().closeEvent(event)
 
 
 class ExceptionError(Error):
     def __init__(self, exception: Exception, *args, **kwargs):
-        super(ExceptionError, self).__init__(str(exception), *args, **kwargs)
+        super().__init__(str(exception), *args, **kwargs)
         self.exception = exception
 
 
 class UnexpectedExceptionError(ExceptionError):
     def __init__(self, exception: Exception, *args, **kwargs):
-        super(UnexpectedExceptionError, self).__init__(exception, *args, **kwargs)
+        super().__init__(exception, *args, **kwargs)
         self.setText('An unexpected error occurred and Betty could not complete the task. Please <a href="https://github.com/bartfeenstra/betty/issues">report this problem</a> and include the following details, so the team behind Betty can address it.')
         self.setTextFormat(Qt.TextFormat.RichText)
         self.setDetailedText(''.join(traceback.format_exception(type(exception), exception, exception.__traceback__)))
@@ -780,14 +840,16 @@ class LogRecordViewerHandler(logging.Handler):
 
 
 class _GenerateThread(QThread):
-    def __init__(self, app: App, *args, **kwargs):
+    def __init__(self, app: App, generate_window: _GenerateWindow, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._app = app
+        self._generate_window = generate_window
 
     @sync
     async def run(self) -> None:
-        await load.load(self._app)
-        await generate.generate(self._app)
+        with catch_exceptions(parent=self._generate_window, close_parent=True):
+            await load.load(self._app)
+            await generate.generate(self._app)
 
 
 class _GenerateWindow(BettyWindow):
@@ -824,7 +886,7 @@ class _GenerateWindow(BettyWindow):
 
         self._app = app
         self._logging_handler = LogRecordViewerHandler(self._log_record_viewer)
-        self._thread = _GenerateThread(self._app)
+        self._thread = _GenerateThread(self._app, self)
         self._thread.finished.connect(self._finish_generate)
 
     @catch_exceptions
@@ -843,6 +905,7 @@ class _GenerateWindow(BettyWindow):
         generate.getLogger().removeHandler(self._logging_handler)
         self._close_button.setDisabled(False)
         self._serve_button.setDisabled(False)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.WindowCloseButtonHint)
 
 
 class _ServeThread(QThread):
@@ -1060,3 +1123,17 @@ class BettyApplication(QApplication):
         super().__init__(*args, **kwargs)
         self.setApplicationName('Betty')
         self.setStyleSheet(self._STYLESHEET)
+
+    @pyqtSlot(Exception, QObject, bool)
+    def _catch_exception(
+        self,
+        e: Exception,
+        parent: QObject,
+        close_parent: bool,
+    ) -> None:
+        if isinstance(e, UserFacingError):
+            window = ExceptionError(e, parent, close_parent=close_parent)
+        else:
+            logging.getLogger().exception(e)
+            window = UnexpectedExceptionError(e, parent, close_parent=close_parent)
+        window.show()
