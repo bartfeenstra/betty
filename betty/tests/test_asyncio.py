@@ -67,6 +67,22 @@ class SyncTest(TestCase):
         actual = sync(_Sync())()
         self.assertEqual(expected, actual)
 
+    def test_call_nested_sync_and_async(self) -> None:
+        expected = 'Hello, oh asynchronous, world!'
+
+        @sync
+        async def _async_one():
+            return _sync()
+
+        def _sync():
+            return _async_two()
+
+        @sync
+        async def _async_two():
+            return expected
+
+        self.assertEqual(expected, _async_one())
+
     def test_unsychronizable(self) -> None:
         with self.assertRaises(ValueError):
             sync(True)
