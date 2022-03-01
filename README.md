@@ -84,7 +84,7 @@ locales:
   - locale: nl
 theme:
   background_image_id: O0301
-assets_directory_path: ./resources
+assets: ./resources
 extensions:
   betty.anonymizer.Anonymizer: ~
   betty.cleaner.Cleaner: ~
