@@ -650,6 +650,7 @@ class _ProjectExtensionConfigurationPane(QWidget):
 
         enable_layout.addRow(Text(extension_type.gui_description()))
 
+        @catch_exceptions
         def _update_enabled(enabled: bool) -> None:
             try:
                 self._app.configuration.extensions[extension_type].enabled = enabled

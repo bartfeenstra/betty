@@ -16,15 +16,19 @@ def _sync_function(f):
 def sync(f):
     if inspect.iscoroutine(f):
         try:
-            asyncio.get_running_loop()
+            running_loop = asyncio.get_running_loop()
         except RuntimeError:
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            return loop.run_until_complete(f)
-        synced = _SyncedAwaitable(f)
-        synced.start()
-        synced.join()
-        return synced.return_value
+            running_loop = None
+
+        if running_loop:
+            synced = _SyncedAwaitable(f)
+            synced.start()
+            synced.join()
+            return synced.return_value
+
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        return loop.run_until_complete(f)
 
     if inspect.iscoroutinefunction(f):
         return _sync_function(f)

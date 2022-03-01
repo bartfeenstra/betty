@@ -18,9 +18,6 @@ jobs:
           - name: 'Python 3.8'
             os: ubuntu-latest
             python: '3.8'
-          - name: 'Python 3.7'
-            os: ubuntu-latest
-            python: '3.7'
           - name: 'Mac OS'
             os: macos-latest
             # @todo Mac OS builds with Python 3.10 fail for some reason when building pip dependencies. Let's use

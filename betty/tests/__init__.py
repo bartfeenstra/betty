@@ -1,7 +1,7 @@
 import functools
 import logging
 import unittest
-from contextlib import suppress, asynccontextmanager
+from contextlib import asynccontextmanager
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Optional, Dict, Callable, Tuple
@@ -22,9 +22,7 @@ def patch_cache(f):
             f(*args, **kwargs)
         finally:
             fs.CACHE_DIRECTORY_PATH = original_cache_directory_path
-            # Python 3.7 does not allow the temporary directory to have been removed already.
-            with suppress(FileNotFoundError):
-                cache_directory.cleanup()
+            cache_directory.cleanup()
 
     return _patch_cache
 

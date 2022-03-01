@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+cd "$(dirname "$0")/.."
+
+rm -rf ./dist
+rm -rf ./betty/**/assets/betty.npm._Npm/build

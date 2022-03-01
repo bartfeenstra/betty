@@ -10,5 +10,5 @@ def get_data_paths() -> List[Path]:
     return [data_path for data_path in [
         ROOT_DIRECTORY_PATH / 'VERSION',
         *map(Path, glob(str(ROOT_DIRECTORY_PATH / 'betty' / 'assets' / '**'), recursive=True)),
-        *map(Path, glob(str(ROOT_DIRECTORY_PATH / 'betty' / 'extension' / '*' / 'assets' / '**'), recursive=True)),
+        *map(Path, glob(str(ROOT_DIRECTORY_PATH / 'betty' / '*' / 'assets' / '**'), recursive=True)),
     ] if data_path.is_file()]

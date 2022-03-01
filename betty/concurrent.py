@@ -1,7 +1,7 @@
-from concurrent.futures._base import Executor
+from concurrent.futures._base import Executor, wait
 
 
-class ExceptionRaisingExecutor(Executor):
+class ExceptionRaisingAwaitableExecutor(Executor):
     def __init__(self, executor: Executor):
         self._executor = executor
         self._futures = []
@@ -13,6 +13,9 @@ class ExceptionRaisingExecutor(Executor):
 
     def map(self, *args, **kwargs):
         return self._executor.map(*args, **kwargs)
+
+    async def wait(self) -> None:
+        wait(self._futures)
 
     def shutdown(self, *args, **kwargs):
         self._executor.shutdown(*args, **kwargs)

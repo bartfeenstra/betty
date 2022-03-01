@@ -11,7 +11,7 @@ module.exports = {
     maps: path.resolve(__dirname, 'maps.js')
   },
   output: {
-    path: path.resolve(__dirname, '..', 'output'),
+    path: path.resolve(__dirname, 'webpack-build'),
     filename: '[name].js'
   },
   optimization: {

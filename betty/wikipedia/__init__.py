@@ -263,8 +263,8 @@ class Wikipedia(Extension, Jinja2Provider, PostLoader, GuiBuilder):
         except RetrievalError:
             return
 
-    @property
-    def assets_directory_path(self) -> Optional[Path]:
+    @classmethod
+    def assets_directory_path(cls) -> Optional[Path]:
         return Path(__file__).parent / 'assets'
 
     @classmethod

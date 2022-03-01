@@ -1,12 +1,10 @@
 import hashlib
 import os
-import shutil
 from collections import deque
 from contextlib import suppress
 from os.path import getmtime
 from pathlib import Path
 from shutil import copy2
-from tempfile import mkdtemp
 from typing import AsyncIterable, Optional, Tuple, AsyncContextManager
 
 import aiofiles
@@ -80,20 +78,3 @@ class FileSystem:
                     file_destination_path.parent.mkdir(exist_ok=True, parents=True)
                     copy2(file_source_path, file_destination_path)
         return destination_path
-
-
-class DirectoryBackup:
-    def __init__(self, root_path: PathLike, backup_path: PathLike):
-        self._root_path = Path(root_path)
-        self._backup_path = Path(backup_path)
-
-    async def __aenter__(self):
-        self._tmp = mkdtemp()
-        with suppress(FileNotFoundError):
-            shutil.move(str(self._root_path / self._backup_path), self._tmp)
-        return self
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        with suppress(FileNotFoundError):
-            shutil.move(str(self._tmp / self._backup_path), str(self._root_path / self._backup_path))
-        shutil.rmtree(self._tmp)
