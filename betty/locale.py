@@ -25,6 +25,7 @@ class Localized:
     locale: Optional[str]
 
     def __init__(self, locale: Optional[str] = None):
+        super().__init__()
         self.locale = locale
 
 

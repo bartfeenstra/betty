@@ -1,7 +1,8 @@
 from __future__ import annotations
+
 from functools import total_ordering
 from pathlib import Path
-from typing import Optional, List, Set, Sequence, Type
+from typing import List, Optional, Set, Type, Sequence
 
 from geopy import Point
 
@@ -16,6 +17,7 @@ class HasPrivacy:
     private: Optional[bool]
 
     def __init__(self):
+        super().__init__()
         self.private = None
 
 
@@ -23,6 +25,7 @@ class Dated:
     date: Optional[Datey]
 
     def __init__(self):
+        super().__init__()
         self.date = None
 
 
@@ -31,7 +34,7 @@ class Note(Entity):
     entity: HasNotes
 
     def __init__(self, note_id: str, text: str):
-        Entity.__init__(self, note_id)
+        super().__init__(note_id)
         self._text = text
 
     @property
@@ -43,11 +46,15 @@ class Note(Entity):
 class HasNotes:
     notes: EntityCollection[Note]
 
+    def __init__(self):
+        super().__init__()
+
 
 class Described:
     description: Optional[str]
 
     def __init__(self):
+        super().__init__()
         self.description = None
 
 
@@ -55,6 +62,7 @@ class HasMediaType:
     media_type: Optional[MediaType]
 
     def __init__(self):
+        super().__init__()
         self.media_type = None
 
 
@@ -64,9 +72,7 @@ class Link(HasMediaType, Localized, Described):
     label: Optional[str]
 
     def __init__(self, url: str):
-        HasMediaType.__init__(self)
-        Localized.__init__(self)
-        Described.__init__(self)
+        super().__init__()
         self.url = url
         self.label = None
         self.relationship = None
@@ -74,6 +80,7 @@ class Link(HasMediaType, Localized, Described):
 
 class HasLinks:
     def __init__(self):
+        super().__init__()
         self._links = set()
 
     @property
@@ -85,19 +92,16 @@ class HasLinks:
 class HasCitations:
     citations: EntityCollection[Citation]
 
+    def __init__(self):
+        super().__init__()
+
 
 @many_to_many('entities', 'files')
-@many_to_many('notes', 'entity')
 class File(Entity, Described, HasPrivacy, HasMediaType, HasNotes, HasCitations):
     entities: EntityCollection[HasFiles]
 
     def __init__(self, file_id: Optional[str], path: PathLike, media_type: Optional[MediaType] = None):
-        Entity.__init__(self, file_id)
-        Described.__init__(self)
-        HasPrivacy.__init__(self)
-        HasMediaType.__init__(self)
-        HasNotes.__init__(self)
-        HasCitations.__init__(self)
+        super().__init__(file_id)
         self._path = Path(path)
         self.media_type = media_type
 
@@ -109,6 +113,9 @@ class File(Entity, Described, HasPrivacy, HasMediaType, HasNotes, HasCitations):
 @many_to_many('files', 'entities')
 class HasFiles:
     files: EntityCollection[File]
+
+    def __init__(self):
+        super().__init__()
 
     @property
     def associated_files(self) -> Sequence[File]:
@@ -127,11 +134,7 @@ class Source(Entity, Dated, HasFiles, HasLinks, HasPrivacy):
     publisher: Optional[str]
 
     def __init__(self, source_id: Optional[str], name: Optional[str] = None):
-        Entity.__init__(self, source_id)
-        Dated.__init__(self)
-        HasFiles.__init__(self)
-        HasLinks.__init__(self)
-        HasPrivacy.__init__(self)
+        super().__init__(source_id)
         self.name = name
         self.author = None
         self.publisher = None
@@ -145,17 +148,14 @@ class Citation(Entity, Dated, HasFiles, HasPrivacy):
     location: Optional[str]
 
     def __init__(self, citation_id: Optional[str], source: Source):
-        Entity.__init__(self, citation_id)
-        Dated.__init__(self)
-        HasFiles.__init__(self)
-        HasPrivacy.__init__(self)
+        super().__init__(citation_id)
         self.location = None
         self.source = source
 
 
 class PlaceName(Localized, Dated):
     def __init__(self, name: str, locale: Optional[str] = None, date: Optional[Datey] = None):
-        Localized.__init__(self)
+        super().__init__()
         self._name = name
         self.locale = locale
         self.date = date
@@ -176,15 +176,14 @@ class PlaceName(Localized, Dated):
         return self._name
 
 
+# @todo Do we know fore sure this is flattened correctly?
 @many_to_one_to_many('enclosed_by', 'encloses', 'enclosed_by', 'encloses')
 class Enclosure(Entity, Dated, HasCitations):
     encloses: Place
     enclosed_by: Place
 
     def __init__(self, encloses: Place, enclosed_by: Place):
-        Entity.__init__(self)
-        Dated.__init__(self)
-        HasCitations.__init__(self)
+        super().__init__()
         self.encloses = encloses
         self.enclosed_by = enclosed_by
 
@@ -195,10 +194,10 @@ class Enclosure(Entity, Dated, HasCitations):
 class Place(Entity, HasLinks):
     enclosed_by: EntityCollection[Enclosure]
     encloses: EntityCollection[Enclosure]
+    events: EntityCollection[Event]
 
     def __init__(self, place_id: Optional[str], names: List[PlaceName]):
-        Entity.__init__(self, place_id)
-        HasLinks.__init__(self)
+        super().__init__(place_id)
         self._names = names
         self._coordinates = None
 
@@ -265,6 +264,7 @@ class Attendee(PresenceRole):
         return _('Attendee')
 
 
+# @todo Are we sure these many_to_one_to_many associations are flattened correctly?
 @many_to_one_to_many('presences', 'person', 'event', 'presences')
 class Presence(Entity):
     person: Optional[Person]
@@ -272,7 +272,7 @@ class Presence(Entity):
     role: PresenceRole
 
     def __init__(self, person: Person, role: PresenceRole, event: Event):
-        Entity.__init__(self)
+        super().__init__()
         self.person = person
         self.role = role
         self.event = event
@@ -619,12 +619,7 @@ class Event(Entity, Dated, HasFiles, HasCitations, Described, HasPrivacy):
     presences: EntityCollection[Presence]
 
     def __init__(self, event_id: Optional[str], event_type: EventType, date: Optional[Datey] = None):
-        Entity.__init__(self, event_id)
-        Dated.__init__(self)
-        HasFiles.__init__(self)
-        HasCitations.__init__(self)
-        Described.__init__(self)
-        HasPrivacy.__init__(self)
+        super().__init__(event_id)
         self.date = date
         self._type = event_type
 
@@ -656,9 +651,7 @@ class PersonName(Entity, Localized, HasCitations):
     person: Person
 
     def __init__(self, person: Person, individual: Optional[str] = None, affiliation: Optional[str] = None):
-        Entity.__init__(self)
-        Localized.__init__(self)
-        HasCitations.__init__(self)
+        super().__init__()
         self._individual = individual
         self._affiliation = affiliation
         # Set the person association last, because the association requires comparisons, and self.__eq__() uses the
@@ -700,11 +693,7 @@ class Person(Entity, HasFiles, HasCitations, HasLinks, HasPrivacy):
     names: EntityCollection[PersonName]
 
     def __init__(self, person_id: Optional[str]):
-        Entity.__init__(self, person_id)
-        HasFiles.__init__(self)
-        HasCitations.__init__(self)
-        HasLinks.__init__(self)
-        HasPrivacy.__init__(self)
+        super().__init__(person_id)
 
     def __eq__(self, other):
         if not isinstance(other, Person):

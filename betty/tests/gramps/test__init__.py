@@ -111,6 +111,7 @@ class LoadXmlTest(TestCase):
     def test_place_should_include_events(self):
         place = self.ancestry.entities[Place]['P0000']
         event = self.ancestry.entities[Event]['E0000']
+        self.assertEqual(place, event.place)
         self.assertIn(event, place.events)
 
     def test_person_should_include_name(self):
