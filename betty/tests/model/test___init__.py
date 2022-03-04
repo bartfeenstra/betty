@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import pickle
 from typing import Optional
 
 from betty.model import SingleTypeEntityCollection, Entity, many_to_one, one_to_many, _AssociateCollection, \
     many_to_many, many_to_one_to_many, MultipleTypesEntityCollection, get_entity_type_name, get_entity_type, \
-    FlattenedEntityCollection, get_entity_association_attr_names, EntityT
+    FlattenedEntityCollection, EntityT, _EntityTypeAssociationRegistry, to_one, EntityCollection, one_to_one, to_many
 from betty.model.ancestry import Person
 from betty.tests import TestCase
 
@@ -270,8 +272,8 @@ class AssociateCollectionTest(TestCase):
             self.other_selfs = AssociateCollectionTest._TrackingAssociateCollection(self)
 
     class _TrackingAssociateCollection(_AssociateCollection):
-        def __init__(self, owner: 'AssociateCollectionTest._SelfReferentialEntity'):
-            super().__init__(owner, 'other_selfs', AssociateCollectionTest._SelfReferentialEntity)
+        def __init__(self, owner: AssociateCollectionTest._SelfReferentialEntity):
+            super().__init__(owner, AssociateCollectionTest._SelfReferentialEntity)
             self.added = []
             self.removed = []
 
@@ -554,11 +556,11 @@ class MultipleTypesEntityCollectionTest(TestCase):
 class FlattenedEntityCollectionTest(TestCase):
     @many_to_many('other_many', 'many')
     class _Many(Entity):
-        other_many: SingleTypeEntityCollection['FlattenedEntityCollectionTest._OtherMany']
+        other_many: EntityCollection[FlattenedEntityCollectionTest._OtherMany]
 
     @many_to_many('many', 'other_many')
     class _OtherMany(Entity):
-        many: SingleTypeEntityCollection['FlattenedEntityCollectionTest._Many']
+        many: EntityCollection[FlattenedEntityCollectionTest._Many]
 
     def test_add_association_then_unflatten(self) -> None:
         entity_many = self._Many()
@@ -606,17 +608,193 @@ class FlattenedEntityCollectionTest(TestCase):
         self.assertIn(unflattened_entity_other_many, unflattened_entity_many.other_many)
 
 
+class ToOneTest(TestCase):
+    @to_one('one')
+    class _Some(Entity):
+        one: Optional[ManyToOneTest._One]
+
+    class _One(Entity):
+        pass
+
+    def test(self) -> None:
+        self.assertSetEqual(
+            {'one'},
+            {
+                association.attr_name
+                for association
+                in _EntityTypeAssociationRegistry.get_associations(self._Some)
+            },
+        )
+
+        entity_some = self._Some()
+        entity_one = self._One()
+
+        entity_some.one = entity_one
+        self.assertIs(entity_one, entity_some.one)
+
+        del entity_some.one
+        self.assertIsNone(entity_some.one)
+
+    def test_pickle(self) -> None:
+        entity = self._Some()
+        pickle.dumps(entity)
+
+
+class OneToOneTest(TestCase):
+    @one_to_one('one', 'other')
+    class _Other(Entity):
+        one: Optional[ManyToOneTest._One]
+
+    @one_to_one('other', 'one')
+    class _One(Entity):
+        other: OneToOneTest._Other
+
+    def test(self) -> None:
+        self.assertSetEqual(
+            {'one'},
+            {
+                association.attr_name
+                for association
+                in _EntityTypeAssociationRegistry.get_associations(self._Other)
+            },
+        )
+
+        entity_other = self._Other()
+        entity_one = self._One()
+
+        entity_other.one = entity_one
+        self.assertIs(entity_one, entity_other.one)
+        self.assertEqual(entity_other, entity_one.other)
+
+        del entity_other.one
+        self.assertIsNone(entity_other.one)
+        self.assertIsNone(entity_one.other)
+
+    def test_pickle(self) -> None:
+        entity = self._Other()
+        pickle.dumps(entity)
+
+
+class ManyToOneTest(TestCase):
+    @many_to_one('one', 'many')
+    class _Many(Entity):
+        one: Optional[ManyToOneTest._One]
+
+    @one_to_many('many', 'one')
+    class _One(Entity):
+        many: EntityCollection[ManyToOneTest._Many]
+
+    def test(self) -> None:
+        self.assertSetEqual(
+            {'one'},
+            {
+                association.attr_name
+                for association
+                in _EntityTypeAssociationRegistry.get_associations(self._Many)
+            },
+        )
+
+        entity_many = self._Many()
+        entity_one = self._One()
+
+        entity_many.one = entity_one
+        self.assertIs(entity_one, entity_many.one)
+        self.assertSequenceEqual([entity_many], entity_one.many)
+
+        del entity_many.one
+        self.assertIsNone(entity_many.one)
+        self.assertSequenceEqual([], entity_one.many)
+
+    def test_pickle(self) -> None:
+        entity = self._Many()
+        pickle.dumps(entity)
+
+
+class ToManyTest(TestCase):
+    @to_many('many')
+    class _One(Entity):
+        many: EntityCollection[OneToManyTest._Many]
+
+    class _Many(Entity):
+        pass
+
+    def test(self) -> None:
+        self.assertSetEqual(
+            {'many'},
+            {
+                association.attr_name
+                for association
+                in _EntityTypeAssociationRegistry.get_associations(self._One)
+            },
+        )
+
+        entity_one = self._One()
+        entity_many = self._Many()
+
+        entity_one.many.append(entity_many)
+        self.assertSequenceEqual([entity_many], entity_one.many)
+
+        entity_one.many.remove(entity_many)
+        self.assertSequenceEqual([], entity_one.many)
+
+    def test_pickle(self) -> None:
+        entity = self._One()
+        pickle.dumps(entity)
+
+
+class OneToManyTest(TestCase):
+    @one_to_many('many', 'one')
+    class _One(Entity):
+        many: EntityCollection[OneToManyTest._Many]
+
+    @many_to_one('one', 'many')
+    class _Many(Entity):
+        one: Optional[OneToManyTest._One]
+
+    def test(self) -> None:
+        self.assertSetEqual(
+            {'many'},
+            {
+                association.attr_name
+                for association
+                in _EntityTypeAssociationRegistry.get_associations(self._One)
+            },
+        )
+
+        entity_one = self._One()
+        entity_many = self._Many()
+
+        entity_one.many.append(entity_many)
+        self.assertSequenceEqual([entity_many], entity_one.many)
+        self.assertIs(entity_one, entity_many.one)
+
+        entity_one.many.remove(entity_many)
+        self.assertSequenceEqual([], entity_one.many)
+        self.assertIsNone(entity_many.one)
+
+    def test_pickle(self) -> None:
+        entity = self._One()
+        pickle.dumps(entity)
+
+
 class ManyToManyTest(TestCase):
     @many_to_many('other_many', 'many')
     class _Many(Entity):
-        other_many: SingleTypeEntityCollection['ManyToManyTest._OtherMany']
+        other_many: EntityCollection[ManyToManyTest._OtherMany]
 
     @many_to_many('many', 'other_many')
     class _OtherMany(Entity):
-        many: SingleTypeEntityCollection['ManyToManyTest._Many']
+        many: EntityCollection[ManyToManyTest._Many]
 
     def test(self) -> None:
-        self.assertSetEqual({'other_many'}, get_entity_association_attr_names(self._Many))
+        self.assertSetEqual(
+            {'other_many'},
+            {
+                association.attr_name
+                for association
+                in _EntityTypeAssociationRegistry.get_associations(self._Many)
+            },
+        )
 
         entity_many = self._Many()
         entity_other_many = self._OtherMany()
@@ -637,15 +815,22 @@ class ManyToManyTest(TestCase):
 class ManyToOneToManyTest(TestCase):
     @many_to_one_to_many('one', 'left_many', 'right_many', 'one')
     class _One(Entity):
-        left_many: Optional['ManyToOneToManyTest._Many']
-        right_many: Optional['ManyToOneToManyTest._Many']
+        left_many: Optional[ManyToOneToManyTest._Many]
+        right_many: Optional[ManyToOneToManyTest._Many]
 
     @one_to_many('one', 'many')
     class _Many(Entity):
-        one: SingleTypeEntityCollection['ManyToOneToManyTest._One']
+        one: EntityCollection[ManyToOneToManyTest._One]
 
     def test(self) -> None:
-        self.assertSetEqual({'left_many', 'right_many'}, get_entity_association_attr_names(self._One))
+        self.assertSetEqual(
+            {'left_many', 'right_many'},
+            {
+                association.attr_name
+                for association
+                in _EntityTypeAssociationRegistry.get_associations(self._One)
+            },
+        )
 
         entity_one = self._One()
         entity_left_many = self._Many()
@@ -667,60 +852,4 @@ class ManyToOneToManyTest(TestCase):
 
     def test_pickle(self) -> None:
         entity = self._One()
-        pickle.dumps(entity)
-
-
-class OneToManyTest(TestCase):
-    @one_to_many('many', 'one')
-    class _One(Entity):
-        many: SingleTypeEntityCollection['OneToManyTest._Many']
-
-    @many_to_one('one', 'many')
-    class _Many(Entity):
-        one: Optional['OneToManyTest._One']
-
-    def test(self) -> None:
-        self.assertSetEqual({'many'}, get_entity_association_attr_names(self._One))
-
-        entity_one = self._One()
-        entity_many = self._Many()
-
-        entity_one.many.append(entity_many)
-        self.assertSequenceEqual([entity_many], entity_one.many)
-        self.assertIs(entity_one, entity_many.one)
-
-        entity_one.many.remove(entity_many)
-        self.assertSequenceEqual([], entity_one.many)
-        self.assertIsNone(entity_many.one)
-
-    def test_pickle(self) -> None:
-        entity = self._One()
-        pickle.dumps(entity)
-
-
-class ManyToOneTest(TestCase):
-    @many_to_one('one', 'many')
-    class _Many(Entity):
-        one: Optional['ManyToOneTest._One']
-
-    @one_to_many('many', 'one')
-    class _One(Entity):
-        many: SingleTypeEntityCollection['ManyToOneTest._Many']
-
-    def test(self) -> None:
-        self.assertSetEqual({'one'}, get_entity_association_attr_names(self._Many))
-
-        entity_many = self._Many()
-        entity_one = self._One()
-
-        entity_many.one = entity_one
-        self.assertIs(entity_one, entity_many.one)
-        self.assertSequenceEqual([entity_many], entity_one.many)
-
-        del entity_many.one
-        self.assertIsNone(entity_many.one)
-        self.assertSequenceEqual([], entity_one.many)
-
-    def test_pickle(self) -> None:
-        entity = self._Many()
         pickle.dumps(entity)
