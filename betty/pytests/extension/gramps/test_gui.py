@@ -6,7 +6,9 @@ from reactives import ReactiveList
 
 from betty.app import App, Configuration, AppExtensionConfiguration
 from betty.asyncio import sync
-from betty.gramps import Gramps, _AddFamilyTreeWindow, GrampsConfiguration, FamilyTreeConfiguration
+from betty.gramps import Gramps, GrampsConfiguration
+from betty.gramps.config import FamilyTreeConfiguration
+from betty.gramps.gui import _AddFamilyTreeWindow
 
 
 @sync
