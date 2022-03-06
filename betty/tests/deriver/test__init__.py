@@ -2,13 +2,13 @@ from tempfile import TemporaryDirectory
 from typing import Optional, Set, Type
 from parameterized import parameterized
 
-from betty.model.ancestry import Person, Presence, Subject, EventType, CreatableDerivableEventType, \
-    DerivableEventType, Event, Residence
+from betty.model.ancestry import Person, Presence, Subject, EventType, Event
 from betty.asyncio import sync
 from betty.locale import DateRange, Date, Datey
 from betty.load import load
-from betty.deriver import derive, Deriver
+from betty.deriver import Deriver
 from betty.app import App, Configuration, AppExtensionConfiguration
+from betty.model.event_type import DerivableEventType, CreatableDerivableEventType, Residence
 from betty.tests import TestCase
 
 
@@ -79,6 +79,19 @@ class DeriverTest(TestCase):
 
 
 class DeriveTest(TestCase):
+    @sync
+    async def setUp(self) -> None:
+        self._output_directory = TemporaryDirectory()
+        configuration = Configuration(self._output_directory.name, 'https://example.com')
+        configuration.extensions.add(AppExtensionConfiguration(Deriver))
+        self._app = App(configuration)
+        await self._app.activate()
+
+    @sync
+    async def tearDown(self) -> None:
+        await self._app.deactivate()
+        self._output_directory.cleanup()
+
     @parameterized.expand([
         (ComesBeforeDerivable,),
         (ComesBeforeCreatableDerivable,),
@@ -91,7 +104,7 @@ class DeriveTest(TestCase):
     async def test_derive_without_events(self, event_type_type: Type[DerivableEventType]):
         person = Person('P0')
 
-        created, updated = derive(person, event_type_type)
+        created, updated = self._app.extensions[Deriver].derive_person(person, event_type_type)
 
         self.assertEquals(0, created)
         self.assertEquals(0, updated)
@@ -111,7 +124,7 @@ class DeriveTest(TestCase):
         derivable_event = Event(None, Ignored())
         Presence(person, Subject(), derivable_event)
 
-        created, updated = derive(person, event_type_type)
+        created, updated = self._app.extensions[Deriver].derive_person(person, event_type_type)
 
         self.assertEquals(0, created)
         self.assertEquals(0, updated)
@@ -133,7 +146,7 @@ class DeriveTest(TestCase):
         derivable_event = Event(None, event_type_type())
         Presence(person, Subject(), derivable_event)
 
-        created, updated = derive(person, event_type_type)
+        created, updated = self._app.extensions[Deriver].derive_person(person, event_type_type)
 
         self.assertEquals(0, created)
         self.assertEquals(0, updated)
@@ -196,7 +209,7 @@ class DeriveTest(TestCase):
         derivable_event = Event(None, ComesBeforeDerivable(), derivable_datey)
         Presence(person, Subject(), derivable_event)
 
-        created, updated = derive(person, ComesBeforeDerivable)
+        created, updated = self._app.extensions[Deriver].derive_person(person, ComesBeforeDerivable)
 
         self.assertEquals(0, created)
         self.assertEquals(expected_updates, updated)
@@ -218,7 +231,7 @@ class DeriveTest(TestCase):
         Presence(person, Subject(), Event(None, Ignored(), Date(0, 0, 0)))
         Presence(person, Subject(), Event(None, ComesBeforeReference(), before_datey))
 
-        created, updated = derive(person, ComesBeforeCreatableDerivable)
+        created, updated = self._app.extensions[Deriver].derive_person(person, ComesBeforeCreatableDerivable)
 
         derived_presences = [presence for presence in person.presences if isinstance(presence.event.type, ComesBeforeCreatableDerivable)]
         self.assertEquals(expected_creations, len(derived_presences))
@@ -286,7 +299,7 @@ class DeriveTest(TestCase):
         derivable_event = Event(None, ComesAfterDerivable(), derivable_datey)
         Presence(person, Subject(), derivable_event)
 
-        created, updated = derive(person, ComesAfterDerivable)
+        created, updated = self._app.extensions[Deriver].derive_person(person, ComesAfterDerivable)
 
         self.assertEquals(expected_datey, derivable_event.date)
         self.assertEquals(0, created)
@@ -309,7 +322,7 @@ class DeriveTest(TestCase):
         Presence(person, Subject(), Event(None, Ignored(), Date(0, 0, 0)))
         Presence(person, Subject(), Event(None, ComesAfterReference(), after_datey))
 
-        created, updated = derive(person, ComesAfterCreatableDerivable)
+        created, updated = self._app.extensions[Deriver].derive_person(person, ComesAfterCreatableDerivable)
 
         derived_presences = [presence for presence in person.presences if isinstance(presence.event.type, ComesAfterCreatableDerivable)]
         self.assertEquals(expected_creations, len(derived_presences))

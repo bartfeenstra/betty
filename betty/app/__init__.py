@@ -17,6 +17,9 @@ from betty.asyncio import sync
 from betty.environment import Environment
 from betty.error import ensure_context
 from betty.model import Entity, EntityTypeProvider
+from betty.model.event_type import EventTypeProvider, Birth, Baptism, Adoption, Death, Funeral, Cremation, Burial, Will, \
+    Engagement, Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, Emigration, \
+    Occupation, Retirement, Correspondence, Confirmation
 
 if TYPE_CHECKING:
     from betty.url import StaticUrlGenerator, LocalizedUrlGenerator
@@ -39,7 +42,7 @@ from betty.lock import Locks
 from betty.render import Renderer, SequentialRenderer
 
 from betty.model.ancestry import Ancestry, Citation, Event, File, Person, PersonName, Presence, Place, Enclosure, \
-    Source, Note
+    Source, Note, EventType
 from betty.config import Configurable, Configuration as GenericConfiguration, ConfigurationError, ensure_path, ensure_directory_path
 from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH
 from betty.locale import open_translations, Translations, negotiate_locale
@@ -612,6 +615,7 @@ class App(Configurable[Configuration], Environment):
         self._assets = FileSystem()
         self._dispatcher = None
         self._entity_types = None
+        self._event_types = None
         self._localized_url_generator = AppUrlGenerator(configuration)
         self._static_url_generator = StaticPathUrlGenerator(configuration)
         self._debug = None
@@ -849,6 +853,35 @@ class App(Configurable[Configuration], Environment):
                 Source,
             }
         return self._entity_types
+
+    @reactive
+    @property
+    @sync
+    async def event_types(self) -> Set[Type[EventType]]:
+        if self._event_types is None:
+            self._event_types = set(await self.dispatcher.dispatch(EventTypeProvider)()) | {
+                Birth,
+                Baptism,
+                Adoption,
+                Death,
+                Funeral,
+                Cremation,
+                Burial,
+                Will,
+                Engagement,
+                Marriage,
+                MarriageAnnouncement,
+                Divorce,
+                DivorceAnnouncement,
+                Residence,
+                Immigration,
+                Emigration,
+                Occupation,
+                Retirement,
+                Correspondence,
+                Confirmation,
+            }
+        return self._event_types
 
     @entity_types.deleter
     def entity_types(self) -> None:

@@ -6,11 +6,11 @@ from parameterized import parameterized
 
 from betty.app import App, Configuration, AppExtensionConfiguration
 from betty.asyncio import sync
-from betty.privatizer import Privatizer, privatize
 from betty.load import load
 from betty.locale import Date, DateRange
-from betty.model.ancestry import Person, Presence, Event, Source, File, Subject, Attendee, Birth, Marriage, Death, \
-    Ancestry, Citation
+from betty.model.ancestry import Person, Presence, Event, Source, File, Subject, Attendee, Citation, Ancestry
+from betty.model.event_type import Death, Birth, Marriage
+from betty.privatizer import Privatizer, privatize
 from betty.tests import TestCase
 
 

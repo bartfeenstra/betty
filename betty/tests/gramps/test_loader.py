@@ -8,8 +8,8 @@ from betty.app import App, Configuration
 from betty.asyncio import sync
 from betty.gramps.loader import load_xml, load_gpkg, load_gramps
 from betty.locale import Date
-from betty.model.ancestry import Ancestry, PersonName, Birth, Death, UnknownEventType, Citation, Note, Source, File, \
-    Event, Person, Place
+from betty.model.ancestry import Ancestry, PersonName, Citation, Note, Source, File, Event, Person, Place
+from betty.model.event_type import Birth, Death, UnknownEventType
 from betty.path import rootname
 from betty.tests import TestCase
 
