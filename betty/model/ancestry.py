@@ -757,20 +757,6 @@ class Person(Entity, HasFiles, HasCitations, HasLinks, HasPrivacy):
             yield file
 
 
-ENTITY_TYPES = [
-    Citation,
-    Event,
-    File,
-    Person,
-    PersonName,
-    Presence,
-    Place,
-    Enclosure,
-    Source,
-    Note,
-]
-
-
 class Ancestry:
     def __init__(self):
         self._entities = MultipleTypesEntityCollection()

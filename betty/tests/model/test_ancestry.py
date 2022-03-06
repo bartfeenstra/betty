@@ -15,7 +15,7 @@ from betty.model.ancestry import Person, Event, Place, File, Note, Presence, Pla
     HasCitations, PresenceRole, Attendee, Beneficiary, Witness, EventType, UnknownEventType, LifeEventType, \
     PreBirthEventType, PostDeathEventType, Baptism, Adoption, Death, Funeral, FinalDispositionEventType, Cremation, \
     Burial, Will, Engagement, Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, \
-    Emigration, Correspondence, Occupation, Retirement, Confirmation, Missing, EVENT_TYPE_TYPES, ENTITY_TYPES
+    Emigration, Correspondence, Occupation, Retirement, Confirmation, Missing, EVENT_TYPE_TYPES
 from betty.tests import TestCase
 
 
@@ -1070,9 +1070,3 @@ class PersonTest(TestCase):
         event.associated_files = [file5, file6, file4]
         Presence(sut, Subject(), event)
         self.assertEquals([file1, file2, file3, file4, file5, file6], list(sut.associated_files))
-
-
-class EntityTypesTest(TestCase):
-    def test(self) -> None:
-        for entity_type in ENTITY_TYPES:
-            self.assertTrue(issubclass(entity_type, Entity))

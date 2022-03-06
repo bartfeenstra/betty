@@ -5,7 +5,7 @@ from concurrent.futures._base import Executor
 from concurrent.futures.thread import ThreadPoolExecutor
 from contextlib import AsyncExitStack, asynccontextmanager, suppress
 from gettext import NullTranslations
-from typing import Dict, List, Optional, Type, Sequence, Any, Iterable, TYPE_CHECKING
+from typing import Dict, List, Optional, Type, Sequence, Any, Iterable, TYPE_CHECKING, Set
 from urllib.parse import urlparse
 
 from babel.core import parse_locale, Locale
@@ -13,8 +13,10 @@ from babel.core import parse_locale, Locale
 from betty import fs, os
 from betty.app.extension import ListExtensions, Extension, ConfigurableExtension, Extensions, \
     build_extension_type_graph, ExtensionDispatcher, CyclicDependencyError
+from betty.asyncio import sync
 from betty.environment import Environment
 from betty.error import ensure_context
+from betty.model import Entity, EntityTypeProvider
 
 if TYPE_CHECKING:
     from betty.url import StaticUrlGenerator, LocalizedUrlGenerator
@@ -36,7 +38,8 @@ from betty.dispatch import Dispatcher
 from betty.lock import Locks
 from betty.render import Renderer, SequentialRenderer
 
-from betty.model.ancestry import Ancestry
+from betty.model.ancestry import Ancestry, Citation, Event, File, Person, PersonName, Presence, Place, Enclosure, \
+    Source, Note
 from betty.config import Configurable, Configuration as GenericConfiguration, ConfigurationError, ensure_path, ensure_directory_path
 from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH
 from betty.locale import open_translations, Translations, negotiate_locale
@@ -608,6 +611,7 @@ class App(Configurable[Configuration], Environment):
         self._ancestry = Ancestry()
         self._assets = FileSystem()
         self._dispatcher = None
+        self._entity_types = None
         self._localized_url_generator = AppUrlGenerator(configuration)
         self._static_url_generator = StaticPathUrlGenerator(configuration)
         self._debug = None
@@ -826,6 +830,29 @@ class App(Configurable[Configuration], Environment):
         if self._http_client is not None:
             self._http_client.close()
             self._http_client = None
+
+    @reactive
+    @property
+    @sync
+    async def entity_types(self) -> Set[Type[Entity]]:
+        if self._entity_types is None:
+            self._entity_types = set(await self.dispatcher.dispatch(EntityTypeProvider)()) | {
+                Citation,
+                Enclosure,
+                Event,
+                File,
+                Note,
+                Person,
+                PersonName,
+                Presence,
+                Place,
+                Source,
+            }
+        return self._entity_types
+
+    @entity_types.deleter
+    def entity_types(self) -> None:
+        self._entity_types = None
 
     @asynccontextmanager
     async def with_locale(self, locale: str) -> App:
