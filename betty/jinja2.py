@@ -25,7 +25,7 @@ from resizeimage import resizeimage
 
 from betty.html import CssProvider, JsProvider
 from betty.model import Entity, get_entity_type_name, GeneratedEntityId
-from betty.model.ancestry import File, Citation, HasLinks, HasFiles, Subject, Witness, Dated, ENTITY_TYPES
+from betty.model.ancestry import File, Citation, HasLinks, HasFiles, Subject, Witness, Dated
 from betty.fs import hashfile, iterfiles
 from betty.functools import walk
 from betty.importlib import import_any
@@ -180,7 +180,7 @@ class BettyEnvironment(Environment):
             def _test_resource(x):
                 return isinstance(x, resource_type)
             return _test_resource
-        for entity_type in ENTITY_TYPES:
+        for entity_type in self.app.entity_types:
             self.tests[f'{camel_case_to_snake_case(get_entity_type_name(entity_type))}_entity'] = _build_test_entity_type(entity_type)
         self.tests['generated_entity_id'] = lambda x: isinstance(x, Entity) and isinstance(x.id, GeneratedEntityId) or isinstance(x, GeneratedEntityId)
         self.tests['has_links'] = lambda x: isinstance(x, HasLinks)

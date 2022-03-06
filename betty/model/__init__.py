@@ -49,6 +49,12 @@ class Entity:
         return self._id
 
 
+class EntityTypeProvider:
+    @property
+    def entity_types(self) -> Set[Type[Entity]]:
+        raise NotImplementedError
+
+
 EntityTypeT = TypeVar('EntityTypeT', bound=Type[Entity])
 EntityT = TypeVar('EntityT', bound=Entity)
 EntityU = TypeVar('EntityU', bound=Entity)
