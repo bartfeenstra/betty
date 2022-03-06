@@ -87,7 +87,7 @@ class Deriver(Extension, PostLoader, GuiBuilder):
         return {Privatizer}
 
     @classmethod
-    def gui_name(cls) -> str:
+    def label(cls) -> str:
         return _('Deriver')
 
     @classmethod

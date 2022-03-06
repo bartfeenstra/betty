@@ -47,7 +47,7 @@ class Trees(Extension, CssProvider, JsProvider, Generator, GuiBuilder, NpmBuilde
         }
 
     @classmethod
-    def gui_name(cls) -> str:
+    def label(cls) -> str:
         return _('Trees')
 
     @classmethod

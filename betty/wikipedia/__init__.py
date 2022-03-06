@@ -268,7 +268,7 @@ class Wikipedia(Extension, Jinja2Provider, PostLoader, GuiBuilder):
         return Path(__file__).parent / 'assets'
 
     @classmethod
-    def gui_name(cls) -> str:
+    def label(cls) -> str:
         return 'Wikipedia'
 
     @classmethod

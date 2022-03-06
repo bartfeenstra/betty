@@ -148,7 +148,7 @@ class Cleaner(Extension, PostLoader, GuiBuilder):
         clean(self._app.ancestry)
 
     @classmethod
-    def gui_name(cls) -> str:
+    def label(cls) -> str:
         return _('Cleaner')
 
     @classmethod

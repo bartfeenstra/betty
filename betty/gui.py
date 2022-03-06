@@ -38,10 +38,6 @@ _CONFIGURATION_FILE_FILTER = 'Betty configuration (%s)' % ' '.join(map(lambda fo
 
 class GuiBuilder:
     @classmethod
-    def gui_name(cls) -> str:
-        raise NotImplementedError
-
-    @classmethod
     def gui_description(cls) -> str:
         raise NotImplementedError
 
@@ -671,7 +667,7 @@ class _ProjectExtensionConfigurationPane(QWidget):
                     extension_gui_widget.setParent(None)
                     del extension_gui_widget
 
-        extension_enabled = QCheckBox('Enable %s' % extension_type.gui_name())
+        extension_enabled = QCheckBox('Enable %s' % extension_type.label())
         extension_enabled.setChecked(extension_type in self._app.extensions)
         extension_enabled.setDisabled(extension_type in itertools.chain([enabled_extension_type.depends_on() for enabled_extension_type in self._app.extensions.flatten()]))
         extension_enabled.toggled.connect(_update_enabled)
@@ -723,7 +719,7 @@ class ProjectWindow(BettyMainWindow):
             if issubclass(extension_type, GuiBuilder):
                 extension_pane = _ProjectExtensionConfigurationPane(self._app, extension_type)
                 panes_layout.addWidget(extension_pane)
-                pane_selectors_layout.addWidget(_PaneButton(pane_selectors_layout, panes_layout, extension_pane, extension_type.gui_name(), self))
+                pane_selectors_layout.addWidget(_PaneButton(pane_selectors_layout, panes_layout, extension_pane, extension_type.label(), self))
 
     def _save_configuration(self) -> None:
         with open(self._configuration_file_path, 'w') as f:

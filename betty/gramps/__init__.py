@@ -25,7 +25,7 @@ class Gramps(ConfigurableExtension, Loader, GuiBuilder):
             await load_file(self._app.ancestry, family_tree.file_path)
 
     @classmethod
-    def gui_name(cls) -> str:
+    def label(cls) -> str:
         return 'Gramps'
 
     @classmethod

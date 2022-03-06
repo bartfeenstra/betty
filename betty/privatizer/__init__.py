@@ -15,7 +15,7 @@ class Privatizer(Extension, PostLoader, GuiBuilder):
         privatize(self._app.ancestry, self._app.configuration.lifetime_threshold)
 
     @classmethod
-    def gui_name(cls) -> str:
+    def label(cls) -> str:
         return _('Privatizer')
 
     @classmethod
