@@ -10,8 +10,9 @@ from betty.http_api_doc import HttpApiDoc
 from betty.load import Loader
 from betty.locale import Date, DateRange
 from betty.maps import Maps
-from betty.model.ancestry import Place, PlaceName, Person, Presence, Subject, Birth, PersonName, Link, Death, Marriage, \
-    Source, Citation, Event
+from betty.model.ancestry import Place, PlaceName, Person, Presence, Subject, Birth, PersonName, Link, Death, Source, \
+    Citation, Event
+from betty.model.event_type import Marriage
 from betty.serve import Server
 from betty.trees import Trees
 from betty.wikipedia import Wikipedia

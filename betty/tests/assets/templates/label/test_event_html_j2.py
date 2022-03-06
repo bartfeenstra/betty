@@ -1,5 +1,6 @@
 from betty.asyncio import sync
-from betty.model.ancestry import Person, Event, Presence, Subject, Witness, Birth, Marriage
+from betty.model.ancestry import Person, Event, Presence, Subject, Witness
+from betty.model.event_type import Birth, Marriage
 from betty.tests import TemplateTestCase
 
 

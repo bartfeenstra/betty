@@ -3,11 +3,11 @@ import logging
 from typing import List, Tuple, Set, Type, Iterable, Optional
 
 from betty.app.extension import Extension
-from betty.model.ancestry import Person, Presence, Event, Subject, EventType, EVENT_TYPE_TYPES, DerivableEventType, \
-    CreatableDerivableEventType, Ancestry
+from betty.model.ancestry import Person, Presence, Event, Subject, EventType, Ancestry
 from betty.gui import GuiBuilder
 from betty.locale import DateRange, Date, Datey
 from betty.load import PostLoader
+from betty.model.event_type import DerivableEventType, CreatableDerivableEventType
 from betty.privatizer import Privatizer
 
 
@@ -28,18 +28,59 @@ class Deriver(Extension, PostLoader, GuiBuilder):
 
     async def derive(self, ancestry: Ancestry) -> None:
         logger = logging.getLogger()
-        for event_type_type in EVENT_TYPE_TYPES:
+        for event_type_type in self._app.event_types:
             event_type = event_type_type()
             if isinstance(event_type, DerivableEventType):
                 created_derivations = 0
                 updated_derivations = 0
                 for person in ancestry.entities[Person]:
-                    created, updated = derive(person, event_type_type)
+                    created, updated = self.derive_person(person, event_type_type)
                     created_derivations += created
                     updated_derivations += updated
                 logger.info('Updated %d %s events based on existing information.' % (updated_derivations, event_type.label))
                 if isinstance(event_type, CreatableDerivableEventType):
                     logger.info('Created %d additional %s events based on existing information.' % (created_derivations, event_type.label))
+
+    def derive_person(self, person: Person, event_type_type: Type[DerivableEventType]) -> Tuple[int, int]:
+        # Gather any existing events that could be derived, or create a new derived event if needed.
+        derivable_events = list(_get_derivable_events(person, event_type_type))
+        if not derivable_events:
+            if list(filter(lambda x: isinstance(x.event.type, event_type_type), person.presences)):
+                return 0, 0
+            if issubclass(event_type_type, CreatableDerivableEventType):
+                derivable_events = [DerivedEvent(event_type_type())]
+            else:
+                return 0, 0
+
+        # Aggregate event type order from references and backreferences.
+        comes_before_event_type_types = event_type_type.comes_before()
+        comes_after_event_type_types = event_type_type.comes_after()
+        for other_event_type_type in self._app.event_types:
+            if event_type_type in other_event_type_type.comes_before():
+                comes_after_event_type_types.add(other_event_type_type)
+            if event_type_type in other_event_type_type.comes_after():
+                comes_before_event_type_types.add(other_event_type_type)
+
+        created_derivations = 0
+        updated_derivations = 0
+
+        for derivable_event in derivable_events:
+            dates_derived = False
+
+            if derivable_event.date is None or derivable_event.date.end is None:
+                dates_derived = dates_derived or _ComesBeforeDateDeriver.derive(person, derivable_event, comes_before_event_type_types)
+
+            if derivable_event.date is None or derivable_event.date.start is None:
+                dates_derived = dates_derived or _ComesAfterDateDeriver.derive(person, derivable_event, comes_after_event_type_types)
+
+            if dates_derived:
+                if isinstance(derivable_event, DerivedEvent):
+                    created_derivations += 1
+                    Presence(person, Subject(), derivable_event)
+                else:
+                    updated_derivations += 1
+
+        return created_derivations, updated_derivations
 
     @classmethod
     def comes_before(cls) -> Set[Type[Extension]]:
@@ -146,48 +187,6 @@ class _ComesAfterDateDeriver(_DateDeriver):
     def _set(derivable_event: Event, date: DerivedDate) -> None:
         derivable_event.date.start = date
         derivable_event.date.start_is_boundary = True
-
-
-def derive(person: Person, event_type_type: Type[DerivableEventType]) -> Tuple[int, int]:
-    # Gather any existing events that could be derived, or create a new derived event if needed.
-    derivable_events = list(_get_derivable_events(person, event_type_type))
-    if not derivable_events:
-        if list(filter(lambda x: isinstance(x.event.type, event_type_type), person.presences)):
-            return 0, 0
-        if issubclass(event_type_type, CreatableDerivableEventType):
-            derivable_events = [DerivedEvent(event_type_type())]
-        else:
-            return 0, 0
-
-    # Aggregate event type order from references and backreferences.
-    comes_before_event_type_types = event_type_type.comes_before()
-    comes_after_event_type_types = event_type_type.comes_after()
-    for other_event_type_type in EVENT_TYPE_TYPES:
-        if event_type_type in other_event_type_type.comes_before():
-            comes_after_event_type_types.add(other_event_type_type)
-        if event_type_type in other_event_type_type.comes_after():
-            comes_before_event_type_types.add(other_event_type_type)
-
-    created_derivations = 0
-    updated_derivations = 0
-
-    for derivable_event in derivable_events:
-        dates_derived = False
-
-        if derivable_event.date is None or derivable_event.date.end is None:
-            dates_derived = dates_derived or _ComesBeforeDateDeriver.derive(person, derivable_event, comes_before_event_type_types)
-
-        if derivable_event.date is None or derivable_event.date.start is None:
-            dates_derived = dates_derived or _ComesAfterDateDeriver.derive(person, derivable_event, comes_after_event_type_types)
-
-        if dates_derived:
-            if isinstance(derivable_event, DerivedEvent):
-                created_derivations += 1
-                Presence(person, Subject(), derivable_event)
-            else:
-                updated_derivations += 1
-
-    return created_derivations, updated_derivations
 
 
 def _get_derivable_events(person: Person, derivable_event_type_type: Type[EventType]) -> Iterable[Event]:

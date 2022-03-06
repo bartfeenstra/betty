@@ -16,11 +16,11 @@ from betty.load import getLogger
 from betty.locale import DateRange, Datey, Date
 from betty.media_type import MediaType
 from betty.model import Entity, FlattenedEntityCollection, FlattenedEntity
-from betty.model.ancestry import Ancestry, Place, File, Note, PersonName, Presence, PlaceName, Person, Link, \
-    HasLinks, HasPrivacy, Subject, Witness, Attendee, Birth, Baptism, Adoption, Cremation, Death, Burial, \
-    Engagement, Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, Emigration, \
-    Occupation, Retirement, Correspondence, Confirmation, Funeral, Will, Beneficiary, Enclosure, UnknownEventType, \
-    Missing, Event, Source, Citation
+from betty.model.ancestry import Ancestry, Note, File, Source, Citation, Place, Event, Person, PersonName, Subject, \
+    Witness, Beneficiary, Attendee, Presence, PlaceName, Enclosure, HasLinks, Link, HasPrivacy
+from betty.model.event_type import Birth, Baptism, Adoption, Cremation, Death, Funeral, Burial, Will, Engagement, \
+    Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, \
+    Retirement, Correspondence, Confirmation, Missing, UnknownEventType
 from betty.os import PathLike
 from betty.path import rootname
 
