@@ -49,7 +49,7 @@ class Maps(Extension, CssProvider, JsProvider, Generator, GuiBuilder, NpmBuilder
         }
 
     @classmethod
-    def gui_name(cls) -> str:
+    def label(cls) -> str:
         return _('Maps')
 
     @classmethod

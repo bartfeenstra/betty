@@ -65,6 +65,10 @@ class Extension(Environment, Requirer):
         return '%s.%s' % (cls.__module__, cls.__name__)
 
     @classmethod
+    def label(cls) -> str:
+        raise NotImplementedError
+
+    @classmethod
     def depends_on(cls) -> Set[Type[Extension]]:
         return set()
 

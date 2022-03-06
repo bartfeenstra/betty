@@ -28,7 +28,7 @@ class HttpApiDoc(Extension, Generator, GuiBuilder, NpmBuilder):
         return Path(__file__).parent / 'assets'
 
     @classmethod
-    def gui_name(cls) -> str:
+    def label(cls) -> str:
         return 'HTTP API Documentation'
 
     @classmethod

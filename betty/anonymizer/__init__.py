@@ -110,7 +110,7 @@ class Anonymizer(Extension, PostLoader, GuiBuilder):
         anonymize(self._app.ancestry, AnonymousCitation(AnonymousSource()))
 
     @classmethod
-    def gui_name(cls) -> str:
+    def label(cls) -> str:
         return _('Anonymizer')
 
     @classmethod
