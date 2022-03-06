@@ -13,13 +13,10 @@ jobs:
         run: echo "betty_tag=${GITHUB_REF#refs/*/}-dev" >> $GITHUB_ENV
         shell: bash
 
-      - name: Get ID of the previous release, if there is any
-        run: 'echo "betty_release_id=$(curl -H ''Accept: application/vnd.github.v3+json'' https://api.github.com/repos/bartfeenstra/betty/releases/tags/${{ env.betty_tag }} | jq -r ''.id'')" >> $GITHUB_ENV'
-        shell: bash
-
       - name: Delete the previous release, if there is any
-        run: 'curl -X DELETE -H ''Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}'' https://api.github.com/repos/bartfeenstra/betty/releases/${{ env.betty_release_id }}'
-        shell: bash
+        run: gh release delete ${{ env.betty_tag }} -y || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Delete the previous tag, if there is any
         run: git push --delete --force origin "$(git rev-parse --abbrev-ref HEAD)-dev" || true
@@ -32,13 +29,23 @@ jobs:
       - name: Push the release tag
         run: git push origin ${{ env.betty_tag }}
         shell: bash
+
+      - name: Create the release
+        run: gh release create ${{ env.betty_tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   pyinstaller-executable:
     needs: create-release
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
-          - name: 'Windows'
+          - name: Mac OS
+            os: macos-latest
+            dist_file_name: betty.app
+            notification_icon: 🍎
+            notification_os: Mac OS
+          - name: Windows
             os: windows-latest
             dist_file_name: betty.exe
             notification_icon: 🪟
@@ -82,19 +89,29 @@ jobs:
         run: ./bin/build-pyinstaller
         shell: bash
 
+      - name: Zip the Mac OS executable
+        if: startsWith(runner.os, 'macOS')
+        run: zip -X ./dist/${{ matrix.dist_file_name }}.zip ./dist/${{ matrix.dist_file_name }}
+        shell: bash
+
+      - name: Zip the Windows executable
+        if: startsWith(runner.os, 'Windows')
+        run: Compress-Archive .\dist\${{ matrix.dist_file_name }} .\dist\${{ matrix.dist_file_name }}.zip
+
       - name: Publish the executable
         id: publish
-        uses: softprops/action-gh-release@v1
-        with:
-          files: ./dist/${{ matrix.dist_file_name }}
-          tag_name: ${{ env.betty_tag }}
+        run: gh release upload ${{ env.betty_tag }} ./dist/${{ matrix.dist_file_name }}.zip --clobber
+        shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Notify collaborators of the release
         uses: mshick/add-pr-comment@v1
         with:
-          message: ${{ matrix.notification_icon }} Uploaded ${{ matrix.dist_file_name }} for commit ${{ github.sha }} to ${{ steps.publish.outputs.url }}. You can download it, test it on ${{ matrix.notification_os }}, and post your feedback in a comment to this pull request 💕
+          message: |
+            ${{ matrix.notification_icon }} Uploaded [${{ matrix.dist_file_name }}.zip](https://github.com/bartfeenstra/betty/releases/download/${{ env.betty_tag }}/${{ matrix.dist_file_name }}.zip) for commit ${{ github.sha }}. You can download it, test it on **${{ matrix.notification_os }}**, and post your feedback in a comment to this pull request 💕
+            
+            The download will disappear once this pull request is merged, or when it is being rebuilt after a new commit.
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           repo-token-user-login: 'github-actions[bot]'
           allow-repeats: false

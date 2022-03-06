@@ -1,4 +1,5 @@
 import asyncio
+import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import List
@@ -75,13 +76,21 @@ async def a_pyz_exe():
                  noarchive=False)
     pyz = PYZ(a.pure, a.zipped_data,
               cipher=block_cipher)
+    if sys.platform == 'linux':
+        exe_name = 'betty'
+    elif sys.platform == 'darwin':
+        exe_name = 'betty.app'
+    elif sys.platform == 'win32':
+        exe_name = 'betty.exe'
+    else:
+        raise RuntimeError(f'Unsupported platform {sys.platform}.')
     exe = EXE(pyz,
               a.scripts,
               a.binaries,
               a.zipfiles,
               a.datas,
               [],
-              name='betty',
+              name=exe_name,
               debug=False,
               bootloader_ignore_signals=False,
               strip=False,
