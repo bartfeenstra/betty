@@ -25,6 +25,8 @@ def _collect_submodules() -> List[str]:
 def _filter_submodule(submodule: str) -> bool:
     if submodule.startswith('betty.tests'):
         return False
+    if submodule.startswith('betty.pytests'):
+        return False
     if submodule.startswith('betty._package'):
         return False
     return True
