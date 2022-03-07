@@ -46,7 +46,7 @@ class _NpmRequirement(Requirement):
             await npm(['--version'])
             logging.getLogger().debug(cls._met_summary())
             return cls(True)
-        except CalledProcessError:
+        except (CalledProcessError, FileNotFoundError):
             logging.getLogger().debug(cls._unmet_summary())
             return cls(False)
 
