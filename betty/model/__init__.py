@@ -6,7 +6,7 @@ import operator
 from dataclasses import dataclass
 from enum import Enum
 from functools import reduce
-from typing import TypeVar, Generic, Callable, List, Optional, Iterable, Any, Type, Union, Dict, Set
+from typing import TypeVar, Generic, Callable, List, Optional, Iterable, Any, Type, Union, Set
 
 from betty.functools import slice_to_range
 from betty.importlib import import_any
@@ -73,7 +73,7 @@ def get_entity_type(entity_type_name: str) -> Type[Entity]:
         try:
             return import_any(f'betty.model.ancestry.{entity_type_name}')
         except ImportError:
-            raise ValueError(f'Unknown entity type "{entity_type_name}"')
+            raise ValueError(f'Unknown entity type "{entity_type_name}"') from None
 
 
 class EntityCollection(Generic[EntityT]):
@@ -102,13 +102,13 @@ class EntityCollection(Generic[EntityT]):
     def __len__(self) -> int:
         raise NotImplementedError
 
-    def __getitem__(self, key: Union[EntityT, int, slice]) -> Union[EntityT, EntityCollection[EntityT]]:
+    def __getitem__(self, key: Union[int, slice]) -> Union[EntityT, EntityCollection[EntityT]]:
         raise TypeError(f'Cannot find entities by {type(key)}.')
 
-    def __delitem__(self, key: Union[EntityT, int, slice]) -> None:
+    def __delitem__(self, key: Union[int, slice]) -> None:
         raise TypeError(f'Cannot find entities by {type(key)}.')
 
-    def __contains__(self, entity: EntityT) -> bool:
+    def __contains__(self, value: Union[EntityT, Any]) -> bool:
         raise NotImplementedError
 
     def __add__(self, other) -> EntityCollection:
@@ -144,8 +144,8 @@ class _EntityTypeAssociationRegistry:
             cls._registrations.add(registration)
 
 
-class SingleTypeEntityCollection(EntityCollection[EntityT]):
-    def __init__(self, entity_type: Type[Entity] = Entity):
+class SingleTypeEntityCollection(Generic[EntityT], EntityCollection[EntityT]):
+    def __init__(self, entity_type: Type[EntityT] = Entity):
         self._entities = []
         self._entity_type = entity_type
 
@@ -160,7 +160,7 @@ class SingleTypeEntityCollection(EntityCollection[EntityT]):
             self._copy_entities(copied)
         return copied
 
-    def _copy_entities(self, copied: SingleTypeEntityCollection):
+    def _copy_entities(self, copied: EntityCollection):
         for entity in self:
             copied.append(entity)
 
@@ -214,7 +214,7 @@ class SingleTypeEntityCollection(EntityCollection[EntityT]):
     def __len__(self) -> int:
         return len(self._entities)
 
-    def __getitem__(self, key: Union[int, slice, str]) -> Union[EntityT, EntityCollection[EntityT]]:
+    def __getitem__(self, key: Union[int, slice, str]) -> Union[EntityT, SingleTypeEntityCollection[EntityT]]:
         if isinstance(key, int):
             return self._getitem_by_index(key)
         if isinstance(key, slice):
@@ -226,7 +226,7 @@ class SingleTypeEntityCollection(EntityCollection[EntityT]):
     def _getitem_by_index(self, index: int) -> EntityT:
         return self._entities[index]
 
-    def _getitem_by_indices(self, indices: slice) -> EntityCollection[EntityT]:
+    def _getitem_by_indices(self, indices: slice) -> SingleTypeEntityCollection[EntityT]:
         entities = SingleTypeEntityCollection()
         for index in slice_to_range(indices, self._entities):
             entities.append(self._entities[index])
@@ -238,15 +238,15 @@ class SingleTypeEntityCollection(EntityCollection[EntityT]):
                 return entity
         raise KeyError(f'Cannot find a {self._entity_type} entity with ID "{entity_id}".')
 
-    def __delitem__(self, key: Union[EntityT, int, slice, str]) -> None:
+    def __delitem__(self, key: Union[int, slice, str, EntityT]) -> None:
+        if isinstance(key, self._entity_type):
+            return self._delitem_by_entity(key)
         if isinstance(key, int):
             return self._delitem_by_index(key)
         if isinstance(key, slice):
             return self._delitem_by_indices(key)
         if isinstance(key, str):
             return self._delitem_by_entity_id(key)
-        if isinstance(key, self._entity_type):
-            return self._delitem_by_entity(key)
         return super().__delitem__(key)
 
     def _delitem_by_entity(self, entity: Entity) -> None:
@@ -256,8 +256,8 @@ class SingleTypeEntityCollection(EntityCollection[EntityT]):
         del self._entities[index]
 
     def _delitem_by_indices(self, indices: slice) -> None:
-        for n, index in enumerate(slice_to_range(indices, self._entities)):
-            self.remove(self._entities[index - n])
+        for n, index in enumerate(slice_to_range(indices, self)):
+            del self[index - n]
 
     def _delitem_by_entity_id(self, entity_id: str) -> None:
         for entity in self._entities:
@@ -265,16 +265,16 @@ class SingleTypeEntityCollection(EntityCollection[EntityT]):
                 self.remove(entity)
                 return
 
-    def __contains__(self, value) -> bool:
+    def __contains__(self, value: Union[EntityT, str, Any]) -> bool:
         if isinstance(value, Entity):
             return self._contains_by_entity(value)
         if isinstance(value, str):
             return self._contains_by_entity_id(value)
         return False
 
-    def _contains_by_entity(self, entity: EntityT) -> bool:
-        for existing_entity in self._entities:
-            if entity is existing_entity:
+    def _contains_by_entity(self, other_entity: EntityT) -> bool:
+        for entity in self._entities:
+            if other_entity is entity:
                 return True
         return False
 
@@ -284,12 +284,11 @@ class SingleTypeEntityCollection(EntityCollection[EntityT]):
                 return True
         return False
 
-    def __add__(self, other) -> EntityCollection:
+    def __add__(self, other) -> SingleTypeEntityCollection:
         if not isinstance(other, EntityCollection):
             return NotImplemented  # pragma: no cover
         entities = SingleTypeEntityCollection()
-        entities.append(*self)
-        entities.append(*other)
+        entities.append(*self, *other)
         return entities
 
 
@@ -348,59 +347,78 @@ class _AssociateCollection(SingleTypeEntityCollection[EntityT], Generic[EntityT,
         self._on_remove(removed_entity)
 
 
-EntityCollectionT = TypeVar('EntityCollectionT', bound=EntityCollection)
-
-
-class MultipleTypesEntityCollection(Generic[EntityT, EntityCollectionT], EntityCollection[EntityT]):
-    def __init__(self, entity_collection_factory: Callable[[Type[EntityT]], EntityCollectionT] = SingleTypeEntityCollection):
-        self._collections: Dict[Type[EntityT], EntityCollectionT] = {}
-        self._collection_factory = entity_collection_factory
+class MultipleTypesEntityCollection(EntityCollection[Entity]):
+    def __init__(self):
+        self._collections = {}
 
     def __repr__(self):
         return f'{object.__repr__(self)}(entity_types={", ".join(map(get_entity_type_name, self._collections.keys()))}, length={len(self)})'
 
-    def _get_collection(self, entity_type: Type[EntityT]):
+    def _get_collection(self, entity_type: Type[EntityT]) -> SingleTypeEntityCollection[EntityT]:
         assert issubclass(entity_type, Entity)
         try:
             return self._collections[entity_type]
         except KeyError:
-            self._collections[entity_type] = self._collection_factory(entity_type)
+            self._collections[entity_type] = SingleTypeEntityCollection(entity_type)
             return self._collections[entity_type]
 
-    def __getitem__(self, key: Union[int, slice, str, Type[EntityT]]) -> Union[EntityT, EntityCollectionT[EntityT]]:
+    def __getitem__(self, key: Union[int, slice, str, Type[EntityT]]) -> Union[Entity, SingleTypeEntityCollection[EntityT]]:
         if isinstance(key, int):
             return self._getitem_by_index(key)
         if isinstance(key, slice):
             return self._getitem_by_indices(key)
         if isinstance(key, str):
             return self._getitem_by_entity_type_name(key)
-        if isinstance(key, type):
+        if isinstance(key, type) and issubclass(key, Entity):
             return self._getitem_by_entity_type(key)
         super().__getitem__(key)
 
-    def _getitem_by_entity_type(self, entity_type: Type[EntityT]) -> EntityCollectionT[EntityT]:
+    def _getitem_by_entity_type(self, entity_type: Type[EntityT]) -> SingleTypeEntityCollection[EntityT]:
         return self._get_collection(entity_type)
 
-    def _getitem_by_entity_type_name(self, entity_type_name: str) -> EntityCollectionT[EntityT]:
-        return self[get_entity_type(entity_type_name)]
+    def _getitem_by_entity_type_name(self, entity_type_name: str) -> SingleTypeEntityCollection[EntityT]:
+        return self._get_collection(get_entity_type(entity_type_name))
 
     def _getitem_by_index(self, index: int) -> EntityTypeT:
         return reduce(operator.add, self._collections.values())[index]
 
-    def _getitem_by_indices(self, indices: slice) -> EntityCollectionT[EntityT]:
+    def _getitem_by_indices(self, indices: slice) -> SingleTypeEntityCollection[EntityT]:
         return reduce(operator.add, self._collections.values())[indices]
 
-    def __delitem__(self, entity_or_index: Union[Type[EntityT], int]) -> None:
-        if isinstance(entity_or_index, int):
-            for collection in self._collections.values():
-                collection_length = len(collection)
-                if collection_length > entity_or_index:
-                    del collection[entity_or_index]
-                    return
-                entity_or_index -= collection_length
-            raise IndexError
+    def __delitem__(self, key: Union[int, slice, str, Type[Entity], Entity]) -> None:
+        if isinstance(key, type) and issubclass(key, Entity):
+            return self._delitem_by_entity_type(key)
+        if isinstance(key, Entity):
+            return self._delitem_by_entity(key)
+        if isinstance(key, int):
+            return self._delitem_by_index(key)
+        if isinstance(key, slice):
+            return self._delitem_by_indices(key)
+        if isinstance(key, str):
+            return self._delitem_by_entity_type_name(key)
+        return super().__delitem__(key)
 
-        del self._collections[entity_or_index.entity_type()]
+    def _delitem_by_entity_type(self, entity_type: Type[Entity]) -> None:
+        self._get_collection(entity_type).clear()
+
+    def _delitem_by_entity(self, entity: Entity) -> None:
+        self.remove(entity)
+
+    def _delitem_by_index(self, index: int) -> None:
+        for collection in self._collections.values():
+            collection_length = len(collection)
+            if collection_length > index:
+                del collection[index]
+                return
+            index -= collection_length
+        raise IndexError
+
+    def _delitem_by_indices(self, indices: slice) -> None:
+        for n, index in enumerate(slice_to_range(indices, self)):
+            del self[index - n]
+
+    def _delitem_by_entity_type_name(self, entity_type_name: str) -> None:
+        self._delitem_by_entity_type(get_entity_type(entity_type_name))
 
     def __iter__(self) -> Iterable[EntityT]:
         for collection in self._collections.values():
@@ -410,9 +428,14 @@ class MultipleTypesEntityCollection(Generic[EntityT, EntityCollectionT], EntityC
     def __len__(self) -> int:
         return sum(map(len, self._collections.values()))
 
-    def __contains__(self, value: Any) -> bool:
-        for collection in self._collections.values():
-            if value in collection:
+    def __contains__(self, value: Union[EntityT, Any]) -> bool:
+        if isinstance(value, Entity):
+            return self._contains_by_entity(value)
+        return False
+
+    def _contains_by_entity(self, other_entity: EntityT) -> bool:
+        for entity in self:
+            if other_entity is entity:
                 return True
         return False
 
@@ -434,15 +457,14 @@ class MultipleTypesEntityCollection(Generic[EntityT, EntityCollectionT], EntityC
             self.append(entity)
 
     def clear(self) -> None:
-        for collection in self._collections.values():
+        for collection in self._collections:
             collection.clear()
 
     def __add__(self, other) -> MultipleTypesEntityCollection:
         if not isinstance(other, EntityCollection):
             return NotImplemented  # pragma: no cover
         entities = MultipleTypesEntityCollection()
-        entities.append(*self)
-        entities.append(*other)
+        entities.append(*self, *other)
         return entities
 
 
@@ -563,10 +585,11 @@ class _BidirectionalAssociateCollection(_AssociateCollection):
         super().__init__(owner, associate_type)
         self._associate_attr_name = associate_attr_name
 
-    def __copy__(self):
+    def __copy__(self, copy_entities: bool = True) -> _AssociateCollection:
         copied = super().__copy__(False)
         copied._associate_attr_name = self._associate_attr_name
-        self._copy_entities(copied)
+        if copy_entities:
+            self._copy_entities(copied)
         return copied
 
 
@@ -695,7 +718,7 @@ class FlattenedEntityCollection:
             else:
                 setattr(owner, association.owner_association_attr_name, associate)
 
-    def unflatten(self) -> EntityCollection:
+    def unflatten(self) -> MultipleTypesEntityCollection:
         self._assert_unflattened()
         self._unflattened = True
 
