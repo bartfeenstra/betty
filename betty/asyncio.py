@@ -3,7 +3,6 @@ import inspect
 from contextlib import suppress
 from functools import wraps
 from threading import Thread
-from typing import Any
 
 
 def _sync_function(f):
@@ -23,8 +22,7 @@ def sync(f):
         if running_loop:
             synced = _SyncedAwaitable(f)
             synced.start()
-            synced.join()
-            return synced.return_value
+            return synced.join()
 
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
@@ -47,11 +45,17 @@ class _SyncedAwaitable(Thread):
         super().__init__()
         self._awaitable = awaitable
         self._return_value = None
-
-    @property
-    def return_value(self) -> Any:
-        return self._return_value
+        self._e = None
 
     @sync
     async def run(self) -> None:
-        self._return_value = await self._awaitable
+        try:
+            self._return_value = await self._awaitable
+        except BaseException as e:
+            self._e = e
+
+    def join(self, *args, **kwargs) -> None:
+        super().join(*args, **kwargs)
+        if self._e:
+            raise self._e
+        return self._return_value
