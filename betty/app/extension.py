@@ -89,6 +89,10 @@ class ConfigurableExtension(Configurable, Extension, Generic[ConfigurationT]):
     def __init__(self, app: App, configuration: ConfigurationT):
         super().__init__(configuration, app)
 
+    @classmethod
+    def default_configuration(cls) -> ConfigurationT:
+        raise NotImplementedError
+
 
 ExtensionT = TypeVar('ExtensionT', bound=Extension)
 
@@ -132,16 +136,6 @@ class ListExtensions(Extensions):
             if type(extension) == extension_type:
                 return True
         return False
-
-
-@reactive
-class Configuration:
-    def __init__(self):
-        pass
-
-    @classmethod
-    def default_configuration(cls) -> ConfigurationT:
-        raise NotImplementedError
 
 
 class ExtensionDispatcher(Dispatcher):
