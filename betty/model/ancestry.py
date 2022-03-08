@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import suppress
 from functools import total_ordering
 from pathlib import Path
 from typing import List, Optional, Set, Sequence
@@ -10,7 +11,7 @@ from betty.locale import Localized, Datey
 from betty.media_type import MediaType
 from betty.model import many_to_many, Entity, one_to_many, many_to_one, many_to_one_to_many, \
     MultipleTypesEntityCollection, EntityCollection
-from betty.model.event_type import EventType, Birth, Baptism, Death, Burial
+from betty.model.event_type import EventType, StartOfLifeEventType, EndOfLifeEventType
 from betty.os import PathLike
 
 
@@ -385,19 +386,13 @@ class Person(Entity, HasFiles, HasCitations, HasLinks, HasPrivacy):
 
     @property
     def start(self) -> Optional[Event]:
-        for event_type in [Birth, Baptism]:
-            for presence in self.presences:
-                if isinstance(presence.event.type, event_type) and isinstance(presence.role, Subject):
-                    return presence.event
-        return None
+        with suppress(StopIteration):
+            return next((presence.event for presence in self.presences if isinstance(presence.event.type, StartOfLifeEventType)))
 
     @property
     def end(self) -> Optional[Event]:
-        for event_type in [Death, Burial]:
-            for presence in self.presences:
-                if isinstance(presence.event.type, event_type) and isinstance(presence.role, Subject):
-                    return presence.event
-        return None
+        with suppress(StopIteration):
+            return next((presence.event for presence in self.presences if isinstance(presence.event.type, EndOfLifeEventType)))
 
     @property
     def siblings(self) -> List:

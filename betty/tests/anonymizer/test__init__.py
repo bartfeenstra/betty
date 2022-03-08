@@ -9,8 +9,9 @@ from betty.anonymizer import anonymize, anonymize_person, anonymize_event, anony
 from betty.load import load
 from betty.locale import Translations
 from betty.model import Entity
-from betty.model.ancestry import Ancestry, Person, File, Source, Citation, PersonName, Presence, Event, Birth, Subject, \
+from betty.model.ancestry import Ancestry, Person, File, Source, Citation, PersonName, Presence, Event, Subject, \
     HasCitations
+from betty.model.event_type import Birth
 from betty.tests import TestCase
 
 

@@ -4,7 +4,8 @@ from parameterized import parameterized
 
 from betty.app import Configuration, LocaleConfiguration
 from betty.model import Entity
-from betty.model.ancestry import Person, Place, File, Source, Death, PlaceName, Event, Citation
+from betty.model.ancestry import Person, Place, File, Source, PlaceName, Event, Citation
+from betty.model.event_type import Death
 from betty.tests import TestCase
 from betty.url import LocalizedPathUrlGenerator, _EntityUrlGenerator, AppUrlGenerator
 
