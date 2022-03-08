@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-03-08 01:04+0000\n"
+"POT-Creation-Date: 2022-03-09 12:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,898 +17,638 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 
-#: betty/gui.py:528
-msgid "Add a locale"
-msgstr ""
-
-#: betty/locale.py:364
-msgid "unknown date"
-msgstr ""
-
-#: betty/locale.py:368
 #, python-format
-msgid "around %(date)s"
-msgstr ""
-
-#: betty/locale.py:369
-#, python-format
-msgid "%(date)s"
-msgstr ""
-
-#: betty/locale.py:380
-msgid "MMMM d, y"
-msgstr ""
-
-#: betty/locale.py:381
-msgid "MMMM, y"
-msgstr ""
-
-#: betty/locale.py:382
-msgid "y"
-msgstr ""
-
-#: betty/locale.py:383
-msgid "MMMM d"
-msgstr ""
-
-#: betty/locale.py:384
-msgid "MMMM"
-msgstr ""
-
-#: betty/locale.py:400
-#, python-format
-msgid "from %(start_date)s until %(end_date)s"
-msgstr ""
-
-#: betty/locale.py:401
-#, python-format
-msgid "from %(start_date)s until sometime before %(end_date)s"
-msgstr ""
-
-#: betty/locale.py:402
-#, python-format
-msgid "from %(start_date)s until around %(end_date)s"
-msgstr ""
-
-#: betty/locale.py:403
-#, python-format
-msgid "from %(start_date)s until sometime before around %(end_date)s"
-msgstr ""
-
-#: betty/locale.py:404
-#, python-format
-msgid "from sometime after %(start_date)s until %(end_date)s"
-msgstr ""
-
-#: betty/locale.py:405
-#, python-format
-msgid "sometime between %(start_date)s and %(end_date)s"
-msgstr ""
-
-#: betty/locale.py:406
-#, python-format
-msgid "from sometime after %(start_date)s until around %(end_date)s"
-msgstr ""
-
-#: betty/locale.py:407
-#, python-format
-msgid "sometime between %(start_date)s and around %(end_date)s"
-msgstr ""
-
-#: betty/locale.py:408
-#, python-format
-msgid "from around %(start_date)s until %(end_date)s"
-msgstr ""
-
-#: betty/locale.py:409
-#, python-format
-msgid "from around %(start_date)s until sometime before %(end_date)s"
-msgstr ""
-
-#: betty/locale.py:410
-#, python-format
-msgid "from around %(start_date)s until around %(end_date)s"
-msgstr ""
-
-#: betty/locale.py:411
-#, python-format
-msgid "from around %(start_date)s until sometime before around %(end_date)s"
-msgstr ""
-
-#: betty/locale.py:412
-#, python-format
-msgid "from sometime after around %(start_date)s until %(end_date)s"
-msgstr ""
-
-#: betty/locale.py:413
-#, python-format
-msgid "sometime between around %(start_date)s and %(end_date)s"
-msgstr ""
-
-#: betty/locale.py:414
-#, python-format
-msgid "from sometime after around %(start_date)s until around %(end_date)s"
-msgstr ""
-
-#: betty/locale.py:415
-#, python-format
-msgid "sometime between around %(start_date)s and around %(end_date)s"
-msgstr ""
-
-#: betty/locale.py:416
-#, python-format
-msgid "from %(start_date)s"
-msgstr ""
-
-#: betty/locale.py:417
-#, python-format
-msgid "sometime after %(start_date)s"
-msgstr ""
-
-#: betty/locale.py:418
-#, python-format
-msgid "from around %(start_date)s"
-msgstr ""
-
-#: betty/locale.py:419
-#, python-format
-msgid "sometime after around %(start_date)s"
-msgstr ""
-
-#: betty/locale.py:420
-#, python-format
-msgid "until %(end_date)s"
-msgstr ""
-
-#: betty/locale.py:421
-#, python-format
-msgid "sometime before %(end_date)s"
-msgstr ""
-
-#: betty/locale.py:422
-#, python-format
-msgid "until around %(end_date)s"
-msgstr ""
-
-#: betty/locale.py:423
-#, python-format
-msgid "sometime before around %(end_date)s"
-msgstr ""
-
-#: betty/openapi.py:20
-msgid "Retrieve the collection of files."
-msgstr ""
-
-#: betty/openapi.py:20
-msgid "The collection of files."
-msgstr ""
-
-#: betty/openapi.py:21
-msgid "Retrieve a single file."
-msgstr ""
-
-#: betty/openapi.py:21
-msgid "The file."
-msgstr ""
-
-#: betty/openapi.py:22
-msgid "Retrieve the collection of people."
-msgstr ""
-
-#: betty/openapi.py:22
-msgid "The collection of people."
-msgstr ""
-
-#: betty/openapi.py:23
-msgid "Retrieve a single person."
-msgstr ""
-
-#: betty/openapi.py:23
-msgid "The person."
-msgstr ""
-
-#: betty/openapi.py:24
-msgid "Retrieve the collection of places."
-msgstr ""
-
-#: betty/openapi.py:24
-msgid "The collection of places."
-msgstr ""
-
-#: betty/openapi.py:25
-msgid "Retrieve a single place."
-msgstr ""
-
-#: betty/openapi.py:25
-msgid "The place."
-msgstr ""
-
-#: betty/openapi.py:26
-msgid "Retrieve the collection of events."
-msgstr ""
-
-#: betty/openapi.py:26
-msgid "The collection of events."
-msgstr ""
-
-#: betty/openapi.py:27
-msgid "Retrieve a single event."
-msgstr ""
-
-#: betty/openapi.py:27
-msgid "The event."
-msgstr ""
-
-#: betty/openapi.py:28
-msgid "Retrieve the collection of citations."
-msgstr ""
-
-#: betty/openapi.py:28
-msgid "The collection of citations."
-msgstr ""
-
-#: betty/openapi.py:29
-msgid "Retrieve a single citation."
-msgstr ""
-
-#: betty/openapi.py:29
-msgid "The citation."
-msgstr ""
-
-#: betty/openapi.py:30
-msgid "Retrieve the collection of sources."
-msgstr ""
-
-#: betty/openapi.py:30
-msgid "The collection of sources."
-msgstr ""
-
-#: betty/openapi.py:31
-msgid "Retrieve a single source."
-msgstr ""
-
-#: betty/openapi.py:31
-msgid "The source."
-msgstr ""
-
-#: betty/assets/public/localized/.error/401.html.j2:2 betty/openapi.py:51
-msgid "Unauthorized"
-msgstr ""
-
-#: betty/openapi.py:61
-msgid "Forbidden"
-msgstr ""
-
-#: betty/openapi.py:71
-msgid "Not found"
-msgstr ""
-
-#: betty/openapi.py:86
-msgid "The ID for the resource to retrieve."
-msgstr ""
-
-#: betty/openapi.py:94
 msgid ""
-"An HTTP [Content-Language](https://developer.mozilla.org/en-"
-"US/docs/Web/HTTP/Headers/Content-Language) header."
+"\n"
+"                Betty was named after %(liberta_lankester_label)s. You can browse the pages about her and some of her\n"
+"                family to get an idea of what a Betty site looks like.\n"
+"            "
 msgstr ""
 
-#: betty/openapi.py:159
 msgid ""
-"An HTTP [Accept](https://developer.mozilla.org/en-"
-"US/docs/Web/HTTP/Headers/Accept) header."
+"\n"
+"            Continue building your site by adding content to the family history you load into Betty, such as people,\n"
+"            places, source citations, and media.\n"
+"        "
 msgstr ""
 
-#: betty/openapi.py:167
-msgid ""
-"An HTTP [Accept-Language](https://developer.mozilla.org/en-"
-"US/docs/Web/HTTP/Headers/Accept-Language) header."
-msgstr ""
-
-#: betty/openapi.py:175
-msgid "An HTML5 document."
-msgstr ""
-
-#: betty/openapi.py:182
-msgid "A locale name."
-msgstr ""
-
-#: betty/requirement.py:56
-msgid "One or more of these requirements must be met"
-msgstr ""
-
-#: betty/requirement.py:77
-msgid "All of these requirements must be met"
-msgstr ""
-
-#: betty/anonymizer/__init__.py:15
-msgid "Private"
-msgstr ""
-
-#: betty/anonymizer/__init__.py:28
-msgid ""
-"A citation is available, but has not been published in order to protect "
-"people's privacy"
-msgstr ""
-
-#: betty/anonymizer/__init__.py:114
-msgid "Anonymizer"
-msgstr ""
-
-#: betty/anonymizer/__init__.py:118
-msgid ""
-"Anonymize people, events, files, sources, and citations marked private by"
-" removing their information and relationships with other resources. "
-"Enable the Privatizer and Cleaner as well to make this most effective."
-msgstr ""
-
-#: betty/assets/public/localized/index.html.j2:2
-#, python-format
-msgid "Welcome to %(title)s"
-msgstr ""
-
-#: betty/assets/public/localized/index.html.j2:5
 msgid ""
 "\n"
 "            Hello dear, welcome to your new family history website.\n"
 "        "
 msgstr ""
 
-#: betty/assets/public/localized/index.html.j2:16
-#, python-format
-msgid ""
-"\n"
-"                Betty was named after %(liberta_lankester_label)s. You "
-"can browse the pages about her and some of her\n"
-"                family to get an idea of what a Betty site looks like.\n"
-"            "
-msgstr ""
-
-#: betty/assets/public/localized/index.html.j2:23
-msgid ""
-"\n"
-"            Continue building your site by adding content to the family "
-"history you load into Betty, such as people,\n"
-"            places, source citations, and media.\n"
-"        "
-msgstr ""
-
-#: betty/assets/public/localized/index.html.j2:37
 #, python-format
 msgid ""
 "\n"
 "        You can customize this page you are looking at right now:\n"
 "        <ol>\n"
-"            <li>Create an <strong>assets</strong> directory. You can call"
-" this anything and put this anywhere, but a good start is to call it "
-"<code>assets</code> and put it in the same directory as your Betty "
-"configuration file.</li>\n"
-"            <li>In your Betty configuration file, add "
-"<code>assets_directory_path: assets</code>, where <code>assets</code> "
-"should be whatever the path to and name of your assets directory path "
-"is.</li>\n"
-"            <li>Inside the assets directory, create the subdirectories "
-"<code>%(template_override_subdirectory_path)s</code>, and in there, the "
-"file <code>index.html.j2</code>. This file will replace the page you are "
-"seeing now.</li>\n"
-"            <li>Open <code>index.html.j2</code> in your favorite code "
-"editor, and add the following code:\n"
+"            <li>Create an <strong>assets</strong> directory. You can call this anything and put this anywhere, but a good start is to call it <code>assets</code> and put it in the same directory as your Betty configuration file.</li>\n"
+"            <li>In your Betty configuration file, add <code>assets_directory_path: assets</code>, where <code>assets</code> should be whatever the path to and name of your assets directory path is.</li>\n"
+"            <li>Inside the assets directory, create the subdirectories <code>%(template_override_subdirectory_path)s</code>, and in there, the file <code>index.html.j2</code>. This file will replace the page you are seeing now.</li>\n"
+"            <li>Open <code>index.html.j2</code> in your favorite code editor, and add the following code:\n"
 "                <pre><code>%(template_override_template)s</code></pre>\n"
 "            </li>\n"
-"            <li>Customize this code to suit your needs. Then regenerate "
-"your site, and reload this page.</li>\n"
+"            <li>Customize this code to suit your needs. Then regenerate your site, and reload this page.</li>\n"
 "        </ol>\n"
 "    "
 msgstr ""
 
-#: betty/assets/templates/base.html.j2:65
-msgid "Exit the search"
-msgstr ""
-
-#: betty/assets/templates/base.html.j2:71
-#, python-format
-msgid "E.g. \"%(example)s\""
-msgstr ""
-
-#: betty/assets/templates/base.html.j2:81
-msgid ""
-"Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
-"to exit the search. Search again with <kbd>s</kbd>."
-msgstr ""
-
-#: betty/assets/templates/base.html.j2:91
-msgid "Menu"
-msgstr ""
-
-#: betty/assets/templates/base.html.j2:95
-#: betty/assets/templates/page/list-person.html.j2:2
-msgid "People"
-msgstr ""
-
-#: betty/assets/templates/base.html.j2:98
-#: betty/assets/templates/page/person.html.j2:203
-#: betty/assets/templates/page/place.html.j2:42
-msgid "Timeline"
-msgstr ""
-
-#: betty/assets/templates/base.html.j2:101
-#: betty/assets/templates/page/list-place.html.j2:2
-#: betty/assets/templates/page/person.html.j2:14
-#: betty/assets/templates/page/place.html.j2:13
-msgid "Places"
-msgstr ""
-
-#: betty/assets/templates/base.html.j2:104
-#: betty/assets/templates/page/list-source.html.j2:2
-msgid "Sources"
-msgstr ""
-
-#: betty/assets/templates/base.html.j2:111
-msgid "Language"
-msgstr ""
-
-#: betty/assets/templates/base.html.j2:138
-msgid "External links"
-msgstr ""
-
-#: betty/assets/templates/base.html.j2:159
-#: betty/assets/templates/page/file.html.j2:49
-msgid "References"
-msgstr ""
-
-#: betty/assets/templates/event-dimensions.html.j2:20
-#, python-format
-msgid "%(date)s in %(place)s"
-msgstr ""
-
-#: betty/assets/templates/event-dimensions.html.j2:24
-#, python-format
-msgid "in %(place)s"
-msgstr ""
-
-#: betty/assets/templates/file-extended--application--pdf.html.j2:4
-#, python-format
-msgid ""
-"Your browser cannot show PDF documents. <a href=\"%(file_url)s\">Download"
-" %(file_name)s</a> to view it on your device instead."
-msgstr ""
-
-#: betty/assets/templates/footer.html.j2:3
-#, python-format
-msgid "© Copyright %(author)s, unless otherwise credited"
-msgstr ""
-
-#: betty/assets/templates/footer.html.j2:6
-msgid ""
-"A family history as told by <a "
-"href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
-msgstr ""
-
-#: betty/assets/templates/footer.html.j2:8
-#: betty/http_api_doc/assets/public/localized/api/index.html.j2:4
-msgid "API documentation"
-msgstr ""
-
-#: betty/assets/templates/permalink.html.j2:1
-msgid "Permanent link to this section."
-msgstr ""
-
-#: betty/assets/templates/show-countable.html.j2:2
-#, python-format
-msgid "show %(name_count)s more"
-msgid_plural "show %(name_count)s more"
-msgstr[0] ""
-msgstr[1] ""
-
-#: betty/assets/templates/show-countable.html.j2:8
-msgid "show fewer"
-msgstr ""
-
-#: betty/assets/templates/show.html.j2:4
-msgid "show more"
-msgstr ""
-
-#: betty/assets/templates/show.html.j2:5
-msgid "show less"
-msgstr ""
-
-#: betty/assets/templates/label/citation.html.j2:18
-#, python-format
-msgid "Accessed %(date)s"
-msgstr ""
-
-#: betty/assets/templates/label/event.html.j2:21
-#, python-format
-msgid "%(event)s with %(subjects)s"
-msgstr ""
-
-#: betty/assets/templates/label/event.html.j2:25
-#, python-format
-msgid "%(event)s of %(subjects)s"
-msgstr ""
-
-#: betty/assets/templates/label/person.html.j2:9
-#: betty/assets/templates/macro/person.html.j2:23
-#: betty/assets/templates/meta/person.html.j2:11
-msgid "This person's details are unavailable to protect their privacy."
-msgstr ""
-
-#: betty/assets/templates/label/person.html.j2:9
-#: betty/assets/templates/macro/person.html.j2:23
-msgid "private"
-msgstr ""
-
-#: betty/assets/templates/label/person.html.j2:13
-#: betty/assets/templates/macro/person.html.j2:38
-msgid "This person's name is unknown."
-msgstr ""
-
-#: betty/assets/templates/meta/person.html.j2:14
-#, python-format
-msgid "Also known as %(names)s"
-msgstr ""
-
-#: betty/assets/templates/page/citation.html.j2:11
-#: betty/assets/templates/page/event.html.j2:48
-#: betty/assets/templates/page/list-file.html.j2:2
-#: betty/assets/templates/page/person.html.j2:218
-#: betty/assets/templates/page/source.html.j2:10
-#: betty/assets/templates/search/result-file.html.j2:4
-msgid "Media"
-msgstr ""
-
-#: betty/assets/templates/page/citation.html.j2:23
-#: betty/assets/templates/page/source.html.j2:15
-msgid "Facts"
-msgstr ""
-
-#: betty/assets/templates/page/event.html.j2:23
-msgid "Witnesses"
-msgstr ""
-
-#: betty/assets/templates/page/event.html.j2:38
-msgid "Other attendees"
-msgstr ""
-
-#: betty/assets/templates/page/file.html.j2:14
-msgid "Notes"
-msgstr ""
-
-#: betty/assets/templates/page/file.html.j2:28
-msgid "Appearances"
-msgstr ""
-
-#: betty/assets/templates/page/list-event.html.j2:2
-msgid "Events"
-msgstr ""
-
-#: betty/assets/templates/page/list-event.html.j2:9
-msgid "I'm sorry, dear, but it seems there are no events."
-msgstr ""
-
-#: betty/assets/templates/page/list-file.html.j2:9
-msgid "I'm sorry, dear, but it seems there are no media."
-msgstr ""
-
-#: betty/assets/templates/page/list-person.html.j2:9
-msgid "I'm sorry, dear, but it seems there are no people."
-msgstr ""
-
-#: betty/assets/templates/page/list-place.html.j2:9
-msgid "I'm sorry, dear, but it seems there are no places."
-msgstr ""
-
-#: betty/assets/templates/page/list-source.html.j2:13
-msgid "I'm sorry, dear, but it seems there are no sources."
-msgstr ""
-
-#: betty/assets/templates/page/person.html.j2:28
-msgid "About"
-msgstr ""
-
-#: betty/assets/templates/page/person.html.j2:48
-msgid "Family"
-msgstr ""
-
-#: betty/assets/templates/page/person.html.j2:63
-#, python-format
-msgid "%(person_individual_name)s is the child of %(parent_labels)s."
-msgstr ""
-
-#: betty/assets/templates/page/person.html.j2:65
-#, python-format
-msgid "They are the child of %(parent_labels)s."
-msgstr ""
-
-#: betty/assets/templates/page/person.html.j2:69
-#, python-format
-msgid "They grew up with a sibling."
-msgid_plural "They grew up with %(sibling_count)s siblings."
-msgstr[0] ""
-msgstr[1] ""
-
-#: betty/assets/templates/page/person.html.j2:79
-msgid "Ancestral names include"
-msgstr ""
-
-#: betty/assets/templates/page/person.html.j2:118
-#, python-format
-msgid "%(person_individual_name)s had a child with %(co_parent_labels)s."
-msgid_plural ""
-"%(person_individual_name)s had %(child_count)s children with "
-"%(co_parent_labels)s."
-msgstr[0] ""
-msgstr[1] ""
-
-#: betty/assets/templates/page/person.html.j2:124
-#, python-format
-msgid "They had a child with %(co_parent_labels)s."
-msgid_plural "They had %(child_count)s children with %(co_parent_labels)s."
-msgstr[0] ""
-msgstr[1] ""
-
-#: betty/assets/templates/page/person.html.j2:132
-#, python-format
-msgid "%(person_individual_name)s had a child."
-msgid_plural "%(person_individual_name)s had %(child_count)s children."
-msgstr[0] ""
-msgstr[1] ""
-
-#: betty/assets/templates/page/person.html.j2:138
-#, python-format
-msgid "They had a child."
-msgid_plural "They had %(child_count)s children."
-msgstr[0] ""
-msgstr[1] ""
-
-#: betty/assets/templates/page/person.html.j2:149
-msgid "Descendant names include"
-msgstr ""
-
-#: betty/assets/templates/page/place.html.j2:27
-msgid "Wikipedia"
-msgstr ""
-
-#: betty/cleaner/__init__.py:152
-msgid "Cleaner"
-msgstr ""
-
-#: betty/cleaner/__init__.py:156
-msgid ""
-"Remove people, events, places, files, sources, and citations if they have"
-" no relationships with any other resources. Enable the Privatizer and "
-"Anonymizer as well to make this most effective."
-msgstr ""
-
-#: betty/deriver/__init__.py:91
-msgid "Deriver"
-msgstr ""
-
-#: betty/deriver/__init__.py:95
-msgid ""
-"Create events such as births and deaths by deriving their details from "
-"existing information."
-msgstr ""
-
-#: betty/gramps/__init__.py:33
-msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
-msgstr ""
-
-#: betty/http_api_doc/__init__.py:36
-msgid ""
-"Display the HTTP API documentation in a user-friendly way using <a "
-"href=\"https://github.com/Redocly/redoc\">ReDoc</a>."
-msgstr ""
-
-#: betty/maps/__init__.py:53
-msgid "Maps"
-msgstr ""
-
-#: betty/maps/__init__.py:57
-msgid ""
-"Display lists of places as interactive maps using <a "
-"href=\"https://leafletjs.com/\">Leaflet</a>."
-msgstr ""
-
-#: betty/model/ancestry.py:235
-msgid "Subject"
-msgstr ""
-
-#: betty/model/ancestry.py:245
-msgid "Witness"
-msgstr ""
-
-#: betty/model/ancestry.py:255
-msgid "Beneficiary"
-msgstr ""
-
-#: betty/model/ancestry.py:265
-msgid "Attendee"
-msgstr ""
-
-#: betty/model/event_type.py:44
-msgid "Unknown"
-msgstr ""
-
-#: betty/model/event_type.py:84
-msgid "Birth"
-msgstr ""
-
-#: betty/model/event_type.py:98
-msgid "Baptism"
-msgstr ""
-
-#: betty/model/event_type.py:108
-msgid "Adoption"
-msgstr ""
-
-#: betty/model/event_type.py:118
-msgid "Death"
-msgstr ""
-
-#: betty/model/event_type.py:132
-msgid "Funeral"
-msgstr ""
-
-#: betty/model/event_type.py:146
-msgid "Cremation"
-msgstr ""
-
-#: betty/model/event_type.py:156
-msgid "Burial"
-msgstr ""
-
-#: betty/model/event_type.py:166
-msgid "Will"
-msgstr ""
-
-#: betty/model/event_type.py:176
-msgid "Engagement"
-msgstr ""
-
-#: betty/model/event_type.py:190
-msgid "Marriage"
-msgstr ""
-
-#: betty/model/event_type.py:200
-msgid "Announcement of marriage"
-msgstr ""
-
-#: betty/model/event_type.py:214
-msgid "Divorce"
-msgstr ""
-
-#: betty/model/event_type.py:228
-msgid "Announcement of divorce"
-msgstr ""
-
-#: betty/model/event_type.py:246
-msgid "Residence"
-msgstr ""
-
-#: betty/model/event_type.py:256
-msgid "Immigration"
-msgstr ""
-
-#: betty/model/event_type.py:266
-msgid "Emigration"
-msgstr ""
-
-#: betty/model/event_type.py:276
-msgid "Occupation"
-msgstr ""
-
-#: betty/model/event_type.py:286
-msgid "Retirement"
-msgstr ""
-
-#: betty/model/event_type.py:296
-msgid "Correspondence"
-msgstr ""
-
-#: betty/model/event_type.py:306
-msgid "Confirmation"
-msgstr ""
-
-#: betty/model/event_type.py:316
-msgid "Missing"
-msgstr ""
-
-#: betty/npm/__init__.py:32
-msgid ""
-"npm (https://www.npmjs.com/) must be available for features that require "
-"Node.js packages to be installed. Ensure that the `npm` executable is "
-"available in your `PATH`."
-msgstr ""
-
-#: betty/npm/__init__.py:36
-msgid "`npm` is available"
-msgstr ""
-
-#: betty/npm/__init__.py:40
-msgid "`npm` is not available"
-msgstr ""
-
-#: betty/npm/__init__.py:69
-msgid "Pre-built assets"
-msgstr ""
-
-#: betty/npm/__init__.py:76
-msgid "Pre-built assets are unavailable for {extension_names}."
-msgstr ""
-
-#: betty/privatizer/__init__.py:19
-msgid "Privatizer"
-msgstr ""
-
-#: betty/privatizer/__init__.py:23
-msgid ""
-"Determine if people can be proven to have died. If not, mark them and "
-"their related resources private, but only if they are not already "
-"explicitly marked public or private. Enable the Anonymizer and Cleaner as"
-" well to make this most effective."
-msgstr ""
-
-#: betty/trees/__init__.py:51
-msgid "Trees"
-msgstr ""
-
-#: betty/trees/__init__.py:55
-msgid ""
-"Display interactive family trees using <a "
-"href=\"https://cytoscape.org/\">Cytoscape</a>."
-msgstr ""
-
-#: betty/wikipedia/__init__.py:204
-msgid "Read more on Wikipedia."
-msgstr ""
-
-#: betty/wikipedia/__init__.py:276
 #, python-format
 msgid ""
 "\n"
-"Display <a href=\"https://www.wikipedia.org/\">Wikipedia</a> summaries "
-"for resources with external links. In your custom <a "
-"href=\"https://jinja2docs.readthedocs.io/en/stable/\">Jinja2</a> "
-"templates, use the following: <pre><code>\n"
+"Display <a href=\"https://www.wikipedia.org/\">Wikipedia</a> summaries for resources with external links. In your custom <a href=\"https://jinja2docs.readthedocs.io/en/stable/\">Jinja2</a> templates, use the following: <pre><code>\n"
 "{% with resource=resource_with_links %}\n"
 "    {% include 'wikipedia.html.j2' %}\n"
 "{% endwith %}\n"
 "</code></pre>"
 msgstr ""
 
-#: betty/wikipedia/assets/templates/wikipedia.html.j2:5
+#, python-format
+msgid "%(date)s"
+msgstr ""
+
+#, python-format
+msgid "%(date)s in %(place)s"
+msgstr ""
+
+#, python-format
+msgid "%(event)s of %(subjects)s"
+msgstr ""
+
+#, python-format
+msgid "%(event)s with %(subjects)s"
+msgstr ""
+
+#, python-format
+msgid "%(person_individual_name)s had a child with %(co_parent_labels)s."
+msgid_plural "%(person_individual_name)s had %(child_count)s children with %(co_parent_labels)s."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid "%(person_individual_name)s had a child."
+msgid_plural "%(person_individual_name)s had %(child_count)s children."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid "%(person_individual_name)s is the child of %(parent_labels)s."
+msgstr ""
+
+msgid "<a href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a> Wikipedia and its contributors."
+msgstr ""
+
+msgid "A citation is available, but has not been published in order to protect people's privacy"
+msgstr ""
+
+msgid "A family history as told by <a href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
+msgstr ""
+
+msgid "A locale name."
+msgstr ""
+
+msgid "API documentation"
+msgstr ""
+
+msgid "About"
+msgstr ""
+
+msgid "Access denied"
+msgstr ""
+
+#, python-format
+msgid "Accessed %(date)s"
+msgstr ""
+
+msgid "Add a locale"
+msgstr ""
+
+msgid "Adoption"
+msgstr ""
+
+msgid "All of these requirements must be met"
+msgstr ""
+
+#, python-format
+msgid "Also known as %(names)s"
+msgstr ""
+
+msgid "An HTML5 document."
+msgstr ""
+
+msgid "An HTTP [Accept-Language](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language) header."
+msgstr ""
+
+msgid "An HTTP [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header."
+msgstr ""
+
+msgid "An HTTP [Content-Language](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Language) header."
+msgstr ""
+
+msgid "Ancestral names include"
+msgstr ""
+
+msgid "Announcement of divorce"
+msgstr ""
+
+msgid "Announcement of marriage"
+msgstr ""
+
+msgid "Anonymize people, events, files, sources, and citations marked private by removing their information and relationships with other resources. Enable the Privatizer and Cleaner as well to make this most effective."
+msgstr ""
+
+msgid "Anonymizer"
+msgstr ""
+
+msgid "Appearances"
+msgstr ""
+
+msgid "Attendee"
+msgstr ""
+
+msgid "Baptism"
+msgstr ""
+
+msgid "Beneficiary"
+msgstr ""
+
+msgid "Birth"
+msgstr ""
+
+msgid "Burial"
+msgstr ""
+
+msgid "Cleaner"
+msgstr ""
+
+msgid "Confirmation"
+msgstr ""
+
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr ""
 
-#: betty/wikipedia/assets/templates/wikipedia.html.j2:7
-msgid ""
-"<a "
-"href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a>"
-" Wikipedia and its contributors."
+msgid "Correspondence"
 msgstr ""
 
-#: betty/assets/public/localized/.error/401.html.j2:4
-#: betty/assets/public/localized/.error/401.json.j2:3
-msgid "I'm sorry, dear, but it seems you're not logged in."
+msgid "Create events such as births and deaths by deriving their details from existing information."
 msgstr ""
 
-#: betty/assets/public/localized/.error/403.html.j2:2
-msgid "Access denied"
+msgid "Cremation"
 msgstr ""
 
-#: betty/assets/public/localized/.error/403.html.j2:4
-#: betty/assets/public/localized/.error/403.json.j2:3
+msgid "Death"
+msgstr ""
+
+msgid "Deriver"
+msgstr ""
+
+msgid "Descendant names include"
+msgstr ""
+
+msgid "Determine if people can be proven to have died. If not, mark them and their related resources private, but only if they are not already explicitly marked public or private. Enable the Anonymizer and Cleaner as well to make this most effective."
+msgstr ""
+
+msgid "Display interactive family trees using <a href=\"https://cytoscape.org/\">Cytoscape</a>."
+msgstr ""
+
+msgid "Display lists of places as interactive maps using <a href=\"https://leafletjs.com/\">Leaflet</a>."
+msgstr ""
+
+msgid "Display the HTTP API documentation in a user-friendly way using <a href=\"https://github.com/Redocly/redoc\">ReDoc</a>."
+msgstr ""
+
+msgid "Divorce"
+msgstr ""
+
+#, python-format
+msgid "E.g. \"%(example)s\""
+msgstr ""
+
+msgid "Emigration"
+msgstr ""
+
+msgid "Engagement"
+msgstr ""
+
+msgid "Events"
+msgstr ""
+
+msgid "Exit the search"
+msgstr ""
+
+msgid "External links"
+msgstr ""
+
+msgid "Facts"
+msgstr ""
+
+msgid "Family"
+msgstr ""
+
+msgid "Forbidden"
+msgstr ""
+
+msgid "Funeral"
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems there are no events."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems there are no media."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems there are no people."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems there are no places."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems there are no sources."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems this page does not exist."
+msgstr ""
+
 msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
 msgstr ""
 
-#: betty/assets/public/localized/.error/404.html.j2:2
+msgid "I'm sorry, dear, but it seems you're not logged in."
+msgstr ""
+
+msgid "Immigration"
+msgstr ""
+
+msgid "Language"
+msgstr ""
+
+msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
+msgstr ""
+
+msgid "MMMM"
+msgstr ""
+
+msgid "MMMM d"
+msgstr ""
+
+msgid "MMMM d, y"
+msgstr ""
+
+msgid "MMMM, y"
+msgstr ""
+
+msgid "Maps"
+msgstr ""
+
+msgid "Marriage"
+msgstr ""
+
+msgid "Media"
+msgstr ""
+
+msgid "Menu"
+msgstr ""
+
+msgid "Missing"
+msgstr ""
+
+msgid "Not found"
+msgstr ""
+
+msgid "Notes"
+msgstr ""
+
+msgid "Occupation"
+msgstr ""
+
+msgid "One or more of these requirements must be met"
+msgstr ""
+
+msgid "Other attendees"
+msgstr ""
+
 msgid "Page not found"
 msgstr ""
 
-#: betty/assets/public/localized/.error/404.html.j2:4
-#: betty/assets/public/localized/.error/404.json.j2:3
-msgid "I'm sorry, dear, but it seems this page does not exist."
+msgid "People"
+msgstr ""
+
+msgid "Permanent link to this section."
+msgstr ""
+
+msgid "Places"
+msgstr ""
+
+msgid "Pre-built assets"
+msgstr ""
+
+msgid "Pre-built assets are unavailable for {extension_names}."
+msgstr ""
+
+msgid "Private"
+msgstr ""
+
+msgid "Privatizer"
+msgstr ""
+
+msgid "Read more on Wikipedia."
+msgstr ""
+
+msgid "References"
+msgstr ""
+
+msgid "Remove people, events, places, files, sources, and citations if they have no relationships with any other resources. Enable the Privatizer and Anonymizer as well to make this most effective."
+msgstr ""
+
+msgid "Residence"
+msgstr ""
+
+msgid "Retirement"
+msgstr ""
+
+msgid "Retrieve a single citation."
+msgstr ""
+
+msgid "Retrieve a single event."
+msgstr ""
+
+msgid "Retrieve a single file."
+msgstr ""
+
+msgid "Retrieve a single person."
+msgstr ""
+
+msgid "Retrieve a single place."
+msgstr ""
+
+msgid "Retrieve a single source."
+msgstr ""
+
+msgid "Retrieve the collection of citations."
+msgstr ""
+
+msgid "Retrieve the collection of events."
+msgstr ""
+
+msgid "Retrieve the collection of files."
+msgstr ""
+
+msgid "Retrieve the collection of people."
+msgstr ""
+
+msgid "Retrieve the collection of places."
+msgstr ""
+
+msgid "Retrieve the collection of sources."
+msgstr ""
+
+msgid "Sources"
+msgstr ""
+
+msgid "Subject"
+msgstr ""
+
+msgid "The ID for the resource to retrieve."
+msgstr ""
+
+msgid "The citation."
+msgstr ""
+
+msgid "The collection of citations."
+msgstr ""
+
+msgid "The collection of events."
+msgstr ""
+
+msgid "The collection of files."
+msgstr ""
+
+msgid "The collection of people."
+msgstr ""
+
+msgid "The collection of places."
+msgstr ""
+
+msgid "The collection of sources."
+msgstr ""
+
+msgid "The event."
+msgstr ""
+
+msgid "The file."
+msgstr ""
+
+msgid "The person."
+msgstr ""
+
+msgid "The place."
+msgstr ""
+
+msgid "The source."
+msgstr ""
+
+#, python-format
+msgid "They are the child of %(parent_labels)s."
+msgstr ""
+
+#, python-format
+msgid "They grew up with a sibling."
+msgid_plural "They grew up with %(sibling_count)s siblings."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid "They had a child with %(co_parent_labels)s."
+msgid_plural "They had %(child_count)s children with %(co_parent_labels)s."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid "They had a child."
+msgid_plural "They had %(child_count)s children."
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "This person's details are unavailable to protect their privacy."
+msgstr ""
+
+msgid "This person's name is unknown."
+msgstr ""
+
+msgid "Timeline"
+msgstr ""
+
+msgid "Trees"
+msgstr ""
+
+msgid "Unauthorized"
+msgstr ""
+
+msgid "Unknown"
+msgstr ""
+
+msgid "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> to exit the search. Search again with <kbd>s</kbd>."
+msgstr ""
+
+#, python-format
+msgid "Welcome to %(title)s"
+msgstr ""
+
+msgid "Wikipedia"
+msgstr ""
+
+msgid "Will"
+msgstr ""
+
+msgid "Witness"
+msgstr ""
+
+msgid "Witnesses"
+msgstr ""
+
+#, python-format
+msgid "Your browser cannot show PDF documents. <a href=\"%(file_url)s\">Download %(file_name)s</a> to view it on your device instead."
+msgstr ""
+
+msgid "`npm` is available"
+msgstr ""
+
+msgid "`npm` is not available"
+msgstr ""
+
+#, python-format
+msgid "around %(date)s"
+msgstr ""
+
+#, python-format
+msgid "from %(start_date)s"
+msgstr ""
+
+#, python-format
+msgid "from %(start_date)s until %(end_date)s"
+msgstr ""
+
+#, python-format
+msgid "from %(start_date)s until around %(end_date)s"
+msgstr ""
+
+#, python-format
+msgid "from %(start_date)s until sometime before %(end_date)s"
+msgstr ""
+
+#, python-format
+msgid "from %(start_date)s until sometime before around %(end_date)s"
+msgstr ""
+
+#, python-format
+msgid "from around %(start_date)s"
+msgstr ""
+
+#, python-format
+msgid "from around %(start_date)s until %(end_date)s"
+msgstr ""
+
+#, python-format
+msgid "from around %(start_date)s until around %(end_date)s"
+msgstr ""
+
+#, python-format
+msgid "from around %(start_date)s until sometime before %(end_date)s"
+msgstr ""
+
+#, python-format
+msgid "from around %(start_date)s until sometime before around %(end_date)s"
+msgstr ""
+
+#, python-format
+msgid "from sometime after %(start_date)s until %(end_date)s"
+msgstr ""
+
+#, python-format
+msgid "from sometime after %(start_date)s until around %(end_date)s"
+msgstr ""
+
+#, python-format
+msgid "from sometime after around %(start_date)s until %(end_date)s"
+msgstr ""
+
+#, python-format
+msgid "from sometime after around %(start_date)s until around %(end_date)s"
+msgstr ""
+
+#, python-format
+msgid "in %(place)s"
+msgstr ""
+
+msgid "npm (https://www.npmjs.com/) must be available for features that require Node.js packages to be installed. Ensure that the `npm` executable is available in your `PATH`."
+msgstr ""
+
+msgid "private"
+msgstr ""
+
+#, python-format
+msgid "show %(name_count)s more"
+msgid_plural "show %(name_count)s more"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "show fewer"
+msgstr ""
+
+msgid "show less"
+msgstr ""
+
+msgid "show more"
+msgstr ""
+
+#, python-format
+msgid "sometime after %(start_date)s"
+msgstr ""
+
+#, python-format
+msgid "sometime after around %(start_date)s"
+msgstr ""
+
+#, python-format
+msgid "sometime before %(end_date)s"
+msgstr ""
+
+#, python-format
+msgid "sometime before around %(end_date)s"
+msgstr ""
+
+#, python-format
+msgid "sometime between %(start_date)s and %(end_date)s"
+msgstr ""
+
+#, python-format
+msgid "sometime between %(start_date)s and around %(end_date)s"
+msgstr ""
+
+#, python-format
+msgid "sometime between around %(start_date)s and %(end_date)s"
+msgstr ""
+
+#, python-format
+msgid "sometime between around %(start_date)s and around %(end_date)s"
+msgstr ""
+
+msgid "unknown date"
+msgstr ""
+
+#, python-format
+msgid "until %(end_date)s"
+msgstr ""
+
+#, python-format
+msgid "until around %(end_date)s"
+msgstr ""
+
+msgid "y"
+msgstr ""
+
+#, python-format
+msgid "© Copyright %(author)s, unless otherwise credited"
 msgstr ""
 
