@@ -11,7 +11,8 @@ from betty import json
 from betty.app import App, Configuration, LocaleConfiguration
 from betty.asyncio import sync
 from betty.generate import generate
-from betty.model.ancestry import Person, Place, Source, PlaceName, File, Birth, Event, Citation
+from betty.model.ancestry import Person, Place, Source, PlaceName, File, Event, Citation
+from betty.model.event_type import Birth
 from betty.tests import TestCase
 
 

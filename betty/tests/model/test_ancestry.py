@@ -10,10 +10,10 @@ from parameterized import parameterized
 from betty.locale import Date, Translations
 from betty.media_type import MediaType
 from betty.model import Entity
-from betty.model.ancestry import Person, Event, Place, File, Note, Presence, PlaceName, PersonName, Subject, Birth, \
+from betty.model.ancestry import Person, Event, Place, File, Note, Presence, PlaceName, PersonName, Subject, \
     Enclosure, Described, Dated, HasPrivacy, HasMediaType, Link, HasLinks, HasNotes, HasFiles, Source, Citation, \
     HasCitations, PresenceRole, Attendee, Beneficiary, Witness, EventType
-from betty.model.event_type import Burial
+from betty.model.event_type import Burial, Birth
 from betty.tests import TestCase
 
 

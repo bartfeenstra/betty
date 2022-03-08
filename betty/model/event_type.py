@@ -17,6 +17,9 @@ class EventType:
             cls._instance = super().__new__(cls)
         return cls._instance
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     @classmethod
     def name(cls) -> str:
         raise NotImplementedError
@@ -58,7 +61,11 @@ class PreBirthEventType(EventType):
         return {Birth}
 
 
-class LifeEventType(EventType):
+class StartOfLifeEventType(EventType):
+    pass
+
+
+class DuringLifeEventType(EventType):
     @classmethod
     def comes_after(cls) -> Set[Type[EventType]]:
         return {Birth}
@@ -68,13 +75,17 @@ class LifeEventType(EventType):
         return {Death}
 
 
+class EndOfLifeEventType(EventType):
+    pass
+
+
 class PostDeathEventType(EventType):
     @classmethod
     def comes_after(cls) -> Set[Type[EventType]]:
         return {Death}
 
 
-class Birth(CreatableDerivableEventType):
+class Birth(CreatableDerivableEventType, StartOfLifeEventType):
     @classmethod
     def name(cls) -> str:
         return 'birth'
@@ -85,10 +96,10 @@ class Birth(CreatableDerivableEventType):
 
     @classmethod
     def comes_before(cls) -> Set[Type[EventType]]:
-        return {LifeEventType}
+        return {DuringLifeEventType}
 
 
-class Baptism(LifeEventType):
+class Baptism(DuringLifeEventType, StartOfLifeEventType):
     @classmethod
     def name(cls) -> str:
         return 'baptism'
@@ -98,7 +109,7 @@ class Baptism(LifeEventType):
         return _('Baptism')
 
 
-class Adoption(LifeEventType):
+class Adoption(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
         return 'adoption'
@@ -108,7 +119,7 @@ class Adoption(LifeEventType):
         return _('Adoption')
 
 
-class Death(CreatableDerivableEventType):
+class Death(CreatableDerivableEventType, EndOfLifeEventType):
     @classmethod
     def name(cls) -> str:
         return 'death'
@@ -119,10 +130,14 @@ class Death(CreatableDerivableEventType):
 
     @classmethod
     def comes_after(cls) -> Set[Type[EventType]]:
-        return {LifeEventType}
+        return {DuringLifeEventType}
 
 
-class Funeral(PostDeathEventType, DerivableEventType):
+class FinalDispositionEventType(PostDeathEventType, DerivableEventType, EndOfLifeEventType):
+    pass
+
+
+class Funeral(FinalDispositionEventType):
     @classmethod
     def name(cls) -> str:
         return 'funeral'
@@ -130,10 +145,6 @@ class Funeral(PostDeathEventType, DerivableEventType):
     @property
     def label(self) -> str:
         return _('Funeral')
-
-
-class FinalDispositionEventType(PostDeathEventType, DerivableEventType):
-    pass
 
 
 class Cremation(FinalDispositionEventType):
@@ -166,7 +177,7 @@ class Will(PostDeathEventType):
         return _('Will')
 
 
-class Engagement(LifeEventType):
+class Engagement(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
         return 'engagement'
@@ -180,7 +191,7 @@ class Engagement(LifeEventType):
         return {Marriage}
 
 
-class Marriage(LifeEventType):
+class Marriage(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
         return 'marriage'
@@ -190,7 +201,7 @@ class Marriage(LifeEventType):
         return _('Marriage')
 
 
-class MarriageAnnouncement(LifeEventType):
+class MarriageAnnouncement(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
         return 'marriage-announcement'
@@ -204,7 +215,7 @@ class MarriageAnnouncement(LifeEventType):
         return {Marriage}
 
 
-class Divorce(LifeEventType):
+class Divorce(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
         return 'divorce'
@@ -218,7 +229,7 @@ class Divorce(LifeEventType):
         return {Marriage}
 
 
-class DivorceAnnouncement(LifeEventType):
+class DivorceAnnouncement(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
         return 'divorce-announcement'
@@ -236,7 +247,7 @@ class DivorceAnnouncement(LifeEventType):
         return {Divorce}
 
 
-class Residence(LifeEventType):
+class Residence(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
         return 'residence'
@@ -246,7 +257,7 @@ class Residence(LifeEventType):
         return _('Residence')
 
 
-class Immigration(LifeEventType):
+class Immigration(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
         return 'immigration'
@@ -256,7 +267,7 @@ class Immigration(LifeEventType):
         return _('Immigration')
 
 
-class Emigration(LifeEventType):
+class Emigration(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
         return 'emigration'
@@ -266,7 +277,7 @@ class Emigration(LifeEventType):
         return _('Emigration')
 
 
-class Occupation(LifeEventType):
+class Occupation(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
         return 'occupation'
@@ -276,7 +287,7 @@ class Occupation(LifeEventType):
         return _('Occupation')
 
 
-class Retirement(LifeEventType):
+class Retirement(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
         return 'retirement'
@@ -296,7 +307,7 @@ class Correspondence(EventType):
         return _('Correspondence')
 
 
-class Confirmation(LifeEventType):
+class Confirmation(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
         return 'confirmation'
@@ -306,7 +317,7 @@ class Confirmation(LifeEventType):
         return _('Confirmation')
 
 
-class Missing(LifeEventType):
+class Missing(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
         return 'missing'

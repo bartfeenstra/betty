@@ -4,8 +4,9 @@ from betty.app import App, Configuration, AppExtensionConfiguration
 from betty.asyncio import sync
 from betty.cleaner import clean, Cleaner
 from betty.load import load
-from betty.model.ancestry import Ancestry, Person, Place, Presence, PlaceName, File, PersonName, Subject, Birth, \
+from betty.model.ancestry import Ancestry, Person, Place, Presence, PlaceName, File, PersonName, Subject, \
     Enclosure, Source, Citation, Event
+from betty.model.event_type import Birth
 from betty.tests import TestCase
 
 
