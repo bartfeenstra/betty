@@ -6,6 +6,7 @@ import jsonschema
 from geopy import Point
 from jsonschema import RefResolver
 
+from betty.asyncio import sync
 from betty.model import Entity, get_entity_type_name, GeneratedEntityId
 from betty.model.ancestry import Place, Person, PlaceName, Event, Described, HasLinks, HasCitations, Link, Dated, File, \
     Note, PersonName, HasMediaType, PresenceRole, EventType, Citation, Source
@@ -28,10 +29,9 @@ def validate(data: Any, schema_definition: str, app: App) -> None:
 
 
 class JSONEncoder(stdjson.JSONEncoder):
-    def __init__(self, app: App, locale: str, *args, **kwargs):
+    def __init__(self, app: App, *args, **kwargs):
         stdjson.JSONEncoder.__init__(self, *args, **kwargs)
         self._app = app
-        self._locale = locale
         self._mappers = {
             PlaceName: self._encode_localized_name,
             Place: self._encode_place,
@@ -52,8 +52,8 @@ class JSONEncoder(stdjson.JSONEncoder):
         }
 
     @classmethod
-    def get_factory(cls, app: App, locale: str):
-        return lambda *args, **kwargs: cls(app, locale, *args, **kwargs)
+    def get_factory(cls, app: App):
+        return lambda *args, **kwargs: cls(app, *args, **kwargs)
 
     def default(self, o):
         for mapper_type in self._mappers:
@@ -61,15 +61,15 @@ class JSONEncoder(stdjson.JSONEncoder):
                 return self._mappers[mapper_type](o)
         stdjson.JSONEncoder.default(self, o)
 
-    def _generate_url(self, resource: Any, media_type='application/json', locale=None):
-        locale = self._locale if locale is None else locale
-        return self._app.localized_url_generator.generate(resource, media_type, locale=locale)
+    def _generate_url(self, resource: Any, media_type='application/json'):
+        return self._app.url_generator.generate(resource, media_type)
 
     def _encode_schema(self, encoded: Dict, defintion: str) -> None:
         encoded['$schema'] = self._app.static_url_generator.generate(
             'schema.json#/definitions/%s' % defintion)
 
-    def _encode_entity(self, encoded: Dict, entity: Entity) -> None:
+    @sync
+    async def _encode_entity(self, encoded: Dict, entity: Entity) -> None:
         self._encode_schema(encoded, upper_camel_case_to_lower_camel_case(get_entity_type_name(entity.entity_type())))
 
         if 'links' not in encoded:
@@ -84,9 +84,10 @@ class JSONEncoder(stdjson.JSONEncoder):
             encoded['links'].append(canonical)
 
             for locale_configuration in self._app.configuration.locales:
-                if locale_configuration.locale == self._locale:
+                if locale_configuration.locale == self._app.locale:
                     continue
-                translation = Link(self._generate_url(entity, locale=locale_configuration.locale))
+                async with self._app.with_locale(locale_configuration.locale):
+                    translation = Link(self._generate_url(entity))
                 translation.relationship = 'alternate'
                 translation.locale = locale_configuration.locale
                 encoded['links'].append(translation)

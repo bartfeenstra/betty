@@ -1,6 +1,4 @@
 'use strict'
-
-var _ENTER_SEARCH_KEYS = ['s']
 var _HIDE_SEARCH_KEYS = ['Escape']
 var _NEXT_RESULT_KEYS = ['ArrowDown']
 var _PREVIOUS_RESULT_KEYS = ['ArrowUp']
@@ -34,12 +32,18 @@ function Search () {
   })
 
   // Allow navigation into and out of the search.
-  document.addEventListener('keyup', function (e) {
-    if (_ENTER_SEARCH_KEYS.indexOf(e.key) !== -1) {
-      _this._queryElement.focus()
-      _this.showSearchResults()
-    }
-  })
+  fetch('/search-configuration.json')
+    .then(function (response) {
+      return response.json()
+    })
+    .then(function (configuration) {
+      document.addEventListener('keyup', function (e) {
+        if (configuration.enterSearchShortcuts.indexOf(e.key) !== -1) {
+          _this._queryElement.focus()
+          _this.showSearchResults()
+        }
+      })
+    })
   this._queryElement.addEventListener('focus', function () {
     _this.showSearchResults()
   })

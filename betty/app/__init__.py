@@ -22,7 +22,7 @@ from betty.model.event_type import EventTypeProvider, Birth, Baptism, Adoption, 
     Occupation, Retirement, Correspondence, Confirmation
 
 if TYPE_CHECKING:
-    from betty.url import StaticUrlGenerator, LocalizedUrlGenerator
+    from betty.url import StaticUrlGenerator, ContentNegotiationUrlGenerator
 
 from betty.importlib import import_any
 
@@ -616,7 +616,7 @@ class App(Configurable[Configuration], Environment):
         self._dispatcher = None
         self._entity_types = None
         self._event_types = None
-        self._localized_url_generator = AppUrlGenerator(configuration)
+        self._url_generator = AppUrlGenerator(self)
         self._static_url_generator = StaticPathUrlGenerator(configuration)
         self._debug = None
         self._locale = None
@@ -649,6 +649,9 @@ class App(Configurable[Configuration], Environment):
         await self._wait_for_threads()
 
         try:
+            # Enable the gettext API by entering a dummy translations context.
+            self._activation_exit_stack.enter_context(Translations(NullTranslations()))
+            # Then enter the final locale context (doing so may recursively require the gettext API).
             await self._activation_exit_stack.enter_async_context(self.with_locale(self.locale))
             for extension in self.extensions.flatten():
                 await extension.activate()
@@ -758,8 +761,8 @@ class App(Configurable[Configuration], Environment):
         return self._dispatcher
 
     @property
-    def localized_url_generator(self) -> LocalizedUrlGenerator:
-        return self._localized_url_generator
+    def url_generator(self) -> ContentNegotiationUrlGenerator:
+        return self._url_generator
 
     @property
     def static_url_generator(self) -> StaticUrlGenerator:
@@ -771,11 +774,11 @@ class App(Configurable[Configuration], Environment):
         if len(self._translations) == 0:
             self._translations['en-US'] = NullTranslations()
             for locale_configuration in self._configuration.locales:
-                for assets_path, _ in reversed(self._assets.paths):
+                for assets_path, _ in reversed(self.assets.paths):
                     translations = open_translations(locale_configuration.locale, assets_path)
                     if translations:
-                        translations.add_fallback(self._translations[locale_configuration])
-                        self._translations[locale_configuration] = translations
+                        translations.add_fallback(self._translations[locale_configuration.locale])
+                        self._translations[locale_configuration.locale] = translations
 
         return self._translations
 

@@ -1,7 +1,7 @@
 {%- import 'macro/person.html.j2' as person_macros -%}
 {%- do citer.track() -%}
 <!doctype html>
-<html lang="{{ locale }}"
+<html lang="{{ app.locale }}"
       prefix="foaf: http://xmlns.com/foaf/0.1/ og: http://ogp.me/ns# rel: http://purl.org/vocab/relationship/">
 <head>
     <title>{% if page_title is defined %}{{ page_title | striptags }} - {% endif %}{{ app.configuration.title }}</title>
@@ -78,8 +78,8 @@
             </form>
             <section id="search-expanded">
                 <p id="search-instructions">
-                    {% trans -%}
-                        Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> to exit the search. Search again with <kbd>s</kbd>.
+                    {% trans shortcut = pgettext('enter-search-shortcut', 's') -%}
+                        Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> to exit the search. Search again with <kbd>{{ shortcut }}</kbd>.
                     {%- endtrans %}
                 </p>
                 <div id="search-results-twilight">
@@ -117,7 +117,9 @@
                         {% do ns.available_locales.append((available_locale_configuration.locale, available_locale_data.get_display_name())) %}
                     {% endfor %}
                     {% for available_locale, available_locale_name in ns.available_locales | sort(attribute='1') %}
-                        <li><a href="{{ page_resource | url(locale=available_locale) }}" hreflang="{{ available_locale }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a></li>
+                        {% enter app.with_locale(available_locale) %}
+                            <li><a href="{{ page_resource | url }}" hreflang="{{ available_locale }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a></li>
+                        {% exit %}
                     {% endfor %}
                     </ul>
                 </div>

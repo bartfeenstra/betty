@@ -1,3 +1,6 @@
 >0.5%
-ie >= 11
 ios >= 9
+
+# IE 11 and Opera Mini do not support the fetch() API.
+not ie 11
+not op_mini all
