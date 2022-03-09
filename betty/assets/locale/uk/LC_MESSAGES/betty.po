@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-03-08 01:04+0000\n"
+"POT-Creation-Date: 2022-03-09 12:01+0000\n"
 "PO-Revision-Date: 2020-05-02 22:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -19,346 +19,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 
-#: betty/gui.py:528
-msgid "Add a locale"
-msgstr ""
-
-#: betty/locale.py:364
-msgid "unknown date"
-msgstr "невідома дата"
-
-#: betty/locale.py:368
-#, python-format
-msgid "around %(date)s"
-msgstr "близько %(date)s"
-
-#: betty/locale.py:369
-#, python-format
-msgid "%(date)s"
-msgstr "%(date)s"
-
-#: betty/locale.py:380
-msgid "MMMM d, y"
-msgstr "d MMMM y року"
-
-#: betty/locale.py:381
-msgid "MMMM, y"
-msgstr "MMMM y року"
-
-#: betty/locale.py:382
-msgid "y"
-msgstr "y року"
-
-#: betty/locale.py:383
-msgid "MMMM d"
-msgstr "d MMMM"
-
-#: betty/locale.py:384
-msgid "MMMM"
-msgstr "MMMM"
-
-#: betty/locale.py:400
-#, python-format
-msgid "from %(start_date)s until %(end_date)s"
-msgstr "з %(start_date)s до %(end_date)s"
-
-#: betty/locale.py:401
-#, python-format
-msgid "from %(start_date)s until sometime before %(end_date)s"
-msgstr "з %(start_date)s до десь раніше %(end_date)s"
-
-#: betty/locale.py:402
-#, python-format
-msgid "from %(start_date)s until around %(end_date)s"
-msgstr "з %(start_date)s до приблизно %(end_date)s"
-
-#: betty/locale.py:403
-#, python-format
-msgid "from %(start_date)s until sometime before around %(end_date)s"
-msgstr "з %(start_date)s до десь до %(end_date)s"
-
-#: betty/locale.py:404
-#, python-format
-msgid "from sometime after %(start_date)s until %(end_date)s"
-msgstr "десь після %(start_date)s до %(end_date)s"
-
-#: betty/locale.py:405
-#, python-format
-msgid "sometime between %(start_date)s and %(end_date)s"
-msgstr "десь між %(start_date)s та %(end_date)s"
-
-#: betty/locale.py:406
-#, python-format
-msgid "from sometime after %(start_date)s until around %(end_date)s"
-msgstr "десь після %(start_date)s приблизно до %(end_date)s"
-
-#: betty/locale.py:407
-#, python-format
-msgid "sometime between %(start_date)s and around %(end_date)s"
-msgstr "десь між %(start_date)s і близько %(end_date)s"
-
-#: betty/locale.py:408
-#, python-format
-msgid "from around %(start_date)s until %(end_date)s"
-msgstr "приблизно з %(start_date)s до %(end_date)s"
-
-#: betty/locale.py:409
-#, python-format
-msgid "from around %(start_date)s until sometime before %(end_date)s"
-msgstr "приблизно з %(start_date)s до десь раніше %(end_date)s"
-
-#: betty/locale.py:410
-#, python-format
-msgid "from around %(start_date)s until around %(end_date)s"
-msgstr "приблизно з %(start_date)s приблизно до %(end_date)s"
-
-#: betty/locale.py:411
-#, python-format
-msgid "from around %(start_date)s until sometime before around %(end_date)s"
-msgstr "приблизно з %(start_date)s до десь до %(end_date)s"
-
-#: betty/locale.py:412
-#, python-format
-msgid "from sometime after around %(start_date)s until %(end_date)s"
-msgstr "десь після %(start_date)s до %(end_date)s"
-
-#: betty/locale.py:413
-#, python-format
-msgid "sometime between around %(start_date)s and %(end_date)s"
-msgstr "десь між приблизно %(start_date)s та %(end_date)s"
-
-#: betty/locale.py:414
-#, python-format
-msgid "from sometime after around %(start_date)s until around %(end_date)s"
-msgstr "десь приблизно після %(start_date)s приблизно до %(end_date)s"
-
-#: betty/locale.py:415
-#, python-format
-msgid "sometime between around %(start_date)s and around %(end_date)s"
-msgstr "десь між приблизно %(start_date)s та приблизно %(end_date)s"
-
-#: betty/locale.py:416
-#, python-format
-msgid "from %(start_date)s"
-msgstr "з %(start_date)s"
-
-#: betty/locale.py:417
-#, python-format
-msgid "sometime after %(start_date)s"
-msgstr "десь після %(start_date)s"
-
-#: betty/locale.py:418
-#, python-format
-msgid "from around %(start_date)s"
-msgstr "приблизно з %(start_date)s"
-
-#: betty/locale.py:419
-#, python-format
-msgid "sometime after around %(start_date)s"
-msgstr "десь приблизно після %(start_date)s"
-
-#: betty/locale.py:420
-#, python-format
-msgid "until %(end_date)s"
-msgstr "до %(end_date)s"
-
-#: betty/locale.py:421
-#, python-format
-msgid "sometime before %(end_date)s"
-msgstr "десь до %(end_date)s"
-
-#: betty/locale.py:422
-#, python-format
-msgid "until around %(end_date)s"
-msgstr "приблизно до %(end_date)s"
-
-#: betty/locale.py:423
-#, python-format
-msgid "sometime before around %(end_date)s"
-msgstr "десь приблизно до %(end_date)s"
-
-#: betty/openapi.py:20
-msgid "Retrieve the collection of files."
-msgstr ""
-
-#: betty/openapi.py:20
-msgid "The collection of files."
-msgstr ""
-
-#: betty/openapi.py:21
-msgid "Retrieve a single file."
-msgstr ""
-
-#: betty/openapi.py:21
-msgid "The file."
-msgstr ""
-
-#: betty/openapi.py:22
-msgid "Retrieve the collection of people."
-msgstr ""
-
-#: betty/openapi.py:22
-msgid "The collection of people."
-msgstr ""
-
-#: betty/openapi.py:23
-msgid "Retrieve a single person."
-msgstr ""
-
-#: betty/openapi.py:23
-msgid "The person."
-msgstr ""
-
-#: betty/openapi.py:24
-msgid "Retrieve the collection of places."
-msgstr ""
-
-#: betty/openapi.py:24
-msgid "The collection of places."
-msgstr ""
-
-#: betty/openapi.py:25
-msgid "Retrieve a single place."
-msgstr ""
-
-#: betty/openapi.py:25
-msgid "The place."
-msgstr ""
-
-#: betty/openapi.py:26
-msgid "Retrieve the collection of events."
-msgstr ""
-
-#: betty/openapi.py:26
-msgid "The collection of events."
-msgstr ""
-
-#: betty/openapi.py:27
-msgid "Retrieve a single event."
-msgstr ""
-
-#: betty/openapi.py:27
-msgid "The event."
-msgstr ""
-
-#: betty/openapi.py:28
-msgid "Retrieve the collection of citations."
-msgstr ""
-
-#: betty/openapi.py:28
-msgid "The collection of citations."
-msgstr ""
-
-#: betty/openapi.py:29
-msgid "Retrieve a single citation."
-msgstr ""
-
-#: betty/openapi.py:29
-msgid "The citation."
-msgstr ""
-
-#: betty/openapi.py:30
-msgid "Retrieve the collection of sources."
-msgstr ""
-
-#: betty/openapi.py:30
-msgid "The collection of sources."
-msgstr ""
-
-#: betty/openapi.py:31
-msgid "Retrieve a single source."
-msgstr ""
-
-#: betty/openapi.py:31
-msgid "The source."
-msgstr ""
-
-#: betty/assets/public/localized/.error/401.html.j2:2 betty/openapi.py:51
-msgid "Unauthorized"
-msgstr "Несанкціонована"
-
-#: betty/openapi.py:61
-msgid "Forbidden"
-msgstr ""
-
-#: betty/openapi.py:71
-msgid "Not found"
-msgstr ""
-
-#: betty/openapi.py:86
-msgid "The ID for the resource to retrieve."
-msgstr ""
-
-#: betty/openapi.py:94
-msgid ""
-"An HTTP [Content-Language](https://developer.mozilla.org/en-"
-"US/docs/Web/HTTP/Headers/Content-Language) header."
-msgstr ""
-
-#: betty/openapi.py:159
-msgid ""
-"An HTTP [Accept](https://developer.mozilla.org/en-"
-"US/docs/Web/HTTP/Headers/Accept) header."
-msgstr ""
-
-#: betty/openapi.py:167
-msgid ""
-"An HTTP [Accept-Language](https://developer.mozilla.org/en-"
-"US/docs/Web/HTTP/Headers/Accept-Language) header."
-msgstr ""
-
-#: betty/openapi.py:175
-msgid "An HTML5 document."
-msgstr ""
-
-#: betty/openapi.py:182
-msgid "A locale name."
-msgstr ""
-
-#: betty/requirement.py:56
-msgid "One or more of these requirements must be met"
-msgstr ""
-
-#: betty/requirement.py:77
-msgid "All of these requirements must be met"
-msgstr ""
-
-#: betty/anonymizer/__init__.py:15
-msgid "Private"
-msgstr "Приватні"
-
-#: betty/anonymizer/__init__.py:28
-msgid ""
-"A citation is available, but has not been published in order to protect "
-"people's privacy"
-msgstr ""
-"A citation is available, but has not been published in order to protect "
-"people's privacy"
-
-#: betty/anonymizer/__init__.py:114
-msgid "Anonymizer"
-msgstr ""
-
-#: betty/anonymizer/__init__.py:118
-msgid ""
-"Anonymize people, events, files, sources, and citations marked private by"
-" removing their information and relationships with other resources. "
-"Enable the Privatizer and Cleaner as well to make this most effective."
-msgstr ""
-
-#: betty/assets/public/localized/index.html.j2:2
-#, python-format
-msgid "Welcome to %(title)s"
-msgstr "Ласкаво просимо на %(title)s"
-
-#: betty/assets/public/localized/index.html.j2:5
-msgid ""
-"\n"
-"            Hello dear, welcome to your new family history website.\n"
-"        "
-msgstr ""
-
-#: betty/assets/public/localized/index.html.j2:16
 #, python-format
 msgid ""
 "\n"
@@ -368,7 +28,6 @@ msgid ""
 "            "
 msgstr ""
 
-#: betty/assets/public/localized/index.html.j2:23
 msgid ""
 "\n"
 "            Continue building your site by adding content to the family "
@@ -377,7 +36,12 @@ msgid ""
 "        "
 msgstr ""
 
-#: betty/assets/public/localized/index.html.j2:37
+msgid ""
+"\n"
+"            Hello dear, welcome to your new family history website.\n"
+"        "
+msgstr ""
+
 #, python-format
 msgid ""
 "\n"
@@ -405,482 +69,6 @@ msgid ""
 "    "
 msgstr ""
 
-#: betty/assets/templates/base.html.j2:65
-msgid "Exit the search"
-msgstr "Вийдіть із пошуку."
-
-#: betty/assets/templates/base.html.j2:71
-#, python-format
-msgid "E.g. \"%(example)s\""
-msgstr "Наприклад «%(example)s»"
-
-#: betty/assets/templates/base.html.j2:81
-msgid ""
-"Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
-"to exit the search. Search again with <kbd>s</kbd>."
-msgstr ""
-"Використовуйте <kbd>↑</kbd> і <kbd>↓</kbd> для переміщення по результатах"
-" або <kbd>esc</kbd> для виходу з пошуку. Шукайте знову за допомогою "
-"<kbd>s</kbd>."
-
-#: betty/assets/templates/base.html.j2:91
-msgid "Menu"
-msgstr "Меню"
-
-#: betty/assets/templates/base.html.j2:95
-#: betty/assets/templates/page/list-person.html.j2:2
-msgid "People"
-msgstr "Люди"
-
-#: betty/assets/templates/base.html.j2:98
-#: betty/assets/templates/page/person.html.j2:203
-#: betty/assets/templates/page/place.html.j2:42
-msgid "Timeline"
-msgstr "Хронологія"
-
-#: betty/assets/templates/base.html.j2:101
-#: betty/assets/templates/page/list-place.html.j2:2
-#: betty/assets/templates/page/person.html.j2:14
-#: betty/assets/templates/page/place.html.j2:13
-msgid "Places"
-msgstr "Місця"
-
-#: betty/assets/templates/base.html.j2:104
-#: betty/assets/templates/page/list-source.html.j2:2
-msgid "Sources"
-msgstr "Джерела"
-
-#: betty/assets/templates/base.html.j2:111
-msgid "Language"
-msgstr "Мова"
-
-#: betty/assets/templates/base.html.j2:138
-msgid "External links"
-msgstr "Зовнішні посилання"
-
-#: betty/assets/templates/base.html.j2:159
-#: betty/assets/templates/page/file.html.j2:49
-msgid "References"
-msgstr "Референції"
-
-#: betty/assets/templates/event-dimensions.html.j2:20
-#, python-format
-msgid "%(date)s in %(place)s"
-msgstr "%(date)s в %(place)s"
-
-#: betty/assets/templates/event-dimensions.html.j2:24
-#, python-format
-msgid "in %(place)s"
-msgstr "в %(place)s"
-
-#: betty/assets/templates/file-extended--application--pdf.html.j2:4
-#, python-format
-msgid ""
-"Your browser cannot show PDF documents. <a href=\"%(file_url)s\">Download"
-" %(file_name)s</a> to view it on your device instead."
-msgstr ""
-
-#: betty/assets/templates/footer.html.j2:3
-#, python-format
-msgid "© Copyright %(author)s, unless otherwise credited"
-msgstr "© Авторське право %(author)s, якщо інше не зараховано"
-
-#: betty/assets/templates/footer.html.j2:6
-msgid ""
-"A family history as told by <a "
-"href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
-msgstr ""
-"Сімейна історія, яку розповіла <a "
-"href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
-
-#: betty/assets/templates/footer.html.j2:8
-#: betty/http_api_doc/assets/public/localized/api/index.html.j2:4
-msgid "API documentation"
-msgstr "документація API"
-
-#: betty/assets/templates/permalink.html.j2:1
-msgid "Permanent link to this section."
-msgstr "Постійне посилання на цей розділ."
-
-#: betty/assets/templates/show-countable.html.j2:2
-#, python-format
-msgid "show %(name_count)s more"
-msgid_plural "show %(name_count)s more"
-msgstr[0] "показати ще одну"
-msgstr[1] "показати ще %(name_count)s"
-msgstr[2] "показати ще %(name_count)s"
-
-#: betty/assets/templates/show-countable.html.j2:8
-msgid "show fewer"
-msgstr "показати менше"
-
-#: betty/assets/templates/show.html.j2:4
-msgid "show more"
-msgstr "показати більше"
-
-#: betty/assets/templates/show.html.j2:5
-msgid "show less"
-msgstr "показати менше"
-
-#: betty/assets/templates/label/citation.html.j2:18
-#, python-format
-msgid "Accessed %(date)s"
-msgstr "доступ %(date)s"
-
-#: betty/assets/templates/label/event.html.j2:21
-#, python-format
-msgid "%(event)s with %(subjects)s"
-msgstr "%(event)s з %(subjects)s"
-
-#: betty/assets/templates/label/event.html.j2:25
-#, python-format
-msgid "%(event)s of %(subjects)s"
-msgstr "%(event)s %(subjects)s"
-
-#: betty/assets/templates/label/person.html.j2:9
-#: betty/assets/templates/macro/person.html.j2:23
-#: betty/assets/templates/meta/person.html.j2:11
-msgid "This person's details are unavailable to protect their privacy."
-msgstr "Дані цієї особи недоступні для захисту їх конфіденційності."
-
-#: betty/assets/templates/label/person.html.j2:9
-#: betty/assets/templates/macro/person.html.j2:23
-msgid "private"
-msgstr "приватні"
-
-#: betty/assets/templates/label/person.html.j2:13
-#: betty/assets/templates/macro/person.html.j2:38
-msgid "This person's name is unknown."
-msgstr "Ім'я цієї людини невідоме."
-
-#: betty/assets/templates/meta/person.html.j2:14
-#, python-format
-msgid "Also known as %(names)s"
-msgstr "Також відомий як %(names)s"
-
-#: betty/assets/templates/page/citation.html.j2:11
-#: betty/assets/templates/page/event.html.j2:48
-#: betty/assets/templates/page/list-file.html.j2:2
-#: betty/assets/templates/page/person.html.j2:218
-#: betty/assets/templates/page/source.html.j2:10
-#: betty/assets/templates/search/result-file.html.j2:4
-msgid "Media"
-msgstr "Медіа"
-
-#: betty/assets/templates/page/citation.html.j2:23
-#: betty/assets/templates/page/source.html.j2:15
-msgid "Facts"
-msgstr "Факти"
-
-#: betty/assets/templates/page/event.html.j2:23
-msgid "Witnesses"
-msgstr "Свідки"
-
-#: betty/assets/templates/page/event.html.j2:38
-msgid "Other attendees"
-msgstr "Інші відвідувачі"
-
-#: betty/assets/templates/page/file.html.j2:14
-msgid "Notes"
-msgstr "Примітки"
-
-#: betty/assets/templates/page/file.html.j2:28
-msgid "Appearances"
-msgstr "Знайдено в"
-
-#: betty/assets/templates/page/list-event.html.j2:2
-msgid "Events"
-msgstr "Події"
-
-#: betty/assets/templates/page/list-event.html.j2:9
-msgid "I'm sorry, dear, but it seems there are no events."
-msgstr ""
-
-#: betty/assets/templates/page/list-file.html.j2:9
-msgid "I'm sorry, dear, but it seems there are no media."
-msgstr ""
-
-#: betty/assets/templates/page/list-person.html.j2:9
-msgid "I'm sorry, dear, but it seems there are no people."
-msgstr ""
-
-#: betty/assets/templates/page/list-place.html.j2:9
-msgid "I'm sorry, dear, but it seems there are no places."
-msgstr ""
-
-#: betty/assets/templates/page/list-source.html.j2:13
-msgid "I'm sorry, dear, but it seems there are no sources."
-msgstr ""
-
-#: betty/assets/templates/page/person.html.j2:28
-msgid "About"
-msgstr ""
-
-#: betty/assets/templates/page/person.html.j2:48
-msgid "Family"
-msgstr ""
-
-#: betty/assets/templates/page/person.html.j2:63
-#, python-format
-msgid "%(person_individual_name)s is the child of %(parent_labels)s."
-msgstr "%(person_individual_name)s дитина %(parent_labels)s."
-
-#: betty/assets/templates/page/person.html.j2:65
-#, python-format
-msgid "They are the child of %(parent_labels)s."
-msgstr "Це дитина %(parent_labels)s."
-
-#: betty/assets/templates/page/person.html.j2:69
-#, python-format
-msgid "They grew up with a sibling."
-msgid_plural "They grew up with %(sibling_count)s siblings."
-msgstr[0] "У його батьків була ще одна дитина."
-msgstr[1] "У його батьків було ще %(sibling_count)s дітей."
-msgstr[2] "У його батьків було ще %(sibling_count)s дітей."
-
-#: betty/assets/templates/page/person.html.j2:79
-msgid "Ancestral names include"
-msgstr "Імена предків є"
-
-#: betty/assets/templates/page/person.html.j2:118
-#, python-format
-msgid "%(person_individual_name)s had a child with %(co_parent_labels)s."
-msgid_plural ""
-"%(person_individual_name)s had %(child_count)s children with "
-"%(co_parent_labels)s."
-msgstr[0] "У %(person_individual_name)s була дитина від %(co_parent_labels)s."
-msgstr[1] "У %(person_individual_name)s було 3 дитини з %(co_parent_labels)s."
-msgstr[2] "У %(person_individual_name)s було 3 дитини з %(co_parent_labels)s."
-
-#: betty/assets/templates/page/person.html.j2:124
-#, python-format
-msgid "They had a child with %(co_parent_labels)s."
-msgid_plural "They had %(child_count)s children with %(co_parent_labels)s."
-msgstr[0] "У нього була дитина від %(co_parent_labels)s."
-msgstr[1] "У нього було 3 дитини з %(co_parent_labels)s."
-msgstr[2] "У нього було 3 дитини з %(co_parent_labels)s."
-
-#: betty/assets/templates/page/person.html.j2:132
-#, python-format
-msgid "%(person_individual_name)s had a child."
-msgid_plural "%(person_individual_name)s had %(child_count)s children."
-msgstr[0] "У %(person_individual_name)s була дитина."
-msgstr[1] "У %(person_individual_name)s було %(child_count)s дитини."
-msgstr[2] "У %(person_individual_name)s було %(child_count)s дитини."
-
-#: betty/assets/templates/page/person.html.j2:138
-#, python-format
-msgid "They had a child."
-msgid_plural "They had %(child_count)s children."
-msgstr[0] "У нього була дитина."
-msgstr[1] "У нього було %(child_count)s дитини."
-msgstr[2] "У нього було %(child_count)s дитини."
-
-#: betty/assets/templates/page/person.html.j2:149
-msgid "Descendant names include"
-msgstr "Імена нащадків є"
-
-#: betty/assets/templates/page/place.html.j2:27
-msgid "Wikipedia"
-msgstr ""
-
-#: betty/cleaner/__init__.py:152
-msgid "Cleaner"
-msgstr ""
-
-#: betty/cleaner/__init__.py:156
-msgid ""
-"Remove people, events, places, files, sources, and citations if they have"
-" no relationships with any other resources. Enable the Privatizer and "
-"Anonymizer as well to make this most effective."
-msgstr ""
-
-#: betty/deriver/__init__.py:91
-msgid "Deriver"
-msgstr ""
-
-#: betty/deriver/__init__.py:95
-msgid ""
-"Create events such as births and deaths by deriving their details from "
-"existing information."
-msgstr ""
-
-#: betty/gramps/__init__.py:33
-msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
-msgstr ""
-
-#: betty/http_api_doc/__init__.py:36
-msgid ""
-"Display the HTTP API documentation in a user-friendly way using <a "
-"href=\"https://github.com/Redocly/redoc\">ReDoc</a>."
-msgstr ""
-
-#: betty/maps/__init__.py:53
-msgid "Maps"
-msgstr ""
-
-#: betty/maps/__init__.py:57
-msgid ""
-"Display lists of places as interactive maps using <a "
-"href=\"https://leafletjs.com/\">Leaflet</a>."
-msgstr ""
-
-#: betty/model/ancestry.py:235
-msgid "Subject"
-msgstr "Предмет"
-
-#: betty/model/ancestry.py:245
-msgid "Witness"
-msgstr "Свідок"
-
-#: betty/model/ancestry.py:255
-msgid "Beneficiary"
-msgstr "Бенефіціар"
-
-#: betty/model/ancestry.py:265
-msgid "Attendee"
-msgstr "Відвідувач"
-
-#: betty/model/event_type.py:44
-msgid "Unknown"
-msgstr "Невідомо"
-
-#: betty/model/event_type.py:84
-msgid "Birth"
-msgstr "Народження"
-
-#: betty/model/event_type.py:98
-msgid "Baptism"
-msgstr "Хрещення"
-
-#: betty/model/event_type.py:108
-msgid "Adoption"
-msgstr "Усиновлення"
-
-#: betty/model/event_type.py:118
-msgid "Death"
-msgstr "Смерть"
-
-#: betty/model/event_type.py:132
-msgid "Funeral"
-msgstr "Похорон"
-
-#: betty/model/event_type.py:146
-msgid "Cremation"
-msgstr "Кремація"
-
-#: betty/model/event_type.py:156
-msgid "Burial"
-msgstr "Поховання"
-
-#: betty/model/event_type.py:166
-msgid "Will"
-msgstr "Заповіт"
-
-#: betty/model/event_type.py:176
-msgid "Engagement"
-msgstr "Заручини"
-
-#: betty/model/event_type.py:190
-msgid "Marriage"
-msgstr "Шлюб"
-
-#: betty/model/event_type.py:200
-msgid "Announcement of marriage"
-msgstr "Оголошення шлюбу"
-
-#: betty/model/event_type.py:214
-msgid "Divorce"
-msgstr "Розлучення"
-
-#: betty/model/event_type.py:228
-msgid "Announcement of divorce"
-msgstr "Оголошення про розлучення"
-
-#: betty/model/event_type.py:246
-msgid "Residence"
-msgstr "Проживання"
-
-#: betty/model/event_type.py:256
-msgid "Immigration"
-msgstr "Імміграція"
-
-#: betty/model/event_type.py:266
-msgid "Emigration"
-msgstr "Еміграція"
-
-#: betty/model/event_type.py:276
-msgid "Occupation"
-msgstr "Праця"
-
-#: betty/model/event_type.py:286
-msgid "Retirement"
-msgstr "Вихід на пенсію"
-
-#: betty/model/event_type.py:296
-msgid "Correspondence"
-msgstr "Листування"
-
-#: betty/model/event_type.py:306
-msgid "Confirmation"
-msgstr "Миропомазання"
-
-#: betty/model/event_type.py:316
-msgid "Missing"
-msgstr "Відсутній"
-
-#: betty/npm/__init__.py:32
-msgid ""
-"npm (https://www.npmjs.com/) must be available for features that require "
-"Node.js packages to be installed. Ensure that the `npm` executable is "
-"available in your `PATH`."
-msgstr ""
-
-#: betty/npm/__init__.py:36
-msgid "`npm` is available"
-msgstr ""
-
-#: betty/npm/__init__.py:40
-msgid "`npm` is not available"
-msgstr ""
-
-#: betty/npm/__init__.py:69
-msgid "Pre-built assets"
-msgstr ""
-
-#: betty/npm/__init__.py:76
-msgid "Pre-built assets are unavailable for {extension_names}."
-msgstr ""
-
-#: betty/privatizer/__init__.py:19
-#, fuzzy
-msgid "Privatizer"
-msgstr "приватні"
-
-#: betty/privatizer/__init__.py:23
-msgid ""
-"Determine if people can be proven to have died. If not, mark them and "
-"their related resources private, but only if they are not already "
-"explicitly marked public or private. Enable the Anonymizer and Cleaner as"
-" well to make this most effective."
-msgstr ""
-
-#: betty/trees/__init__.py:51
-#, fuzzy
-msgid "Trees"
-msgstr "Примітки"
-
-#: betty/trees/__init__.py:55
-msgid ""
-"Display interactive family trees using <a "
-"href=\"https://cytoscape.org/\">Cytoscape</a>."
-msgstr ""
-
-#: betty/wikipedia/__init__.py:204
-msgid "Read more on Wikipedia."
-msgstr "Детальніше читайте у Вікіпедії"
-
-#: betty/wikipedia/__init__.py:276
 #, python-format
 msgid ""
 "\n"
@@ -894,12 +82,42 @@ msgid ""
 "</code></pre>"
 msgstr ""
 
-#: betty/wikipedia/assets/templates/wikipedia.html.j2:5
 #, python-format
-msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
-msgstr "Продовжуйте читати у <a href=\"%(url)s\">Вікіпедії</a>."
+msgid "%(date)s"
+msgstr "%(date)s"
 
-#: betty/wikipedia/assets/templates/wikipedia.html.j2:7
+#, python-format
+msgid "%(date)s in %(place)s"
+msgstr "%(date)s в %(place)s"
+
+#, python-format
+msgid "%(event)s of %(subjects)s"
+msgstr "%(event)s %(subjects)s"
+
+#, python-format
+msgid "%(event)s with %(subjects)s"
+msgstr "%(event)s з %(subjects)s"
+
+#, python-format
+msgid "%(person_individual_name)s had a child with %(co_parent_labels)s."
+msgid_plural ""
+"%(person_individual_name)s had %(child_count)s children with "
+"%(co_parent_labels)s."
+msgstr[0] "У %(person_individual_name)s була дитина від %(co_parent_labels)s."
+msgstr[1] "У %(person_individual_name)s було 3 дитини з %(co_parent_labels)s."
+msgstr[2] "У %(person_individual_name)s було 3 дитини з %(co_parent_labels)s."
+
+#, python-format
+msgid "%(person_individual_name)s had a child."
+msgid_plural "%(person_individual_name)s had %(child_count)s children."
+msgstr[0] "У %(person_individual_name)s була дитина."
+msgstr[1] "У %(person_individual_name)s було %(child_count)s дитини."
+msgstr[2] "У %(person_individual_name)s було %(child_count)s дитини."
+
+#, python-format
+msgid "%(person_individual_name)s is the child of %(parent_labels)s."
+msgstr "%(person_individual_name)s дитина %(parent_labels)s."
+
 msgid ""
 "<a "
 "href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a>"
@@ -908,28 +126,606 @@ msgstr ""
 "<a href=\"https://uk.wikipedia.org/wiki/Вікіпедія:Авторські "
 "права\">Авторські права</a> на Вікіпедію та її дописувачів."
 
-#: betty/assets/public/localized/.error/401.html.j2:4
-#: betty/assets/public/localized/.error/401.json.j2:3
-msgid "I'm sorry, dear, but it seems you're not logged in."
+msgid ""
+"A citation is available, but has not been published in order to protect "
+"people's privacy"
+msgstr ""
+"A citation is available, but has not been published in order to protect "
+"people's privacy"
+
+msgid ""
+"A family history as told by <a "
+"href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
+msgstr ""
+"Сімейна історія, яку розповіла <a "
+"href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
+
+msgid "A locale name."
 msgstr ""
 
-#: betty/assets/public/localized/.error/403.html.j2:2
+msgid "API documentation"
+msgstr "документація API"
+
+msgid "About"
+msgstr ""
+
 msgid "Access denied"
 msgstr "У доступі відмовлено"
 
-#: betty/assets/public/localized/.error/403.html.j2:4
-#: betty/assets/public/localized/.error/403.json.j2:3
+#, python-format
+msgid "Accessed %(date)s"
+msgstr "доступ %(date)s"
+
+msgid "Add a locale"
+msgstr ""
+
+msgid "Adoption"
+msgstr "Усиновлення"
+
+msgid "All of these requirements must be met"
+msgstr ""
+
+#, python-format
+msgid "Also known as %(names)s"
+msgstr "Також відомий як %(names)s"
+
+msgid "An HTML5 document."
+msgstr ""
+
+msgid ""
+"An HTTP [Accept-Language](https://developer.mozilla.org/en-"
+"US/docs/Web/HTTP/Headers/Accept-Language) header."
+msgstr ""
+
+msgid ""
+"An HTTP [Accept](https://developer.mozilla.org/en-"
+"US/docs/Web/HTTP/Headers/Accept) header."
+msgstr ""
+
+msgid ""
+"An HTTP [Content-Language](https://developer.mozilla.org/en-"
+"US/docs/Web/HTTP/Headers/Content-Language) header."
+msgstr ""
+
+msgid "Ancestral names include"
+msgstr "Імена предків є"
+
+msgid "Announcement of divorce"
+msgstr "Оголошення про розлучення"
+
+msgid "Announcement of marriage"
+msgstr "Оголошення шлюбу"
+
+msgid ""
+"Anonymize people, events, files, sources, and citations marked private by"
+" removing their information and relationships with other resources. "
+"Enable the Privatizer and Cleaner as well to make this most effective."
+msgstr ""
+
+msgid "Anonymizer"
+msgstr ""
+
+msgid "Appearances"
+msgstr "Знайдено в"
+
+msgid "Attendee"
+msgstr "Відвідувач"
+
+msgid "Baptism"
+msgstr "Хрещення"
+
+msgid "Beneficiary"
+msgstr "Бенефіціар"
+
+msgid "Birth"
+msgstr "Народження"
+
+msgid "Burial"
+msgstr "Поховання"
+
+msgid "Cleaner"
+msgstr ""
+
+msgid "Confirmation"
+msgstr "Миропомазання"
+
+#, python-format
+msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
+msgstr "Продовжуйте читати у <a href=\"%(url)s\">Вікіпедії</a>."
+
+msgid "Correspondence"
+msgstr "Листування"
+
+msgid ""
+"Create events such as births and deaths by deriving their details from "
+"existing information."
+msgstr ""
+
+msgid "Cremation"
+msgstr "Кремація"
+
+msgid "Death"
+msgstr "Смерть"
+
+msgid "Deriver"
+msgstr ""
+
+msgid "Descendant names include"
+msgstr "Імена нащадків є"
+
+msgid ""
+"Determine if people can be proven to have died. If not, mark them and "
+"their related resources private, but only if they are not already "
+"explicitly marked public or private. Enable the Anonymizer and Cleaner as"
+" well to make this most effective."
+msgstr ""
+
+msgid ""
+"Display interactive family trees using <a "
+"href=\"https://cytoscape.org/\">Cytoscape</a>."
+msgstr ""
+
+msgid ""
+"Display lists of places as interactive maps using <a "
+"href=\"https://leafletjs.com/\">Leaflet</a>."
+msgstr ""
+
+msgid ""
+"Display the HTTP API documentation in a user-friendly way using <a "
+"href=\"https://github.com/Redocly/redoc\">ReDoc</a>."
+msgstr ""
+
+msgid "Divorce"
+msgstr "Розлучення"
+
+#, python-format
+msgid "E.g. \"%(example)s\""
+msgstr "Наприклад «%(example)s»"
+
+msgid "Emigration"
+msgstr "Еміграція"
+
+msgid "Engagement"
+msgstr "Заручини"
+
+msgid "Events"
+msgstr "Події"
+
+msgid "Exit the search"
+msgstr "Вийдіть із пошуку."
+
+msgid "External links"
+msgstr "Зовнішні посилання"
+
+msgid "Facts"
+msgstr "Факти"
+
+msgid "Family"
+msgstr ""
+
+msgid "Forbidden"
+msgstr ""
+
+msgid "Funeral"
+msgstr "Похорон"
+
+msgid "I'm sorry, dear, but it seems there are no events."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems there are no media."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems there are no people."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems there are no places."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems there are no sources."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems this page does not exist."
+msgstr ""
+
 msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
 msgstr ""
 
-#: betty/assets/public/localized/.error/404.html.j2:2
+msgid "I'm sorry, dear, but it seems you're not logged in."
+msgstr ""
+
+msgid "Immigration"
+msgstr "Імміграція"
+
+msgid "Language"
+msgstr "Мова"
+
+msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
+msgstr ""
+
+msgid "MMMM"
+msgstr "MMMM"
+
+msgid "MMMM d"
+msgstr "d MMMM"
+
+msgid "MMMM d, y"
+msgstr "d MMMM y року"
+
+msgid "MMMM, y"
+msgstr "MMMM y року"
+
+msgid "Maps"
+msgstr ""
+
+msgid "Marriage"
+msgstr "Шлюб"
+
+msgid "Media"
+msgstr "Медіа"
+
+msgid "Menu"
+msgstr "Меню"
+
+msgid "Missing"
+msgstr "Відсутній"
+
+msgid "Not found"
+msgstr ""
+
+msgid "Notes"
+msgstr "Примітки"
+
+msgid "Occupation"
+msgstr "Праця"
+
+msgid "One or more of these requirements must be met"
+msgstr ""
+
+msgid "Other attendees"
+msgstr "Інші відвідувачі"
+
 msgid "Page not found"
 msgstr "Сторінку не знайдено"
 
-#: betty/assets/public/localized/.error/404.html.j2:4
-#: betty/assets/public/localized/.error/404.json.j2:3
-msgid "I'm sorry, dear, but it seems this page does not exist."
+msgid "People"
+msgstr "Люди"
+
+msgid "Permanent link to this section."
+msgstr "Постійне посилання на цей розділ."
+
+msgid "Places"
+msgstr "Місця"
+
+msgid "Pre-built assets"
 msgstr ""
+
+msgid "Pre-built assets are unavailable for {extension_names}."
+msgstr ""
+
+msgid "Private"
+msgstr "Приватні"
+
+#, fuzzy
+msgid "Privatizer"
+msgstr "приватні"
+
+msgid "Read more on Wikipedia."
+msgstr "Детальніше читайте у Вікіпедії"
+
+msgid "References"
+msgstr "Референції"
+
+msgid ""
+"Remove people, events, places, files, sources, and citations if they have"
+" no relationships with any other resources. Enable the Privatizer and "
+"Anonymizer as well to make this most effective."
+msgstr ""
+
+msgid "Residence"
+msgstr "Проживання"
+
+msgid "Retirement"
+msgstr "Вихід на пенсію"
+
+msgid "Retrieve a single citation."
+msgstr ""
+
+msgid "Retrieve a single event."
+msgstr ""
+
+msgid "Retrieve a single file."
+msgstr ""
+
+msgid "Retrieve a single person."
+msgstr ""
+
+msgid "Retrieve a single place."
+msgstr ""
+
+msgid "Retrieve a single source."
+msgstr ""
+
+msgid "Retrieve the collection of citations."
+msgstr ""
+
+msgid "Retrieve the collection of events."
+msgstr ""
+
+msgid "Retrieve the collection of files."
+msgstr ""
+
+msgid "Retrieve the collection of people."
+msgstr ""
+
+msgid "Retrieve the collection of places."
+msgstr ""
+
+msgid "Retrieve the collection of sources."
+msgstr ""
+
+msgid "Sources"
+msgstr "Джерела"
+
+msgid "Subject"
+msgstr "Предмет"
+
+msgid "The ID for the resource to retrieve."
+msgstr ""
+
+msgid "The citation."
+msgstr ""
+
+msgid "The collection of citations."
+msgstr ""
+
+msgid "The collection of events."
+msgstr ""
+
+msgid "The collection of files."
+msgstr ""
+
+msgid "The collection of people."
+msgstr ""
+
+msgid "The collection of places."
+msgstr ""
+
+msgid "The collection of sources."
+msgstr ""
+
+msgid "The event."
+msgstr ""
+
+msgid "The file."
+msgstr ""
+
+msgid "The person."
+msgstr ""
+
+msgid "The place."
+msgstr ""
+
+msgid "The source."
+msgstr ""
+
+#, python-format
+msgid "They are the child of %(parent_labels)s."
+msgstr "Це дитина %(parent_labels)s."
+
+#, python-format
+msgid "They grew up with a sibling."
+msgid_plural "They grew up with %(sibling_count)s siblings."
+msgstr[0] "У його батьків була ще одна дитина."
+msgstr[1] "У його батьків було ще %(sibling_count)s дітей."
+msgstr[2] "У його батьків було ще %(sibling_count)s дітей."
+
+#, python-format
+msgid "They had a child with %(co_parent_labels)s."
+msgid_plural "They had %(child_count)s children with %(co_parent_labels)s."
+msgstr[0] "У нього була дитина від %(co_parent_labels)s."
+msgstr[1] "У нього було 3 дитини з %(co_parent_labels)s."
+msgstr[2] "У нього було 3 дитини з %(co_parent_labels)s."
+
+#, python-format
+msgid "They had a child."
+msgid_plural "They had %(child_count)s children."
+msgstr[0] "У нього була дитина."
+msgstr[1] "У нього було %(child_count)s дитини."
+msgstr[2] "У нього було %(child_count)s дитини."
+
+msgid "This person's details are unavailable to protect their privacy."
+msgstr "Дані цієї особи недоступні для захисту їх конфіденційності."
+
+msgid "This person's name is unknown."
+msgstr "Ім'я цієї людини невідоме."
+
+msgid "Timeline"
+msgstr "Хронологія"
+
+#, fuzzy
+msgid "Trees"
+msgstr "Примітки"
+
+msgid "Unauthorized"
+msgstr "Несанкціонована"
+
+msgid "Unknown"
+msgstr "Невідомо"
+
+msgid ""
+"Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
+"to exit the search. Search again with <kbd>s</kbd>."
+msgstr ""
+"Використовуйте <kbd>↑</kbd> і <kbd>↓</kbd> для переміщення по результатах"
+" або <kbd>esc</kbd> для виходу з пошуку. Шукайте знову за допомогою "
+"<kbd>s</kbd>."
+
+#, python-format
+msgid "Welcome to %(title)s"
+msgstr "Ласкаво просимо на %(title)s"
+
+msgid "Wikipedia"
+msgstr ""
+
+msgid "Will"
+msgstr "Заповіт"
+
+msgid "Witness"
+msgstr "Свідок"
+
+msgid "Witnesses"
+msgstr "Свідки"
+
+#, python-format
+msgid ""
+"Your browser cannot show PDF documents. <a href=\"%(file_url)s\">Download"
+" %(file_name)s</a> to view it on your device instead."
+msgstr ""
+
+msgid "`npm` is available"
+msgstr ""
+
+msgid "`npm` is not available"
+msgstr ""
+
+#, python-format
+msgid "around %(date)s"
+msgstr "близько %(date)s"
+
+#, python-format
+msgid "from %(start_date)s"
+msgstr "з %(start_date)s"
+
+#, python-format
+msgid "from %(start_date)s until %(end_date)s"
+msgstr "з %(start_date)s до %(end_date)s"
+
+#, python-format
+msgid "from %(start_date)s until around %(end_date)s"
+msgstr "з %(start_date)s до приблизно %(end_date)s"
+
+#, python-format
+msgid "from %(start_date)s until sometime before %(end_date)s"
+msgstr "з %(start_date)s до десь раніше %(end_date)s"
+
+#, python-format
+msgid "from %(start_date)s until sometime before around %(end_date)s"
+msgstr "з %(start_date)s до десь до %(end_date)s"
+
+#, python-format
+msgid "from around %(start_date)s"
+msgstr "приблизно з %(start_date)s"
+
+#, python-format
+msgid "from around %(start_date)s until %(end_date)s"
+msgstr "приблизно з %(start_date)s до %(end_date)s"
+
+#, python-format
+msgid "from around %(start_date)s until around %(end_date)s"
+msgstr "приблизно з %(start_date)s приблизно до %(end_date)s"
+
+#, python-format
+msgid "from around %(start_date)s until sometime before %(end_date)s"
+msgstr "приблизно з %(start_date)s до десь раніше %(end_date)s"
+
+#, python-format
+msgid "from around %(start_date)s until sometime before around %(end_date)s"
+msgstr "приблизно з %(start_date)s до десь до %(end_date)s"
+
+#, python-format
+msgid "from sometime after %(start_date)s until %(end_date)s"
+msgstr "десь після %(start_date)s до %(end_date)s"
+
+#, python-format
+msgid "from sometime after %(start_date)s until around %(end_date)s"
+msgstr "десь після %(start_date)s приблизно до %(end_date)s"
+
+#, python-format
+msgid "from sometime after around %(start_date)s until %(end_date)s"
+msgstr "десь після %(start_date)s до %(end_date)s"
+
+#, python-format
+msgid "from sometime after around %(start_date)s until around %(end_date)s"
+msgstr "десь приблизно після %(start_date)s приблизно до %(end_date)s"
+
+#, python-format
+msgid "in %(place)s"
+msgstr "в %(place)s"
+
+msgid ""
+"npm (https://www.npmjs.com/) must be available for features that require "
+"Node.js packages to be installed. Ensure that the `npm` executable is "
+"available in your `PATH`."
+msgstr ""
+
+msgid "private"
+msgstr "приватні"
+
+#, python-format
+msgid "show %(name_count)s more"
+msgid_plural "show %(name_count)s more"
+msgstr[0] "показати ще одну"
+msgstr[1] "показати ще %(name_count)s"
+msgstr[2] "показати ще %(name_count)s"
+
+msgid "show fewer"
+msgstr "показати менше"
+
+msgid "show less"
+msgstr "показати менше"
+
+msgid "show more"
+msgstr "показати більше"
+
+#, python-format
+msgid "sometime after %(start_date)s"
+msgstr "десь після %(start_date)s"
+
+#, python-format
+msgid "sometime after around %(start_date)s"
+msgstr "десь приблизно після %(start_date)s"
+
+#, python-format
+msgid "sometime before %(end_date)s"
+msgstr "десь до %(end_date)s"
+
+#, python-format
+msgid "sometime before around %(end_date)s"
+msgstr "десь приблизно до %(end_date)s"
+
+#, python-format
+msgid "sometime between %(start_date)s and %(end_date)s"
+msgstr "десь між %(start_date)s та %(end_date)s"
+
+#, python-format
+msgid "sometime between %(start_date)s and around %(end_date)s"
+msgstr "десь між %(start_date)s і близько %(end_date)s"
+
+#, python-format
+msgid "sometime between around %(start_date)s and %(end_date)s"
+msgstr "десь між приблизно %(start_date)s та %(end_date)s"
+
+#, python-format
+msgid "sometime between around %(start_date)s and around %(end_date)s"
+msgstr "десь між приблизно %(start_date)s та приблизно %(end_date)s"
+
+msgid "unknown date"
+msgstr "невідома дата"
+
+#, python-format
+msgid "until %(end_date)s"
+msgstr "до %(end_date)s"
+
+#, python-format
+msgid "until around %(end_date)s"
+msgstr "приблизно до %(end_date)s"
+
+msgid "y"
+msgstr "y року"
+
+#, python-format
+msgid "© Copyright %(author)s, unless otherwise credited"
+msgstr "© Авторське право %(author)s, якщо інше не зараховано"
 
 #~ msgid "Source"
 #~ msgstr "Джерело"
