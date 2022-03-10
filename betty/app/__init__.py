@@ -11,9 +11,8 @@ from urllib.parse import urlparse
 
 from babel.core import parse_locale, Locale
 
-from betty import fs
-from betty.app.extension import ListExtensions, Extension, Extensions, \
-    build_extension_type_graph, ExtensionDispatcher, CyclicDependencyError
+from betty.app.extension import ListExtensions, Extension, Extensions, build_extension_type_graph, \
+    CyclicDependencyError, ExtensionDispatcher
 from betty.asyncio import sync
 from betty.environment import Environment
 from betty.error import ensure_context
@@ -348,7 +347,6 @@ class ThemeConfiguration(GenericConfiguration):
 class Configuration(GenericConfiguration):
     def __init__(self, base_url: Optional[str] = None):
         super().__init__()
-        self._cache_directory_path = fs.CACHE_DIRECTORY_PATH
         self._default_output_directory = TemporaryDirectory()
         self.output_directory_path = self._default_output_directory.name
         self.base_url = 'https://example.com' if base_url is None else base_url
@@ -387,15 +385,6 @@ class Configuration(GenericConfiguration):
     @assets_directory_path.setter
     def assets_directory_path(self, assets_directory_path: Optional[str]) -> None:
         self._assets_directory_path = assets_directory_path
-
-    @reactive
-    @property
-    def cache_directory_path(self) -> Path:
-        return self._cache_directory_path
-
-    @cache_directory_path.setter
-    def cache_directory_path(self, cache_directory_path: Path) -> None:
-        self._cache_directory_path = cache_directory_path
 
     @reactive
     @property

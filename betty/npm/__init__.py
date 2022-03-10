@@ -169,7 +169,7 @@ class _Npm(Extension):
         await npm(['install', '--production'], cwd=working_directory_path)
 
     def _get_cached_assets_build_directory_path(self, extension_type: Type[Extension | NpmBuilder]) -> Path:
-        return self._app.configuration.cache_directory_path / self.name() / extension_type.name()
+        return self.cache_directory_path / extension_type.name()
 
     async def ensure_assets(self, extension: Extension | NpmBuilder) -> Path:
         assets_build_directory_paths = [

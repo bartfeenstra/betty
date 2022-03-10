@@ -73,7 +73,7 @@ class Entry(Localized):
 
 class _Retriever:
     def __init__(self, http_client: aiohttp.ClientSession, cache_directory_path: Path, ttl: int = 86400):
-        self._cache_directory_path = cache_directory_path / 'wikipedia'
+        self._cache_directory_path = cache_directory_path
         self._cache_directory_path.mkdir(exist_ok=True, parents=True)
         self._ttl = ttl
         self._http_client = http_client
@@ -219,7 +219,7 @@ class Wikipedia(Extension, Jinja2Provider, PostLoader, GuiBuilder):
     @property
     def _retriever(self) -> _Retriever:
         if self.__retriever is None:
-            self.__retriever = _Retriever(self._app.http_client, self._app.configuration.cache_directory_path / self.name())
+            self.__retriever = _Retriever(self._app.http_client, self.cache_directory_path)
         return self.__retriever
 
     @_retriever.deleter

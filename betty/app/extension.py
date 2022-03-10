@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import asyncio
 from collections import defaultdict
-from typing import TYPE_CHECKING, Iterable
+from pathlib import Path
+from typing import Type, Set, Optional, Any, List, Dict, Sequence, TypeVar, Union, Iterable, TYPE_CHECKING
 
+from betty import fs
 from betty.requirement import Requirer, AllRequirements
 
 if TYPE_CHECKING:
@@ -12,9 +14,6 @@ try:
     from importlib.metadata import entry_points
 except ImportError:
     from importlib_metadata import entry_points
-
-from pathlib import Path
-from typing import Type, Set, Optional, Any, List, Dict, Sequence, TypeVar
 
 from betty.dispatch import Dispatcher, TargetedDispatcher
 from betty.environment import Environment
@@ -81,13 +80,17 @@ class Extension(Environment, Requirer):
     def assets_directory_path(cls) -> Optional[Path]:
         return None
 
+    @property
+    def cache_directory_path(self) -> Path:
+        return fs.CACHE_DIRECTORY_PATH / self.name()
+
 
 ExtensionT = TypeVar('ExtensionT', bound=Extension)
 
 
 @reactive
 class Extensions:
-    def __getitem__(self, extension_type: Type[ExtensionT]) -> ExtensionT:
+    def __getitem__(self, extension_type: Union[Type[ExtensionT], str]) -> ExtensionT:
         raise NotImplementedError
 
     def __iter__(self) -> Sequence[Sequence[Extension]]:
@@ -97,7 +100,7 @@ class Extensions:
         for batch in self:
             yield from batch
 
-    def __contains__(self, extension_type: Type[Extension]) -> bool:
+    def __contains__(self, extension_type: Union[Type[Extension], str]) -> bool:
         raise NotImplementedError
 
 
@@ -106,7 +109,9 @@ class ListExtensions(Extensions):
         self._extensions = extensions
 
     @scope.register_self
-    def __getitem__(self, extension_type: Type[Extension]) -> Extension:
+    def __getitem__(self, extension_type: Union[Type[Extension], str]) -> Extension:
+        if isinstance(extension_type, str):
+            extension_type = import_any(extension_type)
         for extension in self.flatten():
             if type(extension) == extension_type:
                 return extension
@@ -119,7 +124,12 @@ class ListExtensions(Extensions):
             yield (extension for extension in batch)
 
     @scope.register_self
-    def __contains__(self, extension_type: Type[Extension]) -> bool:
+    def __contains__(self, extension_type: Union[Type[Extension], str]) -> bool:
+        if isinstance(extension_type, str):
+            try:
+                extension_type = import_any(extension_type)
+            except ImportError:
+                return False
         for extension in self.flatten():
             if type(extension) == extension_type:
                 return True
