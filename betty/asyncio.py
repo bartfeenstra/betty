@@ -1,5 +1,10 @@
 import asyncio
+import gc
 import inspect
+import sys
+import types
+from asyncio import events, coroutines
+from asyncio.runners import _cancel_all_tasks
 from contextlib import suppress
 from functools import wraps
 from threading import Thread
@@ -24,12 +29,7 @@ def sync(f):
             synced.start()
             return synced.join()
 
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        try:
-            return loop.run_until_complete(f)
-        finally:
-            loop.close()
+        return _run(f)
 
     if inspect.iscoroutinefunction(f):
         return _sync_function(f)
@@ -41,6 +41,39 @@ def sync(f):
         return f
 
     raise ValueError('Can only synchronize coroutine callables (`async def`) or coroutines (values returned by `async def`), or pass through synchronous callables, but "%s" was given.' % f)
+
+
+def _run(main, *, debug=None):
+    """
+    A verbatim copy of asyncio.run(), with some improvements.
+    """
+    if events._get_running_loop() is not None:
+        raise RuntimeError("asyncio.run() cannot be called from a running event loop")
+
+    if not coroutines.iscoroutine(main):
+        raise ValueError("a coroutine was expected, got {!r}".format(main))
+
+    loop = events.new_event_loop()
+    try:
+        events.set_event_loop(loop)
+        if debug is not None:
+            loop.set_debug(debug)
+        return loop.run_until_complete(main)
+    finally:
+        try:
+            _cancel_all_tasks(loop)
+            loop.run_until_complete(loop.shutdown_asyncgens())
+            # Improvement: Python 3.9 added the ability to shut down the default executor.
+            if sys.version_info.minor >= 9:
+                loop.run_until_complete(loop.shutdown_default_executor())
+            # Improvement: Work around BPO-39232 (https://bugs.python.org/issue39232) based on
+            # https://github.com/Cog-Creators/Red-DiscordBot/pull/3566/files.
+            if sys.platform == 'win32':
+                gc.collect()
+                loop._check_closed = types.MethodType(lambda: None, loop)
+        finally:
+            events.set_event_loop(None)
+            loop.close()
 
 
 class _SyncedAwaitable(Thread):

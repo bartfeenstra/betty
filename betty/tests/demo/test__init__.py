@@ -10,7 +10,7 @@ from betty.tests import TestCase
 class DemoTest(TestCase):
     @sync
     async def test_load(self):
-        async with App() as app:
+        with App() as app:
             app.project.configuration.extensions.add(ProjectExtensionConfiguration(Demo))
             await load(app)
         self.assertNotEqual(0, len(app.project.ancestry.entities[Person]))

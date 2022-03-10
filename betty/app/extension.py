@@ -18,7 +18,6 @@ except ImportError:
     from importlib_metadata import entry_points
 
 from betty.dispatch import Dispatcher, TargetedDispatcher
-from betty.environment import Environment
 from betty.importlib import import_any
 from reactives import reactive, scope
 
@@ -45,7 +44,7 @@ class Dependencies(AllRequirements):
         return f'{self._extension_type.name()} depends on {dependency_names}.'
 
 
-class Extension(Environment, Requirer):
+class Extension(Requirer):
     """
     Integrate optional functionality with the Betty app.
     """

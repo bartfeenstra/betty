@@ -117,7 +117,7 @@
                         {% do ns.available_locales.append((available_locale_configuration.locale, available_locale_data.get_display_name())) %}
                     {% endfor %}
                     {% for available_locale, available_locale_name in ns.available_locales | sort(attribute='1') %}
-                        {% enter app.activate_locale(available_locale) %}
+                        {% enter app.acquire_locale(available_locale) %}
                             <li><a href="{{ page_resource | url }}" hreflang="{{ available_locale }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a></li>
                         {% exit %}
                     {% endfor %}

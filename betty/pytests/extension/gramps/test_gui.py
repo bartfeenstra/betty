@@ -5,16 +5,14 @@ from PyQt6.QtWidgets import QFileDialog
 from reactives import ReactiveList
 
 from betty.app import App
-from betty.asyncio import sync
 from betty.gramps import Gramps, GrampsConfiguration
 from betty.gramps.config import FamilyTreeConfiguration
 from betty.gramps.gui import _AddFamilyTreeWindow
 from betty.project import ProjectExtensionConfiguration
 
 
-@sync
 async def test_add_family_tree_set_path(assert_not_window, assert_window, tmpdir, qtbot) -> None:
-    async with App() as app:
+    with App() as app:
         app.project.configuration.extensions.add(ProjectExtensionConfiguration(Gramps))
         sut = app.extensions[Gramps]
         widget = sut.gui_build()
@@ -35,9 +33,8 @@ async def test_add_family_tree_set_path(assert_not_window, assert_window, tmpdir
         assert family_tree.file_path == Path(file_path)
 
 
-@sync
 async def test_add_family_tree_find_path(assert_window, mocker, tmpdir, qtbot) -> None:
-    async with App() as app:
+    with App() as app:
         app.project.configuration.extensions.add(ProjectExtensionConfiguration(Gramps))
         sut = app.extensions[Gramps]
         widget = sut.gui_build()
@@ -57,9 +54,8 @@ async def test_add_family_tree_find_path(assert_window, mocker, tmpdir, qtbot) -
         assert family_tree.file_path == Path(file_path)
 
 
-@sync
 async def test_remove_family_tree(tmpdir, qtbot) -> None:
-    async with App() as app:
+    with App() as app:
         app.project.configuration.extensions.add(ProjectExtensionConfiguration(
             Gramps,
             extension_configuration=GrampsConfiguration(

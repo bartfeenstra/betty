@@ -349,7 +349,7 @@ class AnonymizerTest(TestCase):
         person = Person('P0')
         person.private = True
         PersonName(person, 'Jane', 'Dough')
-        async with App() as app:
+        with App() as app:
             app.project.configuration.extensions.add(ProjectExtensionConfiguration(Anonymizer))
             app.project.ancestry.entities.append(person)
             await load(app)

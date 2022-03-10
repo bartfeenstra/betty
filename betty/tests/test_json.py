@@ -5,7 +5,6 @@ from geopy import Point
 
 from betty import json
 from betty.app import App
-from betty.asyncio import sync
 from betty.json import JSONEncoder
 from betty.locale import Date, DateRange
 from betty.media_type import MediaType
@@ -17,19 +16,18 @@ from betty.tests import TestCase
 
 
 class JSONEncoderTest(TestCase):
-    async def assert_encodes(self, expected, data, schema_definition: str):
+    def assert_encodes(self, expected, data, schema_definition: str):
         app = App()
         app.project.configuration.locales.replace([
             LocaleConfiguration('en-US', 'en'),
             LocaleConfiguration('nl-NL', 'nl'),
         ])
-        async with app:
+        with app:
             encoded_data = stdjson.loads(stdjson.dumps(data, cls=JSONEncoder.get_factory(app)))
         json.validate(encoded_data, schema_definition, app)
         self.assertEqual(expected, encoded_data)
 
-    @sync
-    async def test_coordinates_should_encode(self):
+    def test_coordinates_should_encode(self):
         latitude = 12.345
         longitude = -54.321
         coordinates = Point(latitude, longitude)
@@ -42,10 +40,9 @@ class JSONEncoderTest(TestCase):
             'latitude': latitude,
             'longitude': longitude,
         }
-        await self.assert_encodes(expected, coordinates, 'coordinates')
+        self.assert_encodes(expected, coordinates, 'coordinates')
 
-    @sync
-    async def test_place_should_encode_minimal(self):
+    def test_place_should_encode_minimal(self):
         place_id = 'the_place'
         name = 'The Place'
         place = Place(place_id, [PlaceName(name)])
@@ -84,10 +81,9 @@ class JSONEncoderTest(TestCase):
                 },
             ],
         }
-        await self.assert_encodes(expected, place, 'place')
+        self.assert_encodes(expected, place, 'place')
 
-    @sync
-    async def test_place_should_encode_full(self):
+    def test_place_should_encode_full(self):
         place_id = 'the_place'
         name = 'The Place'
         locale = 'nl-NL'
@@ -158,10 +154,9 @@ class JSONEncoderTest(TestCase):
                 '/en/place/the_enclosing_place/index.json',
             ],
         }
-        await self.assert_encodes(expected, place, 'place')
+        self.assert_encodes(expected, place, 'place')
 
-    @sync
-    async def test_person_should_encode_minimal(self):
+    def test_person_should_encode_minimal(self):
         person_id = 'the_person'
         person = Person(person_id)
         expected = {
@@ -198,10 +193,9 @@ class JSONEncoderTest(TestCase):
                 },
             ],
         }
-        await self.assert_encodes(expected, person, 'person')
+        self.assert_encodes(expected, person, 'person')
 
-    @sync
-    async def test_person_should_encode_full(self):
+    def test_person_should_encode_full(self):
         parent_id = 'the_parent'
         parent = Person(parent_id)
 
@@ -290,10 +284,9 @@ class JSONEncoderTest(TestCase):
                 },
             ],
         }
-        await self.assert_encodes(expected, person, 'person')
+        self.assert_encodes(expected, person, 'person')
 
-    @sync
-    async def test_note_should_encode_minimal(self):
+    def test_note_should_encode_minimal(self):
         note = Note('the_note', 'The Note')
         expected = {
             '$schema': '/schema.json#/definitions/note',
@@ -318,10 +311,9 @@ class JSONEncoderTest(TestCase):
                 },
             ],
         }
-        await self.assert_encodes(expected, note, 'note')
+        self.assert_encodes(expected, note, 'note')
 
-    @sync
-    async def test_file_should_encode_minimal(self):
+    def test_file_should_encode_minimal(self):
         with NamedTemporaryFile() as f:
             file = File('the_file', f.name)
             expected = {
@@ -347,10 +339,9 @@ class JSONEncoderTest(TestCase):
                     },
                 ],
             }
-            await self.assert_encodes(expected, file, 'file')
+            self.assert_encodes(expected, file, 'file')
 
-    @sync
-    async def test_file_should_encode_full(self):
+    def test_file_should_encode_full(self):
         with NamedTemporaryFile() as f:
             note = Note('the_note', 'The Note')
             file = File('the_file', f.name)
@@ -385,10 +376,9 @@ class JSONEncoderTest(TestCase):
                     },
                 ],
             }
-            await self.assert_encodes(expected, file, 'file')
+            self.assert_encodes(expected, file, 'file')
 
-    @sync
-    async def test_event_should_encode_minimal(self):
+    def test_event_should_encode_minimal(self):
         event = Event('the_event', Birth())
         expected = {
             '$schema': '/schema.json#/definitions/event',
@@ -415,10 +405,9 @@ class JSONEncoderTest(TestCase):
                 },
             ],
         }
-        await self.assert_encodes(expected, event, 'event')
+        self.assert_encodes(expected, event, 'event')
 
-    @sync
-    async def test_event_should_encode_full(self):
+    def test_event_should_encode_full(self):
         event = Event('the_event', Birth())
         event.date = DateRange(Date(2000, 1, 1), Date(2019, 12, 31))
         event.place = Place('the_place', [PlaceName('The Place')])
@@ -476,10 +465,9 @@ class JSONEncoderTest(TestCase):
                 },
             ],
         }
-        await self.assert_encodes(expected, event, 'event')
+        self.assert_encodes(expected, event, 'event')
 
-    @sync
-    async def test_source_should_encode_minimal(self):
+    def test_source_should_encode_minimal(self):
         source = Source('the_source', 'The Source')
         expected = {
             '$schema': '/schema.json#/definitions/source',
@@ -509,10 +497,9 @@ class JSONEncoderTest(TestCase):
                 },
             ],
         }
-        await self.assert_encodes(expected, source, 'source')
+        self.assert_encodes(expected, source, 'source')
 
-    @sync
-    async def test_source_should_encode_full(self):
+    def test_source_should_encode_full(self):
         source = Source('the_source', 'The Source')
         source.author = 'The Author'
         source.publisher = 'The Publisher'
@@ -569,10 +556,9 @@ class JSONEncoderTest(TestCase):
                 },
             ],
         }
-        await self.assert_encodes(expected, source, 'source')
+        self.assert_encodes(expected, source, 'source')
 
-    @sync
-    async def test_citation_should_encode_minimal(self):
+    def test_citation_should_encode_minimal(self):
         citation = Citation('the_citation', Source(None, 'The Source'))
         expected = {
             '$schema': '/schema.json#/definitions/citation',
@@ -597,10 +583,9 @@ class JSONEncoderTest(TestCase):
                 },
             ],
         }
-        await self.assert_encodes(expected, citation, 'citation')
+        self.assert_encodes(expected, citation, 'citation')
 
-    @sync
-    async def test_citation_should_encode_full(self):
+    def test_citation_should_encode_full(self):
         citation = Citation('the_citation', Source('the_source', 'The Source'))
         citation.description = 'The Source Description'
         citation.facts.append(Event('the_event', Birth()))
@@ -630,18 +615,16 @@ class JSONEncoderTest(TestCase):
                 },
             ],
         }
-        await self.assert_encodes(expected, citation, 'citation')
+        self.assert_encodes(expected, citation, 'citation')
 
-    @sync
-    async def test_link_should_encode_minimal(self) -> None:
+    def test_link_should_encode_minimal(self) -> None:
         link = Link('https://example.com')
         expected = {
             'url': 'https://example.com',
         }
-        await self.assert_encodes(expected, link, 'link')
+        self.assert_encodes(expected, link, 'link')
 
-    @sync
-    async def test_link_should_encode_full(self) -> None:
+    def test_link_should_encode_full(self) -> None:
         link = Link('https://example.com')
         link.label = 'The Link'
         link.relationship = 'external'
@@ -654,4 +637,4 @@ class JSONEncoderTest(TestCase):
             'locale': 'nl-NL',
             'mediaType': 'text/html',
         }
-        await self.assert_encodes(expected, link, 'link')
+        self.assert_encodes(expected, link, 'link')

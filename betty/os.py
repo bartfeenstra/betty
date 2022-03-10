@@ -25,6 +25,7 @@ class ChDir:
 
     def change(self) -> 'ChDir':
         self._owd = os.getcwd()
+        os.makedirs(self._directory_path, exist_ok=True)
         os.chdir(self._directory_path)
         return self
 

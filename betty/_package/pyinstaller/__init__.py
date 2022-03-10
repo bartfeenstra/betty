@@ -35,7 +35,7 @@ def _filter_submodule(submodule: str) -> bool:
 
 async def _build_assets() -> None:
     npm_builder_extension_types = {HttpApiDoc, Maps, Trees}
-    async with App() as app:
+    with App() as app:
         app.project.configuration.extensions.add(ProjectExtensionConfiguration(_Npm))
         for extension_type in npm_builder_extension_types:
             app.project.configuration.extensions.add(ProjectExtensionConfiguration(extension_type))

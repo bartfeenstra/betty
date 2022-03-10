@@ -12,10 +12,9 @@ from contextlib import suppress
 from datetime import datetime
 from os import path
 from pathlib import Path
-from typing import Sequence, Type, Optional, Union, Callable, Any, List
+from typing import Sequence, Type, Optional, Union, Callable, Any, List, TYPE_CHECKING
 from urllib.parse import urlparse
 
-from PyQt6 import QtGui
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QCoreApplication, QMetaObject, Q_ARG
 from PyQt6.QtGui import QIcon, QFont, QAction, QCloseEvent
 from PyQt6.QtWidgets import QApplication, QFileDialog, QMainWindow, QVBoxLayout, QLabel, \
@@ -35,7 +34,13 @@ from betty.error import UserFacingError
 from betty.importlib import import_any
 from betty.project import Configuration, LocaleConfiguration, LocalesConfiguration, ProjectExtensionConfiguration
 
-_CONFIGURATION_FILE_FILTER = 'Betty configuration (%s)' % ' '.join(map(lambda format: '*%s' % format, APP_CONFIGURATION_FORMATS))
+
+if TYPE_CHECKING:
+    from betty.builtins import _
+
+
+def _get_configuration_file_filter() -> str:
+    return _('Betty configuration ({extensions})').format(extensions=' '.join(map(lambda format: f'*{format}', APP_CONFIGURATION_FORMATS)))
 
 
 class GuiBuilder:
@@ -123,7 +128,8 @@ class Error(QMessageBox):
     ):
         super().__init__(*args, **kwargs)
         self._close_parent = close_parent
-        self.setWindowTitle('Error - Betty')
+        with App():
+            self.setWindowTitle(f'{_("Error")} - Betty')
         self.setText(message)
         Error._errors.append(self)
 
@@ -150,7 +156,8 @@ class ExceptionError(Error):
 class UnexpectedExceptionError(ExceptionError):
     def __init__(self, exception: Exception, *args, **kwargs):
         super().__init__(exception, *args, **kwargs)
-        self.setText('An unexpected error occurred and Betty could not complete the task. Please <a href="https://github.com/bartfeenstra/betty/issues">report this problem</a> and include the following details, so the team behind Betty can address it.')
+        with App():
+            self.setText(_('An unexpected error occurred and Betty could not complete the task. Please <a href="{report_url}">report this problem</a> and include the following details, so the team behind Betty can address it.').format(report_url='https://github.com/bartfeenstra/betty/issues'))
         self.setTextFormat(Qt.TextFormat.RichText)
         self.setDetailedText(''.join(traceback.format_exception(type(exception), exception, exception.__traceback__)))
 
@@ -176,7 +183,6 @@ class Caption(Text):
 class BettyWindow(QMainWindow, ReactiveInstance):
     width = NotImplemented
     height = NotImplemented
-    title = NotImplemented
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -188,52 +194,60 @@ class BettyWindow(QMainWindow, ReactiveInstance):
         geometry.moveCenter(QApplication.primaryScreen().availableGeometry().center())
         self.move(geometry.topLeft())
 
+    @property
+    def title(self) -> str:
+        raise NotImplementedError
+
 
 class BettyMainWindow(BettyWindow):
     width = 800
     height = 600
-    title = 'Betty'
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, app: App, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._app = app
         self.setWindowIcon(QIcon(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'betty-512x512.png')))
         self._initialize_menu()
+
+    @property
+    def title(self) -> str:
+        return 'Betty'
 
     def _initialize_menu(self) -> None:
         menu_bar = self.menuBar()
 
         self.betty_menu = menu_bar.addMenu('&Betty')
 
-        new_project_action = QAction('New project...', self)
+        new_project_action = QAction(_('New project...'), self)
         new_project_action.setShortcut('Ctrl+N')
         new_project_action.triggered.connect(lambda _: self.new_project())
         self.betty_menu.addAction(new_project_action)
 
-        open_project_action = QAction('Open project...', self)
+        open_project_action = QAction(_('Open project...'), self)
         open_project_action.setShortcut('Ctrl+O')
         open_project_action.triggered.connect(lambda _: self.open_project())
         self.betty_menu.addAction(open_project_action)
 
-        self.betty_menu._demo_action = QAction('View demo site...', self)
+        self.betty_menu._demo_action = QAction(_('View demo site...'), self)
         self.betty_menu._demo_action.triggered.connect(lambda _: self._demo())
         self.betty_menu.addAction(self.betty_menu._demo_action)
 
-        self.betty_menu.clear_caches_action = QAction('Clear all caches', self)
+        self.betty_menu.clear_caches_action = QAction(_('Clear all caches'), self)
         self.betty_menu.clear_caches_action.triggered.connect(lambda _: self.clear_caches())
         self.betty_menu.addAction(self.betty_menu.clear_caches_action)
 
-        exit_action = QAction('Exit', self)
+        exit_action = QAction(_('Exit'), self)
         exit_action.setShortcut('Ctrl+Q')
         exit_action.triggered.connect(QCoreApplication.quit)
         self.betty_menu.addAction(exit_action)
 
-        self.help_menu = menu_bar.addMenu('&Help')
+        self.help_menu = menu_bar.addMenu('&' + _('Help'))
 
-        view_issues_action = QAction('Report bugs and request new features', self)
+        view_issues_action = QAction(_('Report bugs and request new features'), self)
         view_issues_action.triggered.connect(lambda _: self.view_issues())
         self.help_menu.addAction(view_issues_action)
 
-        self.help_menu.about_action = QAction('About Betty', self)
+        self.help_menu.about_action = QAction(_('About Betty'), self)
         self.help_menu.about_action.triggered.connect(lambda _: self._about_betty())
         self.help_menu.addAction(self.help_menu.about_action)
 
@@ -248,29 +262,38 @@ class BettyMainWindow(BettyWindow):
 
     @catch_exceptions
     def open_project(self) -> None:
-        configuration_file_path, _ = QFileDialog.getOpenFileName(self, 'Open your project from...', '',
-                                                                 _CONFIGURATION_FILE_FILTER)
+        configuration_file_path, __ = QFileDialog.getOpenFileName(
+            self,
+            _('Open your project from...'),
+            '',
+            _get_configuration_file_filter(),
+        )
         if not configuration_file_path:
             return
-        project_window = ProjectWindow(configuration_file_path)
+        project_window = ProjectWindow(self._app, configuration_file_path)
         project_window.show()
         self.close()
 
     @catch_exceptions
     def new_project(self) -> None:
-        configuration_file_path, _ = QFileDialog.getSaveFileName(self, 'Save your new project to...', '', _CONFIGURATION_FILE_FILTER)
+        configuration_file_path, __ = QFileDialog.getSaveFileName(
+            self,
+            _('Save your new project to...'),
+            '',
+            _get_configuration_file_filter(),
+        )
         if not configuration_file_path:
             return
-        configuration = Configuration(path.join(path.dirname(configuration_file_path), 'output'), 'https://example.com')
+        configuration = Configuration()
         with open(configuration_file_path, 'w') as f:
             to_file(f, configuration)
-        project_window = ProjectWindow(configuration_file_path)
+        project_window = ProjectWindow(self._app, configuration_file_path)
         project_window.show()
         self.close()
 
     @catch_exceptions
     def _demo(self) -> None:
-        serve_window = _ServeDemoWindow.get_instance(self)
+        serve_window = _ServeDemoWindow.get_instance(self._app, self)
         serve_window.show()
 
     @catch_exceptions
@@ -302,8 +325,8 @@ class _WelcomeWindow(BettyMainWindow):
     # text will be clipped.
     height = 450
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, app: App, *args, **kwargs):
+        super().__init__(app, *args, **kwargs)
 
         central_layout = QVBoxLayout()
         central_layout.addStretch()
@@ -311,33 +334,33 @@ class _WelcomeWindow(BettyMainWindow):
         central_widget.setLayout(central_layout)
         self.setCentralWidget(central_widget)
 
-        welcome = _WelcomeTitle('Welcome to Betty')
+        welcome = _WelcomeTitle(_('Welcome to Betty'))
         welcome.setAlignment(Qt.AlignmentFlag.AlignCenter)
         central_layout.addWidget(welcome)
 
-        welcome_caption = _WelcomeText('Betty is a static site generator for your <a href="https://gramps-project.org/">Gramps</a> and <a href="https://en.wikipedia.org/wiki/GEDCOM">GEDCOM</a> family trees.')
+        welcome_caption = _WelcomeText(_('Betty is a static site generator for your <a href="{gramps_url}">Gramps</a> and <a href="{gedcom_url}">GEDCOM</a> family trees.').format(gramps_url='https://gramps-project.org/', gedcom_url='https://en.wikipedia.org/wiki/GEDCOM'))
         central_layout.addWidget(welcome_caption)
 
-        project_instruction = _WelcomeHeading('Work on a new or existing site of your own')
+        project_instruction = _WelcomeHeading(_('Work on a new or existing site of your own'))
         project_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
         central_layout.addWidget(project_instruction)
 
         project_layout = QHBoxLayout()
         central_layout.addLayout(project_layout)
 
-        self.open_project_button = _WelcomeAction('Open an existing project', self)
+        self.open_project_button = _WelcomeAction(_('Open an existing project'), self)
         self.open_project_button.released.connect(self.open_project)
         project_layout.addWidget(self.open_project_button)
 
-        self.new_project_button = _WelcomeAction('Create a new project', self)
+        self.new_project_button = _WelcomeAction(_('Create a new project'), self)
         self.new_project_button.released.connect(self.new_project)
         project_layout.addWidget(self.new_project_button)
 
-        demo_instruction = _WelcomeHeading('View a demonstration of what a Betty site looks like')
+        demo_instruction = _WelcomeHeading(_('View a demonstration of what a Betty site looks like'))
         demo_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
         central_layout.addWidget(demo_instruction)
 
-        self.demo_button = _WelcomeAction('View a demo site', self)
+        self.demo_button = _WelcomeAction(_('View a demo site'), self)
         self.demo_button.released.connect(self._demo)
         central_layout.addWidget(self.demo_button)
 
@@ -376,7 +399,7 @@ class _ProjectGeneralConfigurationPane(QWidget):
         self._configuration_title = QLineEdit()
         self._configuration_title.setText(self._app.project.configuration.title)
         self._configuration_title.textChanged.connect(_update_configuration_title)
-        self._form.addRow('Title', self._configuration_title)
+        self._form.addRow(_('Title'), self._configuration_title)
 
     def _build_author(self) -> None:
         def _update_configuration_author(author: str) -> None:
@@ -384,7 +407,7 @@ class _ProjectGeneralConfigurationPane(QWidget):
         self._configuration_author = QLineEdit()
         self._configuration_author.setText(self._app.project.configuration.author)
         self._configuration_author.textChanged.connect(_update_configuration_author)
-        self._form.addRow('Author', self._configuration_author)
+        self._form.addRow(_('Author'), self._configuration_author)
 
         self._configuration_url = QLineEdit()
 
@@ -406,12 +429,12 @@ class _ProjectGeneralConfigurationPane(QWidget):
             mark_valid(self._configuration_url)
         self._configuration_url.setText(self._app.project.configuration.base_url + self._app.project.configuration.root_path)
         self._configuration_url.textChanged.connect(_update_configuration_url)
-        self._form.addRow('URL', self._configuration_url)
+        self._form.addRow(_('URL'), self._configuration_url)
 
     def _build_lifetime_threshold(self) -> None:
         def _update_configuration_lifetime_threshold(lifetime_threshold: str) -> None:
             if re.fullmatch(r'^\d+$', lifetime_threshold) is None:
-                mark_invalid(self._configuration_url, 'The lifetime threshold must consist of digits only.')
+                mark_invalid(self._configuration_url, _('The lifetime threshold must consist of digits only.'))
                 return
             lifetime_threshold = int(lifetime_threshold)
             try:
@@ -423,8 +446,8 @@ class _ProjectGeneralConfigurationPane(QWidget):
         self._configuration_lifetime_threshold.setFixedWidth(32)
         self._configuration_lifetime_threshold.setText(str(self._app.project.configuration.lifetime_threshold))
         self._configuration_lifetime_threshold.textChanged.connect(_update_configuration_lifetime_threshold)
-        self._form.addRow('Lifetime threshold', self._configuration_lifetime_threshold)
-        self._form.addRow(Caption('The age at which people are presumed dead.'))
+        self._form.addRow(_('Lifetime threshold'), self._configuration_lifetime_threshold)
+        self._form.addRow(Caption(_('The age at which people are presumed dead.')))
 
     def _build_output_directory_path(self) -> None:
         def _update_configuration_output_directory_path(output_directory_path: str) -> None:
@@ -436,13 +459,13 @@ class _ProjectGeneralConfigurationPane(QWidget):
 
         @catch_exceptions
         def find_output_directory_path() -> None:
-            found_output_directory_path = QFileDialog.getExistingDirectory(self, 'Generate your site to...', directory=output_directory_path.text())
+            found_output_directory_path = QFileDialog.getExistingDirectory(self, _('Generate your site to...'), directory=output_directory_path.text())
             if '' != found_output_directory_path:
                 output_directory_path.setText(found_output_directory_path)
         output_directory_path_find = QPushButton('...', self)
         output_directory_path_find.released.connect(find_output_directory_path)
         output_directory_path_layout.addWidget(output_directory_path_find)
-        self._form.addRow('Output directory', output_directory_path_layout)
+        self._form.addRow(_('Output directory'), output_directory_path_layout)
 
     def _build_assets_directory_path(self) -> None:
         def _update_configuration_assets_directory_path(assets_directory_path: str) -> None:
@@ -454,45 +477,45 @@ class _ProjectGeneralConfigurationPane(QWidget):
 
         @catch_exceptions
         def find_assets_directory_path() -> None:
-            found_assets_directory_path = QFileDialog.getExistingDirectory(self, 'Load assets from...', directory=assets_directory_path.text())
+            found_assets_directory_path = QFileDialog.getExistingDirectory(self, _('Load assets from...'), directory=assets_directory_path.text())
             if '' != found_assets_directory_path:
                 assets_directory_path.setText(found_assets_directory_path)
         assets_directory_path_find = QPushButton('...', self)
         assets_directory_path_find.released.connect(find_assets_directory_path)
         assets_directory_path_layout.addWidget(assets_directory_path_find)
-        self._form.addRow('Assets directory', assets_directory_path_layout)
-        self._form.addRow(Caption('Where to search for asset files, such as templates and translations.'))
+        self._form.addRow(_('Assets directory'), assets_directory_path_layout)
+        self._form.addRow(Caption(_('Where to search for asset files, such as templates and translations.')))
 
     def _build_mode(self) -> None:
         def _update_configuration_debug(mode: bool) -> None:
             self._app.project.configuration.debug = mode
-        self._development_debug = QCheckBox('Debugging mode')
+        self._development_debug = QCheckBox(_('Debugging mode'))
         self._development_debug.setChecked(self._app.project.configuration.debug)
         self._development_debug.toggled.connect(_update_configuration_debug)
         self._form.addRow(self._development_debug)
-        self._form.addRow(Caption('Output more detailed logs and disable optimizations that make debugging harder.'))
+        self._form.addRow(Caption(_('Output more detailed logs and disable optimizations that make debugging harder.')))
 
     def _build_clean_urls(self) -> None:
         def _update_configuration_clean_urls(clean_urls: bool) -> None:
             self._app.project.configuration.clean_urls = clean_urls
             if not clean_urls:
                 self._content_negotiation.setChecked(False)
-        self._clean_urls = QCheckBox('Clean URLs')
+        self._clean_urls = QCheckBox(_('Clean URLs'))
         self._clean_urls.setChecked(self._app.project.configuration.clean_urls)
         self._clean_urls.toggled.connect(_update_configuration_clean_urls)
         self._form.addRow(self._clean_urls)
-        self._form.addRow(Caption('URLs look like <code>/path</code> instead of <code>/path/index.html</code>. This requires a web server that supports it.'))
+        self._form.addRow(Caption(_('URLs look like <code>/path</code> instead of <code>/path/index.html</code>. This requires a web server that supports it.')))
 
     def _build_content_negotiation(self) -> None:
         def _update_configuration_content_negotiation(content_negotiation: bool) -> None:
             self._app.project.configuration.content_negotiation = content_negotiation
             if content_negotiation:
                 self._clean_urls.setChecked(True)
-        self._content_negotiation = QCheckBox('Content negotiation')
+        self._content_negotiation = QCheckBox(_('Content negotiation'))
         self._content_negotiation.setChecked(self._app.project.configuration.content_negotiation)
         self._content_negotiation.toggled.connect(_update_configuration_content_negotiation)
         self._form.addRow(self._content_negotiation)
-        self._form.addRow(Caption("Serve alternative versions of resources, such as pages, depending on visitors' preferences. This requires a web server that supports it."))
+        self._form.addRow(Caption(_('Decide the correct page variety to serve users depending on their own preferences. This requires a web server that supports it.')))
 
 
 class _ProjectThemeConfigurationPane(QWidget):
@@ -510,8 +533,8 @@ class _ProjectThemeConfigurationPane(QWidget):
         self._background_image_id = QLineEdit()
         self._background_image_id.setText(self._app.project.configuration.theme.background_image_id)
         self._background_image_id.textChanged.connect(_update_configuration_background_image_id)
-        self._form.addRow('Background image ID', self._background_image_id)
-        self._form.addRow(Caption('The ID of the file entity whose (image) file to use for page backgrounds if a page does not provide any image media itself.'))
+        self._form.addRow(_('Background image ID'), self._background_image_id)
+        self._form.addRow(Caption(_('The ID of the file entity whose (image) file to use for page backgrounds if a page does not provide any image media itself.')))
 
 
 @reactive
@@ -556,8 +579,8 @@ class _ProjectLocalizationConfigurationPane(QWidget, ReactiveInstance):
             self._build_locale_configuration(locale_configuration, i)
 
     def _build_locale_configuration(self, locale_configuration: LocaleConfiguration, i: int) -> None:
-        self._locales_configuration_widget._default_buttons[locale_configuration.locale] = QRadioButton(Locale.parse(locale_configuration.locale, '-').get_display_name())
-        self._locales_configuration_widget._default_buttons[locale_configuration.locale].setChecked(locale_configuration == self._app.project.configuration.locales.default_locale)
+        self._locales_configuration_widget._default_buttons[locale_configuration.locale] = QRadioButton(Locale.parse(locale_configuration.locale, '-').get_display_name(locale=self._app.locale.replace('-', '_')))
+        self._locales_configuration_widget._default_buttons[locale_configuration.locale].setChecked(locale_configuration == self._app.project.configuration.locales.default)
 
         def _update_locales_configuration_default():
             self._app.project.configuration.locales.default_locale = locale_configuration
@@ -569,7 +592,7 @@ class _ProjectLocalizationConfigurationPane(QWidget, ReactiveInstance):
         if len(self._app.project.configuration.locales) > 1 and locale_configuration != self._app.project.configuration.locales.default_locale:
             def _remove_locale() -> None:
                 del self._app.project.configuration.locales[locale_configuration.locale]
-            self._locales_configuration_widget._remove_buttons[locale_configuration.locale] = QPushButton('Remove')
+            self._locales_configuration_widget._remove_buttons[locale_configuration.locale] = QPushButton(_('Remove'))
             self._locales_configuration_widget._remove_buttons[locale_configuration.locale].released.connect(_remove_locale)
             self._locales_configuration_layout.addWidget(self._locales_configuration_widget._remove_buttons[locale_configuration.locale], i, 1)
         else:
@@ -583,7 +606,6 @@ class _ProjectLocalizationConfigurationPane(QWidget, ReactiveInstance):
 class _AddLocaleWindow(BettyWindow):
     width = 500
     height = 250
-    title = 'Add a locale'
 
     def __init__(self, locales_configuration: LocalesConfiguration, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -605,19 +627,23 @@ class _AddLocaleWindow(BettyWindow):
         self._layout.addRow(self._locale)
 
         self._alias = QLineEdit()
-        self._layout.addRow('Alias', self._alias)
-        self._layout.addRow(Caption('An optional alias is used instead of the locale code to identify this locale, such as in URLs. If US English is the only English language variant on your site, you may want to alias its language code from <code>en-US</code> to <code>en</code>, for instance.'))
+        self._layout.addRow(_('Alias'), self._alias)
+        self._layout.addRow(Caption(_('An optional alias is used instead of the locale code to identify this locale, such as in URLs. If US English is the only English language variant on your site, you may want to alias its language code from <code>en-US</code> to <code>en</code>, for instance.')))
 
         buttons_layout = QHBoxLayout()
         self._layout.addRow(buttons_layout)
 
-        self._save_and_close = QPushButton('Save and close')
+        self._save_and_close = QPushButton(_('Save and close'))
         self._save_and_close.released.connect(self._save_and_close_locale)
         buttons_layout.addWidget(self._save_and_close)
 
-        self._cancel = QPushButton('Cancel')
+        self._cancel = QPushButton(_('Cancel'))
         self._cancel.released.connect(self.close)
         buttons_layout.addWidget(self._cancel)
+
+    @property
+    def title(self) -> str:
+        return _('Add a locale')
 
     @catch_exceptions
     def _save_and_close_locale(self) -> None:
@@ -669,7 +695,7 @@ class _ProjectExtensionConfigurationPane(QWidget):
                     extension_gui_widget.setParent(None)
                     del extension_gui_widget
 
-        extension_enabled = QCheckBox('Enable %s' % extension_type.label())
+        extension_enabled = QCheckBox(_('Enable {extension}').format(extension=extension_type.label()))
         extension_enabled.setChecked(extension_type in self._app.extensions)
         extension_enabled.setDisabled(extension_type in itertools.chain([enabled_extension_type.depends_on() for enabled_extension_type in self._app.extensions.flatten()]))
         extension_enabled.toggled.connect(_update_enabled)
@@ -682,28 +708,13 @@ class _ProjectExtensionConfigurationPane(QWidget):
 
 
 class ProjectWindow(BettyMainWindow):
-    def __init__(self, configuration_file_path: str, *args, **kwargs):
-        self._app = App()
-        self._configuration_file_path = configuration_file_path
-
-        super().__init__(*args, **kwargs)
-
-    def _save_configuration(self) -> None:
-        with open(self._configuration_file_path, 'w') as f:
-            to_file(f, self._app.project.configuration)
-
-    @reactive(on_trigger_call=True)
-    def _set_window_title(self) -> None:
-        self.setWindowTitle('%s - Betty' % self._app.project.configuration.title)
-
-    @property
-    def extension_types(self) -> Sequence[Type[Extension]]:
-        return [import_any(extension_name) for extension_name in self._EXTENSION_NAMES]
-
     @catch_exceptions
-    @sync
-    async def showEvent(self, a0: QtGui.QShowEvent) -> None:
-        await self._app.activate()
+    def __init__(self, app: App, configuration_file_path: str, *args, **kwargs):
+        super().__init__(app, *args, **kwargs)
+        with open(configuration_file_path) as f:
+            from_file(f, self._app.project.configuration)
+        self._app.project.configuration.react.react_weakref(self._save_configuration)
+        self._configuration_file_path = configuration_file_path
 
         with open(self._configuration_file_path) as f:
             from_file(f, self._app.project.configuration)
@@ -724,15 +735,15 @@ class ProjectWindow(BettyMainWindow):
 
         self._general_configuration_pane = _ProjectGeneralConfigurationPane(self._app)
         panes_layout.addWidget(self._general_configuration_pane)
-        pane_selectors_layout.addWidget(_PaneButton(pane_selectors_layout, panes_layout, self._general_configuration_pane, 'General', self))
+        pane_selectors_layout.addWidget(_PaneButton(pane_selectors_layout, panes_layout, self._general_configuration_pane, _('General'), self))
 
         self._theme_configuration_pane = _ProjectThemeConfigurationPane(self._app)
         panes_layout.addWidget(self._theme_configuration_pane)
-        pane_selectors_layout.addWidget(_PaneButton(pane_selectors_layout, panes_layout, self._theme_configuration_pane, 'Theme', self))
+        pane_selectors_layout.addWidget(_PaneButton(pane_selectors_layout, panes_layout, self._theme_configuration_pane, _('Theme'), self))
 
         self._localization_configuration_pane = _ProjectLocalizationConfigurationPane(self._app)
         panes_layout.addWidget(self._localization_configuration_pane)
-        pane_selectors_layout.addWidget(_PaneButton(pane_selectors_layout, panes_layout, self._localization_configuration_pane, 'Localization', self))
+        pane_selectors_layout.addWidget(_PaneButton(pane_selectors_layout, panes_layout, self._localization_configuration_pane, _('Localization'), self))
 
         for extension_type in discover_extension_types():
             if issubclass(extension_type, GuiBuilder):
@@ -740,36 +751,49 @@ class ProjectWindow(BettyMainWindow):
                 panes_layout.addWidget(extension_pane)
                 pane_selectors_layout.addWidget(_PaneButton(pane_selectors_layout, panes_layout, extension_pane, extension_type.label(), self))
 
-    @sync
-    async def close(self):
-        await self._app.deactivate()
+    def _save_configuration(self) -> None:
+        with open(self._configuration_file_path, 'w') as f:
+            to_file(f, self._app.project.configuration)
+
+    @reactive(on_trigger_call=True)
+    def _set_window_title(self) -> None:
+        self.setWindowTitle('%s - Betty' % self._app.project.configuration.title)
+
+    @property
+    def extension_types(self) -> Sequence[Type[Extension]]:
+        return [import_any(extension_name) for extension_name in self._EXTENSION_NAMES]
 
     def _initialize_menu(self) -> None:
         super()._initialize_menu()
 
         menu_bar = self.menuBar()
 
-        self.project_menu = menu_bar.addMenu('&Project')
+        self.project_menu = menu_bar.addMenu('&' + _('Project'))
         menu_bar.insertMenu(self.help_menu.menuAction(), self.project_menu)
 
-        self.project_menu.save_project_as_action = QAction('Save this project as...', self)
+        self.project_menu.save_project_as_action = QAction(_('Save this project as...'), self)
         self.project_menu.save_project_as_action.setShortcut('Ctrl+Shift+S')
         self.project_menu.save_project_as_action.triggered.connect(lambda _: self._save_project_as())
         self.project_menu.addAction(self.project_menu.save_project_as_action)
 
-        self.project_menu.generate_action = QAction('Generate site', self)
+        self.project_menu.generate_action = QAction(_('Generate site'), self)
         self.project_menu.generate_action.setShortcut('Ctrl+G')
         self.project_menu.generate_action.triggered.connect(lambda _: self._generate())
         self.project_menu.addAction(self.project_menu.generate_action)
 
-        self.project_menu.serve_action = QAction('Serve site', self)
+        self.project_menu.serve_action = QAction(_('Serve site'), self)
         self.project_menu.serve_action.setShortcut('Ctrl+Alt+S')
         self.project_menu.serve_action.triggered.connect(lambda _: self._serve())
         self.project_menu.addAction(self.project_menu.serve_action)
 
-    # @catch_exceptions
+    @catch_exceptions
     def _save_project_as(self) -> None:
-        configuration_file_path, _ = QFileDialog.getSaveFileName(self, 'Save your project to...', '', _CONFIGURATION_FILE_FILTER)
+        configuration_file_path, __ = QFileDialog.getSaveFileName(
+            self,
+            _('Save your project to...'),
+            '',
+            _get_configuration_file_filter(),
+        )
         os.makedirs(path.dirname(configuration_file_path))
         with open(configuration_file_path, mode='w') as f:
             to_file(f, self._app.project.configuration)
@@ -848,14 +872,14 @@ class _GenerateThread(QThread):
     @sync
     async def run(self) -> None:
         with catch_exceptions(parent=self._generate_window, close_parent=True):
-            await load.load(self._app)
-            await generate.generate(self._app)
+            with self._app:
+                await load.load(self._app)
+                await generate.generate(self._app)
 
 
 class _GenerateWindow(BettyWindow):
     width = 500
     height = 100
-    title = 'Generating your site...'
 
     def __init__(self, app: App, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -874,20 +898,24 @@ class _GenerateWindow(BettyWindow):
         button_layout = QHBoxLayout()
         central_layout.addLayout(button_layout)
 
-        self._close_button = QPushButton('Close')
+        self._close_button = QPushButton(_('Close'))
         self._close_button.setDisabled(True)
         self._close_button.released.connect(self.close)
         button_layout.addWidget(self._close_button)
 
-        self._serve_button = QPushButton('View site')
+        self._serve_button = QPushButton(_('View site'))
         self._serve_button.setDisabled(True)
         self._serve_button.released.connect(self._serve)
         button_layout.addWidget(self._serve_button)
 
         self._app = app
         self._logging_handler = LogRecordViewerHandler(self._log_record_viewer)
-        self._thread = _GenerateThread(self._app, self)
+        self._thread = _GenerateThread(copy.copy(self._app), self)
         self._thread.finished.connect(self._finish_generate)
+
+    @property
+    def title(self) -> str:
+        return _('Generating your site...')
 
     @catch_exceptions
     def _serve(self) -> None:
@@ -911,18 +939,21 @@ class _GenerateWindow(BettyWindow):
 class _ServeThread(QThread):
     server_started = pyqtSignal()
 
-    def __init__(self, server: serve.Server, *args, **kwargs):
+    def __init__(self, app: App, server: serve.Server, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._app = app
         self._server = server
 
     @sync
     async def run(self) -> None:
+        self._app.acquire()
         await self._server.start()
         self.server_started.emit()
 
     @sync
     async def stop(self) -> None:
         await self._server.stop()
+        self._app.release()
 
 
 class _ServeWindow(BettyWindow):
@@ -937,8 +968,9 @@ class _ServeWindow(BettyWindow):
     height = 100
     _instance = None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, app: App, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._app = app
 
         self._thread = None
         self._server = NotImplemented
@@ -948,7 +980,7 @@ class _ServeWindow(BettyWindow):
         central_widget.setLayout(self._central_layout)
         self.setCentralWidget(central_widget)
 
-        self._loading_instruction = Text('Loading...')
+        self._loading_instruction = Text(_('Loading...'))
         self._loading_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._central_layout.addWidget(self._loading_instruction)
 
@@ -972,11 +1004,11 @@ class _ServeWindow(BettyWindow):
         instance_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._central_layout.addWidget(instance_instruction)
 
-        general_instruction = Text('Keep this window open to keep the site running.')
+        general_instruction = Text(_('Keep this window open to keep the site running.'))
         general_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._central_layout.addWidget(general_instruction)
 
-        stop_server_button = QPushButton('Stop the site', self)
+        stop_server_button = QPushButton(_('Stop the site'), self)
         stop_server_button.released.connect(self.close)
         self._central_layout.addWidget(stop_server_button)
 
@@ -988,7 +1020,7 @@ class _ServeWindow(BettyWindow):
 
     def _start(self) -> None:
         if self._thread is None:
-            self._thread = _ServeThread(self._server)
+            self._thread = _ServeThread(copy.copy(self._app), self._server)
             self._thread.server_started.connect(self._server_started)
             self._thread.start()
 
@@ -1013,19 +1045,21 @@ class _ServeAppWindow(_ServeWindow):
     get_instance() method.
     """
 
-    title = 'Serving your site...'
-
     def __init__(self, app: App, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
         self._server = serve.AppServer(app)
 
         if not path.isdir(app.project.configuration.www_directory_path):
             self.close()
-            raise ConfigurationError('Web root directory "%s" does not exist.' % app.project.configuration.www_directory_path)
+            raise ConfigurationError(_('Web root directory "{path}" does not exist.').format(path=app.project.configuration.www_directory_path))
+
+    @property
+    def title(self) -> str:
+        return _('Serving your site...')
 
     def _build_instruction(self) -> str:
-        return f'You can now view your site at <a href="{self._server.public_url}">{self._server.public_url}</a>.'
+        return _('You can now view your site at <a href="{url}">{url}</a>.').format(url=self._server.public_url)
 
 
 class _ServeDemoWindow(_ServeWindow):
@@ -1036,8 +1070,6 @@ class _ServeDemoWindow(_ServeWindow):
     get_instance() method.
     """
 
-    title = 'Serving the Betty demo...'
-
     def __init__(self, *args, **kwargs):
         from betty import demo
 
@@ -1046,24 +1078,31 @@ class _ServeDemoWindow(_ServeWindow):
         self._server = demo.DemoServer()
 
     def _build_instruction(self) -> str:
-        return f'You can now view a Betty demonstration site at <a href="{self._server.public_url}">{self._server.public_url}</a>.'
+        return _('You can now view a Betty demonstration site at <a href="{url}">{url}</a>.').format(url=self._server.public_url)
+
+    @property
+    def title(self) -> str:
+        return _('Serving the Betty demo...')
 
 
 class _AboutBettyWindow(BettyWindow):
     width = 500
     height = 100
-    title = 'About Betty'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         label = Text(''.join(map(lambda x: '<p>%s</p>' % x, [
-            'Version: %s' % about.version(),
-            'Copyright 2019-%s <a href="twitter.com/bartFeenstra">Bart Feenstra</a> & contributors. Betty is made available to you under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License, Version 3</a> (GPLv3).' % datetime.now().year,
-            'Follow Betty on <a href="https://twitter.com/Betty_Project">Twitter</a> and <a href="https://github.com/bartfeenstra/betty">Github</a>.'
+            _('Version: {version}').format(version=about.version()),
+            _('Copyright 2019-{year} <a href="twitter.com/bartFeenstra">Bart Feenstra</a> & contributors. Betty is made available to you under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License, Version 3</a> (GPLv3).').format(year=datetime.now().year),
+            _('Follow Betty on <a href="https://twitter.com/Betty_Project">Twitter</a> and <a href="https://github.com/bartfeenstra/betty">Github</a>.'),
         ])))
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setCentralWidget(label)
+
+    @property
+    def title(self) -> str:
+        return _('About Betty')
 
 
 class BettyApplication(QApplication):

@@ -233,7 +233,7 @@ class PopulatorTest(TestCase):
     async def test_populate_link_should_convert_http_to_https(self, m_retriever) -> None:
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         entry_language = 'nl'
-        async with App() as app:
+        with App() as app:
             sut = _Populator(app, m_retriever)
             await sut.populate_link(link, entry_language)
         self.assertEqual('https://en.wikipedia.org/wiki/Amsterdam', link.url)
@@ -249,7 +249,7 @@ class PopulatorTest(TestCase):
     async def test_populate_link_should_set_media_type(self, expected: MediaType, media_type: Optional[MediaType], m_retriever) -> None:
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.media_type = media_type
-        async with App() as app:
+        with App() as app:
             sut = _Populator(app, m_retriever)
             await sut.populate_link(link, 'en')
         self.assertEqual(expected, link.media_type)
@@ -265,7 +265,7 @@ class PopulatorTest(TestCase):
     async def test_populate_link_should_set_relationship(self, expected: str, relationship: Optional[str], m_retriever) -> None:
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.relationship = relationship
-        async with App() as app:
+        with App() as app:
             sut = _Populator(app, m_retriever)
             await sut.populate_link(link, 'en')
         self.assertEqual(expected, link.relationship)
@@ -281,7 +281,7 @@ class PopulatorTest(TestCase):
     async def test_populate_link_should_set_locale(self, expected: str, entry_language: str, locale: Optional[str], m_retriever) -> None:
         link = Link('http://%s.wikipedia.org/wiki/Amsterdam' % entry_language)
         link.locale = locale
-        async with App() as app:
+        with App() as app:
             sut = _Populator(app, m_retriever)
             await sut.populate_link(link, entry_language)
         self.assertEqual(expected, link.locale)
@@ -297,7 +297,7 @@ class PopulatorTest(TestCase):
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.description = description
         entry_language = 'en'
-        async with App() as app:
+        with App() as app:
             sut = _Populator(app, m_retriever)
             await sut.populate_link(link, entry_language)
         self.assertEqual(expected, link.description)
@@ -313,7 +313,7 @@ class PopulatorTest(TestCase):
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.label = label
         entry = Entry('en', 'The_city_of_Amsterdam', 'The city of Amsterdam', 'Amsterdam, such a lovely place!')
-        async with App() as app:
+        with App() as app:
             sut = _Populator(app, m_retriever)
             await sut.populate_link(link, 'en', entry)
         self.assertEqual(expected, link.label)
@@ -324,7 +324,7 @@ class PopulatorTest(TestCase):
     async def test_populate_should_ignore_resource_without_link_support(self, m_retriever) -> None:
         source = Source('The Source')
         resource = Citation('the_citation', source)
-        async with App() as app:
+        with App() as app:
             app.project.ancestry.entities.append(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
@@ -334,7 +334,7 @@ class PopulatorTest(TestCase):
     @sync
     async def test_populate_should_ignore_resource_without_links(self, m_retriever) -> None:
         resource = Source('the_source', 'The Source')
-        async with App() as app:
+        with App() as app:
             app.project.ancestry.entities.append(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
@@ -347,7 +347,7 @@ class PopulatorTest(TestCase):
         link = Link('https://example.com')
         resource = Source('the_source', 'The Source')
         resource.links.add(link)
-        async with App() as app:
+        with App() as app:
             app.project.ancestry.entities.append(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
@@ -367,7 +367,7 @@ class PopulatorTest(TestCase):
         resource = Source('the_source', 'The Source')
         link = Link('https://en.wikipedia.org/wiki/Amsterdam')
         resource.links.add(link)
-        async with App() as app:
+        with App() as app:
             app.project.ancestry.entities.append(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
@@ -411,7 +411,7 @@ class PopulatorTest(TestCase):
             LocaleConfiguration('en-US', 'en'),
             LocaleConfiguration('nl-NL', 'nl'),
         ])
-        async with app:
+        with app:
             app.project.ancestry.entities.append(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
@@ -433,8 +433,7 @@ class PopulatorTest(TestCase):
 class WikipediaTest(TestCase):
     @aioresponses()
     @patch_cache
-    @sync
-    async def test_filter(self, m_aioresponses) -> None:
+    def test_filter(self, m_aioresponses) -> None:
         entry_url = 'https://en.wikipedia.org/wiki/Amsterdam'
         links = [
             Link(entry_url),
@@ -458,7 +457,7 @@ class WikipediaTest(TestCase):
         }
         m_aioresponses.get(api_url, payload=api_response_body)
 
-        async with App() as app:
+        with App() as app:
             app.project.configuration.extensions.add(ProjectExtensionConfiguration(Wikipedia))
             actual = app.jinja2_environment.from_string(
                 '{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}').render(links=links)
@@ -497,7 +496,7 @@ class WikipediaTest(TestCase):
         translations_api_url = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam&prop=langlinks&lllimit=500&format=json&formatversion=2'
         m_aioresponses.get(translations_api_url, payload=translations_api_response_body)
 
-        async with App() as app:
+        with App() as app:
             app.project.configuration.extensions.add(ProjectExtensionConfiguration(Wikipedia))
             app.project.ancestry.entities.append(resource)
             await load(app)

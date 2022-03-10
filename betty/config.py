@@ -3,7 +3,8 @@ from __future__ import annotations
 import json
 from os import path
 from pathlib import Path
-from typing import Dict, Callable, Type, TypeVar, Any, Generic, Optional
+from typing import Dict, Callable, Type, TypeVar, Any, Generic, Optional, TYPE_CHECKING
+
 try:
     from typing import Self  # type: ignore
 except ImportError:
@@ -15,6 +16,10 @@ from reactives.factory.type import ReactiveInstance
 
 from betty import os
 from betty.error import UserFacingError, ContextError, ensure_context
+
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 
 class ConfigurationError(UserFacingError, ContextError, ValueError):
@@ -67,14 +72,14 @@ def from_json(configuration_json: str) -> Any:
     try:
         return json.loads(configuration_json)
     except json.JSONDecodeError as e:
-        raise ConfigurationError('Invalid JSON: %s.' % e)
+        raise ConfigurationError(_('Invalid JSON: {error}.').format(error=e))
 
 
 def from_yaml(configuration_yaml: str) -> Any:
     try:
         return yaml.safe_load(configuration_yaml)
     except yaml.YAMLError as e:
-        raise ConfigurationError('Invalid YAML: %s' % e)
+        raise ConfigurationError(_('Invalid YAML: {error}.').format(error=e))
 
 
 def from_file(f, configuration: Configuration) -> None:

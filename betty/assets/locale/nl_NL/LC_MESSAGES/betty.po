@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-03-10 20:26+0000\n"
-"PO-Revision-Date: 2019-10-05 11:38+0100\n"
+"POT-Creation-Date: 2022-04-16 22:36+0100\n"
+"PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
 "Language-Team: nl <LL@li.org>\n"
@@ -26,6 +26,11 @@ msgid ""
 "                family to get an idea of what a Betty site looks like.\n"
 "            "
 msgstr ""
+"\n"
+"                Betty is vernoemd naar %(liberta_lankester_label)s. Je "
+"kan de pagina's over haar en haar familie bekijken om een idee te krijgen"
+" van hoe een Betty-site eruit ziet.\n"
+"            "
 
 msgid ""
 "\n"
@@ -34,12 +39,20 @@ msgid ""
 "            places, source citations, and media.\n"
 "        "
 msgstr ""
+"\n"
+"            Bouw verder aan je site door gegevens aan de "
+"familiegeschiedenis toe te voegen, zoals mensen, plaatsen, "
+"bronverwijzingen, en media.\n"
+"        "
 
 msgid ""
 "\n"
 "            Hello dear, welcome to your new family history website.\n"
 "        "
 msgstr ""
+"\n"
+"            Dag lieverd, en welkom op je nieuwe familiegeschiedenissite.\n"
+"        "
 
 #, python-format
 msgid ""
@@ -80,6 +93,9 @@ msgid ""
 "{% endwith %}\n"
 "</code></pre>"
 msgstr ""
+
+msgid "\"{extension_type_name}\" is not a Betty extension."
+msgstr "\"{extension_type_name}\" is geen Betty-extensie."
 
 #, python-format
 msgid "%(date)s"
@@ -147,7 +163,10 @@ msgid "API documentation"
 msgstr "API-documentatie"
 
 msgid "About"
-msgstr ""
+msgstr "Over"
+
+msgid "About Betty"
+msgstr "Over Betty"
 
 msgid "Access denied"
 msgstr "Verboden toegang"
@@ -156,14 +175,23 @@ msgstr "Verboden toegang"
 msgid "Accessed %(date)s"
 msgstr "Opgevraagd op %(date)s"
 
+msgid "Add a family tree"
+msgstr "Voeg een stamboom toe"
+
 msgid "Add a locale"
-msgstr ""
+msgstr "Voeg een taalregio toe"
 
 msgid "Adoption"
 msgstr "Adoptie"
 
+msgid "Alias"
+msgstr "Alias"
+
+msgid "All caches cleared."
+msgstr "Alle caches geleegd."
+
 msgid "All of these requirements must be met"
-msgstr ""
+msgstr "Aan al deze vereisten moet worden voldoen"
 
 #, python-format
 msgid "Also known as %(names)s"
@@ -194,6 +222,22 @@ msgstr ""
 "Een HTTP [Content-Language](https://developer.mozilla.org/en-"
 "US/docs/Web/HTTP/Headers/Content-Language)-header."
 
+msgid ""
+"An optional alias is used instead of the locale code to identify this "
+"locale, such as in URLs. If US English is the only English language "
+"variant on your site, you may want to alias its language code from <code"
+">en-US</code> to <code>en</code>, for instance."
+msgstr ""
+
+msgid ""
+"An unexpected error occurred and Betty could not complete the task. "
+"Please <a href=\"{report_url}\">report this problem</a> and include the "
+"following details, so the team behind Betty can address it."
+msgstr ""
+"Er is een onverwachte fout opgetreden en Betty kon iets niet afmaken. <a "
+"href=\"{report_url}\">Meld dit probleem</a> alsjeblieft en voeg de "
+"volgende details bij, zodat het team achter Betty er aan kan werken."
+
 msgid "Ancestral names include"
 msgstr "De voorouders heetten"
 
@@ -208,15 +252,31 @@ msgid ""
 " removing their information and relationships with other resources. "
 "Enable the Privatizer and Cleaner as well to make this most effective."
 msgstr ""
+"Anonimiseer mensen, gebeurtenissen, bestanden, bronnen, en verwijzingen "
+"die privé zijn door hun informatie en hun relaties met andere gegevens te"
+" verwijderen. Schakel de Privatiseerder en Schoonmaker in om dit zo "
+"effectief mogelijk te maken."
 
 msgid "Anonymizer"
+msgstr "Anonimiseerder"
+
+msgid "App extensions configuration must be a mapping (dictionary)."
 msgstr ""
 
 msgid "Appearances"
 msgstr "Verschijningen"
 
+msgid "Assets directory"
+msgstr ""
+
 msgid "Attendee"
 msgstr "Aanwezige"
+
+msgid "Author"
+msgstr "Auteur"
+
+msgid "Background image ID"
+msgstr "Achtergrondafbeeldings-ID"
 
 msgid "Baptism"
 msgstr "Doping"
@@ -224,29 +284,90 @@ msgstr "Doping"
 msgid "Beneficiary"
 msgstr "Begunstigde"
 
+msgid "Betty configuration ({extensions})"
+msgstr "Betty-configuratie ({extensions})"
+
+msgid "Betty configuration must be a mapping (dictionary)."
+msgstr "Betty-configuratie moet een mapping (dictionary) zijn."
+
+msgid ""
+"Betty is a static site generator for your <a "
+"href=\"{gramps_url}\">Gramps</a> and <a href=\"{gedcom_url}\">GEDCOM</a> "
+"family trees."
+msgstr ""
+"Betty is een statische-sitegenerator voor je <a "
+"href=\"{gramps_url}\">Gramps-</a> en <a "
+"href=\"{gedcom_url}\">GEDCOM-</a>stambomen."
+
 msgid "Birth"
 msgstr "Geboorte"
 
 msgid "Burial"
 msgstr "Begravenis"
 
-msgid "Cleaner"
+msgid "Cancel"
+msgstr "Annuleren"
+
+msgid "Cannot remove the last remaining locale {locale}"
+msgstr "Kan de laatst overgebleven taalregio {locale} niet verwijderen"
+
+msgid "Clean URLs"
+msgstr "Nette URL's"
+
+msgid "Clean URLs must be enabled (true) or disabled (false) with a boolean."
 msgstr ""
+"Nette URL's moeten ingeschakeld (true) of uitgeschakeld (false) worden "
+"met een boolean."
+
+msgid "Cleaner"
+msgstr "Schoonmaker"
+
+msgid "Clear all caches"
+msgstr "Leeg alle caches"
+
+msgid "Close"
+msgstr "Sluiten"
 
 msgid "Confirmation"
 msgstr "Geloofsbelijdenis"
+
+msgid "Content negotiation"
+msgstr "Content negotiation"
+
+msgid ""
+"Content negotiation must be enabled (true) or disabled (false) with a "
+"boolean."
+msgstr ""
+"Content negotiation moet ingeschakeld (true) of uitgeschakeld (false) "
+"worden met een boolean."
 
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Lees verder op <a href=\"%(url)s\">Wikipedia</a>."
 
+msgid ""
+"Copyright 2019-{year} <a href=\"twitter.com/bartFeenstra\">Bart "
+"Feenstra</a> & contributors. Betty is made available to you under the <a "
+"href=\"https://www.gnu.org/licenses/gpl-3.0.en.html\">GNU General Public "
+"License, Version 3</a> (GPLv3)."
+msgstr ""
+"Copyright 2019-{year} <a href=\"twitter.com/BartFeenstra\">Bart "
+"Feenstra</a> & contributors. Betty is beschikbaar gemaakt onder de <a "
+"href=\"https://www.gnu.org/licenses/gpl-3.0.en.html\">GNU General Public "
+"License, Version 3</a> (GPLv3)."
+
 msgid "Correspondence"
 msgstr "Correspondentie"
+
+msgid "Create a new project"
+msgstr "Maak een nieuw project"
 
 msgid ""
 "Create events such as births and deaths by deriving their details from "
 "existing information."
 msgstr ""
+"Maak gebeurtenissen zoals geboortes en overlijdens door de details "
+"hiervoor af te leiden van bestaande informatie."
 
 msgid "Cremation"
 msgstr "Crematie"
@@ -254,8 +375,19 @@ msgstr "Crematie"
 msgid "Death"
 msgstr "Overlijden"
 
-msgid "Deriver"
+msgid "Debugging mode"
 msgstr ""
+
+msgid "Debugging must be enabled (true) or disabled (false) with a boolean."
+msgstr ""
+
+msgid ""
+"Decide the correct page variety to serve users depending on their own "
+"preferences. This requires a web server that supports it."
+msgstr ""
+
+msgid "Deriver"
+msgstr "Afleider"
 
 msgid "Descendant names include"
 msgstr "De nakomelingen heten"
@@ -292,11 +424,17 @@ msgstr "Bijvoorbeeld \"%(example)s\""
 msgid "Emigration"
 msgstr "Emigratie"
 
+msgid "Enable {extension}"
+msgstr "Schakel {extension} in"
+
 msgid "Engagement"
 msgstr "Verloving"
 
 msgid "Events"
 msgstr "Gebeurtenissen"
+
+msgid "Exit"
+msgstr "Sluiten"
 
 msgid "Exit the search"
 msgstr "Stop met zoeken"
@@ -308,6 +446,14 @@ msgid "Facts"
 msgstr "Feiten"
 
 msgid "Family"
+msgstr "Familie"
+
+msgid "File path"
+msgstr "Bestandspad"
+
+msgid ""
+"Follow Betty on <a href=\"https://twitter.com/Betty_Project\">Twitter</a>"
+" and <a href=\"https://github.com/bartfeenstra/betty\">Github</a>."
 msgstr ""
 
 msgid "Forbidden"
@@ -315,6 +461,45 @@ msgstr "Verboden"
 
 msgid "Funeral"
 msgstr "Uitvaart"
+
+msgid "General"
+msgstr "Algemeen"
+
+msgid "Generate site"
+msgstr "Genereer site"
+
+msgid "Generate your site to..."
+msgstr "Genereer je site naar..."
+
+msgid "Generated OpenAPI documentation in {locale}."
+msgstr ""
+
+msgid "Generated pages for {citation_count} citations in {locale}."
+msgstr ""
+
+msgid "Generated pages for {event_count} events in {locale}."
+msgstr ""
+
+msgid "Generated pages for {file_count} files in {locale}."
+msgstr ""
+
+msgid "Generated pages for {note_count} notes in {locale}."
+msgstr ""
+
+msgid "Generated pages for {person_count} people in {locale}."
+msgstr ""
+
+msgid "Generated pages for {place_count} places in {locale}."
+msgstr ""
+
+msgid "Generated pages for {source_count} sources in {locale}."
+msgstr ""
+
+msgid "Generating your site..."
+msgstr "Je site aan het genereren..."
+
+msgid "Help"
+msgstr "Help"
 
 #, fuzzy
 msgid "I'm sorry, dear, but it seems there are no events."
@@ -348,11 +533,38 @@ msgstr "Het spijt me, schat, maar het lijkt erop dat je niet ingelogd bent."
 msgid "Immigration"
 msgstr "Immigratie"
 
+msgid "Invalid JSON: {error}."
+msgstr "Ongeldige JSON: {error}"
+
+msgid "Invalid YAML: {error}."
+msgstr "Ongeldige YAML: {error}"
+
+msgid "Keep this window open to keep the site running."
+msgstr ""
+
 msgid "Language"
 msgstr "Taal"
 
+msgid "Lifetime threshold"
+msgstr "Levensgrens"
+
 msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
+msgstr "Laad <a href=\"https://gramps-project.org/\">Gramps-</a>stambomen."
+
+msgid "Load assets from..."
 msgstr ""
+
+msgid "Load the family tree from..."
+msgstr "Laad de stamboom van..."
+
+msgid "Loading..."
+msgstr "Laden..."
+
+msgid "Locales configuration much be a list."
+msgstr "Taalregioconfiguratie moet een lijst zijn."
+
+msgid "Localization"
+msgstr "Taalregio"
 
 msgid "MMMM"
 msgstr "MMMM"
@@ -367,7 +579,7 @@ msgid "MMMM, y"
 msgstr "MMMM y"
 
 msgid "Maps"
-msgstr ""
+msgstr "Kaarten"
 
 msgid "Marriage"
 msgstr "Huwelijk"
@@ -381,6 +593,9 @@ msgstr "Menu"
 msgid "Missing"
 msgstr "Vermist"
 
+msgid "New project..."
+msgstr "Nieuw project..."
+
 msgid "Not found"
 msgstr "Niet gevonden"
 
@@ -391,10 +606,27 @@ msgid "Occupation"
 msgstr "Beroep"
 
 msgid "One or more of these requirements must be met"
+msgstr "Aan één van deze vereisten moet voldaan worden"
+
+msgid "Open an existing project"
 msgstr ""
+
+msgid "Open project..."
+msgstr "Open project..."
+
+msgid "Open your project from..."
+msgstr "Open je project van..."
 
 msgid "Other attendees"
 msgstr "Overige aanwezigen"
+
+msgid "Output directory"
+msgstr ""
+
+msgid ""
+"Output more detailed logs and disable optimizations that make debugging "
+"harder."
+msgstr ""
 
 msgid "Page not found"
 msgstr "Pagina niet gevonden"
@@ -417,9 +649,11 @@ msgstr ""
 msgid "Private"
 msgstr "Privé"
 
-#, fuzzy
 msgid "Privatizer"
-msgstr "privé"
+msgstr "Privatiseerder"
+
+msgid "Project"
+msgstr "Project"
 
 msgid "Read more on Wikipedia."
 msgstr "Lees meer op Wikipedia."
@@ -427,11 +661,21 @@ msgstr "Lees meer op Wikipedia."
 msgid "References"
 msgstr "Referenties"
 
+msgid "Remove"
+msgstr "Verwijderen"
+
 msgid ""
 "Remove people, events, places, files, sources, and citations if they have"
 " no relationships with any other resources. Enable the Privatizer and "
 "Anonymizer as well to make this most effective."
 msgstr ""
+"Verwijder mensen, gebeurtenissen, plaatsen, bestanden, bronnen, en "
+"verwijzingen als ze geen relaties met andere gegevens meer hebben. "
+"Schakel de Privatiseerder en Anonimiseerder in om dit zo effectief "
+"mogelijk te maken."
+
+msgid "Report bugs and request new features"
+msgstr "Meld problemen en vraag nieuwe functionaliteit aan"
 
 msgid "Residence"
 msgstr "Woonplaats"
@@ -475,14 +719,71 @@ msgstr "Haal de verzameling van plaatsen op."
 msgid "Retrieve the collection of sources."
 msgstr "Haal de verzameling van bronnen op."
 
+msgid "Save and close"
+msgstr "Opslaan en sluiten"
+
+msgid "Save this project as..."
+msgstr "Sla dit project op als..."
+
+msgid "Save your new project to..."
+msgstr "Sla je nieuwe project op naar..."
+
+msgid "Save your project to..."
+msgstr "Sla je project op naar..."
+
+msgid "Serve site"
+msgstr ""
+
+msgid "Serving the Betty demo..."
+msgstr ""
+
+msgid "Serving your site at {url}..."
+msgstr ""
+
+msgid "Serving your site..."
+msgstr ""
+
 msgid "Sources"
 msgstr "Bronnen"
+
+msgid "Starting Python's built-in web server..."
+msgstr ""
+
+msgid "Stop the site"
+msgstr "Stop de site"
 
 msgid "Subject"
 msgstr "Onderwerp"
 
 msgid "The ID for the resource to retrieve."
 msgstr "Het ID van het op te halen document."
+
+msgid ""
+"The ID of the file entity whose (image) file to use for page backgrounds "
+"if a page does not provide any image media itself."
+msgstr ""
+
+msgid "The age at which people are presumed dead."
+msgstr "De leeftijd waarop mensen overleden verondersteld worden"
+
+msgid "The assets directory path must be a string."
+msgstr ""
+
+msgid "The author must be a string."
+msgstr "De auteur moet een string zijn."
+
+msgid "The base URL is required and must be a string."
+msgstr "De basis-URL is vereist en moet een string zijn."
+
+msgid "The base URL must include a path."
+msgstr "De basis-URL moet een pad bevatten."
+
+msgid ""
+"The base URL must start with a scheme such as https://, http://, or "
+"file://."
+msgstr ""
+"De basis-URL moet beginnen met een protocol als https://, http://, of "
+"file://."
 
 msgid "The citation."
 msgstr "De verwijzing."
@@ -505,11 +806,26 @@ msgstr "De verzameling van plaatsen."
 msgid "The collection of sources."
 msgstr "De verzameling van bronnen."
 
+msgid "The configuration must be a mapping (dictionary)."
+msgstr "De configuratie moet een mapping (dictionary) zijn."
+
 msgid "The event."
 msgstr "De gebeurtenis."
 
 msgid "The file."
 msgstr "Het bestand."
+
+msgid "The lifetime threshold must be a positive number."
+msgstr "De levensgrens moet een positief getal zijn."
+
+msgid "The lifetime threshold must be an integer."
+msgstr "De levensgrens moet een geheel getal zijn."
+
+msgid "The lifetime threshold must consist of digits only."
+msgstr "De levensgrens mag alleen uit cijfers bestaan."
+
+msgid "The output directory path is required and must be a string."
+msgstr ""
 
 msgid "The person."
 msgstr "De persoon."
@@ -517,8 +833,17 @@ msgstr "De persoon."
 msgid "The place."
 msgstr "De plaats."
 
+msgid "The root path must be a string."
+msgstr "Het bronpad moet een string zijn."
+
 msgid "The source."
 msgstr "De bron."
+
+msgid "The title must be a string."
+msgstr "De titel moet een string zijn."
+
+msgid "Theme"
+msgstr "Thema"
 
 #, python-format
 msgid "They are the child of %(parent_labels)s."
@@ -551,9 +876,23 @@ msgstr "De naam van deze persoon is onbekend."
 msgid "Timeline"
 msgstr "Tijdlijn"
 
-#, fuzzy
+msgid "Title"
+msgstr "Titel"
+
 msgid "Trees"
-msgstr "Opmerkingen"
+msgstr "Stambomen"
+
+msgid "URL"
+msgstr "URL"
+
+msgid ""
+"URLs look like <code>/path</code> instead of "
+"<code>/path/index.html</code>. This requires a web server that supports "
+"it."
+msgstr ""
+"URL's zien eruit als <code>/path</code> in plaats van "
+"<code>/path/index.html</code>. Dit vereist een web server die dit "
+"ondersteunt."
 
 msgid "Unauthorized"
 msgstr "Onbevoegd"
@@ -570,12 +909,36 @@ msgstr ""
 "of <kbd>esc</kbd> om te stoppen met zoeken. Zoek opnieuw met "
 "<kbd>%(shortcut)s</kbd>."
 
+msgid "Version: {version}"
+msgstr "Versie: {version}"
+
+msgid "View a demo site"
+msgstr "Bekijk een demonstratiesite"
+
+msgid "View a demonstration of what a Betty site looks like"
+msgstr "Bekijk een demonstratie van hoe een Betty-site eruit ziet"
+
+msgid "View demo site..."
+msgstr "Bekijk een demonstratiesite..."
+
+msgid "View site"
+msgstr "Bekijk site"
+
+msgid "Web root directory \"{path}\" does not exist."
+msgstr ""
+
 #, python-format
 msgid "Welcome to %(title)s"
 msgstr "Welkom bij %(title)s"
 
-msgid "Wikipedia"
+msgid "Welcome to Betty"
+msgstr "Welkom bij Betty"
+
+msgid "Where to search for asset files, such as templates and translations."
 msgstr ""
+
+msgid "Wikipedia"
+msgstr "Wikipedia"
 
 msgid "Will"
 msgstr "Testament"
@@ -586,6 +949,17 @@ msgstr "Getuige"
 msgid "Witnesses"
 msgstr "Getuigen"
 
+msgid "Work on a new or existing site of your own"
+msgstr "Werk aan een nieuwe of bestaande site van jezelf"
+
+msgid ""
+"You can now view a Betty demonstration site at <a "
+"href=\"{url}\">{url}</a>."
+msgstr ""
+
+msgid "You can now view your site at <a href=\"{url}\">{url}</a>."
+msgstr "Je kan je site nu bekijken op <a href=\"{url}\">{url}</a>."
+
 #, python-format
 msgid ""
 "Your browser cannot show PDF documents. <a href=\"%(file_url)s\">Download"
@@ -593,10 +967,10 @@ msgid ""
 msgstr ""
 
 msgid "`npm` is available"
-msgstr ""
+msgstr "`npm` is beschikbaar"
 
 msgid "`npm` is not available"
-msgstr ""
+msgstr "`npm` is niet beschikbaar"
 
 #, python-format
 msgid "around %(date)s"
@@ -667,6 +1041,9 @@ msgid ""
 "Node.js packages to be installed. Ensure that the `npm` executable is "
 "available in your `PATH`."
 msgstr ""
+"npm (https://www.npmjs.com/) moet beschikbaar zijn voor functionaliteit "
+"waarvoor Node.js packages geïnstalleerd moeten worden. Zorg ervoor dat "
+"het `npm`-programma beschikbaar is in je `PATH`."
 
 msgid "private"
 msgstr "privé"

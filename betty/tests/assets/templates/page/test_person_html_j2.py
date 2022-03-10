@@ -1,13 +1,11 @@
 from betty.model.ancestry import Person, PersonName
-from betty.asyncio import sync
 from betty.tests import TemplateTestCase
 
 
 class TestDescendantNames(TemplateTestCase):
     template_file = 'page/person.html.j2'
 
-    @sync
-    async def test_without_enclosing_places(self):
+    def test_without_enclosing_places(self):
         person = Person('P0')
         partner_one = Person('P1')
         child_one = Person('P1C1')
@@ -19,7 +17,7 @@ class TestDescendantNames(TemplateTestCase):
         child_two.parents.append(person)
         child_two.parents.append(partner_two)
         PersonName(child_two, None, 'FamilyTwoAssociationName')
-        async with self._render(data={
+        with self._render(data={
             'page_resource': person,
             'entity_type_name': 'person',
             'person': person,

@@ -5,7 +5,6 @@ from typing import Optional
 from parameterized import parameterized
 
 from betty.app import App
-from betty.asyncio import sync
 from betty.gramps.loader import load_xml, load_gpkg, load_gramps
 from betty.locale import Date
 from betty.model.ancestry import Ancestry, PersonName, Citation, Note, Source, File, Event, Person, Place
@@ -15,36 +14,32 @@ from betty.tests import TestCase
 
 
 class LoadGrampsTest(TestCase):
-    @sync
-    async def test_load_gramps(self):
-        async with App() as app:
+    def test_load_gramps(self):
+        with App() as app:
             gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.gramps'
             load_gramps(app.project.ancestry, gramps_file_path)
 
 
 class LoadGpkgTest(TestCase):
-    @sync
-    async def test_load_gpkg(self):
-        async with App() as app:
+    def test_load_gpkg(self):
+        with App() as app:
             gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.gpkg'
             load_gpkg(app.project.ancestry, gramps_file_path)
 
 
 class LoadXmlTest(TestCase):
     @classmethod
-    @sync
-    async def setUpClass(cls) -> None:
+    def setUpClass(cls) -> None:
         TestCase.setUpClass()
         # @todo Convert each test method to use self._load(), so we can remove this shared XML file.
-        async with App() as app:
+        with App() as app:
             cls.ancestry = app.project.ancestry
             xml_file_path = Path(__file__).parent / 'assets' / 'data.xml'
             with open(xml_file_path) as f:
                 load_xml(app.project.ancestry, f.read(), rootname(xml_file_path))
 
-    @sync
-    async def load(self, xml: str) -> Ancestry:
-        async with App() as app:
+    def load(self, xml: str) -> Ancestry:
+        with App() as app:
             with TemporaryDirectory() as tree_directory_path:
                 load_xml(app.project.ancestry, xml.strip(), Path(tree_directory_path))
                 return app.project.ancestry
@@ -64,16 +59,14 @@ class LoadXmlTest(TestCase):
 </database>
 """ % xml)
 
-    @sync
-    async def test_load_xml_with_string(self):
-        async with App() as app:
+    def test_load_xml_with_string(self):
+        with App() as app:
             gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'
             with open(gramps_file_path) as f:
                 load_xml(app.project.ancestry, f.read(), rootname(gramps_file_path))
 
-    @sync
-    async def test_load_xml_with_file_path(self):
-        async with App() as app:
+    def test_load_xml_with_file_path(self):
+        with App() as app:
             gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'
             load_xml(app.project.ancestry, gramps_file_path, rootname(gramps_file_path))
 

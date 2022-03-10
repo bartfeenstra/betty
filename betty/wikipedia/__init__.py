@@ -208,7 +208,7 @@ class _Populator:
         if link.description is None:
             # There are valid reasons for links in locales that aren't supported.
             with suppress(ValueError):
-                with self._app.activate_locale(link.locale):
+                with self._app.acquire_locale(link.locale):
                     link.description = _('Read more on Wikipedia.')
         if entry is not None and link.label is None:
             link.label = entry.title

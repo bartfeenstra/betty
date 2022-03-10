@@ -88,7 +88,7 @@ class JSONEncoder(stdjson.JSONEncoder):
             for locale_configuration in self._app.project.configuration.locales:
                 if locale_configuration.locale == self._app.locale:
                     continue
-                with self._app.activate_locale(locale_configuration.locale):
+                with self._app.acquire_locale(locale_configuration.locale):
                     translation = Link(self._generate_url(entity))
                 translation.relationship = 'alternate'
                 translation.locale = locale_configuration.locale

@@ -2,20 +2,23 @@ import json
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict
 
+from betty.app import App
 from betty.config import from_json, from_yaml, from_file, Configuration, ConfigurationError
 from betty.tests import TestCase
 
 
 class FromJsonTest(TestCase):
     def test_should_error_if_invalid_json(self) -> None:
-        with self.assertRaises(ConfigurationError):
-            from_json('')
+        with App():
+            with self.assertRaises(ConfigurationError):
+                from_json('')
 
 
 class FromYamlTest(TestCase):
     def test_should_error_if_invalid_yaml(self) -> None:
-        with self.assertRaises(ConfigurationError):
-            from_yaml('"foo')
+        with App():
+            with self.assertRaises(ConfigurationError):
+                from_yaml('"foo')
 
 
 class FromFileTest(TestCase):
