@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-03-09 12:01+0000\n"
+"POT-Creation-Date: 2022-03-10 20:26+0000\n"
 "PO-Revision-Date: 2020-11-27 19:49+0100\n"
 "Last-Translator: \n"
 "Language: fr\n"
@@ -565,13 +565,14 @@ msgstr "Non autorisé"
 msgid "Unknown"
 msgstr "Inconnu"
 
+#, python-format
 msgid ""
 "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
-"to exit the search. Search again with <kbd>s</kbd>."
+"to exit the search. Search again with <kbd>%(shortcut)s</kbd>."
 msgstr ""
 "Utilisez <kbd>↑</kbd> et <kbd>↓</kbd> pour parcourir les résultats, ou "
 "<kbd>esc</kbd> pour abondonner la recherche. Relancez la recherche avec "
-"<kbd>s</kbd>."
+"<kbd>%(shortcut)s</kbd>."
 
 #, python-format
 msgid "Welcome to %(title)s"
@@ -689,6 +690,10 @@ msgstr ""
 
 msgid "private"
 msgstr "privé"
+
+msgctxt "enter-search-shortcut"
+msgid "s"
+msgstr "c"
 
 #, python-format
 msgid "show %(name_count)s more"

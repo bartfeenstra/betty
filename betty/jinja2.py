@@ -6,7 +6,7 @@ import re
 import warnings
 from contextlib import suppress
 from pathlib import Path
-from typing import Dict, Callable, Iterable, Type, Optional, Any, Union, Iterator, AsyncIterable
+from typing import Dict, Callable, Iterable, Type, Optional, Any, Union, Iterator, AsyncIterable, ContextManager
 
 import aiofiles
 import pdf2image
@@ -15,7 +15,9 @@ from PIL.Image import DecompressionBombWarning
 from babel import Locale
 from geopy import units
 from geopy.format import DEGREES_FORMAT
-from jinja2 import Environment, select_autoescape, escape, FileSystemLoader, pass_context, pass_eval_context, Template
+from jinja2 import Environment, select_autoescape, escape, FileSystemLoader, pass_context, pass_eval_context, Template, \
+    nodes
+from jinja2.ext import Extension
 from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.nodes import EvalContext
 from jinja2.runtime import StrictUndefined, Context, Macro
@@ -23,20 +25,21 @@ from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup
 from resizeimage import resizeimage
 
-from betty.html import CssProvider, JsProvider
-from betty.model import Entity, get_entity_type_name, GeneratedEntityId
-from betty.model.ancestry import File, Citation, HasLinks, HasFiles, Subject, Witness, Dated
+from betty.app import App, Extensions, Configuration
+from betty.asyncio import sync
 from betty.fs import hashfile, iterfiles
 from betty.functools import walk
+from betty.html import CssProvider, JsProvider
 from betty.importlib import import_any
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange
 from betty.lock import AcquiredError
+from betty.model import Entity, get_entity_type_name, GeneratedEntityId
+from betty.model.ancestry import File, Citation, HasLinks, HasFiles, Subject, Witness, Dated
 from betty.os import link_or_copy, PathLike
 from betty.path import rootname
 from betty.render import Renderer
 from betty.search import Index
-from betty.app import App, Extensions, Configuration
 from betty.string import camel_case_to_snake_case, camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
 
 
@@ -88,6 +91,35 @@ class Jinja2Provider:
         return {}
 
 
+class _ContextManagerExtension(Extension):
+    tags = {'enter'}
+
+    def parse(self, parser):
+        lineno = next(parser.stream).lineno
+        context = parser.parse_expression()
+        body = parser.parse_statements(('name:exit',), drop_needle=True)
+        return nodes.CallBlock(
+            self.call_method('_enter_context', [context]),
+            [],
+            [],
+            body,
+        ).set_lineno(lineno)
+
+    def _enter_context(self, context: ContextManager, caller):
+        if hasattr(context, '__aenter__'):
+            return self._enter_async_context(context, caller)
+        return self._enter_sync_context(context, caller)
+
+    def _enter_sync_context(self, context: ContextManager, caller):
+        with context:
+            return caller()
+
+    @sync
+    async def _enter_async_context(self, context: ContextManager, caller):
+        async with context:
+            return caller()
+
+
 class BettyEnvironment(Environment):
     app: App
 
@@ -101,6 +133,7 @@ class BettyEnvironment(Environment):
                              extensions=[
                                  'jinja2.ext.do',
                                  'jinja2.ext.i18n',
+                                 'betty.jinja2._ContextManagerExtension',
                              ],
                              )
 
@@ -121,12 +154,13 @@ class BettyEnvironment(Environment):
         self.install_gettext_callables(
             lambda *args, **kwargs: gettext(*args, **kwargs),
             lambda *args, **kwargs: ngettext(*args, **kwargs),
+            pgettext=lambda *args, **kwargs: pgettext(*args, **kwargs),
+            npgettext=lambda *args, **kwargs: npgettext(*args, **kwargs),
         )
         self.policies['ext.i18n.trimmed'] = True
 
     def _init_globals(self) -> None:
         self.globals['app'] = self.app
-        self.globals['locale'] = self.app.locale
         today = datetime.date.today()
         self.globals['today'] = Date(today.year, today.month, today.day)
         self.globals['extensions'] = _Extensions(self.app.extensions)
@@ -232,10 +266,9 @@ class Jinja2Renderer(Renderer):
 
 
 @pass_context
-def _filter_url(context: Context, resource: Any, media_type: Optional[str] = None, locale: Optional[str] = None, **kwargs) -> str:
+def _filter_url(context: Context, resource: Any, media_type: Optional[str] = None, *args, **kwargs) -> str:
     media_type = 'text/html' if media_type is None else media_type
-    locale = locale if locale else context.resolve_or_missing('locale')
-    return context.environment.app.localized_url_generator.generate(resource, media_type, locale=locale, **kwargs)
+    return context.environment.app.url_generator.generate(resource, media_type, *args, **kwargs)
 
 
 @pass_context
@@ -243,8 +276,7 @@ def _filter_json(context: Context, data: Any, indent: Optional[int] = None) -> s
     """
     Converts a value to a JSON string.
     """
-    return stdjson.dumps(data, indent=indent,
-                         cls=JSONEncoder.get_factory(context.environment.app, context.resolve_or_missing('locale')))
+    return stdjson.dumps(data, indent=indent, cls=JSONEncoder.get_factory(context.environment.app))
 
 
 @pass_context
@@ -417,30 +449,27 @@ def _execute_filter_image(image: Image, file_path: Path, cache_directory_path: P
 
 @pass_context
 def _filter_negotiate_localizeds(context: Context, localizeds: Iterable[Localized]) -> Optional[Localized]:
-    locale = context.resolve_or_missing('locale')
-    return negotiate_localizeds(locale, list(localizeds))
+    return negotiate_localizeds(context.environment.app.locale, list(localizeds))
 
 
 @pass_context
 def _filter_sort_localizeds(context: Context, localizeds: Iterable[Localized], localized_attribute: str, sort_attribute: str) -> Iterable[Localized]:
-    locale = context.resolve_or_missing('locale')
     get_localized_attr = make_attrgetter(
         context.environment, localized_attribute)
     get_sort_attr = make_attrgetter(context.environment, sort_attribute)
 
     def _get_sort_key(x):
-        return get_sort_attr(negotiate_localizeds(locale, get_localized_attr(x)))
+        return get_sort_attr(negotiate_localizeds(context.environment.app.locale, get_localized_attr(x)))
 
     return sorted(localizeds, key=_get_sort_key)
 
 
 @pass_context
 def _filter_select_localizeds(context: Context, localizeds: Iterable[Localized], include_unspecified: bool = False) -> Iterable[Localized]:
-    locale = context.resolve_or_missing('locale')
     for localized in localizeds:
         if include_unspecified and localized.locale in {None, 'mis', 'mul', 'und', 'zxx'}:
             yield localized
-        if localized.locale is not None and negotiate_locale(locale, [localized.locale]) is not None:
+        if localized.locale is not None and negotiate_locale(context.environment.app.locale, [localized.locale]) is not None:
             yield localized
 
 
@@ -459,5 +488,4 @@ def _filter_select_dateds(context: Context, dateds: Iterable[Dated], date: Optio
 
 @pass_context
 def _filter_format_date(context: Context, date: Datey) -> str:
-    locale = context.resolve_or_missing('locale')
-    return format_datey(date, locale)
+    return format_datey(date, context.environment.app.locale)

@@ -3,7 +3,6 @@ import hashlib
 import json
 import logging
 import re
-from concurrent.futures import as_completed
 from contextlib import suppress
 from os.path import getmtime
 from pathlib import Path
@@ -12,18 +11,18 @@ from typing import Optional, Dict, Callable, Tuple, Iterable, Set
 
 import aiofiles
 import aiohttp
-from babel import parse_locale
 from jinja2 import pass_context
+from jinja2.runtime import Context
 from reactives import reactive
 
-from betty.model.ancestry import Link, HasLinks, Entity
 from betty.app import App, Extension
 from betty.asyncio import sync
 from betty.gui import GuiBuilder
 from betty.jinja2 import Jinja2Provider
+from betty.load import PostLoader
 from betty.locale import Localized, negotiate_locale
 from betty.media_type import MediaType
-from betty.load import PostLoader
+from betty.model.ancestry import Link, HasLinks, Entity
 
 
 class WikipediaError(BaseException):
@@ -245,12 +244,20 @@ class Wikipedia(Extension, Jinja2Provider, PostLoader, GuiBuilder):
         }
 
     @pass_context
-    def _filter_wikipedia_links(self, context, links: Iterable[Link]) -> Iterable[Entry]:
-        locale = parse_locale(context.resolve_or_missing('locale'), '-')[0]
-        futures = [self._app.executor.submit(self._filter_wikipedia_link, locale, link) for link in links]
-        return filter(None, [future.result() for future in as_completed(futures)])
-
     @sync
+    async def _filter_wikipedia_links(self, context: Context, links: Iterable[Link]) -> Iterable[Entry]:
+        return filter(
+            None,
+            await asyncio.gather(*[
+                self._filter_wikipedia_link(
+                    context.environment.app.locale,
+                    link,
+                )
+                for link
+                in links
+            ]),
+        )
+
     async def _filter_wikipedia_link(self, locale: str, link: Link) -> Optional[Entry]:
         try:
             entry_language, entry_name = _parse_url(link.url)

@@ -77,7 +77,7 @@ async def _generate(app: App) -> None:
                 ],
                 _generate_entity_type_list_json(www_directory_path, app.ancestry.entities[Note], 'note', app),
                 *[
-                    _generate_entity_json(www_directory_path, note, 'note', app, locale)
+                    _generate_entity_json(www_directory_path, note, 'note', app)
                     for note in app.ancestry.entities[Note]
                 ],
                 _generate_openapi(www_directory_path, app)
@@ -156,7 +156,7 @@ async def _generate_entity_type_list_json(www_directory_path: Path, entities: It
         'collection': []
     }
     for entity in entities:
-        data['collection'].append(app.localized_url_generator.generate(
+        data['collection'].append(app.url_generator.generate(
             entity, 'application/json', absolute=True))
     rendered_json = json.dumps(data)
     async with _create_json_resource(entity_type_path) as f:
@@ -165,7 +165,7 @@ async def _generate_entity_type_list_json(www_directory_path: Path, entities: It
 
 async def _generate_entity(www_directory_path: Path, entity: Any, entity_type_name: str, app: App, locale: str, environment: Environment):
     yield _generate_entity_html(www_directory_path, entity, entity_type_name, environment)
-    yield _generate_entity_json(www_directory_path, entity, entity_type_name, app, locale)
+    yield _generate_entity_json(www_directory_path, entity, entity_type_name, app)
 
 
 async def _generate_entity_html(www_directory_path: Path, entity: Any, entity_type_name: str, environment: Environment) -> None:
@@ -179,9 +179,9 @@ async def _generate_entity_html(www_directory_path: Path, entity: Any, entity_ty
         await f.write(rendered_html)
 
 
-async def _generate_entity_json(www_directory_path: Path, entity: Any, entity_type_name: str, app: App, locale: str) -> None:
+async def _generate_entity_json(www_directory_path: Path, entity: Any, entity_type_name: str, app: App) -> None:
     entity_path = www_directory_path / entity_type_name / entity.id
-    rendered_json = json.dumps(entity, cls=JSONEncoder.get_factory(app, locale))
+    rendered_json = json.dumps(entity, cls=JSONEncoder.get_factory(app))
     async with _create_json_resource(entity_path) as f:
         await f.write(rendered_json)
 

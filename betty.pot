@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-03-09 12:01+0000\n"
+"POT-Creation-Date: 2022-03-10 20:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -488,7 +488,8 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-msgid "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> to exit the search. Search again with <kbd>s</kbd>."
+#, python-format
+msgid "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> to exit the search. Search again with <kbd>%(shortcut)s</kbd>."
 msgstr ""
 
 #, python-format
@@ -585,6 +586,10 @@ msgid "npm (https://www.npmjs.com/) must be available for features that require 
 msgstr ""
 
 msgid "private"
+msgstr ""
+
+msgctxt "enter-search-shortcut"
+msgid "s"
 msgstr ""
 
 #, python-format

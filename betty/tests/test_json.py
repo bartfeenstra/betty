@@ -24,7 +24,7 @@ class JSONEncoderTest(TestCase):
                 LocaleConfiguration('nl-NL', 'nl'),
             ])
             async with App(configuration) as app:
-                encoded_data = stdjson.loads(stdjson.dumps(data, cls=JSONEncoder.get_factory(app, configuration.locales.default.locale)))
+                encoded_data = stdjson.loads(stdjson.dumps(data, cls=JSONEncoder.get_factory(app)))
             json.validate(encoded_data, schema_definition, app)
             self.assertEquals(expected, encoded_data)
 
