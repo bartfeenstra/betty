@@ -16,7 +16,7 @@ from betty.error import UserFacingError
 from betty.asyncio import sync
 from betty.gui import BettyApplication, ProjectWindow, _WelcomeWindow
 from betty.logging import CliHandler
-from betty.app import App, Configuration
+from betty.app import App
 
 
 class CommandProvider:
@@ -84,13 +84,14 @@ async def _init_ctx(ctx: Context, _: Optional[Option] = None, configuration_file
     else:
         try_configuration_file_paths = [configuration_file_path]
 
+    app = App()
+
     for try_configuration_file_path in try_configuration_file_paths:
         with suppress(FileNotFoundError):
-            with open(try_configuration_file_path) as f:
-                logger.info('Loading the configuration from %s.' % try_configuration_file_path)
-                configuration = from_file(f, Configuration)
-            app = App(configuration)
             async with app:
+                with open(try_configuration_file_path) as f:
+                    logger.info('Loading the configuration from %s.' % try_configuration_file_path)
+                    from_file(f, app.configuration)
                 ctx.obj['commands']['generate'] = _generate
                 ctx.obj['commands']['serve'] = _serve
                 for extension in app.extensions.flatten():

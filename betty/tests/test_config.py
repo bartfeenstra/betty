@@ -10,13 +10,13 @@ from betty.tests import TestCase
 class FromJsonTest(TestCase):
     def test_should_error_if_invalid_json(self) -> None:
         with self.assertRaises(ConfigurationError):
-            from_json('', Configuration)
+            from_json('')
 
 
 class FromYamlTest(TestCase):
     def test_should_error_if_invalid_yaml(self) -> None:
         with self.assertRaises(ConfigurationError):
-            from_yaml('"foo', Configuration)
+            from_yaml('"foo')
 
 
 class FromFileTest(TestCase):
@@ -32,4 +32,4 @@ class FromFileTest(TestCase):
     def test_should_error_unknown_format(self) -> None:
         with self._writes('', 'abc') as f:
             with self.assertRaises(ConfigurationError):
-                from_file(f, Configuration)
+                from_file(f, Configuration())

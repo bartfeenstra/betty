@@ -68,12 +68,11 @@ class TemplateTestCase(TestCase):
             raise RuntimeError(f'You must define one of `template_string`, `template_file`, `{class_name}.template_string`, or `{class_name}.template_file`.')
         if data is None:
             data = {}
-        with TemporaryDirectory() as output_directory_path:
-            configuration = Configuration(output_directory_path, 'https://example.com')
-            configuration.debug = True
-            if update_configuration is not None:
-                update_configuration(configuration)
-            async with App(configuration) as app:
-                rendered = template_factory(app.jinja2_environment, template).render(**data)
-                await app.wait()
-                yield rendered, app
+        app = App()
+        app.configuration.debug = True
+        if update_configuration is not None:
+            update_configuration(app.configuration)
+        async with app:
+            rendered = template_factory(app.jinja2_environment, template).render(**data)
+            app.wait()
+            yield rendered, app

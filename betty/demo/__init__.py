@@ -1,10 +1,9 @@
 from typing import Set, Type
 
-from aiofiles.tempfile import TemporaryDirectory
 from geopy import Point
 
 from betty import load, generate, serve
-from betty.app import App, Configuration, AppExtensionConfiguration, LocaleConfiguration
+from betty.app import App, AppExtensionConfiguration, LocaleConfiguration
 from betty.app.extension import Extension
 from betty.http_api_doc import HttpApiDoc
 from betty.load import Loader
@@ -161,27 +160,23 @@ class DemoServer(Server):
     def __init__(self):
         self._server = None
         self._app = None
-        self._output_directory = None
 
     @property
     def public_url(self) -> str:
         return self._server.public_url
 
     async def start(self) -> None:
-        self._output_directory = TemporaryDirectory()
-        output_directory_path = await self._output_directory.__aenter__()
-        configuration = Configuration(output_directory_path, 'https://example.com')
-        configuration.extensions.add(AppExtensionConfiguration(Demo))
+        self._app = App()
+        await self._app.activate()
+        self._app.configuration.extensions.add(AppExtensionConfiguration(Demo))
         # Include all of the translations Betty ships with.
-        configuration.locales.replace([
+        self._app.configuration.locales.replace([
             LocaleConfiguration('en-US', 'en'),
             LocaleConfiguration('nl-NL', 'nl'),
             LocaleConfiguration('fr-FR', 'fr'),
             LocaleConfiguration('uk', 'uk'),
         ])
-        self._app = App(configuration)
         self._server = None
-        await self._app.activate()
         try:
             await load.load(self._app)
             await generate.generate(self._app)
@@ -194,5 +189,3 @@ class DemoServer(Server):
     async def stop(self) -> None:
         await self._server.stop()
         await self._app.deactivate()
-        if self._output_directory is not None:
-            self._output_directory.__aexit__(None, None, None)

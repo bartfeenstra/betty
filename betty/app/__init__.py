@@ -1,17 +1,18 @@
 from __future__ import annotations
 
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict
 from concurrent.futures._base import Executor
 from concurrent.futures.thread import ThreadPoolExecutor
-from contextlib import AsyncExitStack, asynccontextmanager, suppress
+from contextlib import AsyncExitStack, suppress, contextmanager
 from gettext import NullTranslations
-from typing import Dict, List, Optional, Type, Sequence, Any, Iterable, TYPE_CHECKING, Set
+from tempfile import TemporaryDirectory
+from typing import List, Optional, Type, Sequence, Any, Iterable, TYPE_CHECKING, Set
 from urllib.parse import urlparse
 
 from babel.core import parse_locale, Locale
 
-from betty import fs, os
-from betty.app.extension import ListExtensions, Extension, ConfigurableExtension, Extensions, \
+from betty import fs
+from betty.app.extension import ListExtensions, Extension, Extensions, \
     build_extension_type_graph, ExtensionDispatcher, CyclicDependencyError
 from betty.asyncio import sync
 from betty.environment import Environment
@@ -20,6 +21,7 @@ from betty.model import Entity, EntityTypeProvider
 from betty.model.event_type import EventTypeProvider, Birth, Baptism, Adoption, Death, Funeral, Cremation, Burial, Will, \
     Engagement, Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, Emigration, \
     Occupation, Retirement, Correspondence, Confirmation
+from betty.os import PathLike
 
 if TYPE_CHECKING:
     from betty.url import StaticUrlGenerator, ContentNegotiationUrlGenerator
@@ -45,7 +47,7 @@ from betty.model.ancestry import Ancestry, Citation, Event, File, Person, Person
     Source, Note, EventType
 from betty.config import Configurable, Configuration as GenericConfiguration, ConfigurationError, ensure_path, ensure_directory_path
 from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH
-from betty.locale import open_translations, Translations, negotiate_locale
+from betty.locale import Translations, negotiate_locale, TranslationsRepository
 
 
 @reactive
@@ -60,12 +62,12 @@ class _AppExtensions(ListExtensions):
 
 @reactive
 class AppExtensionConfiguration:
-    def __init__(self, extension_type: Type[Extension], enabled: bool = True, extension_configuration: Optional[Configuration] = None):
+    def __init__(self, extension_type: Type[Extension], enabled: bool = True, extension_configuration: Optional[GenericConfiguration] = None):
         super().__init__()
         self._extension_type = extension_type
         self._enabled = enabled
-        if extension_configuration is None and issubclass(extension_type, ConfigurableExtension):
-            extension_configuration = extension_type.default_configuration()
+        if extension_configuration is None and issubclass(extension_type, Configurable):
+            extension_configuration = extension_type.configuration_type().default()
         if extension_configuration is not None:
             extension_configuration.react(self)
         self._extension_configuration = extension_configuration
@@ -110,19 +112,13 @@ class AppExtensionsConfiguration(GenericConfiguration):
             for configuration in configurations:
                 self.add(configuration)
 
-    def _wire(self, value) -> None:
-        value.react(self)
-
-    def _unwire(self, value) -> None:
-        value.react.shutdown(self)
-
     @scope.register_self
     def __getitem__(self, extension_type: Type[Extension]) -> AppExtensionConfiguration:
         return self._configurations[extension_type]
 
     def __delitem__(self, extension_type: Type[Extension]) -> None:
         with suppress(KeyError):
-            self._unwire(self._configurations[extension_type])
+            self._configurations[extension_type].react.shutdown(self)
         del self._configurations[extension_type]
         self.react.trigger()
 
@@ -142,15 +138,16 @@ class AppExtensionsConfiguration(GenericConfiguration):
 
     def add(self, configuration: AppExtensionConfiguration) -> None:
         self._configurations[configuration.extension_type] = configuration
-        self._wire(configuration)
+        configuration.react(self)
         self.react.trigger()
 
-    @classmethod
-    def load(cls, dumped_configuration: Any) -> Configuration:
+    def load(self, dumped_configuration: Any) -> None:
         if not isinstance(dumped_configuration, dict):
             raise ConfigurationError('App extensions configuration must be a mapping (dictionary).')
 
-        loaded_extension_configuration = []
+        for extension_type in self._configurations:
+            del self[extension_type]
+
         for extension_type_name in dumped_configuration:
             with ensure_context(f'`{extension_type_name}`'):
                 try:
@@ -177,19 +174,18 @@ class AppExtensionsConfiguration(GenericConfiguration):
                     enabled = True
 
                 if 'configuration' in dumped_extension_configuration:
-                    if not issubclass(extension_type, ConfigurableExtension):
+                    if not issubclass(extension_type, Configurable):
                         raise ConfigurationError(f'{extension_type_name} is not configurable.', contexts=['`configuration`'])
-                    extension_configuration = extension_type.configuration_type().load(dumped_extension_configuration['configuration'])
+                    extension_configuration = extension_type.configuration_type().default()
+                    extension_configuration.load(dumped_extension_configuration['configuration'])
                 else:
                     extension_configuration = None
 
-                loaded_extension_configuration.append(AppExtensionConfiguration(
+                self.add(AppExtensionConfiguration(
                     extension_type,
                     enabled,
                     extension_configuration,
                 ))
-
-        return cls(loaded_extension_configuration)
 
     def dump(self) -> Any:
         dumped_configuration = {}
@@ -198,8 +194,8 @@ class AppExtensionsConfiguration(GenericConfiguration):
             dumped_configuration[extension_type.name()] = {
                 'enabled': app_extension_configuration.enabled,
             }
-            if issubclass(extension_type, ConfigurableExtension):
-                dumped_configuration[extension_type.name()]['configuration'] = extension_type.configuration_type().dump(app_extension_configuration.extension_configuration)
+            if issubclass(extension_type, Configurable):
+                dumped_configuration[extension_type.name()]['configuration'] = app_extension_configuration.extension_configuration.dump()
         return dumped_configuration
 
 
@@ -298,22 +294,19 @@ class LocalesConfiguration(GenericConfiguration):
         self._configurations.move_to_end(configuration.locale, False)
         self.react.trigger()
 
-    @classmethod
-    def load(cls, dumped_configuration: Any) -> LocalesConfiguration:
+    def load(self, dumped_configuration: Any) -> None:
         if not isinstance(dumped_configuration, list):
             raise ConfigurationError('Locales configuration much be a list.')
 
-        loaded_configuration = cls()
         if len(dumped_configuration) > 0:
-            loaded_configuration._configurations.clear()
+            self._configurations.clear()
             for dumped_locale_configuration in dumped_configuration:
                 locale = dumped_locale_configuration['locale']
                 parse_locale(locale, '-')
-                loaded_configuration.add(LocaleConfiguration(
+                self.add(LocaleConfiguration(
                     locale,
                     dumped_locale_configuration['alias'] if 'alias' in dumped_locale_configuration else None,
                 ))
-        return loaded_configuration
 
     def dump(self) -> Any:
         dumped_configuration = []
@@ -341,14 +334,9 @@ class ThemeConfiguration(GenericConfiguration):
     def background_image_id(self, background_image_id: Optional[str]) -> None:
         self._background_image_id = background_image_id
 
-    @classmethod
-    def load(cls, dumped_configuration: Any) -> Configuration:
-        loaded_configuration = cls()
-
+    def load(self, dumped_configuration: Any) -> None:
         for key, value in dumped_configuration.items():
-            setattr(loaded_configuration, key, value)
-
-        return loaded_configuration
+            setattr(self, key, value)
 
     def dump(self) -> Any:
         dumped_configuration = {
@@ -358,11 +346,12 @@ class ThemeConfiguration(GenericConfiguration):
 
 
 class Configuration(GenericConfiguration):
-    def __init__(self, output_directory_path: os.PathLike, base_url: str):
+    def __init__(self, base_url: Optional[str] = None):
         super().__init__()
-        self.cache_directory_path = fs.CACHE_DIRECTORY_PATH
-        self.output_directory_path = Path(output_directory_path)
-        self.base_url = base_url
+        self._cache_directory_path = fs.CACHE_DIRECTORY_PATH
+        self._default_output_directory = TemporaryDirectory()
+        self.output_directory_path = self._default_output_directory.name
+        self.base_url = 'https://example.com' if base_url is None else base_url
         self.root_path = '/'
         self.clean_urls = False
         self.content_negotiation = False
@@ -378,14 +367,17 @@ class Configuration(GenericConfiguration):
         self._theme.react(self)
         self.lifetime_threshold = 125
 
+    def __del__(self):
+        self._default_output_directory.cleanup()
+
     @reactive
     @property
-    def output_directory_path(self) -> str:
+    def output_directory_path(self) -> Path:
         return self._output_directory_path
 
     @output_directory_path.setter
-    def output_directory_path(self, output_directory_path: str) -> None:
-        self._output_directory_path = output_directory_path
+    def output_directory_path(self, output_directory_path: PathLike) -> None:
+        self._output_directory_path = Path(output_directory_path)
 
     @reactive
     @property
@@ -506,76 +498,71 @@ class Configuration(GenericConfiguration):
             raise ConfigurationError('The lifetime threshold must be a positive number.')
         self._lifetime_threshold = lifetime_threshold
 
-    @classmethod
-    def load(cls, dumped_configuration: Any) -> Configuration:
+    def load(self, dumped_configuration: Any) -> None:
         if not isinstance(dumped_configuration, dict):
             raise ConfigurationError('Betty configuration must be a mapping (dictionary).')
 
         if 'output' not in dumped_configuration or not isinstance(dumped_configuration['output'], str):
             raise ConfigurationError('The output directory path is required and must be a string.', contexts=['`output`'])
         with ensure_context('`output`'):
-            output_directory_path = ensure_path(dumped_configuration['output'])
+            self.output_directory_path = ensure_path(dumped_configuration['output'])
 
         if 'base_url' not in dumped_configuration or not isinstance(dumped_configuration['base_url'], str):
             raise ConfigurationError('The base URL is required and must be a string.', contexts=['`base_url`'])
-        base_url = dumped_configuration['base_url']
-
-        loaded_configuration = cls(output_directory_path, base_url)
+        self.base_url = dumped_configuration['base_url']
 
         if 'title' in dumped_configuration:
             if not isinstance(dumped_configuration['title'], str):
                 raise ConfigurationError('The title must be a string.', contexts=['`title`'])
-            loaded_configuration.title = dumped_configuration['title']
+            self.title = dumped_configuration['title']
 
         if 'author' in dumped_configuration:
             if not isinstance(dumped_configuration['author'], str):
                 raise ConfigurationError('The author must be a string.', contexts=['`author`'])
-            loaded_configuration.author = dumped_configuration['author']
+            self.author = dumped_configuration['author']
 
         if 'root_path' in dumped_configuration:
             if not isinstance(dumped_configuration['root_path'], str):
                 raise ConfigurationError('The root path must be a string.', contexts=['`root_path`'])
-            loaded_configuration.root_path = dumped_configuration['root_path']
+            self.root_path = dumped_configuration['root_path']
 
         if 'clean_urls' in dumped_configuration:
             if not isinstance(dumped_configuration['clean_urls'], bool):
                 raise ConfigurationError('Clean URLs must be enabled (true) or disabled (false) with a boolean.', contexts=['`clean_urls`'])
-            loaded_configuration.clean_urls = dumped_configuration['clean_urls']
+            self.clean_urls = dumped_configuration['clean_urls']
 
         if 'content_negotiation' in dumped_configuration:
             if not isinstance(dumped_configuration['content_negotiation'], bool):
                 raise ConfigurationError('Content negotiation must be enabled (true) or disabled (false) with a boolean.', contexts=['`content_negotiation`'])
-            loaded_configuration.content_negotiation = dumped_configuration['content_negotiation']
+            self.content_negotiation = dumped_configuration['content_negotiation']
 
         if 'debug' in dumped_configuration:
             if not isinstance(dumped_configuration['debug'], bool):
                 raise ConfigurationError('Debugging must be enabled (true) or disabled (false) with a boolean.', contexts=['`debug`'])
-            loaded_configuration.debug = dumped_configuration['debug']
+            self.debug = dumped_configuration['debug']
 
         if 'assets' in dumped_configuration:
             if not isinstance(dumped_configuration['assets'], str):
                 raise ConfigurationError('The assets directory path must be a string.', contexts=['`assets`'])
             with ensure_context('`assets`'):
-                loaded_configuration.assets_directory_path = ensure_directory_path(dumped_configuration['assets'])
+                self.assets_directory_path = ensure_directory_path(dumped_configuration['assets'])
 
         if 'lifetime_threshold' in dumped_configuration:
             if not isinstance(dumped_configuration['lifetime_threshold'], int):
                 raise ConfigurationError('The lifetime threshold must be an integer.', contexts=['`lifetime_threshold`'])
-            loaded_configuration.lifetime_threshold = dumped_configuration['lifetime_threshold']
+            self.lifetime_threshold = dumped_configuration['lifetime_threshold']
 
         if 'locales' in dumped_configuration:
             with ensure_context('`locales`'):
-                loaded_configuration._locales = LocalesConfiguration.load(dumped_configuration['locales'])
+                self._locales.load(dumped_configuration['locales'])
 
         if 'extensions' in dumped_configuration:
             with ensure_context('`extensions`'):
-                loaded_configuration._extensions = AppExtensionsConfiguration.load(dumped_configuration['extensions'])
+                self._extensions.load(dumped_configuration['extensions'])
 
         if 'theme' in dumped_configuration:
             with ensure_context('`theme`'):
-                loaded_configuration._theme = ThemeConfiguration.load(dumped_configuration['theme'])
-
-        return loaded_configuration
+                self._theme.load(dumped_configuration['theme'])
 
     def dump(self) -> Any:
         dumped_configuration = {
@@ -604,25 +591,25 @@ class Configuration(GenericConfiguration):
         return dumped_configuration
 
 
-@reactive
 class App(Configurable[Configuration], Environment):
-    def __init__(self, configuration: Configuration):
+    def __init__(self):
         from betty.url import AppUrlGenerator, StaticPathUrlGenerator
 
-        super().__init__(configuration)
+        super().__init__(Configuration())
+
         self._active = False
+        self._extensions = None
         self._ancestry = Ancestry()
         self._assets = FileSystem()
         self._dispatcher = None
         self._entity_types = None
         self._event_types = None
         self._url_generator = AppUrlGenerator(self)
-        self._static_url_generator = StaticPathUrlGenerator(configuration)
+        self._static_url_generator = StaticPathUrlGenerator(self.configuration)
         self._debug = None
         self._locale = None
-        self._translations = defaultdict(NullTranslations)
+        self._translations = TranslationsRepository(self.assets)
         self._default_translations = None
-        self._extensions = None
         self._activation_exit_stack = AsyncExitStack()
         self._jinja2_environment = None
         self._renderer = None
@@ -634,25 +621,66 @@ class App(Configurable[Configuration], Environment):
     def configuration_type(cls) -> Type[Configuration]:
         return Configuration
 
-    async def wait(self) -> None:
-        await self._wait_for_threads()
+    def wait(self) -> None:
+        self._wait_for_threads()
 
-    async def _wait_for_threads(self) -> None:
+    def _wait_for_threads(self) -> None:
         if self._executor:
-            await self._executor.wait()
+            self._executor.wait()
+
+    def _assert_active(self) -> None:
+        if not self._active:
+            raise RuntimeError('This application is not yet active.')
+
+    def _assert_deactive(self) -> None:
+        if self._active:
+            raise RuntimeError('This application is still active.')
+
+    @contextmanager
+    def activate_locale(self, requested_locale: str) -> None:
+        """
+        Temporarily change this application's locale and the global gettext translations.
+        """
+        self._assert_active()
+
+        negotiated_locale = negotiate_locale(
+            requested_locale,
+            [
+                locale_configuration.locale
+                for locale_configuration
+                in self.configuration.locales
+            ],
+        )
+
+        if negotiated_locale is None:
+            raise ValueError(f'Locale "{requested_locale}" is not enabled.')
+
+        previous_locale = self._locale
+        if negotiated_locale == previous_locale:
+            yield
+            return
+        self._wait_for_threads()
+
+        self._locale = negotiated_locale
+        with self.translations[negotiated_locale]:
+            self.react.getattr('locale').react.trigger()
+            yield
+            self._wait_for_threads()
+
+        self._locale = previous_locale
+        self.react.getattr('locale').react.trigger()
 
     async def activate(self) -> None:
-        if self._active:
-            raise RuntimeError('This application is active already.')
+        self._assert_deactive()
         self._active = True
 
-        await self._wait_for_threads()
+        self._wait_for_threads()
 
         try:
             # Enable the gettext API by entering a dummy translations context.
             self._activation_exit_stack.enter_context(Translations(NullTranslations()))
             # Then enter the final locale context (doing so may recursively require the gettext API).
-            await self._activation_exit_stack.enter_async_context(self.with_locale(self.locale))
+            self._activation_exit_stack.enter_context(self.activate_locale(self.locale))
             for extension in self.extensions.flatten():
                 await extension.activate()
                 self._activation_exit_stack.push_async_callback(extension.deactivate)
@@ -660,12 +688,11 @@ class App(Configurable[Configuration], Environment):
             await self.deactivate()
             raise
 
-    async def deactivate(self):
-        if not self._active:
-            raise RuntimeError('This application is not yet active.')
+    async def deactivate(self) -> None:
+        self._assert_active()
         self._active = False
 
-        await self._wait_for_threads()
+        self._wait_for_threads()
 
         await self._activation_exit_stack.aclose()
 
@@ -723,9 +750,9 @@ class App(Configurable[Configuration], Environment):
             extension_types_batch = extension_types_sorter.get_ready()
             extensions_batch = []
             for extension_type in extension_types_batch:
-                if issubclass(extension_type, ConfigurableExtension):
+                if issubclass(extension_type, Configurable):
                     if extension_type not in extension_types_enabled_in_configuration or self._configuration.extensions[extension_type].extension_configuration is None:
-                        configuration = extension_type.default_configuration()
+                        configuration = extension_type.default()
                     else:
                         configuration = self._configuration.extensions[extension_type].extension_configuration
                     extension = extension_type(self, configuration)
@@ -739,19 +766,19 @@ class App(Configurable[Configuration], Environment):
     @reactive
     @property
     def assets(self) -> FileSystem:
-        if len(self._assets.paths) == 0:
-            self._assets.paths.appendleft((ASSETS_DIRECTORY_PATH, 'utf-8'))
+        if len(self._assets) == 0:
+            self._assets.prepend(ASSETS_DIRECTORY_PATH, 'utf-8')
             for extension in self.extensions.flatten():
                 if extension.assets_directory_path() is not None:
-                    self._assets.paths.appendleft((extension.assets_directory_path(), 'utf-8'))
+                    self._assets.prepend(extension.assets_directory_path(), 'utf-8')
             if self._configuration.assets_directory_path:
-                self._assets.paths.appendleft((self._configuration.assets_directory_path, None))
+                self._assets.prepend(self._configuration.assets_directory_path)
 
         return self._assets
 
     @assets.deleter
     def assets(self) -> None:
-        self._assets.paths.clear()
+        self._assets.clear()
 
     @property
     def dispatcher(self) -> Dispatcher:
@@ -768,23 +795,9 @@ class App(Configurable[Configuration], Environment):
     def static_url_generator(self) -> StaticUrlGenerator:
         return self._static_url_generator
 
-    @reactive
     @property
-    def translations(self) -> Dict[str, NullTranslations]:
-        if len(self._translations) == 0:
-            self._translations['en-US'] = NullTranslations()
-            for locale_configuration in self._configuration.locales:
-                for assets_path, _ in reversed(self.assets.paths):
-                    translations = open_translations(locale_configuration.locale, assets_path)
-                    if translations:
-                        translations.add_fallback(self._translations[locale_configuration.locale])
-                        self._translations[locale_configuration.locale] = translations
-
+    def translations(self) -> TranslationsRepository:
         return self._translations
-
-    @translations.deleter
-    def translations(self) -> None:
-        self._translations.clear()
 
     @reactive
     @property
@@ -889,44 +902,3 @@ class App(Configurable[Configuration], Environment):
     @entity_types.deleter
     def entity_types(self) -> None:
         self._entity_types = None
-
-    @asynccontextmanager
-    async def with_locale(self, locale: str) -> App:
-        """
-        Temporarily change this application's locale and the global gettext translations.
-        """
-        locale = negotiate_locale(locale, [locale_configuration.locale for locale_configuration in self.configuration.locales])
-
-        if locale is None:
-            raise ValueError('Locale "%s" is not enabled.' % locale)
-
-        previous_locale = self._locale
-        if locale == previous_locale:
-            yield self
-            return
-        await self._wait_for_threads()
-
-        self._locale = locale
-        with Translations(self.translations[locale]):
-            self.react.getattr('locale').react.trigger()
-            yield self
-            await self._wait_for_threads()
-
-        self._locale = previous_locale
-        self.react.getattr('locale').react.trigger()
-
-    @asynccontextmanager
-    async def with_debug(self, debug: bool) -> App:
-        previous_debug = self.debug
-        if debug == previous_debug:
-            yield self
-            return
-        await self._wait_for_threads()
-
-        self._debug = debug
-        self.react.getattr('debug').react.trigger()
-        yield self
-        await self._wait_for_threads()
-
-        self._debug = previous_debug
-        self.react.getattr('debug').react.trigger()

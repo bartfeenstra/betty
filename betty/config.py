@@ -19,14 +19,13 @@ class ConfigurationError(UserFacingError, ContextError, ValueError):
 
 @reactive
 class Configuration:
-    @classmethod
-    def load(cls, dumped_configuration: Any) -> Configuration:
+    def load(self, dumped_configuration: Any) -> None:
         """
-        Validate and convert the dumped configuration to a cls instance.
+        Validate the dumped configuration and load it into self.
 
         Raises
         ------
-        betty.config.ConfigurationValueError
+        betty.config.ConfigurationError
         """
 
         raise NotImplementedError
@@ -34,47 +33,49 @@ class Configuration:
     def dump(self) -> Any:
         """
         Dump this configuration to a portable format.
-
-        Returns
-        -------
-        Dict[str, Any]
         """
 
         raise NotImplementedError
+
+    @classmethod
+    def default(cls) -> Configuration:
+        return cls()
 
 
 ConfigurationT = TypeVar('ConfigurationT', bound=Configuration)
 
 
+@reactive
 class Configurable(Generic[ConfigurationT]):
     def __init__(self, configuration: ConfigurationT, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._configuration = configuration
+        configuration.react(self)
 
     @property
     def configuration(self) -> ConfigurationT:
         return self._configuration
 
     @classmethod
-    def configuration_type(cls) -> Type[Configuration]:
+    def configuration_type(cls) -> Type[ConfigurationT]:
         raise NotImplementedError
 
 
-def from_json(configuration_json: str, configuration_type: Type[ConfigurationT]) -> ConfigurationT:
+def from_json(configuration_json: str) -> Any:
     try:
-        return configuration_type.load(json.loads(configuration_json))
+        return json.loads(configuration_json)
     except json.JSONDecodeError as e:
         raise ConfigurationError('Invalid JSON: %s.' % e)
 
 
-def from_yaml(configuration_yaml: str, configuration_type: Type[ConfigurationT]) -> ConfigurationT:
+def from_yaml(configuration_yaml: str) -> Any:
     try:
-        return configuration_type.load(yaml.safe_load(configuration_yaml))
+        return yaml.safe_load(configuration_yaml)
     except yaml.YAMLError as e:
         raise ConfigurationError('Invalid YAML: %s' % e)
 
 
-def from_file(f, configuration_type: Type[ConfigurationT]) -> ConfigurationT:
+def from_file(f, configuration: Configuration) -> None:
     file_path = Path(f.name)
     file_extension = file_path.suffix
     try:
@@ -85,7 +86,7 @@ def from_file(f, configuration_type: Type[ConfigurationT]) -> ConfigurationT:
     # path.
     with os.ChDir(Path(f.name).parent):
         with ensure_context('in %s' % file_path.resolve()):
-            return loader(f.read(), configuration_type)
+            configuration.load(loader(f.read()))
 
 
 def to_json(configuration: Configuration) -> str:
@@ -110,9 +111,9 @@ def to_file(f, configuration: Configuration) -> None:
 
 @dataclass(frozen=True)
 class _Format:
-    # These loaders must take two arguments, which are the configuration in their format, as a string, and the type of
-    # configuration to load as Type[Configuration]. They must return Configuration or raise ConfigurationError.
-    loader: Callable[[str, Type[ConfigurationT]], ConfigurationT]
+    # These loaders must take a single argument, which is the configuration in its dumped format, as a string. They must
+    # return Configuration or raise ConfigurationError.
+    loader: Callable[[str], Any]
     # These dumpers must take a single argument, which is Configuration. They must return a single string.
     dumper: Callable[[Configuration], str]
 

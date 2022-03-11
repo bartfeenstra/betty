@@ -5,7 +5,7 @@ from typing import Tuple, Optional
 from unittest.mock import patch, call
 
 from betty.media_type import MediaType
-from betty.tests import TestCase
+from betty.tests import TestCase, patch_cache
 
 try:
     from unittest.mock import AsyncMock
@@ -20,7 +20,7 @@ from betty.model.ancestry import Source, Link, Citation
 from betty.asyncio import sync
 from betty.load import load
 from betty.wikipedia import Entry, _Retriever, NotAnEntryError, _parse_url, RetrievalError, _Populator, Wikipedia
-from betty.app import App, Configuration, AppExtensionConfiguration, LocaleConfiguration
+from betty.app import App, AppExtensionConfiguration, LocaleConfiguration
 
 
 class ParseUrlTest(TestCase):
@@ -227,18 +227,14 @@ class RetrieverTest(TestCase):
 
 class PopulatorTest(TestCase):
     @patch('betty.wikipedia._Retriever')
+    @patch_cache
     @sync
     async def test_populate_link_should_convert_http_to_https(self, m_retriever) -> None:
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         entry_language = 'nl'
-        with TemporaryDirectory() as output_directory_path:
-            with TemporaryDirectory() as cache_directory_path:
-                configuration = Configuration(
-                    output_directory_path, 'https://example.com')
-                configuration.cache_directory_path = cache_directory_path
-                async with App(configuration) as app:
-                    sut = _Populator(app, m_retriever)
-                    await sut.populate_link(link, entry_language)
+        async with App() as app:
+            sut = _Populator(app, m_retriever)
+            await sut.populate_link(link, entry_language)
         self.assertEqual('https://en.wikipedia.org/wiki/Amsterdam', link.url)
 
     @parameterized.expand([
@@ -247,18 +243,14 @@ class PopulatorTest(TestCase):
         (MediaType('text/html'), None),
     ])
     @patch('betty.wikipedia._Retriever')
+    @patch_cache
     @sync
     async def test_populate_link_should_set_media_type(self, expected: MediaType, media_type: Optional[MediaType], m_retriever) -> None:
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.media_type = media_type
-        with TemporaryDirectory() as output_directory_path:
-            with TemporaryDirectory() as cache_directory_path:
-                configuration = Configuration(
-                    output_directory_path, 'https://example.com')
-                configuration.cache_directory_path = cache_directory_path
-                async with App(configuration) as app:
-                    sut = _Populator(app, m_retriever)
-                    await sut.populate_link(link, 'en')
+        async with App() as app:
+            sut = _Populator(app, m_retriever)
+            await sut.populate_link(link, 'en')
         self.assertEqual(expected, link.media_type)
 
     @parameterized.expand([
@@ -267,18 +259,14 @@ class PopulatorTest(TestCase):
         ('external', None),
     ])
     @patch('betty.wikipedia._Retriever')
+    @patch_cache
     @sync
     async def test_populate_link_should_set_relationship(self, expected: str, relationship: Optional[str], m_retriever) -> None:
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.relationship = relationship
-        with TemporaryDirectory() as output_directory_path:
-            with TemporaryDirectory() as cache_directory_path:
-                configuration = Configuration(
-                    output_directory_path, 'https://example.com')
-                configuration.cache_directory_path = cache_directory_path
-                async with App(configuration) as app:
-                    sut = _Populator(app, m_retriever)
-                    await sut.populate_link(link, 'en')
+        async with App() as app:
+            sut = _Populator(app, m_retriever)
+            await sut.populate_link(link, 'en')
         self.assertEqual(expected, link.relationship)
 
     @parameterized.expand([
@@ -287,18 +275,14 @@ class PopulatorTest(TestCase):
         ('nl', 'en', 'nl'),
     ])
     @patch('betty.wikipedia._Retriever')
+    @patch_cache
     @sync
     async def test_populate_link_should_set_locale(self, expected: str, entry_language: str, locale: Optional[str], m_retriever) -> None:
         link = Link('http://%s.wikipedia.org/wiki/Amsterdam' % entry_language)
         link.locale = locale
-        with TemporaryDirectory() as output_directory_path:
-            with TemporaryDirectory() as cache_directory_path:
-                configuration = Configuration(
-                    output_directory_path, 'https://example.com')
-                configuration.cache_directory_path = cache_directory_path
-                async with App(configuration) as app:
-                    sut = _Populator(app, m_retriever)
-                    await sut.populate_link(link, entry_language)
+        async with App() as app:
+            sut = _Populator(app, m_retriever)
+            await sut.populate_link(link, entry_language)
         self.assertEqual(expected, link.locale)
 
     @parameterized.expand([
@@ -306,19 +290,15 @@ class PopulatorTest(TestCase):
         ('Read more on Wikipedia.', None),
     ])
     @patch('betty.wikipedia._Retriever')
+    @patch_cache
     @sync
     async def test_populate_link_should_set_description(self, expected: str, description: str, m_retriever) -> None:
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.description = description
         entry_language = 'en'
-        with TemporaryDirectory() as output_directory_path:
-            with TemporaryDirectory() as cache_directory_path:
-                configuration = Configuration(
-                    output_directory_path, 'https://example.com')
-                configuration.cache_directory_path = cache_directory_path
-                async with App(configuration) as app:
-                    sut = _Populator(app, m_retriever)
-                    await sut.populate_link(link, entry_language)
+        async with App() as app:
+            sut = _Populator(app, m_retriever)
+            await sut.populate_link(link, entry_language)
         self.assertEqual(expected, link.description)
 
     @parameterized.expand([
@@ -326,69 +306,54 @@ class PopulatorTest(TestCase):
         ('The city of Amsterdam', None),
     ])
     @patch('betty.wikipedia._Retriever')
+    @patch_cache
     @sync
     async def test_populate_link_should_set_label(self, expected: str, label: Optional[str], m_retriever) -> None:
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.label = label
         entry = Entry('en', 'The_city_of_Amsterdam', 'The city of Amsterdam', 'Amsterdam, such a lovely place!')
-        with TemporaryDirectory() as output_directory_path:
-            with TemporaryDirectory() as cache_directory_path:
-                configuration = Configuration(
-                    output_directory_path, 'https://example.com')
-                configuration.cache_directory_path = cache_directory_path
-                async with App(configuration) as app:
-                    sut = _Populator(app, m_retriever)
-                    await sut.populate_link(link, 'en', entry)
+        async with App() as app:
+            sut = _Populator(app, m_retriever)
+            await sut.populate_link(link, 'en', entry)
         self.assertEqual(expected, link.label)
 
     @patch('betty.wikipedia._Retriever')
+    @patch_cache
     @sync
     async def test_populate_should_ignore_resource_without_link_support(self, m_retriever) -> None:
         source = Source('The Source')
         resource = Citation('the_citation', source)
-        with TemporaryDirectory() as output_directory_path:
-            with TemporaryDirectory() as cache_directory_path:
-                configuration = Configuration(
-                    output_directory_path, 'https://example.com')
-                configuration.cache_directory_path = cache_directory_path
-                async with App(configuration) as app:
-                    app.ancestry.entities.append(resource)
-                    sut = _Populator(app, m_retriever)
-                    await sut.populate()
+        async with App() as app:
+            app.ancestry.entities.append(resource)
+            sut = _Populator(app, m_retriever)
+            await sut.populate()
 
     @patch('betty.wikipedia._Retriever')
+    @patch_cache
     @sync
     async def test_populate_should_ignore_resource_without_links(self, m_retriever) -> None:
         resource = Source('the_source', 'The Source')
-        with TemporaryDirectory() as output_directory_path:
-            with TemporaryDirectory() as cache_directory_path:
-                configuration = Configuration(
-                    output_directory_path, 'https://example.com')
-                configuration.cache_directory_path = cache_directory_path
-                async with App(configuration) as app:
-                    app.ancestry.entities.append(resource)
-                    sut = _Populator(app, m_retriever)
-                    await sut.populate()
+        async with App() as app:
+            app.ancestry.entities.append(resource)
+            sut = _Populator(app, m_retriever)
+            await sut.populate()
         self.assertSetEqual(set(), resource.links)
 
     @patch('betty.wikipedia._Retriever')
+    @patch_cache
     @sync
     async def test_populate_should_ignore_non_wikipedia_links(self, m_retriever) -> None:
         link = Link('https://example.com')
         resource = Source('the_source', 'The Source')
         resource.links.add(link)
-        with TemporaryDirectory() as output_directory_path:
-            with TemporaryDirectory() as cache_directory_path:
-                configuration = Configuration(
-                    output_directory_path, 'https://example.com')
-                configuration.cache_directory_path = cache_directory_path
-                async with App(configuration) as app:
-                    app.ancestry.entities.append(resource)
-                    sut = _Populator(app, m_retriever)
-                    await sut.populate()
+        async with App() as app:
+            app.ancestry.entities.append(resource)
+            sut = _Populator(app, m_retriever)
+            await sut.populate()
         self.assertSetEqual({link}, resource.links)
 
     @patch('betty.wikipedia._Retriever', spec=_Retriever, new_callable=AsyncMock)
+    @patch_cache
     @sync
     async def test_populate_should_populate_existing_link(self, m_retriever) -> None:
         entry_language = 'en'
@@ -401,15 +366,10 @@ class PopulatorTest(TestCase):
         resource = Source('the_source', 'The Source')
         link = Link('https://en.wikipedia.org/wiki/Amsterdam')
         resource.links.add(link)
-        with TemporaryDirectory() as output_directory_path:
-            with TemporaryDirectory() as cache_directory_path:
-                configuration = Configuration(
-                    output_directory_path, 'https://example.com')
-                configuration.cache_directory_path = cache_directory_path
-                async with App(configuration) as app:
-                    app.ancestry.entities.append(resource)
-                    sut = _Populator(app, m_retriever)
-                    await sut.populate()
+        async with App() as app:
+            app.ancestry.entities.append(resource)
+            sut = _Populator(app, m_retriever)
+            await sut.populate()
         m_retriever.get_entry.assert_called_once_with(entry_language, entry_name)
         self.assertEqual(1, len(resource.links))
         self.assertEqual('Amsterdam', link.label)
@@ -419,6 +379,7 @@ class PopulatorTest(TestCase):
         self.assertEqual('external', link.relationship)
 
     @patch('betty.wikipedia._Retriever', spec=_Retriever, new_callable=AsyncMock)
+    @patch_cache
     @sync
     async def test_populate_should_add_translation_links(self, m_retriever) -> None:
         entry_language = 'en'
@@ -444,19 +405,15 @@ class PopulatorTest(TestCase):
         resource = Source('the_source', 'The Source')
         link_en = Link('https://en.wikipedia.org/wiki/Amsterdam')
         resource.links.add(link_en)
-        with TemporaryDirectory() as output_directory_path:
-            with TemporaryDirectory() as cache_directory_path:
-                configuration = Configuration(
-                    output_directory_path, 'https://example.com')
-                configuration.cache_directory_path = cache_directory_path
-                configuration.locales.replace([
-                    LocaleConfiguration('en-US', 'en'),
-                    LocaleConfiguration('nl-NL', 'nl'),
-                ])
-                async with App(configuration) as app:
-                    app.ancestry.entities.append(resource)
-                    sut = _Populator(app, m_retriever)
-                    await sut.populate()
+        app = App()
+        app.configuration.locales.replace([
+            LocaleConfiguration('en-US', 'en'),
+            LocaleConfiguration('nl-NL', 'nl'),
+        ])
+        async with app:
+            app.ancestry.entities.append(resource)
+            sut = _Populator(app, m_retriever)
+            await sut.populate()
 
         m_retriever.get_entry.assert_has_calls([
             call(entry_language, entry_name),
@@ -474,6 +431,7 @@ class PopulatorTest(TestCase):
 
 class WikipediaTest(TestCase):
     @aioresponses()
+    @patch_cache
     @sync
     async def test_filter(self, m_aioresponses) -> None:
         entry_url = 'https://en.wikipedia.org/wiki/Amsterdam'
@@ -499,18 +457,14 @@ class WikipediaTest(TestCase):
         }
         m_aioresponses.get(api_url, payload=api_response_body)
 
-        with TemporaryDirectory() as output_directory_path:
-            with TemporaryDirectory() as cache_directory_path:
-                configuration = Configuration(
-                    output_directory_path, 'https://ancestry.example.com')
-                configuration.cache_directory_path = Path(cache_directory_path)
-                configuration.extensions.add(AppExtensionConfiguration(Wikipedia))
-                async with App(configuration) as app:
-                    actual = app.jinja2_environment.from_string(
-                        '{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}').render(links=links)
+        async with App() as app:
+            app.configuration.extensions.add(AppExtensionConfiguration(Wikipedia))
+            actual = app.jinja2_environment.from_string(
+                '{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}').render(links=links)
         self.assertEquals(extract, actual)
 
     @aioresponses()
+    @patch_cache
     @sync
     async def test_post_load(self, m_aioresponses) -> None:
         resource = Source('the_source', 'The Source')
@@ -542,15 +496,10 @@ class WikipediaTest(TestCase):
         translations_api_url = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam&prop=langlinks&lllimit=500&format=json&formatversion=2'
         m_aioresponses.get(translations_api_url, payload=translations_api_response_body)
 
-        with TemporaryDirectory() as output_directory_path:
-            with TemporaryDirectory() as cache_directory_path:
-                configuration = Configuration(
-                    output_directory_path, 'https://example.com')
-                configuration.cache_directory_path = Path(cache_directory_path)
-                configuration.extensions.add(AppExtensionConfiguration(Wikipedia))
-                async with App(configuration) as app:
-                    app.ancestry.entities.append(resource)
-                    await load(app)
+        async with App() as app:
+            app.configuration.extensions.add(AppExtensionConfiguration(Wikipedia))
+            app.ancestry.entities.append(resource)
+            await load(app)
 
         self.assertEqual(1, len(resource.links))
         self.assertEqual(entry_title, link.label)

@@ -5,7 +5,7 @@ from contextlib import suppress
 from os.path import getmtime
 from pathlib import Path
 from shutil import copy2
-from typing import AsyncIterable, Optional, Tuple, AsyncContextManager
+from typing import AsyncIterable, Optional, Tuple, AsyncContextManager, Sequence
 
 import aiofiles
 
@@ -54,9 +54,18 @@ class FileSystem:
     def __init__(self, *paths: Tuple[PathLike, Optional[str]]):
         self._paths = deque([(Path(fs_path), fs_encoding) for fs_path, fs_encoding in paths])
 
+    def __len__(self) -> int:
+        return len(self._paths)
+
     @property
-    def paths(self) -> deque:
-        return self._paths
+    def paths(self) -> Sequence[Tuple[Path, str]]:
+        return list(self._paths)
+
+    def prepend(self, path: PathLike, fs_encoding: Optional[str] = None) -> None:
+        self._paths.appendleft((Path(path), fs_encoding))
+
+    def clear(self) -> None:
+        self._paths.clear()
 
     def open(self, *file_paths: PathLike) -> AsyncContextManager[object]:
         return self._Open(self, file_paths)

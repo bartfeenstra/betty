@@ -5,7 +5,7 @@ from unittest.mock import Mock
 
 from parameterized import parameterized
 
-from betty.app import App, Configuration, Extension, AppExtensionConfiguration, LocaleConfiguration
+from betty.app import App, Configuration, LocaleConfiguration
 from betty.asyncio import sync
 from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider
 from betty.locale import Date, Datey, DateRange, Localized
@@ -29,39 +29,35 @@ class Jinja2ProviderTest(TestCase):
 class Jinja2RendererTest(TestCase):
     @sync
     async def test_render_file(self) -> None:
-        with TemporaryDirectory() as output_directory_path:
-            configuration = Configuration(output_directory_path, 'https://ancestry.example.com')
-            async with App(configuration) as app:
-                sut = Jinja2Renderer(app.jinja2_environment, configuration)
-                template = '{% if true %}true{% endif %}'
-                expected_output = 'true'
-                with TemporaryDirectory() as working_directory_path:
-                    template_file_path = Path(working_directory_path) / 'betty.txt.j2'
-                    with open(template_file_path, 'w') as f:
-                        f.write(template)
-                    await sut.render_file(template_file_path)
-                    with open(Path(working_directory_path) / 'betty.txt') as f:
-                        self.assertEquals(expected_output, f.read().strip())
-                    self.assertFalse(template_file_path.exists())
+        async with App() as app:
+            sut = Jinja2Renderer(app.jinja2_environment, app.configuration)
+            template = '{% if true %}true{% endif %}'
+            expected_output = 'true'
+            with TemporaryDirectory() as working_directory_path:
+                template_file_path = Path(working_directory_path) / 'betty.txt.j2'
+                with open(template_file_path, 'w') as f:
+                    f.write(template)
+                await sut.render_file(template_file_path)
+                with open(Path(working_directory_path) / 'betty.txt') as f:
+                    self.assertEquals(expected_output, f.read().strip())
+                self.assertFalse(template_file_path.exists())
 
     @sync
     async def test_render_tree(self) -> None:
-        with TemporaryDirectory() as output_directory_path:
-            configuration = Configuration(output_directory_path, 'https://ancestry.example.com')
-            async with App(configuration) as app:
-                sut = Jinja2Renderer(app.jinja2_environment, configuration)
-                template = '{% if true %}true{% endif %}'
-                expected_output = 'true'
-                with TemporaryDirectory() as working_directory_path:
-                    working_subdirectory_path = Path(working_directory_path) / 'sub'
-                    working_subdirectory_path.mkdir(parents=True)
-                    scss_file_path = Path(working_subdirectory_path) / 'betty.txt.j2'
-                    with open(scss_file_path, 'w') as f:
-                        f.write(template)
-                    await sut.render_tree(working_directory_path)
-                    with open(Path(working_subdirectory_path) / 'betty.txt') as f:
-                        self.assertEquals(expected_output, f.read().strip())
-                    self.assertFalse(scss_file_path.exists())
+        async with App() as app:
+            sut = Jinja2Renderer(app.jinja2_environment, app.configuration)
+            template = '{% if true %}true{% endif %}'
+            expected_output = 'true'
+            with TemporaryDirectory() as working_directory_path:
+                working_subdirectory_path = Path(working_directory_path) / 'sub'
+                working_subdirectory_path.mkdir(parents=True)
+                scss_file_path = Path(working_subdirectory_path) / 'betty.txt.j2'
+                with open(scss_file_path, 'w') as f:
+                    f.write(template)
+                await sut.render_tree(working_directory_path)
+                with open(Path(working_subdirectory_path) / 'betty.txt') as f:
+                    self.assertEquals(expected_output, f.read().strip())
+                self.assertFalse(scss_file_path.exists())
 
 
 class FilterFlattenTest(TemplateTestCase):
@@ -210,57 +206,6 @@ class FilterImageTest(TemplateTestCase):
                 'file': file,
             }):
                 pass
-
-
-class TestExtension(Extension):
-    """
-    This class must be top-level. Otherwise it cannot be imported by its fully qualified name.
-    """
-    pass
-
-
-class GlobalExtensionsTest(TemplateTestCase):
-    @sync
-    async def test_getitem_with_unknown_extension(self):
-        template = '{{ extensions["betty.UnknownPlugin"] | default("false") }}'
-        async with self._render(template_string=template) as (actual, _):
-            self.assertEquals('false', actual)
-
-    @sync
-    async def test_getitem_with_disabled_extension(self):
-        template = '{{ extensions["%s"] | default("false") }}' % TestExtension.name()
-        async with self._render(template_string=template) as (actual, _):
-            self.assertEquals('false', actual)
-
-    @sync
-    async def test_getitem_with_enabled_extension(self):
-        template = '{%% if extensions["%s"] is not none %%}true{%% else %%}false{%% endif %%}' % TestExtension.name()
-
-        def _update_configuration(configuration: Configuration) -> None:
-            configuration.extensions.add(AppExtensionConfiguration(TestExtension))
-        async with self._render(template_string=template, update_configuration=_update_configuration) as (actual, _):
-            self.assertEquals('true', actual)
-
-    @sync
-    async def test_contains_with_unknown_extension(self):
-        template = '{% if "betty.UnknownExtension" in extensions %}true{% else %}false{% endif %}'
-        async with self._render(template_string=template) as (actual, _):
-            self.assertEquals('false', actual)
-
-    @sync
-    async def test_contains_with_disabled_extension(self):
-        template = '{%% if "%s" in extensions %%}true{%% else %%}false{%% endif %%}' % TestExtension.name()
-        async with self._render(template_string=template) as (actual, _):
-            self.assertEquals('false', actual)
-
-    @sync
-    async def test_contains_with_enabled_extension(self):
-        template = '{%% if "%s" in extensions %%}true{%% else %%}false{%% endif %%}' % TestExtension.name()
-
-        def _update_configuration(configuration: Configuration) -> None:
-            configuration.extensions.add(AppExtensionConfiguration(TestExtension))
-        async with self._render(template_string=template, update_configuration=_update_configuration) as (actual, _):
-            self.assertEquals('true', actual)
 
 
 class GlobalCiterTest(TemplateTestCase):

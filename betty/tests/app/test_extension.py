@@ -1,7 +1,6 @@
-from tempfile import TemporaryDirectory
 from typing import Set, Type, Any
 
-from betty.app import App, Configuration
+from betty.app import App
 from betty.app.extension import Extension, ListExtensions, ExtensionDispatcher, build_extension_type_graph, \
     discover_extension_types
 from betty.asyncio import sync
@@ -34,17 +33,15 @@ class ExtensionDispatcherTest(TestCase):
 
     @sync
     async def test(self) -> None:
-        with TemporaryDirectory() as output_directory_path:
-            configuration = Configuration(output_directory_path, 'https://example.com')
-            async with App(configuration) as app:
-                extensions = ListExtensions([
-                    [self._MultiplyingExtension(app, 1), self._MultiplyingExtension(app, 3)],
-                    [self._MultiplyingExtension(app, 2), self._MultiplyingExtension(app, 4)]
-                ])
-                sut = ExtensionDispatcher(extensions)
-                actual_returned_somethings = await sut.dispatch(self._Multiplier)(3)
-                expected_returned_somethings = [3, 9, 6, 12]
-                self.assertEqual(expected_returned_somethings, actual_returned_somethings)
+        async with App() as app:
+            extensions = ListExtensions([
+                [self._MultiplyingExtension(app, 1), self._MultiplyingExtension(app, 3)],
+                [self._MultiplyingExtension(app, 2), self._MultiplyingExtension(app, 4)]
+            ])
+            sut = ExtensionDispatcher(extensions)
+            actual_returned_somethings = await sut.dispatch(self._Multiplier)(3)
+            expected_returned_somethings = [3, 9, 6, 12]
+            self.assertEqual(expected_returned_somethings, actual_returned_somethings)
 
 
 class BuildExtensionTypeGraphTest(TestCase):

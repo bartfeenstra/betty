@@ -1,4 +1,3 @@
-from tempfile import TemporaryDirectory
 from typing import Optional, Set, Type
 from parameterized import parameterized
 
@@ -7,7 +6,7 @@ from betty.asyncio import sync
 from betty.locale import DateRange, Date, Datey
 from betty.load import load
 from betty.deriver import Deriver
-from betty.app import App, Configuration, AppExtensionConfiguration
+from betty.app import App, AppExtensionConfiguration
 from betty.model.event_type import DerivableEventType, CreatableDerivableEventType, Residence
 from betty.tests import TestCase
 
@@ -65,13 +64,10 @@ class DeriverTest(TestCase):
         reference_presence = Presence(person, Subject(), Event(None, Residence()))
         reference_presence.event.date = Date(1970, 1, 1)
 
-        with TemporaryDirectory() as output_directory_path:
-            configuration = Configuration(
-                output_directory_path, 'https://example.com')
-            configuration.extensions.add(AppExtensionConfiguration(Deriver))
-            async with App(configuration) as app:
-                app.ancestry.entities.append(person)
-                await load(app)
+        async with App() as app:
+            app.configuration.extensions.add(AppExtensionConfiguration(Deriver))
+            app.ancestry.entities.append(person)
+            await load(app)
 
         self.assertEquals(3, len(person.presences))
         self.assertEquals(DateRange(None, Date(1970, 1, 1), end_is_boundary=True), person.start.date)
@@ -81,16 +77,13 @@ class DeriverTest(TestCase):
 class DeriveTest(TestCase):
     @sync
     async def setUp(self) -> None:
-        self._output_directory = TemporaryDirectory()
-        configuration = Configuration(self._output_directory.name, 'https://example.com')
-        configuration.extensions.add(AppExtensionConfiguration(Deriver))
-        self._app = App(configuration)
+        self._app = App()
         await self._app.activate()
+        self._app.configuration.extensions.add(AppExtensionConfiguration(Deriver))
 
     @sync
     async def tearDown(self) -> None:
         await self._app.deactivate()
-        self._output_directory.cleanup()
 
     @parameterized.expand([
         (ComesBeforeDerivable,),

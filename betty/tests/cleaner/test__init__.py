@@ -1,6 +1,4 @@
-from tempfile import TemporaryDirectory
-
-from betty.app import App, Configuration, AppExtensionConfiguration
+from betty.app import App, AppExtensionConfiguration
 from betty.asyncio import sync
 from betty.cleaner import clean, Cleaner
 from betty.load import load
@@ -14,14 +12,11 @@ class CleanerTest(TestCase):
     @sync
     async def test_post_parse(self) -> None:
         event = Event('E0', Birth())
-        with TemporaryDirectory() as output_directory_path:
-            configuration = Configuration(
-                output_directory_path, 'https://example.com')
-            configuration.extensions.add(AppExtensionConfiguration(Cleaner))
-            async with App(configuration) as app:
-                app.ancestry.entities.append(event)
-                await load(app)
-                self.assertEquals([], list(app.ancestry.entities[Event]))
+        async with App() as app:
+            app.configuration.extensions.add(AppExtensionConfiguration(Cleaner))
+            app.ancestry.entities.append(event)
+            await load(app)
+            self.assertEquals([], list(app.ancestry.entities[Event]))
 
 
 class CleanTest(TestCase):

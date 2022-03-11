@@ -6,8 +6,9 @@ from typing import List, Optional
 
 from parameterized import parameterized
 
+from betty.fs import FileSystem
 from betty.locale import Localized, negotiate_localizeds, Date, format_datey, DateRange, Translations, negotiate_locale, \
-    Datey, open_translations, TranslationsInstallationError
+    Datey, TranslationsInstallationError, TranslationsRepository
 from betty.tests import TestCase
 
 
@@ -445,11 +446,13 @@ class FormatDateyTest(TestCase):
             self.assertEquals(expected, format_datey(datey, locale))
 
 
-class OpenTranslationsTest(TestCase):
-    def test(self) -> None:
+class TranslationsRepositoryTest(TestCase):
+    def test_getitem(self) -> None:
         locale = 'nl-NL'
         locale_path_name = 'nl_NL'
         with TemporaryDirectory() as assets_directory_path_str:
+            fs = FileSystem((assets_directory_path_str, None))
+            sut = TranslationsRepository(fs)
             assets_directory_path = Path(assets_directory_path_str)
             lc_messages_directory_path = assets_directory_path / 'locale' / locale_path_name / 'LC_MESSAGES'
             lc_messages_directory_path.mkdir(parents=True)
@@ -480,4 +483,4 @@ msgstr "Onderwerp"
 """
             with open(lc_messages_directory_path / 'betty.po', 'w') as f:
                 f.write(po)
-            self.assertIsInstance(open_translations(locale, assets_directory_path), NullTranslations)
+            self.assertIsInstance(sut[locale], NullTranslations)
