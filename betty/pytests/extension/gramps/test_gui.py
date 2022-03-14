@@ -4,7 +4,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
 from reactives import ReactiveList
 
-from betty.app import App, Configuration, AppExtensionConfiguration
+from betty.app import App, AppExtensionConfiguration
 from betty.asyncio import sync
 from betty.gramps import Gramps, GrampsConfiguration
 from betty.gramps.config import FamilyTreeConfiguration
@@ -13,9 +13,8 @@ from betty.gramps.gui import _AddFamilyTreeWindow
 
 @sync
 async def test_add_family_tree_set_path(assert_not_window, assert_window, tmpdir, qtbot) -> None:
-    configuration = Configuration(tmpdir, 'https://example.com')
-    configuration.extensions.add(AppExtensionConfiguration(Gramps))
-    async with App(configuration) as app:
+    async with App() as app:
+        app.configuration.extensions.add(AppExtensionConfiguration(Gramps))
         sut = app.extensions[Gramps]
         widget = sut.gui_build()
         qtbot.addWidget(widget)
@@ -37,9 +36,8 @@ async def test_add_family_tree_set_path(assert_not_window, assert_window, tmpdir
 
 @sync
 async def test_add_family_tree_find_path(assert_window, mocker, tmpdir, qtbot) -> None:
-    configuration = Configuration(tmpdir, 'https://example.com')
-    configuration.extensions.add(AppExtensionConfiguration(Gramps))
-    async with App(configuration) as app:
+    async with App() as app:
+        app.configuration.extensions.add(AppExtensionConfiguration(Gramps))
         sut = app.extensions[Gramps]
         widget = sut.gui_build()
         qtbot.addWidget(widget)
@@ -60,16 +58,15 @@ async def test_add_family_tree_find_path(assert_window, mocker, tmpdir, qtbot) -
 
 @sync
 async def test_remove_family_tree(tmpdir, qtbot) -> None:
-    configuration = Configuration(tmpdir, 'https://example.com')
-    configuration.extensions.add(AppExtensionConfiguration(
-        Gramps,
-        extension_configuration=GrampsConfiguration(
-            family_trees=ReactiveList([
-                FamilyTreeConfiguration('/tmp/family-tree.gpkg'),
-            ])
-        ),
-    ))
-    async with App(configuration) as app:
+    async with App() as app:
+        app.configuration.extensions.add(AppExtensionConfiguration(
+            Gramps,
+            extension_configuration=GrampsConfiguration(
+                family_trees=ReactiveList([
+                    FamilyTreeConfiguration('/tmp/family-tree.gpkg'),
+                ])
+            ),
+        ))
         sut = app.extensions[Gramps]
         widget = sut.gui_build()
         qtbot.addWidget(widget)

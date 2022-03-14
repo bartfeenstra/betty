@@ -8,7 +8,7 @@ from betty.os import PathLike
 
 
 class FamilyTreeConfiguration(Configuration):
-    def __init__(self, file_path: PathLike):
+    def __init__(self, file_path: Optional[PathLike] = None):
         super().__init__()
         self.file_path = file_path
 
@@ -19,12 +19,12 @@ class FamilyTreeConfiguration(Configuration):
 
     @reactive
     @property
-    def file_path(self) -> Path:
+    def file_path(self) -> Optional[Path]:
         return self._file_path
 
     @file_path.setter
-    def file_path(self, file_path: PathLike) -> None:
-        self._file_path = Path(file_path)
+    def file_path(self, file_path: Optional[PathLike]) -> None:
+        self._file_path = Path(file_path) if file_path else None
 
     @classmethod
     def load(cls, dumped_configuration: Any) -> Configuration:
@@ -57,20 +57,17 @@ class GrampsConfiguration(Configuration):
     def family_trees(self) -> List[FamilyTreeConfiguration]:
         return self._family_trees
 
-    @classmethod
-    def load(cls, dumped_configuration: Any) -> Configuration:
+    def load(self, dumped_configuration: Any) -> None:
         if not isinstance(dumped_configuration, dict):
             raise ConfigurationError('Gramps configuration must be a mapping (dictionary).')
 
         if 'family_trees' not in dumped_configuration or not isinstance(dumped_configuration['family_trees'], list):
             raise ConfigurationError('Family trees configuration is required and must must be a list.', contexts=['`family_trees`'])
 
-        loaded_family_tree_configurations = []
+        self._family_trees.clear()
         for i, dumped_family_tree_configuration in enumerate(dumped_configuration['family_trees']):
             with ensure_context(f'`{i}`'):
-                loaded_family_tree_configurations.append(FamilyTreeConfiguration.load(dumped_family_tree_configuration))
-
-        return cls(loaded_family_tree_configurations)
+                self._family_trees.append(FamilyTreeConfiguration.load(dumped_family_tree_configuration))
 
     def dump(self) -> Any:
         return {

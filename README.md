@@ -193,7 +193,7 @@ To build a site from your GEDCOM files:
 ### The Python API
 
 ```python
-from betty.app import App, Configuration
+from betty.app import App
 from betty.asyncio import sync
 from betty.generate import generate
 from betty.load import load
@@ -201,8 +201,7 @@ from betty.load import load
 
 @sync
 async def generate():
-    configuration = Configuration('/var/www/betty', 'https://betty.example.com')
-    async with App(configuration) as app:
+    async with App() as app:
         await load(app)
         await generate(app)
 

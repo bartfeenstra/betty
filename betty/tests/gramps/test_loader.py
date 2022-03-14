@@ -4,7 +4,7 @@ from typing import Optional
 
 from parameterized import parameterized
 
-from betty.app import App, Configuration
+from betty.app import App
 from betty.asyncio import sync
 from betty.gramps.loader import load_xml, load_gpkg, load_gramps
 from betty.locale import Date
@@ -17,21 +17,17 @@ from betty.tests import TestCase
 class LoadGrampsTest(TestCase):
     @sync
     async def test_load_gramps(self):
-        with TemporaryDirectory() as output_directory_path:
-            configuration = Configuration(output_directory_path, 'https://example.com')
-            async with App(configuration) as app:
-                gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.gramps'
-                load_gramps(app.ancestry, gramps_file_path)
+        async with App() as app:
+            gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.gramps'
+            load_gramps(app.ancestry, gramps_file_path)
 
 
 class LoadGpkgTest(TestCase):
     @sync
     async def test_load_gpkg(self):
-        with TemporaryDirectory() as output_directory_path:
-            configuration = Configuration(output_directory_path, 'https://example.com')
-            async with App(configuration) as app:
-                gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.gpkg'
-                load_gpkg(app.ancestry, gramps_file_path)
+        async with App() as app:
+            gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.gpkg'
+            load_gpkg(app.ancestry, gramps_file_path)
 
 
 class LoadXmlTest(TestCase):
@@ -40,22 +36,18 @@ class LoadXmlTest(TestCase):
     async def setUpClass(cls) -> None:
         TestCase.setUpClass()
         # @todo Convert each test method to use self._load(), so we can remove this shared XML file.
-        with TemporaryDirectory() as output_directory_path:
-            configuration = Configuration(output_directory_path, 'https://example.com')
-            async with App(configuration) as app:
-                cls.ancestry = app.ancestry
-                xml_file_path = Path(__file__).parent / 'assets' / 'data.xml'
-                with open(xml_file_path) as f:
-                    load_xml(app.ancestry, f.read(), rootname(xml_file_path))
+        async with App() as app:
+            cls.ancestry = app.ancestry
+            xml_file_path = Path(__file__).parent / 'assets' / 'data.xml'
+            with open(xml_file_path) as f:
+                load_xml(app.ancestry, f.read(), rootname(xml_file_path))
 
     @sync
     async def load(self, xml: str) -> Ancestry:
-        with TemporaryDirectory() as output_directory_path:
-            configuration = Configuration(output_directory_path, 'https://example.com')
-            async with App(configuration) as app:
-                with TemporaryDirectory() as tree_directory_path:
-                    load_xml(app.ancestry, xml.strip(), Path(tree_directory_path))
-                    return app.ancestry
+        async with App() as app:
+            with TemporaryDirectory() as tree_directory_path:
+                load_xml(app.ancestry, xml.strip(), Path(tree_directory_path))
+                return app.ancestry
 
     def _load_partial(self, xml: str) -> Ancestry:
         return self.load("""
@@ -74,20 +66,16 @@ class LoadXmlTest(TestCase):
 
     @sync
     async def test_load_xml_with_string(self):
-        with TemporaryDirectory() as output_directory_path:
-            configuration = Configuration(output_directory_path, 'https://example.com')
-            async with App(configuration) as app:
-                gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'
-                with open(gramps_file_path) as f:
-                    load_xml(app.ancestry, f.read(), rootname(gramps_file_path))
+        async with App() as app:
+            gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'
+            with open(gramps_file_path) as f:
+                load_xml(app.ancestry, f.read(), rootname(gramps_file_path))
 
     @sync
     async def test_load_xml_with_file_path(self):
-        with TemporaryDirectory() as output_directory_path:
-            configuration = Configuration(output_directory_path, 'https://example.com')
-            async with App(configuration) as app:
-                gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'
-                load_xml(app.ancestry, gramps_file_path, rootname(gramps_file_path))
+        async with App() as app:
+            gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'
+            load_xml(app.ancestry, gramps_file_path, rootname(gramps_file_path))
 
     def test_place_should_include_name(self):
         place = self.ancestry.entities[Place]['P0000']

@@ -11,14 +11,14 @@ from io import StringIO
 from contextlib import suppress
 from functools import total_ordering
 from pathlib import Path
-from typing import Optional, Tuple, Union, List, Dict, Callable
+from typing import Optional, Tuple, Union, List, Dict, Callable, Any
 
 import babel
 from babel import dates, Locale
 from babel.messages.frontend import CommandLineInterface
 
 from betty import fs
-from betty.fs import hashfile
+from betty.fs import hashfile, FileSystem
 
 
 class Localized:
@@ -301,6 +301,56 @@ class Translations(NullTranslations):
         }
 
 
+class TranslationsRepository:
+    def __init__(self, assets: FileSystem):
+        self._assets = assets
+        self._translations = {}
+
+    def __getitem__(self, locale: Any) -> Translations:
+        if not isinstance(locale, str):
+            raise ValueError(f'The locale to get must be a string, but {type(locale)} was given.')
+
+        try:
+            # Wrap the translations in a unique Translations instance, so we can enter a context for the same language
+            # more than once.
+            return Translations(self._translations[locale])
+        except KeyError:
+            return Translations(self._build_translations(locale))
+
+    def _build_translations(self, locale: str) -> Translations:
+        self._translations[locale] = NullTranslations()
+        for assets_path, _ in reversed(self._assets.paths):
+            translations = self._open_translations(locale, assets_path)
+            if translations:
+                translations.add_fallback(self._translations[locale])
+                self._translations[locale] = translations
+        return self._translations[locale]
+
+    def _open_translations(self, locale: str, assets_directory_path: Path) -> Optional[GNUTranslations]:
+        locale_path_name = locale.replace('-', '_')
+        po_file_path = assets_directory_path / 'locale' / locale_path_name / 'LC_MESSAGES' / 'betty.po'
+        try:
+            translation_version = hashfile(po_file_path)
+        except FileNotFoundError:
+            return None
+        translation_cache_directory_path = fs.CACHE_DIRECTORY_PATH / 'translations' / translation_version
+        cache_directory_path = translation_cache_directory_path / locale_path_name / 'LC_MESSAGES'
+        mo_file_path = cache_directory_path / 'betty.mo'
+
+        with suppress(FileNotFoundError):
+            with open(mo_file_path, 'rb') as f:
+                return GNUTranslations(f)
+
+        cache_directory_path.mkdir(exist_ok=True, parents=True)
+        with suppress(FileExistsError):
+            shutil.copyfile(po_file_path, cache_directory_path / 'betty.po')
+
+        with contextlib.redirect_stdout(StringIO()):
+            CommandLineInterface().run(['', 'compile', '-d', translation_cache_directory_path, '-l', locale_path_name, '-D', 'betty'])
+        with open(mo_file_path, 'rb') as f:
+            return GNUTranslations(f)
+
+
 def negotiate_locale(preferred_locale: str, available_locales: List[str]) -> Optional[str]:
     negotiated_locale = babel.negotiate_locale([preferred_locale], available_locales)
     if negotiated_locale is not None:
@@ -323,31 +373,6 @@ def negotiate_localizeds(preferred_locale: str, localizeds: List[Localized]) -> 
             return localized
     with suppress(IndexError):
         return localizeds[0]
-
-
-def open_translations(locale: str, directory_path: Path) -> Optional[GNUTranslations]:
-    locale_path_name = locale.replace('-', '_')
-    po_file_path = directory_path / 'locale' / locale_path_name / 'LC_MESSAGES' / 'betty.po'
-    try:
-        translation_version = hashfile(po_file_path)
-    except FileNotFoundError:
-        return None
-    translation_cache_directory_path = fs.CACHE_DIRECTORY_PATH / 'translations' / translation_version
-    cache_directory_path = translation_cache_directory_path / locale_path_name / 'LC_MESSAGES'
-    mo_file_path = cache_directory_path / 'betty.mo'
-
-    with suppress(FileNotFoundError):
-        with open(mo_file_path, 'rb') as f:
-            return GNUTranslations(f)
-
-    cache_directory_path.mkdir(exist_ok=True, parents=True)
-    with suppress(FileExistsError):
-        shutil.copyfile(po_file_path, cache_directory_path / 'betty.po')
-
-    with contextlib.redirect_stdout(StringIO()):
-        CommandLineInterface().run(['', 'compile', '-d', translation_cache_directory_path, '-l', locale_path_name, '-D', 'betty'])
-    with open(mo_file_path, 'rb') as f:
-        return GNUTranslations(f)
 
 
 def format_datey(date: Datey, locale: str) -> str:

@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import QFileDialog
 from babel import Locale
 
 from betty import fs
-from betty.app import App, Configuration, LocaleConfiguration
+from betty.app import App, LocaleConfiguration
 from betty.asyncio import sync
 from betty.config import ConfigurationError
 from betty.gui import BettyMainWindow, _WelcomeWindow, ProjectWindow, _AboutBettyWindow, ExceptionError, \
@@ -219,8 +219,8 @@ def test_project_window_localization_configuration_add_locale(qtbot, assert_not_
     qtbot.mouseClick(add_locale_window._save_and_close, Qt.MouseButton.LeftButton)
     assert_not_window(_AddLocaleWindow)
 
-    assert locale in sut._configuration.locales
-    assert sut._configuration.locales[locale].alias == alias
+    assert locale in sut._app.configuration.locales
+    assert sut._app.configuration.locales[locale].alias == alias
 
 
 def test_project_window_localization_configuration_remove_locale(qtbot, minimal_dumped_app_configuration, tmpdir) -> None:
@@ -244,7 +244,7 @@ def test_project_window_localization_configuration_remove_locale(qtbot, minimal_
 
     qtbot.mouseClick(sut._localization_configuration_pane._locales_configuration_widget._remove_buttons[locale], Qt.MouseButton.LeftButton)
 
-    assert locale not in sut._configuration.locales
+    assert locale not in sut._app.configuration.locales
 
 
 def test_project_window_localization_configuration_default_locale(qtbot, minimal_dumped_app_configuration, tmpdir) -> None:
@@ -270,7 +270,7 @@ def test_project_window_localization_configuration_default_locale(qtbot, minimal
     # @todo directly.
     sut._localization_configuration_pane._locales_configuration_widget._default_buttons[locale].click()
 
-    assert sut._configuration.locales.default == LocaleConfiguration(locale)
+    assert sut._app.configuration.locales.default == LocaleConfiguration(locale)
 
 
 def test_project_window_save_project_as_should_create_duplicate_configuration_file(mocker, navigate, qtbot, tmpdir) -> None:
@@ -315,9 +315,8 @@ def test_project_window_save_project_as_should_create_duplicate_configuration_fi
 
 
 @sync
-async def test_generate_window_close_button_should_close_window(assert_not_window, navigate, qtbot, tmpdir) -> None:
-    configuration = Configuration(tmpdir, 'https://example.com')
-    async with App(configuration) as app:
+async def test_generate_window_close_button_should_close_window(assert_not_window, navigate, qtbot) -> None:
+    async with App() as app:
         sut = _GenerateWindow(app)
         qtbot.addWidget(sut)
 
@@ -329,10 +328,9 @@ async def test_generate_window_close_button_should_close_window(assert_not_windo
 
 
 @sync
-async def test_generate_window_serve_button_should_open_serve_window(assert_window, mocker, navigate, qtbot, tmpdir) -> None:
+async def test_generate_window_serve_button_should_open_serve_window(assert_window, mocker, navigate, qtbot) -> None:
     mocker.patch('webbrowser.open_new_tab')
-    configuration = Configuration(tmpdir, 'https://example.com')
-    async with App(configuration) as app:
+    async with App() as app:
         sut = _GenerateWindow(app)
         qtbot.addWidget(sut)
 

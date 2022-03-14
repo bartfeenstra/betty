@@ -14,7 +14,7 @@ class ExceptionRaisingAwaitableExecutor(Executor):
     def map(self, *args, **kwargs):
         return self._executor.map(*args, **kwargs)
 
-    async def wait(self) -> None:
+    def wait(self) -> None:
         wait(self._futures)
 
     def shutdown(self, *args, **kwargs):

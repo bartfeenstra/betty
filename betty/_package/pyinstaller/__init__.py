@@ -1,7 +1,6 @@
 import asyncio
 import sys
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import List
 
 from PyInstaller.building.api import PYZ, EXE
@@ -10,7 +9,7 @@ from PyInstaller.utils.hooks import collect_submodules as pyinstaller_collect_su
 
 from betty._package import get_data_paths
 from betty._package.pyinstaller.hooks import HOOKS_DIRECTORY_PATH
-from betty.app import App, AppExtensionConfiguration, Configuration
+from betty.app import App, AppExtensionConfiguration
 from betty.asyncio import sync
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.http_api_doc import HttpApiDoc
@@ -35,17 +34,15 @@ def _filter_submodule(submodule: str) -> bool:
 
 async def _build_assets() -> None:
     npm_builder_extension_types = {HttpApiDoc, Maps, Trees}
-    with TemporaryDirectory() as output_directory_path:
-        configuration = Configuration(output_directory_path, 'https://example.com')
-        configuration.extensions.add(AppExtensionConfiguration(_Npm))
+    async with App() as app:
+        app.configuration.extensions.add(AppExtensionConfiguration(_Npm))
         for extension_type in npm_builder_extension_types:
-            configuration.extensions.add(AppExtensionConfiguration(extension_type))
-        async with App(configuration) as app:
-            await asyncio.gather(*[
-                build_assets(app.extensions[extension_type])
-                for extension_type
-                in npm_builder_extension_types
-            ])
+            app.configuration.extensions.add(AppExtensionConfiguration(extension_type))
+        await asyncio.gather(*[
+            build_assets(app.extensions[extension_type])
+            for extension_type
+            in npm_builder_extension_types
+        ])
 
 
 @sync

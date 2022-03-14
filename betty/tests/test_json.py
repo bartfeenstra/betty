@@ -1,10 +1,10 @@
 import json as stdjson
-from tempfile import TemporaryDirectory, NamedTemporaryFile
+from tempfile import NamedTemporaryFile
 
 from geopy import Point
 
 from betty import json
-from betty.app import App, Configuration, LocaleConfiguration
+from betty.app import App, LocaleConfiguration
 from betty.asyncio import sync
 from betty.json import JSONEncoder
 from betty.locale import Date, DateRange
@@ -17,16 +17,15 @@ from betty.tests import TestCase
 
 class JSONEncoderTest(TestCase):
     async def assert_encodes(self, expected, data, schema_definition: str):
-        with TemporaryDirectory() as output_directory:
-            configuration = Configuration(output_directory, 'https://example.com')
-            configuration.locales.replace([
-                LocaleConfiguration('en-US', 'en'),
-                LocaleConfiguration('nl-NL', 'nl'),
-            ])
-            async with App(configuration) as app:
-                encoded_data = stdjson.loads(stdjson.dumps(data, cls=JSONEncoder.get_factory(app)))
-            json.validate(encoded_data, schema_definition, app)
-            self.assertEquals(expected, encoded_data)
+        app = App()
+        app.configuration.locales.replace([
+            LocaleConfiguration('en-US', 'en'),
+            LocaleConfiguration('nl-NL', 'nl'),
+        ])
+        async with app:
+            encoded_data = stdjson.loads(stdjson.dumps(data, cls=JSONEncoder.get_factory(app)))
+        json.validate(encoded_data, schema_definition, app)
+        self.assertEquals(expected, encoded_data)
 
     @sync
     async def test_coordinates_should_encode(self):

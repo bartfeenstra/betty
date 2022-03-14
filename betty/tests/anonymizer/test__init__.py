@@ -1,8 +1,7 @@
 from gettext import NullTranslations
-from tempfile import TemporaryDirectory
 from unittest.mock import patch, ANY, Mock
 
-from betty.app import App, Configuration, AppExtensionConfiguration
+from betty.app import App, AppExtensionConfiguration
 from betty.asyncio import sync
 from betty.anonymizer import anonymize, anonymize_person, anonymize_event, anonymize_file, anonymize_citation, \
     anonymize_source, AnonymousSource, AnonymousCitation, Anonymizer
@@ -349,11 +348,8 @@ class AnonymizerTest(TestCase):
         person = Person('P0')
         person.private = True
         PersonName(person, 'Jane', 'Dough')
-        with TemporaryDirectory() as output_directory_path:
-            configuration = Configuration(
-                output_directory_path, 'https://example.com')
-            configuration.extensions.add(AppExtensionConfiguration(Anonymizer))
-            async with App(configuration) as app:
-                app.ancestry.entities.append(person)
-                await load(app)
+        async with App() as app:
+            app.configuration.extensions.add(AppExtensionConfiguration(Anonymizer))
+            app.ancestry.entities.append(person)
+            await load(app)
         self.assertEquals(0, len(person.names))

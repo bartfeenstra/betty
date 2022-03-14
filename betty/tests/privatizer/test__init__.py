@@ -1,10 +1,9 @@
 from datetime import datetime
-from tempfile import TemporaryDirectory
 from typing import Optional
 
 from parameterized import parameterized
 
-from betty.app import App, Configuration, AppExtensionConfiguration
+from betty.app import App, AppExtensionConfiguration
 from betty.asyncio import sync
 from betty.load import load
 from betty.locale import Date, DateRange
@@ -95,15 +94,12 @@ class PrivatizerTest(TestCase):
         citation.private = True
         citation.files.append(citation_file)
 
-        with TemporaryDirectory() as output_directory_path:
-            configuration = Configuration(
-                output_directory_path, 'https://example.com')
-            configuration.extensions.add(AppExtensionConfiguration(Privatizer))
-            async with App(configuration) as app:
-                app.ancestry.entities.append(person)
-                app.ancestry.entities.append(source)
-                app.ancestry.entities.append(citation)
-                await load(app)
+        async with App() as app:
+            app.configuration.extensions.add(AppExtensionConfiguration(Privatizer))
+            app.ancestry.entities.append(person)
+            app.ancestry.entities.append(source)
+            app.ancestry.entities.append(citation)
+            await load(app)
 
             self.assertTrue(person.private)
             self.assertTrue(source_file.private)

@@ -681,10 +681,10 @@ class _ProjectExtensionConfigurationPane(QWidget):
 
 class ProjectWindow(BettyMainWindow):
     def __init__(self, configuration_file_path: str, *args, **kwargs):
+        self._app = App()
         with open(configuration_file_path) as f:
-            self._configuration = from_file(f, Configuration)
-        self._configuration.react.react_weakref(self._save_configuration)
-        self._app = App(self._configuration)
+            from_file(f, self._app.configuration)
+        self._app.configuration.react.react_weakref(self._save_configuration)
         self._configuration_file_path = configuration_file_path
 
         super().__init__(*args, **kwargs)
@@ -723,7 +723,7 @@ class ProjectWindow(BettyMainWindow):
 
     def _save_configuration(self) -> None:
         with open(self._configuration_file_path, 'w') as f:
-            to_file(f, self._configuration)
+            to_file(f, self._app.configuration)
 
     @reactive(on_trigger_call=True)
     def _set_window_title(self) -> None:
@@ -764,12 +764,12 @@ class ProjectWindow(BettyMainWindow):
         self.project_menu.serve_action.triggered.connect(lambda _: self._serve())
         self.project_menu.addAction(self.project_menu.serve_action)
 
-    @catch_exceptions
+    # @catch_exceptions
     def _save_project_as(self) -> None:
         configuration_file_path, _ = QFileDialog.getSaveFileName(self, 'Save your project to...', '', _CONFIGURATION_FILE_FILTER)
         os.makedirs(path.dirname(configuration_file_path))
         with open(configuration_file_path, mode='w') as f:
-            to_file(f, self._configuration)
+            to_file(f, self._app.configuration)
 
     @catch_exceptions
     def _generate(self) -> None:

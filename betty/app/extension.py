@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from collections import defaultdict
-from typing import Generic, TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING, Iterable
 
 from betty.requirement import Requirer, AllRequirements
 
@@ -13,7 +13,6 @@ try:
 except ImportError:
     from importlib_metadata import entry_points
 
-from betty.config import Configurable, ConfigurationT
 from pathlib import Path
 from typing import Type, Set, Optional, Any, List, Dict, Sequence, TypeVar
 
@@ -48,8 +47,6 @@ class Dependencies(AllRequirements):
 class Extension(Environment, Requirer):
     """
     Integrate optional functionality with the Betty app.
-
-    Extensions that take configuration must implement betty.app.ConfigurableExtension.
     """
 
     def __init__(self, app: App, *args, **kwargs):
@@ -83,15 +80,6 @@ class Extension(Environment, Requirer):
     @classmethod
     def assets_directory_path(cls) -> Optional[Path]:
         return None
-
-
-class ConfigurableExtension(Configurable, Extension, Generic[ConfigurationT]):
-    def __init__(self, app: App, configuration: ConfigurationT):
-        super().__init__(configuration, app)
-
-    @classmethod
-    def default_configuration(cls) -> ConfigurationT:
-        raise NotImplementedError
 
 
 ExtensionT = TypeVar('ExtensionT', bound=Extension)
