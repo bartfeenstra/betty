@@ -11,6 +11,7 @@ done
 
 # Test the Python code style.
 flake8 --config ./flake8.ini ./betty
+mypy ./betty
 
 # Test the CSS code style.
 npm run stylelint -- "./betty/**/*.css"
