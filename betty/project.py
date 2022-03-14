@@ -4,11 +4,12 @@ from collections import OrderedDict
 from contextlib import suppress
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Type, Optional, Iterable, Any, Sequence
+from typing import Type, Optional, Iterable, Any, Sequence, Dict
 from urllib.parse import urlparse
 
 from babel.core import parse_locale, Locale
 from reactives import reactive, scope
+from reactives.factory.type import ReactiveInstance
 
 from betty.app import Extension
 from betty.config import Configurable, Configuration as GenericConfiguration, ConfigurationError, ensure_path, \
@@ -20,7 +21,7 @@ from betty.os import PathLike
 
 
 @reactive
-class ProjectExtensionConfiguration:
+class ProjectExtensionConfiguration(ReactiveInstance):
     def __init__(self, extension_type: Type[Extension], enabled: bool = True, extension_configuration: Optional[GenericConfiguration] = None):
         super().__init__()
         self._extension_type = extension_type
@@ -49,7 +50,7 @@ class ProjectExtensionConfiguration:
     def extension_type(self) -> Type[Extension]:
         return self._extension_type
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def enabled(self) -> bool:
         return self._enabled
@@ -66,7 +67,7 @@ class ProjectExtensionConfiguration:
 class ProjectExtensionsConfiguration(GenericConfiguration):
     def __init__(self, configurations: Optional[Iterable[ProjectExtensionConfiguration]] = None):
         super().__init__()
-        self._configurations = OrderedDict()
+        self._configurations: Dict[Type[Extension], ProjectExtensionConfiguration] = OrderedDict()
         if configurations is not None:
             for configuration in configurations:
                 self.add(configuration)
@@ -159,7 +160,7 @@ class ProjectExtensionsConfiguration(GenericConfiguration):
 
 
 class LocaleConfiguration:
-    def __init__(self, locale: str, alias: str = None):
+    def __init__(self, locale: str, alias: Optional[str] = None):
         self._locale = locale
         self._alias = alias
 
@@ -192,7 +193,7 @@ class LocaleConfiguration:
 class LocalesConfiguration(GenericConfiguration):
     def __init__(self, configurations: Optional[Sequence[LocaleConfiguration]] = None):
         super().__init__()
-        self._configurations = OrderedDict()
+        self._configurations: OrderedDict[str, LocaleConfiguration] = OrderedDict()
         self.replace(configurations)
 
     @scope.register_self
@@ -239,7 +240,7 @@ class LocalesConfiguration(GenericConfiguration):
             self._configurations[configuration.locale] = configuration
         self.react.trigger()
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def default_locale(self) -> LocaleConfiguration:
         return next(iter(self._configurations.values()))
@@ -281,7 +282,7 @@ class ThemeConfiguration(GenericConfiguration):
         super().__init__()
         self._background_image_id = None
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def background_image_id(self) -> Optional[str]:
         return self._background_image_id
@@ -323,7 +324,7 @@ class Configuration(GenericConfiguration):
         self._theme.react(self)
         self.lifetime_threshold = 125
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def output_directory_path(self) -> Path:
         return self._output_directory_path
@@ -332,7 +333,7 @@ class Configuration(GenericConfiguration):
     def output_directory_path(self, output_directory_path: PathLike) -> None:
         self._output_directory_path = Path(output_directory_path)
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def assets_directory_path(self) -> Optional[str]:
         return self._assets_directory_path
@@ -341,7 +342,7 @@ class Configuration(GenericConfiguration):
     def assets_directory_path(self, assets_directory_path: Optional[str]) -> None:
         self._assets_directory_path = assets_directory_path
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def title(self) -> str:
         return self._title
@@ -350,7 +351,7 @@ class Configuration(GenericConfiguration):
     def title(self, title: str) -> None:
         self._title = title
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def author(self) -> Optional[str]:
         return self._author
@@ -363,7 +364,7 @@ class Configuration(GenericConfiguration):
     def www_directory_path(self) -> Path:
         return self.output_directory_path / 'www'
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def base_url(self) -> str:
         return self._base_url
@@ -377,7 +378,7 @@ class Configuration(GenericConfiguration):
             raise ConfigurationError('The base URL must include a path.')
         self._base_url = '%s://%s' % (base_url_parts.scheme, base_url_parts.netloc)
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def root_path(self) -> str:
         return self._root_path
@@ -386,7 +387,7 @@ class Configuration(GenericConfiguration):
     def root_path(self, root_path: str):
         self._root_path = root_path.strip('/')
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def content_negotiation(self) -> bool:
         return self._content_negotiation
@@ -395,7 +396,7 @@ class Configuration(GenericConfiguration):
     def content_negotiation(self, content_negotiation: bool):
         self._content_negotiation = content_negotiation
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def clean_urls(self) -> bool:
         return self._clean_urls or self.content_negotiation
@@ -404,7 +405,7 @@ class Configuration(GenericConfiguration):
     def clean_urls(self, clean_urls: bool):
         self._clean_urls = clean_urls
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def locales(self) -> LocalesConfiguration:
         return self._locales
@@ -417,12 +418,12 @@ class Configuration(GenericConfiguration):
     def extensions(self) -> ProjectExtensionsConfiguration:
         return self._extensions
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def theme(self) -> ThemeConfiguration:
         return self._theme
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def debug(self) -> bool:
         return self._debug
@@ -431,7 +432,7 @@ class Configuration(GenericConfiguration):
     def debug(self, debug: bool) -> None:
         self._debug = debug
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def lifetime_threshold(self) -> int:
         return self._lifetime_threshold

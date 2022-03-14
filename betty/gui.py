@@ -24,6 +24,7 @@ from PyQt6.QtWidgets import QApplication, QFileDialog, QMainWindow, QVBoxLayout,
 from babel import Locale
 from babel.localedata import locale_identifiers
 from reactives import reactive, ReactorController
+from reactives.factory.type import ReactiveInstance
 
 from betty import cache, generate, serve, about, load
 from betty.app import App, Extension
@@ -172,7 +173,7 @@ class Caption(Text):
 
 
 @reactive
-class BettyWindow(QMainWindow):
+class BettyWindow(QMainWindow, ReactiveInstance):
     width = NotImplemented
     height = NotImplemented
     title = NotImplemented
@@ -514,7 +515,7 @@ class _ProjectThemeConfigurationPane(QWidget):
 
 
 @reactive
-class _ProjectLocalizationConfigurationPane(QWidget):
+class _ProjectLocalizationConfigurationPane(QWidget, ReactiveInstance):
     def __init__(self, app: App, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._app = app

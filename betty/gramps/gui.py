@@ -5,6 +5,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QWidget, QFormLayout, QPushButton, QFileDialog, QLineEdit, QHBoxLayout, QVBoxLayout, \
     QGridLayout
 from reactives import reactive
+from reactives.factory.type import ReactiveInstance
 
 from betty.config import Path, ConfigurationError
 from betty.gramps.config import FamilyTreeConfiguration, GrampsConfiguration
@@ -12,7 +13,7 @@ from betty.gui import catch_exceptions, BettyWindow, mark_valid, mark_invalid, T
 
 
 @reactive
-class _GrampsGuiWidget(QWidget):
+class _GrampsGuiWidget(QWidget, ReactiveInstance):
     def __init__(self, configuration: GrampsConfiguration, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._configuration = configuration

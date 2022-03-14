@@ -5,6 +5,8 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Type, Set, Optional, Any, List, Dict, Sequence, TypeVar, Union, Iterable, TYPE_CHECKING
 
+from reactives.factory.type import ReactiveInstance
+
 from betty import fs
 from betty.requirement import Requirer, AllRequirements
 
@@ -89,7 +91,7 @@ ExtensionT = TypeVar('ExtensionT', bound=Extension)
 
 
 @reactive
-class Extensions:
+class Extensions(ReactiveInstance):
     def __getitem__(self, extension_type: Union[Type[ExtensionT], str]) -> ExtensionT:
         raise NotImplementedError
 

@@ -1,6 +1,6 @@
 from contextlib import contextmanager
 from textwrap import indent
-from typing import List, Optional
+from typing import List, Optional, Iterator
 
 
 class ContextError(Exception):
@@ -28,7 +28,7 @@ class ContextError(Exception):
 
 
 @contextmanager
-def ensure_context(*contexts: str) -> None:
+def ensure_context(*contexts: str) -> Iterator[None]:
     try:
         yield
     except ContextError as e:

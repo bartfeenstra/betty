@@ -1,5 +1,9 @@
 from textwrap import indent
-from typing import Optional, Iterable
+from typing import Optional, Iterable, TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 from betty.error import UserFacingError
 
