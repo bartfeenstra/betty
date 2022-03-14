@@ -6,7 +6,7 @@
             Hello dear, welcome to your new family history website.
         {% endtrans %}
     </p>
-    {% if 'betty.demo.Demo' in extensions %}
+    {% if 'betty.demo.Demo' in app.extensions %}
         <p>
             {% set liberta_lankester_label -%}
                 {%- with person = app.ancestry.entities['Person']['betty-demo-liberta-lankester'] -%}

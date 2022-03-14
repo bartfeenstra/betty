@@ -1,5 +1,6 @@
 import json as stdjson
 from os import path
+from pathlib import Path
 from typing import Dict, Any
 
 import jsonschema
@@ -33,6 +34,7 @@ class JSONEncoder(stdjson.JSONEncoder):
         stdjson.JSONEncoder.__init__(self, *args, **kwargs)
         self._app = app
         self._mappers = {
+            Path: str,
             PlaceName: self._encode_localized_name,
             Place: self._encode_place,
             Point: self._encode_coordinates,

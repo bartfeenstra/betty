@@ -25,12 +25,11 @@ from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup
 from resizeimage import resizeimage
 
-from betty.app import App, Extensions, Configuration
+from betty.app import App, Configuration
 from betty.asyncio import sync
-from betty.fs import hashfile, iterfiles
+from betty.fs import hashfile, iterfiles, CACHE_DIRECTORY_PATH
 from betty.functools import walk
 from betty.html import CssProvider, JsProvider
-from betty.importlib import import_any
 from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange
 from betty.lock import AcquiredError
@@ -41,22 +40,6 @@ from betty.path import rootname
 from betty.render import Renderer
 from betty.search import Index
 from betty.string import camel_case_to_snake_case, camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
-
-
-class _Extensions:
-    def __init__(self, extensions: Extensions):
-        self._extensions = extensions
-
-    def __getitem__(self, extension_type_name):
-        try:
-            return self._extensions[import_any(extension_type_name)]
-        except ImportError:
-            raise KeyError('Unknown extension "%s".' % extension_type_name)
-
-    def __contains__(self, extension_type_name) -> bool:
-        with suppress(ImportError, KeyError):
-            return import_any(extension_type_name) in self._extensions
-        return False
 
 
 class _Citer:
@@ -163,7 +146,6 @@ class BettyEnvironment(Environment):
         self.globals['app'] = self.app
         today = datetime.date.today()
         self.globals['today'] = Date(today.year, today.month, today.day)
-        self.globals['extensions'] = _Extensions(self.app.extensions)
         self.globals['citer'] = _Citer()
         self.globals['search_index'] = lambda: Index(self.app).build()
         # Ideally we would use the Dispatcher for this. However, it is asynchronous only.
@@ -394,7 +376,7 @@ def _filter_image(app: App, file: File, width: Optional[int] = None, height: Opt
 
     with suppress(AcquiredError):
         app.locks.acquire((_filter_image, file, width, height))
-        cache_directory_path = app.configuration.cache_directory_path / 'image'
+        cache_directory_path = CACHE_DIRECTORY_PATH / 'image'
         app.executor.submit(task, Path(file.path), cache_directory_path, file_directory_path, destination_name, width, height)
 
     destination_public_path = '/file/%s' % destination_name

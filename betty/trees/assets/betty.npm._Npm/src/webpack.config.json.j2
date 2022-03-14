@@ -1,4 +1,4 @@
 {{ {
     'debug': app.debug,
-    'cacheDirectory': path.join(app.configuration.cache_directory_path, 'betty.trees.Trees', 'babel'),
+    'cacheDirectory': app.extensions['betty.trees.Trees'].cache_directory_path / 'babel',
 } | tojson }}
