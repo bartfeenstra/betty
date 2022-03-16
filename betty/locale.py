@@ -11,7 +11,7 @@ from io import StringIO
 from contextlib import suppress
 from functools import total_ordering
 from pathlib import Path
-from typing import Optional, Tuple, Union, List, Dict, Callable, Any
+from typing import Optional, Tuple, Union, List, Dict, Callable, Any, TYPE_CHECKING
 
 import babel
 from babel import dates, Locale
@@ -19,6 +19,10 @@ from babel.messages.frontend import CommandLineInterface
 
 from betty import fs
 from betty.fs import hashfile, FileSystem
+
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 
 class Localized:
@@ -319,7 +323,7 @@ class TranslationsRepository:
 
     def _build_translations(self, locale: str) -> Translations:
         self._translations[locale] = NullTranslations()
-        for assets_path, _ in reversed(self._assets.paths):
+        for assets_path, encoding in reversed(self._assets.paths):
             translations = self._open_translations(locale, assets_path)
             if translations:
                 translations.add_fallback(self._translations[locale])

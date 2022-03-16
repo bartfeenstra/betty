@@ -3,7 +3,7 @@ from __future__ import annotations
 from contextlib import suppress
 from functools import total_ordering
 from pathlib import Path
-from typing import List, Optional, Set, Sequence
+from typing import List, Optional, Set, Sequence, TYPE_CHECKING
 
 from geopy import Point
 
@@ -13,6 +13,10 @@ from betty.model import many_to_many, Entity, one_to_many, many_to_one, many_to_
     MultipleTypesEntityCollection, EntityCollection
 from betty.model.event_type import EventType, StartOfLifeEventType, EndOfLifeEventType
 from betty.os import PathLike
+
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 
 class HasPrivacy:

@@ -1,4 +1,4 @@
-from typing import Set, Type
+from typing import Set, Type, TYPE_CHECKING
 
 from betty.app.extension import Extension
 from betty.privatizer import Privatizer
@@ -6,6 +6,10 @@ from betty.model.ancestry import Ancestry, Person, File, Citation, Source, Event
 from betty.functools import walk
 from betty.gui import GuiBuilder
 from betty.load import PostLoader
+
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 
 class AnonymousSource(Source):
