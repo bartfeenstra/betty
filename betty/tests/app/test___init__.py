@@ -17,18 +17,18 @@ class LocaleConfigurationTest(TestCase):
     def test_locale(self):
         locale = 'nl-NL'
         sut = LocaleConfiguration(locale)
-        self.assertEquals(locale, sut.locale)
+        self.assertEqual(locale, sut.locale)
 
     def test_alias_implicit(self):
         locale = 'nl-NL'
         sut = LocaleConfiguration(locale)
-        self.assertEquals(locale, sut.alias)
+        self.assertEqual(locale, sut.alias)
 
     def test_alias_explicit(self):
         locale = 'nl-NL'
         alias = 'nl'
         sut = LocaleConfiguration(locale, alias)
-        self.assertEquals(alias, sut.alias)
+        self.assertEqual(alias, sut.alias)
 
     @parameterized.expand([
         (False, LocaleConfiguration('nl', 'NL'), 'not a locale configuration'),
@@ -36,7 +36,7 @@ class LocaleConfigurationTest(TestCase):
         (False, LocaleConfiguration('nl', 'NL'), object()),
     ])
     def test_eq(self, expected, sut, other):
-        self.assertEquals(expected, sut == other)
+        self.assertEqual(expected, sut == other)
 
 
 class LocalesConfigurationTest(TestCase):
@@ -46,7 +46,7 @@ class LocalesConfigurationTest(TestCase):
             locale_configuration_a,
         ])
         with assert_in_scope(sut):
-            self.assertEquals(locale_configuration_a, sut['nl-NL'])
+            self.assertEqual(locale_configuration_a, sut['nl-NL'])
 
     def test_delitem(self) -> None:
         locale_configuration_a = LocaleConfiguration('nl-NL')
@@ -86,7 +86,7 @@ class LocalesConfigurationTest(TestCase):
             locale_configuration_b,
         ])
         with assert_in_scope(sut):
-            self.assertEquals(2, len(sut))
+            self.assertEqual(2, len(sut))
 
     def test_eq(self) -> None:
         locale_configuration_a = LocaleConfiguration('nl-NL')
@@ -100,7 +100,7 @@ class LocalesConfigurationTest(TestCase):
             locale_configuration_b,
         ])
         with assert_in_scope(sut):
-            self.assertEquals(other, sut)
+            self.assertEqual(other, sut)
 
     def test_contains(self) -> None:
         locale_configuration_a = LocaleConfiguration('nl-NL')
@@ -127,7 +127,7 @@ class LocalesConfigurationTest(TestCase):
 
     def test_default_without_explicit_locale_configurations(self):
         sut = LocalesConfiguration()
-        self.assertEquals(LocaleConfiguration('en-US'), sut.default)
+        self.assertEqual(LocaleConfiguration('en-US'), sut.default)
 
     def test_default_without_explicit_default(self):
         locale_configuration_a = LocaleConfiguration('nl-NL')
@@ -136,7 +136,7 @@ class LocalesConfigurationTest(TestCase):
             locale_configuration_a,
             locale_configuration_b,
         ])
-        self.assertEquals(locale_configuration_a, sut.default)
+        self.assertEqual(locale_configuration_a, sut.default)
 
     def test_default_with_explicit_default(self):
         locale_configuration_a = LocaleConfiguration('nl-NL')
@@ -145,7 +145,7 @@ class LocalesConfigurationTest(TestCase):
             locale_configuration_a,
         ])
         sut.default = locale_configuration_b
-        self.assertEquals(locale_configuration_b, sut.default)
+        self.assertEqual(locale_configuration_b, sut.default)
 
 
 class _DummyExtension(Extension):
@@ -154,7 +154,7 @@ class _DummyExtension(Extension):
         return 'Dummy'
 
 
-class _DummyConfiguration(Configuration):
+class _DummyConfiguration(GenericConfiguration):
     pass
 
 
@@ -172,19 +172,19 @@ class AppExtensionConfigurationTest(TestCase):
     def test_extension_type(self) -> None:
         extension_type = _DummyExtension
         sut = AppExtensionConfiguration(extension_type)
-        self.assertEquals(extension_type, sut.extension_type)
+        self.assertEqual(extension_type, sut.extension_type)
 
     def test_enabled(self) -> None:
         enabled = True
         sut = AppExtensionConfiguration(_DummyExtension, enabled)
-        self.assertEquals(enabled, sut.enabled)
+        self.assertEqual(enabled, sut.enabled)
         with assert_reactor_called(sut):
             sut.enabled = False
 
     def test_configuration(self) -> None:
         extension_type_configuration = GenericConfiguration()
         sut = AppExtensionConfiguration(Extension, True, extension_type_configuration)
-        self.assertEquals(extension_type_configuration, sut.extension_configuration)
+        self.assertEqual(extension_type_configuration, sut.extension_configuration)
         with assert_reactor_called(sut):
             extension_type_configuration.react.trigger()
 
@@ -206,7 +206,7 @@ class AppExtensionsConfigurationTest(TestCase):
             app_extension_configuration_a,
         ])
         with assert_in_scope(sut):
-            self.assertEquals(app_extension_configuration_a, sut[DummyConfigurableExtension])
+            self.assertEqual(app_extension_configuration_a, sut[DummyConfigurableExtension])
 
     def test_delitem(self) -> None:
         app_extension_configuration = AppExtensionConfiguration(DummyConfigurableExtension)
@@ -237,7 +237,7 @@ class AppExtensionsConfigurationTest(TestCase):
             app_extension_configuration_b,
         ])
         with assert_in_scope(sut):
-            self.assertEquals(2, len(sut))
+            self.assertEqual(2, len(sut))
 
     def test_eq(self) -> None:
         app_extension_configuration_a = AppExtensionConfiguration(DummyConfigurableExtension)
@@ -251,7 +251,7 @@ class AppExtensionsConfigurationTest(TestCase):
             app_extension_configuration_b,
         ])
         with assert_in_scope(sut):
-            self.assertEquals(other, sut)
+            self.assertEqual(other, sut)
 
     def test_add(self) -> None:
         sut = AppExtensionsConfiguration()
@@ -259,7 +259,7 @@ class AppExtensionsConfigurationTest(TestCase):
         with assert_scope_empty():
             with assert_reactor_called(sut):
                 sut.add(app_extension_configuration)
-        self.assertEquals(app_extension_configuration, sut[DummyConfigurableExtension])
+        self.assertEqual(app_extension_configuration, sut[DummyConfigurableExtension])
         with assert_reactor_called(sut):
             app_extension_configuration.react.trigger()
 
@@ -273,14 +273,13 @@ class ConfigurationTest(TestCase):
         sut = Configuration()
         assets_directory_path = '/tmp/betty-assets'
         sut.assets_directory_path = assets_directory_path
-        self.assertEquals(assets_directory_path,
-                          sut.assets_directory_path)
+        self.assertEqual(assets_directory_path, sut.assets_directory_path)
 
     def test_base_url(self):
         sut = Configuration()
         base_url = 'https://example.com'
         sut.base_url = base_url
-        self.assertEquals(base_url, sut.base_url)
+        self.assertEqual(base_url, sut.base_url)
 
     def test_base_url_without_scheme_should_error(self):
         sut = Configuration()
@@ -297,19 +296,19 @@ class ConfigurationTest(TestCase):
         configured_root_path = '/betty/'
         expected_root_path = 'betty'
         sut.root_path = configured_root_path
-        self.assertEquals(expected_root_path, sut.root_path)
+        self.assertEqual(expected_root_path, sut.root_path)
 
     def test_clean_urls(self):
         sut = Configuration()
         clean_urls = True
         sut.clean_urls = clean_urls
-        self.assertEquals(clean_urls, sut.clean_urls)
+        self.assertEqual(clean_urls, sut.clean_urls)
 
     def test_content_negotiation(self):
         sut = Configuration()
         content_negotiation = True
         sut.content_negotiation = content_negotiation
-        self.assertEquals(content_negotiation, sut.content_negotiation)
+        self.assertEqual(content_negotiation, sut.content_negotiation)
 
     def test_clean_urls_implied_by_content_negotiation(self):
         sut = Configuration()
@@ -324,18 +323,18 @@ class ConfigurationTest(TestCase):
         sut = Configuration()
         author = 'Bart'
         sut.author = author
-        self.assertEquals(author, sut.author)
+        self.assertEqual(author, sut.author)
 
     def test_load_should_load_minimal(self) -> None:
         dumped_configuration = Configuration().dump()
         configuration = Configuration()
         configuration.load(dumped_configuration)
-        self.assertEquals(Path(dumped_configuration['output']).expanduser().resolve(), configuration.output_directory_path)
-        self.assertEquals(dumped_configuration['base_url'], configuration.base_url)
-        self.assertEquals('Betty', configuration.title)
+        self.assertEqual(Path(dumped_configuration['output']).expanduser().resolve(), configuration.output_directory_path)
+        self.assertEqual(dumped_configuration['base_url'], configuration.base_url)
+        self.assertEqual('Betty', configuration.title)
         self.assertIsNone(configuration.author)
         self.assertFalse(configuration.debug)
-        self.assertEquals('', configuration.root_path)
+        self.assertEqual('', configuration.root_path)
         self.assertFalse(configuration.clean_urls)
         self.assertFalse(configuration.content_negotiation)
 
@@ -345,7 +344,7 @@ class ConfigurationTest(TestCase):
         dumped_configuration['title'] = title
         configuration = Configuration()
         configuration.load(dumped_configuration)
-        self.assertEquals(title, configuration.title)
+        self.assertEqual(title, configuration.title)
 
     def test_load_should_load_author(self) -> None:
         author = 'Bart'
@@ -353,7 +352,7 @@ class ConfigurationTest(TestCase):
         dumped_configuration['author'] = author
         configuration = Configuration()
         configuration.load(dumped_configuration)
-        self.assertEquals(author, configuration.author)
+        self.assertEqual(author, configuration.author)
 
     def test_load_should_load_locale_locale(self) -> None:
         locale = 'nl-NL'
@@ -364,7 +363,7 @@ class ConfigurationTest(TestCase):
         dumped_configuration['locales'] = [locale_config]
         configuration = Configuration()
         configuration.load(dumped_configuration)
-        self.assertEquals(LocalesConfiguration([LocaleConfiguration(locale)]), configuration.locales)
+        self.assertEqual(LocalesConfiguration([LocaleConfiguration(locale)]), configuration.locales)
 
     def test_load_should_load_locale_alias(self) -> None:
         locale = 'nl-NL'
@@ -377,7 +376,7 @@ class ConfigurationTest(TestCase):
         dumped_configuration['locales'] = [locale_config]
         configuration = Configuration()
         configuration.load(dumped_configuration)
-        self.assertEquals(LocalesConfiguration([LocaleConfiguration(locale, alias)]), configuration.locales)
+        self.assertEqual(LocalesConfiguration([LocaleConfiguration(locale, alias)]), configuration.locales)
 
     def test_load_should_root_path(self) -> None:
         configured_root_path = '/betty/'
@@ -386,7 +385,7 @@ class ConfigurationTest(TestCase):
         dumped_configuration['root_path'] = configured_root_path
         configuration = Configuration()
         configuration.load(dumped_configuration)
-        self.assertEquals(expected_root_path, configuration.root_path)
+        self.assertEqual(expected_root_path, configuration.root_path)
 
     def test_load_should_clean_urls(self) -> None:
         clean_urls = True
@@ -394,7 +393,7 @@ class ConfigurationTest(TestCase):
         dumped_configuration['clean_urls'] = clean_urls
         configuration = Configuration()
         configuration.load(dumped_configuration)
-        self.assertEquals(clean_urls, configuration.clean_urls)
+        self.assertEqual(clean_urls, configuration.clean_urls)
 
     def test_load_should_content_negotiation(self) -> None:
         content_negotiation = True
@@ -402,7 +401,7 @@ class ConfigurationTest(TestCase):
         dumped_configuration['content_negotiation'] = content_negotiation
         configuration = Configuration()
         configuration.load(dumped_configuration)
-        self.assertEquals(content_negotiation, configuration.content_negotiation)
+        self.assertEqual(content_negotiation, configuration.content_negotiation)
 
     @parameterized.expand([
         (True,),
@@ -413,7 +412,7 @@ class ConfigurationTest(TestCase):
         dumped_configuration['debug'] = debug
         configuration = Configuration()
         configuration.load(dumped_configuration)
-        self.assertEquals(debug, configuration.debug)
+        self.assertEqual(debug, configuration.debug)
 
     def test_load_should_load_assets_directory_path(self) -> None:
         with TemporaryDirectory() as assets_directory_path:
@@ -421,7 +420,7 @@ class ConfigurationTest(TestCase):
             dumped_configuration['assets'] = assets_directory_path
             configuration = Configuration()
             configuration.load(dumped_configuration)
-            self.assertEquals(Path(assets_directory_path).expanduser().resolve(), configuration.assets_directory_path)
+            self.assertEqual(Path(assets_directory_path).expanduser().resolve(), configuration.assets_directory_path)
 
     def test_load_should_load_one_extension_with_configuration(self) -> None:
         dumped_configuration = Configuration().dump()
@@ -441,7 +440,7 @@ class ConfigurationTest(TestCase):
                 default='I will always be there for you.',
             )),
         ])
-        self.assertEquals(expected, configuration.extensions)
+        self.assertEqual(expected, configuration.extensions)
 
     def test_load_should_load_one_extension_without_configuration(self) -> None:
         dumped_configuration = Configuration().dump()
@@ -453,7 +452,7 @@ class ConfigurationTest(TestCase):
         expected = AppExtensionsConfiguration([
             AppExtensionConfiguration(DummyNonConfigurableExtension, True),
         ])
-        self.assertEquals(expected, configuration.extensions)
+        self.assertEqual(expected, configuration.extensions)
 
     def test_load_extension_with_invalid_configuration_should_raise_error(self):
         dumped_configuration = Configuration().dump()
@@ -490,7 +489,7 @@ class ConfigurationTest(TestCase):
         }
         configuration = Configuration()
         configuration.load(dumped_configuration)
-        self.assertEquals(background_image_id, configuration.theme.background_image_id)
+        self.assertEqual(background_image_id, configuration.theme.background_image_id)
 
     def test_load_should_error_if_invalid_config(self) -> None:
         dumped_configuration = {}
@@ -501,12 +500,12 @@ class ConfigurationTest(TestCase):
     def test_dump_should_dump_minimal(self) -> None:
         configuration = Configuration()
         dumped_configuration = Configuration.dump(configuration)
-        self.assertEquals(dumped_configuration['output'], str(configuration.output_directory_path))
-        self.assertEquals(dumped_configuration['base_url'], configuration.base_url)
-        self.assertEquals('Betty', configuration.title)
+        self.assertEqual(dumped_configuration['output'], str(configuration.output_directory_path))
+        self.assertEqual(dumped_configuration['base_url'], configuration.base_url)
+        self.assertEqual('Betty', configuration.title)
         self.assertIsNone(configuration.author)
-        self.assertEquals(False, configuration.debug)
-        self.assertEquals('', configuration.root_path)
+        self.assertEqual(False, configuration.debug)
+        self.assertEqual('', configuration.root_path)
         self.assertFalse(configuration.clean_urls)
         self.assertFalse(configuration.content_negotiation)
 
@@ -515,14 +514,14 @@ class ConfigurationTest(TestCase):
         configuration = Configuration()
         configuration.title = title
         dumped_configuration = Configuration.dump(configuration)
-        self.assertEquals(title, dumped_configuration['title'])
+        self.assertEqual(title, dumped_configuration['title'])
 
     def test_dump_should_dump_author(self) -> None:
         author = 'Bart'
         configuration = Configuration()
         configuration.author = author
         dumped_configuration = Configuration.dump(configuration)
-        self.assertEquals(author, dumped_configuration['author'])
+        self.assertEqual(author, dumped_configuration['author'])
 
     def test_dump_should_dump_locale_locale(self) -> None:
         locale = 'nl-NL'
@@ -555,21 +554,21 @@ class ConfigurationTest(TestCase):
         configuration = Configuration()
         configuration.root_path = root_path
         dumped_configuration = Configuration.dump(configuration)
-        self.assertEquals(root_path, dumped_configuration['root_path'])
+        self.assertEqual(root_path, dumped_configuration['root_path'])
 
     def test_dump_should_dump_clean_urls(self) -> None:
         clean_urls = True
         configuration = Configuration()
         configuration.clean_urls = clean_urls
         dumped_configuration = Configuration.dump(configuration)
-        self.assertEquals(clean_urls, dumped_configuration['clean_urls'])
+        self.assertEqual(clean_urls, dumped_configuration['clean_urls'])
 
     def test_dump_should_dump_content_negotiation(self) -> None:
         content_negotiation = True
         configuration = Configuration()
         configuration.content_negotiation = content_negotiation
         dumped_configuration = Configuration.dump(configuration)
-        self.assertEquals(content_negotiation, dumped_configuration['content_negotiation'])
+        self.assertEqual(content_negotiation, dumped_configuration['content_negotiation'])
 
     @parameterized.expand([
         (True,),
@@ -579,14 +578,14 @@ class ConfigurationTest(TestCase):
         configuration = Configuration()
         configuration.debug = debug
         dumped_configuration = Configuration.dump(configuration)
-        self.assertEquals(debug, dumped_configuration['debug'])
+        self.assertEqual(debug, dumped_configuration['debug'])
 
     def test_dump_should_dump_assets_directory_path(self) -> None:
         with TemporaryDirectory() as assets_directory_path:
             configuration = Configuration()
             configuration.assets_directory_path = assets_directory_path
             dumped_configuration = Configuration.dump(configuration)
-            self.assertEquals(assets_directory_path, dumped_configuration['assets'])
+            self.assertEqual(assets_directory_path, dumped_configuration['assets'])
 
     def test_dump_should_dump_one_extension_with_configuration(self) -> None:
         configuration = Configuration()
@@ -604,7 +603,7 @@ class ConfigurationTest(TestCase):
                 },
             },
         }
-        self.assertEquals(expected, dumped_configuration['extensions'])
+        self.assertEqual(expected, dumped_configuration['extensions'])
 
     def test_dump_should_dump_one_extension_without_configuration(self) -> None:
         configuration = Configuration()
@@ -615,7 +614,7 @@ class ConfigurationTest(TestCase):
                 'enabled': True,
             },
         }
-        self.assertEquals(expected, dumped_configuration['extensions'])
+        self.assertEqual(expected, dumped_configuration['extensions'])
 
     def test_dump_should_error_if_invalid_config(self) -> None:
         dumped_configuration = {}
@@ -628,7 +627,7 @@ class ConfigurationTest(TestCase):
         configuration = Configuration()
         configuration.theme.background_image_id = background_image_id
         dumped_configuration = Configuration.dump(configuration)
-        self.assertEquals(background_image_id, dumped_configuration['theme']['background_image_id'])
+        self.assertEqual(background_image_id, dumped_configuration['theme']['background_image_id'])
 
 
 class DummyNonConfigurableExtension(Extension):
@@ -781,7 +780,7 @@ class AppTest(TestCase):
                 check=check,
             )))
             self.assertIsInstance(sut.extensions[ConfigurableExtension], ConfigurableExtension)
-            self.assertEquals(check, sut.extensions[ConfigurableExtension]._configuration.check)
+            self.assertEqual(check, sut.extensions[ConfigurableExtension]._configuration.check)
 
     @sync
     async def test_extensions_with_one_extension_with_single_chained_dependency(self) -> None:
@@ -789,12 +788,10 @@ class AppTest(TestCase):
             sut.configuration.extensions.add(AppExtensionConfiguration(DependsOnNonConfigurableExtensionExtensionExtension))
             carrier = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
-            self.assertEquals(3, len(carrier))
-            self.assertEquals(NonConfigurableExtension, type(carrier[0]))
-            self.assertEquals(DependsOnNonConfigurableExtensionExtension,
-                              type(carrier[1]))
-            self.assertEquals(
-                DependsOnNonConfigurableExtensionExtensionExtension, type(carrier[2]))
+            self.assertEqual(3, len(carrier))
+            self.assertEqual(NonConfigurableExtension, type(carrier[0]))
+            self.assertEqual(DependsOnNonConfigurableExtensionExtension, type(carrier[1]))
+            self.assertEqual(DependsOnNonConfigurableExtensionExtensionExtension, type(carrier[2]))
 
     @sync
     async def test_extensions_with_multiple_extensions_with_duplicate_dependencies(self) -> None:
@@ -803,8 +800,8 @@ class AppTest(TestCase):
             sut.configuration.extensions.add(AppExtensionConfiguration(AlsoDependsOnNonConfigurableExtensionExtension))
             carrier = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
-            self.assertEquals(3, len(carrier))
-            self.assertEquals(NonConfigurableExtension, type(carrier[0]))
+            self.assertEqual(3, len(carrier))
+            self.assertEqual(NonConfigurableExtension, type(carrier[0]))
             self.assertIn(DependsOnNonConfigurableExtensionExtension, [
                 type(extension) for extension in carrier])
             self.assertIn(AlsoDependsOnNonConfigurableExtensionExtension, [
@@ -824,10 +821,10 @@ class AppTest(TestCase):
             sut.configuration.extensions.add(AppExtensionConfiguration(ComesBeforeNonConfigurableExtensionExtension))
             carrier = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
-            self.assertEquals(2, len(carrier))
-            self.assertEquals(
+            self.assertEqual(2, len(carrier))
+            self.assertEqual(
                 ComesBeforeNonConfigurableExtensionExtension, type(carrier[0]))
-            self.assertEquals(NonConfigurableExtension, type(carrier[1]))
+            self.assertEqual(NonConfigurableExtension, type(carrier[1]))
 
     @sync
     async def test_extensions_with_comes_before_without_other_extension(self) -> None:
@@ -835,8 +832,8 @@ class AppTest(TestCase):
             sut.configuration.extensions.add(AppExtensionConfiguration(ComesBeforeNonConfigurableExtensionExtension))
             carrier = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
-            self.assertEquals(1, len(carrier))
-            self.assertEquals(
+            self.assertEqual(1, len(carrier))
+            self.assertEqual(
                 ComesBeforeNonConfigurableExtensionExtension, type(carrier[0]))
 
     @sync
@@ -846,10 +843,9 @@ class AppTest(TestCase):
             sut.configuration.extensions.add(AppExtensionConfiguration(NonConfigurableExtension))
             carrier = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
-            self.assertEquals(2, len(carrier))
-            self.assertEquals(NonConfigurableExtension, type(carrier[0]))
-            self.assertEquals(ComesAfterNonConfigurableExtensionExtension,
-                              type(carrier[1]))
+            self.assertEqual(2, len(carrier))
+            self.assertEqual(NonConfigurableExtension, type(carrier[0]))
+            self.assertEqual(ComesAfterNonConfigurableExtensionExtension, type(carrier[1]))
 
     @sync
     async def test_extensions_with_comes_after_without_other_extension(self) -> None:
@@ -857,9 +853,8 @@ class AppTest(TestCase):
             sut.configuration.extensions.add(AppExtensionConfiguration(ComesAfterNonConfigurableExtensionExtension))
             carrier = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
-            self.assertEquals(1, len(carrier))
-            self.assertEquals(ComesAfterNonConfigurableExtensionExtension,
-                              type(carrier[0]))
+            self.assertEqual(1, len(carrier))
+            self.assertEqual(ComesAfterNonConfigurableExtensionExtension, type(carrier[0]))
 
     @sync
     async def test_extensions_addition_to_configuration(self) -> None:
@@ -881,12 +876,12 @@ class AppTest(TestCase):
     @sync
     async def test_assets_without_assets_directory_path(self) -> None:
         async with App() as sut:
-            self.assertEquals(1, len(sut.assets))
+            self.assertEqual(1, len(sut.assets))
 
     @sync
     async def test_assets_with_assets_directory_path(self) -> None:
         with TemporaryDirectory() as assets_directory_path:
             async with App() as sut:
                 sut.configuration.assets_directory_path = assets_directory_path
-                self.assertEquals(2, len(sut.assets))
-                self.assertEquals((Path(assets_directory_path), None), sut.assets.paths[0])
+                self.assertEqual(2, len(sut.assets))
+                self.assertEqual((Path(assets_directory_path), None), sut.assets.paths[0])

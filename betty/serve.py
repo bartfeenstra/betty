@@ -5,7 +5,7 @@ import threading
 import webbrowser
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 from io import StringIO
-from typing import Iterable
+from typing import Iterable, Optional
 
 from betty.error import UserFacingError
 from betty.os import ChDir, PathLike
@@ -35,7 +35,6 @@ class Server:
     async def start(self) -> None:
         """
         Starts the server.
-        :return: The public URL.
         """
         pass
 
@@ -100,8 +99,9 @@ class _BuiltinServerRequestHandler(SimpleHTTPRequestHandler):
 class BuiltinServer(Server):
     def __init__(self, www_directory_path: PathLike):
         self._www_directory_path = www_directory_path
-        self._http_server = None
-        self._port = None
+        self._http_server: Optional[HTTPServer] = None
+        self._port: Optional[int] = None
+        self._thread: Optional[threading.Thread] = None
 
     async def start(self) -> None:
         logging.getLogger().info('Starting Python\'s built-in web server...')
@@ -111,7 +111,8 @@ class BuiltinServer(Server):
                 break
         if self._http_server is None:
             raise OsError('Cannot find an available port to bind the web server to.')
-        threading.Thread(target=self._serve).start()
+        self._thread = threading.Thread(target=self._serve)
+        self._thread.start()
 
     @property
     def public_url(self) -> str:
@@ -127,3 +128,6 @@ class BuiltinServer(Server):
     async def stop(self) -> None:
         if self._http_server is not None:
             self._http_server.shutdown()
+            self._http_server.server_close()
+        if self._thread is not None:
+            self._thread.join()

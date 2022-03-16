@@ -34,7 +34,7 @@ class ParseUrlTest(TestCase):
         (('en', 'Amsterdam'), 'https://en.wikipedia.org/wiki/Amsterdam#some-fragment',),
     ])
     def test_should_return(self, expected: Tuple[str, str], url: str) -> None:
-        self.assertEquals(expected, _parse_url(url))
+        self.assertEqual(expected, _parse_url(url))
 
     @parameterized.expand([
         ('',),
@@ -49,17 +49,17 @@ class ParseUrlTest(TestCase):
 class EntryTest(TestCase):
     def test_url(self) -> None:
         sut = Entry('nl', 'Amsterdam', 'Title for Amsterdam', 'Content for Amsterdam')
-        self.assertEquals('https://nl.wikipedia.org/wiki/Amsterdam', sut.url)
+        self.assertEqual('https://nl.wikipedia.org/wiki/Amsterdam', sut.url)
 
     def test_title(self) -> None:
         title = 'Title for Amsterdam'
         sut = Entry('nl', 'Amsterdam', title, 'Content for Amsterdam')
-        self.assertEquals(title, sut.title)
+        self.assertEqual(title, sut.title)
 
     def test_content(self) -> None:
         content = 'Content for Amsterdam'
         sut = Entry('nl', 'Amsterdam', 'Title for Amsterdam', content)
-        self.assertEquals(content, sut.content)
+        self.assertEqual(content, sut.content)
 
 
 class RetrieverTest(TestCase):
@@ -202,13 +202,13 @@ class RetrieverTest(TestCase):
                 # The fifth retrieval should hit the cache from the fourth request.
                 entry_5 = await retriever.get_entry(entry_language, entry_name)
         for entry in [entry_1, entry_2, entry_3]:
-            self.assertEquals(entry_url, entry.url)
-            self.assertEquals(title, entry.title)
-            self.assertEquals(extract_1, entry.content)
+            self.assertEqual(entry_url, entry.url)
+            self.assertEqual(title, entry.title)
+            self.assertEqual(extract_1, entry.content)
         for entry in [entry_4, entry_5]:
-            self.assertEquals(entry_url, entry.url)
-            self.assertEquals(title, entry.title)
-            self.assertEquals(extract_4, entry.content)
+            self.assertEqual(entry_url, entry.url)
+            self.assertEqual(title, entry.title)
+            self.assertEqual(extract_4, entry.content)
 
     @aioresponses()
     @patch('sys.stderr')
@@ -461,7 +461,7 @@ class WikipediaTest(TestCase):
             app.configuration.extensions.add(AppExtensionConfiguration(Wikipedia))
             actual = app.jinja2_environment.from_string(
                 '{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}').render(links=links)
-        self.assertEquals(extract, actual)
+        self.assertEqual(extract, actual)
 
     @aioresponses()
     @patch_cache

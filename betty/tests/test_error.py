@@ -9,4 +9,4 @@ class ContextErrorTest(TestCase):
         expected = 'Something went wrong!\n- Somewhere, at some point...'
         sut = ContextError(message)
         sut.add_context(context)
-        self.assertEquals(expected, str(sut))
+        self.assertEqual(expected, str(sut))

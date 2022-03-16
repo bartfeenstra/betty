@@ -80,14 +80,14 @@ class LoadXmlTest(TestCase):
     def test_place_should_include_name(self):
         place = self.ancestry.entities[Place]['P0000']
         names = place.names
-        self.assertEquals(1, len(names))
+        self.assertEqual(1, len(names))
         name = names[0]
-        self.assertEquals('Amsterdam', name.name)
+        self.assertEqual('Amsterdam', name.name)
 
     def test_place_should_include_coordinates(self):
         place = self.ancestry.entities[Place]['P0000']
-        self.assertAlmostEquals(52.366667, place.coordinates.latitude)
-        self.assertAlmostEquals(4.9, place.coordinates.longitude)
+        self.assertAlmostEqual(52.366667, place.coordinates.latitude)
+        self.assertAlmostEqual(4.9, place.coordinates.longitude)
 
     def test_place_should_include_events(self):
         place = self.ancestry.entities[Place]['P0000']
@@ -98,25 +98,25 @@ class LoadXmlTest(TestCase):
     def test_person_should_include_name(self):
         person = self.ancestry.entities[Person]['I0000']
         expected = PersonName(person, 'Jane', 'Doe')
-        self.assertEquals(expected, person.name)
+        self.assertEqual(expected, person.name)
 
     def test_person_should_include_alternative_names(self):
         person = self.ancestry.entities[Person]['I0000']
         self.assertEqual(2, len(person.alternative_names))
         self.assertIs(person, person.alternative_names[0].person)
-        self.assertEquals('Jane', person.alternative_names[0].individual)
-        self.assertEquals('Doh', person.alternative_names[0].affiliation)
+        self.assertEqual('Jane', person.alternative_names[0].individual)
+        self.assertEqual('Doh', person.alternative_names[0].affiliation)
         self.assertIs(person, person.alternative_names[1].person)
-        self.assertEquals('Jen', person.alternative_names[1].individual)
-        self.assertEquals('Van Doughie', person.alternative_names[1].affiliation)
+        self.assertEqual('Jen', person.alternative_names[1].individual)
+        self.assertEqual('Van Doughie', person.alternative_names[1].affiliation)
 
     def test_person_should_include_birth(self):
         person = self.ancestry.entities[Person]['I0000']
-        self.assertEquals('E0000', person.start.id)
+        self.assertEqual('E0000', person.start.id)
 
     def test_person_should_include_death(self):
         person = self.ancestry.entities[Person]['I0003']
-        self.assertEquals('E0002', person.end.id)
+        self.assertEqual('E0002', person.end.id)
 
     def test_person_should_be_private(self):
         person = self.ancestry.entities[Person]['I0003']
@@ -167,13 +167,13 @@ class LoadXmlTest(TestCase):
     def test_event_should_include_place(self):
         event = self.ancestry.entities[Event]['E0000']
         place = self.ancestry.entities[Place]['P0000']
-        self.assertEquals(place, event.place)
+        self.assertEqual(place, event.place)
 
     def test_event_should_include_date(self):
         event = self.ancestry.entities[Event]['E0000']
-        self.assertEquals(1970, event.date.year)
-        self.assertEquals(1, event.date.month)
-        self.assertEquals(1, event.date.day)
+        self.assertEqual(1970, event.date.year)
+        self.assertEqual(1, event.date.month)
+        self.assertEqual(1, event.date.day)
 
     def test_event_should_include_people(self):
         event = self.ancestry.entities[Event]['E0000']
@@ -183,7 +183,7 @@ class LoadXmlTest(TestCase):
 
     def test_event_should_include_description(self):
         event = self.ancestry.entities[Event]['E0008']
-        self.assertEquals('Something happened!', event.description)
+        self.assertEqual('Something happened!', event.description)
 
     @parameterized.expand([
         (Date(), '0000-00-00'),
@@ -204,7 +204,7 @@ class LoadXmlTest(TestCase):
     </event>
 </events>
 """ % dateval_val)
-        self.assertEquals(expected, ancestry.entities[Event]['E0000'].date)
+        self.assertEqual(expected, ancestry.entities[Event]['E0000'].date)
 
     def test_date_should_ignore_calendar_format(self):
         self.assertIsNone(self.ancestry.entities[Event]['E0005'].date)
@@ -212,18 +212,18 @@ class LoadXmlTest(TestCase):
     def test_date_should_load_before(self):
         date = self.ancestry.entities[Event]['E0003'].date
         self.assertIsNone(date.start)
-        self.assertEquals(1970, date.end.year)
-        self.assertEquals(1, date.end.month)
-        self.assertEquals(1, date.end.day)
+        self.assertEqual(1970, date.end.year)
+        self.assertEqual(1, date.end.month)
+        self.assertEqual(1, date.end.day)
         self.assertTrue(date.end_is_boundary)
         self.assertFalse(date.end.fuzzy)
 
     def test_date_should_load_after(self):
         date = self.ancestry.entities[Event]['E0004'].date
         self.assertIsNone(date.end)
-        self.assertEquals(1970, date.start.year)
-        self.assertEquals(1, date.start.month)
-        self.assertEquals(1, date.start.day)
+        self.assertEqual(1970, date.start.year)
+        self.assertEqual(1, date.start.month)
+        self.assertEqual(1, date.start.day)
         self.assertTrue(date.start_is_boundary)
         self.assertFalse(date.start.fuzzy)
 
@@ -237,9 +237,9 @@ class LoadXmlTest(TestCase):
 </events>
 """)
         date = ancestry.entities[Event]['E0000'].date
-        self.assertEquals(1970, date.year)
-        self.assertEquals(1, date.month)
-        self.assertEquals(1, date.day)
+        self.assertEqual(1970, date.year)
+        self.assertEqual(1, date.month)
+        self.assertEqual(1, date.day)
         self.assertFalse(date.fuzzy)
 
     def test_date_should_load_estimated(self):
@@ -252,16 +252,16 @@ class LoadXmlTest(TestCase):
 </events>
 """)
         date = ancestry.entities[Event]['E0000'].date
-        self.assertEquals(1970, date.year)
-        self.assertEquals(1, date.month)
-        self.assertEquals(1, date.day)
+        self.assertEqual(1970, date.year)
+        self.assertEqual(1, date.month)
+        self.assertEqual(1, date.day)
         self.assertTrue(date.fuzzy)
 
     def test_date_should_load_about(self):
         date = self.ancestry.entities[Event]['E0007'].date
-        self.assertEquals(1970, date.year)
-        self.assertEquals(1, date.month)
-        self.assertEquals(1, date.day)
+        self.assertEqual(1970, date.year)
+        self.assertEqual(1, date.month)
+        self.assertEqual(1, date.day)
         self.assertTrue(date.fuzzy)
 
     def test_daterange_should_load(self):
@@ -274,14 +274,14 @@ class LoadXmlTest(TestCase):
 </events>
 """)
         date = ancestry.entities[Event]['E0000'].date
-        self.assertEquals(1970, date.start.year)
-        self.assertEquals(1, date.start.month)
-        self.assertEquals(1, date.start.day)
+        self.assertEqual(1970, date.start.year)
+        self.assertEqual(1, date.start.month)
+        self.assertEqual(1, date.start.day)
         self.assertFalse(date.start.fuzzy)
         self.assertTrue(date.start_is_boundary)
-        self.assertEquals(1999, date.end.year)
-        self.assertEquals(12, date.end.month)
-        self.assertEquals(31, date.end.day)
+        self.assertEqual(1999, date.end.year)
+        self.assertEqual(12, date.end.month)
+        self.assertEqual(31, date.end.day)
         self.assertTrue(date.end_is_boundary)
         self.assertFalse(date.end.fuzzy)
 
@@ -321,13 +321,13 @@ class LoadXmlTest(TestCase):
 </events>
 """)
         date = ancestry.entities[Event]['E0000'].date
-        self.assertEquals(1970, date.start.year)
-        self.assertEquals(1, date.start.month)
-        self.assertEquals(1, date.start.day)
+        self.assertEqual(1970, date.start.year)
+        self.assertEqual(1, date.start.month)
+        self.assertEqual(1, date.start.day)
         self.assertFalse(date.start.fuzzy)
-        self.assertEquals(1999, date.end.year)
-        self.assertEquals(12, date.end.month)
-        self.assertEquals(31, date.end.day)
+        self.assertEqual(1999, date.end.year)
+        self.assertEqual(12, date.end.month)
+        self.assertEqual(31, date.end.day)
         self.assertFalse(date.end.fuzzy)
 
     def test_datespan_should_load_calculated(self):
@@ -358,31 +358,31 @@ class LoadXmlTest(TestCase):
 
     def test_source_from_repository_should_include_name(self):
         source = self.ancestry.entities[Source]['R0000']
-        self.assertEquals('Library of Alexandria', source.name)
+        self.assertEqual('Library of Alexandria', source.name)
 
     def test_source_from_repository_should_include_link(self):
         links = self.ancestry.entities[Source]['R0000'].links
-        self.assertEquals(1, len(links))
+        self.assertEqual(1, len(links))
         link = list(links)[0]
-        self.assertEquals('https://alexandria.example.com', link.url)
-        self.assertEquals('Library of Alexandria Catalogue', link.label)
+        self.assertEqual('https://alexandria.example.com', link.url)
+        self.assertEqual('Library of Alexandria Catalogue', link.label)
 
     def test_source_from_source_should_include_title(self):
         source = self.ancestry.entities[Source]['S0000']
-        self.assertEquals('A Whisper', source.name)
+        self.assertEqual('A Whisper', source.name)
 
     def test_source_from_source_should_include_author(self):
         source = self.ancestry.entities[Source]['S0000']
-        self.assertEquals('A Little Birdie', source.author)
+        self.assertEqual('A Little Birdie', source.author)
 
     def test_source_from_source_should_include_publisher(self):
         source = self.ancestry.entities[Source]['S0000']
-        self.assertEquals('Somewhere over the rainbow', source.publisher)
+        self.assertEqual('Somewhere over the rainbow', source.publisher)
 
     def test_source_from_source_should_include_repository(self):
         source = self.ancestry.entities[Source]['S0000']
         containing_source = self.ancestry.entities[Source]['R0000']
-        self.assertEquals(containing_source, source.contained_by)
+        self.assertEqual(containing_source, source.contained_by)
 
     @parameterized.expand([
         (True, 'private'),
@@ -400,7 +400,7 @@ class LoadXmlTest(TestCase):
 </people>
 """ % attribute_value)
         person = ancestry.entities[Person]['I0000']
-        self.assertEquals(expected, person.private)
+        self.assertEqual(expected, person.private)
 
     @parameterized.expand([
         (True, 'private'),
@@ -418,7 +418,7 @@ class LoadXmlTest(TestCase):
 </events>
 """ % attribute_value)
         event = ancestry.entities[Event]['E0000']
-        self.assertEquals(expected, event.private)
+        self.assertEqual(expected, event.private)
 
     @parameterized.expand([
         (True, 'private'),
@@ -436,7 +436,7 @@ class LoadXmlTest(TestCase):
 </objects>
 """ % attribute_value)
         file = ancestry.entities[File]['O0000']
-        self.assertEquals(expected, file.private)
+        self.assertEqual(expected, file.private)
 
     @parameterized.expand([
         (True, 'private'),
@@ -454,7 +454,7 @@ class LoadXmlTest(TestCase):
 </sources>
 """ % attribute_value)
         source = ancestry.entities[Source]['S0000']
-        self.assertEquals(expected, source.private)
+        self.assertEqual(expected, source.private)
 
     @parameterized.expand([
         (True, 'private'),
@@ -478,7 +478,7 @@ class LoadXmlTest(TestCase):
 </sources>
 """ % attribute_value)
         citation = ancestry.entities[Citation]['C0000']
-        self.assertEquals(expected, citation.private)
+        self.assertEqual(expected, citation.private)
 
     def test_note_should_include_text(self) -> None:
         ancestry = self._load_partial("""
@@ -489,4 +489,4 @@ class LoadXmlTest(TestCase):
 </notes>
 """)
         note = ancestry.entities[Note]['N0000']
-        self.assertEquals('I left this for you.', note.text)
+        self.assertEqual('I left this for you.', note.text)

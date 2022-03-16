@@ -2,10 +2,10 @@ import io
 import json
 import sys
 
+import piplicenses
 from pkg_resources import get_distribution
 
 from betty.tests import TestCase
-import piplicenses
 
 
 class PackageLicensesTest(TestCase):

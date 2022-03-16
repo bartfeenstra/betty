@@ -25,7 +25,7 @@ class JSONEncoderTest(TestCase):
         async with app:
             encoded_data = stdjson.loads(stdjson.dumps(data, cls=JSONEncoder.get_factory(app)))
         json.validate(encoded_data, schema_definition, app)
-        self.assertEquals(expected, encoded_data)
+        self.assertEqual(expected, encoded_data)
 
     @sync
     async def test_coordinates_should_encode(self):

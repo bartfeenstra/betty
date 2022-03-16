@@ -16,7 +16,7 @@ class CleanerTest(TestCase):
             app.configuration.extensions.add(AppExtensionConfiguration(Cleaner))
             app.ancestry.entities.append(event)
             await load(app)
-            self.assertEquals([], list(app.ancestry.entities[Event]))
+            self.assertEqual([], list(app.ancestry.entities[Event]))
 
 
 class CleanTest(TestCase):
@@ -45,8 +45,8 @@ class CleanTest(TestCase):
 
         clean(ancestry)
 
-        self.assertEquals([onymous_event], list(ancestry.entities[Event]))
-        self.assertEquals([onymous_place, onmyous_place_because_encloses_onmyous_places], list(ancestry.entities[Place]))
+        self.assertEqual([onymous_event], list(ancestry.entities[Event]))
+        self.assertEqual([onymous_place, onmyous_place_because_encloses_onmyous_places], list(ancestry.entities[Place]))
 
         self.assertNotIn(
             anonymous_place, onmyous_place_because_encloses_onmyous_places.encloses)

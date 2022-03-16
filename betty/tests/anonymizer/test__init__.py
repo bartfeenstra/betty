@@ -35,9 +35,9 @@ class AnonymousSourceTest(TestCase):
         other.contains = contains
         other.files = files
         sut.replace(other)
-        self.assertEquals(citations, list(sut.citations))
-        self.assertEquals(contains, list(sut.contains))
-        self.assertEquals(files, list(sut.files))
+        self.assertEqual(citations, list(sut.citations))
+        self.assertEqual(contains, list(sut.contains))
+        self.assertEqual(files, list(sut.files))
 
 
 class AnonymousCitationTest(TestCase):
@@ -63,8 +63,8 @@ class AnonymousCitationTest(TestCase):
         other.facts = facts
         other.files = files
         sut.replace(other)
-        self.assertEquals(facts, list(sut.facts))
-        self.assertEquals(files, list(sut.files))
+        self.assertEqual(facts, list(sut.facts))
+        self.assertEqual(files, list(sut.files))
 
 
 class AnonymizeTest(TestCase):
@@ -175,13 +175,13 @@ class AnonymizePersonTest(TestCase):
         citation = Citation(None, source)
         person.citations.append(citation)
         anonymize_person(person)
-        self.assertEquals(0, len(person.citations))
+        self.assertEqual(0, len(person.citations))
 
     def test_should_remove_files(self) -> None:
         person = Person('P0')
         person.files.append(File('F0', __file__))
         anonymize_person(person)
-        self.assertEquals(0, len(person.files))
+        self.assertEqual(0, len(person.files))
 
     def test_should_remove_names(self) -> None:
         person = Person('P0')
@@ -190,16 +190,16 @@ class AnonymizePersonTest(TestCase):
         citation = Citation(None, source)
         name.citations.append(citation)
         anonymize_person(person)
-        self.assertEquals(0, len(person.names))
-        self.assertEquals(0, len(citation.facts))
+        self.assertEqual(0, len(person.names))
+        self.assertEqual(0, len(citation.facts))
 
     def test_should_remove_presences(self) -> None:
         person = Person('P0')
         event = Event(None, Birth())
         Presence(person, Subject(), event)
         anonymize_person(person)
-        self.assertEquals(0, len(person.presences))
-        self.assertEquals(0, len(event.presences))
+        self.assertEqual(0, len(person.presences))
+        self.assertEqual(0, len(event.presences))
 
     def test_should_remove_parents_without_public_descendants(self) -> None:
         person = Person('P0')
@@ -235,20 +235,20 @@ class AnonymizeEventTest(TestCase):
         citation = Citation(None, source)
         event.citations.append(citation)
         anonymize_event(event)
-        self.assertEquals(0, len(event.citations))
+        self.assertEqual(0, len(event.citations))
 
     def test_should_remove_files(self) -> None:
         event = Event(None, Birth())
         event.files.append(File('F0', __file__))
         anonymize_event(event)
-        self.assertEquals(0, len(event.files))
+        self.assertEqual(0, len(event.files))
 
     def test_should_remove_presences(self) -> None:
         event = Event(None, Birth())
         person = Person('P1')
         Presence(person, Subject(), event)
         anonymize_event(event)
-        self.assertEquals(0, len(event.presences))
+        self.assertEqual(0, len(event.presences))
 
 
 class AnonymizeFileTest(TestCase):
@@ -256,7 +256,7 @@ class AnonymizeFileTest(TestCase):
         file = File('F0', __file__)
         file.entities.append(Person('P0'))
         anonymize_file(file)
-        self.assertEquals(0, len(file.entities))
+        self.assertEqual(0, len(file.entities))
 
 
 class AnonymizeSourceTest(TestCase):
@@ -273,7 +273,7 @@ class AnonymizeSourceTest(TestCase):
         source.citations.append(citation)
         anonymous_source = AnonymousSource()
         anonymize_source(source, anonymous_source)
-        self.assertEquals(0, len(source.citations))
+        self.assertEqual(0, len(source.citations))
         self.assertIn(citation, anonymous_source.citations)
 
     def test_should_remove_contained_by(self) -> None:
@@ -290,7 +290,7 @@ class AnonymizeSourceTest(TestCase):
         source.contains.append(contains)
         anonymous_source = AnonymousSource()
         anonymize_source(source, anonymous_source)
-        self.assertEquals(0, len(source.contains))
+        self.assertEqual(0, len(source.contains))
         self.assertIn(contains, anonymous_source.contains)
 
     def test_should_remove_files(self) -> None:
@@ -299,7 +299,7 @@ class AnonymizeSourceTest(TestCase):
         source.files.append(file)
         anonymous_source = AnonymousSource()
         anonymize_source(source, anonymous_source)
-        self.assertEquals(0, len(source.files))
+        self.assertEqual(0, len(source.files))
         self.assertIn(file, anonymous_source.files)
 
 
@@ -319,7 +319,7 @@ class AnonymizeCitationTest(TestCase):
         anonymous_source = AnonymousSource()
         anonymous_citation = AnonymousCitation(anonymous_source)
         anonymize_citation(citation, anonymous_citation)
-        self.assertEquals(0, len(citation.facts))
+        self.assertEqual(0, len(citation.facts))
         self.assertIn(fact, anonymous_citation.facts)
 
     def test_should_remove_files(self) -> None:
@@ -330,7 +330,7 @@ class AnonymizeCitationTest(TestCase):
         anonymous_source = AnonymousSource()
         anonymous_citation = AnonymousCitation(anonymous_source)
         anonymize_citation(citation, anonymous_citation)
-        self.assertEquals(0, len(citation.files))
+        self.assertEqual(0, len(citation.files))
         self.assertIn(file, anonymous_citation.files)
 
     def test_should_remove_source(self) -> None:
@@ -352,4 +352,4 @@ class AnonymizerTest(TestCase):
             app.configuration.extensions.add(AppExtensionConfiguration(Anonymizer))
             app.ancestry.entities.append(person)
             await load(app)
-        self.assertEquals(0, len(person.names))
+        self.assertEqual(0, len(person.names))

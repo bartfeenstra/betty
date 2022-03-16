@@ -69,9 +69,9 @@ class DeriverTest(TestCase):
             app.ancestry.entities.append(person)
             await load(app)
 
-        self.assertEquals(3, len(person.presences))
-        self.assertEquals(DateRange(None, Date(1970, 1, 1), end_is_boundary=True), person.start.date)
-        self.assertEquals(DateRange(Date(1970, 1, 1), start_is_boundary=True), person.end.date)
+        self.assertEqual(3, len(person.presences))
+        self.assertEqual(DateRange(None, Date(1970, 1, 1), end_is_boundary=True), person.start.date)
+        self.assertEqual(DateRange(Date(1970, 1, 1), start_is_boundary=True), person.end.date)
 
 
 class DeriveTest(TestCase):
@@ -99,9 +99,9 @@ class DeriveTest(TestCase):
 
         created, updated = self._app.extensions[Deriver].derive_person(person, event_type_type)
 
-        self.assertEquals(0, created)
-        self.assertEquals(0, updated)
-        self.assertEquals(0, len(person.presences))
+        self.assertEqual(0, created)
+        self.assertEqual(0, updated)
+        self.assertEqual(0, len(person.presences))
 
     @parameterized.expand([
         (ComesBeforeDerivable,),
@@ -119,9 +119,9 @@ class DeriveTest(TestCase):
 
         created, updated = self._app.extensions[Deriver].derive_person(person, event_type_type)
 
-        self.assertEquals(0, created)
-        self.assertEquals(0, updated)
-        self.assertEquals(1, len(person.presences))
+        self.assertEqual(0, created)
+        self.assertEqual(0, updated)
+        self.assertEqual(1, len(person.presences))
         self.assertIsNone(derivable_event.date)
 
     @parameterized.expand([
@@ -141,9 +141,9 @@ class DeriveTest(TestCase):
 
         created, updated = self._app.extensions[Deriver].derive_person(person, event_type_type)
 
-        self.assertEquals(0, created)
-        self.assertEquals(0, updated)
-        self.assertEquals(2, len(person.presences))
+        self.assertEqual(0, created)
+        self.assertEqual(0, updated)
+        self.assertEqual(2, len(person.presences))
         self.assertIsNone(derivable_event.date)
 
     @parameterized.expand([
@@ -204,10 +204,10 @@ class DeriveTest(TestCase):
 
         created, updated = self._app.extensions[Deriver].derive_person(person, ComesBeforeDerivable)
 
-        self.assertEquals(0, created)
-        self.assertEquals(expected_updates, updated)
-        self.assertEquals(3, len(person.presences))
-        self.assertEquals(expected_datey, derivable_event.date)
+        self.assertEqual(0, created)
+        self.assertEqual(expected_updates, updated)
+        self.assertEqual(3, len(person.presences))
+        self.assertEqual(expected_datey, derivable_event.date)
 
     @parameterized.expand([
         (None, None,),
@@ -227,14 +227,14 @@ class DeriveTest(TestCase):
         created, updated = self._app.extensions[Deriver].derive_person(person, ComesBeforeCreatableDerivable)
 
         derived_presences = [presence for presence in person.presences if isinstance(presence.event.type, ComesBeforeCreatableDerivable)]
-        self.assertEquals(expected_creations, len(derived_presences))
+        self.assertEqual(expected_creations, len(derived_presences))
         if expected_creations:
             derived_presence = derived_presences[0]
             self.assertIsInstance(derived_presence.role, Subject)
-            self.assertEquals(expected_datey, derived_presence.event.date)
-        self.assertEquals(expected_creations, created)
-        self.assertEquals(0, updated)
-        self.assertEquals(2 + expected_creations, len(person.presences))
+            self.assertEqual(expected_datey, derived_presence.event.date)
+        self.assertEqual(expected_creations, created)
+        self.assertEqual(0, updated)
+        self.assertEqual(2 + expected_creations, len(person.presences))
 
     @parameterized.expand([
         (None, None, None),
@@ -294,10 +294,10 @@ class DeriveTest(TestCase):
 
         created, updated = self._app.extensions[Deriver].derive_person(person, ComesAfterDerivable)
 
-        self.assertEquals(expected_datey, derivable_event.date)
-        self.assertEquals(0, created)
-        self.assertEquals(expected_updates, updated)
-        self.assertEquals(3, len(person.presences))
+        self.assertEqual(expected_datey, derivable_event.date)
+        self.assertEqual(0, created)
+        self.assertEqual(expected_updates, updated)
+        self.assertEqual(3, len(person.presences))
 
     @parameterized.expand([
         (None, None),
@@ -318,11 +318,11 @@ class DeriveTest(TestCase):
         created, updated = self._app.extensions[Deriver].derive_person(person, ComesAfterCreatableDerivable)
 
         derived_presences = [presence for presence in person.presences if isinstance(presence.event.type, ComesAfterCreatableDerivable)]
-        self.assertEquals(expected_creations, len(derived_presences))
+        self.assertEqual(expected_creations, len(derived_presences))
         if expected_creations:
             derived_presence = derived_presences[0]
             self.assertIsInstance(derived_presence.role, Subject)
-            self.assertEquals(expected_datey, derived_presence.event.date)
-        self.assertEquals(expected_creations, created)
-        self.assertEquals(0, updated)
-        self.assertEquals(2 + expected_creations, len(person.presences))
+            self.assertEqual(expected_datey, derived_presence.event.date)
+        self.assertEqual(expected_creations, created)
+        self.assertEqual(0, updated)
+        self.assertEqual(2 + expected_creations, len(person.presences))
