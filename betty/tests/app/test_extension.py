@@ -9,13 +9,13 @@ from betty.tests import TestCase
 
 class ExtensionTest(TestCase):
     def test_depends_on(self):
-        self.assertEquals(set(), Extension.depends_on())
+        self.assertEqual(set(), Extension.depends_on())
 
     def test_comes_after(self):
-        self.assertEquals(set(), Extension.comes_after())
+        self.assertEqual(set(), Extension.comes_after())
 
     def test_comes_before(self):
-        self.assertEquals(set(), Extension.comes_before())
+        self.assertEqual(set(), Extension.comes_before())
 
 
 class ExtensionDispatcherTest(TestCase):
@@ -46,7 +46,7 @@ class ExtensionDispatcherTest(TestCase):
 
 class BuildExtensionTypeGraphTest(TestCase):
     def test_without_extension_types(self) -> None:
-        self.assertEquals({}, build_extension_type_graph(set()))
+        self.assertEqual({}, build_extension_type_graph(set()))
 
     def test_with_isolated_extension_types(self) -> None:
         class IsolatedExtensionOne(Extension):
@@ -62,7 +62,7 @@ class BuildExtensionTypeGraphTest(TestCase):
             IsolatedExtensionOne: set(),
             IsolatedExtensionTwo: set(),
         }
-        self.assertEquals(expected, build_extension_type_graph(extension_types))
+        self.assertEqual(expected, build_extension_type_graph(extension_types))
 
     def test_with_unknown_dependencies(self) -> None:
         class IsDependencyExtension(Extension):

@@ -26,4 +26,4 @@ class CliHandlerTest(TestCase):
         logger = Logger(__name__)
         logger.addHandler(CliHandler())
         logger.log(level, message)
-        self.assertEquals(expected, stderr.getvalue())
+        self.assertEqual(expected, stderr.getvalue())

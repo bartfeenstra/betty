@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import weakref
 from collections import OrderedDict
 from concurrent.futures._base import Executor
 from concurrent.futures.thread import ThreadPoolExecutor
@@ -348,6 +349,7 @@ class Configuration(GenericConfiguration):
     def __init__(self, base_url: Optional[str] = None):
         super().__init__()
         self._default_output_directory = TemporaryDirectory()
+        weakref.finalize(self, self._default_output_directory.cleanup)
         self.output_directory_path = self._default_output_directory.name
         self.base_url = 'https://example.com' if base_url is None else base_url
         self.root_path = '/'
@@ -364,9 +366,6 @@ class Configuration(GenericConfiguration):
         self._theme = ThemeConfiguration()
         self._theme.react(self)
         self.lifetime_threshold = 125
-
-    def __del__(self):
-        self._default_output_directory.cleanup()
 
     @reactive
     @property
@@ -827,18 +826,12 @@ class App(Configurable[Configuration], Environment):
     def locks(self) -> Locks:
         return self._locks
 
-    @reactive
     @property
     def http_client(self) -> aiohttp.ClientSession:
-        if self._http_client is None:
+        if not self._http_client:
             self._http_client = aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit_per_host=5))
+            weakref.finalize(self, sync(self._http_client.close))
         return self._http_client
-
-    @http_client.deleter
-    def http_client(self) -> None:
-        if self._http_client is not None:
-            self._http_client.close()
-            self._http_client = None
 
     @reactive
     @property

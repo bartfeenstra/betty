@@ -25,7 +25,7 @@ class WalkTest(TestCase):
         item = self._Item(None)
         actual = walk(item, 'child')
         expected = []
-        self.assertEquals(expected, list(actual))
+        self.assertEqual(expected, list(actual))
 
     def test_one_to_one_with_descendants(self) -> None:
         grandchild = self._Item(None)
@@ -33,13 +33,13 @@ class WalkTest(TestCase):
         item = self._Item(child)
         actual = walk(item, 'child')
         expected = [child, grandchild]
-        self.assertEquals(expected, list(actual))
+        self.assertEqual(expected, list(actual))
 
     def test_one_to_many_without_descendants(self) -> None:
         item = self._Item([])
         actual = walk(item, 'child')
         expected = []
-        self.assertEquals(expected, list(actual))
+        self.assertEqual(expected, list(actual))
 
     def test_with_one_to_many_descendants(self) -> None:
         grandchild = self._Item([])
@@ -47,7 +47,7 @@ class WalkTest(TestCase):
         item = self._Item([child])
         actual = walk(item, 'child')
         expected = [child, grandchild]
-        self.assertEquals(expected, list(actual))
+        self.assertEqual(expected, list(actual))
 
     def test_with_mixed_descendants(self) -> None:
         grandchild = self._Item([])
@@ -55,7 +55,7 @@ class WalkTest(TestCase):
         item = self._Item([child])
         actual = walk(item, 'child')
         expected = [child, grandchild]
-        self.assertEquals(expected, list(actual))
+        self.assertEqual(expected, list(actual))
 
 
 class SliceToRangeTest(TestCase):

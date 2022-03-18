@@ -26,7 +26,7 @@ class LocalizedPathUrlGeneratorTest(TestCase):
     async def test_generate(self, expected: str, resource: str):
         async with App() as app:
             sut = ContentNegotiationPathUrlGenerator(app)
-            self.assertEquals(expected, sut.generate(resource, 'text/html'))
+            self.assertEqual(expected, sut.generate(resource, 'text/html'))
 
     @parameterized.expand([
         ('', 'index.html'),
@@ -39,7 +39,7 @@ class LocalizedPathUrlGeneratorTest(TestCase):
         async with App() as app:
             app.configuration.clean_urls = True
             sut = ContentNegotiationPathUrlGenerator(app)
-            self.assertEquals(expected, sut.generate(resource, 'text/html'))
+            self.assertEqual(expected, sut.generate(resource, 'text/html'))
 
     @parameterized.expand([
         ('https://example.com', '/'),
@@ -49,7 +49,7 @@ class LocalizedPathUrlGeneratorTest(TestCase):
     async def test_generate_absolute(self, expected: str, resource: str):
         async with App() as app:
             sut = ContentNegotiationPathUrlGenerator(app)
-            self.assertEquals(expected, sut.generate(
+            self.assertEqual(expected, sut.generate(
                 resource, 'text/html', absolute=True))
 
     @sync
@@ -69,9 +69,9 @@ class LocalizedPathUrlGeneratorTest(TestCase):
         async with app:
             sut = ContentNegotiationPathUrlGenerator(app)
             with app.activate_locale('nl'):
-                self.assertEquals('/nl/index.html', sut.generate('/index.html', 'text/html'))
+                self.assertEqual('/nl/index.html', sut.generate('/index.html', 'text/html'))
             with app.activate_locale('en'):
-                self.assertEquals('/en/index.html', sut.generate('/index.html', 'text/html'))
+                self.assertEqual('/en/index.html', sut.generate('/index.html', 'text/html'))
 
 
 class EntityUrlGeneratorTest(TestCase):
@@ -82,7 +82,7 @@ class EntityUrlGeneratorTest(TestCase):
     async def test_generate(self):
         async with App() as app:
             sut = _EntityUrlGenerator(app, self.UrlyEntity, 'prefix/%s/index.%s')
-            self.assertEquals('/prefix/I1/index.html', sut.generate(self.UrlyEntity('I1'), 'text/html'))
+            self.assertEqual('/prefix/I1/index.html', sut.generate(self.UrlyEntity('I1'), 'text/html'))
 
     @sync
     async def test_generate_with_invalid_value(self):
@@ -106,7 +106,7 @@ class AppUrlGeneratorTest(TestCase):
     async def test_generate(self, expected: str, resource: Any):
         async with App() as app:
             sut = AppUrlGenerator(app)
-            self.assertEquals(expected, sut.generate(resource, 'text/html'))
+            self.assertEqual(expected, sut.generate(resource, 'text/html'))
 
     @sync
     async def test_generate_with_invalid_value(self):

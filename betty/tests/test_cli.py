@@ -109,6 +109,7 @@ class MainTest(TestCase):
     def test_with_discovered_configuration(self, _, __):
         with TemporaryDirectory() as working_directory_path:
             with TemporaryDirectory() as output_directory_path:
+                pass
                 with open(Path(working_directory_path) / 'betty.json', 'w') as config_file:
                     url = 'https://example.com'
                     config_dict = {
@@ -132,7 +133,7 @@ class CatchExceptionsTest(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 with catch_exceptions():
                     raise UserFacingError(error_message)
-            self.assertEquals('ERROR:root:%s' % error_message, watcher.output[0])
+            self.assertEqual('ERROR:root:%s' % error_message, watcher.output[0])
 
     def test_logging_uncaught_exception(self) -> None:
         error_message = 'Something went wrong!'
@@ -193,15 +194,15 @@ class GenerateTest(TestCase):
 
                 m_parse.assert_called_once()
                 parse_args, parse_kwargs = m_parse.await_args
-                self.assertEquals(1, len(parse_args))
+                self.assertEqual(1, len(parse_args))
                 self.assertIsInstance(parse_args[0], App)
-                self.assertEquals({}, parse_kwargs)
+                self.assertEqual({}, parse_kwargs)
 
                 m_generate.assert_called_once()
                 render_args, render_kwargs = m_generate.call_args
-                self.assertEquals(1, len(render_args))
+                self.assertEqual(1, len(render_args))
                 self.assertIsInstance(render_args[0], App)
-                self.assertEquals({}, render_kwargs)
+                self.assertEqual({}, render_kwargs)
 
 
 class _KeyboardInterruptedServer(Server):

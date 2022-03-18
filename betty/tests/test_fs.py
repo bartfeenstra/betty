@@ -27,12 +27,12 @@ class IterfilesTest(TestCase):
 class HashfileTest(TestCase):
     def test_hashfile_with_identical_file(self):
         file_path = Path(__file__).parents[1] / 'assets' / 'public' / 'static' / 'betty-16x16.png'
-        self.assertEquals(hashfile(file_path), hashfile(file_path))
+        self.assertEqual(hashfile(file_path), hashfile(file_path))
 
     def test_hashfile_with_different_files(self):
         file_path_1 = Path(__file__).parents[1] / 'assets' / 'public' / 'static' / 'betty-16x16.png'
         file_path_2 = Path(__file__).parents[1] / 'assets' / 'public' / 'static' / 'betty-512x512.png'
-        self.assertNotEquals(hashfile(file_path_1), hashfile(file_path_2))
+        self.assertNotEqual(hashfile(file_path_1), hashfile(file_path_2))
 
 
 class FileSystemTest(TestCase):
@@ -52,11 +52,11 @@ class FileSystemTest(TestCase):
                 sut = FileSystem((source_path_1, None), (source_path_2, None))
 
                 async with sut.open('apples') as f:
-                    self.assertEquals('apples', await f.read())
+                    self.assertEqual('apples', await f.read())
                 async with sut.open('oranges') as f:
-                    self.assertEquals('oranges', await f.read())
+                    self.assertEqual('oranges', await f.read())
                 async with sut.open('bananas') as f:
-                    self.assertEquals('bananas', await f.read())
+                    self.assertEqual('bananas', await f.read())
 
                 with self.assertRaises(FileNotFoundError):
                     async with sut.open('mangos'):
@@ -78,7 +78,7 @@ class FileSystemTest(TestCase):
                 sut = FileSystem((source_path_1, None), (source_path_2, None))
 
                 async with sut.open('pinkladies', 'apples') as f:
-                    self.assertEquals('pinkladies', await f.read())
+                    self.assertEqual('pinkladies', await f.read())
 
     @sync
     async def test_open_with_first_file_path_alternative_second_source_path(self):
@@ -94,7 +94,7 @@ class FileSystemTest(TestCase):
                 sut = FileSystem((source_path_1, None), (source_path_2, None))
 
                 async with sut.open('pinkladies', 'apples') as f:
-                    self.assertEquals('pinkladies', await f.read())
+                    self.assertEqual('pinkladies', await f.read())
 
     @sync
     async def test_open_with_second_file_path_alternative_first_source_path(self):
@@ -108,7 +108,7 @@ class FileSystemTest(TestCase):
                 sut = FileSystem((source_path_1, None), (source_path_2, None))
 
                 async with sut.open('pinkladies', 'apples') as f:
-                    self.assertEquals('apples', await f.read())
+                    self.assertEqual('apples', await f.read())
 
     @sync
     async def test_copy2(self):
@@ -131,11 +131,11 @@ class FileSystemTest(TestCase):
                     await sut.copy2('bananas', destination_path)
 
                     async with sut.open(Path(destination_path) / 'apples') as f:
-                        self.assertEquals('apples', await f.read())
+                        self.assertEqual('apples', await f.read())
                     async with sut.open(Path(destination_path) / 'oranges') as f:
-                        self.assertEquals('oranges', await f.read())
+                        self.assertEqual('oranges', await f.read())
                     async with sut.open(Path(destination_path) / 'bananas') as f:
-                        self.assertEquals('bananas', await f.read())
+                        self.assertEqual('bananas', await f.read())
 
                     with self.assertRaises(FileNotFoundError):
                         await sut.copy2('mangos', destination_path)
@@ -161,8 +161,8 @@ class FileSystemTest(TestCase):
                     await sut.copytree('', destination_path)
 
                     async with sut.open(Path(destination_path) / 'basket' / 'apples') as f:
-                        self.assertEquals('apples', await f.read())
+                        self.assertEqual('apples', await f.read())
                     async with sut.open(Path(destination_path) / 'basket' / 'oranges') as f:
-                        self.assertEquals('oranges', await f.read())
+                        self.assertEqual('oranges', await f.read())
                     async with sut.open(Path(destination_path) / 'basket' / 'bananas') as f:
-                        self.assertEquals('bananas', await f.read())
+                        self.assertEqual('bananas', await f.read())

@@ -11,7 +11,7 @@ class CamelCaseToSnakeCaseTest(TestCase):
         ('snake__case', 'Snake_Case'),
     ])
     def test(self, expected: str, string: str) -> None:
-        self.assertEquals(expected, camel_case_to_snake_case(string))
+        self.assertEqual(expected, camel_case_to_snake_case(string))
 
 
 class CamelCaseToKebabCaseTest(TestCase):
@@ -21,7 +21,7 @@ class CamelCaseToKebabCaseTest(TestCase):
         ('snake--case', 'Snake-Case'),
     ])
     def test(self, expected: str, string: str) -> None:
-        self.assertEquals(expected, camel_case_to_kebab_case(string))
+        self.assertEqual(expected, camel_case_to_kebab_case(string))
 
 
 class UpperCamelCaseToLowerCamelCase(TestCase):
@@ -31,4 +31,4 @@ class UpperCamelCaseToLowerCamelCase(TestCase):
         ('123SnakeCase', '123SnakeCase'),
     ])
     def test(self, expected: str, string: str) -> None:
-        self.assertEquals(expected, upper_camel_case_to_lower_camel_case(string))
+        self.assertEqual(expected, upper_camel_case_to_lower_camel_case(string))

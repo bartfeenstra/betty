@@ -39,7 +39,7 @@ class Jinja2RendererTest(TestCase):
                     f.write(template)
                 await sut.render_file(template_file_path)
                 with open(Path(working_directory_path) / 'betty.txt') as f:
-                    self.assertEquals(expected_output, f.read().strip())
+                    self.assertEqual(expected_output, f.read().strip())
                 self.assertFalse(template_file_path.exists())
 
     @sync
@@ -56,7 +56,7 @@ class Jinja2RendererTest(TestCase):
                     f.write(template)
                 await sut.render_tree(working_directory_path)
                 with open(Path(working_subdirectory_path) / 'betty.txt') as f:
-                    self.assertEquals(expected_output, f.read().strip())
+                    self.assertEqual(expected_output, f.read().strip())
                 self.assertFalse(scss_file_path.exists())
 
 
@@ -70,7 +70,7 @@ class FilterFlattenTest(TemplateTestCase):
     @sync
     async def test(self, expected, template):
         async with self._render(template_string=template) as (actual, _):
-            self.assertEquals(expected, actual)
+            self.assertEqual(expected, actual)
 
 
 class FilterWalkTest(TemplateTestCase):
@@ -92,7 +92,7 @@ class FilterWalkTest(TemplateTestCase):
         async with self._render(template_string=template, data={
             'data': data,
         }) as (actual, _):
-            self.assertEquals(expected, actual)
+            self.assertEqual(expected, actual)
 
 
 class FilterParagraphsTest(TemplateTestCase):
@@ -104,7 +104,7 @@ class FilterParagraphsTest(TemplateTestCase):
     @sync
     async def test(self, expected, template):
         async with self._render(template_string=template) as (actual, _):
-            self.assertEquals(expected, actual)
+            self.assertEqual(expected, actual)
 
 
 class FilterFormatDegreesTest(TemplateTestCase):
@@ -115,7 +115,7 @@ class FilterFormatDegreesTest(TemplateTestCase):
     @sync
     async def test(self, expected, template):
         async with self._render(template_string=template) as (actual, _):
-            self.assertEquals(expected, actual)
+            self.assertEqual(expected, actual)
 
 
 class FilterUniqueTest(TemplateTestCase):
@@ -130,7 +130,7 @@ class FilterUniqueTest(TemplateTestCase):
         async with self._render(template_string='{{ data | unique | join(", ") }}', data={
             'data': data,
         }) as (actual, _):
-            self.assertEquals('999, {}', actual)
+            self.assertEqual('999, {}', actual)
 
 
 class FilterMapTest(TemplateTestCase):
@@ -150,7 +150,7 @@ class FilterMapTest(TemplateTestCase):
         async with self._render(template_string=template, data={
             'data': data,
         }) as (actual, _):
-            self.assertEquals(expected, actual)
+            self.assertEqual(expected, actual)
 
 
 class FilterFileTest(TemplateTestCase):
@@ -171,7 +171,7 @@ class FilterFileTest(TemplateTestCase):
         async with self._render(template_string=template, data={
             'file': file,
         }) as (actual, app):
-            self.assertEquals(expected, actual)
+            self.assertEqual(expected, actual)
             for file_path in actual.split(':'):
                 self.assertTrue((app.configuration.www_directory_path / file_path[1:]).exists())
 
@@ -194,7 +194,7 @@ class FilterImageTest(TemplateTestCase):
         async with self._render(template_string=template, data={
             'file': file,
         }) as (actual, app):
-            self.assertEquals(expected, actual)
+            self.assertEqual(expected, actual)
             for file_path in actual.split(':'):
                 self.assertTrue((app.configuration.www_directory_path / file_path[1:]).exists())
 
@@ -214,9 +214,9 @@ class GlobalCiterTest(TemplateTestCase):
         citation1 = Mock(Citation)
         citation2 = Mock(Citation)
         sut = _Citer()
-        self.assertEquals(1, sut.cite(citation1))
-        self.assertEquals(2, sut.cite(citation2))
-        self.assertEquals(1, sut.cite(citation1))
+        self.assertEqual(1, sut.cite(citation1))
+        self.assertEqual(2, sut.cite(citation2))
+        self.assertEqual(1, sut.cite(citation1))
 
     @sync
     async def test_iter(self):
@@ -225,7 +225,7 @@ class GlobalCiterTest(TemplateTestCase):
         sut = _Citer()
         sut.cite(citation1)
         sut.cite(citation2)
-        self.assertEquals([(1, citation1), (2, citation2)], list(sut))
+        self.assertEqual([(1, citation1), (2, citation2)], list(sut))
 
     @sync
     async def test_len(self):
@@ -234,7 +234,7 @@ class GlobalCiterTest(TemplateTestCase):
         sut = _Citer()
         sut.cite(citation1)
         sut.cite(citation2)
-        self.assertEquals(2, len(sut))
+        self.assertEqual(2, len(sut))
 
 
 class FormatDateTest(TemplateTestCase):
@@ -245,7 +245,7 @@ class FormatDateTest(TemplateTestCase):
         async with self._render(template_string=template, data={
             'date': date,
         }) as (actual, _):
-            self.assertEquals('January 1, 1970', actual)
+            self.assertEqual('January 1, 1970', actual)
 
 
 class FilterSortLocalizedsTest(TemplateTestCase):
@@ -276,7 +276,7 @@ class FilterSortLocalizedsTest(TemplateTestCase):
         async with self._render(template_string=template, data={
             'data': data,
         }) as (actual, _):
-            self.assertEquals('[first, second, third]', actual)
+            self.assertEqual('[first, second, third]', actual)
 
     @sync
     async def test_with_empty_iterable(self):
@@ -284,7 +284,7 @@ class FilterSortLocalizedsTest(TemplateTestCase):
         async with self._render(template_string=template, data={
             'data': [],
         }) as (actual, _):
-            self.assertEquals('[]', actual)
+            self.assertEqual('[]', actual)
 
 
 class FilterSelectLocalizedsTest(TemplateTestCase):
@@ -315,7 +315,7 @@ class FilterSelectLocalizedsTest(TemplateTestCase):
         async with self._render(template_string=template, data={
             'data': data,
         }, update_configuration=_update_configuration) as (actual, _):
-            self.assertEquals(expected, actual)
+            self.assertEqual(expected, actual)
 
     @sync
     async def test_include_unspecified(self):
@@ -333,7 +333,7 @@ class FilterSelectLocalizedsTest(TemplateTestCase):
         async with self._render(template_string=template, data={
             'data': data,
         }, update_configuration=_update_configuration) as (actual, _):
-            self.assertEquals('Apple, Apple, Apple, Apple, Apple', actual)
+            self.assertEqual('Apple, Apple, Apple, Apple, Apple', actual)
 
 
 class FilterSelectDatedsTest(TemplateTestCase):
@@ -397,7 +397,7 @@ class FilterSelectDatedsTest(TemplateTestCase):
     async def test(self, expected: str, data: Dict):
         template = '{{ dateds | select_dateds(date=date) | join(", ") }}'
         async with self._render(template_string=template, data=data) as (actual, _):
-            self.assertEquals(expected, actual)
+            self.assertEqual(expected, actual)
 
 
 class TestSubjectRoleTest(TemplateTestCase):
@@ -413,7 +413,7 @@ class TestSubjectRoleTest(TemplateTestCase):
         async with self._render(template_string=template, data={
             'data': data,
         }) as (actual, _):
-            self.assertEquals(expected, actual)
+            self.assertEqual(expected, actual)
 
 
 class TestWitnessRoleTest(TemplateTestCase):
@@ -429,7 +429,7 @@ class TestWitnessRoleTest(TemplateTestCase):
         async with self._render(template_string=template, data={
             'data': data,
         }) as (actual, _):
-            self.assertEquals(expected, actual)
+            self.assertEqual(expected, actual)
 
 
 class TestResourceTest(TemplateTestCase):
@@ -447,4 +447,4 @@ class TestResourceTest(TemplateTestCase):
         async with self._render(template_string=template, data={
             'data': data,
         }) as (actual, _):
-            self.assertEquals(expected, actual)
+            self.assertEqual(expected, actual)

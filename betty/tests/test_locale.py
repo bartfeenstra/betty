@@ -109,23 +109,23 @@ class DateTest(TestCase):
     def test_year(self):
         year = 1970
         sut = Date(year=year)
-        self.assertEquals(year, sut.year)
+        self.assertEqual(year, sut.year)
 
     def test_month(self):
         month = 1
         sut = Date(month=month)
-        self.assertEquals(month, sut.month)
+        self.assertEqual(month, sut.month)
 
     def test_day(self):
         day = 1
         sut = Date(day=day)
-        self.assertEquals(day, sut.day)
+        self.assertEqual(day, sut.day)
 
     def test_fuzzy(self):
         fuzzy = True
         sut = Date()
         sut.fuzzy = fuzzy
-        self.assertEquals(fuzzy, sut.fuzzy)
+        self.assertEqual(fuzzy, sut.fuzzy)
 
     @parameterized.expand([
         (True, 1970, 1, 1),
@@ -138,7 +138,7 @@ class DateTest(TestCase):
     ])
     def test_comparable(self, expected, year, month, day):
         sut = Date(year, month, day)
-        self.assertEquals(expected, sut.comparable)
+        self.assertEqual(expected, sut.comparable)
 
     @parameterized.expand([
         (True, 1970, 1, 1),
@@ -151,7 +151,7 @@ class DateTest(TestCase):
     ])
     def test_complete(self, expected, year, month, day):
         sut = Date(year, month, day)
-        self.assertEquals(expected, sut.complete)
+        self.assertEqual(expected, sut.complete)
 
     def test_to_range_when_incomparable_should_raise(self):
         with self.assertRaises(ValueError):
@@ -162,7 +162,7 @@ class DateTest(TestCase):
         (None, None, None),
     ])
     def test_parts(self, year, month, day):
-        self.assertEquals((year, month, day), Date(year, month, day).parts)
+        self.assertEqual((year, month, day), Date(year, month, day).parts)
 
     @parameterized.expand([
         (False, Date(1970, 2, 1)),
@@ -171,7 +171,7 @@ class DateTest(TestCase):
         (False, DateRange()),
     ])
     def test_in(self, expected, other):
-        self.assertEquals(expected, other in Date(1970, 2, 2))
+        self.assertEqual(expected, other in Date(1970, 2, 2))
 
     @parameterized.expand([
         (False, Date(1970, 2, 1)),
@@ -183,7 +183,7 @@ class DateTest(TestCase):
         (True, Date(1970, 3)),
     ])
     def test_lt(self, expected, other):
-        self.assertEquals(expected, Date(1970, 2, 2) < other)
+        self.assertEqual(expected, Date(1970, 2, 2) < other)
 
     @parameterized.expand([
         (True, Date(1970, 1, 1)),
@@ -196,8 +196,8 @@ class DateTest(TestCase):
         (False, None),
     ])
     def test_eq(self, expected, other):
-        self.assertEquals(expected, Date(1970, 1, 1) == other)
-        self.assertEquals(expected, other == Date(1970, 1, 1))
+        self.assertEqual(expected, Date(1970, 1, 1) == other)
+        self.assertEqual(expected, other == Date(1970, 1, 1))
 
     @parameterized.expand([
         (True, Date(1970, 2, 1)),
@@ -205,7 +205,7 @@ class DateTest(TestCase):
         (False, Date(1970, 2, 3)),
     ])
     def test_gt(self, expected, other):
-        self.assertEquals(expected, Date(1970, 2, 2) > other)
+        self.assertEqual(expected, Date(1970, 2, 2) > other)
 
 
 class DateRangeTest(TestCase):
@@ -248,7 +248,7 @@ class DateRangeTest(TestCase):
     # Mirror the arguments because we want the containment check to work in either direction.
     @parameterized.expand(_TEST_IN_PARAMETERS + list(map(lambda x: (x[0], x[2], x[1]), _TEST_IN_PARAMETERS)))
     def test_in(self, expected: bool, other: Datey, sut: DateRange):
-        self.assertEquals(expected, other in sut)
+        self.assertEqual(expected, other in sut)
 
     @parameterized.expand([
         (False, Date(1970, 2, 1)),
@@ -265,7 +265,7 @@ class DateRangeTest(TestCase):
         (False, DateRange(Date(1970, 2, 1), Date(1970, 2, 3))),
     ])
     def test_lt_with_start_date(self, expected, other):
-        self.assertEquals(expected, DateRange(Date(1970, 2, 2)) < other)
+        self.assertEqual(expected, DateRange(Date(1970, 2, 2)) < other)
 
     @parameterized.expand([
         (False, Date(1970, 2, 1)),
@@ -282,7 +282,7 @@ class DateRangeTest(TestCase):
         (False, DateRange(Date(1970, 2, 1), Date(1970, 2, 3))),
     ])
     def test_lt_with_end_date(self, expected, other):
-        self.assertEquals(expected, DateRange(None, Date(1970, 2, 2)) < other)
+        self.assertEqual(expected, DateRange(None, Date(1970, 2, 2)) < other)
 
     @parameterized.expand([
         (False, Date(1970, 2, 1)),
@@ -299,7 +299,7 @@ class DateRangeTest(TestCase):
         (False, DateRange(Date(1970, 2, 1), Date(1970, 2, 3))),
     ])
     def test_lt_with_both_dates(self, expected, other):
-        self.assertEquals(expected, DateRange(Date(1970, 2, 1), Date(1970, 2, 3)) < other)
+        self.assertEqual(expected, DateRange(Date(1970, 2, 1), Date(1970, 2, 3)) < other)
 
     @parameterized.expand([
         (True, DateRange(Date(1970, 2, 2))),
@@ -312,7 +312,7 @@ class DateRangeTest(TestCase):
         (False, None),
     ])
     def test_eq(self, expected, other):
-        self.assertEquals(expected, DateRange(Date(1970, 2, 2)) == other)
+        self.assertEqual(expected, DateRange(Date(1970, 2, 2)) == other)
 
     @parameterized.expand([
         (True, Date(1970, 2, 1)),
@@ -329,7 +329,7 @@ class DateRangeTest(TestCase):
         (True, DateRange(Date(1970, 2, 1), Date(1970, 2, 3))),
     ])
     def test_gt(self, expected, other):
-        self.assertEquals(expected, DateRange(Date(1970, 2, 2)) > other)
+        self.assertEqual(expected, DateRange(Date(1970, 2, 2)) > other)
 
 
 class NegotiateLocaleTest(TestCase):
@@ -365,14 +365,14 @@ class NegotiateLocalizedsTest(TestCase):
         (None, 'nl', []),
     ])
     def test_with_match_should_return_match(self, expected: Localized, preferred_locale: str, localizeds: List[Localized]):
-        self.assertEquals(expected, negotiate_localizeds(
+        self.assertEqual(expected, negotiate_localizeds(
             preferred_locale, localizeds))
 
     def test_without_match_should_return_default(self):
         preferred_locale = 'de'
         localizeds = [self.DummyLocalized('nl'), self.DummyLocalized(
             'en'), self.DummyLocalized('uk')]
-        self.assertEquals(self.DummyLocalized('nl'), negotiate_localizeds(
+        self.assertEqual(self.DummyLocalized('nl'), negotiate_localizeds(
             preferred_locale, localizeds))
 
 
@@ -399,7 +399,7 @@ class FormatDateTest(TestCase):
     def test(self, expected: str, datey: Datey):
         locale = 'en'
         with Translations(NullTranslations()):
-            self.assertEquals(expected, format_datey(datey, locale))
+            self.assertEqual(expected, format_datey(datey, locale))
 
 
 _FORMAT_DATE_RANGE_TEST_PARAMETERS = [
@@ -435,7 +435,7 @@ class FormatDateRangeTest(TestCase):
     def test(self, expected: str, datey: Datey):
         locale = 'en'
         with Translations(NullTranslations()):
-            self.assertEquals(expected, format_datey(datey, locale))
+            self.assertEqual(expected, format_datey(datey, locale))
 
 
 class FormatDateyTest(TestCase):
@@ -443,7 +443,7 @@ class FormatDateyTest(TestCase):
     def test(self, expected: str, datey: Datey):
         locale = 'en'
         with Translations(NullTranslations()):
-            self.assertEquals(expected, format_datey(datey, locale))
+            self.assertEqual(expected, format_datey(datey, locale))
 
 
 class TranslationsRepositoryTest(TestCase):

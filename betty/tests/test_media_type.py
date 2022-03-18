@@ -24,12 +24,12 @@ class MediaTypeTest(TestCase):
     ])
     def test(self, expected_type: str, expected_subtype: str, expected_subtypes: List[str], expected_suffix: Optional[str], expected_parameters: Dict[str, str], media_type: str):
         sut = MediaType(media_type)
-        self.assertEquals(expected_type, sut.type)
-        self.assertEquals(expected_subtype, sut.subtype)
-        self.assertEquals(expected_subtypes, sut.subtypes)
-        self.assertEquals(expected_suffix, sut.suffix)
-        self.assertEquals(expected_parameters, sut.parameters)
-        self.assertEquals(media_type, str(sut))
+        self.assertEqual(expected_type, sut.type)
+        self.assertEqual(expected_subtype, sut.subtype)
+        self.assertEqual(expected_subtypes, sut.subtypes)
+        self.assertEqual(expected_suffix, sut.suffix)
+        self.assertEqual(expected_parameters, sut.parameters)
+        self.assertEqual(media_type, str(sut))
 
     @parameterized.expand([
         ('',),

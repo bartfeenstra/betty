@@ -33,12 +33,12 @@ class NoteTest(TestCase):
     def test_id(self) -> None:
         note_id = 'N1'
         sut = Note(note_id, 'Betty wrote this.')
-        self.assertEquals(note_id, sut.id)
+        self.assertEqual(note_id, sut.id)
 
     def test_text(self) -> None:
         text = 'Betty wrote this.'
         sut = Note('N1', text)
-        self.assertEquals(text, sut.text)
+        self.assertEqual(text, sut.text)
 
 
 class HasNotesTest(TestCase):
@@ -66,7 +66,7 @@ class LinkTest(TestCase):
     def test_url(self) -> None:
         url = 'https://example.com'
         sut = Link(url)
-        self.assertEquals(url, sut.url)
+        self.assertEqual(url, sut.url)
 
     def test_media_type(self) -> None:
         url = 'https://example.com'
@@ -97,7 +97,7 @@ class LinkTest(TestCase):
 class HasLinksTest(TestCase):
     def test_links(self) -> None:
         sut = HasLinks()
-        self.assertEquals(set(), sut.links)
+        self.assertEqual(set(), sut.links)
 
 
 class FileTest(TestCase):
@@ -105,7 +105,7 @@ class FileTest(TestCase):
         file_id = 'BETTY01'
         file_path = Path('~')
         sut = File(file_id, file_path)
-        self.assertEquals(file_id, sut.id)
+        self.assertEqual(file_id, sut.id)
 
     def test_private(self) -> None:
         file_id = 'BETTY01'
@@ -114,7 +114,7 @@ class FileTest(TestCase):
         self.assertIsNone(sut.private)
         private = True
         sut.private = private
-        self.assertEquals(private, sut.private)
+        self.assertEqual(private, sut.private)
 
     def test_media_type(self) -> None:
         file_id = 'BETTY01'
@@ -123,20 +123,20 @@ class FileTest(TestCase):
         self.assertIsNone(sut.media_type)
         media_type = MediaType('text/plain')
         sut.media_type = media_type
-        self.assertEquals(media_type, sut.media_type)
+        self.assertEqual(media_type, sut.media_type)
 
     def test_path_with_path(self) -> None:
         with NamedTemporaryFile() as f:
             file_id = 'BETTY01'
             file_path = Path(f.name)
             sut = File(file_id, file_path)
-            self.assertEquals(file_path, sut.path)
+            self.assertEqual(file_path, sut.path)
 
     def test_path_with_str(self) -> None:
         with NamedTemporaryFile() as f:
             file_id = 'BETTY01'
             sut = File(file_id, f.name)
-            self.assertEquals(Path(f.name), sut.path)
+            self.assertEqual(Path(f.name), sut.path)
 
     def test_description(self) -> None:
         file_id = 'BETTY01'
@@ -145,7 +145,7 @@ class FileTest(TestCase):
         self.assertIsNone(sut.description)
         description = 'Hi, my name is Betty!'
         sut.description = description
-        self.assertEquals(description, sut.description)
+        self.assertEqual(description, sut.description)
 
     def test_notes(self) -> None:
         file_id = 'BETTY01'
@@ -190,19 +190,19 @@ class SourceTest(TestCase):
     def test_id(self) -> None:
         source_id = 'S1'
         sut = Source(source_id)
-        self.assertEquals(source_id, sut.id)
+        self.assertEqual(source_id, sut.id)
 
     def test_name(self) -> None:
         name = 'The Source'
         sut = Source(None, name)
-        self.assertEquals(name, sut.name)
+        self.assertEqual(name, sut.name)
 
     def test_contained_by(self) -> None:
         contained_by_source = Source(None)
         sut = Source(None)
         self.assertIsNone(sut.contained_by)
         sut.contained_by = contained_by_source
-        self.assertEquals(contained_by_source, sut.contained_by)
+        self.assertEqual(contained_by_source, sut.contained_by)
 
     def test_contains(self) -> None:
         contains_source = Source(None)
@@ -220,14 +220,14 @@ class SourceTest(TestCase):
         self.assertIsNone(sut.author)
         author = 'Me'
         sut.author = author
-        self.assertEquals(author, sut.author)
+        self.assertEqual(author, sut.author)
 
     def test_publisher(self) -> None:
         sut = Source(None)
         self.assertIsNone(sut.publisher)
         publisher = 'Me'
         sut.publisher = publisher
-        self.assertEquals(publisher, sut.publisher)
+        self.assertEqual(publisher, sut.publisher)
 
     def test_date(self) -> None:
         sut = Source(None)
@@ -246,14 +246,14 @@ class SourceTest(TestCase):
         self.assertIsNone(sut.private)
         private = True
         sut.private = private
-        self.assertEquals(private, sut.private)
+        self.assertEqual(private, sut.private)
 
 
 class CitationTest(TestCase):
     def test_id(self) -> None:
         citation_id = 'C1'
         sut = Citation(citation_id, Mock(Source))
-        self.assertEquals(citation_id, sut.id)
+        self.assertEqual(citation_id, sut.id)
 
     def test_facts(self) -> None:
         class _HasCitations(Entity, HasCitations):
@@ -267,14 +267,14 @@ class CitationTest(TestCase):
     def test_source(self) -> None:
         source = Mock(Source)
         sut = Citation(None, source)
-        self.assertEquals(source, sut.source)
+        self.assertEqual(source, sut.source)
 
     def test_location(self) -> None:
         sut = Citation(None, Mock(Source))
         self.assertIsNone(sut.location)
         location = 'Somewhere'
         sut.location = location
-        self.assertEquals(location, sut.location)
+        self.assertEqual(location, sut.location)
 
     def test_date(self) -> None:
         sut = Citation(None, Mock(Source))
@@ -289,7 +289,7 @@ class CitationTest(TestCase):
         self.assertIsNone(sut.private)
         private = True
         sut.private = private
-        self.assertEquals(private, sut.private)
+        self.assertEqual(private, sut.private)
 
 
 class HasCitationsTest(TestCase):
@@ -314,27 +314,27 @@ class PlaceNameTest(TestCase):
         (False, PlaceName('Ikke'), 'not-a-place-name'),
     ])
     def test_eq(self, expected, a, b) -> None:
-        self.assertEquals(expected, a == b)
+        self.assertEqual(expected, a == b)
 
     def test_str(self) -> None:
         name = 'Ikke'
         sut = PlaceName(name)
-        self.assertEquals(name, str(sut))
+        self.assertEqual(name, str(sut))
 
     def test_name(self) -> None:
         name = 'Ikke'
         sut = PlaceName(name)
-        self.assertEquals(name, sut.name)
+        self.assertEqual(name, sut.name)
 
     def test_locale(self) -> None:
         locale = 'nl-NL'
         sut = PlaceName('Ikke', locale=locale)
-        self.assertEquals(locale, sut.locale)
+        self.assertEqual(locale, sut.locale)
 
     def test_date(self) -> None:
         date = Date()
         sut = PlaceName('Ikke', date=date)
-        self.assertEquals(date, sut.date)
+        self.assertEqual(date, sut.date)
 
 
 class EnclosureTest(TestCase):
@@ -342,13 +342,13 @@ class EnclosureTest(TestCase):
         encloses = Mock(Place)
         enclosed_by = Mock(Place)
         sut = Enclosure(encloses, enclosed_by)
-        self.assertEquals(encloses, sut.encloses)
+        self.assertEqual(encloses, sut.encloses)
 
     def test_enclosed_by(self) -> None:
         encloses = Mock(Place)
         enclosed_by = Mock(Place)
         sut = Enclosure(encloses, enclosed_by)
-        self.assertEquals(enclosed_by, sut.enclosed_by)
+        self.assertEqual(enclosed_by, sut.enclosed_by)
 
     def test_date(self) -> None:
         encloses = Mock(Place)
@@ -357,7 +357,7 @@ class EnclosureTest(TestCase):
         date = Date()
         self.assertIsNone(sut.date)
         sut.date = date
-        self.assertEquals(date, sut.date)
+        self.assertEqual(date, sut.date)
 
     def test_citations(self) -> None:
         encloses = Mock(Place)
@@ -375,10 +375,10 @@ class PlaceTest(TestCase):
         event = Event('1', Birth())
         sut.events.append(event)
         self.assertIn(event, sut.events)
-        self.assertEquals(sut, event.place)
+        self.assertEqual(sut, event.place)
         sut.events.remove(event)
         self.assertCountEqual([], sut.events)
-        self.assertEquals(None, event.place)
+        self.assertEqual(None, event.place)
 
     def test_enclosed_by(self) -> None:
         sut = Place('P1', [PlaceName('The Place')])
@@ -386,7 +386,7 @@ class PlaceTest(TestCase):
         enclosing_place = Place('P2', [PlaceName('The Other Place')])
         enclosure = Enclosure(sut, enclosing_place)
         self.assertIn(enclosure, sut.enclosed_by)
-        self.assertEquals(sut, enclosure.encloses)
+        self.assertEqual(sut, enclosure.encloses)
         sut.enclosed_by.remove(enclosure)
         self.assertCountEqual([], sut.enclosed_by)
         self.assertIsNone(enclosure.encloses)
@@ -397,7 +397,7 @@ class PlaceTest(TestCase):
         enclosed_place = Place('P2', [PlaceName('The Other Place')])
         enclosure = Enclosure(enclosed_place, sut)
         self.assertIn(enclosure, sut.encloses)
-        self.assertEquals(sut, enclosure.enclosed_by)
+        self.assertEqual(sut, enclosure.enclosed_by)
         sut.encloses.remove(enclosure)
         self.assertCountEqual([], sut.encloses)
         self.assertIsNone(enclosure.enclosed_by)
@@ -405,7 +405,7 @@ class PlaceTest(TestCase):
     def test_id(self) -> None:
         place_id = 'C1'
         sut = Place(place_id, [PlaceName('one')])
-        self.assertEquals(place_id, sut.id)
+        self.assertEqual(place_id, sut.id)
 
     def test_links(self) -> None:
         sut = Place('P1', [PlaceName('The Place')])
@@ -421,7 +421,7 @@ class PlaceTest(TestCase):
         sut = Place('P1', [name])
         coordinates = Point()
         sut.coordinates = coordinates
-        self.assertEquals(coordinates, sut.coordinates)
+        self.assertEqual(coordinates, sut.coordinates)
 
 
 class SubjectTest(TestCase):
@@ -476,33 +476,33 @@ class PresenceTest(TestCase):
     def test_person(self) -> None:
         person = Mock(Person)
         sut = Presence(person, Mock(PresenceRole), Mock(Event))
-        self.assertEquals(person, sut.person)
+        self.assertEqual(person, sut.person)
 
     def test_event(self) -> None:
         role = Mock(PresenceRole)
         sut = Presence(Mock(Person), role, Mock(Event))
-        self.assertEquals(role, sut.role)
+        self.assertEqual(role, sut.role)
 
     def test_role(self) -> None:
         event = Mock(Event)
         sut = Presence(Mock(Person), Mock(PresenceRole), event)
-        self.assertEquals(event, sut.event)
+        self.assertEqual(event, sut.event)
 
 
 class EventTest(TestCase):
     def test_id(self) -> None:
         event_id = 'E1'
         sut = Event(event_id, Mock(EventType))
-        self.assertEquals(event_id, sut.id)
+        self.assertEqual(event_id, sut.id)
 
     def test_place(self) -> None:
         place = Place('1', [PlaceName('one')])
         sut = Event(None, Mock(EventType))
         sut.place = place
-        self.assertEquals(place, sut.place)
+        self.assertEqual(place, sut.place)
         self.assertIn(sut, place.events)
         sut.place = None
-        self.assertEquals(None, sut.place)
+        self.assertEqual(None, sut.place)
         self.assertNotIn(sut, place.events)
 
     def test_presences(self) -> None:
@@ -511,7 +511,7 @@ class EventTest(TestCase):
         presence = Presence(person, Subject(), sut)
         sut.presences.append(presence)
         self.assertCountEqual([presence], sut.presences)
-        self.assertEquals(sut, presence.event)
+        self.assertEqual(sut, presence.event)
         sut.presences.remove(presence)
         self.assertCountEqual([], sut.presences)
         self.assertIsNone(presence.event)
@@ -521,7 +521,7 @@ class EventTest(TestCase):
         self.assertIsNone(sut.date)
         date = Mock(Date)
         sut.date = date
-        self.assertEquals(date, sut.date)
+        self.assertEqual(date, sut.date)
 
     def test_files(self) -> None:
         sut = Event(None, Mock(EventType))
@@ -542,7 +542,7 @@ class EventTest(TestCase):
     def test_type(self) -> None:
         event_type = Mock(EventType)
         sut = Event(None, event_type)
-        self.assertEquals(event_type, sut.type)
+        self.assertEqual(event_type, sut.type)
 
     def test_associated_files(self) -> None:
         file1 = Mock(File)
@@ -554,14 +554,14 @@ class EventTest(TestCase):
         citation = Mock(Citation)
         citation.associated_files = [file3, file4, file2]
         sut.citations = [citation]
-        self.assertEquals([file1, file2, file3, file4], list(sut.associated_files))
+        self.assertEqual([file1, file2, file3, file4], list(sut.associated_files))
 
 
 class PersonNameTest(TestCase):
     def test_person(self) -> None:
         person = Person('1')
         sut = PersonName(person, 'Janet', 'Not a Girl')
-        self.assertEquals(person, sut.person)
+        self.assertEqual(person, sut.person)
         self.assertCountEqual([sut], person.names)
         sut.person = None
         self.assertIsNone(sut.person)
@@ -581,13 +581,13 @@ class PersonNameTest(TestCase):
         person = Person('1')
         individual = 'Janet'
         sut = PersonName(person, individual, 'Not a Girl')
-        self.assertEquals(individual, sut.individual)
+        self.assertEqual(individual, sut.individual)
 
     def test_affiliation(self) -> None:
         person = Person('1')
         affiliation = 'Not a Girl'
         sut = PersonName(person, 'Janet', affiliation)
-        self.assertEquals(affiliation, sut.affiliation)
+        self.assertEqual(affiliation, sut.affiliation)
 
     @parameterized.expand([
         (True, PersonName(Person('1'), 'Janet', 'Not a Girl'), PersonName(Person('1'), 'Janet', 'Not a Girl')),
@@ -600,7 +600,7 @@ class PersonNameTest(TestCase):
         (False, PersonName(Person('1'), 'Janet', 'Not a Girl'), object()),
     ])
     def test_eq(self, expected: bool, left: PersonName, right: Any) -> None:
-        self.assertEquals(expected, left == right)
+        self.assertEqual(expected, left == right)
 
     @parameterized.expand([
         (False, PersonName(Person('1'), 'Janet', 'Not a Girl'), PersonName(Person('1'), 'Janet', 'Not a Girl')),
@@ -608,7 +608,7 @@ class PersonNameTest(TestCase):
         (True, PersonName(Person('1'), 'Janet', 'Not a Girl'), None),
     ])
     def test_gt(self, expected: bool, left: PersonName, right: Any) -> None:
-        self.assertEquals(expected, left > right)
+        self.assertEqual(expected, left > right)
 
 
 class PersonTest(TestCase):
@@ -638,7 +638,7 @@ class PersonTest(TestCase):
         presence = Presence(sut, Subject(), event)
         sut.presences.append(presence)
         self.assertCountEqual([presence], sut.presences)
-        self.assertEquals(sut, presence.person)
+        self.assertEqual(sut, presence.person)
         sut.presences.remove(presence)
         self.assertCountEqual([], sut.presences)
         self.assertIsNone(presence.person)
@@ -647,7 +647,7 @@ class PersonTest(TestCase):
         sut = Person('1')
         name = PersonName(sut, 'Janet', 'Not a Girl')
         self.assertCountEqual([name], sut.names)
-        self.assertEquals(sut, name.person)
+        self.assertEqual(sut, name.person)
         sut.names.remove(name)
         self.assertCountEqual([], sut.names)
         self.assertIsNone(name.person)
@@ -655,7 +655,7 @@ class PersonTest(TestCase):
     def test_id(self) -> None:
         person_id = 'P1'
         sut = Person(person_id)
-        self.assertEquals(person_id, sut.id)
+        self.assertEqual(person_id, sut.id)
 
     def test_files(self) -> None:
         sut = Source(None)
@@ -676,7 +676,7 @@ class PersonTest(TestCase):
     def test_name_with_names(self) -> None:
         sut = Person('P1')
         name = PersonName(sut)
-        self.assertEquals(name, sut.name)
+        self.assertEqual(name, sut.name)
 
     def test_name_without_names(self) -> None:
         self.assertIsNone(Person('P1').name)
@@ -691,13 +691,13 @@ class PersonTest(TestCase):
         start = Event(None, Birth())
         sut = Person('P1')
         Presence(sut, Subject(), start)
-        self.assertEquals(start, sut.start)
+        self.assertEqual(start, sut.start)
 
     def test_end(self) -> None:
         end = Event(None, Burial())
         sut = Person('P1')
         Presence(sut, Subject(), end)
-        self.assertEquals(end, sut.end)
+        self.assertEqual(end, sut.end)
 
     def test_siblings_without_parents(self) -> None:
         sut = Person('person')
@@ -733,4 +733,4 @@ class PersonTest(TestCase):
         event = Mock(Event)
         event.associated_files = [file5, file6, file4]
         Presence(sut, Subject(), event)
-        self.assertEquals([file1, file2, file3, file4, file5, file6], list(sut.associated_files))
+        self.assertEqual([file1, file2, file3, file4, file5, file6], list(sut.associated_files))

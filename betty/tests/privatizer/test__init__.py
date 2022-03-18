@@ -170,7 +170,7 @@ class PrivatizerTest(TestCase):
         ancestry = Ancestry()
         ancestry.entities.append(person)
         privatize(ancestry)
-        self.assertEquals(expected, person.private)
+        self.assertEqual(expected, person.private)
 
     @_expand_person(1)
     def test_privatize_person_with_child(self, expected, private, event: Optional[Event]):
@@ -183,7 +183,7 @@ class PrivatizerTest(TestCase):
         ancestry = Ancestry()
         ancestry.entities.append(person)
         privatize(ancestry)
-        self.assertEquals(expected, person.private)
+        self.assertEqual(expected, person.private)
 
     @_expand_person(2)
     def test_privatize_person_with_grandchild(self, expected, private, event: Optional[Event]):
@@ -198,7 +198,7 @@ class PrivatizerTest(TestCase):
         ancestry = Ancestry()
         ancestry.entities.append(person)
         privatize(ancestry)
-        self.assertEquals(expected, person.private)
+        self.assertEqual(expected, person.private)
 
     @_expand_person(3)
     def test_privatize_person_with_great_grandchild(self, expected, private, event: Optional[Event]):
@@ -215,7 +215,7 @@ class PrivatizerTest(TestCase):
         ancestry = Ancestry()
         ancestry.entities.append(person)
         privatize(ancestry)
-        self.assertEquals(expected, person.private)
+        self.assertEqual(expected, person.private)
 
     @_expand_person(-1)
     def test_privatize_person_with_parent(self, expected, private, event: Optional[Event]):
@@ -228,7 +228,7 @@ class PrivatizerTest(TestCase):
         ancestry = Ancestry()
         ancestry.entities.append(person)
         privatize(ancestry)
-        self.assertEquals(expected, person.private)
+        self.assertEqual(expected, person.private)
 
     @_expand_person(-2)
     def test_privatize_person_with_grandparent(self, expected, private, event: Optional[Event]):
@@ -243,7 +243,7 @@ class PrivatizerTest(TestCase):
         ancestry = Ancestry()
         ancestry.entities.append(person)
         privatize(ancestry)
-        self.assertEquals(expected, person.private)
+        self.assertEqual(expected, person.private)
 
     @_expand_person(-3)
     def test_privatize_person_with_great_grandparent(self, expected, private, event: Optional[Event]):
@@ -260,7 +260,7 @@ class PrivatizerTest(TestCase):
         ancestry = Ancestry()
         ancestry.entities.append(person)
         privatize(ancestry)
-        self.assertEquals(expected, person.private)
+        self.assertEqual(expected, person.private)
 
     def test_privatize_event_should_not_privatize_if_public(self):
         source_file = File('F0', __file__)

@@ -26,7 +26,10 @@ def sync(f):
 
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        return loop.run_until_complete(f)
+        try:
+            return loop.run_until_complete(f)
+        finally:
+            loop.close()
 
     if inspect.iscoroutinefunction(f):
         return _sync_function(f)

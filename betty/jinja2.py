@@ -15,14 +15,14 @@ from PIL.Image import DecompressionBombWarning
 from babel import Locale
 from geopy import units
 from geopy.format import DEGREES_FORMAT
-from jinja2 import Environment, select_autoescape, escape, FileSystemLoader, pass_context, pass_eval_context, Template, \
+from jinja2 import Environment, select_autoescape, FileSystemLoader, pass_context, pass_eval_context, Template, \
     nodes
 from jinja2.ext import Extension
 from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.nodes import EvalContext
 from jinja2.runtime import StrictUndefined, Context, Macro
 from jinja2.utils import htmlsafe_json_dumps
-from markupsafe import Markup
+from markupsafe import Markup, escape
 from resizeimage import resizeimage
 
 from betty.app import App, Configuration
@@ -338,7 +338,7 @@ def _filter_file(app: App, file: File) -> str:
     with suppress(AcquiredError):
         app.locks.acquire((_filter_file, file))
         file_destination_path = app.configuration.www_directory_path / 'file' / file.id / 'file' / file.path.name
-        app.executor.submit(_do_filter_file, Path(file.path), file_destination_path)
+        app.executor.submit(_do_filter_file, file.path, file_destination_path)
 
     return f'/file/{file.id}/file/{file.path.name}'
 
@@ -365,7 +365,7 @@ def _filter_image(app: App, file: File, width: Optional[int] = None, height: Opt
     if file.media_type:
         if file.media_type.type == 'image':
             task = _execute_filter_image_image
-            destination_name += Path(file.path).suffix
+            destination_name += file.path.suffix
         elif file.media_type.type == 'application' and file.media_type.subtype == 'pdf':
             task = _execute_filter_image_application_pdf
             destination_name += '.' + 'jpg'
@@ -377,7 +377,7 @@ def _filter_image(app: App, file: File, width: Optional[int] = None, height: Opt
     with suppress(AcquiredError):
         app.locks.acquire((_filter_image, file, width, height))
         cache_directory_path = CACHE_DIRECTORY_PATH / 'image'
-        app.executor.submit(task, Path(file.path), cache_directory_path, file_directory_path, destination_name, width, height)
+        app.executor.submit(task, file.path, cache_directory_path, file_directory_path, destination_name, width, height)
 
     destination_public_path = '/file/%s' % destination_name
 
@@ -389,7 +389,10 @@ def _execute_filter_image_image(file_path: Path, *args, **kwargs) -> None:
         # Ignore warnings about decompression bombs, because we know where the files come from.
         warnings.simplefilter('ignore', category=DecompressionBombWarning)
         image = Image.open(file_path)
-    _execute_filter_image(image, file_path, *args, **kwargs)
+    try:
+        _execute_filter_image(image, file_path, *args, **kwargs)
+    finally:
+        image.close()
 
 
 def _execute_filter_image_application_pdf(file_path: Path, *args, **kwargs) -> None:
@@ -397,7 +400,10 @@ def _execute_filter_image_application_pdf(file_path: Path, *args, **kwargs) -> N
         # Ignore warnings about decompression bombs, because we know where the files come from.
         warnings.simplefilter('ignore', category=DecompressionBombWarning)
         image = pdf2image.convert_from_path(file_path, fmt='jpeg')[0]
-    _execute_filter_image(image, file_path, *args, **kwargs)
+    try:
+        _execute_filter_image(image, file_path, *args, **kwargs)
+    finally:
+        image.close()
 
 
 def _execute_filter_image(image: Image, file_path: Path, cache_directory_path: Path, destination_directory_path: Path, destination_name: str, width: int, height: int) -> None:

@@ -18,7 +18,7 @@ class IndexTest(TestCase):
         async with app:
             indexed = [item for item in Index(app).build()]
 
-        self.assertEquals([], indexed)
+        self.assertEqual([], indexed)
 
     @sync
     async def test_person_without_names(self):
@@ -34,7 +34,7 @@ class IndexTest(TestCase):
             app.ancestry.entities.append(person)
             indexed = [item for item in Index(app).build()]
 
-        self.assertEquals([], indexed)
+        self.assertEqual([], indexed)
 
     @sync
     async def test_private_person(self):
@@ -53,7 +53,7 @@ class IndexTest(TestCase):
             app.ancestry.entities.append(person)
             indexed = [item for item in Index(app).build()]
 
-        self.assertEquals([], indexed)
+        self.assertEqual([], indexed)
 
     @parameterized.expand([
         ('/nl/person/P1/index.html', 'nl-NL'),
@@ -76,7 +76,7 @@ class IndexTest(TestCase):
                 app.ancestry.entities.append(person)
                 indexed = [item for item in Index(app).build()]
 
-        self.assertEquals('jane', indexed[0]['text'])
+        self.assertEqual('jane', indexed[0]['text'])
         self.assertIn(expected, indexed[0]['result'])
 
     @parameterized.expand([
@@ -100,7 +100,7 @@ class IndexTest(TestCase):
                 app.ancestry.entities.append(person)
                 indexed = [item for item in Index(app).build()]
 
-        self.assertEquals('doughnut', indexed[0]['text'])
+        self.assertEqual('doughnut', indexed[0]['text'])
         self.assertIn(expected, indexed[0]['result'])
 
     @parameterized.expand([
@@ -125,7 +125,7 @@ class IndexTest(TestCase):
                 app.ancestry.entities.append(person)
                 indexed = [item for item in Index(app).build()]
 
-        self.assertEquals('jane doughnut', indexed[0]['text'])
+        self.assertEqual('jane doughnut', indexed[0]['text'])
         self.assertIn(expected, indexed[0]['result'])
 
     @parameterized.expand([
@@ -147,7 +147,7 @@ class IndexTest(TestCase):
                 app.ancestry.entities.append(place)
                 indexed = [item for item in Index(app).build()]
 
-        self.assertEquals('netherlands nederland', indexed[0]['text'])
+        self.assertEqual('netherlands nederland', indexed[0]['text'])
         self.assertIn(expected, indexed[0]['result'])
 
     @sync
@@ -164,7 +164,7 @@ class IndexTest(TestCase):
             app.ancestry.entities.append(file)
             indexed = [item for item in Index(app).build()]
 
-        self.assertEquals([], indexed)
+        self.assertEqual([], indexed)
 
     @parameterized.expand([
         ('/nl/file/F1/index.html', 'nl-NL'),
@@ -186,5 +186,5 @@ class IndexTest(TestCase):
                 app.ancestry.entities.append(file)
                 indexed = [item for item in Index(app).build()]
 
-        self.assertEquals('"file" is dutch for "traffic jam"', indexed[0]['text'])
+        self.assertEqual('"file" is dutch for "traffic jam"', indexed[0]['text'])
         self.assertIn(expected, indexed[0]['result'])
