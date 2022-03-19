@@ -1,8 +1,12 @@
-from typing import Dict
+from typing import Dict, TYPE_CHECKING
 
 from betty import about
 from betty.app import App
 from betty.media_type import EXTENSIONS
+
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 
 class _Resource:

@@ -791,8 +791,8 @@ class App(Configurable[Configuration], Environment):
     @property
     def jinja2_environment(self) -> Jinja2Environment:
         if not self._jinja2_environment:
-            from betty.jinja2 import BettyEnvironment
-            self._jinja2_environment = BettyEnvironment(self)
+            from betty.jinja2 import Environment
+            self._jinja2_environment = Environment(self)
 
         return self._jinja2_environment
 

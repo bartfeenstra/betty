@@ -1,6 +1,6 @@
 from __future__ import annotations
 import logging
-from typing import List, Tuple, Set, Type, Iterable, Optional
+from typing import List, Tuple, Set, Type, Iterable, Optional, TYPE_CHECKING
 
 from betty.app.extension import Extension
 from betty.model.ancestry import Person, Presence, Event, Subject, EventType, Ancestry
@@ -9,6 +9,10 @@ from betty.locale import DateRange, Date, Datey
 from betty.load import PostLoader
 from betty.model.event_type import DerivableEventType, CreatableDerivableEventType
 from betty.privatizer import Privatizer
+
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 
 class DerivedEvent(Event):

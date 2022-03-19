@@ -55,7 +55,7 @@ SETUP = {
         'PyQt6 ~= 6.2.3',
         'python-resize-image ~= 1.1.20',
         'pyyaml ~= 6.0.0',
-        'reactives ~= 0.2.0',
+        'reactives ~= 0.3.0',
     ],
     'extras_require': {
         'development': [

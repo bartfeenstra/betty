@@ -6,7 +6,8 @@ import re
 import warnings
 from contextlib import suppress
 from pathlib import Path
-from typing import Dict, Callable, Iterable, Type, Optional, Any, Union, Iterator, AsyncIterable, ContextManager
+from typing import Dict, Callable, Iterable, Type, Optional, Any, Union, Iterator, AsyncIterable, ContextManager, cast, \
+    AsyncContextManager
 
 import aiofiles
 import pdf2image
@@ -15,7 +16,7 @@ from PIL.Image import DecompressionBombWarning
 from babel import Locale
 from geopy import units
 from geopy.format import DEGREES_FORMAT
-from jinja2 import Environment, select_autoescape, FileSystemLoader, pass_context, pass_eval_context, Template, \
+from jinja2 import Environment as Jinja2Environment, select_autoescape, FileSystemLoader, pass_context, pass_eval_context, Template, \
     nodes
 from jinja2.ext import Extension
 from jinja2.filters import prepare_map, make_attrgetter
@@ -90,7 +91,7 @@ class _ContextManagerExtension(Extension):
 
     def _enter_context(self, context: ContextManager, caller):
         if hasattr(context, '__aenter__'):
-            return self._enter_async_context(context, caller)
+            return self._enter_async_context(cast(AsyncContextManager, context), caller)
         return self._enter_sync_context(context, caller)
 
     def _enter_sync_context(self, context: ContextManager, caller):
@@ -98,27 +99,24 @@ class _ContextManagerExtension(Extension):
             return caller()
 
     @sync
-    async def _enter_async_context(self, context: ContextManager, caller):
+    async def _enter_async_context(self, context: AsyncContextManager, caller):
         async with context:
             return caller()
 
 
-class BettyEnvironment(Environment):
-    app: App
-
+class Environment(Jinja2Environment):
     def __init__(self, app: App):
         template_directory_paths = [str(path / 'templates') for path, _ in app.assets.paths]
-        Environment.__init__(self,
-                             loader=FileSystemLoader(template_directory_paths),
-                             undefined=StrictUndefined,
-                             autoescape=select_autoescape(['html']),
-                             trim_blocks=True,
-                             extensions=[
-                                 'jinja2.ext.do',
-                                 'jinja2.ext.i18n',
-                                 'betty.jinja2._ContextManagerExtension',
-                             ],
-                             )
+        super().__init__(loader=FileSystemLoader(template_directory_paths),
+                         undefined=StrictUndefined,
+                         autoescape=select_autoescape(['html']),
+                         trim_blocks=True,
+                         extensions=[
+                             'jinja2.ext.do',
+                             'jinja2.ext.i18n',
+                             'betty.jinja2._ContextManagerExtension',
+                     ],
+                     )
 
         self.app = app
 
@@ -134,11 +132,11 @@ class BettyEnvironment(Environment):
     def _init_i18n(self) -> None:
         # Wrap the callables so they always call the built-ins available runtime, because those change when the current
         # locale does.
-        self.install_gettext_callables(
+        self.install_gettext_callables(  # type: ignore
             lambda *args, **kwargs: gettext(*args, **kwargs),
             lambda *args, **kwargs: ngettext(*args, **kwargs),
-            pgettext=lambda *args, **kwargs: pgettext(*args, **kwargs),
-            npgettext=lambda *args, **kwargs: npgettext(*args, **kwargs),
+            pgettext=lambda *args, **kwargs: pgettext(*args, **kwargs),  # type: ignore
+            npgettext=lambda *args, **kwargs: npgettext(*args, **kwargs),  # type: ignore
         )
         self.policies['ext.i18n.trimmed'] = True
 
@@ -213,7 +211,7 @@ class BettyEnvironment(Environment):
                 self.filters.update(extension.filters)
 
 
-Template.environment_class = BettyEnvironment
+Template.environment_class = Environment
 
 
 class Jinja2Renderer(Renderer):
@@ -250,7 +248,7 @@ class Jinja2Renderer(Renderer):
 @pass_context
 def _filter_url(context: Context, resource: Any, media_type: Optional[str] = None, *args, **kwargs) -> str:
     media_type = 'text/html' if media_type is None else media_type
-    return context.environment.app.url_generator.generate(resource, media_type, *args, **kwargs)
+    return cast(Environment, context.environment).app.url_generator.generate(resource, media_type, *args, **kwargs)
 
 
 @pass_context

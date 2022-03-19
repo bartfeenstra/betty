@@ -2,13 +2,17 @@ import logging
 from contextlib import suppress
 from pathlib import Path
 from shutil import copy2, copytree
-from typing import Optional, Iterable, Set, Type
+from typing import Optional, Iterable, Set, Type, TYPE_CHECKING
 
 from betty.app.extension import Extension
 from betty.npm import _Npm, NpmBuilder, npm
 from betty.generate import Generator
 from betty.gui import GuiBuilder
 from betty.html import CssProvider, JsProvider
+
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 
 class Maps(Extension, CssProvider, JsProvider, Generator, GuiBuilder, NpmBuilder):

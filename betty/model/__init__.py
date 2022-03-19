@@ -7,7 +7,7 @@ from abc import ABC
 from dataclasses import dataclass
 from enum import Enum
 from functools import reduce
-from typing import TypeVar, Generic, Callable, List, Optional, Iterable, Any, Type, Union, Set, overload, cast
+from typing import TypeVar, Generic, Callable, List, Optional, Iterable, Any, Type, Union, Set, overload, cast, Iterator
 
 from betty.functools import slice_to_range
 from betty.importlib import import_any
@@ -97,7 +97,7 @@ class EntityCollection(Generic[EntityT], ABC):
     def clear(self) -> None:
         raise NotImplementedError
 
-    def __iter__(self) -> Iterable[EntityT]:
+    def __iter__(self) -> Iterator[EntityT]:
         raise NotImplementedError
 
     def __len__(self) -> int:
@@ -154,9 +154,9 @@ class _EntityTypeAssociationRegistry:
 
 
 class SingleTypeEntityCollection(Generic[EntityT], EntityCollection[EntityT]):
-    def __init__(self, entity_type: Type[EntityT] = EntityT):
+    def __init__(self, entity_type: Type[EntityT]):
         self._entities: List[EntityT] = []
-        self._entity_type = entity_type
+        self._entity_type: Type[EntityT] = entity_type
 
     def __repr__(self):
         return f'{object.__repr__(self)}(entity_type={self._entity_type}, length={len(self)})'
@@ -217,7 +217,7 @@ class SingleTypeEntityCollection(Generic[EntityT], EntityCollection[EntityT]):
     def clear(self) -> None:
         self._entities = []
 
-    def __iter__(self) -> Iterable[EntityT]:
+    def __iter__(self) -> Iterator[EntityT]:
         return self._entities.__iter__()
 
     def __len__(self) -> int:
@@ -248,7 +248,7 @@ class SingleTypeEntityCollection(Generic[EntityT], EntityCollection[EntityT]):
         return self._entities[index]
 
     def _getitem_by_indices(self, indices: slice) -> SingleTypeEntityCollection[EntityT]:
-        entities = SingleTypeEntityCollection()
+        entities: SingleTypeEntityCollection = SingleTypeEntityCollection(self._entity_type)
         for index in slice_to_range(indices, self._entities):
             entities.append(self._entities[index])
         return entities
@@ -270,7 +270,7 @@ class SingleTypeEntityCollection(Generic[EntityT], EntityCollection[EntityT]):
             return self._delitem_by_entity_id(key)
         raise TypeError(f'Cannot find entities by {type(key)}.')
 
-    def _delitem_by_entity(self, entity: Entity) -> None:
+    def _delitem_by_entity(self, entity: EntityT) -> None:
         self.remove(entity)
 
     def _delitem_by_index(self, index: int) -> None:
@@ -287,7 +287,7 @@ class SingleTypeEntityCollection(Generic[EntityT], EntityCollection[EntityT]):
                 return
 
     def __contains__(self, value: Union[EntityT, str, Any]) -> bool:
-        if isinstance(value, Entity):
+        if isinstance(value, self._entity_type):
             return self._contains_by_entity(value)
         if isinstance(value, str):
             return self._contains_by_entity_id(value)
@@ -308,7 +308,7 @@ class SingleTypeEntityCollection(Generic[EntityT], EntityCollection[EntityT]):
     def __add__(self, other) -> SingleTypeEntityCollection:
         if not isinstance(other, EntityCollection):
             return NotImplemented  # pragma: no cover
-        entities = SingleTypeEntityCollection()
+        entities: SingleTypeEntityCollection = SingleTypeEntityCollection(self._entity_type)
         entities.append(*self, *other)
         return entities
 
@@ -413,7 +413,7 @@ class MultipleTypesEntityCollection(EntityCollection[Entity]):
     def _getitem_by_entity_type(self, entity_type: Type[EntityT]) -> SingleTypeEntityCollection[EntityT]:
         return self._get_collection(entity_type)
 
-    def _getitem_by_entity_type_name(self, entity_type_name: str) -> SingleTypeEntityCollection[EntityT]:
+    def _getitem_by_entity_type_name(self, entity_type_name: str) -> SingleTypeEntityCollection[Entity]:
         return self._get_collection(get_entity_type(entity_type_name))
 
     def _getitem_by_index(self, index: int) -> EntityTypeT:
@@ -457,7 +457,7 @@ class MultipleTypesEntityCollection(EntityCollection[Entity]):
     def _delitem_by_entity_type_name(self, entity_type_name: str) -> None:
         self._delitem_by_entity_type(get_entity_type(entity_type_name))
 
-    def __iter__(self) -> Iterable[EntityT]:
+    def __iter__(self) -> Iterator[EntityT]:
         for collection in self._collections.values():
             for entity in collection:
                 yield entity

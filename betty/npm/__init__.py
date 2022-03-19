@@ -8,7 +8,7 @@ from asyncio import subprocess as aiosubprocess
 from contextlib import suppress
 from pathlib import Path
 from subprocess import CalledProcessError
-from typing import Sequence, Set, Optional, Type
+from typing import Sequence, Set, Optional, Type, TYPE_CHECKING
 
 from aiofiles.tempfile import TemporaryDirectory
 
@@ -16,6 +16,10 @@ from betty import subprocess
 from betty.app.extension import Extension, discover_extension_types
 from betty.asyncio import sync
 from betty.requirement import Requirement, AnyRequirement
+
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 
 async def npm(arguments: Sequence[str], **kwargs) -> aiosubprocess.Process:

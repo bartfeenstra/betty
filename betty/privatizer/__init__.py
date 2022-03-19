@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
 
 from betty.app.extension import Extension
 from betty.model.ancestry import Ancestry, Person, Event, Citation, Source, HasPrivacy, Subject, File, HasFiles, HasCitations
@@ -8,6 +8,10 @@ from betty.functools import walk
 from betty.gui import GuiBuilder
 from betty.locale import DateRange, Date
 from betty.load import PostLoader
+
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 
 class Privatizer(Extension, PostLoader, GuiBuilder):

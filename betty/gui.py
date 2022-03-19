@@ -12,7 +12,7 @@ from contextlib import suppress
 from datetime import datetime
 from os import path
 from pathlib import Path
-from typing import Sequence, Type, Optional, Union, Callable, Any, List
+from typing import Sequence, Type, Optional, Union, Callable, Any, List, TYPE_CHECKING
 from urllib.parse import urlparse
 
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QCoreApplication, QMetaObject, Q_ARG
@@ -32,6 +32,10 @@ from betty.asyncio import sync
 from betty.config import from_file, to_file, ConfigurationError, APP_CONFIGURATION_FORMATS
 from betty.error import UserFacingError
 from betty.importlib import import_any
+
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 _CONFIGURATION_FILE_FILTER = 'Betty configuration (%s)' % ' '.join(map(lambda format: '*%s' % format, APP_CONFIGURATION_FORMATS))
 

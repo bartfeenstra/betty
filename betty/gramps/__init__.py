@@ -1,4 +1,4 @@
-from typing import Optional, Type
+from typing import Optional, Type, TYPE_CHECKING
 
 from PyQt6.QtWidgets import QWidget
 
@@ -9,6 +9,10 @@ from betty.gramps.gui import _GrampsGuiWidget
 from betty.gramps.loader import load_file
 from betty.gui import GuiBuilder
 from betty.load import Loader
+
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 
 class Gramps(Extension, Configurable, Loader, GuiBuilder):
