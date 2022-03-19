@@ -1,6 +1,6 @@
 from __future__ import annotations
 import logging
-from typing import List, Tuple, Set, Type, Iterable, Optional, TYPE_CHECKING
+from typing import List, Tuple, Set, Type, Iterable, Optional, TYPE_CHECKING, cast
 
 from betty.app.extension import Extension
 from betty.model.ancestry import Person, Presence, Event, Subject, EventType, Ancestry
@@ -70,11 +70,14 @@ class Deriver(Extension, PostLoader, GuiBuilder):
 
         for derivable_event in derivable_events:
             dates_derived = False
+            # We know _get_derivable_events() only returns events without a date or a with a date range, but Python
+            # does not let us express that in a(n intersection) type, so we must instead cast here.
+            derivable_date = cast(Optional[DateRange], derivable_event.date)
 
-            if derivable_event.date is None or derivable_event.date.end is None:
+            if derivable_date is None or derivable_date.end is None:
                 dates_derived = dates_derived or _ComesBeforeDateDeriver.derive(person, derivable_event, comes_before_event_type_types)
 
-            if derivable_event.date is None or derivable_event.date.start is None:
+            if derivable_date is None or derivable_date.start is None:
                 dates_derived = dates_derived or _ComesAfterDateDeriver.derive(person, derivable_event, comes_after_event_type_types)
 
             if dates_derived:
@@ -105,11 +108,17 @@ class _DateDeriver:
         if not reference_event_type_types:
             return False
 
+        # We know _get_derivable_events() only returns events without a date or a with a date range, but Python does not
+        # let us express that in a(n intersection) type, so we must instead cast here.
+        derivable_date = cast(Optional[DateRange], derivable_event.date)
+
         reference_events = _get_reference_events(person, reference_event_type_types)
-        reference_events_dates = cls._get_events_dates(reference_events)
-        reference_events_dates = filter(lambda x: x[1].comparable, reference_events_dates)
+        reference_events_dates: Iterable[Tuple[Event, Date]] = filter(
+            lambda x: x[1].comparable,
+            cls._get_events_dates(reference_events)
+        )
         if derivable_event.date is not None:
-            reference_events_dates = filter(lambda x: cls._compare(derivable_event.date, x[1]), reference_events_dates)
+            reference_events_dates = filter(lambda x: cls._compare(cast(DateRange, derivable_event.date), x[1]), reference_events_dates)
         reference_events_dates = cls._sort(reference_events_dates)
         try:
             reference_event, reference_date = reference_events_dates[0]
@@ -118,7 +127,7 @@ class _DateDeriver:
 
         if derivable_event.date is None:
             derivable_event.date = DateRange()
-        cls._set(derivable_event.date, DerivedDate.derive(reference_date))
+        cls._set(cast(DateRange, derivable_event.date), DerivedDate.derive(reference_date))
         derivable_event.citations.append(*reference_event.citations)
 
         return True
@@ -211,11 +220,11 @@ def _get_derivable_events(person: Person, derivable_event_type_type: Type[EventT
         if isinstance(event.date, DateRange) and (not event.type.comes_after() or event.date.start is not None) and (not event.type.comes_before() or event.date.end is not None):
             continue
 
-        yield presence.event
+        yield event
 
 
 def _get_reference_events(person: Person, reference_event_type_types: Set[Type[EventType]]) -> Iterable[Event]:
-    for reference_event in [presence.event for presence in person.presences]:
+    for reference_event in (presence.event for presence in person.presences):
         # We cannot reliably determine dates based on reference events with calculated date ranges, as those events
         # would start or end *sometime* during the date range, but to derive dates we need reference events' exact
         # start and end dates.
