@@ -118,7 +118,7 @@ class _DateDeriver:
 
         if derivable_event.date is None:
             derivable_event.date = DateRange()
-        cls._set(derivable_event, DerivedDate.derive(reference_date))
+        cls._set(derivable_event.date, DerivedDate.derive(reference_date))
         derivable_event.citations.append(*reference_event.citations)
 
         return True
@@ -145,7 +145,7 @@ class _DateDeriver:
         raise NotImplementedError
 
     @staticmethod
-    def _set(derivable_event: Event, date: DerivedDate) -> None:
+    def _set(derivable_date: DateRange, derived_date: DerivedDate) -> None:
         raise NotImplementedError
 
 
@@ -166,9 +166,9 @@ class _ComesBeforeDateDeriver(_DateDeriver):
         return sorted(events_dates, key=lambda x: x[1])
 
     @staticmethod
-    def _set(derivable_event: Event, date: DerivedDate) -> None:
-        derivable_event.date.end = date
-        derivable_event.date.end_is_boundary = True
+    def _set(derivable_date: DateRange, derived_date: DerivedDate) -> None:
+        derivable_date.end = derived_date
+        derivable_date.end_is_boundary = True
 
 
 class _ComesAfterDateDeriver(_DateDeriver):
@@ -188,9 +188,9 @@ class _ComesAfterDateDeriver(_DateDeriver):
         return sorted(events_dates, key=lambda x: x[1], reverse=True)
 
     @staticmethod
-    def _set(derivable_event: Event, date: DerivedDate) -> None:
-        derivable_event.date.start = date
-        derivable_event.date.start_is_boundary = True
+    def _set(derivable_date: DateRange, derived_date: DerivedDate) -> None:
+        derivable_date.start = derived_date
+        derivable_date.start_is_boundary = True
 
 
 def _get_derivable_events(person: Person, derivable_event_type_type: Type[EventType]) -> Iterable[Event]:

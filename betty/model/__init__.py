@@ -690,9 +690,8 @@ class FlattenedEntity(Entity):
         super().__init__(entity_id)
         self._entity = entity
 
-    @classmethod
-    def entity_type(cls) -> Type[Entity]:
-        return cls._entity.entity_type()
+    def entity_type(self) -> Type[Entity]:
+        return self._entity.entity_type()
 
     def unflatten(self) -> Entity:
         return self._entity.unflatten() if isinstance(self._entity, FlattenedEntity) else self._entity

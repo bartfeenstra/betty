@@ -14,6 +14,7 @@ import aiohttp
 from jinja2 import pass_context
 from jinja2.runtime import Context
 from reactives import reactive
+from reactives.factory.type import ReactiveInstance
 
 from betty.app import App, Extension
 from betty.asyncio import sync
@@ -214,7 +215,7 @@ class _Populator:
 
 
 @reactive
-class Wikipedia(Extension, Jinja2Provider, PostLoader, GuiBuilder):
+class Wikipedia(Extension, Jinja2Provider, PostLoader, GuiBuilder, ReactiveInstance):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__retriever = None

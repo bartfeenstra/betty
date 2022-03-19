@@ -11,6 +11,7 @@ from typing import List, Optional, Type, Sequence, Any, Iterable, TYPE_CHECKING,
 from urllib.parse import urlparse
 
 from babel.core import parse_locale, Locale
+from reactives.factory.type import ReactiveInstance
 
 from betty.app.extension import ListExtensions, Extension, Extensions, build_extension_type_graph, \
     CyclicDependencyError, ExtensionDispatcher
@@ -61,7 +62,7 @@ class _AppExtensions(ListExtensions):
 
 
 @reactive
-class AppExtensionConfiguration:
+class AppExtensionConfiguration(ReactiveInstance):
     def __init__(self, extension_type: Type[Extension], enabled: bool = True, extension_configuration: Optional[GenericConfiguration] = None):
         super().__init__()
         self._extension_type = extension_type
@@ -579,7 +580,8 @@ class Configuration(GenericConfiguration):
         return dumped_configuration
 
 
-class App(Configurable[Configuration], Environment):
+@reactive
+class App(Configurable[Configuration], Environment, ReactiveInstance):
     def __init__(self):
         from betty.url import AppUrlGenerator, StaticPathUrlGenerator
 

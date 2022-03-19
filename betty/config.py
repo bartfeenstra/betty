@@ -45,12 +45,10 @@ class Configuration(ReactiveInstance):
 ConfigurationT = TypeVar('ConfigurationT', bound=Configuration)
 
 
-@reactive
 class Configurable(Generic[ConfigurationT]):
     def __init__(self, configuration: ConfigurationT, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._configuration = configuration
-        configuration.react(self)
 
     @property
     def configuration(self) -> ConfigurationT:

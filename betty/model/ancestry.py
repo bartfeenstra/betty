@@ -270,11 +270,10 @@ class Attendee(PresenceRole):
         return _('Attendee')
 
 
-# @todo Are we sure these many_to_one_to_many associations are flattened correctly?
 @many_to_one_to_many('presences', 'person', 'event', 'presences')
 class Presence(Entity):
-    person: Optional[Person]
-    event: Optional[Event]
+    person: Person
+    event: Event
     role: PresenceRole
 
     def __init__(self, person: Person, role: PresenceRole, event: Event):
