@@ -174,11 +174,11 @@ class SingleTypeEntityCollection(Generic[EntityT], EntityCollection[EntityT]):
             copied.append(entity)
 
     def _assert_entity(self, entity) -> None:
-        message = f'{entity} ({entity.entity_type()}) is not a {self._entity_type}.'
+        message = f'{entity} is not a {self._entity_type}.'
         assert (
             isinstance(entity, self._entity_type)
             or  # noqa: W503 W504
-            isinstance(entity, FlattenedEntity) and self._entity_type == entity.entity_type()
+            isinstance(entity, FlattenedEntity) and self._entity_type == entity.unflatten().entity_type()
         ), message
 
     def prepend(self, *entities: EntityT) -> None:
@@ -417,10 +417,10 @@ class MultipleTypesEntityCollection(EntityCollection[Entity]):
         return self._get_collection(get_entity_type(entity_type_name))
 
     def _getitem_by_index(self, index: int) -> EntityTypeT:
-        return reduce(operator.add, self._collections.values())[index]
+        return reduce(operator.add, self._collections.values(), SingleTypeEntityCollection(Entity))[index]
 
     def _getitem_by_indices(self, indices: slice) -> SingleTypeEntityCollection[EntityT]:
-        return reduce(operator.add, self._collections.values())[indices]
+        return reduce(operator.add, self._collections.values(), SingleTypeEntityCollection(Entity))[indices]
 
     def __delitem__(self, key: Union[int, slice, str, Type[Entity], Entity]) -> None:
         if isinstance(key, type) and issubclass(key, Entity):
@@ -689,9 +689,6 @@ class FlattenedEntity(Entity):
     def __init__(self, entity: Entity, entity_id: Optional[str] = None):
         super().__init__(entity_id)
         self._entity = entity
-
-    def entity_type(self) -> Type[Entity]:
-        return self._entity.entity_type()
 
     def unflatten(self) -> Entity:
         return self._entity.unflatten() if isinstance(self._entity, FlattenedEntity) else self._entity
