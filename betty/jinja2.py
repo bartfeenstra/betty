@@ -115,8 +115,8 @@ class Environment(Jinja2Environment):
                              'jinja2.ext.do',
                              'jinja2.ext.i18n',
                              'betty.jinja2._ContextManagerExtension',
-                     ],
-                     )
+        ],
+        )
 
         self.app = app
 
