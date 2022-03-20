@@ -1,21 +1,22 @@
 import os
 import shutil
-from typing import Union
+from pathlib import Path
+from typing import Union, Optional
 
-PathLike = Union[str, os.PathLike]
+PathLike = Union[str, os.PathLike[str]]
 
 
 def link_or_copy(source_path: PathLike, destination_path: PathLike) -> None:
     try:
         os.link(source_path, destination_path)
     except OSError:
-        shutil.copyfile(source_path, destination_path)
+        shutil.copyfile(Path(source_path), Path(destination_path))
 
 
 class ChDir:
     def __init__(self, directory_path: PathLike):
         self._directory_path = directory_path
-        self._owd = None
+        self._owd: Optional[str] = None
 
     def __enter__(self) -> None:
         self.change()
@@ -29,4 +30,6 @@ class ChDir:
         return self
 
     def revert(self) -> None:
+        if self._owd is None:
+            return
         os.chdir(self._owd)
