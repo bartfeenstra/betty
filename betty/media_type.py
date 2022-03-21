@@ -1,5 +1,5 @@
 import cgi
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Any
 
 EXTENSIONS = {
     'text/html': 'html',
@@ -48,7 +48,7 @@ class MediaType:
     def __str__(self):
         return self._str
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, MediaType):
             return NotImplemented
         return (self.type, self.subtype, self.parameters) == (other.type, other.subtype, other.parameters)

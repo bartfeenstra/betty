@@ -42,11 +42,8 @@ class NoteTest(TestCase):
 
 
 class HasNotesTest(TestCase):
-    class _HasNotes(HasNotes, Entity):
-        pass
-
     def test_notes(self) -> None:
-        sut = self._HasNotes()
+        sut = HasNotes()
         self.assertSequenceEqual([], sut.notes)
 
 
@@ -162,9 +159,7 @@ class FileTest(TestCase):
         sut = File(file_id, file_path)
         self.assertCountEqual([], sut.entities)
 
-        class _HasFiles(Entity, HasFiles):
-            pass
-        entities = [_HasFiles(), _HasFiles()]
+        entities = [HasFiles(), HasFiles()]
         sut.entities = entities
         self.assertCountEqual(entities, sut.entities)
 
@@ -177,9 +172,7 @@ class FileTest(TestCase):
 
 class HasFilesTest(TestCase):
     def test_files(self) -> None:
-        class _HasFiles(Entity, HasFiles):
-            pass
-        sut = _HasFiles()
+        sut = HasFiles()
         self.assertCountEqual([], sut.files)
         files = [Mock(File), Mock(File)]
         sut.files = files
@@ -256,9 +249,7 @@ class CitationTest(TestCase):
         self.assertEqual(citation_id, sut.id)
 
     def test_facts(self) -> None:
-        class _HasCitations(Entity, HasCitations):
-            pass
-        fact = _HasCitations()
+        fact = HasCitations()
         sut = Citation(None, Mock(Source))
         self.assertCountEqual([], sut.facts)
         sut.facts = [fact]
@@ -294,9 +285,7 @@ class CitationTest(TestCase):
 
 class HasCitationsTest(TestCase):
     def test_citations(self) -> None:
-        class _HasCitations(Entity, HasCitations):
-            pass
-        sut = _HasCitations()
+        sut = HasCitations()
         self.assertCountEqual([], sut.citations)
         citation = Mock(Citation)
         sut.citations = [citation]

@@ -104,14 +104,14 @@ class EntityCollection(Generic[EntityT], ABC):
         raise NotImplementedError
 
     @overload
-    def __getitem__(self, key: int) -> Entity:
+    def __getitem__(self, key: int) -> EntityT:
         pass
 
     @overload
-    def __getitem__(self, key: slice) -> SingleTypeEntityCollection:
+    def __getitem__(self, key: slice) -> EntityCollection[EntityT]:
         pass
 
-    def __getitem__(self, key) -> Any:
+    def __getitem__(self, key: Union[int, slice]) -> Union[EntityT, EntityCollection[EntityT]]:
         raise NotImplementedError
 
     def __delitem__(self, key: Union[int, slice]) -> None:
@@ -158,7 +158,7 @@ class SingleTypeEntityCollection(Generic[EntityT], EntityCollection[EntityT]):
         self._entities: List[EntityT] = []
         self._entity_type: Type[EntityT] = entity_type
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'{object.__repr__(self)}(entity_type={self._entity_type}, length={len(self)})'
 
     def __copy__(self, copy_entities: bool = True):
@@ -228,14 +228,14 @@ class SingleTypeEntityCollection(Generic[EntityT], EntityCollection[EntityT]):
         pass
 
     @overload
-    def __getitem__(self, key: slice) -> SingleTypeEntityCollection:
+    def __getitem__(self, key: slice) -> SingleTypeEntityCollection[EntityT]:
         pass
 
     @overload
-    def __getitem__(self, key: str) -> SingleTypeEntityCollection:
+    def __getitem__(self, key: str) -> EntityT:
         pass
 
-    def __getitem__(self, key: Any) -> Any:
+    def __getitem__(self, key: Union[int, slice, str]) -> Union[EntityT, EntityCollection[EntityT]]:
         if isinstance(key, int):
             return self._getitem_by_index(key)
         if isinstance(key, slice):
@@ -318,7 +318,7 @@ class _AssociateCollection(SingleTypeEntityCollection[EntityT], Generic[EntityT,
         super().__init__(associate_type)
         self._owner = owner
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'{object.__repr__(self)}(owner={self._owner}, associate_type={self._entity_type}, length={len(self)})'
 
     def __copy__(self, copy_entities: bool = True) -> _AssociateCollection:
@@ -372,7 +372,7 @@ class MultipleTypesEntityCollection(EntityCollection[Entity]):
     def __init__(self):
         self._collections = {}
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'{object.__repr__(self)}(entity_types={", ".join(map(get_entity_type_name, self._collections.keys()))}, length={len(self)})'
 
     def _get_collection(self, entity_type: Type[EntityT]) -> SingleTypeEntityCollection[EntityT]:
@@ -399,7 +399,7 @@ class MultipleTypesEntityCollection(EntityCollection[Entity]):
     def __getitem__(self, key: Type[EntityT]) -> SingleTypeEntityCollection[EntityT]:
         pass
 
-    def __getitem__(self, key: Any) -> Any:
+    def __getitem__(self, key: Union[int, slice, str, Type[EntityT]]) -> Union[Entity, SingleTypeEntityCollection]:
         if isinstance(key, int):
             return self._getitem_by_index(key)
         if isinstance(key, slice):
@@ -416,10 +416,10 @@ class MultipleTypesEntityCollection(EntityCollection[Entity]):
     def _getitem_by_entity_type_name(self, entity_type_name: str) -> SingleTypeEntityCollection[Entity]:
         return self._get_collection(get_entity_type(entity_type_name))
 
-    def _getitem_by_index(self, index: int) -> EntityTypeT:
-        return reduce(operator.add, self._collections.values(), SingleTypeEntityCollection(Entity))[index]
+    def _getitem_by_index(self, index: int) -> EntityT:
+        return cast(EntityT, reduce(operator.add, self._collections.values(), SingleTypeEntityCollection(Entity))[index])
 
-    def _getitem_by_indices(self, indices: slice) -> SingleTypeEntityCollection[EntityT]:
+    def _getitem_by_indices(self, indices: slice) -> SingleTypeEntityCollection[Entity]:
         return reduce(operator.add, self._collections.values(), SingleTypeEntityCollection(Entity))[indices]
 
     def __delitem__(self, key: Union[int, slice, str, Type[Entity], Entity]) -> None:

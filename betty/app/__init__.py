@@ -73,10 +73,10 @@ class AppExtensionConfiguration(ReactiveInstance):
             extension_configuration.react(self)
         self._extension_configuration = extension_configuration
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '<%s.%s(%s)>' % (self.__class__.__module__, self.__class__.__name__, self.extension_type)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, self.__class__):
             return NotImplemented
         if self.extension_type != other.extension_type:
@@ -132,7 +132,7 @@ class AppExtensionsConfiguration(GenericConfiguration):
         return len(self._configurations)
 
     @scope.register_self
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, AppExtensionsConfiguration):
             return NotImplemented
         return self._configurations == other._configurations
@@ -205,10 +205,10 @@ class LocaleConfiguration:
         self._locale = locale
         self._alias = alias
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '<%s.%s(%s, %s)>' % (self.__class__.__module__, self.__class__.__name__, self.locale, self.alias)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, self.__class__):
             return NotImplemented
         if self.locale != other.locale:
@@ -256,7 +256,7 @@ class LocalesConfiguration(GenericConfiguration):
         return len(self._configurations)
 
     @scope.register_self
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, LocalesConfiguration):
             return NotImplemented
         return self._configurations == other._configurations
@@ -266,7 +266,7 @@ class LocalesConfiguration(GenericConfiguration):
         return item in self._configurations
 
     @scope.register_self
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '<%s %s>' % (self.__class__.__name__, repr(list(self._configurations.values())))
 
     def add(self, configuration: LocaleConfiguration) -> None:

@@ -11,7 +11,7 @@ from io import StringIO
 from contextlib import suppress
 from functools import total_ordering
 from pathlib import Path
-from typing import Optional, Tuple, Union, List, Dict, Callable, Any, TYPE_CHECKING
+from typing import Optional, Tuple, Union, List, Dict, Callable, Any, TYPE_CHECKING, cast
 
 import babel
 from babel import dates, Locale
@@ -50,7 +50,7 @@ class Date:
         self.day = day
         self.fuzzy = fuzzy
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '<%s.%s(%s, %s, %s)>' % (self.__class__.__module__, self.__class__.__name__, self.year, self.month, self.day)
 
     @property
@@ -75,15 +75,15 @@ class Date:
             month_start = month_end = self.month
         if self.day is None:
             day_start = 1
-            day_end = calendar.monthrange(self.year, month_end)[1]
+            day_end = calendar.monthrange(cast(int, self.year), month_end)[1]
         else:
             day_start = day_end = self.day
         return DateRange(Date(self.year, month_start, day_start), Date(self.year, month_end, day_end))
 
-    def _compare(self, other, comparator):
+    def _compare(self, other: Any, comparator: Callable) -> bool:
         if not isinstance(other, Date):
             return NotImplemented
-        selfish = self
+        selfish: Datey = self
         if not selfish.comparable or not other.comparable:
             return NotImplemented
         if selfish.complete and other.complete:
@@ -91,7 +91,7 @@ class Date:
         if not other.complete:
             other = other.to_range()
         if not selfish.complete:
-            selfish = selfish.to_range()
+            selfish: DateRange = selfish.to_range()
         return comparator(selfish, other)
 
     def __contains__(self, other):
@@ -107,7 +107,7 @@ class Date:
     def __le__(self, other):
         return self._compare(other, operator.le)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Date):
             return NotImplemented
         return self.parts == other.parts
@@ -132,7 +132,7 @@ class DateRange:
         self.end = end
         self.end_is_boundary = end_is_boundary
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '%s.%s(%s, %s, start_is_boundary=%s, end_is_boundary=%s)' % (self.__class__.__module__, self.__class__.__name__, repr(self.start), repr(self.end), repr(self.start_is_boundary), repr(self.end_is_boundary))
 
     @property
@@ -224,7 +224,7 @@ class DateRange:
         if self_has_end:
             return self.end <= other
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if isinstance(other, Date):
             return False
 
@@ -454,14 +454,14 @@ _FORMAT_DATE_RANGE_FORMATTERS = {
 
 
 def format_date_range(date_range: DateRange, locale: str) -> str:
-    formatter_configuration = ()
+    formatter_configuration: Any
     formatter_arguments = {}
 
     try:
         formatter_arguments['start_date'] = _format_date_parts(date_range.start, locale)
-        formatter_configuration += (date_range.start.fuzzy, date_range.start_is_boundary)
+        formatter_configuration = (date_range.start.fuzzy, date_range.start_is_boundary)
     except IncompleteDateError:
-        formatter_configuration += (None, None)
+        formatter_configuration = (None, None)
 
     try:
         formatter_arguments['end_date'] = _format_date_parts(date_range.end, locale)

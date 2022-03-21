@@ -644,7 +644,7 @@ class DummyConfigurableExtensionConfiguration(GenericConfiguration):
     def default(cls) -> GenericConfiguration:
         return cls(False)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return self.check == other.check and self.default == other.default
 
     def load(self, dumped_configuration: Any) -> None:

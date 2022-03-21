@@ -53,9 +53,7 @@ class AnonymousCitationTest(TestCase):
         self.assertIsInstance(AnonymousCitation(source).location, str)
 
     def test_replace(self):
-        class _HasCitations(HasCitations, Entity):
-            pass
-        facts = [_HasCitations()]
+        facts = [HasCitations()]
         files = [File('F1', __file__)]
         source = Mock(Source)
         sut = AnonymousCitation(source)

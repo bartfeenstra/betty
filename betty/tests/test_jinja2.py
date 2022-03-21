@@ -254,7 +254,7 @@ class FilterSortLocalizedsTest(TemplateTestCase):
             self.id = identifier
             self.names = names
 
-        def __repr__(self):
+        def __repr__(self) -> str:
             return self.id
 
     @sync

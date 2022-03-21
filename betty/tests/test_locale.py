@@ -348,10 +348,10 @@ class NegotiateLocaleTest(TestCase):
 
 class NegotiateLocalizedsTest(TestCase):
     class DummyLocalized(Localized):
-        def __eq__(self, other):
+        def __eq__(self, other: Any) -> bool:
             return self.locale == other.locale
 
-        def __repr__(self):
+        def __repr__(self) -> str:
             return '%s(%s)' % (self.__class__.__name__, self.locale)
 
     @parameterized.expand([

@@ -1,9 +1,9 @@
 import os
 import shutil
 from pathlib import Path
-from typing import Union, Optional
+from typing import Optional, TypeVar
 
-PathLike = Union[str, os.PathLike[str]]
+PathLike = TypeVar('PathLike', str, os.PathLike[str])
 
 
 def link_or_copy(source_path: PathLike, destination_path: PathLike) -> None:

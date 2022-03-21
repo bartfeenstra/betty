@@ -12,7 +12,7 @@ class FamilyTreeConfiguration(Configuration):
         super().__init__()
         self.file_path = file_path
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, FamilyTreeConfiguration):
             return False
         return self._file_path == other.file_path
