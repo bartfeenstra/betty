@@ -37,8 +37,8 @@ async def generate(app: App) -> None:
         _generate(app),
         app.dispatcher.dispatch(Generator)(),
     )
-    os.chmod(app.configuration.output_directory_path, 0o755)
-    for directory_path_str, subdirectory_names, file_names in os.walk(app.configuration.output_directory_path):
+    os.chmod(app.project.configuration.output_directory_path, 0o755)
+    for directory_path_str, subdirectory_names, file_names in os.walk(app.project.configuration.output_directory_path):
         directory_path = Path(directory_path_str)
         for subdirectory_name in subdirectory_names:
             os.chmod(directory_path / subdirectory_name, 0o755)
@@ -49,15 +49,15 @@ async def generate(app: App) -> None:
 
 async def _generate(app: App) -> None:
     logger = getLogger()
-    await app.assets.copytree(Path('public') / 'static', app.configuration.www_directory_path)
-    await app.renderer.render_tree(app.configuration.www_directory_path)
-    for locale_configuration in app.configuration.locales:
+    await app.assets.copytree(Path('public') / 'static', app.project.configuration.www_directory_path)
+    await app.renderer.render_tree(app.project.configuration.www_directory_path)
+    for locale_configuration in app.project.configuration.locales:
         locale = locale_configuration.locale
         with app.activate_locale(locale):
-            if app.configuration.multilingual:
-                www_directory_path = app.configuration.www_directory_path / locale_configuration.alias
+            if app.project.configuration.multilingual:
+                www_directory_path = app.project.configuration.www_directory_path / locale_configuration.alias
             else:
-                www_directory_path = app.configuration.www_directory_path
+                www_directory_path = app.project.configuration.www_directory_path
 
             await app.assets.copytree(Path('public') / 'localized', www_directory_path)
             await app.renderer.render_tree(www_directory_path)
@@ -66,19 +66,19 @@ async def _generate(app: App) -> None:
                 *[
                     coroutine
                     for entities, entity_type_name in [
-                        (app.ancestry.entities[File], 'file'),
-                        (app.ancestry.entities[Person], 'person'),
-                        (app.ancestry.entities[Place], 'place'),
-                        (app.ancestry.entities[Event], 'event'),
-                        (app.ancestry.entities[Citation], 'citation'),
-                        (app.ancestry.entities[Source], 'source'),
+                        (app.project.ancestry.entities[File], 'file'),
+                        (app.project.ancestry.entities[Person], 'person'),
+                        (app.project.ancestry.entities[Place], 'place'),
+                        (app.project.ancestry.entities[Event], 'event'),
+                        (app.project.ancestry.entities[Citation], 'citation'),
+                        (app.project.ancestry.entities[Source], 'source'),
                     ]
                     async for coroutine in _generate_entity_type(www_directory_path, entities, entity_type_name, app, locale, app.jinja2_environment)
                 ],
-                _generate_entity_type_list_json(www_directory_path, app.ancestry.entities[Note], 'note', app),
+                _generate_entity_type_list_json(www_directory_path, app.project.ancestry.entities[Note], 'note', app),
                 *[
                     _generate_entity_json(www_directory_path, note, 'note', app)
-                    for note in app.ancestry.entities[Note]
+                    for note in app.project.ancestry.entities[Note]
                 ],
                 _generate_openapi(www_directory_path, app)
             ]
@@ -86,13 +86,13 @@ async def _generate(app: App) -> None:
             for i in range(0, len(coroutines), _GENERATE_CONCURRENCY):
                 await asyncio.gather(*coroutines[i:i + _GENERATE_CONCURRENCY])
             locale_label = Locale.parse(locale, '-').get_display_name()
-            logger.info(f'Generated pages for {len(app.ancestry.entities[File])} files in {locale_label}.')
-            logger.info(f'Generated pages for {len(app.ancestry.entities[Person])} people in {locale_label}.')
-            logger.info(f'Generated pages for {len(app.ancestry.entities[Place])} places in {locale_label}.')
-            logger.info(f'Generated pages for {len(app.ancestry.entities[Event])} events in {locale_label}.')
-            logger.info(f'Generated pages for {len(app.ancestry.entities[Citation])} citations in {locale_label}.')
-            logger.info(f'Generated pages for {len(app.ancestry.entities[Source])} sources in {locale_label}.')
-            logger.info(f'Generated pages for {len(app.ancestry.entities[Note])} notes in {locale_label}.')
+            logger.info(f'Generated pages for {len(app.project.ancestry.entities[File])} files in {locale_label}.')
+            logger.info(f'Generated pages for {len(app.project.ancestry.entities[Person])} people in {locale_label}.')
+            logger.info(f'Generated pages for {len(app.project.ancestry.entities[Place])} places in {locale_label}.')
+            logger.info(f'Generated pages for {len(app.project.ancestry.entities[Event])} events in {locale_label}.')
+            logger.info(f'Generated pages for {len(app.project.ancestry.entities[Citation])} citations in {locale_label}.')
+            logger.info(f'Generated pages for {len(app.project.ancestry.entities[Source])} sources in {locale_label}.')
+            logger.info(f'Generated pages for {len(app.project.ancestry.entities[Note])} notes in {locale_label}.')
             logger.info(f'Generated OpenAPI documentation in {locale_label}.')
 
 

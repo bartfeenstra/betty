@@ -9,12 +9,13 @@ from PyInstaller.utils.hooks import collect_submodules as pyinstaller_collect_su
 
 from betty._package import get_data_paths
 from betty._package.pyinstaller.hooks import HOOKS_DIRECTORY_PATH
-from betty.app import App, AppExtensionConfiguration
+from betty.app import App
 from betty.asyncio import sync
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.http_api_doc import HttpApiDoc
 from betty.maps import Maps
 from betty.npm import _Npm, build_assets
+from betty.project import ProjectExtensionConfiguration
 from betty.trees import Trees
 
 
@@ -35,9 +36,9 @@ def _filter_submodule(submodule: str) -> bool:
 async def _build_assets() -> None:
     npm_builder_extension_types = {HttpApiDoc, Maps, Trees}
     async with App() as app:
-        app.configuration.extensions.add(AppExtensionConfiguration(_Npm))
+        app.project.configuration.extensions.add(ProjectExtensionConfiguration(_Npm))
         for extension_type in npm_builder_extension_types:
-            app.configuration.extensions.add(AppExtensionConfiguration(extension_type))
+            app.project.configuration.extensions.add(ProjectExtensionConfiguration(extension_type))
         await asyncio.gather(*[
             build_assets(app.extensions[extension_type])
             for extension_type

@@ -2,11 +2,12 @@ from typing import Any
 
 from parameterized import parameterized
 
-from betty.app import LocaleConfiguration, App
+from betty.app import App
 from betty.asyncio import sync
 from betty.model import Entity
 from betty.model.ancestry import Person, Place, File, Source, PlaceName, Event, Citation
 from betty.model.event_type import Death
+from betty.project import LocaleConfiguration
 from betty.tests import TestCase
 from betty.url import ContentNegotiationPathUrlGenerator, _EntityUrlGenerator, AppUrlGenerator
 
@@ -37,7 +38,7 @@ class LocalizedPathUrlGeneratorTest(TestCase):
     @sync
     async def test_generate_with_clean_urls(self, expected: str, resource: str):
         async with App() as app:
-            app.configuration.clean_urls = True
+            app.project.configuration.clean_urls = True
             sut = ContentNegotiationPathUrlGenerator(app)
             self.assertEqual(expected, sut.generate(resource, 'text/html'))
 
@@ -62,7 +63,7 @@ class LocalizedPathUrlGeneratorTest(TestCase):
     @sync
     async def test_generate_multilingual(self):
         app = App()
-        app.configuration.locales.replace([
+        app.project.configuration.locales.replace([
             LocaleConfiguration('nl'),
             LocaleConfiguration('en'),
         ])

@@ -145,8 +145,8 @@ class _Populator:
         self._retriever = retriever
 
     async def populate(self) -> None:
-        locales = set(map(lambda x: x.alias, self._app.configuration.locales))
-        await asyncio.gather(*[self._populate_entity(entity, locales) for entity in self._app.ancestry.entities])
+        locales = set(map(lambda x: x.alias, self._app.project.configuration.locales))
+        await asyncio.gather(*[self._populate_entity(entity, locales) for entity in self._app.project.ancestry.entities])
 
     async def _populate_entity(self, entity: Entity, locales: Set[str]) -> None:
         if not isinstance(entity, HasLinks):

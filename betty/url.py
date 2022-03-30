@@ -2,10 +2,11 @@ from __future__ import annotations
 from contextlib import suppress
 from typing import Any, Optional, Type
 
-from betty.app import Configuration, App
+from betty.app import App
 from betty.model import Entity
 from betty.model.ancestry import PersonName, Event, Place, File, Source, Citation, Note, Person
 from betty.media_type import EXTENSIONS
+from betty.project import Configuration
 
 
 class ContentNegotiationUrlGenerator:
@@ -23,7 +24,7 @@ class ContentNegotiationPathUrlGenerator(ContentNegotiationUrlGenerator):
         self._app = app
 
     def generate(self, resource: Any, media_type: str, absolute: bool = False) -> str:
-        return _generate_from_path(self._app.configuration, resource, absolute, self._app.locale)
+        return _generate_from_path(self._app.project.configuration, resource, absolute, self._app.locale)
 
 
 class StaticPathUrlGenerator(StaticUrlGenerator):
@@ -43,7 +44,7 @@ class _EntityUrlGenerator(ContentNegotiationUrlGenerator):
     def generate(self, entity: Entity, media_type: str, absolute: bool = False) -> str:
         if not isinstance(entity, self._entity_type):
             raise ValueError('%s is not a %s' % (type(entity), self._entity_type))
-        return _generate_from_path(self._app.configuration, self._pattern % (entity.id, EXTENSIONS[media_type]), absolute, self._app.locale)
+        return _generate_from_path(self._app.project.configuration, self._pattern % (entity.id, EXTENSIONS[media_type]), absolute, self._app.locale)
 
 
 class PersonNameUrlGenerator(ContentNegotiationUrlGenerator):

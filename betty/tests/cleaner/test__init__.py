@@ -1,10 +1,11 @@
-from betty.app import App, AppExtensionConfiguration
+from betty.app import App
 from betty.asyncio import sync
 from betty.cleaner import clean, Cleaner
 from betty.load import load
 from betty.model.ancestry import Ancestry, Person, Place, Presence, PlaceName, File, PersonName, Subject, \
     Enclosure, Source, Citation, Event
 from betty.model.event_type import Birth
+from betty.project import ProjectExtensionConfiguration
 from betty.tests import TestCase
 
 
@@ -13,10 +14,10 @@ class CleanerTest(TestCase):
     async def test_post_parse(self) -> None:
         event = Event('E0', Birth())
         async with App() as app:
-            app.configuration.extensions.add(AppExtensionConfiguration(Cleaner))
-            app.ancestry.entities.append(event)
+            app.project.configuration.extensions.add(ProjectExtensionConfiguration(Cleaner))
+            app.project.ancestry.entities.append(event)
             await load(app)
-            self.assertEqual([], list(app.ancestry.entities[Event]))
+            self.assertEqual([], list(app.project.ancestry.entities[Event]))
 
 
 class CleanTest(TestCase):

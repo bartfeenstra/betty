@@ -2,8 +2,7 @@ import json
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict
 
-from betty.app import ConfigurationError
-from betty.config import from_json, from_yaml, from_file, Configuration
+from betty.config import from_json, from_yaml, from_file, Configuration, ConfigurationError
 from betty.tests import TestCase
 
 

@@ -20,6 +20,6 @@ class BuildSpecificationTest(TestCase):
         with open(Path(__file__).parent / 'test_openapi_assets' / 'schema.json') as f:
             schema = stdjson.load(f)
             async with App() as app:
-                app.configuration.content_negotiation = content_negotiation
+                app.project.configuration.content_negotiation = content_negotiation
                 specification = build_specification(app)
         jsonschema.validate(specification, schema)

@@ -24,7 +24,7 @@ class DerivedDate(Date):
 
 class Deriver(Extension, PostLoader, GuiBuilder):
     async def post_load(self) -> None:
-        await self.derive(self._app.ancestry)
+        await self.derive(self._app.project.ancestry)
 
     async def derive(self, ancestry: Ancestry) -> None:
         logger = logging.getLogger()

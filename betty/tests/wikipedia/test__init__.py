@@ -5,6 +5,7 @@ from typing import Tuple, Optional
 from unittest.mock import patch, call
 
 from betty.media_type import MediaType
+from betty.project import LocaleConfiguration, ProjectExtensionConfiguration
 from betty.tests import TestCase, patch_cache
 
 try:
@@ -20,7 +21,7 @@ from betty.model.ancestry import Source, Link, Citation
 from betty.asyncio import sync
 from betty.load import load
 from betty.wikipedia import Entry, _Retriever, NotAnEntryError, _parse_url, RetrievalError, _Populator, Wikipedia
-from betty.app import App, AppExtensionConfiguration, LocaleConfiguration
+from betty.app import App
 
 
 class ParseUrlTest(TestCase):
@@ -324,7 +325,7 @@ class PopulatorTest(TestCase):
         source = Source('The Source')
         resource = Citation('the_citation', source)
         async with App() as app:
-            app.ancestry.entities.append(resource)
+            app.project.ancestry.entities.append(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
 
@@ -334,7 +335,7 @@ class PopulatorTest(TestCase):
     async def test_populate_should_ignore_resource_without_links(self, m_retriever) -> None:
         resource = Source('the_source', 'The Source')
         async with App() as app:
-            app.ancestry.entities.append(resource)
+            app.project.ancestry.entities.append(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
         self.assertSetEqual(set(), resource.links)
@@ -347,7 +348,7 @@ class PopulatorTest(TestCase):
         resource = Source('the_source', 'The Source')
         resource.links.add(link)
         async with App() as app:
-            app.ancestry.entities.append(resource)
+            app.project.ancestry.entities.append(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
         self.assertSetEqual({link}, resource.links)
@@ -367,7 +368,7 @@ class PopulatorTest(TestCase):
         link = Link('https://en.wikipedia.org/wiki/Amsterdam')
         resource.links.add(link)
         async with App() as app:
-            app.ancestry.entities.append(resource)
+            app.project.ancestry.entities.append(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
         m_retriever.get_entry.assert_called_once_with(entry_language, entry_name)
@@ -406,12 +407,12 @@ class PopulatorTest(TestCase):
         link_en = Link('https://en.wikipedia.org/wiki/Amsterdam')
         resource.links.add(link_en)
         app = App()
-        app.configuration.locales.replace([
+        app.project.configuration.locales.replace([
             LocaleConfiguration('en-US', 'en'),
             LocaleConfiguration('nl-NL', 'nl'),
         ])
         async with app:
-            app.ancestry.entities.append(resource)
+            app.project.ancestry.entities.append(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
 
@@ -458,7 +459,7 @@ class WikipediaTest(TestCase):
         m_aioresponses.get(api_url, payload=api_response_body)
 
         async with App() as app:
-            app.configuration.extensions.add(AppExtensionConfiguration(Wikipedia))
+            app.project.configuration.extensions.add(ProjectExtensionConfiguration(Wikipedia))
             actual = app.jinja2_environment.from_string(
                 '{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}').render(links=links)
         self.assertEqual(extract, actual)
@@ -497,8 +498,8 @@ class WikipediaTest(TestCase):
         m_aioresponses.get(translations_api_url, payload=translations_api_response_body)
 
         async with App() as app:
-            app.configuration.extensions.add(AppExtensionConfiguration(Wikipedia))
-            app.ancestry.entities.append(resource)
+            app.project.configuration.extensions.add(ProjectExtensionConfiguration(Wikipedia))
+            app.project.ancestry.entities.append(resource)
             await load(app)
 
         self.assertEqual(1, len(resource.links))

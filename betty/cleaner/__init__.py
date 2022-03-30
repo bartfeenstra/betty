@@ -145,7 +145,7 @@ class Cleaner(Extension, PostLoader, GuiBuilder):
         return {Anonymizer}
 
     async def post_load(self) -> None:
-        clean(self._app.ancestry)
+        clean(self._app.project.ancestry)
 
     @classmethod
     def label(cls) -> str:

@@ -9,7 +9,8 @@ from typing import Optional, Dict, Callable, Tuple
 from jinja2 import Environment, Template
 
 from betty import fs
-from betty.app import App, Configuration
+from betty.app import App
+from betty.project import Configuration
 
 
 def patch_cache(f):
@@ -48,7 +49,7 @@ class TemplateTestCase(TestCase):
             raise RuntimeError(f'{class_name} must define either `{class_name}.template_string` or `{class_name}.template_file`, but not both.')
 
     @asynccontextmanager
-    async def _render(self, data: Optional[Dict] = None, template_file: Optional[Template] = None, template_string: Optional[str] = None, update_configuration: Optional[Callable[[Configuration], None]] = None) -> Tuple[str, App]:
+    async def _render(self, data: Optional[Dict] = None, template_file: Optional[Template] = None, template_string: Optional[str] = None, update_project_configuration: Optional[Callable[[Configuration], None]] = None) -> Tuple[str, App]:
         if template_string is not None and template_file is not None:
             raise RuntimeError('You must define either `template_string` or `template_file`, but not both.')
         if template_string is not None:
@@ -69,9 +70,9 @@ class TemplateTestCase(TestCase):
         if data is None:
             data = {}
         app = App()
-        app.configuration.debug = True
-        if update_configuration is not None:
-            update_configuration(app.configuration)
+        app.project.configuration.debug = True
+        if update_project_configuration is not None:
+            update_project_configuration(app.project.configuration)
         async with app:
             rendered = template_factory(app.jinja2_environment, template).render(**data)
             app.wait()

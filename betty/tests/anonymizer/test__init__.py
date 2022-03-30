@@ -1,7 +1,7 @@
 from gettext import NullTranslations
 from unittest.mock import patch, ANY, Mock
 
-from betty.app import App, AppExtensionConfiguration
+from betty.app import App
 from betty.asyncio import sync
 from betty.anonymizer import anonymize, anonymize_person, anonymize_event, anonymize_file, anonymize_citation, \
     anonymize_source, AnonymousSource, AnonymousCitation, Anonymizer
@@ -11,6 +11,7 @@ from betty.model import Entity
 from betty.model.ancestry import Ancestry, Person, File, Source, Citation, PersonName, Presence, Event, Subject, \
     HasCitations
 from betty.model.event_type import Birth
+from betty.project import ProjectExtensionConfiguration
 from betty.tests import TestCase
 
 
@@ -349,7 +350,7 @@ class AnonymizerTest(TestCase):
         person.private = True
         PersonName(person, 'Jane', 'Dough')
         async with App() as app:
-            app.configuration.extensions.add(AppExtensionConfiguration(Anonymizer))
-            app.ancestry.entities.append(person)
+            app.project.configuration.extensions.add(ProjectExtensionConfiguration(Anonymizer))
+            app.project.ancestry.entities.append(person)
             await load(app)
         self.assertEqual(0, len(person.names))

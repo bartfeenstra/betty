@@ -4,17 +4,18 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
 from reactives import ReactiveList
 
-from betty.app import App, AppExtensionConfiguration
+from betty.app import App
 from betty.asyncio import sync
 from betty.gramps import Gramps, GrampsConfiguration
 from betty.gramps.config import FamilyTreeConfiguration
 from betty.gramps.gui import _AddFamilyTreeWindow
+from betty.project import ProjectExtensionConfiguration
 
 
 @sync
 async def test_add_family_tree_set_path(assert_not_window, assert_window, tmpdir, qtbot) -> None:
     async with App() as app:
-        app.configuration.extensions.add(AppExtensionConfiguration(Gramps))
+        app.project.configuration.extensions.add(ProjectExtensionConfiguration(Gramps))
         sut = app.extensions[Gramps]
         widget = sut.gui_build()
         qtbot.addWidget(widget)
@@ -37,7 +38,7 @@ async def test_add_family_tree_set_path(assert_not_window, assert_window, tmpdir
 @sync
 async def test_add_family_tree_find_path(assert_window, mocker, tmpdir, qtbot) -> None:
     async with App() as app:
-        app.configuration.extensions.add(AppExtensionConfiguration(Gramps))
+        app.project.configuration.extensions.add(ProjectExtensionConfiguration(Gramps))
         sut = app.extensions[Gramps]
         widget = sut.gui_build()
         qtbot.addWidget(widget)
@@ -59,7 +60,7 @@ async def test_add_family_tree_find_path(assert_window, mocker, tmpdir, qtbot) -
 @sync
 async def test_remove_family_tree(tmpdir, qtbot) -> None:
     async with App() as app:
-        app.configuration.extensions.add(AppExtensionConfiguration(
+        app.project.configuration.extensions.add(ProjectExtensionConfiguration(
             Gramps,
             extension_configuration=GrampsConfiguration(
                 family_trees=ReactiveList([

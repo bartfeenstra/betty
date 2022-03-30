@@ -4,7 +4,7 @@ import json
 from dataclasses import dataclass
 from os import path
 from pathlib import Path
-from typing import Dict, Callable, Type, TypeVar, Any, Generic
+from typing import Dict, Callable, Type, TypeVar, Any, Generic, Optional
 
 import yaml
 from reactives import reactive
@@ -47,10 +47,10 @@ ConfigurationT = TypeVar('ConfigurationT', bound=Configuration)
 
 @reactive
 class Configurable(Generic[ConfigurationT]):
-    def __init__(self, configuration: ConfigurationT, *args, **kwargs):
+    def __init__(self, configuration: Optional[ConfigurationT] = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._configuration = configuration
-        configuration.react(self)
+        self._configuration = self.configuration_type().default() if configuration is None else configuration
+        self._configuration.react(self)
 
     @property
     def configuration(self) -> ConfigurationT:

@@ -25,7 +25,7 @@ from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup, escape
 from resizeimage import resizeimage
 
-from betty.app import App, Configuration
+from betty.app import App
 from betty.asyncio import sync
 from betty.fs import hashfile, iterfiles, CACHE_DIRECTORY_PATH
 from betty.functools import walk
@@ -37,6 +37,7 @@ from betty.model import Entity, get_entity_type_name, GeneratedEntityId
 from betty.model.ancestry import File, Citation, HasLinks, HasFiles, Subject, Witness, Dated
 from betty.os import link_or_copy, PathLike
 from betty.path import rootname
+from betty.project import Configuration
 from betty.render import Renderer
 from betty.search import Index
 from betty.string import camel_case_to_snake_case, camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
@@ -337,7 +338,7 @@ def _filter_map(context: Context, value: Union[AsyncIterable, Iterable], *args: 
 def _filter_file(app: App, file: File) -> str:
     with suppress(AcquiredError):
         app.locks.acquire((_filter_file, file))
-        file_destination_path = app.configuration.www_directory_path / 'file' / file.id / 'file' / file.path.name
+        file_destination_path = app.project.configuration.www_directory_path / 'file' / file.id / 'file' / file.path.name
         app.executor.submit(_do_filter_file, file.path, file_destination_path)
 
     return f'/file/{file.id}/file/{file.path.name}'
@@ -360,7 +361,7 @@ def _filter_image(app: App, file: File, width: Optional[int] = None, height: Opt
     else:
         destination_name += '%dx%d' % (width, height)
 
-    file_directory_path = app.configuration.www_directory_path / 'file'
+    file_directory_path = app.project.configuration.www_directory_path / 'file'
 
     if file.media_type:
         if file.media_type.type == 'image':

@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Sequence, Type, Optional, Union, Callable, Any, List
 from urllib.parse import urlparse
 
+from PyQt6 import QtGui
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QCoreApplication, QMetaObject, Q_ARG
 from PyQt6.QtGui import QIcon, QFont, QAction, QCloseEvent
 from PyQt6.QtWidgets import QApplication, QFileDialog, QMainWindow, QVBoxLayout, QLabel, \
@@ -25,13 +26,13 @@ from babel.localedata import locale_identifiers
 from reactives import reactive, ReactorController
 
 from betty import cache, generate, serve, about, load
-from betty.app import App, LocaleConfiguration, LocalesConfiguration, Extension, AppExtensionConfiguration, \
-    Configuration
+from betty.app import App, Extension
 from betty.app.extension import discover_extension_types
 from betty.asyncio import sync
 from betty.config import from_file, to_file, ConfigurationError, APP_CONFIGURATION_FORMATS
 from betty.error import UserFacingError
 from betty.importlib import import_any
+from betty.project import Configuration, LocaleConfiguration, LocalesConfiguration, ProjectExtensionConfiguration
 
 _CONFIGURATION_FILE_FILTER = 'Betty configuration (%s)' % ' '.join(map(lambda format: '*%s' % format, APP_CONFIGURATION_FORMATS))
 
@@ -370,17 +371,17 @@ class _ProjectGeneralConfigurationPane(QWidget):
 
     def _build_title(self) -> None:
         def _update_configuration_title(title: str) -> None:
-            self._app.configuration.title = title
+            self._app.project.configuration.title = title
         self._configuration_title = QLineEdit()
-        self._configuration_title.setText(self._app.configuration.title)
+        self._configuration_title.setText(self._app.project.configuration.title)
         self._configuration_title.textChanged.connect(_update_configuration_title)
         self._form.addRow('Title', self._configuration_title)
 
     def _build_author(self) -> None:
         def _update_configuration_author(author: str) -> None:
-            self._app.configuration.author = author
+            self._app.project.configuration.author = author
         self._configuration_author = QLineEdit()
-        self._configuration_author.setText(self._app.configuration.author)
+        self._configuration_author.setText(self._app.project.configuration.author)
         self._configuration_author.textChanged.connect(_update_configuration_author)
         self._form.addRow('Author', self._configuration_author)
 
@@ -391,7 +392,7 @@ class _ProjectGeneralConfigurationPane(QWidget):
             url_parts = urlparse(url)
             base_url = '%s://%s' % (url_parts.scheme, url_parts.netloc)
             root_path = url_parts.path
-            configuration = copy.copy(self._app.configuration)
+            configuration = copy.copy(self._app.project.configuration)
             try:
                 with ReactorController.suspend():
                     configuration.base_url = base_url
@@ -399,10 +400,10 @@ class _ProjectGeneralConfigurationPane(QWidget):
             except ConfigurationError as e:
                 mark_invalid(self._configuration_url, str(e))
                 return
-            self._app.configuration.base_url = base_url
-            self._app.configuration.root_path = root_path
+            self._app.project.configuration.base_url = base_url
+            self._app.project.configuration.root_path = root_path
             mark_valid(self._configuration_url)
-        self._configuration_url.setText(self._app.configuration.base_url + self._app.configuration.root_path)
+        self._configuration_url.setText(self._app.project.configuration.base_url + self._app.project.configuration.root_path)
         self._configuration_url.textChanged.connect(_update_configuration_url)
         self._form.addRow('URL', self._configuration_url)
 
@@ -413,20 +414,20 @@ class _ProjectGeneralConfigurationPane(QWidget):
                 return
             lifetime_threshold = int(lifetime_threshold)
             try:
-                self._app.configuration.lifetime_threshold = lifetime_threshold
+                self._app.project.configuration.lifetime_threshold = lifetime_threshold
                 mark_valid(self._configuration_url)
             except ConfigurationError as e:
                 mark_invalid(self._configuration_lifetime_threshold, str(e))
         self._configuration_lifetime_threshold = QLineEdit()
         self._configuration_lifetime_threshold.setFixedWidth(32)
-        self._configuration_lifetime_threshold.setText(str(self._app.configuration.lifetime_threshold))
+        self._configuration_lifetime_threshold.setText(str(self._app.project.configuration.lifetime_threshold))
         self._configuration_lifetime_threshold.textChanged.connect(_update_configuration_lifetime_threshold)
         self._form.addRow('Lifetime threshold', self._configuration_lifetime_threshold)
         self._form.addRow(Caption('The age at which people are presumed dead.'))
 
     def _build_output_directory_path(self) -> None:
         def _update_configuration_output_directory_path(output_directory_path: str) -> None:
-            self._app.configuration.output_directory_path = output_directory_path
+            self._app.project.configuration.output_directory_path = output_directory_path
         output_directory_path = QLineEdit()
         output_directory_path.textChanged.connect(_update_configuration_output_directory_path)
         output_directory_path_layout = QHBoxLayout()
@@ -444,7 +445,7 @@ class _ProjectGeneralConfigurationPane(QWidget):
 
     def _build_assets_directory_path(self) -> None:
         def _update_configuration_assets_directory_path(assets_directory_path: str) -> None:
-            self._app.configuration.assets_directory_path = Path(assets_directory_path)
+            self._app.project.configuration.assets_directory_path = Path(assets_directory_path)
         assets_directory_path = QLineEdit()
         assets_directory_path.textChanged.connect(_update_configuration_assets_directory_path)
         assets_directory_path_layout = QHBoxLayout()
@@ -463,31 +464,31 @@ class _ProjectGeneralConfigurationPane(QWidget):
 
     def _build_mode(self) -> None:
         def _update_configuration_debug(mode: bool) -> None:
-            self._app.configuration.debug = mode
+            self._app.project.configuration.debug = mode
         self._development_debug = QCheckBox('Debugging mode')
-        self._development_debug.setChecked(self._app.configuration.debug)
+        self._development_debug.setChecked(self._app.project.configuration.debug)
         self._development_debug.toggled.connect(_update_configuration_debug)
         self._form.addRow(self._development_debug)
         self._form.addRow(Caption('Output more detailed logs and disable optimizations that make debugging harder.'))
 
     def _build_clean_urls(self) -> None:
         def _update_configuration_clean_urls(clean_urls: bool) -> None:
-            self._app.configuration.clean_urls = clean_urls
+            self._app.project.configuration.clean_urls = clean_urls
             if not clean_urls:
                 self._content_negotiation.setChecked(False)
         self._clean_urls = QCheckBox('Clean URLs')
-        self._clean_urls.setChecked(self._app.configuration.clean_urls)
+        self._clean_urls.setChecked(self._app.project.configuration.clean_urls)
         self._clean_urls.toggled.connect(_update_configuration_clean_urls)
         self._form.addRow(self._clean_urls)
         self._form.addRow(Caption('URLs look like <code>/path</code> instead of <code>/path/index.html</code>. This requires a web server that supports it.'))
 
     def _build_content_negotiation(self) -> None:
         def _update_configuration_content_negotiation(content_negotiation: bool) -> None:
-            self._app.configuration.content_negotiation = content_negotiation
+            self._app.project.configuration.content_negotiation = content_negotiation
             if content_negotiation:
                 self._clean_urls.setChecked(True)
         self._content_negotiation = QCheckBox('Content negotiation')
-        self._content_negotiation.setChecked(self._app.configuration.content_negotiation)
+        self._content_negotiation.setChecked(self._app.project.configuration.content_negotiation)
         self._content_negotiation.toggled.connect(_update_configuration_content_negotiation)
         self._form.addRow(self._content_negotiation)
         self._form.addRow(Caption("Serve alternative versions of resources, such as pages, depending on visitors' preferences. This requires a web server that supports it."))
@@ -504,9 +505,9 @@ class _ProjectThemeConfigurationPane(QWidget):
 
     def _build_background_image_id(self) -> None:
         def _update_configuration_background_image_id(background_image_id: str) -> None:
-            self._app.configuration.theme.background_image_id = background_image_id
+            self._app.project.configuration.theme.background_image_id = background_image_id
         self._background_image_id = QLineEdit()
-        self._background_image_id.setText(self._app.configuration.theme.background_image_id)
+        self._background_image_id.setText(self._app.project.configuration.theme.background_image_id)
         self._background_image_id.textChanged.connect(_update_configuration_background_image_id)
         self._form.addRow('Background image ID', self._background_image_id)
         self._form.addRow(Caption('The ID of the file entity whose (image) file to use for page backgrounds if a page does not provide any image media itself.'))
@@ -548,25 +549,25 @@ class _ProjectLocalizationConfigurationPane(QWidget):
         self._layout.insertWidget(0, self._locales_configuration_widget, alignment=Qt.AlignmentFlag.AlignTop)
 
         for i, locale_configuration in enumerate(sorted(
-                self._app.configuration.locales,
+                self._app.project.configuration.locales,
                 key=lambda x: Locale.parse(x.locale, '-').get_display_name(),
         )):
             self._build_locale_configuration(locale_configuration, i)
 
     def _build_locale_configuration(self, locale_configuration: LocaleConfiguration, i: int) -> None:
         self._locales_configuration_widget._default_buttons[locale_configuration.locale] = QRadioButton(Locale.parse(locale_configuration.locale, '-').get_display_name())
-        self._locales_configuration_widget._default_buttons[locale_configuration.locale].setChecked(locale_configuration == self._app.configuration.locales.default)
+        self._locales_configuration_widget._default_buttons[locale_configuration.locale].setChecked(locale_configuration == self._app.project.configuration.locales.default_locale)
 
         def _update_locales_configuration_default():
-            self._app.configuration.locales.default = locale_configuration
+            self._app.project.configuration.locales.default_locale = locale_configuration
         self._locales_configuration_widget._default_buttons[locale_configuration.locale].clicked.connect(_update_locales_configuration_default)
         self._default_locale_button_group.addButton(self._locales_configuration_widget._default_buttons[locale_configuration.locale])
         self._locales_configuration_layout.addWidget(self._locales_configuration_widget._default_buttons[locale_configuration.locale], i, 0)
 
         # Allow this locale configuration to be removed only if there are others, and if it is not default one.
-        if len(self._app.configuration.locales) > 1 and locale_configuration != self._app.configuration.locales.default:
+        if len(self._app.project.configuration.locales) > 1 and locale_configuration != self._app.project.configuration.locales.default_locale:
             def _remove_locale() -> None:
-                del self._app.configuration.locales[locale_configuration.locale]
+                del self._app.project.configuration.locales[locale_configuration.locale]
             self._locales_configuration_widget._remove_buttons[locale_configuration.locale] = QPushButton('Remove')
             self._locales_configuration_widget._remove_buttons[locale_configuration.locale].released.connect(_remove_locale)
             self._locales_configuration_layout.addWidget(self._locales_configuration_widget._remove_buttons[locale_configuration.locale], i, 1)
@@ -574,7 +575,7 @@ class _ProjectLocalizationConfigurationPane(QWidget):
             self._locales_configuration_widget._remove_buttons[locale_configuration.locale] = None
 
     def _add_locale(self):
-        window = _AddLocaleWindow(self._app.configuration.locales, self)
+        window = _AddLocaleWindow(self._app.project.configuration.locales, self)
         window.show()
 
 
@@ -649,9 +650,9 @@ class _ProjectExtensionConfigurationPane(QWidget):
         @catch_exceptions
         def _update_enabled(enabled: bool) -> None:
             try:
-                self._app.configuration.extensions[extension_type].enabled = enabled
+                self._app.project.configuration.extensions[extension_type].enabled = enabled
             except KeyError:
-                self._app.configuration.extensions.add(AppExtensionConfiguration(
+                self._app.project.configuration.extensions.add(ProjectExtensionConfiguration(
                     extension_type,
                     enabled,
                 ))
@@ -682,15 +683,32 @@ class _ProjectExtensionConfigurationPane(QWidget):
 class ProjectWindow(BettyMainWindow):
     def __init__(self, configuration_file_path: str, *args, **kwargs):
         self._app = App()
-        with open(configuration_file_path) as f:
-            from_file(f, self._app.configuration)
-        self._app.configuration.react.react_weakref(self._save_configuration)
         self._configuration_file_path = configuration_file_path
 
         super().__init__(*args, **kwargs)
 
+    def _save_configuration(self) -> None:
+        with open(self._configuration_file_path, 'w') as f:
+            to_file(f, self._app.project.configuration)
+
+    @reactive(on_trigger_call=True)
+    def _set_window_title(self) -> None:
+        self.setWindowTitle('%s - Betty' % self._app.project.configuration.title)
+
+    @property
+    def extension_types(self) -> Sequence[Type[Extension]]:
+        return [import_any(extension_name) for extension_name in self._EXTENSION_NAMES]
+
+    @catch_exceptions
+    @sync
+    async def showEvent(self, a0: QtGui.QShowEvent) -> None:
+        await self._app.activate()
+
+        with open(self._configuration_file_path) as f:
+            from_file(f, self._app.project.configuration)
+        self._app.project.configuration.react.react_weakref(self._save_configuration)
+
         self._set_window_title()
-        self.init()
 
         central_widget = QWidget()
         central_layout = QGridLayout()
@@ -720,22 +738,6 @@ class ProjectWindow(BettyMainWindow):
                 extension_pane = _ProjectExtensionConfigurationPane(self._app, extension_type)
                 panes_layout.addWidget(extension_pane)
                 pane_selectors_layout.addWidget(_PaneButton(pane_selectors_layout, panes_layout, extension_pane, extension_type.label(), self))
-
-    def _save_configuration(self) -> None:
-        with open(self._configuration_file_path, 'w') as f:
-            to_file(f, self._app.configuration)
-
-    @reactive(on_trigger_call=True)
-    def _set_window_title(self) -> None:
-        self.setWindowTitle('%s - Betty' % self._app.configuration.title)
-
-    @property
-    def extension_types(self) -> Sequence[Type[Extension]]:
-        return [import_any(extension_name) for extension_name in self._EXTENSION_NAMES]
-
-    @sync
-    async def init(self):
-        await self._app.activate()
 
     @sync
     async def close(self):
@@ -769,7 +771,7 @@ class ProjectWindow(BettyMainWindow):
         configuration_file_path, _ = QFileDialog.getSaveFileName(self, 'Save your project to...', '', _CONFIGURATION_FILE_FILTER)
         os.makedirs(path.dirname(configuration_file_path))
         with open(configuration_file_path, mode='w') as f:
-            to_file(f, self._app.configuration)
+            to_file(f, self._app.project.configuration)
 
     @catch_exceptions
     def _generate(self) -> None:
@@ -1017,9 +1019,9 @@ class _ServeAppWindow(_ServeWindow):
 
         self._server = serve.AppServer(app)
 
-        if not path.isdir(app.configuration.www_directory_path):
+        if not path.isdir(app.project.configuration.www_directory_path):
             self.close()
-            raise ConfigurationError('Web root directory "%s" does not exist.' % app.configuration.www_directory_path)
+            raise ConfigurationError('Web root directory "%s" does not exist.' % app.project.configuration.www_directory_path)
 
     def _build_instruction(self) -> str:
         return f'You can now view your site at <a href="{self._server.public_url}">{self._server.public_url}</a>.'
