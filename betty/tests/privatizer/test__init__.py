@@ -3,13 +3,14 @@ from typing import Optional
 
 from parameterized import parameterized
 
-from betty.app import App, AppExtensionConfiguration
+from betty.app import App
 from betty.asyncio import sync
 from betty.load import load
 from betty.locale import Date, DateRange
 from betty.model.ancestry import Person, Presence, Event, Source, File, Subject, Attendee, Citation, Ancestry
 from betty.model.event_type import Death, Birth, Marriage
 from betty.privatizer import Privatizer, privatize
+from betty.project import ProjectExtensionConfiguration
 from betty.tests import TestCase
 
 
@@ -95,10 +96,10 @@ class PrivatizerTest(TestCase):
         citation.files.append(citation_file)
 
         async with App() as app:
-            app.configuration.extensions.add(AppExtensionConfiguration(Privatizer))
-            app.ancestry.entities.append(person)
-            app.ancestry.entities.append(source)
-            app.ancestry.entities.append(citation)
+            app.project.configuration.extensions.add(ProjectExtensionConfiguration(Privatizer))
+            app.project.ancestry.entities.append(person)
+            app.project.ancestry.entities.append(source)
+            app.project.ancestry.entities.append(citation)
             await load(app)
 
             self.assertTrue(person.private)

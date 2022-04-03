@@ -18,7 +18,7 @@ class Gramps(Extension, Configurable, Loader, GuiBuilder):
 
     async def load(self) -> None:
         for family_tree in self._configuration.family_trees:
-            await load_file(self._app.ancestry, family_tree.file_path)
+            await load_file(self._app.project.ancestry, family_tree.file_path)
 
     @classmethod
     def label(cls) -> str:

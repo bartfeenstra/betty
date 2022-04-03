@@ -95,7 +95,7 @@ def build_specification(app: App) -> Dict:
                     'schema': {
                         'type': 'string',
                     },
-                    'example': app.configuration.locales.default.locale,
+                    'example': app.project.configuration.locales.default_locale.locale,
                 },
             },
             'schemas': {
@@ -108,7 +108,7 @@ def build_specification(app: App) -> Dict:
 
     # Add resource operations.
     for resource in _get_resources():
-        if app.configuration.content_negotiation:
+        if app.project.configuration.content_negotiation:
             collection_path = '/%s/' % resource.name
             single_path = '/%s/{id}/' % resource.name
         else:
@@ -152,7 +152,7 @@ def build_specification(app: App) -> Dict:
         })
 
     # Add components for content negotiation.
-    if app.configuration.content_negotiation:
+    if app.project.configuration.content_negotiation:
         specification['components']['parameters']['Accept'] = {
             'name': 'Accept',
             'in': 'header',
@@ -168,7 +168,7 @@ def build_specification(app: App) -> Dict:
             'schema': {
                 'type': 'string',
             },
-            'example': app.configuration.locales[app.configuration.locales.default.locale].alias,
+            'example': app.project.configuration.locales[app.project.configuration.locales.default_locale.locale].alias,
         }
         specification['components']['schemas']['html'] = {
             'type': 'string',
@@ -182,9 +182,9 @@ def build_specification(app: App) -> Dict:
             'description': _('A locale name.'),
             'schema': {
                 'type': 'string',
-                'enum': [locale_configuration.locale for locale_configuration in app.configuration.locales],
+                'enum': [locale_configuration.locale for locale_configuration in app.project.configuration.locales],
             },
-            'example': app.configuration.locales[app.configuration.locales.default.locale].alias,
+            'example': app.project.configuration.locales[app.project.configuration.locales.default_locale.locale].alias,
         }
 
     # Add default behavior to all requests.
@@ -200,7 +200,7 @@ def build_specification(app: App) -> Dict:
                 '$ref': '#/components/responses/404',
             },
         })
-        if app.configuration.content_negotiation:
+        if app.project.configuration.content_negotiation:
             specification['paths'][path]['parameters'] = [
                 {
                     '$ref': '#/components/parameters/Accept',
@@ -217,7 +217,7 @@ def build_specification(app: App) -> Dict:
             ]
 
     # Add default behavior to all responses.
-    if app.configuration.content_negotiation:
+    if app.project.configuration.content_negotiation:
         responses = list(specification['components']['responses'].values())
         for path in specification['paths']:
             responses.append(

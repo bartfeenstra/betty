@@ -12,7 +12,7 @@ from betty.load import PostLoader
 
 class Privatizer(Extension, PostLoader, GuiBuilder):
     async def post_load(self) -> None:
-        privatize(self._app.ancestry, self._app.configuration.lifetime_threshold)
+        privatize(self._app.project.ancestry, self._app.project.configuration.lifetime_threshold)
 
     @classmethod
     def label(cls) -> str:

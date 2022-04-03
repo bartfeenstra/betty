@@ -1,5 +1,5 @@
 {% set ns = namespace(search_shortcuts=[]) %}
-{% for locale_configuration in app.configuration.locales %}
+{% for locale_configuration in app.project.configuration.locales %}
     {% enter app.activate_locale(locale_configuration.locale) %}
         {% do ns.search_shortcuts.append(pgettext('enter-search-shortcut', 's')) %}
     {% exit %}

@@ -85,7 +85,7 @@ class JSONEncoder(stdjson.JSONEncoder):
             canonical.media_type = 'application/json'
             encoded['links'].append(canonical)
 
-            for locale_configuration in self._app.configuration.locales:
+            for locale_configuration in self._app.project.configuration.locales:
                 if locale_configuration.locale == self._app.locale:
                     continue
                 with self._app.activate_locale(locale_configuration.locale):

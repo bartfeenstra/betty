@@ -2,10 +2,10 @@ from typing import Optional
 
 from parameterized import parameterized
 
-from betty.app import Configuration, LocaleConfiguration
 from betty.model.ancestry import Place, PlaceName
 from betty.asyncio import sync
 from betty.locale import DateRange, Date
+from betty.project import Configuration, LocaleConfiguration
 from betty.tests import TemplateTestCase
 
 
@@ -57,5 +57,5 @@ class Test(TemplateTestCase):
             if locale:
                 configuration.locales.replace([LocaleConfiguration(locale)])
 
-        async with self._render(data=data, update_configuration=_update_configuration) as (actual, _):
+        async with self._render(data=data, update_project_configuration=_update_configuration) as (actual, _):
             self.assertEqual(expected, actual)

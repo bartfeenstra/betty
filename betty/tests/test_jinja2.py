@@ -5,13 +5,14 @@ from unittest.mock import Mock
 
 from parameterized import parameterized
 
-from betty.app import App, Configuration, LocaleConfiguration
+from betty.app import App
 from betty.asyncio import sync
 from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider
 from betty.locale import Date, Datey, DateRange, Localized
 from betty.media_type import MediaType
 from betty.model import get_entity_type_name
 from betty.model.ancestry import File, PlaceName, Subject, Attendee, Witness, Dated, Entity, Person, Place, Citation
+from betty.project import Configuration, LocaleConfiguration
 from betty.string import camel_case_to_snake_case
 from betty.tests import TemplateTestCase, TestCase
 
@@ -30,7 +31,7 @@ class Jinja2RendererTest(TestCase):
     @sync
     async def test_render_file(self) -> None:
         async with App() as app:
-            sut = Jinja2Renderer(app.jinja2_environment, app.configuration)
+            sut = Jinja2Renderer(app.jinja2_environment, app.project.configuration)
             template = '{% if true %}true{% endif %}'
             expected_output = 'true'
             with TemporaryDirectory() as working_directory_path:
@@ -45,7 +46,7 @@ class Jinja2RendererTest(TestCase):
     @sync
     async def test_render_tree(self) -> None:
         async with App() as app:
-            sut = Jinja2Renderer(app.jinja2_environment, app.configuration)
+            sut = Jinja2Renderer(app.jinja2_environment, app.project.configuration)
             template = '{% if true %}true{% endif %}'
             expected_output = 'true'
             with TemporaryDirectory() as working_directory_path:
@@ -173,7 +174,7 @@ class FilterFileTest(TemplateTestCase):
         }) as (actual, app):
             self.assertEqual(expected, actual)
             for file_path in actual.split(':'):
-                self.assertTrue((app.configuration.www_directory_path / file_path[1:]).exists())
+                self.assertTrue((app.project.configuration.www_directory_path / file_path[1:]).exists())
 
 
 class FilterImageTest(TemplateTestCase):
@@ -196,7 +197,7 @@ class FilterImageTest(TemplateTestCase):
         }) as (actual, app):
             self.assertEqual(expected, actual)
             for file_path in actual.split(':'):
-                self.assertTrue((app.configuration.www_directory_path / file_path[1:]).exists())
+                self.assertTrue((app.project.configuration.www_directory_path / file_path[1:]).exists())
 
     @sync
     async def test_without_width(self):
@@ -314,7 +315,7 @@ class FilterSelectLocalizedsTest(TemplateTestCase):
             configuration.locales.replace([LocaleConfiguration(locale)])
         async with self._render(template_string=template, data={
             'data': data,
-        }, update_configuration=_update_configuration) as (actual, _):
+        }, update_project_configuration=_update_configuration) as (actual, _):
             self.assertEqual(expected, actual)
 
     @sync
@@ -332,7 +333,7 @@ class FilterSelectLocalizedsTest(TemplateTestCase):
             configuration.locales.replace([LocaleConfiguration('en-US')])
         async with self._render(template_string=template, data={
             'data': data,
-        }, update_configuration=_update_configuration) as (actual, _):
+        }, update_project_configuration=_update_configuration) as (actual, _):
             self.assertEqual('Apple, Apple, Apple, Apple, Apple', actual)
 
 

@@ -4,7 +4,7 @@ from tempfile import NamedTemporaryFile
 from geopy import Point
 
 from betty import json
-from betty.app import App, LocaleConfiguration
+from betty.app import App
 from betty.asyncio import sync
 from betty.json import JSONEncoder
 from betty.locale import Date, DateRange
@@ -12,13 +12,14 @@ from betty.media_type import MediaType
 from betty.model.ancestry import Place, Person, PlaceName, Link, Presence, Source, File, Note, PersonName, \
     Subject, Enclosure, Citation, Event
 from betty.model.event_type import Birth
+from betty.project import LocaleConfiguration
 from betty.tests import TestCase
 
 
 class JSONEncoderTest(TestCase):
     async def assert_encodes(self, expected, data, schema_definition: str):
         app = App()
-        app.configuration.locales.replace([
+        app.project.configuration.locales.replace([
             LocaleConfiguration('en-US', 'en'),
             LocaleConfiguration('nl-NL', 'nl'),
         ])

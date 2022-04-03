@@ -6,8 +6,9 @@ from betty.asyncio import sync
 from betty.locale import DateRange, Date, Datey
 from betty.load import load
 from betty.deriver import Deriver
-from betty.app import App, AppExtensionConfiguration
+from betty.app import App
 from betty.model.event_type import DerivableEventType, CreatableDerivableEventType, Residence
+from betty.project import ProjectExtensionConfiguration
 from betty.tests import TestCase
 
 
@@ -65,8 +66,8 @@ class DeriverTest(TestCase):
         reference_presence.event.date = Date(1970, 1, 1)
 
         async with App() as app:
-            app.configuration.extensions.add(AppExtensionConfiguration(Deriver))
-            app.ancestry.entities.append(person)
+            app.project.configuration.extensions.add(ProjectExtensionConfiguration(Deriver))
+            app.project.ancestry.entities.append(person)
             await load(app)
 
         self.assertEqual(3, len(person.presences))
@@ -79,7 +80,7 @@ class DeriveTest(TestCase):
     async def setUp(self) -> None:
         self._app = App()
         await self._app.activate()
-        self._app.configuration.extensions.add(AppExtensionConfiguration(Deriver))
+        self._app.project.configuration.extensions.add(ProjectExtensionConfiguration(Deriver))
 
     @sync
     async def tearDown(self) -> None:

@@ -30,7 +30,7 @@ class Maps(Extension, CssProvider, JsProvider, Generator, GuiBuilder, NpmBuilder
 
     async def generate(self) -> None:
         assets_directory_path = await self._app.extensions[_Npm].ensure_assets(self)
-        self._copy_npm_build(assets_directory_path, self._app.configuration.www_directory_path)
+        self._copy_npm_build(assets_directory_path, self._app.project.configuration.www_directory_path)
 
     @classmethod
     def assets_directory_path(cls) -> Optional[Path]:

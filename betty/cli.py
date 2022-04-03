@@ -91,7 +91,7 @@ async def _init_ctx(ctx: Context, _: Optional[Option] = None, configuration_file
             async with app:
                 with open(try_configuration_file_path) as f:
                     logger.info('Loading the configuration from %s.' % try_configuration_file_path)
-                    from_file(f, app.configuration)
+                    from_file(f, app.project.configuration)
                 ctx.obj['commands']['generate'] = _generate
                 ctx.obj['commands']['serve'] = _serve
                 for extension in app.extensions.flatten():
@@ -168,8 +168,8 @@ async def _generate(app: App):
 @sync
 async def _serve(app: App):
     async with app:
-        if not path.isdir(app.configuration.www_directory_path):
-            raise UserFacingError('Web root directory "%s" does not exist.' % app.configuration.www_directory_path)
+        if not path.isdir(app.project.configuration.www_directory_path):
+            raise UserFacingError('Web root directory "%s" does not exist.' % app.project.configuration.www_directory_path)
         async with serve.AppServer(app):
             while True:
                 await asyncio.sleep(999)

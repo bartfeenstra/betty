@@ -5,11 +5,11 @@ from typing import Any, Type, List, Set
 from parameterized import parameterized
 from reactives.tests import assert_reactor_called, assert_in_scope, assert_scope_empty
 
-from betty.app import Configuration, LocaleConfiguration, LocalesConfiguration, AppExtensionConfiguration, Extension, \
-    AppExtensionsConfiguration, ConfigurationError, App, CyclicDependencyError
+from betty.app import Extension, App, CyclicDependencyError
 from betty.asyncio import sync
-from betty.config import Configuration as GenericConfiguration, ConfigurationT, Configurable
-from betty.model.ancestry import Ancestry
+from betty.config import Configuration as GenericConfiguration, ConfigurationT, Configurable, ConfigurationError
+from betty.project import LocaleConfiguration, LocalesConfiguration, ProjectExtensionConfiguration, \
+    ProjectExtensionsConfiguration, Configuration
 from betty.tests import TestCase
 
 
@@ -127,25 +127,25 @@ class LocalesConfigurationTest(TestCase):
 
     def test_default_without_explicit_locale_configurations(self):
         sut = LocalesConfiguration()
-        self.assertEqual(LocaleConfiguration('en-US'), sut.default)
+        self.assertEqual(LocaleConfiguration('en-US'), sut.default_locale)
 
-    def test_default_without_explicit_default(self):
+    def test_default_locale_without_explicit_default(self):
         locale_configuration_a = LocaleConfiguration('nl-NL')
         locale_configuration_b = LocaleConfiguration('en-US')
         sut = LocalesConfiguration([
             locale_configuration_a,
             locale_configuration_b,
         ])
-        self.assertEqual(locale_configuration_a, sut.default)
+        self.assertEqual(locale_configuration_a, sut.default_locale)
 
-    def test_default_with_explicit_default(self):
+    def test_default_locale_with_explicit_default(self):
         locale_configuration_a = LocaleConfiguration('nl-NL')
         locale_configuration_b = LocaleConfiguration('en-US')
         sut = LocalesConfiguration([
             locale_configuration_a,
         ])
-        sut.default = locale_configuration_b
-        self.assertEqual(locale_configuration_b, sut.default)
+        sut.default_locale = locale_configuration_b
+        self.assertEqual(locale_configuration_b, sut.default_locale)
 
 
 class _DummyExtension(Extension):
@@ -168,49 +168,49 @@ class _DummyConfigurableExtension(Extension, Configurable):
         return _DummyConfiguration
 
 
-class AppExtensionConfigurationTest(TestCase):
+class ProjectExtensionConfigurationTest(TestCase):
     def test_extension_type(self) -> None:
         extension_type = _DummyExtension
-        sut = AppExtensionConfiguration(extension_type)
+        sut = ProjectExtensionConfiguration(extension_type)
         self.assertEqual(extension_type, sut.extension_type)
 
     def test_enabled(self) -> None:
         enabled = True
-        sut = AppExtensionConfiguration(_DummyExtension, enabled)
+        sut = ProjectExtensionConfiguration(_DummyExtension, enabled)
         self.assertEqual(enabled, sut.enabled)
         with assert_reactor_called(sut):
             sut.enabled = False
 
     def test_configuration(self) -> None:
         extension_type_configuration = GenericConfiguration()
-        sut = AppExtensionConfiguration(Extension, True, extension_type_configuration)
+        sut = ProjectExtensionConfiguration(Extension, True, extension_type_configuration)
         self.assertEqual(extension_type_configuration, sut.extension_configuration)
         with assert_reactor_called(sut):
             extension_type_configuration.react.trigger()
 
     @parameterized.expand([
-        (True, AppExtensionConfiguration(_DummyExtension, True), AppExtensionConfiguration(_DummyExtension, True)),
-        (True, AppExtensionConfiguration(_DummyExtension, True, None), AppExtensionConfiguration(_DummyExtension, True, None)),
-        (False, AppExtensionConfiguration(_DummyExtension, True, GenericConfiguration()), AppExtensionConfiguration(_DummyExtension, True, GenericConfiguration())),
-        (False, AppExtensionConfiguration(_DummyExtension, True), AppExtensionConfiguration(_DummyExtension, False)),
-        (False, AppExtensionConfiguration(_DummyExtension, True), AppExtensionConfiguration(_DummyConfigurableExtension, True)),
+        (True, ProjectExtensionConfiguration(_DummyExtension, True), ProjectExtensionConfiguration(_DummyExtension, True)),
+        (True, ProjectExtensionConfiguration(_DummyExtension, True, None), ProjectExtensionConfiguration(_DummyExtension, True, None)),
+        (False, ProjectExtensionConfiguration(_DummyExtension, True, GenericConfiguration()), ProjectExtensionConfiguration(_DummyExtension, True, GenericConfiguration())),
+        (False, ProjectExtensionConfiguration(_DummyExtension, True), ProjectExtensionConfiguration(_DummyExtension, False)),
+        (False, ProjectExtensionConfiguration(_DummyExtension, True), ProjectExtensionConfiguration(_DummyConfigurableExtension, True)),
     ])
-    def test_eq(self, expected: bool, one: AppExtensionConfiguration, other: AppExtensionConfiguration) -> None:
+    def test_eq(self, expected: bool, one: ProjectExtensionConfiguration, other: ProjectExtensionConfiguration) -> None:
         self.assertEqual(expected, one == other)
 
 
-class AppExtensionsConfigurationTest(TestCase):
+class ProjectExtensionsConfigurationTest(TestCase):
     def test_getitem(self) -> None:
-        app_extension_configuration_a = AppExtensionConfiguration(DummyConfigurableExtension)
-        sut = AppExtensionsConfiguration([
+        app_extension_configuration_a = ProjectExtensionConfiguration(DummyConfigurableExtension)
+        sut = ProjectExtensionsConfiguration([
             app_extension_configuration_a,
         ])
         with assert_in_scope(sut):
             self.assertEqual(app_extension_configuration_a, sut[DummyConfigurableExtension])
 
     def test_delitem(self) -> None:
-        app_extension_configuration = AppExtensionConfiguration(DummyConfigurableExtension)
-        sut = AppExtensionsConfiguration([
+        app_extension_configuration = ProjectExtensionConfiguration(DummyConfigurableExtension)
+        sut = ProjectExtensionsConfiguration([
             app_extension_configuration,
         ])
         with assert_scope_empty():
@@ -220,9 +220,9 @@ class AppExtensionsConfigurationTest(TestCase):
         self.assertCountEqual([], app_extension_configuration.react._reactors)
 
     def test_iter(self) -> None:
-        app_extension_configuration_a = AppExtensionConfiguration(DummyConfigurableExtension)
-        app_extension_configuration_b = AppExtensionConfiguration(DummyNonConfigurableExtension)
-        sut = AppExtensionsConfiguration([
+        app_extension_configuration_a = ProjectExtensionConfiguration(DummyConfigurableExtension)
+        app_extension_configuration_b = ProjectExtensionConfiguration(DummyNonConfigurableExtension)
+        sut = ProjectExtensionsConfiguration([
             app_extension_configuration_a,
             app_extension_configuration_b,
         ])
@@ -230,9 +230,9 @@ class AppExtensionsConfigurationTest(TestCase):
             self.assertCountEqual([app_extension_configuration_a, app_extension_configuration_b], iter(sut))
 
     def test_len(self) -> None:
-        app_extension_configuration_a = AppExtensionConfiguration(DummyConfigurableExtension)
-        app_extension_configuration_b = AppExtensionConfiguration(DummyNonConfigurableExtension)
-        sut = AppExtensionsConfiguration([
+        app_extension_configuration_a = ProjectExtensionConfiguration(DummyConfigurableExtension)
+        app_extension_configuration_b = ProjectExtensionConfiguration(DummyNonConfigurableExtension)
+        sut = ProjectExtensionsConfiguration([
             app_extension_configuration_a,
             app_extension_configuration_b,
         ])
@@ -240,13 +240,13 @@ class AppExtensionsConfigurationTest(TestCase):
             self.assertEqual(2, len(sut))
 
     def test_eq(self) -> None:
-        app_extension_configuration_a = AppExtensionConfiguration(DummyConfigurableExtension)
-        app_extension_configuration_b = AppExtensionConfiguration(DummyNonConfigurableExtension)
-        sut = AppExtensionsConfiguration([
+        app_extension_configuration_a = ProjectExtensionConfiguration(DummyConfigurableExtension)
+        app_extension_configuration_b = ProjectExtensionConfiguration(DummyNonConfigurableExtension)
+        sut = ProjectExtensionsConfiguration([
             app_extension_configuration_a,
             app_extension_configuration_b,
         ])
-        other = AppExtensionsConfiguration([
+        other = ProjectExtensionsConfiguration([
             app_extension_configuration_a,
             app_extension_configuration_b,
         ])
@@ -254,8 +254,8 @@ class AppExtensionsConfigurationTest(TestCase):
             self.assertEqual(other, sut)
 
     def test_add(self) -> None:
-        sut = AppExtensionsConfiguration()
-        app_extension_configuration = AppExtensionConfiguration(DummyConfigurableExtension)
+        sut = ProjectExtensionsConfiguration()
+        app_extension_configuration = ProjectExtensionConfiguration(DummyConfigurableExtension)
         with assert_scope_empty():
             with assert_reactor_called(sut):
                 sut.add(app_extension_configuration)
@@ -434,8 +434,8 @@ class ConfigurationTest(TestCase):
         }
         configuration = Configuration()
         configuration.load(dumped_configuration)
-        expected = AppExtensionsConfiguration([
-            AppExtensionConfiguration(DummyConfigurableExtension, True, DummyConfigurableExtensionConfiguration(
+        expected = ProjectExtensionsConfiguration([
+            ProjectExtensionConfiguration(DummyConfigurableExtension, True, DummyConfigurableExtensionConfiguration(
                 check=1337,
                 default='I will always be there for you.',
             )),
@@ -449,8 +449,8 @@ class ConfigurationTest(TestCase):
         }
         configuration = Configuration()
         configuration.load(dumped_configuration)
-        expected = AppExtensionsConfiguration([
-            AppExtensionConfiguration(DummyNonConfigurableExtension, True),
+        expected = ProjectExtensionsConfiguration([
+            ProjectExtensionConfiguration(DummyNonConfigurableExtension, True),
         ])
         self.assertEqual(expected, configuration.extensions)
 
@@ -589,7 +589,7 @@ class ConfigurationTest(TestCase):
 
     def test_dump_should_dump_one_extension_with_configuration(self) -> None:
         configuration = Configuration()
-        configuration.extensions.add(AppExtensionConfiguration(DummyConfigurableExtension, True, DummyConfigurableExtensionConfiguration(
+        configuration.extensions.add(ProjectExtensionConfiguration(DummyConfigurableExtension, True, DummyConfigurableExtensionConfiguration(
             check=1337,
             default='I will always be there for you.',
         )))
@@ -607,7 +607,7 @@ class ConfigurationTest(TestCase):
 
     def test_dump_should_dump_one_extension_without_configuration(self) -> None:
         configuration = Configuration()
-        configuration.extensions.add(AppExtensionConfiguration(DummyNonConfigurableExtension))
+        configuration.extensions.add(ProjectExtensionConfiguration(DummyNonConfigurableExtension))
         dumped_configuration = Configuration.dump(configuration)
         expected = {
             DummyNonConfigurableExtension.name(): {
@@ -762,21 +762,16 @@ class AppTest(TestCase):
     }
 
     @sync
-    async def test_ancestry(self) -> None:
-        async with App() as sut:
-            self.assertIsInstance(sut.ancestry, Ancestry)
-
-    @sync
     async def test_extensions_with_one_extension(self) -> None:
         async with App() as sut:
-            sut.configuration.extensions.add(AppExtensionConfiguration(NonConfigurableExtension))
+            sut.project.configuration.extensions.add(ProjectExtensionConfiguration(NonConfigurableExtension))
             self.assertIsInstance(sut.extensions[NonConfigurableExtension], NonConfigurableExtension)
 
     @sync
     async def test_extensions_with_one_configurable_extension(self) -> None:
         check = 1337
         async with App() as sut:
-            sut.configuration.extensions.add(AppExtensionConfiguration(ConfigurableExtension, True, ConfigurableExtensionConfiguration(
+            sut.project.configuration.extensions.add(ProjectExtensionConfiguration(ConfigurableExtension, True, ConfigurableExtensionConfiguration(
                 check=check,
             )))
             self.assertIsInstance(sut.extensions[ConfigurableExtension], ConfigurableExtension)
@@ -785,7 +780,7 @@ class AppTest(TestCase):
     @sync
     async def test_extensions_with_one_extension_with_single_chained_dependency(self) -> None:
         async with App() as sut:
-            sut.configuration.extensions.add(AppExtensionConfiguration(DependsOnNonConfigurableExtensionExtensionExtension))
+            sut.project.configuration.extensions.add(ProjectExtensionConfiguration(DependsOnNonConfigurableExtensionExtensionExtension))
             carrier = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
             self.assertEqual(3, len(carrier))
@@ -796,8 +791,8 @@ class AppTest(TestCase):
     @sync
     async def test_extensions_with_multiple_extensions_with_duplicate_dependencies(self) -> None:
         async with App() as sut:
-            sut.configuration.extensions.add(AppExtensionConfiguration(DependsOnNonConfigurableExtensionExtension))
-            sut.configuration.extensions.add(AppExtensionConfiguration(AlsoDependsOnNonConfigurableExtensionExtension))
+            sut.project.configuration.extensions.add(ProjectExtensionConfiguration(DependsOnNonConfigurableExtensionExtension))
+            sut.project.configuration.extensions.add(ProjectExtensionConfiguration(AlsoDependsOnNonConfigurableExtensionExtension))
             carrier = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
             self.assertEqual(3, len(carrier))
@@ -811,14 +806,14 @@ class AppTest(TestCase):
     async def test_extensions_with_multiple_extensions_with_cyclic_dependencies(self) -> None:
         with self.assertRaises(CyclicDependencyError):
             async with App() as sut:
-                sut.configuration.extensions.add(AppExtensionConfiguration(CyclicDependencyOneExtension))
+                sut.project.configuration.extensions.add(ProjectExtensionConfiguration(CyclicDependencyOneExtension))
                 sut.extensions
 
     @sync
     async def test_extensions_with_comes_before_with_other_extension(self) -> None:
         async with App() as sut:
-            sut.configuration.extensions.add(AppExtensionConfiguration(NonConfigurableExtension))
-            sut.configuration.extensions.add(AppExtensionConfiguration(ComesBeforeNonConfigurableExtensionExtension))
+            sut.project.configuration.extensions.add(ProjectExtensionConfiguration(NonConfigurableExtension))
+            sut.project.configuration.extensions.add(ProjectExtensionConfiguration(ComesBeforeNonConfigurableExtensionExtension))
             carrier = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
             self.assertEqual(2, len(carrier))
@@ -829,7 +824,7 @@ class AppTest(TestCase):
     @sync
     async def test_extensions_with_comes_before_without_other_extension(self) -> None:
         async with App() as sut:
-            sut.configuration.extensions.add(AppExtensionConfiguration(ComesBeforeNonConfigurableExtensionExtension))
+            sut.project.configuration.extensions.add(ProjectExtensionConfiguration(ComesBeforeNonConfigurableExtensionExtension))
             carrier = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
             self.assertEqual(1, len(carrier))
@@ -839,8 +834,8 @@ class AppTest(TestCase):
     @sync
     async def test_extensions_with_comes_after_with_other_extension(self) -> None:
         async with App() as sut:
-            sut.configuration.extensions.add(AppExtensionConfiguration(ComesAfterNonConfigurableExtensionExtension))
-            sut.configuration.extensions.add(AppExtensionConfiguration(NonConfigurableExtension))
+            sut.project.configuration.extensions.add(ProjectExtensionConfiguration(ComesAfterNonConfigurableExtensionExtension))
+            sut.project.configuration.extensions.add(ProjectExtensionConfiguration(NonConfigurableExtension))
             carrier = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
             self.assertEqual(2, len(carrier))
@@ -850,7 +845,7 @@ class AppTest(TestCase):
     @sync
     async def test_extensions_with_comes_after_without_other_extension(self) -> None:
         async with App() as sut:
-            sut.configuration.extensions.add(AppExtensionConfiguration(ComesAfterNonConfigurableExtensionExtension))
+            sut.project.configuration.extensions.add(ProjectExtensionConfiguration(ComesAfterNonConfigurableExtensionExtension))
             carrier = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
             self.assertEqual(1, len(carrier))
@@ -861,16 +856,16 @@ class AppTest(TestCase):
         async with App() as sut:
             # Get the extensions before making configuration changes to warm the cache.
             sut.extensions
-            sut.configuration.extensions.add(AppExtensionConfiguration(NonConfigurableExtension))
+            sut.project.configuration.extensions.add(ProjectExtensionConfiguration(NonConfigurableExtension))
             self.assertIsInstance(sut.extensions[NonConfigurableExtension], NonConfigurableExtension)
 
     @sync
     async def test_extensions_removal_from_configuration(self) -> None:
         async with App() as sut:
-            sut.configuration.extensions.add(AppExtensionConfiguration(NonConfigurableExtension))
+            sut.project.configuration.extensions.add(ProjectExtensionConfiguration(NonConfigurableExtension))
             # Get the extensions before making configuration changes to warm the cache.
             sut.extensions
-            del sut.configuration.extensions[NonConfigurableExtension]
+            del sut.project.configuration.extensions[NonConfigurableExtension]
             self.assertNotIn(NonConfigurableExtension, sut.extensions)
 
     @sync
@@ -882,6 +877,6 @@ class AppTest(TestCase):
     async def test_assets_with_assets_directory_path(self) -> None:
         with TemporaryDirectory() as assets_directory_path:
             async with App() as sut:
-                sut.configuration.assets_directory_path = assets_directory_path
+                sut.project.configuration.assets_directory_path = assets_directory_path
                 self.assertEqual(2, len(sut.assets))
                 self.assertEqual((Path(assets_directory_path), None), sut.assets.paths[0])

@@ -19,7 +19,7 @@ class LoadGrampsTest(TestCase):
     async def test_load_gramps(self):
         async with App() as app:
             gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.gramps'
-            load_gramps(app.ancestry, gramps_file_path)
+            load_gramps(app.project.ancestry, gramps_file_path)
 
 
 class LoadGpkgTest(TestCase):
@@ -27,7 +27,7 @@ class LoadGpkgTest(TestCase):
     async def test_load_gpkg(self):
         async with App() as app:
             gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.gpkg'
-            load_gpkg(app.ancestry, gramps_file_path)
+            load_gpkg(app.project.ancestry, gramps_file_path)
 
 
 class LoadXmlTest(TestCase):
@@ -37,17 +37,17 @@ class LoadXmlTest(TestCase):
         TestCase.setUpClass()
         # @todo Convert each test method to use self._load(), so we can remove this shared XML file.
         async with App() as app:
-            cls.ancestry = app.ancestry
+            cls.ancestry = app.project.ancestry
             xml_file_path = Path(__file__).parent / 'assets' / 'data.xml'
             with open(xml_file_path) as f:
-                load_xml(app.ancestry, f.read(), rootname(xml_file_path))
+                load_xml(app.project.ancestry, f.read(), rootname(xml_file_path))
 
     @sync
     async def load(self, xml: str) -> Ancestry:
         async with App() as app:
             with TemporaryDirectory() as tree_directory_path:
-                load_xml(app.ancestry, xml.strip(), Path(tree_directory_path))
-                return app.ancestry
+                load_xml(app.project.ancestry, xml.strip(), Path(tree_directory_path))
+                return app.project.ancestry
 
     def _load_partial(self, xml: str) -> Ancestry:
         return self.load("""
@@ -69,13 +69,13 @@ class LoadXmlTest(TestCase):
         async with App() as app:
             gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'
             with open(gramps_file_path) as f:
-                load_xml(app.ancestry, f.read(), rootname(gramps_file_path))
+                load_xml(app.project.ancestry, f.read(), rootname(gramps_file_path))
 
     @sync
     async def test_load_xml_with_file_path(self):
         async with App() as app:
             gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'
-            load_xml(app.ancestry, gramps_file_path, rootname(gramps_file_path))
+            load_xml(app.project.ancestry, gramps_file_path, rootname(gramps_file_path))
 
     def test_place_should_include_name(self):
         place = self.ancestry.entities[Place]['P0000']

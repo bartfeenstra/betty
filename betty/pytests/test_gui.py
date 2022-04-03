@@ -8,11 +8,12 @@ from PyQt6.QtWidgets import QFileDialog
 from babel import Locale
 
 from betty import fs
-from betty.app import App, LocaleConfiguration
+from betty.app import App
 from betty.asyncio import sync
 from betty.config import ConfigurationError
 from betty.gui import BettyMainWindow, _WelcomeWindow, ProjectWindow, _AboutBettyWindow, ExceptionError, \
     _AddLocaleWindow, _GenerateWindow, _ServeAppWindow, _ServeDemoWindow
+from betty.project import LocaleConfiguration
 from betty.tests import patch_cache
 
 
@@ -108,7 +109,7 @@ def test_project_window_general_configuration_title(qtbot, minimal_configuration
 
     title = 'My First Ancestry Site'
     sut._general_configuration_pane._configuration_title.setText(title)
-    assert sut._app.configuration.title == title
+    assert sut._app.project.configuration.title == title
 
 
 def test_project_window_general_configuration_author(qtbot, minimal_configuration_file_path) -> None:
@@ -118,7 +119,7 @@ def test_project_window_general_configuration_author(qtbot, minimal_configuratio
 
     title = 'My First Ancestry Site'
     sut._general_configuration_pane._configuration_title.setText(title)
-    assert sut._app.configuration.title == title
+    assert sut._app.project.configuration.title == title
 
 
 def test_project_window_general_configuration_url(qtbot, minimal_configuration_file_path) -> None:
@@ -127,8 +128,8 @@ def test_project_window_general_configuration_url(qtbot, minimal_configuration_f
     sut.show()
 
     sut._general_configuration_pane._configuration_url.setText('https://example.com/my-first-ancestry')
-    assert sut._app.configuration.base_url == 'https://example.com'
-    assert sut._app.configuration.root_path == 'my-first-ancestry'
+    assert sut._app.project.configuration.base_url == 'https://example.com'
+    assert sut._app.project.configuration.root_path == 'my-first-ancestry'
 
 
 def test_project_window_general_configuration_lifetime_threshold(qtbot, minimal_configuration_file_path) -> None:
@@ -137,7 +138,7 @@ def test_project_window_general_configuration_lifetime_threshold(qtbot, minimal_
     sut.show()
 
     sut._general_configuration_pane._configuration_lifetime_threshold.setText('123')
-    assert sut._app.configuration.lifetime_threshold == 123
+    assert sut._app.project.configuration.lifetime_threshold == 123
 
 
 def test_project_window_general_configuration_lifetime_threshold_with_non_digit_input(qtbot, minimal_configuration_file_path) -> None:
@@ -145,9 +146,9 @@ def test_project_window_general_configuration_lifetime_threshold_with_non_digit_
     qtbot.addWidget(sut)
     sut.show()
 
-    original_lifetime_threshold = sut._app.configuration.lifetime_threshold
+    original_lifetime_threshold = sut._app.project.configuration.lifetime_threshold
     sut._general_configuration_pane._configuration_lifetime_threshold.setText('a1')
-    assert original_lifetime_threshold == sut._app.configuration.lifetime_threshold
+    assert original_lifetime_threshold == sut._app.project.configuration.lifetime_threshold
 
 
 def test_project_window_general_configuration_lifetime_threshold_with_zero_input(qtbot, minimal_configuration_file_path) -> None:
@@ -155,9 +156,9 @@ def test_project_window_general_configuration_lifetime_threshold_with_zero_input
     qtbot.addWidget(sut)
     sut.show()
 
-    original_lifetime_threshold = sut._app.configuration.lifetime_threshold
+    original_lifetime_threshold = sut._app.project.configuration.lifetime_threshold
     sut._general_configuration_pane._configuration_lifetime_threshold.setText('0')
-    assert sut._app.configuration.lifetime_threshold == original_lifetime_threshold
+    assert sut._app.project.configuration.lifetime_threshold == original_lifetime_threshold
 
 
 def test_project_window_general_configuration_debug(qtbot, minimal_configuration_file_path) -> None:
@@ -166,9 +167,9 @@ def test_project_window_general_configuration_debug(qtbot, minimal_configuration
     sut.show()
 
     sut._general_configuration_pane._development_debug.setChecked(True)
-    assert sut._app.configuration.debug
+    assert sut._app.project.configuration.debug
     sut._general_configuration_pane._development_debug.setChecked(False)
-    assert not sut._app.configuration.debug
+    assert not sut._app.project.configuration.debug
 
 
 def test_project_window_general_configuration_clean_urls(qtbot, minimal_configuration_file_path) -> None:
@@ -177,9 +178,9 @@ def test_project_window_general_configuration_clean_urls(qtbot, minimal_configur
     sut.show()
 
     sut._general_configuration_pane._clean_urls.setChecked(True)
-    assert sut._app.configuration.clean_urls is True
+    assert sut._app.project.configuration.clean_urls is True
     sut._general_configuration_pane._clean_urls.setChecked(False)
-    assert sut._app.configuration.clean_urls is False
+    assert sut._app.project.configuration.clean_urls is False
 
 
 def test_project_window_general_configuration_content_negotiation(qtbot, minimal_configuration_file_path) -> None:
@@ -188,9 +189,9 @@ def test_project_window_general_configuration_content_negotiation(qtbot, minimal
     sut.show()
 
     sut._general_configuration_pane._content_negotiation.setChecked(True)
-    assert sut._app.configuration.content_negotiation is True
+    assert sut._app.project.configuration.content_negotiation is True
     sut._general_configuration_pane._content_negotiation.setChecked(False)
-    assert sut._app.configuration.content_negotiation is False
+    assert sut._app.project.configuration.content_negotiation is False
 
 
 def test_project_window_theme_configuration_background_image_id(qtbot, minimal_configuration_file_path) -> None:
@@ -200,7 +201,7 @@ def test_project_window_theme_configuration_background_image_id(qtbot, minimal_c
 
     background_image_id = 'O0301'
     sut._theme_configuration_pane._background_image_id.setText(background_image_id)
-    assert sut._app.configuration.theme.background_image_id == background_image_id
+    assert sut._app.project.configuration.theme.background_image_id == background_image_id
 
 
 def test_project_window_localization_configuration_add_locale(qtbot, assert_not_window, assert_window, minimal_configuration_file_path, tmpdir) -> None:
@@ -219,8 +220,8 @@ def test_project_window_localization_configuration_add_locale(qtbot, assert_not_
     qtbot.mouseClick(add_locale_window._save_and_close, Qt.MouseButton.LeftButton)
     assert_not_window(_AddLocaleWindow)
 
-    assert locale in sut._app.configuration.locales
-    assert sut._app.configuration.locales[locale].alias == alias
+    assert locale in sut._app.project.configuration.locales
+    assert sut._app.project.configuration.locales[locale].alias == alias
 
 
 def test_project_window_localization_configuration_remove_locale(qtbot, minimal_dumped_app_configuration, tmpdir) -> None:
@@ -244,7 +245,7 @@ def test_project_window_localization_configuration_remove_locale(qtbot, minimal_
 
     qtbot.mouseClick(sut._localization_configuration_pane._locales_configuration_widget._remove_buttons[locale], Qt.MouseButton.LeftButton)
 
-    assert locale not in sut._app.configuration.locales
+    assert locale not in sut._app.project.configuration.locales
 
 
 def test_project_window_localization_configuration_default_locale(qtbot, minimal_dumped_app_configuration, tmpdir) -> None:
@@ -270,7 +271,7 @@ def test_project_window_localization_configuration_default_locale(qtbot, minimal
     # @todo directly.
     sut._localization_configuration_pane._locales_configuration_widget._default_buttons[locale].click()
 
-    assert sut._app.configuration.locales.default == LocaleConfiguration(locale)
+    assert sut._app.project.configuration.locales.default_locale == LocaleConfiguration(locale)
 
 
 def test_project_window_save_project_as_should_create_duplicate_configuration_file(mocker, navigate, qtbot, tmpdir) -> None:

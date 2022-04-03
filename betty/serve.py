@@ -72,7 +72,7 @@ class AppServer(Server):
             if isinstance(extension, ServerProvider):
                 for server in extension.servers:
                     return server
-        return BuiltinServer(self._app.configuration.www_directory_path)
+        return BuiltinServer(self._app.project.configuration.www_directory_path)
 
     async def start(self) -> None:
         self._server = self._get_server()

@@ -107,7 +107,7 @@ class Anonymizer(Extension, PostLoader, GuiBuilder):
         return {Privatizer}
 
     async def post_load(self) -> None:
-        anonymize(self._app.ancestry, AnonymousCitation(AnonymousSource()))
+        anonymize(self._app.project.ancestry, AnonymousCitation(AnonymousSource()))
 
     @classmethod
     def label(cls) -> str:
