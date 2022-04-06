@@ -4,7 +4,7 @@ import unittest
 from contextlib import asynccontextmanager
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Optional, Dict, Callable, Tuple
+from typing import Optional, Dict, Callable, Tuple, AsyncIterator
 
 from jinja2 import Environment, Template
 
@@ -39,8 +39,8 @@ class TestCase(unittest.TestCase):
 
 
 class TemplateTestCase(TestCase):
-    template_string = None
-    template_file = None
+    template_string: Optional[str] = None
+    template_file: Optional[str] = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -49,7 +49,7 @@ class TemplateTestCase(TestCase):
             raise RuntimeError(f'{class_name} must define either `{class_name}.template_string` or `{class_name}.template_file`, but not both.')
 
     @asynccontextmanager
-    async def _render(self, data: Optional[Dict] = None, template_file: Optional[Template] = None, template_string: Optional[str] = None, update_project_configuration: Optional[Callable[[Configuration], None]] = None) -> Tuple[str, App]:
+    async def _render(self, data: Optional[Dict] = None, template_file: Optional[Template] = None, template_string: Optional[str] = None, update_project_configuration: Optional[Callable[[Configuration], None]] = None) -> AsyncIterator[Tuple[str, App]]:
         if template_string is not None and template_file is not None:
             raise RuntimeError('You must define either `template_string` or `template_file`, but not both.')
         if template_string is not None:

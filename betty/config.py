@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
 from os import path
 from pathlib import Path
 from typing import Dict, Callable, Type, TypeVar, Any, Generic, Optional
+try:
+    from typing import Self  # type: ignore
+except ImportError:
+    from typing_extensions import Self
 
 import yaml
 from reactives import reactive
+from reactives.factory.type import ReactiveInstance
 
 from betty import os
 from betty.error import UserFacingError, ContextError, ensure_context
@@ -18,7 +22,7 @@ class ConfigurationError(UserFacingError, ContextError, ValueError):
 
 
 @reactive
-class Configuration:
+class Configuration(ReactiveInstance):
     def load(self, dumped_configuration: Any) -> None:
         """
         Validate the dumped configuration and load it into self.
@@ -38,19 +42,17 @@ class Configuration:
         raise NotImplementedError
 
     @classmethod
-    def default(cls) -> Configuration:
+    def default(cls) -> Self:
         return cls()
 
 
 ConfigurationT = TypeVar('ConfigurationT', bound=Configuration)
 
 
-@reactive
 class Configurable(Generic[ConfigurationT]):
     def __init__(self, configuration: Optional[ConfigurationT] = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._configuration = self.configuration_type().default() if configuration is None else configuration
-        self._configuration.react(self)
+        self._configuration: ConfigurationT = self.configuration_type().default() if configuration is None else configuration
 
     @property
     def configuration(self) -> ConfigurationT:
@@ -100,22 +102,25 @@ def to_yaml(configuration: Configuration) -> str:
 def to_file(f, configuration: Configuration) -> None:
     file_base_name, file_extension = path.splitext(f.name)
     try:
-        dumper = _APP_CONFIGURATION_FORMATS[file_extension].dumper
+        format = _APP_CONFIGURATION_FORMATS[file_extension]
     except KeyError:
         raise ValueError(f"'Unknown file format \"{file_extension}\". Supported formats are: {', '.join(APP_CONFIGURATION_FORMATS)}.'")
     # Change the working directory to allow absolute paths to be turned relative to the configuration file's directory
     # path.
     with os.ChDir(path.dirname(f.name)):
-        f.write(dumper(configuration))
+        f.write(format.dumper(configuration))
 
 
-@dataclass(frozen=True)
 class _Format:
     # These loaders must take a single argument, which is the configuration in its dumped format, as a string. They must
     # return Configuration or raise ConfigurationError.
-    loader: Callable[[str], Any]
+    Loader = Callable[[str], Any]
     # These dumpers must take a single argument, which is Configuration. They must return a single string.
-    dumper: Callable[[Configuration], str]
+    Dumper = Callable[[Configuration], str]
+
+    def __init__(self, loader: Loader, dumper: Dumper):
+        self.loader = loader
+        self.dumper = dumper
 
 
 _APP_CONFIGURATION_FORMATS: Dict[str, _Format] = {

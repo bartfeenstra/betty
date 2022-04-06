@@ -1,4 +1,8 @@
-from typing import Set, Type
+from typing import Set, Type, TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 from betty.app.extension import Extension
 from betty.privatizer import Privatizer

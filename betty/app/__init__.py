@@ -7,6 +7,8 @@ from contextlib import AsyncExitStack, contextmanager
 from gettext import NullTranslations
 from typing import List, Type, TYPE_CHECKING, Set
 
+from reactives.factory.type import ReactiveInstance
+
 from betty.app.extension import ListExtensions, Extension, Extensions, build_extension_type_graph, \
     CyclicDependencyError, ExtensionDispatcher
 from betty.asyncio import sync
@@ -52,35 +54,26 @@ class _AppExtensions(ListExtensions):
 
 
 @reactive
-class App(Environment):
-    def __init__(self):
+class App(Environment, ReactiveInstance):
+    def __init__(self, *args, **kwargs):
         from betty.url import AppUrlGenerator, StaticPathUrlGenerator
 
+        super().__init__(*args, **kwargs)
+
         self._active = False
-        # @todo Projects can introduce extensions.
         self._extensions = None
         self._project = Project()
-        # @todo Projects can introduce assets.
         self._assets = FileSystem()
-        # @todo Projects can introduce extensions, so they need their own dispatcher.
         self._dispatcher = None
-        # @todo Projects can introduce entity types.
         self._entity_types = None
-        # @todo Projects can introduce event types.
         self._event_types = None
         self._url_generator = AppUrlGenerator(self)
         self._static_url_generator = StaticPathUrlGenerator(self.project.configuration)
         self._debug = None
         self._locale = None
-        # @todo Translations can be provided by App as well as Project.
-        # @todo This is because App provides stock and extension translations,
-        # @todo but Project includes additional extension translations, as well as project assets translations.
-        # @todo
-        # @todo
         self._translations = TranslationsRepository(self.assets)
         self._default_translations = None
         self._activation_exit_stack = AsyncExitStack()
-        # @todo App and Project extensions can both alter the environment through Jinja2Provider.
         self._jinja2_environment = None
         self._renderer = None
         self._executor = None
@@ -129,12 +122,12 @@ class App(Environment):
 
         self._locale = negotiated_locale
         with self.translations[negotiated_locale]:
-            self.react.getattr('locale').react.trigger()
+            self.react['locale'].react.trigger()
             yield
             self._wait_for_threads()
 
         self._locale = previous_locale
-        self.react.getattr('locale').react.trigger()
+        self.react['locale'].react.trigger()
 
     async def activate(self) -> None:
         self._assert_deactive()
@@ -269,8 +262,8 @@ class App(Environment):
     @property
     def jinja2_environment(self) -> Jinja2Environment:
         if not self._jinja2_environment:
-            from betty.jinja2 import BettyEnvironment
-            self._jinja2_environment = BettyEnvironment(self)
+            from betty.jinja2 import Environment
+            self._jinja2_environment = Environment(self)
 
         return self._jinja2_environment
 

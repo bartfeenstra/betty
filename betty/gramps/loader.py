@@ -12,10 +12,10 @@ from geopy import Point
 
 from betty.config import Path
 from betty.gramps.error import GrampsError
-from betty.load import getLogger
+from betty.load import getLogger, Loader
 from betty.locale import DateRange, Datey, Date
 from betty.media_type import MediaType
-from betty.model import Entity, FlattenedEntityCollection, FlattenedEntity
+from betty.model import Entity, FlattenedEntityCollection, FlattenedEntity, unflatten
 from betty.model.ancestry import Ancestry, Note, File, Source, Citation, Place, Event, Person, PersonName, Subject, \
     Witness, Beneficiary, Attendee, Presence, PlaceName, Enclosure, HasLinks, Link, HasPrivacy
 from betty.model.event_type import Birth, Baptism, Adoption, Cremation, Death, Funeral, Burial, Will, Engagement, \
@@ -96,7 +96,7 @@ def load_xml(ancestry: Ancestry, xml: Union[str, PathLike], gramps_tree_director
     _Loader(ancestry, tree, gramps_tree_directory_path).load()
 
 
-class _Loader:
+class _Loader(Loader):
     def __init__(self, ancestry: Ancestry, tree: ElementTree.ElementTree, gramps_tree_directory_path: Path):
         self._ancestry = ancestry
         self._flattened_entities = FlattenedEntityCollection()
@@ -140,7 +140,7 @@ class _Loader:
 
     def add_entity(self, entity: Entity) -> None:
         self._flattened_entities.add_entity(entity)
-        self._added_entity_counts[entity.entity_type()] += 1
+        self._added_entity_counts[unflatten(entity).entity_type()] += 1
 
     def add_association(self, *args, **kwargs) -> None:
         self._flattened_entities.add_association(*args, **kwargs)
@@ -247,7 +247,7 @@ def _load_person(loader: _Loader, element: ElementTree.Element):
     person = Person(element.get('id'))
 
     name_elements = sorted(_xpath(element, './ns:name'), key=lambda x: x.get('alt') == '1')
-    names = []
+    person_names = []
     for name_element in name_elements:
         is_alternative = name_element.get('alt') == '1'
         individual_name_element = _xpath1(name_element, './ns:first')
@@ -265,12 +265,12 @@ def _load_person(loader: _Loader, element: ElementTree.Element):
                         surname_prefix, affiliation_name)
                 person_name = PersonName(None, individual_name, affiliation_name)
                 _load_citationref(loader, person_name, name_element)
-                names.append((person_name, is_alternative))
+                person_names.append((person_name, is_alternative))
         elif individual_name is not None:
             person_name = PersonName(None, individual_name)
             _load_citationref(loader, person_name, name_element)
-            names.append((person_name, is_alternative))
-    for person_name, _ in sorted(names, key=lambda x: x[1]):
+            person_names.append((person_name, is_alternative))
+    for person_name, _ in sorted(person_names, key=lambda x: x[1]):
         loader.add_entity(person_name)
         loader.add_association(Person, person_handle, 'names', PersonName, person_name.id)
 
@@ -519,7 +519,7 @@ def _load_citation(loader: _Loader, element: ElementTree.Element) -> None:
 
 def _load_citationref(loader: _Loader, owner: Entity, element: ElementTree.Element):
     for citation_handle in _load_handles('citationref', element):
-        loader.add_association(owner.entity_type(), owner.id, 'citations', Citation, citation_handle)
+        loader.add_association(unflatten(owner).entity_type(), owner.id, 'citations', Citation, citation_handle)
 
 
 def _load_handles(handle_type: str, element: ElementTree.Element) -> Iterable[str]:
@@ -535,7 +535,7 @@ def _load_handle(handle_type: str, element: ElementTree.Element) -> Optional[str
 def _load_objref(loader: _Loader, owner: Entity, element: ElementTree.Element):
     file_handles = _load_handles('objref', element)
     for file_handle in file_handles:
-        loader.add_association(owner.entity_type(), owner.id, 'files', File, file_handle)
+        loader.add_association(unflatten(owner).entity_type(), owner.id, 'files', File, file_handle)
 
 
 def _load_urls(owner: HasLinks, element: ElementTree.Element):

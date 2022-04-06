@@ -7,22 +7,27 @@ from contextlib import suppress
 from os.path import getmtime
 from pathlib import Path
 from time import time
-from typing import Optional, Dict, Callable, Tuple, Iterable, Set
+from typing import Optional, Dict, Callable, Tuple, Iterable, Set, TYPE_CHECKING, cast
 
 import aiofiles
 import aiohttp
 from jinja2 import pass_context
 from jinja2.runtime import Context
 from reactives import reactive
+from reactives.factory.type import ReactiveInstance
 
 from betty.app import App, Extension
 from betty.asyncio import sync
 from betty.gui import GuiBuilder
-from betty.jinja2 import Jinja2Provider
+from betty.jinja2 import Jinja2Provider, Environment
 from betty.load import PostLoader
 from betty.locale import Localized, negotiate_locale
 from betty.media_type import MediaType
 from betty.model.ancestry import Link, HasLinks, Entity
+
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 
 class WikipediaError(BaseException):
@@ -44,7 +49,7 @@ def _parse_url(url: str) -> Tuple[str, str]:
     match = _URL_PATTERN.fullmatch(url)
     if match is None:
         raise NotAnEntryError
-    return match.groups()
+    return cast(Tuple[str, str], match.groups())
 
 
 class Entry(Localized):
@@ -146,7 +151,11 @@ class _Populator:
 
     async def populate(self) -> None:
         locales = set(map(lambda x: x.alias, self._app.project.configuration.locales))
-        await asyncio.gather(*[self._populate_entity(entity, locales) for entity in self._app.project.ancestry.entities])
+        await asyncio.gather(*[  # type: ignore
+            self._populate_entity(entity, locales)
+            for entity  # type: ignore
+            in self._app.project.ancestry.entities
+        ])
 
     async def _populate_entity(self, entity: Entity, locales: Set[str]) -> None:
         if not isinstance(entity, HasLinks):
@@ -206,7 +215,7 @@ class _Populator:
 
 
 @reactive
-class Wikipedia(Extension, Jinja2Provider, PostLoader, GuiBuilder):
+class Wikipedia(Extension, Jinja2Provider, PostLoader, GuiBuilder, ReactiveInstance):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__retriever = None
@@ -215,7 +224,7 @@ class Wikipedia(Extension, Jinja2Provider, PostLoader, GuiBuilder):
     async def post_load(self) -> None:
         await self._populator.populate()
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def _retriever(self) -> _Retriever:
         if self.__retriever is None:
@@ -226,7 +235,7 @@ class Wikipedia(Extension, Jinja2Provider, PostLoader, GuiBuilder):
     def _retriever(self) -> None:
         self.__retriever = None
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def _populator(self) -> _Populator:
         if self.__populator is None:
@@ -250,7 +259,7 @@ class Wikipedia(Extension, Jinja2Provider, PostLoader, GuiBuilder):
             None,
             await asyncio.gather(*[
                 self._filter_wikipedia_link(
-                    context.environment.app.locale,
+                    cast(Environment, context.environment).app.locale,
                     link,
                 )
                 for link
@@ -262,13 +271,13 @@ class Wikipedia(Extension, Jinja2Provider, PostLoader, GuiBuilder):
         try:
             entry_language, entry_name = _parse_url(link.url)
         except NotAnEntryError:
-            return
+            return None
         if negotiate_locale(locale, [entry_language]) is None:
-            return
+            return None
         try:
             return await self._retriever.get_entry(entry_language, entry_name)
         except RetrievalError:
-            return
+            return None
 
     @classmethod
     def assets_directory_path(cls) -> Optional[Path]:

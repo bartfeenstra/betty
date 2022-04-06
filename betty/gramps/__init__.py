@@ -1,4 +1,8 @@
-from typing import Optional, Type
+from typing import Optional, Type, TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 from PyQt6.QtWidgets import QWidget
 

@@ -1,7 +1,11 @@
 import logging
 from pathlib import Path
 from shutil import copy2
-from typing import Optional, Set, Type
+from typing import Optional, Set, Type, TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 from betty.app.extension import Extension
 from betty.generate import Generator

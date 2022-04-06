@@ -100,7 +100,7 @@ class _EntityTypeAssociationRegistryTest(TestCase):
 class SingleTypeEntityCollectionTest(TestCase):
     def test_pickle(self) -> None:
         entity = Entity()
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         sut.append(entity)
         unpickled_sut = pickle.loads(pickle.dumps(sut))
         self.assertEqual(1, len(unpickled_sut))
@@ -108,7 +108,7 @@ class SingleTypeEntityCollectionTest(TestCase):
 
     def test_copy(self) -> None:
         entity = Entity()
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         sut.append(entity)
         copied_sut = copy.copy(sut)
         self.assertEqual(1, len(copied_sut))
@@ -116,14 +116,14 @@ class SingleTypeEntityCollectionTest(TestCase):
 
     def test_deepcopy(self) -> None:
         entity = Entity()
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         sut.append(entity)
         copied_sut = copy.deepcopy(sut)
         self.assertEqual(1, len(copied_sut))
         self.assertEqual(entity.id, copied_sut[0].id)
 
     def test_prepend(self) -> None:
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         entity1 = Entity('1')
         entity2 = Entity('2')
         entity3 = Entity('3')
@@ -137,7 +137,7 @@ class SingleTypeEntityCollectionTest(TestCase):
         self.assertIs(entity3, sut['3'])
 
     def test_append(self) -> None:
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         entity1 = Entity()
         entity2 = Entity()
         entity3 = Entity()
@@ -149,7 +149,7 @@ class SingleTypeEntityCollectionTest(TestCase):
         self.assertSequenceEqual([entity3, entity2, entity1], sut)
 
     def test_remove(self) -> None:
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         entity1 = Entity()
         entity2 = Entity()
         entity3 = Entity()
@@ -159,7 +159,7 @@ class SingleTypeEntityCollectionTest(TestCase):
         self.assertSequenceEqual([entity1, entity3], sut)
 
     def test_replace(self) -> None:
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         entity1 = Entity()
         entity2 = Entity()
         entity3 = Entity()
@@ -171,7 +171,7 @@ class SingleTypeEntityCollectionTest(TestCase):
         self.assertSequenceEqual([entity4, entity5, entity6], sut)
 
     def test_clear(self) -> None:
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         entity1 = Entity()
         entity2 = Entity()
         entity3 = Entity()
@@ -180,7 +180,7 @@ class SingleTypeEntityCollectionTest(TestCase):
         self.assertSequenceEqual([], sut)
 
     def test_list(self) -> None:
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         entity1 = Entity()
         entity2 = Entity()
         entity3 = Entity()
@@ -190,7 +190,7 @@ class SingleTypeEntityCollectionTest(TestCase):
         self.assertIs(entity3, sut[2])
 
     def test_len(self) -> None:
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         entity1 = Entity()
         entity2 = Entity()
         entity3 = Entity()
@@ -198,7 +198,7 @@ class SingleTypeEntityCollectionTest(TestCase):
         self.assertEqual(3, len(sut))
 
     def test_iter(self) -> None:
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         entity1 = Entity()
         entity2 = Entity()
         entity3 = Entity()
@@ -206,7 +206,7 @@ class SingleTypeEntityCollectionTest(TestCase):
         self.assertSequenceEqual([entity1, entity2, entity3], list(sut))
 
     def test_getitem_by_index(self) -> None:
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         entity1 = Entity()
         entity2 = Entity()
         entity3 = Entity()
@@ -218,7 +218,7 @@ class SingleTypeEntityCollectionTest(TestCase):
             sut[3]
 
     def test_getitem_by_indices(self) -> None:
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         entity1 = Entity()
         entity2 = Entity()
         entity3 = Entity()
@@ -226,7 +226,7 @@ class SingleTypeEntityCollectionTest(TestCase):
         self.assertSequenceEqual([entity1, entity3], sut[0::2])
 
     def test_getitem_by_entity_id(self) -> None:
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         entity1 = Entity('1')
         entity2 = Entity('2')
         entity3 = Entity('3')
@@ -238,7 +238,7 @@ class SingleTypeEntityCollectionTest(TestCase):
             sut['4']
 
     def test_delitem_by_index(self) -> None:
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         entity1 = Entity()
         entity2 = Entity()
         entity3 = Entity()
@@ -249,7 +249,7 @@ class SingleTypeEntityCollectionTest(TestCase):
         self.assertSequenceEqual([entity1, entity3], sut)
 
     def test_delitem_by_indices(self) -> None:
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         entity1 = Entity()
         entity2 = Entity()
         entity3 = Entity()
@@ -260,7 +260,7 @@ class SingleTypeEntityCollectionTest(TestCase):
         self.assertSequenceEqual([entity2], sut)
 
     def test_delitem_by_entity(self) -> None:
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         entity1 = Entity()
         entity2 = Entity()
         entity3 = Entity()
@@ -271,7 +271,7 @@ class SingleTypeEntityCollectionTest(TestCase):
         self.assertSequenceEqual([entity1, entity3], sut)
 
     def test_delitem_by_entity_id(self) -> None:
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         entity1 = Entity('1')
         entity2 = Entity('2')
         entity3 = Entity('3')
@@ -282,7 +282,7 @@ class SingleTypeEntityCollectionTest(TestCase):
         self.assertSequenceEqual([entity1, entity3], sut)
 
     def test_contains_by_entity(self) -> None:
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         entity1 = Entity()
         entity2 = Entity()
         sut.append(entity1)
@@ -291,7 +291,7 @@ class SingleTypeEntityCollectionTest(TestCase):
         self.assertNotIn(entity2, sut)
 
     def test_contains_by_entity_id(self) -> None:
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         entity1 = Entity()
         entity2 = Entity()
         sut.append(entity1)
@@ -305,14 +305,14 @@ class SingleTypeEntityCollectionTest(TestCase):
         ([],),
     ])
     def test_contains_by_unsupported_typed(self, value: Any) -> None:
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         entity = Entity()
         sut.append(entity)
 
         self.assertNotIn(value, sut)
 
     def test_set_like_functionality(self) -> None:
-        sut = SingleTypeEntityCollection()
+        sut = SingleTypeEntityCollection(Entity)
         entity1 = Entity()
         entity2 = Entity()
         entity3 = Entity()
@@ -329,8 +329,8 @@ class SingleTypeEntityCollectionTest(TestCase):
         self.assertSequenceEqual([entity1, entity2, entity3, entity4, entity5, entity6, entity7, entity8, entity9], sut)
 
     def test_add(self) -> None:
-        sut1 = SingleTypeEntityCollection()
-        sut2 = SingleTypeEntityCollection()
+        sut1 = SingleTypeEntityCollection(Entity)
+        sut2 = SingleTypeEntityCollection(Entity)
         entity1 = Entity()
         entity2 = Entity()
         sut1.append(entity1)

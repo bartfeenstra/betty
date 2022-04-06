@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import hashlib
 import os
 from collections import deque
@@ -34,7 +36,7 @@ def hashfile(path: PathLike) -> str:
 
 class FileSystem:
     class _Open:
-        def __init__(self, fs: 'FileSystem', file_paths: Tuple[PathLike]):
+        def __init__(self, fs: FileSystem, file_paths: Tuple[PathLike]):
             self._fs = fs
             self._file_paths = file_paths
             self._file = None
