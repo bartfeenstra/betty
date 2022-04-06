@@ -1,24 +1,23 @@
 from __future__ import annotations
+
 import copy
 import functools
 import itertools
 import logging
-import os
 import re
 import traceback
 import webbrowser
-from collections import OrderedDict
 from contextlib import suppress
 from datetime import datetime
 from os import path
-from typing import Sequence, Type, Optional, Union, Callable, Any, List, TYPE_CHECKING
+from typing import Type, Union, Sequence, TYPE_CHECKING, List, Set, Optional, Callable, Any
 from urllib.parse import urlparse
 
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QCoreApplication, QMetaObject, Q_ARG
 from PyQt6.QtGui import QIcon, QFont, QAction, QCloseEvent
 from PyQt6.QtWidgets import QApplication, QFileDialog, QMainWindow, QVBoxLayout, QLabel, \
     QWidget, QPushButton, QMessageBox, QLineEdit, QCheckBox, QFormLayout, QHBoxLayout, QGridLayout, QLayout, \
-    QStackedLayout, QComboBox, QButtonGroup, QRadioButton
+    QStackedLayout, QComboBox, QButtonGroup, QRadioButton, QMenu
 from babel import Locale
 from babel.localedata import locale_identifiers
 from reactives import reactive, ReactorController
@@ -31,15 +30,15 @@ from betty.asyncio import sync
 from betty.config import from_file, to_file, ConfigurationError, APP_CONFIGURATION_FORMATS
 from betty.error import UserFacingError
 from betty.importlib import import_any
+from betty.locale import rfc_1766_to_bcp_47, bcp_47_to_rfc_1766, negotiate_locale, getdefaultlocale
 from betty.project import Configuration, LocaleConfiguration, LocalesConfiguration, ProjectExtensionConfiguration
-
 
 if TYPE_CHECKING:
     from betty.builtins import _
 
 
 def _get_configuration_file_filter() -> str:
-    return _('Betty configuration ({extensions})').format(extensions=' '.join(map(lambda format: f'*{format}', APP_CONFIGURATION_FORMATS)))
+    return _('Betty project configuration ({extensions})').format(extensions=' '.join(map(lambda format: f'*{format}', APP_CONFIGURATION_FORMATS)))
 
 
 class GuiBuilder:
@@ -128,7 +127,7 @@ class Error(QMessageBox):
         super().__init__(*args, **kwargs)
         self._close_parent = close_parent
         with App():
-            self.setWindowTitle(f'{_("Error")} - Betty')
+            self.setWindowTitle('{error} - Betty'.format(error=_("Error")))
         self.setText(message)
         Error._errors.append(self)
 
@@ -179,19 +178,92 @@ class Caption(Text):
 
 
 @reactive
+class TranslationsLocaleCollector(ReactiveInstance):
+    def __init__(self, app: App, allowed_locales: Set[str]):
+        super().__init__()
+        self._app = app
+        self._allowed_locales = allowed_locales
+
+        allowed_locale_names = []
+        for allowed_locale in allowed_locales:
+            allowed_locale_names.append((allowed_locale, Locale.parse(bcp_47_to_rfc_1766(allowed_locale)).get_display_name()))
+        allowed_locale_names = sorted(allowed_locale_names, key=lambda x: x[1])
+        # This is the operating system default, for which we'll set a label in self._set_translatables()
+        allowed_locale_names.insert(0, (None, None))
+
+        def _update_configuration_locale() -> None:
+            self._app.configuration.locale = self._configuration_locale.currentData()
+        self._configuration_locale = QComboBox()
+        for i, (locale, locale_name) in enumerate(allowed_locale_names):
+            self._configuration_locale.addItem(locale_name, locale)
+            if locale == self._app.configuration.locale:
+                self._configuration_locale.setCurrentIndex(i)
+        self._configuration_locale.currentIndexChanged.connect(_update_configuration_locale)
+        self._configuration_locale_label = QLabel()
+        self._configuration_locale_caption = Caption()
+
+        self._set_translatables()
+
+    @property
+    def locale(self) -> QComboBox:
+        return self._configuration_locale
+
+    @property
+    def rows(self):
+        return [
+            [self._configuration_locale_label, self._configuration_locale],
+            [self._configuration_locale_caption],
+        ]
+
+    @reactive(on_trigger_call=True)
+    def _set_translatables(self) -> None:
+        with self._app.acquire_locale():
+            self._configuration_locale.setItemText(0, _('Operating system default: {locale_name}').format(
+                locale_name=Locale.parse(bcp_47_to_rfc_1766(getdefaultlocale())).get_display_name(locale=bcp_47_to_rfc_1766(self._app.locale)),
+            ))
+            self._configuration_locale_label.setText(_('Locale'))
+            locale = self.locale.currentData()
+            if locale is None:
+                locale = getdefaultlocale()
+            translations_locale = negotiate_locale(
+                locale,
+                set(self._app.translations.locales),
+            )
+            if translations_locale is None:
+                self._configuration_locale_caption.setText(_('There are no translations for {locale_name}.').format(
+                    locale_name=Locale.parse(bcp_47_to_rfc_1766(locale)).get_display_name(locale=bcp_47_to_rfc_1766(self._app.locale)),
+                ))
+            else:
+                negotiated_locale_translations_coverage = self._app.translations.coverage(translations_locale)
+                if 'en-US' == translations_locale:
+                    negotiated_locale_translations_coverage_percentage = 100
+                else:
+                    negotiated_locale_translations_coverage_percentage = 100 / (negotiated_locale_translations_coverage[1] / negotiated_locale_translations_coverage[0])
+                self._configuration_locale_caption.setText(_('The translations for {locale_name} are {coverage_percentage}% complete.').format(
+                    locale_name=Locale.parse(bcp_47_to_rfc_1766(translations_locale)).get_display_name(locale=bcp_47_to_rfc_1766(self._app.locale)),
+                    coverage_percentage=round(negotiated_locale_translations_coverage_percentage)
+                ))
+
+
+@reactive
 class BettyWindow(QMainWindow, ReactiveInstance):
     width = NotImplemented
     height = NotImplemented
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, app: App, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+        self._app = app
         self.resize(self.width, self.height)
-        self.setWindowTitle(self.title)
+        self._set_window_title()
         self.setWindowIcon(QIcon(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'betty-512x512.png')))
         geometry = self.frameGeometry()
         geometry.moveCenter(QApplication.primaryScreen().availableGeometry().center())
         self.move(geometry.topLeft())
+
+    @reactive(on_trigger_call=True)
+    def _set_window_title(self) -> None:
+        with self._app.acquire_locale():
+            self.setWindowTitle(f'{self.title} - Betty')
 
     @property
     def title(self) -> str:
@@ -203,10 +275,13 @@ class BettyMainWindow(BettyWindow):
     height = 600
 
     def __init__(self, app: App, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._app = app
+        super().__init__(app, *args, **kwargs)
         self.setWindowIcon(QIcon(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'betty-512x512.png')))
         self._initialize_menu()
+
+    def show(self) -> None:
+        super().show()
+        self._set_translatables()
 
     @property
     def title(self) -> str:
@@ -217,38 +292,59 @@ class BettyMainWindow(BettyWindow):
 
         self.betty_menu = menu_bar.addMenu('&Betty')
 
-        new_project_action = QAction(_('New project...'), self)
-        new_project_action.setShortcut('Ctrl+N')
-        new_project_action.triggered.connect(lambda _: self.new_project())
-        self.betty_menu.addAction(new_project_action)
+        self.betty_menu.new_project_action = QAction(self)
+        self.betty_menu.new_project_action.setShortcut('Ctrl+N')
+        self.betty_menu.new_project_action.triggered.connect(lambda _: self.new_project())
+        self.betty_menu.addAction(self.betty_menu.new_project_action)
 
-        open_project_action = QAction(_('Open project...'), self)
-        open_project_action.setShortcut('Ctrl+O')
-        open_project_action.triggered.connect(lambda _: self.open_project())
-        self.betty_menu.addAction(open_project_action)
+        self.betty_menu.open_project_action = QAction(self)
+        self.betty_menu.open_project_action.setShortcut('Ctrl+O')
+        self.betty_menu.open_project_action.triggered.connect(lambda _: self.open_project())
+        self.betty_menu.addAction(self.betty_menu.open_project_action)
 
-        self.betty_menu._demo_action = QAction(_('View demo site...'), self)
+        self.betty_menu._demo_action = QAction(self)
         self.betty_menu._demo_action.triggered.connect(lambda _: self._demo())
         self.betty_menu.addAction(self.betty_menu._demo_action)
 
-        self.betty_menu.clear_caches_action = QAction(_('Clear all caches'), self)
+        self.betty_menu.open_application_configuration_action = QAction(self)
+        self.betty_menu.open_application_configuration_action.triggered.connect(lambda _: self.open_application_configuration())
+        self.betty_menu.addAction(self.betty_menu.open_application_configuration_action)
+
+        self.betty_menu.clear_caches_action = QAction(self)
         self.betty_menu.clear_caches_action.triggered.connect(lambda _: self.clear_caches())
         self.betty_menu.addAction(self.betty_menu.clear_caches_action)
 
-        exit_action = QAction(_('Exit'), self)
-        exit_action.setShortcut('Ctrl+Q')
-        exit_action.triggered.connect(QCoreApplication.quit)
-        self.betty_menu.addAction(exit_action)
+        self.betty_menu.exit_action = QAction(self)
+        self.betty_menu.exit_action.setShortcut('Ctrl+Q')
+        self.betty_menu.exit_action.triggered.connect(QCoreApplication.quit)
+        self.betty_menu.addAction(self.betty_menu.exit_action)
 
-        self.help_menu = menu_bar.addMenu('&' + _('Help'))
+        self.help_menu = QMenu()
+        menu_bar.addMenu(self.help_menu)
 
-        view_issues_action = QAction(_('Report bugs and request new features'), self)
-        view_issues_action.triggered.connect(lambda _: self.view_issues())
-        self.help_menu.addAction(view_issues_action)
+        self.help_menu.view_issues_action = QAction(self)
+        self.help_menu.view_issues_action.triggered.connect(lambda _: self.view_issues())
+        self.help_menu.addAction(self.help_menu.view_issues_action)
 
-        self.help_menu.about_action = QAction(_('About Betty'), self)
+        self.help_menu.about_action = QAction(self)
         self.help_menu.about_action.triggered.connect(lambda _: self._about_betty())
         self.help_menu.addAction(self.help_menu.about_action)
+
+    @reactive(on_trigger_call=True)
+    def _set_translatables(self) -> None:
+        with self._app.acquire_locale():
+            self._do_set_translatables()
+
+    def _do_set_translatables(self) -> None:
+        self.betty_menu.new_project_action.setText(_('New project...'))
+        self.betty_menu.open_project_action.setText(_('Open project...'))
+        self.betty_menu._demo_action.setText(_('View demo site...'))
+        self.betty_menu.open_application_configuration_action.setText(_('Settings...'))
+        self.betty_menu.clear_caches_action.setText(_('Clear all caches'))
+        self.betty_menu.exit_action.setText(_('Exit'))
+        self.help_menu.setTitle('&' + _('Help'))
+        self.help_menu.view_issues_action.setText(_('Report bugs and request new features'))
+        self.help_menu.about_action.setText(_('About Betty'))
 
     @catch_exceptions
     def view_issues(self) -> None:
@@ -256,7 +352,7 @@ class BettyMainWindow(BettyWindow):
 
     @catch_exceptions
     def _about_betty(self) -> None:
-        about_window = _AboutBettyWindow(self)
+        about_window = _AboutBettyWindow(self._app, self)
         about_window.show()
 
     @catch_exceptions
@@ -300,6 +396,35 @@ class BettyMainWindow(BettyWindow):
     async def clear_caches(self) -> None:
         await cache.clear()
 
+    @catch_exceptions
+    def open_application_configuration(self) -> None:
+        window = _ApplicationConfiguration(self._app, self)
+        window.show()
+
+
+class _ApplicationConfiguration(BettyWindow):
+    width = 400
+    height = 150
+
+    def __init__(self, app: App, *args, **kwargs):
+        super().__init__(app, *args, **kwargs)
+
+        self._form = QFormLayout()
+        form_widget = QWidget()
+        form_widget.setLayout(self._form)
+        self.setCentralWidget(form_widget)
+        locale_collector = TranslationsLocaleCollector(self._app, set(self._app.translations.locales))
+        for row in locale_collector.rows:
+            self._form.addRow(*row)
+
+    @property
+    def title(self) -> str:
+        return _('Configuration')
+
+    @property
+    def extension_types(self) -> Sequence[Type[Extension]]:
+        return [import_any(extension_name) for extension_name in self._EXTENSION_NAMES]
+
 
 class _WelcomeText(Text):
     pass
@@ -333,35 +458,45 @@ class _WelcomeWindow(BettyMainWindow):
         central_widget.setLayout(central_layout)
         self.setCentralWidget(central_widget)
 
-        welcome = _WelcomeTitle(_('Welcome to Betty'))
-        welcome.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        central_layout.addWidget(welcome)
+        self._welcome = _WelcomeTitle()
+        self._welcome.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        central_layout.addWidget(self._welcome)
 
-        welcome_caption = _WelcomeText(_('Betty is a static site generator for your <a href="{gramps_url}">Gramps</a> and <a href="{gedcom_url}">GEDCOM</a> family trees.').format(gramps_url='https://gramps-project.org/', gedcom_url='https://en.wikipedia.org/wiki/GEDCOM'))
-        central_layout.addWidget(welcome_caption)
+        self._welcome_caption = _WelcomeText()
+        central_layout.addWidget(self._welcome_caption)
 
-        project_instruction = _WelcomeHeading(_('Work on a new or existing site of your own'))
-        project_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        central_layout.addWidget(project_instruction)
+        self._project_instruction = _WelcomeHeading()
+        self._project_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        central_layout.addWidget(self._project_instruction)
 
         project_layout = QHBoxLayout()
         central_layout.addLayout(project_layout)
 
-        self.open_project_button = _WelcomeAction(_('Open an existing project'), self)
+        self.open_project_button = _WelcomeAction(self)
         self.open_project_button.released.connect(self.open_project)
         project_layout.addWidget(self.open_project_button)
 
-        self.new_project_button = _WelcomeAction(_('Create a new project'), self)
+        self.new_project_button = _WelcomeAction(self)
         self.new_project_button.released.connect(self.new_project)
         project_layout.addWidget(self.new_project_button)
 
-        demo_instruction = _WelcomeHeading(_('View a demonstration of what a Betty site looks like'))
-        demo_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        central_layout.addWidget(demo_instruction)
+        self._demo_instruction = _WelcomeHeading()
+        self._demo_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        central_layout.addWidget(self._demo_instruction)
 
-        self.demo_button = _WelcomeAction(_('View a demo site'), self)
+        self.demo_button = _WelcomeAction(self)
         self.demo_button.released.connect(self._demo)
         central_layout.addWidget(self.demo_button)
+
+    def _do_set_translatables(self) -> None:
+        super()._do_set_translatables()
+        self._welcome.setText(_('Welcome to Betty'))
+        self._welcome_caption.setText(_('Betty is a static site generator for your <a href="{gramps_url}">Gramps</a> and <a href="{gedcom_url}">GEDCOM</a> family trees.').format(gramps_url='https://gramps-project.org/', gedcom_url='https://en.wikipedia.org/wiki/GEDCOM'))
+        self._project_instruction.setText(_('Work on a new or existing site of your own'))
+        self.open_project_button.setText(_('Open an existing project'))
+        self.new_project_button.setText(_('Create a new project'))
+        self._demo_instruction.setText(_('View a demonstration of what a Betty site looks like'))
+        self.demo_button.setText(_('View a demo site'))
 
 
 class _PaneButton(QPushButton):
@@ -375,7 +510,8 @@ class _PaneButton(QPushButton):
         self.released.connect(lambda: panes_layout.setCurrentWidget(pane))
 
 
-class _ProjectGeneralConfigurationPane(QWidget):
+@reactive
+class _ProjectGeneralConfigurationPane(QWidget, ReactiveInstance):
     def __init__(self, app: App, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._app = app
@@ -390,13 +526,16 @@ class _ProjectGeneralConfigurationPane(QWidget):
         self._build_clean_urls()
         self._build_content_negotiation()
 
+        self._set_translatables()
+
     def _build_title(self) -> None:
         def _update_configuration_title(title: str) -> None:
             self._app.project.configuration.title = title
         self._configuration_title = QLineEdit()
         self._configuration_title.setText(self._app.project.configuration.title)
         self._configuration_title.textChanged.connect(_update_configuration_title)
-        self._form.addRow(_('Title'), self._configuration_title)
+        self._configuration_title_label = QLabel()
+        self._form.addRow(self._configuration_title_label, self._configuration_title)
 
     def _build_author(self) -> None:
         def _update_configuration_author(author: str) -> None:
@@ -404,9 +543,8 @@ class _ProjectGeneralConfigurationPane(QWidget):
         self._configuration_author = QLineEdit()
         self._configuration_author.setText(self._app.project.configuration.author)
         self._configuration_author.textChanged.connect(_update_configuration_author)
-        self._form.addRow(_('Author'), self._configuration_author)
-
-        self._configuration_url = QLineEdit()
+        self._configuration_author_label = QLabel()
+        self._form.addRow(self._configuration_author_label, self._configuration_author)
 
     def _build_url(self) -> None:
         def _update_configuration_url(url: str) -> None:
@@ -424,9 +562,11 @@ class _ProjectGeneralConfigurationPane(QWidget):
             self._app.project.configuration.base_url = base_url
             self._app.project.configuration.root_path = root_path
             mark_valid(self._configuration_url)
+        self._configuration_url = QLineEdit()
         self._configuration_url.setText(self._app.project.configuration.base_url + self._app.project.configuration.root_path)
         self._configuration_url.textChanged.connect(_update_configuration_url)
-        self._form.addRow(_('URL'), self._configuration_url)
+        self._configuration_url_label = QLabel()
+        self._form.addRow(self._configuration_url_label, self._configuration_url)
 
     def _build_lifetime_threshold(self) -> None:
         def _update_configuration_lifetime_threshold(lifetime_threshold: str) -> None:
@@ -443,42 +583,63 @@ class _ProjectGeneralConfigurationPane(QWidget):
         self._configuration_lifetime_threshold.setFixedWidth(32)
         self._configuration_lifetime_threshold.setText(str(self._app.project.configuration.lifetime_threshold))
         self._configuration_lifetime_threshold.textChanged.connect(_update_configuration_lifetime_threshold)
-        self._form.addRow(_('Lifetime threshold'), self._configuration_lifetime_threshold)
-        self._form.addRow(Caption(_('The age at which people are presumed dead.')))
+        self._configuration_lifetime_threshold_label = QLabel()
+        self._form.addRow(self._configuration_lifetime_threshold_label, self._configuration_lifetime_threshold)
+        self._configuration_lifetime_threshold_caption = Caption()
+        self._form.addRow(self._configuration_lifetime_threshold_caption)
 
     def _build_mode(self) -> None:
         def _update_configuration_debug(mode: bool) -> None:
             self._app.project.configuration.debug = mode
-        self._development_debug = QCheckBox(_('Debugging mode'))
+        self._development_debug = QCheckBox()
         self._development_debug.setChecked(self._app.project.configuration.debug)
         self._development_debug.toggled.connect(_update_configuration_debug)
         self._form.addRow(self._development_debug)
-        self._form.addRow(Caption(_('Output more detailed logs and disable optimizations that make debugging harder.')))
+        self._development_debug_caption = Caption()
+        self._form.addRow(self._development_debug_caption)
 
     def _build_clean_urls(self) -> None:
         def _update_configuration_clean_urls(clean_urls: bool) -> None:
             self._app.project.configuration.clean_urls = clean_urls
             if not clean_urls:
                 self._content_negotiation.setChecked(False)
-        self._clean_urls = QCheckBox(_('Clean URLs'))
+        self._clean_urls = QCheckBox()
         self._clean_urls.setChecked(self._app.project.configuration.clean_urls)
         self._clean_urls.toggled.connect(_update_configuration_clean_urls)
         self._form.addRow(self._clean_urls)
-        self._form.addRow(Caption(_('URLs look like <code>/path</code> instead of <code>/path/index.html</code>. This requires a web server that supports it.')))
+        self._clean_urls_caption = Caption()
+        self._form.addRow(self._clean_urls_caption)
 
     def _build_content_negotiation(self) -> None:
         def _update_configuration_content_negotiation(content_negotiation: bool) -> None:
             self._app.project.configuration.content_negotiation = content_negotiation
             if content_negotiation:
                 self._clean_urls.setChecked(True)
-        self._content_negotiation = QCheckBox(_('Content negotiation'))
+        self._content_negotiation = QCheckBox()
         self._content_negotiation.setChecked(self._app.project.configuration.content_negotiation)
         self._content_negotiation.toggled.connect(_update_configuration_content_negotiation)
         self._form.addRow(self._content_negotiation)
-        self._form.addRow(Caption(_('Decide the correct page variety to serve users depending on their own preferences. This requires a web server that supports it.')))
+        self._content_negotiation_caption = Caption()
+        self._form.addRow(self._content_negotiation_caption)
+
+    @reactive(on_trigger_call=True)
+    def _set_translatables(self) -> None:
+        with self._app.acquire_locale():
+            self._configuration_author_label.setText(_('Author'))
+            self._configuration_url_label.setText(_('URL'))
+            self._configuration_title_label.setText(_('Title'))
+            self._configuration_lifetime_threshold_label.setText(_('Lifetime threshold'))
+            self._configuration_lifetime_threshold_caption.setText(_('The age at which people are presumed dead.'))
+            self._development_debug.setText(_('Debugging mode'))
+            self._development_debug_caption.setText(_('Output more detailed logs and disable optimizations that make debugging harder.'))
+            self._clean_urls.setText(_('Clean URLs'))
+            self._clean_urls_caption.setText(_('URLs look like <code>/path</code> instead of <code>/path/index.html</code>. This requires a web server that supports it.'))
+            self._content_negotiation.setText(_('Content negotiation'))
+            self._content_negotiation_caption.setText(_('Decide the correct page variety to serve users depending on their own preferences. This requires a web server that supports it.'))
 
 
-class _ProjectThemeConfigurationPane(QWidget):
+@reactive
+class _ProjectThemeConfigurationPane(QWidget, ReactiveInstance):
     def __init__(self, app: App, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._app = app
@@ -487,14 +648,24 @@ class _ProjectThemeConfigurationPane(QWidget):
         self.setLayout(self._form)
         self._build_background_image_id()
 
+        self._set_translatables()
+
     def _build_background_image_id(self) -> None:
         def _update_configuration_background_image_id(background_image_id: str) -> None:
             self._app.project.configuration.theme.background_image_id = background_image_id
         self._background_image_id = QLineEdit()
         self._background_image_id.setText(self._app.project.configuration.theme.background_image_id)
         self._background_image_id.textChanged.connect(_update_configuration_background_image_id)
-        self._form.addRow(_('Background image ID'), self._background_image_id)
-        self._form.addRow(Caption(_('The ID of the file entity whose (image) file to use for page backgrounds if a page does not provide any image media itself.')))
+        self._background_image_id_label = QLabel()
+        self._form.addRow(self._background_image_id_label, self._background_image_id)
+        self._background_image_id_caption = Caption()
+        self._form.addRow(self._background_image_id_caption)
+
+    @reactive(on_trigger_call=True)
+    def _set_translatables(self) -> None:
+        with self._app.acquire_locale():
+            self._background_image_id_label.setText(_('Background image ID'))
+            self._background_image_id_caption.setText(_('The ID of the file entity whose (image) file to use for page backgrounds if a page does not provide any image media itself.'))
 
 
 @reactive
@@ -510,9 +681,11 @@ class _ProjectLocalizationConfigurationPane(QWidget, ReactiveInstance):
 
         self._build_locales_configuration()
 
-        self._add_locale_button = QPushButton(_('Add a locale'))
+        self._add_locale_button = QPushButton()
         self._add_locale_button.released.connect(self._add_locale)
         self._layout.addWidget(self._add_locale_button, 1)
+
+        self._set_translatables()
 
     @reactive(on_trigger_call=True)
     def _build_locales_configuration(self) -> None:
@@ -534,12 +707,12 @@ class _ProjectLocalizationConfigurationPane(QWidget, ReactiveInstance):
 
         for i, locale_configuration in enumerate(sorted(
                 self._app.project.configuration.locales,
-                key=lambda x: Locale.parse(x.locale, '-').get_display_name(),
+                key=lambda x: Locale.parse(bcp_47_to_rfc_1766(x.locale)).get_display_name(),
         )):
             self._build_locale_configuration(locale_configuration, i)
 
     def _build_locale_configuration(self, locale_configuration: LocaleConfiguration, i: int) -> None:
-        self._locales_configuration_widget._default_buttons[locale_configuration.locale] = QRadioButton(Locale.parse(locale_configuration.locale, '-').get_display_name(locale=self._app.locale.replace('-', '_')))
+        self._locales_configuration_widget._default_buttons[locale_configuration.locale] = QRadioButton()
         self._locales_configuration_widget._default_buttons[locale_configuration.locale].setChecked(locale_configuration == self._app.project.configuration.locales.default)
 
         def _update_locales_configuration_default():
@@ -552,14 +725,24 @@ class _ProjectLocalizationConfigurationPane(QWidget, ReactiveInstance):
         if len(self._app.project.configuration.locales) > 1 and locale_configuration != self._app.project.configuration.locales.default_locale:
             def _remove_locale() -> None:
                 del self._app.project.configuration.locales[locale_configuration.locale]
-            self._locales_configuration_widget._remove_buttons[locale_configuration.locale] = QPushButton(_('Remove'))
+            self._locales_configuration_widget._remove_buttons[locale_configuration.locale] = QPushButton()
             self._locales_configuration_widget._remove_buttons[locale_configuration.locale].released.connect(_remove_locale)
             self._locales_configuration_layout.addWidget(self._locales_configuration_widget._remove_buttons[locale_configuration.locale], i, 1)
         else:
             self._locales_configuration_widget._remove_buttons[locale_configuration.locale] = None
 
+    @reactive(on_trigger_call=True)
+    def _set_translatables(self) -> None:
+        with self._app.acquire_locale():
+            self._add_locale_button.setText(_('Add a locale'))
+            for locale, button in self._locales_configuration_widget._default_buttons.items():
+                button.setText(Locale.parse(bcp_47_to_rfc_1766(locale)).get_display_name(locale=bcp_47_to_rfc_1766(self._app.locale)))
+            for button in self._locales_configuration_widget._remove_buttons.values():
+                if button is not None:
+                    button.setText(_('Remove'))
+
     def _add_locale(self):
-        window = _AddLocaleWindow(self._app.project.configuration.locales, self)
+        window = _AddLocaleWindow(self._app, self._app.project.configuration.locales, self)
         window.show()
 
 
@@ -567,8 +750,8 @@ class _AddLocaleWindow(BettyWindow):
     width = 500
     height = 250
 
-    def __init__(self, locales_configuration: LocalesConfiguration, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, app: App, locales_configuration: LocalesConfiguration, *args, **kwargs):
+        super().__init__(app, *args, **kwargs)
         self._locales_configuration = locales_configuration
 
         self._layout = QFormLayout()
@@ -576,19 +759,15 @@ class _AddLocaleWindow(BettyWindow):
         self._widget.setLayout(self._layout)
         self.setCentralWidget(self._widget)
 
-        self._locales = OrderedDict(sorted(
-            {babel_locale.replace('_', '-'): Locale.parse(babel_locale).get_display_name() for babel_locale in locale_identifiers()}.items(),
-            key=lambda x: x[1]
-        ))
-
-        self._locale = QComboBox()
-        for locale, locale_name in self._locales.items():
-            self._locale.addItem(locale_name, locale)
-        self._layout.addRow(self._locale)
+        self._locale_collector = TranslationsLocaleCollector(self._app, set(map(rfc_1766_to_bcp_47, locale_identifiers())))
+        for row in self._locale_collector.rows:
+            self._layout.addRow(*row)
 
         self._alias = QLineEdit()
-        self._layout.addRow(_('Alias'), self._alias)
-        self._layout.addRow(Caption(_('An optional alias is used instead of the locale code to identify this locale, such as in URLs. If US English is the only English language variant on your site, you may want to alias its language code from <code>en-US</code> to <code>en</code>, for instance.')))
+        self._alias_label = QLabel()
+        self._layout.addRow(self._alias_label, self._alias)
+        self._alias_caption = Caption()
+        self._layout.addRow(self._alias_caption)
 
         buttons_layout = QHBoxLayout()
         self._layout.addRow(buttons_layout)
@@ -601,13 +780,21 @@ class _AddLocaleWindow(BettyWindow):
         self._cancel.released.connect(self.close)
         buttons_layout.addWidget(self._cancel)
 
+        self._set_translatables()
+
+    @reactive(on_trigger_call=True)
+    def _set_translatables(self) -> None:
+        with self._app.acquire_locale():
+            self._alias_label.setText(_('Alias'))
+            self._alias_caption.setText(_('An optional alias is used instead of the locale code to identify this locale, such as in URLs. If US English is the only English language variant on your site, you may want to alias its language code from <code>en-US</code> to <code>en</code>, for instance.'))
+
     @property
     def title(self) -> str:
         return _('Add a locale')
 
     @catch_exceptions
     def _save_and_close_locale(self) -> None:
-        locale = self._locale.currentData()
+        locale = self._locale_collector.locale.currentData()
         alias = self._alias.text().strip()
         if alias == '':
             alias = None
@@ -620,10 +807,12 @@ class _AddLocaleWindow(BettyWindow):
         self.close()
 
 
-class _ProjectExtensionConfigurationPane(QWidget):
+@reactive
+class _ProjectExtensionConfigurationPane(QWidget, ReactiveInstance):
     def __init__(self, app: App, extension_type: Type[Union[Extension, GuiBuilder]], *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._app = app
+        self._extension_type = extension_type
 
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -632,7 +821,8 @@ class _ProjectExtensionConfigurationPane(QWidget):
         enable_layout = QFormLayout()
         layout.addLayout(enable_layout)
 
-        enable_layout.addRow(Text(extension_type.gui_description()))
+        self._extension_description = Text()
+        enable_layout.addRow(self._extension_description)
 
         @catch_exceptions
         def _update_enabled(enabled: bool) -> None:
@@ -655,30 +845,33 @@ class _ProjectExtensionConfigurationPane(QWidget):
                     extension_gui_widget.setParent(None)
                     del extension_gui_widget
 
-        extension_enabled = QCheckBox(_('Enable {extension}').format(extension=extension_type.label()))
-        extension_enabled.setChecked(extension_type in self._app.extensions)
-        extension_enabled.setDisabled(extension_type in itertools.chain([enabled_extension_type.depends_on() for enabled_extension_type in self._app.extensions.flatten()]))
-        extension_enabled.toggled.connect(_update_enabled)
-        enable_layout.addRow(extension_enabled)
+        self._extension_enabled = QCheckBox()
+        self._extension_enabled.setChecked(extension_type in self._app.extensions)
+        self._extension_enabled.setDisabled(extension_type in itertools.chain([enabled_extension_type.depends_on() for enabled_extension_type in self._app.extensions.flatten()]))
+        self._extension_enabled.toggled.connect(_update_enabled)
+        enable_layout.addRow(self._extension_enabled)
 
         if extension_type in self._app.extensions:
             extension_gui_widget = self._app.extensions[extension_type].gui_build()
             if extension_gui_widget is not None:
                 layout.addWidget(extension_gui_widget)
 
+        self._set_translatables()
+
+    @reactive(on_trigger_call=True)
+    def _set_translatables(self) -> None:
+        with self._app.acquire_locale():
+            self._extension_description.setText(self._extension_type.gui_description())
+            self._extension_enabled.setText(_('Enable {extension}').format(extension=self._extension_type.label()))
+
 
 class ProjectWindow(BettyMainWindow):
-    @catch_exceptions
     def __init__(self, app: App, configuration_file_path: str, *args, **kwargs):
         super().__init__(app, *args, **kwargs)
         with open(configuration_file_path) as f:
             from_file(f, self._app.project.configuration)
-        self._app.project.configuration.react.react_weakref(self._save_configuration)
+        self._app.project.configuration.configuration_file_path = configuration_file_path
         self._configuration_file_path = configuration_file_path
-
-        with open(self._configuration_file_path) as f:
-            from_file(f, self._app.project.configuration)
-        self._app.project.configuration.react.react_weakref(self._save_configuration)
 
         self._set_window_title()
 
@@ -695,25 +888,38 @@ class ProjectWindow(BettyMainWindow):
 
         self._general_configuration_pane = _ProjectGeneralConfigurationPane(self._app)
         panes_layout.addWidget(self._general_configuration_pane)
-        pane_selectors_layout.addWidget(_PaneButton(pane_selectors_layout, panes_layout, self._general_configuration_pane, _('General'), self))
+        self._general_configuration_pane_selector = _PaneButton(pane_selectors_layout, panes_layout, self._general_configuration_pane, self)
+        pane_selectors_layout.addWidget(self._general_configuration_pane_selector)
 
         self._theme_configuration_pane = _ProjectThemeConfigurationPane(self._app)
         panes_layout.addWidget(self._theme_configuration_pane)
-        pane_selectors_layout.addWidget(_PaneButton(pane_selectors_layout, panes_layout, self._theme_configuration_pane, _('Theme'), self))
+        self._theme_configuration_pane_selector = _PaneButton(pane_selectors_layout, panes_layout, self._theme_configuration_pane, self)
+        pane_selectors_layout.addWidget(self._theme_configuration_pane_selector)
 
         self._localization_configuration_pane = _ProjectLocalizationConfigurationPane(self._app)
         panes_layout.addWidget(self._localization_configuration_pane)
-        pane_selectors_layout.addWidget(_PaneButton(pane_selectors_layout, panes_layout, self._localization_configuration_pane, _('Localization'), self))
+        self._localization_configuration_pane_selector = _PaneButton(pane_selectors_layout, panes_layout, self._localization_configuration_pane, self)
+        pane_selectors_layout.addWidget(self._localization_configuration_pane_selector)
 
+        self._extension_configuration_pane_selectors = {}
         for extension_type in discover_extension_types():
             if issubclass(extension_type, GuiBuilder):
                 extension_pane = _ProjectExtensionConfigurationPane(self._app, extension_type)
                 panes_layout.addWidget(extension_pane)
-                pane_selectors_layout.addWidget(_PaneButton(pane_selectors_layout, panes_layout, extension_pane, extension_type.label(), self))
+                self._extension_configuration_pane_selectors[extension_type] = _PaneButton(pane_selectors_layout, panes_layout, extension_pane, self)
+                pane_selectors_layout.addWidget(self._extension_configuration_pane_selectors[extension_type])
 
-    def _save_configuration(self) -> None:
-        with open(self._configuration_file_path, 'w') as f:
-            to_file(f, self._app.project.configuration)
+    def _do_set_translatables(self) -> None:
+        super()._do_set_translatables()
+        self.project_menu.setTitle('&' + _('Project'))
+        self.project_menu.save_project_as_action.setText(_('Save this project as...'))
+        self.project_menu.generate_action.setText(_('Generate site'))
+        self.project_menu.serve_action.setText(_('Serve site'))
+        self._general_configuration_pane_selector.setText(_('General'))
+        self._theme_configuration_pane_selector.setText(_('Theme'))
+        self._localization_configuration_pane_selector.setText(_('Localization'))
+        for extension_type in self._extension_configuration_pane_selectors:
+            self._extension_configuration_pane_selectors[extension_type].setText(extension_type.label())
 
     @reactive(on_trigger_call=True)
     def _set_window_title(self) -> None:
@@ -728,20 +934,21 @@ class ProjectWindow(BettyMainWindow):
 
         menu_bar = self.menuBar()
 
-        self.project_menu = menu_bar.addMenu('&' + _('Project'))
+        self.project_menu = QMenu()
+        menu_bar.addMenu(self.project_menu)
         menu_bar.insertMenu(self.help_menu.menuAction(), self.project_menu)
 
-        self.project_menu.save_project_as_action = QAction(_('Save this project as...'), self)
+        self.project_menu.save_project_as_action = QAction(self)
         self.project_menu.save_project_as_action.setShortcut('Ctrl+Shift+S')
         self.project_menu.save_project_as_action.triggered.connect(lambda _: self._save_project_as())
         self.project_menu.addAction(self.project_menu.save_project_as_action)
 
-        self.project_menu.generate_action = QAction(_('Generate site'), self)
+        self.project_menu.generate_action = QAction(self)
         self.project_menu.generate_action.setShortcut('Ctrl+G')
         self.project_menu.generate_action.triggered.connect(lambda _: self._generate())
         self.project_menu.addAction(self.project_menu.generate_action)
 
-        self.project_menu.serve_action = QAction(_('Serve site'), self)
+        self.project_menu.serve_action = QAction(self)
         self.project_menu.serve_action.setShortcut('Ctrl+Alt+S')
         self.project_menu.serve_action.triggered.connect(lambda _: self._serve())
         self.project_menu.addAction(self.project_menu.serve_action)
@@ -754,9 +961,7 @@ class ProjectWindow(BettyMainWindow):
             '',
             _get_configuration_file_filter(),
         )
-        os.makedirs(path.dirname(configuration_file_path))
-        with open(configuration_file_path, mode='w') as f:
-            to_file(f, self._app.project.configuration)
+        self._app.project.configuration.configuration_file_path = configuration_file_path
 
     @catch_exceptions
     def _generate(self) -> None:
@@ -842,7 +1047,7 @@ class _GenerateWindow(BettyWindow):
     height = 100
 
     def __init__(self, app: App, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setWindowFlags(self.windowFlags() ^ Qt.WindowType.WindowCloseButtonHint)
@@ -868,7 +1073,6 @@ class _GenerateWindow(BettyWindow):
         self._serve_button.released.connect(self._serve)
         button_layout.addWidget(self._serve_button)
 
-        self._app = app
         self._logging_handler = LogRecordViewerHandler(self._log_record_viewer)
         self._thread = _GenerateThread(copy.copy(self._app), self)
         self._thread.finished.connect(self._finish_generate)
@@ -929,8 +1133,7 @@ class _ServeWindow(BettyWindow):
     _instance = None
 
     def __init__(self, app: App, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._app = app
+        super().__init__(app, *args, **kwargs)
 
         self._thread = None
         self._server = NotImplemented
@@ -1030,10 +1233,10 @@ class _ServeDemoWindow(_ServeWindow):
     get_instance() method.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, app: App, *args, **kwargs):
         from betty import demo
 
-        super().__init__(*args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
         self._server = demo.DemoServer()
 
@@ -1049,16 +1252,22 @@ class _AboutBettyWindow(BettyWindow):
     width = 500
     height = 100
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, app: App, *args, **kwargs):
+        super().__init__(app, *args, **kwargs)
 
-        label = Text(''.join(map(lambda x: '<p>%s</p>' % x, [
-            _('Version: {version}').format(version=about.version()),
-            _('Copyright 2019-{year} <a href="twitter.com/bartFeenstra">Bart Feenstra</a> & contributors. Betty is made available to you under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License, Version 3</a> (GPLv3).').format(year=datetime.now().year),
-            _('Follow Betty on <a href="https://twitter.com/Betty_Project">Twitter</a> and <a href="https://github.com/bartfeenstra/betty">Github</a>.'),
-        ])))
-        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.setCentralWidget(label)
+        self._label = Text()
+        self._label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setCentralWidget(self._label)
+        self._set_translatables()
+
+    @reactive(on_trigger_call=True)
+    def _set_translatables(self) -> None:
+        with self._app.acquire_locale():
+            self._label.setText(''.join(map(lambda x: '<p>%s</p>' % x, [
+                _('Version: {version}').format(version=about.version()),
+                _('Copyright 2019-{year} <a href="twitter.com/bartFeenstra">Bart Feenstra</a> & contributors. Betty is made available to you under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License, Version 3</a> (GPLv3).').format(year=datetime.now().year),
+                _('Follow Betty on <a href="https://twitter.com/Betty_Project">Twitter</a> and <a href="https://github.com/bartfeenstra/betty">Github</a>.'),
+            ])))
 
     @property
     def title(self) -> str:

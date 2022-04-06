@@ -11,7 +11,8 @@ from betty.app import App
 from betty.config import ConfigurationError, to_file
 from betty.gui import BettyMainWindow, _WelcomeWindow, ProjectWindow, _AboutBettyWindow, ExceptionError, \
     _AddLocaleWindow, _GenerateWindow, _ServeAppWindow, _ServeDemoWindow
-from betty.project import LocaleConfiguration, Configuration
+from betty.locale import bcp_47_to_rfc_1766
+from betty.project import Configuration, LocaleConfiguration
 from betty.tests import patch_cache
 
 
@@ -223,7 +224,7 @@ async def test_project_window_localization_configuration_add_locale(qtbot, asser
 
         locale = 'nl-NL'
         alias = 'nl'
-        add_locale_window._locale.setCurrentText(Locale.parse(locale, '-').get_display_name())
+        add_locale_window._locale_collector.locale.setCurrentText(Locale.parse(bcp_47_to_rfc_1766(locale)).get_display_name())
         add_locale_window._alias.setText(alias)
 
         qtbot.mouseClick(add_locale_window._save_and_close, Qt.MouseButton.LeftButton)

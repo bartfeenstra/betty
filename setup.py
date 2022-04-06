@@ -51,6 +51,7 @@ SETUP = {
         'markupsafe ~= 2.1.1',
         'orderedset ~= 2.0.3',
         'pdf2image ~= 1.16.0',
+        'polib ~= 1.1.1',
         'PyQt6 ~= 6.3.0',
         'python-resize-image ~= 1.1.20',
         'pyyaml ~= 6.0.0',

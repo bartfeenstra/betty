@@ -14,6 +14,7 @@ from babel import Locale
 from jinja2 import Environment, TemplateNotFound
 
 from betty.json import JSONEncoder
+from betty.locale import bcp_47_to_rfc_1766
 from betty.model.ancestry import File, Person, Place, Event, Citation, Source, Note
 from betty.openapi import build_specification
 from betty.app import App
@@ -89,7 +90,7 @@ async def _generate(app: App) -> None:
             # Batch all coroutines to reduce the risk of "too many open files" errors.
             for i in range(0, len(coroutines), _GENERATE_CONCURRENCY):
                 await asyncio.gather(*coroutines[i:i + _GENERATE_CONCURRENCY])
-            locale_label = Locale.parse(locale, '-').get_display_name(locale=app.project.configuration.locales.default_locale.locale.replace('-', '_'))
+            locale_label = Locale.parse(bcp_47_to_rfc_1766(locale)).get_display_name(locale=bcp_47_to_rfc_1766(app.locale))
             logger.info(_('Generated pages for {file_count} files in {locale}.').format(file_count=len(app.project.ancestry.entities[File]), locale=locale_label))
             logger.info(_('Generated pages for {person_count} people in {locale}.').format(person_count=len(app.project.ancestry.entities[Person]), locale=locale_label))
             logger.info(_('Generated pages for {place_count} places in {locale}.').format(place_count=len(app.project.ancestry.entities[Place]), locale=locale_label))

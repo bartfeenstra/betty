@@ -52,10 +52,10 @@ After installation, Betty can be used via the `betty` command:
 Usage: betty [OPTIONS] COMMAND [ARGS]...
 
 Options:
-  -c, --configuration TEXT  The path to a Betty configuration file. Defaults
-                            to betty.json|yaml|yml in the current working
-                            directory. This will make additional commands
-                            available.
+  -c, --configuration TEXT  The path to a Betty project configuration file.
+                            Defaults to betty.json|yaml|yml in the current
+                            working directory. This will make additional
+                            commands available.
   --version                 Show the version and exit.
   --help                    Show this message and exit.
 

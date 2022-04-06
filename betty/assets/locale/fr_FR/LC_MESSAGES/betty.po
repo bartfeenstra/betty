@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-19 17:48+0100\n"
+"POT-Creation-Date: 2022-04-19 18:44+0100\n"
 "PO-Revision-Date: 2020-11-27 19:49+0100\n"
 "Last-Translator: \n"
 "Language: fr\n"
@@ -50,7 +50,7 @@ msgid ""
 " this anything and put this anywhere, but a good start is to call it "
 "<code>assets</code> and put it in the same directory as your Betty "
 "configuration file.</li>\n"
-"            <li>In your Betty configuration file, add "
+"            <li>In your Betty project configuration file, add "
 "<code>assets_directory_path: assets</code>, where <code>assets</code> "
 "should be whatever the path to and name of your assets directory path "
 "is.</li>\n"
@@ -262,16 +262,19 @@ msgstr "Baptême"
 msgid "Beneficiary"
 msgstr "Bénéficiaire"
 
-msgid "Betty configuration ({extensions})"
-msgstr ""
-
-msgid "Betty configuration must be a mapping (dictionary)."
+msgid "Betty application configuration must be a mapping (dictionary)."
 msgstr ""
 
 msgid ""
 "Betty is a static site generator for your <a "
 "href=\"{gramps_url}\">Gramps</a> and <a href=\"{gedcom_url}\">GEDCOM</a> "
 "family trees."
+msgstr ""
+
+msgid "Betty project configuration ({extensions})"
+msgstr ""
+
+msgid "Betty project configuration must be a mapping (dictionary)."
 msgstr ""
 
 msgid "Birth"
@@ -299,6 +302,13 @@ msgid "Clear all caches"
 msgstr ""
 
 msgid "Close"
+msgstr ""
+
+#, fuzzy
+msgid "Configuration"
+msgstr "Confirmation"
+
+msgid "Configuration file \"{configuration_file_path}\" does not exist."
 msgstr ""
 
 msgid "Confirmation"
@@ -395,6 +405,9 @@ msgstr ""
 msgid "Engagement"
 msgstr "Fiançailles"
 
+msgid "Error"
+msgstr ""
+
 msgid "Events"
 msgstr "Evénements"
 
@@ -412,6 +425,15 @@ msgstr "Faits"
 
 msgid "Family"
 msgstr "Famille"
+
+msgid "Family tree configuration must be a mapping (dictionary)."
+msgstr ""
+
+msgid "Family tree configuration requires a Gramps file to be set."
+msgstr ""
+
+msgid "Family trees configuration is required and must must be a list."
+msgstr ""
 
 msgid "File path"
 msgstr ""
@@ -459,6 +481,9 @@ msgid "Generated pages for {source_count} sources in {locale}."
 msgstr ""
 
 msgid "Generating your site..."
+msgstr ""
+
+msgid "Gramps configuration must be a mapping (dictionary)."
 msgstr ""
 
 msgid "Help"
@@ -522,6 +547,10 @@ msgstr ""
 msgid "Loading..."
 msgstr ""
 
+#, fuzzy
+msgid "Locale"
+msgstr "Un nom de language."
+
 msgid "Locales configuration much be a list."
 msgstr ""
 
@@ -577,6 +606,9 @@ msgid "Open project..."
 msgstr ""
 
 msgid "Open your project from..."
+msgstr ""
+
+msgid "Operating system default: {locale_name}"
 msgstr ""
 
 msgid "Other attendees"
@@ -699,6 +731,9 @@ msgstr ""
 msgid "Serving your site..."
 msgstr ""
 
+msgid "Settings..."
+msgstr ""
+
 msgid "Sources"
 msgstr "Sources"
 
@@ -775,6 +810,9 @@ msgstr ""
 msgid "The lifetime threshold must consist of digits only."
 msgstr ""
 
+msgid "The locale must be a string."
+msgstr ""
+
 msgid "The person."
 msgstr "L'individu."
 
@@ -790,7 +828,14 @@ msgstr "La source."
 msgid "The title must be a string."
 msgstr ""
 
+#, python-format
+msgid "The translations for {locale_name} are {coverage_percentage}% complete."
+msgstr ""
+
 msgid "Theme"
+msgstr ""
+
+msgid "There are no translations for {locale_name}."
 msgstr ""
 
 #, python-format
@@ -1078,6 +1123,9 @@ msgstr "approximativement jusqu'au %(end_date)s"
 
 msgid "y"
 msgstr "y"
+
+msgid "{locale} is not a valid IETF BCP 47 language tag."
+msgstr ""
 
 #, python-format
 msgid "© Copyright %(author)s, unless otherwise credited"

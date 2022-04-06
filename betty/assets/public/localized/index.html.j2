@@ -38,7 +38,7 @@
         You can customize this page you are looking at right now:
         <ol>
             <li>Create an <strong>assets</strong> directory. You can call this anything and put this anywhere, but a good start is to call it <code>assets</code> and put it in the same directory as your Betty configuration file.</li>
-            <li>In your Betty configuration file, add <code>assets_directory_path: assets</code>, where <code>assets</code> should be whatever the path to and name of your assets directory path is.</li>
+            <li>In your Betty project configuration file, add <code>assets_directory_path: assets</code>, where <code>assets</code> should be whatever the path to and name of your assets directory path is.</li>
             <li>Inside the assets directory, create the subdirectories <code>{{ template_override_subdirectory_path }}</code>, and in there, the file <code>index.html.j2</code>. This file will replace the page you are seeing now.</li>
             <li>Open <code>index.html.j2</code> in your favorite code editor, and add the following code:
                 <pre><code>{{ template_override_template }}</code></pre>

@@ -1,5 +1,6 @@
 from __future__ import annotations
 import contextlib
+import copy
 import logging
 import threading
 import webbrowser
@@ -77,8 +78,8 @@ class AppServer(Server):
     async def start(self) -> None:
         self._server = self._get_server()
         await self._server.start()
-        # Some tests fail on Windows with `NameError: name '_' is not defined`, so we enter the App context to be sure.
-        with self._app:
+        # Some tests fail on Windows with `NameError: name '_' is not defined`, so we acquire the locale to be sure.
+        with self._app.acquire_locale():
             logging.getLogger().info(_('Serving your site at {url}...').format(url=self.public_url))
         webbrowser.open_new_tab(self.public_url)
 
@@ -125,7 +126,7 @@ class BuiltinServer(Server):
     def _serve(self):
         with contextlib.redirect_stderr(StringIO()):
             with ChDir(self._app.project.configuration.www_directory_path):
-                with self._app:
+                with copy.copy(self._app):
                     self._http_server.serve_forever()
 
     async def stop(self) -> None:

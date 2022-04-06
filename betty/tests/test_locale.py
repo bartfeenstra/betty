@@ -6,7 +6,7 @@ import sys
 from gettext import NullTranslations
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import List, Optional, Iterator
+from typing import List, Optional, Iterator, Set
 
 from parameterized import parameterized
 
@@ -18,7 +18,7 @@ from betty.tests import TestCase
 
 class PotFileTest(TestCase):
     def _readlines(self, root_directory_path) -> Iterator[str]:
-        with open(Path(root_directory_path) / 'betty.pot') as f:
+        with open(Path(root_directory_path) / 'betty' / 'assets' / 'betty.pot') as f:
             return filter(
                 lambda line: not line.startswith((
                     '"POT-Creation-Date: ',
@@ -53,7 +53,7 @@ class PotFileTest(TestCase):
                 list(actual_pot_contents),
                 list(expected_pot_contents),
             )
-            self.assertEqual(0, len(list(diff)))
+            self.assertEqual(0, len(list(diff)), f'The gettext *.po files are not up to date. Did you run {Path() / "bin" / "extract-translatables"}?')
 
 
 class TranslationsTest(TestCase):
@@ -378,15 +378,15 @@ class DateRangeTest(TestCase):
 
 class NegotiateLocaleTest(TestCase):
     @parameterized.expand([
-        ('nl', 'nl', ['nl']),
-        ('nl-NL', 'nl', ['nl-NL']),
-        ('nl', 'nl-NL', ['nl']),
-        ('nl-NL', 'nl-NL', ['nl', 'nl-BE', 'nl-NL']),
-        ('nl', 'nl', ['nl', 'en']),
-        ('nl', 'nl', ['en', 'nl']),
-        ('nl-NL', 'nl-BE', ['nl-NL'])
+        ('nl', 'nl', {'nl'}),
+        ('nl-NL', 'nl', {'nl-NL'}),
+        ('nl', 'nl-NL', {'nl'}),
+        ('nl-NL', 'nl-NL', {'nl', 'nl-BE', 'nl-NL'}),
+        ('nl', 'nl', {'nl', 'en'}),
+        ('nl', 'nl', {'en', 'nl'}),
+        ('nl-NL', 'nl-BE', {'nl-NL'})
     ])
-    def test(self, expected: Optional[str], preferred_locale: str, available_locales: List[str]):
+    def test(self, expected: Optional[str], preferred_locale: str, available_locales: Set[str]):
         self.assertEqual(expected, negotiate_locale(preferred_locale, available_locales))
 
 

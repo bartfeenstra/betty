@@ -62,7 +62,7 @@ def app_command(f):
 
 @catch_exceptions()
 @sync
-async def _init_ctx(ctx: Context, _: Optional[Option] = None, configuration_file_path: Optional[str] = None) -> None:
+async def _init_ctx(ctx: Context, __: Optional[Option] = None, configuration_file_path: Optional[str] = None) -> None:
     ctx.ensure_object(dict)
 
     if 'initialized' in ctx.obj:
@@ -103,7 +103,7 @@ async def _init_ctx(ctx: Context, _: Optional[Option] = None, configuration_file
             return
 
     if configuration_file_path is not None:
-        raise ConfigurationError('Configuration file "%s" does not exist.' % configuration_file_path)
+        raise ConfigurationError(_('Configuration file "{configuration_file_path}" does not exist.').format(configuration_file_path=configuration_file_path))
 
 
 class _BettyCommands(click.MultiCommand):
@@ -120,7 +120,7 @@ class _BettyCommands(click.MultiCommand):
 
 
 @click.command(cls=_BettyCommands)
-@click.option('--configuration', '-c', 'app', is_eager=True, help='The path to a Betty configuration file. Defaults to betty.json|yaml|yml in the current working directory. This will make additional commands available.', callback=_init_ctx)
+@click.option('--configuration', '-c', 'app', is_eager=True, help='The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory. This will make additional commands available.', callback=_init_ctx)
 @click.version_option(about.version(), prog_name='Betty')
 def main(app):
     pass
@@ -145,7 +145,7 @@ async def _demo():
 
 @click.command(help="Open Betty's graphical user interface (GUI).")
 @global_command
-@click.option('--configuration', '-c', 'configuration_file_path', is_eager=True, help='The path to a Betty configuration file. Defaults to betty.json|yaml|yml in the current working directory.')
+@click.option('--configuration', '-c', 'configuration_file_path', is_eager=True, help='The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory.')
 @sync
 async def _gui(configuration_file_path: Optional[str]):
     with App() as app:

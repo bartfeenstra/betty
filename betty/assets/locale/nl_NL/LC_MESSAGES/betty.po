@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-19 17:48+0100\n"
+"POT-Creation-Date: 2022-04-19 18:44+0100\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -63,7 +63,7 @@ msgid ""
 " this anything and put this anywhere, but a good start is to call it "
 "<code>assets</code> and put it in the same directory as your Betty "
 "configuration file.</li>\n"
-"            <li>In your Betty configuration file, add "
+"            <li>In your Betty project configuration file, add "
 "<code>assets_directory_path: assets</code>, where <code>assets</code> "
 "should be whatever the path to and name of your assets directory path "
 "is.</li>\n"
@@ -207,13 +207,12 @@ msgstr ""
 "Een HTTP [Accept-Language](https://developer.mozilla.org/en-"
 "US/docs/Web/HTTP/Headers/Accept-Language)-header."
 
-#, fuzzy
 msgid ""
 "An HTTP [Accept](https://developer.mozilla.org/en-"
 "US/docs/Web/HTTP/Headers/Accept) header."
 msgstr ""
-"Een HTTP [Accept-Language](https://developer.mozilla.org/en-"
-"US/docs/Web/HTTP/Headers/Accept-Language)-header."
+"Een HTTP [Accept](https://developer.mozilla.org/en-"
+"US/docs/Web/HTTP/Headers/Accept)-header."
 
 msgid ""
 "An HTTP [Content-Language](https://developer.mozilla.org/en-"
@@ -281,11 +280,8 @@ msgstr "Doping"
 msgid "Beneficiary"
 msgstr "Begunstigde"
 
-msgid "Betty configuration ({extensions})"
-msgstr "Betty-configuratie ({extensions})"
-
-msgid "Betty configuration must be a mapping (dictionary)."
-msgstr "Betty-configuratie moet een mapping (dictionary) zijn."
+msgid "Betty application configuration must be a mapping (dictionary)."
+msgstr "Betty-applicatieconfiguratie moet een mapping (dictionary) zijn."
 
 msgid ""
 "Betty is a static site generator for your <a "
@@ -295,6 +291,12 @@ msgstr ""
 "Betty is een statische-sitegenerator voor je <a "
 "href=\"{gramps_url}\">Gramps-</a> en <a "
 "href=\"{gedcom_url}\">GEDCOM-</a>stambomen."
+
+msgid "Betty project configuration ({extensions})"
+msgstr "Betty-projectconfiguratie ({extensions})"
+
+msgid "Betty project configuration must be a mapping (dictionary)."
+msgstr "Betty-projectconfiguratie moet een mapping (dictionary) zijn."
 
 msgid "Birth"
 msgstr "Geboorte"
@@ -324,6 +326,12 @@ msgstr "Leeg alle caches"
 
 msgid "Close"
 msgstr "Sluiten"
+
+msgid "Configuration"
+msgstr "Instellingen"
+
+msgid "Configuration file \"{configuration_file_path}\" does not exist."
+msgstr "Configuratiebestand \"{configuration_file_path}\" bestaat niet."
 
 msgid "Confirmation"
 msgstr "Geloofsbelijdenis"
@@ -427,6 +435,9 @@ msgstr "Schakel {extension} in"
 msgid "Engagement"
 msgstr "Verloving"
 
+msgid "Error"
+msgstr "Fout"
+
 msgid "Events"
 msgstr "Gebeurtenissen"
 
@@ -445,6 +456,15 @@ msgstr "Feiten"
 msgid "Family"
 msgstr "Familie"
 
+msgid "Family tree configuration must be a mapping (dictionary)."
+msgstr "De stamboomconfiguratie moet een mapping (dictionary) zijn."
+
+msgid "Family tree configuration requires a Gramps file to be set."
+msgstr "Stamboomconfiguratie vereist een Gramps-bestand."
+
+msgid "Family trees configuration is required and must must be a list."
+msgstr "Stamboomconfiguratie is vereist en moet een lijst zijn."
+
 msgid "File path"
 msgstr "Bestandspad"
 
@@ -452,6 +472,8 @@ msgid ""
 "Follow Betty on <a href=\"https://twitter.com/Betty_Project\">Twitter</a>"
 " and <a href=\"https://github.com/bartfeenstra/betty\">Github</a>."
 msgstr ""
+"Volg Betty op <a href=\"https://twitter.com/Betty_Project\">Twitter</a> "
+"en <a href=\"https://github.com/bartfeenstra/betty\">Github</a>."
 
 msgid "Forbidden"
 msgstr "Verboden"
@@ -492,28 +514,26 @@ msgstr ""
 msgid "Generating your site..."
 msgstr "Je site aan het genereren..."
 
+msgid "Gramps configuration must be a mapping (dictionary)."
+msgstr "De Gramps-configuratie moet een mapping (dictionary) zijn."
+
 msgid "Help"
-msgstr "Help"
+msgstr "Hulp"
 
-#, fuzzy
 msgid "I'm sorry, dear, but it seems there are no events."
-msgstr "Het spijt me, schat, maar het lijkt erop dat deze pagina niet bestaat."
+msgstr "Het spijt me, schat, maar het lijkt erop dat er geen gebeurtenissen zijn."
 
-#, fuzzy
 msgid "I'm sorry, dear, but it seems there are no media."
-msgstr "Het spijt me, schat, maar het lijkt erop dat deze pagina niet bestaat."
+msgstr "Het spijt me, schat, maar het lijkt erop dat er geen media zijn."
 
-#, fuzzy
 msgid "I'm sorry, dear, but it seems there are no people."
-msgstr "Het spijt me, schat, maar het lijkt erop dat deze pagina niet bestaat."
+msgstr "Het spijt me, schat, maar het lijkt erop dat er geen personen zijn."
 
-#, fuzzy
 msgid "I'm sorry, dear, but it seems there are no places."
-msgstr "Het spijt me, schat, maar het lijkt erop dat deze pagina niet bestaat."
+msgstr "Het spijt me, schat, maar het lijkt erop dat er geen plaatsen zijn."
 
-#, fuzzy
 msgid "I'm sorry, dear, but it seems there are no sources."
-msgstr "Het spijt me, schat, maar het lijkt erop dat deze pagina niet bestaat."
+msgstr "Het spijt me, schat, maar het lijkt erop dat er geen bronnen zijn."
 
 msgid "I'm sorry, dear, but it seems this page does not exist."
 msgstr "Het spijt me, schat, maar het lijkt erop dat deze pagina niet bestaat."
@@ -550,6 +570,9 @@ msgstr "Laad de stamboom van..."
 
 msgid "Loading..."
 msgstr "Laden..."
+
+msgid "Locale"
+msgstr "Taalregio"
 
 msgid "Locales configuration much be a list."
 msgstr "Taalregioconfiguratie moet een lijst zijn."
@@ -600,13 +623,16 @@ msgid "One or more of these requirements must be met"
 msgstr "Aan één van deze vereisten moet voldaan worden"
 
 msgid "Open an existing project"
-msgstr ""
+msgstr "Open een bestaand project"
 
 msgid "Open project..."
 msgstr "Open project..."
 
 msgid "Open your project from..."
 msgstr "Open je project van..."
+
+msgid "Operating system default: {locale_name}"
+msgstr "Standaard van het besturingssysteem: {locale_name}"
 
 msgid "Other attendees"
 msgstr "Overige aanwezigen"
@@ -731,6 +757,9 @@ msgstr ""
 msgid "Serving your site..."
 msgstr ""
 
+msgid "Settings..."
+msgstr "Instellingen..."
+
 msgid "Sources"
 msgstr "Bronnen"
 
@@ -809,6 +838,9 @@ msgstr "De levensgrens moet een geheel getal zijn."
 msgid "The lifetime threshold must consist of digits only."
 msgstr "De levensgrens mag alleen uit cijfers bestaan."
 
+msgid "The locale must be a string."
+msgstr "De taalregio moet een string zijn."
+
 msgid "The person."
 msgstr "De persoon."
 
@@ -824,8 +856,15 @@ msgstr "De bron."
 msgid "The title must be a string."
 msgstr "De titel moet een string zijn."
 
+#, python-format
+msgid "The translations for {locale_name} are {coverage_percentage}% complete."
+msgstr "De vertalingen voor {locale_name} zijn {coverage_percentage}% compleet."
+
 msgid "Theme"
 msgstr "Thema"
+
+msgid "There are no translations for {locale_name}."
+msgstr "Er zijn geen vertalingen voor {locale_name}."
 
 #, python-format
 msgid "They are the child of %(parent_labels)s."
@@ -1091,6 +1130,9 @@ msgstr "tot ongeveer %(end_date)s"
 
 msgid "y"
 msgstr "y"
+
+msgid "{locale} is not a valid IETF BCP 47 language tag."
+msgstr "{locale} is geen geldige IETF BCP 47 taaltag."
 
 #, python-format
 msgid "© Copyright %(author)s, unless otherwise credited"

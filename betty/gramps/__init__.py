@@ -33,4 +33,4 @@ class Gramps(Extension, Configurable, Loader, GuiBuilder):
         return _('Load <a href="https://gramps-project.org/">Gramps</a> family trees.')
 
     def gui_build(self) -> Optional[QWidget]:
-        return _GrampsGuiWidget(self._configuration)
+        return _GrampsGuiWidget(self._app, self._configuration)

@@ -16,6 +16,7 @@ from betty.app import Extension
 from betty.config import Configurable, Configuration as GenericConfiguration, ConfigurationError, to_file
 from betty.error import ensure_context
 from betty.importlib import import_any
+from betty.locale import bcp_47_to_rfc_1766
 from betty.model.ancestry import Ancestry
 from betty.os import PathLike
 
@@ -213,7 +214,7 @@ class LocalesConfiguration(GenericConfiguration):
 
     def __delitem__(self, locale: str) -> None:
         if len(self._configurations) <= 1:
-            raise ConfigurationError(_('Cannot remove the last remaining locale {locale}').format(locale=Locale.parse(locale, '-').get_display_name()))
+            raise ConfigurationError(_('Cannot remove the last remaining locale {locale}').format(locale=Locale.parse(bcp_47_to_rfc_1766(locale)).get_display_name()))
         del self._configurations[locale]
         self.react.trigger()
 
@@ -270,7 +271,10 @@ class LocalesConfiguration(GenericConfiguration):
             self._configurations.clear()
             for dumped_locale_configuration in dumped_configuration:
                 locale = dumped_locale_configuration['locale']
-                parse_locale(locale, '-')
+                try:
+                    parse_locale(bcp_47_to_rfc_1766(locale))
+                except ValueError:
+                    raise ConfigurationError(_('{locale} is not a valid IETF BCP 47 language tag.').format(locale=locale))
                 self.add(LocaleConfiguration(
                     locale,
                     dumped_locale_configuration['alias'] if 'alias' in dumped_locale_configuration else None,
@@ -316,12 +320,12 @@ class ThemeConfiguration(GenericConfiguration):
 class Configuration(GenericConfiguration):
     def __init__(self, base_url: Optional[str] = None):
         super().__init__()
-        self.base_url = 'https://example.com' if base_url is None else base_url
-        self.root_path = '/'
-        self.clean_urls = False
-        self.content_negotiation = False
-        self.title = 'Betty'
-        self.author = None
+        self._base_url = 'https://example.com' if base_url is None else base_url
+        self._root_path = ''
+        self._clean_urls = False
+        self._content_negotiation = False
+        self._title = 'Betty'
+        self._author: Optional[str] = None
         self._extensions = ProjectExtensionsConfiguration()
         self._extensions.react(self)
         self._debug = False
@@ -329,7 +333,7 @@ class Configuration(GenericConfiguration):
         self._locales.react(self)
         self._theme = ThemeConfiguration()
         self._theme.react(self)
-        self.lifetime_threshold = 125
+        self._lifetime_threshold = 125
         self._project_directory: Optional[TemporaryDirectory] = None
         self._configuration_file_path: Optional[Path] = None
 
@@ -338,7 +342,7 @@ class Configuration(GenericConfiguration):
         self._save_configuration()
 
     def __del__(self):
-        if self._project_directory is not None:
+        if hasattr(self, '_project_directory') and self._project_directory is not None:
             self._project_directory.cleanup()
 
     def _save_configuration(self) -> None:
@@ -359,7 +363,11 @@ class Configuration(GenericConfiguration):
 
     @configuration_file_path.setter
     def configuration_file_path(self, configuration_file_path: PathLike) -> None:
+        configuration_file_path = Path(configuration_file_path)
+        if configuration_file_path == self._configuration_file_path:
+            return
         self._configuration_file_path = Path(configuration_file_path)
+        self._save_configuration()
 
     @property
     def project_directory_path(self) -> Path:
@@ -478,7 +486,7 @@ class Configuration(GenericConfiguration):
 
     def load(self, dumped_configuration: Any) -> None:
         if not isinstance(dumped_configuration, dict):
-            raise ConfigurationError(_('Betty configuration must be a mapping (dictionary).'))
+            raise ConfigurationError(_('Betty project configuration must be a mapping (dictionary).'))
 
         if 'base_url' not in dumped_configuration or not isinstance(dumped_configuration['base_url'], str):
             raise ConfigurationError(_('The base URL is required and must be a string.'), contexts=['`base_url`'])

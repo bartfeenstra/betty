@@ -4,6 +4,8 @@ import builtins
 import calendar
 import contextlib
 import datetime
+import glob
+import locale
 import operator
 import shutil
 from gettext import NullTranslations, GNUTranslations
@@ -11,14 +13,27 @@ from io import StringIO
 from contextlib import suppress
 from functools import total_ordering
 from pathlib import Path
-from typing import Optional, Tuple, Union, List, Dict, Callable, Any
+from typing import Optional, Tuple, Union, List, Dict, Callable, Any, Iterator, Set
 
 import babel
 from babel import dates, Locale
 from babel.messages.frontend import CommandLineInterface
+from polib import pofile
 
 from betty import fs
 from betty.fs import hashfile, FileSystem
+
+
+def rfc_1766_to_bcp_47(locale: str) -> str:
+    return locale.replace('_', '-')
+
+
+def bcp_47_to_rfc_1766(locale: str) -> str:
+    return locale.replace('-', '_')
+
+
+def getdefaultlocale() -> str:
+    return rfc_1766_to_bcp_47(locale.getdefaultlocale()[0])
 
 
 class Localized:
@@ -261,6 +276,7 @@ class Translations(NullTranslations):
         super().__init__()
         self._fallback = fallback
         self._previous_context: Translations._Context = None
+        self._coverage: Optional[Tuple[int, int]] = None
 
     def __enter__(self):
         self.install()
@@ -306,6 +322,13 @@ class TranslationsRepository:
         self._assets = assets
         self._translations = {}
 
+    @property
+    def locales(self) -> Iterator[str]:
+        yield 'en-US'
+        for assets_directory_path, _ in reversed(self._assets.paths):
+            for po_file_path in glob.glob(str(assets_directory_path / 'locale' / '*' / 'LC_MESSAGES' / 'betty.po')):
+                yield rfc_1766_to_bcp_47(Path(po_file_path).parents[1].name)
+
     def __getitem__(self, locale: Any) -> Translations:
         if not isinstance(locale, str):
             raise ValueError(f'The locale to get must be a string, but {type(locale)} was given.')
@@ -319,15 +342,15 @@ class TranslationsRepository:
 
     def _build_translations(self, locale: str) -> Translations:
         self._translations[locale] = NullTranslations()
-        for assets_path, _ in reversed(self._assets.paths):
-            translations = self._open_translations(locale, assets_path)
+        for assets_directory_path, _ in reversed(self._assets.paths):
+            translations = self._open_translations(locale, assets_directory_path)
             if translations:
                 translations.add_fallback(self._translations[locale])
                 self._translations[locale] = translations
         return self._translations[locale]
 
     def _open_translations(self, locale: str, assets_directory_path: Path) -> Optional[GNUTranslations]:
-        locale_path_name = locale.replace('-', '_')
+        locale_path_name = bcp_47_to_rfc_1766(locale)
         po_file_path = assets_directory_path / 'locale' / locale_path_name / 'LC_MESSAGES' / 'betty.po'
         try:
             translation_version = hashfile(po_file_path)
@@ -350,8 +373,28 @@ class TranslationsRepository:
         with open(mo_file_path, 'rb') as f:
             return GNUTranslations(f)
 
+    def coverage(self, locale: str) -> Tuple[int, int]:
+        translatables = set(self._get_translatables())
+        translations = set(self._get_translations(locale))
+        return len(translations), len(translatables.union(translations))
 
-def negotiate_locale(preferred_locale: str, available_locales: List[str]) -> Optional[str]:
+    def _get_translatables(self) -> Iterator[str]:
+        for assets_directory_path, _ in self._assets.paths:
+            with suppress(FileNotFoundError):
+                with open(assets_directory_path / 'betty.pot') as f:
+                    for entry in pofile(f.read()):
+                        yield entry.msgid_with_context
+
+    def _get_translations(self, locale: str) -> Iterator[str]:
+        for assets_directory_path, _ in reversed(self._assets.paths):
+            with suppress(FileNotFoundError):
+                with open(assets_directory_path / 'locale' / bcp_47_to_rfc_1766(locale) / 'LC_MESSAGES' / 'betty.po') as f:
+                    for entry in pofile(f.read()):
+                        if entry.translated():
+                            yield entry.msgid_with_context
+
+
+def negotiate_locale(preferred_locale: str, available_locales: Set[str]) -> Optional[str]:
     negotiated_locale = babel.negotiate_locale([preferred_locale], available_locales)
     if negotiated_locale is not None:
         return negotiated_locale
@@ -363,7 +406,7 @@ def negotiate_locale(preferred_locale: str, available_locales: List[str]) -> Opt
 
 
 def negotiate_localizeds(preferred_locale: str, localizeds: List[Localized]) -> Optional[Localized]:
-    negotiated_locale = negotiate_locale(preferred_locale, [localized.locale for localized in localizeds if localized.locale is not None])
+    negotiated_locale = negotiate_locale(preferred_locale, {localized.locale for localized in localizeds if localized.locale is not None})
     if negotiated_locale is not None:
         for localized in localizeds:
             if localized.locale == negotiated_locale:
@@ -418,7 +461,7 @@ def _format_date_parts(date: Date, locale: str) -> str:
     except KeyError:
         raise IncompleteDateError('This date does not have enough parts to be rendered.')
     parts = map(lambda x: 1 if x is None else x, date.parts)
-    return dates.format_date(datetime.date(*parts), date_parts_format, Locale.parse(locale, '-'))
+    return dates.format_date(datetime.date(*parts), date_parts_format, Locale.parse(bcp_47_to_rfc_1766(locale)))
 
 
 _FORMAT_DATE_RANGE_FORMATTERS = {
