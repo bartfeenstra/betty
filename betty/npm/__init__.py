@@ -63,6 +63,10 @@ class _NpmRequirement(Requirement):
         return self._details
 
 
+def is_assets_build_directory_path(path: Path) -> bool:
+    return path.is_dir() and len(os.listdir(path)) > 0
+
+
 class _AssetsRequirement(Requirement):
     def __init__(self, extension_types: Set[Type[Extension | NpmBuilder]]):
         self._extension_types = extension_types
@@ -83,7 +87,7 @@ class _AssetsRequirement(Requirement):
             extension_type
             for extension_type
             in self._extension_types
-            if _get_assets_build_directory_path(extension_type).is_dir()
+            if is_assets_build_directory_path(_get_assets_build_directory_path(extension_type))
         }
 
     @property
@@ -177,7 +181,7 @@ class _Npm(Extension):
             self._get_cached_assets_build_directory_path(type(extension)),
         ]
         for assets_build_directory_path in assets_build_directory_paths:
-            if assets_build_directory_path.is_dir():
+            if is_assets_build_directory_path(assets_build_directory_path):
                 return assets_build_directory_path
 
         self._npm_requirement.assert_met()

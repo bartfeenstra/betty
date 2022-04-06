@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-19 17:48+0100\n"
+"POT-Creation-Date: 2022-04-19 18:44+0100\n"
 "PO-Revision-Date: 2020-05-02 22:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -51,7 +51,7 @@ msgid ""
 " this anything and put this anywhere, but a good start is to call it "
 "<code>assets</code> and put it in the same directory as your Betty "
 "configuration file.</li>\n"
-"            <li>In your Betty configuration file, add "
+"            <li>In your Betty project configuration file, add "
 "<code>assets_directory_path: assets</code>, where <code>assets</code> "
 "should be whatever the path to and name of your assets directory path "
 "is.</li>\n"
@@ -244,7 +244,7 @@ msgstr "Відвідувач"
 
 #, fuzzy
 msgid "Author"
-msgstr "Несанкціонована"
+msgstr "Автор(а)"
 
 msgid "Background image ID"
 msgstr ""
@@ -255,16 +255,19 @@ msgstr "Хрещення"
 msgid "Beneficiary"
 msgstr "Бенефіціар"
 
-msgid "Betty configuration ({extensions})"
-msgstr ""
-
-msgid "Betty configuration must be a mapping (dictionary)."
+msgid "Betty application configuration must be a mapping (dictionary)."
 msgstr ""
 
 msgid ""
 "Betty is a static site generator for your <a "
 "href=\"{gramps_url}\">Gramps</a> and <a href=\"{gedcom_url}\">GEDCOM</a> "
 "family trees."
+msgstr ""
+
+msgid "Betty project configuration ({extensions})"
+msgstr ""
+
+msgid "Betty project configuration must be a mapping (dictionary)."
 msgstr ""
 
 msgid "Birth"
@@ -292,6 +295,13 @@ msgid "Clear all caches"
 msgstr ""
 
 msgid "Close"
+msgstr ""
+
+#, fuzzy
+msgid "Configuration"
+msgstr "Миропомазання"
+
+msgid "Configuration file \"{configuration_file_path}\" does not exist."
 msgstr ""
 
 msgid "Confirmation"
@@ -388,6 +398,9 @@ msgstr ""
 msgid "Engagement"
 msgstr "Заручини"
 
+msgid "Error"
+msgstr ""
+
 msgid "Events"
 msgstr "Події"
 
@@ -404,6 +417,15 @@ msgid "Facts"
 msgstr "Факти"
 
 msgid "Family"
+msgstr ""
+
+msgid "Family tree configuration must be a mapping (dictionary)."
+msgstr ""
+
+msgid "Family tree configuration requires a Gramps file to be set."
+msgstr ""
+
+msgid "Family trees configuration is required and must must be a list."
 msgstr ""
 
 msgid "File path"
@@ -454,8 +476,11 @@ msgstr ""
 msgid "Generating your site..."
 msgstr ""
 
-msgid "Help"
+msgid "Gramps configuration must be a mapping (dictionary)."
 msgstr ""
+
+msgid "Help"
+msgstr "Допомога"
 
 msgid "I'm sorry, dear, but it seems there are no events."
 msgstr ""
@@ -506,6 +531,9 @@ msgid "Load the family tree from..."
 msgstr ""
 
 msgid "Loading..."
+msgstr ""
+
+msgid "Locale"
 msgstr ""
 
 msgid "Locales configuration much be a list."
@@ -565,6 +593,9 @@ msgstr ""
 msgid "Open your project from..."
 msgstr ""
 
+msgid "Operating system default: {locale_name}"
+msgstr ""
+
 msgid "Other attendees"
 msgstr "Інші відвідувачі"
 
@@ -599,7 +630,7 @@ msgid "Privatizer"
 msgstr "приватні"
 
 msgid "Project"
-msgstr ""
+msgstr "Проект"
 
 msgid "Read more on Wikipedia."
 msgstr "Детальніше читайте у Вікіпедії"
@@ -685,6 +716,9 @@ msgstr ""
 msgid "Serving your site..."
 msgstr ""
 
+msgid "Settings..."
+msgstr ""
+
 msgid "Sources"
 msgstr "Джерела"
 
@@ -761,6 +795,9 @@ msgstr ""
 msgid "The lifetime threshold must consist of digits only."
 msgstr ""
 
+msgid "The locale must be a string."
+msgstr ""
+
 msgid "The person."
 msgstr ""
 
@@ -776,7 +813,14 @@ msgstr ""
 msgid "The title must be a string."
 msgstr ""
 
+#, python-format
+msgid "The translations for {locale_name} are {coverage_percentage}% complete."
+msgstr ""
+
 msgid "Theme"
+msgstr ""
+
+msgid "There are no translations for {locale_name}."
 msgstr ""
 
 #, python-format
@@ -1044,6 +1088,9 @@ msgstr "приблизно до %(end_date)s"
 
 msgid "y"
 msgstr "y року"
+
+msgid "{locale} is not a valid IETF BCP 47 language tag."
+msgstr ""
 
 #, python-format
 msgid "© Copyright %(author)s, unless otherwise credited"

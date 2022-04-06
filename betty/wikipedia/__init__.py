@@ -179,7 +179,7 @@ class _Populator:
             entry_translations = await self._retriever.get_translations(entry_language, entry_name)
             if len(entry_translations) == 0:
                 continue
-            entry_languages = list(entry_translations.keys())
+            entry_languages = set(entry_translations.keys())
             for locale in locales.difference({entry_language}):
                 added_entry_language = negotiate_locale(locale, entry_languages)
                 if added_entry_language is None:
@@ -272,7 +272,7 @@ class Wikipedia(Extension, Jinja2Provider, PostLoader, GuiBuilder, ReactiveInsta
             entry_language, entry_name = _parse_url(link.url)
         except NotAnEntryError:
             return None
-        if negotiate_locale(locale, [entry_language]) is None:
+        if negotiate_locale(locale, {entry_language}) is None:
             return None
         try:
             return await self._retriever.get_entry(entry_language, entry_name)

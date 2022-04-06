@@ -21,7 +21,10 @@ ROOT_DIRECTORY_PATH = _ROOT_DIRECTORY_PATH
 ASSETS_DIRECTORY_PATH = ROOT_DIRECTORY_PATH / 'betty' / 'assets'
 
 
-CACHE_DIRECTORY_PATH = Path.home() / '.betty'
+HOME_DIRECTORY_PATH = Path.home() / '.betty'
+
+
+CACHE_DIRECTORY_PATH = HOME_DIRECTORY_PATH / 'cache'
 
 
 async def iterfiles(path: PathLike) -> AsyncIterable[Path]:

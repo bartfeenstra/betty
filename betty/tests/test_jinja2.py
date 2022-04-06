@@ -1,6 +1,6 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import List, Dict, Optional, Iterable, Type
+from typing import List, Dict, Optional, Iterable, Type, Iterator, ContextManager
 from unittest.mock import Mock
 
 from parameterized import parameterized
@@ -12,7 +12,6 @@ from betty.locale import Date, Datey, DateRange, Localized
 from betty.media_type import MediaType
 from betty.model import get_entity_type_name
 from betty.model.ancestry import File, PlaceName, Subject, Attendee, Witness, Dated, Entity, Person, Place, Citation
-from betty.project import Configuration, LocaleConfiguration
 from betty.string import camel_case_to_snake_case
 from betty.tests import TemplateTestCase, TestCase
 
@@ -295,11 +294,11 @@ class FilterSelectLocalizedsTest(TemplateTestCase):
     def test(self, expected: str, locale: str, data: Iterable[Localized]):
         template = '{{ data | select_localizeds | map(attribute="name") | join(", ") }}'
 
-        def _update_configuration(configuration: Configuration) -> None:
-            configuration.locales.replace([LocaleConfiguration(locale)])
+        def _set_up(app: App) -> Iterator[ContextManager]:
+            return (app.acquire_locale(locale),)
         with self._render(template_string=template, data={
             'data': data,
-        }, update_project_configuration=_update_configuration) as (actual, _):
+        }, set_up=_set_up) as (actual, _):
             self.assertEqual(expected, actual)
 
     def test_include_unspecified(self):
@@ -312,11 +311,11 @@ class FilterSelectLocalizedsTest(TemplateTestCase):
             PlaceName('Apple', None),
         ]
 
-        def _update_configuration(configuration: Configuration) -> None:
-            configuration.locales.replace([LocaleConfiguration('en-US')])
+        def _set_up(app: App) -> Iterator[ContextManager]:
+            return (app.acquire_locale('en-US'),)
         with self._render(template_string=template, data={
             'data': data,
-        }, update_project_configuration=_update_configuration) as (actual, _):
+        }, set_up=_set_up) as (actual, _):
             self.assertEqual('Apple, Apple, Apple, Apple, Apple', actual)
 
 

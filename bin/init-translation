@@ -10,4 +10,4 @@ if [ -f "./betty/assets/locale/$locale/LC_MESSAGES/betty.po" ]; then
   exit 0
 fi
 
-pybabel init --no-wrap -d ./betty/assets/locale -l "$locale" -D betty -i ./betty.pot
+pybabel init --no-wrap -d ./betty/assets/locale -l "$locale" -D betty -i ./betty/assets/betty.pot

@@ -24,12 +24,18 @@ class Demo(Extension, Loader):
         return {HttpApiDoc, Maps, Trees, Wikipedia}
 
     async def load(self) -> None:
-        amsterdam = Place('betty-demo-amsterdam', [PlaceName('Amsterdam')])
+        amsterdam = Place('betty-demo-amsterdam', [
+            PlaceName('Amsterdam'),
+            PlaceName('Амстерда́м', locale='uk'),
+        ])
         amsterdam.coordinates = Point(52.366667, 4.9)
         amsterdam.links.add(Link('https://nl.wikipedia.org/wiki/Amsterdam'))
         self._app.project.ancestry.entities.append(amsterdam)
 
-        ilpendam = Place('betty-demo-ilpendam', [PlaceName('Ilpendam')])
+        ilpendam = Place('betty-demo-ilpendam', [
+            PlaceName('Ilpendam'),
+            PlaceName('Илпендам', locale='uk'),
+        ])
         ilpendam.coordinates = Point(52.465556, 4.951111)
         ilpendam.links.add(Link('https://nl.wikipedia.org/wiki/Ilpendam'))
         self._app.project.ancestry.entities.append(ilpendam)
