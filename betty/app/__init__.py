@@ -226,18 +226,23 @@ class App(Environment, ReactiveInstance):
     @property
     def assets(self) -> FileSystem:
         if len(self._assets) == 0:
-            self._assets.prepend(ASSETS_DIRECTORY_PATH, 'utf-8')
-            for extension in self.extensions.flatten():
-                if extension.assets_directory_path() is not None:
-                    self._assets.prepend(extension.assets_directory_path(), 'utf-8')
-            if self.project.configuration.assets_directory_path:
-                self._assets.prepend(self.project.configuration.assets_directory_path)
+            self._build_assets()
 
         return self._assets
 
     @assets.deleter
     def assets(self) -> None:
         self._assets.clear()
+        # Proactively rebuild the assets, so the assets file system can be reused.
+        self._build_assets()
+
+    def _build_assets(self) -> None:
+        self._assets.prepend(ASSETS_DIRECTORY_PATH, 'utf-8')
+        for extension in self.extensions.flatten():
+            if extension.assets_directory_path() is not None:
+                self._assets.prepend(extension.assets_directory_path(), 'utf-8')
+        if self.project.configuration.assets_directory_path:
+            self._assets.prepend(self.project.configuration.assets_directory_path)
 
     @property
     def dispatcher(self) -> Dispatcher:

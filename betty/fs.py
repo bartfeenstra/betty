@@ -54,7 +54,7 @@ class FileSystem:
                 await self._file.__aexit__(None, None, None)
 
     def __init__(self, *paths: Tuple[PathLike, Optional[str]]):
-        self._paths = deque([(Path(fs_path), fs_encoding) for fs_path, fs_encoding in paths])
+        self._paths = deque((Path(fs_path), fs_encoding) for fs_path, fs_encoding in paths)
 
     def __len__(self) -> int:
         return len(self._paths)

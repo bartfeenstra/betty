@@ -42,6 +42,20 @@ class GenerateTest(GenerateTestCase):
         self.assert_betty_html(app, '/index.html')
 
     @sync
+    async def test_translations(self):
+        app = App()
+        app.project.configuration.locales.replace([
+            LocaleConfiguration('en-US', 'en'),
+            LocaleConfiguration('nl-NL', 'nl'),
+        ])
+        async with app:
+            await generate(app)
+            with open(self.assert_betty_html(app, '/nl/index.html')) as f:
+                html = f.read()
+                self.assertIn('<html lang="nl-NL"', html)
+                self.assertIn('Stop met zoeken', html)
+
+    @sync
     async def test_files(self):
         async with App() as app:
             await generate(app)
