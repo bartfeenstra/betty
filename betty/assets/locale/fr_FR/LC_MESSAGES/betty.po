@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-03-10 20:26+0000\n"
+"POT-Creation-Date: 2022-04-16 22:36+0100\n"
 "PO-Revision-Date: 2020-11-27 19:49+0100\n"
 "Last-Translator: \n"
 "Language: fr\n"
@@ -81,6 +81,9 @@ msgid ""
 "</code></pre>"
 msgstr ""
 
+msgid "\"{extension_type_name}\" is not a Betty extension."
+msgstr ""
+
 #, python-format
 msgid "%(date)s"
 msgstr "le %(date)s"
@@ -149,6 +152,9 @@ msgstr "documentation de l'API"
 msgid "About"
 msgstr "A propos"
 
+msgid "About Betty"
+msgstr ""
+
 msgid "Access denied"
 msgstr "Accès refusé"
 
@@ -156,11 +162,20 @@ msgstr "Accès refusé"
 msgid "Accessed %(date)s"
 msgstr "Accédé le %(date)s"
 
+msgid "Add a family tree"
+msgstr ""
+
 msgid "Add a locale"
 msgstr ""
 
 msgid "Adoption"
 msgstr "Adoption"
+
+msgid "Alias"
+msgstr ""
+
+msgid "All caches cleared."
+msgstr ""
 
 msgid "All of these requirements must be met"
 msgstr ""
@@ -194,6 +209,19 @@ msgstr ""
 "Un header HTTP [Content-Language](https://developer.mozilla.org/en-"
 "US/docs/Web/HTTP/Headers/Content-Language)."
 
+msgid ""
+"An optional alias is used instead of the locale code to identify this "
+"locale, such as in URLs. If US English is the only English language "
+"variant on your site, you may want to alias its language code from <code"
+">en-US</code> to <code>en</code>, for instance."
+msgstr ""
+
+msgid ""
+"An unexpected error occurred and Betty could not complete the task. "
+"Please <a href=\"{report_url}\">report this problem</a> and include the "
+"following details, so the team behind Betty can address it."
+msgstr ""
+
 msgid "Ancestral names include"
 msgstr "Les noms ancestraux incluent"
 
@@ -212,11 +240,24 @@ msgstr ""
 msgid "Anonymizer"
 msgstr ""
 
+msgid "App extensions configuration must be a mapping (dictionary)."
+msgstr ""
+
 msgid "Appearances"
 msgstr "Caractéristiques"
 
+msgid "Assets directory"
+msgstr ""
+
 msgid "Attendee"
 msgstr "Participant"
+
+#, fuzzy
+msgid "Author"
+msgstr "Non autorisé"
+
+msgid "Background image ID"
+msgstr ""
 
 msgid "Baptism"
 msgstr "Baptême"
@@ -224,24 +265,72 @@ msgstr "Baptême"
 msgid "Beneficiary"
 msgstr "Bénéficiaire"
 
+msgid "Betty configuration ({extensions})"
+msgstr ""
+
+msgid "Betty configuration must be a mapping (dictionary)."
+msgstr ""
+
+msgid ""
+"Betty is a static site generator for your <a "
+"href=\"{gramps_url}\">Gramps</a> and <a href=\"{gedcom_url}\">GEDCOM</a> "
+"family trees."
+msgstr ""
+
 msgid "Birth"
 msgstr "Naissance"
 
 msgid "Burial"
 msgstr "Enterrement"
 
+msgid "Cancel"
+msgstr ""
+
+msgid "Cannot remove the last remaining locale {locale}"
+msgstr ""
+
+msgid "Clean URLs"
+msgstr ""
+
+msgid "Clean URLs must be enabled (true) or disabled (false) with a boolean."
+msgstr ""
+
 msgid "Cleaner"
+msgstr ""
+
+msgid "Clear all caches"
+msgstr ""
+
+msgid "Close"
 msgstr ""
 
 msgid "Confirmation"
 msgstr "Confirmation"
 
+msgid "Content negotiation"
+msgstr ""
+
+msgid ""
+"Content negotiation must be enabled (true) or disabled (false) with a "
+"boolean."
+msgstr ""
+
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Poursuivez votre lecture sur <a href=\"%(url)s\">Wikipedia</a>."
 
+msgid ""
+"Copyright 2019-{year} <a href=\"twitter.com/bartFeenstra\">Bart "
+"Feenstra</a> & contributors. Betty is made available to you under the <a "
+"href=\"https://www.gnu.org/licenses/gpl-3.0.en.html\">GNU General Public "
+"License, Version 3</a> (GPLv3)."
+msgstr ""
+
 msgid "Correspondence"
 msgstr "Correspondance"
+
+msgid "Create a new project"
+msgstr ""
 
 msgid ""
 "Create events such as births and deaths by deriving their details from "
@@ -253,6 +342,17 @@ msgstr "Crémation"
 
 msgid "Death"
 msgstr "Décès"
+
+msgid "Debugging mode"
+msgstr ""
+
+msgid "Debugging must be enabled (true) or disabled (false) with a boolean."
+msgstr ""
+
+msgid ""
+"Decide the correct page variety to serve users depending on their own "
+"preferences. This requires a web server that supports it."
+msgstr ""
 
 msgid "Deriver"
 msgstr ""
@@ -292,11 +392,17 @@ msgstr "Par exemple \"%(example)s\""
 msgid "Emigration"
 msgstr "Emigration"
 
+msgid "Enable {extension}"
+msgstr ""
+
 msgid "Engagement"
 msgstr "Fiançailles"
 
 msgid "Events"
 msgstr "Evénements"
+
+msgid "Exit"
+msgstr ""
 
 msgid "Exit the search"
 msgstr "Abondonner la recherche"
@@ -310,11 +416,59 @@ msgstr "Faits"
 msgid "Family"
 msgstr "Famille"
 
+msgid "File path"
+msgstr ""
+
+msgid ""
+"Follow Betty on <a href=\"https://twitter.com/Betty_Project\">Twitter</a>"
+" and <a href=\"https://github.com/bartfeenstra/betty\">Github</a>."
+msgstr ""
+
 msgid "Forbidden"
 msgstr "Interdit"
 
 msgid "Funeral"
 msgstr "Funérailles"
+
+#, fuzzy
+msgid "General"
+msgstr "Funérailles"
+
+msgid "Generate site"
+msgstr ""
+
+msgid "Generate your site to..."
+msgstr ""
+
+msgid "Generated OpenAPI documentation in {locale}."
+msgstr ""
+
+msgid "Generated pages for {citation_count} citations in {locale}."
+msgstr ""
+
+msgid "Generated pages for {event_count} events in {locale}."
+msgstr ""
+
+msgid "Generated pages for {file_count} files in {locale}."
+msgstr ""
+
+msgid "Generated pages for {note_count} notes in {locale}."
+msgstr ""
+
+msgid "Generated pages for {person_count} people in {locale}."
+msgstr ""
+
+msgid "Generated pages for {place_count} places in {locale}."
+msgstr ""
+
+msgid "Generated pages for {source_count} sources in {locale}."
+msgstr ""
+
+msgid "Generating your site..."
+msgstr ""
+
+msgid "Help"
+msgstr ""
 
 #, fuzzy
 msgid "I'm sorry, dear, but it seems there are no events."
@@ -350,10 +504,37 @@ msgstr "Je suis désolé mon cher, mais il semble que vous ne soyez pas connect�
 msgid "Immigration"
 msgstr "Immigration"
 
+msgid "Invalid JSON: {error}."
+msgstr ""
+
+msgid "Invalid YAML: {error}."
+msgstr ""
+
+msgid "Keep this window open to keep the site running."
+msgstr ""
+
 msgid "Language"
 msgstr "Langage"
 
+msgid "Lifetime threshold"
+msgstr ""
+
 msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
+msgstr ""
+
+msgid "Load assets from..."
+msgstr ""
+
+msgid "Load the family tree from..."
+msgstr ""
+
+msgid "Loading..."
+msgstr ""
+
+msgid "Locales configuration much be a list."
+msgstr ""
+
+msgid "Localization"
 msgstr ""
 
 msgid "MMMM"
@@ -383,6 +564,9 @@ msgstr "Menu"
 msgid "Missing"
 msgstr "Manquant"
 
+msgid "New project..."
+msgstr ""
+
 msgid "Not found"
 msgstr "Non trouvé"
 
@@ -395,8 +579,25 @@ msgstr "Profession"
 msgid "One or more of these requirements must be met"
 msgstr ""
 
+msgid "Open an existing project"
+msgstr ""
+
+msgid "Open project..."
+msgstr ""
+
+msgid "Open your project from..."
+msgstr ""
+
 msgid "Other attendees"
 msgstr "Autres participants"
+
+msgid "Output directory"
+msgstr ""
+
+msgid ""
+"Output more detailed logs and disable optimizations that make debugging "
+"harder."
+msgstr ""
 
 msgid "Page not found"
 msgstr "Page non trouvée"
@@ -423,16 +624,25 @@ msgstr "Privé"
 msgid "Privatizer"
 msgstr "privé"
 
+msgid "Project"
+msgstr ""
+
 msgid "Read more on Wikipedia."
 msgstr "Voir plus sur Wikipedia."
 
 msgid "References"
 msgstr "Références"
 
+msgid "Remove"
+msgstr ""
+
 msgid ""
 "Remove people, events, places, files, sources, and citations if they have"
 " no relationships with any other resources. Enable the Privatizer and "
 "Anonymizer as well to make this most effective."
+msgstr ""
+
+msgid "Report bugs and request new features"
 msgstr ""
 
 msgid "Residence"
@@ -477,14 +687,69 @@ msgstr "Récupération de l'ensemble des lieux."
 msgid "Retrieve the collection of sources."
 msgstr "Récupération de l'ensemble des sources."
 
+msgid "Save and close"
+msgstr ""
+
+msgid "Save this project as..."
+msgstr ""
+
+msgid "Save your new project to..."
+msgstr ""
+
+msgid "Save your project to..."
+msgstr ""
+
+msgid "Serve site"
+msgstr ""
+
+msgid "Serving the Betty demo..."
+msgstr ""
+
+msgid "Serving your site at {url}..."
+msgstr ""
+
+msgid "Serving your site..."
+msgstr ""
+
 msgid "Sources"
 msgstr "Sources"
+
+msgid "Starting Python's built-in web server..."
+msgstr ""
+
+msgid "Stop the site"
+msgstr ""
 
 msgid "Subject"
 msgstr "Sujet"
 
 msgid "The ID for the resource to retrieve."
 msgstr "L'ID de la ressource à récupérer."
+
+msgid ""
+"The ID of the file entity whose (image) file to use for page backgrounds "
+"if a page does not provide any image media itself."
+msgstr ""
+
+msgid "The age at which people are presumed dead."
+msgstr ""
+
+msgid "The assets directory path must be a string."
+msgstr ""
+
+msgid "The author must be a string."
+msgstr ""
+
+msgid "The base URL is required and must be a string."
+msgstr ""
+
+msgid "The base URL must include a path."
+msgstr ""
+
+msgid ""
+"The base URL must start with a scheme such as https://, http://, or "
+"file://."
+msgstr ""
 
 msgid "The citation."
 msgstr "La citation."
@@ -507,11 +772,26 @@ msgstr "L'ensemble des lieux."
 msgid "The collection of sources."
 msgstr "L'ensemble des sources."
 
+msgid "The configuration must be a mapping (dictionary)."
+msgstr ""
+
 msgid "The event."
 msgstr "L'événement."
 
 msgid "The file."
 msgstr "Le fichier."
+
+msgid "The lifetime threshold must be a positive number."
+msgstr ""
+
+msgid "The lifetime threshold must be an integer."
+msgstr ""
+
+msgid "The lifetime threshold must consist of digits only."
+msgstr ""
+
+msgid "The output directory path is required and must be a string."
+msgstr ""
 
 msgid "The person."
 msgstr "L'individu."
@@ -519,8 +799,17 @@ msgstr "L'individu."
 msgid "The place."
 msgstr "Le lieu."
 
+msgid "The root path must be a string."
+msgstr ""
+
 msgid "The source."
 msgstr "La source."
+
+msgid "The title must be a string."
+msgstr ""
+
+msgid "Theme"
+msgstr ""
 
 #, python-format
 msgid "They are the child of %(parent_labels)s."
@@ -555,9 +844,22 @@ msgstr "Le nom de la personne est inconnu."
 msgid "Timeline"
 msgstr "Chronologie "
 
+msgid "Title"
+msgstr ""
+
 #, fuzzy
 msgid "Trees"
 msgstr "Notes"
+
+#, fuzzy
+msgid "URL"
+msgstr "Enterrement"
+
+msgid ""
+"URLs look like <code>/path</code> instead of "
+"<code>/path/index.html</code>. This requires a web server that supports "
+"it."
+msgstr ""
 
 msgid "Unauthorized"
 msgstr "Non autorisé"
@@ -574,9 +876,34 @@ msgstr ""
 "<kbd>esc</kbd> pour abondonner la recherche. Relancez la recherche avec "
 "<kbd>%(shortcut)s</kbd>."
 
+msgid "Version: {version}"
+msgstr ""
+
+msgid "View a demo site"
+msgstr ""
+
+msgid "View a demonstration of what a Betty site looks like"
+msgstr ""
+
+msgid "View demo site..."
+msgstr ""
+
+msgid "View site"
+msgstr ""
+
+msgid "Web root directory \"{path}\" does not exist."
+msgstr ""
+
 #, python-format
 msgid "Welcome to %(title)s"
 msgstr "Bienvenue à %(title)s"
+
+#, fuzzy
+msgid "Welcome to Betty"
+msgstr "Bienvenue à %(title)s"
+
+msgid "Where to search for asset files, such as templates and translations."
+msgstr ""
 
 msgid "Wikipedia"
 msgstr "Wikipedia"
@@ -589,6 +916,17 @@ msgstr "Témoin"
 
 msgid "Witnesses"
 msgstr "Témoins"
+
+msgid "Work on a new or existing site of your own"
+msgstr ""
+
+msgid ""
+"You can now view a Betty demonstration site at <a "
+"href=\"{url}\">{url}</a>."
+msgstr ""
+
+msgid "You can now view your site at <a href=\"{url}\">{url}</a>."
+msgstr ""
 
 #, python-format
 msgid ""
@@ -768,4 +1106,7 @@ msgstr "© Copyright %(author)s, sauf crédit contraire"
 
 #~ msgid "Source"
 #~ msgstr "Source"
+
+#~ msgid "'Starting Python's built-in web server...'"
+#~ msgstr ""
 

@@ -4,7 +4,7 @@ from collections import OrderedDict
 from contextlib import suppress
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Type, Optional, Iterable, Any, Sequence, Dict
+from typing import Type, Optional, Iterable, Any, Sequence, Dict, TYPE_CHECKING
 from urllib.parse import urlparse
 
 from babel.core import parse_locale, Locale
@@ -18,6 +18,10 @@ from betty.error import ensure_context
 from betty.importlib import import_any
 from betty.model.ancestry import Ancestry
 from betty.os import PathLike
+
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 
 @reactive
@@ -77,10 +81,7 @@ class ProjectExtensionsConfiguration(GenericConfiguration):
         return self._configurations[extension_type]
 
     def __delitem__(self, extension_type: Type[Extension]) -> None:
-        with suppress(KeyError):
-            self._configurations[extension_type].react.shutdown(self)
-        del self._configurations[extension_type]
-        self.react.trigger()
+        self.remove(extension_type)
 
     @scope.register_self
     def __iter__(self) -> Iterable[ProjectExtensionConfiguration]:
@@ -96,17 +97,27 @@ class ProjectExtensionsConfiguration(GenericConfiguration):
             return NotImplemented
         return self._configurations == other._configurations
 
-    def add(self, configuration: ProjectExtensionConfiguration) -> None:
-        self._configurations[configuration.extension_type] = configuration
-        configuration.react(self)
+    def remove(self, *extension_types: Type[Extension]) -> None:
+        for extension_type in extension_types:
+            with suppress(KeyError):
+                self._configurations[extension_type].react.shutdown(self)
+            del self._configurations[extension_type]
+        self.react.trigger()
+
+    def clear(self) -> None:
+        self.remove(*self._configurations.keys())
+
+    def add(self, *configurations: ProjectExtensionConfiguration) -> None:
+        for configuration in configurations:
+            self._configurations[configuration.extension_type] = configuration
+            configuration.react(self)
         self.react.trigger()
 
     def load(self, dumped_configuration: Any) -> None:
         if not isinstance(dumped_configuration, dict):
-            raise ConfigurationError('App extensions configuration must be a mapping (dictionary).')
+            raise ConfigurationError(_('App extensions configuration must be a mapping (dictionary).'))
 
-        for extension_type in self._configurations:
-            del self[extension_type]
+        self.clear()
 
         for extension_type_name in dumped_configuration:
             with ensure_context(f'`{extension_type_name}`'):
@@ -116,12 +127,12 @@ class ProjectExtensionsConfiguration(GenericConfiguration):
                     raise ConfigurationError(e)
 
                 if not issubclass(extension_type, Extension):
-                    raise ConfigurationError('"%s" is not a Betty extension.' % extension_type_name)
+                    raise ConfigurationError(_('"{extension_type_name}" is not a Betty extension.').format(extension_type_name=extension_type_name))
 
                 dumped_extension_configuration = dumped_configuration[extension_type_name]
 
                 if not isinstance(dumped_extension_configuration, dict):
-                    raise ConfigurationError('The configuration must be a mapping (dictionary).')
+                    raise ConfigurationError(_('The configuration must be a mapping (dictionary).'))
 
                 if 'enabled' in dumped_extension_configuration:
                     if not isinstance(dumped_extension_configuration['enabled'], bool):
@@ -202,7 +213,7 @@ class LocalesConfiguration(GenericConfiguration):
 
     def __delitem__(self, locale: str) -> None:
         if len(self._configurations) <= 1:
-            raise ConfigurationError('Cannot remove the last remaining locale %s' % Locale.parse(locale, '-').get_display_name())
+            raise ConfigurationError(_('Cannot remove the last remaining locale {locale}').format(locale=Locale.parse(locale, '-').get_display_name()))
         del self._configurations[locale]
         self.react.trigger()
 
@@ -253,7 +264,7 @@ class LocalesConfiguration(GenericConfiguration):
 
     def load(self, dumped_configuration: Any) -> None:
         if not isinstance(dumped_configuration, list):
-            raise ConfigurationError('Locales configuration much be a list.')
+            raise ConfigurationError(_('Locales configuration much be a list.'))
 
         if len(dumped_configuration) > 0:
             self._configurations.clear()
@@ -373,9 +384,9 @@ class Configuration(GenericConfiguration):
     def base_url(self, base_url: str):
         base_url_parts = urlparse(base_url)
         if not base_url_parts.scheme:
-            raise ConfigurationError('The base URL must start with a scheme such as https://, http://, or file://.')
+            raise ConfigurationError(_('The base URL must start with a scheme such as https://, http://, or file://.'))
         if not base_url_parts.netloc:
-            raise ConfigurationError('The base URL must include a path.')
+            raise ConfigurationError(_('The base URL must include a path.'))
         self._base_url = '%s://%s' % (base_url_parts.scheme, base_url_parts.netloc)
 
     @reactive  # type: ignore
@@ -440,61 +451,61 @@ class Configuration(GenericConfiguration):
     @lifetime_threshold.setter
     def lifetime_threshold(self, lifetime_threshold: int):
         if lifetime_threshold < 1:
-            raise ConfigurationError('The lifetime threshold must be a positive number.')
+            raise ConfigurationError(_('The lifetime threshold must be a positive number.'))
         self._lifetime_threshold = lifetime_threshold
 
     def load(self, dumped_configuration: Any) -> None:
         if not isinstance(dumped_configuration, dict):
-            raise ConfigurationError('Betty configuration must be a mapping (dictionary).')
+            raise ConfigurationError(_('Betty configuration must be a mapping (dictionary).'))
 
         if 'output' not in dumped_configuration or not isinstance(dumped_configuration['output'], str):
-            raise ConfigurationError('The output directory path is required and must be a string.', contexts=['`output`'])
+            raise ConfigurationError(_('The output directory path is required and must be a string.'), contexts=['`output`'])
         with ensure_context('`output`'):
             self.output_directory_path = ensure_path(dumped_configuration['output'])
 
         if 'base_url' not in dumped_configuration or not isinstance(dumped_configuration['base_url'], str):
-            raise ConfigurationError('The base URL is required and must be a string.', contexts=['`base_url`'])
+            raise ConfigurationError(_('The base URL is required and must be a string.'), contexts=['`base_url`'])
         self.base_url = dumped_configuration['base_url']
 
         if 'title' in dumped_configuration:
             if not isinstance(dumped_configuration['title'], str):
-                raise ConfigurationError('The title must be a string.', contexts=['`title`'])
+                raise ConfigurationError(_('The title must be a string.'), contexts=['`title`'])
             self.title = dumped_configuration['title']
 
         if 'author' in dumped_configuration:
             if not isinstance(dumped_configuration['author'], str):
-                raise ConfigurationError('The author must be a string.', contexts=['`author`'])
+                raise ConfigurationError(_('The author must be a string.'), contexts=['`author`'])
             self.author = dumped_configuration['author']
 
         if 'root_path' in dumped_configuration:
             if not isinstance(dumped_configuration['root_path'], str):
-                raise ConfigurationError('The root path must be a string.', contexts=['`root_path`'])
+                raise ConfigurationError(_('The root path must be a string.'), contexts=['`root_path`'])
             self.root_path = dumped_configuration['root_path']
 
         if 'clean_urls' in dumped_configuration:
             if not isinstance(dumped_configuration['clean_urls'], bool):
-                raise ConfigurationError('Clean URLs must be enabled (true) or disabled (false) with a boolean.', contexts=['`clean_urls`'])
+                raise ConfigurationError(_('Clean URLs must be enabled (true) or disabled (false) with a boolean.'), contexts=['`clean_urls`'])
             self.clean_urls = dumped_configuration['clean_urls']
 
         if 'content_negotiation' in dumped_configuration:
             if not isinstance(dumped_configuration['content_negotiation'], bool):
-                raise ConfigurationError('Content negotiation must be enabled (true) or disabled (false) with a boolean.', contexts=['`content_negotiation`'])
+                raise ConfigurationError(_('Content negotiation must be enabled (true) or disabled (false) with a boolean.'), contexts=['`content_negotiation`'])
             self.content_negotiation = dumped_configuration['content_negotiation']
 
         if 'debug' in dumped_configuration:
             if not isinstance(dumped_configuration['debug'], bool):
-                raise ConfigurationError('Debugging must be enabled (true) or disabled (false) with a boolean.', contexts=['`debug`'])
+                raise ConfigurationError(_('Debugging must be enabled (true) or disabled (false) with a boolean.'), contexts=['`debug`'])
             self.debug = dumped_configuration['debug']
 
         if 'assets' in dumped_configuration:
             if not isinstance(dumped_configuration['assets'], str):
-                raise ConfigurationError('The assets directory path must be a string.', contexts=['`assets`'])
+                raise ConfigurationError(_('The assets directory path must be a string.'), contexts=['`assets`'])
             with ensure_context('`assets`'):
                 self.assets_directory_path = ensure_directory_path(dumped_configuration['assets'])
 
         if 'lifetime_threshold' in dumped_configuration:
             if not isinstance(dumped_configuration['lifetime_threshold'], int):
-                raise ConfigurationError('The lifetime threshold must be an integer.', contexts=['`lifetime_threshold`'])
+                raise ConfigurationError(_('The lifetime threshold must be an integer.'), contexts=['`lifetime_threshold`'])
             self.lifetime_threshold = dumped_configuration['lifetime_threshold']
 
         if 'locales' in dumped_configuration:

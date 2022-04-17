@@ -10,7 +10,7 @@ class MapsTest(TestCase):
     @patch_cache
     @sync
     async def test_post_generate_event(self):
-        async with App() as app:
+        with App() as app:
             app.project.configuration.debug = True
             app.project.configuration.extensions.add(ProjectExtensionConfiguration(Maps))
             await generate(app)

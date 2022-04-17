@@ -3,16 +3,22 @@ from __future__ import annotations
 import weakref
 from concurrent.futures._base import Executor
 from concurrent.futures.thread import ThreadPoolExecutor
-from contextlib import AsyncExitStack, contextmanager
+from contextlib import contextmanager, ExitStack
 from gettext import NullTranslations
-from typing import List, Type, TYPE_CHECKING, Set
+from typing import List, Type, TYPE_CHECKING, Set, Iterator, Optional
+
+from betty.resource import Releaser, Acquirer
+
+try:
+    from typing import Self
+except ImportError:
+    from typing_extensions import Self
 
 from reactives.factory.type import ReactiveInstance
 
 from betty.app.extension import ListExtensions, Extension, Extensions, build_extension_type_graph, \
     CyclicDependencyError, ExtensionDispatcher
 from betty.asyncio import sync
-from betty.environment import Environment
 from betty.model import Entity, EntityTypeProvider
 from betty.model.event_type import EventTypeProvider, Birth, Baptism, Adoption, Death, Funeral, Cremation, Burial, Will, \
     Engagement, Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, Emigration, \
@@ -40,7 +46,7 @@ from betty.model.ancestry import Citation, Event, File, Person, PersonName, Pres
     Source, Note, EventType
 from betty.config import Configurable
 from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH
-from betty.locale import Translations, negotiate_locale, TranslationsRepository
+from betty.locale import negotiate_locale, TranslationsRepository, Translations
 
 
 @reactive
@@ -54,13 +60,12 @@ class _AppExtensions(ListExtensions):
 
 
 @reactive
-class App(Environment, ReactiveInstance):
+class App(Acquirer, Releaser, ReactiveInstance):
     def __init__(self, *args, **kwargs):
         from betty.url import AppUrlGenerator, StaticPathUrlGenerator
 
         super().__init__(*args, **kwargs)
 
-        self._active = False
         self._extensions = None
         self._project = Project()
         self._assets = FileSystem()
@@ -70,15 +75,20 @@ class App(Environment, ReactiveInstance):
         self._url_generator = AppUrlGenerator(self)
         self._static_url_generator = StaticPathUrlGenerator(self.project.configuration)
         self._debug = None
-        self._locale = None
+        self._locale: Optional[str] = None
         self._translations = TranslationsRepository(self.assets)
         self._default_translations = None
-        self._activation_exit_stack = AsyncExitStack()
+        self._close_stack = ExitStack()
         self._jinja2_environment = None
         self._renderer = None
         self._executor = None
         self._locks = Locks()
         self._http_client = None
+
+    def __copy__(self) -> Self:
+        copied = type(self)()
+        copied._project = self._project
+        return copied
 
     def wait(self) -> None:
         self._wait_for_threads()
@@ -87,20 +97,34 @@ class App(Environment, ReactiveInstance):
         if self._executor:
             self._executor.wait()
 
-    def _assert_active(self) -> None:
-        if not self._active:
-            raise RuntimeError('This application is not yet active.')
+    def acquire(self) -> None:
+        try:
+            # Enable the gettext API by entering a dummy translations context.
+            self._close_stack.enter_context(Translations(NullTranslations()))
+            # Then acquire the actual locale.
+            self._close_stack.enter_context(self.acquire_locale())
 
-    def _assert_deactive(self) -> None:
-        if self._active:
-            raise RuntimeError('This application is still active.')
+            for extension in self.extensions.flatten():
+                if isinstance(extension, Acquirer):
+                    extension.acquire()
+                if isinstance(extension, Releaser):
+                    self._activation_exit_stack.push(extension.release)
+        except BaseException:
+            self.release()
+            raise
+
+    def release(self) -> None:
+        self._wait_for_threads()
+        self._close_stack.close()
+        del self.http_client
 
     @contextmanager
-    def activate_locale(self, requested_locale: str) -> None:
+    def acquire_locale(self, requested_locale: Optional[str] = None) -> Iterator[Self]:
         """
         Temporarily change this application's locale and the global gettext translations.
         """
-        self._assert_active()
+        if requested_locale is None:
+            requested_locale = self.project.configuration.locales.default_locale.locale
 
         negotiated_locale = negotiate_locale(
             requested_locale,
@@ -115,70 +139,28 @@ class App(Environment, ReactiveInstance):
             raise ValueError(f'Locale "{requested_locale}" is not enabled.')
 
         previous_locale = self._locale
-        if negotiated_locale == previous_locale:
-            yield
-            return
-        self._wait_for_threads()
-
         self._locale = negotiated_locale
         with self.translations[negotiated_locale]:
-            self.react['locale'].react.trigger()
-            yield
-            self._wait_for_threads()
+            yield self
 
         self._locale = previous_locale
-        self.react['locale'].react.trigger()
 
-    async def activate(self) -> None:
-        self._assert_deactive()
-        self._active = True
+    @property
+    def locale(self) -> str:
+        if self._locale is None:
+            raise RuntimeError(f'No locale is active yet. Use {type(self)}.acquire_locale() to activate a locale.')
+        return self._locale
 
-        self._wait_for_threads()
-
-        try:
-            # Enable the gettext API by entering a dummy translations context.
-            self._activation_exit_stack.enter_context(Translations(NullTranslations()))
-            # Then enter the final locale context (doing so may recursively require the gettext API).
-            self._activation_exit_stack.enter_context(self.activate_locale(self.locale))
-            for extension in self.extensions.flatten():
-                await extension.activate()
-                self._activation_exit_stack.push_async_callback(extension.deactivate)
-        except BaseException:
-            await self.deactivate()
-            raise
-
-    async def deactivate(self) -> None:
-        self._assert_active()
-        self._active = False
-
-        self._wait_for_threads()
-
-        await self._activation_exit_stack.aclose()
-
-    async def __aenter__(self) -> App:
-        await self.activate()
+    def __enter__(self) -> App:
+        self.acquire()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self.deactivate()
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.release()
 
     @property
     def project(self) -> Project:
         return self._project
-
-    @reactive
-    @property
-    def debug(self) -> bool:
-        if self._debug is not None:
-            return self._debug
-        return self.project.configuration.debug
-
-    @reactive
-    @property
-    def locale(self) -> str:
-        if self._locale is not None:
-            return self._locale
-        return self.project.configuration.locales.default_locale.locale
 
     @property
     def extensions(self) -> Extensions:
@@ -302,12 +284,20 @@ class App(Environment, ReactiveInstance):
     def locks(self) -> Locks:
         return self._locks
 
+    @reactive
     @property
     def http_client(self) -> aiohttp.ClientSession:
         if not self._http_client:
             self._http_client = aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit_per_host=5))
             weakref.finalize(self, sync(self._http_client.close))
         return self._http_client
+
+    @http_client.deleter
+    @sync
+    async def http_client(self) -> None:
+        if self._http_client is not None:
+            await self._http_client.close()
+            self._http_client = None
 
     @reactive
     @property

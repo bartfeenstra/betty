@@ -37,7 +37,7 @@ class GenerateTestCase(TestCase):
 class GenerateTest(GenerateTestCase):
     @sync
     async def test_front_page(self):
-        async with App() as app:
+        with App() as app:
             await generate(app)
         self.assert_betty_html(app, '/index.html')
 
@@ -48,7 +48,7 @@ class GenerateTest(GenerateTestCase):
             LocaleConfiguration('en-US', 'en'),
             LocaleConfiguration('nl-NL', 'nl'),
         ])
-        async with app:
+        with app:
             await generate(app)
             with open(self.assert_betty_html(app, '/nl/index.html')) as f:
                 html = f.read()
@@ -57,14 +57,14 @@ class GenerateTest(GenerateTestCase):
 
     @sync
     async def test_files(self):
-        async with App() as app:
+        with App() as app:
             await generate(app)
         self.assert_betty_html(app, '/file/index.html')
         self.assert_betty_json(app, '/file/index.json', 'fileCollection')
 
     @sync
     async def test_file(self):
-        async with App() as app:
+        with App() as app:
             with NamedTemporaryFile() as f:
                 file = File('FILE1', Path(f.name))
                 app.project.ancestry.entities.append(file)
@@ -74,14 +74,14 @@ class GenerateTest(GenerateTestCase):
 
     @sync
     async def test_places(self):
-        async with App() as app:
+        with App() as app:
             await generate(app)
         self.assert_betty_html(app, '/place/index.html')
         self.assert_betty_json(app, '/place/index.json', 'placeCollection')
 
     @sync
     async def test_place(self):
-        async with App() as app:
+        with App() as app:
             place = Place('PLACE1', [PlaceName('one')])
             app.project.ancestry.entities.append(place)
             await generate(app)
@@ -90,14 +90,14 @@ class GenerateTest(GenerateTestCase):
 
     @sync
     async def test_people(self):
-        async with App() as app:
+        with App() as app:
             await generate(app)
         self.assert_betty_html(app, '/person/index.html')
         self.assert_betty_json(app, '/person/index.json', 'personCollection')
 
     @sync
     async def test_person(self):
-        async with App() as app:
+        with App() as app:
             person = Person('PERSON1')
             app.project.ancestry.entities.append(person)
             await generate(app)
@@ -106,14 +106,14 @@ class GenerateTest(GenerateTestCase):
 
     @sync
     async def test_events(self):
-        async with App() as app:
+        with App() as app:
             await generate(app)
         self.assert_betty_html(app, '/event/index.html')
         self.assert_betty_json(app, '/event/index.json', 'eventCollection')
 
     @sync
     async def test_event(self):
-        async with App() as app:
+        with App() as app:
             event = Event('EVENT1', Birth())
             app.project.ancestry.entities.append(event)
             await generate(app)
@@ -122,7 +122,7 @@ class GenerateTest(GenerateTestCase):
 
     @sync
     async def test_citation(self):
-        async with App() as app:
+        with App() as app:
             citation = Citation('CITATION1', Source('A Little Birdie'))
             app.project.ancestry.entities.append(citation)
             await generate(app)
@@ -132,14 +132,14 @@ class GenerateTest(GenerateTestCase):
 
     @sync
     async def test_sources(self):
-        async with App() as app:
+        with App() as app:
             await generate(app)
         self.assert_betty_html(app, '/source/index.html')
         self.assert_betty_json(app, '/source/index.json', 'sourceCollection')
 
     @sync
     async def test_source(self):
-        async with App() as app:
+        with App() as app:
             source = Source('SOURCE1', 'A Little Birdie')
             app.project.ancestry.entities.append(source)
             await generate(app)
@@ -155,7 +155,7 @@ class MultilingualTest(GenerateTestCase):
             LocaleConfiguration('nl'),
             LocaleConfiguration('en'),
         ])
-        async with app:
+        with app:
             await generate(app)
         with open(self.assert_betty_html(app, '/index.html')) as f:
             meta_redirect = '<meta http-equiv="refresh" content="0; url=/nl/index.html">'
@@ -168,7 +168,7 @@ class MultilingualTest(GenerateTestCase):
             LocaleConfiguration('nl'),
             LocaleConfiguration('en'),
         ])
-        async with app:
+        with app:
             await generate(app)
         with open(self.assert_betty_html(app, '/nl/index.html')) as f:
             translation_link = '<a href="/en/index.html" hreflang="en" lang="en" rel="alternate">English</a>'
@@ -184,7 +184,7 @@ class MultilingualTest(GenerateTestCase):
             LocaleConfiguration('nl'),
             LocaleConfiguration('en'),
         ])
-        async with app:
+        with app:
             person = Person('PERSON1')
             app.project.ancestry.entities.append(person)
             await generate(app)
@@ -205,7 +205,7 @@ class ResourceOverrideTest(GenerateTestCase):
             localized_assets_directory_path.mkdir(parents=True)
             with open(str(localized_assets_directory_path / 'index.html.j2'), 'w') as f:
                 f.write('{% block page_content %}Betty was here{% endblock %}')
-            async with App() as app:
+            with App() as app:
                 app.project.configuration.assets_directory_path = assets_directory_path
                 await generate(app)
         with open(app.project.configuration.www_directory_path / 'index.html') as f:
@@ -216,7 +216,7 @@ class ResourceOverrideTest(GenerateTestCase):
 class SitemapGenerateTest(GenerateTestCase):
     @sync
     async def test_validate(self):
-        async with App() as app:
+        with App() as app:
             await generate(app)
         with open(Path(__file__).parent / 'test_generate_assets' / 'sitemap.xsd') as f:
             schema_doc = etree.parse(f)

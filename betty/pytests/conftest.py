@@ -75,7 +75,7 @@ def assert_window(assert_top_level_widget):
 
 @pytest.fixture
 def assert_error(qapp, qtbot):
-    def _assert_error(error_type: Type[Error]) -> Error:
+    def _wait_assert_error(error_type: Type[Error]) -> Error:
         widget = None
 
         def _assert_error_modal():
@@ -85,18 +85,23 @@ def assert_error(qapp, qtbot):
         qtbot.waitUntil(_assert_error_modal)
         qtbot.addWidget(widget)
         return widget
-    return _assert_error
+    return _wait_assert_error
 
 
 @pytest.fixture
 def assert_top_level_widget(qapp, qtbot):
-    def _assert_top_level_widget(widget_type: Type[QWidget]) -> QWidget:
-        widgets = [widget for widget in qapp.topLevelWidgets() if isinstance(widget, widget_type) and widget.isVisible()]
-        assert len(widgets) == 1
+    def _wait_assert_top_level_widget(widget_type: Type[QWidget]) -> QWidget:
+        widgets = []
+
+        def __assert_top_level_widget():
+            nonlocal widgets
+            widgets = [widget for widget in qapp.topLevelWidgets() if isinstance(widget, widget_type) and widget.isVisible()]
+            assert len(widgets) == 1
+        qtbot.waitUntil(__assert_top_level_widget)
         widget = widgets[0]
         qtbot.addWidget(widget)
         return widget
-    return _assert_top_level_widget
+    return _wait_assert_top_level_widget
 
 
 @pytest.fixture

@@ -33,7 +33,7 @@ class ExtensionDispatcherTest(TestCase):
 
     @sync
     async def test(self) -> None:
-        async with App() as app:
+        with App() as app:
             extensions = ListExtensions([
                 [self._MultiplyingExtension(app, 1), self._MultiplyingExtension(app, 3)],
                 [self._MultiplyingExtension(app, 2), self._MultiplyingExtension(app, 4)]

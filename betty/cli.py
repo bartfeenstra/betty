@@ -88,7 +88,7 @@ async def _init_ctx(ctx: Context, _: Optional[Option] = None, configuration_file
 
     for try_configuration_file_path in try_configuration_file_paths:
         with suppress(FileNotFoundError):
-            async with app:
+            with app:
                 with open(try_configuration_file_path) as f:
                     logger.info('Loading the configuration from %s.' % try_configuration_file_path)
                     from_file(f, app.project.configuration)
@@ -129,7 +129,8 @@ def main(app):
 @global_command
 @sync
 async def _clear_caches():
-    await cache.clear()
+    with App():
+        await cache.clear()
 
 
 @click.command(help='Explore a demonstration site.')
@@ -144,21 +145,23 @@ async def _demo():
 @click.command(help="Open Betty's graphical user interface (GUI).")
 @global_command
 @click.option('--configuration', '-c', 'configuration_file_path', is_eager=True, help='The path to a Betty configuration file. Defaults to betty.json|yaml|yml in the current working directory.')
-def _gui(configuration_file_path: Optional[str]):
-    app = BettyApplication([sys.argv[0]])
-    if configuration_file_path is None:
-        window = _WelcomeWindow()
-    else:
-        window = ProjectWindow(configuration_file_path)
-    window.show()
-    sys.exit(app.exec())
+@sync
+async def _gui(configuration_file_path: Optional[str]):
+    with App() as app:
+        qapp = BettyApplication([sys.argv[0]])
+        if configuration_file_path is None:
+            window = _WelcomeWindow(app)
+        else:
+            window = ProjectWindow(app, configuration_file_path)
+        window.show()
+        sys.exit(qapp.exec())
 
 
 @click.command(help='Generate a static site.')
 @app_command
 @sync
 async def _generate(app: App):
-    async with app:
+    with app:
         await load.load(app)
         await generate.generate(app)
 
@@ -167,7 +170,7 @@ async def _generate(app: App):
 @app_command
 @sync
 async def _serve(app: App):
-    async with app:
+    with app:
         if not path.isdir(app.project.configuration.www_directory_path):
             raise UserFacingError('Web root directory "%s" does not exist.' % app.project.configuration.www_directory_path)
         async with serve.AppServer(app):

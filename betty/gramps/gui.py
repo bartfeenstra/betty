@@ -23,7 +23,7 @@ class _GrampsGuiWidget(QWidget, ReactiveInstance):
         self._family_trees_widget = None
 
         self._build_family_trees()
-        self._add_family_tree_button = QPushButton('Add a family tree')
+        self._add_family_tree_button = QPushButton(_('Add a family tree'))
         self._add_family_tree_button.released.connect(self._add_family_tree)
         self._layout.addWidget(self._add_family_tree_button, 1)
 
@@ -41,7 +41,7 @@ class _GrampsGuiWidget(QWidget, ReactiveInstance):
             def _remove_family_tree() -> None:
                 del self._configuration.family_trees[i]
             family_trees_layout.addWidget(Text(str(family_tree.file_path)), i, 0)
-            self._family_trees_widget._remove_buttons.insert(i, QPushButton('Remove'))
+            self._family_trees_widget._remove_buttons.insert(i, QPushButton(_('Remove')))
             self._family_trees_widget._remove_buttons[i].released.connect(_remove_family_tree)
             family_trees_layout.addWidget(self._family_trees_widget._remove_buttons[i], i, 1)
         self._layout.insertWidget(0, self._family_trees_widget, alignment=Qt.AlignmentFlag.AlignTop)
@@ -54,7 +54,6 @@ class _GrampsGuiWidget(QWidget, ReactiveInstance):
 class _AddFamilyTreeWindow(BettyWindow):
     width = 500
     height = 100
-    title = 'Add a family tree'
 
     def __init__(self, family_trees: List[FamilyTreeConfiguration], *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -89,9 +88,9 @@ class _AddFamilyTreeWindow(BettyWindow):
 
         @catch_exceptions
         def find_family_tree_file_path() -> None:
-            found_family_tree_file_path, _ = QFileDialog.getOpenFileName(
+            found_family_tree_file_path, __ = QFileDialog.getOpenFileName(
                 self._widget,
-                'Load the family tree from...',
+                _('Load the family tree from...'),
                 directory=self._widget._file_path.text(),
             )
             if '' != found_family_tree_file_path:
@@ -99,7 +98,7 @@ class _AddFamilyTreeWindow(BettyWindow):
         self._widget._file_path_find = QPushButton('...')
         self._widget._file_path_find.released.connect(find_family_tree_file_path)
         file_path_layout.addWidget(self._widget._file_path_find)
-        self._layout.addRow('File path', file_path_layout)
+        self._layout.addRow(_('File path'), file_path_layout)
 
         buttons_layout = QHBoxLayout()
         self._layout.addRow(buttons_layout)
@@ -108,11 +107,15 @@ class _AddFamilyTreeWindow(BettyWindow):
         def save_and_close_family_tree() -> None:
             self._family_trees.append(self._family_tree)
             self.close()
-        self._widget._save_and_close = QPushButton('Save and close')
+        self._widget._save_and_close = QPushButton(_('Save and close'))
         self._widget._save_and_close.setDisabled(True)
         self._widget._save_and_close.released.connect(save_and_close_family_tree)
         buttons_layout.addWidget(self._widget._save_and_close)
 
-        self._widget._cancel = QPushButton('Cancel')
+        self._widget._cancel = QPushButton(_('Cancel'))
         self._widget._cancel.released.connect(self.close)
         buttons_layout.addWidget(self._widget._cancel)
+
+    @property
+    def title(self) -> str:
+        return _('Add a family tree')

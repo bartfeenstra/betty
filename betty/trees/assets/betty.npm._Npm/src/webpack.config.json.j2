@@ -1,4 +1,4 @@
 {{ {
-    'debug': app.debug,
+    'debug': app.project.configuration.debug,
     'cacheDirectory': app.extensions['betty.trees.Trees'].cache_directory_path / 'babel',
 } | tojson }}

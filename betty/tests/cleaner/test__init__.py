@@ -13,7 +13,7 @@ class CleanerTest(TestCase):
     @sync
     async def test_post_parse(self) -> None:
         event = Event('E0', Birth())
-        async with App() as app:
+        with App() as app:
             app.project.configuration.extensions.add(ProjectExtensionConfiguration(Cleaner))
             app.project.ancestry.entities.append(event)
             await load(app)

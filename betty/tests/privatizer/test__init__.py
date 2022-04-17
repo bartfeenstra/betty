@@ -95,7 +95,7 @@ class PrivatizerTest(TestCase):
         citation.private = True
         citation.files.append(citation_file)
 
-        async with App() as app:
+        with App() as app:
             app.project.configuration.extensions.add(ProjectExtensionConfiguration(Privatizer))
             app.project.ancestry.entities.append(person)
             app.project.ancestry.entities.append(source)

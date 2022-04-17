@@ -53,7 +53,7 @@ async def _generate(app: App) -> None:
     await app.renderer.render_tree(app.project.configuration.www_directory_path)
     for locale_configuration in app.project.configuration.locales:
         locale = locale_configuration.locale
-        with app.activate_locale(locale):
+        with app.acquire_locale(locale):
             if app.project.configuration.multilingual:
                 www_directory_path = app.project.configuration.www_directory_path / locale_configuration.alias
             else:
@@ -85,15 +85,15 @@ async def _generate(app: App) -> None:
             # Batch all coroutines to reduce the risk of "too many open files" errors.
             for i in range(0, len(coroutines), _GENERATE_CONCURRENCY):
                 await asyncio.gather(*coroutines[i:i + _GENERATE_CONCURRENCY])
-            locale_label = Locale.parse(locale, '-').get_display_name()
-            logger.info(f'Generated pages for {len(app.project.ancestry.entities[File])} files in {locale_label}.')
-            logger.info(f'Generated pages for {len(app.project.ancestry.entities[Person])} people in {locale_label}.')
-            logger.info(f'Generated pages for {len(app.project.ancestry.entities[Place])} places in {locale_label}.')
-            logger.info(f'Generated pages for {len(app.project.ancestry.entities[Event])} events in {locale_label}.')
-            logger.info(f'Generated pages for {len(app.project.ancestry.entities[Citation])} citations in {locale_label}.')
-            logger.info(f'Generated pages for {len(app.project.ancestry.entities[Source])} sources in {locale_label}.')
-            logger.info(f'Generated pages for {len(app.project.ancestry.entities[Note])} notes in {locale_label}.')
-            logger.info(f'Generated OpenAPI documentation in {locale_label}.')
+            locale_label = Locale.parse(locale, '-').get_display_name(locale=app.project.configuration.locales.default_locale.locale.replace('-', '_'))
+            logger.info(_('Generated pages for {file_count} files in {locale}.').format(file_count=len(app.project.ancestry.entities[File]), locale=locale_label))
+            logger.info(_('Generated pages for {person_count} people in {locale}.').format(person_count=len(app.project.ancestry.entities[Person]), locale=locale_label))
+            logger.info(_('Generated pages for {place_count} places in {locale}.').format(place_count=len(app.project.ancestry.entities[Place]), locale=locale_label))
+            logger.info(_('Generated pages for {event_count} events in {locale}.').format(event_count=len(app.project.ancestry.entities[Event]), locale=locale_label))
+            logger.info(_('Generated pages for {citation_count} citations in {locale}.').format(citation_count=len(app.project.ancestry.entities[Citation]), locale=locale_label))
+            logger.info(_('Generated pages for {source_count} sources in {locale}.').format(source_count=len(app.project.ancestry.entities[Source]), locale=locale_label))
+            logger.info(_('Generated pages for {note_count} notes in {locale}.').format(note_count=len(app.project.ancestry.entities[Note]), locale=locale_label))
+            logger.info(_('Generated OpenAPI documentation in {locale}.').format(locale=locale_label))
 
 
 def _create_file(path: Path) -> object:

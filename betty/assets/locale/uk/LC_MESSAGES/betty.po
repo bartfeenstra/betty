@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-03-10 20:26+0000\n"
+"POT-Creation-Date: 2022-04-16 22:36+0100\n"
 "PO-Revision-Date: 2020-05-02 22:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -82,6 +82,9 @@ msgid ""
 "</code></pre>"
 msgstr ""
 
+msgid "\"{extension_type_name}\" is not a Betty extension."
+msgstr ""
+
 #, python-format
 msgid "%(date)s"
 msgstr "%(date)s"
@@ -149,6 +152,9 @@ msgstr "документація API"
 msgid "About"
 msgstr ""
 
+msgid "About Betty"
+msgstr ""
+
 msgid "Access denied"
 msgstr "У доступі відмовлено"
 
@@ -156,11 +162,20 @@ msgstr "У доступі відмовлено"
 msgid "Accessed %(date)s"
 msgstr "доступ %(date)s"
 
+msgid "Add a family tree"
+msgstr ""
+
 msgid "Add a locale"
 msgstr ""
 
 msgid "Adoption"
 msgstr "Усиновлення"
+
+msgid "Alias"
+msgstr ""
+
+msgid "All caches cleared."
+msgstr ""
 
 msgid "All of these requirements must be met"
 msgstr ""
@@ -187,6 +202,19 @@ msgid ""
 "US/docs/Web/HTTP/Headers/Content-Language) header."
 msgstr ""
 
+msgid ""
+"An optional alias is used instead of the locale code to identify this "
+"locale, such as in URLs. If US English is the only English language "
+"variant on your site, you may want to alias its language code from <code"
+">en-US</code> to <code>en</code>, for instance."
+msgstr ""
+
+msgid ""
+"An unexpected error occurred and Betty could not complete the task. "
+"Please <a href=\"{report_url}\">report this problem</a> and include the "
+"following details, so the team behind Betty can address it."
+msgstr ""
+
 msgid "Ancestral names include"
 msgstr "Імена предків є"
 
@@ -205,11 +233,24 @@ msgstr ""
 msgid "Anonymizer"
 msgstr ""
 
+msgid "App extensions configuration must be a mapping (dictionary)."
+msgstr ""
+
 msgid "Appearances"
 msgstr "Знайдено в"
 
+msgid "Assets directory"
+msgstr ""
+
 msgid "Attendee"
 msgstr "Відвідувач"
+
+#, fuzzy
+msgid "Author"
+msgstr "Несанкціонована"
+
+msgid "Background image ID"
+msgstr ""
 
 msgid "Baptism"
 msgstr "Хрещення"
@@ -217,24 +258,72 @@ msgstr "Хрещення"
 msgid "Beneficiary"
 msgstr "Бенефіціар"
 
+msgid "Betty configuration ({extensions})"
+msgstr ""
+
+msgid "Betty configuration must be a mapping (dictionary)."
+msgstr ""
+
+msgid ""
+"Betty is a static site generator for your <a "
+"href=\"{gramps_url}\">Gramps</a> and <a href=\"{gedcom_url}\">GEDCOM</a> "
+"family trees."
+msgstr ""
+
 msgid "Birth"
 msgstr "Народження"
 
 msgid "Burial"
 msgstr "Поховання"
 
+msgid "Cancel"
+msgstr ""
+
+msgid "Cannot remove the last remaining locale {locale}"
+msgstr ""
+
+msgid "Clean URLs"
+msgstr ""
+
+msgid "Clean URLs must be enabled (true) or disabled (false) with a boolean."
+msgstr ""
+
 msgid "Cleaner"
+msgstr ""
+
+msgid "Clear all caches"
+msgstr ""
+
+msgid "Close"
 msgstr ""
 
 msgid "Confirmation"
 msgstr "Миропомазання"
 
+msgid "Content negotiation"
+msgstr ""
+
+msgid ""
+"Content negotiation must be enabled (true) or disabled (false) with a "
+"boolean."
+msgstr ""
+
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Продовжуйте читати у <a href=\"%(url)s\">Вікіпедії</a>."
 
+msgid ""
+"Copyright 2019-{year} <a href=\"twitter.com/bartFeenstra\">Bart "
+"Feenstra</a> & contributors. Betty is made available to you under the <a "
+"href=\"https://www.gnu.org/licenses/gpl-3.0.en.html\">GNU General Public "
+"License, Version 3</a> (GPLv3)."
+msgstr ""
+
 msgid "Correspondence"
 msgstr "Листування"
+
+msgid "Create a new project"
+msgstr ""
 
 msgid ""
 "Create events such as births and deaths by deriving their details from "
@@ -246,6 +335,17 @@ msgstr "Кремація"
 
 msgid "Death"
 msgstr "Смерть"
+
+msgid "Debugging mode"
+msgstr ""
+
+msgid "Debugging must be enabled (true) or disabled (false) with a boolean."
+msgstr ""
+
+msgid ""
+"Decide the correct page variety to serve users depending on their own "
+"preferences. This requires a web server that supports it."
+msgstr ""
 
 msgid "Deriver"
 msgstr ""
@@ -285,11 +385,17 @@ msgstr "Наприклад «%(example)s»"
 msgid "Emigration"
 msgstr "Еміграція"
 
+msgid "Enable {extension}"
+msgstr ""
+
 msgid "Engagement"
 msgstr "Заручини"
 
 msgid "Events"
 msgstr "Події"
+
+msgid "Exit"
+msgstr ""
 
 msgid "Exit the search"
 msgstr "Вийдіть із пошуку."
@@ -303,11 +409,59 @@ msgstr "Факти"
 msgid "Family"
 msgstr ""
 
+msgid "File path"
+msgstr ""
+
+msgid ""
+"Follow Betty on <a href=\"https://twitter.com/Betty_Project\">Twitter</a>"
+" and <a href=\"https://github.com/bartfeenstra/betty\">Github</a>."
+msgstr ""
+
 msgid "Forbidden"
 msgstr ""
 
 msgid "Funeral"
 msgstr "Похорон"
+
+#, fuzzy
+msgid "General"
+msgstr "Похорон"
+
+msgid "Generate site"
+msgstr ""
+
+msgid "Generate your site to..."
+msgstr ""
+
+msgid "Generated OpenAPI documentation in {locale}."
+msgstr ""
+
+msgid "Generated pages for {citation_count} citations in {locale}."
+msgstr ""
+
+msgid "Generated pages for {event_count} events in {locale}."
+msgstr ""
+
+msgid "Generated pages for {file_count} files in {locale}."
+msgstr ""
+
+msgid "Generated pages for {note_count} notes in {locale}."
+msgstr ""
+
+msgid "Generated pages for {person_count} people in {locale}."
+msgstr ""
+
+msgid "Generated pages for {place_count} places in {locale}."
+msgstr ""
+
+msgid "Generated pages for {source_count} sources in {locale}."
+msgstr ""
+
+msgid "Generating your site..."
+msgstr ""
+
+msgid "Help"
+msgstr ""
 
 msgid "I'm sorry, dear, but it seems there are no events."
 msgstr ""
@@ -336,10 +490,37 @@ msgstr ""
 msgid "Immigration"
 msgstr "Імміграція"
 
+msgid "Invalid JSON: {error}."
+msgstr ""
+
+msgid "Invalid YAML: {error}."
+msgstr ""
+
+msgid "Keep this window open to keep the site running."
+msgstr ""
+
 msgid "Language"
 msgstr "Мова"
 
+msgid "Lifetime threshold"
+msgstr ""
+
 msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
+msgstr ""
+
+msgid "Load assets from..."
+msgstr ""
+
+msgid "Load the family tree from..."
+msgstr ""
+
+msgid "Loading..."
+msgstr ""
+
+msgid "Locales configuration much be a list."
+msgstr ""
+
+msgid "Localization"
 msgstr ""
 
 msgid "MMMM"
@@ -369,6 +550,9 @@ msgstr "Меню"
 msgid "Missing"
 msgstr "Відсутній"
 
+msgid "New project..."
+msgstr ""
+
 msgid "Not found"
 msgstr ""
 
@@ -381,8 +565,25 @@ msgstr "Праця"
 msgid "One or more of these requirements must be met"
 msgstr ""
 
+msgid "Open an existing project"
+msgstr ""
+
+msgid "Open project..."
+msgstr ""
+
+msgid "Open your project from..."
+msgstr ""
+
 msgid "Other attendees"
 msgstr "Інші відвідувачі"
+
+msgid "Output directory"
+msgstr ""
+
+msgid ""
+"Output more detailed logs and disable optimizations that make debugging "
+"harder."
+msgstr ""
 
 msgid "Page not found"
 msgstr "Сторінку не знайдено"
@@ -409,16 +610,25 @@ msgstr "Приватні"
 msgid "Privatizer"
 msgstr "приватні"
 
+msgid "Project"
+msgstr ""
+
 msgid "Read more on Wikipedia."
 msgstr "Детальніше читайте у Вікіпедії"
 
 msgid "References"
 msgstr "Референції"
 
+msgid "Remove"
+msgstr ""
+
 msgid ""
 "Remove people, events, places, files, sources, and citations if they have"
 " no relationships with any other resources. Enable the Privatizer and "
 "Anonymizer as well to make this most effective."
+msgstr ""
+
+msgid "Report bugs and request new features"
 msgstr ""
 
 msgid "Residence"
@@ -463,13 +673,68 @@ msgstr ""
 msgid "Retrieve the collection of sources."
 msgstr ""
 
+msgid "Save and close"
+msgstr ""
+
+msgid "Save this project as..."
+msgstr ""
+
+msgid "Save your new project to..."
+msgstr ""
+
+msgid "Save your project to..."
+msgstr ""
+
+msgid "Serve site"
+msgstr ""
+
+msgid "Serving the Betty demo..."
+msgstr ""
+
+msgid "Serving your site at {url}..."
+msgstr ""
+
+msgid "Serving your site..."
+msgstr ""
+
 msgid "Sources"
 msgstr "Джерела"
+
+msgid "Starting Python's built-in web server..."
+msgstr ""
+
+msgid "Stop the site"
+msgstr ""
 
 msgid "Subject"
 msgstr "Предмет"
 
 msgid "The ID for the resource to retrieve."
+msgstr ""
+
+msgid ""
+"The ID of the file entity whose (image) file to use for page backgrounds "
+"if a page does not provide any image media itself."
+msgstr ""
+
+msgid "The age at which people are presumed dead."
+msgstr ""
+
+msgid "The assets directory path must be a string."
+msgstr ""
+
+msgid "The author must be a string."
+msgstr ""
+
+msgid "The base URL is required and must be a string."
+msgstr ""
+
+msgid "The base URL must include a path."
+msgstr ""
+
+msgid ""
+"The base URL must start with a scheme such as https://, http://, or "
+"file://."
 msgstr ""
 
 msgid "The citation."
@@ -493,10 +758,25 @@ msgstr ""
 msgid "The collection of sources."
 msgstr ""
 
+msgid "The configuration must be a mapping (dictionary)."
+msgstr ""
+
 msgid "The event."
 msgstr ""
 
 msgid "The file."
+msgstr ""
+
+msgid "The lifetime threshold must be a positive number."
+msgstr ""
+
+msgid "The lifetime threshold must be an integer."
+msgstr ""
+
+msgid "The lifetime threshold must consist of digits only."
+msgstr ""
+
+msgid "The output directory path is required and must be a string."
 msgstr ""
 
 msgid "The person."
@@ -505,7 +785,16 @@ msgstr ""
 msgid "The place."
 msgstr ""
 
+msgid "The root path must be a string."
+msgstr ""
+
 msgid "The source."
+msgstr ""
+
+msgid "The title must be a string."
+msgstr ""
+
+msgid "Theme"
 msgstr ""
 
 #, python-format
@@ -542,9 +831,22 @@ msgstr "Ім'я цієї людини невідоме."
 msgid "Timeline"
 msgstr "Хронологія"
 
+msgid "Title"
+msgstr ""
+
 #, fuzzy
 msgid "Trees"
 msgstr "Примітки"
+
+#, fuzzy
+msgid "URL"
+msgstr "Поховання"
+
+msgid ""
+"URLs look like <code>/path</code> instead of "
+"<code>/path/index.html</code>. This requires a web server that supports "
+"it."
+msgstr ""
 
 msgid "Unauthorized"
 msgstr "Несанкціонована"
@@ -561,9 +863,34 @@ msgstr ""
 " або <kbd>esc</kbd> для виходу з пошуку. Шукайте знову за допомогою "
 "<kbd>%(shortcut)s</kbd>."
 
+msgid "Version: {version}"
+msgstr ""
+
+msgid "View a demo site"
+msgstr ""
+
+msgid "View a demonstration of what a Betty site looks like"
+msgstr ""
+
+msgid "View demo site..."
+msgstr ""
+
+msgid "View site"
+msgstr ""
+
+msgid "Web root directory \"{path}\" does not exist."
+msgstr ""
+
 #, python-format
 msgid "Welcome to %(title)s"
 msgstr "Ласкаво просимо на %(title)s"
+
+#, fuzzy
+msgid "Welcome to Betty"
+msgstr "Ласкаво просимо на %(title)s"
+
+msgid "Where to search for asset files, such as templates and translations."
+msgstr ""
 
 msgid "Wikipedia"
 msgstr ""
@@ -576,6 +903,17 @@ msgstr "Свідок"
 
 msgid "Witnesses"
 msgstr "Свідки"
+
+msgid "Work on a new or existing site of your own"
+msgstr ""
+
+msgid ""
+"You can now view a Betty demonstration site at <a "
+"href=\"{url}\">{url}</a>."
+msgstr ""
+
+msgid "You can now view your site at <a href=\"{url}\">{url}</a>."
+msgstr ""
 
 #, python-format
 msgid ""
@@ -734,4 +1072,7 @@ msgstr "© Авторське право %(author)s, якщо інше не за
 
 #~ msgid "Source"
 #~ msgstr "Джерело"
+
+#~ msgid "'Starting Python's built-in web server...'"
+#~ msgstr ""
 

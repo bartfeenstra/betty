@@ -21,7 +21,7 @@ from jinja2 import Environment as Jinja2Environment, select_autoescape, FileSyst
 from jinja2.ext import Extension
 from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.nodes import EvalContext
-from jinja2.runtime import StrictUndefined, Context, Macro
+from jinja2.runtime import StrictUndefined, Context, Macro, DebugUndefined
 from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup, escape
 from resizeimage import resizeimage
@@ -109,7 +109,7 @@ class Environment(Jinja2Environment):
     def __init__(self, app: App):
         template_directory_paths = [str(path / 'templates') for path, _ in app.assets.paths]
         super().__init__(loader=FileSystemLoader(template_directory_paths),
-                         undefined=StrictUndefined,
+                         undefined=DebugUndefined if app.project.configuration.debug else StrictUndefined,
                          autoescape=select_autoescape(['html']),
                          trim_blocks=True,
                          extensions=[
@@ -121,7 +121,7 @@ class Environment(Jinja2Environment):
 
         self.app = app
 
-        if app.debug:
+        if app.project.configuration.debug:
             self.add_extension('jinja2.ext.debug')
 
         self._init_i18n()

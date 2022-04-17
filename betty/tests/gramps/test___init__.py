@@ -129,7 +129,7 @@ class GrampsTest(TestCase):
             with open(gramps_family_tree_two_path, mode='w') as f:
                 f.write(family_tree_two_xml)
 
-            async with App() as app:
+            with App() as app:
                 app.project.configuration.extensions.add(ProjectExtensionConfiguration(Gramps, True, GrampsConfiguration(
                     family_trees=ReactiveList([
                         FamilyTreeConfiguration(gramps_family_tree_one_path),

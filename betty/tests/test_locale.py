@@ -1,15 +1,59 @@
 import builtins
+import difflib
+import shutil
+import subprocess
+import sys
 from gettext import NullTranslations
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import List, Optional
+from typing import List, Optional, Iterator
 
 from parameterized import parameterized
 
-from betty.fs import FileSystem
+from betty.fs import FileSystem, ROOT_DIRECTORY_PATH
 from betty.locale import Localized, negotiate_localizeds, Date, format_datey, DateRange, Translations, negotiate_locale, \
     Datey, TranslationsInstallationError, TranslationsRepository
 from betty.tests import TestCase
+
+
+class PotFileTest(TestCase):
+    def _readlines(self, root_directory_path) -> Iterator[str]:
+        with open(Path(root_directory_path) / 'betty.pot') as f:
+            return filter(
+                lambda line: not line.startswith((
+                    '"POT-Creation-Date: ',
+                    '"PO-Revision-Date: ',
+                )),
+                f.readlines(),
+            )
+
+    def test(self) -> None:
+        with TemporaryDirectory() as working_directory_path:
+            shutil.copytree(ROOT_DIRECTORY_PATH, working_directory_path, dirs_exist_ok=True, ignore=shutil.ignore_patterns(
+                '*.git',
+                '.*_cache',
+                '.tox',
+                'build',
+                'dist',
+                'node_modules',
+            ))
+            subprocess.check_call(
+                (
+                    'bash',
+                    Path() / 'bin' / 'extract-translatables',
+                ),
+                cwd=working_directory_path,
+                stderr=subprocess.DEVNULL,
+                # Use a shell to circumvent some problems on Windows where Bash cannot be found.
+                shell=sys.platform == 'win32',
+            )
+            actual_pot_contents = self._readlines(ROOT_DIRECTORY_PATH)
+            expected_pot_contents = self._readlines(working_directory_path)
+            diff = difflib.unified_diff(
+                list(actual_pot_contents),
+                list(expected_pot_contents),
+            )
+            self.assertEqual(0, len(list(diff)))
 
 
 class TranslationsTest(TestCase):

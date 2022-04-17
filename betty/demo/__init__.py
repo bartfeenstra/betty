@@ -1,3 +1,4 @@
+from contextlib import ExitStack
 from typing import Set, Type
 
 from geopy import Point
@@ -161,6 +162,7 @@ class DemoServer(Server):
     def __init__(self):
         self._server = None
         self._app = None
+        self._stack = ExitStack()
 
     @property
     def public_url(self) -> str:
@@ -168,7 +170,7 @@ class DemoServer(Server):
 
     async def start(self) -> None:
         self._app = App()
-        await self._app.activate()
+        self._stack.enter_context(self._app.acquire_locale())
         self._app.project.configuration.extensions.add(ProjectExtensionConfiguration(Demo))
         # Include all of the translations Betty ships with.
         self._app.project.configuration.locales.replace([
@@ -184,9 +186,9 @@ class DemoServer(Server):
             self._server = serve.AppServer(self._app)
             await self._server.start()
         except BaseException:
-            await self._app.deactivate()
+            self._stack.close()
             raise
 
     async def stop(self) -> None:
         await self._server.stop()
-        await self._app.deactivate()
+        self._stack.close()

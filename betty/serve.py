@@ -8,7 +8,7 @@ from io import StringIO
 from typing import Iterable, Optional
 
 from betty.error import UserFacingError
-from betty.os import ChDir, PathLike
+from betty.os import ChDir
 from betty.app import App
 
 DEFAULT_PORT = 8000
@@ -72,12 +72,14 @@ class AppServer(Server):
             if isinstance(extension, ServerProvider):
                 for server in extension.servers:
                     return server
-        return BuiltinServer(self._app.project.configuration.www_directory_path)
+        return BuiltinServer(self._app)
 
     async def start(self) -> None:
         self._server = self._get_server()
         await self._server.start()
-        logging.getLogger().info('Serving your site at %s...' % self.public_url)
+        # Some tests fail on Windows with `NameError: name '_' is not defined`, so we enter the App context to be sure.
+        with self._app:
+            logging.getLogger().info(_('Serving your site at {url}...').format(url=self.public_url))
         webbrowser.open_new_tab(self.public_url)
 
     @property
@@ -97,14 +99,14 @@ class _BuiltinServerRequestHandler(SimpleHTTPRequestHandler):
 
 
 class BuiltinServer(Server):
-    def __init__(self, www_directory_path: PathLike):
-        self._www_directory_path = www_directory_path
+    def __init__(self, app: App):
+        self._app = app
         self._http_server: Optional[HTTPServer] = None
         self._port: Optional[int] = None
         self._thread: Optional[threading.Thread] = None
 
     async def start(self) -> None:
-        logging.getLogger().info('Starting Python\'s built-in web server...')
+        logging.getLogger().info(_("Starting Python's built-in web server..."))
         for self._port in range(DEFAULT_PORT, 65535):
             with contextlib.suppress(OSError):
                 self._http_server = HTTPServer(('', self._port), _BuiltinServerRequestHandler)
@@ -122,8 +124,9 @@ class BuiltinServer(Server):
 
     def _serve(self):
         with contextlib.redirect_stderr(StringIO()):
-            with ChDir(self._www_directory_path):
-                self._http_server.serve_forever()
+            with ChDir(self._app.project.configuration.www_directory_path):
+                with self._app:
+                    self._http_server.serve_forever()
 
     async def stop(self) -> None:
         if self._http_server is not None:

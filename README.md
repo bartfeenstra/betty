@@ -201,7 +201,7 @@ from betty.load import load
 
 @sync
 async def generate():
-    async with App() as app:
+    with App() as app:
         await load(app)
         await generate(app)
 
@@ -219,10 +219,20 @@ First, [fork and clone](https://guides.github.com/activities/forking/) the repos
 In any existing Python environment, run `./bin/build-dev`.
 
 ### Working on translations
-To add a new translation, run `./bin/init-translation $locale` where `$locale` is a
+#### Making changes to the translatable strings in the source code
+Run `./bin/extract-translatables` to update the translations files with the changes you made.
+
+#### Adding translations for a language for which no translations exist yet
+Run `./bin/init-translation $locale` where `$locale` is a
 [IETF BCP 47](https://tools.ietf.org/html/bcp47), but using underscores instead of dashes (`nl_NL` instead of `nl-NL`).
 
-After making changes to the translatable strings in the source code, run `./bin/extract-translatables`.
+#### Updating the translations for a language
+First, install a PO file editor on your system. Any will do, but if you don't want to search for one,
+[Poedit](https://poedit.net/) is a good and free editor to start with.
+
+Then, with this PO file editor, open and change the `*.po` file for the translations you want to change. For Dutch
+(Netherlands), that is
+[`./betty/assets/locale/nl_NL/LC_MESSAGES/betty.po`](./betty/assets/locale/nl_NL/LC_MESSAGES/betty.po), for example.
 
 ### Testing
 In any existing Python environment, run `./bin/test`.
