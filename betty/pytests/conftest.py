@@ -1,13 +1,14 @@
 import gc
-import json
-from typing import Union, List, Type, Dict
+from typing import Union, List, Type
 
 import pytest
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QMainWindow, QMenu, QWidget
 
+from betty.config import to_file
 from betty.gui import Error, BettyApplication
+from betty.project import Configuration
 
 
 @pytest.fixture(scope="function")
@@ -32,17 +33,10 @@ def qapp(qapp_args):
 
 
 @pytest.fixture
-def minimal_dumped_app_configuration(tmpdir) -> Dict:
-    return {
-        'base_url': 'https://example.com',
-    }
-
-
-@pytest.fixture
-def minimal_configuration_file_path(minimal_dumped_app_configuration, tmpdir) -> str:
+def minimal_project_configuration_file_path(tmpdir) -> str:
     configuration_file_path = tmpdir.join('betty.json')
     with open(configuration_file_path, 'w') as f:
-        json.dump(minimal_dumped_app_configuration, f)
+        to_file(f, Configuration())
     return configuration_file_path
 
 
