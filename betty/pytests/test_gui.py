@@ -8,10 +8,10 @@ from babel import Locale
 
 from betty import fs
 from betty.app import App
-from betty.config import ConfigurationError
+from betty.config import ConfigurationError, to_file
 from betty.gui import BettyMainWindow, _WelcomeWindow, ProjectWindow, _AboutBettyWindow, ExceptionError, \
     _AddLocaleWindow, _GenerateWindow, _ServeAppWindow, _ServeDemoWindow
-from betty.project import LocaleConfiguration
+from betty.project import LocaleConfiguration, Configuration
 from betty.tests import patch_cache
 
 
@@ -74,17 +74,13 @@ def test_welcome_window_open_project_with_invalid_file_should_error(assert_error
         assert isinstance(error.exception, ConfigurationError)
 
 
-def test_welcome_window_open_project_with_valid_file_should_show_project_window(assert_window, mocker, qtbot, tmpdir) -> None:
+def test_welcome_window_open_project_with_valid_file_should_show_project_window(assert_window, minimal_project_configuration_file_path, mocker, qtbot, tmpdir) -> None:
     with App() as app:
         sut = _WelcomeWindow(app)
         qtbot.addWidget(sut)
         sut.show()
 
-        configuration_file_path = tmpdir.join('betty.json')
-        configuration_file_path.write(json.dumps({
-            'base_url': 'https://example.com',
-        }))
-        mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[configuration_file_path, None]))
+        mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[minimal_project_configuration_file_path, None]))
         qtbot.mouseClick(sut.open_project_button, Qt.MouseButton.LeftButton)
 
         assert_window(ProjectWindow)
@@ -104,9 +100,9 @@ def test_welcome_window_view_demo_site(assert_window, mocker, qtbot) -> None:
         assert_window(_ServeDemoWindow)
 
 
-async def test_project_window_general_configuration_title(qtbot, minimal_configuration_file_path) -> None:
+async def test_project_window_general_configuration_title(qtbot, minimal_project_configuration_file_path) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_configuration_file_path)
+        sut = ProjectWindow(app, minimal_project_configuration_file_path)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -115,9 +111,9 @@ async def test_project_window_general_configuration_title(qtbot, minimal_configu
         assert sut._app.project.configuration.title == title
 
 
-async def test_project_window_general_configuration_author(qtbot, minimal_configuration_file_path) -> None:
+async def test_project_window_general_configuration_author(qtbot, minimal_project_configuration_file_path) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_configuration_file_path)
+        sut = ProjectWindow(app, minimal_project_configuration_file_path)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -126,9 +122,9 @@ async def test_project_window_general_configuration_author(qtbot, minimal_config
         assert sut._app.project.configuration.title == title
 
 
-async def test_project_window_general_configuration_url(qtbot, minimal_configuration_file_path) -> None:
+async def test_project_window_general_configuration_url(qtbot, minimal_project_configuration_file_path) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_configuration_file_path)
+        sut = ProjectWindow(app, minimal_project_configuration_file_path)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -137,9 +133,9 @@ async def test_project_window_general_configuration_url(qtbot, minimal_configura
         assert sut._app.project.configuration.root_path == 'my-first-ancestry'
 
 
-async def test_project_window_general_configuration_lifetime_threshold(qtbot, minimal_configuration_file_path) -> None:
+async def test_project_window_general_configuration_lifetime_threshold(qtbot, minimal_project_configuration_file_path) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_configuration_file_path)
+        sut = ProjectWindow(app, minimal_project_configuration_file_path)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -147,9 +143,9 @@ async def test_project_window_general_configuration_lifetime_threshold(qtbot, mi
         assert sut._app.project.configuration.lifetime_threshold == 123
 
 
-async def test_project_window_general_configuration_lifetime_threshold_with_non_digit_input(qtbot, minimal_configuration_file_path) -> None:
+async def test_project_window_general_configuration_lifetime_threshold_with_non_digit_input(qtbot, minimal_project_configuration_file_path) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_configuration_file_path)
+        sut = ProjectWindow(app, minimal_project_configuration_file_path)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -158,9 +154,9 @@ async def test_project_window_general_configuration_lifetime_threshold_with_non_
         assert original_lifetime_threshold == sut._app.project.configuration.lifetime_threshold
 
 
-async def test_project_window_general_configuration_lifetime_threshold_with_zero_input(qtbot, minimal_configuration_file_path) -> None:
+async def test_project_window_general_configuration_lifetime_threshold_with_zero_input(qtbot, minimal_project_configuration_file_path) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_configuration_file_path)
+        sut = ProjectWindow(app, minimal_project_configuration_file_path)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -169,9 +165,9 @@ async def test_project_window_general_configuration_lifetime_threshold_with_zero
         assert sut._app.project.configuration.lifetime_threshold == original_lifetime_threshold
 
 
-async def test_project_window_general_configuration_debug(qtbot, minimal_configuration_file_path) -> None:
+async def test_project_window_general_configuration_debug(qtbot, minimal_project_configuration_file_path) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_configuration_file_path)
+        sut = ProjectWindow(app, minimal_project_configuration_file_path)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -181,9 +177,9 @@ async def test_project_window_general_configuration_debug(qtbot, minimal_configu
         assert not sut._app.project.configuration.debug
 
 
-async def test_project_window_general_configuration_clean_urls(qtbot, minimal_configuration_file_path) -> None:
+async def test_project_window_general_configuration_clean_urls(qtbot, minimal_project_configuration_file_path) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_configuration_file_path)
+        sut = ProjectWindow(app, minimal_project_configuration_file_path)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -193,9 +189,9 @@ async def test_project_window_general_configuration_clean_urls(qtbot, minimal_co
         assert sut._app.project.configuration.clean_urls is False
 
 
-async def test_project_window_general_configuration_content_negotiation(qtbot, minimal_configuration_file_path) -> None:
+async def test_project_window_general_configuration_content_negotiation(qtbot, minimal_project_configuration_file_path) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_configuration_file_path)
+        sut = ProjectWindow(app, minimal_project_configuration_file_path)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -205,9 +201,9 @@ async def test_project_window_general_configuration_content_negotiation(qtbot, m
         assert sut._app.project.configuration.content_negotiation is False
 
 
-async def test_project_window_theme_configuration_background_image_id(qtbot, minimal_configuration_file_path) -> None:
+async def test_project_window_theme_configuration_background_image_id(qtbot, minimal_project_configuration_file_path) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_configuration_file_path)
+        sut = ProjectWindow(app, minimal_project_configuration_file_path)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -216,9 +212,9 @@ async def test_project_window_theme_configuration_background_image_id(qtbot, min
         assert sut._app.project.configuration.theme.background_image_id == background_image_id
 
 
-async def test_project_window_localization_configuration_add_locale(qtbot, assert_not_window, assert_window, minimal_configuration_file_path, tmpdir) -> None:
+async def test_project_window_localization_configuration_add_locale(qtbot, assert_not_window, assert_window, minimal_project_configuration_file_path, tmpdir) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_configuration_file_path)
+        sut = ProjectWindow(app, minimal_project_configuration_file_path)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -237,20 +233,14 @@ async def test_project_window_localization_configuration_add_locale(qtbot, asser
         assert sut._app.project.configuration.locales[locale].alias == alias
 
 
-async def test_project_window_localization_configuration_remove_locale(qtbot, minimal_dumped_app_configuration, tmpdir) -> None:
+async def test_project_window_localization_configuration_remove_locale(qtbot, tmpdir) -> None:
     locale = 'de-DE'
+    configuration = Configuration()
+    configuration.locales.add(LocaleConfiguration('nl-NL'))
+    configuration.locales.add(LocaleConfiguration(locale))
     configuration_file_path = tmpdir.join('betty.json')
     with open(configuration_file_path, 'w') as f:
-        json.dump({
-            'locales': [
-                {
-                    'locale': 'nl-NL'
-                },
-                {
-                    'locale': locale
-                },
-            ],
-            **minimal_dumped_app_configuration}, f)
+        to_file(f, configuration)
 
     with App() as app:
         sut = ProjectWindow(app, configuration_file_path)
@@ -261,20 +251,14 @@ async def test_project_window_localization_configuration_remove_locale(qtbot, mi
         assert locale not in app.project.configuration.locales
 
 
-async def test_project_window_localization_configuration_default_locale(qtbot, minimal_dumped_app_configuration, tmpdir) -> None:
+async def test_project_window_localization_configuration_default_locale(qtbot, tmpdir) -> None:
     locale = 'de-DE'
+    configuration = Configuration()
+    configuration.locales.add(LocaleConfiguration('nl-NL'))
+    configuration.locales.add(LocaleConfiguration(locale))
     configuration_file_path = tmpdir.join('betty.json')
     with open(configuration_file_path, 'w') as f:
-        json.dump({
-            'locales': [
-                {
-                    'locale': 'nl-NL'
-                },
-                {
-                    'locale': locale
-                },
-            ],
-            **minimal_dumped_app_configuration}, f)
+        to_file(f, configuration)
     with App() as app:
         sut = ProjectWindow(app, configuration_file_path)
         qtbot.addWidget(sut)
@@ -288,12 +272,10 @@ async def test_project_window_localization_configuration_default_locale(qtbot, m
 
 
 async def test_project_window_save_project_as_should_create_duplicate_configuration_file(mocker, navigate, qtbot, tmpdir) -> None:
+    configuration = Configuration()
     configuration_file_path = tmpdir.join('betty.json')
-    base_url = 'https://example.com'
     with open(configuration_file_path, 'w') as f:
-        json.dump({
-            'base_url': base_url,
-        }, f)
+        to_file(f, configuration)
     with App() as app:
         sut = ProjectWindow(app, configuration_file_path)
         qtbot.addWidget(sut)
@@ -304,26 +286,7 @@ async def test_project_window_save_project_as_should_create_duplicate_configurat
         navigate(sut, ['project_menu', 'save_project_as_action'])
 
     with open(save_as_configuration_file_path) as f:
-        save_as_dumped_app_configuration = json.load(f)
-
-    assert save_as_dumped_app_configuration == {
-        'base_url': base_url,
-        'title': 'Betty',
-        'root_path': '',
-        'clean_urls': False,
-        'content_negotiation': False,
-        'debug': False,
-        'lifetime_threshold': 125,
-        'extensions': {},
-        'locales': [
-            {
-                'locale': 'en-US',
-            }
-        ],
-        'theme': {
-            'background_image_id': None,
-        },
-    }
+        assert json.load(f) == configuration.dump()
 
 
 async def test_generate_window_close_button_should_close_window(assert_not_window, navigate, qtbot) -> None:
