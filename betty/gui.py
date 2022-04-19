@@ -11,7 +11,6 @@ from collections import OrderedDict
 from contextlib import suppress
 from datetime import datetime
 from os import path
-from pathlib import Path
 from typing import Sequence, Type, Optional, Union, Callable, Any, List, TYPE_CHECKING
 from urllib.parse import urlparse
 
@@ -387,8 +386,6 @@ class _ProjectGeneralConfigurationPane(QWidget):
         self._build_author()
         self._build_url()
         self._build_lifetime_threshold()
-        self._build_output_directory_path()
-        self._build_assets_directory_path()
         self._build_mode()
         self._build_clean_urls()
         self._build_content_negotiation()
@@ -448,43 +445,6 @@ class _ProjectGeneralConfigurationPane(QWidget):
         self._configuration_lifetime_threshold.textChanged.connect(_update_configuration_lifetime_threshold)
         self._form.addRow(_('Lifetime threshold'), self._configuration_lifetime_threshold)
         self._form.addRow(Caption(_('The age at which people are presumed dead.')))
-
-    def _build_output_directory_path(self) -> None:
-        def _update_configuration_output_directory_path(output_directory_path: str) -> None:
-            self._app.project.configuration.output_directory_path = output_directory_path
-        output_directory_path = QLineEdit()
-        output_directory_path.textChanged.connect(_update_configuration_output_directory_path)
-        output_directory_path_layout = QHBoxLayout()
-        output_directory_path_layout.addWidget(output_directory_path)
-
-        @catch_exceptions
-        def find_output_directory_path() -> None:
-            found_output_directory_path = QFileDialog.getExistingDirectory(self, _('Generate your site to...'), directory=output_directory_path.text())
-            if '' != found_output_directory_path:
-                output_directory_path.setText(found_output_directory_path)
-        output_directory_path_find = QPushButton('...', self)
-        output_directory_path_find.released.connect(find_output_directory_path)
-        output_directory_path_layout.addWidget(output_directory_path_find)
-        self._form.addRow(_('Output directory'), output_directory_path_layout)
-
-    def _build_assets_directory_path(self) -> None:
-        def _update_configuration_assets_directory_path(assets_directory_path: str) -> None:
-            self._app.project.configuration.assets_directory_path = Path(assets_directory_path)
-        assets_directory_path = QLineEdit()
-        assets_directory_path.textChanged.connect(_update_configuration_assets_directory_path)
-        assets_directory_path_layout = QHBoxLayout()
-        assets_directory_path_layout.addWidget(assets_directory_path)
-
-        @catch_exceptions
-        def find_assets_directory_path() -> None:
-            found_assets_directory_path = QFileDialog.getExistingDirectory(self, _('Load assets from...'), directory=assets_directory_path.text())
-            if '' != found_assets_directory_path:
-                assets_directory_path.setText(found_assets_directory_path)
-        assets_directory_path_find = QPushButton('...', self)
-        assets_directory_path_find.released.connect(find_assets_directory_path)
-        assets_directory_path_layout.addWidget(assets_directory_path_find)
-        self._form.addRow(_('Assets directory'), assets_directory_path_layout)
-        self._form.addRow(Caption(_('Where to search for asset files, such as templates and translations.')))
 
     def _build_mode(self) -> None:
         def _update_configuration_debug(mode: bool) -> None:

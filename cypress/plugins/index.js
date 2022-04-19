@@ -15,7 +15,6 @@ module.exports = (on, config) => {
       fs.mkdirSync(appDirectoryPath, {
         recursive: true
       })
-      bettyConfiguration.output = path.join(appDirectoryPath, 'output')
       // We do not know the real base URL, but as Betty requires one, set an obviously fake value.
       bettyConfiguration.base_url = 'https://example.com'
       const rootPath = '/cypress/app/output/www'

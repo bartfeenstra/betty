@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-16 22:36+0100\n"
+"POT-Creation-Date: 2022-04-19 17:48+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -188,9 +188,6 @@ msgstr ""
 msgid "Appearances"
 msgstr ""
 
-msgid "Assets directory"
-msgstr ""
-
 msgid "Attendee"
 msgstr ""
 
@@ -352,9 +349,6 @@ msgstr ""
 msgid "Generate site"
 msgstr ""
 
-msgid "Generate your site to..."
-msgstr ""
-
 msgid "Generated OpenAPI documentation in {locale}."
 msgstr ""
 
@@ -430,9 +424,6 @@ msgstr ""
 msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
 msgstr ""
 
-msgid "Load assets from..."
-msgstr ""
-
 msgid "Load the family tree from..."
 msgstr ""
 
@@ -497,9 +488,6 @@ msgid "Open your project from..."
 msgstr ""
 
 msgid "Other attendees"
-msgstr ""
-
-msgid "Output directory"
 msgstr ""
 
 msgid "Output more detailed logs and disable optimizations that make debugging harder."
@@ -634,9 +622,6 @@ msgstr ""
 msgid "The age at which people are presumed dead."
 msgstr ""
 
-msgid "The assets directory path must be a string."
-msgstr ""
-
 msgid "The author must be a string."
 msgstr ""
 
@@ -686,9 +671,6 @@ msgid "The lifetime threshold must be an integer."
 msgstr ""
 
 msgid "The lifetime threshold must consist of digits only."
-msgstr ""
-
-msgid "The output directory path is required and must be a string."
 msgstr ""
 
 msgid "The person."
@@ -785,9 +767,6 @@ msgid "Welcome to %(title)s"
 msgstr ""
 
 msgid "Welcome to Betty"
-msgstr ""
-
-msgid "Where to search for asset files, such as templates and translations."
 msgstr ""
 
 msgid "Wikipedia"

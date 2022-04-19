@@ -16,7 +16,6 @@ class ReadmeTest(TestCase):
             working_directory_path = Path(working_directory_path_str)
             configuration = {
                 'base_url': 'https://example.com',
-                'output': str(working_directory_path / 'output'),
             }
             with open(working_directory_path / 'betty.json', 'w') as f:
                 json.dump(configuration, f)

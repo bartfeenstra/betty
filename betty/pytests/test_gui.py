@@ -1,5 +1,4 @@
 import json
-import os
 from os import path
 
 import pytest
@@ -82,9 +81,7 @@ def test_welcome_window_open_project_with_valid_file_should_show_project_window(
         sut.show()
 
         configuration_file_path = tmpdir.join('betty.json')
-        os.makedirs(str(tmpdir.join('output')))
         configuration_file_path.write(json.dumps({
-            'output': str(tmpdir.join('output')),
             'base_url': 'https://example.com',
         }))
         mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[configuration_file_path, None]))
@@ -292,11 +289,9 @@ async def test_project_window_localization_configuration_default_locale(qtbot, m
 
 async def test_project_window_save_project_as_should_create_duplicate_configuration_file(mocker, navigate, qtbot, tmpdir) -> None:
     configuration_file_path = tmpdir.join('betty.json')
-    output_directory_path = str(tmpdir.join('output'))
     base_url = 'https://example.com'
     with open(configuration_file_path, 'w') as f:
         json.dump({
-            'output': output_directory_path,
             'base_url': base_url,
         }, f)
     with App() as app:
@@ -312,7 +307,6 @@ async def test_project_window_save_project_as_should_create_duplicate_configurat
         save_as_dumped_app_configuration = json.load(f)
 
     assert save_as_dumped_app_configuration == {
-        'output': output_directory_path,
         'base_url': base_url,
         'title': 'Betty',
         'root_path': '',

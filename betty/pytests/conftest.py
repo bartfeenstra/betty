@@ -33,11 +33,8 @@ def qapp(qapp_args):
 
 @pytest.fixture
 def minimal_dumped_app_configuration(tmpdir) -> Dict:
-    output_directory_path = str(tmpdir.join('output'))
-    base_url = 'https://example.com'
     return {
-        'output': output_directory_path,
-        'base_url': base_url,
+        'base_url': 'https://example.com',
     }
 
 

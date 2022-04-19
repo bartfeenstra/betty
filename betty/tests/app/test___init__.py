@@ -1,5 +1,3 @@
-from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import Any, Type, List, Set
 
 from parameterized import parameterized
@@ -266,16 +264,6 @@ class ProjectExtensionsConfigurationTest(TestCase):
 
 
 class ConfigurationTest(TestCase):
-    def test_assets_directory_path_without_path(self):
-        sut = Configuration()
-        self.assertIsNone(sut.assets_directory_path)
-
-    def test_assets_directory_path_with_path(self):
-        sut = Configuration()
-        assets_directory_path = '/tmp/betty-assets'
-        sut.assets_directory_path = assets_directory_path
-        self.assertEqual(assets_directory_path, sut.assets_directory_path)
-
     def test_base_url(self):
         sut = Configuration()
         base_url = 'https://example.com'
@@ -332,7 +320,6 @@ class ConfigurationTest(TestCase):
         dumped_configuration = Configuration().dump()
         configuration = Configuration()
         configuration.load(dumped_configuration)
-        self.assertEqual(Path(dumped_configuration['output']).expanduser().resolve(), configuration.output_directory_path)
         self.assertEqual(dumped_configuration['base_url'], configuration.base_url)
         self.assertEqual('Betty', configuration.title)
         self.assertIsNone(configuration.author)
@@ -417,14 +404,6 @@ class ConfigurationTest(TestCase):
         configuration.load(dumped_configuration)
         self.assertEqual(debug, configuration.debug)
 
-    def test_load_should_load_assets_directory_path(self) -> None:
-        with TemporaryDirectory() as assets_directory_path:
-            dumped_configuration = Configuration().dump()
-            dumped_configuration['assets'] = assets_directory_path
-            configuration = Configuration()
-            configuration.load(dumped_configuration)
-            self.assertEqual(Path(assets_directory_path).expanduser().resolve(), configuration.assets_directory_path)
-
     def test_load_should_load_one_extension_with_configuration(self) -> None:
         dumped_configuration = Configuration().dump()
         extension_configuration = {
@@ -506,7 +485,6 @@ class ConfigurationTest(TestCase):
     def test_dump_should_dump_minimal(self) -> None:
         configuration = Configuration()
         dumped_configuration = Configuration.dump(configuration)
-        self.assertEqual(dumped_configuration['output'], str(configuration.output_directory_path))
         self.assertEqual(dumped_configuration['base_url'], configuration.base_url)
         self.assertEqual('Betty', configuration.title)
         self.assertIsNone(configuration.author)
@@ -585,13 +563,6 @@ class ConfigurationTest(TestCase):
         configuration.debug = debug
         dumped_configuration = Configuration.dump(configuration)
         self.assertEqual(debug, dumped_configuration['debug'])
-
-    def test_dump_should_dump_assets_directory_path(self) -> None:
-        with TemporaryDirectory() as assets_directory_path:
-            configuration = Configuration()
-            configuration.assets_directory_path = assets_directory_path
-            dumped_configuration = Configuration.dump(configuration)
-            self.assertEqual(assets_directory_path, dumped_configuration['assets'])
 
     def test_dump_should_dump_one_extension_with_configuration(self) -> None:
         configuration = Configuration()
@@ -763,11 +734,6 @@ class ComesAfterNonConfigurableExtensionExtension(TrackableExtension):
 
 
 class AppTest(TestCase):
-    _MINIMAL_CONFIGURATION_ARGS = {
-        'output_directory_path': '/tmp/path/to/site',
-        'base_url': 'https://example.com',
-    }
-
     def test_extensions_with_one_extension(self) -> None:
         with App() as sut:
             sut.project.configuration.extensions.add(ProjectExtensionConfiguration(NonConfigurableExtension))
@@ -869,14 +835,3 @@ class AppTest(TestCase):
             sut.extensions
             del sut.project.configuration.extensions[NonConfigurableExtension]
             self.assertNotIn(NonConfigurableExtension, sut.extensions)
-
-    def test_assets_without_assets_directory_path(self) -> None:
-        with App() as sut:
-            self.assertEqual(1, len(sut.assets))
-
-    def test_assets_with_assets_directory_path(self) -> None:
-        with TemporaryDirectory() as assets_directory_path:
-            with App() as sut:
-                sut.project.configuration.assets_directory_path = assets_directory_path
-                self.assertEqual(2, len(sut.assets))
-                self.assertEqual((Path(assets_directory_path), None), sut.assets.paths[0])

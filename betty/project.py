@@ -1,5 +1,6 @@
 from __future__ import annotations
-import weakref
+
+import os
 from collections import OrderedDict
 from contextlib import suppress
 from pathlib import Path
@@ -12,8 +13,7 @@ from reactives import reactive, scope
 from reactives.factory.type import ReactiveInstance
 
 from betty.app import Extension
-from betty.config import Configurable, Configuration as GenericConfiguration, ConfigurationError, ensure_path, \
-    ensure_directory_path
+from betty.config import Configurable, Configuration as GenericConfiguration, ConfigurationError, to_file
 from betty.error import ensure_context
 from betty.importlib import import_any
 from betty.model.ancestry import Ancestry
@@ -316,9 +316,6 @@ class ThemeConfiguration(GenericConfiguration):
 class Configuration(GenericConfiguration):
     def __init__(self, base_url: Optional[str] = None):
         super().__init__()
-        self._default_output_directory = TemporaryDirectory()
-        weakref.finalize(self, self._default_output_directory.cleanup)
-        self.output_directory_path = self._default_output_directory.name
         self.base_url = 'https://example.com' if base_url is None else base_url
         self.root_path = '/'
         self.clean_urls = False
@@ -328,30 +325,59 @@ class Configuration(GenericConfiguration):
         self._extensions = ProjectExtensionsConfiguration()
         self._extensions.react(self)
         self._debug = False
-        self.assets_directory_path = None
         self._locales = LocalesConfiguration()
         self._locales.react(self)
         self._theme = ThemeConfiguration()
         self._theme.react(self)
         self.lifetime_threshold = 125
+        self._project_directory: Optional[TemporaryDirectory] = None
+        self._configuration_file_path: Optional[Path] = None
+
+        # Once all attributes have been set, set up auto-save.
+        self.react.react_weakref(self._save_configuration)
+        self._save_configuration()
+
+    def __del__(self):
+        if self._project_directory is not None:
+            self._project_directory.cleanup()
+
+    def _save_configuration(self) -> None:
+        try:
+            with open(self.configuration_file_path, 'w') as f:
+                to_file(f, self)
+        except FileNotFoundError:
+            os.makedirs(self.configuration_file_path.parent)
+            self._save_configuration()
+
+    @property
+    def configuration_file_path(self) -> Path:
+        if self._configuration_file_path is None:
+            if self._project_directory is None:
+                self._project_directory = TemporaryDirectory()
+            self._configuration_file_path = Path(self._project_directory.name) / 'betty.json'
+        return self._configuration_file_path
+
+    @configuration_file_path.setter
+    def configuration_file_path(self, configuration_file_path: PathLike) -> None:
+        self._configuration_file_path = Path(configuration_file_path)
+
+    @property
+    def project_directory_path(self) -> Path:
+        return self.configuration_file_path.parent
 
     @reactive  # type: ignore
     @property
     def output_directory_path(self) -> Path:
-        return self._output_directory_path
-
-    @output_directory_path.setter
-    def output_directory_path(self, output_directory_path: PathLike) -> None:
-        self._output_directory_path = Path(output_directory_path)
+        return self.project_directory_path / 'output'
 
     @reactive  # type: ignore
     @property
-    def assets_directory_path(self) -> Optional[str]:
-        return self._assets_directory_path
+    def assets_directory_path(self) -> Path:
+        return self.project_directory_path / 'assets'
 
-    @assets_directory_path.setter
-    def assets_directory_path(self, assets_directory_path: Optional[str]) -> None:
-        self._assets_directory_path = assets_directory_path
+    @property
+    def www_directory_path(self) -> Path:
+        return self.output_directory_path / 'www'
 
     @reactive  # type: ignore
     @property
@@ -370,10 +396,6 @@ class Configuration(GenericConfiguration):
     @author.setter
     def author(self, author: Optional[str]) -> None:
         self._author = author
-
-    @property
-    def www_directory_path(self) -> Path:
-        return self.output_directory_path / 'www'
 
     @reactive  # type: ignore
     @property
@@ -458,11 +480,6 @@ class Configuration(GenericConfiguration):
         if not isinstance(dumped_configuration, dict):
             raise ConfigurationError(_('Betty configuration must be a mapping (dictionary).'))
 
-        if 'output' not in dumped_configuration or not isinstance(dumped_configuration['output'], str):
-            raise ConfigurationError(_('The output directory path is required and must be a string.'), contexts=['`output`'])
-        with ensure_context('`output`'):
-            self.output_directory_path = ensure_path(dumped_configuration['output'])
-
         if 'base_url' not in dumped_configuration or not isinstance(dumped_configuration['base_url'], str):
             raise ConfigurationError(_('The base URL is required and must be a string.'), contexts=['`base_url`'])
         self.base_url = dumped_configuration['base_url']
@@ -497,12 +514,6 @@ class Configuration(GenericConfiguration):
                 raise ConfigurationError(_('Debugging must be enabled (true) or disabled (false) with a boolean.'), contexts=['`debug`'])
             self.debug = dumped_configuration['debug']
 
-        if 'assets' in dumped_configuration:
-            if not isinstance(dumped_configuration['assets'], str):
-                raise ConfigurationError(_('The assets directory path must be a string.'), contexts=['`assets`'])
-            with ensure_context('`assets`'):
-                self.assets_directory_path = ensure_directory_path(dumped_configuration['assets'])
-
         if 'lifetime_threshold' in dumped_configuration:
             if not isinstance(dumped_configuration['lifetime_threshold'], int):
                 raise ConfigurationError(_('The lifetime threshold must be an integer.'), contexts=['`lifetime_threshold`'])
@@ -522,7 +533,6 @@ class Configuration(GenericConfiguration):
 
     def dump(self) -> Any:
         dumped_configuration = {
-            'output': str(self.output_directory_path),
             'base_url': self.base_url,
             'title': self.title,
         }
@@ -536,8 +546,6 @@ class Configuration(GenericConfiguration):
             dumped_configuration['content_negotiation'] = self.content_negotiation
         if self.debug is not None:
             dumped_configuration['debug'] = self.debug
-        if self.assets_directory_path is not None:
-            dumped_configuration['assets'] = str(self.assets_directory_path)
         dumped_configuration['locales'] = self.locales.dump()
         dumped_configuration['extensions'] = self.extensions.dump()
         if self.lifetime_threshold is not None:
