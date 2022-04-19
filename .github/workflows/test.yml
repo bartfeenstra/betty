@@ -27,14 +27,10 @@ jobs:
             python: '3.8'
           - name: 'Mac OS'
             os: macos-latest
-            # @todo Mac OS builds with Python 3.10 fail for some reason when building pip dependencies. Let's use
-            # @todo Python 3.9 for Mac OS until we know more about Python 3.10 compatibility.
-            python: '3.9'
+            python: '3.10'
           - name: 'Windows'
             os: windows-latest
-            # @todo Windows builds with Python 3.10 fail for some reason when building pip dependencies. Let's use
-            # @todo Python 3.9 for Windows until we know more about Python 3.10 compatibility.
-            python: '3.9'
+            python: '3.10'
 
     steps:
       - name: Check out the source code
@@ -89,7 +85,7 @@ jobs:
             npm-
 
       - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
 
