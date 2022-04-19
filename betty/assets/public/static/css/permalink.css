@@ -1,4 +1,4 @@
-@import 'variables.css';
+@import "variables.css";
 
 .permalink {
   color: #777;
@@ -6,7 +6,7 @@
 }
 
 .permalink::before {
-  content: '#';
+  content: "#";
 }
 
 .permalink:hover {

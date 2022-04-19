@@ -17,7 +17,7 @@
 }
 
 .person-meta dt::after {
-  content: ': ';
+  content: ": ";
 }
 
 .person-meta dt,

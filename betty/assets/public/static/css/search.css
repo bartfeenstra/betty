@@ -1,4 +1,4 @@
-@import 'variables.css';
+@import "variables.css";
 
 #search {
   display: none;
@@ -20,8 +20,8 @@
 }
 
 #search-query {
-  -webkit-appearance: none;
-  background-color: rgba(255, 255, 255, 0.9);
+  appearance: none;
+  background-color: rgba(255 255 255 90%);
   border: 0.3rem solid #f7f7f7;
   border-radius: unset;
   color: #777;
@@ -63,7 +63,7 @@
   border: none;
   border-bottom: 0.3rem dotted #eee;
   color: #000;
-  padding: 0.3rem 0.55rem 0 0.55rem;
+  padding: 0.3rem 0.55rem 0;
   width: calc(100% - 3rem);
 }
 
@@ -95,12 +95,12 @@
 }
 
 #search-results-twilight::before {
-  background: linear-gradient(#fff, rgba(255, 255, 255, 0));
+  background: linear-gradient(#fff, rgba(255 255 255 0%));
   background-size: 3rem 10%;
   background-repeat: repeat-x;
   background-position: top;
   bottom: 0;
-  content: '';
+  content: "";
   left: -3rem;
   pointer-events: none;
   position: absolute;

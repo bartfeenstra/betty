@@ -1,19 +1,19 @@
 {
   "engines": {
-    "node": ">= 10"
+    "node": ">= 16"
   },
   "devDependencies": {
-    "cypress": "^9.4.1",
-    "eslint": "^7.22.0",
-    "eslint-config-standard": "^16.0.2",
-    "eslint-plugin-compat": "^3.9.0",
-    "eslint-plugin-cypress": "^2.11.2",
-    "eslint-plugin-import": "^2.22.1",
+    "cypress": "^9.5.4",
+    "eslint": "^7.32.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-compat": "^4.0.2",
+    "eslint-plugin-cypress": "^2.12.1",
+    "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^4.3.1",
-    "stylelint": "^13.12.0",
-    "stylelint-config-standard": "^21.0.0",
-    "stylelint-no-unsupported-browser-features": "^4.1.4"
+    "eslint-plugin-promise": "^5.2.0",
+    "stylelint": "^14.7.1",
+    "stylelint-config-standard": "^25.0.0",
+    "stylelint-no-unsupported-browser-features": "^5.0.3"
   },
   "scripts": {
     "cypress": "cypress",
