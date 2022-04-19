@@ -54,6 +54,54 @@ jobs:
       - name: Check out the source code
         uses: actions/checkout@v2
 
+      - name: Cache pip (Linux)
+        uses: actions/cache@v3
+        if: startsWith(runner.os, 'Linux')
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ hashFiles('./setup.py') }}
+          restore-keys: |
+            pip-
+
+      - name: Cache pip (Mac OS)
+        uses: actions/cache@v3
+        if: startsWith(runner.os, 'macOS')
+        with:
+          path: ~/Library/Caches/pip
+          key: pip-${{ hashFiles('./setup.py') }}
+          restore-keys: |
+            pip-
+
+      - name: Cache pip (Windows)
+        uses: actions/cache@v3
+        if: startsWith(runner.os, 'Windows')
+        with:
+          path: ~\AppData\Local\pip\Cache
+          key: pip-${{ hashFiles('./setup.py') }}
+          restore-keys: |
+            pip-
+
+      - name: Cache Mypy
+        uses: actions/cache@v3
+        with:
+          path: ./.mypy_cache
+          key: mypy-${{ hashFiles('./setup.py') }}
+          restore-keys: |
+            mypy-
+
+      - name: Get the npm cache directory
+        id: npm-cache-dir
+        run: |
+          echo "::set-output name=dir::$(npm config get cache)"
+
+      - name: Cache npm
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          key: npm-${{ hashFiles('./package.json') }}
+          restore-keys: |
+            npm-
+
       - name: Determine the tag for branch builds
         if: startsWith(github.ref, 'refs/heads/')
         run: echo "betty_tag=$(git rev-parse --abbrev-ref HEAD)-dev" >> $GITHUB_ENV
@@ -72,18 +120,6 @@ jobs:
       - name: Build the development environment
         run: ./bin/build-dev
         shell: bash
-
-      - name: Get the pip cache directory path
-        id: pip-cache
-        run: echo "::set-output name=dir::$(pip cache dir)"
-        shell: bash
-
-      - name: Cache the pip cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.pip-cache.outputs.dir }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
-          restore-keys: ${{ runner.os }}-pip-
 
       - name: Build the executable
         run: ./bin/build-pyinstaller
