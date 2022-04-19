@@ -2,7 +2,7 @@ import json as stdjson
 import sys
 import unittest
 from pathlib import Path
-from tempfile import TemporaryDirectory, NamedTemporaryFile
+from tempfile import NamedTemporaryFile
 
 import html5lib
 from lxml import etree
@@ -199,15 +199,12 @@ class MultilingualTest(GenerateTestCase):
 class ResourceOverrideTest(GenerateTestCase):
     @sync
     async def test(self):
-        with TemporaryDirectory() as assets_directory_path_str:
-            assets_directory_path = Path(assets_directory_path_str)
-            localized_assets_directory_path = Path(assets_directory_path) / 'public' / 'localized'
+        with App() as app:
+            localized_assets_directory_path = Path(app.project.configuration.assets_directory_path) / 'public' / 'localized'
             localized_assets_directory_path.mkdir(parents=True)
             with open(str(localized_assets_directory_path / 'index.html.j2'), 'w') as f:
                 f.write('{% block page_content %}Betty was here{% endblock %}')
-            with App() as app:
-                app.project.configuration.assets_directory_path = assets_directory_path
-                await generate(app)
+            await generate(app)
         with open(app.project.configuration.www_directory_path / 'index.html') as f:
             self.assertIn('Betty was here', f.read())
 

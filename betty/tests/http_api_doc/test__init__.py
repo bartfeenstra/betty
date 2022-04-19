@@ -13,5 +13,5 @@ class HttpApiDocTest(TestCase):
         with App() as app:
             app.project.configuration.extensions.add(ProjectExtensionConfiguration(HttpApiDoc))
             await generate(app)
-            self.assertTrue((app.project.configuration.output_directory_path / 'www' / 'api' / 'index.html').is_file())
-            self.assertTrue((app.project.configuration.output_directory_path / 'www' / 'http-api-doc.js').is_file())
+            self.assertTrue((app.project.configuration.www_directory_path / 'api' / 'index.html').is_file())
+            self.assertTrue((app.project.configuration.www_directory_path / 'http-api-doc.js').is_file())

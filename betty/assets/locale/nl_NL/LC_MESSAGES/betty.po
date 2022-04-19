@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-16 22:36+0100\n"
+"POT-Creation-Date: 2022-04-19 17:48+0100\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -266,9 +266,6 @@ msgstr ""
 msgid "Appearances"
 msgstr "Verschijningen"
 
-msgid "Assets directory"
-msgstr ""
-
 msgid "Attendee"
 msgstr "Aanwezige"
 
@@ -468,9 +465,6 @@ msgstr "Algemeen"
 msgid "Generate site"
 msgstr "Genereer site"
 
-msgid "Generate your site to..."
-msgstr "Genereer je site naar..."
-
 msgid "Generated OpenAPI documentation in {locale}."
 msgstr ""
 
@@ -551,9 +545,6 @@ msgstr "Levensgrens"
 msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
 msgstr "Laad <a href=\"https://gramps-project.org/\">Gramps-</a>stambomen."
 
-msgid "Load assets from..."
-msgstr ""
-
 msgid "Load the family tree from..."
 msgstr "Laad de stamboom van..."
 
@@ -619,9 +610,6 @@ msgstr "Open je project van..."
 
 msgid "Other attendees"
 msgstr "Overige aanwezigen"
-
-msgid "Output directory"
-msgstr ""
 
 msgid ""
 "Output more detailed logs and disable optimizations that make debugging "
@@ -766,9 +754,6 @@ msgstr ""
 msgid "The age at which people are presumed dead."
 msgstr "De leeftijd waarop mensen overleden verondersteld worden"
 
-msgid "The assets directory path must be a string."
-msgstr ""
-
 msgid "The author must be a string."
 msgstr "De auteur moet een string zijn."
 
@@ -823,9 +808,6 @@ msgstr "De levensgrens moet een geheel getal zijn."
 
 msgid "The lifetime threshold must consist of digits only."
 msgstr "De levensgrens mag alleen uit cijfers bestaan."
-
-msgid "The output directory path is required and must be a string."
-msgstr ""
 
 msgid "The person."
 msgstr "De persoon."
@@ -933,9 +915,6 @@ msgstr "Welkom bij %(title)s"
 
 msgid "Welcome to Betty"
 msgstr "Welkom bij Betty"
-
-msgid "Where to search for asset files, such as templates and translations."
-msgstr ""
 
 msgid "Wikipedia"
 msgstr "Wikipedia"
@@ -1116,7 +1095,4 @@ msgstr "y"
 #, python-format
 msgid "© Copyright %(author)s, unless otherwise credited"
 msgstr "© Copyright %(author)s, tenzij anders vermeld"
-
-#~ msgid "Source"
-#~ msgstr "Bron"
 

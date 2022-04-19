@@ -3,11 +3,13 @@ import json
 import logging
 import math
 import os
+import shutil
 from contextlib import suppress
 from pathlib import Path
 from typing import Iterable, Any
 
 import aiofiles
+from aiofiles import os as aiofiles_os
 from babel import Locale
 from jinja2 import Environment, TemplateNotFound
 
@@ -33,6 +35,8 @@ class Generator:
 
 
 async def generate(app: App) -> None:
+    shutil.rmtree(app.project.configuration.output_directory_path, ignore_errors=True)
+    await aiofiles_os.makedirs(app.project.configuration.output_directory_path)
     await asyncio.gather(
         _generate(app),
         app.dispatcher.dispatch(Generator)(),

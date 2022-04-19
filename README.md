@@ -70,7 +70,6 @@ Commands:
 ### Configuration files
 Configuration files are written in YAML (`*.yaml` or `*.yml`) or JSON (`*.json`):
 ```yaml
-output: /var/www/betty
 base_url: https://ancestry.example.com
 debug: true
 root_path: /betty
@@ -84,7 +83,6 @@ locales:
   - locale: nl
 theme:
   background_image_id: O0301
-assets: ./resources
 extensions:
   betty.anonymizer.Anonymizer: ~
   betty.cleaner.Cleaner: ~
@@ -98,7 +96,6 @@ extensions:
   betty.trees.Trees: ~
   betty.wikipedia.Wikipedia: ~
 ```
-- `output` (required); The path to the directory in which to place the generated site.
 - `base_url` (required); The absolute, public URL at which the site will be published.
 - `debug` (optional): `true` to output more detailed logs and disable optimizations that make debugging harder. Defaults
     to `false`.
@@ -115,7 +112,6 @@ extensions:
     - `alias` (optional): A shorthand alias to use instead of the full language tag, such as when rendering URLs.
 
     If no locales are defined, Betty defaults to US English.
-- `assets` (optional); The path to a directory containing overrides for any of Betty's [assets](./betty/assets).
 - `theme` (optional); Theme configuration. Keys are the following:
   - `background_image_id` (optional); The ID of the file entity whose (image) file to use for page backgrounds if a page
       does not provide any image media itself.
