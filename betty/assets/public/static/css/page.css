@@ -1,4 +1,4 @@
-@import 'variables.css';
+@import "variables.css";
 
 html {
   height: 100%;
@@ -57,7 +57,7 @@ footer {
 #content {
   background-color: #fff;
   clear: both;
-  padding: 0 1rem 3rem 1rem;
+  padding: 0 1rem 3rem;
   display: inline-block;
   width: calc(100% - 2rem);
 }
@@ -93,7 +93,7 @@ footer {
 }
 
 .nav-primary-action {
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255 255 255 90%);
   cursor: pointer;
   display: block;
   float: right;
@@ -175,17 +175,17 @@ footer {
   }
 
   #content {
-    padding: 1rem 3rem 3rem 3rem;
+    padding: 1rem 3rem;
     width: calc(100% - 6rem);
   }
 
   .featured {
-    margin: 3rem -3rem 0 -3rem;
+    margin: 3rem -3rem 0;
     width: calc(100% + 6rem);
   }
 
   footer {
-    margin: 5rem 3rem 0 3rem;
+    margin: 5rem 3rem 0;
   }
 
   .nav-primary-expanded {
@@ -221,7 +221,7 @@ footer {
   }
 
   #nav-sections .nav-secondary li a {
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255 255 255 90%);
     float: left;
     line-height: 3rem;
     padding: 0 1em;
