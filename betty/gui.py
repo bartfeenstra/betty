@@ -13,6 +13,7 @@ from os import path
 from typing import Type, Union, Sequence, TYPE_CHECKING, List, Set, Optional, Callable, Any
 from urllib.parse import urlparse
 
+from PyQt6 import QtGui
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QCoreApplication, QMetaObject, Q_ARG
 from PyQt6.QtGui import QIcon, QFont, QAction, QCloseEvent
 from PyQt6.QtWidgets import QApplication, QFileDialog, QMainWindow, QVBoxLayout, QLabel, \
@@ -188,7 +189,7 @@ class TranslationsLocaleCollector(ReactiveInstance):
         for allowed_locale in allowed_locales:
             allowed_locale_names.append((allowed_locale, Locale.parse(bcp_47_to_rfc_1766(allowed_locale)).get_display_name()))
         allowed_locale_names = sorted(allowed_locale_names, key=lambda x: x[1])
-        # This is the operating system default, for which we'll set a label in self._set_translatables()
+        # This is the operating system default, for which we'll set a label in self._do_set_translatables()
         allowed_locale_names.insert(0, (None, None))
 
         def _update_configuration_locale() -> None:
@@ -246,7 +247,21 @@ class TranslationsLocaleCollector(ReactiveInstance):
 
 
 @reactive
-class BettyWindow(QMainWindow, ReactiveInstance):
+class LocalizedWidget(QWidget, ReactiveInstance):
+    def showEvent(self, event: QtGui.QShowEvent) -> None:
+        super().showEvent(event)
+        self._set_translatables()
+
+    @reactive(on_trigger_call=True)
+    def _set_translatables(self) -> None:
+        with self._app.acquire_locale():
+            self._do_set_translatables()
+
+    def _do_set_translatables(self) -> None:
+        pass
+
+
+class BettyWindow(QMainWindow, LocalizedWidget):
     width = NotImplemented
     height = NotImplemented
 
@@ -254,16 +269,13 @@ class BettyWindow(QMainWindow, ReactiveInstance):
         super().__init__(*args, **kwargs)
         self._app = app
         self.resize(self.width, self.height)
-        self._set_window_title()
         self.setWindowIcon(QIcon(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'betty-512x512.png')))
         geometry = self.frameGeometry()
         geometry.moveCenter(QApplication.primaryScreen().availableGeometry().center())
         self.move(geometry.topLeft())
 
-    @reactive(on_trigger_call=True)
-    def _set_window_title(self) -> None:
-        with self._app.acquire_locale():
-            self.setWindowTitle(f'{self.title} - Betty')
+    def _do_set_translatables(self) -> None:
+        self.setWindowTitle(f'{self.title} - Betty')
 
     @property
     def title(self) -> str:
@@ -278,10 +290,6 @@ class BettyMainWindow(BettyWindow):
         super().__init__(app, *args, **kwargs)
         self.setWindowIcon(QIcon(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'betty-512x512.png')))
         self._initialize_menu()
-
-    def show(self) -> None:
-        super().show()
-        self._set_translatables()
 
     @property
     def title(self) -> str:
@@ -330,12 +338,8 @@ class BettyMainWindow(BettyWindow):
         self.help_menu.about_action.triggered.connect(lambda _: self._about_betty())
         self.help_menu.addAction(self.help_menu.about_action)
 
-    @reactive(on_trigger_call=True)
-    def _set_translatables(self) -> None:
-        with self._app.acquire_locale():
-            self._do_set_translatables()
-
     def _do_set_translatables(self) -> None:
+        super()._do_set_translatables()
         self.betty_menu.new_project_action.setText(_('New project...'))
         self.betty_menu.open_project_action.setText(_('Open project...'))
         self.betty_menu._demo_action.setText(_('View demo site...'))
@@ -510,8 +514,7 @@ class _PaneButton(QPushButton):
         self.released.connect(lambda: panes_layout.setCurrentWidget(pane))
 
 
-@reactive
-class _ProjectGeneralConfigurationPane(QWidget, ReactiveInstance):
+class _ProjectGeneralConfigurationPane(LocalizedWidget):
     def __init__(self, app: App, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._app = app
@@ -525,8 +528,6 @@ class _ProjectGeneralConfigurationPane(QWidget, ReactiveInstance):
         self._build_mode()
         self._build_clean_urls()
         self._build_content_negotiation()
-
-        self._set_translatables()
 
     def _build_title(self) -> None:
         def _update_configuration_title(title: str) -> None:
@@ -622,24 +623,22 @@ class _ProjectGeneralConfigurationPane(QWidget, ReactiveInstance):
         self._content_negotiation_caption = Caption()
         self._form.addRow(self._content_negotiation_caption)
 
-    @reactive(on_trigger_call=True)
-    def _set_translatables(self) -> None:
-        with self._app.acquire_locale():
-            self._configuration_author_label.setText(_('Author'))
-            self._configuration_url_label.setText(_('URL'))
-            self._configuration_title_label.setText(_('Title'))
-            self._configuration_lifetime_threshold_label.setText(_('Lifetime threshold'))
-            self._configuration_lifetime_threshold_caption.setText(_('The age at which people are presumed dead.'))
-            self._development_debug.setText(_('Debugging mode'))
-            self._development_debug_caption.setText(_('Output more detailed logs and disable optimizations that make debugging harder.'))
-            self._clean_urls.setText(_('Clean URLs'))
-            self._clean_urls_caption.setText(_('URLs look like <code>/path</code> instead of <code>/path/index.html</code>. This requires a web server that supports it.'))
-            self._content_negotiation.setText(_('Content negotiation'))
-            self._content_negotiation_caption.setText(_('Decide the correct page variety to serve users depending on their own preferences. This requires a web server that supports it.'))
+    def _do_set_translatables(self) -> None:
+        self._configuration_author_label.setText(_('Author'))
+        self._configuration_url_label.setText(_('URL'))
+        self._configuration_title_label.setText(_('Title'))
+        self._configuration_lifetime_threshold_label.setText(_('Lifetime threshold'))
+        self._configuration_lifetime_threshold_caption.setText(_('The age at which people are presumed dead.'))
+        self._development_debug.setText(_('Debugging mode'))
+        self._development_debug_caption.setText(_('Output more detailed logs and disable optimizations that make debugging harder.'))
+        self._clean_urls.setText(_('Clean URLs'))
+        self._clean_urls_caption.setText(_('URLs look like <code>/path</code> instead of <code>/path/index.html</code>. This requires a web server that supports it.'))
+        self._content_negotiation.setText(_('Content negotiation'))
+        self._content_negotiation_caption.setText(_('Decide the correct page variety to serve users depending on their own preferences. This requires a web server that supports it.'))
 
 
 @reactive
-class _ProjectThemeConfigurationPane(QWidget, ReactiveInstance):
+class _ProjectThemeConfigurationPane(LocalizedWidget):
     def __init__(self, app: App, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._app = app
@@ -647,8 +646,6 @@ class _ProjectThemeConfigurationPane(QWidget, ReactiveInstance):
         self._form = QFormLayout()
         self.setLayout(self._form)
         self._build_background_image_id()
-
-        self._set_translatables()
 
     def _build_background_image_id(self) -> None:
         def _update_configuration_background_image_id(background_image_id: str) -> None:
@@ -661,15 +658,13 @@ class _ProjectThemeConfigurationPane(QWidget, ReactiveInstance):
         self._background_image_id_caption = Caption()
         self._form.addRow(self._background_image_id_caption)
 
-    @reactive(on_trigger_call=True)
-    def _set_translatables(self) -> None:
-        with self._app.acquire_locale():
-            self._background_image_id_label.setText(_('Background image ID'))
-            self._background_image_id_caption.setText(_('The ID of the file entity whose (image) file to use for page backgrounds if a page does not provide any image media itself.'))
+    def _do_set_translatables(self) -> None:
+        self._background_image_id_label.setText(_('Background image ID'))
+        self._background_image_id_caption.setText(_('The ID of the file entity whose (image) file to use for page backgrounds if a page does not provide any image media itself.'))
 
 
 @reactive
-class _ProjectLocalizationConfigurationPane(QWidget, ReactiveInstance):
+class _ProjectLocalizationConfigurationPane(LocalizedWidget):
     def __init__(self, app: App, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._app = app
@@ -684,8 +679,6 @@ class _ProjectLocalizationConfigurationPane(QWidget, ReactiveInstance):
         self._add_locale_button = QPushButton()
         self._add_locale_button.released.connect(self._add_locale)
         self._layout.addWidget(self._add_locale_button, 1)
-
-        self._set_translatables()
 
     @reactive(on_trigger_call=True)
     def _build_locales_configuration(self) -> None:
@@ -731,15 +724,13 @@ class _ProjectLocalizationConfigurationPane(QWidget, ReactiveInstance):
         else:
             self._locales_configuration_widget._remove_buttons[locale_configuration.locale] = None
 
-    @reactive(on_trigger_call=True)
-    def _set_translatables(self) -> None:
-        with self._app.acquire_locale():
-            self._add_locale_button.setText(_('Add a locale'))
-            for locale, button in self._locales_configuration_widget._default_buttons.items():
-                button.setText(Locale.parse(bcp_47_to_rfc_1766(locale)).get_display_name(locale=bcp_47_to_rfc_1766(self._app.locale)))
-            for button in self._locales_configuration_widget._remove_buttons.values():
-                if button is not None:
-                    button.setText(_('Remove'))
+    def _do_set_translatables(self) -> None:
+        self._add_locale_button.setText(_('Add a locale'))
+        for locale, button in self._locales_configuration_widget._default_buttons.items():
+            button.setText(Locale.parse(bcp_47_to_rfc_1766(locale)).get_display_name(locale=bcp_47_to_rfc_1766(self._app.locale)))
+        for button in self._locales_configuration_widget._remove_buttons.values():
+            if button is not None:
+                button.setText(_('Remove'))
 
     def _add_locale(self):
         window = _AddLocaleWindow(self._app, self._app.project.configuration.locales, self)
@@ -780,13 +771,10 @@ class _AddLocaleWindow(BettyWindow):
         self._cancel.released.connect(self.close)
         buttons_layout.addWidget(self._cancel)
 
-        self._set_translatables()
-
-    @reactive(on_trigger_call=True)
-    def _set_translatables(self) -> None:
-        with self._app.acquire_locale():
-            self._alias_label.setText(_('Alias'))
-            self._alias_caption.setText(_('An optional alias is used instead of the locale code to identify this locale, such as in URLs. If US English is the only English language variant on your site, you may want to alias its language code from <code>en-US</code> to <code>en</code>, for instance.'))
+    def _do_set_translatables(self) -> None:
+        super()._do_set_translatables()
+        self._alias_label.setText(_('Alias'))
+        self._alias_caption.setText(_('An optional alias is used instead of the locale code to identify this locale, such as in URLs. If US English is the only English language variant on your site, you may want to alias its language code from <code>en-US</code> to <code>en</code>, for instance.'))
 
     @property
     def title(self) -> str:
@@ -808,7 +796,7 @@ class _AddLocaleWindow(BettyWindow):
 
 
 @reactive
-class _ProjectExtensionConfigurationPane(QWidget, ReactiveInstance):
+class _ProjectExtensionConfigurationPane(LocalizedWidget):
     def __init__(self, app: App, extension_type: Type[Union[Extension, GuiBuilder]], *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._app = app
@@ -856,13 +844,9 @@ class _ProjectExtensionConfigurationPane(QWidget, ReactiveInstance):
             if extension_gui_widget is not None:
                 layout.addWidget(extension_gui_widget)
 
-        self._set_translatables()
-
-    @reactive(on_trigger_call=True)
-    def _set_translatables(self) -> None:
-        with self._app.acquire_locale():
-            self._extension_description.setText(self._extension_type.gui_description())
-            self._extension_enabled.setText(_('Enable {extension}').format(extension=self._extension_type.label()))
+    def _do_set_translatables(self) -> None:
+        self._extension_description.setText(self._extension_type.gui_description())
+        self._extension_enabled.setText(_('Enable {extension}').format(extension=self._extension_type.label()))
 
 
 class ProjectWindow(BettyMainWindow):
@@ -1258,16 +1242,14 @@ class _AboutBettyWindow(BettyWindow):
         self._label = Text()
         self._label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setCentralWidget(self._label)
-        self._set_translatables()
 
-    @reactive(on_trigger_call=True)
-    def _set_translatables(self) -> None:
-        with self._app.acquire_locale():
-            self._label.setText(''.join(map(lambda x: '<p>%s</p>' % x, [
-                _('Version: {version}').format(version=about.version()),
-                _('Copyright 2019-{year} <a href="twitter.com/bartFeenstra">Bart Feenstra</a> & contributors. Betty is made available to you under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License, Version 3</a> (GPLv3).').format(year=datetime.now().year),
-                _('Follow Betty on <a href="https://twitter.com/Betty_Project">Twitter</a> and <a href="https://github.com/bartfeenstra/betty">Github</a>.'),
-            ])))
+    def _do_set_translatables(self) -> None:
+        super()._do_set_translatables()
+        self._label.setText(''.join(map(lambda x: '<p>%s</p>' % x, [
+            _('Version: {version}').format(version=about.version()),
+            _('Copyright 2019-{year} <a href="twitter.com/bartFeenstra">Bart Feenstra</a> & contributors. Betty is made available to you under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License, Version 3</a> (GPLv3).').format(year=datetime.now().year),
+            _('Follow Betty on <a href="https://twitter.com/Betty_Project">Twitter</a> and <a href="https://github.com/bartfeenstra/betty">Github</a>.'),
+        ])))
 
     @property
     def title(self) -> str:
