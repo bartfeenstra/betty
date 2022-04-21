@@ -153,7 +153,7 @@ async def _gui(configuration_file_path: Optional[str]):
         if configuration_file_path is None:
             window = _WelcomeWindow(app)
         else:
-            window = ProjectWindow(app, configuration_file_path)
+            window = ProjectWindow(configuration_file_path, app)
         window.show()
         sys.exit(qapp.exec())
 

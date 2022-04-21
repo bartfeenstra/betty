@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import QWidget, QFormLayout, QPushButton, QFileDialog, QLin
 from reactives import reactive
 from reactives.factory.type import ReactiveInstance
 
+from betty.app import App
 from betty.config import Path, ConfigurationError
 from betty.gramps.config import FamilyTreeConfiguration, GrampsConfiguration
 from betty.gui import catch_exceptions, BettyWindow, mark_valid, mark_invalid, Text
@@ -14,8 +15,9 @@ from betty.gui import catch_exceptions, BettyWindow, mark_valid, mark_invalid, T
 
 @reactive
 class _GrampsGuiWidget(QWidget, ReactiveInstance):
-    def __init__(self, configuration: GrampsConfiguration, *args, **kwargs):
+    def __init__(self, app: App, configuration: GrampsConfiguration, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._app = app
         self._configuration = configuration
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
@@ -47,7 +49,7 @@ class _GrampsGuiWidget(QWidget, ReactiveInstance):
         self._layout.insertWidget(0, self._family_trees_widget, alignment=Qt.AlignmentFlag.AlignTop)
 
     def _add_family_tree(self):
-        window = _AddFamilyTreeWindow(self._configuration.family_trees, self)
+        window = _AddFamilyTreeWindow(self._configuration.family_trees, self._app, self)
         window.show()
 
 

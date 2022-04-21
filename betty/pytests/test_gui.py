@@ -102,7 +102,7 @@ def test_welcome_window_view_demo_site(assert_window, mocker, qtbot) -> None:
 
 async def test_project_window_general_configuration_title(qtbot, minimal_project_configuration_file_path) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_project_configuration_file_path)
+        sut = ProjectWindow(minimal_project_configuration_file_path, app)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -113,7 +113,7 @@ async def test_project_window_general_configuration_title(qtbot, minimal_project
 
 async def test_project_window_general_configuration_author(qtbot, minimal_project_configuration_file_path) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_project_configuration_file_path)
+        sut = ProjectWindow(minimal_project_configuration_file_path, app)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -124,7 +124,7 @@ async def test_project_window_general_configuration_author(qtbot, minimal_projec
 
 async def test_project_window_general_configuration_url(qtbot, minimal_project_configuration_file_path) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_project_configuration_file_path)
+        sut = ProjectWindow(minimal_project_configuration_file_path, app)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -135,7 +135,7 @@ async def test_project_window_general_configuration_url(qtbot, minimal_project_c
 
 async def test_project_window_general_configuration_lifetime_threshold(qtbot, minimal_project_configuration_file_path) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_project_configuration_file_path)
+        sut = ProjectWindow(minimal_project_configuration_file_path, app)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -145,7 +145,7 @@ async def test_project_window_general_configuration_lifetime_threshold(qtbot, mi
 
 async def test_project_window_general_configuration_lifetime_threshold_with_non_digit_input(qtbot, minimal_project_configuration_file_path) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_project_configuration_file_path)
+        sut = ProjectWindow(minimal_project_configuration_file_path, app)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -156,7 +156,7 @@ async def test_project_window_general_configuration_lifetime_threshold_with_non_
 
 async def test_project_window_general_configuration_lifetime_threshold_with_zero_input(qtbot, minimal_project_configuration_file_path) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_project_configuration_file_path)
+        sut = ProjectWindow(minimal_project_configuration_file_path, app)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -167,7 +167,7 @@ async def test_project_window_general_configuration_lifetime_threshold_with_zero
 
 async def test_project_window_general_configuration_debug(qtbot, minimal_project_configuration_file_path) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_project_configuration_file_path)
+        sut = ProjectWindow(minimal_project_configuration_file_path, app)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -179,7 +179,7 @@ async def test_project_window_general_configuration_debug(qtbot, minimal_project
 
 async def test_project_window_general_configuration_clean_urls(qtbot, minimal_project_configuration_file_path) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_project_configuration_file_path)
+        sut = ProjectWindow(minimal_project_configuration_file_path, app)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -191,7 +191,7 @@ async def test_project_window_general_configuration_clean_urls(qtbot, minimal_pr
 
 async def test_project_window_general_configuration_content_negotiation(qtbot, minimal_project_configuration_file_path) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_project_configuration_file_path)
+        sut = ProjectWindow(minimal_project_configuration_file_path, app)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -203,7 +203,7 @@ async def test_project_window_general_configuration_content_negotiation(qtbot, m
 
 async def test_project_window_theme_configuration_background_image_id(qtbot, minimal_project_configuration_file_path) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_project_configuration_file_path)
+        sut = ProjectWindow(minimal_project_configuration_file_path, app)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -214,7 +214,7 @@ async def test_project_window_theme_configuration_background_image_id(qtbot, min
 
 async def test_project_window_localization_configuration_add_locale(qtbot, assert_not_window, assert_window, minimal_project_configuration_file_path, tmpdir) -> None:
     with App() as app:
-        sut = ProjectWindow(app, minimal_project_configuration_file_path)
+        sut = ProjectWindow(minimal_project_configuration_file_path, app)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -243,7 +243,7 @@ async def test_project_window_localization_configuration_remove_locale(qtbot, tm
         to_file(f, configuration)
 
     with App() as app:
-        sut = ProjectWindow(app, configuration_file_path)
+        sut = ProjectWindow(configuration_file_path, app)
         qtbot.addWidget(sut)
         sut.show()
         qtbot.mouseClick(sut._localization_configuration_pane._locales_configuration_widget._remove_buttons[locale], Qt.MouseButton.LeftButton)
@@ -260,7 +260,7 @@ async def test_project_window_localization_configuration_default_locale(qtbot, t
     with open(configuration_file_path, 'w') as f:
         to_file(f, configuration)
     with App() as app:
-        sut = ProjectWindow(app, configuration_file_path)
+        sut = ProjectWindow(configuration_file_path, app)
         qtbot.addWidget(sut)
         sut.show()
 
@@ -277,7 +277,7 @@ async def test_project_window_save_project_as_should_create_duplicate_configurat
     with open(configuration_file_path, 'w') as f:
         to_file(f, configuration)
     with App() as app:
-        sut = ProjectWindow(app, configuration_file_path)
+        sut = ProjectWindow(configuration_file_path, app)
         qtbot.addWidget(sut)
         sut.show()
 

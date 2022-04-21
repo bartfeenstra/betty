@@ -264,12 +264,13 @@ class LocalizedWidget(QWidget, ReactiveInstance):
 
 
 @reactive
-class BettyWindow(QMainWindow, ReactiveInstance):
+class BettyWindow(QMainWindow, LocalizedWidget):
     width = NotImplemented
     height = NotImplemented
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, app: App, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._app = app
 
         self.resize(self.width, self.height)
         self.setWindowTitle(self.title)
@@ -287,9 +288,8 @@ class BettyMainWindow(BettyWindow):
     width = 800
     height = 600
 
-    def __init__(self, app: App, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._app = app
         self.setWindowIcon(QIcon(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'betty-512x512.png')))
         self._initialize_menu()
 
@@ -341,7 +341,7 @@ class BettyMainWindow(BettyWindow):
 
     @catch_exceptions
     def _about_betty(self) -> None:
-        about_window = _AboutBettyWindow(self)
+        about_window = _AboutBettyWindow(self._app, self)
         about_window.show()
 
     @catch_exceptions
@@ -354,7 +354,7 @@ class BettyMainWindow(BettyWindow):
         )
         if not configuration_file_path:
             return
-        project_window = ProjectWindow(self._app, configuration_file_path)
+        project_window = ProjectWindow(configuration_file_path, self._app)
         project_window.show()
         self.close()
 
@@ -371,7 +371,7 @@ class BettyMainWindow(BettyWindow):
         configuration = Configuration()
         with open(configuration_file_path, 'w') as f:
             to_file(f, configuration)
-        project_window = ProjectWindow(self._app, configuration_file_path)
+        project_window = ProjectWindow(configuration_file_path, self._app)
         project_window.show()
         self.close()
 
@@ -409,8 +409,8 @@ class _WelcomeWindow(BettyMainWindow):
     # text will be clipped.
     height = 450
 
-    def __init__(self, app: App, *args, **kwargs):
-        super().__init__(app, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         central_layout = QVBoxLayout()
         central_layout.addStretch()
@@ -644,7 +644,7 @@ class _ProjectLocalizationConfigurationPane(QWidget, ReactiveInstance):
             self._locales_configuration_widget._remove_buttons[locale_configuration.locale] = None
 
     def _add_locale(self):
-        window = _AddLocaleWindow(self._app.project.configuration.locales, self)
+        window = _AddLocaleWindow(self._app.project.configuration.locales, self._app, self)
         window.show()
 
 
@@ -754,8 +754,8 @@ class _ProjectExtensionConfigurationPane(QWidget):
 
 class ProjectWindow(BettyMainWindow):
     @catch_exceptions
-    def __init__(self, app: App, configuration_file_path: str, *args, **kwargs):
-        super().__init__(app, *args, **kwargs)
+    def __init__(self, configuration_file_path: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         with open(configuration_file_path) as f:
             from_file(f, self._app.project.configuration)
         self._app.project.configuration.react.react_weakref(self._save_configuration)
@@ -845,12 +845,12 @@ class ProjectWindow(BettyMainWindow):
 
     @catch_exceptions
     def _generate(self) -> None:
-        generate_window = _GenerateWindow(self._app, self)
+        generate_window = _GenerateWindow(self, self._app)
         generate_window.show()
 
     @catch_exceptions
     def _serve(self) -> None:
-        serve_window = _ServeAppWindow.get_instance(self._app, self)
+        serve_window = _ServeAppWindow.get_instance(self, self._app)
         serve_window.show()
 
 
@@ -926,7 +926,7 @@ class _GenerateWindow(BettyWindow):
     width = 500
     height = 100
 
-    def __init__(self, app: App, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
@@ -953,7 +953,6 @@ class _GenerateWindow(BettyWindow):
         self._serve_button.released.connect(self._serve)
         button_layout.addWidget(self._serve_button)
 
-        self._app = app
         self._logging_handler = LogRecordViewerHandler(self._log_record_viewer)
         self._thread = _GenerateThread(copy.copy(self._app), self)
         self._thread.finished.connect(self._finish_generate)
@@ -1013,9 +1012,8 @@ class _ServeWindow(BettyWindow):
     height = 100
     _instance = None
 
-    def __init__(self, app: App, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._app = app
 
         self._thread = None
         self._server = NotImplemented
@@ -1090,12 +1088,12 @@ class _ServeAppWindow(_ServeWindow):
     get_instance() method.
     """
 
-    def __init__(self, app: App, *args, **kwargs):
-        super().__init__(app, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        self._server = serve.AppServer(app)
+        self._server = serve.AppServer(self._app)
 
-        if not path.isdir(app.project.configuration.www_directory_path):
+        if not path.isdir(self._app.project.configuration.www_directory_path):
             self.close()
             raise ConfigurationError(_('Web root directory "{path}" does not exist.').format(path=app.project.configuration.www_directory_path))
 
