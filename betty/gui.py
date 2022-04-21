@@ -130,7 +130,7 @@ class Error(QMessageBox):
         super().__init__(*args, **kwargs)
         self._close_parent = close_parent
         with App():
-            self.setWindowTitle(f'{_("Error")} - Betty')
+            self.setWindowTitle('{error} - Betty'.format(error=_("Error")))
         self.setText(message)
         Error._errors.append(self)
 
@@ -263,7 +263,6 @@ class LocalizedWidget(QWidget, ReactiveInstance):
         pass
 
 
-@reactive
 class BettyWindow(QMainWindow, LocalizedWidget):
     width = NotImplemented
     height = NotImplemented
@@ -271,13 +270,14 @@ class BettyWindow(QMainWindow, LocalizedWidget):
     def __init__(self, app: App, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._app = app
-
         self.resize(self.width, self.height)
-        self.setWindowTitle(self.title)
         self.setWindowIcon(QIcon(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'betty-512x512.png')))
         geometry = self.frameGeometry()
         geometry.moveCenter(QApplication.primaryScreen().availableGeometry().center())
         self.move(geometry.topLeft())
+
+    def _do_set_translatables(self) -> None:
+        self.setWindowTitle(f'{self.title} - Betty')
 
     @property
     def title(self) -> str:
@@ -384,6 +384,35 @@ class BettyMainWindow(BettyWindow):
     @sync
     async def clear_caches(self) -> None:
         await cache.clear()
+
+    @catch_exceptions
+    def open_application_configuration(self) -> None:
+        window = _ApplicationConfiguration(self._app, self)
+        window.show()
+
+
+class _ApplicationConfiguration(BettyWindow):
+    width = 400
+    height = 150
+
+    def __init__(self, app: App, *args, **kwargs):
+        super().__init__(app, *args, **kwargs)
+
+        self._form = QFormLayout()
+        form_widget = QWidget()
+        form_widget.setLayout(self._form)
+        self.setCentralWidget(form_widget)
+        locale_collector = TranslationsLocaleCollector(self._app, set(self._app.translations.locales))
+        for row in locale_collector.rows:
+            self._form.addRow(*row)
+
+    @property
+    def title(self) -> str:
+        return _('Configuration')
+
+    @property
+    def extension_types(self) -> Sequence[Type[Extension]]:
+        return [import_any(extension_name) for extension_name in self._EXTENSION_NAMES]
 
 
 class _WelcomeText(Text):
