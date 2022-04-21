@@ -300,13 +300,13 @@ class BettyMainWindow(BettyWindow):
     def _initialize_menu(self) -> None:
         menu_bar = self.menuBar()
 
-        # self.betty_menu = menu_bar.addMenu('&Betty')
-        #
-        # self.betty_menu.new_project_action = QAction(self)
-        # self.betty_menu.new_project_action.setShortcut('Ctrl+N')
-        # self.betty_menu.new_project_action.triggered.connect(lambda _: self.new_project())
-        # self.betty_menu.addAction(self.betty_menu.new_project_action)
-        #
+        self.betty_menu = menu_bar.addMenu('&Betty')
+
+        self.betty_menu.new_project_action = QAction(self)
+        self.betty_menu.new_project_action.setShortcut('Ctrl+N')
+        self.betty_menu.new_project_action.triggered.connect(lambda _: self.new_project())
+        self.betty_menu.addAction(self.betty_menu.new_project_action)
+
         # self.betty_menu.open_project_action = QAction(self)
         # self.betty_menu.open_project_action.setShortcut('Ctrl+O')
         # self.betty_menu.open_project_action.triggered.connect(lambda _: self.open_project())
