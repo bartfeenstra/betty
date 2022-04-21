@@ -340,17 +340,17 @@ class BettyMainWindow(BettyWindow):
         self.help_menu.about_action.triggered.connect(lambda _: self._about_betty())
         self.help_menu.addAction(self.help_menu.about_action)
 
-    def _do_set_translatables(self) -> None:
-        super()._do_set_translatables()
-        self.betty_menu.new_project_action.setText(_('New project...'))
-        self.betty_menu.open_project_action.setText(_('Open project...'))
-        self.betty_menu.demo_action.setText(_('View demo site...'))
-        self.betty_menu.open_application_configuration_action.setText(_('Settings...'))
-        self.betty_menu.clear_caches_action.setText(_('Clear all caches'))
-        self.betty_menu.exit_action.setText(_('Exit'))
-        self.help_menu.setTitle('&' + _('Help'))
-        self.help_menu.view_issues_action.setText(_('Report bugs and request new features'))
-        self.help_menu.about_action.setText(_('About Betty'))
+    # def _do_set_translatables(self) -> None:
+    #     super()._do_set_translatables()
+    #     self.betty_menu.new_project_action.setText(_('New project...'))
+    #     self.betty_menu.open_project_action.setText(_('Open project...'))
+    #     self.betty_menu.demo_action.setText(_('View demo site...'))
+    #     self.betty_menu.open_application_configuration_action.setText(_('Settings...'))
+    #     self.betty_menu.clear_caches_action.setText(_('Clear all caches'))
+    #     self.betty_menu.exit_action.setText(_('Exit'))
+    #     self.help_menu.setTitle('&' + _('Help'))
+    #     self.help_menu.view_issues_action.setText(_('Report bugs and request new features'))
+    #     self.help_menu.about_action.setText(_('About Betty'))
 
     @catch_exceptions
     def view_issues(self) -> None:
