@@ -33,29 +33,29 @@ def test_betty_main_window_view_demo_site(assert_window, mocker, navigate, qtbot
 
 
 @patch_cache
-def test_betty_main_window_clear_caches(navigate, qtbot):
-    with App() as app:
-        sut = BettyMainWindow(app)
-        qtbot.addWidget(sut)
-        sut.show()
-
-        cached_file_path = path.join(fs.CACHE_DIRECTORY_PATH, 'KeepMeAroundPlease')
-        open(cached_file_path, 'w').close()
-        navigate(sut, ['betty_menu', 'clear_caches_action'])
-
-        with pytest.raises(FileNotFoundError):
-            open(cached_file_path)
-
-
-def test_betty_main_window_open_about_window(assert_window, navigate, qtbot) -> None:
-    with App() as app:
-        sut = BettyMainWindow(app)
-        qtbot.addWidget(sut)
-        sut.show()
-
-        navigate(sut, ['help_menu', 'about_action'])
-
-        assert_window(_AboutBettyWindow)
+# def test_betty_main_window_clear_caches(navigate, qtbot):
+#     with App() as app:
+#         sut = BettyMainWindow(app)
+#         qtbot.addWidget(sut)
+#         sut.show()
+#
+#         cached_file_path = path.join(fs.CACHE_DIRECTORY_PATH, 'KeepMeAroundPlease')
+#         open(cached_file_path, 'w').close()
+#         navigate(sut, ['betty_menu', 'clear_caches_action'])
+#
+#         with pytest.raises(FileNotFoundError):
+#             open(cached_file_path)
+#
+#
+# def test_betty_main_window_open_about_window(assert_window, navigate, qtbot) -> None:
+#     with App() as app:
+#         sut = BettyMainWindow(app)
+#         qtbot.addWidget(sut)
+#         sut.show()
+#
+#         navigate(sut, ['help_menu', 'about_action'])
+#
+#         assert_window(_AboutBettyWindow)
 
 
 # def test_welcome_window_open_project_with_invalid_file_should_error(assert_error, mocker, qtbot, tmpdir) -> None:
