@@ -27,7 +27,7 @@ def test_betty_main_window_view_demo_site(assert_window, mocker, navigate, qtbot
 
         cached_file_path = path.join(fs.CACHE_DIRECTORY_PATH, 'KeepMeAroundPlease')
         open(cached_file_path, 'w').close()
-        navigate(sut, ['betty_menu', '_demo_action'])
+        navigate(sut, ['betty_menu', 'demo_action'])
 
         assert_window(_ServeDemoWindow)
 

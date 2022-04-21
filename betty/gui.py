@@ -19,7 +19,7 @@ from PyQt6.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QCoreApplic
 from PyQt6.QtGui import QIcon, QFont, QAction, QCloseEvent
 from PyQt6.QtWidgets import QApplication, QFileDialog, QMainWindow, QVBoxLayout, QLabel, \
     QWidget, QPushButton, QMessageBox, QLineEdit, QCheckBox, QFormLayout, QHBoxLayout, QGridLayout, QLayout, \
-    QStackedLayout, QComboBox, QButtonGroup, QRadioButton
+    QStackedLayout, QComboBox, QButtonGroup, QRadioButton, QMenu
 from babel import Locale
 from babel.localedata import locale_identifiers
 from reactives import reactive, ReactorController
@@ -41,7 +41,7 @@ if TYPE_CHECKING:
 
 
 def _get_configuration_file_filter() -> str:
-    return _('Betty configuration ({extensions})').format(extensions=' '.join(map(lambda format: f'*{format}', APP_CONFIGURATION_FORMATS)))
+    return _('Betty project configuration ({extensions})').format(extensions=' '.join(map(lambda format: f'*{format}', APP_CONFIGURATION_FORMATS)))
 
 
 class GuiBuilder:
@@ -302,38 +302,55 @@ class BettyMainWindow(BettyWindow):
 
         self.betty_menu = menu_bar.addMenu('&Betty')
 
-        new_project_action = QAction(_('New project...'), self)
-        new_project_action.setShortcut('Ctrl+N')
-        new_project_action.triggered.connect(lambda _: self.new_project())
-        self.betty_menu.addAction(new_project_action)
+        self.betty_menu.new_project_action = QAction(self)
+        self.betty_menu.new_project_action.setShortcut('Ctrl+N')
+        self.betty_menu.new_project_action.triggered.connect(lambda _: self.new_project())
+        self.betty_menu.addAction(self.betty_menu.new_project_action)
 
-        open_project_action = QAction(_('Open project...'), self)
-        open_project_action.setShortcut('Ctrl+O')
-        open_project_action.triggered.connect(lambda _: self.open_project())
-        self.betty_menu.addAction(open_project_action)
+        self.betty_menu.open_project_action = QAction(self)
+        self.betty_menu.open_project_action.setShortcut('Ctrl+O')
+        self.betty_menu.open_project_action.triggered.connect(lambda _: self.open_project())
+        self.betty_menu.addAction(self.betty_menu.open_project_action)
 
-        self.betty_menu._demo_action = QAction(_('View demo site...'), self)
-        self.betty_menu._demo_action.triggered.connect(lambda _: self._demo())
-        self.betty_menu.addAction(self.betty_menu._demo_action)
+        self.betty_menu.demo_action = QAction(self)
+        self.betty_menu.demo_action.triggered.connect(lambda _: self._demo())
+        self.betty_menu.addAction(self.betty_menu.demo_action)
 
-        self.betty_menu.clear_caches_action = QAction(_('Clear all caches'), self)
+        self.betty_menu.open_application_configuration_action = QAction(self)
+        self.betty_menu.open_application_configuration_action.triggered.connect(lambda _: self.open_application_configuration())
+        self.betty_menu.addAction(self.betty_menu.open_application_configuration_action)
+
+        self.betty_menu.clear_caches_action = QAction(self)
         self.betty_menu.clear_caches_action.triggered.connect(lambda _: self.clear_caches())
         self.betty_menu.addAction(self.betty_menu.clear_caches_action)
 
-        exit_action = QAction(_('Exit'), self)
-        exit_action.setShortcut('Ctrl+Q')
-        exit_action.triggered.connect(QCoreApplication.quit)
-        self.betty_menu.addAction(exit_action)
+        self.betty_menu.exit_action = QAction(self)
+        self.betty_menu.exit_action.setShortcut('Ctrl+Q')
+        self.betty_menu.exit_action.triggered.connect(QCoreApplication.quit)
+        self.betty_menu.addAction(self.betty_menu.exit_action)
 
-        self.help_menu = menu_bar.addMenu('&' + _('Help'))
+        self.help_menu = QMenu()
+        menu_bar.addMenu(self.help_menu)
 
-        view_issues_action = QAction(_('Report bugs and request new features'), self)
-        view_issues_action.triggered.connect(lambda _: self.view_issues())
-        self.help_menu.addAction(view_issues_action)
+        self.help_menu.view_issues_action = QAction(self)
+        self.help_menu.view_issues_action.triggered.connect(lambda _: self.view_issues())
+        self.help_menu.addAction(self.help_menu.view_issues_action)
 
-        self.help_menu.about_action = QAction(_('About Betty'), self)
+        self.help_menu.about_action = QAction(self)
         self.help_menu.about_action.triggered.connect(lambda _: self._about_betty())
         self.help_menu.addAction(self.help_menu.about_action)
+
+    def _do_set_translatables(self) -> None:
+        super()._do_set_translatables()
+        self.betty_menu.new_project_action.setText(_('New project...'))
+        self.betty_menu.open_project_action.setText(_('Open project...'))
+        self.betty_menu.demo_action.setText(_('View demo site...'))
+        self.betty_menu.open_application_configuration_action.setText(_('Settings...'))
+        self.betty_menu.clear_caches_action.setText(_('Clear all caches'))
+        self.betty_menu.exit_action.setText(_('Exit'))
+        self.help_menu.setTitle('&' + _('Help'))
+        self.help_menu.view_issues_action.setText(_('Report bugs and request new features'))
+        self.help_menu.about_action.setText(_('About Betty'))
 
     @catch_exceptions
     def view_issues(self) -> None:
@@ -1124,7 +1141,7 @@ class _ServeAppWindow(_ServeWindow):
 
         if not path.isdir(self._app.project.configuration.www_directory_path):
             self.close()
-            raise ConfigurationError(_('Web root directory "{path}" does not exist.').format(path=app.project.configuration.www_directory_path))
+            raise ConfigurationError(_('Web root directory "{path}" does not exist.').format(path=self._app.project.configuration.www_directory_path))
 
     @property
     def title(self) -> str:
