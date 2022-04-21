@@ -22,8 +22,7 @@ cd "$(dirname "$0")/.."
 # Run Python tests with coverage.
 coverage erase
 #PYTHONWARNINGS='error:::betty[.*]' coverage run --append -m nose2
-#PYTHONWARNINGS='error:::betty[.*]' coverage run --append -m pytest
-PYTHONWARNINGS='error:::betty[.*]' coverage run --append -m pytest ./betty/pytests/extension/gramps
+PYTHONWARNINGS='error:::betty[.*]' coverage run --append -m pytest
 coverage report -m
 
 ## Run end-to-end (e2e) tests.
