@@ -307,14 +307,14 @@ class BettyMainWindow(BettyWindow):
         self.betty_menu.new_project_action.triggered.connect(lambda _: self.new_project())
         self.betty_menu.addAction(self.betty_menu.new_project_action)
 
-        # self.betty_menu.open_project_action = QAction(self)
-        # self.betty_menu.open_project_action.setShortcut('Ctrl+O')
-        # self.betty_menu.open_project_action.triggered.connect(lambda _: self.open_project())
-        # self.betty_menu.addAction(self.betty_menu.open_project_action)
-        #
-        # self.betty_menu.demo_action = QAction(self)
-        # self.betty_menu.demo_action.triggered.connect(lambda _: self._demo())
-        # self.betty_menu.addAction(self.betty_menu.demo_action)
+        self.betty_menu.open_project_action = QAction(self)
+        self.betty_menu.open_project_action.setShortcut('Ctrl+O')
+        self.betty_menu.open_project_action.triggered.connect(lambda _: self.open_project())
+        self.betty_menu.addAction(self.betty_menu.open_project_action)
+
+        self.betty_menu.demo_action = QAction(self)
+        self.betty_menu.demo_action.triggered.connect(lambda _: self._demo())
+        self.betty_menu.addAction(self.betty_menu.demo_action)
         #
         # self.betty_menu.open_application_configuration_action = QAction(self)
         # self.betty_menu.open_application_configuration_action.triggered.connect(lambda _: self.open_application_configuration())
