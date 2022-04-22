@@ -320,9 +320,9 @@ class BettyMainWindow(BettyWindow):
         # self.betty_menu.open_application_configuration_action.triggered.connect(lambda _: self.open_application_configuration())
         # self.betty_menu.addAction(self.betty_menu.open_application_configuration_action)
         #
-        # self.betty_menu.clear_caches_action = QAction(self)
-        # self.betty_menu.clear_caches_action.triggered.connect(lambda _: self.clear_caches())
-        # self.betty_menu.addAction(self.betty_menu.clear_caches_action)
+        self.betty_menu.clear_caches_action = QAction(self)
+        self.betty_menu.clear_caches_action.triggered.connect(lambda _: self.clear_caches())
+        self.betty_menu.addAction(self.betty_menu.clear_caches_action)
 
         # self.betty_menu.exit_action = QAction(self)
         # self.betty_menu.exit_action.setShortcut('Ctrl+Q')
