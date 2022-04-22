@@ -329,16 +329,16 @@ class BettyMainWindow(BettyWindow):
         # self.betty_menu.exit_action.triggered.connect(QCoreApplication.quit)
         # self.betty_menu.addAction(self.betty_menu.exit_action)
 
-        # self.help_menu = QMenu()
-        # menu_bar.addMenu(self.help_menu)
-        #
+        self.help_menu = QMenu()
+        menu_bar.addMenu(self.help_menu)
+
         # self.help_menu.view_issues_action = QAction(self)
         # self.help_menu.view_issues_action.triggered.connect(lambda _: self.view_issues())
         # self.help_menu.addAction(self.help_menu.view_issues_action)
-        #
-        # self.help_menu.about_action = QAction(self)
-        # self.help_menu.about_action.triggered.connect(lambda _: self._about_betty())
-        # self.help_menu.addAction(self.help_menu.about_action)
+
+        self.help_menu.about_action = QAction(self)
+        self.help_menu.about_action.triggered.connect(lambda _: self._about_betty())
+        self.help_menu.addAction(self.help_menu.about_action)
 
     def _do_set_translatables(self) -> None:
         super()._do_set_translatables()
