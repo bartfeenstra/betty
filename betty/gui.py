@@ -19,7 +19,7 @@ from PyQt6.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QCoreApplic
 from PyQt6.QtGui import QIcon, QFont, QAction, QCloseEvent
 from PyQt6.QtWidgets import QApplication, QFileDialog, QMainWindow, QVBoxLayout, QLabel, \
     QWidget, QPushButton, QMessageBox, QLineEdit, QCheckBox, QFormLayout, QHBoxLayout, QGridLayout, QLayout, \
-    QStackedLayout, QComboBox, QButtonGroup, QRadioButton, QMenu
+    QStackedLayout, QComboBox, QButtonGroup, QRadioButton, QMenu, QMenuBar
 from babel import Locale
 from babel.localedata import locale_identifiers
 from reactives import reactive, ReactorController
@@ -291,15 +291,13 @@ class BettyMainWindow(BettyWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setWindowIcon(QIcon(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'betty-512x512.png')))
-        self._initialize_menu()
+        self._initialize_menu(self.menuBar())
 
     @property
     def title(self) -> str:
         return 'Betty'
 
-    def _initialize_menu(self) -> None:
-        menu_bar = self.menuBar()
-
+    def _initialize_menu(self, menu_bar: QMenuBar) -> None:
         self.betty_menu = menu_bar.addMenu('&Betty')
 
         # self.betty_menu.new_project_action = QAction(self)
@@ -336,9 +334,9 @@ class BettyMainWindow(BettyWindow):
         # self.help_menu.view_issues_action.triggered.connect(lambda _: self.view_issues())
         # self.help_menu.addAction(self.help_menu.view_issues_action)
 
-        self.help_menu.about_action = QAction(self)
-        self.help_menu.about_action.triggered.connect(lambda _: self._about_betty())
-        self.help_menu.addAction(self.help_menu.about_action)
+        # self.help_menu.about_action = QAction(self)
+        # self.help_menu.about_action.triggered.connect(lambda _: self._about_betty())
+        # self.help_menu.addAction(self.help_menu.about_action)
 
     def _do_set_translatables(self) -> None:
         super()._do_set_translatables()
@@ -854,10 +852,8 @@ class ProjectWindow(BettyMainWindow):
     def extension_types(self) -> Sequence[Type[Extension]]:
         return [import_any(extension_name) for extension_name in self._EXTENSION_NAMES]
 
-    def _initialize_menu(self) -> None:
-        super()._initialize_menu()
-
-        menu_bar = self.menuBar()
+    def _initialize_menu(self, menu_bar: QMenuBar) -> None:
+        super()._initialize_menu(menu_bar)
 
         self.project_menu = menu_bar.addMenu('&' + _('Project'))
         menu_bar.insertMenu(self.help_menu.menuAction(), self.project_menu)

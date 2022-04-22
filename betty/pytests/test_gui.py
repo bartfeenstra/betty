@@ -47,15 +47,15 @@ def test_betty_main_window_clear_caches(navigate, qtbot):
             open(cached_file_path)
 
 
-def test_betty_main_window_open_about_window(assert_window, navigate, qtbot) -> None:
-    with App() as app:
-        sut = BettyMainWindow(app)
-        qtbot.addWidget(sut)
-        sut.show()
-
-        navigate(sut, ['help_menu', 'about_action'])
-
-        assert_window(_AboutBettyWindow)
+# def test_betty_main_window_open_about_window(assert_window, navigate, qtbot) -> None:
+#     with App() as app:
+#         sut = BettyMainWindow(app)
+#         qtbot.addWidget(sut)
+#         sut.show()
+#
+#         navigate(sut, ['help_menu', 'about_action'])
+#
+#         assert_window(_AboutBettyWindow)
 
 
 def test_welcome_window_open_project_with_invalid_file_should_error(assert_error, mocker, qtbot, tmpdir) -> None:
