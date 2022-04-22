@@ -327,8 +327,8 @@ class BettyMainWindow(BettyWindow):
         # self.betty_menu.exit_action.triggered.connect(QCoreApplication.quit)
         # self.betty_menu.addAction(self.betty_menu.exit_action)
 
-        # self.help_menu = QMenu()
-        # menu_bar.addMenu(self.help_menu)
+        self.help_menu = QMenu()
+        menu_bar.addMenu(self.help_menu)
 
         # self.help_menu.view_issues_action = QAction(self)
         # self.help_menu.view_issues_action.triggered.connect(lambda _: self.view_issues())
