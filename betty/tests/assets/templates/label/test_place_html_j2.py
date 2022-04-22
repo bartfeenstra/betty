@@ -1,10 +1,10 @@
-from typing import Optional
+from typing import Optional, Iterator, ContextManager
 
 from parameterized import parameterized
 
+from betty.app import App
 from betty.locale import DateRange, Date
 from betty.model.ancestry import Place, PlaceName
-from betty.project import Configuration, LocaleConfiguration
 from betty.tests import TemplateTestCase
 
 
@@ -50,10 +50,9 @@ class Test(TemplateTestCase):
             'nl',
         ),
     ])
-    def test(self, expected, data, locale: Optional[str] = None) -> None:
-        def _update_configuration(configuration: Configuration) -> None:
-            if locale:
-                configuration.locales.replace([LocaleConfiguration(locale)])
+    def test(self, expected: str, data, locale: Optional[str] = None) -> None:
+        def _set_up(app: App) -> Iterator[ContextManager]:
+            return (app.acquire_locale(locale),)
 
-        with self._render(data=data, update_project_configuration=_update_configuration) as (actual, _):
+        with self._render(data=data, set_up=_set_up) as (actual, _):
             self.assertEqual(expected, actual)

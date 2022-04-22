@@ -32,7 +32,8 @@ from betty.fs import hashfile, iterfiles, CACHE_DIRECTORY_PATH
 from betty.functools import walk
 from betty.html import CssProvider, JsProvider
 from betty.json import JSONEncoder
-from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange
+from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange, \
+    bcp_47_to_rfc_1766
 from betty.lock import AcquiredError
 from betty.model import Entity, get_entity_type_name, GeneratedEntityId
 from betty.model.ancestry import File, Citation, HasLinks, HasFiles, Subject, Witness, Dated
@@ -167,8 +168,7 @@ class Environment(Jinja2Environment):
         self.filters['map'] = _filter_map
         self.filters['flatten'] = _filter_flatten
         self.filters['walk'] = _filter_walk
-        self.filters['locale_get_data'] = lambda locale: Locale.parse(
-            locale, '-')
+        self.filters['locale_get_data'] = lambda locale: Locale.parse(bcp_47_to_rfc_1766(locale))
         self.filters['negotiate_localizeds'] = _filter_negotiate_localizeds
         self.filters['sort_localizeds'] = _filter_sort_localizeds
         self.filters['select_localizeds'] = _filter_select_localizeds
@@ -456,7 +456,7 @@ def _filter_select_localizeds(context: Context, localizeds: Iterable[Localized],
     for localized in localizeds:
         if include_unspecified and localized.locale in {None, 'mis', 'mul', 'und', 'zxx'}:
             yield localized
-        if localized.locale is not None and negotiate_locale(context.environment.app.locale, [localized.locale]) is not None:
+        if localized.locale is not None and negotiate_locale(context.environment.app.locale, {localized.locale}) is not None:
             yield localized
 
 

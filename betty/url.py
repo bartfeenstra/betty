@@ -3,6 +3,7 @@ from contextlib import suppress
 from typing import Any, Optional, Type
 
 from betty.app import App
+from betty.locale import negotiate_locale
 from betty.model import Entity
 from betty.model.ancestry import PersonName, Event, Place, File, Source, Citation, Note, Person
 from betty.media_type import EXTENSIONS
@@ -88,7 +89,21 @@ def _generate_from_path(configuration: Configuration, path: str, absolute: bool 
     if configuration.root_path:
         url += configuration.root_path + '/'
     if locale and configuration.multilingual:
-        locale_configuration = configuration.locales[locale]
+        try:
+            locale_configuration = configuration.locales[locale]
+        except KeyError:
+            project_locales = {
+                locale_configuration.locale
+                for locale_configuration
+                in configuration.locales
+            }
+            try:
+                locale_configuration = configuration.locales[negotiate_locale(
+                    locale,
+                    project_locales,
+                )]
+            except KeyError:
+                raise ValueError(f'Cannot generate URLs in "{locale}", because it cannot be resolved to any of the enabled project locales: {", ".join(project_locales)}')
         url += locale_configuration.alias + '/'
     url += path.strip('/')
     if configuration.clean_urls and url.endswith('/index.html'):

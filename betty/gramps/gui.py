@@ -3,19 +3,20 @@ from typing import List
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QWidget, QFormLayout, QPushButton, QFileDialog, QLineEdit, QHBoxLayout, QVBoxLayout, \
-    QGridLayout
+    QGridLayout, QLabel
 from reactives import reactive
-from reactives.factory.type import ReactiveInstance
 
+from betty.app import App
 from betty.config import Path, ConfigurationError
 from betty.gramps.config import FamilyTreeConfiguration, GrampsConfiguration
-from betty.gui import catch_exceptions, BettyWindow, mark_valid, mark_invalid, Text
+from betty.gui import catch_exceptions, BettyWindow, mark_valid, mark_invalid, Text, LocalizedWidget
 
 
 @reactive
-class _GrampsGuiWidget(QWidget, ReactiveInstance):
-    def __init__(self, configuration: GrampsConfiguration, *args, **kwargs):
+class _GrampsGuiWidget(LocalizedWidget):
+    def __init__(self, app: App, configuration: GrampsConfiguration, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._app = app
         self._configuration = configuration
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
@@ -23,7 +24,7 @@ class _GrampsGuiWidget(QWidget, ReactiveInstance):
         self._family_trees_widget = None
 
         self._build_family_trees()
-        self._add_family_tree_button = QPushButton(_('Add a family tree'))
+        self._add_family_tree_button = QPushButton()
         self._add_family_tree_button.released.connect(self._add_family_tree)
         self._layout.addWidget(self._add_family_tree_button, 1)
 
@@ -41,13 +42,18 @@ class _GrampsGuiWidget(QWidget, ReactiveInstance):
             def _remove_family_tree() -> None:
                 del self._configuration.family_trees[i]
             family_trees_layout.addWidget(Text(str(family_tree.file_path)), i, 0)
-            self._family_trees_widget._remove_buttons.insert(i, QPushButton(_('Remove')))
+            self._family_trees_widget._remove_buttons.insert(i, QPushButton())
             self._family_trees_widget._remove_buttons[i].released.connect(_remove_family_tree)
             family_trees_layout.addWidget(self._family_trees_widget._remove_buttons[i], i, 1)
         self._layout.insertWidget(0, self._family_trees_widget, alignment=Qt.AlignmentFlag.AlignTop)
 
+    def _do_set_translatables(self) -> None:
+        self._add_family_tree_button.setText(_('Add a family tree'))
+        for button in self._family_trees_widget._remove_buttons:
+            button.setText(_('Remove'))
+
     def _add_family_tree(self):
-        window = _AddFamilyTreeWindow(self._configuration.family_trees, self)
+        window = _AddFamilyTreeWindow(self._app, self._configuration.family_trees, self)
         window.show()
 
 
@@ -55,8 +61,8 @@ class _AddFamilyTreeWindow(BettyWindow):
     width = 500
     height = 100
 
-    def __init__(self, family_trees: List[FamilyTreeConfiguration], *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, app: App, family_trees: List[FamilyTreeConfiguration], *args, **kwargs):
+        super().__init__(app, *args, **kwargs)
         self._family_trees = family_trees
         self._family_tree = None
 
@@ -98,7 +104,8 @@ class _AddFamilyTreeWindow(BettyWindow):
         self._widget._file_path_find = QPushButton('...')
         self._widget._file_path_find.released.connect(find_family_tree_file_path)
         file_path_layout.addWidget(self._widget._file_path_find)
-        self._layout.addRow(_('File path'), file_path_layout)
+        self._file_path_label = QLabel()
+        self._layout.addRow(self._file_path_label, file_path_layout)
 
         buttons_layout = QHBoxLayout()
         self._layout.addRow(buttons_layout)
@@ -107,14 +114,19 @@ class _AddFamilyTreeWindow(BettyWindow):
         def save_and_close_family_tree() -> None:
             self._family_trees.append(self._family_tree)
             self.close()
-        self._widget._save_and_close = QPushButton(_('Save and close'))
+        self._widget._save_and_close = QPushButton()
         self._widget._save_and_close.setDisabled(True)
         self._widget._save_and_close.released.connect(save_and_close_family_tree)
         buttons_layout.addWidget(self._widget._save_and_close)
 
-        self._widget._cancel = QPushButton(_('Cancel'))
+        self._widget._cancel = QPushButton()
         self._widget._cancel.released.connect(self.close)
         buttons_layout.addWidget(self._widget._cancel)
+
+    def _do_set_translatables(self) -> None:
+        self._file_path_label.setText(_('File path'))
+        self._widget._save_and_close.setText(_('Save and close'))
+        self._widget._cancel.setText(_('Cancel'))
 
     @property
     def title(self) -> str:

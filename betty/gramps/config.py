@@ -29,10 +29,10 @@ class FamilyTreeConfiguration(Configuration):
     @classmethod
     def load(cls, dumped_configuration: Any) -> Configuration:
         if not isinstance(dumped_configuration, dict):
-            raise ConfigurationError('Family tree configuration must be a mapping (dictionary).')
+            raise ConfigurationError(_('Family tree configuration must be a mapping (dictionary).'))
 
         if 'file' not in dumped_configuration:
-            raise ConfigurationError('Family tree configuration requires a Gramps file to be set.', contexts=['`file`'])
+            raise ConfigurationError(_('Family tree configuration requires a Gramps file to be set.'), contexts=['`file`'])
 
         with ensure_context('`file`'):
             file_path = ensure_path(dumped_configuration['file'])
@@ -59,10 +59,10 @@ class GrampsConfiguration(Configuration):
 
     def load(self, dumped_configuration: Any) -> None:
         if not isinstance(dumped_configuration, dict):
-            raise ConfigurationError('Gramps configuration must be a mapping (dictionary).')
+            raise ConfigurationError(_('Gramps configuration must be a mapping (dictionary).'))
 
         if 'family_trees' not in dumped_configuration or not isinstance(dumped_configuration['family_trees'], list):
-            raise ConfigurationError('Family trees configuration is required and must must be a list.', contexts=['`family_trees`'])
+            raise ConfigurationError(_('Family trees configuration is required and must must be a list.'), contexts=['`family_trees`'])
 
         self._family_trees.clear()
         for i, dumped_family_tree_configuration in enumerate(dumped_configuration['family_trees']):

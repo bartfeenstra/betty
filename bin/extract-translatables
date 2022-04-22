@@ -4,10 +4,10 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
-pybabel extract --no-location --no-wrap --sort-output -F ./babel.ini -o betty.pot --project 'Betty' --copyright-holder 'Bart Feenstra & contributors' ./betty ./betty/assets/public/localized/.error
+pybabel extract --no-location --no-wrap --sort-output -F ./babel.ini -o ./betty/assets/betty.pot --project 'Betty' --copyright-holder 'Bart Feenstra & contributors' ./betty ./betty/assets/public/localized/.error
 
 mkdir -p ./betty/assets/locale
 while read -r locale_directory_path; do
   locale=$(basename "$locale_directory_path")
-  pybabel update -d ./betty/assets/locale -l "$locale" -D betty -i ./betty.pot
+  pybabel update -d ./betty/assets/locale -l "$locale" -D betty -i ./betty/assets/betty.pot
 done < <(find ./betty/assets/locale/ -mindepth 1 -maxdepth 1 -type d)

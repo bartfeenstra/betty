@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import locale
 import weakref
 from concurrent.futures._base import Executor
 from concurrent.futures.thread import ThreadPoolExecutor
-from contextlib import contextmanager, ExitStack
+from contextlib import contextmanager, ExitStack, suppress
 from gettext import NullTranslations
-from typing import List, Type, TYPE_CHECKING, Set, Iterator, Optional
+from typing import List, Type, TYPE_CHECKING, Set, Iterator, Optional, Any
+
+from babel.core import parse_locale
+from babel.localedata import locale_identifiers
 
 from betty.resource import Releaser, Acquirer
 
@@ -38,6 +42,7 @@ from jinja2 import Environment as Jinja2Environment
 from reactives import reactive
 
 from betty.concurrent import ExceptionRaisingAwaitableExecutor
+from betty.config import Configuration as GenericConfiguration, ConfigurationError, from_file
 from betty.dispatch import Dispatcher
 from betty.lock import Locks
 from betty.render import Renderer, SequentialRenderer
@@ -45,8 +50,11 @@ from betty.render import Renderer, SequentialRenderer
 from betty.model.ancestry import Citation, Event, File, Person, PersonName, Presence, Place, Enclosure, \
     Source, Note, EventType
 from betty.config import Configurable
-from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH
-from betty.locale import negotiate_locale, TranslationsRepository, Translations
+from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH, HOME_DIRECTORY_PATH
+from betty.locale import negotiate_locale, TranslationsRepository, Translations, rfc_1766_to_bcp_47, bcp_47_to_rfc_1766, \
+    getdefaultlocale
+
+CONFIGURATION_DIRECTORY_PATH = HOME_DIRECTORY_PATH / 'configuration'
 
 
 @reactive
@@ -59,13 +67,52 @@ class _AppExtensions(ListExtensions):
         self.react.trigger()
 
 
+class Configuration(GenericConfiguration):
+    def __init__(self):
+        super().__init__()
+        self._locale = None
+
+    @reactive  # type: ignore
+    @property
+    def locale(self) -> str:
+        if self._locale is None:
+            return getdefaultlocale()
+        return self._locale
+
+    @locale.setter
+    def locale(self, locale: str) -> None:
+        self._locale = locale
+
+    def load(self, dumped_configuration: Any) -> None:
+        if not isinstance(dumped_configuration, dict):
+            raise ConfigurationError(_('Betty application configuration must be a mapping (dictionary).'))
+
+        if 'locale' in dumped_configuration:
+            if not isinstance(dumped_configuration['locale'], str):
+                raise ConfigurationError(_('The locale must be a string.'), contexts=['`title`'])
+            try:
+                parse_locale(bcp_47_to_rfc_1766(dumped_configuration['locale']))
+            except ValueError:
+                raise ConfigurationError(_('{locale} is not a valid IETF BCP 47 language tag.').format(locale=locale))
+            self.locale = dumped_configuration['locale']
+
+    def dump(self) -> Any:
+        dumped_configuration = {}
+        if self._locale is not None:
+            dumped_configuration['locale'] = self.locale
+
+        return dumped_configuration
+
+
 @reactive
-class App(Acquirer, Releaser, ReactiveInstance):
+class App(Acquirer, Releaser, Configurable[Configuration], ReactiveInstance):
     def __init__(self, *args, **kwargs):
         from betty.url import AppUrlGenerator, StaticPathUrlGenerator
 
         super().__init__(*args, **kwargs)
+        self._load_configuration()
 
+        self._acquired = False
         self._extensions = None
         self._project = Project()
         self._assets = FileSystem()
@@ -78,17 +125,26 @@ class App(Acquirer, Releaser, ReactiveInstance):
         self._locale: Optional[str] = None
         self._translations = TranslationsRepository(self.assets)
         self._default_translations = None
-        self._close_stack = ExitStack()
+        self._acquire_contexts = ExitStack()
         self._jinja2_environment = None
         self._renderer = None
         self._executor = None
         self._locks = Locks()
         self._http_client = None
 
+    def _load_configuration(self) -> None:
+        with suppress(FileNotFoundError):
+            with open(CONFIGURATION_DIRECTORY_PATH / 'app.json') as f:
+                from_file(f, self.configuration)
+
     def __copy__(self) -> Self:
         copied = type(self)()
         copied._project = self._project
         return copied
+
+    @classmethod
+    def configuration_type(cls) -> Type[Configuration]:
+        return Configuration
 
     def wait(self) -> None:
         self._wait_for_threads()
@@ -98,11 +154,14 @@ class App(Acquirer, Releaser, ReactiveInstance):
             self._executor.wait()
 
     def acquire(self) -> None:
+        if self._acquired:
+            raise RuntimeError('This application is acquired already.')
+        self._acquired = True
         try:
             # Enable the gettext API by entering a dummy translations context.
-            self._close_stack.enter_context(Translations(NullTranslations()))
+            self._acquire_contexts.enter_context(Translations(NullTranslations()))
             # Then acquire the actual locale.
-            self._close_stack.enter_context(self.acquire_locale())
+            self._acquire_contexts.enter_context(self.acquire_locale())
 
             for extension in self.extensions.flatten():
                 if isinstance(extension, Acquirer):
@@ -114,9 +173,12 @@ class App(Acquirer, Releaser, ReactiveInstance):
             raise
 
     def release(self) -> None:
+        if not self._acquired:
+            raise RuntimeError('This application is not yet acquired.')
         self._wait_for_threads()
-        self._close_stack.close()
+        self._acquire_contexts.close()
         del self.http_client
+        self._acquired = False
 
     @contextmanager
     def acquire_locale(self, requested_locale: Optional[str] = None) -> Iterator[Self]:
@@ -124,15 +186,15 @@ class App(Acquirer, Releaser, ReactiveInstance):
         Temporarily change this application's locale and the global gettext translations.
         """
         if requested_locale is None:
-            requested_locale = self.project.configuration.locales.default_locale.locale
+            requested_locale = self.configuration.locale
 
         negotiated_locale = negotiate_locale(
             requested_locale,
-            [
-                locale_configuration.locale
-                for locale_configuration
-                in self.project.configuration.locales
-            ],
+            {
+                rfc_1766_to_bcp_47(locale)
+                for locale
+                in locale_identifiers()
+            },
         )
 
         if negotiated_locale is None:
@@ -140,7 +202,14 @@ class App(Acquirer, Releaser, ReactiveInstance):
 
         previous_locale = self._locale
         self._locale = negotiated_locale
-        with self.translations[negotiated_locale]:
+
+        negotiated_translations_locale = negotiate_locale(
+            requested_locale,
+            set(self.translations.locales),
+        )
+        if negotiated_translations_locale is None:
+            negotiated_translations_locale = 'en-US'
+        with self.translations[negotiated_translations_locale]:
             yield self
 
         self._locale = previous_locale
@@ -148,7 +217,7 @@ class App(Acquirer, Releaser, ReactiveInstance):
     @property
     def locale(self) -> str:
         if self._locale is None:
-            raise RuntimeError(f'No locale is active yet. Use {type(self)}.acquire_locale() to activate a locale.')
+            raise RuntimeError(f'No locale has been acquired yet. Use {type(self)}.acquire_locale() to activate a locale.')
         return self._locale
 
     def __enter__(self) -> App:

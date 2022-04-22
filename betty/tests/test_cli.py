@@ -211,6 +211,7 @@ class ServeTest(TestCase):
     @patch('betty.serve.AppServer', new_callable=lambda: _KeyboardInterruptedServer)
     def test(self, m_server):
         configuration = Configuration()
+        configuration.save()
         os.makedirs(configuration.www_directory_path)
         runner = CliRunner()
         result = runner.invoke(main, ('-c', configuration.configuration_file_path, 'serve',), catch_exceptions=False)

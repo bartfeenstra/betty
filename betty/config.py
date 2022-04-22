@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import json
+import os
 from os import path
 from pathlib import Path
 from typing import Dict, Callable, Type, TypeVar, Any, Generic, Optional, TYPE_CHECKING
+
+from betty.os import PathLike, ChDir
 
 try:
     from typing import Self  # type: ignore
@@ -14,7 +17,6 @@ import yaml
 from reactives import reactive
 from reactives.factory.type import ReactiveInstance
 
-from betty import os
 from betty.error import UserFacingError, ContextError, ensure_context
 
 
@@ -28,6 +30,36 @@ class ConfigurationError(UserFacingError, ContextError, ValueError):
 
 @reactive
 class Configuration(ReactiveInstance):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._configuration_file_path = None
+        self.react.react_weakref(self.save)
+
+    def save(self) -> None:
+        if self.configuration_file_path is not None:
+            try:
+                with open(self.configuration_file_path, 'w') as f:
+                    to_file(f, self)
+            except FileNotFoundError:
+                os.makedirs(self.configuration_file_path.parent)
+                self.save()
+
+    @property
+    def configuration_file_path(self) -> Optional[Path]:
+        return self._configuration_file_path
+
+    @configuration_file_path.setter
+    def configuration_file_path(self, configuration_file_path: PathLike) -> None:
+        configuration_file_path = Path(configuration_file_path)
+        if configuration_file_path == self._configuration_file_path:
+            return
+        self._configuration_file_path = configuration_file_path
+        self.save()
+
+    @configuration_file_path.deleter
+    def configuration_file_path(self) -> None:
+        self._configuration_file_path = None
+
     def load(self, dumped_configuration: Any) -> None:
         """
         Validate the dumped configuration and load it into self.
@@ -91,9 +123,10 @@ def from_file(f, configuration: Configuration) -> None:
         raise ConfigurationError(f"Unknown file format \"{file_extension}\". Supported formats are: {', '.join(APP_CONFIGURATION_FORMATS)}.")
     # Change the working directory to allow relative paths to be resolved against the configuration file's directory
     # path.
-    with os.ChDir(Path(f.name).parent):
+    with ChDir(Path(f.name).parent):
         with ensure_context('in %s' % file_path.resolve()):
             configuration.load(loader(f.read()))
+    configuration.configuration_file_path = file_path
 
 
 def to_json(configuration: Configuration) -> str:
@@ -112,7 +145,7 @@ def to_file(f, configuration: Configuration) -> None:
         raise ValueError(f"'Unknown file format \"{file_extension}\". Supported formats are: {', '.join(APP_CONFIGURATION_FORMATS)}.'")
     # Change the working directory to allow absolute paths to be turned relative to the configuration file's directory
     # path.
-    with os.ChDir(path.dirname(f.name)):
+    with ChDir(path.dirname(f.name)):
         f.write(format.dumper(configuration))
 
 
