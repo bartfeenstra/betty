@@ -8,6 +8,8 @@ import glob
 import locale
 import operator
 import shutil
+import threading
+from collections import defaultdict
 from gettext import NullTranslations, GNUTranslations
 from io import StringIO
 from contextlib import suppress
@@ -270,7 +272,8 @@ class Translations(NullTranslations):
         'pgettext',
     )
 
-    _stack: List[Translations] = []
+    _stack: Dict[int, List[Translations]] = defaultdict(list)
+    _thread_id: Optional[int] = None
 
     def __init__(self, fallback: NullTranslations):
         super().__init__()
@@ -284,22 +287,33 @@ class Translations(NullTranslations):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.uninstall()
 
-    def install(self, _=None):
+    # @todo STACK OPERATIONS:
+    # @todo - Insert to stack
+    # @todo - Remove from stack
+    # @todo - Check current stack item
+    # @todo - Count prior stack items
+
+    # @todo What if we do not only add self to the stack, but also store the thread ID?
+    # @todo When uninstalling, if the thread ID does not match, do not error?
+    # @todo Or maybe just warn in any case. *Are* there any valid reasons for thread violations to happen?
+
+    def install(self, _=None) -> None:
         if self._previous_context is not None:
             raise TranslationsInstallationError('These translations are installed already.')
 
         self._previous_context = self._get_current_context()
         super().install(self._GETTEXT_BUILTINS)
 
-        Translations._stack.insert(0, self)
+        self._thread_id = threading.get_ident()
+        self._stack[self._thread_id].insert(0, self)
 
-    def uninstall(self):
+    def uninstall(self) -> None:
         if self._previous_context is None:
             raise TranslationsInstallationError('These translations are not yet installed.')
 
-        if self != Translations._stack[0]:
-            raise TranslationsInstallationError(f'These translations were not the last to be installed. {Translations._stack.index(self)} other translation(s) must be uninstalled before these translations can be uninstalled as well.')
-        del Translations._stack[0]
+        if self != self._stack[self._thread_id][0]:
+            raise TranslationsInstallationError(f'These translations were not the last to be installed. {self._stack[self._thread_id].index(self)} other translation(s) must be uninstalled before these translations can be uninstalled as well.')
+        del self._stack[self._thread_id][0]
 
         for key in self._GETTEXT_BUILTINS:
             # Built-ins are not owned by Betty, so allow for them to have disappeared.
