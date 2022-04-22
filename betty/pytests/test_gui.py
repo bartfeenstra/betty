@@ -58,32 +58,32 @@ def test_betty_main_window_clear_caches(navigate, qtbot):
 #         assert_window(_AboutBettyWindow)
 
 
-def test_welcome_window_open_project_with_invalid_file_should_error(assert_error, mocker, qtbot, tmpdir) -> None:
-    with App() as app:
-        sut = _WelcomeWindow(app)
-        qtbot.addWidget(sut)
-        sut.show()
+# def test_welcome_window_open_project_with_invalid_file_should_error(assert_error, mocker, qtbot, tmpdir) -> None:
+#     with App() as app:
+#         sut = _WelcomeWindow(app)
+#         qtbot.addWidget(sut)
+#         sut.show()
+#
+#         configuration_file_path = tmpdir.join('betty.json')
+#         # Purposefully leave the file empty so it is invalid.
+#         configuration_file_path.write('')
+#         mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[configuration_file_path, None]))
+#         qtbot.mouseClick(sut.open_project_button, Qt.MouseButton.LeftButton)
+#
+#         error = assert_error(ExceptionError)
+#         assert isinstance(error.exception, ConfigurationError)
 
-        configuration_file_path = tmpdir.join('betty.json')
-        # Purposefully leave the file empty so it is invalid.
-        configuration_file_path.write('')
-        mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[configuration_file_path, None]))
-        qtbot.mouseClick(sut.open_project_button, Qt.MouseButton.LeftButton)
 
-        error = assert_error(ExceptionError)
-        assert isinstance(error.exception, ConfigurationError)
-
-
-def test_welcome_window_open_project_with_valid_file_should_show_project_window(assert_window, minimal_project_configuration_file_path, mocker, qtbot, tmpdir) -> None:
-    with App() as app:
-        sut = _WelcomeWindow(app)
-        qtbot.addWidget(sut)
-        sut.show()
-
-        mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[minimal_project_configuration_file_path, None]))
-        qtbot.mouseClick(sut.open_project_button, Qt.MouseButton.LeftButton)
-
-        assert_window(ProjectWindow)
+# def test_welcome_window_open_project_with_valid_file_should_show_project_window(assert_window, minimal_project_configuration_file_path, mocker, qtbot, tmpdir) -> None:
+#     with App() as app:
+#         sut = _WelcomeWindow(app)
+#         qtbot.addWidget(sut)
+#         sut.show()
+#
+#         mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[minimal_project_configuration_file_path, None]))
+#         qtbot.mouseClick(sut.open_project_button, Qt.MouseButton.LeftButton)
+#
+#         assert_window(ProjectWindow)
 
 
 def test_welcome_window_view_demo_site(assert_window, mocker, qtbot) -> None:
