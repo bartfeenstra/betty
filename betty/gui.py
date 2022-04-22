@@ -327,8 +327,12 @@ class BettyMainWindow(BettyWindow):
         # self.betty_menu.exit_action.triggered.connect(QCoreApplication.quit)
         # self.betty_menu.addAction(self.betty_menu.exit_action)
 
-        self.help_menu = QMenu('moo')
+        # self.help_menu = QMenu('moo')
         # menu_bar.addMenu(self.help_menu)
+        # @todo Try this, which lets the menu bar take ownership of the menu
+        # @todo It does need a(n empty) string title so method overloading works.
+        # @todo
+        self._help_menu = menu_bar.addMenu('')
 
         # self.help_menu.view_issues_action = QAction(self)
         # self.help_menu.view_issues_action.triggered.connect(lambda _: self.view_issues())
