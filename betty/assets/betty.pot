@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-19 18:44+0100\n"
+"POT-Creation-Date: 2022-05-16 23:56+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,41 +17,21 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 
-#, python-format
 msgid ""
 "\n"
-"                Betty was named after %(liberta_lankester_label)s. You can browse the pages about her and some of her\n"
-"                family to get an idea of what a Betty site looks like.\n"
+"                Betty is an application that takes a family tree and builds a website out of it, much like the one you\n"
+"                are viewing right now. The more information your genealogical research contains, the more interactivity\n"
+"                Betty can add to your site, such as media galleries, maps, and browsable family trees.\n"
 "            "
 msgstr ""
 
-msgid ""
-"\n"
-"            Continue building your site by adding content to the family history you load into Betty, such as people,\n"
-"            places, source citations, and media.\n"
-"        "
-msgstr ""
-
-msgid ""
-"\n"
-"            Hello dear, welcome to your new family history website.\n"
-"        "
-msgstr ""
-
 #, python-format
 msgid ""
 "\n"
-"        You can customize this page you are looking at right now:\n"
-"        <ol>\n"
-"            <li>Create an <strong>assets</strong> directory. You can call this anything and put this anywhere, but a good start is to call it <code>assets</code> and put it in the same directory as your Betty configuration file.</li>\n"
-"            <li>In your Betty project configuration file, add <code>assets_directory_path: assets</code>, where <code>assets</code> should be whatever the path to and name of your assets directory path is.</li>\n"
-"            <li>Inside the assets directory, create the subdirectories <code>%(template_override_subdirectory_path)s</code>, and in there, the file <code>index.html.j2</code>. This file will replace the page you are seeing now.</li>\n"
-"            <li>Open <code>index.html.j2</code> in your favorite code editor, and add the following code:\n"
-"                <pre><code>%(template_override_template)s</code></pre>\n"
-"            </li>\n"
-"            <li>Customize this code to suit your needs. Then regenerate your site, and reload this page.</li>\n"
-"        </ol>\n"
-"    "
+"                Betty was named after %(liberta_lankester_label)s, and this website shows a small sample of her family\n"
+"                history. You can browse the pages about her and some of her family to get an idea of what a Betty site\n"
+"                looks like.\n"
+"            "
 msgstr ""
 
 #, python-format
@@ -133,6 +113,9 @@ msgstr ""
 msgid "Add a locale"
 msgstr ""
 
+msgid "Add an entity"
+msgstr ""
+
 msgid "Adoption"
 msgstr ""
 
@@ -194,7 +177,7 @@ msgstr ""
 msgid "Author"
 msgstr ""
 
-msgid "Background image ID"
+msgid "Background image"
 msgstr ""
 
 msgid "Baptism"
@@ -225,6 +208,9 @@ msgid "Cancel"
 msgstr ""
 
 msgid "Cannot remove the last remaining locale {locale}"
+msgstr ""
+
+msgid "Citation"
 msgstr ""
 
 msgid "Clean URLs"
@@ -319,10 +305,22 @@ msgstr ""
 msgid "Enable {extension}"
 msgstr ""
 
+msgid "Enclosure"
+msgstr ""
+
 msgid "Engagement"
 msgstr ""
 
+msgid "Entity ID"
+msgstr ""
+
+msgid "Entity references must be a list."
+msgstr ""
+
 msgid "Error"
+msgstr ""
+
+msgid "Event"
 msgstr ""
 
 msgid "Events"
@@ -350,6 +348,12 @@ msgid "Family tree configuration requires a Gramps file to be set."
 msgstr ""
 
 msgid "Family trees configuration is required and must must be a list."
+msgstr ""
+
+msgid "Featured entities"
+msgstr ""
+
+msgid "File"
 msgstr ""
 
 msgid "File path"
@@ -457,7 +461,7 @@ msgstr ""
 msgid "Locale"
 msgstr ""
 
-msgid "Locales configuration much be a list."
+msgid "Locales configuration must be a list."
 msgstr ""
 
 msgid "Localization"
@@ -496,6 +500,9 @@ msgstr ""
 msgid "Not found"
 msgstr ""
 
+msgid "Note"
+msgstr ""
+
 msgid "Notes"
 msgstr ""
 
@@ -532,6 +539,15 @@ msgstr ""
 msgid "Permanent link to this section."
 msgstr ""
 
+msgid "Person"
+msgstr ""
+
+msgid "Person name"
+msgstr ""
+
+msgid "Place"
+msgstr ""
+
 msgid "Places"
 msgstr ""
 
@@ -539,6 +555,9 @@ msgid "Pre-built assets"
 msgstr ""
 
 msgid "Pre-built assets are unavailable for {extension_names}."
+msgstr ""
+
+msgid "Presence"
 msgstr ""
 
 msgid "Private"
@@ -634,6 +653,9 @@ msgstr ""
 msgid "Settings..."
 msgstr ""
 
+msgid "Source"
+msgstr ""
+
 msgid "Sources"
 msgstr ""
 
@@ -691,6 +713,21 @@ msgstr ""
 msgid "The configuration must be a mapping (dictionary)."
 msgstr ""
 
+msgid "The entity ID is required."
+msgstr ""
+
+msgid "The entity ID must be a string."
+msgstr ""
+
+msgid "The entity reference must be a mapping (dictionary)."
+msgstr ""
+
+msgid "The entity reference must be for an entity of type {expected_entity_type_name} ({expected_entity_type_label}), but instead is for an entity of type {actual_entity_type_name} ({actual_entity_type_label})"
+msgstr ""
+
+msgid "The entity type is required."
+msgstr ""
+
 msgid "The event."
 msgstr ""
 
@@ -721,6 +758,9 @@ msgstr ""
 msgid "The source."
 msgstr ""
 
+msgid "The theme configuration must be a mapping (dictionary)."
+msgstr ""
+
 msgid "The title must be a string."
 msgstr ""
 
@@ -732,6 +772,9 @@ msgid "Theme"
 msgstr ""
 
 msgid "There are no translations for {locale_name}."
+msgstr ""
+
+msgid "These entities are featured on your site's front page."
 msgstr ""
 
 #, python-format
@@ -976,6 +1019,12 @@ msgid "until around %(end_date)s"
 msgstr ""
 
 msgid "y"
+msgstr ""
+
+msgid "{entity_type_label} ID"
+msgstr ""
+
+msgid "{individual_name} {affiliation_name}"
 msgstr ""
 
 msgid "{locale} is not a valid IETF BCP 47 language tag."

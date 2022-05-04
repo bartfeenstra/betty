@@ -5,16 +5,16 @@ import os
 from os import path
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Dict, Callable, TypeVar, Any, Generic, Optional, TYPE_CHECKING
-
-from betty.os import PathLike, ChDir
+from typing import Dict, Callable, TypeVar, Any, Generic, Optional, TYPE_CHECKING, Union, List, Hashable, \
+    Iterable, overload, SupportsIndex
 
 import yaml
 from reactives import reactive
 from reactives.factory.type import ReactiveInstance
 
 from betty.error import UserFacingError, ContextError, ensure_context
-
+from betty.os import PathLike, ChDir
+from betty.typing import Void
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -24,9 +24,40 @@ class ConfigurationError(UserFacingError, ContextError, ValueError):
     pass
 
 
+DumpedConfiguration = Union[Any, Void]
+
+
+@overload
+def _minimize_dumped_configuration_collection(dumped_configuration: List, keys: Iterable[SupportsIndex]) -> DumpedConfiguration:
+    pass
+
+
+@overload
+def _minimize_dumped_configuration_collection(dumped_configuration: Dict, keys: Iterable[Hashable]) -> DumpedConfiguration:
+    pass
+
+
+def _minimize_dumped_configuration_collection(dumped_configuration, keys) -> DumpedConfiguration:
+    for key in keys:
+        dumped_configuration[key] = minimize_dumped_configuration(dumped_configuration[key])
+        if dumped_configuration[key] is Void:
+            del dumped_configuration[key]
+    if len(dumped_configuration) > 0:
+        return dumped_configuration
+    return Void
+
+
+def minimize_dumped_configuration(configuration: DumpedConfiguration) -> DumpedConfiguration:
+    if isinstance(configuration, list):
+        return _minimize_dumped_configuration_collection(configuration, reversed(range(len(configuration))))
+    if isinstance(configuration, dict):
+        return _minimize_dumped_configuration_collection(configuration, list(configuration.keys()))
+    return configuration
+
+
 @reactive
 class Configuration(ReactiveInstance):
-    def load(self, dumped_configuration: Any) -> None:
+    def load(self, dumped_configuration: DumpedConfiguration) -> None:
         """
         Validate the dumped configuration and load it into self.
 
@@ -37,7 +68,7 @@ class Configuration(ReactiveInstance):
 
         raise NotImplementedError
 
-    def dump(self) -> Any:
+    def dump(self) -> DumpedConfiguration:
         """
         Dump this configuration to a portable format.
         """

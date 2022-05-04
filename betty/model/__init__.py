@@ -47,9 +47,17 @@ class Entity:
                 return ancestor_cls
         return cls
 
+    @classmethod
+    def entity_type_label(cls) -> str:
+        raise NotImplementedError
+
     @property
     def id(self) -> str:
         return self._id
+
+    @property
+    def label(self) -> Optional[str]:
+        return None
 
 
 class EntityTypeProvider:

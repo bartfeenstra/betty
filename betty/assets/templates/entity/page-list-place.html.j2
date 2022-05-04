@@ -1,0 +1,11 @@
+{% extends 'base.html.j2' %}
+{% set page_title = _('Places') %}
+{% block page_content %}
+    {% if entities | length > 0 %}
+        {% with canonical=True %}
+            {% include 'entity/list-place.html.j2' %}
+        {% endwith %}
+    {% else %}
+        <p>{% trans %}I'm sorry, dear, but it seems there are no places.{% endtrans %}</p>
+    {% endif %}
+{% endblock %}

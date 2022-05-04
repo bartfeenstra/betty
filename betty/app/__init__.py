@@ -7,7 +7,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from contextlib import contextmanager, ExitStack, suppress
 from gettext import NullTranslations
 from pathlib import Path
-from typing import List, Type, TYPE_CHECKING, Set, Iterator, Optional, Any
+from typing import List, Type, TYPE_CHECKING, Set, Iterator, Optional
 
 from babel.core import parse_locale
 from babel.localedata import locale_identifiers
@@ -43,7 +43,7 @@ from jinja2 import Environment as Jinja2Environment
 from reactives import reactive
 
 from betty.concurrent import ExceptionRaisingAwaitableExecutor
-from betty.config import ConfigurationError, FileBasedConfiguration
+from betty.config import ConfigurationError, FileBasedConfiguration, DumpedConfiguration
 from betty.dispatch import Dispatcher
 from betty.lock import Locks
 from betty.render import Renderer, SequentialRenderer
@@ -88,7 +88,7 @@ class Configuration(FileBasedConfiguration):
     def locale(self, locale: str) -> None:
         self._locale = locale
 
-    def load(self, dumped_configuration: Any) -> None:
+    def load(self, dumped_configuration: DumpedConfiguration) -> None:
         if not isinstance(dumped_configuration, dict):
             raise ConfigurationError(_('Betty application configuration must be a mapping (dictionary).'))
 
@@ -101,7 +101,7 @@ class Configuration(FileBasedConfiguration):
                 raise ConfigurationError(_('{locale} is not a valid IETF BCP 47 language tag.').format(locale=locale))
             self.locale = dumped_configuration['locale']
 
-    def dump(self) -> Any:
+    def dump(self) -> DumpedConfiguration:
         dumped_configuration = {}
         if self._locale is not None:
             dumped_configuration['locale'] = self.locale

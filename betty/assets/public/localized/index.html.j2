@@ -1,49 +1,39 @@
 {% extends 'base.html.j2' %}
 {% set page_title = _('Welcome to %(title)s') | format(title=app.project.configuration.title) %}
 {% block page_content %}
-    <p>
-        {% trans %}
-            Hello dear, welcome to your new family history website.
-        {% endtrans %}
-    </p>
     {% if 'betty.demo.Demo' in app.extensions %}
         <p>
+            {% trans %}
+                Betty is an application that takes a family tree and builds a website out of it, much like the one you
+                are viewing right now. The more information your genealogical research contains, the more interactivity
+                Betty can add to your site, such as media galleries, maps, and browsable family trees.
+            {% endtrans %}
+        </p>
+        <p>
             {% set liberta_lankester_label -%}
-                {%- with person = app.project.ancestry.entities['Person']['betty-demo-liberta-lankester'] -%}
-                    {% include 'label/person.html.j2' %}
-                {%- endwith -%}
+                <a href="{{ app.project.ancestry.entities['Person']['betty-demo-liberta-lankester'] | url }}">Liberta 'Betty' Lankester</a>
             {%- endset %}
             {% trans liberta_lankester_label = liberta_lankester_label %}
-                Betty was named after {{ liberta_lankester_label }}. You can browse the pages about her and some of her
-                family to get an idea of what a Betty site looks like.
+                Betty was named after {{ liberta_lankester_label }}, and this website shows a small sample of her family
+                history. You can browse the pages about her and some of her family to get an idea of what a Betty site
+                looks like.
             {% endtrans %}
         </p>
     {% endif %}
-    <p>
-        {% trans %}
-            Continue building your site by adding content to the family history you load into Betty, such as people,
-            places, source citations, and media.
-        {% endtrans %}
-    </p>
-    {% set template_override_template %}
-        {% raw %}
-            {% extends 'base.html.j2' %}
-            {% set page_title = _('Welcome to %(title)s') | format(title=app.project.configuration.title) %}
-            {% block page_content %}
-                {# Remove this line, and replace it with your own front page content. #}
-            {% endblock %}
-        {% endraw %}
-    {% endset %}
-    {% trans template_override_subdirectory_path = path.join('public', 'localized'), template_override_template = template_override_template %}
-        You can customize this page you are looking at right now:
-        <ol>
-            <li>Create an <strong>assets</strong> directory. You can call this anything and put this anywhere, but a good start is to call it <code>assets</code> and put it in the same directory as your Betty configuration file.</li>
-            <li>In your Betty project configuration file, add <code>assets_directory_path: assets</code>, where <code>assets</code> should be whatever the path to and name of your assets directory path is.</li>
-            <li>Inside the assets directory, create the subdirectories <code>{{ template_override_subdirectory_path }}</code>, and in there, the file <code>index.html.j2</code>. This file will replace the page you are seeing now.</li>
-            <li>Open <code>index.html.j2</code> in your favorite code editor, and add the following code:
-                <pre><code>{{ template_override_template }}</code></pre>
-            </li>
-            <li>Customize this code to suit your needs. Then regenerate your site, and reload this page.</li>
-        </ol>
-    {% endtrans %}
+    {% if app.project.configuration.theme.featured_entities %}
+        <div class="featured">
+            <div class="featured-entities">
+                {% for entity_reference in app.project.configuration.theme.featured_entities %}
+                    <div class="featured-entity">
+                        {% with entity = app.project.ancestry.entities[entity_reference.entity_type][entity_reference.entity_id] %}
+                            {% include [
+                                'featured-' + (entity.entity_type() | entity_type_name | camel_case_to_snake_case) + '.html.j2',
+                                'featured.html.j2',
+                            ] %}
+                        {% endwith %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}

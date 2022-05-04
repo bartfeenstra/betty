@@ -13,7 +13,7 @@ from betty.maps import Maps
 from betty.model.ancestry import Place, PlaceName, Person, Presence, Subject, PersonName, Link, Source, Citation, Event, \
     Enclosure
 from betty.model.event_type import Marriage, Birth, Death
-from betty.project import LocaleConfiguration, ProjectExtensionConfiguration
+from betty.project import LocaleConfiguration, ProjectExtensionConfiguration, EntityReference
 from betty.serve import Server
 from betty.trees import Trees
 from betty.wikipedia import Wikipedia
@@ -184,6 +184,9 @@ class Demo(Extension, Loader):
         PersonName(bart_feenstra, 'Bart', 'Feenstra')
         bart_feenstra.parents.append(parent_of_bart_feenstra_child_of_liberta_lankester)
         self._app.project.ancestry.entities.append(bart_feenstra)
+
+        self._app.project.configuration.theme.featured_entities.append(EntityReference(Person, 'betty-demo-liberta-lankester'))
+        self._app.project.configuration.theme.featured_entities.append(EntityReference(Place, 'betty-demo-amsterdam'))
 
 
 class DemoServer(Server):

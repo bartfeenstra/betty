@@ -11,8 +11,9 @@ from typing import Iterable, Any
 import aiofiles
 from aiofiles import os as aiofiles_os
 from babel import Locale
-from jinja2 import Environment, TemplateNotFound
+from jinja2 import TemplateNotFound
 
+from betty.jinja2 import Environment
 from betty.json import JSONEncoder
 from betty.locale import bcp_47_to_rfc_1766
 from betty.model.ancestry import File, Person, Place, Event, Citation, Source, Note
@@ -133,7 +134,6 @@ async def _generate_entity_type(www_directory_path: Path, entities: Iterable[Any
             entity,
             entity_type_name,
             app,
-            locale,
             environment,
         ):
             yield coroutine
@@ -143,8 +143,10 @@ async def _generate_entity_type_list_html(www_directory_path: Path, entities: It
                                           environment: Environment) -> None:
     entity_type_path = www_directory_path / entity_type_name
     with suppress(TemplateNotFound):
-        template = environment.get_template(
-            'page/list-%s.html.j2' % entity_type_name)
+        template = environment.negotiate_template([
+            f'entity/page-list-{entity_type_name}.html.j2',
+            'entity/page-list.html.j2',
+        ])
         rendered_html = template.render({
             'page_resource': '/%s/index.html' % entity_type_name,
             'entity_type_name': entity_type_name,
@@ -168,17 +170,20 @@ async def _generate_entity_type_list_json(www_directory_path: Path, entities: It
         await f.write(rendered_json)
 
 
-async def _generate_entity(www_directory_path: Path, entity: Any, entity_type_name: str, app: App, locale: str, environment: Environment):
+async def _generate_entity(www_directory_path: Path, entity: Any, entity_type_name: str, app: App, environment: Environment):
     yield _generate_entity_html(www_directory_path, entity, entity_type_name, environment)
     yield _generate_entity_json(www_directory_path, entity, entity_type_name, app)
 
 
 async def _generate_entity_html(www_directory_path: Path, entity: Any, entity_type_name: str, environment: Environment) -> None:
     entity_path = www_directory_path / entity_type_name / entity.id
-    rendered_html = environment.get_template('page/%s.html.j2' % entity_type_name).render({
+    rendered_html = environment.negotiate_template([
+        f'entity/page-{entity_type_name}.html.j2',
+        'entity/page.html.j2',
+    ]).render({
         'page_resource': entity,
         'entity_type_name': entity_type_name,
-        entity_type_name: entity,
+        'entity': entity,
     })
     async with _create_html_resource(entity_path) as f:
         await f.write(rendered_html)

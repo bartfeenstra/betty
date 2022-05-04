@@ -3,7 +3,7 @@ from betty.tests import TemplateTestCase
 
 
 class TestDescendantNames(TemplateTestCase):
-    template_file = 'page/person.html.j2'
+    template_file = 'entity/page-person.html.j2'
 
     def test_without_enclosing_places(self):
         person = Person('P0')
@@ -20,7 +20,7 @@ class TestDescendantNames(TemplateTestCase):
         with self._render(data={
             'page_resource': person,
             'entity_type_name': 'person',
-            'person': person,
+            'entity': person,
         }) as (actual, _):
             self.assertIn('Descendant names include FamilyOneAssociationName.', actual)
             self.assertIn('Descendant names include FamilyTwoAssociationName.', actual)

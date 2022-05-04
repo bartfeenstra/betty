@@ -55,7 +55,7 @@ SETUP = {
         'PyQt6 ~= 6.3.0',
         'python-resize-image ~= 1.1.20',
         'pyyaml ~= 6.0.0',
-        'reactives ~= 0.4.1',
+        'reactives ~= 0.4.2',
         'typing_extensions ~= 4.2.0; python_version < "3.10"',
     ],
     'extras_require': {
@@ -68,7 +68,7 @@ SETUP = {
             'html5lib ~= 1.1',
             'lxml ~= 4.8.0',
             'nose2 ~= 0.11.0',
-            'mypy ~= 0.942',
+            'mypy ~= 0.950',
             'parameterized ~= 0.8.1',
             'pip-licenses ~= 3.5.3',
             'pyinstaller ~= 5.0',

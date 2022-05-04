@@ -3,23 +3,160 @@ from __future__ import annotations
 from collections import OrderedDict
 from contextlib import suppress
 from pathlib import Path
-from typing import Type, Optional, Iterable, Any, Sequence, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Type, List, Iterable, Dict, Any, Sequence
 from urllib.parse import urlparse
 
 from babel.core import parse_locale, Locale
 from reactives import reactive, scope
 from reactives.factory.type import ReactiveInstance
 
-from betty.app import Extension
-from betty.app.extension import ConfigurableExtension
-from betty.config import Configurable, Configuration as GenericConfiguration, ConfigurationError, FileBasedConfiguration
+from betty.app import Extension, ConfigurableExtension
+from betty.config import Configuration as GenericConfiguration, DumpedConfiguration, ConfigurationError, \
+    minimize_dumped_configuration, Configurable, FileBasedConfiguration
 from betty.error import ensure_context
 from betty.importlib import import_any
 from betty.locale import bcp_47_to_rfc_1766
-from betty.model.ancestry import Ancestry
+from betty.model import Entity, get_entity_type_name
+from betty.model.ancestry import Ancestry, File
+from betty.typing import Void
 
 if TYPE_CHECKING:
     from betty.builtins import _
+
+
+class EntityReference(GenericConfiguration):
+    def __init__(self, entity_type: Optional[Type[Entity]] = None, entity_id: Optional[str] = None, /, entity_type_constraint: Optional[Type[Entity]] = None):
+        super().__init__()
+        self._entity_type = entity_type
+        self._entity_id = entity_id
+        self._entity_type_constraint = entity_type_constraint
+
+    @reactive  # type: ignore
+    @property
+    def entity_type(self) -> Optional[Type[Entity]]:
+        return self._entity_type or self._entity_type_constraint
+
+    @entity_type.setter
+    def entity_type(self, entity_type: Type[Entity]) -> None:
+        if self._entity_type_constraint is not None:
+            raise AttributeError(f'The entity type cannot be set, as it is already constrained to {self._entity_type_constraint}.')
+        self._entity_type = entity_type
+
+    @reactive  # type: ignore
+    @property
+    def entity_id(self) -> Optional[str]:
+        return self._entity_id
+
+    @entity_id.setter
+    def entity_id(self, entity_id: str) -> None:
+        self._entity_id = entity_id
+
+    @entity_id.deleter
+    def entity_id(self) -> None:
+        self._entity_id = None
+
+    @property
+    def entity_type_constraint(self) -> Optional[Type[Entity]]:
+        return self._entity_type_constraint
+
+    def load(self, dumped_configuration: DumpedConfiguration) -> None:
+        if self._entity_type_constraint is None:
+            if not isinstance(dumped_configuration, dict):
+                raise ConfigurationError(_('The entity reference must be a mapping (dictionary).'))
+            with ensure_context('entity_type'):
+                if 'entity_type' not in dumped_configuration:
+                    raise ConfigurationError(_('The entity type is required.'))
+                try:
+                    self._entity_type = import_any(dumped_configuration['entity_type'])
+                except ImportError as e:
+                    raise ConfigurationError(e)
+            with ensure_context('entity_id'):
+                if 'entity_id' not in dumped_configuration:
+                    raise ConfigurationError(_('The entity ID is required.'))
+                entity_id = dumped_configuration['entity_id']
+        else:
+            entity_id = dumped_configuration
+        if not isinstance(entity_id, str):
+            raise ConfigurationError(_('The entity ID must be a string.'))
+        self._entity_id = entity_id
+        self.react.trigger()
+
+    def dump(self) -> DumpedConfiguration:
+        if self._entity_id is None:
+            return Void
+        if self._entity_type_constraint is None:
+            if self._entity_type is None:
+                return Void
+            return {
+                'entity_type': get_entity_type_name(self._entity_type),
+                'entity_id': self._entity_id,
+            }
+        return self._entity_id
+
+    def __repr__(self) -> str:
+        return f'{object.__repr__(self)}(entity_type={self.entity_type}, entity_id={self._entity_id})'
+
+    @scope.register_self
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, EntityReference):
+            return NotImplemented
+        return self.entity_type == other.entity_type and self.entity_id == other.entity_id
+
+
+class EntityReferences(GenericConfiguration):
+    def __init__(self, entity_references: Optional[List[EntityReference]] = None, /, entity_type_constraint: Optional[Type[Entity]] = None):
+        super().__init__()
+        self._entity_type_constraint = entity_type_constraint
+        self._entity_references = entity_references or []
+
+    @scope.register_self
+    def __iter__(self):
+        return (reference for reference in self._entity_references)
+
+    @scope.register_self
+    def __len__(self) -> int:
+        return len(self._entity_references)
+
+    @property
+    def entity_type_constraint(self) -> Optional[Type[Entity]]:
+        return self._entity_type_constraint
+
+    def __getitem__(self, key):
+        return self._entity_references[key]
+
+    def __delitem__(self, key):
+        del self._entity_references[key]
+
+    def append(self, entity_reference: EntityReference) -> None:
+        if self._entity_type_constraint:
+            if entity_reference.entity_type != self._entity_type_constraint:
+                raise ConfigurationError(_('The entity reference must be for an entity of type {expected_entity_type_name} ({expected_entity_type_label}), but instead is for an entity of type {actual_entity_type_name} ({actual_entity_type_label})').format(
+                    expected_entity_type_name=get_entity_type_name(self._entity_type_constraint),
+                    expected_entity_type_label=self._entity_type_constraint.entity_type_label(),
+                    actual_entity_type_name=get_entity_type_name(self._entity_type_constraint),
+                    actual_entity_type_label=self._entity_type_constraint.entity_type_label(),
+                ))
+            entity_reference = EntityReference(None, entity_reference.entity_id, self._entity_type_constraint)
+        self._entity_references.append(entity_reference)
+        self.react.trigger()
+
+    def load(self, dumped_configuration: DumpedConfiguration) -> None:
+        if not isinstance(dumped_configuration, list):
+            raise ConfigurationError(_('Entity references must be a list.'))
+        self._entity_references.clear()
+        for i, dumped_entity_reference_configuration in enumerate(dumped_configuration):
+            entity_reference = EntityReference(entity_type_constraint=self._entity_type_constraint)
+            with ensure_context(str(i)):
+                entity_reference.load(dumped_entity_reference_configuration)
+            self._entity_references.append(entity_reference)
+        self.react.trigger()
+
+    def dump(self) -> DumpedConfiguration:
+        return minimize_dumped_configuration([
+            entity_reference.dump()
+            for entity_reference
+            in self._entity_references
+        ])
 
 
 @reactive
@@ -114,7 +251,7 @@ class ProjectExtensionsConfiguration(GenericConfiguration):
             configuration.react(self)
         self.react.trigger()
 
-    def load(self, dumped_configuration: Any) -> None:
+    def load(self, dumped_configuration: DumpedConfiguration) -> None:
         if not isinstance(dumped_configuration, dict):
             raise ConfigurationError(_('App extensions configuration must be a mapping (dictionary).'))
 
@@ -159,16 +296,19 @@ class ProjectExtensionsConfiguration(GenericConfiguration):
                     extension_configuration,
                 ))
 
-    def dump(self) -> Any:
-        dumped_configuration = {}
+    def dump(self) -> DumpedConfiguration:
+        dumped_configuration: Any = {}
         for app_extension_configuration in self:
             extension_type = app_extension_configuration.extension_type
             dumped_configuration[extension_type.name()] = {
                 'enabled': app_extension_configuration.enabled,
             }
             if issubclass(extension_type, Configurable):
-                dumped_configuration[extension_type.name()]['configuration'] = app_extension_configuration.extension_configuration.dump()
-        return dumped_configuration
+                dumped_app_extension_configuration = app_extension_configuration.extension_configuration.dump()
+                if dumped_app_extension_configuration is not Void:
+                    dumped_configuration[extension_type.name()]['configuration'] = dumped_app_extension_configuration
+            dumped_configuration[extension_type.name()] = minimize_dumped_configuration(dumped_configuration[extension_type.name()])
+        return minimize_dumped_configuration(dumped_configuration)
 
 
 class LocaleConfiguration:
@@ -263,9 +403,9 @@ class LocalesConfiguration(GenericConfiguration):
         self._configurations.move_to_end(configuration.locale, False)
         self.react.trigger()
 
-    def load(self, dumped_configuration: Any) -> None:
+    def load(self, dumped_configuration: DumpedConfiguration) -> None:
         if not isinstance(dumped_configuration, list):
-            raise ConfigurationError(_('Locales configuration much be a list.'))
+            raise ConfigurationError(_('Locales configuration must be a list.'))
 
         if len(dumped_configuration) > 0:
             self._configurations.clear()
@@ -280,7 +420,7 @@ class LocalesConfiguration(GenericConfiguration):
                     dumped_locale_configuration['alias'] if 'alias' in dumped_locale_configuration else None,
                 ))
 
-    def dump(self) -> Any:
+    def dump(self) -> DumpedConfiguration:
         dumped_configuration = []
         for locale_configuration in self:
             dumped_locale_configuration = {
@@ -295,26 +435,36 @@ class LocalesConfiguration(GenericConfiguration):
 class ThemeConfiguration(GenericConfiguration):
     def __init__(self):
         super().__init__()
-        self._background_image_id = None
+        self._background_image = EntityReference(entity_type_constraint=File)
+        self._featured_entities = EntityReferences()
+        self._featured_entities.react(self)
 
     @reactive  # type: ignore
     @property
-    def background_image_id(self) -> Optional[str]:
-        return self._background_image_id
+    def background_image(self) -> EntityReference:
+        return self._background_image
 
-    @background_image_id.setter
-    def background_image_id(self, background_image_id: Optional[str]) -> None:
-        self._background_image_id = background_image_id
+    @property
+    def featured_entities(self) -> EntityReferences:
+        return self._featured_entities
 
-    def load(self, dumped_configuration: Any) -> None:
-        for key, value in dumped_configuration.items():
-            setattr(self, key, value)
+    def load(self, dumped_configuration: DumpedConfiguration) -> None:
+        if not isinstance(dumped_configuration, dict):
+            raise ConfigurationError(_('The theme configuration must be a mapping (dictionary).'))
 
-    def dump(self) -> Any:
-        dumped_configuration = {
-            'background_image_id': self.background_image_id
-        }
-        return dumped_configuration
+        if 'background_image_id' in dumped_configuration:
+            with ensure_context('background_image_id'):
+                self.background_image.load(dumped_configuration['background_image_id'])
+
+        if 'featured_entities' in dumped_configuration:
+            with ensure_context('featured_entities'):
+                self.featured_entities.load(dumped_configuration['featured_entities'])
+
+    def dump(self) -> DumpedConfiguration:
+        return minimize_dumped_configuration({
+            'background_image_id': self._background_image.dump(),
+            'featured_entities': self.featured_entities.dump(),
+        })
 
 
 class Configuration(FileBasedConfiguration):
@@ -450,7 +600,7 @@ class Configuration(FileBasedConfiguration):
             raise ConfigurationError(_('The lifetime threshold must be a positive number.'))
         self._lifetime_threshold = lifetime_threshold
 
-    def load(self, dumped_configuration: Any) -> None:
+    def load(self, dumped_configuration: DumpedConfiguration) -> None:
         if not isinstance(dumped_configuration, dict):
             raise ConfigurationError(_('Betty project configuration must be a mapping (dictionary).'))
 
@@ -505,7 +655,7 @@ class Configuration(FileBasedConfiguration):
             with ensure_context('`theme`'):
                 self._theme.load(dumped_configuration['theme'])
 
-    def dump(self) -> Any:
+    def dump(self) -> DumpedConfiguration:
         dumped_configuration = {
             'base_url': self.base_url,
             'title': self.title,
@@ -526,7 +676,7 @@ class Configuration(FileBasedConfiguration):
             dumped_configuration['lifetime_threshold'] = self.lifetime_threshold
         dumped_configuration['theme'] = self.theme.dump()
 
-        return dumped_configuration
+        return minimize_dumped_configuration(dumped_configuration)
 
 
 class Project(Configurable[Configuration]):

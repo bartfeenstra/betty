@@ -1,0 +1,20 @@
+{%- set embedded = embedded | default(False) -%}
+{%- set place_context = place_context | default(None) -%}
+{%- macro _enclosed_by_place_label(entity) -%}
+    {%- set enclosure = entity.enclosed_by | negotiate_dateds(date_context | default(none)) -%}
+    {%- if enclosure is not none and (place_context is none or place_context != enclosure.enclosed_by) -%}
+        {%- with entity=enclosure.enclosed_by -%}
+            {%- include ['entity/label-place.html.j2', 'entity/label.html.j2'] -%}
+        {%- endwith -%}
+        {%- set place_label = _enclosed_by_place_label(enclosure.enclosed_by) -%}
+        {%- if place_label -%}
+            , {{ place_label }}
+        {%- endif -%}
+    {%- endif -%}
+{%- endmacro -%}
+<div class="meta">
+    {%- set enclosed_by_label = _enclosed_by_place_label(entity) -%}
+    {%- if enclosed_by_label -%}
+        in {{ enclosed_by_label }}
+    {%- endif -%}
+</div>
