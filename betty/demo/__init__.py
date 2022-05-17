@@ -10,7 +10,8 @@ from betty.http_api_doc import HttpApiDoc
 from betty.load import Loader
 from betty.locale import Date, DateRange
 from betty.maps import Maps
-from betty.model.ancestry import Place, PlaceName, Person, Presence, Subject, PersonName, Link, Source, Citation, Event
+from betty.model.ancestry import Place, PlaceName, Person, Presence, Subject, PersonName, Link, Source, Citation, Event, \
+    Enclosure
 from betty.model.event_type import Marriage, Birth, Death
 from betty.project import LocaleConfiguration, ProjectExtensionConfiguration
 from betty.serve import Server
@@ -24,10 +25,30 @@ class Demo(Extension, Loader):
         return {HttpApiDoc, Maps, Trees, Wikipedia}
 
     async def load(self) -> None:
+        netherlands = Place('betty-demo-netherlands', [
+            PlaceName('Netherlands'),
+            PlaceName('Nederland', locale='nl'),
+            PlaceName('Нідерланди', locale='uk'),
+            PlaceName('Pays-Bas', locale='fr'),
+        ])
+        netherlands.links.add(Link('https://en.wikipedia.org/wiki/Netherlands'))
+        self._app.project.ancestry.entities.append(netherlands)
+
+        north_holland = Place('betty-demo-north-holland', [
+            PlaceName('North Holland'),
+            PlaceName('Noord-Holland', locale='nl'),
+            PlaceName('Північна Голландія', locale='uk'),
+            PlaceName('Hollande-Septentrionale', locale='fr'),
+        ])
+        Enclosure(north_holland, netherlands)
+        north_holland.links.add(Link('https://en.wikipedia.org/wiki/North_Holland'))
+        self._app.project.ancestry.entities.append(north_holland)
+
         amsterdam = Place('betty-demo-amsterdam', [
             PlaceName('Amsterdam'),
             PlaceName('Амстерда́м', locale='uk'),
         ])
+        Enclosure(amsterdam, north_holland)
         amsterdam.coordinates = Point(52.366667, 4.9)
         amsterdam.links.add(Link('https://nl.wikipedia.org/wiki/Amsterdam'))
         self._app.project.ancestry.entities.append(amsterdam)
@@ -36,6 +57,7 @@ class Demo(Extension, Loader):
             PlaceName('Ilpendam'),
             PlaceName('Илпендам', locale='uk'),
         ])
+        Enclosure(ilpendam, north_holland)
         ilpendam.coordinates = Point(52.465556, 4.951111)
         ilpendam.links.add(Link('https://nl.wikipedia.org/wiki/Ilpendam'))
         self._app.project.ancestry.entities.append(ilpendam)
