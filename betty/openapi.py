@@ -95,7 +95,7 @@ def build_specification(app: App) -> Dict:
                     'schema': {
                         'type': 'string',
                     },
-                    'example': app.project.configuration.locales.default_locale.locale,
+                    'example': app.project.configuration.locales.default.locale,
                 },
             },
             'schemas': {
@@ -168,7 +168,7 @@ def build_specification(app: App) -> Dict:
             'schema': {
                 'type': 'string',
             },
-            'example': app.project.configuration.locales[app.project.configuration.locales.default_locale.locale].alias,
+            'example': app.project.configuration.locales[app.project.configuration.locales.default.locale].alias,
         }
         specification['components']['schemas']['html'] = {
             'type': 'string',
@@ -184,7 +184,7 @@ def build_specification(app: App) -> Dict:
                 'type': 'string',
                 'enum': [locale_configuration.locale for locale_configuration in app.project.configuration.locales],
             },
-            'example': app.project.configuration.locales[app.project.configuration.locales.default_locale.locale].alias,
+            'example': app.project.configuration.locales[app.project.configuration.locales.default.locale].alias,
         }
 
     # Add default behavior to all requests.

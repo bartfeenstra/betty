@@ -28,7 +28,7 @@ from betty import cache, generate, serve, about, load
 from betty.app import App, Extension
 from betty.app.extension import discover_extension_types
 from betty.asyncio import sync
-from betty.config import from_file, to_file, ConfigurationError, APP_CONFIGURATION_FORMATS
+from betty.config import ConfigurationError, APP_CONFIGURATION_FORMATS
 from betty.error import UserFacingError
 from betty.importlib import import_any
 from betty.locale import rfc_1766_to_bcp_47, bcp_47_to_rfc_1766, negotiate_locale, getdefaultlocale
@@ -368,7 +368,8 @@ class BettyMainWindow(BettyWindow):
         )
         if not configuration_file_path:
             return
-        project_window = ProjectWindow(self._app, configuration_file_path)
+        self._app.project.configuration.read(configuration_file_path)
+        project_window = ProjectWindow(self._app)
         project_window.show()
         self.close()
 
@@ -383,9 +384,8 @@ class BettyMainWindow(BettyWindow):
         if not configuration_file_path:
             return
         configuration = Configuration()
-        with open(configuration_file_path, 'w') as f:
-            to_file(f, configuration)
-        project_window = ProjectWindow(self._app, configuration_file_path)
+        configuration.write(configuration_file_path)
+        project_window = ProjectWindow(self._app)
         project_window.show()
         self.close()
 
@@ -419,6 +419,14 @@ class _ApplicationConfiguration(BettyWindow):
         locale_collector = TranslationsLocaleCollector(self._app, set(self._app.translations.locales))
         for row in locale_collector.rows:
             self._form.addRow(*row)
+
+    def show(self) -> None:
+        self._app.configuration.autowrite = True
+        super().show()
+
+    def close(self) -> bool:
+        self._app.configuration.autowrite = False
+        return super().close()
 
     @property
     def title(self) -> str:
@@ -708,13 +716,13 @@ class _ProjectLocalizationConfigurationPane(LocalizedWidget):
         self._locales_configuration_widget._default_buttons[locale_configuration.locale].setChecked(locale_configuration == self._app.project.configuration.locales.default)
 
         def _update_locales_configuration_default():
-            self._app.project.configuration.locales.default_locale = locale_configuration
+            self._app.project.configuration.locales.default = locale_configuration
         self._locales_configuration_widget._default_buttons[locale_configuration.locale].clicked.connect(_update_locales_configuration_default)
         self._default_locale_button_group.addButton(self._locales_configuration_widget._default_buttons[locale_configuration.locale])
         self._locales_configuration_layout.addWidget(self._locales_configuration_widget._default_buttons[locale_configuration.locale], i, 0)
 
         # Allow this locale configuration to be removed only if there are others, and if it is not default one.
-        if len(self._app.project.configuration.locales) > 1 and locale_configuration != self._app.project.configuration.locales.default_locale:
+        if len(self._app.project.configuration.locales) > 1 and locale_configuration != self._app.project.configuration.locales.default:
             def _remove_locale() -> None:
                 del self._app.project.configuration.locales[locale_configuration.locale]
             self._locales_configuration_widget._remove_buttons[locale_configuration.locale] = QPushButton()
@@ -849,12 +857,8 @@ class _ProjectExtensionConfigurationPane(LocalizedWidget):
 
 
 class ProjectWindow(BettyMainWindow):
-    def __init__(self, app: App, configuration_file_path: str, *args, **kwargs):
+    def __init__(self, app: App, *args, **kwargs):
         super().__init__(app, *args, **kwargs)
-        with open(configuration_file_path) as f:
-            from_file(f, self._app.project.configuration)
-        self._app.project.configuration.configuration_file_path = configuration_file_path
-        self._configuration_file_path = configuration_file_path
 
         self._set_window_title()
 
@@ -891,6 +895,14 @@ class ProjectWindow(BettyMainWindow):
                 panes_layout.addWidget(extension_pane)
                 self._extension_configuration_pane_selectors[extension_type] = _PaneButton(pane_selectors_layout, panes_layout, extension_pane, self)
                 pane_selectors_layout.addWidget(self._extension_configuration_pane_selectors[extension_type])
+
+    def show(self) -> None:
+        self._app.project.configuration.autowrite = True
+        super().show()
+
+    def close(self) -> bool:
+        self._app.project.configuration.autowrite = False
+        return super().close()
 
     def _do_set_translatables(self) -> None:
         super()._do_set_translatables()

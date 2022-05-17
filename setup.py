@@ -56,6 +56,7 @@ SETUP = {
         'python-resize-image ~= 1.1.20',
         'pyyaml ~= 6.0.0',
         'reactives ~= 0.4.1',
+        'typing_extensions ~= 4.2.0; python_version < "3.10"',
     ],
     'extras_require': {
         'development': [

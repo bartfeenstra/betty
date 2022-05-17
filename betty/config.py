@@ -4,14 +4,10 @@ import json
 import os
 from os import path
 from pathlib import Path
-from typing import Dict, Callable, Type, TypeVar, Any, Generic, Optional, TYPE_CHECKING
+from tempfile import TemporaryDirectory
+from typing import Dict, Callable, TypeVar, Any, Generic, Optional, TYPE_CHECKING
 
 from betty.os import PathLike, ChDir
-
-try:
-    from typing import Self  # type: ignore
-except ImportError:
-    from typing_extensions import Self
 
 import yaml
 from reactives import reactive
@@ -30,36 +26,6 @@ class ConfigurationError(UserFacingError, ContextError, ValueError):
 
 @reactive
 class Configuration(ReactiveInstance):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._configuration_file_path = None
-        self.react.react_weakref(self.save)
-
-    def save(self) -> None:
-        if self.configuration_file_path is not None:
-            try:
-                with open(self.configuration_file_path, 'w') as f:
-                    to_file(f, self)
-            except FileNotFoundError:
-                os.makedirs(self.configuration_file_path.parent)
-                self.save()
-
-    @property
-    def configuration_file_path(self) -> Optional[Path]:
-        return self._configuration_file_path
-
-    @configuration_file_path.setter
-    def configuration_file_path(self, configuration_file_path: PathLike) -> None:
-        configuration_file_path = Path(configuration_file_path)
-        if configuration_file_path == self._configuration_file_path:
-            return
-        self._configuration_file_path = configuration_file_path
-        self.save()
-
-    @configuration_file_path.deleter
-    def configuration_file_path(self) -> None:
-        self._configuration_file_path = None
-
     def load(self, dumped_configuration: Any) -> None:
         """
         Validate the dumped configuration and load it into self.
@@ -78,75 +44,131 @@ class Configuration(ReactiveInstance):
 
         raise NotImplementedError
 
-    @classmethod
-    def default(cls) -> Self:
-        return cls()
-
 
 ConfigurationT = TypeVar('ConfigurationT', bound=Configuration)
 
 
-class Configurable(Generic[ConfigurationT]):
-    def __init__(self, configuration: Optional[ConfigurationT] = None, *args, **kwargs):
+class FileBasedConfiguration(Configuration):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._configuration: ConfigurationT = self.configuration_type().default() if configuration is None else configuration
+        self._project_directory: Optional[TemporaryDirectory] = None
+        self._configuration_file_path = None
+        self._autowrite = False
+
+    def _assert_configuration_file_path(self) -> None:
+        if self.configuration_file_path is None:
+            raise RuntimeError('The configuration must have a configuration file path.')
+
+    @property
+    def autowrite(self) -> bool:
+        return self._autowrite
+
+    @autowrite.setter
+    def autowrite(self, autowrite: bool) -> None:
+        if autowrite:
+            self._assert_configuration_file_path()
+            if not self._autowrite:
+                self.react.react_weakref(self.write)
+        else:
+            self.react.shutdown(self.write)
+        self._autowrite = autowrite
+
+    def write(self, configuration_file_path: Optional[PathLike] = None) -> None:
+        if configuration_file_path is None:
+            self._assert_configuration_file_path()
+        else:
+            self.configuration_file_path = configuration_file_path
+
+        self._write(self.configuration_file_path)
+
+    def _write(self, configuration_file_path: Path) -> None:
+        # Change the working directory to allow absolute paths to be turned relative to the configuration file's directory
+        # path.
+        with ChDir(configuration_file_path.parent):
+            dumped_configuration = _APP_CONFIGURATION_FORMATS[configuration_file_path.suffix].dumper(self)
+            try:
+                with open(configuration_file_path, mode='w') as f:
+                    f.write(dumped_configuration)
+            except FileNotFoundError:
+                os.makedirs(configuration_file_path.parent)
+                self.write()
+        self._configuration_file_path = configuration_file_path
+
+    def read(self, configuration_file_path: Optional[PathLike] = None) -> None:
+        if configuration_file_path is None:
+            self._assert_configuration_file_path()
+        else:
+            self.configuration_file_path = configuration_file_path
+
+        # Change the working directory to allow relative paths to be resolved against the configuration file's directory
+        # path.
+        with ChDir(self.configuration_file_path.parent):
+            with ensure_context('in %s' % self.configuration_file_path.resolve()):
+                with open(self.configuration_file_path) as f:
+                    read_configuration = f.read()
+                self.load(_APP_CONFIGURATION_FORMATS[self.configuration_file_path.suffix].loader(read_configuration))
+
+    def __del__(self):
+        if hasattr(self, '_project_directory') and self._project_directory is not None:
+            self._project_directory.cleanup()
+
+    @reactive  # type: ignore
+    @property
+    def configuration_file_path(self) -> Path:
+        if self._configuration_file_path is None:
+            if self._project_directory is None:
+                self._project_directory = TemporaryDirectory()
+            self._write(Path(self._project_directory.name) / f'{type(self).__name__}.json')
+        return self._configuration_file_path  # type: ignore
+
+    @configuration_file_path.setter
+    def configuration_file_path(self, configuration_file_path: PathLike) -> None:
+        configuration_file_path = Path(configuration_file_path)
+        if configuration_file_path == self._configuration_file_path:
+            return
+        if configuration_file_path.suffix not in _APP_CONFIGURATION_FORMATS:
+            raise ConfigurationError(f"Unknown file format \"{configuration_file_path.suffix}\". Supported formats are: {', '.join(APP_CONFIGURATION_FORMATS)}.")
+        self._configuration_file_path = configuration_file_path
+
+    @configuration_file_path.deleter
+    def configuration_file_path(self) -> None:
+        if self._autowrite:
+            raise RuntimeError('Cannot remove the configuration file path while autowrite is enabled.')
+        self._configuration_file_path = None
+
+
+class Configurable(Generic[ConfigurationT]):
+    def __init__(self, /, configuration: Optional[ConfigurationT] = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._configuration = configuration
 
     @property
     def configuration(self) -> ConfigurationT:
+        if self._configuration is None:
+            raise RuntimeError(f'{self} has no configuration. {type(self)}.__init__() must ensure it is set.')
         return self._configuration
 
-    @classmethod
-    def configuration_type(cls) -> Type[ConfigurationT]:
-        raise NotImplementedError
 
-
-def from_json(configuration_json: str) -> Any:
+def _from_json(configuration_json: str) -> Any:
     try:
         return json.loads(configuration_json)
     except json.JSONDecodeError as e:
         raise ConfigurationError(_('Invalid JSON: {error}.').format(error=e))
 
 
-def from_yaml(configuration_yaml: str) -> Any:
+def _from_yaml(configuration_yaml: str) -> Any:
     try:
         return yaml.safe_load(configuration_yaml)
     except yaml.YAMLError as e:
         raise ConfigurationError(_('Invalid YAML: {error}.').format(error=e))
 
 
-def from_file(f, configuration: Configuration) -> None:
-    file_path = Path(f.name)
-    file_extension = file_path.suffix
-    try:
-        loader = _APP_CONFIGURATION_FORMATS[file_extension].loader
-    except KeyError:
-        raise ConfigurationError(f"Unknown file format \"{file_extension}\". Supported formats are: {', '.join(APP_CONFIGURATION_FORMATS)}.")
-    # Change the working directory to allow relative paths to be resolved against the configuration file's directory
-    # path.
-    with ChDir(Path(f.name).parent):
-        with ensure_context('in %s' % file_path.resolve()):
-            configuration.load(loader(f.read()))
-    configuration.configuration_file_path = file_path
-
-
-def to_json(configuration: Configuration) -> str:
+def _to_json(configuration: Configuration) -> str:
     return json.dumps(configuration.dump())
 
 
-def to_yaml(configuration: Configuration) -> str:
+def _to_yaml(configuration: Configuration) -> str:
     return yaml.safe_dump(configuration.dump())
-
-
-def to_file(f, configuration: Configuration) -> None:
-    file_base_name, file_extension = path.splitext(f.name)
-    try:
-        format = _APP_CONFIGURATION_FORMATS[file_extension]
-    except KeyError:
-        raise ValueError(f"'Unknown file format \"{file_extension}\". Supported formats are: {', '.join(APP_CONFIGURATION_FORMATS)}.'")
-    # Change the working directory to allow absolute paths to be turned relative to the configuration file's directory
-    # path.
-    with ChDir(path.dirname(f.name)):
-        f.write(format.dumper(configuration))
 
 
 class _Format:
@@ -162,9 +184,9 @@ class _Format:
 
 
 _APP_CONFIGURATION_FORMATS: Dict[str, _Format] = {
-    '.json': _Format(from_json, to_json),
-    '.yaml': _Format(from_yaml, to_yaml),
-    '.yml': _Format(from_yaml, to_yaml),
+    '.json': _Format(_from_json, _to_json),
+    '.yaml': _Format(_from_yaml, _to_yaml),
+    '.yml': _Format(_from_yaml, _to_yaml),
 }
 
 APP_CONFIGURATION_FORMATS = set(_APP_CONFIGURATION_FORMATS.keys())

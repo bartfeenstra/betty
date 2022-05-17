@@ -3,7 +3,9 @@ from __future__ import annotations
 import asyncio
 from collections import defaultdict
 from pathlib import Path
-from typing import Type, Set, Optional, Any, List, Dict, Sequence, TypeVar, Union, Iterable, TYPE_CHECKING
+from typing import Type, Set, Optional, Any, List, Dict, Sequence, TypeVar, Union, Iterable, TYPE_CHECKING, Generic
+
+from betty.config import ConfigurationT, Configurable
 
 from reactives.factory.type import ReactiveInstance
 
@@ -89,6 +91,17 @@ class Extension(Requirer):
 ExtensionT = TypeVar('ExtensionT', bound=Extension)
 
 
+class ConfigurableExtension(Extension, Generic[ConfigurationT], Configurable[ConfigurationT]):
+    def __init__(self, *args, **kwargs):
+        if 'configuration' not in kwargs or kwargs['configuration'] is None:
+            kwargs['configuration'] = self.default_configuration()
+        super().__init__(*args, **kwargs)
+
+    @classmethod
+    def default_configuration(cls) -> ConfigurationT:
+        raise NotImplementedError
+
+
 @reactive
 class Extensions(ReactiveInstance):
     def __getitem__(self, extension_type: Union[Type[ExtensionT], str]) -> ExtensionT:
@@ -107,6 +120,7 @@ class Extensions(ReactiveInstance):
 
 class ListExtensions(Extensions):
     def __init__(self, extensions: List[List[Extension]]):
+        super().__init__()
         self._extensions = extensions
 
     @scope.register_self
