@@ -183,7 +183,7 @@ class PlaceName(Localized, Dated):
 
 
 @many_to_one_to_many('enclosed_by', 'encloses', 'enclosed_by', 'encloses')
-class Enclosure(Dated, HasCitations):
+class Enclosure(Dated, HasCitations, Entity):
     encloses: Place
     enclosed_by: Place
 
