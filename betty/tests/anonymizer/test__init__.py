@@ -27,18 +27,21 @@ class AnonymousSourceTest(TestCase):
         self.assertIsInstance(AnonymousSource().name, str)
 
     def test_replace(self):
+        ancestry = Ancestry()
         citations = [Citation(None, Source(None))]
         contains = [Source(None)]
         files = [Mock(File)]
         sut = AnonymousSource()
-        other = AnonymousSource()
+        other = Source(None)
+        ancestry.entities.append(other)
         other.citations = citations
         other.contains = contains
         other.files = files
-        sut.replace(other)
+        sut.replace(other, ancestry)
         self.assertEqual(citations, list(sut.citations))
         self.assertEqual(contains, list(sut.contains))
         self.assertEqual(files, list(sut.files))
+        self.assertNotIn(other, ancestry.entities)
 
 
 class AnonymousCitationTest(TestCase):
@@ -56,16 +59,19 @@ class AnonymousCitationTest(TestCase):
     def test_replace(self):
         class _HasCitations(HasCitations, Entity):
             pass
+        ancestry = Ancestry()
         facts = [_HasCitations()]
         files = [File('F1', __file__)]
         source = Mock(Source)
         sut = AnonymousCitation(source)
-        other = AnonymousCitation(source)
+        other = Citation(None, source)
+        ancestry.entities.append(other)
         other.facts = facts
         other.files = files
-        sut.replace(other)
+        sut.replace(other, ancestry)
         self.assertEqual(facts, list(sut.facts))
         self.assertEqual(files, list(sut.files))
+        self.assertNotIn(other, ancestry.entities)
 
 
 class AnonymizeTest(TestCase):
@@ -146,7 +152,7 @@ class AnonymizeTest(TestCase):
         ancestry = Ancestry()
         ancestry.entities.append(source)
         anonymize(ancestry, AnonymousCitation(AnonymousSource()))
-        m_anonymize_source.assert_called_once_with(source, ANY)
+        m_anonymize_source.assert_called_once_with(source, ancestry, ANY)
 
     @patch('betty.anonymizer.anonymize_citation')
     def test_with_public_citation_should_not_anonymize(self, m_anonymize_citation) -> None:
@@ -166,7 +172,7 @@ class AnonymizeTest(TestCase):
         ancestry = Ancestry()
         ancestry.entities.append(citation)
         anonymize(ancestry, AnonymousCitation(AnonymousSource()))
-        m_anonymize_citation.assert_called_once_with(citation, ANY)
+        m_anonymize_citation.assert_called_once_with(citation, ancestry, ANY)
 
 
 class AnonymizePersonTest(TestCase):
@@ -269,37 +275,45 @@ class AnonymizeSourceTest(TestCase):
         self._translations.uninstall()
 
     def test_should_remove_citations(self) -> None:
+        ancestry = Ancestry()
         source = Source('S0', 'The Source')
+        ancestry.entities.append(source)
         citation = Citation(None, source)
         source.citations.append(citation)
         anonymous_source = AnonymousSource()
-        anonymize_source(source, anonymous_source)
+        anonymize_source(source, ancestry, anonymous_source)
         self.assertEqual(0, len(source.citations))
         self.assertIn(citation, anonymous_source.citations)
 
     def test_should_remove_contained_by(self) -> None:
+        ancestry = Ancestry()
         source = Source('S0', 'The Source')
+        ancestry.entities.append(source)
         contained_by = Source(None, 'The Source')
         source.contained_by = contained_by
         anonymous_source = AnonymousSource()
-        anonymize_source(source, anonymous_source)
+        anonymize_source(source, ancestry, anonymous_source)
         self.assertIsNone(source.contained_by)
 
     def test_should_remove_contains(self) -> None:
+        ancestry = Ancestry()
         source = Source('S0', 'The Source')
+        ancestry.entities.append(source)
         contains = Source(None, 'The Source')
         source.contains.append(contains)
         anonymous_source = AnonymousSource()
-        anonymize_source(source, anonymous_source)
+        anonymize_source(source, ancestry, anonymous_source)
         self.assertEqual(0, len(source.contains))
         self.assertIn(contains, anonymous_source.contains)
 
     def test_should_remove_files(self) -> None:
+        ancestry = Ancestry()
         source = Source('S0', 'The Source')
+        ancestry.entities.append(source)
         file = File('F0', __file__)
         source.files.append(file)
         anonymous_source = AnonymousSource()
-        anonymize_source(source, anonymous_source)
+        anonymize_source(source, ancestry, anonymous_source)
         self.assertEqual(0, len(source.files))
         self.assertIn(file, anonymous_source.files)
 
@@ -313,33 +327,39 @@ class AnonymizeCitationTest(TestCase):
         self._translations.uninstall()
 
     def test_should_remove_facts(self) -> None:
+        ancestry = Ancestry()
         source = Source('The Source')
         citation = Citation('C0', source)
+        ancestry.entities.append(citation)
         fact = PersonName(Person(None), 'Jane')
         citation.facts.append(fact)
         anonymous_source = AnonymousSource()
         anonymous_citation = AnonymousCitation(anonymous_source)
-        anonymize_citation(citation, anonymous_citation)
+        anonymize_citation(citation, ancestry, anonymous_citation)
         self.assertEqual(0, len(citation.facts))
         self.assertIn(fact, anonymous_citation.facts)
 
     def test_should_remove_files(self) -> None:
+        ancestry = Ancestry()
         source = Source('The Source')
         citation = Citation('C0', source)
+        ancestry.entities.append(citation)
         file = File('F0', __file__)
         citation.files.append(file)
         anonymous_source = AnonymousSource()
         anonymous_citation = AnonymousCitation(anonymous_source)
-        anonymize_citation(citation, anonymous_citation)
+        anonymize_citation(citation, ancestry, anonymous_citation)
         self.assertEqual(0, len(citation.files))
         self.assertIn(file, anonymous_citation.files)
 
     def test_should_remove_source(self) -> None:
+        ancestry = Ancestry()
         source = Source('The Source')
         citation = Citation('C0', source)
+        ancestry.entities.append(citation)
         anonymous_source = AnonymousSource()
         anonymous_citation = AnonymousCitation(anonymous_source)
-        anonymize_citation(citation, anonymous_citation)
+        anonymize_citation(citation, ancestry, anonymous_citation)
         self.assertIsNone(citation.source)
 
 
