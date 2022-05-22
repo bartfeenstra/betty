@@ -18,10 +18,17 @@ class AnonymousSource(Source):
     def __init__(self):
         super().__init__(self._ID, _('Private'))
 
-    def replace(self, other: Source) -> None:
+    def replace(self, other: Source, ancestry: Ancestry) -> None:
+        if isinstance(other, AnonymousSource):
+            return
+
         self.citations.append(*other.citations)
+        other.citations.clear()
         self.contains.append(*other.contains)
+        other.contains.clear()
         self.files.append(*other.files)
+        other.files.clear()
+        ancestry.entities[Source].remove(other)
 
 
 class AnonymousCitation(Citation):
@@ -31,9 +38,15 @@ class AnonymousCitation(Citation):
         super().__init__(self._ID, source)
         self.location = _("A citation is available, but has not been published in order to protect people's privacy")
 
-    def replace(self, other: Citation) -> None:
+    def replace(self, other: Citation, ancestry: Ancestry) -> None:
+        if isinstance(other, AnonymousCitation):
+            return
+
         self.facts.append(*other.facts)
+        other.facts.clear()
         self.files.append(*other.files)
+        other.files.clear()
+        ancestry.entities[Citation].remove(other)
 
 
 def anonymize(ancestry: Ancestry, anonymous_citation: AnonymousCitation) -> None:
@@ -52,10 +65,10 @@ def anonymize(ancestry: Ancestry, anonymous_citation: AnonymousCitation) -> None
             anonymize_file(file)
     for source in ancestry.entities[Source]:
         if source.private:
-            anonymize_source(source, anonymous_source)
+            anonymize_source(source, ancestry, anonymous_source)
     for citation in ancestry.entities[Citation]:
         if citation.private:
-            anonymize_citation(citation, anonymous_citation)
+            anonymize_citation(citation, ancestry, anonymous_citation)
 
 
 def anonymize_person(person: Person) -> None:
@@ -90,19 +103,28 @@ def anonymize_file(file: File) -> None:
     del file.entities
 
 
-def anonymize_source(source: Source, anonymous_source: AnonymousSource) -> None:
-    anonymous_source.replace(source)
-    del source.citations
+def anonymize_source(source: Source, ancestry: Ancestry, anonymous_source: AnonymousSource) -> None:
+    if isinstance(source, AnonymousSource):
+        return
+
+    anonymous_source.replace(source, ancestry)
+    for citation in source.citations:
+        if not isinstance(citation, AnonymousCitation):
+            source.citations.remove(citation)
     del source.contained_by
     del source.contains
     del source.files
 
 
-def anonymize_citation(citation: Citation, anonymous_citation: AnonymousCitation) -> None:
-    anonymous_citation.replace(citation)
+def anonymize_citation(citation: Citation, ancestry: Ancestry, anonymous_citation: AnonymousCitation) -> None:
+    if isinstance(citation, AnonymousCitation):
+        return
+
+    anonymous_citation.replace(citation, ancestry)
     del citation.facts
     del citation.files
-    del citation.source
+    if not isinstance(citation.source, AnonymousSource):
+        del citation.source
 
 
 class Anonymizer(Extension, PostLoader, GuiBuilder):
