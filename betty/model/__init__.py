@@ -803,9 +803,9 @@ class FlattenedEntityCollection:
         assert not issubclass(associate_type, FlattenedEntity)
 
         self._associations.append(_FlattenedAssociation(
-            owner_type,
+            owner_type.entity_type(),
             owner_id,
             owner_association_attr_name,
-            associate_type,
+            associate_type.entity_type(),
             associate_id,
         ))
