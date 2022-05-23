@@ -4,8 +4,9 @@ from parameterized import parameterized
 from reactives.tests import assert_reactor_called, assert_in_scope, assert_scope_empty
 
 from betty.app import Extension, App, CyclicDependencyError
+from betty.app.extension import ConfigurableExtension
 from betty.asyncio import sync
-from betty.config import Configuration as GenericConfiguration, ConfigurationT, Configurable, ConfigurationError
+from betty.config import Configuration as GenericConfiguration, ConfigurationError
 from betty.project import LocaleConfiguration, LocalesConfiguration, ProjectExtensionConfiguration, \
     ProjectExtensionsConfiguration, Configuration
 from betty.tests import TestCase
@@ -126,25 +127,25 @@ class LocalesConfigurationTest(TestCase):
 
     def test_default_without_explicit_locale_configurations(self):
         sut = LocalesConfiguration()
-        self.assertEqual(LocaleConfiguration('en-US'), sut.default_locale)
+        self.assertEqual(LocaleConfiguration('en-US'), sut.default)
 
-    def test_default_locale_without_explicit_default(self):
+    def test_default_without_explicit_default(self):
         locale_configuration_a = LocaleConfiguration('nl-NL')
         locale_configuration_b = LocaleConfiguration('en-US')
         sut = LocalesConfiguration([
             locale_configuration_a,
             locale_configuration_b,
         ])
-        self.assertEqual(locale_configuration_a, sut.default_locale)
+        self.assertEqual(locale_configuration_a, sut.default)
 
-    def test_default_locale_with_explicit_default(self):
+    def test_default_with_explicit_default(self):
         locale_configuration_a = LocaleConfiguration('nl-NL')
         locale_configuration_b = LocaleConfiguration('en-US')
         sut = LocalesConfiguration([
             locale_configuration_a,
         ])
-        sut.default_locale = locale_configuration_b
-        self.assertEqual(locale_configuration_b, sut.default_locale)
+        sut.default = locale_configuration_b
+        self.assertEqual(locale_configuration_b, sut.default)
 
 
 class _DummyExtension(Extension):
@@ -157,14 +158,14 @@ class _DummyConfiguration(GenericConfiguration):
     pass
 
 
-class _DummyConfigurableExtension(Extension, Configurable):
+class _DummyConfigurableExtension(ConfigurableExtension):
+    @classmethod
+    def default_configuration(cls) -> _DummyConfiguration:
+        return _DummyConfiguration()
+
     @classmethod
     def label(cls) -> str:
         return 'Configurable dummy'
-
-    @classmethod
-    def configuration_type(cls) -> Type[ConfigurationT]:
-        return _DummyConfiguration
 
 
 class ProjectExtensionConfigurationTest(TestCase):
@@ -618,10 +619,6 @@ class DummyConfigurableExtensionConfiguration(GenericConfiguration):
         self.check = check
         self.default = default
 
-    @classmethod
-    def default(cls) -> GenericConfiguration:
-        return cls(False)
-
     def __eq__(self, other):
         return self.check == other.check and self.default == other.default
 
@@ -643,10 +640,10 @@ class DummyConfigurableExtensionConfiguration(GenericConfiguration):
         }
 
 
-class DummyConfigurableExtension(Extension, Configurable):
+class DummyConfigurableExtension(ConfigurableExtension):
     @classmethod
-    def configuration_type(cls) -> Type[GenericConfiguration]:
-        return DummyConfigurableExtensionConfiguration
+    def default_configuration(cls) -> DummyConfigurableExtensionConfiguration:
+        return DummyConfigurableExtensionConfiguration(False)
 
 
 class Tracker:
@@ -668,10 +665,6 @@ class ConfigurableExtensionConfiguration(GenericConfiguration):
         super().__init__()
         self.check = check
 
-    @classmethod
-    def default(cls) -> Configuration:
-        return cls(False)
-
     def load(self, dumped_configuration: Any) -> None:
         if not isinstance(dumped_configuration, dict):
             raise ConfigurationError
@@ -683,12 +676,6 @@ class ConfigurableExtensionConfiguration(GenericConfiguration):
         return {
             'check': self.check
         }
-
-
-class ConfigurableExtension(Extension, Configurable):
-    @classmethod
-    def configuration_type(cls) -> Type[Configuration]:
-        return ConfigurableExtensionConfiguration
 
 
 class CyclicDependencyOneExtension(Extension):

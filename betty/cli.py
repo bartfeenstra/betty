@@ -11,7 +11,7 @@ import click
 from click import get_current_context, Context, Option
 
 from betty import about, cache, demo, generate, load, serve
-from betty.config import from_file, ConfigurationError
+from betty.config import ConfigurationError
 from betty.error import UserFacingError
 from betty.asyncio import sync
 from betty.gui import BettyApplication, ProjectWindow, _WelcomeWindow
@@ -86,21 +86,19 @@ async def _init_ctx(ctx: Context, __: Optional[Option] = None, configuration_fil
     if configuration_file_path is None:
         try_configuration_file_paths = [path.join(getcwd(), 'betty.%s' % extension) for extension in {'json', 'yaml', 'yml'}]
     else:
-        try_configuration_file_paths = [configuration_file_path]
+        try_configuration_file_paths = [path.join(getcwd(), configuration_file_path)]
 
     with app:
         for try_configuration_file_path in try_configuration_file_paths:
             with suppress(FileNotFoundError):
-                with open(try_configuration_file_path) as f:
-                    logger.info('Loading the configuration from %s.' % try_configuration_file_path)
-                    from_file(f, app.project.configuration)
-                    app.project.configuration.configuration_file_path = f.name
+                app.project.configuration.read(try_configuration_file_path)
                 ctx.obj['commands']['generate'] = _generate
                 ctx.obj['commands']['serve'] = _serve
                 for extension in app.extensions.flatten():
                     if isinstance(extension, CommandProvider):
                         for command_name, command in extension.commands.items():
                             ctx.obj['commands'][command_name] = command
+                logger.info('Loaded the configuration from %s.' % try_configuration_file_path)
                 return
 
         if configuration_file_path is not None:
@@ -154,7 +152,8 @@ async def _gui(configuration_file_path: Optional[str]):
         if configuration_file_path is None:
             window = _WelcomeWindow(app)
         else:
-            window = ProjectWindow(app, configuration_file_path)
+            app.project.configuration.read()
+            window = ProjectWindow(app)
         window.show()
         sys.exit(qapp.exec())
 

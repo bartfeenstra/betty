@@ -6,9 +6,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QMainWindow, QMenu, QWidget
 
-from betty.config import to_file
 from betty.gui import Error, BettyApplication
-from betty.project import Configuration
 
 
 @pytest.fixture(scope="function")
@@ -30,14 +28,6 @@ def qapp(qapp_args):
     else:
         yield app  # pragma: no cover
     gc.collect()
-
-
-@pytest.fixture
-def minimal_project_configuration_file_path(tmpdir) -> str:
-    configuration_file_path = tmpdir.join('betty.json')
-    with open(configuration_file_path, 'w') as f:
-        to_file(f, Configuration())
-    return configuration_file_path
 
 
 @pytest.fixture

@@ -9,7 +9,7 @@ from typing import Optional, Dict, Callable, Tuple, Iterator, ContextManager
 from jinja2 import Environment, Template
 
 from betty import fs
-from betty.app import App
+from betty.app import App, Configuration as AppConfiguration
 
 
 def patch_cache(f):
@@ -33,13 +33,13 @@ class TestCase(unittest.TestCase):
         logging.disable(logging.CRITICAL)
         # Prevent App from loading its application configuration from the current user session, as it would pollute the
         # tests.
-        App.__load_configuration = App._load_configuration
-        App._load_configuration = lambda _: None
+        AppConfiguration._read = AppConfiguration.read
+        AppConfiguration.read = lambda _: None
 
     @classmethod
     def tearDownClass(cls) -> None:
-        App._load_configuration = App.__load_configuration
-        del App.__load_configuration
+        AppConfiguration.read = AppConfiguration._read
+        del AppConfiguration._read
         logging.disable(logging.NOTSET)
 
 

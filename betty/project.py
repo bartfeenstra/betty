@@ -3,7 +3,6 @@ from __future__ import annotations
 from collections import OrderedDict
 from contextlib import suppress
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import Type, Optional, Iterable, Any, Sequence, Dict, TYPE_CHECKING
 from urllib.parse import urlparse
 
@@ -12,7 +11,8 @@ from reactives import reactive, scope
 from reactives.factory.type import ReactiveInstance
 
 from betty.app import Extension
-from betty.config import Configurable, Configuration as GenericConfiguration, ConfigurationError
+from betty.app.extension import ConfigurableExtension
+from betty.config import Configurable, Configuration as GenericConfiguration, ConfigurationError, FileBasedConfiguration
 from betty.error import ensure_context
 from betty.importlib import import_any
 from betty.locale import bcp_47_to_rfc_1766
@@ -28,8 +28,8 @@ class ProjectExtensionConfiguration(ReactiveInstance):
         super().__init__()
         self._extension_type = extension_type
         self._enabled = enabled
-        if extension_configuration is None and issubclass(extension_type, Configurable):
-            extension_configuration = extension_type.configuration_type().default()
+        if extension_configuration is None and issubclass(extension_type, ConfigurableExtension):
+            extension_configuration = extension_type.default_configuration()
         if extension_configuration is not None:
             extension_configuration.react(self)
         self._extension_configuration = extension_configuration
@@ -73,6 +73,9 @@ class ProjectExtensionsConfiguration(GenericConfiguration):
         if configurations is not None:
             for configuration in configurations:
                 self.add(configuration)
+
+    def __contains__(self, item):
+        return item in self._configurations
 
     @scope.register_self
     def __getitem__(self, extension_type: Type[Extension]) -> ProjectExtensionConfiguration:
@@ -143,9 +146,9 @@ class ProjectExtensionsConfiguration(GenericConfiguration):
                     enabled = True
 
                 if 'configuration' in dumped_extension_configuration:
-                    if not issubclass(extension_type, Configurable):
+                    if not issubclass(extension_type, ConfigurableExtension):
                         raise ConfigurationError(f'{extension_type_name} is not configurable.', contexts=['`configuration`'])
-                    extension_configuration = extension_type.configuration_type().default()
+                    extension_configuration = extension_type.default_configuration()
                     extension_configuration.load(dumped_extension_configuration['configuration'])
                 else:
                     extension_configuration = None
@@ -251,11 +254,11 @@ class LocalesConfiguration(GenericConfiguration):
 
     @reactive  # type: ignore
     @property
-    def default_locale(self) -> LocaleConfiguration:
+    def default(self) -> LocaleConfiguration:
         return next(iter(self._configurations.values()))
 
-    @default_locale.setter
-    def default_locale(self, configuration: LocaleConfiguration) -> None:
+    @default.setter
+    def default(self, configuration: LocaleConfiguration) -> None:
         self._configurations[configuration.locale] = configuration
         self._configurations.move_to_end(configuration.locale, False)
         self.react.trigger()
@@ -314,7 +317,7 @@ class ThemeConfiguration(GenericConfiguration):
         return dumped_configuration
 
 
-class Configuration(GenericConfiguration):
+class Configuration(FileBasedConfiguration):
     def __init__(self, base_url: Optional[str] = None):
         super().__init__()
         self._base_url = 'https://example.com' if base_url is None else base_url
@@ -331,20 +334,6 @@ class Configuration(GenericConfiguration):
         self._theme = ThemeConfiguration()
         self._theme.react(self)
         self._lifetime_threshold = 125
-        self._project_directory: Optional[TemporaryDirectory] = None
-        self._configuration_file_path: Optional[Path] = None
-
-    def __del__(self):
-        if hasattr(self, '_project_directory') and self._project_directory is not None:
-            self._project_directory.cleanup()
-
-    @GenericConfiguration.configuration_file_path.getter  # type: ignore
-    def configuration_file_path(self) -> Path:
-        if self._configuration_file_path is None:
-            if self._project_directory is None:
-                self._project_directory = TemporaryDirectory()
-            self._configuration_file_path = Path(self._project_directory.name) / 'betty.json'
-        return self._configuration_file_path
 
     @property
     def project_directory_path(self) -> Path:
@@ -543,12 +532,8 @@ class Configuration(GenericConfiguration):
 class Project(Configurable[Configuration]):
     def __init__(self):
         super().__init__()
-
+        self._configuration = Configuration()
         self._ancestry = Ancestry()
-
-    @classmethod
-    def configuration_type(cls) -> Type[Configuration]:
-        return Configuration
 
     @property
     def ancestry(self) -> Ancestry:

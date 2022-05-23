@@ -6,6 +6,7 @@ from concurrent.futures._base import Executor
 from concurrent.futures.thread import ThreadPoolExecutor
 from contextlib import contextmanager, ExitStack, suppress
 from gettext import NullTranslations
+from pathlib import Path
 from typing import List, Type, TYPE_CHECKING, Set, Iterator, Optional, Any
 
 from babel.core import parse_locale
@@ -21,7 +22,7 @@ except ImportError:
 from reactives.factory.type import ReactiveInstance
 
 from betty.app.extension import ListExtensions, Extension, Extensions, build_extension_type_graph, \
-    CyclicDependencyError, ExtensionDispatcher
+    CyclicDependencyError, ExtensionDispatcher, ConfigurableExtension
 from betty.asyncio import sync
 from betty.model import Entity, EntityTypeProvider
 from betty.model.event_type import EventTypeProvider, Birth, Baptism, Adoption, Death, Funeral, Cremation, Burial, Will, \
@@ -42,7 +43,7 @@ from jinja2 import Environment as Jinja2Environment
 from reactives import reactive
 
 from betty.concurrent import ExceptionRaisingAwaitableExecutor
-from betty.config import Configuration as GenericConfiguration, ConfigurationError, from_file
+from betty.config import ConfigurationError, FileBasedConfiguration
 from betty.dispatch import Dispatcher
 from betty.lock import Locks
 from betty.render import Renderer, SequentialRenderer
@@ -67,10 +68,14 @@ class _AppExtensions(ListExtensions):
         self.react.trigger()
 
 
-class Configuration(GenericConfiguration):
+class Configuration(FileBasedConfiguration):
     def __init__(self):
         super().__init__()
         self._locale = None
+
+    @property
+    def configuration_file_path(self) -> Path:
+        return CONFIGURATION_DIRECTORY_PATH / 'app.json'
 
     @reactive  # type: ignore
     @property
@@ -110,7 +115,9 @@ class App(Acquirer, Releaser, Configurable[Configuration], ReactiveInstance):
         from betty.url import AppUrlGenerator, StaticPathUrlGenerator
 
         super().__init__(*args, **kwargs)
-        self._load_configuration()
+        self._configuration = Configuration()
+        with suppress(FileNotFoundError):
+            self.configuration.read()
 
         self._acquired = False
         self._extensions = None
@@ -132,19 +139,10 @@ class App(Acquirer, Releaser, Configurable[Configuration], ReactiveInstance):
         self._locks = Locks()
         self._http_client = None
 
-    def _load_configuration(self) -> None:
-        with suppress(FileNotFoundError):
-            with open(CONFIGURATION_DIRECTORY_PATH / 'app.json') as f:
-                from_file(f, self.configuration)
-
     def __copy__(self) -> Self:
         copied = type(self)()
         copied._project = self._project
         return copied
-
-    @classmethod
-    def configuration_type(cls) -> Type[Configuration]:
-        return Configuration
 
     def wait(self) -> None:
         self._wait_for_threads()
@@ -260,12 +258,8 @@ class App(Acquirer, Releaser, Configurable[Configuration], ReactiveInstance):
             extension_types_batch = extension_types_sorter.get_ready()
             extensions_batch = []
             for extension_type in extension_types_batch:
-                if issubclass(extension_type, Configurable):
-                    if extension_type not in extension_types_enabled_in_configuration or self.project.configuration.extensions[extension_type].extension_configuration is None:
-                        configuration = extension_type.default()
-                    else:
-                        configuration = self.project.configuration.extensions[extension_type].extension_configuration
-                    extension = extension_type(self, configuration)
+                if issubclass(extension_type, ConfigurableExtension) and extension_type in self.project.configuration.extensions:
+                    extension = extension_type(self, configuration=self.project.configuration.extensions[extension_type].extension_configuration)
                 else:
                     extension = extension_type(self)
                 extensions_batch.append(extension)

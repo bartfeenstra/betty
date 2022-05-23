@@ -2,7 +2,7 @@ from typing import Optional, List, Any, Iterable
 
 from reactives import reactive, ReactiveList
 
-from betty.config import Path, ConfigurationError, Configuration, ensure_path
+from betty.config import Path, Configuration, ConfigurationError, ensure_path
 from betty.error import ensure_context
 from betty.os import PathLike
 
@@ -26,8 +26,7 @@ class FamilyTreeConfiguration(Configuration):
     def file_path(self, file_path: Optional[PathLike]) -> None:
         self._file_path = Path(file_path) if file_path else None
 
-    @classmethod
-    def load(cls, dumped_configuration: Any) -> Configuration:
+    def load(self, dumped_configuration: Any) -> None:
         if not isinstance(dumped_configuration, dict):
             raise ConfigurationError(_('Family tree configuration must be a mapping (dictionary).'))
 
@@ -35,9 +34,7 @@ class FamilyTreeConfiguration(Configuration):
             raise ConfigurationError(_('Family tree configuration requires a Gramps file to be set.'), contexts=['`file`'])
 
         with ensure_context('`file`'):
-            file_path = ensure_path(dumped_configuration['file'])
-
-        return cls(file_path)
+            self.file_path = ensure_path(dumped_configuration['file'])
 
     def dump(self) -> Any:
         return {
@@ -61,13 +58,16 @@ class GrampsConfiguration(Configuration):
         if not isinstance(dumped_configuration, dict):
             raise ConfigurationError(_('Gramps configuration must be a mapping (dictionary).'))
 
-        if 'family_trees' not in dumped_configuration or not isinstance(dumped_configuration['family_trees'], list):
-            raise ConfigurationError(_('Family trees configuration is required and must must be a list.'), contexts=['`family_trees`'])
+        with ensure_context('family_trees'):
+            if 'family_trees' not in dumped_configuration or not isinstance(dumped_configuration['family_trees'], list):
+                raise ConfigurationError(_('Family trees configuration is required and must must be a list.'))
 
-        self._family_trees.clear()
-        for i, dumped_family_tree_configuration in enumerate(dumped_configuration['family_trees']):
-            with ensure_context(f'`{i}`'):
-                self._family_trees.append(FamilyTreeConfiguration.load(dumped_family_tree_configuration))
+            self._family_trees.clear()
+            for i, dumped_family_tree_configuration in enumerate(dumped_configuration['family_trees']):
+                with ensure_context(f'`{i}`'):
+                    family_tree_configuration = FamilyTreeConfiguration()
+                    family_tree_configuration.load(dumped_family_tree_configuration)
+                    self._family_trees.append(family_tree_configuration)
 
     def dump(self) -> Any:
         return {
