@@ -4,12 +4,20 @@ import unittest
 from contextlib import contextmanager, ExitStack
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Optional, Dict, Callable, Tuple, Iterator, ContextManager
+from typing import Optional, Dict, Callable, Tuple, Iterator, ContextManager, Union, TypeVar, List
+
+try:
+    from typing import TypeGuard
+except ImportError:
+    from typing_extensions import TypeGuard
 
 from jinja2 import Environment, Template
 
 from betty import fs
 from betty.app import App, Configuration as AppConfiguration
+from betty.typing import Void
+
+T = TypeVar('T')
 
 
 def patch_cache(f):
@@ -42,6 +50,11 @@ class TestCase(unittest.TestCase):
         del AppConfiguration._read
         logging.disable(logging.NOTSET)
 
+    def assertIsNotVoid(self, value: Union[T, Void]) -> TypeGuard[T]:
+        if value is Void:
+            raise AssertionError('Failed asserting that a value is not Void.')
+        return value
+
 
 class TemplateTestCase(TestCase):
     template_string: Optional[str] = None
@@ -54,7 +67,7 @@ class TemplateTestCase(TestCase):
             raise RuntimeError(f'{class_name} must define either `{class_name}.template_string` or `{class_name}.template_file`, but not both.')
 
     @contextmanager
-    def _render(self, data: Optional[Dict] = None, template_file: Optional[Template] = None, template_string: Optional[str] = None, set_up: Optional[Callable[[App], Iterator[ContextManager]]] = None) -> Iterator[Tuple[str, App]]:
+    def _render(self, data: Optional[Dict] = None, template_file: Optional[Template] = None, template_string: Optional[str] = None, set_up: Optional[Callable[[App], List[ContextManager]]] = None) -> Iterator[Tuple[str, App]]:
         if template_string is not None and template_file is not None:
             raise RuntimeError('You must define either `template_string` or `template_file`, but not both.')
         if template_string is not None:

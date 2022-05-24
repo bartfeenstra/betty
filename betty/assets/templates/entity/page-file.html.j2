@@ -1,0 +1,63 @@
+{% extends 'base.html.j2' %}
+{% set page_title = entity.description %}
+{% block page_content %}
+    {% if entity.media_type and entity.media_type.type == 'image' %}
+        <div class="featured image">
+            <a href="{{ entity | file | static_url }}">
+                <img src="{{ entity | image(1200, 1200) | static_url }}"{% if entity.description %} alt="{{ entity.description | escape }}"{% endif %}/>
+            </a>
+        </div>
+    {% endif %}
+    {% if entity.notes %}
+        <section id="notes">
+            <h2>
+                {% trans %}Notes{% endtrans %}
+                {% with url = page_resource | url ~ '#notes'%}
+                    {% include 'permalink.html.j2' %}
+                {% endwith %}
+            </h2>
+            {% for note in entity.notes %}
+                {{ note.text | paragraphs }}
+            {% endfor %}
+        </section>
+    {% endif %}
+    {% set entities = entity.entities | reject('has_generated_entity_id') | list %}
+    {% if entities | length > 0 %}
+        <section id="appearances">
+            <h2>
+                {% trans %}Appearances{% endtrans %}
+                {% with url = page_resource | url ~ '#appearances'%}
+                    {% include 'permalink.html.j2' %}
+                {% endwith %}
+            </h2>
+            <ul class="entities">
+                {% for entity in entities %}
+                    <li class="{{ loop.cycle('odd', 'even') }}">
+                        {% include ['entity/label-' + (entity.entity_type() | entity_type_name | camel_case_to_snake_case) + '.html.j2', 'entity/label.html.j2'] %}
+                        {% include ['entity/meta-' + (entity.entity_type() | entity_type_name | camel_case_to_snake_case) + '.html.j2', 'entity/meta.html.j2'] ignore missing %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% endif %}
+    {% set citations = entity.citations | list %}
+    {% if citations | length  > 0 %}
+        {# These are the citations for the file itself. This assumes no other citations are tracked on the page and #}
+        {# rendered by base.html.j2. #}
+        <section id="references">
+            <h2>
+                {% trans %}References{% endtrans %}
+                {% with url = page_resource | url ~ '#references'%}
+                    {% include 'permalink.html.j2' %}
+                {% endwith %}
+            </h2>
+            <ul>
+            {% for citation in citations %}
+                {% with entity = citation %}
+                    <li>{% include ['entity/label-citation.html.j2', 'entity/label.html.j2'] %}</li>
+                {% endwith %}
+            {% endfor %}
+            </ul>
+        </section>
+    {% endif %}
+{% endblock %}

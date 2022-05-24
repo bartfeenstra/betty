@@ -1,0 +1,7 @@
+<div class="meta">
+{% if entity.contained_by %}
+    {% with source=entity.contained_by %}
+        {% include ['entity/label-entity.html.j2', 'entity/label.html.j2'] %}
+    {% endwith %}
+{% endif %}
+</div>

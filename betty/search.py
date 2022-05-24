@@ -3,7 +3,7 @@ from typing import Dict, Iterable, Optional
 from betty.model import get_entity_type_name
 from betty.model.ancestry import Person, Place, File, Entity
 from betty.app import App
-from betty.string import camel_case_to_kebab_case, camel_case_to_snake_case
+from betty.string import camel_case_to_snake_case
 
 
 class Index:
@@ -19,10 +19,11 @@ class Index:
 
     def _render_entity(self, entity: Entity):
         entity_type_name = get_entity_type_name(entity.entity_type())
-        return self._app.jinja2_environment.get_template(
-            f'search/result-{camel_case_to_kebab_case(entity_type_name)}.html.j2'
-        ).render({
-            camel_case_to_snake_case(entity_type_name): entity,
+        return self._app.jinja2_environment.negotiate_template([
+            f'search/result-{camel_case_to_snake_case(entity_type_name)}.html.j2',
+            'search/result.html.j2',
+        ]).render({
+            'entity': entity,
         })
 
     def _build_person(self, person: Person) -> Optional[Dict]:

@@ -23,7 +23,7 @@
             {% endif %}
         {% endfor %}
         <link rel="canonical" href="{{ page_resource | url(absolute=true) }}"/>
-        {% if page_resource is defined and page_resource is entity and resource is not generated_entity_id %}
+        {% if page_resource is defined and page_resource is entity and resource is not has_generated_entity_id %}
             <link rel="alternate" href="{{ page_resource | url(media_type='application/json') }}" type="application/json"/>
             <script type="application/ld+json">
               {{ page_resource | tojson }}
@@ -46,8 +46,8 @@
 </head>
 {% if page_resource is has_files %}
     {% set page_image = page_resource.associated_files | selectattr('media_type.type', 'eq', 'image') | first %}
-{% elif app.project.configuration.theme.background_image_id and app.project.configuration.theme.background_image_id in app.project.ancestry.entities['File'] %}
-    {% set page_image = app.project.ancestry.entities['File'][app.project.configuration.theme.background_image_id] %}
+{% elif app.project.configuration.theme.background_image.entity_id and app.project.configuration.theme.background_image.entity_id in app.project.ancestry.entities['File'] %}
+    {% set page_image = app.project.ancestry.entities['File'][app.project.configuration.theme.background_image.entity_id] %}
 {% endif %}
 <body>
 <script>
@@ -165,7 +165,11 @@
                 </h2>
                 <ol>
                 {% for number, citation in citer %}
-                    <li id="reference-{{ number }}" class="reference">{% include 'label/citation.html.j2' %}</li>
+                    <li id="reference-{{ number }}" class="reference">
+                        {% with entity = citation %}
+                            {% include ['entity/label-citation.html.j2', 'entity/label.html.j2'] %}
+                        {% endwith %}
+                    </li>
                 {% endfor %}
                 </ol>
             </section>

@@ -1,7 +1,8 @@
 {% set embedded=True %}
-<a href="{{ place | url }}" class="nav-secondary-action search-result-target">
+{% set entity_type_name_file_part = entity.entity_type() | entity_type_name | camel_case_to_snake_case %}
+<a href="{{ entity | url }}" class="nav-secondary-action search-result-target">
     <div class="search-result-description">
-        {% include 'label/place.html.j2' %}
-        {% include 'meta/place.html.j2' %}
+        {% include ['entity/label-' + entity_type_name_file_part + '.html.j2', 'entity/label.html.j2'] %}
+        {% include ['entity/meta-' + entity_type_name_file_part + '.html.j2', 'entity/meta.html.j2'] ignore missing %}
     </div>
 </a>

@@ -1,0 +1,19 @@
+{# Citation formatting is inspired by the MLA style guide(https://style.mla.org/) #}
+{% set citation_context = citation_context | default(None) %}
+<span>
+    {% if entity.source -%}
+        {%- if entity.source.author -%}
+            <span class="citation-author">{{ entity.source.author }}</span>
+        {%- endif %}
+        <span class="citation-title">{% with entity=entity.source %}{% include ['entity/label-source.html.j2', 'entity/label.html.j2'] %}{% endwith %}</span>
+        {%- if entity.source.publisher -%}
+            <span class="citation-publisher">{{ entity.source.publisher }}</span>
+        {%- endif -%}
+    {% endif %}
+    {%- if entity.location -%}
+            <span class="citation-location">{% if citation_context == entity %}{{ entity.location }}{% else %}{% if entity is not has_generated_entity_id %}<a href="{{ entity | url }}">{% endif %}{{ entity.location }}{% if entity is not has_generated_entity_id %}</a>{% endif %}{% endif %}</span>
+    {%- endif -%}
+    {%- if entity.date -%}
+        <span class="citation-date">{% trans date = entity.date | format_date %}Accessed {{ date }}{% endtrans %}</span>
+    {%- endif -%}
+</span>

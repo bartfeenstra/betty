@@ -2,7 +2,7 @@ from typing import Optional, List, Any, Iterable
 
 from reactives import reactive, ReactiveList
 
-from betty.config import Path, Configuration, ConfigurationError, ensure_path
+from betty.config import Path, ConfigurationError, Configuration, ensure_path, DumpedConfiguration
 from betty.error import ensure_context
 from betty.os import PathLike
 
@@ -36,7 +36,7 @@ class FamilyTreeConfiguration(Configuration):
         with ensure_context('`file`'):
             self.file_path = ensure_path(dumped_configuration['file'])
 
-    def dump(self) -> Any:
+    def dump(self) -> DumpedConfiguration:
         return {
             'file': str(self.file_path),
         }
@@ -54,7 +54,7 @@ class GrampsConfiguration(Configuration):
     def family_trees(self) -> List[FamilyTreeConfiguration]:
         return self._family_trees
 
-    def load(self, dumped_configuration: Any) -> None:
+    def load(self, dumped_configuration: DumpedConfiguration) -> None:
         if not isinstance(dumped_configuration, dict):
             raise ConfigurationError(_('Gramps configuration must be a mapping (dictionary).'))
 
@@ -69,7 +69,7 @@ class GrampsConfiguration(Configuration):
                     family_tree_configuration.load(dumped_family_tree_configuration)
                     self._family_trees.append(family_tree_configuration)
 
-    def dump(self) -> Any:
+    def dump(self) -> DumpedConfiguration:
         return {
             'family_trees': [
                 family_tree.dump()

@@ -6,7 +6,8 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QMainWindow, QMenu, QWidget
 
-from betty.gui import Error, BettyApplication
+from betty.gui import BettyApplication
+from betty.gui.error import Error
 
 
 @pytest.fixture(scope="function")

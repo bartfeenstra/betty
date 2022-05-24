@@ -1,0 +1,12 @@
+{% set entities = entities | list %}
+<div class="entities featured">
+    {% for file in entities %}
+        {% if entities[loop.index0 - 1] is defined %}
+            {% set previous_file = entities[loop.index0 - 1] %}
+        {% endif %}
+        {% if entities[loop.index0 + 1] is defined %}
+            {% set next_file = entities[loop.index0 + 1] %}
+        {% endif %}
+        {% include 'file.html.j2' %}
+    {% endfor %}
+</div>

@@ -1,0 +1,29 @@
+{% extends 'base.html.j2' %}
+{% set page_title = entity.name %}
+{% block page_content %}
+    {% include ['entity/meta-source.html.j2', 'entity/meta.html.j2'] ignore missing %}
+    {% set sources = [entity] + entity | walk('contains') | list %}
+    {% set have_files = sources %}
+    {% set have_files = have_files + sources | map(attribute='citations') | flatten | list %}
+    {% set files = have_files | map(attribute='files') | flatten | list | unique | list %}
+    {% if files | length > 0 %}
+        <h2>{% trans %}Media{% endtrans %}</h2>
+        {% with entities = files %}
+            {% include 'entity/list-file.html.j2' %}
+        {% endwith %}
+    {% endif %}
+    {% set facts = sources | map(attribute='citations') | flatten | map(attribute='facts') | flatten | reject('has_generated_entity_id') | unique | list %}
+    {% if facts | length > 0 %}
+        <h2>{% trans %}Facts{% endtrans %}</h2>
+        <ul class="entities">
+            {% for fact in facts %}
+                <li class="{{ loop.cycle('odd', 'even') }}">
+                    {% with entity=fact, source_context=entity %}
+                        {% include ['entity/label-' + (entity.entity_type() | entity_type_name | camel_case_to_snake_case) + '.html.j2', 'entity/label.html.j2'] %}
+                        {% include ['entity/meta-' + (entity.entity_type() | entity_type_name | camel_case_to_snake_case) + '.html.j2', 'entity/meta.html.j2'] ignore missing %}
+                {% endwith %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}

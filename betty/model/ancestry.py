@@ -43,9 +43,17 @@ class Note(Entity):
         super().__init__(note_id)
         self._text = text
 
+    @classmethod
+    def entity_type_label(cls) -> str:
+        return _('Note')
+
     @property
     def text(self) -> str:
         return self._text
+
+    @property
+    def label(self) -> Optional[str]:
+        return self.text
 
 
 @one_to_many('notes', 'entity')
@@ -111,9 +119,17 @@ class File(Described, HasPrivacy, HasMediaType, HasNotes, HasCitations, Entity):
         self._path = Path(path)
         self.media_type = media_type
 
+    @classmethod
+    def entity_type_label(cls) -> str:
+        return _('File')
+
     @property
     def path(self) -> Path:
         return self._path
+
+    @property
+    def label(self) -> Optional[str]:
+        return self.description
 
 
 @many_to_many('files', 'entities')
@@ -145,6 +161,14 @@ class Source(Dated, HasFiles, HasLinks, HasPrivacy, Entity):
         self.author = None
         self.publisher = None
 
+    @classmethod
+    def entity_type_label(cls) -> str:
+        return _('Source')
+
+    @property
+    def label(self) -> Optional[str]:
+        return self.name
+
 
 @many_to_many('facts', 'citations')
 @many_to_one('source', 'citations')
@@ -157,6 +181,10 @@ class Citation(Dated, HasFiles, HasPrivacy, Entity):
         super().__init__(citation_id)
         self.location = None
         self.source = source
+
+    @classmethod
+    def entity_type_label(cls) -> str:
+        return _('Citation')
 
 
 class PlaceName(Localized, Dated):
@@ -192,6 +220,10 @@ class Enclosure(Dated, HasCitations, Entity):
         self.encloses = encloses
         self.enclosed_by = enclosed_by
 
+    @classmethod
+    def entity_type_label(cls) -> str:
+        return _('Enclosure')
+
 
 @one_to_many('events', 'place')
 @one_to_many('enclosed_by', 'encloses')
@@ -206,6 +238,10 @@ class Place(HasLinks, Entity):
         self._names = names
         self._coordinates = None
 
+    @classmethod
+    def entity_type_label(cls) -> str:
+        return _('Place')
+
     @property
     def names(self) -> List[PlaceName]:
         return self._names
@@ -217,6 +253,13 @@ class Place(HasLinks, Entity):
     @coordinates.setter
     def coordinates(self, coordinates: Point):
         self._coordinates = coordinates
+
+    @property
+    def label(self) -> Optional[str]:
+        # @todo Negotiate this by locale and date.
+        with suppress(IndexError):
+            return self.names[0].name
+        return None
 
 
 class PresenceRole:
@@ -281,6 +324,10 @@ class Presence(Entity):
         self.role = role
         self.event = event
 
+    @classmethod
+    def entity_type_label(cls) -> str:
+        return _('Presence')
+
 
 @many_to_one('place', 'events')
 @one_to_many('presences', 'event')
@@ -292,6 +339,10 @@ class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, Entity):
         super().__init__(event_id, *args, **kwargs)
         self.date = date
         self._type = event_type
+
+    @classmethod
+    def entity_type_label(cls) -> str:
+        return _('Event')
 
     def __repr__(self) -> str:
         return '<%s.%s(%s, date=%s)>' % (self.__class__.__module__, self.__class__.__name__, repr(self.type), repr(self.date))
@@ -328,6 +379,10 @@ class PersonName(Localized, HasCitations, Entity):
         # individual and affiliation names.
         self.person = person
 
+    @classmethod
+    def entity_type_label(cls) -> str:
+        return _('Person name')
+
     def __eq__(self, other: Any) -> bool:
         if other is None:
             return False
@@ -350,6 +405,10 @@ class PersonName(Localized, HasCitations, Entity):
     def affiliation(self) -> Optional[str]:
         return self._affiliation
 
+    @property
+    def label(self) -> Optional[str]:
+        return _('{individual_name} {affiliation_name}')
+
 
 @total_ordering
 @many_to_many('parents', 'children')
@@ -364,6 +423,10 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, Entity):
 
     def __init__(self, person_id: Optional[str], *args, **kwargs):
         super().__init__(person_id, *args, **kwargs)
+
+    @classmethod
+    def entity_type_label(cls) -> str:
+        return _('Person')
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Person):
@@ -421,6 +484,10 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, Entity):
                 continue
             seen.add(file)
             yield file
+
+    @property
+    def label(self) -> Optional[str]:
+        return self.name.label if self.name else None
 
 
 class Ancestry:

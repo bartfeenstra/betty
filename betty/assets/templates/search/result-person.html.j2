@@ -1,11 +1,11 @@
 {% set embedded=True %}
-<a href="{{ person | url }}" class="nav-secondary-action search-result-target">
+<a href="{{ entity | url }}" class="nav-secondary-action search-result-target">
     <div class="search-result-description">
-        {% include 'label/person.html.j2' %}
-        {% include 'meta/person.html.j2' %}
+        {% include ['entity/label-person.html.j2', 'entity/label.html.j2'] %}
+        {% include ['entity/meta-person.html.j2', 'entity/meta.html.j2'] ignore missing %}
     </div>
-    {% if person.files | length > 0 %}
-        {% set file = person.files | first %}
+    {% if entity.files | length > 0 %}
+        {% set file = entity.files | first %}
         {% if file.media_type and file.media_type.type == 'image' %}
             <div class="search-result-preview">
                 <img src="{{ file | image(45, 45) | static_url }}" class="image"{% if file.description %} alt="{{ file.description | escape }}"{% endif %}/>

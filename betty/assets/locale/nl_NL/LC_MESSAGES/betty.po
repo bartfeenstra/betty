@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-19 18:44+0100\n"
+"POT-Creation-Date: 2022-05-16 23:56+0100\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -18,68 +18,37 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 
-#, python-format
 msgid ""
 "\n"
-"                Betty was named after %(liberta_lankester_label)s. You "
-"can browse the pages about her and some of her\n"
-"                family to get an idea of what a Betty site looks like.\n"
+"                Betty is an application that takes a family tree and "
+"builds a website out of it, much like the one you\n"
+"                are viewing right now. The more information your "
+"genealogical research contains, the more interactivity\n"
+"                Betty can add to your site, such as media galleries, "
+"maps, and browsable family trees.\n"
 "            "
-msgstr ""
-"\n"
-"                Betty is vernoemd naar %(liberta_lankester_label)s. Je "
-"kan de pagina's over haar en haar familie bekijken om een idee te krijgen"
-" van hoe een Betty-site eruit ziet.\n"
-"            "
-
-msgid ""
-"\n"
-"            Continue building your site by adding content to the family "
-"history you load into Betty, such as people,\n"
-"            places, source citations, and media.\n"
-"        "
-msgstr ""
-"\n"
-"            Bouw verder aan je site door gegevens aan de "
-"familiegeschiedenis toe te voegen, zoals mensen, plaatsen, "
-"bronverwijzingen, en media.\n"
-"        "
-
-msgid ""
-"\n"
-"            Hello dear, welcome to your new family history website.\n"
-"        "
-msgstr ""
-"\n"
-"            Dag lieverd, en welkom op je nieuwe familiegeschiedenissite.\n"
-"        "
+msgstr "Betty is een programma dat van een stamboom een website bouwt zoals de site die je nu aan het bezoeken bent."
+"Des te meer informatie je genealogisch onderzoek bevat, des te meer interactiviteit Betty aan je site toe kan voegen,"
+"zoals mediagalerijen, kaarten, en visuele stambomen."
 
 #, python-format
 msgid ""
 "\n"
-"        You can customize this page you are looking at right now:\n"
-"        <ol>\n"
-"            <li>Create an <strong>assets</strong> directory. You can call"
-" this anything and put this anywhere, but a good start is to call it "
-"<code>assets</code> and put it in the same directory as your Betty "
-"configuration file.</li>\n"
-"            <li>In your Betty project configuration file, add "
-"<code>assets_directory_path: assets</code>, where <code>assets</code> "
-"should be whatever the path to and name of your assets directory path "
-"is.</li>\n"
-"            <li>Inside the assets directory, create the subdirectories "
-"<code>%(template_override_subdirectory_path)s</code>, and in there, the "
-"file <code>index.html.j2</code>. This file will replace the page you are "
-"seeing now.</li>\n"
-"            <li>Open <code>index.html.j2</code> in your favorite code "
-"editor, and add the following code:\n"
-"                <pre><code>%(template_override_template)s</code></pre>\n"
-"            </li>\n"
-"            <li>Customize this code to suit your needs. Then regenerate "
-"your site, and reload this page.</li>\n"
-"        </ol>\n"
-"    "
+"                Betty was named after %(liberta_lankester_label)s, and "
+"this website shows a small sample of her family\n"
+"                history. You can browse the pages about her and some of "
+"her family to get an idea of what a Betty site\n"
+"                looks like.\n"
+"            "
 msgstr ""
+"\n"
+"                Betty is vernoemd naar "
+"%(liberta_lankester_label)s, en deze website bevat een uittreksel van haar familiegeschiedenis. Je kan de "
+"pagina's over haar en haar familie "
+"bekijken om een idee te krijgen "
+"van hoe een Betty-site eruit ziet."
+"\n"
+"            "
 
 #, python-format
 msgid ""
@@ -181,6 +150,9 @@ msgstr "Voeg een stamboom toe"
 msgid "Add a locale"
 msgstr "Voeg een taalregio toe"
 
+msgid "Add an entity"
+msgstr "Voeg een entiteit toe"
+
 msgid "Adoption"
 msgstr "Adoptie"
 
@@ -271,8 +243,8 @@ msgstr "Aanwezige"
 msgid "Author"
 msgstr "Auteur"
 
-msgid "Background image ID"
-msgstr "Achtergrondafbeeldings-ID"
+msgid "Background image"
+msgstr "Achtergrondafbeelding"
 
 msgid "Baptism"
 msgstr "Doping"
@@ -309,6 +281,9 @@ msgstr "Annuleren"
 
 msgid "Cannot remove the last remaining locale {locale}"
 msgstr "Kan de laatst overgebleven taalregio {locale} niet verwijderen"
+
+msgid "Citation"
+msgstr "Verwijzing"
 
 msgid "Clean URLs"
 msgstr "Nette URL's"
@@ -432,11 +407,23 @@ msgstr "Emigratie"
 msgid "Enable {extension}"
 msgstr "Schakel {extension} in"
 
+msgid "Enclosure"
+msgstr "Omsluiting"
+
 msgid "Engagement"
 msgstr "Verloving"
 
+msgid "Entity ID"
+msgstr "Entiteits-ID"
+
+msgid "Entity references must be a list."
+msgstr "Entiteitsverwijzingen moeten een lijst zijn."
+
 msgid "Error"
 msgstr "Fout"
+
+msgid "Event"
+msgstr "Gebeurtenis"
 
 msgid "Events"
 msgstr "Gebeurtenissen"
@@ -464,6 +451,12 @@ msgstr "Stamboomconfiguratie vereist een Gramps-bestand."
 
 msgid "Family trees configuration is required and must must be a list."
 msgstr "Stamboomconfiguratie is vereist en moet een lijst zijn."
+
+msgid "Featured entities"
+msgstr "Uitgelichte entiteiten"
+
+msgid "File"
+msgstr "Bestand"
 
 msgid "File path"
 msgstr "Bestandspad"
@@ -574,7 +567,7 @@ msgstr "Laden..."
 msgid "Locale"
 msgstr "Taalregio"
 
-msgid "Locales configuration much be a list."
+msgid "Locales configuration must be a list."
 msgstr "Taalregioconfiguratie moet een lijst zijn."
 
 msgid "Localization"
@@ -612,6 +605,9 @@ msgstr "Nieuw project..."
 
 msgid "Not found"
 msgstr "Niet gevonden"
+
+msgid "Note"
+msgstr "Aantekening"
 
 msgid "Notes"
 msgstr "Opmerkingen"
@@ -651,6 +647,15 @@ msgstr "Personen"
 msgid "Permanent link to this section."
 msgstr "Permanente link naar dit onderdeel."
 
+msgid "Person"
+msgstr "Persoon"
+
+msgid "Person name"
+msgstr "Persoonsnaam"
+
+msgid "Place"
+msgstr "Plaats"
+
 msgid "Places"
 msgstr "Plaatsen"
 
@@ -659,6 +664,9 @@ msgstr ""
 
 msgid "Pre-built assets are unavailable for {extension_names}."
 msgstr ""
+
+msgid "Presence"
+msgstr "Aanwezigheid"
 
 msgid "Private"
 msgstr "Privé"
@@ -676,7 +684,7 @@ msgid "References"
 msgstr "Referenties"
 
 msgid "Remove"
-msgstr "Verwijderen"
+msgstr "Verwijder"
 
 msgid ""
 "Remove people, events, places, files, sources, and citations if they have"
@@ -760,6 +768,9 @@ msgstr ""
 msgid "Settings..."
 msgstr "Instellingen..."
 
+msgid "Source"
+msgstr "Bron"
+
 msgid "Sources"
 msgstr "Bronnen"
 
@@ -779,15 +790,17 @@ msgid ""
 "The ID of the file entity whose (image) file to use for page backgrounds "
 "if a page does not provide any image media itself."
 msgstr ""
+"Het ID van de bestandsentiteit waarvan de afbeelding gebruikt wordt voor "
+"de achtergrond van pagina's waarvoor geen afbeeldingen beschikbaar zijn."
 
 msgid "The age at which people are presumed dead."
 msgstr "De leeftijd waarop mensen overleden verondersteld worden"
 
 msgid "The author must be a string."
-msgstr "De auteur moet een string zijn."
+msgstr "De auteur moet een tekenreeks zijn."
 
 msgid "The base URL is required and must be a string."
-msgstr "De basis-URL is vereist en moet een string zijn."
+msgstr "De basis-URL is vereist en moet een tekenreeks zijn."
 
 msgid "The base URL must include a path."
 msgstr "De basis-URL moet een pad bevatten."
@@ -823,6 +836,29 @@ msgstr "De verzameling van bronnen."
 msgid "The configuration must be a mapping (dictionary)."
 msgstr "De configuratie moet een mapping (dictionary) zijn."
 
+msgid "The entity ID is required."
+msgstr "Het entiteits-ID is vereist."
+
+msgid "The entity ID must be a string."
+msgstr "Het entiteits-ID moet een tekenreeks zijn."
+
+msgid "The entity reference must be a mapping (dictionary)."
+msgstr "De entiteitsverwijzing moet een mapping (dictionary) zijn."
+
+msgid ""
+"The entity reference must be for an entity of type "
+"{expected_entity_type_name} ({expected_entity_type_label}), but instead "
+"is for an entity of type {actual_entity_type_name} "
+"({actual_entity_type_label})"
+msgstr ""
+"De entiteitsverwijzing moet verwijzen naar een entiteit van het type "
+"{expected_entity_type_name} ({expected_entity_type_label}), maar verwijst"
+" echter naar een entiteit van het type {actual_entity_type_name} "
+"({actual_entity_type_label})"
+
+msgid "The entity type is required."
+msgstr "Het entiteitstype is vereist."
+
 msgid "The event."
 msgstr "De gebeurtenis."
 
@@ -839,7 +875,7 @@ msgid "The lifetime threshold must consist of digits only."
 msgstr "De levensgrens mag alleen uit cijfers bestaan."
 
 msgid "The locale must be a string."
-msgstr "De taalregio moet een string zijn."
+msgstr "De taalregio moet een tekenreeks zijn."
 
 msgid "The person."
 msgstr "De persoon."
@@ -848,13 +884,16 @@ msgid "The place."
 msgstr "De plaats."
 
 msgid "The root path must be a string."
-msgstr "Het bronpad moet een string zijn."
+msgstr "Het bronpad moet een tekenreeks zijn."
 
 msgid "The source."
 msgstr "De bron."
 
+msgid "The theme configuration must be a mapping (dictionary)."
+msgstr "De themaconfiguratie moet een mapping (dictionary) zijn."
+
 msgid "The title must be a string."
-msgstr "De titel moet een string zijn."
+msgstr "De titel moet een tekenreeks zijn."
 
 #, python-format
 msgid "The translations for {locale_name} are {coverage_percentage}% complete."
@@ -865,6 +904,9 @@ msgstr "Thema"
 
 msgid "There are no translations for {locale_name}."
 msgstr "Er zijn geen vertalingen voor {locale_name}."
+
+msgid "These entities are featured on your site's front page."
+msgstr "Deze entiteiten worden uitgelicht op de voorpagina van je site."
 
 #, python-format
 msgid "They are the child of %(parent_labels)s."
@@ -1130,6 +1172,12 @@ msgstr "tot ongeveer %(end_date)s"
 
 msgid "y"
 msgstr "y"
+
+msgid "{entity_type_label} ID"
+msgstr "{entity_type_label}-ID"
+
+msgid "{individual_name} {affiliation_name}"
+msgstr "{individual_name} {affiliation_name}"
 
 msgid "{locale} is not a valid IETF BCP 47 language tag."
 msgstr "{locale} is geen geldige IETF BCP 47 taaltag."

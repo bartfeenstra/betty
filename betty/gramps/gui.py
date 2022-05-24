@@ -9,7 +9,10 @@ from reactives import reactive
 from betty.app import App
 from betty.config import Path, ConfigurationError
 from betty.gramps.config import FamilyTreeConfiguration, GrampsConfiguration
-from betty.gui import catch_exceptions, BettyWindow, mark_valid, mark_invalid, Text, LocalizedWidget
+from betty.gui import BettyWindow, mark_valid, mark_invalid
+from betty.gui.error import catch_exceptions
+from betty.gui.locale import LocalizedWidget
+from betty.gui.text import Text
 
 
 @reactive

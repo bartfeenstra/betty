@@ -7,7 +7,7 @@ import warnings
 from contextlib import suppress
 from pathlib import Path
 from typing import Dict, Callable, Iterable, Type, Optional, Any, Union, Iterator, AsyncIterable, ContextManager, cast, \
-    AsyncContextManager
+    AsyncContextManager, MutableMapping, List
 
 import aiofiles
 import pdf2image
@@ -16,8 +16,9 @@ from PIL.Image import DecompressionBombWarning
 from babel import Locale
 from geopy import units
 from geopy.format import DEGREES_FORMAT
-from jinja2 import Environment as Jinja2Environment, select_autoescape, FileSystemLoader, pass_context, pass_eval_context, Template, \
-    nodes
+from jinja2 import Environment as Jinja2Environment, select_autoescape, FileSystemLoader, pass_context, \
+    pass_eval_context, Template, \
+    nodes, TemplateNotFound
 from jinja2.ext import Extension
 from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.nodes import EvalContext
@@ -197,7 +198,7 @@ class Environment(Jinja2Environment):
             return _test_resource
         for entity_type in self.app.entity_types:
             self.tests[f'{camel_case_to_snake_case(get_entity_type_name(entity_type))}_entity'] = _build_test_entity_type(entity_type)
-        self.tests['generated_entity_id'] = lambda x: isinstance(x, Entity) and isinstance(x.id, GeneratedEntityId) or isinstance(x, GeneratedEntityId)
+        self.tests['has_generated_entity_id'] = lambda x: isinstance(x, Entity) and isinstance(x.id, GeneratedEntityId) or isinstance(x, GeneratedEntityId)
         self.tests['has_links'] = lambda x: isinstance(x, HasLinks)
         self.tests['has_files'] = lambda x: isinstance(x, HasFiles)
         self.tests['starts_with'] = str.startswith
@@ -210,6 +211,12 @@ class Environment(Jinja2Environment):
             if isinstance(extension, Jinja2Provider):
                 self.globals.update(extension.globals)
                 self.filters.update(extension.filters)
+
+    def negotiate_template(self, names: List[Union[str, Template]], parent: Optional[str] = None, globals: Optional[MutableMapping[str, Any]] = None) -> Template:
+        for name in names:
+            with suppress(TemplateNotFound):
+                return self.get_template(name, parent, globals)
+        raise TemplateNotFound(names[-1], f'Cannot find any of the following templates: {", ".join(names)}.')
 
 
 Template.environment_class = Environment
