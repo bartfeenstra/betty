@@ -21,7 +21,7 @@
 
 #search-query {
   appearance: none;
-  background-color: rgba(255 255 255 90%);
+  background-color: rgba(255 255 255 / 90%);
   border: 0.3rem solid #f7f7f7;
   border-radius: unset;
   color: #777;
@@ -95,7 +95,7 @@
 }
 
 #search-results-twilight::before {
-  background: linear-gradient(#fff, rgba(255 255 255 0%));
+  background: linear-gradient(#fff, rgba(255 255 255 / 0%));
   background-size: 3rem 10%;
   background-repeat: repeat-x;
   background-position: top;
