@@ -115,7 +115,10 @@ SETUP = {
     ],
     'include_package_data': True,
     'package_data': {
-        'betty': list(map(str, get_data_paths()))
+        'betty': [
+            *list(map(str, get_data_paths())),
+            str(ROOT_DIRECTORY_PATH / 'betty' / 'py.typed'),
+        ],
     },
 }
 
