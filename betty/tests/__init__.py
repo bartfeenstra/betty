@@ -14,7 +14,7 @@ except ImportError:
 from jinja2 import Environment, Template
 
 from betty import fs
-from betty.app import App, Configuration as AppConfiguration
+from betty.app import App, AppConfiguration
 from betty.typing import Void
 
 T = TypeVar('T')

@@ -7,7 +7,7 @@ from betty.locale import negotiate_locale
 from betty.model import Entity
 from betty.model.ancestry import PersonName, Event, Place, File, Source, Citation, Note, Person
 from betty.media_type import EXTENSIONS
-from betty.project import Configuration
+from betty.project import ProjectConfiguration
 
 
 class ContentNegotiationUrlGenerator:
@@ -29,7 +29,7 @@ class ContentNegotiationPathUrlGenerator(ContentNegotiationUrlGenerator):
 
 
 class StaticPathUrlGenerator(StaticUrlGenerator):
-    def __init__(self, configuration: Configuration):
+    def __init__(self, configuration: ProjectConfiguration):
         self._configuration = configuration
 
     def generate(self, resource: Any, absolute: bool = False, ) -> str:
@@ -81,7 +81,7 @@ class AppUrlGenerator(ContentNegotiationUrlGenerator):
             resource if isinstance(resource, str) else type(resource)))
 
 
-def _generate_from_path(configuration: Configuration, path: str, absolute: bool = False, locale: Optional[str] = None) -> str:
+def _generate_from_path(configuration: ProjectConfiguration, path: str, absolute: bool = False, locale: Optional[str] = None) -> str:
     if not isinstance(path, str):
         raise ValueError('%s is not a string.' % type(path))
     url = configuration.base_url if absolute else ''

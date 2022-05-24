@@ -68,7 +68,7 @@ class _AppExtensions(ListExtensions):
         self.react.trigger()
 
 
-class Configuration(FileBasedConfiguration):
+class AppConfiguration(FileBasedConfiguration):
     def __init__(self):
         super().__init__()
         self._locale = None
@@ -110,12 +110,12 @@ class Configuration(FileBasedConfiguration):
 
 
 @reactive
-class App(Acquirer, Releaser, Configurable[Configuration], ReactiveInstance):
+class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
     def __init__(self, *args, **kwargs):
         from betty.url import AppUrlGenerator, StaticPathUrlGenerator
 
         super().__init__(*args, **kwargs)
-        self._configuration = Configuration()
+        self._configuration = AppConfiguration()
         with suppress(FileNotFoundError):
             self.configuration.read()
 

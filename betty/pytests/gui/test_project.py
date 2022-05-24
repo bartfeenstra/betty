@@ -10,12 +10,12 @@ from betty.gui.project import ProjectWindow, _AddLocaleWindow, _GenerateWindow, 
 from betty.gui.serve import ServeAppWindow
 from betty.locale import bcp_47_to_rfc_1766
 from betty.model import Entity
-from betty.project import Configuration, LocaleConfiguration, EntityReference
+from betty.project import ProjectConfiguration, LocaleConfiguration, EntityReference
 
 
 class TestProjectWindow:
     async def test_save_project_as_should_create_duplicate_configuration_file(self, mocker, navigate, qtbot, tmpdir) -> None:
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.write(tmpdir.join('betty.json'))
         with App() as app:
             sut = ProjectWindow(app)

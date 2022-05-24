@@ -12,7 +12,7 @@ from click.testing import CliRunner
 from betty import fs
 from betty.error import UserFacingError
 from betty.os import ChDir
-from betty.project import Configuration
+from betty.project import ProjectConfiguration
 from betty.serve import Server
 from betty.tests import patch_cache, TestCase
 
@@ -210,7 +210,7 @@ class _KeyboardInterruptedServer(Server):
 class ServeTest(TestCase):
     @patch('betty.serve.AppServer', new_callable=lambda: _KeyboardInterruptedServer)
     def test(self, m_server):
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.write()
         os.makedirs(configuration.www_directory_path)
         runner = CliRunner()
