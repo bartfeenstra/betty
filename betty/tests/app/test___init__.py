@@ -3,7 +3,7 @@ from typing import Type, List, Set
 from betty.app import Extension, App, CyclicDependencyError
 from betty.app.extension import ConfigurableExtension
 from betty.asyncio import sync
-from betty.config import Configuration as GenericConfiguration, ConfigurationError, DumpedConfiguration
+from betty.config import Configuration, ConfigurationError, DumpedConfiguration
 from betty.project import ProjectExtensionConfiguration
 from betty.tests import TestCase
 
@@ -22,7 +22,7 @@ class NonConfigurableExtension(TrackableExtension):
     pass  # pragma: no cover
 
 
-class ConfigurableExtensionConfiguration(GenericConfiguration):
+class ConfigurableExtensionConfiguration(Configuration):
     def __init__(self, check):
         super().__init__()
         self.check = check

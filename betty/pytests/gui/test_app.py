@@ -12,7 +12,7 @@ from betty.gui.app import WelcomeWindow, _AboutBettyWindow, BettyMainWindow, App
 from betty.gui.error import ExceptionError
 from betty.gui.project import ProjectWindow
 from betty.gui.serve import ServeDemoWindow
-from betty.project import Configuration
+from betty.project import ProjectConfiguration
 from betty.tests import patch_cache
 
 
@@ -74,7 +74,7 @@ class TestWelcomeWindow:
 
     def test_open_project_with_valid_file_should_show_project_window(self, assert_window, mocker, qtbot) -> None:
         title = 'My First Ancestry Site'
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.title = title
         configuration.write()
         with App() as app:

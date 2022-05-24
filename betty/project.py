@@ -11,8 +11,8 @@ from reactives import reactive, scope
 from reactives.factory.type import ReactiveInstance
 
 from betty.app import Extension, ConfigurableExtension
-from betty.config import Configuration as GenericConfiguration, DumpedConfiguration, ConfigurationError, \
-    minimize_dumped_configuration, Configurable, FileBasedConfiguration
+from betty.config import Configuration, DumpedConfiguration, ConfigurationError, minimize_dumped_configuration, \
+    Configurable, FileBasedConfiguration
 from betty.error import ensure_context
 from betty.importlib import import_any
 from betty.locale import bcp_47_to_rfc_1766
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from betty.builtins import _
 
 
-class EntityReference(GenericConfiguration):
+class EntityReference(Configuration):
     def __init__(self, entity_type: Optional[Type[Entity]] = None, entity_id: Optional[str] = None, /, entity_type_constraint: Optional[Type[Entity]] = None):
         super().__init__()
         self._entity_type = entity_type
@@ -103,7 +103,7 @@ class EntityReference(GenericConfiguration):
         return self.entity_type == other.entity_type and self.entity_id == other.entity_id
 
 
-class EntityReferences(GenericConfiguration):
+class EntityReferences(Configuration):
     def __init__(self, entity_references: Optional[List[EntityReference]] = None, /, entity_type_constraint: Optional[Type[Entity]] = None):
         super().__init__()
         self._entity_type_constraint = entity_type_constraint
@@ -161,7 +161,7 @@ class EntityReferences(GenericConfiguration):
 
 @reactive
 class ProjectExtensionConfiguration(ReactiveInstance):
-    def __init__(self, extension_type: Type[Extension], enabled: bool = True, extension_configuration: Optional[GenericConfiguration] = None):
+    def __init__(self, extension_type: Type[Extension], enabled: bool = True, extension_configuration: Optional[Configuration] = None):
         super().__init__()
         self._extension_type = extension_type
         self._enabled = enabled
@@ -199,11 +199,11 @@ class ProjectExtensionConfiguration(ReactiveInstance):
         self._enabled = enabled
 
     @property
-    def extension_configuration(self) -> Optional[GenericConfiguration]:
+    def extension_configuration(self) -> Optional[Configuration]:
         return self._extension_configuration
 
 
-class ProjectExtensionsConfiguration(GenericConfiguration):
+class ProjectExtensionsConfiguration(Configuration):
     def __init__(self, configurations: Optional[Iterable[ProjectExtensionConfiguration]] = None):
         super().__init__()
         self._configurations: Dict[Type[Extension], ProjectExtensionConfiguration] = OrderedDict()
@@ -342,7 +342,7 @@ class LocaleConfiguration:
         return self._alias
 
 
-class LocalesConfiguration(GenericConfiguration):
+class LocalesConfiguration(Configuration):
     def __init__(self, configurations: Optional[Sequence[LocaleConfiguration]] = None):
         super().__init__()
         self._configurations: OrderedDict[str, LocaleConfiguration] = OrderedDict()
@@ -432,7 +432,7 @@ class LocalesConfiguration(GenericConfiguration):
         return dumped_configuration
 
 
-class ThemeConfiguration(GenericConfiguration):
+class ThemeConfiguration(Configuration):
     def __init__(self):
         super().__init__()
         self._background_image = EntityReference(entity_type_constraint=File)
@@ -467,7 +467,7 @@ class ThemeConfiguration(GenericConfiguration):
         })
 
 
-class Configuration(FileBasedConfiguration):
+class ProjectConfiguration(FileBasedConfiguration):
     def __init__(self, base_url: Optional[str] = None):
         super().__init__()
         self._base_url = 'https://example.com' if base_url is None else base_url
@@ -679,10 +679,10 @@ class Configuration(FileBasedConfiguration):
         return minimize_dumped_configuration(dumped_configuration)
 
 
-class Project(Configurable[Configuration]):
+class Project(Configurable[ProjectConfiguration]):
     def __init__(self):
         super().__init__()
-        self._configuration = Configuration()
+        self._configuration = ProjectConfiguration()
         self._ancestry = Ancestry()
 
     @property

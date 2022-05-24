@@ -4,9 +4,9 @@ from parameterized import parameterized
 from reactives.tests import assert_reactor_called, assert_in_scope, assert_scope_empty
 
 from betty.app import Extension, App, ConfigurableExtension
-from betty.config import Configuration as GenericConfiguration, Configurable, ConfigurationError, DumpedConfiguration
+from betty.config import Configuration, Configurable, ConfigurationError, DumpedConfiguration
 from betty.model import Entity, get_entity_type_name
-from betty.project import ProjectExtensionConfiguration, ProjectExtensionsConfiguration, Configuration, \
+from betty.project import ProjectExtensionConfiguration, ProjectExtensionsConfiguration, ProjectConfiguration, \
     LocaleConfiguration, LocalesConfiguration, ThemeConfiguration, EntityReference, EntityReferences
 from betty.tests import TestCase
 from betty.typing import Void
@@ -353,7 +353,7 @@ class _DummyExtension(Extension):
         return 'Dummy'
 
 
-class _DummyConfiguration(GenericConfiguration):
+class _DummyConfiguration(Configuration):
     pass
 
 
@@ -381,7 +381,7 @@ class ProjectExtensionConfigurationTest(TestCase):
             sut.enabled = False
 
     def test_configuration(self) -> None:
-        extension_type_configuration = GenericConfiguration()
+        extension_type_configuration = Configuration()
         sut = ProjectExtensionConfiguration(Extension, True, extension_type_configuration)
         self.assertEqual(extension_type_configuration, sut.extension_configuration)
         with assert_reactor_called(sut):
@@ -390,7 +390,7 @@ class ProjectExtensionConfigurationTest(TestCase):
     @parameterized.expand([
         (True, ProjectExtensionConfiguration(_DummyExtension, True), ProjectExtensionConfiguration(_DummyExtension, True)),
         (True, ProjectExtensionConfiguration(_DummyExtension, True, None), ProjectExtensionConfiguration(_DummyExtension, True, None)),
-        (False, ProjectExtensionConfiguration(_DummyExtension, True, GenericConfiguration()), ProjectExtensionConfiguration(_DummyExtension, True, GenericConfiguration())),
+        (False, ProjectExtensionConfiguration(_DummyExtension, True, Configuration()), ProjectExtensionConfiguration(_DummyExtension, True, Configuration())),
         (False, ProjectExtensionConfiguration(_DummyExtension, True), ProjectExtensionConfiguration(_DummyExtension, False)),
         (False, ProjectExtensionConfiguration(_DummyExtension, True), ProjectExtensionConfiguration(_DummyConfigurableExtension, True)),
     ])
@@ -507,60 +507,60 @@ class ThemeConfigurationTest(TestCase):
 
 class ConfigurationTest(TestCase):
     def test_base_url(self):
-        sut = Configuration()
+        sut = ProjectConfiguration()
         base_url = 'https://example.com'
         sut.base_url = base_url
         self.assertEqual(base_url, sut.base_url)
 
     def test_base_url_without_scheme_should_error(self):
-        sut = Configuration()
+        sut = ProjectConfiguration()
         with App():
             with self.assertRaises(ConfigurationError):
                 sut.base_url = '/'
 
     def test_base_url_without_path_should_error(self):
-        sut = Configuration()
+        sut = ProjectConfiguration()
         with App():
             with self.assertRaises(ConfigurationError):
                 sut.base_url = 'file://'
 
     def test_root_path(self):
-        sut = Configuration()
+        sut = ProjectConfiguration()
         configured_root_path = '/betty/'
         expected_root_path = 'betty'
         sut.root_path = configured_root_path
         self.assertEqual(expected_root_path, sut.root_path)
 
     def test_clean_urls(self):
-        sut = Configuration()
+        sut = ProjectConfiguration()
         clean_urls = True
         sut.clean_urls = clean_urls
         self.assertEqual(clean_urls, sut.clean_urls)
 
     def test_content_negotiation(self):
-        sut = Configuration()
+        sut = ProjectConfiguration()
         content_negotiation = True
         sut.content_negotiation = content_negotiation
         self.assertEqual(content_negotiation, sut.content_negotiation)
 
     def test_clean_urls_implied_by_content_negotiation(self):
-        sut = Configuration()
+        sut = ProjectConfiguration()
         sut.content_negotiation = True
         self.assertTrue(sut.clean_urls)
 
     def test_author_without_author(self):
-        sut = Configuration()
+        sut = ProjectConfiguration()
         self.assertIsNone(sut.author)
 
     def test_author_with_author(self):
-        sut = Configuration()
+        sut = ProjectConfiguration()
         author = 'Bart'
         sut.author = author
         self.assertEqual(author, sut.author)
 
     def test_load_should_load_minimal(self) -> None:
-        dumped_configuration: Any = self.assertIsNotVoid(Configuration().dump())
-        configuration = Configuration()
+        dumped_configuration: Any = self.assertIsNotVoid(ProjectConfiguration().dump())
+        configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
         self.assertEqual(dumped_configuration['base_url'], configuration.base_url)
         self.assertEqual('Betty', configuration.title)
@@ -572,17 +572,17 @@ class ConfigurationTest(TestCase):
 
     def test_load_should_load_title(self) -> None:
         title = 'My first Betty site'
-        dumped_configuration: Any = self.assertIsNotVoid(Configuration().dump())
+        dumped_configuration: Any = self.assertIsNotVoid(ProjectConfiguration().dump())
         dumped_configuration['title'] = title
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
         self.assertEqual(title, configuration.title)
 
     def test_load_should_load_author(self) -> None:
         author = 'Bart'
-        dumped_configuration: Any = self.assertIsNotVoid(Configuration().dump())
+        dumped_configuration: Any = self.assertIsNotVoid(ProjectConfiguration().dump())
         dumped_configuration['author'] = author
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
         self.assertEqual(author, configuration.author)
 
@@ -591,9 +591,9 @@ class ConfigurationTest(TestCase):
         locale_config = {
             'locale': locale,
         }
-        dumped_configuration: Any = self.assertIsNotVoid(Configuration().dump())
+        dumped_configuration: Any = self.assertIsNotVoid(ProjectConfiguration().dump())
         dumped_configuration['locales'] = [locale_config]
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
         self.assertEqual(LocalesConfiguration([LocaleConfiguration(locale)]), configuration.locales)
 
@@ -604,34 +604,34 @@ class ConfigurationTest(TestCase):
             'locale': locale,
             'alias': alias,
         }
-        dumped_configuration: Any = self.assertIsNotVoid(Configuration().dump())
+        dumped_configuration: Any = self.assertIsNotVoid(ProjectConfiguration().dump())
         dumped_configuration['locales'] = [locale_config]
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
         self.assertEqual(LocalesConfiguration([LocaleConfiguration(locale, alias)]), configuration.locales)
 
     def test_load_should_root_path(self) -> None:
         configured_root_path = '/betty/'
         expected_root_path = 'betty'
-        dumped_configuration: Any = self.assertIsNotVoid(Configuration().dump())
+        dumped_configuration: Any = self.assertIsNotVoid(ProjectConfiguration().dump())
         dumped_configuration['root_path'] = configured_root_path
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
         self.assertEqual(expected_root_path, configuration.root_path)
 
     def test_load_should_clean_urls(self) -> None:
         clean_urls = True
-        dumped_configuration: Any = self.assertIsNotVoid(Configuration().dump())
+        dumped_configuration: Any = self.assertIsNotVoid(ProjectConfiguration().dump())
         dumped_configuration['clean_urls'] = clean_urls
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
         self.assertEqual(clean_urls, configuration.clean_urls)
 
     def test_load_should_content_negotiation(self) -> None:
         content_negotiation = True
-        dumped_configuration: Any = self.assertIsNotVoid(Configuration().dump())
+        dumped_configuration: Any = self.assertIsNotVoid(ProjectConfiguration().dump())
         dumped_configuration['content_negotiation'] = content_negotiation
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
         self.assertEqual(content_negotiation, configuration.content_negotiation)
 
@@ -640,14 +640,14 @@ class ConfigurationTest(TestCase):
         (False,),
     ])
     def test_load_should_load_debug(self, debug: bool) -> None:
-        dumped_configuration: Any = self.assertIsNotVoid(Configuration().dump())
+        dumped_configuration: Any = self.assertIsNotVoid(ProjectConfiguration().dump())
         dumped_configuration['debug'] = debug
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
         self.assertEqual(debug, configuration.debug)
 
     def test_load_should_load_one_extension_with_configuration(self) -> None:
-        dumped_configuration: Any = self.assertIsNotVoid(Configuration().dump())
+        dumped_configuration: Any = self.assertIsNotVoid(ProjectConfiguration().dump())
         extension_configuration = {
             'check': 1337,
         }
@@ -656,7 +656,7 @@ class ConfigurationTest(TestCase):
                 'configuration': extension_configuration,
             },
         }
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
         expected = ProjectExtensionsConfiguration([
             ProjectExtensionConfiguration(DummyConfigurableExtension, True, DummyConfigurableExtensionConfiguration(
@@ -666,11 +666,11 @@ class ConfigurationTest(TestCase):
         self.assertEqual(expected, configuration.extensions)
 
     def test_load_should_load_one_extension_without_configuration(self) -> None:
-        dumped_configuration: Any = self.assertIsNotVoid(Configuration().dump())
+        dumped_configuration: Any = self.assertIsNotVoid(ProjectConfiguration().dump())
         dumped_configuration['extensions'] = {
             DummyNonConfigurableExtension.name(): {},
         }
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
         expected = ProjectExtensionsConfiguration([
             ProjectExtensionConfiguration(DummyNonConfigurableExtension, True),
@@ -678,41 +678,41 @@ class ConfigurationTest(TestCase):
         self.assertEqual(expected, configuration.extensions)
 
     def test_load_extension_with_invalid_configuration_should_raise_error(self):
-        dumped_configuration: Any = self.assertIsNotVoid(Configuration().dump())
+        dumped_configuration: Any = self.assertIsNotVoid(ProjectConfiguration().dump())
         dumped_configuration['extensions'] = {
             DummyConfigurableExtension.name(): 1337,
         }
         with App():
             with self.assertRaises(ConfigurationError):
-                configuration = Configuration()
+                configuration = ProjectConfiguration()
                 configuration.load(dumped_configuration)
 
     def test_load_unknown_extension_type_name_should_error(self):
-        dumped_configuration: Any = self.assertIsNotVoid(Configuration().dump())
+        dumped_configuration: Any = self.assertIsNotVoid(ProjectConfiguration().dump())
         dumped_configuration['extensions'] = {
             'non.existent.type': None,
         }
         with self.assertRaises(ConfigurationError):
-            configuration = Configuration()
+            configuration = ProjectConfiguration()
             configuration.load(dumped_configuration)
 
     def test_load_not_an_extension_type_name_should_error(self):
-        dumped_configuration: Any = self.assertIsNotVoid(Configuration().dump())
+        dumped_configuration: Any = self.assertIsNotVoid(ProjectConfiguration().dump())
         dumped_configuration['extensions'] = {
             '%s.%s' % (self.__class__.__module__, self.__class__.__name__): None,
         }
         with App():
             with self.assertRaises(ConfigurationError):
-                configuration = Configuration()
+                configuration = ProjectConfiguration()
                 configuration.load(dumped_configuration)
 
     def test_load_should_load_theme_background_image_id(self) -> None:
         background_image_id = 'my-favorite-picture'
-        dumped_configuration: Any = self.assertIsNotVoid(Configuration().dump())
+        dumped_configuration: Any = self.assertIsNotVoid(ProjectConfiguration().dump())
         dumped_configuration['theme'] = {
             'background_image_id': background_image_id
         }
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
         self.assertEqual(background_image_id, configuration.theme.background_image.entity_id)
 
@@ -720,11 +720,11 @@ class ConfigurationTest(TestCase):
         dumped_configuration: Dict = {}
         with App():
             with self.assertRaises(ConfigurationError):
-                configuration = Configuration()
+                configuration = ProjectConfiguration()
                 configuration.load(dumped_configuration)
 
     def test_dump_should_dump_minimal(self) -> None:
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         dumped_configuration: Any = self.assertIsNotVoid(configuration.dump())
         self.assertEqual(dumped_configuration['base_url'], configuration.base_url)
         self.assertEqual('Betty', configuration.title)
@@ -736,14 +736,14 @@ class ConfigurationTest(TestCase):
 
     def test_dump_should_dump_title(self) -> None:
         title = 'My first Betty site'
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.title = title
         dumped_configuration: Any = self.assertIsNotVoid(configuration.dump())
         self.assertEqual(title, dumped_configuration['title'])
 
     def test_dump_should_dump_author(self) -> None:
         author = 'Bart'
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.author = author
         dumped_configuration: Any = self.assertIsNotVoid(configuration.dump())
         self.assertEqual(author, dumped_configuration['author'])
@@ -751,7 +751,7 @@ class ConfigurationTest(TestCase):
     def test_dump_should_dump_locale_locale(self) -> None:
         locale = 'nl-NL'
         locale_configuration = LocaleConfiguration(locale)
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.locales.replace([locale_configuration])
         dumped_configuration: Any = self.assertIsNotVoid(configuration.dump())
         self.assertListEqual([
@@ -764,7 +764,7 @@ class ConfigurationTest(TestCase):
         locale = 'nl-NL'
         alias = 'nl'
         locale_configuration = LocaleConfiguration(locale, alias)
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.locales.replace([locale_configuration])
         dumped_configuration: Any = self.assertIsNotVoid(configuration.dump())
         self.assertListEqual([
@@ -776,21 +776,21 @@ class ConfigurationTest(TestCase):
 
     def test_dump_should_dump_root_path(self) -> None:
         root_path = 'betty'
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.root_path = root_path
         dumped_configuration: Any = self.assertIsNotVoid(configuration.dump())
         self.assertEqual(root_path, dumped_configuration['root_path'])
 
     def test_dump_should_dump_clean_urls(self) -> None:
         clean_urls = True
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.clean_urls = clean_urls
         dumped_configuration: Any = self.assertIsNotVoid(configuration.dump())
         self.assertEqual(clean_urls, dumped_configuration['clean_urls'])
 
     def test_dump_should_dump_content_negotiation(self) -> None:
         content_negotiation = True
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.content_negotiation = content_negotiation
         dumped_configuration: Any = self.assertIsNotVoid(configuration.dump())
         self.assertEqual(content_negotiation, dumped_configuration['content_negotiation'])
@@ -800,13 +800,13 @@ class ConfigurationTest(TestCase):
         (False,),
     ])
     def test_dump_should_dump_debug(self, debug: bool) -> None:
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.debug = debug
         dumped_configuration: Any = self.assertIsNotVoid(configuration.dump())
         self.assertEqual(debug, dumped_configuration['debug'])
 
     def test_dump_should_dump_one_extension_with_configuration(self) -> None:
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.extensions.add(ProjectExtensionConfiguration(DummyConfigurableExtension, True, DummyConfigurableExtensionConfiguration(
             check=1337,
         )))
@@ -822,7 +822,7 @@ class ConfigurationTest(TestCase):
         self.assertEqual(expected, dumped_configuration['extensions'])
 
     def test_dump_should_dump_one_extension_without_configuration(self) -> None:
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.extensions.add(ProjectExtensionConfiguration(DummyNonConfigurableExtension))
         dumped_configuration: Any = self.assertIsNotVoid(configuration.dump())
         expected = {
@@ -836,12 +836,12 @@ class ConfigurationTest(TestCase):
         dumped_configuration: Dict = {}
         with App():
             with self.assertRaises(ConfigurationError):
-                configuration = Configuration()
+                configuration = ProjectConfiguration()
                 configuration.load(dumped_configuration)
 
     def test_dump_should_dump_theme_background_image(self) -> None:
         background_image_id = 'my-favorite-picture'
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.theme.background_image.entity_id = background_image_id
         dumped_configuration: Any = self.assertIsNotVoid(configuration.dump())
         self.assertEqual(background_image_id, dumped_configuration['theme']['background_image_id'])
@@ -851,13 +851,13 @@ class DummyNonConfigurableExtension(Extension):
     pass  # pragma: no cover
 
 
-class DummyConfigurableExtensionConfiguration(GenericConfiguration):
+class DummyConfigurableExtensionConfiguration(Configuration):
     def __init__(self, check):
         super().__init__()
         self.check = check
 
     @classmethod
-    def default(cls) -> GenericConfiguration:
+    def default(cls) -> Configuration:
         return cls(False)
 
     def __eq__(self, other):

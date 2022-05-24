@@ -40,7 +40,7 @@ from betty.model import Entity, get_entity_type_name, GeneratedEntityId
 from betty.model.ancestry import File, Citation, HasLinks, HasFiles, Subject, Witness, Dated
 from betty.os import link_or_copy, PathLike
 from betty.path import rootname
-from betty.project import Configuration
+from betty.project import ProjectConfiguration
 from betty.render import Renderer
 from betty.search import Index
 from betty.string import camel_case_to_snake_case, camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
@@ -223,7 +223,7 @@ Template.environment_class = Environment
 
 
 class Jinja2Renderer(Renderer):
-    def __init__(self, environment: Environment, configuration: Configuration):
+    def __init__(self, environment: Environment, configuration: ProjectConfiguration):
         self._environment = environment
         self._configuration = configuration
 

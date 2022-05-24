@@ -16,7 +16,7 @@ from betty.gui.serve import ServeDemoWindow
 from betty.gui.text import Text
 from betty.gui.locale import TranslationsLocaleCollector
 from betty.importlib import import_any
-from betty.project import Configuration
+from betty.project import ProjectConfiguration
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -127,7 +127,7 @@ class BettyMainWindow(BettyWindow):
         )
         if not configuration_file_path:
             return
-        configuration = Configuration()
+        configuration = ProjectConfiguration()
         configuration.write(configuration_file_path)
         project_window = ProjectWindow(self._app)
         project_window.show()
