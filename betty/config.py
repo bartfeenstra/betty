@@ -171,7 +171,7 @@ class FileBasedConfiguration(Configuration):
 class Configurable(Generic[ConfigurationT]):
     def __init__(self, /, configuration: Optional[ConfigurationT] = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._configuration = configuration
+        self._configuration: ConfigurationT = configuration
 
     @property
     def configuration(self) -> ConfigurationT:
