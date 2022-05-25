@@ -144,7 +144,7 @@ async def _generate_entity_type_list_html(www_directory_path: Path, entities: It
     entity_type_path = www_directory_path / entity_type_name
     with suppress(TemplateNotFound):
         template = environment.negotiate_template([
-            f'entity/page-list-{entity_type_name}.html.j2',
+            f'entity/page-list--{entity_type_name}.html.j2',
             'entity/page-list.html.j2',
         ])
         rendered_html = template.render({
@@ -178,7 +178,7 @@ async def _generate_entity(www_directory_path: Path, entity: Any, entity_type_na
 async def _generate_entity_html(www_directory_path: Path, entity: Any, entity_type_name: str, environment: Environment) -> None:
     entity_path = www_directory_path / entity_type_name / entity.id
     rendered_html = environment.negotiate_template([
-        f'entity/page-{entity_type_name}.html.j2',
+        f'entity/page--{entity_type_name}.html.j2',
         'entity/page.html.j2',
     ]).render({
         'page_resource': entity,

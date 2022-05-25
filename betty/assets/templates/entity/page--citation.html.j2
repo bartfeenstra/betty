@@ -2,7 +2,7 @@
 {% set page_title = entity.location %}
 {% block page_content %}
     <div class="meta">
-    {% include ['entity/meta-citation.html.j2', 'entity/meta.html.j2'] ignore missing %}
+    {% include ['entity/meta--citation.html.j2', 'entity/meta.html.j2'] ignore missing %}
     </div>
     {% set files = entity.files %}
     {% if files | length > 0 %}
@@ -14,7 +14,7 @@
                 {% endwith %}
             </h2>
             {% with entities = files %}
-                {% include 'entity/list-file.html.j2' %}
+                {% include 'entity/list--file.html.j2' %}
             {% endwith %}
         </section>
     {% endif %}
@@ -31,8 +31,8 @@
                 {% for fact in facts %}
                     <li class="{{ loop.cycle('odd', 'even') }}">
                         {% with entity=fact, citation_context=entity %}
-                        {% include ['entity/label-' + (entity.entity_type() | entity_type_name | camel_case_to_snake_case) + '.html.j2', 'entity/label.html.j2'] %}
-                        {% include ['entity/meta-' + (entity.entity_type() | entity_type_name | camel_case_to_snake_case) + '.html.j2', 'entity/meta.html.j2'] ignore missing %}
+                        {% include ['entity/label--' + (entity.entity_type() | entity_type_name | camel_case_to_kebab_case) + '.html.j2', 'entity/label.html.j2'] %}
+                        {% include ['entity/meta--' + (entity.entity_type() | entity_type_name | camel_case_to_kebab_case) + '.html.j2', 'entity/meta.html.j2'] ignore missing %}
                         {% endwith %}
                     </li>
                 {% endfor %}

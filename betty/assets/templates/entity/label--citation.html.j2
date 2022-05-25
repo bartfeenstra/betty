@@ -5,7 +5,7 @@
         {%- if entity.source.author -%}
             <span class="citation-author">{{ entity.source.author }}</span>
         {%- endif %}
-        <span class="citation-title">{% with entity=entity.source %}{% include ['entity/label-source.html.j2', 'entity/label.html.j2'] %}{% endwith %}</span>
+        <span class="citation-title">{% with entity=entity.source %}{% include ['entity/label--source.html.j2', 'entity/label.html.j2'] %}{% endwith %}</span>
         {%- if entity.source.publisher -%}
             <span class="citation-publisher">{{ entity.source.publisher }}</span>
         {%- endif -%}

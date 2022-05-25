@@ -5,7 +5,7 @@ from betty.tests import TemplateTestCase
 
 
 class Test(TemplateTestCase):
-    template_file = 'entity/meta-person.html.j2'
+    template_file = 'entity/meta--person.html.j2'
 
     def test_without_meta(self):
         person = Person('P0')

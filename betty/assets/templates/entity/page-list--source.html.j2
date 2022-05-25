@@ -6,7 +6,7 @@
             {% for source in entities | sort(attribute='name') %}
                 <li class="{{ loop.cycle('odd', 'even') }}">
                     {% with entity = source %}
-                        {% include ['entity/label-source.html.j2', 'entity/label.html.j2'] %}
+                        {% include ['entity/label--source.html.j2', 'entity/label.html.j2'] %}
                     {% endwith %}
                 </li>
             {% endfor %}

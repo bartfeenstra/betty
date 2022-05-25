@@ -4,7 +4,7 @@
     {%- set enclosure = entity.enclosed_by | negotiate_dateds(date_context | default(none)) -%}
     {%- if enclosure is not none and (place_context is none or place_context != enclosure.enclosed_by) -%}
         {%- with entity=enclosure.enclosed_by -%}
-            {%- include ['entity/label-place.html.j2', 'entity/label.html.j2'] -%}
+            {%- include ['entity/label--place.html.j2', 'entity/label.html.j2'] -%}
         {%- endwith -%}
         {%- set place_label = _enclosed_by_place_label(enclosure.enclosed_by) -%}
         {%- if place_label -%}

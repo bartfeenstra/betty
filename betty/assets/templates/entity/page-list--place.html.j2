@@ -3,7 +3,7 @@
 {% block page_content %}
     {% if entities | length > 0 %}
         {% with canonical=True %}
-            {% include 'entity/list-place.html.j2' %}
+            {% include 'entity/list--place.html.j2' %}
         {% endwith %}
     {% else %}
         <p>{% trans %}I'm sorry, dear, but it seems there are no places.{% endtrans %}</p>

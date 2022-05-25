@@ -1,14 +1,14 @@
 <div class="featured-entity-intro">
     <h2>
         {% include [
-            'entity/label-place.html.j2',
+            'entity/label--place.html.j2',
             'entity/label.html.j2',
         ] %}
     </h2>
     <a href="{{ entity | url }}">
         {% with embedded = True %}
             {% include [
-                'entity/meta-place.html.j2',
+                'entity/meta--place.html.j2',
                 'entity/meta.html.j2',
             ] ignore missing %}
         {% endwith %}
@@ -17,6 +17,6 @@
 
 <div class="featured-entity-feature">
     {% with entities = [entity], map_hides_list = True, featured = False %}
-        {% include ['entity/list-place.html.j2', 'entity/list.html.j2'] %}
+        {% include ['entity/list--place.html.j2', 'entity/list.html.j2'] %}
     {% endwith %}
 </div>

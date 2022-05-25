@@ -1,7 +1,7 @@
 {%- set embedded = embedded | default(False) -%}
 {%- set person_context = person_context | default(None) -%}
 {%- macro person_label(entity) -%}
-    {% include ['entity/label-person.html.j2', 'entity/label.html.j2'] %}
+    {% include ['entity/label--person.html.j2', 'entity/label.html.j2'] %}
 {%- endmacro -%}
 {%- set formatted_event = entity.type.label -%}
 {%- if entity is not has_generated_entity_id and not embedded -%}

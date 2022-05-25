@@ -2,7 +2,7 @@
 {% for person in app.project.ancestry.entities['Person'] %}
     {% set person_label %}
         {% with embedded = True, entity = person %}
-            {% include ['entity/label-person.html.j2', 'entity/label.html.j2'] %}
+            {% include ['entity/label--person.html.j2', 'entity/label.html.j2'] %}
         {% endwith %}
     {% endset %}
     {% do ns.people.update({
