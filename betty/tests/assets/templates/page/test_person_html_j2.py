@@ -3,7 +3,7 @@ from betty.tests import TemplateTestCase
 
 
 class TestDescendantNames(TemplateTestCase):
-    template_file = 'entity/page-person.html.j2'
+    template_file = 'entity/page--person.html.j2'
 
     def test_without_enclosing_places(self):
         person = Person('P0')

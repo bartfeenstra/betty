@@ -3,7 +3,7 @@ from betty.tests import TemplateTestCase
 
 
 class Test(TemplateTestCase):
-    template_file = 'entity/meta-place.html.j2'
+    template_file = 'entity/meta--place.html.j2'
 
     def test_without_enclosing_places(self):
         place = Place('P0', [PlaceName('The Place')])

@@ -4,8 +4,8 @@
     <ul class="entities">
         {% for entity in dated_events %}
             <li class="{{ loop.cycle('odd', 'even') }}">
-                {% include ['entity/label-event.html.j2', 'entity/label.html.j2'] %}
-                {% include ['entity/meta-event.html.j2', 'entity/meta.html.j2'] ignore missing %}
+                {% include ['entity/label--event.html.j2', 'entity/label.html.j2'] %}
+                {% include ['entity/meta--event.html.j2', 'entity/meta.html.j2'] ignore missing %}
             </li>
         {% endfor %}
     </ul>

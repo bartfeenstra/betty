@@ -3,7 +3,7 @@ from betty.tests import TemplateTestCase
 
 
 class Test(TemplateTestCase):
-    template_file = 'entity/label-person.html.j2'
+    template_file = 'entity/label--person.html.j2'
 
     def test_with_name(self):
         person = Person('P0')

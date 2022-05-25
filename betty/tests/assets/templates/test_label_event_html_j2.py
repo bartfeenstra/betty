@@ -4,7 +4,7 @@ from betty.tests import TemplateTestCase
 
 
 class Test(TemplateTestCase):
-    template_file = 'entity/label-event.html.j2'
+    template_file = 'entity/label--event.html.j2'
 
     def test_minimal(self):
         event = Event(None, Birth())

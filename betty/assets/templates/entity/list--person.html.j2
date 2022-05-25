@@ -5,9 +5,9 @@
             {% if group_by_affiliation is defined and group_by_affiliation %}
                 {{ person_macros.sortable_label(entity) }}
             {% else %}
-                {% include ['entity/label-person.html.j2', 'entity/label.html.j2'] %}
+                {% include ['entity/label--person.html.j2', 'entity/label.html.j2'] %}
             {% endif %}
-            {% include ['entity/meta-person.html.j2', 'entity/meta.html.j2'] ignore missing %}
+            {% include ['entity/meta--person.html.j2', 'entity/meta.html.j2'] ignore missing %}
         </li>
     {%- endfor -%}
 </ul>

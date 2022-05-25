@@ -1,11 +1,11 @@
 {% extends 'base.html.j2' %}
 {% set page_title %}
     {% with embedded=True %}
-        {% include ['entity/label-person.html.j2', 'entity/label.html.j2'] %}
+        {% include ['entity/label--person.html.j2', 'entity/label.html.j2'] %}
     {% endwith %}
 {% endset %}
 {% block page_content %}
-    {% include ['entity/meta-person.html.j2', 'entity/meta.html.j2'] ignore missing %}
+    {% include ['entity/meta--person.html.j2', 'entity/meta.html.j2'] ignore missing %}
 
     {% set places = entity.presences | map(attribute='event.place') | reject('equalto', None) | list | unique | list %}
     {% if places | length > 0 %}
@@ -17,7 +17,7 @@
                 {% endwith %}
             </h2>
             {% with map_hides_list = true, entities = places %}
-                {% include ['entity/list-place.html.j2', 'entity/list.html.j2'] %}
+                {% include ['entity/list--place.html.j2', 'entity/list.html.j2'] %}
             {% endwith %}
         </section>
     {% endif %}
@@ -57,7 +57,7 @@
                             <p>
                                 {% if parents | length > 0 %}
                                     {% macro parent_label(parent) -%}
-                                        <span typeof="foaf:Person" property="rel:childOf">{% with entity=parent, person_context=entity %}{% include ['entity/label-person.html.j2', 'entity/label.html.j2'] %}{% endwith %}</span>
+                                        <span typeof="foaf:Person" property="rel:childOf">{% with entity=parent, person_context=entity %}{% include ['entity/label--person.html.j2', 'entity/label.html.j2'] %}{% endwith %}</span>
                                     {%- endmacro %}
                                     {% if entity.name and entity.name.individual %}
                                         {% trans person_individual_name = entity.name.individual, parent_labels = parents | map(parent_label) | join(', ') %}{{ person_individual_name }} is the child of {{ parent_labels }}.{% endtrans %}
@@ -96,7 +96,7 @@
                     {% if siblings | length > 0 %}
                         <div class="family-breakdown">
                             {% with entities=siblings, type_of='foaf:Person', property='rel:siblingOf' %}
-                                {% include ['entity/list-person.html.j2', 'entity/list.html.j2'] %}
+                                {% include ['entity/list--person.html.j2', 'entity/list.html.j2'] %}
                             {% endwith %}
                         </div>
                     {% endif %}
@@ -105,7 +105,7 @@
 
             {% if children | length > 0 %}
                 {% macro co_parent_label(parent) -%}
-                    <span typeof="foaf:Person" property="rel:spouseOf">{% with entity=parent, person_context=entity %}{% include ['entity/label-person.html.j2', 'entity/label.html.j2'] %}{% endwith %}</span>
+                    <span typeof="foaf:Person" property="rel:spouseOf">{% with entity=parent, person_context=entity %}{% include ['entity/label--person.html.j2', 'entity/label.html.j2'] %}{% endwith %}</span>
                 {%- endmacro %}
                 {% for parents, per_parent_children in children | groupby('parents.list') %}
                     <div class="family">
@@ -164,7 +164,7 @@
                         </div>
                         {% with entities=per_parent_children, type_of='foaf:Person', property='rel:parentOf' %}
                             <div class="family-breakdown">
-                                {% include ['entity/list-person.html.j2', 'entity/list.html.j2'] %}
+                                {% include ['entity/list--person.html.j2', 'entity/list.html.j2'] %}
                             </div>
                         {% endwith %}
                     </div>
@@ -206,7 +206,7 @@
                 {% endwith %}
             </h2>
             {% with person_context = entity, entities = events %}
-                {% include ['entity/list-event.html.j2', 'entity/list.html.j2'] %}
+                {% include ['entity/list--event.html.j2', 'entity/list.html.j2'] %}
             {% endwith %}
         </section>
     {% endif %}
@@ -221,7 +221,7 @@
                 {% endwith %}
             </h2>
             {% with entities = files %}
-                {% include ['entity/list-file.html.j2', 'entity/list.html.j2'] %}
+                {% include ['entity/list--file.html.j2', 'entity/list.html.j2'] %}
             {% endwith %}
         </section>
     {% endif %}
