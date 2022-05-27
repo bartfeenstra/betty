@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from textwrap import indent
 from typing import Optional, Iterable, TYPE_CHECKING
 
@@ -102,10 +103,11 @@ class RequirementError(RuntimeError, UserFacingError):
         return self._requirement
 
 
-class Requirer:
+class Requirer(ABC):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     @classmethod
+    @abstractmethod
     def requires(cls) -> Requirement:
         raise NotImplementedError

@@ -13,7 +13,7 @@ class Test(TemplateTestCase):
         with self._render(data={
             'event': event,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_with_date(self):
         event = Event(None, Birth())
@@ -22,7 +22,7 @@ class Test(TemplateTestCase):
         with self._render(data={
             'event': event,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_with_place(self):
         event = Event(None, Birth())
@@ -31,7 +31,7 @@ class Test(TemplateTestCase):
         with self._render(data={
             'event': event,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_with_place_is_place_context(self):
         event = Event(None, Birth())
@@ -42,7 +42,7 @@ class Test(TemplateTestCase):
             'event': event,
             'place_context': place,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_with_date_and_place(self):
         event = Event(None, Birth())
@@ -52,7 +52,7 @@ class Test(TemplateTestCase):
         with self._render(data={
             'event': event,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_with_citation(self):
         event = Event(None, Birth())
@@ -61,7 +61,7 @@ class Test(TemplateTestCase):
         with self._render(data={
             'event': event,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_embedded(self):
         event = Event(None, Birth())
@@ -73,4 +73,4 @@ class Test(TemplateTestCase):
             'event': event,
             'embedded': True,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual

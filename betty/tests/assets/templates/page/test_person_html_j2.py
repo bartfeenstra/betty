@@ -22,5 +22,5 @@ class TestDescendantNames(TemplateTestCase):
             'entity_type_name': 'person',
             'entity': person,
         }) as (actual, _):
-            self.assertIn('Descendant names include FamilyOneAssociationName.', actual)
-            self.assertIn('Descendant names include FamilyTwoAssociationName.', actual)
+            assert 'Descendant names include FamilyOneAssociationName.' in actual
+            assert 'Descendant names include FamilyTwoAssociationName.' in actual

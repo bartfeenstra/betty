@@ -4,295 +4,315 @@ from tempfile import NamedTemporaryFile
 from typing import Any
 from unittest.mock import Mock
 
+import pytest
 from geopy import Point
-from parameterized import parameterized
 
 from betty.locale import Date, Translations
 from betty.media_type import MediaType
+from betty.model import Entity
 from betty.model.ancestry import Person, Event, Place, File, Note, Presence, PlaceName, PersonName, Subject, \
     Enclosure, Described, Dated, HasPrivacy, HasMediaType, Link, HasLinks, HasNotes, HasFiles, Source, Citation, \
     HasCitations, PresenceRole, Attendee, Beneficiary, Witness, EventType
 from betty.model.event_type import Burial, Birth
-from betty.tests import TestCase
 
 
-class HasPrivacyTest(TestCase):
+class TestHasPrivacy:
     def test_date(self) -> None:
-        sut = HasPrivacy()
-        self.assertIsNone(sut.private)
+        class _HasPrivacy(HasPrivacy):
+            pass
+        sut = _HasPrivacy()
+        assert sut.private is None
 
 
-class DatedTest(TestCase):
+class TestDated:
     def test_date(self) -> None:
-        sut = Dated()
-        self.assertIsNone(sut.date)
+        class _Dated(Dated):
+            pass
+        sut = _Dated()
+        assert sut.date is None
 
 
-class NoteTest(TestCase):
+class TestNote:
     def test_id(self) -> None:
         note_id = 'N1'
         sut = Note(note_id, 'Betty wrote this.')
-        self.assertEqual(note_id, sut.id)
+        assert note_id == sut.id
 
     def test_text(self) -> None:
         text = 'Betty wrote this.'
         sut = Note('N1', text)
-        self.assertEqual(text, sut.text)
+        assert text == sut.text
 
 
-class HasNotesTest(TestCase):
+class TestHasNotes:
     def test_notes(self) -> None:
-        sut = HasNotes()
-        self.assertSequenceEqual([], sut.notes)
+        class _HasNotes(HasNotes):
+            pass
+        sut = _HasNotes()
+        assert [] == list(sut.notes)
 
 
-class DescribedTest(TestCase):
+class TestDescribed:
     def test_description(self) -> None:
-        sut = Described()
-        self.assertIsNone(sut.description)
+        class _Described(Described):
+            pass
+        sut = _Described()
+        assert sut.description is None
 
 
-class HasMediaTypeTest(TestCase):
+class TestHasMediaType:
     def test_media_type(self) -> None:
-        sut = HasMediaType()
-        self.assertIsNone(sut.media_type)
+        class _HasMediaType(HasMediaType):
+            pass
+        sut = _HasMediaType()
+        assert sut.media_type is None
 
 
-class LinkTest(TestCase):
+class TestLink:
     def test_url(self) -> None:
         url = 'https://example.com'
         sut = Link(url)
-        self.assertEqual(url, sut.url)
+        assert url == sut.url
 
     def test_media_type(self) -> None:
         url = 'https://example.com'
         sut = Link(url)
-        self.assertIsNone(sut.media_type)
+        assert sut.media_type is None
 
     def test_locale(self) -> None:
         url = 'https://example.com'
         sut = Link(url)
-        self.assertIsNone(sut.locale)
+        assert sut.locale is None
 
     def test_description(self) -> None:
         url = 'https://example.com'
         sut = Link(url)
-        self.assertIsNone(sut.description)
+        assert sut.description is None
 
     def test_relationship(self) -> None:
         url = 'https://example.com'
         sut = Link(url)
-        self.assertIsNone(sut.relationship)
+        assert sut.relationship is None
 
     def test_label(self) -> None:
         url = 'https://example.com'
         sut = Link(url)
-        self.assertIsNone(sut.label)
+        assert sut.label is None
 
 
-class HasLinksTest(TestCase):
+class TestHasLinks:
     def test_links(self) -> None:
-        sut = HasLinks()
-        self.assertEqual(set(), sut.links)
+        class _HasLinks(HasLinks):
+            pass
+        sut = _HasLinks()
+        assert set() == sut.links
 
 
-class FileTest(TestCase):
+class _HasFiles(HasFiles, Entity):
+    pass
+
+
+class TestFile:
     def test_id(self) -> None:
         file_id = 'BETTY01'
         file_path = Path('~')
         sut = File(file_id, file_path)
-        self.assertEqual(file_id, sut.id)
+        assert file_id == sut.id
 
     def test_private(self) -> None:
         file_id = 'BETTY01'
         file_path = Path('~')
         sut = File(file_id, file_path)
-        self.assertIsNone(sut.private)
+        assert sut.private is None
         private = True
         sut.private = private
-        self.assertEqual(private, sut.private)
+        assert private == sut.private
 
     def test_media_type(self) -> None:
         file_id = 'BETTY01'
         file_path = Path('~')
         sut = File(file_id, file_path)
-        self.assertIsNone(sut.media_type)
+        assert sut.media_type is None
         media_type = MediaType('text/plain')
         sut.media_type = media_type
-        self.assertEqual(media_type, sut.media_type)
+        assert media_type == sut.media_type
 
     def test_path_with_path(self) -> None:
         with NamedTemporaryFile() as f:
             file_id = 'BETTY01'
             file_path = Path(f.name)
             sut = File(file_id, file_path)
-            self.assertEqual(file_path, sut.path)
+            assert file_path == sut.path
 
     def test_path_with_str(self) -> None:
         with NamedTemporaryFile() as f:
             file_id = 'BETTY01'
             sut = File(file_id, f.name)
-            self.assertEqual(Path(f.name), sut.path)
+            assert Path(f.name) == sut.path
 
     def test_description(self) -> None:
         file_id = 'BETTY01'
         file_path = Path('~')
         sut = File(file_id, file_path)
-        self.assertIsNone(sut.description)
+        assert sut.description is None
         description = 'Hi, my name is Betty!'
         sut.description = description
-        self.assertEqual(description, sut.description)
+        assert description == sut.description
 
     def test_notes(self) -> None:
         file_id = 'BETTY01'
         file_path = Path('~')
         sut = File(file_id, file_path)
-        self.assertCountEqual([], sut.notes)
+        assert [] == list(sut.notes)
         notes = [Mock(Note), Mock(Note)]
-        sut.notes = notes
-        self.assertCountEqual(notes, sut.notes)
+        sut.notes = notes  # type: ignore
+        assert notes == list(sut.notes)
 
     def test_entities(self) -> None:
         file_id = 'BETTY01'
         file_path = Path('~')
         sut = File(file_id, file_path)
-        self.assertCountEqual([], sut.entities)
+        assert [] == list(sut.entities)
 
-        entities = [HasFiles(), HasFiles()]
-        sut.entities = entities
-        self.assertCountEqual(entities, sut.entities)
+        entities = [_HasFiles(), _HasFiles()]
+        sut.entities = entities  # type: ignore
+        assert entities == list(sut.entities)
 
     def test_citations(self) -> None:
         file_id = 'BETTY01'
         file_path = Path('~')
         sut = File(file_id, file_path)
-        self.assertCountEqual([], sut.citations)
+        assert [] == list(sut.citations)
 
 
-class HasFilesTest(TestCase):
+class TestHasFiles:
     def test_files(self) -> None:
-        sut = HasFiles()
-        self.assertCountEqual([], sut.files)
+        sut = _HasFiles()
+        assert [] == list(sut.files)
         files = [Mock(File), Mock(File)]
-        sut.files = files
-        self.assertCountEqual(files, sut.files)
+        sut.files = files  # type: ignore
+        assert files == list(sut.files)
 
 
-class SourceTest(TestCase):
+class TestSource:
     def test_id(self) -> None:
         source_id = 'S1'
         sut = Source(source_id)
-        self.assertEqual(source_id, sut.id)
+        assert source_id == sut.id
 
     def test_name(self) -> None:
         name = 'The Source'
         sut = Source(None, name)
-        self.assertEqual(name, sut.name)
+        assert name == sut.name
 
     def test_contained_by(self) -> None:
         contained_by_source = Source(None)
         sut = Source(None)
-        self.assertIsNone(sut.contained_by)
+        assert sut.contained_by is None
         sut.contained_by = contained_by_source
-        self.assertEqual(contained_by_source, sut.contained_by)
+        assert contained_by_source == sut.contained_by
 
     def test_contains(self) -> None:
         contains_source = Source(None)
         sut = Source(None)
-        self.assertCountEqual([], sut.contains)
-        sut.contains = [contains_source]
-        self.assertCountEqual([contains_source], sut.contains)
+        assert [] == list(sut.contains)
+        sut.contains = [contains_source]  # type: ignore
+        assert [contains_source] == list(sut.contains)
 
     def test_citations(self) -> None:
         sut = Source(None)
-        self.assertCountEqual([], sut.citations)
+        assert [] == list(sut.citations)
 
     def test_author(self) -> None:
         sut = Source(None)
-        self.assertIsNone(sut.author)
+        assert sut.author is None
         author = 'Me'
         sut.author = author
-        self.assertEqual(author, sut.author)
+        assert author == sut.author
 
     def test_publisher(self) -> None:
         sut = Source(None)
-        self.assertIsNone(sut.publisher)
+        assert sut.publisher is None
         publisher = 'Me'
         sut.publisher = publisher
-        self.assertEqual(publisher, sut.publisher)
+        assert publisher == sut.publisher
 
     def test_date(self) -> None:
         sut = Source(None)
-        self.assertIsNone(sut.date)
+        assert sut.date is None
 
     def test_files(self) -> None:
         sut = Source(None)
-        self.assertCountEqual([], sut.files)
+        assert [] == list(sut.files)
 
     def test_links(self) -> None:
         sut = Source(None)
-        self.assertCountEqual([], sut.links)
+        assert [] == list(sut.links)
 
     def test_private(self) -> None:
         sut = Source(None)
-        self.assertIsNone(sut.private)
+        assert sut.private is None
         private = True
         sut.private = private
-        self.assertEqual(private, sut.private)
+        assert private == sut.private
 
 
-class CitationTest(TestCase):
+class _HasCitations(HasCitations, Entity):
+    pass
+
+
+class TestCitation:
     def test_id(self) -> None:
         citation_id = 'C1'
         sut = Citation(citation_id, Mock(Source))
-        self.assertEqual(citation_id, sut.id)
+        assert citation_id == sut.id
 
     def test_facts(self) -> None:
-        fact = HasCitations()
+        fact = _HasCitations()
         sut = Citation(None, Mock(Source))
-        self.assertCountEqual([], sut.facts)
-        sut.facts = [fact]
-        self.assertCountEqual([fact], sut.facts)
+        assert [] == list(sut.facts)
+        sut.facts = [fact]  # type: ignore
+        assert [fact] == list(sut.facts)
 
     def test_source(self) -> None:
         source = Mock(Source)
         sut = Citation(None, source)
-        self.assertEqual(source, sut.source)
+        assert source == sut.source
 
     def test_location(self) -> None:
         sut = Citation(None, Mock(Source))
-        self.assertIsNone(sut.location)
+        assert sut.location is None
         location = 'Somewhere'
         sut.location = location
-        self.assertEqual(location, sut.location)
+        assert location == sut.location
 
     def test_date(self) -> None:
         sut = Citation(None, Mock(Source))
-        self.assertIsNone(sut.date)
+        assert sut.date is None
 
     def test_files(self) -> None:
         sut = Citation(None, Mock(Source))
-        self.assertCountEqual([], sut.files)
+        assert [] == list(sut.files)
 
     def test_private(self) -> None:
         sut = Citation(None, Mock(Source))
-        self.assertIsNone(sut.private)
+        assert sut.private is None
         private = True
         sut.private = private
-        self.assertEqual(private, sut.private)
+        assert private == sut.private
 
 
-class HasCitationsTest(TestCase):
+class TestHasCitations:
     def test_citations(self) -> None:
-        sut = HasCitations()
-        self.assertCountEqual([], sut.citations)
+        sut = _HasCitations()
+        assert [] == list(sut.citations)
         citation = Mock(Citation)
-        sut.citations = [citation]
-        self.assertCountEqual([citation], sut.citations)
+        sut.citations = [citation]  # type: ignore
+        assert [citation] == list(sut.citations)
 
 
-class PlaceNameTest(TestCase):
-    @parameterized.expand([
+class TestPlaceName:
+    @pytest.mark.parametrize('expected, a, b', [
         (True, PlaceName('Ikke'), PlaceName('Ikke')),
         (True, PlaceName('Ikke', 'nl-NL'), PlaceName('Ikke', 'nl-NL')),
         (False, PlaceName('Ikke', 'nl-NL'), PlaceName('Ikke', 'nl-BE')),
@@ -301,236 +321,236 @@ class PlaceNameTest(TestCase):
         (False, PlaceName('Ikke'), None),
         (False, PlaceName('Ikke'), 'not-a-place-name'),
     ])
-    def test_eq(self, expected, a, b) -> None:
-        self.assertEqual(expected, a == b)
+    def test_eq(self, expected: bool, a: PlaceName, b: Any) -> None:
+        assert expected == (a == b)
 
     def test_str(self) -> None:
         name = 'Ikke'
         sut = PlaceName(name)
-        self.assertEqual(name, str(sut))
+        assert name == str(sut)
 
     def test_name(self) -> None:
         name = 'Ikke'
         sut = PlaceName(name)
-        self.assertEqual(name, sut.name)
+        assert name == sut.name
 
     def test_locale(self) -> None:
         locale = 'nl-NL'
         sut = PlaceName('Ikke', locale=locale)
-        self.assertEqual(locale, sut.locale)
+        assert locale == sut.locale
 
     def test_date(self) -> None:
         date = Date()
         sut = PlaceName('Ikke', date=date)
-        self.assertEqual(date, sut.date)
+        assert date == sut.date
 
 
-class EnclosureTest(TestCase):
+class TestEnclosure:
     def test_encloses(self) -> None:
         encloses = Mock(Place)
         enclosed_by = Mock(Place)
         sut = Enclosure(encloses, enclosed_by)
-        self.assertEqual(encloses, sut.encloses)
+        assert encloses == sut.encloses
 
     def test_enclosed_by(self) -> None:
         encloses = Mock(Place)
         enclosed_by = Mock(Place)
         sut = Enclosure(encloses, enclosed_by)
-        self.assertEqual(enclosed_by, sut.enclosed_by)
+        assert enclosed_by == sut.enclosed_by
 
     def test_date(self) -> None:
         encloses = Mock(Place)
         enclosed_by = Mock(Place)
         sut = Enclosure(encloses, enclosed_by)
         date = Date()
-        self.assertIsNone(sut.date)
+        assert sut.date is None
         sut.date = date
-        self.assertEqual(date, sut.date)
+        assert date == sut.date
 
     def test_citations(self) -> None:
         encloses = Mock(Place)
         enclosed_by = Mock(Place)
         sut = Enclosure(encloses, enclosed_by)
         citation = Mock(Citation)
-        self.assertIsNone(sut.date)
-        sut.citations = [citation]
-        self.assertCountEqual([citation], sut.citations)
+        assert sut.date is None
+        sut.citations = [citation]  # type: ignore
+        assert [citation] == list(sut.citations)
 
 
-class PlaceTest(TestCase):
+class TestPlace:
     def test_events(self) -> None:
         sut = Place('P1', [PlaceName('The Place')])
         event = Event('1', Birth())
         sut.events.append(event)
-        self.assertIn(event, sut.events)
-        self.assertEqual(sut, event.place)
+        assert event in sut.events
+        assert sut == event.place
         sut.events.remove(event)
-        self.assertCountEqual([], sut.events)
-        self.assertEqual(None, event.place)
+        assert [] == list(sut.events)
+        assert event.place is None
 
     def test_enclosed_by(self) -> None:
         sut = Place('P1', [PlaceName('The Place')])
-        self.assertCountEqual([], sut.enclosed_by)
+        assert [] == list(sut.enclosed_by)
         enclosing_place = Place('P2', [PlaceName('The Other Place')])
         enclosure = Enclosure(sut, enclosing_place)
-        self.assertIn(enclosure, sut.enclosed_by)
-        self.assertEqual(sut, enclosure.encloses)
+        assert enclosure in sut.enclosed_by
+        assert sut == enclosure.encloses
         sut.enclosed_by.remove(enclosure)
-        self.assertCountEqual([], sut.enclosed_by)
-        self.assertIsNone(enclosure.encloses)
+        assert [] == list(sut.enclosed_by)
+        assert enclosure.encloses is None
 
     def test_encloses(self) -> None:
         sut = Place('P1', [PlaceName('The Place')])
-        self.assertCountEqual([], sut.encloses)
+        assert [] == list(sut.encloses)
         enclosed_place = Place('P2', [PlaceName('The Other Place')])
         enclosure = Enclosure(enclosed_place, sut)
-        self.assertIn(enclosure, sut.encloses)
-        self.assertEqual(sut, enclosure.enclosed_by)
+        assert enclosure in sut.encloses
+        assert sut == enclosure.enclosed_by
         sut.encloses.remove(enclosure)
-        self.assertCountEqual([], sut.encloses)
-        self.assertIsNone(enclosure.enclosed_by)
+        assert [] == list(sut.encloses)
+        assert enclosure.enclosed_by is None
 
     def test_id(self) -> None:
         place_id = 'C1'
         sut = Place(place_id, [PlaceName('one')])
-        self.assertEqual(place_id, sut.id)
+        assert place_id == sut.id
 
     def test_links(self) -> None:
         sut = Place('P1', [PlaceName('The Place')])
-        self.assertCountEqual([], sut.links)
+        assert [] == list(sut.links)
 
     def test_names(self) -> None:
         name = PlaceName('The Place')
         sut = Place('P1', [name])
-        self.assertCountEqual([name], sut.names)
+        assert [name] == list(sut.names)
 
     def test_coordinates(self) -> None:
         name = PlaceName('The Place')
         sut = Place('P1', [name])
         coordinates = Point()
         sut.coordinates = coordinates
-        self.assertEqual(coordinates, sut.coordinates)
+        assert coordinates == sut.coordinates
 
 
-class SubjectTest(TestCase):
+class TestSubject:
     def test_name(self) -> None:
-        self.assertIsInstance(Subject.name(), str)
-        self.assertNotEqual('', Subject.name)
+        assert isinstance(Subject.name(), str)
+        assert '' != Subject.name
 
     def test_label(self) -> None:
         sut = Subject()
         with Translations(NullTranslations()):
-            self.assertIsInstance(sut.label, str)
-            self.assertNotEqual('', sut.label)
+            assert isinstance(sut.label, str)
+            assert '' != sut.label
 
 
-class WitnessTest(TestCase):
+class TestWitness:
     def test_name(self) -> None:
-        self.assertIsInstance(Witness.name(), str)
-        self.assertNotEqual('', Witness.name)
+        assert isinstance(Witness.name(), str)
+        assert '' != Witness.name
 
     def test_label(self) -> None:
         sut = Witness()
         with Translations(NullTranslations()):
-            self.assertIsInstance(sut.label, str)
-            self.assertNotEqual('', sut.label)
+            assert isinstance(sut.label, str)
+            assert '' != sut.label
 
 
-class BeneficiaryTest(TestCase):
+class TestBeneficiary:
     def test_name(self) -> None:
-        self.assertIsInstance(Beneficiary.name(), str)
-        self.assertNotEqual('', Beneficiary.name)
+        assert isinstance(Beneficiary.name(), str)
+        assert '' != Beneficiary.name
 
     def test_label(self) -> None:
         sut = Beneficiary()
         with Translations(NullTranslations()):
-            self.assertIsInstance(sut.label, str)
-            self.assertNotEqual('', sut.label)
+            assert isinstance(sut.label, str)
+            assert '' != sut.label
 
 
-class AttendeeTest(TestCase):
+class TestAttendee:
     def test_name(self) -> None:
-        self.assertIsInstance(Attendee.name(), str)
-        self.assertNotEqual('', Attendee.name)
+        assert isinstance(Attendee.name(), str)
+        assert '' != Attendee.name
 
     def test_label(self) -> None:
         sut = Attendee()
         with Translations(NullTranslations()):
-            self.assertIsInstance(sut.label, str)
-            self.assertNotEqual('', sut.label)
+            assert isinstance(sut.label, str)
+            assert '' != sut.label
 
 
-class PresenceTest(TestCase):
+class TestPresence:
     def test_person(self) -> None:
         person = Mock(Person)
         sut = Presence(person, Mock(PresenceRole), Mock(Event))
-        self.assertEqual(person, sut.person)
+        assert person == sut.person
 
     def test_event(self) -> None:
         role = Mock(PresenceRole)
         sut = Presence(Mock(Person), role, Mock(Event))
-        self.assertEqual(role, sut.role)
+        assert role == sut.role
 
     def test_role(self) -> None:
         event = Mock(Event)
         sut = Presence(Mock(Person), Mock(PresenceRole), event)
-        self.assertEqual(event, sut.event)
+        assert event == sut.event
 
 
-class EventTest(TestCase):
+class TestEvent:
     def test_id(self) -> None:
         event_id = 'E1'
         sut = Event(event_id, Mock(EventType))
-        self.assertEqual(event_id, sut.id)
+        assert event_id == sut.id
 
     def test_place(self) -> None:
         place = Place('1', [PlaceName('one')])
         sut = Event(None, Mock(EventType))
         sut.place = place
-        self.assertEqual(place, sut.place)
-        self.assertIn(sut, place.events)
+        assert place == sut.place
+        assert sut in place.events
         sut.place = None
-        self.assertEqual(None, sut.place)
-        self.assertNotIn(sut, place.events)
+        assert sut.place is None
+        assert sut not in place.events
 
     def test_presences(self) -> None:
         person = Person('P1')
         sut = Event(None, Mock(EventType))
         presence = Presence(person, Subject(), sut)
         sut.presences.append(presence)
-        self.assertCountEqual([presence], sut.presences)
-        self.assertEqual(sut, presence.event)
+        assert [presence] == list(sut.presences)
+        assert sut == presence.event
         sut.presences.remove(presence)
-        self.assertCountEqual([], sut.presences)
-        self.assertIsNone(presence.event)
+        assert [] == list(sut.presences)
+        assert presence.event is None
 
     def test_date(self) -> None:
         sut = Event(None, Mock(EventType))
-        self.assertIsNone(sut.date)
+        assert sut.date is None
         date = Mock(Date)
         sut.date = date
-        self.assertEqual(date, sut.date)
+        assert date == sut.date
 
     def test_files(self) -> None:
         sut = Event(None, Mock(EventType))
-        self.assertCountEqual([], sut.files)
+        assert [] == list(sut.files)
 
     def test_citations(self) -> None:
         sut = Event(None, Mock(EventType))
-        self.assertCountEqual([], sut.citations)
+        assert [] == list(sut.citations)
 
     def test_description(self) -> None:
         sut = Event(None, Mock(EventType))
-        self.assertIsNone(sut.description)
+        assert sut.description is None
 
     def test_private(self) -> None:
         sut = Event(None, Mock(EventType))
-        self.assertIsNone(sut.private)
+        assert sut.private is None
 
     def test_type(self) -> None:
         event_type = Mock(EventType)
         sut = Event(None, event_type)
-        self.assertEqual(event_type, sut.type)
+        assert event_type == sut.type
 
     def test_associated_files(self) -> None:
         file1 = Mock(File)
@@ -538,46 +558,43 @@ class EventTest(TestCase):
         file3 = Mock(File)
         file4 = Mock(File)
         sut = Event(None, Mock(EventType))
-        sut.files = [file1, file2, file1]
+        sut.files = [file1, file2, file1]  # type: ignore
         citation = Mock(Citation)
         citation.associated_files = [file3, file4, file2]
-        sut.citations = [citation]
-        self.assertEqual([file1, file2, file3, file4], list(sut.associated_files))
+        sut.citations = [citation]  # type: ignore
+        assert [file1 == file2, file3, file4], list(sut.associated_files)
 
 
-class PersonNameTest(TestCase):
+class TestPersonName:
     def test_person(self) -> None:
         person = Person('1')
         sut = PersonName(person, 'Janet', 'Not a Girl')
-        self.assertEqual(person, sut.person)
-        self.assertCountEqual([sut], person.names)
-        sut.person = None
-        self.assertIsNone(sut.person)
-        self.assertCountEqual([], person.names)
+        assert person == sut.person
+        assert [sut] == list(person.names)
 
     def test_locale(self) -> None:
         person = Person('1')
         sut = PersonName(person, 'Janet', 'Not a Girl')
-        self.assertIsNone(sut.locale)
+        assert sut.locale is None
 
     def test_citations(self) -> None:
         person = Person('1')
         sut = PersonName(person, 'Janet', 'Not a Girl')
-        self.assertCountEqual([], sut.citations)
+        assert [] == list(sut.citations)
 
     def test_individual(self) -> None:
         person = Person('1')
         individual = 'Janet'
         sut = PersonName(person, individual, 'Not a Girl')
-        self.assertEqual(individual, sut.individual)
+        assert individual == sut.individual
 
     def test_affiliation(self) -> None:
         person = Person('1')
         affiliation = 'Not a Girl'
         sut = PersonName(person, 'Janet', affiliation)
-        self.assertEqual(affiliation, sut.affiliation)
+        assert affiliation == sut.affiliation
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, left, right', [
         (True, PersonName(Person('1'), 'Janet', 'Not a Girl'), PersonName(Person('1'), 'Janet', 'Not a Girl')),
         (True, PersonName(Person('1'), 'Janet'), PersonName(Person('1'), 'Janet')),
         (True, PersonName(Person('1'), None, 'Not a Girl'), PersonName(Person('1'), None, 'Not a Girl')),
@@ -588,122 +605,122 @@ class PersonNameTest(TestCase):
         (False, PersonName(Person('1'), 'Janet', 'Not a Girl'), object()),
     ])
     def test_eq(self, expected: bool, left: PersonName, right: Any) -> None:
-        self.assertEqual(expected, left == right)
+        assert expected == (left == right)
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, left, right', [
         (False, PersonName(Person('1'), 'Janet', 'Not a Girl'), PersonName(Person('1'), 'Janet', 'Not a Girl')),
         (True, PersonName(Person('1'), 'Janet', 'Not a Girl'), PersonName(Person('1'), 'Not a Girl', 'Janet')),
         (True, PersonName(Person('1'), 'Janet', 'Not a Girl'), None),
     ])
     def test_gt(self, expected: bool, left: PersonName, right: Any) -> None:
-        self.assertEqual(expected, left > right)
+        assert expected == (left > right)
 
 
-class PersonTest(TestCase):
+class TestPerson:
     def test_parents(self) -> None:
         sut = Person('1')
         parent = Person('2')
         sut.parents.append(parent)
-        self.assertCountEqual([parent], sut.parents)
-        self.assertCountEqual([sut], parent.children)
+        assert [parent] == list(sut.parents)
+        assert [sut] == list(parent.children)
         sut.parents.remove(parent)
-        self.assertCountEqual([], sut.parents)
-        self.assertCountEqual([], parent.children)
+        assert [] == list(sut.parents)
+        assert [] == list(parent.children)
 
     def test_children(self) -> None:
         sut = Person('1')
         child = Person('2')
         sut.children.append(child)
-        self.assertCountEqual([child], sut.children)
-        self.assertCountEqual([sut], child.parents)
+        assert [child] == list(sut.children)
+        assert [sut] == list(child.parents)
         sut.children.remove(child)
-        self.assertCountEqual([], sut.children)
-        self.assertCountEqual([], child.parents)
+        assert [] == list(sut.children)
+        assert [] == list(child.parents)
 
     def test_presences(self) -> None:
         event = Event(None, Birth())
         sut = Person('1')
         presence = Presence(sut, Subject(), event)
         sut.presences.append(presence)
-        self.assertCountEqual([presence], sut.presences)
-        self.assertEqual(sut, presence.person)
+        assert [presence] == list(sut.presences)
+        assert sut == presence.person
         sut.presences.remove(presence)
-        self.assertCountEqual([], sut.presences)
-        self.assertIsNone(presence.person)
+        assert [] == list(sut.presences)
+        assert presence.person is None
 
     def test_names(self) -> None:
         sut = Person('1')
         name = PersonName(sut, 'Janet', 'Not a Girl')
-        self.assertCountEqual([name], sut.names)
-        self.assertEqual(sut, name.person)
+        assert [name] == list(sut.names)
+        assert sut == name.person
         sut.names.remove(name)
-        self.assertCountEqual([], sut.names)
-        self.assertIsNone(name.person)
+        assert [] == list(sut.names)
+        assert name.person is None
 
     def test_id(self) -> None:
         person_id = 'P1'
         sut = Person(person_id)
-        self.assertEqual(person_id, sut.id)
+        assert person_id == sut.id
 
     def test_files(self) -> None:
-        sut = Source(None)
-        self.assertCountEqual([], sut.files)
+        sut = Person('1')
+        assert [] == list(sut.files)
 
     def test_citations(self) -> None:
-        sut = Source(None)
-        self.assertCountEqual([], sut.citations)
+        sut = Person('1')
+        assert [] == list(sut.citations)
 
     def test_links(self) -> None:
-        sut = Source(None)
-        self.assertCountEqual([], sut.links)
+        sut = Person('1')
+        assert [] == list(sut.links)
 
     def test_private(self) -> None:
-        sut = Event(None, Mock(EventType))
-        self.assertIsNone(sut.private)
+        sut = Person('1')
+        assert sut.private is None
 
     def test_name_with_names(self) -> None:
         sut = Person('P1')
         name = PersonName(sut)
-        self.assertEqual(name, sut.name)
+        assert name == sut.name
 
     def test_name_without_names(self) -> None:
-        self.assertIsNone(Person('P1').name)
+        assert Person('P1').name is None
 
     def test_alternative_names(self) -> None:
         sut = Person('P1')
         PersonName(sut, 'Janet', 'Not a Girl')
         alternative_name = PersonName(sut, 'Janet', 'Still not a Girl')
-        self.assertSequenceEqual([alternative_name], sut.alternative_names)
+        assert [alternative_name] == list(sut.alternative_names)
 
     def test_start(self) -> None:
         start = Event(None, Birth())
         sut = Person('P1')
         Presence(sut, Subject(), start)
-        self.assertEqual(start, sut.start)
+        assert start == sut.start
 
     def test_end(self) -> None:
         end = Event(None, Burial())
         sut = Person('P1')
         Presence(sut, Subject(), end)
-        self.assertEqual(end, sut.end)
+        assert end == sut.end
 
     def test_siblings_without_parents(self) -> None:
         sut = Person('person')
-        self.assertCountEqual([], sut.siblings)
+        assert [] == list(sut.siblings)
 
     def test_siblings_with_one_common_parent(self) -> None:
         sut = Person('1')
         sibling = Person('2')
         parent = Person('3')
-        parent.children = [sut, sibling]
-        self.assertCountEqual([sibling], sut.siblings)
+        parent.children = [sut, sibling]  # type: ignore
+        assert [sibling] == list(sut.siblings)
 
     def test_siblings_with_multiple_common_parents(self) -> None:
         sut = Person('1')
         sibling = Person('2')
         parent = Person('3')
-        parent.children = [sut, sibling]
-        self.assertCountEqual([sibling], sut.siblings)
+        parent.children = [sut, sibling]  # type: ignore
+        assert [sibling] == list(sut.siblings)
 
     def test_associated_files(self) -> None:
         file1 = Mock(File)
@@ -713,12 +730,12 @@ class PersonTest(TestCase):
         file5 = Mock(File)
         file6 = Mock(File)
         sut = Person('1')
-        sut.files = [file1, file2, file1]
+        sut.files = [file1, file2, file1]  # type: ignore
         citation = Mock(Citation)
         citation.associated_files = [file3, file4, file2]
         name = PersonName(sut)
-        name.citations = [citation]
+        name.citations = [citation]  # type: ignore
         event = Mock(Event)
         event.associated_files = [file5, file6, file4]
         Presence(sut, Subject(), event)
-        self.assertEqual([file1, file2, file3, file4, file5, file6], list(sut.associated_files))
+        assert [file1 == file2, file3, file4, file5, file6], list(sut.associated_files)

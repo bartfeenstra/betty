@@ -3,10 +3,9 @@ from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from betty.os import link_or_copy
-from betty.tests import TestCase
 
 
-class LinkOrCopyTest(TestCase):
+class TestLinkOrCopy:
     def test(self):
         with TemporaryDirectory() as working_directory_path_str:
             working_directory_path = Path(working_directory_path_str)
@@ -17,7 +16,7 @@ class LinkOrCopyTest(TestCase):
                 f.write(content)
             link_or_copy(source_path, destination_path)
             with open(destination_path) as f:
-                self.assertEqual(content, f.read())
+                assert content == f.read()
 
     @patch('os.link')
     def test_with_os_error(self, m_link):
@@ -31,4 +30,4 @@ class LinkOrCopyTest(TestCase):
                 f.write(content)
             link_or_copy(source_path, destination_path)
             with open(destination_path) as f:
-                self.assertEqual(content, f.read())
+                assert content == f.read()

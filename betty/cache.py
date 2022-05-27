@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 
 from betty import fs
 
-
 if TYPE_CHECKING:
     from betty.builtins import _
 

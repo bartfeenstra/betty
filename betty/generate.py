@@ -13,12 +13,12 @@ from aiofiles import os as aiofiles_os
 from babel import Locale
 from jinja2 import TemplateNotFound
 
+from betty.app import App
 from betty.jinja2 import Environment
 from betty.json import JSONEncoder
 from betty.locale import bcp_47_to_rfc_1766
 from betty.model.ancestry import File, Person, Place, Event, Citation, Source, Note
 from betty.openapi import build_specification
-from betty.app import App
 
 try:
     from resource import getrlimit, RLIMIT_NOFILE

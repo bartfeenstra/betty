@@ -3,11 +3,12 @@ from datetime import datetime
 from typing import Optional, List
 
 from betty.app.extension import Extension
-from betty.model.ancestry import Ancestry, Person, Event, Citation, Source, HasPrivacy, Subject, File, HasFiles, HasCitations
 from betty.functools import walk
 from betty.gui import GuiBuilder
-from betty.locale import DateRange, Date
 from betty.load import PostLoader
+from betty.locale import DateRange, Date
+from betty.model.ancestry import Ancestry, Person, Event, Citation, Source, HasPrivacy, Subject, File, HasFiles, \
+    HasCitations
 
 
 class Privatizer(Extension, PostLoader, GuiBuilder):

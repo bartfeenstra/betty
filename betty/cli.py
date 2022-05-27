@@ -11,14 +11,14 @@ import click
 from click import get_current_context, Context, Option
 
 from betty import about, cache, demo, generate, load, serve
+from betty.app import App
+from betty.asyncio import sync
 from betty.config import ConfigurationError
 from betty.error import UserFacingError
-from betty.asyncio import sync
 from betty.gui import BettyApplication
 from betty.gui.app import WelcomeWindow
 from betty.gui.project import ProjectWindow
 from betty.logging import CliHandler
-from betty.app import App
 
 
 class CommandProvider:

@@ -1,5 +1,5 @@
-from asyncio import subprocess
 import subprocess as stdsubprocess
+from asyncio import subprocess
 from typing import Sequence
 
 

@@ -50,7 +50,7 @@ class _Citer:
     def __init__(self):
         self._citations = []
 
-    def __iter__(self) -> Iterable[Citation]:
+    def __iter__(self) -> Iterator[Citation]:
         return enumerate(self._citations, 1)
 
     def __len__(self) -> int:

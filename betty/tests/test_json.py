@@ -12,10 +12,9 @@ from betty.model.ancestry import Place, Person, PlaceName, Link, Presence, Sourc
     Subject, Enclosure, Citation, Event
 from betty.model.event_type import Birth
 from betty.project import LocaleConfiguration
-from betty.tests import TestCase
 
 
-class JSONEncoderTest(TestCase):
+class TestJSONEncoder:
     def assert_encodes(self, expected, data, schema_definition: str):
         app = App()
         app.project.configuration.locales.replace([
@@ -25,7 +24,7 @@ class JSONEncoderTest(TestCase):
         with app:
             encoded_data = stdjson.loads(stdjson.dumps(data, cls=JSONEncoder.get_factory(app)))
         json.validate(encoded_data, schema_definition, app)
-        self.assertEqual(expected, encoded_data)
+        assert expected == encoded_data
 
     def test_coordinates_should_encode(self):
         latitude = 12.345
@@ -587,7 +586,6 @@ class JSONEncoderTest(TestCase):
 
     def test_citation_should_encode_full(self):
         citation = Citation('the_citation', Source('the_source', 'The Source'))
-        citation.description = 'The Source Description'
         citation.facts.append(Event('the_event', Birth()))
         expected = {
             '$schema': '/schema.json#/definitions/citation',

@@ -104,7 +104,6 @@ class _ServeWindow(BettyWindow):
             self._thread.server_started.connect(self._server_started)
             self._thread.start()
 
-    @sync
     def close(self) -> bool:
         self._stop()
         return super().close()

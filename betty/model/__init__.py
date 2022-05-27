@@ -9,7 +9,10 @@ from enum import Enum
 from functools import reduce
 from typing import TypeVar, Generic, Callable, List, Optional, Iterable, Any, Type, Union, Set, overload, cast, Iterator
 
-from typing_extensions import Self
+try:
+    from typing import Self
+except ImportError:
+    from typing_extensions import Self
 
 from betty.functools import slice_to_range
 from betty.importlib import import_any
@@ -36,9 +39,9 @@ class GeneratedEntityId(str):
 
 
 class Entity:
-    def __init__(self, entity_id: Optional[str] = None):
+    def __init__(self, entity_id: Optional[str] = None, *args, **kwargs):
         self._id = GeneratedEntityId() if entity_id is None else entity_id
-        super().__init__()
+        super().__init__(*args, **kwargs)
 
     @classmethod
     def entity_type(cls) -> Type[Entity]:

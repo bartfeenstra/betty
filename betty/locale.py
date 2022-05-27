@@ -10,12 +10,12 @@ import operator
 import shutil
 import threading
 from collections import defaultdict
-from gettext import NullTranslations, GNUTranslations
-from io import StringIO
 from contextlib import suppress
 from functools import total_ordering
+from gettext import NullTranslations, GNUTranslations
+from io import StringIO
 from pathlib import Path
-from typing import Optional, Tuple, Union, List, Dict, Callable, Any, Iterator, Set
+from typing import Optional, Tuple, Union, List, Dict, Callable, Any, Iterator, Set, Sequence
 
 import babel
 from babel import dates, Locale
@@ -408,7 +408,7 @@ def negotiate_locale(preferred_locale: str, available_locales: Set[str]) -> Opti
             return available_locale
 
 
-def negotiate_localizeds(preferred_locale: str, localizeds: List[Localized]) -> Optional[Localized]:
+def negotiate_localizeds(preferred_locale: str, localizeds: Sequence[Localized]) -> Optional[Localized]:
     negotiated_locale = negotiate_locale(preferred_locale, {localized.locale for localized in localizeds if localized.locale is not None})
     if negotiated_locale is not None:
         for localized in localizeds:

@@ -1,8 +1,8 @@
 from typing import Dict, Iterable, Optional
 
+from betty.app import App
 from betty.model import get_entity_type_name
 from betty.model.ancestry import Person, Place, File, Entity
-from betty.app import App
 from betty.string import camel_case_to_snake_case
 
 

@@ -1,14 +1,12 @@
-from betty.asyncio import sync
+from betty.app import App
 from betty.generate import generate
 from betty.project import ProjectExtensionConfiguration
+from betty.tests import patch_cache
 from betty.trees import Trees
-from betty.app import App
-from betty.tests import patch_cache, TestCase
 
 
-class TreesTest(TestCase):
+class TestTrees:
     @patch_cache
-    @sync
     async def test_post_generate_event(self):
         with App() as app:
             app.project.configuration.debug = True
@@ -16,7 +14,7 @@ class TreesTest(TestCase):
             await generate(app)
         with open(app.project.configuration.www_directory_path / 'trees.js', encoding='utf-8') as f:
             betty_js = f.read()
-        self.assertIn('trees.js', betty_js)
+        assert 'trees.js' in betty_js
         with open(app.project.configuration.www_directory_path / 'trees.css', encoding='utf-8') as f:
             betty_css = f.read()
-        self.assertIn('.tree', betty_css)
+        assert '.tree' in betty_css

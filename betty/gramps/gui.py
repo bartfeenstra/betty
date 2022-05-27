@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from typing import List
 
 from PyQt6.QtCore import Qt
@@ -8,25 +9,28 @@ from reactives import reactive
 
 from betty.app import App
 from betty.config import Path, ConfigurationError
-from betty.gramps.config import FamilyTreeConfiguration, GrampsConfiguration
+from betty.gramps import Gramps
+from betty.gramps.config import FamilyTreeConfiguration
 from betty.gui import BettyWindow, mark_valid, mark_invalid
 from betty.gui.error import catch_exceptions
 from betty.gui.locale import LocalizedWidget
 from betty.gui.text import Text
 
 
-@reactive
-class _GrampsGuiWidget(LocalizedWidget):
-    def __init__(self, app: App, configuration: GrampsConfiguration, *args, **kwargs):
+class _FamilyTrees(LocalizedWidget):
+    def __init__(self, app: App, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._app = app
-        self._configuration = configuration
+
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
 
-        self._family_trees_widget = None
+        self._family_trees_widget: QWidget = None  # type: ignore
+        self._family_trees_layout: QGridLayout = None  # type: ignore
+        self._family_trees_remove_buttons: List[QPushButton] = None  # type: ignore
 
         self._build_family_trees()
+
         self._add_family_tree_button = QPushButton()
         self._add_family_tree_button.released.connect(self._add_family_tree)
         self._layout.addWidget(self._add_family_tree_button, 1)
@@ -37,36 +41,52 @@ class _GrampsGuiWidget(LocalizedWidget):
             self._layout.removeWidget(self._family_trees_widget)
             self._family_trees_widget.setParent(None)
             del self._family_trees_widget
+            del self._family_trees_layout
+            del self._family_trees_remove_buttons
+
         self._family_trees_widget = QWidget()
-        family_trees_layout = QGridLayout()
-        self._family_trees_widget.setLayout(family_trees_layout)
-        self._family_trees_widget._remove_buttons = []
-        for i, family_tree in enumerate(self._configuration.family_trees):
+        self._family_trees_layout = QGridLayout()
+        self._family_trees_remove_buttons = []
+        self._family_trees_widget.setLayout(self._family_trees_layout)
+        self._layout.addWidget(self._family_trees_widget)
+
+        for i, family_tree in enumerate(self._app.extensions[Gramps].configuration.family_trees):
             def _remove_family_tree() -> None:
-                del self._configuration.family_trees[i]
-            family_trees_layout.addWidget(Text(str(family_tree.file_path)), i, 0)
-            self._family_trees_widget._remove_buttons.insert(i, QPushButton())
-            self._family_trees_widget._remove_buttons[i].released.connect(_remove_family_tree)
-            family_trees_layout.addWidget(self._family_trees_widget._remove_buttons[i], i, 1)
+                del self._app.extensions[Gramps].configuration.family_trees[i]
+            self._family_trees_layout.addWidget(Text(str(family_tree.file_path)), i, 0)
+            self._family_trees_remove_buttons.insert(i, QPushButton())
+            self._family_trees_remove_buttons[i].released.connect(_remove_family_tree)
+            self._family_trees_layout.addWidget(self._family_trees_remove_buttons[i], i, 1)
         self._layout.insertWidget(0, self._family_trees_widget, alignment=Qt.AlignmentFlag.AlignTop)
 
     def _do_set_translatables(self) -> None:
         self._add_family_tree_button.setText(_('Add a family tree'))
-        for button in self._family_trees_widget._remove_buttons:
+        for button in self._family_trees_remove_buttons:
             button.setText(_('Remove'))
 
     def _add_family_tree(self):
-        window = _AddFamilyTreeWindow(self._app, self._configuration.family_trees, self)
+        window = _AddFamilyTreeWindow(self._app, self)
         window.show()
+
+
+@reactive
+class _GrampsGuiWidget(LocalizedWidget):
+    def __init__(self, app: App, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._app = app
+        self._layout = QVBoxLayout()
+        self.setLayout(self._layout)
+
+        self._family_trees = _FamilyTrees(self._app)
+        self._layout.addWidget(self._family_trees)
 
 
 class _AddFamilyTreeWindow(BettyWindow):
     width = 500
     height = 100
 
-    def __init__(self, app: App, family_trees: List[FamilyTreeConfiguration], *args, **kwargs):
+    def __init__(self, app: App, *args, **kwargs):
         super().__init__(app, *args, **kwargs)
-        self._family_trees = family_trees
         self._family_tree = None
 
         self._layout = QFormLayout()
@@ -115,7 +135,7 @@ class _AddFamilyTreeWindow(BettyWindow):
 
         @catch_exceptions
         def save_and_close_family_tree() -> None:
-            self._family_trees.append(self._family_tree)
+            self._app.extensions[Gramps].configuration.family_trees.append(self._family_tree)
             self.close()
         self._widget._save_and_close = QPushButton()
         self._widget._save_and_close.setDisabled(True)

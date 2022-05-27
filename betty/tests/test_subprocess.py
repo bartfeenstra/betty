@@ -1,30 +1,26 @@
 from asyncio.subprocess import Process
 from subprocess import CalledProcessError
 
+import pytest
+
 from betty import subprocess
-from betty.asyncio import sync
-from betty.tests import TestCase
 
 
-class RunExecTest(TestCase):
-    @sync
+class TestRunExec:
     async def test_without_errors(self):
         process = await subprocess.run_exec(['true'])
-        self.assertIsInstance(process, Process)
+        assert isinstance(process, Process)
 
-    @sync
     async def test_with_errors(self):
-        with self.assertRaises(CalledProcessError):
+        with pytest.raises(CalledProcessError):
             await subprocess.run_exec(['false'])
 
 
-class RunShellTest(TestCase):
-    @sync
+class TestRunShell:
     async def test_without_errors(self):
         process = await subprocess.run_shell(['true'])
-        self.assertIsInstance(process, Process)
+        assert isinstance(process, Process)
 
-    @sync
     async def test_with_errors(self):
-        with self.assertRaises(CalledProcessError):
+        with pytest.raises(CalledProcessError):
             await subprocess.run_shell(['false'])

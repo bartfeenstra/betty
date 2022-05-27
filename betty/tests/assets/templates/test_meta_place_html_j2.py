@@ -11,7 +11,7 @@ class Test(TemplateTestCase):
         with self._render(data={
             'entity': place,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_with_enclosing_place_without_place_context(self):
         place = Place('P0', [PlaceName('The Place')])
@@ -23,7 +23,7 @@ class Test(TemplateTestCase):
         with self._render(data={
             'entity': place,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_with_enclosing_place_with_matching_place_context(self):
         place = Place('P0', [PlaceName('The Place')])
@@ -36,7 +36,7 @@ class Test(TemplateTestCase):
             'entity': place,
             'place_context': all_enclosing_place,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_with_enclosing_place_with_non_matching_place_context(self):
         place = Place('P0', [PlaceName('The Place')])
@@ -50,4 +50,4 @@ class Test(TemplateTestCase):
             'entity': place,
             'place_context': unrelated_place,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual

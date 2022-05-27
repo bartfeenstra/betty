@@ -7,13 +7,12 @@ from contextlib import suppress
 from os.path import getmtime
 from pathlib import Path
 from shutil import copy2
-from typing import AsyncIterable, Optional, Tuple, AsyncContextManager, Sequence
+from typing import AsyncIterable, Optional, Tuple, AsyncContextManager, Sequence, IO
 
 import aiofiles
 
 from betty import _ROOT_DIRECTORY_PATH
 from betty.os import PathLike
-
 
 ROOT_DIRECTORY_PATH = _ROOT_DIRECTORY_PATH
 
@@ -72,7 +71,7 @@ class FileSystem:
     def clear(self) -> None:
         self._paths.clear()
 
-    def open(self, *file_paths: PathLike) -> AsyncContextManager[object]:
+    def open(self, *file_paths: PathLike) -> AsyncContextManager[IO]:
         return self._Open(self, file_paths)
 
     async def copy2(self, source_path: PathLike, destination_path: PathLike) -> Path:

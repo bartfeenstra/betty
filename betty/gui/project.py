@@ -20,14 +20,14 @@ from betty.app.extension import discover_extension_types, Extension
 from betty.asyncio import sync
 from betty.config import ConfigurationError
 from betty.gui import get_configuration_file_filter, BettyWindow, GuiBuilder, mark_invalid, mark_valid
+from betty.gui.app import BettyMainWindow
 from betty.gui.error import catch_exceptions
 from betty.gui.locale import LocalizedWidget
-from betty.gui.text import Text, Caption
-from betty.gui.app import BettyMainWindow
 from betty.gui.locale import TranslationsLocaleCollector
 from betty.gui.logging import LogRecordViewerHandler, LogRecordViewer
 from betty.gui.model import EntityReferenceCollector, EntityReferencesCollector
 from betty.gui.serve import ServeAppWindow
+from betty.gui.text import Text, Caption
 from betty.importlib import import_any
 from betty.locale import rfc_1766_to_bcp_47, bcp_47_to_rfc_1766
 from betty.project import ProjectExtensionConfiguration, LocaleConfiguration, LocalesConfiguration

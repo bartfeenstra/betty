@@ -12,9 +12,9 @@ from betty.app import Extension
 from betty.asyncio import sync
 from betty.gui import BettyWindow, get_configuration_file_filter
 from betty.gui.error import catch_exceptions
+from betty.gui.locale import TranslationsLocaleCollector
 from betty.gui.serve import ServeDemoWindow
 from betty.gui.text import Text
-from betty.gui.locale import TranslationsLocaleCollector
 from betty.importlib import import_any
 from betty.project import ProjectConfiguration
 

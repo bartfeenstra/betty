@@ -1,5 +1,4 @@
 import os
-import unittest
 from json import dump
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -7,14 +6,16 @@ from typing import Callable, Dict
 from unittest.mock import patch
 
 import click
+import pytest
 from click.testing import CliRunner
 
 from betty import fs
+from betty.config import DumpedConfiguration
 from betty.error import UserFacingError
 from betty.os import ChDir
-from betty.project import ProjectConfiguration
+from betty.project import ProjectConfiguration, ProjectExtensionConfiguration
 from betty.serve import Server
-from betty.tests import patch_cache, TestCase
+from betty.tests import patch_cache
 
 try:
     from unittest.mock import AsyncMock
@@ -25,11 +26,11 @@ from betty.cli import main, CommandProvider, global_command, catch_exceptions
 from betty.app import App, Extension
 
 
-class TestCommandError(BaseException):
+class DummyCommandError(BaseException):
     pass
 
 
-class TestExtension(Extension, CommandProvider):
+class DummyExtension(Extension, CommandProvider):
     @property
     def commands(self) -> Dict[str, Callable]:
         return {
@@ -39,164 +40,139 @@ class TestExtension(Extension, CommandProvider):
     @click.command(name='test')
     @global_command
     async def _test_command(self):
-        raise TestCommandError
+        raise DummyCommandError
 
 
 @patch('sys.stderr')
 @patch('sys.stdout')
-class MainTest(TestCase):
+class TestMain:
     def test_without_arguments(self, _, __):
         runner = CliRunner()
         result = runner.invoke(main, catch_exceptions=False)
-        self.assertEqual(0, result.exit_code)
+        assert 0 == result.exit_code
 
     def test_help_without_configuration(self, _, __):
         runner = CliRunner()
         result = runner.invoke(main, ('--help',), catch_exceptions=False)
-        self.assertEqual(0, result.exit_code)
+        assert 0 == result.exit_code
 
     def test_configuration_without_help(self, _, __):
-        with TemporaryDirectory() as working_directory_path:
-            configuration_file_path = Path(working_directory_path) / 'betty.json'
-            url = 'https://example.com'
-            config_dict = {
-                'base_url': url,
-            }
-            with open(configuration_file_path, 'w') as f:
-                dump(config_dict, f)
-
-            runner = CliRunner()
-            result = runner.invoke(main, ('-c', configuration_file_path), catch_exceptions=False)
-            self.assertEqual(2, result.exit_code)
+        configuration = ProjectConfiguration()
+        configuration.write()
+        runner = CliRunner()
+        result = runner.invoke(main, ('-c', str(configuration.configuration_file_path)), catch_exceptions=False)
+        assert 2 == result.exit_code
 
     def test_help_with_configuration(self, _, __):
-        with TemporaryDirectory() as working_directory_path:
-            configuration_file_path = Path(working_directory_path) / 'betty.json'
-            url = 'https://example.com'
-            config_dict = {
-                'base_url': url,
-                'extensions': {
-                    TestExtension.name(): {},
-                },
-            }
-            with open(configuration_file_path, 'w') as f:
-                dump(config_dict, f)
-
-            runner = CliRunner()
-            result = runner.invoke(main, ('-c', configuration_file_path, '--help',), catch_exceptions=False)
-            self.assertEqual(0, result.exit_code)
+        configuration = ProjectConfiguration()
+        configuration.extensions.add(ProjectExtensionConfiguration(DummyExtension))
+        configuration.write()
+        runner = CliRunner()
+        result = runner.invoke(main, ('-c', str(configuration.configuration_file_path), '--help',), catch_exceptions=False)
+        assert 0 == result.exit_code
 
     def test_help_with_invalid_configuration_file_path(self, _, __):
         with TemporaryDirectory() as working_directory_path:
             configuration_file_path = Path(working_directory_path) / 'non-existent-betty.json'
 
             runner = CliRunner()
-            result = runner.invoke(main, ('-c', configuration_file_path, '--help',), catch_exceptions=False)
-            self.assertEqual(1, result.exit_code)
+            result = runner.invoke(main, ('-c', str(configuration_file_path), '--help',), catch_exceptions=False)
+            assert 1 == result.exit_code
 
     def test_help_with_invalid_configuration(self, _, __):
         with TemporaryDirectory() as working_directory_path:
             configuration_file_path = Path(working_directory_path) / 'betty.json'
-            config_dict = {}
+            dumped_configuration: DumpedConfiguration = {}
             with open(configuration_file_path, 'w') as f:
-                dump(config_dict, f)
+                dump(dumped_configuration, f)
 
             runner = CliRunner()
-            result = runner.invoke(main, ('-c', configuration_file_path, '--help',), catch_exceptions=False)
-            self.assertEqual(1, result.exit_code)
+            result = runner.invoke(main, ('-c', str(configuration_file_path), '--help',), catch_exceptions=False)
+            assert 1 == result.exit_code
 
     def test_with_discovered_configuration(self, _, __):
         with TemporaryDirectory() as working_directory_path:
             with open(Path(working_directory_path) / 'betty.json', 'w') as config_file:
                 url = 'https://example.com'
-                config_dict = {
+                dumped_configuration: DumpedConfiguration = {
                     'base_url': url,
                     'extensions': {
-                        TestExtension.name(): None,
+                        DummyExtension.name(): None,
                     },
                 }
-                dump(config_dict, config_file)
+                dump(dumped_configuration, config_file)
             with ChDir(working_directory_path):
                 runner = CliRunner()
                 result = runner.invoke(main, ('test',), catch_exceptions=False)
-                self.assertEqual(1, result.exit_code)
+                assert 1 == result.exit_code
 
 
-class CatchExceptionsTest(unittest.TestCase):
-    def test_logging_user_facing_error(self) -> None:
+class TestCatchExceptions:
+    def test_logging_user_facing_error(self, caplog) -> None:
         error_message = 'Something went wrong!'
-        with self.assertLogs() as watcher:
-            with self.assertRaises(SystemExit):
-                with catch_exceptions():
-                    raise UserFacingError(error_message)
-            self.assertEqual('ERROR:root:%s' % error_message, watcher.output[0])
+        with pytest.raises(SystemExit):
+            with catch_exceptions():
+                raise UserFacingError(error_message)
+            assert f'ERROR:root:{error_message}' == caplog.text
 
-    def test_logging_uncaught_exception(self) -> None:
+    def test_logging_uncaught_exception(self, caplog) -> None:
         error_message = 'Something went wrong!'
-        with self.assertLogs() as watcher:
-            with self.assertRaises(SystemExit):
-                with catch_exceptions():
-                    raise Exception(error_message)
-            self.assertTrue(watcher.output[0].startswith('ERROR:root:%s' % error_message))
-            self.assertIn('Traceback', watcher.output[0])
+        with pytest.raises(SystemExit):
+            with catch_exceptions():
+                raise Exception(error_message)
+            assert caplog.text.startswith(f'ERROR:root:{error_message}')
+            assert 'Traceback' in caplog.text
 
 
-class VersionTest(TestCase):
+class TestVersion:
     def test(self):
         runner = CliRunner()
         result = runner.invoke(main, ('--version'), catch_exceptions=False)
-        self.assertEqual(0, result.exit_code)
-        self.assertIn('Betty', result.stdout)
+        assert 0 == result.exit_code
+        assert 'Betty' in result.stdout
 
 
-class ClearCachesTest(TestCase):
+class TestClearCaches:
     @patch_cache
     def test(self):
         cached_file_path = Path(fs.CACHE_DIRECTORY_PATH) / 'KeepMeAroundPlease'
         open(cached_file_path, 'w').close()
         runner = CliRunner()
         result = runner.invoke(main, ('clear-caches',), catch_exceptions=False)
-        self.assertEqual(0, result.exit_code)
-        with self.assertRaises(FileNotFoundError):
+        assert 0 == result.exit_code
+        with pytest.raises(FileNotFoundError):
             open(cached_file_path)
 
 
-class DemoTest(TestCase):
+class TestDemo:
     @patch('betty.serve.AppServer', new_callable=lambda: _KeyboardInterruptedServer)
     def test(self, m_server):
         runner = CliRunner()
         result = runner.invoke(main, ('demo',), catch_exceptions=False)
-        self.assertEqual(0, result.exit_code)
+        assert 0 == result.exit_code
 
 
-class GenerateTest(TestCase):
+class TestGenerate:
     @patch('betty.generate.generate', new_callable=AsyncMock)
     @patch('betty.load.load', new_callable=AsyncMock)
-    def test(self, m_parse, m_generate):
-        with TemporaryDirectory() as working_directory_path:
-            configuration_file_path = Path(working_directory_path) / 'betty.json'
-            url = 'https://example.com'
-            config_dict = {
-                'base_url': url,
-            }
-            with open(configuration_file_path, 'w') as f:
-                dump(config_dict, f)
+    def test(self, m_load, m_generate):
+        configuration = ProjectConfiguration()
+        configuration.write()
+        runner = CliRunner()
+        result = runner.invoke(main, ('-c', str(configuration.configuration_file_path), 'generate',), catch_exceptions=False)
+        assert 0 == result.exit_code
 
-            runner = CliRunner()
-            result = runner.invoke(main, ('-c', configuration_file_path, 'generate',), catch_exceptions=False)
-            self.assertEqual(0, result.exit_code)
+        m_load.assert_called_once()
+        parse_args, parse_kwargs = m_load.await_args
+        assert 1 == len(parse_args)
+        assert isinstance(parse_args[0], App)
+        assert {} == parse_kwargs
 
-            m_parse.assert_called_once()
-            parse_args, parse_kwargs = m_parse.await_args
-            self.assertEqual(1, len(parse_args))
-            self.assertIsInstance(parse_args[0], App)
-            self.assertEqual({}, parse_kwargs)
-
-            m_generate.assert_called_once()
-            render_args, render_kwargs = m_generate.call_args
-            self.assertEqual(1, len(render_args))
-            self.assertIsInstance(render_args[0], App)
-            self.assertEqual({}, render_kwargs)
+        m_generate.assert_called_once()
+        render_args, render_kwargs = m_generate.call_args
+        assert 1 == len(render_args)
+        assert isinstance(render_args[0], App)
+        assert {} == render_kwargs
 
 
 class _KeyboardInterruptedServer(Server):
@@ -207,7 +183,7 @@ class _KeyboardInterruptedServer(Server):
         raise KeyboardInterrupt
 
 
-class ServeTest(TestCase):
+class Serve:
     @patch('betty.serve.AppServer', new_callable=lambda: _KeyboardInterruptedServer)
     def test(self, m_server):
         configuration = ProjectConfiguration()
@@ -215,4 +191,4 @@ class ServeTest(TestCase):
         os.makedirs(configuration.www_directory_path)
         runner = CliRunner()
         result = runner.invoke(main, ('-c', configuration.configuration_file_path, 'serve',), catch_exceptions=False)
-        self.assertEqual(0, result.exit_code)
+        assert 0 == result.exit_code

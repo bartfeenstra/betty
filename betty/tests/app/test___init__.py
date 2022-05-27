@@ -1,11 +1,11 @@
 from typing import Type, List, Set
 
+import pytest
+
 from betty.app import Extension, App, CyclicDependencyError
-from betty.app.extension import ConfigurableExtension
-from betty.asyncio import sync
+from betty.app.extension import ConfigurableExtension as GenericConfigurableExtension
 from betty.config import Configuration, ConfigurationError, DumpedConfiguration
 from betty.project import ProjectExtensionConfiguration
-from betty.tests import TestCase
 
 
 class Tracker:
@@ -82,11 +82,17 @@ class ComesAfterNonConfigurableExtensionExtension(TrackableExtension):
         return {NonConfigurableExtension}
 
 
-class AppTest(TestCase):
+class ConfigurableExtension(GenericConfigurableExtension[ConfigurableExtensionConfiguration]):
+    @classmethod
+    def default_configuration(cls) -> ConfigurableExtensionConfiguration:
+        return ConfigurableExtensionConfiguration(False)
+
+
+class TestApp:
     def test_extensions_with_one_extension(self) -> None:
         with App() as sut:
             sut.project.configuration.extensions.add(ProjectExtensionConfiguration(NonConfigurableExtension))
-            self.assertIsInstance(sut.extensions[NonConfigurableExtension], NonConfigurableExtension)
+            assert isinstance(sut.extensions[NonConfigurableExtension], NonConfigurableExtension)
 
     def test_extensions_with_one_configurable_extension(self) -> None:
         check = 1337
@@ -94,88 +100,78 @@ class AppTest(TestCase):
             sut.project.configuration.extensions.add(ProjectExtensionConfiguration(ConfigurableExtension, True, ConfigurableExtensionConfiguration(
                 check=check,
             )))
-            self.assertIsInstance(sut.extensions[ConfigurableExtension], ConfigurableExtension)
-            self.assertEqual(check, sut.extensions[ConfigurableExtension]._configuration.check)
+            assert isinstance(sut.extensions[ConfigurableExtension], ConfigurableExtension)
+            assert check == sut.extensions[ConfigurableExtension].configuration.check
 
-    @sync
     async def test_extensions_with_one_extension_with_single_chained_dependency(self) -> None:
         with App() as sut:
             sut.project.configuration.extensions.add(ProjectExtensionConfiguration(DependsOnNonConfigurableExtensionExtensionExtension))
-            carrier = []
+            carrier: List[TrackableExtension] = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
-            self.assertEqual(3, len(carrier))
-            self.assertEqual(NonConfigurableExtension, type(carrier[0]))
-            self.assertEqual(DependsOnNonConfigurableExtensionExtension, type(carrier[1]))
-            self.assertEqual(DependsOnNonConfigurableExtensionExtensionExtension, type(carrier[2]))
+            assert 3 == len(carrier)
+            assert isinstance(carrier[0], NonConfigurableExtension)
+            assert isinstance(carrier[1], DependsOnNonConfigurableExtensionExtension)
+            assert isinstance(carrier[2], DependsOnNonConfigurableExtensionExtensionExtension)
 
-    @sync
     async def test_extensions_with_multiple_extensions_with_duplicate_dependencies(self) -> None:
         with App() as sut:
             sut.project.configuration.extensions.add(ProjectExtensionConfiguration(DependsOnNonConfigurableExtensionExtension))
             sut.project.configuration.extensions.add(ProjectExtensionConfiguration(AlsoDependsOnNonConfigurableExtensionExtension))
-            carrier = []
+            carrier: List[TrackableExtension] = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
-            self.assertEqual(3, len(carrier))
-            self.assertEqual(NonConfigurableExtension, type(carrier[0]))
-            self.assertIn(DependsOnNonConfigurableExtensionExtension, [
-                type(extension) for extension in carrier])
-            self.assertIn(AlsoDependsOnNonConfigurableExtensionExtension, [
-                type(extension) for extension in carrier])
+            assert 3 == len(carrier)
+            assert isinstance(carrier[0], NonConfigurableExtension)
+            assert DependsOnNonConfigurableExtensionExtension in [type(extension) for extension in carrier]
+            assert AlsoDependsOnNonConfigurableExtensionExtension in [type(extension) for extension in carrier]
 
     def test_extensions_with_multiple_extensions_with_cyclic_dependencies(self) -> None:
-        with self.assertRaises(CyclicDependencyError):
+        with pytest.raises(CyclicDependencyError):
             with App() as sut:
                 sut.project.configuration.extensions.add(ProjectExtensionConfiguration(CyclicDependencyOneExtension))
                 sut.extensions
 
-    @sync
     async def test_extensions_with_comes_before_with_other_extension(self) -> None:
         with App() as sut:
             sut.project.configuration.extensions.add(ProjectExtensionConfiguration(NonConfigurableExtension))
             sut.project.configuration.extensions.add(ProjectExtensionConfiguration(ComesBeforeNonConfigurableExtensionExtension))
-            carrier = []
+            carrier: List[TrackableExtension] = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
-            self.assertEqual(2, len(carrier))
-            self.assertEqual(
-                ComesBeforeNonConfigurableExtensionExtension, type(carrier[0]))
-            self.assertEqual(NonConfigurableExtension, type(carrier[1]))
+            assert 2 == len(carrier)
+            assert isinstance(carrier[0], ComesBeforeNonConfigurableExtensionExtension)
+            assert isinstance(carrier[1], NonConfigurableExtension)
 
-    @sync
     async def test_extensions_with_comes_before_without_other_extension(self) -> None:
         with App() as sut:
             sut.project.configuration.extensions.add(ProjectExtensionConfiguration(ComesBeforeNonConfigurableExtensionExtension))
-            carrier = []
+            carrier: List[TrackableExtension] = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
-            self.assertEqual(1, len(carrier))
-            self.assertEqual(
-                ComesBeforeNonConfigurableExtensionExtension, type(carrier[0]))
+            assert 1 == len(carrier)
+            assert isinstance(carrier[0], ComesBeforeNonConfigurableExtensionExtension)
 
-    @sync
     async def test_extensions_with_comes_after_with_other_extension(self) -> None:
         with App() as sut:
             sut.project.configuration.extensions.add(ProjectExtensionConfiguration(ComesAfterNonConfigurableExtensionExtension))
             sut.project.configuration.extensions.add(ProjectExtensionConfiguration(NonConfigurableExtension))
-            carrier = []
+            carrier: List[TrackableExtension] = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
-            self.assertEqual(2, len(carrier))
-            self.assertEqual(NonConfigurableExtension, type(carrier[0]))
-            self.assertEqual(ComesAfterNonConfigurableExtensionExtension, type(carrier[1]))
+            assert 2 == len(carrier)
+            assert isinstance(carrier[0], NonConfigurableExtension)
+            assert isinstance(carrier[1], ComesAfterNonConfigurableExtensionExtension)
 
-    @sync
     async def test_extensions_with_comes_after_without_other_extension(self) -> None:
         with App() as sut:
             sut.project.configuration.extensions.add(ProjectExtensionConfiguration(ComesAfterNonConfigurableExtensionExtension))
-            carrier = []
+            carrier: List[TrackableExtension] = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
-            self.assertEqual(1, len(carrier))
-            self.assertEqual(ComesAfterNonConfigurableExtensionExtension, type(carrier[0]))
+            assert 1 == len(carrier)
+            assert isinstance(carrier[0], ComesAfterNonConfigurableExtensionExtension)
 
     def test_extensions_addition_to_configuration(self) -> None:
         with App() as sut:
             # Get the extensions before making configuration changes to warm the cache.
             sut.extensions
             sut.project.configuration.extensions.add(ProjectExtensionConfiguration(NonConfigurableExtension))
-            self.assertIsInstance(sut.extensions[NonConfigurableExtension], NonConfigurableExtension)
+            assert isinstance(sut.extensions[NonConfigurableExtension], NonConfigurableExtension)
 
     def test_extensions_removal_from_configuration(self) -> None:
         with App() as sut:
@@ -183,4 +179,4 @@ class AppTest(TestCase):
             # Get the extensions before making configuration changes to warm the cache.
             sut.extensions
             del sut.project.configuration.extensions[NonConfigurableExtension]
-            self.assertNotIn(NonConfigurableExtension, sut.extensions)
+            assert NonConfigurableExtension not in sut.extensions

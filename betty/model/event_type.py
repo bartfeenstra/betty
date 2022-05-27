@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import Set, Type, TYPE_CHECKING
 
-
 if TYPE_CHECKING:
     from betty.builtins import _
 

@@ -1,7 +1,6 @@
 from betty import about
-from betty.tests import TestCase
 
 
-class VersionTest(TestCase):
+class TestVersion:
     def test(self):
-        self.assertIsInstance(about.version(), str)
+        assert isinstance(about.version(), str)

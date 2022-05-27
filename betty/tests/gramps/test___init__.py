@@ -4,18 +4,15 @@ from tempfile import TemporaryDirectory
 from reactives import ReactiveList
 
 from betty.app import App
-from betty.asyncio import sync
 from betty.gramps import Gramps, GrampsConfiguration
 from betty.gramps.config import FamilyTreeConfiguration
 from betty.load import load
 from betty.model.ancestry import Citation, Note, Source, File, \
     Event, Person, Place
 from betty.project import ProjectExtensionConfiguration
-from betty.tests import TestCase
 
 
-class GrampsTest(TestCase):
-    @sync
+class TestGramps:
     async def test_load_multiple_family_trees(self):
         family_tree_one_xml = """
 <?xml version="1.0" encoding="UTF-8"?>
@@ -137,19 +134,19 @@ class GrampsTest(TestCase):
                     ])
                 )))
                 await load(app)
-            self.assertIn('O0001', app.project.ancestry.entities[File])
-            self.assertIn('O0002', app.project.ancestry.entities[File])
-            self.assertIn('I0001', app.project.ancestry.entities[Person])
-            self.assertIn('I0002', app.project.ancestry.entities[Person])
-            self.assertIn('P0001', app.project.ancestry.entities[Place])
-            self.assertIn('P0002', app.project.ancestry.entities[Place])
-            self.assertIn('E0001', app.project.ancestry.entities[Event])
-            self.assertIn('E0002', app.project.ancestry.entities[Event])
-            self.assertIn('S0001', app.project.ancestry.entities[Source])
-            self.assertIn('S0002', app.project.ancestry.entities[Source])
-            self.assertIn('R0001', app.project.ancestry.entities[Source])
-            self.assertIn('R0002', app.project.ancestry.entities[Source])
-            self.assertIn('C0001', app.project.ancestry.entities[Citation])
-            self.assertIn('C0002', app.project.ancestry.entities[Citation])
-            self.assertIn('N0001', app.project.ancestry.entities[Note])
-            self.assertIn('N0002', app.project.ancestry.entities[Note])
+            assert 'O0001' in app.project.ancestry.entities[File]
+            assert 'O0002' in app.project.ancestry.entities[File]
+            assert 'I0001' in app.project.ancestry.entities[Person]
+            assert 'I0002' in app.project.ancestry.entities[Person]
+            assert 'P0001' in app.project.ancestry.entities[Place]
+            assert 'P0002' in app.project.ancestry.entities[Place]
+            assert 'E0001' in app.project.ancestry.entities[Event]
+            assert 'E0002' in app.project.ancestry.entities[Event]
+            assert 'S0001' in app.project.ancestry.entities[Source]
+            assert 'S0002' in app.project.ancestry.entities[Source]
+            assert 'R0001' in app.project.ancestry.entities[Source]
+            assert 'R0002' in app.project.ancestry.entities[Source]
+            assert 'C0001' in app.project.ancestry.entities[Citation]
+            assert 'C0002' in app.project.ancestry.entities[Citation]
+            assert 'N0001' in app.project.ancestry.entities[Note]
+            assert 'N0002' in app.project.ancestry.entities[Note]

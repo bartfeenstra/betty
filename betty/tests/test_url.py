@@ -1,18 +1,17 @@
 from typing import Any
 
-from parameterized import parameterized
+import pytest
 
 from betty.app import App
 from betty.model import Entity
 from betty.model.ancestry import Person, Place, File, Source, PlaceName, Event, Citation
 from betty.model.event_type import Death
 from betty.project import LocaleConfiguration
-from betty.tests import TestCase
 from betty.url import ContentNegotiationPathUrlGenerator, _EntityUrlGenerator, AppUrlGenerator
 
 
-class LocalizedPathUrlGeneratorTest(TestCase):
-    @parameterized.expand([
+class TestLocalizedPathUrlGenerator:
+    @pytest.mark.parametrize('expected, resource', [
         ('', '/'),
         ('/index.html', '/index.html'),
         ('/example', 'example'),
@@ -25,9 +24,9 @@ class LocalizedPathUrlGeneratorTest(TestCase):
     def test_generate(self, expected: str, resource: str):
         with App() as app:
             sut = ContentNegotiationPathUrlGenerator(app)
-            self.assertEqual(expected, sut.generate(resource, 'text/html'))
+            assert expected == sut.generate(resource, 'text/html')
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, resource', [
         ('', 'index.html'),
         ('', '/index.html'),
         ('/example', 'example/index.html'),
@@ -37,22 +36,21 @@ class LocalizedPathUrlGeneratorTest(TestCase):
         with App() as app:
             app.project.configuration.clean_urls = True
             sut = ContentNegotiationPathUrlGenerator(app)
-            self.assertEqual(expected, sut.generate(resource, 'text/html'))
+            assert expected == sut.generate(resource, 'text/html')
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, resource', [
         ('https://example.com', '/'),
         ('https://example.com/example', 'example'),
     ])
     def test_generate_absolute(self, expected: str, resource: str):
         with App() as app:
             sut = ContentNegotiationPathUrlGenerator(app)
-            self.assertEqual(expected, sut.generate(
-                resource, 'text/html', absolute=True))
+            assert expected == sut.generate(resource, 'text/html', absolute=True)
 
     def test_generate_with_invalid_value(self):
         with App() as app:
             sut = ContentNegotiationPathUrlGenerator(app)
-            with self.assertRaises(ValueError):
+            with pytest.raises(ValueError):
                 sut.generate(9, 'text/html')
 
     def test_generate_multilingual(self):
@@ -64,29 +62,32 @@ class LocalizedPathUrlGeneratorTest(TestCase):
         with app:
             sut = ContentNegotiationPathUrlGenerator(app)
             with app.acquire_locale('nl'):
-                self.assertEqual('/nl/index.html', sut.generate('/index.html', 'text/html'))
+                assert '/nl/index.html' == sut.generate('/index.html', 'text/html')
             with app.acquire_locale('en'):
-                self.assertEqual('/en/index.html', sut.generate('/index.html', 'text/html'))
+                assert '/en/index.html' == sut.generate('/index.html', 'text/html')
 
 
-class EntityUrlGeneratorTest(TestCase):
+class TestEntityUrlGenerator:
     class UrlyEntity(Entity):
+        pass
+
+    class NonUrlyEntity(Entity):
         pass
 
     def test_generate(self):
         with App() as app:
             sut = _EntityUrlGenerator(app, self.UrlyEntity, 'prefix/%s/index.%s')
-            self.assertEqual('/prefix/I1/index.html', sut.generate(self.UrlyEntity('I1'), 'text/html'))
+            assert '/prefix/I1/index.html' == sut.generate(self.UrlyEntity('I1'), 'text/html')
 
     def test_generate_with_invalid_value(self):
         with App() as app:
             sut = _EntityUrlGenerator(app, self.UrlyEntity, 'prefix/%s/index.html')
-            with self.assertRaises(ValueError):
-                sut.generate(9, 'text/html')
+            with pytest.raises(ValueError):
+                sut.generate(self.NonUrlyEntity(), 'text/html')
 
 
-class AppUrlGeneratorTest(TestCase):
-    @parameterized.expand([
+class TestAppUrlGenerator:
+    @pytest.mark.parametrize('expected, resource', [
         ('/index.html', '/index.html'),
         ('/person/P1/index.html', Person('P1')),
         ('/event/E1/index.html', Event('E1', Death())),
@@ -98,10 +99,10 @@ class AppUrlGeneratorTest(TestCase):
     def test_generate(self, expected: str, resource: Any):
         with App() as app:
             sut = AppUrlGenerator(app)
-            self.assertEqual(expected, sut.generate(resource, 'text/html'))
+            assert expected == sut.generate(resource, 'text/html')
 
     def test_generate_with_invalid_value(self):
         with App() as app:
             sut = AppUrlGenerator(app)
-            with self.assertRaises(ValueError):
+            with pytest.raises(ValueError):
                 sut.generate(9, 'text/html')
