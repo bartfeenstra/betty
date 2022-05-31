@@ -1,21 +1,19 @@
 import webbrowser
 from datetime import datetime
 from os import path
-from typing import Sequence, Type, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from PyQt6.QtCore import Qt, QCoreApplication
 from PyQt6.QtGui import QIcon, QAction
 from PyQt6.QtWidgets import QFormLayout, QWidget, QVBoxLayout, QHBoxLayout, QFileDialog, QPushButton
 
 from betty import about, cache
-from betty.app import Extension
 from betty.asyncio import sync
 from betty.gui import BettyWindow, get_configuration_file_filter
 from betty.gui.error import catch_exceptions
 from betty.gui.locale import TranslationsLocaleCollector
 from betty.gui.serve import ServeDemoWindow
 from betty.gui.text import Text
-from betty.importlib import import_any
 from betty.project import ProjectConfiguration
 
 if TYPE_CHECKING:
@@ -23,71 +21,66 @@ if TYPE_CHECKING:
 
 
 class BettyMainWindow(BettyWindow):
-    width = 800
-    height = 600
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setWindowIcon(QIcon(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'betty-512x512.png')))
-        self._initialize_menu()
+
+        menu_bar = self.menuBar()
+
+        self.betty_menu = menu_bar.addMenu('&Betty')
+
+        self.new_project_action = QAction(self)
+        self.new_project_action.setShortcut('Ctrl+N')
+        self.new_project_action.triggered.connect(lambda _: self.new_project())  # type: ignore
+        self.betty_menu.addAction(self.new_project_action)
+
+        self.open_project_action = QAction(self)
+        self.open_project_action.setShortcut('Ctrl+O')
+        self.open_project_action.triggered.connect(lambda _: self.open_project())  # type: ignore
+        self.betty_menu.addAction(self.open_project_action)
+
+        self._demo_action = QAction(self)
+        self._demo_action.triggered.connect(lambda _: self._demo())  # type: ignore
+        self.betty_menu.addAction(self._demo_action)
+
+        self.open_application_configuration_action = QAction(self)
+        self.open_application_configuration_action.triggered.connect(lambda _: self.open_application_configuration())  # type: ignore
+        self.betty_menu.addAction(self.open_application_configuration_action)
+
+        self.clear_caches_action = QAction(self)
+        self.clear_caches_action.triggered.connect(lambda _: self.clear_caches())  # type: ignore
+        self.betty_menu.addAction(self.clear_caches_action)
+
+        self.exit_action = QAction(self)
+        self.exit_action.setShortcut('Ctrl+Q')
+        self.exit_action.triggered.connect(QCoreApplication.quit)  # type: ignore
+        self.betty_menu.addAction(self.exit_action)
+
+        self.help_menu = menu_bar.addMenu('')
+
+        self.view_issues_action = QAction(self)
+        self.view_issues_action.triggered.connect(lambda _: self.view_issues())  # type: ignore
+        self.help_menu.addAction(self.view_issues_action)
+
+        self.about_action = QAction(self)
+        self.about_action.triggered.connect(lambda _: self._about_betty())  # type: ignore
+        self.help_menu.addAction(self.about_action)
 
     @property
     def title(self) -> str:
         return 'Betty'
 
-    def _initialize_menu(self) -> None:
-        menu_bar = self.menuBar()
-
-        self.betty_menu = menu_bar.addMenu('&Betty')
-
-        self.betty_menu.new_project_action = QAction(self)
-        self.betty_menu.new_project_action.setShortcut('Ctrl+N')
-        self.betty_menu.new_project_action.triggered.connect(lambda _: self.new_project())
-        self.betty_menu.addAction(self.betty_menu.new_project_action)
-
-        self.betty_menu.open_project_action = QAction(self)
-        self.betty_menu.open_project_action.setShortcut('Ctrl+O')
-        self.betty_menu.open_project_action.triggered.connect(lambda _: self.open_project())
-        self.betty_menu.addAction(self.betty_menu.open_project_action)
-
-        self.betty_menu._demo_action = QAction(self)
-        self.betty_menu._demo_action.triggered.connect(lambda _: self._demo())
-        self.betty_menu.addAction(self.betty_menu._demo_action)
-
-        self.betty_menu.open_application_configuration_action = QAction(self)
-        self.betty_menu.open_application_configuration_action.triggered.connect(lambda _: self.open_application_configuration())
-        self.betty_menu.addAction(self.betty_menu.open_application_configuration_action)
-
-        self.betty_menu.clear_caches_action = QAction(self)
-        self.betty_menu.clear_caches_action.triggered.connect(lambda _: self.clear_caches())
-        self.betty_menu.addAction(self.betty_menu.clear_caches_action)
-
-        self.betty_menu.exit_action = QAction(self)
-        self.betty_menu.exit_action.setShortcut('Ctrl+Q')
-        self.betty_menu.exit_action.triggered.connect(QCoreApplication.quit)
-        self.betty_menu.addAction(self.betty_menu.exit_action)
-
-        self.help_menu = menu_bar.addMenu('')
-
-        self.help_menu.view_issues_action = QAction(self)
-        self.help_menu.view_issues_action.triggered.connect(lambda _: self.view_issues())
-        self.help_menu.addAction(self.help_menu.view_issues_action)
-
-        self.help_menu.about_action = QAction(self)
-        self.help_menu.about_action.triggered.connect(lambda _: self._about_betty())
-        self.help_menu.addAction(self.help_menu.about_action)
-
     def _do_set_translatables(self) -> None:
         super()._do_set_translatables()
-        self.betty_menu.new_project_action.setText(_('New project...'))
-        self.betty_menu.open_project_action.setText(_('Open project...'))
-        self.betty_menu._demo_action.setText(_('View demo site...'))
-        self.betty_menu.open_application_configuration_action.setText(_('Settings...'))
-        self.betty_menu.clear_caches_action.setText(_('Clear all caches'))
-        self.betty_menu.exit_action.setText(_('Exit'))
+        self.new_project_action.setText(_('New project...'))
+        self.open_project_action.setText(_('Open project...'))
+        self._demo_action.setText(_('View demo site...'))
+        self.open_application_configuration_action.setText(_('Settings...'))
+        self.clear_caches_action.setText(_('Clear all caches'))
+        self.exit_action.setText(_('Exit'))
         self.help_menu.setTitle('&' + _('Help'))
-        self.help_menu.view_issues_action.setText(_('Report bugs and request new features'))
-        self.help_menu.about_action.setText(_('About Betty'))
+        self.view_issues_action.setText(_('Report bugs and request new features'))
+        self.about_action.setText(_('About Betty'))
 
     @catch_exceptions
     def view_issues(self) -> None:
@@ -167,10 +160,10 @@ class _WelcomeAction(QPushButton):
 
 class WelcomeWindow(BettyMainWindow):
     # Allow the window to be as narrow as it can be.
-    width = 1
+    window_width = 1
     # This is a best guess at the minimum required height, because if we set this to 1, like the width, some of the
     # text will be clipped.
-    height = 450
+    window_height = 450
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -196,11 +189,11 @@ class WelcomeWindow(BettyMainWindow):
         central_layout.addLayout(project_layout)
 
         self.open_project_button = _WelcomeAction(self)
-        self.open_project_button.released.connect(self.open_project)
+        self.open_project_button.released.connect(self.open_project)  # type: ignore
         project_layout.addWidget(self.open_project_button)
 
         self.new_project_button = _WelcomeAction(self)
-        self.new_project_button.released.connect(self.new_project)
+        self.new_project_button.released.connect(self.new_project)  # type: ignore
         project_layout.addWidget(self.new_project_button)
 
         self._demo_instruction = _WelcomeHeading()
@@ -208,7 +201,7 @@ class WelcomeWindow(BettyMainWindow):
         central_layout.addWidget(self._demo_instruction)
 
         self.demo_button = _WelcomeAction(self)
-        self.demo_button.released.connect(self._demo)
+        self.demo_button.released.connect(self._demo)  # type: ignore
         central_layout.addWidget(self.demo_button)
 
     def _do_set_translatables(self) -> None:
@@ -223,8 +216,8 @@ class WelcomeWindow(BettyMainWindow):
 
 
 class _AboutBettyWindow(BettyWindow):
-    width = 500
-    height = 100
+    window_width = 500
+    window_height = 100
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -247,8 +240,8 @@ class _AboutBettyWindow(BettyWindow):
 
 
 class ApplicationConfiguration(BettyWindow):
-    width = 400
-    height = 150
+    window_width = 400
+    window_height = 150
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -264,7 +257,3 @@ class ApplicationConfiguration(BettyWindow):
     @property
     def title(self) -> str:
         return _('Configuration')
-
-    @property
-    def extension_types(self) -> Sequence[Type[Extension]]:
-        return [import_any(extension_name) for extension_name in self._EXTENSION_NAMES]

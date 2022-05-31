@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-05-16 23:56+0100\n"
+"POT-Creation-Date: 2022-06-01 16:02+0100\n"
 "PO-Revision-Date: 2020-11-27 19:49+0100\n"
 "Last-Translator: \n"
 "Language: fr\n"
@@ -549,6 +549,9 @@ msgstr ""
 #, fuzzy
 msgid "Locale"
 msgstr "Un nom de language."
+
+msgid "Locale aliases must not contain slashes."
+msgstr ""
 
 msgid "Locales configuration must be a list."
 msgstr ""

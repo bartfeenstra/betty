@@ -1,10 +1,14 @@
-from typing import Optional, List, Any, Iterable
+from typing import Optional, List, Any, Iterable, TYPE_CHECKING
 
 from reactives import reactive, ReactiveList
 
 from betty.config import Path, ConfigurationError, Configuration, ensure_path, DumpedConfiguration
 from betty.error import ensure_context
 from betty.os import PathLike
+
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 
 class FamilyTreeConfiguration(Configuration):
@@ -17,7 +21,7 @@ class FamilyTreeConfiguration(Configuration):
             return False
         return self._file_path == other.file_path
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def file_path(self) -> Optional[Path]:
         return self._file_path

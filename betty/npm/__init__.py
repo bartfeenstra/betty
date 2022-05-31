@@ -8,14 +8,17 @@ from asyncio import subprocess as aiosubprocess
 from contextlib import suppress
 from pathlib import Path
 from subprocess import CalledProcessError
-from typing import Sequence, Set, Optional, Type
+from typing import Sequence, Set, Optional, Type, TYPE_CHECKING
 
 from aiofiles.tempfile import TemporaryDirectory
 
 from betty import subprocess
 from betty.app.extension import Extension, discover_extension_types
 from betty.asyncio import sync
-from betty.requirement import Requirement, AnyRequirement
+from betty.requirement import Requirement, AnyRequirement, AllRequirements
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 
 async def npm(arguments: Sequence[str], **kwargs) -> aiosubprocess.Process:
@@ -68,12 +71,13 @@ def is_assets_build_directory_path(path: Path) -> bool:
 
 
 class _AssetsRequirement(Requirement):
-    def __init__(self, extension_types: Set[Type[Extension | NpmBuilder]]):
+    def __init__(self, extension_types: Set[Type[Extension] | Type[NpmBuilder]]):
         self._extension_types = extension_types
         self._summary = _('Pre-built assets')
+        self._details: Optional[str]
         if not self.met:
             extension_names = sorted(
-                extension_type.name()
+                extension_type.name()  # type: ignore
                 for extension_type
                 in self._extension_types - self._extension_types_with_built_assets
             )
@@ -117,8 +121,13 @@ def discover_npm_builders() -> Set[Type[Extension | NpmBuilder]]:
     }
 
 
-def _get_assets_directory_path(extension_type: Type[Extension | NpmBuilder]) -> Path:
-    return extension_type.assets_directory_path() / _Npm.name()
+def _get_assets_directory_path(extension_type: Type[Extension] | Type[NpmBuilder]) -> Path:
+    assert issubclass(extension_type, Extension)
+    assert issubclass(extension_type, NpmBuilder)
+    assets_directory_path = extension_type.assets_directory_path()
+    if not assets_directory_path:
+        raise RuntimeError(f'Extension {extension_type} does not have an assets directory.')
+    return assets_directory_path / _Npm.name()
 
 
 def _get_assets_src_directory_path(extension_type: Type[Extension | NpmBuilder]) -> Path:
@@ -136,6 +145,8 @@ async def build_assets(extension: Extension | NpmBuilder) -> Path:
 
 
 async def _build_assets_to_directory_path(extension: Extension | NpmBuilder, assets_directory_path: Path) -> None:
+    assert isinstance(extension, Extension)
+    assert isinstance(extension, NpmBuilder)
     with suppress(FileNotFoundError):
         shutil.rmtree(assets_directory_path)
     os.makedirs(assets_directory_path)
@@ -144,25 +155,28 @@ async def _build_assets_to_directory_path(extension: Extension | NpmBuilder, ass
 
 
 class _Npm(Extension):
-    _npm_requirement = None
-    _assets_requirement = None
-    _requirement = None
+    _npm_requirement: Optional[_NpmRequirement] = None
+    _assets_requirement: Optional[_AssetsRequirement] = None
+    _requirement: Optional[AllRequirements] = None
 
     @classmethod
     def _ensure_requirements(cls) -> None:
         if cls._requirement is None:
             cls._npm_requirement = _NpmRequirement.check()
             cls._assets_requirement = _AssetsRequirement(discover_npm_builders())
-            cls._requirement = AnyRequirement([cls._npm_requirement, cls._assets_requirement])
+            assert cls._npm_requirement is not None
+            assert cls._assets_requirement is not None
+            cls._requirement = AllRequirements((AnyRequirement((cls._npm_requirement, cls._assets_requirement)),))
 
     @classmethod
-    def requires(cls) -> Requirement:
+    def requires(cls) -> AllRequirements:
         cls._ensure_requirements()
         return super().requires() + cls._requirement
 
     async def install(self, extension_type: Type[Extension | NpmBuilder], working_directory_path: Path) -> None:
         self._ensure_requirements()
-        self._npm_requirement.assert_met()
+        if self._npm_requirement:
+            self._npm_requirement.assert_met()
 
         shutil.copytree(
             _get_assets_src_directory_path(extension_type),
@@ -173,6 +187,7 @@ class _Npm(Extension):
         await npm(['install', '--production'], cwd=working_directory_path)
 
     def _get_cached_assets_build_directory_path(self, extension_type: Type[Extension | NpmBuilder]) -> Path:
+        assert issubclass(extension_type, Extension) and issubclass(extension_type, NpmBuilder)
         return self.cache_directory_path / extension_type.name()
 
     async def ensure_assets(self, extension: Extension | NpmBuilder) -> Path:
@@ -184,7 +199,8 @@ class _Npm(Extension):
             if is_assets_build_directory_path(assets_build_directory_path):
                 return assets_build_directory_path
 
-        self._npm_requirement.assert_met()
+        if self._npm_requirement:
+            self._npm_requirement.assert_met()
         return await self._build_cached_assets(extension)
 
     async def _build_cached_assets(self, extension: Extension | NpmBuilder) -> Path:

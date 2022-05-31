@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import functools
 import traceback
-from typing import Optional, Callable, Any, List
+from typing import Optional, Callable, Any, List, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 from PyQt6.QtCore import QMetaObject, Qt, Q_ARG, QObject
 from PyQt6.QtGui import QCloseEvent, QIcon
@@ -87,12 +90,14 @@ class Error(QMessageBox):
         self.button(QMessageBox.StandardButton.Close).setIcon(QIcon())
         self.setDefaultButton(QMessageBox.StandardButton.Close)
         self.setEscapeButton(QMessageBox.StandardButton.Close)
-        self.button(QMessageBox.StandardButton.Close).clicked.connect(self.close)
+        self.button(QMessageBox.StandardButton.Close).clicked.connect(self.close)  # type: ignore
 
     def closeEvent(self, event: QCloseEvent) -> None:
         Error._errors.remove(self)
         if self._close_parent:
-            self.parent().close()
+            parent = self.parent()
+            if isinstance(parent, QWidget):
+                parent.close()
         super().closeEvent(event)
 
 

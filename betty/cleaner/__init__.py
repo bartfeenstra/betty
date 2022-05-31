@@ -1,13 +1,14 @@
-from collections import defaultdict
-
 from betty.anonymizer import Anonymizer
 from betty.app.extension import Extension
 
 try:
     from graphlib import TopologicalSorter
 except ImportError:
-    from graphlib_backport import TopologicalSorter
-from typing import Set, Type, Dict
+    from graphlib_backport import TopologicalSorter  # type: ignore
+from typing import Set, Type, Dict, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 from betty.model.ancestry import Ancestry, Place, File, Person, Event, Source, Citation
 from betty.gui import GuiBuilder
@@ -39,10 +40,13 @@ def _clean_event(ancestry: Ancestry, event: Event) -> None:
     del ancestry.entities[Event][event]
 
 
+_PlacesGraph = Dict[Place, Set[Place]]
+
+
 def _clean_places(ancestry: Ancestry) -> None:
     places = ancestry.entities[Place]
 
-    def _extend_place_graph(graph: Dict, enclosing_place: Place) -> None:
+    def _extend_place_graph(graph: _PlacesGraph, enclosing_place: Place) -> None:
         enclosures = enclosing_place.encloses
         # Ensure each place appears in the graph, even if they're anonymous.
         graph.setdefault(enclosing_place, set())
@@ -53,7 +57,7 @@ def _clean_places(ancestry: Ancestry) -> None:
             if not seen_enclosed_place:
                 _extend_place_graph(graph, enclosed_place)
 
-    places_graph = defaultdict(set)
+    places_graph: _PlacesGraph = {}
     for place in places:
         _extend_place_graph(places_graph, place)
 

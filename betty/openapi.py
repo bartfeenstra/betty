@@ -1,8 +1,12 @@
-from typing import Dict
+from typing import Dict, TYPE_CHECKING
 
 from betty import about
 from betty.app import App
 from betty.media_type import EXTENSIONS
+
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 
 class _Resource:
@@ -17,18 +21,48 @@ class _Resource:
 
 def _get_resources():
     return [
-        _Resource('file', _('Retrieve the collection of files.'), _(
-            'The collection of files.'), _('Retrieve a single file.'), _('The file.')),
-        _Resource('person', _('Retrieve the collection of people.'), _(
-            'The collection of people.'), _('Retrieve a single person.'), _('The person.')),
-        _Resource('place', _('Retrieve the collection of places.'), _(
-            'The collection of places.'), _('Retrieve a single place.'), _('The place.')),
-        _Resource('event', _('Retrieve the collection of events.'), _(
-            'The collection of events.'), _('Retrieve a single event.'), _('The event.')),
-        _Resource('citation', _('Retrieve the collection of citations.'), _(
-            'The collection of citations.'), _('Retrieve a single citation.'), _('The citation.')),
-        _Resource('source', _('Retrieve the collection of sources.'), _(
-            'The collection of sources.'), _('Retrieve a single source.'), _('The source.')),
+        _Resource(
+            'file',
+            _('Retrieve the collection of files.'),
+            _('The collection of files.'),
+            _('Retrieve a single file.'),
+            _('The file.'),
+        ),
+        _Resource(
+            'person',
+            _('Retrieve the collection of people.'),
+            _('The collection of people.'),
+            _('Retrieve a single person.'),
+            _('The person.'),
+        ),
+        _Resource(
+            'place',
+            _('Retrieve the collection of places.'),
+            _('The collection of places.'),
+            _('Retrieve a single place.'),
+            _('The place.'),
+        ),
+        _Resource(
+            'event',
+            _('Retrieve the collection of events.'),
+            _('The collection of events.'),
+            _('Retrieve a single event.'),
+            _('The event.'),
+        ),
+        _Resource(
+            'citation',
+            _('Retrieve the collection of citations.'),
+            _('The collection of citations.'),
+            _('Retrieve a single citation.'),
+            _('The citation.'),
+        ),
+        _Resource(
+            'source',
+            _('Retrieve the collection of sources.'),
+            _('The collection of sources.'),
+            _('Retrieve a single source.'),
+            _('The source.'),
+        ),
     ]
 
 
@@ -114,7 +148,7 @@ def build_specification(app: App) -> Dict:
         else:
             collection_path = '/{locale}/%s/index.json' % resource.name
             single_path = '/{locale}/%s/{id}/index.json' % resource.name
-        specification['paths'].update({
+        specification['paths'].update({  # type: ignore
             collection_path: {
                 'get': {
                     'summary': resource.collection_endpoint_summary,
@@ -153,7 +187,7 @@ def build_specification(app: App) -> Dict:
 
     # Add components for content negotiation.
     if app.project.configuration.content_negotiation:
-        specification['components']['parameters']['Accept'] = {
+        specification['components']['parameters']['Accept'] = {  # type: ignore
             'name': 'Accept',
             'in': 'header',
             'description': _('An HTTP [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header.'),
@@ -161,7 +195,7 @@ def build_specification(app: App) -> Dict:
                 'enum': list(EXTENSIONS.keys()),
             },
         }
-        specification['components']['parameters']['Accept-Language'] = {
+        specification['components']['parameters']['Accept-Language'] = {  # type: ignore
             'name': 'Accept-Language',
             'in': 'header',
             'description': _('An HTTP [Accept-Language](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language) header.'),
@@ -170,12 +204,12 @@ def build_specification(app: App) -> Dict:
             },
             'example': app.project.configuration.locales[app.project.configuration.locales.default.locale].alias,
         }
-        specification['components']['schemas']['html'] = {
+        specification['components']['schemas']['html'] = {  # type: ignore
             'type': 'string',
             'description': _('An HTML5 document.'),
         }
     else:
-        specification['components']['parameters']['locale'] = {
+        specification['components']['parameters']['locale'] = {  # type: ignore
             'name': 'locale',
             'in': 'path',
             'required': True,
@@ -189,7 +223,7 @@ def build_specification(app: App) -> Dict:
 
     # Add default behavior to all requests.
     for path in specification['paths']:
-        specification['paths'][path]['get']['responses'].update({
+        specification['paths'][path]['get']['responses'].update({  # type: ignore
             '401': {
                 '$ref': '#/components/responses/401',
             },
@@ -201,7 +235,7 @@ def build_specification(app: App) -> Dict:
             },
         })
         if app.project.configuration.content_negotiation:
-            specification['paths'][path]['parameters'] = [
+            specification['paths'][path]['parameters'] = [  # type: ignore
                 {
                     '$ref': '#/components/parameters/Accept',
                 },
@@ -210,7 +244,7 @@ def build_specification(app: App) -> Dict:
                 },
             ]
         else:
-            specification['paths'][path]['parameters'] = [
+            specification['paths'][path]['parameters'] = [  # type: ignore
                 {
                     '$ref': '#/components/parameters/locale',
                 },
@@ -218,10 +252,10 @@ def build_specification(app: App) -> Dict:
 
     # Add default behavior to all responses.
     if app.project.configuration.content_negotiation:
-        responses = list(specification['components']['responses'].values())
+        responses = list(specification['components']['responses'].values())  # type: ignore
         for path in specification['paths']:
             responses.append(
-                specification['paths'][path]['get']['responses']['200'])
+                specification['paths'][path]['get']['responses']['200'])  # type: ignore
         for response in responses:
             response['content']['text/html'] = {
                 'schema': {

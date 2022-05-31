@@ -245,10 +245,10 @@ class Citation(Dated, HasFiles, HasPrivacy, Entity):
     source: Source
     location: Optional[str]
 
-    def __init__(self, citation_id: Optional[str], source: Source):
+    def __init__(self, citation_id: Optional[str], source: Optional[Source]):
         super().__init__(citation_id)
         self.location = None
-        self.source = source
+        self.source = source  # type: ignore
 
     @property
     def facts(self) -> EntityCollection[HasCitations]:
@@ -295,10 +295,10 @@ class Enclosure(Dated, HasCitations, Entity):
     encloses: Place
     enclosed_by: Place
 
-    def __init__(self, encloses: Place, enclosed_by: Place, *args, **kwargs):
+    def __init__(self, encloses: Optional[Place], enclosed_by: Optional[Place], *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.encloses = encloses
-        self.enclosed_by = enclosed_by
+        self.encloses = encloses  # type: ignore
+        self.enclosed_by = enclosed_by  # type: ignore
 
     @classmethod
     def entity_type_label(cls) -> str:
@@ -430,11 +430,11 @@ class Presence(Entity):
     event: Event
     role: PresenceRole
 
-    def __init__(self, person: Person, role: PresenceRole, event: Event, *args, **kwargs):
+    def __init__(self, person: Optional[Person], role: PresenceRole, event: Optional[Event], *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.person = person
+        self.person = person  # type: ignore
         self.role = role
-        self.event = event
+        self.event = event  # type: ignore
 
     @classmethod
     def entity_type_label(cls) -> str:
@@ -494,13 +494,13 @@ class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, Entity):
 class PersonName(Localized, HasCitations, Entity):
     person: Person
 
-    def __init__(self, person: Person, individual: Optional[str] = None, affiliation: Optional[str] = None, *args, **kwargs):
+    def __init__(self, person: Optional[Person], individual: Optional[str] = None, affiliation: Optional[str] = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._individual = individual
         self._affiliation = affiliation
         # Set the person association last, because the association requires comparisons, and self.__eq__() uses the
         # individual and affiliation names.
-        self.person = person
+        self.person = person  # type: ignore
 
     @classmethod
     def entity_type_label(cls) -> str:

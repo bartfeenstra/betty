@@ -1,13 +1,12 @@
 import asyncio
-import gc
 import inspect
 import sys
-import types
 from asyncio import events, coroutines
-from asyncio.runners import _cancel_all_tasks
+from asyncio.runners import _cancel_all_tasks  # type: ignore
 from contextlib import suppress
 from functools import wraps
 from threading import Thread
+from typing import Any
 
 
 def _sync_function(f):
@@ -65,12 +64,9 @@ def _run(main, *, debug=None):
             loop.run_until_complete(loop.shutdown_asyncgens())
             # Improvement: Python 3.9 added the ability to shut down the default executor.
             if sys.version_info.minor >= 9:
-                loop.run_until_complete(loop.shutdown_default_executor())
-            # Improvement: Work around BPO-39232 (https://bugs.python.org/issue39232) based on
-            # https://github.com/Cog-Creators/Red-DiscordBot/pull/3566/files.
-            if sys.platform == 'win32':
-                gc.collect()
-                loop._check_closed = types.MethodType(lambda: None, loop)
+                loop.run_until_complete(
+                    loop.shutdown_default_executor()  # type: ignore
+                )
         finally:
             events.set_event_loop(None)
             loop.close()
@@ -90,7 +86,7 @@ class _SyncedAwaitable(Thread):
         except BaseException as e:
             self._e = e
 
-    def join(self, *args, **kwargs) -> None:
+    def join(self, *args, **kwargs) -> Any:
         super().join(*args, **kwargs)
         if self._e:
             raise self._e

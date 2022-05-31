@@ -81,6 +81,7 @@ SETUP = {
             'twine ~= 4.0.0',
             'types-aiofiles ~= 0.8.8',
             'types-mock ~= 4.0.13',
+            'types-polib ~= 1.1.12',
             'types-pyyaml ~= 6.0.6',
             'types-requests ~= 2.27.19',
             'types-setuptools ~= 57.4.14',

@@ -191,8 +191,8 @@ class Demo(Extension, Loader):
 
 class DemoServer(Server):
     def __init__(self):
-        self._server = None
-        self._app = None
+        self._app = App()
+        self._server = serve.AppServer(self._app)
         self._stack = ExitStack()
 
     @property
@@ -200,8 +200,7 @@ class DemoServer(Server):
         return self._server.public_url
 
     async def start(self) -> None:
-        self._app = App()
-        self._stack.enter_context(self._app.acquire_locale())
+        self._stack.enter_context(self._app)
         self._app.project.configuration.extensions.add(ProjectExtensionConfiguration(Demo))
         # Include all of the translations Betty ships with.
         self._app.project.configuration.locales.replace([
@@ -210,11 +209,9 @@ class DemoServer(Server):
             LocaleConfiguration('fr-FR', 'fr'),
             LocaleConfiguration('uk', 'uk'),
         ])
-        self._server = None
         try:
             await load.load(self._app)
             await generate.generate(self._app)
-            self._server = serve.AppServer(self._app)
             await self._server.start()
         except BaseException:
             self._stack.close()

@@ -1,10 +1,11 @@
-from concurrent.futures._base import Executor, wait
+from concurrent.futures._base import Executor, wait, Future
+from typing import List
 
 
 class ExceptionRaisingAwaitableExecutor(Executor):
     def __init__(self, executor: Executor):
         self._executor = executor
-        self._awaitables = []
+        self._awaitables: List[Future] = []
 
     def submit(self, *args, **kwargs):
         future = self._executor.submit(*args, **kwargs)

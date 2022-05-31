@@ -4,7 +4,7 @@ import tarfile
 from collections import defaultdict
 from contextlib import suppress
 from tempfile import TemporaryDirectory
-from typing import Optional, List, Union, Iterable
+from typing import Optional, List, Union, Iterable, Dict, Type, Tuple
 from xml.etree import ElementTree
 
 import aiofiles
@@ -12,7 +12,7 @@ from geopy import Point
 
 from betty.config import Path
 from betty.gramps.error import GrampsError
-from betty.load import getLogger, Loader
+from betty.load import getLogger
 from betty.locale import DateRange, Datey, Date
 from betty.media_type import MediaType
 from betty.model import Entity, FlattenedEntityCollection, FlattenedEntity, unflatten
@@ -31,6 +31,11 @@ class GrampsLoadFileError(GrampsError, RuntimeError):
 
 
 class GrampsFileNotFoundError(GrampsError, FileNotFoundError):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+class XPathError(GrampsError, RuntimeError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -63,9 +68,13 @@ async def load_file(ancestry: Ancestry, file_path: PathLike) -> None:
 def load_gramps(ancestry: Ancestry, gramps_path: PathLike) -> None:
     gramps_path = Path(gramps_path).resolve()
     try:
-        with gzip.open(gramps_path) as f:
+        with gzip.open(gramps_path, mode='r') as f:
             xml = f.read()
-        load_xml(ancestry, xml, rootname(gramps_path))
+        load_xml(
+            ancestry,
+            xml,  # type: ignore
+            rootname(gramps_path),
+        )
     except OSError:
         raise GrampsLoadFileError()
 
@@ -76,7 +85,9 @@ def load_gpkg(ancestry: Ancestry, gpkg_path: PathLike) -> None:
         tar_file = gzip.open(gpkg_path)
         try:
             with TemporaryDirectory() as cache_directory_path:
-                tarfile.open(fileobj=tar_file).extractall(cache_directory_path)
+                tarfile.open(
+                    fileobj=tar_file,  # type: ignore
+                ).extractall(cache_directory_path)
                 load_gramps(ancestry, Path(cache_directory_path) / 'data.gramps')
         except tarfile.ReadError:
             raise GrampsLoadFileError('Could not read "%s" as a *.tar file after un-gzipping it.' % gpkg_path)
@@ -90,17 +101,19 @@ def load_xml(ancestry: Ancestry, xml: Union[str, PathLike], gramps_tree_director
         with open(xml) as f:
             xml = f.read()
     try:
-        tree = ElementTree.ElementTree(ElementTree.fromstring(xml))
+        tree = ElementTree.ElementTree(ElementTree.fromstring(
+            xml,  # type: ignore
+        ))
     except ElementTree.ParseError as e:
         raise GrampsLoadFileError(e)
     _Loader(ancestry, tree, gramps_tree_directory_path).load()
 
 
-class _Loader(Loader):
+class _Loader:
     def __init__(self, ancestry: Ancestry, tree: ElementTree.ElementTree, gramps_tree_directory_path: Path):
         self._ancestry = ancestry
         self._flattened_entities = FlattenedEntityCollection()
-        self._added_entity_counts = defaultdict(lambda: 0)
+        self._added_entity_counts: Dict[Type[Entity], int] = defaultdict(lambda: 0)
         self._tree = tree
         self._gramps_tree_directory_path = gramps_tree_directory_path
 
@@ -155,8 +168,11 @@ def _xpath(element: ElementTree.Element, selector: str) -> List[ElementTree.Elem
     return element.findall(selector, namespaces=_NS)
 
 
-def _xpath1(element: ElementTree.Element, selector: str) -> Optional[ElementTree.Element]:
-    return element.find(selector, namespaces=_NS)
+def _xpath1(element: ElementTree.Element, selector: str) -> ElementTree.Element:
+    found_element = element.find(selector, namespaces=_NS)
+    if found_element is None:
+        raise XPathError(f'Cannot find an element "{selector}" within {element}.')
+    return found_element
 
 
 _DATE_PATTERN = re.compile(r'^.{4}((-.{2})?-.{2})?$')
@@ -164,36 +180,44 @@ _DATE_PART_PATTERN = re.compile(r'^\d+$')
 
 
 def _load_date(element: ElementTree.Element) -> Optional[Datey]:
-    dateval_element = _xpath1(element, './ns:dateval')
-    if dateval_element is not None and dateval_element.get('cformat') is None:
-        dateval_type = dateval_element.get('type')
-        if dateval_type is None:
-            return _load_dateval(dateval_element, 'val')
-        dateval_type = str(dateval_type)
-        if dateval_type == 'about':
-            date = _load_dateval(dateval_element, 'val')
-            if date is None:
-                return None
-            date.fuzzy = True
-            return date
-        if dateval_type == 'before':
-            return DateRange(None, _load_dateval(dateval_element, 'val'), end_is_boundary=True)
-        if dateval_type == 'after':
-            return DateRange(_load_dateval(dateval_element, 'val'), start_is_boundary=True)
-    datespan_element = _xpath1(element, './ns:datespan')
-    if datespan_element is not None and datespan_element.get('cformat') is None:
-        return DateRange(_load_dateval(datespan_element, 'start'), _load_dateval(datespan_element, 'stop'))
-    daterange_element = _xpath1(element, './ns:daterange')
-    if daterange_element is not None and daterange_element.get('cformat') is None:
-        return DateRange(_load_dateval(daterange_element, 'start'), _load_dateval(daterange_element, 'stop'), start_is_boundary=True, end_is_boundary=True)
+    with suppress(XPathError):
+        dateval_element = _xpath1(element, './ns:dateval')
+        if dateval_element.get('cformat') is None:
+            dateval_type = dateval_element.get('type')
+            if dateval_type is None:
+                return _load_dateval(dateval_element, 'val')
+            dateval_type = str(dateval_type)
+            if dateval_type == 'about':
+                date = _load_dateval(dateval_element, 'val')
+                if date is None:
+                    return None
+                date.fuzzy = True
+                return date
+            if dateval_type == 'before':
+                return DateRange(None, _load_dateval(dateval_element, 'val'), end_is_boundary=True)
+            if dateval_type == 'after':
+                return DateRange(_load_dateval(dateval_element, 'val'), start_is_boundary=True)
+    with suppress(XPathError):
+        datespan_element = _xpath1(element, './ns:datespan')
+        if datespan_element.get('cformat') is None:
+            return DateRange(_load_dateval(datespan_element, 'start'), _load_dateval(datespan_element, 'stop'))
+    with suppress(XPathError):
+        daterange_element = _xpath1(element, './ns:daterange')
+        if daterange_element.get('cformat') is None:
+            return DateRange(_load_dateval(daterange_element, 'start'), _load_dateval(daterange_element, 'stop'), start_is_boundary=True, end_is_boundary=True)
     return None
 
 
 def _load_dateval(element: ElementTree.Element, value_attribute_name: str) -> Optional[Date]:
     dateval = str(element.get(value_attribute_name))
     if _DATE_PATTERN.fullmatch(dateval):
-        date_parts = [int(part) if _DATE_PART_PATTERN.fullmatch(
-            part) and int(part) > 0 else None for part in dateval.split('-')]
+        date_parts: Tuple[Optional[int], Optional[int], Optional[int]] = tuple(  # type: ignore
+            int(part)
+            if _DATE_PART_PATTERN.fullmatch(part) and int(part) > 0
+            else None
+            for part
+            in dateval.split('-')
+        )
         date = Date(*date_parts)
         dateval_quality = element.get('quality')
         if dateval_quality == 'estimated':
@@ -202,30 +226,37 @@ def _load_dateval(element: ElementTree.Element, value_attribute_name: str) -> Op
     return None
 
 
-def _load_notes(loader: _Loader, database: ElementTree.Element):
+def _load_notes(loader: _Loader, database: ElementTree.Element) -> None:
     for element in _xpath(database, './ns:notes/ns:note'):
         _load_note(loader, element)
 
 
-def _load_note(loader: _Loader, element: ElementTree.Element):
+def _load_note(loader: _Loader, element: ElementTree.Element) -> None:
     handle = element.get('handle')
     note_id = element.get('id')
-    text = _xpath1(element, './ns:text').text
+    assert note_id is not None
+    text_element = _xpath1(element, './ns:text')
+    assert text_element is not None
+    text = str(text_element.text)
     loader.add_entity(FlattenedEntity(Note(note_id, text), handle))
 
 
-def _load_objects(loader: _Loader, database: ElementTree.Element, gramps_tree_directory_path: Path):
+def _load_objects(loader: _Loader, database: ElementTree.Element, gramps_tree_directory_path: Path) -> None:
     for element in _xpath(database, './ns:objects/ns:object'):
         _load_object(loader, element, gramps_tree_directory_path)
 
 
-def _load_object(loader: _Loader, element: ElementTree.Element, gramps_tree_directory_path: Path):
+def _load_object(loader: _Loader, element: ElementTree.Element, gramps_tree_directory_path: Path) -> None:
     file_handle = element.get('handle')
     file_id = element.get('id')
     file_element = _xpath1(element, './ns:file')
-    file_path = gramps_tree_directory_path / file_element.get('src')
+    src = file_element.get('src')
+    assert src is not None
+    file_path = gramps_tree_directory_path / src
     file = File(file_id, file_path)
-    file.media_type = MediaType(file_element.get('mime'))
+    mime = file_element.get('mime')
+    assert mime is not None
+    file.media_type = MediaType(mime)
     description = file_element.get('description')
     if description:
         file.description = description
@@ -237,23 +268,33 @@ def _load_object(loader: _Loader, element: ElementTree.Element, gramps_tree_dire
         loader.add_association(File, file_handle, 'notes', Note, note_handle)
 
 
-def _load_people(loader: _Loader, database: ElementTree.Element):
+def _load_people(loader: _Loader, database: ElementTree.Element) -> None:
     for element in _xpath(database, './ns:people/ns:person'):
         _load_person(loader, element)
 
 
-def _load_person(loader: _Loader, element: ElementTree.Element):
+def _load_person(loader: _Loader, element: ElementTree.Element) -> None:
     person_handle = element.get('handle')
+    assert person_handle is not None
     person = Person(element.get('id'))
 
     name_elements = sorted(_xpath(element, './ns:name'), key=lambda x: x.get('alt') == '1')
     person_names = []
     for name_element in name_elements:
         is_alternative = name_element.get('alt') == '1'
-        individual_name_element = _xpath1(name_element, './ns:first')
-        individual_name = None if individual_name_element is None else individual_name_element.text
-        surname_elements = [surname_element for surname_element in _xpath(
-            name_element, './ns:surname') if surname_element.text is not None]
+        try:
+            individual_name = _xpath1(name_element, './ns:first').text
+        except XPathError:
+            individual_name = None
+        surname_elements = [
+            surname_element
+            for surname_element
+            in _xpath(
+                name_element,
+                './ns:surname'
+            )
+            if surname_element.text is not None
+        ]
         if surname_elements:
             for surname_element in surname_elements:
                 if not is_alternative:
@@ -286,12 +327,12 @@ def _load_person(loader: _Loader, element: ElementTree.Element):
     loader.add_entity(flattened_person)
 
 
-def _load_families(loader: _Loader, database: ElementTree.Element):
+def _load_families(loader: _Loader, database: ElementTree.Element) -> None:
     for element in _xpath(database, './ns:families/ns:family'):
         _load_family(loader, element)
 
 
-def _load_family(loader: _Loader, element: ElementTree.Element):
+def _load_family(loader: _Loader, element: ElementTree.Element) -> None:
     parent_handles = []
 
     # Load the father.
@@ -351,8 +392,9 @@ def _load_place(loader: _Loader, element: ElementTree.Element) -> None:
         # The Gramps language is a single ISO language code, which is a valid BCP 47 locale.
         language = name_element.get('lang')
         date = _load_date(name_element)
-        name = PlaceName(name_element.get('value'), locale=language, date=date)
-        names.append(name)
+        name = name_element.get('value')
+        assert name is not None
+        names.append(PlaceName(name, locale=language, date=date))
 
     place = Place(element.get('id'), names)
 
@@ -372,18 +414,16 @@ def _load_place(loader: _Loader, element: ElementTree.Element) -> None:
 
 
 def _load_coordinates(element: ElementTree.Element) -> Optional[Point]:
-    coord_element = _xpath1(element, './ns:coord')
+    with suppress(XPathError):
+        coord_element = _xpath1(element, './ns:coord')
 
-    if coord_element is None:
-        return None
-
-    # We could not load/validate the Gramps coordinates, because they are too freeform.
-    with suppress(BaseException):
-        return Point(coord_element.get('lat'), coord_element.get('long'))
+        # We could not load/validate the Gramps coordinates, because they are too freeform.
+        with suppress(BaseException):
+            return Point(coord_element.get('lat'), coord_element.get('long'))
     return None
 
 
-def _load_events(loader: _Loader, database: ElementTree.Element):
+def _load_events(loader: _Loader, database: ElementTree.Element) -> None:
     for element in _xpath(database, './ns:events/ns:event'):
         _load_event(loader, element)
 
@@ -413,17 +453,18 @@ _EVENT_TYPE_MAP = {
 }
 
 
-def _load_event(loader: _Loader, element: ElementTree.Element):
+def _load_event(loader: _Loader, element: ElementTree.Element) -> None:
     event_handle = element.get('handle')
     event_id = element.get('id')
-    gramps_type = _xpath1(element, './ns:type')
+    gramps_type = _xpath1(element, './ns:type').text
+    assert gramps_type is not None
 
     try:
-        event_type = _EVENT_TYPE_MAP[gramps_type.text]
+        event_type = _EVENT_TYPE_MAP[gramps_type]
     except KeyError:
         event_type = UnknownEventType()
         getLogger().warning(
-            'Betty is unfamiliar with Gramps event "%s"\'s type of "%s". The event was imported, but its type was set to "%s".' % (event_id, gramps_type.text, event_type.label))
+            'Betty is unfamiliar with Gramps event "%s"\'s type of "%s". The event was imported, but its type was set to "%s".' % (event_id, gramps_type, event_type.label))
 
     event = Event(event_id, event_type)
 
@@ -435,9 +476,8 @@ def _load_event(loader: _Loader, element: ElementTree.Element):
         loader.add_association(Event, event_handle, 'place', Place, place_handle)
 
     # Load the description.
-    description_element = _xpath1(element, './ns:description')
-    if description_element is not None:
-        event.description = description_element.text
+    with suppress(XPathError):
+        event.description = _xpath1(element, './ns:description').text
 
     _load_attribute_privacy(event, element, 'attribute')
 
@@ -455,36 +495,44 @@ def _load_repositories(loader: _Loader, database: ElementTree.Element) -> None:
 def _load_repository(loader: _Loader, element: ElementTree.Element) -> None:
     repository_source_handle = element.get('handle')
 
-    source = Source(element.get('id'), _xpath1(element, './ns:rname').text)
+    source = Source(
+        element.get('id'),
+        _xpath1(element, './ns:rname').text,
+    )
 
     _load_urls(source, element)
 
     loader.add_entity(FlattenedEntity(source, repository_source_handle))
 
 
-def _load_sources(loader: _Loader, database: ElementTree.Element):
+def _load_sources(loader: _Loader, database: ElementTree.Element) -> None:
     for element in _xpath(database, './ns:sources/ns:source'):
         _load_source(loader, element)
 
 
 def _load_source(loader: _Loader, element: ElementTree.Element) -> None:
     source_handle = element.get('handle')
+    try:
+        source_name = _xpath1(element, './ns:stitle').text
+    except XPathError:
+        source_name = None
 
-    source = Source(element.get('id'), _xpath1(element, './ns:stitle').text)
+    source = Source(
+        element.get('id'),
+        source_name
+    )
 
     repository_source_handle = _load_handle('reporef', element)
     if repository_source_handle is not None:
         loader.add_association(Source, source_handle, 'contained_by', Source, repository_source_handle)
 
     # Load the author.
-    sauthor_element = _xpath1(element, './ns:sauthor')
-    if sauthor_element is not None:
-        source.author = sauthor_element.text
+    with suppress(XPathError):
+        source.author = _xpath1(element, './ns:sauthor').text
 
     # Load the publication info.
-    spubinfo_element = _xpath1(element, './ns:spubinfo')
-    if spubinfo_element is not None:
-        source.publisher = spubinfo_element.text
+    with suppress(XPathError):
+        source.publisher = _xpath1(element, './ns:spubinfo').text
 
     _load_attribute_privacy(source, element, 'srcattribute')
 
@@ -508,37 +556,39 @@ def _load_citation(loader: _Loader, element: ElementTree.Element) -> None:
     citation.date = _load_date(element)
     _load_attribute_privacy(citation, element, 'srcattribute')
 
-    page = _xpath1(element, './ns:page')
-    if page is not None:
-        citation.location = page.text
+    with suppress(XPathError):
+        citation.location = _xpath1(element, './ns:page').text
 
     flattened_citation = FlattenedEntity(citation, citation_handle)
     _load_objref(loader, flattened_citation, element)
     loader.add_entity(flattened_citation)
 
 
-def _load_citationref(loader: _Loader, owner: Entity, element: ElementTree.Element):
+def _load_citationref(loader: _Loader, owner: Entity, element: ElementTree.Element) -> None:
     for citation_handle in _load_handles('citationref', element):
         loader.add_association(unflatten(owner).entity_type(), owner.id, 'citations', Citation, citation_handle)
 
 
 def _load_handles(handle_type: str, element: ElementTree.Element) -> Iterable[str]:
     for citation_handle_element in _xpath(element, f'./ns:{handle_type}'):
-        yield citation_handle_element.get('hlink')
+        hlink = citation_handle_element.get('hlink')
+        if hlink:
+            yield hlink
 
 
 def _load_handle(handle_type: str, element: ElementTree.Element) -> Optional[str]:
     for citation_handle_element in _xpath(element, f'./ns:{handle_type}'):
         return citation_handle_element.get('hlink')
+    return None
 
 
-def _load_objref(loader: _Loader, owner: Entity, element: ElementTree.Element):
+def _load_objref(loader: _Loader, owner: Entity, element: ElementTree.Element) -> None:
     file_handles = _load_handles('objref', element)
     for file_handle in file_handles:
         loader.add_association(unflatten(owner).entity_type(), owner.id, 'files', File, file_handle)
 
 
-def _load_urls(owner: HasLinks, element: ElementTree.Element):
+def _load_urls(owner: HasLinks, element: ElementTree.Element) -> None:
     url_elements = _xpath(element, './ns:url')
     for url_element in url_elements:
         link = Link(str(url_element.get('href')))
@@ -561,6 +611,6 @@ def _load_attribute_privacy(resource: HasPrivacy, element: ElementTree.Element, 
 
 
 def _load_attribute(name: str, element: ElementTree.Element, tag: str) -> Optional[str]:
-    attribute_element = _xpath1(element, './ns:%s[@type="betty:%s"]' % (tag, name))
-    if attribute_element is not None:
-        return attribute_element.get('value')
+    with suppress(XPathError):
+        return _xpath1(element, './ns:%s[@type="betty:%s"]' % (tag, name)).get('value')
+    return None

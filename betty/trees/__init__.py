@@ -2,7 +2,10 @@ import logging
 import subprocess
 from pathlib import Path
 from shutil import copy2
-from typing import Optional, Iterable, Set, Type
+from typing import Optional, Set, Type, List, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 from betty.app.extension import Extension
 from betty.generate import Generator
@@ -35,16 +38,16 @@ class Trees(Extension, CssProvider, JsProvider, Generator, GuiBuilder, NpmBuilde
         return Path(__file__).parent / 'assets'
 
     @property
-    def public_css_paths(self) -> Iterable[str]:
-        return {
+    def public_css_paths(self) -> List[str]:
+        return [
             self._app.static_url_generator.generate('trees.css'),
-        }
+        ]
 
     @property
-    def public_js_paths(self) -> Iterable[str]:
-        return {
+    def public_js_paths(self) -> List[str]:
+        return [
             self._app.static_url_generator.generate('trees.js'),
-        }
+        ]
 
     @classmethod
     def label(cls) -> str:

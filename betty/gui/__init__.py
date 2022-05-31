@@ -6,13 +6,13 @@ from typing import TYPE_CHECKING, Optional
 
 from PyQt6.QtCore import pyqtSlot, QObject
 from PyQt6.QtGui import QIcon
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget
+from PyQt6.QtWidgets import QApplication, QWidget
 
 from betty.app import App
 from betty.config import APP_CONFIGURATION_FORMATS
 from betty.error import UserFacingError
 from betty.gui.error import ExceptionError, UnexpectedExceptionError
-from betty.gui.locale import LocalizedWidget
+from betty.gui.locale import LocalizedWindow
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -43,14 +43,13 @@ def mark_invalid(widget: QWidget, reason: str) -> None:
     widget.setToolTip(reason)
 
 
-class BettyWindow(QMainWindow, LocalizedWidget):
-    width = NotImplemented
-    height = NotImplemented
+class BettyWindow(LocalizedWindow):
+    window_width = 800
+    window_height = 600
 
     def __init__(self, app: App, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._app = app
-        self.resize(self.width, self.height)
+        super().__init__(app, *args, **kwargs)
+        self.resize(self.window_width, self.window_height)
         self.setWindowIcon(QIcon(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'betty-512x512.png')))
         geometry = self.frameGeometry()
         geometry.moveCenter(QApplication.primaryScreen().availableGeometry().center())

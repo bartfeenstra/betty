@@ -5,7 +5,12 @@ import time
 from contextlib import suppress, contextmanager
 from functools import wraps
 from os import getcwd, path
-from typing import Callable, Dict, Optional
+from typing import Callable, Dict, Optional, TYPE_CHECKING
+
+from PyQt6.QtWidgets import QMainWindow
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 import click
 from click import get_current_context, Context, Option
@@ -151,6 +156,7 @@ async def _demo():
 async def _gui(configuration_file_path: Optional[str]):
     with App() as app:
         qapp = BettyApplication([sys.argv[0]])
+        window: QMainWindow
         if configuration_file_path is None:
             window = WelcomeWindow(app)
         else:

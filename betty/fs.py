@@ -27,7 +27,7 @@ CACHE_DIRECTORY_PATH = HOME_DIRECTORY_PATH / 'cache'
 
 
 async def iterfiles(path: PathLike) -> AsyncIterable[Path]:
-    for dir_path, _, filenames in os.walk(path):
+    for dir_path, _, filenames in os.walk(str(path)):
         for filename in filenames:
             yield Path(dir_path) / filename
 
@@ -38,10 +38,10 @@ def hashfile(path: PathLike) -> str:
 
 class FileSystem:
     class _Open:
-        def __init__(self, fs: FileSystem, file_paths: Tuple[PathLike]):
+        def __init__(self, fs: FileSystem, file_paths: Tuple[PathLike, ...]):
             self._fs = fs
             self._file_paths = file_paths
-            self._file = None
+            self._file: Optional[AsyncContextManager] = None
 
         async def __aenter__(self):
             for file_path in map(Path, self._file_paths):
@@ -62,7 +62,7 @@ class FileSystem:
         return len(self._paths)
 
     @property
-    def paths(self) -> Sequence[Tuple[Path, str]]:
+    def paths(self) -> Sequence[Tuple[Path, Optional[str]]]:
         return list(self._paths)
 
     def prepend(self, path: PathLike, fs_encoding: Optional[str] = None) -> None:
