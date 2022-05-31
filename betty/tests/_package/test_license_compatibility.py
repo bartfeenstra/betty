@@ -5,10 +5,8 @@ import sys
 import piplicenses
 from pkg_resources import get_distribution
 
-from betty.tests import TestCase
 
-
-class PackageLicensesTest(TestCase):
+class TestPackageLicenses:
     _GPL_V3_COMPATIBLE_DISTRIBUTIONS = (
         'PyQt6-sip',
         'graphlib-backport',  # Released under the Python Software Foundation License.
@@ -31,10 +29,10 @@ class PackageLicensesTest(TestCase):
         for compatible_license in self._GPL_V3_COMPATIBLE_LICENSES:
             if compatible_license in package_license['License']:
                 return
-        self.fail("%s is released under the %s, which is not known to be compatible with Betty's own license" % (
+        assert False, "%s is released under the %s, which is not known to be compatible with Betty's own license" % (
             package_license['Name'],
             package_license['License'],
-        ))
+        )
 
     def test_runtime_dependency_license_compatibility(self) -> None:
         """
@@ -61,7 +59,7 @@ class PackageLicensesTest(TestCase):
             sys.stdout = piplicenses_stdout
             piplicenses.main()
             package_licenses = json.loads(piplicenses_stdout.getvalue())
-            self.assertGreater(len(package_licenses), 1)
+            assert len(package_licenses) > 1
             for package_license in package_licenses:
                 self.assert_is_compatible(package_license)
         finally:

@@ -1,6 +1,6 @@
-from typing import Optional, ContextManager, List
+from typing import Optional, ContextManager
 
-from parameterized import parameterized
+import pytest
 
 from betty.app import App
 from betty.locale import DateRange, Date
@@ -11,18 +11,20 @@ from betty.tests import TemplateTestCase
 class Test(TemplateTestCase):
     template_file = 'entity/label--place.html.j2'
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, data, locale', [
         (
             '<address><a href="/place/P0/index.html"><span>The Place</span></a></address>',
             {
                 'entity': Place('P0', [PlaceName('The Place')]),
             },
+            None,
         ),
         (
             '<address><a href="/place/P0/index.html"><span lang="en">The Place</span></a></address>',
             {
                 'entity': Place('P0', [PlaceName('The Place', 'en')]),
             },
+            None,
         ),
         (
             '<address><a href="/place/P0/index.html"><span lang="nl">De Plaats</span></a></address>',
@@ -37,6 +39,7 @@ class Test(TemplateTestCase):
                 'entity': Place('P0', [PlaceName('The Place')]),
                 'embedded': True,
             },
+            None,
         ),
         (
             '<address><a href="/place/P0/index.html"><span lang="nl">De Nieuwe Plaats</span></a></address>',
@@ -50,9 +53,9 @@ class Test(TemplateTestCase):
             'nl',
         ),
     ])
-    def test(self, expected: str, data, locale: Optional[str] = None) -> None:
-        def _set_up(app: App) -> List[ContextManager]:
-            return [app.acquire_locale(locale)]  # type: ignore
+    def test(self, expected: str, data, locale: Optional[str]) -> None:
+        def _set_up(app: App) -> ContextManager[None]:
+            return app.acquire_locale(locale)  # type: ignore
 
         with self._render(data=data, set_up=_set_up) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual

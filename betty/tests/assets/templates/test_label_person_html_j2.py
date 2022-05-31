@@ -12,7 +12,7 @@ class Test(TemplateTestCase):
         with self._render(data={
             'entity': person,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_without_name(self):
         person = Person('P0')
@@ -20,7 +20,7 @@ class Test(TemplateTestCase):
         with self._render(data={
             'entity': person,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_embedded(self):
         person = Person('P0')
@@ -29,7 +29,7 @@ class Test(TemplateTestCase):
             'entity': person,
             'embedded': True,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_person_is_context(self):
         person = Person('P0')
@@ -38,7 +38,7 @@ class Test(TemplateTestCase):
             'entity': person,
             'person_context': person,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_private(self):
         person = Person('P0')
@@ -47,7 +47,7 @@ class Test(TemplateTestCase):
         with self._render(data={
             'entity': person,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_with_entity(self):
         person = Person('P0')
@@ -56,4 +56,4 @@ class Test(TemplateTestCase):
         with self._render(data={
             'entity': person,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual

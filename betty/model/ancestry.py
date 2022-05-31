@@ -14,7 +14,6 @@ from betty.model import many_to_many, Entity, one_to_many, many_to_one, many_to_
 from betty.model.event_type import EventType, StartOfLifeEventType, EndOfLifeEventType
 from betty.os import PathLike
 
-
 if TYPE_CHECKING:
     from betty.builtins import _
 
@@ -23,6 +22,7 @@ class HasPrivacy:
     private: Optional[bool]
 
     def __init__(self, *args, **kwargs):
+        assert type(self) != HasPrivacy
         super().__init__(*args, **kwargs)
         self.private = None
 
@@ -31,6 +31,7 @@ class Dated:
     date: Optional[Datey]
 
     def __init__(self, *args, **kwargs):
+        assert type(self) != Dated
         super().__init__(*args, **kwargs)
         self.date = None
 
@@ -58,16 +59,28 @@ class Note(Entity):
 
 @one_to_many('notes', 'entity')
 class HasNotes(Entity):
-    notes: EntityCollection[Note]
-
     def __init__(self, *args, **kwargs):
+        assert type(self) != HasNotes
         super().__init__(*args, **kwargs)
+
+    @property
+    def notes(self) -> EntityCollection[Note]:
+        pass
+
+    @notes.setter
+    def notes(self, notes: Iterable[Note]) -> None:
+        pass
+
+    @notes.deleter
+    def notes(self) -> None:
+        pass
 
 
 class Described:
     description: Optional[str]
 
     def __init__(self, *args, **kwargs):
+        assert type(self) != Described
         super().__init__(*args, **kwargs)
         self.description = None
 
@@ -76,6 +89,7 @@ class HasMediaType:
     media_type: Optional[MediaType]
 
     def __init__(self, *args, **kwargs):
+        assert type(self) != HasMediaType
         super().__init__(*args, **kwargs)
         self.media_type = None
 
@@ -94,6 +108,7 @@ class Link(HasMediaType, Localized, Described):
 
 class HasLinks:
     def __init__(self, *args, **kwargs):
+        assert type(self) != HasLinks
         super().__init__(*args, **kwargs)
         self._links = set()
 
@@ -104,20 +119,41 @@ class HasLinks:
 
 @many_to_many('citations', 'facts')
 class HasCitations(Entity):
-    citations: EntityCollection[Citation]
-
     def __init__(self, *args, **kwargs):
+        assert type(self) != HasCitations
         super().__init__(*args, **kwargs)
+
+    @property
+    def citations(self) -> EntityCollection[Citation]:
+        pass
+
+    @citations.setter
+    def citations(self, citations: Iterable[Citation]) -> None:
+        pass
+
+    @citations.deleter
+    def citations(self) -> None:
+        pass
 
 
 @many_to_many('entities', 'files')
 class File(Described, HasPrivacy, HasMediaType, HasNotes, HasCitations, Entity):
-    entities: EntityCollection[HasFiles]
-
-    def __init__(self, file_id: Optional[str], path: PathLike, media_type: Optional[MediaType] = None):
-        super().__init__(file_id)
+    def __init__(self, file_id: Optional[str], path: PathLike, media_type: Optional[MediaType] = None, *args, **kwargs):
+        super().__init__(file_id, *args, **kwargs)
         self._path = Path(path)
         self.media_type = media_type
+
+    @property
+    def entities(self) -> EntityCollection[Entity]:
+        pass
+
+    @entities.setter
+    def entities(self, entities: Iterable[Entity]) -> None:
+        pass
+
+    @entities.deleter
+    def entities(self) -> None:
+        pass
 
     @classmethod
     def entity_type_label(cls) -> str:
@@ -134,10 +170,21 @@ class File(Described, HasPrivacy, HasMediaType, HasNotes, HasCitations, Entity):
 
 @many_to_many('files', 'entities')
 class HasFiles(Entity):
-    files: EntityCollection[File]
-
     def __init__(self, *args, **kwargs):
+        assert type(self) != HasFiles
         super().__init__(*args, **kwargs)
+
+    @property
+    def files(self) -> EntityCollection[File]:
+        pass
+
+    @files.setter
+    def files(self, files: Iterable[File]) -> None:
+        pass
+
+    @files.deleter
+    def files(self) -> None:
+        pass
 
     @property
     def associated_files(self) -> Iterable[File]:
@@ -150,8 +197,6 @@ class HasFiles(Entity):
 class Source(Dated, HasFiles, HasLinks, HasPrivacy, Entity):
     name: Optional[str]
     contained_by: Source
-    contains: EntityCollection[Source]
-    citations: EntityCollection[Citation]
     author: Optional[str]
     publisher: Optional[str]
 
@@ -160,6 +205,30 @@ class Source(Dated, HasFiles, HasLinks, HasPrivacy, Entity):
         self.name = name
         self.author = None
         self.publisher = None
+
+    @property
+    def contains(self) -> EntityCollection[Source]:
+        pass
+
+    @contains.setter
+    def contains(self, contains: Iterable[Source]) -> None:
+        pass
+
+    @contains.deleter
+    def contains(self) -> None:
+        pass
+
+    @property
+    def citations(self) -> EntityCollection[Citation]:
+        pass
+
+    @citations.setter
+    def citations(self, citations: Iterable[Citation]) -> None:
+        pass
+
+    @citations.deleter
+    def citations(self) -> None:
+        pass
 
     @classmethod
     def entity_type_label(cls) -> str:
@@ -173,7 +242,6 @@ class Source(Dated, HasFiles, HasLinks, HasPrivacy, Entity):
 @many_to_many('facts', 'citations')
 @many_to_one('source', 'citations')
 class Citation(Dated, HasFiles, HasPrivacy, Entity):
-    facts: EntityCollection[HasCitations]
     source: Source
     location: Optional[str]
 
@@ -181,6 +249,18 @@ class Citation(Dated, HasFiles, HasPrivacy, Entity):
         super().__init__(citation_id)
         self.location = None
         self.source = source
+
+    @property
+    def facts(self) -> EntityCollection[HasCitations]:
+        pass
+
+    @facts.setter
+    def facts(self, facts: Iterable[HasCitations]) -> None:
+        pass
+
+    @facts.deleter
+    def facts(self) -> None:
+        pass
 
     @classmethod
     def entity_type_label(cls) -> str:
@@ -229,14 +309,46 @@ class Enclosure(Dated, HasCitations, Entity):
 @one_to_many('enclosed_by', 'encloses')
 @one_to_many('encloses', 'enclosed_by')
 class Place(HasLinks, Entity):
-    enclosed_by: EntityCollection[Enclosure]
-    encloses: EntityCollection[Enclosure]
-    events: EntityCollection[Event]
-
     def __init__(self, place_id: Optional[str], names: List[PlaceName], *args, **kwargs):
         super().__init__(place_id, *args, **kwargs)
         self._names = names
         self._coordinates = None
+
+    @property
+    def enclosed_by(self) -> EntityCollection[Enclosure]:
+        pass
+
+    @enclosed_by.setter
+    def enclosed_by(self, enclosed_by: Iterable[Enclosure]) -> None:
+        pass
+
+    @enclosed_by.deleter
+    def enclosed_by(self) -> None:
+        pass
+
+    @property
+    def encloses(self) -> EntityCollection[Enclosure]:
+        pass
+
+    @encloses.setter
+    def encloses(self, encloses: Iterable[Enclosure]) -> None:
+        pass
+
+    @encloses.deleter
+    def encloses(self) -> None:
+        pass
+
+    @property
+    def events(self) -> EntityCollection[Event]:
+        pass
+
+    @events.setter
+    def events(self, events: Iterable[Event]) -> None:
+        pass
+
+    @events.deleter
+    def events(self) -> None:
+        pass
 
     @classmethod
     def entity_type_label(cls) -> str:
@@ -332,13 +444,24 @@ class Presence(Entity):
 @many_to_one('place', 'events')
 @one_to_many('presences', 'event')
 class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, Entity):
-    place: Place
-    presences: EntityCollection[Presence]
+    place: Optional[Place]
 
     def __init__(self, event_id: Optional[str], event_type: EventType, date: Optional[Datey] = None, *args, **kwargs):
         super().__init__(event_id, *args, **kwargs)
         self.date = date
         self._type = event_type
+
+    @property
+    def presences(self) -> EntityCollection[Presence]:
+        pass
+
+    @presences.setter
+    def presences(self, presences: Iterable[Presence]) -> None:
+        pass
+
+    @presences.deleter
+    def presences(self) -> None:
+        pass
 
     @classmethod
     def entity_type_label(cls) -> str:
@@ -383,6 +506,9 @@ class PersonName(Localized, HasCitations, Entity):
     def entity_type_label(cls) -> str:
         return _('Person name')
 
+    def __repr__(self) -> str:
+        return '<%s.%s(%s, %s, %s)>' % (self.__class__.__module__, self.__class__.__name__, self.individual, self.affiliation, repr(self.person))
+
     def __eq__(self, other: Any) -> bool:
         if other is None:
             return False
@@ -416,13 +542,57 @@ class PersonName(Localized, HasCitations, Entity):
 @one_to_many('presences', 'person')
 @one_to_many('names', 'person')
 class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, Entity):
-    parents: EntityCollection[Person]
-    children: EntityCollection[Person]
-    presences: EntityCollection[Presence]
-    names: EntityCollection[PersonName]
-
     def __init__(self, person_id: Optional[str], *args, **kwargs):
+
         super().__init__(person_id, *args, **kwargs)
+
+    @property
+    def parents(self) -> EntityCollection[Person]:
+        pass
+
+    @parents.setter
+    def parents(self, parents: Iterable[Person]) -> None:
+        pass
+
+    @parents.deleter
+    def parents(self) -> None:
+        pass
+
+    @property
+    def children(self) -> EntityCollection[Person]:
+        pass
+
+    @children.setter
+    def children(self, children: Iterable[Person]) -> None:
+        pass
+
+    @children.deleter
+    def children(self) -> None:
+        pass
+
+    @property
+    def presences(self) -> EntityCollection[Presence]:
+        pass
+
+    @presences.setter
+    def presences(self, presences: Iterable[Presence]) -> None:
+        pass
+
+    @presences.deleter
+    def presences(self) -> None:
+        pass
+
+    @property
+    def names(self) -> EntityCollection[PersonName]:
+        pass
+
+    @names.setter
+    def names(self, names: Iterable[PersonName]) -> None:
+        pass
+
+    @names.deleter
+    def names(self) -> None:
+        pass
 
     @classmethod
     def entity_type_label(cls) -> str:

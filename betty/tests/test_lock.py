@@ -1,13 +1,14 @@
+import pytest
+
 from betty.lock import Locks, AcquiredError
-from betty.tests import TestCase
 
 
-class LocksTest(TestCase):
+class TestLocks:
     def test_acquire(self):
         resource = 999
         sut = Locks()
         sut.acquire(resource)
-        with self.assertRaises(AcquiredError):
+        with pytest.raises(AcquiredError):
             sut.acquire(resource)
 
     def test_release(self):

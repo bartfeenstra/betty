@@ -1,33 +1,31 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import List, Dict, Optional, Iterable, Type, Iterator, ContextManager
+from typing import List, Dict, Optional, Iterable, Type, ContextManager
 from unittest.mock import Mock
 
-from parameterized import parameterized
+import pytest
 
 from betty.app import App
-from betty.asyncio import sync
 from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider
 from betty.locale import Date, Datey, DateRange, Localized
 from betty.media_type import MediaType
 from betty.model import get_entity_type_name
 from betty.model.ancestry import File, PlaceName, Subject, Attendee, Witness, Dated, Entity, Person, Place, Citation
 from betty.string import camel_case_to_snake_case
-from betty.tests import TemplateTestCase, TestCase
+from betty.tests import TemplateTestCase
 
 
-class Jinja2ProviderTest(TestCase):
+class TestJinja2Provider:
     def test_globals(self) -> None:
         sut = Jinja2Provider()
-        self.assertIsInstance(sut.globals, dict)
+        assert isinstance(sut.globals, dict)
 
     def test_filters(self) -> None:
         sut = Jinja2Provider()
-        self.assertIsInstance(sut.filters, dict)
+        assert isinstance(sut.filters, dict)
 
 
-class Jinja2RendererTest(TestCase):
-    @sync
+class TestJinja2Renderer:
     async def test_render_file(self) -> None:
         with App() as app:
             sut = Jinja2Renderer(app.jinja2_environment, app.project.configuration)
@@ -39,10 +37,9 @@ class Jinja2RendererTest(TestCase):
                     f.write(template)
                 await sut.render_file(template_file_path)
                 with open(Path(working_directory_path) / 'betty.txt') as f:
-                    self.assertEqual(expected_output, f.read().strip())
-                self.assertFalse(template_file_path.exists())
+                    assert expected_output == f.read().strip()
+                assert not template_file_path.exists()
 
-    @sync
     async def test_render_tree(self) -> None:
         with App() as app:
             sut = Jinja2Renderer(app.jinja2_environment, app.project.configuration)
@@ -56,12 +53,12 @@ class Jinja2RendererTest(TestCase):
                     f.write(template)
                 await sut.render_tree(working_directory_path)
                 with open(Path(working_subdirectory_path) / 'betty.txt') as f:
-                    self.assertEqual(expected_output, f.read().strip())
-                self.assertFalse(scss_file_path.exists())
+                    assert expected_output == f.read().strip()
+                assert not scss_file_path.exists()
 
 
 class FilterFlattenTest(TemplateTestCase):
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, template', [
         ('', '{{ [] | flatten | join(", ") }}'),
         ('', '{{ [[], [], []] | flatten | join(", ") }}'),
         ('kiwi, apple, banana',
@@ -69,7 +66,7 @@ class FilterFlattenTest(TemplateTestCase):
     ])
     def test(self, expected, template):
         with self._render(template_string=template) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
 
 class FilterWalkTest(TemplateTestCase):
@@ -81,7 +78,7 @@ class FilterWalkTest(TemplateTestCase):
         def __str__(self):
             return self._label
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, template, data', [
         ('', '{{ data | walk("children") | join }}', WalkData('parent')),
         ('child1, child1child1, child2', '{{ data | walk("children") | join(", ") }}',
          WalkData('parent', [WalkData('child1', [WalkData('child1child1')]), WalkData('child2')])),
@@ -90,28 +87,28 @@ class FilterWalkTest(TemplateTestCase):
         with self._render(template_string=template, data={
             'data': data,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
 
 class FilterParagraphsTest(TemplateTestCase):
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, template', [
         ('<p></p>', '{{ "" | paragraphs }}'),
         ('<p>Apples <br>\n and <br>\n oranges</p>',
          '{{ "Apples \n and \n oranges" | paragraphs }}'),
     ])
     def test(self, expected, template):
         with self._render(template_string=template) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
 
 class FilterFormatDegreesTest(TemplateTestCase):
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, template', [
         ('0° 0&#39; 0&#34;', '{{ 0 | format_degrees }}'),
         ('52° 22&#39; 1&#34;', '{{ 52.367 | format_degrees }}'),
     ])
     def test(self, expected, template):
         with self._render(template_string=template) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
 
 class FilterUniqueTest(TemplateTestCase):
@@ -125,7 +122,7 @@ class FilterUniqueTest(TemplateTestCase):
         with self._render(template_string='{{ data | unique | join(", ") }}', data={
             'data': data,
         }) as (actual, _):
-            self.assertEqual('999, {}', actual)
+            assert '999 == {}', actual
 
 
 class FilterMapTest(TemplateTestCase):
@@ -133,7 +130,7 @@ class FilterMapTest(TemplateTestCase):
         def __init__(self, label):
             self.label = label
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, template, data', [
         ('kiwi, apple, banana', '{{ data | map(attribute="label") | join(", ") }}',
          [MapData('kiwi'), MapData('apple'), MapData('banana')]),
         ('kiwi, None, apple, None, banana',
@@ -144,11 +141,11 @@ class FilterMapTest(TemplateTestCase):
         with self._render(template_string=template, data={
             'data': data,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
 
 class FilterFileTest(TemplateTestCase):
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, template, file', [
         (
             '/file/F1/file/test_jinja2.py',
             '{{ file | file }}',
@@ -164,15 +161,15 @@ class FilterFileTest(TemplateTestCase):
         with self._render(template_string=template, data={
             'file': file,
         }) as (actual, app):
-            self.assertEqual(expected, actual)
+            assert expected == actual
             for file_path in actual.split(':'):
-                self.assertTrue((app.project.configuration.www_directory_path / file_path[1:]).exists())
+                assert ((app.project.configuration.www_directory_path / file_path[1:]).exists())
 
 
 class FilterImageTest(TemplateTestCase):
     image_path = Path(__file__).parents[1] / 'assets' / 'public' / 'static' / 'betty-512x512.png'
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, template, file', [
         ('/file/F1-99x-.png',
          '{{ file | image(width=99) }}', File('F1', image_path, media_type=MediaType('image/png'))),
         ('/file/F1--x99.png',
@@ -186,13 +183,13 @@ class FilterImageTest(TemplateTestCase):
         with self._render(template_string=template, data={
             'file': file,
         }) as (actual, app):
-            self.assertEqual(expected, actual)
+            assert expected == actual
             for file_path in actual.split(':'):
-                self.assertTrue((app.project.configuration.www_directory_path / file_path[1:]).exists())
+                assert ((app.project.configuration.www_directory_path / file_path[1:]).exists())
 
     def test_without_width(self):
         file = File('F1', self.image_path, media_type=MediaType('image/png'))
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             with self._render(template_string='{{ file | image }}', data={
                 'file': file,
             }):
@@ -204,9 +201,9 @@ class GlobalCiterTest(TemplateTestCase):
         citation1 = Mock(Citation)
         citation2 = Mock(Citation)
         sut = _Citer()
-        self.assertEqual(1, sut.cite(citation1))
-        self.assertEqual(2, sut.cite(citation2))
-        self.assertEqual(1, sut.cite(citation1))
+        assert 1 == sut.cite(citation1)
+        assert 2 == sut.cite(citation2)
+        assert 1 == sut.cite(citation1)
 
     def test_iter(self):
         citation1 = Mock(Citation)
@@ -214,7 +211,7 @@ class GlobalCiterTest(TemplateTestCase):
         sut = _Citer()
         sut.cite(citation1)
         sut.cite(citation2)
-        self.assertEqual([(1, citation1), (2, citation2)], list(sut))
+        assert [(1, citation1), (2, citation2)] == list(sut)
 
     def test_len(self):
         citation1 = Mock(Citation)
@@ -222,7 +219,7 @@ class GlobalCiterTest(TemplateTestCase):
         sut = _Citer()
         sut.cite(citation1)
         sut.cite(citation2)
-        self.assertEqual(2, len(sut))
+        assert 2 == len(sut)
 
 
 class FormatDateTest(TemplateTestCase):
@@ -232,7 +229,7 @@ class FormatDateTest(TemplateTestCase):
         with self._render(template_string=template, data={
             'date': date,
         }) as (actual, _):
-            self.assertEqual('January 1, 1970', actual)
+            assert 'January 1 == 1970', actual
 
 
 class FilterSortLocalizedsTest(TemplateTestCase):
@@ -262,18 +259,18 @@ class FilterSortLocalizedsTest(TemplateTestCase):
         with self._render(template_string=template, data={
             'data': data,
         }) as (actual, _):
-            self.assertEqual('[first, second, third]', actual)
+            assert '[first == second, third]', actual
 
     def test_with_empty_iterable(self):
         template = '{{ data | sort_localizeds(localized_attribute="names", sort_attribute="name") }}'
         with self._render(template_string=template, data={
             'data': [],
         }) as (actual, _):
-            self.assertEqual('[]', actual)
+            assert '[]' == actual
 
 
 class FilterSelectLocalizedsTest(TemplateTestCase):
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, locale, data', [
         ('', 'en', []),
         ('Apple', 'en', [
             PlaceName('Apple', 'en')
@@ -294,12 +291,12 @@ class FilterSelectLocalizedsTest(TemplateTestCase):
     def test(self, expected: str, locale: str, data: Iterable[Localized]):
         template = '{{ data | select_localizeds | map(attribute="name") | join(", ") }}'
 
-        def _set_up(app: App) -> Iterator[ContextManager]:
-            return (app.acquire_locale(locale),)
+        def _set_up(app: App) -> ContextManager[None]:
+            return app.acquire_locale(locale)  # type: ignore
         with self._render(template_string=template, data={
             'data': data,
         }, set_up=_set_up) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_include_unspecified(self):
         template = '{{ data | select_localizeds(include_unspecified=true) | map(attribute="name") | join(", ") }}'
@@ -311,12 +308,12 @@ class FilterSelectLocalizedsTest(TemplateTestCase):
             PlaceName('Apple', None),
         ]
 
-        def _set_up(app: App) -> Iterator[ContextManager]:
-            return (app.acquire_locale('en-US'),)
+        def _set_up(app: App) -> ContextManager[None]:
+            return app.acquire_locale('en-US')  # type: ignore
         with self._render(template_string=template, data={
             'data': data,
         }, set_up=_set_up) as (actual, _):
-            self.assertEqual('Apple, Apple, Apple, Apple, Apple', actual)
+            assert 'Apple == Apple, Apple, Apple, Apple', actual
 
 
 class FilterSelectDatedsTest(TemplateTestCase):
@@ -329,7 +326,7 @@ class FilterSelectDatedsTest(TemplateTestCase):
         def __str__(self):
             return self._value
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, data', [
         ('Apple', {
             'dateds': [
                 DatedDummy('Apple'),
@@ -379,11 +376,11 @@ class FilterSelectDatedsTest(TemplateTestCase):
     def test(self, expected: str, data: Dict):
         template = '{{ dateds | select_dateds(date=date) | join(", ") }}'
         with self._render(template_string=template, data=data) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
 
 class TestSubjectRoleTest(TemplateTestCase):
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, data', [
         ('true', Subject()),
         ('false', Subject),
         ('false', Attendee()),
@@ -394,11 +391,11 @@ class TestSubjectRoleTest(TemplateTestCase):
         with self._render(template_string=template, data={
             'data': data,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
 
 class TestWitnessRoleTest(TemplateTestCase):
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, data', [
         ('true', Witness()),
         ('false', Witness),
         ('false', Attendee()),
@@ -409,11 +406,11 @@ class TestWitnessRoleTest(TemplateTestCase):
         with self._render(template_string=template, data={
             'data': data,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
 
 class TestResourceTest(TemplateTestCase):
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, entity_type, data', [
         ('true', Person, Person('P1')),
         ('false', Person, Place('P1', [PlaceName('The Place')])),
         ('true', Place, Place('P1', [PlaceName('The Place')])),
@@ -426,4 +423,4 @@ class TestResourceTest(TemplateTestCase):
         with self._render(template_string=template, data={
             'data': data,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual

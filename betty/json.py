@@ -7,13 +7,13 @@ import jsonschema
 from geopy import Point
 from jsonschema import RefResolver
 
+from betty.app import App
 from betty.asyncio import sync
+from betty.locale import Date, DateRange, Localized
+from betty.media_type import MediaType
 from betty.model import Entity, get_entity_type_name, GeneratedEntityId
 from betty.model.ancestry import Place, Person, PlaceName, Event, Described, HasLinks, HasCitations, Link, Dated, File, \
     Note, PersonName, HasMediaType, PresenceRole, EventType, Citation, Source
-from betty.locale import Date, DateRange, Localized
-from betty.media_type import MediaType
-from betty.app import App
 from betty.string import upper_camel_case_to_lower_camel_case
 
 

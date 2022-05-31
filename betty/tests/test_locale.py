@@ -6,19 +6,18 @@ import sys
 from gettext import NullTranslations
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import List, Optional, Iterator, Set
+from typing import List, Optional, Iterator, Set, Tuple
 
-from parameterized import parameterized
+import pytest
 
 from betty.fs import FileSystem, ROOT_DIRECTORY_PATH
 from betty.locale import Localized, negotiate_localizeds, Date, format_datey, DateRange, Translations, negotiate_locale, \
     Datey, TranslationsInstallationError, TranslationsRepository
-from betty.tests import TestCase
 
 
-class PotFileTest(TestCase):
-    def _readlines(self, root_directory_path) -> Iterator[str]:
-        with open(Path(root_directory_path) / 'betty' / 'assets' / 'betty.pot') as f:
+class TestPotFile:
+    def _readlines(self, directory_path: Path) -> Iterator[str]:
+        with open(directory_path / 'betty' / 'assets' / 'betty.pot') as f:
             return filter(
                 lambda line: not line.startswith((
                     '"POT-Creation-Date: ',
@@ -48,15 +47,15 @@ class PotFileTest(TestCase):
                 shell=sys.platform == 'win32',
             )
             actual_pot_contents = self._readlines(ROOT_DIRECTORY_PATH)
-            expected_pot_contents = self._readlines(working_directory_path)
+            expected_pot_contents = self._readlines(Path(working_directory_path))
             diff = difflib.unified_diff(
                 list(actual_pot_contents),
                 list(expected_pot_contents),
             )
-            self.assertEqual(0, len(list(diff)), f'The gettext *.po files are not up to date. Did you run {Path() / "bin" / "extract-translatables"}?')
+            assert 0 == len(list(diff)), f'The gettext *.po files are not up to date. Did you run {Path() / "bin" / "extract-translatables"}?'
 
 
-class TranslationsTest(TestCase):
+class TestTranslations:
     _GETTEXT_BUILTINS_TO_TRANSLATIONS_METHODS = {
         '_': 'gettext',
         'gettext': 'gettext',
@@ -69,12 +68,12 @@ class TranslationsTest(TestCase):
 
     def assert_gettext_builtins(self, translations: NullTranslations) -> None:
         for builtin_name, translations_method_name in self._GETTEXT_BUILTINS_TO_TRANSLATIONS_METHODS.items():
-            self.assertIn(builtin_name, builtins.__dict__)
-            self.assertEqual(getattr(translations, translations_method_name), builtins.__dict__[builtin_name])
+            assert builtin_name in builtins.__dict__
+            assert getattr(translations, translations_method_name) == builtins.__dict__[builtin_name]
 
     def assert_no_gettext_builtins(self) -> None:
         for builtin_name in self._GETTEXT_BUILTINS_TO_TRANSLATIONS_METHODS:
-            self.assertNotIn(builtin_name, builtins.__dict__)
+            assert builtin_name not in builtins.__dict__
 
     def test_install_uninstall(self) -> None:
         sut_one = Translations(NullTranslations())
@@ -95,7 +94,7 @@ class TranslationsTest(TestCase):
         self.assert_gettext_builtins(sut_one)
         sut_two.install()
         self.assert_gettext_builtins(sut_two)
-        with self.assertRaises(TranslationsInstallationError):
+        with pytest.raises(TranslationsInstallationError):
             sut_one.uninstall()
 
         # Clean up the global environment.
@@ -105,7 +104,7 @@ class TranslationsTest(TestCase):
     def test_install_reentry_without_uninstall_should_fail(self) -> None:
         sut = Translations(NullTranslations())
         sut.install()
-        with self.assertRaises(TranslationsInstallationError):
+        with pytest.raises(TranslationsInstallationError):
             sut.install()
 
         # Clean up the global environment.
@@ -135,7 +134,7 @@ class TranslationsTest(TestCase):
     def test_context_manager_reentry_without_exit_should_fail(self) -> None:
         sut = Translations(NullTranslations())
         with sut:
-            with self.assertRaises(TranslationsInstallationError):
+            with pytest.raises(TranslationsInstallationError):
                 with sut:
                     pass
 
@@ -149,29 +148,29 @@ class TranslationsTest(TestCase):
         self.assert_no_gettext_builtins()
 
 
-class DateTest(TestCase):
+class TestDate:
     def test_year(self):
         year = 1970
         sut = Date(year=year)
-        self.assertEqual(year, sut.year)
+        assert year == sut.year
 
     def test_month(self):
         month = 1
         sut = Date(month=month)
-        self.assertEqual(month, sut.month)
+        assert month == sut.month
 
     def test_day(self):
         day = 1
         sut = Date(day=day)
-        self.assertEqual(day, sut.day)
+        assert day == sut.day
 
     def test_fuzzy(self):
         fuzzy = True
         sut = Date()
         sut.fuzzy = fuzzy
-        self.assertEqual(fuzzy, sut.fuzzy)
+        assert fuzzy == sut.fuzzy
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, year, month, day', [
         (True, 1970, 1, 1),
         (False, None, 1, 1),
         (True, 1970, None, 1),
@@ -182,9 +181,9 @@ class DateTest(TestCase):
     ])
     def test_comparable(self, expected, year, month, day):
         sut = Date(year, month, day)
-        self.assertEqual(expected, sut.comparable)
+        assert expected == sut.comparable
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, year, month, day', [
         (True, 1970, 1, 1),
         (False, None, 1, 1),
         (False, 1970, None, 1),
@@ -195,29 +194,29 @@ class DateTest(TestCase):
     ])
     def test_complete(self, expected, year, month, day):
         sut = Date(year, month, day)
-        self.assertEqual(expected, sut.complete)
+        assert expected == sut.complete
 
     def test_to_range_when_incomparable_should_raise(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             Date(None, 1, 1).to_range()
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('year, month, day', [
         (1970, 1, 1),
         (None, None, None),
     ])
     def test_parts(self, year, month, day):
-        self.assertEqual((year, month, day), Date(year, month, day).parts)
+        assert (year, month, day) == Date(year, month, day).parts
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, other', [
         (False, Date(1970, 2, 1)),
         (True, Date(1970, 2, 2)),
         (False, Date(1970, 2, 3)),
         (False, DateRange()),
     ])
     def test_in(self, expected, other):
-        self.assertEqual(expected, other in Date(1970, 2, 2))
+        assert expected == (other in Date(1970, 2, 2))
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, other', [
         (False, Date(1970, 2, 1)),
         (False, Date(1970, 2, 2)),
         (True, Date(1970, 2, 3)),
@@ -227,9 +226,9 @@ class DateTest(TestCase):
         (True, Date(1970, 3)),
     ])
     def test_lt(self, expected, other):
-        self.assertEqual(expected, Date(1970, 2, 2) < other)
+        assert expected == (Date(1970, 2, 2) < other)
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, other', [
         (True, Date(1970, 1, 1)),
         (False, Date(1970, 1, None)),
         (False, Date(1970, None, 1)),
@@ -240,20 +239,20 @@ class DateTest(TestCase):
         (False, None),
     ])
     def test_eq(self, expected, other):
-        self.assertEqual(expected, Date(1970, 1, 1) == other)
-        self.assertEqual(expected, other == Date(1970, 1, 1))
+        assert expected == (Date(1970, 1, 1) == other)
+        assert expected == (other == Date(1970, 1, 1))
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, other', [
         (True, Date(1970, 2, 1)),
         (False, Date(1970, 2, 2)),
         (False, Date(1970, 2, 3)),
     ])
     def test_gt(self, expected, other):
-        self.assertEqual(expected, Date(1970, 2, 2) > other)
+        assert expected == (Date(1970, 2, 2) > other)
 
 
-class DateRangeTest(TestCase):
-    _TEST_IN_PARAMETERS = [
+class TestDateRange:
+    _TEST_IN_PARAMETERS: List[Tuple[bool, Datey, Datey]] = [
         (False, Date(1970, 2, 2), DateRange()),
         (False, Date(1970, 2), DateRange()),
         (False, Date(1970), DateRange()),
@@ -290,11 +289,11 @@ class DateRangeTest(TestCase):
     ]
 
     # Mirror the arguments because we want the containment check to work in either direction.
-    @parameterized.expand(_TEST_IN_PARAMETERS + list(map(lambda x: (x[0], x[2], x[1]), _TEST_IN_PARAMETERS)))
-    def test_in(self, expected: bool, other: Datey, sut: DateRange):
-        self.assertEqual(expected, other in sut)
+    @pytest.mark.parametrize('expected, other, sut', _TEST_IN_PARAMETERS + list(map(lambda x: (x[0], x[2], x[1]), _TEST_IN_PARAMETERS)))
+    def test_in(self, expected: bool, other: Datey, sut: Datey):
+        assert expected == (other in sut)
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, other', [
         (False, Date(1970, 2, 1)),
         (False, Date(1970, 2, 2)),
         (True, Date(1970, 2, 3)),
@@ -309,9 +308,9 @@ class DateRangeTest(TestCase):
         (False, DateRange(Date(1970, 2, 1), Date(1970, 2, 3))),
     ])
     def test_lt_with_start_date(self, expected, other):
-        self.assertEqual(expected, DateRange(Date(1970, 2, 2)) < other)
+        assert expected == (DateRange(Date(1970, 2, 2)) < other)
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, other', [
         (False, Date(1970, 2, 1)),
         (True, Date(1970, 2, 2)),
         (True, Date(1970, 2, 3)),
@@ -326,9 +325,9 @@ class DateRangeTest(TestCase):
         (False, DateRange(Date(1970, 2, 1), Date(1970, 2, 3))),
     ])
     def test_lt_with_end_date(self, expected, other):
-        self.assertEqual(expected, DateRange(None, Date(1970, 2, 2)) < other)
+        assert expected == (DateRange(None, Date(1970, 2, 2)) < other)
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, other', [
         (False, Date(1970, 2, 1)),
         (True, Date(1970, 2, 2)),
         (True, Date(1970, 2, 3)),
@@ -343,9 +342,9 @@ class DateRangeTest(TestCase):
         (False, DateRange(Date(1970, 2, 1), Date(1970, 2, 3))),
     ])
     def test_lt_with_both_dates(self, expected, other):
-        self.assertEqual(expected, DateRange(Date(1970, 2, 1), Date(1970, 2, 3)) < other)
+        assert expected == (DateRange(Date(1970, 2, 1), Date(1970, 2, 3)) < other)
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, other', [
         (True, DateRange(Date(1970, 2, 2))),
         (False, DateRange(Date(1970, 2, None))),
         (False, DateRange(Date(1970, None, 2))),
@@ -356,9 +355,9 @@ class DateRangeTest(TestCase):
         (False, None),
     ])
     def test_eq(self, expected, other):
-        self.assertEqual(expected, DateRange(Date(1970, 2, 2)) == other)
+        assert expected == (DateRange(Date(1970, 2, 2)) == other)
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, other', [
         (True, Date(1970, 2, 1)),
         (True, Date(1970, 2, 2)),
         (False, Date(1970, 2, 3)),
@@ -373,11 +372,11 @@ class DateRangeTest(TestCase):
         (True, DateRange(Date(1970, 2, 1), Date(1970, 2, 3))),
     ])
     def test_gt(self, expected, other):
-        self.assertEqual(expected, DateRange(Date(1970, 2, 2)) > other)
+        assert expected == (DateRange(Date(1970, 2, 2)) > other)
 
 
-class NegotiateLocaleTest(TestCase):
-    @parameterized.expand([
+class TestNegotiateLocale:
+    @pytest.mark.parametrize('expected, preferred_locale, available_locales', [
         ('nl', 'nl', {'nl'}),
         ('nl-NL', 'nl', {'nl-NL'}),
         ('nl', 'nl-NL', {'nl'}),
@@ -387,10 +386,10 @@ class NegotiateLocaleTest(TestCase):
         ('nl-NL', 'nl-BE', {'nl-NL'})
     ])
     def test(self, expected: Optional[str], preferred_locale: str, available_locales: Set[str]):
-        self.assertEqual(expected, negotiate_locale(preferred_locale, available_locales))
+        assert expected == negotiate_locale(preferred_locale, available_locales)
 
 
-class NegotiateLocalizedsTest(TestCase):
+class TestNegotiateLocalizeds:
     class DummyLocalized(Localized):
         def __eq__(self, other):
             return self.locale == other.locale
@@ -398,7 +397,7 @@ class NegotiateLocalizedsTest(TestCase):
         def __repr__(self):
             return '%s(%s)' % (self.__class__.__name__, self.locale)
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, preferred_locale, localizeds', [
         (DummyLocalized('nl'), 'nl', [DummyLocalized('nl')]),
         (DummyLocalized('nl-NL'), 'nl', [DummyLocalized('nl-NL')]),
         (DummyLocalized('nl'), 'nl-NL', [DummyLocalized('nl')]),
@@ -409,18 +408,15 @@ class NegotiateLocalizedsTest(TestCase):
         (None, 'nl', []),
     ])
     def test_with_match_should_return_match(self, expected: Localized, preferred_locale: str, localizeds: List[Localized]):
-        self.assertEqual(expected, negotiate_localizeds(
-            preferred_locale, localizeds))
+        assert expected == negotiate_localizeds(preferred_locale, localizeds)
 
     def test_without_match_should_return_default(self):
         preferred_locale = 'de'
-        localizeds = [self.DummyLocalized('nl'), self.DummyLocalized(
-            'en'), self.DummyLocalized('uk')]
-        self.assertEqual(self.DummyLocalized('nl'), negotiate_localizeds(
-            preferred_locale, localizeds))
+        localizeds = [self.DummyLocalized('nl'), self.DummyLocalized('en'), self.DummyLocalized('uk')]
+        assert self.DummyLocalized('nl') == negotiate_localizeds(preferred_locale, localizeds)
 
 
-_FORMAT_DATE_TEST_PARAMETERS = [
+_FORMAT_DATE_TEST_PARAMETERS: List[Tuple[str, Datey]] = [
     # Dates that cannot be formatted.
     ('unknown date', Date()),
     ('unknown date', Date(None, None, 1)),
@@ -438,15 +434,15 @@ _FORMAT_DATE_TEST_PARAMETERS = [
 ]
 
 
-class FormatDateTest(TestCase):
-    @parameterized.expand(_FORMAT_DATE_TEST_PARAMETERS)
+class TestFormatDate:
+    @pytest.mark.parametrize('expected, datey', _FORMAT_DATE_TEST_PARAMETERS)
     def test(self, expected: str, datey: Datey):
         locale = 'en'
         with Translations(NullTranslations()):
-            self.assertEqual(expected, format_datey(datey, locale))
+            assert expected == format_datey(datey, locale)
 
 
-_FORMAT_DATE_RANGE_TEST_PARAMETERS = [
+_FORMAT_DATE_RANGE_TEST_PARAMETERS: List[Tuple[str, Datey]] = [
     ('from January 1, 1970 until December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31))),
     ('from January 1, 1970 until sometime before December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31), end_is_boundary=True)),
     ('from January 1, 1970 until around December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31, fuzzy=True))),
@@ -474,23 +470,23 @@ _FORMAT_DATE_RANGE_TEST_PARAMETERS = [
 ]
 
 
-class FormatDateRangeTest(TestCase):
-    @parameterized.expand(_FORMAT_DATE_RANGE_TEST_PARAMETERS)
+class TestFormatDateRange:
+    @pytest.mark.parametrize('expected, datey', _FORMAT_DATE_RANGE_TEST_PARAMETERS)
     def test(self, expected: str, datey: Datey):
         locale = 'en'
         with Translations(NullTranslations()):
-            self.assertEqual(expected, format_datey(datey, locale))
+            assert expected == format_datey(datey, locale)
 
 
-class FormatDateyTest(TestCase):
-    @parameterized.expand(_FORMAT_DATE_TEST_PARAMETERS + _FORMAT_DATE_RANGE_TEST_PARAMETERS)
+class TestFormatDatey:
+    @pytest.mark.parametrize('expected, datey', _FORMAT_DATE_TEST_PARAMETERS + _FORMAT_DATE_RANGE_TEST_PARAMETERS)
     def test(self, expected: str, datey: Datey):
         locale = 'en'
         with Translations(NullTranslations()):
-            self.assertEqual(expected, format_datey(datey, locale))
+            assert expected == format_datey(datey, locale)
 
 
-class TranslationsRepositoryTest(TestCase):
+class TestTranslationsRepository:
     def test_getitem(self) -> None:
         locale = 'nl-NL'
         locale_path_name = 'nl_NL'
@@ -527,4 +523,4 @@ msgstr "Onderwerp"
 """
             with open(lc_messages_directory_path / 'betty.po', 'w') as f:
                 f.write(po)
-            self.assertIsInstance(sut[locale], NullTranslations)
+            assert isinstance(sut[locale], NullTranslations)

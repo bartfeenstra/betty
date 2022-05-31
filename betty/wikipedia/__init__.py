@@ -25,7 +25,6 @@ from betty.locale import Localized, negotiate_locale
 from betty.media_type import MediaType
 from betty.model.ancestry import Link, HasLinks, Entity
 
-
 if TYPE_CHECKING:
     from betty.builtins import _
 

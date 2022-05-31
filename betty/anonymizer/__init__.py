@@ -1,6 +1,5 @@
 from typing import Set, Type, TYPE_CHECKING
 
-
 if TYPE_CHECKING:
     from betty.builtins import _
 
@@ -16,7 +15,21 @@ class AnonymousSource(Source):
     _ID = 'betty-anonymous-source'
 
     def __init__(self):
-        super().__init__(self._ID, _('Private'))
+        super().__init__(self._ID)
+
+    @property  # type: ignore
+    def name(self) -> str:  # type: ignore
+        return _('Private')
+
+    @name.setter
+    def name(self, _) -> None:
+        # This is a no-op as the name is 'hardcoded'.
+        pass
+
+    @name.deleter
+    def name(self) -> None:
+        # This is a no-op as the name is 'hardcoded'.
+        pass
 
     def replace(self, other: Source, ancestry: Ancestry) -> None:
         if isinstance(other, AnonymousSource):
@@ -36,7 +49,20 @@ class AnonymousCitation(Citation):
 
     def __init__(self, source: Source):
         super().__init__(self._ID, source)
-        self.location = _("A citation is available, but has not been published in order to protect people's privacy")
+
+    @property  # type: ignore
+    def location(self) -> str:  # type: ignore
+        return _("A citation is available, but has not been published in order to protect people's privacy")
+
+    @location.setter
+    def location(self, _) -> None:
+        # This is a no-op as the location is 'hardcoded'.
+        pass
+
+    @location.deleter
+    def location(self) -> None:
+        # This is a no-op as the location is 'hardcoded'.
+        pass
 
     def replace(self, other: Citation, ancestry: Ancestry) -> None:
         if isinstance(other, AnonymousCitation):

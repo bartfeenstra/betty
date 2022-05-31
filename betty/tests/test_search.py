@@ -1,13 +1,12 @@
-from parameterized import parameterized
+import pytest
 
 from betty.app import App
 from betty.model.ancestry import Person, Place, PlaceName, PersonName, File
 from betty.project import LocaleConfiguration
 from betty.search import Index
-from betty.tests import TestCase
 
 
-class IndexTest(TestCase):
+class TestIndex:
     def test_empty(self):
         app = App()
         app.project.configuration.locales.replace([
@@ -17,7 +16,7 @@ class IndexTest(TestCase):
         with app:
             indexed = [item for item in Index(app).build()]
 
-        self.assertEqual([], indexed)
+        assert [] == indexed
 
     def test_person_without_names(self):
         person_id = 'P1'
@@ -32,7 +31,7 @@ class IndexTest(TestCase):
             app.project.ancestry.entities.append(person)
             indexed = [item for item in Index(app).build()]
 
-        self.assertEqual([], indexed)
+        assert [] == indexed
 
     def test_private_person(self):
         person_id = 'P1'
@@ -50,9 +49,9 @@ class IndexTest(TestCase):
             app.project.ancestry.entities.append(person)
             indexed = [item for item in Index(app).build()]
 
-        self.assertEqual([], indexed)
+        assert [] == indexed
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, locale', [
         ('/nl/person/P1/index.html', 'nl-NL'),
         ('/en/person/P1/index.html', 'en-US'),
     ])
@@ -72,10 +71,10 @@ class IndexTest(TestCase):
                 app.project.ancestry.entities.append(person)
                 indexed = [item for item in Index(app).build()]
 
-        self.assertEqual('jane', indexed[0]['text'])
-        self.assertIn(expected, indexed[0]['result'])
+        assert 'jane' == indexed[0]['text']
+        assert expected in indexed[0]['result']
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, locale', [
         ('/nl/person/P1/index.html', 'nl-NL'),
         ('/en/person/P1/index.html', 'en-US'),
     ])
@@ -95,10 +94,10 @@ class IndexTest(TestCase):
                 app.project.ancestry.entities.append(person)
                 indexed = [item for item in Index(app).build()]
 
-        self.assertEqual('doughnut', indexed[0]['text'])
-        self.assertIn(expected, indexed[0]['result'])
+        assert 'doughnut' == indexed[0]['text']
+        assert expected in indexed[0]['result']
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, locale', [
         ('/nl/person/P1/index.html', 'nl-NL'),
         ('/en/person/P1/index.html', 'en-US'),
     ])
@@ -119,10 +118,10 @@ class IndexTest(TestCase):
                 app.project.ancestry.entities.append(person)
                 indexed = [item for item in Index(app).build()]
 
-        self.assertEqual('jane doughnut', indexed[0]['text'])
-        self.assertIn(expected, indexed[0]['result'])
+        assert 'jane doughnut' == indexed[0]['text']
+        assert expected in indexed[0]['result']
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, locale', [
         ('/nl/place/P1/index.html', 'nl-NL'),
         ('/en/place/P1/index.html', 'en-US'),
     ])
@@ -140,8 +139,8 @@ class IndexTest(TestCase):
                 app.project.ancestry.entities.append(place)
                 indexed = [item for item in Index(app).build()]
 
-        self.assertEqual('netherlands nederland', indexed[0]['text'])
-        self.assertIn(expected, indexed[0]['result'])
+        assert 'netherlands nederland' == indexed[0]['text']
+        assert expected in indexed[0]['result']
 
     def test_file_without_description(self):
         file_id = 'F1'
@@ -156,9 +155,9 @@ class IndexTest(TestCase):
             app.project.ancestry.entities.append(file)
             indexed = [item for item in Index(app).build()]
 
-        self.assertEqual([], indexed)
+        assert [] == indexed
 
-    @parameterized.expand([
+    @pytest.mark.parametrize('expected, locale', [
         ('/nl/file/F1/index.html', 'nl-NL'),
         ('/en/file/F1/index.html', 'en-US'),
     ])
@@ -177,5 +176,5 @@ class IndexTest(TestCase):
                 app.project.ancestry.entities.append(file)
                 indexed = [item for item in Index(app).build()]
 
-        self.assertEqual('"file" is dutch for "traffic jam"', indexed[0]['text'])
-        self.assertIn(expected, indexed[0]['result'])
+        assert '"file" is dutch for "traffic jam"' == indexed[0]['text']
+        assert expected in indexed[0]['result']

@@ -4,13 +4,10 @@ from time import sleep
 import requests
 
 from betty.app import App
-from betty.asyncio import sync
 from betty.serve import BuiltinServer
-from betty.tests import TestCase
 
 
-class BuiltinServerTest(TestCase):
-    @sync
+class TestBuiltinServer:
     async def test(self):
         content = 'Hello, and welcome to my site!'
         with App() as app:
@@ -21,6 +18,6 @@ class BuiltinServerTest(TestCase):
                 # Wait for the server to start.
                 sleep(1)
                 response = requests.get(server.public_url)
-                self.assertEqual(200, response.status_code)
-                self.assertEqual(content, response.content.decode('utf-8'))
-                self.assertEqual('no-cache', response.headers['Cache-Control'])
+                assert 200 == response.status_code
+                assert content == response.content.decode('utf-8')
+                assert 'no-cache' == response.headers['Cache-Control']

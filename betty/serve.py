@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import contextlib
 import copy
 import logging
@@ -8,9 +9,9 @@ from http.server import SimpleHTTPRequestHandler, HTTPServer
 from io import StringIO
 from typing import Iterable, Optional
 
+from betty.app import App
 from betty.error import UserFacingError
 from betty.os import ChDir
-from betty.app import App
 
 DEFAULT_PORT = 8000
 

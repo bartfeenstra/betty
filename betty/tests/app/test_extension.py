@@ -1,24 +1,22 @@
-from typing import Set, Type, Any
+from typing import Set, Type, Any, Dict
 
 from betty.app import App
 from betty.app.extension import Extension, ListExtensions, ExtensionDispatcher, build_extension_type_graph, \
     discover_extension_types
-from betty.asyncio import sync
-from betty.tests import TestCase
 
 
-class ExtensionTest(TestCase):
+class TestExtension:
     def test_depends_on(self):
-        self.assertEqual(set(), Extension.depends_on())
+        assert set() == Extension.depends_on()
 
     def test_comes_after(self):
-        self.assertEqual(set(), Extension.comes_after())
+        assert set() == Extension.comes_after()
 
     def test_comes_before(self):
-        self.assertEqual(set(), Extension.comes_before())
+        assert set() == Extension.comes_before()
 
 
-class ExtensionDispatcherTest(TestCase):
+class TestExtensionDispatcher:
     class _Multiplier:
         async def multiply(self, term: int) -> Any:
             raise NotImplementedError
@@ -31,7 +29,6 @@ class ExtensionDispatcherTest(TestCase):
         async def multiply(self, term: int) -> Any:
             return self._multiplier * term
 
-    @sync
     async def test(self) -> None:
         with App() as app:
             extensions = ListExtensions([
@@ -41,12 +38,12 @@ class ExtensionDispatcherTest(TestCase):
             sut = ExtensionDispatcher(extensions)
             actual_returned_somethings = await sut.dispatch(self._Multiplier)(3)
             expected_returned_somethings = [3, 9, 6, 12]
-            self.assertEqual(expected_returned_somethings, actual_returned_somethings)
+            assert expected_returned_somethings == actual_returned_somethings
 
 
-class BuildExtensionTypeGraphTest(TestCase):
+class TestBuildExtensionTypeGraph:
     def test_without_extension_types(self) -> None:
-        self.assertEqual({}, build_extension_type_graph(set()))
+        assert {} == build_extension_type_graph(set())
 
     def test_with_isolated_extension_types(self) -> None:
         class IsolatedExtensionOne(Extension):
@@ -58,11 +55,11 @@ class BuildExtensionTypeGraphTest(TestCase):
             IsolatedExtensionOne,
             IsolatedExtensionTwo,
         }
-        expected = {
+        expected: Dict[Type[Extension], Set[Type[Extension]]] = {
             IsolatedExtensionOne: set(),
             IsolatedExtensionTwo: set(),
         }
-        self.assertEqual(expected, build_extension_type_graph(extension_types))
+        assert expected == build_extension_type_graph(extension_types)
 
     def test_with_unknown_dependencies(self) -> None:
         class IsDependencyExtension(Extension):
@@ -79,7 +76,7 @@ class BuildExtensionTypeGraphTest(TestCase):
             HasDependencyExtension: {IsDependencyExtension},
             IsDependencyExtension: set(),
         }
-        self.assertDictEqual(expected, dict(build_extension_type_graph(extension_types)))
+        assert expected == dict(build_extension_type_graph(extension_types))
 
     def test_with_known_dependencies(self) -> None:
         class IsDependencyExtension(Extension):
@@ -97,7 +94,7 @@ class BuildExtensionTypeGraphTest(TestCase):
             HasDependencyExtension: {IsDependencyExtension},
             IsDependencyExtension: set(),
         }
-        self.assertDictEqual(expected, dict(build_extension_type_graph(extension_types)))
+        assert expected == dict(build_extension_type_graph(extension_types))
 
     def test_with_nested_dependencies(self) -> None:
         class IsDependencyExtension(Extension):
@@ -120,7 +117,7 @@ class BuildExtensionTypeGraphTest(TestCase):
             HasDependencyExtension: {IsAndHasDependencyExtension},
             IsDependencyExtension: set(),
         }
-        self.assertDictEqual(expected, dict(build_extension_type_graph(extension_types)))
+        assert expected == dict(build_extension_type_graph(extension_types))
 
     def test_with_unknown_comes_after(self) -> None:
         class ComesBeforeExtension(Extension):
@@ -133,10 +130,10 @@ class BuildExtensionTypeGraphTest(TestCase):
         extension_types = {
             ComesAfterExtension,
         }
-        expected = {
+        expected: Dict[Type[Extension], Set[Type[Extension]]] = {
             ComesAfterExtension: set(),
         }
-        self.assertDictEqual(expected, dict(build_extension_type_graph(extension_types)))
+        assert expected == dict(build_extension_type_graph(extension_types))
 
     def test_with_known_comes_after(self) -> None:
         class ComesBeforeExtension(Extension):
@@ -154,7 +151,7 @@ class BuildExtensionTypeGraphTest(TestCase):
             ComesAfterExtension: {ComesBeforeExtension},
             ComesBeforeExtension: set(),
         }
-        self.assertDictEqual(expected, dict(build_extension_type_graph(extension_types)))
+        assert expected == dict(build_extension_type_graph(extension_types))
 
     def test_with_unknown_comes_before(self) -> None:
         class ComesAfterExtension(Extension):
@@ -167,10 +164,10 @@ class BuildExtensionTypeGraphTest(TestCase):
         extension_types = {
             ComesBeforeExtension,
         }
-        expected = {
+        expected: Dict[Type[Extension], Set[Type[Extension]]] = {
             ComesBeforeExtension: set(),
         }
-        self.assertDictEqual(expected, dict(build_extension_type_graph(extension_types)))
+        assert expected == dict(build_extension_type_graph(extension_types))
 
     def test_with_known_comes_before(self) -> None:
         class ComesAfterExtension(Extension):
@@ -188,12 +185,12 @@ class BuildExtensionTypeGraphTest(TestCase):
             ComesAfterExtension: {ComesBeforeExtension},
             ComesBeforeExtension: set(),
         }
-        self.assertDictEqual(expected, dict(build_extension_type_graph(extension_types)))
+        assert expected == dict(build_extension_type_graph(extension_types))
 
 
-class DiscoverExtensionTypesTest(TestCase):
+class TestDiscoverExtensionTypes:
     def test(self):
         extension_types = discover_extension_types()
-        self.assertLessEqual(1, len(extension_types))
+        assert 1 <= len(extension_types)
         for extension_type in extension_types:
-            self.assertTrue(issubclass(extension_type, Extension))
+            assert issubclass(extension_type, Extension)

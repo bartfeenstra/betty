@@ -2,22 +2,18 @@ from __future__ import annotations
 
 import asyncio
 from collections import defaultdict
+from importlib.metadata import entry_points
 from pathlib import Path
 from typing import Type, Set, Optional, Any, List, Dict, Sequence, TypeVar, Union, Iterable, TYPE_CHECKING, Generic
-
-from betty.config import ConfigurationT, Configurable
 
 from reactives.factory.type import ReactiveInstance
 
 from betty import fs
+from betty.config import ConfigurationT, Configurable
 from betty.requirement import Requirer, AllRequirements
 
 if TYPE_CHECKING:
     from betty.app import App
-try:
-    from importlib.metadata import entry_points
-except ImportError:
-    from importlib_metadata import entry_points
 
 from betty.dispatch import Dispatcher, TargetedDispatcher
 from betty.importlib import import_any
@@ -52,6 +48,7 @@ class Extension(Requirer):
     """
 
     def __init__(self, app: App, *args, **kwargs):
+        assert type(self) != Extension
         super().__init__(*args, **kwargs)
         self._app = app
 
@@ -93,6 +90,7 @@ ExtensionT = TypeVar('ExtensionT', bound=Extension)
 
 class ConfigurableExtension(Extension, Generic[ConfigurationT], Configurable[ConfigurationT]):
     def __init__(self, *args, **kwargs):
+        assert type(self) != ConfigurableExtension
         if 'configuration' not in kwargs or kwargs['configuration'] is None:
             kwargs['configuration'] = self.default_configuration()
         super().__init__(*args, **kwargs)
@@ -176,7 +174,7 @@ class ExtensionDispatcher(Dispatcher):
         return _dispatch
 
 
-def build_extension_type_graph(extension_types: Set[Type[Extension]]) -> Dict:
+def build_extension_type_graph(extension_types: Iterable[Type[Extension]]) -> Dict:
     extension_types_graph = defaultdict(set)
     # Add dependencies to the extension graph.
     for extension_type in extension_types:

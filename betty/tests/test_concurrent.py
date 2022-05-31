@@ -1,11 +1,12 @@
 from concurrent.futures.thread import ThreadPoolExecutor
 from time import sleep
 
+import pytest
+
 from betty.concurrent import ExceptionRaisingAwaitableExecutor
-from betty.tests import TestCase
 
 
-class ExceptionRaisingAwaitableExecutorTest(TestCase):
+class TestExceptionRaisingAwaitableExecutor:
     def test_without_exception_should_not_raise(self) -> None:
         def _task():
             return
@@ -17,7 +18,7 @@ class ExceptionRaisingAwaitableExecutorTest(TestCase):
         def _task():
             raise RuntimeError()
 
-        with self.assertRaises(RuntimeError):
+        with pytest.raises(RuntimeError):
             with ExceptionRaisingAwaitableExecutor(ThreadPoolExecutor()) as sut:
                 sut.submit(_task)
 
@@ -32,12 +33,12 @@ class ExceptionRaisingAwaitableExecutorTest(TestCase):
         sut = ExceptionRaisingAwaitableExecutor(ThreadPoolExecutor())
         future = sut.submit(_task)
         sut.wait()
-        self.assertTrue(future.result())
-        self.assertEqual([True], tracker)
+        assert future.result() is True
+        assert [True] == tracker
         future = sut.submit(_task)
         sut.wait()
-        self.assertTrue(future.result())
-        self.assertEqual([True, True], tracker)
+        assert future.result() is True
+        assert [True, True] == tracker
 
     def test_wait_with_mapped_tasks(self) -> None:
         tracker = []
@@ -50,9 +51,9 @@ class ExceptionRaisingAwaitableExecutorTest(TestCase):
         sut = ExceptionRaisingAwaitableExecutor(ThreadPoolExecutor())
         future = sut.map(_task, [1])
         sut.wait()
-        self.assertEqual([1], list(future))
-        self.assertEqual([True], tracker)
+        assert [1] == list(future)
+        assert [True] == tracker
         future = sut.map(_task, [2])
         sut.wait()
-        self.assertEqual([2], list(future))
-        self.assertEqual([1, 2], tracker)
+        assert [2] == list(future)
+        assert [1, 2] == tracker

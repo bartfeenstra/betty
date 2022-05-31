@@ -12,7 +12,7 @@ class Test(TemplateTestCase):
         with self._render(data={
             'entity': event,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_with_identifiable(self):
         event = Event('E0', Birth())
@@ -20,7 +20,7 @@ class Test(TemplateTestCase):
         with self._render(data={
             'entity': event,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_embedded_with_identifiable(self):
         event = Event('E0', Birth())
@@ -30,7 +30,7 @@ class Test(TemplateTestCase):
             'entity': event,
             'embedded': True,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_with_description(self):
         event = Event(None, Birth())
@@ -39,7 +39,7 @@ class Test(TemplateTestCase):
         with self._render(data={
             'entity': event,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_with_witnesses(self):
         event = Event(None, Birth())
@@ -48,7 +48,7 @@ class Test(TemplateTestCase):
         with self._render(data={
             'entity': event,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_with_person_context_as_witness(self):
         event = Event(None, Birth())
@@ -59,7 +59,7 @@ class Test(TemplateTestCase):
             'entity': event,
             'person_context': person,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_with_person_context_as_subject(self):
         event = Event(None, Birth())
@@ -70,7 +70,7 @@ class Test(TemplateTestCase):
             'entity': event,
             'person_context': person,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_with_person_context_and_other_as_subject(self):
         event = Event(None, Marriage())
@@ -83,7 +83,7 @@ class Test(TemplateTestCase):
             'entity': event,
             'person_context': person,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_with_subjects(self):
         event = Event(None, Birth())
@@ -93,7 +93,7 @@ class Test(TemplateTestCase):
         with self._render(data={
             'entity': event,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_without_subjects(self):
         event = Event(None, Birth())
@@ -101,7 +101,7 @@ class Test(TemplateTestCase):
         with self._render(data={
             'entity': event,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_with_entity(self):
         event = Event(None, Birth())
@@ -109,4 +109,4 @@ class Test(TemplateTestCase):
         with self._render(data={
             'entity': event,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual

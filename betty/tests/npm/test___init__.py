@@ -1,26 +1,24 @@
 from subprocess import CalledProcessError
-from unittest.mock import patch
 
-from parameterized import parameterized
+import pytest
 
 from betty.app import App
 from betty.npm import _NpmRequirement
-from betty.tests import TestCase
 
 
-class NpmRequirementTest(TestCase):
+class TestNpmRequirement:
     def test_check_met(self) -> None:
         with App():
             sut = _NpmRequirement.check()
-        self.assertTrue(sut.met)
+        assert sut.met
 
-    @parameterized.expand([
-        (CalledProcessError(1, ''),),
-        (FileNotFoundError(),),
+    @pytest.mark.parametrize('e', [
+        CalledProcessError(1, ''),
+        FileNotFoundError(),
     ])
-    @patch('betty.npm.npm')
-    def test_check_unmet(self, e: Exception, m_npm) -> None:
+    def test_check_unmet(self, e: Exception, mocker) -> None:
+        m_npm = mocker.patch('betty.npm.npm')
         m_npm.side_effect = e
         with App():
             sut = _NpmRequirement.check()
-        self.assertFalse(sut.met)
+        assert not sut.met

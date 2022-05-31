@@ -1,12 +1,13 @@
 from __future__ import annotations
+
 from contextlib import suppress
 from typing import Any, Optional, Type
 
 from betty.app import App
 from betty.locale import negotiate_locale
+from betty.media_type import EXTENSIONS
 from betty.model import Entity
 from betty.model.ancestry import PersonName, Event, Place, File, Source, Citation, Note, Person
-from betty.media_type import EXTENSIONS
 from betty.project import ProjectConfiguration
 
 

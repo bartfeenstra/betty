@@ -5,10 +5,10 @@ from shutil import copy2
 from typing import Optional, Iterable, Set, Type
 
 from betty.app.extension import Extension
-from betty.npm import _Npm, NpmBuilder, npm
 from betty.generate import Generator
 from betty.gui import GuiBuilder
 from betty.html import CssProvider, JsProvider
+from betty.npm import _Npm, NpmBuilder, npm
 
 
 class Trees(Extension, CssProvider, JsProvider, Generator, GuiBuilder, NpmBuilder):

@@ -12,7 +12,7 @@ class TestNameLabel(TemplateTestCase):
         with self._render(data={
             'name': name,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_with_individual_name(self):
         person = Person(None)
@@ -21,7 +21,7 @@ class TestNameLabel(TemplateTestCase):
         with self._render(data={
             'name': name,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_with_affiliation_name(self):
         person = Person(None)
@@ -30,7 +30,7 @@ class TestNameLabel(TemplateTestCase):
         with self._render(data={
             'name': name,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_embedded(self):
         person = Person(None)
@@ -43,7 +43,7 @@ class TestNameLabel(TemplateTestCase):
             'name': name,
             'embedded': True,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
 
     def test_with_citation(self):
         person = Person(None)
@@ -55,4 +55,4 @@ class TestNameLabel(TemplateTestCase):
         with self._render(data={
             'name': name,
         }) as (actual, _):
-            self.assertEqual(expected, actual)
+            assert expected == actual
