@@ -21,7 +21,7 @@ npm run eslint -- -c ./betty/assets/.eslintrc.yaml ./betty/assets/**/*.js
 
 # Run Python tests with coverage.
 coverage erase
-PYTHONWARNINGS='error:::betty[.*]' coverage run --append -m pytest
+PYTHONWARNINGS='error:::betty[.*]' coverage run --append -m pytest -n auto
 coverage report -m
 
 # Run end-to-end (e2e) tests.
