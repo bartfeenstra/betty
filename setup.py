@@ -13,7 +13,7 @@ with open(ROOT_DIRECTORY_PATH / 'README.md', encoding='utf-8') as f:
 
 SETUP = {
     'name': 'betty',
-    'description': 'Betty is a static ancestry site generator.',
+    'description': 'Betty helps you visualize and publish your family history by building interactive genealogy websites out of your Gramps and GECOM family trees',
     'long_description': long_description,
     'long_description_content_type': 'text/markdown',
     'version': VERSION,
