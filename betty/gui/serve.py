@@ -1,17 +1,16 @@
 import copy
-from contextlib import suppress
 from os import path
 from typing import TYPE_CHECKING
 
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtWidgets import QVBoxLayout, QWidget, QPushButton
 
-from betty import serve
 from betty.app import App
 from betty.asyncio import sync
 from betty.config import ConfigurationError
 from betty.gui import BettyWindow
 from betty.gui.text import Text
+from betty.serve import Server, AppServer
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -20,7 +19,7 @@ if TYPE_CHECKING:
 class _ServeThread(QThread):
     server_started = pyqtSignal()
 
-    def __init__(self, app: App, server: serve.Server, *args, **kwargs):
+    def __init__(self, app: App, server: Server, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._app = app
         self._server = server
@@ -33,7 +32,8 @@ class _ServeThread(QThread):
 
     @sync
     async def stop(self) -> None:
-        await self._server.stop()
+        if self._server:
+            await self._server.stop()
         self._app.release()
 
 
@@ -45,15 +45,15 @@ class _ServeWindow(BettyWindow):
     get_instance() method.
     """
 
-    width = 500
-    height = 100
+    window_width = 500
+    window_height = 100
     _instance = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._thread = None
-        self._server = NotImplemented
+        self._server: Server
 
         self._central_layout = QVBoxLayout()
         central_widget = QWidget()
@@ -80,17 +80,18 @@ class _ServeWindow(BettyWindow):
 
         self._loading_instruction.close()
 
-        instance_instruction = Text(self._build_instruction())
-        instance_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self._central_layout.addWidget(instance_instruction)
+        with self._app.acquire_locale():
+            instance_instruction = Text(self._build_instruction())
+            instance_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self._central_layout.addWidget(instance_instruction)
 
-        general_instruction = Text(_('Keep this window open to keep the site running.'))
-        general_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self._central_layout.addWidget(general_instruction)
+            general_instruction = Text(_('Keep this window open to keep the site running.'))
+            general_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self._central_layout.addWidget(general_instruction)
 
-        stop_server_button = QPushButton(_('Stop the site'), self)
-        stop_server_button.released.connect(self.close)
-        self._central_layout.addWidget(stop_server_button)
+            stop_server_button = QPushButton(_('Stop the site'), self)
+            stop_server_button.released.connect(self.close)  # type: ignore
+            self._central_layout.addWidget(stop_server_button)
 
     def show(self) -> None:
         super().show()
@@ -109,10 +110,9 @@ class _ServeWindow(BettyWindow):
         return super().close()
 
     def _stop(self) -> None:
-        with suppress(AttributeError):
+        if self._thread is not None:
             self._thread.stop()
         self._thread = None
-        self._server = None
         self.__class__._instance = None
 
 
@@ -127,7 +127,7 @@ class ServeAppWindow(_ServeWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._server = serve.AppServer(self._app)
+        self._server = AppServer(self._app)
 
         if not path.isdir(self._app.project.configuration.www_directory_path):
             self.close()

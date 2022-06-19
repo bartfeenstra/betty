@@ -15,7 +15,7 @@ from babel.localedata import locale_identifiers
 from betty.resource import Releaser, Acquirer
 
 try:
-    from typing import Self
+    from typing import Self  # type: ignore
 except ImportError:
     from typing_extensions import Self
 
@@ -30,13 +30,10 @@ from betty.model.event_type import EventTypeProvider, Birth, Baptism, Adoption, 
     Occupation, Retirement, Correspondence, Confirmation
 from betty.project import Project
 
-if TYPE_CHECKING:
-    from betty.url import StaticUrlGenerator, ContentNegotiationUrlGenerator
-
 try:
     from graphlib import TopologicalSorter, CycleError
 except ImportError:
-    from graphlib_backport import TopologicalSorter
+    from graphlib_backport import TopologicalSorter  # type: ignore
 
 import aiohttp
 from jinja2 import Environment as Jinja2Environment
@@ -54,6 +51,11 @@ from betty.config import Configurable
 from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH, HOME_DIRECTORY_PATH
 from betty.locale import negotiate_locale, TranslationsRepository, Translations, rfc_1766_to_bcp_47, bcp_47_to_rfc_1766, \
     getdefaultlocale
+
+
+if TYPE_CHECKING:
+    from betty.builtins import _
+    from betty.url import StaticUrlGenerator, ContentNegotiationUrlGenerator
 
 CONFIGURATION_DIRECTORY_PATH = HOME_DIRECTORY_PATH / 'configuration'
 
@@ -77,9 +79,17 @@ class AppConfiguration(FileBasedConfiguration):
     def configuration_file_path(self) -> Path:
         return CONFIGURATION_DIRECTORY_PATH / 'app.json'
 
+    @configuration_file_path.setter
+    def configuration_file_path(self, __) -> None:
+        pass
+
+    @configuration_file_path.deleter
+    def configuration_file_path(self) -> None:
+        pass
+
     @reactive  # type: ignore
     @property
-    def locale(self) -> str:
+    def locale(self) -> Optional[str]:
         if self._locale is None:
             return getdefaultlocale()
         return self._locale
@@ -120,7 +130,8 @@ class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
             self.configuration.read()
 
         self._acquired = False
-        self._extensions = None
+        self._extensions = _AppExtensions()
+        self._extensions_initialized = False
         self._project = Project()
         self._assets = FileSystem()
         self._dispatcher = None
@@ -165,7 +176,7 @@ class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
                 if isinstance(extension, Acquirer):
                     extension.acquire()
                 if isinstance(extension, Releaser):
-                    self._activation_exit_stack.push(extension.release)
+                    self._acquire_contexts.callback(extension.release)
         except BaseException:
             self.release()
             raise
@@ -231,8 +242,8 @@ class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
 
     @property
     def extensions(self) -> Extensions:
-        if self._extensions is None:
-            self._extensions = _AppExtensions()
+        if not self._extensions_initialized:
+            self._extensions_initialized = True
             self._update_extensions()
             self.project.configuration.extensions.react(self._update_extensions)
 
@@ -259,7 +270,7 @@ class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
             extensions_batch = []
             for extension_type in extension_types_batch:
                 if issubclass(extension_type, ConfigurableExtension) and extension_type in self.project.configuration.extensions:
-                    extension = extension_type(self, configuration=self.project.configuration.extensions[extension_type].extension_configuration)
+                    extension: Extension = extension_type(self, configuration=self.project.configuration.extensions[extension_type].extension_configuration)
                 else:
                     extension = extension_type(self)
                 extensions_batch.append(extension)
@@ -267,7 +278,7 @@ class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
             extensions.append(extensions_batch)
         self._extensions._update(extensions)
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def assets(self) -> FileSystem:
         if len(self._assets) == 0:
@@ -284,8 +295,9 @@ class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
     def _build_assets(self) -> None:
         self._assets.prepend(ASSETS_DIRECTORY_PATH, 'utf-8')
         for extension in self.extensions.flatten():
-            if extension.assets_directory_path() is not None:
-                self._assets.prepend(extension.assets_directory_path(), 'utf-8')
+            extension_assets_directory_path = extension.assets_directory_path()
+            if extension_assets_directory_path is not None:
+                self._assets.prepend(extension_assets_directory_path, 'utf-8')
         if self.project.configuration.assets_directory_path:
             self._assets.prepend(self.project.configuration.assets_directory_path)
 
@@ -308,7 +320,7 @@ class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
     def translations(self) -> TranslationsRepository:
         return self._translations
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def jinja2_environment(self) -> Jinja2Environment:
         if not self._jinja2_environment:
@@ -321,7 +333,7 @@ class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
     def jinja2_environment(self) -> None:
         self._jinja2_environment = None
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def renderer(self) -> Renderer:
         if not self._renderer:
@@ -347,7 +359,7 @@ class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
     def locks(self) -> Locks:
         return self._locks
 
-    @reactive
+    @reactive  # type: ignore
     @property
     def http_client(self) -> aiohttp.ClientSession:
         if not self._http_client:
@@ -355,14 +367,14 @@ class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
             weakref.finalize(self, sync(self._http_client.close))
         return self._http_client
 
-    @http_client.deleter
+    @http_client.deleter  # type: ignore
     @sync
     async def http_client(self) -> None:
         if self._http_client is not None:
             await self._http_client.close()
             self._http_client = None
 
-    @reactive
+    @reactive  # type: ignore
     @property
     @sync
     async def entity_types(self) -> Set[Type[Entity]]:
@@ -381,7 +393,11 @@ class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
             }
         return self._entity_types
 
-    @reactive
+    @entity_types.deleter
+    def entity_types(self) -> None:
+        self._entity_types = None
+
+    @reactive  # type: ignore
     @property
     @sync
     async def event_types(self) -> Set[Type[EventType]]:
@@ -409,7 +425,3 @@ class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
                 Confirmation,
             }
         return self._event_types
-
-    @entity_types.deleter
-    def entity_types(self) -> None:
-        self._entity_types = None

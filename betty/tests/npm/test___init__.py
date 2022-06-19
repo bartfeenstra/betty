@@ -1,6 +1,7 @@
 from subprocess import CalledProcessError
 
 import pytest
+from pytest_mock import MockerFixture
 
 from betty.app import App
 from betty.npm import _NpmRequirement
@@ -16,7 +17,7 @@ class TestNpmRequirement:
         CalledProcessError(1, ''),
         FileNotFoundError(),
     ])
-    def test_check_unmet(self, e: Exception, mocker) -> None:
+    def test_check_unmet(self, e: Exception, mocker: MockerFixture) -> None:
         m_npm = mocker.patch('betty.npm.npm')
         m_npm.side_effect = e
         with App():

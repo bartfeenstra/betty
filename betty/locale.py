@@ -15,7 +15,7 @@ from functools import total_ordering
 from gettext import NullTranslations, GNUTranslations
 from io import StringIO
 from pathlib import Path
-from typing import Optional, Tuple, Union, List, Dict, Callable, Any, Iterator, Set, Sequence
+from typing import Optional, Tuple, Union, List, Dict, Callable, Any, Iterator, Set, Sequence, TYPE_CHECKING
 
 import babel
 from babel import dates, Locale
@@ -26,6 +26,10 @@ from betty import fs
 from betty.fs import hashfile, FileSystem
 
 
+if TYPE_CHECKING:
+    from betty.builtins import _
+
+
 def rfc_1766_to_bcp_47(locale: str) -> str:
     return locale.replace('_', '-')
 
@@ -34,8 +38,15 @@ def bcp_47_to_rfc_1766(locale: str) -> str:
     return locale.replace('-', '_')
 
 
-def getdefaultlocale() -> str:
-    return rfc_1766_to_bcp_47(locale.getdefaultlocale()[0])
+def getdefaultlocale() -> Optional[str]:
+    rfc_1766_locale = getdefaultlocale_rfc_1766()
+    if rfc_1766_locale:
+        return rfc_1766_to_bcp_47(rfc_1766_locale)
+    return None
+
+
+def getdefaultlocale_rfc_1766() -> Optional[str]:
+    return locale.getdefaultlocale()[0]
 
 
 class Localized:
@@ -88,7 +99,10 @@ class Date:
             month_start = month_end = self.month
         if self.day is None:
             day_start = 1
-            day_end = calendar.monthrange(self.year, month_end)[1]
+            day_end = calendar.monthrange(
+                self.year,  # type: ignore
+                month_end,
+            )[1]
         else:
             day_start = day_end = self.day
         return DateRange(Date(self.year, month_start, day_start), Date(self.year, month_end, day_end))
@@ -104,7 +118,7 @@ class Date:
         if not other.complete:
             other = other.to_range()
         if not selfish.complete:
-            selfish = selfish.to_range()
+            selfish = selfish.to_range()  # type: ignore
         return comparator(selfish, other)
 
     def __contains__(self, other):
@@ -200,42 +214,57 @@ class DateRange:
                 if other <= self.end:
                     return True
 
-    def __lt__(self, other):
+    def _get_comparable_date(self, date: Optional[Date]) -> Optional[Date]:
+        if date and date.comparable:
+            return date
+        return None
+
+    _LT_DATE_RANGE_COMPARATORS = {
+        (True, True, True, True): lambda self_start, self_end, other_start, other_end: self_start < other_start,
+        (True, True, True, False): lambda self_start, self_end, other_start, other_end: self_start <= other_start or self_end < other_end,
+        (True, True, False, True): lambda self_start, self_end, other_start, other_end: self_start < other_end or self_end <= other_end,
+        (True, True, False, False): lambda self_start, self_end, other_start, other_end: NotImplemented,
+        (True, False, True, True): lambda self_start, self_end, other_start, other_end: self_start < other_start,
+        (True, False, True, False): lambda self_start, self_end, other_start, other_end: self_start < other_start,
+        (True, False, False, True): lambda self_start, self_end, other_start, other_end: self_start < other_end,
+        (True, False, False, False): lambda self_start, self_end, other_start, other_end: NotImplemented,
+        (False, True, True, True): lambda self_start, self_end, other_start, other_end: self_end <= other_start,
+        (False, True, True, False): lambda self_start, self_end, other_start, other_end: self_end <= other_start,
+        (False, True, False, True): lambda self_start, self_end, other_start, other_end: self_end < other_end,
+        (False, True, False, False): lambda self_start, self_end, other_start, other_end: NotImplemented,
+        (False, False, True, True): lambda self_start, self_end, other_start, other_end: NotImplemented,
+        (False, False, True, False): lambda self_start, self_end, other_start, other_end: NotImplemented,
+        (False, False, False, True): lambda self_start, self_end, other_start, other_end: NotImplemented,
+        (False, False, False, False): lambda self_start, self_end, other_start, other_end: NotImplemented,
+    }
+
+    _LT_DATE_COMPARATORS = {
+        (True, True): lambda self_start, self_end, other: self_start < other,
+        (True, False): lambda self_start, self_end, other: self_start < other,
+        (False, True): lambda self_start, self_end, other: self_end <= other,
+        (False, False): lambda self_start, self_end, other: NotImplemented,
+    }
+
+    def __lt__(self, other: Any) -> bool:
         if not isinstance(other, (Date, DateRange)):
             return NotImplemented
 
-        if not self.comparable or not other.comparable:
-            return NotImplemented
-
-        self_has_start = self.start is not None and self.start.comparable
-        self_has_end = self.end is not None and self.end.comparable
-
+        self_start = self._get_comparable_date(self.start)
+        self_end = self._get_comparable_date(self.end)
+        signature = (
+            self_start is not None,
+            self_end is not None,
+        )
         if isinstance(other, DateRange):
-            other_has_start = other.start is not None and other.start.comparable
-            other_has_end = other.end is not None and other.end.comparable
-
-            if self_has_start and other_has_start:
-                if self.start == other.start:
-                    # If both end dates are missing or incomparable, we consider them equal.
-                    if (self.end is None or not self.end.comparable) and (other.end is None or other.end.comparable):
-                        return False
-                    if self_has_end and other_has_end:
-                        return self.end < other.end
-                    return other.end is None
-                return self.start < other.start
-
-            if self_has_start:
-                return self.start < other.end
-
-            if other_has_start:
-                return self.end <= other.start
-
-            return self.end < other.end
-
-        if self_has_start:
-            return self.start < other
-        if self_has_end:
-            return self.end <= other
+            other_start = self._get_comparable_date(other.start)
+            other_end = self._get_comparable_date(other.end)
+            return self._LT_DATE_RANGE_COMPARATORS[(
+                *signature,
+                other_start is not None,
+                other_end is not None,
+            )](self_start, self_end, other_start, other_end)
+        else:
+            return self._LT_DATE_COMPARATORS[signature](self_start, self_end, other)
 
     def __eq__(self, other):
         if isinstance(other, Date):
@@ -300,9 +329,11 @@ class Translations(NullTranslations):
         if self._previous_context is None:
             raise TranslationsInstallationError('These translations are not yet installed.')
 
-        if self != self._stack[self._thread_id][0]:
-            raise TranslationsInstallationError(f'These translations were not the last to be installed. {self._stack[self._thread_id].index(self)} other translation(s) must be uninstalled before these translations can be uninstalled as well.')
-        del self._stack[self._thread_id][0]
+        thread_id = self._thread_id
+        assert thread_id
+        if self != self._stack[thread_id][0]:
+            raise TranslationsInstallationError(f'These translations were not the last to be installed. {self._stack[thread_id].index(self)} other translation(s) must be uninstalled before these translations can be uninstalled as well.')
+        del self._stack[thread_id][0]
 
         for key in self._GETTEXT_BUILTINS:
             # Built-ins are not owned by Betty, so allow for them to have disappeared.
@@ -323,12 +354,12 @@ class Translations(NullTranslations):
 class TranslationsRepository:
     def __init__(self, assets: FileSystem):
         self._assets = assets
-        self._translations = {}
+        self._translations: Dict[str, NullTranslations] = {}
 
     @property
     def locales(self) -> Iterator[str]:
         yield 'en-US'
-        for assets_directory_path, _ in reversed(self._assets.paths):
+        for assets_directory_path, __ in reversed(self._assets.paths):
             for po_file_path in glob.glob(str(assets_directory_path / 'locale' / '*' / 'LC_MESSAGES' / 'betty.po')):
                 yield rfc_1766_to_bcp_47(Path(po_file_path).parents[1].name)
 
@@ -343,9 +374,9 @@ class TranslationsRepository:
         except KeyError:
             return Translations(self._build_translations(locale))
 
-    def _build_translations(self, locale: str) -> Translations:
+    def _build_translations(self, locale: str) -> NullTranslations:
         self._translations[locale] = NullTranslations()
-        for assets_directory_path, _ in reversed(self._assets.paths):
+        for assets_directory_path, __ in reversed(self._assets.paths):
             translations = self._open_translations(locale, assets_directory_path)
             if translations:
                 translations.add_fallback(self._translations[locale])
@@ -382,14 +413,14 @@ class TranslationsRepository:
         return len(translations), len(translatables.union(translations))
 
     def _get_translatables(self) -> Iterator[str]:
-        for assets_directory_path, _ in self._assets.paths:
+        for assets_directory_path, __ in self._assets.paths:
             with suppress(FileNotFoundError):
                 with open(assets_directory_path / 'betty.pot') as f:
                     for entry in pofile(f.read()):
                         yield entry.msgid_with_context
 
     def _get_translations(self, locale: str) -> Iterator[str]:
-        for assets_directory_path, _ in reversed(self._assets.paths):
+        for assets_directory_path, __ in reversed(self._assets.paths):
             with suppress(FileNotFoundError):
                 with open(assets_directory_path / 'locale' / bcp_47_to_rfc_1766(locale) / 'LC_MESSAGES' / 'betty.po') as f:
                     for entry in pofile(f.read()):
@@ -406,6 +437,7 @@ def negotiate_locale(preferred_locale: str, available_locales: Set[str]) -> Opti
         negotiated_locale = babel.negotiate_locale([preferred_locale], [available_locale.split('-', 1)[0]])
         if negotiated_locale is not None:
             return available_locale
+    return None
 
 
 def negotiate_localizeds(preferred_locale: str, localizeds: Sequence[Localized]) -> Optional[Localized]:
@@ -419,6 +451,7 @@ def negotiate_localizeds(preferred_locale: str, localizeds: Sequence[Localized])
             return localized
     with suppress(IndexError):
         return localizeds[0]
+    return None
 
 
 def format_datey(date: Datey, locale: str) -> str:
@@ -456,11 +489,13 @@ _FORMAT_DATE_PARTS_FORMATTERS = {
 }
 
 
-def _format_date_parts(date: Date, locale: str) -> str:
+def _format_date_parts(date: Optional[Date], locale: str) -> str:
     if date is None:
         raise IncompleteDateError('This date is None.')
     try:
-        date_parts_format = _FORMAT_DATE_PARTS_FORMATTERS[tuple(map(lambda x: x is not None, date.parts))]()
+        date_parts_format = _FORMAT_DATE_PARTS_FORMATTERS[tuple(
+            map(lambda x: x is not None, date.parts),  # type: ignore
+        )]()
     except KeyError:
         raise IncompleteDateError('This date does not have enough parts to be rendered.')
     parts = map(lambda x: 1 if x is None else x, date.parts)
@@ -496,20 +531,26 @@ _FORMAT_DATE_RANGE_FORMATTERS = {
 
 
 def format_date_range(date_range: DateRange, locale: str) -> str:
-    formatter_configuration = ()
+    formatter_configuration: Tuple[Optional[bool], Optional[bool], Optional[bool], Optional[bool]] = (None, None, None, None)
     formatter_arguments = {}
 
-    try:
+    with suppress(IncompleteDateError):
         formatter_arguments['start_date'] = _format_date_parts(date_range.start, locale)
-        formatter_configuration += (date_range.start.fuzzy, date_range.start_is_boundary)
-    except IncompleteDateError:
-        formatter_configuration += (None, None)
+        formatter_configuration = (
+            None if date_range.start is None else date_range.start.fuzzy,
+            date_range.start_is_boundary,
+            formatter_configuration[2],
+            formatter_configuration[3],
+        )
 
-    try:
+    with suppress(IncompleteDateError):
         formatter_arguments['end_date'] = _format_date_parts(date_range.end, locale)
-        formatter_configuration += (date_range.end.fuzzy, date_range.end_is_boundary)
-    except IncompleteDateError:
-        formatter_configuration += (None, None)
+        formatter_configuration = (
+            formatter_configuration[0],
+            formatter_configuration[1],
+            None if date_range.end is None else date_range.end.fuzzy,
+            date_range.end_is_boundary,
+        )
 
     if not formatter_arguments:
         raise IncompleteDateError('This date range does not have enough parts to be rendered.')

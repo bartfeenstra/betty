@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-05-16 23:56+0100\n"
+"POT-Creation-Date: 2022-06-01 16:02+0100\n"
 "PO-Revision-Date: 2020-05-02 22:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -532,6 +532,9 @@ msgid "Loading..."
 msgstr ""
 
 msgid "Locale"
+msgstr ""
+
+msgid "Locale aliases must not contain slashes."
 msgstr ""
 
 msgid "Locales configuration must be a list."

@@ -7,11 +7,15 @@ import threading
 import webbrowser
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 from io import StringIO
-from typing import Iterable, Optional
+from typing import Iterable, Optional, TYPE_CHECKING
 
 from betty.app import App
 from betty.error import UserFacingError
 from betty.os import ChDir
+
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 DEFAULT_PORT = 8000
 
@@ -67,7 +71,7 @@ class ServerProvider:
 class AppServer(Server):
     def __init__(self, app: App):
         self._app = app
-        self._server = None
+        self._server: Optional[Server] = None
 
     def _get_server(self) -> Server:
         for extension in self._app.extensions.flatten():
@@ -91,7 +95,8 @@ class AppServer(Server):
         return self._server.public_url
 
     async def stop(self) -> None:
-        await self._server.stop()
+        if self._server:
+            await self._server.stop()
 
 
 class _BuiltinServerRequestHandler(SimpleHTTPRequestHandler):
@@ -121,13 +126,14 @@ class BuiltinServer(Server):
     @property
     def public_url(self) -> str:
         if self._port is not None:
-            return 'http://localhost:%d' % self._port
+            return f'http://localhost:{self._port}'
         raise NoPublicUrlBecauseServerNotStartedError()
 
     def _serve(self):
         with contextlib.redirect_stderr(StringIO()):
             with ChDir(self._app.project.configuration.www_directory_path):
                 with copy.copy(self._app):
+                    assert self._http_server
                     self._http_server.serve_forever()
 
     async def stop(self) -> None:

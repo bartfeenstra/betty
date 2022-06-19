@@ -3,14 +3,13 @@ from __future__ import annotations
 import copy
 import functools
 import operator
-from abc import ABC
 from dataclasses import dataclass
 from enum import Enum
 from functools import reduce
 from typing import TypeVar, Generic, Callable, List, Optional, Iterable, Any, Type, Union, Set, overload, cast, Iterator
 
 try:
-    from typing import Self
+    from typing import Self  # type: ignore
 except ImportError:
     from typing_extensions import Self
 
@@ -90,7 +89,7 @@ def get_entity_type(entity_type_name: str) -> Type[Entity]:
             raise ValueError(f'Unknown entity type "{entity_type_name}"') from None
 
 
-class EntityCollection(Generic[EntityT], ABC):
+class EntityCollection(Generic[EntityT]):
     @property
     def list(self) -> List[EntityT]:
         return [*self]
@@ -484,7 +483,7 @@ class MultipleTypesEntityCollection(EntityCollection[Entity]):
         return False
 
     def _contains_by_entity(self, other_entity: EntityT) -> bool:
-        for entity in self:
+        for entity in self:  # type: ignore
             if other_entity is entity:
                 return True
         return False
@@ -630,7 +629,7 @@ class _BidirectionalToMany(_ToMany):
         self._associate_attr_name = associate_attr_name
 
 
-class _BidirectionalAssociateCollection(_AssociateCollection, ABC):
+class _BidirectionalAssociateCollection(_AssociateCollection):
     def __init__(self, owner: EntityU, associate_type: Type[EntityT], associate_attr_name: str):
         super().__init__(owner, associate_type)
         self._associate_attr_name = associate_attr_name
@@ -749,7 +748,7 @@ class FlattenedEntityCollection:
         return copied
 
     def _restore_init_values(self) -> None:
-        for entity in self._entities:
+        for entity in self._entities:  # type: ignore
             entity = unflatten(entity)
             for association_registration in _EntityTypeAssociationRegistry.get_associations(entity.__class__):
                 setattr(

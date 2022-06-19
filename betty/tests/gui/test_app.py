@@ -4,6 +4,8 @@ from os import path
 import pytest
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
+from pytest_mock import MockerFixture
+from pytestqt.qtbot import QtBot
 
 from betty import fs
 from betty.app import App
@@ -14,11 +16,12 @@ from betty.gui.project import ProjectWindow
 from betty.gui.serve import ServeDemoWindow
 from betty.project import ProjectConfiguration
 from betty.tests import patch_cache
+from betty.tests.conftest import Navigate, AssertWindow
 
 
 class TestBettyMainWindow:
     @patch_cache
-    def test_view_demo_site(self, assert_window, mocker, navigate, qtbot):
+    def test_view_demo_site(self, assert_window: AssertWindow, mocker: MockerFixture, navigate: Navigate, qtbot: QtBot):
         mocker.patch('webbrowser.open_new_tab')
         mocker.patch('betty.gui.serve.ServeDemoWindow._start')
 
@@ -27,12 +30,12 @@ class TestBettyMainWindow:
             qtbot.addWidget(sut)
             sut.show()
 
-            navigate(sut, ['betty_menu', '_demo_action'])
+            navigate(sut, ['_demo_action'])
 
             assert_window(ServeDemoWindow)
 
     @patch_cache
-    def test_clear_caches(self, navigate, qtbot):
+    def test_clear_caches(self, navigate: Navigate, qtbot: QtBot):
         with App() as app:
             sut = BettyMainWindow(app)
             qtbot.addWidget(sut)
@@ -40,24 +43,24 @@ class TestBettyMainWindow:
 
             cached_file_path = path.join(fs.CACHE_DIRECTORY_PATH, 'KeepMeAroundPlease')
             open(cached_file_path, 'w').close()
-            navigate(sut, ['betty_menu', 'clear_caches_action'])
+            navigate(sut, ['clear_caches_action'])
 
             with pytest.raises(FileNotFoundError):
                 open(cached_file_path)
 
-    def test_open_about_window(self, assert_window, navigate, qtbot) -> None:
+    def test_open_about_window(self, assert_window: AssertWindow, navigate: Navigate, qtbot: QtBot) -> None:
         with App() as app:
             sut = BettyMainWindow(app)
             qtbot.addWidget(sut)
             sut.show()
 
-            navigate(sut, ['help_menu', 'about_action'])
+            navigate(sut, ['about_action'])
 
             assert_window(_AboutBettyWindow)
 
 
 class TestWelcomeWindow:
-    def test_open_project_with_invalid_file_should_error(self, assert_error, mocker, qtbot, tmpdir) -> None:
+    def test_open_project_with_invalid_file_should_error(self, assert_error, mocker: MockerFixture, qtbot: QtBot, tmpdir) -> None:
         with App() as app:
             sut = WelcomeWindow(app)
             qtbot.addWidget(sut)
@@ -72,7 +75,7 @@ class TestWelcomeWindow:
             error = assert_error(ExceptionError)
             assert isinstance(error.exception, ConfigurationError)
 
-    def test_open_project_with_valid_file_should_show_project_window(self, assert_window, mocker, qtbot) -> None:
+    def test_open_project_with_valid_file_should_show_project_window(self, assert_window: AssertWindow, mocker: MockerFixture, qtbot: QtBot) -> None:
         title = 'My First Ancestry Site'
         configuration = ProjectConfiguration()
         configuration.title = title
@@ -89,7 +92,7 @@ class TestWelcomeWindow:
             window = assert_window(ProjectWindow)
             assert window._app.project.configuration.title == title
 
-    def test_view_demo_site(self, assert_window, mocker, qtbot) -> None:
+    def test_view_demo_site(self, assert_window: AssertWindow, mocker: MockerFixture, qtbot: QtBot) -> None:
         mocker.patch('webbrowser.open_new_tab')
         mocker.patch('betty.gui.serve.ServeDemoWindow._start')
 
@@ -104,7 +107,7 @@ class TestWelcomeWindow:
 
 
 class TestApplicationConfiguration:
-    async def test_application_configuration_autowrite(self, navigate, qtbot) -> None:
+    async def test_application_configuration_autowrite(self, navigate: Navigate, qtbot: QtBot) -> None:
         with App() as app:
             app.configuration.autowrite = True
 

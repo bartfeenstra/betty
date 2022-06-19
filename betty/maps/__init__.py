@@ -2,7 +2,10 @@ import logging
 from contextlib import suppress
 from pathlib import Path
 from shutil import copy2, copytree
-from typing import Optional, Iterable, Set, Type
+from typing import Optional, Set, Type, TYPE_CHECKING, List
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 from betty.app.extension import Extension
 from betty.generate import Generator
@@ -37,16 +40,16 @@ class Maps(Extension, CssProvider, JsProvider, Generator, GuiBuilder, NpmBuilder
         return Path(__file__).parent / 'assets'
 
     @property
-    def public_css_paths(self) -> Iterable[str]:
-        return {
+    def public_css_paths(self) -> List[str]:
+        return [
             self._app.static_url_generator.generate('maps.css'),
-        }
+        ]
 
     @property
-    def public_js_paths(self) -> Iterable[str]:
-        return {
+    def public_js_paths(self) -> List[str]:
+        return [
             self._app.static_url_generator.generate('maps.js'),
-        }
+        ]
 
     @classmethod
     def label(cls) -> str:

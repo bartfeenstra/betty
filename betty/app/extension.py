@@ -4,7 +4,8 @@ import asyncio
 from collections import defaultdict
 from importlib.metadata import entry_points
 from pathlib import Path
-from typing import Type, Set, Optional, Any, List, Dict, Sequence, TypeVar, Union, Iterable, TYPE_CHECKING, Generic
+from typing import Type, Set, Optional, Any, List, Dict, TypeVar, Union, Iterable, TYPE_CHECKING, Generic, \
+    Iterator
 
 from reactives.factory.type import ReactiveInstance
 
@@ -30,7 +31,7 @@ class Dependencies(AllRequirements):
     def __init__(self, extension_type: Type[Extension]):
         for dependency in extension_type.depends_on():
             try:
-                dependency_requirements = [dependency.requires() for dependency in extension_type.depends_on()]
+                dependency_requirements = tuple(dependency.requires() for dependency in extension_type.depends_on())
             except RecursionError:
                 raise CyclicDependencyError([dependency])
         super().__init__(dependency_requirements)
@@ -54,7 +55,7 @@ class Extension(Requirer):
 
     @classmethod
     def requires(cls) -> AllRequirements:
-        return AllRequirements([Dependencies(cls)] if cls.depends_on() else [])
+        return AllRequirements((Dependencies(cls),) if cls.depends_on() else ())
 
     @classmethod
     def name(cls) -> str:
@@ -105,14 +106,13 @@ class Extensions(ReactiveInstance):
     def __getitem__(self, extension_type: Union[Type[ExtensionT], str]) -> ExtensionT:
         raise NotImplementedError
 
-    def __iter__(self) -> Sequence[Sequence[Extension]]:
+    def __iter__(self) -> Iterator[Iterator[Extension]]:
         raise NotImplementedError
 
-    def flatten(self) -> Sequence[Extension]:
-        for batch in self:
-            yield from batch
+    def flatten(self) -> Iterator[Extension]:
+        raise NotImplementedError
 
-    def __contains__(self, extension_type: Union[Type[Extension], str]) -> bool:
+    def __contains__(self, extension_type: Union[Type[Extension], str, Any]) -> bool:
         raise NotImplementedError
 
 
@@ -131,10 +131,14 @@ class ListExtensions(Extensions):
         raise KeyError(f'Unknown extension of type "{extension_type}"')
 
     @scope.register_self
-    def __iter__(self) -> Sequence[Sequence[Extension]]:
+    def __iter__(self) -> Iterator[Iterator[Extension]]:
         # Use a generator so we discourage calling code from storing the result.
         for batch in self._extensions:
             yield (extension for extension in batch)
+
+    def flatten(self) -> Iterator[Extension]:
+        for batch in self:
+            yield from batch
 
     @scope.register_self
     def __contains__(self, extension_type: Union[Type[Extension], str]) -> bool:
@@ -174,8 +178,11 @@ class ExtensionDispatcher(Dispatcher):
         return _dispatch
 
 
-def build_extension_type_graph(extension_types: Iterable[Type[Extension]]) -> Dict:
-    extension_types_graph = defaultdict(set)
+ExtensionTypeGraph = Dict[Type[Extension], Set[Type[Extension]]]
+
+
+def build_extension_type_graph(extension_types: Iterable[Type[Extension]]) -> ExtensionTypeGraph:
+    extension_types_graph: ExtensionTypeGraph = defaultdict(set)
     # Add dependencies to the extension graph.
     for extension_type in extension_types:
         _extend_extension_type_graph(extension_types_graph, extension_type)

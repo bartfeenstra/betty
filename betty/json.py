@@ -1,7 +1,7 @@
 import json as stdjson
 from os import path
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Type, Callable
 
 import jsonschema
 from geopy import Point
@@ -33,7 +33,7 @@ class JSONEncoder(stdjson.JSONEncoder):
     def __init__(self, app: App, *args, **kwargs):
         stdjson.JSONEncoder.__init__(self, *args, **kwargs)
         self._app = app
-        self._mappers = {
+        self._mappers: Dict[Type, Callable[[Any], Any]] = {
             Path: str,
             PlaceName: self._encode_localized_name,
             Place: self._encode_place,
@@ -82,7 +82,7 @@ class JSONEncoder(stdjson.JSONEncoder):
 
             canonical = Link(self._generate_url(entity))
             canonical.relationship = 'canonical'
-            canonical.media_type = 'application/json'
+            canonical.media_type = MediaType('application/json')
             encoded['links'].append(canonical)
 
             link_urls = [link.url for link in encoded['links']]
@@ -101,7 +101,7 @@ class JSONEncoder(stdjson.JSONEncoder):
 
             html = Link(self._generate_url(entity, media_type='text/html'))
             html.relationship = 'alternate'
-            html.media_type = 'text/html'
+            html.media_type = MediaType('text/html')
             encoded['links'].append(html)
 
     def _encode_described(self, encoded: Dict, described: Described) -> None:
@@ -198,7 +198,7 @@ class JSONEncoder(stdjson.JSONEncoder):
         self._encode_has_links(encoded, place)
         if place.coordinates is not None:
             encoded['coordinates'] = place.coordinates
-            encoded['@context']['coordinates'] = 'https://schema.org/geo'
+            encoded['@context']['coordinates'] = 'https://schema.org/geo'  # type: ignore
         return encoded
 
     def _encode_person(self, person: Person) -> Dict:
@@ -217,7 +217,7 @@ class JSONEncoder(stdjson.JSONEncoder):
             'presences': [],
         }
         for presence in person.presences:
-            encoded['presences'].append({
+            encoded['presences'].append({  # type: ignore
                 '@context': {
                     'event': 'https://schema.org/performerIn',
                 },
@@ -230,7 +230,7 @@ class JSONEncoder(stdjson.JSONEncoder):
         return encoded
 
     def _encode_person_name(self, name: PersonName) -> Dict:
-        encoded = {}
+        encoded: Dict[str, Any] = {}
         if name.individual is not None or name.affiliation is not None:
             encoded.update({
                 '@context': {},
@@ -272,7 +272,7 @@ class JSONEncoder(stdjson.JSONEncoder):
             encoded.update({
                 '@context': {},
             })
-            encoded['@context']['place'] = 'https://schema.org/location'
+            encoded['@context']['place'] = 'https://schema.org/location'  # type: ignore
         return encoded
 
     def _encode_event_type(self, event_type: EventType) -> str:
@@ -291,7 +291,9 @@ class JSONEncoder(stdjson.JSONEncoder):
         for fact in citation.facts:
             if isinstance(fact.id, GeneratedEntityId):
                 continue
-            encoded['facts'].append(self._generate_url(fact))
+            encoded['facts'].append(  # type: ignore
+                self._generate_url(fact),
+            )
         self._encode_entity(encoded, citation)
         self._encode_dated(encoded, citation)
         return encoded

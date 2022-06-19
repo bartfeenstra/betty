@@ -314,6 +314,8 @@ class ProjectExtensionsConfiguration(Configuration):
 class LocaleConfiguration:
     def __init__(self, locale: str, alias: Optional[str] = None):
         self._locale = locale
+        if alias is not None and '/' in alias:
+            raise ConfigurationError(_('Locale aliases must not contain slashes.'))
         self._alias = alias
 
     def __repr__(self):

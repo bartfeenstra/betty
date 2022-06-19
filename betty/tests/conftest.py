@@ -78,17 +78,22 @@ def navigate(qtbot: QtBot) -> Navigate:
 QWidgetT = TypeVar('QWidgetT', bound=QWidget)
 
 
-AssertTopLevelWidget = Callable[[Type[QWidgetT]], QWidgetT]
+AssertTopLevelWidget = Callable[[Union[Type[QWidgetT], QWidgetT]], QWidgetT]
 
 
 @pytest.fixture
 def assert_top_level_widget(qapp: BettyApplication, qtbot: QtBot) -> AssertTopLevelWidget:
-    def _wait_assert_top_level_widget(widget_type: Type[QWidget]) -> QWidget:
+    def _wait_assert_top_level_widget(widget_type: Union[Type[QWidgetT], QWidgetT]) -> QWidget:
         widgets = []
 
         def __assert_top_level_widget():
             nonlocal widgets
-            widgets = [widget for widget in qapp.topLevelWidgets() if isinstance(widget, widget_type) and widget.isVisible()]
+            widgets = [
+                widget
+                for widget
+                in qapp.topLevelWidgets()
+                if widget.isVisible() and (isinstance(widget, widget_type) if isinstance(widget_type, type) else widget is widget_type)
+            ]
             assert len(widgets) == 1
         qtbot.waitUntil(__assert_top_level_widget)
         widget = widgets[0]
@@ -97,13 +102,18 @@ def assert_top_level_widget(qapp: BettyApplication, qtbot: QtBot) -> AssertTopLe
     return _wait_assert_top_level_widget
 
 
-AssertNotTopLevelWidget = Callable[[Type[QWidget]], None]
+AssertNotTopLevelWidget = Callable[[Union[Type[QWidget], QWidgetT]], None]
 
 
 @pytest.fixture
 def assert_not_top_level_widget(qapp: BettyApplication, qtbot: QtBot) -> AssertNotTopLevelWidget:
-    def _assert_not_top_level_widget(widget_type: Type[QWidget]) -> None:
-        widgets = [widget for widget in qapp.topLevelWidgets() if isinstance(widget, widget_type) and widget.isVisible()]
+    def _assert_not_top_level_widget(widget_type: Union[Type[QWidget], QWidgetT]) -> None:
+        widgets = [
+            widget
+            for widget
+            in qapp.topLevelWidgets()
+            if widget.isVisible() and (isinstance(widget, widget_type) if isinstance(widget_type, type) else widget is widget_type)
+        ]
         assert len(widgets) == 0
     return _assert_not_top_level_widget
 
@@ -111,20 +121,23 @@ def assert_not_top_level_widget(qapp: BettyApplication, qtbot: QtBot) -> AssertN
 QMainWindowT = TypeVar('QMainWindowT', bound=QMainWindow)
 
 
-AssertWindow = Callable[[Type[QMainWindowT]], QMainWindowT]
+AssertWindow = Callable[[Union[Type[QMainWindowT], QMainWindowT]], QMainWindowT]
 
 
 @pytest.fixture
 def assert_window(assert_top_level_widget: AssertTopLevelWidget) -> AssertWindow:
-    def _assert_window(window_type: Type[QMainWindowT]) -> QMainWindowT:
+    def _assert_window(window_type: Union[Type[QMainWindowT], QMainWindowT]) -> QMainWindowT:
         return assert_top_level_widget(window_type)
     return _assert_window
 
 
+AssertNotWindow = Callable[[Union[Type[QMainWindowT], QMainWindowT]], None]
+
+
 @pytest.fixture
-def assert_not_window(assert_not_top_level_widget: AssertNotTopLevelWidget):
-    def _assert_window(window_type: Type[QMainWindow]) -> None:
-        return assert_not_top_level_widget(window_type)
+def assert_not_window(assert_not_top_level_widget: AssertNotTopLevelWidget) -> AssertNotWindow:
+    def _assert_window(window_type: Union[Type[QMainWindowT], QMainWindowT]) -> None:
+        assert_not_top_level_widget(window_type)
     return _assert_window
 
 

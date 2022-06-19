@@ -26,6 +26,7 @@ class LogRecord(Text):
         for level in self._LEVELS:
             if record_level >= level:
                 return level
+        return logging.NOTSET
 
 
 class LogRecordViewer(QWidget):
@@ -46,7 +47,7 @@ class _LogRecordViewerHandlerObject(QObject):
 
     def __init__(self, viewer: LogRecordViewer):
         super().__init__()
-        self.log.connect(viewer.log, Qt.ConnectionType.QueuedConnection)
+        self.log.connect(viewer.log, Qt.ConnectionType.QueuedConnection)  # type: ignore
 
 
 class LogRecordViewerHandler(logging.Handler):

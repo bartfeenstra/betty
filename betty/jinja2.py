@@ -6,8 +6,8 @@ import re
 import warnings
 from contextlib import suppress
 from pathlib import Path
-from typing import Dict, Callable, Iterable, Type, Optional, Any, Union, Iterator, AsyncIterable, ContextManager, cast, \
-    AsyncContextManager, MutableMapping, List
+from typing import Dict, Callable, Iterable, Type, Optional, Any, Union, Iterator, ContextManager, cast, \
+    AsyncContextManager, MutableMapping, List, TYPE_CHECKING
 
 import aiofiles
 import pdf2image
@@ -46,12 +46,16 @@ from betty.search import Index
 from betty.string import camel_case_to_snake_case, camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
 
 
+if TYPE_CHECKING:
+    from betty.builtins import gettext, ngettext, pgettext, npgettext
+
+
 class _Citer:
     def __init__(self):
-        self._citations = []
+        self._citations: List[Citation] = []
 
     def __iter__(self) -> Iterator[Citation]:
-        return enumerate(self._citations, 1)
+        return enumerate(self._citations, 1)  # type: ignore
 
     def __len__(self) -> int:
         return len(self._citations)
@@ -212,7 +216,7 @@ class Environment(Jinja2Environment):
                 self.globals.update(extension.globals)
                 self.filters.update(extension.filters)
 
-    def negotiate_template(self, names: List[Union[str, Template]], parent: Optional[str] = None, globals: Optional[MutableMapping[str, Any]] = None) -> Template:
+    def negotiate_template(self, names: List[str], parent: Optional[str] = None, globals: Optional[MutableMapping[str, Any]] = None) -> Template:
         for name in names:
             with suppress(TemplateNotFound):
                 return self.get_template(name, parent, globals)
@@ -264,7 +268,7 @@ def _filter_json(context: Context, data: Any, indent: Optional[int] = None) -> s
     """
     Converts a value to a JSON string.
     """
-    return stdjson.dumps(data, indent=indent, cls=JSONEncoder.get_factory(context.environment.app))
+    return stdjson.dumps(data, indent=indent, cls=JSONEncoder.get_factory(cast(Environment, context.environment).app))
 
 
 @pass_context
@@ -325,7 +329,7 @@ def _filter_unique(items: Iterable) -> Iterator:
 
 
 @pass_context
-def _filter_map(context: Context, value: Union[AsyncIterable, Iterable], *args: Any, **kwargs: Any,):
+def _filter_map(context: Context, value: Iterable, *args: Any, **kwargs: Any,):
     """
     Maps an iterable's values.
 
@@ -333,7 +337,7 @@ def _filter_map(context: Context, value: Union[AsyncIterable, Iterable], *args: 
     """
     if value:
         if len(args) > 0 and isinstance(args[0], Macro):
-            func = args[0]
+            func: Union[Macro, Callable[[Any], bool]] = args[0]
         else:
             func = prepare_map(context, args, kwargs)
         for item in value:
@@ -355,16 +359,15 @@ def _do_filter_file(file_source_path: Path, file_destination_path: Path) -> None
 
 
 def _filter_image(app: App, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
-    if width is None and height is None:
-        raise ValueError('At least the width or height must be given.')
-
     destination_name = '%s-' % file.id
-    if width is None:
+    if height:
         destination_name += '-x%d' % height
-    elif height is None:
+    elif width:
         destination_name += '%dx-' % width
-    else:
+    elif height and width:
         destination_name += '%dx%d' % (width, height)
+    else:
+        raise ValueError('At least the width or height must be given.')
 
     file_directory_path = app.project.configuration.www_directory_path / 'file'
 
@@ -423,9 +426,9 @@ def _execute_filter_image(image: Image, file_path: Path, cache_directory_path: P
         cache_directory_path.mkdir(exist_ok=True, parents=True)
         with image:
             if width is not None:
-                width = min(width, image.width)
+                width = min(width, image.window_width)
             if height is not None:
-                height = min(height, image.height)
+                height = min(height, image.window_height)
 
             if width is None:
                 size = height
@@ -443,7 +446,7 @@ def _execute_filter_image(image: Image, file_path: Path, cache_directory_path: P
 
 @pass_context
 def _filter_negotiate_localizeds(context: Context, localizeds: Iterable[Localized]) -> Optional[Localized]:
-    return negotiate_localizeds(context.environment.app.locale, list(localizeds))
+    return negotiate_localizeds(cast(Environment, context.environment).app.locale, list(localizeds))
 
 
 @pass_context
@@ -453,7 +456,7 @@ def _filter_sort_localizeds(context: Context, localizeds: Iterable[Localized], l
     get_sort_attr = make_attrgetter(context.environment, sort_attribute)
 
     def _get_sort_key(x):
-        return get_sort_attr(negotiate_localizeds(context.environment.app.locale, get_localized_attr(x)))
+        return get_sort_attr(negotiate_localizeds(cast(Environment, context.environment).app.locale, get_localized_attr(x)))
 
     return sorted(localizeds, key=_get_sort_key)
 
@@ -463,7 +466,7 @@ def _filter_select_localizeds(context: Context, localizeds: Iterable[Localized],
     for localized in localizeds:
         if include_unspecified and localized.locale in {None, 'mis', 'mul', 'und', 'zxx'}:
             yield localized
-        if localized.locale is not None and negotiate_locale(context.environment.app.locale, {localized.locale}) is not None:
+        if localized.locale is not None and negotiate_locale(cast(Environment, context.environment).app.locale, {localized.locale}) is not None:
             yield localized
 
 
@@ -471,15 +474,19 @@ def _filter_select_localizeds(context: Context, localizeds: Iterable[Localized],
 def _filter_negotiate_dateds(context: Context, dateds: Iterable[Dated], date: Optional[Datey]) -> Optional[Dated]:
     with suppress(StopIteration):
         return next(_filter_select_dateds(context, dateds, date))
+    return None
 
 
 @pass_context
 def _filter_select_dateds(context: Context, dateds: Iterable[Dated], date: Optional[Datey]) -> Iterator[Dated]:
     if date is None:
         date = context.resolve_or_missing('today')
-    return filter(lambda dated: dated.date is None or dated.date.comparable and dated.date in date, dateds)
+    return filter(
+        lambda dated: dated.date is None or dated.date.comparable and dated.date in date,  # type: ignore
+        dateds,
+    )
 
 
 @pass_context
 def _filter_format_date(context: Context, date: Datey) -> str:
-    return format_datey(date, context.environment.app.locale)
+    return format_datey(date, cast(Environment, context.environment).app.locale)

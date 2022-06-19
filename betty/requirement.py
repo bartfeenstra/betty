@@ -1,7 +1,5 @@
-from abc import ABC, abstractmethod
 from textwrap import indent
-from typing import Optional, Iterable, TYPE_CHECKING
-
+from typing import Optional, Iterable, TYPE_CHECKING, Tuple
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -35,8 +33,8 @@ class Requirement:
 
 
 class _RequirementCollection(Requirement):
-    def __init__(self, requirements: Iterable[Requirement]):
-        self._requirements = tuple(requirements)
+    def __init__(self, requirements: Tuple[Requirement, ...]):
+        self._requirements = requirements
 
     @property
     def requirements(self) -> Iterable[Requirement]:
@@ -56,7 +54,7 @@ class _RequirementCollection(Requirement):
 
 
 class AnyRequirement(_RequirementCollection):
-    def __init__(self, requirements: Iterable[Requirement]):
+    def __init__(self, requirements: Tuple[Requirement, ...]):
         super().__init__(requirements)
         self._summary = _('One or more of these requirements must be met')
 
@@ -77,7 +75,7 @@ class AnyRequirement(_RequirementCollection):
 
 
 class AllRequirements(_RequirementCollection):
-    def __init__(self, requirements: Iterable[Requirement]):
+    def __init__(self, requirements: Tuple[Requirement, ...]):
         super().__init__(requirements)
         self._summary = _('All of these requirements must be met')
 
@@ -103,11 +101,10 @@ class RequirementError(RuntimeError, UserFacingError):
         return self._requirement
 
 
-class Requirer(ABC):
+class Requirer:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     @classmethod
-    @abstractmethod
     def requires(cls) -> Requirement:
         raise NotImplementedError

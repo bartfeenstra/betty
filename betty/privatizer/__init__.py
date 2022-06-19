@@ -1,6 +1,11 @@
 import logging
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
+
+from betty.model import Entity
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 from betty.app.extension import Extension
 from betty.functools import walk
@@ -25,7 +30,7 @@ class Privatizer(Extension, PostLoader, GuiBuilder):
 
 
 def privatize(ancestry: Ancestry, lifetime_threshold: int = 125) -> None:
-    seen = []
+    seen: List[Entity] = []
 
     privatized = 0
     for person in ancestry.entities[Person]:
@@ -55,7 +60,7 @@ def _mark_private(has_privacy: HasPrivacy) -> None:
         has_privacy.private = True
 
 
-def _privatize_person(person: Person, seen: List, lifetime_threshold: int) -> None:
+def _privatize_person(person: Person, seen: List[Entity], lifetime_threshold: int) -> None:
     # Do not change existing explicit privacy declarations.
     if person.private is None:
         person.private = _person_is_private(person, lifetime_threshold)
@@ -72,7 +77,7 @@ def _privatize_person(person: Person, seen: List, lifetime_threshold: int) -> No
     _privatize_has_files(person, seen)
 
 
-def _privatize_event(event: Event, seen: List) -> None:
+def _privatize_event(event: Event, seen: List[Entity]) -> None:
     if not event.private:
         return
 
@@ -84,13 +89,13 @@ def _privatize_event(event: Event, seen: List) -> None:
     _privatize_has_files(event, seen)
 
 
-def _privatize_has_citations(has_citations: HasCitations, seen: List) -> None:
+def _privatize_has_citations(has_citations: HasCitations, seen: List[Entity]) -> None:
     for citation in has_citations.citations:
         _mark_private(citation)
         _privatize_citation(citation, seen)
 
 
-def _privatize_citation(citation: Citation, seen: List) -> None:
+def _privatize_citation(citation: Citation, seen: List[Entity]) -> None:
     if not citation.private:
         return
 
@@ -103,7 +108,7 @@ def _privatize_citation(citation: Citation, seen: List) -> None:
     _privatize_has_files(citation, seen)
 
 
-def _privatize_source(source: Source, seen: List) -> None:
+def _privatize_source(source: Source, seen: List[Entity]) -> None:
     if not source.private:
         return
 
@@ -114,13 +119,13 @@ def _privatize_source(source: Source, seen: List) -> None:
     _privatize_has_files(source, seen)
 
 
-def _privatize_has_files(has_files: HasFiles, seen: List) -> None:
+def _privatize_has_files(has_files: HasFiles, seen: List[Entity]) -> None:
     for file in has_files.files:
         _mark_private(file)
         _privatize_file(file, seen)
 
 
-def _privatize_file(file: File, seen: List) -> None:
+def _privatize_file(file: File, seen: List[Entity]) -> None:
     if not file.private:
         return
 

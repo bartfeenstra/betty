@@ -6,10 +6,11 @@ import os
 import shutil
 from contextlib import suppress
 from pathlib import Path
-from typing import Iterable, Any
+from typing import Iterable, Any, TYPE_CHECKING, cast, AsyncContextManager, List
 
 import aiofiles
 from aiofiles import os as aiofiles_os
+from aiofiles.threadpool.text import AsyncTextIOWrapper
 from babel import Locale
 from jinja2 import TemplateNotFound
 
@@ -17,11 +18,16 @@ from betty.app import App
 from betty.jinja2 import Environment
 from betty.json import JSONEncoder
 from betty.locale import bcp_47_to_rfc_1766
+from betty.model import EntityCollection, Entity
 from betty.model.ancestry import File, Person, Place, Event, Citation, Source, Note
 from betty.openapi import build_specification
 
+if TYPE_CHECKING:
+    from betty.builtins import _
+
+
 try:
-    from resource import getrlimit, RLIMIT_NOFILE
+    from resource import getrlimit, RLIMIT_NOFILE  # type: ignore
     _GENERATE_CONCURRENCY = math.ceil(getrlimit(RLIMIT_NOFILE)[0] / 2)
 except ImportError:
     _GENERATE_CONCURRENCY = 999
@@ -79,7 +85,14 @@ async def _generate(app: App) -> None:
                         (app.project.ancestry.entities[Citation], 'citation'),
                         (app.project.ancestry.entities[Source], 'source'),
                     ]
-                    async for coroutine in _generate_entity_type(www_directory_path, entities, entity_type_name, app, locale, app.jinja2_environment)
+                    async for coroutine in _generate_entity_type(
+                        www_directory_path,
+                        cast(EntityCollection[Entity], entities),
+                        entity_type_name,
+                        app,
+                        locale,
+                        app.jinja2_environment,
+                    )
                 ],
                 _generate_entity_type_list_json(www_directory_path, app.project.ancestry.entities[Note], 'note', app),
                 *[
@@ -102,16 +115,16 @@ async def _generate(app: App) -> None:
             logger.info(_('Generated OpenAPI documentation in {locale}.').format(locale=locale_label))
 
 
-def _create_file(path: Path) -> object:
+def _create_file(path: Path) -> AsyncContextManager[AsyncTextIOWrapper]:
     path.parent.mkdir(exist_ok=True, parents=True)
-    return aiofiles.open(path, 'w', encoding='utf-8')
+    return cast(AsyncContextManager[AsyncTextIOWrapper], aiofiles.open(path, 'w', encoding='utf-8'))
 
 
-def _create_html_resource(path: Path) -> object:
+def _create_html_resource(path: Path) -> AsyncContextManager[AsyncTextIOWrapper]:
     return _create_file(path / 'index.html')
 
 
-def _create_json_resource(path: Path) -> object:
+def _create_json_resource(path: Path) -> AsyncContextManager[AsyncTextIOWrapper]:
     return _create_file(path / 'index.json')
 
 
@@ -163,8 +176,12 @@ async def _generate_entity_type_list_json(www_directory_path: Path, entities: It
         'collection': []
     }
     for entity in entities:
-        data['collection'].append(app.url_generator.generate(
-            entity, 'application/json', absolute=True))
+        cast(List[str], data['collection']).append(
+            app.url_generator.generate(
+                entity,
+                'application/json',
+                absolute=True,
+            ))
     rendered_json = json.dumps(data)
     async with _create_json_resource(entity_type_path) as f:
         await f.write(rendered_json)

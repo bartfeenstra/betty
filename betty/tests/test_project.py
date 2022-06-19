@@ -229,6 +229,13 @@ class TestLocaleConfiguration:
         sut = LocaleConfiguration(locale, alias)
         assert alias == sut.alias
 
+    def test_invalid_alias(self):
+        locale = 'nl-NL'
+        alias = '/'
+        with pytest.raises(ConfigurationError):
+            with App():
+                LocaleConfiguration(locale, alias)
+
     @pytest.mark.parametrize('expected, sut, other', [
         (False, LocaleConfiguration('nl', 'NL'), 'not a locale configuration'),
         (False, LocaleConfiguration('nl', 'NL'), 999),

@@ -28,7 +28,7 @@ class Index:
 
     def _build_person(self, person: Person) -> Optional[Dict]:
         if person.private:
-            return
+            return None
         names = []
         for name in person.names:
             if name.individual is not None:
@@ -40,6 +40,7 @@ class Index:
                 'text': ' '.join(names),
                 'result': self._render_entity(person),
             }
+        return None
 
     def _build_place(self, place: Place) -> Optional[Dict]:
         return {
@@ -53,3 +54,4 @@ class Index:
                 'text': file.description.lower(),
                 'result': self._render_entity(file),
             }
+        return None
