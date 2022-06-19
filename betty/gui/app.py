@@ -207,7 +207,7 @@ class WelcomeWindow(BettyMainWindow):
     def _do_set_translatables(self) -> None:
         super()._do_set_translatables()
         self._welcome.setText(_('Welcome to Betty'))
-        self._welcome_caption.setText(_('Betty is a static site generator for your <a href="{gramps_url}">Gramps</a> and <a href="{gedcom_url}">GEDCOM</a> family trees.').format(gramps_url='https://gramps-project.org/', gedcom_url='https://en.wikipedia.org/wiki/GEDCOM'))
+        self._welcome_caption.setText(_('Betty helps you visualize and publish your family history by building interactive genealogy websites out of your <a href="{gramps_url}">Gramps</a> and <a href="{gedcom_url}">GEDCOM</a> family trees.').format(gramps_url='https://gramps-project.org/', gedcom_url='https://en.wikipedia.org/wiki/GEDCOM'))
         self._project_instruction.setText(_('Work on a new or existing site of your own'))
         self.open_project_button.setText(_('Open an existing project'))
         self.new_project_button.setText(_('Create a new project'))
