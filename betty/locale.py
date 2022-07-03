@@ -221,7 +221,7 @@ class DateRange:
 
     _LT_DATE_RANGE_COMPARATORS = {
         (True, True, True, True): lambda self_start, self_end, other_start, other_end: self_start < other_start,
-        (True, True, True, False): lambda self_start, self_end, other_start, other_end: self_start <= other_start or self_end < other_end,
+        (True, True, True, False): lambda self_start, self_end, other_start, other_end: self_start <= other_start,
         (True, True, False, True): lambda self_start, self_end, other_start, other_end: self_start < other_end or self_end <= other_end,
         (True, True, False, False): lambda self_start, self_end, other_start, other_end: NotImplemented,
         (True, False, True, True): lambda self_start, self_end, other_start, other_end: self_start < other_start,
