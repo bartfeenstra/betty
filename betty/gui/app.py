@@ -163,7 +163,7 @@ class WelcomeWindow(BettyMainWindow):
     window_width = 1
     # This is a best guess at the minimum required height, because if we set this to 1, like the width, some of the
     # text will be clipped.
-    window_height = 450
+    window_height = 600
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
