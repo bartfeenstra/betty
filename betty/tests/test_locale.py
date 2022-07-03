@@ -331,6 +331,7 @@ class TestDateRange:
         (False, Date(1970, 2, 1)),
         (True, Date(1970, 2, 2)),
         (True, Date(1970, 2, 3)),
+        (False, DateRange(Date(1970, 1, 1))),
         (True, DateRange(Date(1970, 2, 1))),
         (True, DateRange(Date(1970, 2, 2))),
         (True, DateRange(Date(1970, 2, 3))),
