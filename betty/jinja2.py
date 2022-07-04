@@ -29,6 +29,7 @@ from resizeimage import resizeimage
 
 from betty.app import App
 from betty.asyncio import sync
+from betty.cache import io_task_cache
 from betty.fs import hashfile, iterfiles, CACHE_DIRECTORY_PATH
 from betty.functools import walk
 from betty.html import CssProvider, JsProvider
@@ -348,7 +349,8 @@ def _filter_file(app: App, file: File) -> str:
     with suppress(AcquiredError):
         app.locks.acquire((_filter_file, file))
         file_destination_path = app.project.configuration.www_directory_path / 'file' / file.id / 'file' / file.path.name
-        app.executor.submit(_do_filter_file, file.path, file_destination_path)
+        if io_task_cache.claim(str(file_destination_path)):
+            app.executor.submit(_do_filter_file, file.path, file_destination_path)
 
     return f'/file/{file.id}/file/{file.path.name}'
 
@@ -383,10 +385,11 @@ def _filter_image(app: App, file: File, width: Optional[int] = None, height: Opt
     else:
         raise ValueError('Cannot convert a file without a media type to an image.')
 
-    with suppress(AcquiredError):
-        app.locks.acquire((_filter_image, file, width, height))
-        cache_directory_path = CACHE_DIRECTORY_PATH / 'image'
-        app.executor.submit(task, file.path, cache_directory_path, file_directory_path, destination_name, width, height)
+    if io_task_cache.claim(str(file_directory_path / destination_name)):
+        with suppress(AcquiredError):
+            app.locks.acquire((_filter_image, file, width, height))
+            cache_directory_path = CACHE_DIRECTORY_PATH / 'image'
+            app.executor.submit(task, file.path, cache_directory_path, file_directory_path, destination_name, width, height)
 
     destination_public_path = '/file/%s' % destination_name
 
@@ -420,6 +423,7 @@ def _execute_filter_image(image: Image, file_path: Path, cache_directory_path: P
     cache_file_path = cache_directory_path / ('%s-%s' % (hashfile(file_path), destination_name))
     destination_file_path = destination_directory_path / destination_name
 
+    print(destination_file_path)
     try:
         link_or_copy(cache_file_path, destination_file_path)
     except FileNotFoundError:

@@ -4,9 +4,10 @@ import logging
 import math
 import os
 import shutil
+import threading
 from contextlib import suppress
 from pathlib import Path
-from typing import Iterable, Any, TYPE_CHECKING, cast, AsyncContextManager, List
+from typing import Iterable, Any, TYPE_CHECKING, cast, AsyncContextManager, List, Iterator, Optional
 
 import aiofiles
 from aiofiles import os as aiofiles_os
@@ -15,6 +16,7 @@ from babel import Locale
 from jinja2 import TemplateNotFound
 
 from betty.app import App
+from betty.cache import IOTaskCache
 from betty.jinja2 import Environment
 from betty.json import JSONEncoder
 from betty.locale import bcp_47_to_rfc_1766
@@ -45,10 +47,14 @@ class Generator:
 async def generate(app: App) -> None:
     shutil.rmtree(app.project.configuration.output_directory_path, ignore_errors=True)
     await aiofiles_os.makedirs(app.project.configuration.output_directory_path)
-    await asyncio.gather(
-        _generate(app),
-        app.dispatcher.dispatch(Generator)(),
-    )
+
+    with IOTaskCache():
+        await asyncio.gather(
+            _generate(app),
+            app.dispatcher.dispatch(Generator)(),
+        )
+        app.wait()
+
     os.chmod(app.project.configuration.output_directory_path, 0o755)
     for directory_path_str, subdirectory_names, file_names in os.walk(app.project.configuration.output_directory_path):
         directory_path = Path(directory_path_str)
@@ -56,7 +62,6 @@ async def generate(app: App) -> None:
             os.chmod(directory_path / subdirectory_name, 0o755)
         for file_name in file_names:
             os.chmod(directory_path / file_name, 0o644)
-    app.wait()
 
 
 async def _generate(app: App) -> None:
