@@ -422,10 +422,11 @@ def _execute_filter_image(image: Image, file_path: Path, cache_directory_path: P
     except FileNotFoundError:
         cache_directory_path.mkdir(exist_ok=True, parents=True)
         with image:
+            (originalWidth,originalHeight)=image.size
             if width is not None:
-                width = min(width, image.window_width)
+                width = min(width, originalWidth)
             if height is not None:
-                height = min(height, image.window_height)
+                height = min(height, originalHeight)
 
             if width is None:
                 size = height
