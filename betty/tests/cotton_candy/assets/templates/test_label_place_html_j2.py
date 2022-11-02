@@ -3,12 +3,14 @@ from typing import Optional, ContextManager
 import pytest
 
 from betty.app import App
+from betty.cotton_candy import CottonCandy
 from betty.locale import DateRange, Date
 from betty.model.ancestry import Place, PlaceName
 from betty.tests import TemplateTestCase
 
 
 class Test(TemplateTestCase):
+    extensions = {CottonCandy}
     template_file = 'entity/label--place.html.j2'
 
     @pytest.mark.parametrize('expected, data, locale', [

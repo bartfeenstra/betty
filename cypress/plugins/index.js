@@ -22,6 +22,7 @@ module.exports = (on, config) => {
       if (!('extensions' in bettyConfiguration)) {
         bettyConfiguration.extensions = {}
       }
+      bettyConfiguration.extensions['betty.cotton_candy.CottonCandy'] = {}
       bettyConfiguration.extensions['betty.gramps.Gramps'] = {
         enabled: true,
         configuration: {

@@ -1,8 +1,10 @@
+from betty.cotton_candy import CottonCandy
 from betty.model.ancestry import Person, PersonName
 from betty.tests import TemplateTestCase
 
 
 class Test(TemplateTestCase):
+    extensions = {CottonCandy}
     template_file = 'entity/label--person.html.j2'
 
     def test_with_name(self):

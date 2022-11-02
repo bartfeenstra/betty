@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from logging import getLogger
 from os import path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from PyQt6.QtCore import pyqtSlot, QObject
 from PyQt6.QtGui import QIcon
@@ -23,12 +23,8 @@ def get_configuration_file_filter() -> str:
 
 
 class GuiBuilder:
-    @classmethod
-    def gui_description(cls) -> str:
+    def gui_build(self) -> QWidget:
         raise NotImplementedError
-
-    def gui_build(self) -> Optional[QWidget]:
-        return None
 
 
 def mark_valid(widget: QWidget) -> None:

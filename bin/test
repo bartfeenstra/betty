@@ -17,7 +17,9 @@ mypy
 npm run stylelint -- "./betty/**/*.css"
 
 # Test the JS code style.
-npm run eslint -- -c ./betty/assets/.eslintrc.yaml ./betty/assets/**/*.js
+while read -r configuration_path; do
+    npm run eslint -- -c "$configuration_path" "$(dirname "${configuration_path}")/**/*.js"
+done < <(find ./ -name .eslintrc.yaml)
 
 # Run Python tests with coverage.
 coverage erase

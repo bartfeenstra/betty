@@ -1,8 +1,10 @@
+from betty.cotton_candy import CottonCandy
 from betty.model.ancestry import PersonName, Citation, Source, Person
 from betty.tests import TemplateTestCase
 
 
 class TestNameLabel(TemplateTestCase):
+    extensions = {CottonCandy}
     template_string = '{% import \'macro/person.html.j2\' as personMacros %}{{ personMacros.name_label(name, embedded=embedded if embedded is defined else False) }}'
 
     def test_with_full_name(self):

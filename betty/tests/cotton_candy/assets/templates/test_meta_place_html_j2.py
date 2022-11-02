@@ -1,8 +1,10 @@
+from betty.cotton_candy import CottonCandy
 from betty.model.ancestry import PlaceName, Place, Enclosure
 from betty.tests import TemplateTestCase
 
 
 class Test(TemplateTestCase):
+    extensions = {CottonCandy}
     template_file = 'entity/meta--place.html.j2'
 
     def test_without_enclosing_places(self):

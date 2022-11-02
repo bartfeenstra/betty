@@ -1,14 +1,16 @@
 import pytest
 
 from betty.app import App
+from betty.cotton_candy import CottonCandy
+from betty.cotton_candy.search import Index
 from betty.model.ancestry import Person, Place, PlaceName, PersonName, File
 from betty.project import LocaleConfiguration
-from betty.search import Index
 
 
 class TestIndex:
     def test_empty(self):
         app = App()
+        app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales.replace([
             LocaleConfiguration('en-US', 'en'),
             LocaleConfiguration('nl-NL', 'nl'),
@@ -23,6 +25,7 @@ class TestIndex:
         person = Person(person_id)
 
         app = App()
+        app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales.replace([
             LocaleConfiguration('en-US', 'en'),
             LocaleConfiguration('nl-NL', 'nl'),
@@ -41,6 +44,7 @@ class TestIndex:
         person.private = True
 
         app = App()
+        app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales.replace([
             LocaleConfiguration('en-US', 'en'),
             LocaleConfiguration('nl-NL', 'nl'),
@@ -62,6 +66,7 @@ class TestIndex:
         PersonName(person, individual_name)
 
         app = App()
+        app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales.replace([
             LocaleConfiguration('en-US', 'en'),
             LocaleConfiguration('nl-NL', 'nl'),
@@ -85,6 +90,7 @@ class TestIndex:
         PersonName(person, None, affiliation_name)
 
         app = App()
+        app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales.replace([
             LocaleConfiguration('en-US', 'en'),
             LocaleConfiguration('nl-NL', 'nl'),
@@ -109,6 +115,7 @@ class TestIndex:
         PersonName(person, individual_name, affiliation_name)
 
         app = App()
+        app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales.replace([
             LocaleConfiguration('en-US', 'en'),
             LocaleConfiguration('nl-NL', 'nl'),
@@ -130,6 +137,7 @@ class TestIndex:
         place = Place(place_id, [PlaceName('Netherlands', 'en'), PlaceName('Nederland', 'nl')])
 
         app = App()
+        app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales.replace([
             LocaleConfiguration('en-US', 'en'),
             LocaleConfiguration('nl-NL', 'nl'),
@@ -147,6 +155,7 @@ class TestIndex:
         file = File(file_id, __file__)
 
         app = App()
+        app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales.replace([
             LocaleConfiguration('en-US', 'en'),
             LocaleConfiguration('nl-NL', 'nl'),
@@ -167,6 +176,7 @@ class TestIndex:
         file.description = '"file" is Dutch for "traffic jam"'
 
         app = App()
+        app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales.replace([
             LocaleConfiguration('en-US', 'en'),
             LocaleConfiguration('nl-NL', 'nl'),

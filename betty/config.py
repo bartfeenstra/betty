@@ -12,6 +12,7 @@ import yaml
 from reactives import reactive
 from reactives.factory.type import ReactiveInstance
 
+from betty.classtools import Repr
 from betty.error import UserFacingError, ContextError, ensure_context
 from betty.os import PathLike, ChDir
 from betty.typing import Void
@@ -56,7 +57,7 @@ def minimize_dumped_configuration(configuration: DumpedConfiguration) -> DumpedC
 
 
 @reactive
-class Configuration(ReactiveInstance):
+class Configuration(ReactiveInstance, Repr):
     def load(self, dumped_configuration: DumpedConfiguration) -> None:
         """
         Validate the dumped configuration and load it into self.

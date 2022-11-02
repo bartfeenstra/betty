@@ -42,9 +42,7 @@ from betty.os import link_or_copy, PathLike
 from betty.path import rootname
 from betty.project import ProjectConfiguration
 from betty.render import Renderer
-from betty.search import Index
 from betty.string import camel_case_to_snake_case, camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
-
 
 if TYPE_CHECKING:
     from betty.builtins import gettext, ngettext, pgettext, npgettext
@@ -152,7 +150,6 @@ class Environment(Jinja2Environment):
         today = datetime.date.today()
         self.globals['today'] = Date(today.year, today.month, today.day)
         self.globals['citer'] = _Citer()
-        self.globals['search_index'] = lambda: Index(self.app).build()
         # Ideally we would use the Dispatcher for this. However, it is asynchronous only.
         self.globals['public_css_paths'] = [
             path

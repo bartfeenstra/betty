@@ -3,11 +3,10 @@ from typing import Set, Type, TYPE_CHECKING
 if TYPE_CHECKING:
     from betty.builtins import _
 
-from betty.app.extension import Extension
+from betty.app.extension import Extension, UserFacingExtension
 from betty.privatizer import Privatizer
 from betty.model.ancestry import Ancestry, Person, File, Citation, Source, Event
 from betty.functools import walk
-from betty.gui import GuiBuilder
 from betty.load import PostLoader
 
 
@@ -153,18 +152,18 @@ def anonymize_citation(citation: Citation, ancestry: Ancestry, anonymous_citatio
         del citation.source
 
 
-class Anonymizer(Extension, PostLoader, GuiBuilder):
+class Anonymizer(UserFacingExtension, PostLoader):
     @classmethod
     def comes_after(cls) -> Set[Type[Extension]]:
         return {Privatizer}
 
     async def post_load(self) -> None:
-        anonymize(self._app.project.ancestry, AnonymousCitation(AnonymousSource()))
+        anonymize(self.app.project.ancestry, AnonymousCitation(AnonymousSource()))
 
     @classmethod
     def label(cls) -> str:
         return _('Anonymizer')
 
     @classmethod
-    def gui_description(cls) -> str:
+    def description(cls) -> str:
         return _('Anonymize people, events, files, sources, and citations marked private by removing their information and relationships with other resources. Enable the Privatizer and Cleaner as well to make this most effective.')

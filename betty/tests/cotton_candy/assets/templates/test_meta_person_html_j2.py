@@ -1,3 +1,4 @@
+from betty.cotton_candy import CottonCandy
 from betty.locale import Date
 from betty.model.ancestry import Person, Presence, Event, PersonName, Source, Citation, Subject
 from betty.model.event_type import Birth, Death
@@ -5,6 +6,7 @@ from betty.tests import TemplateTestCase
 
 
 class Test(TemplateTestCase):
+    extensions = {CottonCandy}
     template_file = 'entity/meta--person.html.j2'
 
     def test_without_meta(self):

@@ -1,3 +1,4 @@
+from betty.cotton_candy import CottonCandy
 from betty.locale import Date
 from betty.model.ancestry import Event, Place, PlaceName, Citation, Source
 from betty.model.event_type import Birth
@@ -5,6 +6,7 @@ from betty.tests import TemplateTestCase
 
 
 class Test(TemplateTestCase):
+    extensions = {CottonCandy}
     template_file = 'event-dimensions.html.j2'
 
     def test_without_meta(self):

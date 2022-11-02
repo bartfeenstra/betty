@@ -1,5 +1,5 @@
 from betty.anonymizer import Anonymizer
-from betty.app.extension import Extension
+from betty.app.extension import Extension, UserFacingExtension
 
 try:
     from graphlib import TopologicalSorter
@@ -11,7 +11,6 @@ if TYPE_CHECKING:
     from betty.builtins import _
 
 from betty.model.ancestry import Ancestry, Place, File, Person, Event, Source, Citation
-from betty.gui import GuiBuilder
 from betty.load import PostLoader
 
 
@@ -143,18 +142,18 @@ def _clean_citation(ancestry: Ancestry, citation: Citation) -> None:
     del ancestry.entities[Citation][citation]
 
 
-class Cleaner(Extension, PostLoader, GuiBuilder):
+class Cleaner(UserFacingExtension, PostLoader):
     @classmethod
     def comes_after(cls) -> Set[Type[Extension]]:
         return {Anonymizer}
 
     async def post_load(self) -> None:
-        clean(self._app.project.ancestry)
+        clean(self.app.project.ancestry)
 
     @classmethod
     def label(cls) -> str:
         return _('Cleaner')
 
     @classmethod
-    def gui_description(cls) -> str:
+    def description(cls) -> str:
         return _('Remove people, events, places, files, sources, and citations if they have no relationships with any other resources. Enable the Privatizer and Anonymizer as well to make this most effective.')

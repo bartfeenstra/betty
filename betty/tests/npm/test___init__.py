@@ -11,7 +11,7 @@ class TestNpmRequirement:
     def test_check_met(self) -> None:
         with App():
             sut = _NpmRequirement.check()
-        assert sut.met
+        assert sut.is_met()
 
     @pytest.mark.parametrize('e', [
         CalledProcessError(1, ''),
@@ -22,4 +22,4 @@ class TestNpmRequirement:
         m_npm.side_effect = e
         with App():
             sut = _NpmRequirement.check()
-        assert not sut.met
+        assert not sut.is_met()

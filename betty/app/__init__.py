@@ -22,7 +22,7 @@ except ImportError:
 from reactives.factory.type import ReactiveInstance
 
 from betty.app.extension import ListExtensions, Extension, Extensions, build_extension_type_graph, \
-    CyclicDependencyError, ExtensionDispatcher, ConfigurableExtension
+    CyclicDependencyError, ExtensionDispatcher, ConfigurableExtension, discover_extension_types
 from betty.asyncio import sync
 from betty.model import Entity, EntityTypeProvider
 from betty.model.event_type import EventTypeProvider, Birth, Baptism, Adoption, Death, Funeral, Cremation, Burial, Will, \
@@ -141,7 +141,7 @@ class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
         self._static_url_generator = StaticPathUrlGenerator(self.project.configuration)
         self._debug = None
         self._locale: Optional[str] = None
-        self._translations = TranslationsRepository(self.assets)
+        self._translations: Optional[TranslationsRepository] = None
         self._default_translations = None
         self._acquire_contexts = ExitStack()
         self._jinja2_environment = None
@@ -240,6 +240,9 @@ class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
     def project(self) -> Project:
         return self._project
 
+    def discover_extension_types(self) -> Set[Type[Extension]]:
+        return {*discover_extension_types(), *map(type, self._extensions.flatten())}
+
     @property
     def extensions(self) -> Extensions:
         if not self._extensions_initialized:
@@ -253,7 +256,7 @@ class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
         extension_types_enabled_in_configuration = set()
         for app_extension_configuration in self.project.configuration.extensions:
             if app_extension_configuration.enabled:
-                app_extension_configuration.extension_type.requires().assert_met()
+                app_extension_configuration.extension_type.enable_requirement().assert_met()
                 extension_types_enabled_in_configuration.add(app_extension_configuration.extension_type)
 
         extension_types_sorter = TopologicalSorter(
@@ -318,6 +321,8 @@ class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
 
     @property
     def translations(self) -> TranslationsRepository:
+        if self._translations is None:
+            self._translations = TranslationsRepository(self.assets)
         return self._translations
 
     @reactive  # type: ignore

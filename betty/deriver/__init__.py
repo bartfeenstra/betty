@@ -3,8 +3,7 @@ from __future__ import annotations
 import logging
 from typing import List, Tuple, Set, Type, Iterable, Optional, TYPE_CHECKING, cast
 
-from betty.app.extension import Extension
-from betty.gui import GuiBuilder
+from betty.app.extension import Extension, UserFacingExtension
 from betty.load import PostLoader
 from betty.locale import DateRange, Date, Datey
 from betty.model.ancestry import Person, Presence, Event, Subject, EventType, Ancestry
@@ -26,13 +25,13 @@ class DerivedDate(Date):
         return cls(date.year, date.month, date.day, fuzzy=date.fuzzy)
 
 
-class Deriver(Extension, PostLoader, GuiBuilder):
+class Deriver(UserFacingExtension, PostLoader):
     async def post_load(self) -> None:
-        await self.derive(self._app.project.ancestry)
+        await self.derive(self.app.project.ancestry)
 
     async def derive(self, ancestry: Ancestry) -> None:
         logger = logging.getLogger()
-        for event_type_type in self._app.event_types:
+        for event_type_type in self.app.event_types:
             event_type = event_type_type()
             if isinstance(event_type, DerivableEventType):
                 created_derivations = 0
@@ -59,7 +58,7 @@ class Deriver(Extension, PostLoader, GuiBuilder):
         # Aggregate event type order from references and backreferences.
         comes_before_event_type_types = event_type_type.comes_before()
         comes_after_event_type_types = event_type_type.comes_after()
-        for other_event_type_type in self._app.event_types:
+        for other_event_type_type in self.app.event_types:
             if event_type_type in other_event_type_type.comes_before():
                 comes_after_event_type_types.add(other_event_type_type)
             if event_type_type in other_event_type_type.comes_after():
@@ -98,7 +97,7 @@ class Deriver(Extension, PostLoader, GuiBuilder):
         return _('Deriver')
 
     @classmethod
-    def gui_description(cls) -> str:
+    def description(cls) -> str:
         return _('Create events such as births and deaths by deriving their details from existing information.')
 
 

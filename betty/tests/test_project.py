@@ -9,7 +9,7 @@ from betty.app import Extension, App, ConfigurableExtension
 from betty.config import Configuration, Configurable, ConfigurationError, DumpedConfiguration
 from betty.model import Entity, get_entity_type_name
 from betty.project import ProjectExtensionConfiguration, ProjectExtensionsConfiguration, ProjectConfiguration, \
-    LocaleConfiguration, LocalesConfiguration, ThemeConfiguration, EntityReference, EntityReferences
+    LocaleConfiguration, LocalesConfiguration, EntityReference, EntityReferences
 from betty.typing import Void
 
 
@@ -471,49 +471,7 @@ class TestProjectExtensionsConfiguration:
             app_extension_configuration.react.trigger()
 
 
-class TestThemeConfiguration:
-    def test_load_with_minimal_configuration(self) -> None:
-        dumped_configuration: Dict = {}
-        with App():
-            ThemeConfiguration().load(dumped_configuration)
-
-    def test_load_without_dict_should_error(self) -> None:
-        dumped_configuration = None
-        with App():
-            with pytest.raises(ConfigurationError):
-                ThemeConfiguration().load(dumped_configuration)
-
-    def test_dump_with_minimal_configuration(self) -> None:
-        sut = ThemeConfiguration()
-        expected = Void
-        assert expected == sut.dump()
-
-    def test_dump_with_background_image_id(self) -> None:
-        sut = ThemeConfiguration()
-        background_image_id = '123'
-        sut.background_image.entity_id = background_image_id
-        expected = {
-            'background_image_id': background_image_id,
-        }
-        assert expected == sut.dump()
-
-    def test_dump_with_featured_entities(self) -> None:
-        sut = ThemeConfiguration()
-        entity_type = Entity
-        entity_id = '123'
-        sut.featured_entities.append(EntityReference(entity_type, entity_id))
-        expected = {
-            'featured_entities': [
-                {
-                    'entity_type': get_entity_type_name(entity_type),
-                    'entity_id': entity_id,
-                },
-            ],
-        }
-        assert expected == sut.dump()
-
-
-class TestConfiguration:
+class TestProjectConfiguration:
     def test_base_url(self):
         sut = ProjectConfiguration()
         base_url = 'https://example.com'
@@ -568,7 +526,7 @@ class TestConfiguration:
 
     def test_load_should_load_minimal(self) -> None:
         dumped_configuration: Any = ProjectConfiguration().dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
         assert dumped_configuration['base_url'] == configuration.base_url
@@ -582,7 +540,7 @@ class TestConfiguration:
     def test_load_should_load_title(self) -> None:
         title = 'My first Betty site'
         dumped_configuration: Any = ProjectConfiguration().dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         dumped_configuration['title'] = title
         configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
@@ -591,7 +549,7 @@ class TestConfiguration:
     def test_load_should_load_author(self) -> None:
         author = 'Bart'
         dumped_configuration: Any = ProjectConfiguration().dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         dumped_configuration['author'] = author
         configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
@@ -603,7 +561,7 @@ class TestConfiguration:
             'locale': locale,
         }
         dumped_configuration: Any = ProjectConfiguration().dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         dumped_configuration['locales'] = [locale_config]
         configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
@@ -617,7 +575,7 @@ class TestConfiguration:
             'alias': alias,
         }
         dumped_configuration: Any = ProjectConfiguration().dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         dumped_configuration['locales'] = [locale_config]
         configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
@@ -627,7 +585,7 @@ class TestConfiguration:
         configured_root_path = '/betty/'
         expected_root_path = 'betty'
         dumped_configuration: Any = ProjectConfiguration().dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         dumped_configuration['root_path'] = configured_root_path
         configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
@@ -636,7 +594,7 @@ class TestConfiguration:
     def test_load_should_clean_urls(self) -> None:
         clean_urls = True
         dumped_configuration: Any = ProjectConfiguration().dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         dumped_configuration['clean_urls'] = clean_urls
         configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
@@ -645,7 +603,7 @@ class TestConfiguration:
     def test_load_should_content_negotiation(self) -> None:
         content_negotiation = True
         dumped_configuration: Any = ProjectConfiguration().dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         dumped_configuration['content_negotiation'] = content_negotiation
         configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
@@ -657,7 +615,7 @@ class TestConfiguration:
     ])
     def test_load_should_load_debug(self, debug: bool) -> None:
         dumped_configuration: Any = ProjectConfiguration().dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         dumped_configuration['debug'] = debug
         configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
@@ -665,7 +623,7 @@ class TestConfiguration:
 
     def test_load_should_load_one_extension_with_configuration(self) -> None:
         dumped_configuration: Any = ProjectConfiguration().dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         extension_configuration = {
             'check': 1337,
         }
@@ -676,29 +634,25 @@ class TestConfiguration:
         }
         configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
-        expected = ProjectExtensionsConfiguration([
-            ProjectExtensionConfiguration(DummyConfigurableExtension, True, DummyConfigurableExtensionConfiguration(
-                check=1337,
-            )),
-        ])
-        assert expected == configuration.extensions
+        expected = ProjectExtensionConfiguration(DummyConfigurableExtension, True, DummyConfigurableExtensionConfiguration(
+            check=1337,
+        ))
+        assert expected == configuration.extensions[DummyConfigurableExtension]
 
     def test_load_should_load_one_extension_without_configuration(self) -> None:
         dumped_configuration: Any = ProjectConfiguration().dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         dumped_configuration['extensions'] = {
             DummyNonConfigurableExtension.name(): {},
         }
         configuration = ProjectConfiguration()
         configuration.load(dumped_configuration)
-        expected = ProjectExtensionsConfiguration([
-            ProjectExtensionConfiguration(DummyNonConfigurableExtension, True),
-        ])
-        assert expected == configuration.extensions
+        expected = ProjectExtensionConfiguration(DummyNonConfigurableExtension, True)
+        assert expected == configuration.extensions[DummyNonConfigurableExtension]
 
     def test_load_extension_with_invalid_configuration_should_raise_error(self):
         dumped_configuration: Any = ProjectConfiguration().dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         dumped_configuration['extensions'] = {
             DummyConfigurableExtension.name(): 1337,
         }
@@ -709,7 +663,7 @@ class TestConfiguration:
 
     def test_load_unknown_extension_type_name_should_error(self):
         dumped_configuration: Any = ProjectConfiguration().dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         dumped_configuration['extensions'] = {
             'non.existent.type': None,
         }
@@ -719,7 +673,7 @@ class TestConfiguration:
 
     def test_load_not_an_extension_type_name_should_error(self):
         dumped_configuration: Any = ProjectConfiguration().dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         dumped_configuration['extensions'] = {
             '%s.%s' % (self.__class__.__module__, self.__class__.__name__): None,
         }
@@ -727,17 +681,6 @@ class TestConfiguration:
             with pytest.raises(ConfigurationError):
                 configuration = ProjectConfiguration()
                 configuration.load(dumped_configuration)
-
-    def test_load_should_load_theme_background_image_id(self) -> None:
-        background_image_id = 'my-favorite-picture'
-        dumped_configuration: Any = ProjectConfiguration().dump()
-        assert not isinstance(dumped_configuration, Void)
-        dumped_configuration['theme'] = {
-            'background_image_id': background_image_id
-        }
-        configuration = ProjectConfiguration()
-        configuration.load(dumped_configuration)
-        assert background_image_id == configuration.theme.background_image.entity_id
 
     def test_load_should_error_if_invalid_config(self) -> None:
         dumped_configuration: Dict = {}
@@ -749,7 +692,7 @@ class TestConfiguration:
     def test_dump_should_dump_minimal(self) -> None:
         configuration = ProjectConfiguration()
         dumped_configuration: Any = configuration.dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         assert dumped_configuration['base_url'] == configuration.base_url
         assert 'Betty' == configuration.title
         assert configuration.author is None
@@ -763,7 +706,7 @@ class TestConfiguration:
         configuration = ProjectConfiguration()
         configuration.title = title
         dumped_configuration: Any = configuration.dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         assert title == dumped_configuration['title']
 
     def test_dump_should_dump_author(self) -> None:
@@ -771,7 +714,7 @@ class TestConfiguration:
         configuration = ProjectConfiguration()
         configuration.author = author
         dumped_configuration: Any = configuration.dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         assert author == dumped_configuration['author']
 
     def test_dump_should_dump_locale_locale(self) -> None:
@@ -780,7 +723,7 @@ class TestConfiguration:
         configuration = ProjectConfiguration()
         configuration.locales.replace([locale_configuration])
         dumped_configuration: Any = configuration.dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         assert [
             {
                 'locale': locale,
@@ -794,7 +737,7 @@ class TestConfiguration:
         configuration = ProjectConfiguration()
         configuration.locales.replace([locale_configuration])
         dumped_configuration: Any = configuration.dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         assert [
             {
                 'locale': locale,
@@ -807,7 +750,7 @@ class TestConfiguration:
         configuration = ProjectConfiguration()
         configuration.root_path = root_path
         dumped_configuration: Any = configuration.dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         assert root_path == dumped_configuration['root_path']
 
     def test_dump_should_dump_clean_urls(self) -> None:
@@ -815,7 +758,7 @@ class TestConfiguration:
         configuration = ProjectConfiguration()
         configuration.clean_urls = clean_urls
         dumped_configuration: Any = configuration.dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         assert clean_urls == dumped_configuration['clean_urls']
 
     def test_dump_should_dump_content_negotiation(self) -> None:
@@ -823,7 +766,7 @@ class TestConfiguration:
         configuration = ProjectConfiguration()
         configuration.content_negotiation = content_negotiation
         dumped_configuration: Any = configuration.dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         assert content_negotiation == dumped_configuration['content_negotiation']
 
     @pytest.mark.parametrize('debug', [
@@ -834,7 +777,7 @@ class TestConfiguration:
         configuration = ProjectConfiguration()
         configuration.debug = debug
         dumped_configuration: Any = configuration.dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         assert debug == dumped_configuration['debug']
 
     def test_dump_should_dump_one_extension_with_configuration(self) -> None:
@@ -843,28 +786,24 @@ class TestConfiguration:
             check=1337,
         )))
         dumped_configuration: Any = configuration.dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         expected = {
-            DummyConfigurableExtension.name(): {
-                'enabled': True,
-                'configuration': {
-                    'check': 1337,
-                },
+            'enabled': True,
+            'configuration': {
+                'check': 1337,
             },
         }
-        assert expected == dumped_configuration['extensions']
+        assert expected == dumped_configuration['extensions'][DummyConfigurableExtension.name()]
 
     def test_dump_should_dump_one_extension_without_configuration(self) -> None:
         configuration = ProjectConfiguration()
         configuration.extensions.add(ProjectExtensionConfiguration(DummyNonConfigurableExtension))
         dumped_configuration: Any = configuration.dump()
-        assert not isinstance(dumped_configuration, Void)
+        assert dumped_configuration is not Void
         expected = {
-            DummyNonConfigurableExtension.name(): {
-                'enabled': True,
-            },
+            'enabled': True,
         }
-        assert expected == dumped_configuration['extensions']
+        assert expected == dumped_configuration['extensions'][DummyNonConfigurableExtension.name()]
 
     def test_dump_should_error_if_invalid_config(self) -> None:
         dumped_configuration: Dict = {}
@@ -872,14 +811,6 @@ class TestConfiguration:
             with pytest.raises(ConfigurationError):
                 configuration = ProjectConfiguration()
                 configuration.load(dumped_configuration)
-
-    def test_dump_should_dump_theme_background_image(self) -> None:
-        background_image_id = 'my-favorite-picture'
-        configuration = ProjectConfiguration()
-        configuration.theme.background_image.entity_id = background_image_id
-        dumped_configuration: Any = configuration.dump()
-        assert not isinstance(dumped_configuration, Void)
-        assert background_image_id == dumped_configuration['theme']['background_image_id']
 
 
 class DummyNonConfigurableExtension(Extension):

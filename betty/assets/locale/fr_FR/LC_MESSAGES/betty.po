@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-06-19 21:06+0100\n"
+"POT-Creation-Date: 2022-11-07 23:23+0000\n"
 "PO-Revision-Date: 2020-11-27 19:49+0100\n"
 "Last-Translator: \n"
 "Language: fr\n"
 "Language-Team: fr <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.11.0\n"
 
 msgid ""
 "\n"
@@ -284,9 +284,8 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
-#, fuzzy
 msgid "Configuration"
-msgstr "Confirmation"
+msgstr ""
 
 msgid "Configuration file \"{configuration_file_path}\" does not exist."
 msgstr ""
@@ -315,6 +314,9 @@ msgstr ""
 
 msgid "Correspondence"
 msgstr "Correspondance"
+
+msgid "Cotton Candy is a light theme featuring pastel colors"
+msgstr ""
 
 msgid "Create a new project"
 msgstr ""
@@ -880,9 +882,6 @@ msgstr ""
 msgid "The translations for {locale_name} are {coverage_percentage}% complete."
 msgstr ""
 
-msgid "Theme"
-msgstr ""
-
 msgid "There are no translations for {locale_name}."
 msgstr ""
 
@@ -1175,6 +1174,12 @@ msgstr "approximativement jusqu'au %(end_date)s"
 msgid "y"
 msgstr "y"
 
+msgid "{dependency_label} is required by {dependency_labels}."
+msgstr ""
+
+msgid "{dependent_label} requires {dependency_labels}."
+msgstr ""
+
 msgid "{entity_type_label} ID"
 msgstr ""
 
@@ -1187,11 +1192,4 @@ msgstr ""
 #, python-format
 msgid "© Copyright %(author)s, unless otherwise credited"
 msgstr "© Copyright %(author)s, sauf crédit contraire"
-
-#~ msgid ""
-#~ "Betty is a static site generator "
-#~ "for your <a href=\"{gramps_url}\">Gramps</a> "
-#~ "and <a href=\"{gedcom_url}\">GEDCOM</a> family "
-#~ "trees."
-#~ msgstr ""
 

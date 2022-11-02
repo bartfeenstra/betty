@@ -32,12 +32,7 @@ def assert_betty_json(app: App, url_path: str, schema_definition: str) -> Path:
 
 
 class TestGenerate:
-    async def test_front_page(self):
-        with App() as app:
-            await generate(app)
-        assert_betty_html(app, '/index.html')
-
-    async def test_translations(self):
+    async def test_html_lang(self):
         app = App()
         app.project.configuration.locales.replace([
             LocaleConfiguration('en-US', 'en'),
@@ -48,7 +43,58 @@ class TestGenerate:
             with open(assert_betty_html(app, '/nl/index.html')) as f:
                 html = f.read()
                 assert '<html lang="nl-NL"' in html
-                assert 'Stop met zoeken' in html
+
+    async def test_root_redirect(self):
+        app = App()
+        app.project.configuration.locales.replace([
+            LocaleConfiguration('nl'),
+            LocaleConfiguration('en'),
+        ])
+        with app:
+            await generate(app)
+        with open(assert_betty_html(app, '/index.html')) as f:
+            meta_redirect = '<meta http-equiv="refresh" content="0; url=/nl/index.html">'
+            assert meta_redirect in f.read()
+
+    async def test_links(self):
+        app = App()
+        app.project.configuration.locales.replace([
+            LocaleConfiguration('nl'),
+            LocaleConfiguration('en'),
+        ])
+        with app:
+            await generate(app)
+        with open(assert_betty_html(app, '/nl/index.html')) as f:
+            html = f.read()
+            assert '<link rel="canonical" href="https://example.com/nl/index.html" hreflang="nl" type="text/html"/>' in html
+            assert '<link rel="alternate" href="/en/index.html" hreflang="en" type="text/html"/>' in html
+        with open(assert_betty_html(app, '/en/index.html')) as f:
+            html = f.read()
+            assert '<link rel="canonical" href="https://example.com/en/index.html" hreflang="en" type="text/html"/>' in html
+            assert '<link rel="alternate" href="/nl/index.html" hreflang="nl" type="text/html"/>' in html
+
+    async def test_links_for_entity_pages(self):
+        app = App()
+        app.project.configuration.locales.replace([
+            LocaleConfiguration('nl'),
+            LocaleConfiguration('en'),
+        ])
+        with app:
+            person = Person('PERSON1')
+            app.project.ancestry.entities.append(person)
+            await generate(app)
+        with open(assert_betty_html(app, f'/nl/person/{person.id}/index.html')) as f:
+            html = f.read()
+        assert f'<link rel="canonical" href="https://example.com/nl/person/{person.id}/index.html" hreflang="nl" type="text/html"/>' in html
+        assert f'<link rel="alternate" href="/nl/person/{person.id}/index.json" hreflang="nl" type="application/json"/>' in html
+        assert f'<link rel="alternate" href="/en/person/{person.id}/index.html" hreflang="en" type="text/html"/>' in html
+        assert f'<link rel="alternate" href="/en/person/{person.id}/index.json" hreflang="en" type="application/json"/>' in html
+        with open(assert_betty_html(app, f'/en/person/{person.id}/index.html')) as f:
+            html = f.read()
+        assert f'<link rel="canonical" href="https://example.com/en/person/{person.id}/index.html" hreflang="en" type="text/html"/>' in html
+        assert f'<link rel="alternate" href="/en/person/{person.id}/index.json" hreflang="en" type="application/json"/>' in html
+        assert f'<link rel="alternate" href="/nl/person/{person.id}/index.html" hreflang="nl" type="text/html"/>' in html
+        assert f'<link rel="alternate" href="/nl/person/{person.id}/index.json" hreflang="nl" type="application/json"/>' in html
 
     async def test_files(self):
         with App() as app:
@@ -128,52 +174,6 @@ class TestGenerate:
             await generate(app)
         assert_betty_html(app, '/source/%s/index.html' % source.id)
         assert_betty_json(app, '/source/%s/index.json' % source.id, 'source')
-
-
-class TestMultilingual:
-    async def test_root_redirect(self):
-        app = App()
-        app.project.configuration.locales.replace([
-            LocaleConfiguration('nl'),
-            LocaleConfiguration('en'),
-        ])
-        with app:
-            await generate(app)
-        with open(assert_betty_html(app, '/index.html')) as f:
-            meta_redirect = '<meta http-equiv="refresh" content="0; url=/nl/index.html">'
-            assert meta_redirect in f.read()
-
-    async def test_public_localized_resource(self):
-        app = App()
-        app.project.configuration.locales.replace([
-            LocaleConfiguration('nl'),
-            LocaleConfiguration('en'),
-        ])
-        with app:
-            await generate(app)
-        with open(assert_betty_html(app, '/nl/index.html')) as f:
-            translation_link = '<a href="/en/index.html" hreflang="en" lang="en" rel="alternate">English</a>'
-            assert translation_link in f.read()
-        with open(assert_betty_html(app, '/en/index.html')) as f:
-            translation_link = '<a href="/nl/index.html" hreflang="nl" lang="nl" rel="alternate">Nederlands</a>'
-            assert translation_link in f.read()
-
-    async def test_entity(self):
-        app = App()
-        app.project.configuration.locales.replace([
-            LocaleConfiguration('nl'),
-            LocaleConfiguration('en'),
-        ])
-        with app:
-            person = Person('PERSON1')
-            app.project.ancestry.entities.append(person)
-            await generate(app)
-        with open(assert_betty_html(app, '/nl/person/%s/index.html' % person.id)) as f:
-            translation_link = '<a href="/en/person/%s/index.html" hreflang="en" lang="en" rel="alternate">English</a>' % person.id
-            assert translation_link in f.read()
-        with open(assert_betty_html(app, '/en/person/%s/index.html' % person.id)) as f:
-            translation_link = '<a href="/nl/person/%s/index.html" hreflang="nl" lang="nl" rel="alternate">Nederlands</a>' % person.id
-            assert translation_link in f.read()
 
 
 class TestResourceOverride:

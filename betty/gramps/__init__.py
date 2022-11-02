@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.app.extension import ConfigurableExtension
+from betty.app.extension import ConfigurableExtension, UserFacingExtension
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -14,7 +14,7 @@ from betty.gui import GuiBuilder
 from betty.load import Loader
 
 
-class Gramps(ConfigurableExtension[GrampsConfiguration], Loader, GuiBuilder):
+class Gramps(ConfigurableExtension[GrampsConfiguration], UserFacingExtension, Loader, GuiBuilder):
     @classmethod
     def default_configuration(cls) -> GrampsConfiguration:
         return GrampsConfiguration()
@@ -28,7 +28,7 @@ class Gramps(ConfigurableExtension[GrampsConfiguration], Loader, GuiBuilder):
         return 'Gramps'
 
     @classmethod
-    def gui_description(cls) -> str:
+    def description(cls) -> str:
         return _('Load <a href="https://gramps-project.org/">Gramps</a> family trees.')
 
     def gui_build(self) -> _GrampsGuiWidget:
