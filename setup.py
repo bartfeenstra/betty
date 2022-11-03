@@ -49,7 +49,6 @@ SETUP = {
         'jinja2 ~= 3.1.1',
         'jsonschema ~= 4.17.0',
         'markupsafe ~= 2.1.1',
-        'orderedset ~= 2.0.3',
         'pdf2image ~= 1.16.0',
         'polib ~= 1.1.1',
         'PyQt6 ~= 6.4.0',
