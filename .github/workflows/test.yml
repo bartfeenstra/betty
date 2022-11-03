@@ -1,15 +1,12 @@
 name: Test
 
 on:
+  schedule:
+    - cron: '0 * * * *'
   pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
   push:
     branches:
-      - main
-      - master
+      - '*.*.x'
     tags:
       - '*'
 

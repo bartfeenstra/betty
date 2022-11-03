@@ -428,8 +428,8 @@ class MultipleTypesEntityCollection(EntityCollection[Entity]):
     def _getitem_by_entity_type_name(self, entity_type_name: str) -> SingleTypeEntityCollection[Entity]:
         return self._get_collection(get_entity_type(entity_type_name))
 
-    def _getitem_by_index(self, index: int) -> EntityT:
-        return cast(EntityT, reduce(operator.add, self._collections.values(), SingleTypeEntityCollection(Entity))[index])
+    def _getitem_by_index(self, index: int) -> Entity:
+        return reduce(operator.add, self._collections.values(), SingleTypeEntityCollection(Entity))[index]
 
     def _getitem_by_indices(self, indices: slice) -> SingleTypeEntityCollection[Entity]:
         return reduce(operator.add, self._collections.values(), SingleTypeEntityCollection(Entity))[indices]
