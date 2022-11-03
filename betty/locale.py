@@ -294,8 +294,6 @@ class Translations(NullTranslations):
     _GETTEXT_BUILTINS = (
         '_',
         'gettext',
-        'lgettext',
-        'lngettext',
         'ngettext',
         'npgettext',
         'pgettext',

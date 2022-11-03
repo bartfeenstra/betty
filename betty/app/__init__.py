@@ -150,7 +150,7 @@ class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
         self._locks = Locks()
         self._http_client = None
 
-    def __copy__(self) -> Self:
+    def __copy__(self) -> Self:  # type: ignore
         copied = type(self)()
         copied._project = self._project
         return copied
@@ -190,7 +190,7 @@ class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
         self._acquired = False
 
     @contextmanager
-    def acquire_locale(self, requested_locale: Optional[str] = None) -> Iterator[Self]:
+    def acquire_locale(self, requested_locale: Optional[str] = None) -> Iterator[Self]:  # type: ignore
         """
         Temporarily change this application's locale and the global gettext translations.
         """
