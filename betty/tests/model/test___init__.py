@@ -908,7 +908,7 @@ class TestOneToOne:
         one: Optional[TestOneToOne._One]
 
     def test(self) -> None:
-        assert{'one'} == {
+        assert {'one'} == {
             association.attr_name
             for association
             in _EntityTypeAssociationRegistry.get_associations(self._OtherOne)

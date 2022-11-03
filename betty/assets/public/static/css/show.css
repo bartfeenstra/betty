@@ -1,4 +1,4 @@
-@import "variables.css";
+@import url("variables.css");
 
 .with-js .show.show-shown .show-if-hidden {
   display: none;
