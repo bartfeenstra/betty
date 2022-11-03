@@ -22,6 +22,7 @@ class TestPotFile:
                 lambda line: not line.startswith((
                     '"POT-Creation-Date: ',
                     '"PO-Revision-Date: ',
+                    '"Generated-By: ',
                 )),
                 f.readlines(),
             )
