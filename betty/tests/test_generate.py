@@ -1,11 +1,10 @@
 import json as stdjson
 import sys
-import unittest
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 import html5lib
-from lxml import etree
+import pytest
 
 from betty import json
 from betty.app import App
@@ -189,9 +188,11 @@ class TestResourceOverride:
             assert 'Betty was here' in f.read()
 
 
-@unittest.skipIf(sys.platform == 'win32', 'lxml cannot be installed directly onto vanilla Windows.')
+@pytest.mark.skipif(sys.platform == 'win32', reason='lxml cannot be installed directly onto vanilla Windows.')
 class TestSitemapGenerate:
     async def test_validate(self):
+        from lxml import etree
+
         with App() as app:
             await generate(app)
         with open(Path(__file__).parent / 'test_generate_assets' / 'sitemap.xsd') as f:

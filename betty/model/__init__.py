@@ -317,7 +317,7 @@ class SingleTypeEntityCollection(Generic[EntityT], EntityCollection[EntityT]):
                 return True
         return False
 
-    def __add__(self, other) -> Self:
+    def __add__(self, other) -> Self:  # type: ignore
         if not isinstance(other, EntityCollection):
             return NotImplemented  # pragma: no cover
         entities = type(self)(self._entity_type)

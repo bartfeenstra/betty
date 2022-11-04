@@ -60,8 +60,6 @@ class TestTranslations:
     _GETTEXT_BUILTINS_TO_TRANSLATIONS_METHODS = {
         '_': 'gettext',
         'gettext': 'gettext',
-        'lgettext': 'lgettext',
-        'lngettext': 'lngettext',
         'ngettext': 'ngettext',
         'npgettext': 'npgettext',
         'pgettext': 'pgettext',
