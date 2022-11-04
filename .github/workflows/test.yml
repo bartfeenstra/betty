@@ -34,7 +34,7 @@ jobs:
 
     steps:
       - name: Check out the source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Cache pip (Linux)
         uses: actions/cache@v3
@@ -72,14 +72,13 @@ jobs:
             mypy-
 
       - name: Get the npm cache directory
-        id: npm-cache-dir
-        run: |
-          echo "::set-output name=dir::$(npm config get cache)"
+        run: echo "npm_cache_dir=$(npm config get cache)" >> $GITHUB_ENV
+        shell: bash
 
       - name: Cache npm
         uses: actions/cache@v3
         with:
-          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          path: ${{ env.npm_cache_dir }}
           key: npm-${{ hashFiles('./package.json') }}
           restore-keys: |
             npm-
@@ -90,7 +89,7 @@ jobs:
           python-version: ${{ matrix.python }}
 
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
 
       - name: Install APT dependencies
         if: startsWith(runner.os, 'Linux')
@@ -121,4 +120,4 @@ jobs:
         shell: bash
 
       - name: Upload code coverage
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
