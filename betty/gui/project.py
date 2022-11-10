@@ -1,22 +1,21 @@
 from __future__ import annotations
 
 import copy
-import itertools
 import re
-from typing import Type, Union, TYPE_CHECKING, Any, Optional
+from typing import Type, TYPE_CHECKING, Any, Optional, Dict, cast
 from urllib.parse import urlparse
 
 from PyQt6.QtCore import Qt, QThread
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QFileDialog, QPushButton, QWidget, QVBoxLayout, QHBoxLayout, QMenu, QStackedLayout, \
-    QGridLayout, QCheckBox, QFormLayout, QLabel, QLineEdit, QButtonGroup, QRadioButton, QLayout
+    QGridLayout, QCheckBox, QFormLayout, QLabel, QLineEdit, QButtonGroup, QRadioButton
 from babel.core import Locale
 from babel.localedata import locale_identifiers
 from reactives import reactive, ReactorController
 
 from betty import load, generate
 from betty.app import App
-from betty.app.extension import discover_extension_types, Extension
+from betty.app.extension import Extension, UserFacingExtension
 from betty.asyncio import sync
 from betty.config import ConfigurationError
 from betty.gui import get_configuration_file_filter, BettyWindow, GuiBuilder, mark_invalid, mark_valid
@@ -25,25 +24,23 @@ from betty.gui.error import catch_exceptions
 from betty.gui.locale import LocalizedWidget
 from betty.gui.locale import TranslationsLocaleCollector
 from betty.gui.logging import LogRecordViewerHandler, LogRecordViewer
-from betty.gui.model import EntityReferenceCollector, EntityReferencesCollector
 from betty.gui.serve import ServeAppWindow
 from betty.gui.text import Text, Caption
 from betty.locale import rfc_1766_to_bcp_47, bcp_47_to_rfc_1766
-from betty.project import ProjectExtensionConfiguration, LocaleConfiguration
+from betty.project import LocaleConfiguration
 
 if TYPE_CHECKING:
     from betty.builtins import _
 
 
 class _PaneButton(QPushButton):
-    def __init__(self, pane_selectors_layout: QLayout, panes_layout: QStackedLayout, pane: QWidget, *args, **kwargs):
+    def __init__(self, pane_name: str, project_window: ProjectWindow, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.setFlat(True)
         self.setProperty('pane-selector', 'true')
-        self.setFlat(panes_layout.currentWidget() != pane)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.released.connect(lambda: [pane_selectors_layout.itemAt(i).widget().setFlat(True) for i in range(0, pane_selectors_layout.count())])  # type: ignore
-        self.released.connect(lambda: self.setFlat(False))  # type: ignore
-        self.released.connect(lambda: panes_layout.setCurrentWidget(pane))  # type: ignore
+        self._project_window = project_window
+        self.released.connect(lambda: self._project_window._navigate_to_pane(pane_name))  # type: ignore
 
 
 class _GeneralPane(LocalizedWidget):
@@ -166,37 +163,6 @@ class _GeneralPane(LocalizedWidget):
         self._clean_urls_caption.setText(_('URLs look like <code>/path</code> instead of <code>/path/index.html</code>. This requires a web server that supports it.'))
         self._content_negotiation.setText(_('Content negotiation'))
         self._content_negotiation_caption.setText(_('Decide the correct page variety to serve users depending on their own preferences. This requires a web server that supports it.'))
-
-
-class _ThemePane(QWidget):
-    def __init__(self, app: App, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._app = app
-
-        self._layout = QVBoxLayout()
-        self.setLayout(self._layout)
-
-        self._background_image_label = QLabel()
-        self._layout.addWidget(self._background_image_label)
-        self._background_image_entity_reference_collector = EntityReferenceCollector(
-            self._app,
-            self._app.project.configuration.theme.background_image,
-            lambda: _('Background image'),
-            lambda: _('The ID of the file entity whose (image) file to use for page backgrounds if a page does not provide any image media itself.'),
-        )
-        self._layout.addWidget(self._background_image_entity_reference_collector)
-        self._background_image_caption = Caption()
-        self._layout.addWidget(self._background_image_caption)
-
-        self._featured_entities_label = QLabel()
-        self._layout.addWidget(self._featured_entities_label)
-        self._featured_entities_entity_references_collector = EntityReferencesCollector(
-            self._app,
-            self._app.project.configuration.theme.featured_entities,
-            lambda: _('Featured entities'),
-            lambda: _("These entities are featured on your site's front page."),
-        )
-        self._layout.addWidget(self._featured_entities_entity_references_collector)
 
 
 @reactive
@@ -331,8 +297,10 @@ class _AddLocaleWindow(BettyWindow):
 
 @reactive
 class _ExtensionPane(LocalizedWidget):
-    def __init__(self, app: App, extension_type: Union[Type[Extension], Type[GuiBuilder]], *args, **kwargs):
+    def __init__(self, app: App, extension_type: Type[Extension], *args, **kwargs):
         super().__init__(app, *args, **kwargs)
+        if not issubclass(extension_type, UserFacingExtension):
+            raise ValueError(f'extension_type must be a subclass of {UserFacingExtension}, but {extension_type} was given.')
         self._extension_type = extension_type
 
         layout = QVBoxLayout()
@@ -347,46 +315,52 @@ class _ExtensionPane(LocalizedWidget):
 
         @catch_exceptions
         def _update_enabled(enabled: bool) -> None:
-            try:
-                self._app.project.configuration.extensions[extension_type].enabled = enabled
-            except KeyError:
-                self._app.project.configuration.extensions.add(ProjectExtensionConfiguration(
-                    extension_type,  # type: ignore
-                    enabled,
-                ))
             if enabled:
-                extension_gui_widget = self._app.extensions[extension_type].gui_build()  # type: ignore
-                if extension_gui_widget is not None:
-                    layout.addWidget(extension_gui_widget)
+                self._app.project.configuration.extensions.enable(extension_type)  # type: ignore
+                extension = self._app.extensions[extension_type]
+                if isinstance(extension, GuiBuilder):
+                    layout.addWidget(extension.gui_build())
             else:
+                self._app.project.configuration.extensions.disable(extension_type)  # type: ignore
                 extension_gui_item = layout.itemAt(1)
                 if extension_gui_item is not None:
                     extension_gui_widget = extension_gui_item.widget()
                     layout.removeWidget(extension_gui_widget)
-                    extension_gui_widget.setParent(None)
+                    extension_gui_widget.setParent(None)  # type: ignore
                     del extension_gui_widget
 
         self._extension_enabled = QCheckBox()
-        self._extension_enabled.setChecked(extension_type in self._app.extensions)
-        self._extension_enabled.setDisabled(
-            extension_type  # type: ignore
-            in itertools.chain([
-                enabled_extension_type.depends_on()
-                for enabled_extension_type
-                in self._app.extensions.flatten()
-            ])
-        )
+        self._extension_enabled_caption = Caption()
+        self._set_extension_status()
         self._extension_enabled.toggled.connect(_update_enabled)  # type: ignore
         enable_layout.addRow(self._extension_enabled)
+        enable_layout.addRow(self._extension_enabled_caption)
 
         if extension_type in self._app.extensions:
-            extension_gui_widget = self._app.extensions[extension_type].gui_build()  # type: ignore
-            if extension_gui_widget is not None:
-                layout.addWidget(extension_gui_widget)
+            extension = self._app.extensions[extension_type]
+            if isinstance(extension, GuiBuilder):
+                layout.addWidget(extension.gui_build())
+
+    @reactive(on_trigger_call=True)
+    def _set_extension_status(self) -> None:
+        self._extension_enabled.setDisabled(False)
+        self._extension_enabled_caption.setText('')
+        if self._extension_type in self._app.extensions:
+            self._extension_enabled.setChecked(True)
+            disable_requirement = self._app.extensions[self._extension_type].disable_requirement()
+            if disable_requirement and not disable_requirement.is_met():
+                self._extension_enabled.setDisabled(True)
+                self._extension_enabled_caption.setText(str(disable_requirement.reduce()))
+        else:
+            self._extension_enabled.setChecked(False)
+            enable_requirement = self._extension_type.enable_requirement()
+            if not enable_requirement.is_met():
+                self._extension_enabled.setDisabled(True)
+                self._extension_enabled_caption.setText(str(enable_requirement.reduce()))
 
     def _do_set_translatables(self) -> None:
         self._extension_description.setText(
-            self._extension_type.gui_description(),  # type: ignore
+            self._extension_type.description(),  # type: ignore
         )
         self._extension_enabled.setText(_('Enable {extension}').format(
             extension=self._extension_type.label(),  # type: ignore
@@ -404,34 +378,20 @@ class ProjectWindow(BettyMainWindow):
         central_widget.setLayout(central_layout)
         self.setCentralWidget(central_widget)
 
-        pane_selectors_layout = QVBoxLayout()
-        central_layout.addLayout(pane_selectors_layout, 0, 0, Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+        self._pane_selectors_layout = QVBoxLayout()
+        central_layout.addLayout(self._pane_selectors_layout, 0, 0, Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
 
-        panes_layout = QStackedLayout()
-        central_layout.addLayout(panes_layout, 0, 1, Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight)
+        self._panes_layout = QStackedLayout()
+        central_layout.addLayout(self._panes_layout, 0, 1, Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight)
 
-        self._general_configuration_pane = _GeneralPane(self._app)
-        panes_layout.addWidget(self._general_configuration_pane)
-        self._general_configuration_pane_selector = _PaneButton(pane_selectors_layout, panes_layout, self._general_configuration_pane, self)
-        pane_selectors_layout.addWidget(self._general_configuration_pane_selector)
-
-        self._theme_configuration_pane = _ThemePane(self._app)
-        panes_layout.addWidget(self._theme_configuration_pane)
-        self._theme_configuration_pane_selector = _PaneButton(pane_selectors_layout, panes_layout, self._theme_configuration_pane, self)
-        pane_selectors_layout.addWidget(self._theme_configuration_pane_selector)
-
-        self._localization_configuration_pane = _LocalizationPane(self._app)
-        panes_layout.addWidget(self._localization_configuration_pane)
-        self._localization_configuration_pane_selector = _PaneButton(pane_selectors_layout, panes_layout, self._localization_configuration_pane, self)
-        pane_selectors_layout.addWidget(self._localization_configuration_pane_selector)
-
-        self._extension_configuration_pane_selectors = {}
-        for extension_type in discover_extension_types():
-            if issubclass(extension_type, GuiBuilder):
-                extension_pane = _ExtensionPane(self._app, extension_type)
-                panes_layout.addWidget(extension_pane)
-                self._extension_configuration_pane_selectors[extension_type] = _PaneButton(pane_selectors_layout, panes_layout, extension_pane, self)
-                pane_selectors_layout.addWidget(self._extension_configuration_pane_selectors[extension_type])
+        self._panes: Dict[str, QWidget] = {}
+        self._pane_selectors: Dict[str, QPushButton] = {}
+        self._add_pane('general', _GeneralPane(self._app))
+        self._navigate_to_pane('general')
+        self._add_pane('localization', _LocalizationPane(self._app))
+        self._extension_types = [extension_type for extension_type in self._app.discover_extension_types() if issubclass(extension_type, UserFacingExtension)]
+        for extension_type in self._extension_types:
+            self._add_pane(f'extension-{extension_type.name()}', _ExtensionPane(self._app, extension_type))
 
         menu_bar = self.menuBar()
 
@@ -454,6 +414,18 @@ class ProjectWindow(BettyMainWindow):
         self.serve_action.triggered.connect(lambda _: self._serve())  # type: ignore
         self.addAction(self.serve_action)
 
+    def _add_pane(self, pane_name: str, pane: QWidget) -> None:
+        self._panes[pane_name] = pane
+        self._panes_layout.addWidget(pane)
+        self._pane_selectors[pane_name] = _PaneButton(pane_name, self)
+        self._pane_selectors_layout.addWidget(self._pane_selectors[pane_name])
+
+    def _navigate_to_pane(self, pane_name: str) -> None:
+        for pane_selector in self._pane_selectors.values():
+            pane_selector.setFlat(True)
+        self._pane_selectors[pane_name].setFlat(False)
+        self._panes_layout.setCurrentWidget(self._panes[pane_name])
+
     def show(self) -> None:
         self._app.project.configuration.autowrite = True
         super().show()
@@ -468,11 +440,10 @@ class ProjectWindow(BettyMainWindow):
         self.save_project_as_action.setText(_('Save this project as...'))
         self.generate_action.setText(_('Generate site'))
         self.serve_action.setText(_('Serve site'))
-        self._general_configuration_pane_selector.setText(_('General'))
-        self._theme_configuration_pane_selector.setText(_('Theme'))
-        self._localization_configuration_pane_selector.setText(_('Localization'))
-        for extension_type in self._extension_configuration_pane_selectors:
-            self._extension_configuration_pane_selectors[extension_type].setText(extension_type.label())
+        self._pane_selectors['general'].setText(_('General'))
+        self._pane_selectors['localization'].setText(_('Localization'))
+        for extension_type in self._extension_types:
+            self._pane_selectors[f'extension-{extension_type.name()}'].setText(cast(UserFacingExtension, extension_type).label())
 
     @reactive(on_trigger_call=True)
     def _set_window_title(self) -> None:

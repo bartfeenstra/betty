@@ -11,13 +11,14 @@ from reactives import reactive, scope
 from reactives.factory.type import ReactiveInstance
 
 from betty.app import Extension, ConfigurableExtension
+from betty.classtools import repr_instance
 from betty.config import Configuration, DumpedConfiguration, ConfigurationError, minimize_dumped_configuration, \
     Configurable, FileBasedConfiguration
 from betty.error import ensure_context
 from betty.importlib import import_any
 from betty.locale import bcp_47_to_rfc_1766
 from betty.model import Entity, get_entity_type_name
-from betty.model.ancestry import Ancestry, File
+from betty.model.ancestry import Ancestry
 from betty.typing import Void
 
 if TYPE_CHECKING:
@@ -92,9 +93,6 @@ class EntityReference(Configuration):
                 'entity_id': self._entity_id,
             }
         return self._entity_id
-
-    def __repr__(self) -> str:
-        return f'{object.__repr__(self)}(entity_type={self.entity_type}, entity_id={self._entity_id})'
 
     @scope.register_self
     def __eq__(self, other) -> bool:
@@ -172,7 +170,13 @@ class ProjectExtensionConfiguration(ReactiveInstance):
         self._extension_configuration = extension_configuration
 
     def __repr__(self):
-        return '<%s.%s(%s)>' % (self.__class__.__module__, self.__class__.__name__, self.extension_type)
+        return '<{}.{} extension_type={}, enabled={}, extension_configuration={}>'.format(
+            self.__class__.__module__,
+            self.__class__.__name__,
+            self.extension_type.name(),
+            self.enabled,
+            repr(self.extension_configuration,)
+        )
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
@@ -229,6 +233,9 @@ class ProjectExtensionsConfiguration(Configuration):
     def __len__(self) -> int:
         return len(self._configurations)
 
+    def __repr__(self):
+        return repr_instance(self, configurations=list(self._configurations.values()))
+
     @scope.register_self
     def __eq__(self, other):
         if not isinstance(other, ProjectExtensionsConfiguration):
@@ -247,8 +254,22 @@ class ProjectExtensionsConfiguration(Configuration):
 
     def add(self, *configurations: ProjectExtensionConfiguration) -> None:
         for configuration in configurations:
-            self._configurations[configuration.extension_type] = configuration
-            configuration.react(self)
+            if configuration.extension_type not in self._configurations:
+                self._configurations[configuration.extension_type] = configuration
+                configuration.react(self)
+        self.react.trigger()
+
+    def enable(self, *extension_types: Type[Extension]):
+        for extension_type in extension_types:
+            try:
+                self._configurations[extension_type].enabled = True
+            except KeyError:
+                self.add(ProjectExtensionConfiguration(extension_type))
+
+    def disable(self, *extension_types: Type[Extension]):
+        for extension_type in extension_types:
+            with suppress(KeyError):
+                self._configurations[extension_type].enabled = False
         self.react.trigger()
 
     def load(self, dumped_configuration: DumpedConfiguration) -> None:
@@ -380,7 +401,7 @@ class LocalesConfiguration(Configuration):
 
     @scope.register_self
     def __repr__(self):
-        return '<%s %s>' % (self.__class__.__name__, repr(list(self._configurations.values())))
+        return repr_instance(self, configurations=list(self._configurations.values()))
 
     def add(self, configuration: LocaleConfiguration) -> None:
         self._configurations[configuration.locale] = configuration
@@ -434,43 +455,9 @@ class LocalesConfiguration(Configuration):
         return dumped_configuration
 
 
-class ThemeConfiguration(Configuration):
-    def __init__(self):
-        super().__init__()
-        self._background_image = EntityReference(entity_type_constraint=File)
-        self._featured_entities = EntityReferences()
-        self._featured_entities.react(self)
-
-    @reactive  # type: ignore
-    @property
-    def background_image(self) -> EntityReference:
-        return self._background_image
-
-    @property
-    def featured_entities(self) -> EntityReferences:
-        return self._featured_entities
-
-    def load(self, dumped_configuration: DumpedConfiguration) -> None:
-        if not isinstance(dumped_configuration, dict):
-            raise ConfigurationError(_('The theme configuration must be a mapping (dictionary).'))
-
-        if 'background_image_id' in dumped_configuration:
-            with ensure_context('background_image_id'):
-                self.background_image.load(dumped_configuration['background_image_id'])
-
-        if 'featured_entities' in dumped_configuration:
-            with ensure_context('featured_entities'):
-                self.featured_entities.load(dumped_configuration['featured_entities'])
-
-    def dump(self) -> DumpedConfiguration:
-        return minimize_dumped_configuration({
-            'background_image_id': self._background_image.dump(),
-            'featured_entities': self.featured_entities.dump(),
-        })
-
-
 class ProjectConfiguration(FileBasedConfiguration):
     def __init__(self, base_url: Optional[str] = None):
+
         super().__init__()
         self._base_url = 'https://example.com' if base_url is None else base_url
         self._root_path = ''
@@ -483,8 +470,6 @@ class ProjectConfiguration(FileBasedConfiguration):
         self._debug = False
         self._locales = LocalesConfiguration()
         self._locales.react(self)
-        self._theme = ThemeConfiguration()
-        self._theme.react(self)
         self._lifetime_threshold = 125
 
     @property
@@ -579,11 +564,6 @@ class ProjectConfiguration(FileBasedConfiguration):
 
     @reactive  # type: ignore
     @property
-    def theme(self) -> ThemeConfiguration:
-        return self._theme
-
-    @reactive  # type: ignore
-    @property
     def debug(self) -> bool:
         return self._debug
 
@@ -653,10 +633,6 @@ class ProjectConfiguration(FileBasedConfiguration):
             with ensure_context('`extensions`'):
                 self._extensions.load(dumped_configuration['extensions'])
 
-        if 'theme' in dumped_configuration:
-            with ensure_context('`theme`'):
-                self._theme.load(dumped_configuration['theme'])
-
     def dump(self) -> DumpedConfiguration:
         dumped_configuration = {
             'base_url': self.base_url,
@@ -676,7 +652,6 @@ class ProjectConfiguration(FileBasedConfiguration):
         dumped_configuration['extensions'] = self.extensions.dump()
         if self.lifetime_threshold is not None:
             dumped_configuration['lifetime_threshold'] = self.lifetime_threshold
-        dumped_configuration['theme'] = self.theme.dump()
 
         return minimize_dumped_configuration(dumped_configuration)
 

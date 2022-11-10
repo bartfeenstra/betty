@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-06-19 21:06+0100\n"
+"POT-Creation-Date: 2022-11-07 23:23+0000\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
 "Language-Team: nl <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.11.0\n"
 
 msgid ""
 "\n"
@@ -341,6 +341,9 @@ msgstr ""
 
 msgid "Correspondence"
 msgstr "Correspondentie"
+
+msgid "Cotton Candy is a light theme featuring pastel colors"
+msgstr "Cotton Candy is een licht thema met pastelkleuren"
 
 msgid "Create a new project"
 msgstr "Maak een nieuw project"
@@ -905,9 +908,6 @@ msgstr "De titel moet een tekenreeks zijn."
 msgid "The translations for {locale_name} are {coverage_percentage}% complete."
 msgstr "De vertalingen voor {locale_name} zijn {coverage_percentage}% compleet."
 
-msgid "Theme"
-msgstr "Thema"
-
 msgid "There are no translations for {locale_name}."
 msgstr "Er zijn geen vertalingen voor {locale_name}."
 
@@ -1178,6 +1178,12 @@ msgstr "tot ongeveer %(end_date)s"
 
 msgid "y"
 msgstr "y"
+
+msgid "{dependency_label} is required by {dependency_labels}."
+msgstr "{dependency_label} is vereist door {dependency_labels}."
+
+msgid "{dependent_label} requires {dependency_labels}."
+msgstr "{dependent_label} vereist {dependency_labels}."
 
 msgid "{entity_type_label} ID"
 msgstr "{entity_type_label}-ID"

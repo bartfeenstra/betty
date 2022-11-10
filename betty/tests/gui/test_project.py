@@ -7,12 +7,11 @@ from pytest_mock import MockerFixture
 from pytestqt.qtbot import QtBot
 
 from betty.app import App
-from betty.gui.project import ProjectWindow, _AddLocaleWindow, _GenerateWindow, _ThemePane, _LocalizationPane, \
+from betty.gui.project import ProjectWindow, _AddLocaleWindow, _GenerateWindow, _LocalizationPane, \
     _GeneralPane
 from betty.gui.serve import ServeAppWindow
 from betty.locale import bcp_47_to_rfc_1766
-from betty.model import Entity
-from betty.project import ProjectConfiguration, LocaleConfiguration, EntityReference
+from betty.project import ProjectConfiguration, LocaleConfiguration
 from betty.tests.conftest import AssertNotWindow, AssertInvalid, AssertWindow, Navigate
 
 
@@ -127,64 +126,6 @@ class TestGeneralPane:
             assert app.project.configuration.content_negotiation is False
 
 
-class TestThemePane:
-    def test_background_image(self, qtbot: QtBot) -> None:
-        with App() as app:
-            sut = _ThemePane(app)
-            qtbot.addWidget(sut)
-            sut.show()
-
-            background_image_id = 'O0301'
-            sut._background_image_entity_reference_collector._entity_id.setText(background_image_id)
-            assert app.project.configuration.theme.background_image.entity_id == background_image_id
-
-    def test_add_featured_entities(self, qtbot: QtBot) -> None:
-        with App() as app:
-            sut = _ThemePane(app)
-            qtbot.addWidget(sut)
-            sut.show()
-
-            entity_id = '123'
-            qtbot.mouseClick(sut._featured_entities_entity_references_collector._add_entity_reference_button, Qt.MouseButton.LeftButton)
-            # @todo Find out an elegant way to test changing the entity type.
-            sut._featured_entities_entity_references_collector._entity_reference_collectors[0]._entity_id.setText(entity_id)
-            assert app.project.configuration.theme.featured_entities[0].entity_id == entity_id
-
-    def test_change_featured_entities(self, qtbot: QtBot) -> None:
-        with App() as app:
-            entity_reference_1 = EntityReference(Entity, '123')
-            entity_reference_2 = EntityReference(Entity, '456')
-            entity_reference_3 = EntityReference(Entity, '789')
-            app.project.configuration.theme.featured_entities.append(entity_reference_1)
-            app.project.configuration.theme.featured_entities.append(entity_reference_2)
-            app.project.configuration.theme.featured_entities.append(entity_reference_3)
-            sut = _ThemePane(app)
-            qtbot.addWidget(sut)
-            sut.show()
-
-            entity_id = '123'
-            # @todo Find out an elegant way to test changing the entity type.
-            sut._featured_entities_entity_references_collector._entity_reference_collectors[1]._entity_id.setText(entity_id)
-            assert app.project.configuration.theme.featured_entities[1].entity_id == entity_id
-
-    def test_remove_featured_entities(self, qtbot: QtBot) -> None:
-        with App() as app:
-            entity_reference_1 = EntityReference(Entity, '123')
-            entity_reference_2 = EntityReference(Entity, '456')
-            entity_reference_3 = EntityReference(Entity, '789')
-            app.project.configuration.theme.featured_entities.append(entity_reference_1)
-            app.project.configuration.theme.featured_entities.append(entity_reference_2)
-            app.project.configuration.theme.featured_entities.append(entity_reference_3)
-            sut = _ThemePane(app)
-            qtbot.addWidget(sut)
-            sut.show()
-
-            qtbot.mouseClick(sut._featured_entities_entity_references_collector._entity_reference_remove_buttons[1], Qt.MouseButton.LeftButton)
-            assert entity_reference_1 in app.project.configuration.theme.featured_entities
-            assert entity_reference_2 not in app.project.configuration.theme.featured_entities
-            assert entity_reference_3 in app.project.configuration.theme.featured_entities
-
-
 class TestLocalizationPane:
     def test_add_locale(self, qtbot: QtBot, assert_window: AssertWindow) -> None:
         with App() as app:
@@ -200,11 +141,11 @@ class TestLocalizationPane:
         with App() as app:
             app.project.configuration.locales.add(LocaleConfiguration('nl-NL'))
             app.project.configuration.locales.add(LocaleConfiguration(locale))
-            sut = ProjectWindow(app)
+            sut = _LocalizationPane(app)
             qtbot.addWidget(sut)
             sut.show()
             qtbot.mouseClick(
-                sut._localization_configuration_pane._locales_configuration_widget._remove_buttons[locale],  # type: ignore
+                sut._locales_configuration_widget._remove_buttons[locale],  # type: ignore
                 Qt.MouseButton.LeftButton
             )
 
@@ -215,13 +156,11 @@ class TestLocalizationPane:
         with App() as app:
             app.project.configuration.locales.add(LocaleConfiguration('nl-NL'))
             app.project.configuration.locales.add(LocaleConfiguration(locale))
-            sut = ProjectWindow(app)
+            sut = _LocalizationPane(app)
             qtbot.addWidget(sut)
             sut.show()
 
-            # @todo Find out how to simulate a mouse click on the radio button, and do that instead of emitting the click
-            # @todo signal directly.
-            sut._localization_configuration_pane._locales_configuration_widget._default_buttons[locale].click()  # type: ignore
+            sut._locales_configuration_widget._default_buttons[locale].click()  # type: ignore
 
             assert app.project.configuration.locales.default == LocaleConfiguration(locale)
 

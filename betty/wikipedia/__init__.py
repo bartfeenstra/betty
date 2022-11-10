@@ -16,9 +16,9 @@ from jinja2.runtime import Context
 from reactives import reactive
 from reactives.factory.type import ReactiveInstance
 
-from betty.app import App, Extension
+from betty.app import App
+from betty.app.extension import UserFacingExtension
 from betty.asyncio import sync
-from betty.gui import GuiBuilder
 from betty.jinja2 import Jinja2Provider, Environment
 from betty.load import PostLoader
 from betty.locale import Localized, negotiate_locale
@@ -214,7 +214,7 @@ class _Populator:
 
 
 @reactive
-class Wikipedia(Extension, Jinja2Provider, PostLoader, GuiBuilder, ReactiveInstance):
+class Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstance):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__retriever = None
@@ -227,7 +227,7 @@ class Wikipedia(Extension, Jinja2Provider, PostLoader, GuiBuilder, ReactiveInsta
     @property
     def _retriever(self) -> _Retriever:
         if self.__retriever is None:
-            self.__retriever = _Retriever(self._app.http_client, self.cache_directory_path)
+            self.__retriever = _Retriever(self.app.http_client, self.cache_directory_path)
         return self.__retriever
 
     @_retriever.deleter
@@ -238,7 +238,7 @@ class Wikipedia(Extension, Jinja2Provider, PostLoader, GuiBuilder, ReactiveInsta
     @property
     def _populator(self) -> _Populator:
         if self.__populator is None:
-            self.__populator = _Populator(self._app, self._retriever)
+            self.__populator = _Populator(self.app, self._retriever)
         return self.__populator
 
     @_populator.deleter
@@ -287,7 +287,7 @@ class Wikipedia(Extension, Jinja2Provider, PostLoader, GuiBuilder, ReactiveInsta
         return 'Wikipedia'
 
     @classmethod
-    def gui_description(cls) -> str:
+    def description(cls) -> str:
         return _("""
 Display <a href="https://www.wikipedia.org/">Wikipedia</a> summaries for resources with external links. In your custom <a href="https://jinja2docs.readthedocs.io/en/stable/">Jinja2</a> templates, use the following: <pre><code>
 {% with resource=resource_with_links %}

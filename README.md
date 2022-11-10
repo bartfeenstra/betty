@@ -1,7 +1,6 @@
-
 # Betty 👵
 
-![Test status](https://github.com/bartfeenstra/betty/workflows/Test/badge.svg) [![Code coverage](https://codecov.io/gh/bartfeenstra/betty/branch/master/graph/badge.svg)](https://codecov.io/gh/bartfeenstra/betty) [![PyPI releases](https://badge.fury.io/py/betty.svg)](https://pypi.org/project/betty/) [![Supported Python versions](https://img.shields.io/pypi/pyversions/betty.svg?logo=python&logoColor=FBE072)](https://pypi.org/project/betty/) [![Recent downloads](https://img.shields.io/pypi/dm/betty.svg)](https://pypi.org/project/betty/) [![Follow Betty on Twitter](https://img.shields.io/twitter/follow/Betty_Project.svg?label=Betty_Project&style=flat&logo=twitter&logoColor=4FADFF)](https://twitter.com/Betty_Project) 
+![Test status](https://github.com/bartfeenstra/betty/workflows/Test/badge.svg) [![Code coverage](https://codecov.io/gh/bartfeenstra/betty/branch/master/graph/badge.svg)](https://codecov.io/gh/bartfeenstra/betty) [![PyPI releases](https://badge.fury.io/py/betty.svg)](https://pypi.org/project/betty/) [![Supported Python versions](https://img.shields.io/pypi/pyversions/betty.svg?logo=python&logoColor=FBE072)](https://pypi.org/project/betty/) [![Recent downloads](https://img.shields.io/pypi/dm/betty.svg)](https://pypi.org/project/betty/) [![Follow Betty on Twitter](https://img.shields.io/twitter/follow/Betty_Project.svg?label=Betty_Project&style=flat&logo=twitter&logoColor=4FADFF)](https://twitter.com/Betty_Project)
 
 Betty helps you visualize and publish your family history by building interactive genealogy websites out of your
 [Gramps](https://gramps-project.org/) and [GEDCOM](https://en.wikipedia.org/wiki/GEDCOM) family trees.
@@ -22,9 +21,11 @@ Betty helps you visualize and publish your family history by building interactiv
 - [License](#license)
 
 ## Features
-Betty generates generates a [static site](https://en.wikipedia.org/wiki/Static_web_page) from your genealogy records.
+
+Betty generates [static sites](https://en.wikipedia.org/wiki/Static_web_page) from your genealogy records.
 This means that once your site has been generated, you will not need any special software to publish it. It's **fast and
 secure**.
+
 - Builds pages for people, places, events, and media.
 - Renders interactive maps.
 - Fully multilingual: localize the site to one or more languages of your choice.
@@ -35,10 +36,12 @@ secure**.
 ## Installation
 
 ### Requirements
+
 - **Python 3.8+**
 - Linux, Mac OS, or Windows
 
 ### Instructions
+
 Run `pip install betty` to install the latest stable release.
 
 To install the latest development version, run `pip install git+https://github.com/bartfeenstra/betty.git`. If you want
@@ -47,7 +50,9 @@ the latest source code, read the [development](#development) documentation.
 ## Usage
 
 ### The command line
+
 After installation, Betty can be used via the `betty` command:
+
 ```
 Usage: betty [OPTIONS] COMMAND [ARGS]...
 
@@ -68,7 +73,9 @@ Commands:
 ```
 
 ### Configuration files
+
 Configuration files are written in YAML (`*.yaml` or `*.yml`) or JSON (`*.json`):
+
 ```yaml
 base_url: https://ancestry.example.com
 debug: true
@@ -81,56 +88,86 @@ locales:
   - locale: en-US
     alias: en
   - locale: nl
-theme:
-  background_image_id: O0301
+theme: betty.cotton_candy.CottonCandy
 extensions:
-  betty.anonymizer.Anonymizer: ~
-  betty.cleaner.Cleaner: ~
-  betty.deriver.Deriver: ~
+  betty.anonymizer.Anonymizer: {}
+  betty.cleaner.Cleaner: {}
+  betty.cotton_candy.CottonCandy:
+    background_image_id: O0301
+    featured_entities:
+      - entity_type: Person
+        entity_id: P123
+      - entity_type: Place
+        entity_id: Amsterdam
+  betty.deriver.Deriver: {}
   betty.gramps.Gramps:
     family_trees:
       - file: ./gramps.gpkg
-  betty.http_api_doc.HttpApiDoc: ~
-  betty.maps.Maps: ~
-  betty.privatizer.Privatizer: ~
-  betty.trees.Trees: ~
-  betty.wikipedia.Wikipedia: ~
+  betty.http_api_doc.HttpApiDoc: {}
+  betty.maps.Maps: {}
+  betty.privatizer.Privatizer: {}
+  betty.trees.Trees: {}
+  betty.wikipedia.Wikipedia: {}
 ```
+
 - `base_url` (required); The absolute, public URL at which the site will be published.
 - `debug` (optional): `true` to output more detailed logs and disable optimizations that make debugging harder. Defaults
-    to `false`.
+  to `false`.
 - `root_path` (optional); The relative path under the public URL at which the site will be published.
 - `clean_urls` (optional); A boolean indicating whether to use clean URLs, e.g. `/path` instead of `/path/index.html`.
-- `content_negotiation` (optional, defaults to `false`): Enables dynamic content negotiation, but requires a web server
-    that supports it. This implies `clean_urls`.
+  Defaults to `false`.
+- `content_negotiation` (optional): Enables dynamic content negotiation, but requires a web server
+  that supports it. This implies `clean_urls`. Defaults to `false`
 - `title` (optional); The site's title.
 - `author` (optional); The site's author and copyright holder.
 - `lifetime_threshold` (optional); The number of years people are expected to live at most, e.g. after which they're
-    presumed to have died. Defaults to `125`.
+  presumed to have died. Defaults to `125`.
 - `locales` (optional); An array of locales, each of which is an object with the following keys:
-    - `locale`(required): An [IETF BCP 47](https://tools.ietf.org/html/bcp47) language tag.
-    - `alias` (optional): A shorthand alias to use instead of the full language tag, such as when rendering URLs.
+  - `locale`(required): An [IETF BCP 47](https://tools.ietf.org/html/bcp47) language tag.
+  - `alias` (optional): A shorthand alias to use instead of the full language tag, such as when rendering URLs.
 
-    If no locales are defined, Betty defaults to US English.
-- `theme` (optional); Theme configuration. Keys are the following:
-  - `background_image_id` (optional); The ID of the file entity whose (image) file to use for page backgrounds if a page
-      does not provide any image media itself.
-- `extensions` (optional): The extensions to enable. Keys are extension names, and values are objects containing each extension's configuration.
-    - `betty.anonymizer.Anonymizer`: Removes personal information from private people. Configuration: `~`.
-    - `betty.cleaner.Cleaner`: Removes data (events, media, etc.) that have no relation to any people. Configuration: `~`.
-    - `betty.demo.Demo`: Loads demonstrative content and functionality that shows what Betty can do. Configuration: `~`.
-    - `betty.deriver.Deriver`: Extends ancestries by deriving facts from existing information. Configuration: `~`.
-    - `betty.gramps.Gramps`: Loads Gramps family trees. Configuration:
-        - `family_trees`: An array defining zero or more Gramps family trees to load. Each item is an object with the following keys:
-            - `file`: the path to a *Gramps XML* or *Gramps XML Package* file.
-    - `betty.http_api_doc.HttpApiDoc`: Renders interactive and user-friendly HTTP API documentation using [ReDoc](https://github.com/Redocly/redoc).
-    - `betty.maps.Maps`: Renders interactive maps using [Leaflet](https://leafletjs.com/).
-    - `betty.privatizer.Privatizer`: Marks living people private. Configuration: `~`.
-    - `betty.trees.Trees`: Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
-    - `betty.wikipedia.Wikipedia`: Lets templates and other extensions retrieve complementary Wikipedia entries.
+  If no locales are defined, Betty defaults to US English.
+- `theme` (optional); The name of the theme to use for the site. Defaults to `betty.cotton_candy.CottonCandy`.
+- `extensions` (optional): The extensions to enable. Keys are extension names, and values are objects containing the
+  following keys:
+  - `enabled` (optional). A boolean indicating whether the extension is enabled. Defaults to `true`. 
+  - `configuration` (optional). An object containing the extension's own configuration, if it provides any configuration
+    options.
+
+  Both keys may be omitted to quickly enable an extension using its default configuration.
+
+  The extensions that ship with Betty, and their configuration:
+  - `betty.anonymizer.Anonymizer` (optional): Removes personal information from private people. It provides no
+    configuration options.
+  - `betty.cotton_candy.CottonCandy` (optional): Configuration:
+    - `background_image_id` (optional): The ID of the file entity whose (image) file to use for page backgrounds if
+      a page does not provide any image media itself.
+    - `featured_entities` (optional): A list of entities to feature on the front page. Each item has the following
+      configuration:
+      - `entity_type` (required): The name of the entity type to feature, e.g. `Person`.
+      - `entity_id` (required):  The ID of the entity type to feature, e.g. `P123`.
+  - `betty.cleaner.Cleaner` (optional): Removes data (events, media, etc.) that have no relation to any people. It
+    provides no configuration options.
+  - `betty.demo.Demo` (optional): Loads demonstrative content and functionality that shows what Betty can do. It
+    provides no configuration options.
+  - `betty.deriver.Deriver` (optional): Extends ancestries by deriving facts from existing information. It provides no
+    configuration options.
+  - `betty.gramps.Gramps` (optional): Loads Gramps family trees. Configuration:
+    - `family_trees` (required): An array defining zero or more Gramps family trees to load. Each item is an object with the
+      following keys:
+      - `file` (required): the path to a *Gramps XML* or *Gramps XML Package* file.
+  - `betty.http_api_doc.HttpApiDoc` (optional): Renders interactive and user-friendly HTTP API documentation
+    using [ReDoc](https://github.com/Redocly/redoc).
+  - `betty.maps.Maps` (optional): Renders interactive maps using [Leaflet](https://leafletjs.com/).
+  - `betty.privatizer.Privatizer` (optional): Marks living people private. Configuration: `{}`.
+  - `betty.trees.Trees` (optional): Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
+  - `betty.wikipedia.Wikipedia` (optional): Lets templates and other extensions retrieve complementary Wikipedia
+    entries.
 
 ### Translations
+
 Betty ships with the following translations:
+
 - US English (`en-US`)
 - Dutch (`nl-NL`)
 - French (`fr-FR`)
@@ -139,7 +176,9 @@ Betty ships with the following translations:
 Extensions and sites can override these translations, or provide translations for additional locales.
 
 ### Gramps
+
 #### Privacy
+
 Gramps has limited built-in support for people's privacy. To fully control privacy for people, as well as events, files,
 sources, and citations, add a `betty:privacy` attribute to any of these types, with a value of `private` to explicitly
 declare the data always private or `public` to declare the data always public. Any other value will leave the privacy
@@ -147,21 +186,27 @@ undecided, as well as person records marked public using Gramps' built-in privac
 `betty.privatizer.Privatizer` may decide if the data is public or private.
 
 #### Dates
+
 For unknown date parts, set those to all zeroes and Betty will ignore them. For instance, `0000-12-31` will be parsed as
 "December 31", and `1970-01-00` as "January, 1970".
 
 #### Event types
+
 Betty supports the following custom Gramps event types:
+
 - `Correspondence`
 - `Funeral`
 - `Missing`
 - `Will`
 
 #### Event roles
+
 Betty supports the following custom Gramps event roles:
+
 - `Beneficiary`
 
 #### Order & priority
+
 The order of lists of data, or the priority of individual bits of data, can be automatically determined by Betty in
 multiple different ways, such as by matching dates, or locales. When not enough details are available, or in case of
 ambiguity, the original order is preserved. If only a single item must be retrieved from the list, this will be the
@@ -172,13 +217,16 @@ filter names by the given locale and date, and then indiscriminately pick the fi
 display as the canonical name.
 
 Tips:
+
 - If you want one item to have priority over another, it should come before the other in a list (e.g. be higher up).
 - Items with more specific or complete data, such as locales or dates, should come before items with less specific or
-    complete data. However, items without dates at all are considered current and not historical.
+  complete data. However, items without dates at all are considered current and not historical.
 - Unofficial names or nicknames, should generally be put at the end of lists.
 
 ### GEDCOM files
+
 To build a site from your GEDCOM files:
+
 1. Install and launch [Gramps](https://gramps-project.org/)
 1. Create a new family tree
 1. Import your GEDCOM file under *Family Trees* > *Import...*
@@ -204,25 +252,33 @@ async def generate():
 ```
 
 ## Development
-First, [fork and clone](https://guides.github.com/activities/forking/) the repository, and navigate to its root directory.
+
+First, [fork and clone](https://guides.github.com/activities/forking/) the repository, and navigate to its root
+directory.
 
 ### Requirements
+
 - The installation requirements documented earlier.
 - Node.js
 - Bash (you're all good if `which bash` outputs a path in your terminal)
 
 ### Installation
+
 In any existing Python environment, run `./bin/build-dev`.
 
 ### Working on translations
+
 #### Making changes to the translatable strings in the source code
+
 Run `./bin/extract-translatables` to update the translations files with the changes you made.
 
 #### Adding translations for a language for which no translations exist yet
+
 Run `./bin/init-translation $locale` where `$locale` is a
 [IETF BCP 47](https://tools.ietf.org/html/bcp47), but using underscores instead of dashes (`nl_NL` instead of `nl-NL`).
 
 #### Updating the translations for a language
+
 First, install a PO file editor on your system. Any will do, but if you don't want to search for one,
 [Poedit](https://poedit.net/) is a good and free editor to start with.
 
@@ -231,17 +287,21 @@ Then, with this PO file editor, open and change the `*.po` file for the translat
 [`./betty/assets/locale/nl_NL/LC_MESSAGES/betty.po`](./betty/assets/locale/nl_NL/LC_MESSAGES/betty.po), for example.
 
 ### Testing
+
 In any existing Python environment, run `./bin/test`.
 
 ### Fixing problems automatically
+
 In any existing Python environment, run `./bin/fix`.
 
 ## Contributions 🥳
+
 Betty is Free and Open Source Software. As such you are welcome to
 [report bugs](https://github.com/bartfeenstra/betty/issues) or
 [submit improvements](https://github.com/bartfeenstra/betty/pulls).
 
 ## Copyright & license
+
 Betty is copyright [Bart Feenstra](https://twitter.com/BartFeenstra/) and contributors, and released under the
 [GNU General Public License, Version 3](./LICENSE.txt). In short, that means **you are free to use Betty**, but **if you
 distribute Betty yourself, you must do so under the exact same license**, provide that license, and make your source

@@ -4,7 +4,6 @@ import logging
 import math
 import os
 import shutil
-from contextlib import suppress
 from pathlib import Path
 from typing import Iterable, Any, TYPE_CHECKING, cast, AsyncContextManager, List
 
@@ -12,7 +11,6 @@ import aiofiles
 from aiofiles import os as aiofiles_os
 from aiofiles.threadpool.text import AsyncTextIOWrapper
 from babel import Locale
-from jinja2 import TemplateNotFound
 
 from betty.app import App
 from betty.jinja2 import Environment
@@ -155,18 +153,17 @@ async def _generate_entity_type(www_directory_path: Path, entities: Iterable[Any
 async def _generate_entity_type_list_html(www_directory_path: Path, entities: Iterable[Any], entity_type_name: str,
                                           environment: Environment) -> None:
     entity_type_path = www_directory_path / entity_type_name
-    with suppress(TemplateNotFound):
-        template = environment.negotiate_template([
-            f'entity/page-list--{entity_type_name}.html.j2',
-            'entity/page-list.html.j2',
-        ])
-        rendered_html = template.render({
-            'page_resource': '/%s/index.html' % entity_type_name,
-            'entity_type_name': entity_type_name,
-            'entities': entities,
-        })
-        async with _create_html_resource(entity_type_path) as f:
-            await f.write(rendered_html)
+    template = environment.negotiate_template([
+        f'entity/page-list--{entity_type_name}.html.j2',
+        'entity/page-list.html.j2',
+    ])
+    rendered_html = template.render({
+        'page_resource': '/%s/index.html' % entity_type_name,
+        'entity_type_name': entity_type_name,
+        'entities': entities,
+    })
+    async with _create_html_resource(entity_type_path) as f:
+        await f.write(rendered_html)
 
 
 async def _generate_entity_type_list_json(www_directory_path: Path, entities: Iterable[Any], entity_type_name: str, app: App) -> None:

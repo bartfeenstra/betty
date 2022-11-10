@@ -64,7 +64,7 @@ class HasNotes(Entity):
         super().__init__(*args, **kwargs)
 
     @property
-    def notes(self) -> EntityCollection[Note]:
+    def notes(self) -> EntityCollection[Note]:  # type: ignore
         pass
 
     @notes.setter
@@ -124,7 +124,7 @@ class HasCitations(Entity):
         super().__init__(*args, **kwargs)
 
     @property
-    def citations(self) -> EntityCollection[Citation]:
+    def citations(self) -> EntityCollection[Citation]:  # type: ignore
         pass
 
     @citations.setter
@@ -144,7 +144,7 @@ class File(Described, HasPrivacy, HasMediaType, HasNotes, HasCitations, Entity):
         self.media_type = media_type
 
     @property
-    def entities(self) -> EntityCollection[Entity]:
+    def entities(self) -> EntityCollection[Entity]:  # type: ignore
         pass
 
     @entities.setter
@@ -175,7 +175,7 @@ class HasFiles(Entity):
         super().__init__(*args, **kwargs)
 
     @property
-    def files(self) -> EntityCollection[File]:
+    def files(self) -> EntityCollection[File]:  # type: ignore
         pass
 
     @files.setter
@@ -207,7 +207,7 @@ class Source(Dated, HasFiles, HasLinks, HasPrivacy, Entity):
         self.publisher = None
 
     @property
-    def contains(self) -> EntityCollection[Source]:
+    def contains(self) -> EntityCollection[Source]:  # type: ignore
         pass
 
     @contains.setter
@@ -219,7 +219,7 @@ class Source(Dated, HasFiles, HasLinks, HasPrivacy, Entity):
         pass
 
     @property
-    def citations(self) -> EntityCollection[Citation]:
+    def citations(self) -> EntityCollection[Citation]:  # type: ignore
         pass
 
     @citations.setter
@@ -251,7 +251,7 @@ class Citation(Dated, HasFiles, HasPrivacy, Entity):
         self.source = source  # type: ignore
 
     @property
-    def facts(self) -> EntityCollection[HasCitations]:
+    def facts(self) -> EntityCollection[HasCitations]:  # type: ignore
         pass
 
     @facts.setter
@@ -315,7 +315,7 @@ class Place(HasLinks, Entity):
         self._coordinates = None
 
     @property
-    def enclosed_by(self) -> EntityCollection[Enclosure]:
+    def enclosed_by(self) -> EntityCollection[Enclosure]:  # type: ignore
         pass
 
     @enclosed_by.setter
@@ -327,7 +327,7 @@ class Place(HasLinks, Entity):
         pass
 
     @property
-    def encloses(self) -> EntityCollection[Enclosure]:
+    def encloses(self) -> EntityCollection[Enclosure]:  # type: ignore
         pass
 
     @encloses.setter
@@ -339,7 +339,7 @@ class Place(HasLinks, Entity):
         pass
 
     @property
-    def events(self) -> EntityCollection[Event]:
+    def events(self) -> EntityCollection[Event]:  # type: ignore
         pass
 
     @events.setter
@@ -452,7 +452,7 @@ class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, Entity):
         self._type = event_type
 
     @property
-    def presences(self) -> EntityCollection[Presence]:
+    def presences(self) -> EntityCollection[Presence]:  # type: ignore
         pass
 
     @presences.setter
@@ -547,7 +547,7 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, Entity):
         super().__init__(person_id, *args, **kwargs)
 
     @property
-    def parents(self) -> EntityCollection[Person]:
+    def parents(self) -> EntityCollection[Person]:  # type: ignore
         pass
 
     @parents.setter
@@ -559,7 +559,7 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, Entity):
         pass
 
     @property
-    def children(self) -> EntityCollection[Person]:
+    def children(self) -> EntityCollection[Person]:  # type: ignore
         pass
 
     @children.setter
@@ -571,7 +571,7 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, Entity):
         pass
 
     @property
-    def presences(self) -> EntityCollection[Presence]:
+    def presences(self) -> EntityCollection[Presence]:  # type: ignore
         pass
 
     @presences.setter
@@ -583,7 +583,7 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, Entity):
         pass
 
     @property
-    def names(self) -> EntityCollection[PersonName]:
+    def names(self) -> EntityCollection[PersonName]:  # type: ignore
         pass
 
     @names.setter

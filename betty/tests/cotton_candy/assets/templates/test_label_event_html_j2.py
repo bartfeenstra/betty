@@ -1,9 +1,11 @@
+from betty.cotton_candy import CottonCandy
 from betty.model.ancestry import Person, Event, Presence, Subject, Witness
 from betty.model.event_type import Birth, Marriage
 from betty.tests import TemplateTestCase
 
 
 class Test(TemplateTestCase):
+    extensions = {CottonCandy}
     template_file = 'entity/label--event.html.j2'
 
     def test_minimal(self):

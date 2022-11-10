@@ -7,20 +7,19 @@ from typing import Optional, Set, Type, TYPE_CHECKING, List
 if TYPE_CHECKING:
     from betty.builtins import _
 
-from betty.app.extension import Extension
+from betty.app.extension import Extension, UserFacingExtension
 from betty.generate import Generator
-from betty.gui import GuiBuilder
 from betty.html import CssProvider, JsProvider
 from betty.npm import _Npm, NpmBuilder, npm
 
 
-class Maps(Extension, CssProvider, JsProvider, Generator, GuiBuilder, NpmBuilder):
+class Maps(UserFacingExtension, CssProvider, JsProvider, Generator, NpmBuilder):
     @classmethod
     def depends_on(cls) -> Set[Type[Extension]]:
         return {_Npm}
 
     async def npm_build(self, working_directory_path: Path, assets_directory_path: Path) -> None:
-        await self._app.extensions[_Npm].install(type(self), working_directory_path)
+        await self.app.extensions[_Npm].install(type(self), working_directory_path)
         await npm(('run', 'webpack'), cwd=working_directory_path)
         self._copy_npm_build(working_directory_path / 'webpack-build', assets_directory_path)
         logging.getLogger().info('Built the interactive maps.')
@@ -32,8 +31,8 @@ class Maps(Extension, CssProvider, JsProvider, Generator, GuiBuilder, NpmBuilder
             copytree(source_directory_path / 'images', destination_directory_path / 'images')
 
     async def generate(self) -> None:
-        assets_directory_path = await self._app.extensions[_Npm].ensure_assets(self)
-        self._copy_npm_build(assets_directory_path, self._app.project.configuration.www_directory_path)
+        assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
+        self._copy_npm_build(assets_directory_path, self.app.project.configuration.www_directory_path)
 
     @classmethod
     def assets_directory_path(cls) -> Optional[Path]:
@@ -42,13 +41,13 @@ class Maps(Extension, CssProvider, JsProvider, Generator, GuiBuilder, NpmBuilder
     @property
     def public_css_paths(self) -> List[str]:
         return [
-            self._app.static_url_generator.generate('maps.css'),
+            self.app.static_url_generator.generate('maps.css'),
         ]
 
     @property
     def public_js_paths(self) -> List[str]:
         return [
-            self._app.static_url_generator.generate('maps.js'),
+            self.app.static_url_generator.generate('maps.js'),
         ]
 
     @classmethod
@@ -56,5 +55,5 @@ class Maps(Extension, CssProvider, JsProvider, Generator, GuiBuilder, NpmBuilder
         return _('Maps')
 
     @classmethod
-    def gui_description(cls) -> str:
+    def description(cls) -> str:
         return _('Display lists of places as interactive maps using <a href="https://leafletjs.com/">Leaflet</a>.')

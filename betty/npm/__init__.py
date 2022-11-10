@@ -14,8 +14,8 @@ from aiofiles.tempfile import TemporaryDirectory
 
 from betty import subprocess
 from betty.app.extension import Extension, discover_extension_types
+from betty.app.extension.requirement import Requirement, AnyRequirement, AllRequirements
 from betty.asyncio import sync
-from betty.requirement import Requirement, AnyRequirement, AllRequirements
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -53,15 +53,12 @@ class _NpmRequirement(Requirement):
             logging.getLogger().debug(cls._unmet_summary())
             return cls(False)
 
-    @property
-    def met(self) -> bool:
+    def is_met(self) -> bool:
         return self._met
 
-    @property
     def summary(self) -> str:
         return self._summary
 
-    @property
     def details(self) -> Optional[str]:
         return self._details
 
@@ -75,7 +72,7 @@ class _AssetsRequirement(Requirement):
         self._extension_types = extension_types
         self._summary = _('Pre-built assets')
         self._details: Optional[str]
-        if not self.met:
+        if not self.is_met():
             extension_names = sorted(
                 extension_type.name()  # type: ignore
                 for extension_type
@@ -94,15 +91,12 @@ class _AssetsRequirement(Requirement):
             if is_assets_build_directory_path(_get_assets_build_directory_path(extension_type))
         }
 
-    @property
-    def met(self) -> bool:
+    def is_met(self) -> bool:
         return self._extension_types <= self._extension_types_with_built_assets
 
-    @property
     def summary(self) -> str:
         return self._summary
 
-    @property
     def details(self) -> Optional[str]:
         return self._details
 
@@ -157,24 +151,27 @@ async def _build_assets_to_directory_path(extension: Extension | NpmBuilder, ass
 class _Npm(Extension):
     _npm_requirement: Optional[_NpmRequirement] = None
     _assets_requirement: Optional[_AssetsRequirement] = None
-    _requirement: Optional[AllRequirements] = None
+    _requirement: Optional[Requirement] = None
 
     @classmethod
-    def _ensure_requirements(cls) -> None:
+    def _ensure_requirement(cls) -> Requirement:
         if cls._requirement is None:
             cls._npm_requirement = _NpmRequirement.check()
             cls._assets_requirement = _AssetsRequirement(discover_npm_builders())
             assert cls._npm_requirement is not None
             assert cls._assets_requirement is not None
-            cls._requirement = AllRequirements((AnyRequirement((cls._npm_requirement, cls._assets_requirement)),))
+            cls._requirement = AnyRequirement(cls._npm_requirement, cls._assets_requirement)
+        return cls._requirement
 
     @classmethod
-    def requires(cls) -> AllRequirements:
-        cls._ensure_requirements()
-        return super().requires() + cls._requirement
+    def enable_requirement(cls) -> Requirement:
+        return AllRequirements(
+            cls._ensure_requirement(),
+            super().enable_requirement(),
+        )
 
     async def install(self, extension_type: Type[Extension | NpmBuilder], working_directory_path: Path) -> None:
-        self._ensure_requirements()
+        self._ensure_requirement()
         if self._npm_requirement:
             self._npm_requirement.assert_met()
 
@@ -183,7 +180,7 @@ class _Npm(Extension):
             working_directory_path,
             dirs_exist_ok=True,
         )
-        await self._app.renderer.render_tree(working_directory_path)
+        await self.app.renderer.render_tree(working_directory_path)
         await npm(['install', '--production'], cwd=working_directory_path)
 
     def _get_cached_assets_build_directory_path(self, extension_type: Type[Extension | NpmBuilder]) -> Path:

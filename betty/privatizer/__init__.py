@@ -7,25 +7,24 @@ from betty.model import Entity
 if TYPE_CHECKING:
     from betty.builtins import _
 
-from betty.app.extension import Extension
+from betty.app.extension import UserFacingExtension
 from betty.functools import walk
-from betty.gui import GuiBuilder
 from betty.load import PostLoader
 from betty.locale import DateRange, Date
 from betty.model.ancestry import Ancestry, Person, Event, Citation, Source, HasPrivacy, Subject, File, HasFiles, \
     HasCitations
 
 
-class Privatizer(Extension, PostLoader, GuiBuilder):
+class Privatizer(UserFacingExtension, PostLoader):
     async def post_load(self) -> None:
-        privatize(self._app.project.ancestry, self._app.project.configuration.lifetime_threshold)
+        privatize(self.app.project.ancestry, self.app.project.configuration.lifetime_threshold)
 
     @classmethod
     def label(cls) -> str:
         return _('Privatizer')
 
     @classmethod
-    def gui_description(cls) -> str:
+    def description(cls) -> str:
         return _('Determine if people can be proven to have died. If not, mark them and their related resources private, but only if they are not already explicitly marked public or private. Enable the Anonymizer and Cleaner as well to make this most effective.')
 
 

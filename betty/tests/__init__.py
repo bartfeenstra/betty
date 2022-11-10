@@ -3,12 +3,12 @@ import inspect
 from contextlib import contextmanager, ExitStack
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Optional, Dict, Callable, ContextManager, Iterator, Tuple, TypeVar
+from typing import Optional, Dict, Callable, ContextManager, Iterator, Tuple, TypeVar, Set, Type
 
 from jinja2.environment import Template
 
 from betty import fs
-from betty.app import App
+from betty.app import App, Extension
 from betty.jinja2 import Environment
 
 T = TypeVar('T')
@@ -35,6 +35,7 @@ def patch_cache(f):
 class TemplateTestCase:
     template_string: Optional[str] = None
     template_file: Optional[str] = None
+    extensions: Set[Type[Extension]] = set()
 
     @contextmanager
     def _render(self, data: Optional[Dict] = None, template_file: Optional[str] = None, template_string: Optional[str] = None, set_up: Optional[Callable[[App], ContextManager]] = None) -> Iterator[Tuple[str, App]]:
@@ -66,6 +67,7 @@ class TemplateTestCase:
         app.project.configuration.debug = True
         contexts = ExitStack()
         with app:
+            app.project.configuration.extensions.enable(*self.extensions)
             try:
                 if set_up is not None:
                     contexts.enter_context(set_up(app))

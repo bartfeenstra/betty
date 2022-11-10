@@ -70,7 +70,7 @@ function initializeAncestryTree (tree, personId) {
             }
           }
         ],
-        elements: elements
+        elements
       })
       cy.zoom({
         level: 1,

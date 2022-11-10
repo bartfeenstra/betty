@@ -95,6 +95,7 @@ SETUP = {
         'betty.extensions': [
             'betty.anonymizer.Anonymizer=betty.anonymizer.Anonymizer',
             'betty.cleaner.Cleaner=betty.cleaner.Cleaner',
+            'betty.cotton_candy.CottonCandy=betty.cotton_candy.CottonCandy',
             'betty.demo.Demo=betty.demo.Demo',
             'betty.deriver.Deriver=betty.deriver.Deriver',
             'betty.gramps.Gramps=betty.gramps.Gramps',
