@@ -1,11 +1,11 @@
 'use strict'
 
-var _CLOSE_KEYS = ['Escape']
-var _PREVIOUS_FILE_KEYS = ['ArrowLeft']
-var _NEXT_FILE_KEYS = ['ArrowRight']
+const _CLOSE_KEYS = ['Escape']
+const _PREVIOUS_FILE_KEYS = ['ArrowLeft']
+const _NEXT_FILE_KEYS = ['ArrowRight']
 
-var _positionX = null
-var _positionY = null
+let _positionX = null
+let _positionY = null
 
 function _initializeFiles () {
   _initializeFileExtendedOpen()
@@ -14,9 +14,9 @@ function _initializeFiles () {
 }
 
 function _initializeFileExtendedOpen () {
-  var links = document.getElementsByClassName('file-extended-open')
-  for (var i = 0; i < links.length; i++) {
-    var link = links[i]
+  const links = document.getElementsByClassName('file-extended-open')
+  for (let i = 0; i < links.length; i++) {
+    const link = links[i]
     link.addEventListener('click', _openExtended)
   }
 }
@@ -27,9 +27,9 @@ function _openExtended () {
 }
 
 function _initializeFileExtendedClose () {
-  var links = document.getElementsByClassName('file-extended-close')
-  for (var i = 0; i < links.length; i++) {
-    var link = links[i]
+  const links = document.getElementsByClassName('file-extended-close')
+  for (let i = 0; i < links.length; i++) {
+    const link = links[i]
     link.addEventListener('click', _closeExtended)
   }
 }
@@ -48,17 +48,17 @@ function _closeExtended (e) {
 function _initializeFileExtendedKeyPresses () {
   document.addEventListener('keydown', function (e) {
     if (_CLOSE_KEYS.indexOf(e.key) !== -1) {
-      var close = document.querySelector('.file-extended:target .file-extended-close a')
+      const close = document.querySelector('.file-extended:target .file-extended-close a')
       if (close) {
         close.click()
       }
     } else if (_PREVIOUS_FILE_KEYS.indexOf(e.key) !== -1) {
-      var previous = document.querySelector('.file-extended:target .file-extended-previous a')
+      const previous = document.querySelector('.file-extended:target .file-extended-previous a')
       if (previous) {
         previous.click()
       }
     } else if (_NEXT_FILE_KEYS.indexOf(e.key) !== -1) {
-      var next = document.querySelector('.file-extended:target .file-extended-next a')
+      const next = document.querySelector('.file-extended:target .file-extended-next a')
       if (next) {
         next.click()
       }

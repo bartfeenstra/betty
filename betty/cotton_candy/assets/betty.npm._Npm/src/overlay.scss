@@ -1,4 +1,4 @@
-@import url("variables.css");
+@import "variables.scss";
 
 .has-overlay {
   position: fixed;
@@ -34,7 +34,7 @@
 }
 
 .overlay-close {
-  background-image: var(--close-svg-url);
+  background-image: $close-svg-url;
   background-position: center;
   background-repeat: no-repeat;
   background-size: 2rem 2rem;

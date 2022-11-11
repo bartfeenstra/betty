@@ -1,4 +1,4 @@
-@import url("variables.css");
+@import "variables.scss";
 
 .with-js .show.show-shown .show-if-hidden {
   display: none;
@@ -17,7 +17,7 @@
 }
 
 .with-js .show-toggle {
-  color: var(--link-inactive-color);
+  color: $link-inactive-color;
   cursor: pointer;
   font-size: 0.8rem;
   vertical-align: super;
@@ -25,5 +25,5 @@
 }
 
 .with-js .show-toggle:hover {
-  color: var(--link-active-color);
+  color: $link-active-color;
 }

@@ -1,0 +1,4 @@
+{{ {
+    'debug': app.project.configuration.debug,
+    'cacheDirectory': app.extensions['betty.cotton_candy.CottonCandy'].cache_directory_path / 'babel',
+} | tojson }}

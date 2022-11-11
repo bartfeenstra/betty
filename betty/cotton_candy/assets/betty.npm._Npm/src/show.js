@@ -1,15 +1,15 @@
 'use strict'
 
 function initializeToggles () {
-  var toggles = document.getElementsByClassName('show-toggle')
-  for (var i = 0; i < toggles.length; i++) {
+  const toggles = document.getElementsByClassName('show-toggle')
+  for (let i = 0; i < toggles.length; i++) {
     initializeToggle(toggles[i])
   }
 }
 
 function initializeToggle (toggle) {
   toggle.addEventListener('click', function () {
-    var container = getContainer(this)
+    const container = getContainer(this)
     if (container) {
       container.classList.toggle('show-shown')
     }

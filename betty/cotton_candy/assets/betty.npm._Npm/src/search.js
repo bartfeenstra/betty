@@ -1,7 +1,7 @@
 'use strict'
-var _HIDE_SEARCH_KEYS = ['Escape']
-var _NEXT_RESULT_KEYS = ['ArrowDown']
-var _PREVIOUS_RESULT_KEYS = ['ArrowUp']
+const _HIDE_SEARCH_KEYS = ['Escape']
+const _NEXT_RESULT_KEYS = ['ArrowDown']
+const _PREVIOUS_RESULT_KEYS = ['ArrowUp']
 
 function Search () {
   this._query = null
@@ -11,7 +11,7 @@ function Search () {
   this._queryElement = document.getElementById('search-query')
   this._resultsContainer = document.getElementById('search-results-container')
   this._documentY = null
-  var _this = this
+  const _this = this
 
   // Prevent default form submission behaviors, such as HTTP requests.
   this._form.addEventListener('submit', function (e) {
@@ -66,7 +66,7 @@ Search.prototype._navigateResults = function (keyCode) {
 
     if (document.activeElement.classList.contains('search-result-target')) {
       // If the focus lies on a search result, focus on the previous search result if there is one.
-      var previousSearchResultContainer = document.activeElement.closest('.search-result').previousElementSibling
+      const previousSearchResultContainer = document.activeElement.closest('.search-result').previousElementSibling
       if (previousSearchResultContainer) {
         previousSearchResultContainer.querySelector('.search-result-target').focus()
         return
@@ -78,7 +78,7 @@ Search.prototype._navigateResults = function (keyCode) {
   } else if (_NEXT_RESULT_KEYS.indexOf(keyCode) !== -1) {
     // If the focus lies on the query input element, focus on the first search result.
     if (document.activeElement === this._queryElement) {
-      var resultTargets = this._resultsContainer.getElementsByClassName('search-result-target')
+      const resultTargets = this._resultsContainer.getElementsByClassName('search-result-target')
       if (0 in resultTargets) {
         resultTargets[0].focus()
       }
@@ -86,7 +86,7 @@ Search.prototype._navigateResults = function (keyCode) {
     }
     // If the focus lies on a search result, focus on the next search result if there is one.
     if (document.activeElement.classList.contains('search-result-target')) {
-      var nextSearchResultContainer = document.activeElement.closest('.search-result').nextElementSibling
+      const nextSearchResultContainer = document.activeElement.closest('.search-result').nextElementSibling
       if (nextSearchResultContainer) {
         nextSearchResultContainer.querySelector('.search-result-target').focus()
       }
@@ -129,9 +129,9 @@ Search.prototype._performCacheQuery = function (query) {
 }
 
 Search.prototype._performFromCachedQuery = function () {
-  var query = this._query
+  const query = this._query
   this._query = null
-  var _this = this
+  const _this = this
   this._setSearchResults(this._index.filter(function (result) {
     return _this._match(query, result.text)
   }))
@@ -145,11 +145,11 @@ Search.prototype._performCached = function (query) {
 Search.prototype._performUncached = function (query) {
   this._query = query
   this.perform = this._performCacheQuery
-  var _this = this
-  var indexRequest = new XMLHttpRequest()
+  const _this = this
+  const indexRequest = new XMLHttpRequest()
   indexRequest.open('GET', this._indexUrl)
   indexRequest.addEventListener('load', function () {
-    var index = JSON.parse(indexRequest.response)
+    const index = JSON.parse(indexRequest.response)
     _this._index = index.index
     _this._resultContainerTemplate = index.resultContainerTemplate
     _this._resultsContainerTemplate = index.resultsContainerTemplate
@@ -162,8 +162,8 @@ Search.prototype._performUncached = function (query) {
 Search.prototype.perform = Search.prototype._performUncached
 
 Search.prototype._match = function (query, haystack) {
-  var queryParts = query.toLowerCase().split(/\s/)
-  for (var i in queryParts) {
+  const queryParts = query.toLowerCase().split(/\s/)
+  for (const i in queryParts) {
     if (haystack.indexOf(queryParts[i]) === -1) {
       return false
     }
@@ -172,7 +172,7 @@ Search.prototype._match = function (query, haystack) {
 }
 
 Search.prototype._renderResults = function (results) {
-  var _this = this
+  const _this = this
   return this._resultsContainerTemplate
     .replace('<!-- betty-search-results -->', results.map(function (result) {
       return _this._renderResult(result)

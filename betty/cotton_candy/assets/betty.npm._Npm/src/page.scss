@@ -1,4 +1,4 @@
-@import url("variables.css");
+@import "variables.scss";
 
 html {
   height: 100%;
@@ -51,7 +51,7 @@ footer {
  * Navigation.
  */
 #site-title {
-  background-image: var(--betty-32-32-png-url);
+  background-image: $betty-32-32-png-url;
   background-position: center;
   background-repeat: no-repeat;
   display: block;
@@ -87,12 +87,12 @@ footer {
 
 .nav-primary-expandable:hover .nav-primary-action {
   background-color: #fff;
-  color: var(--link-active-color);
+  color: $link-active-color;
 }
 
 .nav-primary-expanded {
   background-color: #fff;
-  border-bottom: 0.3em var(--primary-active-color) solid;
+  border-bottom: 0.3em $primary-active-color solid;
   display: none;
   left: 0;
   margin: 0;
@@ -130,7 +130,7 @@ footer {
 }
 
 #nav-sections .nav-primary-action {
-  background-image: var(--menu-svg-url);
+  background-image: $menu-svg-url;
   background-position: center;
   background-repeat: no-repeat;
   background-size: 2rem 2rem;
@@ -139,7 +139,7 @@ footer {
 }
 
 #nav-locale .nav-primary-action {
-  background-image: var(--language-svg-url);
+  background-image: $language-svg-url;
   background-position: center;
   background-repeat: no-repeat;
   background-size: 2rem 2rem;

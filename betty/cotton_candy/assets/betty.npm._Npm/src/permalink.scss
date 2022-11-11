@@ -1,4 +1,4 @@
-@import url("variables.css");
+@import "variables.scss";
 
 .permalink {
   color: #777;
@@ -10,7 +10,7 @@
 }
 
 .permalink:hover {
-  color: var(--link-active-color);
+  color: $link-active-color;
 }
 
 h1:hover .permalink,
