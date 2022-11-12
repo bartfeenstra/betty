@@ -12,9 +12,8 @@ from betty.cotton_candy.search import Index
 from betty.error import ensure_context
 from betty.gui import GuiBuilder
 from betty.jinja2 import Jinja2Provider
-from betty.model.ancestry import File
 from betty.npm import _Npm, NpmBuilder
-from betty.project import EntityReference, EntityReferences
+from betty.project import EntityReferences
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -23,18 +22,8 @@ if TYPE_CHECKING:
 class CottonCandyConfiguration(Configuration):
     def __init__(self):
         super().__init__()
-        self._background_image = EntityReference(entity_type_constraint=File)
         self._featured_entities = EntityReferences()
         self._featured_entities.react(self)
-
-    @reactive  # type: ignore
-    @property
-    def background_image(self) -> EntityReference:
-        return self._background_image
-
-    @background_image.setter
-    def background_image(self, background_image: EntityReference) -> None:
-        self._background_image = background_image
 
     @property
     def featured_entities(self) -> EntityReferences:
@@ -44,17 +33,12 @@ class CottonCandyConfiguration(Configuration):
         if not isinstance(dumped_configuration, dict):
             raise ConfigurationError(_('The theme configuration must be a mapping (dictionary).'))
 
-        if 'background_image_id' in dumped_configuration:
-            with ensure_context('background_image_id'):
-                self.background_image.load(dumped_configuration['background_image_id'])
-
         if 'featured_entities' in dumped_configuration:
             with ensure_context('featured_entities'):
                 self.featured_entities.load(dumped_configuration['featured_entities'])
 
     def dump(self) -> DumpedConfiguration:
         return minimize_dumped_configuration({
-            'background_image_id': self._background_image.dump(),
             'featured_entities': self.featured_entities.dump(),
         })
 

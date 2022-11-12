@@ -9,17 +9,6 @@ from betty.project import EntityReference
 
 
 class TestCottonCandyGuiWidget:
-    def test_background_image(self, qtbot: QtBot) -> None:
-        with App() as app:
-            app.project.configuration.extensions.enable(CottonCandy)
-            sut = _CottonCandyGuiWidget(app)
-            qtbot.addWidget(sut)
-            sut.show()
-
-            background_image_id = 'O0301'
-            sut._background_image_entity_reference_collector._entity_id.setText(background_image_id)
-            assert app.extensions[CottonCandy].configuration.background_image.entity_id == background_image_id
-
     def test_add_featured_entities(self, qtbot: QtBot) -> None:
         with App() as app:
             app.project.configuration.extensions.enable(CottonCandy)

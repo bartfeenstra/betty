@@ -4,8 +4,7 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel
 
 from betty.app import App
 from betty.cotton_candy import CottonCandy
-from betty.gui.model import EntityReferenceCollector, EntityReferencesCollector
-from betty.gui.text import Caption
+from betty.gui.model import EntityReferencesCollector
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -18,18 +17,6 @@ class _CottonCandyGuiWidget(QWidget):
 
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
-
-        self._background_image_label = QLabel()
-        self._layout.addWidget(self._background_image_label)
-        self._background_image_entity_reference_collector = EntityReferenceCollector(
-            self._app,
-            self._app.extensions[CottonCandy].configuration.background_image,
-            lambda: _('Background image'),
-            lambda: _('The ID of the file entity whose (image) file to use for page backgrounds if a page does not provide any image media itself.'),
-        )
-        self._layout.addWidget(self._background_image_entity_reference_collector)
-        self._background_image_caption = Caption()
-        self._layout.addWidget(self._background_image_caption)
 
         self._featured_entities_label = QLabel()
         self._layout.addWidget(self._featured_entities_label)
