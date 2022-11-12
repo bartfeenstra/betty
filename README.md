@@ -93,7 +93,6 @@ extensions:
   betty.anonymizer.Anonymizer: {}
   betty.cleaner.Cleaner: {}
   betty.cotton_candy.CottonCandy:
-    background_image_id: O0301
     featured_entities:
       - entity_type: Person
         entity_id: P123
@@ -140,8 +139,6 @@ extensions:
   - `betty.anonymizer.Anonymizer` (optional): Removes personal information from private people. It provides no
     configuration options.
   - `betty.cotton_candy.CottonCandy` (optional): Configuration:
-    - `background_image_id` (optional): The ID of the file entity whose (image) file to use for page backgrounds if
-      a page does not provide any image media itself.
     - `featured_entities` (optional): A list of entities to feature on the front page. Each item has the following
       configuration:
       - `entity_type` (required): The name of the entity type to feature, e.g. `Person`.

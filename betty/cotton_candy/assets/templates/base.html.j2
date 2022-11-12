@@ -11,19 +11,10 @@
     <script src="{{ '/search.js' | static_url }}" defer></script>
     <script src="{{ '/show.js' | static_url }}" defer></script>
 </head>
-{% if page_resource is has_files %}
-    {% set page_image = page_resource.associated_files | selectattr('media_type.type', 'eq', 'image') | first %}
-{% elif app.extensions['betty.cotton_candy.CottonCandy'].configuration.background_image.entity_id and app.extensions['betty.cotton_candy.CottonCandy'].configuration.background_image.entity_id in app.project.ancestry.entities['File'] %}
-    {% set page_image = app.project.ancestry.entities['File'][app.extensions['betty.cotton_candy.CottonCandy'].configuration.background_image.entity_id] %}
-{% endif %}
 <body>
 <script>
     document.body.classList.add('with-js');
 </script>
-{% if page_image is defined %}
-    <div id="background-header" class="background" style="background-image: url({{ page_image | image(600, 600) | static_url }});"></div>
-    <div id="background-footer" class="background" style="background-image: url({{ page_image | image(600, 600) | static_url }});"></div>
-{% endif %}
 <div id="page">
     <nav id="nav-primary">
         <a id="site-title" href="{{ '/index.html' | url }}" title="{{ app.project.configuration.title }}">{{ app.project.configuration.title }}</a>

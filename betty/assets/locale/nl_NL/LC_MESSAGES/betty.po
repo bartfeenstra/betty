@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-11-07 23:23+0000\n"
+"POT-Creation-Date: 2022-11-12 03:18+0000\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -242,9 +242,6 @@ msgstr "Aanwezige"
 
 msgid "Author"
 msgstr "Auteur"
-
-msgid "Background image"
-msgstr "Achtergrondafbeelding"
 
 msgid "Baptism"
 msgstr "Doping"
@@ -794,13 +791,6 @@ msgstr "Onderwerp"
 
 msgid "The ID for the resource to retrieve."
 msgstr "Het ID van het op te halen document."
-
-msgid ""
-"The ID of the file entity whose (image) file to use for page backgrounds "
-"if a page does not provide any image media itself."
-msgstr ""
-"Het ID van de bestandsentiteit waarvan de afbeelding gebruikt wordt voor "
-"de achtergrond van pagina's waarvoor geen afbeeldingen beschikbaar zijn."
 
 msgid "The age at which people are presumed dead."
 msgstr "De leeftijd waarop mensen overleden verondersteld worden"

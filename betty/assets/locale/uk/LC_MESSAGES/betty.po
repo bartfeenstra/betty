@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-11-07 23:23+0000\n"
+"POT-Creation-Date: 2022-11-12 03:18+0000\n"
 "PO-Revision-Date: 2020-05-02 22:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -220,9 +220,6 @@ msgstr "Відвідувач"
 #, fuzzy
 msgid "Author"
 msgstr "Автор(а)"
-
-msgid "Background image"
-msgstr ""
 
 msgid "Baptism"
 msgstr "Хрещення"
@@ -759,11 +756,6 @@ msgid "Subject"
 msgstr "Предмет"
 
 msgid "The ID for the resource to retrieve."
-msgstr ""
-
-msgid ""
-"The ID of the file entity whose (image) file to use for page backgrounds "
-"if a page does not provide any image media itself."
 msgstr ""
 
 msgid "The age at which people are presumed dead."

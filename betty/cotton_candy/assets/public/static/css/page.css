@@ -21,26 +21,6 @@ body > * {
   z-index: 1;
 }
 
-#background-header {
-  background-position: center;
-  height: 9rem;
-  z-index: -1;
-}
-
-#background-footer {
-  background-position: bottom center;
-  bottom: 0;
-  height: 100%;
-  z-index: -2;
-}
-
-.background {
-  background-size: cover;
-  filter: blur(2px) grayscale(50%);
-  position: absolute;
-  width: 100%;
-}
-
 /*
  * Footer.
  */

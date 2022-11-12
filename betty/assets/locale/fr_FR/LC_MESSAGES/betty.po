@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-11-07 23:23+0000\n"
+"POT-Creation-Date: 2022-11-12 03:18+0000\n"
 "PO-Revision-Date: 2020-11-27 19:49+0100\n"
 "Last-Translator: \n"
 "Language: fr\n"
@@ -227,9 +227,6 @@ msgstr "Participant"
 #, fuzzy
 msgid "Author"
 msgstr "Non autorisé"
-
-msgid "Background image"
-msgstr ""
 
 msgid "Baptism"
 msgstr "Baptême"
@@ -776,11 +773,6 @@ msgstr "Sujet"
 
 msgid "The ID for the resource to retrieve."
 msgstr "L'ID de la ressource à récupérer."
-
-msgid ""
-"The ID of the file entity whose (image) file to use for page backgrounds "
-"if a page does not provide any image media itself."
-msgstr ""
 
 msgid "The age at which people are presumed dead."
 msgstr ""
