@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-11-12 03:18+0000\n"
+"POT-Creation-Date: 2022-11-12 19:23+0000\n"
 "PO-Revision-Date: 2020-05-02 22:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -55,6 +55,9 @@ msgid ""
 msgstr ""
 
 msgid "\"{extension_type_name}\" is not a Betty extension."
+msgstr ""
+
+msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
 msgstr ""
 
 #, python-format
@@ -274,12 +277,19 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
+msgid "Color configuration must be a string."
+msgstr ""
+
 #, fuzzy
 msgid "Configuration"
 msgstr "Миропомазання"
 
 msgid "Configuration file \"{configuration_file_path}\" does not exist."
 msgstr ""
+
+#, fuzzy
+msgid "Configure"
+msgstr "Миропомазання"
 
 msgid "Confirmation"
 msgstr "Миропомазання"
@@ -306,7 +316,7 @@ msgstr ""
 msgid "Correspondence"
 msgstr "Листування"
 
-msgid "Cotton Candy is a light theme featuring pastel colors"
+msgid "Cotton Candy is Betty's default theme."
 msgstr ""
 
 msgid "Create a new project"
@@ -523,6 +533,12 @@ msgstr "Мова"
 msgid "Lifetime threshold"
 msgstr ""
 
+msgid "Link color (active)"
+msgstr ""
+
+msgid "Link color (inactive)"
+msgstr ""
+
 msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
 msgstr ""
 
@@ -642,6 +658,12 @@ msgstr ""
 msgid "Presence"
 msgstr "Проживання"
 
+msgid "Primary color (active)"
+msgstr ""
+
+msgid "Primary color (inactive)"
+msgstr ""
+
 msgid "Private"
 msgstr "Приватні"
 
@@ -669,6 +691,10 @@ msgstr ""
 
 msgid "Report bugs and request new features"
 msgstr ""
+
+#, fuzzy
+msgid "Reset"
+msgstr "Проживання"
 
 msgid "Residence"
 msgstr "Проживання"

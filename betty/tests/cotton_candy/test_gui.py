@@ -1,11 +1,35 @@
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QColor
+from PyQt6.QtWidgets import QColorDialog
+from pytest_mock import MockerFixture
 from pytestqt.qtbot import QtBot
 
 from betty.app import App
-from betty.cotton_candy import CottonCandy
-from betty.cotton_candy.gui import _CottonCandyGuiWidget
+from betty.cotton_candy import CottonCandy, _ColorConfiguration
+from betty.cotton_candy.gui import _CottonCandyGuiWidget, _ColorConfigurationWidget
 from betty.model import Entity
 from betty.project import EntityReference
+
+
+class TestColorConfigurationWidget:
+    def test_configure(self, qtbot: QtBot, mocker: MockerFixture) -> None:
+        configured_hex_value = '#ffffff'
+        color_configuration = _ColorConfiguration(hex_value='#000000')
+        mocker.patch.object(QColorDialog, 'getColor', mocker.MagicMock(return_value=QColor.fromString(configured_hex_value)))
+        with App() as app:
+            sut = _ColorConfigurationWidget(app, color_configuration, configured_hex_value)
+            sut._configure.click()
+        assert configured_hex_value == color_configuration.hex
+
+    def test_reset(self, qtbot: QtBot) -> None:
+        default_hex_value = '#ffffff'
+        color_configuration = _ColorConfiguration(hex_value='#000000')
+        with App() as app:
+            sut = _ColorConfigurationWidget(app, color_configuration, default_hex_value)
+            qtbot.addWidget(sut)
+            sut.show()
+            sut._reset.click()
+        assert default_hex_value == color_configuration.hex
 
 
 class TestCottonCandyGuiWidget:
@@ -57,3 +81,39 @@ class TestCottonCandyGuiWidget:
             assert entity_reference_1 in app.extensions[CottonCandy].configuration.featured_entities
             assert entity_reference_2 not in app.extensions[CottonCandy].configuration.featured_entities
             assert entity_reference_3 in app.extensions[CottonCandy].configuration.featured_entities
+
+    def test_change_primary_inactive_color(self, qtbot: QtBot, mocker: MockerFixture) -> None:
+        configured_hex_value = '#ffffff'
+        with App() as app:
+            app.project.configuration.extensions.enable(CottonCandy)
+            sut = _CottonCandyGuiWidget(app)
+            mocker.patch.object(QColorDialog, 'getColor', mocker.MagicMock(return_value=QColor.fromString(configured_hex_value)))
+            sut._color_configurations_widget._color_configurations[0]._configure.click()
+        assert configured_hex_value == app.extensions[CottonCandy].configuration.primary_inactive_color.hex
+
+    def test_change_primary_active_color(self, qtbot: QtBot, mocker: MockerFixture) -> None:
+        configured_hex_value = '#ffffff'
+        with App() as app:
+            app.project.configuration.extensions.enable(CottonCandy)
+            sut = _CottonCandyGuiWidget(app)
+            mocker.patch.object(QColorDialog, 'getColor', mocker.MagicMock(return_value=QColor.fromString(configured_hex_value)))
+            sut._color_configurations_widget._color_configurations[1]._configure.click()
+        assert configured_hex_value == app.extensions[CottonCandy].configuration.primary_active_color.hex
+
+    def test_change_link_inactive_color(self, qtbot: QtBot, mocker: MockerFixture) -> None:
+        configured_hex_value = '#ffffff'
+        with App() as app:
+            app.project.configuration.extensions.enable(CottonCandy)
+            sut = _CottonCandyGuiWidget(app)
+            mocker.patch.object(QColorDialog, 'getColor', mocker.MagicMock(return_value=QColor.fromString(configured_hex_value)))
+            sut._color_configurations_widget._color_configurations[2]._configure.click()
+        assert configured_hex_value == app.extensions[CottonCandy].configuration.link_inactive_color.hex
+
+    def test_change_link_active_color(self, qtbot: QtBot, mocker: MockerFixture) -> None:
+        configured_hex_value = '#ffffff'
+        with App() as app:
+            app.project.configuration.extensions.enable(CottonCandy)
+            sut = _CottonCandyGuiWidget(app)
+            mocker.patch.object(QColorDialog, 'getColor', mocker.MagicMock(return_value=QColor.fromString(configured_hex_value)))
+            sut._color_configurations_widget._color_configurations[3]._configure.click()
+        assert configured_hex_value == app.extensions[CottonCandy].configuration.link_active_color.hex

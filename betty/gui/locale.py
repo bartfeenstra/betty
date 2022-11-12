@@ -7,6 +7,7 @@ from reactives import reactive
 from reactives.factory.type import ReactiveInstance
 
 from betty.app import App
+from betty.classtools import Repr
 from betty.gui.text import Caption
 from betty.locale import bcp_47_to_rfc_1766, getdefaultlocale, negotiate_locale, getdefaultlocale_rfc_1766
 
@@ -104,9 +105,9 @@ class _LocalizedObject(ReactiveInstance):
         pass
 
 
-class LocalizedWidget(_LocalizedObject, QWidget):
+class LocalizedWidget(_LocalizedObject, QWidget, Repr):
     pass
 
 
-class LocalizedWindow(_LocalizedObject, QMainWindow):
+class LocalizedWindow(_LocalizedObject, QMainWindow, Repr):
     pass
