@@ -1,12 +1,11 @@
 root: true
 parserOptions:
-  ecmaVersion: 5
-  sourceType: script
+  ecmaVersion: 6
+  sourceType: module
 env:
   browser: true
+  es6: true
+  node: true
 extends:
   - standard
   - eslint:recommended
-  - plugin:compat/recommended
-rules:
-  no-var: off

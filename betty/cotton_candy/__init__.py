@@ -1,5 +1,7 @@
+import logging
 import re
 from pathlib import Path
+from shutil import copy2
 from typing import Optional, TYPE_CHECKING, Set, Type, Dict, Callable
 
 from PyQt6.QtWidgets import QWidget
@@ -11,9 +13,10 @@ from betty.app.extension import ConfigurableExtension, Theme
 from betty.config import Configuration, ConfigurationError, DumpedConfiguration, minimize_dumped_configuration
 from betty.cotton_candy.search import Index
 from betty.error import ensure_context
+from betty.generate import Generator
 from betty.gui import GuiBuilder
 from betty.jinja2 import Jinja2Provider
-from betty.npm import _Npm, NpmBuilder
+from betty.npm import _Npm, NpmBuilder, npm
 from betty.project import EntityReferences
 
 if TYPE_CHECKING:
@@ -127,7 +130,7 @@ class CottonCandyConfiguration(Configuration):
 
 
 @reactive
-class CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], GuiBuilder, ReactiveInstance, NpmBuilder, Jinja2Provider):
+class CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Generator, GuiBuilder, ReactiveInstance, NpmBuilder, Jinja2Provider):
     @classmethod
     def depends_on(cls) -> Set[Type[Extension]]:
         return {_Npm}
@@ -158,3 +161,17 @@ class CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], GuiBui
         return {
             'search_index': lambda: Index(self.app).build(),
         }
+
+    async def npm_build(self, working_directory_path: Path, assets_directory_path: Path) -> None:
+        await self.app.extensions[_Npm].install(type(self), working_directory_path)
+        await npm(('run', 'webpack'), cwd=working_directory_path)
+        self._copy_npm_build(working_directory_path / 'webpack-build', assets_directory_path)
+        logging.getLogger().info('Built the Cotton Candy front-end assets.')
+
+    def _copy_npm_build(self, source_directory_path: Path, destination_directory_path: Path) -> None:
+        copy2(source_directory_path / 'cotton_candy.css', destination_directory_path / 'cotton_candy.css')
+        copy2(source_directory_path / 'cotton_candy.js', destination_directory_path / 'cotton_candy.js')
+
+    async def generate(self) -> None:
+        assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
+        self._copy_npm_build(assets_directory_path, self.app.project.configuration.www_directory_path)

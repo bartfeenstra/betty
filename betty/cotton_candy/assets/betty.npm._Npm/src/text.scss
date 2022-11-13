@@ -1,4 +1,4 @@
-@import url("variables.css");
+@import "variables.scss";
 
 html {
   font-size: 1.2em;
@@ -27,11 +27,11 @@ h2 {
 
 a {
   text-decoration: none;
-  color: var(--link-inactive-color);
+  color: $link-inactive-color;
 }
 
 a:hover {
-  color: var(--link-active-color);
+  color: $link-active-color;
 }
 
 dl,

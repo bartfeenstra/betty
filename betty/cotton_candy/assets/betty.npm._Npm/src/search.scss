@@ -1,4 +1,4 @@
-@import url("variables.css");
+@import "variables.scss";
 
 #search {
   display: none;
@@ -34,8 +34,8 @@
 }
 
 #search label[for="search-query"] {
-  background-color: var(--primary-inactive-color);
-  background-image: var(--search-svg-url);
+  background-color: $primary-inactive-color;
+  background-image: $search-svg-url;
   background-position: center;
   background-repeat: no-repeat;
   background-size: 1.5rem 1.5rem;
@@ -50,7 +50,7 @@
 
 #search label[for="search-query"]:hover,
 #search.overlay label[for="search-query"] {
-  background-color: var(--primary-active-color);
+  background-color: $primary-active-color;
 }
 
 #search.overlay form {
