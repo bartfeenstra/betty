@@ -160,7 +160,7 @@ async def _gui(configuration_file_path: Optional[str]):
         if configuration_file_path is None:
             window = WelcomeWindow(app)
         else:
-            app.project.configuration.read()
+            app.project.configuration.read(configuration_file_path)
             window = ProjectWindow(app)
         window.show()
         sys.exit(qapp.exec())
