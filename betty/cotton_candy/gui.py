@@ -34,7 +34,6 @@ class _ColorConfigurationSwatch(LocalizedWidget):
 class _ColorConfigurationWidget(LocalizedWidget):
     def __init__(self, app: App, color: _ColorConfiguration, color_default: str, *args, **kwargs):
         super().__init__(app, *args, **kwargs)
-        print(color.hex)
         self._color = color
         self._color_default = color_default
         self._layout = QHBoxLayout()
