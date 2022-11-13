@@ -402,17 +402,17 @@ class ProjectWindow(BettyMainWindow):
         self.save_project_as_action = QAction(self)
         self.save_project_as_action.setShortcut('Ctrl+Shift+S')
         self.save_project_as_action.triggered.connect(lambda _: self._save_project_as())  # type: ignore
-        self.addAction(self.save_project_as_action)
+        self.project_menu.addAction(self.save_project_as_action)
 
         self.generate_action = QAction(self)
         self.generate_action.setShortcut('Ctrl+G')
         self.generate_action.triggered.connect(lambda _: self._generate())  # type: ignore
-        self.addAction(self.generate_action)
+        self.project_menu.addAction(self.generate_action)
 
         self.serve_action = QAction(self)
         self.serve_action.setShortcut('Ctrl+Alt+S')
         self.serve_action.triggered.connect(lambda _: self._serve())  # type: ignore
-        self.addAction(self.serve_action)
+        self.project_menu.addAction(self.serve_action)
 
     def _add_pane(self, pane_name: str, pane: QWidget) -> None:
         self._panes[pane_name] = pane
