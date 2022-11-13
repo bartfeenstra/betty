@@ -88,20 +88,25 @@ locales:
   - locale: en-US
     alias: en
   - locale: nl
-theme: betty.cotton_candy.CottonCandy
 extensions:
   betty.anonymizer.Anonymizer: {}
   betty.cleaner.Cleaner: {}
   betty.cotton_candy.CottonCandy:
-    featured_entities:
-      - entity_type: Person
-        entity_id: P123
-      - entity_type: Place
-        entity_id: Amsterdam
+    configuration:
+      primary_inactive_color: '#ffc0cb'
+      primary_active_color: '#ff69b4'
+      link_inactive_color: '#149988'
+      link_active_color: '#2a615a'
+      featured_entities:
+        - entity_type: Person
+          entity_id: P123
+        - entity_type: Place
+          entity_id: Amsterdam
   betty.deriver.Deriver: {}
   betty.gramps.Gramps:
-    family_trees:
-      - file: ./gramps.gpkg
+    configuration:
+      family_trees:
+        - file: ./gramps.gpkg
   betty.http_api_doc.HttpApiDoc: {}
   betty.maps.Maps: {}
   betty.privatizer.Privatizer: {}
@@ -126,7 +131,6 @@ extensions:
   - `alias` (optional): A shorthand alias to use instead of the full language tag, such as when rendering URLs.
 
   If no locales are defined, Betty defaults to US English.
-- `theme` (optional); The name of the theme to use for the site. Defaults to `betty.cotton_candy.CottonCandy`.
 - `extensions` (optional): The extensions to enable. Keys are extension names, and values are objects containing the
   following keys:
   - `enabled` (optional). A boolean indicating whether the extension is enabled. Defaults to `true`. 
@@ -139,6 +143,13 @@ extensions:
   - `betty.anonymizer.Anonymizer` (optional): Removes personal information from private people. It provides no
     configuration options.
   - `betty.cotton_candy.CottonCandy` (optional): Configuration:
+    - `primary_inactive_color` (optional): The case-insensitive hexadecimal code for the primary color. Defaults to
+      `#ffc0cb`.
+    - `primary_active_color` (optional): The case-insensitive hexadecimal code for the primary color for actively
+      engaged elements. Defaults to `#ff69b4`.
+    - `link_inactive_color` (optional): The case-insensitive hexadecimal code for the link color. Defaults to `#149988`.
+    - `link_active_color` (optional): The case-insensitive hexadecimal code for the color of actively engaged links.
+      Defaults to `#2a615a`.
     - `featured_entities` (optional): A list of entities to feature on the front page. Each item has the following
       configuration:
       - `entity_type` (required): The name of the entity type to feature, e.g. `Person`.
@@ -150,8 +161,8 @@ extensions:
   - `betty.deriver.Deriver` (optional): Extends ancestries by deriving facts from existing information. It provides no
     configuration options.
   - `betty.gramps.Gramps` (optional): Loads Gramps family trees. Configuration:
-    - `family_trees` (required): An array defining zero or more Gramps family trees to load. Each item is an object with the
-      following keys:
+    - `family_trees` (required): An array defining zero or more Gramps family trees to load. Each item is an object with
+      the following keys:
       - `file` (required): the path to a *Gramps XML* or *Gramps XML Package* file.
   - `betty.http_api_doc.HttpApiDoc` (optional): Renders interactive and user-friendly HTTP API documentation
     using [ReDoc](https://github.com/Redocly/redoc).
@@ -180,7 +191,7 @@ Gramps has limited built-in support for people's privacy. To fully control priva
 sources, and citations, add a `betty:privacy` attribute to any of these types, with a value of `private` to explicitly
 declare the data always private or `public` to declare the data always public. Any other value will leave the privacy
 undecided, as well as person records marked public using Gramps' built-in privacy selector. In such cases, the
-`betty.privatizer.Privatizer` may decide if the data is public or private.
+`betty.privatizer.Privatizer` extension may decide if the data is public or private.
 
 #### Dates
 
