@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-11-12 03:18+0000\n"
+"POT-Creation-Date: 2022-11-12 19:23+0000\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -65,6 +65,9 @@ msgstr ""
 
 msgid "\"{extension_type_name}\" is not a Betty extension."
 msgstr "\"{extension_type_name}\" is geen Betty-extensie."
+
+msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
+msgstr ""
 
 #, python-format
 msgid "%(date)s"
@@ -302,11 +305,18 @@ msgstr "Leeg alle caches"
 msgid "Close"
 msgstr "Sluiten"
 
+#, fuzzy
+msgid "Color configuration must be a string."
+msgstr "Taalregioconfiguratie moet een lijst zijn."
+
 msgid "Configuration"
 msgstr "Instellingen"
 
 msgid "Configuration file \"{configuration_file_path}\" does not exist."
 msgstr "Configuratiebestand \"{configuration_file_path}\" bestaat niet."
+
+msgid "Configure"
+msgstr "Instellen"
 
 msgid "Confirmation"
 msgstr "Geloofsbelijdenis"
@@ -339,8 +349,8 @@ msgstr ""
 msgid "Correspondence"
 msgstr "Correspondentie"
 
-msgid "Cotton Candy is a light theme featuring pastel colors"
-msgstr "Cotton Candy is een licht thema met pastelkleuren"
+msgid "Cotton Candy is Betty's default theme."
+msgstr "Cotton Candy is Betty's standaardthema."
 
 msgid "Create a new project"
 msgstr "Maak een nieuw project"
@@ -558,6 +568,12 @@ msgstr "Taal"
 msgid "Lifetime threshold"
 msgstr "Levensgrens"
 
+msgid "Link color (active)"
+msgstr "Linkkleur (actief)"
+
+msgid "Link color (inactive)"
+msgstr "Linkkleur (inactief)"
+
 msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
 msgstr "Laad <a href=\"https://gramps-project.org/\">Gramps-</a>stambomen."
 
@@ -674,6 +690,12 @@ msgstr ""
 msgid "Presence"
 msgstr "Aanwezigheid"
 
+msgid "Primary color (active)"
+msgstr "Primaire kleur (actief)"
+
+msgid "Primary color (inactive)"
+msgstr "Primaire kleur (inactief)"
+
 msgid "Private"
 msgstr "Privé"
 
@@ -704,6 +726,9 @@ msgstr ""
 
 msgid "Report bugs and request new features"
 msgstr "Meld problemen en vraag nieuwe functionaliteit aan"
+
+msgid "Reset"
+msgstr "Reset"
 
 msgid "Residence"
 msgstr "Woonplaats"

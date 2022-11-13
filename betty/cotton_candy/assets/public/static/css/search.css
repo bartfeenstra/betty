@@ -34,7 +34,7 @@
 }
 
 #search label[for="search-query"] {
-  background-color: var(--interaction-inactive-color);
+  background-color: var(--primary-inactive-color);
   background-image: var(--search-svg-url);
   background-position: center;
   background-repeat: no-repeat;
@@ -50,7 +50,7 @@
 
 #search label[for="search-query"]:hover,
 #search.overlay label[for="search-query"] {
-  background-color: var(--interaction-active-color);
+  background-color: var(--primary-active-color);
 }
 
 #search.overlay form {
