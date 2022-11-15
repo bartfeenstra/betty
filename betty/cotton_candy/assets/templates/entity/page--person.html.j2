@@ -10,7 +10,7 @@
     {% set places = entity.presences | map(attribute='event.place') | reject('equalto', None) | list | unique | list %}
     {% if places | length > 0 %}
         <section id="places">
-            <h2 class="js-visually-hidden">
+            <h2{% if 'betty.cotton_candy.CottonCandy' in app.extensions %} class="js-visually-hidden"{% endif %}>
                 {% trans %}Places{% endtrans %}
                 {% with url = page_resource | url ~ '#places'%}
                     {% include 'permalink.html.j2' %}

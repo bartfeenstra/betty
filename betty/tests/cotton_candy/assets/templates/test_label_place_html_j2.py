@@ -15,28 +15,28 @@ class Test(TemplateTestCase):
 
     @pytest.mark.parametrize('expected, data, locale', [
         (
-            '<address><a href="/place/P0/index.html"><span>The Place</span></a></address>',
+            '<address class="address"><a href="/place/P0/index.html"><span>The Place</span></a></address>',
             {
                 'entity': Place('P0', [PlaceName('The Place')]),
             },
             None,
         ),
         (
-            '<address><a href="/place/P0/index.html"><span lang="en">The Place</span></a></address>',
+            '<address class="address"><a href="/place/P0/index.html"><span lang="en">The Place</span></a></address>',
             {
                 'entity': Place('P0', [PlaceName('The Place', 'en')]),
             },
             None,
         ),
         (
-            '<address><a href="/place/P0/index.html"><span lang="nl">De Plaats</span></a></address>',
+            '<address class="address"><a href="/place/P0/index.html"><span lang="nl">De Plaats</span></a></address>',
             {
                 'entity': Place('P0', [PlaceName('The Place', 'en'), PlaceName('De Plaats', 'nl')]),
             },
             'nl',
         ),
         (
-            '<address><span>The Place</span></address>',
+            '<address class="address"><span>The Place</span></address>',
             {
                 'entity': Place('P0', [PlaceName('The Place')]),
                 'embedded': True,
@@ -44,7 +44,7 @@ class Test(TemplateTestCase):
             None,
         ),
         (
-            '<address><a href="/place/P0/index.html"><span lang="nl">De Nieuwe Plaats</span></a></address>',
+            '<address class="address"><a href="/place/P0/index.html"><span lang="nl">De Nieuwe Plaats</span></a></address>',
             {
                 'entity': Place('P0', [
                     PlaceName('The Old Place', 'en', date=DateRange(None, Date(1969, 12, 31))),

@@ -119,6 +119,7 @@ class Environment(Jinja2Environment):
                          extensions=[
                              'jinja2.ext.do',
                              'jinja2.ext.i18n',
+                             'jinja2.ext.loopcontrols',
                              'betty.jinja2._ContextManagerExtension',
         ],
         )

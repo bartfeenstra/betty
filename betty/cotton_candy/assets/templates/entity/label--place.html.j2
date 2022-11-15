@@ -1,5 +1,5 @@
 {% set embedded = embedded | default(False) %}
-<address>
+<address class="address">
     {%- set names = entity.names | select_dateds(date_context | default(none)) | list -%}
     {%- if names | length == 0 -%}
         {%- set names = entity.names -%}

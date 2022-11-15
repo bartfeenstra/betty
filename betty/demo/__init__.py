@@ -204,6 +204,7 @@ class DemoServer(Server):
     async def start(self) -> None:
         self._stack.enter_context(self._app)
         self._app.project.configuration.extensions.add(ProjectExtensionConfiguration(Demo))
+        self._app.project.configuration.author = 'Bart Feenstra and contributors'
         # Include all of the translations Betty ships with.
         self._app.project.configuration.locales.replace([
             LocaleConfiguration('en-US', 'en'),

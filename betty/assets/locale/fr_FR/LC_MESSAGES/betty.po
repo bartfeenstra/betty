@@ -113,10 +113,10 @@ msgstr ""
 
 msgid ""
 "A family history as told by <a "
-"href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
+"href=\"https://github.com/bartfeenstra/betty\">Betty 👵</a>"
 msgstr ""
 "Une histoire familiale racontée par<a "
-"href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
+"href=\"https://github.com/bartfeenstra/betty\">Betty 👵</a>"
 
 msgid "A locale name."
 msgstr "Un nom de language."

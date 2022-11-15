@@ -123,10 +123,10 @@ msgstr ""
 
 msgid ""
 "A family history as told by <a "
-"href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
+"href=\"https://github.com/bartfeenstra/betty\">Betty 👵</a>"
 msgstr ""
 "Een familieverhaal verteld door <a "
-"href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
+"href=\"https://github.com/bartfeenstra/betty\">Betty 👵</a>"
 
 msgid "A locale name."
 msgstr "De naam van een locale."

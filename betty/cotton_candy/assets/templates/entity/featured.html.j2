@@ -1,34 +1,36 @@
 {% set entity_type_name_file_part = entity.entity_type() | entity_type_name | camel_case_to_kebab_case %}
-<div class="featured-entity-intro">
-    <h2>
-        {% include [
-            'entity/label--' + entity_type_name_file_part + '.html.j2',
-            'entity/label.html.j2',
-        ] %}
-    </h2>
-    <a href="{{ entity | url }}">
-        {% with embedded = True %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">
             {% include [
-                'entity/meta--' + entity_type_name_file_part + '.html.j2',
-                'entity/meta.html.j2',
-            ] ignore missing %}
-        {% endwith %}
-    </a>
-</div>
+                'entity/label--' + entity_type_name_file_part + '.html.j2',
+                'entity/label.html.j2',
+            ] %}
+        </h2>
+        <a href="{{ entity | url }}">
+            {% with embedded = True %}
+                {% include [
+                    'entity/meta--' + entity_type_name_file_part + '.html.j2',
+                    'entity/meta.html.j2',
+                ] ignore missing %}
+            {% endwith %}
+        </a>
+    </div>
 
-{% if entity is has_files %}
-    {% set images = entity.associated_files | selectattr('media_type.type', 'eq', 'image') | list %}
-    {% if images | length > 0 %}
-        <div class="featured-entity-feature">
-            <a href="{{ entity | url }}" class="featured-entity-feature-link">
-                {% set image = images[0] %}
-                <picture>
-                    {% for width, height, breakpoint_width in [(1000, 1000, 500), (1500, 1500, 1000), (2500, 2500, 1500)] %}
-                        <source srcset="{{ image | image(width, height) | static_url }}" media="(min-width: {{ breakpoint_width }}px)">
-                    {% endfor %}
-                    <img src="{{ image | image(500, 500) | static_url }}"{% if image.description %} alt="{{ image.description | escape }}"{% endif %}/>
-                </picture>
-            </a>
-        </div>
+    {% if entity is has_files %}
+        {% set images = entity.associated_files | selectattr('media_type.type', 'eq', 'image') | list %}
+        {% if images | length > 0 %}
+            <div class="card-body">
+                <a href="{{ entity | url }}" class="xfeatured-entity-feature-link">
+                    {% set image = images[0] %}
+                    <picture>
+                        {% for width, height, breakpoint_width in [(1000, 1000, 500), (1500, 1500, 1000), (2500, 2500, 1500)] %}
+                            <source srcset="{{ image | image(width, height) | static_url }}" media="(min-width: {{ breakpoint_width }}px)">
+                        {% endfor %}
+                        <img src="{{ image | image(500, 500) | static_url }}"{% if image.description %} alt="{{ image.description | escape }}"{% endif %}/>
+                    </picture>
+                </a>
+            </div>
+        {% endif %}
     {% endif %}
-{% endif %}
+</div>

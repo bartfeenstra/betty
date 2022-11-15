@@ -1,28 +1,28 @@
 <title>{% if page_title is defined %}{{ page_title | striptags }} - {% endif %}{{ app.project.configuration.title }}</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="generator" content="Betty (https://github.com/bartfeenstra/betty)"/>
+<meta name="generator" content="Betty (https://github.com/bartfeenstra/betty)">
 {% if app.project.configuration.author %}
-    <meta name="author" content="{{ app.project.configuration.author }}"/>
+    <meta name="author" content="{{ app.project.configuration.author }}">
 {% endif %}
-<meta name="og:title" content="{%- if page_title is defined -%}{{ page_title | striptags }}{%- else -%}{{ app.project.configuration.title }}{%- endif -%}"/>
-<meta name="og:site_name" content="{{ app.project.configuration.title }}"/>
+<meta name="og:title" content="{%- if page_title is defined -%}{{ page_title | striptags }}{%- else -%}{{ app.project.configuration.title }}{%- endif -%}">
+<meta name="og:site_name" content="{{ app.project.configuration.title }}">
 {% if page_resource is defined %}
     {% if page_recource is has_files %}
         {% for file in page_resource.files %}
             {% if file.media_type.type == 'image' %}
-                <meta name="og:image" content="{{ file | image(600, 600) | static_url }}"/>
+                <meta name="og:image" content="{{ file | image(600, 600) | static_url }}">
                 {% if file.description %}
-                    <meta name="og:image:description" content="{{ file.description | escape }}"/>
+                    <meta name="og:image:description" content="{{ file.description | escape }}">
                 {% endif %}
             {% endif %}
         {% endfor %}
     {% endif %}
-    <link rel="canonical" href="{{ page_resource | url(absolute=true) }}" hreflang="{{ app.locale }}" type="text/html"/>
+    <link rel="canonical" href="{{ page_resource | url(absolute=true) }}" hreflang="{{ app.locale }}" type="text/html">
     {% for locale_configuration in app.project.configuration.locales %}
         {% if locale_configuration.locale != app.locale %}
             {% enter app.acquire_locale(locale_configuration.locale) %}
-                <link rel="alternate" href="{{ page_resource | url }}" hreflang="{{ locale_configuration.locale }}" type="text/html"/>
+                <link rel="alternate" href="{{ page_resource | url }}" hreflang="{{ locale_configuration.locale }}" type="text/html">
             {% exit %}
         {% endif %}
     {% endfor %}
@@ -33,15 +33,15 @@
         {% set current_locale = app.locale %}
         {% for locale_configuration in app.project.configuration.locales %}
             {% enter app.acquire_locale(locale_configuration.locale) %}
-                <link rel="alternate" href="{{ page_resource | url(media_type='application/json') }}" hreflang="{{ locale_configuration.locale }}" type="application/json"/>
+                <link rel="alternate" href="{{ page_resource | url(media_type='application/json') }}" hreflang="{{ locale_configuration.locale }}" type="application/json">
             {% exit %}
         {% endfor %}
     {% endif %}
 {% endif %}
-<meta name="og:image" content="/betty-512x512.png"/>
-<link rel="icon" href="{{ '/betty.ico' | static_url }}"/>
+<meta name="og:image" content="/betty-512x512.png">
+<link rel="icon" href="{{ '/betty.ico' | static_url }}">
 {% for css_path in public_css_paths %}
-    <link rel="stylesheet" href="{{ css_path }}"/>
+    <link rel="stylesheet" href="{{ css_path }}">
 {% endfor %}
 {% for js_path in public_js_paths %}
     <script src="{{ js_path }}" defer></script>
