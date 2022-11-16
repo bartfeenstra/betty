@@ -72,7 +72,7 @@ class JSONEncoder(stdjson.JSONEncoder):
 
     @sync
     async def _encode_entity(self, encoded: Dict, entity: Entity) -> None:
-        self._encode_schema(encoded, upper_camel_case_to_lower_camel_case(get_entity_type_name(entity.entity_type())))
+        self._encode_schema(encoded, upper_camel_case_to_lower_camel_case(get_entity_type_name(entity)))
 
         if 'links' not in encoded:
             encoded['links'] = []

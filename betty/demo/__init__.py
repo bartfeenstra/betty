@@ -14,7 +14,7 @@ from betty.maps import Maps
 from betty.model.ancestry import Place, PlaceName, Person, Presence, Subject, PersonName, Link, Source, Citation, Event, \
     Enclosure
 from betty.model.event_type import Marriage, Birth, Death
-from betty.project import LocaleConfiguration, ProjectExtensionConfiguration, EntityReference
+from betty.project import LocaleConfiguration, ExtensionConfiguration, EntityReference
 from betty.serve import Server
 from betty.trees import Trees
 from betty.wikipedia import Wikipedia
@@ -203,7 +203,7 @@ class DemoServer(Server):
 
     async def start(self) -> None:
         self._stack.enter_context(self._app)
-        self._app.project.configuration.extensions.add(ProjectExtensionConfiguration(Demo))
+        self._app.project.configuration.extensions.add(ExtensionConfiguration(Demo))
         # Include all of the translations Betty ships with.
         self._app.project.configuration.locales.replace([
             LocaleConfiguration('en-US', 'en'),

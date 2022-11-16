@@ -289,7 +289,7 @@ class Translations(NullTranslations):
     _stack: Dict[int, List[Translations]] = defaultdict(list)
     _thread_id: Optional[int] = None
 
-    def __init__(self, fallback: NullTranslations):
+    def __init__(self, fallback: Optional[NullTranslations] = None):
         super().__init__()
         self._fallback = fallback
         self._previous_context: Translations._Context = None

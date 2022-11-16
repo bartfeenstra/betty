@@ -15,7 +15,7 @@ from betty.gramps.error import GrampsError
 from betty.load import getLogger
 from betty.locale import DateRange, Datey, Date
 from betty.media_type import MediaType
-from betty.model import Entity, FlattenedEntityCollection, FlattenedEntity, unflatten
+from betty.model import Entity, FlattenedEntityCollection, FlattenedEntity, unflatten, get_entity_type
 from betty.model.ancestry import Ancestry, Note, File, Source, Citation, Place, Event, Person, PersonName, Subject, \
     Witness, Beneficiary, Attendee, Presence, PlaceName, Enclosure, HasLinks, Link, HasPrivacy
 from betty.model.event_type import Birth, Baptism, Adoption, Cremation, Death, Funeral, Burial, Will, Engagement, \
@@ -153,7 +153,7 @@ class _Loader:
 
     def add_entity(self, entity: Entity) -> None:
         self._flattened_entities.add_entity(entity)
-        self._added_entity_counts[unflatten(entity).entity_type()] += 1
+        self._added_entity_counts[get_entity_type(unflatten(entity))] += 1
 
     def add_association(self, *args, **kwargs) -> None:
         self._flattened_entities.add_association(*args, **kwargs)
@@ -566,7 +566,7 @@ def _load_citation(loader: _Loader, element: ElementTree.Element) -> None:
 
 def _load_citationref(loader: _Loader, owner: Entity, element: ElementTree.Element) -> None:
     for citation_handle in _load_handles('citationref', element):
-        loader.add_association(unflatten(owner).entity_type(), owner.id, 'citations', Citation, citation_handle)
+        loader.add_association(get_entity_type(unflatten(owner)), owner.id, 'citations', Citation, citation_handle)
 
 
 def _load_handles(handle_type: str, element: ElementTree.Element) -> Iterable[str]:
@@ -585,7 +585,7 @@ def _load_handle(handle_type: str, element: ElementTree.Element) -> Optional[str
 def _load_objref(loader: _Loader, owner: Entity, element: ElementTree.Element) -> None:
     file_handles = _load_handles('objref', element)
     for file_handle in file_handles:
-        loader.add_association(unflatten(owner).entity_type(), owner.id, 'files', File, file_handle)
+        loader.add_association(get_entity_type(unflatten(owner)), owner.id, 'files', File, file_handle)
 
 
 def _load_urls(owner: HasLinks, element: ElementTree.Element) -> None:

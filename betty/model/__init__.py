@@ -6,12 +6,16 @@ import operator
 from dataclasses import dataclass
 from enum import Enum
 from functools import reduce
-from typing import TypeVar, Generic, Callable, List, Optional, Iterable, Any, Type, Union, Set, overload, cast, Iterator
+from typing import TypeVar, Generic, Callable, List, Optional, Iterable, Any, Type, Union, Set, overload, cast, \
+    Iterator, TYPE_CHECKING
 
 try:
-    from typing import Self  # type: ignore
-except ImportError:
     from typing_extensions import Self
+except ModuleNotFoundError:
+    from typing import Self  # type: ignore
+
+if TYPE_CHECKING:
+    from betty.builtins import _
 
 from betty.functools import slice_to_range
 from betty.importlib import import_any
@@ -33,33 +37,46 @@ class GeneratedEntityId(str):
     def __new__(cls, entity_id: Optional[str] = None):
         if entity_id is None:
             cls._last_id += 1
-            entity_id = f'betty-generated-entity-id:{cls._last_id}'
+            entity_id = f'betty-generated-entity-id-{cls._last_id}'
         return super().__new__(cls, entity_id)
 
 
 class Entity:
     def __init__(self, entity_id: Optional[str] = None, *args, **kwargs):
+        get_entity_type(self)
         self._id = GeneratedEntityId() if entity_id is None else entity_id
         super().__init__(*args, **kwargs)
-
-    @classmethod
-    def entity_type(cls) -> Type[Entity]:
-        for ancestor_cls in cls.__mro__:
-            if Entity in ancestor_cls.__bases__:
-                return ancestor_cls
-        return cls
-
-    @classmethod
-    def entity_type_label(cls) -> str:
-        raise NotImplementedError
 
     @property
     def id(self) -> str:
         return self._id
 
+
+class EntityVariation(Entity):
+    pass
+
+
+class UserFacingEntity(EntityVariation):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @classmethod
+    def entity_type_label(cls) -> str:
+        raise NotImplementedError
+
+    @classmethod
+    def entity_type_label_plural(cls) -> str:
+        raise NotImplementedError
+
     @property
-    def label(self) -> Optional[str]:
-        return None
+    def label(self) -> str:
+        return self._default_label()
+
+    def _default_label(self) -> str:
+        return _('{entity_type} {entity_id}').format(
+            entity_type=self.entity_type_label(),
+            entity_id=self.id,
+        )
 
 
 class EntityTypeProvider:
@@ -73,20 +90,61 @@ EntityT = TypeVar('EntityT', bound=Entity)
 EntityU = TypeVar('EntityU', bound=Entity)
 
 
-def get_entity_type_name(entity_type: Type[Entity]) -> str:
+def get_entity_type_name(entity_type_definition: Union[str, Type[Entity], Entity]) -> str:
+    entity_type = get_entity_type(entity_type_definition)
     if entity_type.__module__.startswith('betty.model.ancestry'):
         return entity_type.__name__
     return f'{entity_type.__module__}.{entity_type.__name__}'
 
 
-def get_entity_type(entity_type_name: str) -> Type[Entity]:
+class EntityTypeError(ValueError):
+    pass
+
+
+class EntityTypeImportError(EntityTypeError, ImportError):
+    """
+    Raised when an alleged entity type cannot be imported.
+    """
+    def __init__(self, entity_type_name: str):
+        super().__init__(f'Cannot find and import an entity with name "{entity_type_name}".')
+
+
+class EntityTypeInvalidError(EntityTypeError, ImportError):
+    """
+    Raised for types that are not valid entity types.
+    """
+    def __init__(self, entity_type: type):
+        super().__init__(f'{entity_type.__module__}.{entity_type.__name__} is not an entity type class. Entity types must extend {Entity.__module__}.{Entity.__name__} directly, but not {EntityVariation.__module__}.{EntityVariation.__name__}.')
+
+
+@functools.singledispatch
+def get_entity_type(entity_type_definition: Union[str, Type[Entity], Entity, Any]) -> Type[Entity]:
+    raise EntityTypeError(f'Cannot get the entity type for "{entity_type_definition}".')
+
+
+@get_entity_type.register(str)
+def get_entity_type_by_name(entity_type_name: str) -> Type[Entity]:
     try:
-        return import_any(entity_type_name)
+        entity_type = import_any(entity_type_name)
     except ImportError:
         try:
-            return import_any(f'betty.model.ancestry.{entity_type_name}')
+            entity_type = import_any(f'betty.model.ancestry.{entity_type_name}')
         except ImportError:
-            raise ValueError(f'Unknown entity type "{entity_type_name}"') from None
+            raise EntityTypeImportError(entity_type_name) from None
+    return get_entity_type(entity_type)
+
+
+@get_entity_type.register(type)
+def get_entity_type_by_type(entity_type: type) -> Type[Entity]:
+    for ancestor_cls in entity_type.__mro__:
+        if ancestor_cls not in (Entity, EntityVariation) and Entity in ancestor_cls.__bases__ and EntityVariation not in ancestor_cls.__bases__:
+            return ancestor_cls
+    raise EntityTypeInvalidError(entity_type)
+
+
+@get_entity_type.register(object)
+def get_entity_type_by_entity(entity: Entity) -> Type[Entity]:
+    return get_entity_type(type(entity))
 
 
 class EntityCollection(Generic[EntityT]):
@@ -190,7 +248,7 @@ class SingleTypeEntityCollection(Generic[EntityT], EntityCollection[EntityT]):
         assert (
             isinstance(entity, self._entity_type)
             or  # noqa: W503 W504
-            isinstance(entity, FlattenedEntity) and self._entity_type == entity.unflatten().entity_type()
+            isinstance(entity, FlattenedEntity) and self._entity_type == get_entity_type(entity.unflatten())
         ), message
 
     def prepend(self, *entities: EntityT) -> None:
@@ -490,15 +548,15 @@ class MultipleTypesEntityCollection(EntityCollection[Entity]):
 
     def prepend(self, *entities: EntityT) -> None:
         for entity in entities:
-            self[entity.entity_type()].prepend(entity)
+            self[get_entity_type(unflatten(entity))].prepend(entity)
 
     def append(self, *entities: EntityT) -> None:
         for entity in entities:
-            self[unflatten(entity).entity_type()].append(entity)
+            self[get_entity_type(unflatten(entity))].append(entity)
 
     def remove(self, *entities: EntityT) -> None:
         for entity in entities:
-            self[entity.entity_type()].remove(entity)
+            self[get_entity_type(unflatten(entity))].remove(entity)
 
     def replace(self, *entities: EntityT) -> None:
         self.clear()
@@ -739,7 +797,7 @@ class FlattenedEntityCollection:
         copied = copy.copy(entity)
 
         # Copy any associate collections because they belong to a single owning entity.
-        for association_registration in _EntityTypeAssociationRegistry.get_associations(entity.entity_type()):
+        for association_registration in _EntityTypeAssociationRegistry.get_associations(get_entity_type(entity)):
             private_association_attr_name = f'_{association_registration.attr_name}'
             associates = getattr(entity, private_association_attr_name)
             if isinstance(associates, _AssociateCollection):
@@ -784,9 +842,9 @@ class FlattenedEntityCollection:
 
         for entity in entities:
             if isinstance(entity, FlattenedEntity):
-                entity_type = entity.unflatten().entity_type()
+                entity_type = get_entity_type(entity.unflatten())
             else:
-                entity_type = entity.entity_type()
+                entity_type = get_entity_type(entity)
                 entity = self._copy_entity(entity)
             self._entities.append(entity)
 
@@ -802,7 +860,7 @@ class FlattenedEntityCollection:
                         entity_type,
                         entity.id,
                         association_registration.attr_name,
-                        associate.unflatten().entity_type() if isinstance(associate, FlattenedEntity) else associate.entity_type(),
+                        get_entity_type(associate.unflatten()) if isinstance(associate, FlattenedEntity) else get_entity_type(associate),
                         associate.id,
                     )
                 setattr(unflatten(entity), f'_{association_registration.attr_name}', None)
@@ -813,9 +871,9 @@ class FlattenedEntityCollection:
         assert not issubclass(associate_type, FlattenedEntity)
 
         self._associations.append(_FlattenedAssociation(
-            owner_type.entity_type(),
+            get_entity_type(owner_type),
             owner_id,
             owner_association_attr_name,
-            associate_type.entity_type(),
+            get_entity_type(associate_type),
             associate_id,
         ))

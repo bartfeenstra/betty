@@ -4,7 +4,6 @@ from betty import about
 from betty.app import App
 from betty.media_type import EXTENSIONS
 
-
 if TYPE_CHECKING:
     from betty.builtins import _
 

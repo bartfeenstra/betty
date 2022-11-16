@@ -1,17 +1,17 @@
+from typing import Set, Type, Dict, TYPE_CHECKING
+
 from betty.anonymizer import Anonymizer
 from betty.app.extension import Extension, UserFacingExtension
+from betty.load import PostLoader
+from betty.model.ancestry import Ancestry, Place, File, Person, Event, Source, Citation
 
 try:
+    from graphlib_backport import TopologicalSorter
+except ModuleNotFoundError:
     from graphlib import TopologicalSorter
-except ImportError:
-    from graphlib_backport import TopologicalSorter  # type: ignore
-from typing import Set, Type, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from betty.builtins import _
-
-from betty.model.ancestry import Ancestry, Place, File, Person, Event, Source, Citation
-from betty.load import PostLoader
 
 
 def clean(ancestry: Ancestry) -> None:

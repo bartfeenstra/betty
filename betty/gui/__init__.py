@@ -9,7 +9,7 @@ from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QApplication, QWidget
 
 from betty.app import App
-from betty.config import APP_CONFIGURATION_FORMATS
+from betty.config import EXTENSIONS
 from betty.error import UserFacingError
 from betty.gui.error import ExceptionError, UnexpectedExceptionError
 from betty.gui.locale import LocalizedWindow
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 
 def get_configuration_file_filter() -> str:
-    return _('Betty project configuration ({extensions})').format(extensions=' '.join(map(lambda format: f'*{format}', APP_CONFIGURATION_FORMATS)))
+    return _('Betty project configuration ({extensions})').format(extensions=' '.join(map(lambda format: f'*.{format}', EXTENSIONS)))
 
 
 class GuiBuilder:

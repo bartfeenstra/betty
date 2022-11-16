@@ -63,11 +63,14 @@ msgid ""
 "</code></pre>"
 msgstr ""
 
-msgid "\"{extension_type_name}\" is not a Betty extension."
-msgstr "\"{extension_type_name}\" is geen Betty-extensie."
+msgid "\"{entity_type}\" is not a valid Betty entity type."
+msgstr "\"{entity_type}\" is geen geldig Betty-entiteitstype."
 
 msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
 msgstr ""
+
+msgid "\"{path}\" is not a directory."
+msgstr "\"{path}\" is geen directory."
 
 #, python-format
 msgid "%(date)s"
@@ -234,9 +237,6 @@ msgstr ""
 msgid "Anonymizer"
 msgstr "Anonimiseerder"
 
-msgid "App extensions configuration must be a mapping (dictionary)."
-msgstr ""
-
 msgid "Appearances"
 msgstr "Verschijningen"
 
@@ -252,9 +252,6 @@ msgstr "Doping"
 msgid "Beneficiary"
 msgstr "Begunstigde"
 
-msgid "Betty application configuration must be a mapping (dictionary)."
-msgstr "Betty-applicatieconfiguratie moet een mapping (dictionary) zijn."
-
 msgid ""
 "Betty helps you visualize and publish your family history by building "
 "interactive genealogy websites out of your <a "
@@ -269,9 +266,6 @@ msgstr ""
 msgid "Betty project configuration ({extensions})"
 msgstr "Betty-projectconfiguratie ({extensions})"
 
-msgid "Betty project configuration must be a mapping (dictionary)."
-msgstr "Betty-projectconfiguratie moet een mapping (dictionary) zijn."
-
 msgid "Birth"
 msgstr "Geboorte"
 
@@ -281,19 +275,29 @@ msgstr "Begravenis"
 msgid "Cancel"
 msgstr "Annuleren"
 
+msgid ""
+"Cannot determine the entity type for \"{entity_type}\". Did you perhaps "
+"make a typo, or could it be that the entity type comes from another "
+"package that is not yet installed?"
+msgstr ""
+"Het entiteitstype van \"{entity_type}\" kan niet gevonden worden. Heb je "
+"misschien een typefout gemaakt, of zou het kunnen dat het entiteitstype "
+"uit een package komt dat nog niet geïnstalleerd is?"
+
+msgid "Cannot find and import \"{entity_type}\"."
+msgstr "Kan \"{entity_type}\" niet vinden en importeren."
+
 msgid "Cannot remove the last remaining locale {locale}"
 msgstr "Kan de laatst overgebleven taalregio {locale} niet verwijderen"
 
 msgid "Citation"
 msgstr "Verwijzing"
 
+msgid "Citations"
+msgstr "Verwijzingen"
+
 msgid "Clean URLs"
 msgstr "Nette URL's"
-
-msgid "Clean URLs must be enabled (true) or disabled (false) with a boolean."
-msgstr ""
-"Nette URL's moeten ingeschakeld (true) of uitgeschakeld (false) worden "
-"met een boolean."
 
 msgid "Cleaner"
 msgstr "Schoonmaker"
@@ -303,9 +307,6 @@ msgstr "Leeg alle caches"
 
 msgid "Close"
 msgstr "Sluiten"
-
-msgid "Color configuration must be a string."
-msgstr "Kleurconfiguratie moet een tekenreeks zijn."
 
 msgid "Configuration"
 msgstr "Instellingen"
@@ -321,13 +322,6 @@ msgstr "Geloofsbelijdenis"
 
 msgid "Content negotiation"
 msgstr "Content negotiation"
-
-msgid ""
-"Content negotiation must be enabled (true) or disabled (false) with a "
-"boolean."
-msgstr ""
-"Content negotiation moet ingeschakeld (true) of uitgeschakeld (false) "
-"worden met een boolean."
 
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
@@ -367,9 +361,6 @@ msgid "Death"
 msgstr "Overlijden"
 
 msgid "Debugging mode"
-msgstr ""
-
-msgid "Debugging must be enabled (true) or disabled (false) with a boolean."
 msgstr ""
 
 msgid ""
@@ -418,17 +409,11 @@ msgstr "Emigratie"
 msgid "Enable {extension}"
 msgstr "Schakel {extension} in"
 
-msgid "Enclosure"
-msgstr "Omsluiting"
-
 msgid "Engagement"
 msgstr "Verloving"
 
 msgid "Entity ID"
 msgstr "Entiteits-ID"
-
-msgid "Entity references must be a list."
-msgstr "Entiteitsverwijzingen moeten een lijst zijn."
 
 msgid "Error"
 msgstr "Fout"
@@ -454,15 +439,6 @@ msgstr "Feiten"
 msgid "Family"
 msgstr "Familie"
 
-msgid "Family tree configuration must be a mapping (dictionary)."
-msgstr "De stamboomconfiguratie moet een mapping (dictionary) zijn."
-
-msgid "Family tree configuration requires a Gramps file to be set."
-msgstr "Stamboomconfiguratie vereist een Gramps-bestand."
-
-msgid "Family trees configuration is required and must must be a list."
-msgstr "Stamboomconfiguratie is vereist en moet een lijst zijn."
-
 msgid "Featured entities"
 msgstr "Uitgelichte entiteiten"
 
@@ -471,6 +447,9 @@ msgstr "Bestand"
 
 msgid "File path"
 msgstr "Bestandspad"
+
+msgid "Files"
+msgstr "Bestanden"
 
 msgid ""
 "Follow Betty on <a href=\"https://twitter.com/Betty_Project\">Twitter</a>"
@@ -488,38 +467,21 @@ msgstr "Uitvaart"
 msgid "General"
 msgstr "Algemeen"
 
+msgid "Generate entity listing pages"
+msgstr "Genereer pagina's met entiteitsoverzichten"
+
 msgid "Generate site"
 msgstr "Genereer site"
 
-msgid "Generated OpenAPI documentation in {locale}."
-msgstr ""
+msgid "Generated pages for {count} {entity_type} in {locale}."
+msgstr "Pagina's voor {count} {entity_type} in het {locale} gegenereerd."
 
-msgid "Generated pages for {citation_count} citations in {locale}."
-msgstr ""
-
-msgid "Generated pages for {event_count} events in {locale}."
-msgstr ""
-
-msgid "Generated pages for {file_count} files in {locale}."
-msgstr ""
-
-msgid "Generated pages for {note_count} notes in {locale}."
-msgstr ""
-
-msgid "Generated pages for {person_count} people in {locale}."
-msgstr ""
-
-msgid "Generated pages for {place_count} places in {locale}."
-msgstr ""
-
-msgid "Generated pages for {source_count} sources in {locale}."
-msgstr ""
+#, fuzzy
+msgid "Generated the listing HTML page for {entity_type} entities in {locale}."
+msgstr "Pagina's voor {count} {entity_type} in het {locale} gegenereerd."
 
 msgid "Generating your site..."
 msgstr "Je site aan het genereren..."
-
-msgid "Gramps configuration must be a mapping (dictionary)."
-msgstr "De Gramps-configuratie moet een mapping (dictionary) zijn."
 
 msgid "Help"
 msgstr "Hulp"
@@ -586,9 +548,6 @@ msgstr "Taalregio"
 
 msgid "Locale aliases must not contain slashes."
 msgstr "Taalregioaliassen mogen geen schuine streep bevatten."
-
-msgid "Locales configuration must be a list."
-msgstr "Taalregioconfiguratie moet een lijst zijn."
 
 msgid "Localization"
 msgstr "Taalregio"
@@ -670,6 +629,9 @@ msgstr "Persoon"
 msgid "Person name"
 msgstr "Persoonsnaam"
 
+msgid "Person names"
+msgstr "Persoonsnamen"
+
 msgid "Place"
 msgstr "Plaats"
 
@@ -681,9 +643,6 @@ msgstr ""
 
 msgid "Pre-built assets are unavailable for {extension_names}."
 msgstr ""
-
-msgid "Presence"
-msgstr "Aanwezigheid"
 
 msgid "Primary color (active)"
 msgstr "Primaire kleur (actief)"
@@ -818,12 +777,6 @@ msgstr "Het ID van het op te halen document."
 msgid "The age at which people are presumed dead."
 msgstr "De leeftijd waarop mensen overleden verondersteld worden"
 
-msgid "The author must be a string."
-msgstr "De auteur moet een tekenreeks zijn."
-
-msgid "The base URL is required and must be a string."
-msgstr "De basis-URL is vereist en moet een tekenreeks zijn."
-
 msgid "The base URL must include a path."
 msgstr "De basis-URL moet een pad bevatten."
 
@@ -855,18 +808,6 @@ msgstr "De verzameling van plaatsen."
 msgid "The collection of sources."
 msgstr "De verzameling van bronnen."
 
-msgid "The configuration must be a mapping (dictionary)."
-msgstr "De configuratie moet een mapping (dictionary) zijn."
-
-msgid "The entity ID is required."
-msgstr "Het entiteits-ID is vereist."
-
-msgid "The entity ID must be a string."
-msgstr "Het entiteits-ID moet een tekenreeks zijn."
-
-msgid "The entity reference must be a mapping (dictionary)."
-msgstr "De entiteitsverwijzing moet een mapping (dictionary) zijn."
-
 msgid ""
 "The entity reference must be for an entity of type "
 "{expected_entity_type_name} ({expected_entity_type_label}), but instead "
@@ -878,26 +819,17 @@ msgstr ""
 " echter naar een entiteit van het type {actual_entity_type_name} "
 "({actual_entity_type_label})"
 
-msgid "The entity type is required."
-msgstr "Het entiteitstype is vereist."
-
 msgid "The event."
 msgstr "De gebeurtenis."
 
 msgid "The file."
 msgstr "Het bestand."
 
-msgid "The lifetime threshold must be a positive number."
-msgstr "De levensgrens moet een positief getal zijn."
-
-msgid "The lifetime threshold must be an integer."
-msgstr "De levensgrens moet een geheel getal zijn."
+msgid "The key \"{configuration_key}\" is required."
+msgstr "De sleutel \"{configuration_key}\" is vereist."
 
 msgid "The lifetime threshold must consist of digits only."
 msgstr "De levensgrens mag alleen uit cijfers bestaan."
-
-msgid "The locale must be a string."
-msgstr "De taalregio moet een tekenreeks zijn."
 
 msgid "The person."
 msgstr "De persoon."
@@ -905,17 +837,8 @@ msgstr "De persoon."
 msgid "The place."
 msgstr "De plaats."
 
-msgid "The root path must be a string."
-msgstr "Het bronpad moet een tekenreeks zijn."
-
 msgid "The source."
 msgstr "De bron."
-
-msgid "The theme configuration must be a mapping (dictionary)."
-msgstr "De themaconfiguratie moet een mapping (dictionary) zijn."
-
-msgid "The title must be a string."
-msgstr "De titel moet een tekenreeks zijn."
 
 #, python-format
 msgid "The translations for {locale_name} are {coverage_percentage}% complete."
@@ -949,6 +872,27 @@ msgid_plural "They had %(child_count)s children."
 msgstr[0] "Men had een kind."
 msgstr[1] "Men had %(child_count)skinderen."
 
+msgid "This must be a boolean."
+msgstr "Dit moet een booleaan zijn."
+
+msgid "This must be a decimal number."
+msgstr "Dit moet een decimaal getal zijn."
+
+msgid "This must be a key-value mapping."
+msgstr "Dit moet een sleutel-waardetoewijzing zijn."
+
+msgid "This must be a list."
+msgstr "Dit moet een lijst zijn."
+
+msgid "This must be a positive number."
+msgstr "Dit moet een positief getal zijn."
+
+msgid "This must be a string."
+msgstr "Dit moet een tekenreeks zijn."
+
+msgid "This must be an integer."
+msgstr "Dit moet een geheel getal zijn."
+
 msgid "This person's details are unavailable to protect their privacy."
 msgstr "De gegevens van deze persoon zijn niet beschikbaar vanwege privacyredenen."
 
@@ -981,6 +925,13 @@ msgstr "Onbevoegd"
 
 msgid "Unknown"
 msgstr "Onbekend"
+
+msgid ""
+"Unknown key: {unknown_configuration_key}. Did you mean "
+"{known_configuration_keys}?"
+msgstr ""
+"Onbekende sleutel: {unknown_configuration_key}. "
+"Bedoel je {known_configuration_keys}?"
 
 #, python-format
 msgid ""
@@ -1200,6 +1151,15 @@ msgstr "{dependent_label} vereist {dependency_labels}."
 
 msgid "{entity_type_label} ID"
 msgstr "{entity_type_label}-ID"
+
+msgid "{entity_type} {entity_id}"
+msgstr ""
+
+msgid "{extension_type} is not a valid Betty extension."
+msgstr "\"{extension_type}\" is geen geldige Betty-extensie."
+
+msgid "{extension_type} is not configurable."
+msgstr "\"{extension_type}\" kan niet ingesteld worden."
 
 msgid "{individual_name} {affiliation_name}"
 msgstr "{individual_name} {affiliation_name}"

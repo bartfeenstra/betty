@@ -27,7 +27,7 @@
                     <div class="featured-entity">
                         {% with entity = app.project.ancestry.entities[entity_reference.entity_type][entity_reference.entity_id] %}
                             {% include [
-                                'entity/featured--' + (entity.entity_type() | entity_type_name | camel_case_to_kebab_case) + '.html.j2',
+                                'entity/featured--' + (entity | entity_type_name | camel_case_to_kebab_case) + '.html.j2',
                                 'entity/featured.html.j2',
                             ] %}
                         {% endwith %}

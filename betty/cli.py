@@ -9,6 +9,8 @@ from typing import Callable, Dict, Optional, TYPE_CHECKING
 
 from PyQt6.QtWidgets import QMainWindow
 
+from betty.config.load import ConfigurationValidationError
+
 if TYPE_CHECKING:
     from betty.builtins import _
 
@@ -18,7 +20,6 @@ from click import get_current_context, Context, Option
 from betty import about, cache, demo, generate, load, serve
 from betty.app import App
 from betty.asyncio import sync
-from betty.config import ConfigurationError
 from betty.error import UserFacingError
 from betty.gui import BettyApplication
 from betty.gui.app import WelcomeWindow
@@ -109,7 +110,7 @@ async def _init_ctx(ctx: Context, __: Optional[Option] = None, configuration_fil
                 return
 
         if configuration_file_path is not None:
-            raise ConfigurationError(_('Configuration file "{configuration_file_path}" does not exist.').format(configuration_file_path=configuration_file_path))
+            raise ConfigurationValidationError(_('Configuration file "{configuration_file_path}" does not exist.').format(configuration_file_path=configuration_file_path))
 
 
 class _BettyCommands(click.MultiCommand):

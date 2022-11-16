@@ -13,7 +13,6 @@ from betty.app import App
 from betty.error import UserFacingError
 from betty.os import ChDir
 
-
 if TYPE_CHECKING:
     from betty.builtins import _
 

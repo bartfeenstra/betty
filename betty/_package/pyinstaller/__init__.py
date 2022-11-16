@@ -15,7 +15,7 @@ from betty.fs import ROOT_DIRECTORY_PATH
 from betty.http_api_doc import HttpApiDoc
 from betty.maps import Maps
 from betty.npm import _Npm, build_assets
-from betty.project import ProjectExtensionConfiguration
+from betty.project import ExtensionConfiguration
 from betty.trees import Trees
 
 
@@ -34,9 +34,9 @@ def _filter_submodule(submodule: str) -> bool:
 async def _build_assets() -> None:
     npm_builder_extension_types = {HttpApiDoc, Maps, Trees}
     with App() as app:
-        app.project.configuration.extensions.add(ProjectExtensionConfiguration(_Npm))
+        app.project.configuration.extensions.add(ExtensionConfiguration(_Npm))
         for extension_type in npm_builder_extension_types:
-            app.project.configuration.extensions.add(ProjectExtensionConfiguration(extension_type))
+            app.project.configuration.extensions.add(ExtensionConfiguration(extension_type))
         await asyncio.gather(*[
             build_assets(app.extensions[extension_type])
             for extension_type

@@ -56,7 +56,7 @@ SETUP = {
         'PyQt6 ~= 6.4.0',
         'pyyaml ~= 6.0.0',
         'reactives ~= 0.4.2',
-        'typing_extensions ~= 4.4.0; python_version < "3.10"',
+        'typing_extensions ~= 4.4.0; python_version < "3.11"',
     ],
     'extras_require': {
         'development': [
@@ -67,7 +67,8 @@ SETUP = {
             'flake8 ~= 5.0.4',
             'html5lib ~= 1.1',
             'lxml ~= 4.9.1; sys.platform != "win32"',
-            'mypy ~= 0.982',
+            # @todo Set this to ~= 0.992 (or whichever version comes after 0.991) once that version has been released.
+            'mypy @ git+https://github.com/python/mypy.git@b8c03ab6809aab56928f3cd865edb44944a600a2',
             'pip-licenses ~= 4.0.0-rc3',
             'pyinstaller ~= 5.0',
             'pytest ~= 7.2.0',

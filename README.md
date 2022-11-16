@@ -1,3 +1,4 @@
+
 # Betty 👵
 
 ![Test status](https://github.com/bartfeenstra/betty/workflows/Test/badge.svg) [![Code coverage](https://codecov.io/gh/bartfeenstra/betty/branch/master/graph/badge.svg)](https://codecov.io/gh/bartfeenstra/betty) [![PyPI releases](https://badge.fury.io/py/betty.svg)](https://pypi.org/project/betty/) [![Supported Python versions](https://img.shields.io/pypi/pyversions/betty.svg?logo=python&logoColor=FBE072)](https://pypi.org/project/betty/) [![Recent downloads](https://img.shields.io/pypi/dm/betty.svg)](https://pypi.org/project/betty/) [![Follow Betty on Twitter](https://img.shields.io/twitter/follow/Betty_Project.svg?label=Betty_Project&style=flat&logo=twitter&logoColor=4FADFF)](https://twitter.com/Betty_Project)
@@ -88,6 +89,11 @@ locales:
   - locale: en-US
     alias: en
   - locale: nl
+entity_types:
+  Person:
+    generate_html_list: true
+  File:
+    generate_html_list: false
 extensions:
   betty.anonymizer.Anonymizer: {}
   betty.cleaner.Cleaner: {}
@@ -114,16 +120,16 @@ extensions:
   betty.wikipedia.Wikipedia: {}
 ```
 
-- `base_url` (required); The absolute, public URL at which the site will be published.
+- `base_url` (required): The absolute, public URL at which the site will be published.
 - `debug` (optional): `true` to output more detailed logs and disable optimizations that make debugging harder. Defaults
   to `false`.
-- `root_path` (optional); The relative path under the public URL at which the site will be published.
-- `clean_urls` (optional); A boolean indicating whether to use clean URLs, e.g. `/path` instead of `/path/index.html`.
+- `root_path` (optional): The relative path under the public URL at which the site will be published.
+- `clean_urls` (optional): A boolean indicating whether to use clean URLs, e.g. `/path` instead of `/path/index.html`.
   Defaults to `false`.
 - `content_negotiation` (optional): Enables dynamic content negotiation, but requires a web server
   that supports it. This implies `clean_urls`. Defaults to `false`
-- `title` (optional); The site's title.
-- `author` (optional); The site's author and copyright holder.
+- `title` (optional): The site's title.
+- `author` (optional): The site's author and copyright holder.
 - `lifetime_threshold` (optional); The number of years people are expected to live at most, e.g. after which they're
   presumed to have died. Defaults to `125`.
 - `locales` (optional); An array of locales, each of which is an object with the following keys:
@@ -131,10 +137,13 @@ extensions:
   - `alias` (optional): A shorthand alias to use instead of the full language tag, such as when rendering URLs.
 
   If no locales are defined, Betty defaults to US English.
+- `entity_types` (optional): Keys are entity type names, and values are objects containing the following keys:
+  - `generate_html_list` (optional): Whether to generate the HTML page to list entities of this type. Defaults to
+    `false`.
 - `extensions` (optional): The extensions to enable. Keys are extension names, and values are objects containing the
   following keys:
-  - `enabled` (optional). A boolean indicating whether the extension is enabled. Defaults to `true`. 
-  - `configuration` (optional). An object containing the extension's own configuration, if it provides any configuration
+  - `enabled` (optional): A boolean indicating whether the extension is enabled. Defaults to `true`.
+  - `configuration` (optional): An object containing the extension's own configuration, if it provides any configuration
     options.
 
   Both keys may be omitted to quickly enable an extension using its default configuration.

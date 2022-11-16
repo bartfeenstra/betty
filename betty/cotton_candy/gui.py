@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import QVBoxLayout, QLabel, QPushButton, QColorDialog, QHBo
 from betty.app import App
 from betty.cotton_candy import CottonCandy, _ColorConfiguration, CottonCandyConfiguration
 from betty.gui.locale import LocalizedWidget
-from betty.gui.model import EntityReferencesCollector
+from betty.gui.model import EntityReferenceCollectionCollector
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -20,15 +20,15 @@ class _ColorConfigurationSwatch(LocalizedWidget):
         self._color.react(self.repaint)
         self.setFixedHeight(24)
         self.setFixedWidth(24)
+        self._painter = QPainter(self)
 
     def __del__(self) -> None:
         self._color.react.shutdown(self.repaint)
 
     def paintEvent(self, a0: QPaintEvent) -> None:
-        painter = QPainter(self)
         swatch = QRect(self.rect())
-        painter.fillRect(swatch, QBrush(QColor.fromString(self._color.hex)))
-        painter.drawRect(swatch)
+        self._painter.fillRect(swatch, QBrush(QColor.fromString(self._color.hex)))
+        self._painter.drawRect(swatch)
 
 
 class _ColorConfigurationWidget(LocalizedWidget):
@@ -121,7 +121,7 @@ class _CottonCandyGuiWidget(LocalizedWidget):
 
         self._featured_entities_label = QLabel()
         self._layout.addWidget(self._featured_entities_label)
-        self._featured_entities_entity_references_collector = EntityReferencesCollector(
+        self._featured_entities_entity_references_collector = EntityReferenceCollectionCollector(
             self._app,
             self._app.extensions[CottonCandy].configuration.featured_entities,
             lambda: _('Featured entities'),

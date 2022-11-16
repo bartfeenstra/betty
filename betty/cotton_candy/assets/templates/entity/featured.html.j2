@@ -1,4 +1,4 @@
-{% set entity_type_name_file_part = entity.entity_type() | entity_type_name | camel_case_to_kebab_case %}
+{% set entity_type_name_file_part = entity | entity_type_name | camel_case_to_kebab_case %}
 <div class="featured-entity-intro">
     <h2>
         {% include [

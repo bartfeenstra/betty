@@ -1,24 +1,23 @@
 import asyncio
 import json
 import logging
-import math
 import os
 import shutil
 from pathlib import Path
-from typing import Iterable, Any, TYPE_CHECKING, cast, AsyncContextManager, List
+from typing import TYPE_CHECKING, cast, AsyncContextManager, List, Type
 
 import aiofiles
+import math
 from aiofiles import os as aiofiles_os
 from aiofiles.threadpool.text import AsyncTextIOWrapper
 from babel import Locale
 
 from betty.app import App
-from betty.jinja2 import Environment
 from betty.json import JSONEncoder
 from betty.locale import bcp_47_to_rfc_1766
-from betty.model import EntityCollection, Entity
-from betty.model.ancestry import File, Person, Place, Event, Citation, Source, Note
+from betty.model import get_entity_type_name, UserFacingEntity, get_entity_type
 from betty.openapi import build_specification
+from betty.string import camel_case_to_kebab_case
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -61,6 +60,12 @@ async def _generate(app: App) -> None:
     logger = getLogger()
     await app.assets.copytree(Path('public') / 'static', app.project.configuration.www_directory_path)
     await app.renderer.render_tree(app.project.configuration.www_directory_path)
+    entity_types = [
+        entity_type
+        for entity_type
+        in app.entity_types
+        if issubclass(entity_type, UserFacingEntity)
+    ]
     for locale_configuration in app.project.configuration.locales:
         locale = locale_configuration.locale
         with app.acquire_locale(locale):
@@ -75,42 +80,27 @@ async def _generate(app: App) -> None:
             coroutines = [
                 *[
                     coroutine
-                    for entities, entity_type_name in [
-                        (app.project.ancestry.entities[File], 'file'),
-                        (app.project.ancestry.entities[Person], 'person'),
-                        (app.project.ancestry.entities[Place], 'place'),
-                        (app.project.ancestry.entities[Event], 'event'),
-                        (app.project.ancestry.entities[Citation], 'citation'),
-                        (app.project.ancestry.entities[Source], 'source'),
-                    ]
+                    for entity_type in entity_types
                     async for coroutine in _generate_entity_type(
                         www_directory_path,
-                        cast(EntityCollection[Entity], entities),
-                        entity_type_name,
+                        entity_type,
                         app,
-                        locale,
-                        app.jinja2_environment,
                     )
-                ],
-                _generate_entity_type_list_json(www_directory_path, app.project.ancestry.entities[Note], 'note', app),
-                *[
-                    _generate_entity_json(www_directory_path, note, 'note', app)
-                    for note in app.project.ancestry.entities[Note]
                 ],
                 _generate_openapi(www_directory_path, app)
             ]
             # Batch all coroutines to reduce the risk of "too many open files" errors.
             for i in range(0, len(coroutines), _GENERATE_CONCURRENCY):
                 await asyncio.gather(*coroutines[i:i + _GENERATE_CONCURRENCY])
-            locale_label = Locale.parse(bcp_47_to_rfc_1766(locale)).get_display_name(locale=bcp_47_to_rfc_1766(app.locale))
-            logger.info(_('Generated pages for {file_count} files in {locale}.').format(file_count=len(app.project.ancestry.entities[File]), locale=locale_label))
-            logger.info(_('Generated pages for {person_count} people in {locale}.').format(person_count=len(app.project.ancestry.entities[Person]), locale=locale_label))
-            logger.info(_('Generated pages for {place_count} places in {locale}.').format(place_count=len(app.project.ancestry.entities[Place]), locale=locale_label))
-            logger.info(_('Generated pages for {event_count} events in {locale}.').format(event_count=len(app.project.ancestry.entities[Event]), locale=locale_label))
-            logger.info(_('Generated pages for {citation_count} citations in {locale}.').format(citation_count=len(app.project.ancestry.entities[Citation]), locale=locale_label))
-            logger.info(_('Generated pages for {source_count} sources in {locale}.').format(source_count=len(app.project.ancestry.entities[Source]), locale=locale_label))
-            logger.info(_('Generated pages for {note_count} notes in {locale}.').format(note_count=len(app.project.ancestry.entities[Note]), locale=locale_label))
-            logger.info(_('Generated OpenAPI documentation in {locale}.').format(locale=locale_label))
+
+        # Log the generated pages.
+        locale_label = Locale.parse(bcp_47_to_rfc_1766(locale)).get_display_name(locale=bcp_47_to_rfc_1766(app.configuration.locale or 'en-US'))
+        for entity_type in entity_types:
+            logger.info(_('Generated pages for {count} {entity_type} in {locale}.').format(
+                count=len(app.project.ancestry.entities[entity_type]),
+                entity_type=entity_type.entity_type_label_plural(),
+                locale=locale_label,
+            ))
 
 
 def _create_file(path: Path) -> AsyncContextManager[AsyncTextIOWrapper]:
@@ -126,53 +116,57 @@ def _create_json_resource(path: Path) -> AsyncContextManager[AsyncTextIOWrapper]
     return _create_file(path / 'index.json')
 
 
-async def _generate_entity_type(www_directory_path: Path, entities: Iterable[Any], entity_type_name: str, app: App,
-                                locale: str, environment: Environment):
-    yield _generate_entity_type_list_html(
-        www_directory_path, entities,
-        entity_type_name,
-        environment,
-    )
+async def _generate_entity_type(www_directory_path: Path, entity_type: Type[UserFacingEntity], app: App):
+    if entity_type in app.project.configuration.entity_types and app.project.configuration.entity_types[entity_type].generate_html_list:
+        yield _generate_entity_type_list_html(
+            www_directory_path,
+            entity_type,
+            app,
+        )
     yield _generate_entity_type_list_json(
         www_directory_path,
-        entities,
-        entity_type_name,
+        entity_type,
         app,
     )
-    for entity in entities:
+    for entity in app.project.ancestry.entities[entity_type]:
         async for coroutine in _generate_entity(
             www_directory_path,
             entity,
-            entity_type_name,
             app,
-            environment,
         ):
             yield coroutine
 
 
-async def _generate_entity_type_list_html(www_directory_path: Path, entities: Iterable[Any], entity_type_name: str,
-                                          environment: Environment) -> None:
-    entity_type_path = www_directory_path / entity_type_name
-    template = environment.negotiate_template([
-        f'entity/page-list--{entity_type_name}.html.j2',
+async def _generate_entity_type_list_html(www_directory_path: Path, entity_type: Type[UserFacingEntity], app: App) -> None:
+    entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
+    entity_type_path = www_directory_path / entity_type_name_fs
+    template = app.jinja2_environment.negotiate_template([
+        f'entity/page-list--{entity_type_name_fs}.html.j2',
         'entity/page-list.html.j2',
     ])
     rendered_html = template.render({
-        'page_resource': '/%s/index.html' % entity_type_name,
-        'entity_type_name': entity_type_name,
-        'entities': entities,
+        'page_resource': f'/{entity_type_name_fs}/index.html',
+        'entity_type': entity_type,
+        'entities': app.project.ancestry.entities[entity_type],
     })
     async with _create_html_resource(entity_type_path) as f:
         await f.write(rendered_html)
+    locale_label = Locale.parse(bcp_47_to_rfc_1766(app.locale)).get_display_name(locale=bcp_47_to_rfc_1766(app.configuration.locale or 'en-US'))
+    getLogger().debug(_('Generated the listing HTML page for {entity_type} entities in {locale}.').format(
+        entity_type=entity_type.entity_type_label_plural(),
+        locale=locale_label,
+    ))
 
 
-async def _generate_entity_type_list_json(www_directory_path: Path, entities: Iterable[Any], entity_type_name: str, app: App) -> None:
-    entity_type_path = www_directory_path / entity_type_name
+async def _generate_entity_type_list_json(www_directory_path: Path, entity_type: Type[UserFacingEntity], app: App) -> None:
+    entity_type_name = get_entity_type_name(entity_type)
+    entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
+    entity_type_path = www_directory_path / entity_type_name_fs
     data = {
         '$schema': app.static_url_generator.generate('schema.json#/definitions/%sCollection' % entity_type_name, absolute=True),
         'collection': []
     }
-    for entity in entities:
+    for entity in app.project.ancestry.entities[entity_type]:
         cast(List[str], data['collection']).append(
             app.url_generator.generate(
                 entity,
@@ -184,27 +178,29 @@ async def _generate_entity_type_list_json(www_directory_path: Path, entities: It
         await f.write(rendered_json)
 
 
-async def _generate_entity(www_directory_path: Path, entity: Any, entity_type_name: str, app: App, environment: Environment):
-    yield _generate_entity_html(www_directory_path, entity, entity_type_name, environment)
-    yield _generate_entity_json(www_directory_path, entity, entity_type_name, app)
+async def _generate_entity(www_directory_path: Path, entity: UserFacingEntity, app: App):
+    yield _generate_entity_html(www_directory_path, entity, app)
+    yield _generate_entity_json(www_directory_path, entity, app)
 
 
-async def _generate_entity_html(www_directory_path: Path, entity: Any, entity_type_name: str, environment: Environment) -> None:
-    entity_path = www_directory_path / entity_type_name / entity.id
-    rendered_html = environment.negotiate_template([
-        f'entity/page--{entity_type_name}.html.j2',
+async def _generate_entity_html(www_directory_path: Path, entity: UserFacingEntity, app: App) -> None:
+    entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity))
+    entity_path = www_directory_path / entity_type_name_fs / entity.id
+    rendered_html = app.jinja2_environment.negotiate_template([
+        f'entity/page--{entity_type_name_fs}.html.j2',
         'entity/page.html.j2',
     ]).render({
         'page_resource': entity,
-        'entity_type_name': entity_type_name,
+        'entity_type': get_entity_type(entity),
         'entity': entity,
     })
     async with _create_html_resource(entity_path) as f:
         await f.write(rendered_html)
 
 
-async def _generate_entity_json(www_directory_path: Path, entity: Any, entity_type_name: str, app: App) -> None:
-    entity_path = www_directory_path / entity_type_name / entity.id
+async def _generate_entity_json(www_directory_path: Path, entity: UserFacingEntity, app: App) -> None:
+    entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity))
+    entity_path = www_directory_path / entity_type_name_fs / entity.id
     rendered_json = json.dumps(entity, cls=JSONEncoder.get_factory(app))
     async with _create_json_resource(entity_path) as f:
         await f.write(rendered_json)

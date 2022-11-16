@@ -53,10 +53,13 @@ msgid ""
 "</code></pre>"
 msgstr ""
 
-msgid "\"{extension_type_name}\" is not a Betty extension."
+msgid "\"{entity_type}\" is not a valid Betty entity type."
 msgstr ""
 
 msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
+msgstr ""
+
+msgid "\"{path}\" is not a directory."
 msgstr ""
 
 #, python-format
@@ -217,9 +220,6 @@ msgstr ""
 msgid "Anonymizer"
 msgstr ""
 
-msgid "App extensions configuration must be a mapping (dictionary)."
-msgstr ""
-
 msgid "Appearances"
 msgstr "Caractéristiques"
 
@@ -235,9 +235,6 @@ msgstr "Baptême"
 msgid "Beneficiary"
 msgstr "Bénéficiaire"
 
-msgid "Betty application configuration must be a mapping (dictionary)."
-msgstr ""
-
 msgid ""
 "Betty helps you visualize and publish your family history by building "
 "interactive genealogy websites out of your <a "
@@ -246,9 +243,6 @@ msgid ""
 msgstr ""
 
 msgid "Betty project configuration ({extensions})"
-msgstr ""
-
-msgid "Betty project configuration must be a mapping (dictionary)."
 msgstr ""
 
 msgid "Birth"
@@ -260,16 +254,25 @@ msgstr "Enterrement"
 msgid "Cancel"
 msgstr ""
 
+msgid ""
+"Cannot determine the entity type for \"{entity_type}\". Did you perhaps "
+"make a typo, or could it be that the entity type comes from another "
+"package that is not yet installed?"
+msgstr ""
+
+msgid "Cannot find and import \"{entity_type}\"."
+msgstr ""
+
 msgid "Cannot remove the last remaining locale {locale}"
 msgstr ""
 
 msgid "Citation"
 msgstr ""
 
-msgid "Clean URLs"
+msgid "Citations"
 msgstr ""
 
-msgid "Clean URLs must be enabled (true) or disabled (false) with a boolean."
+msgid "Clean URLs"
 msgstr ""
 
 msgid "Cleaner"
@@ -279,9 +282,6 @@ msgid "Clear all caches"
 msgstr ""
 
 msgid "Close"
-msgstr ""
-
-msgid "Color configuration must be a string."
 msgstr ""
 
 msgid "Configuration"
@@ -297,11 +297,6 @@ msgid "Confirmation"
 msgstr "Confirmation"
 
 msgid "Content negotiation"
-msgstr ""
-
-msgid ""
-"Content negotiation must be enabled (true) or disabled (false) with a "
-"boolean."
 msgstr ""
 
 #, python-format
@@ -336,9 +331,6 @@ msgid "Death"
 msgstr "Décès"
 
 msgid "Debugging mode"
-msgstr ""
-
-msgid "Debugging must be enabled (true) or disabled (false) with a boolean."
 msgstr ""
 
 msgid ""
@@ -387,16 +379,10 @@ msgstr "Emigration"
 msgid "Enable {extension}"
 msgstr ""
 
-msgid "Enclosure"
-msgstr ""
-
 msgid "Engagement"
 msgstr "Fiançailles"
 
 msgid "Entity ID"
-msgstr ""
-
-msgid "Entity references must be a list."
 msgstr ""
 
 msgid "Error"
@@ -423,15 +409,6 @@ msgstr "Faits"
 msgid "Family"
 msgstr "Famille"
 
-msgid "Family tree configuration must be a mapping (dictionary)."
-msgstr ""
-
-msgid "Family tree configuration requires a Gramps file to be set."
-msgstr ""
-
-msgid "Family trees configuration is required and must must be a list."
-msgstr ""
-
 msgid "Featured entities"
 msgstr ""
 
@@ -439,6 +416,9 @@ msgid "File"
 msgstr ""
 
 msgid "File path"
+msgstr ""
+
+msgid "Files"
 msgstr ""
 
 msgid ""
@@ -455,37 +435,19 @@ msgstr "Funérailles"
 msgid "General"
 msgstr ""
 
+msgid "Generate entity listing pages"
+msgstr ""
+
 msgid "Generate site"
 msgstr ""
 
-msgid "Generated OpenAPI documentation in {locale}."
+msgid "Generated pages for {count} {entity_type} in {locale}."
 msgstr ""
 
-msgid "Generated pages for {citation_count} citations in {locale}."
-msgstr ""
-
-msgid "Generated pages for {event_count} events in {locale}."
-msgstr ""
-
-msgid "Generated pages for {file_count} files in {locale}."
-msgstr ""
-
-msgid "Generated pages for {note_count} notes in {locale}."
-msgstr ""
-
-msgid "Generated pages for {person_count} people in {locale}."
-msgstr ""
-
-msgid "Generated pages for {place_count} places in {locale}."
-msgstr ""
-
-msgid "Generated pages for {source_count} sources in {locale}."
+msgid "Generated the listing HTML page for {entity_type} entities in {locale}."
 msgstr ""
 
 msgid "Generating your site..."
-msgstr ""
-
-msgid "Gramps configuration must be a mapping (dictionary)."
 msgstr ""
 
 msgid "Help"
@@ -554,9 +516,6 @@ msgid "Locale"
 msgstr ""
 
 msgid "Locale aliases must not contain slashes."
-msgstr ""
-
-msgid "Locales configuration must be a list."
 msgstr ""
 
 msgid "Localization"
@@ -639,6 +598,9 @@ msgstr ""
 msgid "Person name"
 msgstr ""
 
+msgid "Person names"
+msgstr ""
+
 msgid "Place"
 msgstr "Lieu"
 
@@ -649,9 +611,6 @@ msgid "Pre-built assets"
 msgstr ""
 
 msgid "Pre-built assets are unavailable for {extension_names}."
-msgstr ""
-
-msgid "Presence"
 msgstr ""
 
 msgid "Primary color (active)"
@@ -783,12 +742,6 @@ msgstr "L'ID de la ressource à récupérer."
 msgid "The age at which people are presumed dead."
 msgstr ""
 
-msgid "The author must be a string."
-msgstr ""
-
-msgid "The base URL is required and must be a string."
-msgstr ""
-
 msgid "The base URL must include a path."
 msgstr ""
 
@@ -818,26 +771,11 @@ msgstr "L'ensemble des lieux."
 msgid "The collection of sources."
 msgstr "L'ensemble des sources."
 
-msgid "The configuration must be a mapping (dictionary)."
-msgstr ""
-
-msgid "The entity ID is required."
-msgstr ""
-
-msgid "The entity ID must be a string."
-msgstr ""
-
-msgid "The entity reference must be a mapping (dictionary)."
-msgstr ""
-
 msgid ""
 "The entity reference must be for an entity of type "
 "{expected_entity_type_name} ({expected_entity_type_label}), but instead "
 "is for an entity of type {actual_entity_type_name} "
 "({actual_entity_type_label})"
-msgstr ""
-
-msgid "The entity type is required."
 msgstr ""
 
 msgid "The event."
@@ -846,16 +784,10 @@ msgstr "L'événement."
 msgid "The file."
 msgstr "Le fichier."
 
-msgid "The lifetime threshold must be a positive number."
-msgstr ""
-
-msgid "The lifetime threshold must be an integer."
+msgid "The key \"{configuration_key}\" is required."
 msgstr ""
 
 msgid "The lifetime threshold must consist of digits only."
-msgstr ""
-
-msgid "The locale must be a string."
 msgstr ""
 
 msgid "The person."
@@ -864,17 +796,8 @@ msgstr "L'individu."
 msgid "The place."
 msgstr "Le lieu."
 
-msgid "The root path must be a string."
-msgstr ""
-
 msgid "The source."
 msgstr "La source."
-
-msgid "The theme configuration must be a mapping (dictionary)."
-msgstr ""
-
-msgid "The title must be a string."
-msgstr ""
 
 #, python-format
 msgid "The translations for {locale_name} are {coverage_percentage}% complete."
@@ -908,6 +831,27 @@ msgid_plural "They had %(child_count)s children."
 msgstr[0] "Ils ont eu un enfant."
 msgstr[1] "Ils ont eu %(child_count)s enfants."
 
+msgid "This must be a boolean."
+msgstr ""
+
+msgid "This must be a decimal number."
+msgstr ""
+
+msgid "This must be a key-value mapping."
+msgstr ""
+
+msgid "This must be a list."
+msgstr ""
+
+msgid "This must be a positive number."
+msgstr ""
+
+msgid "This must be a string."
+msgstr ""
+
+msgid "This must be an integer."
+msgstr ""
+
 msgid "This person's details are unavailable to protect their privacy."
 msgstr ""
 "Les détails concernant cette personne ne sont pas disponibles afin de "
@@ -939,6 +883,11 @@ msgstr "Non autorisé"
 
 msgid "Unknown"
 msgstr "Inconnu"
+
+msgid ""
+"Unknown key: {unknown_configuration_key}. Did you mean "
+"{known_configuration_keys}?"
+msgstr ""
 
 #, python-format
 msgid ""
@@ -1176,6 +1125,15 @@ msgid "{dependent_label} requires {dependency_labels}."
 msgstr ""
 
 msgid "{entity_type_label} ID"
+msgstr ""
+
+msgid "{entity_type} {entity_id}"
+msgstr ""
+
+msgid "{extension_type} is not a valid Betty extension."
+msgstr ""
+
+msgid "{extension_type} is not configurable."
 msgstr ""
 
 msgid "{individual_name} {affiliation_name}"

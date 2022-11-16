@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import QVBoxLayout, QWidget, QPushButton
 
 from betty.app import App
 from betty.asyncio import sync
-from betty.config import ConfigurationError
+from betty.config.load import ConfigurationValidationError
 from betty.gui import BettyWindow
 from betty.gui.text import Text
 from betty.serve import Server, AppServer
@@ -131,7 +131,7 @@ class ServeAppWindow(_ServeWindow):
 
         if not path.isdir(self._app.project.configuration.www_directory_path):
             self.close()
-            raise ConfigurationError(_('Web root directory "{path}" does not exist.').format(path=self._app.project.configuration.www_directory_path))
+            raise ConfigurationValidationError(_('Web root directory "{path}" does not exist.').format(path=self._app.project.configuration.www_directory_path))
 
     @property
     def title(self) -> str:

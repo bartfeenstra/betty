@@ -8,9 +8,10 @@ from pytestqt.qtbot import QtBot
 
 from betty.app import App
 from betty.gui.project import ProjectWindow, _AddLocaleWindow, _GenerateWindow, _LocalizationPane, \
-    _GeneralPane
+    _GeneralPane, _GenerateHtmlListForm
 from betty.gui.serve import ServeAppWindow
 from betty.locale import bcp_47_to_rfc_1766
+from betty.model.ancestry import File
 from betty.project import ProjectConfiguration, LocaleConfiguration
 from betty.tests.conftest import AssertNotWindow, AssertInvalid, AssertWindow, Navigate
 
@@ -30,6 +31,19 @@ class TestProjectWindow:
 
         with open(save_as_configuration_file_path) as f:
             assert json.load(f) == configuration.dump()
+
+
+class Test_GenerateHtmlListForm:
+    def test(self, qtbot: QtBot) -> None:
+        with App() as app:
+            sut = _GenerateHtmlListForm(app)
+            qtbot.addWidget(sut)
+            sut.show()
+
+            sut._checkboxes[File].setChecked(True)
+            assert app.project.configuration.entity_types[File].generate_html_list
+            sut._checkboxes[File].setChecked(False)
+            assert not app.project.configuration.entity_types[File].generate_html_list
 
 
 class TestGeneralPane:
