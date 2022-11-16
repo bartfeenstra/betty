@@ -1,0 +1,11 @@
+{% set entities = entities | list %}
+{% if entities | length > 0 %}
+    <ul class="entities">
+        {% for entity in entities | sort(attribute='label') %}
+            <li class="{{ loop.cycle('odd', 'even') }}">
+                {% include ['entity/label--' + entity.entity_type | entity_type_name + '.html.j2', 'entity/label.html.j2'] %}
+                {% include ['entity/meta--' + entity.entity_type | entity_type_name + '.html.j2', 'entity/meta.html.j2'] ignore missing %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
