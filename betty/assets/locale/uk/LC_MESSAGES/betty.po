@@ -485,6 +485,9 @@ msgstr ""
 msgid "Generating your site..."
 msgstr ""
 
+msgid "Go to the front page"
+msgstr ""
+
 msgid "Gramps configuration must be a mapping (dictionary)."
 msgstr ""
 

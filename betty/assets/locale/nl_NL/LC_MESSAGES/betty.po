@@ -67,7 +67,7 @@ msgid "\"{extension_type_name}\" is not a Betty extension."
 msgstr "\"{extension_type_name}\" is geen Betty-extensie."
 
 msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
-msgstr ""
+msgstr "\"{hex_value}\" is geen geldige hexadecimale kleurcode, zoals #ffc0cb."
 
 #, python-format
 msgid "%(date)s"
@@ -519,6 +519,9 @@ msgstr ""
 
 msgid "Generating your site..."
 msgstr "Je site aan het genereren..."
+
+msgid "Go to the front page"
+msgstr "Ga naar de voorpagina"
 
 msgid "Gramps configuration must be a mapping (dictionary)."
 msgstr "De Gramps-configuratie moet een mapping (dictionary) zijn."

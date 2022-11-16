@@ -13,9 +13,11 @@
 <script>
     document.body.classList.add('with-js');
 </script>
-<div id="page">
-    <nav id="nav-primary">
-        <a id="site-title" href="{{ '/index.html' | url }}" title="{{ app.project.configuration.title }}">{{ app.project.configuration.title }}</a>
+<div class="container">
+    <nav class="navbar">
+        <a class="navbar-brand nav-brand-site-logo" href="{{ '/index.html' | url }}" title="{% trans %}Go to the front page{% endtrans %}">{{ app.project.configuration.title }}</a>
+    </nav>
+    <nav class="navbar">
         <div id="search" data-betty-search-index="{{ '/search-index.json' | url }}">
             <div class="overlay-controls">
                 <span class="overlay-control overlay-close" title="{% trans %}Exit the search{% endtrans %}">{% trans %}Exit the search{% endtrans %}</span>
@@ -43,75 +45,46 @@
                 </div>
             </section>
         </div>
-        <div id="nav-sections" class="nav-primary-expandable">
-            <h2 class="nav-primary-action">{% trans %}Menu{% endtrans %}</h2>
-            <div class="nav-primary-expanded">
-                <ul class="nav-secondary">
-                    {% if app.project.ancestry.entities['Person'] | length > 0 %}
-                        <li><a href="{{ '/person/index.html' | url }}">{% trans %}People{% endtrans %}</a></li>
-                    {% endif %}
-                    {% if app.project.ancestry.entities['Event'] | length > 0 %}
-                        <li><a href="{{ '/event/index.html' | url }}">{% trans %}Timeline{% endtrans %}</a></li>
-                    {% endif %}
-                    {% if app.project.ancestry.entities['Place'] | length > 0 %}
-                        <li><a href="{{ '/place/index.html' | url }}">{% trans %}Places{% endtrans %}</a></li>
-                    {% endif %}
-                    {% if app.project.ancestry.entities['Source'] | length > 0 %}
-                        <li><a href="{{ '/source/index.html' | url }}">{% trans %}Sources{% endtrans %}</a></li>
-                    {% endif %}
-                </ul>
+        <nav class="nav-expandable">
+            <h2>{% trans %}Menu{% endtrans %}</h2>
+            <div class="nav-expanded list-group list-group-flush vw-100">
+                {% if app.project.ancestry.entities['Person'] | length > 0 %}
+                    <a href="{{ '/person/index.html' | url }}" class="list-group-item list-group-item-action">{% trans %}People{% endtrans %}</a>
+                {% endif %}
+                {% if app.project.ancestry.entities['Event'] | length > 0 %}
+                    <a href="{{ '/event/index.html' | url }}" class="list-group-item list-group-item-action">{% trans %}Timeline{% endtrans %}</a>
+                {% endif %}
+                {% if app.project.ancestry.entities['Place'] | length > 0 %}
+                    <a href="{{ '/place/index.html' | url }}" class="list-group-item list-group-item-action">{% trans %}Places{% endtrans %}</a>
+                {% endif %}
+                {% if app.project.ancestry.entities['Source'] | length > 0 %}
+                    <a href="{{ '/source/index.html' | url }}" class="list-group-item list-group-item-action">{% trans %}Sources{% endtrans %}</a>
+                {% endif %}
             </div>
-        </div>
+        </nav>
         {% if page_resource is defined and app.project.configuration.multilingual %}
-            <div id="nav-locale" class="nav-primary-expandable">
-                <h2 class="nav-primary-action">{% trans %}Language{% endtrans %}</h2>
-                <div class="nav-primary-expanded">
-                    <ul class="nav-secondary">
+            <nav class="nav-expandable">
+                <h2>{% trans %}Language{% endtrans %}</h2>
+                <div class="nav-expanded list-group list-group-flush vw-100">
                     {% set ns = namespace(available_locales=[]) %}
                     {% for available_locale_configuration in app.project.configuration.locales %}
                         {% set available_locale_data = available_locale_configuration.alias | locale_get_data %}
                         {% do ns.available_locales.append((available_locale_configuration.locale, available_locale_data.get_display_name())) %}
                     {% endfor %}
                     {% for available_locale, available_locale_name in ns.available_locales | sort(attribute='1') %}
+                        {% set current_locale = available_locale == app.locale %}
                         {% enter app.acquire_locale(available_locale) %}
-                            <li><a href="{{ page_resource | url }}" hreflang="{{ available_locale }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a></li>
+                            <a href="{{ page_resource | url }}" hreflang="{{ available_locale }}" lang="{{ available_locale }}" rel="alternate" class="list-group-item list-group-item-action{% if current_locale %} active" aria-current="true{% endif %}">{{ available_locale_name }}</a>
                         {% exit %}
                     {% endfor %}
-                    </ul>
                 </div>
-            </div>
+            </nav>
         {% endif %}
     </nav>
     {% if page_title is defined %}
-        <div class="container">
-            <h1>{{ page_title }}</h1>
-        </div>
+        <h1>{{ page_title }}</h1>
     {% endif %}
     {% block page_content %}{% endblock %}
-    {% if page_resource is has_links %}
-        {% set links = page_resource.links | rejectattr('label', 'none') | list %}
-        {% set links = links | select_localizeds(include_unspecified=true) | list + links | selectattr('locale', 'none') | list %}
-        {% if links | length > 0 %}
-            <section id="container external-links">
-                <h2>
-                    {% trans %}External links{% endtrans %}
-                    {% with url = page_resource | url ~ '#external-links'%}
-                        {% include 'permalink.html.j2' %}
-                    {% endwith %}
-                </h2>
-                <ul>
-                {% for link in links %}
-                    <li>
-                        <a href="{{ link.url }}"{% if link.locale is not none %} hreflang="{{ link.locale }}"{% endif %}{% if link.relationship is not none %} rel="{{ link.relationship }}"{% endif %}{% if link.media_type is not none %} type="{{ link.media_type }}"{% endif %}>{{ link.label }}</a>
-                        {% if link.description is not none %}
-                            <div class="meta">{{ link.description | escape }}</div>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-                </ul>
-            </section>
-        {% endif %}
-    {% endif %}
     {% include 'external-links.html.j2' %}
     {% include 'references.html.j2' %}
     {% include 'footer.html.j2' %}
