@@ -32,7 +32,9 @@ class TestMediaType:
         '/',
         'text',
         'text/',
+        'foo',
+        'bar',
     ])
-    def test_invalid_type_should_raise_value_error(self, media_type: str):
+    def test_invalid_type_should_raise_error(self, media_type: str):
         with pytest.raises(InvalidMediaType):
             MediaType(media_type)

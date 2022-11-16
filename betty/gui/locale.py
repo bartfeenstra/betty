@@ -9,7 +9,7 @@ from reactives.factory.type import ReactiveInstance
 from betty.app import App
 from betty.classtools import Repr
 from betty.gui.text import Caption
-from betty.locale import bcp_47_to_rfc_1766, getdefaultlocale, negotiate_locale, getdefaultlocale_rfc_1766
+from betty.locale import bcp_47_to_rfc_1766, negotiate_locale
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -26,8 +26,6 @@ class TranslationsLocaleCollector(ReactiveInstance):
         for allowed_locale in allowed_locales:
             allowed_locale_names.append((allowed_locale, Locale.parse(bcp_47_to_rfc_1766(allowed_locale)).get_display_name()))
         allowed_locale_names = sorted(allowed_locale_names, key=lambda x: x[1])
-        # This is the operating system default, for which we'll set a label in self._do_set_translatables()
-        allowed_locale_names.insert(0, ('', ''))
 
         def _update_configuration_locale() -> None:
             self._app.configuration.locale = self._configuration_locale.currentData()
@@ -56,14 +54,9 @@ class TranslationsLocaleCollector(ReactiveInstance):
     @reactive(on_trigger_call=True)
     def _set_translatables(self) -> None:
         with self._app.acquire_locale():
-            self._configuration_locale.setItemText(0, _('Operating system default: {locale_name}').format(
-                locale_name=Locale.parse(getdefaultlocale_rfc_1766()).get_display_name(locale=bcp_47_to_rfc_1766(self._app.locale)),
-            ))
             self._configuration_locale_label.setText(_('Locale'))
             locale = self.locale.currentData()
-            if locale is None:
-                locale = getdefaultlocale()
-            if locale != '':
+            if locale:
                 translations_locale = negotiate_locale(
                     locale,
                     set(self._app.translations.locales),

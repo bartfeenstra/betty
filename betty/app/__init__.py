@@ -49,9 +49,7 @@ from betty.model.ancestry import Citation, Event, File, Person, PersonName, Pres
     Source, Note, EventType
 from betty.config import Configurable
 from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH, HOME_DIRECTORY_PATH
-from betty.locale import negotiate_locale, TranslationsRepository, Translations, rfc_1766_to_bcp_47, bcp_47_to_rfc_1766, \
-    getdefaultlocale
-
+from betty.locale import negotiate_locale, TranslationsRepository, Translations, rfc_1766_to_bcp_47, bcp_47_to_rfc_1766
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -90,8 +88,6 @@ class AppConfiguration(FileBasedConfiguration):
     @reactive  # type: ignore
     @property
     def locale(self) -> Optional[str]:
-        if self._locale is None:
-            return getdefaultlocale()
         return self._locale
 
     @locale.setter
@@ -190,15 +186,21 @@ class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
         self._acquired = False
 
     @contextmanager
-    def acquire_locale(self, requested_locale: Optional[str] = None) -> Iterator[Self]:  # type: ignore
+    def acquire_locale(self, *requested_locales: str) -> Iterator[Self]:  # type: ignore
         """
         Temporarily change this application's locale and the global gettext translations.
         """
-        if requested_locale is None:
-            requested_locale = self.configuration.locale
+        if not requested_locales:
+            requested_locales = (self.configuration.locale,)
+        requested_locales = (*[
+            requested_locale
+            for requested_locale
+            in requested_locales
+            if requested_locale
+        ], 'en-US')
 
         negotiated_locale = negotiate_locale(
-            requested_locale,
+            requested_locales,
             {
                 rfc_1766_to_bcp_47(locale)
                 for locale
@@ -207,13 +209,13 @@ class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
         )
 
         if negotiated_locale is None:
-            raise ValueError(f'Locale "{requested_locale}" is not enabled.')
+            raise ValueError('None of the requested locales are available.')
 
         previous_locale = self._locale
         self._locale = negotiated_locale
 
         negotiated_translations_locale = negotiate_locale(
-            requested_locale,
+            requested_locales,
             set(self.translations.locales),
         )
         if negotiated_translations_locale is None:

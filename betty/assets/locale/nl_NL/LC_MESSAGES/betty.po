@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-11-12 19:23+0000\n"
+"POT-Creation-Date: 2022-11-17 13:48+0000\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -648,9 +648,6 @@ msgstr "Open project..."
 
 msgid "Open your project from..."
 msgstr "Open je project van..."
-
-msgid "Operating system default: {locale_name}"
-msgstr "Standaard van het besturingssysteem: {locale_name}"
 
 msgid "Other attendees"
 msgstr "Overige aanwezigen"

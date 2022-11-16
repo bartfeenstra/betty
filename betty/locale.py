@@ -5,7 +5,6 @@ import calendar
 import contextlib
 import datetime
 import glob
-import locale
 import operator
 import shutil
 import threading
@@ -25,7 +24,6 @@ from polib import pofile
 from betty import fs
 from betty.fs import hashfile, FileSystem
 
-
 if TYPE_CHECKING:
     from betty.builtins import _
 
@@ -36,17 +34,6 @@ def rfc_1766_to_bcp_47(locale: str) -> str:
 
 def bcp_47_to_rfc_1766(locale: str) -> str:
     return locale.replace('-', '_')
-
-
-def getdefaultlocale() -> Optional[str]:
-    rfc_1766_locale = getdefaultlocale_rfc_1766()
-    if rfc_1766_locale:
-        return rfc_1766_to_bcp_47(rfc_1766_locale)
-    return None
-
-
-def getdefaultlocale_rfc_1766() -> Optional[str]:
-    return locale.getdefaultlocale()[0]
 
 
 class Localized:
@@ -426,20 +413,23 @@ class TranslationsRepository:
                             yield entry.msgid_with_context
 
 
-def negotiate_locale(preferred_locale: str, available_locales: Set[str]) -> Optional[str]:
-    negotiated_locale = babel.negotiate_locale([preferred_locale], available_locales)
+def negotiate_locale(preferred_locales: Union[str, Sequence[str]], available_locales: Set[str]) -> Optional[str]:
+    if isinstance(preferred_locales, str):
+        preferred_locales = [preferred_locales]
+    negotiated_locale = babel.negotiate_locale(preferred_locales, available_locales, '-')
     if negotiated_locale is not None:
         return negotiated_locale
-    preferred_locale = preferred_locale.split('-', 1)[0]
-    for available_locale in available_locales:
-        negotiated_locale = babel.negotiate_locale([preferred_locale], [available_locale.split('-', 1)[0]])
-        if negotiated_locale is not None:
-            return available_locale
+    for preferred_locale in preferred_locales:
+        preferred_locale = preferred_locale.split('-', 1)[0]
+        for available_locale in available_locales:
+            negotiated_locale = babel.negotiate_locale([preferred_locale], [available_locale.split('-', 1)[0]])
+            if negotiated_locale is not None:
+                return available_locale
     return None
 
 
-def negotiate_localizeds(preferred_locale: str, localizeds: Sequence[Localized]) -> Optional[Localized]:
-    negotiated_locale = negotiate_locale(preferred_locale, {localized.locale for localized in localizeds if localized.locale is not None})
+def negotiate_localizeds(preferred_locales: Union[str, Sequence[str]], localizeds: Sequence[Localized]) -> Optional[Localized]:
+    negotiated_locale = negotiate_locale(preferred_locales, {localized.locale for localized in localizeds if localized.locale is not None})
     if negotiated_locale is not None:
         for localized in localizeds:
             if localized.locale == negotiated_locale:
