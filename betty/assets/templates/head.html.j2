@@ -18,11 +18,11 @@
             {% endif %}
         {% endfor %}
     {% endif %}
-    <link rel="canonical" href="{{ page_resource | url(absolute=true) }}" hreflang="{{ app.locale }}" type="text/html">
+    <link rel="canonical" href="{{ page_resource | url(absolute=true) }}" hreflang="{{ app.locale }}" type="text/html"/>
     {% for locale_configuration in app.project.configuration.locales %}
         {% if locale_configuration.locale != app.locale %}
             {% enter app.acquire_locale(locale_configuration.locale) %}
-                <link rel="alternate" href="{{ page_resource | url }}" hreflang="{{ locale_configuration.locale }}" type="text/html">
+                <link rel="alternate" href="{{ page_resource | url }}" hreflang="{{ locale_configuration.locale }}" type="text/html"/>
             {% exit %}
         {% endif %}
     {% endfor %}
@@ -33,15 +33,15 @@
         {% set current_locale = app.locale %}
         {% for locale_configuration in app.project.configuration.locales %}
             {% enter app.acquire_locale(locale_configuration.locale) %}
-                <link rel="alternate" href="{{ page_resource | url(media_type='application/json') }}" hreflang="{{ locale_configuration.locale }}" type="application/json">
+                <link rel="alternate" href="{{ page_resource | url(media_type='application/json') }}" hreflang="{{ locale_configuration.locale }}" type="application/json"/>
             {% exit %}
         {% endfor %}
     {% endif %}
 {% endif %}
 <meta name="og:image" content="/betty-512x512.png">
-<link rel="icon" href="{{ '/betty.ico' | static_url }}">
+<link rel="icon" href="{{ '/betty.ico' | static_url }}"/>
 {% for css_path in public_css_paths %}
-    <link rel="stylesheet" href="{{ css_path }}">
+    <link rel="stylesheet" href="{{ css_path }}"/>
 {% endfor %}
 {% for js_path in public_js_paths %}
     <script src="{{ js_path }}" defer></script>
