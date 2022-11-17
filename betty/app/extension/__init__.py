@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import asyncio
+import sys
 from collections import defaultdict
-from importlib.metadata import entry_points
+from importlib.metadata import entry_points, EntryPoint
 from pathlib import Path
 from typing import Type, Set, Optional, Any, List, Dict, TypeVar, Union, Iterable, TYPE_CHECKING, Generic, \
-    Iterator
+    Iterator, Sequence
 
 try:
     from typing import Self  # type: ignore
@@ -288,4 +289,9 @@ def _extend_extension_type_graph(graph: Dict, extension_type: Type[Extension]) -
 
 
 def discover_extension_types() -> Set[Type[Extension]]:
-    return {import_any(entry_point.value) for entry_point in entry_points()['betty.extensions']}
+    betty_entry_points: Sequence[EntryPoint]
+    if (sys.version_info.major, sys.version_info.minor) >= (3, 10):
+        betty_entry_points = entry_points(group='betty.extensions')  # type: ignore
+    else:
+        betty_entry_points = entry_points()['betty.extensions']
+    return {import_any(betty_entry_point.value) for betty_entry_point in betty_entry_points}

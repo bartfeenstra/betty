@@ -25,8 +25,8 @@ from jinja2.nodes import EvalContext
 from jinja2.runtime import StrictUndefined, Context, Macro, DebugUndefined
 from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup, escape
-from resizeimage import resizeimage
 
+from betty import _resizeimage
 from betty.app import App
 from betty.asyncio import sync
 from betty.fs import hashfile, iterfiles, CACHE_DIRECTORY_PATH
@@ -429,13 +429,13 @@ def _execute_filter_image(image: Image, file_path: Path, cache_directory_path: P
 
             if width is None:
                 size = height
-                convert = resizeimage.resize_height
+                convert = _resizeimage.resize_height
             elif height is None:
                 size = width
-                convert = resizeimage.resize_width
+                convert = _resizeimage.resize_width
             else:
                 size = (width, height)
-                convert = resizeimage.resize_cover
+                convert = _resizeimage.resize_cover
             convert(image, size).save(cache_file_path)
         destination_directory_path.mkdir(exist_ok=True, parents=True)
         link_or_copy(cache_file_path, destination_file_path)

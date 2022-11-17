@@ -1,4 +1,4 @@
-import cgi
+from email.message import EmailMessage
 from typing import Dict, Optional, List
 
 EXTENSIONS = {
@@ -14,13 +14,17 @@ class InvalidMediaType(ValueError):
 class MediaType:
     def __init__(self, media_type: str):
         self._str = media_type
-        type_part, self._parameters = cgi.parse_header(media_type)
-        try:
-            self._type, self._subtype = type_part.split('/')
-            if not self._subtype:
-                raise ValueError('The subtype must not be empty.')
-        except ValueError:
-            raise InvalidMediaType('"%s" is not a valid media type.', media_type)
+        message = EmailMessage()
+        message['Content-Type'] = media_type
+        type_part = message.get_content_type()
+        # EmailMessage.get_content_type() always returns a type, and will fall back to alternatives if the header is
+        # invalid.
+        if not media_type.startswith(type_part):
+            raise InvalidMediaType(f'"{media_type}" is not a valid media type.')
+        self._parameters = message['Content-Type'].params
+        self._type, self._subtype = type_part.split('/')
+        if not self._subtype:
+            raise InvalidMediaType('The subtype must not be empty.')
 
     @property
     def type(self) -> str:

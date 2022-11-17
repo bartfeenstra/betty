@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-11-12 19:23+0000\n"
+"POT-Creation-Date: 2022-11-17 13:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -537,9 +537,6 @@ msgid "Open project..."
 msgstr ""
 
 msgid "Open your project from..."
-msgstr ""
-
-msgid "Operating system default: {locale_name}"
 msgstr ""
 
 msgid "Other attendees"
