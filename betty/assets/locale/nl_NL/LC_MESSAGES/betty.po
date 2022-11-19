@@ -255,7 +255,6 @@ msgstr "Begunstigde"
 msgid "Betty application configuration must be a mapping (dictionary)."
 msgstr "Betty-applicatieconfiguratie moet een mapping (dictionary) zijn."
 
-#, fuzzy
 msgid ""
 "Betty helps you visualize and publish your family history by building "
 "interactive genealogy websites out of your <a "
@@ -305,9 +304,8 @@ msgstr "Leeg alle caches"
 msgid "Close"
 msgstr "Sluiten"
 
-#, fuzzy
 msgid "Color configuration must be a string."
-msgstr "Taalregioconfiguratie moet een lijst zijn."
+msgstr "Kleurconfiguratie moet een tekenreeks zijn."
 
 msgid "Configuration"
 msgstr "Instellingen"

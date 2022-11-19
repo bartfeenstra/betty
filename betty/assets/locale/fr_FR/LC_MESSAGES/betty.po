@@ -172,13 +172,12 @@ msgstr ""
 "Un header HTTP [Accept-Language](https://developer.mozilla.org/en-"
 "US/docs/Web/HTTP/Headers/Accept-Language)."
 
-#, fuzzy
 msgid ""
 "An HTTP [Accept](https://developer.mozilla.org/en-"
 "US/docs/Web/HTTP/Headers/Accept) header."
 msgstr ""
-"Un header HTTP [Accept-Language](https://developer.mozilla.org/en-"
-"US/docs/Web/HTTP/Headers/Accept-Language)."
+"Un header HTTP [Accept](https://developer.mozilla.org/en-"
+"US/docs/Web/HTTP/Headers/Accept)."
 
 msgid ""
 "An HTTP [Content-Language](https://developer.mozilla.org/en-"
@@ -227,9 +226,8 @@ msgstr "Caractéristiques"
 msgid "Attendee"
 msgstr "Participant"
 
-#, fuzzy
 msgid "Author"
-msgstr "Non autorisé"
+msgstr ""
 
 msgid "Baptism"
 msgstr "Baptême"
@@ -265,9 +263,8 @@ msgstr ""
 msgid "Cannot remove the last remaining locale {locale}"
 msgstr ""
 
-#, fuzzy
 msgid "Citation"
-msgstr "La citation."
+msgstr ""
 
 msgid "Clean URLs"
 msgstr ""
@@ -405,9 +402,8 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
-#, fuzzy
 msgid "Event"
-msgstr "Evénements"
+msgstr "Evénement"
 
 msgid "Events"
 msgstr "Evénements"
@@ -439,9 +435,8 @@ msgstr ""
 msgid "Featured entities"
 msgstr ""
 
-#, fuzzy
 msgid "File"
-msgstr "Le fichier."
+msgstr ""
 
 msgid "File path"
 msgstr ""
@@ -457,9 +452,8 @@ msgstr "Interdit"
 msgid "Funeral"
 msgstr "Funérailles"
 
-#, fuzzy
 msgid "General"
-msgstr "Funérailles"
+msgstr ""
 
 msgid "Generate site"
 msgstr ""
@@ -497,25 +491,20 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
-#, fuzzy
 msgid "I'm sorry, dear, but it seems there are no events."
-msgstr "Je suis désolé mon cher, mais il semble que cette page n'existe pas."
+msgstr ""
 
-#, fuzzy
 msgid "I'm sorry, dear, but it seems there are no media."
-msgstr "Je suis désolé mon cher, mais il semble que cette page n'existe pas."
+msgstr ""
 
-#, fuzzy
 msgid "I'm sorry, dear, but it seems there are no people."
-msgstr "Je suis désolé mon cher, mais il semble que cette page n'existe pas."
+msgstr ""
 
-#, fuzzy
 msgid "I'm sorry, dear, but it seems there are no places."
-msgstr "Je suis désolé mon cher, mais il semble que cette page n'existe pas."
+msgstr ""
 
-#, fuzzy
 msgid "I'm sorry, dear, but it seems there are no sources."
-msgstr "Je suis désolé mon cher, mais il semble que cette page n'existe pas."
+msgstr ""
 
 msgid "I'm sorry, dear, but it seems this page does not exist."
 msgstr "Je suis désolé mon cher, mais il semble que cette page n'existe pas."
@@ -561,9 +550,8 @@ msgstr ""
 msgid "Loading..."
 msgstr ""
 
-#, fuzzy
 msgid "Locale"
-msgstr "Un nom de language."
+msgstr ""
 
 msgid "Locale aliases must not contain slashes."
 msgstr ""
@@ -607,9 +595,8 @@ msgstr ""
 msgid "Not found"
 msgstr "Non trouvé"
 
-#, fuzzy
 msgid "Note"
-msgstr "Notes"
+msgstr "Note"
 
 msgid "Notes"
 msgstr "Notes"
@@ -646,16 +633,14 @@ msgstr "Individu"
 msgid "Permanent link to this section."
 msgstr "Permaliens vers ce paragraphe."
 
-#, fuzzy
 msgid "Person"
-msgstr "L'individu."
+msgstr ""
 
 msgid "Person name"
 msgstr ""
 
-#, fuzzy
 msgid "Place"
-msgstr "Lieux"
+msgstr "Lieu"
 
 msgid "Places"
 msgstr "Lieux"
@@ -666,9 +651,8 @@ msgstr ""
 msgid "Pre-built assets are unavailable for {extension_names}."
 msgstr ""
 
-#, fuzzy
 msgid "Presence"
-msgstr "Résidence"
+msgstr ""
 
 msgid "Primary color (active)"
 msgstr ""
@@ -679,9 +663,8 @@ msgstr ""
 msgid "Private"
 msgstr "Privé"
 
-#, fuzzy
 msgid "Privatizer"
-msgstr "privé"
+msgstr ""
 
 msgid "Project"
 msgstr ""
@@ -704,9 +687,8 @@ msgstr ""
 msgid "Report bugs and request new features"
 msgstr ""
 
-#, fuzzy
 msgid "Reset"
-msgstr "Résidence"
+msgstr ""
 
 msgid "Residence"
 msgstr "Résidence"
@@ -777,9 +759,8 @@ msgstr ""
 msgid "Settings..."
 msgstr ""
 
-#, fuzzy
 msgid "Source"
-msgstr "Sources"
+msgstr "Source"
 
 msgid "Sources"
 msgstr "Sources"
@@ -938,13 +919,11 @@ msgstr "Chronologie "
 msgid "Title"
 msgstr ""
 
-#, fuzzy
 msgid "Trees"
-msgstr "Notes"
+msgstr ""
 
-#, fuzzy
 msgid "URL"
-msgstr "Enterrement"
+msgstr ""
 
 msgid ""
 "URLs look like <code>/path</code> instead of "
@@ -989,9 +968,8 @@ msgstr ""
 msgid "Welcome to %(title)s"
 msgstr "Bienvenue à %(title)s"
 
-#, fuzzy
 msgid "Welcome to Betty"
-msgstr "Bienvenue à %(title)s"
+msgstr "Bienvenue à Betty"
 
 msgid "Wikipedia"
 msgstr "Wikipedia"
