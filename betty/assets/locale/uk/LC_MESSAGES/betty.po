@@ -220,7 +220,6 @@ msgstr "Знайдено в"
 msgid "Attendee"
 msgstr "Відвідувач"
 
-#, fuzzy
 msgid "Author"
 msgstr "Автор(а)"
 
@@ -258,9 +257,8 @@ msgstr ""
 msgid "Cannot remove the last remaining locale {locale}"
 msgstr ""
 
-#, fuzzy
 msgid "Citation"
-msgstr "Праця"
+msgstr ""
 
 msgid "Clean URLs"
 msgstr ""
@@ -280,16 +278,14 @@ msgstr ""
 msgid "Color configuration must be a string."
 msgstr ""
 
-#, fuzzy
 msgid "Configuration"
-msgstr "Миропомазання"
+msgstr ""
 
 msgid "Configuration file \"{configuration_file_path}\" does not exist."
 msgstr ""
 
-#, fuzzy
 msgid "Configure"
-msgstr "Миропомазання"
+msgstr ""
 
 msgid "Confirmation"
 msgstr "Миропомазання"
@@ -400,9 +396,8 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
-#, fuzzy
 msgid "Event"
-msgstr "Події"
+msgstr ""
 
 msgid "Events"
 msgstr "Події"
@@ -451,9 +446,8 @@ msgstr ""
 msgid "Funeral"
 msgstr "Похорон"
 
-#, fuzzy
 msgid "General"
-msgstr "Похорон"
+msgstr ""
 
 msgid "Generate site"
 msgstr ""
@@ -593,9 +587,8 @@ msgstr ""
 msgid "Not found"
 msgstr ""
 
-#, fuzzy
 msgid "Note"
-msgstr "Примітки"
+msgstr ""
 
 msgid "Notes"
 msgstr "Примітки"
@@ -638,9 +631,8 @@ msgstr ""
 msgid "Person name"
 msgstr ""
 
-#, fuzzy
 msgid "Place"
-msgstr "Місця"
+msgstr "Місце"
 
 msgid "Places"
 msgstr "Місця"
@@ -651,9 +643,8 @@ msgstr ""
 msgid "Pre-built assets are unavailable for {extension_names}."
 msgstr ""
 
-#, fuzzy
 msgid "Presence"
-msgstr "Проживання"
+msgstr ""
 
 msgid "Primary color (active)"
 msgstr ""
@@ -664,9 +655,8 @@ msgstr ""
 msgid "Private"
 msgstr "Приватні"
 
-#, fuzzy
 msgid "Privatizer"
-msgstr "приватні"
+msgstr ""
 
 msgid "Project"
 msgstr "Проект"
@@ -689,9 +679,8 @@ msgstr ""
 msgid "Report bugs and request new features"
 msgstr ""
 
-#, fuzzy
 msgid "Reset"
-msgstr "Проживання"
+msgstr ""
 
 msgid "Residence"
 msgstr "Проживання"
@@ -762,9 +751,8 @@ msgstr ""
 msgid "Settings..."
 msgstr ""
 
-#, fuzzy
 msgid "Source"
-msgstr "Джерела"
+msgstr "Джерелo"
 
 msgid "Sources"
 msgstr "Джерела"
@@ -924,13 +912,11 @@ msgstr "Хронологія"
 msgid "Title"
 msgstr ""
 
-#, fuzzy
 msgid "Trees"
-msgstr "Примітки"
+msgstr ""
 
-#, fuzzy
 msgid "URL"
-msgstr "Поховання"
+msgstr ""
 
 msgid ""
 "URLs look like <code>/path</code> instead of "
@@ -975,9 +961,8 @@ msgstr ""
 msgid "Welcome to %(title)s"
 msgstr "Ласкаво просимо на %(title)s"
 
-#, fuzzy
 msgid "Welcome to Betty"
-msgstr "Ласкаво просимо на %(title)s"
+msgstr "Ласкаво просимо на Betty"
 
 msgid "Wikipedia"
 msgstr ""
