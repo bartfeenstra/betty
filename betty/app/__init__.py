@@ -12,8 +12,6 @@ from typing import List, Type, TYPE_CHECKING, Set, Iterator, Optional
 from babel.core import parse_locale
 from babel.localedata import locale_identifiers
 
-from betty.resource import Releaser, Acquirer
-
 try:
     from typing import Self  # type: ignore
 except ImportError:
@@ -116,7 +114,7 @@ class AppConfiguration(FileBasedConfiguration):
 
 
 @reactive
-class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
+class App(Configurable[AppConfiguration], ReactiveInstance):
     def __init__(self, *args, **kwargs):
         from betty.url import AppUrlGenerator, StaticPathUrlGenerator
 
@@ -167,12 +165,6 @@ class App(Acquirer, Releaser, Configurable[AppConfiguration], ReactiveInstance):
             self._acquire_contexts.enter_context(Translations(NullTranslations()))
             # Then acquire the actual locale.
             self._acquire_contexts.enter_context(self.acquire_locale())
-
-            for extension in self.extensions.flatten():
-                if isinstance(extension, Acquirer):
-                    extension.acquire()
-                if isinstance(extension, Releaser):
-                    self._acquire_contexts.callback(extension.release)
         except BaseException:
             self.release()
             raise
