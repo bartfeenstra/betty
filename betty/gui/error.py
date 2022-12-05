@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import functools
 import traceback
-from typing import Optional, Callable, Any, List, TYPE_CHECKING
+from typing import Optional, Callable, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -69,8 +69,6 @@ catch_exceptions = _ExceptionCatcher
 
 
 class Error(QMessageBox):
-    _errors: List[Error] = []
-
     def __init__(
             self,
             message: str,
@@ -83,7 +81,6 @@ class Error(QMessageBox):
         with App():
             self.setWindowTitle('{error} - Betty'.format(error=_("Error")))
         self.setText(message)
-        Error._errors.append(self)
 
         standard_button = QMessageBox.StandardButton.Close
         self.setStandardButtons(standard_button)
@@ -93,7 +90,6 @@ class Error(QMessageBox):
         self.button(QMessageBox.StandardButton.Close).clicked.connect(self.close)  # type: ignore
 
     def closeEvent(self, event: QCloseEvent) -> None:
-        Error._errors.remove(self)
         if self._close_parent:
             parent = self.parent()
             if isinstance(parent, QWidget):
