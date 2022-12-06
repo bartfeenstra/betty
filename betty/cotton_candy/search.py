@@ -18,7 +18,7 @@ class Index:
         ])
 
     def _render_entity(self, entity: Entity):
-        entity_type_name = get_entity_type_name(entity.entity_type())
+        entity_type_name = get_entity_type_name(entity)
         return self._app.jinja2_environment.negotiate_template([
             f'search/result-{camel_case_to_snake_case(entity_type_name)}.html.j2',
             'search/result.html.j2',

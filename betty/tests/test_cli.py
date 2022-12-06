@@ -10,10 +10,10 @@ import pytest
 from click.testing import CliRunner
 
 from betty import fs
-from betty.config import DumpedConfiguration
+from betty.config import DumpedConfigurationImport
 from betty.error import UserFacingError
 from betty.os import ChDir
-from betty.project import ProjectConfiguration, ProjectExtensionConfiguration
+from betty.project import ProjectConfiguration, ExtensionConfiguration
 from betty.serve import Server
 from betty.tests import patch_cache
 
@@ -65,7 +65,7 @@ class TestMain:
 
     def test_help_with_configuration(self, _, __):
         configuration = ProjectConfiguration()
-        configuration.extensions.add(ProjectExtensionConfiguration(DummyExtension))
+        configuration.extensions.add(ExtensionConfiguration(DummyExtension))
         configuration.write()
         runner = CliRunner()
         result = runner.invoke(main, ('-c', str(configuration.configuration_file_path), '--help',), catch_exceptions=False)
@@ -82,7 +82,7 @@ class TestMain:
     def test_help_with_invalid_configuration(self, _, __):
         with TemporaryDirectory() as working_directory_path:
             configuration_file_path = Path(working_directory_path) / 'betty.json'
-            dumped_configuration: DumpedConfiguration = {}
+            dumped_configuration: DumpedConfigurationImport = {}
             with open(configuration_file_path, 'w') as f:
                 dump(dumped_configuration, f)
 
@@ -94,7 +94,7 @@ class TestMain:
         with TemporaryDirectory() as working_directory_path:
             with open(Path(working_directory_path) / 'betty.json', 'w') as config_file:
                 url = 'https://example.com'
-                dumped_configuration: DumpedConfiguration = {
+                dumped_configuration: DumpedConfigurationImport = {
                     'base_url': url,
                     'extensions': {
                         DummyExtension.name(): None,

@@ -9,13 +9,12 @@ from betty.project import LocaleConfiguration
 
 class TestIndex:
     def test_empty(self):
-        app = App()
-        app.project.configuration.extensions.enable(CottonCandy)
-        app.project.configuration.locales.replace([
-            LocaleConfiguration('en-US', 'en'),
-            LocaleConfiguration('nl-NL', 'nl'),
-        ])
-        with app:
+        with App() as app:
+            app.project.configuration.extensions.enable(CottonCandy)
+            app.project.configuration.locales.replace([
+                LocaleConfiguration('en-US', 'en'),
+                LocaleConfiguration('nl-NL', 'nl'),
+            ])
             indexed = [item for item in Index(app).build()]
 
         assert [] == indexed
@@ -24,13 +23,12 @@ class TestIndex:
         person_id = 'P1'
         person = Person(person_id)
 
-        app = App()
-        app.project.configuration.extensions.enable(CottonCandy)
-        app.project.configuration.locales.replace([
-            LocaleConfiguration('en-US', 'en'),
-            LocaleConfiguration('nl-NL', 'nl'),
-        ])
-        with app:
+        with App() as app:
+            app.project.configuration.extensions.enable(CottonCandy)
+            app.project.configuration.locales.replace([
+                LocaleConfiguration('en-US', 'en'),
+                LocaleConfiguration('nl-NL', 'nl'),
+            ])
             app.project.ancestry.entities.append(person)
             indexed = [item for item in Index(app).build()]
 
@@ -43,13 +41,12 @@ class TestIndex:
         PersonName(person, individual_name)
         person.private = True
 
-        app = App()
-        app.project.configuration.extensions.enable(CottonCandy)
-        app.project.configuration.locales.replace([
-            LocaleConfiguration('en-US', 'en'),
-            LocaleConfiguration('nl-NL', 'nl'),
-        ])
-        with app:
+        with App() as app:
+            app.project.configuration.extensions.enable(CottonCandy)
+            app.project.configuration.locales.replace([
+                LocaleConfiguration('en-US', 'en'),
+                LocaleConfiguration('nl-NL', 'nl'),
+            ])
             app.project.ancestry.entities.append(person)
             indexed = [item for item in Index(app).build()]
 
@@ -65,13 +62,12 @@ class TestIndex:
         person = Person(person_id)
         PersonName(person, individual_name)
 
-        app = App()
-        app.project.configuration.extensions.enable(CottonCandy)
-        app.project.configuration.locales.replace([
-            LocaleConfiguration('en-US', 'en'),
-            LocaleConfiguration('nl-NL', 'nl'),
-        ])
-        with app:
+        with App() as app:
+            app.project.configuration.extensions.enable(CottonCandy)
+            app.project.configuration.locales.replace([
+                LocaleConfiguration('en-US', 'en'),
+                LocaleConfiguration('nl-NL', 'nl'),
+            ])
             with app.acquire_locale(locale):
                 app.project.ancestry.entities.append(person)
                 indexed = [item for item in Index(app).build()]
@@ -89,13 +85,12 @@ class TestIndex:
         person = Person(person_id)
         PersonName(person, None, affiliation_name)
 
-        app = App()
-        app.project.configuration.extensions.enable(CottonCandy)
-        app.project.configuration.locales.replace([
-            LocaleConfiguration('en-US', 'en'),
-            LocaleConfiguration('nl-NL', 'nl'),
-        ])
-        with app:
+        with App() as app:
+            app.project.configuration.extensions.enable(CottonCandy)
+            app.project.configuration.locales.replace([
+                LocaleConfiguration('en-US', 'en'),
+                LocaleConfiguration('nl-NL', 'nl'),
+            ])
             with app.acquire_locale(locale):
                 app.project.ancestry.entities.append(person)
                 indexed = [item for item in Index(app).build()]
@@ -114,13 +109,12 @@ class TestIndex:
         person = Person(person_id)
         PersonName(person, individual_name, affiliation_name)
 
-        app = App()
-        app.project.configuration.extensions.enable(CottonCandy)
-        app.project.configuration.locales.replace([
-            LocaleConfiguration('en-US', 'en'),
-            LocaleConfiguration('nl-NL', 'nl'),
-        ])
-        with app:
+        with App() as app:
+            app.project.configuration.extensions.enable(CottonCandy)
+            app.project.configuration.locales.replace([
+                LocaleConfiguration('en-US', 'en'),
+                LocaleConfiguration('nl-NL', 'nl'),
+            ])
             with app.acquire_locale(locale):
                 app.project.ancestry.entities.append(person)
                 indexed = [item for item in Index(app).build()]
@@ -136,13 +130,12 @@ class TestIndex:
         place_id = 'P1'
         place = Place(place_id, [PlaceName('Netherlands', 'en'), PlaceName('Nederland', 'nl')])
 
-        app = App()
-        app.project.configuration.extensions.enable(CottonCandy)
-        app.project.configuration.locales.replace([
-            LocaleConfiguration('en-US', 'en'),
-            LocaleConfiguration('nl-NL', 'nl'),
-        ])
-        with app:
+        with App() as app:
+            app.project.configuration.extensions.enable(CottonCandy)
+            app.project.configuration.locales.replace([
+                LocaleConfiguration('en-US', 'en'),
+                LocaleConfiguration('nl-NL', 'nl'),
+            ])
             with app.acquire_locale(locale):
                 app.project.ancestry.entities.append(place)
                 indexed = [item for item in Index(app).build()]
@@ -154,13 +147,12 @@ class TestIndex:
         file_id = 'F1'
         file = File(file_id, __file__)
 
-        app = App()
-        app.project.configuration.extensions.enable(CottonCandy)
-        app.project.configuration.locales.replace([
-            LocaleConfiguration('en-US', 'en'),
-            LocaleConfiguration('nl-NL', 'nl'),
-        ])
-        with app:
+        with App() as app:
+            app.project.configuration.extensions.enable(CottonCandy)
+            app.project.configuration.locales.replace([
+                LocaleConfiguration('en-US', 'en'),
+                LocaleConfiguration('nl-NL', 'nl'),
+            ])
             app.project.ancestry.entities.append(file)
             indexed = [item for item in Index(app).build()]
 
@@ -175,13 +167,12 @@ class TestIndex:
         file = File(file_id, __file__)
         file.description = '"file" is Dutch for "traffic jam"'
 
-        app = App()
-        app.project.configuration.extensions.enable(CottonCandy)
-        app.project.configuration.locales.replace([
-            LocaleConfiguration('en-US', 'en'),
-            LocaleConfiguration('nl-NL', 'nl'),
-        ])
-        with app:
+        with App() as app:
+            app.project.configuration.extensions.enable(CottonCandy)
+            app.project.configuration.locales.replace([
+                LocaleConfiguration('en-US', 'en'),
+                LocaleConfiguration('nl-NL', 'nl'),
+            ])
             with app.acquire_locale(locale):
                 app.project.ancestry.entities.append(file)
                 indexed = [item for item in Index(app).build()]

@@ -1,7 +1,7 @@
 from betty.app import App
 from betty.generate import generate
 from betty.maps import Maps
-from betty.project import ProjectExtensionConfiguration
+from betty.project import ExtensionConfiguration
 from betty.tests import patch_cache
 
 
@@ -10,7 +10,7 @@ class TestMaps:
     async def test_post_generate_event(self):
         with App() as app:
             app.project.configuration.debug = True
-            app.project.configuration.extensions.add(ProjectExtensionConfiguration(Maps))
+            app.project.configuration.extensions.add(ExtensionConfiguration(Maps))
             await generate(app)
             with open(app.project.configuration.www_directory_path / 'maps.js', encoding='utf-8') as f:
                 betty_js = f.read()

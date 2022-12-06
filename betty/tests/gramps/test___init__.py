@@ -9,7 +9,7 @@ from betty.gramps.config import FamilyTreeConfiguration
 from betty.load import load
 from betty.model.ancestry import Citation, Note, Source, File, \
     Event, Person, Place
-from betty.project import ProjectExtensionConfiguration
+from betty.project import ExtensionConfiguration
 
 
 class TestGramps:
@@ -127,7 +127,7 @@ class TestGramps:
                 f.write(family_tree_two_xml)
 
             with App() as app:
-                app.project.configuration.extensions.add(ProjectExtensionConfiguration(Gramps, True, GrampsConfiguration(
+                app.project.configuration.extensions.add(ExtensionConfiguration(Gramps, True, GrampsConfiguration(
                     family_trees=ReactiveList([
                         FamilyTreeConfiguration(gramps_family_tree_one_path),
                         FamilyTreeConfiguration(gramps_family_tree_two_path),

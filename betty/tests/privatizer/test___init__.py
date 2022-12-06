@@ -9,7 +9,7 @@ from betty.locale import Date, DateRange
 from betty.model.ancestry import Person, Presence, Event, Source, File, Subject, Attendee, Citation, Ancestry
 from betty.model.event_type import Death, Birth, Marriage
 from betty.privatizer import Privatizer, privatize
-from betty.project import ProjectExtensionConfiguration
+from betty.project import ExtensionConfiguration
 
 
 def _expand_person(generation: int):
@@ -93,7 +93,7 @@ class TestPrivatizer:
         citation.files.append(citation_file)
 
         with App() as app:
-            app.project.configuration.extensions.add(ProjectExtensionConfiguration(Privatizer))
+            app.project.configuration.extensions.add(ExtensionConfiguration(Privatizer))
             app.project.ancestry.entities.append(person)
             app.project.ancestry.entities.append(source)
             app.project.ancestry.entities.append(citation)

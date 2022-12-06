@@ -6,9 +6,9 @@ from typing import Any, Optional, Type
 from betty.app import App
 from betty.locale import negotiate_locale
 from betty.media_type import EXTENSIONS
-from betty.model import Entity
-from betty.model.ancestry import PersonName, Event, Place, File, Source, Citation, Note, Person
+from betty.model import get_entity_type_name, UserFacingEntity
 from betty.project import ProjectConfiguration
+from betty.string import camel_case_to_kebab_case
 
 
 class ContentNegotiationUrlGenerator:
@@ -38,39 +38,28 @@ class StaticPathUrlGenerator(StaticUrlGenerator):
 
 
 class _EntityUrlGenerator(ContentNegotiationUrlGenerator):
-    def __init__(self, app: App, entity_type: Type[Entity], pattern: str):
+    def __init__(self, app: App, entity_type: Type[UserFacingEntity]):
         self._app = app
         self._entity_type = entity_type
-        self._pattern = pattern
+        self._pattern = f'{camel_case_to_kebab_case(get_entity_type_name(entity_type))}/{{entity_id}}/index.{{extension}}'
 
-    def generate(self, entity: Entity, media_type: str, absolute: bool = False) -> str:
+    def generate(self, entity: UserFacingEntity, media_type: str, absolute: bool = False) -> str:
         if not isinstance(entity, self._entity_type):
             raise ValueError('%s is not a %s' % (type(entity), self._entity_type))
-        return _generate_from_path(self._app.project.configuration, self._pattern % (entity.id, EXTENSIONS[media_type]), absolute, self._app.locale)
-
-
-class PersonNameUrlGenerator(ContentNegotiationUrlGenerator):
-    def __init__(self, person_url_generator: ContentNegotiationUrlGenerator):
-        self._person_url_generator = person_url_generator
-
-    def generate(self, name: PersonName, media_type: str, absolute: bool = False) -> str:
-        if not isinstance(name, PersonName):
-            raise ValueError('%s is not a %s' % (type(name), PersonName))
-        return self._person_url_generator.generate(name.person, media_type, absolute)
+        return _generate_from_path(self._app.project.configuration, self._pattern.format(
+            entity_id=entity.id,
+            extension=EXTENSIONS[media_type],
+        ), absolute, self._app.locale)
 
 
 class AppUrlGenerator(ContentNegotiationUrlGenerator):
     def __init__(self, app: App):
-        person_url_generator = _EntityUrlGenerator(app, Person, 'person/%s/index.%s')
         self._generators = [
-            person_url_generator,
-            PersonNameUrlGenerator(person_url_generator),
-            _EntityUrlGenerator(app, Event, 'event/%s/index.%s'),
-            _EntityUrlGenerator(app, Place, 'place/%s/index.%s'),
-            _EntityUrlGenerator(app, File, 'file/%s/index.%s'),
-            _EntityUrlGenerator(app, Source, 'source/%s/index.%s'),
-            _EntityUrlGenerator(app, Citation, 'citation/%s/index.%s'),
-            _EntityUrlGenerator(app, Note, 'note/%s/index.%s'),
+            *(
+                _EntityUrlGenerator(app, entity_type)
+                for entity_type in app.entity_types
+                if issubclass(entity_type, UserFacingEntity)
+            ),
             ContentNegotiationPathUrlGenerator(app),
         ]
 

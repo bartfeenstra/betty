@@ -1,14 +1,17 @@
-from typing import Optional, List, Any, Iterable, TYPE_CHECKING
+from pathlib import Path
+from typing import Optional, List, Iterable
 
 from reactives import reactive, ReactiveList
 
-from betty.config import Path, ConfigurationError, Configuration, ensure_path, DumpedConfiguration
-from betty.error import ensure_context
+from betty.config import Configuration, DumpedConfigurationImport, DumpedConfigurationExport, DumpedConfigurationDict
+from betty.config.dump import DumpedConfigurationList
+from betty.config.load import Loader, Field
 from betty.os import PathLike
 
-
-if TYPE_CHECKING:
-    from betty.builtins import _
+try:
+    from typing_extensions import TypeGuard
+except ModuleNotFoundError:
+    from typing import TypeGuard  # type: ignore
 
 
 class FamilyTreeConfiguration(Configuration):
@@ -30,17 +33,16 @@ class FamilyTreeConfiguration(Configuration):
     def file_path(self, file_path: Optional[PathLike]) -> None:
         self._file_path = Path(file_path) if file_path else None
 
-    def load(self, dumped_configuration: Any) -> None:
-        if not isinstance(dumped_configuration, dict):
-            raise ConfigurationError(_('Family tree configuration must be a mapping (dictionary).'))
+    def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
+        loader.assert_record(dumped_configuration, {
+            'file': Field(
+                True,
+                loader.assert_path,  # type: ignore
+                lambda x: loader.assert_setattr(self, 'file_path', x)
+            )
+        })
 
-        if 'file' not in dumped_configuration:
-            raise ConfigurationError(_('Family tree configuration requires a Gramps file to be set.'), contexts=['`file`'])
-
-        with ensure_context('`file`'):
-            self.file_path = ensure_path(dumped_configuration['file'])
-
-    def dump(self) -> DumpedConfiguration:
+    def dump(self) -> DumpedConfigurationExport:
         return {
             'file': str(self.file_path),
         }
@@ -58,22 +60,29 @@ class GrampsConfiguration(Configuration):
     def family_trees(self) -> List[FamilyTreeConfiguration]:
         return self._family_trees
 
-    def load(self, dumped_configuration: DumpedConfiguration) -> None:
-        if not isinstance(dumped_configuration, dict):
-            raise ConfigurationError(_('Gramps configuration must be a mapping (dictionary).'))
+    def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
+        loader.assert_record(dumped_configuration, {
+            'family_trees': Field(
+                True,
+                self._load_family_trees,  # type: ignore
+            ),
+        })
 
-        with ensure_context('family_trees'):
-            if 'family_trees' not in dumped_configuration or not isinstance(dumped_configuration['family_trees'], list):
-                raise ConfigurationError(_('Family trees configuration is required and must must be a list.'))
+    def _load_family_trees(self, dumped_configuration, loader: Loader) -> TypeGuard[DumpedConfigurationList[DumpedConfigurationImport]]:
+        loader.on_commit(self._family_trees.clear)
+        return loader.assert_sequence(
+            dumped_configuration,
+            self._load_family_tree,  # type: ignore
+        )
 
-            self._family_trees.clear()
-            for i, dumped_family_tree_configuration in enumerate(dumped_configuration['family_trees']):
-                with ensure_context(f'`{i}`'):
-                    family_tree_configuration = FamilyTreeConfiguration()
-                    family_tree_configuration.load(dumped_family_tree_configuration)
-                    self._family_trees.append(family_tree_configuration)
+    def _load_family_tree(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> TypeGuard[DumpedConfigurationDict[DumpedConfigurationImport]]:
+        with loader.context() as errors:
+            family_tree_configuration = FamilyTreeConfiguration()
+            family_tree_configuration.load(dumped_configuration, loader)
+            loader.on_commit(lambda: self._family_trees.append(family_tree_configuration))
+        return errors.valid
 
-    def dump(self) -> DumpedConfiguration:
+    def dump(self) -> DumpedConfigurationExport:
         return {
             'family_trees': [
                 family_tree.dump()

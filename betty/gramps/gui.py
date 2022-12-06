@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import List, TYPE_CHECKING, Optional
 
+from betty.config.error import ConfigurationError
+
 if TYPE_CHECKING:
     from betty.builtins import _
 
@@ -11,7 +13,7 @@ from PyQt6.QtWidgets import QWidget, QFormLayout, QPushButton, QFileDialog, QLin
 from reactives import reactive
 
 from betty.app import App
-from betty.config import Path, ConfigurationError
+from betty.config import Path
 from betty.gramps import Gramps
 from betty.gramps.config import FamilyTreeConfiguration
 from betty.gui import BettyWindow, mark_valid, mark_invalid

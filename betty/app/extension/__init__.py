@@ -9,9 +9,9 @@ from typing import Type, Set, Optional, Any, List, Dict, TypeVar, Union, Iterabl
     Iterator, Sequence
 
 try:
-    from typing import Self  # type: ignore
-except ImportError:
     from typing_extensions import Self
+except ModuleNotFoundError:
+    from typing import Self  # type: ignore
 
 from reactives import reactive, scope
 from reactives.factory.type import ReactiveInstance

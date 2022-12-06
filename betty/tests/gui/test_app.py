@@ -9,7 +9,7 @@ from pytestqt.qtbot import QtBot
 
 from betty import fs
 from betty.app import App
-from betty.config import ConfigurationError
+from betty.config import ConfigurationFormatError
 from betty.gui.app import WelcomeWindow, _AboutBettyWindow, BettyMainWindow, ApplicationConfiguration
 from betty.gui.error import ExceptionError
 from betty.gui.project import ProjectWindow
@@ -73,7 +73,7 @@ class TestWelcomeWindow:
             qtbot.mouseClick(sut.open_project_button, Qt.MouseButton.LeftButton)
 
             error = assert_error(ExceptionError)
-            assert isinstance(error.exception, ConfigurationError)
+            assert isinstance(error.exception, ConfigurationFormatError)
 
     def test_open_project_with_valid_file_should_show_project_window(self, assert_window: AssertWindow, mocker: MockerFixture, qtbot: QtBot) -> None:
         title = 'My First Ancestry Site'

@@ -15,9 +15,9 @@ from reactives import reactive, ReactorController
 
 from betty import load, generate
 from betty.app import App
-from betty.app.extension import Extension, UserFacingExtension
+from betty.app.extension import UserFacingExtension
 from betty.asyncio import sync
-from betty.config import ConfigurationError
+from betty.config.load import ConfigurationValidationError
 from betty.gui import get_configuration_file_filter, BettyWindow, GuiBuilder, mark_invalid, mark_valid
 from betty.gui.app import BettyMainWindow
 from betty.gui.error import catch_exceptions
@@ -27,6 +27,7 @@ from betty.gui.logging import LogRecordViewerHandler, LogRecordViewer
 from betty.gui.serve import ServeAppWindow
 from betty.gui.text import Text, Caption
 from betty.locale import rfc_1766_to_bcp_47, bcp_47_to_rfc_1766
+from betty.model import UserFacingEntity
 from betty.project import LocaleConfiguration
 
 if TYPE_CHECKING:
@@ -43,6 +44,55 @@ class _PaneButton(QPushButton):
         self.released.connect(lambda: self._project_window._navigate_to_pane(pane_name))  # type: ignore
 
 
+class _GenerateHtmlListForm(LocalizedWidget):
+    def __init__(self, app: App, *args, **kwargs):
+        super().__init__(app, *args, **kwargs)
+        self._form = QFormLayout()
+        self.setLayout(self._form)
+        self._form_label = QLabel()
+        self._form.addRow(self._form_label)
+        self._checkboxes_form = QFormLayout()
+        self._form.addRow(self._checkboxes_form)
+        self._checkboxes: Dict[type[UserFacingEntity], QCheckBox] = {}
+        self._update()
+
+    @reactive(on_trigger_call=True)
+    def _update(self) -> None:
+        entity_types = list(sorted(
+            [
+                entity_type
+                for entity_type
+                in self._app.entity_types
+                if issubclass(entity_type, UserFacingEntity)
+            ],
+            key=lambda x: x.entity_type_label_plural(),
+        ))
+        for entity_type in self._checkboxes.keys():
+            if entity_type not in entity_types:
+                self._form.removeWidget(self._checkboxes[entity_type])
+                del self._checkboxes[entity_type]
+        for row_i, entity_type in enumerate(entity_types):
+            self._update_for_entity_type(entity_type, row_i)
+
+    def _update_for_entity_type(self, entity_type: Type[UserFacingEntity], row_i: int) -> None:
+        if entity_type in self._checkboxes:
+            self._checkboxes_form.insertRow(row_i, self._checkboxes[entity_type])
+            return
+
+        def _update(generate_html_list: bool) -> None:
+            self._app.project.configuration.entity_types[entity_type].generate_html_list = generate_html_list
+        self._checkboxes[entity_type] = QCheckBox()
+        self._checkboxes[entity_type].setChecked(self._app.project.configuration.entity_types[entity_type].generate_html_list)
+        self._checkboxes[entity_type].toggled.connect(_update)  # type: ignore
+        self._update_for_entity_type(entity_type, row_i)
+
+    def _do_set_translatables(self) -> None:
+        self._form_label.setText(_('Generate entity listing pages'))
+        for entity_type in self._app.entity_types:
+            if issubclass(entity_type, UserFacingEntity):
+                self._checkboxes[entity_type].setText(entity_type.entity_type_label_plural())
+
+
 class _GeneralPane(LocalizedWidget):
     def __init__(self, app: App, *args, **kwargs):
         super().__init__(app, *args, **kwargs)
@@ -56,6 +106,8 @@ class _GeneralPane(LocalizedWidget):
         self._build_mode()
         self._build_clean_urls()
         self._build_content_negotiation()
+        self._generate_html_list_form = _GenerateHtmlListForm(app)
+        self._form.addRow(self._generate_html_list_form)
 
     def _build_title(self) -> None:
         def _update_configuration_title(title: str) -> None:
@@ -85,7 +137,7 @@ class _GeneralPane(LocalizedWidget):
                 with ReactorController.suspend():
                     configuration.base_url = base_url
                     configuration.root_path = root_path
-            except ConfigurationError as e:
+            except ConfigurationValidationError as e:
                 mark_invalid(self._configuration_url, str(e))
                 return
             self._app.project.configuration.base_url = base_url
@@ -106,7 +158,7 @@ class _GeneralPane(LocalizedWidget):
             try:
                 self._app.project.configuration.lifetime_threshold = lifetime_threshold
                 mark_valid(self._configuration_url)
-            except ConfigurationError as e:
+            except ConfigurationValidationError as e:
                 mark_invalid(self._configuration_lifetime_threshold, str(e))
         self._configuration_lifetime_threshold = QLineEdit()
         self._configuration_lifetime_threshold.setFixedWidth(32)
@@ -289,7 +341,7 @@ class _AddLocaleWindow(BettyWindow):
         try:
             with self._app.acquire_locale():
                 self._app.project.configuration.locales.add(LocaleConfiguration(locale, alias))
-        except ConfigurationError as e:
+        except ConfigurationValidationError as e:
             mark_invalid(self._alias, str(e))
             return
         self.close()
@@ -297,10 +349,8 @@ class _AddLocaleWindow(BettyWindow):
 
 @reactive
 class _ExtensionPane(LocalizedWidget):
-    def __init__(self, app: App, extension_type: Type[Extension], *args, **kwargs):
+    def __init__(self, app: App, extension_type: Type[UserFacingExtension], *args, **kwargs):
         super().__init__(app, *args, **kwargs)
-        if not issubclass(extension_type, UserFacingExtension):
-            raise ValueError(f'extension_type must be a subclass of {UserFacingExtension}, but {extension_type} was given.')
         self._extension_type = extension_type
 
         layout = QVBoxLayout()
@@ -360,10 +410,10 @@ class _ExtensionPane(LocalizedWidget):
 
     def _do_set_translatables(self) -> None:
         self._extension_description.setText(
-            self._extension_type.description(),  # type: ignore
+            self._extension_type.description(),
         )
         self._extension_enabled.setText(_('Enable {extension}').format(
-            extension=self._extension_type.label(),  # type: ignore
+            extension=self._extension_type.label(),
         ))
 
 

@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 
 from betty.app import App
-from betty.model import Entity
+from betty.model import UserFacingEntity, Entity
 from betty.model.ancestry import Person, Place, File, Source, PlaceName, Event, Citation
 from betty.model.event_type import Death
 from betty.project import LocaleConfiguration
@@ -67,23 +67,25 @@ class TestLocalizedPathUrlGenerator:
                 assert '/en/index.html' == sut.generate('/index.html', 'text/html')
 
 
+class EntityUrlGeneratorTestUrlyEntity(UserFacingEntity, Entity):
+    pass
+
+
+class EntityUrlGeneratorTestNonUrlyEntity(UserFacingEntity, Entity):
+    pass
+
+
 class TestEntityUrlGenerator:
-    class UrlyEntity(Entity):
-        pass
-
-    class NonUrlyEntity(Entity):
-        pass
-
     def test_generate(self):
         with App() as app:
-            sut = _EntityUrlGenerator(app, self.UrlyEntity, 'prefix/%s/index.%s')
-            assert '/prefix/I1/index.html' == sut.generate(self.UrlyEntity('I1'), 'text/html')
+            sut = _EntityUrlGenerator(app, EntityUrlGeneratorTestUrlyEntity)
+            assert '/betty.tests.test_url.-entity-url-generator-test-urly-entity/I1/index.html' == sut.generate(EntityUrlGeneratorTestUrlyEntity('I1'), 'text/html')
 
     def test_generate_with_invalid_value(self):
         with App() as app:
-            sut = _EntityUrlGenerator(app, self.UrlyEntity, 'prefix/%s/index.html')
+            sut = _EntityUrlGenerator(app, EntityUrlGeneratorTestUrlyEntity)
             with pytest.raises(ValueError):
-                sut.generate(self.NonUrlyEntity(), 'text/html')
+                sut.generate(EntityUrlGeneratorTestNonUrlyEntity(), 'text/html')
 
 
 class TestAppUrlGenerator:

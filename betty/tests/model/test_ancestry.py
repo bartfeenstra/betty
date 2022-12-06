@@ -44,11 +44,13 @@ class TestNote:
         assert text == sut.text
 
 
+class HasNotesTestEntity(HasNotes, Entity):
+    pass
+
+
 class TestHasNotes:
     def test_notes(self) -> None:
-        class _HasNotes(HasNotes):
-            pass
-        sut = _HasNotes()
+        sut = HasNotesTestEntity()
         assert [] == list(sut.notes)
 
 
@@ -680,7 +682,7 @@ class TestPerson:
 
     def test_name_with_names(self) -> None:
         sut = Person('P1')
-        name = PersonName(sut)
+        name = PersonName(sut, 'Janet')
         assert name == sut.name
 
     def test_name_without_names(self) -> None:
@@ -733,7 +735,7 @@ class TestPerson:
         sut.files = [file1, file2, file1]  # type: ignore
         citation = Mock(Citation)
         citation.associated_files = [file3, file4, file2]
-        name = PersonName(sut)
+        name = PersonName(sut, 'Janet')
         name.citations = [citation]  # type: ignore
         event = Mock(Event)
         event.associated_files = [file5, file6, file4]

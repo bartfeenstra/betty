@@ -7,7 +7,7 @@ from pytestqt.qtbot import QtBot
 from betty.app import App
 from betty.cotton_candy import CottonCandy, _ColorConfiguration
 from betty.cotton_candy.gui import _CottonCandyGuiWidget, _ColorConfigurationWidget
-from betty.model import Entity
+from betty.model import Entity, UserFacingEntity
 from betty.project import EntityReference
 
 
@@ -32,6 +32,16 @@ class TestColorConfigurationWidget:
         assert default_hex_value == color_configuration.hex
 
 
+class CottonCandyGuiWidgetTestEntity(UserFacingEntity, Entity):
+    @classmethod
+    def entity_type_label(cls) -> str:
+        return cls.__name__
+
+    @classmethod
+    def entity_type_label_plural(cls) -> str:
+        return cls.__name__
+
+
 class TestCottonCandyGuiWidget:
     def test_add_featured_entities(self, qtbot: QtBot) -> None:
         with App() as app:
@@ -49,9 +59,9 @@ class TestCottonCandyGuiWidget:
     def test_change_featured_entities(self, qtbot: QtBot) -> None:
         with App() as app:
             app.project.configuration.extensions.enable(CottonCandy)
-            entity_reference_1 = EntityReference(Entity, '123')
-            entity_reference_2 = EntityReference(Entity, '456')
-            entity_reference_3 = EntityReference(Entity, '789')
+            entity_reference_1 = EntityReference(CottonCandyGuiWidgetTestEntity, '123')
+            entity_reference_2 = EntityReference(CottonCandyGuiWidgetTestEntity, '456')
+            entity_reference_3 = EntityReference(CottonCandyGuiWidgetTestEntity, '789')
             app.extensions[CottonCandy].configuration.featured_entities.append(entity_reference_1)
             app.extensions[CottonCandy].configuration.featured_entities.append(entity_reference_2)
             app.extensions[CottonCandy].configuration.featured_entities.append(entity_reference_3)
@@ -67,9 +77,9 @@ class TestCottonCandyGuiWidget:
     def test_remove_featured_entities(self, qtbot: QtBot) -> None:
         with App() as app:
             app.project.configuration.extensions.enable(CottonCandy)
-            entity_reference_1 = EntityReference(Entity, '123')
-            entity_reference_2 = EntityReference(Entity, '456')
-            entity_reference_3 = EntityReference(Entity, '789')
+            entity_reference_1 = EntityReference(CottonCandyGuiWidgetTestEntity, '123')
+            entity_reference_2 = EntityReference(CottonCandyGuiWidgetTestEntity, '456')
+            entity_reference_3 = EntityReference(CottonCandyGuiWidgetTestEntity, '789')
             app.extensions[CottonCandy].configuration.featured_entities.append(entity_reference_1)
             app.extensions[CottonCandy].configuration.featured_entities.append(entity_reference_2)
             app.extensions[CottonCandy].configuration.featured_entities.append(entity_reference_3)

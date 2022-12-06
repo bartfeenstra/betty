@@ -8,7 +8,7 @@ from betty.load import load
 from betty.locale import DateRange, Date, Datey
 from betty.model.ancestry import Person, Presence, Subject, EventType, Event
 from betty.model.event_type import DerivableEventType, CreatableDerivableEventType, Residence
-from betty.project import ProjectExtensionConfiguration
+from betty.project import ExtensionConfiguration
 
 
 class Ignored(EventType):
@@ -64,7 +64,7 @@ class TestDeriver:
         reference_presence.event.date = Date(1970, 1, 1)
 
         with App() as app:
-            app.project.configuration.extensions.add(ProjectExtensionConfiguration(Deriver))
+            app.project.configuration.extensions.add(ExtensionConfiguration(Deriver))
             app.project.ancestry.entities.append(person)
             await load(app)
 
@@ -81,7 +81,7 @@ class TestDeriver:
 def test_derive_app() -> Iterator[App]:
     app = App()
     with app:
-        app.project.configuration.extensions.add(ProjectExtensionConfiguration(Deriver))
+        app.project.configuration.extensions.add(ExtensionConfiguration(Deriver))
         yield app
 
 

@@ -10,7 +10,7 @@ from geopy import Point
 from betty.locale import Localized, Datey
 from betty.media_type import MediaType
 from betty.model import many_to_many, Entity, one_to_many, many_to_one, many_to_one_to_many, \
-    MultipleTypesEntityCollection, EntityCollection
+    MultipleTypesEntityCollection, EntityCollection, UserFacingEntity, EntityVariation
 from betty.model.event_type import EventType, StartOfLifeEventType, EndOfLifeEventType
 from betty.os import PathLike
 
@@ -37,7 +37,7 @@ class Dated:
 
 
 @many_to_one('entity', 'notes')
-class Note(Entity):
+class Note(UserFacingEntity, Entity):
     entity: HasNotes
 
     def __init__(self, note_id: str, text: str):
@@ -48,17 +48,21 @@ class Note(Entity):
     def entity_type_label(cls) -> str:
         return _('Note')
 
+    @classmethod
+    def entity_type_label_plural(cls) -> str:
+        return _('Notes')
+
     @property
     def text(self) -> str:
         return self._text
 
     @property
-    def label(self) -> Optional[str]:
+    def label(self) -> str:
         return self.text
 
 
 @one_to_many('notes', 'entity')
-class HasNotes(Entity):
+class HasNotes(EntityVariation):
     def __init__(self, *args, **kwargs):
         assert type(self) != HasNotes
         super().__init__(*args, **kwargs)
@@ -118,7 +122,7 @@ class HasLinks:
 
 
 @many_to_many('citations', 'facts')
-class HasCitations(Entity):
+class HasCitations(EntityVariation):
     def __init__(self, *args, **kwargs):
         assert type(self) != HasCitations
         super().__init__(*args, **kwargs)
@@ -137,7 +141,7 @@ class HasCitations(Entity):
 
 
 @many_to_many('entities', 'files')
-class File(Described, HasPrivacy, HasMediaType, HasNotes, HasCitations, Entity):
+class File(Described, HasPrivacy, HasMediaType, HasNotes, HasCitations, UserFacingEntity, Entity):
     def __init__(self, file_id: Optional[str], path: PathLike, media_type: Optional[MediaType] = None, *args, **kwargs):
         super().__init__(file_id, *args, **kwargs)
         self._path = Path(path)
@@ -159,17 +163,21 @@ class File(Described, HasPrivacy, HasMediaType, HasNotes, HasCitations, Entity):
     def entity_type_label(cls) -> str:
         return _('File')
 
+    @classmethod
+    def entity_type_label_plural(cls) -> str:
+        return _('Files')
+
     @property
     def path(self) -> Path:
         return self._path
 
     @property
-    def label(self) -> Optional[str]:
-        return self.description
+    def label(self) -> str:
+        return self._default_label() if self.description is None else self.description
 
 
 @many_to_many('files', 'entities')
-class HasFiles(Entity):
+class HasFiles(EntityVariation):
     def __init__(self, *args, **kwargs):
         assert type(self) != HasFiles
         super().__init__(*args, **kwargs)
@@ -194,7 +202,7 @@ class HasFiles(Entity):
 @many_to_one('contained_by', 'contains')
 @one_to_many('contains', 'contained_by')
 @one_to_many('citations', 'source')
-class Source(Dated, HasFiles, HasLinks, HasPrivacy, Entity):
+class Source(Dated, HasFiles, HasLinks, HasPrivacy, UserFacingEntity, Entity):
     name: Optional[str]
     contained_by: Source
     author: Optional[str]
@@ -234,14 +242,18 @@ class Source(Dated, HasFiles, HasLinks, HasPrivacy, Entity):
     def entity_type_label(cls) -> str:
         return _('Source')
 
+    @classmethod
+    def entity_type_label_plural(cls) -> str:
+        return _('Sources')
+
     @property
-    def label(self) -> Optional[str]:
-        return self.name
+    def label(self) -> str:
+        return self._default_label() if not self.name else self.name
 
 
 @many_to_many('facts', 'citations')
 @many_to_one('source', 'citations')
-class Citation(Dated, HasFiles, HasPrivacy, Entity):
+class Citation(Dated, HasFiles, HasPrivacy, UserFacingEntity, Entity):
     source: Source
     location: Optional[str]
 
@@ -265,6 +277,10 @@ class Citation(Dated, HasFiles, HasPrivacy, Entity):
     @classmethod
     def entity_type_label(cls) -> str:
         return _('Citation')
+
+    @classmethod
+    def entity_type_label_plural(cls) -> str:
+        return _('Citations')
 
 
 class PlaceName(Localized, Dated):
@@ -300,15 +316,11 @@ class Enclosure(Dated, HasCitations, Entity):
         self.encloses = encloses  # type: ignore
         self.enclosed_by = enclosed_by  # type: ignore
 
-    @classmethod
-    def entity_type_label(cls) -> str:
-        return _('Enclosure')
-
 
 @one_to_many('events', 'place')
 @one_to_many('enclosed_by', 'encloses')
 @one_to_many('encloses', 'enclosed_by')
-class Place(HasLinks, Entity):
+class Place(HasLinks, UserFacingEntity, Entity):
     def __init__(self, place_id: Optional[str], names: List[PlaceName], *args, **kwargs):
         super().__init__(place_id, *args, **kwargs)
         self._names = names
@@ -354,6 +366,10 @@ class Place(HasLinks, Entity):
     def entity_type_label(cls) -> str:
         return _('Place')
 
+    @classmethod
+    def entity_type_label_plural(cls) -> str:
+        return _('Places')
+
     @property
     def names(self) -> List[PlaceName]:
         return self._names
@@ -367,11 +383,11 @@ class Place(HasLinks, Entity):
         self._coordinates = coordinates
 
     @property
-    def label(self) -> Optional[str]:
+    def label(self) -> str:
         # @todo Negotiate this by locale and date.
         with suppress(IndexError):
             return self.names[0].name
-        return None
+        return self._default_label()
 
 
 class PresenceRole:
@@ -436,14 +452,10 @@ class Presence(Entity):
         self.role = role
         self.event = event  # type: ignore
 
-    @classmethod
-    def entity_type_label(cls) -> str:
-        return _('Presence')
-
 
 @many_to_one('place', 'events')
 @one_to_many('presences', 'event')
-class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, Entity):
+class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, UserFacingEntity, Entity):
     place: Optional[Place]
 
     def __init__(self, event_id: Optional[str], event_type: EventType, date: Optional[Datey] = None, *args, **kwargs):
@@ -466,6 +478,10 @@ class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, Entity):
     @classmethod
     def entity_type_label(cls) -> str:
         return _('Event')
+
+    @classmethod
+    def entity_type_label_plural(cls) -> str:
+        return _('Events')
 
     def __repr__(self) -> str:
         return '<%s.%s(%s, date=%s)>' % (self.__class__.__module__, self.__class__.__name__, repr(self.type), repr(self.date))
@@ -496,6 +512,8 @@ class PersonName(Localized, HasCitations, Entity):
 
     def __init__(self, person: Optional[Person], individual: Optional[str] = None, affiliation: Optional[str] = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if not individual and not affiliation:
+            raise ValueError('The individual and affiliation names must not both be empty.')
         self._individual = individual
         self._affiliation = affiliation
         # Set the person association last, because the association requires comparisons, and self.__eq__() uses the
@@ -505,6 +523,10 @@ class PersonName(Localized, HasCitations, Entity):
     @classmethod
     def entity_type_label(cls) -> str:
         return _('Person name')
+
+    @classmethod
+    def entity_type_label_plural(cls) -> str:
+        return _('Person names')
 
     def __repr__(self) -> str:
         return '<%s.%s(%s, %s, %s)>' % (self.__class__.__module__, self.__class__.__name__, self.individual, self.affiliation, repr(self.person))
@@ -532,8 +554,11 @@ class PersonName(Localized, HasCitations, Entity):
         return self._affiliation
 
     @property
-    def label(self) -> Optional[str]:
-        return _('{individual_name} {affiliation_name}')
+    def label(self) -> str:
+        return _('{individual_name} {affiliation_name}').format(
+            individual_name='…' if not self.individual else self.individual,
+            affiliation_name='…' if not self.affiliation else self.affiliation,
+        )
 
 
 @total_ordering
@@ -541,9 +566,8 @@ class PersonName(Localized, HasCitations, Entity):
 @many_to_many('children', 'parents')
 @one_to_many('presences', 'person')
 @one_to_many('names', 'person')
-class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, Entity):
+class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, UserFacingEntity, Entity):
     def __init__(self, person_id: Optional[str], *args, **kwargs):
-
         super().__init__(person_id, *args, **kwargs)
 
     @property
@@ -597,6 +621,10 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, Entity):
     @classmethod
     def entity_type_label(cls) -> str:
         return _('Person')
+
+    @classmethod
+    def entity_type_label_plural(cls) -> str:
+        return _('People')
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Person):
@@ -656,8 +684,8 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, Entity):
             yield file
 
     @property
-    def label(self) -> Optional[str]:
-        return self.name.label if self.name else None
+    def label(self) -> str:
+        return self.name.label if self.name else self._default_label()
 
 
 class Ancestry:

@@ -1,5 +1,5 @@
-from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET, StreamHandler, LogRecord
 import sys
+from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET, StreamHandler, LogRecord
 
 
 class CliHandler(StreamHandler):

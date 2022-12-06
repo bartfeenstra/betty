@@ -1,5 +1,5 @@
 {% set embedded=True %}
-{% set entity_type_name_file_part = entity.entity_type() | entity_type_name | camel_case_to_kebab_case %}
+{% set entity_type_name_file_part = entity | entity_type_name | camel_case_to_kebab_case %}
 <a href="{{ entity | url }}" class="nav-secondary-action search-result-target">
     <div class="search-result-description">
         {% include ['entity/label--' + entity_type_name_file_part + '.html.j2', 'entity/label.html.j2'] %}

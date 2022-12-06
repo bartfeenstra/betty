@@ -47,18 +47,17 @@
             <h2 class="nav-primary-action">{% trans %}Menu{% endtrans %}</h2>
             <div class="nav-primary-expanded">
                 <ul class="nav-secondary">
-                    {% if app.project.ancestry.entities['Person'] | length > 0 %}
-                        <li><a href="{{ '/person/index.html' | url }}">{% trans %}People{% endtrans %}</a></li>
-                    {% endif %}
-                    {% if app.project.ancestry.entities['Event'] | length > 0 %}
-                        <li><a href="{{ '/event/index.html' | url }}">{% trans %}Timeline{% endtrans %}</a></li>
-                    {% endif %}
-                    {% if app.project.ancestry.entities['Place'] | length > 0 %}
-                        <li><a href="{{ '/place/index.html' | url }}">{% trans %}Places{% endtrans %}</a></li>
-                    {% endif %}
-                    {% if app.project.ancestry.entities['Source'] | length > 0 %}
-                        <li><a href="{{ '/source/index.html' | url }}">{% trans %}Sources{% endtrans %}</a></li>
-                    {% endif %}
+                    {% for entity_type_configuration in app.project.configuration.entity_types | selectattr('generate_html_list') %}
+                        <li>
+                            <a href="{{ ('/' + entity_type_configuration.entity_type | entity_type_name | camel_case_to_kebab_case + '/index.html') | url }}">
+                                {% if 'Event' == entity_type_configuration.entity_type | entity_type_name %}
+                                    {% trans %}Timeline{% endtrans %}
+                                {% else %}
+                                    {{ entity_type_configuration.entity_type.entity_type_label_plural() }}
+                                {% endif %}
+                            </a>
+                        </li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>

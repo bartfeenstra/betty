@@ -11,7 +11,7 @@ from betty.app import App
 from betty.generate import generate
 from betty.model.ancestry import Person, Place, Source, PlaceName, File, Event, Citation
 from betty.model.event_type import Birth
-from betty.project import LocaleConfiguration
+from betty.project import LocaleConfiguration, EntityTypeConfiguration
 
 
 def assert_betty_html(app: App, url_path: str) -> Path:
@@ -98,6 +98,7 @@ class TestGenerate:
 
     async def test_files(self):
         with App() as app:
+            app.project.configuration.entity_types.add(EntityTypeConfiguration(File, True))
             await generate(app)
         assert_betty_html(app, '/file/index.html')
         assert_betty_json(app, '/file/index.json', 'fileCollection')

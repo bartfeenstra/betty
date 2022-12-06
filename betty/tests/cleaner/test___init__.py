@@ -4,14 +4,14 @@ from betty.load import load
 from betty.model.ancestry import Ancestry, Person, Place, Presence, PlaceName, File, PersonName, Subject, \
     Enclosure, Source, Citation, Event
 from betty.model.event_type import Birth
-from betty.project import ProjectExtensionConfiguration
+from betty.project import ExtensionConfiguration
 
 
 class TestCleaner:
     async def test_post_parse(self) -> None:
         event = Event('E0', Birth())
         with App() as app:
-            app.project.configuration.extensions.add(ProjectExtensionConfiguration(Cleaner))
+            app.project.configuration.extensions.add(ExtensionConfiguration(Cleaner))
             app.project.ancestry.entities.append(event)
             await load(app)
             assert [] == list(app.project.ancestry.entities[Event])

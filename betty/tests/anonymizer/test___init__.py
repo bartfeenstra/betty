@@ -8,7 +8,7 @@ from betty.model import Entity
 from betty.model.ancestry import Ancestry, Person, File, Source, Citation, PersonName, Presence, Event, Subject, \
     HasCitations
 from betty.model.event_type import Birth
-from betty.project import ProjectExtensionConfiguration
+from betty.project import ExtensionConfiguration
 
 
 class TestAnonymousSource:
@@ -333,7 +333,7 @@ class TestAnonymizer:
         person.private = True
         PersonName(person, 'Jane', 'Dough')
         with App() as app:
-            app.project.configuration.extensions.add(ProjectExtensionConfiguration(Anonymizer))
+            app.project.configuration.extensions.add(ExtensionConfiguration(Anonymizer))
             app.project.ancestry.entities.append(person)
             await load(app)
         assert 0 == len(person.names)

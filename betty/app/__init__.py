@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import locale
 import weakref
 from concurrent.futures._base import Executor
 from concurrent.futures.thread import ThreadPoolExecutor
@@ -9,45 +8,41 @@ from gettext import NullTranslations
 from pathlib import Path
 from typing import List, Type, TYPE_CHECKING, Set, Iterator, Optional
 
+import aiohttp
 from babel.core import parse_locale
 from babel.localedata import locale_identifiers
-
-try:
-    from typing import Self  # type: ignore
-except ImportError:
-    from typing_extensions import Self
-
+from jinja2 import Environment as Jinja2Environment
+from reactives import reactive
 from reactives.factory.type import ReactiveInstance
 
 from betty.app.extension import ListExtensions, Extension, Extensions, build_extension_type_graph, \
     CyclicDependencyError, ExtensionDispatcher, ConfigurableExtension, discover_extension_types
 from betty.asyncio import sync
+from betty.concurrent import ExceptionRaisingAwaitableExecutor
+from betty.config import FileBasedConfiguration, DumpedConfigurationImport, Configurable, DumpedConfigurationExport
+from betty.config.load import ConfigurationValidationError, Loader, Field
+from betty.dispatch import Dispatcher
+from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH, HOME_DIRECTORY_PATH
+from betty.locale import negotiate_locale, TranslationsRepository, Translations, rfc_1766_to_bcp_47, bcp_47_to_rfc_1766
+from betty.lock import Locks
 from betty.model import Entity, EntityTypeProvider
+from betty.model.ancestry import Citation, Event, File, Person, PersonName, Presence, Place, Enclosure, \
+    Source, Note, EventType
 from betty.model.event_type import EventTypeProvider, Birth, Baptism, Adoption, Death, Funeral, Cremation, Burial, Will, \
     Engagement, Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, Emigration, \
     Occupation, Retirement, Correspondence, Confirmation
 from betty.project import Project
-
-try:
-    from graphlib import TopologicalSorter, CycleError
-except ImportError:
-    from graphlib_backport import TopologicalSorter  # type: ignore
-
-import aiohttp
-from jinja2 import Environment as Jinja2Environment
-from reactives import reactive
-
-from betty.concurrent import ExceptionRaisingAwaitableExecutor
-from betty.config import ConfigurationError, FileBasedConfiguration, DumpedConfiguration
-from betty.dispatch import Dispatcher
-from betty.lock import Locks
 from betty.render import Renderer, SequentialRenderer
 
-from betty.model.ancestry import Citation, Event, File, Person, PersonName, Presence, Place, Enclosure, \
-    Source, Note, EventType
-from betty.config import Configurable
-from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH, HOME_DIRECTORY_PATH
-from betty.locale import negotiate_locale, TranslationsRepository, Translations, rfc_1766_to_bcp_47, bcp_47_to_rfc_1766
+try:
+    from graphlib_backport import TopologicalSorter, CycleError
+except ModuleNotFoundError:
+    from graphlib import TopologicalSorter, CycleError
+
+try:
+    from typing_extensions import Self
+except ModuleNotFoundError:
+    from typing import Self  # type: ignore
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -90,22 +85,22 @@ class AppConfiguration(FileBasedConfiguration):
 
     @locale.setter
     def locale(self, locale: str) -> None:
+        try:
+            parse_locale(bcp_47_to_rfc_1766(locale))
+        except ValueError:
+            raise ConfigurationValidationError(_('{locale} is not a valid IETF BCP 47 language tag.').format(locale=locale))
         self._locale = locale
 
-    def load(self, dumped_configuration: DumpedConfiguration) -> None:
-        if not isinstance(dumped_configuration, dict):
-            raise ConfigurationError(_('Betty application configuration must be a mapping (dictionary).'))
+    def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
+        loader.assert_record(dumped_configuration, {
+            'locale': Field(
+                True,
+                loader.assert_str,  # type: ignore
+                lambda x: loader.assert_setattr(self, 'locale', x),
+            ),
+        })
 
-        if 'locale' in dumped_configuration:
-            if not isinstance(dumped_configuration['locale'], str):
-                raise ConfigurationError(_('The locale must be a string.'), contexts=['`title`'])
-            try:
-                parse_locale(bcp_47_to_rfc_1766(dumped_configuration['locale']))
-            except ValueError:
-                raise ConfigurationError(_('{locale} is not a valid IETF BCP 47 language tag.').format(locale=locale))
-            self.locale = dumped_configuration['locale']
-
-    def dump(self) -> DumpedConfiguration:
+    def dump(self) -> DumpedConfigurationExport:
         dumped_configuration = {}
         if self._locale is not None:
             dumped_configuration['locale'] = self.locale
@@ -121,7 +116,8 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         super().__init__(*args, **kwargs)
         self._configuration = AppConfiguration()
         with suppress(FileNotFoundError):
-            self.configuration.read()
+            with Translations():
+                self.configuration.read()
 
         self._acquired = False
         self._extensions = _AppExtensions()
