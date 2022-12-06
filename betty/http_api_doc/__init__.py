@@ -3,6 +3,7 @@ from pathlib import Path
 from shutil import copy2
 from typing import Optional, Set, Type, TYPE_CHECKING
 
+from betty.cache import CacheScope
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -21,6 +22,10 @@ class HttpApiDoc(UserFacingExtension, Generator, NpmBuilder):
         await self.app.extensions[_Npm].install(type(self), working_directory_path)
         copy2(working_directory_path / 'node_modules' / 'redoc' / 'bundles' / 'redoc.standalone.js', assets_directory_path / 'http-api-doc.js')
         logging.getLogger().info('Built the HTTP API documentation.')
+
+    @classmethod
+    def npm_cache_scope(cls) -> CacheScope:
+        return CacheScope.BETTY
 
     async def generate(self) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)

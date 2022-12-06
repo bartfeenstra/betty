@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import logging
 import os
 import shutil
@@ -16,6 +17,7 @@ from betty import subprocess
 from betty.app.extension import Extension, discover_extension_types
 from betty.app.extension.requirement import Requirement, AnyRequirement, AllRequirements
 from betty.asyncio import sync
+from betty.cache import CacheScope
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -105,6 +107,10 @@ class NpmBuilder:
     async def npm_build(self, working_directory_path: Path, assets_directory_path: Path) -> None:
         raise NotImplementedError
 
+    @classmethod
+    def npm_cache_scope(cls) -> CacheScope:
+        return CacheScope.PROJECT
+
 
 def discover_npm_builders() -> Set[Type[Extension | NpmBuilder]]:
     return {
@@ -115,7 +121,7 @@ def discover_npm_builders() -> Set[Type[Extension | NpmBuilder]]:
     }
 
 
-def _get_assets_directory_path(extension_type: Type[Extension] | Type[NpmBuilder]) -> Path:
+def _get_assets_directory_path(extension_type: Type[Extension | NpmBuilder]) -> Path:
     assert issubclass(extension_type, Extension)
     assert issubclass(extension_type, NpmBuilder)
     assets_directory_path = extension_type.assets_directory_path()
@@ -185,7 +191,10 @@ class _Npm(Extension):
 
     def _get_cached_assets_build_directory_path(self, extension_type: Type[Extension | NpmBuilder]) -> Path:
         assert issubclass(extension_type, Extension) and issubclass(extension_type, NpmBuilder)
-        return self.cache_directory_path / extension_type.name()
+        path = self.cache_directory_path / extension_type.name()
+        if extension_type.npm_cache_scope() == CacheScope.PROJECT:
+            path /= hashlib.md5(str(self.app.project.configuration.configuration_file_path).encode('utf-8')).hexdigest()
+        return path
 
     async def ensure_assets(self, extension: Extension | NpmBuilder) -> Path:
         assets_build_directory_paths = [

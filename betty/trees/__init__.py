@@ -4,6 +4,8 @@ from pathlib import Path
 from shutil import copy2
 from typing import Optional, Set, Type, List, TYPE_CHECKING
 
+from betty.cache import CacheScope
+
 if TYPE_CHECKING:
     from betty.builtins import _
 
@@ -27,6 +29,10 @@ class Trees(UserFacingExtension, CssProvider, JsProvider, Generator, NpmBuilder)
     def _copy_npm_build(self, source_directory_path: Path, destination_directory_path: Path) -> None:
         copy2(source_directory_path / 'trees.css', destination_directory_path / 'trees.css')
         copy2(source_directory_path / 'trees.js', destination_directory_path / 'trees.js')
+
+    @classmethod
+    def npm_cache_scope(cls) -> CacheScope:
+        return CacheScope.BETTY
 
     async def generate(self) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
