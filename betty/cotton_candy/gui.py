@@ -20,15 +20,15 @@ class _ColorConfigurationSwatch(LocalizedWidget):
         self._color.react(self.repaint)
         self.setFixedHeight(24)
         self.setFixedWidth(24)
-        self._painter = QPainter(self)
 
     def __del__(self) -> None:
         self._color.react.shutdown(self.repaint)
 
     def paintEvent(self, a0: QPaintEvent) -> None:
+        painter = QPainter(self)
         swatch = QRect(self.rect())
-        self._painter.fillRect(swatch, QBrush(QColor.fromString(self._color.hex)))
-        self._painter.drawRect(swatch)
+        painter.fillRect(swatch, QBrush(QColor.fromString(self._color.hex)))
+        painter.drawRect(swatch)
 
 
 class _ColorConfigurationWidget(LocalizedWidget):
