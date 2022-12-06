@@ -4,6 +4,8 @@ from pathlib import Path
 from shutil import copy2, copytree
 from typing import Optional, Set, Type, TYPE_CHECKING, List
 
+from betty.cache import CacheScope
+
 if TYPE_CHECKING:
     from betty.builtins import _
 
@@ -29,6 +31,10 @@ class Maps(UserFacingExtension, CssProvider, JsProvider, Generator, NpmBuilder):
         copy2(source_directory_path / 'maps.js', destination_directory_path / 'maps.js')
         with suppress(FileNotFoundError):
             copytree(source_directory_path / 'images', destination_directory_path / 'images')
+
+    @classmethod
+    def npm_cache_scope(cls) -> CacheScope:
+        return CacheScope.BETTY
 
     async def generate(self) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
