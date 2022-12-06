@@ -127,7 +127,7 @@ class _BettyCommands(click.MultiCommand):
 
 @click.command(cls=_BettyCommands)
 @click.option('--configuration', '-c', 'app', is_eager=True, help='The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory. This will make additional commands available.', callback=_init_ctx)
-@click.version_option(about.version(), prog_name='Betty')
+@click.version_option(about.version(), message=about.report(), prog_name='Betty')
 def main(app):
     pass
 

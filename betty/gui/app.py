@@ -2,12 +2,14 @@ import webbrowser
 from datetime import datetime
 from os import path
 from typing import TYPE_CHECKING
+from urllib.parse import urlencode
 
 from PyQt6.QtCore import Qt, QCoreApplication
 from PyQt6.QtGui import QIcon, QAction
 from PyQt6.QtWidgets import QFormLayout, QWidget, QVBoxLayout, QHBoxLayout, QFileDialog, QPushButton
 
 from betty import about, cache
+from betty.about import report
 from betty.asyncio import sync
 from betty.gui import BettyWindow, get_configuration_file_filter
 from betty.gui.error import catch_exceptions
@@ -58,9 +60,13 @@ class BettyMainWindow(BettyWindow):
 
         self.help_menu = menu_bar.addMenu('')
 
-        self.view_issues_action = QAction(self)
-        self.view_issues_action.triggered.connect(lambda _: self.view_issues())  # type: ignore
-        self.help_menu.addAction(self.view_issues_action)
+        self.report_bug_action = QAction(self)
+        self.report_bug_action.triggered.connect(lambda _: self.report_bug())  # type: ignore
+        self.help_menu.addAction(self.report_bug_action)
+
+        self.request_feature_action = QAction(self)
+        self.request_feature_action.triggered.connect(lambda _: self.request_feature())  # type: ignore
+        self.help_menu.addAction(self.request_feature_action)
 
         self.about_action = QAction(self)
         self.about_action.triggered.connect(lambda _: self._about_betty())  # type: ignore
@@ -79,12 +85,41 @@ class BettyMainWindow(BettyWindow):
         self.clear_caches_action.setText(_('Clear all caches'))
         self.exit_action.setText(_('Exit'))
         self.help_menu.setTitle('&' + _('Help'))
-        self.view_issues_action.setText(_('Report bugs and request new features'))
+        self.report_bug_action.setText(_('Report a bug'))
+        self.request_feature_action.setText(_('Request a new feature'))
         self.about_action.setText(_('About Betty'))
 
     @catch_exceptions
-    def view_issues(self) -> None:
-        webbrowser.open_new_tab('https://github.com/bartfeenstra/betty/issues')
+    def report_bug(self) -> None:
+        body = f'''
+## Summary
+
+## Steps to reproduce
+
+## Expected behavior
+
+## System report
+```
+{report()}
+```
+'''.strip()
+        webbrowser.open_new_tab('https://github.com/bartfeenstra/betty/issues/new?' + urlencode({
+            'body': body,
+            'labels': 'bug',
+        }))
+
+    @catch_exceptions
+    def request_feature(self) -> None:
+        body = '''
+## Summary
+
+## Expected behavior
+
+'''.strip()
+        webbrowser.open_new_tab('https://github.com/bartfeenstra/betty/issues/new?' + urlencode({
+            'body': body,
+            'labels': 'enhancement',
+        }))
 
     @catch_exceptions
     def _about_betty(self) -> None:
