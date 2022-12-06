@@ -1,19 +1,19 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional, Iterable, MutableSequence
+from typing import Optional, Iterable, Type
 
-from reactives.collections import ReactiveMutableSequence
 from reactives.instance.property import reactive_property
 
-from betty.config import Configuration, DumpedConfiguration, VoidableDumpedConfiguration, DumpedConfigurationDict
-from betty.config.dump import DumpedConfigurationList, minimize
-from betty.config.load import Loader, Field
+from betty.config import Configuration, DumpedConfiguration, VoidableDumpedConfiguration, ConfigurationSequence
+from betty.config.dump import minimize
+from betty.config.load import assert_record, Assertions, assert_path, assert_setattr, Fields, RequiredField, \
+    OptionalField
 
 try:
-    from typing_extensions import TypeGuard
-except ModuleNotFoundError:
-    from typing import TypeGuard  # type: ignore
+    from typing_extensions import Self
+except ModuleNotFoundError:  # pragma: no cover
+    from typing import Self  # type: ignore  # pragma: no cover
 
 
 class FamilyTreeConfiguration(Configuration):
@@ -35,14 +35,17 @@ class FamilyTreeConfiguration(Configuration):
     def file_path(self, file_path: Path | None) -> None:
         self._file_path = file_path
 
-    def load(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> None:
-        loader.assert_record(dumped_configuration, {
-            'file': Field(
-                True,
-                loader.assert_path,  # type: ignore
-                lambda x: loader.assert_setattr(self, 'file_path', Path(x))
-            )
-        })
+    @classmethod
+    def load(cls, dumped_configuration: DumpedConfiguration, configuration: Self | None = None) -> Self:
+        if configuration is None:
+            configuration = cls()
+        assert_record(Fields(
+            RequiredField(
+                'file',
+                Assertions(assert_path()) | assert_setattr(configuration, 'file_path'),
+            ),
+        ))(dumped_configuration)
+        return configuration
 
     def dump(self) -> VoidableDumpedConfiguration:
         return {
@@ -50,44 +53,46 @@ class FamilyTreeConfiguration(Configuration):
         }
 
 
+class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfiguration]):
+    def update(self, other: Self) -> None:
+        self._clear_without_trigger()
+        self.append(*other)
+
+    @classmethod
+    def _create_default_item(cls, configuration_key: int) -> FamilyTreeConfiguration:
+        return FamilyTreeConfiguration()
+
+    @classmethod
+    def _item_type(cls) -> Type[FamilyTreeConfiguration]:
+        return FamilyTreeConfiguration
+
+
 class GrampsConfiguration(Configuration):
     def __init__(self, family_trees: Optional[Iterable[FamilyTreeConfiguration]] = None):
         super().__init__()
-        self._family_trees = ReactiveMutableSequence[FamilyTreeConfiguration]()
+        self._family_trees = FamilyTreeConfigurationSequence(family_trees)
         self._family_trees.react(self)
-        if family_trees:
-            self._family_trees.extend(family_trees)
 
     @property
-    def family_trees(self) -> MutableSequence[FamilyTreeConfiguration]:
+    def family_trees(self) -> FamilyTreeConfigurationSequence:
         return self._family_trees
 
-    def load(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> None:
-        loader.assert_record(dumped_configuration, {
-            'family_trees': Field(
-                True,
-                self._load_family_trees,  # type: ignore
+    def update(self, other: Self) -> None:
+        self._family_trees.update(other._family_trees)
+
+    @classmethod
+    def load(cls, dumped_configuration: DumpedConfiguration, configuration: Self | None = None) -> Self:
+        if configuration is None:
+            configuration = cls()
+        assert_record(Fields(
+            OptionalField(
+                'family_trees',
+                Assertions(configuration._family_trees.assert_load(configuration.family_trees)),
             ),
-        })
-
-    def _load_family_trees(self, dumped_configuration, loader: Loader) -> TypeGuard[DumpedConfigurationList[DumpedConfiguration]]:
-        loader.on_commit(self._family_trees.clear)
-        return loader.assert_sequence(
-            dumped_configuration,
-            self._load_family_tree,  # type: ignore
-        )
-
-    def _load_family_tree(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> TypeGuard[DumpedConfigurationDict[DumpedConfiguration]]:
-        with loader.context() as errors:
-            family_tree_configuration = FamilyTreeConfiguration()
-            family_tree_configuration.load(dumped_configuration, loader)
-            loader.on_commit(lambda: self._family_trees.append(family_tree_configuration))
-        return errors.valid
+        ))(dumped_configuration)
+        return configuration
 
     def dump(self) -> VoidableDumpedConfiguration:
-        return {
-            'family_trees': [
-                minimize(family_tree.dump(), False)
-                for family_tree in self.family_trees
-            ]
-        }
+        return minimize({
+            'family_trees': self.family_trees.dump(),
+        }, True)

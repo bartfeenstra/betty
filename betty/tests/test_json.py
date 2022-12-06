@@ -17,10 +17,8 @@ from betty.project import LocaleConfiguration
 class TestJSONEncoder:
     def assert_encodes(self, expected, data, schema_definition: str):
         app = App()
-        app.project.configuration.locales.replace([
-            LocaleConfiguration('en-US', 'en'),
-            LocaleConfiguration('nl-NL', 'nl'),
-        ])
+        app.project.configuration.locales['en-US'].alias = 'en'
+        app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
         with app:
             encoded_data = stdjson.loads(stdjson.dumps(data, cls=app.json_encoder))
         json.validate(encoded_data, schema_definition, app)

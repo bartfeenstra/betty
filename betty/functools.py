@@ -1,6 +1,9 @@
-from typing import Any, Iterable, Sized, TypeVar, Callable, Type, Iterator
+from __future__ import annotations
+
+from typing import Any, Iterable, Sized, TypeVar, Callable, Type, Iterator, Generic, cast
 
 T = TypeVar('T')
+U = TypeVar('U')
 
 
 def walk(item: Any, attribute_name: str) -> Iterable[Any]:
@@ -42,6 +45,27 @@ def slice_to_range(indices: slice, iterable: Sized) -> Iterable[int]:
         step = indices.step
 
     return range(start, stop, step)
+
+
+class _Result(Generic[T]):
+    def __init__(self, value: T | None, _error: BaseException | None = None):
+        assert not _error or value is None
+        self._value = value
+        self._error = _error
+
+    @property
+    def value(self) -> T:
+        if self._error:
+            raise self._error
+        return cast(T, self._value)
+
+    def map(self, f: Callable[[T], U]) -> _Result[U]:
+        if self._error:
+            return cast(_Result[U], self)
+        try:
+            return _Result(f(self.value))
+        except BaseException as e:
+            return _Result(None, e)
 
 
 def filter_suppress(raising_filter: Callable[[T], Any], exception_type: Type[BaseException], items: Iterable[T]) -> Iterator[T]:

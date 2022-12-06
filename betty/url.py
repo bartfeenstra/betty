@@ -93,11 +93,7 @@ def _generate_from_path(configuration: ProjectConfiguration, path: str, absolute
         try:
             locale_configuration = configuration.locales[locale]
         except KeyError:
-            project_locales = {
-                locale_configuration.locale
-                for locale_configuration
-                in configuration.locales
-            }
+            project_locales = {*configuration.locales}
             try:
                 negotiated_locale_data = negotiate_locale(locale, cast(Set[Localey], project_locales))
                 if negotiated_locale_data is None:

@@ -6,6 +6,7 @@ const _PREVIOUS_RESULT_KEYS = ['ArrowUp']
 function Search () {
   this._query = null
   this._search = document.getElementById('search')
+  this._configurationUrl = this._search.dataset.bettySearchConfiguration
   this._indexUrl = this._search.dataset.bettySearchIndex
   this._form = this._search.getElementsByTagName('form').item(0)
   this._queryElement = document.getElementById('search-query')
@@ -32,7 +33,7 @@ function Search () {
   })
 
   // Allow navigation into and out of the search.
-  fetch('/search-configuration.json')
+  fetch(this._configurationUrl)
     .then(function (response) {
       return response.json()
     })

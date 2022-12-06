@@ -147,7 +147,7 @@ class _Populator:
         self._retriever = retriever
 
     async def populate(self) -> None:
-        locales = set(map(lambda x: x.alias, self._app.project.configuration.locales))
+        locales = set(map(lambda x: x.alias, self._app.project.configuration.locales.values()))
         await asyncio.gather(*[  # type: ignore
             self._populate_entity(entity, locales)
             for entity  # type: ignore

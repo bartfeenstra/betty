@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 import re
 from pathlib import Path
@@ -12,14 +14,20 @@ from betty.app import Extension
 from betty.app.extension import ConfigurableExtension, Theme
 from betty.config import Configuration, DumpedConfiguration, VoidableDumpedConfiguration
 from betty.config.dump import minimize
-from betty.config.load import ConfigurationValidationError, Loader, Field
+from betty.config.load import ConfigurationValidationError, assert_str, assert_record, Fields, Assertions, \
+    OptionalField
 from betty.cotton_candy.search import Index
 from betty.generate import Generator
 from betty.gui import GuiBuilder
 from betty.jinja2 import Jinja2Provider
 from betty.locale import Localizer
 from betty.npm import _Npm, NpmBuilder, npm
-from betty.project import EntityReferenceCollection
+from betty.project import EntityReferenceSequence
+
+try:
+    from typing_extensions import Self
+except ModuleNotFoundError:
+    from typing import Self  # type: ignore
 
 
 class _ColorConfiguration(Configuration):
@@ -42,12 +50,21 @@ class _ColorConfiguration(Configuration):
 
     @hex.setter
     def hex(self, hex_value: str) -> None:
-        self._validate_hex(hex_value)
+        if hex_value is not None and not self._HEX_PATTERN.match(hex_value):
+            raise ConfigurationValidationError(self.localizer._('"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.').format(hex_value=hex_value))
         self._hex = hex_value
 
-    def load(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> None:
-        if loader.assert_str(dumped_configuration):
-            loader.assert_setattr(self, 'hex', dumped_configuration)
+    def update(self, other: Self) -> None:
+        self.hex = other.hex
+
+    @classmethod
+    def load(cls, dumped_configuration: DumpedConfiguration, configuration: Self | None = None) -> Self:
+        hex_value = assert_str()(dumped_configuration)
+        if configuration is None:
+            configuration = cls(hex_value)
+        else:
+            configuration.hex = hex_value
+        return configuration
 
     def dump(self) -> VoidableDumpedConfiguration:
         return self._hex
@@ -61,7 +78,7 @@ class CottonCandyConfiguration(Configuration):
 
     def __init__(self):
         super().__init__()
-        self._featured_entities = EntityReferenceCollection()
+        self._featured_entities = EntityReferenceSequence()
         self._featured_entities.react(self)
         self._primary_inactive_color = _ColorConfiguration(self.DEFAULT_PRIMARY_INACTIVE_COLOR)
         self._primary_inactive_color.react(self)
@@ -73,7 +90,7 @@ class CottonCandyConfiguration(Configuration):
         self._link_active_color.react(self)
 
     @property
-    def featured_entities(self) -> EntityReferenceCollection:
+    def featured_entities(self) -> EntityReferenceSequence:
         return self._featured_entities
 
     @property
@@ -92,29 +109,18 @@ class CottonCandyConfiguration(Configuration):
     def link_active_color(self) -> _ColorConfiguration:
         return self._link_active_color
 
-    def load(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> None:
-        loader.assert_record(dumped_configuration, {
-            'featured_entities': Field(
-                False,
-                self._featured_entities.load,  # type: ignore
-            ),
-            'primary_inactive_color': Field(
-                False,
-                self._primary_inactive_color.load,  # type: ignore
-            ),
-            'primary_active_color': Field(
-                False,
-                self._primary_active_color.load,  # type: ignore
-            ),
-            'link_inactive_color': Field(
-                False,
-                self._link_inactive_color.load,  # type: ignore
-            ),
-            'link_active_color': Field(
-                False,
-                self._link_active_color.load,  # type: ignore
-            ),
-        })
+    @classmethod
+    def load(cls, dumped_configuration: DumpedConfiguration, configuration: Self | None = None) -> Self:
+        if configuration is None:
+            configuration = cls()
+        assert_record(Fields(
+            OptionalField('featured_entities', Assertions(configuration._featured_entities.assert_load(configuration._featured_entities))),
+            OptionalField('primary_inactive_color', Assertions(configuration._primary_inactive_color.assert_load(configuration._primary_inactive_color))),
+            OptionalField('primary_active_color', Assertions(configuration._primary_active_color.assert_load(configuration._primary_active_color))),
+            OptionalField('link_inactive_color', Assertions(configuration._link_inactive_color.assert_load(configuration._link_inactive_color))),
+            OptionalField('link_active_color', Assertions(configuration._link_active_color.assert_load(configuration._link_active_color))),
+        ))(dumped_configuration)
+        return configuration
 
     def dump(self) -> VoidableDumpedConfiguration:
         return minimize({

@@ -65,13 +65,12 @@ class TestLocalizedPathUrlGenerator:
     ])
     def test_generate_multilingual(self, expected: str, app_locale: Localey | None, url_generator_locale: Localey | None):
         app = App(locale=app_locale)
-        app.project.configuration.locales.replace([
-            LocaleConfiguration('nl'),
-            LocaleConfiguration('en'),
-        ])
-        with app:
-            sut = ContentNegotiationPathUrlGenerator(app)
-            assert expected == sut.generate('/index.html', 'text/html', locale=url_generator_locale)
+        app.project.configuration.locales.replace(
+            LocaleConfiguration('nl-NL', 'nl'),
+            LocaleConfiguration('en-US', 'en'),
+        )
+        sut = ContentNegotiationPathUrlGenerator(app)
+        assert expected == sut.generate('/index.html', 'text/html', locale=url_generator_locale)
 
 
 class EntityUrlGeneratorTestUrlyEntity(UserFacingEntity, Entity):

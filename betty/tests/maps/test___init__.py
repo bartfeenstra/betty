@@ -10,7 +10,7 @@ class TestMaps:
     async def test_generate(self):
         with App() as app:
             app.project.configuration.debug = True
-            app.project.configuration.extensions.add(ExtensionConfiguration(Maps))
+            app.project.configuration.extensions.append(ExtensionConfiguration(Maps))
             await generate(app)
             with open(app.project.configuration.www_directory_path / 'maps.js', encoding='utf-8') as f:
                 betty_js = f.read()

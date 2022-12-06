@@ -17,8 +17,10 @@ from betty.app.extension import ListExtensions, Extension, Extensions, build_ext
     CyclicDependencyError, ExtensionDispatcher, ConfigurableExtension, discover_extension_types
 from betty.asyncio import sync
 from betty.concurrent import ExceptionRaisingAwaitableExecutor
-from betty.config import FileBasedConfiguration, DumpedConfiguration, Configurable, VoidableDumpedConfiguration
-from betty.config.load import ConfigurationValidationError, Loader, Field
+from betty.config import DumpedConfiguration, VoidableDumpedConfiguration, Configurable, FileBasedConfiguration
+from betty.config.dump import void_none, minimize
+from betty.config.load import ConfigurationValidationError, assert_record, Fields, Assertions, assert_str, \
+    assert_setattr, OptionalField
 from betty.dispatch import Dispatcher
 from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH, HOME_DIRECTORY_PATH
 from betty.locale import LocalizerRepository, get_data, Localey, DEFAULT_LOCALE, to_locale, \
@@ -91,21 +93,23 @@ class AppConfiguration(FileBasedConfiguration):
             raise ConfigurationValidationError(self.localizer._('"{locale}" is not a valid IETF BCP 47 language tag.').format(locale=locale))
         self._locale = locale
 
-    def load(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> None:
-        loader.assert_record(dumped_configuration, {
-            'locale': Field(
-                False,
-                loader.assert_str,  # type: ignore
-                lambda x: loader.assert_setattr(self, 'locale', x),
-            ),
-        })
+    def update(self, other: Self) -> None:
+        self._locale = other._locale
+        self.react.trigger()
+
+    @classmethod
+    def load(cls, dumped_configuration: DumpedConfiguration, configuration: Self | None = None) -> Self:
+        if configuration is None:
+            configuration = cls()
+        assert_record(Fields(
+            OptionalField('locale', Assertions(assert_str()) | assert_setattr(configuration, 'locale'))),
+        )(dumped_configuration)
+        return configuration
 
     def dump(self) -> VoidableDumpedConfiguration:
-        dumped_configuration = {}
-        if self._locale is not None:
-            dumped_configuration['locale'] = self.locale
-
-        return dumped_configuration
+        return minimize({
+            'locale': void_none(self.locale)
+        }, True)
 
 
 class App(Configurable[AppConfiguration], ReactiveInstance):
@@ -179,7 +183,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
 
     def _update_extensions(self) -> None:
         extension_types_enabled_in_configuration = set()
-        for app_extension_configuration in self.project.configuration.extensions:
+        for app_extension_configuration in self.project.configuration.extensions.values():
             if app_extension_configuration.enabled:
                 app_extension_configuration.extension_type.enable_requirement(self._localizer).assert_met()
                 extension_types_enabled_in_configuration.add(app_extension_configuration.extension_type)
@@ -190,7 +194,11 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         try:
             extension_types_sorter.prepare()
         except CycleError:
-            raise CyclicDependencyError([app_extension_configuration.extension_type for app_extension_configuration in self.project.configuration.extensions])
+            raise CyclicDependencyError([
+                app_extension_configuration.extension_type
+                for app_extension_configuration
+                in self.project.configuration.extensions.values()
+            ])
 
         extensions = []
         while extension_types_sorter.is_active():

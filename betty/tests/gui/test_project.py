@@ -7,6 +7,7 @@ from pytest_mock import MockerFixture
 from pytestqt.qtbot import QtBot
 
 from betty.app import App
+from betty.config import minimize
 from betty.gui.project import ProjectWindow, _AddLocaleWindow, _GenerateWindow, _LocalizationPane, \
     _GeneralPane, _GenerateHtmlListForm
 from betty.gui.serve import ServeProjectWindow
@@ -29,8 +30,10 @@ class TestProjectWindow:
             mocker.patch.object(QFileDialog, 'getSaveFileName', mocker.MagicMock(return_value=[str(save_as_configuration_file_path), None]))
             navigate(sut, ['save_project_as_action'])
 
+        expected_dumped_configuration = minimize(configuration.dump())
         with open(save_as_configuration_file_path) as f:
-            assert json.load(f) == configuration.dump()
+            actual_dumped_configuration = json.load(f)
+        assert actual_dumped_configuration == expected_dumped_configuration
 
 
 class Test_GenerateHtmlListForm:
@@ -153,8 +156,10 @@ class TestLocalizationPane:
     def test_remove_locale(self, qtbot: QtBot) -> None:
         locale = 'de-DE'
         with App() as app:
-            app.project.configuration.locales.add(LocaleConfiguration('nl-NL'))
-            app.project.configuration.locales.add(LocaleConfiguration(locale))
+            app.project.configuration.locales.append(
+                LocaleConfiguration('nl-NL'),
+                LocaleConfiguration(locale),
+            )
             sut = _LocalizationPane(app)
             qtbot.addWidget(sut)
             sut.show()
@@ -168,8 +173,10 @@ class TestLocalizationPane:
     def test_default_locale(self, qtbot: QtBot) -> None:
         locale = 'de-DE'
         with App() as app:
-            app.project.configuration.locales.add(LocaleConfiguration('nl-NL'))
-            app.project.configuration.locales.add(LocaleConfiguration(locale))
+            app.project.configuration.locales.append(
+                LocaleConfiguration('nl-NL'),
+                LocaleConfiguration(locale),
+            )
             sut = _LocalizationPane(app)
             qtbot.addWidget(sut)
             sut.show()

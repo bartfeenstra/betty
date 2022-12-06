@@ -334,7 +334,7 @@ class TestAnonymizer:
         person.private = True
         PersonName(person, 'Jane', 'Dough')
         with App() as app:
-            app.project.configuration.extensions.add(ExtensionConfiguration(Anonymizer))
+            app.project.configuration.extensions.append(ExtensionConfiguration(Anonymizer))
             app.project.ancestry.entities.append(person)
             await load(app)
         assert 0 == len(person.names)

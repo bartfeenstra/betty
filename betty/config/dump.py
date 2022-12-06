@@ -41,38 +41,45 @@ DumpedConfigurationU = TypeVar('DumpedConfigurationU', bound=DumpedConfiguration
 
 VoidableDumpedConfiguration: TypeAlias = Union[
     DumpedConfiguration,
+    bool,
+    int,
+    float,
+    str,
+    None,
+    Sequence['DumpedConfiguration'],
+    Mapping[str, 'DumpedConfiguration'],
     Type[Void],
 ]
 VoidableDumpedConfigurationT = TypeVar('VoidableDumpedConfigurationT', bound=VoidableDumpedConfiguration)
 VoidableDumpedConfigurationU = TypeVar('VoidableDumpedConfigurationU', bound=VoidableDumpedConfiguration)
 
 
-DumpedConfigurationList: TypeAlias = List[DumpedConfigurationT]
+_DumpedConfigurationList: TypeAlias = List[DumpedConfigurationT]
 
 
-DumpedConfigurationDict: TypeAlias = Dict[str, DumpedConfigurationT]
+_DumpedConfigurationDict: TypeAlias = Dict[str, DumpedConfigurationT]
 
 
-VoidableDumpedConfigurationList: TypeAlias = List[VoidableDumpedConfigurationT]
+_VoidableDumpedConfigurationList: TypeAlias = List[VoidableDumpedConfigurationT]
 
 
-VoidableDumpedConfigurationDict: TypeAlias = Dict[str, VoidableDumpedConfigurationT]
+_VoidableDumpedConfigurationDict: TypeAlias = Dict[str, VoidableDumpedConfigurationT]
 
 
-MinimizableDumpedConfiguration: TypeAlias = Union[VoidableDumpedConfiguration, VoidableDumpedConfigurationList, VoidableDumpedConfigurationDict]
+_MinimizableDumpedConfiguration: TypeAlias = Union[VoidableDumpedConfiguration, _VoidableDumpedConfigurationList, _VoidableDumpedConfigurationDict]
 
 
 @overload
-def minimize(dumped_configuration: MinimizableDumpedConfiguration, voidable: Literal[True] = True) -> VoidableDumpedConfiguration:
+def minimize(dumped_configuration: _MinimizableDumpedConfiguration, voidable: Literal[True] = True) -> VoidableDumpedConfiguration:
     pass
 
 
 @overload
-def minimize(dumped_configuration: MinimizableDumpedConfiguration, voidable: Literal[False]) -> DumpedConfiguration:
+def minimize(dumped_configuration: _MinimizableDumpedConfiguration, voidable: Literal[False]) -> DumpedConfiguration:
     pass
 
 
-def minimize(dumped_configuration: MinimizableDumpedConfiguration, voidable: bool = True) -> VoidableDumpedConfiguration:
+def minimize(dumped_configuration: _MinimizableDumpedConfiguration, voidable: bool = True) -> VoidableDumpedConfiguration:
     if isinstance(dumped_configuration, (Sequence, Mapping)) and not isinstance(dumped_configuration, str):
         if isinstance(dumped_configuration, Sequence):
             dumped_configuration = [
@@ -95,3 +102,7 @@ def minimize(dumped_configuration: MinimizableDumpedConfiguration, voidable: boo
             return dumped_configuration  # type: ignore[return-value]
         return Void
     return dumped_configuration
+
+
+def void_none(value: VoidableDumpedConfiguration) -> VoidableDumpedConfiguration:
+    return Void if value is None else value

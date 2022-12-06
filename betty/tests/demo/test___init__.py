@@ -11,7 +11,7 @@ class TestDemo:
     async def test_load(self, mocker: MockerFixture):
         mocker.patch('webbrowser.open_new_tab')
         app = App()
-        app.project.configuration.extensions.add(ExtensionConfiguration(Demo))
+        app.project.configuration.extensions.append(ExtensionConfiguration(Demo))
         await load(app)
         assert 0 != len(app.project.ancestry.entities[Person])
         assert 0 != len(app.project.ancestry.entities[Place])

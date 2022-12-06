@@ -38,6 +38,7 @@ async def generate(app: App) -> None:
     with suppress(FileNotFoundError):
         shutil.rmtree(app.project.configuration.output_directory_path)
     await aiofiles_os.makedirs(app.project.configuration.output_directory_path)
+    logging.getLogger().info(app.localizer._('Generating your site to {output_directory}.').format(output_directory=app.project.configuration.output_directory_path))
     await _ConcurrentGenerator.generate(app)
     os.chmod(app.project.configuration.output_directory_path, 0o755)
     for directory_path_str, subdirectory_names, file_names in os.walk(app.project.configuration.output_directory_path):
@@ -77,8 +78,7 @@ class _ConcurrentGenerator:
 
         # Log the generated pages.
         logger = getLogger()
-        for locale_configuration in app.project.configuration.locales:
-            locale = locale_configuration.locale
+        for locale in app.project.configuration.locales:
             locale_label = get_display_name(locale, app.localizer.locale)
             for entity_type in app.entity_types:
                 if issubclass(entity_type, UserFacingEntity):
@@ -92,8 +92,7 @@ class _ConcurrentGenerator:
     def _build_generation_queue(cls, app: App) -> queue.Queue:
         generation_queue = multiprocessing.Manager().Queue()
         generation_queue.put((None, _generate_dispatch, ()))
-        for locale_configuration in app.project.configuration.locales:
-            locale = locale_configuration.locale
+        for locale in app.project.configuration.locales:
             generation_queue.put((locale, _generate_public, ()))
             generation_queue.put((locale, _generate_openapi, ()))
             for entity_type in app.entity_types:
@@ -115,10 +114,10 @@ class _ConcurrentGenerator:
         self._apps: Dict[str | None, App] = {
             None: App(project=self._project),
         }
-        for locale_configuration in self._project.configuration.locales:
-            self._apps[locale_configuration.locale] = App(
+        for locale in self._project.configuration.locales:
+            self._apps[locale] = App(
                 project=self._project,
-                locale=locale_configuration.locale,
+                locale=locale,
             )
         await asyncio.gather(*[
             self._perform_tasks(self._generation_queue)

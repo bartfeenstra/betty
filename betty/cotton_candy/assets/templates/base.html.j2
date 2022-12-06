@@ -16,7 +16,9 @@
 <div id="page">
     <nav id="nav-primary">
         <a id="site-title" href="{{ '/index.html' | url }}" title="{{ app.project.configuration.title }}">{{ app.project.configuration.title }}</a>
-        <div id="search" data-betty-search-index="{{ '/search-index.json' | url }}">
+        <div id="search"
+             data-betty-search-configuration="{{ '/search-configuration.json' | static_url }}"
+             data-betty-search-index="{{ '/search-index.json' | url }}">
             <div class="overlay-controls">
                 <span class="overlay-control overlay-close" title="{% trans %}Exit the search{% endtrans %}">{% trans %}Exit the search{% endtrans %}</span>
             </div>
@@ -47,7 +49,7 @@
             <h2 class="nav-primary-action">{% trans %}Menu{% endtrans %}</h2>
             <div class="nav-primary-expanded">
                 <ul class="nav-secondary">
-                    {% for entity_type_configuration in app.project.configuration.entity_types | selectattr('generate_html_list') %}
+                    {% for entity_type_configuration in app.project.configuration.entity_types.values() | selectattr('generate_html_list') %}
                         <li>
                             <a href="{{ ('/' + entity_type_configuration.entity_type | entity_type_name | camel_case_to_kebab_case + '/index.html') | url }}">
                                 {% if 'Event' == entity_type_configuration.entity_type | entity_type_name %}
@@ -67,7 +69,7 @@
                 <div class="nav-primary-expanded">
                     <ul class="nav-secondary">
                     {% set ns = namespace(available_locales=[]) %}
-                    {% for available_locale_configuration in app.project.configuration.locales %}
+                    {% for available_locale_configuration in app.project.configuration.locales.values() %}
                         {% set available_locale_data = available_locale_configuration.alias | locale_get_data %}
                         {% do ns.available_locales.append((available_locale_configuration.locale, available_locale_data.get_display_name())) %}
                     {% endfor %}

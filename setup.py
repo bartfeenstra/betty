@@ -73,6 +73,7 @@ SETUP = {
             'html5lib ~= 1.1',
             'lxml ~= 4.9, >= 4.9.1; sys.platform != "win32"',
             'mypy ~= 1.2, >= 1.2.0',
+            'ordered-set ~= 4.1.0',
             'pip-licenses ~= 4.3, >= 4.3.0',
             'pyinstaller ~= 5.0',
             'pytest ~= 7.3, >= 7.3.1',
