@@ -1,7 +1,8 @@
 from pathlib import Path
-from typing import Optional, List, Iterable
+from typing import Optional, Iterable, MutableSequence
 
-from reactives import reactive, ReactiveList
+from reactives.collections import ReactiveMutableSequence
+from reactives.instance.property import reactive_property
 
 from betty.config import Configuration, DumpedConfigurationImport, DumpedConfigurationExport, DumpedConfigurationDict
 from betty.config.dump import DumpedConfigurationList
@@ -17,15 +18,15 @@ except ModuleNotFoundError:
 class FamilyTreeConfiguration(Configuration):
     def __init__(self, file_path: Optional[PathLike] = None):
         super().__init__()
-        self.file_path = file_path
+        self.file_path = file_path  # type: ignore[assignment]
 
     def __eq__(self, other):
         if not isinstance(other, FamilyTreeConfiguration):
             return False
         return self._file_path == other.file_path
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def file_path(self) -> Optional[Path]:
         return self._file_path
 
@@ -51,13 +52,13 @@ class FamilyTreeConfiguration(Configuration):
 class GrampsConfiguration(Configuration):
     def __init__(self, family_trees: Optional[Iterable[FamilyTreeConfiguration]] = None):
         super().__init__()
-        self._family_trees = ReactiveList()
+        self._family_trees = ReactiveMutableSequence[FamilyTreeConfiguration]()
         self._family_trees.react(self)
         if family_trees:
             self._family_trees.extend(family_trees)
 
     @property
-    def family_trees(self) -> List[FamilyTreeConfiguration]:
+    def family_trees(self) -> MutableSequence[FamilyTreeConfiguration]:
         return self._family_trees
 
     def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:

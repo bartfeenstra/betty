@@ -1,11 +1,10 @@
 from typing import Optional, Callable, List, TYPE_CHECKING
 
 from PyQt6.QtWidgets import QFormLayout, QLabel, QComboBox, QLineEdit, QWidget, QPushButton, QVBoxLayout, QHBoxLayout
-from reactives import reactive
 
 from betty.app import App
 from betty.gui.locale import LocalizedWidget
-from betty.model import UserFacingEntity
+from betty.model import UserFacingEntity, Entity
 from betty.project import EntityReference, EntityReferenceCollection
 
 if TYPE_CHECKING:
@@ -32,7 +31,10 @@ class EntityReferenceCollector(LocalizedWidget):
             self._entity_type = QComboBox()
             self._entity_type.currentIndexChanged.connect(_update_entity_type)  # type: ignore
             # @todo We use translated labels, and sort by them, but neither is reactive.
-            for i, entity_type in enumerate(sorted(filter(lambda entity_type: isinstance(entity_type, UserFacingEntity), self._app.entity_types), key=lambda entity_type: entity_type.entity_type_label())):
+            for i, entity_type in enumerate(sorted(filter(
+                    lambda entity_type: isinstance(entity_type, UserFacingEntity),
+                    self._app.entity_types,
+            ), key=lambda entity_type: entity_type.entity_type_label())):
                 self._entity_type.addItem(entity_type.entity_type_label(), entity_type)
                 if entity_type == self._entity_reference.entity_type:
                     self._entity_type.setCurrentIndex(i)
@@ -48,8 +50,7 @@ class EntityReferenceCollector(LocalizedWidget):
 
         self._set_translatables()
 
-    @reactive(on_trigger_call=True)
-    def _set_translatables(self) -> None:
+    def _do_set_translatables(self) -> None:
         with self._app.acquire_locale():
             if self._entity_reference.entity_type:
                 self._entity_id_label.setText(_('{entity_type_label} ID').format(
@@ -99,7 +100,7 @@ class EntityReferenceCollectionCollector(LocalizedWidget):
         self._set_translatables()
 
     def _add_entity_reference(self) -> None:
-        entity_reference = EntityReference()
+        entity_reference = EntityReference[Entity]()
         self._entity_references.append(entity_reference)
         self._build_entity_reference_collection(len(self._entity_references) - 1, entity_reference)
         self._set_translatables()
@@ -131,8 +132,7 @@ class EntityReferenceCollectionCollector(LocalizedWidget):
         entity_reference_remove_button.released.connect(lambda: self._remove_entity_reference(i))  # type: ignore
         layout.addWidget(entity_reference_remove_button)
 
-    @reactive(on_trigger_call=True)
-    def _set_translatables(self) -> None:
+    def _do_set_translatables(self) -> None:
         with self._app.acquire_locale():
             if self._label_builder:
                 self._label.setText(self._label_builder())

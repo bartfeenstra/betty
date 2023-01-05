@@ -190,5 +190,5 @@ class Serve:
         configuration.write()
         os.makedirs(configuration.www_directory_path)
         runner = CliRunner()
-        result = runner.invoke(main, ('-c', configuration.configuration_file_path, 'serve',), catch_exceptions=False)
+        result = runner.invoke(main, ('-c', str(configuration.configuration_file_path), 'serve',), catch_exceptions=False)
         assert 0 == result.exit_code

@@ -21,7 +21,9 @@ class Gramps(ConfigurableExtension[GrampsConfiguration], UserFacingExtension, Lo
 
     async def load(self) -> None:
         for family_tree in self.configuration.family_trees:
-            await load_file(self._app.project.ancestry, family_tree.file_path)
+            file_path = family_tree.file_path
+            if file_path:
+                await load_file(self._app.project.ancestry, file_path)
 
     @classmethod
     def label(cls) -> str:

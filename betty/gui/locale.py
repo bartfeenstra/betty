@@ -3,8 +3,8 @@ from typing import Set, TYPE_CHECKING, List, Tuple
 from PyQt6 import QtGui
 from PyQt6.QtWidgets import QComboBox, QLabel, QWidget, QMainWindow
 from babel.core import Locale
-from reactives import reactive
-from reactives.factory.type import ReactiveInstance
+from reactives.instance import ReactiveInstance
+from reactives.instance.method import reactive_method
 
 from betty.app import App
 from betty.classtools import Repr
@@ -15,7 +15,6 @@ if TYPE_CHECKING:
     from betty.builtins import _
 
 
-@reactive
 class TranslationsLocaleCollector(ReactiveInstance):
     def __init__(self, app: App, allowed_locales: Set[str]):
         super().__init__()
@@ -51,7 +50,7 @@ class TranslationsLocaleCollector(ReactiveInstance):
             [self._configuration_locale_caption],
         ]
 
-    @reactive(on_trigger_call=True)
+    @reactive_method(on_trigger_call=True)
     def _set_translatables(self) -> None:
         with self._app.acquire_locale():
             self._configuration_locale_label.setText(_('Locale'))
@@ -79,7 +78,6 @@ class TranslationsLocaleCollector(ReactiveInstance):
                     ))
 
 
-@reactive
 class _LocalizedObject(ReactiveInstance):
     def __init__(self, app: App, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -89,7 +87,7 @@ class _LocalizedObject(ReactiveInstance):
         super().showEvent(event)  # type: ignore
         self._set_translatables()
 
-    @reactive(on_trigger_call=True)
+    @reactive_method(on_trigger_call=True)
     def _set_translatables(self) -> None:
         with self._app.acquire_locale():
             self._do_set_translatables()

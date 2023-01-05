@@ -3,11 +3,12 @@ from __future__ import annotations
 from collections import OrderedDict
 from contextlib import suppress
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Type, List, Iterable, Any, Sequence, cast
+from typing import TYPE_CHECKING, Optional, Type, List, Any, Sequence, cast, Iterator, Generic, MutableMapping
 from urllib.parse import urlparse
 
 from babel.core import parse_locale, Locale
-from reactives import reactive, scope
+from reactives import scope
+from reactives.instance.property import reactive_property
 
 from betty.app import Extension, ConfigurableExtension
 from betty.classtools import repr_instance
@@ -15,11 +16,11 @@ from betty.config import Configuration, DumpedConfigurationImport, Configurable,
     ConfigurationMapping, DumpedConfigurationExport, DumpedConfigurationDict
 from betty.config.dump import minimize, minimize_dict
 from betty.config.load import ConfigurationValidationError, Loader, Field
-from betty.config.validate import validate, validate_positive_number
+from betty.config.validate import validate_positive_number
 from betty.importlib import import_any
 from betty.locale import bcp_47_to_rfc_1766
 from betty.model import Entity, get_entity_type_name, UserFacingEntity, get_entity_type as model_get_entity_type, \
-    EntityTypeImportError, EntityTypeInvalidError, EntityTypeError
+    EntityTypeImportError, EntityTypeInvalidError, EntityTypeError, EntityT
 from betty.model.ancestry import Ancestry, Person, Event, Place, Source
 from betty.typing import Void
 
@@ -49,26 +50,26 @@ def get_entity_type(entity_type_definition: Any) -> Type[Entity]:
         ))
 
 
-class EntityReference(Configuration):
-    def __init__(self, entity_type: Optional[Type[Entity]] = None, entity_id: Optional[str] = None, /, entity_type_constraint: Optional[Type[Entity]] = None):
+class EntityReference(Configuration, Generic[EntityT]):
+    def __init__(self, entity_type: Optional[Type[EntityT]] = None, entity_id: Optional[str] = None, /, entity_type_constraint: Optional[Type[EntityT]] = None):
         super().__init__()
         self._entity_type = entity_type
         self._entity_id = entity_id
         self._entity_type_constraint = entity_type_constraint
 
-    @reactive  # type: ignore
     @property
-    def entity_type(self) -> Optional[Type[Entity]]:
+    @reactive_property
+    def entity_type(self) -> Optional[Type[EntityT]]:
         return self._entity_type or self._entity_type_constraint
 
     @entity_type.setter
-    def entity_type(self, entity_type: Type[Entity]) -> None:
+    def entity_type(self, entity_type: Type[EntityT]) -> None:
         if self._entity_type_constraint is not None:
             raise AttributeError(f'The entity type cannot be set, as it is already constrained to {self._entity_type_constraint}.')
         self._entity_type = entity_type
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def entity_id(self) -> Optional[str]:
         return self._entity_id
 
@@ -81,7 +82,7 @@ class EntityReference(Configuration):
         self._entity_id = None
 
     @property
-    def entity_type_constraint(self) -> Optional[Type[Entity]]:
+    def entity_type_constraint(self) -> Optional[Type[EntityT]]:
         return self._entity_type_constraint
 
     def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
@@ -133,7 +134,7 @@ class EntityReferenceCollection(Configuration):
         self._entity_references = entity_references or []
 
     @scope.register_self
-    def __iter__(self):
+    def __iter__(self) -> Iterator[EntityReference]:
         return (reference for reference in self._entity_references)
 
     @scope.register_self
@@ -212,8 +213,8 @@ class ExtensionConfiguration(Configuration):
     def extension_type(self) -> Type[Extension]:
         return self._extension_type
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def enabled(self) -> bool:
         return self._enabled
 
@@ -290,7 +291,7 @@ class EntityTypeConfiguration(Configuration):
     def __init__(self, entity_type: Type[Entity], generate_html_list: Optional[bool] = None):
         super().__init__()
         self._entity_type = entity_type
-        self.generate_html_list = generate_html_list
+        self.generate_html_list = generate_html_list  # type: ignore[assignment]
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
@@ -305,8 +306,8 @@ class EntityTypeConfiguration(Configuration):
     def entity_type(self) -> Type[Entity]:
         return self._entity_type
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def generate_html_list(self) -> bool:
         return self._generate_html_list or False
 
@@ -395,7 +396,7 @@ class LocaleConfigurationCollection(Configuration):
         self.react.trigger()
 
     @scope.register_self
-    def __iter__(self) -> Iterable[LocaleConfiguration]:
+    def __iter__(self) -> Iterator[LocaleConfiguration]:
         return (configuration for configuration in self._configurations.values())
 
     @scope.register_self
@@ -404,6 +405,7 @@ class LocaleConfigurationCollection(Configuration):
 
     @scope.register_self
     def __eq__(self, other):
+        scope.register(other)
         if not isinstance(other, LocaleConfigurationCollection):
             return NotImplemented
         return self._configurations == other._configurations
@@ -428,8 +430,8 @@ class LocaleConfigurationCollection(Configuration):
             self._configurations[configuration.locale] = configuration
         self.react.trigger()
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def default(self) -> LocaleConfiguration:
         return next(iter(self._configurations.values()))
 
@@ -509,12 +511,10 @@ class ProjectConfiguration(FileBasedConfiguration):
     def project_directory_path(self) -> Path:
         return self.configuration_file_path.parent
 
-    @reactive  # type: ignore
     @property
     def output_directory_path(self) -> Path:
         return self.project_directory_path / 'output'
 
-    @reactive  # type: ignore
     @property
     def assets_directory_path(self) -> Path:
         return self.project_directory_path / 'assets'
@@ -523,8 +523,8 @@ class ProjectConfiguration(FileBasedConfiguration):
     def www_directory_path(self) -> Path:
         return self.output_directory_path / 'www'
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def title(self) -> str:
         return self._title
 
@@ -532,8 +532,8 @@ class ProjectConfiguration(FileBasedConfiguration):
     def title(self, title: str) -> None:
         self._title = title
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def author(self) -> Optional[str]:
         return self._author
 
@@ -541,8 +541,8 @@ class ProjectConfiguration(FileBasedConfiguration):
     def author(self, author: Optional[str]) -> None:
         self._author = author
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def base_url(self) -> str:
         return self._base_url
 
@@ -555,8 +555,8 @@ class ProjectConfiguration(FileBasedConfiguration):
             raise ConfigurationValidationError(_('The base URL must include a path.'))
         self._base_url = '%s://%s' % (base_url_parts.scheme, base_url_parts.netloc)
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def root_path(self) -> str:
         return self._root_path
 
@@ -564,8 +564,8 @@ class ProjectConfiguration(FileBasedConfiguration):
     def root_path(self, root_path: str) -> None:
         self._root_path = root_path.strip('/')
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def content_negotiation(self) -> bool:
         return self._content_negotiation
 
@@ -573,8 +573,8 @@ class ProjectConfiguration(FileBasedConfiguration):
     def content_negotiation(self, content_negotiation: bool):
         self._content_negotiation = content_negotiation
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def clean_urls(self) -> bool:
         return self._clean_urls or self.content_negotiation
 
@@ -582,8 +582,8 @@ class ProjectConfiguration(FileBasedConfiguration):
     def clean_urls(self, clean_urls: bool) -> None:
         self._clean_urls = clean_urls
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def locales(self) -> LocaleConfigurationCollection:
         return self._locales
 
@@ -599,8 +599,8 @@ class ProjectConfiguration(FileBasedConfiguration):
     def extensions(self) -> ExtensionConfigurationMapping:
         return self._extensions
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def debug(self) -> bool:
         return self._debug
 
@@ -608,14 +608,14 @@ class ProjectConfiguration(FileBasedConfiguration):
     def debug(self, debug: bool) -> None:
         self._debug = debug
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def lifetime_threshold(self) -> int:
         return self._lifetime_threshold
 
     @lifetime_threshold.setter
-    @validate(validate_positive_number)
     def lifetime_threshold(self, lifetime_threshold: int) -> None:
+        validate_positive_number(lifetime_threshold)
         self._lifetime_threshold = lifetime_threshold
 
     def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
@@ -678,7 +678,7 @@ class ProjectConfiguration(FileBasedConfiguration):
         )
 
     def dump(self) -> DumpedConfigurationExport:
-        dumped_configuration = {
+        dumped_configuration: MutableMapping[str, DumpedConfigurationExport] = {
             'base_url': self.base_url,
             'title': self.title,
         }

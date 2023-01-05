@@ -59,9 +59,9 @@ class TestCottonCandyGuiWidget:
     def test_change_featured_entities(self, qtbot: QtBot) -> None:
         with App() as app:
             app.project.configuration.extensions.enable(CottonCandy)
-            entity_reference_1 = EntityReference(CottonCandyGuiWidgetTestEntity, '123')
-            entity_reference_2 = EntityReference(CottonCandyGuiWidgetTestEntity, '456')
-            entity_reference_3 = EntityReference(CottonCandyGuiWidgetTestEntity, '789')
+            entity_reference_1 = EntityReference[CottonCandyGuiWidgetTestEntity](CottonCandyGuiWidgetTestEntity, '123')
+            entity_reference_2 = EntityReference[CottonCandyGuiWidgetTestEntity](CottonCandyGuiWidgetTestEntity, '456')
+            entity_reference_3 = EntityReference[CottonCandyGuiWidgetTestEntity](CottonCandyGuiWidgetTestEntity, '789')
             app.extensions[CottonCandy].configuration.featured_entities.append(entity_reference_1)
             app.extensions[CottonCandy].configuration.featured_entities.append(entity_reference_2)
             app.extensions[CottonCandy].configuration.featured_entities.append(entity_reference_3)
@@ -77,9 +77,9 @@ class TestCottonCandyGuiWidget:
     def test_remove_featured_entities(self, qtbot: QtBot) -> None:
         with App() as app:
             app.project.configuration.extensions.enable(CottonCandy)
-            entity_reference_1 = EntityReference(CottonCandyGuiWidgetTestEntity, '123')
-            entity_reference_2 = EntityReference(CottonCandyGuiWidgetTestEntity, '456')
-            entity_reference_3 = EntityReference(CottonCandyGuiWidgetTestEntity, '789')
+            entity_reference_1 = EntityReference[CottonCandyGuiWidgetTestEntity](CottonCandyGuiWidgetTestEntity, '123')
+            entity_reference_2 = EntityReference[CottonCandyGuiWidgetTestEntity](CottonCandyGuiWidgetTestEntity, '456')
+            entity_reference_3 = EntityReference[CottonCandyGuiWidgetTestEntity](CottonCandyGuiWidgetTestEntity, '789')
             app.extensions[CottonCandy].configuration.featured_entities.append(entity_reference_1)
             app.extensions[CottonCandy].configuration.featured_entities.append(entity_reference_2)
             app.extensions[CottonCandy].configuration.featured_entities.append(entity_reference_3)

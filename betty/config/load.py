@@ -7,8 +7,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Iterator, Type, Dict, Union, Callable, Optional, Tuple, Any, ContextManager, List, \
     Generic
 
-from reactives.factory.property import _ReactiveProperty
-
 from betty.config.dump import DumpedConfigurationImport, DumpedConfigurationImportT, DumpedConfigurationImportU, \
     DumpedConfigurationTypeT, DumpedConfigurationType, DumpedConfigurationDict, DumpedConfigurationList
 from betty.config.error import ConfigurationError, ConfigurationErrorCollection
@@ -132,7 +130,6 @@ class Loader:
         self._committers.append(committer)
 
     def error(self, *errors: ConfigurationLoadError) -> None:
-        self._assert_uncommitted()
         self._errors.append(*errors)
 
     @contextmanager
@@ -295,15 +292,10 @@ class Loader:
         return False
 
     def assert_setattr(self, instance: Any, attr_name: str, value: Any) -> None:
-        with self.catch():
-            if hasattr(type(instance), attr_name):
-                attr = getattr(type(instance), attr_name)
-                if isinstance(attr, _ReactiveProperty):
-                    attr = attr._decorated_property
-                if not isinstance(attr, property):
-                    raise RuntimeError(f'Cannot automatically load the configuration for property {type(instance)}.{attr_name}.')
-                for validator in getattr(attr.fset, '_betty_configuration_validators', ()):
-                    value = validator(instance, value)
-            # Ensure that the attribute exists.
-            getattr(instance, attr_name)
-            self.on_commit(lambda: setattr(instance, attr_name, value))
+        # Ensure that the attribute exists.
+        getattr(instance, attr_name)
+
+        def _setattr() -> None:
+            with self.catch():
+                setattr(instance, attr_name, value)
+        self.on_commit(_setattr)

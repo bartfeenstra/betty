@@ -4,10 +4,11 @@ import os
 from contextlib import suppress
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Dict, TypeVar, Generic, Optional, Iterable
+from typing import Dict, TypeVar, Generic, Optional, Iterable, Iterator
 
-from reactives import reactive, scope
-from reactives.factory.type import ReactiveInstance
+from reactives import scope
+from reactives.instance import ReactiveInstance
+from reactives.instance.property import reactive_property
 
 from betty.classtools import Repr, repr_instance
 from betty.config.dump import DumpedConfigurationImport, DumpedConfigurationExport, \
@@ -22,7 +23,6 @@ except ModuleNotFoundError:
     from typing import TypeGuard  # type: ignore
 
 
-@reactive
 class Configuration(ReactiveInstance, Repr):
     def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
         """
@@ -79,7 +79,7 @@ class FileBasedConfiguration(Configuration):
         if configuration_file_path is None:
             self._assert_configuration_file_path()
         else:
-            self.configuration_file_path = configuration_file_path
+            self.configuration_file_path = configuration_file_path  # type: ignore[assignment]
 
         self._write(self.configuration_file_path)
 
@@ -100,7 +100,7 @@ class FileBasedConfiguration(Configuration):
         if configuration_file_path is None:
             self._assert_configuration_file_path()
         else:
-            self.configuration_file_path = configuration_file_path
+            self.configuration_file_path = configuration_file_path  # type: ignore[assignment]
 
         # Change the working directory to allow relative paths to be resolved against the configuration file's directory
         # path.
@@ -116,8 +116,8 @@ class FileBasedConfiguration(Configuration):
         if hasattr(self, '_project_directory') and self._project_directory is not None:
             self._project_directory.cleanup()
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def configuration_file_path(self) -> Path:
         if self._configuration_file_path is None:
             if self._project_directory is None:
@@ -168,7 +168,7 @@ class ConfigurationMapping(Configuration, Generic[ConfigurationKeyT, Configurati
         self.remove(configuration_key)
 
     @scope.register_self
-    def __iter__(self) -> Iterable[ConfigurationT]:
+    def __iter__(self) -> Iterator[ConfigurationT]:
         return (configuration for configuration in self._configurations.values())
 
     @scope.register_self
@@ -182,6 +182,7 @@ class ConfigurationMapping(Configuration, Generic[ConfigurationKeyT, Configurati
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return NotImplemented
+        scope.register(other)
         return self._configurations == other._configurations
 
     def remove(self, *configuration_keys: ConfigurationKeyT) -> None:

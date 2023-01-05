@@ -1,7 +1,7 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from reactives import ReactiveList
+from reactives.collections import ReactiveMutableSequence
 
 from betty.app import App
 from betty.gramps import Gramps, GrampsConfiguration
@@ -128,7 +128,7 @@ class TestGramps:
 
             with App() as app:
                 app.project.configuration.extensions.add(ExtensionConfiguration(Gramps, True, GrampsConfiguration(
-                    family_trees=ReactiveList([
+                    family_trees=ReactiveMutableSequence([
                         FamilyTreeConfiguration(gramps_family_tree_one_path),
                         FamilyTreeConfiguration(gramps_family_tree_two_path),
                     ])

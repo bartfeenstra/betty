@@ -25,28 +25,28 @@ class EntityReferenceTestEntity(Entity):
 class TestEntityReference:
     def test_entity_type_with_constraint(self) -> None:
         entity_type = EntityReferenceTestEntity
-        sut = EntityReference(entity_type_constraint=entity_type)
+        sut = EntityReference[EntityReferenceTestEntity](entity_type_constraint=entity_type)
         assert entity_type == sut.entity_type
         with pytest.raises(AttributeError):
             sut.entity_type = entity_type
 
     def test_entity_type_without_constraint(self) -> None:
         entity_type = EntityReferenceTestEntity
-        sut = EntityReference()
+        sut = EntityReference[EntityReferenceTestEntity]()
         assert sut.entity_type is None
         sut.entity_type = entity_type
         assert entity_type == sut.entity_type
 
     def test_entity_id(self) -> None:
         entity_id = '123'
-        sut = EntityReference()
+        sut = EntityReference[EntityReferenceTestEntity]()
         assert sut.entity_id is None
         sut.entity_id = entity_id
         assert entity_id == sut.entity_id
 
     def test_load_with_constraint(self) -> None:
         entity_type_constraint = EntityReferenceTestEntity
-        sut = EntityReference(entity_type_constraint=entity_type_constraint)
+        sut = EntityReference[EntityReferenceTestEntity](entity_type_constraint=entity_type_constraint)
         entity_id = '123'
         dumped_configuration = entity_id
         with raises_no_configuration_errors() as loader:
@@ -55,14 +55,14 @@ class TestEntityReference:
 
     def test_load_with_constraint_without_string_should_error(self) -> None:
         entity_type_constraint = EntityReferenceTestEntity
-        sut = EntityReference(entity_type_constraint=entity_type_constraint)
+        sut = EntityReference[EntityReferenceTestEntity](entity_type_constraint=entity_type_constraint)
         entity_id = None
         dumped_configuration = entity_id
         with raises_configuration_error(error_type=ConfigurationValidationError) as loader:
             sut.load(dumped_configuration, loader)
 
     def test_load_without_constraint(self) -> None:
-        sut = EntityReference()
+        sut = EntityReference[EntityReferenceTestEntity]()
         entity_type = EntityReferenceTestEntity
         entity_id = '123'
         dumped_configuration = {
@@ -75,7 +75,7 @@ class TestEntityReference:
         assert entity_id == sut.entity_id
 
     def test_load_without_constraint_without_entity_type_should_error(self) -> None:
-        sut = EntityReference()
+        sut = EntityReference[EntityReferenceTestEntity]()
         entity_id = '123'
         dumped_configuration = {
             'entity_id': entity_id,
@@ -84,7 +84,7 @@ class TestEntityReference:
             sut.load(dumped_configuration, loader)
 
     def test_load_without_constraint_without_string_entity_type_should_error(self) -> None:
-        sut = EntityReference()
+        sut = EntityReference[EntityReferenceTestEntity]()
         entity_id = '123'
         dumped_configuration = {
             'entity_type': None,
@@ -94,7 +94,7 @@ class TestEntityReference:
             sut.load(dumped_configuration, loader)
 
     def test_load_without_constraint_without_importable_entity_type_should_error(self) -> None:
-        sut = EntityReference()
+        sut = EntityReference[EntityReferenceTestEntity]()
         entity_id = '123'
         dumped_configuration = {
             'entity_type': 'betty.non_existent.Entity',
@@ -104,7 +104,7 @@ class TestEntityReference:
             sut.load(dumped_configuration, loader)
 
     def test_load_without_constraint_without_entity_id_should_error(self) -> None:
-        sut = EntityReference()
+        sut = EntityReference[EntityReferenceTestEntity]()
         entity_type = EntityReferenceTestEntity
         dumped_configuration = {
             'entity_type': get_entity_type_name(entity_type),
@@ -113,7 +113,7 @@ class TestEntityReference:
             sut.load(dumped_configuration, loader)
 
     def test_load_without_constraint_without_string_entity_id_should_error(self) -> None:
-        sut = EntityReference()
+        sut = EntityReference[EntityReferenceTestEntity]()
         entity_type = EntityReferenceTestEntity
         dumped_configuration = {
             'entity_type': get_entity_type_name(entity_type),
@@ -123,14 +123,14 @@ class TestEntityReference:
             sut.load(dumped_configuration, loader)
 
     def test_dump_with_constraint(self) -> None:
-        sut = EntityReference(entity_type_constraint=Entity)
+        sut = EntityReference[Entity](entity_type_constraint=Entity)
         entity_id = '123'
         sut.entity_id = entity_id
         expected = entity_id
         assert expected == sut.dump()
 
     def test_dump_without_constraint(self) -> None:
-        sut = EntityReference()
+        sut = EntityReference[EntityReferenceTestEntity]()
         entity_type = EntityReferenceTestEntity
         entity_id = '123'
         sut.entity_type = entity_type

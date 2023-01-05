@@ -88,10 +88,10 @@ def _generate_from_path(configuration: ProjectConfiguration, path: str, absolute
                 in configuration.locales
             }
             try:
-                locale_configuration = configuration.locales[negotiate_locale(
-                    locale,
-                    project_locales,
-                )]
+                negotiated_locale = negotiate_locale(locale, project_locales)
+                if negotiated_locale is None:
+                    raise KeyError
+                locale_configuration = configuration.locales[negotiated_locale]
             except KeyError:
                 raise ValueError(f'Cannot generate URLs in "{locale}", because it cannot be resolved to any of the enabled project locales: {", ".join(project_locales)}')
         url += locale_configuration.alias + '/'
