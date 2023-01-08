@@ -20,6 +20,8 @@ class TestPotFile:
         with open(directory_path / 'betty' / 'assets' / 'betty.pot') as f:
             return filter(
                 lambda line: not line.startswith((
+                    '# Copyright (C) ',
+                    '# FIRST AUTHOR <EMAIL@ADDRESS>, ',
                     '"POT-Creation-Date: ',
                     '"PO-Revision-Date: ',
                     '"Generated-By: ',
