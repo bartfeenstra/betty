@@ -6,8 +6,8 @@ from betty.config.load import ConfigurationValidationError
 
 try:
     from typing_extensions import TypeAlias
-except ModuleNotFoundError:
-    from typing import TypeAlias  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover
+    from typing import TypeAlias  # type: ignore  # pragma: no cover
 
 if TYPE_CHECKING:
     from betty.builtins import _

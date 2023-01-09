@@ -41,8 +41,8 @@ except ModuleNotFoundError:
 
 try:
     from typing_extensions import Self
-except ModuleNotFoundError:
-    from typing import Self  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover
+    from typing import Self  # type: ignore  # pragma: no cover
 
 if TYPE_CHECKING:
     from betty.builtins import _

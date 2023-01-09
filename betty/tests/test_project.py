@@ -854,7 +854,7 @@ class TestProjectConfiguration:
 
 
 class DummyNonConfigurableExtension(Extension):
-    pass  # pragma: no cover
+    pass
 
 
 class DummyConfigurableExtensionConfiguration(Configuration):
