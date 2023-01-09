@@ -4,7 +4,7 @@ from textwrap import indent
 from typing import Optional, TYPE_CHECKING, cast, List, Any
 
 if TYPE_CHECKING:
-    from betty.builtins import _  # pragma: no cover
+    from betty.builtins import _
 
 from betty.error import UserFacingError
 

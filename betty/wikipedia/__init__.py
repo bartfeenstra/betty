@@ -30,15 +30,15 @@ if TYPE_CHECKING:
 
 
 class WikipediaError(BaseException):
-    pass  # pragma: no cover
+    pass
 
 
 class NotAnEntryError(WikipediaError, ValueError):
-    pass  # pragma: no cover
+    pass
 
 
 class RetrievalError(WikipediaError, RuntimeError):
-    pass  # pragma: no cover
+    pass
 
 
 _URL_PATTERN = re.compile(r'^https?://([a-z]+)\.wikipedia\.org/wiki/([^/?#]+).*$')

@@ -45,7 +45,7 @@ class Localized:
 
 
 class IncompleteDateError(ValueError):
-    pass  # pragma: no cover
+    pass
 
 
 @total_ordering

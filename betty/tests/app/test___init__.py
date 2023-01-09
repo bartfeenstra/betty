@@ -20,7 +20,7 @@ class TrackableExtension(Extension, Tracker):
 
 
 class NonConfigurableExtension(TrackableExtension):
-    pass  # pragma: no cover
+    pass
 
 
 class ConfigurableExtensionConfiguration(Configuration):

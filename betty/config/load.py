@@ -15,8 +15,8 @@ from betty.config.error import ConfigurationError, ConfigurationErrorCollection
 
 try:
     from typing_extensions import TypeAlias, TypeGuard
-except ModuleNotFoundError:
-    from typing import TypeAlias, TypeGuard  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover
+    from typing import TypeAlias, TypeGuard  # type: ignore  # pragma: no cover
 
 if TYPE_CHECKING:
     from betty.builtins import _

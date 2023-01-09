@@ -51,11 +51,11 @@ class UnknownEventType(EventType):
 
 
 class DerivableEventType(EventType):
-    pass  # pragma: no cover
+    pass
 
 
 class CreatableDerivableEventType(DerivableEventType):
-    pass  # pragma: no cover
+    pass
 
 
 class PreBirthEventType(EventType):

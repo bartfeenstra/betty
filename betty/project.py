@@ -25,8 +25,8 @@ from betty.typing import Void
 
 try:
     from typing_extensions import TypeGuard
-except ModuleNotFoundError:
-    from typing import TypeGuard  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover
+    from typing import TypeGuard  # type: ignore  # pragma: no cover
 
 if TYPE_CHECKING:
     from betty.builtins import _
