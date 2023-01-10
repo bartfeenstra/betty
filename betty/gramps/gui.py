@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import List, TYPE_CHECKING, Optional
 
+from reactives.instance.method import reactive_method
+
 from betty.config.error import ConfigurationError
 
 if TYPE_CHECKING:
@@ -10,7 +12,6 @@ if TYPE_CHECKING:
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QWidget, QFormLayout, QPushButton, QFileDialog, QLineEdit, QHBoxLayout, QVBoxLayout, \
     QGridLayout, QLabel
-from reactives import reactive
 
 from betty.app import App
 from betty.config import Path
@@ -39,7 +40,7 @@ class _FamilyTrees(LocalizedWidget):
         self._add_family_tree_button.released.connect(self._add_family_tree)  # type: ignore
         self._layout.addWidget(self._add_family_tree_button, 1)
 
-    @reactive(on_trigger_call=True)
+    @reactive_method(on_trigger_call=True)
     def _build_family_trees(self) -> None:
         if self._family_trees_widget is not None:
             self._layout.removeWidget(self._family_trees_widget)
@@ -72,7 +73,6 @@ class _FamilyTrees(LocalizedWidget):
         window.show()
 
 
-@reactive
 class _GrampsGuiWidget(LocalizedWidget):
     def __init__(self, app: App, *args, **kwargs):
         super().__init__(app, *args, **kwargs)

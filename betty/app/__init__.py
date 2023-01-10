@@ -11,9 +11,8 @@ from typing import List, Type, TYPE_CHECKING, Set, Iterator, Optional
 import aiohttp
 from babel.core import parse_locale
 from babel.localedata import locale_identifiers
-from jinja2 import Environment as Jinja2Environment
-from reactives import reactive
-from reactives.factory.type import ReactiveInstance
+from reactives.instance import ReactiveInstance
+from reactives.instance.property import reactive_property
 
 from betty.app.extension import ListExtensions, Extension, Extensions, build_extension_type_graph, \
     CyclicDependencyError, ExtensionDispatcher, ConfigurableExtension, discover_extension_types
@@ -46,12 +45,12 @@ except ModuleNotFoundError:  # pragma: no cover
 
 if TYPE_CHECKING:
     from betty.builtins import _
+    from betty.jinja2 import Environment
     from betty.url import StaticUrlGenerator, ContentNegotiationUrlGenerator
 
 CONFIGURATION_DIRECTORY_PATH = HOME_DIRECTORY_PATH / 'configuration'
 
 
-@reactive
 class _AppExtensions(ListExtensions):
     def __init__(self):
         super().__init__([])
@@ -78,8 +77,8 @@ class AppConfiguration(FileBasedConfiguration):
     def configuration_file_path(self) -> None:
         pass
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def locale(self) -> Optional[str]:
         return self._locale
 
@@ -108,7 +107,6 @@ class AppConfiguration(FileBasedConfiguration):
         return dumped_configuration
 
 
-@reactive
 class App(Configurable[AppConfiguration], ReactiveInstance):
     def __init__(self, *args, **kwargs):
         from betty.url import AppUrlGenerator, StaticPathUrlGenerator
@@ -174,21 +172,17 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         self._acquired = False
 
     @contextmanager
-    def acquire_locale(self, *requested_locales: str) -> Iterator[Self]:  # type: ignore
+    def acquire_locale(self, *requested_locales: str | None) -> Iterator[Self]:  # type: ignore
         """
         Temporarily change this application's locale and the global gettext translations.
         """
         if not requested_locales:
             requested_locales = (self.configuration.locale,)
-        requested_locales = (*[
-            requested_locale
-            for requested_locale
-            in requested_locales
-            if requested_locale
-        ], 'en-US')
+        requested_locales = (*requested_locales, 'en-US')
+        preferred_locales = [locale for locale in requested_locales if locale is not None]
 
         negotiated_locale = negotiate_locale(
-            requested_locales,
+            preferred_locales,
             {
                 rfc_1766_to_bcp_47(locale)
                 for locale
@@ -203,7 +197,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         self._locale = negotiated_locale
 
         negotiated_translations_locale = negotiate_locale(
-            requested_locales,
+            preferred_locales,
             set(self.translations.locales),
         )
         if negotiated_translations_locale is None:
@@ -271,8 +265,8 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
             extensions.append(extensions_batch)
         self._extensions._update(extensions)
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def assets(self) -> FileSystem:
         if len(self._assets) == 0:
             self._build_assets()
@@ -281,11 +275,11 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
 
     @assets.deleter
     def assets(self) -> None:
-        self._assets.clear()
         # Proactively rebuild the assets, so the assets file system can be reused.
         self._build_assets()
 
     def _build_assets(self) -> None:
+        self._assets.clear()
         self._assets.prepend(ASSETS_DIRECTORY_PATH, 'utf-8')
         for extension in self.extensions.flatten():
             extension_assets_directory_path = extension.assets_directory_path()
@@ -315,9 +309,9 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
             self._translations = TranslationsRepository(self.assets)
         return self._translations
 
-    @reactive  # type: ignore
     @property
-    def jinja2_environment(self) -> Jinja2Environment:
+    @reactive_property
+    def jinja2_environment(self) -> Environment:
         if not self._jinja2_environment:
             from betty.jinja2 import Environment
             self._jinja2_environment = Environment(self)
@@ -328,8 +322,8 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
     def jinja2_environment(self) -> None:
         self._jinja2_environment = None
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def renderer(self) -> Renderer:
         if not self._renderer:
             from betty.jinja2 import Jinja2Renderer
@@ -354,8 +348,8 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
     def locks(self) -> Locks:
         return self._locks
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def http_client(self) -> aiohttp.ClientSession:
         if not self._http_client:
             self._http_client = aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit_per_host=5))
@@ -369,8 +363,8 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
             await self._http_client.close()
             self._http_client = None
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     @sync
     async def entity_types(self) -> Set[Type[Entity]]:
         if self._entity_types is None:
@@ -392,8 +386,8 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
     def entity_types(self) -> None:
         self._entity_types = None
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     @sync
     async def event_types(self) -> Set[Type[EventType]]:
         if self._event_types is None:

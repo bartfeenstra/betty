@@ -8,13 +8,14 @@ from pathlib import Path
 from typing import Type, Set, Optional, Any, List, Dict, TypeVar, Union, Iterable, TYPE_CHECKING, Generic, \
     Iterator, Sequence
 
+from reactives.instance import ReactiveInstance
+
 try:
     from typing_extensions import Self
 except ModuleNotFoundError:
     from typing import Self  # type: ignore
 
-from reactives import reactive, scope
-from reactives.factory.type import ReactiveInstance
+from reactives import scope
 
 from betty import fs
 from betty.config import ConfigurationT, Configurable
@@ -180,7 +181,6 @@ class ConfigurableExtension(Extension, Generic[ConfigurationT], Configurable[Con
         raise NotImplementedError
 
 
-@reactive
 class Extensions(ReactiveInstance):
     def __getitem__(self, extension_type: Union[Type[ExtensionT], str]) -> ExtensionT:
         raise NotImplementedError

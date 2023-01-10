@@ -12,6 +12,10 @@ from betty.config.error import ConfigurationError, ConfigurationErrorCollection
 from betty.config.load import ConfigurationFormatError, Loader
 
 
+class ConfigurationAssertionError(AssertionError):
+    pass
+
+
 def assert_configuration_error(
         actual_error: Union[ConfigurationError, ConfigurationErrorCollection],
         error: Optional[Union[ConfigurationError, Type[ConfigurationError]]] = None,
@@ -49,7 +53,7 @@ def assert_configuration_error(
     ]
     if errors:
         return errors
-    raise AssertionError('Failed raising a configuration error.')
+    raise ConfigurationAssertionError('Failed raising a configuration error.')
 
 
 @contextmanager
@@ -58,6 +62,8 @@ def raises_configuration_error(*args, **kwargs) -> Iterator[Loader]:
     try:
         with App():
             yield loader
+            if loader.errors.valid:
+                loader.commit()
     finally:
         assert_configuration_error(loader.errors, *args, **kwargs)
 
@@ -68,13 +74,13 @@ def raises_no_configuration_errors(*args, **kwargs) -> Iterator[Loader]:
     try:
         with App():
             yield loader
+            loader.commit()
     finally:
         try:
             errors = assert_configuration_error(loader.errors, *args, **kwargs)
-        except AssertionError:
-            loader.commit()
+        except ConfigurationAssertionError:
             return
-        raise AssertionError('Failed not to raise a configuration error') from errors[0]
+        raise ConfigurationAssertionError('Failed not to raise a configuration error') from errors[0]
 
 
 class TestFileBasedConfiguration:
@@ -82,7 +88,7 @@ class TestFileBasedConfiguration:
         configuration = FileBasedConfiguration()
         with NamedTemporaryFile(mode='r+', suffix='.abc') as f:
             with pytest.raises(ConfigurationFormatError):
-                configuration.configuration_file_path = f.name
+                configuration.configuration_file_path = f.name  # type: ignore[assignment]
 
 
 class ConfigurationMappingTestDummyConfiguration(Configuration):

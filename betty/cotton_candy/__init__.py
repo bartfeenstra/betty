@@ -5,15 +5,14 @@ from shutil import copy2
 from typing import Optional, TYPE_CHECKING, Set, Type, Dict, Callable
 
 from PyQt6.QtWidgets import QWidget
-from reactives import reactive
-from reactives.factory.type import ReactiveInstance
+from reactives.instance import ReactiveInstance
+from reactives.instance.property import reactive_property
 
 from betty.app import Extension
 from betty.app.extension import ConfigurableExtension, Theme
 from betty.config import Configuration, DumpedConfigurationImport, DumpedConfigurationExport
 from betty.config.dump import minimize_dict
 from betty.config.load import ConfigurationValidationError, Loader, Field
-from betty.config.validate import validate
 from betty.cotton_candy.search import Index
 from betty.generate import Generator
 from betty.gui import GuiBuilder
@@ -38,14 +37,14 @@ class _ColorConfiguration(Configuration):
             raise ConfigurationValidationError(_('"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.').format(hex_value=hex_value))
         return hex_value
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def hex(self) -> str:
         return self._hex
 
     @hex.setter
-    @validate(_validate_hex)
     def hex(self, hex_value: str) -> None:
+        self._validate_hex(hex_value)
         self._hex = hex_value
 
     def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
@@ -129,7 +128,6 @@ class CottonCandyConfiguration(Configuration):
         }, True)
 
 
-@reactive
 class CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Generator, GuiBuilder, ReactiveInstance, NpmBuilder, Jinja2Provider):
     @classmethod
     def depends_on(cls) -> Set[Type[Extension]]:

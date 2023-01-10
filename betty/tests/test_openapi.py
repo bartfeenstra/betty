@@ -13,7 +13,7 @@ class TestBuildSpecification:
         True,
         False,
     ])
-    def test(self, content_negotiation: str):
+    def test(self, content_negotiation: bool):
         with open(Path(__file__).parent / 'test_openapi_assets' / 'schema.json') as f:
             schema = stdjson.load(f)
             with App() as app:

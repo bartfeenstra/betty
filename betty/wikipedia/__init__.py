@@ -13,8 +13,8 @@ import aiofiles
 import aiohttp
 from jinja2 import pass_context
 from jinja2.runtime import Context
-from reactives import reactive
-from reactives.factory.type import ReactiveInstance
+from reactives.instance import ReactiveInstance
+from reactives.instance.property import reactive_property
 
 from betty.app import App
 from betty.app.extension import UserFacingExtension
@@ -213,7 +213,6 @@ class _Populator:
             link.label = entry.title
 
 
-@reactive
 class Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstance):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -223,8 +222,8 @@ class Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstanc
     async def post_load(self) -> None:
         await self._populator.populate()
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def _retriever(self) -> _Retriever:
         if self.__retriever is None:
             self.__retriever = _Retriever(self.app.http_client, self.cache_directory_path)
@@ -234,8 +233,8 @@ class Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstanc
     def _retriever(self) -> None:
         self.__retriever = None
 
-    @reactive  # type: ignore
     @property
+    @reactive_property
     def _populator(self) -> _Populator:
         if self.__populator is None:
             self.__populator = _Populator(self.app, self._retriever)

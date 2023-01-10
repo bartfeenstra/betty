@@ -11,7 +11,7 @@ from PyQt6.QtWidgets import QFileDialog, QPushButton, QWidget, QVBoxLayout, QHBo
     QGridLayout, QCheckBox, QFormLayout, QLabel, QLineEdit, QButtonGroup, QRadioButton
 from babel.core import Locale
 from babel.localedata import locale_identifiers
-from reactives import reactive, ReactorController
+from reactives.instance.method import reactive_method
 
 from betty import load, generate
 from betty.app import App
@@ -56,7 +56,7 @@ class _GenerateHtmlListForm(LocalizedWidget):
         self._checkboxes: Dict[type[UserFacingEntity], QCheckBox] = {}
         self._update()
 
-    @reactive(on_trigger_call=True)
+    @reactive_method(on_trigger_call=True)
     def _update(self) -> None:
         entity_types = list(sorted(
             [
@@ -122,7 +122,7 @@ class _GeneralPane(LocalizedWidget):
         def _update_configuration_author(author: str) -> None:
             self._app.project.configuration.author = author
         self._configuration_author = QLineEdit()
-        self._configuration_author.setText(self._app.project.configuration.author)
+        self._configuration_author.setText(str(self._app.project.configuration.author))
         self._configuration_author.textChanged.connect(_update_configuration_author)  # type: ignore
         self._configuration_author_label = QLabel()
         self._form.addRow(self._configuration_author_label, self._configuration_author)
@@ -134,9 +134,8 @@ class _GeneralPane(LocalizedWidget):
             root_path = url_parts.path
             configuration = copy.copy(self._app.project.configuration)
             try:
-                with ReactorController.suspend():
-                    configuration.base_url = base_url
-                    configuration.root_path = root_path
+                configuration.base_url = base_url
+                configuration.root_path = root_path
             except ConfigurationValidationError as e:
                 mark_invalid(self._configuration_url, str(e))
                 return
@@ -217,7 +216,6 @@ class _GeneralPane(LocalizedWidget):
         self._content_negotiation_caption.setText(_('Decide the correct page variety to serve users depending on their own preferences. This requires a web server that supports it.'))
 
 
-@reactive
 class _LocalizationPane(LocalizedWidget):
     def __init__(self, app: App, *args, **kwargs):
         super().__init__(app, *args, **kwargs)
@@ -233,7 +231,7 @@ class _LocalizationPane(LocalizedWidget):
         self._add_locale_button.released.connect(self._add_locale)  # type: ignore
         self._layout.addWidget(self._add_locale_button, 1)
 
-    @reactive(on_trigger_call=True)
+    @reactive_method(on_trigger_call=True)
     def _build_locales_configuration(self) -> None:
         if self._locales_configuration_widget is not None:
             self._layout.removeWidget(self._locales_configuration_widget)
@@ -347,7 +345,6 @@ class _AddLocaleWindow(BettyWindow):
         self.close()
 
 
-@reactive
 class _ExtensionPane(LocalizedWidget):
     def __init__(self, app: App, extension_type: Type[UserFacingExtension], *args, **kwargs):
         super().__init__(app, *args, **kwargs)
@@ -391,7 +388,7 @@ class _ExtensionPane(LocalizedWidget):
             if isinstance(extension, GuiBuilder):
                 layout.addWidget(extension.gui_build())
 
-    @reactive(on_trigger_call=True)
+    @reactive_method(on_trigger_call=True)
     def _set_extension_status(self) -> None:
         self._extension_enabled.setDisabled(False)
         self._extension_enabled_caption.setText('')
@@ -495,7 +492,7 @@ class ProjectWindow(BettyMainWindow):
         for extension_type in self._extension_types:
             self._pane_selectors[f'extension-{extension_type.name()}'].setText(cast(UserFacingExtension, extension_type).label())
 
-    @reactive(on_trigger_call=True)
+    @reactive_method(on_trigger_call=True)
     def _set_window_title(self) -> None:
         self.setWindowTitle('%s - Betty' % self._app.project.configuration.title)
 
@@ -507,7 +504,7 @@ class ProjectWindow(BettyMainWindow):
             '',
             get_configuration_file_filter(),
         )
-        self._app.project.configuration.configuration_file_path = configuration_file_path
+        self._app.project.configuration.configuration_file_path = configuration_file_path  # type: ignore[assignment]
 
     @catch_exceptions
     def _generate(self) -> None:

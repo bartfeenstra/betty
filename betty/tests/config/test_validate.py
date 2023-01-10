@@ -4,17 +4,17 @@ import pytest
 
 from betty.app import App
 from betty.config.load import ConfigurationValidationError
-from betty.config.validate import validate_positive_number, validate
+from betty.config.validate import validate_positive_number
 
 
 class TestValidatePositiveNumber:
     def test_with_invalid_number(self) -> None:
         with App():
             with pytest.raises(ConfigurationValidationError):
-                validate_positive_number(None, 0)
+                validate_positive_number(0)
 
     def test_with_valid_number(self) -> None:
-        validate_positive_number(None, 0.1)
+        validate_positive_number(0.1)
 
 
 class TestValidate:
@@ -22,29 +22,21 @@ class TestValidate:
         def __init__(self):
             self._some_valid_property = None
 
-        def _validate_valid(self, value) -> Any:
-            return value
-
         @property
         def some_valid_property(self) -> Any:
             return self._some_valid_property
 
         @some_valid_property.setter
-        @validate(_validate_valid)
         def some_valid_property(self, value: Any):
             self._some_valid_property = value
 
-        def _validate_invalid(self, value) -> None:
-            raise ConfigurationValidationError()
-
         @property
         def some_invalid_property(self) -> Any:
-            raise NotImplementedError
+            return None
 
         @some_invalid_property.setter
-        @validate(_validate_invalid)
         def some_invalid_property(self, value: Any):
-            raise NotImplementedError
+            raise ConfigurationValidationError
 
     def test_valid_value(self) -> None:
         instance = self.Instance()

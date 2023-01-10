@@ -2,12 +2,11 @@ from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import Any
 
 import pytest
-from reactives import reactive
-from reactives.factory.type import ReactiveInstance
+from reactives.instance import ReactiveInstance
+from reactives.instance.property import reactive_property
 
 from betty.config.error import ConfigurationError
 from betty.config.load import ConfigurationValidationError, Loader, ConfigurationLoadError, Field
-from betty.config.validate import validate
 from betty.tests.config.test___init__ import raises_no_configuration_errors, raises_configuration_error, \
     assert_configuration_error
 
@@ -320,7 +319,6 @@ class TestLoader:
                 loader.assert_directory_path(directory_path)
                 loader.commit()
 
-    @reactive
     class Instance(ReactiveInstance):
         def __init__(self):
             super().__init__()
@@ -328,48 +326,38 @@ class TestLoader:
             self._some_valid_reactive_property = None
             self.some_valid_attribute = None
 
-        def _validate_valid(self, value):
-            return value
-
-        def _validate_invalid(self, value) -> None:
-            raise ConfigurationValidationError()
-
         @property
         def some_valid_property(self) -> Any:
             return self._some_valid_property
 
         @some_valid_property.setter
-        @validate(_validate_valid)
         def some_valid_property(self, value: Any):
             self._some_valid_property = value
 
         @property
         def some_invalid_property(self) -> Any:
-            raise NotImplementedError
+            return None
 
         @some_invalid_property.setter
-        @validate(_validate_invalid)
         def some_invalid_property(self, value: Any):
-            raise NotImplementedError
+            raise ConfigurationValidationError
 
-        @reactive  # type: ignore
         @property
+        @reactive_property
         def some_valid_reactive_property(self) -> Any:
             return self._some_valid_reactive_property
 
         @some_valid_reactive_property.setter
-        @validate(_validate_valid)
         def some_valid_reactive_property(self, value: Any):
             self._some_valid_reactive_property = value
 
         @property
         def some_invalid_reactive_property(self) -> Any:
-            raise NotImplementedError
+            return None
 
         @some_invalid_reactive_property.setter
-        @validate(_validate_invalid)
         def some_invalid_reactive_property(self, value: Any):
-            raise NotImplementedError
+            raise ConfigurationValidationError
 
     def test_assert_setattr_with_valid_property(self) -> None:
         instance = self.Instance()
@@ -381,6 +369,7 @@ class TestLoader:
 
     def test_assert_setattr_with_invalid_property(self) -> None:
         instance = self.Instance()
+        # @todo This fails because the GETTER raises a RuntimeError...
         attr_name = 'some_invalid_property'
         value = 'Hello, world!'
         with raises_configuration_error(error_type=ConfigurationValidationError) as loader:
