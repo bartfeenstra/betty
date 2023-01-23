@@ -223,7 +223,7 @@ class Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstanc
         await self._populator.populate()
 
     @property
-    @reactive_property
+    @reactive_property(on_trigger_delete=True)
     def _retriever(self) -> _Retriever:
         if self.__retriever is None:
             self.__retriever = _Retriever(self.app.http_client, self.cache_directory_path)
@@ -234,7 +234,7 @@ class Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstanc
         self.__retriever = None
 
     @property
-    @reactive_property
+    @reactive_property(on_trigger_delete=True)
     def _populator(self) -> _Populator:
         if self.__populator is None:
             self.__populator = _Populator(self.app, self._retriever)
