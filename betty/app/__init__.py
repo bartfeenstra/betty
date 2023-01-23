@@ -266,7 +266,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         self._extensions._update(extensions)
 
     @property
-    @reactive_property
+    @reactive_property(on_trigger_delete=True)
     def assets(self) -> FileSystem:
         if len(self._assets) == 0:
             self._build_assets()
@@ -310,7 +310,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         return self._translations
 
     @property
-    @reactive_property
+    @reactive_property(on_trigger_delete=True)
     def jinja2_environment(self) -> Environment:
         if not self._jinja2_environment:
             from betty.jinja2 import Environment
@@ -323,7 +323,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         self._jinja2_environment = None
 
     @property
-    @reactive_property
+    @reactive_property(on_trigger_delete=True)
     def renderer(self) -> Renderer:
         if not self._renderer:
             from betty.jinja2 import Jinja2Renderer
@@ -349,7 +349,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         return self._locks
 
     @property
-    @reactive_property
+    @reactive_property(on_trigger_delete=True)
     def http_client(self) -> aiohttp.ClientSession:
         if not self._http_client:
             self._http_client = aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit_per_host=5))
@@ -364,7 +364,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
             self._http_client = None
 
     @property
-    @reactive_property
+    @reactive_property(on_trigger_delete=True)
     @sync
     async def entity_types(self) -> Set[Type[Entity]]:
         if self._entity_types is None:
@@ -387,7 +387,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         self._entity_types = None
 
     @property
-    @reactive_property
+    @reactive_property(on_trigger_delete=True)
     @sync
     async def event_types(self) -> Set[Type[EventType]]:
         if self._event_types is None:
