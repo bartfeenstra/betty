@@ -14,11 +14,11 @@ flake8 --config ./flake8.ini ./betty
 mypy
 
 # Test the CSS code style.
-npm run stylelint -- "./betty/**/*.css"
+./node_modules/.bin/stylelint "./betty/**/*.css"
 
 # Test the JS code style.
 while read -r configuration_path; do
-    npm run eslint -- -c "$configuration_path" "$(dirname "${configuration_path}")/**/*.js"
+    ./node_modules/.bin/eslint -c "$configuration_path" "$(dirname "${configuration_path}")/**/*.js"
 done < <(find ./ -name .eslintrc.yaml)
 
 # Run Python tests with coverage.
@@ -27,7 +27,7 @@ PYTHONWARNINGS='error:::betty[.*]' coverage run --append -m pytest
 coverage report -m
 
 # Run end-to-end (e2e) tests.
-npm run cypress -- run
+./node_modules/.bin/cypress run
 
 # Test the built Python packages.
 PACKAGE_COMMANDS=(./bin/build-pyinstaller ./bin/build-setuptools)
