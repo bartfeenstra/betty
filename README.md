@@ -276,8 +276,9 @@ directory.
 ### Requirements
 
 - The installation requirements documented earlier.
-- Node.js
-- Bash (you're all good if `which bash` outputs a path in your terminal)
+- [Node.js](https://nodejs.org/)
+- [ShellCheck](https://www.shellcheck.net/)
+- Bash
 
 ### Installation
 
