@@ -67,8 +67,7 @@ SETUP = {
             'flake8 ~= 5.0.4',
             'html5lib ~= 1.1',
             'lxml ~= 4.9.1; sys.platform != "win32"',
-            # @todo Set this to ~= 0.992 (or whichever version comes after 0.991) once that version has been released.
-            'mypy @ git+https://github.com/python/mypy.git@98cc165a657a316accb93f1ed57fdc128b086d9f',
+            'mypy ~= 1.2.0',
             'pip-licenses ~= 4.0.0-rc3',
             'pyinstaller ~= 5.0',
             'pytest ~= 7.2.0',
