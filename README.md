@@ -275,9 +275,10 @@ directory.
 
 ### Requirements
 
-- The installation requirements documented earlier.
+- The installation requirements documented earlier
 - [Node.js](https://nodejs.org/)
 - [ShellCheck](https://www.shellcheck.net/)
+- [Xvfb](https://x.org/releases/X11R7.7/doc/man/man1/Xvfb.1.xhtml)
 - Bash
 
 ### Installation
