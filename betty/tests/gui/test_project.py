@@ -2,7 +2,6 @@ import json
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
-from babel import Locale
 from pytest_mock import MockerFixture
 from pytestqt.qtbot import QtBot
 
@@ -10,7 +9,7 @@ from betty.app import App
 from betty.gui.project import ProjectWindow, _AddLocaleWindow, _GenerateWindow, _LocalizationPane, \
     _GeneralPane, _GenerateHtmlListForm
 from betty.gui.serve import ServeAppWindow
-from betty.locale import bcp_47_to_rfc_1766
+from betty.locale import get_display_name
 from betty.model.ancestry import File
 from betty.project import ProjectConfiguration, LocaleConfiguration
 from betty.tests.conftest import AssertNotWindow, AssertInvalid, AssertWindow, Navigate
@@ -228,7 +227,7 @@ class TestAddLocaleWindow:
             sut.show()
 
             locale = 'nl-NL'
-            sut._locale_collector.locale.setCurrentText(Locale.parse(bcp_47_to_rfc_1766(locale)).get_display_name())
+            sut._locale_collector.locale.setCurrentText(get_display_name(locale))
 
             qtbot.mouseClick(sut._save_and_close, Qt.MouseButton.LeftButton)
             assert_not_window(sut)
@@ -244,7 +243,7 @@ class TestAddLocaleWindow:
 
             locale = 'nl-NL'
             alias = 'nl'
-            sut._locale_collector.locale.setCurrentText(Locale.parse(bcp_47_to_rfc_1766(locale)).get_display_name())
+            sut._locale_collector.locale.setCurrentText(get_display_name(locale))
             sut._alias.setText(alias)
 
             qtbot.mouseClick(sut._save_and_close, Qt.MouseButton.LeftButton)
@@ -261,7 +260,7 @@ class TestAddLocaleWindow:
 
             locale = 'nl-NL'
             alias = '/'
-            sut._locale_collector.locale.setCurrentText(Locale.parse(bcp_47_to_rfc_1766(locale)).get_display_name())
+            sut._locale_collector.locale.setCurrentText(get_display_name(locale))
             sut._alias.setText(alias)
 
             qtbot.mouseClick(sut._save_and_close, Qt.MouseButton.LeftButton)

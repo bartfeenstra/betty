@@ -9,7 +9,6 @@ from PyQt6.QtCore import Qt, QThread
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QFileDialog, QPushButton, QWidget, QVBoxLayout, QHBoxLayout, QMenu, QStackedLayout, \
     QGridLayout, QCheckBox, QFormLayout, QLabel, QLineEdit, QButtonGroup, QRadioButton
-from babel.core import Locale
 from babel.localedata import locale_identifiers
 from reactives.instance.method import reactive_method
 
@@ -26,7 +25,7 @@ from betty.gui.locale import TranslationsLocaleCollector
 from betty.gui.logging import LogRecordViewerHandler, LogRecordViewer
 from betty.gui.serve import ServeAppWindow
 from betty.gui.text import Text, Caption
-from betty.locale import rfc_1766_to_bcp_47, bcp_47_to_rfc_1766
+from betty.locale import rfc_1766_to_bcp_47, get_display_name
 from betty.model import UserFacingEntity
 from betty.project import LocaleConfiguration
 
@@ -251,7 +250,7 @@ class _LocalizationPane(LocalizedWidget):
 
         for i, locale_configuration in enumerate(sorted(
                 self._app.project.configuration.locales,
-                key=lambda x: Locale.parse(bcp_47_to_rfc_1766(x.locale)).get_display_name(),
+                key=lambda x: get_display_name(x.locale),
         )):
             self._build_locale_configuration(locale_configuration, i)
 
@@ -278,7 +277,7 @@ class _LocalizationPane(LocalizedWidget):
     def _do_set_translatables(self) -> None:
         self._add_locale_button.setText(_('Add a locale'))
         for locale, button in self._locales_configuration_widget._default_buttons.items():
-            button.setText(Locale.parse(bcp_47_to_rfc_1766(locale)).get_display_name(locale=bcp_47_to_rfc_1766(self._app.locale)))
+            button.setText(get_display_name(locale, self._app.locale))
         for button in self._locales_configuration_widget._remove_buttons.values():
             if button is not None:
                 button.setText(_('Remove'))

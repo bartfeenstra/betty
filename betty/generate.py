@@ -10,11 +10,10 @@ import aiofiles
 import math
 from aiofiles import os as aiofiles_os
 from aiofiles.threadpool.text import AsyncTextIOWrapper
-from babel import Locale
 
 from betty.app import App
 from betty.json import JSONEncoder
-from betty.locale import bcp_47_to_rfc_1766
+from betty.locale import get_display_name
 from betty.model import get_entity_type_name, UserFacingEntity, get_entity_type
 from betty.openapi import build_specification
 from betty.string import camel_case_to_kebab_case
@@ -94,7 +93,7 @@ async def _generate(app: App) -> None:
                 await asyncio.gather(*coroutines[i:i + _GENERATE_CONCURRENCY])
 
         # Log the generated pages.
-        locale_label = Locale.parse(bcp_47_to_rfc_1766(locale)).get_display_name(locale=bcp_47_to_rfc_1766(app.configuration.locale or 'en-US'))
+        locale_label = get_display_name(locale, app.configuration.locale or 'en-US')
         for entity_type in entity_types:
             logger.info(_('Generated pages for {count} {entity_type} in {locale}.').format(
                 count=len(app.project.ancestry.entities[entity_type]),
@@ -151,7 +150,7 @@ async def _generate_entity_type_list_html(www_directory_path: Path, entity_type:
     })
     async with _create_html_resource(entity_type_path) as f:
         await f.write(rendered_html)
-    locale_label = Locale.parse(bcp_47_to_rfc_1766(app.locale)).get_display_name(locale=bcp_47_to_rfc_1766(app.configuration.locale or 'en-US'))
+    locale_label = get_display_name(app.locale, app.configuration.locale or 'en-US')
     getLogger().debug(_('Generated the listing HTML page for {entity_type} entities in {locale}.').format(
         entity_type=entity_type.entity_type_label_plural(),
         locale=locale_label,

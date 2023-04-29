@@ -36,6 +36,15 @@ def bcp_47_to_rfc_1766(locale: str) -> str:
     return locale.replace('-', '_')
 
 
+def get_display_name(locale: str, display_locale: str | None = None) -> str:
+    locale_rfc_1766 = bcp_47_to_rfc_1766(locale)
+    babel_locale = Locale.parse(locale_rfc_1766)
+    if display_locale:
+        display_locale = bcp_47_to_rfc_1766(display_locale)
+
+    return babel_locale.get_display_name(display_locale) or babel_locale.get_display_name(locale_rfc_1766) or locale
+
+
 class Localized:
     locale: Optional[str]
 
