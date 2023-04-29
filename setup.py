@@ -55,8 +55,7 @@ SETUP = {
         'Pillow ~= 9.3.0',
         'PyQt6 ~= 6.4.0',
         'pyyaml ~= 6.0.0',
-        # @todo Set this to ~= 0.5.0 once that version has been released.
-        'reactives @ git+https://github.com/bartfeenstra/reactives.git@8df7478e39cc094b0cee86cb9945a8cb780b61b9',
+        'reactives ~= 0.5.0',
         'typing_extensions ~= 4.4.0; python_version < "3.11"',
     ],
     'extras_require': {
