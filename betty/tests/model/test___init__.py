@@ -895,10 +895,12 @@ class TestFlattenedEntityCollection:
         # Assert the result is pickleable.
         pickle.dumps(flattened_entities)
 
-        unflattened_entity_many: TestFlattenedEntityCollection._ManyToOneToMany_Many
-        unflattened_entity_one: TestFlattenedEntityCollection._ManyToOneToMany_One
-        unflattened_entity_other_many: TestFlattenedEntityCollection._ManyToOneToMany_OtherMany
-        unflattened_entity_many, unflattened_entity_one, unflattened_entity_other_many = flattened_entities.unflatten()  # type: ignore
+        unflattened_entities: Tuple[
+            TestFlattenedEntityCollection._ManyToOneToMany_Many,
+            TestFlattenedEntityCollection._ManyToOneToMany_One,
+            TestFlattenedEntityCollection._ManyToOneToMany_OtherMany,
+        ] = flattened_entities.unflatten()  # type: ignore
+        unflattened_entity_many, unflattened_entity_one, unflattened_entity_other_many = unflattened_entities
 
         assert entity_many is not unflattened_entity_many
         assert entity_other_many is not unflattened_entity_other_many
