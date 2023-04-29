@@ -55,7 +55,7 @@ SETUP = {
         'Pillow ~= 9.5, >= 9.5.0',
         'PyQt6 ~= 6.5, >= 6.5.0',
         'pyyaml ~= 6.0, >= 6.0.0',
-        'reactives ~= 0.5, >= 0.5.0',
+        'reactives ~= 0.5, >= 0.5.1',
         'typing_extensions ~= 4.5, >= 4.5.0; python_version < "3.11"',
     ],
     'extras_require': {
