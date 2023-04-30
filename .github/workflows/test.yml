@@ -87,6 +87,9 @@ jobs:
             libegl1-mesa # For pytest-xvfb
             libx11-xcb-dev # For Qt
             '^libxcb.*-dev' # For Qt
+            libxkbcommon-x11-0 # For Qt
+            libxml2-dev # For Qt
+            libxslt1-dev # For Qt
             xvfb # For Cypress and pytest-xvfb
           )
           sudo apt-get install "${apt_packages[@]}"
