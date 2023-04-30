@@ -53,10 +53,6 @@ class JSONEncoder(stdjson.JSONEncoder):
             MediaType: self._encode_media_type,
         }
 
-    @classmethod
-    def get_factory(cls, app: App):
-        return lambda *args, **kwargs: cls(app, *args, **kwargs)
-
     def default(self, o):
         for mapper_type in self._mappers:
             if isinstance(o, mapper_type):
@@ -89,12 +85,12 @@ class JSONEncoder(stdjson.JSONEncoder):
             for locale_configuration in self._app.project.configuration.locales:
                 if locale_configuration.locale == self._app.locale:
                     continue
-                with self._app.acquire_locale(locale_configuration.locale):
-                    link_url = self._generate_url(entity)
-                    if link_url in link_urls:
-                        continue
-                    link_urls.append(link_url)
-                    translation = Link(link_url)
+                with self._app.acquire_locale(locale_configuration.locale) as localized_app:
+                    link_url = localized_app.json_encoder._generate_url(entity)
+                if link_url in link_urls:
+                    continue
+                link_urls.append(link_url)
+                translation = Link(link_url)
                 translation.relationship = 'alternate'
                 translation.locale = locale_configuration.locale
                 encoded['links'].append(translation)
@@ -103,6 +99,14 @@ class JSONEncoder(stdjson.JSONEncoder):
             html.relationship = 'alternate'
             html.media_type = MediaType('text/html')
             encoded['links'].append(html)
+
+    async def _encode_entity_(self, encoded: Dict, entity: Entity) -> None:
+        with self._app.acquire_locale(locale_configuration.locale) as localized_app:
+            link_url = localized_app.json_encoder._generate_url(entity)
+            if link_url in link_urls:
+                continue
+            link_urls.append(link_url)
+            translation = Link(link_url)
 
     def _encode_described(self, encoded: Dict, described: Described) -> None:
         if described.description is not None:

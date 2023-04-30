@@ -6,7 +6,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from contextlib import contextmanager, ExitStack, suppress
 from gettext import NullTranslations
 from pathlib import Path
-from typing import List, Type, TYPE_CHECKING, Set, Iterator, Optional
+from typing import List, Type, TYPE_CHECKING, Set, Iterator, Optional, Callable
 
 import aiohttp
 from babel.core import parse_locale
@@ -46,6 +46,7 @@ except ModuleNotFoundError:  # pragma: no cover
 if TYPE_CHECKING:
     from betty.builtins import _
     from betty.jinja2 import Environment
+    from betty.json import JSONEncoder
     from betty.url import StaticUrlGenerator, ContentNegotiationUrlGenerator
 
 CONFIGURATION_DIRECTORY_PATH = HOME_DIRECTORY_PATH / 'configuration'
@@ -117,7 +118,6 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
             with Translations():
                 self.configuration.read()
 
-        self._acquired = False
         self._extensions = _AppExtensions()
         self._extensions_initialized = False
         self._project = Project()
@@ -131,7 +131,6 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         self._locale: Optional[str] = None
         self._translations: Optional[TranslationsRepository] = None
         self._default_translations = None
-        self._acquire_contexts = ExitStack()
         self._jinja2_environment = None
         self._renderer = None
         self._executor = None
@@ -150,32 +149,23 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         if self._executor:
             self._executor.wait()
 
-    def acquire(self) -> None:
-        if self._acquired:
-            raise RuntimeError('This application is acquired already.')
-        self._acquired = True
-        try:
-            # Enable the gettext API by entering a dummy translations context.
-            self._acquire_contexts.enter_context(Translations(NullTranslations()))
-            # Then acquire the actual locale.
-            self._acquire_contexts.enter_context(self.acquire_locale())
-        except BaseException:
-            self.release()
-            raise
-
-    def release(self) -> None:
-        if not self._acquired:
-            raise RuntimeError('This application is not yet acquired.')
-        self._wait_for_threads()
-        self._acquire_contexts.close()
-        del self.http_client
-        self._acquired = False
-
     @contextmanager
-    def acquire_locale(self, *requested_locales: str | None) -> Iterator[Self]:  # type: ignore
+    def _acquire_locale(self, *requested_locales: str | None) -> Iterator[Self]:  # type: ignore
         """
         Temporarily change this application's locale and the global gettext translations.
         """
+        # @todo Can we move this logic to Translationsrepository?
+        # @todo
+        # @todo
+        # @todo Also, how do we deal with changing the locale in background services?
+        # @todo A tiny context manager that locks the thread, after all?
+        # @todo The problem is that many situations do not allow for a quick dip into a context manager just for a translation
+        # @todo Many situations need to relinquish control to callbacks, pluggable methods, etc, that can spend an arbitrary amount of time
+        # @todo needing an arbitrary number of translations.
+        # @todo
+        # @todo What about a lock that is both threadsafe and asyncsafe?
+        # @todo Really, what we want is when changing a locale, to PAUSE EVERYTHING ELSE NOT IN THE CURRENT EXECUTION PATH
+        # @todo
         if not requested_locales:
             requested_locales = (self.configuration.locale,)
         requested_locales = (*requested_locales, 'en-US')
@@ -207,18 +197,21 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
 
         self._locale = previous_locale
 
+    def acquire_locale(self, *requested_locales: str | None) -> Iterator[Self]:  # type: ignore
+        return self._derive()._acquire_locale(*requested_locales)
+
     @property
     def locale(self) -> str:
         if self._locale is None:
             raise RuntimeError(f'No locale has been acquired yet. Use {type(self)}.acquire_locale() to activate a locale.')
         return self._locale
 
-    def __enter__(self) -> App:
-        self.acquire()
-        return self
+    def __enter__(self) -> None:
+        return
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.release()
+        self._wait_for_threads()
+        del self.http_client
 
     @property
     def project(self) -> Project:
@@ -343,6 +336,10 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         if self._executor is None:
             self._executor = ExceptionRaisingAwaitableExecutor(ThreadPoolExecutor())
         return self._executor
+
+    @property
+    def json_encoder(self) -> Callable[[], JSONEncoder]:
+        return lambda *args, **kwargs: JSONEncoder(self, *args, **kwargs)
 
     @property
     def locks(self) -> Locks:

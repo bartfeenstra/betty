@@ -284,65 +284,24 @@ class TranslationsInstallationError(RuntimeError, TranslationsError):
         super().__init__(*args, **kwargs)
 
 
-class Translations(NullTranslations):
-    _Context = Optional[Dict[str, Callable]]
+class Translations:
+    def __init__(self, translations: Optional[NullTranslations] = None):
+        self._translations = translations
 
-    _GETTEXT_BUILTINS = (
-        '_',
-        'gettext',
-        'ngettext',
-        'npgettext',
-        'pgettext',
-    )
+    def _(self, message: str) -> str:
+        return self._translations.gettext(message)
 
-    _stack: Dict[int, List[Translations]] = defaultdict(list)
-    _thread_id: Optional[int] = None
+    def gettext(self, message: str) -> str:
+        return self._translations.gettext(message)
 
-    def __init__(self, fallback: Optional[NullTranslations] = None):
-        super().__init__()
-        self._fallback = fallback
-        self._previous_context: Translations._Context = None
+    def ngettext(self, message_singular: str, message_plural: str, n: int):
+        return self._translations.ngettext(message_singular, message_plural, n)
 
-    def __enter__(self):
-        self.install()
+    def pgettext(self, context, message):
+        return self._translations.pgettext(context, message)
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.uninstall()
-
-    def install(self, _=None) -> None:
-        if self._previous_context is not None:
-            raise TranslationsInstallationError('These translations are installed already.')
-
-        self._previous_context = self._get_current_context()
-        super().install(self._GETTEXT_BUILTINS)
-
-        self._thread_id = threading.get_ident()
-        self._stack[self._thread_id].insert(0, self)
-
-    def uninstall(self) -> None:
-        if self._previous_context is None:
-            raise TranslationsInstallationError('These translations are not yet installed.')
-
-        thread_id = self._thread_id
-        assert thread_id
-        if self != self._stack[thread_id][0]:
-            raise TranslationsInstallationError(f'These translations were not the last to be installed. {self._stack[thread_id].index(self)} other translation(s) must be uninstalled before these translations can be uninstalled as well.')
-        del self._stack[thread_id][0]
-
-        for key in self._GETTEXT_BUILTINS:
-            # Built-ins are not owned by Betty, so allow for them to have disappeared.
-            with suppress(KeyError):
-                del builtins.__dict__[key]
-        builtins.__dict__.update(self._previous_context)
-        self._previous_context = None
-
-    def _get_current_context(self) -> _Context:
-        return {
-            key: value
-            for key, value
-            in builtins.__dict__.items()
-            if key in self._GETTEXT_BUILTINS
-        }
+    def npgettext(self, context: str, message_singular: str, message_plural: str, n: int):
+        return self._translations.npgettext(context, message_singular, message_plural, n)
 
 
 class TranslationsRepository:

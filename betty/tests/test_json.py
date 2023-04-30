@@ -5,7 +5,6 @@ from geopy import Point
 
 from betty import json
 from betty.app import App
-from betty.json import JSONEncoder
 from betty.locale import Date, DateRange
 from betty.media_type import MediaType
 from betty.model.ancestry import Place, Person, PlaceName, Link, Presence, Source, File, Note, PersonName, \
@@ -22,7 +21,7 @@ class TestJSONEncoder:
             LocaleConfiguration('nl-NL', 'nl'),
         ])
         with app:
-            encoded_data = stdjson.loads(stdjson.dumps(data, cls=JSONEncoder.get_factory(app)))
+            encoded_data = stdjson.loads(stdjson.dumps(data, cls=app.json_encoder))
         json.validate(encoded_data, schema_definition, app)
         assert expected == encoded_data
 

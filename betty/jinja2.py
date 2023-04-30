@@ -32,7 +32,6 @@ from betty.asyncio import sync
 from betty.fs import hashfile, iterfiles, CACHE_DIRECTORY_PATH
 from betty.functools import walk
 from betty.html import CssProvider, JsProvider
-from betty.json import JSONEncoder
 from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange, \
     bcp_47_to_rfc_1766
 from betty.lock import AcquiredError
@@ -265,7 +264,7 @@ def _filter_json(context: Context, data: Any, indent: Optional[int] = None) -> s
     """
     Converts a value to a JSON string.
     """
-    return stdjson.dumps(data, indent=indent, cls=JSONEncoder.get_factory(cast(Environment, context.environment).app))
+    return stdjson.dumps(data, indent=indent, cls=(cast(Environment, context.environment).app.json_encoder))
 
 
 @pass_context

@@ -12,7 +12,6 @@ from aiofiles import os as aiofiles_os
 from aiofiles.threadpool.text import AsyncTextIOWrapper
 
 from betty.app import App
-from betty.json import JSONEncoder
 from betty.locale import get_display_name
 from betty.model import get_entity_type_name, UserFacingEntity, get_entity_type
 from betty.openapi import build_specification
@@ -67,14 +66,14 @@ async def _generate(app: App) -> None:
     ]
     for locale_configuration in app.project.configuration.locales:
         locale = locale_configuration.locale
-        with app.acquire_locale(locale):
-            if app.project.configuration.multilingual:
-                www_directory_path = app.project.configuration.www_directory_path / locale_configuration.alias
+        with app.acquire_locale(locale) as localized_app:
+            if localized_app.project.configuration.multilingual:
+                www_directory_path = localized_app.project.configuration.www_directory_path / locale_configuration.alias
             else:
-                www_directory_path = app.project.configuration.www_directory_path
+                www_directory_path = localized_app.project.configuration.www_directory_path
 
-            await app.assets.copytree(Path('public') / 'localized', www_directory_path)
-            await app.renderer.render_tree(www_directory_path)
+            await localized_app.assets.copytree(Path('public') / 'localized', www_directory_path)
+            await localized_app.renderer.render_tree(www_directory_path)
 
             coroutines = [
                 *[
@@ -200,7 +199,7 @@ async def _generate_entity_html(www_directory_path: Path, entity: UserFacingEnti
 async def _generate_entity_json(www_directory_path: Path, entity: UserFacingEntity, app: App) -> None:
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity))
     entity_path = www_directory_path / entity_type_name_fs / entity.id
-    rendered_json = json.dumps(entity, cls=JSONEncoder.get_factory(app))
+    rendered_json = json.dumps(entity, cls=app.json_encoder)
     async with _create_json_resource(entity_path) as f:
         await f.write(rendered_json)
 
