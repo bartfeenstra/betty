@@ -9,18 +9,16 @@ from asyncio import subprocess as aiosubprocess
 from contextlib import suppress
 from pathlib import Path
 from subprocess import CalledProcessError
-from typing import Sequence, Set, Optional, Type, TYPE_CHECKING
-
-from aiofiles.tempfile import TemporaryDirectory
+from typing import Sequence, Set, Optional, Type
 
 from betty import subprocess
 from betty.app.extension import Extension, discover_extension_types
 from betty.app.extension.requirement import Requirement, AnyRequirement, AllRequirements
 from betty.asyncio import sync
 from betty.cache import CacheScope
-
-if TYPE_CHECKING:
-    from betty.builtins import _
+from betty.fs import iterfiles
+from betty.locale import Localizer, DEFAULT_LOCALIZER
+from betty.tempfile import TemporaryDirectory
 
 
 async def npm(arguments: Sequence[str], **kwargs) -> aiosubprocess.Process:
@@ -31,29 +29,31 @@ async def npm(arguments: Sequence[str], **kwargs) -> aiosubprocess.Process:
 
 
 class _NpmRequirement(Requirement):
-    def __init__(self, met: bool):
+    def __init__(self, met: bool, *, localizer: Localizer | None):
+        super().__init__(localizer=localizer)
         self._met = met
-        self._summary = self._met_summary() if met else self._unmet_summary()
-        self._details = _('npm (https://www.npmjs.com/) must be available for features that require Node.js packages to be installed. Ensure that the `npm` executable is available in your `PATH`.')
+        self._summary = self._met_summary(self.localizer) if met else self._unmet_summary(self.localizer)
+        self._details = self.localizer._('npm (https://www.npmjs.com/) must be available for features that require Node.js packages to be installed. Ensure that the `npm` executable is available in your `PATH`.')
 
     @classmethod
-    def _met_summary(cls) -> str:
-        return _('`npm` is available')
+    def _met_summary(cls, localizer: Localizer) -> str:
+        return localizer._('`npm` is available')
 
     @classmethod
-    def _unmet_summary(cls) -> str:
-        return _('`npm` is not available')
+    def _unmet_summary(cls, localizer: Localizer) -> str:
+        return localizer._('`npm` is not available')
 
     @classmethod
     @sync
-    async def check(cls) -> _NpmRequirement:
+    async def check(cls, localizer: Localizer | None = None) -> _NpmRequirement:
+        localizer = localizer or DEFAULT_LOCALIZER
         try:
             await npm(['--version'])
-            logging.getLogger().debug(cls._met_summary())
-            return cls(True)
+            logging.getLogger().debug(cls._met_summary(localizer))
+            return cls(True, localizer=localizer)
         except (CalledProcessError, FileNotFoundError):
-            logging.getLogger().debug(cls._unmet_summary())
-            return cls(False)
+            logging.getLogger().debug(cls._unmet_summary(localizer))
+            return cls(False, localizer=localizer)
 
     def is_met(self) -> bool:
         return self._met
@@ -70,9 +70,10 @@ def is_assets_build_directory_path(path: Path) -> bool:
 
 
 class _AssetsRequirement(Requirement):
-    def __init__(self, extension_types: Set[Type[Extension] | Type[NpmBuilder]]):
+    def __init__(self, extension_types: Set[Type[Extension] | Type[NpmBuilder]], *, localizer: Localizer | None = None):
+        super().__init__(localizer=localizer)
         self._extension_types = extension_types
-        self._summary = _('Pre-built assets')
+        self._summary = self.localizer._('Pre-built assets')
         self._details: Optional[str]
         if not self.is_met():
             extension_names = sorted(
@@ -80,7 +81,7 @@ class _AssetsRequirement(Requirement):
                 for extension_type
                 in self._extension_types - self._extension_types_with_built_assets
             )
-            self._details = _('Pre-built assets are unavailable for {extension_names}.').format(extension_names=', '.join(extension_names))
+            self._details = self.localizer._('Pre-built assets are unavailable for {extension_names}.').format(extension_names=', '.join(extension_names))
         else:
             self._details = None
 
@@ -150,8 +151,8 @@ async def _build_assets_to_directory_path(extension: Extension | NpmBuilder, ass
     with suppress(FileNotFoundError):
         shutil.rmtree(assets_directory_path)
     os.makedirs(assets_directory_path)
-    async with TemporaryDirectory() as working_directory_path:
-        await extension.npm_build(Path(working_directory_path), assets_directory_path)
+    with TemporaryDirectory() as working_directory_path:
+        await extension.npm_build(working_directory_path, assets_directory_path)
 
 
 class _Npm(Extension):
@@ -160,9 +161,9 @@ class _Npm(Extension):
     _requirement: Optional[Requirement] = None
 
     @classmethod
-    def _ensure_requirement(cls) -> Requirement:
+    def _ensure_requirement(cls, localizer: Localizer | None = None) -> Requirement:
         if cls._requirement is None:
-            cls._npm_requirement = _NpmRequirement.check()
+            cls._npm_requirement = _NpmRequirement.check(localizer)
             cls._assets_requirement = _AssetsRequirement(discover_npm_builders())
             assert cls._npm_requirement is not None
             assert cls._assets_requirement is not None
@@ -170,10 +171,10 @@ class _Npm(Extension):
         return cls._requirement
 
     @classmethod
-    def enable_requirement(cls) -> Requirement:
+    def enable_requirement(cls, localizer: Localizer | None = None) -> Requirement:
         return AllRequirements(
-            cls._ensure_requirement(),
-            super().enable_requirement(),
+            cls._ensure_requirement(localizer),
+            super().enable_requirement(localizer),
         )
 
     async def install(self, extension_type: Type[Extension | NpmBuilder], working_directory_path: Path) -> None:
@@ -186,7 +187,8 @@ class _Npm(Extension):
             working_directory_path,
             dirs_exist_ok=True,
         )
-        await self.app.renderer.render_tree(working_directory_path)
+        async for file_path in iterfiles(working_directory_path):
+            await self._app.renderer.render_file(file_path)
         await npm(['install', '--production'], cwd=working_directory_path)
 
     def _get_cached_assets_build_directory_path(self, extension_type: Type[Extension | NpmBuilder]) -> Path:

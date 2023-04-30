@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from logging import getLogger
 from os import path
-from typing import TYPE_CHECKING
 
 from PyQt6.QtCore import pyqtSlot, QObject
 from PyQt6.QtGui import QIcon
@@ -13,13 +12,11 @@ from betty.config import EXTENSIONS
 from betty.error import UserFacingError
 from betty.gui.error import ExceptionError, UnexpectedExceptionError
 from betty.gui.locale import LocalizedWindow
-
-if TYPE_CHECKING:
-    from betty.builtins import _
+from betty.locale import Localizer
 
 
-def get_configuration_file_filter() -> str:
-    return _('Betty project configuration ({extensions})').format(extensions=' '.join(map(lambda format: f'*.{format}', EXTENSIONS)))
+def get_configuration_file_filter(localizer: Localizer) -> str:
+    return localizer._('Betty project configuration ({extensions})').format(extensions=' '.join(map(lambda format: f'*.{format}', EXTENSIONS)))
 
 
 class GuiBuilder:
@@ -112,10 +109,11 @@ class BettyApplication(QApplication):
         }
         """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, app: App, **kwargs):
         super().__init__(*args, **kwargs)
         self.setApplicationName('Betty')
         self.setStyleSheet(self._STYLESHEET)
+        self._app = app
 
     @pyqtSlot(Exception, QObject, bool)
     def _catch_exception(
@@ -125,8 +123,8 @@ class BettyApplication(QApplication):
         close_parent: bool,
     ) -> None:
         if isinstance(e, UserFacingError):
-            window = ExceptionError(e, parent, close_parent=close_parent)
+            window = ExceptionError(self._app, e, parent, close_parent=close_parent)
         else:
             getLogger().exception(e)
-            window = UnexpectedExceptionError(e, parent, close_parent=close_parent)
+            window = UnexpectedExceptionError(self._app, e, parent, close_parent=close_parent)
         window.show()

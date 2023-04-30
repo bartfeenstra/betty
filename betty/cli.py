@@ -4,20 +4,18 @@ import sys
 import time
 from contextlib import suppress, contextmanager
 from functools import wraps
-from os import getcwd, path
-from typing import Callable, Dict, Optional, TYPE_CHECKING
+from pathlib import Path
+from typing import Callable, Dict, Optional
 
 from PyQt6.QtWidgets import QMainWindow
 
 from betty.config.load import ConfigurationValidationError
-
-if TYPE_CHECKING:
-    from betty.builtins import _
+from betty.locale import update_translations, init_translation
 
 import click
 from click import get_current_context, Context, Option
 
-from betty import about, cache, demo, generate, load, serve
+from betty import about, cache, demo, generate, load
 from betty.app import App
 from betty.asyncio import sync
 from betty.error import UserFacingError
@@ -25,6 +23,7 @@ from betty.gui import BettyApplication
 from betty.gui.app import WelcomeWindow
 from betty.gui.project import ProjectWindow
 from betty.logging import CliHandler
+from betty.serve import ProjectServer
 
 
 class CommandProvider:
@@ -89,12 +88,19 @@ async def _init_ctx(ctx: Context, __: Optional[Option] = None, configuration_fil
         'demo': _demo,
         'gui': _gui,
     }
+    if about.is_development():
+        ctx.obj['commands']['init-translation'] = _init_translation
+        ctx.obj['commands']['update-translations'] = _update_translations
     ctx.obj['app'] = app
 
     if configuration_file_path is None:
-        try_configuration_file_paths = [path.join(getcwd(), 'betty.%s' % extension) for extension in {'json', 'yaml', 'yml'}]
+        try_configuration_file_paths = [
+            Path.cwd() / f'betty{extension}'
+            for extension
+            in {'.json', '.yaml', '.yml'}
+        ]
     else:
-        try_configuration_file_paths = [path.join(getcwd(), configuration_file_path)]
+        try_configuration_file_paths = [Path.cwd() / configuration_file_path]
 
     with app:
         for try_configuration_file_path in try_configuration_file_paths:
@@ -106,11 +112,11 @@ async def _init_ctx(ctx: Context, __: Optional[Option] = None, configuration_fil
                     if isinstance(extension, CommandProvider):
                         for command_name, command in extension.commands.items():
                             ctx.obj['commands'][command_name] = command
-                logger.info('Loaded the configuration from %s.' % try_configuration_file_path)
+                logger.info(app.localizer._('Loaded the configuration from {configuration_file_path}.').format(configuration_file_path=try_configuration_file_path))
                 return
 
         if configuration_file_path is not None:
-            raise ConfigurationValidationError(_('Configuration file "{configuration_file_path}" does not exist.').format(configuration_file_path=configuration_file_path))
+            raise ConfigurationValidationError(app.localizer._('Configuration file "{configuration_file_path}" does not exist.').format(configuration_file_path=configuration_file_path))
 
 
 class _BettyCommands(click.MultiCommand):
@@ -127,8 +133,15 @@ class _BettyCommands(click.MultiCommand):
 
 
 @click.command(cls=_BettyCommands)
-@click.option('--configuration', '-c', 'app', is_eager=True, help='The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory. This will make additional commands available.', callback=_init_ctx)
-@click.version_option(about.version(), message=about.report(), prog_name='Betty')
+@click.option(
+    '--configuration',
+    '-c',
+    'app',
+    is_eager=True,
+    help='The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory. This will make additional commands available.',
+    callback=_init_ctx,
+)
+@click.version_option(about.version_label(), message=about.report(), prog_name='Betty')
 def main(app):
     pass
 
@@ -152,11 +165,18 @@ async def _demo():
 
 @click.command(help="Open Betty's graphical user interface (GUI).")
 @global_command
-@click.option('--configuration', '-c', 'configuration_file_path', is_eager=True, help='The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory.')
+@click.option(
+    '--configuration',
+    '-c',
+    'configuration_file_path',
+    is_eager=True,
+    help='The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory.',
+    callback=lambda _, __, configuration_file_path: Path(configuration_file_path) if configuration_file_path else None,
+)
 @sync
-async def _gui(configuration_file_path: Optional[str]):
+async def _gui(configuration_file_path: Optional[Path]):
     with App() as app:
-        qapp = BettyApplication([sys.argv[0]])
+        qapp = BettyApplication([sys.argv[0]], app=app)
         window: QMainWindow
         if configuration_file_path is None:
             window = WelcomeWindow(app)
@@ -179,9 +199,19 @@ async def _generate(app: App):
 @app_command
 @sync
 async def _serve(app: App):
-    if not path.isdir(app.project.configuration.www_directory_path):
-        logging.getLogger().error('Web root directory "%s" does not exist.' % app.project.configuration.www_directory_path)
-        return
-    async with serve.AppServer(app):
+    async with ProjectServer.get(app):
         while True:
             await asyncio.sleep(999)
+
+
+if about.is_development():
+    @click.command(short_help='Initialize a new translation', help='Initialize a new translation.\n\nThis is available only when developing Betty.')
+    @click.argument('locale')
+    @global_command
+    def _init_translation(locale: str) -> None:
+        init_translation(locale)
+
+    @click.command(short_help='Update all existing translations', help='Update all existing translations.\n\nThis is available only when developing Betty.')
+    @global_command
+    def _update_translations() -> None:
+        update_translations()

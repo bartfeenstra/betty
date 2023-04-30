@@ -14,7 +14,7 @@ from betty.project import ExtensionConfiguration
 from betty.tests.conftest import AssertWindow, AssertNotWindow
 
 
-def test_add_family_tree_set_path(assert_not_window: AssertNotWindow, assert_window: AssertWindow, qtbot: QtBot) -> None:
+def test_add_family_tree_set_path(assert_not_window: AssertNotWindow, assert_window: AssertWindow, qtbot: QtBot, tmp_path: Path) -> None:
     with App() as app:
         app.project.configuration.extensions.add(ExtensionConfiguration(Gramps))
         sut = app.extensions[Gramps]
@@ -25,18 +25,18 @@ def test_add_family_tree_set_path(assert_not_window: AssertNotWindow, assert_win
         qtbot.mouseClick(widget._family_trees._add_family_tree_button, Qt.MouseButton.LeftButton)
         add_family_tree_window = assert_window(_AddFamilyTreeWindow)
 
-        file_path = '/tmp/family-tree.gpkg'
-        add_family_tree_window._file_path.setText(file_path)
+        file_path = tmp_path / 'family-tree.gpkg'
+        add_family_tree_window._file_path.setText(str(file_path))
 
         qtbot.mouseClick(add_family_tree_window._save_and_close, Qt.MouseButton.LeftButton)
         assert_not_window(_AddFamilyTreeWindow)
 
         assert len(sut.configuration.family_trees) == 1
         family_tree = sut.configuration.family_trees[0]
-        assert family_tree.file_path == Path(file_path)
+        assert family_tree.file_path == file_path
 
 
-def test_add_family_tree_find_path(assert_window: AssertWindow, mocker: MockerFixture, qtbot: QtBot) -> None:
+def test_add_family_tree_find_path(assert_window: AssertWindow, mocker: MockerFixture, qtbot: QtBot, tmp_path: Path) -> None:
     with App() as app:
         app.project.configuration.extensions.add(ExtensionConfiguration(Gramps))
         sut = app.extensions[Gramps]
@@ -47,14 +47,14 @@ def test_add_family_tree_find_path(assert_window: AssertWindow, mocker: MockerFi
         qtbot.mouseClick(widget._family_trees._add_family_tree_button, Qt.MouseButton.LeftButton)
 
         add_family_tree_window = assert_window(_AddFamilyTreeWindow)
-        file_path = '/tmp/family-tree.gpkg'
-        mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[file_path, None]))
+        file_path = tmp_path / 'family-tree.gpkg'
+        mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[str(file_path), None]))
         qtbot.mouseClick(add_family_tree_window._file_path_find, Qt.MouseButton.LeftButton)
         qtbot.mouseClick(add_family_tree_window._save_and_close, Qt.MouseButton.LeftButton)
 
         assert len(sut.configuration.family_trees) == 1
         family_tree = sut.configuration.family_trees[0]
-        assert family_tree.file_path == Path(file_path)
+        assert family_tree.file_path == file_path
 
 
 def test_remove_family_tree(qtbot) -> None:
@@ -63,7 +63,7 @@ def test_remove_family_tree(qtbot) -> None:
             Gramps,
             extension_configuration=GrampsConfiguration(
                 family_trees=ReactiveMutableSequence([
-                    FamilyTreeConfiguration('/tmp/family-tree.gpkg'),
+                    FamilyTreeConfiguration(Path('/tmp/family-tree.gpkg')),
                 ])
             ),
         ))

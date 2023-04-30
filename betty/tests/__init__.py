@@ -1,15 +1,17 @@
+from __future__ import annotations
+
 import functools
 import inspect
-from contextlib import contextmanager, ExitStack
-from pathlib import Path
-from tempfile import TemporaryDirectory
-from typing import Optional, Dict, Callable, ContextManager, Iterator, Tuple, TypeVar, Set, Type
+from contextlib import contextmanager
+from typing import Optional, Dict, Callable, Iterator, Tuple, TypeVar, Set, Type
 
 from jinja2.environment import Template
 
 from betty import fs
 from betty.app import App, Extension
 from betty.jinja2 import Environment
+from betty.locale import Localey
+from betty.tempfile import TemporaryDirectory
 
 T = TypeVar('T')
 
@@ -19,7 +21,7 @@ def patch_cache(f):
     async def _patch_cache(*args, **kwargs) -> None:
         original_cache_directory_path = fs.CACHE_DIRECTORY_PATH
         cache_directory = TemporaryDirectory()
-        fs.CACHE_DIRECTORY_PATH = Path(cache_directory.name)
+        fs.CACHE_DIRECTORY_PATH = cache_directory.path
         try:
             result = f(*args, **kwargs)
             if inspect.iscoroutinefunction(f):
@@ -38,7 +40,7 @@ class TemplateTestCase:
     extensions: Set[Type[Extension]] = set()
 
     @contextmanager
-    def _render(self, data: Optional[Dict] = None, template_file: Optional[str] = None, template_string: Optional[str] = None, set_up: Optional[Callable[[App], ContextManager]] = None) -> Iterator[Tuple[str, App]]:
+    def _render(self, data: Optional[Dict] = None, template_file: Optional[str] = None, template_string: Optional[str] = None, locale: Localey | None = None) -> Iterator[Tuple[str, App]]:
         if self.template_string is not None and self.template_file is not None:
             class_name = self.__class__.__name__
             raise RuntimeError(f'{class_name} must define either `{class_name}.template_string` or `{class_name}.template_file`, but not both.')
@@ -63,16 +65,10 @@ class TemplateTestCase:
             raise RuntimeError(f'You must define one of `template_string`, `template_file`, `{class_name}.template_string`, or `{class_name}.template_file`.')
         if data is None:
             data = {}
-        app = App()
+        app = App(locale=locale)
         app.project.configuration.debug = True
-        contexts = ExitStack()
         with app:
             app.project.configuration.extensions.enable(*self.extensions)
-            try:
-                if set_up is not None:
-                    contexts.enter_context(set_up(app))
-                rendered = template_factory(app.jinja2_environment, template).render(**data)
-                app.wait()
-                yield rendered, app
-            finally:
-                contexts.close()
+            rendered = template_factory(app.jinja2_environment, template).render(**data)
+            app.wait()
+            yield rendered, app

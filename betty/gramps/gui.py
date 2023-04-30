@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING, Optional
+from typing import List, Optional
 
 from reactives.instance.method import reactive_method
 
 from betty.config.error import ConfigurationError
-
-if TYPE_CHECKING:
-    from betty.builtins import _
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QWidget, QFormLayout, QPushButton, QFileDialog, QLineEdit, QHBoxLayout, QVBoxLayout, \
@@ -64,9 +61,9 @@ class _FamilyTrees(LocalizedWidget):
         self._layout.insertWidget(0, self._family_trees_widget, alignment=Qt.AlignmentFlag.AlignTop)
 
     def _do_set_translatables(self) -> None:
-        self._add_family_tree_button.setText(_('Add a family tree'))
+        self._add_family_tree_button.setText(self._app.localizer._('Add a family tree'))
         for button in self._family_trees_remove_buttons:
-            button.setText(_('Remove'))
+            button.setText(self._app.localizer._('Remove'))
 
     def _add_family_tree(self):
         window = _AddFamilyTreeWindow(self._app, self)
@@ -104,7 +101,7 @@ class _AddFamilyTreeWindow(BettyWindow):
                 return
             try:
                 if self._family_tree is None:
-                    self._family_tree = FamilyTreeConfiguration(file_path)
+                    self._family_tree = FamilyTreeConfiguration(Path(file_path))
                 else:
                     self._family_tree.file_path = Path(file_path)
                 mark_valid(self._file_path)
@@ -121,7 +118,7 @@ class _AddFamilyTreeWindow(BettyWindow):
         def find_family_tree_file_path() -> None:
             found_family_tree_file_path, __ = QFileDialog.getOpenFileName(
                 self._widget,
-                _('Load the family tree from...'),
+                self._app.localizer._('Load the family tree from...'),
                 directory=self._file_path.text(),
             )
             if '' != found_family_tree_file_path:
@@ -152,10 +149,10 @@ class _AddFamilyTreeWindow(BettyWindow):
         buttons_layout.addWidget(self._cancel)
 
     def _do_set_translatables(self) -> None:
-        self._file_path_label.setText(_('File path'))
-        self._save_and_close.setText(_('Save and close'))
-        self._cancel.setText(_('Cancel'))
+        self._file_path_label.setText(self._app.localizer._('File path'))
+        self._save_and_close.setText(self._app.localizer._('Save and close'))
+        self._cancel.setText(self._app.localizer._('Cancel'))
 
     @property
     def title(self) -> str:
-        return _('Add a family tree')
+        return self._app.localizer._('Add a family tree')

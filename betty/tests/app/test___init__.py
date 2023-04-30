@@ -4,9 +4,14 @@ import pytest
 
 from betty.app import Extension, App, CyclicDependencyError
 from betty.app.extension import ConfigurableExtension as GenericConfigurableExtension
-from betty.config import Configuration, DumpedConfigurationImport, DumpedConfigurationExport
+from betty.config import Configuration, DumpedConfiguration, VoidableDumpedConfiguration
 from betty.config.load import Loader
+from betty.model import Entity
 from betty.project import ExtensionConfiguration
+
+
+class DummyEntity(Entity):
+    pass
 
 
 class Tracker:
@@ -28,7 +33,7 @@ class ConfigurableExtensionConfiguration(Configuration):
         super().__init__()
         self.check = check
 
-    def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
+    def load(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> None:
         with loader.assert_required_key(
             dumped_configuration,
             'check',
@@ -37,7 +42,7 @@ class ConfigurableExtensionConfiguration(Configuration):
             if valid:
                 loader.assert_setattr(self, 'check', dumped_check)
 
-    def dump(self) -> DumpedConfigurationExport:
+    def dump(self) -> VoidableDumpedConfiguration:
         return {
             'check': self.check
         }

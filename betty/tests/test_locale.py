@@ -1,23 +1,20 @@
-import builtins
+from __future__ import annotations
+
 import difflib
-import shutil
-import subprocess
-import sys
-from gettext import NullTranslations
 from pathlib import Path
-from tempfile import TemporaryDirectory
-from typing import List, Optional, Iterator, Set, Tuple
+from typing import List, Iterator, Set, Tuple, cast
 
 import pytest
 
-from betty.fs import FileSystem, ROOT_DIRECTORY_PATH
-from betty.locale import Localized, negotiate_localizeds, Date, format_datey, DateRange, Translations, negotiate_locale, \
-    Datey, TranslationsInstallationError, TranslationsRepository
+from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH
+from betty.locale import Localized, negotiate_localizeds, Date, DateRange, negotiate_locale, \
+    Datey, LocalizerRepository, Localey, DEFAULT_LOCALIZER, to_locale, update_translations
+from betty.tempfile import TemporaryDirectory
 
 
 class TestPotFile:
-    def _readlines(self, directory_path: Path) -> Iterator[str]:
-        with open(directory_path / 'betty' / 'assets' / 'betty.pot') as f:
+    def _readlines(self, assets_directory_path: Path) -> Iterator[str]:
+        with open(assets_directory_path / 'betty.pot') as f:
             return filter(
                 lambda line: not line.startswith((
                     '# Copyright (C) ',
@@ -31,122 +28,14 @@ class TestPotFile:
 
     def test(self) -> None:
         with TemporaryDirectory() as working_directory_path:
-            shutil.copytree(ROOT_DIRECTORY_PATH, working_directory_path, dirs_exist_ok=True, ignore=shutil.ignore_patterns(
-                '*.git',
-                '.*_cache',
-                '.tox',
-                'build',
-                'dist',
-                'node_modules',
-            ))
-            subprocess.check_call(
-                (
-                    'bash',
-                    Path() / 'bin' / 'extract-translatables',
-                ),
-                cwd=working_directory_path,
-                stderr=subprocess.DEVNULL,
-                # Use a shell to circumvent some problems on Windows where Bash cannot be found.
-                shell=sys.platform == 'win32',
-            )
-            actual_pot_contents = self._readlines(ROOT_DIRECTORY_PATH)
-            expected_pot_contents = self._readlines(Path(working_directory_path))
+            update_translations(working_directory_path)
+            actual_pot_contents = self._readlines(ASSETS_DIRECTORY_PATH)
+            expected_pot_contents = self._readlines(working_directory_path)
             diff = difflib.unified_diff(
                 list(actual_pot_contents),
                 list(expected_pot_contents),
             )
-            assert 0 == len(list(diff)), f'The gettext *.po files are not up to date. Did you run {Path() / "bin" / "extract-translatables"}?'
-
-
-class TestTranslations:
-    _GETTEXT_BUILTINS_TO_TRANSLATIONS_METHODS = {
-        '_': 'gettext',
-        'gettext': 'gettext',
-        'ngettext': 'ngettext',
-        'npgettext': 'npgettext',
-        'pgettext': 'pgettext',
-    }
-
-    def assert_gettext_builtins(self, translations: NullTranslations) -> None:
-        for builtin_name, translations_method_name in self._GETTEXT_BUILTINS_TO_TRANSLATIONS_METHODS.items():
-            assert builtin_name in builtins.__dict__
-            assert getattr(translations, translations_method_name) == builtins.__dict__[builtin_name]
-
-    def assert_no_gettext_builtins(self) -> None:
-        for builtin_name in self._GETTEXT_BUILTINS_TO_TRANSLATIONS_METHODS:
-            assert builtin_name not in builtins.__dict__
-
-    def test_install_uninstall(self) -> None:
-        sut_one = Translations(NullTranslations())
-        sut_two = Translations(NullTranslations())
-        sut_one.install()
-        self.assert_gettext_builtins(sut_one)
-        sut_two.install()
-        self.assert_gettext_builtins(sut_two)
-        sut_two.uninstall()
-        self.assert_gettext_builtins(sut_one)
-        sut_one.uninstall()
-        self.assert_no_gettext_builtins()
-
-    def test_install_uninstall_out_of_order_should_fail(self) -> None:
-        sut_one = Translations(NullTranslations())
-        sut_two = Translations(NullTranslations())
-        sut_one.install()
-        self.assert_gettext_builtins(sut_one)
-        sut_two.install()
-        self.assert_gettext_builtins(sut_two)
-        with pytest.raises(TranslationsInstallationError):
-            sut_one.uninstall()
-
-        # Clean up the global environment.
-        sut_two.uninstall()
-        sut_one.uninstall()
-
-    def test_install_reentry_without_uninstall_should_fail(self) -> None:
-        sut = Translations(NullTranslations())
-        sut.install()
-        with pytest.raises(TranslationsInstallationError):
-            sut.install()
-
-        # Clean up the global environment.
-        sut.uninstall()
-
-    def test_install_reentry(self) -> None:
-        sut = Translations(NullTranslations())
-        sut.install()
-        self.assert_gettext_builtins(sut)
-        sut.uninstall()
-        self.assert_no_gettext_builtins()
-        sut.install()
-        self.assert_gettext_builtins(sut)
-        sut.uninstall()
-        self.assert_no_gettext_builtins()
-
-    def test_context_manager(self) -> None:
-        sut_one = Translations(NullTranslations())
-        sut_two = Translations(NullTranslations())
-        with sut_one:
-            self.assert_gettext_builtins(sut_one)
-            with sut_two:
-                self.assert_gettext_builtins(sut_two)
-            self.assert_gettext_builtins(sut_one)
-        self.assert_no_gettext_builtins()
-
-    def test_context_manager_reentry_without_exit_should_fail(self) -> None:
-        sut = Translations(NullTranslations())
-        with sut:
-            with pytest.raises(TranslationsInstallationError):
-                with sut:
-                    pass
-
-    def test_context_manager_reentry(self) -> None:
-        sut = Translations(NullTranslations())
-        with sut:
-            self.assert_gettext_builtins(sut)
-        self.assert_no_gettext_builtins()
-        with sut:
-            self.assert_gettext_builtins(sut)
-        self.assert_no_gettext_builtins()
+            assert 0 == len(list(diff)), 'The gettext *.po files are not up to date. Did you run `betty update-translations`?'
 
 
 class TestDate:
@@ -385,10 +274,11 @@ class TestNegotiateLocale:
         ('nl-NL', 'nl-NL', {'nl', 'nl-BE', 'nl-NL'}),
         ('nl', 'nl', {'nl', 'en'}),
         ('nl', 'nl', {'en', 'nl'}),
-        ('nl-NL', 'nl-BE', {'nl-NL'})
+        ('nl-NL', 'nl-BE', {'nl-NL'}),
     ])
-    def test(self, expected: Optional[str], preferred_locale: str, available_locales: Set[str]):
-        assert expected == negotiate_locale(preferred_locale, available_locales)
+    def test(self, expected: Localey | None, preferred_locale: Localey, available_locales: Set[Localey]):
+        actual = negotiate_locale(preferred_locale, available_locales)
+        assert expected == (to_locale(actual) if actual else actual)
 
 
 class TestNegotiateLocalizeds:
@@ -403,13 +293,13 @@ class TestNegotiateLocalizeds:
         (DummyLocalized('nl'), 'nl', [DummyLocalized('nl')]),
         (DummyLocalized('nl-NL'), 'nl', [DummyLocalized('nl-NL')]),
         (DummyLocalized('nl'), 'nl-NL', [DummyLocalized('nl')]),
-        (DummyLocalized('nl'), 'nl', [
-         DummyLocalized('nl'), DummyLocalized('en')]),
-        (DummyLocalized('nl'), 'nl', [
-         DummyLocalized('en'), DummyLocalized('nl')]),
+        (DummyLocalized('nl-NL'), 'nl-NL', [DummyLocalized('nl'), DummyLocalized('nl-BE'), DummyLocalized('nl-NL')]),
+        (DummyLocalized('nl'), 'nl', [DummyLocalized('nl'), DummyLocalized('en')]),
+        (DummyLocalized('nl'), 'nl', [DummyLocalized('en'), DummyLocalized('nl')]),
+        (DummyLocalized('nl-NL'), 'nl-BE', [DummyLocalized('nl-NL')]),
         (None, 'nl', []),
     ])
-    def test_with_match_should_return_match(self, expected: Localized, preferred_locale: str, localizeds: List[Localized]):
+    def test_with_match_should_return_match(self, expected: Localized | None, preferred_locale: str, localizeds: List[Localized]):
         assert expected == negotiate_localizeds(preferred_locale, localizeds)
 
     def test_without_match_should_return_default(self):
@@ -418,85 +308,76 @@ class TestNegotiateLocalizeds:
         assert self.DummyLocalized('nl') == negotiate_localizeds(preferred_locale, localizeds)
 
 
-_FORMAT_DATE_TEST_PARAMETERS: List[Tuple[str, Datey]] = [
-    # Dates that cannot be formatted.
-    ('unknown date', Date()),
-    ('unknown date', Date(None, None, 1)),
-    # Single dates.
-    ('January', Date(None, 1, None)),
-    ('around January', Date(None, 1, None, fuzzy=True)),
-    ('1970', Date(1970, None, None)),
-    ('around 1970', Date(1970, None, None, fuzzy=True)),
-    ('January, 1970', Date(1970, 1, None)),
-    ('around January, 1970', Date(1970, 1, None, fuzzy=True)),
-    ('January 1, 1970', Date(1970, 1, 1)),
-    ('around January 1, 1970', Date(1970, 1, 1, fuzzy=True)),
-    ('January 1', Date(None, 1, 1)),
-    ('around January 1', Date(None, 1, 1, fuzzy=True)),
-]
+class TestDefaultLocalizer:
+    _FORMAT_DATE_TEST_PARAMETERS: List[Tuple[str, Date]] = [
+        # Dates that cannot be formatted.
+        ('unknown date', Date()),
+        ('unknown date', Date(None, None, 1)),
+        # Single dates.
+        ('January', Date(None, 1, None)),
+        ('around January', Date(None, 1, None, fuzzy=True)),
+        ('1970', Date(1970, None, None)),
+        ('around 1970', Date(1970, None, None, fuzzy=True)),
+        ('January, 1970', Date(1970, 1, None)),
+        ('around January, 1970', Date(1970, 1, None, fuzzy=True)),
+        ('January 1, 1970', Date(1970, 1, 1)),
+        ('around January 1, 1970', Date(1970, 1, 1, fuzzy=True)),
+        ('January 1', Date(None, 1, 1)),
+        ('around January 1', Date(None, 1, 1, fuzzy=True)),
+    ]
+
+    @pytest.mark.parametrize('expected, date', _FORMAT_DATE_TEST_PARAMETERS)
+    def test_format_date(self, expected: str, date: Date):
+        sut = DEFAULT_LOCALIZER
+        assert expected == sut.format_date(date)
+
+    _FORMAT_DATE_RANGE_TEST_PARAMETERS: List[Tuple[str, DateRange]] = [
+        ('from January 1, 1970 until December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31))),
+        ('from January 1, 1970 until sometime before December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31), end_is_boundary=True)),
+        ('from January 1, 1970 until around December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31, fuzzy=True))),
+        ('from January 1, 1970 until sometime before around December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31, fuzzy=True), end_is_boundary=True)),
+        ('from sometime after January 1, 1970 until December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31), start_is_boundary=True)),
+        ('sometime between January 1, 1970 and December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31), start_is_boundary=True, end_is_boundary=True)),
+        ('from sometime after January 1, 1970 until around December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31, fuzzy=True), start_is_boundary=True)),
+        ('sometime between January 1, 1970 and around December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31, fuzzy=True), start_is_boundary=True, end_is_boundary=True)),
+        ('from around January 1, 1970 until December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31))),
+        ('from around January 1, 1970 until sometime before December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31), end_is_boundary=True)),
+        ('from around January 1, 1970 until around December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31, fuzzy=True))),
+        ('from around January 1, 1970 until sometime before around December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31, fuzzy=True), end_is_boundary=True)),
+        ('from sometime after around January 1, 1970 until December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31), start_is_boundary=True)),
+        ('sometime between around January 1, 1970 and December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31), start_is_boundary=True, end_is_boundary=True)),
+        ('from sometime after around January 1, 1970 until around December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31, fuzzy=True), start_is_boundary=True)),
+        ('sometime between around January 1, 1970 and around December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31, fuzzy=True), start_is_boundary=True, end_is_boundary=True)),
+        ('from January 1, 1970', DateRange(Date(1970, 1, 1))),
+        ('sometime after January 1, 1970', DateRange(Date(1970, 1, 1), start_is_boundary=True)),
+        ('from around January 1, 1970', DateRange(Date(1970, 1, 1, fuzzy=True))),
+        ('sometime after around January 1, 1970', DateRange(Date(1970, 1, 1, fuzzy=True), start_is_boundary=True)),
+        ('until December 31, 1999', DateRange(None, Date(1999, 12, 31))),
+        ('sometime before December 31, 1999', DateRange(None, Date(1999, 12, 31), end_is_boundary=True)),
+        ('until around December 31, 1999', DateRange(None, Date(1999, 12, 31, fuzzy=True))),
+        ('sometime before around December 31, 1999', DateRange(None, Date(1999, 12, 31, fuzzy=True), end_is_boundary=True)),
+    ]
+
+    @pytest.mark.parametrize('expected, date_range', _FORMAT_DATE_RANGE_TEST_PARAMETERS)
+    def test_format_date_range(self, expected: str, date_range: DateRange):
+        sut = DEFAULT_LOCALIZER
+        assert expected == sut.format_date_range(date_range)
+
+    _FORMAT_DATEY_TEST_PARAMETERS = cast(List[Tuple[str, Datey]], _FORMAT_DATE_TEST_PARAMETERS) + cast(List[Tuple[str, Datey]], _FORMAT_DATE_RANGE_TEST_PARAMETERS)
+
+    @pytest.mark.parametrize('expected, datey', _FORMAT_DATEY_TEST_PARAMETERS)
+    def test_format_datey(self, expected: str, datey: Datey):
+        sut = DEFAULT_LOCALIZER
+        assert expected == sut.format_datey(datey)
 
 
-class TestFormatDate:
-    @pytest.mark.parametrize('expected, datey', _FORMAT_DATE_TEST_PARAMETERS)
-    def test(self, expected: str, datey: Datey):
-        locale = 'en'
-        with Translations(NullTranslations()):
-            assert expected == format_datey(datey, locale)
-
-
-_FORMAT_DATE_RANGE_TEST_PARAMETERS: List[Tuple[str, Datey]] = [
-    ('from January 1, 1970 until December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31))),
-    ('from January 1, 1970 until sometime before December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31), end_is_boundary=True)),
-    ('from January 1, 1970 until around December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31, fuzzy=True))),
-    ('from January 1, 1970 until sometime before around December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31, fuzzy=True), end_is_boundary=True)),
-    ('from sometime after January 1, 1970 until December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31), start_is_boundary=True)),
-    ('sometime between January 1, 1970 and December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31), start_is_boundary=True, end_is_boundary=True)),
-    ('from sometime after January 1, 1970 until around December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31, fuzzy=True), start_is_boundary=True)),
-    ('sometime between January 1, 1970 and around December 31, 1999', DateRange(Date(1970, 1, 1), Date(1999, 12, 31, fuzzy=True), start_is_boundary=True, end_is_boundary=True)),
-    ('from around January 1, 1970 until December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31))),
-    ('from around January 1, 1970 until sometime before December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31), end_is_boundary=True)),
-    ('from around January 1, 1970 until around December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31, fuzzy=True))),
-    ('from around January 1, 1970 until sometime before around December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31, fuzzy=True), end_is_boundary=True)),
-    ('from sometime after around January 1, 1970 until December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31), start_is_boundary=True)),
-    ('sometime between around January 1, 1970 and December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31), start_is_boundary=True, end_is_boundary=True)),
-    ('from sometime after around January 1, 1970 until around December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31, fuzzy=True), start_is_boundary=True)),
-    ('sometime between around January 1, 1970 and around December 31, 1999', DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31, fuzzy=True), start_is_boundary=True, end_is_boundary=True)),
-    ('from January 1, 1970', DateRange(Date(1970, 1, 1))),
-    ('sometime after January 1, 1970', DateRange(Date(1970, 1, 1), start_is_boundary=True)),
-    ('from around January 1, 1970', DateRange(Date(1970, 1, 1, fuzzy=True))),
-    ('sometime after around January 1, 1970', DateRange(Date(1970, 1, 1, fuzzy=True), start_is_boundary=True)),
-    ('until December 31, 1999', DateRange(None, Date(1999, 12, 31))),
-    ('sometime before December 31, 1999', DateRange(None, Date(1999, 12, 31), end_is_boundary=True)),
-    ('until around December 31, 1999', DateRange(None, Date(1999, 12, 31, fuzzy=True))),
-    ('sometime before around December 31, 1999', DateRange(None, Date(1999, 12, 31, fuzzy=True), end_is_boundary=True)),
-]
-
-
-class TestFormatDateRange:
-    @pytest.mark.parametrize('expected, datey', _FORMAT_DATE_RANGE_TEST_PARAMETERS)
-    def test(self, expected: str, datey: Datey):
-        locale = 'en'
-        with Translations(NullTranslations()):
-            assert expected == format_datey(datey, locale)
-
-
-class TestFormatDatey:
-    @pytest.mark.parametrize('expected, datey', _FORMAT_DATE_TEST_PARAMETERS + _FORMAT_DATE_RANGE_TEST_PARAMETERS)
-    def test(self, expected: str, datey: Datey):
-        locale = 'en'
-        with Translations(NullTranslations()):
-            assert expected == format_datey(datey, locale)
-
-
-class TestTranslationsRepository:
+class TestLocalizerRepository:
     def test_getitem(self) -> None:
         locale = 'nl-NL'
-        locale_path_name = 'nl_NL'
         with TemporaryDirectory() as assets_directory_path_str:
             fs = FileSystem((assets_directory_path_str, None))
-            sut = TranslationsRepository(fs)
             assets_directory_path = Path(assets_directory_path_str)
-            lc_messages_directory_path = assets_directory_path / 'locale' / locale_path_name / 'LC_MESSAGES'
+            lc_messages_directory_path = assets_directory_path / 'locale' / locale
             lc_messages_directory_path.mkdir(parents=True)
             po = """
 # Dutch translations for PROJECT.
@@ -517,7 +398,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.7.0\n"
+"Generated-By: Babel 2.7.0\n"95
 
 #: betty/ancestry.py:457
 msgid "Subject"
@@ -525,4 +406,5 @@ msgstr "Onderwerp"
 """
             with open(lc_messages_directory_path / 'betty.po', 'w') as f:
                 f.write(po)
-            assert isinstance(sut[locale], NullTranslations)
+            sut = LocalizerRepository(fs)
+            assert 'Onderwerp' == sut[locale]._('Subject')

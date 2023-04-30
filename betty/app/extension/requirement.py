@@ -1,15 +1,13 @@
 from __future__ import annotations
 
 from textwrap import indent
-from typing import Optional, TYPE_CHECKING, cast, List, Any
-
-if TYPE_CHECKING:
-    from betty.builtins import _
+from typing import Optional, cast, List, Any
 
 from betty.error import UserFacingError
+from betty.locale import Localizer, Localizable
 
 
-class Requirement:
+class Requirement(Localizable):
     def is_met(self) -> bool:
         raise NotImplementedError
 
@@ -52,7 +50,8 @@ class RequirementError(RuntimeError, UserFacingError):
 
 
 class RequirementCollection(Requirement):
-    def __init__(self, *requirements: Optional[Requirement]):
+    def __init__(self, *requirements: Optional[Requirement], localizer: Localizer | None = None):
+        super().__init__(localizer=localizer)
         self._requirements: List[Requirement] = [requirement for requirement in requirements if requirement]
 
     def __eq__(self, other: Any) -> bool:
@@ -89,9 +88,9 @@ class RequirementCollection(Requirement):
 
 
 class AnyRequirement(RequirementCollection):
-    def __init__(self, *requirements: Optional[Requirement]):
-        super().__init__(*requirements)
-        self._summary = _('One or more of these requirements must be met')
+    def __init__(self, *requirements: Optional[Requirement], localizer: Localizer | None = None):
+        super().__init__(*requirements, localizer=localizer)
+        self._summary = self.localizer._('One or more of these requirements must be met')
 
     def is_met(self) -> bool:
         for requirement in self._requirements:
@@ -104,9 +103,9 @@ class AnyRequirement(RequirementCollection):
 
 
 class AllRequirements(RequirementCollection):
-    def __init__(self, *requirements: Optional[Requirement]):
-        super().__init__(*requirements)
-        self._summary = _('All of these requirements must be met')
+    def __init__(self, *requirements: Optional[Requirement], localizer: Localizer | None = None):
+        super().__init__(*requirements, localizer=localizer)
+        self._summary = self.localizer._('All of these requirements must be met')
 
     def is_met(self) -> bool:
         for requirement in self._requirements:

@@ -50,7 +50,7 @@ class Test(TemplateTestCase):
 
     def test_with_start(self):
         person = Person('P0')
-        Presence(person, Subject(), Event(None, Birth(), Date(1970)))
+        Presence(person, Subject(), Event(None, Birth, Date(1970)))
         expected = '<div class="meta person-meta"><dl><div><dt>Birth</dt><dd>1970</dd></div></dl></div>'
         with self._render(data={
             'entity': person,
@@ -59,7 +59,7 @@ class Test(TemplateTestCase):
 
     def test_with_end(self):
         person = Person('P0')
-        Presence(person, Subject(), Event(None, Death(), Date(1970)))
+        Presence(person, Subject(), Event(None, Death, Date(1970)))
         expected = '<div class="meta person-meta"><dl><div><dt>Death</dt><dd>1970</dd></div></dl></div>'
         with self._render(data={
             'entity': person,
@@ -68,7 +68,7 @@ class Test(TemplateTestCase):
 
     def test_embedded(self):
         person = Person('P0')
-        Presence(person, Subject(), Event(None, Birth(), Date(1970)))
+        Presence(person, Subject(), Event(None, Birth, Date(1970)))
         PersonName(person, 'Jane', 'Dough')
         name = PersonName(person, 'Janet', 'Doughnut')
         name.citations.append(Citation(None, Source(None, 'The Source')))

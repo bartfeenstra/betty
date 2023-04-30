@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-12-06 18:11+0000\n"
+"POT-Creation-Date: 2023-05-29 20:43+0100\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.11.0\n"
+"Generated-By: Babel 2.12.1\n"
 
 msgid ""
 "\n"
@@ -69,12 +69,11 @@ msgstr "\"{entity_type}\" is geen geldig Betty-entiteitstype."
 msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
 msgstr ""
 
+msgid "\"{locale}\" is not a valid IETF BCP 47 language tag."
+msgstr "\"{locale}\" is geen geldige IETF BCP 47 taaltag."
+
 msgid "\"{path}\" is not a directory."
 msgstr "\"{path}\" is geen directory."
-
-#, python-format
-msgid "%(date)s"
-msgstr "op %(date)s"
 
 #, python-format
 msgid "%(date)s in %(place)s"
@@ -142,9 +141,6 @@ msgstr "Over"
 
 msgid "About Betty"
 msgstr "Over Betty"
-
-msgid "Access denied"
-msgstr "Verboden toegang"
 
 #, python-format
 msgid "Accessed %(date)s"
@@ -263,11 +259,30 @@ msgstr ""
 "href=\"{gramps_url}\">Gramps</a>- en <a "
 "href=\"{gedcom_url}\">GEDCOM</a>-stambomen."
 
+msgid ""
+"Betty is unfamiliar with Gramps event \"{event_id}\"'s type of "
+"\"{gramps_event_type}\". The event was imported, but its type was set to "
+"\"{betty_event_type}\"."
+msgstr ""
+
 msgid "Betty project configuration ({extensions})"
 msgstr "Betty-projectconfiguratie ({extensions})"
 
 msgid "Birth"
 msgstr "Geboorte"
+
+msgid "Built the Cotton Candy front-end assets."
+msgstr ""
+
+#, fuzzy
+msgid "Built the HTTP API documentation."
+msgstr "API-documentatie"
+
+msgid "Built the interactive family trees."
+msgstr ""
+
+msgid "Built the interactive maps."
+msgstr ""
 
 msgid "Burial"
 msgstr "Begravenis"
@@ -304,9 +319,6 @@ msgstr "Schoonmaker"
 
 msgid "Clear all caches"
 msgstr "Leeg alle caches"
-
-msgid "Close"
-msgstr "Sluiten"
 
 msgid "Configuration"
 msgstr "Instellingen"
@@ -354,6 +366,11 @@ msgstr ""
 "Maak gebeurtenissen zoals geboortes en overlijdens door de details "
 "hiervoor af te leiden van bestaande informatie."
 
+msgid ""
+"Created {created_derivations} additional {event_type} events based on "
+"existing information."
+msgstr ""
+
 msgid "Cremation"
 msgstr "Crematie"
 
@@ -367,6 +384,10 @@ msgid ""
 "Decide the correct page variety to serve users depending on their own "
 "preferences. This requires a web server that supports it."
 msgstr ""
+
+#, fuzzy
+msgid "Demo"
+msgstr "Verwijder"
 
 msgid "Deriver"
 msgstr "Afleider"
@@ -476,12 +497,15 @@ msgstr "Genereer site"
 msgid "Generated pages for {count} {entity_type} in {locale}."
 msgstr "Pagina's voor {count} {entity_type} in het {locale} gegenereerd."
 
-#, fuzzy
-msgid "Generated the listing HTML page for {entity_type} entities in {locale}."
-msgstr "Pagina's voor {count} {entity_type} in het {locale} gegenereerd."
+msgid "Generated the listing page for {entity_type} in {locale}."
+msgstr "Pagina met het overzicht van alle {entity_type} in het {locale} gegenereerd."
 
 msgid "Generating your site..."
 msgstr "Je site aan het genereren..."
+
+#, fuzzy
+msgid "HTTP API Documentation"
+msgstr "API-documentatie"
 
 msgid "Help"
 msgstr "Hulp"
@@ -500,15 +524,6 @@ msgstr "Het spijt me, schat, maar het lijkt erop dat er geen plaatsen zijn."
 
 msgid "I'm sorry, dear, but it seems there are no sources."
 msgstr "Het spijt me, schat, maar het lijkt erop dat er geen bronnen zijn."
-
-msgid "I'm sorry, dear, but it seems this page does not exist."
-msgstr "Het spijt me, schat, maar het lijkt erop dat deze pagina niet bestaat."
-
-msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
-msgstr "Het spijt me, schat, maar het lijkt erop dat je deze pagina niet mag zien."
-
-msgid "I'm sorry, dear, but it seems you're not logged in."
-msgstr "Het spijt me, schat, maar het lijkt erop dat je niet ingelogd bent."
 
 msgid "Immigration"
 msgstr "Immigratie"
@@ -539,6 +554,14 @@ msgstr "Laad <a href=\"https://gramps-project.org/\">Gramps-</a>stambomen."
 
 msgid "Load the family tree from..."
 msgstr "Laad de stamboom van..."
+
+#, fuzzy
+msgid "Loaded the configuration from {configuration_file_path}."
+msgstr "Configuratiebestand \"{configuration_file_path}\" bestaat niet."
+
+#, fuzzy
+msgid "Loading {file_path}..."
+msgstr "Laden..."
 
 msgid "Loading..."
 msgstr "Laden..."
@@ -614,9 +637,6 @@ msgid ""
 "harder."
 msgstr ""
 
-msgid "Page not found"
-msgstr "Pagina niet gevonden"
-
 msgid "People"
 msgstr "Personen"
 
@@ -653,11 +673,17 @@ msgstr "Primaire kleur (inactief)"
 msgid "Private"
 msgstr "Privé"
 
+msgid "Privatized {count} people because they are likely still alive."
+msgstr ""
+
 msgid "Privatizer"
 msgstr "Privatiseerder"
 
 msgid "Project"
 msgstr "Project"
+
+msgid "Python built-in"
+msgstr ""
 
 msgid "Read more on Wikipedia."
 msgstr "Lees meer op Wikipedia."
@@ -693,41 +719,13 @@ msgstr "Woonplaats"
 msgid "Retirement"
 msgstr "Pensioen"
 
-msgid "Retrieve a single citation."
-msgstr "Haal een enkele verwijzing op."
-
-msgid "Retrieve a single event."
+#, fuzzy
+msgid "Retrieve a single {entity_type} entity."
 msgstr "Haal een enkele gebeurtenis op."
 
-msgid "Retrieve a single file."
-msgstr "Haal een enkel bestand op."
-
-msgid "Retrieve a single person."
-msgstr "Haal een enkel persoon op."
-
-msgid "Retrieve a single place."
-msgstr "Haal een enkele plaats op."
-
-msgid "Retrieve a single source."
-msgstr "Haal een enkele bron op."
-
-msgid "Retrieve the collection of citations."
-msgstr "Haal de verzameling van verwijzingen op."
-
-msgid "Retrieve the collection of events."
+#, fuzzy
+msgid "Retrieve the collection of {entity_type} entities."
 msgstr "Haal de verzameling van gebeurtenissen op."
-
-msgid "Retrieve the collection of files."
-msgstr "Haal de verzameling van bestanden op."
-
-msgid "Retrieve the collection of people."
-msgstr "Haal de verzameling van personen op."
-
-msgid "Retrieve the collection of places."
-msgstr "Haal de verzameling van plaatsen op."
-
-msgid "Retrieve the collection of sources."
-msgstr "Haal de verzameling van bronnen op."
 
 msgid "Save and close"
 msgstr "Opslaan en sluiten"
@@ -787,26 +785,17 @@ msgstr ""
 "De basis-URL moet beginnen met een protocol als https://, http://, of "
 "file://."
 
-msgid "The citation."
-msgstr "De verwijzing."
+msgid ""
+"The betty:privacy Gramps attribute must have a value of \"public\" or "
+"\"private\", but \"{privacy_value}\" was given, which was ignored."
+msgstr ""
 
-msgid "The collection of citations."
-msgstr "De verzameling van verwijzingen."
-
-msgid "The collection of events."
+#, fuzzy
+msgid "The collection of {entity_type} entities."
 msgstr "De verzameling van gebeurtenissen."
 
-msgid "The collection of files."
-msgstr "De verzameling van bestanden."
-
-msgid "The collection of people."
-msgstr "De verzameling van personen."
-
-msgid "The collection of places."
-msgstr "De verzameling van plaatsen."
-
-msgid "The collection of sources."
-msgstr "De verzameling van bronnen."
+msgid "The configuration must have a configuration file path."
+msgstr ""
 
 msgid ""
 "The entity reference must be for an entity of type "
@@ -819,30 +808,19 @@ msgstr ""
 " echter naar een entiteit van het type {actual_entity_type_name} "
 "({actual_entity_type_label})"
 
-msgid "The event."
-msgstr "De gebeurtenis."
-
-msgid "The file."
-msgstr "Het bestand."
-
 msgid "The key \"{configuration_key}\" is required."
 msgstr "De sleutel \"{configuration_key}\" is vereist."
 
 msgid "The lifetime threshold must consist of digits only."
 msgstr "De levensgrens mag alleen uit cijfers bestaan."
 
-msgid "The person."
-msgstr "De persoon."
-
-msgid "The place."
-msgstr "De plaats."
-
-msgid "The source."
-msgstr "De bron."
-
 #, python-format
 msgid "The translations for {locale_name} are {coverage_percentage}% complete."
 msgstr "De vertalingen voor {locale_name} zijn {coverage_percentage}% compleet."
+
+#, fuzzy
+msgid "The {entity_type} entity."
+msgstr "{entity_type_label}-ID"
 
 msgid "There are no translations for {locale_name}."
 msgstr "Er zijn geen vertalingen voor {locale_name}."
@@ -930,8 +908,13 @@ msgid ""
 "Unknown key: {unknown_configuration_key}. Did you mean "
 "{known_configuration_keys}?"
 msgstr ""
-"Onbekende sleutel: {unknown_configuration_key}. "
-"Bedoel je {known_configuration_keys}?"
+"Onbekende sleutel: {unknown_configuration_key}. Bedoel je "
+"{known_configuration_keys}?"
+
+msgid ""
+"Updated {updated_derivations} {event_type} events based on existing "
+"information."
+msgstr ""
 
 #, python-format
 msgid ""
@@ -956,9 +939,6 @@ msgstr "Bekijk een demonstratiesite..."
 
 msgid "View site"
 msgstr "Bekijk site"
-
-msgid "Web root directory \"{path}\" does not exist."
-msgstr ""
 
 #, python-format
 msgid "Welcome to %(title)s"
@@ -1002,65 +982,65 @@ msgstr "`npm` is beschikbaar"
 msgid "`npm` is not available"
 msgstr "`npm` is niet beschikbaar"
 
-#, python-format
-msgid "around %(date)s"
+#, fuzzy
+msgid "around {date}"
 msgstr "rond %(date)s"
 
-#, python-format
-msgid "from %(start_date)s"
-msgstr "vanaf %(start_date)s"
-
-#, python-format
-msgid "from %(start_date)s until %(end_date)s"
-msgstr "vanaf %(start_date)s tot en met %(end_date)s"
-
-#, python-format
-msgid "from %(start_date)s until around %(end_date)s"
-msgstr "vanaf %(start_date)s tot ongeveer %(end_date)s"
-
-#, python-format
-msgid "from %(start_date)s until sometime before %(end_date)s"
-msgstr "vanaf %(start_date)s tot ergens voor %(end_date)s"
-
-#, python-format
-msgid "from %(start_date)s until sometime before around %(end_date)s"
-msgstr "vanaf %(start_date)s tot ergens voor ongeveer %(end_date)s"
-
-#, python-format
-msgid "from around %(start_date)s"
+#, fuzzy
+msgid "from around {start_date}"
 msgstr "van ongeveer %(start_date)s"
 
-#, python-format
-msgid "from around %(start_date)s until %(end_date)s"
-msgstr "van ongeveer %(start_date)s tot en met %(end_date)s"
-
-#, python-format
-msgid "from around %(start_date)s until around %(end_date)s"
+#, fuzzy
+msgid "from around {start_date} until around {end_date}"
 msgstr "van ongeveer %(start_date)s tot ongeveer %(end_date)s"
 
-#, python-format
-msgid "from around %(start_date)s until sometime before %(end_date)s"
-msgstr "van ongeveer %(start_date)s tot ergens voor %(end_date)s"
-
-#, python-format
-msgid "from around %(start_date)s until sometime before around %(end_date)s"
+#, fuzzy
+msgid "from around {start_date} until sometime before around {end_date}"
 msgstr "van ongeveer %(start_date)s tot ergens voor ongeveer %(end_date)s"
 
-#, python-format
-msgid "from sometime after %(start_date)s until %(end_date)s"
-msgstr "van ergens na %(start_date)s tot en met %(end_date)s"
+#, fuzzy
+msgid "from around {start_date} until sometime before {end_date}"
+msgstr "van ongeveer %(start_date)s tot ergens voor %(end_date)s"
 
-#, python-format
-msgid "from sometime after %(start_date)s until around %(end_date)s"
-msgstr "van ergens na %(start_date)s tot ongeveer %(end_date)s"
+#, fuzzy
+msgid "from around {start_date} until {end_date}"
+msgstr "van ongeveer %(start_date)s tot en met %(end_date)s"
 
-#, python-format
-msgid "from sometime after around %(start_date)s until %(end_date)s"
+#, fuzzy
+msgid "from sometime after around {start_date} until around {end_date}"
+msgstr "van ergens na ongeveer %(start_date)s tot ongeveer %(end_date)s"
+
+#, fuzzy
+msgid "from sometime after around {start_date} until {end_date}"
 msgstr "van ergens na ongeveer %(start_date)s tot en met %(end_date)s"
 
-#, python-format
-msgid "from sometime after around %(start_date)s until around %(end_date)s"
-msgstr "van ergens na ongeveer %(start_date)s tot ongeveer %(end_date)s"
+#, fuzzy
+msgid "from sometime after {start_date} until around {end_date}"
+msgstr "van ergens na %(start_date)s tot ongeveer %(end_date)s"
+
+#, fuzzy
+msgid "from sometime after {start_date} until {end_date}"
+msgstr "van ergens na %(start_date)s tot en met %(end_date)s"
+
+#, fuzzy
+msgid "from {start_date}"
+msgstr "vanaf %(start_date)s"
+
+#, fuzzy
+msgid "from {start_date} until around {end_date}"
+msgstr "vanaf %(start_date)s tot ongeveer %(end_date)s"
+
+#, fuzzy
+msgid "from {start_date} until sometime before around {end_date}"
+msgstr "vanaf %(start_date)s tot ergens voor ongeveer %(end_date)s"
+
+#, fuzzy
+msgid "from {start_date} until sometime before {end_date}"
+msgstr "vanaf %(start_date)s tot ergens voor %(end_date)s"
+
+#, fuzzy
+msgid "from {start_date} until {end_date}"
+msgstr "vanaf %(start_date)s tot en met %(end_date)s"
 
 #, python-format
 msgid "in %(place)s"
@@ -1097,51 +1077,54 @@ msgstr "toon minder"
 msgid "show more"
 msgstr "toon meer"
 
-#, python-format
-msgid "sometime after %(start_date)s"
-msgstr "ergens na %(start_date)s"
-
-#, python-format
-msgid "sometime after around %(start_date)s"
+#, fuzzy
+msgid "sometime after around {start_date}"
 msgstr "ergens na ongeveer %(start_date)s"
 
-#, python-format
-msgid "sometime before %(end_date)s"
-msgstr "ergens voor %(end_date)s"
+#, fuzzy
+msgid "sometime after {start_date}"
+msgstr "ergens na %(start_date)s"
 
-#, python-format
-msgid "sometime before around %(end_date)s"
+#, fuzzy
+msgid "sometime before around {end_date}"
 msgstr "ergens voor ongeveer %(end_date)s"
 
-#, python-format
-msgid "sometime between %(start_date)s and %(end_date)s"
-msgstr "ergens tussen %(start_date)s en %(end_date)s"
+#, fuzzy
+msgid "sometime before {end_date}"
+msgstr "ergens voor %(end_date)s"
 
-#, python-format
-msgid "sometime between %(start_date)s and around %(end_date)s"
-msgstr "ergens tussen %(start_date)s en ongeveer %(end_date)s"
+#, fuzzy
+msgid "sometime between around {start_date} and around {end_date}"
+msgstr "ergens tussen ongeveer %(start_date)s en ongeveer %(end_date)s"
 
-#, python-format
-msgid "sometime between around %(start_date)s and %(end_date)s"
+#, fuzzy
+msgid "sometime between around {start_date} and {end_date}"
 msgstr "ergens tussen ongeveer %(start_date)s en %(end_date)s"
 
-#, python-format
-msgid "sometime between around %(start_date)s and around %(end_date)s"
-msgstr "ergens tussen ongeveer %(start_date)s en ongeveer %(end_date)s"
+#, fuzzy
+msgid "sometime between {start_date} and around {end_date}"
+msgstr "ergens tussen %(start_date)s en ongeveer %(end_date)s"
+
+#, fuzzy
+msgid "sometime between {start_date} and {end_date}"
+msgstr "ergens tussen %(start_date)s en %(end_date)s"
 
 msgid "unknown date"
 msgstr "onbekend"
 
-#, python-format
-msgid "until %(end_date)s"
-msgstr "tot en met %(end_date)s"
-
-#, python-format
-msgid "until around %(end_date)s"
+#, fuzzy
+msgid "until around {end_date}"
 msgstr "tot ongeveer %(end_date)s"
+
+#, fuzzy
+msgid "until {end_date}"
+msgstr "tot en met %(end_date)s"
 
 msgid "y"
 msgstr "y"
+
+msgid "{date}"
+msgstr ""
 
 msgid "{dependency_label} is required by {dependency_labels}."
 msgstr "{dependency_label} is vereist door {dependency_labels}."
@@ -1163,9 +1146,6 @@ msgstr "\"{extension_type}\" kan niet ingesteld worden."
 
 msgid "{individual_name} {affiliation_name}"
 msgstr "{individual_name} {affiliation_name}"
-
-msgid "{locale} is not a valid IETF BCP 47 language tag."
-msgstr "{locale} is geen geldige IETF BCP 47 taaltag."
 
 #, python-format
 msgid "© Copyright %(author)s, unless otherwise credited"

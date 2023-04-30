@@ -65,11 +65,13 @@ Options:
   --help                    Show this message and exit.
 
 Commands:
-  clear-caches  Clear all caches.
-  demo          Explore a demonstration site.
-  gui           Open Betty's graphical user interface (GUI).
-  generate      Generate a static site.
-  serve         Serve a generated site.
+  clear-caches         Clear all caches.
+  demo                 Explore a demonstration site.
+  gui                  Open Betty's graphical user interface (GUI).
+  init-translation     Initialize a new translation
+  update-translations  Update all existing translations
+  generate             Generate a static site.
+  serve                Serve a generated site.
 ```
 
 ### Configuration files
@@ -267,6 +269,10 @@ async def generate():
 
 ```
 
+### Environment variables
+- `BETTY_CONCURRENCY`: The concurrency factor expressed as an integer. Defaults to the number of CPU cores. Set to `1`
+  to disable concurrency altogether.
+
 ## Development
 
 First, [fork and clone](https://guides.github.com/activities/forking/) the repository, and navigate to its root
@@ -292,12 +298,12 @@ In any existing Python environment, run `./bin/build-dev`.
 
 #### Making changes to the translatable strings in the source code
 
-Run `./bin/extract-translatables` to update the translations files with the changes you made.
+Run `betty update-translations` to update the translations files with the changes you made.
 
 #### Adding translations for a language for which no translations exist yet
 
-Run `./bin/init-translation $locale` where `$locale` is a
-[IETF BCP 47](https://tools.ietf.org/html/bcp47), but using underscores instead of dashes (`nl_NL` instead of `nl-NL`).
+Run `betty init-translation $locale` where `$locale` is an
+[IETF BCP 47 language tag](https://tools.ietf.org/html/bcp47).
 
 #### Updating the translations for a language
 
@@ -305,8 +311,7 @@ First, install a PO file editor on your system. Any will do, but if you don't wa
 [Poedit](https://poedit.net/) is a good and free editor to start with.
 
 Then, with this PO file editor, open and change the `*.po` file for the translations you want to change. For Dutch
-(Netherlands), that is
-[`./betty/assets/locale/nl_NL/LC_MESSAGES/betty.po`](./betty/assets/locale/nl_NL/LC_MESSAGES/betty.po), for example.
+(Netherlands), that is [`./betty/assets/locale/nl-NL/betty.po`](betty/assets/locale/nl-NL/betty.po), for example.
 
 ### Testing
 

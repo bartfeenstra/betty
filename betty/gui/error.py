@@ -2,16 +2,14 @@ from __future__ import annotations
 
 import functools
 import traceback
-from typing import Optional, Callable, Any, TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from betty.builtins import _
+from typing import Optional, Callable, Any
 
 from PyQt6.QtCore import QMetaObject, Qt, Q_ARG, QObject
 from PyQt6.QtGui import QCloseEvent, QIcon
 from PyQt6.QtWidgets import QWidget, QMessageBox
 
 from betty.app import App
+from betty.gui.locale import LocalizedMessageBox
 
 
 class _ExceptionCatcher:
@@ -68,18 +66,18 @@ class _ExceptionCatcher:
 catch_exceptions = _ExceptionCatcher
 
 
-class Error(QMessageBox):
+class Error(LocalizedMessageBox):
     def __init__(
             self,
+            app: App,
             message: str,
             *args,
             close_parent: bool = False,
             **kwargs,
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__(app, *args, **kwargs)
         self._close_parent = close_parent
-        with App():
-            self.setWindowTitle('{error} - Betty'.format(error=_("Error")))
+        self.setWindowTitle('{error} - Betty'.format(error=self._app.localizer._("Error")))
         self.setText(message)
 
         standard_button = QMessageBox.StandardButton.Close
@@ -98,15 +96,14 @@ class Error(QMessageBox):
 
 
 class ExceptionError(Error):
-    def __init__(self, exception: Exception, *args, **kwargs):
-        super().__init__(str(exception), *args, **kwargs)
+    def __init__(self, app: App, exception: Exception, *args, **kwargs):
+        super().__init__(app, str(exception), *args, **kwargs)
         self.exception = exception
 
 
 class UnexpectedExceptionError(ExceptionError):
-    def __init__(self, exception: Exception, *args, **kwargs):
-        super().__init__(exception, *args, **kwargs)
-        with App():
-            self.setText(_('An unexpected error occurred and Betty could not complete the task. Please <a href="{report_url}">report this problem</a> and include the following details, so the team behind Betty can address it.').format(report_url='https://github.com/bartfeenstra/betty/issues'))
+    def __init__(self, app: App, exception: Exception, *args, **kwargs):
+        super().__init__(app, exception, *args, **kwargs)
+        self.setText(app.localizer._('An unexpected error occurred and Betty could not complete the task. Please <a href="{report_url}">report this problem</a> and include the following details, so the team behind Betty can address it.').format(report_url='https://github.com/bartfeenstra/betty/issues'))
         self.setTextFormat(Qt.TextFormat.RichText)
         self.setDetailedText(''.join(traceback.format_exception(type(exception), exception, exception.__traceback__)))

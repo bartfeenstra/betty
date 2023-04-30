@@ -2,12 +2,20 @@
 source = betty
 omit =
     betty/_package/*
+    betty/_resizeimage.py
     betty/tests/*
 
 [report]
-exclude_lines =
+exclude_also =
     pass
     pragma: no cover
     def __repr__
     raise NotImplementedError
     if TYPE_CHECKING:
+omit =
+    betty/_package/*
+    betty/_resizeimage.py
+    betty/tests/*
+show_missing = True
+skip_covered = True
+skip_empty = True

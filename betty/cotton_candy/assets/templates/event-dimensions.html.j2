@@ -4,7 +4,7 @@
 {%- set place_context = place_context | default(none) -%}
 {%- set formatted_date = '' -%}
 {%- if event.date -%}
-    {%- set formatted_date = event.date | format_date -%}
+    {%- set formatted_date = event.date | format_datey -%}
 {%- endif -%}
 
 {%- set formatted_place = '' -%}

@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
@@ -8,7 +9,7 @@ from pytestqt.qtbot import QtBot
 from betty.app import App
 from betty.gui.project import ProjectWindow, _AddLocaleWindow, _GenerateWindow, _LocalizationPane, \
     _GeneralPane, _GenerateHtmlListForm
-from betty.gui.serve import ServeAppWindow
+from betty.gui.serve import ServeProjectWindow
 from betty.locale import get_display_name
 from betty.model.ancestry import File
 from betty.project import ProjectConfiguration, LocaleConfiguration
@@ -16,16 +17,16 @@ from betty.tests.conftest import AssertNotWindow, AssertInvalid, AssertWindow, N
 
 
 class TestProjectWindow:
-    def test_save_project_as_should_create_duplicate_configuration_file(self, mocker: MockerFixture, navigate: Navigate, qtbot: QtBot, tmpdir) -> None:
+    def test_save_project_as_should_create_duplicate_configuration_file(self, mocker: MockerFixture, navigate: Navigate, qtbot: QtBot, tmp_path: Path) -> None:
         configuration = ProjectConfiguration()
-        configuration.write(tmpdir.join('betty.json'))
+        configuration.write(tmp_path / 'betty.json')
         with App() as app:
             sut = ProjectWindow(app)
             qtbot.addWidget(sut)
             sut.show()
 
-            save_as_configuration_file_path = tmpdir.join('save-as', 'betty.json')
-            mocker.patch.object(QFileDialog, 'getSaveFileName', mocker.MagicMock(return_value=[save_as_configuration_file_path, None]))
+            save_as_configuration_file_path = tmp_path / 'save-as' / 'betty.json'
+            mocker.patch.object(QFileDialog, 'getSaveFileName', mocker.MagicMock(return_value=[str(save_as_configuration_file_path), None]))
             navigate(sut, ['save_project_as_action'])
 
         with open(save_as_configuration_file_path) as f:
@@ -195,15 +196,15 @@ class TestLocalizationPane:
 
 
 class TestGenerateWindow:
-    def test_close_button_should_close_window(self, assert_not_window: AssertNotWindow, navigate: Navigate, qtbot: QtBot) -> None:
+    def test_cancel_button_should_close_window(self, assert_not_window: AssertNotWindow, navigate: Navigate, qtbot: QtBot) -> None:
         with App() as app:
             sut = _GenerateWindow(app)
             qtbot.addWidget(sut)
 
             with qtbot.waitSignal(sut._thread.finished):
                 sut.show()
+                qtbot.mouseClick(sut._cancel_button, Qt.MouseButton.LeftButton)
 
-            qtbot.mouseClick(sut._close_button, Qt.MouseButton.LeftButton)
             assert_not_window(sut)
 
     def test_serve_button_should_open_serve_window(self, assert_window: AssertWindow, mocker: MockerFixture, navigate: Navigate, qtbot: QtBot) -> None:
@@ -214,9 +215,10 @@ class TestGenerateWindow:
 
             with qtbot.waitSignal(sut._thread.finished):
                 sut.show()
+                qtbot.mouseClick(sut._cancel_button, Qt.MouseButton.LeftButton)
 
             qtbot.mouseClick(sut._serve_button, Qt.MouseButton.LeftButton)
-            assert_window(ServeAppWindow)
+            assert_window(ServeProjectWindow)
 
 
 class TestAddLocaleWindow:

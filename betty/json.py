@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json as stdjson
 from os import path
 from pathlib import Path
@@ -9,11 +11,11 @@ from jsonschema import RefResolver
 
 from betty.app import App
 from betty.asyncio import sync
-from betty.locale import Date, DateRange, Localized
+from betty.locale import Date, DateRange, Localized, Localey
 from betty.media_type import MediaType
 from betty.model import Entity, get_entity_type_name, GeneratedEntityId
 from betty.model.ancestry import Place, Person, PlaceName, Event, Described, HasLinks, HasCitations, Link, Dated, File, \
-    Note, PersonName, HasMediaType, PresenceRole, EventType, Citation, Source
+    Note, PersonName, HasMediaType, PresenceRole, Citation, Source
 from betty.string import upper_camel_case_to_lower_camel_case
 
 
@@ -30,7 +32,12 @@ def validate(data: Any, schema_definition: str, app: App) -> None:
 
 
 class JSONEncoder(stdjson.JSONEncoder):
-    def __init__(self, app: App, *args, **kwargs):
+    def __init__(
+        self,
+        app: App,
+        *args,
+        **kwargs,
+    ):
         stdjson.JSONEncoder.__init__(self, *args, **kwargs)
         self._app = app
         self._mappers: Dict[Type, Callable[[Any], Any]] = {
@@ -42,7 +49,6 @@ class JSONEncoder(stdjson.JSONEncoder):
             PersonName: self._encode_person_name,
             File: self._encode_file,
             Event: self._encode_event,
-            EventType: self._encode_event_type,
             PresenceRole: self._encode_presence_role,
             Date: self._encode_date,
             DateRange: self._encode_date_range,
@@ -53,18 +59,14 @@ class JSONEncoder(stdjson.JSONEncoder):
             MediaType: self._encode_media_type,
         }
 
-    @classmethod
-    def get_factory(cls, app: App):
-        return lambda *args, **kwargs: cls(app, *args, **kwargs)
-
     def default(self, o):
         for mapper_type in self._mappers:
             if isinstance(o, mapper_type):
                 return self._mappers[mapper_type](o)
         stdjson.JSONEncoder.default(self, o)
 
-    def _generate_url(self, resource: Any, media_type='application/json'):
-        return self._app.url_generator.generate(resource, media_type)
+    def _generate_url(self, resource: Any, media_type='application/json', locale: Localey | None = None):
+        return self._app.url_generator.generate(resource, media_type, locale=locale)
 
     def _encode_schema(self, encoded: Dict, defintion: str) -> None:
         encoded['$schema'] = self._app.static_url_generator.generate(
@@ -89,12 +91,11 @@ class JSONEncoder(stdjson.JSONEncoder):
             for locale_configuration in self._app.project.configuration.locales:
                 if locale_configuration.locale == self._app.locale:
                     continue
-                with self._app.acquire_locale(locale_configuration.locale):
-                    link_url = self._generate_url(entity)
-                    if link_url in link_urls:
-                        continue
-                    link_urls.append(link_url)
-                    translation = Link(link_url)
+                link_url = self._generate_url(entity, locale=locale_configuration.locale)
+                if link_url in link_urls:
+                    continue
+                link_urls.append(link_url)
+                translation = Link(link_url)
                 translation.relationship = 'alternate'
                 translation.locale = locale_configuration.locale
                 encoded['links'].append(translation)
@@ -255,7 +256,7 @@ class JSONEncoder(stdjson.JSONEncoder):
     def _encode_event(self, event: Event) -> Dict:
         encoded = {
             '@type': 'https://schema.org/Event',
-            'type': event.type,
+            'type': event.type.name(),
             'presences': [{
                 '@context': {
                     'person': 'https://schema.org/actor',
@@ -267,16 +268,13 @@ class JSONEncoder(stdjson.JSONEncoder):
         self._encode_entity(encoded, event)
         self._encode_dated(encoded, event)
         self._encode_has_citations(encoded, event)
-        if event.place is not None:
-            encoded['place'] = None if isinstance(event.place.id, GeneratedEntityId) else self._generate_url(event.place)
+        if event.place is not None and not isinstance(event.place.id, GeneratedEntityId):
+            encoded['place'] = self._generate_url(event.place)
             encoded.update({
-                '@context': {},
+                '@context': {},  # type: ignore[dict-item]
             })
-            encoded['@context']['place'] = 'https://schema.org/location'  # type: ignore
+            encoded['@context']['place'] = 'https://schema.org/location'  # type: ignore[index]
         return encoded
-
-    def _encode_event_type(self, event_type: EventType) -> str:
-        return event_type.name()
 
     def _encode_presence_role(self, role: PresenceRole) -> str:
         return role.name()

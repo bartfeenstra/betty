@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from typing import Type, Dict, Any
 
+import dill as pickle
 import pytest
 from reactives.tests import assert_reactor_called, assert_in_scope, assert_scope_empty
 
 from betty.app import Extension, App, ConfigurableExtension
-from betty.config import Configuration, Configurable, DumpedConfigurationImport, DumpedConfigurationExport, \
+from betty.config import Configuration, Configurable, DumpedConfiguration, VoidableDumpedConfiguration, \
     ConfigurationMapping
 from betty.config.load import ConfigurationValidationError, Loader
 from betty.model import Entity, get_entity_type_name, get_entity_type, UserFacingEntity
@@ -161,7 +162,7 @@ class TestEntityReferenceCollection:
         EntityReferenceCollection(entity_type_constraint=EntityReferenceCollectionTestEntity),
     ])
     def test_load_without_entity_references(self, sut: EntityReferenceCollection) -> None:
-        dumped_configuration: DumpedConfigurationImport = []
+        dumped_configuration: DumpedConfiguration = []
         with raises_no_configuration_errors() as loader:
             sut.load(dumped_configuration, loader)
         assert [] == list(sut)
@@ -452,7 +453,7 @@ class TestEntityTypeConfiguration:
         assert generate_html_list == sut.generate_html_list
 
     def test_load_with_minimal_configuration(self) -> None:
-        dumped_configuration: DumpedConfigurationImport = {}
+        dumped_configuration: DumpedConfiguration = {}
         sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
         with raises_no_configuration_errors() as loader:
             sut.load(dumped_configuration, loader)
@@ -505,6 +506,12 @@ class TestEntityTypeConfigurationMapping(ConfigurationCollectionMappingTestBase)
 
 
 class TestProjectConfiguration:
+    def test_pickle(self) -> None:
+        sut = ProjectConfiguration()
+        sut.extensions.add(ExtensionConfiguration(Extension, True, None))
+        sut.locales.add(LocaleConfiguration('nl-NL', 'nl'))
+        pickle.dumps(sut)
+
     def test_base_url(self):
         sut = ProjectConfiguration()
         base_url = 'https://example.com'
@@ -869,7 +876,7 @@ class DummyConfigurableExtensionConfiguration(Configuration):
     def __eq__(self, other):
         return self.check == other.check and self.default == other.default
 
-    def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
+    def load(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> None:
         with loader.assert_required_key(
             dumped_configuration,
             'check',
@@ -878,7 +885,7 @@ class DummyConfigurableExtensionConfiguration(Configuration):
             if valid:
                 loader.assert_setattr(self, 'check', dumped_check)
 
-    def dump(self) -> DumpedConfigurationExport:
+    def dump(self) -> VoidableDumpedConfiguration:
         return {
             'check': self.check,
         }

@@ -1,7 +1,7 @@
 import pytest
 
 from betty.app import App
-from betty.config import ConfigurationFormatError, DumpedConfigurationImport
+from betty.config import ConfigurationFormatError, DumpedConfiguration
 from betty.config.format import Yaml, Json
 
 
@@ -23,7 +23,7 @@ class TestJson:
         assert expected == dumped_configuration
 
     def test_dump(self) -> None:
-        dumped_configuration: DumpedConfigurationImport = {
+        dumped_configuration: DumpedConfiguration = {
             'hello': [123, 'World!']
         }
         sut = Json()
@@ -49,7 +49,7 @@ class TestYaml:
         assert expected == dumped_configuration
 
     def test_dump(self) -> None:
-        dumped_configuration: DumpedConfigurationImport = {
+        dumped_configuration: DumpedConfiguration = {
             'hello': [123, 'World!']
         }
         sut = Yaml()

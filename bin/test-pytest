@@ -7,5 +7,4 @@ cd "$(dirname "$0")/.."
 echo 'Running pytest...'
 
 coverage erase
-PYTHONWARNINGS='error:::betty[.*]' coverage run --append -m pytest
-coverage report -m
+PYTHONWARNINGS='error:::betty[.*]' pytest --cov --cov-append --cov-config=.coveragerc "$@"

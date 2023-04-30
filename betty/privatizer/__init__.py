@@ -1,16 +1,13 @@
 import logging
 from datetime import datetime
-from typing import Optional, List, TYPE_CHECKING
+from typing import Optional, List
 
 from betty.model import Entity
-
-if TYPE_CHECKING:
-    from betty.builtins import _
 
 from betty.app.extension import UserFacingExtension
 from betty.functools import walk
 from betty.load import PostLoader
-from betty.locale import DateRange, Date
+from betty.locale import DateRange, Date, Localizer, DEFAULT_LOCALIZER
 from betty.model.ancestry import Ancestry, Person, Event, Citation, Source, HasPrivacy, Subject, File, HasFiles, \
     HasCitations
 
@@ -20,12 +17,12 @@ class Privatizer(UserFacingExtension, PostLoader):
         privatize(self.app.project.ancestry, self.app.project.configuration.lifetime_threshold)
 
     @classmethod
-    def label(cls) -> str:
-        return _('Privatizer')
+    def label(cls, localizer: Localizer) -> str:
+        return localizer._('Privatizer')
 
     @classmethod
-    def description(cls) -> str:
-        return _('Determine if people can be proven to have died. If not, mark them and their related resources private, but only if they are not already explicitly marked public or private. Enable the Anonymizer and Cleaner as well to make this most effective.')
+    def description(cls, localizer: Localizer) -> str:
+        return localizer._('Determine if people can be proven to have died. If not, mark them and their related resources private, but only if they are not already explicitly marked public or private. Enable the Anonymizer and Cleaner as well to make this most effective.')
 
 
 def privatize(ancestry: Ancestry, lifetime_threshold: int = 125) -> None:
@@ -38,7 +35,7 @@ def privatize(ancestry: Ancestry, lifetime_threshold: int = 125) -> None:
         if private is None and person.private is True:
             privatized += 1
     logger = logging.getLogger()
-    logger.info('Privatized %d people because they are likely still alive.' % privatized)
+    logger.info(DEFAULT_LOCALIZER._('Privatized {count} people because they are likely still alive.').format(count=privatized))
 
     for citation in ancestry.entities[Citation]:
         _privatize_citation(citation, seen)

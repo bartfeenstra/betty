@@ -2,16 +2,14 @@ import logging
 import subprocess
 from pathlib import Path
 from shutil import copy2
-from typing import Optional, Set, Type, List, TYPE_CHECKING
+from typing import Optional, Set, Type, List
 
 from betty.cache import CacheScope
-
-if TYPE_CHECKING:
-    from betty.builtins import _
 
 from betty.app.extension import Extension, UserFacingExtension
 from betty.generate import Generator
 from betty.html import CssProvider, JsProvider
+from betty.locale import Localizer
 from betty.npm import _Npm, NpmBuilder, npm
 
 
@@ -24,9 +22,10 @@ class Trees(UserFacingExtension, CssProvider, JsProvider, Generator, NpmBuilder)
         await self.app.extensions[_Npm].install(type(self), working_directory_path)
         await npm(('run', 'webpack'), cwd=working_directory_path, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self._copy_npm_build(working_directory_path / 'webpack-build', assets_directory_path)
-        logging.getLogger().info('Built the interactive family trees.')
+        logging.getLogger().info(self.app.localizer._('Built the interactive family trees.'))
 
     def _copy_npm_build(self, source_directory_path: Path, destination_directory_path: Path) -> None:
+        destination_directory_path.mkdir(parents=True, exist_ok=True)
         copy2(source_directory_path / 'trees.css', destination_directory_path / 'trees.css')
         copy2(source_directory_path / 'trees.js', destination_directory_path / 'trees.js')
 
@@ -36,7 +35,7 @@ class Trees(UserFacingExtension, CssProvider, JsProvider, Generator, NpmBuilder)
 
     async def generate(self) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
-        self._copy_npm_build(assets_directory_path, self.app.project.configuration.www_directory_path)
+        self._copy_npm_build(assets_directory_path, self.app.static_www_directory_path)
 
     @classmethod
     def assets_directory_path(cls) -> Optional[Path]:
@@ -55,9 +54,9 @@ class Trees(UserFacingExtension, CssProvider, JsProvider, Generator, NpmBuilder)
         ]
 
     @classmethod
-    def label(cls) -> str:
-        return _('Trees')
+    def label(cls, localizer: Localizer) -> str:
+        return localizer._('Trees')
 
     @classmethod
-    def description(cls) -> str:
-        return _('Display interactive family trees using <a href="https://cytoscape.org/">Cytoscape</a>.')
+    def description(cls, localizer: Localizer) -> str:
+        return localizer._('Display interactive family trees using <a href="https://cytoscape.org/">Cytoscape</a>.')

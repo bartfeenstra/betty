@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Callable, Tuple
+from typing import List, Callable, Tuple
 
 from PyQt6.QtCore import QRect
 from PyQt6.QtGui import QPainter, QBrush, QColor, QPaintEvent
@@ -8,9 +8,6 @@ from betty.app import App
 from betty.cotton_candy import CottonCandy, _ColorConfiguration, CottonCandyConfiguration
 from betty.gui.locale import LocalizedWidget
 from betty.gui.model import EntityReferenceCollectionCollector
-
-if TYPE_CHECKING:
-    from betty.builtins import _
 
 
 class _ColorConfigurationSwatch(LocalizedWidget):
@@ -62,8 +59,8 @@ class _ColorConfigurationWidget(LocalizedWidget):
         self._reset.clicked.connect(_reset)  # type: ignore
 
     def _do_set_translatables(self) -> None:
-        self._configure.setText(_('Configure'))
-        self._reset.setText(_('Reset'))
+        self._configure.setText(self._app.localizer._('Configure'))
+        self._reset.setText(self._app.localizer._('Reset'))
 
 
 class _ColorConfigurationsWidget(LocalizedWidget):
@@ -98,22 +95,22 @@ class _CottonCandyGuiWidget(LocalizedWidget):
         self._color_configurations_widget = _ColorConfigurationsWidget(app, [
             (
                 app.extensions[CottonCandy].configuration.primary_inactive_color,
-                lambda: _('Primary color (inactive)'),
+                lambda: self._app.localizer._('Primary color (inactive)'),
                 CottonCandyConfiguration.DEFAULT_PRIMARY_INACTIVE_COLOR,
             ),
             (
                 app.extensions[CottonCandy].configuration.primary_active_color,
-                lambda: _('Primary color (active)'),
+                lambda: self._app.localizer._('Primary color (active)'),
                 CottonCandyConfiguration.DEFAULT_PRIMARY_ACTIVE_COLOR,
             ),
             (
                 app.extensions[CottonCandy].configuration.link_inactive_color,
-                lambda: _('Link color (inactive)'),
+                lambda: self._app.localizer._('Link color (inactive)'),
                 CottonCandyConfiguration.DEFAULT_LINK_INACTIVE_COLOR,
             ),
             (
                 app.extensions[CottonCandy].configuration.link_active_color,
-                lambda: _('Link color (active)'),
+                lambda: self._app.localizer._('Link color (active)'),
                 CottonCandyConfiguration.DEFAULT_LINK_ACTIVE_COLOR,
             ),
         ])
@@ -124,7 +121,7 @@ class _CottonCandyGuiWidget(LocalizedWidget):
         self._featured_entities_entity_references_collector = EntityReferenceCollectionCollector(
             self._app,
             self._app.extensions[CottonCandy].configuration.featured_entities,
-            lambda: _('Featured entities'),
-            lambda: _("These entities are featured on your site's front page."),
+            lambda: self._app.localizer._('Featured entities'),
+            lambda: self._app.localizer._("These entities are featured on your site's front page."),
         )
         self._layout.addWidget(self._featured_entities_entity_references_collector)

@@ -7,6 +7,7 @@ from pytestqt.qtbot import QtBot
 from betty.app import App
 from betty.cotton_candy import CottonCandy, _ColorConfiguration
 from betty.cotton_candy.gui import _CottonCandyGuiWidget, _ColorConfigurationWidget
+from betty.locale import Localizer
 from betty.model import Entity, UserFacingEntity
 from betty.project import EntityReference
 
@@ -34,11 +35,11 @@ class TestColorConfigurationWidget:
 
 class CottonCandyGuiWidgetTestEntity(UserFacingEntity, Entity):
     @classmethod
-    def entity_type_label(cls) -> str:
+    def entity_type_label(cls, localizer: Localizer) -> str:
         return cls.__name__
 
     @classmethod
-    def entity_type_label_plural(cls) -> str:
+    def entity_type_label_plural(cls, localizer: Localizer) -> str:
         return cls.__name__
 
 

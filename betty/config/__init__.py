@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 from contextlib import suppress
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import Dict, TypeVar, Generic, Optional, Iterable, Iterator
 
 from reactives import scope
@@ -11,11 +10,13 @@ from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
 
 from betty.classtools import Repr, repr_instance
-from betty.config.dump import DumpedConfigurationImport, DumpedConfigurationExport, \
-    DumpedConfigurationDict, minimize_dict
+from betty.config.dump import DumpedConfiguration, VoidableDumpedConfiguration, \
+    DumpedConfigurationDict, minimize
 from betty.config.format import FORMATS_BY_EXTENSION, EXTENSIONS
 from betty.config.load import ConfigurationFormatError, Loader, ConfigurationLoadError
-from betty.os import PathLike, ChDir
+from betty.locale import Localizer, Localizable
+from betty.os import ChDir
+from betty.tempfile import TemporaryDirectory
 
 try:
     from typing_extensions import TypeGuard
@@ -23,8 +24,8 @@ except ModuleNotFoundError:
     from typing import TypeGuard  # type: ignore
 
 
-class Configuration(ReactiveInstance, Repr):
-    def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
+class Configuration(ReactiveInstance, Repr, Localizable):
+    def load(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> None:
         """
         Validate the dumped configuration and prepare to load it into self.
 
@@ -39,7 +40,7 @@ class Configuration(ReactiveInstance, Repr):
 
         raise NotImplementedError
 
-    def dump(self) -> DumpedConfigurationExport:
+    def dump(self) -> VoidableDumpedConfiguration:
         """
         Dump this configuration to a portable format.
         """
@@ -51,15 +52,15 @@ ConfigurationT = TypeVar('ConfigurationT', bound=Configuration)
 
 
 class FileBasedConfiguration(Configuration):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *, localizer: Localizer | None = None):
+        super().__init__(localizer=localizer)
         self._project_directory: Optional[TemporaryDirectory] = None
-        self._configuration_file_path = None
+        self._configuration_file_path: Path | None = None
         self._autowrite = False
 
     def _assert_configuration_file_path(self) -> None:
         if self.configuration_file_path is None:
-            raise ConfigurationLoadError('The configuration must have a configuration file path.')
+            raise ConfigurationLoadError(self.localizer._('The configuration must have a configuration file path.'))
 
     @property
     def autowrite(self) -> bool:
@@ -75,7 +76,7 @@ class FileBasedConfiguration(Configuration):
             self.react.shutdown(self.write)
         self._autowrite = autowrite
 
-    def write(self, configuration_file_path: Optional[PathLike] = None) -> None:
+    def write(self, configuration_file_path: Optional[Path] = None) -> None:
         if configuration_file_path is None:
             self._assert_configuration_file_path()
         else:
@@ -96,7 +97,7 @@ class FileBasedConfiguration(Configuration):
                 self.write()
         self._configuration_file_path = configuration_file_path
 
-    def read(self, configuration_file_path: Optional[PathLike] = None) -> None:
+    def read(self, configuration_file_path: Optional[Path] = None) -> None:
         if configuration_file_path is None:
             self._assert_configuration_file_path()
         else:
@@ -126,8 +127,7 @@ class FileBasedConfiguration(Configuration):
         return self._configuration_file_path  # type: ignore
 
     @configuration_file_path.setter
-    def configuration_file_path(self, configuration_file_path: PathLike) -> None:
-        configuration_file_path = Path(configuration_file_path)
+    def configuration_file_path(self, configuration_file_path: Path) -> None:
         if configuration_file_path == self._configuration_file_path:
             return
         if configuration_file_path.suffix[1:] not in EXTENSIONS:
@@ -145,8 +145,8 @@ ConfigurationKeyT = TypeVar('ConfigurationKeyT')
 
 
 class ConfigurationMapping(Configuration, Generic[ConfigurationKeyT, ConfigurationT]):
-    def __init__(self, configurations: Optional[Iterable[ConfigurationT]] = None):
-        super().__init__()
+    def __init__(self, configurations: Optional[Iterable[ConfigurationT]] = None, *, localizer: Localizer | None = None):
+        super().__init__(localizer=localizer)
         self._configurations: Dict[ConfigurationKeyT, ConfigurationT] = {}
         if configurations is not None:
             for configuration in configurations:
@@ -202,7 +202,7 @@ class ConfigurationMapping(Configuration, Generic[ConfigurationKeyT, Configurati
                 configuration.react(self)
         self.react.trigger()
 
-    def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
+    def load(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> None:
         if loader.assert_dict(dumped_configuration):
             loader.on_commit(self.clear)
             loader.assert_mapping(
@@ -210,7 +210,7 @@ class ConfigurationMapping(Configuration, Generic[ConfigurationKeyT, Configurati
                 self._load_configuration,  # type: ignore
             )
 
-    def _load_configuration(self, dumped_configuration: DumpedConfigurationImport, loader: Loader, dumped_configuration_key: str) -> TypeGuard[DumpedConfigurationDict[DumpedConfigurationImport]]:
+    def _load_configuration(self, dumped_configuration: DumpedConfiguration, loader: Loader, dumped_configuration_key: str) -> TypeGuard[DumpedConfigurationDict[DumpedConfiguration]]:
         with loader.context() as errors:
             with loader.catch():
                 configuration_key = self._load_key(dumped_configuration_key)
@@ -219,11 +219,11 @@ class ConfigurationMapping(Configuration, Generic[ConfigurationKeyT, Configurati
                 loader.on_commit(lambda: self.add(configuration))
         return errors.valid
 
-    def dump(self) -> DumpedConfigurationExport:
-        return minimize_dict({
-            self._dump_key(self._get_key(configuration)): configuration.dump()
+    def dump(self) -> VoidableDumpedConfiguration:
+        return minimize({
+            self._dump_key(self._get_key(configuration)): minimize(configuration.dump(), False)
             for configuration in self._configurations.values()
-        }, self._is_void_empty())
+        })
 
     def _get_key(self, configuration: ConfigurationT) -> ConfigurationKeyT:
         raise NotImplementedError
@@ -237,14 +237,11 @@ class ConfigurationMapping(Configuration, Generic[ConfigurationKeyT, Configurati
     def _default_configuration_item(self, configuration_key: ConfigurationKeyT) -> ConfigurationT:
         raise NotImplementedError
 
-    def _is_void_empty(self) -> bool:
-        return False
-
 
 class Configurable(Generic[ConfigurationT]):
-    def __init__(self, /, configuration: Optional[ConfigurationT] = None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._configuration = configuration
+        self._configuration: ConfigurationT
 
     @property
     def configuration(self) -> ConfigurationT:

@@ -1,10 +1,7 @@
 from pathlib import Path
 
-from betty.os import PathLike
 
-
-def rootname(source_path: PathLike) -> Path:
-    source_path = Path(source_path)
+def rootname(source_path: Path) -> Path:
     root = source_path
     while True:
         possible_root = root.parent

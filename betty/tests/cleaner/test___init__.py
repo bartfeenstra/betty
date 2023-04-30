@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from betty.app import App
 from betty.cleaner import clean, Cleaner
 from betty.load import load
@@ -9,7 +11,7 @@ from betty.project import ExtensionConfiguration
 
 class TestCleaner:
     async def test_post_parse(self) -> None:
-        event = Event('E0', Birth())
+        event = Event('E0', Birth)
         with App() as app:
             app.project.configuration.extensions.add(ExtensionConfiguration(Cleaner))
             app.project.ancestry.entities.append(event)
@@ -21,11 +23,11 @@ class TestClean:
     def test_clean(self) -> None:
         ancestry = Ancestry()
 
-        onymous_event = Event('E0', Birth())
+        onymous_event = Event('E0', Birth)
         Presence(Person('P0'), Subject(), onymous_event)
         ancestry.entities.append(onymous_event)
 
-        anonymous_event = Event('E1', Birth())
+        anonymous_event = Event('E1', Birth)
         ancestry.entities.append(anonymous_event)
 
         onymous_place = Place('P0', [PlaceName('Amsterdam')])
@@ -108,13 +110,13 @@ class TestClean:
         citation = Citation('C1', source)
         ancestry.entities.append(citation)
 
-        file = File('F1', __file__)
+        file = File('F1', Path(__file__))
         ancestry.entities.append(file)
 
         place = Place('P0', [PlaceName('The Place')])
         ancestry.entities.append(place)
 
-        event = Event('E0', Birth())
+        event = Event('E0', Birth)
         event.citations.append(citation)
         event.files.append(file)
         event.place = place
@@ -140,7 +142,7 @@ class TestClean:
         citation = Citation('C1', source)
         ancestry.entities.append(citation)
 
-        file = File('F1', __file__)
+        file = File('F1', Path(__file__))
         ancestry.entities.append(file)
 
         place = Place('P0', [PlaceName('The Place')])
@@ -148,7 +150,7 @@ class TestClean:
 
         person = Person('P0')
 
-        event = Event('E0', Birth())
+        event = Event('E0', Birth)
         event.citations.append(citation)
         event.files.append(file)
         event.place = place
@@ -169,7 +171,7 @@ class TestClean:
     def test_clean_should_clean_file(self) -> None:
         ancestry = Ancestry()
 
-        file = File('F0', __file__)
+        file = File('F0', Path(__file__))
         ancestry.entities.append(file)
 
         clean(ancestry)
@@ -182,7 +184,7 @@ class TestClean:
         person = Person('P0')
         ancestry.entities.append(person)
 
-        file = File('F0', __file__)
+        file = File('F0', Path(__file__))
         file.entities.append(person)
         ancestry.entities.append(file)
 
@@ -200,7 +202,7 @@ class TestClean:
         citation = Citation('C1', source)
         ancestry.entities.append(citation)
 
-        file = File('F0', __file__)
+        file = File('F0', Path(__file__))
         file.citations.append(citation)
         ancestry.entities.append(file)
 
@@ -271,7 +273,7 @@ class TestClean:
     def test_clean_should_not_clean_source_with_files(self) -> None:
         ancestry = Ancestry()
 
-        file = File('F0', __file__)
+        file = File('F0', Path(__file__))
         ancestry.entities.append(file)
 
         source = Source('S0', 'The Source')
@@ -324,7 +326,7 @@ class TestClean:
         source = Source('S0', 'The Source')
         ancestry.entities.append(source)
 
-        file = File('F0', __file__)
+        file = File('F0', Path(__file__))
         ancestry.entities.append(file)
 
         citation = Citation('C0', source)

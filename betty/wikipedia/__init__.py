@@ -7,7 +7,7 @@ from contextlib import suppress
 from os.path import getmtime
 from pathlib import Path
 from time import time
-from typing import Optional, Dict, Callable, Tuple, Iterable, Set, TYPE_CHECKING, cast
+from typing import Optional, Dict, Callable, Tuple, Iterable, Set, cast
 
 import aiofiles
 import aiohttp
@@ -19,14 +19,12 @@ from reactives.instance.property import reactive_property
 from betty.app import App
 from betty.app.extension import UserFacingExtension
 from betty.asyncio import sync
+from betty.functools import filter_suppress
 from betty.jinja2 import Jinja2Provider, Environment
 from betty.load import PostLoader
-from betty.locale import Localized, negotiate_locale
+from betty.locale import Localized, negotiate_locale, to_locale, get_data, LocaleNotFoundError, Localey, Localizer
 from betty.media_type import MediaType
 from betty.model.ancestry import Link, HasLinks, Entity
-
-if TYPE_CHECKING:
-    from betty.builtins import _
 
 
 class WikipediaError(BaseException):
@@ -160,42 +158,51 @@ class _Populator:
         if not isinstance(entity, HasLinks):
             return
 
-        entry_links = set()
+        entry_links: Set[Tuple[str, str]] = set()
         for link in entity.links:
             try:
-                entry_language, entry_name = _parse_url(link.url)
-                entry_links.add((entry_language, entry_name))
+                entry_locale, entry_name = _parse_url(link.url)
             except NotAnEntryError:
                 continue
+            else:
+                try:
+                    get_data(entry_locale)
+                except LocaleNotFoundError:
+                    continue
+                else:
+                    entry_links.add((entry_locale, entry_name))
 
             entry = None
             if link.label is None:
                 with suppress(RetrievalError):
-                    entry = await self._retriever.get_entry(entry_language, entry_name)
-            await self.populate_link(link, entry_language, entry)
+                    entry = await self._retriever.get_entry(entry_locale, entry_name)
+            await self.populate_link(link, entry_locale, entry)
 
-        for entry_language, entry_name in list(entry_links):
-            entry_translations = await self._retriever.get_translations(entry_language, entry_name)
+        for entry_locale, entry_name in list(entry_links):
+            entry_translations = await self._retriever.get_translations(entry_locale, entry_name)
             if len(entry_translations) == 0:
                 continue
-            entry_languages = set(entry_translations.keys())
-            for locale in locales.difference({entry_language}):
-                added_entry_language = negotiate_locale(locale, entry_languages)
-                if added_entry_language is None:
+            entry_translation_locale_datas: Set[Localey] = set(filter_suppress(get_data, LocaleNotFoundError, entry_translations.keys()))
+            for locale in locales.difference({entry_locale}):
+                added_entry_locale_data = negotiate_locale(locale, entry_translation_locale_datas)
+                if added_entry_locale_data is None:
                     continue
-                added_entry_name = entry_translations[added_entry_language]
-                if (added_entry_language, added_entry_name) in entry_links:
+                added_entry_locale = to_locale(added_entry_locale_data)
+                if added_entry_locale_data is None:
+                    continue
+                added_entry_name = entry_translations[added_entry_locale]
+                if (added_entry_locale, added_entry_name) in entry_links:
                     continue
                 try:
-                    added_entry = await self._retriever.get_entry(added_entry_language, added_entry_name)
+                    added_entry = await self._retriever.get_entry(added_entry_locale, added_entry_name)
                 except RetrievalError:
                     continue
                 added_link = Link(added_entry.url)
-                await self.populate_link(added_link, added_entry_language, added_entry)
+                await self.populate_link(added_link, added_entry_locale, added_entry)
                 entity.links.add(added_link)
-                entry_links.add((added_entry_language, added_entry_name))
+                entry_links.add((added_entry_locale, added_entry_name))
 
-    async def populate_link(self, link: Link, entry_language: str, entry: Optional[Entry] = None) -> None:
+    async def populate_link(self, link: Link, entry_locale: str, entry: Optional[Entry] = None) -> None:
         if link.url.startswith('http:'):
             link.url = 'https:' + link.url[5:]
         if link.media_type is None:
@@ -203,12 +210,11 @@ class _Populator:
         if link.relationship is None:
             link.relationship = 'external'
         if link.locale is None:
-            link.locale = entry_language
+            link.locale = entry_locale
         if link.description is None:
             # There are valid reasons for links in locales that aren't supported.
             with suppress(ValueError):
-                with self._app.acquire_locale(link.locale):
-                    link.description = _('Read more on Wikipedia.')
+                link.description = self._app.localizers.get_negotiated(link.locale)._('Read more on Wikipedia.')
         if entry is not None and link.label is None:
             link.label = entry.title
 
@@ -282,12 +288,12 @@ class Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstanc
         return Path(__file__).parent / 'assets'
 
     @classmethod
-    def label(cls) -> str:
-        return 'Wikipedia'
+    def label(cls, localizer: Localizer) -> str:
+        return localizer._('Wikipedia')
 
     @classmethod
-    def description(cls) -> str:
-        return _("""
+    def description(cls, localizer: Localizer) -> str:
+        return localizer._("""
 Display <a href="https://www.wikipedia.org/">Wikipedia</a> summaries for resources with external links. In your custom <a href="https://jinja2docs.readthedocs.io/en/stable/">Jinja2</a> templates, use the following: <pre><code>
 {% with resource=resource_with_links %}
     {% include 'wikipedia.html.j2' %}

@@ -1,28 +1,25 @@
 from __future__ import annotations
 
 from contextlib import suppress
+import copy
 from functools import total_ordering
 from pathlib import Path
-from typing import List, Optional, Set, TYPE_CHECKING, Iterable, Any
+from typing import Optional, Set, List, Dict, Iterable, Any, Type
 
 from geopy import Point
 
-from betty.locale import Localized, Datey
+from betty.locale import Localized, Datey, Localizer, Localizable
 from betty.media_type import MediaType
 from betty.model import many_to_many, Entity, one_to_many, many_to_one, many_to_one_to_many, \
-    MultipleTypesEntityCollection, EntityCollection, UserFacingEntity, EntityVariation
+    MultipleTypesEntityCollection, EntityCollection, UserFacingEntity, EntityVariation, FlattenedEntityCollection
 from betty.model.event_type import EventType, StartOfLifeEventType, EndOfLifeEventType
-from betty.os import PathLike
-
-if TYPE_CHECKING:
-    from betty.builtins import _
 
 
 class HasPrivacy:
     private: Optional[bool]
 
     def __init__(self, *args, **kwargs):
-        assert type(self) != HasPrivacy
+        assert issubclass(self.__class__, HasPrivacy)
         super().__init__(*args, **kwargs)
         self.private = None
 
@@ -31,7 +28,7 @@ class Dated:
     date: Optional[Datey]
 
     def __init__(self, *args, **kwargs):
-        assert type(self) != Dated
+        assert issubclass(self.__class__, Dated)
         super().__init__(*args, **kwargs)
         self.date = None
 
@@ -40,17 +37,17 @@ class Dated:
 class Note(UserFacingEntity, Entity):
     entity: HasNotes
 
-    def __init__(self, note_id: str, text: str):
+    def __init__(self, note_id: str | None, text: str):
         super().__init__(note_id)
         self._text = text
 
     @classmethod
-    def entity_type_label(cls) -> str:
-        return _('Note')
+    def entity_type_label(cls, localizer: Localizer) -> str:
+        return localizer._('Note')
 
     @classmethod
-    def entity_type_label_plural(cls) -> str:
-        return _('Notes')
+    def entity_type_label_plural(cls, localizer: Localizer) -> str:
+        return localizer._('Notes')
 
     @property
     def text(self) -> str:
@@ -64,7 +61,7 @@ class Note(UserFacingEntity, Entity):
 @one_to_many('notes', 'entity')
 class HasNotes(EntityVariation):
     def __init__(self, *args, **kwargs):
-        assert type(self) != HasNotes
+        assert issubclass(self.__class__, HasNotes)
         super().__init__(*args, **kwargs)
 
     @property
@@ -84,7 +81,7 @@ class Described:
     description: Optional[str]
 
     def __init__(self, *args, **kwargs):
-        assert type(self) != Described
+        assert issubclass(self.__class__, Described)
         super().__init__(*args, **kwargs)
         self.description = None
 
@@ -93,7 +90,7 @@ class HasMediaType:
     media_type: Optional[MediaType]
 
     def __init__(self, *args, **kwargs):
-        assert type(self) != HasMediaType
+        assert issubclass(self.__class__, HasMediaType)
         super().__init__(*args, **kwargs)
         self.media_type = None
 
@@ -112,7 +109,7 @@ class Link(HasMediaType, Localized, Described):
 
 class HasLinks:
     def __init__(self, *args, **kwargs):
-        assert type(self) != HasLinks
+        assert issubclass(self.__class__, HasLinks)
         super().__init__(*args, **kwargs)
         self._links = set()
 
@@ -124,7 +121,7 @@ class HasLinks:
 @many_to_many('citations', 'facts')
 class HasCitations(EntityVariation):
     def __init__(self, *args, **kwargs):
-        assert type(self) != HasCitations
+        assert issubclass(self.__class__, HasCitations)
         super().__init__(*args, **kwargs)
 
     @property
@@ -142,9 +139,9 @@ class HasCitations(EntityVariation):
 
 @many_to_many('entities', 'files')
 class File(Described, HasPrivacy, HasMediaType, HasNotes, HasCitations, UserFacingEntity, Entity):
-    def __init__(self, file_id: Optional[str], path: PathLike, media_type: Optional[MediaType] = None, *args, **kwargs):
+    def __init__(self, file_id: Optional[str], path: Path, media_type: Optional[MediaType] = None, *args, **kwargs):
         super().__init__(file_id, *args, **kwargs)
-        self._path = Path(path)
+        self._path = path
         self.media_type = media_type
 
     @property
@@ -160,12 +157,12 @@ class File(Described, HasPrivacy, HasMediaType, HasNotes, HasCitations, UserFaci
         pass
 
     @classmethod
-    def entity_type_label(cls) -> str:
-        return _('File')
+    def entity_type_label(cls, localizer: Localizer) -> str:
+        return localizer._('File')
 
     @classmethod
-    def entity_type_label_plural(cls) -> str:
-        return _('Files')
+    def entity_type_label_plural(cls, localizer: Localizer) -> str:
+        return localizer._('Files')
 
     @property
     def path(self) -> Path:
@@ -179,7 +176,7 @@ class File(Described, HasPrivacy, HasMediaType, HasNotes, HasCitations, UserFaci
 @many_to_many('files', 'entities')
 class HasFiles(EntityVariation):
     def __init__(self, *args, **kwargs):
-        assert type(self) != HasFiles
+        assert issubclass(self.__class__, HasFiles)
         super().__init__(*args, **kwargs)
 
     @property
@@ -208,8 +205,8 @@ class Source(Dated, HasFiles, HasLinks, HasPrivacy, UserFacingEntity, Entity):
     author: Optional[str]
     publisher: Optional[str]
 
-    def __init__(self, source_id: Optional[str], name: Optional[str] = None):
-        super().__init__(source_id)
+    def __init__(self, source_id: Optional[str], name: Optional[str] = None, *, localizer: Localizer | None = None):
+        super().__init__(source_id, localizer=localizer)
         self.name = name
         self.author = None
         self.publisher = None
@@ -239,12 +236,12 @@ class Source(Dated, HasFiles, HasLinks, HasPrivacy, UserFacingEntity, Entity):
         pass
 
     @classmethod
-    def entity_type_label(cls) -> str:
-        return _('Source')
+    def entity_type_label(cls, localizer: Localizer) -> str:
+        return localizer._('Source')
 
     @classmethod
-    def entity_type_label_plural(cls) -> str:
-        return _('Sources')
+    def entity_type_label_plural(cls, localizer: Localizer) -> str:
+        return localizer._('Sources')
 
     @property
     def label(self) -> str:
@@ -257,8 +254,8 @@ class Citation(Dated, HasFiles, HasPrivacy, UserFacingEntity, Entity):
     source: Source
     location: Optional[str]
 
-    def __init__(self, citation_id: Optional[str], source: Optional[Source]):
-        super().__init__(citation_id)
+    def __init__(self, citation_id: Optional[str], source: Optional[Source], *, localizer: Localizer | None = None):
+        super().__init__(citation_id, localizer=localizer)
         self.location = None
         self.source = source  # type: ignore
 
@@ -275,12 +272,12 @@ class Citation(Dated, HasFiles, HasPrivacy, UserFacingEntity, Entity):
         pass
 
     @classmethod
-    def entity_type_label(cls) -> str:
-        return _('Citation')
+    def entity_type_label(cls, localizer: Localizer) -> str:
+        return localizer._('Citation')
 
     @classmethod
-    def entity_type_label_plural(cls) -> str:
-        return _('Citations')
+    def entity_type_label_plural(cls, localizer: Localizer) -> str:
+        return localizer._('Citations')
 
 
 class PlaceName(Localized, Dated):
@@ -363,12 +360,12 @@ class Place(HasLinks, UserFacingEntity, Entity):
         pass
 
     @classmethod
-    def entity_type_label(cls) -> str:
-        return _('Place')
+    def entity_type_label(cls, localizer: Localizer) -> str:
+        return localizer._('Place')
 
     @classmethod
-    def entity_type_label_plural(cls) -> str:
-        return _('Places')
+    def entity_type_label_plural(cls, localizer: Localizer) -> str:
+        return localizer._('Places')
 
     @property
     def names(self) -> List[PlaceName]:
@@ -390,7 +387,7 @@ class Place(HasLinks, UserFacingEntity, Entity):
         return self._default_label()
 
 
-class PresenceRole:
+class PresenceRole(Localizable):
     @classmethod
     def name(cls) -> str:
         raise NotImplementedError
@@ -407,7 +404,7 @@ class Subject(PresenceRole):
 
     @property
     def label(self) -> str:
-        return _('Subject')
+        return self.localizer._('Subject')
 
 
 class Witness(PresenceRole):
@@ -417,7 +414,7 @@ class Witness(PresenceRole):
 
     @property
     def label(self) -> str:
-        return _('Witness')
+        return self.localizer._('Witness')
 
 
 class Beneficiary(PresenceRole):
@@ -427,7 +424,7 @@ class Beneficiary(PresenceRole):
 
     @property
     def label(self) -> str:
-        return _('Beneficiary')
+        return self.localizer._('Beneficiary')
 
 
 class Attendee(PresenceRole):
@@ -437,7 +434,7 @@ class Attendee(PresenceRole):
 
     @property
     def label(self) -> str:
-        return _('Attendee')
+        return self.localizer._('Attendee')
 
 
 @many_to_one_to_many('presences', 'person', 'event', 'presences')
@@ -458,7 +455,7 @@ class Presence(Entity):
 class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, UserFacingEntity, Entity):
     place: Optional[Place]
 
-    def __init__(self, event_id: Optional[str], event_type: EventType, date: Optional[Datey] = None, *args, **kwargs):
+    def __init__(self, event_id: Optional[str], event_type: Type[EventType], date: Optional[Datey] = None, *args, **kwargs):
         super().__init__(event_id, *args, **kwargs)
         self.date = date
         self._type = event_type
@@ -476,18 +473,18 @@ class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, UserFacingEnti
         pass
 
     @classmethod
-    def entity_type_label(cls) -> str:
-        return _('Event')
+    def entity_type_label(cls, localizer: Localizer) -> str:
+        return localizer._('Event')
 
     @classmethod
-    def entity_type_label_plural(cls) -> str:
-        return _('Events')
+    def entity_type_label_plural(cls, localizer: Localizer) -> str:
+        return localizer._('Events')
 
     def __repr__(self) -> str:
         return '<%s.%s(%s, date=%s)>' % (self.__class__.__module__, self.__class__.__name__, repr(self.type), repr(self.date))
 
     @property
-    def type(self) -> EventType:
+    def type(self) -> Type[EventType]:
         return self._type
 
     @property
@@ -521,12 +518,12 @@ class PersonName(Localized, HasCitations, Entity):
         self.person = person  # type: ignore
 
     @classmethod
-    def entity_type_label(cls) -> str:
-        return _('Person name')
+    def entity_type_label(cls, localizer: Localizer) -> str:
+        return localizer._('Person name')
 
     @classmethod
-    def entity_type_label_plural(cls) -> str:
-        return _('Person names')
+    def entity_type_label_plural(cls, localizer: Localizer) -> str:
+        return localizer._('Person names')
 
     def __repr__(self) -> str:
         return '<%s.%s(%s, %s, %s)>' % (self.__class__.__module__, self.__class__.__name__, self.individual, self.affiliation, repr(self.person))
@@ -555,7 +552,7 @@ class PersonName(Localized, HasCitations, Entity):
 
     @property
     def label(self) -> str:
-        return _('{individual_name} {affiliation_name}').format(
+        return self.localizer._('{individual_name} {affiliation_name}').format(
             individual_name='…' if not self.individual else self.individual,
             affiliation_name='…' if not self.affiliation else self.affiliation,
         )
@@ -619,12 +616,12 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, UserFacingEntity, Ent
         pass
 
     @classmethod
-    def entity_type_label(cls) -> str:
-        return _('Person')
+    def entity_type_label(cls, localizer: Localizer) -> str:
+        return localizer._('Person')
 
     @classmethod
-    def entity_type_label_plural(cls) -> str:
-        return _('People')
+    def entity_type_label_plural(cls, localizer: Localizer) -> str:
+        return localizer._('People')
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Person):
@@ -650,13 +647,13 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, UserFacingEntity, Ent
     @property
     def start(self) -> Optional[Event]:
         with suppress(StopIteration):
-            return next((presence.event for presence in self.presences if isinstance(presence.event.type, StartOfLifeEventType)))
+            return next((presence.event for presence in self.presences if issubclass(presence.event.type, StartOfLifeEventType)))
         return None
 
     @property
     def end(self) -> Optional[Event]:
         with suppress(StopIteration):
-            return next((presence.event for presence in self.presences if isinstance(presence.event.type, EndOfLifeEventType)))
+            return next((presence.event for presence in self.presences if issubclass(presence.event.type, EndOfLifeEventType)))
         return None
 
     @property
@@ -688,9 +685,33 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, UserFacingEntity, Ent
         return self.name.label if self.name else self._default_label()
 
 
-class Ancestry:
-    def __init__(self):
+class Ancestry(Localizable):
+    def __init__(self, *, localizer: Localizer | None = None):
+        super().__init__(localizer=localizer)
+        self._entities = MultipleTypesEntityCollection(localizer=localizer)
+
+    def __copy__(self) -> Ancestry:
+        copied = self.__class__()
+        copied.entities.append(*self.entities)
+        return copied
+
+    def __deepcopy__(self, memo: Dict) -> Ancestry:
+        copied = self.__class__()
+        copied.entities.append(*[copy.deepcopy(entity, memo) for entity in self.entities])
+        return copied
+
+    def __getstate__(self) -> FlattenedEntityCollection:
+        entities = FlattenedEntityCollection()
+        entities.add_entity(*self.entities)
+
+        return entities
+
+    def __setstate__(self, state: FlattenedEntityCollection):
         self._entities = MultipleTypesEntityCollection()
+        self._entities.append(*state.unflatten())
+
+    def _on_localizer_change(self) -> None:
+        self._entities.localizer = self.localizer
 
     @property
     def entities(self) -> MultipleTypesEntityCollection:

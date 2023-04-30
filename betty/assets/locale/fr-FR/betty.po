@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-12-06 18:11+0000\n"
+"POT-Creation-Date: 2023-05-29 20:43+0100\n"
 "PO-Revision-Date: 2020-11-27 19:49+0100\n"
 "Last-Translator: \n"
 "Language: fr\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.11.0\n"
+"Generated-By: Babel 2.12.1\n"
 
 msgid ""
 "\n"
@@ -59,12 +59,11 @@ msgstr ""
 msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
 msgstr ""
 
-msgid "\"{path}\" is not a directory."
+msgid "\"{locale}\" is not a valid IETF BCP 47 language tag."
 msgstr ""
 
-#, python-format
-msgid "%(date)s"
-msgstr "le %(date)s"
+msgid "\"{path}\" is not a directory."
+msgstr ""
 
 #, python-format
 msgid "%(date)s in %(place)s"
@@ -132,9 +131,6 @@ msgstr "A propos"
 
 msgid "About Betty"
 msgstr ""
-
-msgid "Access denied"
-msgstr "Accès refusé"
 
 #, python-format
 msgid "Accessed %(date)s"
@@ -242,11 +238,30 @@ msgid ""
 "family trees."
 msgstr ""
 
+msgid ""
+"Betty is unfamiliar with Gramps event \"{event_id}\"'s type of "
+"\"{gramps_event_type}\". The event was imported, but its type was set to "
+"\"{betty_event_type}\"."
+msgstr ""
+
 msgid "Betty project configuration ({extensions})"
 msgstr ""
 
 msgid "Birth"
 msgstr "Naissance"
+
+msgid "Built the Cotton Candy front-end assets."
+msgstr ""
+
+#, fuzzy
+msgid "Built the HTTP API documentation."
+msgstr "documentation de l'API"
+
+msgid "Built the interactive family trees."
+msgstr ""
+
+msgid "Built the interactive maps."
+msgstr ""
 
 msgid "Burial"
 msgstr "Enterrement"
@@ -279,9 +294,6 @@ msgid "Cleaner"
 msgstr ""
 
 msgid "Clear all caches"
-msgstr ""
-
-msgid "Close"
 msgstr ""
 
 msgid "Configuration"
@@ -324,6 +336,11 @@ msgid ""
 "existing information."
 msgstr ""
 
+msgid ""
+"Created {created_derivations} additional {event_type} events based on "
+"existing information."
+msgstr ""
+
 msgid "Cremation"
 msgstr "Crémation"
 
@@ -336,6 +353,9 @@ msgstr ""
 msgid ""
 "Decide the correct page variety to serve users depending on their own "
 "preferences. This requires a web server that supports it."
+msgstr ""
+
+msgid "Demo"
 msgstr ""
 
 msgid "Deriver"
@@ -444,11 +464,15 @@ msgstr ""
 msgid "Generated pages for {count} {entity_type} in {locale}."
 msgstr ""
 
-msgid "Generated the listing HTML page for {entity_type} entities in {locale}."
+msgid "Generated the listing page for {entity_type} in {locale}."
 msgstr ""
 
 msgid "Generating your site..."
 msgstr ""
+
+#, fuzzy
+msgid "HTTP API Documentation"
+msgstr "documentation de l'API"
 
 msgid "Help"
 msgstr ""
@@ -467,17 +491,6 @@ msgstr ""
 
 msgid "I'm sorry, dear, but it seems there are no sources."
 msgstr ""
-
-msgid "I'm sorry, dear, but it seems this page does not exist."
-msgstr "Je suis désolé mon cher, mais il semble que cette page n'existe pas."
-
-msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
-msgstr ""
-"Je suis désolé mon cher, mais il semble que vous ne soyez pas autorisé à "
-"voir cette page."
-
-msgid "I'm sorry, dear, but it seems you're not logged in."
-msgstr "Je suis désolé mon cher, mais il semble que vous ne soyez pas connecté."
 
 msgid "Immigration"
 msgstr "Immigration"
@@ -507,6 +520,12 @@ msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
 msgstr ""
 
 msgid "Load the family tree from..."
+msgstr ""
+
+msgid "Loaded the configuration from {configuration_file_path}."
+msgstr ""
+
+msgid "Loading {file_path}..."
 msgstr ""
 
 msgid "Loading..."
@@ -583,9 +602,6 @@ msgid ""
 "harder."
 msgstr ""
 
-msgid "Page not found"
-msgstr "Page non trouvée"
-
 msgid "People"
 msgstr "Individu"
 
@@ -622,10 +638,16 @@ msgstr ""
 msgid "Private"
 msgstr "Privé"
 
+msgid "Privatized {count} people because they are likely still alive."
+msgstr ""
+
 msgid "Privatizer"
 msgstr ""
 
 msgid "Project"
+msgstr ""
+
+msgid "Python built-in"
 msgstr ""
 
 msgid "Read more on Wikipedia."
@@ -658,41 +680,13 @@ msgstr "Résidence"
 msgid "Retirement"
 msgstr "Retraite"
 
-msgid "Retrieve a single citation."
-msgstr "Récupération d'une seule citation."
-
-msgid "Retrieve a single event."
+#, fuzzy
+msgid "Retrieve a single {entity_type} entity."
 msgstr "Récupération d'un seul évènement."
 
-msgid "Retrieve a single file."
-msgstr "Récupération d'un seul fichier."
-
-msgid "Retrieve a single person."
-msgstr "Récupération d'un individu."
-
-msgid "Retrieve a single place."
-msgstr "Récupération d'un seul lieu."
-
-msgid "Retrieve a single source."
-msgstr "Récupération d'une seule source."
-
-msgid "Retrieve the collection of citations."
-msgstr "Récupération de l'ensemble des citations."
-
-msgid "Retrieve the collection of events."
+#, fuzzy
+msgid "Retrieve the collection of {entity_type} entities."
 msgstr "Récupération de l'ensemble des événements."
-
-msgid "Retrieve the collection of files."
-msgstr "Récupération de l'ensemble des fichiers."
-
-msgid "Retrieve the collection of people."
-msgstr "Récupération de l'ensemble des individus."
-
-msgid "Retrieve the collection of places."
-msgstr "Récupération de l'ensemble des lieux."
-
-msgid "Retrieve the collection of sources."
-msgstr "Récupération de l'ensemble des sources."
 
 msgid "Save and close"
 msgstr ""
@@ -750,26 +744,17 @@ msgid ""
 "file://."
 msgstr ""
 
-msgid "The citation."
-msgstr "La citation."
+msgid ""
+"The betty:privacy Gramps attribute must have a value of \"public\" or "
+"\"private\", but \"{privacy_value}\" was given, which was ignored."
+msgstr ""
 
-msgid "The collection of citations."
-msgstr "L'ensemble des citations."
-
-msgid "The collection of events."
+#, fuzzy
+msgid "The collection of {entity_type} entities."
 msgstr "L'ensemble des événements."
 
-msgid "The collection of files."
-msgstr "L'ensemble des fichiers."
-
-msgid "The collection of people."
-msgstr "L'ensemble des individus."
-
-msgid "The collection of places."
-msgstr "L'ensemble des lieux."
-
-msgid "The collection of sources."
-msgstr "L'ensemble des sources."
+msgid "The configuration must have a configuration file path."
+msgstr ""
 
 msgid ""
 "The entity reference must be for an entity of type "
@@ -778,29 +763,17 @@ msgid ""
 "({actual_entity_type_label})"
 msgstr ""
 
-msgid "The event."
-msgstr "L'événement."
-
-msgid "The file."
-msgstr "Le fichier."
-
 msgid "The key \"{configuration_key}\" is required."
 msgstr ""
 
 msgid "The lifetime threshold must consist of digits only."
 msgstr ""
 
-msgid "The person."
-msgstr "L'individu."
-
-msgid "The place."
-msgstr "Le lieu."
-
-msgid "The source."
-msgstr "La source."
-
 #, python-format
 msgid "The translations for {locale_name} are {coverage_percentage}% complete."
+msgstr ""
+
+msgid "The {entity_type} entity."
 msgstr ""
 
 msgid "There are no translations for {locale_name}."
@@ -889,6 +862,11 @@ msgid ""
 "{known_configuration_keys}?"
 msgstr ""
 
+msgid ""
+"Updated {updated_derivations} {event_type} events based on existing "
+"information."
+msgstr ""
+
 #, python-format
 msgid ""
 "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
@@ -911,9 +889,6 @@ msgid "View demo site..."
 msgstr ""
 
 msgid "View site"
-msgstr ""
-
-msgid "Web root directory \"{path}\" does not exist."
 msgstr ""
 
 #, python-format
@@ -958,81 +933,81 @@ msgstr ""
 msgid "`npm` is not available"
 msgstr ""
 
-#, python-format
-msgid "around %(date)s"
+#, fuzzy
+msgid "around {date}"
 msgstr "vers %(date)s"
 
-#, python-format
-msgid "from %(start_date)s"
-msgstr "à partir du %(start_date)s"
-
-#, python-format
-msgid "from %(start_date)s until %(end_date)s"
-msgstr "du %(start_date)s au %(end_date)s OK2"
-
-#, python-format
-msgid "from %(start_date)s until around %(end_date)s"
-msgstr "du %(start_date)s jusqu'à environ le %(end_date)s OK2"
-
-#, python-format
-msgid "from %(start_date)s until sometime before %(end_date)s"
-msgstr "du %(start_date)s jusqu'à quelques temps avant le %(end_date)s OK2"
-
-#, python-format
-msgid "from %(start_date)s until sometime before around %(end_date)s"
-msgstr ""
-"du %(start_date)s jusqu'approximativement quelques temps avant le "
-"%(end_date)s OK2"
-
-#, python-format
-msgid "from around %(start_date)s"
+#, fuzzy
+msgid "from around {start_date}"
 msgstr "à partir d'environ le %(start_date)s"
 
-#, python-format
-msgid "from around %(start_date)s until %(end_date)s"
-msgstr "entre approximativement le %(start_date)s et jusqu'au %(end_date)s OK3"
-
-#, python-format
-msgid "from around %(start_date)s until around %(end_date)s"
+#, fuzzy
+msgid "from around {start_date} until around {end_date}"
 msgstr ""
 "entre approximativement le %(start_date)s et jusqu'approximativement le "
 "%(end_date)s OK3"
 
-#, python-format
-msgid "from around %(start_date)s until sometime before %(end_date)s"
-msgstr ""
-"entre approximativement le %(start_date)s et jusqu'à quelques temps avant"
-" le %(end_date)s OK3"
-
-#, python-format
-msgid "from around %(start_date)s until sometime before around %(end_date)s"
+#, fuzzy
+msgid "from around {start_date} until sometime before around {end_date}"
 msgstr ""
 "entre approximativement le %(start_date)s et jusqu'approximativement "
 "quelques temps avant le %(end_date)s OK3"
 
-#, python-format
-msgid "from sometime after %(start_date)s until %(end_date)s"
+#, fuzzy
+msgid "from around {start_date} until sometime before {end_date}"
 msgstr ""
-"d'approximativement quelques temps après le %(start_date)s jusqu'au "
-"%(end_date)s OK2"
+"entre approximativement le %(start_date)s et jusqu'à quelques temps avant"
+" le %(end_date)s OK3"
 
-#, python-format
-msgid "from sometime after %(start_date)s until around %(end_date)s"
+#, fuzzy
+msgid "from around {start_date} until {end_date}"
+msgstr "entre approximativement le %(start_date)s et jusqu'au %(end_date)s OK3"
+
+#, fuzzy
+msgid "from sometime after around {start_date} until around {end_date}"
 msgstr ""
-"entre quelque temps après le %(start_date)s et jusqu'approximativement le"
-" %(end_date)s OK3"
+"entre approximativement après le %(start_date)s et "
+"jusqu'approximativement le %(end_date)s OK3"
 
-#, python-format
-msgid "from sometime after around %(start_date)s until %(end_date)s"
+#, fuzzy
+msgid "from sometime after around {start_date} until {end_date}"
 msgstr ""
 "entre approximativement quelques temps après le %(start_date)s et "
 "jusqu'au %(end_date)s OK3"
 
-#, python-format
-msgid "from sometime after around %(start_date)s until around %(end_date)s"
+#, fuzzy
+msgid "from sometime after {start_date} until around {end_date}"
 msgstr ""
-"entre approximativement après le %(start_date)s et "
-"jusqu'approximativement le %(end_date)s OK3"
+"entre quelque temps après le %(start_date)s et jusqu'approximativement le"
+" %(end_date)s OK3"
+
+#, fuzzy
+msgid "from sometime after {start_date} until {end_date}"
+msgstr ""
+"d'approximativement quelques temps après le %(start_date)s jusqu'au "
+"%(end_date)s OK2"
+
+#, fuzzy
+msgid "from {start_date}"
+msgstr "à partir du %(start_date)s"
+
+#, fuzzy
+msgid "from {start_date} until around {end_date}"
+msgstr "du %(start_date)s jusqu'à environ le %(end_date)s OK2"
+
+#, fuzzy
+msgid "from {start_date} until sometime before around {end_date}"
+msgstr ""
+"du %(start_date)s jusqu'approximativement quelques temps avant le "
+"%(end_date)s OK2"
+
+#, fuzzy
+msgid "from {start_date} until sometime before {end_date}"
+msgstr "du %(start_date)s jusqu'à quelques temps avant le %(end_date)s OK2"
+
+#, fuzzy
+msgid "from {start_date} until {end_date}"
+msgstr "du %(start_date)s au %(end_date)s OK2"
 
 #, python-format
 msgid "in %(place)s"
@@ -1066,57 +1041,60 @@ msgstr "voir moins"
 msgid "show more"
 msgstr "voir plus"
 
-#, python-format
-msgid "sometime after %(start_date)s"
-msgstr "quelques temps après le %(start_date)s"
-
-#, python-format
-msgid "sometime after around %(start_date)s"
+#, fuzzy
+msgid "sometime after around {start_date}"
 msgstr "environ après le %(start_date)s"
 
-#, python-format
-msgid "sometime before %(end_date)s"
-msgstr "quelques temps avant le %(end_date)s"
+#, fuzzy
+msgid "sometime after {start_date}"
+msgstr "quelques temps après le %(start_date)s"
 
-#, python-format
-msgid "sometime before around %(end_date)s"
+#, fuzzy
+msgid "sometime before around {end_date}"
 msgstr "approximativement quelques temps avant le %(end_date)s"
 
-#, python-format
-msgid "sometime between %(start_date)s and %(end_date)s"
-msgstr "quelques temps entre le %(start_date)s et le %(end_date)s OK3"
+#, fuzzy
+msgid "sometime before {end_date}"
+msgstr "quelques temps avant le %(end_date)s"
 
-#, python-format
-msgid "sometime between %(start_date)s and around %(end_date)s"
-msgstr ""
-"quelques temps entre le %(start_date)s et approximativement le "
-"%(end_date)s OK3"
-
-#, python-format
-msgid "sometime between around %(start_date)s and %(end_date)s"
-msgstr ""
-"quelques temps entre approximativement le %(start_date)s et le "
-"%(end_date)s OK3"
-
-#, python-format
-msgid "sometime between around %(start_date)s and around %(end_date)s"
+#, fuzzy
+msgid "sometime between around {start_date} and around {end_date}"
 msgstr ""
 "quelques temps entre approximativement le %(start_date)s et "
 "approximativement le %(end_date)s OK3"
 
+#, fuzzy
+msgid "sometime between around {start_date} and {end_date}"
+msgstr ""
+"quelques temps entre approximativement le %(start_date)s et le "
+"%(end_date)s OK3"
+
+#, fuzzy
+msgid "sometime between {start_date} and around {end_date}"
+msgstr ""
+"quelques temps entre le %(start_date)s et approximativement le "
+"%(end_date)s OK3"
+
+#, fuzzy
+msgid "sometime between {start_date} and {end_date}"
+msgstr "quelques temps entre le %(start_date)s et le %(end_date)s OK3"
+
 msgid "unknown date"
 msgstr "date inconnue"
 
-#, python-format
-msgid "until %(end_date)s"
-msgstr "jusqu'au %(end_date)s"
-
-#, python-format
-msgid "until around %(end_date)s"
+#, fuzzy
+msgid "until around {end_date}"
 msgstr "approximativement jusqu'au %(end_date)s"
+
+#, fuzzy
+msgid "until {end_date}"
+msgstr "jusqu'au %(end_date)s"
 
 msgid "y"
 msgstr "y"
+
+msgid "{date}"
+msgstr ""
 
 msgid "{dependency_label} is required by {dependency_labels}."
 msgstr ""
@@ -1138,9 +1116,6 @@ msgstr ""
 
 msgid "{individual_name} {affiliation_name}"
 msgstr "{individual_name} {affiliation_name}"
-
-msgid "{locale} is not a valid IETF BCP 47 language tag."
-msgstr ""
 
 #, python-format
 msgid "© Copyright %(author)s, unless otherwise credited"

@@ -1,4 +1,6 @@
-from typing import Any, Iterable, Sized
+from typing import Any, Iterable, Sized, TypeVar, Callable, Type, Iterator
+
+T = TypeVar('T')
 
 
 def walk(item: Any, attribute_name: str) -> Iterable[Any]:
@@ -40,3 +42,12 @@ def slice_to_range(indices: slice, iterable: Sized) -> Iterable[int]:
         step = indices.step
 
     return range(start, stop, step)
+
+
+def filter_suppress(raising_filter: Callable[[T], Any], exception_type: Type[BaseException], items: Iterable[T]) -> Iterator[T]:
+    for item in items:
+        try:
+            raising_filter(item)
+            yield item
+        except exception_type:
+            continue

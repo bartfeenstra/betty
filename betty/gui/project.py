@@ -1,14 +1,18 @@
 from __future__ import annotations
 
+import asyncio
 import copy
 import re
-from typing import Type, TYPE_CHECKING, Any, Optional, Dict, cast
+from asyncio import Task
+from pathlib import Path
+from typing import Type, Any, Optional, Dict, cast
 from urllib.parse import urlparse
 
 from PyQt6.QtCore import Qt, QThread
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QFileDialog, QPushButton, QWidget, QVBoxLayout, QHBoxLayout, QMenu, QStackedLayout, \
     QGridLayout, QCheckBox, QFormLayout, QLabel, QLineEdit, QButtonGroup, QRadioButton
+from babel import Locale
 from babel.localedata import locale_identifiers
 from reactives.instance.method import reactive_method
 
@@ -23,14 +27,11 @@ from betty.gui.error import catch_exceptions
 from betty.gui.locale import LocalizedWidget
 from betty.gui.locale import TranslationsLocaleCollector
 from betty.gui.logging import LogRecordViewerHandler, LogRecordViewer
-from betty.gui.serve import ServeAppWindow
+from betty.gui.serve import ServeProjectWindow
 from betty.gui.text import Text, Caption
-from betty.locale import rfc_1766_to_bcp_47, get_display_name
+from betty.locale import get_display_name, to_locale
 from betty.model import UserFacingEntity
-from betty.project import LocaleConfiguration
-
-if TYPE_CHECKING:
-    from betty.builtins import _
+from betty.project import LocaleConfiguration, Project
 
 
 class _PaneButton(QPushButton):
@@ -64,7 +65,7 @@ class _GenerateHtmlListForm(LocalizedWidget):
                 in self._app.entity_types
                 if issubclass(entity_type, UserFacingEntity)
             ],
-            key=lambda x: x.entity_type_label_plural(),
+            key=lambda x: x.entity_type_label_plural(self._app.localizer),
         ))
         for entity_type in self._checkboxes.keys():
             if entity_type not in entity_types:
@@ -86,10 +87,10 @@ class _GenerateHtmlListForm(LocalizedWidget):
         self._update_for_entity_type(entity_type, row_i)
 
     def _do_set_translatables(self) -> None:
-        self._form_label.setText(_('Generate entity listing pages'))
+        self._form_label.setText(self._app.localizer._('Generate entity listing pages'))
         for entity_type in self._app.entity_types:
             if issubclass(entity_type, UserFacingEntity):
-                self._checkboxes[entity_type].setText(entity_type.entity_type_label_plural())
+                self._checkboxes[entity_type].setText(entity_type.entity_type_label_plural(self._app.localizer))
 
 
 class _GeneralPane(LocalizedWidget):
@@ -150,7 +151,7 @@ class _GeneralPane(LocalizedWidget):
     def _build_lifetime_threshold(self) -> None:
         def _update_configuration_lifetime_threshold(lifetime_threshold_value: str) -> None:
             if re.fullmatch(r'^\d+$', lifetime_threshold_value) is None:
-                mark_invalid(self._configuration_url, _('The lifetime threshold must consist of digits only.'))
+                mark_invalid(self._configuration_url, self._app.localizer._('The lifetime threshold must consist of digits only.'))
                 return
             lifetime_threshold = int(lifetime_threshold_value)
             try:
@@ -202,17 +203,17 @@ class _GeneralPane(LocalizedWidget):
         self._form.addRow(self._content_negotiation_caption)
 
     def _do_set_translatables(self) -> None:
-        self._configuration_author_label.setText(_('Author'))
-        self._configuration_url_label.setText(_('URL'))
-        self._configuration_title_label.setText(_('Title'))
-        self._configuration_lifetime_threshold_label.setText(_('Lifetime threshold'))
-        self._configuration_lifetime_threshold_caption.setText(_('The age at which people are presumed dead.'))
-        self._development_debug.setText(_('Debugging mode'))
-        self._development_debug_caption.setText(_('Output more detailed logs and disable optimizations that make debugging harder.'))
-        self._clean_urls.setText(_('Clean URLs'))
-        self._clean_urls_caption.setText(_('URLs look like <code>/path</code> instead of <code>/path/index.html</code>. This requires a web server that supports it.'))
-        self._content_negotiation.setText(_('Content negotiation'))
-        self._content_negotiation_caption.setText(_('Decide the correct page variety to serve users depending on their own preferences. This requires a web server that supports it.'))
+        self._configuration_author_label.setText(self._app.localizer._('Author'))
+        self._configuration_url_label.setText(self._app.localizer._('URL'))
+        self._configuration_title_label.setText(self._app.localizer._('Title'))
+        self._configuration_lifetime_threshold_label.setText(self._app.localizer._('Lifetime threshold'))
+        self._configuration_lifetime_threshold_caption.setText(self._app.localizer._('The age at which people are presumed dead.'))
+        self._development_debug.setText(self._app.localizer._('Debugging mode'))
+        self._development_debug_caption.setText(self._app.localizer._('Output more detailed logs and disable optimizations that make debugging harder.'))
+        self._clean_urls.setText(self._app.localizer._('Clean URLs'))
+        self._clean_urls_caption.setText(self._app.localizer._('URLs look like <code>/path</code> instead of <code>/path/index.html</code>. This requires a web server that supports it.'))
+        self._content_negotiation.setText(self._app.localizer._('Content negotiation'))
+        self._content_negotiation_caption.setText(self._app.localizer._('Decide the correct page variety to serve users depending on their own preferences. This requires a web server that supports it.'))
 
 
 class _LocalizationPane(LocalizedWidget):
@@ -275,12 +276,12 @@ class _LocalizationPane(LocalizedWidget):
             self._locales_configuration_widget._remove_buttons[locale_configuration.locale] = None
 
     def _do_set_translatables(self) -> None:
-        self._add_locale_button.setText(_('Add a locale'))
+        self._add_locale_button.setText(self._app.localizer._('Add a locale'))
         for locale, button in self._locales_configuration_widget._default_buttons.items():
             button.setText(get_display_name(locale, self._app.locale))
         for button in self._locales_configuration_widget._remove_buttons.values():
             if button is not None:
-                button.setText(_('Remove'))
+                button.setText(self._app.localizer._('Remove'))
 
     def _add_locale(self):
         window = _AddLocaleWindow(self._app, self)
@@ -299,7 +300,14 @@ class _AddLocaleWindow(BettyWindow):
         self._widget.setLayout(self._layout)
         self.setCentralWidget(self._widget)
 
-        self._locale_collector = TranslationsLocaleCollector(self._app, set(map(rfc_1766_to_bcp_47, locale_identifiers())))
+        self._locale_collector = TranslationsLocaleCollector(
+            self._app,
+            {
+                to_locale(Locale.parse(babel_identifier))
+                for babel_identifier
+                in locale_identifiers()
+            },
+        )
         for row in self._locale_collector.rows:
             self._layout.addRow(*row)
 
@@ -312,22 +320,22 @@ class _AddLocaleWindow(BettyWindow):
         buttons_layout = QHBoxLayout()
         self._layout.addRow(buttons_layout)
 
-        self._save_and_close = QPushButton(_('Save and close'))
+        self._save_and_close = QPushButton(self._app.localizer._('Save and close'))
         self._save_and_close.released.connect(self._save_and_close_locale)  # type: ignore
         buttons_layout.addWidget(self._save_and_close)
 
-        self._cancel = QPushButton(_('Cancel'))
+        self._cancel = QPushButton(self._app.localizer._('Cancel'))
         self._cancel.released.connect(self.close)  # type: ignore
         buttons_layout.addWidget(self._cancel)
 
     def _do_set_translatables(self) -> None:
         super()._do_set_translatables()
-        self._alias_label.setText(_('Alias'))
-        self._alias_caption.setText(_('An optional alias is used instead of the locale code to identify this locale, such as in URLs. If US English is the only English language variant on your site, you may want to alias its language code from <code>en-US</code> to <code>en</code>, for instance.'))
+        self._alias_label.setText(self._app.localizer._('Alias'))
+        self._alias_caption.setText(self._app.localizer._('An optional alias is used instead of the locale code to identify this locale, such as in URLs. If US English is the only English language variant on your site, you may want to alias its language code from <code>en-US</code> to <code>en</code>, for instance.'))
 
     @property
     def title(self) -> str:
-        return _('Add a locale')
+        return self._app.localizer._('Add a locale')
 
     @catch_exceptions
     def _save_and_close_locale(self) -> None:
@@ -336,8 +344,7 @@ class _AddLocaleWindow(BettyWindow):
         if alias == '':
             alias = None
         try:
-            with self._app.acquire_locale():
-                self._app.project.configuration.locales.add(LocaleConfiguration(locale, alias))
+            self._app.project.configuration.locales.add(LocaleConfiguration(locale, alias))
         except ConfigurationValidationError as e:
             mark_invalid(self._alias, str(e))
             return
@@ -399,17 +406,17 @@ class _ExtensionPane(LocalizedWidget):
                 self._extension_enabled_caption.setText(str(disable_requirement.reduce()))
         else:
             self._extension_enabled.setChecked(False)
-            enable_requirement = self._extension_type.enable_requirement()
+            enable_requirement = self._extension_type.enable_requirement(self._app.localizer)
             if not enable_requirement.is_met():
                 self._extension_enabled.setDisabled(True)
                 self._extension_enabled_caption.setText(str(enable_requirement.reduce()))
 
     def _do_set_translatables(self) -> None:
         self._extension_description.setText(
-            self._extension_type.description(),
+            self._extension_type.description(self._app.localizer),
         )
-        self._extension_enabled.setText(_('Enable {extension}').format(
-            extension=self._extension_type.label(),
+        self._extension_enabled.setText(self._app.localizer._('Enable {extension}').format(
+            extension=self._extension_type.label(self._app.localizer),
         ))
 
 
@@ -482,14 +489,14 @@ class ProjectWindow(BettyMainWindow):
 
     def _do_set_translatables(self) -> None:
         super()._do_set_translatables()
-        self.project_menu.setTitle('&' + _('Project'))
-        self.save_project_as_action.setText(_('Save this project as...'))
-        self.generate_action.setText(_('Generate site'))
-        self.serve_action.setText(_('Serve site'))
-        self._pane_selectors['general'].setText(_('General'))
-        self._pane_selectors['localization'].setText(_('Localization'))
+        self.project_menu.setTitle('&' + self._app.localizer._('Project'))
+        self.save_project_as_action.setText(self._app.localizer._('Save this project as...'))
+        self.generate_action.setText(self._app.localizer._('Generate site'))
+        self.serve_action.setText(self._app.localizer._('Serve site'))
+        self._pane_selectors['general'].setText(self._app.localizer._('General'))
+        self._pane_selectors['localization'].setText(self._app.localizer._('Localization'))
         for extension_type in self._extension_types:
-            self._pane_selectors[f'extension-{extension_type.name()}'].setText(cast(UserFacingExtension, extension_type).label())
+            self._pane_selectors[f'extension-{extension_type.name()}'].setText(cast(UserFacingExtension, extension_type).label(self._app.localizer))
 
     @reactive_method(on_trigger_call=True)
     def _set_window_title(self) -> None:
@@ -497,13 +504,13 @@ class ProjectWindow(BettyMainWindow):
 
     @catch_exceptions
     def _save_project_as(self) -> None:
-        configuration_file_path, __ = QFileDialog.getSaveFileName(
+        configuration_file_path_str, __ = QFileDialog.getSaveFileName(
             self,
-            _('Save your project to...'),
+            self._app.localizer._('Save your project to...'),
             '',
-            get_configuration_file_filter(),
+            get_configuration_file_filter(self._app.localizer),
         )
-        self._app.project.configuration.configuration_file_path = configuration_file_path  # type: ignore[assignment]
+        self._app.project.configuration.write(Path(configuration_file_path_str))
 
     @catch_exceptions
     def _generate(self) -> None:
@@ -512,22 +519,30 @@ class ProjectWindow(BettyMainWindow):
 
     @catch_exceptions
     def _serve(self) -> None:
-        serve_window = ServeAppWindow.get_instance(self._app, self)
+        serve_window = ServeProjectWindow(self._app, self)
         serve_window.show()
 
 
 class _GenerateThread(QThread):
-    def __init__(self, app: App, generate_window: _GenerateWindow, *args, **kwargs):
+    def __init__(self, project: Project, generate_window: _GenerateWindow, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._app = app
+        self._project = project
         self._generate_window = generate_window
+        self._task: Task | None = None
 
     @sync
     async def run(self) -> None:
+        self._task = asyncio.create_task(self._generate())
+
+    async def _generate(self) -> None:
         with catch_exceptions(parent=self._generate_window, close_parent=True):
-            with self._app:
-                await load.load(self._app)
-                await generate.generate(self._app)
+            with App(project=self._project) as app:
+                await load.load(app)
+                await generate.generate(app)
+
+    def cancel(self) -> None:
+        if self._task:
+            self._task.cancel()
 
 
 class _GenerateWindow(BettyWindow):
@@ -551,27 +566,26 @@ class _GenerateWindow(BettyWindow):
         button_layout = QHBoxLayout()
         central_layout.addLayout(button_layout)
 
-        self._close_button = QPushButton(_('Close'))
-        self._close_button.setDisabled(True)
-        self._close_button.released.connect(self.close)  # type: ignore
-        button_layout.addWidget(self._close_button)
+        self._cancel_button = QPushButton()
+        button_layout.addWidget(self._cancel_button)
 
-        self._serve_button = QPushButton(_('View site'))
+        self._serve_button = QPushButton()
         self._serve_button.setDisabled(True)
         self._serve_button.released.connect(self._serve)  # type: ignore
         button_layout.addWidget(self._serve_button)
 
         self._logging_handler = LogRecordViewerHandler(self._log_record_viewer)
-        self._thread = _GenerateThread(copy.copy(self._app), self)
+        self._thread = _GenerateThread(self._app.project, self)
         self._thread.finished.connect(self._finish_generate)  # type: ignore
+        self._cancel_button.released.connect(self._thread.cancel)  # type: ignore
 
     @property
     def title(self) -> str:
-        return _('Generating your site...')
+        return self._app.localizer._('Generating your site...')
 
     @catch_exceptions
     def _serve(self) -> None:
-        serve_window = ServeAppWindow.get_instance(self._app, self)
+        serve_window = ServeProjectWindow(self._app, self)
         serve_window.show()
 
     def show(self) -> None:
@@ -581,8 +595,12 @@ class _GenerateWindow(BettyWindow):
         self._thread.start()
 
     def _finish_generate(self) -> None:
-        load.getLogger().removeHandler(self._logging_handler)
-        generate.getLogger().removeHandler(self._logging_handler)
-        self._close_button.setDisabled(False)
+        self._cancel_button.setDisabled(True)
         self._serve_button.setDisabled(False)
         self.setWindowFlags(self.windowFlags() | Qt.WindowType.WindowCloseButtonHint)
+        load.getLogger().removeHandler(self._logging_handler)
+        generate.getLogger().removeHandler(self._logging_handler)
+
+    def _do_set_translatables(self) -> None:
+        self._cancel_button.setText(self._app.localizer._('Cancel'))
+        self._serve_button.setText(self._app.localizer._('View site'))

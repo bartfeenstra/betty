@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-12-06 18:11+0000\n"
+"POT-Creation-Date: 2023-05-29 20:43+0100\n"
 "PO-Revision-Date: 2020-05-02 22:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -17,7 +17,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.11.0\n"
+"Generated-By: Babel 2.12.1\n"
 
 msgid ""
 "\n"
@@ -60,12 +60,11 @@ msgstr ""
 msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
 msgstr ""
 
-msgid "\"{path}\" is not a directory."
+msgid "\"{locale}\" is not a valid IETF BCP 47 language tag."
 msgstr ""
 
-#, python-format
-msgid "%(date)s"
-msgstr "%(date)s"
+msgid "\"{path}\" is not a directory."
+msgstr ""
 
 #, python-format
 msgid "%(date)s in %(place)s"
@@ -132,9 +131,6 @@ msgstr ""
 
 msgid "About Betty"
 msgstr ""
-
-msgid "Access denied"
-msgstr "У доступі відмовлено"
 
 #, python-format
 msgid "Accessed %(date)s"
@@ -236,11 +232,30 @@ msgid ""
 "family trees."
 msgstr ""
 
+msgid ""
+"Betty is unfamiliar with Gramps event \"{event_id}\"'s type of "
+"\"{gramps_event_type}\". The event was imported, but its type was set to "
+"\"{betty_event_type}\"."
+msgstr ""
+
 msgid "Betty project configuration ({extensions})"
 msgstr ""
 
 msgid "Birth"
 msgstr "Народження"
+
+msgid "Built the Cotton Candy front-end assets."
+msgstr ""
+
+#, fuzzy
+msgid "Built the HTTP API documentation."
+msgstr "документація API"
+
+msgid "Built the interactive family trees."
+msgstr ""
+
+msgid "Built the interactive maps."
+msgstr ""
 
 msgid "Burial"
 msgstr "Поховання"
@@ -273,9 +288,6 @@ msgid "Cleaner"
 msgstr ""
 
 msgid "Clear all caches"
-msgstr ""
-
-msgid "Close"
 msgstr ""
 
 msgid "Configuration"
@@ -318,6 +330,11 @@ msgid ""
 "existing information."
 msgstr ""
 
+msgid ""
+"Created {created_derivations} additional {event_type} events based on "
+"existing information."
+msgstr ""
+
 msgid "Cremation"
 msgstr "Кремація"
 
@@ -330,6 +347,9 @@ msgstr ""
 msgid ""
 "Decide the correct page variety to serve users depending on their own "
 "preferences. This requires a web server that supports it."
+msgstr ""
+
+msgid "Demo"
 msgstr ""
 
 msgid "Deriver"
@@ -438,11 +458,15 @@ msgstr ""
 msgid "Generated pages for {count} {entity_type} in {locale}."
 msgstr ""
 
-msgid "Generated the listing HTML page for {entity_type} entities in {locale}."
+msgid "Generated the listing page for {entity_type} in {locale}."
 msgstr ""
 
 msgid "Generating your site..."
 msgstr ""
+
+#, fuzzy
+msgid "HTTP API Documentation"
+msgstr "документація API"
 
 msgid "Help"
 msgstr "Допомога"
@@ -460,15 +484,6 @@ msgid "I'm sorry, dear, but it seems there are no places."
 msgstr ""
 
 msgid "I'm sorry, dear, but it seems there are no sources."
-msgstr ""
-
-msgid "I'm sorry, dear, but it seems this page does not exist."
-msgstr ""
-
-msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
-msgstr ""
-
-msgid "I'm sorry, dear, but it seems you're not logged in."
 msgstr ""
 
 msgid "Immigration"
@@ -499,6 +514,12 @@ msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
 msgstr ""
 
 msgid "Load the family tree from..."
+msgstr ""
+
+msgid "Loaded the configuration from {configuration_file_path}."
+msgstr ""
+
+msgid "Loading {file_path}..."
 msgstr ""
 
 msgid "Loading..."
@@ -575,9 +596,6 @@ msgid ""
 "harder."
 msgstr ""
 
-msgid "Page not found"
-msgstr "Сторінку не знайдено"
-
 msgid "People"
 msgstr "Люди"
 
@@ -614,11 +632,17 @@ msgstr ""
 msgid "Private"
 msgstr "Приватні"
 
+msgid "Privatized {count} people because they are likely still alive."
+msgstr ""
+
 msgid "Privatizer"
 msgstr ""
 
 msgid "Project"
 msgstr "Проект"
+
+msgid "Python built-in"
+msgstr ""
 
 msgid "Read more on Wikipedia."
 msgstr "Детальніше читайте у Вікіпедії"
@@ -650,40 +674,10 @@ msgstr "Проживання"
 msgid "Retirement"
 msgstr "Вихід на пенсію"
 
-msgid "Retrieve a single citation."
+msgid "Retrieve a single {entity_type} entity."
 msgstr ""
 
-msgid "Retrieve a single event."
-msgstr ""
-
-msgid "Retrieve a single file."
-msgstr ""
-
-msgid "Retrieve a single person."
-msgstr ""
-
-msgid "Retrieve a single place."
-msgstr ""
-
-msgid "Retrieve a single source."
-msgstr ""
-
-msgid "Retrieve the collection of citations."
-msgstr ""
-
-msgid "Retrieve the collection of events."
-msgstr ""
-
-msgid "Retrieve the collection of files."
-msgstr ""
-
-msgid "Retrieve the collection of people."
-msgstr ""
-
-msgid "Retrieve the collection of places."
-msgstr ""
-
-msgid "Retrieve the collection of sources."
+msgid "Retrieve the collection of {entity_type} entities."
 msgstr ""
 
 msgid "Save and close"
@@ -742,25 +736,15 @@ msgid ""
 "file://."
 msgstr ""
 
-msgid "The citation."
+msgid ""
+"The betty:privacy Gramps attribute must have a value of \"public\" or "
+"\"private\", but \"{privacy_value}\" was given, which was ignored."
 msgstr ""
 
-msgid "The collection of citations."
+msgid "The collection of {entity_type} entities."
 msgstr ""
 
-msgid "The collection of events."
-msgstr ""
-
-msgid "The collection of files."
-msgstr ""
-
-msgid "The collection of people."
-msgstr ""
-
-msgid "The collection of places."
-msgstr ""
-
-msgid "The collection of sources."
+msgid "The configuration must have a configuration file path."
 msgstr ""
 
 msgid ""
@@ -770,29 +754,17 @@ msgid ""
 "({actual_entity_type_label})"
 msgstr ""
 
-msgid "The event."
-msgstr ""
-
-msgid "The file."
-msgstr ""
-
 msgid "The key \"{configuration_key}\" is required."
 msgstr ""
 
 msgid "The lifetime threshold must consist of digits only."
 msgstr ""
 
-msgid "The person."
-msgstr ""
-
-msgid "The place."
-msgstr ""
-
-msgid "The source."
-msgstr ""
-
 #, python-format
 msgid "The translations for {locale_name} are {coverage_percentage}% complete."
+msgstr ""
+
+msgid "The {entity_type} entity."
 msgstr ""
 
 msgid "There are no translations for {locale_name}."
@@ -882,6 +854,11 @@ msgid ""
 "{known_configuration_keys}?"
 msgstr ""
 
+msgid ""
+"Updated {updated_derivations} {event_type} events based on existing "
+"information."
+msgstr ""
+
 #, python-format
 msgid ""
 "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
@@ -904,9 +881,6 @@ msgid "View demo site..."
 msgstr ""
 
 msgid "View site"
-msgstr ""
-
-msgid "Web root directory \"{path}\" does not exist."
 msgstr ""
 
 #, python-format
@@ -951,65 +925,65 @@ msgstr ""
 msgid "`npm` is not available"
 msgstr ""
 
-#, python-format
-msgid "around %(date)s"
+#, fuzzy
+msgid "around {date}"
 msgstr "близько %(date)s"
 
-#, python-format
-msgid "from %(start_date)s"
-msgstr "з %(start_date)s"
-
-#, python-format
-msgid "from %(start_date)s until %(end_date)s"
-msgstr "з %(start_date)s до %(end_date)s"
-
-#, python-format
-msgid "from %(start_date)s until around %(end_date)s"
-msgstr "з %(start_date)s до приблизно %(end_date)s"
-
-#, python-format
-msgid "from %(start_date)s until sometime before %(end_date)s"
-msgstr "з %(start_date)s до десь раніше %(end_date)s"
-
-#, python-format
-msgid "from %(start_date)s until sometime before around %(end_date)s"
-msgstr "з %(start_date)s до десь до %(end_date)s"
-
-#, python-format
-msgid "from around %(start_date)s"
+#, fuzzy
+msgid "from around {start_date}"
 msgstr "приблизно з %(start_date)s"
 
-#, python-format
-msgid "from around %(start_date)s until %(end_date)s"
-msgstr "приблизно з %(start_date)s до %(end_date)s"
-
-#, python-format
-msgid "from around %(start_date)s until around %(end_date)s"
+#, fuzzy
+msgid "from around {start_date} until around {end_date}"
 msgstr "приблизно з %(start_date)s приблизно до %(end_date)s"
 
-#, python-format
-msgid "from around %(start_date)s until sometime before %(end_date)s"
-msgstr "приблизно з %(start_date)s до десь раніше %(end_date)s"
-
-#, python-format
-msgid "from around %(start_date)s until sometime before around %(end_date)s"
+#, fuzzy
+msgid "from around {start_date} until sometime before around {end_date}"
 msgstr "приблизно з %(start_date)s до десь до %(end_date)s"
 
-#, python-format
-msgid "from sometime after %(start_date)s until %(end_date)s"
+#, fuzzy
+msgid "from around {start_date} until sometime before {end_date}"
+msgstr "приблизно з %(start_date)s до десь раніше %(end_date)s"
+
+#, fuzzy
+msgid "from around {start_date} until {end_date}"
+msgstr "приблизно з %(start_date)s до %(end_date)s"
+
+#, fuzzy
+msgid "from sometime after around {start_date} until around {end_date}"
+msgstr "десь приблизно після %(start_date)s приблизно до %(end_date)s"
+
+#, fuzzy
+msgid "from sometime after around {start_date} until {end_date}"
 msgstr "десь після %(start_date)s до %(end_date)s"
 
-#, python-format
-msgid "from sometime after %(start_date)s until around %(end_date)s"
+#, fuzzy
+msgid "from sometime after {start_date} until around {end_date}"
 msgstr "десь після %(start_date)s приблизно до %(end_date)s"
 
-#, python-format
-msgid "from sometime after around %(start_date)s until %(end_date)s"
+#, fuzzy
+msgid "from sometime after {start_date} until {end_date}"
 msgstr "десь після %(start_date)s до %(end_date)s"
 
-#, python-format
-msgid "from sometime after around %(start_date)s until around %(end_date)s"
-msgstr "десь приблизно після %(start_date)s приблизно до %(end_date)s"
+#, fuzzy
+msgid "from {start_date}"
+msgstr "з %(start_date)s"
+
+#, fuzzy
+msgid "from {start_date} until around {end_date}"
+msgstr "з %(start_date)s до приблизно %(end_date)s"
+
+#, fuzzy
+msgid "from {start_date} until sometime before around {end_date}"
+msgstr "з %(start_date)s до десь до %(end_date)s"
+
+#, fuzzy
+msgid "from {start_date} until sometime before {end_date}"
+msgstr "з %(start_date)s до десь раніше %(end_date)s"
+
+#, fuzzy
+msgid "from {start_date} until {end_date}"
+msgstr "з %(start_date)s до %(end_date)s"
 
 #, python-format
 msgid "in %(place)s"
@@ -1044,51 +1018,54 @@ msgstr "показати менше"
 msgid "show more"
 msgstr "показати більше"
 
-#, python-format
-msgid "sometime after %(start_date)s"
-msgstr "десь після %(start_date)s"
-
-#, python-format
-msgid "sometime after around %(start_date)s"
+#, fuzzy
+msgid "sometime after around {start_date}"
 msgstr "десь приблизно після %(start_date)s"
 
-#, python-format
-msgid "sometime before %(end_date)s"
-msgstr "десь до %(end_date)s"
+#, fuzzy
+msgid "sometime after {start_date}"
+msgstr "десь після %(start_date)s"
 
-#, python-format
-msgid "sometime before around %(end_date)s"
+#, fuzzy
+msgid "sometime before around {end_date}"
 msgstr "десь приблизно до %(end_date)s"
 
-#, python-format
-msgid "sometime between %(start_date)s and %(end_date)s"
-msgstr "десь між %(start_date)s та %(end_date)s"
+#, fuzzy
+msgid "sometime before {end_date}"
+msgstr "десь до %(end_date)s"
 
-#, python-format
-msgid "sometime between %(start_date)s and around %(end_date)s"
-msgstr "десь між %(start_date)s і близько %(end_date)s"
+#, fuzzy
+msgid "sometime between around {start_date} and around {end_date}"
+msgstr "десь між приблизно %(start_date)s та приблизно %(end_date)s"
 
-#, python-format
-msgid "sometime between around %(start_date)s and %(end_date)s"
+#, fuzzy
+msgid "sometime between around {start_date} and {end_date}"
 msgstr "десь між приблизно %(start_date)s та %(end_date)s"
 
-#, python-format
-msgid "sometime between around %(start_date)s and around %(end_date)s"
-msgstr "десь між приблизно %(start_date)s та приблизно %(end_date)s"
+#, fuzzy
+msgid "sometime between {start_date} and around {end_date}"
+msgstr "десь між %(start_date)s і близько %(end_date)s"
+
+#, fuzzy
+msgid "sometime between {start_date} and {end_date}"
+msgstr "десь між %(start_date)s та %(end_date)s"
 
 msgid "unknown date"
 msgstr "невідома дата"
 
-#, python-format
-msgid "until %(end_date)s"
-msgstr "до %(end_date)s"
-
-#, python-format
-msgid "until around %(end_date)s"
+#, fuzzy
+msgid "until around {end_date}"
 msgstr "приблизно до %(end_date)s"
+
+#, fuzzy
+msgid "until {end_date}"
+msgstr "до %(end_date)s"
 
 msgid "y"
 msgstr "y року"
+
+msgid "{date}"
+msgstr ""
 
 msgid "{dependency_label} is required by {dependency_labels}."
 msgstr ""
@@ -1110,9 +1087,6 @@ msgstr ""
 
 msgid "{individual_name} {affiliation_name}"
 msgstr "{individual_name} {affiliation_name}"
-
-msgid "{locale} is not a valid IETF BCP 47 language tag."
-msgstr ""
 
 #, python-format
 msgid "© Copyright %(author)s, unless otherwise credited"

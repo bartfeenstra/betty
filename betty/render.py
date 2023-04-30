@@ -1,24 +1,33 @@
-from typing import List
-
-from betty.os import PathLike
+from pathlib import Path
+from typing import List, Set
 
 
 class Renderer:
-    async def render_file(self, file_path: PathLike) -> None:
+    @property
+    def file_extensions(self) -> Set[str]:
         raise NotImplementedError
 
-    async def render_tree(self, tree_path: PathLike) -> None:
+    async def render_file(self, file_path: Path) -> Path:
         raise NotImplementedError
 
 
 class SequentialRenderer(Renderer):
     def __init__(self, renderers: List[Renderer]):
         self._renderers = renderers
+        self._file_extensions = {
+            file_extension
+            for renderer
+            in self._renderers
+            for file_extension
+            in renderer.file_extensions
+        }
 
-    async def render_file(self, file_path: PathLike) -> None:
-        for renderer in self._renderers:
-            await renderer.render_file(file_path)
+    @property
+    def file_extensions(self) -> Set[str]:
+        return self._file_extensions
 
-    async def render_tree(self, tree_path: PathLike) -> None:
+    async def render_file(self, file_path: Path) -> Path:
         for renderer in self._renderers:
-            await renderer.render_tree(tree_path)
+            if file_path.suffix in renderer.file_extensions:
+                return await self.render_file(await renderer.render_file(file_path))
+        return file_path

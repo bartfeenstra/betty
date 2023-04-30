@@ -1,4 +1,5 @@
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
 import pytest
@@ -31,62 +32,62 @@ def _expand_person(generation: int):
         # Deaths and other end-of-life events are special, but only for the person whose privacy is being checked:
         # - If they're present without dates, the person isn't private.
         # - If they're present and their dates or date ranges' end dates are in the past, the person isn't private.
-        (generation != 0, None, Event(None, Death(), date=Date(datetime.now().year, datetime.now().month, datetime.now().day))),
-        (generation != 0, None, Event(None, Death(), date=date_under_lifetime_threshold)),
-        (True, None, Event(None, Death(), date=date_range_start_under_lifetime_threshold)),
-        (generation != 0, None, Event(None, Death(), date=date_range_end_under_lifetime_threshold)),
-        (False, None, Event(None, Death(), date=date_over_lifetime_threshold)),
-        (True, None, Event(None, Death(), date=date_range_start_over_lifetime_threshold)),
-        (False, None, Event(None, Death(), date=date_range_end_over_lifetime_threshold)),
-        (True, True, Event(None, Death())),
-        (False, False, Event(None, Death())),
-        (generation != 0, None, Event(None, Death())),
+        (generation != 0, None, Event(None, Death, date=Date(datetime.now().year, datetime.now().month, datetime.now().day))),
+        (generation != 0, None, Event(None, Death, date=date_under_lifetime_threshold)),
+        (True, None, Event(None, Death, date=date_range_start_under_lifetime_threshold)),
+        (generation != 0, None, Event(None, Death, date=date_range_end_under_lifetime_threshold)),
+        (False, None, Event(None, Death, date=date_over_lifetime_threshold)),
+        (True, None, Event(None, Death, date=date_range_start_over_lifetime_threshold)),
+        (False, None, Event(None, Death, date=date_range_end_over_lifetime_threshold)),
+        (True, True, Event(None, Death)),
+        (False, False, Event(None, Death)),
+        (generation != 0, None, Event(None, Death)),
 
         # Regular events without dates do not affect privacy.
-        (True, None, Event(None, Birth())),
-        (True, True, Event(None, Birth())),
-        (False, False, Event(None, Birth())),
+        (True, None, Event(None, Birth)),
+        (True, True, Event(None, Birth)),
+        (False, False, Event(None, Birth)),
 
         # Regular events with incomplete dates do not affect privacy.
-        (True, None, Event(None, Birth(), date=Date())),
-        (True, True, Event(None, Birth(), date=Date())),
-        (False, False, Event(None, Birth(), date=Date())),
+        (True, None, Event(None, Birth, date=Date())),
+        (True, True, Event(None, Birth, date=Date())),
+        (False, False, Event(None, Birth, date=Date())),
 
         # Regular events under the lifetime threshold do not affect privacy.
-        (True, None, Event(None, Birth(), date=date_under_lifetime_threshold)),
-        (True, True, Event(None, Birth(), date=date_under_lifetime_threshold)),
-        (False, False, Event(None, Birth(), date=date_under_lifetime_threshold)),
-        (True, None, Event(None, Birth(), date=date_range_start_under_lifetime_threshold)),
-        (True, True, Event(None, Birth(), date=date_range_start_under_lifetime_threshold)),
-        (False, False, Event(None, Birth(), date=date_range_start_under_lifetime_threshold)),
-        (True, None, Event(None, Birth(), date=date_range_end_under_lifetime_threshold)),
-        (True, True, Event(None, Birth(), date=date_range_end_under_lifetime_threshold)),
-        (False, False, Event(None, Birth(), date=date_range_end_under_lifetime_threshold)),
+        (True, None, Event(None, Birth, date=date_under_lifetime_threshold)),
+        (True, True, Event(None, Birth, date=date_under_lifetime_threshold)),
+        (False, False, Event(None, Birth, date=date_under_lifetime_threshold)),
+        (True, None, Event(None, Birth, date=date_range_start_under_lifetime_threshold)),
+        (True, True, Event(None, Birth, date=date_range_start_under_lifetime_threshold)),
+        (False, False, Event(None, Birth, date=date_range_start_under_lifetime_threshold)),
+        (True, None, Event(None, Birth, date=date_range_end_under_lifetime_threshold)),
+        (True, True, Event(None, Birth, date=date_range_end_under_lifetime_threshold)),
+        (False, False, Event(None, Birth, date=date_range_end_under_lifetime_threshold)),
 
         # Regular events over the lifetime threshold affect privacy.
-        (False, None, Event(None, Birth(), date=date_over_lifetime_threshold)),
-        (True, True, Event(None, Birth(), date=date_over_lifetime_threshold)),
-        (False, False, Event(None, Birth(), date=date_over_lifetime_threshold)),
-        (True, None, Event(None, Birth(), date=date_range_start_over_lifetime_threshold)),
-        (True, True, Event(None, Birth(), date=date_range_start_over_lifetime_threshold)),
-        (False, False, Event(None, Birth(), date=date_range_start_over_lifetime_threshold)),
-        (False, None, Event(None, Birth(), date=date_range_end_over_lifetime_threshold)),
-        (True, True, Event(None, Birth(), date=date_range_end_over_lifetime_threshold)),
-        (False, False, Event(None, Birth(), date=date_range_end_over_lifetime_threshold)),
+        (False, None, Event(None, Birth, date=date_over_lifetime_threshold)),
+        (True, True, Event(None, Birth, date=date_over_lifetime_threshold)),
+        (False, False, Event(None, Birth, date=date_over_lifetime_threshold)),
+        (True, None, Event(None, Birth, date=date_range_start_over_lifetime_threshold)),
+        (True, True, Event(None, Birth, date=date_range_start_over_lifetime_threshold)),
+        (False, False, Event(None, Birth, date=date_range_start_over_lifetime_threshold)),
+        (False, None, Event(None, Birth, date=date_range_end_over_lifetime_threshold)),
+        (True, True, Event(None, Birth, date=date_range_end_over_lifetime_threshold)),
+        (False, False, Event(None, Birth, date=date_range_end_over_lifetime_threshold)),
     ]
 
 
 class TestPrivatizer:
     async def test_post_load(self):
         person = Person('P0')
-        Presence(person, Subject(), Event(None, Birth()))
+        Presence(person, Subject(), Event(None, Birth))
 
-        source_file = File('F0', __file__)
+        source_file = File('F0', Path(__file__))
         source = Source('S0', 'The Source')
         source.private = True
         source.files.append(source_file)
 
-        citation_file = File('F0', __file__)
+        citation_file = File('F0', Path(__file__))
         citation_source = Source('The Source')
         citation = Citation('C0', citation_source)
         citation.private = True
@@ -104,15 +105,15 @@ class TestPrivatizer:
             assert citation_file.private
 
     def test_privatize_person_should_not_privatize_if_public(self):
-        source_file = File('F0', __file__)
+        source_file = File('F0', Path(__file__))
         source = Source('The Source')
         source.files.append(source_file)
-        citation_file = File('F1', __file__)
+        citation_file = File('F1', Path(__file__))
         citation = Citation('C0', source)
         citation.files.append(citation_file)
-        event_as_subject = Event(None, Birth())
-        event_as_attendee = Event(None, Marriage())
-        person_file = File('F2', __file__)
+        event_as_subject = Event(None, Birth)
+        event_as_attendee = Event(None, Marriage)
+        person_file = File('F2', Path(__file__))
         person = Person('P0')
         person.private = False
         person.citations.append(citation)
@@ -132,15 +133,15 @@ class TestPrivatizer:
         assert event_as_attendee.private is None
 
     def test_privatize_person_should_privatize_if_private(self):
-        source_file = File('F0', __file__)
+        source_file = File('F0', Path(__file__))
         source = Source('The Source')
         source.files.append(source_file)
-        citation_file = File('F1', __file__)
+        citation_file = File('F1', Path(__file__))
         citation = Citation('C0', source)
         citation.files.append(citation_file)
-        event_as_subject = Event(None, Birth())
-        event_as_attendee = Event(None, Marriage())
-        person_file = File('F2', __file__)
+        event_as_subject = Event(None, Birth)
+        event_as_attendee = Event(None, Marriage)
+        person_file = File('F2', Path(__file__))
         person = Person('P0')
         person.private = True
         person.citations.append(citation)
@@ -261,14 +262,14 @@ class TestPrivatizer:
         assert expected == person.private
 
     def test_privatize_event_should_not_privatize_if_public(self):
-        source_file = File('F0', __file__)
+        source_file = File('F0', Path(__file__))
         source = Source('The Source')
         source.files.append(source_file)
-        citation_file = File('F1', __file__)
+        citation_file = File('F1', Path(__file__))
         citation = Citation('C0', source)
         citation.files.append(citation_file)
-        event_file = File('F1', __file__)
-        event = Event('E1', Birth())
+        event_file = File('F1', Path(__file__))
+        event = Event('E1', Birth)
         event.private = False
         event.citations.append(citation)
         event.files.append(event_file)
@@ -286,14 +287,14 @@ class TestPrivatizer:
         assert person.private is None
 
     def test_privatize_event_should_privatize_if_private(self):
-        source_file = File('F0', __file__)
+        source_file = File('F0', Path(__file__))
         source = Source('The Source')
         source.files.append(source_file)
-        citation_file = File('F1', __file__)
+        citation_file = File('F1', Path(__file__))
         citation = Citation('C0', source)
         citation.files.append(citation_file)
-        event_file = File('F1', __file__)
-        event = Event('E1', Birth())
+        event_file = File('F1', Path(__file__))
+        event = Event('E1', Birth)
         event.private = True
         event.citations.append(citation)
         event.files.append(event_file)
@@ -311,7 +312,7 @@ class TestPrivatizer:
         assert person.private is None
 
     def test_privatize_source_should_not_privatize_if_public(self):
-        file = File('F0', __file__)
+        file = File('F0', Path(__file__))
         source = Source('S0', 'The Source')
         source.private = False
         source.files.append(file)
@@ -322,7 +323,7 @@ class TestPrivatizer:
         assert file.private is None
 
     def test_privatize_source_should_privatize_if_private(self):
-        file = File('F0', __file__)
+        file = File('F0', Path(__file__))
         source = Source('S0', 'The Source')
         source.private = True
         source.files.append(file)
@@ -333,10 +334,10 @@ class TestPrivatizer:
         assert file.private
 
     def test_privatize_citation_should_not_privatize_if_public(self):
-        source_file = File('F0', __file__)
+        source_file = File('F0', Path(__file__))
         source = Source('The Source')
         source.files.append(source_file)
-        citation_file = File('F1', __file__)
+        citation_file = File('F1', Path(__file__))
         citation = Citation('C0', source)
         citation.private = False
         citation.files.append(citation_file)
@@ -349,10 +350,10 @@ class TestPrivatizer:
         assert source_file.private is None
 
     def test_privatize_citation_should_privatize_if_private(self):
-        source_file = File('F0', __file__)
+        source_file = File('F0', Path(__file__))
         source = Source('The Source')
         source.files.append(source_file)
-        citation_file = File('F1', __file__)
+        citation_file = File('F1', Path(__file__))
         citation = Citation('C0', source)
         citation.private = True
         citation.files.append(citation_file)
@@ -367,7 +368,7 @@ class TestPrivatizer:
     def test_privatize_file_should_not_privatize_if_public(self):
         source = Source(None, 'The Source')
         citation = Citation(None, source)
-        file = File('F0', __file__)
+        file = File('F0', Path(__file__))
         file.private = False
         file.citations.append(citation)
         ancestry = Ancestry()
@@ -379,7 +380,7 @@ class TestPrivatizer:
     def test_privatize_file_should_privatize_if_private(self):
         source = Source(None, 'The Source')
         citation = Citation(None, source)
-        file = File('F0', __file__)
+        file = File('F0', Path(__file__))
         file.private = True
         file.citations.append(citation)
         ancestry = Ancestry()
