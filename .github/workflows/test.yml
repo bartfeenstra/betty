@@ -39,40 +39,17 @@ jobs:
       - name: Check out the source code
         uses: actions/checkout@v3
 
-      - name: Cache pip (Linux)
-        uses: actions/cache@v3
-        if: startsWith(runner.os, 'Linux')
-        with:
-          path: ~/.cache/pip
-          key: pip-${{ hashFiles('./setup.py') }}
-          restore-keys: |
-            pip-
+      - name: Get the pip cache directory
+        run: echo "pip_cache_dir=$(pip cache dir)" >> $GITHUB_ENV
+        shell: bash
 
-      - name: Cache pip (Mac OS)
-        uses: actions/cache@v3
-        if: startsWith(runner.os, 'macOS')
-        with:
-          path: ~/Library/Caches/pip
-          key: pip-${{ hashFiles('./setup.py') }}
-          restore-keys: |
-            pip-
-
-      - name: Cache pip (Windows)
-        uses: actions/cache@v3
-        if: startsWith(runner.os, 'Windows')
-        with:
-          path: ~\AppData\Local\pip\Cache
-          key: pip-${{ hashFiles('./setup.py') }}
-          restore-keys: |
-            pip-
-
-      - name: Cache Mypy
+      - name: Cache pip
         uses: actions/cache@v3
         with:
-          path: ./.mypy_cache
-          key: mypy-${{ hashFiles('./setup.py') }}
+          path: ${{ env.pip_cache_dir }}
+          key: pip-${{ runner.os }}-${{ matrix.python }}-${{ hashFiles('./setup.py') }}
           restore-keys: |
-            mypy-
+            pip-${{ runner.os }}-${{ matrix.python }}-
 
       - name: Get the npm cache directory
         run: echo "npm_cache_dir=$(npm config get cache)" >> $GITHUB_ENV
@@ -82,9 +59,17 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.npm_cache_dir }}
-          key: npm-${{ hashFiles('./package.json') }}
+          key: npm-${{ runner.os }}-${{ hashFiles('./package.json') }}
           restore-keys: |
-            npm-
+            npm-${{ runner.os }}-
+
+      - name: Cache Mypy
+        uses: actions/cache@v3
+        with:
+          path: ./.mypy_cache
+          key: mypy-${{ matrix.python }}-${{ hashFiles('./setup.py') }}
+          restore-keys: |
+            mypy-${{ matrix.python }}-
 
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v4
@@ -110,6 +95,18 @@ jobs:
         run: |
           ./bin/build-dev
         shell: bash
+
+      - name: Get the Cypress cache directory
+        run: echo "cypress_cache_dir=$(./node_modules/.bin/cypress cache path)" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Cache Cypress
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.cypress_cache_dir }}
+          key: cypress-${{ runner.os }}-${{ hashFiles('./package.json') }}
+          restore-keys: |
+            cypress-
 
       - name: Run the tests
         run: |
