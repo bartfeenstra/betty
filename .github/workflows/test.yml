@@ -84,12 +84,6 @@ jobs:
         run: |
           sudo apt-get update
           apt_packages=(
-            libegl1-mesa \
-            libx11-xcb-dev \
-            '^libxcb.*-dev' \
-            libxkbcommon-x11-0 \
-            libxml2-dev \
-            libxslt1-dev \
             xvfb # For Cypress and pytest-xvfb
           )
           sudo apt-get install "${apt_packages[@]}"
