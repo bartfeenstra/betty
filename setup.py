@@ -76,6 +76,7 @@ SETUP = {
             'pytest-cov ~= 4.0, >= 4.0.0',
             'pytest-mock ~= 3.10, >= 3.10.0',
             'pytest-qt ~= 4.2, >= 4.2.0',
+            'pytest-xdist ~= 3.2, >=3.2.1',
             'pytest-xvfb ~= 2.0, >= 2.0.0',
             'setuptools ~= 67.7, >= 67.7.2',
             'twine ~= 4.0, >= 4.0.0',

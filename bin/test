@@ -23,7 +23,7 @@ done < <(find ./ -name .eslintrc.yaml)
 
 # Run Python tests with coverage.
 coverage erase
-PYTHONWARNINGS='error:::betty[.*]' coverage run --append -m pytest
+PYTHONWARNINGS='error:::betty[.*]' pytest --cov-append -n auto --dist loadscope
 coverage report -m
 
 # Run end-to-end (e2e) tests.
