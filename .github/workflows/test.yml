@@ -85,6 +85,8 @@ jobs:
           sudo apt-get update
           apt_packages=(
             libegl1-mesa # For Qt
+            libx11-xcb-dev # For Qt
+            '^libxcb.*-dev' # For Qt
             libxkbcommon-x11-0 # For Qt
             xvfb # For Cypress and pytest-xvfb
           )
