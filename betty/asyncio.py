@@ -1,45 +1,40 @@
+from __future__ import annotations
+
 import asyncio
-import inspect
 import sys
 from asyncio import events, coroutines
 from asyncio.runners import _cancel_all_tasks  # type: ignore
-from contextlib import suppress
 from functools import wraps
 from threading import Thread
-from typing import Any
+from typing import Callable, Awaitable, TypeVar, Generic, cast
+
+try:
+    from typing_extensions import ParamSpec
+except ModuleNotFoundError:
+    from typing import ParamSpec  # type: ignore
 
 
-def _sync_function(f):
+P = ParamSpec('P')
+T = TypeVar('T')
+
+
+def wait(f: Awaitable[T]) -> T:
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        return _run(f)
+    else:
+        synced = _SyncedAwaitable(f)
+        synced.start()
+        synced.join()
+        return synced.return_value
+
+
+def sync(f: Callable[P, Awaitable[T]]) -> Callable[P, T]:
     @wraps(f)
     def _synced(*args, **kwargs):
-        return sync(f(*args, **kwargs))
+        return wait(f(*args, **kwargs))
     return _synced
-
-
-def sync(f):
-    if inspect.iscoroutine(f):
-        try:
-            running_loop = asyncio.get_running_loop()
-        except RuntimeError:
-            running_loop = None
-
-        if running_loop:
-            synced = _SyncedAwaitable(f)
-            synced.start()
-            return synced.join()
-
-        return _run(f)
-
-    if inspect.iscoroutinefunction(f):
-        return _sync_function(f)
-
-    if callable(f):
-        with suppress(AttributeError):
-            if inspect.iscoroutinefunction(getattr(f, '__call__')):
-                return _sync_function(f)
-        return f
-
-    raise ValueError('Can only synchronize coroutine callables (`async def`) or coroutines (values returned by `async def`), or pass through synchronous callables, but "%s" was given.' % f)
 
 
 def _run(main, *, debug=None):
@@ -72,12 +67,18 @@ def _run(main, *, debug=None):
             loop.close()
 
 
-class _SyncedAwaitable(Thread):
-    def __init__(self, awaitable):
+class _SyncedAwaitable(Thread, Generic[T]):
+    def __init__(self, awaitable: Awaitable[T]):
         super().__init__()
         self._awaitable = awaitable
-        self._return_value = None
-        self._e = None
+        self._return_value: T | None = None
+        self._e: BaseException | None = None
+
+    @property
+    def return_value(self) -> T:
+        if self._e:
+            raise self._e
+        return cast(T, self._return_value)
 
     @sync
     async def run(self) -> None:
@@ -85,9 +86,3 @@ class _SyncedAwaitable(Thread):
             self._return_value = await self._awaitable
         except BaseException as e:
             self._e = e
-
-    def join(self, *args, **kwargs) -> Any:
-        super().join(*args, **kwargs)
-        if self._e:
-            raise self._e
-        return self._return_value

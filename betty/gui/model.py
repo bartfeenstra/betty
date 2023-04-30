@@ -1,4 +1,4 @@
-from typing import Optional, Callable, List, TYPE_CHECKING
+from typing import Optional, Callable, List, TYPE_CHECKING, cast, Iterator
 
 from PyQt6.QtWidgets import QFormLayout, QLabel, QComboBox, QLineEdit, QWidget, QPushButton, QVBoxLayout, QHBoxLayout
 
@@ -31,10 +31,11 @@ class EntityReferenceCollector(LocalizedWidget):
             self._entity_type = QComboBox()
             self._entity_type.currentIndexChanged.connect(_update_entity_type)  # type: ignore
             # @todo We use translated labels, and sort by them, but neither is reactive.
-            for i, entity_type in enumerate(sorted(filter(
-                    lambda entity_type: isinstance(entity_type, UserFacingEntity),
-                    self._app.entity_types,
-            ), key=lambda entity_type: entity_type.entity_type_label())):
+            entity_types = enumerate(sorted(cast(Iterator[UserFacingEntity], filter(
+                lambda entity_type: issubclass(entity_type, UserFacingEntity),
+                self._app.entity_types,
+            )), key=lambda entity_type: entity_type.entity_type_label()))
+            for i, entity_type in entity_types:
                 self._entity_type.addItem(entity_type.entity_type_label(), entity_type)
                 if entity_type == self._entity_reference.entity_type:
                     self._entity_type.setCurrentIndex(i)
