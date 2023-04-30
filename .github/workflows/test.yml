@@ -89,7 +89,6 @@ jobs:
             '^libxcb.*-dev' # For Qt
             libxkbcommon-x11-0 # For Qt
             libxml2-dev # For Qt
-            libxslt1-dev # For Qt
             xvfb # For Cypress and pytest-xvfb
           )
           sudo apt-get install "${apt_packages[@]}"
