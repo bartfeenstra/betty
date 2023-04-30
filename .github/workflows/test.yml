@@ -84,6 +84,7 @@ jobs:
         run: |
           sudo apt-get update
           apt_packages=(
+            libegl1-mesa # For pytest-xvfb
             xvfb # For Cypress and pytest-xvfb
           )
           sudo apt-get install "${apt_packages[@]}"
