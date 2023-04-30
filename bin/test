@@ -27,7 +27,7 @@ PYTHONWARNINGS='error:::betty[.*]' coverage run --append -m pytest
 coverage report -m
 
 # Run end-to-end (e2e) tests.
-#./node_modules/.bin/cypress run
+./node_modules/.bin/cypress run
 
 # Test the built Python packages.
 PACKAGE_COMMANDS=(./bin/build-pyinstaller ./bin/build-setuptools)

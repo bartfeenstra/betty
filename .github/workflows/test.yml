@@ -84,10 +84,20 @@ jobs:
         run: |
           sudo apt-get update
           apt_packages=(
+            libasound2 # For Cypress
             libegl1-mesa # For Qt
+            libgbm-dev # For Cypress
+            libgconf-2-4 # For Cypress
+            libgtk2.0-0 # For Cypress
+            libgtk-3-0 # For Cypress
+            libnotify-dev # For Cypress
+            libnss3 # For Cypress
             libx11-xcb-dev # For Qt
             '^libxcb.*-dev' # For Qt
             libxkbcommon-x11-0 # For Qt
+            libxss1 # For Cypress
+            libxtst6 # For Cypress
+            xauth # For Cypress
             xvfb # For Cypress and pytest-xvfb
           )
           sudo apt-get install "${apt_packages[@]}"
