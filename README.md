@@ -279,6 +279,10 @@ directory.
 - [Node.js](https://nodejs.org/)
 - [ShellCheck](https://www.shellcheck.net/)
 - [Xvfb](https://x.org/releases/X11R7.7/doc/man/man1/Xvfb.1.xhtml)
+- The Cypress 
+  [system requirements](https://docs.cypress.io/guides/getting-started/installing-cypress#System-requirements) and 
+  [individual packages](https://docs.cypress.io/guides/continuous-integration/introduction#Dependencies) (headless Linux
+ only)
 - Bash
 
 ### Installation
