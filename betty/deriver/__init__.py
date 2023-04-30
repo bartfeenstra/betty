@@ -32,8 +32,8 @@ class Deriver(UserFacingExtension, PostLoader):
     async def derive(self, ancestry: Ancestry) -> None:
         logger = logging.getLogger()
         for event_type_type in self.app.event_types:
-            event_type = event_type_type()
-            if isinstance(event_type, DerivableEventType):
+            if issubclass(event_type_type, DerivableEventType):
+                event_type = event_type_type()
                 created_derivations = 0
                 updated_derivations = 0
                 for person in ancestry.entities[Person]:
