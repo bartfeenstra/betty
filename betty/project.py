@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Type, List, Any, Sequence, cast, Iterator, Generic, MutableMapping
 from urllib.parse import urlparse
 
-from babel.core import parse_locale, Locale
+from babel.core import parse_locale
 from reactives import scope
 from reactives.instance.property import reactive_property
 
@@ -18,7 +18,7 @@ from betty.config.dump import minimize, minimize_dict
 from betty.config.load import ConfigurationValidationError, Loader, Field
 from betty.config.validate import validate_positive_number
 from betty.importlib import import_any
-from betty.locale import bcp_47_to_rfc_1766
+from betty.locale import bcp_47_to_rfc_1766, get_display_name
 from betty.model import Entity, get_entity_type_name, UserFacingEntity, get_entity_type as model_get_entity_type, \
     EntityTypeImportError, EntityTypeInvalidError, EntityTypeError, EntityT
 from betty.model.ancestry import Ancestry, Person, Event, Place, Source
@@ -391,7 +391,7 @@ class LocaleConfigurationCollection(Configuration):
 
     def __delitem__(self, locale: str) -> None:
         if len(self._configurations) <= 1:
-            raise ConfigurationValidationError(_('Cannot remove the last remaining locale {locale}').format(locale=Locale.parse(bcp_47_to_rfc_1766(locale)).get_display_name()))
+            raise ConfigurationValidationError(_('Cannot remove the last remaining locale {locale}').format(locale=get_display_name(locale)))
         del self._configurations[locale]
         self.react.trigger()
 

@@ -2,14 +2,13 @@ from typing import Set, TYPE_CHECKING, List, Tuple
 
 from PyQt6 import QtGui
 from PyQt6.QtWidgets import QComboBox, QLabel, QWidget, QMainWindow
-from babel.core import Locale
 from reactives.instance import ReactiveInstance
 from reactives.instance.method import reactive_method
 
 from betty.app import App
 from betty.classtools import Repr
 from betty.gui.text import Caption
-from betty.locale import bcp_47_to_rfc_1766, negotiate_locale
+from betty.locale import negotiate_locale, get_display_name
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -23,7 +22,10 @@ class TranslationsLocaleCollector(ReactiveInstance):
 
         allowed_locale_names: List[Tuple[str, str]] = []
         for allowed_locale in allowed_locales:
-            allowed_locale_names.append((allowed_locale, Locale.parse(bcp_47_to_rfc_1766(allowed_locale)).get_display_name()))
+            allowed_locale_names.append((
+                allowed_locale,
+                get_display_name(allowed_locale),
+            ))
         allowed_locale_names = sorted(allowed_locale_names, key=lambda x: x[1])
 
         def _update_configuration_locale() -> None:
@@ -62,9 +64,7 @@ class TranslationsLocaleCollector(ReactiveInstance):
                 )
                 if translations_locale is None:
                     self._configuration_locale_caption.setText(_('There are no translations for {locale_name}.').format(
-                        locale_name=Locale.parse(bcp_47_to_rfc_1766(locale)).get_display_name(
-                            locale=bcp_47_to_rfc_1766(self._app.locale),
-                        ),
+                        locale_name=get_display_name(locale, self._app.locale),
                     ))
                 else:
                     negotiated_locale_translations_coverage = self._app.translations.coverage(translations_locale)
@@ -73,7 +73,7 @@ class TranslationsLocaleCollector(ReactiveInstance):
                     else:
                         negotiated_locale_translations_coverage_percentage = round(100 / (negotiated_locale_translations_coverage[1] / negotiated_locale_translations_coverage[0]))
                     self._configuration_locale_caption.setText(_('The translations for {locale_name} are {coverage_percentage}% complete.').format(
-                        locale_name=Locale.parse(bcp_47_to_rfc_1766(translations_locale)).get_display_name(locale=bcp_47_to_rfc_1766(self._app.locale)),
+                        locale_name=get_display_name(translations_locale, self._app.locale),
                         coverage_percentage=round(negotiated_locale_translations_coverage_percentage)
                     ))
 
