@@ -4,41 +4,12 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
-# Lint the shell scripts.
-for file in ./bin/*; do
-    shellcheck -x "$file"
-done
-
-# Test the Python code style.
-flake8 --config ./flake8.ini ./betty
-mypy
-
-# Test the CSS code style.
-./node_modules/.bin/stylelint "./betty/**/*.css"
-
-# Test the JS code style.
-while read -r configuration_path; do
-    ./node_modules/.bin/eslint -c "$configuration_path" "$(dirname "${configuration_path}")/**/*.js"
-done < <(find ./ -name .eslintrc.yaml)
-
-# Run Python tests with coverage.
-coverage erase
-PYTHONWARNINGS='error:::betty[.*]' coverage run --append -m pytest
-coverage report -m
-
-# Run end-to-end (e2e) tests.
-./node_modules/.bin/cypress run
-
-# Test the built Python packages.
-PACKAGE_COMMANDS=(./bin/build-pyinstaller ./bin/build-setuptools)
-for package_command in "${PACKAGE_COMMANDS[@]}"; do
-  echo "Testing package build command $package_command..."
-  set +e
-  build_output="$($package_command 2>&1)"
-  build_exit_code=$?
-  set -e
-  if [ $build_exit_code -ne 0 ]; then
-    echo "$build_output"
-    exit $build_exit_code
-  fi
-done
+./bin/test-shellcheck
+./bin/test-flake8
+./bin/test-mypy
+./bin/test-stylelint
+./bin/test-eslint
+./bin/test-pytest
+./bin/test-cypress
+./bin/test-build-pyinstaller
+./bin/test-build-setuptools
