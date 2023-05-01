@@ -12,7 +12,7 @@ from betty.string import camel_case_to_kebab_case
 
 
 class ContentNegotiationUrlGenerator:
-    def generate(self, resource: Any, media_type: str, absolute: bool = False) -> str:
+    def generate(self, resource: Any, media_type: str, absolute: bool = False, locale: str | None = None) -> str:
         raise NotImplementedError
 
 
@@ -25,7 +25,7 @@ class ContentNegotiationPathUrlGenerator(ContentNegotiationUrlGenerator):
     def __init__(self, app: App):
         self._app = app
 
-    def generate(self, resource: Any, media_type: str, absolute: bool = False) -> str:
+    def generate(self, resource: Any, media_type: str, absolute: bool = False, locale: str | None = None) -> str:
         return _generate_from_path(self._app.project.configuration, resource, absolute, self._app.locale)
 
 

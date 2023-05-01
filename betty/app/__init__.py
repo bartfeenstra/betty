@@ -3,13 +3,11 @@ from __future__ import annotations
 import weakref
 from concurrent.futures._base import Executor
 from concurrent.futures.thread import ThreadPoolExecutor
-from contextlib import contextmanager, ExitStack, suppress
-from gettext import NullTranslations
+from contextlib import contextmanager, suppress
 from pathlib import Path
 from typing import List, Type, TYPE_CHECKING, Set, Iterator, Optional, Callable
 
 import aiohttp
-from babel.core import parse_locale
 from babel.localedata import locale_identifiers
 from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
@@ -22,7 +20,7 @@ from betty.config import FileBasedConfiguration, DumpedConfigurationImport, Conf
 from betty.config.load import ConfigurationValidationError, Loader, Field
 from betty.dispatch import Dispatcher
 from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH, HOME_DIRECTORY_PATH
-from betty.locale import negotiate_locale, TranslationsRepository, Translations, rfc_1766_to_bcp_47, bcp_47_to_rfc_1766
+from betty.locale import negotiate_locale, TranslationsRepository, Translations, get_data
 from betty.lock import Locks
 from betty.model import Entity, EntityTypeProvider
 from betty.model.ancestry import Citation, Event, File, Person, PersonName, Presence, Place, Enclosure, \
@@ -86,7 +84,7 @@ class AppConfiguration(FileBasedConfiguration):
     @locale.setter
     def locale(self, locale: str) -> None:
         try:
-            parse_locale(bcp_47_to_rfc_1766(locale))
+            get_data(locale)
         except ValueError:
             raise ConfigurationValidationError(_('{locale} is not a valid IETF BCP 47 language tag.').format(locale=locale))
         self._locale = locale
@@ -165,6 +163,17 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         # @todo
         # @todo What about a lock that is both threadsafe and asyncsafe?
         # @todo Really, what we want is when changing a locale, to PAUSE EVERYTHING ELSE NOT IN THE CURRENT EXECUTION PATH
+        # @todo
+        # @todo The internet says Python stdlib's locale module is bad. Can we do without?
+        # @todo For instance, does Babel do any kind of localization we'd need?
+        # @todo
+        # @todo Babel: https://babel.pocoo.org/en/latest/api/core.html
+        # @todo C locales: https://www.man7.org/linux/man-pages/man3/setlocale.3.html
+        # @todo Common fields:
+        # @todo - language
+        # @todo - territory
+        # @todo - modifier
+        # @todo
         # @todo
         if not requested_locales:
             requested_locales = (self.configuration.locale,)

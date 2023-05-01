@@ -25,7 +25,7 @@ from betty.gui.locale import TranslationsLocaleCollector
 from betty.gui.logging import LogRecordViewerHandler, LogRecordViewer
 from betty.gui.serve import ServeAppWindow
 from betty.gui.text import Text, Caption
-from betty.locale import rfc_1766_to_bcp_47, get_display_name
+from betty.locale import get_display_name
 from betty.model import UserFacingEntity
 from betty.project import LocaleConfiguration
 

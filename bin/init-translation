@@ -6,7 +6,7 @@ cd "$(dirname "$0")/.."
 
 locale=$(echo "$1" | tr '-' '_')
 
-if [ -f "./betty/assets/locale/$locale/LC_MESSAGES/betty.po" ]; then
+if [ -f "./betty/assets/locale/$locale/betty.po" ]; then
   exit 0
 fi
 

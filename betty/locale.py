@@ -1,24 +1,22 @@
 from __future__ import annotations
 
-import builtins
 import calendar
 import contextlib
 import datetime
 import glob
 import operator
 import shutil
-import threading
-from collections import defaultdict
 from contextlib import suppress
 from functools import total_ordering
 from gettext import NullTranslations, GNUTranslations
 from io import StringIO
 from pathlib import Path
-from typing import Optional, Tuple, Union, List, Dict, Callable, Any, Iterator, Set, Sequence, TYPE_CHECKING
+from typing import Optional, Tuple, Union, Dict, Any, Iterator, Set, Sequence, TYPE_CHECKING
 
 import babel
-from babel import dates, Locale
+from babel import dates, Locale, UnknownLocaleError
 from babel.messages.frontend import CommandLineInterface
+from langcodes import Language
 from polib import pofile
 
 from betty import fs
@@ -28,21 +26,29 @@ if TYPE_CHECKING:
     from betty.builtins import _
 
 
-def rfc_1766_to_bcp_47(locale: str) -> str:
-    return locale.replace('_', '-')
+class LocaleNotFoundError(RuntimeError):
+    pass
 
 
-def bcp_47_to_rfc_1766(locale: str) -> str:
-    return locale.replace('-', '_')
+def get_data(locale: str) -> Locale:
+    # @todo Is there a way to aprse BCP 47 language tags into their constituent components without requiring yet another
+    #  dependency?
+    language_data = Language.get(locale)
+    try:
+        return Locale(
+            language_data.language,
+            language_data.territory,
+            language_data.script
+        )
+    except UnknownLocaleError as e:
+        raise LocaleNotFoundError from e
 
 
 def get_display_name(locale: str, display_locale: str | None = None) -> str:
-    locale_rfc_1766 = bcp_47_to_rfc_1766(locale)
-    babel_locale = Locale.parse(locale_rfc_1766)
+    locale_data = get_data(locale)
     if display_locale:
-        display_locale = bcp_47_to_rfc_1766(display_locale)
-
-    return babel_locale.get_display_name(display_locale) or babel_locale.get_display_name(locale_rfc_1766) or locale
+        return locale_data.get_display_name(get_data(display_locale))
+    return locale_data.get_display_name(locale_data)
 
 
 class Localized:
@@ -313,7 +319,7 @@ class TranslationsRepository:
     def locales(self) -> Iterator[str]:
         yield 'en-US'
         for assets_directory_path, __ in reversed(self._assets.paths):
-            for po_file_path in glob.glob(str(assets_directory_path / 'locale' / '*' / 'LC_MESSAGES' / 'betty.po')):
+            for po_file_path in glob.glob(str(assets_directory_path / 'locale' / '*' / 'betty.po')):
                 yield rfc_1766_to_bcp_47(Path(po_file_path).parents[1].name)
 
     def __getitem__(self, locale: Any) -> Translations:
@@ -337,14 +343,13 @@ class TranslationsRepository:
         return self._translations[locale]
 
     def _open_translations(self, locale: str, assets_directory_path: Path) -> Optional[GNUTranslations]:
-        locale_path_name = bcp_47_to_rfc_1766(locale)
-        po_file_path = assets_directory_path / 'locale' / locale_path_name / 'LC_MESSAGES' / 'betty.po'
+        po_file_path = assets_directory_path / 'locale' / locale / 'betty.po'
         try:
             translation_version = hashfile(po_file_path)
         except FileNotFoundError:
             return None
         translation_cache_directory_path = fs.CACHE_DIRECTORY_PATH / 'translations' / translation_version
-        cache_directory_path = translation_cache_directory_path / locale_path_name / 'LC_MESSAGES'
+        cache_directory_path = translation_cache_directory_path / locale
         mo_file_path = cache_directory_path / 'betty.mo'
 
         with suppress(FileNotFoundError):
@@ -356,7 +361,8 @@ class TranslationsRepository:
             shutil.copyfile(po_file_path, cache_directory_path / 'betty.po')
 
         with contextlib.redirect_stdout(StringIO()):
-            CommandLineInterface().run(['', 'compile', '-d', translation_cache_directory_path, '-l', locale_path_name, '-D', 'betty'])
+            # @todo Is the locale used in this command in the correct format?
+            CommandLineInterface().run(['', 'compile', '-d', translation_cache_directory_path, '-l', locale, '-D', 'betty'])
         with open(mo_file_path, 'rb') as f:
             return GNUTranslations(f)
 
@@ -375,7 +381,7 @@ class TranslationsRepository:
     def _get_translations(self, locale: str) -> Iterator[str]:
         for assets_directory_path, __ in reversed(self._assets.paths):
             with suppress(FileNotFoundError):
-                with open(assets_directory_path / 'locale' / bcp_47_to_rfc_1766(locale) / 'LC_MESSAGES' / 'betty.po') as f:
+                with open(assets_directory_path / 'locale' / locale / 'betty.po') as f:
                     for entry in pofile(f.read()):
                         if entry.translated():
                             yield entry.msgid_with_context

@@ -296,8 +296,8 @@ Run `./bin/extract-translatables` to update the translations files with the chan
 
 #### Adding translations for a language for which no translations exist yet
 
-Run `./bin/init-translation $locale` where `$locale` is a
-[IETF BCP 47](https://tools.ietf.org/html/bcp47), but using underscores instead of dashes (`nl_NL` instead of `nl-NL`).
+Run `./bin/init-translation $locale` where `$locale` is an
+[IETF BCP 47 language tag](https://tools.ietf.org/html/bcp47).
 
 #### Updating the translations for a language
 
@@ -305,8 +305,7 @@ First, install a PO file editor on your system. Any will do, but if you don't wa
 [Poedit](https://poedit.net/) is a good and free editor to start with.
 
 Then, with this PO file editor, open and change the `*.po` file for the translations you want to change. For Dutch
-(Netherlands), that is
-[`./betty/assets/locale/nl_NL/LC_MESSAGES/betty.po`](./betty/assets/locale/nl_NL/LC_MESSAGES/betty.po), for example.
+(Netherlands), that is [`./betty/assets/locale/nl-NL/betty.po`](betty/assets/locale/nl-NL/betty.po), for example.
 
 ### Testing
 

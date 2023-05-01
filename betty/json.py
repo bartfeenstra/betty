@@ -14,7 +14,9 @@ from betty.media_type import MediaType
 from betty.model import Entity, get_entity_type_name, GeneratedEntityId
 from betty.model.ancestry import Place, Person, PlaceName, Event, Described, HasLinks, HasCitations, Link, Dated, File, \
     Note, PersonName, HasMediaType, PresenceRole, EventType, Citation, Source
+from betty.project import LocaleConfigurationCollection
 from betty.string import upper_camel_case_to_lower_camel_case
+from betty.url import StaticUrlGenerator, ContentNegotiationUrlGenerator
 
 
 def validate(data: Any, schema_definition: str, app: App) -> None:
@@ -30,9 +32,18 @@ def validate(data: Any, schema_definition: str, app: App) -> None:
 
 
 class JSONEncoder(stdjson.JSONEncoder):
-    def __init__(self, app: App, *args, **kwargs):
+    def __init__(
+        self,
+        locales: LocaleConfigurationCollection,
+        url_generator: ContentNegotiationUrlGenerator,
+        static_url_generator: StaticUrlGenerator,
+        *args,
+        **kwargs,
+    ):
         stdjson.JSONEncoder.__init__(self, *args, **kwargs)
-        self._app = app
+        self._locales = locales
+        self._url_generator = url_generator
+        self._static_url_generator = static_url_generator
         self._mappers: Dict[Type, Callable[[Any], Any]] = {
             Path: str,
             PlaceName: self._encode_localized_name,
@@ -60,10 +71,10 @@ class JSONEncoder(stdjson.JSONEncoder):
         stdjson.JSONEncoder.default(self, o)
 
     def _generate_url(self, resource: Any, media_type='application/json'):
-        return self._app.url_generator.generate(resource, media_type)
+        return self._url_generator.generate(resource, media_type)
 
     def _encode_schema(self, encoded: Dict, defintion: str) -> None:
-        encoded['$schema'] = self._app.static_url_generator.generate(
+        encoded['$schema'] = self._static_url_generator.generate(
             'schema.json#/definitions/%s' % defintion)
 
     @sync
@@ -82,11 +93,10 @@ class JSONEncoder(stdjson.JSONEncoder):
             encoded['links'].append(canonical)
 
             link_urls = [link.url for link in encoded['links']]
-            for locale_configuration in self._app.project.configuration.locales:
+            for locale_configuration in self._project.configuration.locales:
                 if locale_configuration.locale == self._app.locale:
                     continue
-                with self._app.acquire_locale(locale_configuration.locale) as localized_app:
-                    link_url = localized_app.json_encoder._generate_url(entity)
+                link_url = self._generate_url(entity, locale=locale_configuration.locale)
                 if link_url in link_urls:
                     continue
                 link_urls.append(link_url)
@@ -99,14 +109,6 @@ class JSONEncoder(stdjson.JSONEncoder):
             html.relationship = 'alternate'
             html.media_type = MediaType('text/html')
             encoded['links'].append(html)
-
-    async def _encode_entity_(self, encoded: Dict, entity: Entity) -> None:
-        with self._app.acquire_locale(locale_configuration.locale) as localized_app:
-            link_url = localized_app.json_encoder._generate_url(entity)
-            if link_url in link_urls:
-                continue
-            link_urls.append(link_url)
-            translation = Link(link_url)
 
     def _encode_described(self, encoded: Dict, described: Described) -> None:
         if described.description is not None:

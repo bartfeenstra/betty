@@ -52,6 +52,7 @@ SETUP = {
         'graphlib-backport ~= 1.0, >= 1.0.3; python_version < "3.9"',
         'jinja2 ~= 3.1, >= 3.1.1',
         'jsonschema ~= 4.17, >= 4.17.0',
+        'langcodes ~= 3.3, >= 3.3.0',
         'markupsafe ~= 2.1, >= 2.1.1',
         'pdf2image ~= 1.16, >= 1.16.0',
         'polib ~= 1.2, >= 1.2.0',

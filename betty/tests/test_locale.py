@@ -491,12 +491,11 @@ class TestFormatDatey:
 class TestTranslationsRepository:
     def test_getitem(self) -> None:
         locale = 'nl-NL'
-        locale_path_name = 'nl_NL'
         with TemporaryDirectory() as assets_directory_path_str:
             fs = FileSystem((assets_directory_path_str, None))
             sut = TranslationsRepository(fs)
             assets_directory_path = Path(assets_directory_path_str)
-            lc_messages_directory_path = assets_directory_path / 'locale' / locale_path_name / 'LC_MESSAGES'
+            lc_messages_directory_path = assets_directory_path / 'locale' / locale
             lc_messages_directory_path.mkdir(parents=True)
             po = """
 # Dutch translations for PROJECT.

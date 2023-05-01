@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Type, List, Any, Sequence, cast, Iterator, Generic, MutableMapping
 from urllib.parse import urlparse
 
-from babel.core import parse_locale
 from reactives import scope
 from reactives.instance.property import reactive_property
 
@@ -18,7 +17,7 @@ from betty.config.dump import minimize, minimize_dict
 from betty.config.load import ConfigurationValidationError, Loader, Field
 from betty.config.validate import validate_positive_number
 from betty.importlib import import_any
-from betty.locale import bcp_47_to_rfc_1766, get_display_name
+from betty.locale import get_display_name, LocaleNotFoundError, get_data
 from betty.model import Entity, get_entity_type_name, UserFacingEntity, get_entity_type as model_get_entity_type, \
     EntityTypeImportError, EntityTypeInvalidError, EntityTypeError, EntityT
 from betty.model.ancestry import Ancestry, Person, Event, Place, Source
@@ -457,12 +456,8 @@ class LocaleConfigurationCollection(Configuration):
             ) as (dumped_locale, valid):
                 if valid:
                     try:
-                        parse_locale(
-                            bcp_47_to_rfc_1766(
-                                dumped_locale,  # type: ignore
-                            ),
-                        )
-                    except ValueError:
+                        get_data(dumped_locale)
+                    except LocaleNotFoundError:
                         loader.error(ConfigurationValidationError(_('{locale} is not a valid IETF BCP 47 language tag.').format(locale=dumped_locale)))
                     else:
                         loader.on_commit(lambda: self.add(LocaleConfiguration(
