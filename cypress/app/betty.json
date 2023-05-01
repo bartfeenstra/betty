@@ -1,0 +1,1 @@
+{"base_url":"https://example.com","root_path":"/cypress/app/output/www","extensions":{"betty.cotton_candy.CottonCandy":{},"betty.gramps.Gramps":{"enabled":true,"configuration":{"family_trees":[{"file":"/home/bart/code/bartfeenstra/betty/cypress/app/gramps.xml"}]}}}}
