@@ -11,10 +11,7 @@ from betty.lock import Locks
 from betty.render import Renderer, SequentialRenderer
 from betty.sass import SassRenderer
 
-try:
-    from contextlib import AsyncExitStack
-except ImportError:
-    from async_exit_stack import AsyncExitStack
+from contextlib import AsyncExitStack
 from copy import copy
 from os.path import abspath, dirname, join
 from typing import Type, Dict

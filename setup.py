@@ -26,7 +26,6 @@ SETUP = {
     'url': 'https://github.com/bartfeenstra/betty',
     'classifiers': [
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
@@ -41,11 +40,9 @@ SETUP = {
         'Natural Language :: English',
         'Natural Language :: Ukrainian',
     ],
-    'python_requires': '~= 3.6',
+    'python_requires': '~= 3.7',
     'install_requires': [
         'aiohttp ~= 3.7',
-        'async-exit-stack ~= 1.0; python_version <= "3.6"',
-        'async_generator ~= 1.10; python_version <= "3.6"',
         'babel ~= 2.9',
         'click ~= 7.1',
         'docker ~= 4.4',
@@ -73,8 +70,8 @@ SETUP = {
             'nose2 ~= 0.9',
             'parameterized ~= 0.7',
             'setuptools ~= 50.3',
-            'twine ~= 3.2',
-            'wheel ~= 0.36',
+            'twine ~= 4.0, >= 4.0.0',
+            'wheel ~= 0.40, >= 0.40.0',
         ],
     },
     'entry_points': {

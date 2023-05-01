@@ -21,10 +21,6 @@ jobs:
             os: ubuntu-latest
             python: '3.7'
             node: '15'
-          - name: 'Python 3.6'
-            os: ubuntu-latest
-            python: '3.6'
-            node: '15'
           - name: 'Node.js 16'
             os: ubuntu-latest
             python: '3.9'
@@ -52,15 +48,38 @@ jobs:
 
     steps:
       - name: Check out the source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+
+      - name: Get the pip cache directory
+        run: echo "pip_cache_dir=$(pip cache dir)" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.pip_cache_dir }}
+          key: pip-${{ runner.os }}-${{ matrix.python }}-${{ hashFiles('./setup.py') }}
+          restore-keys: |
+            pip-${{ runner.os }}-${{ matrix.python }}-
+      - name: Get the npm cache directory
+        run: echo "npm_cache_dir=$(npm config get cache)" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Cache npm
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.npm_cache_dir }}
+          key: npm-${{ runner.os }}-${{ hashFiles('./package.json') }}
+          restore-keys: |
+            npm-${{ runner.os }}-
 
       - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
 
       - name: Set up Node.js ${{ matrix.node }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
 
@@ -77,35 +96,8 @@ jobs:
         run: choco install shellcheck
 
       - name: Build the development environment
-        run: |
-          ./bin/build-dev
+        run: ./bin/build-dev
         shell: bash
-
-      - name: Get the pip cache directory path
-        id: pip-cache
-        run: |
-          echo "::set-output name=dir::$(pip cache dir)"
-
-      - name: Cache the pip cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.pip-cache.outputs.dir }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      - name: Get the npm cache directory path
-        id: npm-cache
-        run: |
-          echo "::set-output name=dir::$(npm config get cache)"
-
-      - name: Cache the npm cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.npm-cache.outputs.dir }}
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
 
       - name: Run the tests
         run: |
@@ -113,4 +105,4 @@ jobs:
         shell: bash
 
       - name: Upload code coverage
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
