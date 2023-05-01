@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+cd "$(dirname "$0")/.."
+
+echo 'Running ESLint...'
+
+while read -r configuration_path; do
+    npm run eslint -- -c "$configuration_path" "$(dirname "${configuration_path}")/**/*.js"
+done < <(find ./ -name .eslintrc.yaml)
