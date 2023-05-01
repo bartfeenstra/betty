@@ -6,8 +6,8 @@ import re
 import warnings
 from contextlib import suppress
 from pathlib import Path
-from typing import Dict, Callable, Iterable, Type, Optional, Any, Union, Iterator, ContextManager, cast, \
-    AsyncContextManager, MutableMapping, List, TYPE_CHECKING
+from typing import Dict, Callable, Iterable, Type, Optional, Any, Union, Iterator, cast, MutableMapping, List, \
+    TYPE_CHECKING
 
 import aiofiles
 import pdf2image
@@ -16,9 +16,7 @@ from PIL.Image import DecompressionBombWarning
 from geopy import units
 from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment as Jinja2Environment, select_autoescape, FileSystemLoader, pass_context, \
-    pass_eval_context, Template, \
-    nodes, TemplateNotFound
-from jinja2.ext import Extension
+    pass_eval_context, Template, TemplateNotFound
 from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.nodes import EvalContext
 from jinja2.runtime import StrictUndefined, Context, Macro, DebugUndefined
@@ -27,7 +25,6 @@ from markupsafe import Markup, escape
 
 from betty import _resizeimage
 from betty.app import App
-from betty.asyncio import sync
 from betty.fs import hashfile, iterfiles, CACHE_DIRECTORY_PATH
 from betty.functools import walk
 from betty.html import CssProvider, JsProvider
@@ -78,35 +75,6 @@ class Jinja2Provider:
         return {}
 
 
-class _ContextManagerExtension(Extension):
-    tags = {'enter'}
-
-    def parse(self, parser):
-        lineno = next(parser.stream).lineno
-        context = parser.parse_expression()
-        body = parser.parse_statements(('name:exit',), drop_needle=True)
-        return nodes.CallBlock(
-            self.call_method('_enter_context', [context]),
-            [],
-            [],
-            body,
-        ).set_lineno(lineno)
-
-    def _enter_context(self, context: ContextManager, caller):
-        if hasattr(context, '__aenter__'):
-            return self._enter_async_context(cast(AsyncContextManager, context), caller)
-        return self._enter_sync_context(context, caller)
-
-    def _enter_sync_context(self, context: ContextManager, caller):
-        with context:
-            return caller()
-
-    @sync
-    async def _enter_async_context(self, context: AsyncContextManager, caller):
-        async with context:
-            return caller()
-
-
 class Environment(Jinja2Environment):
     def __init__(self, app: App):
         template_directory_paths = [str(path / 'templates') for path, _ in app.assets.paths]
@@ -117,7 +85,6 @@ class Environment(Jinja2Environment):
                          extensions=[
                              'jinja2.ext.do',
                              'jinja2.ext.i18n',
-                             'betty.jinja2._ContextManagerExtension',
         ],
         )
 

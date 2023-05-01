@@ -348,7 +348,13 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
 
     @property
     def json_encoder(self) -> Callable[[], JSONEncoder]:
-        return lambda *args, **kwargs: JSONEncoder(self, *args, **kwargs)
+        return lambda *args, **kwargs: JSONEncoder(
+            self.project.configuration.locales,
+            self.url_generator,
+            self.static_url_generator,
+            *args,
+            **kwargs,
+        )
 
     @property
     def locks(self) -> Locks:

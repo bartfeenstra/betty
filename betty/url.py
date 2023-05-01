@@ -26,7 +26,12 @@ class ContentNegotiationPathUrlGenerator(ContentNegotiationUrlGenerator):
         self._app = app
 
     def generate(self, resource: Any, media_type: str, absolute: bool = False, locale: str | None = None) -> str:
-        return _generate_from_path(self._app.project.configuration, resource, absolute, self._app.locale)
+        return _generate_from_path(
+            self._app.project.configuration,
+            resource,
+            absolute,
+            self._app.locale if locale is None else locale,
+        )
 
 
 class StaticPathUrlGenerator(StaticUrlGenerator):
@@ -43,13 +48,18 @@ class _EntityUrlGenerator(ContentNegotiationUrlGenerator):
         self._entity_type = entity_type
         self._pattern = f'{camel_case_to_kebab_case(get_entity_type_name(entity_type))}/{{entity_id}}/index.{{extension}}'
 
-    def generate(self, entity: UserFacingEntity, media_type: str, absolute: bool = False) -> str:
+    def generate(self, entity: UserFacingEntity, media_type: str, absolute: bool = False, locale: str | None = None) -> str:
         if not isinstance(entity, self._entity_type):
             raise ValueError('%s is not a %s' % (type(entity), self._entity_type))
-        return _generate_from_path(self._app.project.configuration, self._pattern.format(
-            entity_id=entity.id,
-            extension=EXTENSIONS[media_type],
-        ), absolute, self._app.locale)
+        return _generate_from_path(
+            self._app.project.configuration,
+            self._pattern.format(
+                entity_id=entity.id,
+                extension=EXTENSIONS[media_type],
+            ),
+            absolute,
+            self._app.locale if locale is None else locale,
+        )
 
 
 class AppUrlGenerator(ContentNegotiationUrlGenerator):
@@ -63,10 +73,10 @@ class AppUrlGenerator(ContentNegotiationUrlGenerator):
             ContentNegotiationPathUrlGenerator(app),
         ]
 
-    def generate(self, resource: Any, media_type: str, absolute: bool = False) -> str:
+    def generate(self, resource: Any, media_type: str, absolute: bool = False, locale: str | None = None) -> str:
         for generator in self._generators:
             with suppress(ValueError):
-                return generator.generate(resource, media_type, absolute)
+                return generator.generate(resource, media_type, absolute, locale)
         raise ValueError('No URL generator found for %s.' % (
             resource if isinstance(resource, str) else type(resource)))
 

@@ -2,9 +2,7 @@
 <html>
 <head>
     <title>{{ app.project.configuration.title }}</title>
-    {% enter app.acquire_locale(app.project.configuration.locales.default.locale) %}
-        <meta http-equiv="refresh" content="0; url={{ '/index.html' | url }}">
-    {% exit %}
+    <meta http-equiv="refresh" content="0; url={{ '/index.html' | url(locale=app.project.configuration.locales.default.locale) }}">
 </head>
 <body>
 </body>
