@@ -1,7 +1,14 @@
 name: Test
 
 on:
-  - push
+  schedule:
+    - cron: '0 * * * *'
+  pull_request:
+  push:
+    branches:
+      - '*.*.x'
+    tags:
+      - '*'
 
 jobs:
   build:
