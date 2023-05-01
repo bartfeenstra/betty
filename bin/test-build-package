@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+cd "$(dirname "$0")/.."
+
+echo 'Running Setuptools...'
+
+set +e
+build_output="$(./bin/build-package 2>&1)"
+build_exit_code=$?
+set -e
+if [ $build_exit_code -ne 0 ]; then
+  echo "$build_output"
+  exit $build_exit_code
+fi

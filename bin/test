@@ -4,36 +4,10 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
-# Lint the shell scripts.
-for file in ./bin/*; do
-    shellcheck -x "$file"
-done
-
-# Test the Python code style.
-flake8 --config ./flake8.ini ./betty
-
-# Test the CSS code style.
-npm run stylelint -- "./betty/**/*.css" "./betty/**/*.sass" "./betty/**/*.scss"
-
-# Test the JS code style.
-while read -r configuration_path; do
-    npm run eslint -- -c "$configuration_path" "$(dirname "${configuration_path}")/**/*.js"
-done < <(find ./ -name .eslintrc.yaml)
-
-# Run Python unit and integration tests with coverage.
-coverage erase
-PYTHONUTF8=1 coverage run -m nose2
-coverage report -m
-
-# Run end-to-end (e2e) tests.
-npm run cypress -- run
-
-# Test the built Python package.
-set +e
-build_output="$(./bin/build-package 2>&1)"
-build_exit_code=$?
-set -e
-if [ $build_exit_code -ne 0 ]; then
-  echo "$build_output"
-  exit $build_exit_code
-fi
+./bin/test-shellcheck
+./bin/test-flake8
+./bin/test-stylelint
+./bin/test-eslint
+./bin/test-nose2
+./bin/test-cypress
+./bin/test-build-package

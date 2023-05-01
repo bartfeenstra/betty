@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+cd "$(dirname "$0")/.."
+
+echo 'Running nose2...'
+
+coverage erase
+PYTHONUTF8=1 coverage run -m nose2
+coverage report -m
