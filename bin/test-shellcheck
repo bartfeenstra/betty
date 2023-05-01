@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+cd "$(dirname "$0")/.."
+
+echo 'Running ShellCheck...'
+
+for file in ./bin/*; do
+    shellcheck -x "$file"
+done

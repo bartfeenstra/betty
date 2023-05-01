@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+cd "$(dirname "$0")/.."
+
+echo 'Running pytest...'
+
+coverage erase
+PYTHONWARNINGS='error:::betty[.*]' coverage run --append -m pytest
+coverage report -m

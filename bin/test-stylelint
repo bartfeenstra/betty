@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+cd "$(dirname "$0")/.."
+
+echo 'Running Stylelint...'
+
+./node_modules/.bin/stylelint "./betty/**/*.css"
