@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Check out the source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Tag the development release
         run: git tag "$(git rev-parse --abbrev-ref HEAD)-dev"
