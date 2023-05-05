@@ -1,17 +1,16 @@
 """Integrates Betty with Python's setuptools."""
+from os import path
 
-import os
-from glob import glob
-from os.path import abspath, dirname, join
+from setuptools import setup
 
-from setuptools import setup, find_packages
+from betty._package import find_packages, get_data_paths
 
-ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
+ROOT_PATH = path.dirname(path.abspath(__file__))
 
-with open('/'.join((ROOT_PATH, 'VERSION'))) as f:
+with open(path.join(ROOT_PATH, 'betty', 'assets', 'VERSION')) as f:
     VERSION = f.read()
 
-with open('/'.join((ROOT_PATH, 'README.md'))) as f:
+with open(path.join(ROOT_PATH, 'README.md')) as f:
     long_description = f.read()
 
 SETUP = {
@@ -26,6 +25,7 @@ SETUP = {
     'url': 'https://github.com/bartfeenstra/betty',
     'classifiers': [
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Programming Language :: JavaScript',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
@@ -33,6 +33,7 @@ SETUP = {
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: POSIX :: Linux',
         'Operating System :: Microsoft :: Windows',
+        'Topic :: Internet',
         'Topic :: Scientific/Engineering :: Visualization',
         'Topic :: Sociology :: Genealogy',
         'Topic :: Software Development :: Code Generators',
@@ -82,23 +83,7 @@ SETUP = {
         ],
     },
     'packages': find_packages(),
-    'data_files': [
-        ('', [
-            'LICENSE.txt',
-            'README.md',
-            'VERSION',
-        ])
-    ],
-    'include_package_data': True,
-    'package_data': {
-        'betty': [
-                     join(dirname(__file__), 'VERSION'),
-                 ]
-                 +
-                 glob(join(dirname(abspath(__file__)), 'betty', 'assets', '**'), recursive=True)
-                 +
-                 glob(join(dirname(abspath(__file__)), 'betty', 'plugin', '*', 'assets', '**'), recursive=True),
-    },
+    'package_data': get_data_paths(),
 }
 
 if __name__ == '__main__':
