@@ -6,7 +6,7 @@ from typing import Dict, Iterator
 
 
 def version() -> str:
-    with open(Path(__file__).parents[1] / 'VERSION', encoding='utf-8') as f:
+    with open(Path(__file__).parent / 'assets' / 'VERSION', encoding='utf-8') as f:
         release_version = f.read().strip()
     if release_version == '0.0.0':
         return 'development'

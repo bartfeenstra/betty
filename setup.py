@@ -1,11 +1,11 @@
 """Integrates Betty with Python's setuptools."""
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 from betty import _ROOT_DIRECTORY_PATH as ROOT_DIRECTORY_PATH
-from betty._package import get_data_paths
+from betty._package import get_data_paths, find_packages
 
-with open(ROOT_DIRECTORY_PATH / 'VERSION', encoding='utf-8') as f:
+with open(ROOT_DIRECTORY_PATH / 'betty' / 'assets' / 'VERSION', encoding='utf-8') as f:
     VERSION = f.read()
 
 with open(ROOT_DIRECTORY_PATH / 'README.md', encoding='utf-8') as f:
@@ -23,6 +23,7 @@ SETUP = {
     'url': 'https://github.com/bartfeenstra/betty',
     'classifiers': [
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Programming Language :: JavaScript',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
@@ -31,6 +32,7 @@ SETUP = {
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: POSIX :: Linux',
         'Operating System :: Microsoft :: Windows',
+        'Topic :: Internet',
         'Topic :: Scientific/Engineering :: Visualization',
         'Topic :: Sociology :: Genealogy',
         'Topic :: Software Development :: Code Generators',
@@ -38,6 +40,7 @@ SETUP = {
         'Natural Language :: English',
         'Natural Language :: French',
         'Natural Language :: Ukrainian',
+        'Typing :: Typed ',
     ],
     'python_requires': '~= 3.8',
     'install_requires': [
@@ -107,19 +110,10 @@ SETUP = {
         ],
     },
     'packages': find_packages(),
-    'data_files': [
-        ('', [
-            'LICENSE.txt',
-            'README.md',
-            'VERSION',
-        ])
-    ],
-    'include_package_data': True,
     'package_data': {
-        'betty': [
-            *list(map(str, get_data_paths())),
-            str(ROOT_DIRECTORY_PATH / 'betty' / 'py.typed'),
-        ],
+        'betty': list(map(str, data_file_paths))
+        for package, data_file_paths
+        in get_data_paths().items()
     },
 }
 
