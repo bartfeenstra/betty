@@ -46,6 +46,8 @@ SETUP = {
         'babel ~= 2.9',
         'click ~= 7.1',
         'docker ~= 4.4',
+        # Work around https://github.com/docker/docker-py/issues/3113 by pinning urllib3 to a compatible version.
+        'urllib3 < 2',
         'geopy ~= 2.0',
         'jinja2 ~= 2.11',
         'jsonschema ~= 3.2',
