@@ -1,13 +1,13 @@
 import asyncio
+import inspect
 import sys
+from importlib import import_module
 from pathlib import Path
-from typing import List
 
 from PyInstaller.building.api import PYZ, EXE
 from PyInstaller.building.build_main import Analysis
-from PyInstaller.utils.hooks import collect_submodules as pyinstaller_collect_submodules
 
-from betty._package import get_data_paths
+from betty._package import get_data_paths, find_packages
 from betty._package.pyinstaller.hooks import HOOKS_DIRECTORY_PATH
 from betty.app import App
 from betty.asyncio import sync
@@ -17,18 +17,6 @@ from betty.maps import Maps
 from betty.npm import _Npm, build_assets
 from betty.project import ExtensionConfiguration
 from betty.trees import Trees
-
-
-def _collect_submodules() -> List[str]:
-    return [submodule for submodule in pyinstaller_collect_submodules('betty') if _filter_submodule(submodule)]
-
-
-def _filter_submodule(submodule: str) -> bool:
-    if submodule.startswith('betty.tests'):
-        return False
-    if submodule.startswith('betty._package'):
-        return False
-    return True
 
 
 async def _build_assets() -> None:
@@ -49,13 +37,13 @@ async def a_pyz_exe():
     await _build_assets()
     root = Path(__file__).parents[3]
     block_cipher = None
-    datas = [
-        (file_path, str(file_path.parent.relative_to(root)))
-        for file_path
-        in get_data_paths()
-    ]
+    datas = []
+    for module_name, file_paths in get_data_paths().items():
+        for file_path in file_paths:
+            data_file_path = (Path(inspect.getfile(import_module(module_name))).parent / file_path).relative_to(root)
+            datas.append((str(data_file_path), str(data_file_path.parent)))
     hiddenimports = [
-        *_collect_submodules(),
+        *find_packages(),
         'babel.numbers'
     ]
     a = Analysis(['betty/_package/pyinstaller/main.py'],
