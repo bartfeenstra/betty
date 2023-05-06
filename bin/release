@@ -10,19 +10,20 @@ then
   exit 1
 fi
 
-VERSION=$1
-BRANCH="release-$VERSION"
+RELEASE_VERSION=$1
+RELEASE_BRANCH="release-$RELEASE_VERSION"
+ORIGINAL_BRANCH=$(git branch --show-current)
 
 # Check we are releasing a valid Semantic Version.
-if [[ ! $VERSION =~ ^[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}$ ]]; then
-    echo "$VERSION is not a valid Semantic Version (x.y.z). See https://semver.org/."
+if [[ ! $RELEASE_VERSION =~ ^[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}$ ]]; then
+    echo "$RELEASE_VERSION is not a valid Semantic Version (x.y.z). See https://semver.org/."
     exit 1
 fi
 
 # Check this version does not already exist.
 git fetch --tags
-if git tag | grep -q "^$VERSION$"; then
-    echo "Version $VERSION already exists."
+if git tag | grep -q "^$RELEASE_VERSION$"; then
+    echo "Version $RELEASE_VERSION already exists."
     exit 1
 fi
 
@@ -33,21 +34,21 @@ if ! git diff-index --quiet HEAD --; then
 fi
 
 # Create the release branch.
-git checkout -b "$BRANCH"
+git checkout -b "$RELEASE_BRANCH"
 
 # Commit the release to Git.
-echo "$VERSION" > ./betty/assets/VERSION
-git add ./betty/assets/VERSION
-git commit -m "Release version $VERSION."
-git tag "$VERSION"
+echo "$RELEASE_VERSION" > ./betty/assets/RELEASE_VERSION
+git add ./betty/assets/RELEASE_VERSION
+git commit -m "Release version $RELEASE_VERSION."
+git tag "$RELEASE_VERSION"
 
-# Build and publish the package.s
+# Build and publish the package.
 ./bin/build-package
 twine upload --repository-url https://upload.pypi.org/legacy/ ./dist/*
 
-# Revert back to master.
-git checkout master
-git branch -D "release-$VERSION"
+# Revert back to the original branch.
+git checkout "$ORIGINAL_BRANCH"
+git branch -D "release-$RELEASE_VERSION"
 
 # Push changes.
-git push origin "$VERSION"
+git push origin "$RELEASE_VERSION"

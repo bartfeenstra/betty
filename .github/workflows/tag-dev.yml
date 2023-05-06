@@ -3,7 +3,6 @@ name: Tag development releases
 on:
   push:
     branches:
-      - master
       - '[0-9].[0-9].x'
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
