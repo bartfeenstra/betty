@@ -25,7 +25,7 @@ from betty.gui.locale import TranslationsLocaleCollector
 from betty.gui.logging import LogRecordViewerHandler, LogRecordViewer
 from betty.gui.serve import ServeAppWindow
 from betty.gui.text import Text, Caption
-from betty.locale import get_display_name
+from betty.locale import get_display_name, to_locale
 from betty.model import UserFacingEntity
 from betty.project import LocaleConfiguration
 
@@ -299,7 +299,7 @@ class _AddLocaleWindow(BettyWindow):
         self._widget.setLayout(self._layout)
         self.setCentralWidget(self._widget)
 
-        self._locale_collector = TranslationsLocaleCollector(self._app, set(map(rfc_1766_to_bcp_47, locale_identifiers())))
+        self._locale_collector = TranslationsLocaleCollector(self._app, set(map(to_locale, locale_identifiers())))
         for row in self._locale_collector.rows:
             self._layout.addRow(*row)
 
@@ -336,7 +336,7 @@ class _AddLocaleWindow(BettyWindow):
         if alias == '':
             alias = None
         try:
-            with self._app.acquire_locale():
+            with self._app:
                 self._app.project.configuration.locales.add(LocaleConfiguration(locale, alias))
         except ConfigurationValidationError as e:
             mark_invalid(self._alias, str(e))

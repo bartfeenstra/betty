@@ -80,7 +80,7 @@ class _ServeWindow(BettyWindow):
 
         self._loading_instruction.close()
 
-        with self._app.acquire_locale():
+        with self._app:
             instance_instruction = Text(self._build_instruction())
             instance_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self._central_layout.addWidget(instance_instruction)

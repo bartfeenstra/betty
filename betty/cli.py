@@ -118,7 +118,7 @@ async def _init_ctx(ctx: Context, __: Optional[Option] = None, configuration_fil
                 return
 
         if configuration_file_path is not None:
-            raise ConfigurationValidationError(translations._('Configuration file "{configuration_file_path}" does not exist.').format(configuration_file_path=configuration_file_path))
+            raise ConfigurationValidationError(_('Configuration file "{configuration_file_path}" does not exist.').format(configuration_file_path=configuration_file_path))
 
 
 class _BettyCommands(click.MultiCommand):
@@ -195,20 +195,7 @@ async def _serve(app: App):
             await asyncio.sleep(999)
 
 
-@click.command(help='Serve a generated site.')
-@app_command
-@sync
-async def _serve(app: App):
-    if not path.isdir(app.project.configuration.www_directory_path):
-        logging.getLogger().error('Web root directory "%s" does not exist.' % app.project.configuration.www_directory_path)
-        return
-    async with serve.AppServer(app):
-        while True:
-            await asyncio.sleep(999)
-
-
 try:
-    from babel import Locale
     from babel.messages.frontend import CommandLineInterface
 except ImportError:
     # This is fine, as we do not install Babel for production builds.
@@ -230,7 +217,7 @@ else:
 
         locale_data = get_data(locale)
         CommandLineInterface().run([
-            'pybabel',
+            '',
             'init',
             '--no-wrap',
             '-i',
@@ -249,7 +236,7 @@ else:
     def _update_translations():
         with ChDir(ROOT_DIRECTORY_PATH):
             CommandLineInterface().run([
-                'pybabel',
+                '',
                 'extract',
                 '--no-location',
                 '--no-wrap',
@@ -264,11 +251,11 @@ else:
                 'Bart Feenstra & contributors',
                 'betty',
             ])
-            for po_file_path in map(Path, glob(f'betty/assets/locale/*/betty.po')):
+            for po_file_path in map(Path, glob('betty/assets/locale/*/betty.po')):
                 locale = po_file_path.parent.name
                 locale_data = get_data(locale)
                 CommandLineInterface().run([
-                    'pybabel',
+                    '',
                     'update',
                     '-i',
                     str(_POT_FILE_PATH),
@@ -279,4 +266,3 @@ else:
                     '-D',
                     'betty',
                 ])
-

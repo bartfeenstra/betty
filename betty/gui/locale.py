@@ -54,7 +54,7 @@ class TranslationsLocaleCollector(ReactiveInstance):
 
     @reactive_method(on_trigger_call=True)
     def _set_translatables(self) -> None:
-        with self._app.acquire_locale():
+        with self._app:
             self._configuration_locale_label.setText(_('Locale'))
             locale = self.locale.currentData()
             if locale:
@@ -89,7 +89,7 @@ class _LocalizedObject(ReactiveInstance):
 
     @reactive_method(on_trigger_call=True)
     def _set_translatables(self) -> None:
-        with self._app.acquire_locale():
+        with self._app:
             self._do_set_translatables()
 
     def _do_set_translatables(self) -> None:

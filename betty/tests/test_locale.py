@@ -11,8 +11,8 @@ from typing import List, Optional, Iterator, Set, Tuple
 import pytest
 
 from betty.fs import FileSystem, ROOT_DIRECTORY_PATH
-from betty.locale import Localized, negotiate_localizeds, Date, format_datey, DateRange, Translations, negotiate_locale, \
-    Datey, TranslationsInstallationError, TranslationsRepository
+from betty.locale import Localized, negotiate_localizeds, Date, format_datey, DateRange, Translation, negotiate_locale, \
+    Datey, TranslationInstallationError, TranslationRepository
 
 
 class TestPotFile:
@@ -77,25 +77,25 @@ class TestTranslations:
             assert builtin_name not in builtins.__dict__
 
     def test_install_uninstall(self) -> None:
-        sut_one = Translations(NullTranslations())
-        sut_two = Translations(NullTranslations())
+        sut_one = Translation(NullTranslations())
+        sut_two = Translation(NullTranslations())
         sut_one.install()
-        self.assert_gettext_builtins(sut_one)
+        self.assert_gettext_builtins(sut_one._translations)
         sut_two.install()
-        self.assert_gettext_builtins(sut_two)
+        self.assert_gettext_builtins(sut_two._translations)
         sut_two.uninstall()
-        self.assert_gettext_builtins(sut_one)
+        self.assert_gettext_builtins(sut_one._translations)
         sut_one.uninstall()
         self.assert_no_gettext_builtins()
 
     def test_install_uninstall_out_of_order_should_fail(self) -> None:
-        sut_one = Translations(NullTranslations())
-        sut_two = Translations(NullTranslations())
+        sut_one = Translation(NullTranslations())
+        sut_two = Translation(NullTranslations())
         sut_one.install()
         self.assert_gettext_builtins(sut_one)
         sut_two.install()
         self.assert_gettext_builtins(sut_two)
-        with pytest.raises(TranslationsInstallationError):
+        with pytest.raises(TranslationInstallationError):
             sut_one.uninstall()
 
         # Clean up the global environment.
@@ -103,16 +103,16 @@ class TestTranslations:
         sut_one.uninstall()
 
     def test_install_reentry_without_uninstall_should_fail(self) -> None:
-        sut = Translations(NullTranslations())
+        sut = Translation(NullTranslations())
         sut.install()
-        with pytest.raises(TranslationsInstallationError):
+        with pytest.raises(TranslationInstallationError):
             sut.install()
 
         # Clean up the global environment.
         sut.uninstall()
 
     def test_install_reentry(self) -> None:
-        sut = Translations(NullTranslations())
+        sut = Translation(NullTranslations())
         sut.install()
         self.assert_gettext_builtins(sut)
         sut.uninstall()
@@ -123,8 +123,8 @@ class TestTranslations:
         self.assert_no_gettext_builtins()
 
     def test_context_manager(self) -> None:
-        sut_one = Translations(NullTranslations())
-        sut_two = Translations(NullTranslations())
+        sut_one = Translation(NullTranslations())
+        sut_two = Translation(NullTranslations())
         with sut_one:
             self.assert_gettext_builtins(sut_one)
             with sut_two:
@@ -133,14 +133,14 @@ class TestTranslations:
         self.assert_no_gettext_builtins()
 
     def test_context_manager_reentry_without_exit_should_fail(self) -> None:
-        sut = Translations(NullTranslations())
+        sut = Translation(NullTranslations())
         with sut:
-            with pytest.raises(TranslationsInstallationError):
+            with pytest.raises(TranslationInstallationError):
                 with sut:
                     pass
 
     def test_context_manager_reentry(self) -> None:
-        sut = Translations(NullTranslations())
+        sut = Translation(NullTranslations())
         with sut:
             self.assert_gettext_builtins(sut)
         self.assert_no_gettext_builtins()
@@ -440,7 +440,7 @@ class TestFormatDate:
     @pytest.mark.parametrize('expected, datey', _FORMAT_DATE_TEST_PARAMETERS)
     def test(self, expected: str, datey: Datey):
         locale = 'en'
-        with Translations(NullTranslations()):
+        with Translation(NullTranslations()):
             assert expected == format_datey(datey, locale)
 
 
@@ -476,7 +476,7 @@ class TestFormatDateRange:
     @pytest.mark.parametrize('expected, datey', _FORMAT_DATE_RANGE_TEST_PARAMETERS)
     def test(self, expected: str, datey: Datey):
         locale = 'en'
-        with Translations(NullTranslations()):
+        with Translation(NullTranslations()):
             assert expected == format_datey(datey, locale)
 
 
@@ -484,7 +484,7 @@ class TestFormatDatey:
     @pytest.mark.parametrize('expected, datey', _FORMAT_DATE_TEST_PARAMETERS + _FORMAT_DATE_RANGE_TEST_PARAMETERS)
     def test(self, expected: str, datey: Datey):
         locale = 'en'
-        with Translations(NullTranslations()):
+        with Translation(NullTranslations()):
             assert expected == format_datey(datey, locale)
 
 
@@ -493,7 +493,7 @@ class TestTranslationsRepository:
         locale = 'nl-NL'
         with TemporaryDirectory() as assets_directory_path_str:
             fs = FileSystem((assets_directory_path_str, None))
-            sut = TranslationsRepository(fs)
+            sut = TranslationRepository(fs)
             assets_directory_path = Path(assets_directory_path_str)
             lc_messages_directory_path = assets_directory_path / 'locale' / locale
             lc_messages_directory_path.mkdir(parents=True)

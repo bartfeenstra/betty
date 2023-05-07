@@ -7,7 +7,7 @@ from unittest.mock import Mock
 import pytest
 from geopy import Point
 
-from betty.locale import Date, Translations
+from betty.locale import Date, Translation
 from betty.media_type import MediaType
 from betty.model import Entity
 from betty.model.ancestry import Person, Event, Place, File, Note, Presence, PlaceName, PersonName, Subject, \
@@ -441,7 +441,7 @@ class TestSubject:
 
     def test_label(self) -> None:
         sut = Subject()
-        with Translations(NullTranslations()):
+        with Translation(NullTranslations()):
             assert isinstance(sut.label, str)
             assert '' != sut.label
 
@@ -453,7 +453,7 @@ class TestWitness:
 
     def test_label(self) -> None:
         sut = Witness()
-        with Translations(NullTranslations()):
+        with Translation(NullTranslations()):
             assert isinstance(sut.label, str)
             assert '' != sut.label
 
@@ -465,7 +465,7 @@ class TestBeneficiary:
 
     def test_label(self) -> None:
         sut = Beneficiary()
-        with Translations(NullTranslations()):
+        with Translation(NullTranslations()):
             assert isinstance(sut.label, str)
             assert '' != sut.label
 
@@ -477,7 +477,7 @@ class TestAttendee:
 
     def test_label(self) -> None:
         sut = Attendee()
-        with Translations(NullTranslations()):
+        with Translation(NullTranslations()):
             assert isinstance(sut.label, str)
             assert '' != sut.label
 

@@ -1,17 +1,15 @@
 from __future__ import annotations
 
-import asyncio
-import threading
 import weakref
 from concurrent.futures._base import Executor
 from concurrent.futures.thread import ThreadPoolExecutor
-from contextlib import contextmanager, suppress
+from contextlib import suppress
 from pathlib import Path
-from typing import List, Type, TYPE_CHECKING, Set, Iterator, Optional, Callable
+from typing import List, Type, TYPE_CHECKING, Set, Optional, Callable
 
 import aiohttp
-from babel.localedata import locale_identifiers
 from reactives.instance import ReactiveInstance
+from reactives.instance.method import reactive_method
 from reactives.instance.property import reactive_property
 
 from betty.app.extension import ListExtensions, Extension, Extensions, build_extension_type_graph, \
@@ -22,7 +20,7 @@ from betty.config import FileBasedConfiguration, DumpedConfigurationImport, Conf
 from betty.config.load import ConfigurationValidationError, Loader, Field
 from betty.dispatch import Dispatcher
 from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH, HOME_DIRECTORY_PATH
-from betty.locale import negotiate_locale, TranslationsRepository, Translations, get_data, FallbackTranslations
+from betty.locale import TranslationRepository, get_data, PassthroughTranslation, Localey
 from betty.lock import Locks
 from betty.model import Entity, EntityTypeProvider
 from betty.model.ancestry import Citation, Event, File, Person, PersonName, Presence, Place, Enclosure, \
@@ -109,14 +107,16 @@ class AppConfiguration(FileBasedConfiguration):
 
 
 class App(Configurable[AppConfiguration], ReactiveInstance):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, locale: Localey | None = None, *args, **kwargs):
         from betty.url import AppUrlGenerator, StaticPathUrlGenerator
 
         super().__init__(*args, **kwargs)
         self._configuration = AppConfiguration()
-        self._fallback_translations = FallbackTranslations()
-        with suppress(FileNotFoundError):
-            self.configuration.read()
+        self._locale = locale
+        self._translation = None
+        with PassthroughTranslation():
+            with suppress(FileNotFoundError):
+                self.configuration.read()
 
         self._extensions = _AppExtensions()
         self._extensions_initialized = False
@@ -129,7 +129,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         self._static_url_generator = StaticPathUrlGenerator(self.project.configuration)
         self._debug = None
         self._locale: Optional[str] = None
-        self._translations: Optional[TranslationsRepository] = None
+        self._translations: Optional[TranslationRepository] = None
         self._default_translations = None
         self._jinja2_environment = None
         self._renderer = None
@@ -150,19 +150,43 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
             self._executor.wait()
 
     @property
+    @reactive_property
     def locale(self) -> str:
         # @todo Finish this
-        raise RuntimeError('How should we do this?')
-        if self._locale is None:
-            raise RuntimeError(f'No locale has been acquired yet. Use {type(self)}.acquire_locale() to activate a locale.')
-        return self._locale
+        # @todo
+        # @todo
+        # @todo IDEA
+        # @todo One app, one locale. Although the app's locale must remain configurable
+        # @todo Now, we want the app to be able to enter localized contexts (eg install gettext)
+        # @todo How do we want to be able to spin up a copy of the app in a subprocess, with a different locale?
+        # @todo Remember that old async PR that's still pending? We introduced methods on App to run a task in a thread or a subprocess
+        # @todo Can introduce that here, with another wrapper specifically for doing to with a different locale
+        # @todo However,we've got to make sure apps can be initialized with a locale override, so as not to read that particular app config setting
+        # @todo Also, when the app locale config setting changes, and the app has no locale override, uninstall the current translation and install a new one for the newly configured locale
+        # @todo Fuuuck this may also mean we need to make the ENTIRE ancestry pickleable. Let's hope that other PR is in a decent shape still...
+        # @todo
+        return self._locale or self.configuration.locale
 
-    def __enter__(self) -> None:
-        return
+    @reactive_method(on_trigger_call=True)
+    def _install_translation(self) -> None:
+        if self._translation:
+            self._uninstall_translation()
+        self._translation = self.translations.get_negotiated(self.locale)
+        self._translation.install()
+
+    def _uninstall_translation(self) -> None:
+        self._wait_for_threads()
+        self._translation.uninstall()
+        self._translation = None
+
+    def __enter__(self) -> Self:
+        self._install_translation()
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.wait()
         del self.http_client
+        self._uninstall_translation()
 
     @property
     def project(self) -> Project:
@@ -248,9 +272,9 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         return self._static_url_generator
 
     @property
-    def translations(self) -> TranslationsRepository:
+    def translations(self) -> TranslationRepository:
         if self._translations is None:
-            self._translations = TranslationsRepository(self.assets)
+            self._translations = TranslationRepository(self.assets)
         return self._translations
 
     @property
@@ -290,6 +314,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
 
     @property
     def json_encoder(self) -> Callable[[], JSONEncoder]:
+        from betty.json import JSONEncoder
         return lambda *args, **kwargs: JSONEncoder(
             self.project.configuration.locales,
             self.url_generator,

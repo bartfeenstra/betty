@@ -1,20 +1,21 @@
 from __future__ import annotations
 
+import builtins
 import calendar
 import contextlib
 import datetime
+import gettext
 import glob
 import operator
-import shutil
+import threading
 from contextlib import suppress
-from functools import total_ordering
-from gettext import NullTranslations, GNUTranslations
+from functools import total_ordering, lru_cache
 from io import StringIO
 from pathlib import Path
 from typing import Optional, Tuple, Union, Dict, Any, Iterator, Set, Sequence, TYPE_CHECKING
 
 import babel
-from babel import dates, Locale, UnknownLocaleError
+from babel import dates, Locale
 from babel.messages.frontend import CommandLineInterface
 from langcodes import Language
 from polib import pofile
@@ -35,29 +36,54 @@ class LocaleNotFoundError(RuntimeError):
     pass
 
 
+def to_babel_identifier(locale: str) -> str:
+    if isinstance(locale, Locale):
+        return to_babel_identifier(str(locale))
+    language_data = Language.get(locale)
+    return '_'.join(
+        part
+        for part
+        in [
+            language_data.language,
+            language_data.territory,
+            language_data.script,
+        ]
+        if part
+    )
+
+
+def to_locale(locale: Localey) -> str:
+    if isinstance(locale, str):
+        return locale
+    return '-'.join(
+        part
+        for part
+        in [
+            locale.language,
+            locale.territory,
+            locale.script,
+        ]
+        if part
+    )
+
+
 Localey: TypeAlias = str | Locale
 
 
 def get_data(locale: Localey) -> Locale:
     if isinstance(locale, Locale):
         return locale
-
-    language_data = Language.get(locale)
     try:
-        return Locale(
-            language_data.language,
-            language_data.territory,
-            language_data.script
-        )
-    except UnknownLocaleError as e:
+        return Locale.parse(to_babel_identifier(locale))
+    except BaseException as e:
         raise LocaleNotFoundError from e
 
 
-def get_display_name(locale: str, display_locale: str | None = None) -> str:
+def get_display_name(locale: Localey, display_locale: Localey | None = None) -> str:
     locale_data = get_data(locale)
     return locale_data.get_display_name(
         get_data(display_locale) if display_locale else locale_data
-    )
+    )  # type: ignore
 
 
 class Localized:
@@ -289,19 +315,42 @@ class DateRange:
 Datey = Union[Date, DateRange]
 
 
-class TranslationsError(BaseException):
+class TranslationInstallationError(RuntimeError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
 
-class TranslationsInstallationError(RuntimeError, TranslationsError):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+class Translation:
+    _GETTEXT_BUILTINS = (
+        '_',
+        'gettext',
+        'ngettext',
+        'npgettext',
+        'pgettext',
+    )
 
+    _lock = threading.Lock()
 
-class Translations:
-    def __init__(self, translations: Optional[NullTranslations] = None):
+    def __init__(self, translations: gettext.NullTranslations):
         self._translations = translations
+
+    def __enter__(self) -> None:
+        self.install()
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        self.uninstall()
+
+    def install(self) -> None:
+        if not self.__class__._lock.acquire(False):
+            raise TranslationInstallationError('Another translation has already been installed in this process.')
+        self._translations.install(self._GETTEXT_BUILTINS)
+
+    def uninstall(self) -> None:
+        for key in self._GETTEXT_BUILTINS:
+            # Built-ins are not owned by Betty, so allow for them to have disappeared.
+            with suppress(KeyError):
+                del builtins.__dict__[key]
+        self.__class__._lock.release()
 
     def _(self, message: str) -> str:
         return self._translations.gettext(message)
@@ -309,78 +358,58 @@ class Translations:
     def gettext(self, message: str) -> str:
         return self._translations.gettext(message)
 
-    def ngettext(self, message_singular: str, message_plural: str, n: int):
+    def ngettext(self, message_singular: str, message_plural: str, n: int) -> str:
         return self._translations.ngettext(message_singular, message_plural, n)
 
-    def pgettext(self, context, message):
+    def pgettext(self, context: str, message: str) -> str:
         return self._translations.pgettext(context, message)
 
-    def npgettext(self, context: str, message_singular: str, message_plural: str, n: int):
+    def npgettext(self, context: str, message_singular: str, message_plural: str, n: int) -> str:
         return self._translations.npgettext(context, message_singular, message_plural, n)
 
 
-class FallbackTranslations(Translations):
+class PassthroughTranslation(Translation):
     def __init__(self):
-        super().__init__(NullTranslations())
+        super().__init__(gettext.NullTranslations())
 
 
-class TranslationsRepository:
+class TranslationRepository:
     def __init__(self, assets: FileSystem):
         self._assets = assets
-        self._translations: Dict[str, NullTranslations] = {}
+        self._translations: Dict[str, gettext.NullTranslations] = {}
 
     @property
     def locales(self) -> Iterator[str]:
         yield 'en-US'
         for assets_directory_path, __ in reversed(self._assets.paths):
             for po_file_path in glob.glob(str(assets_directory_path / 'locale' / '*' / 'betty.po')):
-                yield Path(po_file_path).parents[1].name
+                yield Path(po_file_path).parent.name
 
-    def get(self, locale: str) -> Translations:
-        return self[locale]
+    def get(self, locale: Localey) -> Translation:
+        return self[str(locale)]
 
-    def get_negotiated(self, locale: str) -> Translations:
-        if not requested_locales:
-            requested_locales = (self.configuration.locale,)
-        requested_locales = (*requested_locales, 'en-US')
-        preferred_locales = [locale for locale in requested_locales if locale is not None]
-
+    @lru_cache
+    def get_negotiated(self, *preferred_locales: str) -> Translation:
+        preferred_locales = (*preferred_locales, 'en-US')
         negotiated_locale = negotiate_locale(
             preferred_locales,
             {
-                get_data(locale)
+                str(get_data(locale))
                 for locale
-                in locale_identifiers()
+                in self.locales
             },
         )
+        return self[negotiated_locale or 'en-US']
 
-        if negotiated_locale is None:
-            raise ValueError('None of the requested locales are available.')
-
-        previous_locale = self._locale
-        self._locale = negotiated_locale
-
-        negotiated_translations_locale = negotiate_locale(
-            preferred_locales,
-            set(self.translations.locales),
-        )
-        if negotiated_translations_locale is None:
-            negotiated_translations_locale = 'en-US'
-        with self.translations[negotiated_translations_locale]:
-            yield self
-
-        self._locale = previous_locale
-
-    def __getitem__(self, locale: str) -> Translations:
+    def __getitem__(self, locale: Localey) -> Translation:
+        locale = to_locale(locale)
         try:
-            # Wrap the translations in a unique Translations instance, so we can enter a context for the same language
-            # more than once.
-            return Translations(self._translations[locale])
+            return Translation(self._translations[locale])
         except KeyError:
-            return Translations(self._build_translations(locale))
+            return Translation(self._build_translations(locale))
 
-    def _build_translations(self, locale: str) -> NullTranslations:
-        self._translations[locale] = NullTranslations()
+    def _build_translations(self, locale: str) -> gettext.NullTranslations:
+        self._translations[locale] = gettext.NullTranslations()
         for assets_directory_path, __ in reversed(self._assets.paths):
             translations = self._open_translations(locale, assets_directory_path)
             if translations:
@@ -388,28 +417,36 @@ class TranslationsRepository:
                 self._translations[locale] = translations
         return self._translations[locale]
 
-    def _open_translations(self, locale: str, assets_directory_path: Path) -> Optional[GNUTranslations]:
+    def _open_translations(self, locale: str, assets_directory_path: Path) -> Optional[gettext.GNUTranslations]:
         po_file_path = assets_directory_path / 'locale' / locale / 'betty.po'
         try:
             translation_version = hashfile(po_file_path)
         except FileNotFoundError:
             return None
-        translation_cache_directory_path = fs.CACHE_DIRECTORY_PATH / 'translations' / translation_version
-        cache_directory_path = translation_cache_directory_path / locale
+        cache_directory_path = fs.CACHE_DIRECTORY_PATH / 'locale' / translation_version
         mo_file_path = cache_directory_path / 'betty.mo'
 
         with suppress(FileNotFoundError):
             with open(mo_file_path, 'rb') as f:
-                return GNUTranslations(f)
+                return gettext.GNUTranslations(f)
 
         cache_directory_path.mkdir(exist_ok=True, parents=True)
-        with suppress(FileExistsError):
-            shutil.copyfile(po_file_path, cache_directory_path / 'betty.po')
 
         with contextlib.redirect_stdout(StringIO()):
-            CommandLineInterface().run(['', 'compile', '-d', translation_cache_directory_path, '-l', str(get_data(locale)), '-D', 'betty'])
+            CommandLineInterface().run([
+                '',
+                'compile',
+                '-i',
+                str(po_file_path),
+                '-o',
+                str(mo_file_path),
+                '-l',
+                str(get_data(locale)),
+                '-D',
+                'betty',
+            ])
         with open(mo_file_path, 'rb') as f:
-            return GNUTranslations(f)
+            return gettext.GNUTranslations(f)
 
     def coverage(self, locale: str) -> Tuple[int, int]:
         translatables = set(self._get_translatables())
@@ -441,18 +478,19 @@ def negotiate_locale(preferred_locales: Localey | Sequence[Localey], available_l
         list(map(str, preferred_locales)),
         list(map(str, available_locales)),
     )
-    if negotiated_locale is not None:
-        return Locale(negotiated_locale)
-    for preferred_locale in preferred_locales:
-        preferred_locale = preferred_locale.split('-', 1)[0]
-        for available_locale in available_locales:
-            # @todo Remove all of these splits here and fall back to using Locale as much as we can.
-            # @todo
-            # @todo
-            negotiated_locale = babel.negotiate_locale([preferred_locale], [available_locale.split('-', 1)[0]])
-            if negotiated_locale is not None:
-                return available_locale
-    return None
+    return Locale.parse(negotiated_locale) if negotiated_locale else None
+
+    # @todo This is some hacky shit we should get rid of
+    # for preferred_locale in preferred_locales:
+    #     preferred_locale = preferred_locale.split('-', 1)[0]
+    #     for available_locale in available_locales:
+    #         # @todo Remove all of these splits here and fall back to using Locale as much as we can.
+    #         # @todo
+    #         # @todo
+    #         negotiated_locale = babel.negotiate_locale([preferred_locale], [available_locale.split('-', 1)[0]])
+    #         if negotiated_locale is not None:
+    #             return available_locale
+    # return None
 
 
 def negotiate_localizeds(preferred_locales: Union[str, Sequence[str]], localizeds: Sequence[Localized]) -> Optional[Localized]:
@@ -472,8 +510,6 @@ def negotiate_localizeds(preferred_locales: Union[str, Sequence[str]], localized
 def format_datey(date: Datey, locale: str) -> str:
     """
     Formats a datey value into a human-readable string.
-
-    This requires gettext translations to be installed. Use the Translations class to do this temporarily.
     """
     try:
         if isinstance(date, Date):

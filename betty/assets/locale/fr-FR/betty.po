@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-12-06 18:11+0000\n"
+"POT-Creation-Date: 2023-05-07 12:10+0100\n"
 "PO-Revision-Date: 2020-11-27 19:49+0100\n"
 "Last-Translator: \n"
 "Language: fr\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.11.0\n"
+"Generated-By: Babel 2.12.1\n"
 
 msgid ""
 "\n"
@@ -132,9 +132,6 @@ msgstr "A propos"
 
 msgid "About Betty"
 msgstr ""
-
-msgid "Access denied"
-msgstr "Accès refusé"
 
 #, python-format
 msgid "Accessed %(date)s"
@@ -468,17 +465,6 @@ msgstr ""
 msgid "I'm sorry, dear, but it seems there are no sources."
 msgstr ""
 
-msgid "I'm sorry, dear, but it seems this page does not exist."
-msgstr "Je suis désolé mon cher, mais il semble que cette page n'existe pas."
-
-msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
-msgstr ""
-"Je suis désolé mon cher, mais il semble que vous ne soyez pas autorisé à "
-"voir cette page."
-
-msgid "I'm sorry, dear, but it seems you're not logged in."
-msgstr "Je suis désolé mon cher, mais il semble que vous ne soyez pas connecté."
-
 msgid "Immigration"
 msgstr "Immigration"
 
@@ -582,9 +568,6 @@ msgid ""
 "Output more detailed logs and disable optimizations that make debugging "
 "harder."
 msgstr ""
-
-msgid "Page not found"
-msgstr "Page non trouvée"
 
 msgid "People"
 msgstr "Individu"
@@ -1145,4 +1128,22 @@ msgstr ""
 #, python-format
 msgid "© Copyright %(author)s, unless otherwise credited"
 msgstr "© Copyright %(author)s, sauf crédit contraire"
+
+#~ msgid "Access denied"
+#~ msgstr "Accès refusé"
+
+#~ msgid "I'm sorry, dear, but it seems this page does not exist."
+#~ msgstr "Je suis désolé mon cher, mais il semble que cette page n'existe pas."
+
+#~ msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
+#~ msgstr ""
+#~ "Je suis désolé mon cher, mais il"
+#~ " semble que vous ne soyez pas "
+#~ "autorisé à voir cette page."
+
+#~ msgid "I'm sorry, dear, but it seems you're not logged in."
+#~ msgstr "Je suis désolé mon cher, mais il semble que vous ne soyez pas connecté."
+
+#~ msgid "Page not found"
+#~ msgstr "Page non trouvée"
 

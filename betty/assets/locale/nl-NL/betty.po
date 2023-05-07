@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-12-06 18:11+0000\n"
+"POT-Creation-Date: 2023-05-07 12:10+0100\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.11.0\n"
+"Generated-By: Babel 2.12.1\n"
 
 msgid ""
 "\n"
@@ -142,9 +142,6 @@ msgstr "Over"
 
 msgid "About Betty"
 msgstr "Over Betty"
-
-msgid "Access denied"
-msgstr "Verboden toegang"
 
 #, python-format
 msgid "Accessed %(date)s"
@@ -501,15 +498,6 @@ msgstr "Het spijt me, schat, maar het lijkt erop dat er geen plaatsen zijn."
 msgid "I'm sorry, dear, but it seems there are no sources."
 msgstr "Het spijt me, schat, maar het lijkt erop dat er geen bronnen zijn."
 
-msgid "I'm sorry, dear, but it seems this page does not exist."
-msgstr "Het spijt me, schat, maar het lijkt erop dat deze pagina niet bestaat."
-
-msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
-msgstr "Het spijt me, schat, maar het lijkt erop dat je deze pagina niet mag zien."
-
-msgid "I'm sorry, dear, but it seems you're not logged in."
-msgstr "Het spijt me, schat, maar het lijkt erop dat je niet ingelogd bent."
-
 msgid "Immigration"
 msgstr "Immigratie"
 
@@ -613,9 +601,6 @@ msgid ""
 "Output more detailed logs and disable optimizations that make debugging "
 "harder."
 msgstr ""
-
-msgid "Page not found"
-msgstr "Pagina niet gevonden"
 
 msgid "People"
 msgstr "Personen"
@@ -930,8 +915,8 @@ msgid ""
 "Unknown key: {unknown_configuration_key}. Did you mean "
 "{known_configuration_keys}?"
 msgstr ""
-"Onbekende sleutel: {unknown_configuration_key}. "
-"Bedoel je {known_configuration_keys}?"
+"Onbekende sleutel: {unknown_configuration_key}. Bedoel je "
+"{known_configuration_keys}?"
 
 #, python-format
 msgid ""
@@ -1170,4 +1155,22 @@ msgstr "{locale} is geen geldige IETF BCP 47 taaltag."
 #, python-format
 msgid "© Copyright %(author)s, unless otherwise credited"
 msgstr "© Copyright %(author)s, tenzij anders vermeld"
+
+#~ msgid "Access denied"
+#~ msgstr "Verboden toegang"
+
+#~ msgid "I'm sorry, dear, but it seems this page does not exist."
+#~ msgstr "Het spijt me, schat, maar het lijkt erop dat deze pagina niet bestaat."
+
+#~ msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
+#~ msgstr ""
+#~ "Het spijt me, schat, maar het "
+#~ "lijkt erop dat je deze pagina niet"
+#~ " mag zien."
+
+#~ msgid "I'm sorry, dear, but it seems you're not logged in."
+#~ msgstr "Het spijt me, schat, maar het lijkt erop dat je niet ingelogd bent."
+
+#~ msgid "Page not found"
+#~ msgstr "Pagina niet gevonden"
 

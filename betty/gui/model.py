@@ -52,7 +52,7 @@ class EntityReferenceCollector(LocalizedWidget):
         self._set_translatables()
 
     def _do_set_translatables(self) -> None:
-        with self._app.acquire_locale():
+        with self._app:
             if self._entity_reference.entity_type:
                 self._entity_id_label.setText(_('{entity_type_label} ID').format(
                     entity_type_label=self._entity_reference.entity_type.entity_type_label(),
@@ -134,7 +134,7 @@ class EntityReferenceCollectionCollector(LocalizedWidget):
         layout.addWidget(entity_reference_remove_button)
 
     def _do_set_translatables(self) -> None:
-        with self._app.acquire_locale():
+        with self._app:
             if self._label_builder:
                 self._label.setText(self._label_builder())
             if self._caption_builder:

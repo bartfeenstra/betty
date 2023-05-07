@@ -82,9 +82,7 @@ class AppServer(Server):
     async def start(self) -> None:
         self._server = self._get_server()
         await self._server.start()
-        # Some tests fail on Windows with `NameError: name '_' is not defined`, so we acquire the locale to be sure.
-        with self._app.acquire_locale():
-            logging.getLogger().info(_('Serving your site at {url}...').format(url=self.public_url))
+        logging.getLogger().info(_('Serving your site at {url}...').format(url=self.public_url))
         webbrowser.open_new_tab(self.public_url)
 
     @property
