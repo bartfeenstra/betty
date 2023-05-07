@@ -22,6 +22,11 @@ from polib import pofile
 from betty import fs
 from betty.fs import hashfile, FileSystem
 
+try:
+    from typing_extensions import TypeAlias
+except ModuleNotFoundError:  # pragma: no cover
+    from typing import TypeAlias  # type: ignore  # pragma: no cover
+
 if TYPE_CHECKING:
     from betty.builtins import _
 
@@ -30,9 +35,13 @@ class LocaleNotFoundError(RuntimeError):
     pass
 
 
-def get_data(locale: str) -> Locale:
-    # @todo Is there a way to aprse BCP 47 language tags into their constituent components without requiring yet another
-    #  dependency?
+Localey: TypeAlias = str | Locale
+
+
+def get_data(locale: Localey) -> Locale:
+    if isinstance(locale, Locale):
+        return locale
+
     language_data = Language.get(locale)
     try:
         return Locale(
@@ -46,9 +55,9 @@ def get_data(locale: str) -> Locale:
 
 def get_display_name(locale: str, display_locale: str | None = None) -> str:
     locale_data = get_data(locale)
-    if display_locale:
-        return locale_data.get_display_name(get_data(display_locale))
-    return locale_data.get_display_name(locale_data)
+    return locale_data.get_display_name(
+        get_data(display_locale) if display_locale else locale_data
+    )
 
 
 class Localized:
@@ -310,6 +319,11 @@ class Translations:
         return self._translations.npgettext(context, message_singular, message_plural, n)
 
 
+class FallbackTranslations(Translations):
+    def __init__(self):
+        super().__init__(NullTranslations())
+
+
 class TranslationsRepository:
     def __init__(self, assets: FileSystem):
         self._assets = assets
@@ -320,12 +334,44 @@ class TranslationsRepository:
         yield 'en-US'
         for assets_directory_path, __ in reversed(self._assets.paths):
             for po_file_path in glob.glob(str(assets_directory_path / 'locale' / '*' / 'betty.po')):
-                yield rfc_1766_to_bcp_47(Path(po_file_path).parents[1].name)
+                yield Path(po_file_path).parents[1].name
 
-    def __getitem__(self, locale: Any) -> Translations:
-        if not isinstance(locale, str):
-            raise ValueError(f'The locale to get must be a string, but {type(locale)} was given.')
+    def get(self, locale: str) -> Translations:
+        return self[locale]
 
+    def get_negotiated(self, locale: str) -> Translations:
+        if not requested_locales:
+            requested_locales = (self.configuration.locale,)
+        requested_locales = (*requested_locales, 'en-US')
+        preferred_locales = [locale for locale in requested_locales if locale is not None]
+
+        negotiated_locale = negotiate_locale(
+            preferred_locales,
+            {
+                get_data(locale)
+                for locale
+                in locale_identifiers()
+            },
+        )
+
+        if negotiated_locale is None:
+            raise ValueError('None of the requested locales are available.')
+
+        previous_locale = self._locale
+        self._locale = negotiated_locale
+
+        negotiated_translations_locale = negotiate_locale(
+            preferred_locales,
+            set(self.translations.locales),
+        )
+        if negotiated_translations_locale is None:
+            negotiated_translations_locale = 'en-US'
+        with self.translations[negotiated_translations_locale]:
+            yield self
+
+        self._locale = previous_locale
+
+    def __getitem__(self, locale: str) -> Translations:
         try:
             # Wrap the translations in a unique Translations instance, so we can enter a context for the same language
             # more than once.
@@ -361,8 +407,7 @@ class TranslationsRepository:
             shutil.copyfile(po_file_path, cache_directory_path / 'betty.po')
 
         with contextlib.redirect_stdout(StringIO()):
-            # @todo Is the locale used in this command in the correct format?
-            CommandLineInterface().run(['', 'compile', '-d', translation_cache_directory_path, '-l', locale, '-D', 'betty'])
+            CommandLineInterface().run(['', 'compile', '-d', translation_cache_directory_path, '-l', str(get_data(locale)), '-D', 'betty'])
         with open(mo_file_path, 'rb') as f:
             return GNUTranslations(f)
 
@@ -387,15 +432,23 @@ class TranslationsRepository:
                             yield entry.msgid_with_context
 
 
-def negotiate_locale(preferred_locales: Union[str, Sequence[str]], available_locales: Set[str]) -> Optional[str]:
-    if isinstance(preferred_locales, str):
+def negotiate_locale(preferred_locales: Localey | Sequence[Localey], available_locales: Set[Localey]) -> Optional[Locale]:
+    if isinstance(preferred_locales, (str, Locale)):
         preferred_locales = [preferred_locales]
-    negotiated_locale = babel.negotiate_locale(preferred_locales, available_locales, '-')
+    preferred_locales = list(map(get_data, preferred_locales))
+    available_locales = set(map(get_data, available_locales))
+    negotiated_locale = babel.negotiate_locale(
+        list(map(str, preferred_locales)),
+        list(map(str, available_locales)),
+    )
     if negotiated_locale is not None:
-        return negotiated_locale
+        return Locale(negotiated_locale)
     for preferred_locale in preferred_locales:
         preferred_locale = preferred_locale.split('-', 1)[0]
         for available_locale in available_locales:
+            # @todo Remove all of these splits here and fall back to using Locale as much as we can.
+            # @todo
+            # @todo
             negotiated_locale = babel.negotiate_locale([preferred_locale], [available_locale.split('-', 1)[0]])
             if negotiated_locale is not None:
                 return available_locale
@@ -461,7 +514,7 @@ def _format_date_parts(date: Optional[Date], locale: str) -> str:
     except KeyError:
         raise IncompleteDateError('This date does not have enough parts to be rendered.')
     parts = map(lambda x: 1 if x is None else x, date.parts)
-    return dates.format_date(datetime.date(*parts), date_parts_format, Locale.parse(bcp_47_to_rfc_1766(locale)))
+    return dates.format_date(datetime.date(*parts), date_parts_format, get_data(locale))
 
 
 _FORMAT_DATE_RANGE_FORMATTERS = {

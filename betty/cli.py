@@ -4,12 +4,17 @@ import sys
 import time
 from contextlib import suppress, contextmanager
 from functools import wraps
+from glob import glob
 from os import getcwd, path
+from pathlib import Path
 from typing import Callable, Dict, Optional, TYPE_CHECKING
 
 from PyQt6.QtWidgets import QMainWindow
 
 from betty.config.load import ConfigurationValidationError
+from betty.fs import ROOT_DIRECTORY_PATH
+from betty.locale import get_data
+from betty.os import ChDir
 
 if TYPE_CHECKING:
     from betty.builtins import _
@@ -88,6 +93,9 @@ async def _init_ctx(ctx: Context, __: Optional[Option] = None, configuration_fil
         'clear-caches': _clear_caches,
         'demo': _demo,
         'gui': _gui,
+        # @todo Make these optional, if Betty was installed with its development deps
+        'init-translation': _init_translation,
+        'update-translations': _update_translations,
     }
     ctx.obj['app'] = app
 
@@ -110,7 +118,7 @@ async def _init_ctx(ctx: Context, __: Optional[Option] = None, configuration_fil
                 return
 
         if configuration_file_path is not None:
-            raise ConfigurationValidationError(_('Configuration file "{configuration_file_path}" does not exist.').format(configuration_file_path=configuration_file_path))
+            raise ConfigurationValidationError(translations._('Configuration file "{configuration_file_path}" does not exist.').format(configuration_file_path=configuration_file_path))
 
 
 class _BettyCommands(click.MultiCommand):
@@ -185,3 +193,90 @@ async def _serve(app: App):
     async with serve.AppServer(app):
         while True:
             await asyncio.sleep(999)
+
+
+@click.command(help='Serve a generated site.')
+@app_command
+@sync
+async def _serve(app: App):
+    if not path.isdir(app.project.configuration.www_directory_path):
+        logging.getLogger().error('Web root directory "%s" does not exist.' % app.project.configuration.www_directory_path)
+        return
+    async with serve.AppServer(app):
+        while True:
+            await asyncio.sleep(999)
+
+
+try:
+    from babel import Locale
+    from babel.messages.frontend import CommandLineInterface
+except ImportError:
+    # This is fine, as we do not install Babel for production builds.
+    # @todo LOL LIES. Of course we install Babel for production builds...
+    pass
+else:
+    _ASSETS_DIRECTORY_PATH = ROOT_DIRECTORY_PATH / 'betty' / 'assets'
+    _POT_FILE_PATH = _ASSETS_DIRECTORY_PATH / 'betty.pot'
+    _TRANSLATIONS_DIRECTORY_PATH = _ASSETS_DIRECTORY_PATH / 'locale'
+
+    @click.command(help='Initialize a new translation.')
+    @click.argument('locale')
+    @global_command
+    def _init_translation(locale: str):
+        po_file_path = _TRANSLATIONS_DIRECTORY_PATH / locale / 'betty.po'
+        if po_file_path.exists():
+            logging.getLogger().info(f'Translations for {locale} already exist at {po_file_path}.')
+            return
+
+        locale_data = get_data(locale)
+        CommandLineInterface().run([
+            'pybabel',
+            'init',
+            '--no-wrap',
+            '-i',
+            str(_POT_FILE_PATH),
+            '-o',
+            str(po_file_path),
+            '-l',
+            str(locale_data),
+            '-D',
+            'betty',
+        ])
+        logging.getLogger().info(f'Translations for {locale} initialized at {po_file_path}.')
+
+    @click.command(help='Update all existing translations.')
+    @global_command
+    def _update_translations():
+        with ChDir(ROOT_DIRECTORY_PATH):
+            CommandLineInterface().run([
+                'pybabel',
+                'extract',
+                '--no-location',
+                '--no-wrap',
+                '--sort-output',
+                '-F',
+                'babel.ini',
+                '-o',
+                str(_POT_FILE_PATH),
+                '--project',
+                'Betty',
+                '--copyright-holder',
+                'Bart Feenstra & contributors',
+                'betty',
+            ])
+            for po_file_path in map(Path, glob(f'betty/assets/locale/*/betty.po')):
+                locale = po_file_path.parent.name
+                locale_data = get_data(locale)
+                CommandLineInterface().run([
+                    'pybabel',
+                    'update',
+                    '-i',
+                    str(_POT_FILE_PATH),
+                    '-o',
+                    str(po_file_path),
+                    '-l',
+                    str(locale_data),
+                    '-D',
+                    'betty',
+                ])
+

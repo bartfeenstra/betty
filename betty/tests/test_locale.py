@@ -41,8 +41,8 @@ class TestPotFile:
             ))
             subprocess.check_call(
                 (
-                    'bash',
-                    Path() / 'bin' / 'extract-translatables',
+                    'betty',
+                    'update-translations',
                 ),
                 cwd=working_directory_path,
                 stderr=subprocess.DEVNULL,
@@ -55,7 +55,7 @@ class TestPotFile:
                 list(actual_pot_contents),
                 list(expected_pot_contents),
             )
-            assert 0 == len(list(diff)), f'The gettext *.po files are not up to date. Did you run {Path() / "bin" / "extract-translatables"}?'
+            assert 0 == len(list(diff)), 'The gettext *.po files are not up to date. Did you run `betty update-translations`?'
 
 
 class TestTranslations:

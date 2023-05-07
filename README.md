@@ -292,11 +292,11 @@ In any existing Python environment, run `./bin/build-dev`.
 
 #### Making changes to the translatable strings in the source code
 
-Run `./bin/extract-translatables` to update the translations files with the changes you made.
+Run `betty update-translations` to update the translations files with the changes you made.
 
 #### Adding translations for a language for which no translations exist yet
 
-Run `./bin/init-translation $locale` where `$locale` is an
+Run `betty init-translation $locale` where `$locale` is an
 [IETF BCP 47 language tag](https://tools.ietf.org/html/bcp47).
 
 #### Updating the translations for a language

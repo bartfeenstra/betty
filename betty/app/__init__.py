@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+import threading
 import weakref
 from concurrent.futures._base import Executor
 from concurrent.futures.thread import ThreadPoolExecutor
@@ -20,7 +22,7 @@ from betty.config import FileBasedConfiguration, DumpedConfigurationImport, Conf
 from betty.config.load import ConfigurationValidationError, Loader, Field
 from betty.dispatch import Dispatcher
 from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH, HOME_DIRECTORY_PATH
-from betty.locale import negotiate_locale, TranslationsRepository, Translations, get_data
+from betty.locale import negotiate_locale, TranslationsRepository, Translations, get_data, FallbackTranslations
 from betty.lock import Locks
 from betty.model import Entity, EntityTypeProvider
 from betty.model.ancestry import Citation, Event, File, Person, PersonName, Presence, Place, Enclosure, \
@@ -112,9 +114,9 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
 
         super().__init__(*args, **kwargs)
         self._configuration = AppConfiguration()
+        self._fallback_translations = FallbackTranslations()
         with suppress(FileNotFoundError):
-            with Translations():
-                self.configuration.read()
+            self.configuration.read()
 
         self._extensions = _AppExtensions()
         self._extensions_initialized = False
@@ -147,70 +149,10 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         if self._executor:
             self._executor.wait()
 
-    @contextmanager
-    def _acquire_locale(self, *requested_locales: str | None) -> Iterator[Self]:  # type: ignore
-        """
-        Temporarily change this application's locale and the global gettext translations.
-        """
-        # @todo Can we move this logic to Translationsrepository?
-        # @todo
-        # @todo
-        # @todo Also, how do we deal with changing the locale in background services?
-        # @todo A tiny context manager that locks the thread, after all?
-        # @todo The problem is that many situations do not allow for a quick dip into a context manager just for a translation
-        # @todo Many situations need to relinquish control to callbacks, pluggable methods, etc, that can spend an arbitrary amount of time
-        # @todo needing an arbitrary number of translations.
-        # @todo
-        # @todo What about a lock that is both threadsafe and asyncsafe?
-        # @todo Really, what we want is when changing a locale, to PAUSE EVERYTHING ELSE NOT IN THE CURRENT EXECUTION PATH
-        # @todo
-        # @todo The internet says Python stdlib's locale module is bad. Can we do without?
-        # @todo For instance, does Babel do any kind of localization we'd need?
-        # @todo
-        # @todo Babel: https://babel.pocoo.org/en/latest/api/core.html
-        # @todo C locales: https://www.man7.org/linux/man-pages/man3/setlocale.3.html
-        # @todo Common fields:
-        # @todo - language
-        # @todo - territory
-        # @todo - modifier
-        # @todo
-        # @todo
-        if not requested_locales:
-            requested_locales = (self.configuration.locale,)
-        requested_locales = (*requested_locales, 'en-US')
-        preferred_locales = [locale for locale in requested_locales if locale is not None]
-
-        negotiated_locale = negotiate_locale(
-            preferred_locales,
-            {
-                rfc_1766_to_bcp_47(locale)
-                for locale
-                in locale_identifiers()
-            },
-        )
-
-        if negotiated_locale is None:
-            raise ValueError('None of the requested locales are available.')
-
-        previous_locale = self._locale
-        self._locale = negotiated_locale
-
-        negotiated_translations_locale = negotiate_locale(
-            preferred_locales,
-            set(self.translations.locales),
-        )
-        if negotiated_translations_locale is None:
-            negotiated_translations_locale = 'en-US'
-        with self.translations[negotiated_translations_locale]:
-            yield self
-
-        self._locale = previous_locale
-
-    def acquire_locale(self, *requested_locales: str | None) -> Iterator[Self]:  # type: ignore
-        return self._derive()._acquire_locale(*requested_locales)
-
     @property
     def locale(self) -> str:
+        # @todo Finish this
+        raise RuntimeError('How should we do this?')
         if self._locale is None:
             raise RuntimeError(f'No locale has been acquired yet. Use {type(self)}.acquire_locale() to activate a locale.')
         return self._locale
@@ -219,7 +161,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         return
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self._wait_for_threads()
+        self.wait()
         del self.http_client
 
     @property
