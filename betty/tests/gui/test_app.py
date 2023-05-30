@@ -1,5 +1,7 @@
 import json
+import sys
 from os import path
+from pathlib import Path
 
 import pytest
 from PyQt6.QtCore import Qt
@@ -60,16 +62,17 @@ class TestBettyMainWindow:
 
 
 class TestWelcomeWindow:
-    def test_open_project_with_invalid_file_should_error(self, assert_error, mocker: MockerFixture, qtbot: QtBot, tmpdir) -> None:
+    @pytest.mark.skipif(sys.platform == 'darwin', reason='See https://github.com/bartfeenstra/betty/issues/982')
+    def test_open_project_with_invalid_file_should_error(self, assert_error, mocker: MockerFixture, qtbot: QtBot, tmp_path: Path) -> None:
         with App() as app:
             sut = WelcomeWindow(app)
             qtbot.addWidget(sut)
             sut.show()
 
-            configuration_file_path = tmpdir.join('betty.json')
+            configuration_file_path = tmp_path / 'betty.json'
             # Purposefully leave the file empty so it is invalid.
-            configuration_file_path.write('')
-            mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[configuration_file_path, None]))
+            configuration_file_path.write_text('')
+            mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[str(configuration_file_path), None]))
             qtbot.mouseClick(sut.open_project_button, Qt.MouseButton.LeftButton)
 
             error = assert_error(ExceptionError)
@@ -86,7 +89,7 @@ class TestWelcomeWindow:
             qtbot.addWidget(sut)
             sut.show()
 
-            mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[configuration.configuration_file_path, None]))
+            mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[str(configuration.configuration_file_path), None]))
             qtbot.mouseClick(sut.open_project_button, Qt.MouseButton.LeftButton)
 
             window = assert_window(ProjectWindow)

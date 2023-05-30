@@ -1,8 +1,7 @@
-from typing import Optional, ContextManager
+from typing import Optional
 
 import pytest
 
-from betty.app import App
 from betty.cotton_candy import CottonCandy
 from betty.locale import DateRange, Date
 from betty.model.ancestry import Place, PlaceName
@@ -56,8 +55,5 @@ class Test(TemplateTestCase):
         ),
     ])
     def test(self, expected: str, data, locale: Optional[str]) -> None:
-        def _set_up(app: App) -> ContextManager[None]:
-            return app.acquire_locale(locale)  # type: ignore
-
-        with self._render(data=data, set_up=_set_up) as (actual, _):
+        with self._render(data=data, locale=locale) as (actual, _):
             assert expected == actual

@@ -1,7 +1,7 @@
 import webbrowser
 from datetime import datetime
 from os import path
-from typing import TYPE_CHECKING
+from pathlib import Path
 from urllib.parse import urlencode
 
 from PyQt6.QtCore import Qt, QCoreApplication
@@ -17,9 +17,6 @@ from betty.gui.locale import TranslationsLocaleCollector
 from betty.gui.serve import ServeDemoWindow
 from betty.gui.text import Text
 from betty.project import ProjectConfiguration
-
-if TYPE_CHECKING:
-    from betty.builtins import _
 
 
 class BettyMainWindow(BettyWindow):
@@ -78,16 +75,16 @@ class BettyMainWindow(BettyWindow):
 
     def _do_set_translatables(self) -> None:
         super()._do_set_translatables()
-        self.new_project_action.setText(_('New project...'))
-        self.open_project_action.setText(_('Open project...'))
-        self._demo_action.setText(_('View demo site...'))
-        self.open_application_configuration_action.setText(_('Settings...'))
-        self.clear_caches_action.setText(_('Clear all caches'))
-        self.exit_action.setText(_('Exit'))
-        self.help_menu.setTitle('&' + _('Help'))
-        self.report_bug_action.setText(_('Report a bug'))
-        self.request_feature_action.setText(_('Request a new feature'))
-        self.about_action.setText(_('About Betty'))
+        self.new_project_action.setText(self._app.localizer._('New project...'))
+        self.open_project_action.setText(self._app.localizer._('Open project...'))
+        self._demo_action.setText(self._app.localizer._('View demo site...'))
+        self.open_application_configuration_action.setText(self._app.localizer._('Settings...'))
+        self.clear_caches_action.setText(self._app.localizer._('Clear all caches'))
+        self.exit_action.setText(self._app.localizer._('Exit'))
+        self.help_menu.setTitle('&' + self._app.localizer._('Help'))
+        self.report_bug_action.setText(self._app.localizer._('Report a bug'))
+        self.request_feature_action.setText(self._app.localizer._('Request a new feature'))
+        self.about_action.setText(self._app.localizer._('About Betty'))
 
     @catch_exceptions
     def report_bug(self) -> None:
@@ -130,15 +127,15 @@ class BettyMainWindow(BettyWindow):
     def open_project(self) -> None:
         from betty.gui.project import ProjectWindow
 
-        configuration_file_path, __ = QFileDialog.getOpenFileName(
+        configuration_file_path_str, __ = QFileDialog.getOpenFileName(
             self,
-            _('Open your project from...'),
+            self._app.localizer._('Open your project from...'),
             '',
-            get_configuration_file_filter(),
+            get_configuration_file_filter(self._app.localizer),
         )
-        if not configuration_file_path:
+        if not configuration_file_path_str:
             return
-        self._app.project.configuration.read(configuration_file_path)
+        self._app.project.configuration.read(Path(configuration_file_path_str))
         project_window = ProjectWindow(self._app)
         project_window.show()
         self.close()
@@ -147,23 +144,23 @@ class BettyMainWindow(BettyWindow):
     def new_project(self) -> None:
         from betty.gui.project import ProjectWindow
 
-        configuration_file_path, __ = QFileDialog.getSaveFileName(
+        configuration_file_path_str, __ = QFileDialog.getSaveFileName(
             self,
-            _('Save your new project to...'),
+            self._app.localizer._('Save your new project to...'),
             '',
-            get_configuration_file_filter(),
+            get_configuration_file_filter(self._app.localizer),
         )
-        if not configuration_file_path:
+        if not configuration_file_path_str:
             return
         configuration = ProjectConfiguration()
-        configuration.write(configuration_file_path)
+        configuration.write(Path(configuration_file_path_str))
         project_window = ProjectWindow(self._app)
         project_window.show()
         self.close()
 
     @catch_exceptions
     def _demo(self) -> None:
-        serve_window = ServeDemoWindow.get_instance(self._app, self)
+        serve_window = ServeDemoWindow(self._app, self)
         serve_window.show()
 
     @catch_exceptions
@@ -241,13 +238,13 @@ class WelcomeWindow(BettyMainWindow):
 
     def _do_set_translatables(self) -> None:
         super()._do_set_translatables()
-        self._welcome.setText(_('Welcome to Betty'))
-        self._welcome_caption.setText(_('Betty helps you visualize and publish your family history by building interactive genealogy websites out of your <a href="{gramps_url}">Gramps</a> and <a href="{gedcom_url}">GEDCOM</a> family trees.').format(gramps_url='https://gramps-project.org/', gedcom_url='https://en.wikipedia.org/wiki/GEDCOM'))
-        self._project_instruction.setText(_('Work on a new or existing site of your own'))
-        self.open_project_button.setText(_('Open an existing project'))
-        self.new_project_button.setText(_('Create a new project'))
-        self._demo_instruction.setText(_('View a demonstration of what a Betty site looks like'))
-        self.demo_button.setText(_('View a demo site'))
+        self._welcome.setText(self._app.localizer._('Welcome to Betty'))
+        self._welcome_caption.setText(self._app.localizer._('Betty helps you visualize and publish your family history by building interactive genealogy websites out of your <a href="{gramps_url}">Gramps</a> and <a href="{gedcom_url}">GEDCOM</a> family trees.').format(gramps_url='https://gramps-project.org/', gedcom_url='https://en.wikipedia.org/wiki/GEDCOM'))
+        self._project_instruction.setText(self._app.localizer._('Work on a new or existing site of your own'))
+        self.open_project_button.setText(self._app.localizer._('Open an existing project'))
+        self.new_project_button.setText(self._app.localizer._('Create a new project'))
+        self._demo_instruction.setText(self._app.localizer._('View a demonstration of what a Betty site looks like'))
+        self.demo_button.setText(self._app.localizer._('View a demo site'))
 
 
 class _AboutBettyWindow(BettyWindow):
@@ -264,14 +261,14 @@ class _AboutBettyWindow(BettyWindow):
     def _do_set_translatables(self) -> None:
         super()._do_set_translatables()
         self._label.setText(''.join(map(lambda x: '<p>%s</p>' % x, [
-            _('Version: {version}').format(version=about.version()),
-            _('Copyright 2019-{year} <a href="twitter.com/bartFeenstra">Bart Feenstra</a> & contributors. Betty is made available to you under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License, Version 3</a> (GPLv3).').format(year=datetime.now().year),
-            _('Follow Betty on <a href="https://twitter.com/Betty_Project">Twitter</a> and <a href="https://github.com/bartfeenstra/betty">Github</a>.'),
+            self._app.localizer._('Version: {version}').format(version=about.version_label()),
+            self._app.localizer._('Copyright 2019-{year} <a href="twitter.com/bartFeenstra">Bart Feenstra</a> & contributors. Betty is made available to you under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License, Version 3</a> (GPLv3).').format(year=datetime.now().year),
+            self._app.localizer._('Follow Betty on <a href="https://twitter.com/Betty_Project">Twitter</a> and <a href="https://github.com/bartfeenstra/betty">Github</a>.'),
         ])))
 
     @property
     def title(self) -> str:
-        return _('About Betty')
+        return self._app.localizer._('About Betty')
 
 
 class ApplicationConfiguration(BettyWindow):
@@ -285,10 +282,10 @@ class ApplicationConfiguration(BettyWindow):
         form_widget = QWidget()
         form_widget.setLayout(self._form)
         self.setCentralWidget(form_widget)
-        locale_collector = TranslationsLocaleCollector(self._app, set(self._app.translations.locales))
+        locale_collector = TranslationsLocaleCollector(self._app, set(self._app.localizers.locales))
         for row in locale_collector.rows:
             self._form.addRow(*row)
 
     @property
     def title(self) -> str:
-        return _('Configuration')
+        return self._app.localizer._('Configuration')

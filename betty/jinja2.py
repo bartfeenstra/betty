@@ -1,4 +1,3 @@
-import asyncio
 import datetime
 import json as stdjson
 import os
@@ -6,20 +5,18 @@ import re
 import warnings
 from contextlib import suppress
 from pathlib import Path
-from typing import Dict, Callable, Iterable, Type, Optional, Any, Union, Iterator, ContextManager, cast, \
-    AsyncContextManager, MutableMapping, List, TYPE_CHECKING
+from typing import Dict, Callable, Iterable, Type, Optional, Any, Union, Iterator, cast, \
+    MutableMapping, List, Set
 
 import aiofiles
+from aiofiles import os as aiofiles_os
 import pdf2image
 from PIL import Image
 from PIL.Image import DecompressionBombWarning
-from babel import Locale
 from geopy import units
 from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment as Jinja2Environment, select_autoescape, FileSystemLoader, pass_context, \
-    pass_eval_context, Template, \
-    nodes, TemplateNotFound
-from jinja2.ext import Extension
+    pass_eval_context, Template, TemplateNotFound, BaseLoader
 from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.nodes import EvalContext
 from jinja2.runtime import StrictUndefined, Context, Macro, DebugUndefined
@@ -28,24 +25,19 @@ from markupsafe import Markup, escape
 
 from betty import _resizeimage
 from betty.app import App
-from betty.asyncio import sync
-from betty.fs import hashfile, iterfiles, CACHE_DIRECTORY_PATH
+from betty.fs import hashfile, CACHE_DIRECTORY_PATH
 from betty.functools import walk
 from betty.html import CssProvider, JsProvider
-from betty.json import JSONEncoder
-from betty.locale import negotiate_localizeds, Localized, format_datey, Datey, negotiate_locale, Date, DateRange, \
-    bcp_47_to_rfc_1766
+from betty.locale import negotiate_localizeds, Localized, Datey, negotiate_locale, Date, DateRange, \
+    get_data
 from betty.lock import AcquiredError
 from betty.model import Entity, get_entity_type_name, GeneratedEntityId
 from betty.model.ancestry import File, Citation, HasLinks, HasFiles, Subject, Witness, Dated
-from betty.os import link_or_copy, PathLike
+from betty.os import link_or_copy
 from betty.path import rootname
 from betty.project import ProjectConfiguration
 from betty.render import Renderer
 from betty.string import camel_case_to_snake_case, camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
-
-if TYPE_CHECKING:
-    from betty.builtins import gettext, ngettext, pgettext, npgettext
 
 
 class _Citer:
@@ -80,35 +72,6 @@ class Jinja2Provider:
         return {}
 
 
-class _ContextManagerExtension(Extension):
-    tags = {'enter'}
-
-    def parse(self, parser):
-        lineno = next(parser.stream).lineno
-        context = parser.parse_expression()
-        body = parser.parse_statements(('name:exit',), drop_needle=True)
-        return nodes.CallBlock(
-            self.call_method('_enter_context', [context]),
-            [],
-            [],
-            body,
-        ).set_lineno(lineno)
-
-    def _enter_context(self, context: ContextManager, caller):
-        if hasattr(context, '__aenter__'):
-            return self._enter_async_context(cast(AsyncContextManager, context), caller)
-        return self._enter_sync_context(context, caller)
-
-    def _enter_sync_context(self, context: ContextManager, caller):
-        with context:
-            return caller()
-
-    @sync
-    async def _enter_async_context(self, context: AsyncContextManager, caller):
-        async with context:
-            return caller()
-
-
 class Environment(Jinja2Environment):
     def __init__(self, app: App):
         template_directory_paths = [str(path / 'templates') for path, _ in app.assets.paths]
@@ -119,7 +82,6 @@ class Environment(Jinja2Environment):
                          extensions=[
                              'jinja2.ext.do',
                              'jinja2.ext.i18n',
-                             'betty.jinja2._ContextManagerExtension',
         ],
         )
 
@@ -135,13 +97,11 @@ class Environment(Jinja2Environment):
         self._init_extensions()
 
     def _init_i18n(self) -> None:
-        # Wrap the callables so they always call the built-ins available runtime, because those change when the current
-        # locale does.
-        self.install_gettext_callables(  # type: ignore
-            lambda *args, **kwargs: gettext(*args, **kwargs),
-            lambda *args, **kwargs: ngettext(*args, **kwargs),
-            pgettext=lambda *args, **kwargs: pgettext(*args, **kwargs),  # type: ignore
-            npgettext=lambda *args, **kwargs: npgettext(*args, **kwargs),  # type: ignore
+        self.install_gettext_callables(  # type: ignore[attr-defined]
+            self.app.localizer.gettext,
+            self.app.localizer.ngettext,
+            pgettext=self.app.localizer.pgettext,
+            npgettext=self.app.localizer.npgettext,
         )
         self.policies['ext.i18n.trimmed'] = True
 
@@ -170,7 +130,7 @@ class Environment(Jinja2Environment):
         self.filters['map'] = _filter_map
         self.filters['flatten'] = _filter_flatten
         self.filters['walk'] = _filter_walk
-        self.filters['locale_get_data'] = lambda locale: Locale.parse(bcp_47_to_rfc_1766(locale))
+        self.filters['locale_get_data'] = get_data
         self.filters['negotiate_localizeds'] = _filter_negotiate_localizeds
         self.filters['sort_localizeds'] = _filter_sort_localizeds
         self.filters['select_localizeds'] = _filter_select_localizeds
@@ -179,7 +139,7 @@ class Environment(Jinja2Environment):
         self.filters['json'] = _filter_json
         self.filters['tojson'] = _filter_tojson
         self.filters['paragraphs'] = _filter_paragraphs
-        self.filters['format_date'] = _filter_format_date
+        self.filters['format_datey'] = self.app.localizer.format_datey
         self.filters['format_degrees'] = _filter_format_degrees
         self.filters['url'] = _filter_url
         self.filters['static_url'] = self.app.static_url_generator.generate
@@ -227,37 +187,51 @@ class Jinja2Renderer(Renderer):
     def __init__(self, environment: Environment, configuration: ProjectConfiguration):
         self._environment = environment
         self._configuration = configuration
+        self._loaders: Dict[Path, BaseLoader] = {}
 
-    async def render_file(self, file_path: PathLike) -> None:
-        file_path_str = str(file_path)
-        if not file_path_str.endswith('.j2'):
-            return
-        file_destination_path_str = file_path_str[:-3]
+    def get_loader(self, root_path: Path) -> BaseLoader:
+        if root_path not in self._loaders:
+            self._loaders[root_path] = FileSystemLoader(root_path)
+        return self._loaders[root_path]
+
+    @property
+    def file_extensions(self) -> Set[str]:
+        return {'.j2'}
+
+    async def render_file(self, file_path: Path) -> Path:
+        file_destination_path = file_path.parent / file_path.stem
         data = {}
-        if file_destination_path_str.startswith(str(self._configuration.www_directory_path)):
-            resource = '/'.join(Path(file_destination_path_str[len(str(self._configuration.www_directory_path)):].strip(os.sep)).parts)
+        try:
+            relative_file_destination_path = file_destination_path.relative_to(self._configuration.www_directory_path)
+        except ValueError:
+            pass
+        else:
+            resource = '/'.join(relative_file_destination_path.parts)
             if self._configuration.multilingual:
                 resource_parts = resource.lstrip('/').split('/')
                 if resource_parts[0] in map(lambda x: x.alias, self._configuration.locales):
                     resource = '/'.join(resource_parts[1:])
             data['page_resource'] = resource
         root_path = rootname(file_path)
-        template_name = '/'.join(Path(file_path).relative_to(root_path).parts)
-        template = FileSystemLoader(root_path).load(self._environment, template_name, self._environment.globals)
-        async with aiofiles.open(file_destination_path_str, 'w', encoding='utf-8') as f:
-            await f.write(template.render(data))
-        os.remove(file_path)
-
-    async def render_tree(self, tree_path: PathLike) -> None:
-        await asyncio.gather(
-            *[self.render_file(file_path) async for file_path in iterfiles(tree_path) if str(file_path).endswith('.j2')],
-        )
+        rendered = self.get_loader(root_path).load(
+            self._environment,
+            '/'.join(Path(file_path).relative_to(root_path).parts),
+            self._environment.globals,
+        ).render(data)
+        async with aiofiles.open(file_destination_path, 'w', encoding='utf-8') as f:
+            await f.write(rendered)
+        await aiofiles_os.remove(file_path)
+        return file_destination_path
 
 
 @pass_context
 def _filter_url(context: Context, resource: Any, media_type: Optional[str] = None, *args, **kwargs) -> str:
-    media_type = 'text/html' if media_type is None else media_type
-    return cast(Environment, context.environment).app.url_generator.generate(resource, media_type, *args, **kwargs)
+    return cast(Environment, context.environment).app.url_generator.generate(
+        resource,
+        media_type or 'text/html',
+        *args,
+        **kwargs,
+    )
 
 
 @pass_context
@@ -265,7 +239,7 @@ def _filter_json(context: Context, data: Any, indent: Optional[int] = None) -> s
     """
     Converts a value to a JSON string.
     """
-    return stdjson.dumps(data, indent=indent, cls=JSONEncoder.get_factory(cast(Environment, context.environment).app))
+    return stdjson.dumps(data, indent=indent, cls=(cast(Environment, context.environment).app.json_encoder))
 
 
 @pass_context
@@ -345,7 +319,7 @@ def _filter_file(app: App, file: File) -> str:
     with suppress(AcquiredError):
         app.locks.acquire((_filter_file, file))
         file_destination_path = app.project.configuration.www_directory_path / 'file' / file.id / 'file' / file.path.name
-        app.executor.submit(_do_filter_file, file.path, file_destination_path)
+        app.do_in_thread(lambda: _do_filter_file(file.path, file_destination_path))
 
     return f'/file/{file.id}/file/{file.path.name}'
 
@@ -383,7 +357,7 @@ def _filter_image(app: App, file: File, width: Optional[int] = None, height: Opt
     with suppress(AcquiredError):
         app.locks.acquire((_filter_image, file, width, height))
         cache_directory_path = CACHE_DIRECTORY_PATH / 'image'
-        app.executor.submit(task, file.path, cache_directory_path, file_directory_path, destination_name, width, height)
+        app.do_in_thread(lambda: task(file.path, cache_directory_path, file_directory_path, destination_name, width, height))
 
     destination_public_path = '/file/%s' % destination_name
 
@@ -482,8 +456,3 @@ def _filter_select_dateds(context: Context, dateds: Iterable[Dated], date: Optio
         lambda dated: dated.date is None or dated.date.comparable and dated.date in date,  # type: ignore
         dateds,
     )
-
-
-@pass_context
-def _filter_format_date(context: Context, date: Datey) -> str:
-    return format_datey(date, cast(Environment, context.environment).app.locale)

@@ -3,9 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.app.extension import ConfigurableExtension, UserFacingExtension
+from betty.locale import Localizer
 
 if TYPE_CHECKING:
-    from betty.builtins import _
     from betty.gramps.gui import _GrampsGuiWidget
 
 from betty.gramps.config import GrampsConfiguration
@@ -26,12 +26,12 @@ class Gramps(ConfigurableExtension[GrampsConfiguration], UserFacingExtension, Lo
                 await load_file(self._app.project.ancestry, file_path)
 
     @classmethod
-    def label(cls) -> str:
+    def label(cls, localizer: Localizer) -> str:
         return 'Gramps'
 
     @classmethod
-    def description(cls) -> str:
-        return _('Load <a href="https://gramps-project.org/">Gramps</a> family trees.')
+    def description(cls, localizer: Localizer) -> str:
+        return localizer._('Load <a href="https://gramps-project.org/">Gramps</a> family trees.')
 
     def gui_build(self) -> _GrampsGuiWidget:
         from betty.gramps.gui import _GrampsGuiWidget

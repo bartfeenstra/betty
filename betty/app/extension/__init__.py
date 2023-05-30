@@ -10,6 +10,8 @@ from typing import Type, Set, Optional, Any, List, Dict, TypeVar, Union, Iterabl
 
 from reactives.instance import ReactiveInstance
 
+from betty.locale import Localizer
+
 try:
     from typing_extensions import Self
 except ModuleNotFoundError:
@@ -25,7 +27,6 @@ from betty.app.extension.requirement import Requirement
 
 if TYPE_CHECKING:
     from betty.app import App
-    from betty.builtins import _
 
 
 class CyclicDependencyError(BaseException):
@@ -35,36 +36,38 @@ class CyclicDependencyError(BaseException):
 
 
 class Dependencies(Requirement):
-    def __init__(self, dependent_type: Type[Extension]):
+    def __init__(self, dependent_type: Type[Extension], *, localizer: Localizer | None = None):
+        super().__init__(localizer=localizer)
         self._dependent_type = dependent_type
 
     @classmethod
-    def for_dependent(cls, dependent_type: Type[Extension]) -> Self:  # type: ignore
-        return cls(dependent_type)
+    def for_dependent(cls, dependent_type: Type[Extension], *, localizer: Localizer | None) -> Self:  # type: ignore
+        return cls(dependent_type, localizer=localizer)
 
     def is_met(self) -> bool:
         for dependency_type in self._dependent_type.depends_on():
             try:
-                if not dependency_type.enable_requirement().is_met():
+                if not dependency_type.enable_requirement(self._localizer).is_met():
                     return False
             except RecursionError:
                 raise CyclicDependencyError([dependency_type])
         return True
 
     def summary(self) -> str:
-        return _('{dependent_label} requires {dependency_labels}.').format(
+        return self.localizer._('{dependent_label} requires {dependency_labels}.').format(
             dependent_label=format_extension_type(self._dependent_type),
             dependency_labels=', '.join(map(format_extension_type, self._dependent_type.depends_on())),
         )
 
 
 class Dependents(Requirement):
-    def __init__(self, dependency: Extension, dependents: Iterable[Extension]):
+    def __init__(self, dependency: Extension, dependents: Iterable[Extension], *, localizer: Localizer | None = None):
+        super().__init__(localizer=localizer)
         self._dependency = dependency
         self._dependents = dependents
 
     def summary(self) -> str:
-        return _('{dependency_label} is required by {dependency_labels}.').format(
+        return self.localizer._('{dependency_label} is required by {dependency_labels}.').format(
             dependency_label=format_extension_type(type(self._dependency)),
             dependent_labels=', '.join(
                 map(
@@ -80,14 +83,14 @@ class Dependents(Requirement):
         return True
 
     @classmethod
-    def for_dependency(cls, dependency: Extension) -> Self:  # type: ignore
+    def for_dependency(cls, dependency: Extension, *, localizer: Localizer | None = None) -> Self:  # type: ignore
         dependents = [
             dependency.app.extensions[extension_type]
             for extension_type
             in discover_extension_types()
             if dependency in extension_type.depends_on() and extension_type in dependency.app.extensions
         ]
-        return cls(dependency, dependents)
+        return cls(dependency, dependents, localizer=localizer)
 
 
 class Extension:
@@ -117,13 +120,13 @@ class Extension:
         return set()
 
     @classmethod
-    def enable_requirement(cls) -> Requirement:
+    def enable_requirement(cls, localizer: Localizer | None = None) -> Requirement:
         """
         Define the requirement for this extension to be enabled.
 
         This defaults to the extension's dependencies.
         """
-        return Dependencies.for_dependent(cls)
+        return Dependencies.for_dependent(cls, localizer=localizer)
 
     def disable_requirement(self) -> Requirement:
         """
@@ -131,7 +134,7 @@ class Extension:
 
         This defaults to the extension's dependents.
         """
-        return Dependents.for_dependency(self)
+        return Dependents.for_dependency(self, localizer=self._app.localizer)
 
     @classmethod
     def assets_directory_path(cls) -> Optional[Path]:
@@ -151,11 +154,11 @@ ExtensionT = TypeVar('ExtensionT', bound=Extension)
 
 class UserFacingExtension(Extension):
     @classmethod
-    def label(cls) -> str:
+    def label(cls, localizer: Localizer) -> str:
         raise NotImplementedError
 
     @classmethod
-    def description(cls) -> str:
+    def description(cls, localizer: Localizer) -> str:
         raise NotImplementedError
 
 
@@ -170,11 +173,10 @@ def format_extension_type(extension_type: Type[Extension]) -> str:
 
 
 class ConfigurableExtension(Extension, Generic[ConfigurationT], Configurable[ConfigurationT]):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, configuration: ConfigurationT | None = None, **kwargs):
         assert type(self) != ConfigurableExtension
-        if 'configuration' not in kwargs or kwargs['configuration'] is None:
-            kwargs['configuration'] = self.default_configuration()
         super().__init__(*args, **kwargs)
+        self._configuration = configuration or self.default_configuration()
 
     @classmethod
     def default_configuration(cls) -> ConfigurationT:

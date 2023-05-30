@@ -3,7 +3,7 @@ from typing import Dict
 import pytest
 
 from betty.app import App
-from betty.config import DumpedConfigurationImport
+from betty.config import DumpedConfiguration
 from betty.config.load import ConfigurationValidationError
 from betty.cotton_candy import CottonCandyConfiguration, _ColorConfiguration
 from betty.model import Entity, get_entity_type_name
@@ -42,7 +42,7 @@ class TestColorConfiguration:
         'rgb(0,0,0)',
         'pink',
     ])
-    def test_load_with_invalid_value(self, dumped_configuration: DumpedConfigurationImport) -> None:
+    def test_load_with_invalid_value(self, dumped_configuration: DumpedConfiguration) -> None:
         sut = _ColorConfiguration('#ffffff')
         with raises_configuration_error(error_type=ConfigurationValidationError) as loader:
             sut.load(dumped_configuration, loader)

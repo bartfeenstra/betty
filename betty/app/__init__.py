@@ -1,16 +1,15 @@
 from __future__ import annotations
 
 import weakref
-from concurrent.futures._base import Executor
+import asyncio
+from concurrent.futures import Executor, ProcessPoolExecutor
 from concurrent.futures.thread import ThreadPoolExecutor
-from contextlib import contextmanager, ExitStack, suppress
-from gettext import NullTranslations
+from contextlib import suppress
 from pathlib import Path
-from typing import List, Type, TYPE_CHECKING, Set, Iterator, Optional
+import os as stdos
+from typing import List, Optional, Type, TYPE_CHECKING, Set, Callable, Awaitable, Mapping
 
 import aiohttp
-from babel.core import parse_locale
-from babel.localedata import locale_identifiers
 from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
 
@@ -18,11 +17,12 @@ from betty.app.extension import ListExtensions, Extension, Extensions, build_ext
     CyclicDependencyError, ExtensionDispatcher, ConfigurableExtension, discover_extension_types
 from betty.asyncio import sync
 from betty.concurrent import ExceptionRaisingAwaitableExecutor
-from betty.config import FileBasedConfiguration, DumpedConfigurationImport, Configurable, DumpedConfigurationExport
+from betty.config import FileBasedConfiguration, DumpedConfiguration, Configurable, VoidableDumpedConfiguration
 from betty.config.load import ConfigurationValidationError, Loader, Field
 from betty.dispatch import Dispatcher
 from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH, HOME_DIRECTORY_PATH
-from betty.locale import negotiate_locale, TranslationsRepository, Translations, rfc_1766_to_bcp_47, bcp_47_to_rfc_1766
+from betty.locale import LocalizerRepository, get_data, Localey, DEFAULT_LOCALE, to_locale, \
+    Localizer, DEFAULT_LOCALIZER
 from betty.lock import Locks
 from betty.model import Entity, EntityTypeProvider
 from betty.model.ancestry import Citation, Event, File, Person, PersonName, Presence, Place, Enclosure, \
@@ -44,8 +44,9 @@ except ModuleNotFoundError:  # pragma: no cover
     from typing import Self  # type: ignore  # pragma: no cover
 
 if TYPE_CHECKING:
-    from betty.builtins import _
     from betty.jinja2 import Environment
+    from betty.json import JSONEncoder
+    from betty.serve import Server
     from betty.url import StaticUrlGenerator, ContentNegotiationUrlGenerator
 
 CONFIGURATION_DIRECTORY_PATH = HOME_DIRECTORY_PATH / 'configuration'
@@ -63,7 +64,7 @@ class _AppExtensions(ListExtensions):
 class AppConfiguration(FileBasedConfiguration):
     def __init__(self):
         super().__init__()
-        self._locale = None
+        self._locale: str | None = None
 
     @property
     def configuration_file_path(self) -> Path:
@@ -85,21 +86,21 @@ class AppConfiguration(FileBasedConfiguration):
     @locale.setter
     def locale(self, locale: str) -> None:
         try:
-            parse_locale(bcp_47_to_rfc_1766(locale))
+            get_data(locale)
         except ValueError:
-            raise ConfigurationValidationError(_('{locale} is not a valid IETF BCP 47 language tag.').format(locale=locale))
+            raise ConfigurationValidationError(self.localizer._('"{locale}" is not a valid IETF BCP 47 language tag.').format(locale=locale))
         self._locale = locale
 
-    def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
+    def load(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> None:
         loader.assert_record(dumped_configuration, {
             'locale': Field(
-                True,
+                False,
                 loader.assert_str,  # type: ignore
                 lambda x: loader.assert_setattr(self, 'locale', x),
             ),
         })
 
-    def dump(self) -> DumpedConfigurationExport:
+    def dump(self) -> VoidableDumpedConfiguration:
         dumped_configuration = {}
         if self._locale is not None:
             dumped_configuration['locale'] = self.locale
@@ -108,117 +109,57 @@ class AppConfiguration(FileBasedConfiguration):
 
 
 class App(Configurable[AppConfiguration], ReactiveInstance):
-    def __init__(self, *args, **kwargs):
-        from betty.url import AppUrlGenerator, StaticPathUrlGenerator
-
-        super().__init__(*args, **kwargs)
-        self._configuration = AppConfiguration()
-        with suppress(FileNotFoundError):
-            with Translations():
-                self.configuration.read()
-
-        self._acquired = False
+    def __init__(
+        self,
+        configuration: AppConfiguration | None = None,
+        project: Project | None = None,
+        locale: Localey | None = DEFAULT_LOCALE,
+    ):
+        super().__init__()
+        self._configuration = configuration or AppConfiguration()
+        self._assets: FileSystem | None = None
         self._extensions = _AppExtensions()
         self._extensions_initialized = False
-        self._project = Project()
-        self._assets = FileSystem()
-        self._dispatcher = None
-        self._entity_types = None
-        self._event_types = None
-        self._url_generator = AppUrlGenerator(self)
-        self._static_url_generator = StaticPathUrlGenerator(self.project.configuration)
-        self._debug = None
-        self._locale: Optional[str] = None
-        self._translations: Optional[TranslationsRepository] = None
-        self._default_translations = None
-        self._acquire_contexts = ExitStack()
-        self._jinja2_environment = None
-        self._renderer = None
-        self._executor = None
-        self._locks = Locks()
-        self._http_client = None
+        self._locale = to_locale(locale) if locale else None
+        self._localization_initialized = False
+        self._localizer: Localizer | None = None
+        self._localizers: LocalizerRepository | None = None
+        with suppress(FileNotFoundError):
+            self.configuration.read()
+        self._project = project or Project()
+        self._init_localization()
 
-    def __copy__(self) -> Self:  # type: ignore
-        copied = type(self)()
-        copied._project = self._project
-        return copied
+        self._dispatcher: ExtensionDispatcher | None = None
+        self._entity_types: Set[Type[Entity]] | None = None
+        self._event_types: Set[Type[EventType]] | None = None
+        self._url_generator: ContentNegotiationUrlGenerator | None = None
+        self._static_url_generator: StaticUrlGenerator | None = None
+        self._jinja2_environment: Environment | None = None
+        self._renderer: Renderer | None = None
+        self.__thread_pool_executor: ExceptionRaisingAwaitableExecutor | None = None
+        self.__process_pool_executor: ExceptionRaisingAwaitableExecutor | None = None
+        self._locks = Locks()
+        self._http_client: aiohttp.ClientSession | None = None
+
+    def __getstate__(self) -> None:
+        raise RuntimeError(f'{self.__class__} MUST NOT be pickled. Pickle {self.__class__}.project instead.')
+
+    def __copy__(self) -> Self:
+        raise RuntimeError(f'{self.__class__} MUST NOT be copied. Copy {self.__class__}.project instead.')
+
+    def __deepcopy__(self, _) -> None:
+        raise RuntimeError(f'{self.__class__} MUST NOT be copied. Copy {self.__class__}.project instead.')
 
     def wait(self) -> None:
-        self._wait_for_threads()
-
-    def _wait_for_threads(self) -> None:
-        if self._executor:
-            self._executor.wait()
-
-    def acquire(self) -> None:
-        if self._acquired:
-            raise RuntimeError('This application is acquired already.')
-        self._acquired = True
-        try:
-            # Enable the gettext API by entering a dummy translations context.
-            self._acquire_contexts.enter_context(Translations(NullTranslations()))
-            # Then acquire the actual locale.
-            self._acquire_contexts.enter_context(self.acquire_locale())
-        except BaseException:
-            self.release()
-            raise
-
-    def release(self) -> None:
-        if not self._acquired:
-            raise RuntimeError('This application is not yet acquired.')
-        self._wait_for_threads()
-        self._acquire_contexts.close()
+        del self._thread_pool_executor
+        del self._process_pool_executor
         del self.http_client
-        self._acquired = False
 
-    @contextmanager
-    def acquire_locale(self, *requested_locales: str | None) -> Iterator[Self]:  # type: ignore
-        """
-        Temporarily change this application's locale and the global gettext translations.
-        """
-        if not requested_locales:
-            requested_locales = (self.configuration.locale,)
-        requested_locales = (*requested_locales, 'en-US')
-        preferred_locales = [locale for locale in requested_locales if locale is not None]
-
-        negotiated_locale = negotiate_locale(
-            preferred_locales,
-            {
-                rfc_1766_to_bcp_47(locale)
-                for locale
-                in locale_identifiers()
-            },
-        )
-
-        if negotiated_locale is None:
-            raise ValueError('None of the requested locales are available.')
-
-        previous_locale = self._locale
-        self._locale = negotiated_locale
-
-        negotiated_translations_locale = negotiate_locale(
-            preferred_locales,
-            set(self.translations.locales),
-        )
-        if negotiated_translations_locale is None:
-            negotiated_translations_locale = 'en-US'
-        with self.translations[negotiated_translations_locale]:
-            yield self
-
-        self._locale = previous_locale
-
-    @property
-    def locale(self) -> str:
-        if self._locale is None:
-            raise RuntimeError(f'No locale has been acquired yet. Use {type(self)}.acquire_locale() to activate a locale.')
-        return self._locale
-
-    def __enter__(self) -> App:
-        self.acquire()
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.release()
+        self.wait()
 
     @property
     def project(self) -> Project:
@@ -240,7 +181,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         extension_types_enabled_in_configuration = set()
         for app_extension_configuration in self.project.configuration.extensions:
             if app_extension_configuration.enabled:
-                app_extension_configuration.extension_type.enable_requirement().assert_met()
+                app_extension_configuration.extension_type.enable_requirement(self._localizer).assert_met()
                 extension_types_enabled_in_configuration.add(app_extension_configuration.extension_type)
 
         extension_types_sorter = TopologicalSorter(
@@ -268,25 +209,20 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
     @property
     @reactive_property(on_trigger_delete=True)
     def assets(self) -> FileSystem:
-        if len(self._assets) == 0:
-            self._build_assets()
-
+        if self._assets is None:
+            self._assets = FileSystem()
+            self._assets.prepend(ASSETS_DIRECTORY_PATH, 'utf-8')
+            for extension in self.extensions.flatten():
+                extension_assets_directory_path = extension.assets_directory_path()
+                if extension_assets_directory_path is not None:
+                    self._assets.prepend(extension_assets_directory_path, 'utf-8')
+            if self.project.configuration.assets_directory_path:
+                self._assets.prepend(self.project.configuration.assets_directory_path)
         return self._assets
 
     @assets.deleter
     def assets(self) -> None:
-        # Proactively rebuild the assets, so the assets file system can be reused.
-        self._build_assets()
-
-    def _build_assets(self) -> None:
-        self._assets.clear()
-        self._assets.prepend(ASSETS_DIRECTORY_PATH, 'utf-8')
-        for extension in self.extensions.flatten():
-            extension_assets_directory_path = extension.assets_directory_path()
-            if extension_assets_directory_path is not None:
-                self._assets.prepend(extension_assets_directory_path, 'utf-8')
-        if self.project.configuration.assets_directory_path:
-            self._assets.prepend(self.project.configuration.assets_directory_path)
+        self._assets = None
 
     @property
     def dispatcher(self) -> Dispatcher:
@@ -296,18 +232,53 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         return self._dispatcher
 
     @property
+    def www_directory_path(self) -> Path:
+        if self.project.configuration.multilingual:
+            return self.static_www_directory_path / self.project.configuration.locales[self.locale].alias
+        return self.static_www_directory_path
+
+    @property
+    def static_www_directory_path(self) -> Path:
+        return self.project.configuration.www_directory_path
+
+    @property
     def url_generator(self) -> ContentNegotiationUrlGenerator:
+        from betty.url import AppUrlGenerator
+
+        if self._url_generator is None:
+            self._url_generator = AppUrlGenerator(self)
         return self._url_generator
 
     @property
     def static_url_generator(self) -> StaticUrlGenerator:
+        from betty.url import StaticPathUrlGenerator
+
+        if self._static_url_generator is None:
+            self._static_url_generator = StaticPathUrlGenerator(self.project.configuration)
         return self._static_url_generator
 
     @property
-    def translations(self) -> TranslationsRepository:
-        if self._translations is None:
-            self._translations = TranslationsRepository(self.assets)
-        return self._translations
+    def locale(self) -> str:
+        return self._locale or self.configuration.locale or DEFAULT_LOCALE
+
+    @property
+    def localizer(self) -> Localizer:
+        if self._localizer is None:
+            if not self._localization_initialized:
+                return DEFAULT_LOCALIZER
+            self._localizer = self.localizers.get_negotiated(self.locale)
+        return self._localizer
+
+    @property
+    def localizers(self) -> LocalizerRepository:
+        if self._localizers is None:
+            self._localizers = LocalizerRepository(self.assets)
+        return self._localizers
+
+    def _init_localization(self) -> None:
+        self._localization_initialized = True
+        self.configuration.localizer = self.localizer
+        self.project.localizer = self.localizer
 
     @property
     @reactive_property(on_trigger_delete=True)
@@ -339,10 +310,48 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         self._renderer = None
 
     @property
-    def executor(self) -> Executor:
-        if self._executor is None:
-            self._executor = ExceptionRaisingAwaitableExecutor(ThreadPoolExecutor())
-        return self._executor
+    def concurrency(self) -> int:
+        with suppress(KeyError):
+            return int(stdos.environ['BETTY_CONCURRENCY'])
+        # Assume that any machine that runs Betty has at least two CPU cores.
+        return stdos.cpu_count() or 2
+
+    @property
+    def async_concurrency(self) -> int:
+        return self.concurrency ** 2
+
+    @property
+    def _thread_pool_executor(self) -> Executor:
+        if self.__thread_pool_executor is None:
+            self.__thread_pool_executor = ExceptionRaisingAwaitableExecutor(ThreadPoolExecutor(self.async_concurrency))
+        return self.__thread_pool_executor
+
+    @_thread_pool_executor.deleter
+    def _thread_pool_executor(self) -> None:
+        if self.__thread_pool_executor is not None:
+            self.__thread_pool_executor.wait()
+
+    def do_in_thread(self, task: Callable[[], None]) -> Awaitable[None]:
+        return asyncio.get_event_loop().run_in_executor(self._thread_pool_executor, task)
+
+    @property
+    def _process_pool_executor(self) -> Executor:
+        if self.__process_pool_executor is None:
+            self.__process_pool_executor = ExceptionRaisingAwaitableExecutor(ProcessPoolExecutor(self.concurrency))
+        return self.__process_pool_executor
+
+    @_process_pool_executor.deleter
+    def _process_pool_executor(self) -> None:
+        if self.__process_pool_executor is not None:
+            self.__process_pool_executor.wait()
+
+    def do_in_process(self, task: Callable[[], None]) -> Awaitable[None]:
+        return asyncio.get_event_loop().run_in_executor(self._process_pool_executor, task)
+
+    @property
+    def json_encoder(self) -> Type[JSONEncoder]:
+        from betty.json import JSONEncoder
+        return lambda *args, **kwargs: JSONEncoder(self)  # type: ignore[return-value]
 
     @property
     def locks(self) -> Locks:
@@ -414,3 +423,23 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
                 Confirmation,
             }
         return self._event_types
+
+    @property
+    def servers(self) -> Mapping[str, Server]:
+        from betty import serve
+        from betty.demo import DemoServer
+
+        return {
+            server.name(): server
+            for server
+            in [
+                *(
+                    server
+                    for extension in self.extensions.flatten()
+                    if isinstance(extension, serve.ServerProvider)
+                    for server in extension.servers
+                ),
+                serve.BuiltinServer(self.project),
+                DemoServer(localizer=self._localizer),
+            ]
+        }

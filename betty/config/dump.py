@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Union, TypeVar, Mapping, Sequence, Type, Any
+from typing import Union, TypeVar, Mapping, Sequence, Type, Dict, List, overload, Literal
 
 from betty.typing import Void
 
@@ -8,6 +8,10 @@ try:
     from typing_extensions import TypeAlias
 except ModuleNotFoundError:
     from typing import TypeAlias  # type: ignore
+
+
+T = TypeVar('T')
+U = TypeVar('U')
 
 
 DumpedConfigurationType: TypeAlias = Union[
@@ -22,70 +26,72 @@ DumpedConfigurationType: TypeAlias = Union[
 DumpedConfigurationTypeT = TypeVar('DumpedConfigurationTypeT', bound=DumpedConfigurationType)
 
 
-DumpedConfigurationImport: TypeAlias = Union[
+DumpedConfiguration: TypeAlias = Union[
     bool,
     int,
     float,
     str,
     None,
-    Sequence['DumpedConfigurationImport'],
-    Mapping[str, 'DumpedConfigurationImport'],
+    Sequence['DumpedConfiguration'],
+    Mapping[str, 'DumpedConfiguration'],
 ]
-DumpedConfigurationImportT = TypeVar('DumpedConfigurationImportT', bound=DumpedConfigurationImport)
-DumpedConfigurationImportU = TypeVar('DumpedConfigurationImportU', bound=DumpedConfigurationImport)
+DumpedConfigurationT = TypeVar('DumpedConfigurationT', bound=DumpedConfiguration)
+DumpedConfigurationU = TypeVar('DumpedConfigurationU', bound=DumpedConfiguration)
 
 
-DumpedConfigurationExport: TypeAlias = Union[
-    bool,
-    int,
-    float,
-    str,
-    None,
-    Sequence['DumpedConfigurationExport'],
-    Mapping[str, 'DumpedConfigurationExport'],
+VoidableDumpedConfiguration: TypeAlias = Union[
+    DumpedConfiguration,
     Type[Void],
 ]
-DumpedConfigurationExportT = TypeVar('DumpedConfigurationExportT', bound=DumpedConfigurationExport)
-DumpedConfigurationExportU = TypeVar('DumpedConfigurationExportU', bound=DumpedConfigurationExport)
+VoidableDumpedConfigurationT = TypeVar('VoidableDumpedConfigurationT', bound=VoidableDumpedConfiguration)
+VoidableDumpedConfigurationU = TypeVar('VoidableDumpedConfigurationU', bound=VoidableDumpedConfiguration)
 
 
-DumpedConfiguration: TypeAlias = Union[DumpedConfigurationImport, DumpedConfigurationExport]
-DumpedConfigurationT = TypeVar('DumpedConfigurationT', bound=DumpedConfiguration)
+DumpedConfigurationList: TypeAlias = List[DumpedConfigurationT]
 
 
-DumpedConfigurationList: TypeAlias = Sequence[DumpedConfigurationT]
+DumpedConfigurationDict: TypeAlias = Dict[str, DumpedConfigurationT]
 
 
-DumpedConfigurationDict: TypeAlias = Mapping[str, DumpedConfigurationT]
+VoidableDumpedConfigurationList: TypeAlias = List[VoidableDumpedConfigurationT]
 
 
-DumpedConfigurationCollection: TypeAlias = Union[DumpedConfigurationList, DumpedConfigurationDict]
+VoidableDumpedConfigurationDict: TypeAlias = Dict[str, VoidableDumpedConfigurationT]
 
 
-def _minimize_collection(dumped_configuration: Any, keys: Any) -> None:
-    for key in keys:
-        dumped_configuration[key] = minimize(dumped_configuration[key])
-        if dumped_configuration[key] is Void:
-            del dumped_configuration[key]
+MinimizableDumpedConfiguration: TypeAlias = Union[VoidableDumpedConfiguration, VoidableDumpedConfigurationList, VoidableDumpedConfigurationDict]
 
 
-def minimize_list(dumped_configuration: DumpedConfigurationList[DumpedConfigurationExportT]) -> Union[DumpedConfigurationList[DumpedConfigurationExportT], Type[Void]]:
-    _minimize_collection(dumped_configuration, reversed(range(len(dumped_configuration))))
-    if not len(dumped_configuration):
+@overload
+def minimize(dumped_configuration: MinimizableDumpedConfiguration, voidable: Literal[True] = True) -> VoidableDumpedConfiguration:
+    pass
+
+
+@overload
+def minimize(dumped_configuration: MinimizableDumpedConfiguration, voidable: Literal[False]) -> DumpedConfiguration:
+    pass
+
+
+def minimize(dumped_configuration: MinimizableDumpedConfiguration, voidable: bool = True) -> VoidableDumpedConfiguration:
+    if isinstance(dumped_configuration, (Sequence, Mapping)) and not isinstance(dumped_configuration, str):
+        if isinstance(dumped_configuration, Sequence):
+            dumped_configuration = [
+                value
+                for value
+                in dumped_configuration
+                if value is not Void
+            ]
+            for key in reversed(range(len(dumped_configuration))):
+                if dumped_configuration[key] is Void:
+                    del dumped_configuration[key]
+        if isinstance(dumped_configuration, Mapping):
+            dumped_configuration = {
+                key: value
+                for key, value
+                in dumped_configuration.items()
+                if value is not Void
+            }
+        if len(dumped_configuration) or not voidable:
+            return dumped_configuration  # type: ignore[return-value]
         return Void
-    return dumped_configuration
-
-
-def minimize_dict(dumped_configuration: DumpedConfigurationDict[DumpedConfigurationExportT], void_empty: bool = False) -> Union[DumpedConfigurationDict[DumpedConfigurationExportT], Type[Void]]:
-    _minimize_collection(dumped_configuration, list(dumped_configuration.keys()))
-    if not void_empty or len(dumped_configuration) > 0:
-        return dumped_configuration
-    return Void
-
-
-def minimize(dumped_configuration: DumpedConfigurationExport) -> Union[DumpedConfigurationExport, Type[Void]]:
-    if isinstance(dumped_configuration, list):
-        return minimize_list(dumped_configuration)
-    if isinstance(dumped_configuration, dict):
-        return minimize_dict(dumped_configuration)
     return dumped_configuration

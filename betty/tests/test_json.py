@@ -1,11 +1,11 @@
 import json as stdjson
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 from geopy import Point
 
 from betty import json
 from betty.app import App
-from betty.json import JSONEncoder
 from betty.locale import Date, DateRange
 from betty.media_type import MediaType
 from betty.model.ancestry import Place, Person, PlaceName, Link, Presence, Source, File, Note, PersonName, \
@@ -22,7 +22,7 @@ class TestJSONEncoder:
             LocaleConfiguration('nl-NL', 'nl'),
         ])
         with app:
-            encoded_data = stdjson.loads(stdjson.dumps(data, cls=JSONEncoder.get_factory(app)))
+            encoded_data = stdjson.loads(stdjson.dumps(data, cls=app.json_encoder))
         json.validate(encoded_data, schema_definition, app)
         assert expected == encoded_data
 
@@ -96,7 +96,7 @@ class TestJSONEncoder:
         link = Link('https://example.com/the-place')
         link.label = 'The Place Online'
         place.links.add(link)
-        place.events.append(Event('E1', Birth()))
+        place.events.append(Event('E1', Birth))
         expected = {
             '$schema': '/schema.json#/definitions/place',
             '@context': {
@@ -218,7 +218,7 @@ class TestJSONEncoder:
         person.links.add(link)
         person.citations.append(
             Citation('the_citation', Source('The Source')))
-        Presence(person, Subject(), Event('the_event', Birth()))
+        Presence(person, Subject(), Event('the_event', Birth))
 
         expected = {
             '$schema': '/schema.json#/definitions/person',
@@ -314,7 +314,7 @@ class TestJSONEncoder:
 
     def test_file_should_encode_minimal(self):
         with NamedTemporaryFile() as f:
-            file = File('the_file', f.name)
+            file = File('the_file', Path(f.name))
             expected = {
                 '$schema': '/schema.json#/definitions/file',
                 'id': 'the_file',
@@ -343,7 +343,7 @@ class TestJSONEncoder:
     def test_file_should_encode_full(self):
         with NamedTemporaryFile() as f:
             note = Note('the_note', 'The Note')
-            file = File('the_file', f.name)
+            file = File('the_file', Path(f.name))
             file.media_type = MediaType('text/plain')
             file.notes.append(note)
             Person('the_person').files.append(file)
@@ -378,7 +378,7 @@ class TestJSONEncoder:
             self.assert_encodes(expected, file, 'file')
 
     def test_event_should_encode_minimal(self):
-        event = Event('the_event', Birth())
+        event = Event('the_event', Birth)
         expected = {
             '$schema': '/schema.json#/definitions/event',
             '@type': 'https://schema.org/Event',
@@ -407,7 +407,7 @@ class TestJSONEncoder:
         self.assert_encodes(expected, event, 'event')
 
     def test_event_should_encode_full(self):
-        event = Event('the_event', Birth())
+        event = Event('the_event', Birth)
         event.date = DateRange(Date(2000, 1, 1), Date(2019, 12, 31))
         event.place = Place('the_place', [PlaceName('The Place')])
         Presence(Person('the_person'), Subject(), event)
@@ -586,7 +586,7 @@ class TestJSONEncoder:
 
     def test_citation_should_encode_full(self):
         citation = Citation('the_citation', Source('the_source', 'The Source'))
-        citation.facts.append(Event('the_event', Birth()))
+        citation.facts.append(Event('the_event', Birth))
         expected = {
             '$schema': '/schema.json#/definitions/citation',
             '@type': 'https://schema.org/Thing',

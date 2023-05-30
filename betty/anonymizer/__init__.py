@@ -1,9 +1,9 @@
-from typing import Set, Type, TYPE_CHECKING
+from __future__ import annotations
 
-if TYPE_CHECKING:
-    from betty.builtins import _
+from typing import Set, Type
 
 from betty.app.extension import Extension, UserFacingExtension
+from betty.locale import Localizer
 from betty.privatizer import Privatizer
 from betty.model.ancestry import Ancestry, Person, File, Citation, Source, Event
 from betty.functools import walk
@@ -13,12 +13,12 @@ from betty.load import PostLoader
 class AnonymousSource(Source):
     _ID = 'betty-anonymous-source'
 
-    def __init__(self):
-        super().__init__(self._ID)
+    def __init__(self, *, localizer: Localizer | None = None):
+        super().__init__(self._ID, localizer=localizer)
 
     @property  # type: ignore
     def name(self) -> str:  # type: ignore
-        return _('Private')
+        return self.localizer._('Private')
 
     @name.setter
     def name(self, _) -> None:
@@ -46,12 +46,12 @@ class AnonymousSource(Source):
 class AnonymousCitation(Citation):
     _ID = 'betty-anonymous-citation'
 
-    def __init__(self, source: Source):
-        super().__init__(self._ID, source)
+    def __init__(self, source: Source, *, localizer: Localizer | None = None):
+        super().__init__(self._ID, source, localizer=localizer)
 
     @property  # type: ignore
     def location(self) -> str:  # type: ignore
-        return _("A citation is available, but has not been published in order to protect people's privacy")
+        return self.localizer._("A citation is available, but has not been published in order to protect people's privacy")
 
     @location.setter
     def location(self, _) -> None:
@@ -161,9 +161,9 @@ class Anonymizer(UserFacingExtension, PostLoader):
         anonymize(self.app.project.ancestry, AnonymousCitation(AnonymousSource()))
 
     @classmethod
-    def label(cls) -> str:
-        return _('Anonymizer')
+    def label(cls, localizer: Localizer) -> str:
+        return localizer._('Anonymizer')
 
     @classmethod
-    def description(cls) -> str:
-        return _('Anonymize people, events, files, sources, and citations marked private by removing their information and relationships with other resources. Enable the Privatizer and Cleaner as well to make this most effective.')
+    def description(cls, localizer: Localizer) -> str:
+        return localizer._('Anonymize people, events, files, sources, and citations marked private by removing their information and relationships with other resources. Enable the Privatizer and Cleaner as well to make this most effective.')

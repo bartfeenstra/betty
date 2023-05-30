@@ -21,9 +21,7 @@
     <link rel="canonical" href="{{ page_resource | url(absolute=true) }}" hreflang="{{ app.locale }}" type="text/html"/>
     {% for locale_configuration in app.project.configuration.locales %}
         {% if locale_configuration.locale != app.locale %}
-            {% enter app.acquire_locale(locale_configuration.locale) %}
-                <link rel="alternate" href="{{ page_resource | url }}" hreflang="{{ locale_configuration.locale }}" type="text/html"/>
-            {% exit %}
+            <link rel="alternate" href="{{ page_resource | url(locale=locale_configuration.locale) }}" hreflang="{{ locale_configuration.locale }}" type="text/html"/>
         {% endif %}
     {% endfor %}
     {% if page_resource is entity and page_resource is not has_generated_entity_id %}
@@ -32,9 +30,7 @@
         </script>
         {% set current_locale = app.locale %}
         {% for locale_configuration in app.project.configuration.locales %}
-            {% enter app.acquire_locale(locale_configuration.locale) %}
-                <link rel="alternate" href="{{ page_resource | url(media_type='application/json') }}" hreflang="{{ locale_configuration.locale }}" type="application/json"/>
-            {% exit %}
+            <link rel="alternate" href="{{ page_resource | url(media_type='application/json', locale=locale_configuration.locale) }}" hreflang="{{ locale_configuration.locale }}" type="application/json"/>
         {% endfor %}
     {% endif %}
 {% endif %}

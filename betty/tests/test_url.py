@@ -1,8 +1,12 @@
+from __future__ import annotations
+
+from pathlib import Path
 from typing import Any
 
 import pytest
 
 from betty.app import App
+from betty.locale import Localey
 from betty.model import UserFacingEntity, Entity
 from betty.model.ancestry import Person, Place, File, Source, PlaceName, Event, Citation
 from betty.model.event_type import Death
@@ -53,18 +57,21 @@ class TestLocalizedPathUrlGenerator:
             with pytest.raises(ValueError):
                 sut.generate(9, 'text/html')
 
-    def test_generate_multilingual(self):
-        app = App()
+    @pytest.mark.parametrize('expected, app_locale, url_generator_locale', [
+        ('/nl/index.html', 'nl', None),
+        ('/en/index.html', 'en', None),
+        ('/nl/index.html', None, 'nl'),
+        ('/en/index.html', None, 'en'),
+    ])
+    def test_generate_multilingual(self, expected: str, app_locale: Localey | None, url_generator_locale: Localey | None):
+        app = App(locale=app_locale)
         app.project.configuration.locales.replace([
             LocaleConfiguration('nl'),
             LocaleConfiguration('en'),
         ])
         with app:
             sut = ContentNegotiationPathUrlGenerator(app)
-            with app.acquire_locale('nl'):
-                assert '/nl/index.html' == sut.generate('/index.html', 'text/html')
-            with app.acquire_locale('en'):
-                assert '/en/index.html' == sut.generate('/index.html', 'text/html')
+            assert expected == sut.generate('/index.html', 'text/html', locale=url_generator_locale)
 
 
 class EntityUrlGeneratorTestUrlyEntity(UserFacingEntity, Entity):
@@ -92,9 +99,9 @@ class TestAppUrlGenerator:
     @pytest.mark.parametrize('expected, resource', [
         ('/index.html', '/index.html'),
         ('/person/P1/index.html', Person('P1')),
-        ('/event/E1/index.html', Event('E1', Death())),
+        ('/event/E1/index.html', Event('E1', Death)),
         ('/place/P1/index.html', Place('P1', [PlaceName('Place 1')])),
-        ('/file/F1/index.html', File('F1', '/tmp')),
+        ('/file/F1/index.html', File('F1', Path('/tmp'))),
         ('/source/S1/index.html', Source('S1', 'Source 1')),
         ('/citation/C1/index.html', Citation('C1', Source('Source 1'))),
     ])

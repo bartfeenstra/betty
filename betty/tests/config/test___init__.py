@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Iterator, Type, Union, Optional, Tuple, Iterable, List, Any
 
@@ -6,8 +7,8 @@ import pytest
 from reactives.tests import assert_reactor_called, assert_in_scope, assert_scope_empty
 
 from betty.app import App
-from betty.config import FileBasedConfiguration, ConfigurationMapping, Configuration, DumpedConfigurationExport, \
-    DumpedConfigurationImport
+from betty.config import FileBasedConfiguration, ConfigurationMapping, Configuration, VoidableDumpedConfiguration, \
+    DumpedConfiguration
 from betty.config.error import ConfigurationError, ConfigurationErrorCollection
 from betty.config.load import ConfigurationFormatError, Loader
 
@@ -88,7 +89,7 @@ class TestFileBasedConfiguration:
         configuration = FileBasedConfiguration()
         with NamedTemporaryFile(mode='r+', suffix='.abc') as f:
             with pytest.raises(ConfigurationFormatError):
-                configuration.configuration_file_path = f.name  # type: ignore[assignment]
+                configuration.configuration_file_path = Path(f.name)
 
 
 class ConfigurationMappingTestDummyConfiguration(Configuration):
@@ -97,10 +98,10 @@ class ConfigurationMappingTestDummyConfiguration(Configuration):
         self.key = configuration_key
         self.value = configuration_value
 
-    def load(self, dumped_configuration: DumpedConfigurationImport, loader: Loader) -> None:
+    def load(self, dumped_configuration: DumpedConfiguration, loader: Loader) -> None:
         raise NotImplementedError
 
-    def dump(self) -> DumpedConfigurationExport:
+    def dump(self) -> VoidableDumpedConfiguration:
         raise NotImplementedError
 
 

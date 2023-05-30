@@ -15,19 +15,18 @@ from betty.project import LocaleConfiguration, EntityTypeConfiguration
 
 
 def assert_betty_html(app: App, url_path: str) -> Path:
-    file_path = app.project.configuration.www_directory_path / Path(url_path.lstrip('/'))
-    assert file_path.exists(), f'{file_path} does not exist'
+    file_path = app.static_www_directory_path / Path(url_path.lstrip('/'))
     with open(file_path) as f:
-        parser = html5lib.HTMLParser(strict=True)
-        parser.parse(f)
+        betty_html = f.read()
+    html5lib.HTMLParser(strict=True).parse(betty_html)
     return file_path
 
 
 def assert_betty_json(app: App, url_path: str, schema_definition: str) -> Path:
     file_path = app.project.configuration.www_directory_path / Path(url_path.lstrip('/'))
-    assert file_path.exists(), f'{file_path} does not exist'
     with open(file_path) as f:
-        json.validate(stdjson.load(f), schema_definition, app)
+        betty_json = stdjson.load(f)
+    json.validate(betty_json, schema_definition, app)
     return file_path
 
 
@@ -148,7 +147,7 @@ class TestGenerate:
 
     async def test_event(self):
         with App() as app:
-            event = Event('EVENT1', Birth())
+            event = Event('EVENT1', Birth)
             app.project.ancestry.entities.append(event)
             await generate(app)
         assert_betty_html(app, '/event/%s/index.html' % event.id)
@@ -156,8 +155,9 @@ class TestGenerate:
 
     async def test_citation(self):
         with App() as app:
-            citation = Citation('CITATION1', Source('A Little Birdie'))
-            app.project.ancestry.entities.append(citation)
+            source = Source('A Little Birdie')
+            citation = Citation('CITATION1', source)
+            app.project.ancestry.entities.append(citation, source)
             await generate(app)
         assert_betty_html(app, '/citation/%s/index.html' % citation.id)
         assert_betty_json(app, '/citation/%s/index.json' % citation.id, 'citation')
@@ -180,7 +180,7 @@ class TestGenerate:
 class TestResourceOverride:
     async def test(self):
         with App() as app:
-            localized_assets_directory_path = Path(app.project.configuration.assets_directory_path) / 'public' / 'localized'
+            localized_assets_directory_path = Path(app.project.configuration.assets_directory_path) / 'public' / 'static'
             localized_assets_directory_path.mkdir(parents=True)
             with open(str(localized_assets_directory_path / 'index.html.j2'), 'w') as f:
                 f.write('{% block page_content %}Betty was here{% endblock %}')

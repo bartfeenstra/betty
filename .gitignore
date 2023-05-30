@@ -7,14 +7,17 @@
 /package-lock.json
 
 # Python build artifacts.
+__pycache__
 /betty.egg-info
 /build
 /dist
 *.pyc
+*.pyc.*
 
 # PyInstaller build artifacts.
 
 # Test artifacts.
 /.coverage
+/.coverage.*
 /cypress/screenshots
 /cypress/app

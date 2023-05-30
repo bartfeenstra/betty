@@ -7,7 +7,7 @@ from betty.tests import patch_cache
 
 class TestMaps:
     @patch_cache
-    async def test_post_generate_event(self):
+    async def test_generate(self):
         with App() as app:
             app.project.configuration.debug = True
             app.project.configuration.extensions.add(ExtensionConfiguration(Maps))

@@ -2,16 +2,14 @@ import json
 import subprocess as stdsubprocess
 import sys
 from asyncio import StreamReader
-from pathlib import Path
-from tempfile import TemporaryDirectory
 
 from betty import os, subprocess
+from betty.tempfile import TemporaryDirectory
 
 
 class TestReadme:
     async def test_readme_should_contain_cli_help(self):
-        with TemporaryDirectory() as working_directory_path_str:
-            working_directory_path = Path(working_directory_path_str)
+        with TemporaryDirectory() as working_directory_path:
             configuration = {
                 'base_url': 'https://example.com',
             }

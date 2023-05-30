@@ -1,48 +1,93 @@
 from __future__ import annotations
 
-import builtins
 import calendar
 import contextlib
 import datetime
+import gettext
 import glob
+import logging
 import operator
-import shutil
-import threading
-from collections import defaultdict
 from contextlib import suppress
-from functools import total_ordering
-from gettext import NullTranslations, GNUTranslations
+from functools import total_ordering, lru_cache
 from io import StringIO
 from pathlib import Path
-from typing import Optional, Tuple, Union, List, Dict, Callable, Any, Iterator, Set, Sequence, TYPE_CHECKING
+from typing import Optional, Tuple, Union, Dict, Any, Iterator, Set, Sequence, Mapping
 
 import babel
 from babel import dates, Locale
 from babel.messages.frontend import CommandLineInterface
+from langcodes import Language
 from polib import pofile
 
 from betty import fs
-from betty.fs import hashfile, FileSystem
+from betty.fs import hashfile, FileSystem, ASSETS_DIRECTORY_PATH, ROOT_DIRECTORY_PATH
+from betty.os import ChDir
 
-if TYPE_CHECKING:
-    from betty.builtins import _
-
-
-def rfc_1766_to_bcp_47(locale: str) -> str:
-    return locale.replace('_', '-')
-
-
-def bcp_47_to_rfc_1766(locale: str) -> str:
-    return locale.replace('-', '_')
+try:
+    from typing_extensions import TypeAlias
+except ModuleNotFoundError:  # pragma: no cover
+    from typing import TypeAlias  # type: ignore  # pragma: no cover
 
 
-def get_display_name(locale: str, display_locale: str | None = None) -> str:
-    locale_rfc_1766 = bcp_47_to_rfc_1766(locale)
-    babel_locale = Locale.parse(locale_rfc_1766)
-    if display_locale:
-        display_locale = bcp_47_to_rfc_1766(display_locale)
+DEFAULT_LOCALE = 'en-US'
 
-    return babel_locale.get_display_name(display_locale) or babel_locale.get_display_name(locale_rfc_1766) or locale
+_LOCALE_DIRECTORY_PATH = ASSETS_DIRECTORY_PATH / 'locale'
+
+
+class LocaleNotFoundError(RuntimeError):
+    def __init__(self, locale: str) -> None:
+        super().__init__(f'Cannot find locale "{locale}"')
+        self.locale = locale
+
+
+def to_babel_identifier(locale: Localey) -> str:
+    if isinstance(locale, Locale):
+        return str(locale)
+    language_data = Language.get(locale)
+    return '_'.join(
+        part
+        for part
+        in [
+            language_data.language,
+            language_data.script,
+            language_data.territory,
+        ]
+        if part
+    )
+
+
+def to_locale(locale: Localey) -> str:
+    if isinstance(locale, str):
+        return locale
+    return '-'.join(
+        part
+        for part
+        in [
+            locale.language,
+            locale.script,
+            locale.territory,
+        ]
+        if part
+    )
+
+
+Localey: TypeAlias = Union[str, Locale]
+
+
+def get_data(locale: Localey) -> Locale:
+    if isinstance(locale, Locale):
+        return locale
+    try:
+        return Locale.parse(to_babel_identifier(locale))
+    except BaseException as e:
+        raise LocaleNotFoundError(locale) from e
+
+
+def get_display_name(locale: Localey, display_locale: Localey | None = None) -> str:
+    locale_data = get_data(locale)
+    return locale_data.get_display_name(
+        get_data(display_locale) if display_locale else locale_data
+    )  # type: ignore
 
 
 class Localized:
@@ -271,140 +316,234 @@ class DateRange:
         return (self.start, self.end, self.start_is_boundary, self.end_is_boundary) == (other.start, other.end, other.start_is_boundary, other.end_is_boundary)
 
 
-Datey = Union[Date, DateRange]
+Datey: TypeAlias = Union[Date, DateRange]
+DatePartsFormatters: TypeAlias = Mapping[Tuple[bool, bool, bool], str]
+DateFormatters: TypeAlias = Mapping[Tuple[Union[bool, None]], str]
+DateRangeFormatters: TypeAlias = Mapping[Tuple[Union[bool, None], Union[bool, None], Union[bool, None], Union[bool, None]], str]
 
 
-class TranslationsError(BaseException):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+class Localizer:
+    def __init__(self, locale: str, translations: gettext.NullTranslations):
+        self._locale = locale
+        self._locale_data = get_data(locale)
+        self._translations = translations
+        self.__date_parts_formatters: DatePartsFormatters | None = None
+        self.__date_formatters: DateFormatters | None = None
+        self.__date_range_formatters: DateRangeFormatters | None = None
+
+    @property
+    def locale(self) -> str:
+        return self._locale
+
+    def _(self, message: str) -> str:
+        return self._translations.gettext(message)
+
+    def gettext(self, message: str) -> str:
+        return self._translations.gettext(message)
+
+    def ngettext(self, message_singular: str, message_plural: str, n: int) -> str:
+        return self._translations.ngettext(message_singular, message_plural, n)
+
+    def pgettext(self, context: str, message: str) -> str:
+        return self._translations.pgettext(context, message)
+
+    def npgettext(self, context: str, message_singular: str, message_plural: str, n: int) -> str:
+        return self._translations.npgettext(context, message_singular, message_plural, n)
+
+    @property
+    def _date_parts_formatters(self) -> DatePartsFormatters:
+        if self.__date_parts_formatters is None:
+            self.__date_parts_formatters = {
+                (True, True, True): self._('MMMM d, y'),
+                (True, True, False): self._('MMMM, y'),
+                (True, False, False): self._('y'),
+                (False, True, True): self._('MMMM d'),
+                (False, True, False): self._('MMMM'),
+            }
+        return self.__date_parts_formatters
+
+    @property
+    def _date_formatters(self) -> DateFormatters:
+        if self.__date_formatters is None:
+            self.__date_formatters = {
+                (True,): self._('around {date}'),
+                (False,): self._('{date}'),
+            }
+        return self.__date_formatters
+
+    @property
+    def _date_range_formatters(self) -> DateRangeFormatters:
+        if self.__date_range_formatters is None:
+            self.__date_range_formatters = {
+                (False, False, False, False): self._('from {start_date} until {end_date}'),
+                (False, False, False, True): self._('from {start_date} until sometime before {end_date}'),
+                (False, False, True, False): self._('from {start_date} until around {end_date}'),
+                (False, False, True, True): self._('from {start_date} until sometime before around {end_date}'),
+                (False, True, False, False): self._('from sometime after {start_date} until {end_date}'),
+                (False, True, False, True): self._('sometime between {start_date} and {end_date}'),
+                (False, True, True, False): self._('from sometime after {start_date} until around {end_date}'),
+                (False, True, True, True): self._('sometime between {start_date} and around {end_date}'),
+                (True, False, False, False): self._('from around {start_date} until {end_date}'),
+                (True, False, False, True): self._('from around {start_date} until sometime before {end_date}'),
+                (True, False, True, False): self._('from around {start_date} until around {end_date}'),
+                (True, False, True, True): self._('from around {start_date} until sometime before around {end_date}'),
+                (True, True, False, False): self._('from sometime after around {start_date} until {end_date}'),
+                (True, True, False, True): self._('sometime between around {start_date} and {end_date}'),
+                (True, True, True, False): self._('from sometime after around {start_date} until around {end_date}'),
+                (True, True, True, True): self._('sometime between around {start_date} and around {end_date}'),
+                (False, False, None, None): self._('from {start_date}'),
+                (False, True, None, None): self._('sometime after {start_date}'),
+                (True, False, None, None): self._('from around {start_date}'),
+                (True, True, None, None): self._('sometime after around {start_date}'),
+                (None, None, False, False): self._('until {end_date}'),
+                (None, None, False, True): self. _('sometime before {end_date}'),
+                (None, None, True, False): self._('until around {end_date}'),
+                (None, None, True, True): self._('sometime before around {end_date}'),
+            }
+        return self.__date_range_formatters
+
+    def format_datey(self, date: Datey) -> str:
+        """
+        Formats a datey value into a human-readable string.
+        """
+        if isinstance(date, Date):
+            return self.format_date(date)
+        return self.format_date_range(date)
+
+    def format_date(self, date: Date) -> str:
+        try:
+            return self._date_formatters[(date.fuzzy,)].format(
+                date=self._format_date_parts(date),
+            )
+        except IncompleteDateError:
+            return self._('unknown date')
+
+    def _format_date_parts(self, date: Optional[Date]) -> str:
+        if date is None:
+            raise IncompleteDateError('This date is None.')
+        try:
+            date_parts_format = self._date_parts_formatters[tuple(
+                map(lambda x: x is not None, date.parts),  # type: ignore
+            )]
+        except KeyError:
+            raise IncompleteDateError('This date does not have enough parts to be rendered.')
+        parts = map(lambda x: 1 if x is None else x, date.parts)
+        return dates.format_date(datetime.date(*parts), date_parts_format, self._locale_data)
+
+    def format_date_range(self, date_range: DateRange) -> str:
+        formatter_configuration: Tuple[Optional[bool], Optional[bool], Optional[bool], Optional[bool]] = (None, None, None, None)
+        formatter_arguments = {}
+
+        with suppress(IncompleteDateError):
+            formatter_arguments['start_date'] = self._format_date_parts(date_range.start)
+            formatter_configuration = (
+                None if date_range.start is None else date_range.start.fuzzy,
+                date_range.start_is_boundary,
+                formatter_configuration[2],
+                formatter_configuration[3],
+            )
+
+        with suppress(IncompleteDateError):
+            formatter_arguments['end_date'] = self._format_date_parts(date_range.end)
+            formatter_configuration = (
+                formatter_configuration[0],
+                formatter_configuration[1],
+                None if date_range.end is None else date_range.end.fuzzy,
+                date_range.end_is_boundary,
+            )
+
+        if not formatter_arguments:
+            raise IncompleteDateError('This date range does not have enough parts to be rendered.')
+
+        return self._date_range_formatters[formatter_configuration].format(**formatter_arguments)
 
 
-class TranslationsInstallationError(RuntimeError, TranslationsError):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+DEFAULT_LOCALIZER = Localizer(DEFAULT_LOCALE, gettext.NullTranslations())
 
 
-class Translations(NullTranslations):
-    _Context = Optional[Dict[str, Callable]]
-
-    _GETTEXT_BUILTINS = (
-        '_',
-        'gettext',
-        'ngettext',
-        'npgettext',
-        'pgettext',
-    )
-
-    _stack: Dict[int, List[Translations]] = defaultdict(list)
-    _thread_id: Optional[int] = None
-
-    def __init__(self, fallback: Optional[NullTranslations] = None):
-        super().__init__()
-        self._fallback = fallback
-        self._previous_context: Translations._Context = None
-
-    def __enter__(self):
-        self.install()
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.uninstall()
-
-    def install(self, _=None) -> None:
-        if self._previous_context is not None:
-            raise TranslationsInstallationError('These translations are installed already.')
-
-        self._previous_context = self._get_current_context()
-        super().install(self._GETTEXT_BUILTINS)
-
-        self._thread_id = threading.get_ident()
-        self._stack[self._thread_id].insert(0, self)
-
-    def uninstall(self) -> None:
-        if self._previous_context is None:
-            raise TranslationsInstallationError('These translations are not yet installed.')
-
-        thread_id = self._thread_id
-        assert thread_id
-        if self != self._stack[thread_id][0]:
-            raise TranslationsInstallationError(f'These translations were not the last to be installed. {self._stack[thread_id].index(self)} other translation(s) must be uninstalled before these translations can be uninstalled as well.')
-        del self._stack[thread_id][0]
-
-        for key in self._GETTEXT_BUILTINS:
-            # Built-ins are not owned by Betty, so allow for them to have disappeared.
-            with suppress(KeyError):
-                del builtins.__dict__[key]
-        builtins.__dict__.update(self._previous_context)
-        self._previous_context = None
-
-    def _get_current_context(self) -> _Context:
-        return {
-            key: value
-            for key, value
-            in builtins.__dict__.items()
-            if key in self._GETTEXT_BUILTINS
-        }
-
-
-class TranslationsRepository:
+class LocalizerRepository:
     def __init__(self, assets: FileSystem):
         self._assets = assets
-        self._translations: Dict[str, NullTranslations] = {}
+        self._localizers: Dict[str, Localizer] = {}
 
     @property
     def locales(self) -> Iterator[str]:
-        yield 'en-US'
+        yield DEFAULT_LOCALE
         for assets_directory_path, __ in reversed(self._assets.paths):
-            for po_file_path in glob.glob(str(assets_directory_path / 'locale' / '*' / 'LC_MESSAGES' / 'betty.po')):
-                yield rfc_1766_to_bcp_47(Path(po_file_path).parents[1].name)
+            for po_file_path in glob.glob(str(assets_directory_path / 'locale' / '*' / 'betty.po')):
+                yield Path(po_file_path).parent.name
 
-    def __getitem__(self, locale: Any) -> Translations:
-        if not isinstance(locale, str):
-            raise ValueError(f'The locale to get must be a string, but {type(locale)} was given.')
+    def get(self, locale: Localey) -> Localizer:
+        return self[to_locale(locale)]
 
+    @lru_cache
+    def get_negotiated(self, *preferred_locales: str) -> Localizer:
+        preferred_locales = (*preferred_locales, DEFAULT_LOCALE)
+        negotiated_locale = negotiate_locale(
+            preferred_locales,
+            {
+                str(get_data(locale))
+                for locale
+                in self.locales
+            },
+        )
+        return self[negotiated_locale or DEFAULT_LOCALE]
+
+    def __getitem__(self, locale: Localey) -> Localizer:
+        locale = to_locale(locale)
         try:
-            # Wrap the translations in a unique Translations instance, so we can enter a context for the same language
-            # more than once.
-            return Translations(self._translations[locale])
+            return self._localizers[locale]
         except KeyError:
-            return Translations(self._build_translations(locale))
+            return self._build_translation(locale)
 
-    def _build_translations(self, locale: str) -> NullTranslations:
-        self._translations[locale] = NullTranslations()
+    def _build_translation(self, locale: str) -> Localizer:
+        translations = gettext.NullTranslations()
         for assets_directory_path, __ in reversed(self._assets.paths):
-            translations = self._open_translations(locale, assets_directory_path)
-            if translations:
-                translations.add_fallback(self._translations[locale])
-                self._translations[locale] = translations
-        return self._translations[locale]
+            opened_translations = self._open_translations(locale, assets_directory_path)
+            if opened_translations:
+                opened_translations.add_fallback(translations)
+                translations = opened_translations
+        self._localizers[locale] = Localizer(locale, translations)
+        return self._localizers[locale]
 
-    def _open_translations(self, locale: str, assets_directory_path: Path) -> Optional[GNUTranslations]:
-        locale_path_name = bcp_47_to_rfc_1766(locale)
-        po_file_path = assets_directory_path / 'locale' / locale_path_name / 'LC_MESSAGES' / 'betty.po'
+    def _open_translations(self, locale: str, assets_directory_path: Path) -> Optional[gettext.GNUTranslations]:
+        po_file_path = assets_directory_path / 'locale' / locale / 'betty.po'
         try:
             translation_version = hashfile(po_file_path)
         except FileNotFoundError:
             return None
-        translation_cache_directory_path = fs.CACHE_DIRECTORY_PATH / 'translations' / translation_version
-        cache_directory_path = translation_cache_directory_path / locale_path_name / 'LC_MESSAGES'
+        cache_directory_path = fs.CACHE_DIRECTORY_PATH / 'locale' / translation_version
         mo_file_path = cache_directory_path / 'betty.mo'
 
         with suppress(FileNotFoundError):
             with open(mo_file_path, 'rb') as f:
-                return GNUTranslations(f)
+                return gettext.GNUTranslations(f)
 
         cache_directory_path.mkdir(exist_ok=True, parents=True)
-        with suppress(FileExistsError):
-            shutil.copyfile(po_file_path, cache_directory_path / 'betty.po')
 
         with contextlib.redirect_stdout(StringIO()):
-            CommandLineInterface().run(['', 'compile', '-d', translation_cache_directory_path, '-l', locale_path_name, '-D', 'betty'])
+            CommandLineInterface().run([
+                '',
+                'compile',
+                '-i',
+                str(po_file_path),
+                '-o',
+                str(mo_file_path),
+                '-l',
+                str(get_data(locale)),
+                '-D',
+                'betty',
+            ])
         with open(mo_file_path, 'rb') as f:
-            return GNUTranslations(f)
+            return gettext.GNUTranslations(f)
 
-    def coverage(self, locale: str) -> Tuple[int, int]:
+    def coverage(self, locale: Localey) -> Tuple[int, int]:
         translatables = set(self._get_translatables())
+        locale = to_locale(locale)
+        if locale == DEFAULT_LOCALE:
+            return len(translatables), len(translatables)
         translations = set(self._get_translations(locale))
-        return len(translations), len(translatables.union(translations))
+        return len(translations), len(translatables)
 
     def _get_translatables(self) -> Iterator[str]:
         for assets_directory_path, __ in self._assets.paths:
@@ -416,30 +555,81 @@ class TranslationsRepository:
     def _get_translations(self, locale: str) -> Iterator[str]:
         for assets_directory_path, __ in reversed(self._assets.paths):
             with suppress(FileNotFoundError):
-                with open(assets_directory_path / 'locale' / bcp_47_to_rfc_1766(locale) / 'LC_MESSAGES' / 'betty.po') as f:
+                with open(assets_directory_path / 'locale' / locale / 'betty.po') as f:
                     for entry in pofile(f.read()):
                         if entry.translated():
                             yield entry.msgid_with_context
 
 
-def negotiate_locale(preferred_locales: Union[str, Sequence[str]], available_locales: Set[str]) -> Optional[str]:
-    if isinstance(preferred_locales, str):
+class Localizable:
+    def __init__(self, *args, localizer: Localizer | None = None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._localizer: Localizer | None = None if localizer is DEFAULT_LOCALIZER else localizer
+
+    @property
+    def localizer(self) -> Localizer:
+        return self._localizer or DEFAULT_LOCALIZER
+
+    @localizer.setter
+    def localizer(self, localizer: Localizer | None) -> None:
+        self._localizer = localizer
+        self._on_localizer_change()
+
+    @localizer.deleter
+    def localizer(self) -> None:
+        self.localizer = None  # type: ignore[assignment]
+
+    def _on_localizer_change(self) -> None:
+        pass
+
+
+def negotiate_locale(preferred_locales: Localey | Sequence[Localey], available_locales: Set[Localey]) -> Optional[Locale]:
+    if isinstance(preferred_locales, (str, Locale)):
         preferred_locales = [preferred_locales]
-    negotiated_locale = babel.negotiate_locale(preferred_locales, available_locales, '-')
+    return _negotiate_locale(
+        [
+            to_babel_identifier(locale)
+            for locale
+            in preferred_locales
+        ],
+        {
+            to_babel_identifier(locale)
+            for locale
+            in available_locales
+        },
+        False,
+    )
+
+
+def _negotiate_locale(preferred_locale_babel_identifiers: Sequence[str], available_locale_babel_identifiers: Set[str], root: bool) -> Optional[Locale]:
+    negotiated_locale = babel.negotiate_locale(preferred_locale_babel_identifiers, available_locale_babel_identifiers)
     if negotiated_locale is not None:
-        return negotiated_locale
-    for preferred_locale in preferred_locales:
-        preferred_locale = preferred_locale.split('-', 1)[0]
-        for available_locale in available_locales:
-            negotiated_locale = babel.negotiate_locale([preferred_locale], [available_locale.split('-', 1)[0]])
-            if negotiated_locale is not None:
-                return available_locale
+        return Locale.parse(negotiated_locale)
+    if not root:
+        return _negotiate_locale(
+            [
+                babel_identifier.split('_')[0] if '_' in babel_identifier else babel_identifier
+                for babel_identifier
+                in preferred_locale_babel_identifiers
+            ],
+            available_locale_babel_identifiers,
+            True,
+        )
     return None
 
 
-def negotiate_localizeds(preferred_locales: Union[str, Sequence[str]], localizeds: Sequence[Localized]) -> Optional[Localized]:
-    negotiated_locale = negotiate_locale(preferred_locales, {localized.locale for localized in localizeds if localized.locale is not None})
-    if negotiated_locale is not None:
+def negotiate_localizeds(preferred_locales: Localey | Sequence[Localey], localizeds: Sequence[Localized]) -> Optional[Localized]:
+    negotiated_locale_data = negotiate_locale(
+        preferred_locales,
+        {
+            localized.locale
+            for localized
+            in localizeds
+            if localized.locale is not None
+        },
+    )
+    if negotiated_locale_data is not None:
+        negotiated_locale = to_locale(negotiated_locale_data)
         for localized in localizeds:
             if localized.locale == negotiated_locale:
                 return localized
@@ -451,105 +641,65 @@ def negotiate_localizeds(preferred_locales: Union[str, Sequence[str]], localized
     return None
 
 
-def format_datey(date: Datey, locale: str) -> str:
-    """
-    Formats a datey value into a human-readable string.
+def init_translation(locale: str) -> None:
+    po_file_path = _LOCALE_DIRECTORY_PATH / locale / 'betty.po'
+    with contextlib.redirect_stdout(StringIO()):
+        if po_file_path.exists():
+            logging.getLogger().info(f'Translations for {locale} already exist at {po_file_path}.')
+            return
 
-    This requires gettext translations to be installed. Use the Translations class to do this temporarily.
-    """
-    try:
-        if isinstance(date, Date):
-            return format_date(date, locale)
-        return format_date_range(date, locale)
-    except IncompleteDateError:
-        return _('unknown date')
-
-
-_FORMAT_DATE_FORMATTERS = {
-    (True,): lambda: _('around %(date)s'),
-    (False,): lambda: _('%(date)s'),
-}
-
-
-def format_date(date: Date, locale: str) -> str:
-    return _FORMAT_DATE_FORMATTERS[(date.fuzzy,)]() % {
-        'date': _format_date_parts(date, locale),
-    }
+        locale_data = get_data(locale)
+        CommandLineInterface().run([
+            '',
+            'init',
+            '--no-wrap',
+            '-i',
+            str(ASSETS_DIRECTORY_PATH / 'betty.pot'),
+            '-o',
+            str(po_file_path),
+            '-l',
+            str(locale_data),
+            '-D',
+            'betty',
+        ])
+        logging.getLogger().info(f'Translations for {locale} initialized at {po_file_path}.')
 
 
-_FORMAT_DATE_PARTS_FORMATTERS = {
-    (True, True, True): lambda: _('MMMM d, y'),
-    (True, True, False): lambda: _('MMMM, y'),
-    (True, False, False): lambda: _('y'),
-    (False, True, True): lambda: _('MMMM d'),
-    (False, True, False): lambda: _('MMMM'),
-}
-
-
-def _format_date_parts(date: Optional[Date], locale: str) -> str:
-    if date is None:
-        raise IncompleteDateError('This date is None.')
-    try:
-        date_parts_format = _FORMAT_DATE_PARTS_FORMATTERS[tuple(
-            map(lambda x: x is not None, date.parts),  # type: ignore
-        )]()
-    except KeyError:
-        raise IncompleteDateError('This date does not have enough parts to be rendered.')
-    parts = map(lambda x: 1 if x is None else x, date.parts)
-    return dates.format_date(datetime.date(*parts), date_parts_format, Locale.parse(bcp_47_to_rfc_1766(locale)))
-
-
-_FORMAT_DATE_RANGE_FORMATTERS = {
-    (False, False, False, False): lambda: _('from %(start_date)s until %(end_date)s'),
-    (False, False, False, True): lambda: _('from %(start_date)s until sometime before %(end_date)s'),
-    (False, False, True, False): lambda: _('from %(start_date)s until around %(end_date)s'),
-    (False, False, True, True): lambda: _('from %(start_date)s until sometime before around %(end_date)s'),
-    (False, True, False, False): lambda: _('from sometime after %(start_date)s until %(end_date)s'),
-    (False, True, False, True): lambda: _('sometime between %(start_date)s and %(end_date)s'),
-    (False, True, True, False): lambda: _('from sometime after %(start_date)s until around %(end_date)s'),
-    (False, True, True, True): lambda: _('sometime between %(start_date)s and around %(end_date)s'),
-    (True, False, False, False): lambda: _('from around %(start_date)s until %(end_date)s'),
-    (True, False, False, True): lambda: _('from around %(start_date)s until sometime before %(end_date)s'),
-    (True, False, True, False): lambda: _('from around %(start_date)s until around %(end_date)s'),
-    (True, False, True, True): lambda: _('from around %(start_date)s until sometime before around %(end_date)s'),
-    (True, True, False, False): lambda: _('from sometime after around %(start_date)s until %(end_date)s'),
-    (True, True, False, True): lambda: _('sometime between around %(start_date)s and %(end_date)s'),
-    (True, True, True, False): lambda: _('from sometime after around %(start_date)s until around %(end_date)s'),
-    (True, True, True, True): lambda: _('sometime between around %(start_date)s and around %(end_date)s'),
-    (False, False, None, None): lambda: _('from %(start_date)s'),
-    (False, True, None, None): lambda: _('sometime after %(start_date)s'),
-    (True, False, None, None): lambda: _('from around %(start_date)s'),
-    (True, True, None, None): lambda: _('sometime after around %(start_date)s'),
-    (None, None, False, False): lambda: _('until %(end_date)s'),
-    (None, None, False, True): lambda: _('sometime before %(end_date)s'),
-    (None, None, True, False): lambda: _('until around %(end_date)s'),
-    (None, None, True, True): lambda: _('sometime before around %(end_date)s'),
-}
-
-
-def format_date_range(date_range: DateRange, locale: str) -> str:
-    formatter_configuration: Tuple[Optional[bool], Optional[bool], Optional[bool], Optional[bool]] = (None, None, None, None)
-    formatter_arguments = {}
-
-    with suppress(IncompleteDateError):
-        formatter_arguments['start_date'] = _format_date_parts(date_range.start, locale)
-        formatter_configuration = (
-            None if date_range.start is None else date_range.start.fuzzy,
-            date_range.start_is_boundary,
-            formatter_configuration[2],
-            formatter_configuration[3],
-        )
-
-    with suppress(IncompleteDateError):
-        formatter_arguments['end_date'] = _format_date_parts(date_range.end, locale)
-        formatter_configuration = (
-            formatter_configuration[0],
-            formatter_configuration[1],
-            None if date_range.end is None else date_range.end.fuzzy,
-            date_range.end_is_boundary,
-        )
-
-    if not formatter_arguments:
-        raise IncompleteDateError('This date range does not have enough parts to be rendered.')
-
-    return _FORMAT_DATE_RANGE_FORMATTERS[formatter_configuration]() % formatter_arguments
+def update_translations(_output_assets_directory_path: Path = ASSETS_DIRECTORY_PATH) -> None:
+    pot_file_path = _output_assets_directory_path / 'betty.pot'
+    with contextlib.redirect_stdout(StringIO()):
+        with ChDir(ROOT_DIRECTORY_PATH):
+            CommandLineInterface().run([
+                '',
+                'extract',
+                '--no-location',
+                '--no-wrap',
+                '--sort-output',
+                '-F',
+                'babel.ini',
+                '-o',
+                str(pot_file_path),
+                '--project',
+                'Betty',
+                '--copyright-holder',
+                'Bart Feenstra & contributors',
+                'betty',
+            ])
+            for po_file_path_str in glob.glob('betty/assets/locale/*/betty.po'):
+                po_file_path = (_output_assets_directory_path / (ROOT_DIRECTORY_PATH / po_file_path_str).relative_to(ASSETS_DIRECTORY_PATH)).resolve()
+                po_file_path.parent.mkdir(exist_ok=True, parents=True)
+                po_file_path.touch()
+                locale = po_file_path.parent.name
+                locale_data = get_data(locale)
+                CommandLineInterface().run([
+                    '',
+                    'update',
+                    '-i',
+                    str(pot_file_path),
+                    '-o',
+                    str(po_file_path),
+                    '-l',
+                    str(locale_data),
+                    '-D',
+                    'betty',
+                ])

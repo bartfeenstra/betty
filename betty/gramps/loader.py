@@ -3,7 +3,6 @@ import re
 import tarfile
 from collections import defaultdict
 from contextlib import suppress
-from tempfile import TemporaryDirectory
 from typing import Optional, List, Union, Iterable, Dict, Type, Tuple
 from xml.etree import ElementTree
 
@@ -13,7 +12,7 @@ from geopy import Point
 from betty.config import Path
 from betty.gramps.error import GrampsError
 from betty.load import getLogger
-from betty.locale import DateRange, Datey, Date
+from betty.locale import DateRange, Datey, Date, DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.model import Entity, FlattenedEntityCollection, FlattenedEntity, unflatten, get_entity_type
 from betty.model.ancestry import Ancestry, Note, File, Source, Citation, Place, Event, Person, PersonName, Subject, \
@@ -21,8 +20,8 @@ from betty.model.ancestry import Ancestry, Note, File, Source, Citation, Place, 
 from betty.model.event_type import Birth, Baptism, Adoption, Cremation, Death, Funeral, Burial, Will, Engagement, \
     Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, \
     Retirement, Correspondence, Confirmation, Missing, UnknownEventType
-from betty.os import PathLike
 from betty.path import rootname
+from betty.tempfile import TemporaryDirectory
 
 
 class GrampsLoadFileError(GrampsError, RuntimeError):
@@ -40,10 +39,10 @@ class XPathError(GrampsError, RuntimeError):
         super().__init__(*args, **kwargs)
 
 
-async def load_file(ancestry: Ancestry, file_path: PathLike) -> None:
-    file_path = Path(file_path).resolve()
+async def load_file(ancestry: Ancestry, file_path: Path) -> None:
+    file_path = file_path.resolve()
     logger = getLogger()
-    logger.info('Loading %s...' % str(file_path))
+    logger.info(DEFAULT_LOCALIZER._('Loading {file_path}...').format(file_path=file_path))
 
     with suppress(GrampsLoadFileError):
         load_gpkg(ancestry, file_path)
@@ -59,14 +58,14 @@ async def load_file(ancestry: Ancestry, file_path: PathLike) -> None:
     except FileNotFoundError:
         raise GrampsFileNotFoundError(f'Could not find the file "{file_path}".') from None
     with suppress(GrampsLoadFileError):
-        load_xml(ancestry, xml, file_path.anchor)
+        load_xml(ancestry, xml, Path(file_path.anchor))
         return
 
     raise GrampsLoadFileError('Could not load "%s" as a *.gpkg, a *.gramps, or an *.xml family tree.' % file_path)
 
 
-def load_gramps(ancestry: Ancestry, gramps_path: PathLike) -> None:
-    gramps_path = Path(gramps_path).resolve()
+def load_gramps(ancestry: Ancestry, gramps_path: Path) -> None:
+    gramps_path = gramps_path.resolve()
     try:
         with gzip.open(gramps_path, mode='r') as f:
             xml = f.read()
@@ -79,8 +78,8 @@ def load_gramps(ancestry: Ancestry, gramps_path: PathLike) -> None:
         raise GrampsLoadFileError()
 
 
-def load_gpkg(ancestry: Ancestry, gpkg_path: PathLike) -> None:
-    gpkg_path = Path(gpkg_path).resolve()
+def load_gpkg(ancestry: Ancestry, gpkg_path: Path) -> None:
+    gpkg_path = gpkg_path.resolve()
     try:
         tar_file = gzip.open(gpkg_path)
         try:
@@ -88,15 +87,15 @@ def load_gpkg(ancestry: Ancestry, gpkg_path: PathLike) -> None:
                 tarfile.open(
                     fileobj=tar_file,  # type: ignore
                 ).extractall(cache_directory_path)
-                load_gramps(ancestry, Path(cache_directory_path) / 'data.gramps')
+                load_gramps(ancestry, cache_directory_path / 'data.gramps')
         except tarfile.ReadError:
             raise GrampsLoadFileError('Could not read "%s" as a *.tar file after un-gzipping it.' % gpkg_path)
     except OSError:
         raise GrampsLoadFileError('Could not un-gzip "%s".' % gpkg_path)
 
 
-def load_xml(ancestry: Ancestry, xml: Union[str, PathLike], gramps_tree_directory_path: PathLike) -> None:
-    gramps_tree_directory_path = Path(gramps_tree_directory_path).resolve()
+def load_xml(ancestry: Ancestry, xml: Union[str, Path], gramps_tree_directory_path: Path) -> None:
+    gramps_tree_directory_path = gramps_tree_directory_path.resolve()
     with suppress(FileNotFoundError, OSError):
         with open(xml) as f:
             xml = f.read()
@@ -429,27 +428,27 @@ def _load_events(loader: _Loader, database: ElementTree.Element) -> None:
 
 
 _EVENT_TYPE_MAP = {
-    'Birth': Birth(),
-    'Baptism': Baptism(),
-    'Adopted': Adoption(),
-    'Cremation': Cremation(),
-    'Death': Death(),
-    'Funeral': Funeral(),
-    'Burial': Burial(),
-    'Will': Will(),
-    'Engagement': Engagement(),
-    'Marriage': Marriage(),
-    'Marriage Banns': MarriageAnnouncement(),
-    'Divorce': Divorce(),
-    'Divorce Filing': DivorceAnnouncement(),
-    'Residence': Residence(),
-    'Immigration': Immigration(),
-    'Emigration': Emigration(),
-    'Occupation': Occupation(),
-    'Retirement': Retirement(),
-    'Correspondence': Correspondence(),
-    'Confirmation': Confirmation(),
-    'Missing': Missing(),
+    'Birth': Birth,
+    'Baptism': Baptism,
+    'Adopted': Adoption,
+    'Cremation': Cremation,
+    'Death': Death,
+    'Funeral': Funeral,
+    'Burial': Burial,
+    'Will': Will,
+    'Engagement': Engagement,
+    'Marriage': Marriage,
+    'Marriage Banns': MarriageAnnouncement,
+    'Divorce': Divorce,
+    'Divorce Filing': DivorceAnnouncement,
+    'Residence': Residence,
+    'Immigration': Immigration,
+    'Emigration': Emigration,
+    'Occupation': Occupation,
+    'Retirement': Retirement,
+    'Correspondence': Correspondence,
+    'Confirmation': Confirmation,
+    'Missing': Missing,
 }
 
 
@@ -462,9 +461,14 @@ def _load_event(loader: _Loader, element: ElementTree.Element) -> None:
     try:
         event_type = _EVENT_TYPE_MAP[gramps_type]
     except KeyError:
-        event_type = UnknownEventType()
+        event_type = UnknownEventType
         getLogger().warning(
-            'Betty is unfamiliar with Gramps event "%s"\'s type of "%s". The event was imported, but its type was set to "%s".' % (event_id, gramps_type, event_type.label))
+            DEFAULT_LOCALIZER._('Betty is unfamiliar with Gramps event "{event_id}"\'s type of "{gramps_event_type}". The event was imported, but its type was set to "{betty_event_type}".').format(
+                event_id=event_id,
+                gramps_event_type=gramps_type,
+                betty_event_type=event_type.label,
+            )
+        )
 
     event = Event(event_id, event_type)
 
@@ -607,7 +611,7 @@ def _load_attribute_privacy(resource: HasPrivacy, element: ElementTree.Element, 
     if privacy_value == 'public':
         resource.private = False
         return
-    getLogger().warning('The betty:privacy Gramps attribute must have a value of "public" or "private", but "%s" was given, which was ignored.' % privacy_value)
+    getLogger().warning(DEFAULT_LOCALIZER._('The betty:privacy Gramps attribute must have a value of "public" or "private", but "{privacy_value}" was given, which was ignored.').format(privacy_value=privacy_value))
 
 
 def _load_attribute(name: str, element: ElementTree.Element, tag: str) -> Optional[str]:

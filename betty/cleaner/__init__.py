@@ -1,17 +1,15 @@
-from typing import Set, Type, Dict, TYPE_CHECKING
+from typing import Set, Type, Dict
 
 from betty.anonymizer import Anonymizer
 from betty.app.extension import Extension, UserFacingExtension
 from betty.load import PostLoader
+from betty.locale import Localizer
 from betty.model.ancestry import Ancestry, Place, File, Person, Event, Source, Citation
 
 try:
     from graphlib_backport import TopologicalSorter
 except ModuleNotFoundError:
     from graphlib import TopologicalSorter
-
-if TYPE_CHECKING:
-    from betty.builtins import _
 
 
 def clean(ancestry: Ancestry) -> None:
@@ -151,9 +149,9 @@ class Cleaner(UserFacingExtension, PostLoader):
         clean(self.app.project.ancestry)
 
     @classmethod
-    def label(cls) -> str:
-        return _('Cleaner')
+    def label(cls, localizer: Localizer) -> str:
+        return localizer._('Cleaner')
 
     @classmethod
-    def description(cls) -> str:
-        return _('Remove people, events, places, files, sources, and citations if they have no relationships with any other resources. Enable the Privatizer and Anonymizer as well to make this most effective.')
+    def description(cls, localizer: Localizer) -> str:
+        return localizer._('Remove people, events, places, files, sources, and citations if they have no relationships with any other resources. Enable the Privatizer and Anonymizer as well to make this most effective.')

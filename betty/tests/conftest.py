@@ -8,7 +8,7 @@ from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QMainWindow, QMenu, QWidget
 from pytestqt.qtbot import QtBot
 
-from betty.app import AppConfiguration
+from betty.app import AppConfiguration, App
 from betty.gui import BettyApplication
 from betty.gui.error import Error
 
@@ -48,7 +48,8 @@ def qapp(qapp_args) -> Iterator[BettyApplication]:
     qapp_instance = BettyApplication.instance()
     if qapp_instance is None:
         global _qapp_instance
-        _qapp_instance = BettyApplication(qapp_args)
+        with App() as app:
+            _qapp_instance = BettyApplication(qapp_args, app=app)
         yield _qapp_instance
     else:
         yield qapp_instance  # type: ignore
@@ -84,6 +85,9 @@ AssertTopLevelWidget = Callable[[Union[Type[QWidgetT], QWidgetT]], QWidgetT]
 @pytest.fixture
 def assert_top_level_widget(qapp: BettyApplication, qtbot: QtBot) -> AssertTopLevelWidget:
     def _wait_assert_top_level_widget(widget_type: Union[Type[QWidgetT], QWidgetT]) -> QWidget:
+        if isinstance(widget_type, QWidget):
+            assert widget_type.isVisible()
+
         widgets = []
 
         def __assert_top_level_widget():
@@ -108,6 +112,8 @@ AssertNotTopLevelWidget = Callable[[Union[Type[QWidget], QWidgetT]], None]
 @pytest.fixture
 def assert_not_top_level_widget(qapp: BettyApplication, qtbot: QtBot) -> AssertNotTopLevelWidget:
     def _assert_not_top_level_widget(widget_type: Union[Type[QWidget], QWidgetT]) -> None:
+        if isinstance(widget_type, QWidget):
+            assert widget_type.isHidden()
         widgets = [
             widget
             for widget
