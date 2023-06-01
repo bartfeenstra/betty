@@ -1,5 +1,3 @@
-from reactives.collections import ReactiveMutableSequence
-
 from betty.app import App
 from betty.gramps import Gramps, GrampsConfiguration
 from betty.gramps.config import FamilyTreeConfiguration
@@ -124,11 +122,11 @@ class TestGramps:
                 f.write(family_tree_two_xml)
 
             with App() as app:
-                app.project.configuration.extensions.add(ExtensionConfiguration(Gramps, True, GrampsConfiguration(
-                    family_trees=ReactiveMutableSequence([
+                app.project.configuration.extensions.append(ExtensionConfiguration(Gramps, True, GrampsConfiguration(
+                    family_trees=[
                         FamilyTreeConfiguration(gramps_family_tree_one_path),
                         FamilyTreeConfiguration(gramps_family_tree_two_path),
-                    ])
+                    ]
                 )))
                 await load(app)
             assert 'O0001' in app.project.ancestry.entities[File]

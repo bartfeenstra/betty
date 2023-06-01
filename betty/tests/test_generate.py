@@ -33,10 +33,8 @@ def assert_betty_json(app: App, url_path: str, schema_definition: str) -> Path:
 class TestGenerate:
     async def test_html_lang(self):
         app = App()
-        app.project.configuration.locales.replace([
-            LocaleConfiguration('en-US', 'en'),
-            LocaleConfiguration('nl-NL', 'nl'),
-        ])
+        app.project.configuration.locales['en-US'].alias = 'en'
+        app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
         with app:
             await generate(app)
             with open(assert_betty_html(app, '/nl/index.html')) as f:
@@ -45,10 +43,10 @@ class TestGenerate:
 
     async def test_root_redirect(self):
         app = App()
-        app.project.configuration.locales.replace([
-            LocaleConfiguration('nl'),
-            LocaleConfiguration('en'),
-        ])
+        app.project.configuration.locales.replace(
+            LocaleConfiguration('nl-NL', 'nl'),
+            LocaleConfiguration('en-US', 'en'),
+        )
         with app:
             await generate(app)
         with open(assert_betty_html(app, '/index.html')) as f:
@@ -57,47 +55,47 @@ class TestGenerate:
 
     async def test_links(self):
         app = App()
-        app.project.configuration.locales.replace([
-            LocaleConfiguration('nl'),
-            LocaleConfiguration('en'),
-        ])
+        app.project.configuration.locales.replace(
+            LocaleConfiguration('nl-NL', 'nl'),
+            LocaleConfiguration('en-US', 'en'),
+        )
         with app:
             await generate(app)
         with open(assert_betty_html(app, '/nl/index.html')) as f:
             html = f.read()
-            assert '<link rel="canonical" href="https://example.com/nl/index.html" hreflang="nl" type="text/html"/>' in html
-            assert '<link rel="alternate" href="/en/index.html" hreflang="en" type="text/html"/>' in html
+            assert '<link rel="canonical" href="https://example.com/nl/index.html" hreflang="nl-NL" type="text/html"/>' in html
+            assert '<link rel="alternate" href="/en/index.html" hreflang="en-US" type="text/html"/>' in html
         with open(assert_betty_html(app, '/en/index.html')) as f:
             html = f.read()
-            assert '<link rel="canonical" href="https://example.com/en/index.html" hreflang="en" type="text/html"/>' in html
-            assert '<link rel="alternate" href="/nl/index.html" hreflang="nl" type="text/html"/>' in html
+            assert '<link rel="canonical" href="https://example.com/en/index.html" hreflang="en-US" type="text/html"/>' in html
+            assert '<link rel="alternate" href="/nl/index.html" hreflang="nl-NL" type="text/html"/>' in html
 
     async def test_links_for_entity_pages(self):
         app = App()
-        app.project.configuration.locales.replace([
-            LocaleConfiguration('nl'),
-            LocaleConfiguration('en'),
-        ])
+        app.project.configuration.locales.replace(
+            LocaleConfiguration('nl-NL', 'nl'),
+            LocaleConfiguration('en-US', 'en'),
+        )
         with app:
             person = Person('PERSON1')
             app.project.ancestry.entities.append(person)
             await generate(app)
         with open(assert_betty_html(app, f'/nl/person/{person.id}/index.html')) as f:
             html = f.read()
-        assert f'<link rel="canonical" href="https://example.com/nl/person/{person.id}/index.html" hreflang="nl" type="text/html"/>' in html
-        assert f'<link rel="alternate" href="/nl/person/{person.id}/index.json" hreflang="nl" type="application/json"/>' in html
-        assert f'<link rel="alternate" href="/en/person/{person.id}/index.html" hreflang="en" type="text/html"/>' in html
-        assert f'<link rel="alternate" href="/en/person/{person.id}/index.json" hreflang="en" type="application/json"/>' in html
+        assert f'<link rel="canonical" href="https://example.com/nl/person/{person.id}/index.html" hreflang="nl-NL" type="text/html"/>' in html
+        assert f'<link rel="alternate" href="/nl/person/{person.id}/index.json" hreflang="nl-NL" type="application/json"/>' in html
+        assert f'<link rel="alternate" href="/en/person/{person.id}/index.html" hreflang="en-US" type="text/html"/>' in html
+        assert f'<link rel="alternate" href="/en/person/{person.id}/index.json" hreflang="en-US" type="application/json"/>' in html
         with open(assert_betty_html(app, f'/en/person/{person.id}/index.html')) as f:
             html = f.read()
-        assert f'<link rel="canonical" href="https://example.com/en/person/{person.id}/index.html" hreflang="en" type="text/html"/>' in html
-        assert f'<link rel="alternate" href="/en/person/{person.id}/index.json" hreflang="en" type="application/json"/>' in html
-        assert f'<link rel="alternate" href="/nl/person/{person.id}/index.html" hreflang="nl" type="text/html"/>' in html
-        assert f'<link rel="alternate" href="/nl/person/{person.id}/index.json" hreflang="nl" type="application/json"/>' in html
+        assert f'<link rel="canonical" href="https://example.com/en/person/{person.id}/index.html" hreflang="en-US" type="text/html"/>' in html
+        assert f'<link rel="alternate" href="/en/person/{person.id}/index.json" hreflang="en-US" type="application/json"/>' in html
+        assert f'<link rel="alternate" href="/nl/person/{person.id}/index.html" hreflang="nl-NL" type="text/html"/>' in html
+        assert f'<link rel="alternate" href="/nl/person/{person.id}/index.json" hreflang="nl-NL" type="application/json"/>' in html
 
     async def test_files(self):
         with App() as app:
-            app.project.configuration.entity_types.add(EntityTypeConfiguration(File, True))
+            app.project.configuration.entity_types.append(EntityTypeConfiguration(File, True))
             await generate(app)
         assert_betty_html(app, '/file/index.html')
         assert_betty_json(app, '/file/index.json', 'fileCollection')

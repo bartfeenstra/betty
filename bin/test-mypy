@@ -6,4 +6,4 @@ cd "$(dirname "$0")/.."
 
 echo 'Running mypy...'
 
-mypy
+mypy "$@"

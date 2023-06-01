@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import functools
 import sys
 from collections import defaultdict
 from importlib.metadata import entry_points, EntryPoint
@@ -29,7 +30,31 @@ if TYPE_CHECKING:
     from betty.app import App
 
 
-class CyclicDependencyError(BaseException):
+class ExtensionError(BaseException):
+    pass
+
+
+class ExtensionTypeError(ExtensionError, ValueError):
+    pass
+
+
+class ExtensionTypeImportError(ExtensionTypeError, ImportError):
+    """
+    Raised when an alleged extension type cannot be imported.
+    """
+    def __init__(self, extension_type_name: str):
+        super().__init__(f'Cannot find and import an extension with name "{extension_type_name}".')
+
+
+class ExtensionTypeInvalidError(ExtensionTypeError, ImportError):
+    """
+    Raised for types that are not valid extension types.
+    """
+    def __init__(self, extension_type: type):
+        super().__init__(f'{extension_type.__module__}.{extension_type.__name__} is not an extension type class. Extension types must extend {Extension.__module__}.{Extension.__name__}.')
+
+
+class CyclicDependencyError(ExtensionError, RuntimeError):
     def __init__(self, extension_types: Iterable[Type[Extension]]):
         extension_names = ', '.join([extension.name() for extension in extension_types])
         super().__init__(f'The following extensions have cyclic dependencies: {extension_names}')
@@ -164,6 +189,32 @@ class UserFacingExtension(Extension):
 
 class Theme(UserFacingExtension):
     pass
+
+
+@functools.singledispatch
+def get_extension_type(extension_type_definition: Union[str, Type[Extension], Extension, Any]) -> Type[Extension]:
+    raise ExtensionTypeError(f'Cannot get the extension type for "{extension_type_definition}".')
+
+
+@get_extension_type.register(str)
+def get_extension_type_by_name(extension_type_name: str) -> Type[Extension]:
+    try:
+        extension_type = import_any(extension_type_name)
+    except ImportError:
+        raise ExtensionTypeImportError(extension_type_name) from None
+    return get_extension_type(extension_type)
+
+
+@get_extension_type.register(type)
+def get_extension_type_by_type(extension_type: type) -> Type[Extension]:
+    if issubclass(extension_type, Extension):
+        return extension_type
+    raise ExtensionTypeInvalidError(extension_type)
+
+
+@get_extension_type.register(object)
+def get_extension_type_by_extension(extension: Extension) -> Type[Extension]:
+    return get_extension_type(type(extension))
 
 
 def format_extension_type(extension_type: Type[Extension]) -> str:

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-05-29 20:43+0100\n"
+"POT-Creation-Date: 2023-06-01 22:15+0100\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -65,6 +65,9 @@ msgstr ""
 
 msgid "\"{entity_type}\" is not a valid Betty entity type."
 msgstr "\"{entity_type}\" is geen geldig Betty-entiteitstype."
+
+msgid "\"{extension_type}\" is not a valid Betty extension type."
+msgstr "\"{extension_type}\" is geen geldig Betty-extensietype."
 
 msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
 msgstr ""
@@ -299,8 +302,25 @@ msgstr ""
 "misschien een typefout gemaakt, of zou het kunnen dat het entiteitstype "
 "uit een package komt dat nog niet geïnstalleerd is?"
 
+msgid ""
+"Cannot determine the extension type for \"{extension_type}\". Did you "
+"perhaps make a typo, or could it be that the extension type comes from "
+"another package that is not yet installed?"
+msgstr ""
+"Het entiteitstype van \"{entity_type}\" kan niet gevonden worden. Heb je "
+"misschien een typefout gemaakt, of zou het kunnen dat het entiteitstype "
+"uit een package komt dat nog niet geïnstalleerd is?"
+
 msgid "Cannot find and import \"{entity_type}\"."
 msgstr "Kan \"{entity_type}\" niet vinden en importeren."
+
+msgid "Cannot find and import \"{extension_type}\"."
+msgstr "Kan \"{entity_type}\" niet vinden en importeren."
+
+msgid ""
+"Cannot generate pages for {entity_type}, because it is not a user-facing "
+"entity type."
+msgstr ""
 
 msgid "Cannot remove the last remaining locale {locale}"
 msgstr "Kan de laatst overgebleven taalregio {locale} niet verwijderen"
@@ -498,7 +518,12 @@ msgid "Generated pages for {count} {entity_type} in {locale}."
 msgstr "Pagina's voor {count} {entity_type} in het {locale} gegenereerd."
 
 msgid "Generated the listing page for {entity_type} in {locale}."
-msgstr "Pagina met het overzicht van alle {entity_type} in het {locale} gegenereerd."
+msgstr ""
+"Pagina met het overzicht van alle {entity_type} in het {locale} "
+"gegenereerd."
+
+msgid "Generating your site to {output_directory}."
+msgstr "Bezig je site te genereren naar {output_directory}."
 
 msgid "Generating your site..."
 msgstr "Je site aan het genereren..."
@@ -808,9 +833,6 @@ msgstr ""
 " echter naar een entiteit van het type {actual_entity_type_name} "
 "({actual_entity_type_label})"
 
-msgid "The key \"{configuration_key}\" is required."
-msgstr "De sleutel \"{configuration_key}\" is vereist."
-
 msgid "The lifetime threshold must consist of digits only."
 msgstr "De levensgrens mag alleen uit cijfers bestaan."
 
@@ -850,6 +872,9 @@ msgid_plural "They had %(child_count)s children."
 msgstr[0] "Men had een kind."
 msgstr[1] "Men had %(child_count)skinderen."
 
+msgid "This field is required."
+msgstr ""
+
 msgid "This must be a boolean."
 msgstr "Dit moet een booleaan zijn."
 
@@ -861,6 +886,9 @@ msgstr "Dit moet een sleutel-waardetoewijzing zijn."
 
 msgid "This must be a list."
 msgstr "Dit moet een lijst zijn."
+
+msgid "This must be a number."
+msgstr "Dit moet een getal zijn."
 
 msgid "This must be a positive number."
 msgstr "Dit moet een positief getal zijn."
@@ -904,12 +932,8 @@ msgstr "Onbevoegd"
 msgid "Unknown"
 msgstr "Onbekend"
 
-msgid ""
-"Unknown key: {unknown_configuration_key}. Did you mean "
-"{known_configuration_keys}?"
-msgstr ""
-"Onbekende sleutel: {unknown_configuration_key}. Bedoel je "
-"{known_configuration_keys}?"
+msgid "Unknown key: {unknown_key}. Did you mean {known_keys}?"
+msgstr "Onbekende sleutel: {unknown_key}. Bedoel je {known_keys}?"
 
 msgid ""
 "Updated {updated_derivations} {event_type} events based on existing "
@@ -1137,9 +1161,6 @@ msgstr "{entity_type_label}-ID"
 
 msgid "{entity_type} {entity_id}"
 msgstr ""
-
-msgid "{extension_type} is not a valid Betty extension."
-msgstr "\"{extension_type}\" is geen geldige Betty-extensie."
 
 msgid "{extension_type} is not configurable."
 msgstr "\"{extension_type}\" kan niet ingesteld worden."

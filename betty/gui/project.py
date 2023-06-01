@@ -156,7 +156,7 @@ class _GeneralPane(LocalizedWidget):
             lifetime_threshold = int(lifetime_threshold_value)
             try:
                 self._app.project.configuration.lifetime_threshold = lifetime_threshold
-                mark_valid(self._configuration_url)
+                mark_valid(self._configuration_lifetime_threshold)
             except ConfigurationValidationError as e:
                 mark_invalid(self._configuration_lifetime_threshold, str(e))
         self._configuration_lifetime_threshold = QLineEdit()
@@ -249,31 +249,31 @@ class _LocalizationPane(LocalizedWidget):
         self._locales_configuration_widget._default_buttons = {}
         self._layout.insertWidget(0, self._locales_configuration_widget, alignment=Qt.AlignmentFlag.AlignTop)
 
-        for i, locale_configuration in enumerate(sorted(
+        for i, locale in enumerate(sorted(
                 self._app.project.configuration.locales,
-                key=lambda x: get_display_name(x.locale),
+                key=lambda locale: get_display_name(locale),
         )):
-            self._build_locale_configuration(locale_configuration, i)
+            self._build_locale_configuration(locale, i)
 
-    def _build_locale_configuration(self, locale_configuration: LocaleConfiguration, i: int) -> None:
-        self._locales_configuration_widget._default_buttons[locale_configuration.locale] = QRadioButton()
-        self._locales_configuration_widget._default_buttons[locale_configuration.locale].setChecked(locale_configuration == self._app.project.configuration.locales.default)
+    def _build_locale_configuration(self, locale: str, i: int) -> None:
+        self._locales_configuration_widget._default_buttons[locale] = QRadioButton()
+        self._locales_configuration_widget._default_buttons[locale].setChecked(locale == self._app.project.configuration.locales.default.locale)
 
         def _update_locales_configuration_default():
-            self._app.project.configuration.locales.default = locale_configuration
-        self._locales_configuration_widget._default_buttons[locale_configuration.locale].clicked.connect(_update_locales_configuration_default)  # type: ignore
-        self._default_locale_button_group.addButton(self._locales_configuration_widget._default_buttons[locale_configuration.locale])
-        self._locales_configuration_layout.addWidget(self._locales_configuration_widget._default_buttons[locale_configuration.locale], i, 0)
+            self._app.project.configuration.locales.default = locale  # type: ignore[assignment]
+        self._locales_configuration_widget._default_buttons[locale].clicked.connect(_update_locales_configuration_default)  # type: ignore
+        self._default_locale_button_group.addButton(self._locales_configuration_widget._default_buttons[locale])
+        self._locales_configuration_layout.addWidget(self._locales_configuration_widget._default_buttons[locale], i, 0)
 
         # Allow this locale configuration to be removed only if there are others, and if it is not default one.
-        if len(self._app.project.configuration.locales) > 1 and locale_configuration != self._app.project.configuration.locales.default:
+        if len(self._app.project.configuration.locales) > 1 and locale != self._app.project.configuration.locales.default.locale:
             def _remove_locale() -> None:
-                del self._app.project.configuration.locales[locale_configuration.locale]
-            self._locales_configuration_widget._remove_buttons[locale_configuration.locale] = QPushButton()
-            self._locales_configuration_widget._remove_buttons[locale_configuration.locale].released.connect(_remove_locale)  # type: ignore
-            self._locales_configuration_layout.addWidget(self._locales_configuration_widget._remove_buttons[locale_configuration.locale], i, 1)
+                del self._app.project.configuration.locales[locale]
+            self._locales_configuration_widget._remove_buttons[locale] = QPushButton()
+            self._locales_configuration_widget._remove_buttons[locale].released.connect(_remove_locale)  # type: ignore
+            self._locales_configuration_layout.addWidget(self._locales_configuration_widget._remove_buttons[locale], i, 1)
         else:
-            self._locales_configuration_widget._remove_buttons[locale_configuration.locale] = None
+            self._locales_configuration_widget._remove_buttons[locale] = None
 
     def _do_set_translatables(self) -> None:
         self._add_locale_button.setText(self._app.localizer._('Add a locale'))
@@ -344,7 +344,7 @@ class _AddLocaleWindow(BettyWindow):
         if alias == '':
             alias = None
         try:
-            self._app.project.configuration.locales.add(LocaleConfiguration(locale, alias))
+            self._app.project.configuration.locales.append(LocaleConfiguration(locale, alias))
         except ConfigurationValidationError as e:
             mark_invalid(self._alias, str(e))
             return

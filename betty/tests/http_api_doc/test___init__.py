@@ -9,7 +9,7 @@ class TestHttpApiDoc:
     @patch_cache
     async def test(self):
         with App() as app:
-            app.project.configuration.extensions.add(ExtensionConfiguration(HttpApiDoc))
+            app.project.configuration.extensions.append(ExtensionConfiguration(HttpApiDoc))
             await generate(app)
             assert (app.project.configuration.www_directory_path / 'api' / 'index.html').is_file()
             assert (app.project.configuration.www_directory_path / 'http-api-doc.js').is_file()

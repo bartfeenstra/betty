@@ -4,7 +4,6 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
 from pytest_mock import MockerFixture
 from pytestqt.qtbot import QtBot
-from reactives.collections import ReactiveMutableSequence
 
 from betty.app import App
 from betty.gramps import Gramps, GrampsConfiguration
@@ -16,7 +15,7 @@ from betty.tests.conftest import AssertWindow, AssertNotWindow
 
 def test_add_family_tree_set_path(assert_not_window: AssertNotWindow, assert_window: AssertWindow, qtbot: QtBot, tmp_path: Path) -> None:
     with App() as app:
-        app.project.configuration.extensions.add(ExtensionConfiguration(Gramps))
+        app.project.configuration.extensions.append(ExtensionConfiguration(Gramps))
         sut = app.extensions[Gramps]
         widget = sut.gui_build()
         qtbot.addWidget(widget)
@@ -38,7 +37,7 @@ def test_add_family_tree_set_path(assert_not_window: AssertNotWindow, assert_win
 
 def test_add_family_tree_find_path(assert_window: AssertWindow, mocker: MockerFixture, qtbot: QtBot, tmp_path: Path) -> None:
     with App() as app:
-        app.project.configuration.extensions.add(ExtensionConfiguration(Gramps))
+        app.project.configuration.extensions.append(ExtensionConfiguration(Gramps))
         sut = app.extensions[Gramps]
         widget = sut.gui_build()
         qtbot.addWidget(widget)
@@ -59,12 +58,12 @@ def test_add_family_tree_find_path(assert_window: AssertWindow, mocker: MockerFi
 
 def test_remove_family_tree(qtbot) -> None:
     with App() as app:
-        app.project.configuration.extensions.add(ExtensionConfiguration(
+        app.project.configuration.extensions.append(ExtensionConfiguration(
             Gramps,
             extension_configuration=GrampsConfiguration(
-                family_trees=ReactiveMutableSequence([
+                family_trees=[
                     FamilyTreeConfiguration(Path('/tmp/family-tree.gpkg')),
-                ])
+                ]
             ),
         ))
         sut = app.extensions[Gramps]

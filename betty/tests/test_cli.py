@@ -65,7 +65,7 @@ class TestMain:
 
     def test_help_with_configuration(self, _, __):
         configuration = ProjectConfiguration()
-        configuration.extensions.add(ExtensionConfiguration(DummyExtension))
+        configuration.extensions.append(ExtensionConfiguration(DummyExtension))
         configuration.write()
         runner = CliRunner()
         result = runner.invoke(main, ('-c', str(configuration.configuration_file_path), '--help',), catch_exceptions=False)

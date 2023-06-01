@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-05-29 20:43+0100\n"
+"POT-Creation-Date: 2023-06-01 22:15+0100\n"
 "PO-Revision-Date: 2020-11-27 19:49+0100\n"
 "Last-Translator: \n"
 "Language: fr\n"
@@ -54,6 +54,9 @@ msgid ""
 msgstr ""
 
 msgid "\"{entity_type}\" is not a valid Betty entity type."
+msgstr ""
+
+msgid "\"{extension_type}\" is not a valid Betty extension type."
 msgstr ""
 
 msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
@@ -275,7 +278,21 @@ msgid ""
 "package that is not yet installed?"
 msgstr ""
 
+msgid ""
+"Cannot determine the extension type for \"{extension_type}\". Did you "
+"perhaps make a typo, or could it be that the extension type comes from "
+"another package that is not yet installed?"
+msgstr ""
+
 msgid "Cannot find and import \"{entity_type}\"."
+msgstr ""
+
+msgid "Cannot find and import \"{extension_type}\"."
+msgstr ""
+
+msgid ""
+"Cannot generate pages for {entity_type}, because it is not a user-facing "
+"entity type."
 msgstr ""
 
 msgid "Cannot remove the last remaining locale {locale}"
@@ -465,6 +482,9 @@ msgid "Generated pages for {count} {entity_type} in {locale}."
 msgstr ""
 
 msgid "Generated the listing page for {entity_type} in {locale}."
+msgstr ""
+
+msgid "Generating your site to {output_directory}."
 msgstr ""
 
 msgid "Generating your site..."
@@ -763,9 +783,6 @@ msgid ""
 "({actual_entity_type_label})"
 msgstr ""
 
-msgid "The key \"{configuration_key}\" is required."
-msgstr ""
-
 msgid "The lifetime threshold must consist of digits only."
 msgstr ""
 
@@ -804,6 +821,9 @@ msgid_plural "They had %(child_count)s children."
 msgstr[0] "Ils ont eu un enfant."
 msgstr[1] "Ils ont eu %(child_count)s enfants."
 
+msgid "This field is required."
+msgstr ""
+
 msgid "This must be a boolean."
 msgstr ""
 
@@ -814,6 +834,9 @@ msgid "This must be a key-value mapping."
 msgstr ""
 
 msgid "This must be a list."
+msgstr ""
+
+msgid "This must be a number."
 msgstr ""
 
 msgid "This must be a positive number."
@@ -857,9 +880,7 @@ msgstr "Non autorisé"
 msgid "Unknown"
 msgstr "Inconnu"
 
-msgid ""
-"Unknown key: {unknown_configuration_key}. Did you mean "
-"{known_configuration_keys}?"
+msgid "Unknown key: {unknown_key}. Did you mean {known_keys}?"
 msgstr ""
 
 msgid ""
@@ -1106,9 +1127,6 @@ msgid "{entity_type_label} ID"
 msgstr ""
 
 msgid "{entity_type} {entity_id}"
-msgstr ""
-
-msgid "{extension_type} is not a valid Betty extension."
 msgstr ""
 
 msgid "{extension_type} is not configurable."

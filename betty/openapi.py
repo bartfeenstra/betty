@@ -171,7 +171,7 @@ class Specification:
                 'description': self._app.localizer._('A locale name.'),
                 'schema': {
                     'type': 'string',
-                    'enum': [locale_configuration.locale for locale_configuration in self._app.project.configuration.locales],
+                    'enum': [*self._app.project.configuration.locales],
                 },
                 'example': self._app.project.configuration.locales[self._app.project.configuration.locales.default.locale].alias,
             }

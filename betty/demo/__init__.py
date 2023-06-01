@@ -230,14 +230,14 @@ class DemoServer(Server):
 
     async def start(self) -> None:
         self._app = App(locale=self.localizer.locale)
-        self._app.project.configuration.extensions.add(ExtensionConfiguration(Demo))
+        self._app.project.configuration.extensions.append(ExtensionConfiguration(Demo))
         # Include all of the translations Betty ships with.
-        self._app.project.configuration.locales.replace([
+        self._app.project.configuration.locales.replace(
             LocaleConfiguration('en-US', 'en'),
             LocaleConfiguration('nl-NL', 'nl'),
             LocaleConfiguration('fr-FR', 'fr'),
             LocaleConfiguration('uk', 'uk'),
-        ])
+        )
         self._server = ProjectServer.get(self._app)
         await load.load(self._app)
         await generate.generate(self._app)
