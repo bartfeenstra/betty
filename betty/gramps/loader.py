@@ -416,9 +416,14 @@ def _load_coordinates(element: ElementTree.Element) -> Optional[Point]:
     with suppress(XPathError):
         coord_element = _xpath1(element, './ns:coord')
 
-        # We could not load/validate the Gramps coordinates, because they are too freeform.
-        with suppress(BaseException):
-            return Point(coord_element.get('lat'), coord_element.get('long'))
+        coordinates = f'{coord_element.get("lat")}; {coord_element.get("long")}'
+        try:
+            return Point.from_string(coordinates)
+        except ValueError:
+            getLogger().warning(
+                DEFAULT_LOCALIZER._('Cannot load coordinates "{coordinates}", because they are in an unknown format.')
+                .format(coordinates=coordinates),
+            )
     return None
 
 

@@ -76,10 +76,43 @@ class TestLoadXml:
         name = names[0]
         assert 'Amsterdam' == name.name
 
-    def test_place_should_include_coordinates(self, test_load_xml_ancestry):
-        place = test_load_xml_ancestry.entities[Place]['P0000']
-        assert pytest.approx(52.366667) == place.coordinates.latitude
-        assert pytest.approx(4.9) == place.coordinates.longitude
+    @pytest.mark.parametrize('expected_latitude, expected_longitude, latitude, longitude', [
+        (4.9, 52.366667, '4.9', '52.366667'),
+        (41.5, -81.0, '41.5', '-81.0'),
+        (41.5, 81.0, '41.5 N', '-81.0 W'),
+        (41.5, 81.0, '-41.5 S', '81.0 E'),
+        (23.439444, 23.458333, '23 26m 22s N', '23 27m 30s E'),
+        (39.333333, -74.583333, "N 39°20' 0''", "W 74°35' 0''"),
+    ])
+    def test_place_should_include_coordinates(
+            self,
+            expected_latitude: float,
+            expected_longitude: float,
+            latitude: str,
+            longitude: str,
+    ):
+        ancestry = self._load_partial(f"""
+        <places>
+        <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="Unknown">
+          <coord lat="{latitude}" long="{longitude}"/>
+        </placeobj>
+        </places>
+        """)
+        coordinates = ancestry.entities[Place]['P0000'].coordinates
+        assert coordinates
+        assert pytest.approx(expected_latitude) == coordinates.latitude
+        assert pytest.approx(expected_longitude) == coordinates.longitude
+
+    def test_place_should_ignore_invalid_coordinates(self):
+        ancestry = self._load_partial("""
+        <places>
+        <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="Unknown">
+          <coord lat="foo" long="bar"/>
+        </placeobj>
+        </places>
+        """)
+        coordinates = ancestry.entities[Place]['P0000'].coordinates
+        assert coordinates is None
 
     def test_place_should_include_events(self, test_load_xml_ancestry):
         place = test_load_xml_ancestry.entities[Place]['P0000']
