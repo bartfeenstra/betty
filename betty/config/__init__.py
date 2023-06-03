@@ -16,8 +16,7 @@ from betty.classtools import Repr, repr_instance
 from betty.config.dump import DumpedConfiguration, VoidableDumpedConfiguration, minimize
 from betty.config.error import ConfigurationErrorCollection
 from betty.config.format import FORMATS_BY_EXTENSION, EXTENSIONS
-from betty.config.load import ConfigurationFormatError, ConfigurationLoadError, Assertion, assert_sequence, \
-    Assertions, assert_dict, assert_mapping
+from betty.config.load import ConfigurationFormatError, ConfigurationLoadError, Assertion, Assertions, Asserter
 from betty.functools import slice_to_range
 from betty.locale import Localizer, Localizable
 from betty.os import ChDir
@@ -31,11 +30,21 @@ except ModuleNotFoundError:
 
 
 class Configuration(ReactiveInstance, Repr, Localizable):
+    def __init__(self, *args, localizer: Localizer | None = None, **kwargs):
+        super().__init__(*args, **kwargs, localizer=localizer)
+        self._asserter = Asserter(localizer=self._localizer)
+
     def update(self, other: Self) -> None:
         raise NotImplementedError
 
     @classmethod
-    def load(cls, dumped_configuration: DumpedConfiguration, configuration: Self | None = None) -> Self:
+    def load(
+            cls,
+            dumped_configuration: DumpedConfiguration,
+            configuration: Self | None = None,
+            *,
+            localizer: Localizer | None = None,
+    ) -> Self:
         """
         Load dumped configuration into a new configuration instance.
         """
@@ -119,7 +128,8 @@ class FileBasedConfiguration(Configuration):
                 with open(self.configuration_file_path) as f:
                     read_configuration = f.read()
                 with errors.catch(f'in {self.configuration_file_path.resolve()}'):
-                    loaded_configuration = self.load(FORMATS_BY_EXTENSION[self.configuration_file_path.suffix[1:]].load(read_configuration))
+                    loaded_configuration = self.load(
+                        FORMATS_BY_EXTENSION[self.configuration_file_path.suffix[1:]].load(read_configuration))
         self.update(loaded_configuration)
 
     def __del__(self):
@@ -322,13 +332,20 @@ class ConfigurationSequence(ConfigurationCollection[int, ConfigurationT], Generi
         raise NotImplementedError
 
     @classmethod
-    def load(cls, dumped_configuration: DumpedConfiguration, configuration: Self | None = None) -> Self:
+    def load(
+            cls,
+            dumped_configuration: DumpedConfiguration,
+            configuration: Self | None = None,
+            *,
+            localizer: Localizer | None = None,
+    ) -> Self:
         if configuration is None:
             configuration = cls()
         else:
             configuration._clear_without_trigger()
+        asserter = Asserter(localizer=localizer)
         with ConfigurationErrorCollection().assert_valid():
-            configuration.append(*assert_sequence(Assertions(cls._item_type().assert_load()))(dumped_configuration))
+            configuration.append(*asserter.assert_sequence(Assertions(cls._item_type().assert_load()))(dumped_configuration))
         return configuration
 
     def dump(self) -> VoidableDumpedConfiguration:
@@ -452,12 +469,19 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
         self.move_to_beginning(*other_keys)
 
     @classmethod
-    def load(cls, dumped_configuration: DumpedConfiguration, configuration: Self | None = None) -> Self:
+    def load(
+            cls,
+            dumped_configuration: DumpedConfiguration,
+            configuration: Self | None = None,
+            *,
+            localizer: Localizer | None = None,
+    ) -> Self:
         if configuration is None:
             configuration = cls()
-        dumped_configuration_dict = assert_dict()(dumped_configuration)
-        mapping = assert_mapping(Assertions(cls._item_type().load))({
-            key: cls._load_key(value, key)
+        asserter = Asserter(localizer=localizer)
+        dumped_configuration_dict = asserter.assert_dict()(dumped_configuration)
+        mapping = asserter.assert_mapping(Assertions(cls._item_type().load))({
+            key: cls._load_key(value, key, localizer=localizer)
             for key, value
             in dumped_configuration_dict.items()
         })
@@ -539,7 +563,13 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
         raise NotImplementedError
 
     @classmethod
-    def _load_key(cls, dumped_item: DumpedConfiguration, dumped_key: str) -> DumpedConfiguration:
+    def _load_key(
+        cls,
+        dumped_item: DumpedConfiguration,
+        dumped_key: str,
+        *,
+        localizer: Localizer | None = None,
+    ) -> DumpedConfiguration:
         raise NotImplementedError
 
     def _dump_key(self, dumped_item: VoidableDumpedConfiguration) -> Tuple[VoidableDumpedConfiguration, str]:

@@ -4,7 +4,7 @@ from contextlib import suppress
 from enum import unique, IntFlag, auto
 
 from betty import fs
-from betty.locale import DEFAULT_LOCALIZER
+from betty.locale import Localizable
 
 
 @unique
@@ -13,7 +13,8 @@ class CacheScope(IntFlag):
     PROJECT = auto()
 
 
-async def clear():
-    with suppress(FileNotFoundError):
-        shutil.rmtree(fs.CACHE_DIRECTORY_PATH)
-    logging.getLogger().info(DEFAULT_LOCALIZER._('All caches cleared.'))
+class Cache(Localizable):
+    async def clear(self) -> None:
+        with suppress(FileNotFoundError):
+            shutil.rmtree(fs.CACHE_DIRECTORY_PATH)
+        logging.getLogger().info(self.localizer._('All caches cleared.'))

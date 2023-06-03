@@ -11,9 +11,8 @@ from betty.app import Extension, ConfigurableExtension
 from betty.config import Configuration, DumpedConfiguration, Configurable, FileBasedConfiguration, \
     ConfigurationMapping, VoidableDumpedConfiguration, ConfigurationSequence
 from betty.config.dump import minimize, void_none
-from betty.config.load import ConfigurationValidationError, assert_str, assert_record, Fields, Assertions, \
-    assert_entity_type, assert_setattr, assert_field, assert_extension_type, assert_bool, Assertion, assert_dict, \
-    assert_locale, assert_positive_number, assert_int, RequiredField, OptionalField
+from betty.config.load import ConfigurationValidationError, Fields, Assertions, Assertion, RequiredField, OptionalField, \
+    Asserter
 from betty.locale import Localizer, Localizable, get_data
 from betty.model import Entity, get_entity_type_name, UserFacingEntity, EntityT
 from betty.model.ancestry import Ancestry, Person, Event, Place, Source
@@ -73,23 +72,30 @@ class EntityReference(Configuration, Generic[EntityT]):
         self.react.trigger()
 
     @classmethod
-    def load(cls, dumped_configuration: DumpedConfiguration, configuration: Self | None = None) -> Self:
+    def load(
+            cls,
+            dumped_configuration: DumpedConfiguration,
+            configuration: Self | None = None,
+            *,
+            localizer: Localizer | None = None,
+    ) -> Self:
         if configuration is None:
             configuration = cls()
+        asserter = Asserter(localizer=localizer)
         if isinstance(dumped_configuration, dict):
-            assert_record(Fields(
+            asserter.assert_record(Fields(
                 RequiredField(
                     'entity_type',
-                    Assertions(assert_entity_type()) | assert_setattr(configuration, 'entity_type'),
+                    Assertions(asserter.assert_entity_type()) | asserter.assert_setattr(configuration, 'entity_type'),
                 ),
                 OptionalField(
                     'entity_id',
-                    Assertions(assert_str()) | assert_setattr(configuration, 'entity_id'),
+                    Assertions(asserter.assert_str()) | asserter.assert_setattr(configuration, 'entity_id'),
                 ),
             ))(dumped_configuration)
         else:
-            assert_str()(dumped_configuration)
-            assert_setattr(configuration, 'entity_id')(dumped_configuration)  # type: ignore[arg-type]
+            asserter.assert_str()(dumped_configuration)
+            asserter.assert_setattr(configuration, 'entity_id')(dumped_configuration)  # type: ignore[arg-type]
         return configuration
 
     def dump(self) -> VoidableDumpedConfiguration:
@@ -181,10 +187,17 @@ class ExtensionConfiguration(Configuration):
         raise NotImplementedError
 
     @classmethod
-    def load(cls, dumped_configuration: DumpedConfiguration, configuration: Self | None = None) -> Self:
-        extension_type = assert_field(RequiredField(
+    def load(
+            cls,
+            dumped_configuration: DumpedConfiguration,
+            configuration: Self | None = None,
+            *,
+            localizer: Localizer | None = None,
+    ) -> Self:
+        asserter = Asserter(localizer=localizer)
+        extension_type = asserter.assert_field(RequiredField(
             'extension',
-            Assertions(assert_extension_type()),
+            Assertions(asserter.assert_extension_type()),
         ))(dumped_configuration)
         assert extension_type is not Void
         if configuration is None:
@@ -192,13 +205,13 @@ class ExtensionConfiguration(Configuration):
         else:
             # This MUST NOT fail. If it does, this is a bug in the calling code that must be fixed.
             assert extension_type is configuration.extension_type
-        assert_record(Fields(
+        asserter.assert_record(Fields(
             RequiredField(
                 'extension',
             ),
             OptionalField(
                 'enabled',
-                Assertions(assert_bool()) | assert_setattr(configuration, 'enabled'),
+                Assertions(asserter.assert_bool()) | asserter.assert_setattr(configuration, 'enabled'),
             ),
             OptionalField(
                 'configuration',
@@ -249,13 +262,20 @@ class ExtensionConfigurationMapping(ConfigurationMapping[Type[Extension], Extens
         return configuration.extension_type
 
     @classmethod
-    def _load_key(cls, dumped_item: DumpedConfiguration, dumped_key: str) -> DumpedConfiguration:
-        dumped_item_dict = assert_dict()(dumped_item)
+    def _load_key(
+        cls,
+        dumped_item: DumpedConfiguration,
+        dumped_key: str,
+        *,
+        localizer: Localizer | None = None,
+    ) -> DumpedConfiguration:
+        asserter = Asserter(localizer=localizer)
+        dumped_item_dict = asserter.assert_dict()(dumped_item)
         dumped_item_dict['extension'] = dumped_key
         return dumped_item_dict
 
     def _dump_key(self, dumped_item: VoidableDumpedConfiguration) -> Tuple[VoidableDumpedConfiguration, str]:
-        dumped_item_dict = assert_dict()(dumped_item)
+        dumped_item_dict = self._asserter.assert_dict()(dumped_item)
         return dumped_item_dict, dumped_item_dict.pop('extension')
 
     def enable(self, *extension_types: Type[Extension]):
@@ -308,13 +328,31 @@ class EntityTypeConfiguration(Configuration):
         self._generate_html_list = other._generate_html_list
         self.react.trigger()
 
+    def type(self):
+        pass
+
     @classmethod
-    def load(cls, dumped_configuration: DumpedConfiguration, template: Self | None = None) -> Self:
-        entity_type = assert_field(RequiredField[Any, Type[Entity]]('entity_type', Assertions(assert_str()) | assert_entity_type()))(dumped_configuration)
+    def load(
+            cls,
+            dumped_configuration: DumpedConfiguration,
+            configuration: Self | None = None,
+            *,
+            localizer: Localizer | None = None,
+    ) -> Self:
+        asserter = Asserter(localizer=localizer)
+        entity_type = asserter.assert_field(RequiredField[Any, Type[Entity]](
+            'entity_type',
+            Assertions(asserter.assert_str()) | asserter.assert_entity_type()),
+        )(dumped_configuration)
         configuration = cls(entity_type)
-        assert_record(Fields(
-            OptionalField('entity_type'),
-            OptionalField('generate_html_list', Assertions(assert_bool()) | assert_setattr(configuration, 'generate_html_list')),
+        asserter.assert_record(Fields(
+            OptionalField(
+                'entity_type',
+            ),
+            OptionalField(
+                'generate_html_list',
+                Assertions(asserter.assert_bool()) | asserter.assert_setattr(configuration, 'generate_html_list'),
+            ),
         ))(dumped_configuration)
         return configuration
 
@@ -333,14 +371,21 @@ class EntityTypeConfigurationMapping(ConfigurationMapping[Type[Entity], EntityTy
         return configuration.entity_type
 
     @classmethod
-    def _load_key(cls, dumped_item: DumpedConfiguration, dumped_key: str) -> DumpedConfiguration:
-        dumped_item_dict = assert_dict()(dumped_item)
-        assert_entity_type()(dumped_key)
+    def _load_key(
+        cls,
+        dumped_item: DumpedConfiguration,
+        dumped_key: str,
+        *,
+        localizer: Localizer | None = None,
+    ) -> DumpedConfiguration:
+        asserter = Asserter(localizer=localizer)
+        dumped_item_dict = asserter.assert_dict()(dumped_item)
+        asserter.assert_entity_type()(dumped_key)
         dumped_item_dict['entity_type'] = dumped_key
         return dumped_item_dict
 
     def _dump_key(self, dumped_item: VoidableDumpedConfiguration) -> Tuple[VoidableDumpedConfiguration, str]:
-        dumped_item_dict = assert_dict()(dumped_item)
+        dumped_item_dict = self._asserter.assert_dict()(dumped_item)
         return dumped_item_dict, dumped_item_dict.pop('entity_type')
 
     @classmethod
@@ -395,13 +440,28 @@ class LocaleConfiguration(Configuration):
         self._alias = other._alias
 
     @classmethod
-    def load(cls, dumped_configuration: DumpedConfiguration, configuration: Self | None = None) -> Self:
-        locale = assert_field(RequiredField('locale', Assertions(assert_locale())))(dumped_configuration)
+    def load(
+            cls,
+            dumped_configuration: DumpedConfiguration,
+            configuration: Self | None = None,
+            *,
+            localizer: Localizer | None = None,
+    ) -> Self:
+        asserter = Asserter(localizer=localizer)
+        locale = asserter.assert_field(RequiredField(
+            'locale',
+            Assertions(asserter.assert_locale())),
+        )(dumped_configuration)
         if configuration is None:
             configuration = cls(locale)
-        assert_record(Fields(
-            RequiredField('locale'),
-            OptionalField('alias', Assertions(assert_str()) | assert_setattr(configuration, 'alias')),
+        asserter.assert_record(Fields(
+            RequiredField(
+                'locale'
+            ),
+            OptionalField(
+                'alias',
+                Assertions(asserter.assert_str()) | asserter.assert_setattr(configuration, 'alias'),
+            ),
         ))(dumped_configuration)
         return configuration
 
@@ -431,13 +491,20 @@ class LocaleConfigurationMapping(ConfigurationMapping[str, LocaleConfiguration])
         return configuration.locale
 
     @classmethod
-    def _load_key(cls, dumped_item: DumpedConfiguration, dumped_key: str) -> DumpedConfiguration:
-        dumped_item_dict = assert_dict()(dumped_item)
+    def _load_key(
+        cls,
+        dumped_item: DumpedConfiguration,
+        dumped_key: str,
+        *,
+        localizer: Localizer | None = None,
+    ) -> DumpedConfiguration:
+        asserter = Asserter(localizer=localizer)
+        dumped_item_dict = asserter.assert_dict()(dumped_item)
         dumped_item_dict['locale'] = dumped_key
         return dumped_item_dict
 
     def _dump_key(self, dumped_item: VoidableDumpedConfiguration) -> Tuple[VoidableDumpedConfiguration, str]:
-        dumped_item_dict = assert_dict()(dumped_item)
+        dumped_item_dict = self._asserter.assert_dict()(dumped_item)
         return dumped_item_dict, dumped_item_dict.pop('locale')
 
     @classmethod
@@ -595,7 +662,7 @@ class ProjectConfiguration(FileBasedConfiguration):
 
     @lifetime_threshold.setter
     def lifetime_threshold(self, lifetime_threshold: int) -> None:
-        assert_positive_number()(lifetime_threshold)
+        self._asserter.assert_positive_number()(lifetime_threshold)
         self._lifetime_threshold = lifetime_threshold
 
     def update(self, other: Self) -> None:
@@ -612,21 +679,61 @@ class ProjectConfiguration(FileBasedConfiguration):
         self._entity_types.update(other._entity_types)
 
     @classmethod
-    def load(cls, dumped_configuration: DumpedConfiguration, configuration: Self | None = None) -> Self:
+    def load(
+            cls,
+            dumped_configuration: DumpedConfiguration,
+            configuration: Self | None = None,
+            *,
+            localizer: Localizer | None = None,
+    ) -> Self:
         if configuration is None:
             configuration = cls()
-        assert_record(Fields(
-            RequiredField('base_url', Assertions(assert_str()) | assert_setattr(configuration, 'base_url')),
-            OptionalField('title', Assertions(assert_str()) | assert_setattr(configuration, 'title')),
-            OptionalField('author', Assertions(assert_str()) | assert_setattr(configuration, 'author')),
-            OptionalField('root_path', Assertions(assert_str()) | assert_setattr(configuration, 'root_path')),
-            OptionalField('clean_urls', Assertions(assert_bool()) | assert_setattr(configuration, 'clean_urls')),
-            OptionalField('content_negotiation', Assertions(assert_bool()) | assert_setattr(configuration, 'content_negotiation')),
-            OptionalField('debug', Assertions(assert_bool()) | assert_setattr(configuration, 'debug')),
-            OptionalField('lifetime_threshold', Assertions(assert_int()) | assert_setattr(configuration, 'lifetime_threshold')),
-            OptionalField('locales', Assertions(configuration._locales.assert_load(configuration.locales))),
-            OptionalField('extensions', Assertions(configuration._extensions.assert_load(configuration.extensions))),
-            OptionalField('entity_types', Assertions(configuration._entity_types.assert_load(configuration.entity_types))),
+        asserter = Asserter(localizer=localizer)
+        asserter.assert_record(Fields(
+            RequiredField(
+                'base_url',
+                Assertions(asserter.assert_str()) | asserter.assert_setattr(configuration, 'base_url'),
+            ),
+            OptionalField(
+                'title',
+                Assertions(asserter.assert_str()) | asserter.assert_setattr(configuration, 'title'),
+            ),
+            OptionalField(
+                'author',
+                Assertions(asserter.assert_str()) | asserter.assert_setattr(configuration, 'author'),
+            ),
+            OptionalField(
+                'root_path',
+                Assertions(asserter.assert_str()) | asserter.assert_setattr(configuration, 'root_path'),
+            ),
+            OptionalField(
+                'clean_urls',
+                Assertions(asserter.assert_bool()) | asserter.assert_setattr(configuration, 'clean_urls'),
+            ),
+            OptionalField(
+                'content_negotiation',
+                Assertions(asserter.assert_bool()) | asserter.assert_setattr(configuration, 'content_negotiation'),
+            ),
+            OptionalField(
+                'debug',
+                Assertions(asserter.assert_bool()) | asserter.assert_setattr(configuration, 'debug'),
+            ),
+            OptionalField(
+                'lifetime_threshold',
+                Assertions(asserter.assert_int()) | asserter.assert_setattr(configuration, 'lifetime_threshold'),
+            ),
+            OptionalField(
+                'locales',
+                Assertions(configuration._locales.assert_load(configuration.locales)),
+            ),
+            OptionalField(
+                'extensions',
+                Assertions(configuration._extensions.assert_load(configuration.extensions)),
+            ),
+            OptionalField(
+                'entity_types',
+                Assertions(configuration._entity_types.assert_load(configuration.entity_types)),
+            ),
         ))(dumped_configuration)
         return configuration
 

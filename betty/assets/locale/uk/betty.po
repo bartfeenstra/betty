@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-02 09:19+0100\n"
+"POT-Creation-Date: 2023-06-03 08:30+0100\n"
 "PO-Revision-Date: 2020-05-02 22:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -250,9 +250,8 @@ msgstr "Народження"
 msgid "Built the Cotton Candy front-end assets."
 msgstr ""
 
-#, fuzzy
 msgid "Built the HTTP API documentation."
-msgstr "документація API"
+msgstr ""
 
 msgid "Built the interactive family trees."
 msgstr ""
@@ -342,6 +341,22 @@ msgid "Correspondence"
 msgstr "Листування"
 
 msgid "Cotton Candy is Betty's default theme."
+msgstr ""
+
+msgid "Could not extract {file_path} as a gzip (*.gz) file."
+msgstr ""
+
+msgid ""
+"Could not extract {file_path} as a tar (*.tar) file after extracting the "
+"outer gzip (*.gz) file."
+msgstr ""
+
+msgid "Could not find the file \"{file_path}\"."
+msgstr ""
+
+msgid ""
+"Could not load \"{file_path}\" as a *.gpkg, a *.gramps, or an *.xml "
+"family tree."
 msgstr ""
 
 msgid "Create a new project"
@@ -489,9 +504,8 @@ msgstr ""
 msgid "Generating your site..."
 msgstr ""
 
-#, fuzzy
 msgid "HTTP API Documentation"
-msgstr "документація API"
+msgstr "документація HTTP API"
 
 msgid "Help"
 msgstr "Допомога"
@@ -544,7 +558,7 @@ msgstr ""
 msgid "Loaded the configuration from {configuration_file_path}."
 msgstr ""
 
-msgid "Loading {file_path}..."
+msgid "Loading \"{file_path}\"..."
 msgstr ""
 
 msgid "Loading..."
@@ -951,65 +965,50 @@ msgstr ""
 msgid "`npm` is not available"
 msgstr ""
 
-#, fuzzy
 msgid "around {date}"
-msgstr "близько %(date)s"
+msgstr "близько {date}"
 
-#, fuzzy
 msgid "from around {start_date}"
-msgstr "приблизно з %(start_date)s"
+msgstr "приблизно з {start_date}"
 
-#, fuzzy
 msgid "from around {start_date} until around {end_date}"
-msgstr "приблизно з %(start_date)s приблизно до %(end_date)s"
+msgstr "приблизно з {start_date} приблизно до {end_date}"
 
-#, fuzzy
 msgid "from around {start_date} until sometime before around {end_date}"
-msgstr "приблизно з %(start_date)s до десь до %(end_date)s"
+msgstr "приблизно з {start_date} до десь до {end_date}"
 
-#, fuzzy
 msgid "from around {start_date} until sometime before {end_date}"
-msgstr "приблизно з %(start_date)s до десь раніше %(end_date)s"
+msgstr "приблизно з {start_date} до десь раніше {end_date}"
 
-#, fuzzy
 msgid "from around {start_date} until {end_date}"
-msgstr "приблизно з %(start_date)s до %(end_date)s"
+msgstr "приблизно з {start_date} до {end_date}"
 
-#, fuzzy
 msgid "from sometime after around {start_date} until around {end_date}"
-msgstr "десь приблизно після %(start_date)s приблизно до %(end_date)s"
+msgstr "десь приблизно після {start_date} приблизно до {end_date}"
 
-#, fuzzy
 msgid "from sometime after around {start_date} until {end_date}"
-msgstr "десь після %(start_date)s до %(end_date)s"
+msgstr "десь після {start_date} до {end_date}"
 
-#, fuzzy
 msgid "from sometime after {start_date} until around {end_date}"
-msgstr "десь після %(start_date)s приблизно до %(end_date)s"
+msgstr "десь після {start_date} приблизно до {end_date}"
 
-#, fuzzy
 msgid "from sometime after {start_date} until {end_date}"
-msgstr "десь після %(start_date)s до %(end_date)s"
+msgstr "десь після {start_date} до {end_date}"
 
-#, fuzzy
 msgid "from {start_date}"
-msgstr "з %(start_date)s"
+msgstr "з {start_date}"
 
-#, fuzzy
 msgid "from {start_date} until around {end_date}"
-msgstr "з %(start_date)s до приблизно %(end_date)s"
+msgstr "з {start_date} до приблизно {end_date}"
 
-#, fuzzy
 msgid "from {start_date} until sometime before around {end_date}"
-msgstr "з %(start_date)s до десь до %(end_date)s"
+msgstr "з {start_date} до десь до {end_date}"
 
-#, fuzzy
 msgid "from {start_date} until sometime before {end_date}"
-msgstr "з %(start_date)s до десь раніше %(end_date)s"
+msgstr "з {start_date} до десь раніше {end_date}"
 
-#, fuzzy
 msgid "from {start_date} until {end_date}"
-msgstr "з %(start_date)s до %(end_date)s"
+msgstr "з {start_date} до {end_date}"
 
 #, python-format
 msgid "in %(place)s"
@@ -1044,48 +1043,38 @@ msgstr "показати менше"
 msgid "show more"
 msgstr "показати більше"
 
-#, fuzzy
 msgid "sometime after around {start_date}"
-msgstr "десь приблизно після %(start_date)s"
+msgstr "десь приблизно після {start_date}"
 
-#, fuzzy
 msgid "sometime after {start_date}"
-msgstr "десь після %(start_date)s"
+msgstr "десь після {start_date}"
 
-#, fuzzy
 msgid "sometime before around {end_date}"
-msgstr "десь приблизно до %(end_date)s"
+msgstr "десь приблизно до {end_date}"
 
-#, fuzzy
 msgid "sometime before {end_date}"
-msgstr "десь до %(end_date)s"
+msgstr "десь до {end_date}"
 
-#, fuzzy
 msgid "sometime between around {start_date} and around {end_date}"
-msgstr "десь між приблизно %(start_date)s та приблизно %(end_date)s"
+msgstr "десь між приблизно {start_date} та приблизно {end_date}"
 
-#, fuzzy
 msgid "sometime between around {start_date} and {end_date}"
-msgstr "десь між приблизно %(start_date)s та %(end_date)s"
+msgstr "десь між приблизно {start_date} та {end_date}"
 
-#, fuzzy
 msgid "sometime between {start_date} and around {end_date}"
-msgstr "десь між %(start_date)s і близько %(end_date)s"
+msgstr "десь між {start_date} і близько {end_date}"
 
-#, fuzzy
 msgid "sometime between {start_date} and {end_date}"
-msgstr "десь між %(start_date)s та %(end_date)s"
+msgstr "десь між {start_date} та {end_date}"
 
 msgid "unknown date"
 msgstr "невідома дата"
 
-#, fuzzy
 msgid "until around {end_date}"
-msgstr "приблизно до %(end_date)s"
+msgstr "приблизно до {end_date}"
 
-#, fuzzy
 msgid "until {end_date}"
-msgstr "до %(end_date)s"
+msgstr "до {end_date}"
 
 msgid "y"
 msgstr "y року"

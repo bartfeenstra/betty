@@ -14,8 +14,7 @@ from betty.app import Extension
 from betty.app.extension import ConfigurableExtension, Theme
 from betty.config import Configuration, DumpedConfiguration, VoidableDumpedConfiguration
 from betty.config.dump import minimize
-from betty.config.load import ConfigurationValidationError, assert_str, assert_record, Fields, Assertions, \
-    OptionalField
+from betty.config.load import ConfigurationValidationError, Fields, Assertions, OptionalField, Asserter
 from betty.cotton_candy.search import Index
 from betty.generate import Generator
 from betty.gui import GuiBuilder
@@ -58,8 +57,15 @@ class _ColorConfiguration(Configuration):
         self.hex = other.hex
 
     @classmethod
-    def load(cls, dumped_configuration: DumpedConfiguration, configuration: Self | None = None) -> Self:
-        hex_value = assert_str()(dumped_configuration)
+    def load(
+            cls,
+            dumped_configuration: DumpedConfiguration,
+            configuration: Self | None = None,
+            *,
+            localizer: Localizer | None = None,
+    ) -> Self:
+        asserter = Asserter(localizer=localizer)
+        hex_value = asserter.assert_str()(dumped_configuration)
         if configuration is None:
             configuration = cls(hex_value)
         else:
@@ -110,15 +116,37 @@ class CottonCandyConfiguration(Configuration):
         return self._link_active_color
 
     @classmethod
-    def load(cls, dumped_configuration: DumpedConfiguration, configuration: Self | None = None) -> Self:
+    def load(
+            cls,
+            dumped_configuration: DumpedConfiguration,
+            configuration: Self | None = None,
+            *,
+            localizer: Localizer | None = None,
+    ) -> Self:
         if configuration is None:
             configuration = cls()
-        assert_record(Fields(
-            OptionalField('featured_entities', Assertions(configuration._featured_entities.assert_load(configuration._featured_entities))),
-            OptionalField('primary_inactive_color', Assertions(configuration._primary_inactive_color.assert_load(configuration._primary_inactive_color))),
-            OptionalField('primary_active_color', Assertions(configuration._primary_active_color.assert_load(configuration._primary_active_color))),
-            OptionalField('link_inactive_color', Assertions(configuration._link_inactive_color.assert_load(configuration._link_inactive_color))),
-            OptionalField('link_active_color', Assertions(configuration._link_active_color.assert_load(configuration._link_active_color))),
+        asserter = Asserter(localizer=localizer)
+        asserter.assert_record(Fields(
+            OptionalField(
+                'featured_entities',
+                Assertions(configuration._featured_entities.assert_load(configuration._featured_entities)),
+            ),
+            OptionalField(
+                'primary_inactive_color',
+                Assertions(configuration._primary_inactive_color.assert_load(configuration._primary_inactive_color)),
+            ),
+            OptionalField(
+                'primary_active_color',
+                Assertions(configuration._primary_active_color.assert_load(configuration._primary_active_color)),
+            ),
+            OptionalField(
+                'link_inactive_color',
+                Assertions(configuration._link_inactive_color.assert_load(configuration._link_inactive_color)),
+            ),
+            OptionalField(
+                'link_active_color',
+                Assertions(configuration._link_active_color.assert_load(configuration._link_active_color)),
+            ),
         ))(dumped_configuration)
         return configuration
 

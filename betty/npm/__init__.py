@@ -45,14 +45,13 @@ class _NpmRequirement(Requirement):
 
     @classmethod
     @sync
-    async def check(cls, localizer: Localizer | None = None) -> _NpmRequirement:
-        localizer = localizer or DEFAULT_LOCALIZER
+    async def check(cls, localizer: Localizer) -> _NpmRequirement:
         try:
             await npm(['--version'])
             logging.getLogger().debug(cls._met_summary(localizer))
             return cls(True, localizer=localizer)
         except (CalledProcessError, FileNotFoundError):
-            logging.getLogger().debug(cls._unmet_summary(localizer))
+            logging.getLogger().debug(cls._unmet_summary(localizer=localizer))
             return cls(False, localizer=localizer)
 
     def is_met(self) -> bool:
@@ -161,7 +160,7 @@ class _Npm(Extension):
     _requirement: Optional[Requirement] = None
 
     @classmethod
-    def _ensure_requirement(cls, localizer: Localizer | None = None) -> Requirement:
+    def _ensure_requirement(cls, localizer: Localizer) -> Requirement:
         if cls._requirement is None:
             cls._npm_requirement = _NpmRequirement.check(localizer)
             cls._assets_requirement = _AssetsRequirement(discover_npm_builders())
@@ -173,12 +172,12 @@ class _Npm(Extension):
     @classmethod
     def enable_requirement(cls, localizer: Localizer | None = None) -> Requirement:
         return AllRequirements(
-            cls._ensure_requirement(localizer),
+            cls._ensure_requirement(DEFAULT_LOCALIZER),
             super().enable_requirement(localizer),
         )
 
     async def install(self, extension_type: Type[Extension | NpmBuilder], working_directory_path: Path) -> None:
-        self._ensure_requirement()
+        self._ensure_requirement(self._app.localizer)
         if self._npm_requirement:
             self._npm_requirement.assert_met()
 

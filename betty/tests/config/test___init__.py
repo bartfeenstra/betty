@@ -12,7 +12,8 @@ from betty.app import App
 from betty.config import FileBasedConfiguration, ConfigurationMapping, Configuration, VoidableDumpedConfiguration, \
     DumpedConfiguration, ConfigurationCollection, ConfigurationSequence, ConfigurationKeyT, ConfigurationT
 from betty.config.error import ConfigurationError, ConfigurationErrorCollection
-from betty.config.load import ConfigurationFormatError, assert_dict
+from betty.config.load import ConfigurationFormatError, Asserter
+from betty.locale import Localizer
 
 
 class ConfigurationAssertionError(AssertionError):
@@ -292,13 +293,20 @@ class ConfigurationMappingTestConfigurationMapping(ConfigurationMapping[str, Con
         return configuration.key
 
     @classmethod
-    def _load_key(cls, dumped_item: DumpedConfiguration, dumped_key: str) -> DumpedConfiguration:
-        dumped_dict = assert_dict()(dumped_item)
+    def _load_key(
+        cls,
+        dumped_item: DumpedConfiguration,
+        dumped_key: str,
+        *,
+        localizer: Localizer | None = None,
+    ) -> DumpedConfiguration:
+        asserter = Asserter(localizer=localizer)
+        dumped_dict = asserter.assert_dict()(dumped_item)
         dumped_dict[dumped_key] = dumped_key
         return dumped_dict
 
     def _dump_key(self, dumped_item: VoidableDumpedConfiguration) -> Tuple[VoidableDumpedConfiguration, str]:
-        dumped_dict = assert_dict()(dumped_item)
+        dumped_dict = self._asserter.assert_dict()(dumped_item)
         return dumped_dict, dumped_dict.pop('key')
 
 

@@ -72,7 +72,7 @@ class Dependencies(Requirement):
     def is_met(self) -> bool:
         for dependency_type in self._dependent_type.depends_on():
             try:
-                if not dependency_type.enable_requirement(self._localizer).is_met():
+                if not dependency_type.enable_requirement(localizer=self._localizer).is_met():
                     return False
             except RecursionError:
                 raise CyclicDependencyError([dependency_type])

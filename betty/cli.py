@@ -15,7 +15,7 @@ from betty.locale import update_translations, init_translation
 import click
 from click import get_current_context, Context, Option
 
-from betty import about, cache, demo, generate, load
+from betty import about, demo, generate, load
 from betty.app import App
 from betty.asyncio import sync
 from betty.error import UserFacingError
@@ -150,8 +150,8 @@ def main(app):
 @global_command
 @sync
 async def _clear_caches():
-    with App():
-        await cache.clear()
+    with App() as app:
+        await app.cache.clear()
 
 
 @click.command(help='Explore a demonstration site.')

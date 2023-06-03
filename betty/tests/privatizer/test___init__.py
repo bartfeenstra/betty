@@ -7,9 +7,10 @@ import pytest
 from betty.app import App
 from betty.load import load
 from betty.locale import Date, DateRange
-from betty.model.ancestry import Person, Presence, Event, Source, File, Subject, Attendee, Citation, Ancestry
+from betty.model import Entity
+from betty.model.ancestry import Person, Presence, Event, Source, File, Subject, Attendee, Citation
 from betty.model.event_type import Death, Birth, Marriage
-from betty.privatizer import Privatizer, privatize
+from betty.privatizer import Privatizer
 from betty.project import ExtensionConfiguration
 
 
@@ -78,6 +79,12 @@ def _expand_person(generation: int):
 
 
 class TestPrivatizer:
+    def _app(self, *entities: Entity) -> App:
+        app = App()
+        app.project.configuration.extensions.append(ExtensionConfiguration(Privatizer))
+        app.project.ancestry.entities.append(*entities)
+        return app
+
     async def test_post_load(self):
         person = Person('P0')
         Presence(person, Subject(), Event(None, Birth))
@@ -93,16 +100,12 @@ class TestPrivatizer:
         citation.private = True
         citation.files.append(citation_file)
 
-        with App() as app:
-            app.project.configuration.extensions.append(ExtensionConfiguration(Privatizer))
-            app.project.ancestry.entities.append(person)
-            app.project.ancestry.entities.append(source)
-            app.project.ancestry.entities.append(citation)
-            await load(app)
+        app = self._app(person, source, citation)
+        await load(app)
 
-            assert person.private
-            assert source_file.private
-            assert citation_file.private
+        assert person.private
+        assert source_file.private
+        assert citation_file.private
 
     def test_privatize_person_should_not_privatize_if_public(self):
         source_file = File('F0', Path(__file__))
@@ -120,9 +123,8 @@ class TestPrivatizer:
         person.files.append(person_file)
         Presence(person, Subject(), event_as_subject)
         Presence(person, Attendee(), event_as_attendee)
-        ancestry = Ancestry()
-        ancestry.entities.append(person)
-        privatize(ancestry)
+        app = self._app(person)
+        app.extensions[Privatizer].privatize()
         assert not person.private
         assert citation.private is None
         assert source.private is None
@@ -148,9 +150,8 @@ class TestPrivatizer:
         person.files.append(person_file)
         Presence(person, Subject(), event_as_subject)
         Presence(person, Attendee(), event_as_attendee)
-        ancestry = Ancestry()
-        ancestry.entities.append(person)
-        privatize(ancestry)
+        app = self._app(person)
+        app.extensions[Privatizer].privatize()
         assert person.private
         assert citation.private
         assert source.private
@@ -166,9 +167,8 @@ class TestPrivatizer:
         person.private = private
         if event is not None:
             Presence(person, Subject(), event)
-        ancestry = Ancestry()
-        ancestry.entities.append(person)
-        privatize(ancestry)
+        app = self._app(person)
+        app.extensions[Privatizer].privatize()
         assert expected == person.private
 
     @pytest.mark.parametrize('expected, private, event', _expand_person(1))
@@ -179,9 +179,8 @@ class TestPrivatizer:
         if event is not None:
             Presence(child, Subject(), event)
         person.children.append(child)
-        ancestry = Ancestry()
-        ancestry.entities.append(person)
-        privatize(ancestry)
+        app = self._app(person)
+        app.extensions[Privatizer].privatize()
         assert expected == person.private
 
     @pytest.mark.parametrize('expected, private, event', _expand_person(2))
@@ -194,9 +193,8 @@ class TestPrivatizer:
         if event is not None:
             Presence(grandchild, Subject(), event)
         child.children.append(grandchild)
-        ancestry = Ancestry()
-        ancestry.entities.append(person)
-        privatize(ancestry)
+        app = self._app(person)
+        app.extensions[Privatizer].privatize()
         assert expected == person.private
 
     @pytest.mark.parametrize('expected, private, event', _expand_person(3))
@@ -211,9 +209,8 @@ class TestPrivatizer:
         if event is not None:
             Presence(great_grandchild, Subject(), event)
         grandchild.children.append(great_grandchild)
-        ancestry = Ancestry()
-        ancestry.entities.append(person)
-        privatize(ancestry)
+        app = self._app(person)
+        app.extensions[Privatizer].privatize()
         assert expected == person.private
 
     @pytest.mark.parametrize('expected, private, event', _expand_person(-1))
@@ -224,9 +221,8 @@ class TestPrivatizer:
         if event is not None:
             Presence(parent, Subject(), event)
         person.parents.append(parent)
-        ancestry = Ancestry()
-        ancestry.entities.append(person)
-        privatize(ancestry)
+        app = self._app(person)
+        app.extensions[Privatizer].privatize()
         assert expected == person.private
 
     @pytest.mark.parametrize('expected, private, event', _expand_person(-2))
@@ -239,9 +235,8 @@ class TestPrivatizer:
         if event is not None:
             Presence(grandparent, Subject(), event)
         parent.parents.append(grandparent)
-        ancestry = Ancestry()
-        ancestry.entities.append(person)
-        privatize(ancestry)
+        app = self._app(person)
+        app.extensions[Privatizer].privatize()
         assert expected == person.private
 
     @pytest.mark.parametrize('expected, private, event', _expand_person(-3))
@@ -256,9 +251,8 @@ class TestPrivatizer:
         if event is not None:
             Presence(great_grandparent, Subject(), event)
         grandparent.parents.append(great_grandparent)
-        ancestry = Ancestry()
-        ancestry.entities.append(person)
-        privatize(ancestry)
+        app = self._app(person)
+        app.extensions[Privatizer].privatize()
         assert expected == person.private
 
     def test_privatize_event_should_not_privatize_if_public(self):
@@ -275,9 +269,8 @@ class TestPrivatizer:
         event.files.append(event_file)
         person = Person('P0')
         Presence(person, Subject(), event)
-        ancestry = Ancestry()
-        ancestry.entities.append(event)
-        privatize(ancestry)
+        app = self._app(event)
+        app.extensions[Privatizer].privatize()
         assert not event.private
         assert event_file.private is None
         assert citation.private is None
@@ -300,9 +293,8 @@ class TestPrivatizer:
         event.files.append(event_file)
         person = Person('P0')
         Presence(person, Subject(), event)
-        ancestry = Ancestry()
-        ancestry.entities.append(event)
-        privatize(ancestry)
+        app = self._app(event)
+        app.extensions[Privatizer].privatize()
         assert event.private
         assert event_file.private
         assert citation.private
@@ -316,9 +308,8 @@ class TestPrivatizer:
         source = Source('S0', 'The Source')
         source.private = False
         source.files.append(file)
-        ancestry = Ancestry()
-        ancestry.entities.append(source)
-        privatize(ancestry)
+        app = self._app(source)
+        app.extensions[Privatizer].privatize()
         assert not source.private
         assert file.private is None
 
@@ -327,9 +318,8 @@ class TestPrivatizer:
         source = Source('S0', 'The Source')
         source.private = True
         source.files.append(file)
-        ancestry = Ancestry()
-        ancestry.entities.append(source)
-        privatize(ancestry)
+        app = self._app(source)
+        app.extensions[Privatizer].privatize()
         assert source.private
         assert file.private
 
@@ -341,9 +331,8 @@ class TestPrivatizer:
         citation = Citation('C0', source)
         citation.private = False
         citation.files.append(citation_file)
-        ancestry = Ancestry()
-        ancestry.entities.append(citation)
-        privatize(ancestry)
+        app = self._app(citation)
+        app.extensions[Privatizer].privatize()
         assert not citation.private
         assert source.private is None
         assert citation_file.private is None
@@ -357,9 +346,8 @@ class TestPrivatizer:
         citation = Citation('C0', source)
         citation.private = True
         citation.files.append(citation_file)
-        ancestry = Ancestry()
-        ancestry.entities.append(citation)
-        privatize(ancestry)
+        app = self._app(citation)
+        app.extensions[Privatizer].privatize()
         assert citation.private
         assert source.private
         assert citation_file.private
@@ -371,9 +359,8 @@ class TestPrivatizer:
         file = File('F0', Path(__file__))
         file.private = False
         file.citations.append(citation)
-        ancestry = Ancestry()
-        ancestry.entities.append(file)
-        privatize(ancestry)
+        app = self._app(file)
+        app.extensions[Privatizer].privatize()
         assert not file.private
         assert citation.private is None
 
@@ -383,8 +370,7 @@ class TestPrivatizer:
         file = File('F0', Path(__file__))
         file.private = True
         file.citations.append(citation)
-        ancestry = Ancestry()
-        ancestry.entities.append(file)
-        privatize(ancestry)
+        app = self._app(file)
+        app.extensions[Privatizer].privatize()
         assert True, file.private
         assert citation.private

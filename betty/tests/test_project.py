@@ -8,8 +8,8 @@ from reactives.tests import assert_reactor_called, assert_scope_empty
 
 from betty.app import Extension, App, ConfigurableExtension
 from betty.config import Configuration, Configurable, DumpedConfiguration, VoidableDumpedConfiguration
-from betty.config.load import ConfigurationValidationError, assert_record, Assertions, assert_bool, Fields, \
-    RequiredField
+from betty.config.load import ConfigurationValidationError, Assertions, Fields, RequiredField, Asserter
+from betty.locale import Localizer
 from betty.model import Entity, get_entity_type_name, UserFacingEntity
 from betty.project import ExtensionConfiguration, ExtensionConfigurationMapping, ProjectConfiguration, \
     LocaleConfiguration, LocaleConfigurationMapping, EntityReference, EntityReferenceSequence, \
@@ -754,11 +754,21 @@ class DummyConfigurableExtensionConfiguration(Configuration):
         return self.check == other.check
 
     @classmethod
-    def load(cls, dumped_configuration: DumpedConfiguration, configuration: Self | None = None) -> Self:
+    def load(
+            cls,
+            dumped_configuration: DumpedConfiguration,
+            configuration: Self | None = None,
+            *,
+            localizer: Localizer | None = None,
+    ) -> Self:
         if configuration is None:
             configuration = cls()
-        assert_record(Fields(
-            RequiredField('check', Assertions(assert_bool()))),
+        asserter = Asserter(localizer=localizer)
+        asserter.assert_record(Fields(
+            RequiredField(
+                'check',
+                Assertions(asserter.assert_bool())),
+        ),
         )(dumped_configuration)
         return configuration
 
