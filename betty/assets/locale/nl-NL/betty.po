@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-02 09:19+0100\n"
+"POT-Creation-Date: 2023-06-03 08:30+0100\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -277,9 +277,8 @@ msgstr "Geboorte"
 msgid "Built the Cotton Candy front-end assets."
 msgstr ""
 
-#, fuzzy
 msgid "Built the HTTP API documentation."
-msgstr "API-documentatie"
+msgstr "HTTP API-documentatie gegenereerd,"
 
 msgid "Built the interactive family trees."
 msgstr ""
@@ -381,6 +380,22 @@ msgstr "Correspondentie"
 msgid "Cotton Candy is Betty's default theme."
 msgstr "Cotton Candy is Betty's standaardthema."
 
+msgid "Could not extract {file_path} as a gzip (*.gz) file."
+msgstr ""
+
+msgid ""
+"Could not extract {file_path} as a tar (*.tar) file after extracting the "
+"outer gzip (*.gz) file."
+msgstr ""
+
+msgid "Could not find the file \"{file_path}\"."
+msgstr ""
+
+msgid ""
+"Could not load \"{file_path}\" as a *.gpkg, a *.gramps, or an *.xml "
+"family tree."
+msgstr ""
+
 msgid "Create a new project"
 msgstr "Maak een nieuw project"
 
@@ -410,9 +425,8 @@ msgid ""
 "preferences. This requires a web server that supports it."
 msgstr ""
 
-#, fuzzy
 msgid "Demo"
-msgstr "Verwijder"
+msgstr "Demo"
 
 msgid "Deriver"
 msgstr "Afleider"
@@ -533,9 +547,8 @@ msgstr "Bezig je site te genereren naar {output_directory}."
 msgid "Generating your site..."
 msgstr "Je site aan het genereren..."
 
-#, fuzzy
 msgid "HTTP API Documentation"
-msgstr "API-documentatie"
+msgstr "HTTP API-documentatie"
 
 msgid "Help"
 msgstr "Hulp"
@@ -585,13 +598,11 @@ msgstr "Laad <a href=\"https://gramps-project.org/\">Gramps-</a>stambomen."
 msgid "Load the family tree from..."
 msgstr "Laad de stamboom van..."
 
-#, fuzzy
 msgid "Loaded the configuration from {configuration_file_path}."
-msgstr "Configuratiebestand \"{configuration_file_path}\" bestaat niet."
+msgstr "Configuratie vanuit \"{configuration_file_path}\" geladen."
 
-#, fuzzy
-msgid "Loading {file_path}..."
-msgstr "Laden..."
+msgid "Loading \"{file_path}\"..."
+msgstr "\"{file_path}\" aan het laden..."
 
 msgid "Loading..."
 msgstr "Laden..."
@@ -749,13 +760,11 @@ msgstr "Woonplaats"
 msgid "Retirement"
 msgstr "Pensioen"
 
-#, fuzzy
 msgid "Retrieve a single {entity_type} entity."
-msgstr "Haal een enkele gebeurtenis op."
+msgstr "Haal een enkele {entity_type} op."
 
-#, fuzzy
 msgid "Retrieve the collection of {entity_type} entities."
-msgstr "Haal de verzameling van gebeurtenissen op."
+msgstr "Haal de verzameling van {entity_type}-entiteiten op."
 
 msgid "Save and close"
 msgstr "Opslaan en sluiten"
@@ -820,9 +829,8 @@ msgid ""
 "\"private\", but \"{privacy_value}\" was given, which was ignored."
 msgstr ""
 
-#, fuzzy
 msgid "The collection of {entity_type} entities."
-msgstr "De verzameling van gebeurtenissen."
+msgstr "De verzameling van {entity_type}-entiteiten."
 
 msgid "The configuration must have a configuration file path."
 msgstr ""
@@ -845,9 +853,8 @@ msgstr "De levensgrens mag alleen uit cijfers bestaan."
 msgid "The translations for {locale_name} are {coverage_percentage}% complete."
 msgstr "De vertalingen voor {locale_name} zijn {coverage_percentage}% compleet."
 
-#, fuzzy
 msgid "The {entity_type} entity."
-msgstr "{entity_type_label}-ID"
+msgstr "De {entity_type}-entiteit"
 
 msgid "There are no translations for {locale_name}."
 msgstr "Er zijn geen vertalingen voor {locale_name}."
@@ -1011,65 +1018,50 @@ msgstr "`npm` is beschikbaar"
 msgid "`npm` is not available"
 msgstr "`npm` is niet beschikbaar"
 
-#, fuzzy
 msgid "around {date}"
-msgstr "rond %(date)s"
+msgstr "rond {date}"
 
-#, fuzzy
 msgid "from around {start_date}"
-msgstr "van ongeveer %(start_date)s"
+msgstr "van ongeveer {start_date}"
 
-#, fuzzy
 msgid "from around {start_date} until around {end_date}"
-msgstr "van ongeveer %(start_date)s tot ongeveer %(end_date)s"
+msgstr "van ongeveer {start_date} tot ongeveer {end_date}"
 
-#, fuzzy
 msgid "from around {start_date} until sometime before around {end_date}"
-msgstr "van ongeveer %(start_date)s tot ergens voor ongeveer %(end_date)s"
+msgstr "van ongeveer {start_date} tot ergens voor ongeveer {end_date}"
 
-#, fuzzy
 msgid "from around {start_date} until sometime before {end_date}"
-msgstr "van ongeveer %(start_date)s tot ergens voor %(end_date)s"
+msgstr "van ongeveer {start_date} tot ergens voor {end_date}"
 
-#, fuzzy
 msgid "from around {start_date} until {end_date}"
-msgstr "van ongeveer %(start_date)s tot en met %(end_date)s"
+msgstr "van ongeveer {start_date} tot en met {end_date}"
 
-#, fuzzy
 msgid "from sometime after around {start_date} until around {end_date}"
-msgstr "van ergens na ongeveer %(start_date)s tot ongeveer %(end_date)s"
+msgstr "van ergens na ongeveer {start_date} tot ongeveer {end_date}"
 
-#, fuzzy
 msgid "from sometime after around {start_date} until {end_date}"
-msgstr "van ergens na ongeveer %(start_date)s tot en met %(end_date)s"
+msgstr "van ergens na ongeveer {start_date} tot en met {end_date}"
 
-#, fuzzy
 msgid "from sometime after {start_date} until around {end_date}"
-msgstr "van ergens na %(start_date)s tot ongeveer %(end_date)s"
+msgstr "van ergens na {start_date} tot ongeveer {end_date}"
 
-#, fuzzy
 msgid "from sometime after {start_date} until {end_date}"
-msgstr "van ergens na %(start_date)s tot en met %(end_date)s"
+msgstr "van ergens na {start_date} tot en met {end_date}"
 
-#, fuzzy
 msgid "from {start_date}"
-msgstr "vanaf %(start_date)s"
+msgstr "vanaf {start_date}"
 
-#, fuzzy
 msgid "from {start_date} until around {end_date}"
-msgstr "vanaf %(start_date)s tot ongeveer %(end_date)s"
+msgstr "vanaf {start_date} tot ongeveer {end_date}"
 
-#, fuzzy
 msgid "from {start_date} until sometime before around {end_date}"
-msgstr "vanaf %(start_date)s tot ergens voor ongeveer %(end_date)s"
+msgstr "vanaf {start_date} tot ergens voor ongeveer {end_date}"
 
-#, fuzzy
 msgid "from {start_date} until sometime before {end_date}"
-msgstr "vanaf %(start_date)s tot ergens voor %(end_date)s"
+msgstr "vanaf {start_date} tot ergens voor {end_date}"
 
-#, fuzzy
 msgid "from {start_date} until {end_date}"
-msgstr "vanaf %(start_date)s tot en met %(end_date)s"
+msgstr "vanaf {start_date} tot en met {end_date}"
 
 #, python-format
 msgid "in %(place)s"
@@ -1106,48 +1098,38 @@ msgstr "toon minder"
 msgid "show more"
 msgstr "toon meer"
 
-#, fuzzy
 msgid "sometime after around {start_date}"
-msgstr "ergens na ongeveer %(start_date)s"
+msgstr "ergens na ongeveer {start_date}"
 
-#, fuzzy
 msgid "sometime after {start_date}"
-msgstr "ergens na %(start_date)s"
+msgstr "ergens na {start_date}"
 
-#, fuzzy
 msgid "sometime before around {end_date}"
-msgstr "ergens voor ongeveer %(end_date)s"
+msgstr "ergens voor ongeveer {end_date}"
 
-#, fuzzy
 msgid "sometime before {end_date}"
-msgstr "ergens voor %(end_date)s"
+msgstr "ergens voor {end_date}"
 
-#, fuzzy
 msgid "sometime between around {start_date} and around {end_date}"
-msgstr "ergens tussen ongeveer %(start_date)s en ongeveer %(end_date)s"
+msgstr "ergens tussen ongeveer {start_date} en ongeveer {end_date}"
 
-#, fuzzy
 msgid "sometime between around {start_date} and {end_date}"
-msgstr "ergens tussen ongeveer %(start_date)s en %(end_date)s"
+msgstr "ergens tussen ongeveer {start_date} en {end_date}"
 
-#, fuzzy
 msgid "sometime between {start_date} and around {end_date}"
-msgstr "ergens tussen %(start_date)s en ongeveer %(end_date)s"
+msgstr "ergens tussen {start_date} en ongeveer {end_date}"
 
-#, fuzzy
 msgid "sometime between {start_date} and {end_date}"
-msgstr "ergens tussen %(start_date)s en %(end_date)s"
+msgstr "ergens tussen {start_date} en {end_date}"
 
 msgid "unknown date"
 msgstr "onbekend"
 
-#, fuzzy
 msgid "until around {end_date}"
-msgstr "tot ongeveer %(end_date)s"
+msgstr "tot ongeveer {end_date}"
 
-#, fuzzy
 msgid "until {end_date}"
-msgstr "tot en met %(end_date)s"
+msgstr "tot en met {end_date}"
 
 msgid "y"
 msgstr "y"

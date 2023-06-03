@@ -4,13 +4,14 @@ import pytest
 from pytest_mock import MockerFixture
 
 from betty.app import App
+from betty.locale import DEFAULT_LOCALIZER
 from betty.npm import _NpmRequirement
 
 
 class TestNpmRequirement:
     def test_check_met(self) -> None:
         with App():
-            sut = _NpmRequirement.check()
+            sut = _NpmRequirement.check(DEFAULT_LOCALIZER)
         assert sut.is_met()
 
     @pytest.mark.parametrize('e', [
@@ -21,5 +22,5 @@ class TestNpmRequirement:
         m_npm = mocker.patch('betty.npm.npm')
         m_npm.side_effect = e
         with App():
-            sut = _NpmRequirement.check()
+            sut = _NpmRequirement.check(DEFAULT_LOCALIZER)
         assert not sut.is_met()

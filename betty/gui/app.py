@@ -8,7 +8,7 @@ from PyQt6.QtCore import Qt, QCoreApplication
 from PyQt6.QtGui import QIcon, QAction
 from PyQt6.QtWidgets import QFormLayout, QWidget, QVBoxLayout, QHBoxLayout, QFileDialog, QPushButton
 
-from betty import about, cache
+from betty import about
 from betty.about import report
 from betty.asyncio import sync
 from betty.gui import BettyWindow, get_configuration_file_filter
@@ -166,7 +166,7 @@ class BettyMainWindow(BettyWindow):
     @catch_exceptions
     @sync
     async def clear_caches(self) -> None:
-        await cache.clear()
+        await self._app.cache.clear()
 
     @catch_exceptions
     def open_application_configuration(self) -> None:

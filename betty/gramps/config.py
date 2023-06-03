@@ -7,8 +7,9 @@ from reactives.instance.property import reactive_property
 
 from betty.config import Configuration, DumpedConfiguration, VoidableDumpedConfiguration, ConfigurationSequence
 from betty.config.dump import minimize
-from betty.config.load import assert_record, Assertions, assert_path, assert_setattr, Fields, RequiredField, \
-    OptionalField
+from betty.config.load import Assertions, Fields, RequiredField, \
+    OptionalField, Asserter
+from betty.locale import Localizer
 
 try:
     from typing_extensions import Self
@@ -36,13 +37,20 @@ class FamilyTreeConfiguration(Configuration):
         self._file_path = file_path
 
     @classmethod
-    def load(cls, dumped_configuration: DumpedConfiguration, configuration: Self | None = None) -> Self:
+    def load(
+            cls,
+            dumped_configuration: DumpedConfiguration,
+            configuration: Self | None = None,
+            *,
+            localizer: Localizer | None = None,
+    ) -> Self:
         if configuration is None:
             configuration = cls()
-        assert_record(Fields(
+        asserter = Asserter(localizer=localizer)
+        asserter.assert_record(Fields(
             RequiredField(
                 'file',
-                Assertions(assert_path()) | assert_setattr(configuration, 'file_path'),
+                Assertions(asserter.assert_path()) | asserter.assert_setattr(configuration, 'file_path'),
             ),
         ))(dumped_configuration)
         return configuration
@@ -81,10 +89,17 @@ class GrampsConfiguration(Configuration):
         self._family_trees.update(other._family_trees)
 
     @classmethod
-    def load(cls, dumped_configuration: DumpedConfiguration, configuration: Self | None = None) -> Self:
+    def load(
+            cls,
+            dumped_configuration: DumpedConfiguration,
+            configuration: Self | None = None,
+            *,
+            localizer: Localizer | None = None,
+    ) -> Self:
         if configuration is None:
             configuration = cls()
-        assert_record(Fields(
+        asserter = Asserter(localizer=localizer)
+        asserter.assert_record(Fields(
             OptionalField(
                 'family_trees',
                 Assertions(configuration._family_trees.assert_load(configuration.family_trees)),

@@ -406,7 +406,7 @@ class _ExtensionPane(LocalizedWidget):
                 self._extension_enabled_caption.setText(str(disable_requirement.reduce()))
         else:
             self._extension_enabled.setChecked(False)
-            enable_requirement = self._extension_type.enable_requirement(self._app.localizer)
+            enable_requirement = self._extension_type.enable_requirement(localizer=self._app.localizer)
             if not enable_requirement.is_met():
                 self._extension_enabled.setDisabled(True)
                 self._extension_enabled_caption.setText(str(enable_requirement.reduce()))

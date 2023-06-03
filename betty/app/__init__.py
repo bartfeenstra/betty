@@ -16,11 +16,11 @@ from reactives.instance.property import reactive_property
 from betty.app.extension import ListExtensions, Extension, Extensions, build_extension_type_graph, \
     CyclicDependencyError, ExtensionDispatcher, ConfigurableExtension, discover_extension_types
 from betty.asyncio import sync
+from betty.cache import Cache
 from betty.concurrent import ExceptionRaisingAwaitableExecutor
 from betty.config import DumpedConfiguration, VoidableDumpedConfiguration, Configurable, FileBasedConfiguration
 from betty.config.dump import void_none, minimize
-from betty.config.load import ConfigurationValidationError, assert_record, Fields, Assertions, assert_str, \
-    assert_setattr, OptionalField
+from betty.config.load import ConfigurationValidationError, Fields, Assertions, OptionalField, Asserter
 from betty.dispatch import Dispatcher
 from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH, HOME_DIRECTORY_PATH
 from betty.locale import LocalizerRepository, get_data, Localey, DEFAULT_LOCALE, to_locale, \
@@ -98,11 +98,21 @@ class AppConfiguration(FileBasedConfiguration):
         self.react.trigger()
 
     @classmethod
-    def load(cls, dumped_configuration: DumpedConfiguration, configuration: Self | None = None) -> Self:
+    def load(
+            cls,
+            dumped_configuration: DumpedConfiguration,
+            configuration: Self | None = None,
+            *,
+            localizer: Localizer | None = None,
+    ) -> Self:
         if configuration is None:
             configuration = cls()
-        assert_record(Fields(
-            OptionalField('locale', Assertions(assert_str()) | assert_setattr(configuration, 'locale'))),
+        asserter = Asserter(localizer=localizer)
+        asserter.assert_record(Fields(
+            OptionalField(
+                'locale',
+                Assertions(asserter.assert_str()) | asserter.assert_setattr(configuration, 'locale')),
+        ),
         )(dumped_configuration)
         return configuration
 
@@ -144,6 +154,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         self.__process_pool_executor: ExceptionRaisingAwaitableExecutor | None = None
         self._locks = Locks()
         self._http_client: aiohttp.ClientSession | None = None
+        self._cache: Cache | None = None
 
     def __getstate__(self) -> None:
         raise RuntimeError(f'{self.__class__} MUST NOT be pickled. Pickle {self.__class__}.project instead.')
@@ -185,7 +196,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         extension_types_enabled_in_configuration = set()
         for app_extension_configuration in self.project.configuration.extensions.values():
             if app_extension_configuration.enabled:
-                app_extension_configuration.extension_type.enable_requirement(self._localizer).assert_met()
+                app_extension_configuration.extension_type.enable_requirement(localizer=self._localizer).assert_met()
                 extension_types_enabled_in_configuration.add(app_extension_configuration.extension_type)
 
         extension_types_sorter = TopologicalSorter(
@@ -451,3 +462,9 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
                 DemoServer(localizer=self._localizer),
             ]
         }
+
+    @property
+    def cache(self) -> Cache:
+        if self._cache is None:
+            self._cache = Cache(localizer=self.localizer)
+        return self._cache

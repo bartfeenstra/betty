@@ -7,10 +7,10 @@ import yaml
 
 from betty.config.dump import DumpedConfiguration, VoidableDumpedConfiguration
 from betty.config.load import ConfigurationFormatError
-from betty.locale import DEFAULT_LOCALIZER
+from betty.locale import Localizable
 
 
-class Format:
+class Format(Localizable):
     @property
     def extensions(self) -> Set[str]:
         raise NotImplementedError
@@ -31,7 +31,7 @@ class Json(Format):
         try:
             return json.loads(dumped_configuration)
         except json.JSONDecodeError as e:
-            raise ConfigurationFormatError(DEFAULT_LOCALIZER._('Invalid JSON: {error}.').format(error=e))
+            raise ConfigurationFormatError(self.localizer._('Invalid JSON: {error}.').format(error=e))
 
     def dump(self, dumped_configuration: VoidableDumpedConfiguration) -> str:
         return json.dumps(dumped_configuration)
@@ -46,7 +46,7 @@ class Yaml(Format):
         try:
             return yaml.safe_load(dumped_configuration)
         except yaml.YAMLError as e:
-            raise ConfigurationFormatError(DEFAULT_LOCALIZER._('Invalid YAML: {error}.').format(error=e))
+            raise ConfigurationFormatError(self.localizer._('Invalid YAML: {error}.').format(error=e))
 
     def dump(self, dumped_configuration: VoidableDumpedConfiguration) -> str:
         return yaml.safe_dump(dumped_configuration)

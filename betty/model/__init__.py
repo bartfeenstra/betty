@@ -394,7 +394,7 @@ class SingleTypeEntityCollection(Generic[EntityT], EntityCollection[EntityT]):
 
 
 class _AssociateCollection(SingleTypeEntityCollection[EntityT], Generic[EntityT, EntityU]):
-    def __init__(self, owner: EntityU, associate_type: Type[EntityT], localizer: Localizer | None = None):
+    def __init__(self, owner: EntityU, associate_type: Type[EntityT], *, localizer: Localizer | None = None):
         super().__init__(associate_type, localizer=localizer)
         self._owner = owner
 
@@ -449,7 +449,7 @@ class _AssociateCollection(SingleTypeEntityCollection[EntityT], Generic[EntityT,
 
 
 class MultipleTypesEntityCollection(EntityCollection[Entity]):
-    def __init__(self, localizer: Localizer | None = None):
+    def __init__(self, *, localizer: Localizer | None = None):
         super().__init__(localizer=localizer)
         self._collections: Dict[Type[Entity], SingleTypeEntityCollection] = {}
 
@@ -710,7 +710,14 @@ class _BidirectionalToMany(_ToMany):
 
 
 class _BidirectionalAssociateCollection(_AssociateCollection):
-    def __init__(self, owner: EntityU, associate_type: Type[EntityT], associate_attr_name: str, localizer: Localizer | None = None):
+    def __init__(
+        self,
+        owner: EntityU,
+        associate_type: Type[EntityT],
+        associate_attr_name: str,
+        *,
+        localizer: Localizer | None = None,
+    ):
         super().__init__(owner, associate_type, localizer=localizer)
         self._associate_attr_name = associate_attr_name
 

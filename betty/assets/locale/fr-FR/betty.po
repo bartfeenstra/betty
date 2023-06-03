@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-02 09:19+0100\n"
+"POT-Creation-Date: 2023-06-03 08:30+0100\n"
 "PO-Revision-Date: 2020-11-27 19:49+0100\n"
 "Last-Translator: \n"
 "Language: fr\n"
@@ -256,9 +256,8 @@ msgstr "Naissance"
 msgid "Built the Cotton Candy front-end assets."
 msgstr ""
 
-#, fuzzy
 msgid "Built the HTTP API documentation."
-msgstr "documentation de l'API"
+msgstr ""
 
 msgid "Built the interactive family trees."
 msgstr ""
@@ -348,6 +347,22 @@ msgid "Correspondence"
 msgstr "Correspondance"
 
 msgid "Cotton Candy is Betty's default theme."
+msgstr ""
+
+msgid "Could not extract {file_path} as a gzip (*.gz) file."
+msgstr ""
+
+msgid ""
+"Could not extract {file_path} as a tar (*.tar) file after extracting the "
+"outer gzip (*.gz) file."
+msgstr ""
+
+msgid "Could not find the file \"{file_path}\"."
+msgstr ""
+
+msgid ""
+"Could not load \"{file_path}\" as a *.gpkg, a *.gramps, or an *.xml "
+"family tree."
 msgstr ""
 
 msgid "Create a new project"
@@ -550,7 +565,7 @@ msgstr ""
 msgid "Loaded the configuration from {configuration_file_path}."
 msgstr ""
 
-msgid "Loading {file_path}..."
+msgid "Loading \"{file_path}\"..."
 msgstr ""
 
 msgid "Loading..."
@@ -707,11 +722,11 @@ msgstr "Retraite"
 
 #, fuzzy
 msgid "Retrieve a single {entity_type} entity."
-msgstr "Récupération d'un seul évènement."
+msgstr "Récupération d'un seul {entity_type}."
 
 #, fuzzy
 msgid "Retrieve the collection of {entity_type} entities."
-msgstr "Récupération de l'ensemble des événements."
+msgstr "Récupération de l'ensemble des {entity_type}."
 
 msgid "Save and close"
 msgstr ""
@@ -776,7 +791,7 @@ msgstr ""
 
 #, fuzzy
 msgid "The collection of {entity_type} entities."
-msgstr "L'ensemble des événements."
+msgstr "L'ensemble des {entity_type}."
 
 msgid "The configuration must have a configuration file path."
 msgstr ""
@@ -959,81 +974,66 @@ msgstr ""
 msgid "`npm` is not available"
 msgstr ""
 
-#, fuzzy
 msgid "around {date}"
-msgstr "vers %(date)s"
+msgstr "vers {date}"
 
-#, fuzzy
 msgid "from around {start_date}"
-msgstr "à partir d'environ le %(start_date)s"
+msgstr "à partir d'environ le {start_date}"
 
-#, fuzzy
 msgid "from around {start_date} until around {end_date}"
 msgstr ""
-"entre approximativement le %(start_date)s et jusqu'approximativement le "
-"%(end_date)s OK3"
+"entre approximativement le {start_date} et jusqu'approximativement le "
+"{end_date} OK3"
 
-#, fuzzy
 msgid "from around {start_date} until sometime before around {end_date}"
 msgstr ""
-"entre approximativement le %(start_date)s et jusqu'approximativement "
-"quelques temps avant le %(end_date)s OK3"
+"entre approximativement le {start_date} et jusqu'approximativement "
+"quelques temps avant le {end_date} OK3"
 
-#, fuzzy
 msgid "from around {start_date} until sometime before {end_date}"
 msgstr ""
-"entre approximativement le %(start_date)s et jusqu'à quelques temps avant"
-" le %(end_date)s OK3"
+"entre approximativement le {start_date} et jusqu'à quelques temps avant"
+" le {end_date} OK3"
 
-#, fuzzy
 msgid "from around {start_date} until {end_date}"
-msgstr "entre approximativement le %(start_date)s et jusqu'au %(end_date)s OK3"
+msgstr "entre approximativement le {start_date} et jusqu'au {end_date} OK3"
 
-#, fuzzy
 msgid "from sometime after around {start_date} until around {end_date}"
 msgstr ""
-"entre approximativement après le %(start_date)s et "
-"jusqu'approximativement le %(end_date)s OK3"
+"entre approximativement après le {start_date} et "
+"jusqu'approximativement le {end_date} OK3"
 
-#, fuzzy
 msgid "from sometime after around {start_date} until {end_date}"
 msgstr ""
-"entre approximativement quelques temps après le %(start_date)s et "
-"jusqu'au %(end_date)s OK3"
+"entre approximativement quelques temps après le {start_date} et "
+"jusqu'au {end_date} OK3"
 
-#, fuzzy
 msgid "from sometime after {start_date} until around {end_date}"
 msgstr ""
-"entre quelque temps après le %(start_date)s et jusqu'approximativement le"
-" %(end_date)s OK3"
+"entre quelque temps après le {start_date} et jusqu'approximativement le"
+" {end_date} OK3"
 
-#, fuzzy
 msgid "from sometime after {start_date} until {end_date}"
 msgstr ""
-"d'approximativement quelques temps après le %(start_date)s jusqu'au "
-"%(end_date)s OK2"
+"d'approximativement quelques temps après le {start_date} jusqu'au "
+"{end_date} OK2"
 
-#, fuzzy
 msgid "from {start_date}"
-msgstr "à partir du %(start_date)s"
+msgstr "à partir du {start_date}"
 
-#, fuzzy
 msgid "from {start_date} until around {end_date}"
-msgstr "du %(start_date)s jusqu'à environ le %(end_date)s OK2"
+msgstr "du {start_date} jusqu'à environ le {end_date} OK2"
 
-#, fuzzy
 msgid "from {start_date} until sometime before around {end_date}"
 msgstr ""
-"du %(start_date)s jusqu'approximativement quelques temps avant le "
-"%(end_date)s OK2"
+"du {start_date} jusqu'approximativement quelques temps avant le "
+"{end_date} OK2"
 
-#, fuzzy
 msgid "from {start_date} until sometime before {end_date}"
-msgstr "du %(start_date)s jusqu'à quelques temps avant le %(end_date)s OK2"
+msgstr "du {start_date} jusqu'à quelques temps avant le {end_date} OK2"
 
-#, fuzzy
 msgid "from {start_date} until {end_date}"
-msgstr "du %(start_date)s au %(end_date)s OK2"
+msgstr "du {start_date} au {end_date} OK2"
 
 #, python-format
 msgid "in %(place)s"
@@ -1067,54 +1067,44 @@ msgstr "voir moins"
 msgid "show more"
 msgstr "voir plus"
 
-#, fuzzy
 msgid "sometime after around {start_date}"
-msgstr "environ après le %(start_date)s"
+msgstr "environ après le {start_date}"
 
-#, fuzzy
 msgid "sometime after {start_date}"
-msgstr "quelques temps après le %(start_date)s"
+msgstr "quelques temps après le {start_date}"
 
-#, fuzzy
 msgid "sometime before around {end_date}"
-msgstr "approximativement quelques temps avant le %(end_date)s"
+msgstr "approximativement quelques temps avant le {end_date}"
 
-#, fuzzy
 msgid "sometime before {end_date}"
-msgstr "quelques temps avant le %(end_date)s"
+msgstr "quelques temps avant le {end_date}"
 
-#, fuzzy
 msgid "sometime between around {start_date} and around {end_date}"
 msgstr ""
-"quelques temps entre approximativement le %(start_date)s et "
-"approximativement le %(end_date)s OK3"
+"quelques temps entre approximativement le {start_date} et "
+"approximativement le {end_date} OK3"
 
-#, fuzzy
 msgid "sometime between around {start_date} and {end_date}"
 msgstr ""
-"quelques temps entre approximativement le %(start_date)s et le "
-"%(end_date)s OK3"
+"quelques temps entre approximativement le {start_date} et le "
+"{end_date} OK3"
 
-#, fuzzy
 msgid "sometime between {start_date} and around {end_date}"
 msgstr ""
-"quelques temps entre le %(start_date)s et approximativement le "
-"%(end_date)s OK3"
+"quelques temps entre le {start_date} et approximativement le "
+"{end_date} OK3"
 
-#, fuzzy
 msgid "sometime between {start_date} and {end_date}"
-msgstr "quelques temps entre le %(start_date)s et le %(end_date)s OK3"
+msgstr "quelques temps entre le {start_date} et le {end_date} OK3"
 
 msgid "unknown date"
 msgstr "date inconnue"
 
-#, fuzzy
 msgid "until around {end_date}"
-msgstr "approximativement jusqu'au %(end_date)s"
+msgstr "approximativement jusqu'au {end_date}"
 
-#, fuzzy
 msgid "until {end_date}"
-msgstr "jusqu'au %(end_date)s"
+msgstr "jusqu'au {end_date}"
 
 msgid "y"
 msgstr "y"

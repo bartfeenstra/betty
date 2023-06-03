@@ -3,8 +3,7 @@ from typing import Optional
 
 import pytest
 
-from betty.app import App
-from betty.gramps.loader import load_xml, load_gpkg, load_gramps
+from betty.gramps import GrampsLoader
 from betty.locale import Date, DateRange
 from betty.model.ancestry import Ancestry, PersonName, Citation, Note, Source, File, Event, Person, Place
 from betty.model.event_type import Birth, Death, UnknownEventType
@@ -12,36 +11,32 @@ from betty.path import rootname
 from betty.tempfile import TemporaryDirectory
 
 
-class TestLoadGramps:
-    def test_load_gramps(self):
-        with App() as app:
-            gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.gramps'
-            load_gramps(app.project.ancestry, gramps_file_path)
-
-
-class TestLoadGpkg:
-    def test_load_gpkg(self):
-        with App() as app:
-            gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.gpkg'
-            load_gpkg(app.project.ancestry, gramps_file_path)
-
-
 @pytest.fixture(scope='class')
 def test_load_xml_ancestry() -> Ancestry:
     # @todo Convert each test method to use self._load(), so we can remove this shared XML file.
-    with App() as app:
-        xml_file_path = Path(__file__).parent / 'assets' / 'data.xml'
-        with open(xml_file_path) as f:
-            load_xml(app.project.ancestry, f.read(), rootname(xml_file_path))
-    return app.project.ancestry
+    ancestry = Ancestry()
+    xml_file_path = Path(__file__).parent / 'assets' / 'data.xml'
+    loader = GrampsLoader(ancestry)
+    with open(xml_file_path) as f:
+        loader.load_xml(f.read(), rootname(xml_file_path))
+    return ancestry
 
 
-class TestLoadXml:
+class TestGrampsLoader:
+    def test_load_gramps(self):
+        sut = GrampsLoader(Ancestry())
+        sut.load_gramps(Path(__file__).parent / 'assets' / 'minimal.gramps')
+
+    def test_load_gpkg(self):
+        sut = GrampsLoader(Ancestry())
+        sut.load_gpkg(Path(__file__).parent / 'assets' / 'minimal.gpkg')
+
     def load(self, xml: str) -> Ancestry:
-        with App() as app:
-            with TemporaryDirectory() as tree_directory_path:
-                load_xml(app.project.ancestry, xml.strip(), tree_directory_path)
-                return app.project.ancestry
+        ancestry = Ancestry()
+        loader = GrampsLoader(ancestry)
+        with TemporaryDirectory() as tree_directory_path:
+            loader.load_xml(xml.strip(), tree_directory_path)
+        return ancestry
 
     def _load_partial(self, xml: str) -> Ancestry:
         return self.load("""
@@ -59,15 +54,15 @@ class TestLoadXml:
 """ % xml)
 
     def test_load_xml_with_string(self):
-        with App() as app:
-            gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'
-            with open(gramps_file_path) as f:
-                load_xml(app.project.ancestry, f.read(), rootname(gramps_file_path))
+        gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'
+        sut = GrampsLoader(Ancestry())
+        with open(gramps_file_path) as f:
+            sut.load_xml(f.read(), rootname(gramps_file_path))
 
     def test_load_xml_with_file_path(self):
-        with App() as app:
-            gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'
-            load_xml(app.project.ancestry, gramps_file_path, rootname(gramps_file_path))
+        gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'
+        sut = GrampsLoader(Ancestry())
+        sut.load_xml(gramps_file_path, rootname(gramps_file_path))
 
     def test_place_should_include_name(self, test_load_xml_ancestry):
         place = test_load_xml_ancestry.entities[Place]['P0000']
