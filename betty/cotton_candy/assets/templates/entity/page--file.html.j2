@@ -1,4 +1,4 @@
-{% extends 'base.html.j2' %}
+{% extends 'entity/page.html.j2' %}
 {% set page_title = entity.description %}
 {% block page_content %}
     {% if entity.media_type and entity.media_type.type == 'image' %}

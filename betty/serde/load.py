@@ -61,7 +61,7 @@ class _Assertions(Generic[CallValueT, CallReturnT, FValueT]):
         return self.extend(_assertion)
 
     def __call__(self, value: CallValueT) -> _Result[CallReturnT]:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
 
 class Assertions(_Assertions[CallValueT, CallReturnT, CallValueT], Generic[CallValueT, CallReturnT]):

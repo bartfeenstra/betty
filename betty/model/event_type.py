@@ -8,7 +8,7 @@ from betty.locale import Localizer
 class EventTypeProvider:
     @property
     def entity_types(self) -> Set[Type[EventType]]:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
 
 class EventType:
@@ -17,11 +17,11 @@ class EventType:
 
     @classmethod
     def name(cls) -> str:
-        raise NotImplementedError
+        raise NotImplementedError(repr(cls))
 
     @classmethod
     def label(cls, localizer: Localizer) -> str:
-        raise NotImplementedError
+        raise NotImplementedError(repr(cls))
 
     @classmethod
     def comes_before(cls) -> Set[Type[EventType]]:

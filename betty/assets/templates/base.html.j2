@@ -5,11 +5,12 @@
     {% include 'head.html.j2' %}
 </head>
 <body>
-    <div id="content">
-        {% if page_title is defined %}
-            <h1>{{ page_title }}</h1>
-        {% endif %}
-        {% block page_content %}{% endblock %}
-    </div>
+<div id="content">
+    {% if page_title is defined %}
+        <h1>{{ page_title }}</h1>
+    {% endif %}
+    {% block page_content %}{% endblock %}
+</div>
+{% include 'linked-data.html.j2' %}
 </body>
 </html>

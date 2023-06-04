@@ -170,7 +170,7 @@ class File(Described, HasPrivacy, HasMediaType, HasNotes, HasCitations, UserFaci
 
     @property
     def label(self) -> str:
-        return self._default_label() if self.description is None else self.description
+        return self.description if self.description else self._fallback_label
 
 
 @many_to_many('files', 'entities')
@@ -245,7 +245,7 @@ class Source(Dated, HasFiles, HasLinks, HasPrivacy, UserFacingEntity, Entity):
 
     @property
     def label(self) -> str:
-        return self._default_label() if not self.name else self.name
+        return self.name if self.name else self._fallback_label
 
 
 @many_to_many('facts', 'citations')
@@ -278,6 +278,10 @@ class Citation(Dated, HasFiles, HasPrivacy, UserFacingEntity, Entity):
     @classmethod
     def entity_type_label_plural(cls, localizer: Localizer) -> str:
         return localizer._('Citations')
+
+    @property
+    def label(self) -> str:
+        return self.location or self._fallback_label
 
 
 class PlaceName(Localized, Dated):
@@ -384,17 +388,17 @@ class Place(HasLinks, UserFacingEntity, Entity):
         # @todo Negotiate this by locale and date.
         with suppress(IndexError):
             return self.names[0].name
-        return self._default_label()
+        return self._fallback_label
 
 
 class PresenceRole(Localizable):
     @classmethod
     def name(cls) -> str:
-        raise NotImplementedError
+        raise NotImplementedError(repr(cls))
 
     @property
     def label(self) -> str:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
 
 class Subject(PresenceRole):
@@ -454,6 +458,24 @@ class Presence(Entity):
 @one_to_many('presences', 'event')
 class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, UserFacingEntity, Entity):
     place: Optional[Place]
+
+    @property
+    def label(self) -> str:
+        label = self.type.label(self.localizer)
+        if self.description is not None:
+            label += f' ({self.description})'
+        subjects = [
+            presence.person
+            for presence
+            in self.presences
+            if isinstance(presence.role, Subject)
+        ]
+        if subjects:
+            return self.localizer._('{event_type} of {subjects}').format(
+                event_type=label,
+                subjects=', '.join(person.label for person in subjects),
+            )
+        return label
 
     def __init__(self, event_id: Optional[str], event_type: Type[EventType], date: Optional[Datey] = None, *args, **kwargs):
         super().__init__(event_id, *args, **kwargs)
@@ -682,7 +704,7 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, UserFacingEntity, Ent
 
     @property
     def label(self) -> str:
-        return self.name.label if self.name else self._default_label()
+        return self.name.label if self.name else self._fallback_label
 
 
 class Ancestry(Localizable):

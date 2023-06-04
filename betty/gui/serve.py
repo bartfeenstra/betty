@@ -36,6 +36,7 @@ class _ServeThread(QThread):
                 self._server = self._app.servers[self._server_name]
                 await self._server.start()
                 self.server_started.emit()
+                await self._server.show()
 
     @sync
     async def stop(self) -> None:
@@ -67,7 +68,7 @@ class _ServeWindow(BettyWindow):
         self._central_layout.addWidget(self._loading_instruction)
 
     def _server_name(self) -> str:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     @property
     def _thread(self) -> _ServeThread:
@@ -76,7 +77,7 @@ class _ServeWindow(BettyWindow):
         return self.__thread
 
     def _build_instruction(self) -> str:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def _server_started(self) -> None:
         # The server may have been stopped before this method was called.

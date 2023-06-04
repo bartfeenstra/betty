@@ -182,7 +182,7 @@ class ExtensionConfiguration(Configuration):
         return self._extension_configuration
 
     def update(self, other: Self) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     @classmethod
     def load(

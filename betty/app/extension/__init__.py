@@ -180,11 +180,11 @@ ExtensionT = TypeVar('ExtensionT', bound=Extension)
 class UserFacingExtension(Extension):
     @classmethod
     def label(cls, localizer: Localizer) -> str:
-        raise NotImplementedError
+        raise NotImplementedError(repr(cls))
 
     @classmethod
     def description(cls, localizer: Localizer) -> str:
-        raise NotImplementedError
+        raise NotImplementedError(repr(cls))
 
 
 class Theme(UserFacingExtension):
@@ -231,21 +231,21 @@ class ConfigurableExtension(Extension, Generic[ConfigurationT], Configurable[Con
 
     @classmethod
     def default_configuration(cls) -> ConfigurationT:
-        raise NotImplementedError
+        raise NotImplementedError(repr(cls))
 
 
 class Extensions(ReactiveInstance):
     def __getitem__(self, extension_type: Union[Type[ExtensionT], str]) -> ExtensionT:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def __iter__(self) -> Iterator[Iterator[Extension]]:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def flatten(self) -> Iterator[Extension]:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def __contains__(self, extension_type: Union[Type[Extension], str, Any]) -> bool:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
 
 class ListExtensions(Extensions):

@@ -34,7 +34,7 @@ class Configuration(ReactiveInstance, Repr, Localizable, Dumpable):
         self._asserter = Asserter(localizer=self._localizer)
 
     def update(self, other: Self) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     @classmethod
     def load(
@@ -48,7 +48,7 @@ class Configuration(ReactiveInstance, Repr, Localizable, Dumpable):
         Load dumped configuration into a new configuration instance.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError(repr(cls))
 
     @classmethod
     def assert_load(cls: Type[ConfigurationT], configuration: ConfigurationT | None = None) -> Assertion[Dump, ConfigurationT]:
@@ -174,14 +174,14 @@ class ConfigurationCollection(Configuration, Generic[ConfigurationKeyT, Configur
 
     @scope.register_self
     def __iter__(self) -> Iterator[ConfigurationKeyT] | Iterator[ConfigurationT]:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     @scope.register_self
     def __contains__(self, item: Any) -> bool:
         return item in self._configurations
 
     def __getitem__(self, configuration_key: ConfigurationKeyT) -> ConfigurationT:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def __delitem__(self, configuration_key: ConfigurationKeyT) -> None:
         self.remove(configuration_key)
@@ -228,14 +228,14 @@ class ConfigurationCollection(Configuration, Generic[ConfigurationKeyT, Configur
         configuration.react.shutdown(self)
 
     def to_index(self, configuration_key: ConfigurationKeyT) -> int:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def to_indices(self, *configuration_keys: ConfigurationKeyT) -> Iterator[int]:
         for configuration_key in configuration_keys:
             yield self.to_index(configuration_key)
 
     def to_key(self, index: int) -> ConfigurationKeyT:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def to_keys(self, *indices: int | slice) -> Iterator[ConfigurationKeyT]:
         unique_indices = set()
@@ -250,38 +250,38 @@ class ConfigurationCollection(Configuration, Generic[ConfigurationKeyT, Configur
 
     @classmethod
     def _item_type(cls) -> Type[ConfigurationT]:
-        raise NotImplementedError
+        raise NotImplementedError(repr(cls))
 
     @classmethod
     def _create_default_item(cls, configuration_key: ConfigurationKeyT) -> ConfigurationT:
-        raise NotImplementedError
+        raise NotImplementedError(repr(cls))
 
     def keys(self) -> Iterator[ConfigurationKeyT]:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def values(self) -> Iterator[ConfigurationT]:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def prepend(self, *configurations: ConfigurationT) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def append(self, *configurations: ConfigurationT) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def insert(self, index: int, *configurations: ConfigurationT) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def move_to_beginning(self, *configuration_keys: ConfigurationKeyT) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def move_towards_beginning(self, *configuration_keys: ConfigurationKeyT) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def move_to_end(self, *configuration_keys: ConfigurationKeyT) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def move_towards_end(self, *configuration_keys: ConfigurationKeyT) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
 
 class ConfigurationSequence(ConfigurationCollection[int, ConfigurationT], Generic[ConfigurationT]):
@@ -324,7 +324,7 @@ class ConfigurationSequence(ConfigurationCollection[int, ConfigurationT], Generi
         yield from self._configurations
 
     def update(self, other: Self) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     @classmethod
     def load(
@@ -555,7 +555,7 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
         self.react.trigger()
 
     def _get_key(self, configuration: ConfigurationT) -> ConfigurationKeyT:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     @classmethod
     def _load_key(
@@ -565,10 +565,10 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
         *,
         localizer: Localizer | None = None,
     ) -> Dump:
-        raise NotImplementedError
+        raise NotImplementedError(repr(cls))
 
     def _dump_key(self, item_dump: VoidableDump) -> Tuple[VoidableDump, str]:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
 
 class Configurable(Generic[ConfigurationT]):

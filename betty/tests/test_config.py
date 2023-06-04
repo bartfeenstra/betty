@@ -31,13 +31,13 @@ class ConfigurationCollectionTestConfiguration(Configuration):
 
 class ConfigurationCollectionTestBase:
     def get_sut(self, configurations: Iterable[Configuration] | None = None) -> ConfigurationCollection:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def get_configuration_keys(self) -> Tuple[ConfigurationKey, ConfigurationKey, ConfigurationKey, ConfigurationKey]:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def get_configurations(self) -> Tuple[Configuration, Configuration, Configuration, Configuration]:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def test_getitem(self) -> None:
         configuration = self.get_configurations()[0]
@@ -67,7 +67,7 @@ class ConfigurationCollectionTestBase:
         assert [] == list(configuration.react._reactors)
 
     def test_iter(self) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def test_len(self) -> None:
         configurations = self.get_configurations()

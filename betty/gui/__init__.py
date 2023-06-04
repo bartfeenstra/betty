@@ -27,7 +27,7 @@ def get_configuration_file_filter(localizer: Localizer) -> str:
 
 class GuiBuilder:
     def gui_build(self) -> QWidget:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
 
 def mark_valid(widget: QWidget) -> None:
@@ -59,7 +59,7 @@ class BettyWindow(LocalizedWindow):
 
     @property
     def title(self) -> str:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
 
 class BettyApplication(QApplication):

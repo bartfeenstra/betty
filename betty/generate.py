@@ -31,14 +31,14 @@ def getLogger() -> logging.Logger:
 
 class Generator:
     async def generate(self) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
 
 async def generate(app: App) -> None:
     with app:
         with suppress(FileNotFoundError):
             shutil.rmtree(app.project.configuration.output_directory_path)
-        await aiofiles_os.makedirs(app.project.configuration.output_directory_path)
+        await aiofiles_os.makedirs(app.project.configuration.output_directory_path, exist_ok=True)
         logging.getLogger().info(app.localizer._('Generating your site to {output_directory}.').format(output_directory=app.project.configuration.output_directory_path))
         await _ConcurrentGenerator.generate(app)
         os.chmod(app.project.configuration.output_directory_path, 0o755)
@@ -181,11 +181,11 @@ async def _generate_entity_type_list_html(
         f'entity/page-list--{entity_type_name_fs}.html.j2',
         'entity/page-list.html.j2',
     ])
-    rendered_html = template.render({
-        'page_resource': f'/{entity_type_name_fs}/index.html',
-        'entity_type': entity_type,
-        'entities': app.project.ancestry.entities[entity_type],
-    })
+    rendered_html = template.render(
+        page_resource=f'/{entity_type_name_fs}/index.html',
+        entity_type=entity_type,
+        entities=app.project.ancestry.entities[entity_type],
+    )
     async with create_html_resource(entity_type_path) as f:
         await f.write(rendered_html)
     locale_label = get_display_name(app.locale, caller_locale)
@@ -231,11 +231,11 @@ async def _generate_entity_html(
     rendered_html = app.jinja2_environment.negotiate_template([
         f'entity/page--{entity_type_name_fs}.html.j2',
         'entity/page.html.j2',
-    ]).render({
-        'page_resource': entity,
-        'entity_type': get_entity_type(entity),
-        'entity': entity,
-    })
+    ]).render(
+        page_resource=entity,
+        entity_type=get_entity_type(entity),
+        entity=entity,
+    )
     async with create_html_resource(entity_path) as f:
         await f.write(rendered_html)
 

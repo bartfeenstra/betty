@@ -5,10 +5,10 @@ from typing import List, Set
 class Renderer:
     @property
     def file_extensions(self) -> Set[str]:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     async def render_file(self, file_path: Path) -> Path:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
 
 class SequentialRenderer(Renderer):

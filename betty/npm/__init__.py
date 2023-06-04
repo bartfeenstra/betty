@@ -105,7 +105,7 @@ class _AssetsRequirement(Requirement):
 
 class NpmBuilder:
     async def npm_build(self, working_directory_path: Path, assets_directory_path: Path) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     @classmethod
     def npm_cache_scope(cls) -> CacheScope:

@@ -52,9 +52,9 @@ VoidableDump: TypeAlias = Union[
 VoidableDumpT = TypeVar('VoidableDumpT', bound=VoidableDump)
 VoidableDumpU = TypeVar('VoidableDumpU', bound=VoidableDump)
 
-_ListDump: TypeAlias = List[DumpT]
+ListDump: TypeAlias = List[DumpT]
 
-_DictDump: TypeAlias = Dict[str, DumpT]
+DictDump: TypeAlias = Dict[str, DumpT]
 
 _VoidableListDump: TypeAlias = List[VoidableDumpT]
 
@@ -102,10 +102,14 @@ def void_none(value: VoidableDump) -> VoidableDump:
     return Void if value is None else value
 
 
+def none_void(value: VoidableDump) -> VoidableDump:
+    return None if value is Void else value
+
+
 class Dumpable:
     def dump(self) -> VoidableDump:
         """
         Dump this instance to a portable format.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))

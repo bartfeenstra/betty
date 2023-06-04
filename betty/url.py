@@ -6,19 +6,19 @@ from typing import Any, Type, Set, cast
 from betty.app import App
 from betty.locale import negotiate_locale, Localey, to_locale
 from betty.media_type import EXTENSIONS
-from betty.model import get_entity_type_name, UserFacingEntity
+from betty.model import get_entity_type_name, Entity
 from betty.project import ProjectConfiguration
 from betty.string import camel_case_to_kebab_case
 
 
 class ContentNegotiationUrlGenerator:
     def generate(self, resource: Any, media_type: str, absolute: bool = False, locale: Localey | None = None) -> str:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
 
 class StaticUrlGenerator:
     def generate(self, resource: Any, absolute: bool = False, ) -> str:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
 
 class ContentNegotiationPathUrlGenerator(ContentNegotiationUrlGenerator):
@@ -43,12 +43,12 @@ class StaticPathUrlGenerator(StaticUrlGenerator):
 
 
 class _EntityUrlGenerator(ContentNegotiationUrlGenerator):
-    def __init__(self, app: App, entity_type: Type[UserFacingEntity]):
+    def __init__(self, app: App, entity_type: Type[Entity]):
         self._app = app
         self._entity_type = entity_type
         self._pattern = f'{camel_case_to_kebab_case(get_entity_type_name(entity_type))}/{{entity_id}}/index.{{extension}}'
 
-    def generate(self, entity: UserFacingEntity, media_type: str, absolute: bool = False, locale: Localey | None = None) -> str:
+    def generate(self, entity: Entity, media_type: str, absolute: bool = False, locale: Localey | None = None) -> str:
         if not isinstance(entity, self._entity_type):
             raise ValueError('%s is not a %s' % (type(entity), self._entity_type))
         return _generate_from_path(
@@ -68,7 +68,6 @@ class AppUrlGenerator(ContentNegotiationUrlGenerator):
             *(
                 _EntityUrlGenerator(app, entity_type)
                 for entity_type in app.entity_types
-                if issubclass(entity_type, UserFacingEntity)
             ),
             ContentNegotiationPathUrlGenerator(app),
         ]

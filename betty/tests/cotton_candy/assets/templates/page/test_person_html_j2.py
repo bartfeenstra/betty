@@ -21,7 +21,7 @@ class TestDescendantNames(TemplateTestCase):
         PersonName(child_two, None, 'FamilyTwoAssociationName')
         with self._render(data={
             'page_resource': person,
-            'entity_type_name': 'person',
+            'entity_type': Person,
             'entity': person,
         }) as (actual, _):
             assert 'Descendant names include FamilyOneAssociationName.' in actual
