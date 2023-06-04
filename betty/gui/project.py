@@ -20,7 +20,6 @@ from betty import load, generate
 from betty.app import App
 from betty.app.extension import UserFacingExtension
 from betty.asyncio import sync
-from betty.config.load import ConfigurationValidationError
 from betty.gui import get_configuration_file_filter, BettyWindow, GuiBuilder, mark_invalid, mark_valid
 from betty.gui.app import BettyMainWindow
 from betty.gui.error import catch_exceptions
@@ -32,6 +31,7 @@ from betty.gui.text import Text, Caption
 from betty.locale import get_display_name, to_locale
 from betty.model import UserFacingEntity
 from betty.project import LocaleConfiguration, Project
+from betty.serde.load import ValidationError
 
 
 class _PaneButton(QPushButton):
@@ -136,7 +136,7 @@ class _GeneralPane(LocalizedWidget):
             try:
                 configuration.base_url = base_url
                 configuration.root_path = root_path
-            except ConfigurationValidationError as e:
+            except ValidationError as e:
                 mark_invalid(self._configuration_url, str(e))
                 return
             self._app.project.configuration.base_url = base_url
@@ -157,7 +157,7 @@ class _GeneralPane(LocalizedWidget):
             try:
                 self._app.project.configuration.lifetime_threshold = lifetime_threshold
                 mark_valid(self._configuration_lifetime_threshold)
-            except ConfigurationValidationError as e:
+            except ValidationError as e:
                 mark_invalid(self._configuration_lifetime_threshold, str(e))
         self._configuration_lifetime_threshold = QLineEdit()
         self._configuration_lifetime_threshold.setFixedWidth(32)
@@ -345,7 +345,7 @@ class _AddLocaleWindow(BettyWindow):
             alias = None
         try:
             self._app.project.configuration.locales.append(LocaleConfiguration(locale, alias))
-        except ConfigurationValidationError as e:
+        except ValidationError as e:
             mark_invalid(self._alias, str(e))
             return
         self.close()

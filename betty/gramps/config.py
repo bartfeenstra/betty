@@ -5,11 +5,10 @@ from typing import Optional, Iterable, Type
 
 from reactives.instance.property import reactive_property
 
-from betty.config import Configuration, DumpedConfiguration, VoidableDumpedConfiguration, ConfigurationSequence
-from betty.config.dump import minimize
-from betty.config.load import Assertions, Fields, RequiredField, \
-    OptionalField, Asserter
+from betty.config import Configuration, ConfigurationSequence
 from betty.locale import Localizer
+from betty.serde.dump import minimize, Dump, VoidableDump
+from betty.serde.load import Asserter, Fields, RequiredField, Assertions, OptionalField
 
 try:
     from typing_extensions import Self
@@ -39,7 +38,7 @@ class FamilyTreeConfiguration(Configuration):
     @classmethod
     def load(
             cls,
-            dumped_configuration: DumpedConfiguration,
+            dump: Dump,
             configuration: Self | None = None,
             *,
             localizer: Localizer | None = None,
@@ -52,10 +51,10 @@ class FamilyTreeConfiguration(Configuration):
                 'file',
                 Assertions(asserter.assert_path()) | asserter.assert_setattr(configuration, 'file_path'),
             ),
-        ))(dumped_configuration)
+        ))(dump)
         return configuration
 
-    def dump(self) -> VoidableDumpedConfiguration:
+    def dump(self) -> VoidableDump:
         return {
             'file': str(self.file_path),
         }
@@ -91,7 +90,7 @@ class GrampsConfiguration(Configuration):
     @classmethod
     def load(
             cls,
-            dumped_configuration: DumpedConfiguration,
+            dump: Dump,
             configuration: Self | None = None,
             *,
             localizer: Localizer | None = None,
@@ -104,10 +103,10 @@ class GrampsConfiguration(Configuration):
                 'family_trees',
                 Assertions(configuration._family_trees.assert_load(configuration.family_trees)),
             ),
-        ))(dumped_configuration)
+        ))(dump)
         return configuration
 
-    def dump(self) -> VoidableDumpedConfiguration:
+    def dump(self) -> VoidableDump:
         return minimize({
             'family_trees': self.family_trees.dump(),
         }, True)

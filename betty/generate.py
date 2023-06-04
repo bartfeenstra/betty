@@ -35,19 +35,19 @@ class Generator:
 
 
 async def generate(app: App) -> None:
-    with suppress(FileNotFoundError):
-        shutil.rmtree(app.project.configuration.output_directory_path)
-    await aiofiles_os.makedirs(app.project.configuration.output_directory_path)
-    logging.getLogger().info(app.localizer._('Generating your site to {output_directory}.').format(output_directory=app.project.configuration.output_directory_path))
-    await _ConcurrentGenerator.generate(app)
-    os.chmod(app.project.configuration.output_directory_path, 0o755)
-    for directory_path_str, subdirectory_names, file_names in os.walk(app.project.configuration.output_directory_path):
-        directory_path = Path(directory_path_str)
-        for subdirectory_name in subdirectory_names:
-            os.chmod(directory_path / subdirectory_name, 0o755)
-        for file_name in file_names:
-            os.chmod(directory_path / file_name, 0o644)
-    app.wait()
+    with app:
+        with suppress(FileNotFoundError):
+            shutil.rmtree(app.project.configuration.output_directory_path)
+        await aiofiles_os.makedirs(app.project.configuration.output_directory_path)
+        logging.getLogger().info(app.localizer._('Generating your site to {output_directory}.').format(output_directory=app.project.configuration.output_directory_path))
+        await _ConcurrentGenerator.generate(app)
+        os.chmod(app.project.configuration.output_directory_path, 0o755)
+        for directory_path_str, subdirectory_names, file_names in os.walk(app.project.configuration.output_directory_path):
+            directory_path = Path(directory_path_str)
+            for subdirectory_name in subdirectory_names:
+                os.chmod(directory_path / subdirectory_name, 0o755)
+            for file_name in file_names:
+                os.chmod(directory_path / file_name, 0o644)
 
 
 class _ConcurrentGenerator:

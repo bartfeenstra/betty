@@ -13,15 +13,14 @@ from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
 
 from betty.classtools import Repr, repr_instance
-from betty.config.dump import DumpedConfiguration, VoidableDumpedConfiguration, minimize
-from betty.config.error import ConfigurationErrorCollection
-from betty.config.format import FORMATS_BY_EXTENSION, EXTENSIONS
-from betty.config.load import ConfigurationFormatError, ConfigurationLoadError, Assertion, Assertions, Asserter
+from betty.serde.error import SerdeErrorCollection
 from betty.functools import slice_to_range
 from betty.locale import Localizer, Localizable
 from betty.os import ChDir
+from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump, Void
+from betty.serde.format import FormatRepository
+from betty.serde.load import Asserter, Assertion, LoadError, Assertions
 from betty.tempfile import TemporaryDirectory
-from betty.typing import Void
 
 try:
     from typing_extensions import Self, TypeAlias
@@ -29,7 +28,7 @@ except ModuleNotFoundError:
     from typing import Self, TypeAlias  # type: ignore
 
 
-class Configuration(ReactiveInstance, Repr, Localizable):
+class Configuration(ReactiveInstance, Repr, Localizable, Dumpable):
     def __init__(self, *args, localizer: Localizer | None = None, **kwargs):
         super().__init__(*args, **kwargs, localizer=localizer)
         self._asserter = Asserter(localizer=self._localizer)
@@ -40,7 +39,7 @@ class Configuration(ReactiveInstance, Repr, Localizable):
     @classmethod
     def load(
             cls,
-            dumped_configuration: DumpedConfiguration,
+            dump: Dump,
             configuration: Self | None = None,
             *,
             localizer: Localizer | None = None,
@@ -52,18 +51,11 @@ class Configuration(ReactiveInstance, Repr, Localizable):
         raise NotImplementedError
 
     @classmethod
-    def assert_load(cls: Type[ConfigurationT], configuration: ConfigurationT | None = None) -> Assertion[DumpedConfiguration, ConfigurationT]:
-        def _assert_load(dumped_configuration: DumpedConfiguration) -> ConfigurationT:
-            return cls.load(dumped_configuration, configuration)
+    def assert_load(cls: Type[ConfigurationT], configuration: ConfigurationT | None = None) -> Assertion[Dump, ConfigurationT]:
+        def _assert_load(dump: Dump) -> ConfigurationT:
+            return cls.load(dump, configuration)
         _assert_load.__qualname__ = f'{_assert_load.__qualname__} for {cls.__module__}.{cls.__qualname__}.load'
         return _assert_load
-
-    def dump(self) -> VoidableDumpedConfiguration:
-        """
-        Dump this configuration to a portable format.
-        """
-
-        raise NotImplementedError
 
 
 ConfigurationT = TypeVar('ConfigurationT', bound=Configuration)
@@ -78,7 +70,7 @@ class FileBasedConfiguration(Configuration):
 
     def _assert_configuration_file_path(self) -> None:
         if self.configuration_file_path is None:
-            raise ConfigurationLoadError(self.localizer._('The configuration must have a configuration file path.'))
+            raise LoadError(self.localizer._('The configuration must have a configuration file path.'))
 
     @property
     def autowrite(self) -> bool:
@@ -105,11 +97,12 @@ class FileBasedConfiguration(Configuration):
     def _write(self, configuration_file_path: Path) -> None:
         # Change the working directory to allow absolute paths to be turned relative to the configuration file's directory
         # path.
+        formats = FormatRepository(localizer=self._localizer)
         with ChDir(configuration_file_path.parent):
-            dumped_configuration = FORMATS_BY_EXTENSION[configuration_file_path.suffix[1:]].dump(self.dump())
+            dump = formats.format_for(configuration_file_path.suffix[1:]).dump(self.dump())
             try:
                 with open(configuration_file_path, mode='w') as f:
-                    f.write(dumped_configuration)
+                    f.write(dump)
             except FileNotFoundError:
                 os.makedirs(configuration_file_path.parent)
                 self.write()
@@ -121,7 +114,8 @@ class FileBasedConfiguration(Configuration):
         else:
             self.configuration_file_path = configuration_file_path  # type: ignore[assignment]
 
-        with ConfigurationErrorCollection().assert_valid() as errors:
+        formats = FormatRepository(localizer=self._localizer)
+        with SerdeErrorCollection().assert_valid() as errors:
             # Change the working directory to allow relative paths to be resolved against the configuration file's directory
             # path.
             with ChDir(self.configuration_file_path.parent):
@@ -129,7 +123,8 @@ class FileBasedConfiguration(Configuration):
                     read_configuration = f.read()
                 with errors.catch(f'in {self.configuration_file_path.resolve()}'):
                     loaded_configuration = self.load(
-                        FORMATS_BY_EXTENSION[self.configuration_file_path.suffix[1:]].load(read_configuration))
+                        formats.format_for(self.configuration_file_path.suffix[1:]).load(read_configuration)
+                    )
         self.update(loaded_configuration)
 
     def __del__(self):
@@ -149,8 +144,8 @@ class FileBasedConfiguration(Configuration):
     def configuration_file_path(self, configuration_file_path: Path) -> None:
         if configuration_file_path == self._configuration_file_path:
             return
-        if configuration_file_path.suffix[1:] not in EXTENSIONS:
-            raise ConfigurationFormatError(f"Unknown file format \"{configuration_file_path.suffix}\". Supported formats are: {', '.join(map(lambda x: f'.{x}', EXTENSIONS))}.")
+        formats = FormatRepository(localizer=self._localizer)
+        formats.format_for(configuration_file_path.suffix[1:])
         self._configuration_file_path = configuration_file_path
 
     @configuration_file_path.deleter
@@ -334,7 +329,7 @@ class ConfigurationSequence(ConfigurationCollection[int, ConfigurationT], Generi
     @classmethod
     def load(
             cls,
-            dumped_configuration: DumpedConfiguration,
+            dump: Dump,
             configuration: Self | None = None,
             *,
             localizer: Localizer | None = None,
@@ -344,11 +339,11 @@ class ConfigurationSequence(ConfigurationCollection[int, ConfigurationT], Generi
         else:
             configuration._clear_without_trigger()
         asserter = Asserter(localizer=localizer)
-        with ConfigurationErrorCollection().assert_valid():
-            configuration.append(*asserter.assert_sequence(Assertions(cls._item_type().assert_load()))(dumped_configuration))
+        with SerdeErrorCollection().assert_valid():
+            configuration.append(*asserter.assert_sequence(Assertions(cls._item_type().assert_load()))(dump))
         return configuration
 
-    def dump(self) -> VoidableDumpedConfiguration:
+    def dump(self) -> VoidableDump:
         return minimize([
             configuration.dump()
             for configuration in self._configurations
@@ -411,7 +406,7 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
         self._configurations: OrderedDict[ConfigurationKeyT, ConfigurationT] = OrderedDict()
         super().__init__(configurations, localizer=localizer)
 
-    def _minimize_dumped_item_configuration(self) -> bool:
+    def _minimize_item_dump(self) -> bool:
         return False
 
     def to_index(self, configuration_key: ConfigurationKeyT) -> int:
@@ -471,7 +466,7 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
     @classmethod
     def load(
             cls,
-            dumped_configuration: DumpedConfiguration,
+            dump: Dump,
             configuration: Self | None = None,
             *,
             localizer: Localizer | None = None,
@@ -479,26 +474,26 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
         if configuration is None:
             configuration = cls()
         asserter = Asserter(localizer=localizer)
-        dumped_configuration_dict = asserter.assert_dict()(dumped_configuration)
+        dict_dump = asserter.assert_dict()(dump)
         mapping = asserter.assert_mapping(Assertions(cls._item_type().load))({
             key: cls._load_key(value, key, localizer=localizer)
             for key, value
-            in dumped_configuration_dict.items()
+            in dict_dump.items()
         })
         configuration.replace(*mapping.values())
         return configuration
 
-    def dump(self) -> VoidableDumpedConfiguration:
-        dumped_configuration = {}
+    def dump(self) -> VoidableDump:
+        dump = {}
         for configuration_item in self._configurations.values():
-            dumped_configuration_item = configuration_item.dump()
-            if dumped_configuration_item is not Void:
-                dumped_configuration_item, configuration_key = self._dump_key(dumped_configuration_item)
-                if self._minimize_dumped_item_configuration():
-                    dumped_configuration_item = minimize(dumped_configuration_item)
-                if dumped_configuration_item is not Void:
-                    dumped_configuration[configuration_key] = dumped_configuration_item
-        return minimize(dumped_configuration)
+            item_dump = configuration_item.dump()
+            if item_dump is not Void:
+                item_dump, configuration_key = self._dump_key(item_dump)
+                if self._minimize_item_dump():
+                    item_dump = minimize(item_dump)
+                if item_dump is not Void:
+                    dump[configuration_key] = item_dump
+        return minimize(dump)
 
     def prepend(self, *configurations: ConfigurationT) -> None:
         for configuration in configurations:
@@ -565,14 +560,14 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
     @classmethod
     def _load_key(
         cls,
-        dumped_item: DumpedConfiguration,
-        dumped_key: str,
+        item_dump: Dump,
+        key_dump: str,
         *,
         localizer: Localizer | None = None,
-    ) -> DumpedConfiguration:
+    ) -> Dump:
         raise NotImplementedError
 
-    def _dump_key(self, dumped_item: VoidableDumpedConfiguration) -> Tuple[VoidableDumpedConfiguration, str]:
+    def _dump_key(self, item_dump: VoidableDump) -> Tuple[VoidableDump, str]:
         raise NotImplementedError
 
 

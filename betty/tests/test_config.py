@@ -1,103 +1,24 @@
 from __future__ import annotations
 
-from contextlib import contextmanager
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Iterator, Type, Union, Optional, Tuple, Iterable, List, Any, overload, Generic
+from typing import Type, Optional, Tuple, Iterable, Any, Generic
 
 import pytest
 from reactives.tests import assert_reactor_called, assert_in_scope, assert_scope_empty
 
-from betty.app import App
-from betty.config import FileBasedConfiguration, ConfigurationMapping, Configuration, VoidableDumpedConfiguration, \
-    DumpedConfiguration, ConfigurationCollection, ConfigurationSequence, ConfigurationKeyT, ConfigurationT
-from betty.config.error import ConfigurationError, ConfigurationErrorCollection
-from betty.config.load import ConfigurationFormatError, Asserter
+from betty.config import FileBasedConfiguration, ConfigurationMapping, Configuration, \
+    ConfigurationCollection, ConfigurationSequence, ConfigurationKeyT, ConfigurationT
 from betty.locale import Localizer
-
-
-class ConfigurationAssertionError(AssertionError):
-    pass
-
-
-@overload
-def assert_configuration_error(
-        actual_error: Union[ConfigurationError, ConfigurationErrorCollection],
-        *,
-        error: ConfigurationError,
-        error_type: None = None,
-        error_message: None = None,
-        error_contexts: None = None,
-) -> List[ConfigurationError]:
-    pass
-
-
-@overload
-def assert_configuration_error(
-        actual_error: Union[ConfigurationError, ConfigurationErrorCollection],
-        *,
-        error: None = None,
-        error_type: Type[ConfigurationError] = ConfigurationError,
-        error_message: str | None = None,
-        error_contexts: Tuple[str, ...] | None = None,
-) -> List[ConfigurationError]:
-    pass
-
-
-def assert_configuration_error(
-        actual_error: Union[ConfigurationError, ConfigurationErrorCollection],
-        *,
-        error: ConfigurationError | None = None,
-        error_type: Type[ConfigurationError] | None = ConfigurationError,
-        error_message: str | None = None,
-        error_contexts: Tuple[str, ...] | None = None,
-) -> List[ConfigurationError]:
-    actual_errors: Iterable[ConfigurationError]
-    if isinstance(actual_error, ConfigurationErrorCollection):
-        actual_errors = [*actual_error]
-    else:
-        actual_errors = [actual_error]
-
-    expected_error_type: type
-    expected_error_message = None
-    expected_error_contexts = None
-    if error:
-        expected_error_type = type(error)
-        expected_error_message = str(error)
-        expected_error_contexts = error.contexts
-    else:
-        expected_error_type = error_type  # type: ignore[assignment]
-        if error_message is not None:
-            expected_error_message = error_message
-        if error_contexts is not None:
-            expected_error_contexts = error_contexts
-
-    errors = [actual_error for actual_error in actual_errors if isinstance(actual_error, expected_error_type)]
-    if expected_error_message is not None:
-        errors = [actual_error for actual_error in actual_errors if str(actual_error).startswith(expected_error_message)]
-    if expected_error_contexts is not None:
-        errors = [actual_error for actual_error in actual_errors if expected_error_contexts == actual_error.contexts]
-    if errors:
-        return errors
-    raise ConfigurationAssertionError('Failed raising a configuration error.')
-
-
-@contextmanager
-def raises_configuration_error(*args, **kwargs) -> Iterator[ConfigurationErrorCollection]:
-    try:
-        with App():
-            with ConfigurationErrorCollection().catch() as errors:
-                yield errors
-    finally:
-        assert_configuration_error(errors, *args, **kwargs)
-        errors.assert_valid()
+from betty.serde.dump import Dump, VoidableDump
+from betty.serde.load import FormatError, Asserter
 
 
 class TestFileBasedConfiguration:
     def test_configuration_file_path_should_error_unknown_format(self) -> None:
         configuration = FileBasedConfiguration()
         with NamedTemporaryFile(mode='r+', suffix='.abc') as f:
-            with pytest.raises(ConfigurationFormatError):
+            with pytest.raises(FormatError):
                 configuration.configuration_file_path = Path(f.name)
 
 
@@ -295,19 +216,19 @@ class ConfigurationMappingTestConfigurationMapping(ConfigurationMapping[str, Con
     @classmethod
     def _load_key(
         cls,
-        dumped_item: DumpedConfiguration,
-        dumped_key: str,
+        item_dump: Dump,
+        key_dump: str,
         *,
         localizer: Localizer | None = None,
-    ) -> DumpedConfiguration:
+    ) -> Dump:
         asserter = Asserter(localizer=localizer)
-        dumped_dict = asserter.assert_dict()(dumped_item)
-        dumped_dict[dumped_key] = dumped_key
-        return dumped_dict
+        dict_item_dump = asserter.assert_dict()(item_dump)
+        dict_item_dump[key_dump] = key_dump
+        return dict_item_dump
 
-    def _dump_key(self, dumped_item: VoidableDumpedConfiguration) -> Tuple[VoidableDumpedConfiguration, str]:
-        dumped_dict = self._asserter.assert_dict()(dumped_item)
-        return dumped_dict, dumped_dict.pop('key')
+    def _dump_key(self, item_dump: VoidableDump) -> Tuple[VoidableDump, str]:
+        dict_item_dump = self._asserter.assert_dict()(item_dump)
+        return dict_item_dump, dict_item_dump.pop('key')
 
 
 class TestConfigurationMapping(ConfigurationMappingTestBase[str, ConfigurationCollectionTestConfiguration]):

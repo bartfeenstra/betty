@@ -8,15 +8,21 @@ from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QApplication, QWidget
 
 from betty.app import App
-from betty.config import EXTENSIONS
 from betty.error import UserFacingError
 from betty.gui.error import ExceptionError, UnexpectedExceptionError
 from betty.gui.locale import LocalizedWindow
 from betty.locale import Localizer
+from betty.serde.format import FormatRepository
 
 
 def get_configuration_file_filter(localizer: Localizer) -> str:
-    return localizer._('Betty project configuration ({extensions})').format(extensions=' '.join(map(lambda format: f'*.{format}', EXTENSIONS)))
+    formats = FormatRepository(localizer=localizer)
+    supported_formats = ', '.join([
+        f'.{extension} ({format.label})'
+        for extension in formats.extensions
+        for format in formats.formats
+    ])
+    return localizer._('Betty project configuration ({supported_formats})').format(supported_formats=supported_formats)
 
 
 class GuiBuilder:

@@ -7,13 +7,13 @@ from pytest_mock import MockerFixture
 from pytestqt.qtbot import QtBot
 
 from betty.app import App
-from betty.config import minimize
 from betty.gui.project import ProjectWindow, _AddLocaleWindow, _GenerateWindow, _LocalizationPane, \
     _GeneralPane, _GenerateHtmlListForm
 from betty.gui.serve import ServeProjectWindow
 from betty.locale import get_display_name
 from betty.model.ancestry import File
 from betty.project import ProjectConfiguration, LocaleConfiguration
+from betty.serde.dump import minimize
 from betty.tests.conftest import AssertNotWindow, AssertInvalid, AssertWindow, Navigate
 
 
@@ -30,10 +30,10 @@ class TestProjectWindow:
             mocker.patch.object(QFileDialog, 'getSaveFileName', mocker.MagicMock(return_value=[str(save_as_configuration_file_path), None]))
             navigate(sut, ['save_project_as_action'])
 
-        expected_dumped_configuration = minimize(configuration.dump())
+        expected_dump = minimize(configuration.dump())
         with open(save_as_configuration_file_path) as f:
-            actual_dumped_configuration = json.load(f)
-        assert actual_dumped_configuration == expected_dumped_configuration
+            actual_dump = json.load(f)
+        assert actual_dump == expected_dump
 
 
 class Test_GenerateHtmlListForm:
@@ -197,9 +197,9 @@ class TestLocalizationPane:
             app.project.configuration.title = title
 
         with open(app.project.configuration.configuration_file_path) as f:
-            dumped_read_configuration = json.load(f)
-        assert dumped_read_configuration == app.project.configuration.dump()
-        assert dumped_read_configuration['title'] == title
+            read_configuration_dump = json.load(f)
+        assert read_configuration_dump == app.project.configuration.dump()
+        assert read_configuration_dump['title'] == title
 
 
 class TestGenerateWindow:

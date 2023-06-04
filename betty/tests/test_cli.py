@@ -1,5 +1,5 @@
+import json
 import os
-from json import dump
 from typing import Callable, Dict
 from unittest.mock import patch
 
@@ -9,10 +9,10 @@ from click.testing import CliRunner
 from pytest_mock import MockerFixture
 
 from betty import fs
-from betty.config import DumpedConfiguration
 from betty.error import UserFacingError
 from betty.os import ChDir
 from betty.project import ProjectConfiguration, ExtensionConfiguration, Project
+from betty.serde.dump import Dump
 from betty.serve import ProjectServer
 from betty.tempfile import TemporaryDirectory
 from betty.tests import patch_cache
@@ -82,9 +82,9 @@ class TestMain:
     def test_help_with_invalid_configuration(self, _, __):
         with TemporaryDirectory() as working_directory_path:
             configuration_file_path = working_directory_path / 'betty.json'
-            dumped_configuration: DumpedConfiguration = {}
+            dump: Dump = {}
             with open(configuration_file_path, 'w') as f:
-                dump(dumped_configuration, f)
+                json.dump(dump, f)
 
             runner = CliRunner()
             result = runner.invoke(main, ('-c', str(configuration_file_path), '--help',), catch_exceptions=False)
@@ -94,13 +94,13 @@ class TestMain:
         with TemporaryDirectory() as working_directory_path:
             with open(working_directory_path / 'betty.json', 'w') as config_file:
                 url = 'https://example.com'
-                dumped_configuration: DumpedConfiguration = {
+                dump: Dump = {
                     'base_url': url,
                     'extensions': {
                         DummyExtension.name(): None,
                     },
                 }
-                dump(dumped_configuration, config_file)
+                json.dump(dump, config_file)
             with ChDir(working_directory_path):
                 runner = CliRunner()
                 result = runner.invoke(main, ('test',), catch_exceptions=False)

@@ -6,11 +6,12 @@ import pytest
 
 from betty.app import Extension, App, CyclicDependencyError
 from betty.app.extension import ConfigurableExtension as GenericConfigurableExtension
-from betty.config import Configuration, DumpedConfiguration, VoidableDumpedConfiguration
-from betty.config.load import Fields, Assertions, RequiredField, Asserter
+from betty.config import Configuration
 from betty.locale import Localizer
 from betty.model import Entity
 from betty.project import ExtensionConfiguration
+from betty.serde.dump import Dump, VoidableDump
+from betty.serde.load import Fields, Assertions, RequiredField, Asserter
 
 try:
     from typing_extensions import Self
@@ -44,7 +45,7 @@ class ConfigurableExtensionConfiguration(Configuration):
     @classmethod
     def load(
             cls,
-            dumped_configuration: DumpedConfiguration,
+            dump: Dump,
             configuration: Self | None = None,
             *,
             localizer: Localizer | None = None,
@@ -57,10 +58,10 @@ class ConfigurableExtensionConfiguration(Configuration):
                 'check',
                 Assertions(asserter.assert_int()) | asserter.assert_setattr(configuration, 'check'),
             ),
-        ))(dumped_configuration)
+        ))(dump)
         return configuration
 
-    def dump(self) -> VoidableDumpedConfiguration:
+    def dump(self) -> VoidableDump:
         return {
             'check': self.check
         }

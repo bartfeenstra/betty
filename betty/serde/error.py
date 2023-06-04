@@ -14,9 +14,9 @@ except ModuleNotFoundError:  # pragma: no cover
     from typing import Self  # type: ignore  # pragma: no cover
 
 
-class ConfigurationError(UserFacingError, ValueError):
+class SerdeError(UserFacingError, ValueError):
     """
-    A configuration error.
+    A serialization or deserialization error.
     """
 
     def __init__(self, *args, **kwargs):
@@ -26,14 +26,14 @@ class ConfigurationError(UserFacingError, ValueError):
     def __str__(self):
         return (super().__str__() + '\n' + indent('\n'.join(self._contexts), '- ')).strip()
 
-    def raised(self, error_type: Type[ConfigurationError]) -> bool:
+    def raised(self, error_type: Type[SerdeError]) -> bool:
         return isinstance(self, error_type)
 
     @property
     def contexts(self) -> Tuple[str, ...]:
         return self._contexts
 
-    def with_context(self, *contexts: str) -> ConfigurationError:
+    def with_context(self, *contexts: str) -> SerdeError:
         """
         Add a message describing the error's context.
         """
@@ -42,16 +42,16 @@ class ConfigurationError(UserFacingError, ValueError):
         return self_copy
 
 
-class ConfigurationErrorCollection(ConfigurationError, Repr):
+class SerdeErrorCollection(SerdeError, Repr):
     """
-    A collection of zero or more configuration errors.
+    A collection of zero or more serialization or deserialization errors.
     """
 
     def __init__(self):
         super().__init__()
         self._errors = []
 
-    def __iter__(self) -> Iterator[ConfigurationError]:
+    def __iter__(self) -> Iterator[SerdeError]:
         yield from self._errors
 
     def __str__(self) -> str:
@@ -60,7 +60,7 @@ class ConfigurationErrorCollection(ConfigurationError, Repr):
     def __len__(self) -> int:
         return len(self._errors)
 
-    def raised(self, error_type: Type[ConfigurationError]) -> bool:
+    def raised(self, error_type: Type[SerdeError]) -> bool:
         for error in self._errors:
             if error.raised(error_type):
                 return True
@@ -83,25 +83,25 @@ class ConfigurationErrorCollection(ConfigurationError, Repr):
         if self.invalid:
             raise self
 
-    def append(self, *errors: ConfigurationError) -> None:
+    def append(self, *errors: SerdeError) -> None:
         for error in errors:
-            if isinstance(error, ConfigurationErrorCollection):
+            if isinstance(error, SerdeErrorCollection):
                 self.append(*error)
             else:
                 self._errors.append(error.with_context(*self._contexts))
 
-    def with_context(self, *contexts: str) -> ConfigurationErrorCollection:
-        self_copy = cast(ConfigurationErrorCollection, super().with_context(*contexts))
+    def with_context(self, *contexts: str) -> SerdeErrorCollection:
+        self_copy = cast(SerdeErrorCollection, super().with_context(*contexts))
         self_copy._errors = [error.with_context(*contexts) for error in self._errors]
         return self_copy
 
     @contextmanager
-    def catch(self, *contexts: str) -> Iterator[ConfigurationErrorCollection]:
-        context_errors: ConfigurationErrorCollection = ConfigurationErrorCollection()
+    def catch(self, *contexts: str) -> Iterator[SerdeErrorCollection]:
+        context_errors: SerdeErrorCollection = SerdeErrorCollection()
         if contexts:
             context_errors = context_errors.with_context(*contexts)
         try:
             yield context_errors
-        except ConfigurationError as e:
+        except SerdeError as e:
             context_errors.append(e)
         self.append(*context_errors)
