@@ -12,9 +12,7 @@ from reactives.instance.property import reactive_property
 
 from betty.app import Extension
 from betty.app.extension import ConfigurableExtension, Theme
-from betty.config import Configuration, DumpedConfiguration, VoidableDumpedConfiguration
-from betty.config.dump import minimize
-from betty.config.load import ConfigurationValidationError, Fields, Assertions, OptionalField, Asserter
+from betty.config import Configuration
 from betty.cotton_candy.search import Index
 from betty.generate import Generator
 from betty.gui import GuiBuilder
@@ -22,6 +20,9 @@ from betty.jinja2 import Jinja2Provider
 from betty.locale import Localizer
 from betty.npm import _Npm, NpmBuilder, npm
 from betty.project import EntityReferenceSequence
+from betty.serde.dump import minimize, Dump, VoidableDump
+from betty.serde.load import ValidationError, Fields, Assertions, OptionalField, Asserter
+
 
 try:
     from typing_extensions import Self
@@ -39,7 +40,7 @@ class _ColorConfiguration(Configuration):
 
     def _validate_hex(self, hex_value: str) -> str:
         if not self._HEX_PATTERN.match(hex_value):
-            raise ConfigurationValidationError(self.localizer._('"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.').format(hex_value=hex_value))
+            raise ValidationError(self.localizer._('"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.').format(hex_value=hex_value))
         return hex_value
 
     @property
@@ -50,7 +51,7 @@ class _ColorConfiguration(Configuration):
     @hex.setter
     def hex(self, hex_value: str) -> None:
         if hex_value is not None and not self._HEX_PATTERN.match(hex_value):
-            raise ConfigurationValidationError(self.localizer._('"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.').format(hex_value=hex_value))
+            raise ValidationError(self.localizer._('"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.').format(hex_value=hex_value))
         self._hex = hex_value
 
     def update(self, other: Self) -> None:
@@ -59,20 +60,20 @@ class _ColorConfiguration(Configuration):
     @classmethod
     def load(
             cls,
-            dumped_configuration: DumpedConfiguration,
+            dump: Dump,
             configuration: Self | None = None,
             *,
             localizer: Localizer | None = None,
     ) -> Self:
         asserter = Asserter(localizer=localizer)
-        hex_value = asserter.assert_str()(dumped_configuration)
+        hex_value = asserter.assert_str()(dump)
         if configuration is None:
             configuration = cls(hex_value)
         else:
             configuration.hex = hex_value
         return configuration
 
-    def dump(self) -> VoidableDumpedConfiguration:
+    def dump(self) -> VoidableDump:
         return self._hex
 
 
@@ -118,7 +119,7 @@ class CottonCandyConfiguration(Configuration):
     @classmethod
     def load(
             cls,
-            dumped_configuration: DumpedConfiguration,
+            dump: Dump,
             configuration: Self | None = None,
             *,
             localizer: Localizer | None = None,
@@ -147,10 +148,10 @@ class CottonCandyConfiguration(Configuration):
                 'link_active_color',
                 Assertions(configuration._link_active_color.assert_load(configuration._link_active_color)),
             ),
-        ))(dumped_configuration)
+        ))(dump)
         return configuration
 
-    def dump(self) -> VoidableDumpedConfiguration:
+    def dump(self) -> VoidableDump:
         return minimize({
             'featured_entities': self.featured_entities.dump(),
             'primary_inactive_color': self._primary_inactive_color.dump(),

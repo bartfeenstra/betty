@@ -11,13 +11,13 @@ from pytestqt.qtbot import QtBot
 
 from betty import fs
 from betty.app import App
-from betty.config import ConfigurationFormatError
-from betty.config.error import ConfigurationError
+from betty.serde.error import SerdeError
 from betty.gui.app import WelcomeWindow, _AboutBettyWindow, BettyMainWindow, ApplicationConfiguration
 from betty.gui.error import ExceptionError
 from betty.gui.project import ProjectWindow
 from betty.gui.serve import ServeDemoWindow
 from betty.project import ProjectConfiguration
+from betty.serde.load import FormatError
 from betty.tests import patch_cache
 from betty.tests.conftest import Navigate, AssertWindow
 
@@ -78,8 +78,8 @@ class TestWelcomeWindow:
 
             error = assert_error(ExceptionError)
             exception = error.exception
-            assert isinstance(exception, ConfigurationError)
-            assert exception.raised(ConfigurationFormatError)
+            assert isinstance(exception, SerdeError)
+            assert exception.raised(FormatError)
 
     def test_open_project_with_valid_file_should_show_project_window(self, assert_window: AssertWindow, mocker: MockerFixture, qtbot: QtBot) -> None:
         title = 'My First Ancestry Site'
@@ -125,6 +125,6 @@ class TestApplicationConfiguration:
             app.configuration.locale = locale
 
         with open(app.configuration.configuration_file_path) as f:
-            dumped_read_configuration = json.load(f)
-        assert dumped_read_configuration == app.configuration.dump()
-        assert dumped_read_configuration['locale'] == locale
+            read_configuration_dump = json.load(f)
+        assert read_configuration_dump == app.configuration.dump()
+        assert read_configuration_dump['locale'] == locale

@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from reactives.instance.method import reactive_method
 
-from betty.config.error import ConfigurationError
+from betty.serde.error import SerdeError
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QWidget, QFormLayout, QPushButton, QFileDialog, QLineEdit, QHBoxLayout, QVBoxLayout, \
@@ -106,7 +106,7 @@ class _AddFamilyTreeWindow(BettyWindow):
                     self._family_tree.file_path = Path(file_path)
                 mark_valid(self._file_path)
                 self._save_and_close.setDisabled(False)
-            except ConfigurationError as e:
+            except SerdeError as e:
                 mark_invalid(self._file_path, str(e))
                 self._save_and_close.setDisabled(True)
         self._file_path = QLineEdit()

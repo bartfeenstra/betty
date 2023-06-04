@@ -9,7 +9,6 @@ from typing import Callable, Dict, Optional
 
 from PyQt6.QtWidgets import QMainWindow
 
-from betty.config.load import ConfigurationValidationError
 from betty.locale import update_translations, init_translation
 
 import click
@@ -23,6 +22,7 @@ from betty.gui import BettyApplication
 from betty.gui.app import WelcomeWindow
 from betty.gui.project import ProjectWindow
 from betty.logging import CliHandler
+from betty.serde.load import ValidationError
 from betty.serve import ProjectServer
 
 
@@ -116,7 +116,7 @@ async def _init_ctx(ctx: Context, __: Optional[Option] = None, configuration_fil
                 return
 
         if configuration_file_path is not None:
-            raise ConfigurationValidationError(app.localizer._('Configuration file "{configuration_file_path}" does not exist.').format(configuration_file_path=configuration_file_path))
+            raise ValidationError(app.localizer._('Configuration file "{configuration_file_path}" does not exist.').format(configuration_file_path=configuration_file_path))
 
 
 class _BettyCommands(click.MultiCommand):

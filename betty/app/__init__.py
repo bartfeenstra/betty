@@ -18,9 +18,7 @@ from betty.app.extension import ListExtensions, Extension, Extensions, build_ext
 from betty.asyncio import sync
 from betty.cache import Cache
 from betty.concurrent import ExceptionRaisingAwaitableExecutor
-from betty.config import DumpedConfiguration, VoidableDumpedConfiguration, Configurable, FileBasedConfiguration
-from betty.config.dump import void_none, minimize
-from betty.config.load import ConfigurationValidationError, Fields, Assertions, OptionalField, Asserter
+from betty.config import Configurable, FileBasedConfiguration
 from betty.dispatch import Dispatcher
 from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH, HOME_DIRECTORY_PATH
 from betty.locale import LocalizerRepository, get_data, Localey, DEFAULT_LOCALE, to_locale, \
@@ -34,6 +32,9 @@ from betty.model.event_type import EventTypeProvider, Birth, Baptism, Adoption, 
     Occupation, Retirement, Correspondence, Confirmation
 from betty.project import Project
 from betty.render import Renderer, SequentialRenderer
+from betty.serde.dump import minimize, void_none, Dump, VoidableDump
+from betty.serde.load import ValidationError, Fields, Assertions, OptionalField, Asserter
+
 
 try:
     from graphlib_backport import TopologicalSorter, CycleError
@@ -90,7 +91,7 @@ class AppConfiguration(FileBasedConfiguration):
         try:
             get_data(locale)
         except ValueError:
-            raise ConfigurationValidationError(self.localizer._('"{locale}" is not a valid IETF BCP 47 language tag.').format(locale=locale))
+            raise ValidationError(self.localizer._('"{locale}" is not a valid IETF BCP 47 language tag.').format(locale=locale))
         self._locale = locale
 
     def update(self, other: Self) -> None:
@@ -100,7 +101,7 @@ class AppConfiguration(FileBasedConfiguration):
     @classmethod
     def load(
             cls,
-            dumped_configuration: DumpedConfiguration,
+            dump: Dump,
             configuration: Self | None = None,
             *,
             localizer: Localizer | None = None,
@@ -113,10 +114,10 @@ class AppConfiguration(FileBasedConfiguration):
                 'locale',
                 Assertions(asserter.assert_str()) | asserter.assert_setattr(configuration, 'locale')),
         ),
-        )(dumped_configuration)
+        )(dump)
         return configuration
 
-    def dump(self) -> VoidableDumpedConfiguration:
+    def dump(self) -> VoidableDump:
         return minimize({
             'locale': void_none(self.locale)
         }, True)
