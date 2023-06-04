@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Type, Dict, Any, Optional, Iterable, Tuple
+from typing import Type, Dict, Any, Iterable, Tuple
 
 import dill as pickle
 import pytest
@@ -155,8 +155,8 @@ class EntityReferenceSequenceTestEntity(Entity):
 class TestEntityReferenceSequence(ConfigurationSequenceTestBase):
     _ConfigurationT = EntityReference
 
-    def get_sut(self, entity_references: Iterable[EntityReference] | None = None) -> EntityReferenceSequence:
-        return EntityReferenceSequence(entity_references)
+    def get_sut(self, entity_references: Iterable[Configuration] | None = None) -> EntityReferenceSequence:
+        return EntityReferenceSequence(entity_references)  # type: ignore[arg-type]
 
     def get_configurations(self) -> Tuple[EntityReference, EntityReference, EntityReference, EntityReference]:
         return (
@@ -199,12 +199,12 @@ class TestLocaleConfiguration:
         assert expected == (sut == other)
 
 
-class TestLocaleConfigurationMapping(ConfigurationMappingTestBase[str, LocaleConfiguration]):
+class TestLocaleConfigurationMapping(ConfigurationMappingTestBase):
     def get_configuration_keys(self) -> Tuple[str, str, str, str]:
         return 'en', 'nl', 'uk', 'fr'
 
-    def get_sut(self, configurations: Optional[Iterable[LocaleConfiguration]] = None) -> LocaleConfigurationMapping:
-        return LocaleConfigurationMapping(configurations)
+    def get_sut(self, configurations: Iterable[Configuration] | None = None) -> LocaleConfigurationMapping:
+        return LocaleConfigurationMapping(configurations)  # type: ignore[arg-type]
 
     def get_configurations(self) -> Tuple[LocaleConfiguration, LocaleConfiguration, LocaleConfiguration, LocaleConfiguration]:
         return (
@@ -320,12 +320,12 @@ class ExtensionTypeConfigurationMappingTestExtension3(Extension):
     pass
 
 
-class TestExtensionConfigurationMapping(ConfigurationMappingTestBase[Type[Extension], ExtensionConfiguration]):
+class TestExtensionConfigurationMapping(ConfigurationMappingTestBase):
     def get_configuration_keys(self) -> Tuple[Type[Extension], Type[Extension], Type[Extension], Type[Extension]]:
         return ExtensionTypeConfigurationMappingTestExtension0, ExtensionTypeConfigurationMappingTestExtension1, ExtensionTypeConfigurationMappingTestExtension2, ExtensionTypeConfigurationMappingTestExtension3
 
-    def get_sut(self, configurations: Optional[Iterable[ExtensionConfiguration]] = None) -> ExtensionConfigurationMapping:
-        return ExtensionConfigurationMapping(configurations)
+    def get_sut(self, configurations: Iterable[Configuration] | None = None) -> ExtensionConfigurationMapping:
+        return ExtensionConfigurationMapping(configurations)  # type: ignore[arg-type]
 
     def get_configurations(self) -> Tuple[ExtensionConfiguration, ExtensionConfiguration, ExtensionConfiguration, ExtensionConfiguration]:
         return (
@@ -423,12 +423,12 @@ class EntityTypeConfigurationMappingTestEntity3(Entity):
     pass
 
 
-class TestEntityTypeConfigurationMapping(ConfigurationMappingTestBase[Type[Entity], EntityTypeConfiguration]):
+class TestEntityTypeConfigurationMapping(ConfigurationMappingTestBase):
     def get_configuration_keys(self) -> Tuple[Type[Entity], Type[Entity], Type[Entity], Type[Entity]]:
         return EntityTypeConfigurationMappingTestEntity0, EntityTypeConfigurationMappingTestEntity1, EntityTypeConfigurationMappingTestEntity2, EntityTypeConfigurationMappingTestEntity3
 
-    def get_sut(self, configurations: Optional[Iterable[EntityTypeConfiguration]] = None) -> EntityTypeConfigurationMapping:
-        return EntityTypeConfigurationMapping(configurations)
+    def get_sut(self, configurations: Iterable[Configuration] | None = None) -> EntityTypeConfigurationMapping:
+        return EntityTypeConfigurationMapping(configurations)  # type: ignore[arg-type]
 
     def get_configurations(self) -> Tuple[EntityTypeConfiguration, EntityTypeConfiguration, EntityTypeConfiguration, EntityTypeConfiguration]:
         return (
