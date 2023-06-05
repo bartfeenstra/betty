@@ -19,7 +19,7 @@ class TestExtension:
 class TestExtensionDispatcher:
     class _Multiplier:
         async def multiply(self, term: int) -> Any:
-            raise NotImplementedError
+            raise NotImplementedError(repr(self))
 
     class _MultiplyingExtension(_Multiplier, Extension):
         def __init__(self, app: App, multiplier: int):

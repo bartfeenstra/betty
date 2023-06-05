@@ -9,7 +9,7 @@ from betty.locale import Localizer, Localizable
 
 class Requirement(Localizable):
     def is_met(self) -> bool:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def assert_met(self) -> None:
         if not self.is_met():
@@ -17,7 +17,7 @@ class Requirement(Localizable):
         return None
 
     def summary(self) -> str:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def details(self) -> Optional[str]:
         return None
@@ -61,7 +61,7 @@ class RequirementCollection(Requirement):
 
     def __add__(self, other):
         if not isinstance(other, Requirement):
-            raise NotImplementedError
+            raise NotImplementedError(repr(self))
         self._requirements = [*self._requirements, other]
         return self
 

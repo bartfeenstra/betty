@@ -25,7 +25,7 @@ class DummyEntity(Entity):
 
 class Tracker:
     async def track(self, carrier: List):
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
 
 class TrackableExtension(Extension, Tracker):

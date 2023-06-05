@@ -215,7 +215,6 @@ class Demo(Extension, Loader):
 class DemoServer(Server):
     def __init__(self, *, localizer: Localizer | None = None):
         super().__init__(localizer=localizer)
-        self._app: App | None = None
         self._server: Server | None = None
 
     @classmethod
@@ -229,19 +228,20 @@ class DemoServer(Server):
         raise NoPublicUrlBecauseServerNotStartedError()
 
     async def start(self) -> None:
-        self._app = App(locale=self.localizer.locale)
-        self._app.project.configuration.extensions.append(ExtensionConfiguration(Demo))
+        app = App(locale=self.localizer.locale)
+        app.project.configuration.extensions.append(ExtensionConfiguration(Demo))
         # Include all of the translations Betty ships with.
-        self._app.project.configuration.locales.replace(
+        app.project.configuration.locales.replace(
             LocaleConfiguration('en-US', 'en'),
             LocaleConfiguration('nl-NL', 'nl'),
             LocaleConfiguration('fr-FR', 'fr'),
             LocaleConfiguration('uk', 'uk'),
         )
-        self._server = ProjectServer.get(self._app)
-        await load.load(self._app)
-        await generate.generate(self._app)
+        await load.load(app)
+        self._server = ProjectServer.get(app)
         await self._server.start()
+        app.project.configuration.base_url = self._server.public_url
+        await generate.generate(app)
 
     async def stop(self) -> None:
         if self._server:

@@ -138,63 +138,63 @@ class _DateDeriver:
                 for date in cls._get_date_range_dates(event.date):
                     yield event, date
 
-    @staticmethod
-    def _get_date_range_dates(date: DateRange) -> Iterable[Date]:
-        raise NotImplementedError
+    @classmethod
+    def _get_date_range_dates(cls, date: DateRange) -> Iterable[Date]:
+        raise NotImplementedError(repr(cls))
 
-    @staticmethod
-    def _compare(derivable_date: DateRange, reference_date: Date) -> bool:
-        raise NotImplementedError
+    @classmethod
+    def _compare(cls, derivable_date: DateRange, reference_date: Date) -> bool:
+        raise NotImplementedError(repr(cls))
 
-    @staticmethod
-    def _sort(events_dates: Iterable[Tuple[Event, Date]]) -> List[Tuple[Event, Date]]:
-        raise NotImplementedError
+    @classmethod
+    def _sort(cls, events_dates: Iterable[Tuple[Event, Date]]) -> List[Tuple[Event, Date]]:
+        raise NotImplementedError(repr(cls))
 
-    @staticmethod
-    def _set(derivable_date: DateRange, derived_date: DerivedDate) -> None:
-        raise NotImplementedError
+    @classmethod
+    def _set(cls, derivable_date: DateRange, derived_date: DerivedDate) -> None:
+        raise NotImplementedError(repr(cls))
 
 
 class _ComesBeforeDateDeriver(_DateDeriver):
-    @staticmethod
-    def _get_date_range_dates(date: DateRange) -> Iterable[Date]:
+    @classmethod
+    def _get_date_range_dates(cls, date: DateRange) -> Iterable[Date]:
         if date.start is not None and not date.start_is_boundary:
             yield date.start
         if date.end is not None:
             yield date.end
 
-    @staticmethod
-    def _compare(derivable_date: DateRange, reference_date: Date) -> bool:
+    @classmethod
+    def _compare(cls, derivable_date: DateRange, reference_date: Date) -> bool:
         return derivable_date < reference_date
 
-    @staticmethod
-    def _sort(events_dates: Iterable[Tuple[Event, Date]]) -> List[Tuple[Event, Date]]:
+    @classmethod
+    def _sort(cls, events_dates: Iterable[Tuple[Event, Date]]) -> List[Tuple[Event, Date]]:
         return sorted(events_dates, key=lambda x: x[1])
 
-    @staticmethod
-    def _set(derivable_date: DateRange, derived_date: DerivedDate) -> None:
+    @classmethod
+    def _set(cls, derivable_date: DateRange, derived_date: DerivedDate) -> None:
         derivable_date.end = derived_date
         derivable_date.end_is_boundary = True
 
 
 class _ComesAfterDateDeriver(_DateDeriver):
-    @staticmethod
-    def _get_date_range_dates(date: DateRange) -> Iterable[Date]:
+    @classmethod
+    def _get_date_range_dates(cls, date: DateRange) -> Iterable[Date]:
         if date.start is not None:
             yield date.start
         if date.end is not None and not date.end_is_boundary:
             yield date.end
 
-    @staticmethod
-    def _compare(derivable_date: DateRange, reference_date: Date) -> bool:
+    @classmethod
+    def _compare(cls, derivable_date: DateRange, reference_date: Date) -> bool:
         return derivable_date > reference_date
 
-    @staticmethod
-    def _sort(events_dates: Iterable[Tuple[Event, Date]]) -> List[Tuple[Event, Date]]:
+    @classmethod
+    def _sort(cls, events_dates: Iterable[Tuple[Event, Date]]) -> List[Tuple[Event, Date]]:
         return sorted(events_dates, key=lambda x: x[1], reverse=True)
 
-    @staticmethod
-    def _set(derivable_date: DateRange, derived_date: DerivedDate) -> None:
+    @classmethod
+    def _set(cls, derivable_date: DateRange, derived_date: DerivedDate) -> None:
         derivable_date.start = derived_date
         derivable_date.start_is_boundary = True
 

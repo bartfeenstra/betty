@@ -66,17 +66,18 @@ class UserFacingEntity(EntityVariation):
 
     @classmethod
     def entity_type_label(cls, localizer: Localizer) -> str:
-        raise NotImplementedError
+        raise NotImplementedError(repr(cls))
 
     @classmethod
     def entity_type_label_plural(cls, localizer: Localizer) -> str:
-        raise NotImplementedError
+        raise NotImplementedError(repr(cls))
 
     @property
     def label(self) -> str:
-        return self._default_label()
+        raise NotImplementedError(repr(self))
 
-    def _default_label(self) -> str:
+    @property
+    def _fallback_label(self) -> str:
         return self.localizer._('{entity_type} {entity_id}').format(
             entity_type=self.entity_type_label(self.localizer),
             entity_id=self.id,
@@ -86,7 +87,7 @@ class UserFacingEntity(EntityVariation):
 class EntityTypeProvider:
     @property
     def entity_types(self) -> Set[Type[Entity]]:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
 
 EntityTypeT = TypeVar('EntityTypeT', bound=Type[Entity])
@@ -161,25 +162,25 @@ class EntityCollection(Generic[EntityT], Localizable):
         return [*self]
 
     def prepend(self, *entities: EntityT) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def append(self, *entities: EntityT) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def remove(self, *entities: EntityT) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def replace(self, *entities: EntityT) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def clear(self) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def __iter__(self) -> Iterator[EntityT]:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def __len__(self) -> int:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     @overload
     def __getitem__(self, key: int) -> EntityT:
@@ -190,16 +191,16 @@ class EntityCollection(Generic[EntityT], Localizable):
         pass
 
     def __getitem__(self, key: Union[int, slice]) -> Union[EntityT, EntityCollection[EntityT]]:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def __delitem__(self, key: Union[int, slice]) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def __contains__(self, value: Union[EntityT, Any]) -> bool:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def __add__(self, other) -> EntityCollection:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
 
 @dataclass(frozen=True)
@@ -409,10 +410,10 @@ class _AssociateCollection(SingleTypeEntityCollection[EntityT], Generic[EntityT,
         return copied
 
     def _on_add(self, associate: EntityT) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def _on_remove(self, associate: EntityT) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def copy_for_owner(self, owner: EntityU) -> _AssociateCollection:
         # We cannot check for identity or equality, because owner is a copy of self._owner, and may have undergone

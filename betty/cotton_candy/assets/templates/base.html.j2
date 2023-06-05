@@ -1,5 +1,4 @@
 {%- import 'macro/person.html.j2' as person_macros -%}
-{%- do citer.track() -%}
 <!doctype html>
 <html lang="{{ app.locale }}"
       prefix="foaf: http://xmlns.com/foaf/0.1/ og: http://ogp.me/ns# rel: http://purl.org/vocab/relationship/">
@@ -134,5 +133,6 @@
         {% include 'footer.html.j2' %}
     </footer>
 </div>
+{% include 'linked-data.html.j2' %}
 </body>
 </html>

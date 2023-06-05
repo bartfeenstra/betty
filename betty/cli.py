@@ -29,7 +29,7 @@ from betty.serve import ProjectServer
 class CommandProvider:
     @property
     def commands(self) -> Dict[str, Callable]:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
 
 @contextmanager
@@ -158,7 +158,8 @@ async def _clear_caches():
 @global_command
 @sync
 async def _demo():
-    async with demo.DemoServer():
+    async with demo.DemoServer() as server:
+        await server.show()
         while True:
             time.sleep(999)
 
@@ -199,7 +200,8 @@ async def _generate(app: App):
 @app_command
 @sync
 async def _serve(app: App):
-    async with ProjectServer.get(app):
+    async with ProjectServer.get(app) as server:
+        await server.show()
         while True:
             await asyncio.sleep(999)
 

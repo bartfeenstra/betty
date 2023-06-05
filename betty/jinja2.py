@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 import json as stdjson
 import os
@@ -6,7 +8,7 @@ import warnings
 from contextlib import suppress
 from pathlib import Path
 from typing import Dict, Callable, Iterable, Type, Optional, Any, Union, Iterator, cast, \
-    MutableMapping, List, Set
+    MutableMapping, List, Set, Mapping
 
 import aiofiles
 from aiofiles import os as aiofiles_os
@@ -16,27 +18,29 @@ from PIL.Image import DecompressionBombWarning
 from geopy import units
 from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment as Jinja2Environment, select_autoescape, FileSystemLoader, pass_context, \
-    pass_eval_context, Template, TemplateNotFound, BaseLoader
+    pass_eval_context, Template as Jinja2Template, TemplateNotFound, BaseLoader
 from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.nodes import EvalContext
-from jinja2.runtime import StrictUndefined, Context, Macro, DebugUndefined
+from jinja2.runtime import StrictUndefined, Context, Macro, DebugUndefined, new_context
 from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup, escape
 
 from betty import _resizeimage
 from betty.app import App
+from betty.classtools import Repr
 from betty.fs import hashfile, CACHE_DIRECTORY_PATH
 from betty.functools import walk
 from betty.html import CssProvider, JsProvider
 from betty.locale import negotiate_localizeds, Localized, Datey, negotiate_locale, Date, DateRange, \
     get_data
 from betty.lock import AcquiredError
-from betty.model import Entity, get_entity_type_name, GeneratedEntityId
+from betty.model import Entity, get_entity_type_name, GeneratedEntityId, UserFacingEntity
 from betty.model.ancestry import File, Citation, HasLinks, HasFiles, Subject, Witness, Dated
 from betty.os import link_or_copy
 from betty.path import rootname
 from betty.project import ProjectConfiguration
 from betty.render import Renderer
+from betty.serde.dump import Dumpable, DictDump, VoidableDump, Void, minimize, none_void, void_none
 from betty.string import camel_case_to_snake_case, camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
 
 
@@ -55,11 +59,42 @@ class _Citer:
             self._citations.append(citation)
         return self._citations.index(citation) + 1
 
-    def track(self) -> None:
-        self.clear()
 
-    def clear(self) -> None:
-        self._citations = []
+class _Breadcrumb(Dumpable, Repr):
+    def __init__(self, label: str, url: str):
+        self._label = label
+        self._url = url
+
+    def dump(self) -> DictDump:
+        return {
+            '@type': 'ListItem',
+            'name': self._label,
+            'item': self._url,
+        }
+
+
+class _Breadcrumbs(Dumpable, Repr):
+    def __init__(self):
+        self._breadcrumbs = []
+
+    def append(self, label: str, url: str) -> None:
+        self._breadcrumbs.append(_Breadcrumb(label, url))
+
+    def dump(self) -> VoidableDump:
+        if not self._breadcrumbs:
+            return Void
+        return {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            'itemListElement': [
+                {
+                    'position': position,
+                    **breadcrumb.dump(),
+                }
+                for position, breadcrumb
+                in enumerate(self._breadcrumbs, 1)
+            ],
+        }
 
 
 class Jinja2Provider:
@@ -72,7 +107,31 @@ class Jinja2Provider:
         return {}
 
 
+class Template(Jinja2Template):
+    def new_context(
+        self,
+        vars: Dict[str, Any] | None = None,
+        shared: bool = False,
+        locals: Mapping[str, Any] | None = None,
+    ) -> Context:
+        return new_context(
+            self.environment,
+            self.name,
+            self.blocks,
+            vars,
+            shared,
+            {
+                'citer': _Citer(),
+                'breadcrumbs': _Breadcrumbs(),
+                **self.globals,
+            },
+            locals,
+        )
+
+
 class Environment(Jinja2Environment):
+    template_class = Template
+
     def __init__(self, app: App):
         template_directory_paths = [str(path / 'templates') for path, _ in app.assets.paths]
         super().__init__(loader=FileSystemLoader(template_directory_paths),
@@ -109,7 +168,6 @@ class Environment(Jinja2Environment):
         self.globals['app'] = self.app
         today = datetime.date.today()
         self.globals['today'] = Date(today.year, today.month, today.day)
-        self.globals['citer'] = _Citer()
         # Ideally we would use the Dispatcher for this. However, it is asynchronous only.
         self.globals['public_css_paths'] = [
             path
@@ -149,9 +207,13 @@ class Environment(Jinja2Environment):
         self.filters['camel_case_to_snake_case'] = camel_case_to_snake_case
         self.filters['camel_case_to_kebab_case'] = camel_case_to_kebab_case
         self.filters['upper_camel_case_to_lower_camel_case'] = upper_camel_case_to_lower_camel_case
+        self.filters['void_none'] = void_none
+        self.filters['none_void'] = none_void
+        self.filters['minimize'] = minimize
 
     def _init_tests(self) -> None:
         self.tests['entity'] = lambda x: isinstance(x, Entity)
+        self.tests['user_facing_entity'] = lambda x: isinstance(x, UserFacingEntity)
 
         def _build_test_entity_type(resource_type: Type[Entity]):
             def _test_resource(x):
@@ -176,7 +238,7 @@ class Environment(Jinja2Environment):
     def negotiate_template(self, names: List[str], parent: Optional[str] = None, globals: Optional[MutableMapping[str, Any]] = None) -> Template:
         for name in names:
             with suppress(TemplateNotFound):
-                return self.get_template(name, parent, globals)
+                return cast(Template, self.get_template(name, parent, globals))
         raise TemplateNotFound(names[-1], f'Cannot find any of the following templates: {", ".join(names)}.')
 
 

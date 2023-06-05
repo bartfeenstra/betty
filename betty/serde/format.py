@@ -13,17 +13,17 @@ from betty.serde.load import FormatError
 class Format(Localizable):
     @property
     def extensions(self) -> Set[str]:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     @property
     def label(self) -> str:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def load(self, dump: str) -> Dump:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def dump(self, dump: VoidableDump) -> str:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
 
 class Json(Format):

@@ -41,18 +41,20 @@ class Server(Localizable):
 
     @classmethod
     def label(cls, localizer: Localizer) -> str:
-        raise NotImplementedError
+        raise NotImplementedError(repr(cls))
 
     async def start(self) -> None:
         """
         Starts the server.
         """
-        await self._start()
+        raise NotImplementedError(repr(self))
+
+    async def show(self) -> None:
+        """
+        Shows the served site to the user.
+        """
         logging.getLogger().info(self.localizer._('Serving your site at {url}...').format(url=self.public_url))
         webbrowser.open_new_tab(self.public_url)
-
-    async def _start(self) -> None:
-        raise NotImplementedError
 
     async def stop(self) -> None:
         """
@@ -61,11 +63,11 @@ class Server(Localizable):
         await self._stop()
 
     async def _stop(self) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     @property
     def public_url(self) -> str:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     async def __aenter__(self) -> Server:
         await self.start()
@@ -95,7 +97,7 @@ class ProjectServer(Server):
 class ServerProvider:
     @property
     def servers(self) -> Sequence[Server]:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
 
 class _BuiltinServerRequestHandler(SimpleHTTPRequestHandler):
@@ -115,7 +117,7 @@ class BuiltinServer(ProjectServer):
     def label(cls, localizer: Localizer) -> str:
         return localizer._('Python built-in')
 
-    async def _start(self) -> None:
+    async def start(self) -> None:
         logging.getLogger().info(self.localizer._("Starting Python's built-in web server..."))
         for self._port in range(DEFAULT_PORT, 65535):
             with contextlib.suppress(OSError):

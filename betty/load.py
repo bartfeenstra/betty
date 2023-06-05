@@ -9,12 +9,12 @@ def getLogger() -> logging.Logger:
 
 class Loader:
     async def load(self) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
 
 class PostLoader:
     async def post_load(self) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
 
 async def load(app: App) -> None:

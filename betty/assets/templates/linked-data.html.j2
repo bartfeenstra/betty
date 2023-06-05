@@ -1,0 +1,8 @@
+{% set linked_data=[
+    breadcrumbs.dump(),
+] | minimize | none_void %}
+{% if linked_data %}
+    <script type="application/ld+json">
+        {{ linked_data | json }}
+    </script>
+{% endif %}

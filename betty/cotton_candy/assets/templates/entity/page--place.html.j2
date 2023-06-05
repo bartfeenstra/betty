@@ -1,4 +1,4 @@
-{% extends 'base.html.j2' %}
+{% extends 'entity/page.html.j2' %}
 {% set page_title = entity.names | negotiate_localizeds %}
 {% block page_content %}
     {% include ['entity/meta--place.html.j2', 'entity/meta.html.j2'] ignore missing %}

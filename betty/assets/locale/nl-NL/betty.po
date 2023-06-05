@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-04 18:02+0100\n"
+"POT-Creation-Date: 2023-06-05 01:13+0100\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -1148,6 +1148,10 @@ msgstr "{entity_type_label}-ID"
 
 msgid "{entity_type} {entity_id}"
 msgstr ""
+
+#, python-format
+msgid "{event_type} of {subjects}"
+msgstr "{event_type} van {subjects}"
 
 msgid "{extension_type} is not configurable."
 msgstr "\"{extension_type}\" kan niet ingesteld worden."
