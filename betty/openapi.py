@@ -13,7 +13,7 @@ class Specification:
 
     def build(self) -> Dict:
         specification = {
-            'openapi': '3.0.0',
+            'openapi': '3.1.0',
             'servers': [
                 {
                     'url': self._app.static_url_generator.generate('/', absolute=True),
@@ -107,11 +107,7 @@ class Specification:
                                     entity_type=entity_type_name,
                                 ),
                                 'content': {
-                                    'application/json': {
-                                        'schema': {
-                                            '$ref': f'#/components/schemas/betty/{entity_type_name}Collection',
-                                        },
-                                    },
+                                    'application/json': {},
                                 },
                             },
                         },
@@ -128,11 +124,7 @@ class Specification:
                                     entity_type=entity_type_name,
                                 ),
                                 'content': {
-                                    'application/json': {
-                                        'schema': {
-                                            '$ref': f'#/components/schemas/betty/{entity_type_name}',
-                                        },
-                                    },
+                                    'application/json': {},
                                 },
                             },
                         },
