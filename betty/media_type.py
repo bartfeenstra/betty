@@ -3,6 +3,10 @@ from __future__ import annotations
 from email.message import EmailMessage
 from typing import Any
 
+from betty.app import App
+from betty.serde import Describable, Schema
+from betty.serde.dump import Dumpable, VoidableDump
+
 EXTENSIONS = {
     'text/html': 'html',
     'application/json': 'json',
@@ -13,7 +17,7 @@ class InvalidMediaType(ValueError):
     pass
 
 
-class MediaType:
+class MediaType(Describable, Dumpable):
     def __init__(self, media_type: str):
         self._str = media_type
         message = EmailMessage()
@@ -58,3 +62,13 @@ class MediaType:
         if not isinstance(other, MediaType):
             return NotImplemented
         return (self.type, self.subtype, self.parameters) == (other.type, other.subtype, other.parameters)
+
+    def dump(self, app: App) -> VoidableDump:
+        return str(self)
+
+    @classmethod
+    def schema(cls, app: App) -> Schema:
+        return {
+            'type': 'string',
+            'description': 'An IANA media type (https://www.iana.org/assignments/media-types/media-types.xhtml).',
+        }

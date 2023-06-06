@@ -35,12 +35,11 @@ from betty.model.event_type import EventType, EventTypeProvider, Birth, Baptism,
     Emigration, Occupation, Retirement, Correspondence, Confirmation
 from betty.project import Project
 from betty.render import Renderer, SequentialRenderer
-from betty.serde.dump import minimize, void_none, Dump, VoidableDump
+from betty.serde.dump import minimize, void_to_none, Dump, VoidableDump, DictDump
 from betty.serde.load import AssertionFailed, Fields, Assertions, OptionalField, Asserter
 
 if TYPE_CHECKING:
     from betty.jinja2 import Environment
-    from betty.json import JSONEncoder
     from betty.serve import Server
     from betty.url import StaticUrlGenerator, ContentNegotiationUrlGenerator
 
@@ -94,16 +93,9 @@ class AppConfiguration(FileBasedConfiguration):
         self.react.trigger()
 
     @classmethod
-    def load(
-            cls,
-            dump: Dump,
-            configuration: Self | None = None,
-            *,
-            localizer: Localizer | None = None,
-    ) -> Self:
-        if configuration is None:
-            configuration = cls()
-        asserter = Asserter(localizer=localizer)
+    def load(cls, dump: Dump, app: App) -> Self:
+        configuration = cls()
+        asserter = Asserter(localizer=app.localizer)
         asserter.assert_record(Fields(
             OptionalField(
                 'locale',
@@ -112,9 +104,9 @@ class AppConfiguration(FileBasedConfiguration):
         )(dump)
         return configuration
 
-    def dump(self) -> VoidableDump:
+    def dump(self, app: App) -> DictDump[VoidableDump[Dump]]:
         return minimize({
-            'locale': void_none(self.locale)
+            'locale': void_to_none(self.locale)
         }, True)
 
 
@@ -367,11 +359,6 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
 
     def delegate_to_process(self, task: Callable[[], None]) -> Future[None]:
         return self._process_pool_executor.submit(task)
-
-    @property
-    def json_encoder(self) -> type[JSONEncoder]:
-        from betty.json import JSONEncoder
-        return lambda *args, **kwargs: JSONEncoder(self)  # type: ignore[return-value]
 
     @property
     def locks(self) -> Locks:

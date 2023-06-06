@@ -22,7 +22,7 @@ class Format(Localizable):
     def load(self, dump: str) -> Dump:
         raise NotImplementedError(repr(self))
 
-    def dump(self, dump: VoidableDump) -> str:
+    def dump(self, dump: VoidableDump[Dump]) -> str:
         raise NotImplementedError(repr(self))
 
 
@@ -41,7 +41,7 @@ class Json(Format):
         except json.JSONDecodeError as e:
             raise FormatError(self.localizer._('Invalid JSON: {error}.').format(error=e))
 
-    def dump(self, dump: VoidableDump) -> str:
+    def dump(self, dump: VoidableDump[Dump]) -> str:
         return json.dumps(dump)
 
 
@@ -60,7 +60,7 @@ class Yaml(Format):
         except yaml.YAMLError as e:
             raise FormatError(self.localizer._('Invalid YAML: {error}.').format(error=e))
 
-    def dump(self, dump: VoidableDump) -> str:
+    def dump(self, dump: VoidableDump[Dump]) -> str:
         return yaml.safe_dump(dump)
 
 

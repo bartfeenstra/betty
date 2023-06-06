@@ -18,7 +18,7 @@
             {% endwith %}
         </section>
     {% endif %}
-    {% set facts = entity.facts | reject('has_generated_entity_id') | list %}
+    {% set facts = entity.facts | reject('identifiable') | list %}
     {% if facts | length > 0 %}
         <section id="facts">
             <h2>

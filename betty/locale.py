@@ -21,8 +21,11 @@ from polib import pofile
 from typing_extensions import TypeAlias
 
 from betty import fs
+from betty.app import App
 from betty.fs import hashfile, FileSystem, ASSETS_DIRECTORY_PATH, ROOT_DIRECTORY_PATH
 from betty.os import ChDir
+from betty.serde import Describable, Schema
+from betty.serde.dump import Dumpable, DictDump, VoidableDump, Dump, minimize
 
 DEFAULT_LOCALE = 'en-US'
 
@@ -85,12 +88,40 @@ def get_display_name(locale: Localey, display_locale: Localey | None = None) -> 
     )  # type: ignore[return-value]
 
 
-class Localized:
+def locale_schema(app: App) -> Schema:
+    return {
+        'type': 'string',
+        'description': 'A BCP 47 locale identifier (https://www.ietf.org/rfc/bcp/bcp47.txt).',
+    }
+
+
+def datey_schema(app: App) -> Schema:
+    return {
+        'oneOf': [
+            Date.schema(app),
+            DateRange.schema(app),
+        ]
+    }
+
+
+class Localized(Describable, Dumpable[DictDump[Dump]]):
     locale: str | None
 
     def __init__(self, locale: str | None = None):
         super().__init__()
         self.locale = locale
+
+    def dump(self, app: App) -> DictDump[Dump]:
+        dump = super().dump(app)
+        if self.locale is not None:
+            dump['locale'] = self.locale
+        return dump
+
+    @classmethod
+    def schema(cls, app: App) -> Schema:
+        schema = super().schema(app)
+        schema['properties']['locale'] = locale_schema(app)  # type: ignore[index]
+        return schema
 
 
 class IncompleteDateError(ValueError):
@@ -98,7 +129,7 @@ class IncompleteDateError(ValueError):
 
 
 @total_ordering
-class Date:
+class Date(Describable, Dumpable[VoidableDump]):
     year: int | None
     month: int | None
     day: int | None
@@ -187,9 +218,43 @@ class Date:
     def __gt__(self, other: Any) -> bool:
         return self._compare(other, operator.gt)
 
+    def dump(self, app: App) -> DictDump[VoidableDump[Dump]]:
+        dump: DictDump[VoidableDump[Dump]] = {}
+        if self.year:
+            dump['year'] = self.year
+        if self.month:
+            dump['month'] = self.month
+        if self.day:
+            dump['day'] = self.day
+        return minimize(dump)
+
+    @classmethod
+    def schema(cls, app: App) -> Schema:
+        return {
+            'type': 'object',
+            'properties': {
+                'year': {
+                    'type': 'number',
+                },
+                'month': {
+                    'type': 'number',
+                },
+                'day': {
+                    'type': 'number',
+                }
+            },
+            'patternProperties': {
+                '^@': {
+                    # @todo How to do references?
+                    '$ref': '#/definitions/jsonLd'
+                }
+            },
+            'additionalProperties': False,
+        }
+
 
 @total_ordering
-class DateRange:
+class DateRange(Describable, Dumpable[VoidableDump]):
     start: Date | None
     start_is_boundary: bool
     end: Date | None
@@ -322,6 +387,29 @@ class DateRange:
         if not isinstance(other, DateRange):
             return NotImplemented
         return (self.start, self.end, self.start_is_boundary, self.end_is_boundary) == (other.start, other.end, other.start_is_boundary, other.end_is_boundary)
+
+    def dump(self, app: App) -> DictDump[VoidableDump[Dump]]:
+        dump: DictDump[VoidableDump[Dump]] = {}
+        if self.start:
+            dump['start'] = self.start.dump(app)
+        if self.end:
+            dump['end'] = self.end.dump(app)
+        return dump
+
+    @classmethod
+    def schema(cls, app: App) -> Schema:
+        return {
+            'type': 'object',
+            'properties': {
+                'start': {
+                    '$ref': '#/definitions/date',
+                },
+                'end': {
+                    '$ref': '#/definitions/date',
+                }
+            },
+            'additionalProperties': False,
+        }
 
 
 Datey: TypeAlias = 'Date | DateRange'

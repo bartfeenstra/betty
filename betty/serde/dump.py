@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-from typing import TypeVar, Sequence, Mapping, overload, Literal
+from typing import TypeVar, Sequence, Mapping, overload, Literal, Generic
 
 from typing_extensions import TypeAlias
+
+from betty.app import App
 
 T = TypeVar('T')
 U = TypeVar('U')
@@ -19,68 +21,86 @@ Dump: TypeAlias = 'bool | int | float | str | None | Sequence[Dump] | Mapping[st
 DumpT = TypeVar('DumpT', bound=Dump)
 DumpU = TypeVar('DumpU', bound=Dump)
 
-VoidableDump: TypeAlias = 'Dump | type[Void]'
-VoidableDumpT = TypeVar('VoidableDumpT', bound=VoidableDump)
-VoidableDumpU = TypeVar('VoidableDumpU', bound=VoidableDump)
+VoidableDump: TypeAlias = 'DumpT | type[Void]'
 
 ListDump: TypeAlias = list[DumpT]
 
 DictDump: TypeAlias = dict[str, DumpT]
 
-VoidableListDump: TypeAlias = list[VoidableDumpT]
+_VoidableItemListDump: TypeAlias = list[VoidableDump[DumpT]]
 
-VoidableDictDump: TypeAlias = dict[str, VoidableDumpT]
+_VoidableItemDictDump: TypeAlias = dict[str, VoidableDump[DumpT]]
 
-_MinimizableDump: TypeAlias = 'VoidableDump | VoidableListDump[VoidableDumpT] | VoidableDictDump[VoidableDumpT]'
+VoidableListDump: TypeAlias = '_VoidableItemListDump[DumpT] | type[Void]'
+
+VoidableDictDump: TypeAlias = '_VoidableItemDictDump[DumpT] | type[Void]'
 
 
 @overload
-def minimize(dump: _MinimizableDump[VoidableDump], voidable: Literal[True] = True) -> VoidableDump:
+def minimize(dump: _VoidableItemListDump[DumpT], voidable: Literal[True] = True) -> VoidableDump[ListDump[DumpT]]:
     pass
 
 
 @overload
-def minimize(dump: _MinimizableDump[VoidableDump], voidable: Literal[False]) -> Dump:
+def minimize(dump: _VoidableItemListDump[DumpT], voidable: Literal[False]) -> ListDump[DumpT]:
     pass
 
 
-def minimize(dump: _MinimizableDump[VoidableDump], voidable: bool = True) -> VoidableDump:
+@overload
+def minimize(dump: _VoidableItemDictDump[DumpT], voidable: Literal[True] = True) -> VoidableDump[DictDump[DumpT]]:
+    pass
+
+
+@overload
+def minimize(dump: _VoidableItemDictDump[DumpT], voidable: Literal[False]) -> DictDump[DumpT]:
+    pass
+
+
+@overload
+def minimize(dump: VoidableDump[DumpT], voidable: bool = True) -> VoidableDump[DumpT]:
+    pass
+
+
+def minimize(
+    dump: VoidableDump[DumpT] | _VoidableItemListDump[DumpT] | _VoidableItemDictDump[DumpT],
+    voidable: bool = True,
+) -> VoidableDump[DumpT]:
     if isinstance(dump, (Sequence, Mapping)) and not isinstance(dump, str):
+        minimized_dump: ListDump[DumpT] | DictDump[DumpT]
         if isinstance(dump, Sequence):
-            dump = [
-                value
+            minimized_dump = [
+                value  # type: ignore[misc]
                 for value
                 in dump
                 if value is not Void
             ]
-            for key in reversed(range(len(dump))):
-                if dump[key] is Void:
-                    del dump[key]
-        if isinstance(dump, Mapping):
-            dump = {
-                key: value
+        else:
+            minimized_dump = {
+                key: value  # type: ignore[misc]
                 for key, value
                 in dump.items()
                 if value is not Void
             }
-        if len(dump) or not voidable:
-            return dump  # type: ignore[return-value]
+        if voidable and not len(minimized_dump):
+            return minimized_dump  # type: ignore[return-value]
         return Void
-    return dump
+    return dump  # type: ignore[return-value]
 
 
-def void_none(value: VoidableDump) -> VoidableDump:
-    return Void if value is None else value
+def none_to_void(value: VoidableDump[DumpT]) -> DumpT:
+    return None if value is Void else value  # type: ignore[return-value]
 
 
-def none_void(value: VoidableDump) -> VoidableDump:
-    return None if value is Void else value
+def void_to_none(value: VoidableDump[DumpT]) -> VoidableDump[DumpT]:
+    return Void if value is None else value  # type: ignore[redundant-expr]
 
 
-class Dumpable:
-    def dump(self) -> VoidableDump:
-        """
-        Dump this instance to a portable format.
-        """
+def void_to_dict(
+    value: VoidableDictDump[DumpT],
+) -> _VoidableItemDictDump[DumpT]:
+    return {} if value is Void else value  # type: ignore[return-value]
 
-        raise NotImplementedError(repr(self))
+
+class Dumpable(Generic[DumpT]):
+    def dump(self, app: App) -> VoidableDump[DumpT]:
+        return Void

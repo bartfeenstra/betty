@@ -11,12 +11,12 @@ from pytestqt.qtbot import QtBot
 
 from betty import fs
 from betty.app import App
-from betty.serde.error import SerdeError
 from betty.gui.app import WelcomeWindow, _AboutBettyWindow, BettyMainWindow, ApplicationConfiguration
 from betty.gui.error import ExceptionError
 from betty.gui.project import ProjectWindow
 from betty.gui.serve import ServeDemoWindow
 from betty.project import ProjectConfiguration
+from betty.serde.error import SerdeError
 from betty.serde.load import FormatError
 from betty.tests import patch_cache
 from betty.tests.conftest import Navigate, AssertWindow, AssertError
@@ -153,5 +153,5 @@ class TestApplicationConfiguration:
 
         with open(app.configuration.configuration_file_path) as f:
             read_configuration_dump = json.load(f)
-        assert read_configuration_dump == app.configuration.dump()
+        assert read_configuration_dump == app.configuration.dump(app)
         assert read_configuration_dump['locale'] == locale

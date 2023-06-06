@@ -8,10 +8,15 @@ from typing import TypeVar, Generic, Callable, Iterable, Any, overload, cast, It
 
 from typing_extensions import Self
 
+from betty.app import App
 from betty.classtools import repr_instance
 from betty.functools import slice_to_range
 from betty.importlib import import_any
 from betty.locale import Localizer, Localizable
+from betty.media_type import MediaType
+from betty.model.ancestry import Link
+from betty.serde import Describable, Schema
+from betty.serde.dump import Dumpable, DictDump, Dump, void_to_dict
 from betty.string import camel_case_to_kebab_case
 
 T = TypeVar('T')
@@ -38,7 +43,7 @@ class GeneratedEntityId(str):
         return super().__new__(cls, entity_id_or_type)
 
 
-class Entity(Localizable):
+class Entity(Localizable, Describable, Dumpable[DictDump[Dump]]):
     def __init__(
         self,
         entity_id: str | None = None,
@@ -57,6 +62,60 @@ class Entity(Localizable):
     @property
     def id(self) -> str:
         return self._id
+
+    def dump(self, app: App) -> DictDump[Dump]:
+        dump = void_to_dict(super().dump(app))
+        dump['links'] = []
+        if is_identifiable(self):
+            dump['id'] = self.id
+
+            canonical = Link(app.static_url_generator.generate(self))
+            canonical.relationship = 'canonical'
+            canonical.media_type = MediaType('application/json')
+            dump['links'].append(  # type: ignore[union-attr]
+                canonical,
+            )
+
+            for locale in app.project.configuration.locales:
+                if locale == app.locale:
+                    continue
+                link_url = app.url_generator.generate(self, media_type='application/json', locale=locale)
+                link = Link(link_url)
+                link.relationship = 'alternate'
+                link.media_type = MediaType('text/html')
+                link.locale = locale
+                dump['links'].append(  # type: ignore[union-attr]
+                    link,
+                )
+        return dump
+
+    @classmethod
+    def schema(cls, app: App) -> Schema:
+        schema = super().schema(app)
+        schema.update({
+            'type': 'object',
+            'properties': {
+                'id': {
+                    'type': 'string',
+                },
+                'links': {
+                    '$ref': '#/definitions/links',
+                },
+            },
+            'required': [
+                'id',
+                'links',
+            ],
+        })
+        return schema
+
+
+def is_identifiable(entity: Entity | None) -> bool:
+    if entity is None:
+        return False
+    if isinstance(entity.id, GeneratedEntityId):
+        return False
+    return True
 
 
 class UserFacingEntity:

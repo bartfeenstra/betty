@@ -9,13 +9,14 @@ from reactives import scope
 from reactives.instance.property import reactive_property
 from typing_extensions import Self
 
+from betty.app import App
 from betty.app.extension import Extension, ConfigurableExtension
 from betty.config import Configuration, Configurable, FileBasedConfiguration, ConfigurationMapping, \
     ConfigurationSequence
 from betty.locale import Localizer, Localizable, get_data
 from betty.model import Entity, get_entity_type_name, UserFacingEntity, EntityT
 from betty.model.ancestry import Ancestry, Person, Event, Place, Source
-from betty.serde.dump import Dump, VoidableDump, void_none, minimize, Void, VoidableDictDump
+from betty.serde.dump import Dump, VoidableDump, void_to_none, minimize, Void, DictDump
 from betty.serde.load import AssertionFailed, Fields, Assertions, Assertion, RequiredField, OptionalField, \
     Asserter
 
@@ -68,17 +69,10 @@ class EntityReference(Configuration, Generic[EntityT]):
         self.react.trigger()
 
     @classmethod
-    def load(
-        cls,
-        dump: Dump,
-        configuration: Self | None = None,
-        *,
-        localizer: Localizer | None = None,
-    ) -> Self:
-        if configuration is None:
-            configuration = cls()
-        asserter = Asserter(localizer=localizer)
-        if isinstance(dump, dict) or not configuration.entity_type_is_constrained:
+    def load(cls, dump: Dump, app: App) -> Self:
+        configuration = cls()
+        asserter = Asserter(localizer=app.localizer)
+        if isinstance(dump, dict):
             asserter.assert_record(Fields(
                 RequiredField(
                     'entity_type',
@@ -94,14 +88,14 @@ class EntityReference(Configuration, Generic[EntityT]):
             asserter.assert_setattr(configuration, 'entity_id')(dump)  # type: ignore[arg-type]
         return configuration
 
-    def dump(self) -> VoidableDump:
+    def dump(self, app: App) -> VoidableDump:
         if self.entity_type_is_constrained:
-            return void_none(self.entity_id)
+            return void_to_none(self.entity_id)
 
         if self.entity_type is None or self.entity_id is None:
             return Void
 
-        dump: VoidableDictDump[VoidableDump] = {
+        dump: DictDump[VoidableDump[Dump]] = {
             'entity_type': get_entity_type_name(self._entity_type) if self._entity_type else Void,
             'entity_id': self._entity_id,
         }
@@ -222,23 +216,14 @@ class ExtensionConfiguration(Configuration):
         raise NotImplementedError(repr(self))
 
     @classmethod
-    def load(
-        cls,
-        dump: Dump,
-        configuration: Self | None = None,
-        *,
-        localizer: Localizer | None = None,
-    ) -> Self:
-        asserter = Asserter(localizer=localizer)
+    def load(cls, dump: Dump, app: App) -> Self:
+        asserter = Asserter(localizer=app.localizer)
         extension_type = asserter.assert_field(RequiredField(
             'extension',
             Assertions(asserter.assert_extension_type()),
         ))(dump)
-        if configuration is None:
-            configuration = cls(extension_type)
-        else:
-            # This MUST NOT fail. If it does, this is a bug in the calling code that must be fixed.
-            assert extension_type is configuration.extension_type
+        assert extension_type is not Void
+        configuration = cls(extension_type)  # type: ignore[arg-type]
         asserter.assert_record(Fields(
             RequiredField(
                 'extension',
@@ -264,11 +249,11 @@ class ExtensionConfiguration(Configuration):
             ))
         return _assertion
 
-    def dump(self) -> VoidableDump:
+    def dump(self, app: App) -> DictDump[VoidableDump[Dump]]:
         return minimize({
             'extension': self.extension_type.name(),
             'enabled': self.enabled,
-            'configuration': minimize(self.extension_configuration.dump()) if issubclass(self.extension_type, Configurable) and self.extension_configuration else Void,
+            'configuration': minimize(self.extension_configuration.dump(app)) if issubclass(self.extension_type, Configurable) and self.extension_configuration else Void,
         })
 
 
@@ -300,10 +285,9 @@ class ExtensionConfigurationMapping(ConfigurationMapping[type[Extension], Extens
         cls,
         item_dump: Dump,
         key_dump: str,
-        *,
-        localizer: Localizer | None = None,
+        app: App,
     ) -> Dump:
-        asserter = Asserter(localizer=localizer)
+        asserter = Asserter(localizer=app.localizer)
         dict_dump = asserter.assert_dict()(item_dump)
         dict_dump['extension'] = key_dump
         return dict_dump
@@ -363,14 +347,8 @@ class EntityTypeConfiguration(Configuration):
         self.react.trigger()
 
     @classmethod
-    def load(
-            cls,
-            dump: Dump,
-            configuration: Self | None = None,
-            *,
-            localizer: Localizer | None = None,
-    ) -> Self:
-        asserter = Asserter(localizer=localizer)
+    def load(cls, dump: Dump, app: App) -> Self:
+        asserter = Asserter(localizer=app.localizer)
         entity_type = asserter.assert_field(RequiredField[Any, type[Entity]](
             'entity_type',
             Assertions(asserter.assert_str()) | asserter.assert_entity_type()),
@@ -387,8 +365,8 @@ class EntityTypeConfiguration(Configuration):
         ))(dump)
         return configuration
 
-    def dump(self) -> VoidableDump:
-        dump: VoidableDictDump[VoidableDump] = {
+    def dump(self, app: App) -> DictDump[VoidableDump[Dump]]:
+        dump: DictDump[VoidableDump[Dump]] = {
             'entity_type': get_entity_type_name(self._entity_type),
             'generate_html_list': Void if self._generate_html_list is None else self._generate_html_list,
         }
@@ -408,10 +386,9 @@ class EntityTypeConfigurationMapping(ConfigurationMapping[type[Entity], EntityTy
         cls,
         item_dump: Dump,
         key_dump: str,
-        *,
-        localizer: Localizer | None = None,
+        app: App,
     ) -> Dump:
-        asserter = Asserter(localizer=localizer)
+        asserter = Asserter(localizer=app.localizer)
         dict_dump = asserter.assert_dict()(item_dump)
         asserter.assert_entity_type()(key_dump)
         dict_dump['entity_type'] = key_dump
@@ -473,20 +450,13 @@ class LocaleConfiguration(Configuration):
         self._alias = other._alias
 
     @classmethod
-    def load(
-            cls,
-            dump: Dump,
-            configuration: Self | None = None,
-            *,
-            localizer: Localizer | None = None,
-    ) -> Self:
-        asserter = Asserter(localizer=localizer)
+    def load(cls, dump: Dump, app: App) -> Self:
+        asserter = Asserter(localizer=app.localizer)
         locale = asserter.assert_field(RequiredField(
             'locale',
             Assertions(asserter.assert_locale())),
         )(dump)
-        if configuration is None:
-            configuration = cls(locale)
+        configuration = cls(locale)
         asserter.assert_record(Fields(
             RequiredField(
                 'locale'
@@ -498,10 +468,10 @@ class LocaleConfiguration(Configuration):
         ))(dump)
         return configuration
 
-    def dump(self) -> VoidableDump:
+    def dump(self, app: App) -> DictDump[VoidableDump[Dump]]:
         return minimize({
             'locale': self.locale,
-            'alias': void_none(self._alias)
+            'alias': void_to_none(self._alias)
         })
 
 
@@ -528,10 +498,9 @@ class LocaleConfigurationMapping(ConfigurationMapping[str, LocaleConfiguration])
         cls,
         item_dump: Dump,
         key_dump: str,
-        *,
-        localizer: Localizer | None = None,
+        app: App,
     ) -> Dump:
-        asserter = Asserter(localizer=localizer)
+        asserter = Asserter(localizer=app.localizer)
         dict_item_dump = asserter.assert_dict()(item_dump)
         dict_item_dump['locale'] = key_dump
         return dict_item_dump
@@ -712,16 +681,9 @@ class ProjectConfiguration(FileBasedConfiguration):
         self._entity_types.update(other._entity_types)
 
     @classmethod
-    def load(
-            cls,
-            dump: Dump,
-            configuration: Self | None = None,
-            *,
-            localizer: Localizer | None = None,
-    ) -> Self:
-        if configuration is None:
-            configuration = cls()
-        asserter = Asserter(localizer=localizer)
+    def load(cls, dump: Dump, app: App) -> Self:
+        configuration = cls()
+        asserter = Asserter(localizer=app.localizer)
         asserter.assert_record(Fields(
             RequiredField(
                 'base_url',
@@ -768,21 +730,20 @@ class ProjectConfiguration(FileBasedConfiguration):
                 Assertions(configuration._entity_types.assert_load(configuration.entity_types)),
             ),
         ))(dump)
-        return configuration
 
-    def dump(self) -> VoidableDictDump[Dump]:
-        return minimize({  # type: ignore[return-value]
+    def dump(self, app: App) -> DictDump[VoidableDump[Dump]]:
+        return minimize({
             'base_url': self.base_url,
             'title': self.title,
-            'root_path': void_none(self.root_path),
-            'clean_urls': void_none(self.clean_urls),
-            'author': void_none(self.author),
-            'content_negotiation': void_none(self.content_negotiation),
-            'debug': void_none(self.debug),
-            'lifetime_threshold': void_none(self.lifetime_threshold),
-            'locales': self.locales.dump(),
-            'extensions': self.extensions.dump(),
-            'entity_types': self.entity_types.dump(),
+            'root_path': void_to_none(self.root_path),
+            'clean_urls': void_to_none(self.clean_urls),
+            'author': void_to_none(self.author),
+            'content_negotiation': void_to_none(self.content_negotiation),
+            'debug': void_to_none(self.debug),
+            'lifetime_threshold': void_to_none(self.lifetime_threshold),
+            'locales': self.locales.dump(app),
+            'extensions': self.extensions.dump(app),
+            'entity_types': self.entity_types.dump(app),
         }, True)
 
 
@@ -793,7 +754,7 @@ class Project(Configurable[ProjectConfiguration], Localizable):
         self._ancestry = Ancestry()
 
     def __getstate__(self) -> tuple[VoidableDump, Path, Ancestry]:
-        return self._configuration.dump(), self._configuration.configuration_file_path, self._ancestry
+        return self._configuration.dump(app), self._configuration.configuration_file_path, self._ancestry
 
     def __setstate__(self, state: tuple[Dump, Path, Ancestry]) -> None:
         dump, configuration_file_path, self._ancestry = state

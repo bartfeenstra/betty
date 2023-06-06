@@ -24,9 +24,8 @@ class TestColorConfiguration:
     ])
     def test_hex_with_invalid_value(self, hex_value: str) -> None:
         sut = _ColorConfiguration('#ffffff')
-        with App():
-            with pytest.raises(AssertionFailed):
-                sut.hex = hex_value
+        with pytest.raises(AssertionFailed):
+            sut.hex = hex_value
 
     def test_load_with_valid_hex_value(self) -> None:
         hex_value = '#000000'
@@ -47,7 +46,7 @@ class TestColorConfiguration:
 
     def test_dump_with_value(self) -> None:
         hex_value = '#000000'
-        assert hex_value == _ColorConfiguration(hex_value=hex_value).dump()
+        assert hex_value == _ColorConfiguration(hex_value=hex_value).dump(App())
 
 
 class CottonCandyConfigurationTestEntity(UserFacingEntity, Entity):
@@ -123,7 +122,7 @@ class TestCottonCandyConfiguration:
             'link_inactive_color': CottonCandyConfiguration.DEFAULT_LINK_INACTIVE_COLOR,
             'link_active_color': CottonCandyConfiguration.DEFAULT_LINK_ACTIVE_COLOR,
         }
-        assert expected == sut.dump()
+        assert expected == sut.dump(App())
 
     def test_dump_with_featured_entities(self) -> None:
         sut = CottonCandyConfiguration()
@@ -136,7 +135,7 @@ class TestCottonCandyConfiguration:
                 'entity_id': entity_id,
             },
         ]
-        dump = sut.dump()
+        dump = sut.dump(App())
         assert isinstance(dump, dict)
         assert expected == dump['featured_entities']
 
@@ -144,7 +143,7 @@ class TestCottonCandyConfiguration:
         hex_value = '#000000'
         sut = CottonCandyConfiguration()
         sut.primary_inactive_color.hex = hex_value
-        dump = sut.dump()
+        dump = sut.dump(App())
         assert isinstance(dump, dict)
         assert hex_value == dump['primary_inactive_color']
 
@@ -152,7 +151,7 @@ class TestCottonCandyConfiguration:
         hex_value = '#000000'
         sut = CottonCandyConfiguration()
         sut.primary_active_color.hex = hex_value
-        dump = sut.dump()
+        dump = sut.dump(App())
         assert isinstance(dump, dict)
         assert hex_value == dump['primary_active_color']
 
@@ -160,7 +159,7 @@ class TestCottonCandyConfiguration:
         hex_value = '#000000'
         sut = CottonCandyConfiguration()
         sut.link_inactive_color.hex = hex_value
-        dump = sut.dump()
+        dump = sut.dump(App())
         assert isinstance(dump, dict)
         assert hex_value == dump['link_inactive_color']
 
@@ -168,6 +167,6 @@ class TestCottonCandyConfiguration:
         hex_value = '#000000'
         sut = CottonCandyConfiguration()
         sut.link_active_color.hex = hex_value
-        dump = sut.dump()
+        dump = sut.dump(App())
         assert isinstance(dump, dict)
         assert hex_value == dump['link_active_color']

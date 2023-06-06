@@ -20,7 +20,7 @@ from typing_extensions import ParamSpec, Concatenate
 from betty.app import App
 from betty.asyncio import sync
 from betty.locale import get_display_name
-from betty.model import get_entity_type_name, UserFacingEntity, get_entity_type, GeneratedEntityId, Entity
+from betty.model import get_entity_type_name, UserFacingEntity, get_entity_type, Entity, is_identifiable
 from betty.openapi import Specification
 from betty.project import Project
 from betty.serde.dump import DictDump, Dump
@@ -120,7 +120,7 @@ class _ConcurrentGenerator:
                     generation_queue.put(_GenerationTask(locale, _generate_entity_type_list_html, entity_type))
                 generation_queue.put(_GenerationTask(locale, _generate_entity_type_list_json, entity_type))
                 for entity in app.project.ancestry.entities[entity_type]:
-                    if isinstance(entity.id, GeneratedEntityId):
+                    if is_identifiable(entity):
                         continue
                     generation_queue.put(_GenerationTask(locale, _generate_entity_html, entity_type, entity.id))
                     generation_queue.put(_GenerationTask(locale, _generate_entity_json, entity_type, entity.id))
@@ -271,7 +271,7 @@ async def _generate_entity_json(
 ) -> None:
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
     entity_path = app.www_directory_path / entity_type_name_fs / entity_id
-    rendered_json = json.dumps(app.project.ancestry.entities[entity_type][entity_id], cls=app.json_encoder)
+    rendered_json = json.dumps(app.project.ancestry.entities[entity_type][entity_id].dump(app))
     async with create_json_resource(entity_path) as f:
         await f.write(rendered_json)
 

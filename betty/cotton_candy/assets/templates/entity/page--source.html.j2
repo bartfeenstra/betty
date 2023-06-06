@@ -12,7 +12,7 @@
             {% include 'entity/list--file.html.j2' %}
         {% endwith %}
     {% endif %}
-    {% set facts = sources | map(attribute='citations') | flatten | map(attribute='facts') | flatten | reject('has_generated_entity_id') | unique | list %}
+    {% set facts = sources | map(attribute='citations') | flatten | map(attribute='facts') | flatten | reject('identifiable') | unique | list %}
     {% if facts | length > 0 %}
         <h2>{% trans %}Facts{% endtrans %}</h2>
         <ul class="entities">

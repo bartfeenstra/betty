@@ -1,5 +1,5 @@
 {% set linked_data=[
-    breadcrumbs.dump(),
+    breadcrumbs.dump(app),
 ] | minimize | none_void %}
 {% if linked_data %}
     <script type="application/ld+json">

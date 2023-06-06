@@ -4,7 +4,7 @@
     {% include ['entity/label--person.html.j2', 'entity/label.html.j2'] %}
 {%- endmacro -%}
 {%- set formatted_event = entity.type.label(app.localizer) -%}
-{%- if entity is not has_generated_entity_id and not embedded -%}
+{%- if entity is not identifiable and not embedded -%}
     {% set formatted_event = '<a href="' + entity | url + '">' + formatted_event + '</a>' %}
 {%- endif -%}
 {%- if entity.description is not none -%}

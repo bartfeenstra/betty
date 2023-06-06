@@ -5,12 +5,13 @@ from pathlib import Path
 from typing import Iterator, Callable, Any, Generic, TYPE_CHECKING, TypeVar, MutableSequence, MutableMapping, overload, \
     cast
 
-from typing_extensions import TypeAlias
+from typing_extensions import Self, TypeAlias
 
+from betty.app import App
 from betty.functools import _Result
 from betty.locale import LocaleNotFoundError, get_data, Localizable
 from betty.model import Entity, get_entity_type, EntityTypeImportError, EntityTypeInvalidError, EntityTypeError
-from betty.serde.dump import DumpType, DumpTypeT, Void
+from betty.serde.dump import DumpType, DumpTypeT, Void, Dump
 from betty.serde.error import SerdeError, SerdeErrorCollection
 
 if TYPE_CHECKING:
@@ -365,3 +366,19 @@ class Asserter(Localizable):
                     )
                 )
         return _assert_entity_type
+
+
+class Loadable:
+    @classmethod
+    def load(cls, dump: Dump, app: App) -> Self:
+        raise NotImplementedError(repr(cls))
+
+    @classmethod
+    def assert_load(cls: type[LoadableT], app: App) -> Assertion[Dump, LoadableT]:
+        def _assert_load(dump: Dump) -> LoadableT:
+            return cls.load(dump, app)
+        _assert_load.__qualname__ = f'{_assert_load.__qualname__} for {cls.__module__}.{cls.__qualname__}.load'
+        return _assert_load
+
+
+LoadableT = TypeVar('LoadableT', bound=Loadable)

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import datetime
-import json as stdjson
+import json
 import os
 import re
 import warnings
@@ -21,7 +21,6 @@ from jinja2 import Environment as Jinja2Environment, select_autoescape, FileSyst
 from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.nodes import EvalContext
 from jinja2.runtime import StrictUndefined, Context, Macro, DebugUndefined, new_context
-from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup, escape
 from pdf2image.pdf2image import convert_from_path
 
@@ -34,13 +33,13 @@ from betty.html import CssProvider, JsProvider
 from betty.locale import negotiate_localizeds, Localized, Datey, negotiate_locale, Date, DateRange, \
     get_data
 from betty.lock import AcquiredError
-from betty.model import Entity, get_entity_type_name, GeneratedEntityId, UserFacingEntity
+from betty.model import Entity, get_entity_type_name, UserFacingEntity, is_identifiable
 from betty.model.ancestry import File, Citation, HasLinks, HasFiles, Subject, Witness, Dated
 from betty.os import link_or_copy
 from betty.path import rootname
 from betty.project import ProjectConfiguration
 from betty.render import Renderer
-from betty.serde.dump import Dumpable, DictDump, VoidableDump, Void, minimize, none_void, void_none, Dump
+from betty.serde.dump import Dumpable, DictDump, VoidableDump, Void, minimize, none_to_void, void_to_none, Dump
 from betty.string import camel_case_to_snake_case, camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
 
 T = TypeVar('T')
@@ -67,7 +66,7 @@ class _Breadcrumb(Dumpable, Repr):
         self._label = label
         self._url = url
 
-    def dump(self) -> DictDump[Dump]:
+    def dump(self, app: App) -> DictDump[Dump]:
         return {
             '@type': 'ListItem',
             'name': self._label,
@@ -82,7 +81,7 @@ class _Breadcrumbs(Dumpable, Repr):
     def append(self, label: str, url: str) -> None:
         self._breadcrumbs.append(_Breadcrumb(label, url))
 
-    def dump(self) -> VoidableDump:
+    def dump(self, app: App) -> VoidableDump[DictDump[VoidableDump[Dump]]]:
         if not self._breadcrumbs:
             return Void
         return {
@@ -91,7 +90,7 @@ class _Breadcrumbs(Dumpable, Repr):
             'itemListElement': [
                 {
                     'position': position,
-                    **breadcrumb.dump(),
+                    **breadcrumb.dump(app),
                 }
                 for position, breadcrumb
                 in enumerate(self._breadcrumbs, 1)
@@ -204,7 +203,6 @@ class Environment(Jinja2Environment):
         self.filters['negotiate_dateds'] = _filter_negotiate_dateds
         self.filters['select_dateds'] = _filter_select_dateds
         self.filters['json'] = _filter_json
-        self.filters['tojson'] = _filter_tojson
         self.filters['paragraphs'] = _filter_paragraphs
         self.filters['format_datey'] = self.app.localizer.format_datey
         self.filters['format_degrees'] = _filter_format_degrees
@@ -216,8 +214,8 @@ class Environment(Jinja2Environment):
         self.filters['camel_case_to_snake_case'] = camel_case_to_snake_case
         self.filters['camel_case_to_kebab_case'] = camel_case_to_kebab_case
         self.filters['upper_camel_case_to_lower_camel_case'] = upper_camel_case_to_lower_camel_case
-        self.filters['void_none'] = void_none
-        self.filters['none_void'] = none_void
+        self.filters['void_none'] = void_to_none
+        self.filters['none_void'] = none_to_void
         self.filters['minimize'] = minimize
 
     def _init_tests(self) -> None:
@@ -230,7 +228,7 @@ class Environment(Jinja2Environment):
             return _test_resource
         for entity_type in self.app.entity_types:
             self.tests[f'{camel_case_to_snake_case(get_entity_type_name(entity_type))}_entity'] = _build_test_entity_type(entity_type)
-        self.tests['has_generated_entity_id'] = lambda x: isinstance(x, Entity) and isinstance(x.id, GeneratedEntityId) or isinstance(x, GeneratedEntityId)
+        self.tests['identifiable'] = is_identifiable
         self.tests['has_links'] = lambda x: isinstance(x, HasLinks)
         self.tests['has_files'] = lambda x: isinstance(x, HasFiles)
         self.tests['starts_with'] = str.startswith
@@ -311,22 +309,11 @@ def _filter_url(context: Context, resource: Any, media_type: str | None = None, 
     )
 
 
-@pass_context
-def _filter_json(context: Context, data: Any, indent: int | None = None) -> str:
+def _filter_json(data: Any, indent: int | None = None) -> str:
     """
     Converts a value to a JSON string.
     """
-    return stdjson.dumps(data, indent=indent, cls=(cast(Environment, context.environment).app.json_encoder))
-
-
-@pass_context
-def _filter_tojson(context: Context, data: Any, indent: int | None = None) -> str:
-    """
-    Converts a value to a JSON string safe for use in an HTML document.
-
-    This mimics Jinja2's built-in JSON filter, but uses Betty's own JSON encoder.
-    """
-    return htmlsafe_json_dumps(data, indent=indent, dumps=lambda *args, **kwargs: _filter_json(context, *args, **kwargs))
+    return json.dumps(data, indent=indent)
 
 
 def _filter_flatten(items: Iterable[Iterable[T]]) -> Iterator[T]:

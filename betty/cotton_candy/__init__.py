@@ -11,6 +11,7 @@ from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
 from typing_extensions import Self
 
+from betty.app import App
 from betty.app.extension import ConfigurableExtension, Extension, Theme
 from betty.config import Configuration
 from betty.cotton_candy.search import Index
@@ -21,7 +22,7 @@ from betty.locale import Localizer
 from betty.model import Entity, UserFacingEntity
 from betty.npm import _Npm, NpmBuilder, npm
 from betty.project import EntityReferenceSequence
-from betty.serde.dump import minimize, Dump, VoidableDump
+from betty.serde.dump import minimize, Dump, VoidableDump, DictDump
 from betty.serde.load import AssertionFailed, Fields, Assertions, OptionalField, Asserter
 
 
@@ -53,22 +54,13 @@ class _ColorConfiguration(Configuration):
         self.hex = other.hex
 
     @classmethod
-    def load(
-            cls,
-            dump: Dump,
-            configuration: Self | None = None,
-            *,
-            localizer: Localizer | None = None,
-    ) -> Self:
-        asserter = Asserter(localizer=localizer)
+    def load(cls, dump: Dump, app: App) -> Self:
+        asserter = Asserter(localizer=app.localizer)
         hex_value = asserter.assert_str()(dump)
-        if configuration is None:
-            configuration = cls(hex_value)
-        else:
-            configuration.hex = hex_value
+        configuration = cls(hex_value)
         return configuration
 
-    def dump(self) -> VoidableDump:
+    def dump(self, app: App) -> VoidableDump:
         return self._hex
 
 
@@ -112,16 +104,9 @@ class CottonCandyConfiguration(Configuration):
         return self._link_active_color
 
     @classmethod
-    def load(
-            cls,
-            dump: Dump,
-            configuration: Self | None = None,
-            *,
-            localizer: Localizer | None = None,
-    ) -> Self:
-        if configuration is None:
-            configuration = cls()
-        asserter = Asserter(localizer=localizer)
+    def load(cls, dump: Dump, app: App) -> Self:
+        configuration = cls()
+        asserter = Asserter(localizer=app.localizer)
         asserter.assert_record(Fields(
             OptionalField(
                 'featured_entities',
@@ -146,13 +131,13 @@ class CottonCandyConfiguration(Configuration):
         ))(dump)
         return configuration
 
-    def dump(self) -> VoidableDump:
+    def dump(self, app: App) -> DictDump[VoidableDump[Dump]]:
         return minimize({
-            'featured_entities': self.featured_entities.dump(),
-            'primary_inactive_color': self._primary_inactive_color.dump(),
-            'primary_active_color': self._primary_active_color.dump(),
-            'link_inactive_color': self._link_inactive_color.dump(),
-            'link_active_color': self._link_active_color.dump(),
+            'featured_entities': self.featured_entities.dump(app),
+            'primary_inactive_color': self._primary_inactive_color.dump(app),
+            'primary_active_color': self._primary_active_color.dump(app),
+            'link_inactive_color': self._link_inactive_color.dump(app),
+            'link_active_color': self._link_active_color.dump(app),
         })
 
 

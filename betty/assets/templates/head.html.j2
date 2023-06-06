@@ -25,7 +25,7 @@
 
         {% endif %}
     {% endfor %}
-    {% if page_resource is entity and page_resource is not has_generated_entity_id %}
+    {% if page_resource is entity and page_resource is not identifiable %}
         <script type="application/ld+json">
           {{ page_resource | tojson }}
         </script>

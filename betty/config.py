@@ -13,18 +13,19 @@ from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
 from typing_extensions import Self, TypeAlias
 
+from betty.app import App
 from betty.classtools import Repr, repr_instance
 from betty.functools import slice_to_range
 from betty.locale import Localizer, Localizable
 from betty.os import ChDir
-from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump, Void
+from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump, Void, DictDump, ListDump
 from betty.serde.error import SerdeErrorCollection
 from betty.serde.format import FormatRepository
-from betty.serde.load import Asserter, Assertion, LoadError, Assertions
+from betty.serde.load import Asserter, LoadError, Assertions, Loadable
 from betty.tempfile import TemporaryDirectory
 
 
-class Configuration(ReactiveInstance, Repr, Localizable, Dumpable):
+class Configuration(ReactiveInstance, Repr, Localizable, Loadable, Dumpable[DictDump]):
     def __init__(self, *args: Any, localizer: Localizer | None = None, **kwargs: Any):
         super().__init__(*args, **kwargs, localizer=localizer)
         self._asserter = Asserter(localizer=self._localizer)
@@ -32,34 +33,14 @@ class Configuration(ReactiveInstance, Repr, Localizable, Dumpable):
     def update(self, other: Self) -> None:
         raise NotImplementedError(repr(self))
 
-    @classmethod
-    def load(
-            cls,
-            dump: Dump,
-            configuration: Self | None = None,
-            *,
-            localizer: Localizer | None = None,
-    ) -> Self:
-        """
-        Load dumped configuration into a new configuration instance.
-        """
-
-        raise NotImplementedError(repr(cls))
-
-    @classmethod
-    def assert_load(cls: type[ConfigurationT], configuration: ConfigurationT | None = None) -> Assertion[Dump, ConfigurationT]:
-        def _assert_load(dump: Dump) -> ConfigurationT:
-            return cls.load(dump, configuration)
-        _assert_load.__qualname__ = f'{_assert_load.__qualname__} for {cls.__module__}.{cls.__qualname__}.load'
-        return _assert_load
-
 
 ConfigurationT = TypeVar('ConfigurationT', bound=Configuration)
 
 
 class FileBasedConfiguration(Configuration):
-    def __init__(self, *, localizer: Localizer | None = None):
+    def __init__(self, *, app: App, localizer: Localizer | None = None):
         super().__init__(localizer=localizer)
+        self._app = app
         self._project_directory: TemporaryDirectory | None = None
         self._configuration_file_path: Path | None = None
         self._autowrite = False
@@ -95,7 +76,7 @@ class FileBasedConfiguration(Configuration):
         # path.
         formats = FormatRepository(localizer=self._localizer)
         with ChDir(configuration_file_path.parent):
-            dump = formats.format_for(configuration_file_path.suffix[1:]).dump(self.dump())
+            dump = formats.format_for(configuration_file_path.suffix[1:]).dump(self.dump(self._app))
             try:
                 with open(configuration_file_path, mode='w') as f:
                     f.write(dump)
@@ -323,25 +304,16 @@ class ConfigurationSequence(ConfigurationCollection[int, ConfigurationT], Generi
         raise NotImplementedError(repr(self))
 
     @classmethod
-    def load(
-            cls,
-            dump: Dump,
-            configuration: Self | None = None,
-            *,
-            localizer: Localizer | None = None,
-    ) -> Self:
-        if configuration is None:
-            configuration = cls()
-        else:
-            configuration._clear_without_trigger()
-        asserter = Asserter(localizer=localizer)
+    def load(cls, dump: Dump, app: App) -> Self:
+        configuration = cls()
+        asserter = Asserter(localizer=app.localizer)
         with SerdeErrorCollection().assert_valid():
             configuration.append(*asserter.assert_sequence(Assertions(cls._item_type().assert_load()))(dump))
         return configuration
 
-    def dump(self) -> VoidableDump:
+    def dump(self, app: App) -> ListDump[VoidableDump[Dump]]:
         return minimize([
-            configuration.dump()
+            configuration.dump(app)
             for configuration in self._configurations
         ])
 
@@ -460,35 +432,27 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
         self.move_to_beginning(*other_keys)
 
     @classmethod
-    def load(
-            cls,
-            dump: Dump,
-            configuration: Self | None = None,
-            *,
-            localizer: Localizer | None = None,
-    ) -> Self:
-        if configuration is None:
-            configuration = cls()
-        asserter = Asserter(localizer=localizer)
+    def load(cls, dump: Dump, app: App) -> Self:
+        configuration = cls()
+        asserter = Asserter(localizer=app.localizer)
         dict_dump = asserter.assert_dict()(dump)
         mapping = asserter.assert_mapping(Assertions(cls._item_type().load))({
-            key: cls._load_key(value, key, localizer=localizer)
+            key: cls._load_key(value, key, app)
             for key, value
             in dict_dump.items()
         })
         configuration.replace(*mapping.values())
         return configuration
 
-    def dump(self) -> VoidableDump:
-        dump = {}
+    def dump(self, app: App) -> DictDump[VoidableDump[Dump]]:
+        dump: DictDump[VoidableDump[Dump]] = {}
         for configuration_item in self._configurations.values():
-            item_dump = configuration_item.dump()
+            item_dump = configuration_item.dump(app)
             if item_dump is not Void:
                 item_dump, configuration_key = self._dump_key(item_dump)
                 if self._minimize_item_dump():
                     item_dump = minimize(item_dump)
-                if item_dump is not Void:
-                    dump[configuration_key] = item_dump
+                dump[configuration_key] = item_dump
         return minimize(dump)
 
     def prepend(self, *configurations: ConfigurationT) -> None:
@@ -558,12 +522,11 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
         cls,
         item_dump: Dump,
         key_dump: str,
-        *,
-        localizer: Localizer | None = None,
+        app: App,
     ) -> Dump:
         raise NotImplementedError(repr(cls))
 
-    def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
+    def _dump_key(self, item_dump: Dump) -> tuple[VoidableDump, str]:
         raise NotImplementedError(repr(self))
 
 

@@ -11,7 +11,7 @@
         {%- endif -%}
     {% endif %}
     {%- if entity.location -%}
-            <span class="citation-location">{% if citation_context == entity %}{{ entity.location }}{% else %}{% if entity is not has_generated_entity_id %}<a href="{{ entity | url }}">{% endif %}{{ entity.location }}{% if entity is not has_generated_entity_id %}</a>{% endif %}{% endif %}</span>
+            <span class="citation-location">{% if citation_context == entity %}{{ entity.location }}{% else %}{% if entity is not identifiable %}<a href="{{ entity | url }}">{% endif %}{{ entity.location }}{% if entity is not identifiable %}</a>{% endif %}{% endif %}</span>
     {%- endif -%}
     {%- if entity.date -%}
         <span class="citation-date">{% trans date = entity.date | format_datey %}Accessed {{ date }}{% endtrans %}</span>

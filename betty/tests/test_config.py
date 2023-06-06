@@ -7,9 +7,9 @@ from typing import Iterable, Generic
 import pytest
 from reactives.tests import assert_reactor_called, assert_in_scope, assert_scope_empty
 
+from betty.app import App
 from betty.config import FileBasedConfiguration, ConfigurationMapping, Configuration, \
     ConfigurationCollection, ConfigurationSequence, ConfigurationKeyT, ConfigurationT
-from betty.locale import Localizer
 from betty.serde.dump import Dump, VoidableDump
 from betty.serde.load import FormatError, Asserter
 
@@ -218,10 +218,9 @@ class ConfigurationMappingTestConfigurationMapping(ConfigurationMapping[str, Con
         cls,
         item_dump: Dump,
         key_dump: str,
-        *,
-        localizer: Localizer | None = None,
+        app: App,
     ) -> Dump:
-        asserter = Asserter(localizer=localizer)
+        asserter = Asserter(localizer=app.localizer)
         dict_item_dump = asserter.assert_dict()(item_dump)
         dict_item_dump[key_dump] = key_dump
         return dict_item_dump

@@ -5,7 +5,6 @@ from typing import Any
 
 from geopy import Point
 
-from betty import json
 from betty.app import App
 from betty.locale import Date, DateRange
 from betty.media_type import MediaType
