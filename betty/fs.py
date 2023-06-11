@@ -7,9 +7,11 @@ from contextlib import suppress
 from os.path import getmtime
 from pathlib import Path
 from shutil import copy2
-from typing import AsyncIterable, Optional, Tuple, AsyncContextManager, Sequence, IO
+from types import TracebackType
+from typing import AsyncIterable, AsyncContextManager, Sequence
 
 import aiofiles
+from aiofiles.threadpool.text import AsyncTextIOWrapper
 
 from betty import _ROOT_DIRECTORY_PATH
 
@@ -37,12 +39,12 @@ def hashfile(path: Path) -> str:
 
 class FileSystem:
     class _Open:
-        def __init__(self, fs: FileSystem, file_paths: Tuple[Path, ...]):
+        def __init__(self, fs: FileSystem, file_paths: tuple[Path, ...]):
             self._fs = fs
             self._file_paths = file_paths
-            self._file: Optional[AsyncContextManager] = None
+            self._file: AsyncContextManager[AsyncTextIOWrapper] | None = None
 
-        async def __aenter__(self):
+        async def __aenter__(self) -> AsyncTextIOWrapper:
             for file_path in map(Path, self._file_paths):
                 for fs_path, fs_encoding in self._fs._paths:
                     with suppress(FileNotFoundError):
@@ -50,27 +52,27 @@ class FileSystem:
                         return await self._file.__aenter__()
             raise FileNotFoundError
 
-        async def __aexit__(self, exc_type, exc_val, exc_tb):
+        async def __aexit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
             if self._file is not None:
                 await self._file.__aexit__(None, None, None)
 
-    def __init__(self, *paths: Tuple[Path, Optional[str]]):
+    def __init__(self, *paths: tuple[Path, str | None]):
         self._paths = deque(paths)
 
     def __len__(self) -> int:
         return len(self._paths)
 
     @property
-    def paths(self) -> Sequence[Tuple[Path, Optional[str]]]:
+    def paths(self) -> Sequence[tuple[Path, str | None]]:
         return list(self._paths)
 
-    def prepend(self, path: Path, fs_encoding: Optional[str] = None) -> None:
+    def prepend(self, path: Path, fs_encoding: str | None = None) -> None:
         self._paths.appendleft((path, fs_encoding))
 
     def clear(self) -> None:
         self._paths.clear()
 
-    def open(self, *file_paths: Path) -> AsyncContextManager[IO]:
+    def open(self, *file_paths: Path) -> _Open:
         return self._Open(self, file_paths)
 
     async def copy2(self, source_path: Path, destination_path: Path) -> Path:

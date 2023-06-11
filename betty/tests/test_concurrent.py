@@ -1,21 +1,25 @@
 from concurrent.futures.thread import ThreadPoolExecutor
 from time import sleep
+from typing import TypeVar
 
 import pytest
 
 from betty.concurrent import ExceptionRaisingAwaitableExecutor
 
 
+T = TypeVar('T')
+
+
 class TestExceptionRaisingAwaitableExecutor:
     def test_without_exception_should_not_raise(self) -> None:
-        def _task():
+        def _task() -> None:
             return
 
         with ExceptionRaisingAwaitableExecutor(ThreadPoolExecutor()) as sut:
             sut.submit(_task)
 
     def test_with_exception_should_raise(self) -> None:
-        def _task():
+        def _task() -> None:
             raise RuntimeError()
 
         with pytest.raises(RuntimeError):
@@ -25,7 +29,7 @@ class TestExceptionRaisingAwaitableExecutor:
     def test_wait_with_submitted_tasks(self) -> None:
         tracker = []
 
-        def _task():
+        def _task() -> bool:
             sleep(1)
             tracker.append(True)
             return True
@@ -43,7 +47,7 @@ class TestExceptionRaisingAwaitableExecutor:
     def test_wait_with_mapped_tasks(self) -> None:
         tracker = []
 
-        def _task(arg):
+        def _task(arg: int) -> int:
             sleep(1)
             tracker.append(arg)
             return arg

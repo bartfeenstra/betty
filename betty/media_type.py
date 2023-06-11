@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from email.message import EmailMessage
-from typing import Dict, Optional, List
+from typing import Any
 
 EXTENSIONS = {
     'text/html': 'html',
@@ -21,7 +23,7 @@ class MediaType:
         # invalid.
         if not media_type.startswith(type_part):
             raise InvalidMediaType(f'"{media_type}" is not a valid media type.')
-        self._parameters = message['Content-Type'].params
+        self._parameters: dict[str, str] = message['Content-Type'].params
         self._type, self._subtype = type_part.split('/')
         if not self._subtype:
             raise InvalidMediaType('The subtype must not be empty.')
@@ -35,24 +37,24 @@ class MediaType:
         return self._subtype
 
     @property
-    def subtypes(self) -> List[str]:
+    def subtypes(self) -> list[str]:
         return self._subtype.split('+')[0].split('.')
 
     @property
-    def suffix(self) -> Optional[str]:
+    def suffix(self) -> str | None:
         if '+' not in self._subtype:
             return None
 
         return self._subtype.split('+')[-1]
 
     @property
-    def parameters(self) -> Dict[str, str]:
+    def parameters(self) -> dict[str, str]:
         return self._parameters
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self._str
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, MediaType):
             return NotImplemented
         return (self.type, self.subtype, self.parameters) == (other.type, other.subtype, other.parameters)

@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 import pytest
 
@@ -14,7 +15,7 @@ from betty.privatizer import Privatizer
 from betty.project import ExtensionConfiguration
 
 
-def _expand_person(generation: int):
+def _expand_person(generation: int) -> list[tuple[bool, bool | None, Event | None]]:
     lifetime_threshold = 125
     multiplier = abs(generation) + 1 if generation < 0 else 1
     lifetime_threshold_year = datetime.now().year - lifetime_threshold * multiplier
@@ -85,7 +86,7 @@ class TestPrivatizer:
         app.project.ancestry.entities.append(*entities)
         return app
 
-    async def test_post_load(self):
+    async def test_post_load(self) -> None:
         person = Person('P0')
         Presence(person, Subject(), Event(None, Birth))
 
@@ -107,7 +108,7 @@ class TestPrivatizer:
         assert source_file.private
         assert citation_file.private
 
-    def test_privatize_person_should_not_privatize_if_public(self):
+    def test_privatize_person_should_not_privatize_if_public(self) -> None:
         source_file = File('F0', Path(__file__))
         source = Source('The Source')
         source.files.append(source_file)
@@ -134,7 +135,7 @@ class TestPrivatizer:
         assert event_as_subject.private is None
         assert event_as_attendee.private is None
 
-    def test_privatize_person_should_privatize_if_private(self):
+    def test_privatize_person_should_privatize_if_private(self) -> None:
         source_file = File('F0', Path(__file__))
         source = Source('The Source')
         source.files.append(source_file)
@@ -162,7 +163,12 @@ class TestPrivatizer:
         assert event_as_attendee.private is None
 
     @pytest.mark.parametrize('expected, private, event', _expand_person(0))
-    def test_privatize_person_without_relatives(self, expected, private, event: Optional[Event]):
+    def test_privatize_person_without_relatives(
+        self,
+        expected: bool,
+        private: bool | None,
+        event: Event | None,
+    ) -> None:
         person = Person('P0')
         person.private = private
         if event is not None:
@@ -172,7 +178,12 @@ class TestPrivatizer:
         assert expected == person.private
 
     @pytest.mark.parametrize('expected, private, event', _expand_person(1))
-    def test_privatize_person_with_child(self, expected, private, event: Optional[Event]):
+    def test_privatize_person_with_child(
+        self,
+        expected: bool,
+        private: bool | None,
+        event: Event | None,
+    ) -> None:
         person = Person('P0')
         person.private = private
         child = Person('P1')
@@ -184,7 +195,12 @@ class TestPrivatizer:
         assert expected == person.private
 
     @pytest.mark.parametrize('expected, private, event', _expand_person(2))
-    def test_privatize_person_with_grandchild(self, expected, private, event: Optional[Event]):
+    def test_privatize_person_with_grandchild(
+        self,
+        expected: bool,
+        private: bool | None,
+        event: Event | None,
+    ) -> None:
         person = Person('P0')
         person.private = private
         child = Person('P1')
@@ -198,7 +214,12 @@ class TestPrivatizer:
         assert expected == person.private
 
     @pytest.mark.parametrize('expected, private, event', _expand_person(3))
-    def test_privatize_person_with_great_grandchild(self, expected, private, event: Optional[Event]):
+    def test_privatize_person_with_great_grandchild(
+        self,
+        expected: bool,
+        private: bool | None,
+        event: Event | None,
+    ) -> None:
         person = Person('P0')
         person.private = private
         child = Person('P1')
@@ -214,7 +235,12 @@ class TestPrivatizer:
         assert expected == person.private
 
     @pytest.mark.parametrize('expected, private, event', _expand_person(-1))
-    def test_privatize_person_with_parent(self, expected, private, event: Optional[Event]):
+    def test_privatize_person_with_parent(
+        self,
+        expected: bool,
+        private: bool | None,
+        event: Event | None,
+    ) -> None:
         person = Person('P0')
         person.private = private
         parent = Person('P1')
@@ -226,7 +252,12 @@ class TestPrivatizer:
         assert expected == person.private
 
     @pytest.mark.parametrize('expected, private, event', _expand_person(-2))
-    def test_privatize_person_with_grandparent(self, expected, private, event: Optional[Event]):
+    def test_privatize_person_with_grandparent(
+        self,
+        expected: bool,
+        private: bool | None,
+        event: Event | None,
+    ) -> None:
         person = Person('P0')
         person.private = private
         parent = Person('P1')
@@ -240,7 +271,12 @@ class TestPrivatizer:
         assert expected == person.private
 
     @pytest.mark.parametrize('expected, private, event', _expand_person(-3))
-    def test_privatize_person_with_great_grandparent(self, expected, private, event: Optional[Event]):
+    def test_privatize_person_with_great_grandparent(
+        self,
+        expected: bool,
+        private: bool | None,
+        event: Event | None,
+    ) -> None:
         person = Person('P0')
         person.private = private
         parent = Person('P1')
@@ -255,7 +291,7 @@ class TestPrivatizer:
         app.extensions[Privatizer].privatize()
         assert expected == person.private
 
-    def test_privatize_event_should_not_privatize_if_public(self):
+    def test_privatize_event_should_not_privatize_if_public(self) -> None:
         source_file = File('F0', Path(__file__))
         source = Source('The Source')
         source.files.append(source_file)
@@ -279,7 +315,7 @@ class TestPrivatizer:
         assert source_file.private is None
         assert person.private is None
 
-    def test_privatize_event_should_privatize_if_private(self):
+    def test_privatize_event_should_privatize_if_private(self) -> None:
         source_file = File('F0', Path(__file__))
         source = Source('The Source')
         source.files.append(source_file)
@@ -303,7 +339,7 @@ class TestPrivatizer:
         assert source_file.private
         assert person.private is None
 
-    def test_privatize_source_should_not_privatize_if_public(self):
+    def test_privatize_source_should_not_privatize_if_public(self) -> None:
         file = File('F0', Path(__file__))
         source = Source('S0', 'The Source')
         source.private = False
@@ -313,7 +349,7 @@ class TestPrivatizer:
         assert not source.private
         assert file.private is None
 
-    def test_privatize_source_should_privatize_if_private(self):
+    def test_privatize_source_should_privatize_if_private(self) -> None:
         file = File('F0', Path(__file__))
         source = Source('S0', 'The Source')
         source.private = True
@@ -323,7 +359,7 @@ class TestPrivatizer:
         assert source.private
         assert file.private
 
-    def test_privatize_citation_should_not_privatize_if_public(self):
+    def test_privatize_citation_should_not_privatize_if_public(self) -> None:
         source_file = File('F0', Path(__file__))
         source = Source('The Source')
         source.files.append(source_file)
@@ -338,7 +374,7 @@ class TestPrivatizer:
         assert citation_file.private is None
         assert source_file.private is None
 
-    def test_privatize_citation_should_privatize_if_private(self):
+    def test_privatize_citation_should_privatize_if_private(self) -> None:
         source_file = File('F0', Path(__file__))
         source = Source('The Source')
         source.files.append(source_file)
@@ -353,7 +389,7 @@ class TestPrivatizer:
         assert citation_file.private
         assert source_file.private
 
-    def test_privatize_file_should_not_privatize_if_public(self):
+    def test_privatize_file_should_not_privatize_if_public(self) -> None:
         source = Source(None, 'The Source')
         citation = Citation(None, source)
         file = File('F0', Path(__file__))
@@ -364,7 +400,7 @@ class TestPrivatizer:
         assert not file.private
         assert citation.private is None
 
-    def test_privatize_file_should_privatize_if_private(self):
+    def test_privatize_file_should_privatize_if_private(self) -> None:
         source = Source(None, 'The Source')
         citation = Citation(None, source)
         file = File('F0', Path(__file__))

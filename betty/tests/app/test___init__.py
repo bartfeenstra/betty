@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from typing import Type, List, Set
-
 import pytest
+from typing_extensions import Self
 
-from betty.app import Extension, App, CyclicDependencyError
-from betty.app.extension import ConfigurableExtension as GenericConfigurableExtension
+from betty.app import App
+from betty.app.extension import ConfigurableExtension as GenericConfigurableExtension, Extension, CyclicDependencyError
 from betty.config import Configuration
 from betty.locale import Localizer
 from betty.model import Entity
@@ -13,23 +12,18 @@ from betty.project import ExtensionConfiguration
 from betty.serde.dump import Dump, VoidableDump
 from betty.serde.load import Fields, Assertions, RequiredField, Asserter
 
-try:
-    from typing_extensions import Self
-except ModuleNotFoundError:  # pragma: no cover
-    from typing import Self  # type: ignore  # pragma: no cover
-
 
 class DummyEntity(Entity):
     pass
 
 
 class Tracker:
-    async def track(self, carrier: List):
+    async def track(self, carrier: list[Self]) -> None:
         raise NotImplementedError(repr(self))
 
 
 class TrackableExtension(Extension, Tracker):
-    async def track(self, carrier: List):
+    async def track(self, carrier: list[Self]) -> None:
         carrier.append(self)
 
 
@@ -69,43 +63,43 @@ class ConfigurableExtensionConfiguration(Configuration):
 
 class CyclicDependencyOneExtension(Extension):
     @classmethod
-    def depends_on(cls) -> Set[Type[Extension]]:
+    def depends_on(cls) -> set[type[Extension]]:
         return {CyclicDependencyTwoExtension}
 
 
 class CyclicDependencyTwoExtension(Extension):
     @classmethod
-    def depends_on(cls) -> Set[Type[Extension]]:
+    def depends_on(cls) -> set[type[Extension]]:
         return {CyclicDependencyOneExtension}
 
 
 class DependsOnNonConfigurableExtensionExtension(TrackableExtension):
     @classmethod
-    def depends_on(cls) -> Set[Type[Extension]]:
+    def depends_on(cls) -> set[type[Extension]]:
         return {NonConfigurableExtension}
 
 
 class AlsoDependsOnNonConfigurableExtensionExtension(TrackableExtension):
     @classmethod
-    def depends_on(cls) -> Set[Type[Extension]]:
+    def depends_on(cls) -> set[type[Extension]]:
         return {NonConfigurableExtension}
 
 
 class DependsOnNonConfigurableExtensionExtensionExtension(TrackableExtension):
     @classmethod
-    def depends_on(cls) -> Set[Type[Extension]]:
+    def depends_on(cls) -> set[type[Extension]]:
         return {DependsOnNonConfigurableExtensionExtension}
 
 
 class ComesBeforeNonConfigurableExtensionExtension(TrackableExtension):
     @classmethod
-    def comes_before(cls) -> Set[Type[Extension]]:
+    def comes_before(cls) -> set[type[Extension]]:
         return {NonConfigurableExtension}
 
 
 class ComesAfterNonConfigurableExtensionExtension(TrackableExtension):
     @classmethod
-    def comes_after(cls) -> Set[Type[Extension]]:
+    def comes_after(cls) -> set[type[Extension]]:
         return {NonConfigurableExtension}
 
 
@@ -133,7 +127,7 @@ class TestApp:
     async def test_extensions_with_one_extension_with_single_chained_dependency(self) -> None:
         sut = App()
         sut.project.configuration.extensions.append(ExtensionConfiguration(DependsOnNonConfigurableExtensionExtensionExtension))
-        carrier: List[TrackableExtension] = []
+        carrier: list[TrackableExtension] = []
         await sut.dispatcher.dispatch(Tracker)(carrier)
         assert 3 == len(carrier)
         assert isinstance(carrier[0], NonConfigurableExtension)
@@ -144,7 +138,7 @@ class TestApp:
         sut = App()
         sut.project.configuration.extensions.append(ExtensionConfiguration(DependsOnNonConfigurableExtensionExtension))
         sut.project.configuration.extensions.append(ExtensionConfiguration(AlsoDependsOnNonConfigurableExtensionExtension))
-        carrier: List[TrackableExtension] = []
+        carrier: list[TrackableExtension] = []
         await sut.dispatcher.dispatch(Tracker)(carrier)
         assert 3 == len(carrier)
         assert isinstance(carrier[0], NonConfigurableExtension)
@@ -161,7 +155,7 @@ class TestApp:
         sut = App()
         sut.project.configuration.extensions.append(ExtensionConfiguration(NonConfigurableExtension))
         sut.project.configuration.extensions.append(ExtensionConfiguration(ComesBeforeNonConfigurableExtensionExtension))
-        carrier: List[TrackableExtension] = []
+        carrier: list[TrackableExtension] = []
         await sut.dispatcher.dispatch(Tracker)(carrier)
         assert 2 == len(carrier)
         assert isinstance(carrier[0], ComesBeforeNonConfigurableExtensionExtension)
@@ -170,7 +164,7 @@ class TestApp:
     async def test_extensions_with_comes_before_without_other_extension(self) -> None:
         sut = App()
         sut.project.configuration.extensions.append(ExtensionConfiguration(ComesBeforeNonConfigurableExtensionExtension))
-        carrier: List[TrackableExtension] = []
+        carrier: list[TrackableExtension] = []
         await sut.dispatcher.dispatch(Tracker)(carrier)
         assert 1 == len(carrier)
         assert isinstance(carrier[0], ComesBeforeNonConfigurableExtensionExtension)
@@ -179,7 +173,7 @@ class TestApp:
         sut = App()
         sut.project.configuration.extensions.append(ExtensionConfiguration(ComesAfterNonConfigurableExtensionExtension))
         sut.project.configuration.extensions.append(ExtensionConfiguration(NonConfigurableExtension))
-        carrier: List[TrackableExtension] = []
+        carrier: list[TrackableExtension] = []
         await sut.dispatcher.dispatch(Tracker)(carrier)
         assert 2 == len(carrier)
         assert isinstance(carrier[0], NonConfigurableExtension)
@@ -188,7 +182,7 @@ class TestApp:
     async def test_extensions_with_comes_after_without_other_extension(self) -> None:
         sut = App()
         sut.project.configuration.extensions.append(ExtensionConfiguration(ComesAfterNonConfigurableExtensionExtension))
-        carrier: List[TrackableExtension] = []
+        carrier: list[TrackableExtension] = []
         await sut.dispatcher.dispatch(Tracker)(carrier)
         assert 1 == len(carrier)
         assert isinstance(carrier[0], ComesAfterNonConfigurableExtensionExtension)

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import hashlib
 import json
@@ -7,7 +9,7 @@ from contextlib import suppress
 from os.path import getmtime
 from pathlib import Path
 from time import time
-from typing import Optional, Dict, Callable, Tuple, Iterable, Set, cast
+from typing import Callable, Iterable, cast, Any
 
 import aiofiles
 import aiohttp
@@ -24,7 +26,8 @@ from betty.jinja2 import Jinja2Provider, Environment
 from betty.load import PostLoader
 from betty.locale import Localized, negotiate_locale, to_locale, get_data, LocaleNotFoundError, Localey, Localizer
 from betty.media_type import MediaType
-from betty.model.ancestry import Link, HasLinks, Entity
+from betty.model import Entity
+from betty.model.ancestry import Link, HasLinks
 
 
 class WikipediaError(BaseException):
@@ -42,11 +45,11 @@ class RetrievalError(WikipediaError, RuntimeError):
 _URL_PATTERN = re.compile(r'^https?://([a-z]+)\.wikipedia\.org/wiki/([^/?#]+).*$')
 
 
-def _parse_url(url: str) -> Tuple[str, str]:
+def _parse_url(url: str) -> tuple[str, str]:
     match = _URL_PATTERN.fullmatch(url)
     if match is None:
         raise NotAnEntryError
-    return cast(Tuple[str, str], match.groups())
+    return cast(tuple[str, str], match.groups())
 
 
 class Entry(Localized):
@@ -80,7 +83,7 @@ class _Retriever:
         self._ttl = ttl
         self._http_client = http_client
 
-    async def _request(self, url: str) -> Dict:
+    async def _request(self, url: str) -> Any:
         cache_file_path = self._cache_directory_path / hashlib.md5(url.encode('utf-8')).hexdigest()
 
         response_data = None
@@ -113,14 +116,14 @@ class _Retriever:
 
         return response_data
 
-    async def _get_page_data(self, url: str) -> Dict:
+    async def _get_page_data(self, url: str) -> Any:
         response_data = await self._request(url)
         try:
             return response_data['query']['pages'][0]
         except (LookupError, TypeError) as e:
             raise RetrievalError('Could not successfully parse the JSON format returned by %s: %s' % (url, e))
 
-    async def get_translations(self, entry_language: str, entry_name: str) -> Dict[str, str]:
+    async def get_translations(self, entry_language: str, entry_name: str) -> dict[str, str]:
         url = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=langlinks&lllimit=500&format=json&formatversion=2' % (
             entry_language, entry_name)
         page_data = await self._get_page_data(url)
@@ -148,17 +151,17 @@ class _Populator:
 
     async def populate(self) -> None:
         locales = set(map(lambda x: x.alias, self._app.project.configuration.locales.values()))
-        await asyncio.gather(*[  # type: ignore
+        await asyncio.gather(*[
             self._populate_entity(entity, locales)
-            for entity  # type: ignore
+            for entity
             in self._app.project.ancestry.entities
         ])
 
-    async def _populate_entity(self, entity: Entity, locales: Set[str]) -> None:
+    async def _populate_entity(self, entity: Entity, locales: set[str]) -> None:
         if not isinstance(entity, HasLinks):
             return
 
-        entry_links: Set[Tuple[str, str]] = set()
+        entry_links: set[tuple[str, str]] = set()
         for link in entity.links:
             try:
                 entry_locale, entry_name = _parse_url(link.url)
@@ -182,7 +185,7 @@ class _Populator:
             entry_translations = await self._retriever.get_translations(entry_locale, entry_name)
             if len(entry_translations) == 0:
                 continue
-            entry_translation_locale_datas: Set[Localey] = set(filter_suppress(get_data, LocaleNotFoundError, entry_translations.keys()))
+            entry_translation_locale_datas: set[Localey] = set(filter_suppress(get_data, LocaleNotFoundError, entry_translations.keys()))
             for locale in locales.difference({entry_locale}):
                 added_entry_locale_data = negotiate_locale(locale, entry_translation_locale_datas)
                 if added_entry_locale_data is None:
@@ -202,7 +205,7 @@ class _Populator:
                 entity.links.add(added_link)
                 entry_links.add((added_entry_locale, added_entry_name))
 
-    async def populate_link(self, link: Link, entry_locale: str, entry: Optional[Entry] = None) -> None:
+    async def populate_link(self, link: Link, entry_locale: str, entry: Entry | None = None) -> None:
         if link.url.startswith('http:'):
             link.url = 'https:' + link.url[5:]
         if link.media_type is None:
@@ -220,10 +223,10 @@ class _Populator:
 
 
 class Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstance):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self.__retriever = None
-        self.__populator = None
+        self.__retriever: _Retriever | None = None
+        self.__populator: _Populator | None = None
 
     async def post_load(self) -> None:
         await self._populator.populate()
@@ -251,7 +254,7 @@ class Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstanc
         self.__populator = None
 
     @property
-    def filters(self) -> Dict[str, Callable]:
+    def filters(self) -> dict[str, Callable[..., Any]]:
         return {
             'wikipedia': self._filter_wikipedia_links,
         }
@@ -271,7 +274,7 @@ class Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstanc
             ]),
         )
 
-    async def _filter_wikipedia_link(self, locale: str, link: Link) -> Optional[Entry]:
+    async def _filter_wikipedia_link(self, locale: str, link: Link) -> Entry | None:
         try:
             entry_language, entry_name = _parse_url(link.url)
         except NotAnEntryError:
@@ -284,7 +287,7 @@ class Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstanc
             return None
 
     @classmethod
-    def assets_directory_path(cls) -> Optional[Path]:
+    def assets_directory_path(cls) -> Path | None:
         return Path(__file__).parent / 'assets'
 
     @classmethod

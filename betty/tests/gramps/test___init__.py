@@ -1,6 +1,6 @@
 from betty.app import App
-from betty.gramps import Gramps, GrampsConfiguration
-from betty.gramps.config import FamilyTreeConfiguration
+from betty.gramps import Gramps
+from betty.gramps.config import FamilyTreeConfiguration, GrampsConfiguration
 from betty.load import load
 from betty.model.ancestry import Citation, Note, Source, File, \
     Event, Person, Place
@@ -9,7 +9,7 @@ from betty.tempfile import TemporaryDirectory
 
 
 class TestGramps:
-    async def test_load_multiple_family_trees(self):
+    async def test_load_multiple_family_trees(self) -> None:
         family_tree_one_xml = """
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"

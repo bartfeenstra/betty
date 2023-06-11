@@ -1,4 +1,5 @@
 from betty.app import App
+from betty.asyncio import sync
 from betty.generate import generate
 from betty.http_api_doc import HttpApiDoc
 from betty.project import ExtensionConfiguration
@@ -7,7 +8,8 @@ from betty.tests import patch_cache
 
 class TestHttpApiDoc:
     @patch_cache
-    async def test(self):
+    @sync
+    async def test(self) -> None:
         with App() as app:
             app.project.configuration.extensions.append(ExtensionConfiguration(HttpApiDoc))
             await generate(app)

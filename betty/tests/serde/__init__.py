@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import overload, List, Type, Tuple, Iterable, Iterator
+from typing import overload, Iterable, Iterator, Any
 
 from betty.serde.error import SerdeError, SerdeErrorCollection
 
@@ -18,7 +18,7 @@ def assert_error(
     error_type: None = None,
     error_message: None = None,
     error_contexts: None = None,
-) -> List[SerdeError]:
+) -> list[SerdeError]:
     pass
 
 
@@ -27,10 +27,10 @@ def assert_error(
     actual_error: SerdeError | SerdeErrorCollection,
     *,
     error: None = None,
-    error_type: Type[SerdeError] = SerdeError,
+    error_type: type[SerdeError] = SerdeError,
     error_message: str | None = None,
-    error_contexts: Tuple[str, ...] | None = None,
-) -> List[SerdeError]:
+    error_contexts: tuple[str, ...] | None = None,
+) -> list[SerdeError]:
     pass
 
 
@@ -38,10 +38,10 @@ def assert_error(
     actual_error: SerdeError | SerdeErrorCollection,
     *,
     error: SerdeError | None = None,
-    error_type: Type[SerdeError] | None = SerdeError,
+    error_type: type[SerdeError] | None = SerdeError,
     error_message: str | None = None,
-    error_contexts: Tuple[str, ...] | None = None,
-) -> List[SerdeError]:
+    error_contexts: tuple[str, ...] | None = None,
+) -> list[SerdeError]:
     actual_errors: Iterable[SerdeError]
     if isinstance(actual_error, SerdeErrorCollection):
         actual_errors = [*actual_error]
@@ -73,7 +73,7 @@ def assert_error(
 
 
 @contextmanager
-def raises_error(*args, **kwargs) -> Iterator[SerdeErrorCollection]:
+def raises_error(*args: Any, **kwargs: Any) -> Iterator[SerdeErrorCollection]:
     try:
         with SerdeErrorCollection().catch() as errors:
             yield errors

@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from PyQt6.QtCore import QObject, pyqtSignal, Qt
 from PyQt6.QtWidgets import QWidget, QVBoxLayout
@@ -18,7 +19,7 @@ class LogRecord(Text):
 
     _formatter = logging.Formatter()
 
-    def __init__(self, record: logging.LogRecord, *args, **kwargs):
+    def __init__(self, record: logging.LogRecord, *args: Any, **kwargs: Any):
         super().__init__(self._formatter.format(record), *args, **kwargs)
         self.setProperty('level', self._normalize_level(record.levelno))
 
@@ -30,7 +31,7 @@ class LogRecord(Text):
 
 
 class LogRecordViewer(QWidget):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._log_record_layout = QVBoxLayout()
         self.setLayout(self._log_record_layout)
@@ -41,13 +42,16 @@ class LogRecordViewer(QWidget):
 
 class _LogRecordViewerHandlerObject(QObject):
     """
-    Provide a signal got logging handlers to log records to a LogRecordViewer in the main (GUI) thread.
+    Provide a signal for logging handlers to log records to a LogRecordViewer in the main (GUI) thread.
     """
     log = pyqtSignal(logging.LogRecord)
 
     def __init__(self, viewer: LogRecordViewer):
         super().__init__()
-        self.log.connect(viewer.log, Qt.ConnectionType.QueuedConnection)  # type: ignore
+        self.log.connect(  # type: ignore[call-arg]
+            viewer.log,
+            Qt.ConnectionType.QueuedConnection,
+        )
 
 
 class LogRecordViewerHandler(logging.Handler):

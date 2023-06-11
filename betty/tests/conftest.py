@@ -1,18 +1,22 @@
+from __future__ import annotations
+
 import gc
 import logging
-from typing import Union, List, Type, Callable, Iterator, Optional, TypeVar
+from typing import Callable, Iterator, TypeVar, cast, Union
 
 import pytest
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QMainWindow, QMenu, QWidget
+from _pytest.logging import LogCaptureFixture
 from pytestqt.qtbot import QtBot
+from typing_extensions import TypeAlias
 
 from betty.app import AppConfiguration, App
 from betty.gui import BettyApplication
-from betty.gui.error import Error
+from betty.gui.error import ErrorT
 
-_qapp_instance: Optional[BettyApplication] = None
+_qapp_instance: BettyApplication | None = None
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -21,21 +25,21 @@ def mock_app_configuration() -> Iterator[None]:
     Prevent App from loading its application configuration from the current user session, as it would pollute the tests.
     """
 
-    AppConfiguration._read = AppConfiguration.read  # type: ignore
-    AppConfiguration.read = lambda _: None  # type: ignore
+    AppConfiguration._read = AppConfiguration.read  # type: ignore[attr-defined]
+    AppConfiguration.read = lambda _: None  # type: ignore[assignment, method-assign, misc]
     yield
-    AppConfiguration.read = AppConfiguration._read  # type: ignore
-    del AppConfiguration._read  # type: ignore
+    AppConfiguration.read = AppConfiguration._read  # type: ignore[attr-defined, method-assign]
+    del AppConfiguration._read  # type: ignore[attr-defined]
 
 
 @pytest.fixture(scope='function', autouse=True)
-def set_logging(caplog) -> Iterator[None]:
+def set_logging(caplog: LogCaptureFixture) -> Iterator[None]:
     with caplog.at_level(logging.CRITICAL):
         yield
 
 
 @pytest.fixture(scope='function')
-def qapp(qapp_args) -> Iterator[BettyApplication]:
+def qapp(qapp_args: list[str]) -> Iterator[BettyApplication]:
     """
     Fixture that instantiates the BettyApplication instance that will be used by
     the tests.
@@ -45,23 +49,23 @@ def qapp(qapp_args) -> Iterator[BettyApplication]:
 
     This overrides pytest-qt's built-in qapp fixture and adds forced garbage collection after each function.
     """
-    qapp_instance = BettyApplication.instance()
+    qapp_instance = cast(BettyApplication, BettyApplication.instance())
     if qapp_instance is None:
         global _qapp_instance
         with App() as app:
             _qapp_instance = BettyApplication(qapp_args, app=app)
         yield _qapp_instance
     else:
-        yield qapp_instance  # type: ignore
+        yield qapp_instance
     gc.collect()
 
 
-Navigate = Callable[[Union[QMainWindow, QMenu], List[str]], None]
+Navigate: TypeAlias = Callable[['QMainWindow | QMenu', list[str]], None]
 
 
 @pytest.fixture
 def navigate(qtbot: QtBot) -> Navigate:
-    def _navigate(item: Union[QMainWindow, QMenu], attributes: List[str]) -> None:
+    def _navigate(item: QMainWindow | QMenu, attributes: list[str]) -> None:
         if attributes:
             attribute = attributes.pop(0)
             item = getattr(item, attribute)
@@ -79,18 +83,18 @@ def navigate(qtbot: QtBot) -> Navigate:
 QWidgetT = TypeVar('QWidgetT', bound=QWidget)
 
 
-AssertTopLevelWidget = Callable[[Union[Type[QWidgetT], QWidgetT]], QWidgetT]
+AssertTopLevelWidget: TypeAlias = Callable[['type[QWidgetT] | QWidgetT'], QWidgetT]
 
 
 @pytest.fixture
-def assert_top_level_widget(qapp: BettyApplication, qtbot: QtBot) -> AssertTopLevelWidget:
-    def _wait_assert_top_level_widget(widget_type: Union[Type[QWidgetT], QWidgetT]) -> QWidget:
+def assert_top_level_widget(qapp: BettyApplication, qtbot: QtBot) -> AssertTopLevelWidget[QWidgetT]:
+    def _wait_assert_top_level_widget(widget_type: type[QWidgetT] | QWidgetT) -> QWidgetT:
         if isinstance(widget_type, QWidget):
             assert widget_type.isVisible()
 
         widgets = []
 
-        def __assert_top_level_widget():
+        def __assert_top_level_widget() -> None:
             nonlocal widgets
             widgets = [
                 widget
@@ -102,16 +106,16 @@ def assert_top_level_widget(qapp: BettyApplication, qtbot: QtBot) -> AssertTopLe
         qtbot.waitUntil(__assert_top_level_widget)
         widget = widgets[0]
         qtbot.addWidget(widget)
-        return widget
+        return cast(QWidgetT, widget)
     return _wait_assert_top_level_widget
 
 
-AssertNotTopLevelWidget = Callable[[Union[Type[QWidget], QWidgetT]], None]
+AssertNotTopLevelWidget: TypeAlias = Callable[['type[QWidget] | QWidgetT'], None]
 
 
 @pytest.fixture
-def assert_not_top_level_widget(qapp: BettyApplication, qtbot: QtBot) -> AssertNotTopLevelWidget:
-    def _assert_not_top_level_widget(widget_type: Union[Type[QWidget], QWidgetT]) -> None:
+def assert_not_top_level_widget(qapp: BettyApplication, qtbot: QtBot) -> AssertNotTopLevelWidget[QWidgetT]:
+    def _assert_not_top_level_widget(widget_type: type[QWidget] | QWidgetT) -> None:
         if isinstance(widget_type, QWidget):
             assert widget_type.isHidden()
         widgets = [
@@ -127,42 +131,45 @@ def assert_not_top_level_widget(qapp: BettyApplication, qtbot: QtBot) -> AssertN
 QMainWindowT = TypeVar('QMainWindowT', bound=QMainWindow)
 
 
-AssertWindow = Callable[[Union[Type[QMainWindowT], QMainWindowT]], QMainWindowT]
+AssertWindow: TypeAlias = Callable[[Union[type[QMainWindowT], QMainWindowT]], QMainWindowT]
 
 
 @pytest.fixture
-def assert_window(assert_top_level_widget: AssertTopLevelWidget) -> AssertWindow:
-    def _assert_window(window_type: Union[Type[QMainWindowT], QMainWindowT]) -> QMainWindowT:
+def assert_window(assert_top_level_widget: AssertTopLevelWidget[QMainWindowT]) -> AssertWindow[QMainWindowT]:
+    def _assert_window(window_type: type[QMainWindowT] | QMainWindowT) -> QMainWindowT:
         return assert_top_level_widget(window_type)
     return _assert_window
 
 
-AssertNotWindow = Callable[[Union[Type[QMainWindowT], QMainWindowT]], None]
+AssertNotWindow: TypeAlias = Callable[[Union[type[QMainWindowT], QMainWindowT]], None]
 
 
 @pytest.fixture
-def assert_not_window(assert_not_top_level_widget: AssertNotTopLevelWidget) -> AssertNotWindow:
-    def _assert_window(window_type: Union[Type[QMainWindowT], QMainWindowT]) -> None:
+def assert_not_window(assert_not_top_level_widget: AssertNotTopLevelWidget[QWidget]) -> AssertNotWindow[QMainWindow]:
+    def _assert_not_window(window_type: type[QMainWindow] | QMainWindow) -> None:
         assert_not_top_level_widget(window_type)
-    return _assert_window
+    return _assert_not_window
+
+
+AssertError: TypeAlias = Callable[[type[ErrorT]], ErrorT]
 
 
 @pytest.fixture
-def assert_error(qapp: BettyApplication, qtbot: QtBot):
-    def _wait_assert_error(error_type: Type[Error]) -> Error:
+def assert_error(qapp: BettyApplication, qtbot: QtBot) -> AssertError[ErrorT]:
+    def _wait_assert_error(error_type: type[ErrorT]) -> ErrorT:
         widget = None
 
-        def _assert_error_modal():
+        def _assert_error_modal() -> None:
             nonlocal widget
             widget = qapp.activeModalWidget()
             assert isinstance(widget, error_type)
         qtbot.waitUntil(_assert_error_modal)
         qtbot.addWidget(widget)
-        return widget  # type: ignore
+        return cast(ErrorT, widget)
     return _wait_assert_error
 
 
-AssertValid = Callable[[QWidget], None]
+AssertValid: TypeAlias = Callable[[QWidget], None]
 
 
 @pytest.fixture
@@ -172,7 +179,7 @@ def assert_valid() -> AssertValid:
     return _assert_valid
 
 
-AssertInvalid = Callable[[QWidget], None]
+AssertInvalid: TypeAlias = Callable[[QWidget], None]
 
 
 @pytest.fixture

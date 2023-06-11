@@ -31,7 +31,7 @@ def assert_betty_json(app: App, url_path: str, schema_definition: str) -> Path:
 
 
 class TestGenerate:
-    async def test_html_lang(self):
+    async def test_html_lang(self) -> None:
         app = App()
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
@@ -41,7 +41,7 @@ class TestGenerate:
                 html = f.read()
                 assert '<html lang="nl-NL"' in html
 
-    async def test_root_redirect(self):
+    async def test_root_redirect(self) -> None:
         app = App()
         app.project.configuration.locales.replace(
             LocaleConfiguration('nl-NL', 'nl'),
@@ -53,7 +53,7 @@ class TestGenerate:
             meta_redirect = '<meta http-equiv="refresh" content="0; url=/nl/index.html">'
             assert meta_redirect in f.read()
 
-    async def test_links(self):
+    async def test_links(self) -> None:
         app = App()
         app.project.configuration.locales.replace(
             LocaleConfiguration('nl-NL', 'nl'),
@@ -70,7 +70,7 @@ class TestGenerate:
             assert '<link rel="canonical" href="https://example.com/en/index.html" hreflang="en-US" type="text/html"/>' in html
             assert '<link rel="alternate" href="/nl/index.html" hreflang="nl-NL" type="text/html"/>' in html
 
-    async def test_links_for_entity_pages(self):
+    async def test_links_for_entity_pages(self) -> None:
         app = App()
         app.project.configuration.locales.replace(
             LocaleConfiguration('nl-NL', 'nl'),
@@ -93,14 +93,14 @@ class TestGenerate:
         assert f'<link rel="alternate" href="/nl/person/{person.id}/index.html" hreflang="nl-NL" type="text/html"/>' in html
         assert f'<link rel="alternate" href="/nl/person/{person.id}/index.json" hreflang="nl-NL" type="application/json"/>' in html
 
-    async def test_files(self):
+    async def test_files(self) -> None:
         with App() as app:
             app.project.configuration.entity_types.append(EntityTypeConfiguration(File, True))
             await generate(app)
         assert_betty_html(app, '/file/index.html')
         assert_betty_json(app, '/file/index.json', 'fileCollection')
 
-    async def test_file(self):
+    async def test_file(self) -> None:
         with App() as app:
             with NamedTemporaryFile() as f:
                 file = File('FILE1', Path(f.name))
@@ -109,13 +109,13 @@ class TestGenerate:
             assert_betty_html(app, '/file/%s/index.html' % file.id)
             assert_betty_json(app, '/file/%s/index.json' % file.id, 'file')
 
-    async def test_places(self):
+    async def test_places(self) -> None:
         with App() as app:
             await generate(app)
         assert_betty_html(app, '/place/index.html')
         assert_betty_json(app, '/place/index.json', 'placeCollection')
 
-    async def test_place(self):
+    async def test_place(self) -> None:
         with App() as app:
             place = Place('PLACE1', [PlaceName('one')])
             app.project.ancestry.entities.append(place)
@@ -123,13 +123,13 @@ class TestGenerate:
         assert_betty_html(app, '/place/%s/index.html' % place.id)
         assert_betty_json(app, '/place/%s/index.json' % place.id, 'place')
 
-    async def test_people(self):
+    async def test_people(self) -> None:
         with App() as app:
             await generate(app)
         assert_betty_html(app, '/person/index.html')
         assert_betty_json(app, '/person/index.json', 'personCollection')
 
-    async def test_person(self):
+    async def test_person(self) -> None:
         with App() as app:
             person = Person('PERSON1')
             app.project.ancestry.entities.append(person)
@@ -137,13 +137,13 @@ class TestGenerate:
         assert_betty_html(app, '/person/%s/index.html' % person.id)
         assert_betty_json(app, '/person/%s/index.json' % person.id, 'person')
 
-    async def test_events(self):
+    async def test_events(self) -> None:
         with App() as app:
             await generate(app)
         assert_betty_html(app, '/event/index.html')
         assert_betty_json(app, '/event/index.json', 'eventCollection')
 
-    async def test_event(self):
+    async def test_event(self) -> None:
         with App() as app:
             event = Event('EVENT1', Birth)
             app.project.ancestry.entities.append(event)
@@ -151,7 +151,7 @@ class TestGenerate:
         assert_betty_html(app, '/event/%s/index.html' % event.id)
         assert_betty_json(app, '/event/%s/index.json' % event.id, 'event')
 
-    async def test_citation(self):
+    async def test_citation(self) -> None:
         with App() as app:
             source = Source('A Little Birdie')
             citation = Citation('CITATION1', source)
@@ -160,13 +160,13 @@ class TestGenerate:
         assert_betty_html(app, '/citation/%s/index.html' % citation.id)
         assert_betty_json(app, '/citation/%s/index.json' % citation.id, 'citation')
 
-    async def test_sources(self):
+    async def test_sources(self) -> None:
         with App() as app:
             await generate(app)
         assert_betty_html(app, '/source/index.html')
         assert_betty_json(app, '/source/index.json', 'sourceCollection')
 
-    async def test_source(self):
+    async def test_source(self) -> None:
         with App() as app:
             source = Source('SOURCE1', 'A Little Birdie')
             app.project.ancestry.entities.append(source)
@@ -176,7 +176,7 @@ class TestGenerate:
 
 
 class TestResourceOverride:
-    async def test(self):
+    async def test(self) -> None:
         with App() as app:
             localized_assets_directory_path = Path(app.project.configuration.assets_directory_path) / 'public' / 'static'
             localized_assets_directory_path.mkdir(parents=True)
@@ -189,7 +189,7 @@ class TestResourceOverride:
 
 @pytest.mark.skipif(sys.platform == 'win32', reason='lxml cannot be installed directly onto vanilla Windows.')
 class TestSitemapGenerate:
-    async def test_validate(self):
+    async def test_validate(self) -> None:
         from lxml import etree
 
         with App() as app:

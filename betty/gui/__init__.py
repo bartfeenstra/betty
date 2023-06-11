@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from logging import getLogger
 from os import path
+from typing import Any, TypeVar
 
 from PyQt6.QtCore import pyqtSlot, QObject
 from PyQt6.QtGui import QIcon
@@ -13,6 +14,9 @@ from betty.gui.error import ExceptionError, UnexpectedExceptionError
 from betty.gui.locale import LocalizedWindow
 from betty.locale import Localizer
 from betty.serde.format import FormatRepository
+
+
+QWidgetT = TypeVar('QWidgetT', bound=QWidget)
 
 
 def get_configuration_file_filter(localizer: Localizer) -> str:
@@ -46,7 +50,7 @@ class BettyWindow(LocalizedWindow):
     window_width = 800
     window_height = 600
 
-    def __init__(self, app: App, *args, **kwargs):
+    def __init__(self, app: App, *args: Any, **kwargs: Any):
         super().__init__(app, *args, **kwargs)
         self.resize(self.window_width, self.window_height)
         self.setWindowIcon(QIcon(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'betty-512x512.png')))
@@ -115,13 +119,17 @@ class BettyApplication(QApplication):
         }
         """
 
-    def __init__(self, *args, app: App, **kwargs):
+    def __init__(self, *args: Any, app: App, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self.setApplicationName('Betty')
         self.setStyleSheet(self._STYLESHEET)
         self._app = app
 
-    @pyqtSlot(Exception, QObject, bool)
+    @pyqtSlot(  # type: ignore[misc]
+        Exception,
+        QObject,
+        bool,
+    )
     def _catch_exception(
         self,
         e: Exception,

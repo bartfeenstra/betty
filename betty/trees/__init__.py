@@ -1,12 +1,12 @@
+from __future__ import annotations
+
 import logging
 import subprocess
 from pathlib import Path
 from shutil import copy2
-from typing import Optional, Set, Type, List
-
-from betty.cache import CacheScope
 
 from betty.app.extension import Extension, UserFacingExtension
+from betty.cache import CacheScope
 from betty.generate import Generator
 from betty.html import CssProvider, JsProvider
 from betty.locale import Localizer
@@ -15,7 +15,7 @@ from betty.npm import _Npm, NpmBuilder, npm
 
 class Trees(UserFacingExtension, CssProvider, JsProvider, Generator, NpmBuilder):
     @classmethod
-    def depends_on(cls) -> Set[Type[Extension]]:
+    def depends_on(cls) -> set[type[Extension]]:
         return {_Npm}
 
     async def npm_build(self, working_directory_path: Path, assets_directory_path: Path) -> None:
@@ -38,17 +38,17 @@ class Trees(UserFacingExtension, CssProvider, JsProvider, Generator, NpmBuilder)
         self._copy_npm_build(assets_directory_path, self.app.static_www_directory_path)
 
     @classmethod
-    def assets_directory_path(cls) -> Optional[Path]:
+    def assets_directory_path(cls) -> Path | None:
         return Path(__file__).parent / 'assets'
 
     @property
-    def public_css_paths(self) -> List[str]:
+    def public_css_paths(self) -> list[str]:
         return [
             self.app.static_url_generator.generate('trees.css'),
         ]
 
     @property
-    def public_js_paths(self) -> List[str]:
+    def public_js_paths(self) -> list[str]:
         return [
             self.app.static_url_generator.generate('trees.js'),
         ]

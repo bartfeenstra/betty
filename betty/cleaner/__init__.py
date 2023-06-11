@@ -1,15 +1,10 @@
-from typing import Set, Type, Dict
+from graphlib import TopologicalSorter
 
 from betty.anonymizer import Anonymizer
 from betty.app.extension import Extension, UserFacingExtension
 from betty.load import PostLoader
 from betty.locale import Localizer
 from betty.model.ancestry import Ancestry, Place, File, Person, Event, Source, Citation
-
-try:
-    from graphlib_backport import TopologicalSorter
-except ModuleNotFoundError:
-    from graphlib import TopologicalSorter
 
 
 def clean(ancestry: Ancestry) -> None:
@@ -37,7 +32,7 @@ def _clean_event(ancestry: Ancestry, event: Event) -> None:
     del ancestry.entities[Event][event]
 
 
-_PlacesGraph = Dict[Place, Set[Place]]
+_PlacesGraph = dict[Place, set[Place]]
 
 
 def _clean_places(ancestry: Ancestry) -> None:
@@ -49,6 +44,8 @@ def _clean_places(ancestry: Ancestry) -> None:
         graph.setdefault(enclosing_place, set())
         for enclosure in enclosures:
             enclosed_place = enclosure.encloses
+            if enclosed_place is None:
+                continue
             seen_enclosed_place = enclosed_place in graph
             graph[enclosing_place].add(enclosed_place)
             if not seen_enclosed_place:
@@ -142,7 +139,7 @@ def _clean_citation(ancestry: Ancestry, citation: Citation) -> None:
 
 class Cleaner(UserFacingExtension, PostLoader):
     @classmethod
-    def comes_after(cls) -> Set[Type[Extension]]:
+    def comes_after(cls) -> set[type[Extension]]:
         return {Anonymizer}
 
     async def post_load(self) -> None:

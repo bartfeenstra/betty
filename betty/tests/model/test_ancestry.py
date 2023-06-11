@@ -22,11 +22,7 @@ class DummyEntity(Entity):
 
 
 class TestHasPrivacy:
-    def test_pickle(self) -> None:
-        sut = HasPrivacy()
-        pickle.dumps(sut)
-
-    def test_date(self) -> None:
+    def test_private(self) -> None:
         class _HasPrivacy(HasPrivacy):
             pass
         sut = _HasPrivacy()
@@ -34,10 +30,6 @@ class TestHasPrivacy:
 
 
 class TestDated:
-    def test_pickle(self) -> None:
-        sut = Dated()
-        pickle.dumps(sut)
-
     def test_date(self) -> None:
         class _Dated(Dated):
             pass
@@ -46,10 +38,6 @@ class TestDated:
 
 
 class TestNote:
-    def test_pickle(self) -> None:
-        sut = Note('N1', 'Betty wrote this.')
-        pickle.dumps(sut)
-
     def test_id(self) -> None:
         note_id = 'N1'
         sut = Note(note_id, 'Betty wrote this.')
@@ -66,20 +54,12 @@ class HasNotesTestEntity(HasNotes, Entity):
 
 
 class TestHasNotes:
-    def test_pickle(self) -> None:
-        sut = HasNotesTestEntity()
-        pickle.dumps(sut)
-
     def test_notes(self) -> None:
         sut = HasNotesTestEntity()
         assert [] == list(sut.notes)
 
 
 class TestDescribed:
-    def test_pickle(self) -> None:
-        sut = Described()
-        pickle.dumps(sut)
-
     def test_description(self) -> None:
         class _Described(Described):
             pass
@@ -88,10 +68,6 @@ class TestDescribed:
 
 
 class TestHasMediaType:
-    def test_pickle(self) -> None:
-        sut = HasMediaType()
-        pickle.dumps(sut)
-
     def test_media_type(self) -> None:
         class _HasMediaType(HasMediaType):
             pass
@@ -100,10 +76,6 @@ class TestHasMediaType:
 
 
 class TestLink:
-    def test_pickle(self) -> None:
-        sut = Link('https://example.com')
-        pickle.dumps(sut)
-
     def test_url(self) -> None:
         url = 'https://example.com'
         sut = Link(url)
@@ -136,10 +108,6 @@ class TestLink:
 
 
 class TestHasLinks:
-    def test_pickle(self) -> None:
-        sut = HasLinks()
-        pickle.dumps(sut)
-
     def test_links(self) -> None:
         class _HasLinks(HasLinks):
             pass
@@ -152,10 +120,6 @@ class _HasFiles(HasFiles, Entity):
 
 
 class TestFile:
-    def test_pickle(self) -> None:
-        sut = File('BETTY01', Path('~'))
-        pickle.dumps(sut)
-
     def test_id(self) -> None:
         file_id = 'BETTY01'
         file_path = Path('~')
@@ -229,10 +193,6 @@ class TestFile:
 
 
 class TestHasFiles:
-    def test_pickle(self) -> None:
-        sut = _HasFiles()
-        pickle.dumps(sut)
-
     def test_files(self) -> None:
         sut = _HasFiles()
         assert [] == list(sut.files)
@@ -246,10 +206,6 @@ class TestSource:
         source_id = 'S1'
         sut = Source(source_id)
         assert source_id == sut.id
-
-    def test_pickle(self) -> None:
-        sut = Source(None)
-        pickle.dumps(sut)
 
     def test_name(self) -> None:
         name = 'The Source'
@@ -318,10 +274,6 @@ class TestCitation:
         sut = Citation(citation_id, Source(None))
         assert citation_id == sut.id
 
-    def test_pickle(self) -> None:
-        sut = Citation(None, Source(None))
-        pickle.dumps(sut)
-
     def test_facts(self) -> None:
         fact = _HasCitations()
         sut = Citation(None, Source(None))
@@ -358,10 +310,6 @@ class TestCitation:
 
 
 class TestHasCitations:
-    def test_pickle(self) -> None:
-        sut = _HasCitations()
-        pickle.dumps(sut)
-
     def test_citations(self) -> None:
         sut = _HasCitations()
         assert [] == list(sut.citations)
@@ -371,10 +319,6 @@ class TestHasCitations:
 
 
 class TestPlaceName:
-    def test_pickle(self) -> None:
-        sut = PlaceName('Ikke')
-        pickle.dumps(sut)
-
     @pytest.mark.parametrize('expected, a, b', [
         (True, PlaceName('Ikke'), PlaceName('Ikke')),
         (True, PlaceName('Ikke', 'nl-NL'), PlaceName('Ikke', 'nl-NL')),
@@ -409,10 +353,6 @@ class TestPlaceName:
 
 
 class TestEnclosure:
-    def test_pickle(self) -> None:
-        sut = Enclosure(Place('P1', []), Place('P2', []))
-        pickle.dumps(sut)
-
     def test_encloses(self) -> None:
         encloses = Mock(Place)
         enclosed_by = Mock(Place)
@@ -445,10 +385,6 @@ class TestEnclosure:
 
 
 class TestPlace:
-    def test_pickle(self) -> None:
-        sut = Place('P1', [])
-        pickle.dumps(sut)
-
     def test_events(self) -> None:
         sut = Place('P1', [PlaceName('The Place')])
         event = Event('1', Birth)
@@ -506,7 +442,7 @@ class TestPlace:
 class TestSubject:
     def test_name(self) -> None:
         assert isinstance(Subject.name(), str)
-        assert '' != Subject.name
+        assert '' != Subject.name()
 
     def test_label(self) -> None:
         sut = Subject()
@@ -517,7 +453,7 @@ class TestSubject:
 class TestWitness:
     def test_name(self) -> None:
         assert isinstance(Witness.name(), str)
-        assert '' != Witness.name
+        assert '' != Witness.name()
 
     def test_label(self) -> None:
         sut = Witness()
@@ -528,7 +464,7 @@ class TestWitness:
 class TestBeneficiary:
     def test_name(self) -> None:
         assert isinstance(Beneficiary.name(), str)
-        assert '' != Beneficiary.name
+        assert '' != Beneficiary.name()
 
     def test_label(self) -> None:
         sut = Beneficiary()
@@ -539,7 +475,7 @@ class TestBeneficiary:
 class TestAttendee:
     def test_name(self) -> None:
         assert isinstance(Attendee.name(), str)
-        assert '' != Attendee.name
+        assert '' != Attendee.name()
 
     def test_label(self) -> None:
         sut = Attendee()
@@ -548,11 +484,6 @@ class TestAttendee:
 
 
 class TestPresence:
-    def test_pickle(self) -> None:
-        person = Person(None)
-        sut = Presence(person, Subject(), Event(None, UnknownEventType))
-        pickle.dumps(sut)
-
     def test_person(self) -> None:
         person = Mock(Person)
         sut = Presence(person, Mock(PresenceRole), Event(None, UnknownEventType))
@@ -574,10 +505,6 @@ class TestEvent:
         event_id = 'E1'
         sut = Event(event_id, UnknownEventType)
         assert event_id == sut.id
-
-    def test_pickle(self) -> None:
-        sut = Event(None, UnknownEventType)
-        pickle.dumps(sut)
 
     def test_place(self) -> None:
         place = Place('1', [PlaceName('one')])
@@ -642,10 +569,6 @@ class TestEvent:
 
 
 class TestPersonName:
-    def test_pickle(self) -> None:
-        sut = PersonName(Person(None), 'Janet', 'Not a Girl')
-        pickle.dumps(sut)
-
     def test_person(self) -> None:
         person = Person('1')
         sut = PersonName(person, 'Janet', 'Not a Girl')
@@ -697,10 +620,6 @@ class TestPersonName:
 
 
 class TestPerson:
-    def test_pickle(self) -> None:
-        sut = Person('1')
-        pickle.dumps(sut)
-
     def test_parents(self) -> None:
         sut = Person('1')
         parent = Person('2')

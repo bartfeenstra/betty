@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-05 01:13+0100\n"
+"POT-Creation-Date: 2023-06-12 20:41+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -691,6 +691,9 @@ msgstr ""
 msgid "The configuration must have a configuration file path."
 msgstr ""
 
+msgid "The entity reference must be for an entity of type {expected_entity_type_name} ({expected_entity_type_label}), but instead does not specify an entity type at all."
+msgstr ""
+
 msgid "The entity reference must be for an entity of type {expected_entity_type_name} ({expected_entity_type_label}), but instead is for an entity of type {actual_entity_type_name} ({actual_entity_type_label})"
 msgstr ""
 
@@ -747,16 +750,13 @@ msgstr ""
 msgid "This must be a list."
 msgstr ""
 
-msgid "This must be a number."
-msgstr ""
-
 msgid "This must be a positive number."
 msgstr ""
 
 msgid "This must be a string."
 msgstr ""
 
-msgid "This must be an integer."
+msgid "This must be a whole number."
 msgstr ""
 
 msgid "This person's details are unavailable to protect their privacy."

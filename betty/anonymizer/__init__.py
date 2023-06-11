@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from typing import Set, Type
-
 from betty.app.extension import Extension, UserFacingExtension
-from betty.locale import Localizer
-from betty.privatizer import Privatizer
-from betty.model.ancestry import Ancestry, Person, File, Citation, Source, Event
 from betty.functools import walk
 from betty.load import PostLoader
+from betty.locale import Localizer
+from betty.model.ancestry import Ancestry, Person, File, Citation, Source, Event
+from betty.privatizer import Privatizer
 
 
 class AnonymousSource(Source):
@@ -16,8 +14,8 @@ class AnonymousSource(Source):
     def __init__(self, *, localizer: Localizer | None = None):
         super().__init__(self._ID, localizer=localizer)
 
-    @property  # type: ignore
-    def name(self) -> str:  # type: ignore
+    @property  # type: ignore[override]
+    def name(self) -> str:
         return self.localizer._('Private')
 
     @name.setter
@@ -49,8 +47,8 @@ class AnonymousCitation(Citation):
     def __init__(self, source: Source, *, localizer: Localizer | None = None):
         super().__init__(self._ID, source, localizer=localizer)
 
-    @property  # type: ignore
-    def location(self) -> str:  # type: ignore
+    @property  # type: ignore[override]
+    def location(self) -> str:
         return self.localizer._("A citation is available, but has not been published in order to protect people's privacy")
 
     @location.setter
@@ -154,7 +152,7 @@ def anonymize_citation(citation: Citation, ancestry: Ancestry, anonymous_citatio
 
 class Anonymizer(UserFacingExtension, PostLoader):
     @classmethod
-    def comes_after(cls) -> Set[Type[Extension]]:
+    def comes_after(cls) -> set[type[Extension]]:
         return {Privatizer}
 
     async def post_load(self) -> None:

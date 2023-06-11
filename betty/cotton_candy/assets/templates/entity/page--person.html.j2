@@ -107,7 +107,7 @@
                 {% macro co_parent_label(parent) -%}
                     <span typeof="foaf:Person" property="rel:spouseOf">{% with entity=parent, person_context=entity %}{% include ['entity/label--person.html.j2', 'entity/label.html.j2'] %}{% endwith %}</span>
                 {%- endmacro %}
-                {% for parents, per_parent_children in children | groupby('parents.list') %}
+                {% for parents, per_parent_children in children | groupby('parents.view') %}
                     <div class="family">
                         <div class="family-description">
                             <div class="family-description-content">

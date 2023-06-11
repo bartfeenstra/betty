@@ -1,4 +1,4 @@
-from typing import Optional, List, Dict
+from __future__ import annotations
 
 import pytest
 
@@ -18,7 +18,15 @@ class TestMediaType:
         # A media type with a parameter.
         ('text', 'html', ['html'], None, {'charset': 'UTF-8'}, 'text/html; charset=UTF-8'),
     ])
-    def test(self, expected_type: str, expected_subtype: str, expected_subtypes: List[str], expected_suffix: Optional[str], expected_parameters: Dict[str, str], media_type: str):
+    def test(
+        self,
+        expected_type: str,
+        expected_subtype: str,
+        expected_subtypes: list[str],
+        expected_suffix: str | None,
+        expected_parameters: dict[str, str],
+        media_type: str,
+    ) -> None:
         sut = MediaType(media_type)
         assert expected_type == sut.type
         assert expected_subtype == sut.subtype
@@ -35,6 +43,6 @@ class TestMediaType:
         'foo',
         'bar',
     ])
-    def test_invalid_type_should_raise_error(self, media_type: str):
+    def test_invalid_type_should_raise_error(self, media_type: str) -> None:
         with pytest.raises(InvalidMediaType):
             MediaType(media_type)

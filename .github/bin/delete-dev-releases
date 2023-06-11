@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 from os import environ
-from typing import List, Dict
+from typing import Dict
 
 import requests
 
 
-def page(endpoint: str) -> List[Dict]:
+def page(endpoint: str) -> list[Dict]:
     # Get all releases by paging over the endpoint.
     resources = []
     page = 0

@@ -25,7 +25,7 @@ class TestLocalizedPathUrlGenerator:
         ('/example/index.html', 'example/index.html'),
         ('/example/index.html', '/example/index.html'),
     ])
-    def test_generate(self, expected: str, resource: str):
+    def test_generate(self, expected: str, resource: str) -> None:
         with App() as app:
             sut = ContentNegotiationPathUrlGenerator(app)
             assert expected == sut.generate(resource, 'text/html')
@@ -36,7 +36,7 @@ class TestLocalizedPathUrlGenerator:
         ('/example', 'example/index.html'),
         ('/example', '/example/index.html'),
     ])
-    def test_generate_with_clean_urls(self, expected: str, resource: str):
+    def test_generate_with_clean_urls(self, expected: str, resource: str) -> None:
         with App() as app:
             app.project.configuration.clean_urls = True
             sut = ContentNegotiationPathUrlGenerator(app)
@@ -46,12 +46,12 @@ class TestLocalizedPathUrlGenerator:
         ('https://example.com', '/'),
         ('https://example.com/example', 'example'),
     ])
-    def test_generate_absolute(self, expected: str, resource: str):
+    def test_generate_absolute(self, expected: str, resource: str) -> None:
         with App() as app:
             sut = ContentNegotiationPathUrlGenerator(app)
             assert expected == sut.generate(resource, 'text/html', absolute=True)
 
-    def test_generate_with_invalid_value(self):
+    def test_generate_with_invalid_value(self) -> None:
         with App() as app:
             sut = ContentNegotiationPathUrlGenerator(app)
             with pytest.raises(ValueError):
@@ -63,7 +63,12 @@ class TestLocalizedPathUrlGenerator:
         ('/nl/index.html', None, 'nl'),
         ('/en/index.html', None, 'en'),
     ])
-    def test_generate_multilingual(self, expected: str, app_locale: Localey | None, url_generator_locale: Localey | None):
+    def test_generate_multilingual(
+        self,
+        expected: str,
+        app_locale: Localey | None,
+        url_generator_locale: Localey | None,
+    ) -> None:
         app = App(locale=app_locale)
         app.project.configuration.locales.replace(
             LocaleConfiguration('nl-NL', 'nl'),
@@ -82,12 +87,12 @@ class EntityUrlGeneratorTestNonUrlyEntity(UserFacingEntity, Entity):
 
 
 class TestEntityUrlGenerator:
-    def test_generate(self):
+    def test_generate(self) -> None:
         with App() as app:
             sut = _EntityUrlGenerator(app, EntityUrlGeneratorTestUrlyEntity)
             assert '/betty.tests.test_url.-entity-url-generator-test-urly-entity/I1/index.html' == sut.generate(EntityUrlGeneratorTestUrlyEntity('I1'), 'text/html')
 
-    def test_generate_with_invalid_value(self):
+    def test_generate_with_invalid_value(self) -> None:
         with App() as app:
             sut = _EntityUrlGenerator(app, EntityUrlGeneratorTestUrlyEntity)
             with pytest.raises(ValueError):
@@ -104,12 +109,12 @@ class TestAppUrlGenerator:
         ('/source/S1/index.html', Source('S1', 'Source 1')),
         ('/citation/C1/index.html', Citation('C1', Source('Source 1'))),
     ])
-    def test_generate(self, expected: str, resource: Any):
+    def test_generate(self, expected: str, resource: Any) -> None:
         with App() as app:
             sut = AppUrlGenerator(app)
             assert expected == sut.generate(resource, 'text/html')
 
-    def test_generate_with_invalid_value(self):
+    def test_generate_with_invalid_value(self) -> None:
         with App() as app:
             sut = AppUrlGenerator(app)
             with pytest.raises(ValueError):

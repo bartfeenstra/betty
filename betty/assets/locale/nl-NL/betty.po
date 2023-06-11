@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-05 01:13+0100\n"
+"POT-Creation-Date: 2023-06-12 20:41+0100\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -835,6 +835,17 @@ msgstr "De verzameling van {entity_type}-entiteiten."
 msgid "The configuration must have a configuration file path."
 msgstr ""
 
+#, fuzzy
+msgid ""
+"The entity reference must be for an entity of type "
+"{expected_entity_type_name} ({expected_entity_type_label}), but instead "
+"does not specify an entity type at all."
+msgstr ""
+"De entiteitsverwijzing moet verwijzen naar een entiteit van het type "
+"{expected_entity_type_name} ({expected_entity_type_label}), maar verwijst"
+" echter naar een entiteit van het type {actual_entity_type_name} "
+"({actual_entity_type_label})"
+
 msgid ""
 "The entity reference must be for an entity of type "
 "{expected_entity_type_name} ({expected_entity_type_label}), but instead "
@@ -899,17 +910,15 @@ msgstr "Dit moet een sleutel-waardetoewijzing zijn."
 msgid "This must be a list."
 msgstr "Dit moet een lijst zijn."
 
-msgid "This must be a number."
-msgstr "Dit moet een getal zijn."
-
 msgid "This must be a positive number."
 msgstr "Dit moet een positief getal zijn."
 
 msgid "This must be a string."
 msgstr "Dit moet een tekenreeks zijn."
 
-msgid "This must be an integer."
-msgstr "Dit moet een geheel getal zijn."
+#, fuzzy
+msgid "This must be a whole number."
+msgstr "Dit moet een getal zijn."
 
 msgid "This person's details are unavailable to protect their privacy."
 msgstr "De gegevens van deze persoon zijn niet beschikbaar vanwege privacyredenen."
@@ -1149,7 +1158,6 @@ msgstr "{entity_type_label}-ID"
 msgid "{entity_type} {entity_id}"
 msgstr ""
 
-#, python-format
 msgid "{event_type} of {subjects}"
 msgstr "{event_type} van {subjects}"
 
@@ -1162,4 +1170,7 @@ msgstr "{individual_name} {affiliation_name}"
 #, python-format
 msgid "© Copyright %(author)s, unless otherwise credited"
 msgstr "© Copyright %(author)s, tenzij anders vermeld"
+
+#~ msgid "This must be an integer."
+#~ msgstr "Dit moet een geheel getal zijn."
 

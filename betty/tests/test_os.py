@@ -1,11 +1,11 @@
-from unittest.mock import patch
+from pytest_mock import MockerFixture
 
 from betty.os import link_or_copy
 from betty.tempfile import TemporaryDirectory
 
 
 class TestLinkOrCopy:
-    def test(self):
+    def test(self) -> None:
         with TemporaryDirectory() as working_directory_path:
             content = 'I will say zis only once.'
             source_path = working_directory_path / 'source'
@@ -16,8 +16,8 @@ class TestLinkOrCopy:
             with open(destination_path) as f:
                 assert content == f.read()
 
-    @patch('os.link')
-    def test_with_os_error(self, m_link):
+    def test_with_os_error(self, mocker: MockerFixture) -> None:
+        m_link = mocker.patch('os.link')
         m_link.side_effect = OSError
         with TemporaryDirectory() as working_directory_path:
             content = 'I will say zis only once.'

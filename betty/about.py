@@ -4,7 +4,7 @@ import platform
 import sys
 from importlib.metadata import distributions
 from pathlib import Path
-from typing import Dict, Iterator
+from typing import Iterator
 
 
 def version() -> str | None:
@@ -27,7 +27,7 @@ def is_development() -> bool:
     return version() is None
 
 
-def _indent_mapping(items: Dict[str, str]) -> str:
+def _indent_mapping(items: dict[str, str]) -> str:
     max_indentation = max(map(len, items.keys())) + 4
     return '\n'.join(map(lambda x: '\n'.join(_indent_mapping_item(x[0], x[1], max_indentation)), items.items()))
 
@@ -45,6 +45,11 @@ def report() -> str:
         'Operating system': platform.platform(),
         'Python': sys.version,
         'Python packages': _indent_mapping({
-            x.metadata["Name"]: x.version for x in sorted(distributions(), key=lambda x: x.metadata["Name"].lower())
+            x.metadata['Name']: x.version
+            for x
+            in sorted(
+                distributions(),
+                key=lambda x: x.metadata['Name'].lower(),  # type: ignore[no-any-return, unused-ignore]
+            )
         }),
     })

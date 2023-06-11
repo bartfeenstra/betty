@@ -11,23 +11,18 @@ from contextlib import suppress
 from functools import total_ordering, lru_cache
 from io import StringIO
 from pathlib import Path
-from typing import Optional, Tuple, Union, Dict, Any, Iterator, Set, Sequence, Mapping
+from typing import Any, Iterator, Sequence, Mapping, Callable
 
 import babel
 from babel import dates, Locale
 from babel.messages.frontend import CommandLineInterface
 from langcodes import Language
 from polib import pofile
+from typing_extensions import TypeAlias
 
 from betty import fs
 from betty.fs import hashfile, FileSystem, ASSETS_DIRECTORY_PATH, ROOT_DIRECTORY_PATH
 from betty.os import ChDir
-
-try:
-    from typing_extensions import TypeAlias
-except ModuleNotFoundError:  # pragma: no cover
-    from typing import TypeAlias  # type: ignore  # pragma: no cover
-
 
 DEFAULT_LOCALE = 'en-US'
 
@@ -71,7 +66,7 @@ def to_locale(locale: Localey) -> str:
     )
 
 
-Localey: TypeAlias = Union[str, Locale]
+Localey: TypeAlias = 'str | Locale'
 
 
 def get_data(locale: Localey) -> Locale:
@@ -87,13 +82,13 @@ def get_display_name(locale: Localey, display_locale: Localey | None = None) -> 
     locale_data = get_data(locale)
     return locale_data.get_display_name(
         get_data(display_locale) if display_locale else locale_data
-    )  # type: ignore
+    )  # type: ignore[return-value]
 
 
 class Localized:
-    locale: Optional[str]
+    locale: str | None
 
-    def __init__(self, locale: Optional[str] = None):
+    def __init__(self, locale: str | None = None):
         super().__init__()
         self.locale = locale
 
@@ -104,18 +99,24 @@ class IncompleteDateError(ValueError):
 
 @total_ordering
 class Date:
-    year: Optional[int]
-    month: Optional[int]
-    day: Optional[int]
+    year: int | None
+    month: int | None
+    day: int | None
     fuzzy: bool
 
-    def __init__(self, year: Optional[int] = None, month: Optional[int] = None, day: Optional[int] = None, fuzzy: bool = False):
+    def __init__(
+        self,
+        year: int | None = None,
+        month: int | None = None,
+        day: int | None = None,
+        fuzzy: bool = False,
+    ):
         self.year = year
         self.month = month
         self.day = day
         self.fuzzy = fuzzy
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '<%s.%s(%s, %s, %s)>' % (self.__class__.__module__, self.__class__.__name__, self.year, self.month, self.day)
 
     @property
@@ -127,7 +128,7 @@ class Date:
         return self.year is not None and self.month is not None and self.day is not None
 
     @property
-    def parts(self) -> Tuple[Optional[int], Optional[int], Optional[int]]:
+    def parts(self) -> tuple[int | None, int | None, int | None]:
         return self.year, self.month, self.day
 
     def to_range(self) -> DateRange:
@@ -141,14 +142,14 @@ class Date:
         if self.day is None:
             day_start = 1
             day_end = calendar.monthrange(
-                self.year,  # type: ignore
+                self.year,  # type: ignore[arg-type]
                 month_end,
             )[1]
         else:
             day_start = day_end = self.day
         return DateRange(Date(self.year, month_start, day_start), Date(self.year, month_end, day_end))
 
-    def _compare(self, other, comparator):
+    def _compare(self, other: Any, comparator: Callable[[Any, Any], bool]) -> bool:
         if not isinstance(other, Date):
             return NotImplemented
         selfish = self
@@ -159,55 +160,61 @@ class Date:
         if not other.complete:
             other = other.to_range()
         if not selfish.complete:
-            selfish = selfish.to_range()  # type: ignore
+            selfish = selfish.to_range()  # type: ignore[assignment]
         return comparator(selfish, other)
 
-    def __contains__(self, other):
+    def __contains__(self, other: Any) -> bool:
         if isinstance(other, Date):
             return self == other
         if isinstance(other, DateRange):
             return self in other
         raise TypeError('Expected to check a %s, but a %s was given' % (type(Datey), type(other)))
 
-    def __lt__(self, other):
+    def __lt__(self, other: Any) -> bool:
         return self._compare(other, operator.lt)
 
-    def __le__(self, other):
+    def __le__(self, other: Any) -> bool:
         return self._compare(other, operator.le)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Date):
             return NotImplemented
         return self.parts == other.parts
 
-    def __ge__(self, other):
+    def __ge__(self, other: Any) -> bool:
         return self._compare(other, operator.ge)
 
-    def __gt__(self, other):
+    def __gt__(self, other: Any) -> bool:
         return self._compare(other, operator.gt)
 
 
 @total_ordering
 class DateRange:
-    start: Optional[Date]
+    start: Date | None
     start_is_boundary: bool
-    end: Optional[Date]
+    end: Date | None
     end_is_boundary: bool
 
-    def __init__(self, start: Optional[Date] = None, end: Optional[Date] = None, start_is_boundary: bool = False, end_is_boundary: bool = False):
+    def __init__(
+        self,
+        start: Date | None = None,
+        end: Date | None = None,
+        start_is_boundary: bool = False,
+        end_is_boundary: bool = False,
+    ):
         self.start = start
         self.start_is_boundary = start_is_boundary
         self.end = end
         self.end_is_boundary = end_is_boundary
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '%s.%s(%s, %s, start_is_boundary=%s, end_is_boundary=%s)' % (self.__class__.__module__, self.__class__.__name__, repr(self.start), repr(self.end), repr(self.start_is_boundary), repr(self.end_is_boundary))
 
     @property
     def comparable(self) -> bool:
         return self.start is not None and self.start.comparable or self.end is not None and self.end.comparable
 
-    def __contains__(self, other):
+    def __contains__(self, other: Any) -> bool:
         if not self.comparable:
             return False
 
@@ -254,8 +261,9 @@ class DateRange:
             for other in others:
                 if other <= self.end:
                     return True
+        return False
 
-    def _get_comparable_date(self, date: Optional[Date]) -> Optional[Date]:
+    def _get_comparable_date(self, date: Date | None) -> Date | None:
         if date and date.comparable:
             return date
         return None
@@ -307,7 +315,7 @@ class DateRange:
         else:
             return self._LT_DATE_COMPARATORS[signature](self_start, self_end, other)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if isinstance(other, Date):
             return False
 
@@ -316,10 +324,10 @@ class DateRange:
         return (self.start, self.end, self.start_is_boundary, self.end_is_boundary) == (other.start, other.end, other.start_is_boundary, other.end_is_boundary)
 
 
-Datey: TypeAlias = Union[Date, DateRange]
-DatePartsFormatters: TypeAlias = Mapping[Tuple[bool, bool, bool], str]
-DateFormatters: TypeAlias = Mapping[Tuple[Union[bool, None]], str]
-DateRangeFormatters: TypeAlias = Mapping[Tuple[Union[bool, None], Union[bool, None], Union[bool, None], Union[bool, None]], str]
+Datey: TypeAlias = 'Date | DateRange'
+DatePartsFormatters: TypeAlias = Mapping[tuple[bool, bool, bool], str]
+DateFormatters: TypeAlias = Mapping[tuple['bool | None'], str]
+DateRangeFormatters: TypeAlias = Mapping[tuple['bool | None', 'bool | None', 'bool | None', 'bool | None'], str]
 
 
 class Localizer:
@@ -418,12 +426,12 @@ class Localizer:
         except IncompleteDateError:
             return self._('unknown date')
 
-    def _format_date_parts(self, date: Optional[Date]) -> str:
+    def _format_date_parts(self, date: Date | None) -> str:
         if date is None:
             raise IncompleteDateError('This date is None.')
         try:
             date_parts_format = self._date_parts_formatters[tuple(
-                map(lambda x: x is not None, date.parts),  # type: ignore
+                map(lambda x: x is not None, date.parts),  # type: ignore[index]
             )]
         except KeyError:
             raise IncompleteDateError('This date does not have enough parts to be rendered.')
@@ -431,7 +439,7 @@ class Localizer:
         return dates.format_date(datetime.date(*parts), date_parts_format, self._locale_data)
 
     def format_date_range(self, date_range: DateRange) -> str:
-        formatter_configuration: Tuple[Optional[bool], Optional[bool], Optional[bool], Optional[bool]] = (None, None, None, None)
+        formatter_configuration: tuple[bool | None, bool | None, bool | None, bool | None] = (None, None, None, None)
         formatter_arguments = {}
 
         with suppress(IncompleteDateError):
@@ -464,7 +472,7 @@ DEFAULT_LOCALIZER = Localizer(DEFAULT_LOCALE, gettext.NullTranslations())
 class LocalizerRepository:
     def __init__(self, assets: FileSystem):
         self._assets = assets
-        self._localizers: Dict[str, Localizer] = {}
+        self._localizers: dict[str, Localizer] = {}
 
     @property
     def locales(self) -> Iterator[str]:
@@ -506,7 +514,7 @@ class LocalizerRepository:
         self._localizers[locale] = Localizer(locale, translations)
         return self._localizers[locale]
 
-    def _open_translations(self, locale: str, assets_directory_path: Path) -> Optional[gettext.GNUTranslations]:
+    def _open_translations(self, locale: str, assets_directory_path: Path) -> gettext.GNUTranslations | None:
         po_file_path = assets_directory_path / 'locale' / locale / 'betty.po'
         try:
             translation_version = hashfile(po_file_path)
@@ -537,7 +545,7 @@ class LocalizerRepository:
         with open(mo_file_path, 'rb') as f:
             return gettext.GNUTranslations(f)
 
-    def coverage(self, locale: Localey) -> Tuple[int, int]:
+    def coverage(self, locale: Localey) -> tuple[int, int]:
         translatables = set(self._get_translatables())
         locale = to_locale(locale)
         if locale == DEFAULT_LOCALE:
@@ -562,7 +570,7 @@ class LocalizerRepository:
 
 
 class Localizable:
-    def __init__(self, *args, localizer: Localizer | None = None, **kwargs):
+    def __init__(self, *args: Any, localizer: Localizer | None = None, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._localizer: Localizer | None = None if localizer is DEFAULT_LOCALIZER else localizer
 
@@ -583,7 +591,7 @@ class Localizable:
         pass
 
 
-def negotiate_locale(preferred_locales: Localey | Sequence[Localey], available_locales: Set[Localey]) -> Optional[Locale]:
+def negotiate_locale(preferred_locales: Localey | Sequence[Localey], available_locales: set[Localey]) -> Locale | None:
     if isinstance(preferred_locales, (str, Locale)):
         preferred_locales = [preferred_locales]
     return _negotiate_locale(
@@ -601,7 +609,7 @@ def negotiate_locale(preferred_locales: Localey | Sequence[Localey], available_l
     )
 
 
-def _negotiate_locale(preferred_locale_babel_identifiers: Sequence[str], available_locale_babel_identifiers: Set[str], root: bool) -> Optional[Locale]:
+def _negotiate_locale(preferred_locale_babel_identifiers: Sequence[str], available_locale_babel_identifiers: set[str], root: bool) -> Locale | None:
     negotiated_locale = babel.negotiate_locale(preferred_locale_babel_identifiers, available_locale_babel_identifiers)
     if negotiated_locale is not None:
         return Locale.parse(negotiated_locale)
@@ -618,7 +626,7 @@ def _negotiate_locale(preferred_locale_babel_identifiers: Sequence[str], availab
     return None
 
 
-def negotiate_localizeds(preferred_locales: Localey | Sequence[Localey], localizeds: Sequence[Localized]) -> Optional[Localized]:
+def negotiate_localizeds(preferred_locales: Localey | Sequence[Localey], localizeds: Sequence[Localized]) -> Localized | None:
     negotiated_locale_data = negotiate_locale(
         preferred_locales,
         {

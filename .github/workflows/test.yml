@@ -25,9 +25,6 @@ jobs:
           - name: 'Python 3.9'
             os: ubuntu-latest
             python: '3.9'
-          - name: 'Python 3.8'
-            os: ubuntu-latest
-            python: '3.8'
           - name: 'Mac OS'
             os: macos-latest
             python: '3.11'

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Set, Type
-
 from geopy import Point
 
 from betty import load, generate
@@ -24,7 +22,7 @@ from betty.wikipedia import Wikipedia
 
 class Demo(Extension, Loader):
     @classmethod
-    def depends_on(cls) -> Set[Type[Extension]]:
+    def depends_on(cls) -> set[type[Extension]]:
         return {CottonCandy, HttpApiDoc, Maps, Trees, Wikipedia}
 
     def _load(self, *entities: Entity) -> None:

@@ -20,7 +20,7 @@ class TestCliHandler:
         ('\033[97mSomething went wrong!\033[0m\n',
          'Something went wrong!', DEBUG),
     ])
-    def test_log(self, expected: str, message: str, level: int, mocker: MockerFixture):
+    def test_log(self, expected: str, message: str, level: int, mocker: MockerFixture) -> None:
         m_stderr = mocker.patch('sys.stderr', new_callable=io.StringIO)
         logger = Logger(__name__)
         logger.addHandler(CliHandler())

@@ -3,15 +3,12 @@ from __future__ import annotations
 import copy
 from contextlib import contextmanager
 from textwrap import indent
-from typing import Iterator, Tuple, cast, Type
+from typing import Iterator, cast, Any
+
+from typing_extensions import Self
 
 from betty.classtools import Repr
 from betty.error import UserFacingError
-
-try:
-    from typing_extensions import Self
-except ModuleNotFoundError:  # pragma: no cover
-    from typing import Self  # type: ignore  # pragma: no cover
 
 
 class SerdeError(UserFacingError, ValueError):
@@ -19,18 +16,18 @@ class SerdeError(UserFacingError, ValueError):
     A serialization or deserialization error.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self._contexts: Tuple[str, ...] = ()
+        self._contexts: tuple[str, ...] = ()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (super().__str__() + '\n' + indent('\n'.join(self._contexts), '- ')).strip()
 
-    def raised(self, error_type: Type[SerdeError]) -> bool:
+    def raised(self, error_type: type[SerdeError]) -> bool:
         return isinstance(self, error_type)
 
     @property
-    def contexts(self) -> Tuple[str, ...]:
+    def contexts(self) -> tuple[str, ...]:
         return self._contexts
 
     def with_context(self, *contexts: str) -> SerdeError:
@@ -60,7 +57,7 @@ class SerdeErrorCollection(SerdeError, Repr):
     def __len__(self) -> int:
         return len(self._errors)
 
-    def raised(self, error_type: Type[SerdeError]) -> bool:
+    def raised(self, error_type: type[SerdeError]) -> bool:
         for error in self._errors:
             if error.raised(error_type):
                 return True

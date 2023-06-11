@@ -1,13 +1,13 @@
-from typing import Dict
+from typing import Any
 
 import pytest
 
 from betty.app import App
 from betty.cotton_candy import CottonCandyConfiguration, _ColorConfiguration
-from betty.model import Entity, get_entity_type_name
+from betty.model import Entity, get_entity_type_name, UserFacingEntity
 from betty.project import EntityReference
 from betty.serde.dump import Dump
-from betty.serde.load import ValidationError
+from betty.serde.load import AssertionFailed
 from betty.tests.serde import raises_error
 
 
@@ -25,7 +25,7 @@ class TestColorConfiguration:
     def test_hex_with_invalid_value(self, hex_value: str) -> None:
         sut = _ColorConfiguration('#ffffff')
         with App():
-            with pytest.raises(ValidationError):
+            with pytest.raises(AssertionFailed):
                 sut.hex = hex_value
 
     def test_load_with_valid_hex_value(self) -> None:
@@ -42,7 +42,7 @@ class TestColorConfiguration:
     ])
     def test_load_with_invalid_value(self, dump: Dump) -> None:
         sut = _ColorConfiguration('#ffffff')
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             sut.load(dump)
 
     def test_dump_with_value(self) -> None:
@@ -50,7 +50,7 @@ class TestColorConfiguration:
         assert hex_value == _ColorConfiguration(hex_value=hex_value).dump()
 
 
-class CottonCandyConfigurationTestEntity(Entity):
+class CottonCandyConfigurationTestEntity(UserFacingEntity, Entity):
     pass
 
 
@@ -60,12 +60,12 @@ class CottonCandyConfigurationTestEntitytest_load_with_featured_entities:
 
 class TestCottonCandyConfiguration:
     def test_load_with_minimal_configuration(self) -> None:
-        dump: Dict = {}
+        dump: dict[str, Any] = {}
         CottonCandyConfiguration().load(dump)
 
     def test_load_without_dict_should_error(self) -> None:
         dump = None
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             CottonCandyConfiguration().load(dump)
 
     def test_load_with_featured_entities(self) -> None:
@@ -136,28 +136,38 @@ class TestCottonCandyConfiguration:
                 'entity_id': entity_id,
             },
         ]
-        assert expected == sut.dump()['featured_entities']  # type: ignore
+        dump = sut.dump()
+        assert isinstance(dump, dict)
+        assert expected == dump['featured_entities']
 
     def test_dump_with_primary_inactive_color(self) -> None:
         hex_value = '#000000'
         sut = CottonCandyConfiguration()
         sut.primary_inactive_color.hex = hex_value
-        assert hex_value == sut.dump()['primary_inactive_color']  # type: ignore
+        dump = sut.dump()
+        assert isinstance(dump, dict)
+        assert hex_value == dump['primary_inactive_color']
 
     def test_dump_with_primary_active_color(self) -> None:
         hex_value = '#000000'
         sut = CottonCandyConfiguration()
         sut.primary_active_color.hex = hex_value
-        assert hex_value == sut.dump()['primary_active_color']  # type: ignore
+        dump = sut.dump()
+        assert isinstance(dump, dict)
+        assert hex_value == dump['primary_active_color']
 
     def test_dump_with_link_inactive_color(self) -> None:
         hex_value = '#000000'
         sut = CottonCandyConfiguration()
         sut.link_inactive_color.hex = hex_value
-        assert hex_value == sut.dump()['link_inactive_color']  # type: ignore
+        dump = sut.dump()
+        assert isinstance(dump, dict)
+        assert hex_value == dump['link_inactive_color']
 
     def test_dump_with_link_active_color(self) -> None:
         hex_value = '#000000'
         sut = CottonCandyConfiguration()
         sut.link_active_color.hex = hex_value
-        assert hex_value == sut.dump()['link_active_color']  # type: ignore
+        dump = sut.dump()
+        assert isinstance(dump, dict)
+        assert hex_value == dump['link_active_color']

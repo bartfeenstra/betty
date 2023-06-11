@@ -1,6 +1,9 @@
-from typing import Set, List, Tuple
+from __future__ import annotations
+
+from typing import Any
 
 from PyQt6 import QtGui
+from PyQt6.QtCore import QObject
 from PyQt6.QtWidgets import QComboBox, QLabel, QWidget, QMainWindow, QMessageBox
 from reactives.instance import ReactiveInstance
 from reactives.instance.method import reactive_method
@@ -12,12 +15,12 @@ from betty.locale import negotiate_locale, get_display_name
 
 
 class TranslationsLocaleCollector(ReactiveInstance):
-    def __init__(self, app: App, allowed_locales: Set[str]):
+    def __init__(self, app: App, allowed_locales: set[str]):
         super().__init__()
         self._app = app
         self._allowed_locales = allowed_locales
 
-        allowed_locale_names: List[Tuple[str, str]] = []
+        allowed_locale_names: list[tuple[str, str]] = []
         for allowed_locale in allowed_locales:
             allowed_locale_names.append((
                 allowed_locale,
@@ -32,7 +35,7 @@ class TranslationsLocaleCollector(ReactiveInstance):
             self._configuration_locale.addItem(locale_name, locale)
             if locale == self._app.configuration.locale:
                 self._configuration_locale.setCurrentIndex(i)
-        self._configuration_locale.currentIndexChanged.connect(_update_configuration_locale)  # type: ignore
+        self._configuration_locale.currentIndexChanged.connect(_update_configuration_locale)
         self._configuration_locale_label = QLabel()
         self._configuration_locale_caption = Caption()
 
@@ -43,7 +46,7 @@ class TranslationsLocaleCollector(ReactiveInstance):
         return self._configuration_locale
 
     @property
-    def rows(self):
+    def rows(self) -> list[list[Any]]:
         return [
             [self._configuration_locale_label, self._configuration_locale],
             [self._configuration_locale_caption],
@@ -75,12 +78,15 @@ class TranslationsLocaleCollector(ReactiveInstance):
 
 
 class _LocalizedObject(ReactiveInstance):
-    def __init__(self, app: App, *args, **kwargs):
+    def __init__(self, app: App, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._app = app
 
-    def showEvent(self, event: QtGui.QShowEvent) -> None:
-        super().showEvent(event)  # type: ignore
+    def showEvent(  # type: ignore[misc]
+        self: '_LocalizedObject' & QObject,
+        event: QtGui.QShowEvent,
+    ) -> None:
+        super().showEvent(event)  # type: ignore[misc]
         self._set_translatables()
 
     @reactive_method(on_trigger_call=True)

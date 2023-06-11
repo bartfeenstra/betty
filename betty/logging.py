@@ -2,7 +2,9 @@ import sys
 from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET, StreamHandler, LogRecord
 
 
-class CliHandler(StreamHandler):
+class CliHandler(
+    StreamHandler,  # type: ignore[type-arg]
+):
     COLOR_LEVELS = {
         CRITICAL: 91,
         ERROR: 91,

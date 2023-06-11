@@ -8,7 +8,7 @@ from betty.project import ExtensionConfiguration
 
 
 class TestDemo:
-    async def test_load(self, mocker: MockerFixture):
+    async def test_load(self, mocker: MockerFixture) -> None:
         mocker.patch('webbrowser.open_new_tab')
         app = App()
         app.project.configuration.extensions.append(ExtensionConfiguration(Demo))

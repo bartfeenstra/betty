@@ -1,4 +1,4 @@
-from typing import List, Callable, Tuple
+from typing import Callable, Any
 
 from PyQt6.QtCore import QRect
 from PyQt6.QtGui import QPainter, QBrush, QColor, QPaintEvent
@@ -11,7 +11,7 @@ from betty.gui.model import EntityReferenceSequenceCollector
 
 
 class _ColorConfigurationSwatch(LocalizedWidget):
-    def __init__(self, app, color: _ColorConfiguration, *args, **kwargs):
+    def __init__(self, app: App, color: _ColorConfiguration, *args: Any, **kwargs: Any):
         super().__init__(app, *args, **kwargs)
         self._color = color
         self._color.react(self.repaint)
@@ -29,7 +29,7 @@ class _ColorConfigurationSwatch(LocalizedWidget):
 
 
 class _ColorConfigurationWidget(LocalizedWidget):
-    def __init__(self, app: App, color: _ColorConfiguration, color_default: str, *args, **kwargs):
+    def __init__(self, app: App, color: _ColorConfiguration, color_default: str, *args: Any, **kwargs: Any):
         super().__init__(app, *args, **kwargs)
         self._color = color
         self._color_default = color_default
@@ -49,14 +49,14 @@ class _ColorConfigurationWidget(LocalizedWidget):
             )
             if qcolor.isValid():
                 self._color.hex = qcolor.name()
-        self._configure.clicked.connect(_configure)  # type: ignore
+        self._configure.clicked.connect(_configure)
         self._reset = QPushButton()
         self._layout.addWidget(self._reset)
 
         def _reset() -> None:
             self._color.hex = self._color_default
 
-        self._reset.clicked.connect(_reset)  # type: ignore
+        self._reset.clicked.connect(_reset)
 
     def _do_set_translatables(self) -> None:
         self._configure.setText(self._app.localizer._('Configure'))
@@ -64,7 +64,7 @@ class _ColorConfigurationWidget(LocalizedWidget):
 
 
 class _ColorConfigurationsWidget(LocalizedWidget):
-    def __init__(self, app: App, colors: List[Tuple[_ColorConfiguration, Callable[[], str], str]], *args, **kwargs):
+    def __init__(self, app: App, colors: list[tuple[_ColorConfiguration, Callable[[], str], str]], *args: Any, **kwargs: Any):
         super().__init__(app, *args, **kwargs)
         self._colors = colors
         self._color_configurations = []
@@ -85,7 +85,7 @@ class _ColorConfigurationsWidget(LocalizedWidget):
 
 
 class _CottonCandyGuiWidget(LocalizedWidget):
-    def __init__(self, app: App, *args, **kwargs):
+    def __init__(self, app: App, *args: Any, **kwargs: Any):
         super().__init__(app, *args, **kwargs)
         self._app = app
 

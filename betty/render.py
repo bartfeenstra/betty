@@ -1,10 +1,9 @@
 from pathlib import Path
-from typing import List, Set
 
 
 class Renderer:
     @property
-    def file_extensions(self) -> Set[str]:
+    def file_extensions(self) -> set[str]:
         raise NotImplementedError(repr(self))
 
     async def render_file(self, file_path: Path) -> Path:
@@ -12,7 +11,7 @@ class Renderer:
 
 
 class SequentialRenderer(Renderer):
-    def __init__(self, renderers: List[Renderer]):
+    def __init__(self, renderers: list[Renderer]):
         self._renderers = renderers
         self._file_extensions = {
             file_extension
@@ -23,7 +22,7 @@ class SequentialRenderer(Renderer):
         }
 
     @property
-    def file_extensions(self) -> Set[str]:
+    def file_extensions(self) -> set[str]:
         return self._file_extensions
 
     async def render_file(self, file_path: Path) -> Path:

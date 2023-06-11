@@ -7,12 +7,11 @@ refactored yet.
 New code MUST NOT use this module.
 """
 import math
-from typing import Tuple
 
 from PIL.Image import Image
 
 
-def resize_crop(image: Image, size: Tuple[int, int]) -> Image:
+def resize_crop(image: Image, size: tuple[int, int]) -> Image:
     img_format = image.format
     image = image.copy()
     old_size = image.size
@@ -27,7 +26,7 @@ def resize_crop(image: Image, size: Tuple[int, int]) -> Image:
     return crop
 
 
-def resize_cover(image: Image, size: Tuple[int, int]) -> Image:
+def resize_cover(image: Image, size: tuple[int, int]) -> Image:
     img_format = image.format
     img = image.copy()
     img_size = img.size

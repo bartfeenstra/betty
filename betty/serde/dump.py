@@ -1,11 +1,8 @@
 from __future__ import annotations
 
-from typing import TypeVar, Union, Sequence, Mapping, Type, List, Dict, overload, Literal
+from typing import TypeVar, Sequence, Mapping, overload, Literal
 
-try:
-    from typing_extensions import TypeAlias
-except ModuleNotFoundError:
-    from typing import TypeAlias  # type: ignore
+from typing_extensions import TypeAlias
 
 T = TypeVar('T')
 U = TypeVar('U')
@@ -15,65 +12,39 @@ class Void:
     pass
 
 
-DumpType: TypeAlias = Union[
-    bool,
-    int,
-    float,
-    str,
-    None,
-    list,
-    dict,
-]
+DumpType: TypeAlias = 'bool | int | float | str | None | list | dict'
 DumpTypeT = TypeVar('DumpTypeT', bound=DumpType)
 
-Dump: TypeAlias = Union[
-    bool,
-    int,
-    float,
-    str,
-    None,
-    Sequence['Dump'],
-    Mapping[str, 'Dump'],
-]
+Dump: TypeAlias = 'bool | int | float | str | None | Sequence[Dump] | Mapping[str, Dump]'
 DumpT = TypeVar('DumpT', bound=Dump)
 DumpU = TypeVar('DumpU', bound=Dump)
 
-VoidableDump: TypeAlias = Union[
-    Dump,
-    bool,
-    int,
-    float,
-    str,
-    None,
-    Sequence['Dump'],
-    Mapping[str, 'Dump'],
-    Type[Void],
-]
+VoidableDump: TypeAlias = 'Dump | type[Void]'
 VoidableDumpT = TypeVar('VoidableDumpT', bound=VoidableDump)
 VoidableDumpU = TypeVar('VoidableDumpU', bound=VoidableDump)
 
-ListDump: TypeAlias = List[DumpT]
+ListDump: TypeAlias = list[DumpT]
 
-DictDump: TypeAlias = Dict[str, DumpT]
+DictDump: TypeAlias = dict[str, DumpT]
 
-_VoidableListDump: TypeAlias = List[VoidableDumpT]
+VoidableListDump: TypeAlias = list[VoidableDumpT]
 
-_VoidableDictDump: TypeAlias = Dict[str, VoidableDumpT]
+VoidableDictDump: TypeAlias = dict[str, VoidableDumpT]
 
-_MinimizableDump: TypeAlias = Union[VoidableDump, _VoidableListDump, _VoidableDictDump]
+_MinimizableDump: TypeAlias = 'VoidableDump | VoidableListDump[VoidableDumpT] | VoidableDictDump[VoidableDumpT]'
 
 
 @overload
-def minimize(dump: _MinimizableDump, voidable: Literal[True] = True) -> VoidableDump:
+def minimize(dump: _MinimizableDump[VoidableDump], voidable: Literal[True] = True) -> VoidableDump:
     pass
 
 
 @overload
-def minimize(dump: _MinimizableDump, voidable: Literal[False]) -> Dump:
+def minimize(dump: _MinimizableDump[VoidableDump], voidable: Literal[False]) -> Dump:
     pass
 
 
-def minimize(dump: _MinimizableDump, voidable: bool = True) -> VoidableDump:
+def minimize(dump: _MinimizableDump[VoidableDump], voidable: bool = True) -> VoidableDump:
     if isinstance(dump, (Sequence, Mapping)) and not isinstance(dump, str):
         if isinstance(dump, Sequence):
             dump = [

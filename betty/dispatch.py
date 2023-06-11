@@ -1,8 +1,8 @@
-from typing import Type, Any, Sequence, Callable, Awaitable
+from typing import Any, Sequence, Callable, Awaitable
 
 TargetedDispatcher = Callable[..., Awaitable[Sequence[Any]]]
 
 
 class Dispatcher:
-    def dispatch(self, target_type: Type) -> TargetedDispatcher:
+    def dispatch(self, target_type: type[Any]) -> TargetedDispatcher:
         raise NotImplementedError(repr(self))

@@ -4,32 +4,28 @@ import os
 from collections import OrderedDict
 from contextlib import suppress
 from pathlib import Path
-from typing import Generic, Optional, Iterable, Iterator, Union, SupportsIndex, Hashable, \
-    MutableSequence, MutableMapping, Type, Tuple, TypeVar, Any, Sequence, overload
+from typing import Generic, Iterable, Iterator, SupportsIndex, Hashable, \
+    MutableSequence, MutableMapping, TypeVar, Any, Sequence, overload, cast
 
 from ordered_set import OrderedSet
 from reactives import scope
 from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
+from typing_extensions import Self, TypeAlias
 
 from betty.classtools import Repr, repr_instance
-from betty.serde.error import SerdeErrorCollection
 from betty.functools import slice_to_range
 from betty.locale import Localizer, Localizable
 from betty.os import ChDir
 from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump, Void
+from betty.serde.error import SerdeErrorCollection
 from betty.serde.format import FormatRepository
 from betty.serde.load import Asserter, Assertion, LoadError, Assertions
 from betty.tempfile import TemporaryDirectory
 
-try:
-    from typing_extensions import Self, TypeAlias
-except ModuleNotFoundError:
-    from typing import Self, TypeAlias  # type: ignore
-
 
 class Configuration(ReactiveInstance, Repr, Localizable, Dumpable):
-    def __init__(self, *args, localizer: Localizer | None = None, **kwargs):
+    def __init__(self, *args: Any, localizer: Localizer | None = None, **kwargs: Any):
         super().__init__(*args, **kwargs, localizer=localizer)
         self._asserter = Asserter(localizer=self._localizer)
 
@@ -51,7 +47,7 @@ class Configuration(ReactiveInstance, Repr, Localizable, Dumpable):
         raise NotImplementedError(repr(cls))
 
     @classmethod
-    def assert_load(cls: Type[ConfigurationT], configuration: ConfigurationT | None = None) -> Assertion[Dump, ConfigurationT]:
+    def assert_load(cls: type[ConfigurationT], configuration: ConfigurationT | None = None) -> Assertion[Dump, ConfigurationT]:
         def _assert_load(dump: Dump) -> ConfigurationT:
             return cls.load(dump, configuration)
         _assert_load.__qualname__ = f'{_assert_load.__qualname__} for {cls.__module__}.{cls.__qualname__}.load'
@@ -64,7 +60,7 @@ ConfigurationT = TypeVar('ConfigurationT', bound=Configuration)
 class FileBasedConfiguration(Configuration):
     def __init__(self, *, localizer: Localizer | None = None):
         super().__init__(localizer=localizer)
-        self._project_directory: Optional[TemporaryDirectory] = None
+        self._project_directory: TemporaryDirectory | None = None
         self._configuration_file_path: Path | None = None
         self._autowrite = False
 
@@ -86,11 +82,11 @@ class FileBasedConfiguration(Configuration):
             self.react.shutdown(self.write)
         self._autowrite = autowrite
 
-    def write(self, configuration_file_path: Optional[Path] = None) -> None:
+    def write(self, configuration_file_path: Path | None = None) -> None:
         if configuration_file_path is None:
             self._assert_configuration_file_path()
         else:
-            self.configuration_file_path = configuration_file_path  # type: ignore[assignment]
+            self.configuration_file_path = configuration_file_path
 
         self._write(self.configuration_file_path)
 
@@ -108,11 +104,11 @@ class FileBasedConfiguration(Configuration):
                 self.write()
         self._configuration_file_path = configuration_file_path
 
-    def read(self, configuration_file_path: Optional[Path] = None) -> None:
+    def read(self, configuration_file_path: Path | None = None) -> None:
         if configuration_file_path is None:
             self._assert_configuration_file_path()
         else:
-            self.configuration_file_path = configuration_file_path  # type: ignore[assignment]
+            self.configuration_file_path = configuration_file_path
 
         formats = FormatRepository(localizer=self._localizer)
         with SerdeErrorCollection().assert_valid() as errors:
@@ -127,7 +123,7 @@ class FileBasedConfiguration(Configuration):
                     )
         self.update(loaded_configuration)
 
-    def __del__(self):
+    def __del__(self) -> None:
         if hasattr(self, '_project_directory') and self._project_directory is not None:
             self._project_directory.cleanup()
 
@@ -138,7 +134,7 @@ class FileBasedConfiguration(Configuration):
             if self._project_directory is None:
                 self._project_directory = TemporaryDirectory()
             self._write(Path(self._project_directory.name) / f'{type(self).__name__}.json')
-        return self._configuration_file_path  # type: ignore
+        return cast(Path, self._configuration_file_path)
 
     @configuration_file_path.setter
     def configuration_file_path(self, configuration_file_path: Path) -> None:
@@ -155,7 +151,7 @@ class FileBasedConfiguration(Configuration):
         self._configuration_file_path = None
 
 
-ConfigurationKey: TypeAlias = Union[SupportsIndex, Hashable, Type]
+ConfigurationKey: TypeAlias = 'SupportsIndex | Hashable | type[Any]'
 ConfigurationKeyT = TypeVar('ConfigurationKeyT', bound=ConfigurationKey)
 
 
@@ -163,10 +159,10 @@ class ConfigurationCollection(Configuration, Generic[ConfigurationKeyT, Configur
     _configurations: MutableSequence[ConfigurationT] | MutableMapping[ConfigurationKeyT, ConfigurationT]
 
     def __init__(
-            self,
-            configurations: Iterable[ConfigurationT] | None = None,
-            *,
-            localizer: Localizer | None = None,
+        self,
+        configurations: Iterable[ConfigurationT] | None = None,
+        *,
+        localizer: Localizer | None = None,
     ):
         super().__init__(localizer=localizer)
         if configurations is not None:
@@ -249,7 +245,7 @@ class ConfigurationCollection(Configuration, Generic[ConfigurationKeyT, Configur
             yield self.to_key(index)
 
     @classmethod
-    def _item_type(cls) -> Type[ConfigurationT]:
+    def _item_type(cls) -> type[ConfigurationT]:
         raise NotImplementedError(repr(cls))
 
     @classmethod
@@ -567,12 +563,12 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
     ) -> Dump:
         raise NotImplementedError(repr(cls))
 
-    def _dump_key(self, item_dump: VoidableDump) -> Tuple[VoidableDump, str]:
+    def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
         raise NotImplementedError(repr(self))
 
 
 class Configurable(Generic[ConfigurationT]):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._configuration: ConfigurationT
 

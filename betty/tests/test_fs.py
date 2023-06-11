@@ -7,7 +7,7 @@ from betty.tempfile import TemporaryDirectory
 
 
 class TestIterfiles:
-    async def test_iterfiles(self):
+    async def test_iterfiles(self) -> None:
         with TemporaryDirectory() as working_directory_path:
             working_subdirectory_path = working_directory_path / 'subdir'
             working_subdirectory_path.mkdir()
@@ -24,18 +24,18 @@ class TestIterfiles:
 
 
 class TestHashfile:
-    def test_hashfile_with_identical_file(self):
+    def test_hashfile_with_identical_file(self) -> None:
         file_path = Path(__file__).parents[1] / 'assets' / 'public' / 'static' / 'betty-16x16.png'
         assert hashfile(file_path) == hashfile(file_path)
 
-    def test_hashfile_with_different_files(self):
+    def test_hashfile_with_different_files(self) -> None:
         file_path_1 = Path(__file__).parents[1] / 'assets' / 'public' / 'static' / 'betty-16x16.png'
         file_path_2 = Path(__file__).parents[1] / 'assets' / 'public' / 'static' / 'betty-512x512.png'
         assert hashfile(file_path_1) != hashfile(file_path_2)
 
 
 class TestFileSystem:
-    async def test_open(self):
+    async def test_open(self) -> None:
         with TemporaryDirectory() as source_path_1:
             with TemporaryDirectory() as source_path_2:
                 with open(source_path_1 / 'apples', 'w') as f:
@@ -60,7 +60,7 @@ class TestFileSystem:
                     async with sut.open(Path('mangos')):
                         pass
 
-    async def test_open_with_first_file_path_alternative_first_source_path(self):
+    async def test_open_with_first_file_path_alternative_first_source_path(self) -> None:
         with TemporaryDirectory() as source_path_1:
             with TemporaryDirectory() as source_path_2:
                 with open(source_path_1 / 'pinkladies', 'w') as f:
@@ -77,7 +77,7 @@ class TestFileSystem:
                 async with sut.open(Path('pinkladies'), Path('apples')) as f:
                     assert 'pinkladies' == await f.read()
 
-    async def test_open_with_first_file_path_alternative_second_source_path(self):
+    async def test_open_with_first_file_path_alternative_second_source_path(self) -> None:
         with TemporaryDirectory() as source_path_1:
             with TemporaryDirectory() as source_path_2:
                 with open(source_path_2 / 'pinkladies', 'w') as f:
@@ -92,7 +92,7 @@ class TestFileSystem:
                 async with sut.open(Path('pinkladies'), Path('apples')) as f:
                     assert 'pinkladies' == await f.read()
 
-    async def test_open_with_second_file_path_alternative_first_source_path(self):
+    async def test_open_with_second_file_path_alternative_first_source_path(self) -> None:
         with TemporaryDirectory() as source_path_1:
             with TemporaryDirectory() as source_path_2:
                 with open(source_path_1 / 'apples', 'w') as f:
@@ -105,7 +105,7 @@ class TestFileSystem:
                 async with sut.open(Path('pinkladies'), Path('apples')) as f:
                     assert 'apples' == await f.read()
 
-    async def test_copy2(self):
+    async def test_copy2(self) -> None:
         with TemporaryDirectory() as source_path_1:
             with TemporaryDirectory() as source_path_2:
                 with open(source_path_1 / 'apples', 'w') as f:
@@ -134,7 +134,7 @@ class TestFileSystem:
                     with pytest.raises(FileNotFoundError):
                         await sut.copy2(Path('mangos'), destination_path)
 
-    async def test_copytree(self):
+    async def test_copytree(self) -> None:
         with TemporaryDirectory() as source_path_1:
             (source_path_1 / 'basket').mkdir()
             with TemporaryDirectory() as source_path_2:

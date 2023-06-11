@@ -1,4 +1,5 @@
 from betty.app import App
+from betty.asyncio import sync
 from betty.generate import generate
 from betty.maps import Maps
 from betty.project import ExtensionConfiguration
@@ -7,7 +8,8 @@ from betty.tests import patch_cache
 
 class TestMaps:
     @patch_cache
-    async def test_generate(self):
+    @sync
+    async def test_generate(self) -> None:
         with App() as app:
             app.project.configuration.debug = True
             app.project.configuration.extensions.append(ExtensionConfiguration(Maps))

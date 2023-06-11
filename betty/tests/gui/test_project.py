@@ -18,7 +18,13 @@ from betty.tests.conftest import AssertNotWindow, AssertInvalid, AssertWindow, N
 
 
 class TestProjectWindow:
-    def test_save_project_as_should_create_duplicate_configuration_file(self, mocker: MockerFixture, navigate: Navigate, qtbot: QtBot, tmp_path: Path) -> None:
+    def test_save_project_as_should_create_duplicate_configuration_file(
+        self,
+        mocker: MockerFixture,
+        navigate: Navigate,
+        qtbot: QtBot,
+        tmp_path: Path,
+    ) -> None:
         configuration = ProjectConfiguration()
         configuration.write(tmp_path / 'betty.json')
         with App() as app:
@@ -144,13 +150,15 @@ class TestGeneralPane:
 
 
 class TestLocalizationPane:
-    def test_add_locale(self, qtbot: QtBot, assert_window: AssertWindow) -> None:
+    def test_add_locale(self, qtbot: QtBot, assert_window: AssertWindow[_AddLocaleWindow]) -> None:
         with App() as app:
             sut = _LocalizationPane(app)
             qtbot.addWidget(sut)
             sut.show()
 
-            qtbot.mouseClick(sut._add_locale_button, Qt.MouseButton.LeftButton)
+            widget = sut._locales_configuration_widget
+            assert widget is not None
+            qtbot.mouseClick(widget._add_locale_button, Qt.MouseButton.LeftButton)
             assert_window(_AddLocaleWindow)
 
     def test_remove_locale(self, qtbot: QtBot) -> None:
@@ -163,8 +171,10 @@ class TestLocalizationPane:
             sut = _LocalizationPane(app)
             qtbot.addWidget(sut)
             sut.show()
+            widget = sut._locales_configuration_widget
+            assert widget is not None
             qtbot.mouseClick(
-                sut._locales_configuration_widget._remove_buttons[locale],  # type: ignore
+                widget._remove_buttons[locale],
                 Qt.MouseButton.LeftButton
             )
 
@@ -181,7 +191,9 @@ class TestLocalizationPane:
             qtbot.addWidget(sut)
             sut.show()
 
-            sut._locales_configuration_widget._default_buttons[locale].click()  # type: ignore
+            widget = sut._locales_configuration_widget
+            assert widget is not None
+            widget._default_buttons[locale].click()
 
             assert app.project.configuration.locales.default == LocaleConfiguration(locale)
 
@@ -203,7 +215,12 @@ class TestLocalizationPane:
 
 
 class TestGenerateWindow:
-    def test_cancel_button_should_close_window(self, assert_not_window: AssertNotWindow, navigate: Navigate, qtbot: QtBot) -> None:
+    def test_cancel_button_should_close_window(
+        self,
+        assert_not_window: AssertNotWindow[_GenerateWindow],
+        navigate: Navigate,
+        qtbot: QtBot,
+    ) -> None:
         with App() as app:
             sut = _GenerateWindow(app)
             qtbot.addWidget(sut)
@@ -214,7 +231,13 @@ class TestGenerateWindow:
 
             assert_not_window(sut)
 
-    def test_serve_button_should_open_serve_window(self, assert_window: AssertWindow, mocker: MockerFixture, navigate: Navigate, qtbot: QtBot) -> None:
+    def test_serve_button_should_open_serve_window(
+        self,
+        assert_window: AssertWindow[ServeProjectWindow],
+        mocker: MockerFixture,
+        navigate: Navigate,
+        qtbot: QtBot,
+    ) -> None:
         mocker.patch('webbrowser.open_new_tab')
         with App() as app:
             sut = _GenerateWindow(app)
@@ -229,7 +252,11 @@ class TestGenerateWindow:
 
 
 class TestAddLocaleWindow:
-    def test_without_alias(self, assert_window: AssertWindow, assert_not_window: AssertNotWindow, qtbot: QtBot) -> None:
+    def test_without_alias(
+        self,
+        assert_not_window: AssertNotWindow[_AddLocaleWindow],
+        qtbot: QtBot,
+    ) -> None:
         with App() as app:
             sut = _AddLocaleWindow(app)
             qtbot.addWidget(sut)
@@ -244,7 +271,11 @@ class TestAddLocaleWindow:
             assert locale in sut._app.project.configuration.locales
             assert locale == app.project.configuration.locales[locale].alias
 
-    def test_with_valid_alias(self, assert_window: AssertWindow, assert_not_window: AssertNotWindow, qtbot: QtBot) -> None:
+    def test_with_valid_alias(
+        self,
+        assert_not_window: AssertNotWindow[_AddLocaleWindow],
+        qtbot: QtBot,
+    ) -> None:
         with App() as app:
             sut = _AddLocaleWindow(app)
             qtbot.addWidget(sut)
@@ -261,7 +292,12 @@ class TestAddLocaleWindow:
             assert locale in sut._app.project.configuration.locales
             assert alias == app.project.configuration.locales[locale].alias
 
-    def test_with_invalid_alias(self, assert_window: AssertWindow, assert_invalid: AssertInvalid, qtbot: QtBot) -> None:
+    def test_with_invalid_alias(
+        self,
+        assert_window: AssertWindow[_AddLocaleWindow],
+        assert_invalid: AssertInvalid,
+        qtbot: QtBot,
+    ) -> None:
         with App() as app:
             sut = _AddLocaleWindow(app)
             qtbot.addWidget(sut)

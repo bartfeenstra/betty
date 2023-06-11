@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtWidgets import QVBoxLayout, QWidget, QPushButton
 
@@ -15,7 +17,7 @@ from betty.serve import Server, ProjectServer
 class _ServeThread(QThread):
     server_started = pyqtSignal()
 
-    def __init__(self, project: Project, server_name: str, serve_window: _ServeWindow, *args, **kwargs):
+    def __init__(self, project: Project, server_name: str, serve_window: _ServeWindow, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._project = project
         self._server_name = server_name
@@ -53,7 +55,7 @@ class _ServeWindow(BettyWindow):
     window_width = 500
     window_height = 100
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
         self.__thread: _ServeThread | None = None
@@ -95,7 +97,9 @@ class _ServeWindow(BettyWindow):
         self._central_layout.addWidget(general_instruction)
 
         stop_server_button = QPushButton(self._app.localizer._('Stop the site'), self)
-        stop_server_button.released.connect(self.close)  # type: ignore
+        stop_server_button.released.connect(
+            self.close,  # type: ignore[arg-type]
+        )
         self._central_layout.addWidget(stop_server_button)
 
     def show(self) -> None:

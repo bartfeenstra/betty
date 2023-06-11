@@ -2,33 +2,31 @@ from __future__ import annotations
 
 from contextlib import suppress
 from pathlib import Path
-from typing import Optional, Type, Any, Generic, final, Tuple, Iterable
+from typing import Any, Generic, final, Iterable, cast
 from urllib.parse import urlparse
+
 from reactives import scope
 from reactives.instance.property import reactive_property
+from typing_extensions import Self
 
-from betty.app import Extension, ConfigurableExtension
-from betty.config import Configuration, Configurable, FileBasedConfiguration, ConfigurationMapping, ConfigurationSequence
+from betty.app.extension import Extension, ConfigurableExtension
+from betty.config import Configuration, Configurable, FileBasedConfiguration, ConfigurationMapping, \
+    ConfigurationSequence
 from betty.locale import Localizer, Localizable, get_data
 from betty.model import Entity, get_entity_type_name, UserFacingEntity, EntityT
 from betty.model.ancestry import Ancestry, Person, Event, Place, Source
-from betty.serde.dump import Dump, VoidableDump, void_none, minimize, Void
-from betty.serde.load import ValidationError, Fields, Assertions, Assertion, RequiredField, OptionalField, \
+from betty.serde.dump import Dump, VoidableDump, void_none, minimize, Void, VoidableDictDump
+from betty.serde.load import AssertionFailed, Fields, Assertions, Assertion, RequiredField, OptionalField, \
     Asserter
-
-try:
-    from typing_extensions import Self
-except ModuleNotFoundError:  # pragma: no cover
-    from typing import Self  # type: ignore  # pragma: no cover
 
 
 class EntityReference(Configuration, Generic[EntityT]):
     def __init__(
-            self,
-            entity_type: Type[EntityT] | None = None,
-            entity_id: str | None = None,
-            *,
-            entity_type_is_constrained: bool = False,
+        self,
+        entity_type: type[EntityT] | None = None,
+        entity_id: str | None = None,
+        *,
+        entity_type_is_constrained: bool = False,
     ):
         super().__init__()
         self._entity_type = entity_type
@@ -37,11 +35,11 @@ class EntityReference(Configuration, Generic[EntityT]):
 
     @property
     @reactive_property
-    def entity_type(self) -> Type[EntityT] | None:
+    def entity_type(self) -> type[EntityT] | None:
         return self._entity_type
 
     @entity_type.setter
-    def entity_type(self, entity_type: Type[EntityT] | None) -> None:
+    def entity_type(self, entity_type: type[EntityT]) -> None:
         if self._entity_type_is_constrained:
             raise AttributeError(f'The entity type cannot be set, as it is already constrained to {self._entity_type}.')
         self._entity_type = entity_type
@@ -71,16 +69,16 @@ class EntityReference(Configuration, Generic[EntityT]):
 
     @classmethod
     def load(
-            cls,
-            dump: Dump,
-            configuration: Self | None = None,
-            *,
-            localizer: Localizer | None = None,
+        cls,
+        dump: Dump,
+        configuration: Self | None = None,
+        *,
+        localizer: Localizer | None = None,
     ) -> Self:
         if configuration is None:
             configuration = cls()
         asserter = Asserter(localizer=localizer)
-        if isinstance(dump, dict):
+        if isinstance(dump, dict) or not configuration.entity_type_is_constrained:
             asserter.assert_record(Fields(
                 RequiredField(
                     'entity_type',
@@ -103,47 +101,86 @@ class EntityReference(Configuration, Generic[EntityT]):
         if self.entity_type is None or self.entity_id is None:
             return Void
 
-        return minimize({
+        dump: VoidableDictDump[VoidableDump] = {
             'entity_type': get_entity_type_name(self._entity_type) if self._entity_type else Void,
             'entity_id': self._entity_id,
-        })
+        }
+
+        return minimize(dump)
 
     @scope.register_self
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, EntityReference):
             return NotImplemented
         return self.entity_type == other.entity_type and self.entity_id == other.entity_id
 
 
-class EntityReferenceSequence(ConfigurationSequence[EntityReference]):
+class EntityReferenceSequence(Generic[EntityT], ConfigurationSequence[EntityReference[EntityT]]):
     def __init__(
         self,
-        entity_references: Iterable[EntityReference] | None = None,
+        entity_references: Iterable[EntityReference[EntityT]] | None = None,
         *,
-        entity_type_constraint: Type[Entity] | None = None,
+        entity_type_constraint: type[EntityT] | None = None,
         localizer: Localizer | None = None,
     ):
         self._entity_type_constraint = entity_type_constraint
         super().__init__(entity_references, localizer=localizer)
 
     @classmethod
-    def _item_type(cls) -> Type[EntityReference]:
+    def _item_type(cls) -> type[EntityReference[EntityT]]:
         return EntityReference
 
-    def _on_add(self, entity_reference: EntityReference) -> None:
+    def _on_add(self, entity_reference: EntityReference[EntityT]) -> None:
         super()._on_add(entity_reference)
-        if self._entity_type_constraint:
-            if entity_reference.entity_type != self._entity_type_constraint or not entity_reference.entity_type_is_constrained:
-                raise ValidationError(self.localizer._('The entity reference must be for an entity of type {expected_entity_type_name} ({expected_entity_type_label}), but instead is for an entity of type {actual_entity_type_name} ({actual_entity_type_label})').format(
-                    expected_entity_type_name=get_entity_type_name(self._entity_type_constraint),
-                    expected_entity_type_label=self._entity_type_constraint.entity_type_label(localizer=self.localizer) if issubclass(self._entity_type_constraint, UserFacingEntity) else get_entity_type_name(self._entity_type_constraint),
-                    actual_entity_type_name=get_entity_type_name(self._entity_type_constraint),
-                    actual_entity_type_label=self._entity_type_constraint.entity_type_label(localizer=self.localizer) if issubclass(self._entity_type_constraint, UserFacingEntity) else get_entity_type_name(self._entity_type_constraint),
-                ))
+
+        entity_type_constraint = self._entity_type_constraint
+        entity_reference_entity_type = entity_reference._entity_type
+
+        if entity_type_constraint is None:
+            return
+
+        if entity_reference_entity_type == entity_type_constraint and entity_reference.entity_type_is_constrained:
+            return
+
+        expected_entity_type_name = get_entity_type_name(
+            cast(Entity, entity_type_constraint),
+        )
+        if issubclass(entity_type_constraint, UserFacingEntity):
+            expected_entity_type_label = entity_type_constraint.entity_type_label(localizer=self.localizer)
+        else:
+            expected_entity_type_label = get_entity_type_name(entity_type_constraint)
+
+        if entity_reference_entity_type is None:
+            raise AssertionFailed(self.localizer._(
+                'The entity reference must be for an entity of type {expected_entity_type_name} ({expected_entity_type_label}), but instead does not specify an entity type at all.').format(
+                expected_entity_type_name=get_entity_type_name(
+                    cast(Entity, entity_type_constraint),
+                ),
+                expected_entity_type_label=expected_entity_type_label,
+            ))
+
+        if issubclass(entity_reference_entity_type, UserFacingEntity):
+            actual_entity_type_label = entity_type_constraint.entity_type_label(localizer=self.localizer)
+        else:
+            actual_entity_type_label = get_entity_type_name(entity_reference_entity_type)
+
+        raise AssertionFailed(self.localizer._('The entity reference must be for an entity of type {expected_entity_type_name} ({expected_entity_type_label}), but instead is for an entity of type {actual_entity_type_name} ({actual_entity_type_label})').format(
+            expected_entity_type_name=expected_entity_type_name,
+            expected_entity_type_label=expected_entity_type_label,
+            actual_entity_type_name=get_entity_type_name(entity_reference_entity_type),
+            actual_entity_type_label=actual_entity_type_label,
+        ))
 
 
 class ExtensionConfiguration(Configuration):
-    def __init__(self, extension_type: Type[Extension], enabled: bool = True, extension_configuration: Optional[Configuration] = None, *, localizer: Localizer | None = None):
+    def __init__(
+        self,
+        extension_type: type[Extension],
+        enabled: bool = True,
+        extension_configuration: Configuration | None = None,
+        *,
+        localizer: Localizer | None = None,
+    ):
         super().__init__(localizer=localizer)
         self._extension_type = extension_type
         self._enabled = enabled
@@ -153,7 +190,7 @@ class ExtensionConfiguration(Configuration):
             extension_configuration.react(self)
         self._extension_configuration = extension_configuration
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, self.__class__):
             return NotImplemented
         if self.extension_type != other.extension_type:
@@ -165,7 +202,7 @@ class ExtensionConfiguration(Configuration):
         return True
 
     @property
-    def extension_type(self) -> Type[Extension]:
+    def extension_type(self) -> type[Extension]:
         return self._extension_type
 
     @property
@@ -178,7 +215,7 @@ class ExtensionConfiguration(Configuration):
         self._enabled = enabled
 
     @property
-    def extension_configuration(self) -> Optional[Configuration]:
+    def extension_configuration(self) -> Configuration | None:
         return self._extension_configuration
 
     def update(self, other: Self) -> None:
@@ -186,20 +223,19 @@ class ExtensionConfiguration(Configuration):
 
     @classmethod
     def load(
-            cls,
-            dump: Dump,
-            configuration: Self | None = None,
-            *,
-            localizer: Localizer | None = None,
+        cls,
+        dump: Dump,
+        configuration: Self | None = None,
+        *,
+        localizer: Localizer | None = None,
     ) -> Self:
         asserter = Asserter(localizer=localizer)
         extension_type = asserter.assert_field(RequiredField(
             'extension',
             Assertions(asserter.assert_extension_type()),
         ))(dump)
-        assert extension_type is not Void
         if configuration is None:
-            configuration = cls(extension_type)  # type: ignore[arg-type]
+            configuration = cls(extension_type)
         else:
             # This MUST NOT fail. If it does, this is a bug in the calling code that must be fixed.
             assert extension_type is configuration.extension_type
@@ -218,12 +254,12 @@ class ExtensionConfiguration(Configuration):
         ))(dump)
         return configuration
 
-    def _assert_load_extension_configuration(self, extension_type: Type[Extension]) -> Assertion[Any, Configuration]:
+    def _assert_load_extension_configuration(self, extension_type: type[Extension]) -> Assertion[Any, Configuration]:
         def _assertion(value: Any) -> Configuration:
             extension_configuration = self._extension_configuration
             if isinstance(extension_configuration, Configuration):
                 return extension_configuration.load(value, extension_configuration)
-            raise ValidationError(self.localizer._('{extension_type} is not configurable.').format(
+            raise AssertionFailed(self.localizer._('{extension_type} is not configurable.').format(
                 extension_type=extension_type.name(),
             ))
         return _assertion
@@ -236,12 +272,12 @@ class ExtensionConfiguration(Configuration):
         })
 
 
-class ExtensionConfigurationMapping(ConfigurationMapping[Type[Extension], ExtensionConfiguration]):
+class ExtensionConfigurationMapping(ConfigurationMapping[type[Extension], ExtensionConfiguration]):
     def _minimize_item_dump(self) -> bool:
         return True
 
     @classmethod
-    def _create_default_item(cls, configuration_key: Type[Extension]) -> ExtensionConfiguration:
+    def _create_default_item(cls, configuration_key: type[Extension]) -> ExtensionConfiguration:
         return ExtensionConfiguration(configuration_key)
 
     def __init__(
@@ -253,10 +289,10 @@ class ExtensionConfigurationMapping(ConfigurationMapping[Type[Extension], Extens
         super().__init__(configurations, localizer=localizer)
 
     @classmethod
-    def _item_type(cls) -> Type[ExtensionConfiguration]:
+    def _item_type(cls) -> type[ExtensionConfiguration]:
         return ExtensionConfiguration
 
-    def _get_key(self, configuration: ExtensionConfiguration) -> Type[Extension]:
+    def _get_key(self, configuration: ExtensionConfiguration) -> type[Extension]:
         return configuration.extension_type
 
     @classmethod
@@ -272,30 +308,30 @@ class ExtensionConfigurationMapping(ConfigurationMapping[Type[Extension], Extens
         dict_dump['extension'] = key_dump
         return dict_dump
 
-    def _dump_key(self, item_dump: VoidableDump) -> Tuple[VoidableDump, str]:
+    def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
         dict_dump = self._asserter.assert_dict()(item_dump)
         return dict_dump, dict_dump.pop('extension')
 
-    def enable(self, *extension_types: Type[Extension]):
+    def enable(self, *extension_types: type[Extension]) -> None:
         for extension_type in extension_types:
             try:
                 self._configurations[extension_type].enabled = True
             except KeyError:
                 self.append(ExtensionConfiguration(extension_type, True))
 
-    def disable(self, *extension_types: Type[Extension]):
+    def disable(self, *extension_types: type[Extension]) -> None:
         for extension_type in extension_types:
             with suppress(KeyError):
                 self._configurations[extension_type].enabled = False
 
 
 class EntityTypeConfiguration(Configuration):
-    def __init__(self, entity_type: Type[Entity], generate_html_list: Optional[bool] = None):
+    def __init__(self, entity_type: type[Entity], generate_html_list: bool | None = None):
         super().__init__()
         self._entity_type = entity_type
         self.generate_html_list = generate_html_list  # type: ignore[assignment]
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, self.__class__):
             return NotImplemented
         if self.entity_type != other.entity_type:
@@ -305,7 +341,7 @@ class EntityTypeConfiguration(Configuration):
         return True
 
     @property
-    def entity_type(self) -> Type[Entity]:
+    def entity_type(self) -> type[Entity]:
         return self._entity_type
 
     @property
@@ -314,9 +350,9 @@ class EntityTypeConfiguration(Configuration):
         return self._generate_html_list or False
 
     @generate_html_list.setter
-    def generate_html_list(self, generate_html_list: Optional[bool]) -> None:
+    def generate_html_list(self, generate_html_list: bool | None) -> None:
         if generate_html_list and not issubclass(self._entity_type, UserFacingEntity):
-            raise ValidationError(self.localizer._('Cannot generate pages for {entity_type}, because it is not a user-facing entity type.').format(
+            raise AssertionFailed(self.localizer._('Cannot generate pages for {entity_type}, because it is not a user-facing entity type.').format(
                 entity_type=get_entity_type_name(self._entity_type)
             ))
         self._generate_html_list = generate_html_list
@@ -325,9 +361,6 @@ class EntityTypeConfiguration(Configuration):
         self._entity_type = other._entity_type
         self._generate_html_list = other._generate_html_list
         self.react.trigger()
-
-    def type(self):
-        pass
 
     @classmethod
     def load(
@@ -338,7 +371,7 @@ class EntityTypeConfiguration(Configuration):
             localizer: Localizer | None = None,
     ) -> Self:
         asserter = Asserter(localizer=localizer)
-        entity_type = asserter.assert_field(RequiredField[Any, Type[Entity]](
+        entity_type = asserter.assert_field(RequiredField[Any, type[Entity]](
             'entity_type',
             Assertions(asserter.assert_str()) | asserter.assert_entity_type()),
         )(dump)
@@ -355,17 +388,19 @@ class EntityTypeConfiguration(Configuration):
         return configuration
 
     def dump(self) -> VoidableDump:
-        return minimize({
+        dump: VoidableDictDump[VoidableDump] = {
             'entity_type': get_entity_type_name(self._entity_type),
             'generate_html_list': Void if self._generate_html_list is None else self._generate_html_list,
-        })
+        }
+
+        return minimize(dump)
 
 
-class EntityTypeConfigurationMapping(ConfigurationMapping[Type[Entity], EntityTypeConfiguration]):
+class EntityTypeConfigurationMapping(ConfigurationMapping[type[Entity], EntityTypeConfiguration]):
     def _minimize_item_dump(self) -> bool:
         return True
 
-    def _get_key(self, configuration: EntityTypeConfiguration) -> Type[Entity]:
+    def _get_key(self, configuration: EntityTypeConfiguration) -> type[Entity]:
         return configuration.entity_type
 
     @classmethod
@@ -382,16 +417,16 @@ class EntityTypeConfigurationMapping(ConfigurationMapping[Type[Entity], EntityTy
         dict_dump['entity_type'] = key_dump
         return dict_dump
 
-    def _dump_key(self, item_dump: VoidableDump) -> Tuple[VoidableDump, str]:
+    def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
         dict_dump = self._asserter.assert_dict()(item_dump)
         return dict_dump, dict_dump.pop('entity_type')
 
     @classmethod
-    def _item_type(cls) -> Type[EntityTypeConfiguration]:
+    def _item_type(cls) -> type[EntityTypeConfiguration]:
         return EntityTypeConfiguration
 
     @classmethod
-    def _create_default_item(cls, entity_type: Type[Entity]) -> EntityTypeConfiguration:
+    def _create_default_item(cls, entity_type: type[Entity]) -> EntityTypeConfiguration:
         return EntityTypeConfiguration(entity_type)
 
 
@@ -400,13 +435,13 @@ class LocaleConfiguration(Configuration):
         super().__init__(localizer=localizer)
         self._locale = locale
         if alias is not None and '/' in alias:
-            raise ValidationError(self.localizer._('Locale aliases must not contain slashes.'))
+            raise AssertionFailed(self.localizer._('Locale aliases must not contain slashes.'))
         self._alias = alias
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '<%s.%s(%s, %s)>' % (self.__class__.__module__, self.__class__.__name__, self.locale, self.alias)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, self.__class__):
             return NotImplemented
         if self.locale != other.locale:
@@ -415,7 +450,7 @@ class LocaleConfiguration(Configuration):
             return False
         return True
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self._locale, self._alias))
 
     @property
@@ -430,7 +465,7 @@ class LocaleConfiguration(Configuration):
         return self._alias
 
     @alias.setter
-    def alias(self, alias: Optional[str]) -> None:
+    def alias(self, alias: str | None) -> None:
         self._alias = alias
 
     def update(self, other: Self) -> None:
@@ -501,17 +536,17 @@ class LocaleConfigurationMapping(ConfigurationMapping[str, LocaleConfiguration])
         dict_item_dump['locale'] = key_dump
         return dict_item_dump
 
-    def _dump_key(self, item_dump: VoidableDump) -> Tuple[VoidableDump, str]:
+    def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
         dict_item_dump = self._asserter.assert_dict()(item_dump)
         return dict_item_dump, dict_item_dump.pop('locale')
 
     @classmethod
-    def _item_type(cls) -> Type[LocaleConfiguration]:
+    def _item_type(cls) -> type[LocaleConfiguration]:
         return LocaleConfiguration
 
     def _on_remove(self, locale: LocaleConfiguration) -> None:
         if len(self._configurations) <= 1:
-            raise ValidationError(self.localizer._('Cannot remove the last remaining locale {locale}').format(
+            raise AssertionFailed(self.localizer._('Cannot remove the last remaining locale {locale}').format(
                 locale=get_data(locale.locale).get_display_name()),
             )
 
@@ -531,14 +566,14 @@ class LocaleConfigurationMapping(ConfigurationMapping[str, LocaleConfiguration])
 
 @final
 class ProjectConfiguration(FileBasedConfiguration):
-    def __init__(self, base_url: Optional[str] = None, *, localizer: Localizer | None = None):
+    def __init__(self, base_url: str | None = None, *, localizer: Localizer | None = None):
         super().__init__(localizer=localizer)
         self._base_url = 'https://example.com' if base_url is None else base_url
         self._root_path = ''
         self._clean_urls = False
         self._content_negotiation = False
         self._title = 'Betty'
-        self._author: Optional[str] = None
+        self._author: str | None = None
         self._entity_types = EntityTypeConfigurationMapping([
             EntityTypeConfiguration(Person, True),
             EntityTypeConfiguration(Event, True),
@@ -580,11 +615,11 @@ class ProjectConfiguration(FileBasedConfiguration):
 
     @property
     @reactive_property
-    def author(self) -> Optional[str]:
+    def author(self) -> str | None:
         return self._author
 
     @author.setter
-    def author(self, author: Optional[str]) -> None:
+    def author(self, author: str | None) -> None:
         self._author = author
 
     @property
@@ -596,9 +631,9 @@ class ProjectConfiguration(FileBasedConfiguration):
     def base_url(self, base_url: str) -> None:
         base_url_parts = urlparse(base_url)
         if not base_url_parts.scheme:
-            raise ValidationError(self.localizer._('The base URL must start with a scheme such as https://, http://, or file://.'))
+            raise AssertionFailed(self.localizer._('The base URL must start with a scheme such as https://, http://, or file://.'))
         if not base_url_parts.netloc:
-            raise ValidationError(self.localizer._('The base URL must include a path.'))
+            raise AssertionFailed(self.localizer._('The base URL must include a path.'))
         self._base_url = '%s://%s' % (base_url_parts.scheme, base_url_parts.netloc)
 
     @property
@@ -616,7 +651,7 @@ class ProjectConfiguration(FileBasedConfiguration):
         return self._content_negotiation
 
     @content_negotiation.setter
-    def content_negotiation(self, content_negotiation: bool):
+    def content_negotiation(self, content_negotiation: bool) -> None:
         self._content_negotiation = content_negotiation
 
     @property
@@ -735,8 +770,8 @@ class ProjectConfiguration(FileBasedConfiguration):
         ))(dump)
         return configuration
 
-    def dump(self) -> VoidableDump:
-        return minimize({
+    def dump(self) -> VoidableDictDump[Dump]:
+        return minimize({  # type: ignore[return-value]
             'base_url': self.base_url,
             'title': self.title,
             'root_path': void_none(self.root_path),
@@ -757,10 +792,10 @@ class Project(Configurable[ProjectConfiguration], Localizable):
         self._configuration = ProjectConfiguration(localizer=localizer)
         self._ancestry = Ancestry()
 
-    def __getstate__(self) -> Tuple[VoidableDump, Path, Ancestry]:
+    def __getstate__(self) -> tuple[VoidableDump, Path, Ancestry]:
         return self._configuration.dump(), self._configuration.configuration_file_path, self._ancestry
 
-    def __setstate__(self, state: Tuple[Dump, Path, Ancestry]) -> None:
+    def __setstate__(self, state: tuple[Dump, Path, Ancestry]) -> None:
         dump, configuration_file_path, self._ancestry = state
         self._configuration = ProjectConfiguration.load(dump)
         self._configuration.configuration_file_path = configuration_file_path

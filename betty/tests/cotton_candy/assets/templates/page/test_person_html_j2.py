@@ -7,7 +7,7 @@ class TestDescendantNames(TemplateTestCase):
     extensions = {CottonCandy}
     template_file = 'entity/page--person.html.j2'
 
-    def test_without_enclosing_places(self):
+    def test_without_enclosing_places(self) -> None:
         person = Person('P0')
         partner_one = Person('P1')
         child_one = Person('P1C1')

@@ -60,12 +60,18 @@ class TestCottonCandyGuiWidget:
     def test_change_featured_entities(self, qtbot: QtBot) -> None:
         with App() as app:
             app.project.configuration.extensions.enable(CottonCandy)
-            entity_reference_1 = EntityReference[CottonCandyGuiWidgetTestEntity](CottonCandyGuiWidgetTestEntity, '123')
-            entity_reference_2 = EntityReference[CottonCandyGuiWidgetTestEntity](CottonCandyGuiWidgetTestEntity, '456')
-            entity_reference_3 = EntityReference[CottonCandyGuiWidgetTestEntity](CottonCandyGuiWidgetTestEntity, '789')
-            app.extensions[CottonCandy].configuration.featured_entities.append(entity_reference_1)
-            app.extensions[CottonCandy].configuration.featured_entities.append(entity_reference_2)
-            app.extensions[CottonCandy].configuration.featured_entities.append(entity_reference_3)
+            entity_reference_1 = EntityReference(CottonCandyGuiWidgetTestEntity, '123')
+            entity_reference_2 = EntityReference(CottonCandyGuiWidgetTestEntity, '456')
+            entity_reference_3 = EntityReference(CottonCandyGuiWidgetTestEntity, '789')
+            app.extensions[CottonCandy].configuration.featured_entities.append(
+                entity_reference_1,  # type: ignore[arg-type]
+            )
+            app.extensions[CottonCandy].configuration.featured_entities.append(
+                entity_reference_2,  # type: ignore[arg-type]
+            )
+            app.extensions[CottonCandy].configuration.featured_entities.append(
+                entity_reference_3,  # type: ignore[arg-type]
+            )
             sut = _CottonCandyGuiWidget(app)
             qtbot.addWidget(sut)
             sut.show()
@@ -81,9 +87,15 @@ class TestCottonCandyGuiWidget:
             entity_reference_1 = EntityReference[CottonCandyGuiWidgetTestEntity](CottonCandyGuiWidgetTestEntity, '123')
             entity_reference_2 = EntityReference[CottonCandyGuiWidgetTestEntity](CottonCandyGuiWidgetTestEntity, '456')
             entity_reference_3 = EntityReference[CottonCandyGuiWidgetTestEntity](CottonCandyGuiWidgetTestEntity, '789')
-            app.extensions[CottonCandy].configuration.featured_entities.append(entity_reference_1)
-            app.extensions[CottonCandy].configuration.featured_entities.append(entity_reference_2)
-            app.extensions[CottonCandy].configuration.featured_entities.append(entity_reference_3)
+            app.extensions[CottonCandy].configuration.featured_entities.append(
+                entity_reference_1,  # type: ignore[arg-type]
+            )
+            app.extensions[CottonCandy].configuration.featured_entities.append(
+                entity_reference_2,  # type: ignore[arg-type]
+            )
+            app.extensions[CottonCandy].configuration.featured_entities.append(
+                entity_reference_3,  # type: ignore[arg-type]
+            )
             sut = _CottonCandyGuiWidget(app)
             qtbot.addWidget(sut)
             sut.show()

@@ -37,7 +37,7 @@ secure**.
 
 ### Requirements
 
-- **Python 3.8+**
+- **Python 3.9+**
 - Linux, Mac OS, or Windows
 
 ### Instructions
