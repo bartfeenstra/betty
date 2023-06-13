@@ -7,14 +7,13 @@ import re
 import warnings
 from contextlib import suppress
 from pathlib import Path
-from typing import Dict, Callable, Iterable, Type, Optional, Any, Union, Iterator, cast, \
-    MutableMapping, List, Set, Mapping
+from typing import Callable, Iterable, Any, Iterator, cast, \
+    MutableMapping, Mapping, TypeVar
 
 import aiofiles
-from aiofiles import os as aiofiles_os
-import pdf2image
 from PIL import Image
 from PIL.Image import DecompressionBombWarning
+from aiofiles import os as aiofiles_os
 from geopy import units
 from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment as Jinja2Environment, select_autoescape, FileSystemLoader, pass_context, \
@@ -24,6 +23,7 @@ from jinja2.nodes import EvalContext
 from jinja2.runtime import StrictUndefined, Context, Macro, DebugUndefined, new_context
 from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup, escape
+from pdf2image.pdf2image import convert_from_path
 
 from betty import _resizeimage
 from betty.app import App
@@ -40,16 +40,18 @@ from betty.os import link_or_copy
 from betty.path import rootname
 from betty.project import ProjectConfiguration
 from betty.render import Renderer
-from betty.serde.dump import Dumpable, DictDump, VoidableDump, Void, minimize, none_void, void_none
+from betty.serde.dump import Dumpable, DictDump, VoidableDump, Void, minimize, none_void, void_none, Dump
 from betty.string import camel_case_to_snake_case, camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
+
+T = TypeVar('T')
 
 
 class _Citer:
     def __init__(self):
-        self._citations: List[Citation] = []
+        self._citations: list[Citation] = []
 
-    def __iter__(self) -> Iterator[Citation]:
-        return enumerate(self._citations, 1)  # type: ignore
+    def __iter__(self) -> enumerate[Citation]:
+        return enumerate(self._citations, 1)
 
     def __len__(self) -> int:
         return len(self._citations)
@@ -65,7 +67,7 @@ class _Breadcrumb(Dumpable, Repr):
         self._label = label
         self._url = url
 
-    def dump(self) -> DictDump:
+    def dump(self) -> DictDump[Dump]:
         return {
             '@type': 'ListItem',
             'name': self._label,
@@ -99,18 +101,22 @@ class _Breadcrumbs(Dumpable, Repr):
 
 class Jinja2Provider:
     @property
-    def globals(self) -> Dict[str, Callable]:
+    def globals(self) -> dict[str, Any]:
         return {}
 
     @property
-    def filters(self) -> Dict[str, Callable]:
+    def filters(self) -> dict[str, Callable[..., Any]]:
+        return {}
+
+    @property
+    def tests(self) -> dict[str, Callable[..., bool]]:
         return {}
 
 
 class Template(Jinja2Template):
     def new_context(
         self,
-        vars: Dict[str, Any] | None = None,
+        vars: dict[str, Any] | None = None,
         shared: bool = False,
         locals: Mapping[str, Any] | None = None,
     ) -> Context:
@@ -131,6 +137,9 @@ class Template(Jinja2Template):
 
 class Environment(Jinja2Environment):
     template_class = Template
+    globals: dict[str, Any]
+    filters: dict[str, Callable[..., Any]]
+    tests: dict[str, Callable[..., bool]]
 
     def __init__(self, app: App):
         template_directory_paths = [str(path / 'templates') for path, _ in app.assets.paths]
@@ -215,8 +224,8 @@ class Environment(Jinja2Environment):
         self.tests['entity'] = lambda x: isinstance(x, Entity)
         self.tests['user_facing_entity'] = lambda x: isinstance(x, UserFacingEntity)
 
-        def _build_test_entity_type(resource_type: Type[Entity]):
-            def _test_resource(x):
+        def _build_test_entity_type(resource_type: type[Entity]) -> Callable[[Any], bool]:
+            def _test_resource(x: Any) -> bool:
                 return isinstance(x, resource_type)
             return _test_resource
         for entity_type in self.app.entity_types:
@@ -234,8 +243,14 @@ class Environment(Jinja2Environment):
             if isinstance(extension, Jinja2Provider):
                 self.globals.update(extension.globals)
                 self.filters.update(extension.filters)
+                self.tests.update(extension.tests)
 
-    def negotiate_template(self, names: List[str], parent: Optional[str] = None, globals: Optional[MutableMapping[str, Any]] = None) -> Template:
+    def negotiate_template(
+        self,
+        names: list[str],
+        parent: str | None = None,
+        globals: MutableMapping[str, Any] | None = None,
+    ) -> Template:
         for name in names:
             with suppress(TemplateNotFound):
                 return cast(Template, self.get_template(name, parent, globals))
@@ -249,7 +264,7 @@ class Jinja2Renderer(Renderer):
     def __init__(self, environment: Environment, configuration: ProjectConfiguration):
         self._environment = environment
         self._configuration = configuration
-        self._loaders: Dict[Path, BaseLoader] = {}
+        self._loaders: dict[Path, BaseLoader] = {}
 
     def get_loader(self, root_path: Path) -> BaseLoader:
         if root_path not in self._loaders:
@@ -257,7 +272,7 @@ class Jinja2Renderer(Renderer):
         return self._loaders[root_path]
 
     @property
-    def file_extensions(self) -> Set[str]:
+    def file_extensions(self) -> set[str]:
         return {'.j2'}
 
     async def render_file(self, file_path: Path) -> Path:
@@ -287,7 +302,7 @@ class Jinja2Renderer(Renderer):
 
 
 @pass_context
-def _filter_url(context: Context, resource: Any, media_type: Optional[str] = None, *args, **kwargs) -> str:
+def _filter_url(context: Context, resource: Any, media_type: str | None = None, *args: Any, **kwargs: Any) -> str:
     return cast(Environment, context.environment).app.url_generator.generate(
         resource,
         media_type or 'text/html',
@@ -297,7 +312,7 @@ def _filter_url(context: Context, resource: Any, media_type: Optional[str] = Non
 
 
 @pass_context
-def _filter_json(context: Context, data: Any, indent: Optional[int] = None) -> str:
+def _filter_json(context: Context, data: Any, indent: int | None = None) -> str:
     """
     Converts a value to a JSON string.
     """
@@ -305,7 +320,7 @@ def _filter_json(context: Context, data: Any, indent: Optional[int] = None) -> s
 
 
 @pass_context
-def _filter_tojson(context: Context, data: Any, indent: Optional[int] = None) -> str:
+def _filter_tojson(context: Context, data: Any, indent: int | None = None) -> str:
     """
     Converts a value to a JSON string safe for use in an HTML document.
 
@@ -314,7 +329,7 @@ def _filter_tojson(context: Context, data: Any, indent: Optional[int] = None) ->
     return htmlsafe_json_dumps(data, indent=indent, dumps=lambda *args, **kwargs: _filter_json(context, *args, **kwargs))
 
 
-def _filter_flatten(items: Union[Iterable, Iterable]) -> Iterable:
+def _filter_flatten(items: Iterable[Iterable[T]]) -> Iterator[T]:
     for item in items:
         for child in item:
             yield child
@@ -328,7 +343,7 @@ _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
 
 
 @pass_eval_context
-def _filter_paragraphs(eval_ctx: EvalContext, text: str) -> Union[str, Markup]:
+def _filter_paragraphs(eval_ctx: EvalContext, text: str) -> str | Markup:
     """Converts newlines to <p> and <br> tags.
 
     Taken from http://jinja.pocoo.org/docs/2.10/api/#custom-filters."""
@@ -350,10 +365,10 @@ def _filter_format_degrees(degrees: int) -> str:
         minutes=round(abs(arcminutes)),
         seconds=round(abs(arcseconds))
     )
-    return DEGREES_FORMAT % format_dict
+    return DEGREES_FORMAT % format_dict  # type: ignore[no-any-return]
 
 
-def _filter_unique(items: Iterable) -> Iterator:
+def _filter_unique(items: Iterable[T]) -> Iterator[T]:
     seen = []
     for item in items:
         if item not in seen:
@@ -362,7 +377,7 @@ def _filter_unique(items: Iterable) -> Iterator:
 
 
 @pass_context
-def _filter_map(context: Context, value: Iterable, *args: Any, **kwargs: Any,):
+def _filter_map(context: Context, value: Iterable[Any], *args: Any, **kwargs: Any) -> Any:
     """
     Maps an iterable's values.
 
@@ -370,7 +385,7 @@ def _filter_map(context: Context, value: Iterable, *args: Any, **kwargs: Any,):
     """
     if value:
         if len(args) > 0 and isinstance(args[0], Macro):
-            func: Union[Macro, Callable[[Any], bool]] = args[0]
+            func: Macro | Callable[[Any], bool] = args[0]
         else:
             func = prepare_map(context, args, kwargs)
         for item in value:
@@ -381,7 +396,7 @@ def _filter_file(app: App, file: File) -> str:
     with suppress(AcquiredError):
         app.locks.acquire((_filter_file, file))
         file_destination_path = app.project.configuration.www_directory_path / 'file' / file.id / 'file' / file.path.name
-        app.do_in_thread(lambda: _do_filter_file(file.path, file_destination_path))
+        app.delegate_to_thread(lambda: _do_filter_file(file.path, file_destination_path))
 
     return f'/file/{file.id}/file/{file.path.name}'
 
@@ -391,7 +406,7 @@ def _do_filter_file(file_source_path: Path, file_destination_path: Path) -> None
     link_or_copy(file_source_path, file_destination_path)
 
 
-def _filter_image(app: App, file: File, width: Optional[int] = None, height: Optional[int] = None) -> str:
+def _filter_image(app: App, file: File, width: int | None = None, height: int | None = None) -> str:
     destination_name = '%s-' % file.id
     if height:
         destination_name += '-x%d' % height
@@ -419,14 +434,14 @@ def _filter_image(app: App, file: File, width: Optional[int] = None, height: Opt
     with suppress(AcquiredError):
         app.locks.acquire((_filter_image, file, width, height))
         cache_directory_path = CACHE_DIRECTORY_PATH / 'image'
-        app.do_in_thread(lambda: task(file.path, cache_directory_path, file_directory_path, destination_name, width, height))
+        app.delegate_to_thread(lambda: task(file.path, cache_directory_path, file_directory_path, destination_name, width, height))
 
     destination_public_path = '/file/%s' % destination_name
 
     return destination_public_path
 
 
-def _execute_filter_image_image(file_path: Path, *args, **kwargs) -> None:
+def _execute_filter_image_image(file_path: Path, *args: Any, **kwargs: Any) -> None:
     with warnings.catch_warnings():
         # Ignore warnings about decompression bombs, because we know where the files come from.
         warnings.simplefilter('ignore', category=DecompressionBombWarning)
@@ -437,18 +452,26 @@ def _execute_filter_image_image(file_path: Path, *args, **kwargs) -> None:
         image.close()
 
 
-def _execute_filter_image_application_pdf(file_path: Path, *args, **kwargs) -> None:
+def _execute_filter_image_application_pdf(file_path: Path, *args: Any, **kwargs: Any) -> None:
     with warnings.catch_warnings():
         # Ignore warnings about decompression bombs, because we know where the files come from.
         warnings.simplefilter('ignore', category=DecompressionBombWarning)
-        image = pdf2image.convert_from_path(file_path, fmt='jpeg')[0]
+        image = convert_from_path(file_path, fmt='jpeg')[0]
     try:
         _execute_filter_image(image, file_path, *args, **kwargs)
     finally:
         image.close()
 
 
-def _execute_filter_image(image: Image, file_path: Path, cache_directory_path: Path, destination_directory_path: Path, destination_name: str, width: int, height: int) -> None:
+def _execute_filter_image(
+    image: Image,
+    file_path: Path,
+    cache_directory_path: Path,
+    destination_directory_path: Path,
+    destination_name: str,
+    width: int,
+    height: int,
+) -> None:
     destination_directory_path.mkdir(exist_ok=True, parents=True)
     cache_file_path = cache_directory_path / ('%s-%s' % (hashfile(file_path), destination_name))
     destination_file_path = destination_directory_path / destination_name
@@ -468,17 +491,17 @@ def _execute_filter_image(image: Image, file_path: Path, cache_directory_path: P
                 convert = _resizeimage.resize_height
             elif height is None:
                 size = width
-                convert = _resizeimage.resize_width
+                convert = _resizeimage.resize_width  # type: ignore[assignment]
             else:
                 size = (width, height)
-                convert = _resizeimage.resize_cover
+                convert = _resizeimage.resize_cover  # type: ignore[assignment]
             convert(image, size).save(cache_file_path)
         destination_directory_path.mkdir(exist_ok=True, parents=True)
         link_or_copy(cache_file_path, destination_file_path)
 
 
 @pass_context
-def _filter_negotiate_localizeds(context: Context, localizeds: Iterable[Localized]) -> Optional[Localized]:
+def _filter_negotiate_localizeds(context: Context, localizeds: Iterable[Localized]) -> Localized | None:
     return negotiate_localizeds(cast(Environment, context.environment).app.locale, list(localizeds))
 
 
@@ -488,7 +511,7 @@ def _filter_sort_localizeds(context: Context, localizeds: Iterable[Localized], l
         context.environment, localized_attribute)
     get_sort_attr = make_attrgetter(context.environment, sort_attribute)
 
-    def _get_sort_key(x):
+    def _get_sort_key(x: Localized) -> Any:
         return get_sort_attr(negotiate_localizeds(cast(Environment, context.environment).app.locale, get_localized_attr(x)))
 
     return sorted(localizeds, key=_get_sort_key)
@@ -504,17 +527,17 @@ def _filter_select_localizeds(context: Context, localizeds: Iterable[Localized],
 
 
 @pass_context
-def _filter_negotiate_dateds(context: Context, dateds: Iterable[Dated], date: Optional[Datey]) -> Optional[Dated]:
+def _filter_negotiate_dateds(context: Context, dateds: Iterable[Dated], date: Datey | None) -> Dated | None:
     with suppress(StopIteration):
         return next(_filter_select_dateds(context, dateds, date))
     return None
 
 
 @pass_context
-def _filter_select_dateds(context: Context, dateds: Iterable[Dated], date: Optional[Datey]) -> Iterator[Dated]:
+def _filter_select_dateds(context: Context, dateds: Iterable[Dated], date: Datey | None) -> Iterator[Dated]:
     if date is None:
         date = context.resolve_or_missing('today')
     return filter(
-        lambda dated: dated.date is None or dated.date.comparable and dated.date in date,  # type: ignore
+        lambda dated: dated.date is None or dated.date.comparable and dated.date in date,  # type: ignore[arg-type]
         dateds,
     )

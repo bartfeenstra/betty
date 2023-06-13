@@ -3,7 +3,7 @@ from __future__ import annotations
 import json as stdjson
 from os import path
 from pathlib import Path
-from typing import Dict, Any, Type, Callable
+from typing import Any, Callable, TypeVar, cast
 
 import jsonschema
 from geopy import Point
@@ -17,6 +17,8 @@ from betty.model import Entity, get_entity_type_name, GeneratedEntityId
 from betty.model.ancestry import Place, Person, PlaceName, Event, Described, HasLinks, HasCitations, Link, Dated, File, \
     Note, PersonName, HasMediaType, PresenceRole, Citation, Source
 from betty.string import upper_camel_case_to_lower_camel_case
+
+T = TypeVar('T')
 
 
 def validate(data: Any, schema_definition: str, app: App) -> None:
@@ -35,12 +37,12 @@ class JSONEncoder(stdjson.JSONEncoder):
     def __init__(
         self,
         app: App,
-        *args,
-        **kwargs,
+        *args: Any,
+        **kwargs: Any,
     ):
         stdjson.JSONEncoder.__init__(self, *args, **kwargs)
         self._app = app
-        self._mappers: Dict[Type, Callable[[Any], Any]] = {
+        self._mappers: dict[type[Any], Callable[[Any], Any]] = {
             Path: str,
             PlaceName: self._encode_localized_name,
             Place: self._encode_place,
@@ -59,21 +61,21 @@ class JSONEncoder(stdjson.JSONEncoder):
             MediaType: self._encode_media_type,
         }
 
-    def default(self, o):
+    def default(self, o: type[T]) -> Callable[[T], Any]:
         for mapper_type in self._mappers:
             if isinstance(o, mapper_type):
-                return self._mappers[mapper_type](o)
-        stdjson.JSONEncoder.default(self, o)
+                return cast(Callable[[T], Any], self._mappers[mapper_type](o))
+        return stdjson.JSONEncoder.default(self, o)  # type: ignore[no-any-return]
 
-    def _generate_url(self, resource: Any, media_type='application/json', locale: Localey | None = None):
+    def _generate_url(self, resource: Any, media_type='application/json', locale: Localey | None = None) -> str:
         return self._app.url_generator.generate(resource, media_type, locale=locale)
 
-    def _encode_schema(self, encoded: Dict, defintion: str) -> None:
+    def _encode_schema(self, encoded: dict[str, Any], defintion: str) -> None:
         encoded['$schema'] = self._app.static_url_generator.generate(
             'schema.json#/definitions/%s' % defintion)
 
     @sync
-    async def _encode_entity(self, encoded: Dict, entity: Entity) -> None:
+    async def _encode_entity(self, encoded: dict[str, Any], entity: Entity) -> None:
         self._encode_schema(encoded, upper_camel_case_to_lower_camel_case(get_entity_type_name(entity)))
 
         if 'links' not in encoded:
@@ -87,7 +89,11 @@ class JSONEncoder(stdjson.JSONEncoder):
             canonical.media_type = MediaType('application/json')
             encoded['links'].append(canonical)
 
-            link_urls = [link.url for link in encoded['links']]
+            link_urls = [
+                link.url
+                for link
+                in encoded['links']
+            ]
             for locale in self._app.project.configuration.locales:
                 if locale == self._app.locale:
                     continue
@@ -105,7 +111,7 @@ class JSONEncoder(stdjson.JSONEncoder):
             html.media_type = MediaType('text/html')
             encoded['links'].append(html)
 
-    def _encode_described(self, encoded: Dict, described: Described) -> None:
+    def _encode_described(self, encoded: dict[str, Any], described: Described) -> None:
         if described.description is not None:
             encoded['description'] = described.description
             encoded.update({
@@ -113,12 +119,12 @@ class JSONEncoder(stdjson.JSONEncoder):
             })
             encoded['@context']['description'] = 'https://schema.org/description'
 
-    def _encode_dated(self, encoded: Dict, dated: Dated) -> None:
+    def _encode_dated(self, encoded: dict[str, Any], dated: Dated) -> None:
         if dated.date is not None:
             encoded['date'] = dated.date
 
-    def _encode_date(self, date: Date) -> Dict:
-        encoded = {}
+    def _encode_date(self, date: Date) -> dict[str, Any]:
+        encoded: dict[str, Any] = {}
         if date.year:
             encoded['year'] = date.year
         if date.month:
@@ -127,30 +133,30 @@ class JSONEncoder(stdjson.JSONEncoder):
             encoded['day'] = date.day
         return encoded
 
-    def _encode_date_range(self, date: DateRange) -> Dict:
-        encoded = {}
+    def _encode_date_range(self, date: DateRange) -> dict[str, Any]:
+        encoded: dict[str, Any] = {}
         if date.start:
             encoded['start'] = date.start
         if date.end:
             encoded['end'] = date.end
         return encoded
 
-    def _encode_localized(self, encoded: Dict, localized: Localized) -> None:
+    def _encode_localized(self, encoded: dict[str, Any], localized: Localized) -> None:
         if localized.locale is not None:
             encoded['locale'] = localized.locale
 
-    def _encode_has_media_type(self, encoded: Dict, media: HasMediaType) -> None:
+    def _encode_has_media_type(self, encoded: dict[str, Any], media: HasMediaType) -> None:
         if media.media_type is not None:
             encoded['mediaType'] = media.media_type
 
-    def _encode_has_links(self, encoded: Dict, has_links: HasLinks) -> None:
+    def _encode_has_links(self, encoded: dict[str, Any], has_links: HasLinks) -> None:
         if 'links' not in encoded:
             encoded['links'] = []
         for link in has_links.links:
             encoded['links'].append(link)
 
-    def _encode_link(self, link: Link) -> Dict:
-        encoded = {
+    def _encode_link(self, link: Link) -> dict[str, Any]:
+        encoded: dict[str, Any] = {
             'url': link.url,
         }
         if link.label is not None:
@@ -161,10 +167,15 @@ class JSONEncoder(stdjson.JSONEncoder):
         self._encode_has_media_type(encoded, link)
         return encoded
 
-    def _encode_has_citations(self, encoded: Dict, has_citations: HasCitations) -> None:
-        encoded['citations'] = [self._generate_url(citation) for citation in has_citations.citations if not isinstance(citation.id, GeneratedEntityId)]
+    def _encode_has_citations(self, encoded: dict[str, Any], has_citations: HasCitations) -> None:
+        encoded['citations'] = [
+            self._generate_url(citation)
+            for citation
+            in has_citations.citations
+            if not isinstance(citation.id, GeneratedEntityId)
+        ]
 
-    def _encode_coordinates(self, coordinates: Point) -> Dict:
+    def _encode_coordinates(self, coordinates: Point) -> dict[str, Any]:
         return {
             '@context': {
                 'latitude': 'https://schema.org/latitude',
@@ -175,15 +186,15 @@ class JSONEncoder(stdjson.JSONEncoder):
             'longitude': coordinates.longitude,
         }
 
-    def _encode_localized_name(self, name: PlaceName) -> Dict:
-        encoded = {
+    def _encode_localized_name(self, name: PlaceName) -> dict[str, Any]:
+        encoded: dict[str, Any] = {
             'name': name.name,
         }
         self._encode_localized(encoded, name)
         return encoded
 
-    def _encode_place(self, place: Place) -> Dict:
-        encoded = {
+    def _encode_place(self, place: Place) -> dict[str, Any]:
+        encoded: dict[str, Any] = {
             '@context': {
                 'events': 'https://schema.org/event',
                 'enclosedBy': 'https://schema.org/containedInPlace',
@@ -191,19 +202,34 @@ class JSONEncoder(stdjson.JSONEncoder):
             },
             '@type': 'https://schema.org/Place',
             'names': place.names,
-            'events': [self._generate_url(event) for event in place.events if not isinstance(event.id, GeneratedEntityId)],
-            'enclosedBy': [self._generate_url(enclosure.enclosed_by) for enclosure in place.enclosed_by if not isinstance(enclosure.enclosed_by.id, GeneratedEntityId)],
-            'encloses': [self._generate_url(enclosure.encloses) for enclosure in place.encloses if not isinstance(enclosure.encloses.id, GeneratedEntityId)],
+            'events': [
+                self._generate_url(event)
+                for event
+                in place.events
+                if not isinstance(event.id, GeneratedEntityId)
+            ],
+            'enclosedBy': [
+                self._generate_url(enclosure.enclosed_by)
+                for enclosure
+                in place.enclosed_by
+                if enclosure.enclosed_by is not None and not isinstance(enclosure.enclosed_by.id, GeneratedEntityId)
+            ],
+            'encloses': [
+                self._generate_url(enclosure.encloses)
+                for enclosure
+                in place.encloses
+                if enclosure.encloses is not None and not isinstance(enclosure.encloses.id, GeneratedEntityId)
+            ],
         }
         self._encode_entity(encoded, place)
         self._encode_has_links(encoded, place)
         if place.coordinates is not None:
             encoded['coordinates'] = place.coordinates
-            encoded['@context']['coordinates'] = 'https://schema.org/geo'  # type: ignore
+            encoded['@context']['coordinates'] = 'https://schema.org/geo'
         return encoded
 
-    def _encode_person(self, person: Person) -> Dict:
-        encoded = {
+    def _encode_person(self, person: Person) -> dict[str, Any]:
+        encoded: dict[str, Any] = {
             '@context': {
                 'parents': 'https://schema.org/parent',
                 'children': 'https://schema.org/child',
@@ -211,27 +237,42 @@ class JSONEncoder(stdjson.JSONEncoder):
             },
             '@type': 'https://schema.org/Person',
             'names': list(person.names),
-            'parents': [self._generate_url(parent) for parent in person.parents if not isinstance(parent.id, GeneratedEntityId)],
-            'children': [self._generate_url(child) for child in person.children if not isinstance(child.id, GeneratedEntityId)],
-            'siblings': [self._generate_url(sibling) for sibling in person.siblings if not isinstance(sibling.id, GeneratedEntityId)],
+            'parents': [
+                self._generate_url(parent)
+                for parent
+                in person.parents
+                if not isinstance(parent.id, GeneratedEntityId)
+            ],
+            'children': [
+                self._generate_url(child)
+                for child
+                in person.children
+                if not isinstance(child.id, GeneratedEntityId)
+            ],
+            'siblings': [
+                self._generate_url(sibling)
+                for sibling
+                in person.siblings
+                if not isinstance(sibling.id, GeneratedEntityId)
+            ],
             'private': person.private,
             'presences': [],
         }
         for presence in person.presences:
-            encoded['presences'].append({  # type: ignore
+            encoded['presences'].append({
                 '@context': {
                     'event': 'https://schema.org/performerIn',
                 },
                 'role': presence.role,
-                'event': None if isinstance(presence.event.id, GeneratedEntityId) else self._generate_url(presence.event),
+                'event': None if presence.event is not None and isinstance(presence.event.id, GeneratedEntityId) else self._generate_url(presence.event),
             })
         self._encode_entity(encoded, person)
         self._encode_has_citations(encoded, person)
         self._encode_has_links(encoded, person)
         return encoded
 
-    def _encode_person_name(self, name: PersonName) -> Dict:
-        encoded: Dict[str, Any] = {}
+    def _encode_person_name(self, name: PersonName) -> dict[str, Any]:
+        encoded: dict[str, Any] = {}
         if name.individual is not None or name.affiliation is not None:
             encoded.update({
                 '@context': {},
@@ -244,17 +285,27 @@ class JSONEncoder(stdjson.JSONEncoder):
             encoded['affiliation'] = name.affiliation
         return encoded
 
-    def _encode_file(self, file: File) -> Dict:
-        encoded = {
-            'entities': [self._generate_url(entity) for entity in file.entities if not isinstance(entity.id, GeneratedEntityId)],
-            'notes': [self._generate_url(note) for note in file.notes if not isinstance(note.id, GeneratedEntityId)],
+    def _encode_file(self, file: File) -> dict[str, Any]:
+        encoded: dict[str, Any] = {
+            'entities': [
+                self._generate_url(entity)
+                for entity
+                in file.entities
+                if not isinstance(entity.id, GeneratedEntityId)
+            ],
+            'notes': [
+                self._generate_url(note)
+                for note
+                in file.notes
+                if not isinstance(note.id, GeneratedEntityId)
+            ],
         }
         self._encode_entity(encoded, file)
         self._encode_has_media_type(encoded, file)
         return encoded
 
-    def _encode_event(self, event: Event) -> Dict:
-        encoded = {
+    def _encode_event(self, event: Event) -> dict[str, Any]:
+        encoded: dict[str, Any] = {
             '@type': 'https://schema.org/Event',
             'type': event.type.name(),
             'presences': [{
@@ -262,7 +313,7 @@ class JSONEncoder(stdjson.JSONEncoder):
                     'person': 'https://schema.org/actor',
                 },
                 'role': presence.role,
-                'person': None if isinstance(presence.person.id, GeneratedEntityId) else self._generate_url(presence.person),
+                'person': None if presence.person is not None and isinstance(presence.person.id, GeneratedEntityId) else self._generate_url(presence.person),
             } for presence in event.presences],
         }
         self._encode_entity(encoded, event)
@@ -271,40 +322,50 @@ class JSONEncoder(stdjson.JSONEncoder):
         if event.place is not None and not isinstance(event.place.id, GeneratedEntityId):
             encoded['place'] = self._generate_url(event.place)
             encoded.update({
-                '@context': {},  # type: ignore[dict-item]
+                '@context': {},
             })
-            encoded['@context']['place'] = 'https://schema.org/location'  # type: ignore[index]
+            encoded['@context']['place'] = 'https://schema.org/location'
         return encoded
 
     def _encode_presence_role(self, role: PresenceRole) -> str:
         return role.name()
 
-    def _encode_citation(self, citation: Citation) -> Dict:
-        encoded = {
+    def _encode_citation(self, citation: Citation) -> dict[str, Any]:
+        encoded: dict[str, Any] = {
             '@type': 'https://schema.org/Thing',
             'facts': []
         }
-        if not isinstance(citation.source.id, GeneratedEntityId):
+        if citation.source is not None and not isinstance(citation.source.id, GeneratedEntityId):
             encoded['source'] = self._generate_url(citation.source)
         for fact in citation.facts:
             if isinstance(fact.id, GeneratedEntityId):
                 continue
-            encoded['facts'].append(  # type: ignore
+            encoded['facts'].append(
                 self._generate_url(fact),
             )
         self._encode_entity(encoded, citation)
         self._encode_dated(encoded, citation)
         return encoded
 
-    def _encode_source(self, source: Source) -> Dict:
-        encoded = {
+    def _encode_source(self, source: Source) -> dict[str, Any]:
+        encoded: dict[str, Any] = {
             '@context': {
                 'name': 'https://schema.org/name',
             },
             '@type': 'https://schema.org/Thing',
             'name': source.name,
-            'contains': [self._generate_url(contained) for contained in source.contains if not isinstance(contained.id, GeneratedEntityId)],
-            'citations': [self._generate_url(citation) for citation in source.citations if not isinstance(citation.id, GeneratedEntityId)],
+            'contains': [
+                self._generate_url(contained)
+                for contained
+                in source.contains
+                if not isinstance(contained.id, GeneratedEntityId)
+            ],
+            'citations': [
+                self._generate_url(citation)
+                for citation
+                in source.citations
+                if not isinstance(citation.id, GeneratedEntityId)
+            ],
         }
         if source.author is not None:
             encoded['author'] = source.author
@@ -317,8 +378,8 @@ class JSONEncoder(stdjson.JSONEncoder):
             encoded['containedBy'] = self._generate_url(source.contained_by)
         return encoded
 
-    def _encode_note(self, note: Note) -> Dict:
-        encoded = {
+    def _encode_note(self, note: Note) -> dict[str, Any]:
+        encoded: dict[str, Any] = {
             '@type': 'https://schema.org/Thing',
             'text': note.text,
         }

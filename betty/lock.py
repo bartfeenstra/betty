@@ -14,10 +14,10 @@ class Locks:
     def __init__(self):
         self._locks = set()
 
-    def acquire(self, resource: Hashable):
+    def acquire(self, resource: Hashable) -> None:
         if resource in self._locks:
             raise AcquiredError(resource)
         self._locks.add(resource)
 
-    def release(self, resource: Hashable):
+    def release(self, resource: Hashable) -> None:
         self._locks.discard(resource)

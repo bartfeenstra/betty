@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from typing import Type, Dict, Any, Iterable, Tuple
+from typing import Any, Iterable
 
 import dill as pickle
 import pytest
 from reactives.tests import assert_reactor_called, assert_scope_empty
+from typing_extensions import Self
 
-from betty.app import Extension, ConfigurableExtension
+from betty.app.extension import Extension, ConfigurableExtension
 from betty.config import Configuration, Configurable
 from betty.locale import Localizer
 from betty.model import Entity, get_entity_type_name, UserFacingEntity
@@ -14,14 +15,9 @@ from betty.project import ExtensionConfiguration, ExtensionConfigurationMapping,
     LocaleConfiguration, LocaleConfigurationMapping, EntityReference, EntityReferenceSequence, \
     EntityTypeConfiguration, EntityTypeConfigurationMapping
 from betty.serde.dump import Dump, VoidableDump
-from betty.serde.load import ValidationError, Asserter, Fields, Assertions, RequiredField
+from betty.serde.load import AssertionFailed, Asserter, Fields, Assertions, RequiredField
 from betty.tests.serde import raises_error
 from betty.tests.test_config import ConfigurationMappingTestBase, ConfigurationSequenceTestBase
-
-try:
-    from typing_extensions import Self
-except ModuleNotFoundError:  # pragma: no cover
-    from typing import Self  # type: ignore  # pragma: no cover
 
 
 class EntityReferenceTestEntityOne(Entity):
@@ -75,7 +71,7 @@ class TestEntityReference:
     ])
     def test_load_with_constraint_without_string_should_error(self, dump: Dump) -> None:
         configuration = EntityReference(EntityReferenceTestEntityOne, entity_type_is_constrained=True)
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             EntityReference.load(dump, configuration)
 
     def test_load_without_constraint(self) -> None:
@@ -95,7 +91,7 @@ class TestEntityReference:
         dump: Dump = {
             'entity_id': entity_id,
         }
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             EntityReference.load(dump, sut)
 
     def test_load_without_constraint_without_string_entity_type_should_error(self) -> None:
@@ -105,7 +101,7 @@ class TestEntityReference:
             'entity_type': None,
             'entity_id': entity_id,
         }
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             EntityReference.load(dump, sut)
 
     def test_load_without_constraint_without_importable_entity_type_should_error(self) -> None:
@@ -115,7 +111,7 @@ class TestEntityReference:
             'entity_type': 'betty.non_existent.Entity',
             'entity_id': entity_id,
         }
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             EntityReference.load(dump, sut)
 
     def test_load_without_constraint_without_string_entity_id_should_error(self) -> None:
@@ -125,7 +121,7 @@ class TestEntityReference:
             'entity_type': get_entity_type_name(entity_type),
             'entity_id': None,
         }
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             EntityReference.load(dump, sut)
 
     def test_dump_with_constraint(self) -> None:
@@ -152,42 +148,45 @@ class EntityReferenceSequenceTestEntity(Entity):
     pass
 
 
-class TestEntityReferenceSequence(ConfigurationSequenceTestBase):
-    _ConfigurationT = EntityReference
+class TestEntityReferenceSequence(ConfigurationSequenceTestBase[EntityReference[Entity]]):
+    def get_sut(self, entity_references: Iterable[EntityReference[Entity]] | None = None) -> EntityReferenceSequence[Entity]:
+        return EntityReferenceSequence(entity_references)
 
-    def get_sut(self, entity_references: Iterable[Configuration] | None = None) -> EntityReferenceSequence:
-        return EntityReferenceSequence(entity_references)  # type: ignore[arg-type]
-
-    def get_configurations(self) -> Tuple[EntityReference, EntityReference, EntityReference, EntityReference]:
+    def get_configurations(self) -> tuple[
+        EntityReference[Entity],
+        EntityReference[Entity],
+        EntityReference[Entity],
+        EntityReference[Entity],
+    ]:
         return (
-            EntityReference(),
-            EntityReference(),
-            EntityReference(),
-            EntityReference(),
+            EntityReference[Entity](),
+            EntityReference[Entity](),
+            EntityReference[Entity](),
+            EntityReference[Entity](),
         )
 
 
 class TestLocaleConfiguration:
-    def test_locale(self):
+    def test_locale(self) -> None:
         locale = 'nl-NL'
         sut = LocaleConfiguration(locale)
         assert locale == sut.locale
 
-    def test_alias_implicit(self):
+    def test_alias_implicit(self) -> None:
         locale = 'nl-NL'
         sut = LocaleConfiguration(locale)
         assert locale == sut.alias
 
-    def test_alias_explicit(self):
+    def test_alias_explicit(self) -> None:
         locale = 'nl-NL'
         alias = 'nl'
         sut = LocaleConfiguration(locale, alias)
         assert alias == sut.alias
 
-    def test_invalid_alias(self):
+    def test_invalid_alias(self) -> None:
         locale = 'nl-NL'
         alias = '/'
-        with pytest.raises(ValidationError):
+        with pytest.raises(AssertionFailed):
             LocaleConfiguration(locale, alias)
 
     @pytest.mark.parametrize('expected, sut, other', [
@@ -195,18 +194,18 @@ class TestLocaleConfiguration:
         (False, LocaleConfiguration('nl', 'NL'), 999),
         (False, LocaleConfiguration('nl', 'NL'), object()),
     ])
-    def test_eq(self, expected, sut, other):
+    def test_eq(self, expected: bool, sut: LocaleConfiguration, other: Any) -> None:
         assert expected == (sut == other)
 
 
-class TestLocaleConfigurationMapping(ConfigurationMappingTestBase):
-    def get_configuration_keys(self) -> Tuple[str, str, str, str]:
+class TestLocaleConfigurationMapping(ConfigurationMappingTestBase[str, LocaleConfiguration]):
+    def get_configuration_keys(self) -> tuple[str, str, str, str]:
         return 'en', 'nl', 'uk', 'fr'
 
     def get_sut(self, configurations: Iterable[Configuration] | None = None) -> LocaleConfigurationMapping:
         return LocaleConfigurationMapping(configurations)  # type: ignore[arg-type]
 
-    def get_configurations(self) -> Tuple[LocaleConfiguration, LocaleConfiguration, LocaleConfiguration, LocaleConfiguration]:
+    def get_configurations(self) -> tuple[LocaleConfiguration, LocaleConfiguration, LocaleConfiguration, LocaleConfiguration]:
         return (
             LocaleConfiguration(self.get_configuration_keys()[0]),
             LocaleConfiguration(self.get_configuration_keys()[1]),
@@ -227,14 +226,14 @@ class TestLocaleConfigurationMapping(ConfigurationMappingTestBase):
         sut = LocaleConfigurationMapping([
             locale_configuration_a,
         ])
-        with pytest.raises(ValidationError):
+        with pytest.raises(AssertionFailed):
             del sut['nl-NL']
 
-    def test_default_without_explicit_locale_configurations(self):
+    def test_default_without_explicit_locale_configurations(self) -> None:
         sut = LocaleConfigurationMapping()
         assert LocaleConfiguration('en-US') == sut.default
 
-    def test_default_without_explicit_default(self):
+    def test_default_without_explicit_default(self) -> None:
         locale_configuration_a = LocaleConfiguration('nl-NL')
         locale_configuration_b = LocaleConfiguration('en-US')
         sut = LocaleConfigurationMapping([
@@ -243,7 +242,7 @@ class TestLocaleConfigurationMapping(ConfigurationMappingTestBase):
         ])
         assert locale_configuration_a == sut.default
 
-    def test_default_with_explicit_default(self):
+    def test_default_with_explicit_default(self) -> None:
         locale_configuration_a = LocaleConfiguration('nl-NL')
         locale_configuration_b = LocaleConfiguration('en-US')
         sut = LocaleConfigurationMapping([
@@ -263,13 +262,13 @@ class _DummyConfiguration(Configuration):
     pass
 
 
-class _DummyConfigurableExtension(Extension, Configurable):
+class _DummyConfigurableExtension(Extension, Configurable[_DummyConfiguration]):
     @classmethod
     def label(cls) -> str:
         return 'Configurable dummy'
 
     @classmethod
-    def configuration_type(cls) -> Type[_DummyConfiguration]:
+    def configuration_type(cls) -> type[_DummyConfiguration]:
         return _DummyConfiguration
 
 
@@ -320,14 +319,14 @@ class ExtensionTypeConfigurationMappingTestExtension3(Extension):
     pass
 
 
-class TestExtensionConfigurationMapping(ConfigurationMappingTestBase):
-    def get_configuration_keys(self) -> Tuple[Type[Extension], Type[Extension], Type[Extension], Type[Extension]]:
+class TestExtensionConfigurationMapping(ConfigurationMappingTestBase[type[Extension], ExtensionConfiguration]):
+    def get_configuration_keys(self) -> tuple[type[Extension], type[Extension], type[Extension], type[Extension]]:
         return ExtensionTypeConfigurationMappingTestExtension0, ExtensionTypeConfigurationMappingTestExtension1, ExtensionTypeConfigurationMappingTestExtension2, ExtensionTypeConfigurationMappingTestExtension3
 
-    def get_sut(self, configurations: Iterable[Configuration] | None = None) -> ExtensionConfigurationMapping:
-        return ExtensionConfigurationMapping(configurations)  # type: ignore[arg-type]
+    def get_sut(self, configurations: Iterable[ExtensionConfiguration] | None = None) -> ExtensionConfigurationMapping:
+        return ExtensionConfigurationMapping(configurations)
 
-    def get_configurations(self) -> Tuple[ExtensionConfiguration, ExtensionConfiguration, ExtensionConfiguration, ExtensionConfiguration]:
+    def get_configurations(self) -> tuple[ExtensionConfiguration, ExtensionConfiguration, ExtensionConfiguration, ExtensionConfiguration]:
         return (
             ExtensionConfiguration(self.get_configuration_keys()[0]),
             ExtensionConfiguration(self.get_configuration_keys()[1]),
@@ -362,7 +361,7 @@ class TestEntityTypeConfiguration:
 
     def test_load_with_empty_configuration(self) -> None:
         dump: Dump = {}
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             EntityTypeConfiguration.load(dump)
 
     def test_load_with_minimal_configuration(self) -> None:
@@ -423,14 +422,14 @@ class EntityTypeConfigurationMappingTestEntity3(Entity):
     pass
 
 
-class TestEntityTypeConfigurationMapping(ConfigurationMappingTestBase):
-    def get_configuration_keys(self) -> Tuple[Type[Entity], Type[Entity], Type[Entity], Type[Entity]]:
+class TestEntityTypeConfigurationMapping(ConfigurationMappingTestBase[type[Entity], EntityTypeConfiguration]):
+    def get_configuration_keys(self) -> tuple[type[Entity], type[Entity], type[Entity], type[Entity]]:
         return EntityTypeConfigurationMappingTestEntity0, EntityTypeConfigurationMappingTestEntity1, EntityTypeConfigurationMappingTestEntity2, EntityTypeConfigurationMappingTestEntity3
 
-    def get_sut(self, configurations: Iterable[Configuration] | None = None) -> EntityTypeConfigurationMapping:
-        return EntityTypeConfigurationMapping(configurations)  # type: ignore[arg-type]
+    def get_sut(self, configurations: Iterable[EntityTypeConfiguration] | None = None) -> EntityTypeConfigurationMapping:
+        return EntityTypeConfigurationMapping(configurations)
 
-    def get_configurations(self) -> Tuple[EntityTypeConfiguration, EntityTypeConfiguration, EntityTypeConfiguration, EntityTypeConfiguration]:
+    def get_configurations(self) -> tuple[EntityTypeConfiguration, EntityTypeConfiguration, EntityTypeConfiguration, EntityTypeConfiguration]:
         return (
             EntityTypeConfiguration(self.get_configuration_keys()[0]),
             EntityTypeConfiguration(self.get_configuration_keys()[1]),
@@ -446,51 +445,51 @@ class TestProjectConfiguration:
         sut.locales.append(LocaleConfiguration('nl-NL', 'nl'))
         pickle.dumps(sut)
 
-    def test_base_url(self):
+    def test_base_url(self) -> None:
         sut = ProjectConfiguration()
         base_url = 'https://example.com'
         sut.base_url = base_url
         assert base_url == sut.base_url
 
-    def test_base_url_without_scheme_should_error(self):
+    def test_base_url_without_scheme_should_error(self) -> None:
         sut = ProjectConfiguration()
-        with pytest.raises(ValidationError):
+        with pytest.raises(AssertionFailed):
             sut.base_url = '/'
 
-    def test_base_url_without_path_should_error(self):
+    def test_base_url_without_path_should_error(self) -> None:
         sut = ProjectConfiguration()
-        with pytest.raises(ValidationError):
+        with pytest.raises(AssertionFailed):
             sut.base_url = 'file://'
 
-    def test_root_path(self):
+    def test_root_path(self) -> None:
         sut = ProjectConfiguration()
         configured_root_path = '/betty/'
         expected_root_path = 'betty'
         sut.root_path = configured_root_path
         assert expected_root_path == sut.root_path
 
-    def test_clean_urls(self):
+    def test_clean_urls(self) -> None:
         sut = ProjectConfiguration()
         clean_urls = True
         sut.clean_urls = clean_urls
         assert clean_urls == sut.clean_urls
 
-    def test_content_negotiation(self):
+    def test_content_negotiation(self) -> None:
         sut = ProjectConfiguration()
         content_negotiation = True
         sut.content_negotiation = content_negotiation
         assert content_negotiation == sut.content_negotiation
 
-    def test_clean_urls_implied_by_content_negotiation(self):
+    def test_clean_urls_implied_by_content_negotiation(self) -> None:
         sut = ProjectConfiguration()
         sut.content_negotiation = True
         assert sut.clean_urls
 
-    def test_author_without_author(self):
+    def test_author_without_author(self) -> None:
         sut = ProjectConfiguration()
         assert sut.author is None
 
-    def test_author_with_author(self):
+    def test_author_with_author(self) -> None:
         sut = ProjectConfiguration()
         author = 'Bart'
         sut.author = author
@@ -523,10 +522,9 @@ class TestProjectConfiguration:
 
     def test_load_should_load_locale_locale(self) -> None:
         locale = 'nl-NL'
-        locale_config: Dict = {}
-        dump: Any = ProjectConfiguration().dump()
+        dump = ProjectConfiguration().dump()
         dump['locales'] = {
-            locale: locale_config,
+            locale: {},
         }
         sut = ProjectConfiguration.load(dump)
         assert LocaleConfigurationMapping([LocaleConfiguration(locale)]) == sut.locales
@@ -599,33 +597,33 @@ class TestProjectConfiguration:
         sut = ProjectConfiguration.load(dump)
         assert expected == sut.extensions[DummyNonConfigurableExtension]
 
-    def test_load_extension_with_invalid_configuration_should_raise_error(self):
+    def test_load_extension_with_invalid_configuration_should_raise_error(self) -> None:
         dump: Any = ProjectConfiguration().dump()
         dump['extensions'] = {
             DummyConfigurableExtension.name(): 1337,
         }
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             ProjectConfiguration.load(dump)
 
-    def test_load_unknown_extension_type_name_should_error(self):
+    def test_load_unknown_extension_type_name_should_error(self) -> None:
         dump: Any = ProjectConfiguration().dump()
         dump['extensions'] = {
             'non.existent.type': None,
         }
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             ProjectConfiguration.load(dump)
 
-    def test_load_not_an_extension_type_name_should_error(self):
+    def test_load_not_an_extension_type_name_should_error(self) -> None:
         dump: Any = ProjectConfiguration().dump()
         dump['extensions'] = {
             '%s.%s' % (self.__class__.__module__, self.__class__.__name__): None,
         }
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             ProjectConfiguration.load(dump)
 
     def test_load_should_error_if_invalid_config(self) -> None:
-        dump: Dict = {}
-        with raises_error(error_type=ValidationError):
+        dump: Dump = {}
+        with raises_error(error_type=AssertionFailed):
             ProjectConfiguration.load(dump)
 
     def test_dump_should_dump_minimal(self) -> None:
@@ -731,8 +729,8 @@ class TestProjectConfiguration:
         assert expected == dump['extensions'][DummyNonConfigurableExtension.name()]
 
     def test_dump_should_error_if_invalid_config(self) -> None:
-        dump: Dict = {}
-        with raises_error(error_type=ValidationError):
+        dump: Dump = {}
+        with raises_error(error_type=AssertionFailed):
             ProjectConfiguration.load(dump)
 
 
@@ -745,7 +743,9 @@ class DummyConfigurableExtensionConfiguration(Configuration):
         super().__init__()
         self.check = False
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, DummyConfigurableExtensionConfiguration):
+            return NotImplemented
         return self.check == other.check
 
     @classmethod

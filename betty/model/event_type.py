@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from typing import Set, Type
-
 from betty.locale import Localizer
 
 
 class EventTypeProvider:
     @property
-    def entity_types(self) -> Set[Type[EventType]]:
+    def entity_types(self) -> set[type[EventType]]:
         raise NotImplementedError(repr(self))
 
 
@@ -24,11 +22,11 @@ class EventType:
         raise NotImplementedError(repr(cls))
 
     @classmethod
-    def comes_before(cls) -> Set[Type[EventType]]:
+    def comes_before(cls) -> set[type[EventType]]:
         return set()
 
     @classmethod
-    def comes_after(cls) -> Set[Type[EventType]]:
+    def comes_after(cls) -> set[type[EventType]]:
         return set()
 
 
@@ -52,7 +50,7 @@ class CreatableDerivableEventType(DerivableEventType):
 
 class PreBirthEventType(EventType):
     @classmethod
-    def comes_before(cls) -> Set[Type[EventType]]:
+    def comes_before(cls) -> set[type[EventType]]:
         return {Birth}
 
 
@@ -62,11 +60,11 @@ class StartOfLifeEventType(EventType):
 
 class DuringLifeEventType(EventType):
     @classmethod
-    def comes_after(cls) -> Set[Type[EventType]]:
+    def comes_after(cls) -> set[type[EventType]]:
         return {Birth}
 
     @classmethod
-    def comes_before(cls) -> Set[Type[EventType]]:
+    def comes_before(cls) -> set[type[EventType]]:
         return {Death}
 
 
@@ -76,7 +74,7 @@ class EndOfLifeEventType(EventType):
 
 class PostDeathEventType(EventType):
     @classmethod
-    def comes_after(cls) -> Set[Type[EventType]]:
+    def comes_after(cls) -> set[type[EventType]]:
         return {Death}
 
 
@@ -90,7 +88,7 @@ class Birth(CreatableDerivableEventType, StartOfLifeEventType):
         return localizer._('Birth')
 
     @classmethod
-    def comes_before(cls) -> Set[Type[EventType]]:
+    def comes_before(cls) -> set[type[EventType]]:
         return {DuringLifeEventType}
 
 
@@ -124,7 +122,7 @@ class Death(CreatableDerivableEventType, EndOfLifeEventType):
         return localizer._('Death')
 
     @classmethod
-    def comes_after(cls) -> Set[Type[EventType]]:
+    def comes_after(cls) -> set[type[EventType]]:
         return {DuringLifeEventType}
 
 
@@ -182,7 +180,7 @@ class Engagement(DuringLifeEventType):
         return localizer._('Engagement')
 
     @classmethod
-    def comes_before(cls) -> Set[Type[EventType]]:
+    def comes_before(cls) -> set[type[EventType]]:
         return {Marriage}
 
 
@@ -206,7 +204,7 @@ class MarriageAnnouncement(DuringLifeEventType):
         return localizer._('Announcement of marriage')
 
     @classmethod
-    def comes_before(cls) -> Set[Type[EventType]]:
+    def comes_before(cls) -> set[type[EventType]]:
         return {Marriage}
 
 
@@ -220,7 +218,7 @@ class Divorce(DuringLifeEventType):
         return localizer._('Divorce')
 
     @classmethod
-    def comes_after(cls) -> Set[Type[EventType]]:
+    def comes_after(cls) -> set[type[EventType]]:
         return {Marriage}
 
 
@@ -234,11 +232,11 @@ class DivorceAnnouncement(DuringLifeEventType):
         return localizer._('Announcement of divorce')
 
     @classmethod
-    def comes_after(cls) -> Set[Type[EventType]]:
+    def comes_after(cls) -> set[type[EventType]]:
         return {Marriage}
 
     @classmethod
-    def comes_before(cls) -> Set[Type[EventType]]:
+    def comes_before(cls) -> set[type[EventType]]:
         return {Divorce}
 
 

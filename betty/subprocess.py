@@ -3,10 +3,14 @@ import os
 import subprocess as stdsubprocess
 from asyncio import subprocess
 from textwrap import indent
-from typing import Sequence
+from typing import Sequence, Any, Callable, Awaitable
+
+from typing_extensions import ParamSpec
+
+P = ParamSpec('P')
 
 
-async def run_exec(runnee: Sequence[str], **kwargs) -> subprocess.Process:
+async def run_exec(runnee: Sequence[str], **kwargs: Any) -> subprocess.Process:
     return await _run(
         subprocess.create_subprocess_exec,
         runnee,
@@ -16,7 +20,7 @@ async def run_exec(runnee: Sequence[str], **kwargs) -> subprocess.Process:
     )
 
 
-async def run_shell(runnee: Sequence[str], **kwargs) -> subprocess.Process:
+async def run_shell(runnee: Sequence[str], **kwargs: Any) -> subprocess.Process:
     return await _run(
         subprocess.create_subprocess_shell,
         runnee,
@@ -25,7 +29,12 @@ async def run_shell(runnee: Sequence[str], **kwargs) -> subprocess.Process:
     )
 
 
-async def _run(runner, runnee: Sequence[str], *args, **kwargs) -> subprocess.Process:
+async def _run(
+    runner: Callable[P, Awaitable[subprocess.Process]],
+    runnee: Sequence[str],
+    *args: P.args,
+    **kwargs: P.kwargs,
+) -> subprocess.Process:
     kwargs['stdout'] = subprocess.PIPE
     kwargs['stderr'] = subprocess.PIPE
     process = await runner(*args, **kwargs)
@@ -34,13 +43,18 @@ async def _run(runner, runnee: Sequence[str], *args, **kwargs) -> subprocess.Pro
     if process.returncode == 0:
         return process
 
-    stdout = '\n'.join((await process.stdout.read()).decode().split(os.linesep))
-    stderr = '\n'.join((await process.stderr.read()).decode().split(os.linesep))
+    stdout = process.stdout
+    stdout_str = '' if stdout is None else '\n'.join((await stdout.read()).decode().split(os.linesep))
+    stderr = process.stderr
+    stderr_str = '' if stderr is None else '\n'.join((await stderr.read()).decode().split(os.linesep))
+
     error = stdsubprocess.CalledProcessError(
-        process.returncode,
+        process.returncode,  # type: ignore[arg-type]
         ' '.join(runnee),
-        stdout,
-        stderr,
+        stdout_str,
+        stderr_str,
     )
-    logging.getLogger().warning(f'{str(error)}\nSTDOUT:\n{indent(stdout, "    ")}\nSTDERR:{indent(stderr, "   ")}')
+    logging.getLogger().warning(
+        f'{str(error)}\nSTDOUT:\n{indent(stdout_str, "    ")}\nSTDERR:{indent(stderr_str, "   ")}',
+    )
     raise error

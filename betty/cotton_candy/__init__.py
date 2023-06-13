@@ -4,30 +4,25 @@ import logging
 import re
 from pathlib import Path
 from shutil import copy2
-from typing import Optional, Set, Type, Dict, Callable
+from typing import Any
 
 from PyQt6.QtWidgets import QWidget
 from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
+from typing_extensions import Self
 
-from betty.app import Extension
-from betty.app.extension import ConfigurableExtension, Theme
+from betty.app.extension import ConfigurableExtension, Extension, Theme
 from betty.config import Configuration
 from betty.cotton_candy.search import Index
 from betty.generate import Generator
 from betty.gui import GuiBuilder
 from betty.jinja2 import Jinja2Provider
 from betty.locale import Localizer
+from betty.model import Entity, UserFacingEntity
 from betty.npm import _Npm, NpmBuilder, npm
 from betty.project import EntityReferenceSequence
 from betty.serde.dump import minimize, Dump, VoidableDump
-from betty.serde.load import ValidationError, Fields, Assertions, OptionalField, Asserter
-
-
-try:
-    from typing_extensions import Self
-except ModuleNotFoundError:
-    from typing import Self  # type: ignore
+from betty.serde.load import AssertionFailed, Fields, Assertions, OptionalField, Asserter
 
 
 class _ColorConfiguration(Configuration):
@@ -40,7 +35,7 @@ class _ColorConfiguration(Configuration):
 
     def _validate_hex(self, hex_value: str) -> str:
         if not self._HEX_PATTERN.match(hex_value):
-            raise ValidationError(self.localizer._('"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.').format(hex_value=hex_value))
+            raise AssertionFailed(self.localizer._('"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.').format(hex_value=hex_value))
         return hex_value
 
     @property
@@ -50,8 +45,8 @@ class _ColorConfiguration(Configuration):
 
     @hex.setter
     def hex(self, hex_value: str) -> None:
-        if hex_value is not None and not self._HEX_PATTERN.match(hex_value):
-            raise ValidationError(self.localizer._('"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.').format(hex_value=hex_value))
+        if not self._HEX_PATTERN.match(hex_value):
+            raise AssertionFailed(self.localizer._('"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.').format(hex_value=hex_value))
         self._hex = hex_value
 
     def update(self, other: Self) -> None:
@@ -85,7 +80,7 @@ class CottonCandyConfiguration(Configuration):
 
     def __init__(self):
         super().__init__()
-        self._featured_entities = EntityReferenceSequence()
+        self._featured_entities = EntityReferenceSequence['UserFacingEntity & Entity']()
         self._featured_entities.react(self)
         self._primary_inactive_color = _ColorConfiguration(self.DEFAULT_PRIMARY_INACTIVE_COLOR)
         self._primary_inactive_color.react(self)
@@ -97,7 +92,7 @@ class CottonCandyConfiguration(Configuration):
         self._link_active_color.react(self)
 
     @property
-    def featured_entities(self) -> EntityReferenceSequence:
+    def featured_entities(self) -> EntityReferenceSequence[UserFacingEntity & Entity]:
         return self._featured_entities
 
     @property
@@ -163,11 +158,11 @@ class CottonCandyConfiguration(Configuration):
 
 class CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Generator, GuiBuilder, ReactiveInstance, NpmBuilder, Jinja2Provider):
     @classmethod
-    def depends_on(cls) -> Set[Type[Extension]]:
+    def depends_on(cls) -> set[type[Extension]]:
         return {_Npm}
 
     @classmethod
-    def assets_directory_path(cls) -> Optional[Path]:
+    def assets_directory_path(cls) -> Path | None:
         return Path(__file__).parent / 'assets'
 
     @classmethod
@@ -188,7 +183,7 @@ class CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Genera
         return _CottonCandyGuiWidget(self._app)
 
     @property
-    def globals(self) -> Dict[str, Callable]:
+    def globals(self) -> dict[str, Any]:
         return {
             'search_index': lambda: Index(self.app).build(),
         }

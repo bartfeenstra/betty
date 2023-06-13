@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Type, Tuple, Iterable, Any
+from typing import Iterable, Generic
 
 import pytest
 from reactives.tests import assert_reactor_called, assert_in_scope, assert_scope_empty
 
 from betty.config import FileBasedConfiguration, ConfigurationMapping, Configuration, \
-    ConfigurationCollection, ConfigurationSequence, ConfigurationKey
+    ConfigurationCollection, ConfigurationSequence, ConfigurationKeyT, ConfigurationT
 from betty.locale import Localizer
 from betty.serde.dump import Dump, VoidableDump
 from betty.serde.load import FormatError, Asserter
@@ -22,21 +22,21 @@ class TestFileBasedConfiguration:
                 configuration.configuration_file_path = Path(f.name)
 
 
-class ConfigurationCollectionTestConfiguration(Configuration):
-    def __init__(self, configuration_key: Any, configuration_value: int):
+class ConfigurationCollectionTestConfiguration(Configuration, Generic[ConfigurationKeyT]):
+    def __init__(self, configuration_key: ConfigurationKeyT, configuration_value: int):
         super().__init__()
         self.key = configuration_key
         self.value = configuration_value
 
 
-class ConfigurationCollectionTestBase:
-    def get_sut(self, configurations: Iterable[Configuration] | None = None) -> ConfigurationCollection:
+class ConfigurationCollectionTestBase(Generic[ConfigurationKeyT, ConfigurationT]):
+    def get_sut(self, configurations: Iterable[ConfigurationT] | None = None) -> ConfigurationCollection[ConfigurationKeyT, ConfigurationT]:
         raise NotImplementedError(repr(self))
 
-    def get_configuration_keys(self) -> Tuple[ConfigurationKey, ConfigurationKey, ConfigurationKey, ConfigurationKey]:
+    def get_configuration_keys(self) -> tuple[ConfigurationKeyT, ConfigurationKeyT, ConfigurationKeyT, ConfigurationKeyT]:
         raise NotImplementedError(repr(self))
 
-    def get_configurations(self) -> Tuple[Configuration, Configuration, Configuration, Configuration]:
+    def get_configurations(self) -> tuple[ConfigurationT, ConfigurationT, ConfigurationT, ConfigurationT]:
         raise NotImplementedError(repr(self))
 
     def test_getitem(self) -> None:
@@ -161,8 +161,8 @@ class ConfigurationCollectionTestBase:
         assert [configurations[2], configurations[0], configurations[1], configurations[3]] == list(sut.values())
 
 
-class ConfigurationSequenceTestBase(ConfigurationCollectionTestBase):
-    def get_configuration_keys(self) -> Tuple[int, int, int, int]:
+class ConfigurationSequenceTestBase(Generic[ConfigurationT], ConfigurationCollectionTestBase[int, ConfigurationT]):
+    def get_configuration_keys(self) -> tuple[int, int, int, int]:
         return 0, 1, 2, 3
 
     def test_iter(self) -> None:
@@ -175,17 +175,17 @@ class ConfigurationSequenceTestBase(ConfigurationCollectionTestBase):
             assert [configurations[0], configurations[1]] == list(iter(sut))
 
 
-class ConfigurationSequenceTestConfigurationSequence(ConfigurationSequence[ConfigurationCollectionTestConfiguration]):
+class ConfigurationSequenceTestConfigurationSequence(ConfigurationSequence[ConfigurationCollectionTestConfiguration[int]]):
     @classmethod
-    def _item_type(cls) -> Type[ConfigurationCollectionTestConfiguration]:
+    def _item_type(cls) -> type[ConfigurationCollectionTestConfiguration[int]]:
         return ConfigurationCollectionTestConfiguration
 
 
-class TestConfigurationSequence(ConfigurationSequenceTestBase):
-    def get_sut(self, configurations: Iterable[Configuration] | None = None) -> ConfigurationSequenceTestConfigurationSequence:
-        return ConfigurationSequenceTestConfigurationSequence(configurations)  # type: ignore[arg-type]
+class TestConfigurationSequence(ConfigurationSequenceTestBase[ConfigurationCollectionTestConfiguration[int]]):
+    def get_sut(self, configurations: Iterable[ConfigurationCollectionTestConfiguration[int]] | None = None) -> ConfigurationSequenceTestConfigurationSequence:
+        return ConfigurationSequenceTestConfigurationSequence(configurations)
 
-    def get_configurations(self) -> Tuple[ConfigurationCollectionTestConfiguration, ConfigurationCollectionTestConfiguration, ConfigurationCollectionTestConfiguration, ConfigurationCollectionTestConfiguration]:
+    def get_configurations(self) -> tuple[ConfigurationCollectionTestConfiguration[int], ConfigurationCollectionTestConfiguration[int], ConfigurationCollectionTestConfiguration[int], ConfigurationCollectionTestConfiguration[int]]:
         return (
             ConfigurationCollectionTestConfiguration(self.get_configuration_keys()[0], 123),
             ConfigurationCollectionTestConfiguration(self.get_configuration_keys()[1], 456),
@@ -194,7 +194,7 @@ class TestConfigurationSequence(ConfigurationSequenceTestBase):
         )
 
 
-class ConfigurationMappingTestBase(ConfigurationCollectionTestBase):
+class ConfigurationMappingTestBase(Generic[ConfigurationKeyT, ConfigurationT], ConfigurationCollectionTestBase[ConfigurationKeyT, ConfigurationT]):
     def test_iter(self) -> None:
         configurations = self.get_configurations()
         sut = self.get_sut([
@@ -205,12 +205,12 @@ class ConfigurationMappingTestBase(ConfigurationCollectionTestBase):
             assert [self.get_configuration_keys()[0], self.get_configuration_keys()[1]] == list(iter(sut))
 
 
-class ConfigurationMappingTestConfigurationMapping(ConfigurationMapping[str, ConfigurationCollectionTestConfiguration]):
+class ConfigurationMappingTestConfigurationMapping(ConfigurationMapping[str, ConfigurationCollectionTestConfiguration[str]]):
     @classmethod
-    def _create_default_item(cls, configuration_key: ConfigurationKey) -> ConfigurationCollectionTestConfiguration:
+    def _create_default_item(cls, configuration_key: str) -> ConfigurationCollectionTestConfiguration[str]:
         return ConfigurationCollectionTestConfiguration(configuration_key, 0)
 
-    def _get_key(self, configuration: ConfigurationCollectionTestConfiguration) -> str:
+    def _get_key(self, configuration: ConfigurationCollectionTestConfiguration[str]) -> str:
         return configuration.key
 
     @classmethod
@@ -226,19 +226,19 @@ class ConfigurationMappingTestConfigurationMapping(ConfigurationMapping[str, Con
         dict_item_dump[key_dump] = key_dump
         return dict_item_dump
 
-    def _dump_key(self, item_dump: VoidableDump) -> Tuple[VoidableDump, str]:
+    def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
         dict_item_dump = self._asserter.assert_dict()(item_dump)
         return dict_item_dump, dict_item_dump.pop('key')
 
 
-class TestConfigurationMapping(ConfigurationMappingTestBase):
-    def get_configuration_keys(self) -> Tuple[str, str, str, str]:
+class TestConfigurationMapping(ConfigurationMappingTestBase[str, ConfigurationCollectionTestConfiguration[str]]):
+    def get_configuration_keys(self) -> tuple[str, str, str, str]:
         return 'foo', 'bar', 'baz', 'qux'
 
-    def get_sut(self, configurations: Iterable[Configuration] | None = None) -> ConfigurationMappingTestConfigurationMapping:
-        return ConfigurationMappingTestConfigurationMapping(configurations)  # type: ignore[arg-type]
+    def get_sut(self, configurations: Iterable[ConfigurationCollectionTestConfiguration[str]] | None = None) -> ConfigurationMappingTestConfigurationMapping:
+        return ConfigurationMappingTestConfigurationMapping(configurations)
 
-    def get_configurations(self) -> Tuple[ConfigurationCollectionTestConfiguration, ConfigurationCollectionTestConfiguration, ConfigurationCollectionTestConfiguration, ConfigurationCollectionTestConfiguration]:
+    def get_configurations(self) -> tuple[ConfigurationCollectionTestConfiguration[str], ConfigurationCollectionTestConfiguration[str], ConfigurationCollectionTestConfiguration[str], ConfigurationCollectionTestConfiguration[str]]:
         return (
             ConfigurationCollectionTestConfiguration(self.get_configuration_keys()[0], 123),
             ConfigurationCollectionTestConfiguration(self.get_configuration_keys()[1], 456),

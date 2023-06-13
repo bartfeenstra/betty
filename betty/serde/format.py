@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import Set, Tuple
+from typing import cast
 
 import yaml
 
@@ -12,7 +12,7 @@ from betty.serde.load import FormatError
 
 class Format(Localizable):
     @property
-    def extensions(self) -> Set[str]:
+    def extensions(self) -> set[str]:
         raise NotImplementedError(repr(self))
 
     @property
@@ -28,7 +28,7 @@ class Format(Localizable):
 
 class Json(Format):
     @property
-    def extensions(self) -> Set[str]:
+    def extensions(self) -> set[str]:
         return {'json'}
 
     @property
@@ -37,7 +37,7 @@ class Json(Format):
 
     def load(self, dump: str) -> Dump:
         try:
-            return json.loads(dump)
+            return cast(Dump, json.loads(dump))
         except json.JSONDecodeError as e:
             raise FormatError(self.localizer._('Invalid JSON: {error}.').format(error=e))
 
@@ -47,7 +47,7 @@ class Json(Format):
 
 class Yaml(Format):
     @property
-    def extensions(self) -> Set[str]:
+    def extensions(self) -> set[str]:
         return {'yaml', 'yml'}
 
     @property
@@ -56,7 +56,7 @@ class Yaml(Format):
 
     def load(self, dump: str) -> Dump:
         try:
-            return yaml.safe_load(dump)
+            return cast(Dump, yaml.safe_load(dump))
         except yaml.YAMLError as e:
             raise FormatError(self.localizer._('Invalid YAML: {error}.').format(error=e))
 
@@ -77,11 +77,11 @@ class FormatRepository(Localizable):
         )
 
     @property
-    def formats(self) -> Tuple[Format, ...]:
+    def formats(self) -> tuple[Format, ...]:
         return self._formats
 
     @property
-    def extensions(self) -> Tuple[str, ...]:
+    def extensions(self) -> tuple[str, ...]:
         return tuple(
             extension
             for _format in self._formats

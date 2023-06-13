@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from textwrap import indent
-from typing import Optional, cast, List, Any
+from typing import cast, Any
+
+from typing_extensions import Self
 
 from betty.error import UserFacingError
 from betty.locale import Localizer, Localizable
@@ -19,7 +21,7 @@ class Requirement(Localizable):
     def summary(self) -> str:
         raise NotImplementedError(repr(self))
 
-    def details(self) -> Optional[str]:
+    def details(self) -> str | None:
         return None
 
     def __str__(self) -> str:
@@ -29,7 +31,7 @@ class Requirement(Localizable):
             string += f'\n{self.details()}'
         return string
 
-    def reduce(self) -> Optional[Requirement]:
+    def reduce(self) -> Requirement | None:
         """
         Removes unnecessary components of this requirement.
         - Collections can flatten unnecessary hierarchies.
@@ -50,16 +52,16 @@ class RequirementError(RuntimeError, UserFacingError):
 
 
 class RequirementCollection(Requirement):
-    def __init__(self, *requirements: Optional[Requirement], localizer: Localizer | None = None):
+    def __init__(self, *requirements: Requirement | None, localizer: Localizer | None = None):
         super().__init__(localizer=localizer)
-        self._requirements: List[Requirement] = [requirement for requirement in requirements if requirement]
+        self._requirements: list[Requirement] = [requirement for requirement in requirements if requirement]
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, type(self)):
             return False
         return self._requirements == other._requirements
 
-    def __add__(self, other):
+    def __add__(self, other: Any) -> Self:
         if not isinstance(other, Requirement):
             raise NotImplementedError(repr(self))
         self._requirements = [*self._requirements, other]
@@ -71,15 +73,15 @@ class RequirementCollection(Requirement):
             string += f'\n-{indent(str(requirement), "  ")[1:]}'
         return string
 
-    def reduce(self) -> Optional[Requirement]:
+    def reduce(self) -> Requirement | None:
         reduced_requirements = []
         for requirement in self._requirements:
-            requirement = requirement.reduce()  # type: ignore
-            if requirement:
-                if type(requirement) == type(self):
-                    reduced_requirements.extend(cast(RequirementCollection, requirement)._requirements)
+            reduced_requirement = requirement.reduce()
+            if reduced_requirement:
+                if type(reduced_requirement) == type(self):
+                    reduced_requirements.extend(cast(RequirementCollection, reduced_requirement)._requirements)
                 else:
-                    reduced_requirements.append(requirement)
+                    reduced_requirements.append(reduced_requirement)
         if len(reduced_requirements) == 1:
             return reduced_requirements[0]
         if reduced_requirements:
@@ -88,7 +90,7 @@ class RequirementCollection(Requirement):
 
 
 class AnyRequirement(RequirementCollection):
-    def __init__(self, *requirements: Optional[Requirement], localizer: Localizer | None = None):
+    def __init__(self, *requirements: Requirement | None, localizer: Localizer | None = None):
         super().__init__(*requirements, localizer=localizer)
         self._summary = self.localizer._('One or more of these requirements must be met')
 
@@ -103,7 +105,7 @@ class AnyRequirement(RequirementCollection):
 
 
 class AllRequirements(RequirementCollection):
-    def __init__(self, *requirements: Optional[Requirement], localizer: Localizer | None = None):
+    def __init__(self, *requirements: Requirement | None, localizer: Localizer | None = None):
         super().__init__(*requirements, localizer=localizer)
         self._summary = self.localizer._('All of these requirements must be met')
 

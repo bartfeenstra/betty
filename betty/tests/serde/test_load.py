@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from tempfile import NamedTemporaryFile, TemporaryDirectory
-from typing import Dict
+from typing import Any
 
 import pytest
 
 from betty.serde.dump import Void
-from betty.serde.load import Asserter, ValidationError, Number, Fields, OptionalField, Assertions, RequiredField
+from betty.serde.load import Asserter, AssertionFailed, Number, Fields, OptionalField, Assertions, RequiredField
 from betty.tests.serde import raises_error
 
 
@@ -17,7 +17,7 @@ class TestAsserter:
 
     def test_assert_bool_with_invalid_value(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             sut.assert_bool()(123)
 
     def test_assert_int_with_valid_value(self) -> None:
@@ -26,7 +26,7 @@ class TestAsserter:
 
     def test_assert_int_with_invalid_value(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             sut.assert_int()(False)
 
     def test_assert_float_with_valid_value(self) -> None:
@@ -35,7 +35,7 @@ class TestAsserter:
 
     def test_assert_float_with_invalid_value(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             sut.assert_float()(False)
 
     @pytest.mark.parametrize('value', [
@@ -48,7 +48,7 @@ class TestAsserter:
 
     def test_assert_number_with_invalid_value(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             sut.assert_number()(False)
 
     @pytest.mark.parametrize('value', [
@@ -68,7 +68,7 @@ class TestAsserter:
     ])
     def test_assert_positive_number_with_invalid_value(self, value: int | float) -> None:
         sut = Asserter()
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             sut.assert_positive_number()(value)
 
     def test_assert_str_with_valid_value(self) -> None:
@@ -77,7 +77,7 @@ class TestAsserter:
 
     def test_assert_str_with_invalid_value(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             sut.assert_str()(False)
 
     def test_assert_list_with_list(self) -> None:
@@ -86,17 +86,17 @@ class TestAsserter:
 
     def test_assert_list_without_list(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             sut.assert_list()(False)
 
     def test_assert_sequence_without_list(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             sut.assert_sequence(Assertions(sut.assert_str()))(False)
 
     def test_assert_sequence_with_invalid_item(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=ValidationError, error_contexts=('0',)):
+        with raises_error(error_type=AssertionFailed, error_contexts=('0',)):
             sut.assert_sequence(Assertions(sut.assert_str()))([123])
 
     def test_assert_sequence_with_empty_list(self) -> None:
@@ -113,12 +113,12 @@ class TestAsserter:
 
     def test_assert_dict_without_dict(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             sut.assert_dict()(False)
 
     def test_assert_fields_with_invalid_value(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             sut.assert_fields(Fields(OptionalField(
                 'hello',
                 Assertions(sut.assert_str()),
@@ -126,7 +126,7 @@ class TestAsserter:
 
     def test_assert_fields_required_without_key(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=ValidationError, error_contexts=('hello',)):
+        with raises_error(error_type=AssertionFailed, error_contexts=('hello',)):
             sut.assert_fields(Fields(RequiredField(
                 'hello',
                 Assertions(sut.assert_str()),
@@ -134,7 +134,7 @@ class TestAsserter:
 
     def test_assert_fields_optional_without_key(self) -> None:
         sut = Asserter()
-        expected: Dict = {}
+        expected: dict[str, Any] = {}
         actual = sut.assert_fields(Fields(OptionalField(
             'hello',
             Assertions(sut.assert_str()),
@@ -165,7 +165,7 @@ class TestAsserter:
 
     def test_assert_field_with_invalid_value(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             sut.assert_field(OptionalField(
                 'hello',
                 Assertions(sut.assert_str()),
@@ -173,7 +173,7 @@ class TestAsserter:
 
     def test_assert_field_required_without_key(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=ValidationError, error_contexts=('hello',)):
+        with raises_error(error_type=AssertionFailed, error_contexts=('hello',)):
             sut.assert_field(RequiredField(
                 'hello',
                 Assertions(sut.assert_str()),
@@ -208,12 +208,12 @@ class TestAsserter:
 
     def test_assert_mapping_without_mapping(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             sut.assert_mapping(Assertions(sut.assert_str()))(None)
 
     def test_assert_mapping_with_invalid_item(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=ValidationError, error_contexts=('hello',)):
+        with raises_error(error_type=AssertionFailed, error_contexts=('hello',)):
             sut.assert_mapping(Assertions(sut.assert_str()))({'hello': False})
 
     def test_assert_mapping_with_empty_dict(self) -> None:
@@ -226,7 +226,7 @@ class TestAsserter:
 
     def test_assert_record_with_optional_fields_without_items(self) -> None:
         sut = Asserter()
-        expected: Dict = {}
+        expected: dict[str, Any] = {}
         actual = sut.assert_record(Fields(
             OptionalField(
                 'hello',
@@ -250,7 +250,7 @@ class TestAsserter:
 
     def test_assert_record_with_required_fields_without_items(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             sut.assert_record(Fields(
                 RequiredField(
                     'hello',
@@ -275,7 +275,7 @@ class TestAsserter:
 
     def test_assert_path_without_str(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             sut.assert_path()(False)
 
     def test_assert_path_with_valid_path(self) -> None:
@@ -284,18 +284,18 @@ class TestAsserter:
 
     def test_assert_directory_path_without_str(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             sut.assert_directory_path()(False)
 
     def test_assert_directory_path_without_existing_path(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=ValidationError):
+        with raises_error(error_type=AssertionFailed):
             sut.assert_directory_path()('~/../foo/bar')
 
     def test_assert_directory_path_without_directory_path(self) -> None:
         sut = Asserter()
         with NamedTemporaryFile() as f:
-            with raises_error(error_type=ValidationError):
+            with raises_error(error_type=AssertionFailed):
                 sut.assert_directory_path()(f.name)
 
     def test_assert_directory_path_with_valid_path(self) -> None:

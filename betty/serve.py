@@ -6,6 +6,7 @@ import threading
 import webbrowser
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 from io import StringIO
+from types import TracebackType
 from typing import Sequence
 
 from betty.app import App
@@ -73,7 +74,7 @@ class Server(Localizable):
         await self.start()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
         await self.stop()
 
 

@@ -24,7 +24,6 @@ SETUP = {
     'classifiers': [
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Programming Language :: JavaScript',
-        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
@@ -42,7 +41,7 @@ SETUP = {
         'Natural Language :: Ukrainian',
         'Typing :: Typed ',
     ],
-    'python_requires': '~= 3.8',
+    'python_requires': '~= 3.9',
     'install_requires': [
         'aiofiles ~= 23.1, >= 23.1.0',
         'aiohttp ~= 3.8, >= 3.8.1',
@@ -50,7 +49,6 @@ SETUP = {
         'click ~= 8.1, >= 8.1.2',
         'dill ~= 0.3, >= 0.3.6',
         'geopy ~= 2.3, >= 2.3.0',
-        'graphlib-backport ~= 1.0, >= 1.0.3; python_version < "3.9"',
         'jinja2 ~= 3.1, >= 3.1.1',
         'jsonschema ~= 4.17, >= 4.17.0',
         'langcodes ~= 3.3, >= 3.3.0',
@@ -67,12 +65,12 @@ SETUP = {
         'development': [
             'aioresponses ~= 0.7, >= 0.7.3',
             'autopep8 ~= 2.0, >= 2.0.2',
+            'basedmypy ~= 1.8, >= 1.8.0',
             'codecov ~= 2.1, >= 2.1.12',
             'coverage ~= 7.2, >= 7.2.4',
             'flake8 ~= 6.0, >= 6.0.0',
             'html5lib ~= 1.1',
             'lxml ~= 4.9, >= 4.9.1; sys.platform != "win32"',
-            'mypy ~= 1.2, >= 1.2.0',
             'ordered-set ~= 4.1.0',
             'pip-licenses ~= 4.3, >= 4.3.0',
             'pyinstaller ~= 5.0',

@@ -1,4 +1,6 @@
-from typing import Optional, Set, Type, Iterator
+from __future__ import annotations
+
+from typing import Iterator
 
 import pytest
 
@@ -6,8 +8,8 @@ from betty.app import App
 from betty.deriver import Deriver
 from betty.load import load
 from betty.locale import DateRange, Date, Datey
-from betty.model.ancestry import Person, Presence, Subject, EventType, Event
-from betty.model.event_type import DerivableEventType, CreatableDerivableEventType, Residence
+from betty.model.ancestry import Person, Presence, Subject, Event
+from betty.model.event_type import DerivableEventType, CreatableDerivableEventType, Residence, EventType
 from betty.project import ExtensionConfiguration
 
 
@@ -25,7 +27,7 @@ class ComesAfterReference(EventType):
 
 class ComesBeforeDerivable(DerivableEventType):
     @classmethod
-    def comes_before(cls) -> Set[Type['EventType']]:
+    def comes_before(cls) -> set[type[EventType]]:
         return {ComesBeforeReference}
 
 
@@ -35,7 +37,7 @@ class ComesBeforeCreatableDerivable(CreatableDerivableEventType, ComesBeforeDeri
 
 class ComesAfterDerivable(DerivableEventType):
     @classmethod
-    def comes_after(cls) -> Set[Type['EventType']]:
+    def comes_after(cls) -> set[type[EventType]]:
         return {ComesAfterReference}
 
 
@@ -45,11 +47,11 @@ class ComesAfterCreatableDerivable(CreatableDerivableEventType, ComesAfterDeriva
 
 class ComesBeforeAndAfterDerivable(DerivableEventType):
     @classmethod
-    def comes_before(cls) -> Set[Type['EventType']]:
+    def comes_before(cls) -> set[type[EventType]]:
         return {Ignored}
 
     @classmethod
-    def comes_after(cls) -> Set[Type['EventType']]:
+    def comes_after(cls) -> set[type[EventType]]:
         return {Ignored}
 
 
@@ -58,10 +60,11 @@ class ComesBeforeAndAfterCreatableDerivable(CreatableDerivableEventType, Derivab
 
 
 class TestDeriver:
-    async def test_post_parse(self):
+    async def test_post_parse(self) -> None:
         person = Person('P0')
-        reference_presence = Presence(person, Subject(), Event(None, Residence))
-        reference_presence.event.date = Date(1970, 1, 1)
+        event = Event(None, Residence)
+        event.date = Date(1970, 1, 1)
+        Presence(person, Subject(), event)
 
         with App() as app:
             app.project.configuration.extensions.append(ExtensionConfiguration(Deriver))
@@ -94,7 +97,7 @@ class TestDerive:
         ComesBeforeAndAfterDerivable,
         ComesBeforeAndAfterCreatableDerivable,
     ])
-    def test_derive_without_events(self, event_type: Type[DerivableEventType], test_derive_app: App):
+    def test_derive_without_events(self, event_type: type[DerivableEventType], test_derive_app: App) -> None:
         person = Person('P0')
 
         created, updated = test_derive_app.extensions[Deriver].derive_person(person, event_type)
@@ -111,7 +114,7 @@ class TestDerive:
         ComesBeforeAndAfterDerivable,
         ComesBeforeAndAfterCreatableDerivable,
     ])
-    def test_derive_create_derivable_events_without_reference_events(self, event_type: Type[DerivableEventType], test_derive_app: App):
+    def test_derive_create_derivable_events_without_reference_events(self, event_type: type[DerivableEventType], test_derive_app: App) -> None:
         person = Person('P0')
         derivable_event = Event(None, Ignored)
         Presence(person, Subject(), derivable_event)
@@ -131,7 +134,7 @@ class TestDerive:
         ComesBeforeAndAfterDerivable,
         ComesBeforeAndAfterCreatableDerivable,
     ])
-    def test_derive_update_derivable_event_without_reference_events(self, event_type: Type[DerivableEventType], test_derive_app: App):
+    def test_derive_update_derivable_event_without_reference_events(self, event_type: type[DerivableEventType], test_derive_app: App) -> None:
         person = Person('P0')
         Presence(person, Subject(), Event(None, Ignored))
         derivable_event = Event(None, event_type)
@@ -191,7 +194,13 @@ class TestDerive:
         (DateRange(Date(1969, 1, 1), Date(1969, 12, 31)), DateRange(None, Date(1970, 1, 1)), DateRange(Date(1969, 1, 1), Date(1969, 12, 31))),
         (DateRange(None, Date(1970, 1, 1), end_is_boundary=True), DateRange(Date(1970, 1, 1), Date(1999, 12, 31)), None),
     ])
-    def test_derive_update_comes_before_derivable_event(self, expected_datey: Optional[Datey], before_datey: Optional[Datey], derivable_datey: Optional[Datey], test_derive_app: App):
+    def test_derive_update_comes_before_derivable_event(
+        self,
+        expected_datey: Datey | None,
+        before_datey: Datey | None,
+        derivable_datey: Datey | None,
+        test_derive_app: App,
+    ) -> None:
         expected_updates = 0 if expected_datey == derivable_datey else 1
         person = Person('P0')
         Presence(person, Subject(), Event(None, Ignored, Date(0, 0, 0)))
@@ -214,7 +223,12 @@ class TestDerive:
         (DateRange(None, Date(1970, 1, 1), end_is_boundary=True), DateRange(None, Date(1970, 1, 1))),
         (DateRange(None, Date(1970, 1, 1), end_is_boundary=True), DateRange(Date(1970, 1, 1), Date(1971, 1, 1))),
     ])
-    def test_derive_create_comes_before_derivable_event(self, expected_datey: Optional[Datey], before_datey: Optional[Datey], test_derive_app: App):
+    def test_derive_create_comes_before_derivable_event(
+        self,
+        expected_datey: Datey | None,
+        before_datey: Datey | None,
+        test_derive_app: App,
+    ) -> None:
         expected_creations = 0 if expected_datey is None else 1
         person = Person('P0')
         Presence(person, Subject(), Event(None, Ignored, Date(0, 0, 0)))
@@ -222,11 +236,17 @@ class TestDerive:
 
         created, updated = test_derive_app.extensions[Deriver].derive_person(person, ComesBeforeCreatableDerivable)
 
-        derived_presences = [presence for presence in person.presences if issubclass(presence.event.type, ComesBeforeCreatableDerivable)]
+        derived_presences = [
+            presence
+            for presence
+            in person.presences
+            if presence.event is not None and issubclass(presence.event.type, ComesBeforeCreatableDerivable)
+        ]
         assert expected_creations == len(derived_presences)
         if expected_creations:
             derived_presence = derived_presences[0]
             assert isinstance(derived_presence.role, Subject)
+            assert derived_presence.event is not None
             assert expected_datey == derived_presence.event.date
         assert expected_creations == created
         assert 0 == updated
@@ -279,7 +299,13 @@ class TestDerive:
         (DateRange(Date(1969, 1, 1), Date(1969, 12, 31)), DateRange(None, Date(1970, 1, 1)), DateRange(Date(1969, 1, 1), Date(1969, 12, 31))),
         (DateRange(Date(1999, 12, 31), start_is_boundary=True), DateRange(Date(1970, 1, 1), Date(1999, 12, 31)), None),
     ])
-    def test_derive_update_comes_after_derivable_event(self, expected_datey: Optional[Datey], after_datey: Optional[Datey], derivable_datey: Optional[Datey], test_derive_app: App):
+    def test_derive_update_comes_after_derivable_event(
+        self,
+        expected_datey: Datey | None,
+        after_datey: Datey | None,
+        derivable_datey: Datey | None,
+        test_derive_app: App,
+    ) -> None:
         expected_updates = 0 if expected_datey == derivable_datey else 1
         person = Person('P0')
         Presence(person, Subject(), Event(None, Ignored, Date(0, 0, 0)))
@@ -303,7 +329,12 @@ class TestDerive:
         (DateRange(Date(1999, 12, 31), start_is_boundary=True), DateRange(Date(1970, 1, 1), Date(1999, 12, 31))),
         (DateRange(Date(1970, 1, 1), start_is_boundary=True), DateRange(Date(1970, 1, 1), Date(1999, 12, 31), end_is_boundary=True)),
     ])
-    def test_derive_create_comes_after_derivable_event(self, expected_datey: Optional[Datey], after_datey: Optional[Datey], test_derive_app: App):
+    def test_derive_create_comes_after_derivable_event(
+        self,
+        expected_datey: Datey | None,
+        after_datey: Datey | None,
+        test_derive_app: App,
+    ) -> None:
         expected_creations = 0 if expected_datey is None else 1
         person = Person('P0')
         Presence(person, Subject(), Event(None, Ignored, Date(0, 0, 0)))
@@ -311,11 +342,17 @@ class TestDerive:
 
         created, updated = test_derive_app.extensions[Deriver].derive_person(person, ComesAfterCreatableDerivable)
 
-        derived_presences = [presence for presence in person.presences if issubclass(presence.event.type, ComesAfterCreatableDerivable)]
+        derived_presences = [
+            presence
+            for presence
+            in person.presences
+            if presence.event is not None and issubclass(presence.event.type, ComesAfterCreatableDerivable)
+        ]
         assert expected_creations == len(derived_presences)
         if expected_creations:
             derived_presence = derived_presences[0]
             assert isinstance(derived_presence.role, Subject)
+            assert derived_presence.event is not None
             assert expected_datey == derived_presence.event.date
         assert expected_creations == created
         assert 0 == updated

@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any
 
 import pytest
 
@@ -23,7 +23,7 @@ class TestWalk:
     def test_one_to_one_without_descendants(self) -> None:
         item = self._Item(None)
         actual = walk(item, 'child')
-        expected: List[None] = []
+        expected: list[None] = []
         assert expected == list(actual)
 
     def test_one_to_one_with_descendants(self) -> None:
@@ -37,7 +37,7 @@ class TestWalk:
     def test_one_to_many_without_descendants(self) -> None:
         item = self._Item([])
         actual = walk(item, 'child')
-        expected: List[None] = []
+        expected: list[None] = []
         assert expected == list(actual)
 
     def test_with_one_to_many_descendants(self) -> None:
@@ -68,6 +68,6 @@ class TestSliceToRange:
         # Test a slice that is longer than the iterable.
         ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], slice(0, 99)),
     ])
-    def test(self, expected_range_items: List[int], ranged_slice: slice) -> None:
+    def test(self, expected_range_items: list[int], ranged_slice: slice) -> None:
         iterable = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
         assert expected_range_items == list(slice_to_range(ranged_slice, iterable))

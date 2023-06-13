@@ -1,13 +1,14 @@
+from __future__ import annotations
+
 import logging
 from datetime import datetime
-from typing import Optional, List
-
-from betty.model import Entity
+from typing import Iterator
 
 from betty.app.extension import UserFacingExtension
 from betty.functools import walk
 from betty.load import PostLoader
 from betty.locale import DateRange, Date, Localizer
+from betty.model import Entity
 from betty.model.ancestry import Person, Event, Citation, Source, HasPrivacy, Subject, File, HasFiles, HasCitations
 
 
@@ -24,7 +25,7 @@ class Privatizer(UserFacingExtension, PostLoader):
         return localizer._('Determine if people can be proven to have died. If not, mark them and their related resources private, but only if they are not already explicitly marked public or private. Enable the Anonymizer and Cleaner as well to make this most effective.')
 
     def privatize(self) -> None:
-        seen: List[Entity] = []
+        seen: list[Entity] = []
 
         privatized = 0
         for person in self._app.project.ancestry.entities[Person]:
@@ -52,7 +53,7 @@ class Privatizer(UserFacingExtension, PostLoader):
         if has_privacy.private is None:
             has_privacy.private = True
 
-    def _privatize_person(self, person: Person, seen: List[Entity]) -> None:
+    def _privatize_person(self, person: Person, seen: list[Entity]) -> None:
         # Do not change existing explicit privacy declarations.
         if person.private is None:
             person.private = self._person_is_private(person)
@@ -61,14 +62,14 @@ class Privatizer(UserFacingExtension, PostLoader):
             return
 
         for presence in person.presences:
-            if isinstance(presence.role, Subject):
+            if isinstance(presence.role, Subject) and presence.event is not None:
                 self._mark_private(presence.event)
                 self._privatize_event(presence.event, seen)
 
         self._privatize_has_citations(person, seen)
         self._privatize_has_files(person, seen)
 
-    def _privatize_event(self, event: Event, seen: List[Entity]) -> None:
+    def _privatize_event(self, event: Event, seen: list[Entity]) -> None:
         if not event.private:
             return
 
@@ -79,12 +80,12 @@ class Privatizer(UserFacingExtension, PostLoader):
         self._privatize_has_citations(event, seen)
         self._privatize_has_files(event, seen)
 
-    def _privatize_has_citations(self, has_citations: HasCitations, seen: List[Entity]) -> None:
+    def _privatize_has_citations(self, has_citations: HasCitations, seen: list[Entity]) -> None:
         for citation in has_citations.citations:
             self._mark_private(citation)
             self._privatize_citation(citation, seen)
 
-    def _privatize_citation(self, citation: Citation, seen: List[Entity]) -> None:
+    def _privatize_citation(self, citation: Citation, seen: list[Entity]) -> None:
         if not citation.private:
             return
 
@@ -92,11 +93,12 @@ class Privatizer(UserFacingExtension, PostLoader):
             return
         seen.append(citation)
 
-        self._mark_private(citation.source)
-        self._privatize_source(citation.source, seen)
+        if citation.source is not None:
+            self._mark_private(citation.source)
+            self._privatize_source(citation.source, seen)
         self._privatize_has_files(citation, seen)
 
-    def _privatize_source(self, source: Source, seen: List[Entity]) -> None:
+    def _privatize_source(self, source: Source, seen: list[Entity]) -> None:
         if not source.private:
             return
 
@@ -106,12 +108,12 @@ class Privatizer(UserFacingExtension, PostLoader):
 
         self._privatize_has_files(source, seen)
 
-    def _privatize_has_files(self, has_files: HasFiles, seen: List[Entity]) -> None:
+    def _privatize_has_files(self, has_files: HasFiles, seen: list[Entity]) -> None:
         for file in has_files.files:
             self._mark_private(file)
             self._privatize_file(file, seen)
 
-    def _privatize_file(self, file: File, seen: List[Entity]) -> None:
+    def _privatize_file(self, file: File, seen: list[Entity]) -> None:
         if not file.private:
             return
 
@@ -132,7 +134,7 @@ class Privatizer(UserFacingExtension, PostLoader):
         if self._person_has_expired(person, 1):
             return False
 
-        def ancestors(person: Person, generation: int = -1):
+        def ancestors(person: Person, generation: int = -1) -> Iterator[tuple[int, Person]]:
             for parent in person.parents:
                 yield generation, parent
                 yield from ancestors(parent, generation - 1)
@@ -150,7 +152,7 @@ class Privatizer(UserFacingExtension, PostLoader):
 
     def _person_has_expired(self, person: Person, multiplier: int) -> bool:
         for presence in person.presences:
-            if self._event_has_expired(presence.event, multiplier):
+            if presence.event is not None and self._event_has_expired(presence.event, multiplier):
                 return True
         return False
 
@@ -167,7 +169,7 @@ class Privatizer(UserFacingExtension, PostLoader):
 
         return self._date_has_expired(date, multiplier)
 
-    def _date_has_expired(self, date: Optional[Date], multiplier: int) -> bool:
+    def _date_has_expired(self, date: Date | None, multiplier: int) -> bool:
         assert multiplier >= 0
 
         if date is None:

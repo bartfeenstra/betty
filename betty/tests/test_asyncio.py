@@ -1,3 +1,5 @@
+from typing import Any
+
 from betty.asyncio import sync, wait
 
 
@@ -5,7 +7,7 @@ class TestWait:
     def test(self) -> None:
         expected = 'Hello, oh asynchronous, world!'
 
-        async def _async():
+        async def _async() -> str:
             return expected
         actual = wait(_async())
         assert expected == actual
@@ -16,7 +18,7 @@ class TestSync:
         expected = 'Hello, oh asynchronous, world!'
 
         @sync
-        async def _async():
+        async def _async() -> str:
             return expected
         actual = _async()
         assert expected == actual
@@ -26,7 +28,7 @@ class TestSync:
 
         class _Sync:
             @sync
-            async def __call__(self, *args, **kwargs):
+            async def __call__(self, *args: Any, **kwargs: Any) -> str:
                 return expected
         actual = _Sync()()
         assert expected == actual
@@ -35,7 +37,7 @@ class TestSync:
         expected = 'Hello, oh asynchronous, world!'
 
         class _Sync:
-            async def __call__(self, *args, **kwargs):
+            async def __call__(self, *args: Any, **kwargs: Any) -> str:
                 return expected
         actual = sync(_Sync())()
         assert expected == actual
@@ -44,14 +46,14 @@ class TestSync:
         expected = 'Hello, oh asynchronous, world!'
 
         @sync
-        async def _async_one():
+        async def _async_one() -> str:
             return _sync()
 
-        def _sync():
+        def _sync() -> str:
             return _async_two()
 
         @sync
-        async def _async_two():
+        async def _async_two() -> str:
             return expected
 
         assert expected == _async_one()

@@ -5,13 +5,13 @@ import re
 import tarfile
 from collections import defaultdict
 from contextlib import suppress
-from typing import Optional, List, Iterable, Dict, Type, Tuple
+from pathlib import Path
+from typing import Iterable, Any, IO
 from xml.etree import ElementTree
 
 import aiofiles
 from geopy import Point
 
-from betty.config import Path
 from betty.gramps.error import GrampsError
 from betty.load import getLogger
 from betty.locale import DateRange, Datey, Date, Localizable, Localizer
@@ -21,23 +21,23 @@ from betty.model.ancestry import Ancestry, Note, File, Source, Citation, Place, 
     Witness, Beneficiary, Attendee, Presence, PlaceName, Enclosure, HasLinks, Link, HasPrivacy
 from betty.model.event_type import Birth, Baptism, Adoption, Cremation, Death, Funeral, Burial, Will, Engagement, \
     Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, \
-    Retirement, Correspondence, Confirmation, Missing, UnknownEventType
+    Retirement, Correspondence, Confirmation, Missing, UnknownEventType, EventType
 from betty.path import rootname
 from betty.tempfile import TemporaryDirectory
 
 
 class GrampsLoadFileError(GrampsError, RuntimeError):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
 
 class GrampsFileNotFoundError(GrampsError, FileNotFoundError):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
 
 class XPathError(GrampsError, RuntimeError):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
 
@@ -51,7 +51,7 @@ class GrampsLoader(Localizable):
         super().__init__(localizer=localizer)
         self._ancestry = ancestry
         self._flattened_entities = FlattenedEntityCollection()
-        self._added_entity_counts: Dict[Type[Entity], int] = defaultdict(lambda: 0)
+        self._added_entity_counts: dict[type[Entity], int] = defaultdict(lambda: 0)
         self._tree: ElementTree.ElementTree | None = None
         self._gramps_tree_directory_path: Path | None = None
         self._loaded = False
@@ -88,9 +88,9 @@ class GrampsLoader(Localizable):
         gramps_path = gramps_path.resolve()
         try:
             with gzip.open(gramps_path, mode='r') as f:
-                xml = f.read()
+                xml: str = f.read()  # type: ignore[assignment]
             self.load_xml(
-                xml,  # type: ignore
+                xml,
                 rootname(gramps_path),
             )
         except OSError:
@@ -99,11 +99,11 @@ class GrampsLoader(Localizable):
     def load_gpkg(self, gpkg_path: Path) -> None:
         gpkg_path = gpkg_path.resolve()
         try:
-            tar_file = gzip.open(gpkg_path)
+            tar_file: IO[bytes] = gzip.open(gpkg_path)  # type: ignore[assignment]
             try:
                 with TemporaryDirectory() as cache_directory_path:
                     tarfile.open(
-                        fileobj=tar_file,  # type: ignore
+                        fileobj=tar_file,
                     ).extractall(cache_directory_path)
                     self.load_gramps(cache_directory_path / 'data.gramps')
             except tarfile.ReadError:
@@ -116,12 +116,12 @@ class GrampsLoader(Localizable):
             ))
 
     def load_xml(self, xml: str | Path, gramps_tree_directory_path: Path) -> None:
-        with suppress(FileNotFoundError, OSError):
+        if isinstance(xml, Path):
             with open(xml) as f:
                 xml = f.read()
         try:
             tree = ElementTree.ElementTree(ElementTree.fromstring(
-                xml,  # type: ignore
+                xml,
             ))
         except ElementTree.ParseError as e:
             raise GrampsLoadFileError(e)
@@ -173,14 +173,14 @@ class GrampsLoader(Localizable):
         self._flattened_entities.add_entity(entity)
         self._added_entity_counts[get_entity_type(unflatten(entity))] += 1
 
-    def add_association(self, *args, **kwargs) -> None:
+    def add_association(self, *args: Any, **kwargs: Any) -> None:
         self._flattened_entities.add_association(*args, **kwargs)
 
     _NS = {
         'ns': 'http://gramps-project.org/xml/1.7.1/',
     }
 
-    def _xpath(self, element: ElementTree.Element, selector: str) -> List[ElementTree.Element]:
+    def _xpath(self, element: ElementTree.Element, selector: str) -> list[ElementTree.Element]:
         return element.findall(selector, namespaces=self._NS)
 
     def _xpath1(self, element: ElementTree.Element, selector: str) -> ElementTree.Element:
@@ -192,7 +192,7 @@ class GrampsLoader(Localizable):
     _DATE_PATTERN = re.compile(r'^.{4}((-.{2})?-.{2})?$')
     _DATE_PART_PATTERN = re.compile(r'^\d+$')
 
-    def _load_date(self, element: ElementTree.Element) -> Optional[Datey]:
+    def _load_date(self, element: ElementTree.Element) -> Datey | None:
         with suppress(XPathError):
             dateval_element = self._xpath1(element, './ns:dateval')
             if dateval_element.get('cformat') is None:
@@ -235,10 +235,10 @@ class GrampsLoader(Localizable):
                 )
         return None
 
-    def _load_dateval(self, element: ElementTree.Element, value_attribute_name: str) -> Optional[Date]:
+    def _load_dateval(self, element: ElementTree.Element, value_attribute_name: str) -> Date | None:
         dateval = str(element.get(value_attribute_name))
         if self._DATE_PATTERN.fullmatch(dateval):
-            date_parts: Tuple[Optional[int], Optional[int], Optional[int]] = tuple(  # type: ignore
+            date_parts: tuple[int | None, int | None, int | None] = tuple(  # type: ignore[assignment]
                 int(part)
                 if self._DATE_PART_PATTERN.fullmatch(part) and int(part) > 0
                 else None
@@ -395,7 +395,7 @@ class GrampsLoader(Localizable):
         self.add_association(Presence, identifiable_presence.id, 'person', Person, person_id)
         self.add_association(Presence, identifiable_presence.id, 'event', Event, event_handle)
 
-    def _load_places(self, database: ElementTree.Element):
+    def _load_places(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, './ns:places/ns:placeobj'):
             self._load_place(element)
 
@@ -426,7 +426,7 @@ class GrampsLoader(Localizable):
             self.add_association(Enclosure, identifiable_enclosure.id, 'encloses', Place, place_handle)
             self.add_association(Enclosure, identifiable_enclosure.id, 'enclosed_by', Place, enclosed_by_handle)
 
-    def _load_coordinates(self, element: ElementTree.Element) -> Optional[Point]:
+    def _load_coordinates(self, element: ElementTree.Element) -> Point | None:
         with suppress(XPathError):
             coord_element = self._xpath1(element, './ns:coord')
 
@@ -475,7 +475,7 @@ class GrampsLoader(Localizable):
         assert gramps_type is not None
 
         try:
-            event_type = self._EVENT_TYPE_MAP[gramps_type]
+            event_type: type[EventType] = self._EVENT_TYPE_MAP[gramps_type]
         except KeyError:
             event_type = UnknownEventType
             getLogger().warning(
@@ -587,7 +587,7 @@ class GrampsLoader(Localizable):
             if hlink:
                 yield hlink
 
-    def _load_handle(self, handle_type: str, element: ElementTree.Element) -> Optional[str]:
+    def _load_handle(self, handle_type: str, element: ElementTree.Element) -> str | None:
         for citation_handle_element in self._xpath(element, f'./ns:{handle_type}'):
             return citation_handle_element.get('hlink')
         return None
@@ -617,7 +617,7 @@ class GrampsLoader(Localizable):
             return
         getLogger().warning(self.localizer._('The betty:privacy Gramps attribute must have a value of "public" or "private", but "{privacy_value}" was given, which was ignored.').format(privacy_value=privacy_value))
 
-    def _load_attribute(self, name: str, element: ElementTree.Element, tag: str) -> Optional[str]:
+    def _load_attribute(self, name: str, element: ElementTree.Element, tag: str) -> str | None:
         with suppress(XPathError):
             return self._xpath1(element, './ns:%s[@type="betty:%s"]' % (tag, name)).get('value')
         return None

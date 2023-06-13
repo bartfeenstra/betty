@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 
 from PyQt6.QtCore import Qt
@@ -6,14 +8,19 @@ from pytest_mock import MockerFixture
 from pytestqt.qtbot import QtBot
 
 from betty.app import App
-from betty.gramps import Gramps, GrampsConfiguration
-from betty.gramps.config import FamilyTreeConfiguration
+from betty.gramps import Gramps
+from betty.gramps.config import FamilyTreeConfiguration, GrampsConfiguration
 from betty.gramps.gui import _AddFamilyTreeWindow
 from betty.project import ExtensionConfiguration
 from betty.tests.conftest import AssertWindow, AssertNotWindow
 
 
-def test_add_family_tree_set_path(assert_not_window: AssertNotWindow, assert_window: AssertWindow, qtbot: QtBot, tmp_path: Path) -> None:
+def test_add_family_tree_set_path(
+    assert_not_window: AssertNotWindow[_AddFamilyTreeWindow],
+    assert_window: AssertWindow[_AddFamilyTreeWindow],
+    qtbot: QtBot,
+    tmp_path: Path,
+) -> None:
     with App() as app:
         app.project.configuration.extensions.append(ExtensionConfiguration(Gramps))
         sut = app.extensions[Gramps]
@@ -35,7 +42,12 @@ def test_add_family_tree_set_path(assert_not_window: AssertNotWindow, assert_win
         assert family_tree.file_path == file_path
 
 
-def test_add_family_tree_find_path(assert_window: AssertWindow, mocker: MockerFixture, qtbot: QtBot, tmp_path: Path) -> None:
+def test_add_family_tree_find_path(
+    assert_window: AssertWindow[_AddFamilyTreeWindow],
+    mocker: MockerFixture,
+    qtbot: QtBot,
+    tmp_path: Path,
+) -> None:
     with App() as app:
         app.project.configuration.extensions.append(ExtensionConfiguration(Gramps))
         sut = app.extensions[Gramps]
@@ -56,7 +68,7 @@ def test_add_family_tree_find_path(assert_window: AssertWindow, mocker: MockerFi
         assert family_tree.file_path == file_path
 
 
-def test_remove_family_tree(qtbot) -> None:
+def test_remove_family_tree(qtbot: QtBot) -> None:
     with App() as app:
         app.project.configuration.extensions.append(ExtensionConfiguration(
             Gramps,

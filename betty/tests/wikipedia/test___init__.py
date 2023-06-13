@@ -1,11 +1,14 @@
+from __future__ import annotations
+
 from time import sleep
-from typing import Tuple, Optional, Any
+from typing import Any
 from unittest.mock import call
 
 import aiohttp
 import pytest
 from pytest_mock import MockerFixture
 
+from betty.asyncio import sync
 from betty.media_type import MediaType
 from betty.project import LocaleConfiguration, ExtensionConfiguration
 from betty.tempfile import TemporaryDirectory
@@ -34,7 +37,7 @@ class TestParseUrl:
         (('en', 'Amsterdam'), 'https://en.wikipedia.org/wiki/Amsterdam?some=query',),
         (('en', 'Amsterdam'), 'https://en.wikipedia.org/wiki/Amsterdam#some-fragment',),
     ])
-    def test_should_return(self, expected: Tuple[str, str], url: str) -> None:
+    def test_should_return(self, expected: tuple[str, str], url: str) -> None:
         assert expected == _parse_url(url)
 
     @pytest.mark.parametrize('url', [
@@ -82,7 +85,13 @@ class TestRetriever:
             ],
         },),
     ])
-    async def test_get_translations_should_return(self, expected, response_pages_json, aioresponses: aioresponses, mocker: MockerFixture) -> None:
+    async def test_get_translations_should_return(
+        self,
+        expected: dict[str, str],
+        response_pages_json: dict[str, Any],
+        aioresponses: aioresponses,
+        mocker: MockerFixture,
+    ) -> None:
         mocker.patch('sys.stderr')
         entry_language = 'en'
         entry_name = 'Amsterdam'
@@ -98,7 +107,11 @@ class TestRetriever:
                 translations = await _Retriever(session, cache_directory_path).get_translations(entry_language, entry_name)
         assert expected == translations
 
-    async def test_get_translations_with_client_error_should_raise_retrieval_error(self, aioresponses: aioresponses, mocker: MockerFixture) -> None:
+    async def test_get_translations_with_client_error_should_raise_retrieval_error(
+        self,
+        aioresponses: aioresponses,
+        mocker: MockerFixture,
+    ) -> None:
         mocker.patch('sys.stderr')
         entry_language = 'en'
         entry_name = 'Amsterdam'
@@ -109,7 +122,11 @@ class TestRetriever:
                 async with aiohttp.ClientSession() as session:
                     await _Retriever(session, cache_directory_path).get_translations(entry_language, entry_name)
 
-    async def test_get_translations_with_invalid_json_response_should_raise_retrieval_error(self, aioresponses: aioresponses, mocker: MockerFixture) -> None:
+    async def test_get_translations_with_invalid_json_response_should_raise_retrieval_error(
+        self,
+        aioresponses: aioresponses,
+        mocker: MockerFixture,
+    ) -> None:
         mocker.patch('sys.stderr')
         entry_language = 'en'
         entry_name = 'Amsterdam'
@@ -136,7 +153,12 @@ class TestRetriever:
             }
         },
     ])
-    async def test_get_translations_with_unexpected_json_response_should_raise_retrieval_error(self, response_json, mocker: MockerFixture, aioresponses: aioresponses) -> None:
+    async def test_get_translations_with_unexpected_json_response_should_raise_retrieval_error(
+        self,
+        response_json: dict[str, Any],
+        mocker: MockerFixture,
+        aioresponses: aioresponses,
+    ) -> None:
         mocker.patch('sys.stderr')
         entry_language = 'en'
         entry_name = 'Amsterdam'
@@ -201,7 +223,11 @@ class TestRetriever:
             assert title == entry.title
             assert extract_4 == entry.content
 
-    async def test_get_entry_with_client_error_should_raise_retrieval_error(self, aioresponses: aioresponses, mocker: MockerFixture) -> None:
+    async def test_get_entry_with_client_error_should_raise_retrieval_error(
+        self,
+        aioresponses: aioresponses,
+        mocker: MockerFixture,
+    ) -> None:
         mocker.patch('sys.stderr')
         entry_language = 'en'
         entry_name = 'Amsterdam'
@@ -216,6 +242,7 @@ class TestRetriever:
 
 class TestPopulator:
     @patch_cache
+    @sync
     async def test_populate_link_should_convert_http_to_https(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
@@ -231,7 +258,13 @@ class TestPopulator:
         (MediaType('text/html'), None),
     ])
     @patch_cache
-    async def test_populate_link_should_set_media_type(self, expected: MediaType, media_type: Optional[MediaType], mocker: MockerFixture) -> None:
+    @sync
+    async def test_populate_link_should_set_media_type(
+        self,
+        expected: MediaType,
+        media_type: MediaType | None,
+        mocker: MockerFixture,
+    ) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.media_type = media_type
@@ -246,7 +279,13 @@ class TestPopulator:
         ('external', None),
     ])
     @patch_cache
-    async def test_populate_link_should_set_relationship(self, expected: str, relationship: Optional[str], mocker: MockerFixture) -> None:
+    @sync
+    async def test_populate_link_should_set_relationship(
+        self,
+        expected: str,
+        relationship: str | None,
+        mocker: MockerFixture,
+    ) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.relationship = relationship
@@ -261,7 +300,14 @@ class TestPopulator:
         ('nl', 'en', 'nl'),
     ])
     @patch_cache
-    async def test_populate_link_should_set_locale(self, expected: str, entry_language: str, locale: Optional[str], mocker: MockerFixture) -> None:
+    @sync
+    async def test_populate_link_should_set_locale(
+        self,
+        expected: str,
+        entry_language: str,
+        locale: str | None,
+        mocker: MockerFixture,
+    ) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         link = Link('http://%s.wikipedia.org/wiki/Amsterdam' % entry_language)
         link.locale = locale
@@ -275,7 +321,13 @@ class TestPopulator:
         ('Read more on Wikipedia.', None),
     ])
     @patch_cache
-    async def test_populate_link_should_set_description(self, expected: str, description: str, mocker: MockerFixture) -> None:
+    @sync
+    async def test_populate_link_should_set_description(
+        self,
+        expected: str,
+        description: str,
+        mocker: MockerFixture,
+    ) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.description = description
@@ -290,7 +342,13 @@ class TestPopulator:
         ('The city of Amsterdam', None),
     ])
     @patch_cache
-    async def test_populate_link_should_set_label(self, expected: str, label: Optional[str], mocker: MockerFixture) -> None:
+    @sync
+    async def test_populate_link_should_set_label(
+        self,
+        expected: str,
+        label: str | None,
+        mocker: MockerFixture,
+    ) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.label = label
@@ -301,6 +359,7 @@ class TestPopulator:
         assert expected == link.label
 
     @patch_cache
+    @sync
     async def test_populate_should_ignore_resource_without_link_support(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         source = Source('The Source')
@@ -311,6 +370,7 @@ class TestPopulator:
             await sut.populate()
 
     @patch_cache
+    @sync
     async def test_populate_should_ignore_resource_without_links(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         resource = Source('the_source', 'The Source')
@@ -321,6 +381,7 @@ class TestPopulator:
         assert set() == resource.links
 
     @patch_cache
+    @sync
     async def test_populate_should_ignore_non_wikipedia_links(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         link = Link('https://example.com')
@@ -333,6 +394,7 @@ class TestPopulator:
         assert {link} == resource.links
 
     @patch_cache
+    @sync
     async def test_populate_should_populate_existing_link(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever', spec=_Retriever, new_callable=AsyncMock)
         entry_language = 'en'
@@ -358,6 +420,7 @@ class TestPopulator:
         assert 'external' == link.relationship
 
     @patch_cache
+    @sync
     async def test_populate_should_add_translation_links(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever', spec=_Retriever, new_callable=AsyncMock)
         entry_language = 'en'
@@ -438,6 +501,7 @@ class TestWikipedia:
         assert extract == actual
 
     @patch_cache
+    @sync
     async def test_post_load(self, aioresponses: aioresponses) -> None:
         resource = Source('the_source', 'The Source')
         link = Link('https://en.wikipedia.org/wiki/Amsterdam')

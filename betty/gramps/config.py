@@ -1,19 +1,15 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional, Iterable, Type
+from typing import Iterable, Any
 
 from reactives.instance.property import reactive_property
+from typing_extensions import Self
 
 from betty.config import Configuration, ConfigurationSequence
 from betty.locale import Localizer
 from betty.serde.dump import minimize, Dump, VoidableDump
 from betty.serde.load import Asserter, Fields, RequiredField, Assertions, OptionalField
-
-try:
-    from typing_extensions import Self
-except ModuleNotFoundError:  # pragma: no cover
-    from typing import Self  # type: ignore  # pragma: no cover
 
 
 class FamilyTreeConfiguration(Configuration):
@@ -21,7 +17,7 @@ class FamilyTreeConfiguration(Configuration):
         super().__init__()
         self.file_path = file_path
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, FamilyTreeConfiguration):
             return False
         return self._file_path == other.file_path
@@ -70,12 +66,12 @@ class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfigurat
         return FamilyTreeConfiguration()
 
     @classmethod
-    def _item_type(cls) -> Type[FamilyTreeConfiguration]:
+    def _item_type(cls) -> type[FamilyTreeConfiguration]:
         return FamilyTreeConfiguration
 
 
 class GrampsConfiguration(Configuration):
-    def __init__(self, family_trees: Optional[Iterable[FamilyTreeConfiguration]] = None):
+    def __init__(self, family_trees: Iterable[FamilyTreeConfiguration] | None = None):
         super().__init__()
         self._family_trees = FamilyTreeConfigurationSequence(family_trees)
         self._family_trees.react(self)

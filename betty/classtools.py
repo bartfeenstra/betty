@@ -1,4 +1,7 @@
-def repr_instance(instance: object, **attributes) -> str:
+from typing import Any
+
+
+def repr_instance(instance: object, **attributes: Any) -> str:
     return '<{}.{}{}>'.format(
         instance.__class__.__module__,
         instance.__class__.__name__,
@@ -7,7 +10,7 @@ def repr_instance(instance: object, **attributes) -> str:
 
 
 class Repr:
-    def __repr__(self):
+    def __repr__(self) -> str:
         attribute_names = [
             *self.__dict__.keys(),
             *getattr(self, '__slots__', []),

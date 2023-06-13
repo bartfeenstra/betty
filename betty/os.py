@@ -4,6 +4,7 @@ import os
 import shutil
 from contextlib import suppress
 from pathlib import Path
+from types import TracebackType
 
 
 def link_or_copy(source_path: Path, destination_path: Path) -> None:
@@ -23,7 +24,7 @@ class ChDir:
     def __enter__(self) -> None:
         self.change()
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+    def __exit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
         self.revert()
 
     def change(self) -> None:

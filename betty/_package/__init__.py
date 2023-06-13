@@ -1,14 +1,15 @@
 """Provide tools for the various package managers Betty integrates with."""
 from glob import glob
 from pathlib import Path
+from typing import Iterator
+
 from setuptools import find_packages as find_packages_setuptools
-from typing import List, Dict, Iterator
 
 from betty import _ROOT_DIRECTORY_PATH as ROOT_DIRECTORY_PATH
 from betty.os import ChDir
 
 
-def find_packages() -> List[str]:
+def find_packages() -> list[str]:
     return find_packages_setuptools(
         '.',
         exclude=[
@@ -28,7 +29,7 @@ def is_data_file(file_path: Path) -> bool:
     return True
 
 
-def get_data_paths() -> Dict[str, Iterator[Path]]:
+def get_data_paths() -> dict[str, Iterator[Path]]:
     with ChDir(ROOT_DIRECTORY_PATH / 'betty'):
         return {
             'betty': filter(is_data_file, [

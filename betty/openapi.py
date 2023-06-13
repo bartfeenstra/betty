@@ -1,9 +1,8 @@
-from typing import Dict
-
 from betty import about
 from betty.app import App
 from betty.media_type import EXTENSIONS
 from betty.model import get_entity_type_name
+from betty.serde.dump import DictDump, Dump
 from betty.string import camel_case_to_kebab_case
 
 
@@ -11,8 +10,8 @@ class Specification:
     def __init__(self, app: App):
         self._app = app
 
-    def build(self) -> Dict:
-        specification = {
+    def build(self) -> DictDump[Dump]:
+        specification: DictDump[Dump] = {
             'openapi': '3.1.0',
             'servers': [
                 {
@@ -95,7 +94,7 @@ class Specification:
             else:
                 collection_path = f'/{{locale}}/{entity_type_url_name}/index.json'
                 single_path = f'/{{locale}}/{entity_type_url_name}/{{id}}/index.json'
-            specification['paths'].update({  # type: ignore
+            specification['paths'].update({  # type: ignore[union-attr]
                 collection_path: {
                     'get': {
                         'summary': self._app.localizer._('Retrieve the collection of {entity_type} entities.').format(
@@ -134,7 +133,7 @@ class Specification:
 
         # Add components for content negotiation.
         if self._app.project.configuration.content_negotiation:
-            specification['components']['parameters']['Accept'] = {  # type: ignore
+            specification['components']['parameters']['Accept'] = {  # type: ignore[call-overload, index]
                 'name': 'Accept',
                 'in': 'header',
                 'description': self._app.localizer._('An HTTP [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header.'),
@@ -142,7 +141,7 @@ class Specification:
                     'enum': list(EXTENSIONS.keys()),
                 },
             }
-            specification['components']['parameters']['Accept-Language'] = {  # type: ignore
+            specification['components']['parameters']['Accept-Language'] = {  # type: ignore[call-overload, index]
                 'name': 'Accept-Language',
                 'in': 'header',
                 'description': self._app.localizer._('An HTTP [Accept-Language](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language) header.'),
@@ -151,12 +150,12 @@ class Specification:
                 },
                 'example': self._app.project.configuration.locales[self._app.project.configuration.locales.default.locale].alias,
             }
-            specification['components']['schemas']['html'] = {  # type: ignore
+            specification['components']['schemas']['html'] = {  # type: ignore[call-overload, index]
                 'type': 'string',
                 'description': self._app.localizer._('An HTML5 document.'),
             }
         else:
-            specification['components']['parameters']['locale'] = {  # type: ignore
+            specification['components']['parameters']['locale'] = {  # type: ignore[call-overload, index]
                 'name': 'locale',
                 'in': 'path',
                 'required': True,
@@ -169,8 +168,8 @@ class Specification:
             }
 
         # Add default behavior to all requests.
-        for path in specification['paths']:
-            specification['paths'][path]['get']['responses'].update({  # type: ignore
+        for path in specification['paths']:  # type: ignore[union-attr]
+            specification['paths'][path]['get']['responses'].update({  # type: ignore[call-overload, index, union-attr]
                 '401': {
                     '$ref': '#/components/responses/401',
                 },
@@ -182,7 +181,7 @@ class Specification:
                 },
             })
             if self._app.project.configuration.content_negotiation:
-                specification['paths'][path]['parameters'] = [  # type: ignore
+                specification['paths'][path]['parameters'] = [  # type: ignore[index]
                     {
                         '$ref': '#/components/parameters/Accept',
                     },
@@ -191,7 +190,7 @@ class Specification:
                     },
                 ]
             else:
-                specification['paths'][path]['parameters'] = [  # type: ignore
+                specification['paths'][path]['parameters'] = [  # type: ignore[index]
                     {
                         '$ref': '#/components/parameters/locale',
                     },
@@ -199,19 +198,19 @@ class Specification:
 
         # Add default behavior to all responses.
         if self._app.project.configuration.content_negotiation:
-            responses = list(specification['components']['responses'].values())  # type: ignore
-            for path in specification['paths']:
+            responses = list(specification['components']['responses'].values())  # type: ignore[call-overload, index, union-attr]
+            for path in specification['paths']:  # type: ignore[union-attr]
                 responses.append(
-                    specification['paths'][path]['get']['responses']['200'])  # type: ignore
+                    specification['paths'][path]['get']['responses']['200'])  # type: ignore[call-overload, index]
             for response in responses:
-                response['content']['text/html'] = {
+                response['content']['text/html'] = {  # type: ignore[call-overload, index]
                     'schema': {
                         '$ref': '#/components/schemas/html'
                     }
                 }
-                if 'headers' not in response:
-                    response['headers'] = {}
-                response['headers']['Content-Language'] = {
+                if 'headers' not in response:  # type: ignore[operator]
+                    response['headers'] = {}  # type: ignore[index]
+                response['headers']['Content-Language'] = {  # type: ignore[call-overload, index]
                     '$ref': '#/components/headers/Content-Language',
                 }
 

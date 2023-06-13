@@ -1,6 +1,7 @@
 import json as stdjson
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from typing import Any
 
 from geopy import Point
 
@@ -12,10 +13,11 @@ from betty.model.ancestry import Place, Person, PlaceName, Link, Presence, Sourc
     Subject, Enclosure, Citation, Event
 from betty.model.event_type import Birth
 from betty.project import LocaleConfiguration
+from betty.serde.dump import DictDump, Dump
 
 
 class TestJSONEncoder:
-    def assert_encodes(self, expected, data, schema_definition: str):
+    def assert_encodes(self, expected: Any, data: Any, schema_definition: str) -> None:
         app = App()
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
@@ -24,7 +26,7 @@ class TestJSONEncoder:
         json.validate(encoded_data, schema_definition, app)
         assert expected == encoded_data
 
-    def test_coordinates_should_encode(self):
+    def test_coordinates_should_encode(self) -> None:
         latitude = 12.345
         longitude = -54.321
         coordinates = Point(latitude, longitude)
@@ -39,11 +41,11 @@ class TestJSONEncoder:
         }
         self.assert_encodes(expected, coordinates, 'coordinates')
 
-    def test_place_should_encode_minimal(self):
+    def test_place_should_encode_minimal(self) -> None:
         place_id = 'the_place'
         name = 'The Place'
         place = Place(place_id, [PlaceName(name)])
-        expected = {
+        expected: DictDump[Dump] = {
             '$schema': '/schema.json#/definitions/place',
             '@context': {
                 'enclosedBy': 'https://schema.org/containedInPlace',
@@ -80,7 +82,7 @@ class TestJSONEncoder:
         }
         self.assert_encodes(expected, place, 'place')
 
-    def test_place_should_encode_full(self):
+    def test_place_should_encode_full(self) -> None:
         place_id = 'the_place'
         name = 'The Place'
         locale = 'nl-NL'
@@ -153,10 +155,10 @@ class TestJSONEncoder:
         }
         self.assert_encodes(expected, place, 'place')
 
-    def test_person_should_encode_minimal(self):
+    def test_person_should_encode_minimal(self) -> None:
         person_id = 'the_person'
         person = Person(person_id)
-        expected = {
+        expected: DictDump[Dump] = {
             '$schema': '/schema.json#/definitions/person',
             '@context': {
                 'parents': 'https://schema.org/parent',
@@ -192,7 +194,7 @@ class TestJSONEncoder:
         }
         self.assert_encodes(expected, person, 'person')
 
-    def test_person_should_encode_full(self):
+    def test_person_should_encode_full(self) -> None:
         parent_id = 'the_parent'
         parent = Person(parent_id)
 
@@ -283,7 +285,7 @@ class TestJSONEncoder:
         }
         self.assert_encodes(expected, person, 'person')
 
-    def test_note_should_encode_minimal(self):
+    def test_note_should_encode_minimal(self) -> None:
         note = Note('the_note', 'The Note')
         expected = {
             '$schema': '/schema.json#/definitions/note',
@@ -310,10 +312,10 @@ class TestJSONEncoder:
         }
         self.assert_encodes(expected, note, 'note')
 
-    def test_file_should_encode_minimal(self):
+    def test_file_should_encode_minimal(self) -> None:
         with NamedTemporaryFile() as f:
             file = File('the_file', Path(f.name))
-            expected = {
+            expected: DictDump[Dump] = {
                 '$schema': '/schema.json#/definitions/file',
                 'id': 'the_file',
                 'entities': [],
@@ -338,7 +340,7 @@ class TestJSONEncoder:
             }
             self.assert_encodes(expected, file, 'file')
 
-    def test_file_should_encode_full(self):
+    def test_file_should_encode_full(self) -> None:
         with NamedTemporaryFile() as f:
             note = Note('the_note', 'The Note')
             file = File('the_file', Path(f.name))
@@ -375,9 +377,9 @@ class TestJSONEncoder:
             }
             self.assert_encodes(expected, file, 'file')
 
-    def test_event_should_encode_minimal(self):
+    def test_event_should_encode_minimal(self) -> None:
         event = Event('the_event', Birth)
-        expected = {
+        expected: DictDump[Dump] = {
             '$schema': '/schema.json#/definitions/event',
             '@type': 'https://schema.org/Event',
             'id': 'the_event',
@@ -404,7 +406,7 @@ class TestJSONEncoder:
         }
         self.assert_encodes(expected, event, 'event')
 
-    def test_event_should_encode_full(self):
+    def test_event_should_encode_full(self) -> None:
         event = Event('the_event', Birth)
         event.date = DateRange(Date(2000, 1, 1), Date(2019, 12, 31))
         event.place = Place('the_place', [PlaceName('The Place')])
@@ -464,9 +466,9 @@ class TestJSONEncoder:
         }
         self.assert_encodes(expected, event, 'event')
 
-    def test_source_should_encode_minimal(self):
+    def test_source_should_encode_minimal(self) -> None:
         source = Source('the_source', 'The Source')
-        expected = {
+        expected: DictDump[Dump] = {
             '$schema': '/schema.json#/definitions/source',
             '@context': {
                 'name': 'https://schema.org/name',
@@ -496,7 +498,7 @@ class TestJSONEncoder:
         }
         self.assert_encodes(expected, source, 'source')
 
-    def test_source_should_encode_full(self):
+    def test_source_should_encode_full(self) -> None:
         source = Source('the_source', 'The Source')
         source.author = 'The Author'
         source.publisher = 'The Publisher'
@@ -555,9 +557,9 @@ class TestJSONEncoder:
         }
         self.assert_encodes(expected, source, 'source')
 
-    def test_citation_should_encode_minimal(self):
+    def test_citation_should_encode_minimal(self) -> None:
         citation = Citation('the_citation', Source(None, 'The Source'))
-        expected = {
+        expected: DictDump[Dump] = {
             '$schema': '/schema.json#/definitions/citation',
             '@type': 'https://schema.org/Thing',
             'id': 'the_citation',
@@ -582,7 +584,7 @@ class TestJSONEncoder:
         }
         self.assert_encodes(expected, citation, 'citation')
 
-    def test_citation_should_encode_full(self):
+    def test_citation_should_encode_full(self) -> None:
         citation = Citation('the_citation', Source('the_source', 'The Source'))
         citation.facts.append(Event('the_event', Birth))
         expected = {

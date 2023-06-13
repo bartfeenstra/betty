@@ -1,17 +1,20 @@
 from __future__ import annotations
 
-import weakref
 import asyncio
-from concurrent.futures import Executor, ProcessPoolExecutor
+import os as stdos
+import weakref
+from concurrent.futures import Executor, ProcessPoolExecutor, Future
 from concurrent.futures.thread import ThreadPoolExecutor
 from contextlib import suppress
+from graphlib import CycleError, TopologicalSorter
 from pathlib import Path
-import os as stdos
-from typing import List, Optional, Type, TYPE_CHECKING, Set, Callable, Awaitable, Mapping
+from types import TracebackType
+from typing import TYPE_CHECKING, Callable, Mapping, Any, Awaitable
 
 import aiohttp
 from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
+from typing_extensions import Self, ParamSpec
 
 from betty.app.extension import ListExtensions, Extension, Extensions, build_extension_type_graph, \
     CyclicDependencyError, ExtensionDispatcher, ConfigurableExtension, discover_extension_types
@@ -26,25 +29,14 @@ from betty.locale import LocalizerRepository, get_data, Localey, DEFAULT_LOCALE,
 from betty.lock import Locks
 from betty.model import Entity, EntityTypeProvider
 from betty.model.ancestry import Citation, Event, File, Person, PersonName, Presence, Place, Enclosure, \
-    Source, Note, EventType
-from betty.model.event_type import EventTypeProvider, Birth, Baptism, Adoption, Death, Funeral, Cremation, Burial, Will, \
-    Engagement, Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, Emigration, \
-    Occupation, Retirement, Correspondence, Confirmation
+    Source, Note
+from betty.model.event_type import EventType, EventTypeProvider, Birth, Baptism, Adoption, Death, Funeral, Cremation, \
+    Burial, Will, Engagement, Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, \
+    Emigration, Occupation, Retirement, Correspondence, Confirmation
 from betty.project import Project
 from betty.render import Renderer, SequentialRenderer
 from betty.serde.dump import minimize, void_none, Dump, VoidableDump
-from betty.serde.load import ValidationError, Fields, Assertions, OptionalField, Asserter
-
-
-try:
-    from graphlib_backport import TopologicalSorter, CycleError
-except ModuleNotFoundError:
-    from graphlib import TopologicalSorter, CycleError
-
-try:
-    from typing_extensions import Self
-except ModuleNotFoundError:  # pragma: no cover
-    from typing import Self  # type: ignore  # pragma: no cover
+from betty.serde.load import AssertionFailed, Fields, Assertions, OptionalField, Asserter
 
 if TYPE_CHECKING:
     from betty.jinja2 import Environment
@@ -55,11 +47,14 @@ if TYPE_CHECKING:
 CONFIGURATION_DIRECTORY_PATH = HOME_DIRECTORY_PATH / 'configuration'
 
 
+P = ParamSpec('P')
+
+
 class _AppExtensions(ListExtensions):
     def __init__(self):
         super().__init__([])
 
-    def _update(self, extensions: List[List[Extension]]) -> None:
+    def _update(self, extensions: list[list[Extension]]) -> None:
         self._extensions = extensions
         self.react.trigger()
 
@@ -83,7 +78,7 @@ class AppConfiguration(FileBasedConfiguration):
 
     @property
     @reactive_property
-    def locale(self) -> Optional[str]:
+    def locale(self) -> str | None:
         return self._locale
 
     @locale.setter
@@ -91,7 +86,7 @@ class AppConfiguration(FileBasedConfiguration):
         try:
             get_data(locale)
         except ValueError:
-            raise ValidationError(self.localizer._('"{locale}" is not a valid IETF BCP 47 language tag.').format(locale=locale))
+            raise AssertionFailed(self.localizer._('"{locale}" is not a valid IETF BCP 47 language tag.').format(locale=locale))
         self._locale = locale
 
     def update(self, other: Self) -> None:
@@ -145,8 +140,8 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         self._init_localization()
 
         self._dispatcher: ExtensionDispatcher | None = None
-        self._entity_types: Set[Type[Entity]] | None = None
-        self._event_types: Set[Type[EventType]] | None = None
+        self._entity_types: set[type[Entity]] | None = None
+        self._event_types: set[type[EventType]] | None = None
         self._url_generator: ContentNegotiationUrlGenerator | None = None
         self._static_url_generator: StaticUrlGenerator | None = None
         self._jinja2_environment: Environment | None = None
@@ -163,7 +158,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
     def __copy__(self) -> Self:
         raise RuntimeError(f'{self.__class__} MUST NOT be copied. Copy {self.__class__}.project instead.')
 
-    def __deepcopy__(self, _) -> None:
+    def __deepcopy__(self, _: dict[Any, Any]) -> None:
         raise RuntimeError(f'{self.__class__} MUST NOT be copied. Copy {self.__class__}.project instead.')
 
     def wait(self) -> None:
@@ -174,14 +169,14 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
     def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
         self.wait()
 
     @property
     def project(self) -> Project:
         return self._project
 
-    def discover_extension_types(self) -> Set[Type[Extension]]:
+    def discover_extension_types(self) -> set[type[Extension]]:
         return {*discover_extension_types(), *map(type, self._extensions.flatten())}
 
     @property
@@ -236,8 +231,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
                 extension_assets_directory_path = extension.assets_directory_path()
                 if extension_assets_directory_path is not None:
                     self._assets.prepend(extension_assets_directory_path, 'utf-8')
-            if self.project.configuration.assets_directory_path:
-                self._assets.prepend(self.project.configuration.assets_directory_path)
+            self._assets.prepend(self.project.configuration.assets_directory_path)
         return self._assets
 
     @assets.deleter
@@ -351,8 +345,11 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         if self.__thread_pool_executor is not None:
             self.__thread_pool_executor.wait()
 
-    def do_in_thread(self, task: Callable[[], None]) -> Awaitable[None]:
+    def wait_for_thread(self, task: Callable[P, None]) -> Awaitable[None]:
         return asyncio.get_event_loop().run_in_executor(self._thread_pool_executor, task)
+
+    def delegate_to_thread(self, task: Callable[[], None]) -> Future[None]:
+        return self._thread_pool_executor.submit(task)
 
     @property
     def _process_pool_executor(self) -> Executor:
@@ -365,11 +362,14 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         if self.__process_pool_executor is not None:
             self.__process_pool_executor.wait()
 
-    def do_in_process(self, task: Callable[[], None]) -> Awaitable[None]:
+    def wait_for_process(self, task: Callable[[], None]) -> Awaitable[None]:
         return asyncio.get_event_loop().run_in_executor(self._process_pool_executor, task)
 
+    def delegate_to_process(self, task: Callable[[], None]) -> Future[None]:
+        return self._process_pool_executor.submit(task)
+
     @property
-    def json_encoder(self) -> Type[JSONEncoder]:
+    def json_encoder(self) -> type[JSONEncoder]:
         from betty.json import JSONEncoder
         return lambda *args, **kwargs: JSONEncoder(self)  # type: ignore[return-value]
 
@@ -385,7 +385,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
             weakref.finalize(self, sync(self._http_client.close))
         return self._http_client
 
-    @http_client.deleter  # type: ignore
+    @http_client.deleter
     @sync
     async def http_client(self) -> None:
         if self._http_client is not None:
@@ -395,7 +395,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
     @property
     @reactive_property(on_trigger_delete=True)
     @sync
-    async def entity_types(self) -> Set[Type[Entity]]:
+    async def entity_types(self) -> set[type[Entity]]:
         if self._entity_types is None:
             self._entity_types = set(await self.dispatcher.dispatch(EntityTypeProvider)()) | {
                 Citation,
@@ -418,7 +418,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
     @property
     @reactive_property(on_trigger_delete=True)
     @sync
-    async def event_types(self) -> Set[Type[EventType]]:
+    async def event_types(self) -> set[type[EventType]]:
         if self._event_types is None:
             self._event_types = set(await self.dispatcher.dispatch(EventTypeProvider)()) | {
                 Birth,

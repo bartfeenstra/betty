@@ -1,18 +1,18 @@
-from typing import Set, Type, Any, Dict
+from typing import Any
 
 from betty.app import App
 from betty.app.extension import Extension, ListExtensions, ExtensionDispatcher, build_extension_type_graph, \
-    discover_extension_types
+    discover_extension_types, ExtensionTypeGraph
 
 
 class TestExtension:
-    def test_depends_on(self):
+    def test_depends_on(self) -> None:
         assert set() == Extension.depends_on()
 
-    def test_comes_after(self):
+    def test_comes_after(self) -> None:
         assert set() == Extension.comes_after()
 
-    def test_comes_before(self):
+    def test_comes_before(self) -> None:
         assert set() == Extension.comes_before()
 
 
@@ -55,7 +55,7 @@ class TestBuildExtensionTypeGraph:
             IsolatedExtensionOne,
             IsolatedExtensionTwo,
         }
-        expected: Dict[Type[Extension], Set[Type[Extension]]] = {
+        expected: ExtensionTypeGraph = {
             IsolatedExtensionOne: set(),
             IsolatedExtensionTwo: set(),
         }
@@ -67,12 +67,12 @@ class TestBuildExtensionTypeGraph:
 
         class HasDependencyExtension(Extension):
             @classmethod
-            def depends_on(cls) -> Set[Type[Extension]]:
+            def depends_on(cls) -> set[type[Extension]]:
                 return {IsDependencyExtension}
         extension_types = {
             HasDependencyExtension,
         }
-        expected = {
+        expected: ExtensionTypeGraph = {
             HasDependencyExtension: {IsDependencyExtension},
             IsDependencyExtension: set(),
         }
@@ -84,13 +84,13 @@ class TestBuildExtensionTypeGraph:
 
         class HasDependencyExtension(Extension):
             @classmethod
-            def depends_on(cls) -> Set[Type[Extension]]:
+            def depends_on(cls) -> set[type[Extension]]:
                 return {IsDependencyExtension}
         extension_types = {
             HasDependencyExtension,
             IsDependencyExtension,
         }
-        expected = {
+        expected: ExtensionTypeGraph = {
             HasDependencyExtension: {IsDependencyExtension},
             IsDependencyExtension: set(),
         }
@@ -102,17 +102,17 @@ class TestBuildExtensionTypeGraph:
 
         class IsAndHasDependencyExtension(Extension):
             @classmethod
-            def depends_on(cls) -> Set[Type[Extension]]:
+            def depends_on(cls) -> set[type[Extension]]:
                 return {IsDependencyExtension}
 
         class HasDependencyExtension(Extension):
             @classmethod
-            def depends_on(cls) -> Set[Type[Extension]]:
+            def depends_on(cls) -> set[type[Extension]]:
                 return {IsAndHasDependencyExtension}
         extension_types = {
             HasDependencyExtension,
         }
-        expected = {
+        expected: ExtensionTypeGraph = {
             IsAndHasDependencyExtension: {IsDependencyExtension},
             HasDependencyExtension: {IsAndHasDependencyExtension},
             IsDependencyExtension: set(),
@@ -125,12 +125,12 @@ class TestBuildExtensionTypeGraph:
 
         class ComesAfterExtension(Extension):
             @classmethod
-            def comes_after(cls) -> Set[Type[Extension]]:
+            def comes_after(cls) -> set[type[Extension]]:
                 return {ComesBeforeExtension}
         extension_types = {
             ComesAfterExtension,
         }
-        expected: Dict[Type[Extension], Set[Type[Extension]]] = {
+        expected: dict[type[Extension], set[type[Extension]]] = {
             ComesAfterExtension: set(),
         }
         assert expected == dict(build_extension_type_graph(extension_types))
@@ -141,13 +141,13 @@ class TestBuildExtensionTypeGraph:
 
         class ComesAfterExtension(Extension):
             @classmethod
-            def comes_after(cls) -> Set[Type[Extension]]:
+            def comes_after(cls) -> set[type[Extension]]:
                 return {ComesBeforeExtension}
         extension_types = {
             ComesBeforeExtension,
             ComesAfterExtension,
         }
-        expected = {
+        expected: ExtensionTypeGraph = {
             ComesAfterExtension: {ComesBeforeExtension},
             ComesBeforeExtension: set(),
         }
@@ -159,12 +159,12 @@ class TestBuildExtensionTypeGraph:
 
         class ComesBeforeExtension(Extension):
             @classmethod
-            def comes_before(cls) -> Set[Type[Extension]]:
+            def comes_before(cls) -> set[type[Extension]]:
                 return {ComesAfterExtension}
         extension_types = {
             ComesBeforeExtension,
         }
-        expected: Dict[Type[Extension], Set[Type[Extension]]] = {
+        expected: dict[type[Extension], set[type[Extension]]] = {
             ComesBeforeExtension: set(),
         }
         assert expected == dict(build_extension_type_graph(extension_types))
@@ -175,13 +175,13 @@ class TestBuildExtensionTypeGraph:
 
         class ComesBeforeExtension(Extension):
             @classmethod
-            def comes_before(cls) -> Set[Type[Extension]]:
+            def comes_before(cls) -> set[type[Extension]]:
                 return {ComesAfterExtension}
         extension_types = {
             ComesAfterExtension,
             ComesBeforeExtension,
         }
-        expected = {
+        expected: ExtensionTypeGraph = {
             ComesAfterExtension: {ComesBeforeExtension},
             ComesBeforeExtension: set(),
         }
@@ -189,7 +189,7 @@ class TestBuildExtensionTypeGraph:
 
 
 class TestDiscoverExtensionTypes:
-    def test(self):
+    def test(self) -> None:
         extension_types = discover_extension_types()
         assert 1 <= len(extension_types)
         for extension_type in extension_types:

@@ -8,7 +8,7 @@ from betty.tempfile import TemporaryDirectory
 
 
 class TestReadme:
-    async def test_readme_should_contain_cli_help(self):
+    async def test_readme_should_contain_cli_help(self) -> None:
         with TemporaryDirectory() as working_directory_path:
             configuration = {
                 'base_url': 'https://example.com',

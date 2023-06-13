@@ -9,7 +9,7 @@ from betty.serve import BuiltinServer
 
 
 class TestBuiltinServer:
-    async def test(self, mocker: MockerFixture):
+    async def test(self, mocker: MockerFixture) -> None:
         mocker.patch('webbrowser.open_new_tab')
         content = 'Hello, and welcome to my site!'
         app = App()

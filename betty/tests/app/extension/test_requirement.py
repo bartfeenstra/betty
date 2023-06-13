@@ -1,10 +1,10 @@
-from typing import Optional
+from __future__ import annotations
 
 import pytest
 
 from betty.app import App
-from betty.app.extension import Requirement
-from betty.app.extension.requirement import RequirementCollection, RequirementError, AllRequirements, AnyRequirement
+from betty.app.extension.requirement import RequirementCollection, RequirementError, AllRequirements, AnyRequirement, \
+    Requirement
 
 
 class TestRequirement:
@@ -117,7 +117,7 @@ class TestRequirementCollection:
             pass
 
         class _ReducedToNoneRequirement(Requirement):
-            def reduce(self) -> Optional[Requirement]:
+            def reduce(self) -> Requirement | None:
                 return None
 
         unreduced_requirement = _UnreducedRequirement()
@@ -128,7 +128,7 @@ class TestRequirementCollection:
             pass
 
         class _ReducedToNoneRequirement(Requirement):
-            def reduce(self) -> Optional[Requirement]:
+            def reduce(self) -> Requirement | None:
                 return None
         assert _RequirementCollection(_ReducedToNoneRequirement(), _ReducedToNoneRequirement()).reduce() is None
 

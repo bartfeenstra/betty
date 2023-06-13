@@ -33,7 +33,7 @@ async def _build_assets() -> None:
 
 
 @sync
-async def a_pyz_exe():
+async def a_pyz_exe() -> tuple[Analysis, PYZ, EXE]:
     await _build_assets()
     root = Path(__file__).parents[3]
     block_cipher = None

@@ -9,7 +9,7 @@ class Test(TemplateTestCase):
     extensions = {CottonCandy}
     template_file = 'entity/meta--person.html.j2'
 
-    def test_without_meta(self):
+    def test_without_meta(self) -> None:
         person = Person('P0')
         expected = '<div class="meta person-meta"></div>'
         with self._render(data={
@@ -17,7 +17,7 @@ class Test(TemplateTestCase):
         }) as (actual, _):
             assert expected == actual
 
-    def test_private(self):
+    def test_private(self) -> None:
         person = Person('P0')
         person.private = True
         expected = '<div class="meta person-meta"><p>This person\'s details are unavailable to protect their privacy.</p></div>'
@@ -26,7 +26,7 @@ class Test(TemplateTestCase):
         }) as (actual, _):
             assert expected == actual
 
-    def test_with_one_alternative_name(self):
+    def test_with_one_alternative_name(self) -> None:
         person = Person('P0')
         PersonName(person, 'Jane', 'Dough')
         name = PersonName(person, 'Janet', 'Doughnut')
@@ -37,7 +37,7 @@ class Test(TemplateTestCase):
         }) as (actual, _):
             assert expected == actual
 
-    def test_with_multiple_alternative_names(self):
+    def test_with_multiple_alternative_names(self) -> None:
         person = Person('P0')
         PersonName(person, 'Jane', 'Dough')
         PersonName(person, 'Janet', 'Doughnut')
@@ -48,7 +48,7 @@ class Test(TemplateTestCase):
         }) as (actual, _):
             assert expected == actual
 
-    def test_with_start(self):
+    def test_with_start(self) -> None:
         person = Person('P0')
         Presence(person, Subject(), Event(None, Birth, Date(1970)))
         expected = '<div class="meta person-meta"><dl><div><dt>Birth</dt><dd>1970</dd></div></dl></div>'
@@ -57,7 +57,7 @@ class Test(TemplateTestCase):
         }) as (actual, _):
             assert expected == actual
 
-    def test_with_end(self):
+    def test_with_end(self) -> None:
         person = Person('P0')
         Presence(person, Subject(), Event(None, Death, Date(1970)))
         expected = '<div class="meta person-meta"><dl><div><dt>Death</dt><dd>1970</dd></div></dl></div>'
@@ -66,7 +66,7 @@ class Test(TemplateTestCase):
         }) as (actual, _):
             assert expected == actual
 
-    def test_embedded(self):
+    def test_embedded(self) -> None:
         person = Person('P0')
         Presence(person, Subject(), Event(None, Birth, Date(1970)))
         PersonName(person, 'Jane', 'Dough')

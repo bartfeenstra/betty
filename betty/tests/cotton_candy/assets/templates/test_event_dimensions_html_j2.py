@@ -9,7 +9,7 @@ class Test(TemplateTestCase):
     extensions = {CottonCandy}
     template_file = 'event-dimensions.html.j2'
 
-    def test_without_meta(self):
+    def test_without_meta(self) -> None:
         event = Event(None, Birth)
         expected = ''
         with self._render(data={
@@ -17,7 +17,7 @@ class Test(TemplateTestCase):
         }) as (actual, _):
             assert expected == actual
 
-    def test_with_date(self):
+    def test_with_date(self) -> None:
         event = Event(None, Birth)
         event.date = Date(1970)
         expected = '1970'
@@ -26,7 +26,7 @@ class Test(TemplateTestCase):
         }) as (actual, _):
             assert expected == actual
 
-    def test_with_place(self):
+    def test_with_place(self) -> None:
         event = Event(None, Birth)
         event.place = Place('P0', [PlaceName('The Place')])
         expected = 'in <address><a href="/place/P0/index.html"><span>The Place</span></a></address>'
@@ -35,7 +35,7 @@ class Test(TemplateTestCase):
         }) as (actual, _):
             assert expected == actual
 
-    def test_with_place_is_place_context(self):
+    def test_with_place_is_place_context(self) -> None:
         event = Event(None, Birth)
         place = Place('P0', [PlaceName('The Place')])
         event.place = place
@@ -46,7 +46,7 @@ class Test(TemplateTestCase):
         }) as (actual, _):
             assert expected == actual
 
-    def test_with_date_and_place(self):
+    def test_with_date_and_place(self) -> None:
         event = Event(None, Birth)
         event.date = Date(1970)
         event.place = Place('P0', [PlaceName('The Place')])
@@ -56,7 +56,7 @@ class Test(TemplateTestCase):
         }) as (actual, _):
             assert expected == actual
 
-    def test_with_citation(self):
+    def test_with_citation(self) -> None:
         event = Event(None, Birth)
         event.citations.append(Citation(None, Source(None, 'The Source')))
         expected = '<a href="#reference-1" class="citation">[1]</a>'
@@ -65,7 +65,7 @@ class Test(TemplateTestCase):
         }) as (actual, _):
             assert expected == actual
 
-    def test_embedded(self):
+    def test_embedded(self) -> None:
         event = Event(None, Birth)
         event.date = Date(1970)
         event.place = Place('P0', [PlaceName('The Place')])

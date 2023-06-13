@@ -1,11 +1,11 @@
+from __future__ import annotations
+
 import logging
 from pathlib import Path
 from shutil import copy2
-from typing import Optional, Set, Type
-
-from betty.cache import CacheScope
 
 from betty.app.extension import Extension, UserFacingExtension
+from betty.cache import CacheScope
 from betty.generate import Generator
 from betty.locale import Localizer
 from betty.npm import _Npm, NpmBuilder
@@ -13,7 +13,7 @@ from betty.npm import _Npm, NpmBuilder
 
 class HttpApiDoc(UserFacingExtension, Generator, NpmBuilder):
     @classmethod
-    def depends_on(cls) -> Set[Type[Extension]]:
+    def depends_on(cls) -> set[type[Extension]]:
         return {_Npm}
 
     async def npm_build(self, working_directory_path: Path, assets_directory_path: Path) -> None:
@@ -31,7 +31,7 @@ class HttpApiDoc(UserFacingExtension, Generator, NpmBuilder):
         copy2(assets_directory_path / 'http-api-doc.js', self.app.static_www_directory_path / 'http-api-doc.js')
 
     @classmethod
-    def assets_directory_path(cls) -> Optional[Path]:
+    def assets_directory_path(cls) -> Path | None:
         return Path(__file__).parent / 'assets'
 
     @classmethod

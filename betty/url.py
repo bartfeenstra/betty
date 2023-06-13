@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import Any, Type, Set, cast
+from typing import Any, cast
 
 from betty.app import App
 from betty.locale import negotiate_locale, Localey, to_locale
@@ -43,7 +43,7 @@ class StaticPathUrlGenerator(StaticUrlGenerator):
 
 
 class _EntityUrlGenerator(ContentNegotiationUrlGenerator):
-    def __init__(self, app: App, entity_type: Type[Entity]):
+    def __init__(self, app: App, entity_type: type[Entity]):
         self._app = app
         self._entity_type = entity_type
         self._pattern = f'{camel_case_to_kebab_case(get_entity_type_name(entity_type))}/{{entity_id}}/index.{{extension}}'
@@ -94,7 +94,7 @@ def _generate_from_path(configuration: ProjectConfiguration, path: str, absolute
         except KeyError:
             project_locales = {*configuration.locales}
             try:
-                negotiated_locale_data = negotiate_locale(locale, cast(Set[Localey], project_locales))
+                negotiated_locale_data = negotiate_locale(locale, cast(set[Localey], project_locales))
                 if negotiated_locale_data is None:
                     raise KeyError
                 locale_configuration = configuration.locales[to_locale(negotiated_locale_data)]

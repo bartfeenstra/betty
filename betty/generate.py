@@ -9,20 +9,24 @@ import queue
 import shutil
 from contextlib import suppress
 from pathlib import Path
-from typing import cast, AsyncContextManager, List, Type, Dict
+from typing import cast, AsyncContextManager, Callable, Generic, Any, Awaitable
 
 import aiofiles
+import dill as pickle
 from aiofiles import os as aiofiles_os
 from aiofiles.threadpool.text import AsyncTextIOWrapper
-import dill as pickle
+from typing_extensions import ParamSpec, Concatenate
 
 from betty.app import App
 from betty.asyncio import sync
 from betty.locale import get_display_name
-from betty.model import get_entity_type_name, UserFacingEntity, get_entity_type, GeneratedEntityId
+from betty.model import get_entity_type_name, UserFacingEntity, get_entity_type, GeneratedEntityId, Entity
 from betty.openapi import Specification
 from betty.project import Project
+from betty.serde.dump import DictDump, Dump
 from betty.string import camel_case_to_kebab_case, camel_case_to_snake_case
+
+P = ParamSpec('P')
 
 
 def getLogger() -> logging.Logger:
@@ -50,10 +54,24 @@ async def generate(app: App) -> None:
                 os.chmod(directory_path / file_name, 0o644)
 
 
+class _GenerationTask(Generic[P]):
+    def __init__(
+        self,
+        locale: str | None,
+        callable: Callable[Concatenate[App, str, P], Awaitable[None]],
+        *args: P.args,
+        **kwargs: P.kwargs,
+    ):
+        self.locale = locale
+        self.callable = callable
+        self.args = args
+        self.kwargs = kwargs
+
+
 class _ConcurrentGenerator:
     def __init__(
         self,
-        generation_queue: queue.Queue,
+        generation_queue: queue.Queue[_GenerationTask[Any]],
         pickled_project: bytes,
         async_concurrency: int,
         caller_locale: str,
@@ -72,7 +90,7 @@ class _ConcurrentGenerator:
         generation_queue = cls._build_generation_queue(app)
         pickled_project = pickle.dumps(app.project)
         await asyncio.gather(*[
-            app.do_in_process(cls(generation_queue, pickled_project, app.async_concurrency, app.locale))
+            app.wait_for_process(cls(generation_queue, pickled_project, app.async_concurrency, app.locale))
             for _ in range(0, app.concurrency)
         ])
 
@@ -89,29 +107,29 @@ class _ConcurrentGenerator:
                     ))
 
     @classmethod
-    def _build_generation_queue(cls, app: App) -> queue.Queue:
-        generation_queue = multiprocessing.Manager().Queue()
-        generation_queue.put((None, _generate_dispatch, ()))
+    def _build_generation_queue(cls, app: App) -> queue.Queue[_GenerationTask[Any]]:
+        generation_queue: queue.Queue[_GenerationTask[Any]] = multiprocessing.Manager().Queue()
+        generation_queue.put(_GenerationTask(None, _generate_dispatch))
         for locale in app.project.configuration.locales:
-            generation_queue.put((locale, _generate_public, ()))
-            generation_queue.put((locale, _generate_openapi, ()))
+            generation_queue.put(_GenerationTask(locale, _generate_public))
+            generation_queue.put(_GenerationTask(locale, _generate_openapi))
             for entity_type in app.entity_types:
                 if not issubclass(entity_type, UserFacingEntity):
                     continue
                 if entity_type in app.project.configuration.entity_types and app.project.configuration.entity_types[entity_type].generate_html_list:
-                    generation_queue.put((locale, _generate_entity_type_list_html, (entity_type,)))
-                generation_queue.put((locale, _generate_entity_type_list_json, (entity_type,)))
+                    generation_queue.put(_GenerationTask(locale, _generate_entity_type_list_html, entity_type))
+                generation_queue.put(_GenerationTask(locale, _generate_entity_type_list_json, entity_type))
                 for entity in app.project.ancestry.entities[entity_type]:
                     if isinstance(entity.id, GeneratedEntityId):
                         continue
-                    generation_queue.put((locale, _generate_entity_html, (entity_type, entity.id)))
-                    generation_queue.put((locale, _generate_entity_json, (entity_type, entity.id)))
+                    generation_queue.put(_GenerationTask(locale, _generate_entity_html, entity_type, entity.id))
+                    generation_queue.put(_GenerationTask(locale, _generate_entity_json, entity_type, entity.id))
         return generation_queue
 
     @sync
     async def __call__(self) -> None:
         self._project = pickle.loads(self._pickled_project)
-        self._apps: Dict[str | None, App] = {
+        self._apps: dict[str | None, App] = {
             None: App(project=self._project),
         }
         for locale in self._project.configuration.locales:
@@ -124,14 +142,19 @@ class _ConcurrentGenerator:
             for _ in range(0, self._async_concurrency)
         ])
 
-    async def _perform_tasks(self, generation_queue: queue.Queue) -> None:
+    async def _perform_tasks(self, generation_queue: queue.Queue[_GenerationTask[Any]]) -> None:
         while True:
             try:
-                locale, task, arguments = generation_queue.get_nowait()
+                task = generation_queue.get_nowait()
             except queue.Empty:
                 return None
 
-            await task(self._apps[locale], self._caller_locale, *arguments)
+            await task.callable(
+                self._apps[task.locale],
+                self._caller_locale,
+                *task.args,
+                **task.kwargs,
+            )
 
 
 def create_file(path: Path) -> AsyncContextManager[AsyncTextIOWrapper]:
@@ -173,7 +196,7 @@ async def _generate_static_public(
 async def _generate_entity_type_list_html(
     app: App,
     caller_locale: str,
-    entity_type: Type[UserFacingEntity],
+    entity_type: type[UserFacingEntity & Entity],
 ) -> None:
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
     entity_type_path = app.www_directory_path / entity_type_name_fs
@@ -198,17 +221,17 @@ async def _generate_entity_type_list_html(
 async def _generate_entity_type_list_json(
     app: App,
     caller_locale: str,
-    entity_type: Type[UserFacingEntity],
+    entity_type: type[UserFacingEntity & Entity],
 ) -> None:
     entity_type_name = get_entity_type_name(entity_type)
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
     entity_type_path = app.www_directory_path / entity_type_name_fs
-    data = {
+    data: DictDump[Dump] = {
         '$schema': app.static_url_generator.generate('schema.json#/definitions/%sCollection' % entity_type_name, absolute=True),
         'collection': []
     }
     for entity in app.project.ancestry.entities[entity_type]:
-        cast(List[str], data['collection']).append(
+        cast(list[str], data['collection']).append(
             app.url_generator.generate(
                 entity,
                 'application/json',
@@ -222,7 +245,7 @@ async def _generate_entity_type_list_json(
 async def _generate_entity_html(
     app: App,
     caller_locale: str,
-    entity_type: Type[UserFacingEntity],
+    entity_type: type[UserFacingEntity & Entity],
     entity_id: str,
 ) -> None:
     entity = app.project.ancestry.entities[entity_type][entity_id]
@@ -243,7 +266,7 @@ async def _generate_entity_html(
 async def _generate_entity_json(
     app: App,
     caller_locale: str,
-    entity_type: Type[UserFacingEntity],
+    entity_type: type[UserFacingEntity & Entity],
     entity_id: str,
 ) -> None:
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))

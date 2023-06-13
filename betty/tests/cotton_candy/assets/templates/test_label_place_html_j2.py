@@ -1,4 +1,6 @@
-from typing import Optional
+from __future__ import annotations
+
+from typing import Any
 
 import pytest
 
@@ -54,6 +56,6 @@ class Test(TemplateTestCase):
             'nl',
         ),
     ])
-    def test(self, expected: str, data, locale: Optional[str]) -> None:
+    def test(self, expected: str, data: dict[str, Any], locale: str | None) -> None:
         with self._render(data=data, locale=locale) as (actual, _):
             assert expected == actual

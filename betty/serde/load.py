@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterator, Type, Dict, Union, Callable, Any, List, \
-    Generic, TYPE_CHECKING, TypeVar, MutableSequence, MutableMapping, overload, Tuple
+from typing import Iterator, Callable, Any, Generic, TYPE_CHECKING, TypeVar, MutableSequence, MutableMapping, overload, \
+    cast
+
+from typing_extensions import TypeAlias
 
 from betty.functools import _Result
 from betty.locale import LocaleNotFoundError, get_data, Localizable
@@ -11,22 +13,18 @@ from betty.model import Entity, get_entity_type, EntityTypeImportError, EntityTy
 from betty.serde.dump import DumpType, DumpTypeT, Void
 from betty.serde.error import SerdeError, SerdeErrorCollection
 
-try:
-    from typing_extensions import TypeAlias
-except ModuleNotFoundError:  # pragma: no cover
-    from typing import TypeAlias  # type: ignore  # pragma: no cover
-
 if TYPE_CHECKING:
     from betty.app.extension import Extension
 
 T = TypeVar('T')
 ValueT = TypeVar('ValueT')
 ReturnT = TypeVar('ReturnT')
+ReturnU = TypeVar('ReturnU')
 CallValueT = TypeVar('CallValueT')
 CallReturnT = TypeVar('CallReturnT')
 FValueT = TypeVar('FValueT')
 MapReturnT = TypeVar('MapReturnT')
-Number: TypeAlias = Union[int, float]
+Number: TypeAlias = 'int | float'
 NumberT = TypeVar('NumberT', bound=Number)
 
 
@@ -34,11 +32,11 @@ class LoadError(SerdeError):
     pass
 
 
-class ValidationError(LoadError):
+class AssertionFailed(LoadError):
     pass
 
 
-class FormatError(ValidationError):
+class FormatError(LoadError):
     pass
 
 
@@ -99,51 +97,59 @@ class OptionalField(Generic[ValueT, ReturnT], _Field[ValueT, ReturnT]):
 
 
 class Fields:
-    def __init__(self, *fields: _Field):
+    def __init__(self, *fields: _Field[Any, Any]):
         self._fields = fields
 
-    def __iter__(self) -> Iterator[_Field]:
+    def __iter__(self) -> Iterator[_Field[Any, Any]]:
         return (field for field in self._fields)
 
 
 _AssertionBuilderFunction = Callable[[ValueT], ReturnT]
 _AssertionBuilderMethod = Callable[[object, ValueT], ReturnT]
-_AssertionBuilder = Union[_AssertionBuilderFunction, _AssertionBuilderMethod]
+_AssertionBuilder = '_AssertionBuilderFunction[ValueT, ReturnT] | _AssertionBuilderMethod[ValueT, ReturnT]'
 
 
 class Asserter(Localizable):
     def _assert_type_violation_error_message(
             self,
-            asserted_type: Type[DumpType] | Tuple[Type[DumpType], ...],
+            asserted_type: type[DumpType],
     ) -> str:
         message_builders = {
             bool: lambda localizer: localizer._('This must be a boolean.'),
-            int: lambda localizer: localizer._('This must be an integer.'),
+            int: lambda localizer: localizer._('This must be a whole number.'),
             float: lambda localizer: localizer._('This must be a decimal number.'),
-            (float, int): lambda localizer: localizer._('This must be a number.'),
             str: lambda localizer: localizer._('This must be a string.'),
             list: lambda localizer: localizer._('This must be a list.'),
             dict: lambda localizer: localizer._('This must be a key-value mapping.'),
         }
-        return message_builders[asserted_type](self.localizer)
+        return cast(str, message_builders[asserted_type](self.localizer))  # type: ignore[index]
 
     def _assert_type(
         self,
-        value: DumpTypeT,
-        value_required_type: Type[DumpType] | Tuple[Type[DumpType], ...],
-        value_disallowed_type: Type[DumpType] | None = None,
+        value: Any,
+        value_required_type: type[DumpTypeT],
+        value_disallowed_type: type[DumpType] | None = None,
     ) -> DumpTypeT:
-        if isinstance(
-            value,
-            tuple(value_required_type)  # type: ignore[arg-type]
-                if isinstance(value_required_type, set)
-                else value_required_type,
-        ) and (value_disallowed_type is None or not isinstance(
-            value,
-            value_disallowed_type,
-        )):
+        if isinstance(value, value_required_type) and (value_disallowed_type is None or not isinstance(value, value_disallowed_type)):
             return value
-        raise ValidationError(self._assert_type_violation_error_message(value_required_type))
+        raise AssertionFailed(
+            self._assert_type_violation_error_message(
+                value_required_type,  # type: ignore[arg-type]
+            )
+        )
+
+    def assert_or(self, if_assertion: Assertion[ValueT, ReturnT], else_assertions: Assertion[ValueT, ReturnU]) -> Assertion[ValueT, ReturnT | ReturnU]:
+        def _assert_or(value: Any) -> ReturnT | ReturnU:
+            assertions = (if_assertion, else_assertions)
+            errors = SerdeErrorCollection()
+            for assertion in assertions:
+                try:
+                    return assertion(value)
+                except SerdeError as e:
+                    if e.raised(AssertionFailed):
+                        errors.append(e)
+            raise errors
+        return _assert_or
 
     def assert_bool(self) -> Assertion[Any, bool]:
         def _assert_bool(value: Any) -> bool:
@@ -161,17 +167,15 @@ class Asserter(Localizable):
         return _assert_float
 
     def assert_number(self) -> Assertion[Any, int | float]:
-        def _assert_number(value: Any) -> int | float:
-            return self._assert_type(value, (float, int), bool)
-        return _assert_number
+        return self.assert_or(self.assert_int(), self.assert_float())
 
-    def assert_positive_number(self) -> Assertion[Any, NumberT]:
-        def _assert_positive_number(  # type: ignore
-            value: NumberT | Any,
-        ) -> NumberT:
-            self.assert_number()(value)
+    def assert_positive_number(self) -> Assertion[Any, Number]:
+        def _assert_positive_number(
+            value: Any,
+        ) -> Number:
+            value = self.assert_number()(value)
             if value <= 0:
-                raise ValidationError(self.localizer._('This must be a positive number.'))
+                raise AssertionFailed(self.localizer._('This must be a positive number.'))
             return value
         return _assert_positive_number
 
@@ -180,13 +184,13 @@ class Asserter(Localizable):
             return self._assert_type(value, str)
         return _assert_str
 
-    def assert_list(self) -> Assertion[Any, List]:
-        def _assert_list(value: Any) -> List:
+    def assert_list(self) -> Assertion[Any, list[Any]]:
+        def _assert_list(value: Any) -> list[Any]:
             return self._assert_type(value, list)
         return _assert_list
 
-    def assert_dict(self) -> Assertion[Any, Dict]:
-        def _assert_dict(value: Any) -> Dict:
+    def assert_dict(self) -> Assertion[Any, dict[str, Any]]:
+        def _assert_dict(value: Any) -> dict[str, Any]:
             return self._assert_type(value, dict)
         return _assert_dict
 
@@ -228,7 +232,7 @@ class Asserter(Localizable):
                             if field.assertion:
                                 mapping[field.name] = self.assert_assertions(field.assertion)(value_dict[field.name])
                         elif isinstance(field, RequiredField):
-                            raise ValidationError(self.localizer._('This field is required.'))
+                            raise AssertionFailed(self.localizer._('This field is required.'))
             return mapping
         return _assert_fields
 
@@ -237,14 +241,14 @@ class Asserter(Localizable):
         pass
 
     @overload
-    def assert_field(self, field: OptionalField[ValueT, ReturnT]) -> Assertion[ValueT, ReturnT | Type[Void]]:
+    def assert_field(self, field: OptionalField[ValueT, ReturnT]) -> Assertion[ValueT, ReturnT | type[Void]]:
         pass
 
-    def assert_field(self, field: _Field[ValueT, ReturnT]) -> Assertion[ValueT, ReturnT | Type[Void]]:
-        def _assert_field(value: Any) -> ReturnT | Type[Void]:
+    def assert_field(self, field: _Field[ValueT, ReturnT]) -> Assertion[ValueT, ReturnT | type[Void]]:
+        def _assert_field(value: Any) -> ReturnT | type[Void]:
             fields = self.assert_fields(Fields(field))(value)
             try:
-                return fields[field.name]
+                return cast('ReturnT | type[Void]', fields[field.name])
             except KeyError:
                 if isinstance(field, RequiredField):
                     raise
@@ -262,7 +266,7 @@ class Asserter(Localizable):
             with SerdeErrorCollection().assert_valid() as errors:
                 for unknown_key in unknown_keys:
                     with errors.catch(unknown_key):
-                        raise ValidationError(self.localizer._('Unknown key: {unknown_key}. Did you mean {known_keys}?').format(
+                        raise AssertionFailed(self.localizer._('Unknown key: {unknown_key}. Did you mean {known_keys}?').format(
                             unknown_key=f'"{unknown_key}"',
                             known_keys=', '.join(map(lambda x: f'"{x}"', sorted(known_keys)))
                         ))
@@ -277,24 +281,25 @@ class Asserter(Localizable):
 
     def assert_directory_path(self) -> Assertion[Any, Path]:
         def _assert_directory_path(value: Any) -> Path:
-            if directory_path := self.assert_path()(value):
+            directory_path = self.assert_path()(value)
+            if directory_path is not None:
                 if directory_path.is_dir():
                     return directory_path
-            raise ValidationError(self.localizer._('"{path}" is not a directory.').format(
+            raise AssertionFailed(self.localizer._('"{path}" is not a directory.').format(
                 path=value,
             ))
         return _assert_directory_path
 
     def assert_locale(self) -> Assertion[Any, str]:
-        def _assert_locale(  # type: ignore
+        def _assert_locale(
             value: Any,
         ) -> str:
-            self.assert_str()(value)
+            value = self.assert_str()(value)
             try:
                 get_data(value)
                 return value
             except LocaleNotFoundError:
-                raise ValidationError(self.localizer._('"{locale}" is not a valid IETF BCP 47 language tag.').format(
+                raise AssertionFailed(self.localizer._('"{locale}" is not a valid IETF BCP 47 language tag.').format(
                     locale=value,
                 ))
         return _assert_locale
@@ -305,56 +310,56 @@ class Asserter(Localizable):
             return value
         return _assert_setattr
 
-    def assert_extension_type(self) -> Assertion[Any, Type[Extension]]:
+    def assert_extension_type(self) -> Assertion[Any, type[Extension]]:
         def _assert_extension_type(
             value: Any,
-        ) -> Type[Extension]:
+        ) -> type[Extension]:
             from betty.app.extension import get_extension_type, ExtensionTypeImportError, ExtensionTypeInvalidError, ExtensionTypeError
 
             self.assert_str()(value)
             try:
                 return get_extension_type(value)
             except ExtensionTypeImportError:
-                raise ValidationError(
+                raise AssertionFailed(
                     self.localizer._('Cannot find and import "{extension_type}".').format(
                         extension_type=str(value),
                     )
                 )
             except ExtensionTypeInvalidError:
-                raise ValidationError(
+                raise AssertionFailed(
                     self.localizer._('"{extension_type}" is not a valid Betty extension type.').format(
                         extension_type=str(value),
                     )
                 )
             except ExtensionTypeError:
-                raise ValidationError(
+                raise AssertionFailed(
                     self.localizer._('Cannot determine the extension type for "{extension_type}". Did you perhaps make a typo, or could it be that the extension type comes from another package that is not yet installed?').format(
                         extension_type=str(value),
                     )
                 )
         return _assert_extension_type
 
-    def assert_entity_type(self) -> Assertion[Any, Type[Entity]]:
+    def assert_entity_type(self) -> Assertion[Any, type[Entity]]:
         def _assert_entity_type(
             value: Any,
-        ) -> Type[Entity]:
+        ) -> type[Entity]:
             self.assert_str()(value)
             try:
                 return get_entity_type(value)
             except EntityTypeImportError:
-                raise ValidationError(
+                raise AssertionFailed(
                     self.localizer._('Cannot find and import "{entity_type}".').format(
                         entity_type=str(value),
                     )
                 )
             except EntityTypeInvalidError:
-                raise ValidationError(
+                raise AssertionFailed(
                     self.localizer._('"{entity_type}" is not a valid Betty entity type.').format(
                         entity_type=str(value),
                     )
                 )
             except EntityTypeError:
-                raise ValidationError(
+                raise AssertionFailed(
                     self.localizer._('Cannot determine the entity type for "{entity_type}". Did you perhaps make a typo, or could it be that the entity type comes from another package that is not yet installed?').format(
                         entity_type=str(value),
                     )

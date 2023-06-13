@@ -1,6 +1,7 @@
 import io
 import json
 import sys
+from typing import Iterator, Any
 
 import piplicenses
 from pkg_resources import get_distribution
@@ -9,7 +10,6 @@ from pkg_resources import get_distribution
 class TestPackageLicenses:
     _GPL_V3_COMPATIBLE_DISTRIBUTIONS = (
         'PyQt6-sip',
-        'graphlib-backport',  # Released under the Python Software Foundation License.
     )
 
     _GPL_V3_COMPATIBLE_LICENSES = (
@@ -25,7 +25,7 @@ class TestPackageLicenses:
         'Python Software Foundation License',
     )
 
-    def assert_is_compatible(self, package_license: dict) -> None:
+    def assert_is_compatible(self, package_license: dict[str, Any]) -> None:
         for compatible_license in self._GPL_V3_COMPATIBLE_LICENSES:
             if compatible_license in package_license['License']:
                 return
@@ -39,7 +39,7 @@ class TestPackageLicenses:
         Assert that all runtime dependencies have licenses compatible with the GPLv3, so we can legally bundle them.
         """
 
-        def _get_dependency_distribution_names(name: str):
+        def _get_dependency_distribution_names(name: str) -> Iterator[str]:
             yield name
             for dependency in get_distribution(name).requires():
                 yield from _get_dependency_distribution_names(dependency.project_name)

@@ -1,5 +1,7 @@
 from pathlib import Path
-from unittest.mock import patch, ANY, Mock
+from unittest.mock import ANY, Mock
+
+from pytest_mock import MockerFixture
 
 from betty.anonymizer import anonymize, anonymize_person, anonymize_event, anonymize_file, anonymize_citation, \
     anonymize_source, AnonymousSource, AnonymousCitation, Anonymizer
@@ -13,11 +15,11 @@ from betty.project import ExtensionConfiguration
 
 
 class TestAnonymousSource:
-    def test_name(self):
+    def test_name(self) -> None:
         with App():
             assert isinstance(AnonymousSource().name, str)
 
-    def test_replace(self):
+    def test_replace(self) -> None:
         with App():
             ancestry = Ancestry()
             citations = [Citation(None, Source(None))]
@@ -26,9 +28,9 @@ class TestAnonymousSource:
             sut = AnonymousSource()
             other = Source(None)
             ancestry.entities.append(other)
-            other.citations = citations  # type: ignore
-            other.contains = contains  # type: ignore
-            other.files = files  # type: ignore
+            other.citations = citations  # type: ignore[assignment]
+            other.contains = contains  # type: ignore[assignment]
+            other.files = files  # type: ignore[assignment]
             sut.replace(other, ancestry)
             assert citations == list(sut.citations)
             assert contains == list(sut.contains)
@@ -37,12 +39,12 @@ class TestAnonymousSource:
 
 
 class TestAnonymousCitation:
-    def test_location(self):
+    def test_location(self) -> None:
         source = Mock(Source)
         with App():
             assert isinstance(AnonymousCitation(source).location, str)
 
-    def test_replace(self):
+    def test_replace(self) -> None:
         class _HasCitations(HasCitations, Entity):
             pass
         ancestry = Ancestry()
@@ -52,8 +54,8 @@ class TestAnonymousCitation:
         sut = AnonymousCitation(source)
         other = Citation(None, source)
         ancestry.entities.append(other)
-        other.facts = facts  # type: ignore
-        other.files = files  # type: ignore
+        other.facts = facts  # type: ignore[assignment]
+        other.files = files  # type: ignore[assignment]
         sut.replace(other, ancestry)
         assert facts == list(sut.facts)
         assert files == list(sut.files)
@@ -61,8 +63,8 @@ class TestAnonymousCitation:
 
 
 class TestAnonymize:
-    @patch('betty.anonymizer.anonymize_person')
-    def test_with_public_person_should_not_anonymize(self, m_anonymize_person) -> None:
+    def test_with_public_person_should_not_anonymize(self, mocker: MockerFixture) -> None:
+        m_anonymize_person = mocker.patch('betty.anonymizer.anonymize_person')
         person = Person('P0')
         person.private = False
         ancestry = Ancestry()
@@ -70,8 +72,8 @@ class TestAnonymize:
         anonymize(ancestry, AnonymousCitation(AnonymousSource()))
         m_anonymize_person.assert_not_called()
 
-    @patch('betty.anonymizer.anonymize_person')
-    def test_with_private_person_should_anonymize(self, m_anonymize_person) -> None:
+    def test_with_private_person_should_anonymize(self, mocker: MockerFixture) -> None:
+        m_anonymize_person = mocker.patch('betty.anonymizer.anonymize_person')
         person = Person('P0')
         person.private = True
         ancestry = Ancestry()
@@ -79,8 +81,8 @@ class TestAnonymize:
         anonymize(ancestry, AnonymousCitation(AnonymousSource()))
         m_anonymize_person.assert_called_once_with(person)
 
-    @patch('betty.anonymizer.anonymize_event')
-    def test_with_public_event_should_not_anonymize(self, m_anonymize_event) -> None:
+    def test_with_public_event_should_not_anonymize(self, mocker: MockerFixture) -> None:
+        m_anonymize_event = mocker.patch('betty.anonymizer.anonymize_event')
         event = Event('E0', Birth)
         event.private = False
         ancestry = Ancestry()
@@ -88,8 +90,8 @@ class TestAnonymize:
         anonymize(ancestry, AnonymousCitation(AnonymousSource()))
         m_anonymize_event.assert_not_called()
 
-    @patch('betty.anonymizer.anonymize_event')
-    def test_with_private_event_should_anonymize(self, m_anonymize_event) -> None:
+    def test_with_private_event_should_anonymize(self, mocker: MockerFixture) -> None:
+        m_anonymize_event = mocker.patch('betty.anonymizer.anonymize_event')
         event = Event('E0', Birth)
         event.private = True
         ancestry = Ancestry()
@@ -97,8 +99,8 @@ class TestAnonymize:
         anonymize(ancestry, AnonymousCitation(AnonymousSource()))
         m_anonymize_event.assert_called_once_with(event)
 
-    @patch('betty.anonymizer.anonymize_file')
-    def test_with_public_file_should_not_anonymize(self, m_anonymize_file) -> None:
+    def test_with_public_file_should_not_anonymize(self, mocker: MockerFixture) -> None:
+        m_anonymize_file = mocker.patch('betty.anonymizer.anonymize_file')
         file = File('F0', Path(__file__))
         file.private = False
         ancestry = Ancestry()
@@ -106,8 +108,8 @@ class TestAnonymize:
         anonymize(ancestry, AnonymousCitation(AnonymousSource()))
         m_anonymize_file.assert_not_called()
 
-    @patch('betty.anonymizer.anonymize_file')
-    def test_with_private_file_should_anonymize(self, m_anonymize_file) -> None:
+    def test_with_private_file_should_anonymize(self, mocker: MockerFixture) -> None:
+        m_anonymize_file = mocker.patch('betty.anonymizer.anonymize_file')
         file = File('F0', Path(__file__))
         file.private = True
         ancestry = Ancestry()
@@ -115,8 +117,8 @@ class TestAnonymize:
         anonymize(ancestry, AnonymousCitation(AnonymousSource()))
         m_anonymize_file.assert_called_once_with(file)
 
-    @patch('betty.anonymizer.anonymize_source')
-    def test_with_public_source_should_not_anonymize(self, m_anonymize_source) -> None:
+    def test_with_public_source_should_not_anonymize(self, mocker: MockerFixture) -> None:
+        m_anonymize_source = mocker.patch('betty.anonymizer.anonymize_source')
         source = Source('S0', 'The Source')
         source.private = False
         ancestry = Ancestry()
@@ -124,8 +126,8 @@ class TestAnonymize:
         anonymize(ancestry, AnonymousCitation(AnonymousSource()))
         m_anonymize_source.assert_not_called()
 
-    @patch('betty.anonymizer.anonymize_source')
-    def test_with_private_source_should_anonymize(self, m_anonymize_source) -> None:
+    def test_with_private_source_should_anonymize(self, mocker: MockerFixture) -> None:
+        m_anonymize_source = mocker.patch('betty.anonymizer.anonymize_source')
         source = Source('S0', 'The Source')
         source.private = True
         ancestry = Ancestry()
@@ -133,8 +135,8 @@ class TestAnonymize:
         anonymize(ancestry, AnonymousCitation(AnonymousSource()))
         m_anonymize_source.assert_called_once_with(source, ancestry, ANY)
 
-    @patch('betty.anonymizer.anonymize_citation')
-    def test_with_public_citation_should_not_anonymize(self, m_anonymize_citation) -> None:
+    def test_with_public_citation_should_not_anonymize(self, mocker: MockerFixture) -> None:
+        m_anonymize_citation = mocker.patch('betty.anonymizer.anonymize_citation')
         source = Source('The Source')
         citation = Citation('C0', source)
         citation.private = False
@@ -143,8 +145,8 @@ class TestAnonymize:
         anonymize(ancestry, AnonymousCitation(AnonymousSource()))
         m_anonymize_citation.assert_not_called()
 
-    @patch('betty.anonymizer.anonymize_citation')
-    def test_with_private_citation_should_anonymize(self, m_anonymize_citation) -> None:
+    def test_with_private_citation_should_anonymize(self, mocker: MockerFixture) -> None:
+        m_anonymize_citation = mocker.patch('betty.anonymizer.anonymize_citation')
         source = Source('The Source')
         citation = Citation('C0', source)
         citation.private = True

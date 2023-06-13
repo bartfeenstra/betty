@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Iterable, Sized, TypeVar, Callable, Type, Iterator, Generic, cast
+from typing import Any, Iterable, Sized, TypeVar, Callable, Iterator, Generic, cast
 
 T = TypeVar('T')
 U = TypeVar('U')
@@ -68,7 +68,7 @@ class _Result(Generic[T]):
             return _Result(None, e)
 
 
-def filter_suppress(raising_filter: Callable[[T], Any], exception_type: Type[BaseException], items: Iterable[T]) -> Iterator[T]:
+def filter_suppress(raising_filter: Callable[[T], Any], exception_type: type[BaseException], items: Iterable[T]) -> Iterator[T]:
     for item in items:
         try:
             raising_filter(item)

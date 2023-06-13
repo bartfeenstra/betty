@@ -1,10 +1,11 @@
 import json
 import os
-from typing import Callable, Dict
-from unittest.mock import patch
+from typing import Any
 
 import click
 import pytest
+from _pytest.logging import LogCaptureFixture
+from click import Command
 from click.testing import CliRunner
 from pytest_mock import MockerFixture
 
@@ -23,47 +24,55 @@ except ImportError:
     from mock.mock import AsyncMock
 
 from betty.cli import main, CommandProvider, global_command, catch_exceptions
-from betty.app import App, Extension
+from betty.app import App
+from betty.app.extension import Extension
 
 
 class DummyCommandError(BaseException):
     pass
 
 
+@click.command(name='test')
+@global_command
+def _test_command() -> None:
+    raise DummyCommandError
+
+
 class DummyExtension(Extension, CommandProvider):
     @property
-    def commands(self) -> Dict[str, Callable]:
+    def commands(self) -> dict[str, Command]:
         return {
-            'test': self._test_command,
+            'test': _test_command,
         }
 
-    @click.command(name='test')
-    @global_command
-    async def _test_command(self):
-        raise DummyCommandError
 
-
-@patch('sys.stderr')
-@patch('sys.stdout')
 class TestMain:
-    def test_without_arguments(self, _, __):
+    def test_without_arguments(self, mocker: MockerFixture) -> None:
+        mocker.patch('sys.stderr')
+        mocker.patch('sys.stdout')
         runner = CliRunner()
         result = runner.invoke(main, catch_exceptions=False)
         assert 0 == result.exit_code
 
-    def test_help_without_configuration(self, _, __):
+    def test_help_without_configuration(self, mocker: MockerFixture) -> None:
+        mocker.patch('sys.stderr')
+        mocker.patch('sys.stdout')
         runner = CliRunner()
         result = runner.invoke(main, ('--help',), catch_exceptions=False)
         assert 0 == result.exit_code
 
-    def test_configuration_without_help(self, _, __):
+    def test_configuration_without_help(self, mocker: MockerFixture) -> None:
+        mocker.patch('sys.stderr')
+        mocker.patch('sys.stdout')
         configuration = ProjectConfiguration()
         configuration.write()
         runner = CliRunner()
         result = runner.invoke(main, ('-c', str(configuration.configuration_file_path)), catch_exceptions=False)
         assert 2 == result.exit_code
 
-    def test_help_with_configuration(self, _, __):
+    def test_help_with_configuration(self, mocker: MockerFixture) -> None:
+        mocker.patch('sys.stderr')
+        mocker.patch('sys.stdout')
         configuration = ProjectConfiguration()
         configuration.extensions.append(ExtensionConfiguration(DummyExtension))
         configuration.write()
@@ -71,7 +80,9 @@ class TestMain:
         result = runner.invoke(main, ('-c', str(configuration.configuration_file_path), '--help',), catch_exceptions=False)
         assert 0 == result.exit_code
 
-    def test_help_with_invalid_configuration_file_path(self, _, __):
+    def test_help_with_invalid_configuration_file_path(self, mocker: MockerFixture) -> None:
+        mocker.patch('sys.stderr')
+        mocker.patch('sys.stdout')
         with TemporaryDirectory() as working_directory_path:
             configuration_file_path = working_directory_path / 'non-existent-betty.json'
 
@@ -79,7 +90,9 @@ class TestMain:
             result = runner.invoke(main, ('-c', str(configuration_file_path), '--help',), catch_exceptions=False)
             assert 1 == result.exit_code
 
-    def test_help_with_invalid_configuration(self, _, __):
+    def test_help_with_invalid_configuration(self, mocker: MockerFixture) -> None:
+        mocker.patch('sys.stderr')
+        mocker.patch('sys.stdout')
         with TemporaryDirectory() as working_directory_path:
             configuration_file_path = working_directory_path / 'betty.json'
             dump: Dump = {}
@@ -90,7 +103,9 @@ class TestMain:
             result = runner.invoke(main, ('-c', str(configuration_file_path), '--help',), catch_exceptions=False)
             assert 1 == result.exit_code
 
-    def test_with_discovered_configuration(self, _, __):
+    def test_with_discovered_configuration(self, mocker: MockerFixture) -> None:
+        mocker.patch('sys.stderr')
+        mocker.patch('sys.stdout')
         with TemporaryDirectory() as working_directory_path:
             with open(working_directory_path / 'betty.json', 'w') as config_file:
                 url = 'https://example.com'
@@ -108,14 +123,14 @@ class TestMain:
 
 
 class TestCatchExceptions:
-    def test_logging_user_facing_error(self, caplog) -> None:
+    def test_logging_user_facing_error(self, caplog: LogCaptureFixture) -> None:
         error_message = 'Something went wrong!'
         with pytest.raises(SystemExit):
             with catch_exceptions():
                 raise UserFacingError(error_message)
             assert f'ERROR:root:{error_message}' == caplog.text
 
-    def test_logging_uncaught_exception(self, caplog) -> None:
+    def test_logging_uncaught_exception(self, caplog: LogCaptureFixture) -> None:
         error_message = 'Something went wrong!'
         with pytest.raises(SystemExit):
             with catch_exceptions():
@@ -125,7 +140,7 @@ class TestCatchExceptions:
 
 
 class TestVersion:
-    def test(self):
+    def test(self) -> None:
         runner = CliRunner()
         result = runner.invoke(main, ('--version'), catch_exceptions=False)
         assert 0 == result.exit_code
@@ -134,7 +149,7 @@ class TestVersion:
 
 class TestClearCaches:
     @patch_cache
-    def test(self):
+    def test(self) -> None:
         cached_file_path = fs.CACHE_DIRECTORY_PATH / 'KeepMeAroundPlease'
         open(cached_file_path, 'w').close()
         runner = CliRunner()
@@ -145,7 +160,7 @@ class TestClearCaches:
 
 
 class TestDemo:
-    def test(self, mocker: MockerFixture):
+    def test(self, mocker: MockerFixture) -> None:
         mocker.patch('betty.serve.BuiltinServer', new_callable=lambda: _KeyboardInterruptedProjectServer)
         mocker.patch('webbrowser.open_new_tab')
         runner = CliRunner()
@@ -154,9 +169,10 @@ class TestDemo:
 
 
 class TestGenerate:
-    @patch('betty.generate.generate', new_callable=AsyncMock)
-    @patch('betty.load.load', new_callable=AsyncMock)
-    def test(self, m_load, m_generate):
+    def test(self, mocker: MockerFixture) -> None:
+        m_generate = mocker.patch('betty.generate.generate', new_callable=AsyncMock)
+        m_load = mocker.patch('betty.load.load', new_callable=AsyncMock)
+
         configuration = ProjectConfiguration()
         configuration.write()
         runner = CliRunner()
@@ -164,7 +180,9 @@ class TestGenerate:
         assert 0 == result.exit_code
 
         m_load.assert_called_once()
-        parse_args, parse_kwargs = m_load.await_args
+        await_args = m_load.await_args
+        assert await_args is not None
+        parse_args, parse_kwargs = await_args
         assert 1 == len(parse_args)
         assert isinstance(parse_args[0], App)
         assert {} == parse_kwargs
@@ -177,7 +195,7 @@ class TestGenerate:
 
 
 class _KeyboardInterruptedProjectServer(ProjectServer):
-    def __init__(self, *_, **__):
+    def __init__(self, *_: Any, **__: Any):
         super().__init__(Project())
 
     async def start(self) -> None:
@@ -185,8 +203,8 @@ class _KeyboardInterruptedProjectServer(ProjectServer):
 
 
 class Serve:
-    @patch('betty.serve.BuiltinServer', new_callable=lambda: _KeyboardInterruptedProjectServer)
-    def test(self, m_server):
+    def test(self, mocker: MockerFixture) -> None:
+        mocker.patch('betty.serve.BuiltinServer', new_callable=lambda: _KeyboardInterruptedProjectServer)
         configuration = ProjectConfiguration()
         configuration.write()
         os.makedirs(configuration.www_directory_path)
