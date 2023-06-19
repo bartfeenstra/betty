@@ -37,10 +37,21 @@ secure**.
 
 ### Requirements
 
-- **Python 3.9+**
-- Linux, Mac OS, or Windows
+Linux, Mac OS, or Windows
 
-### Instructions
+### Install the desktop application
+For Mac OS, download [betty.app](https://github.com/bartfeenstra/betty/releases/download/0.3.x-dev/betty.app.zip)
+
+For Windows, download [betty.exe](https://github.com/bartfeenstra/betty/releases/download/0.3.x-dev/betty.exe.zip)
+
+### Install via pip
+
+#### Requirements
+
+- **Python 3.9+**
+- [Node.js](https://nodejs.org/) (optional)
+
+#### Instructions
 
 Run `pip install betty` to install the latest stable release.
 
@@ -280,7 +291,7 @@ directory.
 
 ### Requirements
 
-- The installation requirements documented earlier
+- **Python 3.9+**
 - [Node.js](https://nodejs.org/)
 - [ShellCheck](https://www.shellcheck.net/)
 - [Xvfb](https://x.org/releases/X11R7.7/doc/man/man1/Xvfb.1.xhtml)
