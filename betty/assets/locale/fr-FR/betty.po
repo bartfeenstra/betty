@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-12 20:41+0100\n"
+"POT-Creation-Date: 2023-06-19 18:41+0100\n"
 "PO-Revision-Date: 2020-11-27 19:49+0100\n"
 "Last-Translator: \n"
 "Language: fr\n"
@@ -123,9 +123,6 @@ msgstr ""
 "Une histoire familiale racontée par<a "
 "href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
 
-msgid "A locale name."
-msgstr "Un nom de language."
-
 msgid "API documentation"
 msgstr "documentation de l'API"
 
@@ -168,25 +165,11 @@ msgid "An HTML5 document."
 msgstr "Un document HTML5."
 
 msgid ""
-"An HTTP [Accept-Language](https://developer.mozilla.org/en-"
-"US/docs/Web/HTTP/Headers/Accept-Language) header."
-msgstr ""
-"Un header HTTP [Accept-Language](https://developer.mozilla.org/en-"
-"US/docs/Web/HTTP/Headers/Accept-Language)."
-
-msgid ""
 "An HTTP [Accept](https://developer.mozilla.org/en-"
 "US/docs/Web/HTTP/Headers/Accept) header."
 msgstr ""
 "Un header HTTP [Accept](https://developer.mozilla.org/en-"
 "US/docs/Web/HTTP/Headers/Accept)."
-
-msgid ""
-"An HTTP [Content-Language](https://developer.mozilla.org/en-"
-"US/docs/Web/HTTP/Headers/Content-Language) header."
-msgstr ""
-"Un header HTTP [Content-Language](https://developer.mozilla.org/en-"
-"US/docs/Web/HTTP/Headers/Content-Language)."
 
 msgid ""
 "An optional alias is used instead of the locale code to identify this "
@@ -1139,10 +1122,4 @@ msgstr "{individual_name} {affiliation_name}"
 #, python-format
 msgid "© Copyright %(author)s, unless otherwise credited"
 msgstr "© Copyright %(author)s, sauf crédit contraire"
-
-#~ msgid "This must be a number."
-#~ msgstr ""
-
-#~ msgid "This must be an integer."
-#~ msgstr ""
 

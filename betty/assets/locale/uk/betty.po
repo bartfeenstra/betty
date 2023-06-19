@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-12 20:41+0100\n"
+"POT-Creation-Date: 2023-06-19 18:41+0100\n"
 "PO-Revision-Date: 2020-05-02 22:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -123,9 +123,6 @@ msgstr ""
 "Сімейна історія, яку розповіла <a "
 "href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
 
-msgid "A locale name."
-msgstr ""
-
 msgid "API documentation"
 msgstr "документація API"
 
@@ -168,18 +165,8 @@ msgid "An HTML5 document."
 msgstr ""
 
 msgid ""
-"An HTTP [Accept-Language](https://developer.mozilla.org/en-"
-"US/docs/Web/HTTP/Headers/Accept-Language) header."
-msgstr ""
-
-msgid ""
 "An HTTP [Accept](https://developer.mozilla.org/en-"
 "US/docs/Web/HTTP/Headers/Accept) header."
-msgstr ""
-
-msgid ""
-"An HTTP [Content-Language](https://developer.mozilla.org/en-"
-"US/docs/Web/HTTP/Headers/Content-Language) header."
 msgstr ""
 
 msgid ""
@@ -1109,10 +1096,4 @@ msgstr "{individual_name} {affiliation_name}"
 #, python-format
 msgid "© Copyright %(author)s, unless otherwise credited"
 msgstr "© Авторське право %(author)s, якщо інше не зараховано"
-
-#~ msgid "This must be a number."
-#~ msgstr ""
-
-#~ msgid "This must be an integer."
-#~ msgstr ""
 
