@@ -27,32 +27,32 @@ ListDump: TypeAlias = list[DumpT]
 
 DictDump: TypeAlias = dict[str, DumpT]
 
-_VoidableItemListDump: TypeAlias = list[VoidableDump[DumpT]]
+VoidableItemListDump: TypeAlias = list[VoidableDump[DumpT]]
 
-_VoidableItemDictDump: TypeAlias = dict[str, VoidableDump[DumpT]]
+VoidableItemDictDump: TypeAlias = dict[str, VoidableDump[DumpT]]
 
-VoidableListDump: TypeAlias = '_VoidableItemListDump[DumpT] | type[Void]'
+VoidableListDump: TypeAlias = 'VoidableItemListDump[DumpT] | type[Void]'
 
-VoidableDictDump: TypeAlias = '_VoidableItemDictDump[DumpT] | type[Void]'
+VoidableDictDump: TypeAlias = 'VoidableItemDictDump[DumpT] | type[Void]'
 
 
 @overload
-def minimize(dump: _VoidableItemListDump[DumpT], voidable: Literal[True] = True) -> VoidableDump[ListDump[DumpT]]:
+def minimize(dump: VoidableItemListDump[DumpT], voidable: Literal[True] = True) -> VoidableDump[ListDump[DumpT]]:
     pass
 
 
 @overload
-def minimize(dump: _VoidableItemListDump[DumpT], voidable: Literal[False]) -> ListDump[DumpT]:
+def minimize(dump: VoidableItemListDump[DumpT], voidable: Literal[False]) -> ListDump[DumpT]:
     pass
 
 
 @overload
-def minimize(dump: _VoidableItemDictDump[DumpT], voidable: Literal[True] = True) -> VoidableDump[DictDump[DumpT]]:
+def minimize(dump: VoidableItemDictDump[DumpT], voidable: Literal[True] = True) -> VoidableDump[DictDump[DumpT]]:
     pass
 
 
 @overload
-def minimize(dump: _VoidableItemDictDump[DumpT], voidable: Literal[False]) -> DictDump[DumpT]:
+def minimize(dump: VoidableItemDictDump[DumpT], voidable: Literal[False]) -> DictDump[DumpT]:
     pass
 
 
@@ -62,7 +62,7 @@ def minimize(dump: VoidableDump[DumpT], voidable: bool = True) -> VoidableDump[D
 
 
 def minimize(
-    dump: VoidableDump[DumpT] | _VoidableItemListDump[DumpT] | _VoidableItemDictDump[DumpT],
+    dump: VoidableDump[DumpT] | VoidableItemListDump[DumpT] | VoidableItemDictDump[DumpT],
     voidable: bool = True,
 ) -> VoidableDump[DumpT]:
     if isinstance(dump, (Sequence, Mapping)) and not isinstance(dump, str):
@@ -97,7 +97,7 @@ def void_to_none(value: VoidableDump[DumpT]) -> VoidableDump[DumpT]:
 
 def void_to_dict(
     value: VoidableDictDump[DumpT],
-) -> _VoidableItemDictDump[DumpT]:
+) -> VoidableItemDictDump[DumpT]:
     return {} if value is Void else value  # type: ignore[return-value]
 
 

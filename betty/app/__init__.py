@@ -93,7 +93,7 @@ class AppConfiguration(FileBasedConfiguration):
         self.react.trigger()
 
     @classmethod
-    def load(cls, dump: Dump, app: App) -> Self:
+    def load(self, dump: Dump, app: App) -> None:
         configuration = cls()
         asserter = Asserter(localizer=app.localizer)
         asserter.assert_record(Fields(

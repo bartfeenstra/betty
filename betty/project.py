@@ -12,7 +12,7 @@ from typing_extensions import Self
 from betty.app import App
 from betty.app.extension import Extension, ConfigurableExtension
 from betty.config import Configuration, Configurable, FileBasedConfiguration, ConfigurationMapping, \
-    ConfigurationSequence
+    ConfigurationSequence, ConfigurationCollectionItemDumpT
 from betty.locale import Localizer, Localizable, get_data
 from betty.model import Entity, get_entity_type_name, UserFacingEntity, EntityT
 from betty.model.ancestry import Ancestry, Person, Event, Place, Source
@@ -21,7 +21,7 @@ from betty.serde.load import AssertionFailed, Fields, Assertions, Assertion, Req
     Asserter
 
 
-class EntityReference(Configuration, Generic[EntityT]):
+class EntityReference(Configuration[DictDump[Dump]], Generic[EntityT]):
     def __init__(
         self,
         entity_type: type[EntityT] | None = None,
@@ -69,7 +69,7 @@ class EntityReference(Configuration, Generic[EntityT]):
         self.react.trigger()
 
     @classmethod
-    def load(cls, dump: Dump, app: App) -> Self:
+    def load(self, dump: Dump, app: App) -> None:
         configuration = cls()
         asserter = Asserter(localizer=app.localizer)
         if isinstance(dump, dict):
@@ -88,7 +88,7 @@ class EntityReference(Configuration, Generic[EntityT]):
             asserter.assert_setattr(configuration, 'entity_id')(dump)  # type: ignore[arg-type]
         return configuration
 
-    def dump(self, app: App) -> VoidableDump:
+    def dump(self, app: App) -> VoidableDump[DictDump[Dump]]:
         if self.entity_type_is_constrained:
             return void_to_none(self.entity_id)
 
@@ -109,7 +109,7 @@ class EntityReference(Configuration, Generic[EntityT]):
         return self.entity_type == other.entity_type and self.entity_id == other.entity_id
 
 
-class EntityReferenceSequence(Generic[EntityT], ConfigurationSequence[EntityReference[EntityT]]):
+class EntityReferenceSequence(Generic[EntityT], ConfigurationSequence[EntityReference[EntityT], DictDump[Dump]]):
     def __init__(
         self,
         entity_references: Iterable[EntityReference[EntityT]] | None = None,
@@ -169,7 +169,7 @@ class EntityReferenceSequence(Generic[EntityT], ConfigurationSequence[EntityRefe
 class ExtensionConfiguration(Configuration):
     def __init__(
         self,
-        extension_type: type[Extension],
+        extension_type: type[Extension] | None,
         enabled: bool = True,
         extension_configuration: Configuration | None = None,
         *,
@@ -196,7 +196,7 @@ class ExtensionConfiguration(Configuration):
         return True
 
     @property
-    def extension_type(self) -> type[Extension]:
+    def extension_type(self) -> type[Extension] | None:
         return self._extension_type
 
     @property
@@ -215,8 +215,7 @@ class ExtensionConfiguration(Configuration):
     def update(self, other: Self) -> None:
         raise NotImplementedError(repr(self))
 
-    @classmethod
-    def load(cls, dump: Dump, app: App) -> Self:
+    def load(self, dump: Dump, app: App) -> None:
         asserter = Asserter(localizer=app.localizer)
         extension_type = asserter.assert_field(RequiredField(
             'extension',
@@ -292,7 +291,10 @@ class ExtensionConfigurationMapping(ConfigurationMapping[type[Extension], Extens
         dict_dump['extension'] = key_dump
         return dict_dump
 
-    def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
+    def _dump_key(
+        self,
+        item_dump: ConfigurationCollectionItemDumpT,
+    ) -> tuple[VoidableDump[ConfigurationCollectionItemDumpT], type[Extension]]:
         dict_dump = self._asserter.assert_dict()(item_dump)
         return dict_dump, dict_dump.pop('extension')
 
@@ -347,7 +349,7 @@ class EntityTypeConfiguration(Configuration):
         self.react.trigger()
 
     @classmethod
-    def load(cls, dump: Dump, app: App) -> Self:
+    def load(self, dump: Dump, app: App) -> None:
         asserter = Asserter(localizer=app.localizer)
         entity_type = asserter.assert_field(RequiredField[Any, type[Entity]](
             'entity_type',
@@ -394,7 +396,10 @@ class EntityTypeConfigurationMapping(ConfigurationMapping[type[Entity], EntityTy
         dict_dump['entity_type'] = key_dump
         return dict_dump
 
-    def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
+    def _dump_key(
+        self,
+        item_dump: ConfigurationCollectionItemDumpT,
+    ) -> tuple[VoidableDump[ConfigurationCollectionItemDumpT], str]:
         dict_dump = self._asserter.assert_dict()(item_dump)
         return dict_dump, dict_dump.pop('entity_type')
 
@@ -450,7 +455,7 @@ class LocaleConfiguration(Configuration):
         self._alias = other._alias
 
     @classmethod
-    def load(cls, dump: Dump, app: App) -> Self:
+    def load(self, dump: Dump, app: App) -> None:
         asserter = Asserter(localizer=app.localizer)
         locale = asserter.assert_field(RequiredField(
             'locale',
@@ -505,7 +510,10 @@ class LocaleConfigurationMapping(ConfigurationMapping[str, LocaleConfiguration])
         dict_item_dump['locale'] = key_dump
         return dict_item_dump
 
-    def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
+    def _dump_key(
+        self,
+        item_dump: ConfigurationCollectionItemDumpT,
+    ) -> tuple[VoidableDump[ConfigurationCollectionItemDumpT], str]:
         dict_item_dump = self._asserter.assert_dict()(item_dump)
         return dict_item_dump, dict_item_dump.pop('locale')
 
@@ -681,7 +689,7 @@ class ProjectConfiguration(FileBasedConfiguration):
         self._entity_types.update(other._entity_types)
 
     @classmethod
-    def load(cls, dump: Dump, app: App) -> Self:
+    def load(self, dump: Dump, app: App) -> None:
         configuration = cls()
         asserter = Asserter(localizer=app.localizer)
         asserter.assert_record(Fields(

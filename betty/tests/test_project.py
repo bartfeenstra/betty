@@ -5,7 +5,6 @@ from typing import Any, Iterable
 import dill as pickle
 import pytest
 from reactives.tests import assert_reactor_called, assert_scope_empty
-from typing_extensions import Self
 
 from betty.app import App
 from betty.app.extension import Extension, ConfigurableExtension
@@ -14,7 +13,7 @@ from betty.model import Entity, get_entity_type_name, UserFacingEntity
 from betty.project import ExtensionConfiguration, ExtensionConfigurationMapping, ProjectConfiguration, \
     LocaleConfiguration, LocaleConfigurationMapping, EntityReference, EntityReferenceSequence, \
     EntityTypeConfiguration, EntityTypeConfigurationMapping
-from betty.serde.dump import Dump, VoidableDump, DictDump
+from betty.serde.dump import Dump, DictDump
 from betty.serde.load import AssertionFailed, Asserter, Fields, Assertions, RequiredField
 from betty.tests.serde import raises_error
 from betty.tests.test_config import ConfigurationMappingTestBase, ConfigurationSequenceTestBase
@@ -731,7 +730,7 @@ class TestProjectConfiguration:
     def test_dump_should_error_if_invalid_config(self) -> None:
         dump: Dump = {}
         with raises_error(error_type=AssertionFailed):
-            ProjectConfiguration.load(dump)
+            ProjectConfiguration.load(dump, app)
 
 
 class DummyNonConfigurableExtension(Extension):
@@ -749,7 +748,7 @@ class DummyConfigurableExtensionConfiguration(Configuration):
         return self.check == other.check
 
     @classmethod
-    def load(cls, dump: Dump, app: App) -> Self:
+    def load(self, dump: Dump, app: App) -> None:
         configuration = cls()
         asserter = Asserter(localizer=app.localizer)
         asserter.assert_record(Fields(
@@ -760,7 +759,7 @@ class DummyConfigurableExtensionConfiguration(Configuration):
         )(dump)
         return configuration
 
-    def dump(self, app: App) -> DictDump[VoidableDump[Dump]]:
+    def dump(self, app: App) -> DictDump[Dump]:
         return {
             'check': self.check,
         }

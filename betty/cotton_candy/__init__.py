@@ -53,12 +53,9 @@ class _ColorConfiguration(Configuration):
     def update(self, other: Self) -> None:
         self.hex = other.hex
 
-    @classmethod
-    def load(cls, dump: Dump, app: App) -> Self:
+    def load(self, dump: Dump, app: App) -> None:
         asserter = Asserter(localizer=app.localizer)
-        hex_value = asserter.assert_str()(dump)
-        configuration = cls(hex_value)
-        return configuration
+        (Assertions(asserter.assert_str()) | asserter.assert_setattr())(dump)
 
     def dump(self, app: App) -> VoidableDump:
         return self._hex
@@ -104,7 +101,7 @@ class CottonCandyConfiguration(Configuration):
         return self._link_active_color
 
     @classmethod
-    def load(cls, dump: Dump, app: App) -> Self:
+    def load(self, dump: Dump, app: App) -> None:
         configuration = cls()
         asserter = Asserter(localizer=app.localizer)
         asserter.assert_record(Fields(

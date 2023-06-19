@@ -225,7 +225,10 @@ class ConfigurationMappingTestConfigurationMapping(ConfigurationMapping[str, Con
         dict_item_dump[key_dump] = key_dump
         return dict_item_dump
 
-    def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
+    def _dump_key(
+        self,
+        item_dump: ConfigurationCollectionItemDumpT,
+    ) -> tuple[VoidableDump[ConfigurationCollectionItemDumpT], str]:
         dict_item_dump = self._asserter.assert_dict()(item_dump)
         return dict_item_dump, dict_item_dump.pop('key')
 

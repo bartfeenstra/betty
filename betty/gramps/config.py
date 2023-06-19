@@ -62,7 +62,7 @@ class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfigurat
         self.append(*other)
 
     @classmethod
-    def _create_default_item(cls, configuration_key: int) -> FamilyTreeConfiguration:
+    def _create_default_item(cls) -> FamilyTreeConfiguration:
         return FamilyTreeConfiguration()
 
     @classmethod

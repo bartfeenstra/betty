@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from collections import OrderedDict
 from contextlib import suppress
+from copy import copy
 from pathlib import Path
 from typing import Generic, Iterable, Iterator, SupportsIndex, Hashable, \
     MutableSequence, MutableMapping, TypeVar, Any, Sequence, overload, cast
@@ -18,14 +19,15 @@ from betty.classtools import Repr, repr_instance
 from betty.functools import slice_to_range
 from betty.locale import Localizer, Localizable
 from betty.os import ChDir
-from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump, Void, DictDump, ListDump
+from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump, Void, DictDump, ListDump, DumpT, \
+    VoidableItemDictDump
 from betty.serde.error import SerdeErrorCollection
 from betty.serde.format import FormatRepository
-from betty.serde.load import Asserter, LoadError, Assertions, Loadable
+from betty.serde.load import Asserter, LoadError, Loadable, Assertion, Assertions
 from betty.tempfile import TemporaryDirectory
 
 
-class Configuration(ReactiveInstance, Repr, Localizable, Loadable, Dumpable[DictDump]):
+class Configuration(Generic[DumpT], ReactiveInstance, Repr, Localizable, Loadable, Dumpable[DumpT]):
     def __init__(self, *args: Any, localizer: Localizer | None = None, **kwargs: Any):
         super().__init__(*args, **kwargs, localizer=localizer)
         self._asserter = Asserter(localizer=self._localizer)
@@ -34,10 +36,10 @@ class Configuration(ReactiveInstance, Repr, Localizable, Loadable, Dumpable[Dict
         raise NotImplementedError(repr(self))
 
 
-ConfigurationT = TypeVar('ConfigurationT', bound=Configuration)
+ConfigurationT = TypeVar('ConfigurationT', bound='Configuration[DumpT]')
 
 
-class FileBasedConfiguration(Configuration):
+class FileBasedConfiguration(Generic[DumpT], Configuration[DumpT]):
     def __init__(self, *, app: App, localizer: Localizer | None = None):
         super().__init__(localizer=localizer)
         self._app = app
@@ -93,16 +95,32 @@ class FileBasedConfiguration(Configuration):
 
         formats = FormatRepository(localizer=self._localizer)
         with SerdeErrorCollection().assert_valid() as errors:
-            # Change the working directory to allow relative paths to be resolved against the configuration file's directory
-            # path.
+            # Change the working directory to allow relative paths to be resolved against the configuration file's
+            # directory path.
             with ChDir(self.configuration_file_path.parent):
                 with open(self.configuration_file_path) as f:
-                    read_configuration = f.read()
+                    read_raw_dump = f.read()
                 with errors.catch(f'in {self.configuration_file_path.resolve()}'):
-                    loaded_configuration = self.load(
-                        formats.format_for(self.configuration_file_path.suffix[1:]).load(read_configuration)
+                    # @todo This is a rare occasion of config being updated in-place
+                    # @todo Therefore, create a copy of self
+                    # @todo Then load the dump into that copy
+                    # @todo Then if no errors, update self from the copy
+                    # @todo
+                    # @todo
+                    # @todo
+                    # @todo Make this new instance creation overridable!!!
+                    read_configuration = self.__class__(app=self._app, localizer=self._localizer)
+                    self_dump = self.dump(self._app)
+                    assert self_dump is not Void
+                    read_configuration.load(
+                        self_dump,  # type: ignore[arg-type]
+                        self._app,
                     )
-        self.update(loaded_configuration)
+                    read_configuration.load(
+                        formats.format_for(self.configuration_file_path.suffix[1:]).load(read_raw_dump),
+                        self._app,
+                    )
+        self.update(read_configuration)
 
     def __del__(self) -> None:
         if hasattr(self, '_project_directory') and self._project_directory is not None:
@@ -136,7 +154,14 @@ ConfigurationKey: TypeAlias = 'SupportsIndex | Hashable | type[Any]'
 ConfigurationKeyT = TypeVar('ConfigurationKeyT', bound=ConfigurationKey)
 
 
-class ConfigurationCollection(Configuration, Generic[ConfigurationKeyT, ConfigurationT]):
+ConfigurationCollectionDumpT = TypeVar('ConfigurationCollectionDumpT', bound=Dump)
+ConfigurationCollectionItemDumpT = TypeVar('ConfigurationCollectionItemDumpT', bound=Dump)
+
+
+class ConfigurationCollection(
+    Generic[DumpT, ConfigurationKeyT, ConfigurationT, ConfigurationCollectionItemDumpT],
+    Configuration[DumpT],
+):
     _configurations: MutableSequence[ConfigurationT] | MutableMapping[ConfigurationKeyT, ConfigurationT]
 
     def __init__(
@@ -198,6 +223,10 @@ class ConfigurationCollection(Configuration, Generic[ConfigurationKeyT, Configur
         self._clear_without_trigger()
         self.react.trigger()
 
+    def replace(self, *configurations: ConfigurationT) -> None:
+        self.clear()
+        self.append(*configurations)
+
     def _on_add(self, configuration: ConfigurationT) -> None:
         configuration.react(self)
 
@@ -229,10 +258,6 @@ class ConfigurationCollection(Configuration, Generic[ConfigurationKeyT, Configur
     def _item_type(cls) -> type[ConfigurationT]:
         raise NotImplementedError(repr(cls))
 
-    @classmethod
-    def _create_default_item(cls, configuration_key: ConfigurationKeyT) -> ConfigurationT:
-        raise NotImplementedError(repr(cls))
-
     def keys(self) -> Iterator[ConfigurationKeyT]:
         raise NotImplementedError(repr(self))
 
@@ -261,7 +286,42 @@ class ConfigurationCollection(Configuration, Generic[ConfigurationKeyT, Configur
         raise NotImplementedError(repr(self))
 
 
-class ConfigurationSequence(ConfigurationCollection[int, ConfigurationT], Generic[ConfigurationT]):
+ConfigurationCollectionT = TypeVar(
+    'ConfigurationCollectionT',
+    bound=ConfigurationCollection[
+        DumpT,
+        ConfigurationKeyT,
+        ConfigurationT,
+        ConfigurationCollectionItemDumpT
+    ],
+)
+
+
+class Foo(
+    Generic[ConfigurationT, ConfigurationCollectionItemDumpT],
+    ConfigurationCollection[
+        ListDump[ConfigurationCollectionItemDumpT],
+        int,
+        ConfigurationT,
+        ConfigurationCollectionItemDumpT
+    ]
+):
+    pass
+
+
+foo: Foo
+reveal_type(foo)
+
+
+class ConfigurationSequence(
+    Generic[ConfigurationT, ConfigurationCollectionItemDumpT],
+    ConfigurationCollection[
+        ListDump[ConfigurationCollectionItemDumpT],
+        int,
+        ConfigurationT,
+        ConfigurationCollectionItemDumpT
+    ]
+):
     def __init__(
         self,
         configurations: Iterable[ConfigurationT] | None = None,
@@ -292,6 +352,10 @@ class ConfigurationSequence(ConfigurationCollection[int, ConfigurationT], Generi
     def __iter__(self) -> Iterator[ConfigurationT]:
         return (configuration for configuration in self._configurations)
 
+    @classmethod
+    def _create_default_item(cls) -> ConfigurationT:
+        raise NotImplementedError(repr(cls))
+
     @scope.register_self
     def keys(self) -> Iterator[int]:
         return iter(range(0, len(self._configurations)))
@@ -303,19 +367,22 @@ class ConfigurationSequence(ConfigurationCollection[int, ConfigurationT], Generi
     def update(self, other: Self) -> None:
         raise NotImplementedError(repr(self))
 
-    @classmethod
-    def load(cls, dump: Dump, app: App) -> Self:
-        configuration = cls()
+    def load(self, dump: Dump, app: App) -> None:
         asserter = Asserter(localizer=app.localizer)
-        with SerdeErrorCollection().assert_valid():
-            configuration.append(*asserter.assert_sequence(Assertions(cls._item_type().assert_load()))(dump))
-        return configuration
+        self.replace(*asserter.assert_sequence(Assertions(self._assert_load_item(app)))(dump))
 
-    def dump(self, app: App) -> ListDump[VoidableDump[Dump]]:
+    def _assert_load_item(self, app: App) -> Assertion[Dump, ConfigurationT]:
+        def __assert_load_item(dump: Dump) -> ConfigurationT:
+            item = self._create_default_item()
+            item.load(dump, app)
+            return item
+        return __assert_load_item
+
+    def dump(self, app: App) -> ListDump[ConfigurationCollectionItemDumpT]:
         return minimize([
             configuration.dump(app)
             for configuration in self._configurations
-        ])
+        ], False)
 
     def prepend(self, *configurations: ConfigurationT) -> None:
         for configuration in configurations:
@@ -364,7 +431,15 @@ class ConfigurationSequence(ConfigurationCollection[int, ConfigurationT], Generi
         self.react.trigger()
 
 
-class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, ConfigurationT], Generic[ConfigurationKeyT, ConfigurationT]):
+class ConfigurationMapping(
+    Generic[ConfigurationKeyT, ConfigurationT, ConfigurationCollectionItemDumpT],
+    ConfigurationCollection[
+        DictDump[ConfigurationCollectionItemDumpT],
+        ConfigurationKeyT,
+        ConfigurationT,
+        ConfigurationCollectionItemDumpT,
+    ],
+):
     def __init__(
         self,
         configurations: Iterable[ConfigurationT] | None = None,
@@ -431,29 +506,37 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
         # Ensure everything is in the correct order. This will also trigger reactors.
         self.move_to_beginning(*other_keys)
 
-    @classmethod
-    def load(cls, dump: Dump, app: App) -> Self:
-        configuration = cls()
+    def load(self, dump: Dump, app: App) -> None:
         asserter = Asserter(localizer=app.localizer)
-        dict_dump = asserter.assert_dict()(dump)
-        mapping = asserter.assert_mapping(Assertions(cls._item_type().load))({
-            key: cls._load_key(value, key, app)
+        dict_dump = {
+            key: self._load_key(value, key, app)
             for key, value
-            in dict_dump.items()
-        })
-        configuration.replace(*mapping.values())
-        return configuration
+            in asserter.assert_dict()(dump).items()
+        }
+        self.replace(*asserter.assert_mapping(Assertions(self._assert_load_item(app)))(dict_dump).values())
 
-    def dump(self, app: App) -> DictDump[VoidableDump[Dump]]:
-        dump: DictDump[VoidableDump[Dump]] = {}
+    def _assert_load_item(self, app: App) -> Assertion[Dump, ConfigurationT]:
+        def __assert_load_item(item_dump: Dump) -> ConfigurationT:
+            _, key = self._dump_key(copy(item_dump))
+            item = self._create_default_item(key)
+            item.load(item_dump, app)
+            return item
+        return __assert_load_item
+
+    def dump(self, app: App) -> DictDump[ConfigurationCollectionItemDumpT]:
+        dump: VoidableItemDictDump[ConfigurationCollectionItemDumpT] = {}
         for configuration_item in self._configurations.values():
             item_dump = configuration_item.dump(app)
+            reveal_type(configuration_item)
+            reveal_type(configuration_item.dump)
+            reveal_type(item_dump)
             if item_dump is not Void:
+                reveal_type(item_dump)
                 item_dump, configuration_key = self._dump_key(item_dump)
                 if self._minimize_item_dump():
                     item_dump = minimize(item_dump)
                 dump[configuration_key] = item_dump
-        return minimize(dump)
+        return minimize(dump, False)
 
     def prepend(self, *configurations: ConfigurationT) -> None:
         for configuration in configurations:
@@ -526,7 +609,13 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
     ) -> Dump:
         raise NotImplementedError(repr(cls))
 
-    def _dump_key(self, item_dump: Dump) -> tuple[VoidableDump, str]:
+    def _dump_key(
+        self,
+        item_dump: ConfigurationCollectionItemDumpT,
+    ) -> tuple[VoidableDump[ConfigurationCollectionItemDumpT], ConfigurationKeyT]:
+        raise NotImplementedError(repr(self))
+
+    def _create_default_item(self, configuration_key: ConfigurationKeyT) -> ConfigurationT:
         raise NotImplementedError(repr(self))
 
 

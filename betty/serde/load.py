@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Iterator, Callable, Any, Generic, TYPE_CHECKING, TypeVar, MutableSequence, MutableMapping, overload, \
     cast
 
-from typing_extensions import Self, TypeAlias
+from typing_extensions import TypeAlias
 
 from betty.app import App
 from betty.functools import _Result
@@ -369,15 +369,18 @@ class Asserter(Localizable):
 
 
 class Loadable:
-    @classmethod
-    def load(cls, dump: Dump, app: App) -> Self:
-        raise NotImplementedError(repr(cls))
+    def load(self, dump: Dump, app: App) -> None:
+        raise NotImplementedError(repr(self))
 
-    @classmethod
-    def assert_load(cls: type[LoadableT], app: App) -> Assertion[Dump, LoadableT]:
+    def assert_load(self: LoadableT, app: App) -> Assertion[Dump, LoadableT]:
         def _assert_load(dump: Dump) -> LoadableT:
-            return cls.load(dump, app)
-        _assert_load.__qualname__ = f'{_assert_load.__qualname__} for {cls.__module__}.{cls.__qualname__}.load'
+            self.load(dump, app)
+            return self
+        _assert_load.__qualname__ = '{assert_load_qualname} for {self_module}.{self_qualname}.load()'.format(
+            assert_load_qualname=_assert_load.__qualname__,
+            self_module=self.__module__,
+            self_qualname=self.__qualname__,  # type: ignore[attr-defined]
+        )
         return _assert_load
 
 
