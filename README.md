@@ -87,9 +87,9 @@ title: Betty's ancestry
 author: Bart Feenstra
 lifetime_threshold: 125
 locales:
-  - locale: en-US
+  en-US:
     alias: en
-  - locale: nl
+  nl: {}
 entity_types:
   Person:
     generate_html_list: true
