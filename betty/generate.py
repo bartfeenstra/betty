@@ -108,22 +108,25 @@ class _ConcurrentGenerator:
 
     @classmethod
     def _build_generation_queue(cls, app: App) -> queue.Queue[_GenerationTask[Any]]:
+        locales = app.project.configuration.locales
         generation_queue: queue.Queue[_GenerationTask[Any]] = multiprocessing.Manager().Queue()
         generation_queue.put(_GenerationTask(None, _generate_dispatch))
-        for locale in app.project.configuration.locales:
+        for locale in locales:
             generation_queue.put(_GenerationTask(locale, _generate_public))
             generation_queue.put(_GenerationTask(locale, _generate_openapi))
-            for entity_type in app.entity_types:
-                if not issubclass(entity_type, UserFacingEntity):
-                    continue
-                if entity_type in app.project.configuration.entity_types and app.project.configuration.entity_types[entity_type].generate_html_list:
+        for entity_type in app.entity_types:
+            if not issubclass(entity_type, UserFacingEntity):
+                continue
+            if app.project.configuration.entity_types[entity_type].generate_html_list:
+                for locale in locales:
                     generation_queue.put(_GenerationTask(locale, _generate_entity_type_list_html, entity_type))
-                generation_queue.put(_GenerationTask(locale, _generate_entity_type_list_json, entity_type))
-                for entity in app.project.ancestry.entities[entity_type]:
-                    if isinstance(entity.id, GeneratedEntityId):
-                        continue
+            generation_queue.put(_GenerationTask(None, _generate_entity_type_list_json, entity_type))
+            for entity in app.project.ancestry.entities[entity_type]:
+                if isinstance(entity.id, GeneratedEntityId):
+                    continue
+                for locale in locales:
                     generation_queue.put(_GenerationTask(locale, _generate_entity_html, entity_type, entity.id))
-                    generation_queue.put(_GenerationTask(locale, _generate_entity_json, entity_type, entity.id))
+                generation_queue.put(_GenerationTask(None, _generate_entity_json, entity_type, entity.id))
         return generation_queue
 
     @sync
@@ -225,7 +228,7 @@ async def _generate_entity_type_list_json(
 ) -> None:
     entity_type_name = get_entity_type_name(entity_type)
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
-    entity_type_path = app.www_directory_path / entity_type_name_fs
+    entity_type_path = app.static_www_directory_path / entity_type_name_fs
     data: DictDump[Dump] = {
         '$schema': app.static_url_generator.generate('schema.json#/definitions/%sCollection' % entity_type_name, absolute=True),
         'collection': []
@@ -270,7 +273,7 @@ async def _generate_entity_json(
     entity_id: str,
 ) -> None:
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
-    entity_path = app.www_directory_path / entity_type_name_fs / entity_id
+    entity_path = app.static_www_directory_path / entity_type_name_fs / entity_id
     rendered_json = json.dumps(app.project.ancestry.entities[entity_type][entity_id], cls=app.json_encoder)
     async with create_json_resource(entity_path) as f:
         await f.write(rendered_json)
