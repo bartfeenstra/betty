@@ -14,7 +14,8 @@ from PyQt6.QtWidgets import QMainWindow
 from click import get_current_context, Context, Option, Command
 from typing_extensions import ParamSpec, Concatenate
 
-from betty import about, demo, generate, load
+from betty import about, generate, load
+from betty.extension import demo
 from betty.app import App
 from betty.asyncio import sync
 from betty.error import UserFacingError

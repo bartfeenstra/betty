@@ -138,7 +138,7 @@ class ServeProjectWindow(_ServeWindow):
 
 class ServeDemoWindow(_ServeWindow):
     def _server_name(self) -> str:
-        from betty import demo
+        from betty.extension import demo
 
         return demo.DemoServer.name()
 

@@ -4,7 +4,7 @@ context('ReDoc', () => {
   it('load ReDoc', () => {
     cy.task('generate', {
       extensions: {
-        'betty.http_api_doc.HttpApiDoc': {}
+        'betty.extension.HttpApiDoc': {}
       }
     })
       .then((rootPath) => {

@@ -447,7 +447,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
     @property
     def servers(self) -> Mapping[str, Server]:
         from betty import serve
-        from betty.demo import DemoServer
+        from betty.extension.demo import DemoServer
 
         return {
             server.name(): server
