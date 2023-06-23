@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-19 18:41+0100\n"
+"POT-Creation-Date: 2023-06-23 23:32+0100\n"
 "PO-Revision-Date: 2020-11-27 19:49+0100\n"
 "Last-Translator: \n"
 "Language: fr\n"
@@ -491,6 +491,9 @@ msgid "Generating your site to {output_directory}."
 msgstr ""
 
 msgid "Generating your site..."
+msgstr ""
+
+msgid "Go to the front page"
 msgstr ""
 
 #, fuzzy

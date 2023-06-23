@@ -23,8 +23,7 @@
                  data-betty-search-index="{{ '/search-index.json' | url }}">
                 <div class="overlay-controls">
                     <span class="overlay-control overlay-close"
-                          title="{% trans %}Exit the search{% endtrans %}">{% trans %}Exit the
-                        search{% endtrans %}</span>
+                          title="{% trans %}Exit the search{% endtrans %}">{% trans %}Exit the search{% endtrans %}</span>
                 </div>
                 <form>
                     {% set search_keywords_example_person_name = app.project.ancestry.entities['Person'] | map(attribute='name') | first | default(none) %}
@@ -42,8 +41,7 @@
                 <section id="search-expanded">
                     <p id="search-instructions">
                         {% trans shortcut = pgettext('enter-search-shortcut', 's') -%}
-                            Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> to exit the search.
-                            Search again with <kbd>{{ shortcut }}</kbd>.
+                            Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> to exit the search. Search again with <kbd>{{ shortcut }}</kbd>.
                         {%- endtrans %}
                     </p>
                     <div id="search-results-twilight">

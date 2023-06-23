@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-19 18:41+0100\n"
+"POT-Creation-Date: 2023-06-23 23:32+0100\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -529,6 +529,9 @@ msgstr "Bezig je site te genereren naar {output_directory}."
 
 msgid "Generating your site..."
 msgstr "Je site aan het genereren..."
+
+msgid "Go to the front page"
+msgstr ""
 
 msgid "HTTP API Documentation"
 msgstr "HTTP API-documentatie"
