@@ -128,10 +128,10 @@ msgstr ""
 
 msgid ""
 "A family history as told by <a "
-"href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
+"href=\"https://github.com/bartfeenstra/betty\">Betty 👵</a>"
 msgstr ""
 "Een familieverhaal verteld door <a "
-"href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
+"href=\"https://github.com/bartfeenstra/betty\">Betty 👵</a>"
 
 msgid "API documentation"
 msgstr "API-documentatie"

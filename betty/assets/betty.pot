@@ -93,7 +93,7 @@ msgstr ""
 msgid "A citation is available, but has not been published in order to protect people's privacy"
 msgstr ""
 
-msgid "A family history as told by <a href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
+msgid "A family history as told by <a href=\"https://github.com/bartfeenstra/betty\">Betty 👵</a>"
 msgstr ""
 
 msgid "API documentation"

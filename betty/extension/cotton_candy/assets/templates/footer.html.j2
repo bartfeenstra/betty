@@ -1,9 +1,12 @@
-{% if app.project.configuration.author %}
-    <p>
-        {% trans author = app.project.configuration.author %}© Copyright {{ author }}, unless otherwise credited{% endtrans %}
-    </p>
-{% endif %}
-<p>{% trans %}A family history as told by <a href="https://github.com/bartfeenstra/betty">Betty👵</a>{% endtrans %}</p>
-{% if 'betty.extension.HttpApiDoc' in app.extensions %}
-    <p><a href="{{ '/api/index.html' | url }}">{% trans %}API documentation{% endtrans %}</a></p>
-{% endif %}
+<footer class="py-3 my-4 text-muted text-center small">
+    {% if app.project.configuration.author %}
+        <p>
+            {% trans author = app.project.configuration.author %}© Copyright {{ author }}, unless otherwise credited{% endtrans %}
+        </p>
+        <hr>
+    {% endif %}
+    <p>{% trans %}A family history as told by <a href="https://github.com/bartfeenstra/betty">Betty 👵</a>{% endtrans %}</p>
+    {% if 'betty.http_api_doc.HttpApiDoc' in app.extensions %}
+        <p><a href="{{ '/api/index.html' | url }}">{% trans %}API documentation{% endtrans %}</a></p>
+    {% endif %}
+</footer>
