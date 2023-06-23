@@ -12,11 +12,9 @@ from betty._package.pyinstaller.hooks import HOOKS_DIRECTORY_PATH
 from betty.app import App
 from betty.asyncio import sync
 from betty.fs import ROOT_DIRECTORY_PATH
-from betty.http_api_doc import HttpApiDoc
-from betty.maps import Maps
-from betty.npm import _Npm, build_assets
+from betty.extension import HttpApiDoc, Maps, Trees
+from betty.extension.npm import _Npm, build_assets
 from betty.project import ExtensionConfiguration
-from betty.trees import Trees
 
 
 async def _build_assets() -> None:

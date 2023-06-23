@@ -5,4 +5,4 @@ set -Eeuo pipefail
 cd "$(dirname "$0")/.."
 
 rm -rf ./dist
-rm -rf ./betty/**/assets/betty.npm._Npm/build
+rm -rf ./betty/**/assets/betty.extension.npm._Npm/build

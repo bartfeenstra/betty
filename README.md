@@ -107,9 +107,9 @@ entity_types:
   File:
     generate_html_list: false
 extensions:
-  betty.anonymizer.Anonymizer: {}
-  betty.cleaner.Cleaner: {}
-  betty.cotton_candy.CottonCandy:
+  betty.extension.Anonymizer: {}
+  betty.extension.Cleaner: {}
+  betty.extension.CottonCandy:
     configuration:
       primary_inactive_color: '#ffc0cb'
       primary_active_color: '#ff69b4'
@@ -120,16 +120,16 @@ extensions:
           entity_id: P123
         - entity_type: Place
           entity_id: Amsterdam
-  betty.deriver.Deriver: {}
-  betty.gramps.Gramps:
+  betty.extension.Deriver: {}
+  betty.extension.Gramps:
     configuration:
       family_trees:
         - file: ./gramps.gpkg
-  betty.http_api_doc.HttpApiDoc: {}
-  betty.maps.Maps: {}
-  betty.privatizer.Privatizer: {}
-  betty.trees.Trees: {}
-  betty.wikipedia.Wikipedia: {}
+  betty.extension.HttpApiDoc: {}
+  betty.extension.Maps: {}
+  betty.extension.Privatizer: {}
+  betty.extension.Trees: {}
+  betty.extension.Wikipedia: {}
 ```
 
 - `base_url` (required): The absolute, public URL at which the site will be published.
@@ -161,9 +161,9 @@ extensions:
   Both keys may be omitted to quickly enable an extension using its default configuration.
 
   The extensions that ship with Betty, and their configuration:
-  - `betty.anonymizer.Anonymizer` (optional): Removes personal information from private people. It provides no
+  - `betty.extension.Anonymizer` (optional): Removes personal information from private people. It provides no
     configuration options.
-  - `betty.cotton_candy.CottonCandy` (optional): Configuration:
+  - `betty.extension.CottonCandy` (optional): Configuration:
     - `primary_inactive_color` (optional): The case-insensitive hexadecimal code for the primary color. Defaults to
       `#ffc0cb`.
     - `primary_active_color` (optional): The case-insensitive hexadecimal code for the primary color for actively
@@ -175,22 +175,22 @@ extensions:
       configuration:
       - `entity_type` (required): The name of the entity type to feature, e.g. `Person`.
       - `entity_id` (required):  The ID of the entity type to feature, e.g. `P123`.
-  - `betty.cleaner.Cleaner` (optional): Removes data (events, media, etc.) that have no relation to any people. It
+  - `betty.extension.Cleaner` (optional): Removes data (events, media, etc.) that have no relation to any people. It
     provides no configuration options.
-  - `betty.demo.Demo` (optional): Loads demonstrative content and functionality that shows what Betty can do. It
+  - `betty.extension.Demo` (optional): Loads demonstrative content and functionality that shows what Betty can do. It
     provides no configuration options.
-  - `betty.deriver.Deriver` (optional): Extends ancestries by deriving facts from existing information. It provides no
+  - `betty.extension.Deriver` (optional): Extends ancestries by deriving facts from existing information. It provides no
     configuration options.
-  - `betty.gramps.Gramps` (optional): Loads Gramps family trees. Configuration:
+  - `betty.extension.Gramps` (optional): Loads Gramps family trees. Configuration:
     - `family_trees` (required): An array defining zero or more Gramps family trees to load. Each item is an object with
       the following keys:
       - `file` (required): the path to a *Gramps XML* or *Gramps XML Package* file.
-  - `betty.http_api_doc.HttpApiDoc` (optional): Renders interactive and user-friendly HTTP API documentation
+  - `betty.extension.HttpApiDoc` (optional): Renders interactive and user-friendly HTTP API documentation
     using [ReDoc](https://github.com/Redocly/redoc).
-  - `betty.maps.Maps` (optional): Renders interactive maps using [Leaflet](https://leafletjs.com/).
-  - `betty.privatizer.Privatizer` (optional): Marks living people private. Configuration: `{}`.
-  - `betty.trees.Trees` (optional): Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
-  - `betty.wikipedia.Wikipedia` (optional): Lets templates and other extensions retrieve complementary Wikipedia
+  - `betty.extension.Maps` (optional): Renders interactive maps using [Leaflet](https://leafletjs.com/).
+  - `betty.extension.Privatizer` (optional): Marks living people private. Configuration: `{}`.
+  - `betty.extension.Trees` (optional): Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
+  - `betty.extension.Wikipedia` (optional): Lets templates and other extensions retrieve complementary Wikipedia
     entries.
 
 ### Translations
@@ -212,7 +212,7 @@ Gramps has limited built-in support for people's privacy. To fully control priva
 sources, and citations, add a `betty:privacy` attribute to any of these types, with a value of `private` to explicitly
 declare the data always private or `public` to declare the data always public. Any other value will leave the privacy
 undecided, as well as person records marked public using Gramps' built-in privacy selector. In such cases, the
-`betty.privatizer.Privatizer` extension may decide if the data is public or private.
+`betty.extension.Privatizer` extension may decide if the data is public or private.
 
 #### Dates
 

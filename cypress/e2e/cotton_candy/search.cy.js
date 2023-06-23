@@ -6,8 +6,8 @@ context('Search', () => {
   it('search, find, and navigate to a resource', () => {
     return cy.task('generate', {
       extensions: {
-        'betty.cotton_candy.CottonCandy': {},
-        'betty.gramps.Gramps': {
+        'betty.extension.CottonCandy': {},
+        'betty.extension.Gramps': {
           enabled: true,
           configuration: {
             family_trees: [
