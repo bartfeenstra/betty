@@ -14,6 +14,7 @@ class _Deriver(UserFacingExtension, PostLoader):
 
         deriver = Deriver(
             self.app.project.ancestry,
+            self.app.project.configuration.lifetime_threshold,
             {
                 event_type
                 for event_type
