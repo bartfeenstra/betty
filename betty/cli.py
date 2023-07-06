@@ -11,7 +11,7 @@ from typing import Callable, TypeVar, cast, Iterator
 
 import click
 from PyQt6.QtWidgets import QMainWindow
-from click import get_current_context, Context, Option, Command
+from click import get_current_context, Context, Option, Command, Parameter
 from typing_extensions import ParamSpec, Concatenate
 
 from betty import about, generate, load
@@ -76,7 +76,11 @@ def app_command(f: Callable[Concatenate[App, P], None]) -> Callable[P, None]:
 
 @catch_exceptions()
 @sync
-async def _init_ctx(ctx: Context, __: Option | None = None, configuration_file_path: str | None = None) -> None:
+async def _init_ctx(
+    ctx: Context,
+    __: Option | Parameter | None = None,
+    configuration_file_path: str | None = None,
+) -> None:
     ctx.ensure_object(dict)
 
     if 'initialized' in ctx.obj:
