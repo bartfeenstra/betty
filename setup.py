@@ -53,13 +53,14 @@ SETUP = {
         'jsonschema ~= 4.17, >= 4.17.0',
         'langcodes ~= 3.3, >= 3.3.0',
         'markupsafe ~= 2.1, >= 2.1.1',
+        'ordered-set ~= 4.1.0',
         'pdf2image ~= 1.16, >= 1.16.0',
         'polib ~= 1.2, >= 1.2.0',
         'Pillow ~= 9.5, >= 9.5.0',
         'PyQt6 ~= 6.5, >= 6.5.0',
         'pyyaml ~= 6.0, >= 6.0.0',
         'reactives ~= 0.5, >= 0.5.1',
-        'typing_extensions ~= 4.5, >= 4.5.0; python_version < "3.11"',
+        'typing_extensions ~= 4.5, >= 4.5.0',
     ],
     'extras_require': {
         'development': [
@@ -71,7 +72,6 @@ SETUP = {
             'flake8 ~= 6.0, >= 6.0.0',
             'html5lib ~= 1.1',
             'lxml ~= 4.9, >= 4.9.1; sys.platform != "win32"',
-            'ordered-set ~= 4.1.0',
             'pip-licenses ~= 4.3, >= 4.3.0',
             'pyinstaller ~= 5.0',
             'pytest ~= 7.3, >= 7.3.1',
