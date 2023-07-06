@@ -85,6 +85,7 @@ SETUP = {
             'setuptools ~= 67.7, >= 67.7.2',
             'twine ~= 4.0, >= 4.0.0',
             'types-aiofiles ~= 23.1, >= 23.1.0.2',
+            'types-click ~= 7.1, >= 7.1.8',
             'types-mock ~= 5.0, >= 5.0.0.6',
             'types-polib ~= 1.2, >= 1.2.0.0',
             'types-pyyaml ~= 6.0, >= 6.0.6',
