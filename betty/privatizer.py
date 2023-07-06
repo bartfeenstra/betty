@@ -23,13 +23,6 @@ class Privatizer:
         self._privatize(subject)
 
     def _privatize(self, subject: HasPrivacy) -> None:
-        print(subject)
-        print(subject)
-        print(subject)
-        print(subject)
-        print(subject.private)
-        print(subject.private)
-        print(subject.private)
         if subject.private is False:
             return
 
