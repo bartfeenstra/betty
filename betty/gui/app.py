@@ -32,32 +32,32 @@ class BettyMainWindow(BettyWindow):
         self.new_project_action = QAction(self)
         self.new_project_action.setShortcut('Ctrl+N')
         self.new_project_action.triggered.connect(
-            lambda _: self.new_project(),  # type: ignore[no-any-return]
+            lambda _: self.new_project(),
         )
         self.betty_menu.addAction(self.new_project_action)
 
         self.open_project_action = QAction(self)
         self.open_project_action.setShortcut('Ctrl+O')
         self.open_project_action.triggered.connect(
-            lambda _: self.open_project(),  # type: ignore[no-any-return]
+            lambda _: self.open_project(),
         )
         self.betty_menu.addAction(self.open_project_action)
 
         self._demo_action = QAction(self)
         self._demo_action.triggered.connect(
-            lambda _: self._demo(),  # type: ignore[no-any-return]
+            lambda _: self._demo(),
         )
         self.betty_menu.addAction(self._demo_action)
 
         self.open_application_configuration_action = QAction(self)
         self.open_application_configuration_action.triggered.connect(
-            lambda _: self.open_application_configuration(),  # type: ignore[no-any-return]
+            lambda _: self.open_application_configuration(),
         )
         self.betty_menu.addAction(self.open_application_configuration_action)
 
         self.clear_caches_action = QAction(self)
         self.clear_caches_action.triggered.connect(
-            lambda _: self.clear_caches(),  # type: ignore[no-any-return]
+            lambda _: self.clear_caches(),
         )
         self.betty_menu.addAction(self.clear_caches_action)
 
@@ -70,19 +70,19 @@ class BettyMainWindow(BettyWindow):
 
         self.report_bug_action = QAction(self)
         self.report_bug_action.triggered.connect(
-            lambda _: self.report_bug(),  # type: ignore[no-any-return]
+            lambda _: self.report_bug(),
         )
         self.help_menu.addAction(self.report_bug_action)
 
         self.request_feature_action = QAction(self)
         self.request_feature_action.triggered.connect(
-            lambda _: self.request_feature(),  # type: ignore[no-any-return]
+            lambda _: self.request_feature(),
         )
         self.help_menu.addAction(self.request_feature_action)
 
         self.about_action = QAction(self)
         self.about_action.triggered.connect(
-            lambda _: self._about_betty(),  # type: ignore[no-any-return]
+            lambda _: self._about_betty(),
         )
         self.help_menu.addAction(self.about_action)
 
