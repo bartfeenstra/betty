@@ -77,7 +77,7 @@ class _Breadcrumb(Dumpable, Repr):
 
 class _Breadcrumbs(Dumpable, Repr):
     def __init__(self):
-        self._breadcrumbs = []
+        self._breadcrumbs: list[_Breadcrumb] = []
 
     def append(self, label: str, url: str) -> None:
         self._breadcrumbs.append(_Breadcrumb(label, url))
@@ -383,13 +383,12 @@ def _filter_map(context: Context, value: Iterable[Any], *args: Any, **kwargs: An
 
     This mimics Jinja2's built-in map filter, but allows macros as callbacks.
     """
-    if value:
-        if len(args) > 0 and isinstance(args[0], Macro):
-            func: Macro | Callable[[Any], bool] = args[0]
-        else:
-            func = prepare_map(context, args, kwargs)
-        for item in value:
-            yield func(item)
+    if len(args) > 0 and isinstance(args[0], Macro):
+        func: Macro | Callable[[Any], bool] = args[0]
+    else:
+        func = prepare_map(context, args, kwargs)
+    for item in value:
+        yield func(item)
 
 
 def _filter_file(app: App, file: File) -> str:

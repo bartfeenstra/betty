@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Iterable
 
 import pytest
 
@@ -7,7 +7,7 @@ from betty.functools import walk, slice_to_range
 
 class TestWalk:
     class _Item:
-        def __init__(self, child):
+        def __init__(self, child: 'TestWalk._Item | Iterable[TestWalk._Item] | None'):
             self.child = child
 
     @pytest.mark.parametrize('item', [

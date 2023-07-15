@@ -12,7 +12,7 @@ class AcquiredError(LockError, RuntimeError):
 
 class Locks:
     def __init__(self):
-        self._locks = set()
+        self._locks = set[Hashable]()
 
     def acquire(self, resource: Hashable) -> None:
         if resource in self._locks:

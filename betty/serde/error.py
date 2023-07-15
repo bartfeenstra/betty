@@ -46,7 +46,7 @@ class SerdeErrorCollection(SerdeError, Repr):
 
     def __init__(self):
         super().__init__()
-        self._errors = []
+        self._errors: list[SerdeError] = []
 
     def __iter__(self) -> Iterator[SerdeError]:
         yield from self._errors

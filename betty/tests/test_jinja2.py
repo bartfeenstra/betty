@@ -114,7 +114,7 @@ class FilterUniqueTest(TemplateTestCase):
 
 class FilterMapTest(TemplateTestCase):
     class MapData:
-        def __init__(self, label):
+        def __init__(self, label: str):
             self.label = label
 
     @pytest.mark.parametrize('expected, template, data', [
