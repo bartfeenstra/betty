@@ -5,6 +5,7 @@ import functools
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import TypeVar, Generic, Callable, Iterable, Any, overload, cast, Iterator
+from uuid import uuid4
 
 from typing_extensions import Self
 
@@ -12,30 +13,20 @@ from betty.classtools import repr_instance
 from betty.functools import slice_to_range
 from betty.importlib import import_any
 from betty.locale import Localizer, Localizable
-from betty.string import camel_case_to_kebab_case
 
 T = TypeVar('T')
 
 
 class GeneratedEntityId(str):
     """
-    Generate a unique entity ID for internal use.
+    Generate a unique entity ID.
 
     Entities must have IDs for identification. However, not all entities can be provided with an ID that exists in the
     original data set (such as a third-party family tree loaded into Betty), so IDs can be generated.
-    Because of this, these generated IDs SHOULD NOT be used outside of Betty, such as when serializing entities to JSON.
     """
 
-    _last_id = 0
-
-    def __new__(
-        cls,
-        entity_id_or_type: str | type[Entity],
-    ):
-        if isinstance(entity_id_or_type, type):
-            cls._last_id += 1
-            entity_id_or_type = f'betty-generated-{camel_case_to_kebab_case(get_entity_type_name(entity_id_or_type))}-id-{cls._last_id}'
-        return super().__new__(cls, entity_id_or_type)
+    def __new__(cls, entity_id: str | None = None):
+        return super().__new__(cls, entity_id or str(uuid4()))
 
 
 class Entity(Localizable):
@@ -48,7 +39,7 @@ class Entity(Localizable):
     ):
         if __debug__:
             get_entity_type(self)
-        self._id = GeneratedEntityId(self.__class__) if entity_id is None else entity_id
+        self._id = GeneratedEntityId() if entity_id is None else entity_id
         super().__init__(*args, localizer=localizer, **kwargs)
 
     def __repr__(self) -> str:
