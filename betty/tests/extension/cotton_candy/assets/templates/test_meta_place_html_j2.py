@@ -21,7 +21,7 @@ class Test(TemplateTestCase):
         Enclosure(place, enclosing_place)
         all_enclosing_place = Place('P2', [PlaceName('The All-enclosing Place')])
         Enclosure(enclosing_place, all_enclosing_place)
-        expected = '<div class="meta">in <address><a href="/place/P1/index.html"><span>The Enclosing Place</span></a></address>, <address><a href="/place/P2/index.html"><span>The All-enclosing Place</span></a></address></div>'
+        expected = '<div class="meta">in <address class="address"><a href="/place/P1/index.html"><span>The Enclosing Place</span></a></address>, <address class="address"><a href="/place/P2/index.html"><span>The All-enclosing Place</span></a></address></div>'
         with self._render(data={
             'entity': place,
         }) as (actual, _):
@@ -33,7 +33,7 @@ class Test(TemplateTestCase):
         Enclosure(place, enclosing_place)
         all_enclosing_place = Place('P2', [PlaceName('The All-enclosing Place')])
         Enclosure(enclosing_place, all_enclosing_place)
-        expected = '<div class="meta">in <address><a href="/place/P1/index.html"><span>The Enclosing Place</span></a></address></div>'
+        expected = '<div class="meta">in <address class="address"><a href="/place/P1/index.html"><span>The Enclosing Place</span></a></address></div>'
         with self._render(data={
             'entity': place,
             'place_context': all_enclosing_place,
@@ -47,7 +47,7 @@ class Test(TemplateTestCase):
         all_enclosing_place = Place('P2', [PlaceName('The All-enclosing Place')])
         Enclosure(enclosing_place, all_enclosing_place)
         unrelated_place = Place('P999', [PlaceName('Far Far Away')])
-        expected = '<div class="meta">in <address><a href="/place/P1/index.html"><span>The Enclosing Place</span></a></address>, <address><a href="/place/P2/index.html"><span>The All-enclosing Place</span></a></address></div>'
+        expected = '<div class="meta">in <address class="address"><a href="/place/P1/index.html"><span>The Enclosing Place</span></a></address>, <address class="address"><a href="/place/P2/index.html"><span>The All-enclosing Place</span></a></address></div>'
         with self._render(data={
             'entity': place,
             'place_context': unrelated_place,

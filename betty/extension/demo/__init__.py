@@ -227,6 +227,7 @@ class DemoServer(Server):
     async def start(self) -> None:
         app = App(locale=self.localizer.locale)
         app.project.configuration.extensions.append(ExtensionConfiguration(_Demo))
+        app.project.configuration.author = 'Bart Feenstra and contributors'
         # Include all of the translations Betty ships with.
         app.project.configuration.locales.replace(
             LocaleConfiguration('en-US', 'en'),

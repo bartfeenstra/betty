@@ -21,19 +21,12 @@
         </p>
     {% endif %}
     {% if app.extensions['betty.extension.CottonCandy'].configuration.featured_entities %}
-        <div class="featured">
-            <div class="featured-entities">
-                {% for entity_reference in app.extensions['betty.extension.CottonCandy'].configuration.featured_entities %}
-                    <div class="featured-entity">
-                        {% with entity = app.project.ancestry.entities[entity_reference.entity_type][entity_reference.entity_id] %}
-                            {% include [
-                                'entity/featured--' + (entity | entity_type_name | camel_case_to_kebab_case) + '.html.j2',
-                                'entity/featured.html.j2',
-                            ] %}
-                        {% endwith %}
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
+        {% set ns = namespace(entities=[]) %}
+        {% for entity_reference in app.extensions['betty.cotton_candy.CottonCandy'].configuration.featured_entities %}
+            {% do ns.entities.append(app.project.ancestry.entities[entity_reference.entity_type][entity_reference.entity_id]) %}
+        {% endfor %}
+        {% with entities=ns.entities %}
+            {% include 'entity/list-featured.html.j2' %}
+        {% endwith %}
     {% endif %}
 {% endblock %}
