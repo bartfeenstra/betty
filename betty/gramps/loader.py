@@ -16,9 +16,9 @@ from betty.gramps.error import GrampsError
 from betty.load import getLogger
 from betty.locale import DateRange, Datey, Date, Localizable, Localizer
 from betty.media_type import MediaType
-from betty.model import Entity, FlattenedEntityCollection, FlattenedEntity, unflatten, get_entity_type
+from betty.model import Entity, FlattenedEntityCollection, AliasedEntity, unalias, get_entity_type, AliasableEntity
 from betty.model.ancestry import Ancestry, Note, File, Source, Citation, Place, Event, Person, PersonName, Subject, \
-    Witness, Beneficiary, Attendee, Presence, PlaceName, Enclosure, HasLinks, Link, HasPrivacy
+    Witness, Beneficiary, Attendee, Presence, PlaceName, Enclosure, HasLinks, Link, HasPrivacy, HasFiles, HasCitations
 from betty.model.event_type import Birth, Baptism, Adoption, Cremation, Death, Funeral, Burial, Will, Engagement, \
     Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, \
     Retirement, Correspondence, Confirmation, Missing, UnknownEventType, EventType
@@ -169,9 +169,9 @@ class GrampsLoader(Localizable):
 
         self._ancestry.entities.append(*self._flattened_entities.unflatten())
 
-    def add_entity(self, entity: Entity) -> None:
+    def add_entity(self, entity: AliasableEntity[Entity]) -> None:
         self._flattened_entities.add_entity(entity)
-        self._added_entity_counts[get_entity_type(unflatten(entity))] += 1
+        self._added_entity_counts[get_entity_type(unalias(entity))] += 1
 
     def add_association(self, *args: Any, **kwargs: Any) -> None:
         self._flattened_entities.add_association(*args, **kwargs)
@@ -263,7 +263,7 @@ class GrampsLoader(Localizable):
         text_element = self._xpath1(element, './ns:text')
         assert text_element is not None
         text = str(text_element.text)
-        self.add_entity(FlattenedEntity(Note(note_id, text), handle))
+        self.add_entity(AliasedEntity(Note(note_id, text), handle))
 
     def _load_objects(self, database: ElementTree.Element, gramps_tree_directory_path: Path) -> None:
         for element in self._xpath(database, './ns:objects/ns:object'):
@@ -284,7 +284,7 @@ class GrampsLoader(Localizable):
         if description:
             file.description = description
         self._load_attribute_privacy(file, element, 'attribute')
-        self.add_entity(FlattenedEntity(file, file_handle))
+        self.add_entity(AliasedEntity(file, file_handle))
         for citation_handle in self._load_handles('citationref', element):
             self.add_association(File, file_handle, 'citations', Citation, citation_handle)
         for note_handle in self._load_handles('noteref', element):
@@ -340,12 +340,20 @@ class GrampsLoader(Localizable):
         if element.get('priv') == '1':
             person.private = True
 
-        flattened_person = FlattenedEntity(person, person_handle)
-        self._load_citationref(flattened_person, element)
-        self._load_objref(flattened_person, element)
+        aliased_person = AliasedEntity(person, person_handle)
+        self._load_citationref(
+            aliased_person,  # type: ignore[arg-type]
+            element,
+        )
+        self._load_objref(
+            aliased_person,  # type: ignore[arg-type]
+            element,
+        )
         self._load_urls(person, element)
         self._load_attribute_privacy(person, element, 'attribute')
-        self.add_entity(flattened_person)
+        self.add_entity(
+            aliased_person,  # type: ignore[arg-type]
+        )
 
     def _load_families(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, './ns:families/ns:family'):
@@ -390,10 +398,12 @@ class GrampsLoader(Localizable):
         gramps_presence_role = eventref.get('role')
         role = self._PRESENCE_ROLE_MAP[gramps_presence_role] if gramps_presence_role in self._PRESENCE_ROLE_MAP else Attendee()
         presence = Presence(None, role, None)
-        identifiable_presence = FlattenedEntity(presence)
-        self.add_entity(identifiable_presence)
-        self.add_association(Presence, identifiable_presence.id, 'person', Person, person_id)
-        self.add_association(Presence, identifiable_presence.id, 'event', Event, event_handle)
+        aliased_presence = AliasedEntity(presence)
+        self.add_entity(
+            aliased_presence,  # type: ignore[arg-type]
+        )
+        self.add_association(Presence, aliased_presence.id, 'person', Person, person_id)
+        self.add_association(Presence, aliased_presence.id, 'event', Event, event_handle)
 
     def _load_places(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, './ns:places/ns:placeobj'):
@@ -418,13 +428,15 @@ class GrampsLoader(Localizable):
 
         self._load_urls(place, element)
 
-        self.add_entity(FlattenedEntity(place, place_handle))
+        self.add_entity(AliasedEntity(place, place_handle))
 
         for enclosed_by_handle in self._load_handles('placeref', element):
-            identifiable_enclosure = FlattenedEntity(Enclosure(None, None))
-            self.add_entity(identifiable_enclosure)
-            self.add_association(Enclosure, identifiable_enclosure.id, 'encloses', Place, place_handle)
-            self.add_association(Enclosure, identifiable_enclosure.id, 'enclosed_by', Place, enclosed_by_handle)
+            aliased_enclosure = AliasedEntity(Enclosure(None, None))
+            self.add_entity(
+                aliased_enclosure,  # type: ignore[arg-type]
+            )
+            self.add_association(Enclosure, aliased_enclosure.id, 'encloses', Place, place_handle)
+            self.add_association(Enclosure, aliased_enclosure.id, 'enclosed_by', Place, enclosed_by_handle)
 
     def _load_coordinates(self, element: ElementTree.Element) -> Point | None:
         with suppress(XPathError):
@@ -501,10 +513,18 @@ class GrampsLoader(Localizable):
 
         self._load_attribute_privacy(event, element, 'attribute')
 
-        flattened_event = FlattenedEntity(event, event_handle)
-        self._load_objref(flattened_event, element)
-        self._load_citationref(flattened_event, element)
-        self.add_entity(flattened_event)
+        aliased_event = AliasedEntity(event, event_handle)
+        self._load_objref(
+            aliased_event,  # type: ignore[arg-type]
+            element,
+        )
+        self._load_citationref(
+            aliased_event,  # type: ignore[arg-type]
+            element,
+        )
+        self.add_entity(
+            aliased_event,  # type: ignore[arg-type]
+        )
 
     def _load_repositories(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, './ns:repositories/ns:repository'):
@@ -520,7 +540,7 @@ class GrampsLoader(Localizable):
 
         self._load_urls(source, element)
 
-        self.add_entity(FlattenedEntity(source, repository_source_handle))
+        self.add_entity(AliasedEntity(source, repository_source_handle))
 
     def _load_sources(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, './ns:sources/ns:source'):
@@ -552,9 +572,14 @@ class GrampsLoader(Localizable):
 
         self._load_attribute_privacy(source, element, 'srcattribute')
 
-        flattened_source = FlattenedEntity(source, source_handle)
-        self._load_objref(flattened_source, element)
-        self.add_entity(flattened_source)
+        aliased_source = AliasedEntity(source, source_handle)
+        self._load_objref(
+            aliased_source,  # type: ignore[arg-type]
+            element,
+        )
+        self.add_entity(
+            aliased_source,  # type: ignore[arg-type]
+        )
 
     def _load_citations(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, './ns:citations/ns:citation'):
@@ -573,13 +598,18 @@ class GrampsLoader(Localizable):
         with suppress(XPathError):
             citation.location = self._xpath1(element, './ns:page').text
 
-        flattened_citation = FlattenedEntity(citation, citation_handle)
-        self._load_objref(flattened_citation, element)
-        self.add_entity(flattened_citation)
+        aliased_citation = AliasedEntity(citation, citation_handle)
+        self._load_objref(
+            aliased_citation,  # type: ignore[arg-type]
+            element,
+        )
+        self.add_entity(
+            aliased_citation,  # type: ignore[arg-type]
+        )
 
-    def _load_citationref(self, owner: Entity, element: ElementTree.Element) -> None:
+    def _load_citationref(self, owner: AliasableEntity[HasCitations & Entity], element: ElementTree.Element) -> None:
         for citation_handle in self._load_handles('citationref', element):
-            self.add_association(get_entity_type(unflatten(owner)), owner.id, 'citations', Citation, citation_handle)
+            self.add_association(get_entity_type(unalias(owner)), owner.id, 'citations', Citation, citation_handle)
 
     def _load_handles(self, handle_type: str, element: ElementTree.Element) -> Iterable[str]:
         for citation_handle_element in self._xpath(element, f'./ns:{handle_type}'):
@@ -592,10 +622,10 @@ class GrampsLoader(Localizable):
             return citation_handle_element.get('hlink')
         return None
 
-    def _load_objref(self, owner: Entity, element: ElementTree.Element) -> None:
+    def _load_objref(self, owner: AliasableEntity[HasFiles & Entity], element: ElementTree.Element) -> None:
         file_handles = self._load_handles('objref', element)
         for file_handle in file_handles:
-            self.add_association(get_entity_type(unflatten(owner)), owner.id, 'files', File, file_handle)
+            self.add_association(get_entity_type(unalias(owner)), owner.id, 'files', File, file_handle)
 
     def _load_urls(self, owner: HasLinks, element: ElementTree.Element) -> None:
         url_elements = self._xpath(element, './ns:url')

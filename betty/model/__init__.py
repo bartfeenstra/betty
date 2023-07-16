@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import copy
 import functools
+from collections import defaultdict
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TypeVar, Generic, Callable, Iterable, Any, overload, cast, Iterator
+from typing import TypeVar, Generic, Callable, Iterable, Any, overload, cast, Iterator, Union
 from uuid import uuid4
 
-from typing_extensions import Self
+from typing_extensions import Self, TypeAlias
 
 from betty.classtools import repr_instance
 from betty.functools import slice_to_range
@@ -265,7 +266,7 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
         assert (
             isinstance(entity, self._entity_type)
             or  # noqa: W503 W504
-            isinstance(entity, FlattenedEntity) and self._entity_type == get_entity_type(entity.unflatten())
+            isinstance(entity, AliasedEntity) and self._entity_type == get_entity_type(entity.unalias())
         ), message
 
     def prepend(self, *entities: TargetT & Entity) -> None:
@@ -569,19 +570,19 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
     def prepend(self, *entities: TargetT & Entity) -> None:
         for entity in entities:
             self[
-                get_entity_type(unflatten(entity))  # type: ignore[index]
+                get_entity_type(unalias(entity))  # type: ignore[index]
             ].prepend(entity)
 
     def append(self, *entities: TargetT & Entity) -> None:
         for entity in entities:
             self[
-                get_entity_type(unflatten(entity))  # type: ignore[index]
+                get_entity_type(unalias(entity))  # type: ignore[index]
             ].append(entity)
 
     def remove(self, *entities: TargetT & Entity) -> None:
         for entity in entities:
             self[
-                get_entity_type(unflatten(entity))  # type: ignore[index]
+                get_entity_type(unalias(entity))  # type: ignore[index]
             ].remove(entity)
 
     def replace(self, *entities: TargetT & Entity) -> None:
@@ -824,18 +825,28 @@ many_to_many = _ManyToMany
 many_to_one_to_many = _ManyToOneToMany
 
 
-class FlattenedEntity(Entity):
-    def __init__(self, entity: Entity, entity_id: str | None = None):
-        super().__init__(entity_id)
-        self._entity = entity
+class AliasedEntity(Generic[EntityT]):
+    def __init__(self, original_entity: EntityT, aliased_entity_id: str | None = None):
+        self._entity = original_entity
+        self._id = GeneratedEntityId() if aliased_entity_id is None else aliased_entity_id
 
-    def unflatten(self) -> Entity:
-        return self._entity.unflatten() if isinstance(self._entity, FlattenedEntity) else self._entity
+    def __repr__(self) -> str:
+        return repr_instance(self, id=self.id)
+
+    @property
+    def id(self) -> str:
+        return self._id
+
+    def unalias(self) -> EntityT:
+        return self._entity
 
 
-def unflatten(entity: Entity) -> Entity:
-    if isinstance(entity, FlattenedEntity):
-        return entity.unflatten()
+AliasableEntity: TypeAlias = Union[EntityT, AliasedEntity[EntityT]]
+
+
+def unalias(entity: AliasableEntity[EntityT]) -> EntityT:
+    if isinstance(entity, AliasedEntity):
+        return entity.unalias()
     return entity
 
 
@@ -850,7 +861,7 @@ class _FlattenedAssociation:
 
 class FlattenedEntityCollection:
     def __init__(self):
-        self._entities = MultipleTypesEntityCollection[Any]()
+        self._entities: dict[type[Entity], dict[str, AliasableEntity[Entity]]] = defaultdict(dict)
         self._associations: list[_FlattenedAssociation] = []
         self._unflattened = False
 
@@ -859,9 +870,13 @@ class FlattenedEntityCollection:
         if self._unflattened:
             raise RuntimeError('This entity collection has been unflattened already.')
 
+    def _iter(self) -> Iterator[AliasableEntity[Entity]]:
+        for entity_type in self._entities:
+            yield from self._entities[entity_type].values()
+
     @classmethod
     def _copy_entity(cls, entity: EntityT) -> EntityT:
-        assert not isinstance(entity, FlattenedEntity)
+        assert not isinstance(entity, AliasedEntity)
 
         copied = copy.copy(entity)
 
@@ -875,8 +890,10 @@ class FlattenedEntityCollection:
         return copied
 
     def _restore_init_values(self) -> None:
-        for entity in self._entities:
-            entity = unflatten(entity)
+        for entity in map(
+            unalias,  # type: ignore[arg-type]
+            self._iter(),
+        ):
             for association_registration in _EntityTypeAssociationRegistry.get_associations(entity.__class__):
                 setattr(
                     entity,
@@ -886,8 +903,8 @@ class FlattenedEntityCollection:
 
     def _unflatten_associations(self) -> None:
         for association in self._associations:
-            owner = unflatten(self._entities[association.owner_type][association.owner_id])
-            associate = unflatten(self._entities[association.associate_type][association.associate_id])
+            owner = unalias(self._entities[association.owner_type][association.owner_id])
+            associate = unalias(self._entities[association.associate_type][association.associate_id])
             owner_association_attr_value = getattr(owner, association.owner_association_attr_name)
             if isinstance(owner_association_attr_value, EntityCollection):
                 owner_association_attr_value.append(associate)
@@ -902,23 +919,26 @@ class FlattenedEntityCollection:
         self._unflatten_associations()
 
         unflattened_entities = MultipleTypesEntityCollection[Any]()
-        unflattened_entities.append(*map(unflatten, self._entities))
+        unflattened_entities.append(*map(
+            unalias,  # type: ignore[arg-type]
+            self._iter(),
+        ))
 
         return unflattened_entities
 
-    def add_entity(self, *entities: Entity) -> None:
+    def add_entity(self, *entities: AliasableEntity[Entity]) -> None:
         self._assert_unflattened()
 
         for entity in entities:
-            if isinstance(entity, FlattenedEntity):
-                entity_type = get_entity_type(entity.unflatten())
+            if isinstance(entity, AliasedEntity):
+                entity_type = get_entity_type(entity.unalias())
             else:
                 entity_type = get_entity_type(entity)
                 entity = self._copy_entity(entity)
-            self._entities.append(entity)
+            self._entities[entity_type][entity.id] = entity
 
             for association_registration in _EntityTypeAssociationRegistry.get_associations(entity_type):
-                associates = getattr(unflatten(entity), f'_{association_registration.attr_name}')
+                associates = getattr(unalias(entity), f'_{association_registration.attr_name}')
                 # Consider one a special case of many.
                 if association_registration.cardinality == association_registration.Cardinality.ONE:
                     if associates is None:
@@ -929,15 +949,15 @@ class FlattenedEntityCollection:
                         entity_type,
                         entity.id,
                         association_registration.attr_name,
-                        get_entity_type(associate.unflatten()) if isinstance(associate, FlattenedEntity) else get_entity_type(associate),
+                        get_entity_type(associate.unalias()) if isinstance(associate, AliasedEntity) else get_entity_type(associate),
                         associate.id,
                     )
-                setattr(unflatten(entity), f'_{association_registration.attr_name}', None)
+                setattr(unalias(entity), f'_{association_registration.attr_name}', None)
 
     def add_association(self, owner_type: type[Entity], owner_id: str, owner_association_attr_name: str, associate_type: type[Entity], associate_id: str) -> None:
         self._assert_unflattened()
-        assert not issubclass(owner_type, FlattenedEntity)
-        assert not issubclass(associate_type, FlattenedEntity)
+        assert not issubclass(owner_type, AliasedEntity)
+        assert not issubclass(associate_type, AliasedEntity)
 
         self._associations.append(_FlattenedAssociation(
             get_entity_type(owner_type),
