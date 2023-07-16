@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Iterable
 
-import dill as pickle
+import dill
 import pytest
 from reactives.tests import assert_reactor_called, assert_scope_empty
 from typing_extensions import Self
@@ -443,7 +443,7 @@ class TestProjectConfiguration:
         sut = ProjectConfiguration()
         sut.extensions.append(ExtensionConfiguration(Extension, True, None))
         sut.locales.append(LocaleConfiguration('nl-NL', 'nl'))
-        pickle.dumps(sut)
+        dill.dumps(sut)
 
     def test_base_url(self) -> None:
         sut = ProjectConfiguration()
