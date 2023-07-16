@@ -4,7 +4,7 @@ from tempfile import NamedTemporaryFile
 from typing import Any
 from unittest.mock import Mock
 
-import dill as pickle
+import dill
 import pytest
 from geopy import Point
 
@@ -749,7 +749,7 @@ class TestAncestry:
         entity = DummyEntity()
         sut = Ancestry()
         sut.entities.append(entity)
-        unpickled_sut = pickle.loads(pickle.dumps(sut))
+        unpickled_sut = dill.loads(dill.dumps(sut))
         assert 1 == len(unpickled_sut.entities)
         assert entity.id == unpickled_sut.entities[0].id
 

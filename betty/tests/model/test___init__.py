@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Iterator
 
-import dill as pickle
+import dill
 import pytest
 
 from betty.model import get_entity_type_name, Entity, get_entity_type, _EntityTypeAssociation, \
@@ -677,7 +677,7 @@ class TestFlattenedEntityCollection:
         flattened_entities.add_association(self._ManyToMany_Many, entity_many.id, 'other_many', self._ManyToMany_OtherMany, entity_other_many.id)
 
         # Assert the result is pickleable.
-        pickle.dumps(flattened_entities)
+        dill.dumps(flattened_entities)
 
         unflattened_entities = flattened_entities.unflatten()
 
@@ -702,7 +702,7 @@ class TestFlattenedEntityCollection:
         assert entity_many in entity_other_many.many
         assert entity_other_many in entity_many.other_many
         # Assert the result is pickleable.
-        pickle.dumps(flattened_entities)
+        dill.dumps(flattened_entities)
 
         unflattened_entities = flattened_entities.unflatten()
 
@@ -727,7 +727,7 @@ class TestFlattenedEntityCollection:
         assert entity_many is entity_one.many
         assert entity_other_many is entity_one.other_many
         # Assert the result is pickleable.
-        pickle.dumps(flattened_entities)
+        dill.dumps(flattened_entities)
 
         unflattened_entities: tuple[
             TestFlattenedEntityCollection._ManyToOneToMany_Many,
@@ -802,7 +802,7 @@ class TestOneToOne:
 
         entity_one.other_one = entity_other_one
 
-        unpickled_entity_one, unpickled_entity_other_one = pickle.loads(pickle.dumps((entity_one, entity_other_one)))
+        unpickled_entity_one, unpickled_entity_other_one = dill.loads(dill.dumps((entity_one, entity_other_one)))
         assert entity_other_one.id == unpickled_entity_one.other_one.id
         assert entity_one.id == unpickled_entity_other_one.one.id
 
@@ -839,7 +839,7 @@ class TestManyToOne:
         entity_one = self._One()
 
         entity_many.one = entity_one
-        unpickled_entity_many, unpickled_entity_one = pickle.loads(pickle.dumps((entity_many, entity_one)))
+        unpickled_entity_many, unpickled_entity_one = dill.loads(dill.dumps((entity_many, entity_one)))
         assert unpickled_entity_many.id == unpickled_entity_one.many[0].id
         assert unpickled_entity_one.id == unpickled_entity_many.one.id
 
@@ -872,7 +872,7 @@ class TestToMany:
         entity_one = self._One()
         entity_other = self._Many()
         entity_one.many.append(entity_other)
-        unpickled_entity_one = pickle.loads(pickle.dumps(entity_one))
+        unpickled_entity_one = dill.loads(dill.dumps(entity_one))
         assert entity_other.id == unpickled_entity_one.many[0].id
 
 
@@ -909,7 +909,7 @@ class TestOneToMany:
 
         entity_one.many.append(entity_many)
 
-        unpickled_entity_one, unpickled_entity_many = pickle.loads(pickle.dumps((entity_one, entity_many)))
+        unpickled_entity_one, unpickled_entity_many = dill.loads(dill.dumps((entity_one, entity_many)))
         assert entity_many.id == unpickled_entity_one.many[0].id
         assert entity_one.id == unpickled_entity_many.one.id
 
@@ -947,7 +947,7 @@ class TestManyToMany:
 
         entity_many.other_many.append(entity_other_many)
 
-        unpickled_entity_many, unpickled_entity_other_many = pickle.loads(pickle.dumps((entity_many, entity_other_many)))
+        unpickled_entity_many, unpickled_entity_other_many = dill.loads(dill.dumps((entity_many, entity_other_many)))
         assert entity_many.id == unpickled_entity_other_many.many[0].id
         assert entity_other_many.id == unpickled_entity_many.other_many[0].id
 
@@ -995,6 +995,6 @@ class TestManyToOneToMany:
         entity_one.left_many = entity_left_many
         entity_one.right_many = entity_right_many
 
-        unpickled_entity_one = pickle.loads(pickle.dumps(entity_one))
+        unpickled_entity_one = dill.loads(dill.dumps(entity_one))
         assert entity_left_many.id == unpickled_entity_one.left_many.id
         assert entity_right_many.id == unpickled_entity_one.right_many.id

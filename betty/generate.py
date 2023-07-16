@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import cast, AsyncContextManager, Callable, Generic, Any, Awaitable
 
 import aiofiles
-import dill as pickle
+import dill
 from aiofiles import os as aiofiles_os
 from aiofiles.threadpool.text import AsyncTextIOWrapper
 from typing_extensions import ParamSpec, Concatenate
@@ -88,7 +88,7 @@ class _ConcurrentGenerator:
         # generated before anything else.
         await _generate_static_public(app, app.locale)
         generation_queue = cls._build_generation_queue(app)
-        pickled_project = pickle.dumps(app.project)
+        pickled_project = dill.dumps(app.project)
         await asyncio.gather(*[
             app.wait_for_process(cls(generation_queue, pickled_project, app.async_concurrency, app.locale))
             for _ in range(0, app.concurrency)
@@ -131,7 +131,7 @@ class _ConcurrentGenerator:
 
     @sync
     async def __call__(self) -> None:
-        self._project = pickle.loads(self._pickled_project)
+        self._project = dill.loads(self._pickled_project)
         self._apps: dict[str | None, App] = {
             None: App(project=self._project),
         }
