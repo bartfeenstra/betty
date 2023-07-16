@@ -8,6 +8,7 @@ from enum import Enum
 from typing import TypeVar, Generic, Callable, Iterable, Any, overload, cast, Iterator, Union
 from uuid import uuid4
 
+from ordered_set import OrderedSet
 from typing_extensions import Self, TypeAlias
 
 from betty.classtools import repr_instance
@@ -210,16 +211,16 @@ class _EntityTypeAssociation(Generic[OwnerT, AssociateT]):
     class Cardinality(Enum):
         ONE = 1
         MANY = 2
-    cls: type[OwnerT]
-    attr_name: str
-    cardinality: Cardinality
-    init_value_factory: Callable[..., EntityCollection[AssociateT]] | None = None
-    init_value_arguments: tuple[Any, ...] = field(default_factory=tuple)
+    owner_cls: type[OwnerT]
+    owner_attr_name: str
+    owner_cardinality: Cardinality
+    owner_init_value_factory: Callable[..., EntityCollection[AssociateT]] | None = None
+    owner_init_value_arguments: tuple[Any, ...] = field(default_factory=tuple)
 
     def init_value(self, owner: OwnerT) -> EntityCollection[AssociateT] | None:
-        if self.init_value_factory is None:
+        if self.owner_init_value_factory is None:
             return None
-        return self.init_value_factory(owner, *self.init_value_arguments)
+        return self.owner_init_value_factory(owner, *self.owner_init_value_arguments)
 
 
 class _EntityTypeAssociationRegistry:
@@ -231,7 +232,7 @@ class _EntityTypeAssociationRegistry:
             cast(_EntityTypeAssociation[T, Any], registration)
             for registration
             in cls._registrations
-            if registration.cls in owner_cls.__mro__
+            if registration.owner_cls in owner_cls.__mro__
         }
 
     @classmethod
@@ -862,7 +863,7 @@ class _FlattenedAssociation:
 class FlattenedEntityCollection:
     def __init__(self):
         self._entities: dict[type[Entity], dict[str, AliasableEntity[Entity]]] = defaultdict(dict)
-        self._associations: list[_FlattenedAssociation] = []
+        self._associations: OrderedSet[_FlattenedAssociation] = OrderedSet()
         self._unflattened = False
 
     def _assert_unflattened(self) -> None:
@@ -882,7 +883,7 @@ class FlattenedEntityCollection:
 
         # Copy any associate collections because they belong to a single owning entity.
         for association_registration in _EntityTypeAssociationRegistry.get_associations(get_entity_type(entity)):
-            private_association_attr_name = f'_{association_registration.attr_name}'
+            private_association_attr_name = f'_{association_registration.owner_attr_name}'
             associates = getattr(entity, private_association_attr_name)
             if isinstance(associates, _AssociateCollection):
                 setattr(copied, private_association_attr_name, associates.copy_for_owner(copied))
@@ -897,12 +898,13 @@ class FlattenedEntityCollection:
             for association_registration in _EntityTypeAssociationRegistry.get_associations(entity.__class__):
                 setattr(
                     entity,
-                    f'_{association_registration.attr_name}',
+                    f'_{association_registration.owner_attr_name}',
                     association_registration.init_value(entity),
                 )
 
     def _unflatten_associations(self) -> None:
         for association in self._associations:
+            print(association)
             owner = unalias(self._entities[association.owner_type][association.owner_id])
             associate = unalias(self._entities[association.associate_type][association.associate_id])
             owner_association_attr_value = getattr(owner, association.owner_association_attr_name)
@@ -938,9 +940,9 @@ class FlattenedEntityCollection:
             self._entities[entity_type][entity.id] = entity
 
             for association_registration in _EntityTypeAssociationRegistry.get_associations(entity_type):
-                associates = getattr(unalias(entity), f'_{association_registration.attr_name}')
+                associates = getattr(unalias(entity), f'_{association_registration.owner_attr_name}')
                 # Consider one a special case of many.
-                if association_registration.cardinality == association_registration.Cardinality.ONE:
+                if association_registration.owner_cardinality == association_registration.Cardinality.ONE:
                     if associates is None:
                         continue
                     associates = [associates]
@@ -948,18 +950,23 @@ class FlattenedEntityCollection:
                     self.add_association(
                         entity_type,
                         entity.id,
-                        association_registration.attr_name,
+                        association_registration.owner_attr_name,
                         get_entity_type(associate.unalias()) if isinstance(associate, AliasedEntity) else get_entity_type(associate),
                         associate.id,
                     )
-                setattr(unalias(entity), f'_{association_registration.attr_name}', None)
+                setattr(unalias(entity), f'_{association_registration.owner_attr_name}', None)
 
-    def add_association(self, owner_type: type[Entity], owner_id: str, owner_association_attr_name: str, associate_type: type[Entity], associate_id: str) -> None:
+    def add_association(
+        self,
+        owner_type: type[Entity],
+        owner_id: str,
+        owner_association_attr_name: str,
+        associate_type: type[Entity],
+        associate_id: str,
+    ) -> None:
         self._assert_unflattened()
-        assert not issubclass(owner_type, AliasedEntity)
-        assert not issubclass(associate_type, AliasedEntity)
 
-        self._associations.append(_FlattenedAssociation(
+        self._associations.add(_FlattenedAssociation(
             get_entity_type(owner_type),
             owner_id,
             owner_association_attr_name,

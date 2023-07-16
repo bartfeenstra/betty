@@ -9,7 +9,7 @@ from betty.model import get_entity_type_name, Entity, get_entity_type, _EntityTy
     _EntityTypeAssociationRegistry, SingleTypeEntityCollection, _AssociateCollection, MultipleTypesEntityCollection, \
     one_to_many, many_to_one_to_many, FlattenedEntityCollection, many_to_many, \
     EntityCollection, to_many, many_to_one, to_one, one_to_one, EntityTypeInvalidError, \
-    EntityTypeImportError
+    EntityTypeImportError, AliasedEntity
 from betty.model.ancestry import Person
 
 
@@ -634,114 +634,452 @@ class TestMultipleTypesEntityCollection:
 
 
 class TestFlattenedEntityCollection:
-    @many_to_many[
-        'TestFlattenedEntityCollection._ManyToMany_OtherMany',
-        'TestFlattenedEntityCollection._ManyToMany_Many',
-    ]('other_many', 'many')
-    class _ManyToMany_Many(Entity):
-        other_many: EntityCollection[TestFlattenedEntityCollection._ManyToMany_OtherMany]
+    @to_one['_ToOne_Right', '_ToOne_Left']('to_one')
+    class _ToOne_Left(Entity):
+        to_one: TestFlattenedEntityCollection._ToOne_Right | None
 
-    @many_to_many[
-        'TestFlattenedEntityCollection._ManyToMany_Many',
-        'TestFlattenedEntityCollection._ManyToMany_OtherMany',
-    ]('many', 'other_many')
-    class _ManyToMany_OtherMany(Entity):
-        many: EntityCollection[TestFlattenedEntityCollection._ManyToMany_Many]
+    class _ToOne_Right(Entity):
+        pass
+
+    @one_to_one['_OneToOne', '_OneToOne']('to_one', 'to_one')
+    class _OneToOne(Entity):
+        to_one: TestFlattenedEntityCollection._OneToOne | None
+
+    @many_to_one[
+        'TestFlattenedEntityCollection._ManyToOne_Right',
+        'TestFlattenedEntityCollection._ManyToOne_Left',
+    ]('to_one', 'to_many')
+    class _ManyToOne_Left(Entity):
+        to_one: TestFlattenedEntityCollection._ManyToOne_Right | None
 
     @one_to_many[
-        'TestFlattenedEntityCollection._ManyToOneToMany_OtherMany',
-        'TestFlattenedEntityCollection._ManyToOneToMany_Many',
-    ]('other_many', 'many')
-    class _ManyToOneToMany_Many(Entity):
-        other_many: EntityCollection[TestFlattenedEntityCollection._ManyToOneToMany_OtherMany]
+        'TestFlattenedEntityCollection._ManyToOne_Left',
+        'TestFlattenedEntityCollection._ManyToOne_Right',
+    ]('to_many', 'to_one')
+    class _ManyToOne_Right(Entity):
+        to_many: EntityCollection[TestFlattenedEntityCollection._ManyToOne_Left]
+
+    @to_many['_ToMany_Right', '_ToMany_Left']('to_many')
+    class _ToMany_Left(Entity):
+        to_many: EntityCollection[TestFlattenedEntityCollection._ToMany_Right]
+
+    class _ToMany_Right(Entity):
+        pass
+
+    @one_to_many[
+        'TestFlattenedEntityCollection._OneToMany_Right',
+        'TestFlattenedEntityCollection._OneToMany_Left',
+    ]('to_many', 'to_one')
+    class _OneToMany_Left(Entity):
+        to_many: EntityCollection[TestFlattenedEntityCollection._OneToMany_Right]
+
+    @many_to_one[
+        'TestFlattenedEntityCollection._OneToMany_Left',
+        'TestFlattenedEntityCollection._OneToMany_Right',
+    ]('to_one', 'to_many')
+    class _OneToMany_Right(Entity):
+        to_one: TestFlattenedEntityCollection._OneToMany_Left | None
+
+    @many_to_many[
+        'TestFlattenedEntityCollection._ManyToMany_Right',
+        'TestFlattenedEntityCollection._ManyToMany_Left',
+    ]('to_many', 'to_many')
+    class _ManyToMany_Left(Entity):
+        to_many: EntityCollection[TestFlattenedEntityCollection._ManyToMany_Right]
+
+    @many_to_many[
+        'TestFlattenedEntityCollection._ManyToMany_Left',
+        'TestFlattenedEntityCollection._ManyToMany_Right',
+    ]('to_many', 'to_many')
+    class _ManyToMany_Right(Entity):
+        to_many: EntityCollection[TestFlattenedEntityCollection._ManyToMany_Left]
+
+    @one_to_many[
+        'TestFlattenedEntityCollection._ManyToOneToMany_Middle',
+        'TestFlattenedEntityCollection._ManyToOneToMany_Left',
+    ]('to_many', 'to_one_left')
+    class _ManyToOneToMany_Left(Entity):
+        to_many: EntityCollection[TestFlattenedEntityCollection._ManyToOneToMany_Middle]
 
     @many_to_one_to_many[
-        'TestFlattenedEntityCollection._ManyToOneToMany_Many',
-        'TestFlattenedEntityCollection._ManyToOneToMany_One',
-        'TestFlattenedEntityCollection._ManyToOneToMany_OtherMany',
-    ]('other_many', 'many', 'other_many', 'many')
-    class _ManyToOneToMany_One(Entity):
-        many: TestFlattenedEntityCollection._ManyToOneToMany_Many
-        other_many: TestFlattenedEntityCollection._ManyToOneToMany_OtherMany
+        'TestFlattenedEntityCollection._ManyToOneToMany_Left',
+        'TestFlattenedEntityCollection._ManyToOneToMany_Middle',
+        'TestFlattenedEntityCollection._ManyToOneToMany_Right',
+    ]('to_many', 'to_one_left', 'to_one_right', 'to_many')
+    class _ManyToOneToMany_Middle(Entity):
+        to_one_left: TestFlattenedEntityCollection._ManyToOneToMany_Left | None
+        to_one_right: TestFlattenedEntityCollection._ManyToOneToMany_Right | None
 
-    @one_to_many['TestFlattenedEntityCollection._ManyToOneToMany_Many', 'TestFlattenedEntityCollection._ManyToOneToMany_OtherMany']('many', 'other_many')
-    class _ManyToOneToMany_OtherMany(Entity):
-        many: EntityCollection[TestFlattenedEntityCollection._ManyToOneToMany_Many]
+    @one_to_many[
+        'TestFlattenedEntityCollection._ManyToOneToMany_Middle',
+        'TestFlattenedEntityCollection._ManyToOneToMany_Right',
+    ]('to_many', 'to_one_right')
+    class _ManyToOneToMany_Right(Entity):
+        to_many: EntityCollection[TestFlattenedEntityCollection._ManyToOneToMany_Middle]
 
-    def test_add_to_many_association_then_unflatten(self) -> None:
-        entity_many = self._ManyToMany_Many()
-        entity_other_many = self._ManyToMany_OtherMany()
+    def test_to_one_aliased(self) -> None:
+        left = AliasedEntity(self._ToOne_Left())
+        right = AliasedEntity(self._ToOne_Right())
 
-        flattened_entities = FlattenedEntityCollection()
-        flattened_entities.add_entity(entity_many, entity_other_many)
-        flattened_entities.add_association(self._ManyToMany_Many, entity_many.id, 'other_many', self._ManyToMany_OtherMany, entity_other_many.id)
+        sut = FlattenedEntityCollection()
+        sut.add_entity(
+            left,  # type: ignore[arg-type]
+            right,  # type: ignore[arg-type]
+        )
+        sut.add_association(self._ToOne_Left, left.id, 'to_one', self._ToOne_Right, right.id)
 
         # Assert the result is pickleable.
-        dill.dumps(flattened_entities)
+        dill.loads(dill.dumps(sut)).unflatten()
 
-        unflattened_entities = flattened_entities.unflatten()
+        unaliased_entities = sut.unflatten()
 
-        unflattened_entity_many: TestFlattenedEntityCollection._ManyToMany_Many = unflattened_entities[self._ManyToMany_Many][0]
-        unflattened_entity_other_many: TestFlattenedEntityCollection._ManyToMany_OtherMany = unflattened_entities[self._ManyToMany_OtherMany][0]
-        assert entity_many is not unflattened_entity_many
-        assert entity_other_many is not unflattened_entity_other_many
-        assert 1 == len(unflattened_entity_other_many.many)
-        assert unflattened_entity_many in unflattened_entity_other_many.many
-        assert 1 == len(unflattened_entity_many.other_many)
-        assert unflattened_entity_other_many in unflattened_entity_many.other_many
+        assert left.unalias() is unaliased_entities[self._ToOne_Left][left.unalias().id]
+        assert right.unalias() is unaliased_entities[self._ToOne_Right][right.unalias().id]
+        assert left.unalias().to_one is right.unalias()
 
-    def test_add_entity_with_to_many_association_then_unflatten(self) -> None:
-        entity_many = self._ManyToMany_Many()
-        entity_other_many = self._ManyToMany_OtherMany()
-        entity_many.other_many.append(entity_other_many)
+    def test_to_one_unaliased(self) -> None:
+        left = self._ToOne_Left()
+        right = self._ToOne_Right()
+        left.to_one = right
 
-        flattened_entities = FlattenedEntityCollection()
-        flattened_entities.add_entity(entity_many, entity_other_many)
+        sut = FlattenedEntityCollection()
+        sut.add_entity(left, right)
 
-        # Assert the original entities remain unchanged.
-        assert entity_many in entity_other_many.many
-        assert entity_other_many in entity_many.other_many
         # Assert the result is pickleable.
-        dill.dumps(flattened_entities)
+        dill.loads(dill.dumps(sut)).unflatten()
 
-        unflattened_entities = flattened_entities.unflatten()
+        unaliased_entities = sut.unflatten()
 
-        unflattened_entity_many = unflattened_entities[self._ManyToMany_Many][0]
-        unflattened_entity_other_many = unflattened_entities[self._ManyToMany_OtherMany][0]
-        assert entity_many is not unflattened_entity_many
-        assert entity_other_many is not unflattened_entity_other_many
-        assert unflattened_entity_many in unflattened_entity_other_many.many
-        assert unflattened_entity_other_many in unflattened_entity_many.other_many
+        assert left is not unaliased_entities[self._ToOne_Left][left.id]
+        assert right is not unaliased_entities[self._ToOne_Right][right.id]
+        assert left.to_one is right
 
-    def test_add_entity_with_many_to_one_to_many_association_then_unflatten(self) -> None:
-        entity_many = self._ManyToOneToMany_Many()
-        entity_one = self._ManyToOneToMany_One()
-        entity_other_many = self._ManyToOneToMany_OtherMany()
-        entity_one.many = entity_many
-        entity_one.other_many = entity_other_many
+    def test_one_to_one_aliased_with_left_association(self) -> None:
+        left = AliasedEntity(self._OneToOne())
+        right = AliasedEntity(self._OneToOne())
 
-        flattened_entities = FlattenedEntityCollection()
-        flattened_entities.add_entity(entity_many, entity_one, entity_other_many)
+        sut = FlattenedEntityCollection()
+        sut.add_entity(
+            left,  # type: ignore[arg-type]
+            right,  # type: ignore[arg-type]
+        )
+        sut.add_association(self._OneToOne, left.id, 'to_one', self._OneToOne, right.id)
 
-        # Assert the original entities remain unchanged.
-        assert entity_many is entity_one.many
-        assert entity_other_many is entity_one.other_many
         # Assert the result is pickleable.
-        dill.dumps(flattened_entities)
+        dill.loads(dill.dumps(sut)).unflatten()
 
-        unflattened_entities: tuple[
-            TestFlattenedEntityCollection._ManyToOneToMany_Many,
-            TestFlattenedEntityCollection._ManyToOneToMany_One,
-            TestFlattenedEntityCollection._ManyToOneToMany_OtherMany,
-        ] = flattened_entities.unflatten()  # type: ignore[assignment]
-        unflattened_entity_many, unflattened_entity_one, unflattened_entity_other_many = unflattened_entities
+        unaliased_entities = sut.unflatten()
 
-        assert entity_many is not unflattened_entity_many
-        assert entity_other_many is not unflattened_entity_other_many
-        assert unflattened_entity_one in unflattened_entity_other_many.many
-        assert unflattened_entity_one in unflattened_entity_many.other_many
-        assert unflattened_entity_many is unflattened_entity_one.many
-        assert unflattened_entity_other_many is unflattened_entity_one.other_many
+        assert left.unalias() is unaliased_entities[self._OneToOne][left.unalias().id]
+        assert right.unalias() is unaliased_entities[self._OneToOne][right.unalias().id]
+        assert left.unalias().to_one is right.unalias()
+        assert right.unalias().to_one is left.unalias()
+
+    def test_one_to_one_aliased_with_right_association(self) -> None:
+        left = AliasedEntity(self._OneToOne())
+        right = AliasedEntity(self._OneToOne())
+
+        sut = FlattenedEntityCollection()
+        sut.add_entity(
+            left,  # type: ignore[arg-type]
+            right,  # type: ignore[arg-type]
+        )
+        sut.add_association(self._OneToOne, right.id, 'to_one', self._OneToOne, left.id)
+
+        # Assert the result is pickleable.
+        dill.loads(dill.dumps(sut)).unflatten()
+
+        unaliased_entities = sut.unflatten()
+
+        assert left.unalias() is unaliased_entities[self._OneToOne][left.unalias().id]
+        assert right.unalias() is unaliased_entities[self._OneToOne][right.unalias().id]
+        assert left.unalias().to_one is right.unalias()
+        assert right.unalias().to_one is left.unalias()
+
+    def test_one_to_one_unaliased(self) -> None:
+        left = self._OneToOne()
+        right = self._OneToOne()
+        left.to_one = right
+
+        sut = FlattenedEntityCollection()
+        sut.add_entity(left, right)
+
+        # Assert the result is pickleable.
+        dill.loads(dill.dumps(sut)).unflatten()
+
+        unaliased_entities = sut.unflatten()
+
+        assert left is not unaliased_entities[self._OneToOne][left.id]
+        assert right is not unaliased_entities[self._OneToOne][right.id]
+        assert left.to_one is right
+        assert right.to_one is left
+
+    def test_many_to_one_aliased_with_left_association(self) -> None:
+        left = AliasedEntity(self._ManyToOne_Left())
+        right = AliasedEntity(self._ManyToOne_Right())
+
+        sut = FlattenedEntityCollection()
+        sut.add_entity(
+            left,  # type: ignore[arg-type]
+            right,  # type: ignore[arg-type]
+        )
+        sut.add_association(self._ManyToOne_Left, left.id, 'to_one', self._ManyToOne_Right, right.id)
+
+        # Assert the result is pickleable.
+        dill.loads(dill.dumps(sut)).unflatten()
+
+        unaliased_entities = sut.unflatten()
+
+        assert left.unalias() is unaliased_entities[self._ManyToOne_Left][left.unalias().id]
+        assert right.unalias() is unaliased_entities[self._ManyToOne_Right][right.unalias().id]
+        assert right.unalias() is left.unalias().to_one
+        assert left.unalias() in right.unalias().to_many
+
+    def test_many_to_one_aliased_with_right_association(self) -> None:
+        left = AliasedEntity(self._ManyToOne_Left())
+        right = AliasedEntity(self._ManyToOne_Right())
+
+        sut = FlattenedEntityCollection()
+        sut.add_entity(
+            left,  # type: ignore[arg-type]
+            right,  # type: ignore[arg-type]
+        )
+        sut.add_association(self._ManyToOne_Right, right.id, 'to_many', self._ManyToOne_Left, left.id)
+
+        # Assert the result is pickleable.
+        dill.loads(dill.dumps(sut)).unflatten()
+
+        unaliased_entities = sut.unflatten()
+
+        assert left.unalias() is unaliased_entities[self._ManyToOne_Left][left.unalias().id]
+        assert right.unalias() is unaliased_entities[self._ManyToOne_Right][right.unalias().id]
+        assert right.unalias() is left.unalias().to_one
+        assert left.unalias() in right.unalias().to_many
+
+    def test_many_to_one_unaliased(self) -> None:
+        left = self._ManyToOne_Left()
+        right = self._ManyToOne_Right()
+        left.to_one = right
+
+        sut = FlattenedEntityCollection()
+        sut.add_entity(left, right)
+
+        # Assert the result is pickleable.
+        dill.loads(dill.dumps(sut)).unflatten()
+
+        unaliased_entities = sut.unflatten()
+
+        assert left is not unaliased_entities[self._ManyToOne_Left][left.id]
+        assert right is not unaliased_entities[self._ManyToOne_Right][right.id]
+        assert right is left.to_one
+        assert left in right.to_many
+
+    def test_to_many_aliased(self) -> None:
+        left = AliasedEntity(self._ToMany_Left())
+        right = AliasedEntity(self._ToMany_Right())
+
+        sut = FlattenedEntityCollection()
+        sut.add_entity(
+            left,  # type: ignore[arg-type]
+            right,  # type: ignore[arg-type]
+        )
+        sut.add_association(self._ToMany_Left, left.id, 'to_many', self._ToMany_Right, right.id)
+
+        # Assert the result is pickleable.
+        dill.loads(dill.dumps(sut)).unflatten()
+
+        unaliased_entities = sut.unflatten()
+
+        assert left.unalias() is unaliased_entities[self._ToMany_Left][left.unalias().id]
+        assert right.unalias() is unaliased_entities[self._ToMany_Right][right.unalias().id]
+        assert right.unalias() in left.unalias().to_many
+
+    def test_to_many_unaliased(self) -> None:
+        left = self._ToMany_Left()
+        right = self._ToMany_Right()
+        left.to_many.append(right)
+
+        sut = FlattenedEntityCollection()
+        sut.add_entity(left, right)
+
+        # Assert the result is pickleable.
+        dill.loads(dill.dumps(sut)).unflatten()
+
+        unaliased_entities = sut.unflatten()
+
+        assert left is not unaliased_entities[self._ToMany_Left][left.id]
+        assert right is not unaliased_entities[self._ToMany_Right][right.id]
+        assert right in left.to_many
+
+    def test_one_to_many_aliased_with_left_association(self) -> None:
+        left = AliasedEntity(self._OneToMany_Left())
+        right = AliasedEntity(self._OneToMany_Right())
+
+        sut = FlattenedEntityCollection()
+        sut.add_entity(
+            left,  # type: ignore[arg-type]
+            right,  # type: ignore[arg-type]
+        )
+        sut.add_association(self._OneToMany_Left, left.id, 'to_many', self._OneToMany_Right, right.id)
+
+        # Assert the result is pickleable.
+        dill.loads(dill.dumps(sut)).unflatten()
+
+        unaliased_entities = sut.unflatten()
+
+        assert left.unalias() is unaliased_entities[self._OneToMany_Left][left.unalias().id]
+        assert right.unalias() is unaliased_entities[self._OneToMany_Right][right.unalias().id]
+        assert right.unalias() in left.unalias().to_many
+        assert left.unalias() is right.unalias().to_one
+
+    def test_one_to_many_aliased_with_right_association(self) -> None:
+        left = AliasedEntity(self._OneToMany_Left())
+        right = AliasedEntity(self._OneToMany_Right())
+
+        sut = FlattenedEntityCollection()
+        sut.add_entity(
+            left,  # type: ignore[arg-type]
+            right,  # type: ignore[arg-type]
+        )
+        sut.add_association(self._OneToMany_Right, right.id, 'to_one', self._OneToMany_Left, left.id)
+
+        # Assert the result is pickleable.
+        dill.loads(dill.dumps(sut)).unflatten()
+
+        unaliased_entities = sut.unflatten()
+
+        assert left.unalias() is unaliased_entities[self._OneToMany_Left][left.unalias().id]
+        assert right.unalias() is unaliased_entities[self._OneToMany_Right][right.unalias().id]
+        assert right.unalias() in left.unalias().to_many
+        assert left.unalias() is right.unalias().to_one
+
+    def test_one_to_many_unaliased(self) -> None:
+        left = self._OneToMany_Left()
+        right = self._OneToMany_Right()
+        left.to_many.append(right)
+
+        sut = FlattenedEntityCollection()
+        sut.add_entity(left, right)
+
+        # Assert the result is pickleable.
+        dill.loads(dill.dumps(sut)).unflatten()
+
+        unaliased_entities = sut.unflatten()
+
+        assert left is not unaliased_entities[self._OneToMany_Left][left.id]
+        assert right is not unaliased_entities[self._OneToMany_Right][right.id]
+        assert right in left.to_many
+        assert left is right.to_one
+
+    def test_many_to_many_aliased_with_left_association(self) -> None:
+        left = AliasedEntity(self._ManyToMany_Left())
+        right = AliasedEntity(self._ManyToMany_Right())
+
+        sut = FlattenedEntityCollection()
+        sut.add_entity(
+            left,  # type: ignore[arg-type]
+            right,  # type: ignore[arg-type]
+        )
+        sut.add_association(self._ManyToMany_Left, left.id, 'to_many', self._ManyToMany_Right, right.id)
+
+        # Assert the result is pickleable.
+        dill.loads(dill.dumps(sut)).unflatten()
+
+        unaliased_entities = sut.unflatten()
+
+        assert left.unalias() is unaliased_entities[self._ManyToMany_Left][left.unalias().id]
+        assert right.unalias() is unaliased_entities[self._ManyToMany_Right][right.unalias().id]
+        assert right.unalias() in left.unalias().to_many
+        assert left.unalias() in right.unalias().to_many
+
+    def test_many_to_many_aliased_with_right_association(self) -> None:
+        left = AliasedEntity(self._ManyToMany_Left())
+        right = AliasedEntity(self._ManyToMany_Right())
+
+        sut = FlattenedEntityCollection()
+        sut.add_entity(
+            left,  # type: ignore[arg-type]
+            right,  # type: ignore[arg-type]
+        )
+        sut.add_association(self._ManyToMany_Right, right.id, 'to_many', self._ManyToMany_Left, left.id)
+
+        # Assert the result is pickleable.
+        dill.loads(dill.dumps(sut)).unflatten()
+
+        unaliased_entities = sut.unflatten()
+
+        assert left.unalias() is unaliased_entities[self._ManyToMany_Left][left.unalias().id]
+        assert right.unalias() is unaliased_entities[self._ManyToMany_Right][right.unalias().id]
+        assert right.unalias() in left.unalias().to_many
+        assert left.unalias() in right.unalias().to_many
+
+    def test_many_to_many_unaliased(self) -> None:
+        left = self._ManyToMany_Left()
+        right = self._ManyToMany_Right()
+        left.to_many.append(right)
+
+        sut = FlattenedEntityCollection()
+        sut.add_entity(left, right)
+
+        # Assert the result is pickleable.
+        dill.loads(dill.dumps(sut)).unflatten()
+
+        unaliased_entities = sut.unflatten()
+
+        assert left is not unaliased_entities[self._ManyToMany_Left][left.id]
+        assert right is not unaliased_entities[self._ManyToMany_Right][right.id]
+        assert right in left.to_many
+        assert left in right.to_many
+
+    def test_many_to_one_to_many_aliased(self) -> None:
+        left = AliasedEntity(self._ManyToOneToMany_Left())
+        middle = AliasedEntity(self._ManyToOneToMany_Middle())
+        right = AliasedEntity(self._ManyToOneToMany_Right())
+
+        sut = FlattenedEntityCollection()
+        sut.add_entity(
+            left,  # type: ignore[arg-type]
+            middle,  # type: ignore[arg-type]
+            right,  # type: ignore[arg-type]
+        )
+        sut.add_association(self._ManyToOneToMany_Middle, middle.id, 'to_one_left', self._ManyToOneToMany_Left, left.id)
+        sut.add_association(self._ManyToOneToMany_Middle, middle.id, 'to_one_right', self._ManyToOneToMany_Right, right.id)
+
+        # Assert the result is pickleable.
+        dill.loads(dill.dumps(sut)).unflatten()
+
+        unaliased_entities = sut.unflatten()
+
+        assert left.unalias() is unaliased_entities[self._ManyToOneToMany_Left][left.unalias().id]
+        assert middle.unalias() is unaliased_entities[self._ManyToOneToMany_Middle][middle.unalias().id]
+        assert right.unalias() is unaliased_entities[self._ManyToOneToMany_Right][right.unalias().id]
+        assert middle.unalias() in left.unalias().to_many
+        assert left.unalias() is middle.unalias().to_one_left
+        assert right.unalias() is middle.unalias().to_one_right
+        assert middle.unalias() in right.unalias().to_many
+
+    def test_many_to_one_to_many_unaliased(self) -> None:
+        left = self._ManyToOneToMany_Left()
+        middle = self._ManyToOneToMany_Middle()
+        right = self._ManyToOneToMany_Right()
+        middle.to_one_left = left
+        middle.to_one_right = right
+
+        sut = FlattenedEntityCollection()
+        sut.add_entity(left, middle, right)
+
+        # Assert the result is pickleable.
+        dill.loads(dill.dumps(sut)).unflatten()
+
+        unaliased_entities = sut.unflatten()
+
+        assert left is not unaliased_entities[self._ManyToOneToMany_Left][left.id]
+        assert middle is not unaliased_entities[self._ManyToOneToMany_Middle][middle.id]
+        assert right is not unaliased_entities[self._ManyToOneToMany_Right][right.id]
+        assert middle in left.to_many
+        assert left is middle.to_one_left
+        assert right is middle.to_one_right
+        assert middle in right.to_many
 
 
 class TestToOne:
@@ -754,7 +1092,7 @@ class TestToOne:
 
     def test(self) -> None:
         assert {'one'} == {
-            association.attr_name
+            association.owner_attr_name
             for association
             in _EntityTypeAssociationRegistry.get_associations(self._Some)
         }
@@ -780,7 +1118,7 @@ class TestOneToOne:
 
     def test(self) -> None:
         assert {'one'} == {
-            association.attr_name
+            association.owner_attr_name
             for association
             in _EntityTypeAssociationRegistry.get_associations(self._OtherOne)
         }
@@ -818,7 +1156,7 @@ class TestManyToOne:
 
     def test(self) -> None:
         assert {'one'} == {
-            association.attr_name
+            association.owner_attr_name
             for association
             in _EntityTypeAssociationRegistry.get_associations(self._Many)
         }
@@ -854,7 +1192,7 @@ class TestToMany:
 
     def test(self) -> None:
         assert {'many'} == {
-            association.attr_name
+            association.owner_attr_name
             for association
             in _EntityTypeAssociationRegistry.get_associations(self._One)
         }
@@ -887,7 +1225,7 @@ class TestOneToMany:
 
     def test(self) -> None:
         assert {'many'} == {
-            association.attr_name
+            association.owner_attr_name
             for association
             in _EntityTypeAssociationRegistry.get_associations(self._One)
         }
@@ -925,7 +1263,7 @@ class TestManyToMany:
 
     def test(self) -> None:
         assert {'other_many'} == {
-            association.attr_name
+            association.owner_attr_name
             for association
             in _EntityTypeAssociationRegistry.get_associations(self._Many)
         }
@@ -964,7 +1302,7 @@ class TestManyToOneToMany:
 
     def test(self) -> None:
         assert {'left_many', 'right_many'} == {
-            association.attr_name
+            association.owner_attr_name
             for association
             in _EntityTypeAssociationRegistry.get_associations(self._One)
         }
