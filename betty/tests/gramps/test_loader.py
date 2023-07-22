@@ -66,7 +66,7 @@ class TestGrampsLoader:
         sut.load_xml(gramps_file_path, rootname(gramps_file_path))
 
     def test_place_should_include_name(self, test_load_xml_ancestry: Ancestry) -> None:
-        place = test_load_xml_ancestry.entities[Place]['P0000']
+        place = test_load_xml_ancestry[Place]['P0000']
         names = place.names
         assert 1 == len(names)
         name = names[0]
@@ -94,7 +94,7 @@ class TestGrampsLoader:
         </placeobj>
         </places>
         """)
-        coordinates = ancestry.entities[Place]['P0000'].coordinates
+        coordinates = ancestry[Place]['P0000'].coordinates
         assert coordinates
         assert pytest.approx(expected_latitude) == coordinates.latitude
         assert pytest.approx(expected_longitude) == coordinates.longitude
@@ -107,12 +107,12 @@ class TestGrampsLoader:
         </placeobj>
         </places>
         """)
-        coordinates = ancestry.entities[Place]['P0000'].coordinates
+        coordinates = ancestry[Place]['P0000'].coordinates
         assert coordinates is None
 
     def test_place_should_include_events(self, test_load_xml_ancestry: Ancestry) -> None:
-        place = test_load_xml_ancestry.entities[Place]['P0000']
-        event = test_load_xml_ancestry.entities[Event]['E0000']
+        place = test_load_xml_ancestry[Place]['P0000']
+        event = test_load_xml_ancestry[Event]['E0000']
         assert place == event.place
         assert event in place.events
 
@@ -129,81 +129,101 @@ class TestGrampsLoader:
     </placeobj>
 </places>
 """)
-        assert ancestry.entities[Place]['P0000'] == ancestry.entities[Place]['P0002'].enclosed_by[0].enclosed_by
-        assert ancestry.entities[Place]['P0001'] == ancestry.entities[Place]['P0002'].enclosed_by[1].enclosed_by
-        assert ancestry.entities[Place]['P0002'] == ancestry.entities[Place]['P0000'].encloses[0].encloses
-        assert ancestry.entities[Place]['P0002'] == ancestry.entities[Place]['P0001'].encloses[0].encloses
+        assert ancestry[Place]['P0000'] == ancestry[Place]['P0002'].enclosed_by[0].enclosed_by
+        assert ancestry[Place]['P0001'] == ancestry[Place]['P0002'].enclosed_by[1].enclosed_by
+        assert ancestry[Place]['P0002'] == ancestry[Place]['P0000'].encloses[0].encloses
+        assert ancestry[Place]['P0002'] == ancestry[Place]['P0001'].encloses[0].encloses
 
     def test_person_should_include_name(self, test_load_xml_ancestry: Ancestry) -> None:
-        person = test_load_xml_ancestry.entities[Person]['I0000']
+        person = test_load_xml_ancestry[Person]['I0000']
         expected = PersonName(person, 'Jane', 'Doe')
         assert expected == person.name
 
-    def test_person_should_include_alternative_names(self, test_load_xml_ancestry: Ancestry) -> None:
-        person = test_load_xml_ancestry.entities[Person]['I0000']
-        assert 3 == len(person.alternative_names)
-        assert person is person.alternative_names[0].person
-        assert 'Jane' == person.alternative_names[0].individual
-        assert 'Doh' == person.alternative_names[0].affiliation
-        assert person is person.alternative_names[1].person
-        assert 'Jen' == person.alternative_names[1].individual
-        assert 'Van Doughie' == person.alternative_names[1].affiliation
-        assert person is person.alternative_names[2].person
-        assert 'Jane' == person.alternative_names[2].individual
-        assert 'Doe' == person.alternative_names[2].affiliation
+    def test_person_should_include_alternative_names(self) -> None:
+        ancestry = self._load_partial("""
+<people>
+    <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
+        <gender>U</gender>
+        <name type="Birth Name">
+            <first>Jane</first>
+            <surname>Doe</surname>
+            <surname prim="0">Doh</surname>
+            <title>Mx</title>
+            <nick>Jay</nick>
+        </name>
+        <name alt="1" type="Also Known As">
+            <first>Jen</first>
+            <surname prefix="Van">Doughie</surname>
+        </name>
+    </person>
+</people>
+""")
+        person = ancestry[Person]['I0000']
+        actual_name = person.name
+        actual_names = list(person.names)
+        actual_alternative_names = list(person.alternative_names)
+        expected_names = [
+            PersonName(person, 'Jane', 'Doe'),
+            PersonName(person, 'Jane', 'Doh'),
+            PersonName(person, 'Jen', 'Van Doughie'),
+        ]
+
+        assert expected_names[0] == actual_name
+        assert expected_names == actual_names
+        assert expected_names[1:] == actual_alternative_names
 
     def test_person_should_include_birth(self, test_load_xml_ancestry: Ancestry) -> None:
-        person = test_load_xml_ancestry.entities[Person]['I0000']
+        person = test_load_xml_ancestry[Person]['I0000']
         assert person.start is not None
         assert 'E0000' == person.start.id
 
     def test_person_should_include_death(self, test_load_xml_ancestry: Ancestry) -> None:
-        person = test_load_xml_ancestry.entities[Person]['I0003']
+        person = test_load_xml_ancestry[Person]['I0003']
         assert person.end is not None
         assert 'E0002' == person.end.id
 
     def test_person_should_be_private(self, test_load_xml_ancestry: Ancestry) -> None:
-        person = test_load_xml_ancestry.entities[Person]['I0003']
+        person = test_load_xml_ancestry[Person]['I0003']
         assert person.private
 
     def test_person_should_not_be_private(self, test_load_xml_ancestry: Ancestry) -> None:
-        person = test_load_xml_ancestry.entities[Person]['I0002']
+        person = test_load_xml_ancestry[Person]['I0002']
         assert not person.private
 
     def test_person_should_include_citation(self, test_load_xml_ancestry: Ancestry) -> None:
-        person = test_load_xml_ancestry.entities[Person]['I0000']
-        citation = test_load_xml_ancestry.entities[Citation]['C0000']
+        person = test_load_xml_ancestry[Person]['I0000']
+        citation = test_load_xml_ancestry[Citation]['C0000']
         assert citation in person.citations
 
     def test_family_should_set_parents(self, test_load_xml_ancestry: Ancestry) -> None:
         expected_parents = [
-            test_load_xml_ancestry.entities[Person]['I0002'],
-            test_load_xml_ancestry.entities[Person]['I0003'],
+            test_load_xml_ancestry[Person]['I0002'],
+            test_load_xml_ancestry[Person]['I0003'],
         ]
         children = [
-            test_load_xml_ancestry.entities[Person]['I0000'],
-            test_load_xml_ancestry.entities[Person]['I0001'],
+            test_load_xml_ancestry[Person]['I0000'],
+            test_load_xml_ancestry[Person]['I0001'],
         ]
         for child in children:
             assert sorted(expected_parents) == sorted(child.parents)
 
     def test_family_should_set_children(self, test_load_xml_ancestry: Ancestry) -> None:
         parents = [
-            test_load_xml_ancestry.entities[Person]['I0002'],
-            test_load_xml_ancestry.entities[Person]['I0003'],
+            test_load_xml_ancestry[Person]['I0002'],
+            test_load_xml_ancestry[Person]['I0003'],
         ]
         expected_children = [
-            test_load_xml_ancestry.entities[Person]['I0000'],
-            test_load_xml_ancestry.entities[Person]['I0001'],
+            test_load_xml_ancestry[Person]['I0000'],
+            test_load_xml_ancestry[Person]['I0001'],
         ]
         for parent in parents:
             assert sorted(expected_children) == sorted(parent.children)
 
     def test_event_should_be_birth(self, test_load_xml_ancestry: Ancestry) -> None:
-        assert issubclass(test_load_xml_ancestry.entities[Event]['E0000'].type, Birth)
+        assert issubclass(test_load_xml_ancestry[Event]['E0000'].type, Birth)
 
     def test_event_should_be_death(self, test_load_xml_ancestry: Ancestry) -> None:
-        assert issubclass(test_load_xml_ancestry.entities[Event]['E0002'].type, Death)
+        assert issubclass(test_load_xml_ancestry[Event]['E0002'].type, Death)
 
     def test_event_should_load_unknown(self, test_load_xml_ancestry: Ancestry) -> None:
         ancestry = self._load_partial("""
@@ -214,27 +234,27 @@ class TestGrampsLoader:
     </event>
 </events>
 """)
-        assert issubclass(ancestry.entities[Event]['E0000'].type, UnknownEventType)
+        assert issubclass(ancestry[Event]['E0000'].type, UnknownEventType)
 
     def test_event_should_include_place(self, test_load_xml_ancestry: Ancestry) -> None:
-        event = test_load_xml_ancestry.entities[Event]['E0000']
-        place = test_load_xml_ancestry.entities[Place]['P0000']
+        event = test_load_xml_ancestry[Event]['E0000']
+        place = test_load_xml_ancestry[Place]['P0000']
         assert place == event.place
 
     def test_event_should_include_date(self, test_load_xml_ancestry: Ancestry) -> None:
-        event = test_load_xml_ancestry.entities[Event]['E0000']
+        event = test_load_xml_ancestry[Event]['E0000']
         assert isinstance(event.date, Date)
         assert 1970 == event.date.year
         assert 1 == event.date.month
         assert 1 == event.date.day
 
     def test_event_should_include_people(self, test_load_xml_ancestry: Ancestry) -> None:
-        event = test_load_xml_ancestry.entities[Event]['E0000']
-        expected_people = [test_load_xml_ancestry.entities[Person]['I0000']]
+        event = test_load_xml_ancestry[Event]['E0000']
+        expected_people = [test_load_xml_ancestry[Person]['I0000']]
         assert expected_people == [presence.person for presence in event.presences]
 
     def test_event_should_include_description(self, test_load_xml_ancestry: Ancestry) -> None:
-        event = test_load_xml_ancestry.entities[Event]['E0008']
+        event = test_load_xml_ancestry[Event]['E0008']
         assert 'Something happened!' == event.description
 
     @pytest.mark.parametrize('expected, dateval_val', [
@@ -256,7 +276,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """ % dateval_val)
-        assert expected == ancestry.entities[Event]['E0000'].date
+        assert expected == ancestry[Event]['E0000'].date
 
     def test_date_should_ignore_calendar_format(self) -> None:
         ancestry = self._load_partial("""
@@ -267,7 +287,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """)
-        assert ancestry.entities[Event]['E0000'].date is None
+        assert ancestry[Event]['E0000'].date is None
 
     def test_date_should_load_before(self) -> None:
         ancestry = self._load_partial("""
@@ -278,7 +298,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """)
-        date = ancestry.entities[Event]['E0000'].date
+        date = ancestry[Event]['E0000'].date
         assert isinstance(date, DateRange)
         assert date.start is None
         assert date.end is not None
@@ -297,7 +317,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """)
-        date = ancestry.entities[Event]['E0000'].date
+        date = ancestry[Event]['E0000'].date
         assert isinstance(date, DateRange)
         assert date.start is not None
         assert date.end is None
@@ -316,7 +336,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """)
-        date = ancestry.entities[Event]['E0000'].date
+        date = ancestry[Event]['E0000'].date
         assert isinstance(date, Date)
         assert 1970 == date.year
         assert 1 == date.month
@@ -332,7 +352,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """)
-        date = ancestry.entities[Event]['E0000'].date
+        date = ancestry[Event]['E0000'].date
         assert isinstance(date, Date)
         assert 1970 == date.year
         assert 1 == date.month
@@ -348,7 +368,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """)
-        date = ancestry.entities[Event]['E0000'].date
+        date = ancestry[Event]['E0000'].date
         assert isinstance(date, Date)
         assert 1970 == date.year
         assert 1 == date.month
@@ -364,7 +384,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """)
-        date = ancestry.entities[Event]['E0000'].date
+        date = ancestry[Event]['E0000'].date
         assert isinstance(date, DateRange)
         start = date.start
         assert isinstance(start, Date)
@@ -390,7 +410,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """)
-        date = ancestry.entities[Event]['E0000'].date
+        date = ancestry[Event]['E0000'].date
         assert isinstance(date, DateRange)
         start = date.start
         assert isinstance(start, Date)
@@ -408,7 +428,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """)
-        date = ancestry.entities[Event]['E0000'].date
+        date = ancestry[Event]['E0000'].date
         assert isinstance(date, DateRange)
         start = date.start
         assert isinstance(start, Date)
@@ -426,7 +446,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """)
-        date = ancestry.entities[Event]['E0000'].date
+        date = ancestry[Event]['E0000'].date
         assert isinstance(date, DateRange)
         start = date.start
         assert isinstance(start, Date)
@@ -450,7 +470,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """)
-        date = ancestry.entities[Event]['E0000'].date
+        date = ancestry[Event]['E0000'].date
         assert isinstance(date, DateRange)
         start = date.start
         assert isinstance(start, Date)
@@ -468,7 +488,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """)
-        date = ancestry.entities[Event]['E0000'].date
+        date = ancestry[Event]['E0000'].date
         assert isinstance(date, DateRange)
         start = date.start
         assert isinstance(start, Date)
@@ -478,31 +498,31 @@ class TestGrampsLoader:
         assert end.fuzzy
 
     def test_source_from_repository_should_include_name(self, test_load_xml_ancestry: Ancestry) -> None:
-        source = test_load_xml_ancestry.entities[Source]['R0000']
+        source = test_load_xml_ancestry[Source]['R0000']
         assert 'Library of Alexandria' == source.name
 
     def test_source_from_repository_should_include_link(self, test_load_xml_ancestry: Ancestry) -> None:
-        links = test_load_xml_ancestry.entities[Source]['R0000'].links
+        links = test_load_xml_ancestry[Source]['R0000'].links
         assert 1 == len(links)
         link = list(links)[0]
         assert 'https://alexandria.example.com' == link.url
         assert 'Library of Alexandria Catalogue' == link.label
 
     def test_source_from_source_should_include_title(self, test_load_xml_ancestry: Ancestry) -> None:
-        source = test_load_xml_ancestry.entities[Source]['S0000']
+        source = test_load_xml_ancestry[Source]['S0000']
         assert 'A Whisper' == source.name
 
     def test_source_from_source_should_include_author(self, test_load_xml_ancestry: Ancestry) -> None:
-        source = test_load_xml_ancestry.entities[Source]['S0000']
+        source = test_load_xml_ancestry[Source]['S0000']
         assert 'A Little Birdie' == source.author
 
     def test_source_from_source_should_include_publisher(self, test_load_xml_ancestry: Ancestry) -> None:
-        source = test_load_xml_ancestry.entities[Source]['S0000']
+        source = test_load_xml_ancestry[Source]['S0000']
         assert 'Somewhere over the rainbow' == source.publisher
 
     def test_source_from_source_should_include_repository(self, test_load_xml_ancestry: Ancestry) -> None:
-        source = test_load_xml_ancestry.entities[Source]['S0000']
-        containing_source = test_load_xml_ancestry.entities[Source]['R0000']
+        source = test_load_xml_ancestry[Source]['S0000']
+        containing_source = test_load_xml_ancestry[Source]['R0000']
         assert containing_source == source.contained_by
 
     @pytest.mark.parametrize('expected, attribute_value', [
@@ -520,7 +540,7 @@ class TestGrampsLoader:
     </person>
 </people>
 """ % attribute_value)
-        person = ancestry.entities[Person]['I0000']
+        person = ancestry[Person]['I0000']
         assert expected == person.private
 
     @pytest.mark.parametrize('expected, attribute_value', [
@@ -538,7 +558,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """ % attribute_value)
-        event = ancestry.entities[Event]['E0000']
+        event = ancestry[Event]['E0000']
         assert expected == event.private
 
     @pytest.mark.parametrize('expected, attribute_value', [
@@ -556,7 +576,7 @@ class TestGrampsLoader:
     </object>
 </objects>
 """ % attribute_value)
-        file = ancestry.entities[File]['O0000']
+        file = ancestry[File]['O0000']
         assert expected == file.private
 
     @pytest.mark.parametrize('expected, attribute_value', [
@@ -574,7 +594,7 @@ class TestGrampsLoader:
     </source>
 </sources>
 """ % attribute_value)
-        source = ancestry.entities[Source]['S0000']
+        source = ancestry[Source]['S0000']
         assert expected == source.private
 
     @pytest.mark.parametrize('expected, attribute_value', [
@@ -598,7 +618,7 @@ class TestGrampsLoader:
     </source>
 </sources>
 """ % attribute_value)
-        citation = ancestry.entities[Citation]['C0000']
+        citation = ancestry[Citation]['C0000']
         assert expected == citation.private
 
     def test_note_should_include_text(self) -> None:
@@ -609,5 +629,5 @@ class TestGrampsLoader:
     </note>
 </notes>
 """)
-        note = ancestry.entities[Note]['N0000']
+        note = ancestry[Note]['N0000']
         assert 'I left this for you.' == note.text

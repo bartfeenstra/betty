@@ -1,16 +1,14 @@
-import copy
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any
 from unittest.mock import Mock
 
-import dill
 import pytest
 from geopy import Point
 
 from betty.locale import Date
 from betty.media_type import MediaType
-from betty.model import Entity
+from betty.model import Entity, one_to_one
 from betty.model.ancestry import Person, Event, Place, File, Note, Presence, PlaceName, PersonName, Subject, \
     Enclosure, Described, Dated, HasPrivacy, HasMediaType, Link, HasLinks, HasNotes, HasFiles, Source, Citation, \
     HasCitations, PresenceRole, Attendee, Beneficiary, Witness, Ancestry
@@ -388,7 +386,7 @@ class TestPlace:
     def test_events(self) -> None:
         sut = Place('P1', [PlaceName('The Place')])
         event = Event('1', Birth)
-        sut.events.append(event)
+        sut.events.add(event)
         assert event in sut.events
         assert sut == event.place
         sut.events.remove(event)
@@ -520,7 +518,7 @@ class TestEvent:
         person = Person('P1')
         sut = Event(None, UnknownEventType)
         presence = Presence(person, Subject(), sut)
-        sut.presences.append(presence)
+        sut.presences.add(presence)
         assert [presence] == list(sut.presences)
         assert sut == presence.event
         sut.presences.remove(presence)
@@ -623,7 +621,7 @@ class TestPerson:
     def test_parents(self) -> None:
         sut = Person('1')
         parent = Person('2')
-        sut.parents.append(parent)
+        sut.parents.add(parent)
         assert [parent] == list(sut.parents)
         assert [sut] == list(parent.children)
         sut.parents.remove(parent)
@@ -633,7 +631,7 @@ class TestPerson:
     def test_children(self) -> None:
         sut = Person('1')
         child = Person('2')
-        sut.children.append(child)
+        sut.children.add(child)
         assert [child] == list(sut.children)
         assert [sut] == list(child.parents)
         sut.children.remove(child)
@@ -644,7 +642,7 @@ class TestPerson:
         event = Event(None, Birth)
         sut = Person('1')
         presence = Presence(sut, Subject(), event)
-        sut.presences.append(presence)
+        sut.presences.add(presence)
         assert [presence] == list(sut.presences)
         assert sut == presence.person
         sut.presences.remove(presence)
@@ -745,27 +743,19 @@ class TestPerson:
 
 
 class TestAncestry:
-    def test_pickle(self) -> None:
-        entity = DummyEntity()
-        sut = Ancestry()
-        sut.entities.append(entity)
-        unpickled_sut = dill.loads(dill.dumps(sut))
-        assert 1 == len(unpickled_sut.entities)
-        assert entity.id == unpickled_sut.entities[0].id
+    @one_to_one['TestAncestry._OneToOne_Right', 'TestAncestry._OneToOne_Left']('one_right', 'one_left')
+    class _OneToOne_Left(Entity):
+        one_right: 'TestAncestry._OneToOne_Right | None'
 
-    def test_copy(self) -> None:
-        entity = DummyEntity()
-        sut = Ancestry()
-        sut.entities.append(entity)
-        copied_sut = copy.copy(sut)
-        assert 1 == len(copied_sut.entities)
-        assert entity is copied_sut.entities[0]
+    @one_to_one['TestAncestry._OneToOne_Left', 'TestAncestry._OneToOne_Right']('one_left', 'one_right')
+    class _OneToOne_Right(Entity):
+        one_left: 'TestAncestry._OneToOne_Left | None'
 
-    def test_deepcopy(self) -> None:
-        entity = DummyEntity()
+    def test_add_associates_on_add(self) -> None:
         sut = Ancestry()
-        sut.entities.append(entity)
-        copied_sut = copy.deepcopy(sut)
-        assert 1 == len(copied_sut.entities)
-        assert entity is not copied_sut.entities[0]
-        assert entity.id == copied_sut.entities[0].id
+        left = self._OneToOne_Left()
+        right = self._OneToOne_Right()
+        left.one_right = right
+        sut.add(left)
+        assert left in sut
+        assert right in sut

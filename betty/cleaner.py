@@ -13,7 +13,7 @@ def clean(ancestry: Ancestry) -> None:
 
 
 def _clean_events(ancestry: Ancestry) -> None:
-    for event in ancestry.entities[Event]:
+    for event in ancestry[Event]:
         _clean_event(ancestry, event)
 
 
@@ -25,14 +25,14 @@ def _clean_event(ancestry: Ancestry, event: Event) -> None:
     del event.place
     del event.citations
     del event.files
-    del ancestry.entities[Event][event]
+    del ancestry[Event][event]
 
 
 _PlacesGraph = dict[Place, set[Place]]
 
 
 def _clean_places(ancestry: Ancestry) -> None:
-    places = ancestry.entities[Place]
+    places = ancestry[Place]
 
     def _extend_place_graph(graph: _PlacesGraph, enclosing_place: Place) -> None:
         enclosures = enclosing_place.encloses
@@ -63,11 +63,11 @@ def _clean_place(ancestry: Ancestry, place: Place) -> None:
         return
 
     del place.enclosed_by
-    del ancestry.entities[Place][place]
+    del ancestry[Place][place]
 
 
 def _clean_people(ancestry: Ancestry) -> None:
-    for person in ancestry.entities[Person]:
+    for person in ancestry[Person]:
         _clean_person(ancestry, person)
 
 
@@ -78,11 +78,11 @@ def _clean_person(ancestry: Ancestry, person: Person) -> None:
     if len(person.children) > 0:
         return
 
-    del ancestry.entities[Person][person]
+    del ancestry[Person][person]
 
 
 def _clean_files(ancestry: Ancestry) -> None:
-    for file in ancestry.entities[File]:
+    for file in ancestry[File]:
         _clean_file(ancestry, file)
 
 
@@ -93,11 +93,11 @@ def _clean_file(ancestry: Ancestry, file: File) -> None:
     if len(file.citations) > 0:
         return
 
-    del ancestry.entities[File][file]
+    del ancestry[File][file]
 
 
 def _clean_sources(ancestry: Ancestry) -> None:
-    for source in ancestry.entities[Source]:
+    for source in ancestry[Source]:
         _clean_source(ancestry, source)
 
 
@@ -114,11 +114,11 @@ def _clean_source(ancestry: Ancestry, source: Source) -> None:
     if len(source.files) > 0:
         return
 
-    del ancestry.entities[Source][source]
+    del ancestry[Source][source]
 
 
 def _clean_citations(ancestry: Ancestry) -> None:
-    for citation in ancestry.entities[Citation]:
+    for citation in ancestry[Citation]:
         _clean_citation(ancestry, citation)
 
 
@@ -130,4 +130,4 @@ def _clean_citation(ancestry: Ancestry, citation: Citation) -> None:
         return
 
     del citation.source
-    del ancestry.entities[Citation][citation]
+    del ancestry[Citation][citation]

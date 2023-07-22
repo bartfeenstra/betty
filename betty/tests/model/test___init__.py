@@ -6,7 +6,7 @@ import dill
 import pytest
 
 from betty.model import get_entity_type_name, Entity, get_entity_type, _EntityTypeAssociation, \
-    _EntityTypeAssociationRegistry, SingleTypeEntityCollection, _AssociateCollection, MultipleTypesEntityCollection, \
+    EntityTypeAssociationRegistry, SingleTypeEntityCollection, _AssociateCollection, MultipleTypesEntityCollection, \
     one_to_many, many_to_one_to_many, FlattenedEntityCollection, many_to_many, \
     EntityCollection, to_many, many_to_one, to_one, one_to_one, EntityTypeInvalidError, \
     EntityTypeImportError, AliasedEntity
@@ -69,26 +69,26 @@ class Test_EntityTypeAssociationRegistry:
     @pytest.fixture(scope='class', autouse=True)
     def registrations(self) -> Iterator[tuple[_EntityTypeAssociation[Any, Any], _EntityTypeAssociation[Any, Any]]]:
         parent_registration = _EntityTypeAssociation[Any, Any](self._ParentEntity, 'parent_associate', _EntityTypeAssociation.Cardinality.ONE)
-        _EntityTypeAssociationRegistry.register(parent_registration)
+        EntityTypeAssociationRegistry.register(parent_registration)
         child_registration = _EntityTypeAssociation[Any, Any](self._ChildEntity, 'child_associate', _EntityTypeAssociation.Cardinality.MANY)
-        _EntityTypeAssociationRegistry.register(child_registration)
+        EntityTypeAssociationRegistry.register(child_registration)
         yield parent_registration, child_registration
-        _EntityTypeAssociationRegistry._registrations.remove(parent_registration)
-        _EntityTypeAssociationRegistry._registrations.remove(child_registration)
+        EntityTypeAssociationRegistry._associations.remove(parent_registration)
+        EntityTypeAssociationRegistry._associations.remove(child_registration)
 
     def test_get_associations_with_parent_class_should_return_parent_associations(
         self,
         registrations: tuple[_EntityTypeAssociation[Any, Any], _EntityTypeAssociation[Any, Any]],
     ) -> None:
         parent_registration, _ = registrations
-        assert {parent_registration} == _EntityTypeAssociationRegistry.get_associations(self._ParentEntity)
+        assert {parent_registration} == EntityTypeAssociationRegistry.get_associations(self._ParentEntity)
 
     def test_get_associations_with_child_class_should_return_child_associations(
         self,
         registrations: tuple[_EntityTypeAssociation[Any, Any], _EntityTypeAssociation[Any, Any]],
     ) -> None:
         parent_registration, child_registration = registrations
-        assert {parent_registration, child_registration} == _EntityTypeAssociationRegistry.get_associations(self._ChildEntity)
+        assert {parent_registration, child_registration} == EntityTypeAssociationRegistry.get_associations(self._ChildEntity)
 
 
 class SingleTypeEntityCollectionTestEntity(Entity):
@@ -96,197 +96,20 @@ class SingleTypeEntityCollectionTestEntity(Entity):
 
 
 class TestSingleTypeEntityCollection:
-    def test_prepend(self) -> None:
-        sut = SingleTypeEntityCollection(Entity)
-        entity1 = SingleTypeEntityCollectionTestEntity('1')
-        entity2 = SingleTypeEntityCollectionTestEntity('2')
-        entity3 = SingleTypeEntityCollectionTestEntity('3')
-        sut.prepend(entity3)
-        sut.prepend(entity2)
-        sut.prepend(entity1)
-        # Prepend an already prepended value again, and assert that it was ignored.
-        sut.prepend(entity1)
-        assert entity1 is sut['1']
-        assert entity2 is sut['2']
-        assert entity3 is sut['3']
-
-    def test_append(self) -> None:
-        sut = SingleTypeEntityCollection(Entity)
+    def test_add(self) -> None:
+        sut = SingleTypeEntityCollection[Entity](Entity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
         entity3 = SingleTypeEntityCollectionTestEntity()
-        sut.append(entity3)
-        sut.append(entity2)
-        sut.append(entity1)
-        # Append an already appended value again, and assert that it was ignored.
-        sut.append(entity1)
+        sut.add(entity3)
+        sut.add(entity2)
+        sut.add(entity1)
+        # Add an already added value again, and assert that it was ignored.
+        sut.add(entity1)
         assert [entity3, entity2, entity1] == list(sut)
 
-    def test_remove(self) -> None:
-        sut = SingleTypeEntityCollection(Entity)
-        entity1 = SingleTypeEntityCollectionTestEntity()
-        entity2 = SingleTypeEntityCollectionTestEntity()
-        entity3 = SingleTypeEntityCollectionTestEntity()
-        entity4 = SingleTypeEntityCollectionTestEntity()
-        sut.append(entity1, entity2, entity3, entity4)
-        sut.remove(entity4, entity2)
-        assert [entity1, entity3] == list(sut)
-
-    def test_replace(self) -> None:
-        sut = SingleTypeEntityCollection(Entity)
-        entity1 = SingleTypeEntityCollectionTestEntity()
-        entity2 = SingleTypeEntityCollectionTestEntity()
-        entity3 = SingleTypeEntityCollectionTestEntity()
-        entity4 = SingleTypeEntityCollectionTestEntity()
-        entity5 = SingleTypeEntityCollectionTestEntity()
-        entity6 = SingleTypeEntityCollectionTestEntity()
-        sut.append(entity1, entity2, entity3)
-        sut.replace(entity4, entity5, entity6)
-        assert [entity4, entity5, entity6] == list(sut)
-
-    def test_clear(self) -> None:
-        sut = SingleTypeEntityCollection(Entity)
-        entity1 = SingleTypeEntityCollectionTestEntity()
-        entity2 = SingleTypeEntityCollectionTestEntity()
-        entity3 = SingleTypeEntityCollectionTestEntity()
-        sut.append(entity1, entity2, entity3)
-        sut.clear()
-        assert [] == list(sut)
-
-    def test_list(self) -> None:
-        sut = SingleTypeEntityCollection(Entity)
-        entity1 = SingleTypeEntityCollectionTestEntity()
-        entity2 = SingleTypeEntityCollectionTestEntity()
-        entity3 = SingleTypeEntityCollectionTestEntity()
-        sut.append(entity1, entity2, entity3)
-        assert entity1 is sut[0]
-        assert entity2 is sut[1]
-        assert entity3 is sut[2]
-
-    def test_len(self) -> None:
-        sut = SingleTypeEntityCollection(Entity)
-        entity1 = SingleTypeEntityCollectionTestEntity()
-        entity2 = SingleTypeEntityCollectionTestEntity()
-        entity3 = SingleTypeEntityCollectionTestEntity()
-        sut.append(entity1, entity2, entity3)
-        assert 3 == len(sut)
-
-    def test_iter(self) -> None:
-        sut = SingleTypeEntityCollection(Entity)
-        entity1 = SingleTypeEntityCollectionTestEntity()
-        entity2 = SingleTypeEntityCollectionTestEntity()
-        entity3 = SingleTypeEntityCollectionTestEntity()
-        sut.append(entity1, entity2, entity3)
-        assert [entity1, entity2, entity3] == list(list(sut))
-
-    def test_getitem_by_index(self) -> None:
-        sut = SingleTypeEntityCollection(Entity)
-        entity1 = SingleTypeEntityCollectionTestEntity()
-        entity2 = SingleTypeEntityCollectionTestEntity()
-        entity3 = SingleTypeEntityCollectionTestEntity()
-        sut.append(entity1, entity2, entity3)
-        assert entity1 is sut[0]
-        assert entity2 is sut[1]
-        assert entity3 is sut[2]
-        with pytest.raises(IndexError):
-            sut[3]
-
-    def test_getitem_by_indices(self) -> None:
-        sut = SingleTypeEntityCollection(Entity)
-        entity1 = SingleTypeEntityCollectionTestEntity()
-        entity2 = SingleTypeEntityCollectionTestEntity()
-        entity3 = SingleTypeEntityCollectionTestEntity()
-        sut.append(entity1, entity2, entity3)
-        assert [entity1, entity3] == list(sut[0::2])
-
-    def test_getitem_by_entity_id(self) -> None:
-        sut = SingleTypeEntityCollection(Entity)
-        entity1 = SingleTypeEntityCollectionTestEntity('1')
-        entity2 = SingleTypeEntityCollectionTestEntity('2')
-        entity3 = SingleTypeEntityCollectionTestEntity('3')
-        sut.append(entity1, entity2, entity3)
-        assert entity1 is sut['1']
-        assert entity2 is sut['2']
-        assert entity3 is sut['3']
-        with pytest.raises(KeyError):
-            sut['4']
-
-    def test_delitem_by_index(self) -> None:
-        sut = SingleTypeEntityCollection(Entity)
-        entity1 = SingleTypeEntityCollectionTestEntity()
-        entity2 = SingleTypeEntityCollectionTestEntity()
-        entity3 = SingleTypeEntityCollectionTestEntity()
-        sut.append(entity1, entity2, entity3)
-
-        del sut[1]
-
-        assert [entity1, entity3] == list(sut)
-
-    def test_delitem_by_indices(self) -> None:
-        sut = SingleTypeEntityCollection(Entity)
-        entity1 = SingleTypeEntityCollectionTestEntity()
-        entity2 = SingleTypeEntityCollectionTestEntity()
-        entity3 = SingleTypeEntityCollectionTestEntity()
-        sut.append(entity1, entity2, entity3)
-
-        del sut[0::2]
-
-        assert [entity2] == list(sut)
-
-    def test_delitem_by_entity(self) -> None:
-        sut = SingleTypeEntityCollection(Entity)
-        entity1 = SingleTypeEntityCollectionTestEntity()
-        entity2 = SingleTypeEntityCollectionTestEntity()
-        entity3 = SingleTypeEntityCollectionTestEntity()
-        sut.append(entity1, entity2, entity3)
-
-        del sut[entity2]
-
-        assert [entity1, entity3] == list(sut)
-
-    def test_delitem_by_entity_id(self) -> None:
-        sut = SingleTypeEntityCollection(Entity)
-        entity1 = SingleTypeEntityCollectionTestEntity('1')
-        entity2 = SingleTypeEntityCollectionTestEntity('2')
-        entity3 = SingleTypeEntityCollectionTestEntity('3')
-        sut.append(entity1, entity2, entity3)
-
-        del sut['2']
-
-        assert [entity1, entity3] == list(sut)
-
-    def test_contains_by_entity(self) -> None:
-        sut = SingleTypeEntityCollection(Entity)
-        entity1 = SingleTypeEntityCollectionTestEntity()
-        entity2 = SingleTypeEntityCollectionTestEntity()
-        sut.append(entity1)
-
-        assert entity1 in sut
-        assert entity2 not in sut
-
-    def test_contains_by_entity_id(self) -> None:
-        sut = SingleTypeEntityCollection(Entity)
-        entity1 = SingleTypeEntityCollectionTestEntity()
-        entity2 = SingleTypeEntityCollectionTestEntity()
-        sut.append(entity1)
-
-        assert entity1.id in sut
-        assert entity2.id not in sut
-
-    @pytest.mark.parametrize('value', [
-        True,
-        False,
-        [],
-    ])
-    def test_contains_by_unsupported_typed(self, value: Any) -> None:
-        sut = SingleTypeEntityCollection(Entity)
-        entity = SingleTypeEntityCollectionTestEntity()
-        sut.append(entity)
-
-        assert value not in sut
-
-    def test_set_like_functionality(self) -> None:
-        sut = SingleTypeEntityCollection(Entity)
+    def test_add_with_duplicate_entities(self) -> None:
+        sut = SingleTypeEntityCollection[Entity](Entity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
         entity3 = SingleTypeEntityCollectionTestEntity()
@@ -297,10 +120,152 @@ class TestSingleTypeEntityCollection:
         entity8 = SingleTypeEntityCollectionTestEntity()
         entity9 = SingleTypeEntityCollectionTestEntity()
         # Ensure duplicates are skipped.
-        sut.append(entity1, entity2, entity3, entity1, entity2, entity3, entity1, entity2, entity3)
+        sut.add(entity1, entity2, entity3, entity1, entity2, entity3, entity1, entity2, entity3)
+        assert [entity1, entity2, entity3] == list(sut)
         # Ensure skipped duplicates do not affect further new values.
-        sut.append(entity1, entity2, entity3, entity4, entity5, entity6, entity7, entity8, entity9)
+        sut.add(entity1, entity2, entity3, entity4, entity5, entity6, entity7, entity8, entity9)
         assert [entity1, entity2, entity3, entity4, entity5, entity6, entity7, entity8, entity9] == list(sut)
+
+    def test_remove(self) -> None:
+        sut = SingleTypeEntityCollection[Entity](Entity)
+        entity1 = SingleTypeEntityCollectionTestEntity()
+        entity2 = SingleTypeEntityCollectionTestEntity()
+        entity3 = SingleTypeEntityCollectionTestEntity()
+        entity4 = SingleTypeEntityCollectionTestEntity()
+        sut.add(entity1, entity2, entity3, entity4)
+        sut.remove(entity4, entity2)
+        assert [entity1, entity3] == list(sut)
+
+    def test_replace(self) -> None:
+        sut = SingleTypeEntityCollection[Entity](Entity)
+        entity1 = SingleTypeEntityCollectionTestEntity()
+        entity2 = SingleTypeEntityCollectionTestEntity()
+        entity3 = SingleTypeEntityCollectionTestEntity()
+        entity4 = SingleTypeEntityCollectionTestEntity()
+        entity5 = SingleTypeEntityCollectionTestEntity()
+        entity6 = SingleTypeEntityCollectionTestEntity()
+        sut.add(entity1, entity2, entity3)
+        sut.replace(entity4, entity5, entity6)
+        assert [entity4, entity5, entity6] == list(sut)
+
+    def test_clear(self) -> None:
+        sut = SingleTypeEntityCollection[Entity](Entity)
+        entity1 = SingleTypeEntityCollectionTestEntity()
+        entity2 = SingleTypeEntityCollectionTestEntity()
+        entity3 = SingleTypeEntityCollectionTestEntity()
+        sut.add(entity1, entity2, entity3)
+        sut.clear()
+        assert [] == list(sut)
+
+    def test_list(self) -> None:
+        sut = SingleTypeEntityCollection[Entity](Entity)
+        entity1 = SingleTypeEntityCollectionTestEntity()
+        entity2 = SingleTypeEntityCollectionTestEntity()
+        entity3 = SingleTypeEntityCollectionTestEntity()
+        sut.add(entity1, entity2, entity3)
+        assert entity1 is sut[0]
+        assert entity2 is sut[1]
+        assert entity3 is sut[2]
+
+    def test_len(self) -> None:
+        sut = SingleTypeEntityCollection[Entity](Entity)
+        entity1 = SingleTypeEntityCollectionTestEntity()
+        entity2 = SingleTypeEntityCollectionTestEntity()
+        entity3 = SingleTypeEntityCollectionTestEntity()
+        sut.add(entity1, entity2, entity3)
+        assert 3 == len(sut)
+
+    def test_iter(self) -> None:
+        sut = SingleTypeEntityCollection[Entity](Entity)
+        entity1 = SingleTypeEntityCollectionTestEntity()
+        entity2 = SingleTypeEntityCollectionTestEntity()
+        entity3 = SingleTypeEntityCollectionTestEntity()
+        sut.add(entity1, entity2, entity3)
+        assert [entity1, entity2, entity3] == list(list(sut))
+
+    def test_getitem_by_index(self) -> None:
+        sut = SingleTypeEntityCollection[Entity](Entity)
+        entity1 = SingleTypeEntityCollectionTestEntity()
+        entity2 = SingleTypeEntityCollectionTestEntity()
+        entity3 = SingleTypeEntityCollectionTestEntity()
+        sut.add(entity1, entity2, entity3)
+        assert entity1 is sut[0]
+        assert entity2 is sut[1]
+        assert entity3 is sut[2]
+        with pytest.raises(IndexError):
+            sut[3]
+
+    def test_getitem_by_indices(self) -> None:
+        sut = SingleTypeEntityCollection[Entity](Entity)
+        entity1 = SingleTypeEntityCollectionTestEntity()
+        entity2 = SingleTypeEntityCollectionTestEntity()
+        entity3 = SingleTypeEntityCollectionTestEntity()
+        sut.add(entity1, entity2, entity3)
+        assert [entity1, entity3] == list(sut[0::2])
+
+    def test_getitem_by_entity_id(self) -> None:
+        sut = SingleTypeEntityCollection[Entity](Entity)
+        entity1 = SingleTypeEntityCollectionTestEntity('1')
+        entity2 = SingleTypeEntityCollectionTestEntity('2')
+        entity3 = SingleTypeEntityCollectionTestEntity('3')
+        sut.add(entity1, entity2, entity3)
+        assert entity1 is sut['1']
+        assert entity2 is sut['2']
+        assert entity3 is sut['3']
+        with pytest.raises(KeyError):
+            sut['4']
+
+    def test_delitem_by_entity(self) -> None:
+        sut = SingleTypeEntityCollection[Entity](Entity)
+        entity1 = SingleTypeEntityCollectionTestEntity()
+        entity2 = SingleTypeEntityCollectionTestEntity()
+        entity3 = SingleTypeEntityCollectionTestEntity()
+        sut.add(entity1, entity2, entity3)
+
+        del sut[entity2]
+
+        assert [entity1, entity3] == list(sut)
+
+    def test_delitem_by_entity_id(self) -> None:
+        sut = SingleTypeEntityCollection[Entity](Entity)
+        entity1 = SingleTypeEntityCollectionTestEntity('1')
+        entity2 = SingleTypeEntityCollectionTestEntity('2')
+        entity3 = SingleTypeEntityCollectionTestEntity('3')
+        sut.add(entity1, entity2, entity3)
+
+        del sut['2']
+
+        assert [entity1, entity3] == list(sut)
+
+    def test_contains_by_entity(self) -> None:
+        sut = SingleTypeEntityCollection[Entity](Entity)
+        entity1 = SingleTypeEntityCollectionTestEntity()
+        entity2 = SingleTypeEntityCollectionTestEntity()
+        sut.add(entity1)
+
+        assert entity1 in sut
+        assert entity2 not in sut
+
+    def test_contains_by_entity_id(self) -> None:
+        sut = SingleTypeEntityCollection[Entity](Entity)
+        entity1 = SingleTypeEntityCollectionTestEntity()
+        entity2 = SingleTypeEntityCollectionTestEntity()
+        sut.add(entity1)
+
+        assert entity1.id in sut
+        assert entity2.id not in sut
+
+    @pytest.mark.parametrize('value', [
+        True,
+        False,
+        [],
+    ])
+    def test_contains_by_unsupported_typed(self, value: Any) -> None:
+        sut = SingleTypeEntityCollection[Entity](Entity)
+        entity = SingleTypeEntityCollectionTestEntity()
+        sut.add(entity)
+
+        assert value not in sut
 
 
 class TestAssociateCollection:
@@ -315,42 +280,27 @@ class TestAssociateCollection:
             self.added: list[Entity] = []
             self.removed: list[Entity] = []
 
-        def _on_add(self, associate: Entity) -> None:
-            self.added.append(associate)
+        def _on_add(self, *associates: Entity) -> None:
+            super()._on_add(*associates)
+            for associate in associates:
+                self.added.append(associate)
 
-        def _on_remove(self, associate: Entity) -> None:
-            self.removed.append(associate)
+        def _on_remove(self, *associates: Entity) -> None:
+            super()._on_remove(*associates)
+            for associate in associates:
+                self.removed.append(associate)
 
-    def test_prepend(self) -> None:
-        owner = self._SelfReferentialEntity()
-        sut = self._TrackingAssociateCollection(owner)
-        associate1 = self._SelfReferentialEntity('1')
-        associate2 = self._SelfReferentialEntity('2')
-        associate3 = self._SelfReferentialEntity('3')
-        sut.prepend(associate3)
-        sut.prepend(associate2)
-        sut.prepend(associate1)
-        # Prepend an already prepended value again, and assert that it was ignored.
-        sut.prepend(associate1)
-        assert associate1 is sut['1']
-        assert associate2 is sut['2']
-        assert associate3 is sut['3']
-        assert associate3 is sut.added[0]
-        assert associate2 is sut.added[1]
-        assert associate1 is sut.added[2]
-        assert [] == list(sut.removed)
-
-    def test_append(self) -> None:
+    def test_add(self) -> None:
         owner = self._SelfReferentialEntity()
         sut = self._TrackingAssociateCollection(owner)
         associate1 = self._SelfReferentialEntity()
         associate2 = self._SelfReferentialEntity()
         associate3 = self._SelfReferentialEntity()
-        sut.append(associate3)
-        sut.append(associate2)
-        sut.append(associate1)
-        # Append an already appended value again, and assert that it was ignored.
-        sut.append(associate1)
+        sut.add(associate3)
+        sut.add(associate2)
+        sut.add(associate1)
+        # Add an already added value again, and assert that it was ignored.
+        sut.add(associate1)
         assert [associate3, associate2, associate1] == list(sut)
         assert [associate3, associate2, associate1] == list(sut.added)
         assert [] == list(sut.removed)
@@ -362,7 +312,7 @@ class TestAssociateCollection:
         associate2 = self._SelfReferentialEntity()
         associate3 = self._SelfReferentialEntity()
         associate4 = self._SelfReferentialEntity()
-        sut.append(associate1, associate2, associate3, associate4)
+        sut.add(associate1, associate2, associate3, associate4)
         sut.remove(associate4, associate2)
         assert [associate1, associate3] == list(sut)
         assert [associate1, associate2, associate3, associate4] == list(sut.added)
@@ -377,7 +327,7 @@ class TestAssociateCollection:
         associate4 = self._SelfReferentialEntity()
         associate5 = self._SelfReferentialEntity()
         associate6 = self._SelfReferentialEntity()
-        sut.append(associate1, associate2, associate3)
+        sut.add(associate1, associate2, associate3)
         sut.replace(associate4, associate5, associate6)
         assert [associate4, associate5, associate6] == list(sut)
         assert [associate1, associate2, associate3, associate4, associate5, associate6] == list(sut.added)
@@ -389,7 +339,7 @@ class TestAssociateCollection:
         associate1 = self._SelfReferentialEntity()
         associate2 = self._SelfReferentialEntity()
         associate3 = self._SelfReferentialEntity()
-        sut.append(associate1, associate2, associate3)
+        sut.add(associate1, associate2, associate3)
         sut.clear()
         assert [] == list(sut)
         assert associate1 is sut.added[0]
@@ -405,36 +355,10 @@ class TestAssociateCollection:
         associate1 = self._SelfReferentialEntity()
         associate2 = self._SelfReferentialEntity()
         associate3 = self._SelfReferentialEntity()
-        sut.append(associate1, associate2, associate3)
+        sut.add(associate1, associate2, associate3)
         assert associate1 is sut[0]
         assert associate2 is sut[1]
         assert associate3 is sut[2]
-
-    def test_delitem_by_index(self) -> None:
-        owner = self._SelfReferentialEntity()
-        sut = self._TrackingAssociateCollection(owner)
-        associate1 = self._SelfReferentialEntity()
-        associate2 = self._SelfReferentialEntity()
-        associate3 = self._SelfReferentialEntity()
-        sut.append(associate1, associate2, associate3)
-
-        del sut[1]
-
-        assert [associate1, associate3] == list(sut)
-        assert [associate2] == list(sut.removed)
-
-    def test_delitem_by_indices(self) -> None:
-        owner = self._SelfReferentialEntity()
-        sut = self._TrackingAssociateCollection(owner)
-        associate1 = self._SelfReferentialEntity()
-        associate2 = self._SelfReferentialEntity()
-        associate3 = self._SelfReferentialEntity()
-        sut.append(associate1, associate2, associate3)
-
-        del sut[0::2]
-
-        assert [associate2] == list(sut)
-        assert [associate1, associate3] == list(sut.removed)
 
     def test_delitem_by_entity(self) -> None:
         owner = self._SelfReferentialEntity()
@@ -442,7 +366,7 @@ class TestAssociateCollection:
         associate1 = self._SelfReferentialEntity()
         associate2 = self._SelfReferentialEntity()
         associate3 = self._SelfReferentialEntity()
-        sut.append(associate1, associate2, associate3)
+        sut.add(associate1, associate2, associate3)
 
         del sut[associate2]
 
@@ -455,7 +379,7 @@ class TestAssociateCollection:
         associate1 = self._SelfReferentialEntity('1')
         associate2 = self._SelfReferentialEntity('2')
         associate3 = self._SelfReferentialEntity('3')
-        sut.append(associate1, associate2, associate3)
+        sut.add(associate1, associate2, associate3)
 
         del sut['2']
 
@@ -472,150 +396,140 @@ class MultipleTypesEntityCollectionTestEntityOther(Entity):
 
 
 class TestMultipleTypesEntityCollection:
-    def test_prepend(self) -> None:
-        sut = MultipleTypesEntityCollection[Any]()
+    def test_add(self) -> None:
+        sut = MultipleTypesEntityCollection[Entity]()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other1 = MultipleTypesEntityCollectionTestEntityOther()
         entity_other2 = MultipleTypesEntityCollectionTestEntityOther()
         entity_other3 = MultipleTypesEntityCollectionTestEntityOther()
-        sut.prepend(entity_one, entity_other1, entity_other2, entity_other3)
-        assert [entity_other3, entity_other2, entity_other1] == list(sut[MultipleTypesEntityCollectionTestEntityOther])
-
-    def test_append(self) -> None:
-        sut = MultipleTypesEntityCollection[Any]()
-        entity_one = MultipleTypesEntityCollectionTestEntityOne()
-        entity_other1 = MultipleTypesEntityCollectionTestEntityOther()
-        entity_other2 = MultipleTypesEntityCollectionTestEntityOther()
-        entity_other3 = MultipleTypesEntityCollectionTestEntityOther()
-        sut.append(entity_one, entity_other1, entity_other2, entity_other3)
+        sut.add(entity_one, entity_other1, entity_other2, entity_other3)
+        assert [entity_one] == list(sut[MultipleTypesEntityCollectionTestEntityOne])
         assert [entity_other1, entity_other2, entity_other3] == list(sut[MultipleTypesEntityCollectionTestEntityOther])
 
+    def test_add_with_duplicate_entities(self) -> None:
+        sut = MultipleTypesEntityCollection[Entity]()
+        entity1 = MultipleTypesEntityCollectionTestEntityOne()
+        entity2 = MultipleTypesEntityCollectionTestEntityOther()
+        entity3 = MultipleTypesEntityCollectionTestEntityOne()
+        entity4 = MultipleTypesEntityCollectionTestEntityOther()
+        entity5 = MultipleTypesEntityCollectionTestEntityOne()
+        entity6 = MultipleTypesEntityCollectionTestEntityOther()
+        entity7 = MultipleTypesEntityCollectionTestEntityOne()
+        entity8 = MultipleTypesEntityCollectionTestEntityOther()
+        entity9 = MultipleTypesEntityCollectionTestEntityOne()
+        # Ensure duplicates are skipped.
+        sut.add(entity1, entity2, entity3, entity1, entity2, entity3, entity1, entity2, entity3)
+        assert [entity1, entity3] == list(sut[MultipleTypesEntityCollectionTestEntityOne])
+        assert [entity2] == list(sut[MultipleTypesEntityCollectionTestEntityOther])
+        # Ensure skipped duplicates do not affect further new values.
+        sut.add(entity1, entity2, entity3, entity4, entity5, entity6, entity7, entity8, entity9)
+        assert [entity1, entity3, entity5, entity7, entity9] == list(sut[MultipleTypesEntityCollectionTestEntityOne])
+        assert [entity2, entity4, entity6, entity8] == list(sut[MultipleTypesEntityCollectionTestEntityOther])
+
     def test_remove(self) -> None:
-        sut = MultipleTypesEntityCollection[Any]()
+        sut = MultipleTypesEntityCollection[Entity]()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
-        sut[MultipleTypesEntityCollectionTestEntityOne].append(entity_one)
-        sut[MultipleTypesEntityCollectionTestEntityOther].append(entity_other)
+        sut[MultipleTypesEntityCollectionTestEntityOne].add(entity_one)
+        sut[MultipleTypesEntityCollectionTestEntityOther].add(entity_other)
         sut.remove(entity_one)
         assert [entity_other] == list(list(sut))
         sut.remove(entity_other)
         assert [] == list(list(sut))
 
     def test_getitem_by_index(self) -> None:
-        sut = MultipleTypesEntityCollection[Any]()
+        sut = MultipleTypesEntityCollection[Entity]()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
-        sut.append(entity_one, entity_other)
+        sut.add(entity_one, entity_other)
         assert entity_one is sut[0]
         assert entity_other is sut[1]
         with pytest.raises(IndexError):
             sut[2]
 
     def test_getitem_by_indices(self) -> None:
-        sut = MultipleTypesEntityCollection[Any]()
+        sut = MultipleTypesEntityCollection[Entity]()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
-        sut.append(entity_one, entity_other)
+        sut.add(entity_one, entity_other)
         assert [entity_one] == list(sut[0:1:1])
         assert [entity_other] == list(sut[1::1])
 
     def test_getitem_by_entity_type(self) -> None:
-        sut = MultipleTypesEntityCollection[Any]()
+        sut = MultipleTypesEntityCollection[Entity]()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
-        sut.append(entity_one, entity_other)
+        sut.add(entity_one, entity_other)
         assert [entity_one] == list(sut[MultipleTypesEntityCollectionTestEntityOne])
         assert [entity_other] == list(sut[MultipleTypesEntityCollectionTestEntityOther])
         # Ensure that getting previously unseen entity types automatically creates and returns a new collection.
         assert [] == list(sut[Entity])
 
     def test_getitem_by_entity_type_name(self) -> None:
-        sut = MultipleTypesEntityCollection[Any]()
+        sut = MultipleTypesEntityCollection[Entity]()
         # Use an existing ancestry entity type, because converting an entity type name to an entity type only works for
         # entity types in a single module namespace.
         entity = Person(None)
-        sut.append(entity)
+        sut.add(entity)
         assert [entity] == list(sut['Person'])
         # Ensure that getting previously unseen entity types automatically creates and returns a new collection.
         with pytest.raises(ValueError):
             sut['NonExistentEntityType']
 
-    def test_delitem_by_index(self) -> None:
-        sut = MultipleTypesEntityCollection[Any]()
-        entity1 = MultipleTypesEntityCollectionTestEntityOne()
-        entity2 = MultipleTypesEntityCollectionTestEntityOne()
-        entity3 = MultipleTypesEntityCollectionTestEntityOne()
-        sut.append(entity1, entity2, entity3)
-
-        del sut[1]
-
-        assert [entity1, entity3] == list(sut)
-
-    def test_delitem_by_indices(self) -> None:
-        sut = MultipleTypesEntityCollection[Any]()
-        entity1 = MultipleTypesEntityCollectionTestEntityOne()
-        entity2 = MultipleTypesEntityCollectionTestEntityOne()
-        entity3 = MultipleTypesEntityCollectionTestEntityOne()
-        sut.append(entity1, entity2, entity3)
-
-        del sut[0::2]
-
-        assert [entity2] == list(sut)
-
     def test_delitem_by_entity(self) -> None:
-        sut = MultipleTypesEntityCollection[Any]()
+        sut = MultipleTypesEntityCollection[Entity]()
         entity1 = MultipleTypesEntityCollectionTestEntityOne()
         entity2 = MultipleTypesEntityCollectionTestEntityOne()
         entity3 = MultipleTypesEntityCollectionTestEntityOne()
-        sut.append(entity1, entity2, entity3)
+        sut.add(entity1, entity2, entity3)
 
         del sut[entity2]
 
         assert [entity1, entity3] == list(sut)
 
     def test_delitem_by_entity_type(self) -> None:
-        sut = MultipleTypesEntityCollection[Any]()
+        sut = MultipleTypesEntityCollection[Entity]()
         entity = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
-        sut.append(entity, entity_other)
+        sut.add(entity, entity_other)
 
         del sut[get_entity_type(MultipleTypesEntityCollectionTestEntityOne)]
 
         assert [entity_other] == list(sut)
 
     def test_delitem_by_entity_type_name(self) -> None:
-        sut = MultipleTypesEntityCollection[Any]()
+        sut = MultipleTypesEntityCollection[Entity]()
         entity = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
-        sut.append(entity, entity_other)
+        sut.add(entity, entity_other)
 
         del sut[get_entity_type_name(MultipleTypesEntityCollectionTestEntityOne)]
 
         assert [entity_other] == list(sut)
 
     def test_iter(self) -> None:
-        sut = MultipleTypesEntityCollection[Any]()
+        sut = MultipleTypesEntityCollection[Entity]()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
-        sut[MultipleTypesEntityCollectionTestEntityOne].append(entity_one)
-        sut[MultipleTypesEntityCollectionTestEntityOther].append(entity_other)
+        sut[MultipleTypesEntityCollectionTestEntityOne].add(entity_one)
+        sut[MultipleTypesEntityCollectionTestEntityOther].add(entity_other)
         assert [entity_one, entity_other] == list(list(sut))
 
     def test_len(self) -> None:
-        sut = MultipleTypesEntityCollection[Any]()
+        sut = MultipleTypesEntityCollection[Entity]()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
-        sut[MultipleTypesEntityCollectionTestEntityOne].append(entity_one)
-        sut[MultipleTypesEntityCollectionTestEntityOther].append(entity_other)
+        sut[MultipleTypesEntityCollectionTestEntityOne].add(entity_one)
+        sut[MultipleTypesEntityCollectionTestEntityOther].add(entity_other)
         assert 2 == len(sut)
 
     def test_contain_by_entity(self) -> None:
-        sut = MultipleTypesEntityCollection[Any]()
+        sut = MultipleTypesEntityCollection[Entity]()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other1 = MultipleTypesEntityCollectionTestEntityOther()
         entity_other2 = MultipleTypesEntityCollectionTestEntityOther()
-        sut[MultipleTypesEntityCollectionTestEntityOne].append(entity_one)
-        sut[MultipleTypesEntityCollectionTestEntityOther].append(entity_other1)
+        sut[MultipleTypesEntityCollectionTestEntityOne].add(entity_one)
+        sut[MultipleTypesEntityCollectionTestEntityOther].add(entity_other1)
         assert entity_one in sut
         assert entity_other1 in sut
         assert entity_other2 not in sut
@@ -626,9 +540,9 @@ class TestMultipleTypesEntityCollection:
         [],
     ])
     def test_contains_by_unsupported_type(self, value: Any) -> None:
-        sut = MultipleTypesEntityCollection[Any]()
+        sut = MultipleTypesEntityCollection[Entity]()
         entity = MultipleTypesEntityCollectionTestEntityOne()
-        sut.append(entity)
+        sut.add(entity)
 
         assert value not in sut
 
@@ -897,7 +811,7 @@ class TestFlattenedEntityCollection:
     def test_to_many_unaliased(self) -> None:
         left = self._ToMany_Left()
         right = self._ToMany_Right()
-        left.to_many.append(right)
+        left.to_many.add(right)
 
         sut = FlattenedEntityCollection()
         sut.add_entity(left, right)
@@ -956,7 +870,7 @@ class TestFlattenedEntityCollection:
     def test_one_to_many_unaliased(self) -> None:
         left = self._OneToMany_Left()
         right = self._OneToMany_Right()
-        left.to_many.append(right)
+        left.to_many.add(right)
 
         sut = FlattenedEntityCollection()
         sut.add_entity(left, right)
@@ -1016,7 +930,7 @@ class TestFlattenedEntityCollection:
     def test_many_to_many_unaliased(self) -> None:
         left = self._ManyToMany_Left()
         right = self._ManyToMany_Right()
-        left.to_many.append(right)
+        left.to_many.add(right)
 
         sut = FlattenedEntityCollection()
         sut.add_entity(left, right)
@@ -1094,7 +1008,7 @@ class TestToOne:
         assert {'one'} == {
             association.owner_attr_name
             for association
-            in _EntityTypeAssociationRegistry.get_associations(self._Some)
+            in EntityTypeAssociationRegistry.get_associations(self._Some)
         }
 
         entity_some = self._Some()
@@ -1120,7 +1034,7 @@ class TestOneToOne:
         assert {'one'} == {
             association.owner_attr_name
             for association
-            in _EntityTypeAssociationRegistry.get_associations(self._OtherOne)
+            in EntityTypeAssociationRegistry.get_associations(self._OtherOne)
         }
 
         entity_one = self._One()
@@ -1158,7 +1072,7 @@ class TestManyToOne:
         assert {'one'} == {
             association.owner_attr_name
             for association
-            in _EntityTypeAssociationRegistry.get_associations(self._Many)
+            in EntityTypeAssociationRegistry.get_associations(self._Many)
         }
 
         entity_many = self._Many()
@@ -1194,13 +1108,13 @@ class TestToMany:
         assert {'many'} == {
             association.owner_attr_name
             for association
-            in _EntityTypeAssociationRegistry.get_associations(self._One)
+            in EntityTypeAssociationRegistry.get_associations(self._One)
         }
 
         entity_one = self._One()
         entity_many = self._Many()
 
-        entity_one.many.append(entity_many)
+        entity_one.many.add(entity_many)
         assert [entity_many] == list(entity_one.many)
 
         entity_one.many.remove(entity_many)
@@ -1209,7 +1123,7 @@ class TestToMany:
     def test_pickle(self) -> None:
         entity_one = self._One()
         entity_other = self._Many()
-        entity_one.many.append(entity_other)
+        entity_one.many.add(entity_other)
         unpickled_entity_one = dill.loads(dill.dumps(entity_one))
         assert entity_other.id == unpickled_entity_one.many[0].id
 
@@ -1227,13 +1141,13 @@ class TestOneToMany:
         assert {'many'} == {
             association.owner_attr_name
             for association
-            in _EntityTypeAssociationRegistry.get_associations(self._One)
+            in EntityTypeAssociationRegistry.get_associations(self._One)
         }
 
         entity_one = self._One()
         entity_many = self._Many()
 
-        entity_one.many.append(entity_many)
+        entity_one.many.add(entity_many)
         assert [entity_many] == list(entity_one.many)
         assert entity_one is entity_many.one
 
@@ -1245,7 +1159,7 @@ class TestOneToMany:
         entity_one = self._One()
         entity_many = self._Many()
 
-        entity_one.many.append(entity_many)
+        entity_one.many.add(entity_many)
 
         unpickled_entity_one, unpickled_entity_many = dill.loads(dill.dumps((entity_one, entity_many)))
         assert entity_many.id == unpickled_entity_one.many[0].id
@@ -1265,13 +1179,13 @@ class TestManyToMany:
         assert {'other_many'} == {
             association.owner_attr_name
             for association
-            in _EntityTypeAssociationRegistry.get_associations(self._Many)
+            in EntityTypeAssociationRegistry.get_associations(self._Many)
         }
 
         entity_many = self._Many()
         entity_other_many = self._OtherMany()
 
-        entity_many.other_many.append(entity_other_many)
+        entity_many.other_many.add(entity_other_many)
         assert [entity_other_many] == list(entity_many.other_many)
         assert [entity_many] == list(entity_other_many.many)
 
@@ -1283,7 +1197,7 @@ class TestManyToMany:
         entity_many = self._Many()
         entity_other_many = self._OtherMany()
 
-        entity_many.other_many.append(entity_other_many)
+        entity_many.other_many.add(entity_other_many)
 
         unpickled_entity_many, unpickled_entity_other_many = dill.loads(dill.dumps((entity_many, entity_other_many)))
         assert entity_many.id == unpickled_entity_other_many.many[0].id
@@ -1304,7 +1218,7 @@ class TestManyToOneToMany:
         assert {'left_many', 'right_many'} == {
             association.owner_attr_name
             for association
-            in _EntityTypeAssociationRegistry.get_associations(self._One)
+            in EntityTypeAssociationRegistry.get_associations(self._One)
         }
 
         entity_one = self._One()

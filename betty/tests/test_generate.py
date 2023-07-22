@@ -78,7 +78,7 @@ class TestGenerate:
         )
         with app:
             person = Person('PERSON1')
-            app.project.ancestry.entities.append(person)
+            app.project.ancestry.add(person)
             await generate(app)
         with open(assert_betty_html(app, f'/nl/person/{person.id}/index.html')) as f:
             html = f.read()
@@ -104,7 +104,7 @@ class TestGenerate:
         with App() as app:
             with NamedTemporaryFile() as f:
                 file = File('FILE1', Path(f.name))
-                app.project.ancestry.entities.append(file)
+                app.project.ancestry.add(file)
                 await generate(app)
             assert_betty_html(app, '/file/%s/index.html' % file.id)
             assert_betty_json(app, '/file/%s/index.json' % file.id, 'file')
@@ -118,7 +118,7 @@ class TestGenerate:
     async def test_place(self) -> None:
         with App() as app:
             place = Place('PLACE1', [PlaceName('one')])
-            app.project.ancestry.entities.append(place)
+            app.project.ancestry.add(place)
             await generate(app)
         assert_betty_html(app, '/place/%s/index.html' % place.id)
         assert_betty_json(app, '/place/%s/index.json' % place.id, 'place')
@@ -132,7 +132,7 @@ class TestGenerate:
     async def test_person(self) -> None:
         with App() as app:
             person = Person('PERSON1')
-            app.project.ancestry.entities.append(person)
+            app.project.ancestry.add(person)
             await generate(app)
         assert_betty_html(app, '/person/%s/index.html' % person.id)
         assert_betty_json(app, '/person/%s/index.json' % person.id, 'person')
@@ -146,7 +146,7 @@ class TestGenerate:
     async def test_event(self) -> None:
         with App() as app:
             event = Event('EVENT1', Birth)
-            app.project.ancestry.entities.append(event)
+            app.project.ancestry.add(event)
             await generate(app)
         assert_betty_html(app, '/event/%s/index.html' % event.id)
         assert_betty_json(app, '/event/%s/index.json' % event.id, 'event')
@@ -155,7 +155,7 @@ class TestGenerate:
         with App() as app:
             source = Source('A Little Birdie')
             citation = Citation('CITATION1', source)
-            app.project.ancestry.entities.append(citation, source)
+            app.project.ancestry.add(citation, source)
             await generate(app)
         assert_betty_html(app, '/citation/%s/index.html' % citation.id)
         assert_betty_json(app, '/citation/%s/index.json' % citation.id, 'citation')
@@ -169,7 +169,7 @@ class TestGenerate:
     async def test_source(self) -> None:
         with App() as app:
             source = Source('SOURCE1', 'A Little Birdie')
-            app.project.ancestry.entities.append(source)
+            app.project.ancestry.add(source)
             await generate(app)
         assert_betty_html(app, '/source/%s/index.html' % source.id)
         assert_betty_json(app, '/source/%s/index.json' % source.id, 'source')

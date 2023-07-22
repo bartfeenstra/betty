@@ -101,7 +101,7 @@ class _ConcurrentGenerator:
             for entity_type in app.entity_types:
                 if issubclass(entity_type, UserFacingEntity):
                     logger.info(app.localizer._('Generated pages for {count} {entity_type} in {locale}.').format(
-                        count=len(app.project.ancestry.entities[entity_type]),
+                        count=len(app.project.ancestry[entity_type]),
                         entity_type=entity_type.entity_type_label_plural(app.localizer),
                         locale=locale_label,
                     ))
@@ -121,7 +121,7 @@ class _ConcurrentGenerator:
                 for locale in locales:
                     generation_queue.put(_GenerationTask(locale, _generate_entity_type_list_html, entity_type))
             generation_queue.put(_GenerationTask(None, _generate_entity_type_list_json, entity_type))
-            for entity in app.project.ancestry.entities[entity_type]:
+            for entity in app.project.ancestry[entity_type]:
                 if isinstance(entity.id, GeneratedEntityId):
                     continue
                 for locale in locales:
@@ -210,7 +210,7 @@ async def _generate_entity_type_list_html(
     rendered_html = template.render(
         page_resource=f'/{entity_type_name_fs}/index.html',
         entity_type=entity_type,
-        entities=app.project.ancestry.entities[entity_type],
+        entities=app.project.ancestry[entity_type],
     )
     async with create_html_resource(entity_type_path) as f:
         await f.write(rendered_html)
@@ -233,7 +233,7 @@ async def _generate_entity_type_list_json(
         '$schema': app.static_url_generator.generate('schema.json#/definitions/%sCollection' % entity_type_name, absolute=True),
         'collection': []
     }
-    for entity in app.project.ancestry.entities[entity_type]:
+    for entity in app.project.ancestry[entity_type]:
         cast(list[str], data['collection']).append(
             app.url_generator.generate(
                 entity,
@@ -251,7 +251,7 @@ async def _generate_entity_html(
     entity_type: type[UserFacingEntity & Entity],
     entity_id: str,
 ) -> None:
-    entity = app.project.ancestry.entities[entity_type][entity_id]
+    entity = app.project.ancestry[entity_type][entity_id]
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity))
     entity_path = app.www_directory_path / entity_type_name_fs / entity.id
     rendered_html = app.jinja2_environment.negotiate_template([
@@ -274,7 +274,7 @@ async def _generate_entity_json(
 ) -> None:
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
     entity_path = app.static_www_directory_path / entity_type_name_fs / entity_id
-    rendered_json = json.dumps(app.project.ancestry.entities[entity_type][entity_id], cls=app.json_encoder)
+    rendered_json = json.dumps(app.project.ancestry[entity_type][entity_id], cls=app.json_encoder)
     async with create_json_resource(entity_path) as f:
         await f.write(rendered_json)
 

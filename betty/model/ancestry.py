@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 from contextlib import suppress
 from functools import total_ordering
 from pathlib import Path
@@ -8,10 +7,11 @@ from typing import Iterable, Any
 
 from geopy import Point
 
+from betty.classtools import repr_instance
 from betty.locale import Localized, Datey, Localizer, Localizable
 from betty.media_type import MediaType
 from betty.model import many_to_many, Entity, one_to_many, many_to_one, many_to_one_to_many, \
-    MultipleTypesEntityCollection, EntityCollection, UserFacingEntity, FlattenedEntityCollection
+    MultipleTypesEntityCollection, EntityCollection, UserFacingEntity, EntityTypeAssociationRegistry
 from betty.model.event_type import EventType, StartOfLifeEventType, EndOfLifeEventType
 
 
@@ -608,6 +608,9 @@ class PersonName(Localized, HasCitations, Entity):
         # individual and affiliation names.
         self.person = person
 
+    def __repr__(self) -> str:
+        return repr_instance(self, id=self.id, individual=self.individual, affiliation=self.affiliation)
+
     @classmethod
     def entity_type_label(cls, localizer: Localizer) -> str:
         return localizer._('Person name')
@@ -798,34 +801,13 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, UserFacingEntity, Ent
         return self.name.label if self.name else self._fallback_label
 
 
-class Ancestry(Localizable):
-    def __init__(self, *, localizer: Localizer | None = None):
-        super().__init__(localizer=localizer)
-        self._entities = MultipleTypesEntityCollection[Any](localizer=localizer)
+class Ancestry(MultipleTypesEntityCollection[Entity]):
+    def _on_add(self, *entities: Entity) -> None:
+        super()._on_add(*entities)
+        self.add(*self._get_associates(*entities))
 
-    def __copy__(self) -> Ancestry:
-        copied = self.__class__()
-        copied.entities.append(*self.entities)
-        return copied
-
-    def __deepcopy__(self, memo: dict[Any, Any]) -> Ancestry:
-        copied = self.__class__()
-        copied.entities.append(*[copy.deepcopy(entity, memo) for entity in self.entities])
-        return copied
-
-    def __getstate__(self) -> FlattenedEntityCollection:
-        entities = FlattenedEntityCollection()
-        entities.add_entity(*self.entities)
-
-        return entities
-
-    def __setstate__(self, state: FlattenedEntityCollection) -> None:
-        self._entities = MultipleTypesEntityCollection()
-        self._entities.append(*state.unflatten())
-
-    def _on_localizer_change(self) -> None:
-        self._entities.localizer = self.localizer
-
-    @property
-    def entities(self) -> MultipleTypesEntityCollection[Any]:
-        return self._entities
+    def _get_associates(self, *entities: Entity) -> Iterable[Entity]:
+        for entity in entities:
+            for association in EntityTypeAssociationRegistry.get_associations(entity):
+                for associate in EntityTypeAssociationRegistry.get_associates(entity, association):
+                    yield associate

@@ -27,7 +27,7 @@ class TestIndex:
         app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
-        app.project.ancestry.entities.append(person)
+        app.project.ancestry.add(person)
         indexed = [item for item in Index(app).build()]
 
         assert [] == indexed
@@ -43,7 +43,7 @@ class TestIndex:
         app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
-        app.project.ancestry.entities.append(person)
+        app.project.ancestry.add(person)
         indexed = [item for item in Index(app).build()]
 
         assert [] == indexed
@@ -62,7 +62,7 @@ class TestIndex:
         app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
-        app.project.ancestry.entities.append(person)
+        app.project.ancestry.add(person)
         indexed = [item for item in Index(app).build()]
 
         assert 'jane' == indexed[0]['text']
@@ -82,7 +82,7 @@ class TestIndex:
         app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
-        app.project.ancestry.entities.append(person)
+        app.project.ancestry.add(person)
         indexed = [item for item in Index(app).build()]
 
         assert 'doughnut' == indexed[0]['text']
@@ -103,7 +103,7 @@ class TestIndex:
         app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
-        app.project.ancestry.entities.append(person)
+        app.project.ancestry.add(person)
         indexed = [item for item in Index(app).build()]
 
         assert 'jane doughnut' == indexed[0]['text']
@@ -121,7 +121,7 @@ class TestIndex:
         app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
-        app.project.ancestry.entities.append(place)
+        app.project.ancestry.add(place)
         indexed = [item for item in Index(app).build()]
 
         assert 'netherlands nederland' == indexed[0]['text']
@@ -135,7 +135,7 @@ class TestIndex:
         app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
-        app.project.ancestry.entities.append(file)
+        app.project.ancestry.add(file)
         indexed = [item for item in Index(app).build()]
 
         assert [] == indexed
@@ -153,7 +153,7 @@ class TestIndex:
         app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
-        app.project.ancestry.entities.append(file)
+        app.project.ancestry.add(file)
         indexed = [item for item in Index(app).build()]
 
         assert '"file" is dutch for "traffic jam"' == indexed[0]['text']

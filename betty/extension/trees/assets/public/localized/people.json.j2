@@ -1,5 +1,5 @@
 {% set ns = namespace(people={}) %}
-{% for person in app.project.ancestry.entities['Person'] %}
+{% for person in app.project.ancestry['Person'] %}
     {% set person_label %}
         {% with embedded = True, entity = person %}
             {% include ['entity/label--person.html.j2', 'entity/label.html.j2'] %}

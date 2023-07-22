@@ -64,7 +64,7 @@ class TestDeriver:
 
         with App() as app:
             app.project.configuration.extensions.append(ExtensionConfiguration(Deriver))
-            app.project.ancestry.entities.append(person)
+            app.project.ancestry.add(person)
             await load(app)
 
         assert 3 == len(person.presences)

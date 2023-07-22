@@ -21,7 +21,7 @@ class _Deriver(UserFacingExtension, PostLoader):
             if issubclass(event_type, DerivableEventType):
                 created_derivations = 0
                 updated_derivations = 0
-                for person in ancestry.entities[Person]:
+                for person in ancestry[Person]:
                     created, updated = deriver.derive_person(person, event_type)
                     created_derivations += created
                     updated_derivations += updated

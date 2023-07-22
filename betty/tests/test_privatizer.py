@@ -81,17 +81,17 @@ class TestPrivatizer:
     def test_privatize_person_should_not_privatize_if_public(self) -> None:
         source_file = File('F0', Path(__file__))
         source = Source('The Source')
-        source.files.append(source_file)
+        source.files.add(source_file)
         citation_file = File('F1', Path(__file__))
         citation = Citation('C0', source)
-        citation.files.append(citation_file)
+        citation.files.add(citation_file)
         event_as_subject = Event(None, Birth)
         event_as_attendee = Event(None, Marriage)
         person_file = File('F2', Path(__file__))
         person = Person('P0')
         person.private = False
-        person.citations.append(citation)
-        person.files.append(person_file)
+        person.citations.add(citation)
+        person.files.add(person_file)
         Presence(person, Subject(), event_as_subject)
         Presence(person, Attendee(), event_as_attendee)
         Privatizer(_LIFETIME_THRESHOLD).privatize(person)
@@ -107,17 +107,17 @@ class TestPrivatizer:
     def test_privatize_person_should_privatize_if_private(self) -> None:
         source_file = File('F0', Path(__file__))
         source = Source('The Source')
-        source.files.append(source_file)
+        source.files.add(source_file)
         citation_file = File('F1', Path(__file__))
         citation = Citation('C0', source)
-        citation.files.append(citation_file)
+        citation.files.add(citation_file)
         event_as_subject = Event(None, Birth)
         event_as_attendee = Event(None, Marriage)
         person_file = File('F2', Path(__file__))
         person = Person('P0')
         person.private = True
-        person.citations.append(citation)
-        person.files.append(person_file)
+        person.citations.add(citation)
+        person.files.add(person_file)
         Presence(person, Subject(), event_as_subject)
         Presence(person, Attendee(), event_as_attendee)
         Privatizer(_LIFETIME_THRESHOLD).privatize(person)
@@ -156,7 +156,7 @@ class TestPrivatizer:
         child = Person('P1')
         if event is not None:
             Presence(child, Subject(), event)
-        person.children.append(child)
+        person.children.add(child)
         Privatizer(_LIFETIME_THRESHOLD).privatize(person)
         assert expected == person.private
 
@@ -170,11 +170,11 @@ class TestPrivatizer:
         person = Person('P0')
         person.private = private
         child = Person('P1')
-        person.children.append(child)
+        person.children.add(child)
         grandchild = Person('P2')
         if event is not None:
             Presence(grandchild, Subject(), event)
-        child.children.append(grandchild)
+        child.children.add(grandchild)
         Privatizer(_LIFETIME_THRESHOLD).privatize(person)
         assert expected == person.private
 
@@ -188,13 +188,13 @@ class TestPrivatizer:
         person = Person('P0')
         person.private = private
         child = Person('P1')
-        person.children.append(child)
+        person.children.add(child)
         grandchild = Person('P2')
-        child.children.append(grandchild)
+        child.children.add(grandchild)
         great_grandchild = Person('P2')
         if event is not None:
             Presence(great_grandchild, Subject(), event)
-        grandchild.children.append(great_grandchild)
+        grandchild.children.add(great_grandchild)
         Privatizer(_LIFETIME_THRESHOLD).privatize(person)
         assert expected == person.private
 
@@ -210,7 +210,7 @@ class TestPrivatizer:
         parent = Person('P1')
         if event is not None:
             Presence(parent, Subject(), event)
-        person.parents.append(parent)
+        person.parents.add(parent)
         Privatizer(_LIFETIME_THRESHOLD).privatize(person)
         assert expected == person.private
 
@@ -224,11 +224,11 @@ class TestPrivatizer:
         person = Person('P0')
         person.private = private
         parent = Person('P1')
-        person.parents.append(parent)
+        person.parents.add(parent)
         grandparent = Person('P2')
         if event is not None:
             Presence(grandparent, Subject(), event)
-        parent.parents.append(grandparent)
+        parent.parents.add(grandparent)
         Privatizer(_LIFETIME_THRESHOLD).privatize(person)
         assert expected == person.private
 
@@ -242,28 +242,28 @@ class TestPrivatizer:
         person = Person('P0')
         person.private = private
         parent = Person('P1')
-        person.parents.append(parent)
+        person.parents.add(parent)
         grandparent = Person('P2')
-        parent.parents.append(grandparent)
+        parent.parents.add(grandparent)
         great_grandparent = Person('P2')
         if event is not None:
             Presence(great_grandparent, Subject(), event)
-        grandparent.parents.append(great_grandparent)
+        grandparent.parents.add(great_grandparent)
         Privatizer(_LIFETIME_THRESHOLD).privatize(person)
         assert expected == person.private
 
     def test_privatize_event_should_not_privatize_if_public(self) -> None:
         source_file = File('F0', Path(__file__))
         source = Source('The Source')
-        source.files.append(source_file)
+        source.files.add(source_file)
         citation_file = File('F1', Path(__file__))
         citation = Citation('C0', source)
-        citation.files.append(citation_file)
+        citation.files.add(citation_file)
         event_file = File('F1', Path(__file__))
         event = Event('E1', Birth)
         event.private = False
-        event.citations.append(citation)
-        event.files.append(event_file)
+        event.citations.add(citation)
+        event.files.add(event_file)
         person = Person('P0')
         Presence(person, Subject(), event)
         Privatizer(_LIFETIME_THRESHOLD).privatize(event)
@@ -278,15 +278,15 @@ class TestPrivatizer:
     def test_privatize_event_should_privatize_if_private(self) -> None:
         source_file = File('F0', Path(__file__))
         source = Source('The Source')
-        source.files.append(source_file)
+        source.files.add(source_file)
         citation_file = File('F1', Path(__file__))
         citation = Citation('C0', source)
-        citation.files.append(citation_file)
+        citation.files.add(citation_file)
         event_file = File('F1', Path(__file__))
         event = Event('E1', Birth)
         event.private = True
-        event.citations.append(citation)
-        event.files.append(event_file)
+        event.citations.add(citation)
+        event.files.add(event_file)
         person = Person('P0')
         Presence(person, Subject(), event)
         Privatizer(_LIFETIME_THRESHOLD).privatize(event)
@@ -302,7 +302,7 @@ class TestPrivatizer:
         file = File('F0', Path(__file__))
         source = Source('S0', 'The Source')
         source.private = False
-        source.files.append(file)
+        source.files.add(file)
         Privatizer(_LIFETIME_THRESHOLD).privatize(source)
         assert not source.private
         assert file.private is None
@@ -311,7 +311,7 @@ class TestPrivatizer:
         file = File('F0', Path(__file__))
         source = Source('S0', 'The Source')
         source.private = True
-        source.files.append(file)
+        source.files.add(file)
         Privatizer(_LIFETIME_THRESHOLD).privatize(source)
         assert source.private
         assert file.private
@@ -319,11 +319,11 @@ class TestPrivatizer:
     def test_privatize_citation_should_not_privatize_if_public(self) -> None:
         source_file = File('F0', Path(__file__))
         source = Source('The Source')
-        source.files.append(source_file)
+        source.files.add(source_file)
         citation_file = File('F1', Path(__file__))
         citation = Citation('C0', source)
         citation.private = False
-        citation.files.append(citation_file)
+        citation.files.add(citation_file)
         Privatizer(_LIFETIME_THRESHOLD).privatize(citation)
         assert not citation.private
         assert source.private is None
@@ -333,11 +333,11 @@ class TestPrivatizer:
     def test_privatize_citation_should_privatize_if_private(self) -> None:
         source_file = File('F0', Path(__file__))
         source = Source('The Source')
-        source.files.append(source_file)
+        source.files.add(source_file)
         citation_file = File('F1', Path(__file__))
         citation = Citation('C0', source)
         citation.private = True
-        citation.files.append(citation_file)
+        citation.files.add(citation_file)
         Privatizer(_LIFETIME_THRESHOLD).privatize(citation)
         assert citation.private
         assert source.private
@@ -349,7 +349,7 @@ class TestPrivatizer:
         citation = Citation(None, source)
         file = File('F0', Path(__file__))
         file.private = False
-        file.citations.append(citation)
+        file.citations.add(citation)
         Privatizer(_LIFETIME_THRESHOLD).privatize(file)
         assert not file.private
         assert citation.private is None
@@ -359,7 +359,7 @@ class TestPrivatizer:
         citation = Citation(None, source)
         file = File('F0', Path(__file__))
         file.private = True
-        file.citations.append(citation)
+        file.citations.add(citation)
         Privatizer(_LIFETIME_THRESHOLD).privatize(file)
         assert True, file.private
         assert citation.private

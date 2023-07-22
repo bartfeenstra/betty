@@ -25,7 +25,7 @@ class TestAnonymousSource:
             files = [Mock(File)]
             sut = AnonymousSource()
             other = Source(None)
-            ancestry.entities.append(other)
+            ancestry.add(other)
             other.citations = citations  # type: ignore[assignment]
             other.contains = contains  # type: ignore[assignment]
             other.files = files  # type: ignore[assignment]
@@ -33,7 +33,7 @@ class TestAnonymousSource:
             assert citations == list(sut.citations)
             assert contains == list(sut.contains)
             assert files == list(sut.files)
-            assert other not in ancestry.entities
+            assert other not in ancestry
 
 
 class TestAnonymousCitation:
@@ -51,13 +51,13 @@ class TestAnonymousCitation:
         source = Mock(Source)
         sut = AnonymousCitation(source)
         other = Citation(None, source)
-        ancestry.entities.append(other)
+        ancestry.add(other)
         other.facts = facts  # type: ignore[assignment]
         other.files = files  # type: ignore[assignment]
         sut.replace(other, ancestry)
         assert facts == list(sut.facts)
         assert files == list(sut.files)
-        assert other not in ancestry.entities
+        assert other not in ancestry
 
 
 class TestAnonymize:
@@ -66,7 +66,7 @@ class TestAnonymize:
         person = Person('P0')
         person.private = False
         ancestry = Ancestry()
-        ancestry.entities.append(person)
+        ancestry.add(person)
         anonymize(ancestry, AnonymousCitation(AnonymousSource()))
         m_anonymize_person.assert_not_called()
 
@@ -75,7 +75,7 @@ class TestAnonymize:
         person = Person('P0')
         person.private = True
         ancestry = Ancestry()
-        ancestry.entities.append(person)
+        ancestry.add(person)
         anonymize(ancestry, AnonymousCitation(AnonymousSource()))
         m_anonymize_person.assert_called_once_with(person)
 
@@ -84,7 +84,7 @@ class TestAnonymize:
         event = Event('E0', Birth)
         event.private = False
         ancestry = Ancestry()
-        ancestry.entities.append(event)
+        ancestry.add(event)
         anonymize(ancestry, AnonymousCitation(AnonymousSource()))
         m_anonymize_event.assert_not_called()
 
@@ -93,7 +93,7 @@ class TestAnonymize:
         event = Event('E0', Birth)
         event.private = True
         ancestry = Ancestry()
-        ancestry.entities.append(event)
+        ancestry.add(event)
         anonymize(ancestry, AnonymousCitation(AnonymousSource()))
         m_anonymize_event.assert_called_once_with(event)
 
@@ -102,7 +102,7 @@ class TestAnonymize:
         file = File('F0', Path(__file__))
         file.private = False
         ancestry = Ancestry()
-        ancestry.entities.append(file)
+        ancestry.add(file)
         anonymize(ancestry, AnonymousCitation(AnonymousSource()))
         m_anonymize_file.assert_not_called()
 
@@ -111,7 +111,7 @@ class TestAnonymize:
         file = File('F0', Path(__file__))
         file.private = True
         ancestry = Ancestry()
-        ancestry.entities.append(file)
+        ancestry.add(file)
         anonymize(ancestry, AnonymousCitation(AnonymousSource()))
         m_anonymize_file.assert_called_once_with(file)
 
@@ -120,7 +120,7 @@ class TestAnonymize:
         source = Source('S0', 'The Source')
         source.private = False
         ancestry = Ancestry()
-        ancestry.entities.append(source)
+        ancestry.add(source)
         anonymize(ancestry, AnonymousCitation(AnonymousSource()))
         m_anonymize_source.assert_not_called()
 
@@ -129,7 +129,7 @@ class TestAnonymize:
         source = Source('S0', 'The Source')
         source.private = True
         ancestry = Ancestry()
-        ancestry.entities.append(source)
+        ancestry.add(source)
         anonymize(ancestry, AnonymousCitation(AnonymousSource()))
         m_anonymize_source.assert_called_once_with(source, ancestry, ANY)
 
@@ -139,7 +139,7 @@ class TestAnonymize:
         citation = Citation('C0', source)
         citation.private = False
         ancestry = Ancestry()
-        ancestry.entities.append(citation)
+        ancestry.add(citation)
         anonymize(ancestry, AnonymousCitation(AnonymousSource()))
         m_anonymize_citation.assert_not_called()
 
@@ -149,7 +149,7 @@ class TestAnonymize:
         citation = Citation('C0', source)
         citation.private = True
         ancestry = Ancestry()
-        ancestry.entities.append(citation)
+        ancestry.add(citation)
         anonymize(ancestry, AnonymousCitation(AnonymousSource()))
         m_anonymize_citation.assert_called_once_with(citation, ancestry, ANY)
 
@@ -159,13 +159,13 @@ class TestAnonymizePerson:
         person = Person('P0')
         source = Source('The Source')
         citation = Citation(None, source)
-        person.citations.append(citation)
+        person.citations.add(citation)
         anonymize_person(person)
         assert 0 == len(person.citations)
 
     def test_should_remove_files(self) -> None:
         person = Person('P0')
-        person.files.append(File('F0', Path(__file__)))
+        person.files.add(File('F0', Path(__file__)))
         anonymize_person(person)
         assert 0 == len(person.files)
 
@@ -174,7 +174,7 @@ class TestAnonymizePerson:
         name = PersonName(person, 'Jane', 'Dough')
         source = Source('The Source')
         citation = Citation(None, source)
-        name.citations.append(citation)
+        name.citations.add(citation)
         anonymize_person(person)
         assert 0 == len(person.names)
         assert 0 == len(citation.facts)
@@ -192,10 +192,10 @@ class TestAnonymizePerson:
         person.private = True
         child = Person('P1')
         child.private = True
-        person.children.append(child)
+        person.children.add(child)
         parent = Person('P2')
         parent.private = True
-        person.parents.append(parent)
+        person.parents.add(parent)
 
         anonymize_person(person)
         assert [] == list(person.parents)
@@ -205,10 +205,10 @@ class TestAnonymizePerson:
         person.private = True
         child = Person('P1')
         child.private = False
-        person.children.append(child)
+        person.children.add(child)
         parent = Person('P2')
         parent.private = True
-        person.parents.append(parent)
+        person.parents.add(parent)
 
         anonymize_person(person)
         assert [parent] == list(person.parents)
@@ -219,13 +219,13 @@ class TestAnonymizeEvent:
         event = Event(None, Birth)
         source = Source(None, 'The Source')
         citation = Citation(None, source)
-        event.citations.append(citation)
+        event.citations.add(citation)
         anonymize_event(event)
         assert 0 == len(event.citations)
 
     def test_should_remove_files(self) -> None:
         event = Event(None, Birth)
-        event.files.append(File('F0', Path(__file__)))
+        event.files.add(File('F0', Path(__file__)))
         anonymize_event(event)
         assert 0 == len(event.files)
 
@@ -240,7 +240,7 @@ class TestAnonymizeEvent:
 class TestAnonymizeFile:
     def test_should_remove_entity(self) -> None:
         file = File('F0', Path(__file__))
-        file.entities.append(Person('P0'))
+        file.entities.add(Person('P0'))
         anonymize_file(file)
         assert 0 == len(file.entities)
 
@@ -249,9 +249,9 @@ class TestAnonymizeSource:
     def test_should_remove_citations(self) -> None:
         ancestry = Ancestry()
         source = Source('S0', 'The Source')
-        ancestry.entities.append(source)
+        ancestry.add(source)
         citation = Citation(None, source)
-        source.citations.append(citation)
+        source.citations.add(citation)
         anonymous_source = AnonymousSource()
         anonymize_source(source, ancestry, anonymous_source)
         assert 0 == len(source.citations)
@@ -260,7 +260,7 @@ class TestAnonymizeSource:
     def test_should_remove_contained_by(self) -> None:
         ancestry = Ancestry()
         source = Source('S0', 'The Source')
-        ancestry.entities.append(source)
+        ancestry.add(source)
         contained_by = Source(None, 'The Source')
         source.contained_by = contained_by
         anonymous_source = AnonymousSource()
@@ -270,9 +270,9 @@ class TestAnonymizeSource:
     def test_should_remove_contains(self) -> None:
         ancestry = Ancestry()
         source = Source('S0', 'The Source')
-        ancestry.entities.append(source)
+        ancestry.add(source)
         contains = Source(None, 'The Source')
-        source.contains.append(contains)
+        source.contains.add(contains)
         anonymous_source = AnonymousSource()
         anonymize_source(source, ancestry, anonymous_source)
         assert 0 == len(source.contains)
@@ -281,9 +281,9 @@ class TestAnonymizeSource:
     def test_should_remove_files(self) -> None:
         ancestry = Ancestry()
         source = Source('S0', 'The Source')
-        ancestry.entities.append(source)
+        ancestry.add(source)
         file = File('F0', Path(__file__))
-        source.files.append(file)
+        source.files.add(file)
         anonymous_source = AnonymousSource()
         anonymize_source(source, ancestry, anonymous_source)
         assert 0 == len(source.files)
@@ -295,9 +295,9 @@ class TestAnonymizeCitation:
         ancestry = Ancestry()
         source = Source('The Source')
         citation = Citation('C0', source)
-        ancestry.entities.append(citation)
+        ancestry.add(citation)
         fact = PersonName(Person(None), 'Jane')
-        citation.facts.append(fact)
+        citation.facts.add(fact)
         anonymous_source = AnonymousSource()
         anonymous_citation = AnonymousCitation(anonymous_source)
         anonymize_citation(citation, ancestry, anonymous_citation)
@@ -308,9 +308,9 @@ class TestAnonymizeCitation:
         ancestry = Ancestry()
         source = Source('The Source')
         citation = Citation('C0', source)
-        ancestry.entities.append(citation)
+        ancestry.add(citation)
         file = File('F0', Path(__file__))
-        citation.files.append(file)
+        citation.files.add(file)
         anonymous_source = AnonymousSource()
         anonymous_citation = AnonymousCitation(anonymous_source)
         anonymize_citation(citation, ancestry, anonymous_citation)
@@ -321,7 +321,7 @@ class TestAnonymizeCitation:
         ancestry = Ancestry()
         source = Source('The Source')
         citation = Citation('C0', source)
-        ancestry.entities.append(citation)
+        ancestry.add(citation)
         anonymous_source = AnonymousSource()
         anonymous_citation = AnonymousCitation(anonymous_source)
         anonymize_citation(citation, ancestry, anonymous_citation)
