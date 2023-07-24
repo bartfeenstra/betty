@@ -55,7 +55,9 @@ class BettyWindow(LocalizedWindow):
         self.resize(self.window_width, self.window_height)
         self.setWindowIcon(QIcon(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'betty-512x512.png')))
         geometry = self.frameGeometry()
-        geometry.moveCenter(QApplication.primaryScreen().availableGeometry().center())
+        screen = QApplication.primaryScreen()
+        assert screen is not None
+        geometry.moveCenter(screen.availableGeometry().center())
         self.move(geometry.topLeft())
 
     def _do_set_translatables(self) -> None:
@@ -125,7 +127,7 @@ class BettyApplication(QApplication):
         self.setStyleSheet(self._STYLESHEET)
         self._app = app
 
-    @pyqtSlot(  # type: ignore[misc]
+    @pyqtSlot(
         Exception,
         QObject,
         bool,

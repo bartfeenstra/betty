@@ -26,65 +26,70 @@ class BettyMainWindow(BettyWindow):
         self.setWindowIcon(QIcon(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'betty-512x512.png')))
 
         menu_bar = self.menuBar()
+        assert menu_bar is not None
 
-        self.betty_menu = menu_bar.addMenu('&Betty')
+        betty_menu = menu_bar.addMenu('&Betty')
+        assert betty_menu is not None
+        self.betty_menu = betty_menu
 
         self.new_project_action = QAction(self)
         self.new_project_action.setShortcut('Ctrl+N')
         self.new_project_action.triggered.connect(
             lambda _: self.new_project(),
         )
-        self.betty_menu.addAction(self.new_project_action)
+        betty_menu.addAction(self.new_project_action)
 
         self.open_project_action = QAction(self)
         self.open_project_action.setShortcut('Ctrl+O')
         self.open_project_action.triggered.connect(
             lambda _: self.open_project(),
         )
-        self.betty_menu.addAction(self.open_project_action)
+        betty_menu.addAction(self.open_project_action)
 
         self._demo_action = QAction(self)
         self._demo_action.triggered.connect(
             lambda _: self._demo(),
         )
-        self.betty_menu.addAction(self._demo_action)
+        betty_menu.addAction(self._demo_action)
 
         self.open_application_configuration_action = QAction(self)
         self.open_application_configuration_action.triggered.connect(
             lambda _: self.open_application_configuration(),
         )
-        self.betty_menu.addAction(self.open_application_configuration_action)
+        betty_menu.addAction(self.open_application_configuration_action)
 
         self.clear_caches_action = QAction(self)
         self.clear_caches_action.triggered.connect(
             lambda _: self.clear_caches(),
         )
-        self.betty_menu.addAction(self.clear_caches_action)
+        betty_menu.addAction(self.clear_caches_action)
 
         self.exit_action = QAction(self)
         self.exit_action.setShortcut('Ctrl+Q')
         self.exit_action.triggered.connect(QCoreApplication.quit)
-        self.betty_menu.addAction(self.exit_action)
+        betty_menu.addAction(self.exit_action)
 
-        self.help_menu = menu_bar.addMenu('')
+        help_menu = menu_bar.addMenu('')
+        assert help_menu is not None
+        self.help_menu = help_menu
 
         self.report_bug_action = QAction(self)
         self.report_bug_action.triggered.connect(
             lambda _: self.report_bug(),
         )
-        self.help_menu.addAction(self.report_bug_action)
+        help_menu.addAction(self.report_bug_action)
 
         self.request_feature_action = QAction(self)
         self.request_feature_action.triggered.connect(
             lambda _: self.request_feature(),
         )
-        self.help_menu.addAction(self.request_feature_action)
+        help_menu.addAction(self.request_feature_action)
 
         self.about_action = QAction(self)
         self.about_action.triggered.connect(
             lambda _: self._about_betty(),
         )
-        self.help_menu.addAction(self.about_action)
+        help_menu.addAction(self.about_action)
 
     @property
     def title(self) -> str:

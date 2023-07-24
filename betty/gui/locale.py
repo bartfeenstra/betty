@@ -97,13 +97,25 @@ class _LocalizedObject(ReactiveInstance):
         pass
 
 
-class LocalizedWidget(_LocalizedObject, QWidget, Repr):
+class LocalizedWidget(  # type: ignore[misc]
+    _LocalizedObject,
+    QWidget,
+    Repr,
+):
     pass
 
 
-class LocalizedMessageBox(_LocalizedObject, QMessageBox, Repr):
+class LocalizedMessageBox(  # type: ignore[misc]
+    _LocalizedObject,
+    QMessageBox,
+    Repr,
+):
     pass
 
 
-class LocalizedWindow(_LocalizedObject, QMainWindow, Repr):
+class LocalizedWindow(  # type: ignore[misc]
+    _LocalizedObject,
+    QMainWindow,
+    Repr,
+):
     pass

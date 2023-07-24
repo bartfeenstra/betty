@@ -89,16 +89,16 @@ class Error(LocalizedMessageBox):
         self.setWindowTitle('{error} - Betty'.format(error=self._app.localizer._("Error")))
         self.setText(message)
 
-        standard_button = QMessageBox.StandardButton.Close
-        self.setStandardButtons(standard_button)
-        self.button(QMessageBox.StandardButton.Close).setIcon(QIcon())
-        self.setDefaultButton(QMessageBox.StandardButton.Close)
-        self.setEscapeButton(QMessageBox.StandardButton.Close)
-        self.button(QMessageBox.StandardButton.Close).clicked.connect(
-            self.close,  # type: ignore[arg-type]
-        )
+        standard_button_type = QMessageBox.StandardButton.Close
+        self.setStandardButtons(standard_button_type)
+        close_button = self.button(standard_button_type)
+        assert close_button is not None
+        close_button.setIcon(QIcon())
+        self.setDefaultButton(standard_button_type)
+        self.setEscapeButton(standard_button_type)
+        close_button.clicked.connect(self.close)
 
-    def closeEvent(self, event: QCloseEvent) -> None:
+    def closeEvent(self, event: QCloseEvent | None) -> None:
         if self._close_parent:
             parent = self.parent()
             if isinstance(parent, QWidget):

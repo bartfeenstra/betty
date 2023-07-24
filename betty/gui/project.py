@@ -290,7 +290,7 @@ class _LocalizationPane(LocalizedWidget):
     def _build(self) -> None:
         if self._locales_configuration_widget is not None:
             self._layout.removeWidget(self._locales_configuration_widget)
-            self._locales_configuration_widget.setParent(None)  # type: ignore[call-overload]
+            self._locales_configuration_widget.setParent(None)
             del self._locales_configuration_widget
 
         self._locales_configuration_widget = _LocalesConfigurationWidget(self._app)
@@ -334,7 +334,7 @@ class _AddLocaleWindow(BettyWindow):
 
         self._cancel = QPushButton(self._app.localizer._('Cancel'))
         self._cancel.released.connect(
-            lambda _: self.close()  # type: ignore[arg-type]
+            lambda _: self.close()
         )
         buttons_layout.addWidget(self._cancel)
 
@@ -388,8 +388,9 @@ class _ExtensionPane(LocalizedWidget):
                 extension_gui_item = layout.itemAt(1)
                 if extension_gui_item is not None:
                     extension_gui_widget = extension_gui_item.widget()
+                    assert extension_gui_widget is not None
                     layout.removeWidget(extension_gui_widget)
-                    extension_gui_widget.setParent(None)  # type: ignore[call-overload]
+                    extension_gui_widget.setParent(None)
                     del extension_gui_widget
 
         self._extension_enabled = QCheckBox()
@@ -457,6 +458,7 @@ class ProjectWindow(BettyMainWindow):
             self._add_pane(f'extension-{extension_type.name()}', _ExtensionPane(self._app, extension_type))
 
         menu_bar = self.menuBar()
+        assert menu_bar is not None
 
         self.project_menu = QMenu()
         menu_bar.addMenu(self.project_menu)
