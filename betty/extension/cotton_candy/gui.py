@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Callable, Any
 
 from PyQt6.QtCore import QRect
@@ -22,7 +24,7 @@ class _ColorConfigurationSwatch(LocalizedWidget):
     def __del__(self) -> None:
         self._color.react.shutdown(self.repaint)
 
-    def paintEvent(self, a0: QPaintEvent) -> None:
+    def paintEvent(self, event: QPaintEvent | None) -> None:
         painter = QPainter(self)
         swatch = QRect(self.rect())
         painter.fillRect(swatch, QBrush(QColor.fromString(self._color.hex)))

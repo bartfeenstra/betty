@@ -98,7 +98,7 @@ class _ServeWindow(BettyWindow):
 
         stop_server_button = QPushButton(self._app.localizer._('Stop the site'), self)
         stop_server_button.released.connect(
-            self.close,  # type: ignore[arg-type]
+            self.close,
         )
         self._central_layout.addWidget(stop_server_button)
 

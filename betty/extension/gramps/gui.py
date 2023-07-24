@@ -131,9 +131,7 @@ class _AddFamilyTreeWindow(BettyWindow):
         buttons_layout.addWidget(self._save_and_close)
 
         self._cancel = QPushButton()
-        self._cancel.released.connect(
-            self.close,  # type: ignore[arg-type]
-        )
+        self._cancel.released.connect(self.close)
         buttons_layout.addWidget(self._cancel)
 
     def _do_set_translatables(self) -> None:
