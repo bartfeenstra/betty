@@ -439,7 +439,21 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
         self._collections: dict[type[Entity], SingleTypeEntityCollection[Entity]] = {}
 
     def __repr__(self) -> str:
-        return f'{object.__repr__(self)}(entity_types={", ".join(map(get_entity_type_name, self._collections.keys()))}, length={len(self)})'
+        return repr_instance(
+            self,
+            entity_types=', '.join(map(get_entity_type_name, self._collections.keys())),
+            length=len(self),
+        )
+
+    def __getstate__(self) -> FlattenedEntityCollection:
+        state = FlattenedEntityCollection()
+        state.add_entity(*self)
+
+        return state
+
+    def __setstate__(self, state: FlattenedEntityCollection) -> None:
+        self._collections = {}
+        self.add(*state.unflatten())
 
     def _get_collection(self, entity_type: type[EntityT]) -> SingleTypeEntityCollection[EntityT]:
         assert issubclass(entity_type, Entity)
