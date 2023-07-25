@@ -23,7 +23,7 @@ class _Demo(Extension, Loader):
         return {CottonCandy, HttpApiDoc, Maps, Trees, Wikipedia}
 
     def _load(self, *entities: Entity) -> None:
-        self._app.project.ancestry.entities.append(*entities)
+        self._app.project.ancestry.add(*entities)
 
     async def load(self) -> None:
         from betty.extension import CottonCandy
@@ -107,7 +107,7 @@ class _Demo(Extension, Loader):
             Presence(dirk_jacobus_lankester, Subject(), death_of_dirk_jacobus_lankester),
             Presence(dirk_jacobus_lankester, Subject(), marriage_of_dirk_jacobus_lankester_and_jannigje_palsen),
         )
-        dirk_jacobus_lankester.parents.append(david_marinus_lankester, geertruida_van_ling)
+        dirk_jacobus_lankester.parents.add(david_marinus_lankester, geertruida_van_ling)
         self._load(dirk_jacobus_lankester)
 
         birth_of_marinus_david_lankester = Event('betty-demo-birth-of-marinus-david', Birth, DateRange(Date(1874, 1, 15), Date(1874, 3, 21), start_is_boundary=True, end_is_boundary=True))
@@ -124,7 +124,7 @@ class _Demo(Extension, Loader):
             Presence(marinus_david_lankester, Subject(), birth_of_marinus_david_lankester),
             Presence(marinus_david_lankester, Subject(), death_of_marinus_david_lankester),
         )
-        marinus_david_lankester.parents.append(david_marinus_lankester, geertruida_van_ling)
+        marinus_david_lankester.parents.add(david_marinus_lankester, geertruida_van_ling)
         self._load(marinus_david_lankester)
 
         birth_of_jacoba_gesina_lankester = Event('betty-demo-birth-of-jacoba-gesina', Birth, Date(1900, 3, 14))
@@ -136,7 +136,7 @@ class _Demo(Extension, Loader):
             PersonName(jacoba_gesina_lankester, 'Jacoba Gesina', 'Lankester'),
             Presence(jacoba_gesina_lankester, Subject(), birth_of_jacoba_gesina_lankester),
         )
-        jacoba_gesina_lankester.parents.append(david_marinus_lankester, geertruida_van_ling)
+        jacoba_gesina_lankester.parents.add(david_marinus_lankester, geertruida_van_ling)
         self._load(jacoba_gesina_lankester)
 
         jannigje_palsen = Person('betty-demo-jannigje-palsen')
@@ -156,12 +156,12 @@ class _Demo(Extension, Loader):
 
         birth_of_liberta_lankester = Event('betty-demo-birth-of-liberta-lankester', Birth, Date(1929, 12, 22))
         birth_of_liberta_lankester.place = amsterdam
-        birth_of_liberta_lankester.citations.append(cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam)
+        birth_of_liberta_lankester.citations.add(cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam)
         self._load(birth_of_liberta_lankester)
 
         death_of_liberta_lankester = Event('betty-demo-death-of-liberta-lankester', Death, Date(2015, 1, 17))
         death_of_liberta_lankester.place = amsterdam
-        death_of_liberta_lankester.citations.append(cite_first_person_account)
+        death_of_liberta_lankester.citations.add(cite_first_person_account)
         self._load(death_of_liberta_lankester)
 
         liberta_lankester = Person('betty-demo-liberta-lankester')
@@ -172,7 +172,7 @@ class _Demo(Extension, Loader):
             Presence(liberta_lankester, Subject(), death_of_liberta_lankester),
             Presence(liberta_lankester, Subject(), marriage_of_johan_de_boer_and_liberta_lankester),
         )
-        liberta_lankester.parents.append(dirk_jacobus_lankester, jannigje_palsen)
+        liberta_lankester.parents.add(dirk_jacobus_lankester, jannigje_palsen)
         self._load(liberta_lankester)
 
         birth_of_johan_de_boer = Event('betty-demo-birth-of-johan-de-boer', Birth, Date(1930, 6, 20))
@@ -181,7 +181,7 @@ class _Demo(Extension, Loader):
 
         death_of_johan_de_boer = Event('betty-demo-death-of-johan-de-boer', Death, Date(1999, 3, 10))
         death_of_johan_de_boer.place = amsterdam
-        death_of_johan_de_boer.citations.append(cite_first_person_account)
+        death_of_johan_de_boer.citations.add(cite_first_person_account)
         self._load(death_of_johan_de_boer)
 
         johan_de_boer = Person('betty-demo-johan-de-boer')
@@ -196,12 +196,12 @@ class _Demo(Extension, Loader):
 
         parent_of_bart_feenstra_child_of_liberta_lankester = Person('betty-demo-parent-of-bart-feenstra-child-of-liberta-lankester')
         self._load(PersonName(parent_of_bart_feenstra_child_of_liberta_lankester, 'Bart\'s parent'))
-        parent_of_bart_feenstra_child_of_liberta_lankester.parents.append(johan_de_boer, liberta_lankester)
+        parent_of_bart_feenstra_child_of_liberta_lankester.parents.add(johan_de_boer, liberta_lankester)
         self._load(parent_of_bart_feenstra_child_of_liberta_lankester)
 
         bart_feenstra = Person('betty-demo-bart-feenstra')
         self._load(PersonName(bart_feenstra, 'Bart', 'Feenstra'))
-        bart_feenstra.parents.append(parent_of_bart_feenstra_child_of_liberta_lankester)
+        bart_feenstra.parents.add(parent_of_bart_feenstra_child_of_liberta_lankester)
         self._load(bart_feenstra)
 
         theme = self.app.extensions[CottonCandy]

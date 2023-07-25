@@ -29,13 +29,13 @@ class AnonymousSource(Source):
         if isinstance(other, AnonymousSource):
             return
 
-        self.citations.append(*other.citations)
+        self.citations.add(*other.citations)
         other.citations.clear()
-        self.contains.append(*other.contains)
+        self.contains.add(*other.contains)
         other.contains.clear()
-        self.files.append(*other.files)
+        self.files.add(*other.files)
         other.files.clear()
-        ancestry.entities[Source].remove(other)
+        ancestry[Source].remove(other)
 
 
 class AnonymousCitation(Citation):
@@ -62,11 +62,11 @@ class AnonymousCitation(Citation):
         if isinstance(other, AnonymousCitation):
             return
 
-        self.facts.append(*other.facts)
+        self.facts.add(*other.facts)
         other.facts.clear()
-        self.files.append(*other.files)
+        self.files.add(*other.files)
         other.files.clear()
-        ancestry.entities[Citation].remove(other)
+        ancestry[Citation].remove(other)
 
 
 def anonymize(ancestry: Ancestry, anonymous_citation: AnonymousCitation) -> None:
@@ -74,19 +74,19 @@ def anonymize(ancestry: Ancestry, anonymous_citation: AnonymousCitation) -> None
     if not isinstance(anonymous_source, AnonymousSource):
         raise ValueError(f"The anonymous citation's source must be a {AnonymousSource}")
 
-    for person in ancestry.entities[Person]:
+    for person in ancestry[Person]:
         if person.private:
             anonymize_person(person)
-    for event in ancestry.entities[Event]:
+    for event in ancestry[Event]:
         if event.private:
             anonymize_event(event)
-    for file in ancestry.entities[File]:
+    for file in ancestry[File]:
         if file.private:
             anonymize_file(file)
-    for source in ancestry.entities[Source]:
+    for source in ancestry[Source]:
         if source.private:
             anonymize_source(source, ancestry, anonymous_source)
-    for citation in ancestry.entities[Citation]:
+    for citation in ancestry[Citation]:
         if citation.private:
             anonymize_citation(citation, ancestry, anonymous_citation)
 

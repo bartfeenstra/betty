@@ -11,13 +11,13 @@ class TestDescendantNames(TemplateTestCase):
         person = Person('P0')
         partner_one = Person('P1')
         child_one = Person('P1C1')
-        child_one.parents.append(person)
-        child_one.parents.append(partner_one)
+        child_one.parents.add(person)
+        child_one.parents.add(partner_one)
         PersonName(child_one, None, 'FamilyOneAssociationName')
         partner_two = Person('P2')
         child_two = Person('P2C2')
-        child_two.parents.append(person)
-        child_two.parents.append(partner_two)
+        child_two.parents.add(person)
+        child_two.parents.add(partner_two)
         PersonName(child_two, None, 'FamilyTwoAssociationName')
         with self._render(data={
             'page_resource': person,

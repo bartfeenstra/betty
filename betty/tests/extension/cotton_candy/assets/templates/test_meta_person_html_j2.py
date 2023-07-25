@@ -30,7 +30,7 @@ class Test(TemplateTestCase):
         person = Person('P0')
         PersonName(person, 'Jane', 'Dough')
         name = PersonName(person, 'Janet', 'Doughnut')
-        name.citations.append(Citation(None, Source(None, 'The Source')))
+        name.citations.add(Citation(None, Source(None, 'The Source')))
         expected = '<div class="meta person-meta"><span class="aka">Also known as <span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Janet</span> <span property="foaf:familyName">Doughnut</span></span><a href="#reference-1" class="citation">[1]</a></span></div>'
         with self._render(data={
             'entity': person,
@@ -71,7 +71,7 @@ class Test(TemplateTestCase):
         Presence(person, Subject(), Event(None, Birth, Date(1970)))
         PersonName(person, 'Jane', 'Dough')
         name = PersonName(person, 'Janet', 'Doughnut')
-        name.citations.append(Citation(None, Source(None, 'The Source')))
+        name.citations.add(Citation(None, Source(None, 'The Source')))
         expected = '<div class="meta person-meta"><span class="aka">Also known as <span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Janet</span> <span property="foaf:familyName">Doughnut</span></span></span><dl><div><dt>Birth</dt><dd>1970</dd></div></dl></div>'
         with self._render(data={
             'entity': person,

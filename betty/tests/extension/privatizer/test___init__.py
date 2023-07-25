@@ -18,17 +18,17 @@ class TestPrivatizer:
         source_file = File('F0', Path(__file__))
         source = Source('S0', 'The Source')
         source.private = True
-        source.files.append(source_file)
+        source.files.add(source_file)
 
         citation_file = File('F0', Path(__file__))
         citation_source = Source('The Source')
         citation = Citation('C0', citation_source)
         citation.private = True
-        citation.files.append(citation_file)
+        citation.files.add(citation_file)
 
         app = App()
         app.project.configuration.extensions.append(ExtensionConfiguration(Privatizer))
-        app.project.ancestry.entities.append(person, source, citation)
+        app.project.ancestry.add(person, source, citation)
         await load(app)
 
         assert person.private

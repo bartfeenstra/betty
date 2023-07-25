@@ -15,7 +15,7 @@ class TestAnonymizer:
 
         app = App()
         app.project.configuration.extensions.append(ExtensionConfiguration(Anonymizer))
-        app.project.ancestry.entities.append(person)
+        app.project.ancestry.add(person)
         await load(app)
 
         assert 0 == len(person.names)

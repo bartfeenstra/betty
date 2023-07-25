@@ -11,7 +11,7 @@
         </p>
         <p>
             {% set liberta_lankester_label -%}
-                <a href="{{ app.project.ancestry.entities['Person']['betty-demo-liberta-lankester'] | url }}">Liberta 'Betty' Lankester</a>
+                <a href="{{ app.project.ancestry['Person']['betty-demo-liberta-lankester'] | url }}">Liberta 'Betty' Lankester</a>
             {%- endset %}
             {% trans liberta_lankester_label = liberta_lankester_label %}
                 Betty was named after {{ liberta_lankester_label }}, and this website shows a small sample of her family
@@ -25,7 +25,7 @@
             <div class="featured-entities">
                 {% for entity_reference in app.extensions['betty.extension.CottonCandy'].configuration.featured_entities %}
                     <div class="featured-entity">
-                        {% with entity = app.project.ancestry.entities[entity_reference.entity_type][entity_reference.entity_id] %}
+                        {% with entity = app.project.ancestry[entity_reference.entity_type][entity_reference.entity_id] %}
                             {% include [
                                 'entity/featured--' + (entity | entity_type_name | camel_case_to_kebab_case) + '.html.j2',
                                 'entity/featured.html.j2',

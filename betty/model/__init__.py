@@ -12,7 +12,6 @@ from ordered_set import OrderedSet
 from typing_extensions import Self, TypeAlias
 
 from betty.classtools import repr_instance
-from betty.functools import slice_to_range
 from betty.importlib import import_any
 from betty.locale import Localizer, Localizable
 
@@ -156,25 +155,52 @@ def get_entity_type(entity_type_definition: str | type[Entity] | Entity) -> type
 
 
 class EntityCollection(Generic[TargetT], Localizable):
+    def __init__(self, *, localizer: Localizer | None = None):
+        super().__init__(localizer=localizer)
+
+    def _new_copy(self) -> Self:
+        return type(self)()
+
+    def _init_copy(self, self_copy: Self) -> None:
+        self_copy.localizer = self.localizer
+
+    def _into_copy(self, self_copy: Self) -> None:
+        self_copy.add(*self)
+
+    def __copy__(self, copy_entities: bool = True) -> Self:
+        self_copy = self._new_copy()
+        self._init_copy(self_copy)
+        self._into_copy(self_copy)
+        return self_copy
+
     def _on_localizer_change(self) -> None:
         for entity in self:
             entity.localizer = self.localizer
+
+    def _on_add(self, *entities: TargetT & Entity) -> None:
+        pass
+
+    def _on_remove(self, *entities: TargetT & Entity) -> None:
+        pass
 
     @property
     def view(self) -> list[TargetT & Entity]:
         return [*self]
 
-    def prepend(self, *entities: TargetT & Entity) -> None:
-        raise NotImplementedError(repr(self))
-
-    def append(self, *entities: TargetT & Entity) -> None:
+    def add(self, *entities: TargetT & Entity) -> None:
         raise NotImplementedError(repr(self))
 
     def remove(self, *entities: TargetT & Entity) -> None:
         raise NotImplementedError(repr(self))
 
     def replace(self, *entities: TargetT & Entity) -> None:
-        raise NotImplementedError(repr(self))
+        self.remove(*(
+            entity
+            for entity
+            in self
+            if entity not in entities
+        ))
+        self.add(*entities)
 
     def clear(self) -> None:
         raise NotImplementedError(repr(self))
@@ -196,11 +222,25 @@ class EntityCollection(Generic[TargetT], Localizable):
     def __getitem__(self, key: int | slice) -> TargetT & Entity | list[TargetT & Entity]:
         raise NotImplementedError(repr(self))
 
-    def __delitem__(self, key: int | slice) -> None:
+    def __delitem__(self, key: TargetT & Entity) -> None:
         raise NotImplementedError(repr(self))
 
     def __contains__(self, value: Any) -> bool:
         raise NotImplementedError(repr(self))
+
+    def _known(self, *entities: TargetT & Entity) -> Iterable[TargetT & Entity]:
+        seen = []
+        for entity in entities:
+            if entity in self and entity not in seen:
+                yield entity
+                seen.append(entity)
+
+    def _unknown(self, *entities: TargetT & Entity) -> Iterable[TargetT & Entity]:
+        seen = []
+        for entity in entities:
+            if entity not in self and entity not in seen:
+                yield entity
+                seen.append(entity)
 
 
 EntityCollectionT = TypeVar('EntityCollectionT', bound=EntityCollection[EntityT])
@@ -223,88 +263,73 @@ class _EntityTypeAssociation(Generic[OwnerT, AssociateT]):
         return self.owner_init_value_factory(owner, *self.owner_init_value_arguments)
 
 
-class _EntityTypeAssociationRegistry:
-    _registrations = set[_EntityTypeAssociation[Any, Any]]()
+class EntityTypeAssociationRegistry:
+    _associations = set[_EntityTypeAssociation[Any, Any]]()
 
     @classmethod
-    def get_associations(cls, owner_cls: type[T]) -> set[_EntityTypeAssociation[T, Any]]:
+    def get_associations(cls, owner: type[EntityT] | EntityT) -> set[_EntityTypeAssociation[EntityT, Entity]]:
+        owner_cls = owner if isinstance(owner, type) else type(owner)
         return {
-            cast(_EntityTypeAssociation[T, Any], registration)
-            for registration
-            in cls._registrations
-            if registration.owner_cls in owner_cls.__mro__
+            association
+            for association
+            in cls._associations
+            if association.owner_cls in owner_cls.__mro__
         }
 
     @classmethod
-    def register(cls, registration: _EntityTypeAssociation[Entity, Entity]) -> None:
-        if registration not in cls._registrations:
-            cls._registrations.add(registration)
+    def get_associates(cls, owner: EntityT, association: _EntityTypeAssociation[EntityT, AssociateT]) -> Iterable[AssociateT]:
+        associates: AssociateT | Iterable[AssociateT] = getattr(owner, f'_{association.owner_attr_name}')
+        # Consider one a special case of many.
+        if association.owner_cardinality == association.Cardinality.ONE:
+            if associates is None:
+                return ()
+            return [
+                cast(AssociateT, associates)
+            ]
+        return cast(Iterable[AssociateT], associates)
+
+    @classmethod
+    def register(cls, association: _EntityTypeAssociation[Entity, Entity]) -> None:
+        cls._associations.add(association)
 
 
 class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
-    def __init__(self, entity_type: type[TargetT], *, localizer: Localizer | None = None):
+    def __init__(
+        self,
+        entity_type: type[TargetT & Entity],
+        *,
+        localizer: Localizer | None = None,
+    ):
         super().__init__(localizer=localizer)
         self._entities: list[TargetT & Entity] = []
-        self._entity_type: type[TargetT] = entity_type
+        self._entity_type: type[TargetT & Entity] = entity_type
 
     def __repr__(self) -> str:
         return f'{object.__repr__(self)}(entity_type={self._entity_type}, length={len(self)})'
 
-    def __copy__(self, copy_entities: bool = True) -> Self:
-        copied = self.__class__.__new__(self.__class__)
-        copied._entities = []
-        copied._entity_type = self._entity_type
-        if copy_entities:
-            self._copy_entities(copied)
-        return copied
+    def _new_copy(self) -> Self:
+        return type(self)(self._entity_type)
 
-    def _copy_entities(self, copied: EntityCollection[TargetT]) -> None:
-        for entity in self:
-            copied.append(entity)
+    def _init_copy(self, self_copy: Self) -> None:
+        self_copy._entities = []
+        self_copy._entity_type = self._entity_type
 
-    def _assert_entity(self, entity: Any) -> None:
-        message = f'{entity} is not a {self._entity_type}.'
-        assert (
-            isinstance(entity, self._entity_type)
-            or  # noqa: W503 W504
-            isinstance(entity, AliasedEntity) and self._entity_type == get_entity_type(entity.unalias())
-        ), message
-
-    def prepend(self, *entities: TargetT & Entity) -> None:
-        for entity in reversed(entities):
-            self._assert_entity(entity)
-            if entity in self:
-                continue
-            self._prepend_one(entity)
-
-    def _prepend_one(self, entity: TargetT & Entity) -> None:
-        self._entities.insert(0, entity)
-
-    def append(self, *entities: TargetT & Entity) -> None:
-        for entity in entities:
-            self._assert_entity(entity)
-            if entity in self:
-                continue
-            self._append_one(entity)
-
-    def _append_one(self, entity: TargetT & Entity) -> None:
-        self._entities.append(entity)
+    def add(self, *entities: TargetT & Entity) -> None:
+        added_entities = [*self._unknown(*entities)]
+        for entity in added_entities:
+            self._entities.append(entity)
+        if added_entities:
+            self._on_add(*added_entities)
 
     def remove(self, *entities: TargetT & Entity) -> None:
-        for entity in entities:
-            if entity not in self:
-                continue
-            self._remove_one(entity)
-
-    def _remove_one(self, entity: TargetT & Entity) -> None:
-        self._entities.remove(entity)
-
-    def replace(self, *entities: TargetT & Entity) -> None:
-        self._entities = []
-        self.append(*entities)
+        removed_entities = [*self._known(*entities)]
+        for entity in removed_entities:
+            self._entities.remove(entity)
+        if removed_entities:
+            self._on_remove(*removed_entities)
 
     def clear(self) -> None:
-        self._entities = []
+        self.remove(*self)
 
     def __iter__(self) -> Iterator[TargetT & Entity]:
         return self._entities.__iter__()
@@ -345,26 +370,15 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
                 return entity
         raise KeyError(f'Cannot find a {self._entity_type} entity with ID "{entity_id}".')
 
-    def __delitem__(self, key: int | slice | str | TargetT & Entity) -> None:
+    def __delitem__(self, key: str | TargetT & Entity) -> None:
         if isinstance(key, self._entity_type):
             return self._delitem_by_entity(cast('TargetT & Entity', key))
-        if isinstance(key, int):
-            return self._delitem_by_index(key)
-        if isinstance(key, slice):
-            return self._delitem_by_indices(key)
         if isinstance(key, str):
             return self._delitem_by_entity_id(key)
         raise TypeError(f'Cannot find entities by {repr(key)}.')
 
     def _delitem_by_entity(self, entity: TargetT & Entity) -> None:
         self.remove(entity)
-
-    def _delitem_by_index(self, index: int) -> None:
-        del self._entities[index]
-
-    def _delitem_by_indices(self, indices: slice) -> None:
-        for n, index in enumerate(slice_to_range(indices, self)):
-            del self[index - n]
 
     def _delitem_by_entity_id(self, entity_id: str) -> None:
         for entity in self._entities:
@@ -395,7 +409,7 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
 SingleTypeEntityCollectionT = TypeVar('SingleTypeEntityCollectionT', bound=SingleTypeEntityCollection[AssociateT])
 
 
-class _AssociateCollection(SingleTypeEntityCollection[AssociateT], Generic[AssociateT, OwnerT]):
+class _AssociateCollection(Generic[AssociateT, OwnerT], SingleTypeEntityCollection[AssociateT]):
     def __init__(self, owner: OwnerT, associate_type: type[AssociateT & Entity], *, localizer: Localizer | None = None):
         super().__init__(associate_type, localizer=localizer)
         self._owner = owner
@@ -403,18 +417,11 @@ class _AssociateCollection(SingleTypeEntityCollection[AssociateT], Generic[Assoc
     def __repr__(self) -> str:
         return f'{object.__repr__(self)}(owner={self._owner}, associate_type={self._entity_type}, length={len(self)})'
 
-    def __copy__(self, copy_entities: bool = True) -> _AssociateCollection[AssociateT, OwnerT]:
-        copied = super().__copy__(False)
-        copied._owner = self._owner
-        if copy_entities:
-            self._copy_entities(copied)
-        return copied
+    def _new_copy(self) -> Self:
+        return type(self)(self._owner, self._entity_type, localizer=self._localizer)
 
-    def _on_add(self, associate: AssociateT & Entity) -> None:
-        raise NotImplementedError(repr(self))
-
-    def _on_remove(self, associate: AssociateT & Entity) -> None:
-        raise NotImplementedError(repr(self))
+    def _into_copy(self, into: Self) -> None:
+        into._owner = self._owner
 
     def copy_for_owner(self, owner: OwnerT) -> _AssociateCollection[AssociateT, OwnerT]:
         # We cannot check for identity or equality, because owner is a copy of self._owner, and may have undergone
@@ -425,46 +432,22 @@ class _AssociateCollection(SingleTypeEntityCollection[AssociateT], Generic[Assoc
         copied._owner = owner
         return copied
 
-    def _prepend_one(self, associate: AssociateT & Entity) -> None:
-        super()._prepend_one(associate)
-        self._on_add(associate)
-
-    def _append_one(self, associate: AssociateT & Entity) -> None:
-        super()._append_one(associate)
-        self._on_add(associate)
-
-    def _remove_one(self, associate: AssociateT & Entity) -> None:
-        super()._remove_one(associate)
-        self._on_remove(associate)
-
-    def replace(self, *associates: AssociateT & Entity) -> None:
-        self.remove(*list(self._entities))
-        self.append(*associates)
-
-    def clear(self) -> None:
-        self.replace()
-
-    def _delitem_by_index(self, index: int) -> None:
-        removed_entity = self[index]
-        super()._delitem_by_index(index)
-        self._on_remove(removed_entity)
-
 
 class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
     def __init__(self, *, localizer: Localizer | None = None):
         super().__init__(localizer=localizer)
-        self._collections: dict[type[Entity], SingleTypeEntityCollection[Any]] = {}
+        self._collections: dict[type[Entity], SingleTypeEntityCollection[Entity]] = {}
 
     def __repr__(self) -> str:
         return f'{object.__repr__(self)}(entity_types={", ".join(map(get_entity_type_name, self._collections.keys()))}, length={len(self)})'
 
-    def _get_collection(self, entity_type: type[TargetT & Entity]) -> SingleTypeEntityCollection[TargetT]:
+    def _get_collection(self, entity_type: type[EntityT]) -> SingleTypeEntityCollection[EntityT]:
         assert issubclass(entity_type, Entity)
         try:
-            return cast(SingleTypeEntityCollection[TargetT], self._collections[entity_type])
+            return cast(SingleTypeEntityCollection[EntityT], self._collections[entity_type])
         except KeyError:
             self._collections[entity_type] = SingleTypeEntityCollection(entity_type)
-            return cast(SingleTypeEntityCollection[TargetT], self._collections[entity_type])
+            return cast(SingleTypeEntityCollection[EntityT], self._collections[entity_type])
 
     @overload
     def __getitem__(self, index: int) -> TargetT & Entity:
@@ -475,17 +458,17 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
         pass
 
     @overload
-    def __getitem__(self, entity_type_name: str) -> SingleTypeEntityCollection[Any]:
+    def __getitem__(self, entity_type_name: str) -> SingleTypeEntityCollection[Entity]:
         pass
 
     @overload
-    def __getitem__(self, entity_type: type[TargetT & Entity]) -> SingleTypeEntityCollection[TargetT]:
+    def __getitem__(self, entity_type: type[EntityT]) -> SingleTypeEntityCollection[EntityT]:
         pass
 
     def __getitem__(
         self,
-        key: int | slice | str | type[TargetT & Entity],
-    ) -> Entity | SingleTypeEntityCollection[Any] | SingleTypeEntityCollection[TargetT] | list[TargetT & Entity]:
+        key: int | slice | str | type[EntityT],
+    ) -> TargetT & Entity | SingleTypeEntityCollection[Entity] | SingleTypeEntityCollection[EntityT] | list[TargetT & Entity]:
         if isinstance(key, int):
             return self._getitem_by_index(key)
         if isinstance(key, slice):
@@ -494,21 +477,21 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
             return self._getitem_by_entity_type_name(key)
         return self._getitem_by_entity_type(key)
 
-    def _getitem_by_entity_type(self, entity_type: type[TargetT & Entity]) -> SingleTypeEntityCollection[TargetT]:
+    def _getitem_by_entity_type(self, entity_type: type[EntityT]) -> SingleTypeEntityCollection[EntityT]:
         return self._get_collection(entity_type)
 
-    def _getitem_by_entity_type_name(self, entity_type_name: str) -> SingleTypeEntityCollection[Any]:
+    def _getitem_by_entity_type_name(self, entity_type_name: str) -> SingleTypeEntityCollection[Entity]:
         return self._get_collection(
-            get_entity_type(entity_type_name),  # type: ignore[arg-type]
+            get_entity_type(entity_type_name),
         )
 
-    def _getitem_by_index(self, index: int) -> Entity:
+    def _getitem_by_index(self, index: int) -> TargetT & Entity:
         return self.view[index]
 
     def _getitem_by_indices(self, indices: slice) -> list[TargetT & Entity]:
         return self.view[indices]
 
-    def __delitem__(self, key: int | slice | str | type[TargetT & Entity] | TargetT & Entity) -> None:
+    def __delitem__(self, key: str | type[TargetT & Entity] | TargetT & Entity) -> None:
         if isinstance(key, type):
             return self._delitem_by_type(
                 key,
@@ -517,32 +500,18 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
             return self._delitem_by_entity(
                 key,  # type: ignore[arg-type]
             )
-        if isinstance(key, int):
-            return self._delitem_by_index(key)
-        if isinstance(key, slice):
-            return self._delitem_by_indices(key)
         if isinstance(key, str):
             return self._delitem_by_entity_type_name(key)
         raise TypeError(f'Cannot find entities by {repr(key)}.')
 
     def _delitem_by_type(self, entity_type: type[TargetT & Entity]) -> None:
+        removed_entities = [*self._get_collection(entity_type)]
         self._get_collection(entity_type).clear()
+        if removed_entities:
+            self._on_remove(*removed_entities)
 
     def _delitem_by_entity(self, entity: TargetT & Entity) -> None:
         self.remove(entity)
-
-    def _delitem_by_index(self, index: int) -> None:
-        for collection in self._collections.values():
-            collection_length = len(collection)
-            if collection_length > index:
-                del collection[index]
-                return
-            index -= collection_length
-        raise IndexError
-
-    def _delitem_by_indices(self, indices: slice) -> None:
-        for n, index in enumerate(slice_to_range(indices, self)):
-            del self[index - n]
 
     def _delitem_by_entity_type_name(self, entity_type_name: str) -> None:
         self._delitem_by_type(
@@ -552,7 +521,7 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
     def __iter__(self) -> Iterator[TargetT & Entity]:
         for collection in self._collections.values():
             for entity in collection:
-                yield entity
+                yield cast('TargetT & Entity', entity)
 
     def __len__(self) -> int:
         return sum(map(len, self._collections.values()))
@@ -568,32 +537,30 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
                 return True
         return False
 
-    def prepend(self, *entities: TargetT & Entity) -> None:
-        for entity in entities:
+    def add(self, *entities: TargetT & Entity) -> None:
+        added_entities = [*self._unknown(*entities)]
+        for entity in added_entities:
             self[
-                get_entity_type(unalias(entity))  # type: ignore[index]
-            ].prepend(entity)
-
-    def append(self, *entities: TargetT & Entity) -> None:
-        for entity in entities:
-            self[
-                get_entity_type(unalias(entity))  # type: ignore[index]
-            ].append(entity)
+                get_entity_type(unalias(entity))
+            ].add(entity)
+        if added_entities:
+            self._on_add(*added_entities)
 
     def remove(self, *entities: TargetT & Entity) -> None:
-        for entity in entities:
+        removed_entities = [*self._known(*entities)]
+        for entity in removed_entities:
             self[
-                get_entity_type(unalias(entity))  # type: ignore[index]
+                get_entity_type(unalias(entity))
             ].remove(entity)
-
-    def replace(self, *entities: TargetT & Entity) -> None:
-        self.clear()
-        for entity in entities:
-            self.append(entity)
+        if removed_entities:
+            self._on_remove(*removed_entities)
 
     def clear(self) -> None:
+        removed_entities = (*self,)
         for collection in self._collections.values():
             collection.clear()
+        if removed_entities:
+            self._on_remove(*removed_entities)
 
 
 class _ToOne(Generic[AssociateT, OwnerT]):
@@ -602,7 +569,7 @@ class _ToOne(Generic[AssociateT, OwnerT]):
         self._owner_private_attr_name = f'_{owner_attr_name}'
 
     def __call__(self, cls: type[OwnerT]) -> type[OwnerT]:
-        _EntityTypeAssociationRegistry.register(_EntityTypeAssociation(
+        EntityTypeAssociationRegistry.register(_EntityTypeAssociation(
             cls,  # type: ignore[arg-type]
             self._owner_attr_name,
             _EntityTypeAssociation.Cardinality.ONE,
@@ -668,7 +635,7 @@ class _ManyToOne(Generic[AssociateT, OwnerT], _ToOne[AssociateT, OwnerT]):
             if associate is None and self._on_remove is not None:
                 self._on_remove(owner, *self._on_remove_arguments)
         if associate is not None:
-            getattr(associate, self._associate_attr_name).append(owner)
+            getattr(associate, self._associate_attr_name).add(owner)
 
 
 class _ToMany(Generic[AssociateT, OwnerT]):
@@ -685,7 +652,7 @@ class _ToMany(Generic[AssociateT, OwnerT]):
         )
 
     def __call__(self, cls: type[OwnerT]) -> type[OwnerT]:
-        _EntityTypeAssociationRegistry.register(_EntityTypeAssociation(
+        EntityTypeAssociationRegistry.register(_EntityTypeAssociation(
             cls,  # type: ignore[arg-type]
             self._owner_attr_name,
             _EntityTypeAssociation.Cardinality.MANY,
@@ -733,20 +700,23 @@ class _BidirectionalAssociateCollection(Generic[AssociateT, OwnerT], _AssociateC
         super().__init__(owner, associate_type, localizer=localizer)
         self._associate_attr_name = associate_attr_name
 
-    def __copy__(self, copy_entities: bool = True) -> _BidirectionalAssociateCollection[AssociateT, OwnerT]:
-        copied = cast(_BidirectionalAssociateCollection[AssociateT, OwnerT], super().__copy__(False))
-        copied._associate_attr_name = self._associate_attr_name
-        if copy_entities:
-            self._copy_entities(copied)
-        return copied
+    def _new_copy(self) -> Self:
+        return type(self)(self._owner, self._entity_type, self._associate_attr_name)
+
+    def _init_copy(self, self_copy: Self) -> None:
+        self_copy._associate_attr_name = self._associate_attr_name
 
 
 class _OneToManyAssociateCollection(Generic[AssociateT, OwnerT], _BidirectionalAssociateCollection[AssociateT, OwnerT]):
-    def _on_add(self, associate: AssociateT) -> None:
-        setattr(associate, self._associate_attr_name, self._owner)
+    def _on_add(self, *entities: AssociateT & Entity) -> None:
+        super()._on_add(*entities)
+        for associate in entities:
+            setattr(associate, self._associate_attr_name, self._owner)
 
-    def _on_remove(self, associate: AssociateT) -> None:
-        setattr(associate, self._associate_attr_name, None)
+    def _on_remove(self, *entities: AssociateT & Entity) -> None:
+        super()._on_remove(*entities)
+        for associate in entities:
+            setattr(associate, self._associate_attr_name, None)
 
 
 class _OneToMany(Generic[AssociateT, OwnerT], _BidirectionalToMany[AssociateT, OwnerT]):
@@ -765,11 +735,15 @@ class _OneToMany(Generic[AssociateT, OwnerT], _BidirectionalToMany[AssociateT, O
 
 
 class _ManyToManyAssociateCollection(Generic[AssociateT, OwnerT], _BidirectionalAssociateCollection[AssociateT, OwnerT]):
-    def _on_add(self, associate: AssociateT & Entity) -> None:
-        getattr(associate, self._associate_attr_name).append(self._owner)
+    def _on_add(self, *entities: AssociateT & Entity) -> None:
+        super()._on_add(*entities)
+        for associate in entities:
+            getattr(associate, self._associate_attr_name).add(self._owner)
 
-    def _on_remove(self, associate: AssociateT & Entity) -> None:
-        getattr(associate, self._associate_attr_name).remove(self._owner)
+    def _on_remove(self, *entities: AssociateT & Entity) -> None:
+        super()._on_remove(*entities)
+        for associate in entities:
+            getattr(associate, self._associate_attr_name).remove(self._owner)
 
 
 class _ManyToMany(Generic[AssociateT, OwnerT], _BidirectionalToMany[AssociateT, OwnerT]):
@@ -882,8 +856,8 @@ class FlattenedEntityCollection:
         copied = copy.copy(entity)
 
         # Copy any associate collections because they belong to a single owning entity.
-        for association_registration in _EntityTypeAssociationRegistry.get_associations(get_entity_type(entity)):
-            private_association_attr_name = f'_{association_registration.owner_attr_name}'
+        for association in EntityTypeAssociationRegistry.get_associations(entity):
+            private_association_attr_name = f'_{association.owner_attr_name}'
             associates = getattr(entity, private_association_attr_name)
             if isinstance(associates, _AssociateCollection):
                 setattr(copied, private_association_attr_name, associates.copy_for_owner(copied))
@@ -895,33 +869,32 @@ class FlattenedEntityCollection:
             unalias,  # type: ignore[arg-type]
             self._iter(),
         ):
-            for association_registration in _EntityTypeAssociationRegistry.get_associations(entity.__class__):
+            for association in EntityTypeAssociationRegistry.get_associations(entity):
                 setattr(
                     entity,
-                    f'_{association_registration.owner_attr_name}',
-                    association_registration.init_value(entity),
+                    f'_{association.owner_attr_name}',
+                    association.init_value(entity),
                 )
 
     def _unflatten_associations(self) -> None:
         for association in self._associations:
-            print(association)
             owner = unalias(self._entities[association.owner_type][association.owner_id])
             associate = unalias(self._entities[association.associate_type][association.associate_id])
             owner_association_attr_value = getattr(owner, association.owner_association_attr_name)
             if isinstance(owner_association_attr_value, EntityCollection):
-                owner_association_attr_value.append(associate)
+                owner_association_attr_value.add(associate)
             else:
                 setattr(owner, association.owner_association_attr_name, associate)
 
-    def unflatten(self) -> MultipleTypesEntityCollection[Any]:
+    def unflatten(self) -> MultipleTypesEntityCollection[Entity]:
         self._assert_unflattened()
         self._unflattened = True
 
         self._restore_init_values()
         self._unflatten_associations()
 
-        unflattened_entities = MultipleTypesEntityCollection[Any]()
-        unflattened_entities.append(*map(
+        unflattened_entities = MultipleTypesEntityCollection[Entity]()
+        unflattened_entities.add(*map(
             unalias,  # type: ignore[arg-type]
             self._iter(),
         ))
@@ -939,10 +912,10 @@ class FlattenedEntityCollection:
                 entity = self._copy_entity(entity)
             self._entities[entity_type][entity.id] = entity
 
-            for association_registration in _EntityTypeAssociationRegistry.get_associations(entity_type):
-                associates = getattr(unalias(entity), f'_{association_registration.owner_attr_name}')
+            for association in EntityTypeAssociationRegistry.get_associations(unalias(entity)):
+                associates = getattr(unalias(entity), f'_{association.owner_attr_name}')
                 # Consider one a special case of many.
-                if association_registration.owner_cardinality == association_registration.Cardinality.ONE:
+                if association.owner_cardinality == association.Cardinality.ONE:
                     if associates is None:
                         continue
                     associates = [associates]
@@ -950,11 +923,11 @@ class FlattenedEntityCollection:
                     self.add_association(
                         entity_type,
                         entity.id,
-                        association_registration.owner_attr_name,
+                        association.owner_attr_name,
                         get_entity_type(associate.unalias()) if isinstance(associate, AliasedEntity) else get_entity_type(associate),
                         associate.id,
                     )
-                setattr(unalias(entity), f'_{association_registration.owner_attr_name}', None)
+                setattr(unalias(entity), f'_{association.owner_attr_name}', None)
 
     def add_association(
         self,

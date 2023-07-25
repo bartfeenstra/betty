@@ -96,7 +96,7 @@ class TestJSONEncoder:
         link = Link('https://example.com/the-place')
         link.label = 'The Place Online'
         place.links.add(link)
-        place.events.append(Event('E1', Birth))
+        place.events.add(Event('E1', Birth))
         expected = {
             '$schema': '/schema.json#/definitions/place',
             '@context': {
@@ -203,20 +203,20 @@ class TestJSONEncoder:
 
         sibling_id = 'the_sibling'
         sibling = Person(sibling_id)
-        sibling.parents.append(parent)
+        sibling.parents.add(parent)
 
         person_id = 'the_person'
         person_affiliation_name = 'Person'
         person_individual_name = 'The'
         person = Person(person_id)
         PersonName(person, person_individual_name, person_affiliation_name)
-        person.parents.append(parent)
-        person.children.append(child)
+        person.parents.add(parent)
+        person.children.add(child)
         person.private = False
         link = Link('https://example.com/the-person')
         link.label = 'The Person Online'
         person.links.add(link)
-        person.citations.append(
+        person.citations.add(
             Citation('the_citation', Source('The Source')))
         Presence(person, Subject(), Event('the_event', Birth))
 
@@ -345,8 +345,8 @@ class TestJSONEncoder:
             note = Note('the_note', 'The Note')
             file = File('the_file', Path(f.name))
             file.media_type = MediaType('text/plain')
-            file.notes.append(note)
-            Person('the_person').files.append(file)
+            file.notes.add(note)
+            Person('the_person').files.add(file)
             expected = {
                 '$schema': '/schema.json#/definitions/file',
                 'id': 'the_file',
@@ -411,7 +411,7 @@ class TestJSONEncoder:
         event.date = DateRange(Date(2000, 1, 1), Date(2019, 12, 31))
         event.place = Place('the_place', [PlaceName('The Place')])
         Presence(Person('the_person'), Subject(), event)
-        event.citations.append(
+        event.citations.add(
             Citation('the_citation', Source('The Source')))
         expected = {
             '$schema': '/schema.json#/definitions/event',
@@ -508,7 +508,7 @@ class TestJSONEncoder:
         link = Link('https://example.com/the-source')
         link.label = 'The Source Online'
         source.links.add(link)
-        source.contains.append(
+        source.contains.add(
             Source('the_contained_source', 'The Contained Source'))
         Citation('the_citation', source)
         expected = {
@@ -586,7 +586,7 @@ class TestJSONEncoder:
 
     def test_citation_should_encode_full(self) -> None:
         citation = Citation('the_citation', Source('the_source', 'The Source'))
-        citation.facts.append(Event('the_event', Birth))
+        citation.facts.add(Event('the_event', Birth))
         expected = {
             '$schema': '/schema.json#/definitions/citation',
             '@type': 'https://schema.org/Thing',

@@ -146,7 +146,7 @@ class _Populator:
         await asyncio.gather(*[
             self._populate_entity(entity, locales)
             for entity
-            in self._app.project.ancestry.entities
+            in self._app.project.ancestry
         ])
 
     async def _populate_entity(self, entity: Entity, locales: set[str]) -> None:

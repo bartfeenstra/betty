@@ -14,7 +14,7 @@ class TestCleaner:
 
         app = App()
         app.project.configuration.extensions.append(ExtensionConfiguration(Cleaner))
-        app.project.ancestry.entities.append(event)
+        app.project.ancestry.add(event)
         await load(app)
 
-        assert [] == list(app.project.ancestry.entities[Event])
+        assert [] == list(app.project.ancestry[Event])

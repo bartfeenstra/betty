@@ -167,7 +167,7 @@ class GrampsLoader(Localizable):
 
         self._load_families(database)
 
-        self._ancestry.entities.append(*self._flattened_entities.unflatten())
+        self._ancestry.add(*self._flattened_entities.unflatten())
 
     def add_entity(self, entity: AliasableEntity[Entity]) -> None:
         self._flattened_entities.add_entity(entity)

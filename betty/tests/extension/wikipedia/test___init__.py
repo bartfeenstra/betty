@@ -81,7 +81,7 @@ class TestWikipedia:
 
         with App() as app:
             app.project.configuration.extensions.append(ExtensionConfiguration(Wikipedia))
-            app.project.ancestry.entities.append(resource)
+            app.project.ancestry.add(resource)
             await load(app)
 
         assert 1 == len(resource.links)

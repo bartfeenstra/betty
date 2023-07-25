@@ -39,7 +39,7 @@ class TestNameLabel(TemplateTestCase):
         name = PersonName(person, 'Jane', 'Dough')
         source = Source(None)
         citation = Citation(None, source)
-        name.citations.append(citation)
+        name.citations.add(citation)
         expected = '<span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span> <span property="foaf:familyName">Dough</span></span>'
         with self._render(data={
             'name': name,
@@ -52,7 +52,7 @@ class TestNameLabel(TemplateTestCase):
         name = PersonName(person, 'Jane')
         source = Source(None)
         citation = Citation(None, source)
-        name.citations.append(citation)
+        name.citations.add(citation)
         expected = '<span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span></span><a href="#reference-1" class="citation">[1]</a>'
         with self._render(data={
             'name': name,

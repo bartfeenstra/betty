@@ -14,9 +14,9 @@ class Index:
 
     def build(self) -> Iterable[dict[Any, Any]]:
         return filter(None, [
-            *[self._build_person(person) for person in self._app.project.ancestry.entities[Person]],
-            *[self._build_place(place) for place in self._app.project.ancestry.entities[Place]],
-            *[self._build_file(file) for file in self._app.project.ancestry.entities[File]],
+            *[self._build_person(person) for person in self._app.project.ancestry[Person]],
+            *[self._build_place(place) for place in self._app.project.ancestry[Place]],
+            *[self._build_file(file) for file in self._app.project.ancestry[File]],
         ])
 
     def _render_entity(self, entity: Entity) -> str:

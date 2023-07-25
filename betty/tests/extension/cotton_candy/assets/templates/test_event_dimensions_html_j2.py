@@ -58,7 +58,7 @@ class Test(TemplateTestCase):
 
     def test_with_citation(self) -> None:
         event = Event(None, Birth)
-        event.citations.append(Citation(None, Source(None, 'The Source')))
+        event.citations.add(Citation(None, Source(None, 'The Source')))
         expected = '<a href="#reference-1" class="citation">[1]</a>'
         with self._render(data={
             'event': event,
@@ -69,7 +69,7 @@ class Test(TemplateTestCase):
         event = Event(None, Birth)
         event.date = Date(1970)
         event.place = Place('P0', [PlaceName('The Place')])
-        event.citations.append(Citation(None, Source(None, 'The Source')))
+        event.citations.add(Citation(None, Source(None, 'The Source')))
         expected = '1970 in <address><span>The Place</span></address>'
         with self._render(data={
             'event': event,

@@ -25,7 +25,7 @@ class _Privatizer(UserFacingExtension, PostLoader):
         privatizer = PrivatizerApi(self._app.project.configuration.lifetime_threshold)
 
         privatized = 0
-        for person in self._app.project.ancestry.entities[Person]:
+        for person in self._app.project.ancestry[Person]:
             private = person.private
             privatizer.privatize(person)
             if private is None and person.private is True:
@@ -33,14 +33,14 @@ class _Privatizer(UserFacingExtension, PostLoader):
         logger = logging.getLogger()
         logger.info(self._app.localizer._('Privatized {count} people because they are likely still alive.').format(count=privatized))
 
-        for citation in self._app.project.ancestry.entities[Citation]:
+        for citation in self._app.project.ancestry[Citation]:
             privatizer.privatize(citation)
 
-        for source in self._app.project.ancestry.entities[Source]:
+        for source in self._app.project.ancestry[Source]:
             privatizer.privatize(source)
 
-        for event in self._app.project.ancestry.entities[Event]:
+        for event in self._app.project.ancestry[Event]:
             privatizer.privatize(event)
 
-        for file in self._app.project.ancestry.entities[File]:
+        for file in self._app.project.ancestry[File]:
             privatizer.privatize(file)

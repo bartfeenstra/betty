@@ -364,7 +364,7 @@ class TestPopulator:
         source = Source('The Source')
         resource = Citation('the_citation', source)
         with App() as app:
-            app.project.ancestry.entities.append(resource)
+            app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
 
@@ -374,7 +374,7 @@ class TestPopulator:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         resource = Source('the_source', 'The Source')
         with App() as app:
-            app.project.ancestry.entities.append(resource)
+            app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
         assert set() == resource.links
@@ -387,7 +387,7 @@ class TestPopulator:
         resource = Source('the_source', 'The Source')
         resource.links.add(link)
         with App() as app:
-            app.project.ancestry.entities.append(resource)
+            app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
         assert {link} == resource.links
@@ -407,7 +407,7 @@ class TestPopulator:
         link = Link('https://en.wikipedia.org/wiki/Amsterdam')
         resource.links.add(link)
         with App() as app:
-            app.project.ancestry.entities.append(resource)
+            app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
         m_retriever.get_entry.assert_called_once_with(entry_language, entry_name)
@@ -449,7 +449,7 @@ class TestPopulator:
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
         with app:
-            app.project.ancestry.entities.append(resource)
+            app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
 

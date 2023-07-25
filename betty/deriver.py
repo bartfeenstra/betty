@@ -92,7 +92,7 @@ class _DateDeriver:
         if derivable_event.date is None:
             derivable_event.date = DateRange()
         cls._set(cast(DateRange, derivable_event.date), DerivedDate.derive(reference_date))
-        derivable_event.citations.append(*reference_event.citations)
+        derivable_event.citations.add(*reference_event.citations)
 
         return True
 
