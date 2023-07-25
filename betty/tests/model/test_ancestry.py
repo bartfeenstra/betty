@@ -3,6 +3,7 @@ from tempfile import NamedTemporaryFile
 from typing import Any
 from unittest.mock import Mock
 
+import dill
 import pytest
 from geopy import Point
 
@@ -750,6 +751,17 @@ class TestAncestry:
     @one_to_one['TestAncestry._OneToOne_Left', 'TestAncestry._OneToOne_Right']('one_left', 'one_right')
     class _OneToOne_Right(Entity):
         one_left: 'TestAncestry._OneToOne_Left | None'
+
+    def test_pickle(self) -> None:
+        sut = Ancestry()
+        left = self._OneToOne_Left()
+        right = self._OneToOne_Right()
+        left.one_right = right
+        sut.add(left)
+        unpickled_sut = dill.loads(dill.dumps(sut))
+        assert 2 == len(unpickled_sut)
+        assert left.id == unpickled_sut[self._OneToOne_Left][0].id
+        assert right.id == unpickled_sut[self._OneToOne_Right][0].id
 
     def test_add_associates_on_add(self) -> None:
         sut = Ancestry()
