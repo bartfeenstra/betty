@@ -5,7 +5,6 @@ from typing import Any, cast
 
 from betty.app import App
 from betty.locale import negotiate_locale, Localey, to_locale
-from betty.media_type import EXTENSIONS
 from betty.model import get_entity_type_name, Entity
 from betty.project import ProjectConfiguration
 from betty.string import camel_case_to_kebab_case
@@ -51,14 +50,25 @@ class _EntityUrlGenerator(ContentNegotiationUrlGenerator):
     def generate(self, entity: Entity, media_type: str, absolute: bool = False, locale: Localey | None = None) -> str:
         if not isinstance(entity, self._entity_type):
             raise ValueError('%s is not a %s' % (type(entity), self._entity_type))
+
+        if 'text/html' == media_type:
+            extension = 'html'
+            if locale is None:
+                locale = self._app.locale
+        elif 'application/json' == media_type:
+            extension = 'json'
+            locale = None
+        else:
+            raise ValueError(f'Unknown entity media type "{media_type}".')
+
         return _generate_from_path(
             self._app.project.configuration,
             self._pattern.format(
                 entity_id=entity.id,
-                extension=EXTENSIONS[media_type],
+                extension=extension,
             ),
             absolute,
-            self._app.locale if locale is None else locale,
+            locale,
         )
 
 

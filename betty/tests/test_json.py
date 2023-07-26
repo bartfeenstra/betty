@@ -64,19 +64,21 @@ class TestJSONEncoder:
             'events': [],
             'links': [
                 {
-                    'url': '/en/place/the_place/index.json',
+                    'url': '/place/the_place/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/json',
-                },
-                {
-                    'url': '/nl/place/the_place/index.json',
-                    'relationship': 'alternate',
-                    'locale': 'nl-NL',
                 },
                 {
                     'url': '/en/place/the_place/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
+                    'locale': 'en-US',
+                },
+                {
+                    'url': '/nl/place/the_place/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                    'locale': 'nl-NL',
                 },
             ],
         }
@@ -114,23 +116,25 @@ class TestJSONEncoder:
                 },
             ],
             'events': [
-                '/en/event/E1/index.json',
+                '/event/E1/index.json',
             ],
             'links': [
                 {
-                    'url': '/en/place/the_place/index.json',
+                    'url': '/place/the_place/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/json',
-                },
-                {
-                    'url': '/nl/place/the_place/index.json',
-                    'relationship': 'alternate',
-                    'locale': 'nl-NL',
                 },
                 {
                     'url': '/en/place/the_place/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
+                    'locale': 'en-US',
+                },
+                {
+                    'url': '/nl/place/the_place/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                    'locale': 'nl-NL',
                 },
                 {
                     'url': 'https://example.com/the-place',
@@ -147,10 +151,10 @@ class TestJSONEncoder:
                 'longitude': longitude,
             },
             'encloses': [
-                '/en/place/the_enclosed_place/index.json',
+                '/place/the_enclosed_place/index.json',
             ],
             'enclosedBy': [
-                '/en/place/the_enclosing_place/index.json',
+                '/place/the_enclosing_place/index.json',
             ],
         }
         self.assert_encodes(expected, place, 'place')
@@ -176,19 +180,21 @@ class TestJSONEncoder:
             'citations': [],
             'links': [
                 {
-                    'url': '/en/person/the_person/index.json',
+                    'url': '/person/the_person/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/json',
-                },
-                {
-                    'url': '/nl/person/the_person/index.json',
-                    'relationship': 'alternate',
-                    'locale': 'nl-NL',
                 },
                 {
                     'url': '/en/person/the_person/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
+                    'locale': 'en-US',
+                },
+                {
+                    'url': '/nl/person/the_person/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                    'locale': 'nl-NL',
                 },
             ],
         }
@@ -240,13 +246,13 @@ class TestJSONEncoder:
                 },
             ],
             'parents': [
-                '/en/person/the_parent/index.json',
+                '/person/the_parent/index.json',
             ],
             'children': [
-                '/en/person/the_child/index.json',
+                '/person/the_child/index.json',
             ],
             'siblings': [
-                '/en/person/the_sibling/index.json',
+                '/person/the_sibling/index.json',
             ],
             'private': False,
             'presences': [
@@ -255,27 +261,29 @@ class TestJSONEncoder:
                         'event': 'https://schema.org/performerIn',
                     },
                     'role': 'subject',
-                    'event': '/en/event/the_event/index.json',
+                    'event': '/event/the_event/index.json',
                 },
             ],
             'citations': [
-                '/en/citation/the_citation/index.json',
+                '/citation/the_citation/index.json',
             ],
             'links': [
                 {
-                    'url': '/en/person/the_person/index.json',
+                    'url': '/person/the_person/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/json',
-                },
-                {
-                    'url': '/nl/person/the_person/index.json',
-                    'relationship': 'alternate',
-                    'locale': 'nl-NL',
                 },
                 {
                     'url': '/en/person/the_person/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
+                    'locale': 'en-US',
+                },
+                {
+                    'url': '/nl/person/the_person/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                    'locale': 'nl-NL',
                 },
                 {
                     'url': 'https://example.com/the-person',
@@ -294,19 +302,21 @@ class TestJSONEncoder:
             'text': 'The Note',
             'links': [
                 {
-                    'url': '/en/note/the_note/index.json',
+                    'url': '/note/the_note/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/json',
-                },
-                {
-                    'url': '/nl/note/the_note/index.json',
-                    'relationship': 'alternate',
-                    'locale': 'nl-NL',
                 },
                 {
                     'url': '/en/note/the_note/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
+                    'locale': 'en-US',
+                },
+                {
+                    'url': '/nl/note/the_note/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                    'locale': 'nl-NL',
                 },
             ],
         }
@@ -322,19 +332,21 @@ class TestJSONEncoder:
                 'notes': [],
                 'links': [
                     {
-                        'url': '/en/file/the_file/index.json',
+                        'url': '/file/the_file/index.json',
                         'relationship': 'canonical',
                         'mediaType': 'application/json',
-                    },
-                    {
-                        'url': '/nl/file/the_file/index.json',
-                        'relationship': 'alternate',
-                        'locale': 'nl-NL',
                     },
                     {
                         'url': '/en/file/the_file/index.html',
                         'relationship': 'alternate',
                         'mediaType': 'text/html',
+                        'locale': 'en-US',
+                    },
+                    {
+                        'url': '/nl/file/the_file/index.html',
+                        'relationship': 'alternate',
+                        'mediaType': 'text/html',
+                        'locale': 'nl-NL',
                     },
                 ],
             }
@@ -352,26 +364,28 @@ class TestJSONEncoder:
                 'id': 'the_file',
                 'mediaType': 'text/plain',
                 'entities': [
-                    '/en/person/the_person/index.json',
+                    '/person/the_person/index.json',
                 ],
                 'notes': [
-                    '/en/note/the_note/index.json',
+                    '/note/the_note/index.json',
                 ],
                 'links': [
                     {
-                        'url': '/en/file/the_file/index.json',
+                        'url': '/file/the_file/index.json',
                         'relationship': 'canonical',
                         'mediaType': 'application/json',
-                    },
-                    {
-                        'url': '/nl/file/the_file/index.json',
-                        'relationship': 'alternate',
-                        'locale': 'nl-NL',
                     },
                     {
                         'url': '/en/file/the_file/index.html',
                         'relationship': 'alternate',
                         'mediaType': 'text/html',
+                        'locale': 'en-US',
+                    },
+                    {
+                        'url': '/nl/file/the_file/index.html',
+                        'relationship': 'alternate',
+                        'mediaType': 'text/html',
+                        'locale': 'nl-NL',
                     },
                 ],
             }
@@ -388,19 +402,21 @@ class TestJSONEncoder:
             'citations': [],
             'links': [
                 {
-                    'url': '/en/event/the_event/index.json',
+                    'url': '/event/the_event/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/json',
-                },
-                {
-                    'url': '/nl/event/the_event/index.json',
-                    'relationship': 'alternate',
-                    'locale': 'nl-NL',
                 },
                 {
                     'url': '/en/event/the_event/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
+                    'locale': 'en-US',
+                },
+                {
+                    'url': '/nl/event/the_event/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                    'locale': 'nl-NL',
                 },
             ],
         }
@@ -427,11 +443,11 @@ class TestJSONEncoder:
                         'person': 'https://schema.org/actor',
                     },
                     'role': 'subject',
-                    'person': '/en/person/the_person/index.json',
+                    'person': '/person/the_person/index.json',
                 },
             ],
             'citations': [
-                '/en/citation/the_citation/index.json',
+                '/citation/the_citation/index.json',
             ],
             'date': {
                 'start': {
@@ -445,22 +461,24 @@ class TestJSONEncoder:
                     'day': 31,
                 },
             },
-            'place': '/en/place/the_place/index.json',
+            'place': '/place/the_place/index.json',
             'links': [
                 {
-                    'url': '/en/event/the_event/index.json',
+                    'url': '/event/the_event/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/json',
-                },
-                {
-                    'url': '/nl/event/the_event/index.json',
-                    'relationship': 'alternate',
-                    'locale': 'nl-NL',
                 },
                 {
                     'url': '/en/event/the_event/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
+                    'locale': 'en-US',
+                },
+                {
+                    'url': '/nl/event/the_event/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                    'locale': 'nl-NL',
                 },
             ],
         }
@@ -480,19 +498,21 @@ class TestJSONEncoder:
             'citations': [],
             'links': [
                 {
-                    'url': '/en/source/the_source/index.json',
+                    'url': '/source/the_source/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/json',
-                },
-                {
-                    'url': '/nl/source/the_source/index.json',
-                    'relationship': 'alternate',
-                    'locale': 'nl-NL',
                 },
                 {
                     'url': '/en/source/the_source/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
+                    'locale': 'en-US',
+                },
+                {
+                    'url': '/nl/source/the_source/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                    'locale': 'nl-NL',
                 },
             ],
         }
@@ -522,12 +542,12 @@ class TestJSONEncoder:
             'author': 'The Author',
             'publisher': 'The Publisher',
             'contains': [
-                '/en/source/the_contained_source/index.json',
+                '/source/the_contained_source/index.json',
             ],
             'citations': [
-                '/en/citation/the_citation/index.json',
+                '/citation/the_citation/index.json',
             ],
-            'containedBy': '/en/source/the_containing_source/index.json',
+            'containedBy': '/source/the_containing_source/index.json',
             'date': {
                 'year': 2000,
                 'month': 1,
@@ -535,19 +555,21 @@ class TestJSONEncoder:
             },
             'links': [
                 {
-                    'url': '/en/source/the_source/index.json',
+                    'url': '/source/the_source/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/json',
-                },
-                {
-                    'url': '/nl/source/the_source/index.json',
-                    'relationship': 'alternate',
-                    'locale': 'nl-NL',
                 },
                 {
                     'url': '/en/source/the_source/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
+                    'locale': 'en-US',
+                },
+                {
+                    'url': '/nl/source/the_source/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                    'locale': 'nl-NL',
                 },
                 {
                     'url': 'https://example.com/the-source',
@@ -566,19 +588,21 @@ class TestJSONEncoder:
             'facts': [],
             'links': [
                 {
-                    'url': '/en/citation/the_citation/index.json',
+                    'url': '/citation/the_citation/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/json',
-                },
-                {
-                    'url': '/nl/citation/the_citation/index.json',
-                    'relationship': 'alternate',
-                    'locale': 'nl-NL',
                 },
                 {
                     'url': '/en/citation/the_citation/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
+                    'locale': 'en-US',
+                },
+                {
+                    'url': '/nl/citation/the_citation/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                    'locale': 'nl-NL',
                 },
             ],
         }
@@ -591,25 +615,27 @@ class TestJSONEncoder:
             '$schema': '/schema.json#/definitions/citation',
             '@type': 'https://schema.org/Thing',
             'id': 'the_citation',
-            'source': '/en/source/the_source/index.json',
+            'source': '/source/the_source/index.json',
             'facts': [
-                '/en/event/the_event/index.json'
+                '/event/the_event/index.json'
             ],
             'links': [
                 {
-                    'url': '/en/citation/the_citation/index.json',
+                    'url': '/citation/the_citation/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/json',
-                },
-                {
-                    'url': '/nl/citation/the_citation/index.json',
-                    'relationship': 'alternate',
-                    'locale': 'nl-NL',
                 },
                 {
                     'url': '/en/citation/the_citation/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
+                    'locale': 'en-US',
+                },
+                {
+                    'url': '/nl/citation/the_citation/index.html',
+                    'relationship': 'alternate',
+                    'mediaType': 'text/html',
+                    'locale': 'nl-NL',
                 },
             ],
         }

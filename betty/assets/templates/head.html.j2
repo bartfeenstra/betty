@@ -30,9 +30,7 @@
           {{ page_resource | tojson }}
         </script>
         {% set current_locale = app.locale %}
-        {% for locale in app.project.configuration.locales %}
-            <link rel="alternate" href="{{ page_resource | url(media_type='application/json', locale=locale) }}" hreflang="{{ locale }}" type="application/json"/>
-        {% endfor %}
+        <link rel="alternate" href="{{ page_resource | url(media_type='application/json') }}" hreflang="und" type="application/json"/>
     {% endif %}
 {% endif %}
 <meta name="og:image" content="/betty-512x512.png"/>

@@ -89,27 +89,13 @@ class JSONEncoder(stdjson.JSONEncoder):
             canonical.media_type = MediaType('application/json')
             encoded['links'].append(canonical)
 
-            link_urls = [
-                link.url
-                for link
-                in encoded['links']
-            ]
             for locale in self._app.project.configuration.locales:
-                if locale == self._app.locale:
-                    continue
-                link_url = self._generate_url(entity, locale=locale)
-                if link_url in link_urls:
-                    continue
-                link_urls.append(link_url)
-                translation = Link(link_url)
-                translation.relationship = 'alternate'
-                translation.locale = locale
-                encoded['links'].append(translation)
-
-            html = Link(self._generate_url(entity, media_type='text/html'))
-            html.relationship = 'alternate'
-            html.media_type = MediaType('text/html')
-            encoded['links'].append(html)
+                localized_html_url = self._generate_url(entity, media_type='text/html', locale=locale)
+                localized_html_link = Link(localized_html_url)
+                localized_html_link.relationship = 'alternate'
+                localized_html_link.media_type = MediaType('text/html')
+                localized_html_link.locale = locale
+                encoded['links'].append(localized_html_link)
 
     def _encode_described(self, encoded: dict[str, Any], described: Described) -> None:
         if described.description is not None:
