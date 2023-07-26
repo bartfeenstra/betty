@@ -1,6 +1,5 @@
 from betty import about
 from betty.app import App
-from betty.media_type import EXTENSIONS
 from betty.model import get_entity_type_name
 from betty.serde.dump import DictDump, Dump
 from betty.string import camel_case_to_kebab_case
@@ -122,21 +121,6 @@ class Specification:
                 },
             })
 
-        # Add components for content negotiation.
-        if self._app.project.configuration.content_negotiation:
-            specification['components']['parameters']['Accept'] = {  # type: ignore[call-overload, index]
-                'name': 'Accept',
-                'in': 'header',
-                'description': self._app.localizer._('An HTTP [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header.'),
-                'schema': {
-                    'enum': list(EXTENSIONS.keys()),
-                },
-            }
-            specification['components']['schemas']['html'] = {  # type: ignore[call-overload, index]
-                'type': 'string',
-                'description': self._app.localizer._('An HTML5 document.'),
-            }
-
         # Add default behavior to all requests.
         for path in specification['paths']:  # type: ignore[union-attr]
             specification['paths'][path]['get']['responses'].update({  # type: ignore[call-overload, index, union-attr]
@@ -150,26 +134,5 @@ class Specification:
                     '$ref': '#/components/responses/404',
                 },
             })
-            if self._app.project.configuration.content_negotiation:
-                specification['paths'][path]['parameters'] = [  # type: ignore[index]
-                    {
-                        '$ref': '#/components/parameters/Accept',
-                    },
-                ]
-
-        # Add default behavior to all responses.
-        if self._app.project.configuration.content_negotiation:
-            responses = list(specification['components']['responses'].values())  # type: ignore[call-overload, index, union-attr]
-            for path in specification['paths']:  # type: ignore[union-attr]
-                responses.append(
-                    specification['paths'][path]['get']['responses']['200'])  # type: ignore[call-overload, index]
-            for response in responses:
-                response['content']['text/html'] = {  # type: ignore[call-overload, index]
-                    'schema': {
-                        '$ref': '#/components/schemas/html'
-                    }
-                }
-                if 'headers' not in response:  # type: ignore[operator]
-                    response['headers'] = {}  # type: ignore[index]
 
         return specification

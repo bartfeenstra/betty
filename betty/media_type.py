@@ -3,11 +3,6 @@ from __future__ import annotations
 from email.message import EmailMessage
 from typing import Any
 
-EXTENSIONS = {
-    'text/html': 'html',
-    'application/json': 'json',
-}
-
 
 class InvalidMediaType(ValueError):
     pass

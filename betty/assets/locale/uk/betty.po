@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-19 18:41+0100\n"
+"POT-Creation-Date: 2023-07-26 07:15+0100\n"
 "PO-Revision-Date: 2020-05-02 22:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -160,14 +160,6 @@ msgstr ""
 #, python-format
 msgid "Also known as %(names)s"
 msgstr "Також відомий як %(names)s"
-
-msgid "An HTML5 document."
-msgstr ""
-
-msgid ""
-"An HTTP [Accept](https://developer.mozilla.org/en-"
-"US/docs/Web/HTTP/Headers/Accept) header."
-msgstr ""
 
 msgid ""
 "An optional alias is used instead of the locale code to identify this "

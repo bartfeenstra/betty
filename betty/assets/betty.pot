@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-19 18:41+0100\n"
+"POT-Creation-Date: 2023-07-26 07:15+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -132,12 +132,6 @@ msgstr ""
 
 #, python-format
 msgid "Also known as %(names)s"
-msgstr ""
-
-msgid "An HTML5 document."
-msgstr ""
-
-msgid "An HTTP [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header."
 msgstr ""
 
 msgid "An optional alias is used instead of the locale code to identify this locale, such as in URLs. If US English is the only English language variant on your site, you may want to alias its language code from <code>en-US</code> to <code>en</code>, for instance."
