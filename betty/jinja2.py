@@ -5,6 +5,7 @@ import json as stdjson
 import os
 import re
 import warnings
+from collections import defaultdict
 from contextlib import suppress
 from pathlib import Path
 from typing import Callable, Iterable, Any, Iterator, cast, \
@@ -27,15 +28,16 @@ from pdf2image.pdf2image import convert_from_path
 
 from betty import _resizeimage
 from betty.app import App
-from betty.classtools import Repr
 from betty.fs import hashfile, CACHE_DIRECTORY_PATH
 from betty.functools import walk
 from betty.html import CssProvider, JsProvider
 from betty.locale import negotiate_localizeds, Localized, Datey, negotiate_locale, Date, DateRange, \
-    get_data
+    get_data, Localizer
 from betty.lock import AcquiredError
-from betty.model import Entity, get_entity_type_name, GeneratedEntityId, UserFacingEntity
-from betty.model.ancestry import File, Citation, HasLinks, HasFiles, Subject, Witness, Dated
+from betty.model import Entity, get_entity_type_name, GeneratedEntityId, UserFacingEntity, get_entity_type, \
+    AncestryEntityId
+from betty.model.ancestry import File, Citation, HasLinks, HasFiles, Subject, Witness, Dated, is_private, is_public, \
+    AnonymousCitation, AnonymousSource
 from betty.os import link_or_copy
 from betty.path import rootname
 from betty.project import ProjectConfiguration
@@ -47,8 +49,11 @@ T = TypeVar('T')
 
 
 class _Citer:
-    def __init__(self):
+    def __init__(self, localizer: Localizer):
+        self._localizer = localizer
         self._citations: list[Citation] = []
+        self._anonymous_source = AnonymousSource(None, localizer=localizer)
+        self._anonymous_citations: dict[AncestryEntityId | None, Citation] = {}
 
     def __iter__(self) -> enumerate[Citation]:
         return enumerate(self._citations, 1)
@@ -57,12 +62,23 @@ class _Citer:
         return len(self._citations)
 
     def cite(self, citation: Citation) -> int:
+        if citation.private:
+            source_key = None if citation.source is None else citation.source.ancestry_id
+            try:
+                citation = self._anonymous_citations[source_key]
+            except KeyError:
+                citation = AnonymousCitation(
+                    None,
+                    citation.source or self._anonymous_source,
+                    localizer=self._localizer,
+                )
+                self._anonymous_citations[source_key] = citation
         if citation not in self._citations:
             self._citations.append(citation)
         return self._citations.index(citation) + 1
 
 
-class _Breadcrumb(Dumpable, Repr):
+class _Breadcrumb(Dumpable):
     def __init__(self, label: str, url: str):
         self._label = label
         self._url = url
@@ -75,7 +91,7 @@ class _Breadcrumb(Dumpable, Repr):
         }
 
 
-class _Breadcrumbs(Dumpable, Repr):
+class _Breadcrumbs(Dumpable):
     def __init__(self):
         self._breadcrumbs: list[_Breadcrumb] = []
 
@@ -99,6 +115,28 @@ class _Breadcrumbs(Dumpable, Repr):
         }
 
 
+class EntityContexts:
+    def __init__(self, *entities: Entity) -> None:
+        self._contexts: dict[type[Entity], Entity | None] = defaultdict(lambda: None)
+        for entity in entities:
+            self._contexts[entity.type] = entity
+
+    def __getitem__(self, entity_type_or_type_name: type[Entity] | str) -> Entity | None:
+        if isinstance(entity_type_or_type_name, str):
+            entity_type = get_entity_type(entity_type_or_type_name)
+        else:
+            entity_type = entity_type_or_type_name
+        if not issubclass(entity_type, Entity):
+            raise ValueError('Contexts must be entity types.')
+        return self._contexts[entity_type]
+
+    def __call__(self, *entities: Entity) -> EntityContexts:
+        updated_contexts = EntityContexts()
+        for entity in entities:
+            updated_contexts._contexts[entity.type] = entity
+        return updated_contexts
+
+
 class Jinja2Provider:
     @property
     def globals(self) -> dict[str, Any]:
@@ -114,6 +152,8 @@ class Jinja2Provider:
 
 
 class Template(Jinja2Template):
+    environment: Environment
+
     def new_context(
         self,
         vars: dict[str, Any] | None = None,
@@ -127,7 +167,7 @@ class Template(Jinja2Template):
             vars,
             shared,
             {
-                'citer': _Citer(),
+                'citer': _Citer(self.environment.app.localizer),
                 'breadcrumbs': _Breadcrumbs(),
                 **self.globals,
             },
@@ -145,7 +185,7 @@ class Environment(Jinja2Environment):
         template_directory_paths = [str(path / 'templates') for path, _ in app.assets.paths]
         super().__init__(loader=FileSystemLoader(template_directory_paths),
                          undefined=DebugUndefined if app.project.configuration.debug else StrictUndefined,
-                         autoescape=select_autoescape(['html']),
+                         autoescape=select_autoescape(['html.j2']),
                          trim_blocks=True,
                          extensions=[
                              'jinja2.ext.do',
@@ -191,6 +231,7 @@ class Environment(Jinja2Environment):
             for path in extension.public_js_paths
         ]
         self.globals['path'] = os.path
+        self.globals['entity_contexts'] = EntityContexts()
 
     def _init_filters(self) -> None:
         self.filters['unique'] = _filter_unique
@@ -222,12 +263,14 @@ class Environment(Jinja2Environment):
 
     def _init_tests(self) -> None:
         self.tests['entity'] = lambda x: isinstance(x, Entity)
+        self.tests['public'] = is_public
+        self.tests['private'] = is_private
         self.tests['user_facing_entity'] = lambda x: isinstance(x, UserFacingEntity)
 
         def _build_test_entity_type(resource_type: type[Entity]) -> Callable[[Any], bool]:
-            def _test_resource(x: Any) -> bool:
+            def _test_entity_type(x: Any) -> bool:
                 return isinstance(x, resource_type)
-            return _test_resource
+            return _test_entity_type
         for entity_type in self.app.entity_types:
             self.tests[f'{camel_case_to_snake_case(get_entity_type_name(entity_type))}_entity'] = _build_test_entity_type(entity_type)
         self.tests['has_generated_entity_id'] = lambda x: isinstance(x, Entity) and isinstance(x.id, GeneratedEntityId) or isinstance(x, GeneratedEntityId)

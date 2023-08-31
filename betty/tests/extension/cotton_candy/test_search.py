@@ -36,7 +36,7 @@ class TestIndex:
         person_id = 'P1'
         individual_name = 'Jane'
         person = Person(person_id)
-        PersonName(person, individual_name)
+        PersonName(None, person, individual_name)
         person.private = True
 
         app = App()
@@ -56,7 +56,7 @@ class TestIndex:
         person_id = 'P1'
         individual_name = 'Jane'
         person = Person(person_id)
-        PersonName(person, individual_name)
+        PersonName(None, person, individual_name)
 
         app = App(locale=locale)
         app.project.configuration.extensions.enable(CottonCandy)
@@ -76,7 +76,7 @@ class TestIndex:
         person_id = 'P1'
         affiliation_name = 'Doughnut'
         person = Person(person_id)
-        PersonName(person, None, affiliation_name)
+        PersonName(None, person, None, affiliation_name)
 
         app = App(locale=locale)
         app.project.configuration.extensions.enable(CottonCandy)
@@ -97,7 +97,7 @@ class TestIndex:
         individual_name = 'Jane'
         affiliation_name = 'Doughnut'
         person = Person(person_id)
-        PersonName(person, individual_name, affiliation_name)
+        PersonName(None, person, individual_name, affiliation_name)
 
         app = App(locale=locale)
         app.project.configuration.extensions.enable(CottonCandy)

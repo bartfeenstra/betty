@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from contextlib import suppress
 from pathlib import Path
+from reprlib import recursive_repr
 from typing import Any, Generic, final, Iterable, cast
 from urllib.parse import urlparse
 
@@ -10,6 +11,7 @@ from reactives.instance.property import reactive_property
 from typing_extensions import Self
 
 from betty.app.extension import Extension, ConfigurableExtension
+from betty.classtools import repr_instance
 from betty.config import Configuration, Configurable, FileBasedConfiguration, ConfigurationMapping, \
     ConfigurationSequence
 from betty.locale import Localizer, Localizable, get_data
@@ -18,6 +20,9 @@ from betty.model.ancestry import Ancestry, Person, Event, Place, Source
 from betty.serde.dump import Dump, VoidableDump, void_none, minimize, Void, VoidableDictDump
 from betty.serde.load import AssertionFailed, Fields, Assertions, Assertion, RequiredField, OptionalField, \
     Asserter
+
+
+DEFAULT_LIFETIME_THRESHOLD = 125
 
 
 class EntityReference(Configuration, Generic[EntityT]):
@@ -145,10 +150,7 @@ class EntityReferenceSequence(Generic[EntityT], ConfigurationSequence[EntityRefe
         expected_entity_type_name = get_entity_type_name(
             cast(Entity, entity_type_constraint),
         )
-        if issubclass(entity_type_constraint, UserFacingEntity):
-            expected_entity_type_label = entity_type_constraint.entity_type_label(localizer=self.localizer)
-        else:
-            expected_entity_type_label = get_entity_type_name(entity_type_constraint)
+        expected_entity_type_label = entity_type_constraint.entity_type_label(localizer=self.localizer)
 
         if entity_reference_entity_type is None:
             raise AssertionFailed(self.localizer._(
@@ -159,10 +161,7 @@ class EntityReferenceSequence(Generic[EntityT], ConfigurationSequence[EntityRefe
                 expected_entity_type_label=expected_entity_type_label,
             ))
 
-        if issubclass(entity_reference_entity_type, UserFacingEntity):
-            actual_entity_type_label = entity_type_constraint.entity_type_label(localizer=self.localizer)
-        else:
-            actual_entity_type_label = get_entity_type_name(entity_reference_entity_type)
+        actual_entity_type_label = entity_type_constraint.entity_type_label(localizer=self.localizer)
 
         raise AssertionFailed(self.localizer._('The entity reference must be for an entity of type {expected_entity_type_name} ({expected_entity_type_label}), but instead is for an entity of type {actual_entity_type_name} ({actual_entity_type_label})').format(
             expected_entity_type_name=expected_entity_type_name,
@@ -438,8 +437,9 @@ class LocaleConfiguration(Configuration):
             raise AssertionFailed(self.localizer._('Locale aliases must not contain slashes.'))
         self._alias = alias
 
+    @recursive_repr()
     def __repr__(self) -> str:
-        return '<%s.%s(%s, %s)>' % (self.__class__.__module__, self.__class__.__name__, self.locale, self.alias)
+        return repr_instance(self, locale=self.locale, alias=self.alias)
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, self.__class__):
@@ -586,7 +586,7 @@ class ProjectConfiguration(FileBasedConfiguration):
         self._debug = False
         self._locales = LocaleConfigurationMapping(localizer=self._localizer)
         self._locales.react(self)
-        self._lifetime_threshold = 125
+        self._lifetime_threshold = DEFAULT_LIFETIME_THRESHOLD
 
     @property
     def project_directory_path(self) -> Path:

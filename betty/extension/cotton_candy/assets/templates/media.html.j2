@@ -1,0 +1,14 @@
+{% set files = files | select('public') | list %}
+{% if files | length > 0 %}
+    <section id="media">
+        <h2>
+            {% trans %}Media{% endtrans %}
+            {% with url = page_resource | url ~ '#media'%}
+                {% include 'permalink.html.j2' %}
+            {% endwith %}
+        </h2>
+        {% with entities = files %}
+            {% include 'entity/list--file.html.j2' %}
+        {% endwith %}
+    </section>
+{% endif %}

@@ -99,8 +99,6 @@ SETUP = {
             'betty=betty.cli:main',
         ],
         'betty.extensions': [
-            'betty.extension.Anonymizer=betty.extension.Anonymizer',
-            'betty.extension.Cleaner=betty.extension.Cleaner',
             'betty.extension.CottonCandy=betty.extension.CottonCandy',
             'betty.extension.Demo=betty.extension.Demo',
             'betty.extension.Deriver=betty.extension.Deriver',

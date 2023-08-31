@@ -20,7 +20,8 @@ from typing_extensions import ParamSpec, Concatenate
 from betty.app import App
 from betty.asyncio import sync
 from betty.locale import get_display_name
-from betty.model import get_entity_type_name, UserFacingEntity, get_entity_type, GeneratedEntityId, Entity
+from betty.model import get_entity_type_name, UserFacingEntity, GeneratedEntityId, Entity
+from betty.model.ancestry import is_public
 from betty.openapi import Specification
 from betty.project import Project
 from betty.serde.dump import DictDump, Dump
@@ -74,12 +75,14 @@ class _ConcurrentGenerator:
         generation_queue: queue.Queue[_GenerationTask[Any]],
         pickled_project: bytes,
         async_concurrency: int,
+        generation_locales: set[str],
         caller_locale: str,
     ):
         self._generation_queue = generation_queue
         self._pickled_project = pickled_project
         self._project: Project
         self._async_concurrency = async_concurrency
+        self._generation_locales = generation_locales
         self._caller_locale = caller_locale
 
     @classmethod
@@ -88,9 +91,16 @@ class _ConcurrentGenerator:
         # generated before anything else.
         await _generate_static_public(app, app.locale)
         generation_queue = cls._build_generation_queue(app)
+
         pickled_project = dill.dumps(app.project)
         await asyncio.gather(*[
-            app.wait_for_process(cls(generation_queue, pickled_project, app.async_concurrency, app.locale))
+            app.wait_for_process(cls(
+                generation_queue,
+                pickled_project,
+                app.async_concurrency,
+                set(app.project.configuration.locales),
+                app.locale,
+            ))
             for _ in range(0, app.concurrency)
         ])
 
@@ -124,20 +134,21 @@ class _ConcurrentGenerator:
             for entity in app.project.ancestry[entity_type]:
                 if isinstance(entity.id, GeneratedEntityId):
                     continue
-                for locale in locales:
-                    generation_queue.put(_GenerationTask(locale, _generate_entity_html, entity_type, entity.id))
+
                 generation_queue.put(_GenerationTask(None, _generate_entity_json, entity_type, entity.id))
+                if is_public(entity):
+                    for locale in locales:
+                        generation_queue.put(_GenerationTask(locale, _generate_entity_html, entity_type, entity.id))
         return generation_queue
 
     @sync
     async def __call__(self) -> None:
-        self._project = dill.loads(self._pickled_project)
         self._apps: dict[str | None, App] = {
-            None: App(project=self._project),
+            None: App(project=dill.loads(self._pickled_project)),
         }
-        for locale in self._project.configuration.locales:
+        for locale in self._generation_locales:
             self._apps[locale] = App(
-                project=self._project,
+                project=dill.loads(self._pickled_project),
                 locale=locale,
             )
         await asyncio.gather(*[
@@ -199,7 +210,7 @@ async def _generate_static_public(
 async def _generate_entity_type_list_html(
     app: App,
     caller_locale: str,
-    entity_type: type[UserFacingEntity & Entity],
+    entity_type: type[Entity],
 ) -> None:
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
     entity_type_path = app.www_directory_path / entity_type_name_fs
@@ -224,7 +235,7 @@ async def _generate_entity_type_list_html(
 async def _generate_entity_type_list_json(
     app: App,
     caller_locale: str,
-    entity_type: type[UserFacingEntity & Entity],
+    entity_type: type[Entity],
 ) -> None:
     entity_type_name = get_entity_type_name(entity_type)
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
@@ -248,7 +259,7 @@ async def _generate_entity_type_list_json(
 async def _generate_entity_html(
     app: App,
     caller_locale: str,
-    entity_type: type[UserFacingEntity & Entity],
+    entity_type: type[Entity],
     entity_id: str,
 ) -> None:
     entity = app.project.ancestry[entity_type][entity_id]
@@ -259,7 +270,7 @@ async def _generate_entity_html(
         'entity/page.html.j2',
     ]).render(
         page_resource=entity,
-        entity_type=get_entity_type(entity),
+        entity_type=entity.type,
         entity=entity,
     )
     async with create_html_resource(entity_path) as f:
@@ -269,7 +280,7 @@ async def _generate_entity_html(
 async def _generate_entity_json(
     app: App,
     caller_locale: str,
-    entity_type: type[UserFacingEntity & Entity],
+    entity_type: type[Entity],
     entity_id: str,
 ) -> None:
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))

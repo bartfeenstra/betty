@@ -7,7 +7,7 @@
 {% block page_content %}
     {% include ['entity/meta--person.html.j2', 'entity/meta.html.j2'] ignore missing %}
 
-    {% set places = entity.presences | map(attribute='event.place') | reject('equalto', None) | list | unique | list %}
+    {% set places = entity.presences | select('public') | selectattr('event', 'public') | map(attribute='event.place') | reject('none') | unique | list %}
     {% if places | length > 0 %}
         <section id="places">
             <h2 class="js-visually-hidden">
@@ -57,7 +57,7 @@
                             <p>
                                 {% if parents | length > 0 %}
                                     {% macro parent_label(parent) -%}
-                                        <span typeof="foaf:Person" property="rel:childOf">{% with entity=parent, person_context=entity %}{% include ['entity/label--person.html.j2', 'entity/label.html.j2'] %}{% endwith %}</span>
+                                        <span typeof="foaf:Person" property="rel:childOf">{% with entity=parent, entity_contexts=entity_contexts(entity) %}{% include ['entity/label--person.html.j2', 'entity/label.html.j2'] %}{% endwith %}</span>
                                     {%- endmacro %}
                                     {% if entity.name and entity.name.individual %}
                                         {% trans person_individual_name = entity.name.individual, parent_labels = parents | map(parent_label) | join(', ') %}{{ person_individual_name }} is the child of {{ parent_labels }}.{% endtrans %}
@@ -73,7 +73,7 @@
                                     {%- endtrans -%}
                                 {% endif %}
                             </p>
-                            {% set ancestral_affiliation_names = entity | walk('parents') | map(attribute='names') | flatten | map(attribute='affiliation') | reject('none') | unique | list | sort %}
+                            {% set ancestral_affiliation_names = entity | walk('parents') | select('public') | map(attribute='names') | flatten | select('public') | map(attribute='affiliation') | reject('none') | unique | list | sort %}
                             {% if ancestral_affiliation_names | length > 0 %}
                                 <p>
                                     {%- trans -%}
@@ -93,9 +93,10 @@
                             {% endif %}
                         </div>
                     </div>
-                    {% if siblings | length > 0 %}
+                    {% set public_siblings = siblings | select('public') | list %}
+                    {% if public_siblings | length > 0 %}
                         <div class="family-breakdown">
-                            {% with entities=siblings, type_of='foaf:Person', property='rel:siblingOf' %}
+                            {% with entities=public_siblings, type_of='foaf:Person', property='rel:siblingOf' %}
                                 {% include ['entity/list--person.html.j2', 'entity/list.html.j2'] %}
                             {% endwith %}
                         </div>
@@ -105,7 +106,7 @@
 
             {% if children | length > 0 %}
                 {% macro co_parent_label(parent) -%}
-                    <span typeof="foaf:Person" property="rel:spouseOf">{% with entity=parent, person_context=entity %}{% include ['entity/label--person.html.j2', 'entity/label.html.j2'] %}{% endwith %}</span>
+                    <span typeof="foaf:Person" property="rel:spouseOf">{% with entity=parent, entity_contexts=entity_contexts(entity) %}{% include ['entity/label--person.html.j2', 'entity/label.html.j2'] %}{% endwith %}</span>
                 {%- endmacro %}
                 {% for parents, per_parent_children in children | groupby('parents.view') %}
                     <div class="family">
@@ -143,18 +144,22 @@
                                         {%- endif -%}
                                     {%- endif -%}
                                 </p>
-                                {% set descendant_affiliation_names = per_parent_children | map(attribute='names') | flatten | map(attribute='affiliation') | reject('none') | unique | list | sort %}
-                                {% if descendant_affiliation_names | length > 0 %}
+                                {% set ns = namespace(descendant_affiliation_names=[]) %}
+                                {% for per_parent_child in per_parent_children %}
+                                    {% set ns.descendant_affiliation_names = ns.descendant_affiliation_names + (per_parent_child | walk('children') | list + [per_parent_child]) | select('public') | map(attribute='names') | flatten | select('public') | map(attribute='affiliation') | reject('none') | list %}
+                                {% endfor %}
+                                {% set ns.descendant_affiliation_names = ns.descendant_affiliation_names | unique | list | sort | list %}
+                                {% if ns.descendant_affiliation_names | length > 0 %}
                                     <p>
                                         {%- trans -%}
                                             Descendant names include
-                                        {%- endtrans %} {{ descendant_affiliation_names[:3] | join(', ') -}}
-                                            {%- if descendant_affiliation_names | length <= 3 -%}
+                                        {%- endtrans %} {{ ns.descendant_affiliation_names[:3] | join(', ') -}}
+                                            {%- if ns.descendant_affiliation_names | length <= 3 -%}
                                                 .
                                             {%- else %},
                                             {%- with content_if_hidden = '...',
-                                                content_if_shown = descendant_affiliation_names[3:] | join(', ') ~ '.',
-                                                items = descendant_affiliation_names[3:] -%}
+                                                content_if_shown = ns.descendant_affiliation_names[3:] | join(', ') ~ '.',
+                                                items = ns.descendant_affiliation_names[3:] -%}
                                                 {%- include 'show-countable.html.j2' -%}
                                             {%- endwith -%}
                                         {%- endif -%}
@@ -162,67 +167,27 @@
                                 {% endif %}
                             </div>
                         </div>
-                        {% with entities=per_parent_children, type_of='foaf:Person', property='rel:parentOf' %}
-                            <div class="family-breakdown">
-                                {% include ['entity/list--person.html.j2', 'entity/list.html.j2'] %}
-                            </div>
-                        {% endwith %}
+                        {% set public_per_parent_children = per_parent_children | select('public') | list %}
+                        {% if public_per_parent_children | length > 0 %}
+                            {% with entities=public_per_parent_children, type_of='foaf:Person', property='rel:parentOf' %}
+                                <div class="family-breakdown">
+                                    {% include ['entity/list--person.html.j2', 'entity/list.html.j2'] %}
+                                </div>
+                            {% endwith %}
+                        {% endif %}
                     </div>
                 {% endfor %}
             {% endif %}
         </section>
+
+        <div class="featured tree" data-betty-person-id="{{ entity.id }}" data-betty-people="{{ 'people.json' | url }}"></div>
     {% endif %}
 
-    <div class="featured tree" data-betty-person-id="{{ entity.id }}" data-betty-people="{{ 'people.json' | url }}"></div>
+    {% with events=entity | person_timeline_events %}
+        {% include 'timeline.html.j2' %}
+    {% endwith %}
 
-    {% set events = entity.presences | map(attribute='event') | rejectattr('date', 'none') | selectattr('date.comparable') | list %}
-    {% if entity.start or entity.end %}
-        {% set associated_people = [
-            entity.parents | map(attribute='parents') | flatten,
-            entity.parents,
-            entity.parents | map(attribute='children') | flatten,
-            entity.children | map(attribute='parents') | flatten,
-            entity.children,
-            entity.children | map(attribute='children') | flatten,
-        ] | flatten | list %}
-        {% set associated_events = [
-            associated_people | map(attribute='start'),
-            associated_people | map(attribute='end'),
-        ] | flatten | reject('none') | rejectattr('date', 'none') | selectattr('date.comparable') | list %}
-            {% if entity.start.event.date.comparable | default(false) %}
-                {% set associated_events = associated_events | rejectattr('date', 'lt', entity.start.date) %}
-            {% endif %}
-            {% if entity.end.event.date.comparable | default(false) %}
-                {% set associated_events = associated_events | rejectattr('date', 'gt', entity.end.date) %}
-            {% endif %}
-            {% set events = (events + (associated_events | list)) | unique | list %}
-    {% endif %}
-    {% if events | length > 0 %}
-        <section id="timeline">
-            <h2>
-                {% trans %}Timeline{% endtrans %}
-                {% with url = page_resource | url ~ '#timeline'%}
-                    {% include 'permalink.html.j2' %}
-                {% endwith %}
-            </h2>
-            {% with person_context = entity, entities = events %}
-                {% include ['entity/list--event.html.j2', 'entity/list.html.j2'] %}
-            {% endwith %}
-        </section>
-    {% endif %}
-
-    {% set files = entity.associated_files | list %}
-    {% if files | length > 0 %}
-        <section id="media">
-            <h2>
-                {% trans %}Media{% endtrans %}
-                {% with url = page_resource | url ~ '#media'%}
-                    {% include 'permalink.html.j2' %}
-                {% endwith %}
-            </h2>
-            {% with entities = files %}
-                {% include ['entity/list--file.html.j2', 'entity/list.html.j2'] %}
-            {% endwith %}
-        </section>
-    {% endif %}
+    {% with files = entity.associated_files %}
+        {% include 'media.html.j2' %}
+    {% endwith %}
 {% endblock %}

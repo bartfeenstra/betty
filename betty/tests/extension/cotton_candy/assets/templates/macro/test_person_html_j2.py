@@ -9,7 +9,7 @@ class TestNameLabel(TemplateTestCase):
 
     def test_with_full_name(self) -> None:
         person = Person(None)
-        name = PersonName(person, 'Jane', 'Dough')
+        name = PersonName(None, person, 'Jane', 'Dough')
         expected = '<span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span> <span property="foaf:familyName">Dough</span></span>'
         with self._render(data={
             'name': name,
@@ -18,7 +18,7 @@ class TestNameLabel(TemplateTestCase):
 
     def test_with_individual_name(self) -> None:
         person = Person(None)
-        name = PersonName(person, 'Jane')
+        name = PersonName(None, person, 'Jane')
         expected = '<span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span></span>'
         with self._render(data={
             'name': name,
@@ -27,7 +27,7 @@ class TestNameLabel(TemplateTestCase):
 
     def test_with_affiliation_name(self) -> None:
         person = Person(None)
-        name = PersonName(person, None, 'Dough')
+        name = PersonName(None, person, None, 'Dough')
         expected = '<span class="person-label" typeof="foaf:Person">… <span property="foaf:familyName">Dough</span></span>'
         with self._render(data={
             'name': name,
@@ -36,7 +36,7 @@ class TestNameLabel(TemplateTestCase):
 
     def test_embedded(self) -> None:
         person = Person(None)
-        name = PersonName(person, 'Jane', 'Dough')
+        name = PersonName(None, person, 'Jane', 'Dough')
         source = Source(None)
         citation = Citation(None, source)
         name.citations.add(citation)
@@ -49,7 +49,7 @@ class TestNameLabel(TemplateTestCase):
 
     def test_with_citation(self) -> None:
         person = Person(None)
-        name = PersonName(person, 'Jane')
+        name = PersonName(None, person, 'Jane')
         source = Source(None)
         citation = Citation(None, source)
         name.citations.add(citation)

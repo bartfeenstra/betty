@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 import functools
+import json as stdjson
 from contextlib import contextmanager
+from pathlib import Path
 from typing import Callable, Iterator, TypeVar, Any
 
+import html5lib
+from html5lib.html5parser import ParseError
 from jinja2.environment import Template
 from typing_extensions import ParamSpec
 
-from betty import fs
+from betty import fs, json
 from betty.app import App
 from betty.app.extension import Extension
 from betty.jinja2 import Environment
@@ -42,6 +46,7 @@ class TemplateTestCase:
     @contextmanager
     def _render(
         self,
+        *,
         data: dict[str, Any] | None = None,
         template_file: str | None = None,
         template_string: str | None = None,
@@ -78,3 +83,34 @@ class TemplateTestCase:
             rendered = template_factory(app.jinja2_environment, template).render(**data)
             app.wait()
             yield rendered, app
+
+
+def assert_betty_html(
+    app: App,
+    url_path: str,
+    *,
+    check_links: bool = False,
+) -> Path:
+    betty_html_file_path = app.static_www_directory_path / Path(url_path.lstrip('/'))
+    with open(betty_html_file_path) as f:
+        betty_html = f.read()
+    try:
+        html5lib.HTMLParser(strict=True).parse(betty_html)
+    except ParseError as e:
+        raise ValueError(f'HTML parse error "{e}" in:\n{betty_html}')
+
+    return betty_html_file_path
+
+
+def assert_betty_json(
+    app: App,
+    url_path: str,
+    schema_definition: str,
+) -> Path:
+    betty_json_file_path = app.project.configuration.www_directory_path / Path(url_path.lstrip('/'))
+    with open(betty_json_file_path) as f:
+        betty_json = f.read()
+    betty_json_data = stdjson.loads(betty_json)
+    json.validate(betty_json_data, schema_definition, app)
+
+    return betty_json_file_path

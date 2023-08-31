@@ -30,7 +30,7 @@ secure**.
 - Renders interactive maps.
 - Fully multilingual: localize the site to one or more languages of your choice.
 - [Responsive](https://en.wikipedia.org/wiki/Responsive_web_design), and mobile- and touch-friendly interface.
-- Privacy and anonymization filters for living people.
+- Privatization filters for living people.
 - [View an example](https://ancestry.bartfeenstra.com/).
 
 ## Installation
@@ -107,8 +107,6 @@ entity_types:
   File:
     generate_html_list: false
 extensions:
-  betty.extension.Anonymizer: {}
-  betty.extension.Cleaner: {}
   betty.extension.CottonCandy:
     configuration:
       primary_inactive_color: '#ffc0cb'
@@ -161,8 +159,6 @@ extensions:
   Both keys may be omitted to quickly enable an extension using its default configuration.
 
   The extensions that ship with Betty, and their configuration:
-  - `betty.extension.Anonymizer` (optional): Removes personal information from private people. It provides no
-    configuration options.
   - `betty.extension.CottonCandy` (optional): Configuration:
     - `primary_inactive_color` (optional): The case-insensitive hexadecimal code for the primary color. Defaults to
       `#ffc0cb`.
@@ -175,7 +171,6 @@ extensions:
       configuration:
       - `entity_type` (required): The name of the entity type to feature, e.g. `Person`.
       - `entity_id` (required):  The ID of the entity type to feature, e.g. `P123`.
-  - `betty.extension.Cleaner` (optional): Removes data (events, media, etc.) that have no relation to any people. It
     provides no configuration options.
   - `betty.extension.Demo` (optional): Loads demonstrative content and functionality that shows what Betty can do. It
     provides no configuration options.

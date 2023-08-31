@@ -23,6 +23,7 @@ from typing_extensions import TypeAlias
 from betty import fs
 from betty.fs import hashfile, FileSystem, ASSETS_DIRECTORY_PATH, ROOT_DIRECTORY_PATH
 from betty.os import ChDir
+from betty.pickle import Pickleable, State
 
 DEFAULT_LOCALE = 'en-US'
 
@@ -85,12 +86,17 @@ def get_display_name(locale: Localey, display_locale: Localey | None = None) -> 
     )  # type: ignore[return-value]
 
 
-class Localized:
+class Localized(Pickleable):
     locale: str | None
 
-    def __init__(self, locale: str | None = None):
-        super().__init__()
+    def __init__(self, locale: str | None = None, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
         self.locale = locale
+
+    def __getstate__(self) -> State:
+        dict_state, slots_state = super().__getstate__()
+        dict_state['locale'] = self.locale
+        return dict_state, slots_state
 
 
 class IncompleteDateError(ValueError):

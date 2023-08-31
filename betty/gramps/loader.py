@@ -16,9 +16,10 @@ from betty.gramps.error import GrampsError
 from betty.load import getLogger
 from betty.locale import DateRange, Datey, Date, Localizable, Localizer
 from betty.media_type import MediaType
-from betty.model import Entity, FlattenedEntityCollection, AliasedEntity, unalias, get_entity_type, AliasableEntity
+from betty.model import Entity, EntityGraphBuilder, AliasedEntity, AliasableEntity
 from betty.model.ancestry import Ancestry, Note, File, Source, Citation, Place, Event, Person, PersonName, Subject, \
-    Witness, Beneficiary, Attendee, Presence, PlaceName, Enclosure, HasLinks, Link, HasPrivacy, HasFiles, HasCitations
+    Witness, Beneficiary, Attendee, Presence, PlaceName, Enclosure, HasLinks, Link, HasFiles, HasCitations, \
+    HasMutablePrivacy
 from betty.model.event_type import Birth, Baptism, Adoption, Cremation, Death, Funeral, Burial, Will, Engagement, \
     Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, \
     Retirement, Correspondence, Confirmation, Missing, UnknownEventType, EventType
@@ -50,7 +51,7 @@ class GrampsLoader(Localizable):
     ):
         super().__init__(localizer=localizer)
         self._ancestry = ancestry
-        self._flattened_entities = FlattenedEntityCollection()
+        self._ancestry_builder = EntityGraphBuilder()
         self._added_entity_counts: dict[type[Entity], int] = defaultdict(lambda: 0)
         self._tree: ElementTree.ElementTree | None = None
         self._gramps_tree_directory_path: Path | None = None
@@ -167,14 +168,14 @@ class GrampsLoader(Localizable):
 
         self._load_families(database)
 
-        self._ancestry.add(*self._flattened_entities.unflatten())
+        self._ancestry.add_unchecked_graph(*self._ancestry_builder.build())
 
     def add_entity(self, entity: AliasableEntity[Entity]) -> None:
-        self._flattened_entities.add_entity(entity)
-        self._added_entity_counts[get_entity_type(unalias(entity))] += 1
+        self._ancestry_builder.add_entity(entity)
+        self._added_entity_counts[entity.type] += 1
 
     def add_association(self, *args: Any, **kwargs: Any) -> None:
-        self._flattened_entities.add_association(*args, **kwargs)
+        self._ancestry_builder.add_association(*args, **kwargs)
 
     _NS = {
         'ns': 'http://gramps-project.org/xml/1.7.1/',
@@ -325,11 +326,11 @@ class GrampsLoader(Localizable):
                     if surname_prefix is not None:
                         affiliation_name = '%s %s' % (
                             surname_prefix, affiliation_name)
-                    person_name = PersonName(None, individual_name, affiliation_name)
+                    person_name = PersonName(None, None, individual_name, affiliation_name)
                     self._load_citationref(person_name, name_element)
                     person_names.append((person_name, is_alternative))
             elif individual_name is not None:
-                person_name = PersonName(None, individual_name)
+                person_name = PersonName(None, None, individual_name)
                 self._load_citationref(person_name, name_element)
                 person_names.append((person_name, is_alternative))
         for person_name, _ in sorted(person_names, key=lambda x: x[1]):
@@ -397,13 +398,10 @@ class GrampsLoader(Localizable):
         event_handle = eventref.get('hlink')
         gramps_presence_role = eventref.get('role')
         role = self._PRESENCE_ROLE_MAP[gramps_presence_role] if gramps_presence_role in self._PRESENCE_ROLE_MAP else Attendee()
-        presence = Presence(None, role, None)
-        aliased_presence = AliasedEntity(presence)
-        self.add_entity(
-            aliased_presence,  # type: ignore[arg-type]
-        )
-        self.add_association(Presence, aliased_presence.id, 'person', Person, person_id)
-        self.add_association(Presence, aliased_presence.id, 'event', Event, event_handle)
+        presence = Presence(None, None, role, None)
+        self.add_entity(presence)
+        self.add_association(Presence, presence.id, 'person', Person, person_id)
+        self.add_association(Presence, presence.id, 'event', Event, event_handle)
 
     def _load_places(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, './ns:places/ns:placeobj'):
@@ -494,7 +492,7 @@ class GrampsLoader(Localizable):
                 self.localizer._('Betty is unfamiliar with Gramps event "{event_id}"\'s type of "{gramps_event_type}". The event was imported, but its type was set to "{betty_event_type}".').format(
                     event_id=event_id,
                     gramps_event_type=gramps_type,
-                    betty_event_type=event_type.label,
+                    betty_event_type=event_type.label(self.localizer),
                 )
             )
 
@@ -609,7 +607,7 @@ class GrampsLoader(Localizable):
 
     def _load_citationref(self, owner: AliasableEntity[HasCitations & Entity], element: ElementTree.Element) -> None:
         for citation_handle in self._load_handles('citationref', element):
-            self.add_association(get_entity_type(unalias(owner)), owner.id, 'citations', Citation, citation_handle)
+            self.add_association(owner.type, owner.id, 'citations', Citation, citation_handle)
 
     def _load_handles(self, handle_type: str, element: ElementTree.Element) -> Iterable[str]:
         for citation_handle_element in self._xpath(element, f'./ns:{handle_type}'):
@@ -625,7 +623,7 @@ class GrampsLoader(Localizable):
     def _load_objref(self, owner: AliasableEntity[HasFiles & Entity], element: ElementTree.Element) -> None:
         file_handles = self._load_handles('objref', element)
         for file_handle in file_handles:
-            self.add_association(get_entity_type(unalias(owner)), owner.id, 'files', File, file_handle)
+            self.add_association(owner.type, owner.id, 'files', File, file_handle)
 
     def _load_urls(self, owner: HasLinks, element: ElementTree.Element) -> None:
         url_elements = self._xpath(element, './ns:url')
@@ -635,17 +633,25 @@ class GrampsLoader(Localizable):
             link.label = url_element.get('description')
             owner.links.add(link)
 
-    def _load_attribute_privacy(self, resource: HasPrivacy, element: ElementTree.Element, tag: str) -> None:
+    def _load_attribute_privacy(self, entity: HasMutablePrivacy & Entity, element: ElementTree.Element, tag: str) -> None:
         privacy_value = self._load_attribute('privacy', element, tag)
         if privacy_value is None:
             return
         if privacy_value == 'private':
-            resource.private = True
+            entity.private = True
             return
         if privacy_value == 'public':
-            resource.private = False
+            entity.public = True
             return
-        getLogger().warning(self.localizer._('The betty:privacy Gramps attribute must have a value of "public" or "private", but "{privacy_value}" was given, which was ignored.').format(privacy_value=privacy_value))
+        getLogger().warning(
+            self.localizer._(
+                'The betty:privacy Gramps attribute must have a value of "public" or "private", but "{privacy_value}" was given for {entity_type} {entity_id} ({entity_label}), which was ignored.'
+            ).format(
+                privacy_value=privacy_value,
+                entity_type=entity.entity_type_label(self.localizer),
+                entity_id=entity.id,
+                entity_label=entity.label,
+            ))
 
     def _load_attribute(self, name: str, element: ElementTree.Element, tag: str) -> str | None:
         with suppress(XPathError):

@@ -138,6 +138,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
             self.configuration.read()
         self._project = project or Project()
         self._init_localization()
+        self._project.localizer = self.localizer
 
         self._dispatcher: ExtensionDispatcher | None = None
         self._entity_types: set[type[Entity]] | None = None

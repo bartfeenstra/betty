@@ -14,7 +14,7 @@
     {% endif %}
 
     {% set ns = namespace(witnesses=[]) %}
-    {% for presence in entity.presences %}
+    {% for presence in entity.presences | select('public') %}
         {% if presence.role is witness_role %}
             {% set ns.witnesses = ns.witnesses + [presence.person] %}
         {% endif %}
@@ -29,7 +29,7 @@
     {% endif %}
 
     {% set ns = namespace(attendees=[]) %}
-    {% for presence in entity.presences %}
+    {% for presence in entity.presences | select('public') %}
         {% if not presence.role is subject_role and not presence.role is witness_role %}
             {% set ns.attendees = ns.attendees + [presence.person] %}
         {% endif %}
@@ -43,11 +43,7 @@
         </ul>
     {% endif %}
 
-    {% set files = entity.associated_files | list %}
-    {% if files | length > 0 %}
-        <h2>{% trans %}Media{% endtrans %}</h2>
-        {% with entities=files %}
-            {% include 'entity/list--file.html.j2' %}
-        {% endwith %}
-    {% endif %}
+    {% with files = entity.associated_files %}
+        {% include 'media.html.j2' %}
+    {% endwith %}
 {% endblock %}

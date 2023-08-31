@@ -9,7 +9,7 @@ from typing_extensions import Self
 
 from betty.app import App
 from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider
-from betty.locale import Date, Datey, DateRange, Localized
+from betty.locale import Date, Datey, DateRange, Localized, DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.model import get_entity_type_name, Entity
 from betty.model.ancestry import File, PlaceName, Subject, Attendee, Witness, Dated, Person, Place, Citation
@@ -187,7 +187,7 @@ class GlobalCiterTest(TemplateTestCase):
     def test_cite(self) -> None:
         citation1 = Mock(Citation)
         citation2 = Mock(Citation)
-        sut = _Citer()
+        sut = _Citer(DEFAULT_LOCALIZER)
         assert 1 == sut.cite(citation1)
         assert 2 == sut.cite(citation2)
         assert 1 == sut.cite(citation1)
@@ -195,7 +195,7 @@ class GlobalCiterTest(TemplateTestCase):
     def test_iter(self) -> None:
         citation1 = Mock(Citation)
         citation2 = Mock(Citation)
-        sut = _Citer()
+        sut = _Citer(DEFAULT_LOCALIZER)
         sut.cite(citation1)
         sut.cite(citation2)
         assert [(1, citation1), (2, citation2)] == list(sut)
@@ -203,7 +203,7 @@ class GlobalCiterTest(TemplateTestCase):
     def test_len(self) -> None:
         citation1 = Mock(Citation)
         citation2 = Mock(Citation)
-        sut = _Citer()
+        sut = _Citer(DEFAULT_LOCALIZER)
         sut.cite(citation1)
         sut.cite(citation2)
         assert 2 == len(sut)

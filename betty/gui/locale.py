@@ -9,7 +9,6 @@ from reactives.instance import ReactiveInstance
 from reactives.instance.method import reactive_method
 
 from betty.app import App
-from betty.classtools import Repr
 from betty.gui.text import Caption
 from betty.locale import negotiate_locale, get_display_name
 
@@ -100,7 +99,6 @@ class _LocalizedObject(ReactiveInstance):
 class LocalizedWidget(  # type: ignore[misc]
     _LocalizedObject,
     QWidget,
-    Repr,
 ):
     pass
 
@@ -108,7 +106,6 @@ class LocalizedWidget(  # type: ignore[misc]
 class LocalizedMessageBox(  # type: ignore[misc]
     _LocalizedObject,
     QMessageBox,
-    Repr,
 ):
     pass
 
@@ -116,6 +113,5 @@ class LocalizedMessageBox(  # type: ignore[misc]
 class LocalizedWindow(  # type: ignore[misc]
     _LocalizedObject,
     QMainWindow,
-    Repr,
 ):
     pass

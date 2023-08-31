@@ -26,7 +26,7 @@
                     {% for width, height, breakpoint_width in [(1000, 1000, 500), (1500, 1500, 1000), (2500, 2500, 1500)] %}
                         <source srcset="{{ image | image(width, height) | static_url }}" media="(min-width: {{ breakpoint_width }}px)">
                     {% endfor %}
-                    <img src="{{ image | image(500, 500) | static_url }}"{% if image.description %} alt="{{ image.description | escape }}"{% endif %}/>
+                    <img src="{{ image | image(500, 500) | static_url }}"{% if image.description %} alt="{{ image.description }}"{% endif %}/>
                 </picture>
             </a>
         </div>

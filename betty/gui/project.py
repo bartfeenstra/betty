@@ -53,7 +53,7 @@ class _GenerateHtmlListForm(LocalizedWidget):
         self._form.addRow(self._form_label)
         self._checkboxes_form = QFormLayout()
         self._form.addRow(self._checkboxes_form)
-        self._checkboxes: dict[type[UserFacingEntity], QCheckBox] = {}
+        self._checkboxes: dict[type[UserFacingEntity & Entity], QCheckBox] = {}
         self._update()
 
     @reactive_method(on_trigger_call=True)

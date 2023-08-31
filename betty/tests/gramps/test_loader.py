@@ -6,7 +6,7 @@ import pytest
 
 from betty.gramps.loader import GrampsLoader
 from betty.locale import Date, DateRange
-from betty.model.ancestry import Ancestry, PersonName, Citation, Note, Source, File, Event, Person, Place
+from betty.model.ancestry import Ancestry, Citation, Note, Source, File, Event, Person, Place, Privacy
 from betty.model.event_type import Birth, Death, UnknownEventType
 from betty.path import rootname
 from betty.tempfile import TemporaryDirectory
@@ -134,12 +134,7 @@ class TestGrampsLoader:
         assert ancestry[Place]['P0002'] == ancestry[Place]['P0000'].encloses[0].encloses
         assert ancestry[Place]['P0002'] == ancestry[Place]['P0001'].encloses[0].encloses
 
-    def test_person_should_include_name(self, test_load_xml_ancestry: Ancestry) -> None:
-        person = test_load_xml_ancestry[Person]['I0000']
-        expected = PersonName(person, 'Jane', 'Doe')
-        assert expected == person.name
-
-    def test_person_should_include_alternative_names(self) -> None:
+    def test_person_should_include_names(self) -> None:
         ancestry = self._load_partial("""
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
@@ -159,30 +154,56 @@ class TestGrampsLoader:
 </people>
 """)
         person = ancestry[Person]['I0000']
-        actual_name = person.name
-        actual_names = list(person.names)
-        actual_alternative_names = list(person.alternative_names)
-        expected_names = [
-            PersonName(person, 'Jane', 'Doe'),
-            PersonName(person, 'Jane', 'Doh'),
-            PersonName(person, 'Jen', 'Van Doughie'),
-        ]
 
-        assert expected_names[0] == actual_name
-        assert expected_names == actual_names
-        assert expected_names[1:] == actual_alternative_names
+        assert person.name is not None
+        assert 'Jane' == person.name.individual == person.names[0].individual
+        assert 'Doe' == person.name.affiliation == person.names[0].affiliation
+        assert 'Jane' == person.alternative_names[0].individual == person.names[1].individual
+        assert 'Doh' == person.alternative_names[0].affiliation == person.names[1].affiliation
+        assert 'Jen' == person.alternative_names[1].individual == person.names[2].individual
+        assert 'Van Doughie' == person.alternative_names[1].affiliation == person.names[2].affiliation
 
     def test_person_should_include_birth(self, test_load_xml_ancestry: Ancestry) -> None:
-        person = test_load_xml_ancestry[Person]['I0000']
+        ancestry = self._load_partial("""
+<people>
+    <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0000">
+        <gender>U</gender>
+        <eventref hlink="_e7692ea23775e80643fe4fcf91" role="Primary"/>
+    </person>
+</people>
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Birth</type>
+        <dateval val="0000-00-00" quality="calculated"/>
+    </event>
+</events>
+""")
+        person = ancestry[Person]['I0000']
         assert person.start is not None
         assert person.start.event is not None
         assert 'E0000' == person.start.event.id
+        assert Birth is person.start.event.event_type
 
     def test_person_should_include_death(self, test_load_xml_ancestry: Ancestry) -> None:
-        person = test_load_xml_ancestry[Person]['I0003']
+        ancestry = self._load_partial("""
+<people>
+    <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0000">
+        <gender>U</gender>
+        <eventref hlink="_e7692ea23775e80643fe4fcf91" role="Primary"/>
+    </person>
+</people>
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Death</type>
+        <dateval val="0000-00-00" quality="calculated"/>
+    </event>
+</events>
+""")
+        person = ancestry[Person]['I0000']
         assert person.end is not None
         assert person.end.event is not None
-        assert 'E0002' == person.end.event.id
+        assert 'E0000' == person.end.event.id
+        assert Death is person.end.event.event_type
 
     def test_person_should_be_private(self, test_load_xml_ancestry: Ancestry) -> None:
         person = test_load_xml_ancestry[Person]['I0003']
@@ -207,7 +228,7 @@ class TestGrampsLoader:
             test_load_xml_ancestry[Person]['I0001'],
         ]
         for child in children:
-            assert sorted(expected_parents) == sorted(child.parents)
+            assert expected_parents == list(child.parents)
 
     def test_family_should_set_children(self, test_load_xml_ancestry: Ancestry) -> None:
         parents = [
@@ -219,13 +240,13 @@ class TestGrampsLoader:
             test_load_xml_ancestry[Person]['I0001'],
         ]
         for parent in parents:
-            assert sorted(expected_children) == sorted(parent.children)
+            assert expected_children == list(parent.children)
 
     def test_event_should_be_birth(self, test_load_xml_ancestry: Ancestry) -> None:
-        assert issubclass(test_load_xml_ancestry[Event]['E0000'].type, Birth)
+        assert issubclass(test_load_xml_ancestry[Event]['E0000'].event_type, Birth)
 
     def test_event_should_be_death(self, test_load_xml_ancestry: Ancestry) -> None:
-        assert issubclass(test_load_xml_ancestry[Event]['E0002'].type, Death)
+        assert issubclass(test_load_xml_ancestry[Event]['E0002'].event_type, Death)
 
     def test_event_should_load_unknown(self, test_load_xml_ancestry: Ancestry) -> None:
         ancestry = self._load_partial("""
@@ -236,7 +257,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """)
-        assert issubclass(ancestry[Event]['E0000'].type, UnknownEventType)
+        assert issubclass(ancestry[Event]['E0000'].event_type, UnknownEventType)
 
     def test_event_should_include_place(self, test_load_xml_ancestry: Ancestry) -> None:
         event = test_load_xml_ancestry[Event]['E0000']
@@ -528,12 +549,12 @@ class TestGrampsLoader:
         assert containing_source == source.contained_by
 
     @pytest.mark.parametrize('expected, attribute_value', [
-        (True, 'private'),
-        (False, 'public'),
-        (None, 'publi'),
-        (None, 'privat'),
+        (Privacy.PRIVATE, 'private'),
+        (Privacy.PUBLIC, 'public'),
+        (Privacy.UNDETERMINED, 'publi'),
+        (Privacy.UNDETERMINED, 'privat'),
     ])
-    def test_person_should_include_privacy_from_attribute(self, expected: bool | None, attribute_value: str) -> None:
+    def test_person_should_include_privacy_from_attribute(self, expected: Privacy, attribute_value: str) -> None:
         ancestry = self._load_partial("""
 <people>
     <person handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="I0000">
@@ -543,15 +564,15 @@ class TestGrampsLoader:
 </people>
 """ % attribute_value)
         person = ancestry[Person]['I0000']
-        assert expected == person.private
+        assert expected == person.privacy
 
     @pytest.mark.parametrize('expected, attribute_value', [
-        (True, 'private'),
-        (False, 'public'),
-        (None, 'publi'),
-        (None, 'privat'),
+        (Privacy.PRIVATE, 'private'),
+        (Privacy.PUBLIC, 'public'),
+        (Privacy.UNDETERMINED, 'publi'),
+        (Privacy.UNDETERMINED, 'privat'),
     ])
-    def test_event_should_include_privacy_from_attribute(self, expected: bool | None, attribute_value: str) -> None:
+    def test_event_should_include_privacy_from_attribute(self, expected: Privacy, attribute_value: str) -> None:
         ancestry = self._load_partial("""
 <events>
     <event handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="E0000">
@@ -561,15 +582,15 @@ class TestGrampsLoader:
 </events>
 """ % attribute_value)
         event = ancestry[Event]['E0000']
-        assert expected == event.private
+        assert expected == event.privacy
 
     @pytest.mark.parametrize('expected, attribute_value', [
-        (True, 'private'),
-        (False, 'public'),
-        (None, 'publi'),
-        (None, 'privat'),
+        (Privacy.PRIVATE, 'private'),
+        (Privacy.PUBLIC, 'public'),
+        (Privacy.UNDETERMINED, 'publi'),
+        (Privacy.UNDETERMINED, 'privat'),
     ])
-    def test_file_should_include_privacy_from_attribute(self, expected: bool | None, attribute_value: str) -> None:
+    def test_file_should_include_privacy_from_attribute(self, expected: Privacy, attribute_value: str) -> None:
         ancestry = self._load_partial("""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
@@ -579,15 +600,15 @@ class TestGrampsLoader:
 </objects>
 """ % attribute_value)
         file = ancestry[File]['O0000']
-        assert expected == file.private
+        assert expected == file.privacy
 
     @pytest.mark.parametrize('expected, attribute_value', [
-        (True, 'private'),
-        (False, 'public'),
-        (None, 'publi'),
-        (None, 'privat'),
+        (Privacy.PRIVATE, 'private'),
+        (Privacy.PUBLIC, 'public'),
+        (Privacy.UNDETERMINED, 'publi'),
+        (Privacy.UNDETERMINED, 'privat'),
     ])
-    def test_source_from_source_should_include_privacy_from_attribute(self, expected: bool | None, attribute_value: str) -> None:
+    def test_source_from_source_should_include_privacy_from_attribute(self, expected: Privacy, attribute_value: str) -> None:
         ancestry = self._load_partial("""
 <sources>
     <source handle="_e1dd686b04813540eb3503a342b" change="1558277217" id="S0000">
@@ -597,15 +618,15 @@ class TestGrampsLoader:
 </sources>
 """ % attribute_value)
         source = ancestry[Source]['S0000']
-        assert expected == source.private
+        assert expected == source.privacy
 
     @pytest.mark.parametrize('expected, attribute_value', [
-        (True, 'private'),
-        (False, 'public'),
-        (None, 'publi'),
-        (None, 'privat'),
+        (Privacy.PRIVATE, 'private'),
+        (Privacy.PUBLIC, 'public'),
+        (Privacy.UNDETERMINED, 'publi'),
+        (Privacy.UNDETERMINED, 'privat'),
     ])
-    def test_citation_should_include_privacy_from_attribute(self, expected: bool | None, attribute_value: str) -> None:
+    def test_citation_should_include_privacy_from_attribute(self, expected: Privacy, attribute_value: str) -> None:
         ancestry = self._load_partial("""
 <citations>
     <citation handle="_e2c25a12a097a0b24bd9eae5090" change="1558277266" id="C0000">
@@ -620,8 +641,10 @@ class TestGrampsLoader:
     </source>
 </sources>
 """ % attribute_value)
+        source = ancestry[Source]['S0000']
+        source.public = True
         citation = ancestry[Citation]['C0000']
-        assert expected == citation.private
+        assert expected == citation.privacy
 
     def test_note_should_include_text(self) -> None:
         ancestry = self._load_partial("""

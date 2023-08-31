@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-07-26 07:15+0100\n"
+"POT-Creation-Date: 2023-08-31 09:38+0100\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -120,13 +120,6 @@ msgstr ""
 " Wikipedia en bijdragers."
 
 msgid ""
-"A citation is available, but has not been published in order to protect "
-"people's privacy"
-msgstr ""
-"Er is een verwijzing beschikbaar, maar deze is niet openbaar gemaakt om "
-"mensen hun privacy te beschermen"
-
-msgid ""
 "A family history as told by <a "
 "href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
 msgstr ""
@@ -195,19 +188,6 @@ msgstr "Scheidingsaankondiging"
 
 msgid "Announcement of marriage"
 msgstr "Huwelijksaankondiging"
-
-msgid ""
-"Anonymize people, events, files, sources, and citations marked private by"
-" removing their information and relationships with other resources. "
-"Enable the Privatizer and Cleaner as well to make this most effective."
-msgstr ""
-"Anonimiseer mensen, gebeurtenissen, bestanden, bronnen, en verwijzingen "
-"die privé zijn door hun informatie en hun relaties met andere gegevens te"
-" verwijderen. Schakel de Privatiseerder en Schoonmaker in om dit zo "
-"effectief mogelijk te maken."
-
-msgid "Anonymizer"
-msgstr "Anonimiseerder"
 
 msgid "Appearances"
 msgstr "Verschijningen"
@@ -311,9 +291,6 @@ msgstr "Verwijzingen"
 msgid "Clean URLs"
 msgstr "Nette URL's"
 
-msgid "Cleaner"
-msgstr "Schoonmaker"
-
 msgid "Clear all caches"
 msgstr "Leeg alle caches"
 
@@ -404,14 +381,15 @@ msgstr "Demo"
 msgid "Deriver"
 msgstr "Afleider"
 
+msgid "Deriving..."
+msgstr "Afleiden..."
+
 msgid "Descendant names include"
 msgstr "De nakomelingen heten"
 
 msgid ""
 "Determine if people can be proven to have died. If not, mark them and "
-"their related resources private, but only if they are not already "
-"explicitly marked public or private. Enable the Anonymizer and Cleaner as"
-" well to make this most effective."
+"their associated entities private."
 msgstr ""
 
 msgid ""
@@ -441,6 +419,12 @@ msgstr "Emigratie"
 
 msgid "Enable {extension}"
 msgstr "Schakel {extension} in"
+
+msgid "Enclosure"
+msgstr "Omsluiting"
+
+msgid "Enclosures"
+msgstr "Omsluitingen"
 
 msgid "Engagement"
 msgstr "Verloving"
@@ -678,20 +662,31 @@ msgstr ""
 msgid "Pre-built assets are unavailable for {extension_names}."
 msgstr ""
 
+msgid "Presence"
+msgstr "Aanwezigheid"
+
+msgid "Presences"
+msgstr "Aanwezigheden"
+
 msgid "Primary color (active)"
 msgstr "Primaire kleur (actief)"
 
 msgid "Primary color (inactive)"
 msgstr "Primaire kleur (inactief)"
 
-msgid "Private"
-msgstr "Privé"
-
 msgid "Privatized {count} people because they are likely still alive."
+msgstr ""
+
+msgid ""
+"Privatized {count} {entity_type}, because they are associated with "
+"private people."
 msgstr ""
 
 msgid "Privatizer"
 msgstr "Privatiseerder"
+
+msgid "Privatizing..."
+msgstr "Privatiseren..."
 
 msgid "Project"
 msgstr "Project"
@@ -707,16 +702,6 @@ msgstr "Referenties"
 
 msgid "Remove"
 msgstr "Verwijder"
-
-msgid ""
-"Remove people, events, places, files, sources, and citations if they have"
-" no relationships with any other resources. Enable the Privatizer and "
-"Anonymizer as well to make this most effective."
-msgstr ""
-"Verwijder mensen, gebeurtenissen, plaatsen, bestanden, bronnen, en "
-"verwijzingen als ze geen relaties met andere gegevens meer hebben. "
-"Schakel de Privatiseerder en Anonimiseerder in om dit zo effectief "
-"mogelijk te maken."
 
 msgid "Report a bug"
 msgstr "Meld een probleem"
@@ -799,7 +784,8 @@ msgstr ""
 
 msgid ""
 "The betty:privacy Gramps attribute must have a value of \"public\" or "
-"\"private\", but \"{privacy_value}\" was given, which was ignored."
+"\"private\", but \"{privacy_value}\" was given for {entity_type} "
+"{entity_id} ({entity_label}), which was ignored."
 msgstr ""
 
 msgid "The collection of {entity_type} entities."
@@ -1060,6 +1046,9 @@ msgstr ""
 
 msgid "private"
 msgstr "privé"
+
+msgid "private (in order to protect people's privacy)"
+msgstr ""
 
 msgctxt "enter-search-shortcut"
 msgid "s"

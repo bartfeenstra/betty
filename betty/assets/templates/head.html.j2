@@ -13,7 +13,7 @@
             {% if file.media_type.type == 'image' %}
                 <meta name="og:image" content="{{ file | image(600, 600) | static_url }}"/>
                 {% if file.description %}
-                    <meta name="og:image:description" content="{{ file.description | escape }}"/>
+                    <meta name="og:image:description" content="{{ file.description }}"/>
                 {% endif %}
             {% endif %}
         {% endfor %}

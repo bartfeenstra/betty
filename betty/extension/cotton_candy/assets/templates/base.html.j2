@@ -1,4 +1,3 @@
-{%- import 'macro/person.html.j2' as person_macros -%}
 <!doctype html>
 <html lang="{{ app.locale }}"
       prefix="foaf: http://xmlns.com/foaf/0.1/ og: http://ogp.me/ns# rel: http://purl.org/vocab/relationship/">
@@ -22,15 +21,17 @@
                 <span class="overlay-control overlay-close" title="{% trans %}Exit the search{% endtrans %}">{% trans %}Exit the search{% endtrans %}</span>
             </div>
             <form>
-                {% set search_keywords_example_person_name = app.project.ancestry['Person'] | map(attribute='name') | first | default(none) %}
+                {% set search_keywords_example_person_name = app.project.ancestry['Person'] | select('public') | map(attribute='name') | first | default(none) %}
                 {% if search_keywords_example_person_name %}
                     {% set search_keywords_example -%}
-                        {% trans example = person_macros.name_label(search_keywords_example_person_name, embedded=True) | striptags -%}
-                            E.g. "{{ example }}"
-                        {%- endtrans %}
+                        {% filter forceescape %}
+                            {% trans example = search_keywords_example_person_name.label -%}
+                                E.g. "{{ example }}"
+                            {%- endtrans %}
+                        {% endfilter %}
                     {%- endset %}
                 {% endif %}
-                <input id="search-query" type="search"{% if search_keywords_example is defined %} placeholder="{{ search_keywords_example | escape }}"{% endif %} />
+                <input id="search-query" type="search"{% if search_keywords_example is defined %} placeholder="{{ search_keywords_example }}"{% endif %} />
                 <label for="search-query" title="Search">Search</label>
             </form>
             <section id="search-expanded">
@@ -101,7 +102,7 @@
                         <li>
                             <a href="{{ link.url }}"{% if link.locale is not none %} hreflang="{{ link.locale }}"{% endif %}{% if link.relationship is not none %} rel="{{ link.relationship }}"{% endif %}{% if link.media_type is not none %} type="{{ link.media_type }}"{% endif %}>{{ link.label }}</a>
                             {% if link.description is not none %}
-                                <div class="meta">{{ link.description | escape }}</div>
+                                <div class="meta">{{ link.description }}</div>
                             {% endif %}
                         </li>
                     {% endfor %}

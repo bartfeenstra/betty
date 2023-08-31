@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import builtins
 from contextlib import suppress
+from enum import Enum
 from functools import total_ordering
 from pathlib import Path
+from reprlib import recursive_repr
 from typing import Iterable, Any
 
 from geopy import Point
@@ -11,33 +14,134 @@ from betty.classtools import repr_instance
 from betty.locale import Localized, Datey, Localizer, Localizable
 from betty.media_type import MediaType
 from betty.model import many_to_many, Entity, one_to_many, many_to_one, many_to_one_to_many, \
-    MultipleTypesEntityCollection, EntityCollection, UserFacingEntity, EntityTypeAssociationRegistry
+    MultipleTypesEntityCollection, EntityCollection, UserFacingEntity, EntityTypeAssociationRegistry, \
+    PickleableEntityGraph
 from betty.model.event_type import EventType, StartOfLifeEventType, EndOfLifeEventType
+from betty.pickle import State, Pickleable
 
 
-class HasPrivacy:
-    private: bool | None
+class Privacy(Enum):
+    PUBLIC = 1
+    PRIVATE = 2
+    UNDETERMINED = 3
 
+
+class HasPrivacy(Pickleable):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self.private = None
+        self._privacy = Privacy.UNDETERMINED
+
+    def __getstate__(self) -> State:
+        dict_state, slots_state = super().__getstate__()
+        dict_state['_privacy'] = self._privacy
+        return dict_state, slots_state
+
+    def _get_privacy(self) -> Privacy:
+        return self._privacy
+
+    @property
+    def privacy(self) -> Privacy:
+        return self._get_privacy()
+
+    @property
+    def private(self) -> bool:
+        return self._get_privacy() is Privacy.PRIVATE
+
+    @property
+    def public(self) -> bool:
+        # Undetermined privacy defaults to public.
+        return self._get_privacy() is not Privacy.PRIVATE
 
 
-class Dated:
+class HasMutablePrivacy(HasPrivacy):
+    @property
+    def privacy(self) -> Privacy:
+        return self._get_privacy()
+
+    @privacy.setter
+    def privacy(self, privacy: Privacy) -> None:
+        self._privacy = privacy
+
+    @privacy.deleter
+    def privacy(self) -> None:
+        self._privacy = Privacy.UNDETERMINED
+
+    @property
+    def private(self) -> bool:
+        return self._get_privacy() is Privacy.PRIVATE
+
+    @private.setter
+    def private(self, private: True) -> None:
+        self._privacy = Privacy.PRIVATE
+
+    @property
+    def public(self) -> bool:
+        # Undetermined privacy defaults to public.
+        return self._get_privacy() is not Privacy.PRIVATE
+
+    @public.setter
+    def public(self, public: True) -> None:
+        self._privacy = Privacy.PUBLIC
+
+
+def is_private(target: Any) -> bool:
+    if isinstance(target, HasPrivacy):
+        return target.private
+    return False
+
+
+def is_public(target: Any) -> bool:
+    if isinstance(target, HasPrivacy):
+        return target.public
+    return True
+
+
+def resolve_privacy(privacy: Privacy | HasPrivacy | None) -> Privacy:
+    if privacy is None:
+        return Privacy.UNDETERMINED
+    if isinstance(privacy, Privacy):
+        return privacy
+    return privacy.privacy
+
+
+def merge_privacies(*privacies: Privacy | HasPrivacy | None) -> Privacy:
+    privacies = {
+        resolve_privacy(privacy)
+        for privacy
+        in privacies
+    }
+    if Privacy.PRIVATE in privacies:
+        return Privacy.PRIVATE
+    if Privacy.UNDETERMINED in privacies:
+        return Privacy.UNDETERMINED
+    return Privacy.PUBLIC
+
+
+class Dated(Pickleable):
     date: Datey | None
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self.date = None
 
+    def __getstate__(self) -> State:
+        dict_state, slots_state = super().__getstate__()
+        dict_state['date'] = self.date
+        return dict_state, slots_state
 
-@many_to_one['Note', Entity]('entity', 'notes')
-class Note(UserFacingEntity, Entity):
+
+@many_to_one('entity', 'betty.model.ancestry.HasNotes', 'notes')
+class Note(HasMutablePrivacy, UserFacingEntity, Entity):
     entity: HasNotes
 
     def __init__(self, note_id: str | None, text: str):
         super().__init__(note_id)
         self._text = text
+
+    def __getstate__(self) -> State:
+        dict_state, slots_state = super().__getstate__()
+        dict_state['_text'] = self._text
+        return dict_state, slots_state
 
     @classmethod
     def entity_type_label(cls, localizer: Localizer) -> str:
@@ -56,7 +160,7 @@ class Note(UserFacingEntity, Entity):
         return self.text
 
 
-@one_to_many[Entity, 'HasNotes']('notes', 'entity')
+@one_to_many('notes', 'betty.model.ancestry.Note', 'entity')
 class HasNotes:
     def __init__(  # type: ignore[misc]
         self: HasNotes & Entity,
@@ -81,20 +185,30 @@ class HasNotes:
         pass
 
 
-class Described:
+class Described(Pickleable):
     description: str | None
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self.description = None
 
+    def __getstate__(self) -> State:
+        dict_state, slots_state = super().__getstate__()
+        dict_state['description'] = self.description
+        return dict_state, slots_state
 
-class HasMediaType:
+
+class HasMediaType(Pickleable):
     media_type: MediaType | None
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self.media_type = None
+
+    def __getstate__(self) -> State:
+        dict_state, slots_state = super().__getstate__()
+        dict_state['media_type'] = self.media_type
+        return dict_state, slots_state
 
 
 class Link(HasMediaType, Localized, Described):
@@ -108,18 +222,30 @@ class Link(HasMediaType, Localized, Described):
         self.label = None
         self.relationship = None
 
+    def __getstate__(self) -> State:
+        dict_state, slots_state = super().__getstate__()
+        dict_state['url'] = self.url
+        dict_state['relationship'] = self.relationship
+        dict_state['label'] = self.label
+        return dict_state, slots_state
 
-class HasLinks:
+
+class HasLinks(Pickleable):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._links = set[Link]()
+
+    def __getstate__(self) -> State:
+        dict_state, slots_state = super().__getstate__()
+        dict_state['_links'] = self._links
+        return dict_state, slots_state
 
     @property
     def links(self) -> set[Link]:
         return self._links
 
 
-@many_to_many['Citation', 'HasCitations']('citations', 'facts')
+@many_to_many('citations', 'betty.model.ancestry.Citation', 'facts')
 class HasCitations:
     def __init__(  # type: ignore[misc]
         self: HasCitations & Entity,
@@ -144,22 +270,27 @@ class HasCitations:
         pass
 
 
-@many_to_many[Entity, 'File']('entities', 'files')
-class File(Described, HasPrivacy, HasMediaType, HasNotes, HasCitations, UserFacingEntity, Entity):
+@many_to_many('entities', 'betty.model.ancestry.HasFiles', 'files')
+class File(Described, HasMutablePrivacy, HasMediaType, HasNotes, HasCitations, UserFacingEntity, Entity):
     def __init__(
         self,
         file_id: str | None,
         path: Path,
         media_type: MediaType | None = None,
-        *args: Any,
-        **kwargs: Any,
+        *,
+        localizer: Localizer | None = None
     ):
-        super().__init__(file_id, *args, **kwargs)
+        super().__init__(file_id, localizer=localizer)
         self._path = path
         self.media_type = media_type
 
+    def __getstate__(self) -> State:
+        dict_state, slots_state = super().__getstate__()
+        dict_state['_path'] = self._path
+        return dict_state, slots_state
+
     @property
-    def entities(self) -> EntityCollection[Any]:  # type: ignore[empty-body]
+    def entities(self) -> EntityCollection[Entity]:  # type: ignore[empty-body]
         pass
 
     @entities.setter
@@ -184,10 +315,10 @@ class File(Described, HasPrivacy, HasMediaType, HasNotes, HasCitations, UserFaci
 
     @property
     def label(self) -> str:
-        return self.description if self.description else self._fallback_label
+        return self.description if self.description else super().label
 
 
-@many_to_many[File, 'HasFiles']('files', 'entities')
+@many_to_many('files', 'betty.model.ancestry.File', 'entities')
 class HasFiles:
     def __init__(  # type: ignore[misc]
         self: HasFiles & Entity,
@@ -216,10 +347,10 @@ class HasFiles:
         return self.files
 
 
-@many_to_one['Source', 'Source']('contained_by', 'contains')
-@one_to_many['Source', 'Source']('contains', 'contained_by')
-@one_to_many['Citation', 'Source']('citations', 'source')
-class Source(Dated, HasFiles, HasLinks, HasPrivacy, UserFacingEntity, Entity):
+@many_to_one('contained_by', 'betty.model.ancestry.Source', 'contains')
+@one_to_many('contains', 'betty.model.ancestry.Source', 'contained_by')
+@one_to_many('citations', 'betty.model.ancestry.Citation', 'source')
+class Source(Dated, HasFiles, HasLinks, HasMutablePrivacy, UserFacingEntity, Entity):
     name: str | None
     contained_by: Source | None
     author: str | None
@@ -236,6 +367,19 @@ class Source(Dated, HasFiles, HasLinks, HasPrivacy, UserFacingEntity, Entity):
         self.name = name
         self.author = None
         self.publisher = None
+
+    def __getstate__(self) -> State:
+        dict_state, slots_state = super().__getstate__()
+        dict_state['name'] = self.name
+        dict_state['author'] = self.author
+        dict_state['publisher'] = self.publisher
+        return dict_state, slots_state
+
+    def _get_privacy(self) -> Privacy:
+        privacy = super()._get_privacy()
+        if self.contained_by:
+            return merge_privacies(privacy, self.contained_by.privacy)
+        return privacy
 
     @property
     def contains(self) -> EntityCollection[Source]:  # type: ignore[empty-body]
@@ -271,12 +415,28 @@ class Source(Dated, HasFiles, HasLinks, HasPrivacy, UserFacingEntity, Entity):
 
     @property
     def label(self) -> str:
-        return self.name if self.name else self._fallback_label
+        return self.name if self.name else super().label
 
 
-@many_to_many[HasCitations, 'Citation']('facts', 'citations')
-@many_to_one[Source, 'Citation']('source', 'citations')
-class Citation(Dated, HasFiles, HasPrivacy, UserFacingEntity, Entity):
+class AnonymousSource(Source):
+    @property  # type: ignore[override]
+    def name(self) -> str:
+        return self.localizer._('private')
+
+    @name.setter
+    def name(self, _) -> None:
+        # This is a no-op as the name is 'hardcoded'.
+        pass
+
+    @name.deleter
+    def name(self) -> None:
+        # This is a no-op as the name is 'hardcoded'.
+        pass
+
+
+@many_to_many('facts', 'betty.model.ancestry.HasCitations', 'citations')
+@many_to_one('source', 'betty.model.ancestry.Source', 'citations')
+class Citation(Dated, HasFiles, HasMutablePrivacy, UserFacingEntity, Entity):
     source: Source | None
     location: str | None
 
@@ -290,6 +450,17 @@ class Citation(Dated, HasFiles, HasPrivacy, UserFacingEntity, Entity):
         super().__init__(citation_id, localizer=localizer)
         self.location = None
         self.source = source
+
+    def __getstate__(self) -> State:
+        dict_state, slots_state = super().__getstate__()
+        dict_state['location'] = self.location
+        return dict_state, slots_state
+
+    def _get_privacy(self) -> Privacy:
+        privacy = super()._get_privacy()
+        if self.source:
+            return merge_privacies(privacy, self.source.privacy)
+        return privacy
 
     @property
     def facts(self) -> EntityCollection[HasCitations & Entity]:  # type: ignore[empty-body]
@@ -313,7 +484,23 @@ class Citation(Dated, HasFiles, HasPrivacy, UserFacingEntity, Entity):
 
     @property
     def label(self) -> str:
-        return self.location or self._fallback_label
+        return self.location or super().label
+
+
+class AnonymousCitation(Citation):
+    @property  # type: ignore[override]
+    def location(self) -> str:
+        return self.localizer._("private (in order to protect people's privacy)")
+
+    @location.setter
+    def location(self, _) -> None:
+        # This is a no-op as the location is 'hardcoded'.
+        pass
+
+    @location.deleter
+    def location(self) -> None:
+        # This is a no-op as the location is 'hardcoded'.
+        pass
 
 
 class PlaceName(Localized, Dated):
@@ -330,13 +517,19 @@ class PlaceName(Localized, Dated):
         self.locale = locale
         self.date = date
 
+    def __getstate__(self) -> State:
+        dict_state, slots_state = super().__getstate__()
+        dict_state['_name'] = self._name
+        return dict_state, slots_state
+
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, self.__class__):
             return NotImplemented  # pragma: no cover
         return self._name == other._name and self.locale == other.locale
 
+    @recursive_repr()
     def __repr__(self) -> str:
-        return '<%s.%s(%s, %s)>' % (self.__class__.__module__, self.__class__.__name__, self.name, repr(self.locale))
+        return repr_instance(self, name=self.name, locale=self.locale)
 
     def __str__(self) -> str:
         return self._name
@@ -346,7 +539,14 @@ class PlaceName(Localized, Dated):
         return self._name
 
 
-@many_to_one_to_many['Place', 'Enclosure', 'Place']('enclosed_by', 'encloses', 'enclosed_by', 'encloses')
+@many_to_one_to_many(
+    'betty.model.ancestry.Place',
+    'enclosed_by',
+    'encloses',
+    'enclosed_by',
+    'betty.model.ancestry.Place',
+    'encloses',
+)
 class Enclosure(Dated, HasCitations, Entity):
     encloses: Place | None
     enclosed_by: Place | None
@@ -355,28 +555,42 @@ class Enclosure(Dated, HasCitations, Entity):
         self,
         encloses: Place | None,
         enclosed_by: Place | None,
-        *args: Any,
-        **kwargs: Any,
+        *,
+        localizer: Localizer | None = None,
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__(localizer=localizer)
         self.encloses = encloses
         self.enclosed_by = enclosed_by
 
+    @classmethod
+    def entity_type_label(cls, localizer: Localizer) -> str:
+        return localizer._('Enclosure')
 
-@one_to_many['Event', 'Place']('events', 'place')
-@one_to_many['Place', 'Place']('enclosed_by', 'encloses')
-@one_to_many['Place', 'Place']('encloses', 'enclosed_by')
+    @classmethod
+    def entity_type_label_plural(cls, localizer: Localizer) -> str:
+        return localizer._('Enclosures')
+
+
+@one_to_many('events', 'betty.model.ancestry.Event', 'place')
+@one_to_many('enclosed_by', 'betty.model.ancestry.Enclosure', 'encloses')
+@one_to_many('encloses', 'betty.model.ancestry.Enclosure', 'enclosed_by')
 class Place(HasLinks, UserFacingEntity, Entity):
     def __init__(
         self,
         place_id: str | None,
         names: list[PlaceName],
-        *args: Any,
-        **kwargs: Any,
+        *,
+        localizer: Localizer | None = None,
     ):
-        super().__init__(place_id, *args, **kwargs)
+        super().__init__(place_id, localizer=localizer)
         self._names = names
         self._coordinates = None
+
+    def __getstate__(self) -> State:
+        dict_state, slots_state = super().__getstate__()
+        dict_state['_names'] = self._names
+        dict_state['_coordinates'] = self._coordinates
+        return dict_state, slots_state
 
     @property
     def enclosed_by(self) -> EntityCollection[Enclosure]:  # type: ignore[empty-body]
@@ -439,7 +653,7 @@ class Place(HasLinks, UserFacingEntity, Entity):
         # @todo Negotiate this by locale and date.
         with suppress(IndexError):
             return self.names[0].name
-        return self._fallback_label
+        return super().label
 
 
 class PresenceRole(Localizable):
@@ -492,41 +706,65 @@ class Attendee(PresenceRole):
         return self.localizer._('Attendee')
 
 
-@many_to_one_to_many['Person', 'Presence', 'Event']('presences', 'person', 'event', 'presences')
-class Presence(Entity):
+@many_to_one_to_many(
+    'betty.model.ancestry.Person',
+    'presences',
+    'person',
+    'event',
+    'betty.model.ancestry.Event',
+    'presences',
+)
+class Presence(HasPrivacy, Entity):
     person: Person | None
     event: Event | None
     role: PresenceRole
 
     def __init__(
         self,
+        presence_id: str | None,
         person: Person | None,
         role: PresenceRole,
         event: Event | None,
-        *args: Any,
-        **kwargs: Any,
+        *,
+        localizer: Localizer | None = None,
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__(presence_id, localizer=localizer)
         self.person = person
         self.role = role
         self.event = event
 
+    def __getstate__(self) -> State:
+        dict_state, slots_state = super().__getstate__()
+        dict_state['role'] = self.role
+        return dict_state, slots_state
 
-@many_to_one[Place, 'Event']('place', 'events')
-@one_to_many[Presence, 'Event']('presences', 'event')
-class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, UserFacingEntity, Entity):
+    @classmethod
+    def entity_type_label(cls, localizer: Localizer) -> str:
+        return localizer._('Presence')
+
+    @classmethod
+    def entity_type_label_plural(cls, localizer: Localizer) -> str:
+        return localizer._('Presences')
+
+    def _get_privacy(self) -> Privacy:
+        return merge_privacies(self.person, self.event)
+
+
+@many_to_one('place', 'betty.model.ancestry.Place', 'events')
+@one_to_many('presences', 'betty.model.ancestry.Presence', 'event')
+class Event(Dated, HasFiles, HasCitations, Described, HasMutablePrivacy, UserFacingEntity, Entity):
     place: Place | None
 
     @property
     def label(self) -> str:
-        label = self.type.label(self.localizer)
+        label = self.event_type.label(self.localizer)
         if self.description is not None:
             label += f' ({self.description})'
         subjects = [
             presence.person
             for presence
             in self.presences
-            if isinstance(presence.role, Subject) and presence.person is not None
+            if presence.public and isinstance(presence.role, Subject) and presence.person is not None and presence.person.public
         ]
         if subjects:
             return self.localizer._('{event_type} of {subjects}').format(
@@ -538,14 +776,23 @@ class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, UserFacingEnti
     def __init__(
         self,
         event_id: str | None,
-        event_type: type[EventType],
+        event_type: builtins.type[EventType],
         date: Datey | None = None,
-        *args: Any,
-        **kwargs: Any,
+        *,
+        localizer: Localizer | None = None
     ):
-        super().__init__(event_id, *args, **kwargs)
+        super().__init__(event_id, localizer=localizer)
         self.date = date
-        self._type = event_type
+        self._event_type = event_type
+
+    def __getstate__(self) -> State:
+        dict_state, slots_state = super().__getstate__()
+        dict_state['_event_type'] = self._event_type
+        return dict_state, slots_state
+
+    @recursive_repr()
+    def __repr__(self) -> str:
+        return repr_instance(self, id=self._id, type=self._event_type)
 
     @property
     def presences(self) -> EntityCollection[Presence]:  # type: ignore[empty-body]
@@ -568,8 +815,8 @@ class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, UserFacingEnti
         return localizer._('Events')
 
     @property
-    def type(self) -> type[EventType]:
-        return self._type
+    def event_type(self) -> type[EventType]:
+        return self._event_type
 
     @property
     def associated_files(self) -> Iterable[File]:
@@ -587,29 +834,54 @@ class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, UserFacingEnti
 
 
 @total_ordering
-@many_to_one['Person', 'PersonName']('person', 'names')
-class PersonName(Localized, HasCitations, Entity):
+@many_to_one('person', 'betty.model.ancestry.Person', 'names')
+class PersonName(Localized, HasCitations, HasMutablePrivacy, Entity):
     person: Person | None
 
     def __init__(
-            self,
-            person: Person | None,
-            individual: str | None = None,
-            affiliation: str | None = None,
-            *args: Any,
-            **kwargs: Any,
+        self,
+        person_name_id: str | None,
+        person: Person | None,
+        individual: str | None = None,
+        affiliation: str | None = None,
+        *,
+        localizer: Localizer | None = None
     ):
-        super().__init__(*args, **kwargs)
         if not individual and not affiliation:
             raise ValueError('The individual and affiliation names must not both be empty.')
+        super().__init__(person_name_id, localizer=localizer)
         self._individual = individual
         self._affiliation = affiliation
         # Set the person association last, because the association requires comparisons, and self.__eq__() uses the
         # individual and affiliation names.
         self.person = person
 
+    def __getstate__(self) -> State:
+        dict_state, slots_state = super().__getstate__()
+        dict_state['_individual'] = self._individual
+        dict_state['_affiliation'] = self._affiliation
+        return dict_state, slots_state
+
+    def _get_privacy(self) -> Privacy:
+        privacy = super()._get_privacy()
+        if self.person:
+            return merge_privacies(privacy, self.person.privacy)
+        return privacy
+
     def __repr__(self) -> str:
         return repr_instance(self, id=self.id, individual=self.individual, affiliation=self.affiliation)
+
+    def __eq__(self, other: Any) -> bool:
+        if not super().__eq__(other):
+            return False
+        return (self._individual or '') == (other._individual or '') and (self._affiliation or '') == (other._affiliation or '')
+
+    def __gt__(self, other: Any) -> bool:
+        if other is None:
+            return True
+        if not isinstance(other, PersonName):
+            return NotImplemented
+        return (self._individual or '') > (other._individual or '') and (self._affiliation or '') > (other._affiliation or '')
 
     @classmethod
     def entity_type_label(cls, localizer: Localizer) -> str:
@@ -618,20 +890,6 @@ class PersonName(Localized, HasCitations, Entity):
     @classmethod
     def entity_type_label_plural(cls, localizer: Localizer) -> str:
         return localizer._('Person names')
-
-    def __eq__(self, other: Any) -> bool:
-        if other is None:
-            return False
-        if not isinstance(other, PersonName):
-            return NotImplemented  # pragma: no cover
-        return (self._affiliation or '', self._individual or '') == (other._affiliation or '', other._individual or '')
-
-    def __gt__(self, other: Any) -> bool:
-        if other is None:
-            return True
-        if not isinstance(other, PersonName):
-            return NotImplemented  # pragma: no cover
-        return (self._affiliation or '', self._individual or '') > (other._affiliation or '', other._individual or '')
 
     @property
     def individual(self) -> str | None:
@@ -643,6 +901,8 @@ class PersonName(Localized, HasCitations, Entity):
 
     @property
     def label(self) -> str:
+        if self.private:
+            return self.localizer._('private')
         return self.localizer._('{individual_name} {affiliation_name}').format(
             individual_name='…' if not self.individual else self.individual,
             affiliation_name='…' if not self.affiliation else self.affiliation,
@@ -650,13 +910,18 @@ class PersonName(Localized, HasCitations, Entity):
 
 
 @total_ordering
-@many_to_many['Person', 'Person']('parents', 'children')
-@many_to_many['Person', 'Person']('children', 'parents')
-@one_to_many[Presence, 'Person']('presences', 'person')
-@one_to_many[PersonName, 'Person']('names', 'person')
-class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, UserFacingEntity, Entity):
-    def __init__(self, person_id: str | None, *args: Any, **kwargs: Any):
-        super().__init__(person_id, *args, **kwargs)
+@many_to_many('parents', 'betty.model.ancestry.Person', 'children')
+@many_to_many('children', 'betty.model.ancestry.Person', 'parents')
+@one_to_many('presences', 'betty.model.ancestry.Presence', 'person')
+@one_to_many('names', 'betty.model.ancestry.PersonName', 'person')
+class Person(HasFiles, HasCitations, HasLinks, HasMutablePrivacy, UserFacingEntity, Entity):
+    def __init__(
+        self,
+        person_id: str | None,
+        *,
+        localizer: Localizer | None = None,
+    ):
+        super().__init__(person_id, localizer=localizer)
 
     @property
     def parents(self) -> EntityCollection[Person]:  # type: ignore[empty-body]
@@ -715,49 +980,54 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, UserFacingEntity, Ent
         return localizer._('People')
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, Person):
-            return NotImplemented  # pragma: no cover
-        return self.id == other.id
+        return super().__eq__(other) and self.name == other.name
 
     def __gt__(self, other: Any) -> bool:
         if not isinstance(other, Person):
-            return NotImplemented  # pragma: no cover
-        return self.id > other.id
+            return NotImplemented
+        if self.name is None and other.name is None:
+            return False
+        return self.name > other.name  # type: ignore[operator]
 
     @property
     def name(self) -> PersonName | None:
         try:
-            return self.names[0]
-        except IndexError:
-            return None
+            return next(filter(is_public, self.names))
+        except StopIteration:
+            try:
+                return self.names[0]
+            except IndexError:
+                return None
 
     @property
     def alternative_names(self) -> list[PersonName]:
-        return self.names.view[1:]
+        return [
+            name
+            for name
+            in self.names
+            if is_public(name)
+        ][1:]
+
+    def _shortcut_event(self, event_type: type[EventType]) -> Presence | None:
+        for presence in self.presences:
+            if not isinstance(presence.role, Subject):
+                continue
+            if presence.event is None:
+                continue
+            if not issubclass(presence.event.event_type, event_type):
+                continue
+            if not presence.public:
+                continue
+            return presence
+        return None
 
     @property
     def start(self) -> Presence | None:
-        for presence in self.presences:
-            if presence.event is None:
-                continue
-            if not isinstance(presence.role, Subject):
-                continue
-            if not issubclass(presence.event.type, StartOfLifeEventType):
-                continue
-            return presence
-        return None
+        return self._shortcut_event(StartOfLifeEventType)
 
     @property
     def end(self) -> Presence | None:
-        for presence in self.presences:
-            if presence.event is None:
-                continue
-            if not isinstance(presence.role, Subject):
-                continue
-            if not issubclass(presence.event.type, EndOfLifeEventType):
-                continue
-            return presence
-        return None
+        return self._shortcut_event(EndOfLifeEventType)
 
     @property
     def siblings(self) -> list[Person]:
@@ -800,16 +1070,35 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, UserFacingEntity, Ent
 
     @property
     def label(self) -> str:
-        return self.name.label if self.name else self._fallback_label
+        return self.name.label if self.name else super().label
 
 
 class Ancestry(MultipleTypesEntityCollection[Entity]):
+    def __init__(self, *, localizer: Localizer | None = None):
+        super().__init__(localizer=localizer)
+        self._check_graph = True
+
+    def __getstate__(self) -> PickleableEntityGraph:
+        return PickleableEntityGraph(*self)
+
+    def __setstate__(self, state: PickleableEntityGraph) -> None:
+        self._collections = {}
+        self.add_unchecked_graph(*state.build())
+
+    def add_unchecked_graph(self, *entities: Entity) -> None:
+        self._check_graph = False
+        try:
+            self.add(*entities)
+        finally:
+            self._check_graph = True
+
     def _on_add(self, *entities: Entity) -> None:
         super()._on_add(*entities)
-        self.add(*self._get_associates(*entities))
+        if self._check_graph:
+            self.add(*self._get_associates(*entities))
 
     def _get_associates(self, *entities: Entity) -> Iterable[Entity]:
         for entity in entities:
-            for association in EntityTypeAssociationRegistry.get_associations(entity):
+            for association in EntityTypeAssociationRegistry.get_all_associations(entity):
                 for associate in EntityTypeAssociationRegistry.get_associates(entity, association):
                     yield associate

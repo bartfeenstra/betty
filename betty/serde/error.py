@@ -7,7 +7,6 @@ from typing import Iterator, cast, Any
 
 from typing_extensions import Self
 
-from betty.classtools import Repr
 from betty.error import UserFacingError
 
 
@@ -39,7 +38,7 @@ class SerdeError(UserFacingError, ValueError):
         return self_copy
 
 
-class SerdeErrorCollection(SerdeError, Repr):
+class SerdeErrorCollection(SerdeError):
     """
     A collection of zero or more serialization or deserialization errors.
     """

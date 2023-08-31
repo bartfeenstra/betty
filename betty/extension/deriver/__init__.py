@@ -1,39 +1,28 @@
 from __future__ import annotations
 
-import logging
-
 from betty.app.extension import Extension, UserFacingExtension
 from betty.deriver import Deriver
-from betty.load import PostLoader
+from betty.load import PostLoader, getLogger
 from betty.locale import Localizer
-from betty.model.ancestry import Person, Ancestry
-from betty.model.event_type import DerivableEventType, CreatableDerivableEventType
+from betty.model.event_type import DerivableEventType
 
 
 class _Deriver(UserFacingExtension, PostLoader):
     async def post_load(self) -> None:
-        await self.derive(self.app.project.ancestry)
+        logger = getLogger()
+        logger.info(self._app.localizer._('Deriving...'))
 
-    async def derive(self, ancestry: Ancestry) -> None:
-        logger = logging.getLogger()
-        deriver = Deriver(self.app.event_types)
-        for event_type in self.app.event_types:
-            if issubclass(event_type, DerivableEventType):
-                created_derivations = 0
-                updated_derivations = 0
-                for person in ancestry[Person]:
-                    created, updated = deriver.derive_person(person, event_type)
-                    created_derivations += created
-                    updated_derivations += updated
-                logger.info(self.app.localizer._('Updated {updated_derivations} {event_type} events based on existing information.').format(
-                    updated_derivations=updated_derivations,
-                    event_type=event_type.label(self.app.localizer)),
-                )
-                if issubclass(event_type, CreatableDerivableEventType):
-                    logger.info(self.app.localizer._('Created {created_derivations} additional {event_type} events based on existing information.').format(
-                        created_derivations=created_derivations,
-                        event_type=event_type.label(self.app.localizer)),
-                    )
+        deriver = Deriver(
+            self.app.project.ancestry,
+            {
+                event_type
+                for event_type
+                in self.app.event_types
+                if issubclass(event_type, DerivableEventType)
+            },
+            localizer=self.app.localizer,
+        )
+        await deriver.derive()
 
     @classmethod
     def comes_before(cls) -> set[type[Extension]]:
