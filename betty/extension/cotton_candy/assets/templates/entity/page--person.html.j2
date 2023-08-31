@@ -189,10 +189,10 @@
             associated_people | map(attribute='start'),
             associated_people | map(attribute='end'),
         ] | flatten | reject('none') | rejectattr('date', 'none') | selectattr('date.comparable') | list %}
-            {% if entity.start is not none and entity.start.date is not none and entity.start.date.comparable %}
+            {% if entity.start.event.date.comparable | default(false) %}
                 {% set associated_events = associated_events | rejectattr('date', 'lt', entity.start.date) %}
             {% endif %}
-            {% if entity.end is not none and entity.end.date is not none and entity.end.date.comparable %}
+            {% if entity.end.event.date.comparable | default(false) %}
                 {% set associated_events = associated_events | rejectattr('date', 'gt', entity.end.date) %}
             {% endif %}
             {% set events = (events + (associated_events | list)) | unique | list %}

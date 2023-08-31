@@ -695,15 +695,13 @@ class TestPerson:
         assert [alternative_name] == list(sut.alternative_names)
 
     def test_start(self) -> None:
-        start = Event(None, Birth)
         sut = Person('P1')
-        Presence(sut, Subject(), start)
+        start = Presence(sut, Subject(), Event(None, Birth))
         assert start == sut.start
 
     def test_end(self) -> None:
-        end = Event(None, Burial)
         sut = Person('P1')
-        Presence(sut, Subject(), end)
+        end = Presence(sut, Subject(), Event(None, Burial))
         assert end == sut.end
 
     def test_siblings_without_parents(self) -> None:

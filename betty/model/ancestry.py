@@ -736,25 +736,27 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, UserFacingEntity, Ent
         return self.names.view[1:]
 
     @property
-    def start(self) -> Event | None:
-        with suppress(StopIteration):
-            return next((
-                presence.event
-                for presence
-                in self.presences
-                if presence.event is not None and issubclass(presence.event.type, StartOfLifeEventType)
-            ))
+    def start(self) -> Presence | None:
+        for presence in self.presences:
+            if presence.event is None:
+                continue
+            if not isinstance(presence.role, Subject):
+                continue
+            if not issubclass(presence.event.type, StartOfLifeEventType):
+                continue
+            return presence
         return None
 
     @property
-    def end(self) -> Event | None:
-        with suppress(StopIteration):
-            return next((
-                presence.event
-                for presence
-                in self.presences
-                if presence.event is not None and issubclass(presence.event.type, EndOfLifeEventType)
-            ))
+    def end(self) -> Presence | None:
+        for presence in self.presences:
+            if presence.event is None:
+                continue
+            if not isinstance(presence.role, Subject):
+                continue
+            if not issubclass(presence.event.type, EndOfLifeEventType):
+                continue
+            return presence
         return None
 
     @property

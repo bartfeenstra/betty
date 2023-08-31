@@ -76,10 +76,10 @@ class Privatizer:
 
     def _is_person_private(self, person: Person) -> bool:
         # A dead person is not private, regardless of when they died.
-        if person.end is not None:
-            if person.end.date is None:
+        if person.end is not None and person.end.event is not None:
+            if person.end.event.date is None:
                 return False
-            if self.has_expired(person.end, 0):
+            if self.has_expired(person.end.event, 0):
                 return False
 
         if self.has_expired(person, 1):
