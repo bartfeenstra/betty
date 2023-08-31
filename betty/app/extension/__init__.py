@@ -118,7 +118,7 @@ class Extension:
     """
 
     def __init__(self, app: App, *args: Any, **kwargs: Any):
-        assert type(self) != Extension
+        assert type(self) is not Extension
         super().__init__(*args, **kwargs)
         self._app = app
 
@@ -219,7 +219,7 @@ def format_extension_type(extension_type: type[Extension]) -> str:
 
 class ConfigurableExtension(Extension, Generic[ConfigurationT], Configurable[ConfigurationT]):
     def __init__(self, *args: Any, configuration: ConfigurationT | None = None, **kwargs: Any):
-        assert type(self) != ConfigurableExtension
+        assert type(self) is not ConfigurableExtension
         super().__init__(*args, **kwargs)
         self._configuration = configuration or self.default_configuration()
 
@@ -252,7 +252,7 @@ class ListExtensions(Extensions):
         if isinstance(extension_type, str):
             extension_type = import_any(extension_type)
         for extension in self.flatten():
-            if type(extension) == extension_type:
+            if type(extension) is extension_type:
                 return extension  # type: ignore[return-value]
         raise KeyError(f'Unknown extension of type "{extension_type}"')
 
@@ -274,7 +274,7 @@ class ListExtensions(Extensions):
             except ImportError:
                 return False
         for extension in self.flatten():
-            if type(extension) == extension_type:
+            if type(extension) is extension_type:
                 return True
         return False
 
