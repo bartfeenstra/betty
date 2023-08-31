@@ -175,12 +175,14 @@ class TestGrampsLoader:
     def test_person_should_include_birth(self, test_load_xml_ancestry: Ancestry) -> None:
         person = test_load_xml_ancestry[Person]['I0000']
         assert person.start is not None
-        assert 'E0000' == person.start.id
+        assert person.start.event is not None
+        assert 'E0000' == person.start.event.id
 
     def test_person_should_include_death(self, test_load_xml_ancestry: Ancestry) -> None:
         person = test_load_xml_ancestry[Person]['I0003']
         assert person.end is not None
-        assert 'E0002' == person.end.id
+        assert person.end.event is not None
+        assert 'E0002' == person.end.event.id
 
     def test_person_should_be_private(self, test_load_xml_ancestry: Ancestry) -> None:
         person = test_load_xml_ancestry[Person]['I0003']

@@ -69,8 +69,12 @@ class TestDeriver:
 
         assert 3 == len(person.presences)
         start = person.start
-        assert isinstance(start, Event)
-        assert DateRange(None, Date(1970, 1, 1), end_is_boundary=True) == start.date
+        assert start is not None
+        assert start.event is not None
+        assert isinstance(start.event, Event)
+        assert DateRange(None, Date(1970, 1, 1), end_is_boundary=True) == start.event.date
         end = person.end
-        assert isinstance(end, Event)
-        assert DateRange(Date(1970, 1, 1), start_is_boundary=True) == end.date
+        assert end is not None
+        assert end.event is not None
+        assert isinstance(end.event, Event)
+        assert DateRange(Date(1970, 1, 1), start_is_boundary=True) == end.event.date
