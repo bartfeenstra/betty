@@ -78,7 +78,7 @@ class RequirementCollection(Requirement):
         for requirement in self._requirements:
             reduced_requirement = requirement.reduce()
             if reduced_requirement:
-                if type(reduced_requirement) == type(self):
+                if type(reduced_requirement) is type(self):
                     reduced_requirements.extend(cast(RequirementCollection, reduced_requirement)._requirements)
                 else:
                     reduced_requirements.append(reduced_requirement)
