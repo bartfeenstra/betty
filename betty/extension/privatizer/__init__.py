@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-import logging
+from collections import defaultdict
 
 from betty.app.extension import UserFacingExtension
-from betty.load import PostLoader
+from betty.load import PostLoader, getLogger
 from betty.locale import Localizer
-from betty.model.ancestry import Person, Event, Citation, Source, File
+from betty.model import Entity
+from betty.model.ancestry import Person, HasMutablePrivacy
 from betty.privatizer import Privatizer as PrivatizerApi
 
 
@@ -19,28 +20,38 @@ class _Privatizer(UserFacingExtension, PostLoader):
 
     @classmethod
     def description(cls, localizer: Localizer) -> str:
-        return localizer._('Determine if people can be proven to have died. If not, mark them and their related resources private, but only if they are not already explicitly marked public or private. Enable the Anonymizer and Cleaner as well to make this most effective.')
+        return localizer._('Determine if people can be proven to have died. If not, mark them and their associated entities private.')
 
     def privatize(self) -> None:
+        logger = getLogger()
+        logger.info(self._app.localizer._('Privatizing...'))
+
         privatizer = PrivatizerApi(self._app.project.configuration.lifetime_threshold)
 
-        privatized = 0
-        for person in self._app.project.ancestry[Person]:
-            private = person.private
-            privatizer.privatize(person)
-            if private is None and person.private is True:
-                privatized += 1
-        logger = logging.getLogger()
-        logger.info(self._app.localizer._('Privatized {count} people because they are likely still alive.').format(count=privatized))
+        newly_privatized: dict[type[HasMutablePrivacy & Entity], int] = defaultdict(lambda: 0)
+        entities: list[HasMutablePrivacy & Entity] = []
+        for entity in self._app.project.ancestry:
+            if isinstance(entity, HasMutablePrivacy):
+                entities.append(entity)
+                if entity.private:
+                    newly_privatized[
+                        entity.type  # type: ignore[index]
+                    ] -= 1
 
-        for citation in self._app.project.ancestry[Citation]:
-            privatizer.privatize(citation)
+        for entity in entities:
+            privatizer.privatize(entity)
 
-        for source in self._app.project.ancestry[Source]:
-            privatizer.privatize(source)
+        for entity in entities:
+            if entity.private:
+                newly_privatized[entity.type] += 1  # type: ignore[index]
 
-        for event in self._app.project.ancestry[Event]:
-            privatizer.privatize(event)
-
-        for file in self._app.project.ancestry[File]:
-            privatizer.privatize(file)
+        if newly_privatized[Person] > 0:
+            logger.info(self._app.localizer._('Privatized {count} people because they are likely still alive.').format(
+                count=newly_privatized[Person],
+            ))
+        for entity_type in set(newly_privatized) - {Person}:
+            if newly_privatized[entity_type] > 0:
+                logger.info(self._app.localizer._('Privatized {count} {entity_type}, because they are associated with private people.').format(
+                    count=newly_privatized[entity_type],
+                    entity_type=entity_type.entity_type_label_plural(self._app.localizer),
+                ))

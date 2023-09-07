@@ -1,4 +1,5 @@
 from betty.extension import CottonCandy
+from betty.jinja2 import EntityContexts
 from betty.locale import Date
 from betty.model.ancestry import Event, Place, PlaceName, Citation, Source
 from betty.model.event_type import Birth
@@ -42,7 +43,7 @@ class Test(TemplateTestCase):
         expected = ''
         with self._render(data={
             'event': event,
-            'place_context': place,
+            'entity_contexts': EntityContexts(place),
         }) as (actual, _):
             assert expected == actual
 

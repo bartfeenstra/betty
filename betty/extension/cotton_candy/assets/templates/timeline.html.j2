@@ -1,0 +1,14 @@
+{% set events = events | list %}
+{% if events | length > 0 %}
+    <section id="timeline">
+        <h2>
+            {% trans %}Timeline{% endtrans %}
+            {% with url = page_resource | url ~ '#timeline'%}
+                {% include 'permalink.html.j2' %}
+            {% endwith %}
+        </h2>
+        {% with entities=events %}
+            {% include ['entity/list--event.html.j2', 'entity/list.html.j2'] %}
+        {% endwith %}
+    </section>
+{% endif %}

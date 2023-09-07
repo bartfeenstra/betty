@@ -97,8 +97,7 @@ function personToNode (person, nodes) {
     },
     selectable: false,
     grabbable: false,
-    pannable: true,
-    classes: person.private ? [] : ['public']
+    pannable: true
   })
 }
 

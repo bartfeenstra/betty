@@ -15,7 +15,8 @@ from betty.locale import Date, DateRange, Localized, Localey
 from betty.media_type import MediaType
 from betty.model import Entity, get_entity_type_name, GeneratedEntityId
 from betty.model.ancestry import Place, Person, PlaceName, Event, Described, HasLinks, HasCitations, Link, Dated, File, \
-    Note, PersonName, HasMediaType, PresenceRole, Citation, Source
+    Note, PersonName, HasMediaType, PresenceRole, Citation, Source, is_public, Presence, HasPrivacy, is_private, \
+    HasNotes
 from betty.string import upper_camel_case_to_lower_camel_case
 
 T = TypeVar('T')
@@ -81,6 +82,9 @@ class JSONEncoder(stdjson.JSONEncoder):
         if 'links' not in encoded:
             encoded['links'] = []
 
+        if '@context' not in encoded:
+            encoded['@context'] = {}
+
         if not isinstance(entity.id, GeneratedEntityId):
             encoded['id'] = entity.id
 
@@ -89,13 +93,25 @@ class JSONEncoder(stdjson.JSONEncoder):
             canonical.media_type = MediaType('application/json')
             encoded['links'].append(canonical)
 
-            for locale in self._app.project.configuration.locales:
-                localized_html_url = self._generate_url(entity, media_type='text/html', locale=locale)
-                localized_html_link = Link(localized_html_url)
-                localized_html_link.relationship = 'alternate'
-                localized_html_link.media_type = MediaType('text/html')
-                localized_html_link.locale = locale
-                encoded['links'].append(localized_html_link)
+            if is_public(entity):
+                for locale in self._app.project.configuration.locales:
+                    localized_html_url = self._generate_url(entity, media_type='text/html', locale=locale)
+                    localized_html_link = Link(localized_html_url)
+                    localized_html_link.relationship = 'alternate'
+                    localized_html_link.media_type = MediaType('text/html')
+                    localized_html_link.locale = locale
+                    encoded['links'].append(localized_html_link)
+
+        if isinstance(entity, HasPrivacy):
+            encoded['private'] = is_private(entity)
+        if isinstance(entity, Dated):
+            self._encode_dated(encoded, entity)
+        if isinstance(entity, HasCitations):
+            self._encode_has_citations(encoded, entity)
+        if isinstance(entity, HasLinks):
+            self._encode_has_links(encoded, entity)
+        if isinstance(entity, HasNotes):
+            self._encode_has_notes(encoded, entity)
 
     def _encode_described(self, encoded: dict[str, Any], described: Described) -> None:
         if described.description is not None:
@@ -106,8 +122,9 @@ class JSONEncoder(stdjson.JSONEncoder):
             encoded['@context']['description'] = 'https://schema.org/description'
 
     def _encode_dated(self, encoded: dict[str, Any], dated: Dated) -> None:
-        if dated.date is not None:
-            encoded['date'] = dated.date
+        if is_public(dated):
+            if dated.date is not None:
+                encoded['date'] = dated.date
 
     def _encode_date(self, date: Date) -> dict[str, Any]:
         encoded: dict[str, Any] = {}
@@ -132,14 +149,16 @@ class JSONEncoder(stdjson.JSONEncoder):
             encoded['locale'] = localized.locale
 
     def _encode_has_media_type(self, encoded: dict[str, Any], media: HasMediaType) -> None:
-        if media.media_type is not None:
-            encoded['mediaType'] = media.media_type
+        if is_public(media):
+            if media.media_type is not None:
+                encoded['mediaType'] = media.media_type
 
     def _encode_has_links(self, encoded: dict[str, Any], has_links: HasLinks) -> None:
         if 'links' not in encoded:
             encoded['links'] = []
-        for link in has_links.links:
-            encoded['links'].append(link)
+        if is_public(has_links):
+            for link in has_links.links:
+                encoded['links'].append(link)
 
     def _encode_link(self, link: Link) -> dict[str, Any]:
         encoded: dict[str, Any] = {
@@ -208,7 +227,6 @@ class JSONEncoder(stdjson.JSONEncoder):
             ],
         }
         self._encode_entity(encoded, place)
-        self._encode_has_links(encoded, place)
         if place.coordinates is not None:
             encoded['coordinates'] = place.coordinates
             encoded['@context']['coordinates'] = 'https://schema.org/geo'
@@ -222,7 +240,7 @@ class JSONEncoder(stdjson.JSONEncoder):
                 'siblings': 'https://schema.org/sibling',
             },
             '@type': 'https://schema.org/Person',
-            'names': list(person.names),
+            'names': [],
             'parents': [
                 self._generate_url(parent)
                 for parent
@@ -241,34 +259,44 @@ class JSONEncoder(stdjson.JSONEncoder):
                 in person.siblings
                 if not isinstance(sibling.id, GeneratedEntityId)
             ],
-            'private': person.private,
-            'presences': [],
+            'presences': [
+                self._encode_person_presence(presence)
+                for presence
+                in person.presences
+                if presence.event is not None and not isinstance(presence.event.id, GeneratedEntityId)
+            ],
         }
-        for presence in person.presences:
-            encoded['presences'].append({
-                '@context': {
-                    'event': 'https://schema.org/performerIn',
-                },
-                'role': presence.role,
-                'event': None if presence.event is not None and isinstance(presence.event.id, GeneratedEntityId) else self._generate_url(presence.event),
-            })
+        if person.public:
+            for name in person.names:
+                if name.public:
+                    encoded['names'].append(name)
         self._encode_entity(encoded, person)
-        self._encode_has_citations(encoded, person)
-        self._encode_has_links(encoded, person)
+        return encoded
+
+    def _encode_person_presence(self, presence: Presence) -> dict[str, Any]:
+        encoded: dict[str, Any] = {
+            '@context': {
+                'event': 'https://schema.org/performerIn',
+            },
+            'event': self._generate_url(presence.event),
+        }
+        if is_public(presence.person):
+            encoded['role'] = presence.role
         return encoded
 
     def _encode_person_name(self, name: PersonName) -> dict[str, Any]:
         encoded: dict[str, Any] = {}
-        if name.individual is not None or name.affiliation is not None:
-            encoded.update({
-                '@context': {},
-            })
-        if name.individual is not None:
-            encoded['@context']['individual'] = 'https://schema.org/givenName'
-            encoded['individual'] = name.individual
-        if name.affiliation is not None:
-            encoded['@context']['affiliation'] = 'https://schema.org/familyName'
-            encoded['affiliation'] = name.affiliation
+        if name.public:
+            if name.individual is not None or name.affiliation is not None:
+                encoded.update({
+                    '@context': {},
+                })
+            if name.individual is not None:
+                encoded['@context']['individual'] = 'https://schema.org/givenName'
+                encoded['individual'] = name.individual
+            if name.affiliation is not None:
+                encoded['@context']['affiliation'] = 'https://schema.org/familyName'
+                encoded['affiliation'] = name.affiliation
         return encoded
 
     def _encode_file(self, file: File) -> dict[str, Any]:
@@ -279,12 +307,6 @@ class JSONEncoder(stdjson.JSONEncoder):
                 in file.entities
                 if not isinstance(entity.id, GeneratedEntityId)
             ],
-            'notes': [
-                self._generate_url(note)
-                for note
-                in file.notes
-                if not isinstance(note.id, GeneratedEntityId)
-            ],
         }
         self._encode_entity(encoded, file)
         self._encode_has_media_type(encoded, file)
@@ -293,24 +315,32 @@ class JSONEncoder(stdjson.JSONEncoder):
     def _encode_event(self, event: Event) -> dict[str, Any]:
         encoded: dict[str, Any] = {
             '@type': 'https://schema.org/Event',
-            'type': event.type.name(),
-            'presences': [{
-                '@context': {
-                    'person': 'https://schema.org/actor',
-                },
-                'role': presence.role,
-                'person': None if presence.person is not None and isinstance(presence.person.id, GeneratedEntityId) else self._generate_url(presence.person),
-            } for presence in event.presences],
+            'type': event.event_type.name(),
+            'presences': [
+                self._encode_event_presence(presence)
+                for presence
+                in event.presences
+                if presence.person is not None and not isinstance(presence.person.id, GeneratedEntityId)
+            ],
         }
         self._encode_entity(encoded, event)
-        self._encode_dated(encoded, event)
-        self._encode_has_citations(encoded, event)
         if event.place is not None and not isinstance(event.place.id, GeneratedEntityId):
             encoded['place'] = self._generate_url(event.place)
             encoded.update({
                 '@context': {},
             })
             encoded['@context']['place'] = 'https://schema.org/location'
+        return encoded
+
+    def _encode_event_presence(self, presence: Presence) -> dict[str, Any]:
+        encoded: dict[str, Any] = {
+            '@context': {
+                'person': 'https://schema.org/actor',
+            },
+            'person': self._generate_url(presence.person),
+        }
+        if is_public(presence.person):
+            encoded['role'] = presence.role
         return encoded
 
     def _encode_presence_role(self, role: PresenceRole) -> str:
@@ -330,16 +360,11 @@ class JSONEncoder(stdjson.JSONEncoder):
                 self._generate_url(fact),
             )
         self._encode_entity(encoded, citation)
-        self._encode_dated(encoded, citation)
         return encoded
 
     def _encode_source(self, source: Source) -> dict[str, Any]:
         encoded: dict[str, Any] = {
-            '@context': {
-                'name': 'https://schema.org/name',
-            },
             '@type': 'https://schema.org/Thing',
-            'name': source.name,
             'contains': [
                 self._generate_url(contained)
                 for contained
@@ -353,23 +378,34 @@ class JSONEncoder(stdjson.JSONEncoder):
                 if not isinstance(citation.id, GeneratedEntityId)
             ],
         }
-        if source.author is not None:
-            encoded['author'] = source.author
-        if source.publisher is not None:
-            encoded['publisher'] = source.publisher
-        self._encode_entity(encoded, source)
-        self._encode_dated(encoded, source)
-        self._encode_has_links(encoded, source)
         if source.contained_by is not None and not isinstance(source.contained_by.id, GeneratedEntityId):
             encoded['containedBy'] = self._generate_url(source.contained_by)
+        self._encode_entity(encoded, source)
+        if is_public(source):
+            if source.name is not None:
+                encoded['@context']['name'] = 'https://schema.org/name'
+                encoded['name'] = source.name
+            if source.author is not None:
+                encoded['author'] = source.author
+            if source.publisher is not None:
+                encoded['publisher'] = source.publisher
         return encoded
+
+    def _encode_has_notes(self, encoded: dict[str, Any], has_notes: HasNotes) -> None:
+        encoded['notes'] = [
+            self._generate_url(note)
+            for note
+            in has_notes.notes
+            if not isinstance(note.id, GeneratedEntityId)
+        ]
 
     def _encode_note(self, note: Note) -> dict[str, Any]:
         encoded: dict[str, Any] = {
             '@type': 'https://schema.org/Thing',
-            'text': note.text,
         }
         self._encode_entity(encoded, note)
+        if is_public(note):
+            encoded['text'] = note.text
         return encoded
 
     def _encode_media_type(self, media_type: MediaType) -> str:

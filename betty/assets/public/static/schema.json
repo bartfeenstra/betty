@@ -90,7 +90,6 @@
               }
             },
             "required": [
-              "role",
               "event"
             ],
             "patternProperties": {
@@ -108,14 +107,7 @@
           "$ref": "#/definitions/citations"
         },
         "private": {
-          "oneOf": [
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "$ref": "#/definitions/privacy"
         }
       },
       "required": [
@@ -179,13 +171,21 @@
         },
         "links": {
           "$ref": "#/definitions/links"
+        },
+        "private": {
+          "$ref": "#/definitions/privacy"
+        },
+        "citations": {
+          "$ref": "#/definitions/citations"
         }
       },
       "required": [
         "$schema",
         "id",
         "notes",
-        "entities"
+        "entities",
+        "private",
+        "citations"
       ],
       "patternProperties": {
         "^@": {
@@ -264,6 +264,9 @@
         },
         "links": {
           "$ref": "#/definitions/links"
+        },
+        "private": {
+          "$ref": "#/definitions/privacy"
         }
       },
       "required": [
@@ -271,7 +274,8 @@
         "id",
         "type",
         "presences",
-        "citations"
+        "citations",
+        "private"
       ],
       "patternProperties": {
         "^@": {
@@ -393,12 +397,16 @@
         },
         "links": {
           "$ref": "#/definitions/links"
+        },
+        "private": {
+          "$ref": "#/definitions/privacy"
         }
       },
       "required": [
         "$schema",
         "id",
-        "facts"
+        "facts",
+        "private"
       ],
       "patternProperties": {
         "^@": {
@@ -465,15 +473,18 @@
         },
         "date": {
           "$ref": "#/definitions/date"
+        },
+        "private": {
+          "$ref": "#/definitions/privacy"
         }
       },
       "required": [
         "$schema",
         "id",
-        "name",
         "contains",
         "links",
-        "citations"
+        "citations",
+        "private"
       ],
       "patternProperties": {
         "^@": {
@@ -517,13 +528,16 @@
         },
         "text": {
           "type": "string"
+        },
+        "private": {
+          "$ref": "#/definitions/privacy"
         }
       },
       "required": [
         "$schema",
         "id",
         "links",
-        "text"
+        "private"
       ],
       "patternProperties": {
         "^@": {
@@ -543,6 +557,10 @@
     "id": {
       "type": "string",
       "description": "A unique ID."
+    },
+    "privacy": {
+      "type": "boolean",
+      "description": "Whether this entity is private (true), or public (false)."
     },
     "locale": {
       "type": "string",

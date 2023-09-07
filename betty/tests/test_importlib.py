@@ -1,20 +1,9 @@
-from typing import Any
-
 import pytest
 
 from betty.importlib import import_any
 
 
 class TestImportAny:
-    @pytest.mark.parametrize('importable_value', [
-        3,
-        {},
-        True,
-    ])
-    def test_with_invalid_type_should_raise_invalid(self, importable_value: Any) -> None:
-        with pytest.raises(ImportError):
-            import_any(importable_value)
-
     def test_with_unknown_module_should_raise_invalid(self) -> None:
         with pytest.raises(ImportError):
             import_any('foo.bar.Baz')

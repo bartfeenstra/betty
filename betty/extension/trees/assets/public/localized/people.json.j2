@@ -1,14 +1,9 @@
 {% set ns = namespace(people={}) %}
 {% for person in app.project.ancestry['Person'] %}
-    {% set person_label %}
-        {% with embedded = True, entity = person %}
-            {% include ['entity/label--person.html.j2', 'entity/label.html.j2'] %}
-        {% endwith %}
-    {% endset %}
     {% do ns.people.update({
         person.id: {
             'id': person.id,
-            'label': person_label | striptags,
+            'label': person.label,
             'url': person | url,
             'parentIds': person.parents | map(attribute='id') | list,
             'childIds': person.children | map(attribute='id') | list,

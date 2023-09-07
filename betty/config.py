@@ -4,6 +4,7 @@ import os
 from collections import OrderedDict
 from contextlib import suppress
 from pathlib import Path
+from reprlib import recursive_repr
 from typing import Generic, Iterable, Iterator, SupportsIndex, Hashable, \
     MutableSequence, MutableMapping, TypeVar, Any, Sequence, overload, cast
 
@@ -13,7 +14,7 @@ from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
 from typing_extensions import Self, TypeAlias
 
-from betty.classtools import Repr, repr_instance
+from betty.classtools import repr_instance
 from betty.functools import slice_to_range
 from betty.locale import Localizer, Localizable
 from betty.os import ChDir
@@ -24,7 +25,7 @@ from betty.serde.load import Asserter, Assertion, LoadError, Assertions
 from betty.tempfile import TemporaryDirectory
 
 
-class Configuration(ReactiveInstance, Repr, Localizable, Dumpable):
+class Configuration(ReactiveInstance, Localizable, Dumpable):
     def __init__(self, *args: Any, localizer: Localizer | None = None, **kwargs: Any):
         super().__init__(*args, **kwargs, localizer=localizer)
         self._asserter = Asserter(localizer=self._localizer)
@@ -197,6 +198,7 @@ class ConfigurationCollection(Configuration, Generic[ConfigurationKeyT, Configur
             return False
         return True
 
+    @recursive_repr()
     def __repr__(self) -> str:
         return repr_instance(self, configurations=list(self.values()))
 

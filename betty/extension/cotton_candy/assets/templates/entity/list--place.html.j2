@@ -1,4 +1,4 @@
-{% set place_context = place_context | default(None) %}
+{% set place_context = entity_contexts['Place'] %}
 {% set featured = featured | default(True) %}
 <div class="places{% if 'betty.extension.Maps' in app.extensions %} with-map{% endif %}">
     {% if 'betty.extension.Maps' in app.extensions and entities | rejectattr('coordinates', 'none') | list | length > 0 %}

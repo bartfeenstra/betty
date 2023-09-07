@@ -1,7 +1,7 @@
 {# Citation formatting is inspired by the MLA style guide(https://style.mla.org/) #}
-{% set citation_context = citation_context | default(None) %}
+{% set citation_context = entity_contexts['Citation'] %}
 <span>
-    {% if entity.source -%}
+    {% if entity.source and entity.source.public -%}
         {%- if entity.source.author -%}
             <span class="citation-author">{{ entity.source.author }}</span>
         {%- endif %}

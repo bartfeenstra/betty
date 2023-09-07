@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from betty.extension.anonymizer import _Anonymizer
-from betty.extension.cleaner import _Cleaner
 from betty.extension.cotton_candy import _CottonCandy
 from betty.extension.demo import _Demo
 from betty.extension.deriver import _Deriver
@@ -11,14 +9,6 @@ from betty.extension.maps import _Maps
 from betty.extension.privatizer import _Privatizer
 from betty.extension.trees import _Trees
 from betty.extension.wikipedia import _Wikipedia
-
-
-class Anonymizer(_Anonymizer):
-    pass
-
-
-class Cleaner(_Cleaner):
-    pass
 
 
 class CottonCandy(_CottonCandy):

@@ -4,6 +4,7 @@ from betty.app import App
 from betty.extension import Deriver
 from betty.load import load
 from betty.locale import DateRange, Date
+from betty.model import record_added
 from betty.model.ancestry import Person, Presence, Subject, Event
 from betty.model.event_type import DerivableEventType, CreatableDerivableEventType, Residence, EventType
 from betty.project import ExtensionConfiguration
@@ -56,15 +57,16 @@ class ComesBeforeAndAfterCreatableDerivable(CreatableDerivableEventType, Derivab
 
 
 class TestDeriver:
-    async def test_post_parse(self) -> None:
+    async def test_post_load(self) -> None:
         person = Person('P0')
         event = Event(None, Residence)
         event.date = Date(1970, 1, 1)
-        Presence(person, Subject(), event)
+        Presence(None, person, Subject(), event)
 
-        with App() as app:
-            app.project.configuration.extensions.append(ExtensionConfiguration(Deriver))
-            app.project.ancestry.add(person)
+        app = App()
+        app.project.configuration.extensions.append(ExtensionConfiguration(Deriver))
+        app.project.ancestry.add(person)
+        with record_added(app.project.ancestry) as added:
             await load(app)
 
         assert 3 == len(person.presences)
@@ -76,5 +78,7 @@ class TestDeriver:
         end = person.end
         assert end is not None
         assert end.event is not None
-        assert isinstance(end.event, Event)
         assert DateRange(Date(1970, 1, 1), start_is_boundary=True) == end.event.date
+        assert 2 == len(added[Event])
+        assert start.event in added[Event]
+        assert end.event in added[Event]

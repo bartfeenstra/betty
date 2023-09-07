@@ -9,18 +9,19 @@
     {%- if entity.private -%}
         <p>{%- trans -%}This person's details are unavailable to protect their privacy.{%- endtrans -%}</p>
     {%- else -%}
-        {%- if entity.names | length > 1 -%}
-            <span class="aka">{%- trans names=entity.alternative_names | map(_embedded_person_name_label if embedded else person_macros.name_label) | list | join(', ') -%}Also known as {{ names }}{%- endtrans -%}</span>
+        {% set alternative_names = entity.alternative_names | select('public') | list %}
+        {%- if alternative_names -%}
+            <span class="aka">{%- trans names=alternative_names | map(_embedded_person_name_label if embedded else person_macros.name_label) | list | join(', ') -%}Also known as {{ names }}{%- endtrans -%}</span>
         {%- endif -%}
         {%- set formatted_start -%}
-            {%- if entity.start and entity.start.event -%}
+            {%- if entity.start and entity.start is public and entity.start.event -%}
                 {%- with event=entity.start.event -%}
                     {%- include 'event-dimensions.html.j2' -%}
                 {%- endwith -%}
             {%- endif -%}
         {%- endset -%}
         {%- set formatted_end -%}
-            {%- if entity.end and entity.end.event -%}
+            {%- if entity.end and entity.end is public and entity.end.event -%}
                 {%- with event=entity.end.event -%}
                     {%- include 'event-dimensions.html.j2' -%}
                 {%- endwith -%}
@@ -29,10 +30,10 @@
         {%- if formatted_start or formatted_end -%}
             <dl>
                 {%- if formatted_start -%}
-                    <div><dt>{{ entity.start.event.type.label(app.localizer) }}</dt><dd>{{ formatted_start }}</dd></div>
+                    <div><dt>{{ entity.start.event.event_type.label(app.localizer) }}</dt><dd>{{ formatted_start }}</dd></div>
                 {%- endif -%}
                 {%- if formatted_end -%}
-                    <div><dt>{{ entity.end.event.type.label(app.localizer) }}</dt><dd>{{ formatted_end }}</dd></div>
+                    <div><dt>{{ entity.end.event.event_type.label(app.localizer) }}</dt><dd>{{ formatted_end }}</dd></div>
                 {%- endif -%}
             </dl>
         {%- endif -%}

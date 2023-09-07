@@ -1,4 +1,5 @@
 from betty.extension import CottonCandy
+from betty.jinja2 import EntityContexts
 from betty.model.ancestry import PlaceName, Place, Enclosure
 from betty.tests import TemplateTestCase
 
@@ -36,7 +37,7 @@ class Test(TemplateTestCase):
         expected = '<div class="meta">in <address><a href="/place/P1/index.html"><span>The Enclosing Place</span></a></address></div>'
         with self._render(data={
             'entity': place,
-            'place_context': all_enclosing_place,
+            'entity_contexts': EntityContexts(all_enclosing_place),
         }) as (actual, _):
             assert expected == actual
 
@@ -50,6 +51,6 @@ class Test(TemplateTestCase):
         expected = '<div class="meta">in <address><a href="/place/P1/index.html"><span>The Enclosing Place</span></a></address>, <address><a href="/place/P2/index.html"><span>The All-enclosing Place</span></a></address></div>'
         with self._render(data={
             'entity': place,
-            'place_context': unrelated_place,
+            'entity_contexts': EntityContexts(unrelated_place),
         }) as (actual, _):
             assert expected == actual

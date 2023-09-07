@@ -1,4 +1,5 @@
 from betty.extension import CottonCandy
+from betty.jinja2 import EntityContexts
 from betty.model.ancestry import Person, PersonName
 from betty.tests import TemplateTestCase
 
@@ -9,7 +10,7 @@ class Test(TemplateTestCase):
 
     def test_with_name(self) -> None:
         person = Person('P0')
-        PersonName(person, 'Jane', 'Dough')
+        PersonName(None, person, 'Jane', 'Dough')
         expected = '<a href="/person/P0/index.html"><span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span> <span property="foaf:familyName">Dough</span></span></a>'
         with self._render(data={
             'entity': person,
@@ -38,7 +39,7 @@ class Test(TemplateTestCase):
         expected = '<span class="nn" title="This person\'s name is unknown.">n.n.</span>'
         with self._render(data={
             'entity': person,
-            'person_context': person,
+            'entity_contexts': EntityContexts(person),
         }) as (actual, _):
             assert expected == actual
 
@@ -53,7 +54,7 @@ class Test(TemplateTestCase):
 
     def test_with_entity(self) -> None:
         person = Person('P0')
-        PersonName(person, 'Jane', 'Dough')
+        PersonName(None, person, 'Jane', 'Dough')
         expected = '<a href="/person/P0/index.html"><span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span> <span property="foaf:familyName">Dough</span></span></a>'
         with self._render(data={
             'entity': person,

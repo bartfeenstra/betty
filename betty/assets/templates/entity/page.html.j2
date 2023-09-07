@@ -1,5 +1,6 @@
 {% extends 'base.html.j2' %}
 {% set page_title = entity.label %}
+{% set entity_contexts = entity_contexts(entity) %}
 {% do breadcrumbs.append(
     entity_type.entity_type_label_plural(app.localizer),
     entity_type | entity_type_name | camel_case_to_kebab_case | url(absolute=true)

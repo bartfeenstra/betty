@@ -3,44 +3,55 @@ from __future__ import annotations
 import pytest
 
 from betty.deriver import Deriver
-from betty.locale import DateRange, Date, Datey
-from betty.model.ancestry import Person, Presence, Subject, Event
+from betty.locale import DateRange, Date, Datey, Localizer
+from betty.model import record_added
+from betty.model.ancestry import Person, Presence, Subject, Event, Ancestry
 from betty.model.event_type import DerivableEventType, CreatableDerivableEventType, EventType
 
 
-class Ignored(EventType):
+class DeriverTestEventType(EventType):
+    @classmethod
+    def name(cls) -> str:
+        return repr(cls)
+
+    @classmethod
+    def label(cls, localizer: Localizer) -> str:
+        return repr(cls)
+
+
+class Ignored(DeriverTestEventType):
     pass
 
 
-class ComesBeforeReference(EventType):
+class ComesBeforeReference(DeriverTestEventType):
     pass
 
 
-class ComesAfterReference(EventType):
+class ComesAfterReference(DeriverTestEventType):
     pass
 
 
-class ComesBeforeDerivable(DerivableEventType):
+class ComesBeforeDerivable(DeriverTestEventType, DerivableEventType):
     @classmethod
     def comes_before(cls) -> set[type[EventType]]:
         return {ComesBeforeReference}
 
 
-class ComesBeforeCreatableDerivable(CreatableDerivableEventType, ComesBeforeDerivable):
+class ComesBeforeCreatableDerivable(ComesBeforeDerivable, CreatableDerivableEventType):
     pass
 
 
-class ComesAfterDerivable(DerivableEventType):
+class ComesAfterDerivable(DeriverTestEventType, DerivableEventType):
     @classmethod
     def comes_after(cls) -> set[type[EventType]]:
         return {ComesAfterReference}
 
 
-class ComesAfterCreatableDerivable(CreatableDerivableEventType, ComesAfterDerivable):
+class ComesAfterCreatableDerivable(ComesAfterDerivable, CreatableDerivableEventType):
     pass
 
 
-class ComesBeforeAndAfterDerivable(DerivableEventType):
+class ComesBeforeAndAfterDerivable(DeriverTestEventType, DerivableEventType):
     @classmethod
     def comes_before(cls) -> set[type[EventType]]:
         return {Ignored}
@@ -50,11 +61,11 @@ class ComesBeforeAndAfterDerivable(DerivableEventType):
         return {Ignored}
 
 
-class ComesBeforeAndAfterCreatableDerivable(CreatableDerivableEventType, DerivableEventType):
+class ComesBeforeAndAfterCreatableDerivable(DeriverTestEventType, CreatableDerivableEventType):
     pass
 
 
-_EVENT_TYPES: set[type[EventType]] = {
+_EVENT_TYPES: set[type[DerivableEventType]] = {
     ComesBeforeDerivable,
     ComesBeforeCreatableDerivable,
     ComesAfterDerivable,
@@ -64,7 +75,7 @@ _EVENT_TYPES: set[type[EventType]] = {
 }
 
 
-class TestDerive:
+class TestDeriver:
     @pytest.mark.parametrize('event_type', [
         ComesBeforeDerivable,
         ComesBeforeCreatableDerivable,
@@ -73,13 +84,15 @@ class TestDerive:
         ComesBeforeAndAfterDerivable,
         ComesBeforeAndAfterCreatableDerivable,
     ])
-    def test_derive_without_events(self, event_type: type[DerivableEventType]) -> None:
+    async def test_derive_without_events(self, event_type: type[DerivableEventType]) -> None:
         person = Person('P0')
+        ancestry = Ancestry()
+        ancestry.add(person)
 
-        created, updated = Deriver(_EVENT_TYPES).derive_person(person, event_type)
+        with record_added(ancestry) as added:
+            await Deriver(ancestry, _EVENT_TYPES).derive()
 
-        assert 0 == created
-        assert 0 == updated
+        assert 0 == len(added)
         assert 0 == len(person.presences)
 
     @pytest.mark.parametrize('event_type', [
@@ -90,15 +103,17 @@ class TestDerive:
         ComesBeforeAndAfterDerivable,
         ComesBeforeAndAfterCreatableDerivable,
     ])
-    def test_derive_create_derivable_events_without_reference_events(self, event_type: type[DerivableEventType]) -> None:
+    async def test_derive_create_derivable_events_without_reference_events(self, event_type: type[DerivableEventType]) -> None:
         person = Person('P0')
         derivable_event = Event(None, Ignored)
-        Presence(person, Subject(), derivable_event)
+        Presence(None, person, Subject(), derivable_event)
+        ancestry = Ancestry()
+        ancestry.add(person)
 
-        created, updated = Deriver(_EVENT_TYPES).derive_person(person, event_type)
+        with record_added(ancestry) as added:
+            await Deriver(ancestry, _EVENT_TYPES).derive()
 
-        assert 0 == created
-        assert 0 == updated
+        assert 0 == len(added)
         assert 1 == len(person.presences)
         assert derivable_event.date is None
 
@@ -110,17 +125,18 @@ class TestDerive:
         ComesBeforeAndAfterDerivable,
         ComesBeforeAndAfterCreatableDerivable,
     ])
-    def test_derive_update_derivable_event_without_reference_events(self, event_type: type[DerivableEventType]) -> None:
+    async def test_derive_update_derivable_event_without_reference_events(self, event_type: type[DerivableEventType]) -> None:
         person = Person('P0')
-        Presence(person, Subject(), Event(None, Ignored))
+        Presence(None, person, Subject(), Event(None, Ignored))
         derivable_event = Event(None, event_type)
-        Presence(person, Subject(), derivable_event)
+        Presence(None, person, Subject(), derivable_event)
+        ancestry = Ancestry()
+        ancestry.add(person)
 
-        created, updated = Deriver(_EVENT_TYPES).derive_person(person, event_type)
+        with record_added(ancestry) as added:
+            await Deriver(ancestry, _EVENT_TYPES).derive()
 
-        assert 0 == created
-        assert 0 == updated
-        assert 2 == len(person.presences)
+        assert 0 == len(added)
         assert derivable_event.date is None
 
     @pytest.mark.parametrize('expected_datey, before_datey, derivable_datey', [
@@ -170,61 +186,63 @@ class TestDerive:
         (DateRange(Date(1969, 1, 1), Date(1969, 12, 31)), DateRange(None, Date(1970, 1, 1)), DateRange(Date(1969, 1, 1), Date(1969, 12, 31))),
         (DateRange(None, Date(1970, 1, 1), end_is_boundary=True), DateRange(Date(1970, 1, 1), Date(1999, 12, 31)), None),
     ])
-    def test_derive_update_comes_before_derivable_event(
+    async def test_derive_update_comes_before_derivable_event(
         self,
         expected_datey: Datey | None,
         before_datey: Datey | None,
         derivable_datey: Datey | None,
     ) -> None:
-        expected_updates = 0 if expected_datey == derivable_datey else 1
         person = Person('P0')
-        Presence(person, Subject(), Event(None, Ignored, Date(0, 0, 0)))
-        Presence(person, Subject(), Event(None, ComesBeforeReference, before_datey))
+        Presence(None, person, Subject(), Event(None, Ignored, Date(0, 0, 0)))
+        Presence(None, person, Subject(), Event(None, ComesBeforeReference, before_datey))
         derivable_event = Event(None, ComesBeforeDerivable, derivable_datey)
-        Presence(person, Subject(), derivable_event)
+        Presence(None, person, Subject(), derivable_event)
+        ancestry = Ancestry()
+        ancestry.add(person)
 
-        created, updated = Deriver(_EVENT_TYPES).derive_person(person, ComesBeforeDerivable)
+        with record_added(ancestry) as added:
+            await Deriver(ancestry, {ComesBeforeDerivable}).derive()
 
-        assert 0 == created
-        assert expected_updates == updated
-        assert 3 == len(person.presences)
-        assert expected_datey == derivable_event.date
+        assert 0 == len(added)
+        if expected_datey is None:
+            assert expected_datey == derivable_event.date
 
     @pytest.mark.parametrize('expected_datey, before_datey', [
         (None, None,),
         (DateRange(None, Date(1970, 1, 1), end_is_boundary=True), Date(1970, 1, 1)),
         (None, DateRange(None, None)),
         (DateRange(None, Date(1970, 1, 1), end_is_boundary=True), DateRange(Date(1970, 1, 1))),
-        (DateRange(None, Date(1970, 1, 1), end_is_boundary=True), DateRange(None, Date(1970, 1, 1))),
+        (None, DateRange(Date(1970, 1, 1, fuzzy=True))),
+        (None, DateRange(None, Date(1970, 1, 1))),
         (DateRange(None, Date(1970, 1, 1), end_is_boundary=True), DateRange(Date(1970, 1, 1), Date(1971, 1, 1))),
     ])
-    def test_derive_create_comes_before_derivable_event(
+    async def test_derive_create_comes_before_derivable_event(
         self,
         expected_datey: Datey | None,
         before_datey: Datey | None,
     ) -> None:
-        expected_creations = 0 if expected_datey is None else 1
         person = Person('P0')
-        Presence(person, Subject(), Event(None, Ignored, Date(0, 0, 0)))
-        Presence(person, Subject(), Event(None, ComesBeforeReference, before_datey))
+        Presence(None, person, Subject(), Event(None, Ignored, Date(0, 0, 0)))
+        Presence(None, person, Subject(), Event(None, ComesBeforeReference, before_datey))
+        ancestry = Ancestry()
+        ancestry.add(person)
 
-        created, updated = Deriver(_EVENT_TYPES).derive_person(person, ComesBeforeCreatableDerivable)
+        with record_added(ancestry) as added:
+            await Deriver(ancestry, {ComesBeforeCreatableDerivable}).derive()
 
-        derived_presences = [
-            presence
-            for presence
-            in person.presences
-            if presence.event is not None and issubclass(presence.event.type, ComesBeforeCreatableDerivable)
-        ]
-        assert expected_creations == len(derived_presences)
-        if expected_creations:
-            derived_presence = derived_presences[0]
-            assert isinstance(derived_presence.role, Subject)
-            assert derived_presence.event is not None
-            assert expected_datey == derived_presence.event.date
-        assert expected_creations == created
-        assert 0 == updated
-        assert 2 + expected_creations == len(person.presences)
+        if expected_datey is None:
+            assert 0 == len(added)
+        else:
+            assert len(added[Event]) > 0
+            for derived_event in added[Event]:
+                assert derived_event.event_type is ComesBeforeCreatableDerivable
+
+            assert len(added[Presence]) > 0
+            for derived_presence in added[Presence]:
+                assert isinstance(derived_presence.role, Subject)
+                assert derived_presence.event is not None
+                assert derived_presence.event.event_type is ComesBeforeCreatableDerivable
+                assert expected_datey == derived_presence.event.date
 
     @pytest.mark.parametrize('expected_datey, after_datey, derivable_datey', [
         (None, None, None),
@@ -273,59 +291,61 @@ class TestDerive:
         (DateRange(Date(1969, 1, 1), Date(1969, 12, 31)), DateRange(None, Date(1970, 1, 1)), DateRange(Date(1969, 1, 1), Date(1969, 12, 31))),
         (DateRange(Date(1999, 12, 31), start_is_boundary=True), DateRange(Date(1970, 1, 1), Date(1999, 12, 31)), None),
     ])
-    def test_derive_update_comes_after_derivable_event(
+    async def test_derive_update_comes_after_derivable_event(
         self,
         expected_datey: Datey | None,
         after_datey: Datey | None,
         derivable_datey: Datey | None,
     ) -> None:
-        expected_updates = 0 if expected_datey == derivable_datey else 1
         person = Person('P0')
-        Presence(person, Subject(), Event(None, Ignored, Date(0, 0, 0)))
-        Presence(person, Subject(), Event(None, ComesAfterReference, after_datey))
+        Presence(None, person, Subject(), Event(None, Ignored, Date(0, 0, 0)))
+        Presence(None, person, Subject(), Event(None, ComesAfterReference, after_datey))
         derivable_event = Event(None, ComesAfterDerivable, derivable_datey)
-        Presence(person, Subject(), derivable_event)
+        Presence(None, person, Subject(), derivable_event)
+        ancestry = Ancestry()
+        ancestry.add(person)
 
-        created, updated = Deriver(_EVENT_TYPES).derive_person(person, ComesAfterDerivable)
+        with record_added(ancestry) as added:
+            await Deriver(ancestry, {ComesAfterDerivable}).derive()
 
-        assert expected_datey == derivable_event.date
-        assert 0 == created
-        assert expected_updates == updated
-        assert 3 == len(person.presences)
+        assert 0 == len(added)
+        if expected_datey is None:
+            assert expected_datey == derivable_event.date
 
     @pytest.mark.parametrize('expected_datey, after_datey', [
         (None, None),
         (None, Date()),
         (DateRange(Date(1970, 1, 1), start_is_boundary=True), Date(1970, 1, 1)),
-        (DateRange(Date(1970, 1, 1), start_is_boundary=True), DateRange(Date(1970, 1, 1))),
+        (None, DateRange(Date(1970, 1, 1))),
         (DateRange(Date(1999, 12, 31), start_is_boundary=True), DateRange(None, Date(1999, 12, 31))),
+        (None, DateRange(None, Date(1999, 12, 31, fuzzy=True))),
         (DateRange(Date(1999, 12, 31), start_is_boundary=True), DateRange(Date(1970, 1, 1), Date(1999, 12, 31))),
         (DateRange(Date(1970, 1, 1), start_is_boundary=True), DateRange(Date(1970, 1, 1), Date(1999, 12, 31), end_is_boundary=True)),
     ])
-    def test_derive_create_comes_after_derivable_event(
+    async def test_derive_create_comes_after_derivable_event(
         self,
         expected_datey: Datey | None,
         after_datey: Datey | None,
     ) -> None:
-        expected_creations = 0 if expected_datey is None else 1
         person = Person('P0')
-        Presence(person, Subject(), Event(None, Ignored, Date(0, 0, 0)))
-        Presence(person, Subject(), Event(None, ComesAfterReference, after_datey))
+        Presence(None, person, Subject(), Event(None, Ignored, Date(0, 0, 0)))
+        Presence(None, person, Subject(), Event(None, ComesAfterReference, after_datey))
+        ancestry = Ancestry()
+        ancestry.add(person)
 
-        created, updated = Deriver(_EVENT_TYPES).derive_person(person, ComesAfterCreatableDerivable)
+        with record_added(ancestry) as added:
+            await Deriver(ancestry, {ComesAfterCreatableDerivable}).derive()
 
-        derived_presences = [
-            presence
-            for presence
-            in person.presences
-            if presence.event is not None and issubclass(presence.event.type, ComesAfterCreatableDerivable)
-        ]
-        assert expected_creations == len(derived_presences)
-        if expected_creations:
-            derived_presence = derived_presences[0]
-            assert isinstance(derived_presence.role, Subject)
-            assert derived_presence.event is not None
-            assert expected_datey == derived_presence.event.date
-        assert expected_creations == created
-        assert 0 == updated
-        assert 2 + expected_creations == len(person.presences)
+        if expected_datey is None:
+            assert 0 == len(added)
+        else:
+            assert len(added[Event]) > 0
+            for derived_event in added[Event]:
+                assert derived_event.event_type is ComesAfterCreatableDerivable
+
+            assert len(added[Presence]) > 0
+            for derived_presence in added[Presence]:
+                assert isinstance(derived_presence.role, Subject)
+                assert derived_presence.event is not None
+                assert derived_presence.event.event_type is ComesAfterCreatableDerivable
+                assert expected_datey == derived_presence.event.date

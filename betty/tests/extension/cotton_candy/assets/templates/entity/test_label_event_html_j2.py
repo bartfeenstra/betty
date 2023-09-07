@@ -1,4 +1,5 @@
 from betty.extension import CottonCandy
+from betty.jinja2 import EntityContexts
 from betty.model.ancestry import Person, Event, Presence, Subject, Witness
 from betty.model.event_type import Birth, Marriage
 from betty.tests import TemplateTestCase
@@ -26,7 +27,7 @@ class Test(TemplateTestCase):
 
     def test_embedded_with_identifiable(self) -> None:
         event = Event('E0', Birth)
-        Presence(Person('P0'), Subject(), event)
+        Presence(None, Person('P0'), Subject(), event)
         expected = 'Birth of <span class="nn" title="This person\'s name is unknown.">n.n.</span>'
         with self._render(data={
             'entity': event,
@@ -45,32 +46,21 @@ class Test(TemplateTestCase):
 
     def test_with_witnesses(self) -> None:
         event = Event(None, Birth)
-        Presence(Person('P0'), Witness(), event)
+        Presence(None, Person('P0'), Witness(), event)
         expected = 'Birth'
         with self._render(data={
             'entity': event,
-        }) as (actual, _):
-            assert expected == actual
-
-    def test_with_person_context_as_witness(self) -> None:
-        event = Event(None, Birth)
-        person = Person('P0')
-        Presence(person, Witness(), event)
-        expected = 'Birth (Witness)'
-        with self._render(data={
-            'entity': event,
-            'person_context': person,
         }) as (actual, _):
             assert expected == actual
 
     def test_with_person_context_as_subject(self) -> None:
         event = Event(None, Birth)
         person = Person('P0')
-        Presence(person, Subject(), event)
+        Presence(None, person, Subject(), event)
         expected = 'Birth'
         with self._render(data={
             'entity': event,
-            'person_context': person,
+            'entity_contexts': EntityContexts(person),
         }) as (actual, _):
             assert expected == actual
 
@@ -78,19 +68,19 @@ class Test(TemplateTestCase):
         event = Event(None, Marriage)
         person = Person('P0')
         other_person = Person('P1')
-        Presence(person, Subject(), event)
-        Presence(other_person, Subject(), event)
+        Presence(None, person, Subject(), event)
+        Presence(None, other_person, Subject(), event)
         expected = 'Marriage with <a href="/person/P1/index.html"><span class="nn" title="This person\'s name is unknown.">n.n.</span></a>'
         with self._render(data={
             'entity': event,
-            'person_context': person,
+            'entity_contexts': EntityContexts(person),
         }) as (actual, _):
             assert expected == actual
 
     def test_with_subjects(self) -> None:
         event = Event(None, Birth)
-        Presence(Person('P0'), Subject(), event)
-        Presence(Person('P1'), Subject(), event)
+        Presence(None, Person('P0'), Subject(), event)
+        Presence(None, Person('P1'), Subject(), event)
         expected = 'Birth of <a href="/person/P0/index.html"><span class="nn" title="This person\'s name is unknown.">n.n.</span></a>, <a href="/person/P1/index.html"><span class="nn" title="This person\'s name is unknown.">n.n.</span></a>'
         with self._render(data={
             'entity': event,

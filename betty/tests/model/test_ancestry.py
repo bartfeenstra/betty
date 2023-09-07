@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any
-from unittest.mock import Mock
 
 import dill
 import pytest
@@ -12,7 +13,8 @@ from betty.media_type import MediaType
 from betty.model import Entity, one_to_one
 from betty.model.ancestry import Person, Event, Place, File, Note, Presence, PlaceName, PersonName, Subject, \
     Enclosure, Described, Dated, HasPrivacy, HasMediaType, Link, HasLinks, HasNotes, HasFiles, Source, Citation, \
-    HasCitations, PresenceRole, Attendee, Beneficiary, Witness, Ancestry
+    HasCitations, PresenceRole, Attendee, Beneficiary, Witness, Ancestry, is_private, is_public, Privacy, \
+    merge_privacies
 from betty.model.event_type import Burial, Birth, UnknownEventType
 
 
@@ -25,7 +27,49 @@ class TestHasPrivacy:
         class _HasPrivacy(HasPrivacy):
             pass
         sut = _HasPrivacy()
-        assert sut.private is None
+        assert sut.privacy is Privacy.UNDETERMINED
+
+
+class _HasPrivacy(HasPrivacy, Entity):
+    def __init__(self, privacy: Privacy):
+        super().__init__(None)
+        self._privacy = privacy
+
+
+class TestIsPrivate:
+    @pytest.mark.parametrize('expected, target', [
+        (True, _HasPrivacy(Privacy.PRIVATE)),
+        (False, _HasPrivacy(Privacy.PUBLIC)),
+        (False, _HasPrivacy(Privacy.UNDETERMINED)),
+        (False, object()),
+    ])
+    def test(self, expected: bool, target: Any) -> None:
+        assert expected == is_private(target)
+
+
+class TestIsPublic:
+    @pytest.mark.parametrize('expected, target', [
+        (False, _HasPrivacy(Privacy.PRIVATE)),
+        (True, _HasPrivacy(Privacy.PUBLIC)),
+        (True, _HasPrivacy(Privacy.UNDETERMINED)),
+        (True, object()),
+    ])
+    def test(self, expected: bool, target: Any) -> None:
+        assert expected == is_public(target)
+
+
+class TestMergePrivacies:
+    @pytest.mark.parametrize('expected, privacies', [
+        (Privacy.PUBLIC, (Privacy.PUBLIC,)),
+        (Privacy.UNDETERMINED, (Privacy.UNDETERMINED,)),
+        (Privacy.PRIVATE, (Privacy.PRIVATE,)),
+        (Privacy.UNDETERMINED, (Privacy.PUBLIC, Privacy.UNDETERMINED)),
+        (Privacy.PRIVATE, (Privacy.PUBLIC, Privacy.PRIVATE)),
+        (Privacy.PRIVATE, (Privacy.UNDETERMINED, Privacy.PRIVATE)),
+        (Privacy.PRIVATE, (Privacy.PUBLIC, Privacy.UNDETERMINED, Privacy.PRIVATE)),
+    ])
+    def test(self, expected: Privacy, privacies: tuple[Privacy]) -> None:
+        assert expected == merge_privacies(*privacies)
 
 
 class TestDated:
@@ -129,10 +173,9 @@ class TestFile:
         file_id = 'BETTY01'
         file_path = Path('~')
         sut = File(file_id, file_path)
-        assert sut.private is None
-        private = True
-        sut.private = private
-        assert private == sut.private
+        assert sut.privacy is Privacy.UNDETERMINED
+        sut.private = True
+        assert sut.private is True
 
     def test_media_type(self) -> None:
         file_id = 'BETTY01'
@@ -195,7 +238,7 @@ class TestHasFiles:
     def test_files(self) -> None:
         sut = _HasFiles()
         assert [] == list(sut.files)
-        files = [Mock(File), Mock(File)]
+        files = [File(None, Path()), File(None, Path())]
         sut.files = files  # type: ignore[assignment]
         assert files == list(sut.files)
 
@@ -257,10 +300,9 @@ class TestSource:
 
     def test_private(self) -> None:
         sut = Source(None)
-        assert sut.private is None
-        private = True
-        sut.private = private
-        assert private == sut.private
+        assert sut.privacy is Privacy.UNDETERMINED
+        sut.private = True
+        assert sut.private is True
 
 
 class _HasCitations(HasCitations, Entity):
@@ -302,10 +344,9 @@ class TestCitation:
 
     def test_private(self) -> None:
         sut = Citation(None, Source(None))
-        assert sut.private is None
-        private = True
-        sut.private = private
-        assert private == sut.private
+        assert sut.privacy is Privacy.UNDETERMINED
+        sut.private = True
+        assert sut.private is True
 
 
 class TestHasCitations:
@@ -353,20 +394,20 @@ class TestPlaceName:
 
 class TestEnclosure:
     def test_encloses(self) -> None:
-        encloses = Mock(Place)
-        enclosed_by = Mock(Place)
+        encloses = Place(None, [])
+        enclosed_by = Place(None, [])
         sut = Enclosure(encloses, enclosed_by)
         assert encloses == sut.encloses
 
     def test_enclosed_by(self) -> None:
-        encloses = Mock(Place)
-        enclosed_by = Mock(Place)
+        encloses = Place(None, [])
+        enclosed_by = Place(None, [])
         sut = Enclosure(encloses, enclosed_by)
         assert enclosed_by == sut.enclosed_by
 
     def test_date(self) -> None:
-        encloses = Mock(Place)
-        enclosed_by = Mock(Place)
+        encloses = Place(None, [])
+        enclosed_by = Place(None, [])
         sut = Enclosure(encloses, enclosed_by)
         date = Date()
         assert sut.date is None
@@ -374,8 +415,8 @@ class TestEnclosure:
         assert date == sut.date
 
     def test_citations(self) -> None:
-        encloses = Mock(Place)
-        enclosed_by = Mock(Place)
+        encloses = Place(None, [])
+        enclosed_by = Place(None, [])
         sut = Enclosure(encloses, enclosed_by)
         citation = Citation(None, Source(None))
         assert sut.date is None
@@ -484,18 +525,18 @@ class TestAttendee:
 
 class TestPresence:
     def test_person(self) -> None:
-        person = Mock(Person)
-        sut = Presence(person, Mock(PresenceRole), Event(None, UnknownEventType))
+        person = Person(None)
+        sut = Presence(None, person, PresenceRole(), Event(None, UnknownEventType))
         assert person == sut.person
 
     def test_event(self) -> None:
-        role = Mock(PresenceRole)
-        sut = Presence(Mock(Person), role, Event(None, UnknownEventType))
+        role = PresenceRole()
+        sut = Presence(None, Person(None), role, Event(None, UnknownEventType))
         assert role == sut.role
 
     def test_role(self) -> None:
         event = Event(None, UnknownEventType)
-        sut = Presence(Mock(Person), Mock(PresenceRole), event)
+        sut = Presence(None, Person(None), PresenceRole(), event)
         assert event == sut.event
 
 
@@ -518,7 +559,7 @@ class TestEvent:
     def test_presences(self) -> None:
         person = Person('P1')
         sut = Event(None, UnknownEventType)
-        presence = Presence(person, Subject(), sut)
+        presence = Presence(None, person, Subject(), sut)
         sut.presences.add(presence)
         assert [presence] == list(sut.presences)
         assert sut == presence.event
@@ -529,7 +570,7 @@ class TestEvent:
     def test_date(self) -> None:
         sut = Event(None, UnknownEventType)
         assert sut.date is None
-        date = Mock(Date)
+        date = Date()
         sut.date = date
         assert date == sut.date
 
@@ -547,18 +588,18 @@ class TestEvent:
 
     def test_private(self) -> None:
         sut = Event(None, UnknownEventType)
-        assert sut.private is None
+        assert sut.privacy is Privacy.UNDETERMINED
 
-    def test_type(self) -> None:
+    def test_event_type(self) -> None:
         event_type = UnknownEventType
         sut = Event(None, event_type)
-        assert event_type == sut.type
+        assert event_type == sut.event_type
 
     def test_associated_files(self) -> None:
-        file1 = Mock(File)
-        file2 = Mock(File)
-        file3 = Mock(File)
-        file4 = Mock(File)
+        file1 = File(None, Path())
+        file2 = File(None, Path())
+        file3 = File(None, Path())
+        file4 = File(None, Path())
         sut = Event(None, UnknownEventType)
         sut.files = [file1, file2, file1]  # type: ignore[assignment]
         citation = Citation(None, Source(None))
@@ -570,52 +611,31 @@ class TestEvent:
 class TestPersonName:
     def test_person(self) -> None:
         person = Person('1')
-        sut = PersonName(person, 'Janet', 'Not a Girl')
+        sut = PersonName(None, person, 'Janet', 'Not a Girl')
         assert person == sut.person
         assert [sut] == list(person.names)
 
     def test_locale(self) -> None:
         person = Person('1')
-        sut = PersonName(person, 'Janet', 'Not a Girl')
+        sut = PersonName(None, person, 'Janet', 'Not a Girl')
         assert sut.locale is None
 
     def test_citations(self) -> None:
         person = Person('1')
-        sut = PersonName(person, 'Janet', 'Not a Girl')
+        sut = PersonName(None, person, 'Janet', 'Not a Girl')
         assert [] == list(sut.citations)
 
     def test_individual(self) -> None:
         person = Person('1')
         individual = 'Janet'
-        sut = PersonName(person, individual, 'Not a Girl')
+        sut = PersonName(None, person, individual, 'Not a Girl')
         assert individual == sut.individual
 
     def test_affiliation(self) -> None:
         person = Person('1')
         affiliation = 'Not a Girl'
-        sut = PersonName(person, 'Janet', affiliation)
+        sut = PersonName(None, person, 'Janet', affiliation)
         assert affiliation == sut.affiliation
-
-    @pytest.mark.parametrize('expected, left, right', [
-        (True, PersonName(Person('1'), 'Janet', 'Not a Girl'), PersonName(Person('1'), 'Janet', 'Not a Girl')),
-        (True, PersonName(Person('1'), 'Janet'), PersonName(Person('1'), 'Janet')),
-        (True, PersonName(Person('1'), None, 'Not a Girl'), PersonName(Person('1'), None, 'Not a Girl')),
-        (False, PersonName(Person('1'), 'Janet'), PersonName(Person('1'), None, 'Not a Girl')),
-        (False, PersonName(Person('1'), 'Janet', 'Not a Girl'), None),
-        (False, PersonName(Person('1'), 'Janet', 'Not a Girl'), True),
-        (False, PersonName(Person('1'), 'Janet', 'Not a Girl'), 9),
-        (False, PersonName(Person('1'), 'Janet', 'Not a Girl'), object()),
-    ])
-    def test_eq(self, expected: bool, left: PersonName, right: Any) -> None:
-        assert expected == (left == right)
-
-    @pytest.mark.parametrize('expected, left, right', [
-        (False, PersonName(Person('1'), 'Janet', 'Not a Girl'), PersonName(Person('1'), 'Janet', 'Not a Girl')),
-        (True, PersonName(Person('1'), 'Janet', 'Not a Girl'), PersonName(Person('1'), 'Not a Girl', 'Janet')),
-        (True, PersonName(Person('1'), 'Janet', 'Not a Girl'), None),
-    ])
-    def test_gt(self, expected: bool, left: PersonName, right: Any) -> None:
-        assert expected == (left > right)
 
 
 class TestPerson:
@@ -642,7 +662,7 @@ class TestPerson:
     def test_presences(self) -> None:
         event = Event(None, Birth)
         sut = Person('1')
-        presence = Presence(sut, Subject(), event)
+        presence = Presence(None, sut, Subject(), event)
         sut.presences.add(presence)
         assert [presence] == list(sut.presences)
         assert sut == presence.person
@@ -652,7 +672,7 @@ class TestPerson:
 
     def test_names(self) -> None:
         sut = Person('1')
-        name = PersonName(sut, 'Janet', 'Not a Girl')
+        name = PersonName(None, sut, 'Janet', 'Not a Girl')
         assert [name] == list(sut.names)
         assert sut == name.person
         sut.names.remove(name)
@@ -678,11 +698,11 @@ class TestPerson:
 
     def test_private(self) -> None:
         sut = Person('1')
-        assert sut.private is None
+        assert sut.privacy is Privacy.UNDETERMINED
 
     def test_name_with_names(self) -> None:
         sut = Person('P1')
-        name = PersonName(sut, 'Janet')
+        name = PersonName(None, sut, 'Janet')
         assert name == sut.name
 
     def test_name_without_names(self) -> None:
@@ -690,18 +710,18 @@ class TestPerson:
 
     def test_alternative_names(self) -> None:
         sut = Person('P1')
-        PersonName(sut, 'Janet', 'Not a Girl')
-        alternative_name = PersonName(sut, 'Janet', 'Still not a Girl')
+        PersonName(None, sut, 'Janet', 'Not a Girl')
+        alternative_name = PersonName(None, sut, 'Janet', 'Still not a Girl')
         assert [alternative_name] == list(sut.alternative_names)
 
     def test_start(self) -> None:
         sut = Person('P1')
-        start = Presence(sut, Subject(), Event(None, Birth))
+        start = Presence(None, sut, Subject(), Event(None, Birth))
         assert start == sut.start
 
     def test_end(self) -> None:
         sut = Person('P1')
-        end = Presence(sut, Subject(), Event(None, Burial))
+        end = Presence(None, sut, Subject(), Event(None, Burial))
         assert end == sut.end
 
     def test_siblings_without_parents(self) -> None:
@@ -723,49 +743,60 @@ class TestPerson:
         assert [sibling] == list(sut.siblings)
 
     def test_associated_files(self) -> None:
-        file1 = Mock(File)
-        file2 = Mock(File)
-        file3 = Mock(File)
-        file4 = Mock(File)
-        file5 = Mock(File)
-        file6 = Mock(File)
+        file1 = File(None, Path())
+        file2 = File(None, Path())
+        file3 = File(None, Path())
+        file4 = File(None, Path())
+        file5 = File(None, Path())
+        file6 = File(None, Path())
         sut = Person('1')
         sut.files = [file1, file2, file1]  # type: ignore[assignment]
         citation = Citation(None, Source(None))
         citation.files = [file3, file4, file2]  # type: ignore[assignment]
-        name = PersonName(sut, 'Janet')
+        name = PersonName(None, sut, 'Janet')
         name.citations = [citation]  # type: ignore[assignment]
         event = Event(None, UnknownEventType)
         event.files = [file5, file6, file4]  # type: ignore[assignment]
-        Presence(sut, Subject(), event)
+        Presence(None, sut, Subject(), event)
         assert [file1, file2, file3, file4, file5, file6], list(sut.associated_files)
 
 
+@one_to_one('one_right', 'betty.tests.model.test_ancestry._TestAncestry_OneToOne_Right', 'one_left')
+class _TestAncestry_OneToOne_Left(Entity):
+    one_right: '_TestAncestry_OneToOne_Right | None'
+
+
+@one_to_one('one_left', 'betty.tests.model.test_ancestry._TestAncestry_OneToOne_Left', 'one_right')
+class _TestAncestry_OneToOne_Right(Entity):
+    one_left: '_TestAncestry_OneToOne_Left | None'
+
+
 class TestAncestry:
-    @one_to_one['TestAncestry._OneToOne_Right', 'TestAncestry._OneToOne_Left']('one_right', 'one_left')
-    class _OneToOne_Left(Entity):
-        one_right: 'TestAncestry._OneToOne_Right | None'
-
-    @one_to_one['TestAncestry._OneToOne_Left', 'TestAncestry._OneToOne_Right']('one_left', 'one_right')
-    class _OneToOne_Right(Entity):
-        one_left: 'TestAncestry._OneToOne_Left | None'
-
     def test_pickle(self) -> None:
         sut = Ancestry()
-        left = self._OneToOne_Left()
-        right = self._OneToOne_Right()
+        left = _TestAncestry_OneToOne_Left()
+        right = _TestAncestry_OneToOne_Right()
         left.one_right = right
         sut.add(left)
         unpickled_sut = dill.loads(dill.dumps(sut))
         assert 2 == len(unpickled_sut)
-        assert left.id == unpickled_sut[self._OneToOne_Left][0].id
-        assert right.id == unpickled_sut[self._OneToOne_Right][0].id
+        assert left.id == unpickled_sut[_TestAncestry_OneToOne_Left][0].id
+        assert right.id == unpickled_sut[_TestAncestry_OneToOne_Right][0].id
 
-    def test_add_associates_on_add(self) -> None:
+    def test_add_(self) -> None:
         sut = Ancestry()
-        left = self._OneToOne_Left()
-        right = self._OneToOne_Right()
+        left = _TestAncestry_OneToOne_Left()
+        right = _TestAncestry_OneToOne_Right()
         left.one_right = right
         sut.add(left)
         assert left in sut
         assert right in sut
+
+    def test_add_unchecked_graph(self) -> None:
+        sut = Ancestry()
+        left = _TestAncestry_OneToOne_Left()
+        right = _TestAncestry_OneToOne_Right()
+        left.one_right = right
+        sut.add_unchecked_graph(left)
+        assert left in sut
+        assert right not in sut

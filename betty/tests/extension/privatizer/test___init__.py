@@ -13,7 +13,7 @@ from betty.project import ExtensionConfiguration
 class TestPrivatizer:
     async def test_post_load(self) -> None:
         person = Person('P0')
-        Presence(person, Subject(), Event(None, Birth))
+        Presence(None, person, Subject(), Event(None, Birth))
 
         source_file = File('F0', Path(__file__))
         source = Source('S0', 'The Source')

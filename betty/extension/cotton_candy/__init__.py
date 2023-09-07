@@ -4,7 +4,7 @@ import logging
 import re
 from pathlib import Path
 from shutil import copy2
-from typing import Any
+from typing import Any, Callable, Iterable, cast
 
 from PyQt6.QtWidgets import QWidget
 from reactives.instance import ReactiveInstance
@@ -14,12 +14,14 @@ from typing_extensions import Self
 from betty.app.extension import ConfigurableExtension, Extension, Theme
 from betty.config import Configuration
 from betty.extension.cotton_candy.search import Index
+from betty.functools import walk
 from betty.generate import Generator
 from betty.gui import GuiBuilder
 from betty.jinja2 import Jinja2Provider
-from betty.locale import Localizer
+from betty.locale import Localizer, Date, Datey
 from betty.model import Entity, UserFacingEntity
 from betty.extension.npm import _Npm, NpmBuilder, npm
+from betty.model.ancestry import Event, Person, Presence, is_public
 from betty.project import EntityReferenceSequence
 from betty.serde.dump import minimize, Dump, VoidableDump
 from betty.serde.load import AssertionFailed, Fields, Assertions, OptionalField, Asserter
@@ -188,6 +190,15 @@ class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Gener
             'search_index': lambda: Index(self.app).build(),
         }
 
+    @property
+    def filters(self) -> dict[str, Callable[..., Any]]:
+        return {
+            'person_timeline_events': lambda person: person_timeline_events(
+                person,
+                self.app.project.configuration.lifetime_threshold
+            ),
+        }
+
     async def npm_build(self, working_directory_path: Path, assets_directory_path: Path) -> None:
         await self.app.extensions[_Npm].install(type(self), working_directory_path)
         await npm(('run', 'webpack'), cwd=working_directory_path)
@@ -202,3 +213,101 @@ class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Gener
     async def generate(self) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
         self._copy_npm_build(assets_directory_path, self.app.static_www_directory_path)
+
+
+def _is_person_timeline_presence(presence: Presence) -> bool:
+    if presence.private:
+        return False
+    if not presence.event:
+        return False
+    if not presence.event.date:
+        return False
+    if not presence.event.date.comparable:
+        return False
+    return True
+
+
+def person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable[Event]:
+    # Collect all associated events for a person.
+    # Start with the person's own events for which their presence is public.
+    for presence in person.presences:
+        if _is_person_timeline_presence(presence):
+            yield cast(Event, presence.event)
+        continue
+
+    # If the person has start- or end-of-life events, we use those to constrain associated people's events.
+    start_date = None
+    end_date = None
+    if person.start and _is_person_timeline_presence(person.start):
+        start_date = cast(Event, person.start.event).date
+    if person.end and _is_person_timeline_presence(person.end):
+        end_date = cast(Event, person.end.event).date
+
+    # If an end-of-life event exists, but no start-of-life event, create a start-of-life date based on the end date,
+    # minus the lifetime threshold.
+    if not start_date and end_date:
+        if isinstance(end_date, Date):
+            start_date_reference = end_date
+        else:
+            if end_date.end and end_date.end.comparable:
+                start_date_reference = end_date.end
+            else:
+                start_date_reference = cast(Date, end_date.start)
+        start_date = Date(
+            cast(int, start_date_reference.year) - lifetime_threshold,
+            start_date_reference.month,
+            start_date_reference.day,
+            start_date_reference.fuzzy,
+        )
+
+    # If a start-of-life event exists, but no end-of-life event, create an end-of-life date based on the start date,
+    # plus the lifetime threshold.
+    if not end_date and start_date:
+        if isinstance(start_date, Date):
+            end_date_reference = start_date
+        else:
+            if start_date.start and start_date.start.comparable:
+                end_date_reference = start_date.start
+            else:
+                end_date_reference = cast(Date, start_date.end)
+        end_date = Date(
+            cast(int, end_date_reference.year) + lifetime_threshold,
+            end_date_reference.month,
+            end_date_reference.day,
+            end_date_reference.fuzzy,
+        )
+
+    if not start_date or not end_date:
+        reference_dates = list(sorted(
+            cast(Datey, cast(Event, presence.event).date)
+            for presence
+            in person.presences
+            if _is_person_timeline_presence(presence)
+        ))
+        if reference_dates:
+            if not start_date:
+                start_date = reference_dates[0]
+            if not end_date:
+                end_date = reference_dates[-1]
+
+    if start_date and end_date:
+        associated_people = filter(is_public, (
+            # All ancestors.
+            *walk(person, 'parents'),
+            # All descendants.
+            *walk(person, 'children'),
+            # All siblings.
+            *person.siblings,
+        ))
+        for associated_person in associated_people:
+            # For associated events, we are only interested in people's start- or end-of-life events.
+            for associated_presence in (associated_person.start, associated_person.end):
+                if associated_presence is None:
+                    continue
+                if not _is_person_timeline_presence(associated_presence):
+                    continue
+                if cast(Event, associated_presence.event).date < start_date:
+                    continue
+                if cast(Event, associated_presence.event).date > end_date:
+                    continue
+                yield cast(Event, associated_presence.event)

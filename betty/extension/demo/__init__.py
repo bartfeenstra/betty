@@ -78,13 +78,13 @@ class _Demo(Extension, Loader):
 
         david_marinus_lankester = Person('betty-demo-david-marinus-lankester')
         self._load(
-            PersonName(david_marinus_lankester, 'David Marinus', 'Lankester'),
+            PersonName(None, david_marinus_lankester, 'David Marinus', 'Lankester'),
             david_marinus_lankester,
         )
 
         geertruida_van_ling = Person('betty-demo-geertruida-van-ling')
         self._load(
-            PersonName(geertruida_van_ling, 'Geertruida', 'Van Ling'),
+            PersonName(None, geertruida_van_ling, 'Geertruida', 'Van Ling'),
             geertruida_van_ling,
         )
 
@@ -102,10 +102,10 @@ class _Demo(Extension, Loader):
 
         dirk_jacobus_lankester = Person('betty-demo-dirk-jacobus-lankester')
         self._load(
-            PersonName(dirk_jacobus_lankester, 'Dirk Jacobus', 'Lankester'),
-            Presence(dirk_jacobus_lankester, Subject(), birth_of_dirk_jacobus_lankester),
-            Presence(dirk_jacobus_lankester, Subject(), death_of_dirk_jacobus_lankester),
-            Presence(dirk_jacobus_lankester, Subject(), marriage_of_dirk_jacobus_lankester_and_jannigje_palsen),
+            PersonName(None, dirk_jacobus_lankester, 'Dirk Jacobus', 'Lankester'),
+            Presence(None, dirk_jacobus_lankester, Subject(), birth_of_dirk_jacobus_lankester),
+            Presence(None, dirk_jacobus_lankester, Subject(), death_of_dirk_jacobus_lankester),
+            Presence(None, dirk_jacobus_lankester, Subject(), marriage_of_dirk_jacobus_lankester_and_jannigje_palsen),
         )
         dirk_jacobus_lankester.parents.add(david_marinus_lankester, geertruida_van_ling)
         self._load(dirk_jacobus_lankester)
@@ -120,9 +120,9 @@ class _Demo(Extension, Loader):
 
         marinus_david_lankester = Person('betty-demo-marinus-david-lankester')
         self._load(
-            PersonName(marinus_david_lankester, 'Marinus David', 'Lankester'),
-            Presence(marinus_david_lankester, Subject(), birth_of_marinus_david_lankester),
-            Presence(marinus_david_lankester, Subject(), death_of_marinus_david_lankester),
+            PersonName(None, marinus_david_lankester, 'Marinus David', 'Lankester'),
+            Presence(None, marinus_david_lankester, Subject(), birth_of_marinus_david_lankester),
+            Presence(None, marinus_david_lankester, Subject(), death_of_marinus_david_lankester),
         )
         marinus_david_lankester.parents.add(david_marinus_lankester, geertruida_van_ling)
         self._load(marinus_david_lankester)
@@ -133,16 +133,16 @@ class _Demo(Extension, Loader):
 
         jacoba_gesina_lankester = Person('betty-demo-jacoba-gesina-lankester')
         self._load(
-            PersonName(jacoba_gesina_lankester, 'Jacoba Gesina', 'Lankester'),
-            Presence(jacoba_gesina_lankester, Subject(), birth_of_jacoba_gesina_lankester),
+            PersonName(None, jacoba_gesina_lankester, 'Jacoba Gesina', 'Lankester'),
+            Presence(None, jacoba_gesina_lankester, Subject(), birth_of_jacoba_gesina_lankester),
         )
         jacoba_gesina_lankester.parents.add(david_marinus_lankester, geertruida_van_ling)
         self._load(jacoba_gesina_lankester)
 
         jannigje_palsen = Person('betty-demo-jannigje-palsen')
         self._load(
-            PersonName(jannigje_palsen, 'Jannigje', 'Palsen'),
-            Presence(jannigje_palsen, Subject(), marriage_of_dirk_jacobus_lankester_and_jannigje_palsen),
+            PersonName(None, jannigje_palsen, 'Jannigje', 'Palsen'),
+            Presence(None, jannigje_palsen, Subject(), marriage_of_dirk_jacobus_lankester_and_jannigje_palsen),
             jannigje_palsen,
         )
 
@@ -166,11 +166,11 @@ class _Demo(Extension, Loader):
 
         liberta_lankester = Person('betty-demo-liberta-lankester')
         self._load(
-            PersonName(liberta_lankester, 'Liberta', 'Lankester'),
-            PersonName(liberta_lankester, 'Betty'),
-            Presence(liberta_lankester, Subject(), birth_of_liberta_lankester),
-            Presence(liberta_lankester, Subject(), death_of_liberta_lankester),
-            Presence(liberta_lankester, Subject(), marriage_of_johan_de_boer_and_liberta_lankester),
+            PersonName(None, liberta_lankester, 'Liberta', 'Lankester'),
+            PersonName(None, liberta_lankester, 'Betty'),
+            Presence(None, liberta_lankester, Subject(), birth_of_liberta_lankester),
+            Presence(None, liberta_lankester, Subject(), death_of_liberta_lankester),
+            Presence(None, liberta_lankester, Subject(), marriage_of_johan_de_boer_and_liberta_lankester),
         )
         liberta_lankester.parents.add(dirk_jacobus_lankester, jannigje_palsen)
         self._load(liberta_lankester)
@@ -186,21 +186,21 @@ class _Demo(Extension, Loader):
 
         johan_de_boer = Person('betty-demo-johan-de-boer')
         self._load(
-            PersonName(johan_de_boer, 'Johan', 'De Boer'),
-            PersonName(johan_de_boer, 'Hans'),
-            Presence(johan_de_boer, Subject(), birth_of_johan_de_boer),
-            Presence(johan_de_boer, Subject(), death_of_johan_de_boer),
-            Presence(johan_de_boer, Subject(), marriage_of_johan_de_boer_and_liberta_lankester),
+            PersonName(None, johan_de_boer, 'Johan', 'De Boer'),
+            PersonName(None, johan_de_boer, 'Hans'),
+            Presence(None, johan_de_boer, Subject(), birth_of_johan_de_boer),
+            Presence(None, johan_de_boer, Subject(), death_of_johan_de_boer),
+            Presence(None, johan_de_boer, Subject(), marriage_of_johan_de_boer_and_liberta_lankester),
             johan_de_boer,
         )
 
         parent_of_bart_feenstra_child_of_liberta_lankester = Person('betty-demo-parent-of-bart-feenstra-child-of-liberta-lankester')
-        self._load(PersonName(parent_of_bart_feenstra_child_of_liberta_lankester, 'Bart\'s parent'))
+        self._load(PersonName(None, parent_of_bart_feenstra_child_of_liberta_lankester, 'Bart\'s parent'))
         parent_of_bart_feenstra_child_of_liberta_lankester.parents.add(johan_de_boer, liberta_lankester)
         self._load(parent_of_bart_feenstra_child_of_liberta_lankester)
 
         bart_feenstra = Person('betty-demo-bart-feenstra')
-        self._load(PersonName(bart_feenstra, 'Bart', 'Feenstra'))
+        self._load(PersonName(None, bart_feenstra, 'Bart', 'Feenstra'))
         bart_feenstra.parents.add(parent_of_bart_feenstra_child_of_liberta_lankester)
         self._load(bart_feenstra)
 

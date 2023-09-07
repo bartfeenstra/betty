@@ -4,21 +4,10 @@
     <div class="meta">
     {% include ['entity/meta--citation.html.j2', 'entity/meta.html.j2'] ignore missing %}
     </div>
-    {% set files = entity.files %}
-    {% if files | length > 0 %}
-        <section id="media">
-            <h2>
-                {% trans %}Media{% endtrans %}
-                {% with url = page_resource | url ~ '#media'%}
-                    {% include 'permalink.html.j2' %}
-                {% endwith %}
-            </h2>
-            {% with entities = files %}
-                {% include 'entity/list--file.html.j2' %}
-            {% endwith %}
-        </section>
-    {% endif %}
-    {% set facts = entity.facts | reject('has_generated_entity_id') | list %}
+    {% with files = entity.files %}
+        {% include 'media.html.j2' %}
+    {% endwith %}
+    {% set facts = entity.facts | select('public') | reject('has_generated_entity_id') | list %}
     {% if facts | length > 0 %}
         <section id="facts">
             <h2>
@@ -30,7 +19,7 @@
             <ul class="entities">
                 {% for fact in facts %}
                     <li class="{{ loop.cycle('odd', 'even') }}">
-                        {% with entity=fact, citation_context=entity %}
+                        {% with entity=fact, entity_contexts=entity_contexts(entity) %}
                         {% include ['entity/label--' + (entity | entity_type_name | camel_case_to_kebab_case) + '.html.j2', 'entity/label.html.j2'] %}
                         {% include ['entity/meta--' + (entity | entity_type_name | camel_case_to_kebab_case) + '.html.j2', 'entity/meta.html.j2'] ignore missing %}
                         {% endwith %}
