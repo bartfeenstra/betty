@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-08-31 09:38+0100\n"
+"POT-Creation-Date: 2023-09-07 12:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -167,6 +167,9 @@ msgstr ""
 msgid "Betty is unfamiliar with Gramps event \"{event_id}\"'s type of \"{gramps_event_type}\". The event was imported, but its type was set to \"{betty_event_type}\"."
 msgstr ""
 
+msgid "Betty is unfamiliar with person \"{person_id}\"'s Gramps presence role of \"{gramps_presence_role}\" for the event with Gramps handle \"{event_handle}\". The role was imported, but set to \"{betty_presence_role}\"."
+msgstr ""
+
 msgid "Betty project configuration ({supported_formats})"
 msgstr ""
 
@@ -212,6 +215,9 @@ msgstr ""
 msgid "Cannot remove the last remaining locale {locale}"
 msgstr ""
 
+msgid "Celebrant"
+msgstr ""
+
 msgid "Citation"
 msgstr ""
 
@@ -222,6 +228,9 @@ msgid "Clean URLs"
 msgstr ""
 
 msgid "Clear all caches"
+msgstr ""
+
+msgid "Conference"
 msgstr ""
 
 msgid "Configuration"
@@ -523,6 +532,9 @@ msgstr ""
 msgid "Open your project from..."
 msgstr ""
 
+msgid "Organizer"
+msgstr ""
+
 msgid "Other attendees"
 msgstr ""
 
@@ -647,6 +659,9 @@ msgid "Source"
 msgstr ""
 
 msgid "Sources"
+msgstr ""
+
+msgid "Speaker"
 msgstr ""
 
 msgid "Starting Python's built-in web server..."

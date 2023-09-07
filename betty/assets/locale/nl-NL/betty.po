@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-08-31 09:38+0100\n"
+"POT-Creation-Date: 2023-09-07 12:05+0100\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -221,6 +221,13 @@ msgid ""
 "\"{betty_event_type}\"."
 msgstr ""
 
+msgid ""
+"Betty is unfamiliar with person \"{person_id}\"'s Gramps presence role of"
+" \"{gramps_presence_role}\" for the event with Gramps handle "
+"\"{event_handle}\". The role was imported, but set to "
+"\"{betty_presence_role}\"."
+msgstr ""
+
 msgid "Betty project configuration ({supported_formats})"
 msgstr "Betty-projectconfiguratie ({supported_formats})"
 
@@ -282,6 +289,9 @@ msgstr ""
 msgid "Cannot remove the last remaining locale {locale}"
 msgstr "Kan de laatst overgebleven taalregio {locale} niet verwijderen"
 
+msgid "Celebrant"
+msgstr "Ambtenaar"
+
 msgid "Citation"
 msgstr "Verwijzing"
 
@@ -293,6 +303,9 @@ msgstr "Nette URL's"
 
 msgid "Clear all caches"
 msgstr "Leeg alle caches"
+
+msgid "Conference"
+msgstr "Conferentie"
 
 msgid "Configuration"
 msgstr "Instellingen"
@@ -627,6 +640,9 @@ msgstr "Open project..."
 msgid "Open your project from..."
 msgstr "Open je project van..."
 
+msgid "Organizer"
+msgstr "Organisator"
+
 msgid "Other attendees"
 msgstr "Overige aanwezigen"
 
@@ -756,6 +772,9 @@ msgstr "Bron"
 
 msgid "Sources"
 msgstr "Bronnen"
+
+msgid "Speaker"
+msgstr "Spreker"
 
 msgid "Starting Python's built-in web server..."
 msgstr ""

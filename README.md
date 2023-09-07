@@ -216,18 +216,44 @@ For unknown date parts, set those to all zeroes and Betty will ignore them. For 
 
 #### Event types
 
-Betty supports the following custom Gramps event types:
+Betty supports the following Gramps event types:
 
+- `Adopted`
+- `Birth`
+- `Burial`
+- `Baptism`
+- `Conference`
+- `Confirmation`
 - `Correspondence`
+- `Cremation`
+- `Emigration`
+- `Engagement`
+- `Death`
+- `Divorce`
+- `Divorce Filing` (imported as `DivorceAnnouncement`)
 - `Funeral`
+- `Immigration`
+- `Marriage`
+- `Marriage Banns` (imported as `MarriageAnnouncement`)
 - `Missing`
+- `Occupation`
+- `Residence`
 - `Will`
+- `Retirement`
 
 #### Event roles
 
-Betty supports the following custom Gramps event roles:
+Betty supports the following Gramps event roles:
 
+- `Attendee`
 - `Beneficiary`
+- `Celebrant`
+- `Family` (imported as `Subject`)
+- `Organizer`
+- `Primary` (imported as `Subject`)
+- `Speaker`
+- `Unknown` (imported as `Attendee`)
+- `Witness`
 
 #### Order & priority
 

@@ -6,7 +6,7 @@ import tarfile
 from collections import defaultdict
 from contextlib import suppress
 from pathlib import Path
-from typing import Iterable, Any, IO
+from typing import Iterable, Any, IO, cast
 from xml.etree import ElementTree
 
 import aiofiles
@@ -19,10 +19,10 @@ from betty.media_type import MediaType
 from betty.model import Entity, EntityGraphBuilder, AliasedEntity, AliasableEntity
 from betty.model.ancestry import Ancestry, Note, File, Source, Citation, Place, Event, Person, PersonName, Subject, \
     Witness, Beneficiary, Attendee, Presence, PlaceName, Enclosure, HasLinks, Link, HasFiles, HasCitations, \
-    HasMutablePrivacy
+    HasMutablePrivacy, Speaker, Celebrant, Organizer
 from betty.model.event_type import Birth, Baptism, Adoption, Cremation, Death, Funeral, Burial, Will, Engagement, \
     Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, \
-    Retirement, Correspondence, Confirmation, Missing, UnknownEventType, EventType
+    Retirement, Correspondence, Confirmation, Missing, UnknownEventType, EventType, Conference
 from betty.path import rootname
 from betty.tempfile import TemporaryDirectory
 
@@ -391,13 +391,30 @@ class GrampsLoader(Localizable):
         'Family': Subject(),
         'Witness': Witness(),
         'Beneficiary': Beneficiary(),
+        'Speaker': Speaker(),
+        'Celebrant': Celebrant(),
+        'Organizer': Organizer(),
+        'Attendee': Attendee(),
         'Unknown': Attendee(),
     }
 
     def _load_eventref(self, person_id: str, eventref: ElementTree.Element) -> None:
         event_handle = eventref.get('hlink')
-        gramps_presence_role = eventref.get('role')
-        role = self._PRESENCE_ROLE_MAP[gramps_presence_role] if gramps_presence_role in self._PRESENCE_ROLE_MAP else Attendee()
+        gramps_presence_role = cast(str, eventref.get('role'))
+
+        try:
+            role = self._PRESENCE_ROLE_MAP[gramps_presence_role]
+        except KeyError:
+            role = Attendee()
+            getLogger().warning(
+                self.localizer._('Betty is unfamiliar with person "{person_id}"\'s Gramps presence role of "{gramps_presence_role}" for the event with Gramps handle "{event_handle}". The role was imported, but set to "{betty_presence_role}".').format(
+                    person_id=person_id,
+                    event_handle=event_handle,
+                    gramps_presence_role=gramps_presence_role,
+                    betty_presence_role=role.label,
+                )
+            )
+
         presence = Presence(None, None, role, None)
         self.add_entity(presence)
         self.add_association(Presence, presence.id, 'person', Person, person_id)
@@ -476,6 +493,7 @@ class GrampsLoader(Localizable):
         'Correspondence': Correspondence,
         'Confirmation': Confirmation,
         'Missing': Missing,
+        'Conference': Conference,
     }
 
     def _load_event(self, element: ElementTree.Element) -> None:
