@@ -331,3 +331,13 @@ class Missing(DuringLifeEventType):
     @classmethod
     def label(cls, localizer: Localizer) -> str:
         return localizer._('Missing')
+
+
+class Conference(DuringLifeEventType):
+    @classmethod
+    def name(cls) -> str:
+        return 'conference'
+
+    @classmethod
+    def label(cls, localizer: Localizer) -> str:
+        return localizer._('Conference')

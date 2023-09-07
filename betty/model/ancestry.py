@@ -706,6 +706,36 @@ class Attendee(PresenceRole):
         return self.localizer._('Attendee')
 
 
+class Speaker(PresenceRole):
+    @classmethod
+    def name(cls) -> str:
+        return 'speaker'
+
+    @property
+    def label(self) -> str:
+        return self.localizer._('Speaker')
+
+
+class Celebrant(PresenceRole):
+    @classmethod
+    def name(cls) -> str:
+        return 'celebrant'
+
+    @property
+    def label(self) -> str:
+        return self.localizer._('Celebrant')
+
+
+class Organizer(PresenceRole):
+    @classmethod
+    def name(cls) -> str:
+        return 'organizer'
+
+    @property
+    def label(self) -> str:
+        return self.localizer._('Organizer')
+
+
 @many_to_one_to_many(
     'betty.model.ancestry.Person',
     'presences',
