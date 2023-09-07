@@ -1,6 +1,11 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from betty.locale import Localizer
+
+if TYPE_CHECKING:
+    from betty.model.ancestry import Person
 
 
 class EventTypeProvider:
@@ -45,7 +50,9 @@ class DerivableEventType(EventType):
 
 
 class CreatableDerivableEventType(DerivableEventType):
-    pass
+    @classmethod
+    def may_create(cls, person: Person, lifetime_threshold: int) -> bool:
+        return True
 
 
 class PreBirthEventType(EventType):
@@ -124,6 +131,12 @@ class Death(CreatableDerivableEventType, EndOfLifeEventType):
     @classmethod
     def comes_after(cls) -> set[type[EventType]]:
         return {DuringLifeEventType}
+
+    @classmethod
+    def may_create(cls, person: Person, lifetime_threshold: int) -> bool:
+        from betty.privatizer import Privatizer
+
+        return Privatizer(lifetime_threshold).has_expired(person, 1)
 
 
 class FinalDispositionEventType(PostDeathEventType, DerivableEventType, EndOfLifeEventType):

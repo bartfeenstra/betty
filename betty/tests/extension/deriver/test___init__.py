@@ -60,7 +60,7 @@ class TestDeriver:
     async def test_post_load(self) -> None:
         person = Person('P0')
         event = Event(None, Residence)
-        event.date = Date(1970, 1, 1)
+        event.date = Date(1, 1, 1)
         Presence(None, person, Subject(), event)
 
         app = App()
@@ -74,11 +74,11 @@ class TestDeriver:
         assert start is not None
         assert start.event is not None
         assert isinstance(start.event, Event)
-        assert DateRange(None, Date(1970, 1, 1), end_is_boundary=True) == start.event.date
+        assert DateRange(None, Date(1, 1, 1), end_is_boundary=True) == start.event.date
         end = person.end
         assert end is not None
         assert end.event is not None
-        assert DateRange(Date(1970, 1, 1), start_is_boundary=True) == end.event.date
+        assert DateRange(Date(1, 1, 1), start_is_boundary=True) == end.event.date
         assert 2 == len(added[Event])
         assert start.event in added[Event]
         assert end.event in added[Event]

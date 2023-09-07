@@ -16,9 +16,17 @@ class Derivation(Enum):
 
 
 class Deriver(Localizable):
-    def __init__(self, ancestry: Ancestry, derivable_event_types: set[type[DerivableEventType]], *, localizer: Localizer | None = None):
+    def __init__(
+        self,
+        ancestry: Ancestry,
+        lifetime_threshold: int,
+        derivable_event_types: set[type[DerivableEventType]],
+        *,
+        localizer: Localizer | None = None,
+    ):
         super().__init__(localizer=localizer)
         self._ancestry = ancestry
+        self._lifetime_threshold = lifetime_threshold
         self._derivable_event_type = derivable_event_types
 
     async def derive(self) -> None:
@@ -50,7 +58,13 @@ class Deriver(Localizable):
                 person.presences,
             )):
                 return 0, 0
-            if issubclass(derivable_event_type, CreatableDerivableEventType):
+            if issubclass(
+                derivable_event_type,
+                CreatableDerivableEventType,
+            ) and derivable_event_type.may_create(
+                person,
+                self._lifetime_threshold,
+            ):
                 derivable_events = [
                     (Event(None, derivable_event_type), Derivation.CREATE),
                 ]

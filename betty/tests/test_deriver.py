@@ -7,6 +7,7 @@ from betty.locale import DateRange, Date, Datey, Localizer
 from betty.model import record_added
 from betty.model.ancestry import Person, Presence, Subject, Event, Ancestry
 from betty.model.event_type import DerivableEventType, CreatableDerivableEventType, EventType
+from betty.project import DEFAULT_LIFETIME_THRESHOLD
 
 
 class DeriverTestEventType(EventType):
@@ -65,6 +66,12 @@ class ComesBeforeAndAfterCreatableDerivable(DeriverTestEventType, CreatableDeriv
     pass
 
 
+class MayNotCreateComesAfterCreatableDerivable(ComesAfterCreatableDerivable):
+    @classmethod
+    def may_create(cls, person: Person, lifetime_threshold: int) -> bool:
+        return False
+
+
 _EVENT_TYPES: set[type[DerivableEventType]] = {
     ComesBeforeDerivable,
     ComesBeforeCreatableDerivable,
@@ -90,7 +97,7 @@ class TestDeriver:
         ancestry.add(person)
 
         with record_added(ancestry) as added:
-            await Deriver(ancestry, _EVENT_TYPES).derive()
+            await Deriver(ancestry, DEFAULT_LIFETIME_THRESHOLD, _EVENT_TYPES).derive()
 
         assert 0 == len(added)
         assert 0 == len(person.presences)
@@ -111,7 +118,7 @@ class TestDeriver:
         ancestry.add(person)
 
         with record_added(ancestry) as added:
-            await Deriver(ancestry, _EVENT_TYPES).derive()
+            await Deriver(ancestry, DEFAULT_LIFETIME_THRESHOLD, _EVENT_TYPES).derive()
 
         assert 0 == len(added)
         assert 1 == len(person.presences)
@@ -134,7 +141,7 @@ class TestDeriver:
         ancestry.add(person)
 
         with record_added(ancestry) as added:
-            await Deriver(ancestry, _EVENT_TYPES).derive()
+            await Deriver(ancestry, DEFAULT_LIFETIME_THRESHOLD, _EVENT_TYPES).derive()
 
         assert 0 == len(added)
         assert derivable_event.date is None
@@ -201,7 +208,7 @@ class TestDeriver:
         ancestry.add(person)
 
         with record_added(ancestry) as added:
-            await Deriver(ancestry, {ComesBeforeDerivable}).derive()
+            await Deriver(ancestry, DEFAULT_LIFETIME_THRESHOLD, {ComesBeforeDerivable}).derive()
 
         assert 0 == len(added)
         if expected_datey is None:
@@ -228,7 +235,7 @@ class TestDeriver:
         ancestry.add(person)
 
         with record_added(ancestry) as added:
-            await Deriver(ancestry, {ComesBeforeCreatableDerivable}).derive()
+            await Deriver(ancestry, DEFAULT_LIFETIME_THRESHOLD, {ComesBeforeCreatableDerivable}).derive()
 
         if expected_datey is None:
             assert 0 == len(added)
@@ -306,7 +313,7 @@ class TestDeriver:
         ancestry.add(person)
 
         with record_added(ancestry) as added:
-            await Deriver(ancestry, {ComesAfterDerivable}).derive()
+            await Deriver(ancestry, DEFAULT_LIFETIME_THRESHOLD, {ComesAfterDerivable}).derive()
 
         assert 0 == len(added)
         if expected_datey is None:
@@ -334,7 +341,7 @@ class TestDeriver:
         ancestry.add(person)
 
         with record_added(ancestry) as added:
-            await Deriver(ancestry, {ComesAfterCreatableDerivable}).derive()
+            await Deriver(ancestry, DEFAULT_LIFETIME_THRESHOLD, {ComesAfterCreatableDerivable}).derive()
 
         if expected_datey is None:
             assert 0 == len(added)
@@ -349,3 +356,27 @@ class TestDeriver:
                 assert derived_presence.event is not None
                 assert derived_presence.event.event_type is ComesAfterCreatableDerivable
                 assert expected_datey == derived_presence.event.date
+
+    @pytest.mark.parametrize('after_datey', [
+        (None,),
+        (Date(),),
+        (Date(1970, 1, 1),),
+        (DateRange(Date(1970, 1, 1)),),
+        (DateRange(None, Date(1999, 12, 31)),),
+        (DateRange(Date(1970, 1, 1), Date(1999, 12, 31)),),
+        (DateRange(Date(1970, 1, 1), Date(1999, 12, 31), end_is_boundary=True),),
+    ])
+    async def test_derive_may_not_create(
+        self,
+        after_datey: Datey | None,
+    ) -> None:
+        person = Person('P0')
+        presence = Presence(None, person, Subject(), Event(None, ComesAfterReference, after_datey))
+        ancestry = Ancestry()
+        ancestry.add(person)
+
+        with record_added(ancestry) as added:
+            await Deriver(ancestry, DEFAULT_LIFETIME_THRESHOLD, {MayNotCreateComesAfterCreatableDerivable}).derive()
+
+        assert 0 == len(added)
+        assert [*person.presences] == [presence]
