@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Iterable, Any
-from unittest.mock import Mock
 
 import pytest
 from typing_extensions import Self
@@ -44,7 +43,7 @@ class TestJinja2Renderer:
                 assert not template_file_path.exists()
 
 
-class FilterFlattenTest(TemplateTestCase):
+class TestFilterFlatten(TemplateTestCase):
     @pytest.mark.parametrize('expected, template', [
         ('', '{{ [] | flatten | join(", ") }}'),
         ('', '{{ [[], [], []] | flatten | join(", ") }}'),
@@ -56,7 +55,7 @@ class FilterFlattenTest(TemplateTestCase):
             assert expected == actual
 
 
-class FilterWalkTest(TemplateTestCase):
+class TestFilterWalk(TemplateTestCase):
     class WalkData:
         def __init__(self, label: str, children: Iterable[Self] | None = None):
             self._label = label
@@ -77,7 +76,7 @@ class FilterWalkTest(TemplateTestCase):
             assert expected == actual
 
 
-class FilterParagraphsTest(TemplateTestCase):
+class TestFilterParagraphs(TemplateTestCase):
     @pytest.mark.parametrize('expected, template', [
         ('<p></p>', '{{ "" | paragraphs }}'),
         ('<p>Apples <br>\n and <br>\n oranges</p>',
@@ -88,7 +87,7 @@ class FilterParagraphsTest(TemplateTestCase):
             assert expected == actual
 
 
-class FilterFormatDegreesTest(TemplateTestCase):
+class TestFilterFormatDegrees(TemplateTestCase):
     @pytest.mark.parametrize('expected, template', [
         ('0° 0&#39; 0&#34;', '{{ 0 | format_degrees }}'),
         ('52° 22&#39; 1&#34;', '{{ 52.367 | format_degrees }}'),
@@ -98,7 +97,7 @@ class FilterFormatDegreesTest(TemplateTestCase):
             assert expected == actual
 
 
-class FilterUniqueTest(TemplateTestCase):
+class TestFilterUnique(TemplateTestCase):
     def test(self) -> None:
         data: list[Any] = [
             999,
@@ -112,7 +111,7 @@ class FilterUniqueTest(TemplateTestCase):
             assert '999 == {}', actual
 
 
-class FilterMapTest(TemplateTestCase):
+class TestFilterMap(TemplateTestCase):
     class MapData:
         def __init__(self, label: str):
             self.label = label
@@ -131,7 +130,7 @@ class FilterMapTest(TemplateTestCase):
             assert expected == actual
 
 
-class FilterFileTest(TemplateTestCase):
+class TestFilterFile(TemplateTestCase):
     @pytest.mark.parametrize('expected, template, file', [
         (
             '/file/F1/file/test_jinja2.py',
@@ -153,18 +152,30 @@ class FilterFileTest(TemplateTestCase):
                 assert ((app.project.configuration.www_directory_path / file_path[1:]).exists())
 
 
-class FilterImageTest(TemplateTestCase):
+class TestFilterImage(TemplateTestCase):
     image_path = Path(__file__).parents[1] / 'assets' / 'public' / 'static' / 'betty-512x512.png'
 
     @pytest.mark.parametrize('expected, template, file', [
-        ('/file/F1-99x-.png',
-         '{{ file | image(width=99) }}', File('F1', image_path, media_type=MediaType('image/png'))),
-        ('/file/F1--x99.png',
-         '{{ file | image(height=99) }}', File('F1', image_path, media_type=MediaType('image/png'))),
-        ('/file/F1-99x99.png',
-         '{{ file | image(width=99, height=99) }}', File('F1', image_path, media_type=MediaType('image/png'))),
-        ('/file/F1-99x99.png:/file/F1-99x99.png',
-         '{{ file | image(width=99, height=99) }}:{{ file | image(width=99, height=99) }}', File('F1', image_path, media_type=MediaType('image/png'))),
+        (
+            '/file/F1-99x-.png',
+            '{{ file | image(width=99) }}',
+            File('F1', image_path, media_type=MediaType('image/png')),
+        ),
+        (
+            '/file/F1--x99.png',
+            '{{ file | image(height=99) }}',
+            File('F1', image_path, media_type=MediaType('image/png')),
+        ),
+        (
+            '/file/F1-99x99.png',
+            '{{ file | image(width=99, height=99) }}',
+            File('F1', image_path, media_type=MediaType('image/png')),
+        ),
+        (
+            '/file/F1-99x99.png:/file/F1-99x99.png',
+            '{{ file | image(width=99, height=99) }}:{{ file | image(width=99, height=99) }}',
+            File('F1', image_path, media_type=MediaType('image/png')),
+        ),
     ])
     def test(self, expected: str, template: str, file: File) -> None:
         with self._render(template_string=template, data={
@@ -183,33 +194,35 @@ class FilterImageTest(TemplateTestCase):
                 pass
 
 
-class GlobalCiterTest(TemplateTestCase):
+class TestGlobalCiter(TemplateTestCase):
     def test_cite(self) -> None:
-        citation1 = Mock(Citation)
-        citation2 = Mock(Citation)
+        citation1 = Citation(None, None)
+        citation2 = Citation(None, None)
         sut = _Citer(DEFAULT_LOCALIZER)
         assert 1 == sut.cite(citation1)
         assert 2 == sut.cite(citation2)
         assert 1 == sut.cite(citation1)
 
     def test_iter(self) -> None:
-        citation1 = Mock(Citation)
-        citation2 = Mock(Citation)
+        citation1 = Citation(None, None)
+        citation2 = Citation(None, None)
         sut = _Citer(DEFAULT_LOCALIZER)
         sut.cite(citation1)
         sut.cite(citation2)
+        sut.cite(citation1)
         assert [(1, citation1), (2, citation2)] == list(sut)
 
     def test_len(self) -> None:
-        citation1 = Mock(Citation)
-        citation2 = Mock(Citation)
+        citation1 = Citation(None, None)
+        citation2 = Citation(None, None)
         sut = _Citer(DEFAULT_LOCALIZER)
         sut.cite(citation1)
         sut.cite(citation2)
+        sut.cite(citation1)
         assert 2 == len(sut)
 
 
-class FormatDateyTest(TemplateTestCase):
+class TestFormatDatey(TemplateTestCase):
     def test(self) -> None:
         template = '{{ date | format_datey }}'
         date = Date(1970, 1, 1)
@@ -219,7 +232,7 @@ class FormatDateyTest(TemplateTestCase):
             assert 'January 1 == 1970', actual
 
 
-class FilterSortLocalizedsTest(TemplateTestCase):
+class TestFilterSortLocalizeds(TemplateTestCase):
     class WithLocalizedNames:
         def __init__(self, identifier: str, names: list[PlaceName]):
             self.id = identifier
@@ -256,7 +269,7 @@ class FilterSortLocalizedsTest(TemplateTestCase):
             assert '[]' == actual
 
 
-class FilterSelectLocalizedsTest(TemplateTestCase):
+class TestFilterSelectLocalizeds(TemplateTestCase):
     @pytest.mark.parametrize('expected, locale, data', [
         ('', 'en', []),
         ('Apple', 'en', [
@@ -299,7 +312,7 @@ class FilterSelectLocalizedsTest(TemplateTestCase):
             assert 'Apple == Apple, Apple, Apple, Apple', actual
 
 
-class FilterSelectDatedsTest(TemplateTestCase):
+class TestFilterSelectDateds(TemplateTestCase):
     class DatedDummy(Dated):
         def __init__(self, value: str, date: Datey | None = None):
             Dated.__init__(self)
@@ -362,7 +375,7 @@ class FilterSelectDatedsTest(TemplateTestCase):
             assert expected == actual
 
 
-class TestSubjectRoleTest(TemplateTestCase):
+class TestTestSubjectRole(TemplateTestCase):
     @pytest.mark.parametrize('expected, data', [
         ('true', Subject()),
         ('false', Subject),
@@ -377,7 +390,7 @@ class TestSubjectRoleTest(TemplateTestCase):
             assert expected == actual
 
 
-class TestWitnessRoleTest(TemplateTestCase):
+class TestTestWitnessRole(TemplateTestCase):
     @pytest.mark.parametrize('expected, data', [
         ('true', Witness()),
         ('false', Witness),
@@ -392,7 +405,7 @@ class TestWitnessRoleTest(TemplateTestCase):
             assert expected == actual
 
 
-class TestResourceTest(TemplateTestCase):
+class TestTestEntity(TemplateTestCase):
     @pytest.mark.parametrize('expected, entity_type, data', [
         ('true', Person, Person('P1')),
         ('false', Person, Place('P1', [PlaceName('The Place')])),

@@ -450,12 +450,12 @@ def _do_filter_file(file_source_path: Path, file_destination_path: Path) -> None
 
 def _filter_image(app: App, file: File, width: int | None = None, height: int | None = None) -> str:
     destination_name = '%s-' % file.id
-    if height:
+    if height and width:
+        destination_name += '%dx%d' % (width, height)
+    elif height:
         destination_name += '-x%d' % height
     elif width:
         destination_name += '%dx-' % width
-    elif height and width:
-        destination_name += '%dx%d' % (width, height)
     else:
         raise ValueError('At least the width or height must be given.')
 
@@ -524,9 +524,9 @@ def _execute_filter_image(
         cache_directory_path.mkdir(exist_ok=True, parents=True)
         with image:
             if width is not None:
-                width = min(width, image.window_width)
+                width = min(width, image.width)
             if height is not None:
-                height = min(height, image.window_height)
+                height = min(height, image.height)
 
             if width is None:
                 size = height
