@@ -1,5 +1,7 @@
 from typing import Any
 
+import pytest
+
 from betty.asyncio import sync, wait
 
 
@@ -11,6 +13,34 @@ class TestWait:
             return expected
         actual = wait(_async())
         assert expected == actual
+
+    def test_nested_sync_and_async(self) -> None:
+        expected = 'Hello, oh asynchronous, world!'
+
+        async def _async_one() -> str:
+            return _sync()
+
+        def _sync() -> str:
+            return wait(_async_two())
+
+        async def _async_two() -> str:
+            return expected
+
+        assert expected == wait(_async_one())
+
+    # @todo See https://docs.python.org/3/library/asyncio-runner.html#asyncio.run
+    # @todo Do we need to test with SIGINT as well?
+    # @todo
+    # @todo
+    @pytest.mark.parametrize('exception', [
+        KeyboardInterrupt,
+        RuntimeError,
+    ])
+    def test_with_exception(self, exception: type[Exception]) -> None:
+        async def _async() -> str:
+            raise exception
+        with pytest.raises(exception):
+            wait(_async())
 
 
 class TestSync:
@@ -57,3 +87,14 @@ class TestSync:
             return expected
 
         assert expected == _async_one()
+
+    @pytest.mark.parametrize('exception', [
+        KeyboardInterrupt,
+        RuntimeError,
+    ])
+    def test_with_exception(self, exception: type[Exception]) -> None:
+        @sync
+        async def _async() -> str:
+            raise exception
+        with pytest.raises(exception):
+            _async()

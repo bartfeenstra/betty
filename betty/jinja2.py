@@ -29,13 +29,11 @@ from pdf2image.pdf2image import convert_from_path
 
 from betty import _resizeimage
 from betty.app import App
-from betty.asyncio import wait
 from betty.fs import hashfile, CACHE_DIRECTORY_PATH
 from betty.functools import walk
 from betty.html import CssProvider, JsProvider
 from betty.locale import negotiate_localizeds, Localized, Datey, negotiate_locale, Date, DateRange, \
     get_data, Localizer
-from betty.lock import AcquiredError
 from betty.model import Entity, get_entity_type_name, GeneratedEntityId, UserFacingEntity, get_entity_type, \
     AncestryEntityId
 from betty.model.ancestry import File, Citation, HasLinks, HasFiles, Subject, Witness, Dated, is_private, is_public, \
@@ -46,6 +44,7 @@ from betty.project import ProjectConfiguration
 from betty.render import Renderer
 from betty.serde.dump import Dumpable, DictDump, VoidableDump, Void, minimize, none_void, void_none, Dump
 from betty.string import camel_case_to_snake_case, camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
+from betty.task import Task
 
 T = TypeVar('T')
 
@@ -434,10 +433,10 @@ def _filter_map(context: Context, value: Iterable[Any], *args: Any, **kwargs: An
 
 
 def _filter_file(app: App, file: File) -> str:
-    with suppress(AcquiredError):
-        app.locks.acquire((_filter_file, file))
+    task_id = f'filter_file:{file.id}'
+    if app.tasks.claim(task_id):
         file_destination_path = app.project.configuration.www_directory_path / 'file' / file.id / 'file' / file.path.name
-        app.delegate_to_thread(lambda: wait(_do_filter_file(file.path, file_destination_path)))
+        app.tasks.to_thread(Task(_do_filter_file, file.path, file_destination_path))
 
     return f'/file/{file.id}/file/{file.path.name}'
 
@@ -447,7 +446,12 @@ async def _do_filter_file(file_source_path: Path, file_destination_path: Path) -
     await link_or_copy(file_source_path, file_destination_path)
 
 
-def _filter_image(app: App, file: File, width: int | None = None, height: int | None = None) -> str:
+def _filter_image(
+    app: App,
+    file: File,
+    width: int | None = None,
+    height: int | None = None,
+) -> str:
     destination_name = '%s-' % file.id
     if height and width:
         destination_name += '%dx%d' % (width, height)
@@ -462,20 +466,20 @@ def _filter_image(app: App, file: File, width: int | None = None, height: int | 
 
     if file.media_type:
         if file.media_type.type == 'image':
-            task = _execute_filter_image_image
+            task_callable = _execute_filter_image_image
             destination_name += file.path.suffix
         elif file.media_type.type == 'application' and file.media_type.subtype == 'pdf':
-            task = _execute_filter_image_application_pdf
+            task_callable = _execute_filter_image_application_pdf
             destination_name += '.' + 'jpg'
         else:
             raise ValueError('Cannot convert a file of media type "%s" to an image.' % file.media_type)
     else:
         raise ValueError('Cannot convert a file without a media type to an image.')
 
-    with suppress(AcquiredError):
-        app.locks.acquire((_filter_image, file, width, height))
+    task_id = f'filter_image:{file.id}:{width or ""}:{height or ""}'
+    if app.tasks.claim(task_id):
         cache_directory_path = CACHE_DIRECTORY_PATH / 'image'
-        app.delegate_to_thread(lambda: wait(task(file.path, cache_directory_path, file_directory_path, destination_name, width, height)))
+        app.tasks.to_thread(Task(task_callable, file.path, cache_directory_path, file_directory_path, destination_name, width, height))
 
     destination_public_path = '/file/%s' % destination_name
 

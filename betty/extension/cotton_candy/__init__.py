@@ -11,6 +11,7 @@ from aiofiles.os import makedirs
 from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
 
+from betty.app import App
 from betty.app.extension import ConfigurableExtension, Extension, Theme
 from betty.config import Configuration
 from betty.extension.cotton_candy.search import Index
@@ -25,6 +26,7 @@ from betty.model.ancestry import Event, Person, Presence, is_public
 from betty.project import EntityReferenceSequence
 from betty.serde.dump import minimize, Dump, VoidableDump
 from betty.serde.load import AssertionFailed, Fields, Assertions, OptionalField, Asserter
+from betty.task import _TaskBatch
 
 
 class _ColorConfiguration(Configuration):
@@ -210,7 +212,7 @@ class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Gener
         copy2(source_directory_path / 'cotton_candy.css', destination_directory_path / 'cotton_candy.css')
         copy2(source_directory_path / 'cotton_candy.js', destination_directory_path / 'cotton_candy.js')
 
-    async def generate(self) -> None:
+    async def generate(self, batch: _TaskBatch[App], app: App) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
         await self._copy_npm_build(assets_directory_path, self.app.static_www_directory_path)
 

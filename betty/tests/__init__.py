@@ -80,7 +80,6 @@ class TemplateTestCase:
         async with app:
             app.project.configuration.extensions.enable(*self.extensions)
             rendered = template_factory(app.jinja2_environment, template).render(**data)
-            app.wait()
         yield rendered, app
 
 

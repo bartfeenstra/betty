@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import gc
 import logging
-from typing import Callable, Iterator, TypeVar, cast, AsyncIterator, TypeAlias
+from collections.abc import AsyncIterator, Iterator
+from typing import Callable, TypeVar, cast, TypeAlias
 
 import pytest
 from PyQt6.QtCore import Qt

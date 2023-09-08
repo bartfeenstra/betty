@@ -925,22 +925,36 @@ def unalias(entity: AliasableEntity[EntityT]) -> EntityT:
 _EntityGraphBuilderEntities: TypeAlias = dict[type[Entity], dict[str, AliasableEntity[Entity]]]
 
 
+_EntityGraphBuilderEntityAssociations: TypeAlias = dict[
+    str,  # The owner ID.
+    list[AncestryEntityId]  # The associate IDs.
+]
+
+
+_EntityGraphBuilderEntityTypeAssociations: TypeAlias = dict[
+    str,  # The owner attribute name.
+    _EntityGraphBuilderEntityAssociations,
+]
+
+
 _EntityGraphBuilderAssociations: TypeAlias = dict[
     type[Entity],  # The owner entity type.
-    dict[
-        str,  # The owner attribute name.
-        dict[
-            str,  # The owner ID.
-            list[AncestryEntityId]  # The associate IDs.
-        ]
-    ]
+    _EntityGraphBuilderEntityTypeAssociations,
 ]
+
+
+def _entity_graph_builder_entity_type_associations_default() -> _EntityGraphBuilderEntityTypeAssociations:
+    return cast(dict[str, _EntityGraphBuilderEntityAssociations], defaultdict(_entity_graph_builder_entity_associations_default))
+
+
+def _entity_graph_builder_entity_associations_default() -> _EntityGraphBuilderEntityAssociations:
+    return cast(dict[str, list[AncestryEntityId]], defaultdict(list))
 
 
 class _EntityGraphBuilder:
     def __init__(self):
         self._entities: _EntityGraphBuilderEntities = defaultdict(dict)
-        self._associations: _EntityGraphBuilderAssociations = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: list())))
+        self._associations: _EntityGraphBuilderAssociations = defaultdict(_entity_graph_builder_entity_type_associations_default)
         self._built = False
 
     def _assert_unbuilt(self) -> None:

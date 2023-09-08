@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from typing import Self
+import multiprocessing
+import pickle
+import threading
 
 import pytest
 
@@ -12,6 +15,8 @@ from betty.model import Entity
 from betty.project import ExtensionConfiguration
 from betty.serde.dump import Dump, VoidableDump
 from betty.serde.load import Fields, Assertions, RequiredField, Asserter
+from betty.task import Task
+from betty.tests.test_task import task_success
 
 
 class DummyEntity(Entity):
@@ -111,6 +116,27 @@ class ConfigurableExtension(GenericConfigurableExtension[ConfigurableExtensionCo
 
 
 class TestApp:
+    # @todo Remove this? Or not?
+    async def test_lets_swim(self) -> None:
+        # @todo This appears to fail only when we use both pools. Any other variations?
+        # for pool in (sut.thread_pool, sut.process_pool):
+        for pool_name in ('thread', 'process'):
+        # for pool in (sut.process_pool, sut.process_pool):
+        # for pool in (sut.thread_pool,):
+        # for pool in (sut.process_pool,):
+            async with App() as sut:
+                sentinel: threading.Event = multiprocessing.Manager().Event()
+                async with getattr(sut, f'{pool_name}_pool').batch() as batch:
+                    batch.delegate(Task(task_success, sentinel))
+                    # @todo 
+                    # foo()
+                assert sentinel.is_set()
+
+
+    async def test_pickle(self) -> None:
+        async with App() as sut:
+            pickle.loads(pickle.dumps(sut))
+
     async def test_extensions_with_one_extension(self) -> None:
         sut = App()
         sut.project.configuration.extensions.append(ExtensionConfiguration(NonConfigurableExtension))

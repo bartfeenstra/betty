@@ -47,6 +47,7 @@ class _ServeThread(QThread):
             await server.stop()
 
         app = self._app
+        # @todo Do something else here
         if app is not None:
             app.wait()
 

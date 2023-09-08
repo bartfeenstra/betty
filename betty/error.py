@@ -1,4 +1,22 @@
-from typing import Any
+import traceback
+from typing import Any, TypeVar
+
+BaseExceptionT = TypeVar('BaseExceptionT', bound=BaseException)
+
+
+def serialize(error: BaseExceptionT) -> BaseExceptionT:
+    formatted_traceback = f'\n"""\n{"".join(traceback.format_exception(type(error), error, error.__traceback__))}"""'
+    error.__cause__ = _SerializedTraceback(formatted_traceback)
+    error.__traceback__ = None
+    return error
+
+
+class _SerializedTraceback(Exception):
+    def __init__(self, formatted_traceback: str):
+        self._formatted_traceback = formatted_traceback
+
+    def __str__(self) -> str:
+        return self._formatted_traceback
 
 
 class UserFacingError(Exception):
