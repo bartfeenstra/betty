@@ -18,9 +18,9 @@ from betty.config import Configuration
 from betty.extension.cotton_candy.search import Index
 from betty.extension.npm import _Npm, NpmBuilder, npm
 from betty.functools import walk
-from betty.generate import Generator
+from betty.generate import Generator, GenerationContext
 from betty.gui import GuiBuilder
-from betty.jinja2 import Jinja2Provider, context_app, context_localizer
+from betty.jinja2 import Jinja2Provider, context_app, context_localizer, context_task_context
 from betty.locale import Date, Datey, Str
 from betty.model import Entity, UserFacingEntity
 from betty.model.ancestry import Event, Person, Presence, is_public
@@ -214,14 +214,18 @@ class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Gener
         copy2(source_directory_path / 'cotton_candy.css', destination_directory_path / 'cotton_candy.css')
         copy2(source_directory_path / 'cotton_candy.js', destination_directory_path / 'cotton_candy.js')
 
-    async def generate(self) -> None:
+    async def generate(self, task_context: GenerationContext) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
         await self._copy_npm_build(assets_directory_path, self.app.project.configuration.www_directory_path)
 
 
 @pass_context
-def _global_search_index(context: Context) -> Iterable[dict[str, str]]:
-    return Index(context_app(context), context_localizer(context)).build()
+async def _global_search_index(context: Context) -> Iterable[dict[str, str]]:
+    return await Index(
+        context_app(context),
+        context_task_context(context),
+        context_localizer(context),
+    ).build()
 
 
 def _is_person_timeline_presence(presence: Presence) -> bool:

@@ -15,7 +15,6 @@ from betty.app import App
 from betty.asyncio import sync
 from betty.error import UserFacingError
 from betty.locale import Str, Localizer
-from betty.os import ChDir
 from betty.project import Project
 
 DEFAULT_PORT = 8000
@@ -69,9 +68,6 @@ class Server:
         """
         Stops the server.
         """
-        await self._stop()
-
-    async def _stop(self) -> None:
         raise NotImplementedError(repr(self))
 
     @property
@@ -82,7 +78,7 @@ class Server:
         await self.start()
         return self
 
-    async def __aexit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
+    async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> None:
         await self.stop()
 
 
@@ -130,7 +126,15 @@ class BuiltinServer(ProjectServer):
         logging.getLogger().info(self._localizer._("Starting Python's built-in web server..."))
         for self._port in range(DEFAULT_PORT, 65535):
             with contextlib.suppress(OSError):
-                self._http_server = HTTPServer(('', self._port), _BuiltinServerRequestHandler)
+                self._http_server = HTTPServer(
+                    ('', self._port),
+                    lambda request, client_address, server: _BuiltinServerRequestHandler(
+                        request,
+                        client_address,
+                        server,
+                        directory=str(self._project.configuration.www_directory_path),
+                    ),
+                )
                 break
         if self._http_server is None:
             raise OsError(Str._('Cannot find an available port to bind the web server to.'))
@@ -146,9 +150,8 @@ class BuiltinServer(ProjectServer):
     @sync
     async def _serve(self, project: Project) -> None:
         with contextlib.redirect_stderr(StringIO()):
-            async with ChDir(project.configuration.www_directory_path):
-                assert self._http_server
-                self._http_server.serve_forever()
+            assert self._http_server
+            self._http_server.serve_forever()
 
     async def stop(self) -> None:
         if self._http_server is not None:

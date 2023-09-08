@@ -9,7 +9,7 @@ from collections import defaultdict
 from contextlib import suppress
 from pathlib import Path
 from typing import Callable, Iterable, Any, Iterator, cast, \
-    MutableMapping, Mapping, TypeVar
+    MutableMapping, Mapping, TypeVar, AsyncIterator
 
 import aiofiles
 from PIL import Image
@@ -20,6 +20,7 @@ from geopy import units
 from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment as Jinja2Environment, select_autoescape, FileSystemLoader, pass_context, \
     pass_eval_context, Template as Jinja2Template, TemplateNotFound, BaseLoader
+from jinja2.async_utils import auto_aiter, auto_await
 from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.nodes import EvalContext
 from jinja2.runtime import StrictUndefined, Context, Macro, DebugUndefined, new_context
@@ -27,15 +28,13 @@ from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup, escape
 from pdf2image.pdf2image import convert_from_path
 
-from betty import _resizeimage
+from betty import _resizeimage, task
 from betty.app import App
-from betty.asyncio import wait
 from betty.fs import hashfile, CACHE_DIRECTORY_PATH
 from betty.functools import walk
 from betty.html import CssProvider, JsProvider
-from betty.locale import negotiate_localizeds, Localized, Datey, negotiate_locale, Date, DateRange, \
-    get_data, Localizer, DEFAULT_LOCALIZER, Localey, Localizable
-from betty.lock import AcquiredError
+from betty.locale import negotiate_localizeds, Localized, Datey, negotiate_locale, Date, DateRange, Localizer, \
+    DEFAULT_LOCALIZER, Localey, get_data, Localizable
 from betty.model import Entity, get_entity_type_name, GeneratedEntityId, UserFacingEntity, get_entity_type, \
     AncestryEntityId
 from betty.model.ancestry import File, Citation, HasLinks, HasFiles, Subject, Witness, Dated, is_private, is_public, \
@@ -52,6 +51,11 @@ T = TypeVar('T')
 
 def context_app(context: Context) -> App:
     return cast(Environment, context.environment).app
+
+
+def context_task_context(context: Context) -> task.Context | None:
+    task_context = context.resolve_or_missing('task_context')
+    return task_context if isinstance(task_context, task.Context) else None
 
 
 def context_localizer(context: Context) -> Localizer:
@@ -193,6 +197,7 @@ class Environment(Jinja2Environment):
         template_directory_paths = [str(path / 'templates') for path, _ in app.assets.paths]
         super().__init__(
             loader=FileSystemLoader(template_directory_paths),
+            enable_async=True,
             undefined=DebugUndefined if app.project.configuration.debug else StrictUndefined,
             autoescape=select_autoescape(['html.j2']),
             trim_blocks=True,
@@ -279,8 +284,8 @@ class Environment(Jinja2Environment):
         self.filters['format_degrees'] = _filter_format_degrees
         self.filters['url'] = _filter_url
         self.filters['static_url'] = self.app.static_url_generator.generate
-        self.filters['file'] = lambda *args: _filter_file(self.app, *args)
-        self.filters['image'] = lambda *args, **kwargs: _filter_image(self.app, *args, **kwargs)
+        self.filters['file'] = _filter_file
+        self.filters['image'] = _filter_image
         self.filters['entity_type_name'] = get_entity_type_name
         self.filters['camel_case_to_snake_case'] = camel_case_to_snake_case
         self.filters['camel_case_to_kebab_case'] = camel_case_to_kebab_case
@@ -346,9 +351,17 @@ class Jinja2Renderer(Renderer):
     def file_extensions(self) -> set[str]:
         return {'.j2'}
 
-    async def render_file(self, file_path: Path, *, localizer: Localizer | None = None) -> Path:
+    async def render_file(
+        self,
+        file_path: Path,
+        *,
+        task_context: task.Context | None = None,
+        localizer: Localizer | None = None,
+    ) -> Path:
         file_destination_path = file_path.parent / file_path.stem
         data: dict[str, Any] = {}
+        if task_context is not None:
+            data['task_context'] = task_context
         if localizer is not None:
             data['localizer'] = localizer
         try:
@@ -363,11 +376,11 @@ class Jinja2Renderer(Renderer):
                     resource = '/'.join(resource_parts[1:])
             data['page_resource'] = resource
         root_path = rootname(file_path)
-        rendered = self.get_loader(root_path).load(
+        rendered = await self.get_loader(root_path).load(
             self._environment,
             '/'.join(Path(file_path).relative_to(root_path).parts),
             self._environment.globals,
-        ).render(data)
+        ).render_async(data)
         async with aiofiles.open(file_destination_path, 'w', encoding='utf-8') as f:
             await f.write(rendered)
         await aiofiles_os.remove(file_path)
@@ -426,14 +439,14 @@ def _filter_tojson(context: Context, data: Any, indent: int | None = None) -> st
     return htmlsafe_json_dumps(data, indent=indent, dumps=lambda *args, **kwargs: _filter_json(context, *args, **kwargs))
 
 
-def _filter_flatten(items: Iterable[Iterable[T]]) -> Iterator[T]:
-    for item in items:
-        for child in item:
-            yield child
+async def _filter_flatten(values_of_values: Iterable[Iterable[T]]) -> AsyncIterator[T]:
+    async for values in auto_aiter(values_of_values):
+        async for value in auto_aiter(values):
+            yield value
 
 
-def _filter_walk(item: Any, attribute_name: str) -> Iterable[Any]:
-    return walk(item, attribute_name)
+def _filter_walk(value: Any, attribute_name: str) -> Iterable[Any]:
+    return walk(value, attribute_name)
 
 
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
@@ -465,16 +478,16 @@ def _filter_format_degrees(degrees: int) -> str:
     return DEGREES_FORMAT % format_dict  # type: ignore[no-any-return]
 
 
-def _filter_unique(items: Iterable[T]) -> Iterator[T]:
+async def _filter_unique(value: Iterable[T]) -> AsyncIterator[T]:
     seen = []
-    for item in items:
-        if item not in seen:
-            yield item
-            seen.append(item)
+    async for value in auto_aiter(value):
+        if value not in seen:
+            yield value
+            seen.append(value)
 
 
 @pass_context
-def _filter_map(context: Context, value: Iterable[Any], *args: Any, **kwargs: Any) -> Any:
+async def _filter_map(context: Context, values: Iterable[Any], *args: Any, **kwargs: Any) -> Any:
     """
     Maps an iterable's values.
 
@@ -484,15 +497,18 @@ def _filter_map(context: Context, value: Iterable[Any], *args: Any, **kwargs: An
         func: Macro | Callable[[Any], bool] = args[0]
     else:
         func = prepare_map(context, args, kwargs)
-    for item in value:
-        yield func(item)
+    async for value in auto_aiter(values):
+        yield await auto_await(func(value))
 
 
-def _filter_file(app: App, file: File) -> str:
-    with suppress(AcquiredError):
-        app.locks.acquire((_filter_file, file))
+@pass_context
+async def _filter_file(context: Context, file: File) -> str:
+    app = context_app(context)
+    task_context = context_task_context(context)
+    task_id = f'filter_file:{file.id}'
+    if task_context is None or task_context.claim(task_id):
         file_destination_path = app.project.configuration.www_directory_path / 'file' / file.id / 'file' / file.path.name
-        app.delegate_to_thread(lambda: wait(_do_filter_file(file.path, file_destination_path)))
+        await _do_filter_file(file.path, file_destination_path)
 
     return f'/file/{file.id}/file/{file.path.name}'
 
@@ -502,7 +518,16 @@ async def _do_filter_file(file_source_path: Path, file_destination_path: Path) -
     await link_or_copy(file_source_path, file_destination_path)
 
 
-def _filter_image(app: App, file: File, width: int | None = None, height: int | None = None) -> str:
+@pass_context
+async def _filter_image(
+    context: Context,
+    file: File,
+    width: int | None = None,
+    height: int | None = None,
+) -> str:
+    app = context_app(context)
+    task_context = context_task_context(context)
+
     destination_name = '%s-' % file.id
     if height and width:
         destination_name += '%dx%d' % (width, height)
@@ -517,44 +542,58 @@ def _filter_image(app: App, file: File, width: int | None = None, height: int | 
 
     if file.media_type:
         if file.media_type.type == 'image':
-            task = _execute_filter_image_image
+            task_callable = _execute_filter_image_image
             destination_name += file.path.suffix
         elif file.media_type.type == 'application' and file.media_type.subtype == 'pdf':
-            task = _execute_filter_image_application_pdf
+            task_callable = _execute_filter_image_application_pdf
             destination_name += '.' + 'jpg'
         else:
             raise ValueError('Cannot convert a file of media type "%s" to an image.' % file.media_type)
     else:
         raise ValueError('Cannot convert a file without a media type to an image.')
 
-    with suppress(AcquiredError):
-        app.locks.acquire((_filter_image, file, width, height))
+    task_id = f'filter_image:{file.id}:{width or ""}:{height or ""}'
+    if task_context is None or task_context.claim(task_id):
         cache_directory_path = CACHE_DIRECTORY_PATH / 'image'
-        app.delegate_to_thread(lambda: wait(task(file.path, cache_directory_path, file_directory_path, destination_name, width, height)))
+        await task_callable(file.path, cache_directory_path, file_directory_path, destination_name, width, height)
 
     destination_public_path = '/file/%s' % destination_name
 
     return destination_public_path
 
 
-async def _execute_filter_image_image(file_path: Path, *args: Any, **kwargs: Any) -> None:
+async def _execute_filter_image_image(
+    file_path: Path,
+    cache_directory_path: Path,
+    destination_directory_path: Path,
+    destination_name: str,
+    width: int | None,
+    height: int | None,
+) -> None:
     with warnings.catch_warnings():
         # Ignore warnings about decompression bombs, because we know where the files come from.
         warnings.simplefilter('ignore', category=DecompressionBombWarning)
         image = Image.open(file_path)
     try:
-        await _execute_filter_image(image, file_path, *args, **kwargs)
+        await _execute_filter_image(image, file_path, cache_directory_path, destination_directory_path, destination_name, width, height)
     finally:
         image.close()
 
 
-async def _execute_filter_image_application_pdf(file_path: Path, *args: Any, **kwargs: Any) -> None:
+async def _execute_filter_image_application_pdf(
+    file_path: Path,
+    cache_directory_path: Path,
+    destination_directory_path: Path,
+    destination_name: str,
+    width: int | None,
+    height: int | None,
+) -> None:
     with warnings.catch_warnings():
         # Ignore warnings about decompression bombs, because we know where the files come from.
         warnings.simplefilter('ignore', category=DecompressionBombWarning)
         image = convert_from_path(file_path, fmt='jpeg')[0]
     try:
-        await _execute_filter_image(image, file_path, *args, **kwargs)
+        await _execute_filter_image(image, file_path, cache_directory_path, destination_directory_path, destination_name, width, height)
     finally:
         image.close()
 

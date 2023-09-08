@@ -4,7 +4,7 @@ import logging
 from enum import Enum
 from typing import Iterable, cast
 
-from betty.locale import DateRange, Date, Str
+from betty.locale import DateRange, Date, Localizer
 from betty.model.ancestry import Person, Presence, Event, Subject, Ancestry
 from betty.model.event_type import DerivableEventType, CreatableDerivableEventType, EventType
 
@@ -21,11 +21,14 @@ class Deriver:
         ancestry: Ancestry,
         lifetime_threshold: int,
         derivable_event_types: set[type[DerivableEventType]],
+        *,
+        localizer: Localizer,
     ):
         super().__init__()
         self._ancestry = ancestry
         self._lifetime_threshold = lifetime_threshold
         self._derivable_event_type = derivable_event_types
+        self._localizer = localizer
 
     async def derive(self) -> None:
         logger = logging.getLogger()
@@ -37,17 +40,15 @@ class Deriver:
                 created_derivations += created
                 updated_derivations += updated
             if updated_derivations > 0:
-                logger.info(Str._(
-                    'Updated {updated_derivations} {event_type} events based on existing information.',
+                logger.info(self._localizer._('Updated {updated_derivations} {event_type} events based on existing information.').format(
                     updated_derivations=str(updated_derivations),
-                    event_type=derivable_event_type.label()),
-                )
+                    event_type=derivable_event_type.label().localize(self._localizer),
+                ))
             if created_derivations > 0:
-                logger.info(Str._(
-                    'Created {created_derivations} additional {event_type} events based on existing information.',
+                logger.info(self._localizer._('Created {created_derivations} additional {event_type} events based on existing information.').format(
                     created_derivations=str(created_derivations),
-                    event_type=derivable_event_type.label()),
-                )
+                    event_type=derivable_event_type.label().localize(self._localizer),
+                ))
 
     def _derive_person(self, person: Person, derivable_event_type: type[DerivableEventType]) -> tuple[int, int]:
         # Gather any existing events that could be derived, or create a new derived event if needed.

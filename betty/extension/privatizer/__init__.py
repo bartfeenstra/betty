@@ -24,7 +24,7 @@ class _Privatizer(UserFacingExtension, PostLoader):
 
     def privatize(self) -> None:
         logger = getLogger()
-        logger.info(Str._('Privatizing...'))
+        logger.info(self._app.localizer._('Privatizing...'))
 
         privatizer = PrivatizerApi(self._app.project.configuration.lifetime_threshold)
 
@@ -46,14 +46,12 @@ class _Privatizer(UserFacingExtension, PostLoader):
                 newly_privatized[entity.type] += 1  # type: ignore[index]
 
         if newly_privatized[Person] > 0:
-            logger.info(Str._(
-                'Privatized {count} people because they are likely still alive.',
+            logger.info(self._app.localizer._('Privatized {count} people because they are likely still alive.').format(
                 count=str(newly_privatized[Person]),
             ))
         for entity_type in set(newly_privatized) - {Person}:
             if newly_privatized[entity_type] > 0:
-                logger.info(Str._(
-                    'Privatized {count} {entity_type}, because they are associated with private people.',
+                logger.info(self._app.localizer._('Privatized {count} {entity_type}, because they are associated with private people.').format(
                     count=str(newly_privatized[entity_type]),
-                    entity_type=entity_type.entity_type_label_plural(),
+                    entity_type=entity_type.entity_type_label_plural().localize(self._app.localizer),
                 ))

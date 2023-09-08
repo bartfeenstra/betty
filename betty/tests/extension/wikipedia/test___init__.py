@@ -10,6 +10,7 @@ from betty.load import load
 from betty.media_type import MediaType
 from betty.model.ancestry import Source, Link
 from betty.project import ExtensionConfiguration
+from betty.task import Context
 from betty.tests import patch_cache
 
 
@@ -41,8 +42,11 @@ class TestWikipedia:
 
         async with App() as app:
             app.project.configuration.extensions.append(ExtensionConfiguration(Wikipedia))
-            actual = app.jinja2_environment.from_string(
-                '{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}').render(links=links)
+            actual = await app.jinja2_environment.from_string(
+                '{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}').render_async(
+                task_context=Context(),
+                links=links,
+            )
         assert extract == actual
 
     @patch_cache

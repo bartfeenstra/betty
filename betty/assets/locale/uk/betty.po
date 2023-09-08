@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-12-18 17:07+0000\n"
+"POT-Creation-Date: 2023-12-18 22:34+0000\n"
 "PO-Revision-Date: 2020-05-02 22:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -468,9 +468,6 @@ msgid ""
 " and <a href=\"https://github.com/bartfeenstra/betty\">Github</a>."
 msgstr ""
 
-msgid "Forbidden"
-msgstr ""
-
 msgid "Funeral"
 msgstr "Похорон"
 
@@ -487,6 +484,15 @@ msgid "Generated pages for {count} {entity_type} in {locale}."
 msgstr ""
 
 msgid "Generated the listing page for {entity_type} in {locale}."
+msgstr ""
+
+msgid "Generating OpenAPI specification..."
+msgstr ""
+
+msgid "Generating localized public files in {locale}..."
+msgstr ""
+
+msgid "Generating static public files..."
 msgstr ""
 
 msgid "Generating your site to {output_directory}."
@@ -592,9 +598,6 @@ msgid "Missing"
 msgstr "Відсутній"
 
 msgid "New project..."
-msgstr ""
-
-msgid "Not found"
 msgstr ""
 
 msgid "Note"
@@ -712,12 +715,6 @@ msgstr "Проживання"
 msgid "Retirement"
 msgstr "Вихід на пенсію"
 
-msgid "Retrieve a single {entity_type} entity."
-msgstr ""
-
-msgid "Retrieve the collection of {entity_type} entities."
-msgstr ""
-
 msgid "Save and close"
 msgstr ""
 
@@ -763,9 +760,6 @@ msgstr ""
 msgid "Subject"
 msgstr "Предмет"
 
-msgid "The ID for the resource to retrieve."
-msgstr ""
-
 msgid "The age at which people are presumed dead."
 msgstr ""
 
@@ -781,9 +775,6 @@ msgid ""
 "The betty:privacy Gramps attribute must have a value of \"public\" or "
 "\"private\", but \"{privacy_value}\" was given for {entity_type} "
 "{entity_id} ({entity_label}), which was ignored."
-msgstr ""
-
-msgid "The collection of {entity_type} entities."
 msgstr ""
 
 msgid ""
@@ -807,9 +798,6 @@ msgstr ""
 
 #, python-format
 msgid "The translations for {locale_name} are {coverage_percentage}% complete."
-msgstr ""
-
-msgid "The {entity_type} entity."
 msgstr ""
 
 msgid "There are no translations for {locale_name}."
@@ -890,9 +878,6 @@ msgid ""
 "<code>/path/index.html</code>. This requires a web server that supports "
 "it."
 msgstr ""
-
-msgid "Unauthorized"
-msgstr "Несанкціонована"
 
 msgid "Unknown"
 msgstr "Невідомо"

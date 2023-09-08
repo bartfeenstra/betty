@@ -6,7 +6,7 @@ import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
 from betty.gramps.loader import GrampsLoader
-from betty.locale import Date, DateRange
+from betty.locale import Date, DateRange, DEFAULT_LOCALIZER
 from betty.model.ancestry import Ancestry, Citation, Note, Source, File, Event, Person, Place, Privacy
 from betty.model.event_type import Birth, Death, UnknownEventType
 from betty.path import rootname
@@ -17,7 +17,7 @@ async def test_load_xml_ancestry() -> Ancestry:
     # @todo Convert each test method to use self._load(), so we can remove this shared XML file.
     ancestry = Ancestry()
     xml_file_path = Path(__file__).parent / 'assets' / 'data.xml'
-    loader = GrampsLoader(ancestry)
+    loader = GrampsLoader(ancestry, localizer=DEFAULT_LOCALIZER)
     with open(xml_file_path) as f:
         await loader.load_xml(f.read(), rootname(xml_file_path))
     return ancestry
@@ -25,16 +25,16 @@ async def test_load_xml_ancestry() -> Ancestry:
 
 class TestGrampsLoader:
     async def test_load_gramps(self) -> None:
-        sut = GrampsLoader(Ancestry())
+        sut = GrampsLoader(Ancestry(), localizer=DEFAULT_LOCALIZER)
         await sut.load_gramps(Path(__file__).parent / 'assets' / 'minimal.gramps')
 
     async def test_load_gpkg(self) -> None:
-        sut = GrampsLoader(Ancestry())
+        sut = GrampsLoader(Ancestry(), localizer=DEFAULT_LOCALIZER)
         await sut.load_gpkg(Path(__file__).parent / 'assets' / 'minimal.gpkg')
 
     async def load(self, xml: str) -> Ancestry:
         ancestry = Ancestry()
-        loader = GrampsLoader(ancestry)
+        loader = GrampsLoader(ancestry, localizer=DEFAULT_LOCALIZER)
         async with TemporaryDirectory() as tree_directory_path_str:
             await loader.load_xml(xml.strip(), Path(tree_directory_path_str))
         return ancestry
@@ -56,13 +56,13 @@ class TestGrampsLoader:
 
     async def test_load_xml_with_string(self) -> None:
         gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'
-        sut = GrampsLoader(Ancestry())
+        sut = GrampsLoader(Ancestry(), localizer=DEFAULT_LOCALIZER)
         with open(gramps_file_path) as f:
             await sut.load_xml(f.read(), rootname(gramps_file_path))
 
     async def test_load_xml_with_file_path(self) -> None:
         gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'
-        sut = GrampsLoader(Ancestry())
+        sut = GrampsLoader(Ancestry(), localizer=DEFAULT_LOCALIZER)
         await sut.load_xml(gramps_file_path, rootname(gramps_file_path))
 
     async def test_place_should_include_name(self, test_load_xml_ancestry: Ancestry) -> None:

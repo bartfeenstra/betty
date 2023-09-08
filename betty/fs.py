@@ -54,7 +54,7 @@ class FileSystem:
                         return await self._file.__aenter__()
             raise FileNotFoundError
 
-        async def __aexit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
+        async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> None:
             if self._file is not None:
                 await self._file.__aexit__(None, None, None)
 

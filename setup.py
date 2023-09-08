@@ -69,7 +69,7 @@ SETUP = {
         'development': [
             'aioresponses ~= 0.7, >= 0.7.6',
             'autopep8 ~= 2.0, >= 2.0.2',
-            'basedmypy ~= 2.0, >= 2.0.0',
+            'basedmypy ~= 2.0, >= 2.2.1',
             'codecov ~= 2.1, >= 2.1.12',
             'coverage ~= 7.2, >= 7.2.4',
             'flake8 ~= 6.0, >= 6.0.0',

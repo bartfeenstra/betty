@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-12-18 17:07+0000\n"
+"POT-Creation-Date: 2023-12-18 22:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -392,9 +392,6 @@ msgstr ""
 msgid "Follow Betty on <a href=\"https://twitter.com/Betty_Project\">Twitter</a> and <a href=\"https://github.com/bartfeenstra/betty\">Github</a>."
 msgstr ""
 
-msgid "Forbidden"
-msgstr ""
-
 msgid "Funeral"
 msgstr ""
 
@@ -411,6 +408,15 @@ msgid "Generated pages for {count} {entity_type} in {locale}."
 msgstr ""
 
 msgid "Generated the listing page for {entity_type} in {locale}."
+msgstr ""
+
+msgid "Generating OpenAPI specification..."
+msgstr ""
+
+msgid "Generating localized public files in {locale}..."
+msgstr ""
+
+msgid "Generating static public files..."
 msgstr ""
 
 msgid "Generating your site to {output_directory}."
@@ -516,9 +522,6 @@ msgid "Missing"
 msgstr ""
 
 msgid "New project..."
-msgstr ""
-
-msgid "Not found"
 msgstr ""
 
 msgid "Note"
@@ -632,12 +635,6 @@ msgstr ""
 msgid "Retirement"
 msgstr ""
 
-msgid "Retrieve a single {entity_type} entity."
-msgstr ""
-
-msgid "Retrieve the collection of {entity_type} entities."
-msgstr ""
-
 msgid "Save and close"
 msgstr ""
 
@@ -683,9 +680,6 @@ msgstr ""
 msgid "Subject"
 msgstr ""
 
-msgid "The ID for the resource to retrieve."
-msgstr ""
-
 msgid "The age at which people are presumed dead."
 msgstr ""
 
@@ -696,9 +690,6 @@ msgid "The base URL must start with a scheme such as https://, http://, or file:
 msgstr ""
 
 msgid "The betty:privacy Gramps attribute must have a value of \"public\" or \"private\", but \"{privacy_value}\" was given for {entity_type} {entity_id} ({entity_label}), which was ignored."
-msgstr ""
-
-msgid "The collection of {entity_type} entities."
 msgstr ""
 
 msgid "The entity reference must be for an entity of type {expected_entity_type_name} ({expected_entity_type_label}), but instead does not specify an entity type at all."
@@ -715,9 +706,6 @@ msgstr ""
 
 #, python-format
 msgid "The translations for {locale_name} are {coverage_percentage}% complete."
-msgstr ""
-
-msgid "The {entity_type} entity."
 msgstr ""
 
 msgid "There are no translations for {locale_name}."
@@ -791,9 +779,6 @@ msgid "URL"
 msgstr ""
 
 msgid "URLs look like <code>/path</code> instead of <code>/path/index.html</code>. This requires a web server that supports it."
-msgstr ""
-
-msgid "Unauthorized"
 msgstr ""
 
 msgid "Unknown"

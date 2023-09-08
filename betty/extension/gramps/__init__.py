@@ -23,7 +23,10 @@ class _Gramps(ConfigurableExtension[GrampsConfiguration], UserFacingExtension, L
         for family_tree in self.configuration.family_trees:
             file_path = family_tree.file_path
             if file_path:
-                await GrampsLoader(self._app.project.ancestry).load_file(file_path)
+                await GrampsLoader(
+                    self._app.project.ancestry,
+                    localizer=self._app.localizer,
+                ).load_file(file_path)
 
     @classmethod
     def label(cls) -> Str:

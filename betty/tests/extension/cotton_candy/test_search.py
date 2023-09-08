@@ -8,6 +8,7 @@ from betty.extension.cotton_candy.search import Index
 from betty.locale import DEFAULT_LOCALIZER
 from betty.model.ancestry import Person, Place, PlaceName, PersonName, File
 from betty.project import LocaleConfiguration
+from betty.task import Context
 
 
 class TestIndex:
@@ -16,7 +17,7 @@ class TestIndex:
         app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
-        indexed = [item for item in Index(app, DEFAULT_LOCALIZER).build()]
+        indexed = [item for item in await Index(app, Context(), DEFAULT_LOCALIZER).build()]
 
         assert [] == indexed
 
@@ -29,7 +30,7 @@ class TestIndex:
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
         app.project.ancestry.add(person)
-        indexed = [item for item in Index(app, DEFAULT_LOCALIZER).build()]
+        indexed = [item for item in await Index(app, Context(), DEFAULT_LOCALIZER).build()]
 
         assert [] == indexed
 
@@ -50,7 +51,7 @@ class TestIndex:
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
         app.project.ancestry.add(person)
-        indexed = [item for item in Index(app, DEFAULT_LOCALIZER).build()]
+        indexed = [item for item in await Index(app, Context(), DEFAULT_LOCALIZER).build()]
 
         assert [] == indexed
 
@@ -72,7 +73,7 @@ class TestIndex:
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
         app.project.ancestry.add(person)
-        indexed = [item for item in Index(app, app.localizers[locale]).build()]
+        indexed = [item for item in await Index(app, Context(), app.localizers[locale]).build()]
 
         assert 'jane' == indexed[0]['text']
         assert expected in indexed[0]['result']
@@ -95,7 +96,7 @@ class TestIndex:
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
         app.project.ancestry.add(person)
-        indexed = [item for item in Index(app, app.localizers[locale]).build()]
+        indexed = [item for item in await Index(app, Context(), app.localizers[locale]).build()]
 
         assert 'doughnut' == indexed[0]['text']
         assert expected in indexed[0]['result']
@@ -120,7 +121,7 @@ class TestIndex:
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
         app.project.ancestry.add(person)
-        indexed = [item for item in Index(app, app.localizers[locale]).build()]
+        indexed = [item for item in await Index(app, Context(), app.localizers[locale]).build()]
 
         assert 'jane doughnut' == indexed[0]['text']
         assert expected in indexed[0]['result']
@@ -150,7 +151,7 @@ class TestIndex:
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
         app.project.ancestry.add(place)
-        indexed = [item for item in Index(app, app.localizers[locale]).build()]
+        indexed = [item for item in await Index(app, Context(), app.localizers[locale]).build()]
 
         assert 'netherlands nederland' == indexed[0]['text']
         assert expected in indexed[0]['result']
@@ -167,7 +168,7 @@ class TestIndex:
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
         app.project.ancestry.add(file)
-        indexed = [item for item in Index(app, DEFAULT_LOCALIZER).build()]
+        indexed = [item for item in await Index(app, Context(), DEFAULT_LOCALIZER).build()]
 
         assert [] == indexed
 
@@ -188,7 +189,7 @@ class TestIndex:
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
         app.project.ancestry.add(file)
-        indexed = [item for item in Index(app, app.localizers[locale]).build()]
+        indexed = [item for item in await Index(app, Context(), app.localizers[locale]).build()]
 
         assert '"file" is dutch for "traffic jam"' == indexed[0]['text']
         assert expected in indexed[0]['result']

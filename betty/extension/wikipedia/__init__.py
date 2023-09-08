@@ -9,7 +9,7 @@ from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
 
 from betty.app.extension import UserFacingExtension
-from betty.asyncio import sync, gather
+from betty.asyncio import gather
 from betty.jinja2 import Jinja2Provider, context_localizer
 from betty.load import PostLoader
 from betty.locale import negotiate_locale, Str
@@ -55,7 +55,6 @@ class _Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstan
         }
 
     @pass_context
-    @sync
     async def _filter_wikipedia_links(self, context: Context, links: Iterable[Link]) -> Iterable[Entry]:
         return filter(
             None,
