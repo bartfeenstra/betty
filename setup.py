@@ -27,6 +27,7 @@ SETUP = {
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
         'Programming Language :: JavaScript',
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: POSIX :: Linux',
@@ -44,7 +45,7 @@ SETUP = {
     'python_requires': '~= 3.9',
     'install_requires': [
         'aiofiles ~= 23.1, >= 23.1.0',
-        'aiohttp ~= 3.8, >= 3.8.1',
+        'aiohttp == 3.9.0b0',
         'babel ~= 2.12, >= 2.12.0',
         'click ~= 8.1, >= 8.1.2',
         'dill ~= 0.3, >= 0.3.6',
