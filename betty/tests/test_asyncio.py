@@ -1,4 +1,13 @@
+import asyncio
+import multiprocessing
+import os
+import signal
+import threading
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from typing import Any
+
+from pytest_mock import MockerFixture
 
 from betty.asyncio import sync, wait
 
@@ -11,6 +20,22 @@ class TestWait:
             return expected
         actual = wait(_async())
         assert expected == actual
+
+
+@asynccontextmanager
+async def _test_interrupt_set_exit_sentinel(start_sentinel: threading.Event, exit_sentinel: threading.Event) -> AsyncIterator[None]:
+    try:
+        start_sentinel.set()
+        yield
+    finally:
+        exit_sentinel.set()
+
+
+@sync
+async def _test_interrupt_target(start_sentinel: threading.Event, exit_sentinel: threading.Event) -> None:
+    async with _test_interrupt_set_exit_sentinel(start_sentinel, exit_sentinel):
+        for _ in range(0, 999):
+            await asyncio.sleep(1)
 
 
 class TestSync:
@@ -57,3 +82,23 @@ class TestSync:
             return expected
 
         assert expected == _async_one()
+
+    def test_interrupt(self, mocker: MockerFixture) -> None:
+        mocker.patch('sys.stderr')
+        mocker.patch('sys.stdout')
+        start_sentinel = multiprocessing.Manager().Event()
+        exit_sentinel = multiprocessing.Manager().Event()
+        process = multiprocessing.Process(
+            target=_test_interrupt_target,
+            args=(start_sentinel, exit_sentinel),
+        )
+        process.start()
+        start_sentinel.wait()
+        os.kill(
+            process.pid,  # type: ignore[arg-type]
+            signal.SIGINT,
+        )
+        process.join()
+        assert process.exitcode is not None
+        assert process.exitcode > 0
+        assert exit_sentinel.is_set()
