@@ -36,7 +36,7 @@ class TestParseUrl:
         (('en', 'Amsterdam'), 'https://en.wikipedia.org/wiki/Amsterdam?some=query',),
         (('en', 'Amsterdam'), 'https://en.wikipedia.org/wiki/Amsterdam#some-fragment',),
     ])
-    def test_should_return(self, expected: tuple[str, str], url: str) -> None:
+    async def test_should_return(self, expected: tuple[str, str], url: str) -> None:
         assert expected == _parse_url(url)
 
     @pytest.mark.parametrize('url', [
@@ -44,22 +44,22 @@ class TestParseUrl:
         'ftp://en.wikipedia.org/wiki/Amsterdam',
         'https://en.wikipedia.org/w/index.php?title=Amsterdam&action=edit',
     ])
-    def test_should_error(self, url: str) -> None:
+    async def test_should_error(self, url: str) -> None:
         with pytest.raises(NotAnEntryError):
             _parse_url(url)
 
 
 class TestEntry:
-    def test_url(self) -> None:
+    async def test_url(self) -> None:
         sut = Entry('nl', 'Amsterdam', 'Title for Amsterdam', 'Content for Amsterdam')
         assert 'https://nl.wikipedia.org/wiki/Amsterdam' == sut.url
 
-    def test_title(self) -> None:
+    async def test_title(self) -> None:
         title = 'Title for Amsterdam'
         sut = Entry('nl', 'Amsterdam', title, 'Content for Amsterdam')
         assert title == sut.title
 
-    def test_content(self) -> None:
+    async def test_content(self) -> None:
         content = 'Content for Amsterdam'
         sut = Entry('nl', 'Amsterdam', 'Title for Amsterdam', content)
         assert content == sut.content
@@ -246,7 +246,7 @@ class TestPopulator:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         entry_language = 'nl'
-        with App() as app:
+        async with App() as app:
             sut = _Populator(app, m_retriever)
             await sut.populate_link(link, entry_language)
         assert 'https://en.wikipedia.org/wiki/Amsterdam' == link.url
@@ -267,7 +267,7 @@ class TestPopulator:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.media_type = media_type
-        with App() as app:
+        async with App() as app:
             sut = _Populator(app, m_retriever)
             await sut.populate_link(link, 'en')
         assert expected == link.media_type
@@ -288,7 +288,7 @@ class TestPopulator:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.relationship = relationship
-        with App() as app:
+        async with App() as app:
             sut = _Populator(app, m_retriever)
             await sut.populate_link(link, 'en')
         assert expected == link.relationship
@@ -310,7 +310,7 @@ class TestPopulator:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         link = Link('http://%s.wikipedia.org/wiki/Amsterdam' % entry_language)
         link.locale = locale
-        with App() as app:
+        async with App() as app:
             sut = _Populator(app, m_retriever)
             await sut.populate_link(link, entry_language)
         assert expected == link.locale
@@ -331,7 +331,7 @@ class TestPopulator:
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.description = description
         entry_language = 'en'
-        with App() as app:
+        async with App() as app:
             sut = _Populator(app, m_retriever)
             await sut.populate_link(link, entry_language)
         assert expected == link.description
@@ -352,7 +352,7 @@ class TestPopulator:
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.label = label
         entry = Entry('en', 'The_city_of_Amsterdam', 'The city of Amsterdam', 'Amsterdam, such a lovely place!')
-        with App() as app:
+        async with App() as app:
             sut = _Populator(app, m_retriever)
             await sut.populate_link(link, 'en', entry)
         assert expected == link.label
@@ -363,7 +363,7 @@ class TestPopulator:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         source = Source('The Source')
         resource = Citation('the_citation', source)
-        with App() as app:
+        async with App() as app:
             app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
@@ -373,7 +373,7 @@ class TestPopulator:
     async def test_populate_should_ignore_resource_without_links(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         resource = Source('the_source', 'The Source')
-        with App() as app:
+        async with App() as app:
             app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
@@ -386,7 +386,7 @@ class TestPopulator:
         link = Link('https://example.com')
         resource = Source('the_source', 'The Source')
         resource.links.add(link)
-        with App() as app:
+        async with App() as app:
             app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
@@ -406,7 +406,7 @@ class TestPopulator:
         resource = Source('the_source', 'The Source')
         link = Link('https://en.wikipedia.org/wiki/Amsterdam')
         resource.links.add(link)
-        with App() as app:
+        async with App() as app:
             app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
@@ -448,7 +448,7 @@ class TestPopulator:
         app = App()
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
-        with app:
+        async with app:
             app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()

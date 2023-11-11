@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import gc
 import logging
-from typing import Callable, Iterator, TypeVar, cast, Union
+from typing import Callable, Iterator, TypeVar, cast, Union, AsyncIterator
 
 import pytest
 from PyQt6.QtCore import Qt
@@ -39,7 +39,7 @@ def set_logging(caplog: LogCaptureFixture) -> Iterator[None]:
 
 
 @pytest.fixture(scope='function')
-def qapp(qapp_args: list[str]) -> Iterator[BettyApplication]:
+async def qapp(qapp_args: list[str]) -> AsyncIterator[BettyApplication]:
     """
     Fixture that instantiates the BettyApplication instance that will be used by
     the tests.
@@ -52,7 +52,7 @@ def qapp(qapp_args: list[str]) -> Iterator[BettyApplication]:
     qapp_instance = cast(BettyApplication, BettyApplication.instance())
     if qapp_instance is None:
         global _qapp_instance
-        with App() as app:
+        async with App() as app:
             _qapp_instance = BettyApplication(qapp_args, app=app)
         yield _qapp_instance
     else:

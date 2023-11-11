@@ -11,14 +11,14 @@ T = TypeVar('T')
 
 
 class TestExceptionRaisingAwaitableExecutor:
-    def test_without_exception_should_not_raise(self) -> None:
+    async def test_without_exception_should_not_raise(self) -> None:
         def _task() -> None:
             return
 
         with ExceptionRaisingAwaitableExecutor(ThreadPoolExecutor()) as sut:
             sut.submit(_task)
 
-    def test_with_exception_should_raise(self) -> None:
+    async def test_with_exception_should_raise(self) -> None:
         def _task() -> None:
             raise RuntimeError()
 
@@ -26,7 +26,7 @@ class TestExceptionRaisingAwaitableExecutor:
             with ExceptionRaisingAwaitableExecutor(ThreadPoolExecutor()) as sut:
                 sut.submit(_task)
 
-    def test_wait_with_submitted_tasks(self) -> None:
+    async def test_wait_with_submitted_tasks(self) -> None:
         tracker = []
 
         def _task() -> bool:
@@ -44,7 +44,7 @@ class TestExceptionRaisingAwaitableExecutor:
         assert future.result() is True
         assert [True, True] == tracker
 
-    def test_wait_with_mapped_tasks(self) -> None:
+    async def test_wait_with_mapped_tasks(self) -> None:
         tracker = []
 
         def _task(arg: int) -> int:

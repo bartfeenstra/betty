@@ -18,7 +18,7 @@ class EntityTestEntity(Entity):
 
 
 class TestEntity:
-    def test_id(self) -> None:
+    async def test_id(self) -> None:
         entity_id = '000000001'
         sut = EntityTestEntity(entity_id)
         assert entity_id == sut.id
@@ -29,10 +29,10 @@ class GetEntityTypeNameTestEntity(Entity):
 
 
 class TestGetEntityTypeName:
-    def test_with_betty_entity(self) -> None:
+    async def test_with_betty_entity(self) -> None:
         assert 'Person' == get_entity_type_name(Person)
 
-    def test_with_other_entity(self) -> None:
+    async def test_with_other_entity(self) -> None:
         assert 'betty.tests.model.test___init__.GetEntityTypeNameTestEntity' == get_entity_type_name(GetEntityTypeNameTestEntity)
 
 
@@ -41,13 +41,13 @@ class GetEntityTypeTestEntity(Entity):
 
 
 class TestGetEntityType:
-    def test_with_betty_entity_type_name(self) -> None:
+    async def test_with_betty_entity_type_name(self) -> None:
         assert Person == get_entity_type('Person')
 
-    def test_with_other_entity_type_name(self) -> None:
+    async def test_with_other_entity_type_name(self) -> None:
         assert GetEntityTypeTestEntity == get_entity_type('betty.tests.model.test___init__.GetEntityTypeTestEntity')
 
-    def test_with_unknown_entity_type_name(self) -> None:
+    async def test_with_unknown_entity_type_name(self) -> None:
         with pytest.raises(EntityTypeImportError):
             get_entity_type('betty_non_existent.UnknownEntity')
 
@@ -89,14 +89,14 @@ class TestEntityTypeAssociationRegistry:
         EntityTypeAssociationRegistry._associations.remove(parent_association)
         EntityTypeAssociationRegistry._associations.remove(child_association)
 
-    def test_get_associations_with_parent_class_should_return_parent_associations(
+    async def test_get_associations_with_parent_class_should_return_parent_associations(
         self,
         associations: tuple[ToAny[Any, Any], ToAny[Any, Any]],
     ) -> None:
         parent_registration, _ = associations
         assert {parent_registration} == EntityTypeAssociationRegistry.get_all_associations(_TestEntityTypeAssociationRegistry_ParentEntity)
 
-    def test_get_associations_with_child_class_should_return_child_associations(
+    async def test_get_associations_with_child_class_should_return_child_associations(
         self,
         associations: tuple[ToAny[Any, Any], ToAny[Any, Any]],
     ) -> None:
@@ -109,7 +109,7 @@ class SingleTypeEntityCollectionTestEntity(Entity):
 
 
 class TestSingleTypeEntityCollection:
-    def test_add(self) -> None:
+    async def test_add(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
@@ -121,7 +121,7 @@ class TestSingleTypeEntityCollection:
         sut.add(entity1)
         assert [entity3, entity2, entity1] == list(sut)
 
-    def test_add_with_duplicate_entities(self) -> None:
+    async def test_add_with_duplicate_entities(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
@@ -139,7 +139,7 @@ class TestSingleTypeEntityCollection:
         sut.add(entity1, entity2, entity3, entity4, entity5, entity6, entity7, entity8, entity9)
         assert [entity1, entity2, entity3, entity4, entity5, entity6, entity7, entity8, entity9] == list(sut)
 
-    def test_remove(self) -> None:
+    async def test_remove(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
@@ -149,7 +149,7 @@ class TestSingleTypeEntityCollection:
         sut.remove(entity4, entity2)
         assert [entity1, entity3] == list(sut)
 
-    def test_replace(self) -> None:
+    async def test_replace(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
@@ -161,7 +161,7 @@ class TestSingleTypeEntityCollection:
         sut.replace(entity4, entity5, entity6)
         assert [entity4, entity5, entity6] == list(sut)
 
-    def test_clear(self) -> None:
+    async def test_clear(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
@@ -170,7 +170,7 @@ class TestSingleTypeEntityCollection:
         sut.clear()
         assert [] == list(sut)
 
-    def test_list(self) -> None:
+    async def test_list(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
@@ -180,7 +180,7 @@ class TestSingleTypeEntityCollection:
         assert entity2 is sut[1]
         assert entity3 is sut[2]
 
-    def test_len(self) -> None:
+    async def test_len(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
@@ -188,7 +188,7 @@ class TestSingleTypeEntityCollection:
         sut.add(entity1, entity2, entity3)
         assert 3 == len(sut)
 
-    def test_iter(self) -> None:
+    async def test_iter(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
@@ -196,7 +196,7 @@ class TestSingleTypeEntityCollection:
         sut.add(entity1, entity2, entity3)
         assert [entity1, entity2, entity3] == list(list(sut))
 
-    def test_getitem_by_index(self) -> None:
+    async def test_getitem_by_index(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
@@ -208,7 +208,7 @@ class TestSingleTypeEntityCollection:
         with pytest.raises(IndexError):
             sut[3]
 
-    def test_getitem_by_indices(self) -> None:
+    async def test_getitem_by_indices(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
@@ -216,7 +216,7 @@ class TestSingleTypeEntityCollection:
         sut.add(entity1, entity2, entity3)
         assert [entity1, entity3] == list(sut[0::2])
 
-    def test_getitem_by_entity_id(self) -> None:
+    async def test_getitem_by_entity_id(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
         entity1 = SingleTypeEntityCollectionTestEntity('1')
         entity2 = SingleTypeEntityCollectionTestEntity('2')
@@ -228,7 +228,7 @@ class TestSingleTypeEntityCollection:
         with pytest.raises(KeyError):
             sut['4']
 
-    def test_delitem_by_entity(self) -> None:
+    async def test_delitem_by_entity(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
@@ -239,7 +239,7 @@ class TestSingleTypeEntityCollection:
 
         assert [entity1, entity3] == list(sut)
 
-    def test_delitem_by_entity_id(self) -> None:
+    async def test_delitem_by_entity_id(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
         entity1 = SingleTypeEntityCollectionTestEntity('1')
         entity2 = SingleTypeEntityCollectionTestEntity('2')
@@ -250,7 +250,7 @@ class TestSingleTypeEntityCollection:
 
         assert [entity1, entity3] == list(sut)
 
-    def test_contains_by_entity(self) -> None:
+    async def test_contains_by_entity(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
@@ -259,7 +259,7 @@ class TestSingleTypeEntityCollection:
         assert entity1 in sut
         assert entity2 not in sut
 
-    def test_contains_by_entity_id(self) -> None:
+    async def test_contains_by_entity_id(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
@@ -273,7 +273,7 @@ class TestSingleTypeEntityCollection:
         False,
         [],
     ])
-    def test_contains_by_unsupported_typed(self, value: Any) -> None:
+    async def test_contains_by_unsupported_typed(self, value: Any) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
         entity = SingleTypeEntityCollectionTestEntity()
         sut.add(entity)
@@ -290,7 +290,7 @@ class MultipleTypesEntityCollectionTestEntityOther(Entity):
 
 
 class TestMultipleTypesEntityCollection:
-    def test_add(self) -> None:
+    async def test_add(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other1 = MultipleTypesEntityCollectionTestEntityOther()
@@ -300,7 +300,7 @@ class TestMultipleTypesEntityCollection:
         assert [entity_one] == list(sut[MultipleTypesEntityCollectionTestEntityOne])
         assert [entity_other1, entity_other2, entity_other3] == list(sut[MultipleTypesEntityCollectionTestEntityOther])
 
-    def test_add_with_duplicate_entities(self) -> None:
+    async def test_add_with_duplicate_entities(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         entity1 = MultipleTypesEntityCollectionTestEntityOne()
         entity2 = MultipleTypesEntityCollectionTestEntityOther()
@@ -320,7 +320,7 @@ class TestMultipleTypesEntityCollection:
         assert [entity1, entity3, entity5, entity7, entity9] == list(sut[MultipleTypesEntityCollectionTestEntityOne])
         assert [entity2, entity4, entity6, entity8] == list(sut[MultipleTypesEntityCollectionTestEntityOther])
 
-    def test_remove(self) -> None:
+    async def test_remove(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
@@ -331,7 +331,7 @@ class TestMultipleTypesEntityCollection:
         sut.remove(entity_other)
         assert [] == list(list(sut))
 
-    def test_getitem_by_index(self) -> None:
+    async def test_getitem_by_index(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
@@ -341,7 +341,7 @@ class TestMultipleTypesEntityCollection:
         with pytest.raises(IndexError):
             sut[2]
 
-    def test_getitem_by_indices(self) -> None:
+    async def test_getitem_by_indices(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
@@ -349,7 +349,7 @@ class TestMultipleTypesEntityCollection:
         assert [entity_one] == list(sut[0:1:1])
         assert [entity_other] == list(sut[1::1])
 
-    def test_getitem_by_entity_type(self) -> None:
+    async def test_getitem_by_entity_type(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
@@ -359,7 +359,7 @@ class TestMultipleTypesEntityCollection:
         # Ensure that getting previously unseen entity types automatically creates and returns a new collection.
         assert [] == list(sut[Entity])
 
-    def test_getitem_by_entity_type_name(self) -> None:
+    async def test_getitem_by_entity_type_name(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         # Use an existing ancestry entity type, because converting an entity type name to an entity type only works for
         # entity types in a single module namespace.
@@ -370,7 +370,7 @@ class TestMultipleTypesEntityCollection:
         with pytest.raises(ValueError):
             sut['NonExistentEntityType']
 
-    def test_delitem_by_entity(self) -> None:
+    async def test_delitem_by_entity(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         entity1 = MultipleTypesEntityCollectionTestEntityOne()
         entity2 = MultipleTypesEntityCollectionTestEntityOne()
@@ -381,7 +381,7 @@ class TestMultipleTypesEntityCollection:
 
         assert [entity1, entity3] == list(sut)
 
-    def test_delitem_by_entity_type(self) -> None:
+    async def test_delitem_by_entity_type(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         entity = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
@@ -391,7 +391,7 @@ class TestMultipleTypesEntityCollection:
 
         assert [entity_other] == list(sut)
 
-    def test_delitem_by_entity_type_name(self) -> None:
+    async def test_delitem_by_entity_type_name(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         entity = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
@@ -401,7 +401,7 @@ class TestMultipleTypesEntityCollection:
 
         assert [entity_other] == list(sut)
 
-    def test_iter(self) -> None:
+    async def test_iter(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
@@ -409,7 +409,7 @@ class TestMultipleTypesEntityCollection:
         sut[MultipleTypesEntityCollectionTestEntityOther].add(entity_other)
         assert [entity_one, entity_other] == list(list(sut))
 
-    def test_len(self) -> None:
+    async def test_len(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
@@ -417,7 +417,7 @@ class TestMultipleTypesEntityCollection:
         sut[MultipleTypesEntityCollectionTestEntityOther].add(entity_other)
         assert 2 == len(sut)
 
-    def test_contain_by_entity(self) -> None:
+    async def test_contain_by_entity(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other1 = MultipleTypesEntityCollectionTestEntityOther()
@@ -433,7 +433,7 @@ class TestMultipleTypesEntityCollection:
         False,
         [],
     ])
-    def test_contains_by_unsupported_type(self, value: Any) -> None:
+    async def test_contains_by_unsupported_type(self, value: Any) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         entity = MultipleTypesEntityCollectionTestEntityOne()
         sut.add(entity)
@@ -579,7 +579,7 @@ class TestEntityGraphBuilder:
             AliasedEntity(_EntityGraphBuilder_ToOne_Right()),
         ),
     ])
-    def test_build_to_one(
+    async def test_build_to_one(
         self,
         to_one_left: AliasableEntity[_EntityGraphBuilder_ToOne_Left],
         to_one_right: AliasableEntity[_EntityGraphBuilder_ToOne_Right],
@@ -614,7 +614,7 @@ class TestEntityGraphBuilder:
             AliasedEntity(_EntityGraphBuilder_OneToOne_Right()),
         ),
     ])
-    def test_build_one_to_one(
+    async def test_build_one_to_one(
         self,
         one_to_one_left: AliasableEntity[_EntityGraphBuilder_OneToOne_Left],
         one_to_one_right: AliasableEntity[_EntityGraphBuilder_OneToOne_Right],
@@ -650,7 +650,7 @@ class TestEntityGraphBuilder:
             AliasedEntity(_EntityGraphBuilder_ManyToOne_Right()),
         ),
     ])
-    def test_build_many_to_one(
+    async def test_build_many_to_one(
         self,
         many_to_one_left: AliasableEntity[_EntityGraphBuilder_ManyToOne_Left],
         many_to_one_right: AliasableEntity[_EntityGraphBuilder_ManyToOne_Right],
@@ -686,7 +686,7 @@ class TestEntityGraphBuilder:
             AliasedEntity(_EntityGraphBuilder_ToMany_Right()),
         ),
     ])
-    def test_build_to_many(
+    async def test_build_to_many(
         self,
         to_many_left: AliasableEntity[_EntityGraphBuilder_ToMany_Left],
         to_many_right: AliasableEntity[_EntityGraphBuilder_ToMany_Right],
@@ -721,7 +721,7 @@ class TestEntityGraphBuilder:
             AliasedEntity(_EntityGraphBuilder_OneToMany_Right()),
         ),
     ])
-    def test_build_one_to_many(
+    async def test_build_one_to_many(
         self,
         one_to_many_left: AliasableEntity[_EntityGraphBuilder_OneToMany_Left],
         one_to_many_right: AliasableEntity[_EntityGraphBuilder_OneToMany_Right],
@@ -757,7 +757,7 @@ class TestEntityGraphBuilder:
             AliasedEntity(_EntityGraphBuilder_ManyToMany_Right()),
         ),
     ])
-    def test_build_many_to_many(
+    async def test_build_many_to_many(
         self,
         many_to_many_left: AliasableEntity[_EntityGraphBuilder_ManyToMany_Left],
         many_to_many_right: AliasableEntity[_EntityGraphBuilder_ManyToMany_Right],
@@ -795,7 +795,7 @@ class TestEntityGraphBuilder:
             AliasedEntity(_EntityGraphBuilder_ManyToOneToMany_Right()),
         ),
     ])
-    def test_build_many_to_one_to_many(
+    async def test_build_many_to_one_to_many(
         self,
         many_to_one_to_many_left: AliasableEntity[_EntityGraphBuilder_ManyToOneToMany_Left],
         many_to_one_to_many_middle: AliasableEntity[_EntityGraphBuilder_ManyToOneToMany_Middle],
@@ -834,7 +834,7 @@ class TestEntityGraphBuilder:
 
 
 class TestPickleableEntityGraph:
-    def test_pickle_to_one(self) -> None:
+    async def test_pickle_to_one(self) -> None:
         to_one_left = _EntityGraphBuilder_ToOne_Left()
         to_one_right = _EntityGraphBuilder_ToOne_Right()
         to_one_left.to_one = to_one_right
@@ -850,7 +850,7 @@ class TestPickleableEntityGraph:
         assert to_one_right == unpickled_entities[_EntityGraphBuilder_ToOne_Right][to_one_right.id]
         assert to_one_right == to_one_left.to_one
 
-    def test_pickle_one_to_one(self) -> None:
+    async def test_pickle_one_to_one(self) -> None:
         one_to_one_left = _EntityGraphBuilder_OneToOne_Left()
         one_to_one_right = _EntityGraphBuilder_OneToOne_Right()
         one_to_one_left.to_one = one_to_one_right
@@ -867,7 +867,7 @@ class TestPickleableEntityGraph:
         assert one_to_one_right == one_to_one_left.to_one
         assert one_to_one_left == one_to_one_right.to_one
 
-    def test_pickle_many_to_one(self) -> None:
+    async def test_pickle_many_to_one(self) -> None:
         many_to_one_left = _EntityGraphBuilder_ManyToOne_Left()
         many_to_one_right = _EntityGraphBuilder_ManyToOne_Right()
         many_to_one_left.to_one = many_to_one_right
@@ -884,7 +884,7 @@ class TestPickleableEntityGraph:
         assert many_to_one_right == many_to_one_left.to_one
         assert many_to_one_left in many_to_one_right.to_many
 
-    def test_pickle_to_many(self) -> None:
+    async def test_pickle_to_many(self) -> None:
         to_many_left = _EntityGraphBuilder_ToMany_Left()
         to_many_right = _EntityGraphBuilder_ToMany_Right()
         to_many_left.to_many = [to_many_right]  # type: ignore[assignment]
@@ -900,7 +900,7 @@ class TestPickleableEntityGraph:
         assert to_many_right == unpickled_entities[_EntityGraphBuilder_ToMany_Right][to_many_right.id]
         assert to_many_right in to_many_left.to_many
 
-    def test_pickle_one_to_many(self) -> None:
+    async def test_pickle_one_to_many(self) -> None:
         one_to_many_left = _EntityGraphBuilder_OneToMany_Left()
         one_to_many_right = _EntityGraphBuilder_OneToMany_Right()
         one_to_many_left.to_many = [one_to_many_right]  # type: ignore[assignment]
@@ -917,7 +917,7 @@ class TestPickleableEntityGraph:
         assert one_to_many_right in one_to_many_left.to_many
         assert one_to_many_left == one_to_many_right.to_one
 
-    def test_pickle_many_to_many(self) -> None:
+    async def test_pickle_many_to_many(self) -> None:
         many_to_many_left = _EntityGraphBuilder_ManyToMany_Left()
         many_to_many_right = _EntityGraphBuilder_ManyToMany_Right()
         many_to_many_left.to_many = [many_to_many_right]  # type: ignore[assignment]
@@ -934,7 +934,7 @@ class TestPickleableEntityGraph:
         assert many_to_many_right in many_to_many_left.to_many
         assert many_to_many_left in many_to_many_right.to_many
 
-    def test_pickle_many_to_one_to_many(self) -> None:
+    async def test_pickle_many_to_one_to_many(self) -> None:
         many_to_one_to_many_left = _EntityGraphBuilder_ManyToOneToMany_Left()
         many_to_one_to_many_middle = _EntityGraphBuilder_ManyToOneToMany_Middle()
         many_to_one_to_many_right = _EntityGraphBuilder_ManyToOneToMany_Right()
@@ -971,7 +971,7 @@ class _TestToOne_One(Entity):
 
 
 class TestToOne:
-    def test(self) -> None:
+    async def test(self) -> None:
         assert {'one'} == {
             association.owner_attr_name
             for association
@@ -1007,7 +1007,7 @@ class _TestOneToOne_OtherOne(Entity):
 
 
 class TestOneToOne:
-    def test(self) -> None:
+    async def test(self) -> None:
         assert {'one'} == {
             association.owner_attr_name
             for association
@@ -1045,7 +1045,7 @@ class _TestManyToOne_One(Entity):
 
 
 class TestManyToOne:
-    def test(self) -> None:
+    async def test(self) -> None:
         assert {'one'} == {
             association.owner_attr_name
             for association
@@ -1077,7 +1077,7 @@ class _TestToMany_Many(Entity):
 
 
 class TestToMany:
-    def test(self) -> None:
+    async def test(self) -> None:
         assert {'many'} == {
             association.owner_attr_name
             for association
@@ -1113,7 +1113,7 @@ class _TestOneToMany_Many(Entity):
 
 
 class TestOneToMany:
-    def test(self) -> None:
+    async def test(self) -> None:
         assert {'many'} == {
             association.owner_attr_name
             for association
@@ -1151,7 +1151,7 @@ class _TestManyToMany_OtherMany(Entity):
 
 
 class TestManyToMany:
-    def test(self) -> None:
+    async def test(self) -> None:
         assert {'other_many'} == {
             association.owner_attr_name
             for association
@@ -1202,7 +1202,7 @@ class _TestManyToOneToMany_Right(Entity):
 
 
 class TestManyToOneToMany:
-    def test(self) -> None:
+    async def test(self) -> None:
         assert {'left_many', 'right_many'} == {
             association.owner_attr_name
             for association

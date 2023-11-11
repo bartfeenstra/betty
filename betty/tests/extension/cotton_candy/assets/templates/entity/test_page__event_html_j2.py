@@ -43,7 +43,7 @@ class TestTemplate(TemplateTestCase):
         private_citation.location = 'private citation location'
         private_citation.facts.add(event)
 
-        with self._render(
+        async with self._render(
             data={
                 'page_resource': event,
                 'entity_type': Event,

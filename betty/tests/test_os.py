@@ -5,7 +5,7 @@ from betty.tempfile import TemporaryDirectory
 
 
 class TestLinkOrCopy:
-    def test(self) -> None:
+    async def test(self) -> None:
         with TemporaryDirectory() as working_directory_path:
             content = 'I will say zis only once.'
             source_path = working_directory_path / 'source'
@@ -16,7 +16,7 @@ class TestLinkOrCopy:
             with open(destination_path) as f:
                 assert content == f.read()
 
-    def test_with_os_error(self, mocker: MockerFixture) -> None:
+    async def test_with_os_error(self, mocker: MockerFixture) -> None:
         m_link = mocker.patch('os.link')
         m_link.side_effect = OSError
         with TemporaryDirectory() as working_directory_path:

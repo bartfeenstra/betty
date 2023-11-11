@@ -9,8 +9,8 @@ from betty.extension.npm import _NpmRequirement
 
 
 class TestNpmRequirement:
-    def test_check_met(self) -> None:
-        with App():
+    async def test_check_met(self) -> None:
+        async with App():
             sut = _NpmRequirement.check(DEFAULT_LOCALIZER)
         assert sut.is_met()
 
@@ -18,9 +18,9 @@ class TestNpmRequirement:
         CalledProcessError(1, ''),
         FileNotFoundError(),
     ])
-    def test_check_unmet(self, e: Exception, mocker: MockerFixture) -> None:
+    async def test_check_unmet(self, e: Exception, mocker: MockerFixture) -> None:
         m_npm = mocker.patch('betty.extension.npm.npm')
         m_npm.side_effect = e
-        with App():
+        async with App():
             sut = _NpmRequirement.check(DEFAULT_LOCALIZER)
         assert not sut.is_met()

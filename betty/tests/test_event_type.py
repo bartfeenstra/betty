@@ -8,18 +8,18 @@ _LIFETIME_THRESHOLD = 125
 
 
 class TestDeath:
-    def test_may_create_may_not_for_person_without_presences(self) -> None:
+    async def test_may_create_may_not_for_person_without_presences(self) -> None:
         person = Person('P0')
 
         assert Death.may_create(person, _LIFETIME_THRESHOLD) is False
 
-    def test_may_create_may_not_within_lifetime_threshold(self) -> None:
+    async def test_may_create_may_not_within_lifetime_threshold(self) -> None:
         person = Person('P0')
         Presence(None, person, Subject(), Event(None, Birth, Date(1970, 1, 1)))
 
         assert Death.may_create(person, _LIFETIME_THRESHOLD) is False
 
-    def test_may_create_may_over_lifetime_threshold(self) -> None:
+    async def test_may_create_may_over_lifetime_threshold(self) -> None:
         person = Person('P0')
         Presence(None, person, Subject(), Event(None, Birth, Date(1, 1, 1)))
 

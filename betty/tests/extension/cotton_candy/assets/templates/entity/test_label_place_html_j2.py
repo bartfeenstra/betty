@@ -56,6 +56,6 @@ class Test(TemplateTestCase):
             'nl',
         ),
     ])
-    def test(self, expected: str, data: dict[str, Any], locale: str | None) -> None:
-        with self._render(data=data, locale=locale) as (actual, _):
+    async def test(self, expected: str, data: dict[str, Any], locale: str | None) -> None:
+        async with self._render(data=data, locale=locale) as (actual, _):
             assert expected == actual

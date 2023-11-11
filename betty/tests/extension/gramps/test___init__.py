@@ -121,7 +121,7 @@ class TestGramps:
             with open(gramps_family_tree_two_path, mode='w') as f:
                 f.write(family_tree_two_xml)
 
-            with App() as app:
+            async with App() as app:
                 app.project.configuration.extensions.append(ExtensionConfiguration(Gramps, True, GrampsConfiguration(
                     family_trees=[
                         FamilyTreeConfiguration(gramps_family_tree_one_path),

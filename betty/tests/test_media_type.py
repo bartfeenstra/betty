@@ -18,7 +18,7 @@ class TestMediaType:
         # A media type with a parameter.
         ('text', 'html', ['html'], None, {'charset': 'UTF-8'}, 'text/html; charset=UTF-8'),
     ])
-    def test(
+    async def test(
         self,
         expected_type: str,
         expected_subtype: str,
@@ -43,6 +43,6 @@ class TestMediaType:
         'foo',
         'bar',
     ])
-    def test_invalid_type_should_raise_error(self, media_type: str) -> None:
+    async def test_invalid_type_should_raise_error(self, media_type: str) -> None:
         with pytest.raises(InvalidMediaType):
             MediaType(media_type)

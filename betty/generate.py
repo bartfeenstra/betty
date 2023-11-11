@@ -40,7 +40,7 @@ class Generator:
 
 
 async def generate(app: App) -> None:
-    with app:
+    async with app:
         with suppress(FileNotFoundError):
             shutil.rmtree(app.project.configuration.output_directory_path)
         await aiofiles_os.makedirs(app.project.configuration.output_directory_path, exist_ok=True)

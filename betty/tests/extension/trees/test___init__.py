@@ -10,7 +10,7 @@ class TestTrees:
     @patch_cache
     @sync
     async def test_generate(self) -> None:
-        with App() as app:
+        async with App() as app:
             app.project.configuration.debug = True
             app.project.configuration.extensions.append(ExtensionConfiguration(Trees))
             await generate(app)

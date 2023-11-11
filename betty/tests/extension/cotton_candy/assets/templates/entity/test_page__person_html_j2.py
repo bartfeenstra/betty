@@ -11,7 +11,7 @@ class TestTemplate(TemplateTestCase):
     extensions = {CottonCandy}
     template_file = 'entity/page--person.html.j2'
 
-    def test_descendant_names(self) -> None:
+    async def test_descendant_names(self) -> None:
         person = Person('P0')
         partner_one = Person('P1')
         child_one = Person('P1C1')
@@ -23,7 +23,7 @@ class TestTemplate(TemplateTestCase):
         child_two.parents.add(person)
         child_two.parents.add(partner_two)
         PersonName(None, child_two, None, 'FamilyTwoAssociationName')
-        with self._render(
+        async with self._render(
             data={
                 'page_resource': person,
                 'entity_type': Person,
@@ -183,7 +183,7 @@ class TestTemplate(TemplateTestCase):
         private_event_private_presence.private = True
         Presence(None, person, Subject(), public_event_public_presence)
         Presence(None, person, Subject(), private_event_public_presence)
-        with self._render(
+        async with self._render(
             data={
                 'page_resource': person,
                 'entity_type': Person,

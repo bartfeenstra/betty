@@ -196,7 +196,7 @@ class TestTemplate(TemplateTestCase):
         PersonName(None, private_fact_for_private_citation_for_private_contained_source, private_fact_for_private_citation_for_private_contained_source_name)
         private_fact_for_private_citation_for_private_contained_source.citations.add(private_citation_for_private_contained_source)
 
-        with self._render(
+        async with self._render(
             data={
                 'page_resource': source,
                 'entity_type': Source,

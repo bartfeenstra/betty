@@ -42,7 +42,7 @@ class TestTemplate(TemplateTestCase):
         private_enclosed_event.description = 'private enclosed event'
         private_enclosed_event.place = place
 
-        with self._render(
+        async with self._render(
             data={
                 'page_resource': place,
                 'entity_type': Place,

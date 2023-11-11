@@ -14,19 +14,19 @@ from betty.project import EntityReference
 
 
 class TestColorConfigurationWidget:
-    def test_configure(self, qtbot: QtBot, mocker: MockerFixture) -> None:
+    async def test_configure(self, qtbot: QtBot, mocker: MockerFixture) -> None:
         configured_hex_value = '#ffffff'
         color_configuration = _ColorConfiguration(hex_value='#000000')
         mocker.patch.object(QColorDialog, 'getColor', mocker.MagicMock(return_value=QColor.fromString(configured_hex_value)))
-        with App() as app:
+        async with App() as app:
             sut = _ColorConfigurationWidget(app, color_configuration, configured_hex_value)
             sut._configure.click()
         assert configured_hex_value == color_configuration.hex
 
-    def test_reset(self, qtbot: QtBot) -> None:
+    async def test_reset(self, qtbot: QtBot) -> None:
         default_hex_value = '#ffffff'
         color_configuration = _ColorConfiguration(hex_value='#000000')
-        with App() as app:
+        async with App() as app:
             sut = _ColorConfigurationWidget(app, color_configuration, default_hex_value)
             qtbot.addWidget(sut)
             sut.show()
@@ -45,8 +45,8 @@ class CottonCandyGuiWidgetTestEntity(UserFacingEntity, Entity):
 
 
 class TestCottonCandyGuiWidget:
-    def test_add_featured_entities(self, qtbot: QtBot) -> None:
-        with App() as app:
+    async def test_add_featured_entities(self, qtbot: QtBot) -> None:
+        async with App() as app:
             app.project.configuration.extensions.enable(CottonCandy)
             sut = _CottonCandyGuiWidget(app)
             qtbot.addWidget(sut)
@@ -58,8 +58,8 @@ class TestCottonCandyGuiWidget:
             sut._featured_entities_entity_references_collector._entity_reference_collectors[0]._entity_id.setText(entity_id)
             assert app.extensions[CottonCandy].configuration.featured_entities[0].entity_id == entity_id
 
-    def test_change_featured_entities(self, qtbot: QtBot) -> None:
-        with App() as app:
+    async def test_change_featured_entities(self, qtbot: QtBot) -> None:
+        async with App() as app:
             app.project.configuration.extensions.enable(CottonCandy)
             entity_reference_1 = EntityReference(CottonCandyGuiWidgetTestEntity, '123')
             entity_reference_2 = EntityReference(CottonCandyGuiWidgetTestEntity, '456')
@@ -82,8 +82,8 @@ class TestCottonCandyGuiWidget:
             sut._featured_entities_entity_references_collector._entity_reference_collectors[1]._entity_id.setText(entity_id)
             assert app.extensions[CottonCandy].configuration.featured_entities[1].entity_id == entity_id
 
-    def test_remove_featured_entities(self, qtbot: QtBot) -> None:
-        with App() as app:
+    async def test_remove_featured_entities(self, qtbot: QtBot) -> None:
+        async with App() as app:
             app.project.configuration.extensions.enable(CottonCandy)
             entity_reference_1 = EntityReference[CottonCandyGuiWidgetTestEntity](CottonCandyGuiWidgetTestEntity, '123')
             entity_reference_2 = EntityReference[CottonCandyGuiWidgetTestEntity](CottonCandyGuiWidgetTestEntity, '456')
@@ -106,36 +106,36 @@ class TestCottonCandyGuiWidget:
             assert entity_reference_2 not in app.extensions[CottonCandy].configuration.featured_entities
             assert entity_reference_3 in app.extensions[CottonCandy].configuration.featured_entities
 
-    def test_change_primary_inactive_color(self, qtbot: QtBot, mocker: MockerFixture) -> None:
+    async def test_change_primary_inactive_color(self, qtbot: QtBot, mocker: MockerFixture) -> None:
         configured_hex_value = '#ffffff'
-        with App() as app:
+        async with App() as app:
             app.project.configuration.extensions.enable(CottonCandy)
             sut = _CottonCandyGuiWidget(app)
             mocker.patch.object(QColorDialog, 'getColor', mocker.MagicMock(return_value=QColor.fromString(configured_hex_value)))
             sut._color_configurations_widget._color_configurations[0]._configure.click()
         assert configured_hex_value == app.extensions[CottonCandy].configuration.primary_inactive_color.hex
 
-    def test_change_primary_active_color(self, qtbot: QtBot, mocker: MockerFixture) -> None:
+    async def test_change_primary_active_color(self, qtbot: QtBot, mocker: MockerFixture) -> None:
         configured_hex_value = '#ffffff'
-        with App() as app:
+        async with App() as app:
             app.project.configuration.extensions.enable(CottonCandy)
             sut = _CottonCandyGuiWidget(app)
             mocker.patch.object(QColorDialog, 'getColor', mocker.MagicMock(return_value=QColor.fromString(configured_hex_value)))
             sut._color_configurations_widget._color_configurations[1]._configure.click()
         assert configured_hex_value == app.extensions[CottonCandy].configuration.primary_active_color.hex
 
-    def test_change_link_inactive_color(self, qtbot: QtBot, mocker: MockerFixture) -> None:
+    async def test_change_link_inactive_color(self, qtbot: QtBot, mocker: MockerFixture) -> None:
         configured_hex_value = '#ffffff'
-        with App() as app:
+        async with App() as app:
             app.project.configuration.extensions.enable(CottonCandy)
             sut = _CottonCandyGuiWidget(app)
             mocker.patch.object(QColorDialog, 'getColor', mocker.MagicMock(return_value=QColor.fromString(configured_hex_value)))
             sut._color_configurations_widget._color_configurations[2]._configure.click()
         assert configured_hex_value == app.extensions[CottonCandy].configuration.link_inactive_color.hex
 
-    def test_change_link_active_color(self, qtbot: QtBot, mocker: MockerFixture) -> None:
+    async def test_change_link_active_color(self, qtbot: QtBot, mocker: MockerFixture) -> None:
         configured_hex_value = '#ffffff'
-        with App() as app:
+        async with App() as app:
             app.project.configuration.extensions.enable(CottonCandy)
             sut = _CottonCandyGuiWidget(app)
             mocker.patch.object(QColorDialog, 'getColor', mocker.MagicMock(return_value=QColor.fromString(configured_hex_value)))
