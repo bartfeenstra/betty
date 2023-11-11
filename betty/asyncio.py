@@ -13,16 +13,18 @@ T = TypeVar('T')
 
 def wait(f: Awaitable[T]) -> T:
     try:
-        asyncio.get_running_loop()
+        loop = asyncio.get_running_loop()
     except RuntimeError:
-        return asyncio.run(
-            f,  # type: ignore[arg-type]
-        )
-    else:
+        loop = None
+    if loop:
         synced = _SyncedAwaitable(f)
         synced.start()
         synced.join()
         return synced.return_value
+    else:
+        return asyncio.run(
+            f,  # type: ignore[arg-type]
+        )
 
 
 def sync(f: Callable[P, Awaitable[T]]) -> Callable[P, T]:
