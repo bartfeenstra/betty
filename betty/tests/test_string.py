@@ -9,7 +9,7 @@ class TestCamelCaseToSnakeCase:
         ('snake_case', 'SnakeCase'),
         ('snake__case', 'Snake_Case'),
     ])
-    def test(self, expected: str, string: str) -> None:
+    async def test(self, expected: str, string: str) -> None:
         assert expected == camel_case_to_snake_case(string)
 
 
@@ -19,7 +19,7 @@ class TestCamelCaseToKebabCase:
         ('snake-case', 'SnakeCase'),
         ('snake--case', 'Snake-Case'),
     ])
-    def test(self, expected: str, string: str) -> None:
+    async def test(self, expected: str, string: str) -> None:
         assert expected == camel_case_to_kebab_case(string)
 
 
@@ -29,5 +29,5 @@ class TestUpperCamelCaseToLowerCamelCase:
         ('snakeCase', 'SnakeCase'),
         ('123SnakeCase', '123SnakeCase'),
     ])
-    def test(self, expected: str, string: str) -> None:
+    async def test(self, expected: str, string: str) -> None:
         assert expected == upper_camel_case_to_lower_camel_case(string)

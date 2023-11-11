@@ -110,12 +110,12 @@ class ConfigurableExtension(GenericConfigurableExtension[ConfigurableExtensionCo
 
 
 class TestApp:
-    def test_extensions_with_one_extension(self) -> None:
+    async def test_extensions_with_one_extension(self) -> None:
         sut = App()
         sut.project.configuration.extensions.append(ExtensionConfiguration(NonConfigurableExtension))
         assert isinstance(sut.extensions[NonConfigurableExtension], NonConfigurableExtension)
 
-    def test_extensions_with_one_configurable_extension(self) -> None:
+    async def test_extensions_with_one_configurable_extension(self) -> None:
         check = 1337
         sut = App()
         sut.project.configuration.extensions.append(ExtensionConfiguration(ConfigurableExtension, True, ConfigurableExtensionConfiguration(
@@ -145,7 +145,7 @@ class TestApp:
         assert DependsOnNonConfigurableExtensionExtension in [type(extension) for extension in carrier]
         assert AlsoDependsOnNonConfigurableExtensionExtension in [type(extension) for extension in carrier]
 
-    def test_extensions_with_multiple_extensions_with_cyclic_dependencies(self) -> None:
+    async def test_extensions_with_multiple_extensions_with_cyclic_dependencies(self) -> None:
         with pytest.raises(CyclicDependencyError):
             sut = App()
             sut.project.configuration.extensions.append(ExtensionConfiguration(CyclicDependencyOneExtension))
@@ -187,14 +187,14 @@ class TestApp:
         assert 1 == len(carrier)
         assert isinstance(carrier[0], ComesAfterNonConfigurableExtensionExtension)
 
-    def test_extensions_addition_to_configuration(self) -> None:
+    async def test_extensions_addition_to_configuration(self) -> None:
         sut = App()
         # Get the extensions before making configuration changes to warm the cache.
         sut.extensions
         sut.project.configuration.extensions.append(ExtensionConfiguration(NonConfigurableExtension))
         assert isinstance(sut.extensions[NonConfigurableExtension], NonConfigurableExtension)
 
-    def test_extensions_removal_from_configuration(self) -> None:
+    async def test_extensions_removal_from_configuration(self) -> None:
         sut = App()
         sut.project.configuration.extensions.append(ExtensionConfiguration(NonConfigurableExtension))
         # Get the extensions before making configuration changes to warm the cache.

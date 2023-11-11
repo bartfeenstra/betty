@@ -14,7 +14,7 @@ class TestSpecification:
         True,
         False,
     ])
-    def test_build(self, content_negotiation: bool) -> None:
+    async def test_build(self, content_negotiation: bool) -> None:
         with open(Path(__file__).parent / 'test_openapi_assets' / 'openapi-schema.json') as f:
             schema = stdjson.load(f)
         app = App()
@@ -23,7 +23,7 @@ class TestSpecification:
         specification = sut.build()
         jsonschema.validate(specification, schema)
 
-    def test_json_schema(self) -> None:
+    async def test_json_schema(self) -> None:
         with open(ASSETS_DIRECTORY_PATH / 'public' / 'static' / 'schema.json') as f:
             betty_json_schema = stdjson.load(f)
         with open(Path(__file__).parent / 'test_openapi_assets' / 'json-schema-schema.json') as f:

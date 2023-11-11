@@ -32,7 +32,7 @@ class TestTemplate(TemplateTestCase):
         private_entity.private = True
         file.entities.add(private_entity)
 
-        with self._render(
+        async with self._render(
             data={
                 'page_resource': file,
                 'entity_type': File,

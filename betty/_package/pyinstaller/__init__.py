@@ -19,7 +19,7 @@ from betty.project import ExtensionConfiguration
 
 async def _build_assets() -> None:
     npm_builder_extension_types = {HttpApiDoc, Maps, Trees}
-    with App() as app:
+    async with App() as app:
         app.project.configuration.extensions.append(ExtensionConfiguration(_Npm))
         for extension_type in npm_builder_extension_types:
             app.project.configuration.extensions.append(ExtensionConfiguration(extension_type))

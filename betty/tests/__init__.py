@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import functools
 import json as stdjson
-from contextlib import contextmanager
+from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Callable, Iterator, TypeVar, Any
+from typing import Callable, TypeVar, Any, AsyncIterator
 
 import html5lib
 from html5lib.html5parser import ParseError
@@ -43,15 +43,15 @@ class TemplateTestCase:
     template_file: str | None = None
     extensions = set[type[Extension]]()
 
-    @contextmanager
-    def _render(
+    @asynccontextmanager
+    async def _render(
         self,
         *,
         data: dict[str, Any] | None = None,
         template_file: str | None = None,
         template_string: str | None = None,
         locale: Localey | None = None,
-    ) -> Iterator[tuple[str, App]]:
+    ) -> AsyncIterator[tuple[str, App]]:
         if self.template_string is not None and self.template_file is not None:
             class_name = self.__class__.__name__
             raise RuntimeError(f'{class_name} must define either `{class_name}.template_string` or `{class_name}.template_file`, but not both.')
@@ -78,11 +78,11 @@ class TemplateTestCase:
             data = {}
         app = App(locale=locale)
         app.project.configuration.debug = True
-        with app:
+        async with app:
             app.project.configuration.extensions.enable(*self.extensions)
             rendered = template_factory(app.jinja2_environment, template).render(**data)
             app.wait()
-            yield rendered, app
+        yield rendered, app
 
 
 def assert_betty_html(

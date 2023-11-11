@@ -34,7 +34,7 @@ class _ServeThread(QThread):
     @sync
     async def run(self) -> None:
         with catch_exceptions(parent=self._serve_window, close_parent=True):
-            with App(project=self._project) as self._app:
+            async with App(project=self._project) as self._app:
                 self._server = self._app.servers[self._server_name]
                 await self._server.start()
                 self.server_started.emit()

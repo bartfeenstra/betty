@@ -16,16 +16,16 @@ from betty.project import LocaleConfiguration
 
 
 class TestJSONEncoder:
-    def assert_encodes(self, expected: Any, data: Any, schema_definition: str) -> None:
+    async def assert_encodes(self, expected: Any, data: Any, schema_definition: str) -> None:
         app = App()
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
-        with app:
+        async with app:
             encoded_data = stdjson.loads(stdjson.dumps(data, cls=app.json_encoder))
         json.validate(encoded_data, schema_definition, app)
         assert expected == encoded_data
 
-    def test_coordinates_should_encode(self) -> None:
+    async def test_coordinates_should_encode(self) -> None:
         latitude = 12.345
         longitude = -54.321
         coordinates = Point(latitude, longitude)
@@ -38,9 +38,9 @@ class TestJSONEncoder:
             'latitude': latitude,
             'longitude': longitude,
         }
-        self.assert_encodes(expected, coordinates, 'coordinates')
+        await self.assert_encodes(expected, coordinates, 'coordinates')
 
-    def test_place_should_encode_minimal(self) -> None:
+    async def test_place_should_encode_minimal(self) -> None:
         place_id = 'the_place'
         name = 'The Place'
         place = Place(place_id, [PlaceName(name)])
@@ -81,9 +81,9 @@ class TestJSONEncoder:
                 },
             ],
         }
-        self.assert_encodes(expected, place, 'place')
+        await self.assert_encodes(expected, place, 'place')
 
-    def test_place_should_encode_full(self) -> None:
+    async def test_place_should_encode_full(self) -> None:
         place_id = 'the_place'
         name = 'The Place'
         locale = 'nl-NL'
@@ -156,9 +156,9 @@ class TestJSONEncoder:
                 '/place/the_enclosing_place/index.json',
             ],
         }
-        self.assert_encodes(expected, place, 'place')
+        await self.assert_encodes(expected, place, 'place')
 
-    def test_person_should_encode_minimal(self) -> None:
+    async def test_person_should_encode_minimal(self) -> None:
         person_id = 'the_person'
         person = Person(person_id)
         expected: dict[str, Any] = {
@@ -197,9 +197,9 @@ class TestJSONEncoder:
                 },
             ],
         }
-        self.assert_encodes(expected, person, 'person')
+        await self.assert_encodes(expected, person, 'person')
 
-    def test_person_should_encode_full(self) -> None:
+    async def test_person_should_encode_full(self) -> None:
         parent_id = 'the_parent'
         parent = Person(parent_id)
 
@@ -289,9 +289,9 @@ class TestJSONEncoder:
                 },
             ],
         }
-        self.assert_encodes(expected, person, 'person')
+        await self.assert_encodes(expected, person, 'person')
 
-    def test_person_should_encode_private(self) -> None:
+    async def test_person_should_encode_private(self) -> None:
         parent_id = 'the_parent'
         parent = Person(parent_id)
 
@@ -355,9 +355,9 @@ class TestJSONEncoder:
                 },
             ],
         }
-        self.assert_encodes(expected, person, 'person')
+        await self.assert_encodes(expected, person, 'person')
 
-    def test_note_should_encode(self) -> None:
+    async def test_note_should_encode(self) -> None:
         note = Note('the_note', 'The Note')
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/note',
@@ -386,9 +386,9 @@ class TestJSONEncoder:
                 },
             ],
         }
-        self.assert_encodes(expected, note, 'note')
+        await self.assert_encodes(expected, note, 'note')
 
-    def test_note_should_encode_private(self) -> None:
+    async def test_note_should_encode_private(self) -> None:
         note = Note('the_note', 'The Note')
         note.private = True
         expected: dict[str, Any] = {
@@ -405,9 +405,9 @@ class TestJSONEncoder:
                 },
             ],
         }
-        self.assert_encodes(expected, note, 'note')
+        await self.assert_encodes(expected, note, 'note')
 
-    def test_file_should_encode_minimal(self) -> None:
+    async def test_file_should_encode_minimal(self) -> None:
         with NamedTemporaryFile() as f:
             file = File('the_file', Path(f.name))
             expected: dict[str, Any] = {
@@ -438,9 +438,9 @@ class TestJSONEncoder:
                     },
                 ],
             }
-            self.assert_encodes(expected, file, 'file')
+            await self.assert_encodes(expected, file, 'file')
 
-    def test_file_should_encode_full(self) -> None:
+    async def test_file_should_encode_full(self) -> None:
         with NamedTemporaryFile() as f:
             file = File('the_file', Path(f.name))
             file.media_type = MediaType('text/plain')
@@ -482,9 +482,9 @@ class TestJSONEncoder:
                     },
                 ],
             }
-            self.assert_encodes(expected, file, 'file')
+            await self.assert_encodes(expected, file, 'file')
 
-    def test_file_should_encode_private(self) -> None:
+    async def test_file_should_encode_private(self) -> None:
         with NamedTemporaryFile() as f:
             file = File('the_file', Path(f.name))
             file.media_type = MediaType('text/plain')
@@ -514,9 +514,9 @@ class TestJSONEncoder:
                     },
                 ],
             }
-            self.assert_encodes(expected, file, 'file')
+            await self.assert_encodes(expected, file, 'file')
 
-    def test_event_should_encode_minimal(self) -> None:
+    async def test_event_should_encode_minimal(self) -> None:
         event = Event('the_event', Birth)
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/event',
@@ -547,9 +547,9 @@ class TestJSONEncoder:
                 },
             ],
         }
-        self.assert_encodes(expected, event, 'event')
+        await self.assert_encodes(expected, event, 'event')
 
-    def test_event_should_encode_full(self) -> None:
+    async def test_event_should_encode_full(self) -> None:
         event = Event('the_event', Birth)
         event.date = DateRange(Date(2000, 1, 1), Date(2019, 12, 31))
         event.place = Place('the_place', [PlaceName('The Place')])
@@ -609,9 +609,9 @@ class TestJSONEncoder:
                 },
             ],
         }
-        self.assert_encodes(expected, event, 'event')
+        await self.assert_encodes(expected, event, 'event')
 
-    def test_event_should_encode_private(self) -> None:
+    async def test_event_should_encode_private(self) -> None:
         event = Event('the_event', Birth)
         event.date = DateRange(Date(2000, 1, 1), Date(2019, 12, 31))
         event.place = Place('the_place', [PlaceName('The Place')])
@@ -648,9 +648,9 @@ class TestJSONEncoder:
                 },
             ],
         }
-        self.assert_encodes(expected, event, 'event')
+        await self.assert_encodes(expected, event, 'event')
 
-    def test_source_should_encode_minimal(self) -> None:
+    async def test_source_should_encode_minimal(self) -> None:
         source = Source('the_source', 'The Source')
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/source',
@@ -683,9 +683,9 @@ class TestJSONEncoder:
                 },
             ],
         }
-        self.assert_encodes(expected, source, 'source')
+        await self.assert_encodes(expected, source, 'source')
 
-    def test_source_should_encode_full(self) -> None:
+    async def test_source_should_encode_full(self) -> None:
         source = Source('the_source', 'The Source')
         source.author = 'The Author'
         source.publisher = 'The Publisher'
@@ -743,9 +743,9 @@ class TestJSONEncoder:
                 },
             ],
         }
-        self.assert_encodes(expected, source, 'source')
+        await self.assert_encodes(expected, source, 'source')
 
-    def test_source_should_encode_private(self) -> None:
+    async def test_source_should_encode_private(self) -> None:
         source = Source('the_source', 'The Source')
         source.author = 'The Author'
         source.publisher = 'The Publisher'
@@ -778,9 +778,9 @@ class TestJSONEncoder:
                 },
             ],
         }
-        self.assert_encodes(expected, source, 'source')
+        await self.assert_encodes(expected, source, 'source')
 
-    def test_citation_should_encode_minimal(self) -> None:
+    async def test_citation_should_encode_minimal(self) -> None:
         citation = Citation('the_citation', Source(None, 'The Source'))
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/citation',
@@ -809,9 +809,9 @@ class TestJSONEncoder:
                 },
             ],
         }
-        self.assert_encodes(expected, citation, 'citation')
+        await self.assert_encodes(expected, citation, 'citation')
 
-    def test_citation_should_encode_full(self) -> None:
+    async def test_citation_should_encode_full(self) -> None:
         citation = Citation('the_citation', Source('the_source', 'The Source'))
         citation.facts.add(Event('the_event', Birth))
         expected: dict[str, Any] = {
@@ -844,9 +844,9 @@ class TestJSONEncoder:
                 },
             ],
         }
-        self.assert_encodes(expected, citation, 'citation')
+        await self.assert_encodes(expected, citation, 'citation')
 
-    def test_citation_should_encode_private(self) -> None:
+    async def test_citation_should_encode_private(self) -> None:
         citation = Citation('the_citation', Source('the_source', 'The Source'))
         citation.facts.add(Event('the_event', Birth))
         citation.private = True
@@ -868,16 +868,16 @@ class TestJSONEncoder:
                 },
             ],
         }
-        self.assert_encodes(expected, citation, 'citation')
+        await self.assert_encodes(expected, citation, 'citation')
 
-    def test_link_should_encode_minimal(self) -> None:
+    async def test_link_should_encode_minimal(self) -> None:
         link = Link('https://example.com')
         expected: dict[str, Any] = {
             'url': 'https://example.com',
         }
-        self.assert_encodes(expected, link, 'link')
+        await self.assert_encodes(expected, link, 'link')
 
-    def test_link_should_encode_full(self) -> None:
+    async def test_link_should_encode_full(self) -> None:
         link = Link('https://example.com')
         link.label = 'The Link'
         link.relationship = 'external'
@@ -890,4 +890,4 @@ class TestJSONEncoder:
             'locale': 'nl-NL',
             'mediaType': 'text/html',
         }
-        self.assert_encodes(expected, link, 'link')
+        await self.assert_encodes(expected, link, 'link')

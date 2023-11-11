@@ -18,7 +18,7 @@ from betty.tests.conftest import AssertNotWindow, AssertInvalid, AssertWindow, N
 
 
 class TestProjectWindow:
-    def test_save_project_as_should_create_duplicate_configuration_file(
+    async def test_save_project_as_should_create_duplicate_configuration_file(
         self,
         mocker: MockerFixture,
         navigate: Navigate,
@@ -27,7 +27,7 @@ class TestProjectWindow:
     ) -> None:
         configuration = ProjectConfiguration()
         configuration.write(tmp_path / 'betty.json')
-        with App() as app:
+        async with App() as app:
             sut = ProjectWindow(app)
             qtbot.addWidget(sut)
             sut.show()
@@ -43,8 +43,8 @@ class TestProjectWindow:
 
 
 class Test_GenerateHtmlListForm:
-    def test(self, qtbot: QtBot) -> None:
-        with App() as app:
+    async def test(self, qtbot: QtBot) -> None:
+        async with App() as app:
             sut = _GenerateHtmlListForm(app)
             qtbot.addWidget(sut)
             sut.show()
@@ -56,8 +56,8 @@ class Test_GenerateHtmlListForm:
 
 
 class TestGeneralPane:
-    def test_title(self, qtbot: QtBot) -> None:
-        with App() as app:
+    async def test_title(self, qtbot: QtBot) -> None:
+        async with App() as app:
             sut = _GeneralPane(app)
             qtbot.addWidget(sut)
             sut.show()
@@ -66,8 +66,8 @@ class TestGeneralPane:
             sut._configuration_title.setText(title)
             assert app.project.configuration.title == title
 
-    def test_author(self, qtbot: QtBot) -> None:
-        with App() as app:
+    async def test_author(self, qtbot: QtBot) -> None:
+        async with App() as app:
             sut = _GeneralPane(app)
             qtbot.addWidget(sut)
             sut.show()
@@ -76,8 +76,8 @@ class TestGeneralPane:
             sut._configuration_title.setText(title)
             assert app.project.configuration.title == title
 
-    def test_url(self, qtbot: QtBot) -> None:
-        with App() as app:
+    async def test_url(self, qtbot: QtBot) -> None:
+        async with App() as app:
             sut = _GeneralPane(app)
             qtbot.addWidget(sut)
             sut.show()
@@ -86,8 +86,8 @@ class TestGeneralPane:
             assert app.project.configuration.base_url == 'https://example.com'
             assert app.project.configuration.root_path == 'my-first-ancestry'
 
-    def test_lifetime_threshold(self, qtbot: QtBot) -> None:
-        with App() as app:
+    async def test_lifetime_threshold(self, qtbot: QtBot) -> None:
+        async with App() as app:
             sut = _GeneralPane(app)
             qtbot.addWidget(sut)
             sut.show()
@@ -95,8 +95,8 @@ class TestGeneralPane:
             sut._configuration_lifetime_threshold.setText('123')
             assert app.project.configuration.lifetime_threshold == 123
 
-    def test_lifetime_threshold_with_non_digit_input(self, qtbot: QtBot) -> None:
-        with App() as app:
+    async def test_lifetime_threshold_with_non_digit_input(self, qtbot: QtBot) -> None:
+        async with App() as app:
             sut = _GeneralPane(app)
             qtbot.addWidget(sut)
             sut.show()
@@ -105,8 +105,8 @@ class TestGeneralPane:
             sut._configuration_lifetime_threshold.setText('a1')
             assert app.project.configuration.lifetime_threshold == original_lifetime_threshold
 
-    def test_lifetime_threshold_with_zero_input(self, qtbot: QtBot) -> None:
-        with App() as app:
+    async def test_lifetime_threshold_with_zero_input(self, qtbot: QtBot) -> None:
+        async with App() as app:
             sut = _GeneralPane(app)
             qtbot.addWidget(sut)
             sut.show()
@@ -115,8 +115,8 @@ class TestGeneralPane:
             sut._configuration_lifetime_threshold.setText('0')
             assert app.project.configuration.lifetime_threshold == original_lifetime_threshold
 
-    def test_debug(self, qtbot: QtBot) -> None:
-        with App() as app:
+    async def test_debug(self, qtbot: QtBot) -> None:
+        async with App() as app:
             sut = _GeneralPane(app)
             qtbot.addWidget(sut)
             sut.show()
@@ -126,8 +126,8 @@ class TestGeneralPane:
             sut._development_debug.setChecked(False)
             assert not app.project.configuration.debug
 
-    def test_clean_urls(self, qtbot: QtBot) -> None:
-        with App() as app:
+    async def test_clean_urls(self, qtbot: QtBot) -> None:
+        async with App() as app:
             sut = _GeneralPane(app)
             qtbot.addWidget(sut)
             sut.show()
@@ -137,8 +137,8 @@ class TestGeneralPane:
             sut._clean_urls.setChecked(False)
             assert app.project.configuration.clean_urls is False
 
-    def test_content_negotiation(self, qtbot: QtBot) -> None:
-        with App() as app:
+    async def test_content_negotiation(self, qtbot: QtBot) -> None:
+        async with App() as app:
             sut = _GeneralPane(app)
             qtbot.addWidget(sut)
             sut.show()
@@ -150,8 +150,8 @@ class TestGeneralPane:
 
 
 class TestLocalizationPane:
-    def test_add_locale(self, qtbot: QtBot, assert_window: AssertWindow[_AddLocaleWindow]) -> None:
-        with App() as app:
+    async def test_add_locale(self, qtbot: QtBot, assert_window: AssertWindow[_AddLocaleWindow]) -> None:
+        async with App() as app:
             sut = _LocalizationPane(app)
             qtbot.addWidget(sut)
             sut.show()
@@ -161,9 +161,9 @@ class TestLocalizationPane:
             qtbot.mouseClick(widget._add_locale_button, Qt.MouseButton.LeftButton)
             assert_window(_AddLocaleWindow)
 
-    def test_remove_locale(self, qtbot: QtBot) -> None:
+    async def test_remove_locale(self, qtbot: QtBot) -> None:
         locale = 'de-DE'
-        with App() as app:
+        async with App() as app:
             app.project.configuration.locales.append(
                 LocaleConfiguration('nl-NL'),
                 LocaleConfiguration(locale),
@@ -180,9 +180,9 @@ class TestLocalizationPane:
 
             assert locale not in app.project.configuration.locales
 
-    def test_default_locale(self, qtbot: QtBot) -> None:
+    async def test_default_locale(self, qtbot: QtBot) -> None:
         locale = 'de-DE'
-        with App() as app:
+        async with App() as app:
             app.project.configuration.locales.append(
                 LocaleConfiguration('nl-NL'),
                 LocaleConfiguration(locale),
@@ -197,8 +197,8 @@ class TestLocalizationPane:
 
             assert app.project.configuration.locales.default == LocaleConfiguration(locale)
 
-    def test_project_window_autowrite(self, navigate: Navigate, qtbot: QtBot) -> None:
-        with App() as app:
+    async def test_project_window_autowrite(self, navigate: Navigate, qtbot: QtBot) -> None:
+        async with App() as app:
             app.project.configuration.autowrite = True
 
             sut = ProjectWindow(app)
@@ -215,13 +215,13 @@ class TestLocalizationPane:
 
 
 class TestGenerateWindow:
-    def test_cancel_button_should_close_window(
+    async def test_cancel_button_should_close_window(
         self,
         assert_not_window: AssertNotWindow[_GenerateWindow],
         navigate: Navigate,
         qtbot: QtBot,
     ) -> None:
-        with App() as app:
+        async with App() as app:
             sut = _GenerateWindow(app)
             qtbot.addWidget(sut)
 
@@ -231,7 +231,7 @@ class TestGenerateWindow:
 
             assert_not_window(sut)
 
-    def test_serve_button_should_open_serve_window(
+    async def test_serve_button_should_open_serve_window(
         self,
         assert_window: AssertWindow[ServeProjectWindow],
         mocker: MockerFixture,
@@ -239,7 +239,7 @@ class TestGenerateWindow:
         qtbot: QtBot,
     ) -> None:
         mocker.patch('webbrowser.open_new_tab')
-        with App() as app:
+        async with App() as app:
             sut = _GenerateWindow(app)
             qtbot.addWidget(sut)
 
@@ -252,12 +252,12 @@ class TestGenerateWindow:
 
 
 class TestAddLocaleWindow:
-    def test_without_alias(
+    async def test_without_alias(
         self,
         assert_not_window: AssertNotWindow[_AddLocaleWindow],
         qtbot: QtBot,
     ) -> None:
-        with App() as app:
+        async with App() as app:
             sut = _AddLocaleWindow(app)
             qtbot.addWidget(sut)
             sut.show()
@@ -271,12 +271,12 @@ class TestAddLocaleWindow:
             assert locale in sut._app.project.configuration.locales
             assert locale == app.project.configuration.locales[locale].alias
 
-    def test_with_valid_alias(
+    async def test_with_valid_alias(
         self,
         assert_not_window: AssertNotWindow[_AddLocaleWindow],
         qtbot: QtBot,
     ) -> None:
-        with App() as app:
+        async with App() as app:
             sut = _AddLocaleWindow(app)
             qtbot.addWidget(sut)
             sut.show()
@@ -292,13 +292,13 @@ class TestAddLocaleWindow:
             assert locale in sut._app.project.configuration.locales
             assert alias == app.project.configuration.locales[locale].alias
 
-    def test_with_invalid_alias(
+    async def test_with_invalid_alias(
         self,
         assert_window: AssertWindow[_AddLocaleWindow],
         assert_invalid: AssertInvalid,
         qtbot: QtBot,
     ) -> None:
-        with App() as app:
+        async with App() as app:
             sut = _AddLocaleWindow(app)
             qtbot.addWidget(sut)
             sut.show()

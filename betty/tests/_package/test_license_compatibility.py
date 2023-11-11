@@ -34,7 +34,7 @@ class TestPackageLicenses:
             package_license['License'],
         )
 
-    def test_runtime_dependency_license_compatibility(self) -> None:
+    async def test_runtime_dependency_license_compatibility(self) -> None:
         """
         Assert that all runtime dependencies have licenses compatible with the GPLv3, so we can legally bundle them.
         """

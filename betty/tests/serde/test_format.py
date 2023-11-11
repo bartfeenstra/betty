@@ -6,13 +6,13 @@ from betty.serde.load import FormatError
 
 
 class TestJson:
-    def test_load_with_invalid_json(self) -> None:
+    async def test_load_with_invalid_json(self) -> None:
         sut = Json()
         json_dump = '@'
         with pytest.raises(FormatError):
             sut.load(json_dump)
 
-    def test_load_with_valid_json(self) -> None:
+    async def test_load_with_valid_json(self) -> None:
         sut = Json()
         json_dump = '{"hello": [123, "World!"]}'
         dump = sut.load(json_dump)
@@ -21,7 +21,7 @@ class TestJson:
         }
         assert expected == dump
 
-    def test_dump(self) -> None:
+    async def test_dump(self) -> None:
         dump: Dump = {
             'hello': [123, 'World!']
         }
@@ -31,13 +31,13 @@ class TestJson:
 
 
 class TestYaml:
-    def test_load_with_invalid_yaml(self) -> None:
+    async def test_load_with_invalid_yaml(self) -> None:
         sut = Yaml()
         yaml_dump = '@'
         with pytest.raises(FormatError):
             sut.load(yaml_dump)
 
-    def test_load_with_valid_yaml(self) -> None:
+    async def test_load_with_valid_yaml(self) -> None:
         sut = Yaml()
         yaml_dump = 'hello:\n- 123\n- World!\n'
         dump = sut.load(yaml_dump)
@@ -46,7 +46,7 @@ class TestYaml:
         }
         assert expected == dump
 
-    def test_dump(self) -> None:
+    async def test_dump(self) -> None:
         dump: Dump = {
             'hello': [123, 'World!']
         }

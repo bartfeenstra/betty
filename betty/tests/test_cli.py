@@ -10,6 +10,7 @@ from click.testing import CliRunner
 from pytest_mock import MockerFixture
 
 from betty import fs
+from betty.asyncio import sync
 from betty.error import UserFacingError
 from betty.os import ChDir
 from betty.project import ProjectConfiguration, ExtensionConfiguration, Project
@@ -34,7 +35,7 @@ class DummyCommandError(BaseException):
 
 @click.command(name='test')
 @global_command
-def _test_command() -> None:
+async def _test_command() -> None:
     raise DummyCommandError
 
 
@@ -47,21 +48,21 @@ class DummyExtension(Extension, CommandProvider):
 
 
 class TestMain:
-    def test_without_arguments(self, mocker: MockerFixture) -> None:
+    async def test_without_arguments(self, mocker: MockerFixture) -> None:
         mocker.patch('sys.stderr')
         mocker.patch('sys.stdout')
         runner = CliRunner()
         result = runner.invoke(main, catch_exceptions=False)
         assert 0 == result.exit_code
 
-    def test_help_without_configuration(self, mocker: MockerFixture) -> None:
+    async def test_help_without_configuration(self, mocker: MockerFixture) -> None:
         mocker.patch('sys.stderr')
         mocker.patch('sys.stdout')
         runner = CliRunner()
         result = runner.invoke(main, ('--help',), catch_exceptions=False)
         assert 0 == result.exit_code
 
-    def test_configuration_without_help(self, mocker: MockerFixture) -> None:
+    async def test_configuration_without_help(self, mocker: MockerFixture) -> None:
         mocker.patch('sys.stderr')
         mocker.patch('sys.stdout')
         configuration = ProjectConfiguration()
@@ -70,7 +71,7 @@ class TestMain:
         result = runner.invoke(main, ('-c', str(configuration.configuration_file_path)), catch_exceptions=False)
         assert 2 == result.exit_code
 
-    def test_help_with_configuration(self, mocker: MockerFixture) -> None:
+    async def test_help_with_configuration(self, mocker: MockerFixture) -> None:
         mocker.patch('sys.stderr')
         mocker.patch('sys.stdout')
         configuration = ProjectConfiguration()
@@ -80,7 +81,7 @@ class TestMain:
         result = runner.invoke(main, ('-c', str(configuration.configuration_file_path), '--help',), catch_exceptions=False)
         assert 0 == result.exit_code
 
-    def test_help_with_invalid_configuration_file_path(self, mocker: MockerFixture) -> None:
+    async def test_help_with_invalid_configuration_file_path(self, mocker: MockerFixture) -> None:
         mocker.patch('sys.stderr')
         mocker.patch('sys.stdout')
         with TemporaryDirectory() as working_directory_path:
@@ -90,7 +91,7 @@ class TestMain:
             result = runner.invoke(main, ('-c', str(configuration_file_path), '--help',), catch_exceptions=False)
             assert 1 == result.exit_code
 
-    def test_help_with_invalid_configuration(self, mocker: MockerFixture) -> None:
+    async def test_help_with_invalid_configuration(self, mocker: MockerFixture) -> None:
         mocker.patch('sys.stderr')
         mocker.patch('sys.stdout')
         with TemporaryDirectory() as working_directory_path:
@@ -103,7 +104,7 @@ class TestMain:
             result = runner.invoke(main, ('-c', str(configuration_file_path), '--help',), catch_exceptions=False)
             assert 1 == result.exit_code
 
-    def test_with_discovered_configuration(self, mocker: MockerFixture) -> None:
+    async def test_with_discovered_configuration(self, mocker: MockerFixture) -> None:
         mocker.patch('sys.stderr')
         mocker.patch('sys.stdout')
         with TemporaryDirectory() as working_directory_path:
@@ -123,14 +124,14 @@ class TestMain:
 
 
 class TestCatchExceptions:
-    def test_logging_user_facing_error(self, caplog: LogCaptureFixture) -> None:
+    async def test_logging_user_facing_error(self, caplog: LogCaptureFixture) -> None:
         error_message = 'Something went wrong!'
         with pytest.raises(SystemExit):
             with catch_exceptions():
                 raise UserFacingError(error_message)
             assert f'ERROR:root:{error_message}' == caplog.text
 
-    def test_logging_uncaught_exception(self, caplog: LogCaptureFixture) -> None:
+    async def test_logging_uncaught_exception(self, caplog: LogCaptureFixture) -> None:
         error_message = 'Something went wrong!'
         with pytest.raises(SystemExit):
             with catch_exceptions():
@@ -140,7 +141,7 @@ class TestCatchExceptions:
 
 
 class TestVersion:
-    def test(self) -> None:
+    async def test(self) -> None:
         runner = CliRunner()
         result = runner.invoke(main, ('--version'), catch_exceptions=False)
         assert 0 == result.exit_code
@@ -149,7 +150,8 @@ class TestVersion:
 
 class TestClearCaches:
     @patch_cache
-    def test(self) -> None:
+    @sync
+    async def test(self) -> None:
         cached_file_path = fs.CACHE_DIRECTORY_PATH / 'KeepMeAroundPlease'
         open(cached_file_path, 'w').close()
         runner = CliRunner()
@@ -160,7 +162,7 @@ class TestClearCaches:
 
 
 class TestDemo:
-    def test(self, mocker: MockerFixture) -> None:
+    async def test(self, mocker: MockerFixture) -> None:
         mocker.patch('betty.serve.BuiltinServer', new_callable=lambda: _KeyboardInterruptedProjectServer)
         mocker.patch('webbrowser.open_new_tab')
         runner = CliRunner()
@@ -169,7 +171,7 @@ class TestDemo:
 
 
 class TestGenerate:
-    def test(self, mocker: MockerFixture) -> None:
+    async def test(self, mocker: MockerFixture) -> None:
         m_generate = mocker.patch('betty.generate.generate', new_callable=AsyncMock)
         m_load = mocker.patch('betty.load.load', new_callable=AsyncMock)
 
@@ -203,7 +205,7 @@ class _KeyboardInterruptedProjectServer(ProjectServer):
 
 
 class Serve:
-    def test(self, mocker: MockerFixture) -> None:
+    async def test(self, mocker: MockerFixture) -> None:
         mocker.patch('betty.serve.BuiltinServer', new_callable=lambda: _KeyboardInterruptedProjectServer)
         configuration = ProjectConfiguration()
         configuration.write()

@@ -6,13 +6,13 @@ from betty.app.extension import Extension, ListExtensions, ExtensionDispatcher, 
 
 
 class TestExtension:
-    def test_depends_on(self) -> None:
+    async def test_depends_on(self) -> None:
         assert set() == Extension.depends_on()
 
-    def test_comes_after(self) -> None:
+    async def test_comes_after(self) -> None:
         assert set() == Extension.comes_after()
 
-    def test_comes_before(self) -> None:
+    async def test_comes_before(self) -> None:
         assert set() == Extension.comes_before()
 
 
@@ -30,7 +30,7 @@ class TestExtensionDispatcher:
             return self._multiplier * term
 
     async def test(self) -> None:
-        with App() as app:
+        async with App() as app:
             extensions = ListExtensions([
                 [self._MultiplyingExtension(app, 1), self._MultiplyingExtension(app, 3)],
                 [self._MultiplyingExtension(app, 2), self._MultiplyingExtension(app, 4)]
@@ -42,10 +42,10 @@ class TestExtensionDispatcher:
 
 
 class TestBuildExtensionTypeGraph:
-    def test_without_extension_types(self) -> None:
+    async def test_without_extension_types(self) -> None:
         assert {} == build_extension_type_graph(set())
 
-    def test_with_isolated_extension_types(self) -> None:
+    async def test_with_isolated_extension_types(self) -> None:
         class IsolatedExtensionOne(Extension):
             pass
 
@@ -61,7 +61,7 @@ class TestBuildExtensionTypeGraph:
         }
         assert expected == build_extension_type_graph(extension_types)
 
-    def test_with_unknown_dependencies(self) -> None:
+    async def test_with_unknown_dependencies(self) -> None:
         class IsDependencyExtension(Extension):
             pass
 
@@ -78,7 +78,7 @@ class TestBuildExtensionTypeGraph:
         }
         assert expected == dict(build_extension_type_graph(extension_types))
 
-    def test_with_known_dependencies(self) -> None:
+    async def test_with_known_dependencies(self) -> None:
         class IsDependencyExtension(Extension):
             pass
 
@@ -96,7 +96,7 @@ class TestBuildExtensionTypeGraph:
         }
         assert expected == dict(build_extension_type_graph(extension_types))
 
-    def test_with_nested_dependencies(self) -> None:
+    async def test_with_nested_dependencies(self) -> None:
         class IsDependencyExtension(Extension):
             pass
 
@@ -119,7 +119,7 @@ class TestBuildExtensionTypeGraph:
         }
         assert expected == dict(build_extension_type_graph(extension_types))
 
-    def test_with_unknown_comes_after(self) -> None:
+    async def test_with_unknown_comes_after(self) -> None:
         class ComesBeforeExtension(Extension):
             pass
 
@@ -135,7 +135,7 @@ class TestBuildExtensionTypeGraph:
         }
         assert expected == dict(build_extension_type_graph(extension_types))
 
-    def test_with_known_comes_after(self) -> None:
+    async def test_with_known_comes_after(self) -> None:
         class ComesBeforeExtension(Extension):
             pass
 
@@ -153,7 +153,7 @@ class TestBuildExtensionTypeGraph:
         }
         assert expected == dict(build_extension_type_graph(extension_types))
 
-    def test_with_unknown_comes_before(self) -> None:
+    async def test_with_unknown_comes_before(self) -> None:
         class ComesAfterExtension(Extension):
             pass
 
@@ -169,7 +169,7 @@ class TestBuildExtensionTypeGraph:
         }
         assert expected == dict(build_extension_type_graph(extension_types))
 
-    def test_with_known_comes_before(self) -> None:
+    async def test_with_known_comes_before(self) -> None:
         class ComesAfterExtension(Extension):
             pass
 
@@ -189,7 +189,7 @@ class TestBuildExtensionTypeGraph:
 
 
 class TestDiscoverExtensionTypes:
-    def test(self) -> None:
+    async def test(self) -> None:
         extension_types = discover_extension_types()
         assert 1 <= len(extension_types)
         for extension_type in extension_types:

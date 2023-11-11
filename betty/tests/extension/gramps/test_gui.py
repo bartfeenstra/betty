@@ -15,13 +15,13 @@ from betty.project import ExtensionConfiguration
 from betty.tests.conftest import AssertWindow, AssertNotWindow
 
 
-def test_add_family_tree_set_path(
+async def test_add_family_tree_set_path(
     assert_not_window: AssertNotWindow[_AddFamilyTreeWindow],
     assert_window: AssertWindow[_AddFamilyTreeWindow],
     qtbot: QtBot,
     tmp_path: Path,
 ) -> None:
-    with App() as app:
+    async with App() as app:
         app.project.configuration.extensions.append(ExtensionConfiguration(Gramps))
         sut = app.extensions[Gramps]
         widget = sut.gui_build()
@@ -42,13 +42,13 @@ def test_add_family_tree_set_path(
         assert family_tree.file_path == file_path
 
 
-def test_add_family_tree_find_path(
+async def test_add_family_tree_find_path(
     assert_window: AssertWindow[_AddFamilyTreeWindow],
     mocker: MockerFixture,
     qtbot: QtBot,
     tmp_path: Path,
 ) -> None:
-    with App() as app:
+    async with App() as app:
         app.project.configuration.extensions.append(ExtensionConfiguration(Gramps))
         sut = app.extensions[Gramps]
         widget = sut.gui_build()
@@ -68,8 +68,8 @@ def test_add_family_tree_find_path(
         assert family_tree.file_path == file_path
 
 
-def test_remove_family_tree(qtbot: QtBot) -> None:
-    with App() as app:
+async def test_remove_family_tree(qtbot: QtBot) -> None:
+    async with App() as app:
         app.project.configuration.extensions.append(ExtensionConfiguration(
             Gramps,
             extension_configuration=GrampsConfiguration(

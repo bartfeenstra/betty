@@ -16,17 +16,17 @@ class TestWalk:
         object(),
         [],
     ])
-    def test_with_invalid_attribute(self, item: Any) -> None:
+    async def test_with_invalid_attribute(self, item: Any) -> None:
         with pytest.raises(AttributeError):
             list(walk(item, 'invalid_attribute_name'))
 
-    def test_one_to_one_without_descendants(self) -> None:
+    async def test_one_to_one_without_descendants(self) -> None:
         item = self._Item(None)
         actual = walk(item, 'child')
         expected: list[None] = []
         assert expected == list(actual)
 
-    def test_one_to_one_with_descendants(self) -> None:
+    async def test_one_to_one_with_descendants(self) -> None:
         grandchild = self._Item(None)
         child = self._Item(grandchild)
         item = self._Item(child)
@@ -34,13 +34,13 @@ class TestWalk:
         expected = [child, grandchild]
         assert expected == list(actual)
 
-    def test_one_to_many_without_descendants(self) -> None:
+    async def test_one_to_many_without_descendants(self) -> None:
         item = self._Item([])
         actual = walk(item, 'child')
         expected: list[None] = []
         assert expected == list(actual)
 
-    def test_with_one_to_many_descendants(self) -> None:
+    async def test_with_one_to_many_descendants(self) -> None:
         grandchild = self._Item([])
         child = self._Item([grandchild])
         item = self._Item([child])
@@ -48,7 +48,7 @@ class TestWalk:
         expected = [child, grandchild]
         assert expected == list(actual)
 
-    def test_with_mixed_descendants(self) -> None:
+    async def test_with_mixed_descendants(self) -> None:
         grandchild = self._Item([])
         child = self._Item(grandchild)
         item = self._Item([child])
@@ -68,6 +68,6 @@ class TestSliceToRange:
         # Test a slice that is longer than the iterable.
         ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], slice(0, 99)),
     ])
-    def test(self, expected_range_items: list[int], ranged_slice: slice) -> None:
+    async def test(self, expected_range_items: list[int], ranged_slice: slice) -> None:
         iterable = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
         assert expected_range_items == list(slice_to_range(ranged_slice, iterable))

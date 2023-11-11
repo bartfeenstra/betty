@@ -10,7 +10,7 @@ class TestHttpApiDoc:
     @patch_cache
     @sync
     async def test_generate(self) -> None:
-        with App() as app:
+        async with App() as app:
             app.project.configuration.extensions.append(ExtensionConfiguration(HttpApiDoc))
             await generate(app)
             assert (app.project.configuration.www_directory_path / 'api' / 'index.html').is_file()

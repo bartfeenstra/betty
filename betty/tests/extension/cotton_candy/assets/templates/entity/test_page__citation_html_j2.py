@@ -36,7 +36,7 @@ class TestTemplate(TemplateTestCase):
         PersonName(None, private_fact, private_fact_name)
         citation.facts.add(private_fact)
 
-        with self._render(
+        async with self._render(
             data={
                 'page_resource': citation,
                 'entity_type': Citation,

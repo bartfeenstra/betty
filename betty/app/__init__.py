@@ -167,10 +167,10 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         del self._process_pool_executor
         del self.http_client
 
-    def __enter__(self) -> Self:
+    async def __aenter__(self) -> Self:
         return self
 
-    def __exit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
+    async def __aexit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
         self.wait()
 
     @property

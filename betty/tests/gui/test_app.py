@@ -11,6 +11,7 @@ from pytestqt.qtbot import QtBot
 
 from betty import fs
 from betty.app import App
+from betty.asyncio import sync
 from betty.serde.error import SerdeError
 from betty.gui.app import WelcomeWindow, _AboutBettyWindow, BettyMainWindow, ApplicationConfiguration
 from betty.gui.error import ExceptionError
@@ -24,7 +25,8 @@ from betty.tests.conftest import Navigate, AssertWindow, AssertError
 
 class TestBettyMainWindow:
     @patch_cache
-    def test_view_demo_site(
+    @sync
+    async def test_view_demo_site(
         self,
         assert_window: AssertWindow[ServeDemoWindow],
         mocker: MockerFixture,
@@ -34,7 +36,7 @@ class TestBettyMainWindow:
         mocker.patch('webbrowser.open_new_tab')
         mocker.patch('betty.gui.serve.ServeDemoWindow._start')
 
-        with App() as app:
+        async with App() as app:
             sut = BettyMainWindow(app)
             qtbot.addWidget(sut)
             sut.show()
@@ -44,8 +46,9 @@ class TestBettyMainWindow:
             assert_window(ServeDemoWindow)
 
     @patch_cache
-    def test_clear_caches(self, navigate: Navigate, qtbot: QtBot) -> None:
-        with App() as app:
+    @sync
+    async def test_clear_caches(self, navigate: Navigate, qtbot: QtBot) -> None:
+        async with App() as app:
             sut = BettyMainWindow(app)
             qtbot.addWidget(sut)
             sut.show()
@@ -57,13 +60,13 @@ class TestBettyMainWindow:
             with pytest.raises(FileNotFoundError):
                 open(cached_file_path)
 
-    def test_open_about_window(
+    async def test_open_about_window(
         self,
         assert_window: AssertWindow[_AboutBettyWindow],
         navigate: Navigate,
         qtbot: QtBot,
     ) -> None:
-        with App() as app:
+        async with App() as app:
             sut = BettyMainWindow(app)
             qtbot.addWidget(sut)
             sut.show()
@@ -75,14 +78,14 @@ class TestBettyMainWindow:
 
 class TestWelcomeWindow:
     @pytest.mark.skipif(sys.platform == 'darwin', reason='See https://github.com/bartfeenstra/betty/issues/982')
-    def test_open_project_with_invalid_file_should_error(
+    async def test_open_project_with_invalid_file_should_error(
         self,
         assert_error: AssertError[ExceptionError],
         mocker: MockerFixture,
         qtbot: QtBot,
         tmp_path: Path,
     ) -> None:
-        with App() as app:
+        async with App() as app:
             sut = WelcomeWindow(app)
             qtbot.addWidget(sut)
             sut.show()
@@ -98,7 +101,7 @@ class TestWelcomeWindow:
             assert isinstance(exception, SerdeError)
             assert exception.raised(FormatError)
 
-    def test_open_project_with_valid_file_should_show_project_window(
+    async def test_open_project_with_valid_file_should_show_project_window(
         self,
         assert_window: AssertWindow[ProjectWindow],
         mocker: MockerFixture,
@@ -108,7 +111,7 @@ class TestWelcomeWindow:
         configuration = ProjectConfiguration()
         configuration.title = title
         configuration.write()
-        with App() as app:
+        async with App() as app:
             app.project.configuration.write()
             sut = WelcomeWindow(app)
             qtbot.addWidget(sut)
@@ -120,7 +123,7 @@ class TestWelcomeWindow:
             window = assert_window(ProjectWindow)
             assert window._app.project.configuration.title == title
 
-    def test_view_demo_site(
+    async def test_view_demo_site(
         self,
         assert_window: AssertWindow[ServeDemoWindow],
         mocker: MockerFixture,
@@ -129,7 +132,7 @@ class TestWelcomeWindow:
         mocker.patch('webbrowser.open_new_tab')
         mocker.patch('betty.gui.serve.ServeDemoWindow._start')
 
-        with App() as app:
+        async with App() as app:
             sut = WelcomeWindow(app)
             qtbot.addWidget(sut)
             sut.show()
@@ -141,7 +144,7 @@ class TestWelcomeWindow:
 
 class TestApplicationConfiguration:
     async def test_application_configuration_autowrite(self, navigate: Navigate, qtbot: QtBot) -> None:
-        with App() as app:
+        async with App() as app:
             app.configuration.autowrite = True
 
             sut = ApplicationConfiguration(app)

@@ -4,7 +4,7 @@ from betty.asyncio import sync, wait
 
 
 class TestWait:
-    def test(self) -> None:
+    async def test(self) -> None:
         expected = 'Hello, oh asynchronous, world!'
 
         async def _async() -> str:
@@ -14,7 +14,7 @@ class TestWait:
 
 
 class TestSync:
-    def test_call_decorated_coroutinefunction_should_return_result(self) -> None:
+    async def test_call_decorated_coroutinefunction_should_return_result(self) -> None:
         expected = 'Hello, oh asynchronous, world!'
 
         @sync
@@ -23,7 +23,7 @@ class TestSync:
         actual = _async()
         assert expected == actual
 
-    def test_call_decorated_callable_coroutinemethod_should_return_result(self) -> None:
+    async def test_call_decorated_callable_coroutinemethod_should_return_result(self) -> None:
         expected = 'Hello, oh asynchronous, world!'
 
         class _Sync:
@@ -33,7 +33,7 @@ class TestSync:
         actual = _Sync()()
         assert expected == actual
 
-    def test_call_wrapped_coroutinecallable_object_should_return_result(self) -> None:
+    async def test_call_wrapped_coroutinecallable_object_should_return_result(self) -> None:
         expected = 'Hello, oh asynchronous, world!'
 
         class _Sync:
@@ -42,7 +42,7 @@ class TestSync:
         actual = sync(_Sync())()
         assert expected == actual
 
-    def test_call_nested_sync_and_async(self) -> None:
+    async def test_call_nested_sync_and_async(self) -> None:
         expected = 'Hello, oh asynchronous, world!'
 
         @sync

@@ -24,11 +24,11 @@ class TestIterfiles:
 
 
 class TestHashfile:
-    def test_hashfile_with_identical_file(self) -> None:
+    async def test_hashfile_with_identical_file(self) -> None:
         file_path = Path(__file__).parents[1] / 'assets' / 'public' / 'static' / 'betty-16x16.png'
         assert hashfile(file_path) == hashfile(file_path)
 
-    def test_hashfile_with_different_files(self) -> None:
+    async def test_hashfile_with_different_files(self) -> None:
         file_path_1 = Path(__file__).parents[1] / 'assets' / 'public' / 'static' / 'betty-16x16.png'
         file_path_2 = Path(__file__).parents[1] / 'assets' / 'public' / 'static' / 'betty-512x512.png'
         assert hashfile(file_path_1) != hashfile(file_path_2)

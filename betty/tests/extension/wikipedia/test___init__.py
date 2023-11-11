@@ -17,7 +17,8 @@ from betty.app import App
 
 class TestWikipedia:
     @patch_cache
-    def test_filter(self, aioresponses: aioresponses) -> None:
+    @sync
+    async def test_filter(self, aioresponses: aioresponses) -> None:
         entry_url = 'https://en.wikipedia.org/wiki/Amsterdam'
         links = [
             Link(entry_url),
@@ -41,7 +42,7 @@ class TestWikipedia:
         }
         aioresponses.get(api_url, payload=api_response_body)
 
-        with App() as app:
+        async with App() as app:
             app.project.configuration.extensions.append(ExtensionConfiguration(Wikipedia))
             actual = app.jinja2_environment.from_string(
                 '{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}').render(links=links)
@@ -79,7 +80,7 @@ class TestWikipedia:
         translations_api_url = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam&prop=langlinks&lllimit=500&format=json&formatversion=2'
         aioresponses.get(translations_api_url, payload=translations_api_response_body)
 
-        with App() as app:
+        async with App() as app:
             app.project.configuration.extensions.append(ExtensionConfiguration(Wikipedia))
             app.project.ancestry.add(resource)
             await load(app)
