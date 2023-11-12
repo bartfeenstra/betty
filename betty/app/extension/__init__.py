@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import functools
 from collections import defaultdict
 from importlib.metadata import entry_points, EntryPoint
@@ -13,6 +12,7 @@ from reactives.instance import ReactiveInstance
 
 from betty import fs
 from betty.app.extension.requirement import Requirement
+from betty.asyncio import gather
 from betty.config import ConfigurationT, Configurable
 from betty.dispatch import Dispatcher, TargetedDispatcher
 from betty.importlib import import_any
@@ -293,11 +293,11 @@ class ExtensionDispatcher(Dispatcher):
                 for target_extension_batch
                 in self._extensions
                 for result
-                in await asyncio.gather(*[
+                in await gather(*(
                     getattr(target_extension, target_method_name)(*args, **kwargs)
                     for target_extension in target_extension_batch
                     if isinstance(target_extension, target_type)
-                ])
+                ))
             ]
         return _dispatch
 
