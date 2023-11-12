@@ -43,7 +43,7 @@ SETUP = {
     'python_requires': '~= 3.11',
     'install_requires': [
         'aiofiles ~= 23.2, >= 23.2.1',
-        'aiohttp == 3.9.0b0',
+        'aiohttp == 3.9.0b1',
         'babel ~= 2.12, >= 2.12.0',
         'click ~= 8.1, >= 8.1.2',
         'dill ~= 0.3, >= 0.3.6',
