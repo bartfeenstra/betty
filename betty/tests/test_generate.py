@@ -3,6 +3,7 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 import pytest
+from aiofiles.os import makedirs
 
 from betty.app import App
 from betty.generate import generate
@@ -183,7 +184,7 @@ class TestResourceOverride:
     async def test(self) -> None:
         async with App() as app:
             localized_assets_directory_path = Path(app.project.configuration.assets_directory_path) / 'public' / 'static'
-            localized_assets_directory_path.mkdir(parents=True)
+            await makedirs(localized_assets_directory_path)
             with open(str(localized_assets_directory_path / 'index.html.j2'), 'w') as f:
                 f.write('{% block page_content %}Betty was here{% endblock %}')
             await generate(app)

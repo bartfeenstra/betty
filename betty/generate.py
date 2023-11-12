@@ -75,6 +75,16 @@ async def generate(app: App) -> None:
     localized_process_batches: dict[str | None, _TaskBatch[_GenerationTaskBatchContext]] = {}
     locales = app.project.configuration.locales
 
+    # @todo Exit stacks exit the contained contexts in LIFO order, NOT concurrently!
+    # @todo Do we lose time waiting? Or does it not matter?
+    # @todo Because the group of batches is not done until all batches are done.
+    # @todo And if we have to wait for one batch to finish while the others are finished already
+    # @todo we would have had to wait for this one batch anyway
+    # @todo
+    # @todo Main concern is error handling, where we want errors as soon as possible
+    # @todo
+    # @todo
+    # @todo
     async with AsyncExitStack() as batch_stack:
         thread_batch = app.thread_pool.batch()
         print('thread_batch')
@@ -202,7 +212,7 @@ async def _generate_entity_type_list_html(
             entity_type=entity_type,
             entities=app.project.ancestry[entity_type],
         )
-        async with create_html_resource(entity_type_path) as f:
+        async with await create_html_resource(entity_type_path) as f:
             await f.write(rendered_html)
         locale_label = get_display_name(app.locale, batch.logging_locale)
         getLogger().info(app.localizers[batch.logging_locale]._('Generated the listing page for {entity_type} in {locale}.').format(
@@ -231,7 +241,7 @@ async def _generate_entity_type_list_json(
                     absolute=True,
                 ))
         rendered_json = json.dumps(data)
-        async with create_json_resource(entity_type_path) as f:
+        async with await create_json_resource(entity_type_path) as f:
             await f.write(rendered_json)
 
 
@@ -252,7 +262,7 @@ async def _generate_entity_html(
             entity_type=entity.type,
             entity=entity,
         )
-        async with create_html_resource(entity_path) as f:
+        async with await create_html_resource(entity_path) as f:
             await f.write(rendered_html)
 
 
@@ -265,7 +275,7 @@ async def _generate_entity_json(
         entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
         entity_path = app.static_www_directory_path / entity_type_name_fs / entity_id
         rendered_json = json.dumps(app.project.ancestry[entity_type][entity_id], cls=app.json_encoder)
-        async with create_json_resource(entity_path) as f:
+        async with await create_json_resource(entity_path) as f:
             await f.write(rendered_json)
 
 
@@ -273,18 +283,23 @@ async def _generate_openapi(
     batch: _TaskBatch[_GenerationTaskBatchContext],
 ) -> None:
     print('GENERATE OPENAPI')
-    try:
-        async with await batch.context.app() as app:
-            getLogger().info(app.localizers[batch.logging_locale]._('Generating OpenAPI specification...'))
-            api_directory_path = app.www_directory_path / 'api'
-            api_directory_path.mkdir(exist_ok=True, parents=True)
-            rendered_json = json.dumps(Specification(app).build())
-            async with create_json_resource(api_directory_path) as f:
-                foo()
-                await f.write(rendered_json)
-    except BaseException as e:
-        print(e)
-        raise
+    async with await batch.context.app() as app:
+        getLogger().info(app.localizers[batch.logging_locale]._('Generating OpenAPI specification...'))
+        api_directory_path = app.www_directory_path / 'api'
+        await makedirs(api_directory_path, exist_ok=True)
+        rendered_json = json.dumps(Specification(app).build())
+        # @todo We did some step debugging
+        # @todo The part that hangs is where aiofiles runs the actual file opening in the current loop's executor
+        # @todo
+        # @todo
+        # @todo
+        # async with aiofiles.open('foooz'):
+        #     pass
+        await makedirs(Path('/tmp/betty-foo'))
+        meh()
+        async with await create_json_resource(api_directory_path) as f:
+            foo()
+            await f.write(rendered_json)
     print('GENERATE OPENAPI DONE')
 
 

@@ -6,7 +6,7 @@ import os
 import queue
 import threading
 from collections.abc import MutableSequence, MutableMapping
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, Future, Executor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, Future, Executor, as_completed
 from types import TracebackType
 from typing import Generic, Callable, Awaitable, Any, overload, TypeVar, Protocol
 
@@ -304,7 +304,7 @@ class _OwnedTaskManager(_TaskManager):
         self._executor.shutdown(cancel_futures=True)
         del self._executor
         self._started = False
-        for worker in self._workers:
+        for worker in as_completed(self._workers):
             worker.result()
 
 
@@ -339,6 +339,7 @@ class _Worker:
     async def _perform_tasks(self) -> None:
         print('WORKER START ASYNC PERFORMER')
         while not self._join_workers.is_set():
+            # @todo
             # print('WORKER NOT READY TO JOIN...')
             for batch in [*self._batches.values()]:
                 await batch._perform_tasks()

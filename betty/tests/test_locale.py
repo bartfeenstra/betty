@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Iterator, cast, Any
 
 import pytest
+from aiofiles.os import makedirs
 from aiofiles.tempfile import TemporaryDirectory
 
 from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH
@@ -381,7 +382,7 @@ class TestLocalizerRepository:
             assets_directory_path = Path(assets_directory_path_str)
             fs = FileSystem((assets_directory_path, None))
             lc_messages_directory_path = assets_directory_path / 'locale' / locale
-            lc_messages_directory_path.mkdir(parents=True)
+            await makedirs(lc_messages_directory_path)
             po = """
 # Dutch translations for PROJECT.
 # Copyright (C) 2019 ORGANIZATION

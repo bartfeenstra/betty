@@ -192,11 +192,11 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
 
     async def __aexit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
         print('EXITING APP..')
-        print('JOIN THREAD POOL')
         if isinstance(self._thread_pool, ThreadPoolTaskManager):
+            print('JOIN THREAD POOL')
             await self._thread_pool.join()
-        print('JOIN PROCESS POOL')
         if isinstance(self._process_pool, ProcessPoolTaskManager):
+            print('JOIN PROCESS POOL')
             await self._process_pool.join()
         del self.http_client
         self._started = False

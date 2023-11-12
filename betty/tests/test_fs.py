@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from aiofiles.os import makedirs
 from aiofiles.tempfile import TemporaryDirectory
 
 from betty.fs import iterfiles, FileSystem, hashfile
@@ -11,7 +12,7 @@ class TestIterfiles:
         async with TemporaryDirectory() as working_directory_path_str:
             working_directory_path = Path(working_directory_path_str)
             working_subdirectory_path = working_directory_path / 'subdir'
-            working_subdirectory_path.mkdir()
+            await makedirs(working_subdirectory_path)
             open(working_directory_path / 'rootfile', 'a').close()
             open(working_directory_path / '.hiddenrootfile', 'a').close()
             open(working_subdirectory_path / 'subdirfile', 'a').close()
@@ -149,10 +150,10 @@ class TestFileSystem:
     async def test_copytree(self) -> None:
         async with TemporaryDirectory() as source_path_str_1:
             source_path_1 = Path(source_path_str_1)
-            (source_path_1 / 'basket').mkdir()
+            await makedirs(source_path_1 / 'basket')
             async with TemporaryDirectory() as source_path_str_2:
                 source_path_2 = Path(source_path_str_2)
-                (source_path_2 / 'basket').mkdir()
+                await makedirs(source_path_2 / 'basket')
                 with open(source_path_1 / 'basket' / 'apples', 'w') as f:
                     f.write('apples')
                 with open(source_path_2 / 'basket' / 'apples', 'w') as f:
