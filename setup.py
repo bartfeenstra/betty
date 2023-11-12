@@ -4,7 +4,6 @@ from setuptools import setup
 
 from betty import _ROOT_DIRECTORY_PATH as ROOT_DIRECTORY_PATH
 from betty._package import get_data_paths, find_packages
-from betty.asyncio import wait
 
 with open(ROOT_DIRECTORY_PATH / 'betty' / 'assets' / 'VERSION', encoding='utf-8') as f:
     VERSION = f.read()
@@ -116,7 +115,7 @@ SETUP = {
     'package_data': {
         'betty': list(map(str, data_file_paths))
         for package, data_file_paths
-        in wait(get_data_paths()).items()
+        in get_data_paths().items()
     },
 }
 
