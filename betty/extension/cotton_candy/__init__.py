@@ -7,6 +7,7 @@ from shutil import copy2
 from typing import Any, Callable, Iterable, cast
 
 from PyQt6.QtWidgets import QWidget
+from aiofiles.os import makedirs
 from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
 from typing_extensions import Self
@@ -14,13 +15,13 @@ from typing_extensions import Self
 from betty.app.extension import ConfigurableExtension, Extension, Theme
 from betty.config import Configuration
 from betty.extension.cotton_candy.search import Index
+from betty.extension.npm import _Npm, NpmBuilder, npm
 from betty.functools import walk
 from betty.generate import Generator
 from betty.gui import GuiBuilder
 from betty.jinja2 import Jinja2Provider
 from betty.locale import Localizer, Date, Datey
 from betty.model import Entity, UserFacingEntity
-from betty.extension.npm import _Npm, NpmBuilder, npm
 from betty.model.ancestry import Event, Person, Presence, is_public
 from betty.project import EntityReferenceSequence
 from betty.serde.dump import minimize, Dump, VoidableDump
@@ -202,17 +203,17 @@ class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Gener
     async def npm_build(self, working_directory_path: Path, assets_directory_path: Path) -> None:
         await self.app.extensions[_Npm].install(type(self), working_directory_path)
         await npm(('run', 'webpack'), cwd=working_directory_path)
-        self._copy_npm_build(working_directory_path / 'webpack-build', assets_directory_path)
+        await self._copy_npm_build(working_directory_path / 'webpack-build', assets_directory_path)
         logging.getLogger().info(self.app.localizer._('Built the Cotton Candy front-end assets.'))
 
-    def _copy_npm_build(self, source_directory_path: Path, destination_directory_path: Path) -> None:
-        destination_directory_path.mkdir(parents=True, exist_ok=True)
+    async def _copy_npm_build(self, source_directory_path: Path, destination_directory_path: Path) -> None:
+        await makedirs(destination_directory_path, exist_ok=True)
         copy2(source_directory_path / 'cotton_candy.css', destination_directory_path / 'cotton_candy.css')
         copy2(source_directory_path / 'cotton_candy.js', destination_directory_path / 'cotton_candy.js')
 
     async def generate(self) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
-        self._copy_npm_build(assets_directory_path, self.app.static_www_directory_path)
+        await self._copy_npm_build(assets_directory_path, self.app.static_www_directory_path)
 
 
 def _is_person_timeline_presence(presence: Presence) -> bool:

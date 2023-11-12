@@ -1,19 +1,22 @@
 from __future__ import annotations
 
-import os
 from collections import OrderedDict
 from contextlib import suppress
 from pathlib import Path
 from reprlib import recursive_repr
+from tempfile import TemporaryDirectory
 from typing import Generic, Iterable, Iterator, SupportsIndex, Hashable, \
     MutableSequence, MutableMapping, TypeVar, Any, Sequence, overload, cast
 
+import aiofiles
+from aiofiles.os import makedirs
 from ordered_set import OrderedSet
 from reactives import scope
 from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
 from typing_extensions import Self, TypeAlias
 
+from betty.asyncio import wait, sync
 from betty.classtools import repr_instance
 from betty.functools import slice_to_range
 from betty.locale import Localizer, Localizable
@@ -22,7 +25,6 @@ from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump, Void
 from betty.serde.error import SerdeErrorCollection
 from betty.serde.format import FormatRepository
 from betty.serde.load import Asserter, Assertion, LoadError, Assertions
-from betty.tempfile import TemporaryDirectory
 
 
 class Configuration(ReactiveInstance, Localizable, Dumpable):
@@ -61,7 +63,7 @@ ConfigurationT = TypeVar('ConfigurationT', bound=Configuration)
 class FileBasedConfiguration(Configuration):
     def __init__(self, *, localizer: Localizer | None = None):
         super().__init__(localizer=localizer)
-        self._project_directory: TemporaryDirectory | None = None
+        self._project_directory: TemporaryDirectory | None = None  # type: ignore[type-arg]
         self._configuration_file_path: Path | None = None
         self._autowrite = False
 
@@ -78,34 +80,38 @@ class FileBasedConfiguration(Configuration):
         if autowrite:
             self._assert_configuration_file_path()
             if not self._autowrite:
-                self.react.react_weakref(self.write)
+                self.react.react_weakref(self._write_reactor)
         else:
-            self.react.shutdown(self.write)
+            self.react.shutdown(self._write_reactor)
         self._autowrite = autowrite
 
-    def write(self, configuration_file_path: Path | None = None) -> None:
+    @sync
+    async def _write_reactor(self) -> None:
+        await self.write()
+
+    async def write(self, configuration_file_path: Path | None = None) -> None:
         if configuration_file_path is None:
             self._assert_configuration_file_path()
         else:
             self.configuration_file_path = configuration_file_path
 
-        self._write(self.configuration_file_path)
+        await self._write(self.configuration_file_path)
 
-    def _write(self, configuration_file_path: Path) -> None:
+    async def _write(self, configuration_file_path: Path) -> None:
         # Change the working directory to allow absolute paths to be turned relative to the configuration file's directory
         # path.
         formats = FormatRepository(localizer=self._localizer)
-        with ChDir(configuration_file_path.parent):
+        async with ChDir(configuration_file_path.parent):
             dump = formats.format_for(configuration_file_path.suffix[1:]).dump(self.dump())
             try:
-                with open(configuration_file_path, mode='w') as f:
-                    f.write(dump)
+                async with aiofiles.open(configuration_file_path, mode='w') as f:
+                    await f.write(dump)
             except FileNotFoundError:
-                os.makedirs(configuration_file_path.parent)
-                self.write()
+                await makedirs(configuration_file_path.parent)
+                await self.write()
         self._configuration_file_path = configuration_file_path
 
-    def read(self, configuration_file_path: Path | None = None) -> None:
+    async def read(self, configuration_file_path: Path | None = None) -> None:
         if configuration_file_path is None:
             self._assert_configuration_file_path()
         else:
@@ -115,9 +121,9 @@ class FileBasedConfiguration(Configuration):
         with SerdeErrorCollection().assert_valid() as errors:
             # Change the working directory to allow relative paths to be resolved against the configuration file's directory
             # path.
-            with ChDir(self.configuration_file_path.parent):
-                with open(self.configuration_file_path) as f:
-                    read_configuration = f.read()
+            async with ChDir(self.configuration_file_path.parent):
+                async with aiofiles.open(self.configuration_file_path) as f:
+                    read_configuration = await f.read()
                 with errors.catch(f'in {self.configuration_file_path.resolve()}'):
                     loaded_configuration = self.load(
                         formats.format_for(self.configuration_file_path.suffix[1:]).load(read_configuration)
@@ -134,7 +140,7 @@ class FileBasedConfiguration(Configuration):
         if self._configuration_file_path is None:
             if self._project_directory is None:
                 self._project_directory = TemporaryDirectory()
-            self._write(Path(self._project_directory.name) / f'{type(self).__name__}.json')
+            wait(self._write(Path(self._project_directory.name) / f'{type(self).__name__}.json'))
         return cast(Path, self._configuration_file_path)
 
     @configuration_file_path.setter

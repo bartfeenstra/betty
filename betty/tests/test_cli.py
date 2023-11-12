@@ -1,22 +1,22 @@
 import json
 import os
+from pathlib import Path
 from typing import Any
 
 import click
 import pytest
 from _pytest.logging import LogCaptureFixture
+from aiofiles.tempfile import TemporaryDirectory
 from click import Command
 from click.testing import CliRunner
 from pytest_mock import MockerFixture
 
 from betty import fs
-from betty.asyncio import sync
 from betty.error import UserFacingError
 from betty.os import ChDir
 from betty.project import ProjectConfiguration, ExtensionConfiguration, Project
 from betty.serde.dump import Dump
 from betty.serve import ProjectServer
-from betty.tempfile import TemporaryDirectory
 from betty.tests import patch_cache
 
 try:
@@ -66,7 +66,7 @@ class TestMain:
         mocker.patch('sys.stderr')
         mocker.patch('sys.stdout')
         configuration = ProjectConfiguration()
-        configuration.write()
+        await configuration.write()
         runner = CliRunner()
         result = runner.invoke(main, ('-c', str(configuration.configuration_file_path)), catch_exceptions=False)
         assert 2 == result.exit_code
@@ -76,7 +76,7 @@ class TestMain:
         mocker.patch('sys.stdout')
         configuration = ProjectConfiguration()
         configuration.extensions.append(ExtensionConfiguration(DummyExtension))
-        configuration.write()
+        await configuration.write()
         runner = CliRunner()
         result = runner.invoke(main, ('-c', str(configuration.configuration_file_path), '--help',), catch_exceptions=False)
         assert 0 == result.exit_code
@@ -84,7 +84,8 @@ class TestMain:
     async def test_help_with_invalid_configuration_file_path(self, mocker: MockerFixture) -> None:
         mocker.patch('sys.stderr')
         mocker.patch('sys.stdout')
-        with TemporaryDirectory() as working_directory_path:
+        async with TemporaryDirectory() as working_directory_path_str:
+            working_directory_path = Path(working_directory_path_str)
             configuration_file_path = working_directory_path / 'non-existent-betty.json'
 
             runner = CliRunner()
@@ -94,7 +95,8 @@ class TestMain:
     async def test_help_with_invalid_configuration(self, mocker: MockerFixture) -> None:
         mocker.patch('sys.stderr')
         mocker.patch('sys.stdout')
-        with TemporaryDirectory() as working_directory_path:
+        async with TemporaryDirectory() as working_directory_path_str:
+            working_directory_path = Path(working_directory_path_str)
             configuration_file_path = working_directory_path / 'betty.json'
             dump: Dump = {}
             with open(configuration_file_path, 'w') as f:
@@ -107,7 +109,8 @@ class TestMain:
     async def test_with_discovered_configuration(self, mocker: MockerFixture) -> None:
         mocker.patch('sys.stderr')
         mocker.patch('sys.stdout')
-        with TemporaryDirectory() as working_directory_path:
+        async with TemporaryDirectory() as working_directory_path_str:
+            working_directory_path = Path(working_directory_path_str)
             with open(working_directory_path / 'betty.json', 'w') as config_file:
                 url = 'https://example.com'
                 dump: Dump = {
@@ -117,7 +120,7 @@ class TestMain:
                     },
                 }
                 json.dump(dump, config_file)
-            with ChDir(working_directory_path):
+            async with ChDir(working_directory_path):
                 runner = CliRunner()
                 result = runner.invoke(main, ('test',), catch_exceptions=False)
                 assert 1 == result.exit_code
@@ -150,7 +153,6 @@ class TestVersion:
 
 class TestClearCaches:
     @patch_cache
-    @sync
     async def test(self) -> None:
         cached_file_path = fs.CACHE_DIRECTORY_PATH / 'KeepMeAroundPlease'
         open(cached_file_path, 'w').close()
@@ -176,7 +178,7 @@ class TestGenerate:
         m_load = mocker.patch('betty.load.load', new_callable=AsyncMock)
 
         configuration = ProjectConfiguration()
-        configuration.write()
+        await configuration.write()
         runner = CliRunner()
         result = runner.invoke(main, ('-c', str(configuration.configuration_file_path), 'generate',), catch_exceptions=False)
         assert 0 == result.exit_code
@@ -208,7 +210,7 @@ class Serve:
     async def test(self, mocker: MockerFixture) -> None:
         mocker.patch('betty.serve.BuiltinServer', new_callable=lambda: _KeyboardInterruptedProjectServer)
         configuration = ProjectConfiguration()
-        configuration.write()
+        await configuration.write()
         os.makedirs(configuration.www_directory_path)
         runner = CliRunner()
         result = runner.invoke(main, ('-c', str(configuration.configuration_file_path), 'serve',), catch_exceptions=False)

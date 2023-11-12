@@ -11,6 +11,8 @@ from types import TracebackType
 from typing import AsyncIterable, AsyncContextManager, Sequence
 
 import aiofiles
+from aiofiles.os import makedirs
+from aiofiles.ospath import exists
 from aiofiles.threadpool.text import AsyncTextIOWrapper
 
 from betty import _ROOT_DIRECTORY_PATH
@@ -88,8 +90,8 @@ class FileSystem:
         for fs_path, _ in self._paths:
             async for file_source_path in iterfiles(fs_path / source_path):
                 file_destination_path = destination_path / file_source_path.relative_to(fs_path / source_path)
-                if not file_destination_path.exists():
-                    file_destination_path.parent.mkdir(exist_ok=True, parents=True)
+                if not await exists(file_destination_path):
+                    await makedirs(file_destination_path.parent, exist_ok=True)
                     copy2(file_source_path, file_destination_path)
                     if file_destination_path not in destination_paths:
                         destination_paths.add(file_destination_path)

@@ -6,11 +6,13 @@ from contextlib import suppress
 from pathlib import Path
 from types import TracebackType
 
+from aiofiles.os import link, makedirs
 
-def link_or_copy(source_path: Path, destination_path: Path) -> None:
+
+async def link_or_copy(source_path: Path, destination_path: Path) -> None:
     try:
         with suppress(FileExistsError):
-            os.link(source_path, destination_path)
+            await link(source_path, destination_path)
     except OSError:
         with suppress(shutil.SameFileError):
             shutil.copyfile(source_path, destination_path)
@@ -21,18 +23,18 @@ class ChDir:
         self._directory_path = directory_path
         self._owd: str | None = None
 
-    def __enter__(self) -> None:
-        self.change()
+    async def __aenter__(self) -> None:
+        await self.change()
 
-    def __exit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
-        self.revert()
+    async def __aexit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
+        await self.revert()
 
-    def change(self) -> None:
+    async def change(self) -> None:
         self._owd = os.getcwd()
-        os.makedirs(self._directory_path, exist_ok=True)
+        await makedirs(self._directory_path, exist_ok=True)
         os.chdir(self._directory_path)
 
-    def revert(self) -> None:
+    async def revert(self) -> None:
         owd = self._owd
         if owd is not None:
             os.chdir(owd)

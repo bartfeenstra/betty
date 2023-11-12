@@ -44,7 +44,7 @@ SETUP = {
     ],
     'python_requires': '~= 3.9',
     'install_requires': [
-        'aiofiles ~= 23.1, >= 23.1.0',
+        'aiofiles ~= 23.2, >= 23.2.1',
         'aiohttp == 3.9.0b0',
         'babel ~= 2.12, >= 2.12.0',
         'click ~= 8.1, >= 8.1.2',
@@ -85,7 +85,7 @@ SETUP = {
             'pytest-xvfb ~= 3.0, >= 3.0.0',
             'setuptools ~= 68.2, >= 68.2.2',
             'twine ~= 4.0, >= 4.0.0',
-            'types-aiofiles ~= 23.1, >= 23.1.0.2',
+            'types-aiofiles ~= 23.2, >= 23.2.0.0',
             'types-click ~= 7.1, >= 7.1.8',
             'types-mock ~= 5.0, >= 5.0.0.6',
             'types-polib ~= 1.2, >= 1.2.0.0',

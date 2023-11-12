@@ -14,6 +14,7 @@ from typing import cast, AsyncContextManager, Callable, Generic, Any, Awaitable
 import aiofiles
 import dill
 from aiofiles import os as aiofiles_os
+from aiofiles.os import makedirs
 from aiofiles.threadpool.text import AsyncTextIOWrapper
 from typing_extensions import ParamSpec, Concatenate
 
@@ -171,17 +172,17 @@ class _ConcurrentGenerator:
             )
 
 
-def create_file(path: Path) -> AsyncContextManager[AsyncTextIOWrapper]:
-    path.parent.mkdir(exist_ok=True, parents=True)
+async def create_file(path: Path) -> AsyncContextManager[AsyncTextIOWrapper]:
+    await makedirs(path.parent, exist_ok=True)
     return cast(AsyncContextManager[AsyncTextIOWrapper], aiofiles.open(path, 'w', encoding='utf-8'))
 
 
-def create_html_resource(path: Path) -> AsyncContextManager[AsyncTextIOWrapper]:
-    return create_file(path / 'index.html')
+async def create_html_resource(path: Path) -> AsyncContextManager[AsyncTextIOWrapper]:
+    return await create_file(path / 'index.html')
 
 
-def create_json_resource(path: Path) -> AsyncContextManager[AsyncTextIOWrapper]:
-    return create_file(path / 'index.json')
+async def create_json_resource(path: Path) -> AsyncContextManager[AsyncTextIOWrapper]:
+    return await create_file(path / 'index.json')
 
 
 async def _generate_dispatch(
@@ -223,7 +224,7 @@ async def _generate_entity_type_list_html(
         entity_type=entity_type,
         entities=app.project.ancestry[entity_type],
     )
-    async with create_html_resource(entity_type_path) as f:
+    async with await create_html_resource(entity_type_path) as f:
         await f.write(rendered_html)
     locale_label = get_display_name(app.locale, caller_locale)
     getLogger().info(app.localizers[caller_locale]._('Generated the listing page for {entity_type} in {locale}.').format(
@@ -252,7 +253,7 @@ async def _generate_entity_type_list_json(
                 absolute=True,
             ))
     rendered_json = json.dumps(data)
-    async with create_json_resource(entity_type_path) as f:
+    async with await create_json_resource(entity_type_path) as f:
         await f.write(rendered_json)
 
 
@@ -273,7 +274,7 @@ async def _generate_entity_html(
         entity_type=entity.type,
         entity=entity,
     )
-    async with create_html_resource(entity_path) as f:
+    async with await create_html_resource(entity_path) as f:
         await f.write(rendered_html)
 
 
@@ -286,7 +287,7 @@ async def _generate_entity_json(
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
     entity_path = app.static_www_directory_path / entity_type_name_fs / entity_id
     rendered_json = json.dumps(app.project.ancestry[entity_type][entity_id], cls=app.json_encoder)
-    async with create_json_resource(entity_path) as f:
+    async with await create_json_resource(entity_path) as f:
         await f.write(rendered_json)
 
 
@@ -295,9 +296,9 @@ async def _generate_openapi(
     reporting_locale: str,
 ) -> None:
     api_directory_path = app.www_directory_path / 'api'
-    api_directory_path.mkdir(exist_ok=True, parents=True)
+    await makedirs(api_directory_path, exist_ok=True)
     rendered_json = json.dumps(Specification(app).build())
-    async with create_json_resource(api_directory_path) as f:
+    async with await create_json_resource(api_directory_path) as f:
         await f.write(rendered_json)
 
 

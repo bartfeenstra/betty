@@ -9,7 +9,10 @@ from io import StringIO
 from types import TracebackType
 from typing import Sequence
 
+from aiofiles.os import makedirs
+
 from betty.app import App
+from betty.asyncio import sync
 from betty.error import UserFacingError
 from betty.locale import Localizer, Localizable
 from betty.os import ChDir
@@ -91,7 +94,7 @@ class ProjectServer(Server):
         raise RuntimeError(f'Cannot find a project server. This must never happen, because {BuiltinServer} should be the fallback.')
 
     async def start(self) -> None:
-        self._project.configuration.www_directory_path.mkdir(parents=True, exist_ok=True)
+        await makedirs(self._project.configuration.www_directory_path, exist_ok=True)
         await super().start()
 
 
@@ -135,9 +138,10 @@ class BuiltinServer(ProjectServer):
             return f'http://localhost:{self._port}'
         raise NoPublicUrlBecauseServerNotStartedError()
 
-    def _serve(self, project: Project) -> None:
+    @sync
+    async def _serve(self, project: Project) -> None:
         with contextlib.redirect_stderr(StringIO()):
-            with ChDir(project.configuration.www_directory_path):
+            async with ChDir(project.configuration.www_directory_path):
                 assert self._http_server
                 self._http_server.serve_forever()
 

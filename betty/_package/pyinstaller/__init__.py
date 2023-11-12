@@ -11,9 +11,9 @@ from betty._package import get_data_paths, find_packages
 from betty._package.pyinstaller.hooks import HOOKS_DIRECTORY_PATH
 from betty.app import App
 from betty.asyncio import sync
-from betty.fs import ROOT_DIRECTORY_PATH
 from betty.extension import HttpApiDoc, Maps, Trees
 from betty.extension.npm import _Npm, build_assets
+from betty.fs import ROOT_DIRECTORY_PATH
 from betty.project import ExtensionConfiguration
 
 

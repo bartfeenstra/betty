@@ -15,6 +15,7 @@ import aiofiles
 from PIL import Image
 from PIL.Image import DecompressionBombWarning
 from aiofiles import os as aiofiles_os
+from aiofiles.os import makedirs
 from geopy import units
 from geopy.format import DEGREES_FORMAT
 from jinja2 import Environment as Jinja2Environment, select_autoescape, FileSystemLoader, pass_context, \
@@ -28,6 +29,7 @@ from pdf2image.pdf2image import convert_from_path
 
 from betty import _resizeimage
 from betty.app import App
+from betty.asyncio import wait
 from betty.fs import hashfile, CACHE_DIRECTORY_PATH
 from betty.functools import walk
 from betty.html import CssProvider, JsProvider
@@ -438,14 +440,14 @@ def _filter_file(app: App, file: File) -> str:
     with suppress(AcquiredError):
         app.locks.acquire((_filter_file, file))
         file_destination_path = app.project.configuration.www_directory_path / 'file' / file.id / 'file' / file.path.name
-        app.delegate_to_thread(lambda: _do_filter_file(file.path, file_destination_path))
+        app.delegate_to_thread(lambda: wait(_do_filter_file(file.path, file_destination_path)))
 
     return f'/file/{file.id}/file/{file.path.name}'
 
 
-def _do_filter_file(file_source_path: Path, file_destination_path: Path) -> None:
-    file_destination_path.parent.mkdir(exist_ok=True, parents=True)
-    link_or_copy(file_source_path, file_destination_path)
+async def _do_filter_file(file_source_path: Path, file_destination_path: Path) -> None:
+    await makedirs(file_destination_path.parent, exist_ok=True)
+    await link_or_copy(file_source_path, file_destination_path)
 
 
 def _filter_image(app: App, file: File, width: int | None = None, height: int | None = None) -> str:
@@ -476,36 +478,36 @@ def _filter_image(app: App, file: File, width: int | None = None, height: int | 
     with suppress(AcquiredError):
         app.locks.acquire((_filter_image, file, width, height))
         cache_directory_path = CACHE_DIRECTORY_PATH / 'image'
-        app.delegate_to_thread(lambda: task(file.path, cache_directory_path, file_directory_path, destination_name, width, height))
+        app.delegate_to_thread(lambda: wait(task(file.path, cache_directory_path, file_directory_path, destination_name, width, height)))
 
     destination_public_path = '/file/%s' % destination_name
 
     return destination_public_path
 
 
-def _execute_filter_image_image(file_path: Path, *args: Any, **kwargs: Any) -> None:
+async def _execute_filter_image_image(file_path: Path, *args: Any, **kwargs: Any) -> None:
     with warnings.catch_warnings():
         # Ignore warnings about decompression bombs, because we know where the files come from.
         warnings.simplefilter('ignore', category=DecompressionBombWarning)
         image = Image.open(file_path)
     try:
-        _execute_filter_image(image, file_path, *args, **kwargs)
+        await _execute_filter_image(image, file_path, *args, **kwargs)
     finally:
         image.close()
 
 
-def _execute_filter_image_application_pdf(file_path: Path, *args: Any, **kwargs: Any) -> None:
+async def _execute_filter_image_application_pdf(file_path: Path, *args: Any, **kwargs: Any) -> None:
     with warnings.catch_warnings():
         # Ignore warnings about decompression bombs, because we know where the files come from.
         warnings.simplefilter('ignore', category=DecompressionBombWarning)
         image = convert_from_path(file_path, fmt='jpeg')[0]
     try:
-        _execute_filter_image(image, file_path, *args, **kwargs)
+        await _execute_filter_image(image, file_path, *args, **kwargs)
     finally:
         image.close()
 
 
-def _execute_filter_image(
+async def _execute_filter_image(
     image: Image,
     file_path: Path,
     cache_directory_path: Path,
@@ -514,14 +516,14 @@ def _execute_filter_image(
     width: int,
     height: int,
 ) -> None:
-    destination_directory_path.mkdir(exist_ok=True, parents=True)
+    await makedirs(destination_directory_path, exist_ok=True)
     cache_file_path = cache_directory_path / ('%s-%s' % (hashfile(file_path), destination_name))
     destination_file_path = destination_directory_path / destination_name
 
     try:
-        link_or_copy(cache_file_path, destination_file_path)
+        await link_or_copy(cache_file_path, destination_file_path)
     except FileNotFoundError:
-        cache_directory_path.mkdir(exist_ok=True, parents=True)
+        await makedirs(cache_directory_path, exist_ok=True)
         with image:
             if width is not None:
                 width = min(width, image.width)
@@ -538,8 +540,8 @@ def _execute_filter_image(
                 size = (width, height)
                 convert = _resizeimage.resize_cover  # type: ignore[assignment]
             convert(image, size).save(cache_file_path)
-        destination_directory_path.mkdir(exist_ok=True, parents=True)
-        link_or_copy(cache_file_path, destination_file_path)
+        await makedirs(destination_directory_path, exist_ok=True)
+        await link_or_copy(cache_file_path, destination_file_path)
 
 
 @pass_context

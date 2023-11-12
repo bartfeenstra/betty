@@ -4,11 +4,13 @@ import logging
 from pathlib import Path
 from shutil import copy2
 
+from aiofiles.os import makedirs
+
 from betty.app.extension import Extension, UserFacingExtension
 from betty.cache import CacheScope
+from betty.extension.npm import _Npm, NpmBuilder
 from betty.generate import Generator
 from betty.locale import Localizer
-from betty.extension.npm import _Npm, NpmBuilder
 
 
 class _HttpApiDoc(UserFacingExtension, Generator, NpmBuilder):
@@ -27,7 +29,7 @@ class _HttpApiDoc(UserFacingExtension, Generator, NpmBuilder):
 
     async def generate(self) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
-        self.app.static_www_directory_path.mkdir(parents=True, exist_ok=True)
+        await makedirs(self.app.static_www_directory_path, exist_ok=True)
         copy2(assets_directory_path / 'http-api-doc.js', self.app.static_www_directory_path / 'http-api-doc.js')
 
     @classmethod

@@ -1,14 +1,15 @@
 from pathlib import Path
 
 import pytest
+from aiofiles.tempfile import TemporaryDirectory
 
 from betty.fs import iterfiles, FileSystem, hashfile
-from betty.tempfile import TemporaryDirectory
 
 
 class TestIterfiles:
     async def test_iterfiles(self) -> None:
-        with TemporaryDirectory() as working_directory_path:
+        async with TemporaryDirectory() as working_directory_path_str:
+            working_directory_path = Path(working_directory_path_str)
             working_subdirectory_path = working_directory_path / 'subdir'
             working_subdirectory_path.mkdir()
             open(working_directory_path / 'rootfile', 'a').close()
@@ -36,8 +37,10 @@ class TestHashfile:
 
 class TestFileSystem:
     async def test_open(self) -> None:
-        with TemporaryDirectory() as source_path_1:
-            with TemporaryDirectory() as source_path_2:
+        async with TemporaryDirectory() as source_path_str_1:
+            source_path_1 = Path(source_path_str_1)
+            async with TemporaryDirectory() as source_path_str_2:
+                source_path_2 = Path(source_path_str_2)
                 with open(source_path_1 / 'apples', 'w') as f:
                     f.write('apples')
                 with open(source_path_2 / 'apples', 'w') as f:
@@ -61,8 +64,10 @@ class TestFileSystem:
                         pass
 
     async def test_open_with_first_file_path_alternative_first_source_path(self) -> None:
-        with TemporaryDirectory() as source_path_1:
-            with TemporaryDirectory() as source_path_2:
+        async with TemporaryDirectory() as source_path_str_1:
+            source_path_1 = Path(source_path_str_1)
+            async with TemporaryDirectory() as source_path_str_2:
+                source_path_2 = Path(source_path_str_2)
                 with open(source_path_1 / 'pinkladies', 'w') as f:
                     f.write('pinkladies')
                 with open(source_path_2 / 'pinkladies', 'w') as f:
@@ -78,8 +83,10 @@ class TestFileSystem:
                     assert 'pinkladies' == await f.read()
 
     async def test_open_with_first_file_path_alternative_second_source_path(self) -> None:
-        with TemporaryDirectory() as source_path_1:
-            with TemporaryDirectory() as source_path_2:
+        async with TemporaryDirectory() as source_path_str_1:
+            source_path_1 = Path(source_path_str_1)
+            async with TemporaryDirectory() as source_path_str_2:
+                source_path_2 = Path(source_path_str_2)
                 with open(source_path_2 / 'pinkladies', 'w') as f:
                     f.write('pinkladies')
                 with open(source_path_1 / 'apples', 'w') as f:
@@ -93,8 +100,10 @@ class TestFileSystem:
                     assert 'pinkladies' == await f.read()
 
     async def test_open_with_second_file_path_alternative_first_source_path(self) -> None:
-        with TemporaryDirectory() as source_path_1:
-            with TemporaryDirectory() as source_path_2:
+        async with TemporaryDirectory() as source_path_str_1:
+            source_path_1 = Path(source_path_str_1)
+            async with TemporaryDirectory() as source_path_str_2:
+                source_path_2 = Path(source_path_str_2)
                 with open(source_path_1 / 'apples', 'w') as f:
                     f.write('apples')
                 with open(source_path_2 / 'apples', 'w') as f:
@@ -106,8 +115,10 @@ class TestFileSystem:
                     assert 'apples' == await f.read()
 
     async def test_copy2(self) -> None:
-        with TemporaryDirectory() as source_path_1:
-            with TemporaryDirectory() as source_path_2:
+        async with TemporaryDirectory() as source_path_str_1:
+            source_path_1 = Path(source_path_str_1)
+            async with TemporaryDirectory() as source_path_str_2:
+                source_path_2 = Path(source_path_str_2)
                 with open(source_path_1 / 'apples', 'w') as f:
                     f.write('apples')
                 with open(source_path_2 / 'apples', 'w') as f:
@@ -117,7 +128,8 @@ class TestFileSystem:
                 with open(source_path_2 / 'bananas', 'w') as f:
                     f.write('bananas')
 
-                with TemporaryDirectory() as destination_path:
+                async with TemporaryDirectory() as destination_path_str:
+                    destination_path = Path(destination_path_str)
                     sut = FileSystem((source_path_1, None), (source_path_2, None))
 
                     await sut.copy2(Path('apples'), destination_path)
@@ -135,9 +147,11 @@ class TestFileSystem:
                         await sut.copy2(Path('mangos'), destination_path)
 
     async def test_copytree(self) -> None:
-        with TemporaryDirectory() as source_path_1:
+        async with TemporaryDirectory() as source_path_str_1:
+            source_path_1 = Path(source_path_str_1)
             (source_path_1 / 'basket').mkdir()
-            with TemporaryDirectory() as source_path_2:
+            async with TemporaryDirectory() as source_path_str_2:
+                source_path_2 = Path(source_path_str_2)
                 (source_path_2 / 'basket').mkdir()
                 with open(source_path_1 / 'basket' / 'apples', 'w') as f:
                     f.write('apples')
@@ -148,7 +162,8 @@ class TestFileSystem:
                 with open(source_path_2 / 'basket' / 'bananas', 'w') as f:
                     f.write('bananas')
 
-                with TemporaryDirectory() as destination_path:
+                async with TemporaryDirectory() as destination_path_str:
+                    destination_path = Path(destination_path_str)
                     sut = FileSystem((source_path_1, None), (source_path_2, None))
 
                     async for _ in sut.copytree(Path(''), destination_path):

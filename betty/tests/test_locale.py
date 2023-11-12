@@ -5,11 +5,11 @@ from pathlib import Path
 from typing import Iterator, cast, Any
 
 import pytest
+from aiofiles.tempfile import TemporaryDirectory
 
 from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH
 from betty.locale import Localized, negotiate_localizeds, Date, DateRange, negotiate_locale, \
     Datey, LocalizerRepository, Localey, DEFAULT_LOCALIZER, to_locale, update_translations
-from betty.tempfile import TemporaryDirectory
 
 
 class TestPotFile:
@@ -27,8 +27,9 @@ class TestPotFile:
             )
 
     async def test(self) -> None:
-        with TemporaryDirectory() as working_directory_path:
-            update_translations(working_directory_path)
+        async with TemporaryDirectory() as working_directory_path_str:
+            working_directory_path = Path(working_directory_path_str)
+            await update_translations(working_directory_path)
             actual_pot_contents = self._readlines(ASSETS_DIRECTORY_PATH)
             expected_pot_contents = self._readlines(working_directory_path)
             diff = difflib.unified_diff(
@@ -376,9 +377,9 @@ class TestDefaultLocalizer:
 class TestLocalizerRepository:
     async def test_getitem(self) -> None:
         locale = 'nl-NL'
-        with TemporaryDirectory() as assets_directory_path_str:
-            fs = FileSystem((assets_directory_path_str, None))
+        async with TemporaryDirectory() as assets_directory_path_str:
             assets_directory_path = Path(assets_directory_path_str)
+            fs = FileSystem((assets_directory_path, None))
             lc_messages_directory_path = assets_directory_path / 'locale' / locale
             lc_messages_directory_path.mkdir(parents=True)
             po = """
