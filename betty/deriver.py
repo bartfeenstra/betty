@@ -87,7 +87,7 @@ class Deriver(Localizable):
             dates_derived = False
             # We know _get_derivable_events() only returns events without a date or a with a date range, but Python
             # does not let us express that in a(n intersection) type, so we must instead cast here.
-            derivable_date = cast('DateRange | None', derivable_event.date)
+            derivable_date = cast(DateRange | None, derivable_event.date)
 
             if derivable_date is None or derivable_date.end is None:
                 dates_derived = dates_derived or _ComesBeforeDateDeriver.derive(person, derivable_event, comes_before_event_types)

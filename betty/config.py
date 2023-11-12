@@ -6,7 +6,7 @@ from pathlib import Path
 from reprlib import recursive_repr
 from tempfile import TemporaryDirectory
 from typing import Generic, Iterable, Iterator, SupportsIndex, Hashable, \
-    MutableSequence, MutableMapping, TypeVar, Any, Sequence, overload, cast
+    MutableSequence, MutableMapping, TypeVar, Any, Sequence, overload, cast, Self, TypeAlias
 
 import aiofiles
 from aiofiles.os import makedirs
@@ -14,7 +14,6 @@ from ordered_set import OrderedSet
 from reactives import scope
 from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
-from typing_extensions import Self, TypeAlias
 
 from betty.asyncio import wait, sync
 from betty.classtools import repr_instance
@@ -158,7 +157,7 @@ class FileBasedConfiguration(Configuration):
         self._configuration_file_path = None
 
 
-ConfigurationKey: TypeAlias = 'SupportsIndex | Hashable | type[Any]'
+ConfigurationKey: TypeAlias = SupportsIndex | Hashable | type[Any]
 ConfigurationKeyT = TypeVar('ConfigurationKeyT', bound=ConfigurationKey)
 
 

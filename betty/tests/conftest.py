@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import gc
 import logging
-from typing import Callable, Iterator, TypeVar, cast, Union, AsyncIterator
+from typing import Callable, Iterator, TypeVar, cast, AsyncIterator, TypeAlias
 
 import pytest
 from PyQt6.QtCore import Qt
@@ -10,7 +10,6 @@ from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QMainWindow, QMenu, QWidget
 from _pytest.logging import LogCaptureFixture
 from pytestqt.qtbot import QtBot
-from typing_extensions import TypeAlias
 
 from betty.app import AppConfiguration, App
 from betty.gui import BettyApplication
@@ -64,7 +63,7 @@ async def qapp(qapp_args: list[str]) -> AsyncIterator[BettyApplication]:
     gc.collect()
 
 
-Navigate: TypeAlias = Callable[['QMainWindow | QMenu', list[str]], None]
+Navigate: TypeAlias = Callable[[QMainWindow | QMenu, list[str]], None]
 
 
 @pytest.fixture
@@ -135,7 +134,7 @@ def assert_not_top_level_widget(qapp: BettyApplication, qtbot: QtBot) -> AssertN
 QMainWindowT = TypeVar('QMainWindowT', bound=QMainWindow)
 
 
-AssertWindow: TypeAlias = Callable[[Union[type[QMainWindowT], QMainWindowT]], QMainWindowT]
+AssertWindow: TypeAlias = Callable[[type[QMainWindowT] | QMainWindowT], QMainWindowT]
 
 
 @pytest.fixture
@@ -145,7 +144,7 @@ def assert_window(assert_top_level_widget: AssertTopLevelWidget[QMainWindowT]) -
     return _assert_window
 
 
-AssertNotWindow: TypeAlias = Callable[[Union[type[QMainWindowT], QMainWindowT]], None]
+AssertNotWindow: TypeAlias = Callable[[type[QMainWindowT] | QMainWindowT], None]
 
 
 @pytest.fixture

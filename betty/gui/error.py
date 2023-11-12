@@ -3,12 +3,11 @@ from __future__ import annotations
 import functools
 import traceback
 from types import TracebackType
-from typing import Callable, Any, TypeVar, Generic, TYPE_CHECKING
+from typing import Callable, Any, TypeVar, Generic, TYPE_CHECKING, ParamSpec
 
 from PyQt6.QtCore import QMetaObject, Qt, Q_ARG, QObject
 from PyQt6.QtGui import QCloseEvent, QIcon
 from PyQt6.QtWidgets import QWidget, QMessageBox
-from typing_extensions import ParamSpec
 
 from betty.app import App
 from betty.gui.locale import LocalizedMessageBox

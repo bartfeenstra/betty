@@ -9,14 +9,13 @@ import queue
 import shutil
 from contextlib import suppress
 from pathlib import Path
-from typing import cast, AsyncContextManager, Callable, Generic, Any, Awaitable
+from typing import cast, AsyncContextManager, Callable, Generic, Any, Awaitable, ParamSpec, Concatenate
 
 import aiofiles
 import dill
 from aiofiles import os as aiofiles_os
 from aiofiles.os import makedirs
 from aiofiles.threadpool.text import AsyncTextIOWrapper
-from typing_extensions import ParamSpec, Concatenate
 
 from betty.app import App
 from betty.asyncio import sync

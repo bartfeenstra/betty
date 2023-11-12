@@ -48,7 +48,7 @@ For Windows, download [betty.exe](https://github.com/bartfeenstra/betty/releases
 
 #### Requirements
 
-- **Python 3.9+**
+- **Python 3.11+**
 - [Node.js](https://nodejs.org/) (optional)
 
 #### Instructions
@@ -312,7 +312,7 @@ directory.
 
 ### Requirements
 
-- **Python 3.9+**
+- **Python 3.11+**
 - [Node.js](https://nodejs.org/)
 - [ShellCheck](https://www.shellcheck.net/)
 - [Xvfb](https://x.org/releases/X11R7.7/doc/man/man1/Xvfb.1.xhtml)

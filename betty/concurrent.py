@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 from concurrent.futures._base import Executor, wait, Future
-from typing import Any, Iterator, Callable, TypeVar, Iterable
-
-from typing_extensions import ParamSpec
+from typing import Any, Iterator, Callable, TypeVar, Iterable, ParamSpec
 
 T = TypeVar('T')
 U = TypeVar('U')

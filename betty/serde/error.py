@@ -3,9 +3,7 @@ from __future__ import annotations
 import copy
 from contextlib import contextmanager
 from textwrap import indent
-from typing import Iterator, cast, Any
-
-from typing_extensions import Self
+from typing import Iterator, cast, Any, Self
 
 from betty.error import UserFacingError
 

@@ -2,16 +2,14 @@ from __future__ import annotations
 
 import asyncio
 import functools
-import sys
 from collections import defaultdict
 from importlib.metadata import entry_points, EntryPoint
 from pathlib import Path
 from typing import Any, TypeVar, Iterable, TYPE_CHECKING, Generic, \
-    Iterator, Sequence
+    Iterator, Sequence, Self
 
 from reactives import scope
 from reactives.instance import ReactiveInstance
-from typing_extensions import Self
 
 from betty import fs
 from betty.app.extension.requirement import Requirement
@@ -337,10 +335,7 @@ def _extend_extension_type_graph(graph: ExtensionTypeGraph, extension_type: type
 
 def discover_extension_types() -> set[type[Extension]]:
     betty_entry_points: Sequence[EntryPoint]
-    if (sys.version_info.major, sys.version_info.minor) >= (3, 10):
-        betty_entry_points = entry_points(  # type: ignore[assignment, unused-ignore]
-            group='betty.extensions',  # type: ignore[call-arg, unused-ignore]
-        )
-    else:
-        betty_entry_points = entry_points()['betty.extensions']
+    betty_entry_points = entry_points(  # type: ignore[assignment, unused-ignore]
+        group='betty.extensions',  # type: ignore[call-arg, unused-ignore]
+    )
     return {import_any(betty_entry_point.value) for betty_entry_point in betty_entry_points}

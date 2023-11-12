@@ -24,8 +24,6 @@ SETUP = {
     'classifiers': [
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Programming Language :: JavaScript',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
         'Programming Language :: JavaScript',
@@ -42,7 +40,7 @@ SETUP = {
         'Natural Language :: Ukrainian',
         'Typing :: Typed ',
     ],
-    'python_requires': '~= 3.9',
+    'python_requires': '~= 3.11',
     'install_requires': [
         'aiofiles ~= 23.2, >= 23.2.1',
         'aiohttp == 3.9.0b0',
@@ -61,7 +59,6 @@ SETUP = {
         'PyQt6 ~= 6.5, >= 6.5.0',
         'pyyaml ~= 6.0, >= 6.0.0',
         'reactives ~= 0.5, >= 0.5.1',
-        'typing_extensions ~= 4.5, >= 4.5.0',
     ],
     'extras_require': {
         'development': [

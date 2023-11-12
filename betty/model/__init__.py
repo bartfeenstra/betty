@@ -5,10 +5,8 @@ import functools
 from collections import defaultdict
 from contextlib import contextmanager
 from reprlib import recursive_repr
-from typing import TypeVar, Generic, Iterable, Any, overload, cast, Iterator, Union, Callable
+from typing import TypeVar, Generic, Iterable, Any, overload, cast, Iterator, Callable, Self, TypeAlias
 from uuid import uuid4
-
-from typing_extensions import Self, TypeAlias
 
 from betty.classtools import repr_instance
 from betty.importlib import import_any, fully_qualified_type_name
@@ -468,7 +466,7 @@ class ManyToMany(Generic[OwnerT, AssociateT], BidirectionalToManyEntityTypeAssoc
     pass
 
 
-ToAny: TypeAlias = Union[ToOneEntityTypeAssociation[OwnerT, AssociateT], ToManyEntityTypeAssociation[OwnerT, AssociateT]]
+ToAny: TypeAlias = ToOneEntityTypeAssociation[OwnerT, AssociateT] | ToManyEntityTypeAssociation[OwnerT, AssociateT]
 
 
 def to_one(
@@ -921,7 +919,7 @@ class AliasedEntity(Generic[EntityT]):
         return self._entity
 
 
-AliasableEntity: TypeAlias = Union[EntityT, AliasedEntity[EntityT]]
+AliasableEntity: TypeAlias = EntityT | AliasedEntity[EntityT]
 
 
 def unalias(entity: AliasableEntity[EntityT]) -> EntityT:
