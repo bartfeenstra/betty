@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import hashlib
 import json
 import logging
@@ -15,6 +14,7 @@ import aiofiles
 import aiohttp
 
 from betty.app import App
+from betty.asyncio import gather
 from betty.functools import filter_suppress
 from betty.locale import Localized, negotiate_locale, to_locale, get_data, LocaleNotFoundError, Localey
 from betty.media_type import MediaType
@@ -143,11 +143,11 @@ class _Populator:
 
     async def populate(self) -> None:
         locales = set(map(lambda x: x.alias, self._app.project.configuration.locales.values()))
-        await asyncio.gather(*[
+        await gather(*(
             self._populate_entity(entity, locales)
             for entity
             in self._app.project.ancestry
-        ])
+        ))
 
     async def _populate_entity(self, entity: Entity, locales: set[str]) -> None:
         if not isinstance(entity, HasLinks):

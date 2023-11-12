@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 from pathlib import Path
 from typing import Callable, Iterable, cast, Any
 
@@ -10,7 +9,7 @@ from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
 
 from betty.app.extension import UserFacingExtension
-from betty.asyncio import sync
+from betty.asyncio import sync, gather
 from betty.jinja2 import Jinja2Provider, Environment
 from betty.load import PostLoader
 from betty.locale import negotiate_locale, Localizer
@@ -60,14 +59,14 @@ class _Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstan
     async def _filter_wikipedia_links(self, context: Context, links: Iterable[Link]) -> Iterable[Entry]:
         return filter(
             None,
-            await asyncio.gather(*[
+            await gather(*(
                 self._filter_wikipedia_link(
                     cast(Environment, context.environment).app.locale,
                     link,
                 )
                 for link
                 in links
-            ]),
+            )),
         )
 
     async def _filter_wikipedia_link(self, locale: str, link: Link) -> Entry | None:

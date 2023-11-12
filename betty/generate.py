@@ -18,7 +18,7 @@ from aiofiles.os import makedirs
 from aiofiles.threadpool.text import AsyncTextIOWrapper
 
 from betty.app import App
-from betty.asyncio import sync
+from betty.asyncio import sync, gather
 from betty.locale import get_display_name
 from betty.model import get_entity_type_name, UserFacingEntity, GeneratedEntityId, Entity
 from betty.model.ancestry import is_public
@@ -151,10 +151,11 @@ class _ConcurrentGenerator:
                 project=dill.loads(self._pickled_project),
                 locale=locale,
             )
-        await asyncio.gather(*[
+        await gather(*(
             self._perform_tasks(self._generation_queue)
-            for _ in range(0, self._async_concurrency)
-        ])
+            for _
+            in range(0, self._async_concurrency)
+        ))
 
     async def _perform_tasks(self, generation_queue: queue.Queue[_GenerationTask[Any]]) -> None:
         while True:

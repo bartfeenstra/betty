@@ -1,4 +1,3 @@
-import asyncio
 import inspect
 import sys
 from importlib import import_module
@@ -10,7 +9,7 @@ from PyInstaller.building.build_main import Analysis
 from betty._package import get_data_paths, find_packages
 from betty._package.pyinstaller.hooks import HOOKS_DIRECTORY_PATH
 from betty.app import App
-from betty.asyncio import sync
+from betty.asyncio import sync, gather
 from betty.extension import HttpApiDoc, Maps, Trees
 from betty.extension.npm import _Npm, build_assets
 from betty.fs import ROOT_DIRECTORY_PATH
@@ -23,11 +22,11 @@ async def _build_assets() -> None:
         app.project.configuration.extensions.append(ExtensionConfiguration(_Npm))
         for extension_type in npm_builder_extension_types:
             app.project.configuration.extensions.append(ExtensionConfiguration(extension_type))
-        await asyncio.gather(*[
+        await gather(*([
             build_assets(app.extensions[extension_type])
             for extension_type
             in npm_builder_extension_types
-        ])
+        ]))
 
 
 @sync

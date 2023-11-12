@@ -1,12 +1,25 @@
 from __future__ import annotations
 
 import asyncio
+from asyncio import TaskGroup
 from functools import wraps
 from threading import Thread
-from typing import Callable, Awaitable, TypeVar, Generic, cast, ParamSpec
+from typing import Callable, Awaitable, TypeVar, Generic, cast, ParamSpec, Coroutine, Any
 
 P = ParamSpec('P')
 T = TypeVar('T')
+
+
+async def gather(*coroutines: Coroutine[Any, None, T]) -> tuple[T, ...]:
+    tasks = []
+    async with TaskGroup() as task_group:
+        for coroutine in coroutines:
+            tasks.append(task_group.create_task(coroutine))
+    return tuple(
+        task.result()
+        for task
+        in tasks
+    )
 
 
 def wait(f: Awaitable[T]) -> T:
