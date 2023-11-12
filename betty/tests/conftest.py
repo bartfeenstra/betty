@@ -19,6 +19,10 @@ from betty.gui.error import ErrorT
 _qapp_instance: BettyApplication | None = None
 
 
+async def _mock_app_configuration_read(self: AppConfiguration) -> None:
+    return None
+
+
 @pytest.fixture(scope='session', autouse=True)
 def mock_app_configuration() -> Iterator[None]:
     """
@@ -26,7 +30,7 @@ def mock_app_configuration() -> Iterator[None]:
     """
 
     AppConfiguration._read = AppConfiguration.read  # type: ignore[attr-defined]
-    AppConfiguration.read = lambda _: None  # type: ignore[assignment, method-assign, misc]
+    AppConfiguration.read = _mock_app_configuration_read  # type: ignore[assignment, method-assign]
     yield
     AppConfiguration.read = AppConfiguration._read  # type: ignore[attr-defined, method-assign]
     del AppConfiguration._read  # type: ignore[attr-defined]

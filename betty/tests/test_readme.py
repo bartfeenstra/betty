@@ -3,23 +3,26 @@ import re
 import subprocess as stdsubprocess
 import sys
 from asyncio import StreamReader
+from pathlib import Path
 
 import yaml
+from aiofiles.tempfile import TemporaryDirectory
 
-from betty import os, subprocess
+from betty import subprocess
+from betty.os import ChDir
 from betty.project import ProjectConfiguration
-from betty.tempfile import TemporaryDirectory
 
 
 class TestReadme:
     async def test_readme_should_contain_cli_help(self) -> None:
-        with TemporaryDirectory() as working_directory_path:
+        async with TemporaryDirectory() as working_directory_path_str:
+            working_directory_path = Path(working_directory_path_str)
             configuration = {
                 'base_url': 'https://example.com',
             }
             with open(working_directory_path / 'betty.json', 'w') as f:
                 json.dump(configuration, f)
-            with os.ChDir(working_directory_path):
+            async with ChDir(working_directory_path):
                 process = await subprocess.run_exec(['betty', '--help'], stdout=stdsubprocess.PIPE)
             stdout = process.stdout
             assert isinstance(stdout, StreamReader)

@@ -2,22 +2,19 @@ from __future__ import annotations
 
 from typing import Any
 
-from betty.asyncio import sync
-from betty.media_type import MediaType
-from betty.project import ExtensionConfiguration
-from betty.tests import patch_cache
-
 from aioresponses import aioresponses
 
-from betty.model.ancestry import Source, Link
-from betty.load import load
-from betty.extension import Wikipedia
 from betty.app import App
+from betty.extension import Wikipedia
+from betty.load import load
+from betty.media_type import MediaType
+from betty.model.ancestry import Source, Link
+from betty.project import ExtensionConfiguration
+from betty.tests import patch_cache
 
 
 class TestWikipedia:
     @patch_cache
-    @sync
     async def test_filter(self, aioresponses: aioresponses) -> None:
         entry_url = 'https://en.wikipedia.org/wiki/Amsterdam'
         links = [
@@ -49,7 +46,6 @@ class TestWikipedia:
         assert extract == actual
 
     @patch_cache
-    @sync
     async def test_post_load(self, aioresponses: aioresponses) -> None:
         resource = Source('the_source', 'The Source')
         link = Link('https://en.wikipedia.org/wiki/Amsterdam')

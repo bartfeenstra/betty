@@ -19,7 +19,7 @@ from reactives.instance.method import reactive_method
 from betty import load, generate
 from betty.app import App
 from betty.app.extension import UserFacingExtension
-from betty.asyncio import sync
+from betty.asyncio import sync, wait
 from betty.gui import get_configuration_file_filter, BettyWindow, GuiBuilder, mark_invalid, mark_valid
 from betty.gui.app import BettyMainWindow
 from betty.gui.error import catch_exceptions
@@ -528,7 +528,7 @@ class ProjectWindow(BettyMainWindow):
             '',
             get_configuration_file_filter(self._app.localizer),
         )
-        self._app.project.configuration.write(Path(configuration_file_path_str))
+        wait(self._app.project.configuration.write(Path(configuration_file_path_str)))
 
     @catch_exceptions
     def _generate(self) -> None:

@@ -14,6 +14,8 @@ from pathlib import Path
 from typing import Any, Iterator, Sequence, Mapping, Callable
 
 import babel
+from aiofiles.os import makedirs
+from aiofiles.ospath import exists
 from babel import dates, Locale
 from babel.messages.frontend import CommandLineInterface
 from langcodes import Language
@@ -655,10 +657,10 @@ def negotiate_localizeds(preferred_locales: Localey | Sequence[Localey], localiz
     return None
 
 
-def init_translation(locale: str) -> None:
+async def init_translation(locale: str) -> None:
     po_file_path = _LOCALE_DIRECTORY_PATH / locale / 'betty.po'
     with contextlib.redirect_stdout(StringIO()):
-        if po_file_path.exists():
+        if await exists(po_file_path):
             logging.getLogger().info(f'Translations for {locale} already exist at {po_file_path}.')
             return
 
@@ -679,10 +681,10 @@ def init_translation(locale: str) -> None:
         logging.getLogger().info(f'Translations for {locale} initialized at {po_file_path}.')
 
 
-def update_translations(_output_assets_directory_path: Path = ASSETS_DIRECTORY_PATH) -> None:
+async def update_translations(_output_assets_directory_path: Path = ASSETS_DIRECTORY_PATH) -> None:
     pot_file_path = _output_assets_directory_path / 'betty.pot'
     with contextlib.redirect_stdout(StringIO()):
-        with ChDir(ROOT_DIRECTORY_PATH):
+        async with ChDir(ROOT_DIRECTORY_PATH):
             CommandLineInterface().run([
                 '',
                 'extract',
@@ -701,7 +703,7 @@ def update_translations(_output_assets_directory_path: Path = ASSETS_DIRECTORY_P
             ])
             for po_file_path_str in glob.glob('betty/assets/locale/*/betty.po'):
                 po_file_path = (_output_assets_directory_path / (ROOT_DIRECTORY_PATH / po_file_path_str).relative_to(ASSETS_DIRECTORY_PATH)).resolve()
-                po_file_path.parent.mkdir(exist_ok=True, parents=True)
+                await makedirs(po_file_path.parent, exist_ok=True)
                 po_file_path.touch()
                 locale = po_file_path.parent.name
                 locale_data = get_data(locale)

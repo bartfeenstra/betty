@@ -10,6 +10,7 @@ from typing import Iterable, Any, IO, cast
 from xml.etree import ElementTree
 
 import aiofiles
+from aiofiles.tempfile import TemporaryDirectory
 from geopy import Point
 
 from betty.gramps.error import GrampsError
@@ -24,7 +25,6 @@ from betty.model.event_type import Birth, Baptism, Adoption, Cremation, Death, F
     Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, \
     Retirement, Correspondence, Confirmation, Missing, UnknownEventType, EventType, Conference
 from betty.path import rootname
-from betty.tempfile import TemporaryDirectory
 
 
 class GrampsLoadFileError(GrampsError, RuntimeError):
@@ -63,11 +63,11 @@ class GrampsLoader(Localizable):
         logger.info(self.localizer._('Loading "{file_path}"...').format(file_path=file_path))
 
         with suppress(GrampsLoadFileError):
-            self.load_gpkg(file_path)
+            await self.load_gpkg(file_path)
             return
 
         with suppress(GrampsLoadFileError):
-            self.load_gramps(file_path)
+            await self.load_gramps(file_path)
             return
 
         try:
@@ -78,35 +78,35 @@ class GrampsLoader(Localizable):
                 file_path=file_path,
             )) from None
         with suppress(GrampsLoadFileError):
-            self.load_xml(xml, Path(file_path.anchor))
+            await self.load_xml(xml, Path(file_path.anchor))
             return
 
         raise GrampsLoadFileError(self.localizer._('Could not load "{file_path}" as a *.gpkg, a *.gramps, or an *.xml family tree.').format(
             file_path=file_path,
         ))
 
-    def load_gramps(self, gramps_path: Path) -> None:
+    async def load_gramps(self, gramps_path: Path) -> None:
         gramps_path = gramps_path.resolve()
         try:
             with gzip.open(gramps_path, mode='r') as f:
                 xml: str = f.read()  # type: ignore[assignment]
-            self.load_xml(
+            await self.load_xml(
                 xml,
                 rootname(gramps_path),
             )
         except OSError:
             raise GrampsLoadFileError()
 
-    def load_gpkg(self, gpkg_path: Path) -> None:
+    async def load_gpkg(self, gpkg_path: Path) -> None:
         gpkg_path = gpkg_path.resolve()
         try:
             tar_file: IO[bytes] = gzip.open(gpkg_path)  # type: ignore[assignment]
             try:
-                with TemporaryDirectory() as cache_directory_path:
+                async with TemporaryDirectory() as cache_directory_path_str:
                     tarfile.open(
                         fileobj=tar_file,
-                    ).extractall(cache_directory_path)
-                    self.load_gramps(cache_directory_path / 'data.gramps')
+                    ).extractall(cache_directory_path_str)
+                    await self.load_gramps(Path(cache_directory_path_str) / 'data.gramps')
             except tarfile.ReadError:
                 raise GrampsLoadFileError(self.localizer._('Could not extract {file_path} as a tar (*.tar) file after extracting the outer gzip (*.gz) file.').format(
                     file_path=gpkg_path,
@@ -116,19 +116,19 @@ class GrampsLoader(Localizable):
                 file_path=gpkg_path,
             ))
 
-    def load_xml(self, xml: str | Path, gramps_tree_directory_path: Path) -> None:
+    async def load_xml(self, xml: str | Path, gramps_tree_directory_path: Path) -> None:
         if isinstance(xml, Path):
-            with open(xml) as f:
-                xml = f.read()
+            async with aiofiles.open(xml) as f:
+                xml = await f.read()
         try:
             tree = ElementTree.ElementTree(ElementTree.fromstring(
                 xml,
             ))
         except ElementTree.ParseError as e:
             raise GrampsLoadFileError(e)
-        self.load_tree(tree, gramps_tree_directory_path)
+        await self.load_tree(tree, gramps_tree_directory_path)
 
-    def load_tree(self, tree: ElementTree.ElementTree, gramps_tree_directory_path: Path) -> None:
+    async def load_tree(self, tree: ElementTree.ElementTree, gramps_tree_directory_path: Path) -> None:
         if self._loaded:
             raise RuntimeError('This loader has been used up.')
 

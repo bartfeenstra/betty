@@ -18,7 +18,7 @@ from typing_extensions import Self, ParamSpec
 
 from betty.app.extension import ListExtensions, Extension, Extensions, build_extension_type_graph, \
     CyclicDependencyError, ExtensionDispatcher, ConfigurableExtension, discover_extension_types
-from betty.asyncio import sync
+from betty.asyncio import sync, wait
 from betty.cache import Cache
 from betty.concurrent import ExceptionRaisingAwaitableExecutor
 from betty.config import Configurable, FileBasedConfiguration
@@ -135,7 +135,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         self._localizer: Localizer | None = None
         self._localizers: LocalizerRepository | None = None
         with suppress(FileNotFoundError):
-            self.configuration.read()
+            wait(self.configuration.read())
         self._project = project or Project()
         self._init_localization()
         self._project.localizer = self.localizer

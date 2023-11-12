@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from tempfile import NamedTemporaryFile, TemporaryDirectory
+from tempfile import NamedTemporaryFile
 from typing import Any
 
 import pytest
+from aiofiles.tempfile import TemporaryDirectory
 
 from betty.serde.dump import Void
 from betty.serde.load import Asserter, AssertionFailed, Number, Fields, OptionalField, Assertions, RequiredField
@@ -300,5 +301,5 @@ class TestAsserter:
 
     async def test_assert_directory_path_with_valid_path(self) -> None:
         sut = Asserter()
-        with TemporaryDirectory() as directory_path:
-            sut.assert_directory_path()(directory_path)
+        async with TemporaryDirectory() as directory_path_str:
+            sut.assert_directory_path()(directory_path_str)

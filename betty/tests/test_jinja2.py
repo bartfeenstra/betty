@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Iterable, Any
 
 import pytest
+from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import Self
 
 from betty.app import App
@@ -13,7 +14,6 @@ from betty.media_type import MediaType
 from betty.model import get_entity_type_name, Entity
 from betty.model.ancestry import File, PlaceName, Subject, Attendee, Witness, Dated, Person, Place, Citation
 from betty.string import camel_case_to_snake_case
-from betty.tempfile import TemporaryDirectory
 from betty.tests import TemplateTestCase
 
 
@@ -33,12 +33,13 @@ class TestJinja2Renderer:
             sut = Jinja2Renderer(app.jinja2_environment, app.project.configuration)
             template = '{% if true %}true{% endif %}'
             expected_output = 'true'
-            with TemporaryDirectory() as working_directory_path:
+            async with TemporaryDirectory() as working_directory_path_str:
+                working_directory_path = Path(working_directory_path_str)
                 template_file_path = working_directory_path / 'betty.txt.j2'
                 with open(template_file_path, 'w') as f:
                     f.write(template)
                 await sut.render_file(template_file_path)
-                with open(Path(working_directory_path) / 'betty.txt') as f:
+                with open(working_directory_path / 'betty.txt') as f:
                     assert expected_output == f.read().strip()
                 assert not template_file_path.exists()
 

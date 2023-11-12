@@ -3,44 +3,44 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+from aiofiles.tempfile import TemporaryDirectory
 
 from betty.gramps.loader import GrampsLoader
 from betty.locale import Date, DateRange
 from betty.model.ancestry import Ancestry, Citation, Note, Source, File, Event, Person, Place, Privacy
 from betty.model.event_type import Birth, Death, UnknownEventType
 from betty.path import rootname
-from betty.tempfile import TemporaryDirectory
 
 
-@pytest.fixture(scope='class')
-def test_load_xml_ancestry() -> Ancestry:
+@pytest.fixture(scope='function')
+async def test_load_xml_ancestry() -> Ancestry:
     # @todo Convert each test method to use self._load(), so we can remove this shared XML file.
     ancestry = Ancestry()
     xml_file_path = Path(__file__).parent / 'assets' / 'data.xml'
     loader = GrampsLoader(ancestry)
     with open(xml_file_path) as f:
-        loader.load_xml(f.read(), rootname(xml_file_path))
+        await loader.load_xml(f.read(), rootname(xml_file_path))
     return ancestry
 
 
 class TestGrampsLoader:
     async def test_load_gramps(self) -> None:
         sut = GrampsLoader(Ancestry())
-        sut.load_gramps(Path(__file__).parent / 'assets' / 'minimal.gramps')
+        await sut.load_gramps(Path(__file__).parent / 'assets' / 'minimal.gramps')
 
     async def test_load_gpkg(self) -> None:
         sut = GrampsLoader(Ancestry())
-        sut.load_gpkg(Path(__file__).parent / 'assets' / 'minimal.gpkg')
+        await sut.load_gpkg(Path(__file__).parent / 'assets' / 'minimal.gpkg')
 
-    def load(self, xml: str) -> Ancestry:
+    async def load(self, xml: str) -> Ancestry:
         ancestry = Ancestry()
         loader = GrampsLoader(ancestry)
-        with TemporaryDirectory() as tree_directory_path:
-            loader.load_xml(xml.strip(), tree_directory_path)
+        async with TemporaryDirectory() as tree_directory_path_str:
+            await loader.load_xml(xml.strip(), Path(tree_directory_path_str))
         return ancestry
 
-    def _load_partial(self, xml: str) -> Ancestry:
-        return self.load("""
+    async def _load_partial(self, xml: str) -> Ancestry:
+        return await self.load("""
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"
 "http://gramps-project.org/xml/1.7.1/grampsxml.dtd">
@@ -58,12 +58,12 @@ class TestGrampsLoader:
         gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'
         sut = GrampsLoader(Ancestry())
         with open(gramps_file_path) as f:
-            sut.load_xml(f.read(), rootname(gramps_file_path))
+            await sut.load_xml(f.read(), rootname(gramps_file_path))
 
     async def test_load_xml_with_file_path(self) -> None:
         gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'
         sut = GrampsLoader(Ancestry())
-        sut.load_xml(gramps_file_path, rootname(gramps_file_path))
+        await sut.load_xml(gramps_file_path, rootname(gramps_file_path))
 
     async def test_place_should_include_name(self, test_load_xml_ancestry: Ancestry) -> None:
         place = test_load_xml_ancestry[Place]['P0000']
@@ -87,7 +87,7 @@ class TestGrampsLoader:
             latitude: str,
             longitude: str,
     ) -> None:
-        ancestry = self._load_partial(f"""
+        ancestry = await self._load_partial(f"""
         <places>
         <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="Unknown">
           <coord lat="{latitude}" long="{longitude}"/>
@@ -100,7 +100,7 @@ class TestGrampsLoader:
         assert pytest.approx(expected_longitude) == coordinates.longitude
 
     async def test_place_should_ignore_invalid_coordinates(self) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
         <places>
         <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="Unknown">
           <coord lat="foo" long="bar"/>
@@ -117,7 +117,7 @@ class TestGrampsLoader:
         assert event in place.events
 
     async def test_place_should_include_enclosed_by(self) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <places>
     <placeobj handle="_e7692ea23775e80643fe4fcf91" change="1552125653" id="P0000" type="Unknown">
     </placeobj>
@@ -135,7 +135,7 @@ class TestGrampsLoader:
         assert ancestry[Place]['P0002'] == ancestry[Place]['P0001'].encloses[0].encloses
 
     async def test_person_should_include_names(self) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
         <gender>U</gender>
@@ -164,7 +164,7 @@ class TestGrampsLoader:
         assert 'Van Doughie' == person.alternative_names[1].affiliation == person.names[2].affiliation
 
     async def test_person_should_include_birth(self, test_load_xml_ancestry: Ancestry) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <people>
     <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0000">
         <gender>U</gender>
@@ -185,7 +185,7 @@ class TestGrampsLoader:
         assert Birth is person.start.event.event_type
 
     async def test_person_should_include_death(self, test_load_xml_ancestry: Ancestry) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <people>
     <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0000">
         <gender>U</gender>
@@ -249,7 +249,7 @@ class TestGrampsLoader:
         assert issubclass(test_load_xml_ancestry[Event]['E0002'].event_type, Death)
 
     async def test_event_should_load_unknown(self, test_load_xml_ancestry: Ancestry) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
         <type>SomeEventThatIUsedToKnow</type>
@@ -291,7 +291,7 @@ class TestGrampsLoader:
         (Date(1970, 1, 1), '1970-01-01'),
     ])
     async def test_date_should_load_parts(self, expected: Date, dateval_val: str) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
         <type>Birth</type>
@@ -302,7 +302,7 @@ class TestGrampsLoader:
         assert expected == ancestry[Event]['E0000'].date
 
     async def test_date_should_ignore_calendar_format(self) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <events>
     <event handle="_e560a44fed046f2f2d58662aac9" change="1576270227" id="E0000">
       <type>Birth</type>
@@ -313,7 +313,7 @@ class TestGrampsLoader:
         assert ancestry[Event]['E0000'].date is None
 
     async def test_date_should_load_before(self) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
         <type>Birth</type>
@@ -332,7 +332,7 @@ class TestGrampsLoader:
         assert not date.end.fuzzy
 
     async def test_date_should_load_after(self) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
         <type>Birth</type>
@@ -351,7 +351,7 @@ class TestGrampsLoader:
         assert not date.start.fuzzy
 
     async def test_date_should_load_calculated(self) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
         <type>Birth</type>
@@ -367,7 +367,7 @@ class TestGrampsLoader:
         assert not date.fuzzy
 
     async def test_date_should_load_estimated(self) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
         <type>Birth</type>
@@ -383,7 +383,7 @@ class TestGrampsLoader:
         assert date.fuzzy
 
     async def test_date_should_load_about(self) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
         <type>Birth</type>
@@ -399,7 +399,7 @@ class TestGrampsLoader:
         assert date.fuzzy
 
     async def test_daterange_should_load(self) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
         <type>Birth</type>
@@ -425,7 +425,7 @@ class TestGrampsLoader:
         assert not end.fuzzy
 
     async def test_daterange_should_load_calculated(self) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
         <type>Birth</type>
@@ -443,7 +443,7 @@ class TestGrampsLoader:
         assert not end.fuzzy
 
     async def test_daterange_should_load_estimated(self) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
         <type>Birth</type>
@@ -461,7 +461,7 @@ class TestGrampsLoader:
         assert end.fuzzy
 
     async def test_datespan_should_load(self) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
         <type>Birth</type>
@@ -485,7 +485,7 @@ class TestGrampsLoader:
         assert not end.fuzzy
 
     async def test_datespan_should_load_calculated(self) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
         <type>Birth</type>
@@ -503,7 +503,7 @@ class TestGrampsLoader:
         assert not end.fuzzy
 
     async def test_datespan_should_load_estimated(self) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
         <type>Birth</type>
@@ -555,7 +555,7 @@ class TestGrampsLoader:
         (Privacy.UNDETERMINED, 'privat'),
     ])
     async def test_person_should_include_privacy_from_attribute(self, expected: Privacy, attribute_value: str) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <people>
     <person handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="I0000">
         <gender>U</gender>
@@ -573,7 +573,7 @@ class TestGrampsLoader:
         (Privacy.UNDETERMINED, 'privat'),
     ])
     async def test_event_should_include_privacy_from_attribute(self, expected: Privacy, attribute_value: str) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <events>
     <event handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="E0000">
         <type>Birth</type>
@@ -591,7 +591,7 @@ class TestGrampsLoader:
         (Privacy.UNDETERMINED, 'privat'),
     ])
     async def test_file_should_include_privacy_from_attribute(self, expected: Privacy, attribute_value: str) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
         <file src="/tmp/file.txt" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
@@ -609,7 +609,7 @@ class TestGrampsLoader:
         (Privacy.UNDETERMINED, 'privat'),
     ])
     async def test_source_from_source_should_include_privacy_from_attribute(self, expected: Privacy, attribute_value: str) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <sources>
     <source handle="_e1dd686b04813540eb3503a342b" change="1558277217" id="S0000">
         <stitle>A Whisper</stitle>
@@ -627,7 +627,7 @@ class TestGrampsLoader:
         (Privacy.UNDETERMINED, 'privat'),
     ])
     async def test_citation_should_include_privacy_from_attribute(self, expected: Privacy, attribute_value: str) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <citations>
     <citation handle="_e2c25a12a097a0b24bd9eae5090" change="1558277266" id="C0000">
         <confidence>2</confidence>
@@ -647,7 +647,7 @@ class TestGrampsLoader:
         assert expected == citation.privacy
 
     async def test_note_should_include_text(self) -> None:
-        ancestry = self._load_partial("""
+        ancestry = await self._load_partial("""
 <notes>
     <note handle="_e1cb35d7e6c1984b0e8361e1aee" change="1551643112" id="N0000" type="Transcript">
         <text>I left this for you.</text>

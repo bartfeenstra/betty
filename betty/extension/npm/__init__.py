@@ -11,6 +11,8 @@ from pathlib import Path
 from subprocess import CalledProcessError
 from typing import Sequence, Any
 
+from aiofiles.tempfile import TemporaryDirectory
+
 from betty import subprocess
 from betty.app.extension import Extension, discover_extension_types
 from betty.app.extension.requirement import Requirement, AnyRequirement, AllRequirements
@@ -18,7 +20,6 @@ from betty.asyncio import sync
 from betty.cache import CacheScope
 from betty.fs import iterfiles
 from betty.locale import Localizer, DEFAULT_LOCALIZER
-from betty.tempfile import TemporaryDirectory
 
 
 async def npm(arguments: Sequence[str], **kwargs: Any) -> aiosubprocess.Process:
@@ -150,8 +151,9 @@ async def _build_assets_to_directory_path(extension: NpmBuilder & Extension, ass
     with suppress(FileNotFoundError):
         shutil.rmtree(assets_directory_path)
     os.makedirs(assets_directory_path)
-    with TemporaryDirectory() as working_directory_path:
-        await extension.npm_build(working_directory_path, assets_directory_path)
+    async with TemporaryDirectory() as working_directory_path_str:
+        working_directory_path = Path(working_directory_path_str)
+        await extension.npm_build(Path(working_directory_path), assets_directory_path)
 
 
 class _Npm(Extension):

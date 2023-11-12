@@ -4,9 +4,10 @@ import functools
 import json as stdjson
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Callable, TypeVar, Any, AsyncIterator
+from typing import Callable, TypeVar, Any, AsyncIterator, Awaitable
 
 import html5lib
+from aiofiles.tempfile import TemporaryDirectory
 from html5lib.html5parser import ParseError
 from jinja2.environment import Template
 from typing_extensions import ParamSpec
@@ -16,24 +17,23 @@ from betty.app import App
 from betty.app.extension import Extension
 from betty.jinja2 import Environment
 from betty.locale import Localey
-from betty.tempfile import TemporaryDirectory
 
 T = TypeVar('T')
 P = ParamSpec('P')
 
 
-def patch_cache(f: Callable[P, T]) -> Callable[P, T]:
+def patch_cache(f: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
     @functools.wraps(f)
-    def _patch_cache(*args: P.args, **kwargs: P.kwargs) -> T:
+    async def _patch_cache(*args: P.args, **kwargs: P.kwargs) -> T:
         original_cache_directory_path = fs.CACHE_DIRECTORY_PATH
         cache_directory = TemporaryDirectory()
-        fs.CACHE_DIRECTORY_PATH = cache_directory.path
+        fs.CACHE_DIRECTORY_PATH = Path(await cache_directory.__aenter__())
         try:
-            return f(*args, **kwargs)
+            return await f(*args, **kwargs)
 
         finally:
             fs.CACHE_DIRECTORY_PATH = original_cache_directory_path
-            cache_directory.cleanup()
+            await cache_directory.__aexit__(None, None, None)
 
     return _patch_cache
 

@@ -10,7 +10,7 @@ from PyInstaller.building.build_main import Analysis
 from betty._package import get_data_paths, find_packages
 from betty._package.pyinstaller.hooks import HOOKS_DIRECTORY_PATH
 from betty.app import App
-from betty.asyncio import sync
+from betty.asyncio import sync, wait
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.extension import HttpApiDoc, Maps, Trees
 from betty.extension.npm import _Npm, build_assets
@@ -36,7 +36,7 @@ async def a_pyz_exe() -> tuple[Analysis, PYZ, EXE]:
     root = Path(__file__).parents[3]
     block_cipher = None
     datas = []
-    for module_name, file_paths in get_data_paths().items():
+    for module_name, file_paths in wait(get_data_paths()).items():
         for file_path in file_paths:
             data_file_path = (Path(inspect.getfile(import_module(module_name))).parent / file_path).relative_to(root)
             datas.append((str(data_file_path), str(data_file_path.parent)))

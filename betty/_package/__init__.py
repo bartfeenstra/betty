@@ -29,8 +29,8 @@ def is_data_file(file_path: Path) -> bool:
     return True
 
 
-def get_data_paths() -> dict[str, Iterator[Path]]:
-    with ChDir(ROOT_DIRECTORY_PATH / 'betty'):
+async def get_data_paths() -> dict[str, Iterator[Path]]:
+    async with ChDir(ROOT_DIRECTORY_PATH / 'betty'):
         return {
             'betty': filter(is_data_file, [
                 Path('py.typed'),

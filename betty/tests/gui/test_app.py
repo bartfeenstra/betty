@@ -11,13 +11,12 @@ from pytestqt.qtbot import QtBot
 
 from betty import fs
 from betty.app import App
-from betty.asyncio import sync
-from betty.serde.error import SerdeError
 from betty.gui.app import WelcomeWindow, _AboutBettyWindow, BettyMainWindow, ApplicationConfiguration
 from betty.gui.error import ExceptionError
 from betty.gui.project import ProjectWindow
 from betty.gui.serve import ServeDemoWindow
 from betty.project import ProjectConfiguration
+from betty.serde.error import SerdeError
 from betty.serde.load import FormatError
 from betty.tests import patch_cache
 from betty.tests.conftest import Navigate, AssertWindow, AssertError
@@ -25,7 +24,6 @@ from betty.tests.conftest import Navigate, AssertWindow, AssertError
 
 class TestBettyMainWindow:
     @patch_cache
-    @sync
     async def test_view_demo_site(
         self,
         assert_window: AssertWindow[ServeDemoWindow],
@@ -46,7 +44,6 @@ class TestBettyMainWindow:
             assert_window(ServeDemoWindow)
 
     @patch_cache
-    @sync
     async def test_clear_caches(self, navigate: Navigate, qtbot: QtBot) -> None:
         async with App() as app:
             sut = BettyMainWindow(app)
@@ -110,9 +107,9 @@ class TestWelcomeWindow:
         title = 'My First Ancestry Site'
         configuration = ProjectConfiguration()
         configuration.title = title
-        configuration.write()
+        await configuration.write()
         async with App() as app:
-            app.project.configuration.write()
+            await app.project.configuration.write()
             sut = WelcomeWindow(app)
             qtbot.addWidget(sut)
             sut.show()

@@ -1,3 +1,7 @@
+from pathlib import Path
+
+from aiofiles.tempfile import TemporaryDirectory
+
 from betty.app import App
 from betty.extension import Gramps
 from betty.extension.gramps.config import FamilyTreeConfiguration, GrampsConfiguration
@@ -5,7 +9,6 @@ from betty.load import load
 from betty.model.ancestry import Citation, Note, Source, File, \
     Event, Person, Place
 from betty.project import ExtensionConfiguration
-from betty.tempfile import TemporaryDirectory
 
 
 class TestGramps:
@@ -112,7 +115,8 @@ class TestGramps:
   </notes>
 </database>
 """.strip()
-        with TemporaryDirectory() as working_directory_path:
+        async with TemporaryDirectory() as working_directory_path_str:
+            working_directory_path = Path(working_directory_path_str)
             gramps_family_tree_one_path = working_directory_path / 'one.xml'
             with open(gramps_family_tree_one_path, mode='w') as f:
                 f.write(family_tree_one_xml)

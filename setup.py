@@ -4,6 +4,7 @@ from setuptools import setup
 
 from betty import _ROOT_DIRECTORY_PATH as ROOT_DIRECTORY_PATH
 from betty._package import get_data_paths, find_packages
+from betty.asyncio import wait
 
 with open(ROOT_DIRECTORY_PATH / 'betty' / 'assets' / 'VERSION', encoding='utf-8') as f:
     VERSION = f.read()
@@ -44,7 +45,7 @@ SETUP = {
     ],
     'python_requires': '~= 3.9',
     'install_requires': [
-        'aiofiles ~= 23.1, >= 23.1.0',
+        'aiofiles ~= 23.2, >= 23.2.1',
         'aiohttp == 3.9.0b0',
         'babel ~= 2.12, >= 2.12.0',
         'click ~= 8.1, >= 8.1.2',
@@ -85,7 +86,7 @@ SETUP = {
             'pytest-xvfb ~= 3.0, >= 3.0.0',
             'setuptools ~= 68.2, >= 68.2.2',
             'twine ~= 4.0, >= 4.0.0',
-            'types-aiofiles ~= 23.1, >= 23.1.0.2',
+            'types-aiofiles ~= 23.2, >= 23.2.0.0',
             'types-click ~= 7.1, >= 7.1.8',
             'types-mock ~= 5.0, >= 5.0.0.6',
             'types-polib ~= 1.2, >= 1.2.0.0',
@@ -115,7 +116,7 @@ SETUP = {
     'package_data': {
         'betty': list(map(str, data_file_paths))
         for package, data_file_paths
-        in get_data_paths().items()
+        in wait(get_data_paths()).items()
     },
 }
 

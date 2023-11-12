@@ -11,7 +11,7 @@ from PyQt6.QtWidgets import QFormLayout, QWidget, QVBoxLayout, QHBoxLayout, QFil
 
 from betty import about
 from betty.about import report
-from betty.asyncio import sync
+from betty.asyncio import sync, wait
 from betty.gui import BettyWindow, get_configuration_file_filter
 from betty.gui.error import catch_exceptions
 from betty.gui.locale import TranslationsLocaleCollector
@@ -157,7 +157,7 @@ class BettyMainWindow(BettyWindow):
         )
         if not configuration_file_path_str:
             return
-        self._app.project.configuration.read(Path(configuration_file_path_str))
+        wait(self._app.project.configuration.read(Path(configuration_file_path_str)))
         project_window = ProjectWindow(self._app)
         project_window.show()
         self.close()
@@ -175,7 +175,7 @@ class BettyMainWindow(BettyWindow):
         if not configuration_file_path_str:
             return
         configuration = ProjectConfiguration()
-        configuration.write(Path(configuration_file_path_str))
+        wait(configuration.write(Path(configuration_file_path_str)))
         project_window = ProjectWindow(self._app)
         project_window.show()
         self.close()

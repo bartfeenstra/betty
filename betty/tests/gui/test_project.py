@@ -26,7 +26,7 @@ class TestProjectWindow:
         tmp_path: Path,
     ) -> None:
         configuration = ProjectConfiguration()
-        configuration.write(tmp_path / 'betty.json')
+        await configuration.write(tmp_path / 'betty.json')
         async with App() as app:
             sut = ProjectWindow(app)
             qtbot.addWidget(sut)

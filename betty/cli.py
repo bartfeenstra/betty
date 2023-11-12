@@ -122,7 +122,7 @@ async def _init_ctx(
     async with app:
         for try_configuration_file_path in try_configuration_file_paths:
             try:
-                app.project.configuration.read(try_configuration_file_path)
+                await app.project.configuration.read(try_configuration_file_path)
             except FileNotFoundError:
                 continue
             else:
@@ -200,7 +200,7 @@ async def _gui(configuration_file_path: Path | None) -> None:
         if configuration_file_path is None:
             window = WelcomeWindow(app)
         else:
-            app.project.configuration.read(configuration_file_path)
+            await app.project.configuration.read(configuration_file_path)
             window = ProjectWindow(app)
         window.show()
         sys.exit(qapp.exec())
@@ -227,9 +227,9 @@ if about.is_development():
     @click.argument('locale')
     @global_command
     async def _init_translation(locale: str) -> None:
-        init_translation(locale)
+        await init_translation(locale)
 
     @click.command(short_help='Update all existing translations', help='Update all existing translations.\n\nThis is available only when developing Betty.')
     @global_command
     async def _update_translations() -> None:
-        update_translations()
+        await update_translations()
