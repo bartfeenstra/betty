@@ -17,7 +17,7 @@ from betty.config import Configuration
 from betty.extension.cotton_candy.search import Index
 from betty.extension.npm import _Npm, NpmBuilder, npm
 from betty.functools import walk
-from betty.generate import Generator
+from betty.generate import Generator, GenerationTaskBatchContext
 from betty.gui import GuiBuilder
 from betty.jinja2 import Jinja2Provider
 from betty.locale import Localizer, Date, Datey
@@ -212,7 +212,7 @@ class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Gener
         copy2(source_directory_path / 'cotton_candy.css', destination_directory_path / 'cotton_candy.css')
         copy2(source_directory_path / 'cotton_candy.js', destination_directory_path / 'cotton_candy.js')
 
-    async def generate(self, batch: _TaskBatch[App], app: App) -> None:
+    async def generate(self, batch: _TaskBatch[GenerationTaskBatchContext], app: App) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
         await self._copy_npm_build(assets_directory_path, self.app.static_www_directory_path)
 

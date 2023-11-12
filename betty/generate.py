@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
 import multiprocessing
@@ -17,6 +16,7 @@ from aiofiles.os import makedirs
 from aiofiles.threadpool.text import AsyncTextIOWrapper
 
 from betty.app import App
+from betty.asyncio import gather
 from betty.locale import get_display_name
 from betty.model import get_entity_type_name, UserFacingEntity, Entity
 from betty.openapi import Specification
@@ -32,11 +32,11 @@ def getLogger() -> logging.Logger:
 
 
 class Generator:
-    async def generate(self, batch: _TaskBatch[_GenerationTaskBatchContext], app: App) -> None:
+    async def generate(self, batch: _TaskBatch[GenerationTaskBatchContext], app: App) -> None:
         raise NotImplementedError(repr(self))
 
 
-class _GenerationTaskBatchContext:
+class GenerationTaskBatchContext:
     _app: App
 
     def __init__(self, pickled_app: bytes, app_locale: str | None):
@@ -49,8 +49,9 @@ class _GenerationTaskBatchContext:
             return self._app
         except AttributeError:
             with self._unpickle_lock:
-                app = dill.loads(self._pickled_app)
-                app.locale = self._app_locale
+                app = cast(App, dill.loads(self._pickled_app))
+                if self._app_locale:
+                    app.locale = self._app_locale
                 self._app = app
                 return app
 
@@ -72,7 +73,7 @@ async def generate(app: App) -> None:
     # @todo Because at any time, App may be serving multiple batches besides the manager's own
     # @todo
     pickled_app = dill.dumps(app)
-    localized_process_batches: dict[str | None, _TaskBatch[_GenerationTaskBatchContext]] = {}
+    localized_process_batches: dict[str | None, _TaskBatch[GenerationTaskBatchContext]] = {}
     locales = app.project.configuration.locales
 
     # @todo Exit stacks exit the contained contexts in LIFO order, NOT concurrently!
@@ -90,7 +91,7 @@ async def generate(app: App) -> None:
         print('thread_batch')
         print(thread_batch)
 
-        localized_process_batches[None] = app.process_pool.batch(_GenerationTaskBatchContext(pickled_app, None))
+        localized_process_batches[None] = app.process_pool.batch(GenerationTaskBatchContext(pickled_app, None))
         print('localized_process_batches[None]')
         print(localized_process_batches[None])
 
@@ -100,7 +101,7 @@ async def generate(app: App) -> None:
         localized_process_batches[None].delegate(Task(_generate_openapi))
 
         for locale in locales:
-            localized_process_batches[locale] = app.process_pool.batch(_GenerationTaskBatchContext(pickled_app, locale))
+            localized_process_batches[locale] = app.process_pool.batch(GenerationTaskBatchContext(pickled_app, locale))
             print('localized_process_batches[locale]')
             print(localized_process_batches[locale])
 
@@ -123,8 +124,8 @@ async def generate(app: App) -> None:
         #                 batches[locale].to_thread(Task(_generate_entity_html, entity_type, entity.id))
 
         print('ENTERING BATCHES')
-        await asyncio.gather(*(
-            batch_stack.enter_async_context(batch)
+        await gather(*(
+            batch_stack.enter_async_context(batch)  # type: ignore[arg-type]
             for batch
             in [
                 thread_batch,
@@ -168,14 +169,14 @@ async def create_json_resource(path: Path) -> AsyncContextManager[AsyncTextIOWra
 
 
 async def _generate_dispatch(
-    batch: _TaskBatch[_GenerationTaskBatchContext],
+    batch: _TaskBatch[GenerationTaskBatchContext],
 ) -> None:
     async with await batch.context.app() as app:
         await app.dispatcher.dispatch(Generator)(batch, app),
 
 
 async def _generate_public(
-    batch: _TaskBatch[_GenerationTaskBatchContext],
+    batch: _TaskBatch[GenerationTaskBatchContext],
 ) -> None:
     print('GENERATE PUBLIC')
     async with await batch.context.app() as app:
@@ -197,7 +198,7 @@ async def _generate_static_public(
 
 
 async def _generate_entity_type_list_html(
-    batch: _TaskBatch[_GenerationTaskBatchContext],
+    batch: _TaskBatch[GenerationTaskBatchContext],
     entity_type: type[Entity],
 ) -> None:
     async with await batch.context.app() as app:
@@ -222,7 +223,7 @@ async def _generate_entity_type_list_html(
 
 
 async def _generate_entity_type_list_json(
-    batch: _TaskBatch[_GenerationTaskBatchContext],
+    batch: _TaskBatch[GenerationTaskBatchContext],
     entity_type: type[Entity],
 ) -> None:
     async with await batch.context.app() as app:
@@ -246,7 +247,7 @@ async def _generate_entity_type_list_json(
 
 
 async def _generate_entity_html(
-    batch: _TaskBatch[_GenerationTaskBatchContext],
+    batch: _TaskBatch[GenerationTaskBatchContext],
     entity_type: type[Entity],
     entity_id: str,
 ) -> None:
@@ -267,7 +268,7 @@ async def _generate_entity_html(
 
 
 async def _generate_entity_json(
-    batch: _TaskBatch[_GenerationTaskBatchContext],
+    batch: _TaskBatch[GenerationTaskBatchContext],
     entity_type: type[Entity],
     entity_id: str,
 ) -> None:
@@ -280,7 +281,7 @@ async def _generate_entity_json(
 
 
 async def _generate_openapi(
-    batch: _TaskBatch[_GenerationTaskBatchContext],
+    batch: _TaskBatch[GenerationTaskBatchContext],
 ) -> None:
     print('GENERATE OPENAPI')
     async with await batch.context.app() as app:

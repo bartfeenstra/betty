@@ -255,7 +255,7 @@ class _OwnedTaskManager(_TaskManager):
             multiprocessing.Manager().dict(),
         )
         self._started = False
-        self._workers: list[Future[Awaitable[None]]] = []
+        self._workers: list[Future[None]] = []
         self._concurrency = concurrency
         self._join_workers = multiprocessing.Manager().Event()
 

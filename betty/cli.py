@@ -53,10 +53,13 @@ def catch_exceptions() -> Iterator[None]:
         sys.exit(1)
 
 
-def _command(f: Callable[P, None] | Callable[Concatenate[App, P], None], is_app_command: bool) -> Callable[P, Awaitable[None]]:
+def _command(
+    f: Callable[P, Awaitable[None]] | Callable[Concatenate[App, P], Awaitable[None]],
+    is_app_command: bool,
+) -> Callable[P, None]:
     @wraps(f)
     @catch_exceptions()
-    async def _command(*args: P.args, **kwargs: P.kwargs) -> None:
+    def _command(*args: P.args, **kwargs: P.kwargs) -> None:
         if is_app_command:
             # We must get the current Click context from the main thread.
             # Once that is done, we can wait for the async commands to complete, which MAY be done in a thread.
