@@ -3,9 +3,7 @@ from __future__ import annotations
 import asyncio
 from functools import wraps
 from threading import Thread
-from typing import Callable, Awaitable, TypeVar, Generic, cast
-
-from typing_extensions import ParamSpec
+from typing import Callable, Awaitable, TypeVar, Generic, cast, ParamSpec
 
 P = ParamSpec('P')
 T = TypeVar('T')

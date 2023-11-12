@@ -4,13 +4,12 @@ import functools
 import json as stdjson
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Callable, TypeVar, Any, AsyncIterator, Awaitable
+from typing import Callable, TypeVar, Any, AsyncIterator, Awaitable, ParamSpec
 
 import html5lib
 from aiofiles.tempfile import TemporaryDirectory
 from html5lib.html5parser import ParseError
 from jinja2.environment import Template
-from typing_extensions import ParamSpec
 
 from betty import fs, json
 from betty.app import App

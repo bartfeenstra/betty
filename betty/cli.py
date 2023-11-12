@@ -7,12 +7,11 @@ import time
 from contextlib import suppress, contextmanager
 from functools import wraps
 from pathlib import Path
-from typing import Callable, TypeVar, cast, Iterator, Awaitable
+from typing import Callable, TypeVar, cast, Iterator, Awaitable, ParamSpec, Concatenate
 
 import click
 from PyQt6.QtWidgets import QMainWindow
 from click import get_current_context, Context, Option, Command, Parameter
-from typing_extensions import ParamSpec, Concatenate
 
 from betty import about, generate, load
 from betty.extension import demo

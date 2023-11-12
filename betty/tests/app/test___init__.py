@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from typing import Self
+
 import pytest
-from typing_extensions import Self
 
 from betty.app import App
 from betty.app.extension import ConfigurableExtension as GenericConfigurableExtension, Extension, CyclicDependencyError

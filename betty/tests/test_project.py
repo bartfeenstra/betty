@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from typing import Any, Iterable
+from typing import Any, Iterable, Self
 
 import dill
 import pytest
 from reactives.tests import assert_reactor_called, assert_scope_empty
-from typing_extensions import Self
 
 from betty.app.extension import Extension, ConfigurableExtension
 from betty.config import Configuration, Configurable

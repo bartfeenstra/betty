@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable, Any
+from typing import Iterable, Any, Self
 
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
-from typing_extensions import Self
 
 from betty.app import App
 from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider

@@ -11,7 +11,7 @@ from contextlib import suppress
 from functools import total_ordering, lru_cache
 from io import StringIO
 from pathlib import Path
-from typing import Any, Iterator, Sequence, Mapping, Callable
+from typing import Any, Iterator, Sequence, Mapping, Callable, TypeAlias
 
 import babel
 from aiofiles.os import makedirs
@@ -20,7 +20,6 @@ from babel import dates, Locale
 from babel.messages.frontend import CommandLineInterface
 from langcodes import Language
 from polib import pofile
-from typing_extensions import TypeAlias
 
 from betty import fs
 from betty.fs import hashfile, FileSystem, ASSETS_DIRECTORY_PATH, ROOT_DIRECTORY_PATH
@@ -69,7 +68,7 @@ def to_locale(locale: Localey) -> str:
     )
 
 
-Localey: TypeAlias = 'str | Locale'
+Localey: TypeAlias = str | Locale
 
 
 def get_data(locale: Localey) -> Locale:
@@ -332,10 +331,10 @@ class DateRange:
         return (self.start, self.end, self.start_is_boundary, self.end_is_boundary) == (other.start, other.end, other.start_is_boundary, other.end_is_boundary)
 
 
-Datey: TypeAlias = 'Date | DateRange'
+Datey: TypeAlias = Date | DateRange
 DatePartsFormatters: TypeAlias = Mapping[tuple[bool, bool, bool], str]
-DateFormatters: TypeAlias = Mapping[tuple['bool | None'], str]
-DateRangeFormatters: TypeAlias = Mapping[tuple['bool | None', 'bool | None', 'bool | None', 'bool | None'], str]
+DateFormatters: TypeAlias = Mapping[tuple[bool | None], str]
+DateRangeFormatters: TypeAlias = Mapping[tuple[bool | None, bool | None, bool | None, bool | None], str]
 
 
 class Localizer:

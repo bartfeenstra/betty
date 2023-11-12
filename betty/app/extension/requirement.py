@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 from textwrap import indent
-from typing import cast, Any
-
-from typing_extensions import Self
+from typing import cast, Any, Self
 
 from betty.error import UserFacingError
 from betty.locale import Localizer, Localizable

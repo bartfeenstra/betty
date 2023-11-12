@@ -9,12 +9,11 @@ from contextlib import suppress
 from graphlib import CycleError, TopologicalSorter
 from pathlib import Path
 from types import TracebackType
-from typing import TYPE_CHECKING, Callable, Mapping, Any, Awaitable
+from typing import TYPE_CHECKING, Callable, Mapping, Any, Awaitable, ParamSpec, Self
 
 import aiohttp
 from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
-from typing_extensions import Self, ParamSpec
 
 from betty.app.extension import ListExtensions, Extension, Extensions, build_extension_type_graph, \
     CyclicDependencyError, ExtensionDispatcher, ConfigurableExtension, discover_extension_types

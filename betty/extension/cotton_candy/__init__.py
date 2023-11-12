@@ -4,13 +4,12 @@ import logging
 import re
 from pathlib import Path
 from shutil import copy2
-from typing import Any, Callable, Iterable, cast
+from typing import Any, Callable, Iterable, cast, Self
 
 from PyQt6.QtWidgets import QWidget
 from aiofiles.os import makedirs
 from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
-from typing_extensions import Self
 
 from betty.app.extension import ConfigurableExtension, Extension, Theme
 from betty.config import Configuration

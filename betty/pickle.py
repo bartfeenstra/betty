@@ -1,6 +1,4 @@
-from typing import Any
-
-from typing_extensions import TypeAlias
+from typing import Any, TypeAlias
 
 DictState: TypeAlias = dict[str, Any]
 

@@ -3,9 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator, Callable, Any, Generic, TYPE_CHECKING, TypeVar, MutableSequence, MutableMapping, overload, \
-    cast
-
-from typing_extensions import TypeAlias
+    cast, TypeAlias
 
 from betty.functools import _Result
 from betty.locale import LocaleNotFoundError, get_data, Localizable
@@ -24,7 +22,7 @@ CallValueT = TypeVar('CallValueT')
 CallReturnT = TypeVar('CallReturnT')
 FValueT = TypeVar('FValueT')
 MapReturnT = TypeVar('MapReturnT')
-Number: TypeAlias = 'int | float'
+Number: TypeAlias = int | float
 NumberT = TypeVar('NumberT', bound=Number)
 
 

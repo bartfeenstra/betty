@@ -3,9 +3,8 @@ import os
 import subprocess as stdsubprocess
 from asyncio import subprocess
 from textwrap import indent
-from typing import Sequence, Any, Callable, Awaitable
+from typing import Sequence, Any, Callable, Awaitable, ParamSpec
 
-from typing_extensions import ParamSpec
 
 P = ParamSpec('P')
 

@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable, Any
+from typing import Iterable, Any, Self
 
 from reactives.instance.property import reactive_property
-from typing_extensions import Self
 
 from betty.config import Configuration, ConfigurationSequence
 from betty.locale import Localizer

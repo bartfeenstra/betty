@@ -1,16 +1,14 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Iterator
-
-from typing_extensions import TypeAlias
+from typing import Iterator, TypeAlias
 
 from betty.functools import walk
 from betty.locale import DateRange, Date
 from betty.model.ancestry import Person, Event, Citation, HasFiles, HasCitations, HasNotes, Source, \
     Presence, Privacy, HasMutablePrivacy, HasPrivacy
 
-Expirable: TypeAlias = 'Person | Event | Date | None'
+Expirable: TypeAlias = Person | Event | Date | None
 
 
 class Privatizer:

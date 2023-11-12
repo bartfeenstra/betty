@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-from typing import TypeVar, Sequence, Mapping, overload, Literal
-
-from typing_extensions import TypeAlias
+from typing import TypeVar, Sequence, Mapping, overload, Literal, TypeAlias
 
 T = TypeVar('T')
 U = TypeVar('U')
@@ -12,14 +10,14 @@ class Void:
     pass
 
 
-DumpType: TypeAlias = 'bool | int | float | str | None | list | dict'
+DumpType: TypeAlias = bool | int | float | str | None | list | dict
 DumpTypeT = TypeVar('DumpTypeT', bound=DumpType)
 
-Dump: TypeAlias = 'bool | int | float | str | None | Sequence[Dump] | Mapping[str, Dump]'
+Dump: TypeAlias = bool | int | float | str | None | Sequence['Dump'] | Mapping[str, 'Dump']
 DumpT = TypeVar('DumpT', bound=Dump)
 DumpU = TypeVar('DumpU', bound=Dump)
 
-VoidableDump: TypeAlias = 'Dump | type[Void]'
+VoidableDump: TypeAlias = Dump | type[Void]
 VoidableDumpT = TypeVar('VoidableDumpT', bound=VoidableDump)
 VoidableDumpU = TypeVar('VoidableDumpU', bound=VoidableDump)
 
@@ -31,7 +29,7 @@ VoidableListDump: TypeAlias = list[VoidableDumpT]
 
 VoidableDictDump: TypeAlias = dict[str, VoidableDumpT]
 
-_MinimizableDump: TypeAlias = 'VoidableDump | VoidableListDump[VoidableDumpT] | VoidableDictDump[VoidableDumpT]'
+_MinimizableDump: TypeAlias = VoidableDump | VoidableListDump[VoidableDumpT] | VoidableDictDump[VoidableDumpT]
 
 
 @overload

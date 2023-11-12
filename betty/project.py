@@ -3,12 +3,11 @@ from __future__ import annotations
 from contextlib import suppress
 from pathlib import Path
 from reprlib import recursive_repr
-from typing import Any, Generic, final, Iterable, cast
+from typing import Any, Generic, final, Iterable, cast, Self
 from urllib.parse import urlparse
 
 from reactives import scope
 from reactives.instance.property import reactive_property
-from typing_extensions import Self
 
 from betty.app.extension import Extension, ConfigurableExtension
 from betty.classtools import repr_instance
