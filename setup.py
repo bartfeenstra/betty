@@ -21,6 +21,11 @@ SETUP = {
     'author': 'Bart Feenstra & contributors',
     'author_email': 'bart@mynameisbart.com',
     'url': 'https://github.com/bartfeenstra/betty',
+    'project_urls': {
+        'Github': 'https://github.com/bartfeenstra/betty',
+        'Twitter': 'https://twitter.com/BettyProject',
+        'X': 'https://twitter.com/BettyProject',
+    },
     'classifiers': [
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Programming Language :: JavaScript',
