@@ -9,7 +9,7 @@ from typing import TypeAlias
 
 async def task(sentinel: threading.Event) -> None:
     print('TASK')
-    await asyncio.get_running_loop().run_in_executor(None, subtask, sentinel)
+    await asyncio.to_thread(subtask, sentinel)
     # The program hangs right here if the worker async concurrency is greater than 1.
     print('TASK DONE')
 
