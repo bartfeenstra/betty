@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import multiprocessing
 import pickle
 import threading
@@ -13,6 +14,15 @@ from betty.task import _TaskBatch, ThreadPoolTaskManager, ProcessPoolTaskManager
 
 async def task_success(batch: _TaskBatch[None], /, sentinel: threading.Event) -> None:
     sentinel.set()
+
+
+async def task_success_executor(batch: _TaskBatch[None], /, sentinel: threading.Event) -> None:
+    """
+    Set a sentinel through an asyncio event loop executor.
+
+    This catches certain problems when nesting APIs, where the program would freeze.
+    """
+    await asyncio.get_running_loop().run_in_executor(None, sentinel.set)
 
 
 async def task_error(batch: _TaskBatch[None], /) -> None:
@@ -69,13 +79,16 @@ class _TaskManagerTest:
     async def test_batch_delegate(self) -> None:
         sut = self.sut()
         batch_pre_error_sentinel = multiprocessing.Manager().Event()
+        batch_pre_error_executor_sentinel = multiprocessing.Manager().Event()
         async with sut:
             with pytest.raises(TaskTestError):
                 async with sut.batch() as batch:
                     batch.delegate(Task(task_success, batch_pre_error_sentinel))
+                    batch.delegate(Task(task_success_executor, batch_pre_error_executor_sentinel))
                     batch.delegate(Task(task_error))
 
         assert batch_pre_error_sentinel.is_set()
+        assert batch_pre_error_executor_sentinel.is_set()
 
 
 class TestThreadTaskManager(_TaskManagerTest):

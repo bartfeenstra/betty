@@ -287,20 +287,14 @@ async def _generate_openapi(
     async with await batch.context.app() as app:
         getLogger().info(app.localizers[batch.logging_locale]._('Generating OpenAPI specification...'))
         api_directory_path = app.www_directory_path / 'api'
-        await makedirs(api_directory_path, exist_ok=True)
+        print('GENERATE OPENAPI RENDER JSON')
         rendered_json = json.dumps(Specification(app).build())
-        # @todo We did some step debugging
-        # @todo The part that hangs is where aiofiles runs the actual file opening in the current loop's executor
-        # @todo
-        # @todo
-        # @todo
-        # async with aiofiles.open('foooz'):
-        #     pass
-        await makedirs(Path('/tmp/betty-foo'))
-        meh()
-        async with await create_json_resource(api_directory_path) as f:
-            foo()
-            await f.write(rendered_json)
+    print('GENERATE OPENAPI MAKE DIRS')
+    await makedirs(str(api_directory_path))
+    print('GENERATE OPENAPI CREATE JSON FILE')
+    async with await create_json_resource(api_directory_path) as f:
+        print('GENERATE OPENAPI WRITE JSON FILE')
+        await f.write(rendered_json)
     print('GENERATE OPENAPI DONE')
 
 

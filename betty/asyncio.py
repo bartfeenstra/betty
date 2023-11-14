@@ -33,15 +33,25 @@ def wait(f: Awaitable[T]) -> T:
         synced.join()
         return synced.return_value
     else:
-        return asyncio.run(
-            f,  # type: ignore[arg-type]
-        )
+        # @todo Remove this try
+        print('WAIT RUN')
+        try:
+            return asyncio.run(
+                f,  # type: ignore[arg-type]
+            )
+        finally:
+            print('WAIT DONE')
 
 
 def sync(f: Callable[P, Awaitable[T]]) -> Callable[P, T]:
     @wraps(f)
     def _synced(*args: P.args, **kwargs: P.kwargs) -> T:
-        return wait(f(*args, **kwargs))
+        print('SYNC RUN')
+        # @todo Remove this try
+        try:
+            return wait(f(*args, **kwargs))
+        finally:
+            print('SYNC DONE')
     return _synced
 
 
@@ -60,7 +70,9 @@ class _SyncedAwaitable(Thread, Generic[T]):
 
     @sync
     async def run(self) -> None:
+        print('SYNCED AWAIT')
         try:
             self._return_value = await self._awaitable
         except BaseException as e:
             self._e = e
+            print('SYNCED AWAIT DONE')
