@@ -22,7 +22,7 @@ from betty.model import get_entity_type_name, UserFacingEntity, Entity
 from betty.openapi import Specification
 from betty.serde.dump import DictDump, Dump
 from betty.string import camel_case_to_kebab_case, camel_case_to_snake_case
-from betty.task import _Task, _TaskBatch, TaskP
+from betty.task import _TaskBatch, TaskP
 
 GenerationTaskP = Concatenate[App, TaskP]
 

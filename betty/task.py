@@ -52,17 +52,11 @@ class TaskManagerBusy(TaskError, RuntimeError):
         super().__init__(f'This task manager is still busy with {remaining_batch_count} batches.')
 
 
-# @todo Turn this into a type alias for a tuple
-class _Task(Generic[TaskBatchContextT, TaskP]):
-    def __init__(
-        self,
-        callable: Callable[Concatenate[_TaskBatch[TaskBatchContextT], TaskP], Awaitable[None]],
-        *args: TaskP.args,
-        **kwargs: TaskP.kwargs,
-    ):
-        self.callable = callable
-        self.args = args
-        self.kwargs = kwargs
+Task: TypeAlias = tuple[
+    Callable[Concatenate['_TaskBatch[TaskBatchContextT]', TaskP], Awaitable[None]],
+    TaskP.args,
+    TaskP.kwargs,
+]
 
 
 class _TaskContext:
@@ -104,7 +98,7 @@ class _TaskBatch(_TaskContext, Generic[TaskBatchContextT]):
         self,
         logging_locale: str,
         context: TaskBatchContextT | None,
-        task_queue: queue.Queue,
+        task_queue: queue.Queue[Task[TaskBatchContextT, Any]],
         claims_lock: threading.Lock,
         claimed_task_ids: MutableSequence[bytes],
         error: _TaskBatchNamespace,
@@ -132,7 +126,7 @@ class _TaskBatch(_TaskContext, Generic[TaskBatchContextT]):
         )
 
     @property
-    def context(self) -> TaskBatchContextT:
+    def context(self) -> TaskBatchContextT | None:
         return self._context
 
     @property
@@ -157,21 +151,21 @@ class _TaskBatch(_TaskContext, Generic[TaskBatchContextT]):
         **kwargs: TaskP.kwargs,
     ) -> None:
         self._assert_active()
-        self._task_queue.put(_Task(callable, *args, **kwargs))
+        self._task_queue.put((callable, args, kwargs))
 
     async def perform_tasks(self) -> None:
         while not self._cancel.is_set():
             try:
-                task = self._task_queue.get_nowait()
+                callable, args, kwargs = self._task_queue.get_nowait()
             except queue.Empty:
                 if self._finish.is_set():
                     return
             else:
                 try:
-                    await task.callable(
+                    await callable(
                         self,
-                        *task.args,
-                        **task.kwargs,
+                        *args,
+                        **kwargs,
                     )
                     self._task_queue.task_done()
                 except BaseException as error:
@@ -293,7 +287,7 @@ class _TaskManager(_TaskContext):
 
     def batch(self, context: Any = None):
         self._assert_active()
-        return _OwnedTaskBatch(
+        return _OwnedTaskBatch(  # type: ignore[return-value]
             self._logging_locale,
             self._batches,
             context,
@@ -307,6 +301,8 @@ class _OwnedTaskManager(_TaskManager):
         super().__init__(
             logging_locale,
             multiprocessing.Manager().dict(),
+            multiprocessing.Manager().Event(),
+            multiprocessing.Manager().Event(),
         )
         self._started = False
         self._workers: list[Future[None]] = []

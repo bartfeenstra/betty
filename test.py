@@ -7,7 +7,7 @@ from queue import Queue, Empty
 from typing import TypeAlias
 
 from betty.app import App
-from betty.task import _TaskBatch, _Task
+from betty.task import _TaskBatch
 
 
 async def task(sentinel: threading.Event) -> None:

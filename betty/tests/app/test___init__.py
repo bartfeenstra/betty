@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Self
 import multiprocessing
 import pickle
 import threading
+from typing import Self
 
 import pytest
 
@@ -15,7 +15,6 @@ from betty.model import Entity
 from betty.project import ExtensionConfiguration
 from betty.serde.dump import Dump, VoidableDump
 from betty.serde.load import Fields, Assertions, RequiredField, Asserter
-from betty.task import _Task
 from betty.tests.test_task import task_success
 
 
