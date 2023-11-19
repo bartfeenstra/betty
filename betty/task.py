@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import multiprocessing
 import os
 import queue
@@ -21,6 +20,11 @@ TaskBatchContextT = TypeVar('TaskBatchContextT')
 
 class TaskError:
     pass
+
+
+class TaskContextNotActive(TaskError, RuntimeError):
+    def __init__(self):
+        super().__init__('This task context is not active.')
 
 
 class TaskBatchNotStarted(TaskError, RuntimeError):
@@ -48,7 +52,8 @@ class TaskManagerBusy(TaskError, RuntimeError):
         super().__init__(f'This task manager is still busy with {remaining_batch_count} batches.')
 
 
-class Task(Generic[TaskBatchContextT, TaskP]):
+# @todo Turn this into a type alias for a tuple
+class _Task(Generic[TaskBatchContextT, TaskP]):
     def __init__(
         self,
         callable: Callable[Concatenate[_TaskBatch[TaskBatchContextT], TaskP], Awaitable[None]],
@@ -60,39 +65,70 @@ class Task(Generic[TaskBatchContextT, TaskP]):
         self.kwargs = kwargs
 
 
-class _TaskBatch(Generic[TaskBatchContextT]):
+class _TaskContext:
+    def __init__(
+        self,
+        cancel: threading.Event,
+        finish: threading.Event,
+    ):
+        self._cancel = cancel
+        self._finish = finish
+
+    async def cancel(self) -> None:
+        self._cancel.set()
+
+    @property
+    def cancelled(self) -> bool:
+        return self._cancel.is_set()
+
+    @property
+    def finished(self) -> bool:
+        return self._finish.is_set()
+
+    @property
+    def active(self) -> bool:
+        if self.cancelled:
+            return False
+        if self.finished:
+            return False
+        return True
+
+    def _assert_active(self) -> None:
+        if not self.active:
+            raise TaskContextNotActive
+
+
+
+class _TaskBatch(_TaskContext, Generic[TaskBatchContextT]):
     def __init__(
         self,
         logging_locale: str,
-        context: TaskBatchContextT = None,  # type: ignore[assignment]
-        shared_state: _TaskBatchSharedState[TaskBatchContextT] | None = None,
+        context: TaskBatchContextT | None,
+        task_queue: queue.Queue,
+        claims_lock: threading.Lock,
+        claimed_task_ids: MutableSequence[bytes],
+        error: _TaskBatchNamespace,
+        cancel: threading.Event,
+        finish: threading.Event,
     ):
+        super().__init__(cancel, finish)
         self._logging_locale = logging_locale
         self._context = context
-        if shared_state is None:
-            self._task_queue = multiprocessing.Manager().Queue()
-            self._claims_lock = multiprocessing.Manager().Lock()
-            self._claimed_task_ids: MutableSequence[bytes] = multiprocessing.Manager().list()
-            self._error: _TaskBatchNamespace = multiprocessing.Manager().Namespace()
-            self._error.error = None
-        else:
-            (
-                self._task_queue,
-                self._claims_lock,
-                self._claimed_task_ids,
-                self._error,
-            ) = shared_state
+        self._task_queue = task_queue
+        self._claims_lock = claims_lock
+        self._claimed_task_ids = claimed_task_ids
+        self._error = error
 
     def __reduce__(self) -> Any:
         return _TaskBatch, (
             self._logging_locale,
             self._context,
-            (
-                self._task_queue,
-                self._claims_lock,
-                self._claimed_task_ids,
-                self._error,
-            ),
+            self._task_queue,
+            self._claims_lock,
+            self._claimed_task_ids,
+            self._error,
+            self._cancel,
+            self._finish,
         )
 
     @property
@@ -114,21 +150,22 @@ class _TaskBatch(Generic[TaskBatchContextT]):
             self._claimed_task_ids.append(task_id_bytes)
             return True
 
-    def delegate(self, task: Task[TaskBatchContextT, Any]) -> None:
-        self._task_queue.put(task)
+    def delegate(
+        self,
+        callable: Callable[Concatenate[_TaskBatch[TaskBatchContextT], TaskP], Awaitable[None]],
+        *args: TaskP.args,
+        **kwargs: TaskP.kwargs,
+    ) -> None:
+        self._assert_active()
+        self._task_queue.put(_Task(callable, *args, **kwargs))
 
-    async def _perform_tasks(self) -> None:
-        while True:
+    async def perform_tasks(self) -> None:
+        while not self._cancel.is_set():
             try:
                 task = self._task_queue.get_nowait()
-                print('QUEUE NOT EMPTY')
-                print('QUEUE NOT EMPTY')
-                print('QUEUE NOT EMPTY')
-                print(task.callable)
-                print(task.args)
-                print(task.kwargs)
             except queue.Empty:
-                return
+                if self._finish.is_set():
+                    return
             else:
                 try:
                     await task.callable(
@@ -136,14 +173,10 @@ class _TaskBatch(Generic[TaskBatchContextT]):
                         *task.args,
                         **task.kwargs,
                     )
-                    print('BATCH TASK AWAITED')
-                except BaseException as error:
-                    print('BATCH TASK ERROR')
-                    print(error)
-                    self._error.error = serialize(error)
-                finally:
                     self._task_queue.task_done()
-                    print('BATCH TASK DONE')
+                except BaseException as error:
+                    await self.cancel()
+                    self._error.error = serialize(error)
 
 
 _TaskBatches: TypeAlias = MutableMapping[bytes, _TaskBatch[Any]]
@@ -153,26 +186,26 @@ class _TaskBatchNamespace(Protocol):
     error: BaseException | None
 
 
-_TaskBatchSharedState: TypeAlias = tuple[
-    queue.Queue[Task[TaskBatchContextT, Any]],
-    threading.Lock,
-    MutableSequence[bytes],
-    _TaskBatchNamespace,
-]
-
-
 class _OwnedTaskBatch(_TaskBatch[TaskBatchContextT], Generic[TaskBatchContextT]):
     def __init__(
         self,
         logging_locale: str,
         batches: _TaskBatches,
-        context: TaskBatchContextT = None,  # type: ignore[assignment]
-        shared_state: _TaskBatchSharedState[TaskBatchContextT] | None = None,
+        context: TaskBatchContextT | None = None,
     ):
         self._id = os.urandom(16)
         self._started = False
         self._batches = batches
-        super().__init__(logging_locale, context, shared_state)
+        super().__init__(
+            logging_locale,
+            context,
+            multiprocessing.Manager().Queue(),
+            multiprocessing.Manager().Lock(),
+            multiprocessing.Manager().list(),
+            multiprocessing.Manager().Namespace(),
+            multiprocessing.Manager().Event(),
+            multiprocessing.Manager().Event(),
+        )
 
     async def __aenter__(self) -> _TaskBatch[TaskBatchContextT]:
         await self.start()
@@ -180,6 +213,7 @@ class _OwnedTaskBatch(_TaskBatch[TaskBatchContextT], Generic[TaskBatchContextT])
 
     async def __aexit__(self, exc_type: type[Exception], exc_val: Exception, exc_tb: TracebackType) -> None:
         if exc_val is not None:
+            await self.cancel()
             self._error.error = serialize(exc_val)
         await self.join()
 
@@ -191,36 +225,37 @@ class _OwnedTaskBatch(_TaskBatch[TaskBatchContextT], Generic[TaskBatchContextT])
         if self._started:
             raise TaskBatchStarted()
 
+    async def cancel(self) -> None:
+        await super().cancel()
+        # @todo Same as for task managers, what if the non-owned batch is cancelled?
+        # @todo Even if we put .cancel() on the owned instances only, the concept of cancellation
+        # @todo is relevant if a non-owned task batch catches an error too, though
+        # @todo
+        # @todo
+        del self._batches[self._id]
+
     async def start(self) -> None:
         self._assert_not_started()
         self._started = True
         self._batches[self._id] = self
 
     async def join(self):
-        print(f'{self} JOINING')
         self._assert_started()
-        print(f'{self} JOIN QUEUE')
-        await asyncio.get_running_loop().run_in_executor(None, self._task_queue.join)
+        self._finish.set()
         del self._batches[self._id]
-        self._started = False
-        print(f'{self} JOINED')
         if self._error.error is not None:
-            try:
-                print(self._error.error)
-                print(self._error.error.__cause__)
-                print(self._error.error.__traceback__)
-                raise self._error.error
-            finally:
-                # Allow errors to be garbage-collected.
-                self._error.error = None
+            raise self._error.error
 
 
-class _TaskManager:
+class _TaskManager(_TaskContext):
     def __init__(
         self,
         logging_locale: str,
         batches: _TaskBatches,
+        cancel: threading.Event,
+        finish: threading.Event,
     ):
+        super().__init__(cancel, finish)
         self._logging_locale = logging_locale
         self._batches = batches
 
@@ -229,6 +264,8 @@ class _TaskManager:
         tuple[
             str,
             _TaskBatches,
+            threading.Event,
+            threading.Event,
         ],
     ]:
         return (
@@ -236,8 +273,15 @@ class _TaskManager:
             (
                 self._logging_locale,
                 self._batches,
+                self._cancel,
+                self._finish,
             )
         )
+
+    async def cancel(self) -> None:
+        await super().cancel()
+        for batch in self._batches.values():
+            await batch.cancel()
 
     @overload
     def batch(self) -> _OwnedTaskBatch[None]:
@@ -248,6 +292,7 @@ class _TaskManager:
         pass
 
     def batch(self, context: Any = None):
+        self._assert_active()
         return _OwnedTaskBatch(
             self._logging_locale,
             self._batches,
@@ -276,7 +321,7 @@ class _OwnedTaskManager(_TaskManager):
         if exc_val is None:
             await self.join()
         else:
-            await self._join()
+            await self._join_unchecked()
 
     def _assert_started(self) -> None:
         if not self._started:
@@ -294,6 +339,13 @@ class _OwnedTaskManager(_TaskManager):
     def _new_executor(self) -> Executor:
         raise NotImplementedError
 
+    async def cancel(self) -> None:
+        # @todo This may be problematic/.
+        # @todo If in another process, a reduced _TaskManager.cancel() is called, this then never propagates to the _OwnedTaskManager
+        # @todo
+        await super().cancel()
+        await self._join_unchecked()
+
     async def start(self) -> None:
         self._assert_not_started()
         self._started = True
@@ -309,21 +361,16 @@ class _OwnedTaskManager(_TaskManager):
     async def join(self) -> None:
         self._assert_started()
         self._assert_not_busy()
-        await self._join()
+        await self._join_unchecked()
 
-    async def _join(self) -> None:
-        # @todo We never seem to reach this during the tests...
-        print(f'{self} JOINING')
-        print(f'{self} JOINING WORKERS')
+    async def _join_unchecked(self) -> None:
         self._join_workers.set()
+        # @todo Must we cancel futures? We should only have as many workers (futures) as there are threads/processes in the pool.
         self._executor.shutdown(cancel_futures=True)
         del self._executor
         self._started = False
-        try:
-            for worker in as_completed(self._workers):
-                worker.result()
-        finally:
-            print(f'{self} JOINED')
+        for worker in as_completed(self._workers):
+            worker.result()
 
 
 class ThreadPoolTaskManager(_OwnedTaskManager):
@@ -349,16 +396,12 @@ class _Worker:
 
     @sync
     async def __call__(self) -> None:
-        print('WORKER START')
         await gather(*(
             self._perform_tasks()
             for _ in range(0, self._async_concurrency)
         ))
-        print('WORKER EXIT')
 
     async def _perform_tasks(self) -> None:
         while not self._join_workers.is_set():
-            # @todo
-            # print('WORKER NOT READY TO JOIN...')
             for batch in [*self._batches.values()]:
-                await batch._perform_tasks()
+                await batch.perform_tasks()

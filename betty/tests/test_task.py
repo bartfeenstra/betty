@@ -4,12 +4,13 @@ import asyncio
 import multiprocessing
 import pickle
 import threading
+from concurrent.futures import ThreadPoolExecutor
 from typing import ClassVar
 
 import pytest
 
-from betty.task import _TaskBatch, ThreadPoolTaskManager, ProcessPoolTaskManager, TaskManagerBusy, Task, \
-    _OwnedTaskManager, TaskManagerNotStarted, TaskManagerStarted
+from betty.task import _TaskBatch, ThreadPoolTaskManager, ProcessPoolTaskManager, TaskManagerBusy, _OwnedTaskManager, \
+    TaskManagerNotStarted, TaskManagerStarted, TaskBatchContextT, TaskContextNotActive
 
 
 async def task_success(batch: _TaskBatch[None], /, sentinel: threading.Event) -> None:
@@ -31,6 +32,94 @@ async def task_error(batch: _TaskBatch[None], /) -> None:
 
 class TaskTestError(RuntimeError):
     pass
+
+
+class TestTaskBatch:
+    def _sut(self, *, logging_locale: str = 'en', context: TaskBatchContextT | None = None) -> _TaskBatch[TaskBatchContextT]:
+        return _TaskBatch(
+            logging_locale,
+            context,
+            multiprocessing.Manager().Queue(),
+            multiprocessing.Manager().Lock(),
+            multiprocessing.Manager().list(),
+            multiprocessing.Manager().Namespace(),
+            multiprocessing.Manager().Event(),
+            multiprocessing.Manager().Event(),
+        )
+
+    async def test_pickle(self) -> None:
+        sut = self._sut()
+        unpickled_sut = pickle.loads(pickle.dumps(sut))
+        assert isinstance(unpickled_sut, _TaskBatch)
+
+    async def test_context(self) -> None:
+        context = 'I am the context'
+        sut = self._sut(context=context)
+        assert context is sut.context
+
+    async def test_logging_locale(self) -> None:
+        logging_locale = 'en'
+        sut = self._sut(logging_locale=logging_locale)
+        assert logging_locale is sut.logging_locale
+
+    async def test_claim(self) -> None:
+        task_ids = ('task ID 1', 'task ID 2', 'task ID 3')
+        sut = self._sut()
+        for task_id in task_ids:
+            assert sut.claim(task_id)
+            assert not sut.claim(task_id)
+
+    async def test_delegate(self) -> None:
+        sut = self._sut()
+        sentinel = multiprocessing.Manager().Event()
+        sut.delegate(task_success, sentinel)
+
+    async def test_delegate_when_cancelled(self) -> None:
+        sut = self._sut()
+        await sut.cancel()
+        with pytest.raises(TaskContextNotActive):
+            sut.delegate(task_error)
+
+    async def test_delegate_when_finished(self) -> None:
+        sut = self._sut()
+        sut._finish.set()
+        with pytest.raises(TaskContextNotActive):
+            sut.delegate(task_error)
+
+    async def test_perform_tasks(self) -> None:
+        sut = self._sut()
+        sentinel1 = multiprocessing.Manager().Event()
+        sentinel2 = multiprocessing.Manager().Event()
+        sentinel3 = multiprocessing.Manager().Event()
+        sut.delegate(task_success, sentinel1)
+        sut.delegate(task_success, sentinel2)
+        sut.delegate(task_success, sentinel3)
+        sut._finish.set()
+        await sut.perform_tasks()
+        assert sentinel1.is_set()
+        assert sentinel2.is_set()
+        assert sentinel3.is_set()
+
+    async def test_perform_tasks_with_cancellation(self) -> None:
+        sut = self._sut()
+        sentinel = multiprocessing.Manager().Event()
+        for _ in range(0, 999):
+            sut.delegate(task_success, sentinel)
+        with ThreadPoolExecutor() as executor:
+            executor.submit(sut.perform_tasks)
+            await sut.cancel()
+
+    async def test_perform_tasks_with_error(self) -> None:
+        sut = self._sut()
+        sentinel1 = multiprocessing.Manager().Event()
+        sentinel2 = multiprocessing.Manager().Event()
+        sut.delegate(task_success, sentinel1)
+        sut.delegate(task_error)
+        sut.delegate(task_success, sentinel2)
+        sut._finish.set()
+        await sut.perform_tasks()
+        assert sentinel1.is_set()
+        assert isinstance(sut._error.error, TaskTestError)
 
 
 class _TaskManagerTest:
@@ -83,9 +172,9 @@ class _TaskManagerTest:
         async with sut:
             with pytest.raises(TaskTestError):
                 async with sut.batch() as batch:
-                    batch.delegate(Task(task_success, batch_pre_error_sentinel))
-                    batch.delegate(Task(task_success_executor, batch_pre_error_executor_sentinel))
-                    batch.delegate(Task(task_error))
+                    batch.delegate(task_success, batch_pre_error_sentinel)
+                    batch.delegate(task_success_executor, batch_pre_error_executor_sentinel)
+                    batch.delegate(task_error)
 
         assert batch_pre_error_sentinel.is_set()
         assert batch_pre_error_executor_sentinel.is_set()

@@ -22,7 +22,7 @@ from betty.model import get_entity_type_name, UserFacingEntity, Entity
 from betty.openapi import Specification
 from betty.serde.dump import DictDump, Dump
 from betty.string import camel_case_to_kebab_case, camel_case_to_snake_case
-from betty.task import Task, _TaskBatch, TaskP
+from betty.task import _Task, _TaskBatch, TaskP
 
 GenerationTaskP = Concatenate[App, TaskP]
 
@@ -98,7 +98,7 @@ async def generate(app: App) -> None:
         # @todo Are we indeed passing on an unlocalized app?
         # localized_process_batches[None].delegate(Task(_generate_dispatch))
         # await _generate_openapi(localized_process_batches[None])
-        localized_process_batches[None].delegate(Task(_generate_openapi))
+        localized_process_batches[None].delegate(_generate_openapi)
 
         for locale in locales:
             localized_process_batches[locale] = app.process_pool.batch(GenerationTaskBatchContext(pickled_app, locale))

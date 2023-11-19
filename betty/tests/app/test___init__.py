@@ -15,7 +15,7 @@ from betty.model import Entity
 from betty.project import ExtensionConfiguration
 from betty.serde.dump import Dump, VoidableDump
 from betty.serde.load import Fields, Assertions, RequiredField, Asserter
-from betty.task import Task
+from betty.task import _Task
 from betty.tests.test_task import task_success
 
 
@@ -127,7 +127,7 @@ class TestApp:
             async with App() as sut:
                 sentinel: threading.Event = multiprocessing.Manager().Event()
                 async with getattr(sut, f'{pool_name}_pool').batch() as batch:
-                    batch.delegate(Task(task_success, sentinel))
+                    batch.delegate(task_success, sentinel)
                     # @todo 
                     # foo()
                 assert sentinel.is_set()

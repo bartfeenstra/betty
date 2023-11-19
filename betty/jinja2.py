@@ -44,7 +44,7 @@ from betty.project import ProjectConfiguration
 from betty.render import Renderer
 from betty.serde.dump import Dumpable, DictDump, VoidableDump, Void, minimize, none_void, void_none, Dump
 from betty.string import camel_case_to_snake_case, camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
-from betty.task import Task
+from betty.task import _Task
 
 T = TypeVar('T')
 
@@ -434,9 +434,9 @@ def _filter_map(context: Context, value: Iterable[Any], *args: Any, **kwargs: An
 
 def _filter_file(app: App, file: File) -> str:
     task_id = f'filter_file:{file.id}'
-    if app.tasks.claim(task_id):
+    if thread_batch.claim(task_id):
         file_destination_path = app.project.configuration.www_directory_path / 'file' / file.id / 'file' / file.path.name
-        app.tasks.to_thread(Task(_do_filter_file, file.path, file_destination_path))
+        thread_batch.delegate(_do_filter_file, file.path, file_destination_path)
 
     return f'/file/{file.id}/file/{file.path.name}'
 
@@ -477,9 +477,9 @@ def _filter_image(
         raise ValueError('Cannot convert a file without a media type to an image.')
 
     task_id = f'filter_image:{file.id}:{width or ""}:{height or ""}'
-    if app.tasks.claim(task_id):
+    if thread_batch.claim(task_id):
         cache_directory_path = CACHE_DIRECTORY_PATH / 'image'
-        app.tasks.to_thread(Task(task_callable, file.path, cache_directory_path, file_directory_path, destination_name, width, height))
+        thread_batch.delegate(task_callable, file.path, cache_directory_path, file_directory_path, destination_name, width, height)
 
     destination_public_path = '/file/%s' % destination_name
 

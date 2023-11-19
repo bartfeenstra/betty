@@ -191,6 +191,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         return self
 
     async def __aexit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
+        # @todo Remove these print statements
         print('EXITING APP..')
         if isinstance(self._thread_pool, ThreadPoolTaskManager):
             print('JOIN THREAD POOL')
