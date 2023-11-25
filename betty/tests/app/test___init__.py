@@ -125,8 +125,8 @@ class TestApp:
         # for pool in (sut.process_pool,):
             async with App() as sut:
                 sentinel: threading.Event = multiprocessing.Manager().Event()
-                async with getattr(sut, f'{pool_name}_pool').batch() as batch:
-                    batch.delegate(task_success, sentinel)
+                async with getattr(sut, f'{pool_name}_pool').group() as group:
+                    group.delegate(task_success, sentinel)
                     # @todo 
                     # foo()
                 assert sentinel.is_set()

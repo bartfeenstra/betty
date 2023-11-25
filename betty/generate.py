@@ -22,7 +22,7 @@ from betty.model import get_entity_type_name, UserFacingEntity, Entity
 from betty.openapi import Specification
 from betty.serde.dump import DictDump, Dump
 from betty.string import camel_case_to_kebab_case, camel_case_to_snake_case
-from betty.task import _TaskBatch, TaskP
+from betty.task import TaskGroup, TaskP
 
 GenerationTaskP = Concatenate[App, TaskP]
 
@@ -32,11 +32,11 @@ def getLogger() -> logging.Logger:
 
 
 class Generator:
-    async def generate(self, batch: _TaskBatch[GenerationTaskBatchContext], app: App) -> None:
+    async def generate(self, group: TaskGroup[GenerationTaskGroupContext], app: App) -> None:
         raise NotImplementedError(repr(self))
 
 
-class GenerationTaskBatchContext:
+class GenerationTaskGroupContext:
     _app: App
 
     def __init__(self, pickled_app: bytes, app_locale: str | None):
@@ -69,67 +69,67 @@ async def generate(app: App) -> None:
     # @todo Are we sure this is uses the default language?
     await _generate_static_public(app)
 
-    # @todo Now, how do we ensure that Jinja2 filters have access to this batch?
-    # @todo Because at any time, App may be serving multiple batches besides the manager's own
+    # @todo Now, how do we ensure that Jinja2 filters have access to this task group?
+    # @todo Because at any time, App may be serving multiple groups besides the manager's own
     # @todo
     pickled_app = dill.dumps(app)
-    localized_process_batches: dict[str | None, _TaskBatch[GenerationTaskBatchContext]] = {}
+    localized_process_groups: dict[str | None, TaskGroup[GenerationTaskGroupContext]] = {}
     locales = app.project.configuration.locales
 
     # @todo Exit stacks exit the contained contexts in LIFO order, NOT concurrently!
     # @todo Do we lose time waiting? Or does it not matter?
-    # @todo Because the group of batches is not done until all batches are done.
-    # @todo And if we have to wait for one batch to finish while the others are finished already
-    # @todo we would have had to wait for this one batch anyway
+    # @todo Because the group of groups is not done until all groups are done.
+    # @todo And if we have to wait for one group to finish while the others are finished already
+    # @todo we would have had to wait for this one group anyway
     # @todo
     # @todo Main concern is error handling, where we want errors as soon as possible
     # @todo
     # @todo
     # @todo
-    async with AsyncExitStack() as batch_stack:
-        thread_batch = app.thread_pool.batch()
-        print('thread_batch')
-        print(thread_batch)
+    async with AsyncExitStack() as group_stack:
+        thread_group = app.thread_pool.group()
+        print('thread_group')
+        print(thread_group)
 
-        localized_process_batches[None] = app.process_pool.batch(GenerationTaskBatchContext(pickled_app, None))
-        print('localized_process_batches[None]')
-        print(localized_process_batches[None])
+        localized_process_groups[None] = app.process_pool.group(GenerationTaskGroupContext(pickled_app, None))
+        print('localized_process_groups[None]')
+        print(localized_process_groups[None])
 
         # @todo Are we indeed passing on an unlocalized app?
-        # localized_process_batches[None].delegate(Task(_generate_dispatch))
-        # await _generate_openapi(localized_process_batches[None])
-        localized_process_batches[None].delegate(_generate_openapi)
+        # localized_process_groups[None].delegate(Task(_generate_dispatch))
+        # await _generate_openapi(localized_process_groups[None])
+        localized_process_groups[None].delegate(_generate_openapi)
 
         for locale in locales:
-            localized_process_batches[locale] = app.process_pool.batch(GenerationTaskBatchContext(pickled_app, locale))
-            print('localized_process_batches[locale]')
-            print(localized_process_batches[locale])
+            localized_process_groups[locale] = app.process_pool.group(GenerationTaskGroupContext(pickled_app, locale))
+            print('localized_process_groups[locale]')
+            print(localized_process_groups[locale])
 
-            # localized_process_batches[locale].delegate(Task(_generate_public))
+            # localized_process_groups[locale].delegate(Task(_generate_public))
 
         # for entity_type in app.entity_types:
         #     if not issubclass(entity_type, UserFacingEntity):
         #         continue
         #     if app.project.configuration.entity_types[entity_type].generate_html_list:
         #         for locale in locales:
-        #             batches[locale].to_thread(Task(_generate_entity_type_list_html, entity_type))
-        #     batches[None].to_thread(Task(_generate_entity_type_list_json, entity_type))
+        #             localized_process_groups[locale].to_thread(Task(_generate_entity_type_list_html, entity_type))
+        #     localized_process_groups[None].to_thread(Task(_generate_entity_type_list_json, entity_type))
         #     for entity in app.project.ancestry[entity_type]:
         #         if isinstance(entity.id, GeneratedEntityId):
         #             continue
         #
-        #         batches[None].to_thread(Task(_generate_entity_json, entity_type, entity.id))
+        #         localized_process_groups[None].to_thread(Task(_generate_entity_json, entity_type, entity.id))
         #         if is_public(entity):
         #             for locale in locales:
-        #                 batches[locale].to_thread(Task(_generate_entity_html, entity_type, entity.id))
+        #                 localized_process_groups[locale].to_thread(Task(_generate_entity_html, entity_type, entity.id))
 
         print('ENTERING BATCHES')
         await gather(*(
-            batch_stack.enter_async_context(batch)  # type: ignore[arg-type]
-            for batch
+            group_stack.enter_async_context(group)  # type: ignore[arg-type]
+            for group
             in [
-                thread_batch,
-                *localized_process_batches.values(),
+                thread_group,
+                *localized_process_groups.values(),
             ]
         ))
         print('EXITING BATCHES')
@@ -169,19 +169,19 @@ async def create_json_resource(path: Path) -> AsyncContextManager[AsyncTextIOWra
 
 
 async def _generate_dispatch(
-    batch: _TaskBatch[GenerationTaskBatchContext],
+    group: TaskGroup[GenerationTaskGroupContext],
 ) -> None:
-    async with await batch.context.app() as app:
-        await app.dispatcher.dispatch(Generator)(batch, app),
+    async with await group.context.app() as app:
+        await app.dispatcher.dispatch(Generator)(group, app),
 
 
 async def _generate_public(
-    batch: _TaskBatch[GenerationTaskBatchContext],
+    group: TaskGroup[GenerationTaskGroupContext],
 ) -> None:
     print('GENERATE PUBLIC')
-    async with await batch.context.app() as app:
-        locale_label = get_display_name(app.locale, batch.logging_locale)
-        getLogger().info(app.localizers[batch.logging_locale]._('Generating localized public files in {locale}...').format(
+    async with await group.context.app() as app:
+        locale_label = get_display_name(app.locale, group.logging_locale)
+        getLogger().info(app.localizers[group.logging_locale]._('Generating localized public files in {locale}...').format(
             locale=locale_label,
         ))
         async for file_path in app.assets.copytree(Path('public') / 'localized', app.www_directory_path):
@@ -198,10 +198,10 @@ async def _generate_static_public(
 
 
 async def _generate_entity_type_list_html(
-    batch: _TaskBatch[GenerationTaskBatchContext],
+    group: TaskGroup[GenerationTaskGroupContext],
     entity_type: type[Entity],
 ) -> None:
-    async with await batch.context.app() as app:
+    async with await group.context.app() as app:
         entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
         entity_type_path = app.www_directory_path / entity_type_name_fs
         template = app.jinja2_environment.negotiate_template([
@@ -215,18 +215,18 @@ async def _generate_entity_type_list_html(
         )
         async with await create_html_resource(entity_type_path) as f:
             await f.write(rendered_html)
-        locale_label = get_display_name(app.locale, batch.logging_locale)
-        getLogger().info(app.localizers[batch.logging_locale]._('Generated the listing page for {entity_type} in {locale}.').format(
-            entity_type=entity_type.entity_type_label_plural(app.localizers[batch.logging_locale]),
+        locale_label = get_display_name(app.locale, group.logging_locale)
+        getLogger().info(app.localizers[group.logging_locale]._('Generated the listing page for {entity_type} in {locale}.').format(
+            entity_type=entity_type.entity_type_label_plural(app.localizers[group.logging_locale]),
             locale=locale_label,
         ))
 
 
 async def _generate_entity_type_list_json(
-    batch: _TaskBatch[GenerationTaskBatchContext],
+    group: TaskGroup[GenerationTaskGroupContext],
     entity_type: type[Entity],
 ) -> None:
-    async with await batch.context.app() as app:
+    async with await group.context.app() as app:
         entity_type_name = get_entity_type_name(entity_type)
         entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
         entity_type_path = app.static_www_directory_path / entity_type_name_fs
@@ -247,11 +247,11 @@ async def _generate_entity_type_list_json(
 
 
 async def _generate_entity_html(
-    batch: _TaskBatch[GenerationTaskBatchContext],
+    group: TaskGroup[GenerationTaskGroupContext],
     entity_type: type[Entity],
     entity_id: str,
 ) -> None:
-    async with await batch.context.app() as app:
+    async with await group.context.app() as app:
         entity = app.project.ancestry[entity_type][entity_id]
         entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity))
         entity_path = app.www_directory_path / entity_type_name_fs / entity.id
@@ -268,11 +268,11 @@ async def _generate_entity_html(
 
 
 async def _generate_entity_json(
-    batch: _TaskBatch[GenerationTaskBatchContext],
+    group: TaskGroup[GenerationTaskGroupContext],
     entity_type: type[Entity],
     entity_id: str,
 ) -> None:
-    async with await batch.context.app() as app:
+    async with await group.context.app() as app:
         entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
         entity_path = app.static_www_directory_path / entity_type_name_fs / entity_id
         rendered_json = json.dumps(app.project.ancestry[entity_type][entity_id], cls=app.json_encoder)
@@ -281,11 +281,11 @@ async def _generate_entity_json(
 
 
 async def _generate_openapi(
-    batch: _TaskBatch[GenerationTaskBatchContext],
+    group: TaskGroup[GenerationTaskGroupContext],
 ) -> None:
     print('GENERATE OPENAPI')
-    async with await batch.context.app() as app:
-        getLogger().info(app.localizers[batch.logging_locale]._('Generating OpenAPI specification...'))
+    async with await group.context.app() as app:
+        getLogger().info(app.localizers[group.logging_locale]._('Generating OpenAPI specification...'))
         api_directory_path = app.www_directory_path / 'api'
         print('GENERATE OPENAPI RENDER JSON')
         rendered_json = json.dumps(Specification(app).build())

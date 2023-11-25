@@ -63,4 +63,4 @@ class _SyncedAwaitable(Thread, Generic[T]):
         try:
             self._return_value = await self._awaitable
         except BaseException as error:
-            self._error = rrore
+            self._error = error

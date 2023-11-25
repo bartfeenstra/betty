@@ -433,9 +433,9 @@ def _filter_map(context: Context, value: Iterable[Any], *args: Any, **kwargs: An
 
 def _filter_file(app: App, file: File) -> str:
     task_id = f'filter_file:{file.id}'
-    if thread_batch.claim(task_id):
+    if thread_group.claim(task_id):
         file_destination_path = app.project.configuration.www_directory_path / 'file' / file.id / 'file' / file.path.name
-        thread_batch.delegate(_do_filter_file, file.path, file_destination_path)
+        thread_group.delegate(_do_filter_file, file.path, file_destination_path)
 
     return f'/file/{file.id}/file/{file.path.name}'
 
@@ -476,9 +476,9 @@ def _filter_image(
         raise ValueError('Cannot convert a file without a media type to an image.')
 
     task_id = f'filter_image:{file.id}:{width or ""}:{height or ""}'
-    if thread_batch.claim(task_id):
+    if thread_group.claim(task_id):
         cache_directory_path = CACHE_DIRECTORY_PATH / 'image'
-        thread_batch.delegate(task_callable, file.path, cache_directory_path, file_directory_path, destination_name, width, height)
+        thread_group.delegate(task_callable, file.path, cache_directory_path, file_directory_path, destination_name, width, height)
 
     destination_public_path = '/file/%s' % destination_name
 
