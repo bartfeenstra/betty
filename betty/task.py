@@ -17,6 +17,7 @@ from betty.error import serialize
 
 TaskP = ParamSpec('TaskP')
 TaskGroupContextT = TypeVar('TaskGroupContextT')
+_UnownedT = TypeVar('_UnownedT')
 
 
 class TaskError:
@@ -50,21 +51,25 @@ Task: TypeAlias = tuple[
 ]
 
 
-class _TaskContext:
+class _Base:
     def __init__(
         self,
         cancel: threading.Event,
         start: threading.Event,
-        close: threading.Event,
+        finish: threading.Event,
     ):
         self._cancel = cancel
         self._start = start
-        self._close = close
+        self._finish = finish
 
     async def cancel(self) -> None:
-        self._close.set()
+        self._finish.set()
         self._cancel.set()
         self._start.clear()
+        await self._close()
+
+    async def _close(self) -> None:
+        raise NotImplementedError
 
     @property
     def cancelled(self) -> bool:
@@ -75,14 +80,14 @@ class _TaskContext:
         return self._start.is_set()
 
     @property
-    def closed(self) -> bool:
-        return self._close.is_set()
+    def finished(self) -> bool:
+        return self._finish.is_set()
 
     @property
     def open(self) -> bool:
         if self.cancelled:
             return False
-        if self.closed:
+        if self.finished:
             return False
         return True
 
@@ -99,7 +104,33 @@ class _TaskContext:
             raise TaskContextStarted()
 
 
-class TaskGroup(_TaskContext, Generic[TaskGroupContextT]):
+class _OwnedBase(_Base, Generic[_UnownedT]):
+    async def __aenter__(self) -> _UnownedT:
+        await self.start()
+        reduced = self.__reduce__()
+        return reduced[0](*reduced[1])  # type: ignore[no-any-return, operator]
+
+    async def __aexit__(self, exc_type: type[Exception], exc_val: Exception, exc_tb: TracebackType) -> None:
+        if exc_val is not None:
+            await self.cancel()
+        await self.finish()
+
+    async def start(self) -> None:
+        self._assert_open()
+        self._assert_not_started()
+        self._start.set()
+
+    async def finish(self):
+        if not self.cancelled:
+            self._assert_started()
+        self._finish.set()
+        await self._close()
+
+    async def _close(self):
+        self._start.clear()
+
+
+class TaskGroup(_Base, Generic[TaskGroupContextT]):
     def __init__(
         self,
         group_id: bytes,
@@ -136,7 +167,7 @@ class TaskGroup(_TaskContext, Generic[TaskGroupContextT]):
             self._error,
             self._cancel,
             self._start,
-            self._close,
+            self._finish,
         )
 
     @property
@@ -158,8 +189,7 @@ class TaskGroup(_TaskContext, Generic[TaskGroupContextT]):
             self._claimed_task_ids.append(task_id_bytes)
             return True
 
-    async def cancel(self) -> None:
-        await super().cancel()
+    async def _close(self) -> None:
         # A group may be cancelled before it is started, and thus before it is added to the groups registry.
         with suppress(KeyError):
             del self._groups[self._id]
@@ -174,11 +204,11 @@ class TaskGroup(_TaskContext, Generic[TaskGroupContextT]):
         self._task_queue.put((callable, args, kwargs))
 
     async def perform_tasks(self) -> None:
-        while not self._cancel.is_set():
+        while not self.cancelled:
             try:
                 callable, args, kwargs = self._task_queue.get_nowait()
             except queue.Empty:
-                if self._close.is_set():
+                if not self.open:
                     return
             else:
                 try:
@@ -201,13 +231,15 @@ class _TaskGroupNamespace(Protocol):
     error: BaseException | None
 
 
-class OwnedTaskGroup(TaskGroup[TaskGroupContextT], Generic[TaskGroupContextT]):
+class OwnedTaskGroup(TaskGroup[TaskGroupContextT], _OwnedBase[TaskGroup[TaskGroupContextT]], Generic[TaskGroupContextT]):
     def __init__(
         self,
         groups: _TaskGroups,
         logging_locale: str,
         context: TaskGroupContextT,
     ):
+        error = multiprocessing.Manager().Namespace()
+        error.error = None
         super().__init__(
             os.urandom(16),
             groups,
@@ -216,37 +248,23 @@ class OwnedTaskGroup(TaskGroup[TaskGroupContextT], Generic[TaskGroupContextT]):
             multiprocessing.Manager().Queue(),
             multiprocessing.Manager().Lock(),
             multiprocessing.Manager().list(),
-            multiprocessing.Manager().Namespace(),
+            error,
             multiprocessing.Manager().Event(),
             multiprocessing.Manager().Event(),
             multiprocessing.Manager().Event(),
         )
 
-    async def __aenter__(self) -> TaskGroup[TaskGroupContextT]:
-        await self.start()
-        return TaskGroup(*self.__reduce__()[1])
-
-    async def __aexit__(self, exc_type: type[Exception], exc_val: Exception, exc_tb: TracebackType) -> None:
-        if exc_val is not None:
-            await self.cancel()
-            self._error.error = serialize(exc_val)
-        await self.join()
-
     async def start(self) -> None:
-        self._assert_not_started()
-        self._start.set()
+        await super().start()
         self._groups[self._id] = self
 
-    async def join(self):
-        self._assert_started()
-        self._close.set()
-        self._start.clear()
-        del self._groups[self._id]
+    async def _close(self):
+        await super()._close()
         if self._error.error is not None:
             raise self._error.error
 
 
-class _TaskManager(_TaskContext):
+class _TaskManager(_Base):
     def __init__(
         self,
         logging_locale: str,
@@ -276,7 +294,7 @@ class _TaskManager(_TaskContext):
                 self._groups,
                 self._cancel,
                 self._start,
-                self._close,
+                self._finish,
             )
         )
 
@@ -305,7 +323,7 @@ class _TaskManager(_TaskContext):
         )
 
 
-class _OwnedTaskManager(_TaskManager):
+class _OwnedTaskManager(_TaskManager, _OwnedBase[_TaskManager]):
     _executor: Executor
 
     def __init__(self, concurrency: int, logging_locale: str):
@@ -320,16 +338,6 @@ class _OwnedTaskManager(_TaskManager):
         self._concurrency = concurrency
         self._join_workers = multiprocessing.Manager().Event()
 
-    async def __aenter__(self) -> _TaskManager:
-        await self.start()
-        return _TaskManager(*self.__reduce__()[1])
-
-    async def __aexit__(self, exc_type: type[Exception] | None, exc_val: Exception | None, exc_tb: TracebackType | None) -> None:
-        if exc_val is None:
-            await self.join()
-        else:
-            await self._join_unchecked()
-
     def _assert_not_busy(self) -> None:
         remaining_other_group_count = len(self._groups)
         if remaining_other_group_count:
@@ -338,17 +346,8 @@ class _OwnedTaskManager(_TaskManager):
     def _new_executor(self) -> Executor:
         raise NotImplementedError
 
-    async def cancel(self) -> None:
-        # @todo This may be problematic/.
-        # @todo If in another process, a reduced _TaskManager.cancel() is called, this then never propagates to the _OwnedTaskManager
-        # @todo
-        await super().cancel()
-        await self._join_unchecked()
-
     async def start(self) -> None:
-        self._assert_open()
-        self._assert_not_started()
-        self._start.set()
+        await super().start()
         self._join_workers.clear()
         self._executor = self._new_executor()
         for _ in range(0, self._concurrency):
@@ -358,12 +357,8 @@ class _OwnedTaskManager(_TaskManager):
                 self._join_workers,
             )))
 
-    async def join(self) -> None:
-        self._assert_started()
-        self._assert_not_busy()
-        await self._join_unchecked()
-
-    async def _join_unchecked(self) -> None:
+    async def _close(self) -> None:
+        await super()._close()
         self._join_workers.set()
         # @todo Must we cancel futures? We should only have as many workers (futures) as there are threads/processes in the pool.
         self._executor.shutdown(cancel_futures=True)

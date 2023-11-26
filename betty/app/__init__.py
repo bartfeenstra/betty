@@ -195,10 +195,10 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         print('EXITING APP..')
         if isinstance(self._thread_pool, ThreadPoolTaskManager):
             print('JOIN THREAD POOL')
-            await self._thread_pool.join()
+            await self._thread_pool.finish()
         if isinstance(self._process_pool, ProcessPoolTaskManager):
             print('JOIN PROCESS POOL')
-            await self._process_pool.join()
+            await self._process_pool.finish()
         del self.http_client
         self._started = False
 

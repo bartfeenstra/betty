@@ -12,7 +12,7 @@ from typing import Protocol, overload, cast, Literal, TypeAlias
 
 import pytest
 
-from betty.task import TaskGroup, TaskGroupContextT, TaskContextClosed, OwnedTaskGroup
+from betty.task import TaskGroup, TaskGroupContextT, TaskContextClosed, OwnedTaskGroup, TaskContextNotStarted
 
 
 async def task_success(group: TaskGroup[None], /, sentinel: threading.Event) -> None:
@@ -146,7 +146,7 @@ class TestTaskGroup:
             __owned_sut = sut
             sut = pickle.loads(pickle.dumps(sut))
 
-        sut._close.set()
+        sut._finish.set()
         with pytest.raises(TaskContextClosed):
             sut.delegate(task_error)
 
@@ -166,7 +166,7 @@ class TestTaskGroup:
         sut.delegate(task_success, sentinel1)
         sut.delegate(task_success, sentinel2)
         sut.delegate(task_success, sentinel3)
-        sut._close.set()
+        sut._finish.set()
         await sut.perform_tasks()
         assert sentinel1.is_set()
         assert sentinel2.is_set()
@@ -194,21 +194,25 @@ class TestTaskGroup:
         False,
     ])
     async def test_perform_tasks_with_error(self, pickled: bool) -> None:
-        sut = self._sut()
-        if pickled:
-            __owned_sut = sut
-            sut = pickle.loads(pickle.dumps(sut))
-
         sentinel1 = multiprocessing.Manager().Event()
         sentinel2 = multiprocessing.Manager().Event()
-        sut.delegate(task_success, sentinel1)
-        sut.delegate(task_error)
-        sut.delegate(task_success, sentinel2)
-        sut._start.set()
-        sut._close.set()
-        await sut.perform_tasks()
+        with pytest.raises(TaskTestError):
+            async with self._sut() as sut:
+                if pickled:
+                    __owned_sut = sut
+                    sut = pickle.loads(pickle.dumps(sut))
+
+                sut.delegate(task_success, sentinel1)
+                sut.delegate(task_error)
+                sut.delegate(task_success, sentinel2)
+                await sut.perform_tasks()
         assert sentinel1.is_set()
-        assert isinstance(sut._error.error, TaskTestError)
+
+    async def test_finish_when_not_started(self) -> None:
+        sut = self._sut()
+
+        with pytest.raises(TaskContextNotStarted):
+            await sut.finish()
 
 
 # class _TaskManagerTest:
