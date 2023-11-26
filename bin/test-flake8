@@ -6,4 +6,4 @@ cd "$(dirname "$0")/.."
 
 echo 'Running Flake8...'
 
-flake8 --config ./flake8.ini ./betty
+flake8 --config ./flake8.ini ./betty "$@"

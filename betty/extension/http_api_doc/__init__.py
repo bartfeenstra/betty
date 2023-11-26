@@ -10,9 +10,9 @@ from betty.app import App
 from betty.app.extension import Extension, UserFacingExtension
 from betty.cache import CacheScope
 from betty.extension.npm import _Npm, NpmBuilder
-from betty.generate import Generator, GenerationTaskGroupContext
+from betty.generate import Generator, GenerationTaskBatchContext
 from betty.locale import Localizer
-from betty.task import TaskGroup
+from betty.task import TaskBatch
 
 
 class _HttpApiDoc(UserFacingExtension, Generator, NpmBuilder):
@@ -29,7 +29,7 @@ class _HttpApiDoc(UserFacingExtension, Generator, NpmBuilder):
     def npm_cache_scope(cls) -> CacheScope:
         return CacheScope.BETTY
 
-    async def generate(self, group: TaskGroup[GenerationTaskGroupContext], app: App) -> None:
+    async def generate(self, batch: TaskBatch[GenerationTaskBatchContext], app: App) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
         await makedirs(self.app.static_www_directory_path, exist_ok=True)
         copy2(assets_directory_path / 'http-api-doc.js', self.app.static_www_directory_path / 'http-api-doc.js')

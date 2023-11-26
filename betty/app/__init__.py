@@ -31,7 +31,7 @@ from betty.project import Project
 from betty.render import Renderer, SequentialRenderer
 from betty.serde.dump import minimize, void_none, Dump, VoidableDump
 from betty.serde.load import AssertionFailed, Fields, Assertions, OptionalField, Asserter
-from betty.task import _TaskManager, ThreadPoolTaskManager, ProcessPoolTaskManager
+from betty.task import _TaskPool, ThreadTaskPool, ProcessTaskPool
 
 if TYPE_CHECKING:
     from betty.jinja2 import Environment
@@ -112,8 +112,8 @@ class AppConfiguration(FileBasedConfiguration):
 
 @final
 class App(Configurable[AppConfiguration], ReactiveInstance):
-    _thread_pool: _TaskManager
-    _process_pool: _TaskManager
+    _thread_pool: _TaskPool
+    _process_pool: _TaskPool
 
     def __init__(
         self,
@@ -149,8 +149,8 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         self._cache: Cache | None = None
         if shared_state is None:
             self._has_shared_state = False
-            self._thread_pool = ThreadPoolTaskManager(self.concurrency, self.locale)
-            self._process_pool = ProcessPoolTaskManager(self.concurrency, self.locale)
+            self._thread_pool = ThreadTaskPool(self.concurrency, self.locale)
+            self._process_pool = ProcessTaskPool(self.concurrency, self.locale)
         else:
             self._has_shared_state = True
             (
@@ -184,19 +184,19 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         if self._started:
             raise RuntimeError('This app has started already.')
         self._started = True
-        if isinstance(self._thread_pool, ThreadPoolTaskManager):
+        if isinstance(self._thread_pool, ThreadTaskPool):
             await self._thread_pool.start()
-        if isinstance(self._process_pool, ProcessPoolTaskManager):
+        if isinstance(self._process_pool, ProcessTaskPool):
             await self._process_pool.start()
         return self
 
     async def __aexit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
         # @todo Remove these print statements
         print('EXITING APP..')
-        if isinstance(self._thread_pool, ThreadPoolTaskManager):
+        if isinstance(self._thread_pool, ThreadTaskPool):
             print('JOIN THREAD POOL')
             await self._thread_pool.finish()
-        if isinstance(self._process_pool, ProcessPoolTaskManager):
+        if isinstance(self._process_pool, ProcessTaskPool):
             print('JOIN PROCESS POOL')
             await self._process_pool.finish()
         del self.http_client
@@ -376,11 +376,11 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         return lambda *args, **kwargs: JSONEncoder(self)  # type: ignore[return-value]
 
     @property
-    def thread_pool(self) -> _TaskManager:
+    def thread_pool(self) -> _TaskPool:
         return self._thread_pool
 
     @property
-    def process_pool(self) -> _TaskManager:
+    def process_pool(self) -> _TaskPool:
         return self._process_pool
 
     @property
@@ -478,6 +478,6 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
 
 
 _AppSharedState: TypeAlias = tuple[
-    _TaskManager,
-    _TaskManager,
+    _TaskPool,
+    _TaskPool,
 ]

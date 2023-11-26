@@ -16,7 +16,7 @@ from betty.asyncio import sync, gather
 from betty.error import serialize
 
 TaskP = ParamSpec('TaskP')
-TaskGroupContextT = TypeVar('TaskGroupContextT')
+TaskBatchContextT = TypeVar('TaskBatchContextT')
 _UnownedT = TypeVar('_UnownedT')
 
 
@@ -24,56 +24,63 @@ class TaskError:
     pass
 
 
-class TaskContextClosed(TaskError, RuntimeError):
+class TaskActivityClosed(TaskError, RuntimeError):
     def __init__(self):
-        super().__init__('This task context has closed already.')
+        super().__init__('This task activity has closed already.')
 
 
-class TaskContextNotStarted(TaskError, RuntimeError):
+class TaskActivityNotStarted(TaskError, RuntimeError):
     def __init__(self):
-        super().__init__('This task context has not yet started.')
+        super().__init__('This task activity has not yet started.')
 
 
-class TaskContextStarted(TaskError, RuntimeError):
+class TaskActivityStarted(TaskError, RuntimeError):
     def __init__(self):
-        super().__init__('This task context has started already.')
+        super().__init__('This task activity has started already.')
 
 
-class TaskManagerBusy(TaskError, RuntimeError):
-    def __init__(self, remaining_groups_count: int):
-        super().__init__(f'This task manager is still busy with {remaining_groups_count} task groups.')
+class TaskPoolBusy(TaskError, RuntimeError):
+    def __init__(self, remaining_batch_count: int):
+        super().__init__(f'This task pool is still busy with {remaining_batch_count} task batches.')
 
 
 Task: TypeAlias = tuple[
-    Callable[Concatenate['TaskGroup[TaskGroupContextT]', TaskP], Awaitable[None]],
+    Callable[Concatenate['TaskBatch[TaskBatchContextT]', TaskP], Awaitable[None]],
     TaskP.args,
     TaskP.kwargs,
 ]
 
 
-class _Base:
+class _TaskActivity:
     def __init__(
         self,
+        pool_batches: _TaskBatches,
+        pool_cancel: threading.Event,
         cancel: threading.Event,
         start: threading.Event,
         finish: threading.Event,
     ):
+        self._pool_batches = pool_batches
+        self._pool_cancel = pool_cancel
         self._cancel = cancel
         self._start = start
         self._finish = finish
 
     async def cancel(self) -> None:
-        self._finish.set()
         self._cancel.set()
         self._start.clear()
         await self._close()
 
     async def _close(self) -> None:
-        raise NotImplementedError
+        pass
 
     @property
     def cancelled(self) -> bool:
-        return self._cancel.is_set()
+        if self._cancel.is_set():
+            return True
+        if self._pool_cancel.is_set():
+            return True
+        return False
 
     @property
     def started(self) -> bool:
@@ -93,18 +100,18 @@ class _Base:
 
     def _assert_open(self) -> None:
         if not self.open:
-            raise TaskContextClosed
+            raise TaskActivityClosed
 
     def _assert_started(self) -> None:
         if not self.started:
-            raise TaskContextNotStarted()
+            raise TaskActivityNotStarted()
 
     def _assert_not_started(self) -> None:
         if self.started:
-            raise TaskContextStarted()
+            raise TaskActivityStarted()
 
 
-class _OwnedBase(_Base, Generic[_UnownedT]):
+class _OwnedTaskActivity(_TaskActivity, Generic[_UnownedT]):
     async def __aenter__(self) -> _UnownedT:
         await self.start()
         reduced = self.__reduce__()
@@ -130,24 +137,24 @@ class _OwnedBase(_Base, Generic[_UnownedT]):
         self._start.clear()
 
 
-class TaskGroup(_Base, Generic[TaskGroupContextT]):
+class TaskBatch(_TaskActivity, Generic[TaskBatchContextT]):
     def __init__(
         self,
-        group_id: bytes,
-        groups: _TaskGroups,
+        batch_id: bytes,
+        pool_batches: _TaskBatches,
+        pool_cancel: threading.Event,
         logging_locale: str,
-        context: TaskGroupContextT,
-        task_queue: queue.Queue[Task[TaskGroupContextT, Any]],
+        context: TaskBatchContextT,
+        task_queue: queue.Queue[Task[TaskBatchContextT, Any]],
         claims_lock: threading.Lock,
         claimed_task_ids: MutableSequence[bytes],
-        error: _TaskGroupNamespace,
+        error: _TaskBatchNamespace,
         cancel: threading.Event,
         start: threading.Event,
         finish: threading.Event,
     ):
-        super().__init__(cancel, start, finish)
-        self._id = group_id
-        self._groups = groups
+        super().__init__(pool_batches, pool_cancel, cancel, start, finish)
+        self._id = batch_id
         self._logging_locale = logging_locale
         self._context = context
         self._task_queue = task_queue
@@ -156,9 +163,10 @@ class TaskGroup(_Base, Generic[TaskGroupContextT]):
         self._error = error
 
     def __reduce__(self) -> Any:
-        return TaskGroup, (
+        return TaskBatch, (
             self._id,
-            self._groups,
+            self._pool_batches,
+            self._pool_cancel,
             self._logging_locale,
             self._context,
             self._task_queue,
@@ -171,7 +179,7 @@ class TaskGroup(_Base, Generic[TaskGroupContextT]):
         )
 
     @property
-    def context(self) -> TaskGroupContextT:
+    def context(self) -> TaskBatchContextT:
         return self._context
 
     @property
@@ -190,13 +198,13 @@ class TaskGroup(_Base, Generic[TaskGroupContextT]):
             return True
 
     async def _close(self) -> None:
-        # A group may be cancelled before it is started, and thus before it is added to the groups registry.
+        # A batch may be cancelled before it is started, and thus before it is added to the batches registry.
         with suppress(KeyError):
-            del self._groups[self._id]
+            del self._pool_batches[self._id]
 
     def delegate(
         self,
-        callable: Callable[Concatenate[TaskGroup[TaskGroupContextT], TaskP], Awaitable[None]],
+        callable: Callable[Concatenate[TaskBatch[TaskBatchContextT], TaskP], Awaitable[None]],
         *args: TaskP.args,
         **kwargs: TaskP.kwargs,
     ) -> None:
@@ -205,6 +213,9 @@ class TaskGroup(_Base, Generic[TaskGroupContextT]):
 
     async def perform_tasks(self) -> None:
         while not self.cancelled:
+            if self._pool_cancel.is_set():
+                await self.cancel()
+                return
             try:
                 callable, args, kwargs = self._task_queue.get_nowait()
             except queue.Empty:
@@ -224,25 +235,27 @@ class TaskGroup(_Base, Generic[TaskGroupContextT]):
                 del callable, args, kwargs
 
 
-_TaskGroups: TypeAlias = MutableMapping[bytes, TaskGroup[Any]]
+_TaskBatches: TypeAlias = MutableMapping[bytes, TaskBatch[Any]]
 
 
-class _TaskGroupNamespace(Protocol):
+class _TaskBatchNamespace(Protocol):
     error: BaseException | None
 
 
-class OwnedTaskGroup(TaskGroup[TaskGroupContextT], _OwnedBase[TaskGroup[TaskGroupContextT]], Generic[TaskGroupContextT]):
+class OwnedTaskBatch(TaskBatch[TaskBatchContextT], _OwnedTaskActivity[TaskBatch[TaskBatchContextT]], Generic[TaskBatchContextT]):
     def __init__(
         self,
-        groups: _TaskGroups,
+        pool_batches: _TaskBatches,
+        pool_cancel: threading.Event,
         logging_locale: str,
-        context: TaskGroupContextT,
+        context: TaskBatchContextT,
     ):
         error = multiprocessing.Manager().Namespace()
         error.error = None
         super().__init__(
             os.urandom(16),
-            groups,
+            pool_batches,
+            pool_cancel,
             logging_locale,
             context,
             multiprocessing.Manager().Queue(),
@@ -256,7 +269,7 @@ class OwnedTaskGroup(TaskGroup[TaskGroupContextT], _OwnedBase[TaskGroup[TaskGrou
 
     async def start(self) -> None:
         await super().start()
-        self._groups[self._id] = self
+        self._pool_batches[self._id] = self
 
     async def _close(self):
         await super()._close()
@@ -264,66 +277,65 @@ class OwnedTaskGroup(TaskGroup[TaskGroupContextT], _OwnedBase[TaskGroup[TaskGrou
             raise self._error.error
 
 
-class _TaskManager(_Base):
+class _TaskPool(_TaskActivity):
     def __init__(
         self,
         logging_locale: str,
-        groups: _TaskGroups,
+        pool_batches: _TaskBatches,
+        pool_cancel: threading.Event,
         cancel: threading.Event,
         start: threading.Event,
         finish: threading.Event,
     ):
-        super().__init__(cancel, start, finish)
+        super().__init__(pool_batches, pool_cancel, cancel, start, finish)
         self._logging_locale = logging_locale
-        self._groups = groups
 
     def __reduce__(self) -> tuple[
-        type[_TaskManager],
+        type[_TaskPool],
         tuple[
             str,
-            _TaskGroups,
+            _TaskBatches,
+            threading.Event,
             threading.Event,
             threading.Event,
             threading.Event,
         ],
     ]:
         return (
-            _TaskManager,
+            _TaskPool,
             (
                 self._logging_locale,
-                self._groups,
+                self._pool_batches,
+                self._pool_cancel,
                 self._cancel,
                 self._start,
                 self._finish,
             )
         )
 
-    async def cancel(self) -> None:
-        await super().cancel()
-        await gather(*(
-            group.cancel()
-            for group
-            in self._groups.values()
-        ))
+    async def _close(self) -> None:
+        await super()._close()
+        self._pool_cancel.set()
 
     @overload
-    def group(self) -> OwnedTaskGroup[None]:
+    def batch(self) -> OwnedTaskBatch[None]:
         pass
 
     @overload
-    def group(self, context: TaskGroupContextT) -> OwnedTaskGroup[TaskGroupContextT]:
+    def batch(self, context: TaskBatchContextT) -> OwnedTaskBatch[TaskBatchContextT]:
         pass
 
-    def group(self, context: Any = None):
+    def batch(self, context: Any = None):
         self._assert_open()
-        return OwnedTaskGroup(
-            self._groups,
+        return OwnedTaskBatch(
+            self._pool_batches,
+            self._pool_cancel,
             self._logging_locale,
             context,
         )
 
 
-class _OwnedTaskManager(_TaskManager, _OwnedBase[_TaskManager]):
+class _OwnedTaskPool(_TaskPool, _OwnedTaskActivity[_TaskPool]):
     _executor: Executor
 
     def __init__(self, concurrency: int, logging_locale: str):
@@ -333,15 +345,16 @@ class _OwnedTaskManager(_TaskManager, _OwnedBase[_TaskManager]):
             multiprocessing.Manager().Event(),
             multiprocessing.Manager().Event(),
             multiprocessing.Manager().Event(),
+            multiprocessing.Manager().Event(),
         )
         self._workers: list[Future[None]] = []
         self._concurrency = concurrency
         self._join_workers = multiprocessing.Manager().Event()
 
     def _assert_not_busy(self) -> None:
-        remaining_other_group_count = len(self._groups)
-        if remaining_other_group_count:
-            raise TaskManagerBusy(remaining_other_group_count)
+        remaining_other_batch_count = len(self._pool_batches)
+        if remaining_other_batch_count:
+            raise TaskPoolBusy(remaining_other_batch_count)
 
     def _new_executor(self) -> Executor:
         raise NotImplementedError
@@ -352,28 +365,39 @@ class _OwnedTaskManager(_TaskManager, _OwnedBase[_TaskManager]):
         self._executor = self._new_executor()
         for _ in range(0, self._concurrency):
             self._workers.append(self._executor.submit(_Worker(
-                self._groups,
+                self._pool_batches,
+                self._pool_cancel,
                 self._concurrency,
-                self._join_workers,
             )))
 
     async def _close(self) -> None:
         await super()._close()
+        # @todo We cannot do this here in the owned pool.
+        # @todo Instead, perhaps spin up a maintenance thread that waits until the pool_cancel event is set,
+        # @todo then performs the actual pool closure work?
+        # @todo
+        # @todo
+        # @todo
         self._join_workers.set()
         # @todo Must we cancel futures? We should only have as many workers (futures) as there are threads/processes in the pool.
-        self._executor.shutdown(cancel_futures=True)
-        del self._executor
+        try:
+            executor = self._executor
+        except AttributeError:
+            pass
+        else:
+            executor.shutdown(cancel_futures=True)
+            del self._executor
         self._start.clear()
         for worker in as_completed(self._workers):
             worker.result()
 
 
-class ThreadPoolTaskManager(_OwnedTaskManager):
+class ThreadTaskPool(_OwnedTaskPool):
     def _new_executor(self) -> Executor:
         return ThreadPoolExecutor(max_workers=self._concurrency)
 
 
-class ProcessPoolTaskManager(_OwnedTaskManager):
+class ProcessTaskPool(_OwnedTaskPool):
     def _new_executor(self) -> Executor:
         return ProcessPoolExecutor(max_workers=self._concurrency)
 
@@ -381,13 +405,13 @@ class ProcessPoolTaskManager(_OwnedTaskManager):
 class _Worker:
     def __init__(
         self,
-        groups: _TaskGroups,
+        pool_batches: _TaskBatches,
+        pool_cancel: threading.Event,
         async_concurrency: int,
-        join_workers: threading.Event,
     ):
-        self._groups = groups
+        self._pool_batches = pool_batches
+        self._pool_cancel = pool_cancel
         self._async_concurrency = async_concurrency
-        self._join_workers = join_workers
 
     @sync
     async def __call__(self) -> None:
@@ -397,8 +421,8 @@ class _Worker:
         ))
 
     async def _perform_tasks(self) -> None:
-        while not self._join_workers.is_set():
-            for group in [*self._groups.values()]:
-                await group.perform_tasks()
-            # New groups may take a while to be started or won't be started at all, so free some memory.
-            del group
+        while not self._pool_cancel.is_set():
+            for batch in [*self._pool_batches.values()]:
+                await batch.perform_tasks()
+            # New batches may take a while to be started or won't be started at all, so free some memory.
+            del batch

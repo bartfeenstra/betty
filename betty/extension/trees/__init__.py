@@ -11,10 +11,10 @@ from betty.app import App
 from betty.app.extension import Extension, UserFacingExtension
 from betty.cache import CacheScope
 from betty.extension.npm import _Npm, NpmBuilder, npm
-from betty.generate import Generator, GenerationTaskGroupContext
+from betty.generate import Generator, GenerationTaskBatchContext
 from betty.html import CssProvider, JsProvider
 from betty.locale import Localizer
-from betty.task import TaskGroup
+from betty.task import TaskBatch
 
 
 class _Trees(UserFacingExtension, CssProvider, JsProvider, Generator, NpmBuilder):
@@ -37,7 +37,7 @@ class _Trees(UserFacingExtension, CssProvider, JsProvider, Generator, NpmBuilder
     def npm_cache_scope(cls) -> CacheScope:
         return CacheScope.BETTY
 
-    async def generate(self, group: TaskGroup[GenerationTaskGroupContext], app: App) -> None:
+    async def generate(self, batch: TaskBatch[GenerationTaskBatchContext], app: App) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
         await self._copy_npm_build(assets_directory_path, self.app.static_www_directory_path)
 
