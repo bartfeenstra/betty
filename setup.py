@@ -43,7 +43,7 @@ SETUP = {
     'python_requires': '~= 3.11',
     'install_requires': [
         'aiofiles ~= 23.2, >= 23.2.1',
-        'aiohttp == 3.9.0b0',
+        'aiohttp ~= 3.9',
         'babel ~= 2.12, >= 2.12.0',
         'click ~= 8.1, >= 8.1.2',
         'dill ~= 0.3, >= 0.3.6',
@@ -62,7 +62,7 @@ SETUP = {
     ],
     'extras_require': {
         'development': [
-            'aioresponses ~= 0.7, >= 0.7.3',
+            'aioresponses ~= 0.7, >= 0.7.6',
             'autopep8 ~= 2.0, >= 2.0.2',
             'basedmypy ~= 2.0, >= 2.0.0',
             'codecov ~= 2.1, >= 2.1.12',
