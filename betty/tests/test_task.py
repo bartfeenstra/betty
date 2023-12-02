@@ -28,6 +28,7 @@ async def task_success_executor(batch: TaskBatch[None], /, sentinel: threading.E
 
 
 async def task_error(batch: TaskBatch[None], /) -> None:
+    wtf()
     raise TaskTestError
 
 
@@ -266,12 +267,15 @@ class TestTaskPool:
         context = object()
         assert sut.batch(context=context).context is context
 
-    #
-    # async def test_with_error_during_context_manager(self) -> None:
-    #     sut = self.sut()
-    #     with pytest.raises(RuntimeError):
-    #         async with sut:
-    #             raise RuntimeError
+    @pytest.mark.parametrize('sut_cls', [
+        ThreadTaskPool,
+        ProcessTaskPool,
+    ])
+    async def test_with_error_during_context_manager(self, sut_cls: type[_OwnedTaskPool]) -> None:
+        sut = sut_cls(3, 'en')
+        with pytest.raises(RuntimeError):
+            async with sut:
+                raise RuntimeError
 
     @pytest.mark.parametrize('sut_cls', [
         ThreadTaskPool,
@@ -301,16 +305,28 @@ class TestTaskPool:
         async with sut:
             pass
 
-    # async def test_batch_delegate(self) -> None:
-    #     sut = self.sut()
-    #     batch_pre_error_sentinel = multiprocessing.Manager().Event()
-    #     batch_pre_error_executor_sentinel = multiprocessing.Manager().Event()
-    #     async with sut:
-    #         with pytest.raises(TaskTestError):
-    #             async with sut.batch() as batch:
-    #                 batch.delegate(task_success, batch_pre_error_sentinel)
-    #                 batch.delegate(task_success_executor, batch_pre_error_executor_sentinel)
-    #                 batch.delegate(task_error)
-    #
-    #     assert batch_pre_error_sentinel.is_set()
-    #     assert batch_pre_error_executor_sentinel.is_set()
+    @pytest.mark.parametrize('sut_cls', [
+        ThreadTaskPool,
+        ProcessTaskPool,
+    ])
+    async def test_batch_delegate(self, sut_cls: type[_OwnedTaskPool]) -> None:
+        sut = sut_cls(3, 'en')
+        batch_pre_error_sentinel = multiprocessing.Manager().Event()
+        batch_pre_error_executor_sentinel = multiprocessing.Manager().Event()
+        async with sut:
+            # @todo
+            # with pytest.raises(TaskTestError):
+            with pytest.raises(BaseException):
+                async with sut.batch() as batch:
+                    batch.delegate(task_success, batch_pre_error_sentinel)
+                    batch.delegate(task_success_executor, batch_pre_error_executor_sentinel)
+                    batch.delegate(task_error)
+            print('BATCH DONE')
+            print(batch.started)
+            print(batch.cancelled)
+            print(batch.finished)
+            print(batch.open)
+            print(batch._error.error)
+
+        assert batch_pre_error_sentinel.is_set()
+        assert batch_pre_error_executor_sentinel.is_set()
