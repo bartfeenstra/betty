@@ -39,11 +39,6 @@ class TaskActivityStarted(TaskError, RuntimeError):
         super().__init__('This task activity has started already.')
 
 
-class TaskPoolBusy(TaskError, RuntimeError):
-    def __init__(self, remaining_batch_count: int):
-        super().__init__(f'This task pool is still busy with {remaining_batch_count} task batches.')
-
-
 Task: TypeAlias = tuple[
     Callable[Concatenate['TaskBatch[TaskBatchContextT]', TaskP], Awaitable[None]],
     TaskP.args,
@@ -68,11 +63,7 @@ class _TaskActivity:
 
     async def cancel(self) -> None:
         self._cancel.set()
-        self._start.clear()
         await self._close()
-
-    async def _close(self) -> None:
-        pass
 
     @property
     def cancelled(self) -> bool:
@@ -132,9 +123,6 @@ class _OwnedTaskActivity(_TaskActivity, Generic[_UnownedT]):
             self._assert_started()
         self._finish.set()
         await self._close()
-
-    async def _close(self):
-        self._start.clear()
 
 
 class TaskBatch(_TaskActivity, Generic[TaskBatchContextT]):
@@ -198,6 +186,7 @@ class TaskBatch(_TaskActivity, Generic[TaskBatchContextT]):
             return True
 
     async def _close(self) -> None:
+        await super()._close()
         # A batch may be cancelled before it is started, and thus before it is added to the batches registry.
         with suppress(KeyError):
             del self._pool_batches[self._id]
@@ -283,18 +272,21 @@ class _TaskPool(_TaskActivity):
         logging_locale: str,
         pool_batches: _TaskBatches,
         pool_cancel: threading.Event,
+        join_workers: threading.Event,
         cancel: threading.Event,
         start: threading.Event,
         finish: threading.Event,
     ):
         super().__init__(pool_batches, pool_cancel, cancel, start, finish)
         self._logging_locale = logging_locale
+        self._join_workers = join_workers
 
     def __reduce__(self) -> tuple[
         type[_TaskPool],
         tuple[
             str,
             _TaskBatches,
+            threading.Event,
             threading.Event,
             threading.Event,
             threading.Event,
@@ -307,15 +299,20 @@ class _TaskPool(_TaskActivity):
                 self._logging_locale,
                 self._pool_batches,
                 self._pool_cancel,
+                self._join_workers,
                 self._cancel,
                 self._start,
                 self._finish,
             )
         )
 
+    async def cancel(self) -> None:
+        self._pool_cancel.set()
+        await super().cancel()
+
     async def _close(self) -> None:
         await super()._close()
-        self._pool_cancel.set()
+        self._join_workers.set()
 
     @overload
     def batch(self) -> OwnedTaskBatch[None]:
@@ -346,27 +343,25 @@ class _OwnedTaskPool(_TaskPool, _OwnedTaskActivity[_TaskPool]):
             multiprocessing.Manager().Event(),
             multiprocessing.Manager().Event(),
             multiprocessing.Manager().Event(),
+            multiprocessing.Manager().Event(),
         )
         self._workers: list[Future[None]] = []
         self._concurrency = concurrency
-        self._join_workers = multiprocessing.Manager().Event()
-
-    def _assert_not_busy(self) -> None:
-        remaining_other_batch_count = len(self._pool_batches)
-        if remaining_other_batch_count:
-            raise TaskPoolBusy(remaining_other_batch_count)
 
     def _new_executor(self) -> Executor:
         raise NotImplementedError
 
+    async def cancel(self) -> None:
+        self._pool_cancel.set()
+        await super().cancel()
+
     async def start(self) -> None:
         await super().start()
-        self._join_workers.clear()
         self._executor = self._new_executor()
         for _ in range(0, self._concurrency):
             self._workers.append(self._executor.submit(_Worker(
                 self._pool_batches,
-                self._pool_cancel,
+                self._join_workers,
                 self._concurrency,
             )))
 
@@ -378,7 +373,6 @@ class _OwnedTaskPool(_TaskPool, _OwnedTaskActivity[_TaskPool]):
         # @todo
         # @todo
         # @todo
-        self._join_workers.set()
         # @todo Must we cancel futures? We should only have as many workers (futures) as there are threads/processes in the pool.
         try:
             executor = self._executor
@@ -387,7 +381,7 @@ class _OwnedTaskPool(_TaskPool, _OwnedTaskActivity[_TaskPool]):
         else:
             executor.shutdown(cancel_futures=True)
             del self._executor
-        self._start.clear()
+        # @todo We only need to check for these futures in the owned pool
         for worker in as_completed(self._workers):
             worker.result()
 
@@ -406,11 +400,11 @@ class _Worker:
     def __init__(
         self,
         pool_batches: _TaskBatches,
-        pool_cancel: threading.Event,
+        join_workers: threading.Event,
         async_concurrency: int,
     ):
         self._pool_batches = pool_batches
-        self._pool_cancel = pool_cancel
+        self._join_workers = join_workers
         self._async_concurrency = async_concurrency
 
     @sync
@@ -421,8 +415,8 @@ class _Worker:
         ))
 
     async def _perform_tasks(self) -> None:
-        while not self._pool_cancel.is_set():
+        while not self._join_workers.is_set():
             for batch in [*self._pool_batches.values()]:
                 await batch.perform_tasks()
-            # New batches may take a while to be started or won't be started at all, so free some memory.
-            del batch
+                # New batches may take a while to be started or won't be started at all, so free some memory.
+                del batch

@@ -11,7 +11,7 @@ import pytest
 
 from betty.asyncio import wait
 from betty.task import TaskBatch, TaskBatchContextT, TaskActivityClosed, OwnedTaskBatch, TaskActivityNotStarted, \
-    ThreadTaskPool, ProcessTaskPool, _OwnedTaskPool, _TaskPool
+    ThreadTaskPool, ProcessTaskPool, _OwnedTaskPool, _TaskPool, TaskActivityStarted
 
 
 async def task_success(batch: TaskBatch[None], /, sentinel: threading.Event) -> None:
@@ -184,7 +184,10 @@ class TestTaskBatch:
         for _ in range(0, 999):
             sut.delegate(task_success, sentinel)
         with ThreadPoolExecutor() as executor:
-            executor.submit(wait, sut.perform_tasks())
+            executor.submit(
+                wait,  # type: ignore[arg-type]
+                sut.perform_tasks(),
+            )
             await sut.cancel()
 
     @pytest.mark.parametrize('pickled', [
@@ -213,7 +216,7 @@ class TestTaskBatch:
             await sut.finish()
 
 
-class _TaskPoolTest:
+class TestTaskPool:
     @pytest.mark.parametrize('pickled, sut_cls', [
         (True, ThreadTaskPool),
         (True, ProcessTaskPool),
@@ -243,10 +246,6 @@ class _TaskPoolTest:
             sut = pickle.loads(pickle.dumps(sut))
 
         batch = sut.batch()
-        # @todo It's the batches that determine whether they start or cancel or finish
-        # @todo However, if the pool is cancelled, so should batches
-        # @todo However, batches only register themselves when started.....
-        # @todo
         await sut.cancel()
         assert sut.cancelled
         assert batch.cancelled
@@ -268,66 +267,50 @@ class _TaskPoolTest:
         assert sut.batch(context=context).context is context
 
     #
-    # _sut_cls: ClassVar[type[_OwnedTaskPool]]
-    #
-    # def sut(self) -> _OwnedTaskPool:
-    #     return self._sut_cls(3, 'en')
-    #
-    # async def test_pickle(self) -> None:
-    #     sut = self.sut()
-    #     async with sut:
-    #         pickle.loads(pickle.dumps(sut))
-    #
     # async def test_with_error_during_context_manager(self) -> None:
     #     sut = self.sut()
     #     with pytest.raises(RuntimeError):
     #         async with sut:
     #             raise RuntimeError
-    #
-    # async def test_start(self) -> None:
+
+    @pytest.mark.parametrize('sut_cls', [
+        ThreadTaskPool,
+        ProcessTaskPool,
+    ])
+    async def test_start_when_started(self, sut_cls: type[_OwnedTaskPool]) -> None:
+        sut = sut_cls(3, 'en')
+        async with sut:
+            with pytest.raises(TaskActivityStarted):
+                await sut.start()
+
+    @pytest.mark.parametrize('sut_cls', [
+        ThreadTaskPool,
+        ProcessTaskPool,
+    ])
+    async def test_finish_when_not_started(self, sut_cls: type[_OwnedTaskPool]) -> None:
+        sut = sut_cls(3, 'en')
+        with pytest.raises(TaskActivityNotStarted):
+            await sut.finish()
+
+    @pytest.mark.parametrize('sut_cls', [
+        ThreadTaskPool,
+        ProcessTaskPool,
+    ])
+    async def test_start_and_finish_without_batches(self, sut_cls: type[_OwnedTaskPool]) -> None:
+        sut = sut_cls(3, 'en')
+        async with sut:
+            pass
+
+    # async def test_batch_delegate(self) -> None:
     #     sut = self.sut()
-    #     await sut.start()
-    #     try:
-    #         with pytest.raises(TaskPoolStarted):
-    #             await sut.start()
-    #     finally:
-    #         await sut.join()
-    #
-    # async def test_join_not_started(self) -> None:
-    #     sut = self.sut()
-    #     with pytest.raises(TaskPoolNotStarted):
-    #         await sut.join()
-    #
-    # async def test_join_is_busy(self) -> None:
-    #     sut = self.sut()
-    #     async with sut:
-    #         async with sut.group():
-    #             with pytest.raises(TaskPoolBusy):
-    #                 await sut.join()
-    #
-    # async def test_join_without_tasks(self) -> None:
-    #     sut = self.sut()
-    #     async with sut:
-    #         pass
-    #
-    # async def test_group_delegate(self) -> None:
-    #     sut = self.sut()
-    #     group_pre_error_sentinel = multiprocessing.Manager().Event()
-    #     group_pre_error_executor_sentinel = multiprocessing.Manager().Event()
+    #     batch_pre_error_sentinel = multiprocessing.Manager().Event()
+    #     batch_pre_error_executor_sentinel = multiprocessing.Manager().Event()
     #     async with sut:
     #         with pytest.raises(TaskTestError):
-    #             async with sut.group() as group:
-    #                 group.delegate(task_success, group_pre_error_sentinel)
-    #                 group.delegate(task_success_executor, group_pre_error_executor_sentinel)
-    #                 group.delegate(task_error)
+    #             async with sut.batch() as batch:
+    #                 batch.delegate(task_success, batch_pre_error_sentinel)
+    #                 batch.delegate(task_success_executor, batch_pre_error_executor_sentinel)
+    #                 batch.delegate(task_error)
     #
-    #     assert group_pre_error_sentinel.is_set()
-    #     assert group_pre_error_executor_sentinel.is_set()
-
-
-class TestThreadTaskPool(_TaskPoolTest):
-    _sut_cls = ThreadTaskPool
-
-
-class TestProcessTaskPool(_TaskPoolTest):
-    _sut_cls = ProcessTaskPool
+    #     assert batch_pre_error_sentinel.is_set()
+    #     assert batch_pre_error_executor_sentinel.is_set()
