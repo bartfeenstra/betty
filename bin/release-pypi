@@ -31,8 +31,8 @@ fi
 git checkout -b "$RELEASE_BRANCH"
 
 # Commit the release to Git.
-echo "$RELEASE_VERSION" > ./betty/assets/RELEASE_VERSION
-git add ./betty/assets/RELEASE_VERSION
+echo "$RELEASE_VERSION" > ./betty/assets/VERSION
+git add ./betty/assets/VERSION
 git commit -m "Release version $RELEASE_VERSION."
 git tag "$RELEASE_VERSION"
 
