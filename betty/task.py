@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import asyncio
 import multiprocessing
 import os
 import queue
 import threading
 from collections.abc import MutableSequence, MutableMapping
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, Future, Executor, as_completed
+from contextlib import suppress
 from types import TracebackType
 from typing import Generic, Callable, Awaitable, Any, overload, TypeVar, Protocol
 
@@ -29,14 +29,9 @@ class TaskActivityClosed(TaskError, RuntimeError):
         super().__init__('This task activity has closed already.')
 
 
-class TaskActivityNotStarted(TaskError, RuntimeError):
-    def __init__(self):
-        super().__init__('This task activity has not yet started.')
-
-
-class TaskActivityStarted(TaskError, RuntimeError):
-    def __init__(self):
-        super().__init__('This task activity has started already.')
+class TaskPoolBusy(TaskError, RuntimeError):
+    def __init__(self, remaining_batch_count: int):
+        super().__init__(f'This task pool is still busy with {remaining_batch_count} task batches.')
 
 
 Task: TypeAlias = tuple[
@@ -49,92 +44,65 @@ Task: TypeAlias = tuple[
 class _TaskActivity:
     def __init__(
         self,
-        pool_batches: _TaskBatches,
-        pool_cancel: threading.Event,
+        batches: _TaskBatches,
         cancel: threading.Event,
-        start: threading.Event,
         finish: threading.Event,
+        joined: threading.Event,
     ):
-        self._pool_batches = pool_batches
-        self._pool_cancel = pool_cancel
+        self._batches = batches
         self._cancel = cancel
-        self._start = start
         self._finish = finish
+        self._joined = joined
 
     async def cancel(self) -> None:
         self._cancel.set()
-        await self._close()
+        self._join()
 
-    async def _close(self) -> None:
-        pass
+    def _join(self) -> None:
+        self._joined.set()
 
+    # @todo Do we need all these properties still?
     @property
     def cancelled(self) -> bool:
-        if self._cancel.is_set():
-            return True
-        if self._pool_cancel.is_set():
-            return True
-        return False
-
-    @property
-    def started(self) -> bool:
-        return self._start.is_set()
+        return self._cancel.is_set()
 
     @property
     def finished(self) -> bool:
         return self._finish.is_set()
 
     @property
-    def open(self) -> bool:
-        if self.cancelled:
-            return False
-        if self.finished:
-            return False
-        return True
+    def closed(self) -> bool:
+        return self.cancelled or self.finished
 
-    def _assert_open(self) -> None:
-        if not self.open:
+    @property
+    def joined(self) -> bool:
+        return self._joined.is_set()
+
+    def _assert_not_closed(self) -> None:
+        if self.closed:
             raise TaskActivityClosed
-
-    def _assert_started(self) -> None:
-        if not self.started:
-            raise TaskActivityNotStarted()
-
-    def _assert_not_started(self) -> None:
-        if self.started:
-            raise TaskActivityStarted()
 
 
 class _OwnedTaskActivity(_TaskActivity, Generic[_UnownedT]):
     async def __aenter__(self) -> _UnownedT:
-        await self.start()
         reduced = self.__reduce__()
         return reduced[0](*reduced[1])  # type: ignore[no-any-return, operator]
 
     async def __aexit__(self, exc_type: type[Exception], exc_val: Exception, exc_tb: TracebackType) -> None:
-        if exc_val is not None:
-            await self.cancel()
-        await self.finish()
+        if exc_val is None:
+            await self.finish()
+        await self.cancel()
 
-    async def start(self) -> None:
-        self._assert_open()
-        self._assert_not_started()
-        self._start.set()
-
-    async def finish(self):
-        print(f'FINISH {self}')
-        if not self.cancelled:
-            self._assert_started()
+    async def finish(self) -> None:
         self._finish.set()
-        await self._close()
+        self._joined.wait()
 
 
 class TaskBatch(_TaskActivity, Generic[TaskBatchContextT]):
     def __init__(
         self,
         batch_id: bytes,
-        pool_batches: _TaskBatches,
-        pool_cancel: threading.Event,
+        batches: _TaskBatches,
         logging_locale: str,
         context: TaskBatchContextT,
         task_queue: queue.Queue[Task[TaskBatchContextT, Any]],
@@ -142,10 +110,10 @@ class TaskBatch(_TaskActivity, Generic[TaskBatchContextT]):
         claimed_task_ids: MutableSequence[bytes],
         error: _TaskBatchNamespace,
         cancel: threading.Event,
-        start: threading.Event,
         finish: threading.Event,
+        joined: threading.Event,
     ):
-        super().__init__(pool_batches, pool_cancel, cancel, start, finish)
+        super().__init__(batches, cancel, finish, joined)
         self._id = batch_id
         self._logging_locale = logging_locale
         self._context = context
@@ -157,8 +125,7 @@ class TaskBatch(_TaskActivity, Generic[TaskBatchContextT]):
     def __reduce__(self) -> Any:
         return TaskBatch, (
             self._id,
-            self._pool_batches,
-            self._pool_cancel,
+            self._batches,
             self._logging_locale,
             self._context,
             self._task_queue,
@@ -166,9 +133,14 @@ class TaskBatch(_TaskActivity, Generic[TaskBatchContextT]):
             self._claimed_task_ids,
             self._error,
             self._cancel,
-            self._start,
             self._finish,
+            self._joined,
         )
+
+    def _join(self) -> None:
+        super()._join()
+        with suppress(KeyError):
+            del self._batches[self._id]
 
     @property
     def context(self) -> TaskBatchContextT:
@@ -189,41 +161,23 @@ class TaskBatch(_TaskActivity, Generic[TaskBatchContextT]):
             self._claimed_task_ids.append(task_id_bytes)
             return True
 
-    async def _close(self) -> None:
-        await super()._close()
-        # @todo This is called from finish(), which is on the owning side. But that doesn't know if and when the queue is empty
-        # @todo Unregistering the batch should be done during perform_tasks(), so we can check
-        # @todo whether:
-        # @todo - the queue is empty
-        # @todo - the finish event is set
-        # @todo
-        # @todo
-        try:
-            del self._pool_batches[self._id]
-        except KeyError:
-            # A batch may be cancelled before it is started, and thus before it is added to the batch registry.
-            if not self.cancelled:
-                raise
-
     def delegate(
         self,
         callable: Callable[Concatenate[TaskBatch[TaskBatchContextT], TaskP], Awaitable[None]],
         *args: TaskP.args,
         **kwargs: TaskP.kwargs,
     ) -> None:
-        self._assert_open()
+        self._assert_not_closed()
         self._task_queue.put((callable, args, kwargs))
 
     async def perform_tasks(self) -> None:
-        while not self.cancelled:
-            if self._pool_cancel.is_set():
-                await self.cancel()
-                return
+        while not self.joined:
             try:
                 callable, args, kwargs = self._task_queue.get_nowait()
             except queue.Empty:
-                if not self.open:
-                    return
+                if self.closed:
+                    self._join()
+                return
             else:
                 try:
                     await callable(
@@ -248,8 +202,7 @@ class _TaskBatchNamespace(Protocol):
 class OwnedTaskBatch(TaskBatch[TaskBatchContextT], _OwnedTaskActivity[TaskBatch[TaskBatchContextT]], Generic[TaskBatchContextT]):
     def __init__(
         self,
-        pool_batches: _TaskBatches,
-        pool_cancel: threading.Event,
+        batches: _TaskBatches,
         logging_locale: str,
         context: TaskBatchContextT,
     ):
@@ -257,8 +210,7 @@ class OwnedTaskBatch(TaskBatch[TaskBatchContextT], _OwnedTaskActivity[TaskBatch[
         error.error = None
         super().__init__(
             os.urandom(16),
-            pool_batches,
-            pool_cancel,
+            batches,
             logging_locale,
             context,
             multiprocessing.Manager().Queue(),
@@ -269,22 +221,13 @@ class OwnedTaskBatch(TaskBatch[TaskBatchContextT], _OwnedTaskActivity[TaskBatch[
             multiprocessing.Manager().Event(),
             multiprocessing.Manager().Event(),
         )
+        self._register()
 
-    async def __aexit__(self, exc_type: type[Exception], exc_val: Exception, exc_tb: TracebackType) -> None:
-        if exc_val is not None:
-            self._error.error = serialize(exc_val)
-        await super().__aexit__(exc_type, exc_val, exc_tb)
+    def _register(self) -> None:
+        self._batches[self._id] = self
 
-    async def start(self) -> None:
-        await super().start()
-        self._pool_batches[self._id] = self
-
-    async def _close(self):
-        await super()._close()
-        print('OWNED BATCH CLOSE')
-        # @todo What happens when we sleep that makes the error available?
-        # await asyncio.sleep(3)
-        print(self._error.error)
+    async def finish(self) -> None:
+        await super().finish()
         if self._error.error is not None:
             raise self._error.error
 
@@ -293,12 +236,12 @@ class _TaskPool(_TaskActivity):
     def __init__(
         self,
         logging_locale: str,
-        pool_batches: _TaskBatches,
+        batches: _TaskBatches,
         cancel: threading.Event,
-        start: threading.Event,
-        finish: threading.Event,
+        should_finish: threading.Event,
+        joined: threading.Event,
     ):
-        super().__init__(pool_batches, cancel, cancel, start, finish)
+        super().__init__(batches, cancel, should_finish, joined)
         self._logging_locale = logging_locale
 
     def __reduce__(self) -> tuple[
@@ -315,15 +258,16 @@ class _TaskPool(_TaskActivity):
             _TaskPool,
             (
                 self._logging_locale,
-                self._pool_batches,
+                self._batches,
                 self._cancel,
-                self._start,
                 self._finish,
+                self._joined,
             )
         )
 
     async def cancel(self) -> None:
-        self._pool_cancel.set()
+        for batch in self._batches.values():
+            await batch.cancel()
         await super().cancel()
 
     @overload
@@ -335,18 +279,15 @@ class _TaskPool(_TaskActivity):
         pass
 
     def batch(self, context: Any = None):
-        self._assert_open()
+        self._assert_not_closed()
         return OwnedTaskBatch(
-            self._pool_batches,
-            self._pool_cancel,
+            self._batches,
             self._logging_locale,
             context,
         )
 
 
 class _OwnedTaskPool(_TaskPool, _OwnedTaskActivity[_TaskPool]):
-    _executor: Executor
-
     def __init__(self, concurrency: int, logging_locale: str):
         super().__init__(
             logging_locale,
@@ -357,30 +298,29 @@ class _OwnedTaskPool(_TaskPool, _OwnedTaskActivity[_TaskPool]):
         )
         self._workers: list[Future[None]] = []
         self._concurrency = concurrency
-
-    def _new_executor(self) -> Executor:
-        raise NotImplementedError
-
-    async def start(self) -> None:
-        await super().start()
         self._executor = self._new_executor()
         for _ in range(0, self._concurrency):
             self._workers.append(self._executor.submit(_Worker(
-                self._pool_batches,
-                self._pool_cancel,
+                self._batches,
+                self._cancel,
                 self._finish,
                 self._concurrency,
             )))
 
-    async def _close(self) -> None:
-        await super()._close()
-        try:
-            executor = self._executor
-        except AttributeError:
-            pass
-        else:
-            executor.shutdown()
-            del self._executor
+    def _assert_not_busy(self) -> None:
+        remaining_other_batch_count = len(self._batches)
+        if remaining_other_batch_count:
+            raise TaskPoolBusy(remaining_other_batch_count)
+
+    def _new_executor(self) -> Executor:
+        raise NotImplementedError
+
+    async def finish(self) -> None:
+        self._assert_not_busy()
+        self._join()
+        await super().finish()
+        self._executor.shutdown()
+        del self._executor
         for worker in as_completed(self._workers):
             worker.result()
 
@@ -398,14 +338,14 @@ class ProcessTaskPool(_OwnedTaskPool):
 class _Worker:
     def __init__(
         self,
-        pool_batches: _TaskBatches,
-        pool_cancel: threading.Event,
-        pool_finish: threading.Event,
+        batches: _TaskBatches,
+        cancel: threading.Event,
+        finish: threading.Event,
         async_concurrency: int,
     ):
-        self._pool_batches = pool_batches
-        self._pool_cancel = pool_cancel
-        self._pool_finish = pool_finish
+        self._batches = batches
+        self._cancel = cancel
+        self._finish = finish
         self._async_concurrency = async_concurrency
 
     @sync
@@ -417,12 +357,12 @@ class _Worker:
 
     async def _perform_tasks(self) -> None:
         while True:
-            if self._pool_cancel.is_set():
+            if self._cancel.is_set():
                 return
-            if self._pool_finish.is_set() and not self._pool_batches:
+            if self._finish.is_set() and not self._batches:
                 return
 
-            for batch in [*self._pool_batches.values()]:
+            for batch in [*self._batches.values()]:
                 await batch.perform_tasks()
-                # New batches may take a while to be started or won't be started at all, so free some memory.
+                # New batches may take a while to be created or won't be created at all, so free some memory.
                 del batch
