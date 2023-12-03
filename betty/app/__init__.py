@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os as stdos
 import weakref
-from contextlib import suppress, AsyncExitStack
+from contextlib import suppress
 from graphlib import CycleError, TopologicalSorter
 from pathlib import Path
 from types import TracebackType
@@ -14,7 +14,7 @@ from reactives.instance.property import reactive_property
 
 from betty.app.extension import ListExtensions, Extension, Extensions, build_extension_type_graph, \
     CyclicDependencyError, ExtensionDispatcher, ConfigurableExtension, discover_extension_types
-from betty.asyncio import sync, wait
+from betty.asyncio import sync, wait, ConcurrentExitStack, gather
 from betty.cache import Cache
 from betty.config import Configurable, FileBasedConfiguration
 from betty.dispatch import Dispatcher
@@ -31,7 +31,7 @@ from betty.project import Project
 from betty.render import Renderer, SequentialRenderer
 from betty.serde.dump import minimize, void_none, Dump, VoidableDump
 from betty.serde.load import AssertionFailed, Fields, Assertions, OptionalField, Asserter
-from betty.task import _TaskPool, ThreadTaskPool, ProcessTaskPool
+from betty.task import _TaskPool, ThreadTaskPool, ProcessTaskPool, _OwnedTaskPool
 
 if TYPE_CHECKING:
     from betty.jinja2 import Environment
@@ -123,7 +123,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         shared_state: _AppSharedState | None = None,
     ):
         super().__init__()
-        self._exit_stack = AsyncExitStack()
+        self._exit_stack = ConcurrentExitStack()
         self._started = False
         self._stopped = False
         self._configuration = configuration or AppConfiguration()
@@ -157,8 +157,6 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
                 self._thread_pool,
                 self._process_pool,
             ) = shared_state
-        self._exit_stack.push_async_exit(self._thread_pool)
-        self._exit_stack.push_async_exit(self._process_pool)
 
     def __reduce__(self) -> tuple[
         type[App],
@@ -185,17 +183,27 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
     async def __aenter__(self) -> Self:
         if self._started:
             raise RuntimeError('This app has started already.')
+        await self._exit_stack.add(*(
+            task_pool
+            for task_pool
+            in (self._thread_pool, self._process_pool)
+            if isinstance(task_pool, _OwnedTaskPool)
+        ))
         self._started = True
         return self
 
     async def __aexit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
-        await self._exit_stack.aclose()
-        del self.http_client
         self._stopped = True
+        if exc_val is not None:
+            await gather(
+                self._thread_pool.cancel(), self._process_pool.cancel(),
+            )
+        await self._exit_stack.exit()
+        del self.http_client
 
     def __del__(self) -> None:
         if self._started and not self._stopped:
-            raise RuntimeError(f'{self} was started, but never stopped. You MUST use {type(self)} with `async with`.')
+            raise RuntimeError(f'{self} was automatically started, but never stopped. You MUST use {type(self)} using `async with`.')
 
     @property
     def project(self) -> Project:

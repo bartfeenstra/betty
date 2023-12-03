@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import asyncio
 from asyncio import TaskGroup
+from contextlib import AbstractAsyncContextManager
 from functools import wraps
 from threading import Thread
-from typing import Callable, Awaitable, TypeVar, Generic, cast, ParamSpec, Coroutine, Any
+from typing import Callable, Awaitable, TypeVar, Generic, cast, ParamSpec, Coroutine, Any, Self
 
 P = ParamSpec('P')
 T = TypeVar('T')
@@ -64,3 +65,32 @@ class _SyncedAwaitable(Thread, Generic[T]):
             self._return_value = await self._awaitable
         except BaseException as error:
             self._error = error
+
+
+class ConcurrentExitStack:
+    def __init__(self):
+        self._stack = []
+
+    async def __aenter__(self) -> Self:
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+        await gather(*(
+            frame.__aexit__(exc_type, exc_val, exc_tb)
+            for frame
+            in self._stack
+        ))
+
+    async def exit(self) -> None:
+        await self.__aexit__(None, None, None)
+
+    async def add(self, *context_managers: AbstractAsyncContextManager[Any]) -> None:
+        await gather(*(
+            self._add_one(context_manager)
+            for context_manager
+            in context_managers
+        ))
+
+    async def _add_one(self, context_manager: AbstractAsyncContextManager[Any]) -> None:
+        await context_manager.__aenter__()
+        self._stack.append(context_manager)

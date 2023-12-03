@@ -88,7 +88,7 @@ class _OwnedTaskActivity(_TaskActivity, Generic[_UnownedT]):
         reduced = self.__reduce__()
         return reduced[0](*reduced[1])  # type: ignore[no-any-return, operator]
 
-    async def __aexit__(self, exc_type: type[Exception], exc_val: Exception, exc_tb: TracebackType) -> None:
+    async def __aexit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
         if exc_val is None:
             await self.finish()
         await self.cancel()
@@ -170,7 +170,7 @@ class TaskBatch(_TaskActivity, Generic[TaskBatchContextT]):
         self._assert_not_closed()
         self._task_queue.put((callable, args, kwargs))
 
-    async def perform_tasks(self) -> None:
+    async def _perform_tasks(self) -> None:
         while not self.joined:
             try:
                 callable, args, kwargs = self._task_queue.get_nowait()
@@ -363,6 +363,6 @@ class _Worker:
                 return
 
             for batch in [*self._batches.values()]:
-                await batch.perform_tasks()
+                await batch._perform_tasks()
                 # New batches may take a while to be created or won't be created at all, so free some memory.
                 del batch

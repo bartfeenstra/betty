@@ -5,7 +5,7 @@ import logging
 import multiprocessing
 import os
 import shutil
-from contextlib import suppress, AsyncExitStack
+from contextlib import suppress
 from pathlib import Path
 from typing import cast, AsyncContextManager, Concatenate
 
@@ -16,7 +16,7 @@ from aiofiles.os import makedirs
 from aiofiles.threadpool.text import AsyncTextIOWrapper
 
 from betty.app import App
-from betty.asyncio import gather
+from betty.asyncio import ConcurrentExitStack
 from betty.locale import get_display_name
 from betty.model import get_entity_type_name, UserFacingEntity, Entity
 from betty.openapi import Specification
@@ -86,52 +86,40 @@ async def generate(app: App) -> None:
     # @todo
     # @todo
     # @todo
-    async with AsyncExitStack() as batch_stack:
-        thread_batch = app.thread_pool.batch()
-        print('thread_batch')
-        print(thread_batch)
+    async with ConcurrentExitStack() as batch_stack:
+        # thread_batch = app.thread_pool.batch()
+        # batch_stack.push_async_exit(thread_batch)
 
+        # @todo Why does the mere creation of a process pool batch seem to slow things down SO MUCH?
         localized_process_batches[None] = app.process_pool.batch(GenerationTaskBatchContext(pickled_app, None))
-        print('localized_process_batches[None]')
-        print(localized_process_batches[None])
+        await batch_stack.add(localized_process_batches[None])
 
-        # @todo Are we indeed passing on an unlocalized app?
-        # localized_process_batches[None].delegate(Task(_generate_dispatch))
+        # # @todo Are we indeed passing on an unlocalized app?
+        # localized_process_batches[None].delegate(_generate_dispatch)
         # await _generate_openapi(localized_process_batches[None])
         localized_process_batches[None].delegate(_generate_openapi)
 
-        for locale in locales:
-            localized_process_batches[locale] = app.process_pool.batch(GenerationTaskBatchContext(pickled_app, locale))
-            print('localized_process_batches[locale]')
-            print(localized_process_batches[locale])
-
-            # localized_process_batches[locale].delegate(Task(_generate_public))
-
+        # for locale in locales:
+        #     localized_process_batches[locale] = app.process_pool.batch(GenerationTaskBatchContext(pickled_app, locale))
+        #
+        #     # localized_process_batches[locale].delegate(_generate_public)
+        #
         # for entity_type in app.entity_types:
         #     if not issubclass(entity_type, UserFacingEntity):
         #         continue
-        #     if app.project.configuration.entity_types[entity_type].generate_html_list:
-        #         for locale in locales:
-        #             localized_process_batches[locale].to_thread(Task(_generate_entity_type_list_html, entity_type))
-        #     localized_process_batches[None].to_thread(Task(_generate_entity_type_list_json, entity_type))
+        #     # if app.project.configuration.entity_types[entity_type].generate_html_list:
+        #     #     for locale in locales:
+        #     #         localized_process_batches[locale].to_thread(_generate_entity_type_list_html, entity_type)
+        #     # localized_process_batches[None].to_thread(_generate_entity_type_list_json, entity_type)
         #     for entity in app.project.ancestry[entity_type]:
         #         if isinstance(entity.id, GeneratedEntityId):
         #             continue
         #
-        #         localized_process_batches[None].to_thread(Task(_generate_entity_json, entity_type, entity.id))
+        #         # localized_process_batches[None].to_thread(_generate_entity_json, entity_type, entity.id)
         #         if is_public(entity):
         #             for locale in locales:
-        #                 localized_process_batches[locale].to_thread(Task(_generate_entity_html, entity_type, entity.id))
+        #                 localized_process_batches[locale].delegate(_generate_entity_html, entity_type, entity.id)
 
-        print('ENTERING BATCHES')
-        await gather(*(
-            batch_stack.enter_async_context(batch)  # type: ignore[arg-type]
-            for batch
-            in [
-                thread_batch,
-                *localized_process_batches.values(),
-            ]
-        ))
         print('EXITING BATCHES')
     print('EXITED BATCHES')
 
