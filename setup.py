@@ -41,7 +41,7 @@ SETUP = {
         'Natural Language :: English',
         'Natural Language :: Ukrainian',
     ],
-    'python_requires': '~= 3.7',
+    'python_requires': '~= 3.7, < 3.10',
     'install_requires': [
         'aiohttp ~= 3.7',
         'babel ~= 2.9',
