@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os as stdos
 import weakref
-from contextlib import suppress
+from contextlib import suppress, AsyncExitStack
 from graphlib import CycleError, TopologicalSorter
 from pathlib import Path
 from types import TracebackType
@@ -123,7 +123,9 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         shared_state: _AppSharedState | None = None,
     ):
         super().__init__()
+        self._exit_stack = AsyncExitStack()
         self._started = False
+        self._stopped = False
         self._configuration = configuration or AppConfiguration()
         self._assets: FileSystem | None = None
         self._extensions = _AppExtensions()
@@ -148,15 +150,15 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         self._http_client: aiohttp.ClientSession | None = None
         self._cache: Cache | None = None
         if shared_state is None:
-            self._has_shared_state = False
             self._thread_pool = ThreadTaskPool(self.concurrency, self.locale)
             self._process_pool = ProcessTaskPool(self.concurrency, self.locale)
         else:
-            self._has_shared_state = True
             (
                 self._thread_pool,
                 self._process_pool,
             ) = shared_state
+        self._exit_stack.push_async_exit(self._thread_pool)
+        self._exit_stack.push_async_exit(self._process_pool)
 
     def __reduce__(self) -> tuple[
         type[App],
@@ -184,23 +186,16 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         if self._started:
             raise RuntimeError('This app has started already.')
         self._started = True
-        if isinstance(self._thread_pool, ThreadTaskPool):
-            await self._thread_pool.start()
-        if isinstance(self._process_pool, ProcessTaskPool):
-            await self._process_pool.start()
         return self
 
     async def __aexit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
-        # @todo Remove these print statements
-        print('EXITING APP..')
-        if isinstance(self._thread_pool, ThreadTaskPool):
-            print('JOIN THREAD POOL')
-            await self._thread_pool.finish()
-        if isinstance(self._process_pool, ProcessTaskPool):
-            print('JOIN PROCESS POOL')
-            await self._process_pool.finish()
+        await self._exit_stack.aclose()
         del self.http_client
-        self._started = False
+        self._stopped = True
+
+    def __del__(self) -> None:
+        if self._started and not self._stopped:
+            raise RuntimeError(f'{self} was started, but never stopped. You MUST use {type(self)} with `async with`.')
 
     @property
     def project(self) -> Project:

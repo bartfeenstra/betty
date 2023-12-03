@@ -56,6 +56,10 @@ async def qapp(qapp_args: list[str]) -> AsyncIterator[BettyApplication]:
     qapp_instance = cast(BettyApplication | None, BettyApplication.instance())
     if qapp_instance is None:
         global _qapp_instance
+        # @todo We may need to refactor this fixture because we MUST enter the App context ,
+        # @todo then yield, and thus cannot reuse BettyApplication between tests
+        # @todo
+        # @todo
         async with App() as app:
             _qapp_instance = BettyApplication(qapp_args, app=app)
         yield _qapp_instance
