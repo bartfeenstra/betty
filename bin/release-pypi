@@ -14,12 +14,6 @@ RELEASE_VERSION=$1
 RELEASE_BRANCH="release-$RELEASE_VERSION"
 ORIGINAL_BRANCH=$(git branch --show-current)
 
-# Check we are releasing a valid Semantic Version.
-if [[ ! $RELEASE_VERSION =~ ^[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}$ ]]; then
-    echo "$RELEASE_VERSION is not a valid Semantic Version (x.y.z). See https://semver.org/."
-    exit 1
-fi
-
 # Check this version does not already exist.
 git fetch --tags
 if git tag | grep -q "^$RELEASE_VERSION$"; then
