@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import builtins
 from contextlib import suppress
 from enum import Enum
 from functools import total_ordering
@@ -27,9 +26,25 @@ class Privacy(Enum):
 
 
 class HasPrivacy(Pickleable):
-    def __init__(self, *args: Any, **kwargs: Any):
+    def __init__(
+        self,
+        *args: Any,
+        privacy: Privacy | None = None,
+        public: bool | None = None,
+        private: bool | None = None,
+        **kwargs: Any,
+    ):
         super().__init__(*args, **kwargs)
-        self._privacy = Privacy.UNDETERMINED
+        if [privacy, public, private].count(None) < 2:
+            raise ValueError(f'Only one of the `privacy`, `public`, and `private` arguments to {type(self)}.__init__() may be given at a time.')
+        if privacy is not None:
+            self._privacy = privacy
+        elif public is True:
+            self._privacy = Privacy.PUBLIC
+        elif private is True:
+            self._privacy = Privacy.PRIVATE
+        else:
+            self._privacy = Privacy.UNDETERMINED
 
     def __getstate__(self) -> State:
         dict_state, slots_state = super().__getstate__()
@@ -118,11 +133,14 @@ def merge_privacies(*privacies: Privacy | HasPrivacy | None) -> Privacy:
 
 
 class Dated(Pickleable):
-    date: Datey | None
-
-    def __init__(self, *args: Any, **kwargs: Any):
+    def __init__(
+        self,
+        *args: Any,
+        date: Datey | None = None,
+        **kwargs: Any,
+    ):
         super().__init__(*args, **kwargs)
-        self.date = None
+        self.date = date
 
     def __getstate__(self) -> State:
         dict_state, slots_state = super().__getstate__()
@@ -134,9 +152,25 @@ class Dated(Pickleable):
 class Note(HasMutablePrivacy, UserFacingEntity, Entity):
     entity: HasNotes
 
-    def __init__(self, note_id: str | None, text: str):
-        super().__init__(note_id)
+    def __init__(
+        self,
+        text: str,
+        *,
+        id: str | None = None,
+        entity: HasNotes | None = None,
+        privacy: Privacy | None = None,
+        public: bool | None = None,
+        private: bool | None = None,
+    ):
+        super().__init__(
+            id,
+            privacy=privacy,
+            public=public,
+            private=private,
+        )
         self._text = text
+        if entity is not None:
+            self.entity = entity
 
     def __getstate__(self) -> State:
         dict_state, slots_state = super().__getstate__()
@@ -165,12 +199,15 @@ class HasNotes:
     def __init__(  # type: ignore[misc]
         self: HasNotes & Entity,
         *args: Any,
+        notes: Iterable[Note] | None = None,
         **kwargs: Any,
     ):
         super().__init__(  # type: ignore[misc]
             *args,
             **kwargs,
         )
+        if notes is not None:
+            self.notes = notes  # type: ignore[assignment]
 
     @property
     def notes(self) -> EntityCollection[Note]:  # type: ignore[empty-body]
@@ -186,11 +223,14 @@ class HasNotes:
 
 
 class Described(Pickleable):
-    description: str | None
-
-    def __init__(self, *args: Any, **kwargs: Any):
+    def __init__(
+        self,
+        *args: Any,
+        description: str | None = None,
+        **kwargs: Any,
+    ):
         super().__init__(*args, **kwargs)
-        self.description = None
+        self.description = description
 
     def __getstate__(self) -> State:
         dict_state, slots_state = super().__getstate__()
@@ -199,11 +239,14 @@ class Described(Pickleable):
 
 
 class HasMediaType(Pickleable):
-    media_type: MediaType | None
-
-    def __init__(self, *args: Any, **kwargs: Any):
+    def __init__(
+        self,
+        *args: Any,
+        media_type: MediaType | None = None,
+        **kwargs: Any,
+    ):
         super().__init__(*args, **kwargs)
-        self.media_type = None
+        self.media_type = media_type
 
     def __getstate__(self) -> State:
         dict_state, slots_state = super().__getstate__()
@@ -216,11 +259,24 @@ class Link(HasMediaType, Localized, Described):
     relationship: str | None
     label: str | None
 
-    def __init__(self, url: str, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        url: str,
+        *,
+        relationship: str | None = None,
+        label: str | None = None,
+        description: str | None = None,
+        media_type: MediaType | None = None,
+        locale: str | None = None,
+    ):
+        super().__init__(
+            media_type=media_type,
+            description=description,
+            locale=locale,
+        )
         self.url = url
-        self.label = None
-        self.relationship = None
+        self.label = label
+        self.relationship = relationship
 
     def __getstate__(self) -> State:
         dict_state, slots_state = super().__getstate__()
@@ -231,9 +287,14 @@ class Link(HasMediaType, Localized, Described):
 
 
 class HasLinks(Pickleable):
-    def __init__(self, *args: Any, **kwargs: Any):
+    def __init__(
+        self,
+        *args: Any,
+        links: set[Link] | None = None,
+        **kwargs: Any,
+    ):
         super().__init__(*args, **kwargs)
-        self._links = set[Link]()
+        self._links: set[Link] = set() if links is None else links
 
     def __getstate__(self) -> State:
         dict_state, slots_state = super().__getstate__()
@@ -250,12 +311,15 @@ class HasCitations:
     def __init__(  # type: ignore[misc]
         self: HasCitations & Entity,
         *args: Any,
+        citations: Iterable[Citation] | None = None,
         **kwargs: Any,
     ):
         super().__init__(  # type: ignore[misc]
             *args,
             **kwargs,
         )
+        if citations is not None:
+            self.citations = citations  # type: ignore[assignment]
 
     @property
     def citations(self) -> EntityCollection[Citation]:  # type: ignore[empty-body]
@@ -274,15 +338,30 @@ class HasCitations:
 class File(Described, HasMutablePrivacy, HasMediaType, HasNotes, HasCitations, UserFacingEntity, Entity):
     def __init__(
         self,
-        file_id: str | None,
         path: Path,
-        media_type: MediaType | None = None,
         *,
+        id: str | None = None,
+        media_type: MediaType | None = None,
+        description: str | None = None,
+        notes: Iterable[Note] | None = None,
+        citations: Iterable[Citation] | None = None,
+        privacy: Privacy | None = None,
+        public: bool | None = None,
+        private: bool | None = None,
         localizer: Localizer | None = None
     ):
-        super().__init__(file_id, localizer=localizer)
+        super().__init__(
+            id,
+            media_type=media_type,
+            description=description,
+            notes=notes,
+            citations=citations,
+            privacy=privacy,
+            public=public,
+            private=private,
+            localizer=localizer,
+        )
         self._path = path
-        self.media_type = media_type
 
     def __getstate__(self) -> State:
         dict_state, slots_state = super().__getstate__()
@@ -323,12 +402,15 @@ class HasFiles:
     def __init__(  # type: ignore[misc]
         self: HasFiles & Entity,
         *args: Any,
+        files: Iterable[File] | None = None,
         **kwargs: Any,
     ):
         super().__init__(  # type: ignore[misc]
             *args,
             **kwargs,
         )
+        if files is not None:
+            self.files = files  # type: ignore[assignment]
 
     @property
     def files(self) -> EntityCollection[File]:  # type: ignore[empty-body]
@@ -351,22 +433,42 @@ class HasFiles:
 @one_to_many('contains', 'betty.model.ancestry.Source', 'contained_by')
 @one_to_many('citations', 'betty.model.ancestry.Citation', 'source')
 class Source(Dated, HasFiles, HasLinks, HasMutablePrivacy, UserFacingEntity, Entity):
-    name: str | None
     contained_by: Source | None
-    author: str | None
-    publisher: str | None
 
     def __init__(
         self,
-        source_id: str | None,
         name: str | None = None,
         *,
+        id: str | None = None,
+        author: str | None = None,
+        publisher: str | None = None,
+        contained_by: Source | None = None,
+        contains: Iterable[Source] | None = None,
+        date: Datey | None = None,
+        files: Iterable[File] | None = None,
+        links: set[Link] | None = None,
+        privacy: Privacy | None = None,
+        public: bool | None = None,
+        private: bool | None = None,
         localizer: Localizer | None = None,
     ):
-        super().__init__(source_id, localizer=localizer)
+        super().__init__(
+            id,
+            localizer=localizer,
+            date=date,
+            files=files,
+            links=links,
+            privacy=privacy,
+            public=public,
+            private=private,
+        )
         self.name = name
-        self.author = None
-        self.publisher = None
+        self.author = author
+        self.publisher = publisher
+        if contained_by is not None:
+            self.contained_by = contained_by
+        if contains is not None:
+            self.contains = contains  # type: ignore[assignment]
 
     def __getstate__(self) -> State:
         dict_state, slots_state = super().__getstate__()
@@ -437,18 +539,32 @@ class AnonymousSource(Source):
 @many_to_many('facts', 'betty.model.ancestry.HasCitations', 'citations')
 @many_to_one('source', 'betty.model.ancestry.Source', 'citations')
 class Citation(Dated, HasFiles, HasMutablePrivacy, UserFacingEntity, Entity):
-    source: Source | None
-    location: str | None
-
     def __init__(
         self,
-        citation_id: str | None,
-        source: Source | None,
         *,
+        id: str | None = None,
+        facts: Iterable[HasCitations] | None = None,
+        source: Source | None = None,
+        location: str | None = None,
+        date: Datey | None = None,
+        files: Iterable[File] | None = None,
+        privacy: Privacy | None = None,
+        public: bool | None = None,
+        private: bool | None = None,
         localizer: Localizer | None = None,
     ):
-        super().__init__(citation_id, localizer=localizer)
-        self.location = None
+        super().__init__(
+            id,
+            date=date,
+            files=files,
+            privacy=privacy,
+            public=public,
+            private=private,
+            localizer=localizer,
+        )
+        if facts is not None:
+            self.facts = facts  # type: ignore[assignment]
+        self.location = location
         self.source = source
 
     def __getstate__(self) -> State:
@@ -507,15 +623,15 @@ class PlaceName(Localized, Dated):
     def __init__(
         self,
         name: str,
+        *,
         locale: str | None = None,
         date: Datey | None = None,
-        *args: Any,
-        **kwargs: Any,
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__(
+            date=date,
+            locale=locale,
+        )
         self._name = name
-        self.locale = locale
-        self.date = date
 
     def __getstate__(self) -> State:
         dict_state, slots_state = super().__getstate__()
@@ -577,14 +693,23 @@ class Enclosure(Dated, HasCitations, Entity):
 class Place(HasLinks, UserFacingEntity, Entity):
     def __init__(
         self,
-        place_id: str | None,
-        names: list[PlaceName],
         *,
+        id: str | None = None,
+        names: list[PlaceName] | None = None,
+        events: Iterable[Event] | None = None,
+        coordinates: Point | None = None,
+        links: set[Link] | None = None,
         localizer: Localizer | None = None,
     ):
-        super().__init__(place_id, localizer=localizer)
-        self._names = names
-        self._coordinates = None
+        super().__init__(
+            id,
+            links=links,
+            localizer=localizer,
+        )
+        self._names = [] if names is None else names
+        self._coordinates = coordinates
+        if events is not None:
+            self.events = events  # type: ignore[assignment]
 
     def __getstate__(self) -> State:
         dict_state, slots_state = super().__getstate__()
@@ -751,14 +876,13 @@ class Presence(HasPrivacy, Entity):
 
     def __init__(
         self,
-        presence_id: str | None,
         person: Person | None,
         role: PresenceRole,
         event: Event | None,
         *,
         localizer: Localizer | None = None,
     ):
-        super().__init__(presence_id, localizer=localizer)
+        super().__init__(None, localizer=localizer)
         self.person = person
         self.role = role
         self.event = event
@@ -785,6 +909,36 @@ class Presence(HasPrivacy, Entity):
 class Event(Dated, HasFiles, HasCitations, Described, HasMutablePrivacy, UserFacingEntity, Entity):
     place: Place | None
 
+    def __init__(
+        self,
+        *,
+        id: str | None = None,
+        event_type: type[EventType],
+        date: Datey | None = None,
+        files: Iterable[File] | None = None,
+        citations: Iterable[Citation] | None = None,
+        privacy: Privacy | None = None,
+        public: bool | None = None,
+        private: bool | None = None,
+        place: Place | None = None,
+        description: str | None = None,
+        localizer: Localizer | None = None,
+    ):
+        super().__init__(
+            id,
+            date=date,
+            files=files,
+            citations=citations,
+            privacy=privacy,
+            public=public,
+            private=private,
+            description=description,
+            localizer=localizer,
+        )
+        self._event_type = event_type
+        if place is not None:
+            self.place = place
+
     @property
     def label(self) -> str:
         label = self.event_type.label(self.localizer)
@@ -802,18 +956,6 @@ class Event(Dated, HasFiles, HasCitations, Described, HasMutablePrivacy, UserFac
                 subjects=', '.join(person.label for person in subjects),
             )
         return label
-
-    def __init__(
-        self,
-        event_id: str | None,
-        event_type: builtins.type[EventType],
-        date: Datey | None = None,
-        *,
-        localizer: Localizer | None = None
-    ):
-        super().__init__(event_id, localizer=localizer)
-        self.date = date
-        self._event_type = event_type
 
     def __getstate__(self) -> State:
         dict_state, slots_state = super().__getstate__()
@@ -870,16 +1012,25 @@ class PersonName(Localized, HasCitations, HasMutablePrivacy, Entity):
 
     def __init__(
         self,
-        person_name_id: str | None,
-        person: Person | None,
+        *,
+        id: str | None = None,
+        person: Person | None = None,
         individual: str | None = None,
         affiliation: str | None = None,
-        *,
+        privacy: Privacy | None = None,
+        public: bool | None = None,
+        private: bool | None = None,
         localizer: Localizer | None = None
     ):
         if not individual and not affiliation:
             raise ValueError('The individual and affiliation names must not both be empty.')
-        super().__init__(person_name_id, localizer=localizer)
+        super().__init__(
+            id,
+            privacy=privacy,
+            public=public,
+            private=private,
+            localizer=localizer,
+        )
         self._individual = individual
         self._affiliation = affiliation
         # Set the person association last, because the association requires comparisons, and self.__eq__() uses the
@@ -947,11 +1098,32 @@ class PersonName(Localized, HasCitations, HasMutablePrivacy, Entity):
 class Person(HasFiles, HasCitations, HasLinks, HasMutablePrivacy, UserFacingEntity, Entity):
     def __init__(
         self,
-        person_id: str | None,
         *,
+        id: str | None = None,
+        files: Iterable[File] | None = None,
+        citations: Iterable[Citation] | None = None,
+        links: set[Link] | None = None,
+        privacy: Privacy | None = None,
+        public: bool | None = None,
+        private: bool | None = None,
+        parents: Iterable[Person] | None = None,
+        children: Iterable[Person] | None = None,
         localizer: Localizer | None = None,
     ):
-        super().__init__(person_id, localizer=localizer)
+        super().__init__(
+            id,
+            files=files,
+            citations=citations,
+            links=links,
+            privacy=privacy,
+            public=public,
+            private=private,
+            localizer=localizer,
+        )
+        if children is not None:
+            self.children = children  # type: ignore[assignment]
+        if parents is not None:
+            self.parents = parents  # type: ignore[assignment]
 
     @property
     def parents(self) -> EntityCollection[Person]:  # type: ignore[empty-body]

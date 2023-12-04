@@ -46,7 +46,7 @@ def _parse_url(url: str) -> tuple[str, str]:
 
 class Entry(Localized):
     def __init__(self, locale: str, name: str, title: str, content: str):
-        Localized.__init__(self, locale)
+        super().__init__(locale=locale)
         self._name = name
         self._title = title
         self._content = content

@@ -47,7 +47,10 @@ class TestWikipedia:
 
     @patch_cache
     async def test_post_load(self, aioresponses: aioresponses) -> None:
-        resource = Source('the_source', 'The Source')
+        resource = Source(
+            id='the_source',
+            name='The Source',
+        )
         link = Link('https://en.wikipedia.org/wiki/Amsterdam')
         resource.links.add(link)
         entry_title = 'Amstelredam'

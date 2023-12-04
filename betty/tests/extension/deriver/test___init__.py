@@ -58,10 +58,12 @@ class ComesBeforeAndAfterCreatableDerivable(CreatableDerivableEventType, Derivab
 
 class TestDeriver:
     async def test_post_load(self) -> None:
-        person = Person('P0')
-        event = Event(None, Residence)
-        event.date = Date(1, 1, 1)
-        Presence(None, person, Subject(), event)
+        person = Person(id='P0')
+        event = Event(
+            event_type=Residence,
+            date=Date(1, 1, 1),
+        )
+        Presence(person, Subject(), event)
 
         app = App()
         app.project.configuration.extensions.append(ExtensionConfiguration(Deriver))

@@ -293,13 +293,13 @@ class TestNegotiateLocalizeds:
             return '%s(%s)' % (self.__class__.__name__, self.locale)
 
     @pytest.mark.parametrize('expected, preferred_locale, localizeds', [
-        (DummyLocalized('nl'), 'nl', [DummyLocalized('nl')]),
-        (DummyLocalized('nl-NL'), 'nl', [DummyLocalized('nl-NL')]),
-        (DummyLocalized('nl'), 'nl-NL', [DummyLocalized('nl')]),
-        (DummyLocalized('nl-NL'), 'nl-NL', [DummyLocalized('nl'), DummyLocalized('nl-BE'), DummyLocalized('nl-NL')]),
-        (DummyLocalized('nl'), 'nl', [DummyLocalized('nl'), DummyLocalized('en')]),
-        (DummyLocalized('nl'), 'nl', [DummyLocalized('en'), DummyLocalized('nl')]),
-        (DummyLocalized('nl-NL'), 'nl-BE', [DummyLocalized('nl-NL')]),
+        (DummyLocalized(locale='nl'), 'nl', [DummyLocalized(locale='nl')]),
+        (DummyLocalized(locale='nl-NL'), 'nl', [DummyLocalized(locale='nl-NL')]),
+        (DummyLocalized(locale='nl'), 'nl-NL', [DummyLocalized(locale='nl')]),
+        (DummyLocalized(locale='nl-NL'), 'nl-NL', [DummyLocalized(locale='nl'), DummyLocalized(locale='nl-BE'), DummyLocalized(locale='nl-NL')]),
+        (DummyLocalized(locale='nl'), 'nl', [DummyLocalized(locale='nl'), DummyLocalized(locale='en')]),
+        (DummyLocalized(locale='nl'), 'nl', [DummyLocalized(locale='en'), DummyLocalized(locale='nl')]),
+        (DummyLocalized(locale='nl-NL'), 'nl-BE', [DummyLocalized(locale='nl-NL')]),
         (None, 'nl', []),
     ])
     async def test_with_match_should_return_match(self, expected: Localized | None, preferred_locale: str, localizeds: list[Localized]) -> None:
@@ -307,8 +307,8 @@ class TestNegotiateLocalizeds:
 
     async def test_without_match_should_return_default(self) -> None:
         preferred_locale = 'de'
-        localizeds = [self.DummyLocalized('nl'), self.DummyLocalized('en'), self.DummyLocalized('uk')]
-        assert self.DummyLocalized('nl') == negotiate_localizeds(preferred_locale, localizeds)
+        localizeds = [self.DummyLocalized(locale='nl'), self.DummyLocalized(locale='en'), self.DummyLocalized(locale='uk')]
+        assert self.DummyLocalized(locale='nl') == negotiate_localizeds(preferred_locale, localizeds)
 
 
 class TestDefaultLocalizer:

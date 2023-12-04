@@ -10,37 +10,46 @@ class TestTemplate(TemplateTestCase):
     template_file = 'entity/page--place.html.j2'
 
     async def test_privacy(self) -> None:
-        place_name = PlaceName('place name')
-        place = Place(None, [place_name])
-        place.names.append(place_name)
+        place_name = PlaceName(name='place name')
+        place = Place(names=[place_name])
 
-        public_place_event = Event(None, Birth, Date(1970, 1, 1))
-        public_place_event.description = 'public place event'
-        public_place_event.place = place
+        public_place_event = Event(
+            event_type=Birth,
+            date=Date(1970, 1, 1),
+            description='public place event',
+            place=place,
+        )
 
-        private_place_event = Event(None, Birth, Date(1970, 1, 1))
-        private_place_event.private = True
-        private_place_event.description = 'private place event'
-        private_place_event.place = place
+        private_place_event = Event(
+            event_type=Birth,
+            date=Date(1970, 1, 1),
+            private=True,
+            description='private place event',
+            place=place,
+        )
 
-        enclosed_name = PlaceName('public enclosed name')
-        enclosed = Place(None, [enclosed_name])
-        enclosed.names.append(enclosed_name)
-        Enclosure(enclosed, place)
+        enclosed_name = PlaceName(name='public enclosed name')
+        enclosed = Place(names=[enclosed_name])
+        Enclosure(encloses=enclosed, enclosed_by=place)
 
-        enclosing_name = PlaceName('public enclosing name')
-        enclosing = Place(None, [enclosing_name])
-        enclosing.names.append(enclosing_name)
-        Enclosure(place, enclosing)
+        enclosing_name = PlaceName(name='public enclosing name')
+        enclosing = Place(names=[enclosing_name])
+        Enclosure(encloses=place, enclosed_by=enclosing)
 
-        public_enclosed_event = Event(None, Birth, Date(1970, 1, 1))
-        public_enclosed_event.description = 'public enclosed event'
-        public_enclosed_event.place = place
+        public_enclosed_event = Event(
+            event_type=Birth,
+            date=Date(1970, 1, 1),
+            place=place,
+            description='public enclosed event',
+        )
 
-        private_enclosed_event = Event(None, Birth, Date(1970, 1, 1))
-        private_enclosed_event.private = True
-        private_enclosed_event.description = 'private enclosed event'
-        private_enclosed_event.place = place
+        private_enclosed_event = Event(
+            event_type=Birth,
+            date=Date(1970, 1, 1),
+            private=True,
+            place=place,
+            description='private enclosed event',
+        )
 
         async with self._render(
             data={
@@ -50,10 +59,14 @@ class TestTemplate(TemplateTestCase):
             },
         ) as (actual, _):
             assert place_name.name in actual
+            assert public_place_event.description is not None
             assert public_place_event.description in actual
             assert enclosed_name.name in actual
             assert enclosing_name.name in actual
+            assert public_enclosed_event.description is not None
             assert public_enclosed_event.description in actual
 
+            assert private_place_event.description is not None
             assert private_place_event.description not in actual
+            assert private_enclosed_event.description is not None
             assert private_enclosed_event.description not in actual

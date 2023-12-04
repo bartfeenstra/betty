@@ -54,7 +54,7 @@ class _Citer:
     def __init__(self, localizer: Localizer):
         self._localizer = localizer
         self._citations: list[Citation] = []
-        self._anonymous_source = AnonymousSource(None, localizer=localizer)
+        self._anonymous_source = AnonymousSource(localizer=localizer)
         self._anonymous_citations: dict[AncestryEntityId | None, Citation] = {}
 
     def __iter__(self) -> enumerate[Citation]:
@@ -70,8 +70,7 @@ class _Citer:
                 citation = self._anonymous_citations[source_key]
             except KeyError:
                 citation = AnonymousCitation(
-                    None,
-                    citation.source or self._anonymous_source,
+                    source=citation.source or self._anonymous_source,
                     localizer=self._localizer,
                 )
                 self._anonymous_citations[source_key] = citation

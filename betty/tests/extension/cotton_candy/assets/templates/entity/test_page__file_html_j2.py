@@ -22,8 +22,10 @@ class TestTemplate(TemplateTestCase):
     template_file = 'entity/page--file.html.j2'
 
     async def test_privacy(self) -> None:
-        file = File(None, Path())
-        file.description = 'file description'
+        file = File(
+            path=Path(),
+            description='file description',
+        )
 
         public_entity = TemplateTestEntity(None)
         file.entities.add(public_entity)
@@ -39,6 +41,7 @@ class TestTemplate(TemplateTestCase):
                 'entity': file,
             },
         ) as (actual, _):
+            assert file.description is not None
             assert file.description in actual
             assert public_entity.label in actual
 

@@ -88,18 +88,22 @@ class JSONEncoder(stdjson.JSONEncoder):
         if not isinstance(entity.id, GeneratedEntityId):
             encoded['id'] = entity.id
 
-            canonical = Link(self._generate_url(entity))
-            canonical.relationship = 'canonical'
-            canonical.media_type = MediaType('application/json')
+            canonical = Link(
+                self._generate_url(entity),
+                relationship='canonical',
+                media_type=MediaType('application/json'),
+            )
             encoded['links'].append(canonical)
 
             if is_public(entity):
                 for locale in self._app.project.configuration.locales:
                     localized_html_url = self._generate_url(entity, media_type='text/html', locale=locale)
-                    localized_html_link = Link(localized_html_url)
-                    localized_html_link.relationship = 'alternate'
-                    localized_html_link.media_type = MediaType('text/html')
-                    localized_html_link.locale = locale
+                    localized_html_link = Link(
+                        localized_html_url,
+                        relationship='alternate',
+                        media_type=MediaType('text/html'),
+                        locale=locale,
+                    )
                     encoded['links'].append(localized_html_link)
 
         if isinstance(entity, HasPrivacy):

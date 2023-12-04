@@ -59,7 +59,7 @@ class TestGenerate:
             LocaleConfiguration('en-US', 'en'),
         )
         async with app:
-            person = Person('PERSON1')
+            person = Person(id='PERSON1')
             app.project.ancestry.add(person)
             await generate(app)
         with open(assert_betty_html(app, f'/nl/person/{person.id}/index.html', check_links=True)) as f:
@@ -83,7 +83,10 @@ class TestGenerate:
     async def test_file(self) -> None:
         async with App() as app:
             with NamedTemporaryFile() as f:
-                file = File('FILE1', Path(f.name))
+                file = File(
+                    id='FILE1',
+                    path=Path(f.name),
+                )
                 app.project.ancestry.add(file)
                 await generate(app)
             assert_betty_html(app, '/file/%s/index.html' % file.id, check_links=True)
@@ -97,7 +100,10 @@ class TestGenerate:
 
     async def test_place(self) -> None:
         async with App() as app:
-            place = Place('PLACE1', [PlaceName('one')])
+            place = Place(
+                id='PLACE1',
+                names=[PlaceName(name='one')],
+            )
             app.project.ancestry.add(place)
             await generate(app)
         assert_betty_html(app, '/place/%s/index.html' % place.id, check_links=True)
@@ -110,7 +116,7 @@ class TestGenerate:
         assert_betty_json(app, '/person/index.json', 'personCollection')
 
     async def test_person(self) -> None:
-        person = Person('PERSON1')
+        person = Person(id='PERSON1')
         app = App()
         app.project.ancestry.add(person)
         async with app:
@@ -134,7 +140,10 @@ class TestGenerate:
 
     async def test_event(self) -> None:
         async with App() as app:
-            event = Event('EVENT1', Birth)
+            event = Event(
+                id='EVENT1',
+                event_type=Birth,
+            )
             app.project.ancestry.add(event)
             await generate(app)
         assert_betty_html(app, '/event/%s/index.html' % event.id, check_links=True)
@@ -143,7 +152,10 @@ class TestGenerate:
     async def test_citation(self) -> None:
         async with App() as app:
             source = Source('A Little Birdie')
-            citation = Citation('CITATION1', source)
+            citation = Citation(
+                id='CITATION1',
+                source=source,
+            )
             app.project.ancestry.add(citation, source)
             await generate(app)
         assert_betty_html(app, '/citation/%s/index.html' % citation.id, check_links=True)
@@ -157,7 +169,10 @@ class TestGenerate:
 
     async def test_source(self) -> None:
         async with App() as app:
-            source = Source('SOURCE1', 'A Little Birdie')
+            source = Source(
+                id='SOURCE1',
+                name='A Little Birdie',
+            )
             app.project.ancestry.add(source)
             await generate(app)
         assert_betty_html(app, '/source/%s/index.html' % source.id, check_links=True)

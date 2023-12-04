@@ -10,7 +10,7 @@ class Test(TemplateTestCase):
     template_file = 'entity/label--event.html.j2'
 
     async def test_minimal(self) -> None:
-        event = Event(None, Birth)
+        event = Event(event_type=Birth)
         expected = 'Birth'
         async with self._render(data={
             'entity': event,
@@ -18,7 +18,10 @@ class Test(TemplateTestCase):
             assert expected == actual
 
     async def test_with_identifiable(self) -> None:
-        event = Event('E0', Birth)
+        event = Event(
+            id='E0',
+            event_type=Birth,
+        )
         expected = '<a href="/event/E0/index.html">Birth</a>'
         async with self._render(data={
             'entity': event,
@@ -26,8 +29,11 @@ class Test(TemplateTestCase):
             assert expected == actual
 
     async def test_embedded_with_identifiable(self) -> None:
-        event = Event('E0', Birth)
-        Presence(None, Person('P0'), Subject(), event)
+        event = Event(
+            id='E0',
+            event_type=Birth,
+        )
+        Presence(Person(id='P0'), Subject(), event)
         expected = 'Birth of <span class="nn" title="This person\'s name is unknown.">n.n.</span>'
         async with self._render(data={
             'entity': event,
@@ -36,8 +42,10 @@ class Test(TemplateTestCase):
             assert expected == actual
 
     async def test_with_description(self) -> None:
-        event = Event(None, Birth)
-        event.description = 'Something happened!'
+        event = Event(
+            event_type=Birth,
+            description='Something happened!',
+        )
         expected = 'Birth (Something happened!)'
         async with self._render(data={
             'entity': event,
@@ -45,8 +53,8 @@ class Test(TemplateTestCase):
             assert expected == actual
 
     async def test_with_witnesses(self) -> None:
-        event = Event(None, Birth)
-        Presence(None, Person('P0'), Witness(), event)
+        event = Event(event_type=Birth)
+        Presence(Person(id='P0'), Witness(), event)
         expected = 'Birth'
         async with self._render(data={
             'entity': event,
@@ -54,9 +62,9 @@ class Test(TemplateTestCase):
             assert expected == actual
 
     async def test_with_person_context_as_subject(self) -> None:
-        event = Event(None, Birth)
-        person = Person('P0')
-        Presence(None, person, Subject(), event)
+        event = Event(event_type=Birth)
+        person = Person(id='P0')
+        Presence(person, Subject(), event)
         expected = 'Birth'
         async with self._render(data={
             'entity': event,
@@ -65,11 +73,11 @@ class Test(TemplateTestCase):
             assert expected == actual
 
     async def test_with_person_context_and_other_as_subject(self) -> None:
-        event = Event(None, Marriage)
-        person = Person('P0')
-        other_person = Person('P1')
-        Presence(None, person, Subject(), event)
-        Presence(None, other_person, Subject(), event)
+        event = Event(event_type=Marriage)
+        person = Person(id='P0')
+        other_person = Person(id='P1')
+        Presence(person, Subject(), event)
+        Presence(other_person, Subject(), event)
         expected = 'Marriage with <a href="/person/P1/index.html"><span class="nn" title="This person\'s name is unknown.">n.n.</span></a>'
         async with self._render(data={
             'entity': event,
@@ -78,9 +86,9 @@ class Test(TemplateTestCase):
             assert expected == actual
 
     async def test_with_subjects(self) -> None:
-        event = Event(None, Birth)
-        Presence(None, Person('P0'), Subject(), event)
-        Presence(None, Person('P1'), Subject(), event)
+        event = Event(event_type=Birth)
+        Presence(Person(id='P0'), Subject(), event)
+        Presence(Person(id='P1'), Subject(), event)
         expected = 'Birth of <a href="/person/P0/index.html"><span class="nn" title="This person\'s name is unknown.">n.n.</span></a>, <a href="/person/P1/index.html"><span class="nn" title="This person\'s name is unknown.">n.n.</span></a>'
         async with self._render(data={
             'entity': event,
@@ -88,7 +96,7 @@ class Test(TemplateTestCase):
             assert expected == actual
 
     async def test_without_subjects(self) -> None:
-        event = Event(None, Birth)
+        event = Event(event_type=Birth)
         expected = 'Birth'
         async with self._render(data={
             'entity': event,
@@ -96,7 +104,7 @@ class Test(TemplateTestCase):
             assert expected == actual
 
     async def test_with_entity(self) -> None:
-        event = Event(None, Birth)
+        event = Event(event_type=Birth)
         expected = 'Birth'
         async with self._render(data={
             'entity': event,

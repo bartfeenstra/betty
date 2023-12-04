@@ -66,7 +66,7 @@ class Deriver(Localizable):
                 self._lifetime_threshold,
             ):
                 derivable_events = [
-                    (Event(None, derivable_event_type), Derivation.CREATE),
+                    (Event(event_type=derivable_event_type), Derivation.CREATE),
                 ]
             else:
                 return 0, 0
@@ -99,7 +99,7 @@ class Deriver(Localizable):
                 self._ancestry.add(derivable_event)
                 if derivation is Derivation.CREATE:
                     created_derivations += 1
-                    presence = Presence(None, person, Subject(), derivable_event)
+                    presence = Presence(person, Subject(), derivable_event)
                     self._ancestry.add(presence)
                 else:
                     updated_derivations += 1

@@ -135,12 +135,18 @@ class TestFilterFile(TemplateTestCase):
         (
             '/file/F1/file/test_jinja2.py',
             '{{ file | file }}',
-            File('F1', Path(__file__)),
+            File(
+                id='F1',
+                path=Path(__file__),
+            ),
         ),
         (
             '/file/F1/file/test_jinja2.py:/file/F1/file/test_jinja2.py',
             '{{ file | file }}:{{ file | file }}',
-            File('F1', Path(__file__)),
+            File(
+                id='F1',
+                path=Path(__file__),
+            ),
         ),
     ])
     async def test(self, expected: str, template: str, file: File) -> None:
@@ -159,22 +165,38 @@ class TestFilterImage(TemplateTestCase):
         (
             '/file/F1-99x-.png',
             '{{ file | image(width=99) }}',
-            File('F1', image_path, media_type=MediaType('image/png')),
+            File(
+                id='F1',
+                path=image_path,
+                media_type=MediaType('image/png'),
+            ),
         ),
         (
             '/file/F1--x99.png',
             '{{ file | image(height=99) }}',
-            File('F1', image_path, media_type=MediaType('image/png')),
+            File(
+                id='F1',
+                path=image_path,
+                media_type=MediaType('image/png'),
+            ),
         ),
         (
             '/file/F1-99x99.png',
             '{{ file | image(width=99, height=99) }}',
-            File('F1', image_path, media_type=MediaType('image/png')),
+            File(
+                id='F1',
+                path=image_path,
+                media_type=MediaType('image/png'),
+            ),
         ),
         (
             '/file/F1-99x99.png:/file/F1-99x99.png',
             '{{ file | image(width=99, height=99) }}:{{ file | image(width=99, height=99) }}',
-            File('F1', image_path, media_type=MediaType('image/png')),
+            File(
+                id='F1',
+                path=image_path,
+                media_type=MediaType('image/png'),
+            ),
         ),
     ])
     async def test(self, expected: str, template: str, file: File) -> None:
@@ -186,7 +208,11 @@ class TestFilterImage(TemplateTestCase):
                 assert ((app.project.configuration.www_directory_path / file_path[1:]).exists())
 
     async def test_without_width(self) -> None:
-        file = File('F1', self.image_path, media_type=MediaType('image/png'))
+        file = File(
+            id='F1',
+            path=self.image_path,
+            media_type=MediaType('image/png'),
+        )
         with pytest.raises(ValueError):
             async with self._render(template_string='{{ file | image }}', data={
                 'file': file,
@@ -196,16 +222,16 @@ class TestFilterImage(TemplateTestCase):
 
 class TestGlobalCiter(TemplateTestCase):
     async def test_cite(self) -> None:
-        citation1 = Citation(None, None)
-        citation2 = Citation(None, None)
+        citation1 = Citation()
+        citation2 = Citation()
         sut = _Citer(DEFAULT_LOCALIZER)
         assert 1 == sut.cite(citation1)
         assert 2 == sut.cite(citation2)
         assert 1 == sut.cite(citation1)
 
     async def test_iter(self) -> None:
-        citation1 = Citation(None, None)
-        citation2 = Citation(None, None)
+        citation1 = Citation()
+        citation2 = Citation()
         sut = _Citer(DEFAULT_LOCALIZER)
         sut.cite(citation1)
         sut.cite(citation2)
@@ -213,8 +239,8 @@ class TestGlobalCiter(TemplateTestCase):
         assert [(1, citation1), (2, citation2)] == list(sut)
 
     async def test_len(self) -> None:
-        citation1 = Citation(None, None)
-        citation2 = Citation(None, None)
+        citation1 = Citation()
+        citation2 = Citation()
         sut = _Citer(DEFAULT_LOCALIZER)
         sut.cite(citation1)
         sut.cite(citation2)
@@ -245,15 +271,30 @@ class TestFilterSortLocalizeds(TemplateTestCase):
         template = '{{ data | sort_localizeds(localized_attribute="names", sort_attribute="name") }}'
         data = [
             self.WithLocalizedNames('third', [
-                PlaceName('3', 'nl-NL'),
+                PlaceName(
+                    name='3',
+                    locale='nl-NL',
+                ),
             ]),
             self.WithLocalizedNames('second', [
-                PlaceName('2', 'en'),
-                PlaceName('1', 'nl-NL'),
+                PlaceName(
+                    name='2',
+                    locale='en',
+                ),
+                PlaceName(
+                    name='1',
+                    locale='nl-NL',
+                ),
             ]),
             self.WithLocalizedNames('first', [
-                PlaceName('2', 'nl-NL'),
-                PlaceName('1', 'en-US'),
+                PlaceName(
+                    name='2',
+                    locale='nl-NL',
+                ),
+                PlaceName(
+                    name='1',
+                    locale='en-US',
+                ),
             ]),
         ]
         async with self._render(template_string=template, data={
@@ -273,19 +314,34 @@ class TestFilterSelectLocalizeds(TemplateTestCase):
     @pytest.mark.parametrize('expected, locale, data', [
         ('', 'en', []),
         ('Apple', 'en', [
-            PlaceName('Apple', 'en')
+            PlaceName(
+                name='Apple',
+                locale='en',
+            )
         ]),
         ('Apple', 'en', [
-            PlaceName('Apple', 'en-US')
+            PlaceName(
+                name='Apple',
+                locale='en-US',
+            )
         ]),
         ('Apple', 'en-US', [
-            PlaceName('Apple', 'en')
+            PlaceName(
+                name='Apple',
+                locale='en',
+            )
         ]),
         ('', 'nl', [
-            PlaceName('Apple', 'en')
+            PlaceName(
+                name='Apple',
+                locale='en',
+            )
         ]),
         ('', 'nl-NL', [
-            PlaceName('Apple', 'en')
+            PlaceName(
+                name='Apple',
+                locale='en',
+            )
         ]),
     ])
     async def test(self, expected: str, locale: str, data: Iterable[Localized]) -> None:
@@ -299,11 +355,25 @@ class TestFilterSelectLocalizeds(TemplateTestCase):
     async def test_include_unspecified(self) -> None:
         template = '{{ data | select_localizeds(include_unspecified=true) | map(attribute="name") | join(", ") }}'
         data = [
-            PlaceName('Apple', 'zxx'),
-            PlaceName('Apple', 'und'),
-            PlaceName('Apple', 'mul'),
-            PlaceName('Apple', 'mis'),
-            PlaceName('Apple', None),
+            PlaceName(
+                name='Apple',
+                locale='zxx',
+            ),
+            PlaceName(
+                name='Apple',
+                locale='und',
+            ),
+            PlaceName(
+                name='Apple',
+                locale='mul',
+            ),
+            PlaceName(
+                name='Apple',
+                locale='mis',
+            ),
+            PlaceName(
+                name='Apple',
+            ),
         ]
 
         async with self._render(template_string=template, data={
@@ -315,9 +385,8 @@ class TestFilterSelectLocalizeds(TemplateTestCase):
 class TestFilterSelectDateds(TemplateTestCase):
     class DatedDummy(Dated):
         def __init__(self, value: str, date: Datey | None = None):
-            Dated.__init__(self)
+            super().__init__(date=date)
             self._value = value
-            self.date = date
 
         def __str__(self) -> str:
             return self._value
@@ -407,10 +476,16 @@ class TestTestWitnessRole(TemplateTestCase):
 
 class TestTestEntity(TemplateTestCase):
     @pytest.mark.parametrize('expected, entity_type, data', [
-        ('true', Person, Person('P1')),
-        ('false', Person, Place('P1', [PlaceName('The Place')])),
-        ('true', Place, Place('P1', [PlaceName('The Place')])),
-        ('false', Place, Person('P1')),
+        ('true', Person, Person(id='P1')),
+        ('false', Person, Place(
+            id='P1',
+            names=[PlaceName(name='The Place')],
+        )),
+        ('true', Place, Place(
+            id='P1',
+            names=[PlaceName(name='The Place')],
+        )),
+        ('false', Place, Person(id='P1')),
         ('false', Place, 999),
         ('false', Person, object()),
     ])

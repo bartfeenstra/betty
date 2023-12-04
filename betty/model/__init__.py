@@ -31,12 +31,12 @@ class GeneratedEntityId(str):
 class Entity(Localizable, Pickleable):
     def __init__(
         self,
-        entity_id: str | None = None,
+        id: str | None = None,
         *args: Any,
         localizer: Localizer | None = None,
         **kwargs: Any,
     ):
-        self._id = GeneratedEntityId() if entity_id is None else entity_id
+        self._id = GeneratedEntityId() if id is None else id
         super().__init__(*args, localizer=localizer, **kwargs)
 
     def __getstate__(self) -> State:

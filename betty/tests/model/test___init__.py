@@ -363,7 +363,7 @@ class TestMultipleTypesEntityCollection:
         sut = MultipleTypesEntityCollection[Entity]()
         # Use an existing ancestry entity type, because converting an entity type name to an entity type only works for
         # entity types in a single module namespace.
-        entity = Person(None)
+        entity = Person()
         sut.add(entity)
         assert [entity] == list(sut['Person'])
         # Ensure that getting previously unseen entity types automatically creates and returns a new collection.

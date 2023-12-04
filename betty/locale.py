@@ -90,7 +90,12 @@ def get_display_name(locale: Localey, display_locale: Localey | None = None) -> 
 class Localized(Pickleable):
     locale: str | None
 
-    def __init__(self, locale: str | None = None, *args: Any, **kwargs: Any):
+    def __init__(
+        self,
+        *args: Any,
+        locale: str | None = None,
+        **kwargs: Any,
+    ):
         super().__init__(*args, **kwargs)
         self.locale = locale
 

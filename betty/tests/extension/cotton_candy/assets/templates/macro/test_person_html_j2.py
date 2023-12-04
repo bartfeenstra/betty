@@ -8,8 +8,12 @@ class TestNameLabel(TemplateTestCase):
     template_string = '{% import \'macro/person.html.j2\' as personMacros %}{{ personMacros.name_label(name, embedded=embedded if embedded is defined else False) }}'
 
     async def test_with_full_name(self) -> None:
-        person = Person(None)
-        name = PersonName(None, person, 'Jane', 'Dough')
+        person = Person()
+        name = PersonName(
+            person=person,
+            individual='Jane',
+            affiliation='Dough',
+        )
         expected = '<span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span> <span property="foaf:familyName">Dough</span></span>'
         async with self._render(data={
             'name': name,
@@ -17,8 +21,11 @@ class TestNameLabel(TemplateTestCase):
             assert expected == actual
 
     async def test_with_individual_name(self) -> None:
-        person = Person(None)
-        name = PersonName(None, person, 'Jane')
+        person = Person()
+        name = PersonName(
+            person=person,
+            individual='Jane',
+        )
         expected = '<span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span></span>'
         async with self._render(data={
             'name': name,
@@ -26,8 +33,11 @@ class TestNameLabel(TemplateTestCase):
             assert expected == actual
 
     async def test_with_affiliation_name(self) -> None:
-        person = Person(None)
-        name = PersonName(None, person, None, 'Dough')
+        person = Person()
+        name = PersonName(
+            person=person,
+            affiliation='Dough',
+        )
         expected = '<span class="person-label" typeof="foaf:Person">… <span property="foaf:familyName">Dough</span></span>'
         async with self._render(data={
             'name': name,
@@ -35,10 +45,14 @@ class TestNameLabel(TemplateTestCase):
             assert expected == actual
 
     async def test_embedded(self) -> None:
-        person = Person(None)
-        name = PersonName(None, person, 'Jane', 'Dough')
-        source = Source(None)
-        citation = Citation(None, source)
+        person = Person()
+        name = PersonName(
+            person=person,
+            individual='Jane',
+            affiliation='Dough',
+        )
+        source = Source()
+        citation = Citation(source=source)
         name.citations.add(citation)
         expected = '<span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span> <span property="foaf:familyName">Dough</span></span>'
         async with self._render(data={
@@ -48,10 +62,13 @@ class TestNameLabel(TemplateTestCase):
             assert expected == actual
 
     async def test_with_citation(self) -> None:
-        person = Person(None)
-        name = PersonName(None, person, 'Jane')
-        source = Source(None)
-        citation = Citation(None, source)
+        person = Person()
+        name = PersonName(
+            person=person,
+            individual='Jane',
+        )
+        source = Source()
+        citation = Citation(source=source)
         name.citations.add(citation)
         expected = '<span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span></span><a href="#reference-1" class="citation">[1]</a>'
         async with self._render(data={
