@@ -171,6 +171,14 @@ class TaskBatch(_TaskActivity, Generic[TaskBatchContextT]):
         self._task_queue.put((callable, args, kwargs))
 
     async def _perform_tasks(self) -> None:
+        # @todo What may happen (Sunday bedtime thoughts)
+        # @todo A batch is joined, and as such removed from the registry
+        # @todo Once the joined event is set, the owning side may finish AND THE NON WEAK REFS MAY DISAPPEAR
+        # @todo meanwhile, workers may still be trying to finish a batch
+        # @todo Do we need a semaphore for each batch (or some counter)
+        # @todo to ensure that the owning side only joins if and when all workers have released the batch?
+        # @todo
+        # @todo
         while not self.joined:
             try:
                 callable, args, kwargs = self._task_queue.get_nowait()
