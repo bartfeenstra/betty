@@ -12,18 +12,30 @@ from betty.project import ExtensionConfiguration
 
 class TestPrivatizer:
     async def test_post_load(self) -> None:
-        person = Person('P0')
-        Presence(None, person, Subject(), Event(None, Birth))
+        person = Person(id='P0')
+        Presence(person, Subject(), Event(event_type=Birth))
 
-        source_file = File('F0', Path(__file__))
-        source = Source('S0', 'The Source')
-        source.private = True
+        source_file = File(
+            id='F0',
+            path=Path(__file__),
+        )
+        source = Source(
+            id='S0',
+            name='The Source',
+            private=True,
+        )
         source.files.add(source_file)
 
-        citation_file = File('F0', Path(__file__))
+        citation_file = File(
+            id='F0',
+            path=Path(__file__),
+        )
         citation_source = Source('The Source')
-        citation = Citation('C0', citation_source)
-        citation.private = True
+        citation = Citation(
+            id='C0',
+            source=citation_source,
+            private=True,
+        )
         citation.files.add(citation_file)
 
         app = App()

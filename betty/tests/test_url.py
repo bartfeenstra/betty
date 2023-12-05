@@ -102,12 +102,27 @@ class TestEntityUrlGenerator:
 class TestAppUrlGenerator:
     @pytest.mark.parametrize('expected, resource', [
         ('/index.html', '/index.html'),
-        ('/person/P1/index.html', Person('P1')),
-        ('/event/E1/index.html', Event('E1', Death)),
-        ('/place/P1/index.html', Place('P1', [PlaceName('Place 1')])),
-        ('/file/F1/index.html', File('F1', Path('/tmp'))),
-        ('/source/S1/index.html', Source('S1', 'Source 1')),
-        ('/citation/C1/index.html', Citation('C1', Source('Source 1'))),
+        ('/person/P1/index.html', Person(id='P1')),
+        ('/event/E1/index.html', Event(
+            id='E1',
+            event_type=Death,
+        )),
+        ('/place/P1/index.html', Place(
+            id='P1',
+            names=[PlaceName(name='Place 1')],
+        )),
+        ('/file/F1/index.html', File(
+            id='F1',
+            path=Path('/tmp'),
+        )),
+        ('/source/S1/index.html', Source(
+            id='S1',
+            name='Source 1',
+        )),
+        ('/citation/C1/index.html', Citation(
+            id='C1',
+            source=Source('Source 1'),
+        )),
     ])
     async def test_generate(self, expected: str, resource: Any) -> None:
         async with App() as app:

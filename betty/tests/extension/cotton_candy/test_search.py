@@ -21,7 +21,7 @@ class TestIndex:
 
     async def test_person_without_names(self) -> None:
         person_id = 'P1'
-        person = Person(person_id)
+        person = Person(id=person_id)
 
         app = App()
         app.project.configuration.extensions.enable(CottonCandy)
@@ -35,9 +35,14 @@ class TestIndex:
     async def test_private_person(self) -> None:
         person_id = 'P1'
         individual_name = 'Jane'
-        person = Person(person_id)
-        PersonName(None, person, individual_name)
-        person.private = True
+        person = Person(
+            id=person_id,
+            private=True,
+        )
+        PersonName(
+            person=person,
+            individual=individual_name,
+        )
 
         app = App()
         app.project.configuration.extensions.enable(CottonCandy)
@@ -55,8 +60,11 @@ class TestIndex:
     async def test_person_with_individual_name(self, expected: str, locale: str) -> None:
         person_id = 'P1'
         individual_name = 'Jane'
-        person = Person(person_id)
-        PersonName(None, person, individual_name)
+        person = Person(id=person_id)
+        PersonName(
+            person=person,
+            individual=individual_name,
+        )
 
         app = App(locale=locale)
         app.project.configuration.extensions.enable(CottonCandy)
@@ -75,8 +83,11 @@ class TestIndex:
     async def test_person_with_affiliation_name(self, expected: str, locale: str) -> None:
         person_id = 'P1'
         affiliation_name = 'Doughnut'
-        person = Person(person_id)
-        PersonName(None, person, None, affiliation_name)
+        person = Person(id=person_id)
+        PersonName(
+            person=person,
+            affiliation=affiliation_name,
+        )
 
         app = App(locale=locale)
         app.project.configuration.extensions.enable(CottonCandy)
@@ -96,8 +107,12 @@ class TestIndex:
         person_id = 'P1'
         individual_name = 'Jane'
         affiliation_name = 'Doughnut'
-        person = Person(person_id)
-        PersonName(None, person, individual_name, affiliation_name)
+        person = Person(id=person_id)
+        PersonName(
+            person=person,
+            individual=individual_name,
+            affiliation=affiliation_name,
+        )
 
         app = App(locale=locale)
         app.project.configuration.extensions.enable(CottonCandy)
@@ -115,7 +130,19 @@ class TestIndex:
     ])
     async def test_place(self, expected: str, locale: str) -> None:
         place_id = 'P1'
-        place = Place(place_id, [PlaceName('Netherlands', 'en'), PlaceName('Nederland', 'nl')])
+        place = Place(
+            id=place_id,
+            names=[
+                PlaceName(
+                    name='Netherlands',
+                    locale='en',
+                ),
+                PlaceName(
+                    name='Nederland',
+                    locale='nl',
+                ),
+            ],
+        )
 
         app = App(locale=locale)
         app.project.configuration.extensions.enable(CottonCandy)
@@ -129,7 +156,10 @@ class TestIndex:
 
     async def test_file_without_description(self) -> None:
         file_id = 'F1'
-        file = File(file_id, Path(__file__))
+        file = File(
+            id=file_id,
+            path=Path(__file__),
+        )
 
         app = App()
         app.project.configuration.extensions.enable(CottonCandy)
@@ -146,8 +176,11 @@ class TestIndex:
     ])
     async def test_file(self, expected: str, locale: str) -> None:
         file_id = 'F1'
-        file = File(file_id, Path(__file__))
-        file.description = '"file" is Dutch for "traffic jam"'
+        file = File(
+            id=file_id,
+            path=Path(__file__),
+            description='"file" is Dutch for "traffic jam"',
+        )
 
         app = App(locale=locale)
         app.project.configuration.extensions.enable(CottonCandy)

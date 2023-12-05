@@ -43,7 +43,10 @@ class TestJSONEncoder:
     async def test_place_should_encode_minimal(self) -> None:
         place_id = 'the_place'
         name = 'The Place'
-        place = Place(place_id, [PlaceName(name)])
+        place = Place(
+            id=place_id,
+            names=[PlaceName(name=name)],
+        )
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/place',
             '@context': {
@@ -90,14 +93,23 @@ class TestJSONEncoder:
         latitude = 12.345
         longitude = -54.321
         coordinates = Point(latitude, longitude)
-        place = Place(place_id, [PlaceName(name, locale)])
-        place.coordinates = coordinates
-        Enclosure(place, Place('the_enclosing_place', []))
-        Enclosure(Place('the_enclosed_place', []), place)
         link = Link('https://example.com/the-place')
         link.label = 'The Place Online'
-        place.links.add(link)
-        place.events.add(Event('E1', Birth))
+        place = Place(
+            id=place_id,
+            names=[PlaceName(
+                name=name,
+                locale=locale,
+            )],
+            events=[Event(
+                id='E1',
+                event_type=Birth,
+            )],
+            links={link},
+        )
+        place.coordinates = coordinates
+        Enclosure(encloses=place, enclosed_by=Place(id='the_enclosing_place'))
+        Enclosure(encloses=Place(id='the_enclosed_place'), enclosed_by=place)
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/place',
             '@context': {
@@ -160,7 +172,7 @@ class TestJSONEncoder:
 
     async def test_person_should_encode_minimal(self) -> None:
         person_id = 'the_person'
-        person = Person(person_id)
+        person = Person(id=person_id)
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/person',
             '@context': {
@@ -201,28 +213,45 @@ class TestJSONEncoder:
 
     async def test_person_should_encode_full(self) -> None:
         parent_id = 'the_parent'
-        parent = Person(parent_id)
+        parent = Person(id=parent_id)
 
         child_id = 'the_child'
-        child = Person(child_id)
+        child = Person(id=child_id)
 
         sibling_id = 'the_sibling'
-        sibling = Person(sibling_id)
+        sibling = Person(id=sibling_id)
         sibling.parents.add(parent)
 
         person_id = 'the_person'
         person_affiliation_name = 'Person'
         person_individual_name = 'The'
-        person = Person(person_id)
-        PersonName(None, person, person_individual_name, person_affiliation_name)
+        person = Person(
+            id=person_id,
+            public=True,
+        )
+        PersonName(
+            person=person,
+            individual=person_individual_name,
+            affiliation=person_affiliation_name,
+        )
         person.parents.add(parent)
         person.children.add(child)
-        person.public = True
-        link = Link('https://example.com/the-person')
-        link.label = 'The Person Online'
+        link = Link(
+            'https://example.com/the-person',
+            label='The Person Online',
+        )
         person.links.add(link)
-        person.citations.add(Citation('the_citation', Source('The Source')))
-        Presence(None, person, Subject(), Event('the_event', Birth))
+        person.citations.add(Citation(
+            id='the_citation',
+            source=Source(
+                id='the_source',
+                name='The Source',
+            ),
+        ))
+        Presence(person, Subject(), Event(
+            id='the_event',
+            event_type=Birth,
+        ))
 
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/person',
@@ -293,28 +322,43 @@ class TestJSONEncoder:
 
     async def test_person_should_encode_private(self) -> None:
         parent_id = 'the_parent'
-        parent = Person(parent_id)
+        parent = Person(id=parent_id)
 
         child_id = 'the_child'
-        child = Person(child_id)
+        child = Person(id=child_id)
 
         sibling_id = 'the_sibling'
-        sibling = Person(sibling_id)
+        sibling = Person(id=sibling_id)
         sibling.parents.add(parent)
 
         person_id = 'the_person'
         person_affiliation_name = 'Person'
         person_individual_name = 'The'
-        person = Person(person_id)
-        PersonName(None, person, person_individual_name, person_affiliation_name)
+        person = Person(
+            id=person_id,
+            private=True,
+        )
+        PersonName(
+            person=person,
+            individual=person_individual_name,
+            affiliation=person_affiliation_name,
+        )
         person.parents.add(parent)
         person.children.add(child)
-        person.private = True
         link = Link('https://example.com/the-person')
         link.label = 'The Person Online'
         person.links.add(link)
-        person.citations.add(Citation('the_citation', Source('The Source')))
-        Presence(None, person, Subject(), Event('the_event', Birth))
+        person.citations.add(Citation(
+            id='the_citation',
+            source=Source(
+                id='the_source',
+                name='The Source',
+            ),
+        ))
+        Presence(person, Subject(), Event(
+            id='the_event',
+            event_type=Birth,
+        ))
 
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/person',
@@ -358,7 +402,10 @@ class TestJSONEncoder:
         await self.assert_encodes(expected, person, 'person')
 
     async def test_note_should_encode(self) -> None:
-        note = Note('the_note', 'The Note')
+        note = Note(
+            id='the_note',
+            text='The Note',
+        )
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/note',
             '@context': {},
@@ -389,8 +436,11 @@ class TestJSONEncoder:
         await self.assert_encodes(expected, note, 'note')
 
     async def test_note_should_encode_private(self) -> None:
-        note = Note('the_note', 'The Note')
-        note.private = True
+        note = Note(
+            id='the_note',
+            text='The Note',
+            private=True,
+        )
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/note',
             '@context': {},
@@ -409,7 +459,10 @@ class TestJSONEncoder:
 
     async def test_file_should_encode_minimal(self) -> None:
         with NamedTemporaryFile() as f:
-            file = File('the_file', Path(f.name))
+            file = File(
+                id='the_file',
+                path=Path(f.name),
+            )
             expected: dict[str, Any] = {
                 '$schema': '/schema.json#/definitions/file',
                 '@context': {},
@@ -442,11 +495,23 @@ class TestJSONEncoder:
 
     async def test_file_should_encode_full(self) -> None:
         with NamedTemporaryFile() as f:
-            file = File('the_file', Path(f.name))
-            file.media_type = MediaType('text/plain')
-            file.notes.add(Note('the_note', 'The Note'))
-            file.entities.add(Person('the_person'))
-            file.citations.add(Citation('the_citation', Source('The Source')))
+            file = File(
+                id='the_file',
+                path=Path(f.name),
+                media_type=MediaType('text/plain'),
+            )
+            file.notes.add(Note(
+                id='the_note',
+                text='The Note',
+            ))
+            file.entities.add(Person(id='the_person'))
+            file.citations.add(Citation(
+                id='the_citation',
+                source=Source(
+                    id='the_source',
+                    name='The Source',
+                ),
+            ))
             expected: dict[str, Any] = {
                 '$schema': '/schema.json#/definitions/file',
                 '@context': {},
@@ -486,12 +551,24 @@ class TestJSONEncoder:
 
     async def test_file_should_encode_private(self) -> None:
         with NamedTemporaryFile() as f:
-            file = File('the_file', Path(f.name))
-            file.media_type = MediaType('text/plain')
-            file.notes.add(Note('the_note', 'The Note'))
-            file.entities.add(Person('the_person'))
-            file.citations.add(Citation('the_citation', Source('The Source')))
-            file.private = True
+            file = File(
+                id='the_file',
+                path=Path(f.name),
+                private=True,
+                media_type=MediaType('text/plain'),
+            )
+            file.notes.add(Note(
+                id='the_note',
+                text='The Note',
+            ))
+            file.entities.add(Person(id='the_person'))
+            file.citations.add(Citation(
+                id='the_citation',
+                source=Source(
+                    id='the_source',
+                    name='The Source',
+                ),
+            ))
             expected: dict[str, Any] = {
                 '$schema': '/schema.json#/definitions/file',
                 '@context': {},
@@ -517,7 +594,10 @@ class TestJSONEncoder:
             await self.assert_encodes(expected, file, 'file')
 
     async def test_event_should_encode_minimal(self) -> None:
-        event = Event('the_event', Birth)
+        event = Event(
+            id='the_event',
+            event_type=Birth,
+        )
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/event',
             '@context': {},
@@ -550,11 +630,23 @@ class TestJSONEncoder:
         await self.assert_encodes(expected, event, 'event')
 
     async def test_event_should_encode_full(self) -> None:
-        event = Event('the_event', Birth)
-        event.date = DateRange(Date(2000, 1, 1), Date(2019, 12, 31))
-        event.place = Place('the_place', [PlaceName('The Place')])
-        Presence(None, Person('the_person'), Subject(), event)
-        event.citations.add(Citation('the_citation', Source('The Source')))
+        event = Event(
+            id='the_event',
+            event_type=Birth,
+            date=DateRange(Date(2000, 1, 1), Date(2019, 12, 31)),
+            place=Place(
+                id='the_place',
+                names=[PlaceName(name='The Place')],
+            ),
+        )
+        Presence(Person(id='the_person'), Subject(), event)
+        event.citations.add(Citation(
+            id='the_citation',
+            source=Source(
+                id='the_source',
+                name='The Source',
+            ),
+        ))
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/event',
             '@context': {
@@ -612,12 +704,24 @@ class TestJSONEncoder:
         await self.assert_encodes(expected, event, 'event')
 
     async def test_event_should_encode_private(self) -> None:
-        event = Event('the_event', Birth)
-        event.date = DateRange(Date(2000, 1, 1), Date(2019, 12, 31))
-        event.place = Place('the_place', [PlaceName('The Place')])
-        Presence(None, Person('the_person'), Subject(), event)
-        event.citations.add(Citation('the_citation', Source('The Source')))
-        event.private = True
+        event = Event(
+            id='the_event',
+            event_type=Birth,
+            private=True,
+            date=DateRange(Date(2000, 1, 1), Date(2019, 12, 31)),
+            place=Place(
+                id='the_place',
+                names=[PlaceName(name='The Place')],
+            ),
+        )
+        Presence(Person(id='the_person'), Subject(), event)
+        event.citations.add(Citation(
+            id='the_citation',
+            source=Source(
+                id='the_source',
+                name='The Source',
+            ),
+        ))
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/event',
             '@context': {
@@ -651,7 +755,10 @@ class TestJSONEncoder:
         await self.assert_encodes(expected, event, 'event')
 
     async def test_source_should_encode_minimal(self) -> None:
-        source = Source('the_source', 'The Source')
+        source = Source(
+            id='the_source',
+            name='The Source',
+        )
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/source',
             '@context': {
@@ -686,16 +793,28 @@ class TestJSONEncoder:
         await self.assert_encodes(expected, source, 'source')
 
     async def test_source_should_encode_full(self) -> None:
-        source = Source('the_source', 'The Source')
-        source.author = 'The Author'
-        source.publisher = 'The Publisher'
-        source.date = Date(2000, 1, 1)
-        source.contained_by = Source('the_containing_source', 'The Containing Source')
         link = Link('https://example.com/the-source')
         link.label = 'The Source Online'
-        source.links.add(link)
-        source.contains.add(Source('the_contained_source', 'The Contained Source'))
-        Citation('the_citation', source)
+        source = Source(
+            id='the_source',
+            name='The Source',
+            author='The Author',
+            publisher='The Publisher',
+            date=Date(2000, 1, 1),
+            contained_by=Source(
+                id='the_containing_source',
+                name='The Containing Source',
+            ),
+            contains=[Source(
+                id='the_contained_source',
+                name='The Contained Source',
+            )],
+            links={link},
+        )
+        Citation(
+            id='the_citation',
+            source=source,
+        )
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/source',
             '@context': {
@@ -746,17 +865,29 @@ class TestJSONEncoder:
         await self.assert_encodes(expected, source, 'source')
 
     async def test_source_should_encode_private(self) -> None:
-        source = Source('the_source', 'The Source')
-        source.author = 'The Author'
-        source.publisher = 'The Publisher'
-        source.date = Date(2000, 1, 1)
-        source.contained_by = Source('the_containing_source', 'The Containing Source')
         link = Link('https://example.com/the-source')
         link.label = 'The Source Online'
-        source.links.add(link)
-        source.contains.add(Source('the_contained_source', 'The Contained Source'))
-        Citation('the_citation', source)
-        source.private = True
+        source = Source(
+            id='the_source',
+            name='The Source',
+            author='The Author',
+            publisher='The Publisher',
+            date=Date(2000, 1, 1),
+            contained_by=Source(
+                id='the_containing_source',
+                name='The Containing Source',
+            ),
+            contains=[Source(
+                id='the_contained_source',
+                name='The Contained Source',
+            )],
+            links={link},
+            private=True,
+        )
+        Citation(
+            id='the_citation',
+            source=source,
+        )
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/source',
             '@context': {},
@@ -781,7 +912,10 @@ class TestJSONEncoder:
         await self.assert_encodes(expected, source, 'source')
 
     async def test_citation_should_encode_minimal(self) -> None:
-        citation = Citation('the_citation', Source(None, 'The Source'))
+        citation = Citation(
+            id='the_citation',
+            source=Source(name='The Source'),
+        )
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/citation',
             '@context': {},
@@ -812,8 +946,17 @@ class TestJSONEncoder:
         await self.assert_encodes(expected, citation, 'citation')
 
     async def test_citation_should_encode_full(self) -> None:
-        citation = Citation('the_citation', Source('the_source', 'The Source'))
-        citation.facts.add(Event('the_event', Birth))
+        citation = Citation(
+            id='the_citation',
+            source=Source(
+                id='the_source',
+                name='The Source',
+            ),
+        )
+        citation.facts.add(Event(
+            id='the_event',
+            event_type=Birth,
+        ))
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/citation',
             '@context': {},
@@ -847,9 +990,18 @@ class TestJSONEncoder:
         await self.assert_encodes(expected, citation, 'citation')
 
     async def test_citation_should_encode_private(self) -> None:
-        citation = Citation('the_citation', Source('the_source', 'The Source'))
-        citation.facts.add(Event('the_event', Birth))
-        citation.private = True
+        citation = Citation(
+            id='the_citation',
+            source=Source(
+                id='the_source',
+                name='The Source',
+            ),
+            private=True,
+        )
+        citation.facts.add(Event(
+            id='the_event',
+            event_type=Birth,
+        ))
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/citation',
             '@context': {},
@@ -878,11 +1030,13 @@ class TestJSONEncoder:
         await self.assert_encodes(expected, link, 'link')
 
     async def test_link_should_encode_full(self) -> None:
-        link = Link('https://example.com')
-        link.label = 'The Link'
-        link.relationship = 'external'
-        link.locale = 'nl-NL'
-        link.media_type = MediaType('text/html')
+        link = Link(
+            'https://example.com',
+            label='The Link',
+            relationship='external',
+            locale='nl-NL',
+            media_type=MediaType('text/html'),
+        )
         expected: dict[str, Any] = {
             'url': 'https://example.com',
             'relationship': 'external',

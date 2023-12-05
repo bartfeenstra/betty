@@ -263,8 +263,10 @@ class TestPopulator:
         mocker: MockerFixture,
     ) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
-        link = Link('http://en.wikipedia.org/wiki/Amsterdam')
-        link.media_type = media_type
+        link = Link(
+            'http://en.wikipedia.org/wiki/Amsterdam',
+            media_type=media_type,
+        )
         async with App() as app:
             sut = _Populator(app, m_retriever)
             await sut.populate_link(link, 'en')
@@ -323,8 +325,10 @@ class TestPopulator:
         mocker: MockerFixture,
     ) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
-        link = Link('http://en.wikipedia.org/wiki/Amsterdam')
-        link.description = description
+        link = Link(
+            'http://en.wikipedia.org/wiki/Amsterdam',
+            description=description,
+        )
         entry_language = 'en'
         async with App() as app:
             sut = _Populator(app, m_retriever)
@@ -355,7 +359,10 @@ class TestPopulator:
     async def test_populate_should_ignore_resource_without_link_support(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         source = Source('The Source')
-        resource = Citation('the_citation', source)
+        resource = Citation(
+            id='the_citation',
+            source=source,
+        )
         async with App() as app:
             app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
@@ -364,7 +371,10 @@ class TestPopulator:
     @patch_cache
     async def test_populate_should_ignore_resource_without_links(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
-        resource = Source('the_source', 'The Source')
+        resource = Source(
+            id='the_source',
+            name='The Source',
+        )
         async with App() as app:
             app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
@@ -375,8 +385,11 @@ class TestPopulator:
     async def test_populate_should_ignore_non_wikipedia_links(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         link = Link('https://example.com')
-        resource = Source('the_source', 'The Source')
-        resource.links.add(link)
+        resource = Source(
+            id='the_source',
+            name='The Source',
+            links={link},
+        )
         async with App() as app:
             app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
@@ -393,9 +406,12 @@ class TestPopulator:
         entry = Entry(entry_language, entry_name, entry_title, entry_content)
         m_retriever.get_entry.return_value = entry
 
-        resource = Source('the_source', 'The Source')
         link = Link('https://en.wikipedia.org/wiki/Amsterdam')
-        resource.links.add(link)
+        resource = Source(
+            id='the_source',
+            name='The Source',
+            links={link},
+        )
         async with App() as app:
             app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
@@ -431,9 +447,12 @@ class TestPopulator:
             added_entry_language: added_entry_name,
         }
 
-        resource = Source('the_source', 'The Source')
         link_en = Link('https://en.wikipedia.org/wiki/Amsterdam')
-        resource.links.add(link_en)
+        resource = Source(
+            id='the_source',
+            name='The Source',
+            links={link_en},
+        )
         app = App()
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))

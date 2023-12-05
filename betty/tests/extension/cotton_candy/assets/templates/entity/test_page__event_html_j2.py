@@ -11,36 +11,43 @@ class TestTemplate(TemplateTestCase):
     template_file = 'entity/page--event.html.j2'
 
     async def test_privacy(self) -> None:
-        event = Event(None, UnknownEventType)
+        event = Event(event_type=UnknownEventType)
 
-        public_file = File(None, Path())
-        public_file.description = 'public file description'
+        public_file = File(
+            path=Path(),
+            description='public file description',
+        )
         public_file.entities.add(event)
 
-        private_file = File(None, Path())
-        private_file.private = True
-        private_file.description = 'private file description'
+        private_file = File(
+            path=Path(),
+            private=True,
+            description='private file description',
+        )
         private_file.entities.add(event)
 
-        place_name = PlaceName('place name')
-        place = Place(None, [place_name])
+        place_name = PlaceName(name='place name')
+        place = Place(names=[place_name])
         place.events.add(event)
 
-        public_person_for_presence = Person(None)
-        private_person_for_presence = Person(None)
-        private_person_for_presence.private = True
-        Presence(None, public_person_for_presence, Subject(), event)
-        Presence(None, private_person_for_presence, Subject(), event)
+        public_person_for_presence = Person()
+        private_person_for_presence = Person(private=True)
+        Presence(public_person_for_presence, Subject(), event)
+        Presence(private_person_for_presence, Subject(), event)
 
-        source = Source(None)
+        source = Source()
 
-        public_citation = Citation(None, source)
-        public_citation.location = 'public citation location'
+        public_citation = Citation(
+            source=source,
+            location='public citation location',
+        )
         public_citation.facts.add(event)
 
-        private_citation = Citation(None, source)
-        private_citation.private = True
-        private_citation.location = 'private citation location'
+        private_citation = Citation(
+            source=source,
+            private=True,
+            location='private citation location',
+        )
         private_citation.facts.add(event)
 
         async with self._render(
@@ -50,11 +57,15 @@ class TestTemplate(TemplateTestCase):
                 'entity': event,
             },
         ) as (actual, _):
+            assert public_file.description is not None
             assert public_file.description in actual
             assert place_name.name in actual
             assert public_person_for_presence.label in actual
+            assert public_citation.location is not None
             assert public_citation.location in actual
 
+            assert private_file.description is not None
             assert private_file.description not in actual
             assert private_person_for_presence.label not in actual
+            assert private_citation.location is not None
             assert private_citation.location not in actual

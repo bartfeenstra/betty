@@ -92,7 +92,7 @@ class TestDeriver:
         ComesBeforeAndAfterCreatableDerivable,
     ])
     async def test_derive_without_events(self, event_type: type[DerivableEventType]) -> None:
-        person = Person('P0')
+        person = Person(id='P0')
         ancestry = Ancestry()
         ancestry.add(person)
 
@@ -111,9 +111,9 @@ class TestDeriver:
         ComesBeforeAndAfterCreatableDerivable,
     ])
     async def test_derive_create_derivable_events_without_reference_events(self, event_type: type[DerivableEventType]) -> None:
-        person = Person('P0')
-        derivable_event = Event(None, Ignored)
-        Presence(None, person, Subject(), derivable_event)
+        person = Person(id='P0')
+        derivable_event = Event(event_type=Ignored)
+        Presence(person, Subject(), derivable_event)
         ancestry = Ancestry()
         ancestry.add(person)
 
@@ -133,10 +133,10 @@ class TestDeriver:
         ComesBeforeAndAfterCreatableDerivable,
     ])
     async def test_derive_update_derivable_event_without_reference_events(self, event_type: type[DerivableEventType]) -> None:
-        person = Person('P0')
-        Presence(None, person, Subject(), Event(None, Ignored))
-        derivable_event = Event(None, event_type)
-        Presence(None, person, Subject(), derivable_event)
+        person = Person(id='P0')
+        Presence(person, Subject(), Event(event_type=Ignored))
+        derivable_event = Event(event_type=event_type)
+        Presence(person, Subject(), derivable_event)
         ancestry = Ancestry()
         ancestry.add(person)
 
@@ -199,11 +199,20 @@ class TestDeriver:
         before_datey: Datey | None,
         derivable_datey: Datey | None,
     ) -> None:
-        person = Person('P0')
-        Presence(None, person, Subject(), Event(None, Ignored, Date(0, 0, 0)))
-        Presence(None, person, Subject(), Event(None, ComesBeforeReference, before_datey))
-        derivable_event = Event(None, ComesBeforeDerivable, derivable_datey)
-        Presence(None, person, Subject(), derivable_event)
+        person = Person(id='P0')
+        Presence(person, Subject(), Event(
+            event_type=Ignored,
+            date=Date(0, 0, 0),
+        ))
+        Presence(person, Subject(), Event(
+            event_type=ComesBeforeReference,
+            date=before_datey,
+        ))
+        derivable_event = Event(
+            event_type=ComesBeforeDerivable,
+            date=derivable_datey,
+        )
+        Presence(person, Subject(), derivable_event)
         ancestry = Ancestry()
         ancestry.add(person)
 
@@ -228,9 +237,15 @@ class TestDeriver:
         expected_datey: Datey | None,
         before_datey: Datey | None,
     ) -> None:
-        person = Person('P0')
-        Presence(None, person, Subject(), Event(None, Ignored, Date(0, 0, 0)))
-        Presence(None, person, Subject(), Event(None, ComesBeforeReference, before_datey))
+        person = Person(id='P0')
+        Presence(person, Subject(), Event(
+            event_type=Ignored,
+            date=Date(0, 0, 0),
+        ))
+        Presence(person, Subject(), Event(
+            event_type=ComesBeforeReference,
+            date=before_datey,
+        ))
         ancestry = Ancestry()
         ancestry.add(person)
 
@@ -304,11 +319,20 @@ class TestDeriver:
         after_datey: Datey | None,
         derivable_datey: Datey | None,
     ) -> None:
-        person = Person('P0')
-        Presence(None, person, Subject(), Event(None, Ignored, Date(0, 0, 0)))
-        Presence(None, person, Subject(), Event(None, ComesAfterReference, after_datey))
-        derivable_event = Event(None, ComesAfterDerivable, derivable_datey)
-        Presence(None, person, Subject(), derivable_event)
+        person = Person(id='P0')
+        Presence(person, Subject(), Event(
+            event_type=Ignored,
+            date=Date(0, 0, 0),
+        ))
+        Presence(person, Subject(), Event(
+            event_type=ComesAfterReference,
+            date=after_datey,
+        ))
+        derivable_event = Event(
+            event_type=ComesAfterDerivable,
+            date=derivable_datey,
+        )
+        Presence(person, Subject(), derivable_event)
         ancestry = Ancestry()
         ancestry.add(person)
 
@@ -334,9 +358,15 @@ class TestDeriver:
         expected_datey: Datey | None,
         after_datey: Datey | None,
     ) -> None:
-        person = Person('P0')
-        Presence(None, person, Subject(), Event(None, Ignored, Date(0, 0, 0)))
-        Presence(None, person, Subject(), Event(None, ComesAfterReference, after_datey))
+        person = Person(id='P0')
+        Presence(person, Subject(), Event(
+            event_type=Ignored,
+            date=Date(0, 0, 0),
+        ))
+        Presence(person, Subject(), Event(
+            event_type=ComesAfterReference,
+            date=after_datey,
+        ))
         ancestry = Ancestry()
         ancestry.add(person)
 
@@ -370,8 +400,11 @@ class TestDeriver:
         self,
         after_datey: Datey | None,
     ) -> None:
-        person = Person('P0')
-        presence = Presence(None, person, Subject(), Event(None, ComesAfterReference, after_datey))
+        person = Person(id='P0')
+        presence = Presence(person, Subject(), Event(
+            event_type=ComesAfterReference,
+            date=after_datey,
+        ))
         ancestry = Ancestry()
         ancestry.add(person)
 

@@ -30,68 +30,166 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
         # Deaths and other end-of-life events are special, but only for the person whose privacy is being checked:
         # - If they're present without dates, the person isn't private.
         # - If they're present and their dates or date ranges' end dates are in the past, the person isn't private.
-        (generation != 0, Privacy.UNDETERMINED, Event(None, Death, date=Date(datetime.now().year, datetime.now().month, datetime.now().day))),
-        (generation != 0, Privacy.UNDETERMINED, Event(None, Death, date=date_underDEFAULT_LIFETIME_THRESHOLD)),
-        (True, Privacy.UNDETERMINED, Event(None, Death, date=date_range_start_underDEFAULT_LIFETIME_THRESHOLD)),
-        (generation != 0, Privacy.UNDETERMINED, Event(None, Death, date=date_range_end_underDEFAULT_LIFETIME_THRESHOLD)),
-        (False, Privacy.UNDETERMINED, Event(None, Death, date=date_overDEFAULT_LIFETIME_THRESHOLD)),
-        (True, Privacy.UNDETERMINED, Event(None, Death, date=date_range_start_overDEFAULT_LIFETIME_THRESHOLD)),
-        (False, Privacy.UNDETERMINED, Event(None, Death, date=date_range_end_overDEFAULT_LIFETIME_THRESHOLD)),
-        (True, Privacy.PRIVATE, Event(None, Death)),
-        (False, Privacy.PUBLIC, Event(None, Death)),
-        (generation != 0, Privacy.UNDETERMINED, Event(None, Death)),
+        (generation != 0, Privacy.UNDETERMINED, Event(
+            event_type=Death,
+            date=Date(datetime.now().year, datetime.now().month, datetime.now().day),
+        )),
+        (generation != 0, Privacy.UNDETERMINED, Event(
+            event_type=Death,
+            date=date_underDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (True, Privacy.UNDETERMINED, Event(
+            event_type=Death,
+            date=date_range_start_underDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (generation != 0, Privacy.UNDETERMINED, Event(
+            event_type=Death,
+            date=date_range_end_underDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (False, Privacy.UNDETERMINED, Event(
+            event_type=Death,
+            date=date_overDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (True, Privacy.UNDETERMINED, Event(
+            event_type=Death,
+            date=date_range_start_overDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (False, Privacy.UNDETERMINED, Event(
+            event_type=Death,
+            date=date_range_end_overDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (True, Privacy.PRIVATE, Event(event_type=Death)),
+        (False, Privacy.PUBLIC, Event(event_type=Death)),
+        (generation != 0, Privacy.UNDETERMINED, Event(event_type=Death)),
 
         # Regular events without dates do not affect privacy.
-        (True, Privacy.UNDETERMINED, Event(None, Birth)),
-        (True, Privacy.PRIVATE, Event(None, Birth)),
-        (False, Privacy.PUBLIC, Event(None, Birth)),
+        (True, Privacy.UNDETERMINED, Event(event_type=Birth)),
+        (True, Privacy.PRIVATE, Event(event_type=Birth)),
+        (False, Privacy.PUBLIC, Event(event_type=Birth)),
 
         # Regular events with incomplete dates do not affect privacy.
-        (True, Privacy.UNDETERMINED, Event(None, Birth, date=Date())),
-        (True, Privacy.PRIVATE, Event(None, Birth, date=Date())),
-        (False, Privacy.PUBLIC, Event(None, Birth, date=Date())),
+        (True, Privacy.UNDETERMINED, Event(
+            event_type=Birth,
+            date=Date(),
+        )),
+        (True, Privacy.PRIVATE, Event(
+            event_type=Birth,
+            date=Date(),
+        )),
+        (False, Privacy.PUBLIC, Event(
+            event_type=Birth,
+            date=Date(),
+        )),
 
         # Regular events under the lifetime threshold do not affect privacy.
-        (True, Privacy.UNDETERMINED, Event(None, Birth, date=date_underDEFAULT_LIFETIME_THRESHOLD)),
-        (True, Privacy.PRIVATE, Event(None, Birth, date=date_underDEFAULT_LIFETIME_THRESHOLD)),
-        (False, Privacy.PUBLIC, Event(None, Birth, date=date_underDEFAULT_LIFETIME_THRESHOLD)),
-        (True, Privacy.UNDETERMINED, Event(None, Birth, date=date_range_start_underDEFAULT_LIFETIME_THRESHOLD)),
-        (True, Privacy.PRIVATE, Event(None, Birth, date=date_range_start_underDEFAULT_LIFETIME_THRESHOLD)),
-        (False, Privacy.PUBLIC, Event(None, Birth, date=date_range_start_underDEFAULT_LIFETIME_THRESHOLD)),
-        (True, Privacy.UNDETERMINED, Event(None, Birth, date=date_range_end_underDEFAULT_LIFETIME_THRESHOLD)),
-        (True, Privacy.PRIVATE, Event(None, Birth, date=date_range_end_underDEFAULT_LIFETIME_THRESHOLD)),
-        (False, Privacy.PUBLIC, Event(None, Birth, date=date_range_end_underDEFAULT_LIFETIME_THRESHOLD)),
+        (True, Privacy.UNDETERMINED, Event(
+            event_type=Birth,
+            date=date_underDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (True, Privacy.PRIVATE, Event(
+            event_type=Birth,
+            date=date_underDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (False, Privacy.PUBLIC, Event(
+            event_type=Birth,
+            date=date_underDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (True, Privacy.UNDETERMINED, Event(
+            event_type=Birth,
+            date=date_range_start_underDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (True, Privacy.PRIVATE, Event(
+            event_type=Birth,
+            date=date_range_start_underDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (False, Privacy.PUBLIC, Event(
+            event_type=Birth,
+            date=date_range_start_underDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (True, Privacy.UNDETERMINED, Event(
+            event_type=Birth,
+            date=date_range_end_underDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (True, Privacy.PRIVATE, Event(
+            event_type=Birth,
+            date=date_range_end_underDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (False, Privacy.PUBLIC, Event(
+            event_type=Birth,
+            date=date_range_end_underDEFAULT_LIFETIME_THRESHOLD,
+        )),
 
         # Regular events over the lifetime threshold affect privacy.
-        (False, Privacy.UNDETERMINED, Event(None, Birth, date=date_overDEFAULT_LIFETIME_THRESHOLD)),
-        (True, Privacy.PRIVATE, Event(None, Birth, date=date_overDEFAULT_LIFETIME_THRESHOLD)),
-        (False, Privacy.PUBLIC, Event(None, Birth, date=date_overDEFAULT_LIFETIME_THRESHOLD)),
-        (True, Privacy.UNDETERMINED, Event(None, Birth, date=date_range_start_overDEFAULT_LIFETIME_THRESHOLD)),
-        (True, Privacy.PRIVATE, Event(None, Birth, date=date_range_start_overDEFAULT_LIFETIME_THRESHOLD)),
-        (False, Privacy.PUBLIC, Event(None, Birth, date=date_range_start_overDEFAULT_LIFETIME_THRESHOLD)),
-        (False, Privacy.UNDETERMINED, Event(None, Birth, date=date_range_end_overDEFAULT_LIFETIME_THRESHOLD)),
-        (True, Privacy.PRIVATE, Event(None, Birth, date=date_range_end_overDEFAULT_LIFETIME_THRESHOLD)),
-        (False, Privacy.PUBLIC, Event(None, Birth, date=date_range_end_overDEFAULT_LIFETIME_THRESHOLD)),
+        (False, Privacy.UNDETERMINED, Event(
+            event_type=Birth,
+            date=date_overDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (True, Privacy.PRIVATE, Event(
+            event_type=Birth,
+            date=date_overDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (False, Privacy.PUBLIC, Event(
+            event_type=Birth,
+            date=date_overDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (True, Privacy.UNDETERMINED, Event(
+            event_type=Birth,
+            date=date_range_start_overDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (True, Privacy.PRIVATE, Event(
+            event_type=Birth,
+            date=date_range_start_overDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (False, Privacy.PUBLIC, Event(
+            event_type=Birth,
+            date=date_range_start_overDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (False, Privacy.UNDETERMINED, Event(
+            event_type=Birth,
+            date=date_range_end_overDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (True, Privacy.PRIVATE, Event(
+            event_type=Birth,
+            date=date_range_end_overDEFAULT_LIFETIME_THRESHOLD,
+        )),
+        (False, Privacy.PUBLIC, Event(
+            event_type=Birth,
+            date=date_range_end_overDEFAULT_LIFETIME_THRESHOLD,
+        )),
     ]
 
 
 class TestPrivatizer:
     async def test_privatize_person_should_not_privatize_if_public(self) -> None:
-        source_file = File('F0', Path(__file__))
+        source_file = File(
+            id='F0',
+            path=Path(__file__),
+        )
         source = Source('The Source')
         source.files.add(source_file)
-        citation_file = File('F1', Path(__file__))
-        citation = Citation('C0', source)
+        citation_file = File(
+            id='F1',
+            path=Path(__file__),
+        )
+        citation = Citation(
+            id='C0',
+            source=source,
+        )
         citation.files.add(citation_file)
-        event_as_subject = Event(None, Birth)
-        event_as_attendee = Event(None, Marriage)
-        person_file = File('F2', Path(__file__))
-        person = Person('P0')
-        person.public = True
+        event_as_subject = Event(event_type=Birth)
+        event_as_attendee = Event(event_type=Marriage)
+        person_file = File(
+            id='F2',
+            path=Path(__file__),
+        )
+        person = Person(
+            id='P0',
+            public=True,
+        )
         person.citations.add(citation)
         person.files.add(person_file)
-        Presence(None, person, Subject(), event_as_subject)
-        Presence(None, person, Attendee(), event_as_attendee)
+        Presence(person, Subject(), event_as_subject)
+        Presence(person, Attendee(), event_as_attendee)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(person)
         assert not person.private
         assert citation.privacy is Privacy.UNDETERMINED
@@ -103,21 +201,35 @@ class TestPrivatizer:
         assert event_as_attendee.privacy is Privacy.UNDETERMINED
 
     async def test_privatize_person_should_privatize_if_private(self) -> None:
-        source_file = File('F0', Path(__file__))
+        source_file = File(
+            id='F0',
+            path=Path(__file__),
+        )
         source = Source('The Source')
         source.files.add(source_file)
-        citation_file = File('F1', Path(__file__))
-        citation = Citation('C0', source)
+        citation_file = File(
+            id='F1',
+            path=Path(__file__),
+        )
+        citation = Citation(
+            id='C0',
+            source=source,
+        )
         citation.files.add(citation_file)
-        event_as_subject = Event(None, Birth)
-        event_as_attendee = Event(None, Marriage)
-        person_file = File('F2', Path(__file__))
-        person = Person('P0')
-        person.private = True
+        event_as_subject = Event(event_type=Birth)
+        event_as_attendee = Event(event_type=Marriage)
+        person_file = File(
+            id='F2',
+            path=Path(__file__),
+        )
+        person = Person(
+            id='P0',
+            private=True,
+        )
         person.citations.add(citation)
         person.files.add(person_file)
-        Presence(None, person, Subject(), event_as_subject)
-        Presence(None, person, Attendee(), event_as_attendee)
+        Presence(person, Subject(), event_as_subject)
+        Presence(person, Attendee(), event_as_attendee)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(person)
         assert person.private
         assert citation.private
@@ -135,10 +247,12 @@ class TestPrivatizer:
         privacy: Privacy,
         event: Event | None,
     ) -> None:
-        person = Person('P0')
-        person.privacy = privacy
+        person = Person(
+            id='P0',
+            privacy=privacy,
+        )
         if event is not None:
-            Presence(None, person, Subject(), event)
+            Presence(person, Subject(), event)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(person)
         assert expected == person.private
 
@@ -149,11 +263,13 @@ class TestPrivatizer:
         privacy: Privacy,
         event: Event | None,
     ) -> None:
-        person = Person('P0')
-        person.privacy = privacy
-        child = Person('P1')
+        person = Person(
+            id='P0',
+            privacy=privacy,
+        )
+        child = Person(id='P1')
         if event is not None:
-            Presence(None, child, Subject(), event)
+            Presence(child, Subject(), event)
         person.children.add(child)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(person)
         assert expected == person.private
@@ -165,13 +281,15 @@ class TestPrivatizer:
         privacy: Privacy,
         event: Event | None,
     ) -> None:
-        person = Person('P0')
-        person.privacy = privacy
-        child = Person('P1')
+        person = Person(
+            id='P0',
+            privacy=privacy,
+        )
+        child = Person(id='P1')
         person.children.add(child)
-        grandchild = Person('P2')
+        grandchild = Person(id='P2')
         if event is not None:
-            Presence(None, grandchild, Subject(), event)
+            Presence(grandchild, Subject(), event)
         child.children.add(grandchild)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(person)
         assert expected == person.private
@@ -183,15 +301,17 @@ class TestPrivatizer:
         privacy: Privacy,
         event: Event | None,
     ) -> None:
-        person = Person('P0')
-        person.privacy = privacy
-        child = Person('P1')
+        person = Person(
+            id='P0',
+            privacy=privacy,
+        )
+        child = Person(id='P1')
         person.children.add(child)
-        grandchild = Person('P2')
+        grandchild = Person(id='P2')
         child.children.add(grandchild)
-        great_grandchild = Person('P2')
+        great_grandchild = Person(id='P2')
         if event is not None:
-            Presence(None, great_grandchild, Subject(), event)
+            Presence(great_grandchild, Subject(), event)
         grandchild.children.add(great_grandchild)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(person)
         assert expected == person.private
@@ -203,11 +323,13 @@ class TestPrivatizer:
         privacy: Privacy,
         event: Event | None,
     ) -> None:
-        person = Person('P0')
-        person.privacy = privacy
-        parent = Person('P1')
+        person = Person(
+            id='P0',
+            privacy=privacy,
+        )
+        parent = Person(id='P1')
         if event is not None:
-            Presence(None, parent, Subject(), event)
+            Presence(parent, Subject(), event)
         person.parents.add(parent)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(person)
         assert expected == person.private
@@ -219,13 +341,15 @@ class TestPrivatizer:
         privacy: Privacy,
         event: Event | None,
     ) -> None:
-        person = Person('P0')
-        person.privacy = privacy
-        parent = Person('P1')
+        person = Person(
+            id='P0',
+            privacy=privacy,
+        )
+        parent = Person(id='P1')
         person.parents.add(parent)
-        grandparent = Person('P2')
+        grandparent = Person(id='P2')
         if event is not None:
-            Presence(None, grandparent, Subject(), event)
+            Presence(grandparent, Subject(), event)
         parent.parents.add(grandparent)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(person)
         assert expected == person.private
@@ -237,33 +361,50 @@ class TestPrivatizer:
         privacy: Privacy,
         event: Event | None,
     ) -> None:
-        person = Person('P0')
-        person.privacy = privacy
-        parent = Person('P1')
+        person = Person(
+            id='P0',
+            privacy=privacy,
+        )
+        parent = Person(id='P1')
         person.parents.add(parent)
-        grandparent = Person('P2')
+        grandparent = Person(id='P2')
         parent.parents.add(grandparent)
-        great_grandparent = Person('P2')
+        great_grandparent = Person(id='P2')
         if event is not None:
-            Presence(None, great_grandparent, Subject(), event)
+            Presence(great_grandparent, Subject(), event)
         grandparent.parents.add(great_grandparent)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(person)
         assert expected == person.private
 
     async def test_privatize_event_should_not_privatize_if_public(self) -> None:
-        source_file = File('F0', Path(__file__))
+        source_file = File(
+            id='F0',
+            path=Path(__file__),
+        )
         source = Source('The Source')
         source.files.add(source_file)
-        citation_file = File('F1', Path(__file__))
-        citation = Citation('C0', source)
+        citation_file = File(
+            id='F1',
+            path=Path(__file__),
+        )
+        citation = Citation(
+            id='C0',
+            source=source,
+        )
         citation.files.add(citation_file)
-        event_file = File('F1', Path(__file__))
-        event = Event('E1', Birth)
-        event.public = True
+        event_file = File(
+            id='F1',
+            path=Path(__file__),
+        )
+        event = Event(
+            id='E1',
+            event_type=Birth,
+            public=True,
+        )
         event.citations.add(citation)
         event.files.add(event_file)
-        person = Person('P0')
-        Presence(None, person, Subject(), event)
+        person = Person(id='P0')
+        Presence(person, Subject(), event)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(event)
         assert not event.private
         assert event_file.privacy is Privacy.UNDETERMINED
@@ -274,19 +415,34 @@ class TestPrivatizer:
         assert person.privacy is Privacy.UNDETERMINED
 
     async def test_privatize_event_should_privatize_if_private(self) -> None:
-        source_file = File('F0', Path(__file__))
+        source_file = File(
+            id='F0',
+            path=Path(__file__),
+        )
         source = Source('The Source')
         source.files.add(source_file)
-        citation_file = File('F1', Path(__file__))
-        citation = Citation('C0', source)
+        citation_file = File(
+            id='F1',
+            path=Path(__file__),
+        )
+        citation = Citation(
+            id='C0',
+            source=source,
+        )
         citation.files.add(citation_file)
-        event_file = File('F1', Path(__file__))
-        event = Event('E1', Birth)
-        event.private = True
+        event_file = File(
+            id='F1',
+            path=Path(__file__),
+        )
+        event = Event(
+            id='E1',
+            event_type=Birth,
+            private=True,
+        )
         event.citations.add(citation)
         event.files.add(event_file)
-        person = Person('P0')
-        Presence(None, person, Subject(), event)
+        person = Person(id='P0')
+        Presence(person, Subject(), event)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(event)
         assert event.private
         assert event_file.private
@@ -297,30 +453,51 @@ class TestPrivatizer:
         assert person.privacy is Privacy.UNDETERMINED
 
     async def test_privatize_source_should_not_privatize_if_public(self) -> None:
-        file = File('F0', Path(__file__))
-        source = Source('S0', 'The Source')
-        source.public = True
+        file = File(
+            id='F0',
+            path=Path(__file__),
+        )
+        source = Source(
+            id='S0',
+            name='The Source',
+            public=True,
+        )
         source.files.add(file)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(source)
         assert not source.private
         assert file.privacy is Privacy.UNDETERMINED
 
     async def test_privatize_source_should_privatize_if_private(self) -> None:
-        file = File('F0', Path(__file__))
-        source = Source('S0', 'The Source')
-        source.private = True
+        file = File(
+            id='F0',
+            path=Path(__file__),
+        )
+        source = Source(
+            id='S0',
+            name='The Source',
+            private=True,
+        )
         source.files.add(file)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(source)
         assert source.private
         assert file.private
 
     async def test_privatize_citation_should_not_privatize_if_public(self) -> None:
-        source_file = File('F0', Path(__file__))
+        source_file = File(
+            id='F0',
+            path=Path(__file__),
+        )
         source = Source('The Source')
         source.files.add(source_file)
-        citation_file = File('F1', Path(__file__))
-        citation = Citation('C0', source)
-        citation.public = True
+        citation_file = File(
+            id='F1',
+            path=Path(__file__),
+        )
+        citation = Citation(
+            id='C0',
+            source=source,
+            public=True,
+        )
         citation.files.add(citation_file)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(citation)
         assert not citation.private
@@ -329,12 +506,21 @@ class TestPrivatizer:
         assert source_file.privacy is Privacy.UNDETERMINED
 
     async def test_privatize_citation_should_privatize_if_private(self) -> None:
-        source_file = File('F0', Path(__file__))
+        source_file = File(
+            id='F0',
+            path=Path(__file__),
+        )
         source = Source('The Source')
         source.files.add(source_file)
-        citation_file = File('F1', Path(__file__))
-        citation = Citation('C0', source)
-        citation.private = True
+        citation_file = File(
+            id='F1',
+            path=Path(__file__),
+        )
+        citation = Citation(
+            id='C0',
+            source=source,
+            private=True,
+        )
         citation.files.add(citation_file)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(citation)
         assert citation.private
@@ -343,20 +529,26 @@ class TestPrivatizer:
         assert source_file.private
 
     async def test_privatize_file_should_not_privatize_if_public(self) -> None:
-        source = Source(None, 'The Source')
-        citation = Citation(None, source)
-        file = File('F0', Path(__file__))
-        file.public = True
+        source = Source(name='The Source')
+        citation = Citation(source=source)
+        file = File(
+            id='F0',
+            path=Path(__file__),
+            public=True,
+        )
         file.citations.add(citation)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(file)
         assert not file.private
         assert citation.privacy is Privacy.UNDETERMINED
 
     async def test_privatize_file_should_privatize_if_private(self) -> None:
-        source = Source(None, 'The Source')
-        citation = Citation(None, source)
-        file = File('F0', Path(__file__))
-        file.private = True
+        source = Source(name='The Source')
+        citation = Citation(source=source)
+        file = File(
+            id='F0',
+            path=Path(__file__),
+            private=True,
+        )
         file.citations.add(citation)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(file)
         assert file.private

@@ -18,28 +18,49 @@ class Test(TemplateTestCase):
         (
             '<address><a href="/place/P0/index.html"><span>The Place</span></a></address>',
             {
-                'entity': Place('P0', [PlaceName('The Place')]),
+                'entity': Place(
+                    id='P0',
+                    names=[PlaceName(name='The Place')],
+                ),
             },
             None,
         ),
         (
             '<address><a href="/place/P0/index.html"><span lang="en">The Place</span></a></address>',
             {
-                'entity': Place('P0', [PlaceName('The Place', 'en')]),
+                'entity': Place(
+                    id='P0',
+                    names=[PlaceName(
+                        name='The Place',
+                        locale='en',
+                    )],
+                ),
             },
             None,
         ),
         (
             '<address><a href="/place/P0/index.html"><span lang="nl">De Plaats</span></a></address>',
             {
-                'entity': Place('P0', [PlaceName('The Place', 'en'), PlaceName('De Plaats', 'nl')]),
+                'entity': Place(
+                    id='P0',
+                    names=[PlaceName(
+                        name='The Place',
+                        locale='en',
+                    ), PlaceName(
+                        name='De Plaats',
+                        locale='nl',
+                    )],
+                ),
             },
             'nl',
         ),
         (
             '<address><span>The Place</span></address>',
             {
-                'entity': Place('P0', [PlaceName('The Place')]),
+                'entity': Place(
+                    id='P0',
+                    names=[PlaceName(name='The Place')],
+                ),
                 'embedded': True,
             },
             None,
@@ -47,10 +68,21 @@ class Test(TemplateTestCase):
         (
             '<address><a href="/place/P0/index.html"><span lang="nl">De Nieuwe Plaats</span></a></address>',
             {
-                'entity': Place('P0', [
-                    PlaceName('The Old Place', 'en', date=DateRange(None, Date(1969, 12, 31))),
-                    PlaceName('De Nieuwe Plaats', 'nl', date=DateRange(Date(1970, 1, 1))),
-                ]),
+                'entity': Place(
+                    id='P0',
+                    names=[
+                        PlaceName(
+                            name='The Old Place',
+                            locale='en',
+                            date=DateRange(None, Date(1969, 12, 31)),
+                        ),
+                        PlaceName(
+                            name='De Nieuwe Plaats',
+                            locale='nl',
+                            date=DateRange(Date(1970, 1, 1)),
+                        ),
+                    ],
+                ),
                 'date_context': Date(1970, 1, 1),
             },
             'nl',

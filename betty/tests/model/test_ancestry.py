@@ -83,12 +83,18 @@ class TestDated:
 class TestNote:
     async def test_id(self) -> None:
         note_id = 'N1'
-        sut = Note(note_id, 'Betty wrote this.')
+        sut = Note(
+            id=note_id,
+            text='Betty wrote this.',
+        )
         assert note_id == sut.id
 
     async def test_text(self) -> None:
         text = 'Betty wrote this.'
-        sut = Note('N1', text)
+        sut = Note(
+            id='N1',
+            text=text,
+        )
         assert text == sut.text
 
 
@@ -166,13 +172,19 @@ class TestFile:
     async def test_id(self) -> None:
         file_id = 'BETTY01'
         file_path = Path('~')
-        sut = File(file_id, file_path)
+        sut = File(
+            id=file_id,
+            path=file_path,
+        )
         assert file_id == sut.id
 
     async def test_private(self) -> None:
         file_id = 'BETTY01'
         file_path = Path('~')
-        sut = File(file_id, file_path)
+        sut = File(
+            id=file_id,
+            path=file_path,
+        )
         assert sut.privacy is Privacy.UNDETERMINED
         sut.private = True
         assert sut.private is True
@@ -180,7 +192,10 @@ class TestFile:
     async def test_media_type(self) -> None:
         file_id = 'BETTY01'
         file_path = Path('~')
-        sut = File(file_id, file_path)
+        sut = File(
+            id=file_id,
+            path=file_path,
+        )
         assert sut.media_type is None
         media_type = MediaType('text/plain')
         sut.media_type = media_type
@@ -190,19 +205,28 @@ class TestFile:
         with NamedTemporaryFile() as f:
             file_id = 'BETTY01'
             file_path = Path(f.name)
-            sut = File(file_id, file_path)
+            sut = File(
+                id=file_id,
+                path=file_path,
+            )
             assert file_path == sut.path
 
     async def test_path_with_str(self) -> None:
         with NamedTemporaryFile() as f:
             file_id = 'BETTY01'
-            sut = File(file_id, Path(f.name))
+            sut = File(
+                id=file_id,
+                path=Path(f.name),
+            )
             assert Path(f.name) == sut.path
 
     async def test_description(self) -> None:
         file_id = 'BETTY01'
         file_path = Path('~')
-        sut = File(file_id, file_path)
+        sut = File(
+            id=file_id,
+            path=file_path,
+        )
         assert sut.description is None
         description = 'Hi, my name is Betty!'
         sut.description = description
@@ -211,16 +235,22 @@ class TestFile:
     async def test_notes(self) -> None:
         file_id = 'BETTY01'
         file_path = Path('~')
-        sut = File(file_id, file_path)
+        sut = File(
+            id=file_id,
+            path=file_path,
+        )
         assert [] == list(sut.notes)
-        notes = [Note(None, ''), Note(None, '')]
+        notes = [Note(text=''), Note(text='')]
         sut.notes = notes  # type: ignore[assignment]
         assert notes == list(sut.notes)
 
     async def test_entities(self) -> None:
         file_id = 'BETTY01'
         file_path = Path('~')
-        sut = File(file_id, file_path)
+        sut = File(
+            id=file_id,
+            path=file_path,
+        )
         assert [] == list(sut.entities)
 
         entities = [_HasFiles(), _HasFiles()]
@@ -230,7 +260,10 @@ class TestFile:
     async def test_citations(self) -> None:
         file_id = 'BETTY01'
         file_path = Path('~')
-        sut = File(file_id, file_path)
+        sut = File(
+            id=file_id,
+            path=file_path,
+        )
         assert [] == list(sut.citations)
 
 
@@ -238,7 +271,7 @@ class TestHasFiles:
     async def test_files(self) -> None:
         sut = _HasFiles()
         assert [] == list(sut.files)
-        files = [File(None, Path()), File(None, Path())]
+        files = [File(path=Path()), File(path=Path())]
         sut.files = files  # type: ignore[assignment]
         assert files == list(sut.files)
 
@@ -246,60 +279,60 @@ class TestHasFiles:
 class TestSource:
     async def test_id(self) -> None:
         source_id = 'S1'
-        sut = Source(source_id)
+        sut = Source(id=source_id)
         assert source_id == sut.id
 
     async def test_name(self) -> None:
         name = 'The Source'
-        sut = Source(None, name)
+        sut = Source(name=name)
         assert name == sut.name
 
     async def test_contained_by(self) -> None:
-        contained_by_source = Source(None)
-        sut = Source(None)
+        contained_by_source = Source()
+        sut = Source()
         assert sut.contained_by is None
         sut.contained_by = contained_by_source
         assert contained_by_source == sut.contained_by
 
     async def test_contains(self) -> None:
-        contains_source = Source(None)
-        sut = Source(None)
+        contains_source = Source()
+        sut = Source()
         assert [] == list(sut.contains)
         sut.contains = [contains_source]  # type: ignore[assignment]
         assert [contains_source] == list(sut.contains)
 
     async def test_citations(self) -> None:
-        sut = Source(None)
+        sut = Source()
         assert [] == list(sut.citations)
 
     async def test_author(self) -> None:
-        sut = Source(None)
+        sut = Source()
         assert sut.author is None
         author = 'Me'
         sut.author = author
         assert author == sut.author
 
     async def test_publisher(self) -> None:
-        sut = Source(None)
+        sut = Source()
         assert sut.publisher is None
         publisher = 'Me'
         sut.publisher = publisher
         assert publisher == sut.publisher
 
     async def test_date(self) -> None:
-        sut = Source(None)
+        sut = Source()
         assert sut.date is None
 
     async def test_files(self) -> None:
-        sut = Source(None)
+        sut = Source()
         assert [] == list(sut.files)
 
     async def test_links(self) -> None:
-        sut = Source(None)
+        sut = Source()
         assert [] == list(sut.links)
 
     async def test_private(self) -> None:
-        sut = Source(None)
+        sut = Source()
         assert sut.privacy is Privacy.UNDETERMINED
         sut.private = True
         assert sut.private is True
@@ -312,38 +345,41 @@ class _HasCitations(HasCitations, Entity):
 class TestCitation:
     async def test_id(self) -> None:
         citation_id = 'C1'
-        sut = Citation(citation_id, Source(None))
+        sut = Citation(
+            id=citation_id,
+            source=Source(),
+        )
         assert citation_id == sut.id
 
     async def test_facts(self) -> None:
         fact = _HasCitations()
-        sut = Citation(None, Source(None))
+        sut = Citation(source=Source())
         assert [] == list(sut.facts)
         sut.facts = [fact]  # type: ignore[assignment]
         assert [fact] == list(sut.facts)
 
     async def test_source(self) -> None:
-        source = Source(None)
-        sut = Citation(None, source)
+        source = Source()
+        sut = Citation(source=source)
         assert source == sut.source
 
     async def test_location(self) -> None:
-        sut = Citation(None, Source(None))
+        sut = Citation(source=Source())
         assert sut.location is None
         location = 'Somewhere'
         sut.location = location
         assert location == sut.location
 
     async def test_date(self) -> None:
-        sut = Citation(None, Source(None))
+        sut = Citation(source=Source())
         assert sut.date is None
 
     async def test_files(self) -> None:
-        sut = Citation(None, Source(None))
+        sut = Citation(source=Source())
         assert [] == list(sut.files)
 
     async def test_private(self) -> None:
-        sut = Citation(None, Source(None))
+        sut = Citation(source=Source())
         assert sut.privacy is Privacy.UNDETERMINED
         sut.private = True
         assert sut.private is True
@@ -353,72 +389,95 @@ class TestHasCitations:
     async def test_citations(self) -> None:
         sut = _HasCitations()
         assert [] == list(sut.citations)
-        citation = Citation(None, Source(None))
+        citation = Citation(source=Source())
         sut.citations = [citation]  # type: ignore[assignment]
         assert [citation] == list(sut.citations)
 
 
 class TestPlaceName:
     @pytest.mark.parametrize('expected, a, b', [
-        (True, PlaceName('Ikke'), PlaceName('Ikke')),
-        (True, PlaceName('Ikke', 'nl-NL'), PlaceName('Ikke', 'nl-NL')),
-        (False, PlaceName('Ikke', 'nl-NL'), PlaceName('Ikke', 'nl-BE')),
-        (False, PlaceName('Ikke', 'nl-NL'), PlaceName('Ik', 'nl-NL')),
-        (False, PlaceName('Ikke'), PlaceName('Ik')),
-        (False, PlaceName('Ikke'), None),
-        (False, PlaceName('Ikke'), 'not-a-place-name'),
+        (True, PlaceName(name='Ikke'), PlaceName(name='Ikke')),
+        (True, PlaceName(
+            name='Ikke',
+            locale='nl-NL'
+        ), PlaceName(
+            name='Ikke',
+            locale='nl-NL',
+        )),
+        (False, PlaceName(
+            name='Ikke',
+            locale='nl-NL',
+        ), PlaceName(
+            name='Ikke',
+            locale='nl-BE',
+        )),
+        (False, PlaceName(
+            name='Ikke',
+            locale='nl-NL'), PlaceName(
+            name='Ik',
+            locale='nl-NL',
+        )),
+        (False, PlaceName(name='Ikke'), PlaceName(name='Ik')),
+        (False, PlaceName(name='Ikke'), None),
+        (False, PlaceName(name='Ikke'), 'not-a-place-name'),
     ])
     async def test_eq(self, expected: bool, a: PlaceName, b: Any) -> None:
         assert expected == (a == b)
 
     async def test_str(self) -> None:
         name = 'Ikke'
-        sut = PlaceName(name)
+        sut = PlaceName(name=name)
         assert name == str(sut)
 
     async def test_name(self) -> None:
         name = 'Ikke'
-        sut = PlaceName(name)
+        sut = PlaceName(name=name)
         assert name == sut.name
 
     async def test_locale(self) -> None:
         locale = 'nl-NL'
-        sut = PlaceName('Ikke', locale=locale)
+        sut = PlaceName(
+            name='Ikke',
+            locale=locale,
+        )
         assert locale == sut.locale
 
     async def test_date(self) -> None:
         date = Date()
-        sut = PlaceName('Ikke', date=date)
+        sut = PlaceName(
+            name='Ikke',
+            date=date,
+        )
         assert date == sut.date
 
 
 class TestEnclosure:
     async def test_encloses(self) -> None:
-        encloses = Place(None, [])
-        enclosed_by = Place(None, [])
-        sut = Enclosure(encloses, enclosed_by)
+        encloses = Place()
+        enclosed_by = Place()
+        sut = Enclosure(encloses=encloses, enclosed_by=enclosed_by)
         assert encloses == sut.encloses
 
     async def test_enclosed_by(self) -> None:
-        encloses = Place(None, [])
-        enclosed_by = Place(None, [])
-        sut = Enclosure(encloses, enclosed_by)
+        encloses = Place()
+        enclosed_by = Place()
+        sut = Enclosure(encloses=encloses, enclosed_by=enclosed_by)
         assert enclosed_by == sut.enclosed_by
 
     async def test_date(self) -> None:
-        encloses = Place(None, [])
-        enclosed_by = Place(None, [])
-        sut = Enclosure(encloses, enclosed_by)
+        encloses = Place()
+        enclosed_by = Place()
+        sut = Enclosure(encloses=encloses, enclosed_by=enclosed_by)
         date = Date()
         assert sut.date is None
         sut.date = date
         assert date == sut.date
 
     async def test_citations(self) -> None:
-        encloses = Place(None, [])
-        enclosed_by = Place(None, [])
-        sut = Enclosure(encloses, enclosed_by)
-        citation = Citation(None, Source(None))
+        encloses = Place()
+        enclosed_by = Place()
+        sut = Enclosure(encloses=encloses, enclosed_by=enclosed_by)
+        citation = Citation(source=Source())
         assert sut.date is None
         sut.citations = [citation]  # type: ignore[assignment]
         assert [citation] == list(sut.citations)
@@ -426,8 +485,14 @@ class TestEnclosure:
 
 class TestPlace:
     async def test_events(self) -> None:
-        sut = Place('P1', [PlaceName('The Place')])
-        event = Event('1', Birth)
+        sut = Place(
+            id='P1',
+            names=[PlaceName(name='The Place')],
+        )
+        event = Event(
+            id='1',
+            event_type=Birth,
+        )
         sut.events.add(event)
         assert event in sut.events
         assert sut == event.place
@@ -436,10 +501,16 @@ class TestPlace:
         assert event.place is None
 
     async def test_enclosed_by(self) -> None:
-        sut = Place('P1', [PlaceName('The Place')])
+        sut = Place(
+            id='P1',
+            names=[PlaceName(name='The Place')],
+        )
         assert [] == list(sut.enclosed_by)
-        enclosing_place = Place('P2', [PlaceName('The Other Place')])
-        enclosure = Enclosure(sut, enclosing_place)
+        enclosing_place = Place(
+            id='P2',
+            names=[PlaceName(name='The Other Place')],
+        )
+        enclosure = Enclosure(encloses=sut, enclosed_by=enclosing_place)
         assert enclosure in sut.enclosed_by
         assert sut == enclosure.encloses
         sut.enclosed_by.remove(enclosure)
@@ -447,10 +518,16 @@ class TestPlace:
         assert enclosure.encloses is None
 
     async def test_encloses(self) -> None:
-        sut = Place('P1', [PlaceName('The Place')])
+        sut = Place(
+            id='P1',
+            names=[PlaceName(name='The Place')],
+        )
         assert [] == list(sut.encloses)
-        enclosed_place = Place('P2', [PlaceName('The Other Place')])
-        enclosure = Enclosure(enclosed_place, sut)
+        enclosed_place = Place(
+            id='P2',
+            names=[PlaceName(name='The Other Place')],
+        )
+        enclosure = Enclosure(encloses=enclosed_place, enclosed_by=sut)
         assert enclosure in sut.encloses
         assert sut == enclosure.enclosed_by
         sut.encloses.remove(enclosure)
@@ -459,21 +536,33 @@ class TestPlace:
 
     async def test_id(self) -> None:
         place_id = 'C1'
-        sut = Place(place_id, [PlaceName('one')])
+        sut = Place(
+            id=place_id,
+            names=[PlaceName(name='one')],
+        )
         assert place_id == sut.id
 
     async def test_links(self) -> None:
-        sut = Place('P1', [PlaceName('The Place')])
+        sut = Place(
+            id='P1',
+            names=[PlaceName(name='The Place')],
+        )
         assert [] == list(sut.links)
 
     async def test_names(self) -> None:
-        name = PlaceName('The Place')
-        sut = Place('P1', [name])
+        name = PlaceName(name='The Place')
+        sut = Place(
+            id='P1',
+            names=[name],
+        )
         assert [name] == list(sut.names)
 
     async def test_coordinates(self) -> None:
-        name = PlaceName('The Place')
-        sut = Place('P1', [name])
+        name = PlaceName(name='The Place')
+        sut = Place(
+            id='P1',
+            names=[name],
+        )
         coordinates = Point()
         sut.coordinates = coordinates
         assert coordinates == sut.coordinates
@@ -525,30 +614,36 @@ class TestAttendee:
 
 class TestPresence:
     async def test_person(self) -> None:
-        person = Person(None)
-        sut = Presence(None, person, PresenceRole(), Event(None, UnknownEventType))
+        person = Person()
+        sut = Presence(person, PresenceRole(), Event(event_type=UnknownEventType))
         assert person == sut.person
 
     async def test_event(self) -> None:
         role = PresenceRole()
-        sut = Presence(None, Person(None), role, Event(None, UnknownEventType))
+        sut = Presence(Person(), role, Event(event_type=UnknownEventType))
         assert role == sut.role
 
     async def test_role(self) -> None:
-        event = Event(None, UnknownEventType)
-        sut = Presence(None, Person(None), PresenceRole(), event)
+        event = Event(event_type=UnknownEventType)
+        sut = Presence(Person(), PresenceRole(), event)
         assert event == sut.event
 
 
 class TestEvent:
     async def test_id(self) -> None:
         event_id = 'E1'
-        sut = Event(event_id, UnknownEventType)
+        sut = Event(
+            id=event_id,
+            event_type=UnknownEventType,
+        )
         assert event_id == sut.id
 
     async def test_place(self) -> None:
-        place = Place('1', [PlaceName('one')])
-        sut = Event(None, UnknownEventType)
+        place = Place(
+            id='1',
+            names=[PlaceName(name='one')],
+        )
+        sut = Event(event_type=UnknownEventType)
         sut.place = place
         assert place == sut.place
         assert sut in place.events
@@ -557,9 +652,9 @@ class TestEvent:
         assert sut not in place.events
 
     async def test_presences(self) -> None:
-        person = Person('P1')
-        sut = Event(None, UnknownEventType)
-        presence = Presence(None, person, Subject(), sut)
+        person = Person(id='P1')
+        sut = Event(event_type=UnknownEventType)
+        presence = Presence(person, Subject(), sut)
         sut.presences.add(presence)
         assert [presence] == list(sut.presences)
         assert sut == presence.event
@@ -568,41 +663,41 @@ class TestEvent:
         assert presence.event is None
 
     async def test_date(self) -> None:
-        sut = Event(None, UnknownEventType)
+        sut = Event(event_type=UnknownEventType)
         assert sut.date is None
         date = Date()
         sut.date = date
         assert date == sut.date
 
     async def test_files(self) -> None:
-        sut = Event(None, UnknownEventType)
+        sut = Event(event_type=UnknownEventType)
         assert [] == list(sut.files)
 
     async def test_citations(self) -> None:
-        sut = Event(None, UnknownEventType)
+        sut = Event(event_type=UnknownEventType)
         assert [] == list(sut.citations)
 
     async def test_description(self) -> None:
-        sut = Event(None, UnknownEventType)
+        sut = Event(event_type=UnknownEventType)
         assert sut.description is None
 
     async def test_private(self) -> None:
-        sut = Event(None, UnknownEventType)
+        sut = Event(event_type=UnknownEventType)
         assert sut.privacy is Privacy.UNDETERMINED
 
     async def test_event_type(self) -> None:
         event_type = UnknownEventType
-        sut = Event(None, event_type)
+        sut = Event(event_type=event_type)
         assert event_type == sut.event_type
 
     async def test_associated_files(self) -> None:
-        file1 = File(None, Path())
-        file2 = File(None, Path())
-        file3 = File(None, Path())
-        file4 = File(None, Path())
-        sut = Event(None, UnknownEventType)
+        file1 = File(path=Path())
+        file2 = File(path=Path())
+        file3 = File(path=Path())
+        file4 = File(path=Path())
+        sut = Event(event_type=UnknownEventType)
         sut.files = [file1, file2, file1]  # type: ignore[assignment]
-        citation = Citation(None, Source(None))
+        citation = Citation(source=Source())
         citation.files = [file3, file4, file2]  # type: ignore[assignment]
         sut.citations = [citation]  # type: ignore[assignment]
         assert [file1 == file2, file3, file4], list(sut.associated_files)
@@ -610,38 +705,58 @@ class TestEvent:
 
 class TestPersonName:
     async def test_person(self) -> None:
-        person = Person('1')
-        sut = PersonName(None, person, 'Janet', 'Not a Girl')
+        person = Person(id='1')
+        sut = PersonName(
+            person=person,
+            individual='Janet',
+            affiliation='Not a Girl',
+        )
         assert person == sut.person
         assert [sut] == list(person.names)
 
     async def test_locale(self) -> None:
-        person = Person('1')
-        sut = PersonName(None, person, 'Janet', 'Not a Girl')
+        person = Person(id='1')
+        sut = PersonName(
+            person=person,
+            individual='Janet',
+            affiliation='Not a Girl',
+        )
         assert sut.locale is None
 
     async def test_citations(self) -> None:
-        person = Person('1')
-        sut = PersonName(None, person, 'Janet', 'Not a Girl')
+        person = Person(id='1')
+        sut = PersonName(
+            person=person,
+            individual='Janet',
+            affiliation='Not a Girl',
+        )
         assert [] == list(sut.citations)
 
     async def test_individual(self) -> None:
-        person = Person('1')
+        person = Person(id='1')
         individual = 'Janet'
-        sut = PersonName(None, person, individual, 'Not a Girl')
+        sut = PersonName(
+            person=person,
+            individual=individual,
+            affiliation='Not a Girl',
+        )
         assert individual == sut.individual
 
     async def test_affiliation(self) -> None:
-        person = Person('1')
+        person = Person(id='1')
         affiliation = 'Not a Girl'
-        sut = PersonName(None, person, 'Janet', affiliation)
+        sut = PersonName(
+            person=person,
+            individual='Janet',
+            affiliation=affiliation,
+        )
         assert affiliation == sut.affiliation
 
 
 class TestPerson:
     async def test_parents(self) -> None:
-        sut = Person('1')
-        parent = Person('2')
+        sut = Person(id='1')
+        parent = Person(id='2')
         sut.parents.add(parent)
         assert [parent] == list(sut.parents)
         assert [sut] == list(parent.children)
@@ -650,8 +765,8 @@ class TestPerson:
         assert [] == list(parent.children)
 
     async def test_children(self) -> None:
-        sut = Person('1')
-        child = Person('2')
+        sut = Person(id='1')
+        child = Person(id='2')
         sut.children.add(child)
         assert [child] == list(sut.children)
         assert [sut] == list(child.parents)
@@ -660,9 +775,9 @@ class TestPerson:
         assert [] == list(child.parents)
 
     async def test_presences(self) -> None:
-        event = Event(None, Birth)
-        sut = Person('1')
-        presence = Presence(None, sut, Subject(), event)
+        event = Event(event_type=Birth)
+        sut = Person(id='1')
+        presence = Presence(sut, Subject(), event)
         sut.presences.add(presence)
         assert [presence] == list(sut.presences)
         assert sut == presence.person
@@ -671,8 +786,12 @@ class TestPerson:
         assert presence.person is None
 
     async def test_names(self) -> None:
-        sut = Person('1')
-        name = PersonName(None, sut, 'Janet', 'Not a Girl')
+        sut = Person(id='1')
+        name = PersonName(
+            person=sut,
+            individual='Janet',
+            affiliation='Not a Girl',
+        )
         assert [name] == list(sut.names)
         assert sut == name.person
         sut.names.remove(name)
@@ -681,83 +800,97 @@ class TestPerson:
 
     async def test_id(self) -> None:
         person_id = 'P1'
-        sut = Person(person_id)
+        sut = Person(id=person_id)
         assert person_id == sut.id
 
     async def test_files(self) -> None:
-        sut = Person('1')
+        sut = Person(id='1')
         assert [] == list(sut.files)
 
     async def test_citations(self) -> None:
-        sut = Person('1')
+        sut = Person(id='1')
         assert [] == list(sut.citations)
 
     async def test_links(self) -> None:
-        sut = Person('1')
+        sut = Person(id='1')
         assert [] == list(sut.links)
 
     async def test_private(self) -> None:
-        sut = Person('1')
+        sut = Person(id='1')
         assert sut.privacy is Privacy.UNDETERMINED
 
     async def test_name_with_names(self) -> None:
-        sut = Person('P1')
-        name = PersonName(None, sut, 'Janet')
+        sut = Person(id='P1')
+        name = PersonName(
+            person=sut,
+            individual='Janet',
+        )
         assert name == sut.name
 
     async def test_name_without_names(self) -> None:
-        assert Person('P1').name is None
+        assert Person(id='P1').name is None
 
     async def test_alternative_names(self) -> None:
-        sut = Person('P1')
-        PersonName(None, sut, 'Janet', 'Not a Girl')
-        alternative_name = PersonName(None, sut, 'Janet', 'Still not a Girl')
+        sut = Person(id='P1')
+        PersonName(
+            person=sut,
+            individual='Janet',
+            affiliation='Not a Girl',
+        )
+        alternative_name = PersonName(
+            person=sut,
+            individual='Janet',
+            affiliation='Still not a Girl',
+        )
         assert [alternative_name] == list(sut.alternative_names)
 
     async def test_start(self) -> None:
-        sut = Person('P1')
-        start = Presence(None, sut, Subject(), Event(None, Birth))
+        sut = Person(id='P1')
+        start = Presence(sut, Subject(), Event(event_type=Birth))
         assert start == sut.start
 
     async def test_end(self) -> None:
-        sut = Person('P1')
-        end = Presence(None, sut, Subject(), Event(None, Burial))
+        sut = Person(id='P1')
+        end = Presence(sut, Subject(), Event(event_type=Burial))
         assert end == sut.end
 
     async def test_siblings_without_parents(self) -> None:
-        sut = Person('person')
+        sut = Person(id='person')
         assert [] == list(sut.siblings)
 
     async def test_siblings_with_one_common_parent(self) -> None:
-        sut = Person('1')
-        sibling = Person('2')
-        parent = Person('3')
+        sut = Person(id='1')
+        sibling = Person(id='2')
+        parent = Person(id='3')
         parent.children = [sut, sibling]  # type: ignore[assignment]
         assert [sibling] == list(sut.siblings)
 
     async def test_siblings_with_multiple_common_parents(self) -> None:
-        sut = Person('1')
-        sibling = Person('2')
-        parent = Person('3')
+        sut = Person(id='1')
+        sibling = Person(id='2')
+        parent = Person(id='3')
         parent.children = [sut, sibling]  # type: ignore[assignment]
         assert [sibling] == list(sut.siblings)
 
     async def test_associated_files(self) -> None:
-        file1 = File(None, Path())
-        file2 = File(None, Path())
-        file3 = File(None, Path())
-        file4 = File(None, Path())
-        file5 = File(None, Path())
-        file6 = File(None, Path())
-        sut = Person('1')
+        file1 = File(path=Path())
+        file2 = File(path=Path())
+        file3 = File(path=Path())
+        file4 = File(path=Path())
+        file5 = File(path=Path())
+        file6 = File(path=Path())
+        sut = Person(id='1')
         sut.files = [file1, file2, file1]  # type: ignore[assignment]
-        citation = Citation(None, Source(None))
+        citation = Citation(source=Source())
         citation.files = [file3, file4, file2]  # type: ignore[assignment]
-        name = PersonName(None, sut, 'Janet')
+        name = PersonName(
+            person=sut,
+            individual='Janet',
+        )
         name.citations = [citation]  # type: ignore[assignment]
-        event = Event(None, UnknownEventType)
+        event = Event(event_type=UnknownEventType)
         event.files = [file5, file6, file4]  # type: ignore[assignment]
-        Presence(None, sut, Subject(), event)
+        Presence(sut, Subject(), event)
         assert [file1, file2, file3, file4, file5, file6], list(sut.associated_files)
 
 

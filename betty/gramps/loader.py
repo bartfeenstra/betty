@@ -264,7 +264,10 @@ class GrampsLoader(Localizable):
         text_element = self._xpath1(element, './ns:text')
         assert text_element is not None
         text = str(text_element.text)
-        self.add_entity(AliasedEntity(Note(note_id, text), handle))
+        self.add_entity(AliasedEntity(Note(
+            id=note_id,
+            text=text,
+        ), handle))
 
     def _load_objects(self, database: ElementTree.Element, gramps_tree_directory_path: Path) -> None:
         for element in self._xpath(database, './ns:objects/ns:object'):
@@ -277,7 +280,10 @@ class GrampsLoader(Localizable):
         src = file_element.get('src')
         assert src is not None
         file_path = gramps_tree_directory_path / src
-        file = File(file_id, file_path)
+        file = File(
+            id=file_id,
+            path=file_path,
+        )
         mime = file_element.get('mime')
         assert mime is not None
         file.media_type = MediaType(mime)
@@ -298,7 +304,7 @@ class GrampsLoader(Localizable):
     def _load_person(self, element: ElementTree.Element) -> None:
         person_handle = element.get('handle')
         assert person_handle is not None
-        person = Person(element.get('id'))
+        person = Person(id=element.get('id'))
 
         name_elements = sorted(self._xpath(element, './ns:name'), key=lambda x: x.get('alt') == '1')
         person_names = []
@@ -326,11 +332,14 @@ class GrampsLoader(Localizable):
                     if surname_prefix is not None:
                         affiliation_name = '%s %s' % (
                             surname_prefix, affiliation_name)
-                    person_name = PersonName(None, None, individual_name, affiliation_name)
+                    person_name = PersonName(
+                        individual=individual_name,
+                        affiliation=affiliation_name,
+                    )
                     self._load_citationref(person_name, name_element)
                     person_names.append((person_name, is_alternative))
             elif individual_name is not None:
-                person_name = PersonName(None, None, individual_name)
+                person_name = PersonName(individual=individual_name)
                 self._load_citationref(person_name, name_element)
                 person_names.append((person_name, is_alternative))
         for person_name, _ in sorted(person_names, key=lambda x: x[1]):
@@ -415,7 +424,7 @@ class GrampsLoader(Localizable):
                 )
             )
 
-        presence = Presence(None, None, role, None)
+        presence = Presence(None, role, None)
         self.add_entity(presence)
         self.add_association(Presence, presence.id, 'person', Person, person_id)
         self.add_association(Presence, presence.id, 'event', Event, event_handle)
@@ -433,9 +442,16 @@ class GrampsLoader(Localizable):
             date = self._load_date(name_element)
             name = name_element.get('value')
             assert name is not None
-            names.append(PlaceName(name, locale=language, date=date))
+            names.append(PlaceName(
+                name=name,
+                locale=language,
+                date=date,
+            ))
 
-        place = Place(element.get('id'), names)
+        place = Place(
+            id=element.get('id'),
+            names=names,
+        )
 
         coordinates = self._load_coordinates(element)
         if coordinates:
@@ -446,7 +462,7 @@ class GrampsLoader(Localizable):
         self.add_entity(AliasedEntity(place, place_handle))
 
         for enclosed_by_handle in self._load_handles('placeref', element):
-            aliased_enclosure = AliasedEntity(Enclosure(None, None))
+            aliased_enclosure = AliasedEntity(Enclosure(encloses=None, enclosed_by=None))
             self.add_entity(
                 aliased_enclosure,  # type: ignore[arg-type]
             )
@@ -514,7 +530,10 @@ class GrampsLoader(Localizable):
                 )
             )
 
-        event = Event(event_id, event_type)
+        event = Event(
+            id=event_id,
+            event_type=event_type,
+        )
 
         event.date = self._load_date(element)
 
@@ -550,8 +569,8 @@ class GrampsLoader(Localizable):
         repository_source_handle = element.get('handle')
 
         source = Source(
-            element.get('id'),
-            self._xpath1(element, './ns:rname').text,
+            id=element.get('id'),
+            name=self._xpath1(element, './ns:rname').text,
         )
 
         self._load_urls(source, element)
@@ -570,8 +589,8 @@ class GrampsLoader(Localizable):
             source_name = None
 
         source = Source(
-            element.get('id'),
-            source_name
+            id=element.get('id'),
+            name=source_name,
         )
 
         repository_source_handle = self._load_handle('reporef', element)
@@ -605,7 +624,7 @@ class GrampsLoader(Localizable):
         citation_handle = element.get('handle')
         source_handle = self._xpath1(element, './ns:sourceref').get('hlink')
 
-        citation = Citation(element.get('id'), None)
+        citation = Citation(id=element.get('id'))
         self.add_association(Citation, citation_handle, 'source', Source, source_handle)
 
         citation.date = self._load_date(element)

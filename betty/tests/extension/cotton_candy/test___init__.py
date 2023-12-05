@@ -262,10 +262,13 @@ class TestPersonLifetimeEvents:
         event_privacy: Privacy,
         event_datey: Datey | None,
     ) -> None:
-        person = Person(None)
-        event = Event(None, UnknownEventType, event_datey)
-        event.privacy = event_privacy
-        Presence(None, person, Attendee(), event)
+        person = Person()
+        event = Event(
+            event_type=UnknownEventType,
+            date=event_datey,
+            privacy=event_privacy,
+        )
+        Presence(person, Attendee(), event)
         actual = list(person_timeline_events(person, DEFAULT_LIFETIME_THRESHOLD))
         assert expected is (event in actual)
 
@@ -290,36 +293,48 @@ class TestPersonLifetimeEvents:
         person_reference_event_type: type[EventType],
         person_reference_event_datey: Datey | None,
     ) -> None:
-        person = Person(None)
-        person_reference_event = Event(None, person_reference_event_type, person_reference_event_datey)
-        person_reference_event.privacy = person_reference_event_privacy
-        Presence(None, person, Subject(), person_reference_event)
+        person = Person()
+        person_reference_event = Event(
+            event_type=person_reference_event_type,
+            date=person_reference_event_datey,
+            privacy=person_reference_event_privacy,
+        )
+        Presence(person, Subject(), person_reference_event)
 
-        ancestor1 = Person(None)
+        ancestor1 = Person()
         ancestor1.children.add(person)
-        ancestor2 = Person(None)
+        ancestor2 = Person()
         ancestor2.children.add(ancestor1)
-        ancestor3 = Person(None)
+        ancestor3 = Person()
         ancestor3.children.add(ancestor2)
-        ancestor3_event = Event(None, event_type, event_datey)
-        ancestor3_event.privacy = event_privacy
-        Presence(None, ancestor3, presence_role, ancestor3_event)
+        ancestor3_event = Event(
+            event_type=event_type,
+            date=event_datey,
+            privacy=event_privacy,
+        )
+        Presence(ancestor3, presence_role, ancestor3_event)
 
-        descendant1 = Person(None)
+        descendant1 = Person()
         descendant1.parents.add(person)
-        descendant2 = Person(None)
+        descendant2 = Person()
         descendant2.parents.add(descendant1)
-        descendant3 = Person(None)
+        descendant3 = Person()
         descendant3.parents.add(descendant2)
-        descendant3_event = Event(None, event_type, event_datey)
-        descendant3_event.privacy = event_privacy
-        Presence(None, descendant3, presence_role, descendant3_event)
+        descendant3_event = Event(
+            event_type=event_type,
+            date=event_datey,
+            privacy=event_privacy,
+        )
+        Presence(descendant3, presence_role, descendant3_event)
 
-        sibling = Person(None)
+        sibling = Person()
         sibling.parents.add(ancestor1)
-        sibling_event = Event(None, event_type, event_datey)
-        sibling_event.privacy = event_privacy
-        Presence(None, sibling, presence_role, sibling_event)
+        sibling_event = Event(
+            event_type=event_type,
+            date=event_datey,
+            privacy=event_privacy,
+        )
+        Presence(sibling, presence_role, sibling_event)
 
         actual = list(person_timeline_events(person, DEFAULT_LIFETIME_THRESHOLD))
         assert expected is (ancestor3_event in actual)
