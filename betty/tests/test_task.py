@@ -53,8 +53,6 @@ class TestTaskPool:
         async with sut:
             async with sut.batch() as batch:
                 await sut.cancel()
-                assert sut.cancelled
-                assert batch.cancelled
 
     @pytest.mark.parametrize('sut_cls', [
         ThreadTaskPool,
@@ -131,10 +129,13 @@ class TestTaskPool:
     async def test_batch_delegate(self, sut_cls: type[_OwnedTaskPool]) -> None:
         sut = sut_cls(3, 'en')
         sentinel = multiprocessing.Manager().Event()
+        sentinel_executor = multiprocessing.Manager().Event()
         async with sut:
             async with sut.batch() as batch:
                 batch.delegate(task_success, sentinel)
+                batch.delegate(task_success_executor, sentinel_executor)
         assert sentinel.is_set()
+        assert sentinel_executor.is_set()
 
     @pytest.mark.parametrize('sut_cls', [
         ThreadTaskPool,

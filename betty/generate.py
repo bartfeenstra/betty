@@ -6,6 +6,7 @@ import multiprocessing
 import os
 import shutil
 from contextlib import suppress
+from ctypes import c_char_p
 from pathlib import Path
 from typing import cast, AsyncContextManager, Concatenate
 
@@ -40,15 +41,30 @@ class GenerationTaskBatchContext:
     _app: App
 
     def __init__(self, pickled_app: bytes, app_locale: str | None):
-        self._pickled_app = pickled_app
+        # @todo Can we instead receive a multiprocessing.Manager().Value here with the pickled bytes?
+        self._pickled_app = multiprocessing.Manager().Value(c_char_p, pickled_app)
         self._app_locale = app_locale
-        self._unpickle_lock = multiprocessing.Manager().Lock()
+        self._unpickle_app_lock = multiprocessing.Manager().Lock()
 
     async def app(self) -> App:
+        # @todo We need a way to enter this once, and exit the app once
+        # @todo To that end, we need a way for batch contexts to perform clean-up.
+        # @todo
+        # @todo An optional interface for contexts to implement?
+        # @todo It could be as simple as it being a context manager
+        # @todo However, we still need to ensure that across many concurrent usages,
+        # @todo setup and teardown are only done once
+        # @todo To keep track of that, we'll need a counter
+        # @todo A bit of extra code, but it would make this very GenerationTaskBatchContext simpler already
+        # @todo
+        # @todo NONONONO NONONO NO NO NO NO NOOOO
+        # @todo Cleanup must happen for each instance.
+        # @todo
+        # @todo
         try:
             return self._app
         except AttributeError:
-            with self._unpickle_lock:
+            with self._unpickle_app_lock:
                 app = cast(App, dill.loads(self._pickled_app))
                 if self._app_locale:
                     app.locale = self._app_locale
@@ -272,6 +288,19 @@ async def _generate_openapi(
     batch: TaskBatch[GenerationTaskBatchContext],
 ) -> None:
     print('GENERATE OPENAPI')
+    # @todo ffs this is hanging, AGAIN
+    # @todo Do we not have missing tests coverage?
+    # @todo I thought we did, where it runs something in an executor somewhere
+    # @todo
+    await makedirs('/tmp/bettytesttesttest')
+    print('GENERATE OPENAPI DONE')
+    return
+    # @todo Is App fully reentrant?
+    # @todo I don't think it is
+    # @todo The same app is ent
+    # @todo
+    # @todo
+    # @todo
     async with await batch.context.app() as app:
         getLogger().info(app.localizers[batch.logging_locale]._('Generating OpenAPI specification...'))
         api_directory_path = app.www_directory_path / 'api'

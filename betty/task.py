@@ -7,6 +7,7 @@ import threading
 from collections.abc import MutableSequence, MutableMapping
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, Future, Executor, as_completed
 from contextlib import suppress
+from ctypes import c_uint
 from types import TracebackType
 from typing import Generic, Callable, Awaitable, Any, overload, TypeVar, Protocol
 
@@ -45,41 +46,29 @@ class _TaskActivity:
     def __init__(
         self,
         batches: _TaskBatches,
+        state_lock: threading.Lock,
         cancel: threading.Event,
         finish: threading.Event,
         joined: threading.Event,
     ):
         self._batches = batches
+        self._state_lock = state_lock
         self._cancel = cancel
         self._finish = finish
         self._joined = joined
 
     async def cancel(self) -> None:
         self._cancel.set()
-        self._join()
 
     def _join(self) -> None:
         self._joined.set()
 
-    # @todo Do we need all these properties still?
     @property
-    def cancelled(self) -> bool:
-        return self._cancel.is_set()
-
-    @property
-    def finished(self) -> bool:
-        return self._finish.is_set()
-
-    @property
-    def closed(self) -> bool:
-        return self.cancelled or self.finished
-
-    @property
-    def joined(self) -> bool:
-        return self._joined.is_set()
+    def _closed(self) -> bool:
+        return self._cancel.is_set() or self._finish.is_set()
 
     def _assert_not_closed(self) -> None:
-        if self.closed:
+        if self._closed:
             raise TaskActivityClosed
 
 
@@ -109,11 +98,13 @@ class TaskBatch(_TaskActivity, Generic[TaskBatchContextT]):
         claims_lock: threading.Lock,
         claimed_task_ids: MutableSequence[bytes],
         error: _TaskBatchNamespace,
+        perform_tasks_counter: multiprocessing.Value,
+        state_lock: threading.Lock,
         cancel: threading.Event,
         finish: threading.Event,
         joined: threading.Event,
     ):
-        super().__init__(batches, cancel, finish, joined)
+        super().__init__(batches, state_lock, cancel, finish, joined)
         self._id = batch_id
         self._logging_locale = logging_locale
         self._context = context
@@ -121,6 +112,7 @@ class TaskBatch(_TaskActivity, Generic[TaskBatchContextT]):
         self._claims_lock = claims_lock
         self._claimed_task_ids = claimed_task_ids
         self._error = error
+        self._perform_tasks_counter = perform_tasks_counter
 
     def __reduce__(self) -> Any:
         return TaskBatch, (
@@ -132,13 +124,19 @@ class TaskBatch(_TaskActivity, Generic[TaskBatchContextT]):
             self._claims_lock,
             self._claimed_task_ids,
             self._error,
+            self._perform_tasks_counter,
+            self._state_lock,
             self._cancel,
             self._finish,
             self._joined,
         )
 
     def _join(self) -> None:
+        assert self._perform_tasks_counter.value == 0
+        self._unregister()
         super()._join()
+
+    def _unregister(self) -> None:
         with suppress(KeyError):
             del self._batches[self._id]
 
@@ -171,33 +169,37 @@ class TaskBatch(_TaskActivity, Generic[TaskBatchContextT]):
         self._task_queue.put((callable, args, kwargs))
 
     async def _perform_tasks(self) -> None:
-        # @todo What may happen (Sunday bedtime thoughts)
-        # @todo A batch is joined, and as such removed from the registry
-        # @todo Once the joined event is set, the owning side may finish AND THE NON WEAK REFS MAY DISAPPEAR
-        # @todo meanwhile, workers may still be trying to finish a batch
-        # @todo Do we need a semaphore for each batch (or some counter)
-        # @todo to ensure that the owning side only joins if and when all workers have released the batch?
-        # @todo
-        # @todo
-        while not self.joined:
-            try:
-                callable, args, kwargs = self._task_queue.get_nowait()
-            except queue.Empty:
-                if self.closed:
-                    self._join()
-                return
-            else:
+        with self._state_lock:
+            self._perform_tasks_counter.value += 1
+        try:
+            while not self._joined.is_set():
                 try:
-                    await callable(
-                        self,
-                        *args,
-                        **kwargs,
-                    )
-                except BaseException as error:
-                    self._error.error = serialize(error)
-                    await self.cancel()
-                # New tasks may take a while to be delegated or won't be delegated at all, so free some memory.
-                del callable, args, kwargs
+                    callable, args, kwargs = self._task_queue.get_nowait()
+                except queue.Empty:
+                    if self._closed:
+                        self._unregister()
+                    return
+                else:
+                    try:
+                        await callable(
+                            self,
+                            *args,
+                            **kwargs,
+                        )
+                    except BaseException as error:
+                        self._error.error = serialize(error)
+                        await self.cancel()
+                    # New tasks may take a while to be delegated or won't be delegated at all, so free some memory.
+                    del callable, args, kwargs
+        finally:
+            with self._state_lock:
+                self._perform_tasks_counter.value -= 1
+            if self._closed and self._perform_tasks_counter.value == 0:
+                self._join()
+                # @todo Also check if this is the last performer of the thread. If so, clean up the task batch context.
+                # @todo
+                # @todo
+                # @todo
 
 
 _TaskBatches: TypeAlias = MutableMapping[bytes, TaskBatch[Any]]
@@ -225,6 +227,8 @@ class OwnedTaskBatch(TaskBatch[TaskBatchContextT], _OwnedTaskActivity[TaskBatch[
             multiprocessing.Manager().Lock(),
             multiprocessing.Manager().list(),
             error,
+            multiprocessing.Manager().Value(c_uint, 0),
+            multiprocessing.Manager().Lock(),
             multiprocessing.Manager().Event(),
             multiprocessing.Manager().Event(),
             multiprocessing.Manager().Event(),
@@ -245,11 +249,12 @@ class _TaskPool(_TaskActivity):
         self,
         logging_locale: str,
         batches: _TaskBatches,
+        state_lock: threading.Lock,
         cancel: threading.Event,
         should_finish: threading.Event,
         joined: threading.Event,
     ):
-        super().__init__(batches, cancel, should_finish, joined)
+        super().__init__(batches, state_lock, cancel, should_finish, joined)
         self._logging_locale = logging_locale
 
     def __reduce__(self) -> tuple[
@@ -257,6 +262,7 @@ class _TaskPool(_TaskActivity):
         tuple[
             str,
             _TaskBatches,
+            threading.Lock,
             threading.Event,
             threading.Event,
             threading.Event,
@@ -267,6 +273,7 @@ class _TaskPool(_TaskActivity):
             (
                 self._logging_locale,
                 self._batches,
+                self._state_lock,
                 self._cancel,
                 self._finish,
                 self._joined,
@@ -300,6 +307,7 @@ class _OwnedTaskPool(_TaskPool, _OwnedTaskActivity[_TaskPool]):
         super().__init__(
             logging_locale,
             multiprocessing.Manager().dict(),
+            multiprocessing.Manager().Lock(),
             multiprocessing.Manager().Event(),
             multiprocessing.Manager().Event(),
             multiprocessing.Manager().Event(),
