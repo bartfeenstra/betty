@@ -67,6 +67,11 @@ class FileBasedConfiguration(Configuration):
         self._autowrite = False
 
     def _assert_configuration_file_path(self) -> None:
+            # @todo Sunday night pre-pub thoughts
+            # @todo This now fails MORE than it used to because it's actually correct
+            # @todo However, some time ago we made conf file paths lazy and use temp files if no path was set explicitly
+            # @todo
+            # @todo
         if self._configuration_file_path is None:
             raise LoadError(self.localizer._('The configuration must have a configuration file path.'))
 
@@ -77,7 +82,6 @@ class FileBasedConfiguration(Configuration):
     @autowrite.setter
     def autowrite(self, autowrite: bool) -> None:
         if autowrite:
-            self._assert_configuration_file_path()
             if not self._autowrite:
                 self.react.react_weakref(self._write_reactor)
         else:
@@ -90,7 +94,7 @@ class FileBasedConfiguration(Configuration):
 
     async def write(self, configuration_file_path: Path | None = None) -> None:
         if configuration_file_path is None:
-            self._assert_configuration_file_path()
+            del self.configuration_file_path
         else:
             self.configuration_file_path = configuration_file_path
 
@@ -112,7 +116,7 @@ class FileBasedConfiguration(Configuration):
 
     async def read(self, configuration_file_path: Path | None = None) -> None:
         if configuration_file_path is None:
-            self._assert_configuration_file_path()
+            del self.configuration_file_path
         else:
             self.configuration_file_path = configuration_file_path
 
