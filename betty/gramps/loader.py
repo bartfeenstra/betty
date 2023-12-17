@@ -15,7 +15,7 @@ from geopy import Point
 
 from betty.gramps.error import GrampsError
 from betty.load import getLogger
-from betty.locale import DateRange, Datey, Date, Localizable, Localizer
+from betty.locale import DateRange, Datey, Date, Str
 from betty.media_type import MediaType
 from betty.model import Entity, EntityGraphBuilder, AliasedEntity, AliasableEntity
 from betty.model.ancestry import Ancestry, Note, File, Source, Citation, Place, Event, Person, PersonName, Subject, \
@@ -28,28 +28,23 @@ from betty.path import rootname
 
 
 class GrampsLoadFileError(GrampsError, RuntimeError):
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
+    pass
 
 
 class GrampsFileNotFoundError(GrampsError, FileNotFoundError):
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
+    pass
 
 
 class XPathError(GrampsError, RuntimeError):
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
+    pass
 
 
-class GrampsLoader(Localizable):
+class GrampsLoader:
     def __init__(
         self,
         ancestry: Ancestry,
-        *,
-        localizer: Localizer | None = None,
     ):
-        super().__init__(localizer=localizer)
+        super().__init__()
         self._ancestry = ancestry
         self._ancestry_builder = EntityGraphBuilder()
         self._added_entity_counts: dict[type[Entity], int] = defaultdict(lambda: 0)
@@ -60,7 +55,10 @@ class GrampsLoader(Localizable):
     async def load_file(self, file_path: Path) -> None:
         file_path = file_path.resolve()
         logger = getLogger()
-        logger.info(self.localizer._('Loading "{file_path}"...').format(file_path=file_path))
+        logger.info(Str._(
+            'Loading "{file_path}"...',
+            file_path=str(file_path),
+        ))
 
         with suppress(GrampsLoadFileError):
             await self.load_gpkg(file_path)
@@ -74,15 +72,17 @@ class GrampsLoader(Localizable):
             async with aiofiles.open(file_path) as f:
                 xml = await f.read()
         except FileNotFoundError:
-            raise GrampsFileNotFoundError(self.localizer._('Could not find the file "{file_path}".').format(
-                file_path=file_path,
+            raise GrampsFileNotFoundError(Str._(
+                'Could not find the file "{file_path}".',
+                file_path=str(file_path),
             )) from None
         with suppress(GrampsLoadFileError):
             await self.load_xml(xml, Path(file_path.anchor))
             return
 
-        raise GrampsLoadFileError(self.localizer._('Could not load "{file_path}" as a *.gpkg, a *.gramps, or an *.xml family tree.').format(
-            file_path=file_path,
+        raise GrampsLoadFileError(Str._(
+            'Could not load "{file_path}" as a *.gpkg, a *.gramps, or an *.xml family tree.',
+            file_path=str(file_path),
         ))
 
     async def load_gramps(self, gramps_path: Path) -> None:
@@ -94,8 +94,8 @@ class GrampsLoader(Localizable):
                 xml,
                 rootname(gramps_path),
             )
-        except OSError:
-            raise GrampsLoadFileError()
+        except OSError as e:
+            raise GrampsLoadFileError(Str.plain(e))
 
     async def load_gpkg(self, gpkg_path: Path) -> None:
         gpkg_path = gpkg_path.resolve()
@@ -108,12 +108,14 @@ class GrampsLoader(Localizable):
                     ).extractall(cache_directory_path_str)
                     await self.load_gramps(Path(cache_directory_path_str) / 'data.gramps')
             except tarfile.ReadError:
-                raise GrampsLoadFileError(self.localizer._('Could not extract {file_path} as a tar (*.tar) file after extracting the outer gzip (*.gz) file.').format(
-                    file_path=gpkg_path,
+                raise GrampsLoadFileError(Str._(
+                    'Could not extract {file_path} as a tar (*.tar) file after extracting the outer gzip (*.gz) file.',
+                    file_path=str(gpkg_path),
                 ))
         except OSError:
-            raise GrampsLoadFileError(self.localizer._('Could not extract {file_path} as a gzip (*.gz) file.').format(
-                file_path=gpkg_path,
+            raise GrampsLoadFileError(Str._(
+                'Could not extract {file_path} as a gzip (*.gz) file.',
+                file_path=str(gpkg_path),
             ))
 
     async def load_xml(self, xml: str | Path, gramps_tree_directory_path: Path) -> None:
@@ -125,7 +127,7 @@ class GrampsLoader(Localizable):
                 xml,
             ))
         except ElementTree.ParseError as e:
-            raise GrampsLoadFileError(e)
+            raise GrampsLoadFileError(Str.plain(e))
         await self.load_tree(tree, gramps_tree_directory_path)
 
     async def load_tree(self, tree: ElementTree.ElementTree, gramps_tree_directory_path: Path) -> None:
@@ -187,7 +189,11 @@ class GrampsLoader(Localizable):
     def _xpath1(self, element: ElementTree.Element, selector: str) -> ElementTree.Element:
         found_element = element.find(selector, namespaces=self._NS)
         if found_element is None:
-            raise XPathError(f'Cannot find an element "{selector}" within {element}.')
+            raise XPathError(Str.plain(
+                'Cannot find an element "{selector}" within {element}.',
+                selector=selector,
+                element=str(element),
+            ))
         return found_element
 
     _DATE_PATTERN = re.compile(r'^.{4}((-.{2})?-.{2})?$')
@@ -409,6 +415,7 @@ class GrampsLoader(Localizable):
 
     def _load_eventref(self, person_id: str, eventref: ElementTree.Element) -> None:
         event_handle = eventref.get('hlink')
+        assert event_handle is not None
         gramps_presence_role = cast(str, eventref.get('role'))
 
         try:
@@ -416,7 +423,8 @@ class GrampsLoader(Localizable):
         except KeyError:
             role = Attendee()
             getLogger().warning(
-                self.localizer._('Betty is unfamiliar with person "{person_id}"\'s Gramps presence role of "{gramps_presence_role}" for the event with Gramps handle "{event_handle}". The role was imported, but set to "{betty_presence_role}".').format(
+                Str._(
+                    'Betty is unfamiliar with person "{person_id}"\'s Gramps presence role of "{gramps_presence_role}" for the event with Gramps handle "{event_handle}". The role was imported, but set to "{betty_presence_role}".',
                     person_id=person_id,
                     event_handle=event_handle,
                     gramps_presence_role=gramps_presence_role,
@@ -477,10 +485,10 @@ class GrampsLoader(Localizable):
             try:
                 return Point.from_string(coordinates)
             except ValueError:
-                getLogger().warning(
-                    self.localizer._('Cannot load coordinates "{coordinates}", because they are in an unknown format.')
-                    .format(coordinates=coordinates),
-                )
+                getLogger().warning(Str._(
+                    'Cannot load coordinates "{coordinates}", because they are in an unknown format.',
+                    coordinates=coordinates,
+                ))
         return None
 
     def _load_events(self, database: ElementTree.Element) -> None:
@@ -515,6 +523,7 @@ class GrampsLoader(Localizable):
     def _load_event(self, element: ElementTree.Element) -> None:
         event_handle = element.get('handle')
         event_id = element.get('id')
+        assert event_id is not None
         gramps_type = self._xpath1(element, './ns:type').text
         assert gramps_type is not None
 
@@ -523,10 +532,11 @@ class GrampsLoader(Localizable):
         except KeyError:
             event_type = UnknownEventType
             getLogger().warning(
-                self.localizer._('Betty is unfamiliar with Gramps event "{event_id}"\'s type of "{gramps_event_type}". The event was imported, but its type was set to "{betty_event_type}".').format(
+                Str._(
+                    'Betty is unfamiliar with Gramps event "{event_id}"\'s type of "{gramps_event_type}". The event was imported, but its type was set to "{betty_event_type}".',
                     event_id=event_id,
                     gramps_event_type=gramps_type,
-                    betty_event_type=event_type.label(self.localizer),
+                    betty_event_type=event_type.label(),
                 )
             )
 
@@ -631,7 +641,7 @@ class GrampsLoader(Localizable):
         self._load_attribute_privacy(citation, element, 'srcattribute')
 
         with suppress(XPathError):
-            citation.location = self._xpath1(element, './ns:page').text
+            citation.location = Str.plain(self._xpath1(element, './ns:page').text)
 
         aliased_citation = AliasedEntity(citation, citation_handle)
         self._load_objref(
@@ -681,11 +691,10 @@ class GrampsLoader(Localizable):
             entity.public = True
             return
         getLogger().warning(
-            self.localizer._(
-                'The betty:privacy Gramps attribute must have a value of "public" or "private", but "{privacy_value}" was given for {entity_type} {entity_id} ({entity_label}), which was ignored.'
-            ).format(
+            Str._(
+                'The betty:privacy Gramps attribute must have a value of "public" or "private", but "{privacy_value}" was given for {entity_type} {entity_id} ({entity_label}), which was ignored.',
                 privacy_value=privacy_value,
-                entity_type=entity.entity_type_label(self.localizer),
+                entity_type=entity.entity_type_label(),
                 entity_id=entity.id,
                 entity_label=entity.label,
             ))

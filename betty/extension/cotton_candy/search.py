@@ -3,16 +3,18 @@ from __future__ import annotations
 from typing import Iterable, Any
 
 from betty.app import App
+from betty.locale import Localizer
 from betty.model import get_entity_type_name, Entity
 from betty.model.ancestry import Person, Place, File
 from betty.string import camel_case_to_snake_case
 
 
 class Index:
-    def __init__(self, app: App):
+    def __init__(self, app: App, localizer: Localizer):
         self._app = app
+        self._localizer = localizer
 
-    def build(self) -> Iterable[dict[Any, Any]]:
+    def build(self) -> Iterable[dict[str, str]]:
         return filter(None, [
             *[
                 self._build_person(person)
@@ -39,6 +41,7 @@ class Index:
             f'search/result-{camel_case_to_snake_case(entity_type_name)}.html.j2',
             'search/result.html.j2',
         ]).render({
+            'localizer': self._localizer,
             'entity': entity,
         })
 

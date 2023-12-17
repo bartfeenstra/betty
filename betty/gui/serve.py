@@ -133,7 +133,9 @@ class ServeProjectWindow(_ServeWindow):
         return self._app.localizer._('Serving your site...')
 
     def _build_instruction(self) -> str:
-        return self._app.localizer._('You can now view your site at <a href="{url}">{url}</a>.').format(url=self._thread.server.public_url)
+        return self._app.localizer._('You can now view your site at <a href="{url}">{url}</a>.').format(
+            url=self._thread.server.public_url,
+        )
 
 
 class ServeDemoWindow(_ServeWindow):
@@ -143,7 +145,9 @@ class ServeDemoWindow(_ServeWindow):
         return demo.DemoServer.name()
 
     def _build_instruction(self) -> str:
-        return self._app.localizer._('You can now view a Betty demonstration site at <a href="{url}">{url}</a>.').format(url=self._thread.server.public_url)
+        return self._app.localizer._('You can now view a Betty demonstration site at <a href="{url}">{url}</a>.').format(
+            url=self._thread.server.public_url,
+        )
 
     @property
     def title(self) -> str:

@@ -19,7 +19,7 @@ from betty.app.extension.requirement import Requirement, AnyRequirement, AllRequ
 from betty.asyncio import sync
 from betty.cache import CacheScope
 from betty.fs import iterfiles
-from betty.locale import Localizer, DEFAULT_LOCALIZER
+from betty.locale import Str
 
 
 async def npm(arguments: Sequence[str], **kwargs: Any) -> aiosubprocess.Process:
@@ -30,38 +30,38 @@ async def npm(arguments: Sequence[str], **kwargs: Any) -> aiosubprocess.Process:
 
 
 class _NpmRequirement(Requirement):
-    def __init__(self, met: bool, *, localizer: Localizer | None):
-        super().__init__(localizer=localizer)
+    def __init__(self, met: bool):
+        super().__init__()
         self._met = met
-        self._summary = self._met_summary(self.localizer) if met else self._unmet_summary(self.localizer)
-        self._details = self.localizer._('npm (https://www.npmjs.com/) must be available for features that require Node.js packages to be installed. Ensure that the `npm` executable is available in your `PATH`.')
+        self._summary = self._met_summary() if met else self._unmet_summary()
+        self._details = Str._('npm (https://www.npmjs.com/) must be available for features that require Node.js packages to be installed. Ensure that the `npm` executable is available in your `PATH`.')
 
     @classmethod
-    def _met_summary(cls, localizer: Localizer) -> str:
-        return localizer._('`npm` is available')
+    def _met_summary(cls) -> Str:
+        return Str._('`npm` is available')
 
     @classmethod
-    def _unmet_summary(cls, localizer: Localizer) -> str:
-        return localizer._('`npm` is not available')
+    def _unmet_summary(cls) -> Str:
+        return Str._('`npm` is not available')
 
     @classmethod
     @sync
-    async def check(cls, localizer: Localizer) -> _NpmRequirement:
+    async def check(cls) -> _NpmRequirement:
         try:
             await npm(['--version'])
-            logging.getLogger().debug(cls._met_summary(localizer))
-            return cls(True, localizer=localizer)
+            logging.getLogger().debug(cls._met_summary())
+            return cls(True)
         except (CalledProcessError, FileNotFoundError):
-            logging.getLogger().debug(cls._unmet_summary(localizer=localizer))
-            return cls(False, localizer=localizer)
+            logging.getLogger().debug(cls._unmet_summary())
+            return cls(False)
 
     def is_met(self) -> bool:
         return self._met
 
-    def summary(self) -> str:
+    def summary(self) -> Str:
         return self._summary
 
-    def details(self) -> str | None:
+    def details(self) -> Str:
         return self._details
 
 
@@ -70,20 +70,23 @@ def is_assets_build_directory_path(path: Path) -> bool:
 
 
 class _AssetsRequirement(Requirement):
-    def __init__(self, extension_types: set[type[NpmBuilder & Extension]], *, localizer: Localizer | None = None):
-        super().__init__(localizer=localizer)
+    def __init__(self, extension_types: set[type[NpmBuilder & Extension]]):
+        super().__init__()
         self._extension_types = extension_types
-        self._summary = self.localizer._('Pre-built assets')
-        self._details: str | None
+        self._summary = Str._('Pre-built assets')
+        self._details: Str
         if not self.is_met():
             extension_names = sorted(
                 extension_type.name()
                 for extension_type
                 in self._extension_types - self._extension_types_with_built_assets
             )
-            self._details = self.localizer._('Pre-built assets are unavailable for {extension_names}.').format(extension_names=', '.join(extension_names))
+            self._details = Str._(
+                'Pre-built assets are unavailable for {extension_names}.',
+                extension_names=', '.join(extension_names,
+                                          ))
         else:
-            self._details = None
+            self._details = Str.plain('')
 
     @property
     def _extension_types_with_built_assets(self) -> set[type[NpmBuilder & Extension]]:
@@ -97,10 +100,10 @@ class _AssetsRequirement(Requirement):
     def is_met(self) -> bool:
         return self._extension_types <= self._extension_types_with_built_assets
 
-    def summary(self) -> str:
+    def summary(self) -> Str:
         return self._summary
 
-    def details(self) -> str | None:
+    def details(self) -> Str:
         return self._details
 
 
@@ -162,9 +165,9 @@ class _Npm(Extension):
     _requirement: Requirement | None = None
 
     @classmethod
-    def _ensure_requirement(cls, localizer: Localizer) -> Requirement:
+    def _ensure_requirement(cls) -> Requirement:
         if cls._requirement is None:
-            cls._npm_requirement = _NpmRequirement.check(localizer)
+            cls._npm_requirement = _NpmRequirement.check()
             cls._assets_requirement = _AssetsRequirement(discover_npm_builders())
             assert cls._npm_requirement is not None
             assert cls._assets_requirement is not None
@@ -172,14 +175,14 @@ class _Npm(Extension):
         return cls._requirement
 
     @classmethod
-    def enable_requirement(cls, localizer: Localizer | None = None) -> Requirement:
+    def enable_requirement(cls) -> Requirement:
         return AllRequirements(
-            cls._ensure_requirement(DEFAULT_LOCALIZER),
-            super().enable_requirement(localizer),
+            cls._ensure_requirement(),
+            super().enable_requirement(),
         )
 
     async def install(self, extension_type: type[NpmBuilder & Extension], working_directory_path: Path) -> None:
-        self._ensure_requirement(self._app.localizer)
+        self._ensure_requirement()
         if self._npm_requirement:
             self._npm_requirement.assert_met()
 

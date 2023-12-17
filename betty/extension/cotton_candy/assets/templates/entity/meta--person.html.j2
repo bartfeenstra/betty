@@ -30,10 +30,10 @@
         {%- if formatted_start or formatted_end -%}
             <dl>
                 {%- if formatted_start -%}
-                    <div><dt>{{ entity.start.event.event_type.label(app.localizer) }}</dt><dd>{{ formatted_start }}</dd></div>
+                    <div><dt>{{ entity.start.event.event_type.label() | localize }}</dt><dd>{{ formatted_start }}</dd></div>
                 {%- endif -%}
                 {%- if formatted_end -%}
-                    <div><dt>{{ entity.end.event.event_type.label(app.localizer) }}</dt><dd>{{ formatted_end }}</dd></div>
+                    <div><dt>{{ entity.end.event.event_type.label() | localize }}</dt><dd>{{ formatted_end }}</dd></div>
                 {%- endif -%}
             </dl>
         {%- endif -%}

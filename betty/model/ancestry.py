@@ -10,7 +10,7 @@ from typing import Iterable, Any
 from geopy import Point
 
 from betty.classtools import repr_instance
-from betty.locale import Localized, Datey, Localizer, Localizable
+from betty.locale import Localized, Datey, Str
 from betty.media_type import MediaType
 from betty.model import many_to_many, Entity, one_to_many, many_to_one, many_to_one_to_many, \
     MultipleTypesEntityCollection, EntityCollection, UserFacingEntity, EntityTypeAssociationRegistry, \
@@ -178,20 +178,20 @@ class Note(HasMutablePrivacy, UserFacingEntity, Entity):
         return dict_state, slots_state
 
     @classmethod
-    def entity_type_label(cls, localizer: Localizer) -> str:
-        return localizer._('Note')
+    def entity_type_label(cls) -> Str:
+        return Str._('Note')
 
     @classmethod
-    def entity_type_label_plural(cls, localizer: Localizer) -> str:
-        return localizer._('Notes')
+    def entity_type_label_plural(cls) -> Str:
+        return Str._('Notes')
 
     @property
     def text(self) -> str:
         return self._text
 
     @property
-    def label(self) -> str:
-        return self.text
+    def label(self) -> Str:
+        return Str.plain(self.text)
 
 
 @one_to_many('notes', 'betty.model.ancestry.Note', 'entity')
@@ -348,7 +348,6 @@ class File(Described, HasMutablePrivacy, HasMediaType, HasNotes, HasCitations, U
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
-        localizer: Localizer | None = None
     ):
         super().__init__(
             id,
@@ -359,7 +358,6 @@ class File(Described, HasMutablePrivacy, HasMediaType, HasNotes, HasCitations, U
             privacy=privacy,
             public=public,
             private=private,
-            localizer=localizer,
         )
         self._path = path
 
@@ -381,20 +379,20 @@ class File(Described, HasMutablePrivacy, HasMediaType, HasNotes, HasCitations, U
         pass
 
     @classmethod
-    def entity_type_label(cls, localizer: Localizer) -> str:
-        return localizer._('File')
+    def entity_type_label(cls) -> Str:
+        return Str._('File')
 
     @classmethod
-    def entity_type_label_plural(cls, localizer: Localizer) -> str:
-        return localizer._('Files')
+    def entity_type_label_plural(cls) -> Str:
+        return Str._('Files')
 
     @property
     def path(self) -> Path:
         return self._path
 
     @property
-    def label(self) -> str:
-        return self.description if self.description else super().label
+    def label(self) -> Str:
+        return Str.plain(self.description) if self.description else super().label
 
 
 @many_to_many('files', 'betty.model.ancestry.File', 'entities')
@@ -450,11 +448,9 @@ class Source(Dated, HasFiles, HasLinks, HasMutablePrivacy, UserFacingEntity, Ent
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
-        localizer: Localizer | None = None,
     ):
         super().__init__(
             id,
-            localizer=localizer,
             date=date,
             files=files,
             links=links,
@@ -508,22 +504,22 @@ class Source(Dated, HasFiles, HasLinks, HasMutablePrivacy, UserFacingEntity, Ent
         pass
 
     @classmethod
-    def entity_type_label(cls, localizer: Localizer) -> str:
-        return localizer._('Source')
+    def entity_type_label(cls) -> Str:
+        return Str._('Source')
 
     @classmethod
-    def entity_type_label_plural(cls, localizer: Localizer) -> str:
-        return localizer._('Sources')
+    def entity_type_label_plural(cls) -> Str:
+        return Str._('Sources')
 
     @property
-    def label(self) -> str:
-        return self.name if self.name else super().label
+    def label(self) -> Str:
+        return Str.plain(self.name) if self.name else super().label
 
 
 class AnonymousSource(Source):
     @property  # type: ignore[override]
     def name(self) -> str:
-        return self.localizer._('private')
+        return 'private'
 
     @name.setter
     def name(self, _) -> None:
@@ -545,13 +541,12 @@ class Citation(Dated, HasFiles, HasMutablePrivacy, UserFacingEntity, Entity):
         id: str | None = None,
         facts: Iterable[HasCitations] | None = None,
         source: Source | None = None,
-        location: str | None = None,
+        location: Str | None = None,
         date: Datey | None = None,
         files: Iterable[File] | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
-        localizer: Localizer | None = None,
     ):
         super().__init__(
             id,
@@ -560,7 +555,6 @@ class Citation(Dated, HasFiles, HasMutablePrivacy, UserFacingEntity, Entity):
             privacy=privacy,
             public=public,
             private=private,
-            localizer=localizer,
         )
         if facts is not None:
             self.facts = facts  # type: ignore[assignment]
@@ -591,22 +585,22 @@ class Citation(Dated, HasFiles, HasMutablePrivacy, UserFacingEntity, Entity):
         pass
 
     @classmethod
-    def entity_type_label(cls, localizer: Localizer) -> str:
-        return localizer._('Citation')
+    def entity_type_label(cls) -> Str:
+        return Str._('Citation')
 
     @classmethod
-    def entity_type_label_plural(cls, localizer: Localizer) -> str:
-        return localizer._('Citations')
+    def entity_type_label_plural(cls) -> Str:
+        return Str._('Citations')
 
     @property
-    def label(self) -> str:
-        return self.location or super().label
+    def label(self) -> Str:
+        return self.location or Str.plain('')
 
 
 class AnonymousCitation(Citation):
     @property  # type: ignore[override]
-    def location(self) -> str:
-        return self.localizer._("private (in order to protect people's privacy)")
+    def location(self) -> Str:
+        return Str._("private (in order to protect people's privacy)")
 
     @location.setter
     def location(self, _) -> None:
@@ -671,20 +665,18 @@ class Enclosure(Dated, HasCitations, Entity):
         self,
         encloses: Place | None,
         enclosed_by: Place | None,
-        *,
-        localizer: Localizer | None = None,
     ):
-        super().__init__(localizer=localizer)
+        super().__init__()
         self.encloses = encloses
         self.enclosed_by = enclosed_by
 
     @classmethod
-    def entity_type_label(cls, localizer: Localizer) -> str:
-        return localizer._('Enclosure')
+    def entity_type_label(cls) -> Str:
+        return Str._('Enclosure')
 
     @classmethod
-    def entity_type_label_plural(cls, localizer: Localizer) -> str:
-        return localizer._('Enclosures')
+    def entity_type_label_plural(cls) -> Str:
+        return Str._('Enclosures')
 
 
 @one_to_many('events', 'betty.model.ancestry.Event', 'place')
@@ -699,12 +691,10 @@ class Place(HasLinks, UserFacingEntity, Entity):
         events: Iterable[Event] | None = None,
         coordinates: Point | None = None,
         links: set[Link] | None = None,
-        localizer: Localizer | None = None,
     ):
         super().__init__(
             id,
             links=links,
-            localizer=localizer,
         )
         self._names = [] if names is None else names
         self._coordinates = coordinates
@@ -754,12 +744,12 @@ class Place(HasLinks, UserFacingEntity, Entity):
         pass
 
     @classmethod
-    def entity_type_label(cls, localizer: Localizer) -> str:
-        return localizer._('Place')
+    def entity_type_label(cls) -> Str:
+        return Str._('Place')
 
     @classmethod
-    def entity_type_label_plural(cls, localizer: Localizer) -> str:
-        return localizer._('Places')
+    def entity_type_label_plural(cls) -> Str:
+        return Str._('Places')
 
     @property
     def names(self) -> list[PlaceName]:
@@ -774,20 +764,20 @@ class Place(HasLinks, UserFacingEntity, Entity):
         self._coordinates = coordinates
 
     @property
-    def label(self) -> str:
+    def label(self) -> Str:
         # @todo Negotiate this by locale and date.
         with suppress(IndexError):
-            return self.names[0].name
+            return Str.plain(self.names[0].name)
         return super().label
 
 
-class PresenceRole(Localizable):
+class PresenceRole:
     @classmethod
     def name(cls) -> str:
         raise NotImplementedError(repr(cls))
 
     @property
-    def label(self) -> str:
+    def label(self) -> Str:
         raise NotImplementedError(repr(self))
 
 
@@ -797,8 +787,8 @@ class Subject(PresenceRole):
         return 'subject'
 
     @property
-    def label(self) -> str:
-        return self.localizer._('Subject')
+    def label(self) -> Str:
+        return Str._('Subject')
 
 
 class Witness(PresenceRole):
@@ -807,8 +797,8 @@ class Witness(PresenceRole):
         return 'witness'
 
     @property
-    def label(self) -> str:
-        return self.localizer._('Witness')
+    def label(self) -> Str:
+        return Str._('Witness')
 
 
 class Beneficiary(PresenceRole):
@@ -817,8 +807,8 @@ class Beneficiary(PresenceRole):
         return 'beneficiary'
 
     @property
-    def label(self) -> str:
-        return self.localizer._('Beneficiary')
+    def label(self) -> Str:
+        return Str._('Beneficiary')
 
 
 class Attendee(PresenceRole):
@@ -827,8 +817,8 @@ class Attendee(PresenceRole):
         return 'attendee'
 
     @property
-    def label(self) -> str:
-        return self.localizer._('Attendee')
+    def label(self) -> Str:
+        return Str._('Attendee')
 
 
 class Speaker(PresenceRole):
@@ -837,8 +827,8 @@ class Speaker(PresenceRole):
         return 'speaker'
 
     @property
-    def label(self) -> str:
-        return self.localizer._('Speaker')
+    def label(self) -> Str:
+        return Str._('Speaker')
 
 
 class Celebrant(PresenceRole):
@@ -847,8 +837,8 @@ class Celebrant(PresenceRole):
         return 'celebrant'
 
     @property
-    def label(self) -> str:
-        return self.localizer._('Celebrant')
+    def label(self) -> Str:
+        return Str._('Celebrant')
 
 
 class Organizer(PresenceRole):
@@ -857,8 +847,8 @@ class Organizer(PresenceRole):
         return 'organizer'
 
     @property
-    def label(self) -> str:
-        return self.localizer._('Organizer')
+    def label(self) -> Str:
+        return Str._('Organizer')
 
 
 @many_to_one_to_many(
@@ -879,10 +869,8 @@ class Presence(HasPrivacy, Entity):
         person: Person | None,
         role: PresenceRole,
         event: Event | None,
-        *,
-        localizer: Localizer | None = None,
     ):
-        super().__init__(None, localizer=localizer)
+        super().__init__(None)
         self.person = person
         self.role = role
         self.event = event
@@ -893,12 +881,12 @@ class Presence(HasPrivacy, Entity):
         return dict_state, slots_state
 
     @classmethod
-    def entity_type_label(cls, localizer: Localizer) -> str:
-        return localizer._('Presence')
+    def entity_type_label(cls) -> Str:
+        return Str._('Presence')
 
     @classmethod
-    def entity_type_label_plural(cls, localizer: Localizer) -> str:
-        return localizer._('Presences')
+    def entity_type_label_plural(cls) -> Str:
+        return Str._('Presences')
 
     def _get_privacy(self) -> Privacy:
         return merge_privacies(self.person, self.event)
@@ -922,7 +910,6 @@ class Event(Dated, HasFiles, HasCitations, Described, HasMutablePrivacy, UserFac
         private: bool | None = None,
         place: Place | None = None,
         description: str | None = None,
-        localizer: Localizer | None = None,
     ):
         super().__init__(
             id,
@@ -933,29 +920,44 @@ class Event(Dated, HasFiles, HasCitations, Described, HasMutablePrivacy, UserFac
             public=public,
             private=private,
             description=description,
-            localizer=localizer,
         )
         self._event_type = event_type
         if place is not None:
             self.place = place
 
     @property
-    def label(self) -> str:
-        label = self.event_type.label(self.localizer)
-        if self.description is not None:
-            label += f' ({self.description})'
+    def label(self) -> Str:
         subjects = [
             presence.person
             for presence
             in self.presences
             if presence.public and isinstance(presence.role, Subject) and presence.person is not None and presence.person.public
         ]
+        format_kwargs = {
+            'event_type': self._event_type.label(),
+        }
         if subjects:
-            return self.localizer._('{event_type} of {subjects}').format(
-                event_type=label,
-                subjects=', '.join(person.label for person in subjects),
+            format_kwargs['subjects'] = Str.call(lambda localizer: ', '.join(person.label.localize(localizer) for person in subjects))
+            if self.description is None:
+                return Str._(
+                    '{event_type} of {subjects}',
+                    **format_kwargs,
+                )
+            else:
+                return Str._(
+                    '{event_type} ({event_description})',
+                    **format_kwargs,
+                )
+        if self.description is None:
+            return Str._(
+                '{event_type}',
+                **format_kwargs,
             )
-        return label
+        else:
+            return Str._(
+                '{event_type} ({event_description}) of {subjects}',
+                **format_kwargs,
+            )
 
     def __getstate__(self) -> State:
         dict_state, slots_state = super().__getstate__()
@@ -979,12 +981,12 @@ class Event(Dated, HasFiles, HasCitations, Described, HasMutablePrivacy, UserFac
         pass
 
     @classmethod
-    def entity_type_label(cls, localizer: Localizer) -> str:
-        return localizer._('Event')
+    def entity_type_label(cls) -> Str:
+        return Str._('Event')
 
     @classmethod
-    def entity_type_label_plural(cls, localizer: Localizer) -> str:
-        return localizer._('Events')
+    def entity_type_label_plural(cls) -> Str:
+        return Str._('Events')
 
     @property
     def event_type(self) -> type[EventType]:
@@ -1020,7 +1022,6 @@ class PersonName(Localized, HasCitations, HasMutablePrivacy, Entity):
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
-        localizer: Localizer | None = None
     ):
         if not individual and not affiliation:
             raise ValueError('The individual and affiliation names must not both be empty.')
@@ -1029,7 +1030,6 @@ class PersonName(Localized, HasCitations, HasMutablePrivacy, Entity):
             privacy=privacy,
             public=public,
             private=private,
-            localizer=localizer,
         )
         self._individual = individual
         self._affiliation = affiliation
@@ -1065,12 +1065,12 @@ class PersonName(Localized, HasCitations, HasMutablePrivacy, Entity):
         return (self._individual or '') > (other._individual or '') and (self._affiliation or '') > (other._affiliation or '')
 
     @classmethod
-    def entity_type_label(cls, localizer: Localizer) -> str:
-        return localizer._('Person name')
+    def entity_type_label(cls) -> Str:
+        return Str._('Person name')
 
     @classmethod
-    def entity_type_label_plural(cls, localizer: Localizer) -> str:
-        return localizer._('Person names')
+    def entity_type_label_plural(cls) -> Str:
+        return Str._('Person names')
 
     @property
     def individual(self) -> str | None:
@@ -1081,10 +1081,11 @@ class PersonName(Localized, HasCitations, HasMutablePrivacy, Entity):
         return self._affiliation
 
     @property
-    def label(self) -> str:
+    def label(self) -> Str:
         if self.private:
-            return self.localizer._('private')
-        return self.localizer._('{individual_name} {affiliation_name}').format(
+            return Str._('private')
+        return Str._(
+            '{individual_name} {affiliation_name}',
             individual_name='…' if not self.individual else self.individual,
             affiliation_name='…' if not self.affiliation else self.affiliation,
         )
@@ -1108,7 +1109,6 @@ class Person(HasFiles, HasCitations, HasLinks, HasMutablePrivacy, UserFacingEnti
         private: bool | None = None,
         parents: Iterable[Person] | None = None,
         children: Iterable[Person] | None = None,
-        localizer: Localizer | None = None,
     ):
         super().__init__(
             id,
@@ -1118,7 +1118,6 @@ class Person(HasFiles, HasCitations, HasLinks, HasMutablePrivacy, UserFacingEnti
             privacy=privacy,
             public=public,
             private=private,
-            localizer=localizer,
         )
         if children is not None:
             self.children = children  # type: ignore[assignment]
@@ -1174,12 +1173,12 @@ class Person(HasFiles, HasCitations, HasLinks, HasMutablePrivacy, UserFacingEnti
         pass
 
     @classmethod
-    def entity_type_label(cls, localizer: Localizer) -> str:
-        return localizer._('Person')
+    def entity_type_label(cls) -> Str:
+        return Str._('Person')
 
     @classmethod
-    def entity_type_label_plural(cls, localizer: Localizer) -> str:
-        return localizer._('People')
+    def entity_type_label_plural(cls) -> Str:
+        return Str._('People')
 
     def __eq__(self, other: Any) -> bool:
         return super().__eq__(other) and self.name == other.name
@@ -1271,13 +1270,13 @@ class Person(HasFiles, HasCitations, HasLinks, HasMutablePrivacy, UserFacingEnti
             yield file
 
     @property
-    def label(self) -> str:
+    def label(self) -> Str:
         return self.name.label if self.name else super().label
 
 
 class Ancestry(MultipleTypesEntityCollection[Entity]):
-    def __init__(self, *, localizer: Localizer | None = None):
-        super().__init__(localizer=localizer)
+    def __init__(self):
+        super().__init__()
         self._check_graph = True
 
     def __getstate__(self) -> PickleableEntityGraph:

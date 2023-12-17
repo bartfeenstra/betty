@@ -3,6 +3,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import overload, Iterable, Iterator, Any
 
+from betty.locale import DEFAULT_LOCALIZER
 from betty.serde.error import SerdeError, SerdeErrorCollection
 
 
@@ -29,7 +30,7 @@ def assert_error(
     error: None = None,
     error_type: type[SerdeError] = SerdeError,
     error_message: str | None = None,
-    error_contexts: tuple[str, ...] | None = None,
+    error_contexts: list[str] | None = None,
 ) -> list[SerdeError]:
     pass
 
@@ -40,8 +41,9 @@ def assert_error(
     error: SerdeError | None = None,
     error_type: type[SerdeError] | None = SerdeError,
     error_message: str | None = None,
-    error_contexts: tuple[str, ...] | None = None,
+    error_contexts: list[str] | None = None,
 ) -> list[SerdeError]:
+    expected_error_contexts: list[str] | None
     actual_errors: Iterable[SerdeError]
     if isinstance(actual_error, SerdeErrorCollection):
         actual_errors = [*actual_error]
@@ -54,7 +56,11 @@ def assert_error(
     if error:
         expected_error_type = type(error)
         expected_error_message = str(error)
-        expected_error_contexts = error.contexts
+        expected_error_contexts = [
+            error.localize(DEFAULT_LOCALIZER)
+            for error
+            in error.contexts
+        ]
     else:
         expected_error_type = error_type  # type: ignore[assignment]
         if error_message is not None:
@@ -66,7 +72,16 @@ def assert_error(
     if expected_error_message is not None:
         errors = [actual_error for actual_error in actual_errors if str(actual_error).startswith(expected_error_message)]
     if expected_error_contexts is not None:
-        errors = [actual_error for actual_error in actual_errors if expected_error_contexts == actual_error.contexts]
+        errors = [
+            actual_error
+            for actual_error
+            in actual_errors
+            if expected_error_contexts == [
+                error.localize(DEFAULT_LOCALIZER)
+                for error
+                in actual_error.contexts
+            ]
+        ]
     if errors:
         return errors
     raise SerdeAssertionError('Failed raising a serialization or deserialization error.')

@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from betty.extension import CottonCandy
+from betty.locale import Str, DEFAULT_LOCALIZER
 from betty.model.ancestry import Citation, Source, File, Person, PersonName
 from betty.tests import TemplateTestCase
 
@@ -15,7 +16,7 @@ class TestTemplate(TemplateTestCase):
 
         citation = Citation(
             source=source,
-            location='citation location',
+            location=Str.plain('citation location'),
         )
 
         public_file = File(
@@ -58,7 +59,7 @@ class TestTemplate(TemplateTestCase):
             },
         ) as (actual, _):
             assert citation.location is not None
-            assert citation.location in actual
+            assert citation.location.localize(DEFAULT_LOCALIZER) in actual
             assert public_file.description is not None
             assert public_file.description in actual
             assert public_fact_name in actual

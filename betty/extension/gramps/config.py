@@ -6,7 +6,6 @@ from typing import Iterable, Any, Self
 from reactives.instance.property import reactive_property
 
 from betty.config import Configuration, ConfigurationSequence
-from betty.locale import Localizer
 from betty.serde.dump import minimize, Dump, VoidableDump
 from betty.serde.load import Asserter, Fields, RequiredField, Assertions, OptionalField
 
@@ -35,12 +34,10 @@ class FamilyTreeConfiguration(Configuration):
             cls,
             dump: Dump,
             configuration: Self | None = None,
-            *,
-            localizer: Localizer | None = None,
     ) -> Self:
         if configuration is None:
             configuration = cls()
-        asserter = Asserter(localizer=localizer)
+        asserter = Asserter()
         asserter.assert_record(Fields(
             RequiredField(
                 'file',
@@ -87,12 +84,10 @@ class GrampsConfiguration(Configuration):
             cls,
             dump: Dump,
             configuration: Self | None = None,
-            *,
-            localizer: Localizer | None = None,
     ) -> Self:
         if configuration is None:
             configuration = cls()
-        asserter = Asserter(localizer=localizer)
+        asserter = Asserter()
         asserter.assert_record(Fields(
             OptionalField(
                 'family_trees',

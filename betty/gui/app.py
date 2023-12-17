@@ -153,7 +153,7 @@ class BettyMainWindow(BettyWindow):
             self,
             self._app.localizer._('Open your project from...'),
             '',
-            get_configuration_file_filter(self._app.localizer),
+            get_configuration_file_filter().localize(self._app.localizer),
         )
         if not configuration_file_path_str:
             return
@@ -170,7 +170,7 @@ class BettyMainWindow(BettyWindow):
             self,
             self._app.localizer._('Save your new project to...'),
             '',
-            get_configuration_file_filter(self._app.localizer),
+            get_configuration_file_filter().localize(self._app.localizer),
         )
         if not configuration_file_path_str:
             return
@@ -261,7 +261,10 @@ class WelcomeWindow(BettyMainWindow):
     def _do_set_translatables(self) -> None:
         super()._do_set_translatables()
         self._welcome.setText(self._app.localizer._('Welcome to Betty'))
-        self._welcome_caption.setText(self._app.localizer._('Betty helps you visualize and publish your family history by building interactive genealogy websites out of your <a href="{gramps_url}">Gramps</a> and <a href="{gedcom_url}">GEDCOM</a> family trees.').format(gramps_url='https://gramps-project.org/', gedcom_url='https://en.wikipedia.org/wiki/GEDCOM'))
+        self._welcome_caption.setText(self._app.localizer._('Betty helps you visualize and publish your family history by building interactive genealogy websites out of your <a href="{gramps_url}">Gramps</a> and <a href="{gedcom_url}">GEDCOM</a> family trees.').format(
+            gramps_url='https://gramps-project.org/',
+            gedcom_url='https://en.wikipedia.org/wiki/GEDCOM',
+        ))
         self._project_instruction.setText(self._app.localizer._('Work on a new or existing site of your own'))
         self.open_project_button.setText(self._app.localizer._('Open an existing project'))
         self.new_project_button.setText(self._app.localizer._('Create a new project'))
@@ -283,8 +286,12 @@ class _AboutBettyWindow(BettyWindow):
     def _do_set_translatables(self) -> None:
         super()._do_set_translatables()
         self._label.setText(''.join(map(lambda x: '<p>%s</p>' % x, [
-            self._app.localizer._('Version: {version}').format(version=about.version_label()),
-            self._app.localizer._('Copyright 2019-{year} <a href="twitter.com/bartFeenstra">Bart Feenstra</a> & contributors. Betty is made available to you under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License, Version 3</a> (GPLv3).').format(year=datetime.now().year),
+            self._app.localizer._('Version: {version}').format(
+                version=about.version_label(),
+            ),
+            self._app.localizer._('Copyright 2019-{year} <a href="twitter.com/bartFeenstra">Bart Feenstra</a> & contributors. Betty is made available to you under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License, Version 3</a> (GPLv3).').format(
+                year=datetime.now().year,
+            ),
             self._app.localizer._('Follow Betty on <a href="https://twitter.com/Betty_Project">Twitter</a> and <a href="https://github.com/bartfeenstra/betty">Github</a>.'),
         ])))
 

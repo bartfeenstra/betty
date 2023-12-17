@@ -5,18 +5,18 @@ from typing import cast
 
 import yaml
 
-from betty.locale import Localizable, Localizer
+from betty.locale import Str
 from betty.serde.dump import Dump, VoidableDump
 from betty.serde.load import FormatError
 
 
-class Format(Localizable):
+class Format:
     @property
     def extensions(self) -> set[str]:
         raise NotImplementedError(repr(self))
 
     @property
-    def label(self) -> str:
+    def label(self) -> Str:
         raise NotImplementedError(repr(self))
 
     def load(self, dump: str) -> Dump:
@@ -32,14 +32,17 @@ class Json(Format):
         return {'json'}
 
     @property
-    def label(self) -> str:
-        return 'JSON'
+    def label(self) -> Str:
+        return Str.plain('JSON')
 
     def load(self, dump: str) -> Dump:
         try:
             return cast(Dump, json.loads(dump))
         except json.JSONDecodeError as e:
-            raise FormatError(self.localizer._('Invalid JSON: {error}.').format(error=e))
+            raise FormatError(Str._(
+                'Invalid JSON: {error}.',
+                error=str(e),
+            ))
 
     def dump(self, dump: VoidableDump) -> str:
         return json.dumps(dump)
@@ -51,29 +54,30 @@ class Yaml(Format):
         return {'yaml', 'yml'}
 
     @property
-    def label(self) -> str:
-        return 'YAML'
+    def label(self) -> Str:
+        return Str.plain('YAML')
 
     def load(self, dump: str) -> Dump:
         try:
             return cast(Dump, yaml.safe_load(dump))
         except yaml.YAMLError as e:
-            raise FormatError(self.localizer._('Invalid YAML: {error}.').format(error=e))
+            raise FormatError(Str._(
+                'Invalid YAML: {error}.',
+                error=str(e),
+            ))
 
     def dump(self, dump: VoidableDump) -> str:
         return yaml.safe_dump(dump)
 
 
-class FormatRepository(Localizable):
+class FormatRepository:
     def __init__(
         self,
-        *,
-        localizer: Localizer | None = None,
     ):
-        super().__init__(localizer=localizer)
+        super().__init__()
         self._formats = (
-            Json(localizer=localizer),
-            Yaml(localizer=localizer),
+            Json(),
+            Yaml(),
         )
 
     @property
@@ -92,9 +96,13 @@ class FormatRepository(Localizable):
         for format in self._formats:
             if extension in format.extensions:
                 return format
-        supported_formats = ', '.join([
-            f'.{extension} ({format.label})'
+        supported_formats = Str.call(lambda localizer: ', '.join([
+            f'.{extension} ({format.label.localize(localizer)})'
             for extension in format.extensions
             for format in self.formats
-        ])
-        raise FormatError(f'Unknown file format ".{extension}". Supported formats are: {supported_formats}.')
+        ]))
+        raise FormatError(Str._(
+            'Unknown file format ".{extension}". Supported formats are: {supported_formats}.',
+            extension=extension,
+            supported_formats=supported_formats,
+        ))

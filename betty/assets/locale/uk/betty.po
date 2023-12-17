@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-12-17 15:48+0000\n"
+"POT-Creation-Date: 2023-12-18 17:07+0000\n"
 "PO-Revision-Date: 2020-05-02 22:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -40,6 +40,13 @@ msgid ""
 "                looks like.\n"
 "            "
 msgstr ""
+
+#, python-format
+msgid ""
+"\n"
+"        Welcome to %(project_title)s\n"
+"    "
+msgstr "Ласкаво просимо на %(project_title)s"
 
 #, python-format
 msgid ""
@@ -245,6 +252,9 @@ msgid ""
 "Cannot determine the extension type for \"{extension_type}\". Did you "
 "perhaps make a typo, or could it be that the extension type comes from "
 "another package that is not yet installed?"
+msgstr ""
+
+msgid "Cannot find an available port to bind the web server to."
 msgstr ""
 
 msgid "Cannot find and import \"{entity_type}\"."
@@ -789,6 +799,9 @@ msgid ""
 "({actual_entity_type_label})"
 msgstr ""
 
+msgid "The following errors occurred"
+msgstr ""
+
 msgid "The lifetime threshold must consist of digits only."
 msgstr ""
 
@@ -884,6 +897,11 @@ msgstr "Несанкціонована"
 msgid "Unknown"
 msgstr "Невідомо"
 
+msgid ""
+"Unknown file format \".{extension}\". Supported formats are: "
+"{supported_formats}."
+msgstr ""
+
 msgid "Unknown key: {unknown_key}. Did you mean {known_keys}?"
 msgstr ""
 
@@ -915,10 +933,6 @@ msgstr ""
 
 msgid "View site"
 msgstr ""
-
-#, python-format
-msgid "Welcome to %(title)s"
-msgstr "Ласкаво просимо на %(title)s"
 
 msgid "Welcome to Betty"
 msgstr "Ласкаво просимо на Betty"
@@ -1088,6 +1102,15 @@ msgid "{entity_type_label} ID"
 msgstr ""
 
 msgid "{entity_type} {entity_id}"
+msgstr ""
+
+msgid "{event_type}"
+msgstr ""
+
+msgid "{event_type} ({event_description})"
+msgstr ""
+
+msgid "{event_type} ({event_description}) of {subjects}"
 msgstr ""
 
 msgid "{event_type} of {subjects}"

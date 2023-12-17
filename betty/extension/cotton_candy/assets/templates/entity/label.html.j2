@@ -2,7 +2,7 @@
 {%- if not embedded and entity is not has_generated_entity_id -%}
     <a href="{{ entity | url }}">
 {%- endif -%}
-{{ entity.label }}
+{{ entity.label | localize }}
 {%- if not embedded and entity is not has_generated_entity_id -%}
     </a>
 {%- endif -%}

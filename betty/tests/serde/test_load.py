@@ -97,7 +97,7 @@ class TestAsserter:
 
     async def test_assert_sequence_with_invalid_item(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=AssertionFailed, error_contexts=('0',)):
+        with raises_error(error_type=AssertionFailed, error_contexts=['0']):
             sut.assert_sequence(Assertions(sut.assert_str()))([123])
 
     async def test_assert_sequence_with_empty_list(self) -> None:
@@ -127,7 +127,7 @@ class TestAsserter:
 
     async def test_assert_fields_required_without_key(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=AssertionFailed, error_contexts=('hello',)):
+        with raises_error(error_type=AssertionFailed, error_contexts=['hello']):
             sut.assert_fields(Fields(RequiredField(
                 'hello',
                 Assertions(sut.assert_str()),
@@ -174,7 +174,7 @@ class TestAsserter:
 
     async def test_assert_field_required_without_key(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=AssertionFailed, error_contexts=('hello',)):
+        with raises_error(error_type=AssertionFailed, error_contexts=['hello']):
             sut.assert_field(RequiredField(
                 'hello',
                 Assertions(sut.assert_str()),
@@ -214,7 +214,7 @@ class TestAsserter:
 
     async def test_assert_mapping_with_invalid_item(self) -> None:
         sut = Asserter()
-        with raises_error(error_type=AssertionFailed, error_contexts=('hello',)):
+        with raises_error(error_type=AssertionFailed, error_contexts=['hello']):
             sut.assert_mapping(Assertions(sut.assert_str()))({'hello': False})
 
     async def test_assert_mapping_with_empty_dict(self) -> None:

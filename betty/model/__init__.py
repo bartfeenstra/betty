@@ -10,7 +10,7 @@ from uuid import uuid4
 
 from betty.classtools import repr_instance
 from betty.importlib import import_any, fully_qualified_type_name
-from betty.locale import Localizer, Localizable
+from betty.locale import Str
 from betty.pickle import State, Pickleable
 
 T = TypeVar('T')
@@ -28,16 +28,15 @@ class GeneratedEntityId(str):
         return super().__new__(cls, entity_id or str(uuid4()))
 
 
-class Entity(Localizable, Pickleable):
+class Entity(Pickleable):
     def __init__(
         self,
         id: str | None = None,
         *args: Any,
-        localizer: Localizer | None = None,
         **kwargs: Any,
     ):
         self._id = GeneratedEntityId() if id is None else id
-        super().__init__(*args, localizer=localizer, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def __getstate__(self) -> State:
         dict_state, slots_state = super().__getstate__()
@@ -57,11 +56,11 @@ class Entity(Localizable, Pickleable):
         return hash(self.ancestry_id)
 
     @classmethod
-    def entity_type_label(cls, localizer: Localizer) -> str:
+    def entity_type_label(cls) -> Str:
         raise NotImplementedError(repr(cls))
 
     @classmethod
-    def entity_type_label_plural(cls, localizer: Localizer) -> str:
+    def entity_type_label_plural(cls) -> Str:
         raise NotImplementedError(repr(cls))
 
     @recursive_repr()
@@ -81,9 +80,10 @@ class Entity(Localizable, Pickleable):
         return self.type, self.id
 
     @property
-    def label(self) -> str:
-        return self.localizer._('{entity_type} {entity_id}').format(
-            entity_type=self.entity_type_label(self.localizer),
+    def label(self) -> Str:
+        return Str._(
+            '{entity_type} {entity_id}',
+            entity_type=self.entity_type_label(),
             entity_id=self.id,
         )
 
@@ -152,13 +152,9 @@ class EntityTypeInvalidError(EntityTypeError, ImportError):
         super().__init__(f'{entity_type.__module__}.{entity_type.__name__} is not an entity type class. Entity types must extend {Entity.__module__}.{Entity.__name__} directly.')
 
 
-class EntityCollection(Generic[TargetT], Localizable):
-    def __init__(self, *, localizer: Localizer | None = None):
-        super().__init__(localizer=localizer)
-
-    def _on_localizer_change(self) -> None:
-        for entity in self:
-            entity.localizer = self.localizer
+class EntityCollection(Generic[TargetT]):
+    def __init__(self):
+        super().__init__()
 
     def _on_add(self, *entities: TargetT & Entity) -> None:
         pass
@@ -637,10 +633,8 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
     def __init__(
         self,
         target_type: type[TargetT],
-        *,
-        localizer: Localizer | None = None,
     ):
-        super().__init__(localizer=localizer)
+        super().__init__()
         self._entities: list[TargetT & Entity] = []
         self._target_type = target_type
 
@@ -742,8 +736,8 @@ SingleTypeEntityCollectionT = TypeVar('SingleTypeEntityCollectionT', bound=Singl
 
 
 class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
-    def __init__(self, *, localizer: Localizer | None = None):
-        super().__init__(localizer=localizer)
+    def __init__(self):
+        super().__init__()
         self._collections: dict[type[Entity], SingleTypeEntityCollection[Entity]] = {}
 
     @recursive_repr()
@@ -875,10 +869,8 @@ class _BidirectionalAssociateCollection(Generic[AssociateT, OwnerT], SingleTypeE
         self,
         owner: OwnerT & Entity,
         association: BidirectionalEntityTypeAssociation[OwnerT, AssociateT],
-        *,
-        localizer: Localizer | None = None,
     ):
-        super().__init__(association.associate_type, localizer=localizer)
+        super().__init__(association.associate_type)
         self._association = association
         self._owner = owner
 

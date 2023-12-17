@@ -65,7 +65,7 @@ class _GenerateHtmlListForm(LocalizedWidget):
                 in self._app.entity_types
                 if issubclass(entity_type, UserFacingEntity)
             ],
-            key=lambda x: x.entity_type_label_plural(self._app.localizer),
+            key=lambda x: x.entity_type_label_plural().localize(self._app.localizer),
         ))
         for entity_type in self._checkboxes.keys():
             if entity_type not in entity_types:
@@ -90,7 +90,7 @@ class _GenerateHtmlListForm(LocalizedWidget):
         self._form_label.setText(self._app.localizer._('Generate entity listing pages'))
         for entity_type in self._app.entity_types:
             if issubclass(entity_type, UserFacingEntity):
-                self._checkboxes[entity_type].setText(entity_type.entity_type_label_plural(self._app.localizer))
+                self._checkboxes[entity_type].setText(entity_type.entity_type_label_plural().localize(self._app.localizer))
 
 
 class _GeneralPane(LocalizedWidget):
@@ -272,7 +272,7 @@ class _LocalesConfigurationWidget(LocalizedWidget):
     def _do_set_translatables(self) -> None:
         self._add_locale_button.setText(self._app.localizer._('Add a locale'))
         for locale, button in self._default_buttons.items():
-            button.setText(get_display_name(locale, self._app.locale))
+            button.setText(get_display_name(locale, self._app.localizer.locale))
         for button in self._remove_buttons.values():
             if button is not None:
                 button.setText(self._app.localizer._('Remove'))
@@ -423,17 +423,15 @@ class _ExtensionPane(LocalizedWidget):
                 self._extension_enabled_caption.setText(str(disable_requirement.reduce()))
         else:
             self._extension_enabled.setChecked(False)
-            enable_requirement = self._extension_type.enable_requirement(localizer=self._app.localizer)
+            enable_requirement = self._extension_type.enable_requirement()
             if not enable_requirement.is_met():
                 self._extension_enabled.setDisabled(True)
                 self._extension_enabled_caption.setText(str(enable_requirement.reduce()))
 
     def _do_set_translatables(self) -> None:
-        self._extension_description.setText(
-            self._extension_type.description(self._app.localizer),
-        )
+        self._extension_description.setText(self._extension_type.description().localize(self._app.localizer))
         self._extension_enabled.setText(self._app.localizer._('Enable {extension}').format(
-            extension=self._extension_type.label(self._app.localizer),
+            extension=self._extension_type.label(),
         ))
 
 
@@ -520,7 +518,7 @@ class ProjectWindow(BettyMainWindow):
         self._pane_selectors['general'].setText(self._app.localizer._('General'))
         self._pane_selectors['localization'].setText(self._app.localizer._('Localization'))
         for extension_type in self._extension_types:
-            self._pane_selectors[f'extension-{extension_type.name()}'].setText(extension_type.label(self._app.localizer))
+            self._pane_selectors[f'extension-{extension_type.name()}'].setText(extension_type.label().localize(self._app.localizer))
 
     @reactive_method(on_trigger_call=True)
     def _set_window_title(self) -> None:
@@ -532,7 +530,7 @@ class ProjectWindow(BettyMainWindow):
             self,
             self._app.localizer._('Save your project to...'),
             '',
-            get_configuration_file_filter(self._app.localizer),
+            get_configuration_file_filter().localize(self._app.localizer),
         )
         wait(self._app.project.configuration.write(Path(configuration_file_path_str)))
 
@@ -626,5 +624,6 @@ class _GenerateWindow(BettyWindow):
         generate.getLogger().removeHandler(self._logging_handler)
 
     def _do_set_translatables(self) -> None:
+        self._cancel_button.setText(self._app.localizer._('Cancel'))
         self._cancel_button.setText(self._app.localizer._('Cancel'))
         self._serve_button.setText(self._app.localizer._('View site'))

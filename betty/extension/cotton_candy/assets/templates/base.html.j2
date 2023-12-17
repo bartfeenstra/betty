@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ app.locale }}"
+<html lang="{{ localizer.locale }}"
       prefix="foaf: http://xmlns.com/foaf/0.1/ og: http://ogp.me/ns# rel: http://purl.org/vocab/relationship/">
 <head>
     {% include 'head.html.j2' %}
@@ -25,7 +25,7 @@
                 {% if search_keywords_example_person_name %}
                     {% set search_keywords_example -%}
                         {% filter forceescape %}
-                            {% trans example = search_keywords_example_person_name.label -%}
+                            {% trans example = search_keywords_example_person_name.label | localize -%}
                                 E.g. "{{ example }}"
                             {%- endtrans %}
                         {% endfilter %}
@@ -55,7 +55,7 @@
                                 {% if 'Event' == entity_type_configuration.entity_type | entity_type_name %}
                                     {% trans %}Timeline{% endtrans %}
                                 {% else %}
-                                    {{ entity_type_configuration.entity_type.entity_type_label_plural(app.localizer) }}
+                                    {{ entity_type_configuration.entity_type.entity_type_label_plural() | localize }}
                                 {% endif %}
                             </a>
                         </li>
@@ -63,7 +63,7 @@
                 </ul>
             </div>
         </div>
-        {% if page_resource is defined and app.project.configuration.multilingual %}
+        {% if page_resource is defined and app.project.configuration.locales.multilingual %}
             <div id="nav-locale" class="nav-primary-expandable">
                 <h2 class="nav-primary-action">{% trans %}Language{% endtrans %}</h2>
                 <div class="nav-primary-expanded">

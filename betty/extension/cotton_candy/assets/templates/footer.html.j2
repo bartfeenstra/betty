@@ -5,5 +5,5 @@
 {% endif %}
 <p>{% trans %}A family history as told by <a href="https://github.com/bartfeenstra/betty">Betty👵</a>{% endtrans %}</p>
 {% if 'betty.extension.HttpApiDoc' in app.extensions %}
-    <p><a href="{{ '/api/index.html' | url }}">{% trans %}API documentation{% endtrans %}</a></p>
+    <p><a href="{{ '/api/index.html' | static_url }}">{% trans %}API documentation{% endtrans %}</a></p>
 {% endif %}

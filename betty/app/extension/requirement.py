@@ -4,7 +4,7 @@ from textwrap import indent
 from typing import cast, Any, Self
 
 from betty.error import UserFacingError
-from betty.locale import Localizer, Localizable
+from betty.locale import Str, Localizable, Localizer
 
 
 class Requirement(Localizable):
@@ -16,17 +16,18 @@ class Requirement(Localizable):
             raise RequirementError(self)
         return None
 
-    def summary(self) -> str:
+    def summary(self) -> Str:
         raise NotImplementedError(repr(self))
 
-    def details(self) -> str | None:
+    def details(self) -> Str | None:
         return None
 
-    def __str__(self) -> str:
-        string = self.summary()
-        if self.details():
-            string += f'\n{"-" * len(self.summary())}'
-            string += f'\n{self.details()}'
+    def localize(self, localizer: Localizer) -> str:
+        string = self.summary().localize(localizer)
+        details = self.details()
+        if details is not None:
+            string += f'\n{"-" * len(string)}'
+            string += f'\n{details.localize(localizer)}'
         return string
 
     def reduce(self) -> Requirement | None:
@@ -42,7 +43,7 @@ class Requirement(Localizable):
 
 class RequirementError(RuntimeError, UserFacingError):
     def __init__(self, requirement: Requirement):
-        super().__init__(str(requirement))
+        super().__init__(requirement)
         self._requirement = requirement
 
     def requirement(self) -> Requirement:
@@ -50,8 +51,8 @@ class RequirementError(RuntimeError, UserFacingError):
 
 
 class RequirementCollection(Requirement):
-    def __init__(self, *requirements: Requirement | None, localizer: Localizer | None = None):
-        super().__init__(localizer=localizer)
+    def __init__(self, *requirements: Requirement | None):
+        super().__init__()
         self._requirements: list[Requirement] = [requirement for requirement in requirements if requirement]
 
     def __eq__(self, other: Any) -> bool:
@@ -65,11 +66,11 @@ class RequirementCollection(Requirement):
         self._requirements = [*self._requirements, other]
         return self
 
-    def __str__(self) -> str:
-        string = super().__str__()
+    def localize(self, localizer: Localizer) -> str:
+        localized = super().localize(localizer)
         for requirement in self._requirements:
-            string += f'\n-{indent(str(requirement), "  ")[1:]}'
-        return string
+            localized += f'\n-{indent(requirement.localize(localizer), "  ")[1:]}'
+        return localized
 
     def reduce(self) -> Requirement | None:
         reduced_requirements = []
@@ -88,9 +89,9 @@ class RequirementCollection(Requirement):
 
 
 class AnyRequirement(RequirementCollection):
-    def __init__(self, *requirements: Requirement | None, localizer: Localizer | None = None):
-        super().__init__(*requirements, localizer=localizer)
-        self._summary = self.localizer._('One or more of these requirements must be met')
+    def __init__(self, *requirements: Requirement | None):
+        super().__init__(*requirements)
+        self._summary = Str._('One or more of these requirements must be met')
 
     def is_met(self) -> bool:
         for requirement in self._requirements:
@@ -98,14 +99,14 @@ class AnyRequirement(RequirementCollection):
                 return True
         return False
 
-    def summary(self) -> str:
+    def summary(self) -> Str:
         return self._summary
 
 
 class AllRequirements(RequirementCollection):
-    def __init__(self, *requirements: Requirement | None, localizer: Localizer | None = None):
-        super().__init__(*requirements, localizer=localizer)
-        self._summary = self.localizer._('All of these requirements must be met')
+    def __init__(self, *requirements: Requirement | None):
+        super().__init__(*requirements)
+        self._summary = Str._('All of these requirements must be met')
 
     def is_met(self) -> bool:
         for requirement in self._requirements:
@@ -113,5 +114,5 @@ class AllRequirements(RequirementCollection):
                 return False
         return True
 
-    def summary(self) -> str:
+    def summary(self) -> Str:
         return self._summary

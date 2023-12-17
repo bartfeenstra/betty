@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import copy
 from contextlib import contextmanager
 from textwrap import indent
-from typing import Iterator, cast, Any, Self
+from typing import Iterator, Self
 
 from betty.error import UserFacingError
+from betty.locale import Localizable, Localizer, Str
 
 
 class SerdeError(UserFacingError, ValueError):
@@ -13,27 +13,31 @@ class SerdeError(UserFacingError, ValueError):
     A serialization or deserialization error.
     """
 
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
-        self._contexts: tuple[str, ...] = ()
+    def __init__(self, message: Localizable):
+        super().__init__(message)
+        self._contexts: tuple[Localizable, ...] = ()
 
-    def __str__(self) -> str:
-        return (super().__str__() + '\n' + indent('\n'.join(self._contexts), '- ')).strip()
+    def localize(self, localizer: Localizer) -> str:
+        localized_contexts = map(lambda context: context.localize(localizer), self._contexts)
+        return (super().localize(localizer) + '\n' + indent('\n'.join(localized_contexts), '- ')).strip()
 
     def raised(self, error_type: type[SerdeError]) -> bool:
         return isinstance(self, error_type)
 
     @property
-    def contexts(self) -> tuple[str, ...]:
+    def contexts(self) -> tuple[Localizable, ...]:
         return self._contexts
 
-    def with_context(self, *contexts: str) -> SerdeError:
+    def with_context(self, *contexts: Localizable) -> Self:
         """
         Add a message describing the error's context.
         """
-        self_copy = copy.copy(self)
+        self_copy = self._copy()
         self_copy._contexts = (*self._contexts, *contexts)
         return self_copy
+
+    def _copy(self) -> Self:
+        return type(self)(self._localizable_message)
 
 
 class SerdeErrorCollection(SerdeError):
@@ -42,14 +46,14 @@ class SerdeErrorCollection(SerdeError):
     """
 
     def __init__(self):
-        super().__init__()
+        super().__init__(Str._('The following errors occurred'))
         self._errors: list[SerdeError] = []
 
     def __iter__(self) -> Iterator[SerdeError]:
         yield from self._errors
 
-    def __str__(self) -> str:
-        return '\n\n'.join(map(str, self._errors))
+    def localize(self, localizer: Localizer) -> str:
+        return '\n\n'.join(map(lambda error: error.localize(localizer), self._errors))
 
     def __len__(self) -> int:
         return len(self._errors)
@@ -84,13 +88,16 @@ class SerdeErrorCollection(SerdeError):
             else:
                 self._errors.append(error.with_context(*self._contexts))
 
-    def with_context(self, *contexts: str) -> SerdeErrorCollection:
-        self_copy = cast(SerdeErrorCollection, super().with_context(*contexts))
+    def with_context(self, *contexts: Localizable) -> Self:
+        self_copy = super().with_context(*contexts)
         self_copy._errors = [error.with_context(*contexts) for error in self._errors]
         return self_copy
 
+    def _copy(self) -> Self:
+        return type(self)()
+
     @contextmanager
-    def catch(self, *contexts: str) -> Iterator[SerdeErrorCollection]:
+    def catch(self, *contexts: Localizable) -> Iterator[SerdeErrorCollection]:
         context_errors: SerdeErrorCollection = SerdeErrorCollection()
         if contexts:
             context_errors = context_errors.with_context(*contexts)

@@ -73,10 +73,12 @@ class TemplateTestCase:
         else:
             class_name = self.__class__.__name__
             raise RuntimeError(f'You must define one of `template_string`, `template_file`, `{class_name}.template_string`, or `{class_name}.template_file`.')
+        app = App()
+        app.project.configuration.debug = True
         if data is None:
             data = {}
-        app = App(locale=locale)
-        app.project.configuration.debug = True
+        if locale is not None:
+            data['localizer'] = app.localizers[locale]
         async with app:
             app.project.configuration.extensions.enable(*self.extensions)
             rendered = template_factory(app.jinja2_environment, template).render(**data)
@@ -90,7 +92,7 @@ def assert_betty_html(
     *,
     check_links: bool = False,
 ) -> Path:
-    betty_html_file_path = app.static_www_directory_path / Path(url_path.lstrip('/'))
+    betty_html_file_path = app.project.configuration.www_directory_path / Path(url_path.lstrip('/'))
     with open(betty_html_file_path) as f:
         betty_html = f.read()
     try:

@@ -1,5 +1,9 @@
 {% extends 'base.html.j2' %}
-{% set page_title = _('Welcome to %(title)s') | format(title=app.project.configuration.title) %}
+{% set page_title %}
+    {% trans project_title=app.project.configuration.title %}
+        Welcome to {{ project_title }}
+    {% endtrans %}
+{% endset %}
 {% block page_content %}
     {% if 'betty.extension.Demo' in app.extensions %}
         <p>

@@ -6,7 +6,7 @@ from typing import Iterator, Callable, Any, Generic, TYPE_CHECKING, TypeVar, Mut
     cast, TypeAlias
 
 from betty.functools import _Result
-from betty.locale import LocaleNotFoundError, get_data, Localizable
+from betty.locale import LocaleNotFoundError, get_data, Str
 from betty.model import Entity, get_entity_type, EntityTypeImportError, EntityTypeInvalidError, EntityTypeError
 from betty.serde.dump import DumpType, DumpTypeT, Void
 from betty.serde.error import SerdeError, SerdeErrorCollection
@@ -107,20 +107,20 @@ _AssertionBuilderMethod = Callable[[object, ValueT], ReturnT]
 _AssertionBuilder = '_AssertionBuilderFunction[ValueT, ReturnT] | _AssertionBuilderMethod[ValueT, ReturnT]'
 
 
-class Asserter(Localizable):
+class Asserter:
     def _assert_type_violation_error_message(
             self,
             asserted_type: type[DumpType],
-    ) -> str:
-        message_builders = {
-            bool: lambda localizer: localizer._('This must be a boolean.'),
-            int: lambda localizer: localizer._('This must be a whole number.'),
-            float: lambda localizer: localizer._('This must be a decimal number.'),
-            str: lambda localizer: localizer._('This must be a string.'),
-            list: lambda localizer: localizer._('This must be a list.'),
-            dict: lambda localizer: localizer._('This must be a key-value mapping.'),
+    ) -> Str:
+        messages = {
+            bool: Str._('This must be a boolean.'),
+            int: Str._('This must be a whole number.'),
+            float: Str._('This must be a decimal number.'),
+            str: Str._('This must be a string.'),
+            list: Str._('This must be a list.'),
+            dict: Str._('This must be a key-value mapping.'),
         }
-        return cast(str, message_builders[asserted_type](self.localizer))  # type: ignore[index]
+        return messages[asserted_type]  # type: ignore[index]
 
     def _assert_type(
         self,
@@ -173,7 +173,7 @@ class Asserter(Localizable):
         ) -> Number:
             value = self.assert_number()(value)
             if value <= 0:
-                raise AssertionFailed(self.localizer._('This must be a positive number.'))
+                raise AssertionFailed(Str._('This must be a positive number.'))
             return value
         return _assert_positive_number
 
@@ -203,7 +203,7 @@ class Asserter(Localizable):
             sequence = []
             with SerdeErrorCollection().assert_valid() as errors:
                 for value_item_index, value_item_value in enumerate(list_value):
-                    with errors.catch(str(value_item_index)):
+                    with errors.catch(Str.plain(value_item_index)):
                         sequence.append(self.assert_assertions(item_assertion)(value_item_value))
             return sequence
         return _assert_sequence
@@ -214,7 +214,7 @@ class Asserter(Localizable):
             mapping = {}
             with SerdeErrorCollection().assert_valid() as errors:
                 for value_item_key, value_item_value in dict_value.items():
-                    with errors.catch(value_item_key):
+                    with errors.catch(Str.plain(value_item_key)):
                         mapping[value_item_key] = self.assert_assertions(item_assertion)(value_item_value)
             return mapping
         return _assert_mapping
@@ -225,12 +225,12 @@ class Asserter(Localizable):
             mapping = {}
             with SerdeErrorCollection().assert_valid() as errors:
                 for field in fields:
-                    with errors.catch(field.name):
+                    with errors.catch(Str.plain(field.name)):
                         if field.name in value_dict:
                             if field.assertion:
                                 mapping[field.name] = self.assert_assertions(field.assertion)(value_dict[field.name])
                         elif isinstance(field, RequiredField):
-                            raise AssertionFailed(self.localizer._('This field is required.'))
+                            raise AssertionFailed(Str._('This field is required.'))
             return mapping
         return _assert_fields
 
@@ -263,8 +263,9 @@ class Asserter(Localizable):
             unknown_keys = set(dict_value.keys()) - known_keys
             with SerdeErrorCollection().assert_valid() as errors:
                 for unknown_key in unknown_keys:
-                    with errors.catch(unknown_key):
-                        raise AssertionFailed(self.localizer._('Unknown key: {unknown_key}. Did you mean {known_keys}?').format(
+                    with errors.catch(Str.plain(unknown_key)):
+                        raise AssertionFailed(Str._(
+                            'Unknown key: {unknown_key}. Did you mean {known_keys}?',
                             unknown_key=f'"{unknown_key}"',
                             known_keys=', '.join(map(lambda x: f'"{x}"', sorted(known_keys)))
                         ))
@@ -282,7 +283,8 @@ class Asserter(Localizable):
             directory_path = self.assert_path()(value)
             if directory_path.is_dir():
                 return directory_path
-            raise AssertionFailed(self.localizer._('"{path}" is not a directory.').format(
+            raise AssertionFailed(Str._(
+                '"{path}" is not a directory.',
                 path=value,
             ))
         return _assert_directory_path
@@ -296,7 +298,8 @@ class Asserter(Localizable):
                 get_data(value)
                 return value
             except LocaleNotFoundError:
-                raise AssertionFailed(self.localizer._('"{locale}" is not a valid IETF BCP 47 language tag.').format(
+                raise AssertionFailed(Str._(
+                    '"{locale}" is not a valid IETF BCP 47 language tag.',
                     locale=value,
                 ))
         return _assert_locale
@@ -318,19 +321,22 @@ class Asserter(Localizable):
                 return get_extension_type(value)
             except ExtensionTypeImportError:
                 raise AssertionFailed(
-                    self.localizer._('Cannot find and import "{extension_type}".').format(
+                    Str._(
+                        'Cannot find and import "{extension_type}".',
                         extension_type=str(value),
                     )
                 )
             except ExtensionTypeInvalidError:
                 raise AssertionFailed(
-                    self.localizer._('"{extension_type}" is not a valid Betty extension type.').format(
+                    Str._(
+                        '"{extension_type}" is not a valid Betty extension type.',
                         extension_type=str(value),
                     )
                 )
             except ExtensionTypeError:
                 raise AssertionFailed(
-                    self.localizer._('Cannot determine the extension type for "{extension_type}". Did you perhaps make a typo, or could it be that the extension type comes from another package that is not yet installed?').format(
+                    Str._(
+                        'Cannot determine the extension type for "{extension_type}". Did you perhaps make a typo, or could it be that the extension type comes from another package that is not yet installed?',
                         extension_type=str(value),
                     )
                 )
@@ -345,19 +351,22 @@ class Asserter(Localizable):
                 return get_entity_type(value)
             except EntityTypeImportError:
                 raise AssertionFailed(
-                    self.localizer._('Cannot find and import "{entity_type}".').format(
+                    Str._(
+                        'Cannot find and import "{entity_type}".',
                         entity_type=str(value),
                     )
                 )
             except EntityTypeInvalidError:
                 raise AssertionFailed(
-                    self.localizer._('"{entity_type}" is not a valid Betty entity type.').format(
+                    Str._(
+                        '"{entity_type}" is not a valid Betty entity type.',
                         entity_type=str(value),
                     )
                 )
             except EntityTypeError:
                 raise AssertionFailed(
-                    self.localizer._('Cannot determine the entity type for "{entity_type}". Did you perhaps make a typo, or could it be that the entity type comes from another package that is not yet installed?').format(
+                    Str._(
+                        'Cannot determine the entity type for "{entity_type}". Did you perhaps make a typo, or could it be that the entity type comes from another package that is not yet installed?',
                         entity_type=str(value),
                     )
                 )

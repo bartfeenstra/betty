@@ -8,7 +8,7 @@ from aiofiles.tempfile import TemporaryDirectory
 
 from betty.app import App
 from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider
-from betty.locale import Date, Datey, DateRange, Localized, DEFAULT_LOCALIZER
+from betty.locale import Date, Datey, DateRange, Localized
 from betty.media_type import MediaType
 from betty.model import get_entity_type_name, Entity
 from betty.model.ancestry import File, PlaceName, Subject, Attendee, Witness, Dated, Person, Place, Citation
@@ -224,7 +224,7 @@ class TestGlobalCiter(TemplateTestCase):
     async def test_cite(self) -> None:
         citation1 = Citation()
         citation2 = Citation()
-        sut = _Citer(DEFAULT_LOCALIZER)
+        sut = _Citer()
         assert 1 == sut.cite(citation1)
         assert 2 == sut.cite(citation2)
         assert 1 == sut.cite(citation1)
@@ -232,7 +232,7 @@ class TestGlobalCiter(TemplateTestCase):
     async def test_iter(self) -> None:
         citation1 = Citation()
         citation2 = Citation()
-        sut = _Citer(DEFAULT_LOCALIZER)
+        sut = _Citer()
         sut.cite(citation1)
         sut.cite(citation2)
         sut.cite(citation1)
@@ -241,7 +241,7 @@ class TestGlobalCiter(TemplateTestCase):
     async def test_len(self) -> None:
         citation1 = Citation()
         citation2 = Citation()
-        sut = _Citer(DEFAULT_LOCALIZER)
+        sut = _Citer()
         sut.cite(citation1)
         sut.cite(citation2)
         sut.cite(citation1)

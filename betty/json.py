@@ -11,7 +11,7 @@ from jsonschema import RefResolver
 
 from betty.app import App
 from betty.asyncio import sync
-from betty.locale import Date, DateRange, Localized, Localey
+from betty.locale import Date, DateRange, Localized, Localey, Str
 from betty.media_type import MediaType
 from betty.model import Entity, get_entity_type_name, GeneratedEntityId
 from betty.model.ancestry import Place, Person, PlaceName, Event, Described, HasLinks, HasCitations, Link, Dated, File, \
@@ -44,6 +44,7 @@ class JSONEncoder(stdjson.JSONEncoder):
         stdjson.JSONEncoder.__init__(self, *args, **kwargs)
         self._app = app
         self._mappers: dict[type[Any], Callable[[Any], Any]] = {
+            Str: str,
             Path: str,
             PlaceName: self._encode_localized_name,
             Place: self._encode_place,

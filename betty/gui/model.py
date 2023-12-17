@@ -37,9 +37,9 @@ class EntityReferenceCollector(LocalizedWidget):
             entity_types = enumerate(sorted(cast(Iterator['UserFacingEntity & Entity'], filter(
                 lambda entity_type: issubclass(entity_type, UserFacingEntity),
                 self._app.entity_types,
-            )), key=lambda entity_type: entity_type.entity_type_label(self._app.localizer)))
+            )), key=lambda entity_type: entity_type.entity_type_label().localize(self._app.localizer)))
             for i, entity_type in entity_types:
-                self._entity_type.addItem(entity_type.entity_type_label(self._app.localizer), entity_type)
+                self._entity_type.addItem(entity_type.entity_type_label().localize(self._app.localizer), entity_type)
                 if entity_type == self._entity_reference.entity_type:
                     self._entity_type.setCurrentIndex(i)
             self._entity_type_label = QLabel()
@@ -57,7 +57,7 @@ class EntityReferenceCollector(LocalizedWidget):
     def _do_set_translatables(self) -> None:
         if self._entity_reference.entity_type:
             self._entity_id_label.setText(self._app.localizer._('{entity_type_label} ID').format(
-                entity_type_label=self._entity_reference.entity_type.entity_type_label(self._app.localizer),
+                entity_type_label=self._entity_reference.entity_type.entity_type_label().localize(self._app.localizer),
             ))
         else:
             self._entity_id_label.setText(self._app.localizer._('Entity ID'))
