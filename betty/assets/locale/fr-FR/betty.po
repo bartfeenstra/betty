@@ -1127,6 +1127,3 @@ msgstr "{individual_name} {affiliation_name}"
 msgid "© Copyright %(author)s, unless otherwise credited"
 msgstr "© Copyright %(author)s, sauf crédit contraire"
 
-#~ msgid "The configuration must have a configuration file path."
-#~ msgstr ""
-
