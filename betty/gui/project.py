@@ -236,9 +236,15 @@ class _LocalesConfigurationWidget(LocalizedWidget):
         self.setLayout(self._locales_configuration_layout)
         self._layout.insertWidget(0, self, alignment=Qt.AlignmentFlag.AlignTop)
 
-        for i, locale in enumerate(sorted(
-                self._app.project.configuration.locales,
-                key=lambda locale: get_display_name(locale),
+        locales_data: list[tuple[str, str]] = []
+        for locale in self._app.project.configuration.locales:
+            locale_name = get_display_name(locale)
+            if locale_name is None:
+                continue
+            locales_data.append((locale, locale_name))
+        for i, (locale, locale_name) in enumerate(sorted(
+                locales_data,
+                key=lambda locale_data: locale_data[1],
         )):
             self._build_locale_configuration(locale, i)
 

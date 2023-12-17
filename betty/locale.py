@@ -80,11 +80,11 @@ def get_data(locale: Localey) -> Locale:
         raise LocaleNotFoundError(locale) from e
 
 
-def get_display_name(locale: Localey, display_locale: Localey | None = None) -> str:
+def get_display_name(locale: Localey, display_locale: Localey | None = None) -> str | None:
     locale_data = get_data(locale)
     return locale_data.get_display_name(
         get_data(display_locale) if display_locale else locale_data
-    )  # type: ignore[return-value]
+    )
 
 
 class Localized(Pickleable):

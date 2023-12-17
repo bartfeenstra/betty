@@ -23,7 +23,7 @@ from betty.os import ChDir
 from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump, Void
 from betty.serde.error import SerdeErrorCollection
 from betty.serde.format import FormatRepository
-from betty.serde.load import Asserter, Assertion, Assertions
+from betty.serde.load import Asserter, Assertion, Assertions, LoadError
 
 
 class Configuration(ReactiveInstance, Localizable, Dumpable):
@@ -66,6 +66,10 @@ class FileBasedConfiguration(Configuration):
         self._configuration_file_path: Path | None = None
         self._autowrite = False
 
+    def _assert_configuration_file_path(self) -> None:
+        if self._configuration_file_path is None:
+            raise LoadError(self.localizer._('The configuration must have a configuration file path.'))
+
     @property
     def autowrite(self) -> bool:
         return self._autowrite
@@ -73,6 +77,7 @@ class FileBasedConfiguration(Configuration):
     @autowrite.setter
     def autowrite(self, autowrite: bool) -> None:
         if autowrite:
+            self._assert_configuration_file_path()
             if not self._autowrite:
                 self.react.react_weakref(self._write_reactor)
         else:
@@ -85,7 +90,7 @@ class FileBasedConfiguration(Configuration):
 
     async def write(self, configuration_file_path: Path | None = None) -> None:
         if configuration_file_path is None:
-            del self.configuration_file_path
+            self._assert_configuration_file_path()
         else:
             self.configuration_file_path = configuration_file_path
 
