@@ -23,7 +23,7 @@ from betty.os import ChDir
 from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump, Void
 from betty.serde.error import SerdeErrorCollection
 from betty.serde.format import FormatRepository
-from betty.serde.load import Asserter, Assertion, Assertions, LoadError
+from betty.serde.load import Asserter, Assertion, Assertions
 
 
 class Configuration(ReactiveInstance, Localizable, Dumpable):
@@ -65,15 +65,6 @@ class FileBasedConfiguration(Configuration):
         self._project_directory: TemporaryDirectory | None = None  # type: ignore[type-arg]
         self._configuration_file_path: Path | None = None
         self._autowrite = False
-
-    def _assert_configuration_file_path(self) -> None:
-            # @todo Sunday night pre-pub thoughts
-            # @todo This now fails MORE than it used to because it's actually correct
-            # @todo However, some time ago we made conf file paths lazy and use temp files if no path was set explicitly
-            # @todo
-            # @todo
-        if self._configuration_file_path is None:
-            raise LoadError(self.localizer._('The configuration must have a configuration file path.'))
 
     @property
     def autowrite(self) -> bool:
