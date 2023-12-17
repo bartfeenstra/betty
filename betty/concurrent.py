@@ -20,12 +20,12 @@ class ExceptionRaisingAwaitableExecutor(Executor):
 
     def map(
         self,
-        task: Callable[[U], T],
-        *values: Iterable[U],
+        fn: Callable[[U], T],
+        *iterables: Iterable[U],
         timeout: int | float | None = None,
         chunksize: int = 1,
     ) -> Iterator[T]:
-        return self._executor.map(task, *values, timeout=timeout, chunksize=chunksize)
+        return self._executor.map(fn, *iterables, timeout=timeout, chunksize=chunksize)
 
     def wait(self) -> None:
         awaitables = self._awaitables

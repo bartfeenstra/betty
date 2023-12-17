@@ -74,7 +74,7 @@ class SerdeErrorCollection(SerdeError):
             raise self
         with self.catch():
             yield self
-        if self.invalid:
+        if self.invalid:  # type: ignore[redundant-expr]
             raise self
 
     def append(self, *errors: SerdeError) -> None:

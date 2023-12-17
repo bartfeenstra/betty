@@ -16,7 +16,7 @@ from betty.asyncio import gather
 from betty.config import ConfigurationT, Configurable
 from betty.dispatch import Dispatcher, TargetedDispatcher
 from betty.importlib import import_any
-from betty.locale import Localizer
+from betty.locale import Localizer, DEFAULT_LOCALIZER
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -210,8 +210,8 @@ def get_extension_type_by_extension(extension: Extension) -> type[Extension]:
 
 
 def format_extension_type(extension_type: type[Extension]) -> str:
-    if isinstance(extension_type, UserFacingExtension):
-        return f'{extension_type.label()} ({extension_type.name()})'
+    if issubclass(extension_type, UserFacingExtension):
+        return f'{extension_type.label(DEFAULT_LOCALIZER)} ({extension_type.name()})'
     return extension_type.name()
 
 

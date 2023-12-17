@@ -21,10 +21,12 @@ class TranslationsLocaleCollector(ReactiveInstance):
 
         allowed_locale_names: list[tuple[str, str]] = []
         for allowed_locale in allowed_locales:
-            allowed_locale_names.append((
-                allowed_locale,
-                get_display_name(allowed_locale),
-            ))
+            locale_name = get_display_name(allowed_locale)
+            if locale_name is not None:
+                allowed_locale_names.append((
+                    allowed_locale,
+                    locale_name,
+                ))
         allowed_locale_names = sorted(allowed_locale_names, key=lambda x: x[1])
 
         def _update_configuration_locale() -> None:

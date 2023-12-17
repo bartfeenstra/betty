@@ -19,8 +19,6 @@ class EntityReferenceCollector(LocalizedWidget):
         caption_builder: Callable[[], str] | None = None,
     ):
         super().__init__(app)
-        if entity_reference.entity_type and not issubclass(entity_reference.entity_type, UserFacingEntity):
-            raise ValueError(f'The GUI can only collect references for entity types that are user-facing and inherit from {UserFacingEntity.__module__}.{UserFacingEntity.__name__}, but an entity reference for {entity_reference.entity_type.__module__}.{entity_reference.entity_type.__name__} was given..')
         self._entity_reference = entity_reference
         self._label_builder = label_builder
         self._caption_builder = caption_builder
@@ -42,7 +40,7 @@ class EntityReferenceCollector(LocalizedWidget):
             )), key=lambda entity_type: entity_type.entity_type_label(self._app.localizer)))
             for i, entity_type in entity_types:
                 self._entity_type.addItem(entity_type.entity_type_label(self._app.localizer), entity_type)
-                if entity_type == self._entity_reference.entity_type:  # type: ignore[comparison-overlap]
+                if entity_type == self._entity_reference.entity_type:
                     self._entity_type.setCurrentIndex(i)
             self._entity_type_label = QLabel()
             self._layout.addRow(self._entity_type_label, self._entity_type)

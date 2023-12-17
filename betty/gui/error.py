@@ -37,7 +37,7 @@ class _ExceptionCatcher(Generic[P, T]):
         self._close_parent = close_parent
         self._instance = instance
 
-    def __get__(self, instance: QWidgetT, owner: type[QWidgetT] | None = None) -> Any:
+    def __get__(self, instance: QWidgetT | None, owner: type[QWidgetT] | None = None) -> Any:
         if instance is None:
             return self
         assert isinstance(instance, QWidget)
@@ -54,11 +54,11 @@ class _ExceptionCatcher(Generic[P, T]):
     def __enter__(self) -> None:
         pass
 
-    def __exit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> bool | None:
+    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool | None:
         from betty.gui import BettyApplication
 
         if exc_val is None:
-            return
+            return None
         QMetaObject.invokeMethod(
             BettyApplication.instance(),
             '_catch_exception',
@@ -97,12 +97,12 @@ class Error(LocalizedMessageBox):
         self.setEscapeButton(standard_button_type)
         close_button.clicked.connect(self.close)
 
-    def closeEvent(self, event: QCloseEvent | None) -> None:
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
         if self._close_parent:
             parent = self.parent()
             if isinstance(parent, QWidget):
                 parent.close()
-        super().closeEvent(event)
+        super().closeEvent(a0)
 
 
 ErrorT = TypeVar('ErrorT', bound=Error)

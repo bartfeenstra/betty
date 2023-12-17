@@ -127,8 +127,6 @@ class EntityContexts:
             entity_type = get_entity_type(entity_type_or_type_name)
         else:
             entity_type = entity_type_or_type_name
-        if not issubclass(entity_type, Entity):
-            raise ValueError('Contexts must be entity types.')
         return self._contexts[entity_type]
 
     def __call__(self, *entities: Entity) -> EntityContexts:
@@ -512,8 +510,8 @@ async def _execute_filter_image(
     cache_directory_path: Path,
     destination_directory_path: Path,
     destination_name: str,
-    width: int,
-    height: int,
+    width: int | None,
+    height: int | None,
 ) -> None:
     await makedirs(destination_directory_path, exist_ok=True)
     cache_file_path = cache_directory_path / ('%s-%s' % (hashfile(file_path), destination_name))
@@ -529,16 +527,15 @@ async def _execute_filter_image(
             if height is not None:
                 height = min(height, image.height)
 
-            if width is None:
-                size = height
-                convert = _resizeimage.resize_height
-            elif height is None:
-                size = width
-                convert = _resizeimage.resize_width  # type: ignore[assignment]
+            if width is not None and height is not None:
+                converted = _resizeimage.resize_cover(image, (width, height))
+            elif width is not None:
+                converted = _resizeimage.resize_width(image, width)
+            elif height is not None:
+                converted = _resizeimage.resize_height(image, height)
             else:
-                size = (width, height)
-                convert = _resizeimage.resize_cover  # type: ignore[assignment]
-            convert(image, size).save(cache_file_path)
+                raise ValueError('Width and height cannot both be None.')
+            converted.save(cache_file_path)
         await makedirs(destination_directory_path, exist_ok=True)
         await link_or_copy(cache_file_path, destination_file_path)
 
@@ -581,6 +578,6 @@ def _filter_select_dateds(context: Context, dateds: Iterable[Dated], date: Datey
     if date is None:
         date = context.resolve_or_missing('today')
     return filter(
-        lambda dated: dated.date is None or dated.date.comparable and dated.date in date,  # type: ignore[arg-type]
+        lambda dated: dated.date is None or dated.date.comparable and dated.date in date,
         dateds,
     )

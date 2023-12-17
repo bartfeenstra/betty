@@ -150,9 +150,6 @@ class Privatizer:
         subject: Expirable,
         generations_ago: int = 0,
     ) -> bool:
-        if subject is None:
-            return False
-
         if isinstance(subject, Person):
             return self._person_has_expired(subject, generations_ago)
 

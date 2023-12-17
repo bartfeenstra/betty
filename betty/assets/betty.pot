@@ -8,14 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-09-07 12:05+0100\n"
+"POT-Creation-Date: 2023-12-17 15:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.12.1\n"
+"Generated-By: Babel 2.14.0\n"
 
 msgid ""
 "\n"
@@ -689,9 +689,6 @@ msgid "The betty:privacy Gramps attribute must have a value of \"public\" or \"p
 msgstr ""
 
 msgid "The collection of {entity_type} entities."
-msgstr ""
-
-msgid "The configuration must have a configuration file path."
 msgstr ""
 
 msgid "The entity reference must be for an entity of type {expected_entity_type_name} ({expected_entity_type_label}), but instead does not specify an entity type at all."

@@ -24,7 +24,7 @@ class _ColorConfigurationSwatch(LocalizedWidget):
     def __del__(self) -> None:
         self._color.react.shutdown(self.repaint)
 
-    def paintEvent(self, event: QPaintEvent | None) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
         painter = QPainter(self)
         swatch = QRect(self.rect())
         painter.fillRect(swatch, QBrush(QColor.fromString(self._color.hex)))

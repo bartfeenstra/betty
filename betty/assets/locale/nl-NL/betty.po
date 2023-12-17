@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-09-07 12:05+0100\n"
+"POT-Creation-Date: 2023-12-17 15:48+0000\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.12.1\n"
+"Generated-By: Babel 2.14.0\n"
 
 msgid ""
 "\n"
@@ -809,9 +809,6 @@ msgstr ""
 
 msgid "The collection of {entity_type} entities."
 msgstr "De verzameling van {entity_type}-entiteiten."
-
-msgid "The configuration must have a configuration file path."
-msgstr ""
 
 #, fuzzy
 msgid ""
