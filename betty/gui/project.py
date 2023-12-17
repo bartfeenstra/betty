@@ -5,7 +5,7 @@ import copy
 import re
 from asyncio import Task
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 from urllib.parse import urlparse
 
 from PyQt6.QtCore import Qt, QThread
@@ -514,7 +514,7 @@ class ProjectWindow(BettyMainWindow):
         self._pane_selectors['general'].setText(self._app.localizer._('General'))
         self._pane_selectors['localization'].setText(self._app.localizer._('Localization'))
         for extension_type in self._extension_types:
-            self._pane_selectors[f'extension-{extension_type.name()}'].setText(cast(UserFacingExtension, extension_type).label(self._app.localizer))
+            self._pane_selectors[f'extension-{extension_type.name()}'].setText(extension_type.label(self._app.localizer))
 
     @reactive_method(on_trigger_call=True)
     def _set_window_title(self) -> None:

@@ -52,7 +52,7 @@ async def qapp(qapp_args: list[str]) -> AsyncIterator[BettyApplication]:
 
     This overrides pytest-qt's built-in qapp fixture and adds forced garbage collection after each function.
     """
-    qapp_instance = cast(BettyApplication, BettyApplication.instance())
+    qapp_instance = cast(BettyApplication | None, BettyApplication.instance())
     if qapp_instance is None:
         global _qapp_instance
         async with App() as app:
@@ -68,7 +68,7 @@ Navigate: TypeAlias = Callable[[QMainWindow | QMenu, list[str]], None]
 
 @pytest.fixture
 def navigate(qtbot: QtBot) -> Navigate:
-    def _navigate(item: QMainWindow | QMenu, attributes: list[str]) -> None:
+    def _navigate(item: QMainWindow | QMenu | QAction, attributes: list[str]) -> None:
         if attributes:
             attribute = attributes.pop(0)
             item = getattr(item, attribute)

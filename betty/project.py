@@ -134,29 +134,27 @@ class EntityReferenceSequence(Generic[EntityT], ConfigurationSequence[EntityRefe
     def _item_type(cls) -> type[EntityReference[EntityT]]:
         return EntityReference
 
-    def _on_add(self, entity_reference: EntityReference[EntityT]) -> None:
-        super()._on_add(entity_reference)
+    def _on_add(self, configuration: EntityReference[EntityT]) -> None:
+        super()._on_add(configuration)
 
         entity_type_constraint = self._entity_type_constraint
-        entity_reference_entity_type = entity_reference._entity_type
+        entity_reference_entity_type = configuration._entity_type
 
         if entity_type_constraint is None:
             return
 
-        if entity_reference_entity_type == entity_type_constraint and entity_reference.entity_type_is_constrained:
+        if entity_reference_entity_type == entity_type_constraint and configuration.entity_type_is_constrained:
             return
 
         expected_entity_type_name = get_entity_type_name(
-            cast(Entity, entity_type_constraint),
+            cast(type[Entity], entity_type_constraint),
         )
         expected_entity_type_label = entity_type_constraint.entity_type_label(localizer=self.localizer)
 
         if entity_reference_entity_type is None:
             raise AssertionFailed(self.localizer._(
                 'The entity reference must be for an entity of type {expected_entity_type_name} ({expected_entity_type_label}), but instead does not specify an entity type at all.').format(
-                expected_entity_type_name=get_entity_type_name(
-                    cast(Entity, entity_type_constraint),
-                ),
+                expected_entity_type_name=expected_entity_type_name,
                 expected_entity_type_label=expected_entity_type_label,
             ))
 
@@ -424,8 +422,8 @@ class EntityTypeConfigurationMapping(ConfigurationMapping[type[Entity], EntityTy
         return EntityTypeConfiguration
 
     @classmethod
-    def _create_default_item(cls, entity_type: type[Entity]) -> EntityTypeConfiguration:
-        return EntityTypeConfiguration(entity_type)
+    def _create_default_item(cls, configuration_key: type[Entity]) -> EntityTypeConfiguration:
+        return EntityTypeConfiguration(configuration_key)
 
 
 class LocaleConfiguration(Configuration):
@@ -543,10 +541,10 @@ class LocaleConfigurationMapping(ConfigurationMapping[str, LocaleConfiguration])
     def _item_type(cls) -> type[LocaleConfiguration]:
         return LocaleConfiguration
 
-    def _on_remove(self, locale: LocaleConfiguration) -> None:
+    def _on_remove(self, configuration: LocaleConfiguration) -> None:
         if len(self._configurations) <= 1:
             raise AssertionFailed(self.localizer._('Cannot remove the last remaining locale {locale}').format(
-                locale=get_data(locale.locale).get_display_name()),
+                locale=get_data(configuration.locale).get_display_name()),
             )
 
     @property

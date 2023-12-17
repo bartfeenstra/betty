@@ -280,9 +280,8 @@ class Asserter(Localizable):
     def assert_directory_path(self) -> Assertion[Any, Path]:
         def _assert_directory_path(value: Any) -> Path:
             directory_path = self.assert_path()(value)
-            if directory_path is not None:
-                if directory_path.is_dir():
-                    return directory_path
+            if directory_path.is_dir():
+                return directory_path
             raise AssertionFailed(self.localizer._('"{path}" is not a directory.').format(
                 path=value,
             ))

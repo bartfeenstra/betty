@@ -10,7 +10,7 @@ class Void:
     pass
 
 
-DumpType: TypeAlias = bool | int | float | str | None | list | dict
+DumpType: TypeAlias = bool | int | float | str | None | list['Dump'] | dict[str, 'Dump']
 DumpTypeT = TypeVar('DumpTypeT', bound=DumpType)
 
 Dump: TypeAlias = bool | int | float | str | None | Sequence['Dump'] | Mapping[str, 'Dump']

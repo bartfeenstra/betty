@@ -51,12 +51,6 @@ class TestLocalizedPathUrlGenerator:
             sut = ContentNegotiationPathUrlGenerator(app)
             assert expected == sut.generate(resource, 'text/html', absolute=True)
 
-    async def test_generate_with_invalid_value(self) -> None:
-        async with App() as app:
-            sut = ContentNegotiationPathUrlGenerator(app)
-            with pytest.raises(ValueError):
-                sut.generate(9, 'text/html')
-
     @pytest.mark.parametrize('expected, app_locale, url_generator_locale', [
         ('/nl/index.html', 'nl', None),
         ('/en/index.html', 'en', None),
@@ -128,9 +122,3 @@ class TestAppUrlGenerator:
         async with App() as app:
             sut = AppUrlGenerator(app)
             assert expected == sut.generate(resource, 'text/html')
-
-    async def test_generate_with_invalid_value(self) -> None:
-        async with App() as app:
-            sut = AppUrlGenerator(app)
-            with pytest.raises(ValueError):
-                sut.generate(9, 'text/html')

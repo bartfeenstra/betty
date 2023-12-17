@@ -23,7 +23,7 @@ from betty.os import ChDir
 from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump, Void
 from betty.serde.error import SerdeErrorCollection
 from betty.serde.format import FormatRepository
-from betty.serde.load import Asserter, Assertion, LoadError, Assertions
+from betty.serde.load import Asserter, Assertion, Assertions
 
 
 class Configuration(ReactiveInstance, Localizable, Dumpable):
@@ -66,10 +66,6 @@ class FileBasedConfiguration(Configuration):
         self._configuration_file_path: Path | None = None
         self._autowrite = False
 
-    def _assert_configuration_file_path(self) -> None:
-        if self.configuration_file_path is None:
-            raise LoadError(self.localizer._('The configuration must have a configuration file path.'))
-
     @property
     def autowrite(self) -> bool:
         return self._autowrite
@@ -77,7 +73,6 @@ class FileBasedConfiguration(Configuration):
     @autowrite.setter
     def autowrite(self, autowrite: bool) -> None:
         if autowrite:
-            self._assert_configuration_file_path()
             if not self._autowrite:
                 self.react.react_weakref(self._write_reactor)
         else:
@@ -90,7 +85,7 @@ class FileBasedConfiguration(Configuration):
 
     async def write(self, configuration_file_path: Path | None = None) -> None:
         if configuration_file_path is None:
-            self._assert_configuration_file_path()
+            del self.configuration_file_path
         else:
             self.configuration_file_path = configuration_file_path
 
@@ -112,7 +107,7 @@ class FileBasedConfiguration(Configuration):
 
     async def read(self, configuration_file_path: Path | None = None) -> None:
         if configuration_file_path is None:
-            self._assert_configuration_file_path()
+            del self.configuration_file_path
         else:
             self.configuration_file_path = configuration_file_path
 
@@ -575,12 +570,13 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
 
 
 class Configurable(Generic[ConfigurationT]):
+    _configuration: ConfigurationT
+
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self._configuration: ConfigurationT
 
     @property
     def configuration(self) -> ConfigurationT:
-        if self._configuration is None:
+        if not hasattr(self, '_configuration'):
             raise RuntimeError(f'{self} has no configuration. {type(self)}.__init__() must ensure it is set.')
         return self._configuration

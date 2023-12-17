@@ -183,8 +183,6 @@ class _Populator:
                 if added_entry_locale_data is None:
                     continue
                 added_entry_locale = to_locale(added_entry_locale_data)
-                if added_entry_locale_data is None:
-                    continue
                 added_entry_name = entry_translations[added_entry_locale]
                 if (added_entry_locale, added_entry_name) in entry_links:
                     continue

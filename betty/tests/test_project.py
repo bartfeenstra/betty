@@ -148,8 +148,8 @@ class EntityReferenceSequenceTestEntity(Entity):
 
 
 class TestEntityReferenceSequence(ConfigurationSequenceTestBase[EntityReference[Entity]]):
-    def get_sut(self, entity_references: Iterable[EntityReference[Entity]] | None = None) -> EntityReferenceSequence[Entity]:
-        return EntityReferenceSequence(entity_references)
+    def get_sut(self, configurations: Iterable[EntityReference[Entity]] | None = None) -> EntityReferenceSequence[Entity]:
+        return EntityReferenceSequence(configurations)
 
     def get_configurations(self) -> tuple[
         EntityReference[Entity],

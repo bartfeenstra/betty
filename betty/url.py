@@ -47,9 +47,9 @@ class _EntityUrlGenerator(ContentNegotiationUrlGenerator):
         self._entity_type = entity_type
         self._pattern = f'{camel_case_to_kebab_case(get_entity_type_name(entity_type))}/{{entity_id}}/index.{{extension}}'
 
-    def generate(self, entity: Entity, media_type: str, absolute: bool = False, locale: Localey | None = None) -> str:
-        if not isinstance(entity, self._entity_type):
-            raise ValueError('%s is not a %s' % (type(entity), self._entity_type))
+    def generate(self, resource: Entity, media_type: str, absolute: bool = False, locale: Localey | None = None) -> str:
+        if not isinstance(resource, self._entity_type):
+            raise ValueError('%s is not a %s' % (type(resource), self._entity_type))
 
         if 'text/html' == media_type:
             extension = 'html'
@@ -64,7 +64,7 @@ class _EntityUrlGenerator(ContentNegotiationUrlGenerator):
         return _generate_from_path(
             self._app.project.configuration,
             self._pattern.format(
-                entity_id=entity.id,
+                entity_id=resource.id,
                 extension=extension,
             ),
             absolute,
@@ -91,8 +91,6 @@ class AppUrlGenerator(ContentNegotiationUrlGenerator):
 
 
 def _generate_from_path(configuration: ProjectConfiguration, path: str, absolute: bool = False, localey: Localey | None = None) -> str:
-    if not isinstance(path, str):
-        raise ValueError('%s is not a string.' % type(path))
     url = configuration.base_url if absolute else ''
     url += '/'
     if configuration.root_path:

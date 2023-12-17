@@ -608,7 +608,7 @@ class EntityTypeAssociationRegistry:
 
     @classmethod
     def get_associates(cls, owner: EntityT, association: ToAny[EntityT, AssociateT]) -> Iterable[AssociateT]:
-        associates: AssociateT | Iterable[AssociateT] = getattr(owner, f'_{association.owner_attr_name}')
+        associates: AssociateT | None | Iterable[AssociateT] = getattr(owner, f'_{association.owner_attr_name}')
         if isinstance(association, ToOneEntityTypeAssociation):
             if associates is None:
                 return
@@ -688,9 +688,7 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
             return self._getitem_by_index(key)
         if isinstance(key, slice):
             return self._getitem_by_indices(key)
-        if isinstance(key, str):
-            return self._getitem_by_entity_id(key)
-        raise TypeError(f'Cannot find entities by {repr(key)}.')
+        return self._getitem_by_entity_id(key)
 
     def _getitem_by_index(self, index: int) -> TargetT & Entity:
         return self._entities[index]
@@ -790,9 +788,7 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
             return self._getitem_by_indices(key)
         if isinstance(key, str):
             return self._getitem_by_entity_type_name(key)
-        if isinstance(key, type):
-            return self._getitem_by_entity_type(key)
-        raise KeyError
+        return self._getitem_by_entity_type(key)
 
     def _getitem_by_entity_type(self, entity_type: type[EntityT]) -> SingleTypeEntityCollection[EntityT]:
         return self._get_collection(entity_type)
@@ -817,9 +813,7 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
             return self._delitem_by_entity(
                 key,  # type: ignore[arg-type]
             )
-        if isinstance(key, str):
-            return self._delitem_by_entity_type_name(key)
-        raise TypeError(f'Cannot find entities by {repr(key)}.')
+        return self._delitem_by_entity_type_name(key)
 
     def _delitem_by_type(self, entity_type: type[TargetT & Entity]) -> None:
         removed_entities = [*self._get_collection(entity_type)]
@@ -973,7 +967,7 @@ class _EntityGraphBuilder:
                             owner,
                             associates[0]
                         )
-                    elif isinstance(association, ToManyEntityTypeAssociation):
+                    else:
                         association.set(
                             owner,
                             associates
@@ -984,7 +978,7 @@ class _EntityGraphBuilder:
         self._built = True
 
         unaliased_entities = list(map(
-            unalias,  # type: ignore[arg-type]
+            unalias,
             self._iter(),
         ))
 
