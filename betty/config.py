@@ -84,9 +84,7 @@ class FileBasedConfiguration(Configuration):
         await self.write()
 
     async def write(self, configuration_file_path: Path | None = None) -> None:
-        if configuration_file_path is None:
-            del self.configuration_file_path
-        else:
+        if configuration_file_path is not None:
             self.configuration_file_path = configuration_file_path
 
         await self._write(self.configuration_file_path)
@@ -106,9 +104,7 @@ class FileBasedConfiguration(Configuration):
         self._configuration_file_path = configuration_file_path
 
     async def read(self, configuration_file_path: Path | None = None) -> None:
-        if configuration_file_path is None:
-            del self.configuration_file_path
-        else:
+        if configuration_file_path is not None:
             self.configuration_file_path = configuration_file_path
 
         formats = FormatRepository(localizer=self._localizer)
