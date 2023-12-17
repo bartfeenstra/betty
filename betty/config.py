@@ -112,7 +112,7 @@ class FileBasedConfiguration(Configuration):
 
     async def read(self, configuration_file_path: Path | None = None) -> None:
         if configuration_file_path is None:
-            del self.configuration_file_path
+            self._assert_configuration_file_path()
         else:
             self.configuration_file_path = configuration_file_path
 
