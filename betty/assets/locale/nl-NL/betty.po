@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-12-17 15:48+0000\n"
+"POT-Creation-Date: 2023-12-18 17:07+0000\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -49,6 +49,13 @@ msgstr ""
 " pagina's over haar en haar familie bekijken om een idee te krijgen van "
 "hoe een Betty-site eruit ziet.\n"
 "            "
+
+#, python-format
+msgid ""
+"\n"
+"        Welcome to %(project_title)s\n"
+"    "
+msgstr "Welkom bij %(project_title)s"
 
 #, python-format
 msgid ""
@@ -269,6 +276,9 @@ msgstr ""
 "Het entiteitstype van \"{entity_type}\" kan niet gevonden worden. Heb je "
 "misschien een typefout gemaakt, of zou het kunnen dat het entiteitstype "
 "uit een package komt dat nog niet geïnstalleerd is?"
+
+msgid "Cannot find an available port to bind the web server to."
+msgstr "Kan geen beschikbare poort voor de webserver vinden."
 
 msgid "Cannot find and import \"{entity_type}\"."
 msgstr "Kan \"{entity_type}\" niet vinden en importeren."
@@ -753,16 +763,16 @@ msgid "Save your project to..."
 msgstr "Sla je project op naar..."
 
 msgid "Serve site"
-msgstr ""
+msgstr "Serveer site"
 
 msgid "Serving the Betty demo..."
-msgstr ""
+msgstr "De Betty-demo aan het serveren..."
 
 msgid "Serving your site at {url}..."
-msgstr ""
+msgstr "Je site op {url} aan het serveren..."
 
 msgid "Serving your site..."
-msgstr ""
+msgstr "Je site aan het serveren..."
 
 msgid "Settings..."
 msgstr "Instellingen..."
@@ -777,7 +787,7 @@ msgid "Speaker"
 msgstr "Spreker"
 
 msgid "Starting Python's built-in web server..."
-msgstr ""
+msgstr "Pythons ingebouwde webserver aan het starten..."
 
 msgid "Stop the site"
 msgstr "Stop de site"
@@ -810,16 +820,11 @@ msgstr ""
 msgid "The collection of {entity_type} entities."
 msgstr "De verzameling van {entity_type}-entiteiten."
 
-#, fuzzy
 msgid ""
 "The entity reference must be for an entity of type "
 "{expected_entity_type_name} ({expected_entity_type_label}), but instead "
 "does not specify an entity type at all."
 msgstr ""
-"De entiteitsverwijzing moet verwijzen naar een entiteit van het type "
-"{expected_entity_type_name} ({expected_entity_type_label}), maar verwijst"
-" echter naar een entiteit van het type {actual_entity_type_name} "
-"({actual_entity_type_label})"
 
 msgid ""
 "The entity reference must be for an entity of type "
@@ -831,6 +836,9 @@ msgstr ""
 "{expected_entity_type_name} ({expected_entity_type_label}), maar verwijst"
 " echter naar een entiteit van het type {actual_entity_type_name} "
 "({actual_entity_type_label})"
+
+msgid "The following errors occurred"
+msgstr "De volgende problemen zijn voorgekomen"
 
 msgid "The lifetime threshold must consist of digits only."
 msgstr "De levensgrens mag alleen uit cijfers bestaan."
@@ -891,9 +899,8 @@ msgstr "Dit moet een positief getal zijn."
 msgid "This must be a string."
 msgstr "Dit moet een tekenreeks zijn."
 
-#, fuzzy
 msgid "This must be a whole number."
-msgstr "Dit moet een getal zijn."
+msgstr "Dit moet een geheel getal zijn."
 
 msgid "This person's details are unavailable to protect their privacy."
 msgstr "De gegevens van deze persoon zijn niet beschikbaar vanwege privacyredenen."
@@ -928,6 +935,13 @@ msgstr "Onbevoegd"
 msgid "Unknown"
 msgstr "Onbekend"
 
+msgid ""
+"Unknown file format \".{extension}\". Supported formats are: "
+"{supported_formats}."
+msgstr ""
+"Onbekend bestandstype \".{extension}\". Ondersteunde bestandstypes zijn: "
+"{supported_formats}."
+
 msgid "Unknown key: {unknown_key}. Did you mean {known_keys}?"
 msgstr "Onbekende sleutel: {unknown_key}. Bedoel je {known_keys}?"
 
@@ -959,10 +973,6 @@ msgstr "Bekijk een demonstratiesite..."
 
 msgid "View site"
 msgstr "Bekijk site"
-
-#, python-format
-msgid "Welcome to %(title)s"
-msgstr "Welkom bij %(title)s"
 
 msgid "Welcome to Betty"
 msgstr "Welkom bij Betty"
@@ -1135,6 +1145,15 @@ msgstr "{entity_type_label}-ID"
 
 msgid "{entity_type} {entity_id}"
 msgstr ""
+
+msgid "{event_type}"
+msgstr "{event_type}"
+
+msgid "{event_type} ({event_description})"
+msgstr "{event_type} ({event_description})"
+
+msgid "{event_type} ({event_description}) of {subjects}"
+msgstr "{event_type} ({event_description}) van {subjects}"
 
 msgid "{event_type} of {subjects}"
 msgstr "{event_type} van {subjects}"

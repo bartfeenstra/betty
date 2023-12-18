@@ -7,7 +7,6 @@ import pytest
 from betty.app import App
 from betty.app.extension import ConfigurableExtension as GenericConfigurableExtension, Extension, CyclicDependencyError
 from betty.config import Configuration
-from betty.locale import Localizer
 from betty.model import Entity
 from betty.project import ExtensionConfiguration
 from betty.serde.dump import Dump, VoidableDump
@@ -42,12 +41,10 @@ class ConfigurableExtensionConfiguration(Configuration):
             cls,
             dump: Dump,
             configuration: Self | None = None,
-            *,
-            localizer: Localizer | None = None,
     ) -> Self:
         if configuration is None:
             configuration = cls()
-        asserter = Asserter(localizer=localizer)
+        asserter = Asserter()
         asserter.assert_record(Fields(
             RequiredField(
                 'check',

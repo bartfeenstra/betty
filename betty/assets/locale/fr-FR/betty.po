@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-12-17 15:48+0000\n"
+"POT-Creation-Date: 2023-12-18 17:07+0000\n"
 "PO-Revision-Date: 2020-11-27 19:49+0100\n"
 "Last-Translator: \n"
 "Language: fr\n"
@@ -39,6 +39,13 @@ msgid ""
 "                looks like.\n"
 "            "
 msgstr ""
+
+#, python-format
+msgid ""
+"\n"
+"        Welcome to %(project_title)s\n"
+"    "
+msgstr "Bienvenue à %(project_title)s"
 
 #, python-format
 msgid ""
@@ -247,6 +254,9 @@ msgid ""
 "another package that is not yet installed?"
 msgstr ""
 
+msgid "Cannot find an available port to bind the web server to."
+msgstr ""
+
 msgid "Cannot find and import \"{entity_type}\"."
 msgstr ""
 
@@ -281,9 +291,8 @@ msgstr ""
 msgid "Clear all caches"
 msgstr ""
 
-#, fuzzy
 msgid "Conference"
-msgstr "Références"
+msgstr ""
 
 msgid "Configuration"
 msgstr ""
@@ -793,6 +802,9 @@ msgid ""
 "({actual_entity_type_label})"
 msgstr ""
 
+msgid "The following errors occurred"
+msgstr ""
+
 msgid "The lifetime threshold must consist of digits only."
 msgstr ""
 
@@ -887,6 +899,11 @@ msgstr "Non autorisé"
 msgid "Unknown"
 msgstr "Inconnu"
 
+msgid ""
+"Unknown file format \".{extension}\". Supported formats are: "
+"{supported_formats}."
+msgstr ""
+
 msgid "Unknown key: {unknown_key}. Did you mean {known_keys}?"
 msgstr ""
 
@@ -918,10 +935,6 @@ msgstr ""
 
 msgid "View site"
 msgstr ""
-
-#, python-format
-msgid "Welcome to %(title)s"
-msgstr "Bienvenue à %(title)s"
 
 msgid "Welcome to Betty"
 msgstr "Bienvenue à Betty"
@@ -1113,6 +1126,15 @@ msgstr ""
 
 msgid "{entity_type} {entity_id}"
 msgstr ""
+
+msgid "{event_type}"
+msgstr "{event_type}"
+
+msgid "{event_type} ({event_description})"
+msgstr "{event_type} ({event_description})"
+
+msgid "{event_type} ({event_description}) of {subjects}"
+msgstr "{event_type} ({event_description}) de {subjects}"
 
 msgid "{event_type} of {subjects}"
 msgstr "{event_type} de {subjects}"

@@ -3,7 +3,7 @@
 {%- macro person_label(entity) -%}
     {% include ['entity/label--person.html.j2', 'entity/label.html.j2'] %}
 {%- endmacro -%}
-{%- set formatted_event = entity.event_type.label(app.localizer) -%}
+{%- set formatted_event = entity.event_type.label() | localize -%}
 {%- if entity is not has_generated_entity_id and not embedded -%}
     {% set formatted_event = ('<a href="' + entity | url + '">' + formatted_event + '</a>') | safe %}
 {%- endif -%}

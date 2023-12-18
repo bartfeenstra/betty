@@ -18,10 +18,10 @@
             {% endif %}
         {% endfor %}
     {% endif %}
-    <link rel="canonical" href="{{ page_resource | url(absolute=true) }}" hreflang="{{ app.locale }}" type="text/html"/>
-    {% for locale in app.project.configuration.locales %}
-        {% if locale != app.locale %}
-            <link rel="alternate" href="{{ page_resource | url(locale=locale) }}" hreflang="{{ locale }}" type="text/html"/>
+    <link rel="canonical" href="{{ page_resource | url(absolute=true) }}" hreflang="{{ localizer.locale }}" type="text/html"/>
+    {% for project_locale in app.project.configuration.locales %}
+        {% if project_locale != localizer.locale %}
+            <link rel="alternate" href="{{ page_resource | url(locale=project_locale) }}" hreflang="{{ project_locale }}" type="text/html"/>
 
         {% endif %}
     {% endfor %}
@@ -29,7 +29,6 @@
         <script type="application/ld+json">
           {{ page_resource | tojson }}
         </script>
-        {% set current_locale = app.locale %}
         <link rel="alternate" href="{{ page_resource | url(media_type='application/json') }}" hreflang="und" type="application/json"/>
     {% endif %}
 {% endif %}

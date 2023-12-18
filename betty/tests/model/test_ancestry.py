@@ -8,12 +8,12 @@ import dill
 import pytest
 from geopy import Point
 
-from betty.locale import Date
+from betty.locale import Date, Str
 from betty.media_type import MediaType
 from betty.model import Entity, one_to_one
 from betty.model.ancestry import Person, Event, Place, File, Note, Presence, PlaceName, PersonName, Subject, \
     Enclosure, Described, Dated, HasPrivacy, HasMediaType, Link, HasLinks, HasNotes, HasFiles, Source, Citation, \
-    HasCitations, PresenceRole, Attendee, Beneficiary, Witness, Ancestry, is_private, is_public, Privacy, \
+    HasCitations, PresenceRole, Ancestry, is_private, is_public, Privacy, \
     merge_privacies
 from betty.model.event_type import Burial, Birth, UnknownEventType
 
@@ -366,7 +366,7 @@ class TestCitation:
     async def test_location(self) -> None:
         sut = Citation(source=Source())
         assert sut.location is None
-        location = 'Somewhere'
+        location = Str.plain('Somewhere')
         sut.location = location
         assert location == sut.location
 
@@ -566,50 +566,6 @@ class TestPlace:
         coordinates = Point()
         sut.coordinates = coordinates
         assert coordinates == sut.coordinates
-
-
-class TestSubject:
-    async def test_name(self) -> None:
-        assert isinstance(Subject.name(), str)
-        assert '' != Subject.name()
-
-    async def test_label(self) -> None:
-        sut = Subject()
-        assert isinstance(sut.label, str)
-        assert '' != sut.label
-
-
-class TestWitness:
-    async def test_name(self) -> None:
-        assert isinstance(Witness.name(), str)
-        assert '' != Witness.name()
-
-    async def test_label(self) -> None:
-        sut = Witness()
-        assert isinstance(sut.label, str)
-        assert '' != sut.label
-
-
-class TestBeneficiary:
-    async def test_name(self) -> None:
-        assert isinstance(Beneficiary.name(), str)
-        assert '' != Beneficiary.name()
-
-    async def test_label(self) -> None:
-        sut = Beneficiary()
-        assert isinstance(sut.label, str)
-        assert '' != sut.label
-
-
-class TestAttendee:
-    async def test_name(self) -> None:
-        assert isinstance(Attendee.name(), str)
-        assert '' != Attendee.name()
-
-    async def test_label(self) -> None:
-        sut = Attendee()
-        assert isinstance(sut.label, str)
-        assert '' != sut.label
 
 
 class TestPresence:

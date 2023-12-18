@@ -14,7 +14,7 @@ from aiofiles.os import makedirs
 from betty.app import App
 from betty.asyncio import sync
 from betty.error import UserFacingError
-from betty.locale import Localizer, Localizable
+from betty.locale import Str, Localizer
 from betty.os import ChDir
 from betty.project import Project
 
@@ -34,17 +34,20 @@ class OsError(UserFacingError, OSError):
     pass
 
 
-class Server(Localizable):
+class Server:
     """
     Provide a development web server.
     """
+
+    def __init__(self, localizer: Localizer):
+        self._localizer = localizer
 
     @classmethod
     def name(cls) -> str:
         return f'{cls.__module__}.{cls.__name__}'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
+    def label(cls) -> Str:
         raise NotImplementedError(repr(cls))
 
     async def start(self) -> None:
@@ -57,7 +60,9 @@ class Server(Localizable):
         """
         Shows the served site to the user.
         """
-        logging.getLogger().info(self.localizer._('Serving your site at {url}...').format(url=self.public_url))
+        logging.getLogger().info(self._localizer._('Serving your site at {url}...').format(
+            url=self.public_url,
+        ))
         webbrowser.open_new_tab(self.public_url)
 
     async def stop(self) -> None:
@@ -82,8 +87,8 @@ class Server(Localizable):
 
 
 class ProjectServer(Server):
-    def __init__(self, project: Project, *, localizer: Localizer | None = None) -> None:
-        super().__init__(localizer=localizer)
+    def __init__(self, localizer: Localizer, project: Project) -> None:
+        super().__init__(localizer)
         self._project = project
 
     @staticmethod
@@ -111,24 +116,24 @@ class _BuiltinServerRequestHandler(SimpleHTTPRequestHandler):
 
 
 class BuiltinServer(ProjectServer):
-    def __init__(self, project: Project, *, localizer: Localizer | None = None) -> None:
-        super().__init__(project, localizer=localizer)
+    def __init__(self, localizer: Localizer, project: Project) -> None:
+        super().__init__(localizer, project)
         self._http_server: HTTPServer | None = None
         self._port: int | None = None
         self._thread: threading.Thread | None = None
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Python built-in')
+    def label(cls) -> Str:
+        return Str._('Python built-in')
 
     async def start(self) -> None:
-        logging.getLogger().info(self.localizer._("Starting Python's built-in web server..."))
+        logging.getLogger().info(self._localizer._("Starting Python's built-in web server..."))
         for self._port in range(DEFAULT_PORT, 65535):
             with contextlib.suppress(OSError):
                 self._http_server = HTTPServer(('', self._port), _BuiltinServerRequestHandler)
                 break
         if self._http_server is None:
-            raise OsError('Cannot find an available port to bind the web server to.')
+            raise OsError(Str._('Cannot find an available port to bind the web server to.'))
         self._thread = threading.Thread(target=self._serve, args=(self._project,))
         self._thread.start()
 

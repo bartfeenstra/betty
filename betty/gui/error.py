@@ -117,6 +117,8 @@ class ExceptionError(Error):
 class UnexpectedExceptionError(ExceptionError):
     def __init__(self, app: App, exception: Exception, *args: Any, **kwargs: Any):
         super().__init__(app, exception, *args, **kwargs)
-        self.setText(app.localizer._('An unexpected error occurred and Betty could not complete the task. Please <a href="{report_url}">report this problem</a> and include the following details, so the team behind Betty can address it.').format(report_url='https://github.com/bartfeenstra/betty/issues'))
+        self.setText(self._app.localizer._('An unexpected error occurred and Betty could not complete the task. Please <a href="{report_url}">report this problem</a> and include the following details, so the team behind Betty can address it.').format(
+            report_url='https://github.com/bartfeenstra/betty/issues',
+        ))
         self.setTextFormat(Qt.TextFormat.RichText)
         self.setDetailedText(''.join(traceback.format_exception(type(exception), exception, exception.__traceback__)))

@@ -8,7 +8,7 @@ from reactives.tests import assert_reactor_called, assert_scope_empty
 
 from betty.app.extension import Extension, ConfigurableExtension
 from betty.config import Configuration, Configurable
-from betty.locale import Localizer
+from betty.locale import Str
 from betty.model import Entity, get_entity_type_name, UserFacingEntity
 from betty.project import ExtensionConfiguration, ExtensionConfigurationMapping, ProjectConfiguration, \
     LocaleConfiguration, LocaleConfigurationMapping, EntityReference, EntityReferenceSequence, \
@@ -253,8 +253,8 @@ class TestLocaleConfigurationMapping(ConfigurationMappingTestBase[str, LocaleCon
 
 class _DummyExtension(Extension):
     @classmethod
-    def label(cls) -> str:
-        return 'Dummy'
+    def label(cls) -> Str:
+        return Str._('Dummy')
 
 
 class _DummyConfiguration(Configuration):
@@ -263,8 +263,8 @@ class _DummyConfiguration(Configuration):
 
 class _DummyConfigurableExtension(Extension, Configurable[_DummyConfiguration]):
     @classmethod
-    def label(cls) -> str:
-        return 'Configurable dummy'
+    def label(cls) -> Str:
+        return Str._('Configurable dummy')
 
     @classmethod
     def configuration_type(cls) -> type[_DummyConfiguration]:
@@ -752,12 +752,10 @@ class DummyConfigurableExtensionConfiguration(Configuration):
             cls,
             dump: Dump,
             configuration: Self | None = None,
-            *,
-            localizer: Localizer | None = None,
     ) -> Self:
         if configuration is None:
             configuration = cls()
-        asserter = Asserter(localizer=localizer)
+        asserter = Asserter()
         asserter.assert_record(Fields(
             RequiredField(
                 'check',

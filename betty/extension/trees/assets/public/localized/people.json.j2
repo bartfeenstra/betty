@@ -3,7 +3,7 @@
     {% do ns.people.update({
         person.id: {
             'id': person.id,
-            'label': person.label,
+            'label': person.label | localize,
             'url': person | url,
             'parentIds': person.parents | map(attribute='id') | list,
             'childIds': person.children | map(attribute='id') | list,

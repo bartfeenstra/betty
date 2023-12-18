@@ -4,7 +4,7 @@ import logging
 from enum import Enum
 from typing import Iterable, cast
 
-from betty.locale import DateRange, Date, Localizable, Localizer
+from betty.locale import DateRange, Date, Str
 from betty.model.ancestry import Person, Presence, Event, Subject, Ancestry
 from betty.model.event_type import DerivableEventType, CreatableDerivableEventType, EventType
 
@@ -15,16 +15,14 @@ class Derivation(Enum):
     UPDATE = 3
 
 
-class Deriver(Localizable):
+class Deriver:
     def __init__(
         self,
         ancestry: Ancestry,
         lifetime_threshold: int,
         derivable_event_types: set[type[DerivableEventType]],
-        *,
-        localizer: Localizer | None = None,
     ):
-        super().__init__(localizer=localizer)
+        super().__init__()
         self._ancestry = ancestry
         self._lifetime_threshold = lifetime_threshold
         self._derivable_event_type = derivable_event_types
@@ -39,14 +37,16 @@ class Deriver(Localizable):
                 created_derivations += created
                 updated_derivations += updated
             if updated_derivations > 0:
-                logger.info(self.localizer._('Updated {updated_derivations} {event_type} events based on existing information.').format(
-                    updated_derivations=updated_derivations,
-                    event_type=derivable_event_type.label(self.localizer)),
+                logger.info(Str._(
+                    'Updated {updated_derivations} {event_type} events based on existing information.',
+                    updated_derivations=str(updated_derivations),
+                    event_type=derivable_event_type.label()),
                 )
             if created_derivations > 0:
-                logger.info(self.localizer._('Created {created_derivations} additional {event_type} events based on existing information.').format(
-                    created_derivations=created_derivations,
-                    event_type=derivable_event_type.label(self.localizer)),
+                logger.info(Str._(
+                    'Created {created_derivations} additional {event_type} events based on existing information.',
+                    created_derivations=str(created_derivations),
+                    event_type=derivable_event_type.label()),
                 )
 
     def _derive_person(self, person: Person, derivable_event_type: type[DerivableEventType]) -> tuple[int, int]:

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Callable, Iterable, cast, Any
+from typing import Callable, Iterable, Any
 
 from jinja2 import pass_context
 from jinja2.runtime import Context
@@ -10,9 +10,9 @@ from reactives.instance.property import reactive_property
 
 from betty.app.extension import UserFacingExtension
 from betty.asyncio import sync, gather
-from betty.jinja2 import Jinja2Provider, Environment
+from betty.jinja2 import Jinja2Provider, context_localizer
 from betty.load import PostLoader
-from betty.locale import negotiate_locale, Localizer
+from betty.locale import negotiate_locale, Str
 from betty.model.ancestry import Link
 from betty.wikipedia import _Retriever, _Populator, Entry, _parse_url, NotAnEntryError, RetrievalError
 
@@ -61,7 +61,7 @@ class _Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstan
             None,
             await gather(*(
                 self._filter_wikipedia_link(
-                    cast(Environment, context.environment).app.locale,
+                    context_localizer(context).locale,
                     link,
                 )
                 for link
@@ -86,12 +86,12 @@ class _Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstan
         return Path(__file__).parent / 'assets'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Wikipedia')
+    def label(cls) -> Str:
+        return Str._('Wikipedia')
 
     @classmethod
-    def description(cls, localizer: Localizer) -> str:
-        return localizer._("""
+    def description(cls) -> Str:
+        return Str._("""
 Display <a href="https://www.wikipedia.org/">Wikipedia</a> summaries for resources with external links. In your custom <a href="https://jinja2docs.readthedocs.io/en/stable/">Jinja2</a> templates, use the following: <pre><code>
 {% with resource=resource_with_links %}
     {% include 'wikipedia.html.j2' %}

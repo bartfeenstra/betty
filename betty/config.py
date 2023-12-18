@@ -18,7 +18,7 @@ from reactives.instance.property import reactive_property
 from betty.asyncio import wait, sync
 from betty.classtools import repr_instance
 from betty.functools import slice_to_range
-from betty.locale import Localizer, Localizable
+from betty.locale import Str
 from betty.os import ChDir
 from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump, Void
 from betty.serde.error import SerdeErrorCollection
@@ -26,10 +26,10 @@ from betty.serde.format import FormatRepository
 from betty.serde.load import Asserter, Assertion, Assertions
 
 
-class Configuration(ReactiveInstance, Localizable, Dumpable):
-    def __init__(self, *args: Any, localizer: Localizer | None = None, **kwargs: Any):
-        super().__init__(*args, **kwargs, localizer=localizer)
-        self._asserter = Asserter(localizer=self._localizer)
+class Configuration(ReactiveInstance, Dumpable):
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self._asserter = Asserter()
 
     def update(self, other: Self) -> None:
         raise NotImplementedError(repr(self))
@@ -39,8 +39,6 @@ class Configuration(ReactiveInstance, Localizable, Dumpable):
             cls,
             dump: Dump,
             configuration: Self | None = None,
-            *,
-            localizer: Localizer | None = None,
     ) -> Self:
         """
         Load dumped configuration into a new configuration instance.
@@ -60,8 +58,8 @@ ConfigurationT = TypeVar('ConfigurationT', bound=Configuration)
 
 
 class FileBasedConfiguration(Configuration):
-    def __init__(self, *, localizer: Localizer | None = None):
-        super().__init__(localizer=localizer)
+    def __init__(self):
+        super().__init__()
         self._project_directory: TemporaryDirectory | None = None  # type: ignore[type-arg]
         self._configuration_file_path: Path | None = None
         self._autowrite = False
@@ -92,7 +90,7 @@ class FileBasedConfiguration(Configuration):
     async def _write(self, configuration_file_path: Path) -> None:
         # Change the working directory to allow absolute paths to be turned relative to the configuration file's directory
         # path.
-        formats = FormatRepository(localizer=self._localizer)
+        formats = FormatRepository()
         async with ChDir(configuration_file_path.parent):
             dump = formats.format_for(configuration_file_path.suffix[1:]).dump(self.dump())
             try:
@@ -107,14 +105,17 @@ class FileBasedConfiguration(Configuration):
         if configuration_file_path is not None:
             self.configuration_file_path = configuration_file_path
 
-        formats = FormatRepository(localizer=self._localizer)
+        formats = FormatRepository()
         with SerdeErrorCollection().assert_valid() as errors:
             # Change the working directory to allow relative paths to be resolved against the configuration file's directory
             # path.
             async with ChDir(self.configuration_file_path.parent):
                 async with aiofiles.open(self.configuration_file_path) as f:
                     read_configuration = await f.read()
-                with errors.catch(f'in {self.configuration_file_path.resolve()}'):
+                with errors.catch(Str.plain(
+                    'in {configuration_file_path}',
+                    configuration_file_path=str(self.configuration_file_path.resolve()),
+                )):
                     loaded_configuration = self.load(
                         formats.format_for(self.configuration_file_path.suffix[1:]).load(read_configuration)
                     )
@@ -137,7 +138,7 @@ class FileBasedConfiguration(Configuration):
     def configuration_file_path(self, configuration_file_path: Path) -> None:
         if configuration_file_path == self._configuration_file_path:
             return
-        formats = FormatRepository(localizer=self._localizer)
+        formats = FormatRepository()
         formats.format_for(configuration_file_path.suffix[1:])
         self._configuration_file_path = configuration_file_path
 
@@ -158,10 +159,8 @@ class ConfigurationCollection(Configuration, Generic[ConfigurationKeyT, Configur
     def __init__(
         self,
         configurations: Iterable[ConfigurationT] | None = None,
-        *,
-        localizer: Localizer | None = None,
     ):
-        super().__init__(localizer=localizer)
+        super().__init__()
         if configurations is not None:
             self.append(*configurations)
 
@@ -282,11 +281,9 @@ class ConfigurationSequence(ConfigurationCollection[int, ConfigurationT], Generi
     def __init__(
         self,
         configurations: Iterable[ConfigurationT] | None = None,
-        *,
-        localizer: Localizer | None = None,
     ):
         self._configurations: MutableSequence[ConfigurationT] = []
-        super().__init__(configurations, localizer=localizer)
+        super().__init__(configurations)
 
     def to_index(self, configuration_key: int) -> int:
         return configuration_key
@@ -325,14 +322,12 @@ class ConfigurationSequence(ConfigurationCollection[int, ConfigurationT], Generi
             cls,
             dump: Dump,
             configuration: Self | None = None,
-            *,
-            localizer: Localizer | None = None,
     ) -> Self:
         if configuration is None:
             configuration = cls()
         else:
             configuration._clear_without_trigger()
-        asserter = Asserter(localizer=localizer)
+        asserter = Asserter()
         with SerdeErrorCollection().assert_valid():
             configuration.append(*asserter.assert_sequence(Assertions(cls._item_type().assert_load()))(dump))
         return configuration
@@ -394,11 +389,9 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
     def __init__(
         self,
         configurations: Iterable[ConfigurationT] | None = None,
-        *,
-        localizer: Localizer | None = None,
     ):
         self._configurations: OrderedDict[ConfigurationKeyT, ConfigurationT] = OrderedDict()
-        super().__init__(configurations, localizer=localizer)
+        super().__init__(configurations)
 
     def _minimize_item_dump(self) -> bool:
         return False
@@ -462,15 +455,13 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
             cls,
             dump: Dump,
             configuration: Self | None = None,
-            *,
-            localizer: Localizer | None = None,
     ) -> Self:
         if configuration is None:
             configuration = cls()
-        asserter = Asserter(localizer=localizer)
+        asserter = Asserter()
         dict_dump = asserter.assert_dict()(dump)
         mapping = asserter.assert_mapping(Assertions(cls._item_type().load))({
-            key: cls._load_key(value, key, localizer=localizer)
+            key: cls._load_key(value, key)
             for key, value
             in dict_dump.items()
         })
@@ -556,8 +547,6 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
         cls,
         item_dump: Dump,
         key_dump: str,
-        *,
-        localizer: Localizer | None = None,
     ) -> Dump:
         raise NotImplementedError(repr(cls))
 

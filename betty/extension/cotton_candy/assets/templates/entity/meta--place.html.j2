@@ -15,6 +15,8 @@
 <div class="meta">
     {%- set enclosed_by_label = _enclosed_by_place_label(entity) -%}
     {%- if enclosed_by_label -%}
-        in {{ enclosed_by_label }}
+        {%- trans place=enclosed_by_label -%}
+            in {{ place }}
+        {%- endtrans -%}
     {%- endif -%}
 </div>

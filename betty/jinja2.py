@@ -34,7 +34,7 @@ from betty.fs import hashfile, CACHE_DIRECTORY_PATH
 from betty.functools import walk
 from betty.html import CssProvider, JsProvider
 from betty.locale import negotiate_localizeds, Localized, Datey, negotiate_locale, Date, DateRange, \
-    get_data, Localizer
+    get_data, Localizer, DEFAULT_LOCALIZER, Localey, Localizable
 from betty.lock import AcquiredError
 from betty.model import Entity, get_entity_type_name, GeneratedEntityId, UserFacingEntity, get_entity_type, \
     AncestryEntityId
@@ -50,11 +50,21 @@ from betty.string import camel_case_to_snake_case, camel_case_to_kebab_case, upp
 T = TypeVar('T')
 
 
+def context_app(context: Context) -> App:
+    return cast(Environment, context.environment).app
+
+
+def context_localizer(context: Context) -> Localizer:
+    localizer = context.resolve_or_missing('localizer')
+    if isinstance(localizer, Localizer):
+        return localizer
+    raise RuntimeError('No `localizer` context variable exists in this Jinja2 template.')
+
+
 class _Citer:
-    def __init__(self, localizer: Localizer):
-        self._localizer = localizer
+    def __init__(self):
         self._citations: list[Citation] = []
-        self._anonymous_source = AnonymousSource(localizer=localizer)
+        self._anonymous_source = AnonymousSource()
         self._anonymous_citations: dict[AncestryEntityId | None, Citation] = {}
 
     def __iter__(self) -> enumerate[Citation]:
@@ -71,7 +81,6 @@ class _Citer:
             except KeyError:
                 citation = AnonymousCitation(
                     source=citation.source or self._anonymous_source,
-                    localizer=self._localizer,
                 )
                 self._anonymous_citations[source_key] = citation
         if citation not in self._citations:
@@ -166,7 +175,7 @@ class Template(Jinja2Template):
             vars,
             shared,
             {
-                'citer': _Citer(self.environment.app.localizer),
+                'citer': _Citer(),
                 'breadcrumbs': _Breadcrumbs(),
                 **self.globals,
             },
@@ -182,14 +191,16 @@ class Environment(Jinja2Environment):
 
     def __init__(self, app: App):
         template_directory_paths = [str(path / 'templates') for path, _ in app.assets.paths]
-        super().__init__(loader=FileSystemLoader(template_directory_paths),
-                         undefined=DebugUndefined if app.project.configuration.debug else StrictUndefined,
-                         autoescape=select_autoescape(['html.j2']),
-                         trim_blocks=True,
-                         extensions=[
-                             'jinja2.ext.do',
-                             'jinja2.ext.i18n',
-        ],
+        super().__init__(
+            loader=FileSystemLoader(template_directory_paths),
+            undefined=DebugUndefined if app.project.configuration.debug else StrictUndefined,
+            autoescape=select_autoescape(['html.j2']),
+            trim_blocks=True,
+            lstrip_blocks=True,
+            extensions=[
+                'jinja2.ext.do',
+                'jinja2.ext.i18n',
+            ],
         )
 
         self.app = app
@@ -205,12 +216,28 @@ class Environment(Jinja2Environment):
 
     def _init_i18n(self) -> None:
         self.install_gettext_callables(  # type: ignore[attr-defined]
-            self.app.localizer.gettext,
-            self.app.localizer.ngettext,
-            pgettext=self.app.localizer.pgettext,
-            npgettext=self.app.localizer.npgettext,
+            gettext=self._gettext,
+            ngettext=self._ngettext,
+            pgettext=self._pgettext,
+            npgettext=self._npgettext,
         )
         self.policies['ext.i18n.trimmed'] = True
+
+    @pass_context
+    def _gettext(self, context: Context, message: str) -> str:
+        return context_localizer(context).gettext(message)
+
+    @pass_context
+    def _ngettext(self, context: Context, message_singular: str, message_plural: str, n: int) -> str:
+        return context_localizer(context).ngettext(message_singular, message_plural, n)
+
+    @pass_context
+    def _pgettext(self, context: Context, gettext_context: str, message: str) -> str:
+        return context_localizer(context).pgettext(gettext_context, message)
+
+    @pass_context
+    def _npgettext(self, context: Context, gettext_context: str, message_singular: str, message_plural: str, n: int) -> str:
+        return context_localizer(context).npgettext(gettext_context, message_singular, message_plural, n)
 
     def _init_globals(self) -> None:
         self.globals['app'] = self.app
@@ -231,12 +258,14 @@ class Environment(Jinja2Environment):
         ]
         self.globals['path'] = os.path
         self.globals['entity_contexts'] = EntityContexts()
+        self.globals['localizer'] = DEFAULT_LOCALIZER
 
     def _init_filters(self) -> None:
         self.filters['unique'] = _filter_unique
         self.filters['map'] = _filter_map
         self.filters['flatten'] = _filter_flatten
         self.filters['walk'] = _filter_walk
+        self.filters['localize'] = _filter_localize
         self.filters['locale_get_data'] = get_data
         self.filters['negotiate_localizeds'] = _filter_negotiate_localizeds
         self.filters['sort_localizeds'] = _filter_sort_localizeds
@@ -246,7 +275,7 @@ class Environment(Jinja2Environment):
         self.filters['json'] = _filter_json
         self.filters['tojson'] = _filter_tojson
         self.filters['paragraphs'] = _filter_paragraphs
-        self.filters['format_datey'] = self.app.localizer.format_datey
+        self.filters['format_datey'] = _filter_format_datey
         self.filters['format_degrees'] = _filter_format_degrees
         self.filters['url'] = _filter_url
         self.filters['static_url'] = self.app.static_url_generator.generate
@@ -317,16 +346,18 @@ class Jinja2Renderer(Renderer):
     def file_extensions(self) -> set[str]:
         return {'.j2'}
 
-    async def render_file(self, file_path: Path) -> Path:
+    async def render_file(self, file_path: Path, *, localizer: Localizer | None = None) -> Path:
         file_destination_path = file_path.parent / file_path.stem
-        data = {}
+        data: dict[str, Any] = {}
+        if localizer is not None:
+            data['localizer'] = localizer
         try:
             relative_file_destination_path = file_destination_path.relative_to(self._configuration.www_directory_path)
         except ValueError:
             pass
         else:
             resource = '/'.join(relative_file_destination_path.parts)
-            if self._configuration.multilingual:
+            if self._configuration.locales.multilingual:
                 resource_parts = resource.lstrip('/').split('/')
                 if resource_parts[0] in map(lambda x: x.alias, self._configuration.locales.values()):
                     resource = '/'.join(resource_parts[1:])
@@ -344,13 +375,37 @@ class Jinja2Renderer(Renderer):
 
 
 @pass_context
-def _filter_url(context: Context, resource: Any, media_type: str | None = None, *args: Any, **kwargs: Any) -> str:
-    return cast(Environment, context.environment).app.url_generator.generate(
+def _filter_url(
+    context: Context,
+    resource: Any,
+    media_type: str | None = None,
+    *args: Any,
+    locale: Localey | None = None,
+    **kwargs: Any,
+) -> str:
+    return context_app(context).url_generator.generate(
         resource,
         media_type or 'text/html',
         *args,
+        locale=locale or context_localizer(context).locale,  # type: ignore[misc]
         **kwargs,
     )
+
+
+@pass_context
+def _filter_localize(
+    context: Context,
+    localizable: Localizable,
+) -> str:
+    return localizable.localize(context_localizer(context))
+
+
+@pass_context
+def _filter_format_datey(
+    context: Context,
+    datey: Datey,
+) -> str:
+    return context_localizer(context).format_datey(datey)
 
 
 @pass_context
@@ -358,7 +413,7 @@ def _filter_json(context: Context, data: Any, indent: int | None = None) -> str:
     """
     Converts a value to a JSON string.
     """
-    return stdjson.dumps(data, indent=indent, cls=(cast(Environment, context.environment).app.json_encoder))
+    return stdjson.dumps(data, indent=indent, cls=(context_app(context).json_encoder))
 
 
 @pass_context
@@ -542,7 +597,7 @@ async def _execute_filter_image(
 
 @pass_context
 def _filter_negotiate_localizeds(context: Context, localizeds: Iterable[Localized]) -> Localized | None:
-    return negotiate_localizeds(cast(Environment, context.environment).app.locale, list(localizeds))
+    return negotiate_localizeds(context_localizer(context).locale, list(localizeds))
 
 
 @pass_context
@@ -552,7 +607,7 @@ def _filter_sort_localizeds(context: Context, localizeds: Iterable[Localized], l
     get_sort_attr = make_attrgetter(context.environment, sort_attribute)
 
     def _get_sort_key(x: Localized) -> Any:
-        return get_sort_attr(negotiate_localizeds(cast(Environment, context.environment).app.locale, get_localized_attr(x)))
+        return get_sort_attr(negotiate_localizeds(context_localizer(context).locale, get_localized_attr(x)))
 
     return sorted(localizeds, key=_get_sort_key)
 
@@ -562,7 +617,7 @@ def _filter_select_localizeds(context: Context, localizeds: Iterable[Localized],
     for localized in localizeds:
         if include_unspecified and localized.locale in {None, 'mis', 'mul', 'und', 'zxx'}:
             yield localized
-        if localized.locale is not None and negotiate_locale(cast(Environment, context.environment).app.locale, {localized.locale}) is not None:
+        if localized.locale is not None and negotiate_locale(context_localizer(context).locale, {localized.locale}) is not None:
             yield localized
 
 

@@ -6,7 +6,7 @@ from betty import load, generate
 from betty.app import App
 from betty.app.extension import Extension
 from betty.load import Loader
-from betty.locale import Date, DateRange, Localizer
+from betty.locale import Date, DateRange, Str, Localizer
 from betty.model import Entity
 from betty.model.ancestry import Place, PlaceName, Person, Presence, Subject, PersonName, Link, Source, Citation, Event, \
     Enclosure
@@ -256,7 +256,7 @@ class _Demo(Extension, Loader):
         cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam = Citation(
             id='betty-demo-birth-of-liberta-lankester-from-bevolkingsregister-amsterdam',
             source=bevolkingsregister_amsterdam,
-            location='Amsterdam',
+            location=Str.plain('Amsterdam'),
         )
         self._load(cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam)
 
@@ -359,13 +359,13 @@ class _Demo(Extension, Loader):
 
 
 class DemoServer(Server):
-    def __init__(self, *, localizer: Localizer | None = None):
-        super().__init__(localizer=localizer)
+    def __init__(self, localizer: Localizer):
+        super().__init__(localizer)
         self._server: Server | None = None
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Demo')
+    def label(cls) -> Str:
+        return Str._('Demo')
 
     @property
     def public_url(self) -> str:
@@ -374,7 +374,7 @@ class DemoServer(Server):
         raise NoPublicUrlBecauseServerNotStartedError()
 
     async def start(self) -> None:
-        app = App(locale=self.localizer.locale)
+        app = App()
         app.project.configuration.extensions.append(ExtensionConfiguration(_Demo))
         # Include all of the translations Betty ships with.
         app.project.configuration.locales.replace(

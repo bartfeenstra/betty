@@ -14,14 +14,14 @@ from PyQt6.QtWidgets import QMainWindow
 from click import get_current_context, Context, Option, Command, Parameter
 
 from betty import about, generate, load
-from betty.extension import demo
 from betty.app import App
 from betty.asyncio import sync, wait
 from betty.error import UserFacingError
+from betty.extension import demo
 from betty.gui import BettyApplication
 from betty.gui.app import WelcomeWindow
 from betty.gui.project import ProjectWindow
-from betty.locale import update_translations, init_translation
+from betty.locale import update_translations, init_translation, Str
 from betty.logging import CliHandler
 from betty.serde.load import AssertionFailed
 from betty.serve import ProjectServer
@@ -131,11 +131,16 @@ async def _init_ctx(
                     if isinstance(extension, CommandProvider):
                         for command_name, command in extension.commands.items():
                             ctx.obj['commands'][command_name] = command
-                logger.info(app.localizer._('Loaded the configuration from {configuration_file_path}.').format(configuration_file_path=try_configuration_file_path))
+                logger.info(app.localizer._('Loaded the configuration from {configuration_file_path}.').format(
+                    configuration_file_path=str(try_configuration_file_path)),
+                )
                 return
 
         if configuration_file_path is not None:
-            raise AssertionFailed(app.localizer._('Configuration file "{configuration_file_path}" does not exist.').format(configuration_file_path=configuration_file_path))
+            raise AssertionFailed(Str._(
+                'Configuration file "{configuration_file_path}" does not exist.',
+                configuration_file_path=configuration_file_path,
+            ))
 
 
 class _BettyCommands(click.MultiCommand):
@@ -176,10 +181,11 @@ async def _clear_caches() -> None:
 @click.command(help='Explore a demonstration site.')
 @global_command
 async def _demo() -> None:
-    async with demo.DemoServer() as server:
-        await server.show()
-        while True:
-            time.sleep(999)
+    async with App() as app:
+        async with demo.DemoServer(app.localizer) as server:
+            await server.show()
+            while True:
+                time.sleep(999)
 
 
 @click.command(help="Open Betty's graphical user interface (GUI).")

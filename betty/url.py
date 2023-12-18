@@ -29,7 +29,7 @@ class ContentNegotiationPathUrlGenerator(ContentNegotiationUrlGenerator):
             self._app.project.configuration,
             resource,
             absolute,
-            self._app.locale if locale is None else locale,
+            self._app.localizer.locale if locale is None else locale,
         )
 
 
@@ -54,7 +54,7 @@ class _EntityUrlGenerator(ContentNegotiationUrlGenerator):
         if 'text/html' == media_type:
             extension = 'html'
             if locale is None:
-                locale = self._app.locale
+                locale = self._app.localizer.locale
         elif 'application/json' == media_type:
             extension = 'json'
             locale = None
@@ -95,7 +95,7 @@ def _generate_from_path(configuration: ProjectConfiguration, path: str, absolute
     url += '/'
     if configuration.root_path:
         url += configuration.root_path + '/'
-    if localey and configuration.multilingual:
+    if localey and configuration.locales.multilingual:
         locale = to_locale(localey)
         try:
             locale_configuration = configuration.locales[locale]

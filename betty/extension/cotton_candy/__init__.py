@@ -8,6 +8,8 @@ from typing import Any, Callable, Iterable, cast, Self
 
 from PyQt6.QtWidgets import QWidget
 from aiofiles.os import makedirs
+from jinja2 import pass_context
+from jinja2.runtime import Context
 from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
 
@@ -18,8 +20,8 @@ from betty.extension.npm import _Npm, NpmBuilder, npm
 from betty.functools import walk
 from betty.generate import Generator
 from betty.gui import GuiBuilder
-from betty.jinja2 import Jinja2Provider
-from betty.locale import Localizer, Date, Datey
+from betty.jinja2 import Jinja2Provider, context_app, context_localizer
+from betty.locale import Date, Datey, Str
 from betty.model import Entity, UserFacingEntity
 from betty.model.ancestry import Event, Person, Presence, is_public
 from betty.project import EntityReferenceSequence
@@ -37,7 +39,10 @@ class _ColorConfiguration(Configuration):
 
     def _validate_hex(self, hex_value: str) -> str:
         if not self._HEX_PATTERN.match(hex_value):
-            raise AssertionFailed(self.localizer._('"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.').format(hex_value=hex_value))
+            raise AssertionFailed(Str._(
+                '"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.',
+                hex_value=hex_value,
+            ))
         return hex_value
 
     @property
@@ -48,7 +53,10 @@ class _ColorConfiguration(Configuration):
     @hex.setter
     def hex(self, hex_value: str) -> None:
         if not self._HEX_PATTERN.match(hex_value):
-            raise AssertionFailed(self.localizer._('"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.').format(hex_value=hex_value))
+            raise AssertionFailed(Str._(
+                '"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.',
+                hex_value=hex_value,
+            ))
         self._hex = hex_value
 
     def update(self, other: Self) -> None:
@@ -59,10 +67,8 @@ class _ColorConfiguration(Configuration):
         cls,
         dump: Dump,
         configuration: Self | None = None,
-        *,
-        localizer: Localizer | None = None,
     ) -> Self:
-        asserter = Asserter(localizer=localizer)
+        asserter = Asserter()
         hex_value = asserter.assert_str()(dump)
         if configuration is None:
             configuration = cls(hex_value)
@@ -118,12 +124,10 @@ class CottonCandyConfiguration(Configuration):
         cls,
         dump: Dump,
         configuration: Self | None = None,
-        *,
-        localizer: Localizer | None = None,
     ) -> Self:
         if configuration is None:
             configuration = cls()
-        asserter = Asserter(localizer=localizer)
+        asserter = Asserter()
         asserter.assert_record(Fields(
             OptionalField(
                 'featured_entities',
@@ -168,16 +172,16 @@ class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Gener
         return Path(__file__).parent / 'assets'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return 'Cotton Candy'
+    def label(cls) -> Str:
+        return Str.plain('Cotton Candy')
 
     @classmethod
     def default_configuration(cls) -> CottonCandyConfiguration:
         return CottonCandyConfiguration()
 
     @classmethod
-    def description(cls, localizer: Localizer) -> str:
-        return localizer._("Cotton Candy is Betty's default theme.")
+    def description(cls) -> Str:
+        return Str._("Cotton Candy is Betty's default theme.")
 
     def gui_build(self) -> QWidget:
         from betty.extension.cotton_candy.gui import _CottonCandyGuiWidget
@@ -187,7 +191,7 @@ class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Gener
     @property
     def globals(self) -> dict[str, Any]:
         return {
-            'search_index': lambda: Index(self.app).build(),
+            'search_index': _global_search_index,
         }
 
     @property
@@ -203,7 +207,7 @@ class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Gener
         await self.app.extensions[_Npm].install(type(self), working_directory_path)
         await npm(('run', 'webpack'), cwd=working_directory_path)
         await self._copy_npm_build(working_directory_path / 'webpack-build', assets_directory_path)
-        logging.getLogger().info(self.app.localizer._('Built the Cotton Candy front-end assets.'))
+        logging.getLogger().info(self._app.localizer._('Built the Cotton Candy front-end assets.'))
 
     async def _copy_npm_build(self, source_directory_path: Path, destination_directory_path: Path) -> None:
         await makedirs(destination_directory_path, exist_ok=True)
@@ -212,7 +216,12 @@ class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Gener
 
     async def generate(self) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
-        await self._copy_npm_build(assets_directory_path, self.app.static_www_directory_path)
+        await self._copy_npm_build(assets_directory_path, self.app.project.configuration.www_directory_path)
+
+
+@pass_context
+def _global_search_index(context: Context) -> Iterable[dict[str, str]]:
+    return Index(context_app(context), context_localizer(context)).build()
 
 
 def _is_person_timeline_presence(presence: Presence) -> bool:

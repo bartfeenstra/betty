@@ -13,6 +13,7 @@ from pytest_mock import MockerFixture
 
 from betty import fs
 from betty.error import UserFacingError
+from betty.locale import DEFAULT_LOCALIZER, Str
 from betty.os import ChDir
 from betty.project import ProjectConfiguration, ExtensionConfiguration, Project
 from betty.serde.dump import Dump
@@ -128,7 +129,7 @@ class TestMain:
 
 class TestCatchExceptions:
     async def test_logging_user_facing_error(self, caplog: LogCaptureFixture) -> None:
-        error_message = 'Something went wrong!'
+        error_message = Str.plain('Something went wrong!')
         with pytest.raises(SystemExit):
             with catch_exceptions():
                 raise UserFacingError(error_message)
@@ -200,7 +201,7 @@ class TestGenerate:
 
 class _KeyboardInterruptedProjectServer(ProjectServer):
     def __init__(self, *_: Any, **__: Any):
-        super().__init__(Project())
+        super().__init__(DEFAULT_LOCALIZER, Project())
 
     async def start(self) -> None:
         raise KeyboardInterrupt

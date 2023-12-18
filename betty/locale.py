@@ -11,7 +11,7 @@ from contextlib import suppress
 from functools import total_ordering, lru_cache
 from io import StringIO
 from pathlib import Path
-from typing import Any, Iterator, Sequence, Mapping, Callable, TypeAlias
+from typing import Any, Iterator, Sequence, Mapping, Callable, TypeAlias, cast
 
 import babel
 from aiofiles.os import makedirs
@@ -582,25 +582,72 @@ class LocalizerRepository:
 
 
 class Localizable:
-    def __init__(self, *args: Any, localizer: Localizer | None = None, **kwargs: Any):
-        super().__init__(*args, **kwargs)
-        self._localizer: Localizer | None = None if localizer is DEFAULT_LOCALIZER else localizer
+    def localize(self, localizer: Localizer) -> str:
+        raise NotImplementedError
 
-    @property
-    def localizer(self) -> Localizer:
-        return self._localizer or DEFAULT_LOCALIZER
 
-    @localizer.setter
-    def localizer(self, localizer: Localizer | None) -> None:
-        self._localizer = localizer
-        self._on_localizer_change()
+class Str(Localizable):
+    def _localize_format_kwargs(self, localizer: Localizer, **format_kwargs: str | Localizable) -> dict[str, str]:
+        return {
+            key: value.localize(localizer) if isinstance(value, Localizable) else value
+            for key, value
+            in format_kwargs.items()
+        }
 
-    @localizer.deleter
-    def localizer(self) -> None:
-        self.localizer = None  # type: ignore[assignment]
+    @classmethod
+    def plain(cls, plain: Any, **format_kwargs: str | Localizable) -> Str:
+        return _PlainStr(str(plain), **format_kwargs)
 
-    def _on_localizer_change(self) -> None:
-        pass
+    @classmethod
+    def call(cls, call: Callable[[Localizer], str]) -> Str:
+        return _CallStr(call)
+
+    @classmethod
+    def _(cls, message: str, **format_kwargs: str | Localizable) -> Str:
+        return cls.gettext(message, **format_kwargs)
+
+    @classmethod
+    def gettext(cls, message: str, **format_kwargs: str | Localizable) -> Str:
+        return _GettextStr('gettext', message, **format_kwargs)
+
+    @classmethod
+    def ngettext(cls, message_singular: str, message_plural: str, n: int, **format_kwargs: str | Localizable) -> Str:
+        return _GettextStr('ngettext', message_singular, message_plural, n, **format_kwargs)
+
+    @classmethod
+    def pgettext(cls, context: str, message: str, **format_kwargs: str | Localizable) -> Str:
+        return _GettextStr('pgettext', context, message, **format_kwargs)
+
+    @classmethod
+    def npgettext(cls, context: str, message_singular: str, message_plural: str, n: int, **format_kwargs: str | Localizable) -> Str:
+        return _GettextStr('npgettext', context, message_singular, message_plural, n, **format_kwargs)
+
+
+class _PlainStr(Str):
+    def __init__(self, plain: str, **format_kwargs: str | Localizable):
+        self._plain = plain
+        self._format_kwargs = format_kwargs
+
+    def localize(self, localizer: Localizer) -> str:
+        return self._plain.format(**self._localize_format_kwargs(localizer, **self._format_kwargs))
+
+
+class _CallStr(Str):
+    def __init__(self, call: Callable[[Localizer], str]):
+        self._call = call
+
+    def localize(self, localizer: Localizer) -> str:
+        return self._call(localizer)
+
+
+class _GettextStr(Str):
+    def __init__(self, gettext_method_name: str, *gettext_args: Any, **format_kwargs: str | Localizable) -> None:
+        self._gettext_method_name = gettext_method_name
+        self._gettext_args = gettext_args
+        self._format_kwargs = format_kwargs
+
+    def localize(self, localizer: Localizer) -> str:
+        return cast(str, getattr(localizer, self._gettext_method_name)(*self._gettext_args)).format(**self._localize_format_kwargs(localizer, **self._format_kwargs))
 
 
 def negotiate_locale(preferred_locales: Localey | Sequence[Localey], available_locales: set[Localey]) -> Locale | None:
@@ -686,6 +733,10 @@ async def init_translation(locale: str) -> None:
 
 
 async def update_translations(_output_assets_directory_path: Path = ASSETS_DIRECTORY_PATH) -> None:
+    source_paths = glob.glob('betty/*')
+    # Remove the tests directory from the extraction,
+    # or we'll be seeing some unusual additions to the translations.
+    source_paths.remove(str(Path('betty') / 'tests'))
     pot_file_path = _output_assets_directory_path / 'betty.pot'
     with contextlib.redirect_stdout(StringIO()):
         async with ChDir(ROOT_DIRECTORY_PATH):
@@ -703,7 +754,7 @@ async def update_translations(_output_assets_directory_path: Path = ASSETS_DIREC
                 'Betty',
                 '--copyright-holder',
                 'Bart Feenstra & contributors',
-                'betty',
+                *source_paths,
             ])
             for po_file_path_str in glob.glob('betty/assets/locale/*/betty.po'):
                 po_file_path = (_output_assets_directory_path / (ROOT_DIRECTORY_PATH / po_file_path_str).relative_to(ASSETS_DIRECTORY_PATH)).resolve()

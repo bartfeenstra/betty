@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.locale import Localizer
+from betty.locale import Str
 
 if TYPE_CHECKING:
     from betty.model.ancestry import Person
@@ -23,7 +23,7 @@ class EventType:
         raise NotImplementedError(repr(cls))
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
+    def label(cls) -> Str:
         raise NotImplementedError(repr(cls))
 
     @classmethod
@@ -41,8 +41,8 @@ class UnknownEventType(EventType):
         return 'unknown'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Unknown')
+    def label(cls) -> Str:
+        return Str._('Unknown')
 
 
 class DerivableEventType(EventType):
@@ -91,8 +91,8 @@ class Birth(CreatableDerivableEventType, StartOfLifeEventType):
         return 'birth'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Birth')
+    def label(cls) -> Str:
+        return Str._('Birth')
 
     @classmethod
     def comes_before(cls) -> set[type[EventType]]:
@@ -105,8 +105,8 @@ class Baptism(DuringLifeEventType, StartOfLifeEventType):
         return 'baptism'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Baptism')
+    def label(cls) -> Str:
+        return Str._('Baptism')
 
 
 class Adoption(DuringLifeEventType):
@@ -115,8 +115,8 @@ class Adoption(DuringLifeEventType):
         return 'adoption'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Adoption')
+    def label(cls) -> Str:
+        return Str._('Adoption')
 
 
 class Death(CreatableDerivableEventType, EndOfLifeEventType):
@@ -125,8 +125,8 @@ class Death(CreatableDerivableEventType, EndOfLifeEventType):
         return 'death'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Death')
+    def label(cls) -> Str:
+        return Str._('Death')
 
     @classmethod
     def comes_after(cls) -> set[type[EventType]]:
@@ -149,8 +149,8 @@ class Funeral(FinalDispositionEventType):
         return 'funeral'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Funeral')
+    def label(cls) -> Str:
+        return Str._('Funeral')
 
 
 class Cremation(FinalDispositionEventType):
@@ -159,8 +159,8 @@ class Cremation(FinalDispositionEventType):
         return 'cremation'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Cremation')
+    def label(cls) -> Str:
+        return Str._('Cremation')
 
 
 class Burial(FinalDispositionEventType):
@@ -169,8 +169,8 @@ class Burial(FinalDispositionEventType):
         return 'burial'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Burial')
+    def label(cls) -> Str:
+        return Str._('Burial')
 
 
 class Will(PostDeathEventType):
@@ -179,8 +179,8 @@ class Will(PostDeathEventType):
         return 'will'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Will')
+    def label(cls) -> Str:
+        return Str._('Will')
 
 
 class Engagement(DuringLifeEventType):
@@ -189,8 +189,8 @@ class Engagement(DuringLifeEventType):
         return 'engagement'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Engagement')
+    def label(cls) -> Str:
+        return Str._('Engagement')
 
     @classmethod
     def comes_before(cls) -> set[type[EventType]]:
@@ -203,8 +203,8 @@ class Marriage(DuringLifeEventType):
         return 'marriage'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Marriage')
+    def label(cls) -> Str:
+        return Str._('Marriage')
 
 
 class MarriageAnnouncement(DuringLifeEventType):
@@ -213,8 +213,8 @@ class MarriageAnnouncement(DuringLifeEventType):
         return 'marriage-announcement'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Announcement of marriage')
+    def label(cls) -> Str:
+        return Str._('Announcement of marriage')
 
     @classmethod
     def comes_before(cls) -> set[type[EventType]]:
@@ -227,8 +227,8 @@ class Divorce(DuringLifeEventType):
         return 'divorce'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Divorce')
+    def label(cls) -> Str:
+        return Str._('Divorce')
 
     @classmethod
     def comes_after(cls) -> set[type[EventType]]:
@@ -241,8 +241,8 @@ class DivorceAnnouncement(DuringLifeEventType):
         return 'divorce-announcement'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Announcement of divorce')
+    def label(cls) -> Str:
+        return Str._('Announcement of divorce')
 
     @classmethod
     def comes_after(cls) -> set[type[EventType]]:
@@ -259,8 +259,8 @@ class Residence(DuringLifeEventType):
         return 'residence'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Residence')
+    def label(cls) -> Str:
+        return Str._('Residence')
 
 
 class Immigration(DuringLifeEventType):
@@ -269,8 +269,8 @@ class Immigration(DuringLifeEventType):
         return 'immigration'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Immigration')
+    def label(cls) -> Str:
+        return Str._('Immigration')
 
 
 class Emigration(DuringLifeEventType):
@@ -279,8 +279,8 @@ class Emigration(DuringLifeEventType):
         return 'emigration'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Emigration')
+    def label(cls) -> Str:
+        return Str._('Emigration')
 
 
 class Occupation(DuringLifeEventType):
@@ -289,8 +289,8 @@ class Occupation(DuringLifeEventType):
         return 'occupation'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Occupation')
+    def label(cls) -> Str:
+        return Str._('Occupation')
 
 
 class Retirement(DuringLifeEventType):
@@ -299,8 +299,8 @@ class Retirement(DuringLifeEventType):
         return 'retirement'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Retirement')
+    def label(cls) -> Str:
+        return Str._('Retirement')
 
 
 class Correspondence(EventType):
@@ -309,8 +309,8 @@ class Correspondence(EventType):
         return 'correspondence'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Correspondence')
+    def label(cls) -> Str:
+        return Str._('Correspondence')
 
 
 class Confirmation(DuringLifeEventType):
@@ -319,8 +319,8 @@ class Confirmation(DuringLifeEventType):
         return 'confirmation'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Confirmation')
+    def label(cls) -> Str:
+        return Str._('Confirmation')
 
 
 class Missing(DuringLifeEventType):
@@ -329,8 +329,8 @@ class Missing(DuringLifeEventType):
         return 'missing'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Missing')
+    def label(cls) -> Str:
+        return Str._('Missing')
 
 
 class Conference(DuringLifeEventType):
@@ -339,5 +339,5 @@ class Conference(DuringLifeEventType):
         return 'conference'
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return localizer._('Conference')
+    def label(cls) -> Str:
+        return Str._('Conference')

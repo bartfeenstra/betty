@@ -51,19 +51,17 @@ class TestLocalizedPathUrlGenerator:
             sut = ContentNegotiationPathUrlGenerator(app)
             assert expected == sut.generate(resource, 'text/html', absolute=True)
 
-    @pytest.mark.parametrize('expected, app_locale, url_generator_locale', [
-        ('/nl/index.html', 'nl', None),
-        ('/en/index.html', 'en', None),
-        ('/nl/index.html', None, 'nl'),
-        ('/en/index.html', None, 'en'),
+    @pytest.mark.parametrize('expected, url_generator_locale', [
+        ('/en/index.html', None),
+        ('/nl/index.html', 'nl'),
+        ('/en/index.html', 'en'),
     ])
     async def test_generate_multilingual(
         self,
         expected: str,
-        app_locale: Localey | None,
         url_generator_locale: Localey | None,
     ) -> None:
-        app = App(locale=app_locale)
+        app = App()
         app.project.configuration.locales.replace(
             LocaleConfiguration('nl-NL', 'nl'),
             LocaleConfiguration('en-US', 'en'),

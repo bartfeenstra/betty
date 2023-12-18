@@ -23,8 +23,7 @@ from betty.concurrent import ExceptionRaisingAwaitableExecutor
 from betty.config import Configurable, FileBasedConfiguration
 from betty.dispatch import Dispatcher
 from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH, HOME_DIRECTORY_PATH
-from betty.locale import LocalizerRepository, get_data, Localey, DEFAULT_LOCALE, to_locale, \
-    Localizer, DEFAULT_LOCALIZER
+from betty.locale import LocalizerRepository, get_data, DEFAULT_LOCALE, Localizer, Str
 from betty.lock import Locks
 from betty.model import Entity, EntityTypeProvider
 from betty.model.ancestry import Citation, Event, File, Person, PersonName, Presence, Place, Enclosure, \
@@ -85,7 +84,10 @@ class AppConfiguration(FileBasedConfiguration):
         try:
             get_data(locale)
         except ValueError:
-            raise AssertionFailed(self.localizer._('"{locale}" is not a valid IETF BCP 47 language tag.').format(locale=locale))
+            raise AssertionFailed(Str._(
+                '"{locale}" is not a valid IETF BCP 47 language tag.',
+                locale=locale,
+            ))
         self._locale = locale
 
     def update(self, other: Self) -> None:
@@ -97,12 +99,10 @@ class AppConfiguration(FileBasedConfiguration):
             cls,
             dump: Dump,
             configuration: Self | None = None,
-            *,
-            localizer: Localizer | None = None,
     ) -> Self:
         if configuration is None:
             configuration = cls()
-        asserter = Asserter(localizer=localizer)
+        asserter = Asserter()
         asserter.assert_record(Fields(
             OptionalField(
                 'locale',
@@ -122,22 +122,18 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         self,
         configuration: AppConfiguration | None = None,
         project: Project | None = None,
-        locale: Localey | None = DEFAULT_LOCALE,
     ):
         super().__init__()
         self._configuration = configuration or AppConfiguration()
         self._assets: FileSystem | None = None
         self._extensions = _AppExtensions()
         self._extensions_initialized = False
-        self._locale = to_locale(locale) if locale else None
         self._localization_initialized = False
         self._localizer: Localizer | None = None
         self._localizers: LocalizerRepository | None = None
         with suppress(FileNotFoundError):
             wait(self.configuration.read())
         self._project = project or Project()
-        self._init_localization()
-        self._project.localizer = self.localizer
 
         self._dispatcher: ExtensionDispatcher | None = None
         self._entity_types: set[type[Entity]] | None = None
@@ -192,7 +188,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         extension_types_enabled_in_configuration = set()
         for app_extension_configuration in self.project.configuration.extensions.values():
             if app_extension_configuration.enabled:
-                app_extension_configuration.extension_type.enable_requirement(localizer=self._localizer).assert_met()
+                app_extension_configuration.extension_type.enable_requirement().assert_met()
                 extension_types_enabled_in_configuration.add(app_extension_configuration.extension_type)
 
         extension_types_sorter = TopologicalSorter(
@@ -246,16 +242,6 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         return self._dispatcher
 
     @property
-    def www_directory_path(self) -> Path:
-        if self.project.configuration.multilingual:
-            return self.static_www_directory_path / self.project.configuration.locales[self.locale].alias
-        return self.static_www_directory_path
-
-    @property
-    def static_www_directory_path(self) -> Path:
-        return self.project.configuration.www_directory_path
-
-    @property
     def url_generator(self) -> ContentNegotiationUrlGenerator:
         from betty.url import AppUrlGenerator
 
@@ -272,15 +258,17 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         return self._static_url_generator
 
     @property
-    def locale(self) -> str:
-        return self._locale or self.configuration.locale or DEFAULT_LOCALE
-
-    @property
     def localizer(self) -> Localizer:
+        """
+        Get the application's localizer.
+
+        The localizer MAY be out of sync with the locale set in the application configuration,
+        if the locale is changed runtime. To keep almost every other part of the application
+        simpler, changing the application locale requires an application restart for the changes
+        to take effect.
+        """
         if self._localizer is None:
-            if not self._localization_initialized:
-                return DEFAULT_LOCALIZER
-            self._localizer = self.localizers.get_negotiated(self.locale)
+            self._localizer = self.localizers.get_negotiated(self.configuration.locale or DEFAULT_LOCALE)
         return self._localizer
 
     @property
@@ -288,11 +276,6 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         if self._localizers is None:
             self._localizers = LocalizerRepository(self.assets)
         return self._localizers
-
-    def _init_localization(self) -> None:
-        self._localization_initialized = True
-        self.configuration.localizer = self.localizer
-        self.project.localizer = self.localizer
 
     @property
     @reactive_property(on_trigger_delete=True)
@@ -459,13 +442,13 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
                     if isinstance(extension, serve.ServerProvider)
                     for server in extension.servers
                 ),
-                serve.BuiltinServer(self.project),
-                DemoServer(localizer=self._localizer),
+                serve.BuiltinServer(self.localizer, self.project),
+                DemoServer(self.localizer),
             ]
         }
 
     @property
     def cache(self) -> Cache:
         if self._cache is None:
-            self._cache = Cache(localizer=self.localizer)
+            self._cache = Cache(self.localizer)
         return self._cache

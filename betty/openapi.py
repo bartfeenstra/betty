@@ -6,10 +6,12 @@ from betty.string import camel_case_to_kebab_case
 
 
 class Specification:
-    def __init__(self, app: App):
+    def __init__(self, app: App, locale: str):
         self._app = app
+        self._locale = locale
 
     def build(self) -> DictDump[Dump]:
+        localizer = self._app.localizers[self._locale]
         specification: DictDump[Dump] = {
             'openapi': '3.1.0',
             'servers': [
@@ -25,7 +27,7 @@ class Specification:
             'components': {
                 'responses': {
                     '401': {
-                        'description': self._app.localizer._('Unauthorized'),
+                        'description': localizer._('Unauthorized'),
                         'content': {
                             'application/json': {
                                 'schema': {
@@ -35,7 +37,7 @@ class Specification:
                         },
                     },
                     '403': {
-                        'description': self._app.localizer._('Forbidden'),
+                        'description': localizer._('Forbidden'),
                         'content': {
                             'application/json': {
                                 'schema': {
@@ -45,7 +47,7 @@ class Specification:
                         },
                     },
                     '404': {
-                        'description': self._app.localizer._('Not found'),
+                        'description': localizer._('Not found'),
                         'content': {
                             'application/json': {
                                 'schema': {
@@ -60,9 +62,9 @@ class Specification:
                         'name': 'id',
                         'in': 'path',
                         'required': True,
-                        'description': self._app.localizer._('The ID for the resource to retrieve.'),
+                        'description': localizer._('The ID for the resource to retrieve.'),
                         'schema': {
-                            'type': 'string',
+                            'type': 'localizering',
                         },
                     },
                 },
@@ -87,12 +89,12 @@ class Specification:
             specification['paths'].update({  # type: ignore[union-attr]
                 collection_path: {
                     'get': {
-                        'summary': self._app.localizer._('Retrieve the collection of {entity_type} entities.').format(
+                        'summary': localizer._('Retrieve the collection of {entity_type} entities.').format(
                             entity_type=entity_type_name,
                         ),
                         'responses': {
                             '200': {
-                                'description': self._app.localizer._('The collection of {entity_type} entities.').format(
+                                'description': localizer._('The collection of {entity_type} entities.').format(
                                     entity_type=entity_type_name,
                                 ),
                                 'content': {
@@ -104,12 +106,12 @@ class Specification:
                 },
                 single_path: {
                     'get': {
-                        'summary': self._app.localizer._('Retrieve a single {entity_type} entity.').format(
+                        'summary': localizer._('Retrieve a single {entity_type} entity.').format(
                             entity_type=entity_type_name,
                         ),
                         'responses': {
                             '200': {
-                                'description': self._app.localizer._('The {entity_type} entity.').format(
+                                'description': localizer._('The {entity_type} entity.').format(
                                     entity_type=entity_type_name,
                                 ),
                                 'content': {

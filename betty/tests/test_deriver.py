@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from betty.deriver import Deriver
-from betty.locale import DateRange, Date, Datey, Localizer
+from betty.locale import DateRange, Date, Datey, Str
 from betty.model import record_added
 from betty.model.ancestry import Person, Presence, Subject, Event, Ancestry
 from betty.model.event_type import DerivableEventType, CreatableDerivableEventType, EventType
@@ -16,8 +16,8 @@ class DeriverTestEventType(EventType):
         return repr(cls)
 
     @classmethod
-    def label(cls, localizer: Localizer) -> str:
-        return repr(cls)
+    def label(cls) -> Str:
+        return Str._(repr(cls))
 
 
 class Ignored(DeriverTestEventType):

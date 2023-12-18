@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-12-17 15:48+0000\n"
+"POT-Creation-Date: 2023-12-18 17:07+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,6 +32,13 @@ msgid ""
 "                history. You can browse the pages about her and some of her family to get an idea of what a Betty site\n"
 "                looks like.\n"
 "            "
+msgstr ""
+
+#, python-format
+msgid ""
+"\n"
+"        Welcome to %(project_title)s\n"
+"    "
 msgstr ""
 
 #, python-format
@@ -198,6 +205,9 @@ msgid "Cannot determine the entity type for \"{entity_type}\". Did you perhaps m
 msgstr ""
 
 msgid "Cannot determine the extension type for \"{extension_type}\". Did you perhaps make a typo, or could it be that the extension type comes from another package that is not yet installed?"
+msgstr ""
+
+msgid "Cannot find an available port to bind the web server to."
 msgstr ""
 
 msgid "Cannot find and import \"{entity_type}\"."
@@ -697,6 +707,9 @@ msgstr ""
 msgid "The entity reference must be for an entity of type {expected_entity_type_name} ({expected_entity_type_label}), but instead is for an entity of type {actual_entity_type_name} ({actual_entity_type_label})"
 msgstr ""
 
+msgid "The following errors occurred"
+msgstr ""
+
 msgid "The lifetime threshold must consist of digits only."
 msgstr ""
 
@@ -786,6 +799,9 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
+msgid "Unknown file format \".{extension}\". Supported formats are: {supported_formats}."
+msgstr ""
+
 msgid "Unknown key: {unknown_key}. Did you mean {known_keys}?"
 msgstr ""
 
@@ -809,10 +825,6 @@ msgid "View demo site..."
 msgstr ""
 
 msgid "View site"
-msgstr ""
-
-#, python-format
-msgid "Welcome to %(title)s"
 msgstr ""
 
 msgid "Welcome to Betty"
@@ -975,6 +987,15 @@ msgid "{entity_type_label} ID"
 msgstr ""
 
 msgid "{entity_type} {entity_id}"
+msgstr ""
+
+msgid "{event_type}"
+msgstr ""
+
+msgid "{event_type} ({event_description})"
+msgstr ""
+
+msgid "{event_type} ({event_description}) of {subjects}"
 msgstr ""
 
 msgid "{event_type} of {subjects}"

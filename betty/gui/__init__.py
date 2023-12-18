@@ -12,21 +12,23 @@ from betty.app import App
 from betty.error import UserFacingError
 from betty.gui.error import ExceptionError, UnexpectedExceptionError
 from betty.gui.locale import LocalizedWindow
-from betty.locale import Localizer
+from betty.locale import Str
 from betty.serde.format import FormatRepository
-
 
 QWidgetT = TypeVar('QWidgetT', bound=QWidget)
 
 
-def get_configuration_file_filter(localizer: Localizer) -> str:
-    formats = FormatRepository(localizer=localizer)
-    supported_formats = ', '.join([
-        f'.{extension} ({format.label})'
+def get_configuration_file_filter() -> Str:
+    formats = FormatRepository()
+    supported_formats = Str.call(lambda localizer: ', '.join([
+        f'.{extension} ({format.label.localize(localizer)})'
         for extension in formats.extensions
         for format in formats.formats
-    ])
-    return localizer._('Betty project configuration ({supported_formats})').format(supported_formats=supported_formats)
+    ]))
+    return Str._(
+        'Betty project configuration ({supported_formats})',
+        supported_formats=supported_formats,
+    )
 
 
 class GuiBuilder:
