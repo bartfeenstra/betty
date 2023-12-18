@@ -4,12 +4,24 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
-./bin/test-shellcheck
-./bin/test-flake8
-./bin/test-mypy
-./bin/test-stylelint
-./bin/test-eslint
+if [ -z "${BETTY_TEST_SKIP_SHELLCHECK-}" ]; then
+  ./bin/test-shellcheck
+fi
+if [ -z "${BETTY_TEST_SKIP_FLAKE8-}" ]; then
+  ./bin/test-flake8
+fi
+if [ -z "${BETTY_TEST_SKIP_MYPY-}" ]; then
+  ./bin/test-mypy
+fi
+if [ -z "${BETTY_TEST_SKIP_STYLELINT-}" ]; then
+  ./bin/test-stylelint
+fi
+if [ -z "${BETTY_TEST_SKIP_ESLINT-}" ]; then
+  ./bin/test-eslint
+fi
 ./bin/test-pytest
-./bin/test-cypress
+if [ -z "${BETTY_TEST_SKIP_CYPRESS-}" ]; then
+  ./bin/test-cypress
+fi
 ./bin/test-build-pyinstaller
 ./bin/test-build-setuptools
