@@ -349,6 +349,15 @@ Then, with this PO file editor, open and change the `*.po` file for the translat
 
 In any existing Python environment, run `./bin/test`.
 
+#### Environment variables
+These impact the `./bin/test` command:
+- `BETTY_TEST_SKIP_SHELLCHECK`: Skip ShellCheck tests.
+- `BETTY_TEST_SKIP_FLAKE8`: Skip Flake8 tests.
+- `BETTY_TEST_SKIP_MYPY`: Skip mypy tests.
+- `BETTY_TEST_SKIP_STYLELINT`: Skip Stylelint tests.
+- `BETTY_TEST_SKIP_ESLINT`: Skip ESLint tests.
+- `BETTY_TEST_SKIP_CYPRESS`: Skip Cypress tests.
+
 ### Fixing problems automatically
 
 In any existing Python environment, run `./bin/fix`.

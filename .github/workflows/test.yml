@@ -58,6 +58,7 @@ jobs:
             npm-${{ runner.os }}-
 
       - name: Cache Mypy
+        if: startsWith(runner.os, 'Linux')
         uses: actions/cache@v3
         with:
           path: ./.mypy_cache
@@ -96,24 +97,18 @@ jobs:
           )
           sudo apt-get install "${apt_packages[@]}"
 
-      - name: Install Homebrew dependencies
-        if: startsWith(runner.os, 'macOS')
-        run: brew install shellcheck
-
-      - name: Install Chocolatey dependencies
-        if: startsWith(runner.os, 'Windows')
-        run: choco install shellcheck
-
       - name: Build the development environment
         run: |
           ./bin/build-dev
         shell: bash
 
       - name: Get the Cypress cache directory
+        if: startsWith(runner.os, 'Linux')
         run: echo "cypress_cache_dir=$(./node_modules/.bin/cypress cache path)" >> $GITHUB_ENV
         shell: bash
 
       - name: Cache Cypress
+        if: startsWith(runner.os, 'Linux')
         uses: actions/cache@v3
         with:
           path: ${{ env.cypress_cache_dir }}
@@ -122,8 +117,15 @@ jobs:
             cypress-
 
       - name: Run the tests
+        if: startsWith(runner.os, 'Linux')
         run: |
           ./bin/test
+        shell: bash
+
+      - name: Run the tests
+        if: ${{ ! startsWith(runner.os, 'Linux') }}
+        run: |
+          BETTY_TEST_SKIP_SHELLCHECK=true BETTY_TEST_SKIP_FLAKE8=true BETTY_TEST_SKIP_MYPY=true BETTY_TEST_SKIP_STYLELINT=true BETTY_TEST_SKIP_ESLINT=true BETTY_TEST_SKIP_CYPRESS=true ./bin/test
         shell: bash
 
       - name: Upload code coverage
