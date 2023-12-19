@@ -295,7 +295,7 @@ from betty.load import load
 
 @sync
 async def generate():
-    with App() as app:
+    async with App() as app:
         await load(app)
         await generate(app)
 

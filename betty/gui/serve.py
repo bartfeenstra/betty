@@ -46,10 +46,6 @@ class _ServeThread(QThread):
         if server is not None:
             await server.stop()
 
-        app = self._app
-        if app is not None:
-            app.wait()
-
 
 class _ServeWindow(BettyWindow):
     window_width = 500

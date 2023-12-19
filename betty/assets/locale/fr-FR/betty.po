@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-12-18 17:07+0000\n"
+"POT-Creation-Date: 2023-12-18 22:34+0000\n"
 "PO-Revision-Date: 2020-11-27 19:49+0100\n"
 "Last-Translator: \n"
 "Language: fr\n"
@@ -467,9 +467,6 @@ msgid ""
 " and <a href=\"https://github.com/bartfeenstra/betty\">Github</a>."
 msgstr ""
 
-msgid "Forbidden"
-msgstr "Interdit"
-
 msgid "Funeral"
 msgstr "Funérailles"
 
@@ -486,6 +483,15 @@ msgid "Generated pages for {count} {entity_type} in {locale}."
 msgstr ""
 
 msgid "Generated the listing page for {entity_type} in {locale}."
+msgstr ""
+
+msgid "Generating OpenAPI specification..."
+msgstr ""
+
+msgid "Generating localized public files in {locale}..."
+msgstr ""
+
+msgid "Generating static public files..."
 msgstr ""
 
 msgid "Generating your site to {output_directory}."
@@ -593,9 +599,6 @@ msgstr "Manquant"
 
 msgid "New project..."
 msgstr ""
-
-msgid "Not found"
-msgstr "Non trouvé"
 
 msgid "Note"
 msgstr "Note"
@@ -712,14 +715,6 @@ msgstr "Résidence"
 msgid "Retirement"
 msgstr "Retraite"
 
-#, fuzzy
-msgid "Retrieve a single {entity_type} entity."
-msgstr "Récupération d'un seul {entity_type}."
-
-#, fuzzy
-msgid "Retrieve the collection of {entity_type} entities."
-msgstr "Récupération de l'ensemble des {entity_type}."
-
 msgid "Save and close"
 msgstr ""
 
@@ -765,9 +760,6 @@ msgstr ""
 msgid "Subject"
 msgstr "Sujet"
 
-msgid "The ID for the resource to retrieve."
-msgstr "L'ID de la ressource à récupérer."
-
 msgid "The age at which people are presumed dead."
 msgstr ""
 
@@ -784,10 +776,6 @@ msgid ""
 "\"private\", but \"{privacy_value}\" was given for {entity_type} "
 "{entity_id} ({entity_label}), which was ignored."
 msgstr ""
-
-#, fuzzy
-msgid "The collection of {entity_type} entities."
-msgstr "L'ensemble des {entity_type}."
 
 msgid ""
 "The entity reference must be for an entity of type "
@@ -810,9 +798,6 @@ msgstr ""
 
 #, python-format
 msgid "The translations for {locale_name} are {coverage_percentage}% complete."
-msgstr ""
-
-msgid "The {entity_type} entity."
 msgstr ""
 
 msgid "There are no translations for {locale_name}."
@@ -892,9 +877,6 @@ msgid ""
 "<code>/path/index.html</code>. This requires a web server that supports "
 "it."
 msgstr ""
-
-msgid "Unauthorized"
-msgstr "Non autorisé"
 
 msgid "Unknown"
 msgstr "Inconnu"

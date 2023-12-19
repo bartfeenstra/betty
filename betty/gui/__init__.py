@@ -13,21 +13,16 @@ from betty.error import UserFacingError
 from betty.gui.error import ExceptionError, UnexpectedExceptionError
 from betty.gui.locale import LocalizedWindow
 from betty.locale import Str
-from betty.serde.format import FormatRepository
+from betty.serde.format import FormatRepository, FormatStr
 
 QWidgetT = TypeVar('QWidgetT', bound=QWidget)
 
 
 def get_configuration_file_filter() -> Str:
     formats = FormatRepository()
-    supported_formats = Str.call(lambda localizer: ', '.join([
-        f'.{extension} ({format.label.localize(localizer)})'
-        for extension in formats.extensions
-        for format in formats.formats
-    ]))
     return Str._(
         'Betty project configuration ({supported_formats})',
-        supported_formats=supported_formats,
+        supported_formats=FormatStr(formats.formats),
     )
 
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from betty.deriver import Deriver
-from betty.locale import DateRange, Date, Datey, Str
+from betty.locale import DateRange, Date, Datey, Str, DEFAULT_LOCALIZER
 from betty.model import record_added
 from betty.model.ancestry import Person, Presence, Subject, Event, Ancestry
 from betty.model.event_type import DerivableEventType, CreatableDerivableEventType, EventType
@@ -97,7 +97,12 @@ class TestDeriver:
         ancestry.add(person)
 
         with record_added(ancestry) as added:
-            await Deriver(ancestry, DEFAULT_LIFETIME_THRESHOLD, _EVENT_TYPES).derive()
+            await Deriver(
+                ancestry,
+                DEFAULT_LIFETIME_THRESHOLD,
+                _EVENT_TYPES,
+                localizer=DEFAULT_LOCALIZER,
+            ).derive()
 
         assert 0 == len(added)
         assert 0 == len(person.presences)
@@ -118,7 +123,12 @@ class TestDeriver:
         ancestry.add(person)
 
         with record_added(ancestry) as added:
-            await Deriver(ancestry, DEFAULT_LIFETIME_THRESHOLD, _EVENT_TYPES).derive()
+            await Deriver(
+                ancestry,
+                DEFAULT_LIFETIME_THRESHOLD,
+                _EVENT_TYPES,
+                localizer=DEFAULT_LOCALIZER,
+            ).derive()
 
         assert 0 == len(added)
         assert 1 == len(person.presences)
@@ -141,7 +151,12 @@ class TestDeriver:
         ancestry.add(person)
 
         with record_added(ancestry) as added:
-            await Deriver(ancestry, DEFAULT_LIFETIME_THRESHOLD, _EVENT_TYPES).derive()
+            await Deriver(
+                ancestry,
+                DEFAULT_LIFETIME_THRESHOLD,
+                _EVENT_TYPES,
+                localizer=DEFAULT_LOCALIZER,
+            ).derive()
 
         assert 0 == len(added)
         assert derivable_event.date is None
@@ -217,7 +232,12 @@ class TestDeriver:
         ancestry.add(person)
 
         with record_added(ancestry) as added:
-            await Deriver(ancestry, DEFAULT_LIFETIME_THRESHOLD, {ComesBeforeDerivable}).derive()
+            await Deriver(
+                ancestry,
+                DEFAULT_LIFETIME_THRESHOLD,
+                {ComesBeforeDerivable},
+                localizer=DEFAULT_LOCALIZER,
+            ).derive()
 
         assert 0 == len(added)
         if expected_datey is None:
@@ -250,7 +270,12 @@ class TestDeriver:
         ancestry.add(person)
 
         with record_added(ancestry) as added:
-            await Deriver(ancestry, DEFAULT_LIFETIME_THRESHOLD, {ComesBeforeCreatableDerivable}).derive()
+            await Deriver(
+                ancestry,
+                DEFAULT_LIFETIME_THRESHOLD,
+                {ComesBeforeCreatableDerivable},
+                localizer=DEFAULT_LOCALIZER,
+            ).derive()
 
         if expected_datey is None:
             assert 0 == len(added)
@@ -337,7 +362,12 @@ class TestDeriver:
         ancestry.add(person)
 
         with record_added(ancestry) as added:
-            await Deriver(ancestry, DEFAULT_LIFETIME_THRESHOLD, {ComesAfterDerivable}).derive()
+            await Deriver(
+                ancestry,
+                DEFAULT_LIFETIME_THRESHOLD,
+                {ComesAfterDerivable},
+                localizer=DEFAULT_LOCALIZER,
+            ).derive()
 
         assert 0 == len(added)
         if expected_datey is None:
@@ -371,7 +401,12 @@ class TestDeriver:
         ancestry.add(person)
 
         with record_added(ancestry) as added:
-            await Deriver(ancestry, DEFAULT_LIFETIME_THRESHOLD, {ComesAfterCreatableDerivable}).derive()
+            await Deriver(
+                ancestry,
+                DEFAULT_LIFETIME_THRESHOLD,
+                {ComesAfterCreatableDerivable},
+                localizer=DEFAULT_LOCALIZER,
+            ).derive()
 
         if expected_datey is None:
             assert 0 == len(added)
@@ -409,7 +444,12 @@ class TestDeriver:
         ancestry.add(person)
 
         with record_added(ancestry) as added:
-            await Deriver(ancestry, DEFAULT_LIFETIME_THRESHOLD, {MayNotCreateComesAfterCreatableDerivable}).derive()
+            await Deriver(
+                ancestry,
+                DEFAULT_LIFETIME_THRESHOLD,
+                {MayNotCreateComesAfterCreatableDerivable},
+                localizer=DEFAULT_LOCALIZER,
+            ).derive()
 
         assert 0 == len(added)
         assert [*person.presences] == [presence]

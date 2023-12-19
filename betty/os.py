@@ -26,7 +26,7 @@ class ChDir:
     async def __aenter__(self) -> None:
         await self.change()
 
-    async def __aexit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
+    async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> None:
         await self.revert()
 
     async def change(self) -> None:

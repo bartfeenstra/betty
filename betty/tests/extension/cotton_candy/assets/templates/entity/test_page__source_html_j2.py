@@ -10,18 +10,21 @@ class TestTemplate(TemplateTestCase):
     extensions = {CottonCandy}
     template_file = 'entity/page--source.html.j2'
 
-    async def test_privacy(self) -> None:
+    async def test_privacy(self, tmp_path: Path) -> None:
+        file_path = tmp_path / 'file'
+        file_path.touch()
+
         source = Source()
         source.name = 'source name'
 
         public_file = File(
-            path=Path(),
+            path=file_path,
             description='public file description',
         )
         public_file.entities.add(source)
 
         private_file = File(
-            path=Path(),
+            path=file_path,
             private=True,
             description='private file description',
         )
@@ -34,13 +37,13 @@ class TestTemplate(TemplateTestCase):
         public_citation.source = source
 
         public_file_for_public_citation = File(
-            path=Path(),
+            path=file_path,
             description='public file for public citation description',
         )
         public_file_for_public_citation.entities.add(public_citation)
 
         private_file_for_public_citation = File(
-            path=Path(),
+            path=file_path,
             private=True,
             description='private file for public citation description',
         )
@@ -73,13 +76,13 @@ class TestTemplate(TemplateTestCase):
         private_citation.source = source
 
         public_file_for_private_citation = File(
-            path=Path(),
+            path=file_path,
             description='public file for private citation description',
         )
         public_file_for_private_citation.entities.add(private_citation)
 
         private_file_for_private_citation = File(
-            path=Path(),
+            path=file_path,
             private=True,
             description='private file for private citation description',
         )
@@ -108,13 +111,13 @@ class TestTemplate(TemplateTestCase):
         public_contained_source.contained_by = source
 
         public_file_for_public_contained_source = File(
-            path=Path(),
+            path=file_path,
             description='public file for public contained source description',
         )
         public_file_for_public_contained_source.entities.add(public_contained_source)
 
         private_file_for_public_contained_source = File(
-            path=Path(),
+            path=file_path,
             private=True,
             description='private file for public contained source description',
         )
@@ -127,13 +130,13 @@ class TestTemplate(TemplateTestCase):
         public_citation_for_public_contained_source.source = public_contained_source
 
         public_file_for_public_citation_for_public_contained_source = File(
-            path=Path(),
+            path=file_path,
             description='public file for public citation for public contained source description',
         )
         public_file_for_public_citation_for_public_contained_source.entities.add(public_citation_for_public_contained_source)
 
         private_file_for_public_citation_for_public_contained_source = File(
-            path=Path(),
+            path=file_path,
             private=True,
             description='private file for public citation for public contained source description',
         )
@@ -166,13 +169,13 @@ class TestTemplate(TemplateTestCase):
         private_citation_for_public_contained_source.source = public_contained_source
 
         public_file_for_private_citation_for_public_contained_source = File(
-            path=Path(),
+            path=file_path,
             description='public file for private citation for public contained source description',
         )
         public_file_for_private_citation_for_public_contained_source.entities.add(private_citation_for_public_contained_source)
 
         private_file_for_private_citation_for_public_contained_source = File(
-            path=Path(),
+            path=file_path,
             private=True,
             description='private file for private citation for public contained source description',
         )
@@ -204,13 +207,13 @@ class TestTemplate(TemplateTestCase):
         )
 
         public_file_for_private_contained_source = File(
-            path=Path(),
+            path=file_path,
             description='public file for private contained source description',
         )
         public_file_for_private_contained_source.entities.add(private_contained_source)
 
         private_file_for_private_contained_source = File(
-            path=Path(),
+            path=file_path,
             private=True,
             description='private file for private contained source description',
         )
@@ -223,13 +226,13 @@ class TestTemplate(TemplateTestCase):
         public_citation_for_private_contained_source.source = private_contained_source
 
         public_file_for_public_citation_for_private_contained_source = File(
-            path=Path(),
+            path=file_path,
             description='public file for public citation for private contained source description',
         )
         public_file_for_public_citation_for_private_contained_source.entities.add(public_citation_for_private_contained_source)
 
         private_file_for_public_citation_for_private_contained_source = File(
-            path=Path(),
+            path=file_path,
             private=True,
             description='private file for public citation for private contained source description',
         )
@@ -262,13 +265,13 @@ class TestTemplate(TemplateTestCase):
         private_citation_for_private_contained_source.source = private_contained_source
 
         public_file_for_private_citation_for_private_contained_source = File(
-            path=Path(),
+            path=file_path,
             description='public file for private citation for private contained source description',
         )
         public_file_for_private_citation_for_private_contained_source.entities.add(private_citation_for_private_contained_source)
 
         private_file_for_private_citation_for_private_contained_source = File(
-            path=Path(),
+            path=file_path,
             private=True,
             description='private file for private citation for private contained source description',
         )

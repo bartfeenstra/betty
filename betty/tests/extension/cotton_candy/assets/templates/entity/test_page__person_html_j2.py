@@ -39,7 +39,10 @@ class TestTemplate(TemplateTestCase):
             assert 'Descendant names include FamilyOneAssociationName.' in actual
             assert 'Descendant names include FamilyTwoAssociationName.' in actual
 
-    async def test_privacy(self) -> None:
+    async def test_privacy(self, tmp_path: Path) -> None:
+        file_path = tmp_path / 'file'
+        file_path.touch()
+
         person = Person()
         public_name_individual = 'person public individual'
         public_name_affiliation = 'person public affiliation'
@@ -155,11 +158,11 @@ class TestTemplate(TemplateTestCase):
         )
         private_child.parents = [person, public_partner, private_partner]  # type: ignore[assignment]
         public_file = File(
-            path=Path(),
+            path=file_path,
             description='public file description',
         )
         private_file = File(
-            path=Path(),
+            path=file_path,
             private=True,
             description='private file description',
         )

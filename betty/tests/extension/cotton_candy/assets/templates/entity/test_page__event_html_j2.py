@@ -11,17 +11,20 @@ class TestTemplate(TemplateTestCase):
     extensions = {CottonCandy}
     template_file = 'entity/page--event.html.j2'
 
-    async def test_privacy(self) -> None:
+    async def test_privacy(self, tmp_path: Path) -> None:
+        file_path = tmp_path / 'file'
+        file_path.touch()
+
         event = Event(event_type=UnknownEventType)
 
         public_file = File(
-            path=Path(),
+            path=file_path,
             description='public file description',
         )
         public_file.entities.add(event)
 
         private_file = File(
-            path=Path(),
+            path=file_path,
             private=True,
             description='private file description',
         )

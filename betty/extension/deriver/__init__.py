@@ -10,7 +10,7 @@ from betty.model.event_type import DerivableEventType
 class _Deriver(UserFacingExtension, PostLoader):
     async def post_load(self) -> None:
         logger = getLogger()
-        logger.info(Str._('Deriving...'))
+        logger.info(self._app.localizer._('Deriving...'))
 
         deriver = Deriver(
             self.app.project.ancestry,
@@ -21,6 +21,7 @@ class _Deriver(UserFacingExtension, PostLoader):
                 in self.app.event_types
                 if issubclass(event_type, DerivableEventType)
             },
+            localizer=self._app.localizer,
         )
         await deriver.derive()
 

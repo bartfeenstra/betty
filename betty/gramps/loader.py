@@ -15,7 +15,7 @@ from geopy import Point
 
 from betty.gramps.error import GrampsError
 from betty.load import getLogger
-from betty.locale import DateRange, Datey, Date, Str
+from betty.locale import DateRange, Datey, Date, Str, Localizer
 from betty.media_type import MediaType
 from betty.model import Entity, EntityGraphBuilder, AliasedEntity, AliasableEntity
 from betty.model.ancestry import Ancestry, Note, File, Source, Citation, Place, Event, Person, PersonName, Subject, \
@@ -43,6 +43,8 @@ class GrampsLoader:
     def __init__(
         self,
         ancestry: Ancestry,
+            *,
+            localizer: Localizer,
     ):
         super().__init__()
         self._ancestry = ancestry
@@ -51,12 +53,12 @@ class GrampsLoader:
         self._tree: ElementTree.ElementTree | None = None
         self._gramps_tree_directory_path: Path | None = None
         self._loaded = False
+        self._localizer = localizer
 
     async def load_file(self, file_path: Path) -> None:
         file_path = file_path.resolve()
         logger = getLogger()
-        logger.info(Str._(
-            'Loading "{file_path}"...',
+        logger.info(self._localizer._('Loading "{file_path}"...').format(
             file_path=str(file_path),
         ))
 

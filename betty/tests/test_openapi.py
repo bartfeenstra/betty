@@ -6,7 +6,6 @@ import pytest
 
 from betty.app import App
 from betty.fs import ASSETS_DIRECTORY_PATH
-from betty.locale import DEFAULT_LOCALE
 from betty.openapi import Specification
 
 
@@ -20,7 +19,7 @@ class TestSpecification:
             schema = stdjson.load(f)
         app = App()
         app.project.configuration.content_negotiation = content_negotiation
-        sut = Specification(app, DEFAULT_LOCALE)
+        sut = Specification(app)
         specification = sut.build()
         jsonschema.validate(specification, schema)
 

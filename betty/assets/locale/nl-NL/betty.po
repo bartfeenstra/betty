@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-12-18 17:07+0000\n"
+"POT-Creation-Date: 2023-12-18 22:34+0000\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -498,9 +498,6 @@ msgstr ""
 "Volg Betty op <a href=\"https://twitter.com/Betty_Project\">Twitter</a> "
 "en <a href=\"https://github.com/bartfeenstra/betty\">Github</a>."
 
-msgid "Forbidden"
-msgstr "Verboden"
-
 msgid "Funeral"
 msgstr "Uitvaart"
 
@@ -520,6 +517,15 @@ msgid "Generated the listing page for {entity_type} in {locale}."
 msgstr ""
 "Pagina met het overzicht van alle {entity_type} in het {locale} "
 "gegenereerd."
+
+msgid "Generating OpenAPI specification..."
+msgstr "OpenAPI-specificatie aan het genereren..."
+
+msgid "Generating localized public files in {locale}..."
+msgstr "Gelokaliseerde publieke bestanden in het {locale} aan het genereren..."
+
+msgid "Generating static public files..."
+msgstr "Statische publieke bestanden aan het genereren..."
 
 msgid "Generating your site to {output_directory}."
 msgstr "Bezig je site te genereren naar {output_directory}."
@@ -625,9 +631,6 @@ msgstr "Vermist"
 
 msgid "New project..."
 msgstr "Nieuw project..."
-
-msgid "Not found"
-msgstr "Niet gevonden"
 
 msgid "Note"
 msgstr "Aantekening"
@@ -744,12 +747,6 @@ msgstr "Woonplaats"
 msgid "Retirement"
 msgstr "Pensioen"
 
-msgid "Retrieve a single {entity_type} entity."
-msgstr "Haal een enkele {entity_type} op."
-
-msgid "Retrieve the collection of {entity_type} entities."
-msgstr "Haal de verzameling van {entity_type}-entiteiten op."
-
 msgid "Save and close"
 msgstr "Opslaan en sluiten"
 
@@ -795,9 +792,6 @@ msgstr "Stop de site"
 msgid "Subject"
 msgstr "Onderwerp"
 
-msgid "The ID for the resource to retrieve."
-msgstr "Het ID van het op te halen document."
-
 msgid "The age at which people are presumed dead."
 msgstr "De leeftijd waarop mensen overleden verondersteld worden"
 
@@ -816,9 +810,6 @@ msgid ""
 "\"private\", but \"{privacy_value}\" was given for {entity_type} "
 "{entity_id} ({entity_label}), which was ignored."
 msgstr ""
-
-msgid "The collection of {entity_type} entities."
-msgstr "De verzameling van {entity_type}-entiteiten."
 
 msgid ""
 "The entity reference must be for an entity of type "
@@ -846,9 +837,6 @@ msgstr "De levensgrens mag alleen uit cijfers bestaan."
 #, python-format
 msgid "The translations for {locale_name} are {coverage_percentage}% complete."
 msgstr "De vertalingen voor {locale_name} zijn {coverage_percentage}% compleet."
-
-msgid "The {entity_type} entity."
-msgstr "De {entity_type}-entiteit"
 
 msgid "There are no translations for {locale_name}."
 msgstr "Er zijn geen vertalingen voor {locale_name}."
@@ -928,9 +916,6 @@ msgstr ""
 "URL's zien eruit als <code>/path</code> in plaats van "
 "<code>/path/index.html</code>. Dit vereist een web server die dit "
 "ondersteunt."
-
-msgid "Unauthorized"
-msgstr "Onbevoegd"
 
 msgid "Unknown"
 msgstr "Onbekend"

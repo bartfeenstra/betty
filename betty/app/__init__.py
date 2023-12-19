@@ -1,15 +1,12 @@
 from __future__ import annotations
 
-import asyncio
 import os as stdos
 import weakref
-from concurrent.futures import Executor, ProcessPoolExecutor, Future
-from concurrent.futures.thread import ThreadPoolExecutor
 from contextlib import suppress
 from graphlib import CycleError, TopologicalSorter
 from pathlib import Path
 from types import TracebackType
-from typing import TYPE_CHECKING, Callable, Mapping, Any, Awaitable, ParamSpec, Self
+from typing import TYPE_CHECKING, Mapping, Self, final
 
 import aiohttp
 from reactives.instance import ReactiveInstance
@@ -19,12 +16,10 @@ from betty.app.extension import ListExtensions, Extension, Extensions, build_ext
     CyclicDependencyError, ExtensionDispatcher, ConfigurableExtension, discover_extension_types
 from betty.asyncio import sync, wait
 from betty.cache import Cache
-from betty.concurrent import ExceptionRaisingAwaitableExecutor
 from betty.config import Configurable, FileBasedConfiguration
 from betty.dispatch import Dispatcher
 from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH, HOME_DIRECTORY_PATH
 from betty.locale import LocalizerRepository, get_data, DEFAULT_LOCALE, Localizer, Str
-from betty.lock import Locks
 from betty.model import Entity, EntityTypeProvider
 from betty.model.ancestry import Citation, Event, File, Person, PersonName, Presence, Place, Enclosure, \
     Source, Note
@@ -43,9 +38,6 @@ if TYPE_CHECKING:
     from betty.url import StaticUrlGenerator, ContentNegotiationUrlGenerator
 
 CONFIGURATION_DIRECTORY_PATH = HOME_DIRECTORY_PATH / 'configuration'
-
-
-P = ParamSpec('P')
 
 
 class _AppExtensions(ListExtensions):
@@ -117,6 +109,7 @@ class AppConfiguration(FileBasedConfiguration):
         }, True)
 
 
+@final
 class App(Configurable[AppConfiguration], ReactiveInstance):
     def __init__(
         self,
@@ -124,6 +117,8 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         project: Project | None = None,
     ):
         super().__init__()
+        self._started = False
+        self._stopped = False
         self._configuration = configuration or AppConfiguration()
         self._assets: FileSystem | None = None
         self._extensions = _AppExtensions()
@@ -142,31 +137,45 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         self._static_url_generator: StaticUrlGenerator | None = None
         self._jinja2_environment: Environment | None = None
         self._renderer: Renderer | None = None
-        self.__thread_pool_executor: ExceptionRaisingAwaitableExecutor | None = None
-        self.__process_pool_executor: ExceptionRaisingAwaitableExecutor | None = None
-        self._locks = Locks()
         self._http_client: aiohttp.ClientSession | None = None
         self._cache: Cache | None = None
 
-    def __getstate__(self) -> None:
-        raise RuntimeError(f'{self.__class__} MUST NOT be pickled. Pickle {self.__class__}.project instead.')
-
-    def __copy__(self) -> Self:
-        raise RuntimeError(f'{self.__class__} MUST NOT be copied. Copy {self.__class__}.project instead.')
-
-    def __deepcopy__(self, _: dict[Any, Any]) -> None:
-        raise RuntimeError(f'{self.__class__} MUST NOT be copied. Copy {self.__class__}.project instead.')
-
-    def wait(self) -> None:
-        del self._thread_pool_executor
-        del self._process_pool_executor
-        del self.http_client
+    def __reduce__(self) -> tuple[
+        type[App],
+        tuple[
+            AppConfiguration,
+            Project,
+        ],
+    ]:
+        return (
+            App,
+            (
+                self._configuration,
+                self._project,
+            ),
+        )
 
     async def __aenter__(self) -> Self:
+        await self.start()
         return self
 
-    async def __aexit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
-        self.wait()
+    async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> None:
+        await self.stop()
+
+    async def start(self) -> None:
+        if self._started:
+            raise RuntimeError('This app has started already.')
+        self._started = True
+        self._stopped = False
+
+    async def stop(self) -> None:
+        self._stopped = True
+        del self.http_client
+        self._started = False
+
+    def __del__(self) -> None:
+        if self._started:
+            raise RuntimeError(f'{self} was started, but never stopped.')
 
     @property
     def project(self) -> Project:
@@ -318,47 +327,9 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         return self.concurrency ** 2
 
     @property
-    def _thread_pool_executor(self) -> Executor:
-        if self.__thread_pool_executor is None:
-            self.__thread_pool_executor = ExceptionRaisingAwaitableExecutor(ThreadPoolExecutor(self.async_concurrency))
-        return self.__thread_pool_executor
-
-    @_thread_pool_executor.deleter
-    def _thread_pool_executor(self) -> None:
-        if self.__thread_pool_executor is not None:
-            self.__thread_pool_executor.wait()
-
-    def wait_for_thread(self, task: Callable[P, None]) -> Awaitable[None]:
-        return asyncio.get_event_loop().run_in_executor(self._thread_pool_executor, task)
-
-    def delegate_to_thread(self, task: Callable[[], None]) -> Future[None]:
-        return self._thread_pool_executor.submit(task)
-
-    @property
-    def _process_pool_executor(self) -> Executor:
-        if self.__process_pool_executor is None:
-            self.__process_pool_executor = ExceptionRaisingAwaitableExecutor(ProcessPoolExecutor(self.concurrency))
-        return self.__process_pool_executor
-
-    @_process_pool_executor.deleter
-    def _process_pool_executor(self) -> None:
-        if self.__process_pool_executor is not None:
-            self.__process_pool_executor.wait()
-
-    def wait_for_process(self, task: Callable[[], None]) -> Awaitable[None]:
-        return asyncio.get_event_loop().run_in_executor(self._process_pool_executor, task)
-
-    def delegate_to_process(self, task: Callable[[], None]) -> Future[None]:
-        return self._process_pool_executor.submit(task)
-
-    @property
     def json_encoder(self) -> type[JSONEncoder]:
         from betty.json import JSONEncoder
         return lambda *args, **kwargs: JSONEncoder(self)  # type: ignore[return-value]
-
-    @property
-    def locks(self) -> Locks:
-        return self._locks
 
     @property
     @reactive_property(on_trigger_delete=True)

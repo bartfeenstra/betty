@@ -10,7 +10,7 @@ from typing import Iterable, Any
 from geopy import Point
 
 from betty.classtools import repr_instance
-from betty.locale import Localized, Datey, Str
+from betty.locale import Localized, Datey, Str, Localizable
 from betty.media_type import MediaType
 from betty.model import many_to_many, Entity, one_to_many, many_to_one, many_to_one_to_many, \
     MultipleTypesEntityCollection, EntityCollection, UserFacingEntity, EntityTypeAssociationRegistry, \
@@ -927,37 +927,29 @@ class Event(Dated, HasFiles, HasCitations, Described, HasMutablePrivacy, UserFac
 
     @property
     def label(self) -> Str:
+        format_kwargs: dict[str, str | Localizable] = {
+            'event_type': self._event_type.label(),
+        }
         subjects = [
             presence.person
             for presence
             in self.presences
             if presence.public and isinstance(presence.role, Subject) and presence.person is not None and presence.person.public
         ]
-        format_kwargs = {
-            'event_type': self._event_type.label(),
-        }
         if subjects:
             format_kwargs['subjects'] = Str.call(lambda localizer: ', '.join(person.label.localize(localizer) for person in subjects))
+        if self.description is not None:
+            format_kwargs['event_description'] = self.description
+
+        if subjects:
             if self.description is None:
-                return Str._(
-                    '{event_type} of {subjects}',
-                    **format_kwargs,
-                )
+                return Str._('{event_type} of {subjects}', **format_kwargs)
             else:
-                return Str._(
-                    '{event_type} ({event_description})',
-                    **format_kwargs,
-                )
+                return Str._('{event_type} ({event_description}) of {subjects}', **format_kwargs)
         if self.description is None:
-            return Str._(
-                '{event_type}',
-                **format_kwargs,
-            )
+            return Str._('{event_type}', **format_kwargs)
         else:
-            return Str._(
-                '{event_type} ({event_description}) of {subjects}',
-                **format_kwargs,
-            )
+            return Str._('{event_type} ({event_description})', **format_kwargs)
 
     def __getstate__(self) -> State:
         dict_state, slots_state = super().__getstate__()

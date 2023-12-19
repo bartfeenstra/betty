@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import json
-from typing import cast
+from typing import cast, Sequence
 
 import yaml
 
-from betty.locale import Str
+from betty.locale import Str, Localizer
 from betty.serde.dump import Dump, VoidableDump
 from betty.serde.load import FormatError
 
@@ -96,13 +96,20 @@ class FormatRepository:
         for format in self._formats:
             if extension in format.extensions:
                 return format
-        supported_formats = Str.call(lambda localizer: ', '.join([
-            f'.{extension} ({format.label.localize(localizer)})'
-            for extension in format.extensions
-            for format in self.formats
-        ]))
         raise FormatError(Str._(
             'Unknown file format ".{extension}". Supported formats are: {supported_formats}.',
             extension=extension,
-            supported_formats=supported_formats,
+            supported_formats=FormatStr(self.formats),
         ))
+
+
+class FormatStr(Str):
+    def __init__(self, formats: Sequence[Format]):
+        self._formats = formats
+
+    def localize(self, localizer: Localizer) -> str:
+        return ', '.join([
+            f'.{extension} ({format.label.localize(localizer)})'
+            for format in self._formats
+            for extension in format.extensions
+        ])

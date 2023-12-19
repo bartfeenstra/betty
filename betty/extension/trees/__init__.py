@@ -10,7 +10,7 @@ from aiofiles.os import makedirs
 from betty.app.extension import Extension, UserFacingExtension
 from betty.cache import CacheScope
 from betty.extension.npm import _Npm, NpmBuilder, npm
-from betty.generate import Generator
+from betty.generate import Generator, GenerationContext
 from betty.html import CssProvider, JsProvider
 from betty.locale import Str
 
@@ -24,7 +24,7 @@ class _Trees(UserFacingExtension, CssProvider, JsProvider, Generator, NpmBuilder
         await self.app.extensions[_Npm].install(type(self), working_directory_path)
         await npm(('run', 'webpack'), cwd=working_directory_path, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         await self._copy_npm_build(working_directory_path / 'webpack-build', assets_directory_path)
-        logging.getLogger().info(Str._('Built the interactive family trees.'))
+        logging.getLogger().info(self._app.localizer._('Built the interactive family trees.'))
 
     async def _copy_npm_build(self, source_directory_path: Path, destination_directory_path: Path) -> None:
         await makedirs(destination_directory_path, exist_ok=True)
@@ -35,7 +35,7 @@ class _Trees(UserFacingExtension, CssProvider, JsProvider, Generator, NpmBuilder
     def npm_cache_scope(cls) -> CacheScope:
         return CacheScope.BETTY
 
-    async def generate(self) -> None:
+    async def generate(self, task_context: GenerationContext) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
         await self._copy_npm_build(assets_directory_path, self.app.project.configuration.www_directory_path)
 

@@ -81,8 +81,7 @@ class TemplateTestCase:
             data['localizer'] = app.localizers[locale]
         async with app:
             app.project.configuration.extensions.enable(*self.extensions)
-            rendered = template_factory(app.jinja2_environment, template).render(**data)
-            app.wait()
+            rendered = await template_factory(app.jinja2_environment, template).render_async(**data)
         yield rendered, app
 
 
