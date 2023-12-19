@@ -1,5 +1,4 @@
 import json
-import sys
 from os import path
 from pathlib import Path
 
@@ -74,7 +73,6 @@ class TestBettyMainWindow:
 
 
 class TestWelcomeWindow:
-    @pytest.mark.skipif(sys.platform == 'darwin', reason='See https://github.com/bartfeenstra/betty/issues/982')
     async def test_open_project_with_invalid_file_should_error(
         self,
         assert_error: AssertError[ExceptionError],
