@@ -113,6 +113,7 @@ class Asserter:
             asserted_type: type[DumpType],
     ) -> Str:
         messages = {
+            None: Str._('This must be none/null.'),
             bool: Str._('This must be a boolean.'),
             int: Str._('This must be a whole number.'),
             float: Str._('This must be a decimal number.'),
@@ -148,6 +149,11 @@ class Asserter:
                         errors.append(e)
             raise errors
         return _assert_or
+
+    def assert_none(self) -> Assertion[Any, None]:
+        def _assert_none(value: Any) -> None:
+            self._assert_type(value, type(None))
+        return _assert_none
 
     def assert_bool(self) -> Assertion[Any, bool]:
         def _assert_bool(value: Any) -> bool:

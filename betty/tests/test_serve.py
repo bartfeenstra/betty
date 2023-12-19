@@ -5,7 +5,6 @@ import requests
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.locale import DEFAULT_LOCALIZER
 from betty.serve import BuiltinServer
 
 
@@ -17,7 +16,7 @@ class TestBuiltinServer:
         os.makedirs(app.project.configuration.www_directory_path)
         with open(app.project.configuration.www_directory_path / 'index.html', 'w') as f:
             f.write(content)
-        async with BuiltinServer(DEFAULT_LOCALIZER, app.project) as server:
+        async with BuiltinServer(app) as server:
             # Wait for the server to start.
             sleep(1)
             response = requests.get(server.public_url)

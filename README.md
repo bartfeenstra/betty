@@ -125,6 +125,10 @@ extensions:
         - file: ./gramps.gpkg
   betty.extension.HttpApiDoc: {}
   betty.extension.Maps: {}
+  betty.extension.Nginx:
+    configuration:
+      https: true
+      www_directory_path: /var/www/betty
   betty.extension.Privatizer: {}
   betty.extension.Trees: {}
   betty.extension.Wikipedia: {}
@@ -183,6 +187,18 @@ extensions:
   - `betty.extension.HttpApiDoc` (optional): Renders interactive and user-friendly HTTP API documentation
     using [ReDoc](https://github.com/Redocly/redoc).
   - `betty.extension.Maps` (optional): Renders interactive maps using [Leaflet](https://leafletjs.com/).
+  - `betty.extension.Nginx` (optional): Generates a [nginx](https://nginx.org) configuration file for your project's site,
+    and the ability to serve your site using nginx and [Docker](https://www.docker.com/) (requires Docker to be installed
+    on your system).
+
+    The Docker image does not currently support secure connections ([read more](https://github.com/bartfeenstra/betty/issues/1056)).
+    For HTTPS support, you will have to set up a separate web server to terminate SSL, and forward all traffic to the container over HTTP.
+
+    Configuration:
+    - `https` (optional): A boolean to enforce HTTPS in the nginx configuration.
+     Defaults to whether the project's base URL uses HTTPS.
+    - `www_directory_path` (optional): A string to override the WWW directory path in the nginx configuration.
+     Defaults to the project's WWW directory path.
   - `betty.extension.Privatizer` (optional): Marks living people private. Configuration: `{}`.
   - `betty.extension.Trees` (optional): Renders interactive ancestry trees using [Cytoscape.js](http://js.cytoscape.org/).
   - `betty.extension.Wikipedia` (optional): Lets templates and other extensions retrieve complementary Wikipedia

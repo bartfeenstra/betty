@@ -45,15 +45,21 @@ class SerdeErrorCollection(SerdeError):
     A collection of zero or more serialization or deserialization errors.
     """
 
-    def __init__(self):
+    def __init__(
+        self,
+        errors: list[SerdeError] | None = None,
+    ):
         super().__init__(Str._('The following errors occurred'))
-        self._errors: list[SerdeError] = []
+        self._errors: list[SerdeError] = errors or []
 
     def __iter__(self) -> Iterator[SerdeError]:
         yield from self._errors
 
     def localize(self, localizer: Localizer) -> str:
         return '\n\n'.join(map(lambda error: error.localize(localizer), self._errors))
+
+    def __reduce__(self) -> tuple[type[Self], tuple[list[SerdeError]]]:  # type: ignore[override]
+        return type(self), (self._errors,)
 
     def __len__(self) -> int:
         return len(self._errors)

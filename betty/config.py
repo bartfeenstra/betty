@@ -476,8 +476,7 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
                 item_dump, configuration_key = self._dump_key(item_dump)
                 if self._minimize_item_dump():
                     item_dump = minimize(item_dump)
-                if item_dump is not Void:
-                    dump[configuration_key] = item_dump
+                dump[configuration_key] = item_dump
         return minimize(dump)
 
     def prepend(self, *configurations: ConfigurationT) -> None:

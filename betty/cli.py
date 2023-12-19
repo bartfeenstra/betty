@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import logging
 import sys
-import time
 from contextlib import suppress, contextmanager
 from functools import wraps
 from pathlib import Path
@@ -24,7 +23,7 @@ from betty.gui.project import ProjectWindow
 from betty.locale import update_translations, init_translation, Str
 from betty.logging import CliHandler
 from betty.serde.load import AssertionFailed
-from betty.serve import ProjectServer
+from betty.serve import AppServer
 
 T = TypeVar('T')
 P = ParamSpec('P')
@@ -181,11 +180,10 @@ async def _clear_caches() -> None:
 @click.command(help='Explore a demonstration site.')
 @global_command
 async def _demo() -> None:
-    async with App() as app:
-        async with demo.DemoServer(app.localizer) as server:
-            await server.show()
-            while True:
-                time.sleep(999)
+    async with demo.DemoServer() as server:
+        await server.show()
+        while True:
+            await asyncio.sleep(999)
 
 
 @click.command(help="Open Betty's graphical user interface (GUI).")
@@ -221,7 +219,7 @@ async def _generate(app: App) -> None:
 @click.command(help='Serve a generated site.')
 @app_command
 async def _serve(app: App) -> None:
-    async with ProjectServer.get(app) as server:
+    async with AppServer.get(app) as server:
         await server.show()
         while True:
             await asyncio.sleep(999)
