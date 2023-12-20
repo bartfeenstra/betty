@@ -1,5 +1,5 @@
 import traceback
-from typing import TypeVar
+from typing import TypeVar, Self
 
 from betty.locale import Localizable, DEFAULT_LOCALIZER, Localizer
 
@@ -34,6 +34,9 @@ class UserFacingError(Exception, Localizable):
             message.localize(DEFAULT_LOCALIZER),
         )
         self._localizable_message = message
+
+    def __reduce__(self) -> tuple[type[Self], tuple[Localizable]]:
+        return type(self), (self._localizable_message,)
 
     def __str__(self) -> str:
         return self.localize(DEFAULT_LOCALIZER)

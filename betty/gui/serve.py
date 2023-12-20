@@ -11,7 +11,7 @@ from betty.gui import BettyWindow
 from betty.gui.error import catch_exceptions
 from betty.gui.text import Text
 from betty.project import Project
-from betty.serve import Server, ProjectServer
+from betty.serve import Server, AppServer
 
 
 class _ServeThread(QThread):
@@ -122,7 +122,7 @@ class _ServeWindow(BettyWindow):
 
 class ServeProjectWindow(_ServeWindow):
     def _server_name(self) -> str:
-        return ProjectServer.get(self._app).name()
+        return AppServer.get(self._app).name()
 
     @property
     def title(self) -> str:

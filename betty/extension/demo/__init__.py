@@ -1,18 +1,20 @@
 from __future__ import annotations
 
+from contextlib import AsyncExitStack
+
 from geopy import Point
 
 from betty import load, generate
 from betty.app import App
 from betty.app.extension import Extension
 from betty.load import Loader
-from betty.locale import Date, DateRange, Str, Localizer
+from betty.locale import Date, DateRange, Str
 from betty.model import Entity
 from betty.model.ancestry import Place, PlaceName, Person, Presence, Subject, PersonName, Link, Source, Citation, Event, \
     Enclosure
 from betty.model.event_type import Marriage, Birth, Death
 from betty.project import LocaleConfiguration, ExtensionConfiguration, EntityReference
-from betty.serve import Server, ProjectServer, NoPublicUrlBecauseServerNotStartedError
+from betty.serve import Server, AppServer, NoPublicUrlBecauseServerNotStartedError
 
 
 class _Demo(Extension, Loader):
@@ -359,9 +361,19 @@ class _Demo(Extension, Loader):
 
 
 class DemoServer(Server):
-    def __init__(self, localizer: Localizer):
-        super().__init__(localizer)
+    def __init__(self):
+        self._app = App()
+        super().__init__(self._app.localizer)
+        self._app.project.configuration.extensions.append(ExtensionConfiguration(_Demo))
+        # Include all of the translations Betty ships with.
+        self._app.project.configuration.locales.replace(
+            LocaleConfiguration('en-US', 'en'),
+            LocaleConfiguration('nl-NL', 'nl'),
+            LocaleConfiguration('fr-FR', 'fr'),
+            LocaleConfiguration('uk', 'uk'),
+        )
         self._server: Server | None = None
+        self._exit_stack = AsyncExitStack()
 
     @classmethod
     def label(cls) -> Str:
@@ -374,21 +386,17 @@ class DemoServer(Server):
         raise NoPublicUrlBecauseServerNotStartedError()
 
     async def start(self) -> None:
-        app = App()
-        app.project.configuration.extensions.append(ExtensionConfiguration(_Demo))
-        # Include all of the translations Betty ships with.
-        app.project.configuration.locales.replace(
-            LocaleConfiguration('en-US', 'en'),
-            LocaleConfiguration('nl-NL', 'nl'),
-            LocaleConfiguration('fr-FR', 'fr'),
-            LocaleConfiguration('uk', 'uk'),
-        )
-        await load.load(app)
-        self._server = ProjectServer.get(app)
-        await self._server.start()
-        app.project.configuration.base_url = self._server.public_url
-        await generate.generate(app)
+        try:
+            await super().start()
+            await self._exit_stack.enter_async_context(self._app)
+            await load.load(self._app)
+            self._server = AppServer.get(self._app)
+            await self._exit_stack.enter_async_context(self._server)
+            self._app.project.configuration.base_url = self._server.public_url
+            await generate.generate(self._app)
+        finally:
+            await self.stop()
 
     async def stop(self) -> None:
-        if self._server:
-            await self._server.stop()
+        await self._exit_stack.aclose()
+        await super().stop()

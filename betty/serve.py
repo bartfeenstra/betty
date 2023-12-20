@@ -15,7 +15,6 @@ from betty.app import App
 from betty.asyncio import sync
 from betty.error import UserFacingError
 from betty.locale import Str, Localizer
-from betty.project import Project
 
 DEFAULT_PORT = 8000
 
@@ -53,7 +52,7 @@ class Server:
         """
         Starts the server.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
     async def show(self) -> None:
         """
@@ -68,7 +67,7 @@ class Server:
         """
         Stops the server.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
     @property
     def public_url(self) -> str:
@@ -82,20 +81,20 @@ class Server:
         await self.stop()
 
 
-class ProjectServer(Server):
-    def __init__(self, localizer: Localizer, project: Project) -> None:
-        super().__init__(localizer)
-        self._project = project
+class AppServer(Server):
+    def __init__(self, app: App) -> None:
+        super().__init__(app.localizer)
+        self._app = app
 
     @staticmethod
-    def get(app: App) -> ProjectServer:
+    def get(app: App) -> AppServer:
         for server in app.servers.values():
-            if isinstance(server, ProjectServer):
+            if isinstance(server, AppServer):
                 return server
         raise RuntimeError(f'Cannot find a project server. This must never happen, because {BuiltinServer} should be the fallback.')
 
     async def start(self) -> None:
-        await makedirs(self._project.configuration.www_directory_path, exist_ok=True)
+        await makedirs(self._app.project.configuration.www_directory_path, exist_ok=True)
         await super().start()
 
 
@@ -111,9 +110,9 @@ class _BuiltinServerRequestHandler(SimpleHTTPRequestHandler):
         super().end_headers()
 
 
-class BuiltinServer(ProjectServer):
-    def __init__(self, localizer: Localizer, project: Project) -> None:
-        super().__init__(localizer, project)
+class BuiltinServer(AppServer):
+    def __init__(self, app: App) -> None:
+        super().__init__(app)
         self._http_server: HTTPServer | None = None
         self._port: int | None = None
         self._thread: threading.Thread | None = None
@@ -123,6 +122,7 @@ class BuiltinServer(ProjectServer):
         return Str._('Python built-in')
 
     async def start(self) -> None:
+        await super().start()
         logging.getLogger().info(self._localizer._("Starting Python's built-in web server..."))
         for self._port in range(DEFAULT_PORT, 65535):
             with contextlib.suppress(OSError):
@@ -132,13 +132,13 @@ class BuiltinServer(ProjectServer):
                         request,
                         client_address,
                         server,
-                        directory=str(self._project.configuration.www_directory_path),
+                        directory=str(self._app.project.configuration.www_directory_path),
                     ),
                 )
                 break
         if self._http_server is None:
             raise OsError(Str._('Cannot find an available port to bind the web server to.'))
-        self._thread = threading.Thread(target=self._serve, args=(self._project,))
+        self._thread = threading.Thread(target=self._serve)
         self._thread.start()
 
     @property
@@ -148,12 +148,13 @@ class BuiltinServer(ProjectServer):
         raise NoPublicUrlBecauseServerNotStartedError()
 
     @sync
-    async def _serve(self, project: Project) -> None:
+    async def _serve(self) -> None:
         with contextlib.redirect_stderr(StringIO()):
             assert self._http_server
             self._http_server.serve_forever()
 
     async def stop(self) -> None:
+        await super().stop()
         if self._http_server is not None:
             self._http_server.shutdown()
             self._http_server.server_close()

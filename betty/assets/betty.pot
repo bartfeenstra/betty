@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-12-18 22:34+0000\n"
+"POT-Creation-Date: 2023-12-19 18:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -398,6 +398,9 @@ msgstr ""
 msgid "General"
 msgstr ""
 
+msgid "Generate <a href=\"\">nginx</a> configuration for your site, as well as a <code>Dockerfile</code> to build a <a href=\"https://www.docker.com/\">Docker</a> container around it."
+msgstr ""
+
 msgid "Generate entity listing pages"
 msgstr ""
 
@@ -758,6 +761,9 @@ msgid "This must be a string."
 msgstr ""
 
 msgid "This must be a whole number."
+msgstr ""
+
+msgid "This must be none/null."
 msgstr ""
 
 msgid "This person's details are unavailable to protect their privacy."

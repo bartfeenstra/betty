@@ -118,7 +118,6 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
     ):
         super().__init__()
         self._started = False
-        self._stopped = False
         self._configuration = configuration or AppConfiguration()
         self._assets: FileSystem | None = None
         self._extensions = _AppExtensions()
@@ -166,12 +165,10 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         if self._started:
             raise RuntimeError('This app has started already.')
         self._started = True
-        self._stopped = False
 
     async def stop(self) -> None:
-        self._stopped = True
-        del self.http_client
         self._started = False
+        del self.http_client
 
     def __del__(self) -> None:
         if self._started:
@@ -413,8 +410,8 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
                     if isinstance(extension, serve.ServerProvider)
                     for server in extension.servers
                 ),
-                serve.BuiltinServer(self.localizer, self.project),
-                DemoServer(self.localizer),
+                serve.BuiltinServer(self),
+                DemoServer(),
             ]
         }
 

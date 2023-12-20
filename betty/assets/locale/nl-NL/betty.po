@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-12-18 22:34+0000\n"
+"POT-Creation-Date: 2023-12-19 18:46+0000\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -504,6 +504,12 @@ msgstr "Uitvaart"
 msgid "General"
 msgstr "Algemeen"
 
+msgid ""
+"Generate <a href=\"\">nginx</a> configuration for your site, as well as a"
+" <code>Dockerfile</code> to build a <a "
+"href=\"https://www.docker.com/\">Docker</a> container around it."
+msgstr "Genereer <a href=\"\">nginx</a>-configuratie voor je site, evenals een <code>Dockerfile</code> om er een <a href=\"https://www.docker.com/\">Docker</a>-container omheen te bouwen."
+
 msgid "Generate entity listing pages"
 msgstr "Genereer pagina's met entiteitsoverzichten"
 
@@ -889,6 +895,9 @@ msgstr "Dit moet een tekenreeks zijn."
 
 msgid "This must be a whole number."
 msgstr "Dit moet een geheel getal zijn."
+
+msgid "This must be none/null."
+msgstr "Dit moet none/null zijn."
 
 msgid "This person's details are unavailable to protect their privacy."
 msgstr "De gegevens van deze persoon zijn niet beschikbaar vanwege privacyredenen."

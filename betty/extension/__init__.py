@@ -6,6 +6,7 @@ from betty.extension.deriver import _Deriver
 from betty.extension.gramps import _Gramps
 from betty.extension.http_api_doc import _HttpApiDoc
 from betty.extension.maps import _Maps
+from betty.extension.nginx import _Nginx
 from betty.extension.privatizer import _Privatizer
 from betty.extension.trees import _Trees
 from betty.extension.wikipedia import _Wikipedia
@@ -32,6 +33,10 @@ class HttpApiDoc(_HttpApiDoc):
 
 
 class Maps(_Maps):
+    pass
+
+
+class Nginx(_Nginx):
     pass
 
 

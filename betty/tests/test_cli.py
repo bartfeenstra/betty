@@ -13,11 +13,11 @@ from pytest_mock import MockerFixture
 
 from betty import fs
 from betty.error import UserFacingError
-from betty.locale import DEFAULT_LOCALIZER, Str
+from betty.locale import Str
 from betty.os import ChDir
-from betty.project import ProjectConfiguration, ExtensionConfiguration, Project
+from betty.project import ProjectConfiguration, ExtensionConfiguration
 from betty.serde.dump import Dump
-from betty.serve import ProjectServer
+from betty.serve import AppServer
 from betty.tests import patch_cache
 
 try:
@@ -166,7 +166,7 @@ class TestClearCaches:
 
 class TestDemo:
     async def test(self, mocker: MockerFixture) -> None:
-        mocker.patch('betty.serve.BuiltinServer', new_callable=lambda: _KeyboardInterruptedProjectServer)
+        mocker.patch('betty.serve.BuiltinServer', new_callable=lambda: _KeyboardInterruptedAppServer)
         mocker.patch('webbrowser.open_new_tab')
         runner = CliRunner()
         result = runner.invoke(main, ('demo',), catch_exceptions=False)
@@ -199,9 +199,9 @@ class TestGenerate:
         assert {} == render_kwargs
 
 
-class _KeyboardInterruptedProjectServer(ProjectServer):
+class _KeyboardInterruptedAppServer(AppServer):
     def __init__(self, *_: Any, **__: Any):
-        super().__init__(DEFAULT_LOCALIZER, Project())
+        super().__init__(App())
 
     async def start(self) -> None:
         raise KeyboardInterrupt
@@ -209,7 +209,7 @@ class _KeyboardInterruptedProjectServer(ProjectServer):
 
 class Serve:
     async def test(self, mocker: MockerFixture) -> None:
-        mocker.patch('betty.serve.BuiltinServer', new_callable=lambda: _KeyboardInterruptedProjectServer)
+        mocker.patch('betty.serve.BuiltinServer', new_callable=lambda: _KeyboardInterruptedAppServer)
         configuration = ProjectConfiguration()
         await configuration.write()
         os.makedirs(configuration.www_directory_path)
