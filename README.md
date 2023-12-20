@@ -11,14 +11,17 @@ Betty helps you visualize and publish your family history by building interactiv
 - [Installation](#installation)
 - [Usage](#usage)
   - [The command line](#the-command-line)
-  - [Configuration files](#configuration-files)
+  - [The desktop application](#the-desktop-application)
+  - [Projects](#projects)
+    - [Project configuration files](#project-configuration-files)
+  - [Application configuration file](#application-configuration-file)
   - [Translations](#translations)
   - [Gramps](#gramps)
   - [GEDCOM files](#gedcom-files)
   - [The Python API](#the-python-api)
 - [Development](#development)
-- [Contributions](#contributions)
-- [License](#license)
+- [Contributions](#contributions-)
+- [Copyright & license](#copyright--license)
 
 ## Features
 
@@ -37,12 +40,12 @@ secure**.
 
 ### Requirements
 
-Linux, Mac OS, or Windows
+Linux, Mac OS, or Windows.
 
 ### Install the desktop application
-For Mac OS, download [betty.app](https://github.com/bartfeenstra/betty/releases/download/0.3.x-dev/betty.app.zip)
+For Mac OS, [download](https://github.com/bartfeenstra/betty/releases) `betty.app.zip`.
 
-For Windows, download [betty.exe](https://github.com/bartfeenstra/betty/releases/download/0.3.x-dev/betty.exe.zip)
+For Windows, [download](https://github.com/bartfeenstra/betty/releases) `betty.exe.zip`.
 
 ### Install via pip
 
@@ -85,9 +88,27 @@ Commands:
   serve                Serve a generated site.
 ```
 
-### Configuration files
+### The desktop application
 
-Configuration files are written in YAML (`*.yaml` or `*.yml`) or JSON (`*.json`):
+You can [download](https://github.com/bartfeenstra/betty/releases) Betty as Mac OS and Windows
+desktop applications.
+
+If you have installed Betty as a command line application, run `betty gui` to launch the desktop
+application.
+
+### Projects
+
+A project contains all the information necessary to turn a family tree into a site. After installing 
+Betty once, you can manage multiple projects.
+
+You can create and tailer projects through the Betty desktop application, or through the command 
+line using configuration files.
+
+#### Project configuration files
+
+Project configuration files are written in YAML (`betty.yaml` or `betty.yml`) or JSON (`betty.json`)
+and are placed in the root of the project directory. Both YAML and JSON files follow the exact same
+structure. An example YAML configuration:
 
 ```yaml
 base_url: https://ancestry.example.com
@@ -142,15 +163,15 @@ extensions:
   Defaults to `false`.
 - `content_negotiation` (optional): Enables dynamic content negotiation, but requires a web server
   that supports it. This implies `clean_urls`. Defaults to `false`
-- `title` (optional): The site's title.
-- `author` (optional): The site's author and copyright holder.
+- `title` (optional): The project's title.
+- `author` (optional): The project's author and copyright holder.
 - `lifetime_threshold` (optional); The number of years people are expected to live at most, e.g. after which they're
   presumed to have died. Defaults to `125`.
 - `locales` (optional); An array of locales, each of which is an object with the following keys:
   - `locale`(required): An [IETF BCP 47](https://tools.ietf.org/html/bcp47) language tag.
   - `alias` (optional): A shorthand alias to use instead of the full language tag, such as when rendering URLs.
 
-  If no locales are defined, Betty defaults to US English.
+  If no locales are specified, Betty defaults to US English.
 - `entity_types` (optional): Keys are entity type names, and values are objects containing the following keys:
   - `generate_html_list` (optional): Whether to generate the HTML page to list entities of this type. Defaults to
     `false`.
@@ -204,6 +225,24 @@ extensions:
   - `betty.extension.Wikipedia` (optional): Lets templates and other extensions retrieve complementary Wikipedia
     entries.
 
+### Application configuration file
+
+Betty also uses global application configuration for settings that do not impact your projects, such
+as the language you want to use Betty in, e.g. for the desktop application and logs. This configuration
+can be managed through the desktop application as well as through a configuration file.
+
+The application configuration file is written in JSON and placed at `$HOME/.betty/configuration/app.json`.
+An example configuration:
+
+```json
+{
+  "locale": "nl-NL"
+}
+```
+
+- `locale` (optional): An [IETF BCP 47](https://tools.ietf.org/html/bcp47) language tag.
+  If no locale is specified, Betty defaults to US English. 
+
 ### Translations
 
 Betty ships with the following translations:
@@ -213,7 +252,7 @@ Betty ships with the following translations:
 - French (`fr-FR`)
 - Ukrainian (`uk`)
 
-Extensions and sites can override these translations, or provide translations for additional locales.
+Extensions and projects can override these translations, or provide translations for additional locales.
 
 ### Gramps
 
@@ -319,7 +358,7 @@ async def generate():
 
 ### Environment variables
 - `BETTY_CONCURRENCY`: The concurrency factor expressed as an integer. Defaults to the number of CPU cores. Set to `1`
-  to disable concurrency altogether.
+  to disable concurrency altogether. Example: `BETTY_CONCURRENCY=4`. 
 
 ## Development
 
@@ -367,12 +406,12 @@ In any existing Python environment, run `./bin/test`.
 
 #### Environment variables
 These impact the `./bin/test` command:
-- `BETTY_TEST_SKIP_SHELLCHECK`: Skip ShellCheck tests.
-- `BETTY_TEST_SKIP_FLAKE8`: Skip Flake8 tests.
-- `BETTY_TEST_SKIP_MYPY`: Skip mypy tests.
-- `BETTY_TEST_SKIP_STYLELINT`: Skip Stylelint tests.
-- `BETTY_TEST_SKIP_ESLINT`: Skip ESLint tests.
-- `BETTY_TEST_SKIP_CYPRESS`: Skip Cypress tests.
+- `BETTY_TEST_SKIP_SHELLCHECK=true`: Skip ShellCheck tests.
+- `BETTY_TEST_SKIP_FLAKE8=true`: Skip Flake8 tests.
+- `BETTY_TEST_SKIP_MYPY=true`: Skip mypy tests.
+- `BETTY_TEST_SKIP_STYLELINT=true`: Skip Stylelint tests.
+- `BETTY_TEST_SKIP_ESLINT=true`: Skip ESLint tests.
+- `BETTY_TEST_SKIP_CYPRESS=true`: Skip Cypress tests.
 
 ### Fixing problems automatically
 
