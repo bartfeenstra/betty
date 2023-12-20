@@ -4,4 +4,10 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
+# Install Python dependencies.
+pip install -e '.[pyinstaller]'
+
+# Install JavaScript dependencies.
+npm install
+
 pyinstaller ./pyinstaller.spec
