@@ -7,7 +7,6 @@ on:
 
 jobs:
   pyinstaller:
-    needs: create-release
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
