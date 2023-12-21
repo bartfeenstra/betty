@@ -14,9 +14,10 @@ jobs:
           - name: Mac OS
             os: macos-latest
             dist_file_name: betty.app
+            dist_file_description: Mac OS desktop application
           - name: Windows
             os: windows-latest
-            dist_file_name: betty.exe
+            dist_file_description: Windows desktop application
     steps:
       - name: Check out the source code
         uses: actions/checkout@v3
@@ -64,7 +65,7 @@ jobs:
         run: Compress-Archive .\dist\${{ matrix.dist_file_name }} .\dist\${{ matrix.dist_file_name }}.zip
 
       - name: Publish the executable
-        run: gh release upload ${{ github.event.release.tag_name }} ./dist/${{ matrix.dist_file_name }}.zip --clobber
+        run: gh release upload ${{ github.event.release.tag_name }} ./dist/${{ matrix.dist_file_name }}.zip%#%${{ matrix.dist_file_description }} --clobber
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
