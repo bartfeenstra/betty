@@ -37,7 +37,7 @@ def get_data_paths() -> dict[str, Iterator[Path]]:
             'betty': filter(is_data_file, [
                 Path('py.typed'),
                 *map(Path, glob('assets/**', recursive=True)),
-                *map(Path, glob('*/assets/**', recursive=True)),
+                *map(Path, glob('extension/*/assets/**', recursive=True)),
             ]),
         }
     finally:
