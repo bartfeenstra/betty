@@ -1,0 +1,65 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    assignees:
+      - bartfeenstra
+    commit-message:
+      prefix: Github Actions dependencies
+      include: scope
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+    assignees:
+      - bartfeenstra
+    commit-message:
+      prefix: pip dependencies
+      include: scope
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    assignees:
+      - bartfeenstra
+    commit-message:
+      prefix: npm dependencies (development)
+      include: scope
+  - package-ecosystem: npm
+    directory: betty/extension/cotton_candy/assets/betty.extension.npm._Npm/src/
+    schedule:
+      interval: weekly
+    assignees:
+      - bartfeenstra
+    commit-message:
+      prefix: npm dependencies (Cotton Candy extension)
+      include: scope
+  - package-ecosystem: npm
+    directory: betty/extension/http_api_doc/assets/betty.extension.npm._Npm/src/
+    schedule:
+      interval: weekly
+    assignees:
+      - bartfeenstra
+    commit-message:
+      prefix: npm dependencies (HttpApiDoc extension)
+      include: scope
+  - package-ecosystem: npm
+    directory: betty/extension/maps/assets/betty.extension.npm._Npm/src/
+    schedule:
+      interval: weekly
+    assignees:
+      - bartfeenstra
+    commit-message:
+      prefix: npm dependencies (Maps extension)
+      include: scope
+  - package-ecosystem: npm
+    directory: betty/extension/trees/assets/betty.extension.npm._Npm/src/
+    schedule:
+      interval: weekly
+    assignees:
+      - bartfeenstra
+    commit-message:
+      prefix: npm dependencies (Trees extension)
+      include: scope
