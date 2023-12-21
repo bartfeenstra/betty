@@ -1,0 +1,75 @@
+name: Build PyInstaller artifacts (Pull Request)
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+jobs:
+  pyinstaller:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - name: Mac OS
+            os: macos-latest
+            dist_file_name: betty.app
+            notification_icon: 🍎
+            notification_os: Mac OS
+          - name: Windows
+            os: windows-latest
+            dist_file_name: betty.exe
+            notification_icon: 🪟
+            notification_os: Windows
+    steps:
+      - name: Check out the source code
+        uses: actions/checkout@v3
+
+      - name: Get the pip cache directory
+        run: echo "pip_cache_dir=$(pip cache dir)" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.pip_cache_dir }}
+          key: pip-${{ runner.os }}-${{ matrix.python }}-${{ hashFiles('./setup.py') }}
+          restore-keys: |
+            pip-${{ runner.os }}-${{ matrix.python }}-
+
+      - name: Get the npm cache directory
+        run: echo "npm_cache_dir=$(npm config get cache)" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Cache npm
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.npm_cache_dir }}
+          key: npm-${{ runner.os }}-${{ hashFiles('./package.json') }}
+          restore-keys: |
+            npm-${{ runner.os }}-
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Build the executable
+        run: ./bin/build-pyinstaller
+        shell: bash
+
+      - name: Publish the executable
+        id: artifact-upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.dist_file_name }}
+          path: ./dist/${{ matrix.dist_file_name }}
+
+      - name: Notify collaborators of the release
+        run: |
+          gh pr comment '${{ github.event.pull_request.number }}' -b $'Uploaded [${{ matrix.dist_file_name }}](https://github.com/bartfeenstra/betty/actions/runs/${{ github.run_id }}/artifacts/${{ steps.artifact-upload.outputs.artifact-id }}) for commit ${{ github.event.pull_request.head.sha }}. You can download it, test it on **${{ matrix.notification_os }}** ${{ matrix.notification_icon }}, and post your feedback in a comment to this pull request 💕\n\nThe download will stop working after at most 90 days.'
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -4,6 +4,12 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
+# Install Python dependencies.
+pip install -e '.[setuptools]'
+
+# Install JavaScript dependencies.
+npm install
+
 # Prepare the workspace directories.
 rm -rf betty.egg-info build dist
 

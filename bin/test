@@ -23,5 +23,7 @@ fi
 if [ -z "${BETTY_TEST_SKIP_CYPRESS-}" ]; then
   ./bin/test-cypress
 fi
-./bin/test-build-pyinstaller
+if [ -z "${BETTY_TEST_SKIP_PYINSTALLER-}" ]; then
+  ./bin/test-build-pyinstaller
+fi
 ./bin/test-build-setuptools

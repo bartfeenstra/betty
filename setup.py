@@ -11,6 +11,49 @@ with open(ROOT_DIRECTORY_PATH / 'betty' / 'assets' / 'VERSION', encoding='utf-8'
 with open(ROOT_DIRECTORY_PATH / 'README.md', encoding='utf-8') as f:
     long_description = f.read()
 
+
+extras_require_pyinstaller = [
+    'pyinstaller ~= 6.1, >= 6.1.0',
+]
+
+
+extras_require_setuptools = [
+    'setuptools ~= 68.2, >= 68.2.2',
+    'twine ~= 4.0, >= 4.0.0',
+    'wheel ~= 0.40, >= 0.40.0',
+]
+
+
+extras_require_development = [
+    'aioresponses ~= 0.7, >= 0.7.6',
+    'autopep8 ~= 2.0, >= 2.0.2',
+    'basedmypy ~= 2.0, >= 2.2.1',
+    'codecov ~= 2.1, >= 2.1.12',
+    'coverage ~= 7.2, >= 7.2.4',
+    'flake8 ~= 6.0, >= 6.0.0',
+    'html5lib ~= 1.1',
+    'lxml ~= 4.9, >= 4.9.1; sys.platform != "win32"',
+    'pip-licenses ~= 4.3, >= 4.3.0',
+    'pytest ~= 7.3, >= 7.3.1',
+    'pytest-aioresponses ~= 0.2, >= 0.2.0 ',
+    'pytest-asyncio ~= 0.21, >= 0.21.0 ',
+    'pytest-cov ~= 4.0, >= 4.0.0',
+    'pytest-mock ~= 3.10, >= 3.10.0',
+    'pytest-qt ~= 4.2, >= 4.2.0',
+    'pytest-repeat ~= 0.9, >= 0.9.1',
+    'pytest-xvfb ~= 3.0, >= 3.0.0',
+    'types-aiofiles ~= 23.2, >= 23.2.0.0',
+    'types-click ~= 7.1, >= 7.1.8',
+    'types-mock ~= 5.0, >= 5.0.0.6',
+    'types-polib ~= 1.2, >= 1.2.0.0',
+    'types-pyyaml ~= 6.0, >= 6.0.6',
+    'types-requests ~= 2.29, >= 2.29.0.0',
+    'types-setuptools ~= 68.2, >= 68.2.0.0',
+    *extras_require_pyinstaller,
+    *extras_require_setuptools,
+]
+
+
 SETUP = {
     'name': 'betty',
     'description': 'Betty helps you visualize and publish your family history by building interactive genealogy websites out of your Gramps and GECOM family trees',
@@ -67,36 +110,8 @@ SETUP = {
         'reactives ~= 0.5, >= 0.5.1',
     ],
     'extras_require': {
-        'development': [
-            'aioresponses ~= 0.7, >= 0.7.6',
-            'autopep8 ~= 2.0, >= 2.0.2',
-            'basedmypy ~= 2.0, >= 2.2.1',
-            'codecov ~= 2.1, >= 2.1.12',
-            'coverage ~= 7.2, >= 7.2.4',
-            'flake8 ~= 6.0, >= 6.0.0',
-            'html5lib ~= 1.1',
-            'lxml ~= 4.9, >= 4.9.1; sys.platform != "win32"',
-            'pip-licenses ~= 4.3, >= 4.3.0',
-            'pyinstaller ~= 6.1, >= 6.1.0',
-            'pytest ~= 7.3, >= 7.3.1',
-            'pytest-aioresponses ~= 0.2, >= 0.2.0 ',
-            'pytest-asyncio ~= 0.21, >= 0.21.0 ',
-            'pytest-cov ~= 4.0, >= 4.0.0',
-            'pytest-mock ~= 3.10, >= 3.10.0',
-            'pytest-qt ~= 4.2, >= 4.2.0',
-            'pytest-repeat ~= 0.9, >= 0.9.1',
-            'pytest-xvfb ~= 3.0, >= 3.0.0',
-            'setuptools ~= 68.2, >= 68.2.2',
-            'twine ~= 4.0, >= 4.0.0',
-            'types-aiofiles ~= 23.2, >= 23.2.0.0',
-            'types-click ~= 7.1, >= 7.1.8',
-            'types-mock ~= 5.0, >= 5.0.0.6',
-            'types-polib ~= 1.2, >= 1.2.0.0',
-            'types-pyyaml ~= 6.0, >= 6.0.6',
-            'types-requests ~= 2.29, >= 2.29.0.0',
-            'types-setuptools ~= 68.2, >= 68.2.0.0',
-            'wheel ~= 0.40, >= 0.40.0',
-        ],
+        'development': extras_require_development,
+        'pyinstaller': extras_require_pyinstaller,
     },
     'entry_points': {
         'console_scripts': [
