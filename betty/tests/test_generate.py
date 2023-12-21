@@ -182,7 +182,7 @@ class TestGenerate:
 class TestResourceOverride:
     async def test(self) -> None:
         async with App() as app:
-            localized_assets_directory_path = Path(app.project.configuration.assets_directory_path) / 'public' / 'static'
+            localized_assets_directory_path = Path(app.project.configuration.assets_directory_path) / 'public' / 'localized'
             localized_assets_directory_path.mkdir(parents=True)
             with open(str(localized_assets_directory_path / 'index.html.j2'), 'w') as f:
                 f.write('{% block page_content %}Betty was here{% endblock %}')
