@@ -31,7 +31,7 @@ jobs:
 
     steps:
       - name: Check out the source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Get the pip cache directory
         run: echo "pip_cache_dir=$(pip cache dir)" >> $GITHUB_ENV
