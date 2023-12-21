@@ -29,9 +29,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.pip_cache_dir }}
-          key: pip-${{ runner.os }}-${{ matrix.python }}-${{ hashFiles('./setup.py') }}
+          key: pip-${{ runner.os }}-${{ hashFiles('./setup.py') }}
           restore-keys: |
-            pip-${{ runner.os }}-${{ matrix.python }}-
+            pip-${{ runner.os }}-
 
       - name: Get the npm cache directory
         run: echo "npm_cache_dir=$(npm config get cache)" >> $GITHUB_ENV
