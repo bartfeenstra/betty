@@ -112,6 +112,7 @@ SETUP = {
     'extras_require': {
         'development': extras_require_development,
         'pyinstaller': extras_require_pyinstaller,
+        'setuptools': extras_require_setuptools,
     },
     'entry_points': {
         'console_scripts': [
