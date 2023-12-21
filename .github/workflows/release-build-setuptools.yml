@@ -1,0 +1,63 @@
+name: Build PyInstaller artifacts (Release)
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  pyinstaller:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - name: Mac OS
+            os: macos-latest
+            dist_file_name: betty.app
+          - name: Windows
+            os: windows-latest
+            dist_file_name: betty.exe
+    steps:
+      - name: Check out the source code
+        uses: actions/checkout@v3
+
+      - name: Get the pip cache directory
+        run: echo "pip_cache_dir=$(pip cache dir)" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.pip_cache_dir }}
+          key: pip-${{ runner.os }}-${{ matrix.python }}-${{ hashFiles('./setup.py') }}
+          restore-keys: |
+            pip-${{ runner.os }}-${{ matrix.python }}-
+
+      - name: Get the npm cache directory
+        run: echo "npm_cache_dir=$(npm config get cache)" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Cache npm
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.npm_cache_dir }}
+          key: npm-${{ runner.os }}-${{ hashFiles('./package.json') }}
+          restore-keys: |
+            npm-${{ runner.os }}-
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Build the distributions
+        run: ./bin/build-setuptools '${{ github.event.release.tag_name }}'
+        shell: bash
+
+      - name: Publish the distributions to PyPI
+        run: twine upload ./dist/*
+        shell: bash
+        env:
+          TWINE_NON_INTERACTIVE: true
+          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
