@@ -1,4 +1,4 @@
-name: Build PyInstaller artifacts (Release)
+name: Build setuptools artifacts (Release)
 
 on:
   release:
