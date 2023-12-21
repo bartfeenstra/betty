@@ -4,6 +4,13 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
+if [ "$#" -ne 1 ]
+then
+  echo "This command takes a single argument, which is the version to release."
+  exit 1
+fi
+echo "$1" > ./betty/assets/VERSION
+
 # Install Python dependencies.
 pip install -e '.[pyinstaller]'
 
