@@ -46,9 +46,8 @@ jobs:
         shell: bash
 
       - name: Publish the distributions to PyPI
-        run: twine upload ./dist/*
+        run: twine upload -u __token__ ./dist/*
         shell: bash
         env:
           TWINE_NON_INTERACTIVE: true
-          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
