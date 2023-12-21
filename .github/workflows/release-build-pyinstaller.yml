@@ -14,10 +14,9 @@ jobs:
           - name: Mac OS
             os: macos-latest
             dist_file_name: betty.app
-            dist_file_description: Mac OS desktop application
           - name: Windows
             os: windows-latest
-            dist_file_description: Windows desktop application
+            dist_file_name: betty.exe
     steps:
       - name: Check out the source code
         uses: actions/checkout@v3
