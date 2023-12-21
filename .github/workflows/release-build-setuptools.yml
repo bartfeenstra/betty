@@ -6,7 +6,7 @@ on:
       - published
 
 jobs:
-  pyinstaller:
+  setuptools:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
