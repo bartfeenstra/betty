@@ -65,7 +65,7 @@ jobs:
         run: Compress-Archive .\dist\${{ matrix.dist_file_name }} .\dist\${{ matrix.dist_file_name }}.zip
 
       - name: Publish the executable
-        run: gh release upload ${{ github.event.release.tag_name }} ./dist/${{ matrix.dist_file_name }}.zip%#%${{ matrix.dist_file_description }} --clobber
+        run: gh release upload ${{ github.event.release.tag_name }} './dist/${{ matrix.dist_file_name }}.zip%#%${{ matrix.dist_file_description }} (${{ matrix.dist_file_name }})' --clobber
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
