@@ -1,14 +1,13 @@
-name: Build PyInstaller artifacts (Pull Request)
+name: Build PyInstaller artifacts (Release)
 
 on:
-  pull_request:
+  release:
     types:
-      - opened
-      - reopened
-      - synchronize
+      - published
 
 jobs:
   pyinstaller:
+    needs: create-release
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -16,13 +15,9 @@ jobs:
           - name: Mac OS
             os: macos-latest
             dist_file_name: betty.app
-            notification_icon: 🍎
-            notification_os: Mac OS
           - name: Windows
             os: windows-latest
             dist_file_name: betty.exe
-            notification_icon: 🪟
-            notification_os: Windows
     steps:
       - name: Check out the source code
         uses: actions/checkout@v3
@@ -57,19 +52,20 @@ jobs:
           python-version: '3.12'
 
       - name: Build the executable
-        run: ./bin/build-pyinstaller '0.0.0+dev-pull-request-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}'
+        run: ./bin/build-pyinstaller '${{ github.event.release.tag_name }}'
         shell: bash
 
-      - name: Publish the executable
-        id: artifact-upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.dist_file_name }}
-          path: ./dist/${{ matrix.dist_file_name }}
+      - name: Zip the Mac OS executable
+        if: startsWith(runner.os, 'macOS')
+        run: zip -X ./dist/${{ matrix.dist_file_name }}.zip ./dist/${{ matrix.dist_file_name }}
+        shell: bash
 
-      - name: Notify collaborators of the release
-        run: |
-          gh pr comment '${{ github.event.pull_request.number }}' -b $'Uploaded [${{ matrix.dist_file_name }}](https://github.com/bartfeenstra/betty/actions/runs/${{ github.run_id }}/artifacts/${{ steps.artifact-upload.outputs.artifact-id }}) for commit ${{ github.event.pull_request.head.sha }}. You can download it, test it on **${{ matrix.notification_os }}** ${{ matrix.notification_icon }}, and post your feedback in a comment to this pull request 💕\n\nThe download will stop working after at most 90 days.'
+      - name: Zip the Windows executable
+        if: startsWith(runner.os, 'Windows')
+        run: Compress-Archive .\dist\${{ matrix.dist_file_name }} .\dist\${{ matrix.dist_file_name }}.zip
+
+      - name: Publish the executable
+        run: gh release upload ${{ github.event.release.tag_name }} ./dist/${{ matrix.dist_file_name }}.zip --clobber
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
