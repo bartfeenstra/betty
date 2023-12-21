@@ -72,7 +72,7 @@ jobs:
           python-version: ${{ matrix.python }}
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
 
       - name: Install APT dependencies
         if: startsWith(runner.os, 'Linux')
