@@ -22,5 +22,5 @@ rm -rf betty.egg-info build dist
 
 # Build the package.
 python setup.py sdist
-python setup.py bdist_wheel --universal
+python setup.py bdist_wheel
 twine check ./dist/*
