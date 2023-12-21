@@ -7,16 +7,7 @@ on:
 
 jobs:
   setuptools:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - name: Mac OS
-            os: macos-latest
-            dist_file_name: betty.app
-          - name: Windows
-            os: windows-latest
-            dist_file_name: betty.exe
+    runs-on: ubuntu-latest
     steps:
       - name: Check out the source code
         uses: actions/checkout@v3
@@ -29,9 +20,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.pip_cache_dir }}
-          key: pip-${{ runner.os }}-${{ matrix.python }}-${{ hashFiles('./setup.py') }}
+          key: pip-${{ runner.os }}-${{ hashFiles('./setup.py') }}
           restore-keys: |
-            pip-${{ runner.os }}-${{ matrix.python }}-
+            pip-${{ runner.os }}-
 
       - name: Get the npm cache directory
         run: echo "npm_cache_dir=$(npm config get cache)" >> $GITHUB_ENV
