@@ -13,8 +13,6 @@ def find_packages() -> list[str]:
     return find_packages_setuptools(
         '.',
         exclude=[
-            'betty._package',
-            'betty._package.*',
             'betty.tests',
             'betty.tests.*',
         ],
