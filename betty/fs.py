@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import os
 from collections import deque
@@ -12,7 +13,6 @@ from typing import AsyncIterable, AsyncContextManager, Sequence
 
 import aiofiles
 from aiofiles.os import makedirs
-from aiofiles.ospath import exists
 from aiofiles.threadpool.text import AsyncTextIOWrapper
 
 from betty import _ROOT_DIRECTORY_PATH
@@ -86,13 +86,12 @@ class FileSystem:
         raise FileNotFoundError('Could not find any of %s.' % ', '.join(tried_paths))
 
     async def copytree(self, source_path: Path, destination_path: Path) -> AsyncIterable[Path]:
-        destination_paths = set()
+        file_destination_paths = set()
         for fs_path, _ in self._paths:
             async for file_source_path in iterfiles(fs_path / source_path):
                 file_destination_path = destination_path / file_source_path.relative_to(fs_path / source_path)
-                if not await exists(file_destination_path):
+                if file_destination_path not in file_destination_paths:
+                    file_destination_paths.add(file_destination_path)
                     await makedirs(file_destination_path.parent, exist_ok=True)
-                    copy2(file_source_path, file_destination_path)
-                    if file_destination_path not in destination_paths:
-                        destination_paths.add(file_destination_path)
-                        yield file_destination_path
+                    await asyncio.to_thread(copy2, file_source_path, file_destination_path)
+                    yield file_destination_path
