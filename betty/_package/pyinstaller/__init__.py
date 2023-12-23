@@ -3,7 +3,7 @@ import sys
 from importlib import import_module
 from pathlib import Path
 
-from PyInstaller.building.api import PYZ, EXE
+from PyInstaller.building.api import PYZ, EXE, COLLECT
 from PyInstaller.building.build_main import Analysis
 
 from betty._package import get_data_paths, find_packages
@@ -30,7 +30,16 @@ async def _build_assets() -> None:
 
 
 @sync
-async def a_pyz_exe() -> tuple[Analysis, PYZ, EXE]:
+async def a_pyz_exe_coll() -> tuple[Analysis, PYZ, EXE, COLLECT]:
+    if sys.platform == 'linux':
+        exe_name = 'betty'
+    elif sys.platform == 'darwin':
+        exe_name = 'betty.app'
+    elif sys.platform == 'win32':
+        exe_name = 'betty.exe'
+    else:
+        raise RuntimeError(f'Unsupported platform {sys.platform}.')
+
     await _build_assets()
     root = Path(__file__).parents[3]
     block_cipher = None
@@ -43,41 +52,44 @@ async def a_pyz_exe() -> tuple[Analysis, PYZ, EXE]:
         *find_packages(),
         'babel.numbers'
     ]
-    a = Analysis(['betty/_package/pyinstaller/main.py'],
-                 pathex=['./'],
-                 binaries=[],
-                 datas=datas,
-                 hiddenimports=hiddenimports,
-                 hookspath=[str(HOOKS_DIRECTORY_PATH)],
-                 runtime_hooks=[],
-                 excludes=[],
-                 win_no_prefer_redirects=False,
-                 win_private_assemblies=False,
-                 cipher=block_cipher,
-                 noarchive=False)
-    pyz = PYZ(a.pure, a.zipped_data,
-              cipher=block_cipher)
-    if sys.platform == 'linux':
-        exe_name = 'betty'
-    elif sys.platform == 'darwin':
-        exe_name = 'betty.app'
-    elif sys.platform == 'win32':
-        exe_name = 'betty.exe'
-    else:
-        raise RuntimeError(f'Unsupported platform {sys.platform}.')
-    exe = EXE(pyz,
-              a.scripts,
-              a.binaries,
-              a.zipfiles,
-              a.datas,
-              [],
-              name=exe_name,
-              debug=False,
-              bootloader_ignore_signals=False,
-              strip=False,
-              upx=True,
-              upx_exclude=[],
-              runtime_tmpdir=None,
-              console=False,
-              icon=str(ROOT_DIRECTORY_PATH / 'betty' / 'assets' / 'public' / 'static' / 'betty.ico'))
-    return a, pyz, exe
+    a = Analysis(
+        ['betty/_package/pyinstaller/main.py'],
+        pathex=['./'],
+        binaries=[],
+        datas=datas,
+        hiddenimports=hiddenimports,
+        hookspath=[str(HOOKS_DIRECTORY_PATH)],
+        runtime_hooks=[],
+        excludes=[],
+        win_no_prefer_redirects=False,
+        win_private_assemblies=False,
+        cipher=block_cipher,
+        noarchive=False,
+    )
+    pyz = PYZ(
+        a.pure,
+        a.zipped_data,
+        cipher=block_cipher,
+    )
+    exe = EXE(
+        pyz,
+        a.binaries,
+        a.scripts,
+        [],
+        name=exe_name,
+        exclude_binaries=True,
+        debug=False,
+        bootloader_ignore_signals=False,
+        strip=False,
+        upx=True,
+        upx_exclude=[],
+        console=False,
+        icon=str(ROOT_DIRECTORY_PATH / 'betty' / 'assets' / 'public' / 'static' / 'betty.ico'),
+    )
+    coll = COLLECT(
+        exe,
+        a.datas,
+        a.zipfiles,
+        name='betty',
+    )
+    return a, pyz, exe, coll

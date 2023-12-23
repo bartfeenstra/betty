@@ -40,10 +40,10 @@ secure**.
 
 ### Requirements
 
-Linux, Mac OS, or Windows.
+Linux, macOS, or Windows.
 
 ### Install the desktop application
-For Mac OS, [download](https://github.com/bartfeenstra/betty/releases) `betty.app.zip`.
+For macOS, [download](https://github.com/bartfeenstra/betty/releases) `betty.app.zip`.
 
 For Windows, [download](https://github.com/bartfeenstra/betty/releases) `betty.exe.zip`.
 
@@ -90,7 +90,7 @@ Commands:
 
 ### The desktop application
 
-You can [download](https://github.com/bartfeenstra/betty/releases) Betty as Mac OS and Windows
+You can [download](https://github.com/bartfeenstra/betty/releases) Betty as macOS and Windows
 desktop applications.
 
 If you have installed Betty as a command line application, run `betty gui` to launch the desktop
