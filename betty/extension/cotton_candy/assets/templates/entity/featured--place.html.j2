@@ -16,7 +16,13 @@
 </div>
 
 <div class="featured-entity-feature">
-    {% with entities = [entity], map_hides_list = True, featured = False %}
-        {% include ['entity/list--place.html.j2', 'entity/list.html.j2'] %}
-    {% endwith %}
+    {% set places = entity | walk('encloses') | select('place_entity') | list %}
+    {% if entity.coordinates %}
+        {% set places = places + [entity] %}
+    {% endif %}
+    {% if places | length > 0 %}
+        {% with entities = places, hide_list = True, featured = False %}
+            {% include ['entity/list--place.html.j2', 'entity/list.html.j2'] %}
+        {% endwith %}
+    {% endif %}
 </div>
