@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import re
+from collections.abc import Sequence
 from pathlib import Path
 from shutil import copy2
 from typing import Any, Callable, Iterable, cast, Self
@@ -24,7 +25,7 @@ from betty.jinja2 import Jinja2Provider, context_app, context_localizer, context
 from betty.locale import Date, Datey, Str
 from betty.model import Entity, UserFacingEntity
 from betty.model.ancestry import Event, Person, Presence, is_public
-from betty.project import EntityReferenceSequence
+from betty.project import EntityReferenceSequence, EntityReference
 from betty.serde.dump import minimize, Dump, VoidableDump
 from betty.serde.load import AssertionFailed, Fields, Assertions, OptionalField, Asserter
 
@@ -86,9 +87,15 @@ class CottonCandyConfiguration(Configuration):
     DEFAULT_LINK_INACTIVE_COLOR = '#149988'
     DEFAULT_LINK_ACTIVE_COLOR = '#2a615a'
 
-    def __init__(self):
+    def __init__(
+        self,
+        *,
+        featured_entities: Sequence[EntityReference[UserFacingEntity & Entity]] | None = None,
+    ):
         super().__init__()
         self._featured_entities = EntityReferenceSequence['UserFacingEntity & Entity']()
+        if featured_entities is not None:
+            self.featured_entities.append(*featured_entities)
         self._featured_entities.react(self)
         self._primary_inactive_color = _ColorConfiguration(self.DEFAULT_PRIMARY_INACTIVE_COLOR)
         self._primary_inactive_color.react(self)
