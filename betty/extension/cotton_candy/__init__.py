@@ -216,6 +216,7 @@ class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Gener
 
     async def generate(self, task_context: GenerationContext) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
+        await makedirs(self.app.project.configuration.www_directory_path, exist_ok=True)
         await self._copy_npm_build(assets_directory_path, self.app.project.configuration.www_directory_path)
 
 

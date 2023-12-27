@@ -9,21 +9,26 @@ from PyInstaller.building.build_main import Analysis
 from betty._package import get_data_paths, find_packages
 from betty._package.pyinstaller.hooks import HOOKS_DIRECTORY_PATH
 from betty.app import App
+from betty.app.extension import discover_extension_types, Extension
 from betty.asyncio import sync, gather
-from betty.extension import HttpApiDoc, Maps, Trees
-from betty.extension.npm import _Npm, build_assets
+from betty.extension.npm import _Npm, build_assets, NpmBuilder
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.project import ExtensionConfiguration
 
 
 async def _build_assets() -> None:
-    npm_builder_extension_types = {HttpApiDoc, Maps, Trees}
+    npm_builder_extension_types: list[type[NpmBuilder & Extension]] = [
+        extension_type
+        for extension_type
+        in discover_extension_types()
+        if issubclass(extension_type, NpmBuilder)
+    ]
     async with App() as app:
         app.project.configuration.extensions.append(ExtensionConfiguration(_Npm))
         for extension_type in npm_builder_extension_types:
             app.project.configuration.extensions.append(ExtensionConfiguration(extension_type))
         await gather(*([
-            build_assets(app.extensions[extension_type])
+            build_assets(app.extensions[extension_type])  # type: ignore[arg-type]
             for extension_type
             in npm_builder_extension_types
         ]))
