@@ -7,13 +7,14 @@ from geopy import Point
 from betty import load, generate
 from betty.app import App
 from betty.app.extension import Extension
+from betty.extension.cotton_candy import CottonCandyConfiguration
 from betty.load import Loader
 from betty.locale import Date, DateRange, Str
 from betty.model import Entity
 from betty.model.ancestry import Place, PlaceName, Person, Presence, Subject, PersonName, Link, Source, Citation, Event, \
     Enclosure
 from betty.model.event_type import Marriage, Birth, Death
-from betty.project import LocaleConfiguration, ExtensionConfiguration, EntityReference
+from betty.project import LocaleConfiguration, ExtensionConfiguration, EntityReference, ProjectConfiguration
 from betty.serve import Server, AppServer, NoPublicUrlBecauseServerNotStartedError
 
 
@@ -27,9 +28,29 @@ class _Demo(Extension, Loader):
     def _load(self, *entities: Entity) -> None:
         self._app.project.ancestry.add(*entities)
 
-    async def load(self) -> None:
-        from betty.extension import CottonCandy
+    @classmethod
+    def project_configuration(cls) -> ProjectConfiguration:
+        from betty.extension import CottonCandy, Demo
 
+        configuration = ProjectConfiguration()
+        configuration.extensions.append(ExtensionConfiguration(Demo))
+        configuration.extensions.append(ExtensionConfiguration(CottonCandy, True, CottonCandyConfiguration(
+            featured_entities=[
+                EntityReference(Place, 'betty-demo-amsterdam'),
+                EntityReference(Person, 'betty-demo-liberta-lankester'),
+                EntityReference(Place, 'betty-demo-netherlands'),
+            ],
+        )))
+        # Include all of the translations Betty ships with.
+        configuration.locales.replace(
+            LocaleConfiguration('en-US', 'en'),
+            LocaleConfiguration('nl-NL', 'nl'),
+            LocaleConfiguration('fr-FR', 'fr'),
+            LocaleConfiguration('uk', 'uk'),
+        )
+        return configuration
+
+    async def load(self) -> None:
         netherlands = Place(
             id='betty-demo-netherlands',
             names=[
@@ -355,23 +376,14 @@ class _Demo(Extension, Loader):
         ))
         self._load(bart_feenstra)
 
-        theme = self.app.extensions[CottonCandy]
-        theme.configuration.featured_entities.append(EntityReference(Person, 'betty-demo-liberta-lankester'))
-        theme.configuration.featured_entities.append(EntityReference(Place, 'betty-demo-amsterdam'))
-
 
 class DemoServer(Server):
     def __init__(self):
+        from betty.extension import Demo
+
         self._app = App()
         super().__init__(self._app.localizer)
-        self._app.project.configuration.extensions.append(ExtensionConfiguration(_Demo))
-        # Include all of the translations Betty ships with.
-        self._app.project.configuration.locales.replace(
-            LocaleConfiguration('en-US', 'en'),
-            LocaleConfiguration('nl-NL', 'nl'),
-            LocaleConfiguration('fr-FR', 'fr'),
-            LocaleConfiguration('uk', 'uk'),
-        )
+        self._app.project.configuration.update(Demo.project_configuration())
         self._server: Server | None = None
         self._exit_stack = AsyncExitStack()
 
