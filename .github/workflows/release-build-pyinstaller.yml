@@ -11,12 +11,15 @@ jobs:
     strategy:
       matrix:
         include:
+          - name: Linux
+            os: ubuntu-20.04
+            dist_name: betty-linux
           - name: macOS
             os: macos-11
-            dist_file_name: betty.app
+            dist_name: betty-macos
           - name: Windows
             os: windows-2019
-            dist_file_name: betty.exe
+            dist_name: betty-windows
     steps:
       - name: Check out the source code
         uses: actions/checkout@v4
@@ -50,21 +53,38 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Install APT dependencies
+        if: startsWith(runner.os, 'Linux')
+        run: |
+          sudo apt-get update
+          apt_packages=(
+            libegl1-mesa # For Qt
+            libx11-xcb-dev # For Qt
+            '^libxcb.*-dev' # For Qt
+            libxkbcommon-x11-0 # For Qt
+          )
+          sudo apt-get install "${apt_packages[@]}"
+
       - name: Build the executable
-        run: ./bin/build-pyinstaller '${{ github.event.release.tag_name }}'
+        run: ./bin/build-pyinstaller ${{ github.event.release.tag_name }}
         shell: bash
 
-      - name: Zip the macOS executable
+      - name: Zip the Linux package
+        if: startsWith(runner.os, 'Linux')
+        run: zip -r -X ./dist/${{ matrix.dist_name }}-${{ github.event.pull_request.head.sha }}.zip ./dist/betty
+        shell: bash
+
+      - name: Zip the macOS package
         if: startsWith(runner.os, 'macOS')
-        run: zip -X ./dist/${{ matrix.dist_file_name }}.zip ./dist/${{ matrix.dist_file_name }}
+        run: zip -r -X ./dist/${{ matrix.dist_name }}-${{ github.event.pull_request.head.sha }}.zip ./dist/betty
         shell: bash
 
-      - name: Zip the Windows executable
+      - name: Zip the Windows package
         if: startsWith(runner.os, 'Windows')
-        run: Compress-Archive .\dist\${{ matrix.dist_file_name }} .\dist\${{ matrix.dist_file_name }}.zip
+        run: Compress-Archive .\dist\betty .\dist\${{ matrix.dist_name }}-${{ github.event.pull_request.head.sha }}.zip
 
-      - name: Publish the executable
-        run: gh release upload ${{ github.event.release.tag_name }} ./dist/${{ matrix.dist_file_name }}.zip --clobber
+      - name: Publish the package
+        run: gh release upload ${{ github.event.release.tag_name }} ./dist/${{ matrix.dist_name }}.zip --clobber
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
