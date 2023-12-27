@@ -22,7 +22,7 @@ jobs:
           - name: 'Python 3.11'
             os: ubuntu-latest
             python: '3.11'
-          - name: 'Mac OS'
+          - name: 'macOS'
             os: macos-latest
             python: '3.12'
           - name: 'Windows'

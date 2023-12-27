@@ -11,11 +11,11 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: Mac OS
-            os: macos-latest
+          - name: macOS
+            os: macos-11
             dist_file_name: betty.app
           - name: Windows
-            os: windows-latest
+            os: windows-2019
             dist_file_name: betty.exe
     steps:
       - name: Check out the source code
@@ -54,7 +54,7 @@ jobs:
         run: ./bin/build-pyinstaller '${{ github.event.release.tag_name }}'
         shell: bash
 
-      - name: Zip the Mac OS executable
+      - name: Zip the macOS executable
         if: startsWith(runner.os, 'macOS')
         run: zip -X ./dist/${{ matrix.dist_file_name }}.zip ./dist/${{ matrix.dist_file_name }}
         shell: bash

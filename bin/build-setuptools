@@ -11,6 +11,8 @@ then
 fi
 echo "$1" > ./betty/assets/VERSION
 
+rm -rf ./dist
+
 # Install Python dependencies.
 pip install -e '.[setuptools]'
 

@@ -14,7 +14,7 @@ from betty.extension.nginx.serve import DockerizedNginxServer
 from betty.project import ExtensionConfiguration
 
 
-@pytest.mark.skipif(sys.platform in {'darwin', 'win32'}, reason='Mac OS and Windows do not natively support Docker.')
+@pytest.mark.skipif(sys.platform in {'darwin', 'win32'}, reason='macOS and Windows do not natively support Docker.')
 class TestDockerizedNginxServer:
     @sync
     async def test(self):

@@ -19,7 +19,7 @@ from betty.project import ProjectConfiguration, ExtensionConfiguration, LocaleCo
 from betty.serve import Server
 
 
-@pytest.mark.skipif(sys.platform in {'darwin', 'win32'}, reason='Mac OS and Windows do not natively support Docker.')
+@pytest.mark.skipif(sys.platform in {'darwin', 'win32'}, reason='macOS and Windows do not natively support Docker.')
 class TestNginx:
     @asynccontextmanager
     async def server(self, configuration: ProjectConfiguration) -> AsyncIterator[Server]:
