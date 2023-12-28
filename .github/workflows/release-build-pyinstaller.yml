@@ -71,17 +71,17 @@ jobs:
 
       - name: Zip the Linux package
         if: startsWith(runner.os, 'Linux')
-        run: zip -r -X ./dist/${{ matrix.dist_name }}-${{ github.event.pull_request.head.sha }}.zip ./dist/betty
+        run: zip -r -X ./dist/${{ matrix.dist_name }}.zip ./dist/betty
         shell: bash
 
       - name: Zip the macOS package
         if: startsWith(runner.os, 'macOS')
-        run: zip -r -X ./dist/${{ matrix.dist_name }}-${{ github.event.pull_request.head.sha }}.zip ./dist/betty
+        run: zip -r -X ./dist/${{ matrix.dist_name }}.zip ./dist/betty
         shell: bash
 
       - name: Zip the Windows package
         if: startsWith(runner.os, 'Windows')
-        run: Compress-Archive .\dist\betty .\dist\${{ matrix.dist_name }}-${{ github.event.pull_request.head.sha }}.zip
+        run: Compress-Archive .\dist\betty .\dist\${{ matrix.dist_name }}.zip
 
       - name: Publish the package
         run: gh release upload ${{ github.event.release.tag_name }} ./dist/${{ matrix.dist_name }}.zip --clobber
