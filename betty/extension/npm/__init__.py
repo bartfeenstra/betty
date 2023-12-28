@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import logging
 import os
 import shutil
@@ -198,7 +197,7 @@ class _Npm(Extension):
     def _get_cached_assets_build_directory_path(self, extension_type: type[NpmBuilder & Extension]) -> Path:
         path = self.cache_directory_path / extension_type.name()
         if extension_type.npm_cache_scope() == CacheScope.PROJECT:
-            path /= hashlib.md5(str(self.app.project.configuration.configuration_file_path).encode('utf-8')).hexdigest()
+            path /= self.app.project.id
         return path
 
     async def ensure_assets(self, extension: NpmBuilder & Extension) -> Path:
