@@ -8,6 +8,12 @@ on:
 jobs:
   setuptools:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: 'Python 3.12'
+            os: ubuntu-latest
+            python: '3.12'
     steps:
       - name: Check out the source code
         uses: actions/checkout@v4
@@ -20,9 +26,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.pip_cache_dir }}
-          key: pip-${{ runner.os }}-${{ hashFiles('./setup.py') }}
+          key: pip-${{ runner.os }}-${{ matrix.python }}-${{ hashFiles('./setup.py') }}
           restore-keys: |
-            pip-${{ runner.os }}-
+            pip-${{ runner.os }}-${{ matrix.python }}-
 
       - name: Get the npm cache directory
         run: echo "npm_cache_dir=$(npm config get cache)" >> $GITHUB_ENV
