@@ -14,7 +14,7 @@ from betty.model import Entity
 from betty.model.ancestry import Place, PlaceName, Person, Presence, Subject, PersonName, Link, Source, Citation, Event, \
     Enclosure
 from betty.model.event_type import Marriage, Birth, Death
-from betty.project import LocaleConfiguration, ExtensionConfiguration, EntityReference, ProjectConfiguration
+from betty.project import LocaleConfiguration, ExtensionConfiguration, EntityReference, Project
 from betty.serve import Server, AppServer, NoPublicUrlBecauseServerNotStartedError
 
 
@@ -29,12 +29,12 @@ class _Demo(Extension, Loader):
         self._app.project.ancestry.add(*entities)
 
     @classmethod
-    def project_configuration(cls) -> ProjectConfiguration:
+    def project(cls) -> Project:
         from betty.extension import CottonCandy, Demo
 
-        configuration = ProjectConfiguration()
-        configuration.extensions.append(ExtensionConfiguration(Demo))
-        configuration.extensions.append(ExtensionConfiguration(CottonCandy, True, CottonCandyConfiguration(
+        project = Project(project_id=cls.name())
+        project.configuration.extensions.append(ExtensionConfiguration(Demo))
+        project.configuration.extensions.append(ExtensionConfiguration(CottonCandy, True, CottonCandyConfiguration(
             featured_entities=[
                 EntityReference(Place, 'betty-demo-amsterdam'),
                 EntityReference(Person, 'betty-demo-liberta-lankester'),
@@ -42,13 +42,13 @@ class _Demo(Extension, Loader):
             ],
         )))
         # Include all of the translations Betty ships with.
-        configuration.locales.replace(
+        project.configuration.locales.replace(
             LocaleConfiguration('en-US', 'en'),
             LocaleConfiguration('nl-NL', 'nl'),
             LocaleConfiguration('fr-FR', 'fr'),
             LocaleConfiguration('uk', 'uk'),
         )
-        return configuration
+        return project
 
     async def load(self) -> None:
         netherlands = Place(
@@ -381,9 +381,8 @@ class DemoServer(Server):
     def __init__(self):
         from betty.extension import Demo
 
-        self._app = App()
+        self._app = App(None, Demo.project())
         super().__init__(self._app.localizer)
-        self._app.project.configuration.update(Demo.project_configuration())
         self._server: Server | None = None
         self._exit_stack = AsyncExitStack()
 

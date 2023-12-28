@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 from contextlib import suppress
 from pathlib import Path
 from reprlib import recursive_repr
@@ -769,18 +770,27 @@ class ProjectConfiguration(FileBasedConfiguration):
 
 
 class Project(Configurable[ProjectConfiguration]):
-    def __init__(self):
+    def __init__(
+        self,
+        *,
+        project_id: str | None = None,
+    ):
         super().__init__()
+        self._id = project_id
         self._configuration = ProjectConfiguration()
         self._ancestry = Ancestry()
 
-    def __getstate__(self) -> tuple[VoidableDump, Path, Ancestry]:
-        return self._configuration.dump(), self._configuration.configuration_file_path, self._ancestry
+    def __getstate__(self) -> tuple[str | None, VoidableDump, Path, Ancestry]:
+        return self._id, self._configuration.dump(), self._configuration.configuration_file_path, self._ancestry
 
-    def __setstate__(self, state: tuple[Dump, Path, Ancestry]) -> None:
-        dump, configuration_file_path, self._ancestry = state
+    def __setstate__(self, state: tuple[str | None, Dump, Path, Ancestry]) -> None:
+        self._id, dump, configuration_file_path, self._ancestry = state
         self._configuration = ProjectConfiguration.load(dump)
         self._configuration.configuration_file_path = configuration_file_path
+
+    @property
+    def id(self) -> str:
+        return self._id or hashlib.md5(str(self.configuration.configuration_file_path).encode('utf-8')).hexdigest()
 
     @property
     def ancestry(self) -> Ancestry:
