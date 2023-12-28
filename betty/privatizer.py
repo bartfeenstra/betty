@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import logging
 from datetime import datetime
-from typing import Iterator, TypeAlias
+from typing import Iterator, TypeAlias, Any
 
 from betty.functools import walk
-from betty.locale import DateRange, Date
+from betty.locale import DateRange, Date, Localizer
+from betty.model import Entity
 from betty.model.ancestry import Person, Event, Citation, HasFiles, HasCitations, HasNotes, Source, \
     Presence, Privacy, HasMutablePrivacy, HasPrivacy
 
@@ -12,8 +14,14 @@ Expirable: TypeAlias = Person | Event | Date | None
 
 
 class Privatizer:
-    def __init__(self, lifetime_threshold: int):
+    def __init__(
+        self,
+        lifetime_threshold: int,
+        *,
+        localizer: Localizer,
+    ):
         self._lifetime_threshold = lifetime_threshold
+        self._localizer = localizer
         self._seen: list[HasPrivacy] = []
 
     def privatize(self, subject: HasPrivacy) -> None:
@@ -61,7 +69,7 @@ class Privatizer:
             return
 
         for name in person.names:
-            self._mark_private(name)
+            self._mark_private(name, person)
             self._privatize(name)
 
         for presence in person.presences:
@@ -71,7 +79,7 @@ class Privatizer:
         if not presence.private:
             return
         if presence.event is not None:
-            self._mark_private(presence.event)
+            self._mark_private(presence.event, presence)
             self._privatize(presence.event)
 
     def _privatize_event(self, event: Event) -> None:
@@ -84,38 +92,38 @@ class Privatizer:
         if not has_citations.private:
             return
         for citation in has_citations.citations:
-            self._mark_private(citation)
+            self._mark_private(citation, has_citations)
             self._privatize(citation)
 
     def _privatize_citation(self, citation: Citation) -> None:
         if not citation.private:
             return
         if citation.source is not None:
-            self._mark_private(citation.source)
+            self._mark_private(citation.source, citation)
             self._privatize(citation.source)
 
     def _privatize_source(self, source: Source) -> None:
         if not source.private:
             return
         for contained_source in source.contains:
-            self._mark_private(contained_source)
+            self._mark_private(contained_source, source)
             self._privatize(contained_source)
         for citation in source.citations:
-            self._mark_private(citation)
+            self._mark_private(citation, source)
             self._privatize(citation)
 
     def _privatize_has_files(self, has_files: HasFiles & HasPrivacy) -> None:
         if not has_files.private:
             return
         for file in has_files.files:
-            self._mark_private(file)
+            self._mark_private(file, has_files.private)
             self._privatize(file)
 
     def _privatize_has_notes(self, has_notes: HasNotes & HasPrivacy) -> None:
         if not has_notes.private:
             return
         for note in has_notes.notes:
-            self._mark_private(note)
+            self._mark_private(note, has_notes.private)
             self._privatize(note)
 
     def _ancestors_by_generation(self, person: Person, generations_ago: int = 1) -> Iterator[tuple[Person, int]]:
@@ -188,7 +196,16 @@ class Privatizer:
 
         return date <= Date(datetime.now().year - self._lifetime_threshold * generations_ago, datetime.now().month, datetime.now().day)
 
-    def _mark_private(self, target: HasMutablePrivacy) -> None:
+    def _mark_private(self, target: HasMutablePrivacy, reason: Any) -> None:
         # Do not change existing explicit privacy declarations.
         if target.privacy is not Privacy.PUBLIC:
+            if isinstance(target, Entity) and isinstance(reason, Entity):
+                logging.getLogger().debug(self._localizer._('Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity}).').format(
+                    privatized_entity_type=target.entity_type_label().localize(self._localizer),
+                    privatized_entity_id=target.id,
+                    privatized_entity=target.label.localize(self._localizer),
+                    reason_entity_type=reason.entity_type_label().localize(self._localizer),
+                    reason_entity_id=reason.id,
+                    reason_entity=reason.label.localize(self._localizer),
+                ))
             target.privacy = Privacy.PRIVATE

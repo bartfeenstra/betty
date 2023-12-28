@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.locale import Str
+from betty.locale import Str, DEFAULT_LOCALIZER
 
 if TYPE_CHECKING:
     from betty.model.ancestry import Person
@@ -136,7 +136,7 @@ class Death(CreatableDerivableEventType, EndOfLifeEventType):
     def may_create(cls, person: Person, lifetime_threshold: int) -> bool:
         from betty.privatizer import Privatizer
 
-        return Privatizer(lifetime_threshold).has_expired(person, 1)
+        return Privatizer(lifetime_threshold, localizer=DEFAULT_LOCALIZER).has_expired(person, 1)
 
 
 class FinalDispositionEventType(PostDeathEventType, DerivableEventType, EndOfLifeEventType):
