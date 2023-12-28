@@ -1,12 +1,11 @@
-import inspect
 import sys
-from importlib import import_module
+from glob import glob
 from pathlib import Path
 
 from PyInstaller.building.api import PYZ, EXE, COLLECT
 from PyInstaller.building.build_main import Analysis
+from setuptools import find_packages
 
-from betty._package import get_data_paths, find_packages
 from betty._package.pyinstaller.hooks import HOOKS_DIRECTORY_PATH
 from betty.app import App
 from betty.app.extension import discover_extension_types, Extension
@@ -46,15 +45,25 @@ async def a_pyz_exe_coll() -> tuple[Analysis, PYZ, EXE, COLLECT]:
         raise RuntimeError(f'Unsupported platform {sys.platform}.')
 
     await _build_assets()
-    root = Path(__file__).parents[3]
     block_cipher = None
     datas = []
-    for module_name, file_paths in get_data_paths().items():
-        for file_path in file_paths:
-            data_file_path = (Path(inspect.getfile(import_module(module_name))).parent / file_path).relative_to(root)
-            datas.append((str(data_file_path), str(data_file_path.parent)))
+    data_file_path_patterns = [
+        'betty/assets/**',
+        'betty/extension/*/assets/**',
+    ]
+    for data_file_path_pattern in data_file_path_patterns:
+        for data_file_path_str in glob(data_file_path_pattern, recursive=True, root_dir=ROOT_DIRECTORY_PATH):
+            data_file_path = Path(data_file_path_str)
+            if data_file_path.is_file():
+                datas.append((data_file_path_str, str(data_file_path.parent)))
     hiddenimports = [
-        *find_packages(),
+        *find_packages(
+            '.',
+            exclude=[
+                'betty.tests',
+                'betty.tests.*',
+            ],
+        ),
         'babel.numbers'
     ]
     a = Analysis(

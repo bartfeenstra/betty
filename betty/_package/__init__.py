@@ -4,19 +4,7 @@ from glob import glob
 from pathlib import Path
 from typing import Iterator
 
-from setuptools import find_packages as find_packages_setuptools
-
 from betty import _ROOT_DIRECTORY_PATH as ROOT_DIRECTORY_PATH
-
-
-def find_packages() -> list[str]:
-    return find_packages_setuptools(
-        '.',
-        exclude=[
-            'betty.tests',
-            'betty.tests.*',
-        ],
-    )
 
 
 def is_data_file(file_path: Path) -> bool:
