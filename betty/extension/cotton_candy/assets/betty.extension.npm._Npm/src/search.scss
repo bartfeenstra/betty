@@ -67,6 +67,11 @@
   width: calc(100% - 3rem);
 }
 
+#search-query:focus {
+  border: 0.3rem solid $primary-active-color !important;
+  outline: none;
+}
+
 #search-expanded {
   display: none;
 }
