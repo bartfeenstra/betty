@@ -18,7 +18,7 @@ from betty.app.extension.requirement import Requirement, AnyRequirement, AllRequ
 from betty.asyncio import sync
 from betty.cache import CacheScope
 from betty.fs import iterfiles
-from betty.locale import Str
+from betty.locale import Str, DEFAULT_LOCALIZER
 
 
 async def npm(arguments: Sequence[str], **kwargs: Any) -> aiosubprocess.Process:
@@ -48,10 +48,10 @@ class _NpmRequirement(Requirement):
     async def check(cls) -> _NpmRequirement:
         try:
             await npm(['--version'])
-            logging.getLogger().debug(cls._met_summary())
+            logging.getLogger().debug(cls._met_summary().localize(DEFAULT_LOCALIZER))
             return cls(True)
         except (CalledProcessError, FileNotFoundError):
-            logging.getLogger().debug(cls._unmet_summary())
+            logging.getLogger().debug(cls._unmet_summary().localize(DEFAULT_LOCALIZER))
             return cls(False)
 
     def is_met(self) -> bool:

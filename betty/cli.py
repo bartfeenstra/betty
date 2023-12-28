@@ -82,7 +82,7 @@ def app_command(f: Callable[Concatenate[App, P], Awaitable[None]]) -> Callable[P
 
 @catch_exceptions()
 @sync
-async def _init_ctx(
+async def _init_ctx_app(
     ctx: Context,
     __: Option | Parameter | None = None,
     configuration_file_path: str | None = None,
@@ -94,7 +94,8 @@ async def _init_ctx(
     ctx.obj['initialized'] = True
 
     logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
+    if logger.level > logging.INFO:
+        logger.setLevel(logging.INFO)
     logger.addHandler(CliHandler())
 
     app = App()
@@ -142,15 +143,37 @@ async def _init_ctx(
             ))
 
 
+def _init_ctx_verbose(
+    ctx: Context,
+    __: Option | Parameter | None = None,
+    verbose: bool = False,
+) -> None:
+    if verbose:
+        logger = logging.getLogger()
+        if logger.level > logging.DEBUG:
+            logger.setLevel(logging.DEBUG)
+
+
+def _init_ctx_more_verbose(
+    ctx: Context,
+    __: Option | Parameter | None = None,
+    more_verbose: bool = False,
+) -> None:
+    if more_verbose:
+        logger = logging.getLogger()
+        if logger.level > logging.NOTSET:
+            logger.setLevel(logging.NOTSET)
+
+
 class _BettyCommands(click.MultiCommand):
     @catch_exceptions()
     def list_commands(self, ctx: Context) -> list[str]:
-        _init_ctx(ctx)
+        _init_ctx_app(ctx)
         return list(ctx.obj['commands'].keys())
 
     @catch_exceptions()
     def get_command(self, ctx: Context, cmd_name: str) -> Command | None:
-        _init_ctx(ctx)
+        _init_ctx_app(ctx)
         with suppress(KeyError):
             return cast(Command, ctx.obj['commands'][cmd_name])
         return None
@@ -163,10 +186,29 @@ class _BettyCommands(click.MultiCommand):
     'app',
     is_eager=True,
     help='The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory. This will make additional commands available.',
-    callback=_init_ctx,
+    callback=_init_ctx_app,
+)
+@click.option(
+    '-v',
+    '--verbose',
+    is_eager=True,
+    default=False,
+    is_flag=True,
+    help='Show verbose output, including debug log messages.',
+    callback=_init_ctx_verbose,
+)
+@click.option(
+    '-vv',
+    '--more-verbose',
+    'more_verbose',
+    is_eager=True,
+    default=False,
+    is_flag=True,
+    help='Show more verbose output, including all log messages.',
+    callback=_init_ctx_more_verbose,
 )
 @click.version_option(about.version_label(), message=about.report(), prog_name='Betty')
-def main(app: App) -> None:
+def main(app: App, verbose: bool, more_verbose: bool) -> None:
     pass
 
 
