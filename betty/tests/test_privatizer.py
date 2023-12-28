@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from betty.locale import Date, DateRange
+from betty.locale import Date, DateRange, DEFAULT_LOCALIZER
 from betty.model.ancestry import Person, Presence, Event, Source, File, Subject, Attendee, Citation, Privacy
 from betty.model.event_type import Death, Birth, Marriage
 from betty.privatizer import Privatizer
@@ -190,7 +190,7 @@ class TestPrivatizer:
         person.files.add(person_file)
         Presence(person, Subject(), event_as_subject)
         Presence(person, Attendee(), event_as_attendee)
-        Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(person)
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(person)
         assert not person.private
         assert citation.privacy is Privacy.UNDETERMINED
         assert source.privacy is Privacy.UNDETERMINED
@@ -230,7 +230,7 @@ class TestPrivatizer:
         person.files.add(person_file)
         Presence(person, Subject(), event_as_subject)
         Presence(person, Attendee(), event_as_attendee)
-        Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(person)
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(person)
         assert person.private
         assert citation.private
         assert source.private
@@ -253,7 +253,7 @@ class TestPrivatizer:
         )
         if event is not None:
             Presence(person, Subject(), event)
-        Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(person)
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(person)
         assert expected == person.private
 
     @pytest.mark.parametrize('expected, privacy, event', _expand_person(1))
@@ -271,7 +271,7 @@ class TestPrivatizer:
         if event is not None:
             Presence(child, Subject(), event)
         person.children.add(child)
-        Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(person)
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(person)
         assert expected == person.private
 
     @pytest.mark.parametrize('expected, privacy, event', _expand_person(2))
@@ -291,7 +291,7 @@ class TestPrivatizer:
         if event is not None:
             Presence(grandchild, Subject(), event)
         child.children.add(grandchild)
-        Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(person)
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(person)
         assert expected == person.private
 
     @pytest.mark.parametrize('expected, privacy, event', _expand_person(3))
@@ -313,7 +313,7 @@ class TestPrivatizer:
         if event is not None:
             Presence(great_grandchild, Subject(), event)
         grandchild.children.add(great_grandchild)
-        Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(person)
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(person)
         assert expected == person.private
 
     @pytest.mark.parametrize('expected, privacy, event', _expand_person(-1))
@@ -331,7 +331,7 @@ class TestPrivatizer:
         if event is not None:
             Presence(parent, Subject(), event)
         person.parents.add(parent)
-        Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(person)
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(person)
         assert expected == person.private
 
     @pytest.mark.parametrize('expected, privacy, event', _expand_person(-2))
@@ -351,7 +351,7 @@ class TestPrivatizer:
         if event is not None:
             Presence(grandparent, Subject(), event)
         parent.parents.add(grandparent)
-        Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(person)
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(person)
         assert expected == person.private
 
     @pytest.mark.parametrize('expected, privacy, event', _expand_person(-3))
@@ -373,7 +373,7 @@ class TestPrivatizer:
         if event is not None:
             Presence(great_grandparent, Subject(), event)
         grandparent.parents.add(great_grandparent)
-        Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(person)
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(person)
         assert expected == person.private
 
     async def test_privatize_event_should_not_privatize_if_public(self) -> None:
@@ -405,7 +405,7 @@ class TestPrivatizer:
         event.files.add(event_file)
         person = Person(id='P0')
         Presence(person, Subject(), event)
-        Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(event)
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(event)
         assert not event.private
         assert event_file.privacy is Privacy.UNDETERMINED
         assert citation.privacy is Privacy.UNDETERMINED
@@ -443,7 +443,7 @@ class TestPrivatizer:
         event.files.add(event_file)
         person = Person(id='P0')
         Presence(person, Subject(), event)
-        Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(event)
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(event)
         assert event.private
         assert event_file.private
         assert citation.private
@@ -463,7 +463,7 @@ class TestPrivatizer:
             public=True,
         )
         source.files.add(file)
-        Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(source)
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(source)
         assert not source.private
         assert file.privacy is Privacy.UNDETERMINED
 
@@ -478,7 +478,7 @@ class TestPrivatizer:
             private=True,
         )
         source.files.add(file)
-        Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(source)
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(source)
         assert source.private
         assert file.private
 
@@ -499,7 +499,7 @@ class TestPrivatizer:
             public=True,
         )
         citation.files.add(citation_file)
-        Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(citation)
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(citation)
         assert not citation.private
         assert source.privacy is Privacy.UNDETERMINED
         assert citation_file.privacy is Privacy.UNDETERMINED
@@ -522,7 +522,7 @@ class TestPrivatizer:
             private=True,
         )
         citation.files.add(citation_file)
-        Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(citation)
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(citation)
         assert citation.private
         assert source.private
         assert citation_file.private
@@ -537,7 +537,7 @@ class TestPrivatizer:
             public=True,
         )
         file.citations.add(citation)
-        Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(file)
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(file)
         assert not file.private
         assert citation.privacy is Privacy.UNDETERMINED
 
@@ -550,6 +550,6 @@ class TestPrivatizer:
             private=True,
         )
         file.citations.add(citation)
-        Privatizer(DEFAULT_LIFETIME_THRESHOLD).privatize(file)
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(file)
         assert file.private
         assert citation.private

@@ -1074,8 +1074,15 @@ class PersonName(Localized, HasCitations, HasMutablePrivacy, Entity):
 
     @property
     def label(self) -> Str:
+        # @todo Rendering a different label when the name is private
+        # @todo means that the original data becomes somewhat unavailable
+        # @todo We do need to be able to communicate ABOUT OUR PRIVATE DATA to the USER (not the public)
+        # @todo
         if self.private:
-            return Str._('private')
+            # @todo Temporarily check where this errors so we can add privacy checks there, then remove this.
+            raise RuntimeError
+        # if self.private:
+        #     return Str._('private')
         return Str._(
             '{individual_name} {affiliation_name}',
             individual_name='…' if not self.individual else self.individual,

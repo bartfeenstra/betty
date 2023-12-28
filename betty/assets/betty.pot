@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-12-19 18:46+0000\n"
+"POT-Creation-Date: 2023-12-28 23:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -600,6 +600,9 @@ msgid "Privatized {count} people because they are likely still alive."
 msgstr ""
 
 msgid "Privatized {count} {entity_type}, because they are associated with private people."
+msgstr ""
+
+msgid "Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity})."
 msgstr ""
 
 msgid "Privatizer"

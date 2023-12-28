@@ -26,7 +26,10 @@ class _Privatizer(UserFacingExtension, PostLoader):
         logger = getLogger()
         logger.info(self._app.localizer._('Privatizing...'))
 
-        privatizer = PrivatizerApi(self._app.project.configuration.lifetime_threshold)
+        privatizer = PrivatizerApi(
+            self._app.project.configuration.lifetime_threshold,
+            localizer=self._app.localizer,
+        )
 
         newly_privatized: dict[type[HasMutablePrivacy & Entity], int] = defaultdict(lambda: 0)
         entities: list[HasMutablePrivacy & Entity] = []
