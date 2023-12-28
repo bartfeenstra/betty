@@ -2,16 +2,18 @@
 
 ![Test status](https://github.com/bartfeenstra/betty/workflows/Test/badge.svg?branch=0.3.x) [![Code coverage](https://codecov.io/gh/bartfeenstra/betty/branch/0.3.x/graph/badge.svg)](https://codecov.io/gh/bartfeenstra/betty) [![PyPI releases](https://badge.fury.io/py/betty.svg)](https://pypi.org/project/betty/) [![Supported Python versions](https://img.shields.io/pypi/pyversions/betty.svg?logo=python&logoColor=FBE072)](https://pypi.org/project/betty/) [![Recent downloads](https://img.shields.io/pypi/dm/betty.svg)](https://pypi.org/project/betty/) [![Follow Betty on Twitter](https://img.shields.io/twitter/follow/Betty_Project.svg?label=Betty_Project&style=flat&logo=twitter&logoColor=4FADFF)](https://twitter.com/Betty_Project)
 
-Betty helps you visualize and publish your family history by building interactive genealogy websites out of your
+Betty helps you visualize and publish your family history by building interactive, encyclopedia-like genealogy websites out of your
 [Gramps](https://gramps-project.org/) and [GEDCOM](https://en.wikipedia.org/wiki/GEDCOM) family trees.
 
 ## Table of Contents
 
 - [Features](#features)
 - [Installation](#installation)
+  - [Installing Betty Desktop](#installing-betty-desktop)
+  - [Installing the Betty Command Line](#installing-the-betty-command-line)
 - [Usage](#usage)
-  - [The command line](#the-command-line)
-  - [The desktop application](#the-desktop-application)
+  - [Using Betty Desktop](#using-betty-desktop)
+  - [Using the Betty Command Line](#using-the-betty-command-line)
   - [Projects](#projects)
     - [Project configuration files](#project-configuration-files)
   - [Application configuration file](#application-configuration-file)
@@ -30,29 +32,26 @@ This means that once your site has been generated, you will not need any special
 secure**.
 
 - Builds pages for people, places, events, and media.
-- Renders interactive maps.
-- Fully multilingual: localize the site to one or more languages of your choice.
-- [Responsive](https://en.wikipedia.org/wiki/Responsive_web_design), and mobile- and touch-friendly interface.
-- Privatization filters for living people.
-- [View an example](https://ancestry.bartfeenstra.com/).
+- Renders interactive maps and family trees
+- Privacy by default
+- Fully multilingual: localize the site to one or more languages of your choice
+- [Responsive](https://en.wikipedia.org/wiki/Responsive_web_design), and mobile- and touch-friendly interface
+
+- [**View an example**](https://ancestry.bartfeenstra.com/)
 
 ## Installation
 
-### Requirements
+### Installing Betty Desktop
+On **Linux**, **macOS**, and **Windows**, [download](https://github.com/bartfeenstra/betty/releases) Betty Desktop for the latest release.
 
-Linux, macOS, or Windows.
 
-### Install the desktop application
-For macOS, [download](https://github.com/bartfeenstra/betty/releases) `betty.app.zip`.
-
-For Windows, [download](https://github.com/bartfeenstra/betty/releases) `betty.exe.zip`.
-
-### Install via pip
+### Installing the Betty Command Line
 
 #### Requirements
 
+- **Linux**, **macOS**, or **Windows**
 - **Python 3.11+**
-- [Node.js](https://nodejs.org/) (optional)
+- [Node.js](https://nodejs.org/) (optional, for some extensions)
 
 #### Instructions
 
@@ -63,7 +62,15 @@ the latest source code, read the [development](#development) documentation.
 
 ## Usage
 
-### The command line
+### Using Betty Desktop
+
+You can [download](https://github.com/bartfeenstra/betty/releases) Betty as macOS and Windows
+desktop applications.
+
+If you have installed Betty as a command line application, run `betty gui` to launch the desktop
+application.
+
+### Using the Betty Command Line
 
 After installation, Betty can be used via the `betty` command:
 
@@ -87,14 +94,6 @@ Commands:
   generate             Generate a static site.
   serve                Serve a generated site.
 ```
-
-### The desktop application
-
-You can [download](https://github.com/bartfeenstra/betty/releases) Betty as macOS and Windows
-desktop applications.
-
-If you have installed Betty as a command line application, run `betty gui` to launch the desktop
-application.
 
 ### Projects
 
