@@ -82,6 +82,9 @@ Options:
                             Defaults to betty.json|yaml|yml in the current
                             working directory. This will make additional
                             commands available.
+  -v, --verbose             Show verbose output, including debug log messages.
+  -vv, --more-verbose       Show more verbose output, including all log
+                            messages.
   --version                 Show the version and exit.
   --help                    Show this message and exit.
 
