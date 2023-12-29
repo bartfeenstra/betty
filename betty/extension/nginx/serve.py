@@ -26,7 +26,7 @@ class DockerizedNginxServer(AppServer):
         from betty.extension import Nginx
 
         await super().start()
-        logging.getLogger().info('Starting a Dockerized nginx web server...')
+        logging.getLogger(__name__).info('Starting a Dockerized nginx web server...')
         self._output_directory = TemporaryDirectory()
         output_directory_name = await self._output_directory.__aenter__()
         nginx_configuration_file_path = Path(output_directory_name) / 'nginx.conf'
@@ -72,5 +72,5 @@ class DockerizedNginxServer(AppServer):
             docker.from_env().info()
             return True
         except DockerException as e:
-            logging.getLogger().warning(e)
+            logging.getLogger(__name__).warning(e)
             return False

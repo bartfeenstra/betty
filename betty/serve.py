@@ -58,7 +58,7 @@ class Server:
         """
         Shows the served site to the user.
         """
-        logging.getLogger().info(self._localizer._('Serving your site at {url}...').format(
+        logging.getLogger(__name__).info(self._localizer._('Serving your site at {url}...').format(
             url=self.public_url,
         ))
         webbrowser.open_new_tab(self.public_url)
@@ -123,7 +123,7 @@ class BuiltinServer(AppServer):
 
     async def start(self) -> None:
         await super().start()
-        logging.getLogger().info(self._localizer._("Starting Python's built-in web server..."))
+        logging.getLogger(__name__).info(self._localizer._("Starting Python's built-in web server..."))
         for self._port in range(DEFAULT_PORT, 65535):
             with contextlib.suppress(OSError):
                 self._http_server = HTTPServer(

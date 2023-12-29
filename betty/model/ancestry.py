@@ -15,7 +15,7 @@ from betty.media_type import MediaType
 from betty.model import many_to_many, Entity, one_to_many, many_to_one, many_to_one_to_many, \
     MultipleTypesEntityCollection, EntityCollection, UserFacingEntity, EntityTypeAssociationRegistry, \
     PickleableEntityGraph
-from betty.model.event_type import EventType, StartOfLifeEventType, EndOfLifeEventType
+from betty.model.event_type import EventType
 from betty.pickle import State, Pickleable
 
 
@@ -888,6 +888,14 @@ class Presence(HasPrivacy, Entity):
     def entity_type_label_plural(cls) -> Str:
         return Str._('Presences')
 
+    @property
+    def label(self) -> Str:
+        return Str._(
+            'Presence of {person} at {event}',
+            person=self.person.label if self.person else Str._('Unknown'),
+            event=self.event.label if self.event else Str._('Unknown'),
+        )
+
     def _get_privacy(self) -> Privacy:
         return merge_privacies(self.person, self.event)
 
@@ -1074,15 +1082,6 @@ class PersonName(Localized, HasCitations, HasMutablePrivacy, Entity):
 
     @property
     def label(self) -> Str:
-        # @todo Rendering a different label when the name is private
-        # @todo means that the original data becomes somewhat unavailable
-        # @todo We do need to be able to communicate ABOUT OUR PRIVATE DATA to the USER (not the public)
-        # @todo
-        if self.private:
-            # @todo Temporarily check where this errors so we can add privacy checks there, then remove this.
-            raise RuntimeError
-        # if self.private:
-        #     return Str._('private')
         return Str._(
             '{individual_name} {affiliation_name}',
             individual_name='…' if not self.individual else self.individual,
@@ -1207,27 +1206,6 @@ class Person(HasFiles, HasCitations, HasLinks, HasMutablePrivacy, UserFacingEnti
             in self.names
             if is_public(name)
         ][1:]
-
-    def _shortcut_event(self, event_type: type[EventType]) -> Presence | None:
-        for presence in self.presences:
-            if not isinstance(presence.role, Subject):
-                continue
-            if presence.event is None:
-                continue
-            if not issubclass(presence.event.event_type, event_type):
-                continue
-            if not presence.public:
-                continue
-            return presence
-        return None
-
-    @property
-    def start(self) -> Presence | None:
-        return self._shortcut_event(StartOfLifeEventType)
-
-    @property
-    def end(self) -> Presence | None:
-        return self._shortcut_event(EndOfLifeEventType)
 
     @property
     def siblings(self) -> list[Person]:

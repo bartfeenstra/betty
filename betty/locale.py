@@ -712,7 +712,7 @@ async def init_translation(locale: str) -> None:
     po_file_path = _LOCALE_DIRECTORY_PATH / locale / 'betty.po'
     with contextlib.redirect_stdout(StringIO()):
         if await exists(po_file_path):
-            logging.getLogger().info(f'Translations for {locale} already exist at {po_file_path}.')
+            logging.getLogger(__name__).info(f'Translations for {locale} already exist at {po_file_path}.')
             return
 
         locale_data = get_data(locale)
@@ -729,7 +729,7 @@ async def init_translation(locale: str) -> None:
             '-D',
             'betty',
         ])
-        logging.getLogger().info(f'Translations for {locale} initialized at {po_file_path}.')
+        logging.getLogger(__name__).info(f'Translations for {locale} initialized at {po_file_path}.')
 
 
 async def update_translations(_output_assets_directory_path: Path = ASSETS_DIRECTORY_PATH) -> None:

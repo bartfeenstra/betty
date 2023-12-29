@@ -179,10 +179,11 @@ class TestGrampsLoader:
 </events>
 """)
         person = ancestry[Person]['I0000']
-        assert person.start is not None
-        assert person.start.event is not None
-        assert 'E0000' == person.start.event.id
-        assert Birth is person.start.event.event_type
+        birth = [presence for presence in person.presences if presence.event and presence.event.event_type is Birth][0]
+        assert birth is not None
+        assert birth.event is not None
+        assert 'E0000' == birth.event.id
+        assert Birth is birth.event.event_type
 
     async def test_person_should_include_death(self, test_load_xml_ancestry: Ancestry) -> None:
         ancestry = await self._load_partial("""
@@ -200,10 +201,10 @@ class TestGrampsLoader:
 </events>
 """)
         person = ancestry[Person]['I0000']
-        assert person.end is not None
-        assert person.end.event is not None
-        assert 'E0000' == person.end.event.id
-        assert Death is person.end.event.event_type
+        death = [presence for presence in person.presences if presence.event and presence.event.event_type is Death][0]
+        assert death is not None
+        assert death.event is not None
+        assert 'E0000' == death.event.id
 
     async def test_person_should_be_private(self, test_load_xml_ancestry: Ancestry) -> None:
         person = test_load_xml_ancestry[Person]['I0003']

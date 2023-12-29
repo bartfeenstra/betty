@@ -70,7 +70,7 @@ class Test(TemplateTestCase):
         }) as (actual, _):
             assert expected == actual
 
-    async def test_with_start(self) -> None:
+    async def test_with_start_of_life_event(self) -> None:
         person = Person(id='P0')
         Presence(person, Subject(), Event(
             event_type=Birth,
@@ -82,7 +82,7 @@ class Test(TemplateTestCase):
         }) as (actual, _):
             assert expected == actual
 
-    async def test_with_end(self) -> None:
+    async def test_with_end_of_life_event(self) -> None:
         person = Person(id='P0')
         Presence(person, Subject(), Event(
             event_type=Death,

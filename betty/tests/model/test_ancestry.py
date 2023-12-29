@@ -15,7 +15,7 @@ from betty.model.ancestry import Person, Event, Place, File, Note, Presence, Pla
     Enclosure, Described, Dated, HasPrivacy, HasMediaType, Link, HasLinks, HasNotes, HasFiles, Source, Citation, \
     HasCitations, PresenceRole, Ancestry, is_private, is_public, Privacy, \
     merge_privacies
-from betty.model.event_type import Burial, Birth, UnknownEventType
+from betty.model.event_type import Birth, UnknownEventType
 
 
 class DummyEntity(Entity):
@@ -799,16 +799,6 @@ class TestPerson:
             affiliation='Still not a Girl',
         )
         assert [alternative_name] == list(sut.alternative_names)
-
-    async def test_start(self) -> None:
-        sut = Person(id='P1')
-        start = Presence(sut, Subject(), Event(event_type=Birth))
-        assert start == sut.start
-
-    async def test_end(self) -> None:
-        sut = Person(id='P1')
-        end = Presence(sut, Subject(), Event(event_type=Burial))
-        assert end == sut.end
 
     async def test_siblings_without_parents(self) -> None:
         sut = Person(id='person')

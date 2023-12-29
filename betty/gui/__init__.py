@@ -138,6 +138,6 @@ class BettyApplication(QApplication):
         if isinstance(e, UserFacingError):
             window = ExceptionError(self._app, e, parent, close_parent=close_parent)
         else:
-            getLogger().exception(e)
+            getLogger(__name__).exception(e)
             window = UnexpectedExceptionError(self._app, e, parent, close_parent=close_parent)
         window.show()

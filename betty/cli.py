@@ -44,7 +44,7 @@ def catch_exceptions() -> Iterator[None]:
         sys.exit(0)
         pass
     except Exception as e:
-        logger = logging.getLogger()
+        logger = logging.getLogger(__name__)
         if isinstance(e, UserFacingError):
             logger.error(str(e))
         else:
@@ -93,10 +93,8 @@ async def _init_ctx_app(
         return
     ctx.obj['initialized'] = True
 
-    logger = logging.getLogger()
-    if logger.level > logging.INFO:
-        logger.setLevel(logging.INFO)
-    logger.addHandler(CliHandler())
+    logging.getLogger().addHandler(CliHandler())
+    logger = logging.getLogger(__name__)
 
     app = App()
     ctx.obj['commands'] = {
@@ -143,26 +141,20 @@ async def _init_ctx_app(
             ))
 
 
-def _init_ctx_verbose(
-    ctx: Context,
-    __: Option | Parameter | None = None,
-    verbose: bool = False,
-) -> None:
-    if verbose:
-        logger = logging.getLogger()
-        if logger.level > logging.DEBUG:
-            logger.setLevel(logging.DEBUG)
-
-
-def _init_ctx_more_verbose(
-    ctx: Context,
-    __: Option | Parameter | None = None,
-    more_verbose: bool = False,
-) -> None:
-    if more_verbose:
-        logger = logging.getLogger()
-        if logger.level > logging.NOTSET:
-            logger.setLevel(logging.NOTSET)
+def _build_init_ctx_verbosity(
+    logger_name: str | None,
+    logger_level: int,
+) -> Callable[[Context, Option | Parameter | None, bool], None]:
+    def _init_ctx_verbosity(
+        ctx: Context,
+        __: Option | Parameter | None = None,
+        is_verbose: bool = False,
+    ) -> None:
+        if is_verbose:
+            logger = logging.getLogger(logger_name)
+            if logger.getEffectiveLevel() > logger_level:
+                logger.setLevel(logger_level)
+    return _init_ctx_verbosity
 
 
 class _BettyCommands(click.MultiCommand):
@@ -194,8 +186,8 @@ class _BettyCommands(click.MultiCommand):
     is_eager=True,
     default=False,
     is_flag=True,
-    help='Show verbose output, including debug log messages.',
-    callback=_init_ctx_verbose,
+    help='Show verbose output, including informative log messages.',
+    callback=_build_init_ctx_verbosity('betty', logging.INFO),
 )
 @click.option(
     '-vv',
@@ -204,11 +196,21 @@ class _BettyCommands(click.MultiCommand):
     is_eager=True,
     default=False,
     is_flag=True,
-    help='Show more verbose output, including all log messages.',
-    callback=_init_ctx_more_verbose,
+    help='Show more verbose output, including debug log messages.',
+    callback=_build_init_ctx_verbosity('betty', logging.DEBUG),
+)
+@click.option(
+    '-vvv',
+    '--most-verbose',
+    'most_verbose',
+    is_eager=True,
+    default=False,
+    is_flag=True,
+    help='Show most verbose output, including all log messages.',
+    callback=_build_init_ctx_verbosity('betty', logging.NOTSET),
 )
 @click.version_option(about.version_label(), message=about.report(), prog_name='Betty')
-def main(app: App, verbose: bool, more_verbose: bool) -> None:
+def main(app: App, verbose: bool, more_verbose: bool, most_verbose: bool) -> None:
     pass
 
 

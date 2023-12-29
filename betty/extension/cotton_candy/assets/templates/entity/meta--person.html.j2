@@ -13,27 +13,32 @@
         {%- if alternative_names -%}
             <span class="aka">{%- trans names=alternative_names | map(_embedded_person_name_label if embedded else person_macros.name_label) | list | join(', ') -%}Also known as {{ names }}{%- endtrans -%}</span>
         {%- endif -%}
-        {%- set formatted_start -%}
-            {%- if entity.start and entity.start is public and entity.start.event -%}
-                {%- with event=entity.start.event -%}
+        {% set events = entity.presences | selectattr('role', 'subject_role') | map(attribute='event') | reject('none') | select('public') | list %}
+        {% set start_of_life_events = events | select('start_of_life_event') | list %}
+        {%- if start_of_life_events | length -%}
+            {% set start_of_life_event = start_of_life_events | first %}
+            {%- set formatted_start -%}
+                {%- with event=start_of_life_event -%}
                     {%- include 'event-dimensions.html.j2' -%}
                 {%- endwith -%}
-            {%- endif -%}
-        {%- endset -%}
-        {%- set formatted_end -%}
-            {%- if entity.end and entity.end is public and entity.end.event -%}
-                {%- with event=entity.end.event -%}
+            {%- endset -%}
+        {%- endif -%}
+        {% set end_of_life_events = events | select('end_of_life_event') | list %}
+        {%- if end_of_life_events | length -%}
+            {% set end_of_life_event = end_of_life_events | first %}
+            {%- set formatted_end -%}
+                {%- with event=end_of_life_event -%}
                     {%- include 'event-dimensions.html.j2' -%}
                 {%- endwith -%}
-            {%- endif -%}
-        {%- endset -%}
-        {%- if formatted_start or formatted_end -%}
+            {%- endset -%}
+        {%- endif -%}
+        {%- if formatted_start is defined or formatted_end is defined -%}
             <dl>
-                {%- if formatted_start -%}
-                    <div><dt>{{ entity.start.event.event_type.label() | localize }}</dt><dd>{{ formatted_start }}</dd></div>
+                {%- if formatted_start is defined -%}
+                    <div><dt>{{ start_of_life_event.event_type.label() | localize }}</dt><dd>{{ formatted_start }}</dd></div>
                 {%- endif -%}
-                {%- if formatted_end -%}
-                    <div><dt>{{ entity.end.event.event_type.label() | localize }}</dt><dd>{{ formatted_end }}</dd></div>
+                {%- if formatted_end is defined -%}
+                    <div><dt>{{ end_of_life_event.event_type.label() | localize }}</dt><dd>{{ formatted_end }}</dd></div>
                 {%- endif -%}
             </dl>
         {%- endif -%}

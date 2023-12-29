@@ -39,6 +39,7 @@ from betty.model import Entity, get_entity_type_name, GeneratedEntityId, UserFac
     AncestryEntityId
 from betty.model.ancestry import File, Citation, HasLinks, HasFiles, Subject, Witness, Dated, is_private, is_public, \
     AnonymousCitation, AnonymousSource
+from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
 from betty.os import link_or_copy
 from betty.path import rootname
 from betty.project import ProjectConfiguration
@@ -313,6 +314,8 @@ class Environment(Jinja2Environment):
         self.tests['subject_role'] = lambda x: isinstance(x, Subject)
         self.tests['witness_role'] = lambda x: isinstance(x, Witness)
         self.tests['date_range'] = lambda x: isinstance(x, DateRange)
+        self.tests['start_of_life_event'] = lambda event: issubclass(event.event_type, StartOfLifeEventType)
+        self.tests['end_of_life_event'] = lambda event: issubclass(event.event_type, EndOfLifeEventType)
 
     def _init_extensions(self) -> None:
         for extension in self.app.extensions.flatten():
