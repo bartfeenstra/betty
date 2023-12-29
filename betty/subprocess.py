@@ -53,7 +53,7 @@ async def _run(
         stdout_str,
         stderr_str,
     )
-    logging.getLogger().warning(
+    logging.getLogger(__name__).warning(
         f'{str(error)}\nSTDOUT:\n{indent(stdout_str, "    ")}\nSTDERR:{indent(stderr_str, "   ")}',
     )
     raise error

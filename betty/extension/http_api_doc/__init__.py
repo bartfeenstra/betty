@@ -21,7 +21,7 @@ class _HttpApiDoc(UserFacingExtension, Generator, NpmBuilder):
     async def npm_build(self, working_directory_path: Path, assets_directory_path: Path) -> None:
         await self.app.extensions[_Npm].install(type(self), working_directory_path)
         copy2(working_directory_path / 'node_modules' / 'redoc' / 'bundles' / 'redoc.standalone.js', assets_directory_path / 'http-api-doc.js')
-        logging.getLogger().info(self._app.localizer._('Built the HTTP API documentation.'))
+        logging.getLogger(__name__).info(self._app.localizer._('Built the HTTP API documentation.'))
 
     @classmethod
     def npm_cache_scope(cls) -> CacheScope:

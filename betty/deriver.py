@@ -31,7 +31,7 @@ class Deriver:
         self._localizer = localizer
 
     async def derive(self) -> None:
-        logger = logging.getLogger()
+        logger = logging.getLogger(__name__)
         for derivable_event_type in self._derivable_event_type:
             created_derivations = 0
             updated_derivations = 0

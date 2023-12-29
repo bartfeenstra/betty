@@ -6,7 +6,8 @@ from betty.load import load
 from betty.locale import DateRange, Date
 from betty.model import record_added
 from betty.model.ancestry import Person, Presence, Subject, Event
-from betty.model.event_type import DerivableEventType, CreatableDerivableEventType, Residence, EventType
+from betty.model.event_type import DerivableEventType, CreatableDerivableEventType, Residence, EventType, \
+    StartOfLifeEventType, EndOfLifeEventType
 from betty.project import ExtensionConfiguration
 
 
@@ -72,12 +73,12 @@ class TestDeriver:
             await load(app)
 
         assert 3 == len(person.presences)
-        start = person.start
+        start = [presence for presence in person.presences if presence.event and issubclass(presence.event.event_type, StartOfLifeEventType)][0]
         assert start is not None
         assert start.event is not None
         assert isinstance(start.event, Event)
         assert DateRange(None, Date(1, 1, 1), end_is_boundary=True) == start.event.date
-        end = person.end
+        end = [presence for presence in person.presences if presence.event and issubclass(presence.event.event_type, EndOfLifeEventType)][0]
         assert end is not None
         assert end.event is not None
         assert DateRange(Date(1, 1, 1), start_is_boundary=True) == end.event.date

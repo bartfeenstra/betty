@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-12-28 23:21+0000\n"
+"POT-Creation-Date: 2023-12-29 01:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -587,6 +587,9 @@ msgstr ""
 msgid "Presence"
 msgstr ""
 
+msgid "Presence of {person} at {event}"
+msgstr ""
+
 msgid "Presences"
 msgstr ""
 
@@ -594,6 +597,9 @@ msgid "Primary color (active)"
 msgstr ""
 
 msgid "Primary color (inactive)"
+msgstr ""
+
+msgid "Privatized person {privatized_person_id} ({privatized_person}) because they are likely still alive."
 msgstr ""
 
 msgid "Privatized {count} people because they are likely still alive."

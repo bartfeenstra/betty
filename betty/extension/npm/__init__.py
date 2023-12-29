@@ -48,10 +48,10 @@ class _NpmRequirement(Requirement):
     async def check(cls) -> _NpmRequirement:
         try:
             await npm(['--version'])
-            logging.getLogger().debug(cls._met_summary().localize(DEFAULT_LOCALIZER))
+            logging.getLogger(__name__).debug(cls._met_summary().localize(DEFAULT_LOCALIZER))
             return cls(True)
         except (CalledProcessError, FileNotFoundError):
-            logging.getLogger().debug(cls._unmet_summary().localize(DEFAULT_LOCALIZER))
+            logging.getLogger(__name__).debug(cls._unmet_summary().localize(DEFAULT_LOCALIZER))
             return cls(False)
 
     def is_met(self) -> bool:

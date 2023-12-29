@@ -9,6 +9,7 @@ from betty.locale import DateRange, Date, Localizer
 from betty.model import Entity
 from betty.model.ancestry import Person, Event, Citation, HasFiles, HasCitations, HasNotes, Source, \
     Presence, Privacy, HasMutablePrivacy, HasPrivacy
+from betty.model.event_type import EndOfLifeEventType
 
 Expirable: TypeAlias = Person | Event | Date | None
 
@@ -61,9 +62,7 @@ class Privatizer:
             self._privatize_has_notes(subject)
 
     def _privatize_person(self, person: Person) -> None:
-        # Do not change existing explicit privacy declarations.
-        if person.privacy is Privacy.UNDETERMINED:
-            person.privacy = self._person_privacy(person)
+        self._determine_person_privacy(person)
 
         if not person.private:
             return
@@ -131,27 +130,41 @@ class Privatizer:
             yield parent, generations_ago
             yield from self._ancestors_by_generation(parent, generations_ago + 1)
 
-    def _person_privacy(self, person: Person) -> Privacy:
+    def _determine_person_privacy(self, person: Person) -> None:
+        # Do not change existing explicit privacy declarations.
+        if person.privacy is not Privacy.UNDETERMINED:
+            return
+
         # A dead person is not private, regardless of when they died.
-        if person.end is not None and person.end.event is not None:
-            if person.end.event.date is None:
-                return Privacy.PUBLIC
-            if self.has_expired(person.end.event, 0):
-                return Privacy.PUBLIC
+        for presence in person.presences:
+            if presence.event and issubclass(presence.event.event_type, EndOfLifeEventType):
+                if presence.event.date is None:
+                    person.public = True
+                    return
+                if self.has_expired(presence.event, 0):
+                    person.public = True
+                    return
 
         if self.has_expired(person, 1):
-            return Privacy.PUBLIC
+            person.public = True
+            return
 
         for ancestor, generations_ago in self._ancestors_by_generation(person):
             if self.has_expired(ancestor, generations_ago + 1):
-                return Privacy.PUBLIC
+                person.public = True
+                return
 
         # If any descendant has any expired event, the person is considered not private.
         for descendant in walk(person, 'children'):
             if self.has_expired(descendant, 1):
-                return Privacy.PUBLIC
+                person.public = True
+                return
 
-        return Privacy.PRIVATE
+        person.private = True
+        logging.getLogger(__name__).debug(self._localizer._('Privatized person {privatized_person_id} ({privatized_person}) because they are likely still alive.').format(
+            privatized_person_id=person.id,
+            privatized_person=person.label.localize(self._localizer),
+        ))
 
     def has_expired(
         self,
@@ -200,7 +213,7 @@ class Privatizer:
         # Do not change existing explicit privacy declarations.
         if target.privacy is not Privacy.PUBLIC:
             if isinstance(target, Entity) and isinstance(reason, Entity):
-                logging.getLogger().debug(self._localizer._('Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity}).').format(
+                logging.getLogger(__name__).debug(self._localizer._('Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity}).').format(
                     privatized_entity_type=target.entity_type_label().localize(self._localizer),
                     privatized_entity_id=target.id,
                     privatized_entity=target.label.localize(self._localizer),

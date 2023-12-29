@@ -15,12 +15,12 @@ from betty.project import DEFAULT_LIFETIME_THRESHOLD
 def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
     multiplier = abs(generation) + 1 if generation < 0 else 1
     lifetime_threshold_year = datetime.now().year - DEFAULT_LIFETIME_THRESHOLD * multiplier
-    date_underDEFAULT_LIFETIME_THRESHOLD = Date(lifetime_threshold_year + 1, 1, 1)
-    date_range_start_underDEFAULT_LIFETIME_THRESHOLD = DateRange(date_underDEFAULT_LIFETIME_THRESHOLD)
-    date_range_end_underDEFAULT_LIFETIME_THRESHOLD = DateRange(None, date_underDEFAULT_LIFETIME_THRESHOLD)
-    date_overDEFAULT_LIFETIME_THRESHOLD = Date(lifetime_threshold_year - 1, 1, 1)
-    date_range_start_overDEFAULT_LIFETIME_THRESHOLD = DateRange(date_overDEFAULT_LIFETIME_THRESHOLD)
-    date_range_end_overDEFAULT_LIFETIME_THRESHOLD = DateRange(None, date_overDEFAULT_LIFETIME_THRESHOLD)
+    date_under_lifetime_threshold = Date(lifetime_threshold_year + 1, 1, 1)
+    date_range_start_under_lifetime_threshold = DateRange(date_under_lifetime_threshold)
+    date_range_end_under_lifetime_threshold = DateRange(None, date_under_lifetime_threshold)
+    date_over_lifetime_threshold = Date(lifetime_threshold_year - 1, 1, 1)
+    date_range_start_over_lifetime_threshold = DateRange(date_over_lifetime_threshold)
+    date_range_end_over_lifetime_threshold = DateRange(None, date_over_lifetime_threshold)
     return [
         # If there are no events for a person, they are private.
         (True, Privacy.UNDETERMINED, None),
@@ -36,27 +36,27 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
         )),
         (generation != 0, Privacy.UNDETERMINED, Event(
             event_type=Death,
-            date=date_underDEFAULT_LIFETIME_THRESHOLD,
+            date=date_under_lifetime_threshold,
         )),
         (True, Privacy.UNDETERMINED, Event(
             event_type=Death,
-            date=date_range_start_underDEFAULT_LIFETIME_THRESHOLD,
+            date=date_range_start_under_lifetime_threshold,
         )),
         (generation != 0, Privacy.UNDETERMINED, Event(
             event_type=Death,
-            date=date_range_end_underDEFAULT_LIFETIME_THRESHOLD,
+            date=date_range_end_under_lifetime_threshold,
         )),
         (False, Privacy.UNDETERMINED, Event(
             event_type=Death,
-            date=date_overDEFAULT_LIFETIME_THRESHOLD,
+            date=date_over_lifetime_threshold,
         )),
         (True, Privacy.UNDETERMINED, Event(
             event_type=Death,
-            date=date_range_start_overDEFAULT_LIFETIME_THRESHOLD,
+            date=date_range_start_over_lifetime_threshold,
         )),
         (False, Privacy.UNDETERMINED, Event(
             event_type=Death,
-            date=date_range_end_overDEFAULT_LIFETIME_THRESHOLD,
+            date=date_range_end_over_lifetime_threshold,
         )),
         (True, Privacy.PRIVATE, Event(event_type=Death)),
         (False, Privacy.PUBLIC, Event(event_type=Death)),
@@ -84,77 +84,77 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
         # Regular events under the lifetime threshold do not affect privacy.
         (True, Privacy.UNDETERMINED, Event(
             event_type=Birth,
-            date=date_underDEFAULT_LIFETIME_THRESHOLD,
+            date=date_under_lifetime_threshold,
         )),
         (True, Privacy.PRIVATE, Event(
             event_type=Birth,
-            date=date_underDEFAULT_LIFETIME_THRESHOLD,
+            date=date_under_lifetime_threshold,
         )),
         (False, Privacy.PUBLIC, Event(
             event_type=Birth,
-            date=date_underDEFAULT_LIFETIME_THRESHOLD,
+            date=date_under_lifetime_threshold,
         )),
         (True, Privacy.UNDETERMINED, Event(
             event_type=Birth,
-            date=date_range_start_underDEFAULT_LIFETIME_THRESHOLD,
+            date=date_range_start_under_lifetime_threshold,
         )),
         (True, Privacy.PRIVATE, Event(
             event_type=Birth,
-            date=date_range_start_underDEFAULT_LIFETIME_THRESHOLD,
+            date=date_range_start_under_lifetime_threshold,
         )),
         (False, Privacy.PUBLIC, Event(
             event_type=Birth,
-            date=date_range_start_underDEFAULT_LIFETIME_THRESHOLD,
+            date=date_range_start_under_lifetime_threshold,
         )),
         (True, Privacy.UNDETERMINED, Event(
             event_type=Birth,
-            date=date_range_end_underDEFAULT_LIFETIME_THRESHOLD,
+            date=date_range_end_under_lifetime_threshold,
         )),
         (True, Privacy.PRIVATE, Event(
             event_type=Birth,
-            date=date_range_end_underDEFAULT_LIFETIME_THRESHOLD,
+            date=date_range_end_under_lifetime_threshold,
         )),
         (False, Privacy.PUBLIC, Event(
             event_type=Birth,
-            date=date_range_end_underDEFAULT_LIFETIME_THRESHOLD,
+            date=date_range_end_under_lifetime_threshold,
         )),
 
         # Regular events over the lifetime threshold affect privacy.
         (False, Privacy.UNDETERMINED, Event(
             event_type=Birth,
-            date=date_overDEFAULT_LIFETIME_THRESHOLD,
+            date=date_over_lifetime_threshold,
         )),
         (True, Privacy.PRIVATE, Event(
             event_type=Birth,
-            date=date_overDEFAULT_LIFETIME_THRESHOLD,
+            date=date_over_lifetime_threshold,
         )),
         (False, Privacy.PUBLIC, Event(
             event_type=Birth,
-            date=date_overDEFAULT_LIFETIME_THRESHOLD,
+            date=date_over_lifetime_threshold,
         )),
         (True, Privacy.UNDETERMINED, Event(
             event_type=Birth,
-            date=date_range_start_overDEFAULT_LIFETIME_THRESHOLD,
+            date=date_range_start_over_lifetime_threshold,
         )),
         (True, Privacy.PRIVATE, Event(
             event_type=Birth,
-            date=date_range_start_overDEFAULT_LIFETIME_THRESHOLD,
+            date=date_range_start_over_lifetime_threshold,
         )),
         (False, Privacy.PUBLIC, Event(
             event_type=Birth,
-            date=date_range_start_overDEFAULT_LIFETIME_THRESHOLD,
+            date=date_range_start_over_lifetime_threshold,
         )),
         (False, Privacy.UNDETERMINED, Event(
             event_type=Birth,
-            date=date_range_end_overDEFAULT_LIFETIME_THRESHOLD,
+            date=date_range_end_over_lifetime_threshold,
         )),
         (True, Privacy.PRIVATE, Event(
             event_type=Birth,
-            date=date_range_end_overDEFAULT_LIFETIME_THRESHOLD,
+            date=date_range_end_over_lifetime_threshold,
         )),
         (False, Privacy.PUBLIC, Event(
             event_type=Birth,
-            date=date_range_end_overDEFAULT_LIFETIME_THRESHOLD,
+            date=date_range_end_over_lifetime_threshold,
         )),
     ]
 

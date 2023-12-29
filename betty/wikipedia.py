@@ -86,7 +86,7 @@ class _Retriever:
                 response_data = json.loads(json_data)
 
         if response_data is None:
-            logger = logging.getLogger()
+            logger = logging.getLogger(__name__)
             try:
                 async with self._http_client.get(url) as response:
                     response_data = await response.json(encoding='utf-8')

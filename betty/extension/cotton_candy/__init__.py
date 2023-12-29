@@ -5,7 +5,7 @@ import re
 from collections.abc import Sequence
 from pathlib import Path
 from shutil import copy2
-from typing import Any, Callable, Iterable, cast, Self
+from typing import Any, Callable, Iterable, Self, cast
 
 from PyQt6.QtWidgets import QWidget
 from aiofiles.os import makedirs
@@ -22,9 +22,10 @@ from betty.functools import walk
 from betty.generate import Generator, GenerationContext
 from betty.gui import GuiBuilder
 from betty.jinja2 import Jinja2Provider, context_app, context_localizer, context_task_context
-from betty.locale import Date, Datey, Str
+from betty.locale import Date, Str, Datey
 from betty.model import Entity, UserFacingEntity
-from betty.model.ancestry import Event, Person, Presence, is_public
+from betty.model.ancestry import Event, Person, Presence, is_public, Subject
+from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
 from betty.project import EntityReferenceSequence, EntityReference
 from betty.serde.dump import minimize, Dump, VoidableDump
 from betty.serde.load import AssertionFailed, Fields, Assertions, OptionalField, Asserter
@@ -214,7 +215,7 @@ class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Gener
         await self.app.extensions[_Npm].install(type(self), working_directory_path)
         await npm(('run', 'webpack'), cwd=working_directory_path)
         await self._copy_npm_build(working_directory_path / 'webpack-build', assets_directory_path)
-        logging.getLogger().info(self._app.localizer._('Built the Cotton Candy front-end assets.'))
+        logging.getLogger(__name__).info(self._app.localizer._('Built the Cotton Candy front-end assets.'))
 
     async def _copy_npm_build(self, source_directory_path: Path, destination_directory_path: Path) -> None:
         await makedirs(destination_directory_path, exist_ok=True)
@@ -253,29 +254,41 @@ def person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable[
     # Start with the person's own events for which their presence is public.
     for presence in person.presences:
         if _is_person_timeline_presence(presence):
-            yield cast(Event, presence.event)
+            assert presence.event is not None
+            yield presence.event
         continue
 
     # If the person has start- or end-of-life events, we use those to constrain associated people's events.
-    start_date = None
-    end_date = None
-    if person.start and _is_person_timeline_presence(person.start):
-        start_date = cast(Event, person.start.event).date
-    if person.end and _is_person_timeline_presence(person.end):
-        end_date = cast(Event, person.end.event).date
+    start_dates = []
+    end_dates = []
+    for presence in person.presences:
+        if not _is_person_timeline_presence(presence):
+            continue
+        assert presence.event is not None
+        assert presence.event.date is not None
+        if not isinstance(presence.role, Subject):
+            continue
+        if issubclass(presence.event.event_type, StartOfLifeEventType):
+            start_dates.append(presence.event.date)
+        if issubclass(presence.event.event_type, EndOfLifeEventType):
+            end_dates.append(presence.event.date)
+    start_date = sorted(start_dates)[0] if start_dates else None
+    end_date = sorted(end_dates)[0] if end_dates else None
 
     # If an end-of-life event exists, but no start-of-life event, create a start-of-life date based on the end date,
     # minus the lifetime threshold.
-    if not start_date and end_date:
+    if start_date is None and end_date is not None:
         if isinstance(end_date, Date):
             start_date_reference = end_date
         else:
-            if end_date.end and end_date.end.comparable:
+            if end_date.end is not None and end_date.end.comparable:
                 start_date_reference = end_date.end
             else:
-                start_date_reference = cast(Date, end_date.start)
+                assert end_date.start is not None
+                start_date_reference = end_date.start
+        assert start_date_reference.year is not None
         start_date = Date(
-            cast(int, start_date_reference.year) - lifetime_threshold,
+            start_date_reference.year - lifetime_threshold,
             start_date_reference.month,
             start_date_reference.day,
             start_date_reference.fuzzy,
@@ -283,22 +296,24 @@ def person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable[
 
     # If a start-of-life event exists, but no end-of-life event, create an end-of-life date based on the start date,
     # plus the lifetime threshold.
-    if not end_date and start_date:
+    if end_date is None and start_date is not None:
         if isinstance(start_date, Date):
             end_date_reference = start_date
         else:
             if start_date.start and start_date.start.comparable:
                 end_date_reference = start_date.start
             else:
-                end_date_reference = cast(Date, start_date.end)
+                assert start_date.end is not None
+                end_date_reference = start_date.end
+        assert end_date_reference.year is not None
         end_date = Date(
-            cast(int, end_date_reference.year) + lifetime_threshold,
+            end_date_reference.year + lifetime_threshold,
             end_date_reference.month,
             end_date_reference.day,
             end_date_reference.fuzzy,
         )
 
-    if not start_date or not end_date:
+    if start_date is None or end_date is None:
         reference_dates = list(sorted(
             cast(Datey, cast(Event, presence.event).date)
             for presence
@@ -311,7 +326,7 @@ def person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable[
             if not end_date:
                 end_date = reference_dates[-1]
 
-    if start_date and end_date:
+    if start_date is not None and end_date is not None:
         associated_people = filter(is_public, (
             # All ancestors.
             *walk(person, 'parents'),
@@ -322,13 +337,17 @@ def person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable[
         ))
         for associated_person in associated_people:
             # For associated events, we are only interested in people's start- or end-of-life events.
-            for associated_presence in (associated_person.start, associated_person.end):
-                if associated_presence is None:
+            for associated_presence in associated_person.presences:
+                if not associated_presence.event or not issubclass(associated_presence.event.event_type, (StartOfLifeEventType, EndOfLifeEventType)):
+                    continue
+                if not isinstance(associated_presence.role, Subject):
                     continue
                 if not _is_person_timeline_presence(associated_presence):
                     continue
-                if cast(Event, associated_presence.event).date < start_date:
+                if not associated_presence.event.date:
                     continue
-                if cast(Event, associated_presence.event).date > end_date:
+                if associated_presence.event.date < start_date:
                     continue
-                yield cast(Event, associated_presence.event)
+                if associated_presence.event.date > end_date:
+                    continue
+                yield associated_presence.event
