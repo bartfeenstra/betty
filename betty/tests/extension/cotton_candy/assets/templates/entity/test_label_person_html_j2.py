@@ -52,7 +52,7 @@ class Test(TemplateTestCase):
             id='P0',
             private=True,
         )
-        expected = '<a href="/person/P0/index.html"><span class="private" title="This person\'s details are unavailable to protect their privacy.">private</span></a>'
+        expected = '<span class="private" title="This person\'s details are unavailable to protect their privacy.">private</span>'
         async with self._render(data={
             'entity': person,
         }) as (actual, _):

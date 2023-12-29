@@ -1,12 +1,18 @@
 {% set ns = namespace(people={}) %}
 {% for person in app.project.ancestry['Person'] %}
+    {% if person.public %}
+        {% set person_label = person.label | localize %}
+    {% else %}
+        {% set person_label = _('private') %}
+    {% endif %}
     {% do ns.people.update({
         person.id: {
             'id': person.id,
-            'label': person.label | localize,
+            'label': person_label,
             'url': person | url,
             'parentIds': person.parents | map(attribute='id') | list,
             'childIds': person.children | map(attribute='id') | list,
+            'private': person.private,
         }
     }) %}
 {% endfor %}

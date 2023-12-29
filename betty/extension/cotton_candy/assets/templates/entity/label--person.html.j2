@@ -1,7 +1,7 @@
 {% import 'macro/person.html.j2' as person_macros %}
 {% set embedded = embedded | default(False) %}
 {% set person_context = entity_contexts['Person'] %}
-{% if not embedded and person_context != entity and entity is not has_generated_entity_id -%}
+{% if not embedded and person_context != entity and entity is not has_generated_entity_id and entity is public -%}
     <a href="{{ entity | url }}">
 {%- endif %}
 {% if entity.private or entity.name is not none and entity.name.private -%}
@@ -11,6 +11,6 @@
 {%- else -%}
     <span class="nn" title="{% trans %}This person's name is unknown.{% endtrans %}">n.n.</span>
 {%- endif %}
-{% if not embedded and person_context != entity and entity is not has_generated_entity_id -%}
+{% if not embedded and person_context != entity and entity is not has_generated_entity_id and entity is public -%}
     </a>
 {%- endif %}
