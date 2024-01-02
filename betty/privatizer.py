@@ -211,14 +211,16 @@ class Privatizer:
 
     def _mark_private(self, target: HasMutablePrivacy, reason: Any) -> None:
         # Do not change existing explicit privacy declarations.
-        if target.privacy is not Privacy.PUBLIC:
-            if isinstance(target, Entity) and isinstance(reason, Entity):
-                logging.getLogger(__name__).debug(self._localizer._('Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity}).').format(
-                    privatized_entity_type=target.entity_type_label().localize(self._localizer),
-                    privatized_entity_id=target.id,
-                    privatized_entity=target.label.localize(self._localizer),
-                    reason_entity_type=reason.entity_type_label().localize(self._localizer),
-                    reason_entity_id=reason.id,
-                    reason_entity=reason.label.localize(self._localizer),
-                ))
-            target.privacy = Privacy.PRIVATE
+        if target.privacy is not Privacy.UNDETERMINED:
+            return
+
+        target.private = True
+        if isinstance(target, Entity) and isinstance(reason, Entity):
+            logging.getLogger(__name__).debug(self._localizer._('Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity}).').format(
+                privatized_entity_type=target.entity_type_label().localize(self._localizer),
+                privatized_entity_id=target.id,
+                privatized_entity=target.label.localize(self._localizer),
+                reason_entity_type=reason.entity_type_label().localize(self._localizer),
+                reason_entity_id=reason.id,
+                reason_entity=reason.label.localize(self._localizer),
+            ))
