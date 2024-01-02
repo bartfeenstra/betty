@@ -7,7 +7,7 @@ import pytest
 from betty.app import App
 from betty.extension.cotton_candy import _ColorConfiguration, CottonCandyConfiguration, person_timeline_events
 from betty.locale import Datey, Date, DateRange
-from betty.model import Entity, get_entity_type_name, UserFacingEntity
+from betty.model import Entity, get_entity_type_name, UserFacingEntity, GeneratedEntityId
 from betty.model.ancestry import Person, Presence, Subject, Event, PresenceRole, Attendee, Privacy
 from betty.model.event_type import Birth, UnknownEventType, EventType, Death
 from betty.project import EntityReference, DEFAULT_LIFETIME_THRESHOLD
@@ -191,6 +191,7 @@ _AFTER_REFERENCE_DATE = Date(2000, 1, 1)
 def _parameterize_with_associated_events() -> Iterator[tuple[
     bool,
     PresenceRole,
+    str | None,
     Privacy,
     type[EventType],
     Datey | None,
@@ -198,6 +199,10 @@ def _parameterize_with_associated_events() -> Iterator[tuple[
     type[EventType],
     Datey | None,
 ]]:
+    ids = (
+        (True, 'E1'),
+        (False, None),
+    )
     privacies = (
         (True, Privacy.PUBLIC),
         (False, Privacy.PRIVATE),
@@ -224,46 +229,56 @@ def _parameterize_with_associated_events() -> Iterator[tuple[
         (True, _BEFORE_REFERENCE_DATE, Death),
         (False, _AFTER_REFERENCE_DATE, Death),
     )
-    for event_privacy_expected, event_privacy in privacies:
-        for person_reference_event_privacy_expected, person_reference_event_privacy in privacies:
-            for person_reference_event_datey_expected, person_reference_event_datey in person_event_reference_dateys:
-                for person_presence_role_expected, person_presence_role in person_presence_roles:
-                    for event_datey_and_person_reference_event_type_expected, event_datey, person_reference_event_type in event_dateys_and_person_reference_event_types:
-                        for event_type_expected, event_type in event_types:
-                            yield (
-                                all((
-                                    person_presence_role_expected,
-                                    event_privacy_expected,
-                                    event_type_expected,
-                                    event_datey_and_person_reference_event_type_expected,
-                                    person_reference_event_privacy_expected,
-                                    person_reference_event_datey_expected,
-                                )),
-                                person_presence_role,
-                                event_privacy,
-                                event_type,
-                                event_datey,
-                                person_reference_event_privacy,
-                                person_reference_event_type,
-                                person_reference_event_datey,
-                            )
+    for event_id_expected, event_id in ids:
+        for event_privacy_expected, event_privacy in privacies:
+            for person_reference_event_privacy_expected, person_reference_event_privacy in privacies:
+                for person_reference_event_datey_expected, person_reference_event_datey in person_event_reference_dateys:
+                    for person_presence_role_expected, person_presence_role in person_presence_roles:
+                        for event_datey_and_person_reference_event_type_expected, event_datey, person_reference_event_type in event_dateys_and_person_reference_event_types:
+                            for event_type_expected, event_type in event_types:
+                                yield (
+                                    all((
+                                        person_presence_role_expected,
+                                        event_id_expected,
+                                        event_privacy_expected,
+                                        event_type_expected,
+                                        event_datey_and_person_reference_event_type_expected,
+                                        person_reference_event_privacy_expected,
+                                        person_reference_event_datey_expected,
+                                    )),
+                                    person_presence_role,
+                                    event_id,
+                                    event_privacy,
+                                    event_type,
+                                    event_datey,
+                                    person_reference_event_privacy,
+                                    person_reference_event_type,
+                                    person_reference_event_datey,
+                                )
 
 
 class TestPersonLifetimeEvents:
-    @pytest.mark.parametrize('expected, event_privacy, event_datey', [
-        (False, Privacy.PUBLIC, None),
-        (True, Privacy.PUBLIC, Date(1970, 1, 1)),
-        (False, Privacy.PUBLIC, Date(None, 1, 1)),
-        (False, Privacy.PRIVATE, Date(1970, 1, 1)),
+    @pytest.mark.parametrize('expected, event_id, event_privacy, event_datey', [
+        # Events without dates are omitted from timelines.
+        (False, 'E1', Privacy.PUBLIC, None),
+        (True, 'E1', Privacy.PUBLIC, Date(1970, 1, 1)),
+        # Events with generated IDs are included if they are the person's own.
+        (True, None, Privacy.PUBLIC, Date(1970, 1, 1)),
+        # Events with non-comparable dates are omitted from timelines.
+        (False, 'E1', Privacy.PUBLIC, Date(None, 1, 1)),
+        # Private events are omitted from timelines.
+        (False, 'E1', Privacy.PRIVATE, Date(1970, 1, 1)),
     ])
     async def test_with_person_event(
         self,
         expected: bool,
+        event_id: str | None,
         event_privacy: Privacy,
         event_datey: Datey | None,
     ) -> None:
         person = Person()
         event = Event(
+            id=event_id,
             event_type=UnknownEventType,
             date=event_datey,
             privacy=event_privacy,
@@ -275,6 +290,7 @@ class TestPersonLifetimeEvents:
     @pytest.mark.parametrize((
         'expected',
         'presence_role',
+        'event_id',
         'event_privacy',
         'event_type',
         'event_datey',
@@ -286,6 +302,7 @@ class TestPersonLifetimeEvents:
         self,
         expected: bool,
         presence_role: PresenceRole,
+        event_id: str | None,
         event_privacy: Privacy,
         event_type: type[EventType],
         event_datey: Datey | None,
@@ -293,8 +310,21 @@ class TestPersonLifetimeEvents:
         person_reference_event_type: type[EventType],
         person_reference_event_datey: Datey | None,
     ) -> None:
+        event_ids = 0
+
+        def _event_id(event_id: str | None) -> str | None:
+            nonlocal event_ids
+
+            if event_id is None:
+                return None
+            if isinstance(event_id, GeneratedEntityId):
+                return event_id
+            event_ids += 1
+            return f'{event_id}-{event_ids}'
+
         person = Person()
         person_reference_event = Event(
+            id=_event_id(event_id),
             event_type=person_reference_event_type,
             date=person_reference_event_datey,
             privacy=person_reference_event_privacy,
@@ -308,6 +338,7 @@ class TestPersonLifetimeEvents:
         ancestor3 = Person()
         ancestor3.children.add(ancestor2)
         ancestor3_event = Event(
+            id=_event_id(event_id),
             event_type=event_type,
             date=event_datey,
             privacy=event_privacy,
@@ -321,6 +352,7 @@ class TestPersonLifetimeEvents:
         descendant3 = Person()
         descendant3.parents.add(descendant2)
         descendant3_event = Event(
+            id=_event_id(event_id),
             event_type=event_type,
             date=event_datey,
             privacy=event_privacy,
@@ -330,6 +362,7 @@ class TestPersonLifetimeEvents:
         sibling = Person()
         sibling.parents.add(ancestor1)
         sibling_event = Event(
+            id=_event_id(event_id),
             event_type=event_type,
             date=event_datey,
             privacy=event_privacy,
