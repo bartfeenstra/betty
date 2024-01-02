@@ -1,4 +1,4 @@
-{% set entities = entities | list %}
+{% set entities = entities | select('public') | list %}
 <div class="entities featured">
     {% for file in entities %}
         {% if entities[loop.index0 - 1] is defined %}

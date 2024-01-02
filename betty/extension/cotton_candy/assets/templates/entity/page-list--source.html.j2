@@ -1,5 +1,6 @@
 {% extends 'entity/page-list.html.j2' %}
 {% set page_title = _('Sources') %}
+{% set entities = entities | select('public') | list %}
 {% block page_content %}
     {% if entities | length > 0 %}
         <ul class="entities">

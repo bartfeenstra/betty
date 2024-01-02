@@ -1,11 +1,12 @@
 {% set place_context = entity_contexts['Place'] %}
 {% set featured = featured | default(True) %}
+{% set entities = entities | select('public') | list | sort_localizeds(localized_attribute='names', sort_attribute='name') | list %}
 <div class="places{% if 'betty.extension.Maps' in app.extensions %} with-map{% endif %}">
     {% if 'betty.extension.Maps' in app.extensions and entities | rejectattr('coordinates', 'none') | list | length > 0 %}
         <div class="{% if featured %}featured {% endif %}map"></div>
     {% endif %}
     <ul class="entities{% if hide_list | default(false) %} visually-hidden{% endif %}{% if map_hides_list | default(false) %} js-visually-hidden{% endif %}">
-        {% for place in entities | sort_localizeds(localized_attribute='names', sort_attribute='name') %}
+        {% for place in entities %}
             <li class="{{ loop.cycle('odd', 'even') }}" data-betty-place="{{ place | url(media_type='application/json') }}">
                 {% with entity = place %}
                     {% include ['entity/label--place.html.j2', 'entity/label.html.j2'] %}
