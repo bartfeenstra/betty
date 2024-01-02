@@ -12,7 +12,7 @@ jobs:
       matrix:
         include:
           - name: Linux
-            os: ubuntu-20.04
+            os: ubuntu-latest
             dist_name: betty-linux
             python: '3.12'
           - name: macOS
