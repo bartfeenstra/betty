@@ -2,7 +2,7 @@
 {% set page_title = _('People') %}
 {% block page_content %}
     {% if entities | length > 0 %}
-        {% with entities=entities | rejectattr('private', 'eq', True), group_by_affiliation=True %}
+        {% with group_by_affiliation=True %}
             {% include 'entity/list--person.html.j2' %}
         {% endwith %}
     {% else %}

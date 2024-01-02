@@ -1,4 +1,4 @@
-{% set dated_events = entities | rejectattr('date', 'none') | selectattr('date.comparable') | list | sort(attribute='date') %}
+{% set dated_events = entities | select('public') | rejectattr('date', 'none') | selectattr('date.comparable') | list | sort(attribute='date') %}
 {% if dated_events | length > 0 %}
     <ul class="entities">
         {% for entity in dated_events %}
