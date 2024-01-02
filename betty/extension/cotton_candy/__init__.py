@@ -23,7 +23,7 @@ from betty.generate import Generator, GenerationContext
 from betty.gui import GuiBuilder
 from betty.jinja2 import Jinja2Provider, context_app, context_localizer, context_task_context
 from betty.locale import Date, Str, Datey
-from betty.model import Entity, UserFacingEntity
+from betty.model import Entity, UserFacingEntity, GeneratedEntityId
 from betty.model.ancestry import Event, Person, Presence, is_public, Subject
 from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
 from betty.project import EntityReferenceSequence, EntityReference
@@ -339,6 +339,8 @@ def person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable[
             # For associated events, we are only interested in people's start- or end-of-life events.
             for associated_presence in associated_person.presences:
                 if not associated_presence.event or not issubclass(associated_presence.event.event_type, (StartOfLifeEventType, EndOfLifeEventType)):
+                    continue
+                if isinstance(associated_presence.event.id, GeneratedEntityId):
                     continue
                 if not isinstance(associated_presence.role, Subject):
                     continue
