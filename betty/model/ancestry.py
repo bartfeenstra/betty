@@ -79,7 +79,7 @@ class HasMutablePrivacy(HasPrivacy):
 
     @privacy.deleter
     def privacy(self) -> None:
-        self._privacy = Privacy.UNDETERMINED
+        self.privacy = Privacy.UNDETERMINED
 
     @property
     def private(self) -> bool:
@@ -87,7 +87,7 @@ class HasMutablePrivacy(HasPrivacy):
 
     @private.setter
     def private(self, private: True) -> None:
-        self._privacy = Privacy.PRIVATE
+        self.privacy = Privacy.PRIVATE
 
     @property
     def public(self) -> bool:
@@ -96,7 +96,7 @@ class HasMutablePrivacy(HasPrivacy):
 
     @public.setter
     def public(self, public: True) -> None:
-        self._privacy = Privacy.PUBLIC
+        self.privacy = Privacy.PUBLIC
 
 
 def is_private(target: Any) -> bool:
@@ -859,7 +859,7 @@ class Organizer(PresenceRole):
     'betty.model.ancestry.Event',
     'presences',
 )
-class Presence(HasPrivacy, Entity):
+class Presence(HasMutablePrivacy, Entity):
     person: Person | None
     event: Event | None
     role: PresenceRole
@@ -897,7 +897,11 @@ class Presence(HasPrivacy, Entity):
         )
 
     def _get_privacy(self) -> Privacy:
-        return merge_privacies(self.person, self.event)
+        return merge_privacies(
+            super()._get_privacy(),
+            self.person,
+            self.event,
+        )
 
 
 @many_to_one('place', 'betty.model.ancestry.Place', 'events')

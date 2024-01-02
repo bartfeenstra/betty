@@ -272,10 +272,13 @@ class GrampsLoader:
         text_element = self._xpath1(element, './ns:text')
         assert text_element is not None
         text = str(text_element.text)
-        self.add_entity(AliasedEntity(Note(
+        note = Note(
             id=note_id,
             text=text,
-        ), handle))
+        )
+        if element.get('priv') == '1':
+            note.private = True
+        self.add_entity(AliasedEntity(note, handle))
 
     def _load_objects(self, database: ElementTree.Element, gramps_tree_directory_path: Path) -> None:
         for element in self._xpath(database, './ns:objects/ns:object'):
@@ -298,6 +301,8 @@ class GrampsLoader:
         description = file_element.get('description')
         if description:
             file.description = description
+        if element.get('priv') == '1':
+            file.private = True
         self._load_attribute_privacy(file, element, 'attribute')
         self.add_entity(AliasedEntity(file, file_handle))
         for citation_handle in self._load_handles('citationref', element):
@@ -357,6 +362,7 @@ class GrampsLoader:
         self._load_eventrefs(person_handle, element)
         if element.get('priv') == '1':
             person.private = True
+        self._load_attribute_privacy(person, element, 'attribute')
 
         aliased_person = AliasedEntity(person, person_handle)
         self._load_citationref(
@@ -368,7 +374,6 @@ class GrampsLoader:
             element,
         )
         self._load_urls(person, element)
-        self._load_attribute_privacy(person, element, 'attribute')
         self.add_entity(
             aliased_person,  # type: ignore[arg-type]
         )
@@ -435,6 +440,9 @@ class GrampsLoader:
             )
 
         presence = Presence(None, role, None)
+        if eventref.get('priv') == '1':
+            presence.private = True
+        self._load_attribute_privacy(presence, eventref, 'attribute')
         self.add_entity(presence)
         self.add_association(Presence, presence.id, 'person', Person, person_id)
         self.add_association(Presence, presence.id, 'event', Event, event_handle)
@@ -558,6 +566,8 @@ class GrampsLoader:
         with suppress(XPathError):
             event.description = self._xpath1(element, './ns:description').text
 
+        if element.get('priv') == '1':
+            event.private = True
         self._load_attribute_privacy(event, element, 'attribute')
 
         aliased_event = AliasedEntity(event, event_handle)
@@ -617,6 +627,8 @@ class GrampsLoader:
         with suppress(XPathError):
             source.publisher = self._xpath1(element, './ns:spubinfo').text
 
+        if element.get('priv') == '1':
+            source.private = True
         self._load_attribute_privacy(source, element, 'srcattribute')
 
         aliased_source = AliasedEntity(source, source_handle)
@@ -640,6 +652,8 @@ class GrampsLoader:
         self.add_association(Citation, citation_handle, 'source', Source, source_handle)
 
         citation.date = self._load_date(element)
+        if element.get('priv') == '1':
+            citation.private = True
         self._load_attribute_privacy(citation, element, 'srcattribute')
 
         with suppress(XPathError):
