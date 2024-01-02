@@ -245,7 +245,7 @@ msgid "Built the Cotton Candy front-end assets."
 msgstr ""
 
 msgid "Built the HTTP API documentation."
-msgstr "HTTP API-documentatie gegenereerd,"
+msgstr "HTTP API-documentatie gegenereerd."
 
 msgid "Built the interactive family trees."
 msgstr ""
