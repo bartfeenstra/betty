@@ -36,7 +36,7 @@ jobs:
       matrix:
         include:
           - name: Linux
-            os: ubuntu-20.04
+            os: ubuntu-latest
             dist_name: betty-linux
             python: '3.12'
           - name: macOS
@@ -54,11 +54,6 @@ jobs:
       - name: Determine the tag
         run: echo betty_tag=0.0.0+dev-pull-request-${{ github.event.number }} >> $GITHUB_ENV
         shell: bash
-
-      # Ubuntu 20.04 ships with an older pip version.
-      - name: Update pip
-        if: startsWith(runner.os, 'Linux')
-        run: pip install --upgrade pip
 
       - name: Get the pip cache directory
         run: echo "pip_cache_dir=$(pip cache dir)" >> $GITHUB_ENV
