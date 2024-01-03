@@ -1,8 +1,9 @@
 {% extends 'entity/page.html.j2' %}
-{% set page_title = entity.name %}
+{% set source = source | default(entity) %}
+{% set page_title = source.name %}
 {% block page_content %}
-    {% include ['entity/meta--source.html.j2', 'entity/meta.html.j2'] ignore missing %}
-    {% set sources = [entity] + entity | walk('contains') | select('public') | list %}
+    {% include 'entity/meta--source.html.j2' %}
+    {% set sources = [source] + source | walk('contains') | select('public') | list %}
     {% set have_files = sources %}
     {% set have_files = have_files + sources | map(attribute='citations') | flatten | list %}
     {% with files = have_files | select('public') | map(attribute='files') | flatten | unique %}
@@ -14,7 +15,7 @@
         <ul class="entities">
             {% for fact in facts %}
                 <li class="{{ loop.cycle('odd', 'even') }}">
-                    {% with entity=fact, entity_contexts=entity_contexts(entity) %}
+                    {% with entity=fact, entity_contexts=entity_contexts(fact) %}
                         {% include ['entity/label--' + (entity | entity_type_name | camel_case_to_kebab_case) + '.html.j2', 'entity/label.html.j2'] %}
                         {% include ['entity/meta--' + (entity | entity_type_name | camel_case_to_kebab_case) + '.html.j2', 'entity/meta.html.j2'] ignore missing %}
                 {% endwith %}

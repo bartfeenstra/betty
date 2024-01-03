@@ -1,13 +1,14 @@
 {% extends 'entity/page.html.j2' %}
-{% set page_title = entity.location %}
+{% set citation = citation | default(entity) %}
+{% set page_title = citation.location %}
 {% block page_content %}
     <div class="meta">
-    {% include ['entity/meta--citation.html.j2', 'entity/meta.html.j2'] ignore missing %}
+    {% include 'entity/meta--citation.html.j2' %}
     </div>
-    {% with files = entity.files %}
+    {% with files = citation.files %}
         {% include 'media.html.j2' %}
     {% endwith %}
-    {% set facts = entity.facts | select('public') | reject('has_generated_entity_id') | list %}
+    {% set facts = citation.facts | select('public') | reject('has_generated_entity_id') | list %}
     {% if facts | length > 0 %}
         <section id="facts">
             <h2>
@@ -19,9 +20,9 @@
             <ul class="entities">
                 {% for fact in facts %}
                     <li class="{{ loop.cycle('odd', 'even') }}">
-                        {% with entity=fact, entity_contexts=entity_contexts(entity) %}
-                        {% include ['entity/label--' + (entity | entity_type_name | camel_case_to_kebab_case) + '.html.j2', 'entity/label.html.j2'] %}
-                        {% include ['entity/meta--' + (entity | entity_type_name | camel_case_to_kebab_case) + '.html.j2', 'entity/meta.html.j2'] ignore missing %}
+                        {% with entity=fact, entity_contexts=entity_contexts(citation) %}
+                            {% include ['entity/label--' + (entity | entity_type_name | camel_case_to_kebab_case) + '.html.j2', 'entity/label.html.j2'] %}
+                            {% include ['entity/meta--' + (entity | entity_type_name | camel_case_to_kebab_case) + '.html.j2', 'entity/meta.html.j2'] ignore missing %}
                         {% endwith %}
                     </li>
                 {% endfor %}

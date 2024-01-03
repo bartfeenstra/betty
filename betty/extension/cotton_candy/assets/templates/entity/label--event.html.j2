@@ -1,18 +1,19 @@
+{% set event = event | default(entity) %}
 {%- set embedded = embedded | default(False) -%}
 {%- set person_context = entity_contexts['Person'] -%}
-{%- macro person_label(entity) -%}
-    {% include ['entity/label--person.html.j2', 'entity/label.html.j2'] %}
+{%- macro person_label(person) -%}
+    {% include 'entity/label--person.html.j2' %}
 {%- endmacro -%}
-{%- set formatted_event = entity.event_type.label() | localize -%}
-{%- if entity is not has_generated_entity_id and not embedded -%}
-    {% set formatted_event = ('<a href="' + entity | url + '">' + formatted_event + '</a>') | safe %}
+{%- set formatted_event = event.event_type.label() | localize -%}
+{%- if event is not has_generated_entity_id and not embedded -%}
+    {% set formatted_event = ('<a href="' + event | url + '">' + formatted_event + '</a>') | safe %}
 {%- endif -%}
-{%- if entity.description is not none -%}
-    {% set formatted_event = formatted_event + ' (' + entity.description + ')' | safe %}
+{%- if event.description is not none -%}
+    {% set formatted_event = formatted_event + ' (' + event.description + ')' | safe %}
 {%- endif -%}
-{%- set subjects = entity.presences | select('public') | selectattr('role', 'subject_role') | map(attribute='person') | select('public') | list -%}
+{%- set subjects = event.presences | select('public') | selectattr('role', 'subject_role') | map(attribute='person') | select('public') | list -%}
 {%- set non_context_subjects = subjects | reject('eq', person_context) | list -%}
-{%- set formatted_subjects = non_context_subjects | sort(attribute='name') | map(person_label) | join(', ') %}
+{%- set formatted_subjects = non_context_subjects | map(person_label) | join(', ') %}
 {%- if non_context_subjects | length == 0 -%}
     {{ formatted_event }}
 {%- else -%}

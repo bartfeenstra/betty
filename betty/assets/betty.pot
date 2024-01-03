@@ -1,14 +1,14 @@
 # Translations template for Betty.
-# Copyright (C) 2023 Bart Feenstra & contributors
+# Copyright (C) 2024 Bart Feenstra & contributors
 # This file is distributed under the same license as the Betty project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-12-29 01:05+0000\n"
+"POT-Creation-Date: 2024-01-03 16:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -776,6 +776,9 @@ msgid "This must be none/null."
 msgstr ""
 
 msgid "This person's details are unavailable to protect their privacy."
+msgstr ""
+
+msgid "This person's name is unavailable to protect their privacy."
 msgstr ""
 
 msgid "This person's name is unknown."

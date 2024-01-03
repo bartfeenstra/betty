@@ -1,31 +1,32 @@
 {# Citation formatting is inspired by the MLA style guide(https://style.mla.org/) #}
+{% set citation = citation | default(entity) %}
 {% set citation_context = entity_contexts['Citation'] %}
 <span>
-    {% if entity.source and entity.source.public -%}
-        {%- if entity.source.author -%}
-            <span class="citation-author">{{ entity.source.author }}</span>
+    {% if citation.source and citation.source.public -%}
+        {%- if citation.source.author -%}
+            <span class="citation-author">{{ citation.source.author }}</span>
         {%- endif %}
-        <span class="citation-title">{% with entity=entity.source %}{% include ['entity/label--source.html.j2', 'entity/label.html.j2'] %}{% endwith %}</span>
-        {%- if entity.source.publisher -%}
-            <span class="citation-publisher">{{ entity.source.publisher }}</span>
+        <span class="citation-title">{% with source=citation.source %}{% include 'entity/label--source.html.j2' %}{% endwith %}</span>
+        {%- if citation.source.publisher -%}
+            <span class="citation-publisher">{{ citation.source.publisher }}</span>
         {%- endif -%}
     {% endif %}
-    {%- if entity.location -%}
+    {%- if citation.location -%}
             <span class="citation-location">
-                {% if citation_context == entity %}
-                    {{ entity.location | localize }}
+                {% if citation_context == citation %}
+                    {{ citation.location | localize }}
                     {% else %}
-                    {% if entity is not has_generated_entity_id %}
-                        <a href="{{ entity | url }}">
+                    {% if citation is not has_generated_entity_id %}
+                        <a href="{{ citation | url }}">
                     {% endif %}
-                {{ entity.location | localize }}
-                {% if entity is not has_generated_entity_id %}
+                {{ citation.location | localize }}
+                {% if citation is not has_generated_entity_id %}
                     </a>
                 {% endif %}
                 {% endif %}
             </span>
     {%- endif -%}
-    {%- if entity.date -%}
-        <span class="citation-date">{% trans date = entity.date | format_datey %}Accessed {{ date }}{% endtrans %}</span>
+    {%- if citation.date -%}
+        <span class="citation-date">{% trans date = citation.date | format_datey %}Accessed {{ date }}{% endtrans %}</span>
     {%- endif -%}
 </span>

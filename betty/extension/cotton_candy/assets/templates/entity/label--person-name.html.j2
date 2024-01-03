@@ -1,0 +1,27 @@
+{% import 'macro/citation.html.j2' as citation_macros %}
+{% set person_name = person_name | default(entity) %}
+{% set embedded = embedded | default(False) %}
+{% set person_context = entity_contexts['Person'] %}
+{% set label_as_link = not embedded and person_context != person_name.person and person_name is not has_generated_entity_id and person_name is public %}
+{% if label_as_link -%}
+    <a href="{{ person_name | url }}">
+{%- endif %}
+{% if person_name.private -%}
+    <span class="private" title="{% trans %}This person's name is unavailable to protect their privacy.{% endtrans %}">{% trans %}private{% endtrans %}</span>
+{%- else -%}
+    <span class="person-label" typeof="foaf:Person">
+        {%- if person_name.individual is not none -%}
+            <span property="foaf:individualName">{{ person_name.individual }}</span>
+        {%- else -%}
+            …
+        {%- endif -%}
+        {%- if person_name.affiliation is not none %} <span property="foaf:familyName">{{ person_name.affiliation }}</span>
+        {%- endif -%}
+    </span>
+{%- endif -%}
+{%- if label_as_link -%}
+    </a>
+{%- endif -%}
+{%- if not embedded and person_name is public -%}
+    {{ citation_macros.cite(person_name.citations) }}
+{%- endif -%}

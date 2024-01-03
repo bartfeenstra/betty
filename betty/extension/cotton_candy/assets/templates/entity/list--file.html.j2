@@ -1,11 +1,11 @@
-{% set entities = entities | select('public') | list %}
+{% set files = files | default(entities) | select('public') | list %}
 <div class="entities featured">
-    {% for file in entities %}
-        {% if entities[loop.index0 - 1] is defined %}
-            {% set previous_file = entities[loop.index0 - 1] %}
+    {% for file in files %}
+        {% if files[loop.index0 - 1] is defined %}
+            {% set previous_file = files[loop.index0 - 1] %}
         {% endif %}
-        {% if entities[loop.index0 + 1] is defined %}
-            {% set next_file = entities[loop.index0 + 1] %}
+        {% if files[loop.index0 + 1] is defined %}
+            {% set next_file = files[loop.index0 + 1] %}
         {% endif %}
         {% include 'file.html.j2' %}
     {% endfor %}

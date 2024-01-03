@@ -20,7 +20,7 @@ from betty.media_type import MediaType
 from betty.model import Entity, EntityGraphBuilder, AliasedEntity, AliasableEntity
 from betty.model.ancestry import Ancestry, Note, File, Source, Citation, Place, Event, Person, PersonName, Subject, \
     Witness, Beneficiary, Attendee, Presence, PlaceName, Enclosure, HasLinks, Link, HasFiles, HasCitations, \
-    HasMutablePrivacy, Speaker, Celebrant, Organizer
+    HasPrivacy, Speaker, Celebrant, Organizer
 from betty.model.event_type import Birth, Baptism, Adoption, Cremation, Death, Funeral, Burial, Will, Engagement, \
     Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, \
     Retirement, Correspondence, Confirmation, Missing, UnknownEventType, EventType, Conference
@@ -696,7 +696,7 @@ class GrampsLoader:
             link.label = url_element.get('description')
             owner.links.add(link)
 
-    def _load_attribute_privacy(self, entity: HasMutablePrivacy & Entity, element: ElementTree.Element, tag: str) -> None:
+    def _load_attribute_privacy(self, entity: HasPrivacy & Entity, element: ElementTree.Element, tag: str) -> None:
         privacy_value = self._load_attribute('privacy', element, tag)
         if privacy_value is None:
             return

@@ -1,8 +1,9 @@
+{% set place = place | default(entity) %}
 {% set embedded = embedded | default(False) %}
 <address>
-    {%- set names = entity.names | select_dateds(date_context | default(none)) | list -%}
+    {%- set names = place.names | select_dateds(date_context | default(none)) | list -%}
     {%- if names | length == 0 -%}
-        {%- set names = entity.names -%}
+        {%- set names = place.names -%}
     {%- endif -%}
     {%- set name = names | negotiate_localizeds -%}
     {%- if name is none -%}
@@ -10,7 +11,7 @@
     {%- endif -%}
 
     {%- if not embedded -%}
-        <a href="{{ entity | url }}">
+        <a href="{{ place | url }}">
     {%- endif -%}
     <span{% if name.locale is not none %} lang="{{ name.locale }}"{% endif %}>{{ name }}</span>
     {%- if not embedded -%}

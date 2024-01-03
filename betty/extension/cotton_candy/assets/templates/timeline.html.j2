@@ -8,7 +8,7 @@
             {% endwith %}
         </h2>
         {% with entities=events %}
-            {% include ['entity/list--event.html.j2', 'entity/list.html.j2'] %}
+            {% include 'entity/list--event.html.j2' %}
         {% endwith %}
     </section>
 {% endif %}

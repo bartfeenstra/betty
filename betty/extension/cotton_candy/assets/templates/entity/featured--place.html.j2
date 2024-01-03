@@ -1,3 +1,4 @@
+{% set place = place | default(entity) %}
 <div class="featured-entity-intro">
     <h2>
         {% include [
@@ -5,7 +6,7 @@
             'entity/label.html.j2',
         ] %}
     </h2>
-    <a href="{{ entity | url }}">
+    <a href="{{ place | url }}">
         {% with embedded = True %}
             {% include [
                 'entity/meta--place.html.j2',
@@ -16,13 +17,13 @@
 </div>
 
 <div class="featured-entity-feature">
-    {% set places = entity | walk('encloses') | select('place_entity') | list %}
-    {% if entity.coordinates %}
-        {% set places = places + [entity] %}
+    {% set places = place | walk('encloses') | select('place_entity') | list %}
+    {% if place.coordinates %}
+        {% set places = places + [place] %}
     {% endif %}
     {% if places | length > 0 %}
-        {% with entities = places, hide_list = True, featured = False %}
-            {% include ['entity/list--place.html.j2', 'entity/list.html.j2'] %}
+        {% with hide_list = True, featured = False %}
+            {% include 'entity/list--place.html.j2' %}
         {% endwith %}
     {% endif %}
 </div>

@@ -1,5 +1,4 @@
+{% set event = event | default(entity) %}
 <div class="meta">
-    {% with event = entity %}
-        {% include 'event-dimensions.html.j2' %}
-    {% endwith %}
+    {% include 'event-dimensions.html.j2' %}
 </div>

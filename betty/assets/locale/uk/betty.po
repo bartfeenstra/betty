@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-12-29 01:05+0000\n"
+"POT-Creation-Date: 2024-01-03 16:22+0000\n"
 "PO-Revision-Date: 2020-05-02 22:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -880,6 +880,9 @@ msgstr ""
 
 msgid "This person's details are unavailable to protect their privacy."
 msgstr "Дані цієї особи недоступні для захисту їх конфіденційності."
+
+msgid "This person's name is unavailable to protect their privacy."
+msgstr "Ім’я даних цієї особи недоступне для захисту її конфіденційності."
 
 msgid "This person's name is unknown."
 msgstr "Ім'я цієї людини невідоме."

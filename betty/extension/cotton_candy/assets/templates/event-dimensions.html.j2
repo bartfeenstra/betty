@@ -11,7 +11,7 @@
 {%- if event.place and event.place != place_context -%}
     {%- set formatted_place -%}
         {%- with entity=event.place, date_context=event.date -%}
-            {%- include ['entity/label--place.html.j2', 'entity/label.html.j2'] -%}
+            {%- include 'entity/label--place.html.j2' -%}
         {%- endwith -%}
     {%- endset -%}
 {%- endif -%}

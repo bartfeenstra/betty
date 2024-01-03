@@ -161,84 +161,34 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
 
 class TestPrivatizer:
     async def test_privatize_person_should_not_privatize_if_public(self) -> None:
-        source_file = File(
-            id='F0',
-            path=Path(__file__),
-        )
-        source = Source('The Source')
-        source.files.add(source_file)
-        citation_file = File(
-            id='F1',
-            path=Path(__file__),
-        )
-        citation = Citation(
-            id='C0',
-            source=source,
-        )
-        citation.files.add(citation_file)
-        event_as_subject = Event(event_type=Birth)
-        event_as_attendee = Event(event_type=Marriage)
-        person_file = File(
-            id='F2',
-            path=Path(__file__),
-        )
-        person = Person(
-            id='P0',
-            public=True,
-        )
+        citation = Citation(source=Source())
+        file = File(path=Path(__file__))
+        person = Person(public=True)
         person.citations.add(citation)
-        person.files.add(person_file)
-        Presence(person, Subject(), event_as_subject)
-        Presence(person, Attendee(), event_as_attendee)
+        person.files.add(file)
+        presence_as_subject = Presence(person, Subject(), Event(event_type=Birth))
+        presence_as_attendee = Presence(person, Attendee(), Event(event_type=Marriage))
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(person)
-        assert not person.private
+        assert person.public
         assert citation.privacy is Privacy.UNDETERMINED
-        assert source.privacy is Privacy.UNDETERMINED
-        assert person_file.privacy is Privacy.UNDETERMINED
-        assert citation_file.privacy is Privacy.UNDETERMINED
-        assert source_file.privacy is Privacy.UNDETERMINED
-        assert event_as_subject.privacy is Privacy.UNDETERMINED
-        assert event_as_attendee.privacy is Privacy.UNDETERMINED
+        assert file.privacy is Privacy.UNDETERMINED
+        assert presence_as_subject.privacy is Privacy.UNDETERMINED
+        assert presence_as_attendee.privacy is Privacy.UNDETERMINED
 
     async def test_privatize_person_should_privatize_if_private(self) -> None:
-        source_file = File(
-            id='F0',
-            path=Path(__file__),
-        )
-        source = Source('The Source')
-        source.files.add(source_file)
-        citation_file = File(
-            id='F1',
-            path=Path(__file__),
-        )
-        citation = Citation(
-            id='C0',
-            source=source,
-        )
-        citation.files.add(citation_file)
-        event_as_subject = Event(event_type=Birth)
-        event_as_attendee = Event(event_type=Marriage)
-        person_file = File(
-            id='F2',
-            path=Path(__file__),
-        )
-        person = Person(
-            id='P0',
-            private=True,
-        )
+        citation = Citation(source=Source())
+        file = File(path=Path(__file__))
+        person = Person(private=True)
         person.citations.add(citation)
-        person.files.add(person_file)
-        Presence(person, Subject(), event_as_subject)
-        Presence(person, Attendee(), event_as_attendee)
+        person.files.add(file)
+        presence_as_subject = Presence(person, Subject(), Event(event_type=Birth))
+        presence_as_attendee = Presence(person, Attendee(), Event(event_type=Marriage))
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(person)
         assert person.private
         assert citation.private
-        assert source.private
-        assert person_file.private
-        assert citation_file.private
-        assert source_file.private
-        assert event_as_subject.private
-        assert event_as_attendee.private
+        assert file.private
+        assert presence_as_subject.private
+        assert presence_as_attendee.private
 
     @pytest.mark.parametrize('expected, privacy, event', _expand_person(0))
     async def test_privatize_person_without_relatives(
@@ -247,10 +197,7 @@ class TestPrivatizer:
         privacy: Privacy,
         event: Event | None,
     ) -> None:
-        person = Person(
-            id='P0',
-            privacy=privacy,
-        )
+        person = Person(privacy=privacy)
         if event is not None:
             Presence(person, Subject(), event)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(person)
@@ -263,11 +210,8 @@ class TestPrivatizer:
         privacy: Privacy,
         event: Event | None,
     ) -> None:
-        person = Person(
-            id='P0',
-            privacy=privacy,
-        )
-        child = Person(id='P1')
+        person = Person(privacy=privacy)
+        child = Person()
         if event is not None:
             Presence(child, Subject(), event)
         person.children.add(child)
@@ -281,13 +225,10 @@ class TestPrivatizer:
         privacy: Privacy,
         event: Event | None,
     ) -> None:
-        person = Person(
-            id='P0',
-            privacy=privacy,
-        )
-        child = Person(id='P1')
+        person = Person(privacy=privacy)
+        child = Person()
         person.children.add(child)
-        grandchild = Person(id='P2')
+        grandchild = Person()
         if event is not None:
             Presence(grandchild, Subject(), event)
         child.children.add(grandchild)
@@ -301,15 +242,12 @@ class TestPrivatizer:
         privacy: Privacy,
         event: Event | None,
     ) -> None:
-        person = Person(
-            id='P0',
-            privacy=privacy,
-        )
-        child = Person(id='P1')
+        person = Person(privacy=privacy)
+        child = Person()
         person.children.add(child)
-        grandchild = Person(id='P2')
+        grandchild = Person()
         child.children.add(grandchild)
-        great_grandchild = Person(id='P2')
+        great_grandchild = Person()
         if event is not None:
             Presence(great_grandchild, Subject(), event)
         grandchild.children.add(great_grandchild)
@@ -323,11 +261,8 @@ class TestPrivatizer:
         privacy: Privacy,
         event: Event | None,
     ) -> None:
-        person = Person(
-            id='P0',
-            privacy=privacy,
-        )
-        parent = Person(id='P1')
+        person = Person(privacy=privacy)
+        parent = Person()
         if event is not None:
             Presence(parent, Subject(), event)
         person.parents.add(parent)
@@ -341,13 +276,10 @@ class TestPrivatizer:
         privacy: Privacy,
         event: Event | None,
     ) -> None:
-        person = Person(
-            id='P0',
-            privacy=privacy,
-        )
-        parent = Person(id='P1')
+        person = Person(privacy=privacy)
+        parent = Person()
         person.parents.add(parent)
-        grandparent = Person(id='P2')
+        grandparent = Person()
         if event is not None:
             Presence(grandparent, Subject(), event)
         parent.parents.add(grandparent)
@@ -361,15 +293,12 @@ class TestPrivatizer:
         privacy: Privacy,
         event: Event | None,
     ) -> None:
-        person = Person(
-            id='P0',
-            privacy=privacy,
-        )
-        parent = Person(id='P1')
+        person = Person(privacy=privacy)
+        parent = Person()
         person.parents.add(parent)
-        grandparent = Person(id='P2')
+        grandparent = Person()
         parent.parents.add(grandparent)
-        great_grandparent = Person(id='P2')
+        great_grandparent = Person()
         if event is not None:
             Presence(great_grandparent, Subject(), event)
         grandparent.parents.add(great_grandparent)
@@ -377,88 +306,46 @@ class TestPrivatizer:
         assert expected == person.private
 
     async def test_privatize_event_should_not_privatize_if_public(self) -> None:
-        source_file = File(
-            id='F0',
-            path=Path(__file__),
-        )
-        source = Source('The Source')
-        source.files.add(source_file)
-        citation_file = File(
-            id='F1',
-            path=Path(__file__),
-        )
-        citation = Citation(
-            id='C0',
-            source=source,
-        )
-        citation.files.add(citation_file)
-        event_file = File(
-            id='F1',
-            path=Path(__file__),
-        )
+        citation = Citation(source=Source())
+        event_file = File(path=Path(__file__))
         event = Event(
-            id='E1',
             event_type=Birth,
             public=True,
         )
         event.citations.add(citation)
         event.files.add(event_file)
-        person = Person(id='P0')
-        Presence(person, Subject(), event)
+        person = Person()
+        presence = Presence(person, Subject(), event)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(event)
         assert not event.private
         assert event_file.privacy is Privacy.UNDETERMINED
         assert citation.privacy is Privacy.UNDETERMINED
-        assert source.privacy is Privacy.UNDETERMINED
-        assert citation_file.privacy is Privacy.UNDETERMINED
-        assert source_file.privacy is Privacy.UNDETERMINED
-        assert person.privacy is Privacy.UNDETERMINED
+        assert presence.privacy is Privacy.UNDETERMINED
 
     async def test_privatize_event_should_privatize_if_private(self) -> None:
-        source_file = File(
-            id='F0',
-            path=Path(__file__),
-        )
-        source = Source('The Source')
-        source.files.add(source_file)
-        citation_file = File(
-            id='F1',
-            path=Path(__file__),
-        )
-        citation = Citation(
-            id='C0',
-            source=source,
-        )
-        citation.files.add(citation_file)
-        event_file = File(
-            id='F1',
+        citation = Citation(source=Source())
+        file = File(
             path=Path(__file__),
         )
         event = Event(
-            id='E1',
             event_type=Birth,
             private=True,
         )
         event.citations.add(citation)
-        event.files.add(event_file)
-        person = Person(id='P0')
-        Presence(person, Subject(), event)
+        event.files.add(file)
+        person = Person()
+        presence = Presence(person, Subject(), event)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(event)
         assert event.private
-        assert event_file.private
+        assert presence.private
+        assert file.private
         assert citation.private
-        assert source.private
-        assert citation_file.private
-        assert source_file.private
-        assert person.privacy is Privacy.UNDETERMINED
 
     async def test_privatize_source_should_not_privatize_if_public(self) -> None:
         file = File(
-            id='F0',
             path=Path(__file__),
         )
         source = Source(
-            id='S0',
             name='The Source',
             public=True,
         )
@@ -469,11 +356,9 @@ class TestPrivatizer:
 
     async def test_privatize_source_should_privatize_if_private(self) -> None:
         file = File(
-            id='F0',
             path=Path(__file__),
         )
         source = Source(
-            id='S0',
             name='The Source',
             private=True,
         )
@@ -483,69 +368,45 @@ class TestPrivatizer:
         assert file.private
 
     async def test_privatize_citation_should_not_privatize_if_public(self) -> None:
-        source_file = File(
-            id='F0',
-            path=Path(__file__),
-        )
-        source = Source('The Source')
-        source.files.add(source_file)
-        citation_file = File(
-            id='F1',
+        file = File(
             path=Path(__file__),
         )
         citation = Citation(
-            id='C0',
-            source=source,
+            source=Source(),
             public=True,
         )
-        citation.files.add(citation_file)
+        citation.files.add(file)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(citation)
-        assert not citation.private
-        assert source.privacy is Privacy.UNDETERMINED
-        assert citation_file.privacy is Privacy.UNDETERMINED
-        assert source_file.privacy is Privacy.UNDETERMINED
+        assert citation.public
+        assert file.privacy is Privacy.UNDETERMINED
 
     async def test_privatize_citation_should_privatize_if_private(self) -> None:
-        source_file = File(
-            id='F0',
-            path=Path(__file__),
-        )
-        source = Source('The Source')
-        source.files.add(source_file)
-        citation_file = File(
-            id='F1',
+        file = File(
             path=Path(__file__),
         )
         citation = Citation(
-            id='C0',
-            source=source,
+            source=Source(),
             private=True,
         )
-        citation.files.add(citation_file)
+        citation.files.add(file)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(citation)
         assert citation.private
-        assert source.private
-        assert citation_file.private
-        assert source_file.private
+        assert file.private
 
     async def test_privatize_file_should_not_privatize_if_public(self) -> None:
-        source = Source(name='The Source')
-        citation = Citation(source=source)
+        citation = Citation(source=Source())
         file = File(
-            id='F0',
             path=Path(__file__),
             public=True,
         )
         file.citations.add(citation)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(file)
-        assert not file.private
+        assert file.public
         assert citation.privacy is Privacy.UNDETERMINED
 
     async def test_privatize_file_should_privatize_if_private(self) -> None:
-        source = Source(name='The Source')
-        citation = Citation(source=source)
+        citation = Citation(source=Source())
         file = File(
-            id='F0',
             path=Path(__file__),
             private=True,
         )

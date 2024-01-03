@@ -1,14 +1,15 @@
 {% extends 'entity/page.html.j2' %}
-{% set page_title = entity.description %}
+{% set file = file | default(entity) %}
+{% set page_title = file.description %}
 {% block page_content %}
-    {% if entity.media_type and entity.media_type.type == 'image' %}
+    {% if file.media_type and file.media_type.type == 'image' %}
         <div class="featured image">
-            <a href="{{ entity | file | static_url }}">
-                <img src="{{ entity | image(1200, 1200) | static_url }}"{% if entity.description %} alt="{{ entity.description }}"{% endif %}/>
+            <a href="{{ file | file | static_url }}">
+                <img src="{{ file | image(1200, 1200) | static_url }}"{% if file.description %} alt="{{ file.description }}"{% endif %}/>
             </a>
         </div>
     {% endif %}
-    {% if entity.notes %}
+    {% if file.notes %}
         <section id="notes">
             <h2>
                 {% trans %}Notes{% endtrans %}
@@ -16,12 +17,12 @@
                     {% include 'permalink.html.j2' %}
                 {% endwith %}
             </h2>
-            {% for note in entity.notes %}
+            {% for note in file.notes %}
                 {{ note.text | paragraphs }}
             {% endfor %}
         </section>
     {% endif %}
-    {% set entities = entity.entities | select('public') | list %}
+    {% set entities = file.entities | select('public') | list %}
     {% if entities | length > 0 %}
         <section id="appearances">
             <h2>
@@ -40,7 +41,7 @@
             </ul>
         </section>
     {% endif %}
-    {% set citations = entity.citations | list %}
+    {% set citations = file.citations | list %}
     {% if citations | length  > 0 %}
         {# These are the citations for the file itself. This assumes no other citations are tracked on the page and #}
         {# rendered by base.html.j2. #}
@@ -53,9 +54,7 @@
             </h2>
             <ul>
             {% for citation in citations %}
-                {% with entity = citation %}
-                    <li>{% include ['entity/label--citation.html.j2', 'entity/label.html.j2'] %}</li>
-                {% endwith %}
+                <li>{% include 'entity/label--citation.html.j2' %}</li>
             {% endfor %}
             </ul>
         </section>

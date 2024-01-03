@@ -6,7 +6,7 @@ from betty.app.extension import UserFacingExtension
 from betty.load import PostLoader, getLogger
 from betty.locale import Str
 from betty.model import Entity
-from betty.model.ancestry import Person, HasMutablePrivacy
+from betty.model.ancestry import Person, HasPrivacy
 from betty.privatizer import Privatizer as PrivatizerApi
 
 
@@ -31,10 +31,10 @@ class _Privatizer(UserFacingExtension, PostLoader):
             localizer=self._app.localizer,
         )
 
-        newly_privatized: dict[type[HasMutablePrivacy & Entity], int] = defaultdict(lambda: 0)
-        entities: list[HasMutablePrivacy & Entity] = []
+        newly_privatized: dict[type[HasPrivacy & Entity], int] = defaultdict(lambda: 0)
+        entities: list[HasPrivacy & Entity] = []
         for entity in self._app.project.ancestry:
-            if isinstance(entity, HasMutablePrivacy):
+            if isinstance(entity, HasPrivacy):
                 entities.append(entity)
                 if entity.private:
                     newly_privatized[

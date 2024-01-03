@@ -1,7 +1,8 @@
 {% extends 'entity/page-list.html.j2' %}
+{% set places = places | default(entities) %}
 {% set page_title = _('Places') %}
 {% block page_content %}
-    {% if entities | length > 0 %}
+    {% if places | length > 0 %}
         {% with canonical=True %}
             {% include 'entity/list--place.html.j2' %}
         {% endwith %}
