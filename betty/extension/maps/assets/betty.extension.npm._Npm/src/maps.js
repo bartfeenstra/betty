@@ -8,6 +8,9 @@ import leafletMarkerIconImage from 'leaflet/dist/images/marker-icon.png'
 import leafletMarkerIcon2xImage from 'leaflet/dist/images/marker-icon-2x.png'
 import leafletMarkerShadowImage from 'leaflet/dist/images/marker-shadow.png'
 import { GestureHandling } from 'leaflet-gesture-handling'
+import 'leaflet.markercluster/dist/leaflet.markercluster.js'
+import 'leaflet.markercluster/dist/MarkerCluster.css' // eslint-disable-line no-unused-vars
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css' // eslint-disable-line no-unused-vars
 import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css' // eslint-disable-line no-unused-vars
 import configuration from './configuration.json'
 
@@ -36,7 +39,10 @@ function initializePlaceList (placeList) {
   }).addTo(map)
 
   // Build place markers.
-  const markerGroup = L.featureGroup()
+  const markerGroup = L.markerClusterGroup({
+    showCoverageOnHover: false
+  })
+  map.addLayer(markerGroup)
   Promise.all(Array.from(placeList.querySelectorAll('[data-betty-place]')).map((placeDatum) => {
     return fetch(placeDatum.dataset.bettyPlace)
       .then((response) => response.json())
@@ -46,7 +52,7 @@ function initializePlaceList (placeList) {
         }
         const marker = L.marker([place.coordinates.latitude, place.coordinates.longitude], {
           icon: new BettyIcon()
-        }).addTo(map)
+        })
         marker.bindPopup(placeDatum.innerHTML)
         markerGroup.addLayer(marker)
       })
