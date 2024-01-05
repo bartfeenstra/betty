@@ -22,18 +22,65 @@ class DummyEntity(Entity):
     pass
 
 
+class _HasPrivacy(HasPrivacy):
+    def __init__(self, privacy: Privacy = Privacy.UNDETERMINED):
+        super().__init__(privacy=privacy)
+
+
 class TestHasPrivacy:
-    async def test_private(self) -> None:
-        class _HasPrivacy(HasPrivacy):
-            pass
+    @pytest.mark.parametrize('privacy', [
+        Privacy.UNDETERMINED,
+        Privacy.PUBLIC,
+        Privacy.PRIVATE,
+    ])
+    async def test_get_privacy(self, privacy: Privacy) -> None:
+        sut = _HasPrivacy(privacy)
+        assert sut.privacy is privacy
+        assert sut.own_privacy is privacy
+
+    async def test_set_privacy(self) -> None:
         sut = _HasPrivacy()
+        privacy = Privacy.PUBLIC
+        sut.privacy = privacy
+        assert sut.privacy is privacy
+        assert sut.own_privacy is privacy
+
+    async def test_del_privacy(self) -> None:
+        sut = _HasPrivacy()
+        sut.privacy = Privacy.PUBLIC
+        del sut.privacy
         assert sut.privacy is Privacy.UNDETERMINED
+        assert sut.own_privacy is Privacy.UNDETERMINED
 
+    @pytest.mark.parametrize('expected, privacy', [
+        (True, Privacy.UNDETERMINED),
+        (True, Privacy.PUBLIC),
+        (False, Privacy.PRIVATE),
+    ])
+    async def test_get_public(self, expected: bool, privacy: Privacy) -> None:
+        sut = _HasPrivacy(privacy)
+        assert expected is sut.public
 
-class _HasPrivacy(HasPrivacy, Entity):
-    def __init__(self, privacy: Privacy):
-        super().__init__(None)
-        self._privacy = privacy
+    async def test_set_public(self) -> None:
+        sut = _HasPrivacy()
+        sut.public = True
+        assert sut.public
+        assert sut.privacy is Privacy.PUBLIC
+
+    @pytest.mark.parametrize('expected, privacy', [
+        (False, Privacy.UNDETERMINED),
+        (False, Privacy.PUBLIC),
+        (True, Privacy.PRIVATE),
+    ])
+    async def test_get_private(self, expected: bool, privacy: Privacy) -> None:
+        sut = _HasPrivacy(privacy)
+        assert expected is sut.private
+
+    async def test_set_private(self) -> None:
+        sut = _HasPrivacy()
+        sut.private = True
+        assert sut.private
+        assert sut.privacy is Privacy.PRIVATE
 
 
 class TestIsPrivate:
@@ -584,6 +631,25 @@ class TestPresence:
         sut = Presence(Person(), PresenceRole(), event)
         assert event == sut.event
 
+    @pytest.mark.parametrize('expected, person_privacy, presence_privacy, event_privacy', [
+        (Privacy.PUBLIC, Privacy.PUBLIC, Privacy.PUBLIC, Privacy.PUBLIC),
+        (Privacy.PRIVATE, Privacy.PRIVATE, Privacy.PUBLIC, Privacy.PUBLIC),
+        (Privacy.PRIVATE, Privacy.PUBLIC, Privacy.PUBLIC, Privacy.PRIVATE),
+    ])
+    async def test_privacy(
+        self,
+        expected: Privacy,
+        person_privacy: Privacy,
+        presence_privacy: Privacy,
+        event_privacy: Privacy,
+    ) -> None:
+        person = Person(privacy=person_privacy)
+        event = Event(privacy=event_privacy, event_type=UnknownEventType)
+        sut = Presence(person, PresenceRole(), event)
+        sut.privacy = presence_privacy
+
+        assert expected == sut.privacy
+
 
 class TestEvent:
     async def test_id(self) -> None:
@@ -774,31 +840,6 @@ class TestPerson:
     async def test_private(self) -> None:
         sut = Person(id='1')
         assert sut.privacy is Privacy.UNDETERMINED
-
-    async def test_name_with_names(self) -> None:
-        sut = Person(id='P1')
-        name = PersonName(
-            person=sut,
-            individual='Janet',
-        )
-        assert name == sut.name
-
-    async def test_name_without_names(self) -> None:
-        assert Person(id='P1').name is None
-
-    async def test_alternative_names(self) -> None:
-        sut = Person(id='P1')
-        PersonName(
-            person=sut,
-            individual='Janet',
-            affiliation='Not a Girl',
-        )
-        alternative_name = PersonName(
-            person=sut,
-            individual='Janet',
-            affiliation='Still not a Girl',
-        )
-        assert [alternative_name] == list(sut.alternative_names)
 
     async def test_siblings_without_parents(self) -> None:
         sut = Person(id='person')

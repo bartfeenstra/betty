@@ -1,14 +1,12 @@
 {% extends 'entity/page-list.html.j2' %}
+{% set sources = sources | default(entities) | select('public') | list %}
 {% set page_title = _('Sources') %}
-{% set entities = entities | select('public') | list %}
 {% block page_content %}
-    {% if entities | length > 0 %}
+    {% if sources | length > 0 %}
         <ul class="entities">
-            {% for source in entities | sort(attribute='name') %}
+            {% for source in sources | sort(attribute='name') %}
                 <li class="{{ loop.cycle('odd', 'even') }}">
-                    {% with entity = source %}
-                        {% include ['entity/label--source.html.j2', 'entity/label.html.j2'] %}
-                    {% endwith %}
+                    {% include 'entity/label--source.html.j2' %}
                 </li>
             {% endfor %}
         </ul>

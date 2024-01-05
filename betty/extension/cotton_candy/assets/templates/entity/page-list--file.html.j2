@@ -1,7 +1,8 @@
 {% extends 'entity/page-list.html.j2' %}
+{% set files = files | default(entities) %}
 {% set page_title = _('Media') %}
 {% block page_content %}
-    {% if entities | length > 0 %}
+    {% if files | length > 0 %}
         {% include 'entity/list--file.html.j2' %}
     {% else %}
         <p>{% trans %}I'm sorry, dear, but it seems there are no media.{% endtrans %}</p>

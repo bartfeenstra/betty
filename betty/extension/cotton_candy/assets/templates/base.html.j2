@@ -121,9 +121,7 @@
                 <ol>
                 {% for number, citation in citer %}
                     <li id="reference-{{ number }}" class="reference">
-                        {% with entity = citation %}
-                            {% include ['entity/label--citation.html.j2', 'entity/label.html.j2'] %}
-                        {% endwith %}
+                        {% include 'entity/label--citation.html.j2' %}
                     </li>
                 {% endfor %}
                 </ol>

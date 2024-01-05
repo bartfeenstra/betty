@@ -1,10 +1,11 @@
+{% set place = place | default(entity) %}
 {%- set embedded = embedded | default(False) -%}
 {%- set place_context = entity_contexts['Place'] -%}
-{%- macro _enclosed_by_place_label(entity) -%}
-    {%- set enclosure = entity.enclosed_by | negotiate_dateds(date_context | default(none)) -%}
+{%- macro _enclosed_by_place_label(place) -%}
+    {%- set enclosure = place.enclosed_by | negotiate_dateds(date_context | default(none)) -%}
     {%- if enclosure is not none and (place_context is none or place_context != enclosure.enclosed_by) -%}
-        {%- with entity=enclosure.enclosed_by -%}
-            {%- include ['entity/label--place.html.j2', 'entity/label.html.j2'] -%}
+        {%- with place=enclosure.enclosed_by -%}
+            {%- include 'entity/label--place.html.j2' -%}
         {%- endwith -%}
         {%- set place_label = _enclosed_by_place_label(enclosure.enclosed_by) -%}
         {%- if place_label -%}
@@ -13,7 +14,7 @@
     {%- endif -%}
 {%- endmacro -%}
 <div class="meta">
-    {%- set enclosed_by_label = _enclosed_by_place_label(entity) -%}
+    {%- set enclosed_by_label = _enclosed_by_place_label(place) -%}
     {%- if enclosed_by_label -%}
         {%- trans place=enclosed_by_label -%}
             in {{ place }}

@@ -155,13 +155,12 @@ class TestGrampsLoader:
 """)
         person = ancestry[Person]['I0000']
 
-        assert person.name is not None
-        assert 'Jane' == person.name.individual == person.names[0].individual
-        assert 'Doe' == person.name.affiliation == person.names[0].affiliation
-        assert 'Jane' == person.alternative_names[0].individual == person.names[1].individual
-        assert 'Doh' == person.alternative_names[0].affiliation == person.names[1].affiliation
-        assert 'Jen' == person.alternative_names[1].individual == person.names[2].individual
-        assert 'Van Doughie' == person.alternative_names[1].affiliation == person.names[2].affiliation
+        assert 'Jane' == person.names[0].individual
+        assert 'Doe' == person.names[0].affiliation
+        assert 'Jane' == person.names[1].individual
+        assert 'Doh' == person.names[1].affiliation
+        assert 'Jen' == person.names[2].individual
+        assert 'Van Doughie' == person.names[2].affiliation
 
     async def test_person_should_include_birth(self, test_load_xml_ancestry: Ancestry) -> None:
         ancestry = await self._load_partial("""

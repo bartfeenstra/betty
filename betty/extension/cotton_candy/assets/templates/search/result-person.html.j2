@@ -1,8 +1,8 @@
 {% set embedded=True %}
 <a href="{{ entity | url }}" class="nav-secondary-action search-result-target">
     <div class="search-result-description">
-        {% include ['entity/label--person.html.j2', 'entity/label.html.j2'] %}
-        {% include ['entity/meta--person.html.j2', 'entity/meta.html.j2'] ignore missing %}
+        {% include 'entity/label--person.html.j2' %}
+        {% include 'entity/meta--person.html.j2' %}
     </div>
     {% set files = entity.files | select('public') | list %}
     {% if files | length > 0 %}

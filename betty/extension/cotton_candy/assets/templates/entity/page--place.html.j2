@@ -1,11 +1,12 @@
 {% extends 'entity/page.html.j2' %}
-{% set page_title = entity.names | negotiate_localizeds %}
+{% set place = place | default(entity) %}
+{% set page_title = place.names | negotiate_localizeds %}
 {% block page_content %}
-    {% include ['entity/meta--place.html.j2', 'entity/meta.html.j2'] ignore missing %}
+    {% include 'entity/meta--place.html.j2' %}
 
-    {% set places = entity | walk('encloses') | select('place_entity') | list %}
-    {% if entity.coordinates %}
-        {% set places = places + [entity] %}
+    {% set places = place | walk('encloses') | select('place_entity') | list %}
+    {% if place.coordinates %}
+        {% set places = places + [place] %}
     {% endif %}
     {% if places | length > 0 %}
         <section id="places">
@@ -15,8 +16,8 @@
                     {% include 'permalink.html.j2' %}
                 {% endwith %}
             </h2>
-            {% with entity_contexts=entity_contexts(entity), entities=places, map_hides_list=True %}
-                {% include ['entity/list--place.html.j2', 'entity/list.html.j2'] %}
+            {% with entity_contexts=entity_contexts(place), map_hides_list=True %}
+                {% include 'entity/list--place.html.j2' %}
             {% endwith %}
         </section>
     {% endif %}
@@ -29,12 +30,12 @@
                     {% include 'permalink.html.j2' %}
                 {% endwith %}
             </h2>
-            {% with resource=entity %}
+            {% with resource=place %}
                 {% include 'wikipedia.html.j2' %}
             {% endwith %}
         </section>
     {% endif %}
 
-    {% set events = (places + [entity]) | unique | map(attribute='events') | flatten | select('public') | rejectattr('date', 'none') | selectattr('date.comparable') | list %}
+    {% set events = (places + [place]) | unique | map(attribute='events') | flatten | select('public') | rejectattr('date', 'none') | selectattr('date.comparable') | list %}
     {% include 'timeline.html.j2' %}
 {% endblock %}

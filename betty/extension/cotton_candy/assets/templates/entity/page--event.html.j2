@@ -1,20 +1,21 @@
 {% extends 'entity/page.html.j2' %}
+{% set event = event | default(entity) %}
 {% set page_title %}
     {% with embedded=True %}
-        {% include ['entity/label--event.html.j2', 'entity/label.html.j2'] %}
+        {% include 'entity/label--event.html.j2' %}
     {% endwith %}
 {% endset %}
 {% block page_content %}
-    {% include ['entity/meta--event.html.j2', 'entity/meta.html.j2'] ignore missing %}
+    {% include 'entity/meta--event.html.j2' %}
 
-    {% if entity.place %}
-        {% with entities=[entity.place], map_hides_list = true %}
+    {% if event.place %}
+        {% with entities=[event.place], map_hides_list = true %}
             {% include 'entity/list--place.html.j2' %}
         {% endwith %}
     {% endif %}
 
     {% set ns = namespace(witnesses=[]) %}
-    {% for presence in entity.presences | select('public') %}
+    {% for presence in event.presences | select('public') %}
         {% if presence.role is witness_role %}
             {% set ns.witnesses = ns.witnesses + [presence.person] %}
         {% endif %}
@@ -23,13 +24,13 @@
         <h2>{% trans %}Witnesses{% endtrans %}</h2>
         <ul>
             {% for witness in ns.witnesses %}
-                <li typeof="foaf:Person" property="rel:knowsOf">{% with entity=witness %}{% include ['entity/label--person.html.j2', 'entity/label.html.j2'] %}{% endwith %}</li>
+                <li typeof="foaf:Person" property="rel:knowsOf">{% with person=witness %}{% include 'entity/label--person.html.j2' %}{% endwith %}</li>
             {% endfor %}
         </ul>
     {% endif %}
 
     {% set ns = namespace(attendees=[]) %}
-    {% for presence in entity.presences | select('public') %}
+    {% for presence in event.presences | select('public') %}
         {% if not presence.role is subject_role and not presence.role is witness_role %}
             {% set ns.attendees = ns.attendees + [presence.person] %}
         {% endif %}
@@ -38,12 +39,12 @@
         <h2>{% trans %}Other attendees{% endtrans %}</h2>
         <ul>
             {% for attendee in ns.attendees %}
-                <li typeof="foaf:Person" property="rel:knowsOf">{% with entity=attendee %}{% include ['entity/label--person.html.j2', 'entity/label.html.j2'] %}{% endwith %}</li>
+                <li typeof="foaf:Person" property="rel:knowsOf">{% with person=attendee %}{% include 'entity/label--person.html.j2' %}{% endwith %}</li>
             {% endfor %}
         </ul>
     {% endif %}
 
-    {% with files = entity.associated_files %}
+    {% with files = event.associated_files %}
         {% include 'media.html.j2' %}
     {% endwith %}
 {% endblock %}

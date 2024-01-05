@@ -1,10 +1,11 @@
-{% set dated_events = entities | select('public') | rejectattr('date', 'none') | selectattr('date.comparable') | list | sort(attribute='date') %}
+{% set events = events | default(entities) | select('public') %}
+{% set dated_events = events | rejectattr('date', 'none') | selectattr('date.comparable') | list | sort(attribute='date') %}
 {% if dated_events | length > 0 %}
     <ul class="entities">
-        {% for entity in dated_events %}
+        {% for event in dated_events %}
             <li class="{{ loop.cycle('odd', 'even') }}">
-                {% include ['entity/label--event.html.j2', 'entity/label.html.j2'] %}
-                {% include ['entity/meta--event.html.j2', 'entity/meta.html.j2'] ignore missing %}
+                {% include 'entity/label--event.html.j2' %}
+                {% include 'entity/meta--event.html.j2' %}
             </li>
         {% endfor %}
     </ul>

@@ -3,11 +3,11 @@ from pathlib import Path
 from betty.extension import CottonCandy
 from betty.locale import Str, DEFAULT_LOCALIZER
 from betty.model import Entity
-from betty.model.ancestry import File, HasFiles, HasMutablePrivacy
+from betty.model.ancestry import File, HasFiles, HasPrivacy
 from betty.tests import TemplateTestCase
 
 
-class TemplateTestEntity(HasFiles, HasMutablePrivacy, Entity):
+class TemplateTestEntity(HasFiles, HasPrivacy, Entity):
     @classmethod
     def entity_type_label(cls) -> Str:
         return Str._('Test')

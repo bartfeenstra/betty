@@ -1,19 +1,24 @@
-{%- import 'macro/person.html.j2' as person_macros -%}
-{%- macro _embedded_person_name_label(name) -%}
-    {{ person_macros.name_label(name, embedded=True) }}
+{%- macro _person_name_label(person_name) -%}
+    {% include 'entity/label--person-name.html.j2' %}
 {%- endmacro -%}
+{%- macro _embedded_person_name_label(person_name) -%}
+    {% set embedded = True %}
+    {% include 'entity/label--person-name.html.j2' %}
+{%- endmacro -%}
+
+{% set person = person | default(entity) %}
 {%- if not embedded is defined -%}
     {%- set embedded = False -%}
 {%- endif -%}
 <div class="meta person-meta">
-    {%- if entity.private -%}
+    {%- if person.private -%}
         <p>{%- trans -%}This person's details are unavailable to protect their privacy.{%- endtrans -%}</p>
     {%- else -%}
-        {% set alternative_names = entity.alternative_names | select('public') | list %}
+        {% set alternative_names = (person.names | select('public') | list)[1:] %}
         {%- if alternative_names -%}
-            <span class="aka">{%- trans names=alternative_names | map(_embedded_person_name_label if embedded else person_macros.name_label) | list | join(', ') -%}Also known as {{ names }}{%- endtrans -%}</span>
+            <span class="aka">{%- trans names=alternative_names | map(_embedded_person_name_label if embedded else _person_name_label) | list | join(', ') -%}Also known as {{ names }}{%- endtrans -%}</span>
         {%- endif -%}
-        {% set events = entity.presences | selectattr('role', 'subject_role') | map(attribute='event') | reject('none') | select('public') | list %}
+        {% set events = person.presences | selectattr('role', 'subject_role') | map(attribute='event') | reject('none') | select('public') | list %}
         {% set start_of_life_events = events | select('start_of_life_event') | list %}
         {%- if start_of_life_events | length -%}
             {% set start_of_life_event = start_of_life_events | first %}
