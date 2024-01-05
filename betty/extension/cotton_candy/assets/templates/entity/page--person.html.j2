@@ -66,9 +66,9 @@
                                 {% if parents | length > 0 %}
                                     {% macro parent_label(parent) -%}
                                         <span typeof="foaf:Person" property="rel:childOf">
-                                            {% with person=parent, entity_contexts=entity_contexts(person) %}
-                                                {% include 'entity/label--person.html.j2' %}
-                                            {% endwith %}
+                                            {%- with person=parent, entity_contexts=entity_contexts(person) -%}
+                                                {%- include 'entity/label--person.html.j2' -%}
+                                            {%- endwith -%}
                                         </span>
                                     {%- endmacro %}
                                     {% if person_individual_name is defined %}
@@ -77,6 +77,7 @@
                                         {% trans parent_labels = parents | map(parent_label) | join(', ') %}They are the child of {{ parent_labels }}.{% endtrans %}
                                     {% endif %}
                                 {% endif %}
+
                                 {% if siblings | length > 0 %}
                                     {%- trans sibling_count = siblings | length -%}
                                         They grew up with a sibling.
