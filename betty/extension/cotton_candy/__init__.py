@@ -250,6 +250,15 @@ def _is_person_timeline_presence(presence: Presence) -> bool:
 
 
 def person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable[Event]:
+    seen = []
+    for event in _person_timeline_events(person, lifetime_threshold):
+        if event in seen:
+            continue
+        seen.append(event)
+        yield event
+
+
+def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable[Event]:
     # Collect all associated events for a person.
     # Start with the person's own events for which their presence is public.
     for presence in person.presences:
