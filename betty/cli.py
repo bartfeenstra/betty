@@ -142,8 +142,8 @@ async def _init_ctx_app(
 
 
 def _build_init_ctx_verbosity(
-    logger_name: str | None,
-    logger_level: int,
+    betty_logger_level: int,
+    root_logger_level: int | None = None,
 ) -> Callable[[Context, Option | Parameter | None, bool], None]:
     def _init_ctx_verbosity(
         ctx: Context,
@@ -151,9 +151,10 @@ def _build_init_ctx_verbosity(
         is_verbose: bool = False,
     ) -> None:
         if is_verbose:
-            logger = logging.getLogger(logger_name)
-            if logger.getEffectiveLevel() > logger_level:
-                logger.setLevel(logger_level)
+            for logger_name, logger_level in (('betty', betty_logger_level), (None, root_logger_level)):
+                logger = logging.getLogger(logger_name)
+                if logger_level is not None and logger.getEffectiveLevel() > logger_level:
+                    logger.setLevel(logger_level)
     return _init_ctx_verbosity
 
 
@@ -187,7 +188,7 @@ class _BettyCommands(click.MultiCommand):
     default=False,
     is_flag=True,
     help='Show verbose output, including informative log messages.',
-    callback=_build_init_ctx_verbosity('betty', logging.INFO),
+    callback=_build_init_ctx_verbosity(logging.INFO),
 )
 @click.option(
     '-vv',
@@ -197,7 +198,7 @@ class _BettyCommands(click.MultiCommand):
     default=False,
     is_flag=True,
     help='Show more verbose output, including debug log messages.',
-    callback=_build_init_ctx_verbosity('betty', logging.DEBUG),
+    callback=_build_init_ctx_verbosity(logging.DEBUG),
 )
 @click.option(
     '-vvv',
@@ -207,7 +208,7 @@ class _BettyCommands(click.MultiCommand):
     default=False,
     is_flag=True,
     help='Show most verbose output, including all log messages.',
-    callback=_build_init_ctx_verbosity('betty', logging.NOTSET),
+    callback=_build_init_ctx_verbosity(logging.NOTSET, logging.NOTSET),
 )
 @click.version_option(about.version_label(), message=about.report(), prog_name='Betty')
 def main(app: App, verbose: bool, more_verbose: bool, most_verbose: bool) -> None:
