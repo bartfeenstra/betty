@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-01-03 16:22+0000\n"
+"POT-Creation-Date: 2024-01-08 19:21+0000\n"
 "PO-Revision-Date: 2020-05-02 22:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -382,6 +382,9 @@ msgstr ""
 msgid "Descendant names include"
 msgstr "Імена нащадків є"
 
+msgid "Description, licensing, and image history"
+msgstr ""
+
 msgid ""
 "Determine if people can be proven to have died. If not, mark them and "
 "their associated entities private."
@@ -461,6 +464,9 @@ msgid "File path"
 msgstr ""
 
 msgid "Files"
+msgstr ""
+
+msgid "Find out more about this image on Wikimedia Commons."
 msgstr ""
 
 msgid ""

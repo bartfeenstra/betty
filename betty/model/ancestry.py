@@ -323,7 +323,7 @@ class HasCitations:
 
 
 @many_to_many('entities', 'betty.model.ancestry.HasFiles', 'files')
-class File(Described, HasPrivacy, HasMediaType, HasNotes, HasCitations, UserFacingEntity, Entity):
+class File(Described, HasPrivacy, HasLinks, HasMediaType, HasNotes, HasCitations, UserFacingEntity, Entity):
     def __init__(
         self,
         path: Path,
@@ -336,6 +336,7 @@ class File(Described, HasPrivacy, HasMediaType, HasNotes, HasCitations, UserFaci
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
+        links: set[Link] | None = None,
     ):
         super().__init__(
             id,
@@ -346,6 +347,7 @@ class File(Described, HasPrivacy, HasMediaType, HasNotes, HasCitations, UserFaci
             privacy=privacy,
             public=public,
             private=private,
+            links=links,
         )
         self._path = path
 
@@ -670,7 +672,7 @@ class Enclosure(Dated, HasCitations, Entity):
 @one_to_many('events', 'betty.model.ancestry.Event', 'place')
 @one_to_many('enclosed_by', 'betty.model.ancestry.Enclosure', 'encloses')
 @one_to_many('encloses', 'betty.model.ancestry.Enclosure', 'enclosed_by')
-class Place(HasLinks, UserFacingEntity, Entity):
+class Place(HasLinks, HasFiles, UserFacingEntity, Entity):
     def __init__(
         self,
         *,
@@ -757,6 +759,12 @@ class Place(HasLinks, UserFacingEntity, Entity):
         with suppress(IndexError):
             return Str.plain(self.names[0].name)
         return super().label
+
+    @property
+    def associated_files(self) -> Iterable[File]:
+        yield from self.files
+        for event in self.events:
+            yield from event.files
 
 
 class PresenceRole:

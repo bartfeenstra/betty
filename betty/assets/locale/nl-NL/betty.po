@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-01-03 16:22+0000\n"
+"POT-Creation-Date: 2024-01-08 19:21+0000\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -410,6 +410,9 @@ msgstr "Afleiden..."
 msgid "Descendant names include"
 msgstr "De nakomelingen heten"
 
+msgid "Description, licensing, and image history"
+msgstr "Beschrijving, licentie, en afbeeldingsgeschiedenis"
+
 msgid ""
 "Determine if people can be proven to have died. If not, mark them and "
 "their associated entities private."
@@ -490,6 +493,9 @@ msgstr "Bestandspad"
 
 msgid "Files"
 msgstr "Bestanden"
+
+msgid "Find out more about this image on Wikimedia Commons."
+msgstr "Vind meer informatie over deze afbeelding op Wikimedia Commons."
 
 msgid ""
 "Follow Betty on <a href=\"https://twitter.com/Betty_Project\">Twitter</a>"

@@ -8,45 +8,36 @@ from jinja2.runtime import Context
 from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
 
+from betty import wikipedia
 from betty.app.extension import UserFacingExtension
 from betty.asyncio import gather
 from betty.jinja2 import Jinja2Provider, context_localizer
 from betty.load import PostLoader
 from betty.locale import negotiate_locale, Str
 from betty.model.ancestry import Link
-from betty.wikipedia import _Retriever, _Populator, Entry, _parse_url, NotAnEntryError, RetrievalError
+from betty.wikipedia import Summary, _parse_url, NotAPageError, RetrievalError
 
 
 class _Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstance):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self.__retriever: _Retriever | None = None
-        self.__populator: _Populator | None = None
+        self.__retriever: wikipedia._Retriever | None = None
+        self.__populator: wikipedia._Populator | None = None
 
     async def post_load(self) -> None:
-        await self._populator.populate()
+        populator = wikipedia._Populator(self.app, self._retriever)
+        await populator.populate()
 
     @property
     @reactive_property(on_trigger_delete=True)
-    def _retriever(self) -> _Retriever:
+    def _retriever(self) -> wikipedia._Retriever:
         if self.__retriever is None:
-            self.__retriever = _Retriever(self.app.http_client, self.cache_directory_path)
+            self.__retriever = wikipedia._Retriever(self.app.http_client, self.cache_directory_path)
         return self.__retriever
 
     @_retriever.deleter
     def _retriever(self) -> None:
         self.__retriever = None
-
-    @property
-    @reactive_property(on_trigger_delete=True)
-    def _populator(self) -> _Populator:
-        if self.__populator is None:
-            self.__populator = _Populator(self.app, self._retriever)
-        return self.__populator
-
-    @_populator.deleter
-    def _populator(self) -> None:
-        self.__populator = None
 
     @property
     def filters(self) -> dict[str, Callable[..., Any]]:
@@ -55,7 +46,7 @@ class _Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstan
         }
 
     @pass_context
-    async def _filter_wikipedia_links(self, context: Context, links: Iterable[Link]) -> Iterable[Entry]:
+    async def _filter_wikipedia_links(self, context: Context, links: Iterable[Link]) -> Iterable[Summary]:
         return filter(
             None,
             await gather(*(
@@ -68,15 +59,15 @@ class _Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstan
             )),
         )
 
-    async def _filter_wikipedia_link(self, locale: str, link: Link) -> Entry | None:
+    async def _filter_wikipedia_link(self, locale: str, link: Link) -> Summary | None:
         try:
             entry_language, entry_name = _parse_url(link.url)
-        except NotAnEntryError:
+        except NotAPageError:
             return None
         if negotiate_locale(locale, {entry_language}) is None:
             return None
         try:
-            return await self._retriever.get_entry(entry_language, entry_name)
+            return await self._retriever.get_summary(entry_language, entry_name)
         except RetrievalError:
             return None
 

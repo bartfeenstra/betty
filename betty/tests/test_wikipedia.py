@@ -24,7 +24,7 @@ from aioresponses import aioresponses
 
 from betty.app import App
 from betty.model.ancestry import Source, Link, Citation, Place
-from betty.wikipedia import Entry, _Retriever, NotAnEntryError, _parse_url, RetrievalError, _Populator
+from betty.wikipedia import Summary, _Retriever, NotAPageError, _parse_url, RetrievalError, _Populator
 
 
 class TestParseUrl:
@@ -46,23 +46,23 @@ class TestParseUrl:
         'https://en.wikipedia.org/w/index.php?title=Amsterdam&action=edit',
     ])
     async def test_should_error(self, url: str) -> None:
-        with pytest.raises(NotAnEntryError):
+        with pytest.raises(NotAPageError):
             _parse_url(url)
 
 
-class TestEntry:
+class TestSummary:
     async def test_url(self) -> None:
-        sut = Entry('nl', 'Amsterdam', 'Title for Amsterdam', 'Content for Amsterdam')
+        sut = Summary('nl', 'Amsterdam', 'Title for Amsterdam', 'Content for Amsterdam')
         assert 'https://nl.wikipedia.org/wiki/Amsterdam' == sut.url
 
     async def test_title(self) -> None:
         title = 'Title for Amsterdam'
-        sut = Entry('nl', 'Amsterdam', title, 'Content for Amsterdam')
+        sut = Summary('nl', 'Amsterdam', title, 'Content for Amsterdam')
         assert title == sut.title
 
     async def test_content(self) -> None:
         content = 'Content for Amsterdam'
-        sut = Entry('nl', 'Amsterdam', 'Title for Amsterdam', content)
+        sut = Summary('nl', 'Amsterdam', 'Title for Amsterdam', content)
         assert content == sut.content
 
 
@@ -93,9 +93,9 @@ class TestRetriever:
         mocker: MockerFixture,
     ) -> None:
         mocker.patch('sys.stderr')
-        entry_language = 'en'
-        entry_name = 'Amsterdam'
-        api_url = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=langlinks&lllimit=500&format=json&formatversion=2' % (entry_language, entry_name)
+        summary_language = 'en'
+        summary_name = 'Amsterdam'
+        api_url = f'https://{summary_language}.wikipedia.org/w/api.php?action=query&titles={summary_name}&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2'
         api_response_body = {
             'query': {
                 'pages': [response_pages_json],
@@ -104,7 +104,7 @@ class TestRetriever:
         aioresponses.get(api_url, payload=api_response_body)
         async with TemporaryDirectory() as cache_directory_path_str:
             async with aiohttp.ClientSession() as session:
-                translations = await _Retriever(session, Path(cache_directory_path_str)).get_translations(entry_language, entry_name)
+                translations = await _Retriever(session, Path(cache_directory_path_str)).get_translations(summary_language, summary_name)
         assert expected == translations
 
     async def test_get_translations_with_client_error_should_raise_retrieval_error(
@@ -113,14 +113,14 @@ class TestRetriever:
         mocker: MockerFixture,
     ) -> None:
         mocker.patch('sys.stderr')
-        entry_language = 'en'
-        entry_name = 'Amsterdam'
-        api_url = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=langlinks&lllimit=500&format=json&formatversion=2' % (entry_language, entry_name)
+        summary_language = 'en'
+        summary_name = 'Amsterdam'
+        api_url = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=langlinks&lllimit=500&format=json&formatversion=2' % (summary_language, summary_name)
         aioresponses.get(api_url, exception=aiohttp.ClientError())
         async with TemporaryDirectory() as cache_directory_path_str:
             with pytest.raises(RetrievalError):
                 async with aiohttp.ClientSession() as session:
-                    await _Retriever(session, Path(cache_directory_path_str)).get_translations(entry_language, entry_name)
+                    await _Retriever(session, Path(cache_directory_path_str)).get_translations(summary_language, summary_name)
 
     async def test_get_translations_with_invalid_json_response_should_raise_retrieval_error(
         self,
@@ -128,14 +128,14 @@ class TestRetriever:
         mocker: MockerFixture,
     ) -> None:
         mocker.patch('sys.stderr')
-        entry_language = 'en'
-        entry_name = 'Amsterdam'
-        api_url = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=langlinks&lllimit=500&format=json&formatversion=2' % (entry_language, entry_name)
+        summary_language = 'en'
+        summary_name = 'Amsterdam'
+        api_url = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=langlinks&lllimit=500&format=json&formatversion=2' % (summary_language, summary_name)
         aioresponses.get(api_url, body='{Haha Im not rly JSON}')
         async with TemporaryDirectory() as cache_directory_path_str:
             with pytest.raises(RetrievalError):
                 async with aiohttp.ClientSession() as session:
-                    await _Retriever(session, Path(cache_directory_path_str)).get_translations(entry_language, entry_name)
+                    await _Retriever(session, Path(cache_directory_path_str)).get_translations(summary_language, summary_name)
 
     @pytest.mark.parametrize('response_json', [
         {},
@@ -160,42 +160,38 @@ class TestRetriever:
         aioresponses: aioresponses,
     ) -> None:
         mocker.patch('sys.stderr')
-        entry_language = 'en'
-        entry_name = 'Amsterdam'
-        api_url = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=langlinks&lllimit=500&format=json&formatversion=2' % (entry_language, entry_name)
+        summary_language = 'en'
+        summary_name = 'Amsterdam'
+        api_url = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=langlinks&lllimit=500&format=json&formatversion=2' % (summary_language, summary_name)
         aioresponses.get(api_url, payload=response_json)
         async with TemporaryDirectory() as cache_directory_path_str:
             with pytest.raises(RetrievalError):
                 async with aiohttp.ClientSession() as session:
-                    await _Retriever(session, Path(cache_directory_path_str)).get_translations(entry_language, entry_name)
+                    await _Retriever(session, Path(cache_directory_path_str)).get_translations(summary_language, summary_name)
 
-    async def test_get_entry_should_return(self, aioresponses: aioresponses) -> None:
-        entry_language = 'en'
-        entry_name = 'Amsterdam'
-        api_url = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam&prop=extracts&exintro&format=json&formatversion=2'
-        entry_url = 'https://en.wikipedia.org/wiki/Amsterdam'
+    @pytest.mark.parametrize('extract_key', [
+        'extract',
+        'extract_html',
+    ])
+    async def test_get_summary_should_return(self, extract_key: str, aioresponses: aioresponses) -> None:
+        summary_language = 'en'
+        summary_name = 'Amsterdam'
+        api_url = f'https://{summary_language}.wikipedia.org/api/rest_v1/page/summary/{summary_name}'
+        summary_url = 'https://en.wikipedia.org/wiki/Amsterdam'
         title = 'Amstelredam'
         extract_1 = 'De hoofdstad van Nederland.'
         extract_4 = 'Niet de hoofdstad van Holland.'
         api_response_body_1 = {
-            'query': {
-                'pages': [
-                    {
-                        'title': title,
-                        'extract': extract_1,
-                    },
-                ],
-            }
+            'titles': {
+                'normalized': title,
+            },
+            extract_key: extract_1,
         }
         api_response_body_4 = {
-            'query': {
-                'pages': [
-                    {
-                        'title': title,
-                        'extract': extract_4,
-                    },
-                ],
-            }
+            'titles': {
+                'normalized': title,
+            },
+            extract_key: extract_4,
         }
         aioresponses.get(api_url, payload=api_response_body_1)
         aioresponses.get(api_url, exception=aiohttp.ClientError())
@@ -204,40 +200,40 @@ class TestRetriever:
             async with aiohttp.ClientSession() as session:
                 retriever = _Retriever(session, Path(cache_directory_path_str), 1)
                 # The first retrieval should make a successful request and set the cache.
-                entry_1 = await retriever.get_entry(entry_language, entry_name)
+                summary_1 = await retriever.get_summary(summary_language, summary_name)
                 # The second retrieval should hit the cache from the first request.
-                entry_2 = await retriever.get_entry(entry_language, entry_name)
+                summary_2 = await retriever.get_summary(summary_language, summary_name)
                 # The third retrieval should result in a failed request, and hit the cache from the first request.
                 sleep(2)
-                entry_3 = await retriever.get_entry(entry_language, entry_name)
+                summary_3 = await retriever.get_summary(summary_language, summary_name)
                 # The fourth retrieval should make a successful request and set the cache again.
-                entry_4 = await retriever.get_entry(entry_language, entry_name)
+                summary_4 = await retriever.get_summary(summary_language, summary_name)
                 # The fifth retrieval should hit the cache from the fourth request.
-                entry_5 = await retriever.get_entry(entry_language, entry_name)
-        for entry in [entry_1, entry_2, entry_3]:
-            assert entry_url == entry.url
-            assert title == entry.title
-            assert extract_1 == entry.content
-        for entry in [entry_4, entry_5]:
-            assert entry_url == entry.url
-            assert title == entry.title
-            assert extract_4 == entry.content
+                summary_5 = await retriever.get_summary(summary_language, summary_name)
+        for summary in [summary_1, summary_2, summary_3]:
+            assert summary_url == summary.url
+            assert title == summary.title
+            assert extract_1 == summary.content
+        for summary in [summary_4, summary_5]:
+            assert summary_url == summary.url
+            assert title == summary.title
+            assert extract_4 == summary.content
 
-    async def test_get_entry_with_client_error_should_raise_retrieval_error(
+    async def test_get_summary_with_client_error_should_raise_retrieval_error(
         self,
         aioresponses: aioresponses,
         mocker: MockerFixture,
     ) -> None:
         mocker.patch('sys.stderr')
-        entry_language = 'en'
-        entry_name = 'Amsterdam'
+        summary_language = 'en'
+        summary_name = 'Amsterdam'
         api_url = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam&prop=extracts&exintro&format=json&formatversion=2'
         aioresponses.get(api_url, exception=aiohttp.ClientError())
         async with TemporaryDirectory() as cache_directory_path_str:
             async with aiohttp.ClientSession() as session:
                 retriever = _Retriever(session, Path(cache_directory_path_str))
                 with pytest.raises(RetrievalError):
-                    await retriever.get_entry(entry_language, entry_name)
+                    await retriever.get_summary(summary_language, summary_name)
 
     @pytest.mark.parametrize('expected, response_pages_json', [
         (None, {},),
@@ -272,9 +268,9 @@ class TestRetriever:
         mocker: MockerFixture,
     ) -> None:
         mocker.patch('sys.stderr')
-        entry_language = 'en'
-        entry_name = 'Amsterdam'
-        api_url = f'https://{entry_language}.wikipedia.org/w/api.php?action=query&titles={entry_name}&prop=coordinates&coprimary=primary&format=json&formatversion=2'
+        summary_language = 'en'
+        summary_name = 'Amsterdam'
+        api_url = f'https://{summary_language}.wikipedia.org/w/api.php?action=query&titles={summary_name}&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2'
         api_response_body = {
             'query': {
                 'pages': [response_pages_json],
@@ -283,7 +279,7 @@ class TestRetriever:
         aioresponses.get(api_url, payload=api_response_body)
         async with TemporaryDirectory() as cache_directory_path_str:
             async with aiohttp.ClientSession() as session:
-                actual = await _Retriever(session, Path(cache_directory_path_str)).get_place_coordinates(entry_language, entry_name)
+                actual = await _Retriever(session, Path(cache_directory_path_str)).get_place_coordinates(summary_language, summary_name)
         assert expected == actual
 
 
@@ -292,10 +288,10 @@ class TestPopulator:
     async def test_populate_link_should_convert_http_to_https(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
-        entry_language = 'nl'
+        summary_language = 'nl'
         async with App() as app:
             sut = _Populator(app, m_retriever)
-            await sut.populate_link(link, entry_language)
+            await sut.populate_link(link, summary_language)
         assert 'https://en.wikipedia.org/wiki/Amsterdam' == link.url
 
     @pytest.mark.parametrize('expected, media_type', [
@@ -340,7 +336,7 @@ class TestPopulator:
             await sut.populate_link(link, 'en')
         assert expected == link.relationship
 
-    @pytest.mark.parametrize('expected, entry_language, locale', [
+    @pytest.mark.parametrize('expected, summary_language, locale', [
         ('nl-NL', 'nl', 'nl-NL'),
         ('nl', 'nl', None),
         ('nl', 'en', 'nl'),
@@ -349,16 +345,16 @@ class TestPopulator:
     async def test_populate_link_should_set_locale(
         self,
         expected: str,
-        entry_language: str,
+        summary_language: str,
         locale: str | None,
         mocker: MockerFixture,
     ) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
-        link = Link('http://%s.wikipedia.org/wiki/Amsterdam' % entry_language)
+        link = Link('http://%s.wikipedia.org/wiki/Amsterdam' % summary_language)
         link.locale = locale
         async with App() as app:
             sut = _Populator(app, m_retriever)
-            await sut.populate_link(link, entry_language)
+            await sut.populate_link(link, summary_language)
         assert expected == link.locale
 
     @pytest.mark.parametrize('expected, description', [
@@ -377,10 +373,10 @@ class TestPopulator:
             'http://en.wikipedia.org/wiki/Amsterdam',
             description=description,
         )
-        entry_language = 'en'
+        summary_language = 'en'
         async with App() as app:
             sut = _Populator(app, m_retriever)
-            await sut.populate_link(link, entry_language)
+            await sut.populate_link(link, summary_language)
         assert expected == link.description
 
     @pytest.mark.parametrize('expected, label', [
@@ -397,10 +393,10 @@ class TestPopulator:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.label = label
-        entry = Entry('en', 'The_city_of_Amsterdam', 'The city of Amsterdam', 'Amsterdam, such a lovely place!')
+        summary = Summary('en', 'The_city_of_Amsterdam', 'The city of Amsterdam', 'Amsterdam, such a lovely place!')
         async with App() as app:
             sut = _Populator(app, m_retriever)
-            await sut.populate_link(link, 'en', entry)
+            await sut.populate_link(link, 'en', summary)
         assert expected == link.label
 
     @patch_cache
@@ -447,12 +443,13 @@ class TestPopulator:
     @patch_cache
     async def test_populate_should_populate_existing_link(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever', spec=_Retriever, new_callable=AsyncMock)
-        entry_language = 'en'
-        entry_name = 'Amsterdam'
-        entry_title = 'Amsterdam'
-        entry_content = 'Capitol of the Netherlands'
-        entry = Entry(entry_language, entry_name, entry_title, entry_content)
-        m_retriever.get_entry.return_value = entry
+        summary_language = 'en'
+        summary_name = 'Amsterdam'
+        summary_title = 'Amsterdam'
+        summary_content = 'Capitol of the Netherlands'
+        summary = Summary(summary_language, summary_name, summary_title, summary_content)
+        m_retriever.get_summary.return_value = summary
+        m_retriever.get_image.return_value = None
 
         link = Link('https://en.wikipedia.org/wiki/Amsterdam')
         resource = Source(
@@ -464,7 +461,7 @@ class TestPopulator:
             app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
-        m_retriever.get_entry.assert_called_once_with(entry_language, entry_name)
+        m_retriever.get_summary.assert_called_once_with(summary_language, summary_name)
         assert 1 == len(resource.links)
         assert 'Amsterdam' == link.label
         assert 'en' == link.locale
@@ -475,24 +472,24 @@ class TestPopulator:
     @patch_cache
     async def test_populate_should_add_translation_links(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever', spec=_Retriever, new_callable=AsyncMock)
-        entry_language = 'en'
-        entry_name = 'Amsterdam'
-        entry_title = 'Amsterdam'
-        entry_content = 'Capitol of the Netherlands'
-        entry = Entry(entry_language, entry_name, entry_title, entry_content)
-        added_entry_language = 'nl'
-        added_entry_name = 'Amsterdam'
-        added_entry_title = 'Amsterdam'
-        added_entry_content = 'Hoofdstad van Nederland'
-        added_entry = Entry(added_entry_language, added_entry_name, added_entry_title, added_entry_content)
-        m_retriever.get_entry.side_effect = [
-            entry,
-            added_entry
+        summary_language = 'en'
+        summary_name = 'Amsterdam'
+        summary_title = 'Amsterdam'
+        summary_content = 'Capitol of the Netherlands'
+        summary = Summary(summary_language, summary_name, summary_title, summary_content)
+        added_summary_language = 'nl'
+        added_summary_name = 'Amsterdam'
+        added_summary_title = 'Amsterdam'
+        added_summary_content = 'Hoofdstad van Nederland'
+        added_summary = Summary(added_summary_language, added_summary_name, added_summary_title, added_summary_content)
+        m_retriever.get_summary.side_effect = [
+            summary,
+            added_summary
         ]
-
+        m_retriever.get_image.return_value = None
         m_retriever.get_translations.return_value = {
-            entry_language: entry_name,
-            added_entry_language: added_entry_name,
+            summary_language: summary_name,
+            added_summary_language: added_summary_name,
         }
 
         link_en = Link('https://en.wikipedia.org/wiki/Amsterdam')
@@ -509,11 +506,11 @@ class TestPopulator:
             sut = _Populator(app, m_retriever)
             await sut.populate()
 
-        m_retriever.get_entry.assert_has_calls([
-            call(entry_language, entry_name),
-            call(added_entry_language, added_entry_name),
+        m_retriever.get_summary.assert_has_calls([
+            call(summary_language, summary_name),
+            call(added_summary_language, added_summary_name),
         ])
-        m_retriever.get_translations.assert_called_once_with(entry_language, entry_name)
+        m_retriever.get_translations.assert_called_once_with(summary_language, summary_name)
         assert 2 == len(resource.links)
         link_nl = resource.links.difference({link_en}).pop()
         assert 'Amsterdam' == link_nl.label
@@ -525,12 +522,13 @@ class TestPopulator:
     @patch_cache
     async def test_populate_place_should_add_coordinates(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever', spec=_Retriever, new_callable=AsyncMock)
-        entry_language = 'en'
-        entry_name = 'Almelo'
+        summary_language = 'en'
+        summary_name = 'Almelo'
         coordinates = Point(52.35, 6.66666667)
         m_retriever.get_place_coordinates.return_value = coordinates
+        m_retriever.get_image.return_value = None
 
-        link = Link(f'https://{entry_language}.wikipedia.org/wiki/{entry_name}')
+        link = Link(f'https://{summary_language}.wikipedia.org/wiki/{summary_name}')
         place = Place(links={link})
         app = App()
         async with app:
