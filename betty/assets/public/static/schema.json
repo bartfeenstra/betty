@@ -245,7 +245,6 @@
               }
             },
             "required": [
-              "role",
               "person"
             ],
             "patternProperties": {

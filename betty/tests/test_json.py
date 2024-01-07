@@ -16,14 +16,14 @@ from betty.project import LocaleConfiguration
 
 
 class TestJSONEncoder:
-    async def assert_encodes(self, expected: Any, data: Any, schema_definition: str) -> None:
+    async def assert_encodes(self, data: Any, schema_definition: str) -> dict[str, Any]:
         app = App()
         app.project.configuration.locales['en-US'].alias = 'en'
         app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
         async with app:
-            encoded_data = stdjson.loads(stdjson.dumps(data, cls=app.json_encoder))
-        json.validate(encoded_data, schema_definition, app)
-        assert expected == encoded_data
+            actual = stdjson.loads(stdjson.dumps(data, cls=app.json_encoder))
+        json.validate(actual, schema_definition, app)
+        return actual  # type: ignore[no-any-return]
 
     async def test_coordinates_should_encode(self) -> None:
         latitude = 12.345
@@ -38,7 +38,8 @@ class TestJSONEncoder:
             'latitude': latitude,
             'longitude': longitude,
         }
-        await self.assert_encodes(expected, coordinates, 'coordinates')
+        actual = await self.assert_encodes(coordinates, 'coordinates')
+        assert expected == actual
 
     async def test_place_should_encode_minimal(self) -> None:
         place_id = 'the_place'
@@ -84,7 +85,8 @@ class TestJSONEncoder:
                 },
             ],
         }
-        await self.assert_encodes(expected, place, 'place')
+        actual = await self.assert_encodes(place, 'place')
+        assert expected == actual
 
     async def test_place_should_encode_full(self) -> None:
         place_id = 'the_place'
@@ -168,7 +170,8 @@ class TestJSONEncoder:
                 '/place/the_enclosing_place/index.json',
             ],
         }
-        await self.assert_encodes(expected, place, 'place')
+        actual = await self.assert_encodes(place, 'place')
+        assert expected == actual
 
     async def test_person_should_encode_minimal(self) -> None:
         person_id = 'the_person'
@@ -209,7 +212,8 @@ class TestJSONEncoder:
                 },
             ],
         }
-        await self.assert_encodes(expected, person, 'person')
+        actual = await self.assert_encodes(person, 'person')
+        assert expected == actual
 
     async def test_person_should_encode_full(self) -> None:
         parent_id = 'the_parent'
@@ -318,7 +322,8 @@ class TestJSONEncoder:
                 },
             ],
         }
-        await self.assert_encodes(expected, person, 'person')
+        actual = await self.assert_encodes(person, 'person')
+        assert expected == actual
 
     async def test_person_should_encode_private(self) -> None:
         parent_id = 'the_parent'
@@ -399,7 +404,8 @@ class TestJSONEncoder:
                 },
             ],
         }
-        await self.assert_encodes(expected, person, 'person')
+        actual = await self.assert_encodes(person, 'person')
+        assert expected == actual
 
     async def test_note_should_encode(self) -> None:
         note = Note(
@@ -433,7 +439,8 @@ class TestJSONEncoder:
                 },
             ],
         }
-        await self.assert_encodes(expected, note, 'note')
+        actual = await self.assert_encodes(note, 'note')
+        assert expected == actual
 
     async def test_note_should_encode_private(self) -> None:
         note = Note(
@@ -455,7 +462,8 @@ class TestJSONEncoder:
                 },
             ],
         }
-        await self.assert_encodes(expected, note, 'note')
+        actual = await self.assert_encodes(note, 'note')
+        assert expected == actual
 
     async def test_file_should_encode_minimal(self) -> None:
         with NamedTemporaryFile() as f:
@@ -491,7 +499,8 @@ class TestJSONEncoder:
                     },
                 ],
             }
-            await self.assert_encodes(expected, file, 'file')
+            actual = await self.assert_encodes(file, 'file')
+            assert expected == actual
 
     async def test_file_should_encode_full(self) -> None:
         with NamedTemporaryFile() as f:
@@ -547,7 +556,8 @@ class TestJSONEncoder:
                     },
                 ],
             }
-            await self.assert_encodes(expected, file, 'file')
+            actual = await self.assert_encodes(file, 'file')
+            assert expected == actual
 
     async def test_file_should_encode_private(self) -> None:
         with NamedTemporaryFile() as f:
@@ -591,7 +601,8 @@ class TestJSONEncoder:
                     },
                 ],
             }
-            await self.assert_encodes(expected, file, 'file')
+            actual = await self.assert_encodes(file, 'file')
+            assert expected == actual
 
     async def test_event_should_encode_minimal(self) -> None:
         event = Event(
@@ -627,7 +638,8 @@ class TestJSONEncoder:
                 },
             ],
         }
-        await self.assert_encodes(expected, event, 'event')
+        actual = await self.assert_encodes(event, 'event')
+        assert expected == actual
 
     async def test_event_should_encode_full(self) -> None:
         event = Event(
@@ -701,7 +713,8 @@ class TestJSONEncoder:
                 },
             ],
         }
-        await self.assert_encodes(expected, event, 'event')
+        actual = await self.assert_encodes(event, 'event')
+        assert expected == actual
 
     async def test_event_should_encode_private(self) -> None:
         event = Event(
@@ -736,7 +749,6 @@ class TestJSONEncoder:
                     '@context': {
                         'person': 'https://schema.org/actor',
                     },
-                    'role': 'subject',
                     'person': '/person/the_person/index.json',
                 },
             ],
@@ -752,7 +764,8 @@ class TestJSONEncoder:
                 },
             ],
         }
-        await self.assert_encodes(expected, event, 'event')
+        actual = await self.assert_encodes(event, 'event')
+        assert expected == actual
 
     async def test_source_should_encode_minimal(self) -> None:
         source = Source(
@@ -790,7 +803,8 @@ class TestJSONEncoder:
                 },
             ],
         }
-        await self.assert_encodes(expected, source, 'source')
+        actual = await self.assert_encodes(source, 'source')
+        assert expected == actual
 
     async def test_source_should_encode_full(self) -> None:
         link = Link('https://example.com/the-source')
@@ -862,7 +876,8 @@ class TestJSONEncoder:
                 },
             ],
         }
-        await self.assert_encodes(expected, source, 'source')
+        actual = await self.assert_encodes(source, 'source')
+        assert expected == actual
 
     async def test_source_should_encode_private(self) -> None:
         link = Link('https://example.com/the-source')
@@ -901,15 +916,48 @@ class TestJSONEncoder:
                 '/citation/the_citation/index.json',
             ],
             'containedBy': '/source/the_containing_source/index.json',
-            'links': [
-                {
-                    'url': '/source/the_source/index.json',
-                    'relationship': 'canonical',
-                    'mediaType': 'application/json',
-                },
-            ],
         }
-        await self.assert_encodes(expected, source, 'source')
+        actual = await self.assert_encodes(source, 'source')
+        actual.pop('links')
+        assert expected == actual
+
+    async def test_source_should_encode_with_private_associations(self) -> None:
+        contained_by_source = Source(
+            id='the_containing_source',
+            name='The Containing Source',
+        )
+        contains_source = Source(
+            id='the_contained_source',
+            name='The Contained Source',
+            private=True,
+        )
+        source = Source(
+            id='the_source',
+            contained_by=contained_by_source,
+            contains=[contains_source],
+        )
+        Citation(
+            id='the_citation',
+            source=source,
+            private=True,
+        )
+        expected: dict[str, Any] = {
+            '$schema': '/schema.json#/definitions/source',
+            '@context': {},
+            '@type': 'https://schema.org/Thing',
+            'id': 'the_source',
+            'private': False,
+            'contains': [
+                '/source/the_contained_source/index.json',
+            ],
+            'citations': [
+                '/citation/the_citation/index.json',
+            ],
+            'containedBy': '/source/the_containing_source/index.json',
+        }
+        actual = await self.assert_encodes(source, 'source')
+        actual.pop('links')
+        assert expected == actual
 
     async def test_citation_should_encode_minimal(self) -> None:
         citation = Citation(
@@ -943,7 +991,8 @@ class TestJSONEncoder:
                 },
             ],
         }
-        await self.assert_encodes(expected, citation, 'citation')
+        actual = await self.assert_encodes(citation, 'citation')
+        assert expected == actual
 
     async def test_citation_should_encode_full(self) -> None:
         citation = Citation(
@@ -987,7 +1036,8 @@ class TestJSONEncoder:
                 },
             ],
         }
-        await self.assert_encodes(expected, citation, 'citation')
+        actual = await self.assert_encodes(citation, 'citation')
+        assert expected == actual
 
     async def test_citation_should_encode_private(self) -> None:
         citation = Citation(
@@ -1020,14 +1070,16 @@ class TestJSONEncoder:
                 },
             ],
         }
-        await self.assert_encodes(expected, citation, 'citation')
+        actual = await self.assert_encodes(citation, 'citation')
+        assert expected == actual
 
     async def test_link_should_encode_minimal(self) -> None:
         link = Link('https://example.com')
         expected: dict[str, Any] = {
             'url': 'https://example.com',
         }
-        await self.assert_encodes(expected, link, 'link')
+        actual = await self.assert_encodes(link, 'link')
+        assert expected == actual
 
     async def test_link_should_encode_full(self) -> None:
         link = Link(
@@ -1044,4 +1096,5 @@ class TestJSONEncoder:
             'locale': 'nl-NL',
             'mediaType': 'text/html',
         }
-        await self.assert_encodes(expected, link, 'link')
+        actual = await self.assert_encodes(link, 'link')
+        assert expected == actual

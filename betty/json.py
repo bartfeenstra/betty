@@ -285,7 +285,7 @@ class JSONEncoder(stdjson.JSONEncoder):
             },
             'event': self._generate_url(presence.event),
         }
-        if is_public(presence.person):
+        if presence.public:
             encoded['role'] = presence.role
         return encoded
 
@@ -344,7 +344,7 @@ class JSONEncoder(stdjson.JSONEncoder):
             },
             'person': self._generate_url(presence.person),
         }
-        if is_public(presence.person):
+        if presence.public:
             encoded['role'] = presence.role
         return encoded
 
@@ -354,16 +354,15 @@ class JSONEncoder(stdjson.JSONEncoder):
     def _encode_citation(self, citation: Citation) -> dict[str, Any]:
         encoded: dict[str, Any] = {
             '@type': 'https://schema.org/Thing',
-            'facts': []
+            'facts': [
+                self._generate_url(fact)
+                for fact
+                in citation.facts
+                if not isinstance(fact.id, GeneratedEntityId)
+            ]
         }
         if citation.source is not None and not isinstance(citation.source.id, GeneratedEntityId):
             encoded['source'] = self._generate_url(citation.source)
-        for fact in citation.facts:
-            if isinstance(fact.id, GeneratedEntityId):
-                continue
-            encoded['facts'].append(
-                self._generate_url(fact),
-            )
         self._encode_entity(encoded, citation)
         return encoded
 
@@ -386,7 +385,7 @@ class JSONEncoder(stdjson.JSONEncoder):
         if source.contained_by is not None and not isinstance(source.contained_by.id, GeneratedEntityId):
             encoded['containedBy'] = self._generate_url(source.contained_by)
         self._encode_entity(encoded, source)
-        if is_public(source):
+        if source.public:
             if source.name is not None:
                 encoded['@context']['name'] = 'https://schema.org/name'
                 encoded['name'] = source.name
@@ -409,7 +408,7 @@ class JSONEncoder(stdjson.JSONEncoder):
             '@type': 'https://schema.org/Thing',
         }
         self._encode_entity(encoded, note)
-        if is_public(note):
+        if note.public:
             encoded['text'] = note.text
         return encoded
 
