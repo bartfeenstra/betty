@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from contextlib import AsyncExitStack
 
-from geopy import Point
-
 from betty import load, generate
 from betty.app import App
 from betty.app.extension import Extension
@@ -103,7 +101,6 @@ class _Demo(Extension, Loader):
                     locale='uk',
                 ),
             ],
-            coordinates=Point(52.366667, 4.9),
             links={Link('https://nl.wikipedia.org/wiki/Amsterdam')},
         )
         self._load(Enclosure(encloses=amsterdam, enclosed_by=north_holland))
@@ -118,7 +115,6 @@ class _Demo(Extension, Loader):
                     locale='uk',
                 ),
             ],
-            coordinates=Point(52.465556, 4.951111),
             links={Link('https://nl.wikipedia.org/wiki/Ilpendam')},
         )
         self._load(Enclosure(encloses=ilpendam, enclosed_by=north_holland))

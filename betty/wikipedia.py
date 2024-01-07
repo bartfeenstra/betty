@@ -12,6 +12,7 @@ from typing import cast, Any
 
 import aiofiles
 import aiohttp
+from geopy import Point
 
 from betty.app import App
 from betty.asyncio import gather
@@ -19,7 +20,7 @@ from betty.functools import filter_suppress
 from betty.locale import Localized, negotiate_locale, to_locale, get_data, LocaleNotFoundError, Localey
 from betty.media_type import MediaType
 from betty.model import Entity
-from betty.model.ancestry import Link, HasLinks
+from betty.model.ancestry import Link, HasLinks, Place
 
 
 class WikipediaError(BaseException):
@@ -116,8 +117,7 @@ class _Retriever:
             raise RetrievalError('Could not successfully parse the JSON format returned by %s: %s' % (url, e))
 
     async def get_translations(self, entry_language: str, entry_name: str) -> dict[str, str]:
-        url = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=langlinks&lllimit=500&format=json&formatversion=2' % (
-            entry_language, entry_name)
+        url = f'https://{entry_language}.wikipedia.org/w/api.php?action=query&titles={entry_name}&prop=langlinks&lllimit=500&format=json&formatversion=2'
         page_data = await self._get_page_data(url)
         try:
             translations_data = page_data['langlinks']
@@ -127,11 +127,25 @@ class _Retriever:
         return {translation_data['lang']: translation_data['title'] for translation_data in translations_data}
 
     async def get_entry(self, language: str, name: str) -> Entry:
-        url = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=extracts&exintro&format=json&formatversion=2' % (
-            language, name)
+        url = f'https://{language}.wikipedia.org/w/api.php?action=query&titles={name}&prop=extracts&exintro&format=json&formatversion=2'
         page_data = await self._get_page_data(url)
         try:
             return Entry(language, name, page_data['title'], page_data['extract'])
+        except KeyError as e:
+            raise RetrievalError('Could not successfully parse the JSON content returned by %s: %s' % (url, e))
+
+    async def get_place_coordinates(self, language: str, name: str) -> Point | None:
+        url = f'https://{language}.wikipedia.org/w/api.php?action=query&titles={name}&prop=coordinates&coprimary=primary&format=json&formatversion=2'
+        page_data = await self._get_page_data(url)
+        try:
+            coordinates = page_data['coordinates'][0]
+        except KeyError:
+            # There may not be any coordinates.
+            return None
+        try:
+            if coordinates['globe'] != 'earth':
+                return None
+            return Point(coordinates['lat'], coordinates['lon'])
         except KeyError as e:
             raise RetrievalError('Could not successfully parse the JSON content returned by %s: %s' % (url, e))
 
@@ -150,11 +164,15 @@ class _Populator:
         ))
 
     async def _populate_entity(self, entity: Entity, locales: set[str]) -> None:
-        if not isinstance(entity, HasLinks):
-            return
+        if isinstance(entity, HasLinks):
+            await self._populate_has_links(entity, locales)
 
+        if isinstance(entity, Place):
+            await self._populate_place(entity)
+
+    async def _populate_has_links(self, has_links: HasLinks, locales: set[str]) -> None:
         entry_links: set[tuple[str, str]] = set()
-        for link in entity.links:
+        for link in has_links.links:
             try:
                 entry_locale, entry_name = _parse_url(link.url)
             except NotAnEntryError:
@@ -192,7 +210,7 @@ class _Populator:
                     continue
                 added_link = Link(added_entry.url)
                 await self.populate_link(added_link, added_entry_locale, added_entry)
-                entity.links.add(added_link)
+                has_links.links.add(added_link)
                 entry_links.add((added_entry_locale, added_entry_name))
 
     async def populate_link(self, link: Link, entry_locale: str, entry: Entry | None = None) -> None:
@@ -210,3 +228,24 @@ class _Populator:
                 link.description = self._app.localizers.get_negotiated(link.locale)._('Read more on Wikipedia.')
         if entry is not None and link.label is None:
             link.label = entry.title
+
+    async def _populate_place(self, place: Place) -> None:
+        await self._populate_place_coordinates(place)
+
+    async def _populate_place_coordinates(self, place: Place) -> None:
+        if place.coordinates:
+            return
+
+        for link in place.links:
+            try:
+                entry_locale, entry_name = _parse_url(link.url)
+            except NotAnEntryError:
+                continue
+            else:
+                try:
+                    get_data(entry_locale)
+                except LocaleNotFoundError:
+                    continue
+                else:
+                    with suppress(RetrievalError):
+                        place.coordinates = await self._retriever.get_place_coordinates(entry_locale, entry_name)

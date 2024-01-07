@@ -8,6 +8,7 @@ from unittest.mock import call
 import aiohttp
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
+from geopy import Point
 from pytest_mock import MockerFixture
 
 from betty.media_type import MediaType
@@ -22,7 +23,7 @@ except ImportError:
 from aioresponses import aioresponses
 
 from betty.app import App
-from betty.model.ancestry import Source, Link, Citation
+from betty.model.ancestry import Source, Link, Citation, Place
 from betty.wikipedia import Entry, _Retriever, NotAnEntryError, _parse_url, RetrievalError, _Populator
 
 
@@ -237,6 +238,53 @@ class TestRetriever:
                 retriever = _Retriever(session, Path(cache_directory_path_str))
                 with pytest.raises(RetrievalError):
                     await retriever.get_entry(entry_language, entry_name)
+
+    @pytest.mark.parametrize('expected, response_pages_json', [
+        (None, {},),
+        # Almelo.
+        (Point(52.35, 6.66666667), {
+            'coordinates': [
+                {
+                    'lat': 52.35,
+                    'lon': 6.66666667,
+                    'primary': True,
+                    'globe': 'earth',
+                },
+            ],
+        }),
+        # Tranquility Base.
+        (None, {
+            'coordinates': [
+                {
+                    'lat': 0.6875,
+                    'lon': 23.43333333,
+                    'primary': True,
+                    'globe': 'moon',
+                },
+            ],
+        }),
+    ])
+    async def test_get_place_coordinates_should_return(
+        self,
+        expected: Point | None,
+        response_pages_json: dict[str, Any],
+        aioresponses: aioresponses,
+        mocker: MockerFixture,
+    ) -> None:
+        mocker.patch('sys.stderr')
+        entry_language = 'en'
+        entry_name = 'Amsterdam'
+        api_url = f'https://{entry_language}.wikipedia.org/w/api.php?action=query&titles={entry_name}&prop=coordinates&coprimary=primary&format=json&formatversion=2'
+        api_response_body = {
+            'query': {
+                'pages': [response_pages_json],
+            },
+        }
+        aioresponses.get(api_url, payload=api_response_body)
+        async with TemporaryDirectory() as cache_directory_path_str:
+            async with aiohttp.ClientSession() as session:
+                actual = await _Retriever(session, Path(cache_directory_path_str)).get_place_coordinates(entry_language, entry_name)
+        assert expected == actual
 
 
 class TestPopulator:
@@ -473,3 +521,21 @@ class TestPopulator:
         assert MediaType('text/html') == link_nl.media_type
         assert link_nl.description is not None
         assert 'external' == link_nl.relationship
+
+    @patch_cache
+    async def test_populate_place_should_add_coordinates(self, mocker: MockerFixture) -> None:
+        m_retriever = mocker.patch('betty.wikipedia._Retriever', spec=_Retriever, new_callable=AsyncMock)
+        entry_language = 'en'
+        entry_name = 'Almelo'
+        coordinates = Point(52.35, 6.66666667)
+        m_retriever.get_place_coordinates.return_value = coordinates
+
+        link = Link(f'https://{entry_language}.wikipedia.org/wiki/{entry_name}')
+        place = Place(links={link})
+        app = App()
+        async with app:
+            app.project.ancestry.add(place)
+            sut = _Populator(app, m_retriever)
+            await sut.populate()
+
+        assert coordinates is place.coordinates
