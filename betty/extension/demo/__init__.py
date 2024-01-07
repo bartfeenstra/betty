@@ -394,12 +394,15 @@ class DemoServer(Server):
 
     async def start(self) -> None:
         await super().start()
-        await self._exit_stack.enter_async_context(self._app)
-        await load.load(self._app)
-        self._server = AppServer.get(self._app)
-        await self._exit_stack.enter_async_context(self._server)
-        self._app.project.configuration.base_url = self._server.public_url
-        await generate.generate(self._app)
+        try:
+            await self._exit_stack.enter_async_context(self._app)
+            await load.load(self._app)
+            self._server = AppServer.get(self._app)
+            await self._exit_stack.enter_async_context(self._server)
+            self._app.project.configuration.base_url = self._server.public_url
+            await generate.generate(self._app)
+        finally:
+            await self.stop()
 
     async def stop(self) -> None:
         await self._exit_stack.aclose()
