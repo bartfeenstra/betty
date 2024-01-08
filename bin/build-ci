@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+cd "$(dirname "$0")/.."
+
+# Install Python dependencies.
+pip install '.[ci]'
+
+# Install JavaScript dependencies.
+npm install
