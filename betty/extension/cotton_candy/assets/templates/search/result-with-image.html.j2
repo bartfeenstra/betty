@@ -1,0 +1,16 @@
+{% set embedded=True %}
+<a href="{{ entity | url }}" class="nav-secondary-action search-result-target">
+    <div class="search-result-description">
+        {% include ['entity/label--' + (entity | entity_type_name | camel_case_to_kebab_case) + '.html.j2', 'entity/label.html.j2'] %}
+        {% include ['entity/meta--' + (entity | entity_type_name | camel_case_to_kebab_case) + '.html.j2', 'entity/meta.html.j2'] ignore missing %}
+    </div>
+    {% set files = entity.files | select('public') | list %}
+    {% if files | length > 0 %}
+        {% set file = files | first %}
+        {% if file.media_type and file.media_type.type == 'image' %}
+            <div class="search-result-preview">
+                <img src="{{ file | image(45, 45) | static_url }}" class="image"{% if file.description %} alt="{{ file.description }}"{% endif %}/>
+            </div>
+        {% endif %}
+    {% endif %}
+</a>

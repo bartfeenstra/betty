@@ -545,6 +545,8 @@ async def _filter_image(
 
     if file.media_type:
         if file.media_type.type == 'image':
+            if 'svg+xml' == file.media_type.subtype:
+                return await _filter_file(context, file)
             task_callable = _execute_filter_image_image
             destination_name += file.path.suffix
         elif file.media_type.type == 'application' and file.media_type.subtype == 'pdf':
@@ -558,7 +560,7 @@ async def _filter_image(
     task_id = f'filter_image:{file.id}:{width or ""}:{height or ""}'
     if task_context is None or task_context.claim(task_id):
         cache_directory_path = CACHE_DIRECTORY_PATH / 'image'
-        await task_callable(file.path, cache_directory_path, file_directory_path, destination_name, width, height)
+        await task_callable(file, cache_directory_path, file_directory_path, destination_name, width, height)
 
     destination_public_path = '/file/%s' % destination_name
 
@@ -566,25 +568,26 @@ async def _filter_image(
 
 
 async def _execute_filter_image_image(
-    file_path: Path,
+    file: File,
     cache_directory_path: Path,
     destination_directory_path: Path,
     destination_name: str,
     width: int | None,
     height: int | None,
 ) -> None:
+    assert file.media_type
     with warnings.catch_warnings():
         # Ignore warnings about decompression bombs, because we know where the files come from.
         warnings.simplefilter('ignore', category=DecompressionBombWarning)
-        image = Image.open(file_path)
+        image = Image.open(file.path, formats=[file.media_type.subtype])
     try:
-        await _execute_filter_image(image, file_path, cache_directory_path, destination_directory_path, destination_name, width, height)
+        await _execute_filter_image(image, file, cache_directory_path, destination_directory_path, destination_name, width, height)
     finally:
         image.close()
 
 
 async def _execute_filter_image_application_pdf(
-    file_path: Path,
+    file: File,
     cache_directory_path: Path,
     destination_directory_path: Path,
     destination_name: str,
@@ -594,24 +597,25 @@ async def _execute_filter_image_application_pdf(
     with warnings.catch_warnings():
         # Ignore warnings about decompression bombs, because we know where the files come from.
         warnings.simplefilter('ignore', category=DecompressionBombWarning)
-        image = convert_from_path(file_path, fmt='jpeg')[0]
+        image = convert_from_path(file.path, fmt='jpeg')[0]
     try:
-        await _execute_filter_image(image, file_path, cache_directory_path, destination_directory_path, destination_name, width, height)
+        await _execute_filter_image(image, file, cache_directory_path, destination_directory_path, destination_name, width, height)
     finally:
         image.close()
 
 
 async def _execute_filter_image(
     image: Image,
-    file_path: Path,
+    file: File,
     cache_directory_path: Path,
     destination_directory_path: Path,
     destination_name: str,
     width: int | None,
     height: int | None,
 ) -> None:
+    assert file.media_type
     await makedirs(destination_directory_path, exist_ok=True)
-    cache_file_path = cache_directory_path / ('%s-%s' % (hashfile(file_path), destination_name))
+    cache_file_path = cache_directory_path / ('%s-%s' % (hashfile(file.path), destination_name))
     destination_file_path = destination_directory_path / destination_name
 
     try:
@@ -632,7 +636,7 @@ async def _execute_filter_image(
                 converted = _resizeimage.resize_height(image, height)
             else:
                 raise ValueError('Width and height cannot both be None.')
-            converted.save(cache_file_path)
+            converted.save(cache_file_path, format=file.media_type.subtype)
         await makedirs(destination_directory_path, exist_ok=True)
         await link_or_copy(cache_file_path, destination_file_path)
 
