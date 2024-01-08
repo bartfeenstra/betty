@@ -27,7 +27,6 @@ def mock_app_configuration() -> Iterator[None]:
     """
     Prevent App from loading its application configuration from the current user session, as it would pollute the tests.
     """
-
     AppConfiguration._read = AppConfiguration.read  # type: ignore[attr-defined]
     AppConfiguration.read = _mock_app_configuration_read  # type: ignore[assignment, method-assign]
     yield
@@ -44,8 +43,7 @@ def set_logging(caplog: LogCaptureFixture) -> Iterator[None]:
 @pytest.fixture(scope='function')
 async def qapp(qapp_args: list[str]) -> AsyncIterator[BettyApplication]:
     """
-    Fixture that instantiates the BettyApplication instance that will be used by
-    the tests.
+    Instantiate the BettyApplication instance that will be used by the tests.
 
     You can use the ``qapp`` fixture in tests which require a ``BettyApplication``
     to run, but where you don't need full ``qtbot`` functionality.

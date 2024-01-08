@@ -146,6 +146,7 @@ class EntityTypeImportError(EntityTypeError, ImportError):
     """
     Raised when an alleged entity type cannot be imported.
     """
+
     def __init__(self, entity_type_name: str):
         super().__init__(f'Cannot find and import an entity with name "{entity_type_name}".')
 
@@ -154,6 +155,7 @@ class EntityTypeInvalidError(EntityTypeError, ImportError):
     """
     Raised for types that are not valid entity types.
     """
+
     def __init__(self, entity_type: type):
         super().__init__(f'{entity_type.__module__}.{entity_type.__name__} is not an entity type class. Entity types must extend {Entity.__module__}.{Entity.__name__} directly.')
 

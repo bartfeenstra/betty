@@ -10,6 +10,9 @@ fi
 if [ -z "${BETTY_TEST_SKIP_FLAKE8-}" ]; then
   ./bin/test-flake8
 fi
+if [ -z "${BETTY_TEST_SKIP_PYDOCSTYLE-}" ]; then
+  ./bin/test-pydocstyle
+fi
 if [ -z "${BETTY_TEST_SKIP_MYPY-}" ]; then
   ./bin/test-mypy
 fi

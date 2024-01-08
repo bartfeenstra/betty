@@ -6,6 +6,7 @@ import threading
 import webbrowser
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 from io import StringIO
+from pathlib import Path
 from types import TracebackType
 from typing import Sequence
 
@@ -50,13 +51,13 @@ class Server:
 
     async def start(self) -> None:
         """
-        Starts the server.
+        Start the server.
         """
         pass
 
     async def show(self) -> None:
         """
-        Shows the served site to the user.
+        Show the served site to the user.
         """
         logging.getLogger(__name__).info(self._localizer._('Serving your site at {url}...').format(
             url=self.public_url,
@@ -65,7 +66,7 @@ class Server:
 
     async def stop(self) -> None:
         """
-        Stops the server.
+        Stop the server.
         """
         pass
 
@@ -83,7 +84,7 @@ class Server:
 
 class AppServer(Server):
     def __init__(self, app: App) -> None:
-        super().__init__(app.localizer)
+        super().__init__(localizer=app.localizer)
         self._app = app
 
     @staticmethod
@@ -91,7 +92,7 @@ class AppServer(Server):
         for server in app.servers.values():
             if isinstance(server, AppServer):
                 return server
-        raise RuntimeError(f'Cannot find a project server. This must never happen, because {BuiltinServer} should be the fallback.')
+        raise RuntimeError(f'Cannot find a project server. This must never happen, because {BuiltinAppServer} should be the fallback.')
 
     async def start(self) -> None:
         await makedirs(self._app.project.configuration.www_directory_path, exist_ok=True)
@@ -110,9 +111,15 @@ class _BuiltinServerRequestHandler(SimpleHTTPRequestHandler):
         super().end_headers()
 
 
-class BuiltinServer(AppServer):
-    def __init__(self, app: App) -> None:
-        super().__init__(app)
+class BuiltinServer(Server):
+    def __init__(
+        self,
+        www_directory_path: Path,
+        *,
+        localizer: Localizer,
+    ) -> None:
+        super().__init__(localizer)
+        self._www_directory_path = www_directory_path
         self._http_server: HTTPServer | None = None
         self._port: int | None = None
         self._thread: threading.Thread | None = None
@@ -132,7 +139,7 @@ class BuiltinServer(AppServer):
                         request,
                         client_address,
                         server,
-                        directory=str(self._app.project.configuration.www_directory_path),
+                        directory=str(self._www_directory_path),
                     ),
                 )
                 break
@@ -160,3 +167,28 @@ class BuiltinServer(AppServer):
             self._http_server.server_close()
         if self._thread is not None:
             self._thread.join()
+
+
+class BuiltinAppServer(AppServer):
+    def __init__(self, app: App) -> None:
+        super().__init__(app)
+        self._server = BuiltinServer(
+            self._app.project.configuration.www_directory_path,
+            localizer=self._app.localizer
+        )
+
+    @classmethod
+    def label(cls) -> Str:
+        return BuiltinServer.label()
+
+    @property
+    def public_url(self) -> str:
+        return self._server.public_url
+
+    async def start(self) -> None:
+        await super().start()
+        await self._server.start()
+
+    async def stop(self) -> None:
+        await super().stop()
+        await self._server.stop()

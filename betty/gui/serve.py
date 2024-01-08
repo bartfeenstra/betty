@@ -5,8 +5,10 @@ from typing import Any
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtWidgets import QVBoxLayout, QWidget, QPushButton
 
+from betty import documentation, fs
 from betty.app import App
 from betty.asyncio import sync
+from betty.extension import demo
 from betty.gui import BettyWindow
 from betty.gui.error import catch_exceptions
 from betty.gui.text import Text
@@ -17,34 +19,28 @@ from betty.serve import Server, AppServer
 class _ServeThread(QThread):
     server_started = pyqtSignal()
 
-    def __init__(self, project: Project, server_name: str, serve_window: _ServeWindow, *args: Any, **kwargs: Any):
+    def __init__(self, project: Project, server: Server, serve_window: _ServeWindow, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._project = project
-        self._server_name = server_name
+        self._server = server
         self._serve_window = serve_window
         self._app: App | None = None
-        self._server: Server | None = None
 
     @property
     def server(self) -> Server:
-        if self._server is None:
-            raise RuntimeError('This thread has not been started yet.')
         return self._server
 
     @sync
     async def run(self) -> None:
         with catch_exceptions(parent=self._serve_window, close_parent=True):
             async with App(project=self._project) as self._app:
-                self._server = self._app.servers[self._server_name]
                 await self._server.start()
                 self.server_started.emit()
                 await self._server.show()
 
     @sync
     async def stop(self) -> None:
-        server = self._server
-        if server is not None:
-            await server.stop()
+        await self._server.stop()
 
 
 class _ServeWindow(BettyWindow):
@@ -65,7 +61,7 @@ class _ServeWindow(BettyWindow):
         self._loading_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._central_layout.addWidget(self._loading_instruction)
 
-    def _server_name(self) -> str:
+    def _server(self) -> Server:
         raise NotImplementedError(repr(self))
 
     @property
@@ -106,7 +102,7 @@ class _ServeWindow(BettyWindow):
 
     def _start(self) -> None:
         if self.__thread is None:
-            self.__thread = _ServeThread(self._app.project, self._server_name(), self)
+            self.__thread = _ServeThread(self._app.project, self._server(), self)
             self.__thread.server_started.connect(self._server_started)
             self.__thread.start()
 
@@ -121,8 +117,8 @@ class _ServeWindow(BettyWindow):
 
 
 class ServeProjectWindow(_ServeWindow):
-    def _server_name(self) -> str:
-        return AppServer.get(self._app).name()
+    def _server(self) -> Server:
+        return AppServer.get(self._app)
 
     @property
     def title(self) -> str:
@@ -135,10 +131,8 @@ class ServeProjectWindow(_ServeWindow):
 
 
 class ServeDemoWindow(_ServeWindow):
-    def _server_name(self) -> str:
-        from betty.extension import demo
-
-        return demo.DemoServer.name()
+    def _server(self) -> Server:
+        return demo.DemoServer()
 
     def _build_instruction(self) -> str:
         return self._app.localizer._('You can now view a Betty demonstration site at <a href="{url}">{url}</a>.').format(
@@ -148,3 +142,20 @@ class ServeDemoWindow(_ServeWindow):
     @property
     def title(self) -> str:
         return self._app.localizer._('Serving the Betty demo...')
+
+
+class ServeDocsWindow(_ServeWindow):
+    def _server(self) -> Server:
+        return documentation.DocumentationServer(
+            fs.CACHE_DIRECTORY_PATH,
+            localizer=self._app.localizer,
+        )
+
+    def _build_instruction(self) -> str:
+        return self._app.localizer._('You can now view the documentation at <a href="{url}">{url}</a>.').format(
+            url=self._thread.server.public_url,
+        )
+
+    @property
+    def title(self) -> str:
+        return self._app.localizer._('Serving the Betty documentation...')

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-01-08 19:21+0000\n"
+"POT-Creation-Date: 2024-01-12 13:27+0000\n"
 "PO-Revision-Date: 2020-05-02 22:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -197,6 +197,9 @@ msgstr "Хрещення"
 
 msgid "Beneficiary"
 msgstr "Бенефіціар"
+
+msgid "Betty documentation"
+msgstr ""
 
 msgid ""
 "Betty helps you visualize and publish your family history by building "
@@ -759,6 +762,9 @@ msgstr ""
 msgid "Serving the Betty demo..."
 msgstr ""
 
+msgid "Serving the Betty documentation..."
+msgstr ""
+
 msgid "Serving your site at {url}..."
 msgstr ""
 
@@ -948,6 +954,9 @@ msgstr ""
 msgid "View demo site..."
 msgstr ""
 
+msgid "View documentation"
+msgstr ""
+
 msgid "View site"
 msgstr ""
 
@@ -972,6 +981,9 @@ msgstr ""
 msgid ""
 "You can now view a Betty demonstration site at <a "
 "href=\"{url}\">{url}</a>."
+msgstr ""
+
+msgid "You can now view the documentation at <a href=\"{url}\">{url}</a>."
 msgstr ""
 
 msgid "You can now view your site at <a href=\"{url}\">{url}</a>."

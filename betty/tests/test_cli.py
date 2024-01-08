@@ -173,6 +173,15 @@ class TestDemo:
         assert 0 == result.exit_code
 
 
+class TestDocs:
+    async def test(self, mocker: MockerFixture) -> None:
+        mocker.patch('betty.serve.BuiltinServer', new_callable=lambda: _KeyboardInterruptedAppServer)
+        mocker.patch('webbrowser.open_new_tab')
+        runner = CliRunner()
+        result = runner.invoke(main, ('docs',), catch_exceptions=False)
+        assert 0 == result.exit_code
+
+
 class TestGenerate:
     async def test(self, mocker: MockerFixture) -> None:
         m_generate = mocker.patch('betty.generate.generate', new_callable=AsyncMock)

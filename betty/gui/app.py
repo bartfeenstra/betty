@@ -15,7 +15,7 @@ from betty.asyncio import sync, wait
 from betty.gui import BettyWindow, get_configuration_file_filter
 from betty.gui.error import catch_exceptions
 from betty.gui.locale import TranslationsLocaleCollector
-from betty.gui.serve import ServeDemoWindow
+from betty.gui.serve import ServeDemoWindow, ServeDocsWindow
 from betty.gui.text import Text
 from betty.project import ProjectConfiguration
 
@@ -85,6 +85,12 @@ class BettyMainWindow(BettyWindow):
         )
         help_menu.addAction(self.request_feature_action)
 
+        self._docs_action = QAction(self)
+        self._docs_action.triggered.connect(
+            lambda _: self._docs(),
+        )
+        help_menu.addAction(self._docs_action)
+
         self.about_action = QAction(self)
         self.about_action.triggered.connect(
             lambda _: self._about_betty(),
@@ -106,6 +112,7 @@ class BettyMainWindow(BettyWindow):
         self.help_menu.setTitle('&' + self._app.localizer._('Help'))
         self.report_bug_action.setText(self._app.localizer._('Report a bug'))
         self.request_feature_action.setText(self._app.localizer._('Request a new feature'))
+        self._docs_action.setText(self._app.localizer._('View documentation'))
         self.about_action.setText(self._app.localizer._('About Betty'))
 
     @catch_exceptions
@@ -139,6 +146,11 @@ class BettyMainWindow(BettyWindow):
             'body': body,
             'labels': 'enhancement',
         }))
+
+    @catch_exceptions
+    def _docs(self) -> None:
+        serve_window = ServeDocsWindow(self._app, self)
+        serve_window.show()
 
     @catch_exceptions
     def _about_betty(self) -> None:

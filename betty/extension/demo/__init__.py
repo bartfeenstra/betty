@@ -378,7 +378,7 @@ class DemoServer(Server):
         from betty.extension import Demo
 
         self._app = App(None, Demo.project())
-        super().__init__(self._app.localizer)
+        super().__init__(localizer=self._app.localizer)
         self._server: Server | None = None
         self._exit_stack = AsyncExitStack()
 
@@ -397,7 +397,7 @@ class DemoServer(Server):
         try:
             await self._exit_stack.enter_async_context(self._app)
             await load.load(self._app)
-            self._server = serve.BuiltinServer(self._app)
+            self._server = serve.BuiltinAppServer(self._app)
             await self._exit_stack.enter_async_context(self._server)
             self._app.project.configuration.base_url = self._server.public_url
             await generate.generate(self._app)

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-01-08 19:21+0000\n"
+"POT-Creation-Date: 2024-01-12 13:27+0000\n"
 "PO-Revision-Date: 2022-04-08 01:58+0100\n"
 "Last-Translator: \n"
 "Language: nl\n"
@@ -210,6 +210,9 @@ msgstr "Doping"
 
 msgid "Beneficiary"
 msgstr "Begunstigde"
+
+msgid "Betty documentation"
+msgstr "Betty-documentatie"
 
 msgid ""
 "Betty helps you visualize and publish your family history by building "
@@ -799,6 +802,9 @@ msgstr "Serveer site"
 msgid "Serving the Betty demo..."
 msgstr "De Betty-demo aan het serveren..."
 
+msgid "Serving the Betty documentation..."
+msgstr "De Betty-documentatie aan het serveren..."
+
 msgid "Serving your site at {url}..."
 msgstr "Je site op {url} aan het serveren..."
 
@@ -996,6 +1002,9 @@ msgstr "Bekijk een demonstratie van hoe een Betty-site eruit ziet"
 msgid "View demo site..."
 msgstr "Bekijk een demonstratiesite..."
 
+msgid "View documentation"
+msgstr "Bekijk documentatie"
+
 msgid "View site"
 msgstr "Bekijk site"
 
@@ -1021,6 +1030,9 @@ msgid ""
 "You can now view a Betty demonstration site at <a "
 "href=\"{url}\">{url}</a>."
 msgstr ""
+
+msgid "You can now view the documentation at <a href=\"{url}\">{url}</a>."
+msgstr "Je kan de documentatie nu bekijken op <a href=\"{url}\">{url}</a>."
 
 msgid "You can now view your site at <a href=\"{url}\">{url}</a>."
 msgstr "Je kan je site nu bekijken op <a href=\"{url}\">{url}</a>."

@@ -1,3 +1,5 @@
+"""Provide information about (this version of) Betty."""
+
 from __future__ import annotations
 
 import platform
@@ -40,6 +42,11 @@ def _indent_mapping_item(key: str, value: str, max_indentation: int) -> Iterator
 
 
 def report() -> str:
+    """
+    Produce a human-readable report about the current Betty installation.
+
+    :returns: A human-readable string in US English, using monospace indentation.
+    """
     return _indent_mapping({
         'Betty': version_label(),
         'Operating system': platform.platform(),
