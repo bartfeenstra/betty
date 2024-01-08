@@ -91,7 +91,7 @@ development = [
     'basedmypy ~= 2.0, >= 2.2.1',
     'codecov ~= 2.1, >= 2.1.12',
     'coverage ~= 7.2, >= 7.2.4',
-    'flake8 ~= 6.0, >= 6.0.0',
+    'flake8 ~= 7.0',
     'html5lib ~= 1.1',
     'lxml ~= 5.0; sys.platform != "win32"',
     'pip-licenses ~= 4.3, >= 4.3.0',
