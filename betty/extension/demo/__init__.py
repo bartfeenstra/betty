@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from contextlib import AsyncExitStack
 
-from betty import load, generate
+from betty import load, generate, serve
 from betty.app import App
 from betty.app.extension import Extension
 from betty.extension.cotton_candy import CottonCandyConfiguration
@@ -13,7 +13,7 @@ from betty.model.ancestry import Place, PlaceName, Person, Presence, Subject, Pe
     Enclosure
 from betty.model.event_type import Marriage, Birth, Death
 from betty.project import LocaleConfiguration, ExtensionConfiguration, EntityReference, Project
-from betty.serve import Server, AppServer, NoPublicUrlBecauseServerNotStartedError
+from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
 
 
 class _Demo(Extension, Loader):
@@ -397,12 +397,13 @@ class DemoServer(Server):
         try:
             await self._exit_stack.enter_async_context(self._app)
             await load.load(self._app)
-            self._server = AppServer.get(self._app)
+            self._server = serve.BuiltinServer(self._app)
             await self._exit_stack.enter_async_context(self._server)
             self._app.project.configuration.base_url = self._server.public_url
             await generate.generate(self._app)
-        finally:
+        except BaseException:
             await self.stop()
+            raise
 
     async def stop(self) -> None:
         await self._exit_stack.aclose()
