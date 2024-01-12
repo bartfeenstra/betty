@@ -5,16 +5,16 @@ from __future__ import annotations
 
 import datetime
 from collections import defaultdict
+from collections.abc import Iterator, MutableMapping
 from pathlib import Path
 from threading import Lock
 from typing import Callable, Any, cast, \
-    Mapping, TypeVar
+    TypeVar
 
 import aiofiles
 from aiofiles import os as aiofiles_os
-from jinja2 import Environment as Jinja2Environment, select_autoescape, FileSystemLoader, pass_context, \
-    Template as Jinja2Template
-from jinja2.runtime import StrictUndefined, Context, DebugUndefined, new_context
+from jinja2 import Environment as Jinja2Environment, select_autoescape, FileSystemLoader, pass_context
+from jinja2.runtime import StrictUndefined, Context, DebugUndefined
 
 from betty.app import App
 from betty.html import CssProvider, JsProvider
@@ -139,6 +139,9 @@ class Jinja2Provider:
     def globals(self) -> dict[str, Any]:
         return {}
 
+    def new_context_vars(self) -> dict[str, Any]:
+        return {}
+
     @property
     def filters(self) -> dict[str, Callable[..., Any]]:
         return {}
@@ -148,32 +151,7 @@ class Jinja2Provider:
         return {}
 
 
-class Template(Jinja2Template):
-    environment: Environment
-
-    def new_context(
-        self,
-        vars: dict[str, Any] | None = None,
-        shared: bool = False,
-        locals: Mapping[str, Any] | None = None,
-    ) -> Context:
-        return new_context(
-            self.environment,
-            self.name,
-            self.blocks,
-            vars,
-            shared,
-            {
-                'citer': _Citer(),
-                'breadcrumbs': _Breadcrumbs(),
-                **self.globals,
-            },
-            locals,
-        )
-
-
 class Environment(Jinja2Environment):
-    template_class = Template
     globals: dict[str, Any]
     filters: dict[str, Callable[..., Any]]
     tests: dict[str, Callable[..., bool]]
@@ -213,6 +191,40 @@ class Environment(Jinja2Environment):
             npgettext=self._npgettext,
         )
         self.policies['ext.i18n.trimmed'] = True
+
+    @property
+    def context_class(self) -> type[Context]:  # type: ignore[override]
+        # Alias the environment, because `self` is bound to a different instance
+        # inside the class.
+        _environment = self
+
+        class _Context(Context):
+            def __init__(
+                self,
+                environment: Environment,
+                parent: dict[str, Any],
+                name: str | None,
+                blocks: dict[str, Callable[[Context], Iterator[str]]],
+                globals: MutableMapping[str, Any] | None = None,
+            ):
+                if 'citer' not in parent:
+                    parent['citer'] = _Citer()
+                if 'breadcrumbs' not in parent:
+                    parent['breadcrumbs'] = _Breadcrumbs()
+                for extension in _environment.app.extensions.flatten():
+                    if isinstance(extension, Jinja2Provider):
+                        for key, value in extension.new_context_vars().items():
+                            if key not in parent:
+                                parent[key] = value
+                super().__init__(
+                    environment,
+                    parent,
+                    name,
+                    blocks,
+                    globals,
+                )
+
+        return _Context
 
     @pass_context
     def _gettext(self, context: Context, message: str) -> str:
@@ -256,9 +268,6 @@ class Environment(Jinja2Environment):
                 self.globals.update(extension.globals)
                 self.filters.update(extension.filters)
                 self.tests.update(extension.tests)
-
-
-Template.environment_class = Environment
 
 
 class Jinja2Renderer(Renderer):

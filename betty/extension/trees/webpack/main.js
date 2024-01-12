@@ -1,6 +1,6 @@
 'use strict'
 
-import treesStyle from './trees.css' // eslint-disable-line no-unused-vars
+import treesStyle from './main.css' // eslint-disable-line no-unused-vars
 
 import cytoscape from 'cytoscape'
 import dagre from 'cytoscape-dagre'

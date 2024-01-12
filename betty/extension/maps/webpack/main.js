@@ -1,6 +1,6 @@
 'use strict'
 
-import mapsStyle from './maps.css' // eslint-disable-line no-unused-vars
+import mapsStyle from './main.css' // eslint-disable-line no-unused-vars
 
 import * as L from 'leaflet'
 import leafletStyle from 'leaflet/dist/leaflet.css' // eslint-disable-line no-unused-vars

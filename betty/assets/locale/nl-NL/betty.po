@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-03-27 23:37+0000\n"
+"POT-Creation-Date: 2024-04-03 13:17+0100\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -276,17 +276,8 @@ msgstr "Betty-projectconfiguratie ({supported_formats})"
 msgid "Birth"
 msgstr "Geboorte"
 
-msgid "Built the Cotton Candy front-end assets."
-msgstr "De Cotton Candy front-endassets gegenereerd."
-
-msgid "Built the HTTP API documentation."
-msgstr "HTTP API-documentatie gegenereerd."
-
-msgid "Built the interactive family trees."
-msgstr "De interactieve stambomen gegenereerd."
-
-msgid "Built the interactive maps."
-msgstr "De interactieve kaarten gegenereerd."
+msgid "Built the Webpack front-end assets."
+msgstr "De Webpack-front-endassets gegenereerd."
 
 msgid "Burial"
 msgstr "Begravenis"
@@ -754,12 +745,6 @@ msgstr "Plaats"
 
 msgid "Places"
 msgstr "Plaatsen"
-
-msgid "Pre-built assets"
-msgstr "Kant-en-klare assets"
-
-msgid "Pre-built assets are unavailable for {extension_names}."
-msgstr "Kant-en-klare assets zijn beschikbaar voor {extension_names}."
 
 msgid "Presence"
 msgstr "Aanwezigheid"

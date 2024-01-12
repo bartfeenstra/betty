@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-03-27 23:37+0000\n"
+"POT-Creation-Date: 2024-04-03 13:17+0100\n"
 "PO-Revision-Date: 2024-02-08 13:08+0000\n"
 "Last-Translator: Rainer Thieringer <rainerthi@gmail.com>\n"
 "Language: uk\n"
@@ -233,16 +233,7 @@ msgstr ""
 msgid "Birth"
 msgstr "Народження"
 
-msgid "Built the Cotton Candy front-end assets."
-msgstr ""
-
-msgid "Built the HTTP API documentation."
-msgstr ""
-
-msgid "Built the interactive family trees."
-msgstr ""
-
-msgid "Built the interactive maps."
+msgid "Built the Webpack front-end assets."
 msgstr ""
 
 msgid "Burial"
@@ -673,12 +664,6 @@ msgstr "Місце"
 
 msgid "Places"
 msgstr "Місця"
-
-msgid "Pre-built assets"
-msgstr ""
-
-msgid "Pre-built assets are unavailable for {extension_names}."
-msgstr ""
 
 msgid "Presence"
 msgstr ""

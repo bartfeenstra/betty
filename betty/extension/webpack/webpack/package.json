@@ -1,5 +1,4 @@
 {
-  "main": "maps.js",
   "engines": {
     "node": ">= 16"
   },
@@ -10,11 +9,14 @@
     "clean-webpack-plugin": "^4.0.0",
     "core-js": "^3.26.0",
     "css-loader": "^7.1.0",
-    "leaflet": "^1.9.2",
-    "leaflet.markercluster": "^1.5.3",
-    "leaflet.fullscreen": "^3.0.0",
-    "leaflet-gesture-handling": "^1.2.2",
+    "css-minimizer-webpack-plugin": "^4.2.2",
+    "file-loader": "^6.2.0",
     "mini-css-extract-plugin": "^2.6.1",
+    "postcss-loader": "^8.0.0",
+    "resolve-url-loader": "^5.0.0",
+    "sass": "^1.56.1",
+    "sass-loader": "^14.0.0",
+    "terser-webpack-plugin": "^5.3.10",
     "webpack": "^5.74.0",
     "webpack-cli": "^5.1.4"
   },

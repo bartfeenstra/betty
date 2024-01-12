@@ -463,6 +463,28 @@ def filter_base64(input: str) -> str:
     return b64encode(input.encode('utf-8')).decode('utf-8')
 
 
+@pass_context
+def filter_public_css(context: Context, public_path: str) -> None:
+    """
+    Add a CSS file to the current page.
+    """
+    public_css_paths = context.resolve_or_missing('public_css_paths')
+    if public_path in public_css_paths:
+        return
+    public_css_paths.append(public_path)
+
+
+@pass_context
+def filter_public_js(context: Context, public_path: str) -> None:
+    """
+    Add a JavaScript file to the current page.
+    """
+    public_js_paths = context.resolve_or_missing('public_js_paths')
+    if public_path in public_js_paths:
+        return
+    public_js_paths.append(public_path)
+
+
 FILTERS = {
     'base64': filter_base64,
     'camel_case_to_kebab_case': camel_case_to_kebab_case,
@@ -492,4 +514,6 @@ FILTERS = {
     'url': filter_url,
     'void_none': void_none,
     'walk': filter_walk,
+    'public_css': filter_public_css,
+    'public_js': filter_public_js,
 }

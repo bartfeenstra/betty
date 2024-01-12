@@ -1,5 +1,6 @@
 """Integrate Betty with PyInstaller."""
 import sys
+from collections.abc import Sequence
 from glob import glob
 from pathlib import Path
 
@@ -10,28 +11,24 @@ from setuptools import find_packages
 from betty._package.pyinstaller.hooks import HOOKS_DIRECTORY_PATH
 from betty.app import App
 from betty.app.extension import discover_extension_types, Extension
-from betty.asyncio import gather
-from betty.extension.npm import _Npm, build_assets, _NpmBuilder
+from betty.extension.webpack import _Webpack, _WebpackEntrypointProvider, build_package_assets
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.project import ExtensionConfiguration
 
 
 async def _build_assets() -> None:
-    npm_builder_extension_types: list[type[_NpmBuilder & Extension]] = [
+    webpack_entrypoint_providers: Sequence[type[_WebpackEntrypointProvider & Extension]] = [
         extension_type
         for extension_type
         in discover_extension_types()
-        if issubclass(extension_type, _NpmBuilder)
+        if issubclass(extension_type, _WebpackEntrypointProvider)
     ]
     async with (App.new_temporary() as app, app):
-        app.project.configuration.extensions.append(ExtensionConfiguration(_Npm))
-        for extension_type in npm_builder_extension_types:
+        app.project.configuration.extensions.append(ExtensionConfiguration(_Webpack))
+        for extension_type in webpack_entrypoint_providers:
             app.project.configuration.extensions.append(ExtensionConfiguration(extension_type))
-        await gather(*([
-            build_assets(app.extensions[extension_type])  # type: ignore[arg-type]
-            for extension_type
-            in npm_builder_extension_types
-        ]))
+
+        await build_package_assets(webpack_entrypoint_providers)
 
 
 async def a_pyz_exe_coll() -> tuple[Analysis, PYZ, EXE, COLLECT]:
