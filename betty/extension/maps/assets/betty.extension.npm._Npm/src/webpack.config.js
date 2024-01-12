@@ -71,16 +71,11 @@ module.exports = {
       },
       // Bundle Leaflet images.
       {
-        test: /.*\.png$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: 'images/[hash].[ext]',
-              publicPath: '/'
-            }
-          }
-        ]
+        test: /.*\.png|svg$/,
+        type: 'asset/resource',
+        generator: {
+          filename: 'images/[hash][ext]'
+        }
       }
     ]
   }
