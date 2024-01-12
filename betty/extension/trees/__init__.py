@@ -10,6 +10,7 @@ from aiofiles.os import makedirs
 
 from betty.app.extension import Extension, UserFacingExtension
 from betty.extension.npm import _Npm, _NpmBuilder, npm, _NpmBuilderCacheScope
+from betty.extension.webpack import _Webpack
 from betty.generate import Generator, GenerationContext
 from betty.html import CssProvider, JsProvider
 from betty.locale import Str
@@ -18,7 +19,7 @@ from betty.locale import Str
 class _Trees(UserFacingExtension, CssProvider, JsProvider, Generator, _NpmBuilder):
     @classmethod
     def depends_on(cls) -> set[type[Extension]]:
-        return {_Npm}
+        return {_Webpack}
 
     async def npm_build(self, working_directory_path: Path, assets_directory_path: Path) -> None:
         await self.app.extensions[_Npm].install(type(self), working_directory_path)

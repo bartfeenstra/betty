@@ -21,6 +21,7 @@ from betty.app.extension import ConfigurableExtension, Extension, Theme
 from betty.config import Configuration
 from betty.extension.cotton_candy.search import Index
 from betty.extension.npm import _Npm, _NpmBuilder, npm
+from betty.extension.webpack import _Webpack
 from betty.functools import walk
 from betty.generate import Generator, GenerationContext
 from betty.gui import GuiBuilder
@@ -178,7 +179,7 @@ class CottonCandyConfiguration(Configuration):
 class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Generator, GuiBuilder, _NpmBuilder, Jinja2Provider):
     @classmethod
     def depends_on(cls) -> set[type[Extension]]:
-        return {_Npm}
+        return {_Webpack}
 
     @classmethod
     def assets_directory_path(cls) -> Path | None:
