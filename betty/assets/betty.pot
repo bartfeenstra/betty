@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-03-27 23:37+0000\n"
+"POT-Creation-Date: 2024-04-30 22:56+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -189,16 +189,7 @@ msgstr ""
 msgid "Birth"
 msgstr ""
 
-msgid "Built the Cotton Candy front-end assets."
-msgstr ""
-
-msgid "Built the HTTP API documentation."
-msgstr ""
-
-msgid "Built the interactive family trees."
-msgstr ""
-
-msgid "Built the interactive maps."
+msgid "Built the Webpack front-end assets."
 msgstr ""
 
 msgid "Burial"
@@ -590,10 +581,10 @@ msgstr ""
 msgid "Places"
 msgstr ""
 
-msgid "Pre-built assets"
+msgid "Pre-built Webpack front-end assets are available"
 msgstr ""
 
-msgid "Pre-built assets are unavailable for {extension_names}."
+msgid "Pre-built Webpack front-end assets are unavailable"
 msgstr ""
 
 msgid "Presence"

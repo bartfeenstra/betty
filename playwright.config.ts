@@ -7,7 +7,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   timeout: 60000,
-  retries: 9,
+  retries: process.env.CI ? 9 : 0,
   workers: parseInt(execSync('nproc').toString()),
   use: {
     trace: 'on-first-retry'

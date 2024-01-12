@@ -1,0 +1,3 @@
+{% for js_path in public_js_paths | unique %}
+    <script src="{{ js_path }}" defer></script>
+{% endfor %}

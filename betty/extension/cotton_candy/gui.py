@@ -19,10 +19,11 @@ from PyQt6.QtWidgets import (
 )
 
 from betty.app import App
-from betty.extension import CottonCandy
+from betty.extension import CottonCandy, Webpack
 from betty.extension.cotton_candy import _ColorConfiguration, CottonCandyConfiguration
 from betty.gui.locale import LocalizedObject
 from betty.gui.model import EntityReferenceSequenceCollector
+from betty.gui.text import Caption
 from betty.locale import Str, Localizable
 
 
@@ -145,6 +146,15 @@ class _CottonCandyGuiWidget(LocalizedObject, QWidget):
             ],
         )
         self._layout.addWidget(self._color_configurations_widget)
+        self._color_configurations_widget_caption = Caption()
+        self._layout.addWidget(self._color_configurations_widget_caption)
+        if not self._app.extensions[Webpack].build_requirement().is_met():
+            self._color_configurations_widget.setDisabled(True)
+            self._color_configurations_widget_caption.setText(
+                self._app.extensions[Webpack]
+                .build_requirement()
+                .localize(self._app.localizer)
+            )
 
         self._featured_entities_label = QLabel()
         self._layout.addWidget(self._featured_entities_label)

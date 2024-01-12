@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-03-27 23:37+0000\n"
+"POT-Creation-Date: 2024-04-30 22:56+0100\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: fr\n"
@@ -233,16 +233,7 @@ msgstr ""
 msgid "Birth"
 msgstr "Naissance"
 
-msgid "Built the Cotton Candy front-end assets."
-msgstr ""
-
-msgid "Built the HTTP API documentation."
-msgstr ""
-
-msgid "Built the interactive family trees."
-msgstr ""
-
-msgid "Built the interactive maps."
+msgid "Built the Webpack front-end assets."
 msgstr ""
 
 msgid "Burial"
@@ -674,10 +665,10 @@ msgstr "Lieu"
 msgid "Places"
 msgstr "Lieux"
 
-msgid "Pre-built assets"
+msgid "Pre-built Webpack front-end assets are available"
 msgstr ""
 
-msgid "Pre-built assets are unavailable for {extension_names}."
+msgid "Pre-built Webpack front-end assets are unavailable"
 msgstr ""
 
 msgid "Presence"

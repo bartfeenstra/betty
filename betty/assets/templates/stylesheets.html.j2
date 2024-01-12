@@ -1,0 +1,3 @@
+{% for css_path in public_css_paths | unique %}
+    <link rel="stylesheet" href="{{ css_path }}">
+{% endfor %}

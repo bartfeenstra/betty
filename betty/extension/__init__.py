@@ -11,6 +11,7 @@ from betty.extension.maps import Maps
 from betty.extension.nginx import Nginx
 from betty.extension.privatizer import Privatizer
 from betty.extension.trees import Trees
+from betty.extension.webpack import Webpack
 from betty.extension.wikipedia import Wikipedia
 
 __all__ = (
@@ -23,5 +24,6 @@ __all__ = (
     "Nginx",
     "Privatizer",
     "Trees",
+    "Webpack",
     "Wikipedia",
 )

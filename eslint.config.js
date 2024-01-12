@@ -23,12 +23,14 @@ export default [
         },
     },
 
-    // Betty extensions using the _Npm extension.
+    // The Webpack extension and other extensions using it.
     {
         files: [
-            'betty/extension/cotton_candy/assets/betty.extension.npm._Npm/src/**',
-            'betty/extension/maps/assets/betty.extension.npm._Npm/src/**',
-            'betty/extension/trees/assets/betty.extension.npm._Npm/src/**',
+            'betty/extension/cotton_candy/webpack/**',
+            'betty/extension/http_api_doc/webpack/**',
+            'betty/extension/maps/webpack/**',
+            'betty/extension/trees/webpack/**',
+            'betty/extension/webpack/webpack/**',
         ],
         languageOptions: {
             globals: {

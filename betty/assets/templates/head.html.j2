@@ -41,9 +41,3 @@
     {% endif %}
 {% endif %}
 <link rel="icon" href="{{ '/betty.ico' | static_url }}">
-{% for css_path in public_css_paths %}
-    <link rel="stylesheet" href="{{ css_path }}">
-{% endfor %}
-{% for js_path in public_js_paths %}
-    <script src="{{ js_path }}" defer></script>
-{% endfor %}

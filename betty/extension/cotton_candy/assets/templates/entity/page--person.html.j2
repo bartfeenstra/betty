@@ -201,7 +201,7 @@
             {% endif %}
         </section>
 
-        <div class="featured tree" data-betty-person-id="{{ person.id }}" data-betty-people="{{ 'people.json' | url }}"></div>
+        {% include 'tree.html.j2' %}
     {% endif %}
 
     {% with events=person | person_timeline_events %}

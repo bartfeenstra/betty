@@ -1,4 +1,0 @@
-{{ {
-    'debug': app.project.configuration.debug,
-    'cacheDirectory': app.cache.with_scope(app.extensions['betty.extension.Maps'].name()).with_scope(app.project.name).with_scope('babel').path | str,
-} | tojson }}
