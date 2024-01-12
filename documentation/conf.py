@@ -8,6 +8,7 @@ sys.path.insert(0, path.dirname(path.dirname(betty.__file__)))
 project = 'Betty'
 version = about.version() or ''
 release = about.version_label()
+html_favicon = 'betty.ico'
 html_logo = 'betty-logo.png'
 html_theme = 'sphinx_rtd_theme'
 html_theme_options = {

@@ -25,6 +25,7 @@ async def _build(output_directory_path: Path) -> None:
     with TemporaryDirectory() as working_directory_path:
         source_directory_path = Path(working_directory_path) / 'source'
         await asyncio.to_thread(shutil.copytree, Path(__file__).parent.parent / 'documentation', source_directory_path)
+        await asyncio.to_thread(shutil.copy2, Path(__file__).parent.parent / 'betty' / 'assets' / 'public' / 'static' / 'betty.ico', source_directory_path / 'betty.ico')
         await asyncio.to_thread(shutil.copy2, Path(__file__).parent.parent / 'betty' / 'assets' / 'public' / 'static' / 'betty-32x32.png', source_directory_path / 'betty-logo.png')
         try:
             await subprocess.run_exec(['sphinx-apidoc', '--force', '--separate', '-d', '999', '-o', str(source_directory_path), 'betty', 'betty/tests'])
