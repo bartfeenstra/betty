@@ -32,7 +32,8 @@ class Requirement(Localizable):
 
     def reduce(self) -> Requirement | None:
         """
-        Removes unnecessary components of this requirement.
+        Remove unnecessary components of this requirement.
+
         - Collections can flatten unnecessary hierarchies.
         - Empty decorators or collections can 'dissolve' themselves and return None.
 

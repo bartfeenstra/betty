@@ -417,7 +417,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
                     if isinstance(extension, serve.ServerProvider)
                     for server in extension.servers
                 ),
-                serve.BuiltinServer(self),
+                serve.BuiltinAppServer(self),
                 DemoServer(),
             ]
         }

@@ -43,7 +43,6 @@ class Configuration(ReactiveInstance, Dumpable):
         """
         Load dumped configuration into a new configuration instance.
         """
-
         raise NotImplementedError(repr(cls))
 
     @classmethod

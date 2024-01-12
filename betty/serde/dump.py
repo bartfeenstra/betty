@@ -80,5 +80,4 @@ class Dumpable:
         """
         Dump this instance to a portable format.
         """
-
         raise NotImplementedError(repr(self))

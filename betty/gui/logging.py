@@ -44,6 +44,7 @@ class _LogRecordViewerHandlerObject(QObject):
     """
     Provide a signal for logging handlers to log records to a LogRecordViewer in the main (GUI) thread.
     """
+
     log = pyqtSignal(logging.LogRecord)
 
     def __init__(self, viewer: LogRecordViewer):

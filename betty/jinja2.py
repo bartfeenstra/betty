@@ -427,7 +427,7 @@ def _filter_format_datey(
 @pass_context
 def _filter_json(context: Context, data: Any, indent: int | None = None) -> str:
     """
-    Converts a value to a JSON string.
+    Convert a value to a JSON string.
     """
     return stdjson.dumps(data, indent=indent, cls=(context_app(context).json_encoder))
 
@@ -435,7 +435,7 @@ def _filter_json(context: Context, data: Any, indent: int | None = None) -> str:
 @pass_context
 def _filter_tojson(context: Context, data: Any, indent: int | None = None) -> str:
     """
-    Converts a value to a JSON string safe for use in an HTML document.
+    Convert a value to a JSON string safe for use in an HTML document.
 
     This mimics Jinja2's built-in JSON filter, but uses Betty's own JSON encoder.
     """
@@ -457,9 +457,11 @@ _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
 
 @pass_eval_context
 def _filter_paragraphs(eval_ctx: EvalContext, text: str) -> str | Markup:
-    """Converts newlines to <p> and <br> tags.
+    """
+    Convert newlines to <p> and <br> tags.
 
-    Taken from http://jinja.pocoo.org/docs/2.10/api/#custom-filters."""
+    Taken from http://jinja.pocoo.org/docs/2.10/api/#custom-filters.
+    """
     result = u'\n\n'.join(u'<p>%s</p>' % p.replace('\n', Markup('<br>\n'))
                           for p in _paragraph_re.split(escape(text)))
     if eval_ctx.autoescape:
@@ -492,7 +494,7 @@ async def _filter_unique(value: Iterable[T]) -> AsyncIterator[T]:
 @pass_context
 async def _filter_map(context: Context, values: Iterable[Any], *args: Any, **kwargs: Any) -> Any:
     """
-    Maps an iterable's values.
+    Map an iterable's values.
 
     This mimics Jinja2's built-in map filter, but allows macros as callbacks.
     """

@@ -12,7 +12,7 @@ import click
 from PyQt6.QtWidgets import QMainWindow
 from click import get_current_context, Context, Option, Command, Parameter
 
-from betty import about, generate, load
+from betty import about, generate, load, documentation, fs
 from betty.app import App
 from betty.asyncio import sync, wait
 from betty.error import UserFacingError
@@ -98,6 +98,7 @@ async def _init_ctx_app(
 
     app = App()
     ctx.obj['commands'] = {
+        'docs': _docs,
         'clear-caches': _clear_caches,
         'demo': _demo,
         'gui': _gui,
@@ -268,6 +269,20 @@ async def _serve(app: App) -> None:
         await server.show()
         while True:
             await asyncio.sleep(999)
+
+
+@click.command(help='View the documentation.')
+@global_command
+async def _docs():
+    async with App() as app:
+        server = documentation.DocumentationServer(
+            fs.CACHE_DIRECTORY_PATH,
+            localizer=app.localizer,
+        )
+        async with server:
+            await server.show()
+            while True:
+                await asyncio.sleep(999)
 
 
 if about.is_development():

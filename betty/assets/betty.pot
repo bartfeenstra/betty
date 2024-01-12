@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-01-08 19:21+0000\n"
+"POT-Creation-Date: 2024-01-12 13:27+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -166,6 +166,9 @@ msgid "Baptism"
 msgstr ""
 
 msgid "Beneficiary"
+msgstr ""
+
+msgid "Betty documentation"
 msgstr ""
 
 msgid "Betty helps you visualize and publish your family history by building interactive genealogy websites out of your <a href=\"{gramps_url}\">Gramps</a> and <a href=\"{gedcom_url}\">GEDCOM</a> family trees."
@@ -671,6 +674,9 @@ msgstr ""
 msgid "Serving the Betty demo..."
 msgstr ""
 
+msgid "Serving the Betty documentation..."
+msgstr ""
+
 msgid "Serving your site at {url}..."
 msgstr ""
 
@@ -833,6 +839,9 @@ msgstr ""
 msgid "View demo site..."
 msgstr ""
 
+msgid "View documentation"
+msgstr ""
+
 msgid "View site"
 msgstr ""
 
@@ -855,6 +864,9 @@ msgid "Work on a new or existing site of your own"
 msgstr ""
 
 msgid "You can now view a Betty demonstration site at <a href=\"{url}\">{url}</a>."
+msgstr ""
+
+msgid "You can now view the documentation at <a href=\"{url}\">{url}</a>."
 msgstr ""
 
 msgid "You can now view your site at <a href=\"{url}\">{url}</a>."

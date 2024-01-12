@@ -41,6 +41,9 @@ class TestPackageLicenses:
 
         def _get_dependency_distribution_names(name: str) -> Iterator[str]:
             yield name
+            # Work around https://github.com/sphinx-doc/sphinx/issues/11567.
+            if name.startswith('sphinxcontrib-'):
+                return
             for dependency in get_distribution(name).requires():
                 yield from _get_dependency_distribution_names(dependency.project_name)
         distribution_names = list(filter(lambda x: x not in self._GPL_V3_COMPATIBLE_DISTRIBUTIONS, _get_dependency_distribution_names('betty')))

@@ -1,5 +1,5 @@
 """
-This is a partial, simplified fork of the abandoned python-resize-image package.
+A partial, simplified fork of the abandoned python-resize-image package.
 
 This module exists purely because existing Betty code depended on an abandoned package, and that code has not been
 refactored yet.

@@ -34,6 +34,7 @@ class ExtensionTypeImportError(ExtensionTypeError, ImportError):
     """
     Raised when an alleged extension type cannot be imported.
     """
+
     def __init__(self, extension_type_name: str):
         super().__init__(f'Cannot find and import an extension with name "{extension_type_name}".')
 
@@ -42,6 +43,7 @@ class ExtensionTypeInvalidError(ExtensionTypeError, ImportError):
     """
     Raised for types that are not valid extension types.
     """
+
     def __init__(self, extension_type: type):
         super().__init__(f'{extension_type.__module__}.{extension_type.__name__} is not an extension type class. Extension types must extend {Extension.__module__}.{Extension.__name__}.')
 

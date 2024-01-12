@@ -424,7 +424,7 @@ class Localizer:
 
     def format_datey(self, date: Datey) -> str:
         """
-        Formats a datey value into a human-readable string.
+        Format a datey value into a human-readable string.
         """
         if isinstance(date, Date):
             return self.format_date(date)
