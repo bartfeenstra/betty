@@ -11,10 +11,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: Linux
-            os: ubuntu-20.04
-            dist_name: betty-linux
-            python: '3.12'
           - name: macOS
             os: macos-11
             dist_name: betty-macos
@@ -56,25 +52,8 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install APT dependencies
-        if: startsWith(runner.os, 'Linux')
-        run: |
-          sudo apt-get update
-          apt_packages=(
-            libegl1-mesa # For Qt
-            libx11-xcb-dev # For Qt
-            '^libxcb.*-dev' # For Qt
-            libxkbcommon-x11-0 # For Qt
-          )
-          sudo apt-get install "${apt_packages[@]}"
-
       - name: Build the executable
         run: ./bin/build-pyinstaller ${{ github.event.release.tag_name }}
-        shell: bash
-
-      - name: Zip the Linux package
-        if: startsWith(runner.os, 'Linux')
-        run: zip -r -X ./dist/${{ matrix.dist_name }}.zip ./dist/betty
         shell: bash
 
       - name: Zip the macOS package
