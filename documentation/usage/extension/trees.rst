@@ -1,7 +1,6 @@
 The Trees extension
 ===================
-
-The Trees extension renders interactive family trees using `Cytoscape.js <http://js.cytoscape.org/>`_.
+The :py:class:`betty.extension.Trees` extension renders interactive family trees using `Cytoscape.js <http://js.cytoscape.org/>`_.
 
 Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 

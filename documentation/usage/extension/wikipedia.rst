@@ -1,7 +1,6 @@
 The Wikipedia extension
 =======================
-
-The Wikipedia extension renders summaries of Wikipedia articles. If a entity such as a person or a place contains
+The :py:class:`betty.extension.Wikipedia` extension renders summaries of Wikipedia articles. If a entity such as a person or a place contains
 links to Wikipedia articles, templates can use this extension to fetch translated summaries of these articles, and
 render them on the entity's page.
 

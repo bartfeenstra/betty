@@ -1,7 +1,6 @@
 The Privatizer extension
 ========================
-
-The Privatizer marks entities private to prevent sensitive information from being published accidentally. It is most
+The :py:class:`betty.extension.Privatizer` extension marks entities private to prevent sensitive information from being published accidentally. It is most
 powerful in achieving this when used in combination with the :doc:`anonymizer <anonymizer>` and :doc:`cleaner <cleaner>`
 extensions.
 
