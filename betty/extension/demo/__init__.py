@@ -1,3 +1,4 @@
+"""Provide demonstration site functionality."""
 from __future__ import annotations
 
 from contextlib import AsyncExitStack

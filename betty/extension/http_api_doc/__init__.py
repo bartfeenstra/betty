@@ -1,3 +1,4 @@
+"""Integrate Betty with `ReDoc <https://redocly.com/redoc/>`_."""
 from __future__ import annotations
 
 import logging

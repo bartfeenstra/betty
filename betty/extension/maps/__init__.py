@@ -1,3 +1,4 @@
+"""Integrate Betty with `Leaflet.js <https://leafletjs.com/>`_."""
 from __future__ import annotations
 
 import logging

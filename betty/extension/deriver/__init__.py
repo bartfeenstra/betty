@@ -1,3 +1,4 @@
+"""Expand an ancestry by deriving additional data from existing data."""
 from __future__ import annotations
 
 from betty.app.extension import Extension, UserFacingExtension

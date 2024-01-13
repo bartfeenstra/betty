@@ -1,3 +1,5 @@
+"""Provide the built-in extensions."""
+
 from __future__ import annotations
 
 from betty.extension.cotton_candy import _CottonCandy

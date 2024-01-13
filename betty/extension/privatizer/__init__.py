@@ -1,3 +1,4 @@
+"""Privatize people and associated data by determining if they are likely to be alive."""
 from __future__ import annotations
 
 from collections import defaultdict
