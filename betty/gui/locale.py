@@ -72,7 +72,7 @@ class TranslationsLocaleCollector(ReactiveInstance):
                     negotiated_locale_translations_coverage_percentage = 0
                 else:
                     negotiated_locale_translations_coverage_percentage = round(100 / (negotiated_locale_translations_coverage[1] / negotiated_locale_translations_coverage[0]))
-                self._configuration_locale_caption.setText(self._app.localizer._('The translations for {locale_name} are {coverage_percentage}% complete.').format(
+                self._configuration_locale_caption.setText(self._app.localizer._('The translations for {locale_name} are {coverage_percentage}%% complete.').format(
                     locale_name=get_display_name(translations_locale, self._app.localizer.locale),
                     coverage_percentage=round(negotiated_locale_translations_coverage_percentage)
                 ))
