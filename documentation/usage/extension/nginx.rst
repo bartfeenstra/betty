@@ -13,7 +13,7 @@ Enable this extension through Betty Desktop, or in your project's :doc:`configur
 .. code-block:: yaml
 
     extensions:
-      betty.extension.Nginx: ~
+      betty.extension.Nginx: {}
 
 Configuration
 -------------
@@ -23,8 +23,9 @@ This extension is configurable through Betty Desktop or in the configuration fil
 
     extensions:
       betty.extension.Nginx:
-        www_directory_path: /var/www/betty
-        https: true
+        configuration:
+          www_directory_path: /var/www/betty
+          https: true
 
 All configuration options
 ^^^^^^^^^^^^^^^^^^^^^^^^^

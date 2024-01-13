@@ -14,7 +14,7 @@ Enable this extension through Betty Desktop, or in your project's :doc:`configur
 .. code-block:: yaml
 
     extensions:
-      betty.extension.Deriver: ~
+      betty.extension.Deriver: {}
 
 Configuration
 -------------
