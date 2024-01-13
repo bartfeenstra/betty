@@ -24,7 +24,7 @@ from aioresponses import aioresponses
 
 from betty.app import App
 from betty.model.ancestry import Source, Link, Citation, Place
-from betty.wikipedia import Summary, _Retriever, NotAPageError, _parse_url, RetrievalError, _Populator
+from betty.wikipedia import Summary, _Retriever, NotAPageError, _parse_url, _Populator
 
 
 class TestParseUrl:
@@ -118,11 +118,11 @@ class TestRetriever:
         api_url = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=langlinks&lllimit=500&format=json&formatversion=2' % (summary_language, summary_name)
         aioresponses.get(api_url, exception=aiohttp.ClientError())
         async with TemporaryDirectory() as cache_directory_path_str:
-            with pytest.raises(RetrievalError):
-                async with aiohttp.ClientSession() as session:
-                    await _Retriever(session, Path(cache_directory_path_str)).get_translations(summary_language, summary_name)
+            async with aiohttp.ClientSession() as session:
+                actual = await _Retriever(session, Path(cache_directory_path_str)).get_translations(summary_language, summary_name)
+                assert {} == actual
 
-    async def test_get_translations_with_invalid_json_response_should_raise_retrieval_error(
+    async def test_get_translations_with_invalid_json_response_should_return_none(
         self,
         aioresponses: aioresponses,
         mocker: MockerFixture,
@@ -133,9 +133,9 @@ class TestRetriever:
         api_url = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=langlinks&lllimit=500&format=json&formatversion=2' % (summary_language, summary_name)
         aioresponses.get(api_url, body='{Haha Im not rly JSON}')
         async with TemporaryDirectory() as cache_directory_path_str:
-            with pytest.raises(RetrievalError):
-                async with aiohttp.ClientSession() as session:
-                    await _Retriever(session, Path(cache_directory_path_str)).get_translations(summary_language, summary_name)
+            async with aiohttp.ClientSession() as session:
+                actual = await _Retriever(session, Path(cache_directory_path_str)).get_translations(summary_language, summary_name)
+                assert {} == actual
 
     @pytest.mark.parametrize('response_json', [
         {},
@@ -153,7 +153,7 @@ class TestRetriever:
             }
         },
     ])
-    async def test_get_translations_with_unexpected_json_response_should_raise_retrieval_error(
+    async def test_get_translations_with_unexpected_json_response_should_return_none(
         self,
         response_json: dict[str, Any],
         mocker: MockerFixture,
@@ -165,9 +165,9 @@ class TestRetriever:
         api_url = 'https://%s.wikipedia.org/w/api.php?action=query&titles=%s&prop=langlinks&lllimit=500&format=json&formatversion=2' % (summary_language, summary_name)
         aioresponses.get(api_url, payload=response_json)
         async with TemporaryDirectory() as cache_directory_path_str:
-            with pytest.raises(RetrievalError):
-                async with aiohttp.ClientSession() as session:
-                    await _Retriever(session, Path(cache_directory_path_str)).get_translations(summary_language, summary_name)
+            async with aiohttp.ClientSession() as session:
+                actual = await _Retriever(session, Path(cache_directory_path_str)).get_translations(summary_language, summary_name)
+                assert {} == actual
 
     @pytest.mark.parametrize('extract_key', [
         'extract',
@@ -211,10 +211,12 @@ class TestRetriever:
                 # The fifth retrieval should hit the cache from the fourth request.
                 summary_5 = await retriever.get_summary(summary_language, summary_name)
         for summary in [summary_1, summary_2, summary_3]:
+            assert summary
             assert summary_url == summary.url
             assert title == summary.title
             assert extract_1 == summary.content
         for summary in [summary_4, summary_5]:
+            assert summary
             assert summary_url == summary.url
             assert title == summary.title
             assert extract_4 == summary.content
@@ -232,8 +234,8 @@ class TestRetriever:
         async with TemporaryDirectory() as cache_directory_path_str:
             async with aiohttp.ClientSession() as session:
                 retriever = _Retriever(session, Path(cache_directory_path_str))
-                with pytest.raises(RetrievalError):
-                    await retriever.get_summary(summary_language, summary_name)
+                actual = await retriever.get_summary(summary_language, summary_name)
+                assert None is actual
 
     @pytest.mark.parametrize('expected, response_pages_json', [
         (None, {},),
