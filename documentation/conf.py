@@ -14,7 +14,7 @@ html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
     'collapse_navigation': True,
     'sticky_navigation': True,
-    # 'navigation_depth': 1,
+    'prev_next_buttons_location': None,
 }
 highlight_language = 'none'
 templates_path = ['_templates']
