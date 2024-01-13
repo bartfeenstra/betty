@@ -43,7 +43,7 @@ Betty is Free and Open Source Software. As such you are welcome to
 
 Copyright & license
 -------------------
-Betty is copyright `Bart Feenstra <https://twitter.com/BartFeenstra/>`_ and contributors, and released under the
+Betty is copyright Bart Feenstra and contributors, and released under the
 `GNU General Public License, Version 3 <./LICENSE.txt>`_. In short, that means **you are free to use Betty**, but **if
 you distribute Betty yourself, you must do so under the exact same license**, provide that license, and make your source
 code available.
