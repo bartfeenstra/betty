@@ -1,3 +1,4 @@
+"""Test the betty.serde module."""
 from __future__ import annotations
 
 from contextlib import contextmanager

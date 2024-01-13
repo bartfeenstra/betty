@@ -1,3 +1,4 @@
+"""Provide test utilities and define all tests for Betty itself."""
 from __future__ import annotations
 
 import functools

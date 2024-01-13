@@ -1,3 +1,4 @@
+"""Provide Betty's extension API."""
 from __future__ import annotations
 
 import functools

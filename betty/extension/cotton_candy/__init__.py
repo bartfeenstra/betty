@@ -1,3 +1,6 @@
+"""
+Provide Betty's default theme.
+"""
 from __future__ import annotations
 
 import logging

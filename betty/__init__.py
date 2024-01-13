@@ -1,3 +1,4 @@
+"""The Betty package root."""
 from pathlib import Path
 
 # This lives here so it can be imported before any third-party Python modules are available.

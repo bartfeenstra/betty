@@ -1,3 +1,4 @@
+"""Integrate Betty with `Gramps <https://gramps-project.org>`_."""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

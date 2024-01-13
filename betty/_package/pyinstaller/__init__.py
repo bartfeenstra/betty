@@ -1,3 +1,4 @@
+"""Integrate Betty with PyInstaller."""
 import sys
 from glob import glob
 from pathlib import Path

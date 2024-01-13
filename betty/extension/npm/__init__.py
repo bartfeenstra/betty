@@ -1,3 +1,8 @@
+"""
+Provide tools to integrate extensions with `npm <https://www.npmjs.com/>`_.
+
+This extension and module are internal.
+"""
 from __future__ import annotations
 
 import logging

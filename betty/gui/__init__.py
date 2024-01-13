@@ -1,3 +1,4 @@
+"""Provide the Graphical User Interface (GUI) for Betty Desktop."""
 from __future__ import annotations
 
 from logging import getLogger
