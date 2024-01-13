@@ -301,7 +301,7 @@ class _AboutBettyWindow(BettyWindow):
             self._app.localizer._('Version: {version}').format(
                 version=about.version_label(),
             ),
-            self._app.localizer._('Copyright 2019-{year} <a href="twitter.com/bartFeenstra">Bart Feenstra</a> & contributors. Betty is made available to you under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License, Version 3</a> (GPLv3).').format(
+            self._app.localizer._('Copyright 2019-{year} Bart Feenstra & contributors. Betty is made available to you under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License, Version 3</a> (GPLv3).').format(
                 year=datetime.now().year,
             ),
             self._app.localizer._('Follow Betty on <a href="https://twitter.com/Betty_Project">Twitter</a> and <a href="https://github.com/bartfeenstra/betty">Github</a>.'),

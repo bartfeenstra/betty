@@ -60,7 +60,7 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = 'https://github.com/bartfeenstra/betty'
+Documentation = 'https://betty.readthedocs.io'
 Github = 'https://github.com/bartfeenstra/betty'
 Twitter = 'https://twitter.com/BettyProject'
 X = 'https://twitter.com/BettyProject'
