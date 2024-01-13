@@ -11,7 +11,7 @@ Enable this extension through Betty Desktop, or in your project's :doc:`configur
 
 Configuration
 -------------
-This extension is configurable:
+This extension is configurable through Betty Desktop or in the configuration file:
 
 .. code-block:: yaml
 
