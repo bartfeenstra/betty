@@ -1,3 +1,4 @@
+"""Provide interactive family trees by integrating Betty with `Cytoscape.js <https://cytoscape.org/>`_."""
 from __future__ import annotations
 
 import logging

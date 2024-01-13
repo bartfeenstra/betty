@@ -1,3 +1,4 @@
+"""Integrate Betty with `nginx <https://nginx.org/>`_."""
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, Self

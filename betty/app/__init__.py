@@ -1,3 +1,5 @@
+"""Define Betty's core application functionality."""
+
 from __future__ import annotations
 
 import os as stdos

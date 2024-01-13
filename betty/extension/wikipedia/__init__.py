@@ -1,3 +1,4 @@
+"""Integrate Betty with `Wikipedia <https://wikipedia.org>`_."""
 from __future__ import annotations
 
 from pathlib import Path

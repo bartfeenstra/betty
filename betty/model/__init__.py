@@ -1,3 +1,5 @@
+"""Provide Betty's data model API."""
+
 from __future__ import annotations
 
 import builtins
