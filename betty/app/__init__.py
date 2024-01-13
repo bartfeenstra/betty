@@ -9,7 +9,6 @@ from types import TracebackType
 from typing import TYPE_CHECKING, Mapping, Self, final
 
 import aiohttp
-from aiohttp import ClientTimeout
 from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
 
@@ -334,7 +333,6 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
     def http_client(self) -> aiohttp.ClientSession:
         if not self._http_client:
             self._http_client = aiohttp.ClientSession(
-                timeout=ClientTimeout(9),
                 connector=aiohttp.TCPConnector(limit_per_host=5),
                 headers={
                     'User-Agent': f'Betty (https://github.com/bartfeenstra/betty) on behalf of {self._project.configuration.base_url}{self._project.configuration.root_path}',
