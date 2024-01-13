@@ -1,8 +1,8 @@
-{% set entries = resource.links | wikipedia | list %}
-{% if entries | length > 0 %}
-    {% for entry in entries %}
-        {{ entry.content | safe }}
-        <p>{% trans url = entry.url %}Continue reading on <a href="{{ url }}">Wikipedia</a>.{% endtrans %}</p>
+{% set summaries = resource.links | wikipedia | list %}
+{% if summaries | length > 0 %}
+    {% for summary in summariess %}
+        {{ summary.content | safe }}
+        <p>{% trans url = summary.url %}Continue reading on <a href="{{ url }}">Wikipedia</a>.{% endtrans %}</p>
     {% endfor %}
     <small>{% trans %}<a href="https://en.wikipedia.org/wiki/Wikipedia:Copyrights">Copyright</a> Wikipedia and its contributors.{% endtrans %}</small>
 {% endif %}

@@ -61,13 +61,13 @@ class _Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstan
 
     async def _filter_wikipedia_link(self, locale: str, link: Link) -> Summary | None:
         try:
-            entry_language, entry_name = _parse_url(link.url)
+            page_language, page_name = _parse_url(link.url)
         except NotAPageError:
             return None
-        if negotiate_locale(locale, {entry_language}) is None:
+        if negotiate_locale(locale, {page_language}) is None:
             return None
         try:
-            return await self._retriever.get_summary(entry_language, entry_name)
+            return await self._retriever.get_summary(page_language, page_name)
         except RetrievalError:
             return None
 
