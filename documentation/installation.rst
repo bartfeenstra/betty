@@ -14,7 +14,7 @@ Linux
 - :doc:`Install via pip <installation/pip>`
 - :doc:`Install from source <installation/source>`
 
-macOs
+macOS
 -----
 - :doc:`Install via pip <installation/pip>`
 - :doc:`Install from source <installation/source>`
