@@ -1,32 +1,23 @@
-Development & contributions
-===========================
+Development
+===========
 
-Betty is Free and Open Source Software, designed and maintained by volunteers. As such you are welcome to
-`report bugs <https://github.com/bartfeenstra/betty/issues>`_ or
-`submit improvements <https://github.com/bartfeenstra/betty/pulls>`_.
-
-First, `fork and clone <https://guides.github.com/activities/forking/>`_ the repository, and navigate to its root directory.
+.. note::
+    Read :doc:`/about/contributing` if you would like to share your improvements to Betty with the wider community.
 
 Getting started
 ---------------
 :doc:`Install Betty from source </installation/source>`.
 
-Installation
-------------
-In any existing Python environment, run ``./bin/build-dev``.
-
-.. _development-translations:
-
 Working on translations
-^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------
 
 Making changes to the translatable strings in the source code
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Run ``betty update-translations`` to update the translations files with the changes you made.
 
 Adding translations for a language for which no translations exist yet
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Run ``betty init-translation $locale`` where ``$locale`` is an
 `IETF BCP 47 language tag <https://tools.ietf.org/html/bcp47>`_.

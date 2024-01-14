@@ -8,3 +8,13 @@ Usage
    :titlesonly:
 
    usage/*
+
+In this section
+---------------
+- :doc:`/usage/cli`
+- :doc:`/usage/configuration`
+- :doc:`/usage/env`
+- :doc:`/usage/extension`
+- :doc:`/usage/gedcom`
+- :doc:`/usage/project`
+- :doc:`/usage/translation`
