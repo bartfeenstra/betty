@@ -1,5 +1,5 @@
 The Cotton Candy extension
-=====================
+==========================
 The :py:class:`betty.extension.CottonCandy` extension provides Betty's default theme.
 
 Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
