@@ -3,13 +3,14 @@ from os import path
 
 import betty
 from betty import about
+from betty.fs import ROOT_DIRECTORY_PATH
 
 sys.path.insert(0, path.dirname(path.dirname(betty.__file__)))
 project = 'Betty'
 version = about.version() or ''
 release = about.version_label()
-html_favicon = 'betty.ico'
-html_logo = 'betty-logo.png'
+html_favicon = str(ROOT_DIRECTORY_PATH / 'betty' / 'assets' / 'public' / 'static' / 'betty.ico')
+html_logo = str(ROOT_DIRECTORY_PATH / 'betty' / 'assets' / 'public' / 'static' / 'betty-32x32.png')
 html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
     'collapse_navigation': True,
