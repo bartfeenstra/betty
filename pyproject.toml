@@ -36,6 +36,7 @@ dependencies = [
     'pyyaml ~= 6.0, >= 6.0.0',
     'reactives ~= 0.5, >= 0.5.1',
     'sphinx ~= 7.2.6',
+    'sphinx-design ~= 0.5.0',
     'sphinx_rtd_theme ~= 2.0.0',
     'sphinx-autodoc-typehints ~= 1.25.2',
 ]
