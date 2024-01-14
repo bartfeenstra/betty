@@ -46,6 +46,7 @@ class _Demo(Extension, Loader):
             LocaleConfiguration('nl-NL', 'nl'),
             LocaleConfiguration('fr-FR', 'fr'),
             LocaleConfiguration('uk', 'uk'),
+            LocaleConfiguration('de-DE', 'de'),
         )
         return project
 

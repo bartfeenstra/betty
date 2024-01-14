@@ -1,19 +1,18 @@
-# Ukrainian translations for Betty.
-# Copyright (C) 2020 Bart Feenstra & contributors
+# German translations for Betty.
+# Copyright (C) 2023 Bart Feenstra & contributors
 # This file is distributed under the same license as the Betty project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2024-01-13 22:35+0100\n"
-"PO-Revision-Date: 2024-01-13 18:21+0100\n"
+"PO-Revision-Date: 2024-01-13 22:34+0100\n"
 "Last-Translator: Rainer Thieringer <rainerthi@gmail.com>\n"
-"Language: uk\n"
-"Language-Team: uk <LL@li.org>\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Language: de\n"
+"Language-Team: rainerthi@gmail.com\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -29,6 +28,15 @@ msgid ""
 "maps, and browsable family trees.\n"
 "            "
 msgstr ""
+"\n"
+"                Betty ist eine Anwendung, die aus Familienstammbäumen "
+"Webseiten bauen kann, so ähnlich, wie diese Seite, \n"
+"                die du dir gerade anschaust. Je mehr Information deine "
+"genealogische Forschung beinhaltet, desto mehr \n"
+"                Interaktion kann Betty zu deiner Seite beitragen . Betty "
+"kann Medien-Gallerien, Karten und verlinkte \n"
+"                Stammbäume erzeugen.\n"
+"            "
 
 #, python-format
 msgid ""
@@ -40,6 +48,13 @@ msgid ""
 "                looks like.\n"
 "            "
 msgstr ""
+"\n"
+"                Betty ist benannt nach %(liberta_lankester_label)s und "
+"diese Webseite zeigt einen kleinen Auszug aus\n"
+"                ihrer Familiengeschichte. Du kannst die Seiten "
+"durchsuchen und so einen ersten Eindruck darüber\n"
+"                gewinnen, was eine Betty Seite leisten kann.\n"
+"            "
 
 #, python-format
 msgid ""
@@ -48,7 +63,7 @@ msgid ""
 "    "
 msgstr ""
 "\n"
-"        Ласкаво просимо на %(project_title)s\n"
+"        Willkommen zu %(project_title)s\n"
 "    "
 
 #, python-format
@@ -63,106 +78,117 @@ msgid ""
 "{% endwith %}\n"
 "</code></pre>"
 msgstr ""
+"\n"
+"Zeige <a href=\"https://www.wikipedia.org/\">Wikipedia</a> "
+"Zusammenfassungen für Ressourcen mit externen Links. In deinen "
+"angepassten <a "
+"href=\"https://jinja2docs.readthedocs.io/en/stable/\">Jinja2</a> "
+"templates, verwende den folgenden: <pre><code>\n"
+"{% with resource=resource_with_links %}\n"
+"    {% include 'wikipedia.html.j2' %}\n"
+"{% endwith %}\n"
+"</code></pre>"
 
 msgid "\"{entity_type}\" is not a valid Betty entity type."
-msgstr ""
+msgstr "\"{entity_type}\" ist kein gültiger Betty Entity Type."
 
 msgid "\"{extension_type}\" is not a valid Betty extension type."
-msgstr ""
+msgstr "\"{extension_type}\" ist kein gültiger Betty extension type."
 
 msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
-msgstr ""
+msgstr "\"{hex_value}\" ist keine gültiger hexadezimaler Farbcode, so wie #ffc0cb."
 
 msgid "\"{locale}\" is not a valid IETF BCP 47 language tag."
-msgstr ""
+msgstr "\"{locale}\" ist kein gültiger IETF BCP 47 language tag."
 
 msgid "\"{path}\" is not a directory."
-msgstr ""
+msgstr "\"{path}\" ist kein Verzeichnis."
 
 #, python-format
 msgid "%(date)s in %(place)s"
-msgstr "%(date)s в %(place)s"
+msgstr "%(date)s in %(place)s"
 
 #, python-format
 msgid "%(event)s of %(subjects)s"
-msgstr "%(event)s %(subjects)s"
+msgstr "%(event)s von %(subjects)s"
 
 #, python-format
 msgid "%(event)s with %(subjects)s"
-msgstr "%(event)s з %(subjects)s"
+msgstr "%(event)s mit %(subjects)s"
 
 #, python-format
 msgid "%(person_individual_name)s had a child with %(co_parent_labels)s."
 msgid_plural ""
 "%(person_individual_name)s had %(child_count)s children with "
 "%(co_parent_labels)s."
-msgstr[0] "У %(person_individual_name)s була дитина від %(co_parent_labels)s."
-msgstr[1] "У %(person_individual_name)s було 3 дитини з %(co_parent_labels)s."
-msgstr[2] "У %(person_individual_name)s було 3 дитини з %(co_parent_labels)s."
+msgstr[0] "%(person_individual_name)s hat ein Kind mit  %(co_parent_labels)s."
+msgstr[1] ""
+"%(person_individual_name)s hat %(child_count)s Kinder mit "
+"%(co_parent_labels)s."
 
 #, python-format
 msgid "%(person_individual_name)s had a child."
 msgid_plural "%(person_individual_name)s had %(child_count)s children."
-msgstr[0] "У %(person_individual_name)s була дитина."
-msgstr[1] "У %(person_individual_name)s було %(child_count)s дитини."
-msgstr[2] "У %(person_individual_name)s було %(child_count)s дитини."
+msgstr[0] "%(person_individual_name)s hatte ein Kind."
+msgstr[1] "%(person_individual_name)s hatte %(child_count)s Kinder."
 
 #, python-format
 msgid "%(person_individual_name)s is the child of %(parent_labels)s."
-msgstr "%(person_individual_name)s дитина %(parent_labels)s."
+msgstr "%(person_individual_name)s ist Kind von %(parent_labels)s."
 
 msgid ""
 "<a "
 "href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a>"
 " Wikipedia and its contributors."
 msgstr ""
-"<a href=\"https://uk.wikipedia.org/wiki/Вікіпедія:Авторські "
-"права\">Авторські права</a> на Вікіпедію та її дописувачів."
+"<a "
+"href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a>"
+" Wikipedia und Beitragende."
 
 msgid ""
 "A family history as told by <a "
 "href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
 msgstr ""
-"Сімейна історія, яку розповіла <a "
+"Eine Familiengeschichte erzählt von <a "
 "href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
 
 msgid "API documentation"
-msgstr "документація API"
+msgstr "API Dokumentation"
 
 msgid "About"
-msgstr ""
+msgstr "Über"
 
 msgid "About Betty"
-msgstr ""
+msgstr "Über Betty"
 
 #, python-format
 msgid "Accessed %(date)s"
-msgstr "доступ %(date)s"
+msgstr "Zugriff %(date)s"
 
 msgid "Add a family tree"
-msgstr ""
+msgstr "Stammbaum hinzufügen"
 
 msgid "Add a locale"
-msgstr ""
+msgstr "Lokalität hinzufügen"
 
 msgid "Add an entity"
-msgstr ""
+msgstr "Entität hinzufügen"
 
 msgid "Adoption"
-msgstr "Усиновлення"
+msgstr "Adoption"
 
 msgid "Alias"
-msgstr ""
+msgstr "Alias"
 
 msgid "All caches cleared."
-msgstr ""
+msgstr "Alle Caches gelöscht."
 
 msgid "All of these requirements must be met"
-msgstr ""
+msgstr "Alle dieser Anforderungen müssen erfüllt sein"
 
 #, python-format
 msgid "Also known as %(names)s"
-msgstr "Також відомий як %(names)s"
+msgstr "Auch bekannt als %(names)s"
 
 msgid ""
 "An optional alias is used instead of the locale code to identify this "
@@ -170,39 +196,48 @@ msgid ""
 "variant on your site, you may want to alias its language code from <code"
 ">en-US</code> to <code>en</code>, for instance."
 msgstr ""
+"Ein optionaler Alias wird anstelle des Gebietsschema-Codes verwendet, um "
+"dieses Gebietsschema z.B. in URLs zu identifizieren. Wenn US-Englisch die"
+" einzige englische Sprachvariante auf Ihrer Website ist, können Sie "
+"beispielsweise statt Sprachcodes <code>en-US</code> den Alias  "
+"<code>en</code> verwenden."
 
 msgid ""
 "An unexpected error occurred and Betty could not complete the task. "
 "Please <a href=\"{report_url}\">report this problem</a> and include the "
 "following details, so the team behind Betty can address it."
 msgstr ""
+"Ein unerwarteter Fehler ist aufgetreten und Betty konnte die Aufgabe "
+"nicht beenden. Bitte <a href=\"{report_url}\">melde dieses Problem</a> "
+"und für die folgenden Details bei, so dass das Team hinter Betty die "
+"Ursache suchen kann."
 
 msgid "Ancestral names include"
-msgstr "Імена предків є"
+msgstr "Zu den Namen der Vorfahren gehören"
 
 msgid "Announcement of divorce"
-msgstr "Оголошення про розлучення"
+msgstr "Ankündigung der Scheidung"
 
 msgid "Announcement of marriage"
-msgstr "Оголошення шлюбу"
+msgstr "Bekanntgabe der Eheschließung"
 
 msgid "Appearances"
-msgstr "Знайдено в"
+msgstr "Erscheinungen"
 
 msgid "Attendee"
-msgstr "Відвідувач"
+msgstr "Teilnehmer"
 
 msgid "Author"
-msgstr "Автор(а)"
+msgstr "Autor"
 
 msgid "Baptism"
-msgstr "Хрещення"
+msgstr "Taufe"
 
 msgid "Beneficiary"
-msgstr "Бенефіціар"
+msgstr "Begünstigter"
 
 msgid "Betty documentation"
-msgstr ""
+msgstr "Betty Dokumentation"
 
 msgid ""
 "Betty helps you visualize and publish your family history by building "
@@ -210,12 +245,19 @@ msgid ""
 "href=\"{gramps_url}\">Gramps</a> and <a href=\"{gedcom_url}\">GEDCOM</a> "
 "family trees."
 msgstr ""
+"Betty hilft dir, dein Familiengeschichte zu visualisieren und zu "
+"veröffentlichen, indem sie aus deinen <a href=\"{gramps_url}\">Gramps</a>"
+" und <a href=\"{gedcom_url}\">GEDCOM</a> Stammbäumen interaktive "
+"Genealogie-Websites erstellt."
 
 msgid ""
 "Betty is unfamiliar with Gramps event \"{event_id}\"'s type of "
 "\"{gramps_event_type}\". The event was imported, but its type was set to "
 "\"{betty_event_type}\"."
 msgstr ""
+"Betty ist mit dem Typ \"{gramps_event_type}\" von Gramps Ereignis "
+"\"{event_id}\" nicht vertraut. Das Ereignis wurde importiert, aber sein "
+"Typ wurde auf \"{betty_event_type}\" gesetzt."
 
 msgid ""
 "Betty is unfamiliar with person \"{person_id}\"'s Gramps presence role of"
@@ -223,102 +265,119 @@ msgid ""
 "\"{event_handle}\". The role was imported, but set to "
 "\"{betty_presence_role}\"."
 msgstr ""
+"Betty kennt die Anwesenheitsrolle \"{gramps_presence_role}\" der Person "
+"\"{person_id}\" für das Ereignis mit dem Gramps-Handle \"{event_handle}\""
+" nicht. Die Rolle wurde importiert, aber auf \"{betty_presence_role}\" "
+"gesetzt."
 
 msgid "Betty project configuration ({supported_formats})"
-msgstr ""
+msgstr "Betty-Projektkonfiguration ({supported_formats})"
 
 msgid "Birth"
-msgstr "Народження"
+msgstr "Geburt"
 
 msgid "Built the Cotton Candy front-end assets."
-msgstr ""
+msgstr "Cotton Candy front-end assets erstellt."
 
 msgid "Built the HTTP API documentation."
-msgstr ""
+msgstr "Die HTTP-API-Dokumentation wurde erstellt."
 
 msgid "Built the interactive family trees."
-msgstr ""
+msgstr "Die interaktiven Stammbäume sind erstellt."
 
 msgid "Built the interactive maps."
-msgstr ""
+msgstr "Die interaktiven Karten wurden erstellt."
 
 msgid "Burial"
-msgstr "Поховання"
+msgstr "Beerdigung"
 
 msgid "Cancel"
-msgstr ""
+msgstr "Abbrechen"
 
 msgid ""
 "Cannot determine the entity type for \"{entity_type}\". Did you perhaps "
 "make a typo, or could it be that the entity type comes from another "
 "package that is not yet installed?"
 msgstr ""
+"Der Entitätstyp für \"{entity_type}\" kann nicht ermittelt werden. Haben "
+"Sie vielleicht einen Tippfehler gemacht, oder könnte es sein, dass der "
+"Entitätstyp aus einem anderen Paket stammt, das noch nicht installiert "
+"ist?"
 
 msgid ""
 "Cannot determine the extension type for \"{extension_type}\". Did you "
 "perhaps make a typo, or could it be that the extension type comes from "
 "another package that is not yet installed?"
 msgstr ""
+"Der Erweiterungstyp für \"{extension_type}\" kann nicht ermittelt werden."
+" Haben Sie sich vielleicht vertippt, oder könnte es sein, dass der "
+"Erweiterungstyp aus einem anderen Paket stammt, das noch nicht "
+"installiert ist?"
 
 msgid "Cannot find an available port to bind the web server to."
 msgstr ""
+"Es wurde kein verfügbarer Port gefunden, an den der Webserver gebunden "
+"werden kann."
 
 msgid "Cannot find and import \"{entity_type}\"."
-msgstr ""
+msgstr "Kann \"{entity_type}\" nicht finden und importieren."
 
 msgid "Cannot find and import \"{extension_type}\"."
-msgstr ""
+msgstr "Kann \"{extension_type}\" nicht finden und importieren."
 
 msgid ""
 "Cannot generate pages for {entity_type}, because it is not a user-facing "
 "entity type."
 msgstr ""
+"Es können keine Seiten für {entity_type} erzeugt werden, da es sich nicht"
+" um einen benutzerorientierten Entitätstyp handelt."
 
 msgid ""
 "Cannot load coordinates \"{coordinates}\", because they are in an unknown"
 " format."
 msgstr ""
+"Die Koordinaten \"{coordinates}\" können nicht geladen werden, da sie in "
+"einem unbekannten Format vorliegen."
 
 msgid "Cannot remove the last remaining locale {locale}"
-msgstr ""
+msgstr "Kann das letzte verbleibende Gebietsschema {locale} nicht entfernen"
 
 msgid "Celebrant"
-msgstr ""
+msgstr "Zelebrant"
 
 msgid "Citation"
-msgstr ""
+msgstr "Zitat"
 
 msgid "Citations"
-msgstr ""
+msgstr "Zitate"
 
 msgid "Clean URLs"
-msgstr ""
+msgstr "Saubere URLs"
 
 msgid "Clear all caches"
-msgstr ""
+msgstr "Alle Caches löschen"
 
-#, fuzzy
 msgid "Conference"
-msgstr "Референції"
+msgstr "Konferenz"
 
 msgid "Configuration"
-msgstr ""
+msgstr "Konfiguration"
 
 msgid "Configuration file \"{configuration_file_path}\" does not exist."
-msgstr ""
+msgstr "Konfigurationsdatei \"{configuration_file_path}\" existiert nicht."
 
 msgid "Configure"
-msgstr ""
+msgstr "Konfiguriere"
 
 msgid "Confirmation"
-msgstr "Миропомазання"
+msgstr "Bestätigung"
 
 msgid "Content negotiation"
-msgstr ""
+msgstr "Verhandlungen über den Inhalt"
 
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
-msgstr "Продовжуйте читати у <a href=\"%(url)s\">Вікіпедії</a>."
+msgstr "Auf <a href=\"%(url)s\">Wikipedia</a> weiterlesen."
 
 msgid ""
 "Copyright 2019-{year} Bart Feenstra & contributors. Betty is made "
@@ -326,267 +385,295 @@ msgid ""
 "href=\"https://www.gnu.org/licenses/gpl-3.0.en.html\">GNU General Public "
 "License, Version 3</a> (GPLv3)."
 msgstr ""
+"Copyright 2019-{year} Bart Feenstra & Beitragende. Betty wird "
+"bereitgestellt unter der <a "
+"href=\"https://www.gnu.org/licenses/gpl-3.0.en.html\">GNU General Public "
+"License, Version 3</a> (GPLv3)."
 
 msgid "Correspondence"
-msgstr "Листування"
+msgstr "Schriftverkehr"
 
 msgid "Cotton Candy is Betty's default theme."
-msgstr ""
+msgstr "Cotton Candy ist Betty's Standard-Thema."
 
 msgid "Could not extract {file_path} as a gzip (*.gz) file."
-msgstr ""
+msgstr "Konnte {file_path} nicht als gzip (*.gz) Date extrahieren."
 
 msgid ""
 "Could not extract {file_path} as a tar (*.tar) file after extracting the "
 "outer gzip (*.gz) file."
 msgstr ""
+"Konnte {file_path} nicht als tar-Datei (*.tar) extrahieren, nachdem die "
+"äußere gzip-Datei (*.gz) extrahiert wurde."
 
 msgid "Could not find the file \"{file_path}\"."
-msgstr ""
+msgstr "Konnte die Datei \"{file_path}\" nicht finden."
 
 msgid ""
 "Could not load \"{file_path}\" as a *.gpkg, a *.gramps, or an *.xml "
 "family tree."
 msgstr ""
+"Kann die Datei \"{file_path}\" nicht als *.gpkg, *.gramps, oder *.xml "
+"family tree laden."
 
 msgid "Create a new project"
-msgstr ""
+msgstr "Neues Projekt erstellen"
 
 msgid ""
 "Create events such as births and deaths by deriving their details from "
 "existing information."
 msgstr ""
+"Erstelle Ereignisse wie Geburten und Todesfälle, indem du deren Details "
+"aus vorhandenen Informationen ableitest."
 
 msgid ""
 "Created {created_derivations} additional {event_type} events based on "
 "existing information."
 msgstr ""
+"{created_derivations} zusätzliche {event_type} Ereignisse auf der "
+"Grundlage vorhandener Informationen erstellt."
 
 msgid "Cremation"
-msgstr "Кремація"
+msgstr "Feuerbestattung"
 
 msgid "Death"
-msgstr "Смерть"
+msgstr "Tod"
 
 msgid "Debugging mode"
-msgstr ""
+msgstr "Debugging Mode"
 
 msgid ""
 "Decide the correct page variety to serve users depending on their own "
 "preferences. This requires a web server that supports it."
 msgstr ""
+"Entscheide dich für die richtige Seitenvariante, die den Nutzern je nach "
+"deinen eigenen Vorlieben angeboten wird. Dies erfordert einen Webserver, "
+"der dies unterstützt."
 
 msgid "Demo"
-msgstr ""
+msgstr "Demo"
 
 msgid "Deriver"
-msgstr ""
+msgstr "Ableiter"
 
 msgid "Deriving..."
-msgstr ""
+msgstr "Ableiten..."
 
 msgid "Descendant names include"
-msgstr "Імена нащадків є"
+msgstr "Zu den Namen der Nachkommen gehören"
 
 msgid "Description, licensing, and image history"
-msgstr ""
+msgstr "Beschreibung, Lizenzierung und Bildgeschichte"
 
 msgid ""
 "Determine if people can be proven to have died. If not, mark them and "
 "their associated entities private."
 msgstr ""
+"Stellen Sie fest, ob der Tod von Personen nachgewiesen werden kann. Wenn "
+"nicht, markieren Sie sie und die zugehörigen Entitäten als privat."
 
 msgid ""
 "Display interactive family trees using <a "
 "href=\"https://cytoscape.org/\">Cytoscape</a>."
 msgstr ""
+"Interaktive Stammbäume mit <a "
+"href=\"https://cytoscape.org/\">Cytoscape</a> anzeigen."
 
 msgid ""
 "Display lists of places as interactive maps using <a "
 "href=\"https://leafletjs.com/\">Leaflet</a>."
 msgstr ""
+"Zeige Listen von Orten als interaktive Karten mit <a "
+"href=\"https://leafletjs.com/\">Leaflet</a> an."
 
 msgid ""
 "Display the HTTP API documentation in a user-friendly way using <a "
 "href=\"https://github.com/Redocly/redoc\">ReDoc</a>."
 msgstr ""
+"Zeige die HTTP-API-Dokumentation auf benutzerfreundliche Weise mit <a "
+"href=\"https://github.com/Redocly/redoc\">ReDoc</a> an."
 
 msgid "Divorce"
-msgstr "Розлучення"
+msgstr "Scheidung"
 
 #, python-format
 msgid "E.g. \"%(example)s\""
-msgstr "Наприклад «%(example)s»"
+msgstr "Z.B. \"%(example)s\""
 
 msgid "Emigration"
-msgstr "Еміграція"
+msgstr "Auswanderung"
 
 msgid "Enable {extension}"
-msgstr ""
+msgstr "Aktiviere {extension}"
 
 msgid "Enclosure"
-msgstr ""
+msgstr "Anhang"
 
 msgid "Enclosures"
-msgstr ""
+msgstr "Anhänge"
 
 msgid "Engagement"
-msgstr "Заручини"
+msgstr "Verlobung"
 
 msgid "Entity ID"
-msgstr ""
+msgstr "Entity ID"
 
 msgid "Error"
-msgstr ""
+msgstr "Fehler"
 
 msgid "Event"
-msgstr ""
+msgstr "Ereignis"
 
 msgid "Events"
-msgstr "Події"
+msgstr "Ereignisse"
 
 msgid "Exit"
-msgstr ""
+msgstr "Beenden"
 
 msgid "Exit the search"
-msgstr "Вийдіть із пошуку"
+msgstr "Suche beenden"
 
 msgid "External links"
-msgstr "Зовнішні посилання"
+msgstr "Externe Links"
 
 msgid "Facts"
-msgstr "Факти"
+msgstr "Fakten"
 
 msgid "Family"
-msgstr ""
+msgstr "Familie"
 
 msgid "Featured entities"
-msgstr ""
+msgstr "Ausgewählte Unternehmen"
 
 msgid "File"
-msgstr ""
+msgstr "Datei"
 
 msgid "File path"
-msgstr ""
+msgstr "Dateipfad"
 
 msgid "Files"
-msgstr ""
+msgstr "Dateien"
 
 msgid "Find out more about this image on Wikimedia Commons."
-msgstr ""
+msgstr "Mehr über dieses Bild erfährst du auf Wikimedia Commons."
 
 msgid ""
 "Follow Betty on <a href=\"https://twitter.com/Betty_Project\">Twitter</a>"
 " and <a href=\"https://github.com/bartfeenstra/betty\">Github</a>."
 msgstr ""
+"Folge Betty auf <a href=\"https://twitter.com/Betty_Project\">Twitter</a>"
+" und <a href=\"https://github.com/bartfeenstra/betty\">Github</a>."
 
 msgid "Funeral"
-msgstr "Похорон"
+msgstr "Beerdigung"
 
 msgid "General"
-msgstr ""
+msgstr "General"
 
 msgid ""
 "Generate <a href=\"\">nginx</a> configuration for your site, as well as a"
 " <code>Dockerfile</code> to build a <a "
 "href=\"https://www.docker.com/\">Docker</a> container around it."
 msgstr ""
+"Generiere <a href=\"\">nginx</a> eine Konfigurationsdatei für deine "
+"Website sowie ein <code>Dockerfile</code> um einen <a "
+"href=\"https://www.docker.com/\">Docker</a> container zu bauen."
 
 msgid "Generate entity listing pages"
-msgstr ""
+msgstr "Seiten zur Auflistung von Entitäten generieren"
 
 msgid "Generate site"
-msgstr ""
+msgstr "Seite erzeugen"
 
 msgid "Generated pages for {count} {entity_type} in {locale}."
-msgstr ""
+msgstr "Generierte Seiten für {count} {entity_type} in {locale}."
 
 msgid "Generated the listing page for {entity_type} in {locale}."
-msgstr ""
+msgstr "Erzeugt die Auflistungsseite für {entity_type} in {locale}."
 
 msgid "Generating OpenAPI specification..."
-msgstr ""
+msgstr "Generiere OpenAPI Spezifikation..."
 
 msgid "Generating localized public files in {locale}..."
-msgstr ""
+msgstr "Erzeugen von lokalisierten öffentlichen Dateien in {locale}..."
 
 msgid "Generating static public files..."
-msgstr ""
+msgstr "Erzeuge statische, öffentliche Dateien..."
 
 msgid "Generating your site to {output_directory}."
-msgstr ""
+msgstr "Erzeuge deine Site nach {output_directory}."
 
 msgid "Generating your site..."
-msgstr ""
+msgstr "Erzeuge deine Seite..."
 
 msgid "HTTP API Documentation"
-msgstr "документація HTTP API"
+msgstr "HTTP API Dokumentation"
 
 msgid "Help"
-msgstr "Допомога"
+msgstr "Hilfe"
 
 msgid "I'm sorry, dear, but it seems there are no events."
-msgstr ""
+msgstr "Es tut mir leid, aber sieht so aus, als ob es keine Ereignisse gibt."
 
 msgid "I'm sorry, dear, but it seems there are no media."
-msgstr ""
+msgstr "Es tut mir leid, aber sieht so aus, als ob es keine Medien gibt."
 
 msgid "I'm sorry, dear, but it seems there are no people."
-msgstr ""
+msgstr "Es tut mir leid, aber sieht so aus, als ob es keine Personen gibt."
 
 msgid "I'm sorry, dear, but it seems there are no places."
-msgstr ""
+msgstr "Es tut mir leid, aber sieht so aus, als ob es keine Orte gibt."
 
 msgid "I'm sorry, dear, but it seems there are no sources."
-msgstr ""
+msgstr "Es tut mir leid, aber sieht so aus, als ob es keine Quellen gibt."
 
 msgid "Immigration"
-msgstr "Імміграція"
+msgstr "Einwanderung"
 
 msgid "Invalid JSON: {error}."
-msgstr ""
+msgstr "Invalid JSON: {error}."
 
 msgid "Invalid YAML: {error}."
-msgstr ""
+msgstr "Invalid YAML: {error}."
 
 msgid "Keep this window open to keep the site running."
-msgstr ""
+msgstr "Lass dieses Fenster geöffnet, damit die Website weiterläuft."
 
 msgid "Language"
-msgstr "Мова"
+msgstr "Sprache"
 
 msgid "Lifetime threshold"
-msgstr ""
+msgstr "Lebenszeitschwelle"
 
 msgid "Link color (active)"
-msgstr ""
+msgstr "Link Farbe (aktiv)"
 
 msgid "Link color (inactive)"
-msgstr ""
+msgstr "Link Farbe (inaktiv)"
 
 msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
-msgstr ""
+msgstr "Lade <a href=\"https://gramps-project.org/\">Gramps</a>Stammbäume."
 
 msgid "Load the family tree from..."
-msgstr ""
+msgstr "Lade den Stammbaum von..."
 
 msgid "Loaded the configuration from {configuration_file_path}."
-msgstr ""
+msgstr "Konfigurationsdatei von {configuration_file_path} geladen."
 
 msgid "Loading \"{file_path}\"..."
-msgstr ""
+msgstr "Lade \"{file_path}\"..."
 
 msgid "Loading..."
-msgstr ""
+msgstr "Lade..."
 
 msgid "Locale"
-msgstr ""
+msgstr "Gebietsschema"
 
 msgid "Locale aliases must not contain slashes."
-msgstr ""
+msgstr "Gebietsschema-Aliase dürfen keine Schrägstriche enthalten."
 
 msgid "Localization"
-msgstr ""
+msgstr "Lokalisierung"
 
 msgid "MMMM"
 msgstr "MMMM"
@@ -595,228 +682,247 @@ msgid "MMMM d"
 msgstr "d MMMM"
 
 msgid "MMMM d, y"
-msgstr "d MMMM y року"
+msgstr "d MMMM y"
 
 msgid "MMMM, y"
-msgstr "MMMM y року"
+msgstr "MMMM y"
 
 msgid "Maps"
-msgstr ""
+msgstr "Karten"
 
 msgid "Marriage"
-msgstr "Шлюб"
+msgstr "Hochzeit"
 
 msgid "Media"
-msgstr "Медіа"
+msgstr "Medien"
 
 msgid "Menu"
-msgstr "Меню"
+msgstr "Menü"
 
 msgid "Missing"
-msgstr "Відсутній"
+msgstr "Fehlend"
 
 msgid "New project..."
-msgstr ""
+msgstr "Neues Projekt..."
 
 msgid "Note"
-msgstr ""
+msgstr "Notiz"
 
 msgid "Notes"
-msgstr "Примітки"
+msgstr "Notizen"
 
 msgid "Occupation"
-msgstr "Праця"
+msgstr "Beruf"
 
 msgid "One or more of these requirements must be met"
-msgstr ""
+msgstr "Eine oder mehrere dieser Anforderungen müssen erfüllt sein"
 
 msgid "Open an existing project"
-msgstr ""
+msgstr "Öffne ein existierendes Projekt"
 
 msgid "Open project..."
-msgstr ""
+msgstr "Öffne Projekt..."
 
 msgid "Open your project from..."
-msgstr ""
+msgstr "Öffne  dein Projekt von..."
 
 msgid "Organizer"
-msgstr ""
+msgstr "Veranstalter"
 
 msgid "Other attendees"
-msgstr "Інші відвідувачі"
+msgstr "Andere Teilnehmer"
 
 msgid ""
 "Output more detailed logs and disable optimizations that make debugging "
 "harder."
 msgstr ""
+"Ausgabe detaillierterer Protokolle und deaktivieren von Optimierungen, "
+"die die Fehlersuche erschweren."
 
 msgid "People"
-msgstr "Люди"
+msgstr "Personen"
 
 msgid "Permanent link to this section."
-msgstr "Постійне посилання на цей розділ."
+msgstr "Permanenter Verweis auf diesen Abschnitt."
 
 msgid "Person"
-msgstr ""
+msgstr "Person"
 
 msgid "Person name"
-msgstr ""
+msgstr "Name der Person"
 
 msgid "Person names"
-msgstr ""
+msgstr "Namen der Personen"
 
 msgid "Place"
-msgstr "Місце"
+msgstr "Ort"
 
 msgid "Places"
-msgstr "Місця"
+msgstr "Orte"
 
 msgid "Pre-built assets"
-msgstr ""
+msgstr "Vorgefertigte Objekte"
 
 msgid "Pre-built assets are unavailable for {extension_names}."
-msgstr ""
+msgstr "Vorgefertigte Objekte für {extension_names} sind nicht verfügbar."
 
 msgid "Presence"
-msgstr ""
+msgstr "Anwesenheit"
 
 msgid "Presence of {person} at {event}"
-msgstr ""
+msgstr "Anwesenheit von {person} zum {event}"
 
 msgid "Presences"
-msgstr ""
+msgstr "Anwesenheiten"
 
 msgid "Primary color (active)"
-msgstr ""
+msgstr "Vorzugsfarbe (aktiv)"
 
 msgid "Primary color (inactive)"
-msgstr ""
+msgstr "Vorzugsfarbe (inaktiv)"
 
 msgid ""
 "Privatized person {privatized_person_id} ({privatized_person}) because "
 "they are likely still alive."
 msgstr ""
+"Privatisierte Person {privatized_person_id} ({privatized_person}), da sie"
+" wahrscheinlich noch am Leben ist."
 
 msgid "Privatized {count} people because they are likely still alive."
 msgstr ""
+"Privatisierte {count} Personen, weil sie wahrscheinlich noch am Leben "
+"sind."
 
 msgid ""
 "Privatized {count} {entity_type}, because they are associated with "
 "private people."
 msgstr ""
+"Privatisiert {count} {entity_type}, weil sie mit Privatpersonen verbunden"
+" sind."
 
 msgid ""
 "Privatized {privatized_entity_type} {privatized_entity_id} "
 "({privatized_entity}) because of {reason_entity_type} {reason_entity_id} "
 "({reason_entity})."
 msgstr ""
+"Privatisierte {privatized_entity_type} {privatized_entity_id} "
+"({privatized_entity}) weil {reason_entity_type} {reason_entity_id} "
+"({reason_entity})."
 
 msgid "Privatizer"
-msgstr ""
+msgstr "Privatisierer"
 
 msgid "Privatizing..."
-msgstr ""
+msgstr "Privatisieren..."
 
 msgid "Project"
-msgstr "Проект"
+msgstr "Projekt"
 
 msgid "Python built-in"
-msgstr ""
+msgstr "Python built-in"
 
 msgid "Read more on Wikipedia."
-msgstr "Детальніше читайте у Вікіпедії."
+msgstr "Lies mehr auf Wikipedia."
 
 msgid "References"
-msgstr "Референції"
+msgstr "Referenzen"
 
 msgid "Remove"
-msgstr ""
+msgstr "Entfernen"
 
 msgid "Report a bug"
-msgstr ""
+msgstr "Fehler melden"
 
 msgid "Request a new feature"
-msgstr ""
+msgstr "Feature anfordern"
 
 msgid "Reset"
-msgstr ""
+msgstr "Zurücksetzen"
 
 msgid "Residence"
-msgstr "Проживання"
+msgstr "Wohnort"
 
 msgid "Retirement"
-msgstr "Вихід на пенсію"
+msgstr "Ruhestand"
 
 msgid "Save and close"
-msgstr ""
+msgstr "Speichern und schließen"
 
 msgid "Save this project as..."
-msgstr ""
+msgstr "Speichere dieses Projekt als..."
 
 msgid "Save your new project to..."
-msgstr ""
+msgstr "Speichere dein neues Projekt unter..."
 
 msgid "Save your project to..."
-msgstr ""
+msgstr "Speichere dein Projekt unter..."
 
 msgid "Serve site"
-msgstr ""
+msgstr "Seite ausliefern"
 
 msgid "Serving the Betty demo..."
-msgstr ""
+msgstr "Betty Demo ausliefern..."
 
 msgid "Serving the Betty documentation..."
-msgstr ""
+msgstr "Betty Dokumentation ausliefern..."
 
 msgid "Serving your site at {url}..."
-msgstr ""
+msgstr "Auslieferung deiner Seite unter {url}..."
 
 msgid "Serving your site..."
-msgstr ""
+msgstr "Liefere deine Seite aus..."
 
 msgid "Settings..."
-msgstr ""
+msgstr "Einstellungen..."
 
 msgid "Source"
-msgstr "Джерелo"
+msgstr "Quelle"
 
 msgid "Sources"
-msgstr "Джерела"
+msgstr "Quellen"
 
 msgid "Speaker"
-msgstr ""
+msgstr "Sprecher"
 
 msgid "Starting Python's built-in web server..."
-msgstr ""
+msgstr "Starte Pythons eingebauten Webserver..."
 
 msgid "Stop the site"
-msgstr ""
+msgstr "Seite anhalten"
 
 msgid "Subject"
-msgstr "Предмет"
+msgstr "Betreff"
 
 msgid "The age at which people are presumed dead."
-msgstr ""
+msgstr "Das Alter, ab dem Menschen als tot angesehen werden."
 
 msgid "The base URL must include a path."
-msgstr ""
+msgstr "Die Basis-URL muss einen Pfad beinhalten."
 
 msgid ""
 "The base URL must start with a scheme such as https://, http://, or "
 "file://."
 msgstr ""
+"Die Basis-URL muss mit einem Schema, wie https://, http://, or file:// "
+"starten."
 
 msgid ""
 "The betty:privacy Gramps attribute must have a value of \"public\" or "
 "\"private\", but \"{privacy_value}\" was given for {entity_type} "
 "{entity_id} ({entity_label}), which was ignored."
 msgstr ""
+"Das betty:privacy Gramps-Attribut muss einen Wert von \"public\" oder "
+"\"private\" haben, aber \"{privacy_value}\" wurde für {entity_type} "
+"{entity_id} ({entity_label}) angegeben, was ignoriert wurde."
 
 msgid ""
 "The entity reference must be for an entity of type "
 "{expected_entity_type_name} ({expected_entity_type_label}), but instead "
 "does not specify an entity type at all."
 msgstr ""
+"Die Entitätsreferenz muss für eine Entität des Typs "
+"{expected_entity_type_name} ({expected_entity_type_label}) sein, gibt "
+"aber stattdessen überhaupt keinen Entitätstyp an."
 
 msgid ""
 "The entity reference must be for an entity of type "
@@ -824,337 +930,358 @@ msgid ""
 "is for an entity of type {actual_entity_type_name} "
 "({actual_entity_type_label})"
 msgstr ""
+"Die Entitätsreferenz muss für eine Entität vom Typ "
+"{expected_entity_type_name} ({expected_entity_type_label}) sein, ist aber"
+" stattdessen für eine Entität vom Typ {actual_entity_type_name} "
+"({actual_entity_type_label})"
 
 msgid "The following errors occurred"
-msgstr ""
+msgstr "Die folgenden Fehler sind aufgetreten"
 
 msgid "The lifetime threshold must consist of digits only."
-msgstr ""
+msgstr "Die Lebensdauer-Schwelle darf nur Ziffern enthalten."
 
 #, python-format
 msgid "The translations for {locale_name} are {coverage_percentage}%% complete."
 msgstr ""
+"Die Übersetzungen für {locale_name} sind zu {coverage_percentage}%% "
+"abgeschlossen."
 
 msgid "There are no translations for {locale_name}."
-msgstr ""
+msgstr "Es gibt keine Übersetzungen für {locale_name}."
 
 msgid "These entities are featured on your site's front page."
-msgstr ""
+msgstr "Diese Entitäten werden auf der Startseite deiner Website angezeigt."
 
 #, python-format
 msgid "They are the child of %(parent_labels)s."
-msgstr "Це дитина %(parent_labels)s."
+msgstr "Die Eltern sind %(parent_labels)s."
 
 #, python-format
 msgid "They grew up with a sibling."
 msgid_plural "They grew up with %(sibling_count)s siblings."
-msgstr[0] "У його батьків була ще одна дитина."
-msgstr[1] "У його батьків було ще %(sibling_count)s дітей."
-msgstr[2] "У його батьків було ще %(sibling_count)s дітей."
+msgstr[0] "Er oder sie ist mit einem Geschwisterkinder aufgewachsen."
+msgstr[1] "Er oder sie ist mit %(sibling_count)s Geschwisterkindern aufgewachsen."
 
 #, python-format
 msgid "They had a child with %(co_parent_labels)s."
 msgid_plural "They had %(child_count)s children with %(co_parent_labels)s."
-msgstr[0] "У нього була дитина від %(co_parent_labels)s."
-msgstr[1] "У нього було 3 дитини з %(co_parent_labels)s."
-msgstr[2] "У нього було 3 дитини з %(co_parent_labels)s."
+msgstr[0] "Er oder sie hatte ein Kind mit %(co_parent_labels)s."
+msgstr[1] "Er oder sie hatte %(child_count)s Kinder mit %(co_parent_labels)s."
 
 #, python-format
 msgid "They had a child."
 msgid_plural "They had %(child_count)s children."
-msgstr[0] "У нього була дитина."
-msgstr[1] "У нього було %(child_count)s дитини."
-msgstr[2] "У нього було %(child_count)s дитини."
+msgstr[0] "Er oder sie hatte ein Kind."
+msgstr[1] "Er oder sie hatten %(child_count)s Kinder."
 
 msgid "This field is required."
-msgstr ""
+msgstr "Diese Feld ist erforderlich."
 
 msgid "This must be a boolean."
-msgstr ""
+msgstr "Es muss ein Boolean sein."
 
 msgid "This must be a decimal number."
-msgstr ""
+msgstr "Es muss eine Dezimalzahl sein."
 
 msgid "This must be a key-value mapping."
-msgstr ""
+msgstr "Es muss ein Key-Value Paar sein."
 
 msgid "This must be a list."
-msgstr ""
+msgstr "Es muss eine Liste sein."
 
 msgid "This must be a positive number."
-msgstr ""
+msgstr "Es muss einen positive Zahl sein."
 
 msgid "This must be a string."
-msgstr ""
+msgstr "Es muss ein Text-String sein."
 
 msgid "This must be a whole number."
-msgstr ""
+msgstr "Es muss eine ganze Zahl sein."
 
 msgid "This must be none/null."
-msgstr ""
+msgstr "Es muss None/Null sein."
 
 msgid "This person's details are unavailable to protect their privacy."
-msgstr "Дані цієї особи недоступні для захисту їх конфіденційності."
+msgstr ""
+"Die Angaben zu dieser Person sind zum Schutz ihrer Privatsphäre nicht "
+"verfügbar."
 
 msgid "This person's name is unavailable to protect their privacy."
-msgstr "Ім’я даних цієї особи недоступне для захисту її конфіденційності."
+msgstr "Der Name dieser Person ist zum Schutz ihrer Privatsphäre nicht verfügbar."
 
 msgid "This person's name is unknown."
-msgstr "Ім'я цієї людини невідоме."
+msgstr "Der Name dieser Person ist nicht bekannt."
 
 msgid "Timeline"
-msgstr "Хронологія"
+msgstr "Zeitschiene"
 
 msgid "Title"
-msgstr ""
+msgstr "Titel"
 
 msgid "Trees"
-msgstr ""
+msgstr "Bäume"
 
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 msgid ""
 "URLs look like <code>/path</code> instead of "
 "<code>/path/index.html</code>. This requires a web server that supports "
 "it."
 msgstr ""
+"URLs sind als <code>/path</code> aufgebaut statt als "
+"<code>/path/index.html</code>. Die erfordert einen Webserver, der das "
+"unterstützt."
 
 msgid "Unknown"
-msgstr "Невідомо"
+msgstr "Unbekannt"
 
 msgid ""
 "Unknown file format \".{extension}\". Supported formats are: "
 "{supported_formats}."
 msgstr ""
+"Unbekanntes Dateiformat \".{extension}\". Unterstützte Formate sind: "
+"{supported_formats}."
 
 msgid "Unknown key: {unknown_key}. Did you mean {known_keys}?"
-msgstr ""
+msgstr "Unbekannter Schlüssel: {unknown_key}. Meinst du {known_keys}?"
 
 msgid ""
 "Updated {updated_derivations} {event_type} events based on existing "
 "information."
 msgstr ""
+"Aktualisierte {updated_derivations} {event_type} Ereignisse auf Grund "
+"existierender Informationen."
 
 #, python-format
 msgid ""
 "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
 "to exit the search. Search again with <kbd>%(shortcut)s</kbd>."
 msgstr ""
-"Використовуйте <kbd>↑</kbd> і <kbd>↓</kbd> для переміщення по результатах"
-" або <kbd>esc</kbd> для виходу з пошуку. Шукайте знову за допомогою "
+"Nimm <kbd>↑</kbd> und <kbd>↓</kbd> um zwischen den Ergebnissen zu "
+"navigieren oder <kbd>esc</kbd> um die Suche zu verlassen. Neue Suche mit "
 "<kbd>%(shortcut)s</kbd>."
 
 msgid "Version: {version}"
-msgstr ""
+msgstr "Version: {version}"
 
 msgid "View a demo site"
-msgstr ""
+msgstr "Zeite eine Demo-Seite"
 
 msgid "View a demonstration of what a Betty site looks like"
-msgstr ""
+msgstr "Zeige eine Demo davon, wie eine Betty-Seite aussieht"
 
 msgid "View demo site..."
-msgstr ""
+msgstr "Zeige eine Demoseite..."
 
 msgid "View documentation"
-msgstr ""
+msgstr "Zeige die Dokumentation"
 
 msgid "View site"
-msgstr ""
+msgstr "Zeige Seite"
 
 msgid "Welcome to Betty"
-msgstr "Ласкаво просимо на Betty"
+msgstr "Willkommen zu Betty"
 
 msgid "Wikipedia"
-msgstr ""
+msgstr "Wikipedia"
 
 msgid "Will"
-msgstr "Заповіт"
+msgstr "Wille"
 
 msgid "Witness"
-msgstr "Свідок"
+msgstr "Zeuge"
 
 msgid "Witnesses"
-msgstr "Свідки"
+msgstr "Zeugen"
 
 msgid "Work on a new or existing site of your own"
-msgstr ""
+msgstr "Arbeite an einer neuen oder bestehenden eigenen Seite"
 
 msgid ""
 "You can now view a Betty demonstration site at <a "
 "href=\"{url}\">{url}</a>."
 msgstr ""
+"Du kannt jetzt eine Betty Demoseite unter <a href=\"{url}\">{url}</a> "
+"sehen."
 
 msgid "You can now view the documentation at <a href=\"{url}\">{url}</a>."
 msgstr ""
+"Du kannst jetzt die Dokumentation unter <a href=\"{url}\">{url}</a> "
+"einsehen."
 
 msgid "You can now view your site at <a href=\"{url}\">{url}</a>."
-msgstr ""
+msgstr "Du kannst deine Seite jetzt unter <a href=\"{url}\">{url}</a> sehen."
 
 #, python-format
 msgid ""
 "Your browser cannot show PDF documents. <a href=\"%(file_url)s\">Download"
 " %(file_name)s</a> to view it on your device instead."
 msgstr ""
+"Dein Browser kann keine PDF-Dokumente anzeigen <a "
+"href=\"%(file_url)s\">Late %(file_name)s</a> herunter, um sie auf deinem "
+"Gerät anzuzeigen."
 
 msgid "`npm` is available"
-msgstr ""
+msgstr "`npm` ist verfügbar"
 
 msgid "`npm` is not available"
-msgstr ""
+msgstr "`npm` ist nicht verfügbar"
 
 msgid "around {date}"
-msgstr "близько {date}"
+msgstr "um {date}"
 
 msgid "from around {start_date}"
-msgstr "приблизно з {start_date}"
+msgstr "von ungefähr {start_date}"
 
 msgid "from around {start_date} until around {end_date}"
-msgstr "приблизно з {start_date} приблизно до {end_date}"
+msgstr "von ungefähr {start_date} bis um {end_date}"
 
 msgid "from around {start_date} until sometime before around {end_date}"
-msgstr "приблизно з {start_date} до десь до {end_date}"
+msgstr "von ungefähr {start_date} bis irgendwann vor etwa {end_date}"
 
 msgid "from around {start_date} until sometime before {end_date}"
-msgstr "приблизно з {start_date} до десь раніше {end_date}"
+msgstr "von etwa {start_date} bis irgendwann vor {end_date}"
 
 msgid "from around {start_date} until {end_date}"
-msgstr "приблизно з {start_date} до {end_date}"
+msgstr "von etwa {start_date} bis {end_date}"
 
 msgid "from sometime after around {start_date} until around {end_date}"
-msgstr "десь приблизно після {start_date} приблизно до {end_date}"
+msgstr "von etwa {start_date} bis etwa {end_date}"
 
 msgid "from sometime after around {start_date} until {end_date}"
-msgstr "десь після {start_date} до {end_date}"
+msgstr "ab etwa {start_date} bis {end_date}"
 
 msgid "from sometime after {start_date} until around {end_date}"
-msgstr "десь після {start_date} приблизно до {end_date}"
+msgstr "von irgendwann nach {start_date} bis etwa {end_date}"
 
 msgid "from sometime after {start_date} until {end_date}"
-msgstr "десь після {start_date} до {end_date}"
+msgstr "von irgendwann nach {start_date} bis {end_date}"
 
 msgid "from {start_date}"
-msgstr "з {start_date}"
+msgstr "ab {start_date}"
 
 msgid "from {start_date} until around {end_date}"
-msgstr "з {start_date} до приблизно {end_date}"
+msgstr "ab {start_date} bis etwa {end_date}"
 
 msgid "from {start_date} until sometime before around {end_date}"
-msgstr "з {start_date} до десь до {end_date}"
+msgstr "von {start_date} bis irgendwann vor etwa {end_date}"
 
 msgid "from {start_date} until sometime before {end_date}"
-msgstr "з {start_date} до десь раніше {end_date}"
+msgstr "ab etwa {start_date} bis {end_date}"
 
 msgid "from {start_date} until {end_date}"
-msgstr "з {start_date} до {end_date}"
+msgstr "von {start_date} bis {end_date}"
 
 #, python-format
 msgid "in %(place)s"
-msgstr "в %(place)s"
+msgstr "in %(place)s"
 
 msgid ""
 "npm (https://www.npmjs.com/) must be available for features that require "
 "Node.js packages to be installed. Ensure that the `npm` executable is "
 "available in your `PATH`."
 msgstr ""
+"npm (https://www.npmjs.com/) muss installiert sein für Features, die "
+"installierte Node.js packages voraussetzen. Stelle sicher, dass das "
+"Programm `npm` in deinem `PATH` aufgeführt ist."
 
 msgid "private"
-msgstr "приватні"
+msgstr "anonym"
 
 msgid "private (in order to protect people's privacy)"
-msgstr ""
+msgstr "private (um die Privatsphäre von Personen zu schützen)"
 
 msgctxt "enter-search-shortcut"
 msgid "s"
-msgstr "ш"
+msgstr "s"
 
 #, python-format
 msgid "show %(name_count)s more"
 msgid_plural "show %(name_count)s more"
-msgstr[0] "показати ще одну"
-msgstr[1] "показати ще %(name_count)s"
-msgstr[2] "показати ще %(name_count)s"
+msgstr[0] "zeige weitere %(name_count)s"
+msgstr[1] "zeige %(name_count)s weite"
 
 msgid "show fewer"
-msgstr "показати менше"
+msgstr "zeige weniger"
 
 msgid "show less"
-msgstr "показати менше"
+msgstr "zeige weniger"
 
 msgid "show more"
-msgstr "показати більше"
+msgstr "zeige mehr"
 
 msgid "sometime after around {start_date}"
-msgstr "десь приблизно після {start_date}"
+msgstr "irgendwann nach etwa {start_date}"
 
 msgid "sometime after {start_date}"
-msgstr "десь після {start_date}"
+msgstr "einige Zeit nach {start_date}"
 
 msgid "sometime before around {end_date}"
-msgstr "десь приблизно до {end_date}"
+msgstr "etwas vor etwa {end_date}"
 
 msgid "sometime before {end_date}"
-msgstr "десь до {end_date}"
+msgstr "etwas bevor {end_date}"
 
 msgid "sometime between around {start_date} and around {end_date}"
-msgstr "десь між приблизно {start_date} та приблизно {end_date}"
+msgstr "irgendwann zwischen {start_date} und etwa {end_date}"
 
 msgid "sometime between around {start_date} and {end_date}"
-msgstr "десь між приблизно {start_date} та {end_date}"
+msgstr "irgendwann zwischen {start_date} und {end_date}"
 
 msgid "sometime between {start_date} and around {end_date}"
-msgstr "десь між {start_date} і близько {end_date}"
+msgstr "irgendwann zwischen {start_date} und etwa {end_date}"
 
 msgid "sometime between {start_date} and {end_date}"
-msgstr "десь між {start_date} та {end_date}"
+msgstr "irgendwann zwischen {start_date} und {end_date}"
 
 msgid "unknown date"
-msgstr "невідома дата"
+msgstr "unbekanntes Datum"
 
 msgid "until around {end_date}"
-msgstr "приблизно до {end_date}"
+msgstr "bis um etwa {end_date}"
 
 msgid "until {end_date}"
-msgstr "до {end_date}"
+msgstr "bis {end_date}"
 
 msgid "y"
-msgstr "y року"
+msgstr "y"
 
 msgid "{date}"
-msgstr ""
+msgstr "{date}"
 
 msgid "{dependency_label} is required by {dependency_labels}."
-msgstr ""
+msgstr "{dependency_label} wird benötigt von {dependency_labels}."
 
 msgid "{dependent_label} requires {dependency_labels}."
-msgstr ""
+msgstr "{dependent_label} benötigt {dependency_labels}."
 
 msgid "{entity_type_label} ID"
-msgstr ""
+msgstr "{entity_type_label} ID"
 
 msgid "{entity_type} {entity_id}"
-msgstr ""
+msgstr "{entity_type} {entity_id}"
 
 msgid "{event_type}"
-msgstr ""
+msgstr "{event_type}"
 
 msgid "{event_type} ({event_description})"
-msgstr ""
+msgstr "{event_type} ({event_description})"
 
 msgid "{event_type} ({event_description}) of {subjects}"
-msgstr ""
+msgstr "{event_type} ({event_description}) von {subjects}"
 
 msgid "{event_type} of {subjects}"
-msgstr "{event_type} {subjects}"
+msgstr "{event_type} von {subjects}"
 
 msgid "{extension_type} is not configurable."
-msgstr ""
+msgstr "{extension_type} ist nicht konfigurierbar."
 
 msgid "{individual_name} {affiliation_name}"
 msgstr "{individual_name} {affiliation_name}"
 
 #, python-format
 msgid "© Copyright %(author)s, unless otherwise credited"
-msgstr "© Авторське право %(author)s, якщо інше не зараховано"
+msgstr "© Copyright %(author)s, außer anders erwähnt"
 

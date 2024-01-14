@@ -7,6 +7,7 @@ Betty ships with the following translations:
 * Dutch (``nl-NL``)
 * French (``fr-FR``)
 * Ukrainian (``uk``)
+* German (``de-DE``)
 
 Extensions and projects can override these translations, or provide translations for additional locales. All locale
 information is stored in ``./locale/$locale`` within the assets directories, where ``$locale`` is an
