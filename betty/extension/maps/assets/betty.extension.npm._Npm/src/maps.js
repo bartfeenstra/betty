@@ -67,9 +67,9 @@ function initializePlaceList (placeList) {
 const BettyIcon = L.Icon.Default.extend({
   options: {
     imagePath: configuration.rootPath,
-    iconUrl: leafletMarkerIconImage.replace(/^\/+/, ''),
-    iconRetinaUrl: leafletMarkerIcon2xImage.replace(/^\/+/, ''),
-    shadowUrl: leafletMarkerShadowImage.replace(/^\/+/, '')
+    iconUrl: leafletMarkerIconImage.replace(/^\/+/, '/'),
+    iconRetinaUrl: leafletMarkerIcon2xImage.replace(/^\/+/, '/'),
+    shadowUrl: leafletMarkerShadowImage.replace(/^\/+/, '/')
   }
 })
 
