@@ -2,6 +2,9 @@ from typing import Any
 
 
 def repr_instance(instance: object, **attributes: Any) -> str:
+    """
+    Build a representation of an instance.
+    """
     return '<{}.{} object at {}; {}>'.format(
         instance.__class__.__module__,
         instance.__class__.__name__,

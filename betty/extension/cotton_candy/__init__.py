@@ -253,6 +253,9 @@ def _is_person_timeline_presence(presence: Presence) -> bool:
 
 
 def person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable[Event]:
+    """
+    Gather all events for a person's timeline.
+    """
     seen = []
     for event in _person_timeline_events(person, lifetime_threshold):
         if event in seen:

@@ -7,6 +7,11 @@ BaseExceptionT = TypeVar('BaseExceptionT', bound=BaseException)
 
 
 def serialize(error: BaseExceptionT) -> BaseExceptionT:
+    """
+    Serialize an exception.
+
+    This replaces the exception's traceback object with the traceback formatted as a string.
+    """
     formatted_traceback = f'\n"""\n{"".join(traceback.format_exception(type(error), error, error.__traceback__))}"""'
     error.__cause__ = _SerializedTraceback(formatted_traceback)
     error.__traceback__ = None

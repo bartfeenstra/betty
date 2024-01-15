@@ -10,6 +10,14 @@ from aiofiles.os import link, makedirs
 
 
 async def link_or_copy(source_path: Path, destination_path: Path) -> None:
+    """
+    Create a symlink to a source path, or copy it to its destination otherwise.
+
+    For most purposes, Betty requires files to be accessible at certain paths, rather than
+    that these paths provide unique files. Therefore, the fastest thing to do is create
+    symlinks. In case that fails, such as when the source and destination are on different
+    disks, copy the file instead.
+    """
     try:
         with suppress(FileExistsError):
             await link(source_path, destination_path)

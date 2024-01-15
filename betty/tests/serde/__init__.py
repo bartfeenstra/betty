@@ -44,6 +44,9 @@ def assert_error(
     error_message: str | None = None,
     error_contexts: list[str] | None = None,
 ) -> list[SerdeError]:
+    """
+    Assert that an error collection contains an error matching the given parameters.
+    """
     expected_error_contexts: list[str] | None
     actual_errors: Iterable[SerdeError]
     if isinstance(actual_error, SerdeErrorCollection):
@@ -90,6 +93,9 @@ def assert_error(
 
 @contextmanager
 def raises_error(*args: Any, **kwargs: Any) -> Iterator[SerdeErrorCollection]:
+    """
+    Provide a context manager to assert that an error collection contains an error matching the given parameters.
+    """
     try:
         with SerdeErrorCollection().catch() as errors:
             yield errors

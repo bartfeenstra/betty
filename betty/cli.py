@@ -37,6 +37,9 @@ class CommandProvider:
 
 @contextmanager
 def catch_exceptions() -> Iterator[None]:
+    """
+    Catch and log all exceptions.
+    """
     try:
         yield
     except KeyboardInterrupt:
@@ -73,10 +76,16 @@ def _command(
 
 
 def global_command(f: Callable[P, Awaitable[None]]) -> Callable[P, None]:
+    """
+    Decorate a command to be global.
+    """
     return _command(f, False)
 
 
 def app_command(f: Callable[Concatenate[App, P], Awaitable[None]]) -> Callable[P, None]:
+    """
+    Decorate a command to receive an app.
+    """
     return _command(f, True)
 
 
@@ -173,7 +182,11 @@ class _BettyCommands(click.MultiCommand):
         return None
 
 
-@click.command(cls=_BettyCommands)
+@click.command(
+    cls=_BettyCommands,
+    # Set an empty help text so Click does not automatically use the function's docstring.
+    help='',
+)
 @click.option(
     '--configuration',
     '-c',
@@ -213,6 +226,9 @@ class _BettyCommands(click.MultiCommand):
 )
 @click.version_option(about.version_label(), message=about.report(), prog_name='Betty')
 def main(app: App, verbose: bool, more_verbose: bool, most_verbose: bool) -> None:
+    """
+    Launch Betty's Command-Line Interface.
+    """
     pass
 
 

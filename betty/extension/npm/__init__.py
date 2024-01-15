@@ -27,6 +27,9 @@ from betty.locale import Str, DEFAULT_LOCALIZER
 
 
 async def npm(arguments: Sequence[str], **kwargs: Any) -> aiosubprocess.Process:
+    """
+    Run an npm command.
+    """
     # Use a shell on Windows so subprocess can find the executables it needs (see
     # https://bugs.python.org/issue17023).
     runner = subprocess.run_shell if sys.platform.startswith('win32') else subprocess.run_exec
@@ -70,6 +73,9 @@ class _NpmRequirement(Requirement):
 
 
 def is_assets_build_directory_path(path: Path) -> bool:
+    """
+    Check if the given path is an assets build directory path.
+    """
     return path.is_dir() and len(os.listdir(path)) > 0
 
 
@@ -121,6 +127,9 @@ class NpmBuilder:
 
 
 def discover_npm_builders() -> set[type[NpmBuilder & Extension]]:
+    """
+    Gather all extensions that are npm builders.
+    """
     return {
         extension_type
         for extension_type
@@ -147,6 +156,9 @@ def _get_assets_build_directory_path(extension_type: type[NpmBuilder & Extension
 
 
 async def build_assets(extension: NpmBuilder & Extension) -> Path:
+    """
+    Build the npm assets for an extension.
+    """
     assets_directory_path = _get_assets_build_directory_path(type(extension))
     await _build_assets_to_directory_path(extension, assets_directory_path)
     return assets_directory_path

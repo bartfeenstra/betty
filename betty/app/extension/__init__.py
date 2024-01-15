@@ -190,11 +190,17 @@ class Theme(UserFacingExtension):
 
 @functools.singledispatch
 def get_extension_type(extension_type_definition: str | type[Extension] | Extension) -> type[Extension]:
+    """
+    Get the extension type for an extension, extension type, or extension type name.
+    """
     raise ExtensionTypeError(f'Cannot get the extension type for "{extension_type_definition}".')
 
 
 @get_extension_type.register(str)
 def get_extension_type_by_name(extension_type_name: str) -> type[Extension]:
+    """
+    Get the extension type for an extension type name.
+    """
     try:
         extension_type = import_any(extension_type_name)
     except ImportError:
@@ -204,6 +210,9 @@ def get_extension_type_by_name(extension_type_name: str) -> type[Extension]:
 
 @get_extension_type.register(type)
 def get_extension_type_by_type(extension_type: type) -> type[Extension]:
+    """
+    Get the extension type for an extension type.
+    """
     if issubclass(extension_type, Extension):
         return extension_type
     raise ExtensionTypeInvalidError(extension_type)
@@ -211,10 +220,16 @@ def get_extension_type_by_type(extension_type: type) -> type[Extension]:
 
 @get_extension_type.register(Extension)
 def get_extension_type_by_extension(extension: Extension) -> type[Extension]:
+    """
+    Get the extension type for an extension.
+    """
     return get_extension_type(type(extension))
 
 
 def format_extension_type(extension_type: type[Extension]) -> str:
+    """
+    Format an extension type to a human-readable label.
+    """
     if issubclass(extension_type, UserFacingExtension):
         return f'{extension_type.label()} ({extension_type.name()})'
     return extension_type.name()
@@ -311,6 +326,9 @@ ExtensionTypeGraph = dict[type[Extension], set[type[Extension]]]
 
 
 def build_extension_type_graph(extension_types: Iterable[type[Extension]]) -> ExtensionTypeGraph:
+    """
+    Build a dependency graph of the given extension types.
+    """
     extension_types_graph: ExtensionTypeGraph = defaultdict(set)
     # Add dependencies to the extension graph.
     for extension_type in extension_types:
@@ -339,6 +357,9 @@ def _extend_extension_type_graph(graph: ExtensionTypeGraph, extension_type: type
 
 
 def discover_extension_types() -> set[type[Extension]]:
+    """
+    Gather the available extension types.
+    """
     betty_entry_points: Sequence[EntryPoint]
     betty_entry_points = entry_points(  # type: ignore[assignment, unused-ignore]
         group='betty.extensions',  # type: ignore[call-arg, unused-ignore]

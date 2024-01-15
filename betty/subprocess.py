@@ -10,6 +10,9 @@ P = ParamSpec('P')
 
 
 async def run_exec(runnee: Sequence[str], **kwargs: Any) -> subprocess.Process:
+    """
+    Run a command.
+    """
     return await _run(
         subprocess.create_subprocess_exec,
         runnee,
@@ -20,6 +23,9 @@ async def run_exec(runnee: Sequence[str], **kwargs: Any) -> subprocess.Process:
 
 
 async def run_shell(runnee: Sequence[str], **kwargs: Any) -> subprocess.Process:
+    """
+    Run a command in a shell.
+    """
     return await _run(
         subprocess.create_subprocess_shell,
         runnee,

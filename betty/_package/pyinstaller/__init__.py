@@ -36,6 +36,9 @@ async def _build_assets() -> None:
 
 @sync
 async def a_pyz_exe_coll() -> tuple[Analysis, PYZ, EXE, COLLECT]:
+    """
+    Build PyInstaller's spec components.
+    """
     if sys.platform == 'linux':
         exe_name = 'betty'
     elif sys.platform == 'darwin':

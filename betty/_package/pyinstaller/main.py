@@ -9,6 +9,9 @@ from betty.gui.app import WelcomeWindow
 
 @sync
 async def main() -> None:
+    """
+    Launch Betty for PyInstaller builds.
+    """
     freeze_support()
     async with App() as app:
         qapp = BettyApplication([sys.argv[0]], app=app)

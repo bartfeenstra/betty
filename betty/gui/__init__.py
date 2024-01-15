@@ -20,6 +20,9 @@ QWidgetT = TypeVar('QWidgetT', bound=QWidget)
 
 
 def get_configuration_file_filter() -> Str:
+    """
+    Get the Qt file filter for project configuration files.
+    """
     formats = FormatRepository()
     return Str._(
         'Betty project configuration ({supported_formats})',
@@ -33,12 +36,18 @@ class GuiBuilder:
 
 
 def mark_valid(widget: QWidget) -> None:
+    """
+    Mark a widget as currently containing valid input.
+    """
     widget.setProperty('invalid', 'false')
     widget.setStyle(widget.style())
     widget.setToolTip('')
 
 
 def mark_invalid(widget: QWidget, reason: str) -> None:
+    """
+    Mark a widget as currently containing invalid input.
+    """
     widget.setProperty('invalid', 'true')
     widget.setStyle(widget.style())
     widget.setToolTip(reason)
