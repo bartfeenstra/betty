@@ -2,6 +2,9 @@ from pathlib import Path
 
 
 def rootname(source_path: Path) -> Path:
+    r"""
+    Get a path's root name, such as `/` or `C:\`.
+    """
     root = source_path
     while True:
         possible_root = root.parent

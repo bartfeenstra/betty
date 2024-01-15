@@ -30,12 +30,21 @@ CACHE_DIRECTORY_PATH = HOME_DIRECTORY_PATH / 'cache'
 
 
 async def iterfiles(path: Path) -> AsyncIterable[Path]:
+    """
+    Recursively iterate over any files found in a directory.
+    """
     for dir_path, _, filenames in os.walk(str(path)):
         for filename in filenames:
             yield Path(dir_path) / filename
 
 
 def hashfile(path: Path) -> str:
+    """
+    Get a hash for a file.
+
+    This function relies on the file path and last modified time for uniqueness.
+    File contents are ignored.
+    """
     return hashlib.md5(':'.join([str(getmtime(path)), str(path)]).encode('utf-8')).hexdigest()
 
 

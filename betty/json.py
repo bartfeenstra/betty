@@ -23,6 +23,9 @@ T = TypeVar('T')
 
 
 def validate(data: Any, schema_definition: str, app: App) -> None:
+    """
+    Validate JSON against the Betty JSON schema.
+    """
     with open(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'schema.json'), encoding='utf-8') as f:
         json_data = f.read()
     schema = stdjson.loads(json_data)

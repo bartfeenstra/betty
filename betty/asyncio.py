@@ -11,6 +11,11 @@ T = TypeVar('T')
 
 
 async def gather(*coroutines: Coroutine[Any, None, T]) -> tuple[T, ...]:
+    """
+    Gather multiple coroutines.
+
+    This is like Python's own ``asyncio.gather``, but with improved error handling.
+    """
     tasks = []
     async with TaskGroup() as task_group:
         for coroutine in coroutines:
@@ -23,6 +28,9 @@ async def gather(*coroutines: Coroutine[Any, None, T]) -> tuple[T, ...]:
 
 
 def wait(f: Awaitable[T]) -> T:
+    """
+    Wait for an awaitable.
+    """
     try:
         loop = asyncio.get_running_loop()
     except RuntimeError:
@@ -39,6 +47,9 @@ def wait(f: Awaitable[T]) -> T:
 
 
 def sync(f: Callable[P, Awaitable[T]]) -> Callable[P, T]:
+    """
+    Decorate an asynchronous callable to become synchronous.
+    """
     @wraps(f)
     def _synced(*args: P.args, **kwargs: P.kwargs) -> T:
         return wait(f(*args, **kwargs))

@@ -43,6 +43,9 @@ def minimize(dump: _MinimizableDump[VoidableDump], voidable: Literal[False]) -> 
 
 
 def minimize(dump: _MinimizableDump[VoidableDump], voidable: bool = True) -> VoidableDump:
+    """
+    Minimize a configuration dump by removing any Void configurationfrom sequences and mappings.
+    """
     if isinstance(dump, (Sequence, Mapping)) and not isinstance(dump, str):
         if isinstance(dump, Sequence):
             dump = [
@@ -68,10 +71,16 @@ def minimize(dump: _MinimizableDump[VoidableDump], voidable: bool = True) -> Voi
 
 
 def void_none(value: VoidableDump) -> VoidableDump:
+    """
+    Passthrough a value, but convert Void to None.
+    """
     return Void if value is None else value
 
 
 def none_void(value: VoidableDump) -> VoidableDump:
+    """
+    Passthrough a value, but convert None to Void.
+    """
     return None if value is Void else value
 
 

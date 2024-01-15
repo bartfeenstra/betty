@@ -10,6 +10,9 @@ from typing import Iterator
 
 
 def version() -> str | None:
+    """
+    Get the current Betty installation's version, if it has any.
+    """
     with open(Path(__file__).parent / 'assets' / 'VERSION', encoding='utf-8') as f:
         release_version = f.read().strip()
     if release_version == '0.0.0':
@@ -18,14 +21,23 @@ def version() -> str | None:
 
 
 def version_label() -> str:
+    """
+    Get the human-readable label for the current Betty installation's version.
+    """
     return version() or 'development'
 
 
 def is_stable() -> bool:
+    """
+    Check if the current Betty installation is a stable version.
+    """
     return version() is not None
 
 
 def is_development() -> bool:
+    """
+    Check if the current Betty installation is an unstable development version.
+    """
     return version() is None
 
 

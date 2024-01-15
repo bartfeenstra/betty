@@ -7,6 +7,9 @@ U = TypeVar('U')
 
 
 def walk(item: Any, attribute_name: str) -> Iterable[Any]:
+    """
+    Walk over a graph of objects by following a single attribute.
+    """
     child = getattr(item, attribute_name)
 
     # If the child has the requested attribute, yield it,
@@ -25,6 +28,9 @@ def walk(item: Any, attribute_name: str) -> Iterable[Any]:
 
 
 def slice_to_range(indices: slice, iterable: Sized) -> Iterable[int]:
+    """
+    Apply a slice to an iterable, and return the corresponding range.
+    """
     length = len(iterable)
 
     if indices.start is None:
@@ -69,6 +75,9 @@ class _Result(Generic[T]):
 
 
 def filter_suppress(raising_filter: Callable[[T], Any], exception_type: type[BaseException], items: Iterable[T]) -> Iterator[T]:
+    """
+    Filter values, skipping those for which the application of `raising_filter` raises errors.
+    """
     for item in items:
         try:
             raising_filter(item)

@@ -38,6 +38,9 @@ class LocaleNotFoundError(RuntimeError):
 
 
 def to_babel_identifier(locale: Localey) -> str:
+    """
+    Convert a locale or locale metadata to a Babel locale identifier.
+    """
     if isinstance(locale, Locale):
         return str(locale)
     language_data = Language.get(locale)
@@ -54,6 +57,9 @@ def to_babel_identifier(locale: Localey) -> str:
 
 
 def to_locale(locale: Localey) -> str:
+    """
+    Ensure that a locale or locale metadata is a locale.
+    """
     if isinstance(locale, str):
         return locale
     return '-'.join(
@@ -72,6 +78,9 @@ Localey: TypeAlias = str | Locale
 
 
 def get_data(locale: Localey) -> Locale:
+    """
+    Get locale metadata.
+    """
     if isinstance(locale, Locale):
         return locale
     try:
@@ -81,6 +90,9 @@ def get_data(locale: Localey) -> Locale:
 
 
 def get_display_name(locale: Localey, display_locale: Localey | None = None) -> str | None:
+    """
+    Return a locale's human-readable display name.
+    """
     locale_data = get_data(locale)
     return locale_data.get_display_name(
         get_data(display_locale) if display_locale else locale_data
@@ -651,6 +663,9 @@ class _GettextStr(Str):
 
 
 def negotiate_locale(preferred_locales: Localey | Sequence[Localey], available_locales: set[Localey]) -> Locale | None:
+    """
+    Negotiate the preferred locale from a sequence.
+    """
     if isinstance(preferred_locales, (str, Locale)):
         preferred_locales = [preferred_locales]
     return _negotiate_locale(
@@ -686,6 +701,9 @@ def _negotiate_locale(preferred_locale_babel_identifiers: Sequence[str], availab
 
 
 def negotiate_localizeds(preferred_locales: Localey | Sequence[Localey], localizeds: Sequence[Localized]) -> Localized | None:
+    """
+    Negotiate the preferred localized value from a sequence.
+    """
     negotiated_locale_data = negotiate_locale(
         preferred_locales,
         {
@@ -709,6 +727,9 @@ def negotiate_localizeds(preferred_locales: Localey | Sequence[Localey], localiz
 
 
 async def init_translation(locale: str) -> None:
+    """
+    Initialize a new translation.
+    """
     po_file_path = _LOCALE_DIRECTORY_PATH / locale / 'betty.po'
     with contextlib.redirect_stdout(StringIO()):
         if await exists(po_file_path):
@@ -733,6 +754,9 @@ async def init_translation(locale: str) -> None:
 
 
 async def update_translations(_output_assets_directory_path: Path = ASSETS_DIRECTORY_PATH) -> None:
+    """
+    Update all existing translations based on changes in translatable strings.
+    """
     source_paths = glob.glob('betty/*')
     # Remove the tests directory from the extraction,
     # or we'll be seeing some unusual additions to the translations.

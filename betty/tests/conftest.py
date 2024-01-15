@@ -36,6 +36,9 @@ def mock_app_configuration() -> Iterator[None]:
 
 @pytest.fixture(scope='function', autouse=True)
 def set_logging(caplog: LogCaptureFixture) -> Iterator[None]:
+    """
+    Reduce noisy logging output during tests.
+    """
     with caplog.at_level(logging.CRITICAL):
         yield
 
@@ -66,6 +69,9 @@ Navigate: TypeAlias = Callable[[QMainWindow | QMenu, list[str]], None]
 
 @pytest.fixture
 def navigate(qtbot: QtBot) -> Navigate:
+    """
+    Navigate a window's menus and actions.
+    """
     def _navigate(item: QMainWindow | QMenu | QAction, attributes: list[str]) -> None:
         if attributes:
             attribute = attributes.pop(0)
@@ -89,6 +95,9 @@ AssertTopLevelWidget: TypeAlias = Callable[['type[QWidgetT] | QWidgetT'], QWidge
 
 @pytest.fixture
 def assert_top_level_widget(qapp: BettyApplication, qtbot: QtBot) -> AssertTopLevelWidget[QWidgetT]:
+    """
+    Assert that a widget is top-level.
+    """
     def _wait_assert_top_level_widget(widget_type: type[QWidgetT] | QWidgetT) -> QWidgetT:
         if isinstance(widget_type, QWidget):
             assert widget_type.isVisible()
@@ -116,6 +125,9 @@ AssertNotTopLevelWidget: TypeAlias = Callable[['type[QWidget] | QWidgetT'], None
 
 @pytest.fixture
 def assert_not_top_level_widget(qapp: BettyApplication, qtbot: QtBot) -> AssertNotTopLevelWidget[QWidgetT]:
+    """
+    Assert that a widget is not top-level.
+    """
     def _assert_not_top_level_widget(widget_type: type[QWidget] | QWidgetT) -> None:
         if isinstance(widget_type, QWidget):
             assert widget_type.isHidden()
@@ -137,6 +149,9 @@ AssertWindow: TypeAlias = Callable[[type[QMainWindowT] | QMainWindowT], QMainWin
 
 @pytest.fixture
 def assert_window(assert_top_level_widget: AssertTopLevelWidget[QMainWindowT]) -> AssertWindow[QMainWindowT]:
+    """
+    Assert that a window is shown.
+    """
     def _assert_window(window_type: type[QMainWindowT] | QMainWindowT) -> QMainWindowT:
         return assert_top_level_widget(window_type)
     return _assert_window
@@ -147,6 +162,9 @@ AssertNotWindow: TypeAlias = Callable[[type[QMainWindowT] | QMainWindowT], None]
 
 @pytest.fixture
 def assert_not_window(assert_not_top_level_widget: AssertNotTopLevelWidget[QWidget]) -> AssertNotWindow[QMainWindow]:
+    """
+    Assert that a window is not shown.
+    """
     def _assert_not_window(window_type: type[QMainWindow] | QMainWindow) -> None:
         assert_not_top_level_widget(window_type)
     return _assert_not_window
@@ -157,6 +175,9 @@ AssertError: TypeAlias = Callable[[type[ErrorT]], ErrorT]
 
 @pytest.fixture
 def assert_error(qapp: BettyApplication, qtbot: QtBot) -> AssertError[ErrorT]:
+    """
+    Assert that an error is shown.
+    """
     def _wait_assert_error(error_type: type[ErrorT]) -> ErrorT:
         widget = None
 
@@ -175,6 +196,9 @@ AssertValid: TypeAlias = Callable[[QWidget], None]
 
 @pytest.fixture
 def assert_valid() -> AssertValid:
+    """
+    Assert that the given widget contains valid input.
+    """
     def _assert_valid(widget: QWidget) -> None:
         assert widget.property('invalid') in {'false', None}
     return _assert_valid
@@ -185,6 +209,9 @@ AssertInvalid: TypeAlias = Callable[[QWidget], None]
 
 @pytest.fixture
 def assert_invalid() -> AssertInvalid:
+    """
+    Assert that the given widget contains invalid input.
+    """
     def _assert_invalid(widget: QWidget) -> None:
         assert 'true' == widget.property('invalid')
     return _assert_invalid

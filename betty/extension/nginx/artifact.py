@@ -16,6 +16,9 @@ async def generate_configuration_file(
     www_directory_path: str | None = None,
     https: bool | None = None,
 ) -> None:
+    """
+    Generate an nginx.conf file to the given destination path.
+    """
     from betty.extension import Nginx
 
     data = {
@@ -35,6 +38,9 @@ async def generate_configuration_file(
 
 
 async def generate_dockerfile_file(app: App, destination_file_path: Path | None = None) -> None:
+    """
+    Generate a Dockerfile to the given destination path.
+    """
     if destination_file_path is None:
         destination_file_path = app.project.configuration.output_directory_path / 'nginx' / 'docker' / 'Dockerfile'
     await makedirs(destination_file_path.parent, exist_ok=True)

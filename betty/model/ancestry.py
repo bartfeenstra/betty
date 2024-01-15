@@ -88,18 +88,27 @@ class HasPrivacy(Pickleable):
 
 
 def is_private(target: Any) -> bool:
+    """
+    Check if the given target is private.
+    """
     if isinstance(target, HasPrivacy):
         return target.private
     return False
 
 
 def is_public(target: Any) -> bool:
+    """
+    Check if the given target is public.
+    """
     if isinstance(target, HasPrivacy):
         return target.public
     return True
 
 
 def resolve_privacy(privacy: Privacy | HasPrivacy | None) -> Privacy:
+    """
+    Resolve the privacy of a value.
+    """
     if privacy is None:
         return Privacy.UNDETERMINED
     if isinstance(privacy, Privacy):
@@ -108,6 +117,9 @@ def resolve_privacy(privacy: Privacy | HasPrivacy | None) -> Privacy:
 
 
 def merge_privacies(*privacies: Privacy | HasPrivacy | None) -> Privacy:
+    """
+    Merge multiple privacies into one.
+    """
     privacies = {
         resolve_privacy(privacy)
         for privacy

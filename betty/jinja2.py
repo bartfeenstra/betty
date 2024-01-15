@@ -51,15 +51,24 @@ T = TypeVar('T')
 
 
 def context_app(context: Context) -> App:
+    """
+    Get the current app from the Jinja2 context.
+    """
     return cast(Environment, context.environment).app
 
 
 def context_task_context(context: Context) -> task.Context | None:
+    """
+    Get the current task context from the Jinja2 context.
+    """
     task_context = context.resolve_or_missing('task_context')
     return task_context if isinstance(task_context, task.Context) else None
 
 
 def context_localizer(context: Context) -> Localizer:
+    """
+    Get the current localizer from the Jinja2 context.
+    """
     localizer = context.resolve_or_missing('localizer')
     if isinstance(localizer, Localizer):
         return localizer

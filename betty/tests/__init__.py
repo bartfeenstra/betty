@@ -23,6 +23,9 @@ P = ParamSpec('P')
 
 
 def patch_cache(f: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
+    """
+    Patch Betty's cache with a temporary directory.
+    """
     @functools.wraps(f)
     async def _patch_cache(*args: P.args, **kwargs: P.kwargs) -> T:
         original_cache_directory_path = fs.CACHE_DIRECTORY_PATH
@@ -92,6 +95,9 @@ def assert_betty_html(
     *,
     check_links: bool = False,
 ) -> Path:
+    """
+    Assert that an entity's HTML resource exists and is valid.
+    """
     betty_html_file_path = app.project.configuration.www_directory_path / Path(url_path.lstrip('/'))
     with open(betty_html_file_path) as f:
         betty_html = f.read()
@@ -108,6 +114,9 @@ def assert_betty_json(
     url_path: str,
     schema_definition: str,
 ) -> Path:
+    """
+    Assert that an entity's JSON resource exists and is valid.
+    """
     betty_json_file_path = app.project.configuration.www_directory_path / Path(url_path.lstrip('/'))
     with open(betty_json_file_path) as f:
         betty_json = f.read()

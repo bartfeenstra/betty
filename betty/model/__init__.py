@@ -120,6 +120,9 @@ RightAssociateT = TypeVar('RightAssociateT')
 
 
 def get_entity_type_name(entity_type_definition: type[Entity] | Entity) -> str:
+    """
+    Get the entity type name for an entity or entity type.
+    """
     if isinstance(entity_type_definition, Entity):
         entity_type = entity_type_definition.type
     else:
@@ -131,6 +134,9 @@ def get_entity_type_name(entity_type_definition: type[Entity] | Entity) -> str:
 
 
 def get_entity_type(entity_type_name: str) -> type[Entity]:
+    """
+    Get the entity type for an entity type name.
+    """
     try:
         return import_any(entity_type_name)  # type: ignore[no-any-return]
     except ImportError:
@@ -479,6 +485,9 @@ def to_one(
     owner_attr_name: str,
     associate_type_name: str,
 ) -> Callable[[type[OwnerT]], type[OwnerT]]:
+    """
+    Add a unidirectional to-one association to an entity or entity mixin.
+    """
     def _decorator(owner_type: type[OwnerT]) -> type[OwnerT]:
         ToOne(
             owner_type,
@@ -494,6 +503,9 @@ def one_to_one(
     associate_type_name: str,
     associate_attr_name: str,
 ) -> Callable[[type[OwnerT]], type[OwnerT]]:
+    """
+    Add a bidirectional one-to-one association to an entity or entity mixin.
+    """
     def _decorator(owner_type: type[OwnerT]) -> type[OwnerT]:
         OneToOne(
             owner_type,
@@ -510,6 +522,9 @@ def many_to_one(
     associate_type_name: str,
     associate_attr_name: str,
 ) -> Callable[[type[OwnerT]], type[OwnerT]]:
+    """
+    Add a bidirectional many-to-one association to an entity or entity mixin.
+    """
     def _decorator(owner_type: type[OwnerT]) -> type[OwnerT]:
         ManyToOne(
             owner_type,
@@ -525,6 +540,9 @@ def to_many(
     owner_attr_name: str,
     associate_type_name: str,
 ) -> Callable[[type[OwnerT]], type[OwnerT]]:
+    """
+    Add a unidirectional to-many association to an entity or entity mixin.
+    """
     def _decorator(owner_type: type[OwnerT]) -> type[OwnerT]:
         ToMany(
             owner_type,
@@ -540,6 +558,9 @@ def one_to_many(
     associate_type_name: str,
     associate_attr_name: str,
 ) -> Callable[[type[OwnerT]], type[OwnerT]]:
+    """
+    Add a bidirectional one-to-many association to an entity or entity mixin.
+    """
     def _decorator(owner_type: type[OwnerT]) -> type[OwnerT]:
         OneToMany(
             owner_type,
@@ -556,6 +577,9 @@ def many_to_many(
     associate_type_name: str,
     associate_attr_name: str,
 ) -> Callable[[type[OwnerT]], type[OwnerT]]:
+    """
+    Add a bidirectional many-to-many association to an entity or entity mixin.
+    """
     def _decorator(owner_type: type[OwnerT]) -> type[OwnerT]:
         ManyToMany(
             owner_type,
@@ -575,6 +599,9 @@ def many_to_one_to_many(
     right_associate_type_name: str,
     right_associate_attr_name: str,
 ) -> Callable[[type[OwnerT]], type[OwnerT]]:
+    """
+    Add a bidirectional many-to-one-to-many association to an entity or entity mixin.
+    """
     def _decorator(owner_type: type[OwnerT]) -> type[OwnerT]:
         ManyToOne(
             owner_type,
@@ -919,6 +946,9 @@ AliasableEntity: TypeAlias = EntityT | AliasedEntity[EntityT]
 
 
 def unalias(entity: AliasableEntity[EntityT]) -> EntityT:
+    """
+    Unalias a potentially aliased entity.
+    """
     if isinstance(entity, AliasedEntity):
         return entity.unalias()
     return entity
@@ -1052,6 +1082,9 @@ class PickleableEntityGraph(_EntityGraphBuilder):
 
 @contextmanager
 def record_added(entities: EntityCollection[EntityT]) -> Iterator[MultipleTypesEntityCollection[EntityT]]:
+    """
+    Record all entities that are added to a collection.
+    """
     original = [*entities]
     added = MultipleTypesEntityCollection[EntityT]()
     yield added

@@ -12,6 +12,9 @@ from PIL.Image import Image
 
 
 def resize_crop(image: Image, size: tuple[int, int]) -> Image:
+    """
+    Resize and crop an image to fit an area.
+    """
     img_format = image.format
     image = image.copy()
     old_size = image.size
@@ -27,6 +30,9 @@ def resize_crop(image: Image, size: tuple[int, int]) -> Image:
 
 
 def resize_cover(image: Image, size: tuple[int, int]) -> Image:
+    """
+    Resize an image to cover an area.
+    """
     img_format = image.format
     img = image.copy()
     img_size = img.size
@@ -42,6 +48,9 @@ def resize_cover(image: Image, size: tuple[int, int]) -> Image:
 
 
 def resize_width(image: Image, width: int) -> Image:
+    """
+    Resize an image to a specific width.
+    """
     img_format = image.format
     img = image.copy()
     img_size = img.size
@@ -56,6 +65,9 @@ def resize_width(image: Image, width: int) -> Image:
 
 
 def resize_height(image: Image, height: int) -> Image:
+    """
+    Resize an image to a specific height.
+    """
     img_format = image.format
     img = image.copy()
     img_size = img.size
