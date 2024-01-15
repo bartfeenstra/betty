@@ -587,7 +587,10 @@ class LocalizerRepository:
     def _get_translations(self, locale: str) -> Iterator[str]:
         for assets_directory_path, __ in reversed(self._assets.paths):
             with suppress(FileNotFoundError):
-                with open(assets_directory_path / 'locale' / locale / 'betty.po') as f:
+                with open(
+                    assets_directory_path / 'locale' / locale / 'betty.po',
+                    encoding='utf-8',
+                ) as f:
                     for entry in pofile(f.read()):
                         if entry.translated():
                             yield entry.msgid_with_context
