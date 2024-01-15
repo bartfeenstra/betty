@@ -12,6 +12,13 @@ release = about.version_label()
 copyright = 'Bart Feenstra and contributors'
 html_favicon = str(ROOT_DIRECTORY_PATH / 'betty' / 'assets' / 'public' / 'static' / 'betty.ico')
 html_logo = str(ROOT_DIRECTORY_PATH / 'betty' / 'assets' / 'public' / 'static' / 'betty-32x32.png')
+html_context = {
+    'display_github': True,
+    'github_user': 'bartfeenstra',
+    'github_repo': 'betty',
+    'github_version': '0.3.x',
+    'conf_py_path': '/documentation/',
+}
 html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
     'collapse_navigation': True,
