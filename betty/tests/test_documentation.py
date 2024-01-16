@@ -6,13 +6,14 @@ from asyncio import StreamReader
 from pathlib import Path
 
 import aiofiles
-import yaml
+import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
 from betty import subprocess
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.os import ChDir
 from betty.project import ProjectConfiguration
+from betty.serde.format import Format, Json, Yaml
 
 
 class TestDocumentation:
@@ -36,11 +37,16 @@ class TestDocumentation:
                 actual = await f.read()
             assert expected in actual
 
-    async def test_should_contain_valid_configuration(self) -> None:
+    @pytest.mark.parametrize('language, format', [
+        ('yaml', Yaml()),
+        ('json', Json()),
+    ])
+    async def test_should_contain_valid_configuration(self, language: str, format: Format) -> None:
         async with aiofiles.open(ROOT_DIRECTORY_PATH / 'documentation' / 'usage' / 'project' / 'configuration.rst') as f:
             actual = await f.read()
-        match = re.search(r'^\.\. code-block:: yaml\n\n    base_url((.|\n)+?)\n\n', actual, re.MULTILINE)
+        match = re.search(rf'^      \.\. code-block:: {language}\n\n((.|\n)+?)\n\n', actual, re.MULTILINE)
         assert match is not None
-        raw_dump = match[0][22:-2]
+        dump = match[1]
+        assert dump is not None
         configuration = ProjectConfiguration()
-        configuration.load(yaml.safe_load(raw_dump))
+        configuration.load(format.load(dump))

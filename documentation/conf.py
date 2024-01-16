@@ -47,6 +47,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx_autodoc_typehints',
     'sphinx_design',
+    'sphinx_tabs.tabs',
 ]
 nitpicky = True
 modindex_common_prefix = ['betty.']

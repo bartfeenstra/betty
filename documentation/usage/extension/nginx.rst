@@ -10,22 +10,49 @@ automatically when using the ``Dockerfile``.
 
 Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
-.. code-block:: yaml
+.. tabs::
+   .. tab:: YAML
+      .. code-block:: yaml
 
-    extensions:
-      betty.extension.Nginx: {}
+          extensions:
+            betty.extension.Nginx: {}
+
+   .. tab:: JSON
+      .. code-block:: json
+
+          {
+            "extensions": {
+              "betty.extension.Nginx": {}
+            }
+          }
 
 Configuration
 -------------
 This extension is configurable through Betty Desktop or in the configuration file:
 
-.. code-block:: yaml
+.. tabs::
+   .. tab:: YAML
+      .. code-block:: yaml
 
-    extensions:
-      betty.extension.Nginx:
-        configuration:
-          www_directory_path: /var/www/betty
-          https: true
+          extensions:
+            betty.extension.Nginx:
+              configuration:
+                www_directory_path: /var/www/betty
+                https: true
+
+   .. tab:: JSON
+      .. code-block:: json
+
+          {
+            "extensions": {
+              "betty.extension.Nginx": {
+                "configuration" : {
+                  "www_directory_path": "/var/www/betty",
+                  "https": true,
+                }
+              }
+            }
+          }
 
 All configuration options
 ^^^^^^^^^^^^^^^^^^^^^^^^^

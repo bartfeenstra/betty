@@ -45,10 +45,21 @@ Source
 
 Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
-.. code-block:: yaml
+.. tabs::
+   .. tab:: YAML
+      .. code-block:: yaml
 
-    extensions:
-      betty.extension.Privatizer: {}
+          extensions:
+            betty.extension.Privatizer: {}
+
+   .. tab:: JSON
+      .. code-block:: json
+
+          {
+            "extensions": {
+              "betty.extension.Privatizer": {}
+            }
+          }
 
 Configuration
 -------------

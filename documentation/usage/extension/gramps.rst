@@ -4,22 +4,52 @@ The :py:class:`betty.extension.Gramps` extension loads entities from `Gramps <ht
 
 Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
-.. code-block:: yaml
+.. tabs::
+   .. tab:: YAML
+      .. code-block:: yaml
 
-    extensions:
-      betty.extension.Gramps: {}
+          extensions:
+            betty.extension.Gramps: {}
+
+   .. tab:: JSON
+      .. code-block:: json
+
+          {
+            "extensions": {
+              "betty.extension.Gramps": {}
+            }
+          }
 
 Configuration
 -------------
 This extension is configurable through Betty Desktop or in the configuration file:
 
-.. code-block:: yaml
+.. tabs::
+   .. tab:: YAML
+      .. code-block:: yaml
 
-    extensions:
-      betty.extension.Gramps:
-        configuration:
-          family_trees:
-            - file: ./gramps.gpkg
+          extensions:
+            betty.extension.Gramps:
+              configuration:
+                family_trees:
+                  - file: ./gramps.gpkg
+
+   .. tab:: JSON
+      .. code-block:: json
+
+          {
+            "extensions": {
+              "betty.extension.Gramps": {
+                "configuration" : {
+                  "family_trees": [
+                    {
+                      "file": "./gramps.gpkg"
+                    }
+                  ]
+                }
+              }
+            }
+          }
 
 
 All configuration options
