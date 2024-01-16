@@ -5,10 +5,21 @@ The :py:class:`betty.extension.HttpApiDoc` extension renders interactive and use
 
 Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
-.. code-block:: yaml
+.. tabs::
+   .. tab:: YAML
+      .. code-block:: yaml
 
-    extensions:
-      betty.extension.HttpApiDoc: {}
+          extensions:
+            betty.extension.HttpApiDoc: {}
+
+   .. tab:: JSON
+      .. code-block:: json
+
+          {
+            "extensions": {
+              "betty.extension.HttpApiDoc": {}
+            }
+          }
 
 Configuration
 -------------

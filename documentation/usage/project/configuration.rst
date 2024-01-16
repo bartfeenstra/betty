@@ -3,27 +3,57 @@ Project configuration
 
 Project configuration files are written in YAML (``betty.yaml`` or ``betty.yml``) or JSON (``betty.json``)
 and are placed in the root of the project directory. Both YAML and JSON files follow the exact same
-structure. An example YAML configuration:
+structure. Example configuration:
 
-.. code-block:: yaml
+.. tabs::
+   .. tab:: YAML
+      .. code-block:: yaml
 
-    base_url: https://ancestry.example.com
-    debug: true
-    root_path: /betty
-    clean_urls: true
-    title: Betty's ancestry
-    author: Bart Feenstra
-    lifetime_threshold: 125
-    locales:
-      en-US:
-        alias: en
-      nl: {}
-    entity_types:
-      Person:
-        generate_html_list: true
-      File:
-        generate_html_list: false
-    extensions: {}
+          base_url: https://ancestry.example.com
+          debug: true
+          root_path: /betty
+          clean_urls: true
+          title: Betty's ancestry
+          author: Bart Feenstra
+          lifetime_threshold: 125
+          locales:
+            en-US:
+              alias: en
+            nl: {}
+          entity_types:
+            Person:
+              generate_html_list: true
+            File:
+              generate_html_list: false
+          extensions: {}
+
+   .. tab:: JSON
+      .. code-block:: json
+
+          {
+            "base_url" : "https://ancestry.example.com",
+            "debug" : true,
+            "root_path" : "/betty",
+            "clean_urls" : true,
+            "title": "Betty's ancestry",
+            "author": "Bart Feenstra",
+            "lifetime_threshold": 125,
+            "locales": {
+              "en-US": {
+                "alias": "en"
+              },
+              "nl": {}
+            },
+            "entity_types": {
+              "Person": {
+                "generate_html_list": true
+              },
+              "File": {
+                "generate_html_list": false
+              }
+            },
+            "extensions": {}
+          }
 
 All configuration options
 -------------------------

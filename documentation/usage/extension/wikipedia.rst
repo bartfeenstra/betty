@@ -6,10 +6,21 @@ render them on the entity's page.
 
 Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
-.. code-block:: yaml
+.. tabs::
+   .. tab:: YAML
+      .. code-block:: yaml
 
-    extensions:
-      betty.extension.Wikipedia: {}
+          extensions:
+            betty.extension.Wikipedia: {}
+
+   .. tab:: JSON
+      .. code-block:: json
+
+          {
+            "extensions": {
+              "betty.extension.Wikipedia": {}
+            }
+          }
 
 Configuration
 -------------

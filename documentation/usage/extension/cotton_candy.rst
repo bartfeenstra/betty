@@ -4,29 +4,68 @@ The :py:class:`betty.extension.CottonCandy` extension provides Betty's default t
 
 Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
-.. code-block:: yaml
+.. tabs::
+   .. tab:: YAML
+      .. code-block:: yaml
 
-    extensions:
-      betty.extension.CottonCandy: {}
+          extensions:
+            betty.extension.CottonCandy: {}
+
+   .. tab:: JSON
+      .. code-block:: json
+
+          {
+            "extensions": {
+              "betty.extension.CottonCandy": {}
+            }
+          }
 
 Configuration
 -------------
 This extension is configurable through Betty Desktop or in the configuration file:
 
-.. code-block:: yaml
+.. tabs::
+   .. tab:: YAML
+      .. code-block:: yaml
 
-    extensions:
-      betty.extension.CottonCandy:
-        configuration:
-          primary_inactive_color: '#ffc0cb'
-          primary_active_color: '#ff69b4'
-          link_inactive_color: '#149988'
-          link_active_color: '#2a615a'
-          featured_entities:
-            - entity_type: Person
-              entity_id: P123
-            - entity_type: Place
-              entity_id: Amsterdam
+          extensions:
+            betty.extension.CottonCandy:
+              configuration:
+                primary_inactive_color: '#ffc0cb'
+                primary_active_color: '#ff69b4'
+                link_inactive_color: '#149988'
+                link_active_color: '#2a615a'
+                featured_entities:
+                  - entity_type: Person
+                    entity_id: P123
+                  - entity_type: Place
+                    entity_id: Amsterdam
+
+   .. tab:: JSON
+      .. code-block:: json
+
+          {
+            "extensions": {
+              "betty.extension.CottonCandy": {
+                "configuration" : {
+                  "primary_inactive_color": "#ffc0cb",
+                  "primary_active_color": "#ff69b4",
+                  "link_inactive_color": "#149988",
+                  "link_active_color": "#2a615a",
+                  "featured_entities": [
+                    {
+                      "entity_type": "Person",
+                      "entity_id": "P123"
+                    },
+                    {
+                      "entity_type": "Place",
+                      "entity_id": "Amsterdam"
+                    }
+                  ]
+                }
+              }
+            }
+          }
 
 All configuration options
 ^^^^^^^^^^^^^^^^^^^^^^^^^
