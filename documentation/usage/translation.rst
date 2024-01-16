@@ -3,11 +3,16 @@ Translations
 
 Betty ships with the following translations:
 
-* US English (``en-US``)
-* Dutch (``nl-NL``)
-* French (``fr-FR``)
-* Ukrainian (``uk``)
-* German (``de-DE``)
+English (``en-US``)
+    Translations are 100% complete.
+Dutch (``nl-NL``)
+    Translations are {{ (100 / (betty_translation_coverage['nl-NL'][1] / betty_translation_coverage['nl-NL'][0])) | round | int }}% complete.
+French (``fr-FR``)
+    Translations are {{ (100 / (betty_translation_coverage['fr-FR'][1] / betty_translation_coverage['fr-FR'][0])) | round | int }}% complete.
+Ukrainian (``uk``)
+    Translations are {{ (100 / (betty_translation_coverage['uk'][1] / betty_translation_coverage['uk'][0])) | round | int }}% complete.
+German (``de-DE``)
+    Translations are {{ (100 / (betty_translation_coverage['de-DE'][1] / betty_translation_coverage['de-DE'][0])) | round | int }}% complete.
 
 Extensions and projects can override these translations, or provide translations for additional locales. All locale
 information is stored in ``./locale/$locale`` within the assets directories, where ``$locale`` is an
