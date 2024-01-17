@@ -1,3 +1,19 @@
+{% macro headers(debug=False, localized=False, https=False) %}
+add_header Vary Accept;
+add_header Vary Accept-Language;
+{% if https %}
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+{% endif %}
+{% if debug %}
+    add_header Cache-Control "no-cache";
+{% else %}
+    add_header Cache-Control "max-age=86400";
+{% endif %}
+{% if localized %}
+    add_header Content-Language "$locale" always;
+{% endif %}
+{% endmacro %}
+
 {% if https %}
     server {
         listen 80;
@@ -6,17 +22,17 @@
     }
 {% endif %}
 server {
-	listen {% if https %}443 ssl http2{% else %}80{% endif %};
+    {{ headers(
+        debug=app.project.configuration.debug,
+        https=https
+    ) }}
+    {% if https %}
+	    listen 443 ssl http2;
+    {% else %}
+	    listen 80;
+    {% endif %}
 	server_name {{ server_name }};
 	root {{ www_directory_path }};
-    {% if https %}
-        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-    {% endif %}
-    {% if app.project.configuration.debug %}
-        add_header Cache-Control "no-cache";
-    {% else %}
-	    add_header Cache-Control "max-age=86400";
-    {% endif %}
     gzip on;
     gzip_disable "msie6";
     gzip_vary on;
@@ -40,7 +56,12 @@ server {
         location ~ ^/({{ app.project.configuration.locales.values() | map(attribute='alias') | join('|') }})(/|$) {
             set $locale $1;
 
-            add_header Content-Language "$locale" always;
+
+            {{ headers(
+                debug=app.project.configuration.debug,
+                localized=True,
+                https=https
+            ) }}
 
             # Handle HTTP error responses.
             error_page 401 /$locale/.error/401.$media_type_extension;
@@ -63,10 +84,11 @@ server {
                     local locale = require('cone').negotiate(ngx.req.get_headers()['Accept-Language'], available_locales)
                     return locale_aliases[locale]
                 }
+                return 307 /$locale_alias$uri;
             {% else %}
                 set $locale_alias {{ app.project.configuration.locales.default.alias }};
+                return 301 /$locale_alias$uri;
             {% endif %}
-            return 301 /$locale_alias$uri;
         }
         location / {
             try_files $uri @localized_redirect;
