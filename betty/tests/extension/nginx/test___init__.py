@@ -35,10 +35,12 @@ class TestNginx:
         )
         expected = r'''
 server {
+    add_header Vary Accept;
+    add_header Vary Accept-Language;
+    add_header Cache-Control "max-age=86400";
     listen 80;
     server_name example.com;
     root %s;
-    add_header Cache-Control "max-age=86400";
     gzip on;
     gzip_disable "msie6";
     gzip_vary on;
@@ -71,10 +73,12 @@ server {
         )
         expected = r'''
 server {
+    add_header Vary Accept;
+    add_header Vary Accept-Language;
+    add_header Cache-Control "max-age=86400";
     listen 80;
     server_name example.com;
     root %s;
-    add_header Cache-Control "max-age=86400";
     gzip on;
     gzip_disable "msie6";
     gzip_vary on;
@@ -110,10 +114,12 @@ server {
         )
         expected = r'''
 server {
+    add_header Vary Accept;
+    add_header Vary Accept-Language;
+    add_header Cache-Control "max-age=86400";
     listen 80;
     server_name example.com;
     root %s;
-    add_header Cache-Control "max-age=86400";
     gzip on;
     gzip_disable "msie6";
     gzip_vary on;
@@ -124,7 +130,9 @@ server {
 
     location ~ ^/(en|nl)(/|$) {
         set $locale $1;
-
+        add_header Vary Accept;
+        add_header Vary Accept-Language;
+        add_header Cache-Control "max-age=86400";
         add_header Content-Language "$locale" always;
 
         # Handle HTTP error responses.
@@ -159,10 +167,12 @@ server {
         app.project.configuration.extensions.append(ExtensionConfiguration(Nginx))
         expected = r'''
 server {
+    add_header Vary Accept;
+    add_header Vary Accept-Language;
+    add_header Cache-Control "max-age=86400";
     listen 80;
     server_name example.com;
     root %s;
-    add_header Cache-Control "max-age=86400";
     gzip on;
     gzip_disable "msie6";
     gzip_vary on;
@@ -180,7 +190,9 @@ server {
 
     location ~ ^/(en|nl)(/|$) {
         set $locale $1;
-
+        add_header Vary Accept;
+        add_header Vary Accept-Language;
+        add_header Cache-Control "max-age=86400";
         add_header Content-Language "$locale" always;
 
         # Handle HTTP error responses.
@@ -202,7 +214,7 @@ server {
             local locale = require('cone').negotiate(ngx.req.get_headers()['Accept-Language'], available_locales)
             return locale_aliases[locale]
         }
-        return 301 /$locale_alias$uri;
+        return 307 /$locale_alias$uri;
     }
     location / {
         try_files $uri @localized_redirect;
@@ -218,10 +230,12 @@ server {
         app.project.configuration.extensions.append(ExtensionConfiguration(Nginx))
         expected = r'''
 server {
+    add_header Vary Accept;
+    add_header Vary Accept-Language;
+    add_header Cache-Control "max-age=86400";
     listen 80;
     server_name example.com;
     root %s;
-    add_header Cache-Control "max-age=86400";
     gzip on;
     gzip_disable "msie6";
     gzip_vary on;
@@ -262,11 +276,13 @@ server {
     return 301 https://$host$request_uri;
 }
 server {
+    add_header Vary Accept;
+    add_header Vary Accept-Language;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header Cache-Control "max-age=86400";
     listen 443 ssl http2;
     server_name example.com;
     root %s;
-    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-    add_header Cache-Control "max-age=86400";
     gzip on;
     gzip_disable "msie6";
     gzip_vary on;
@@ -302,11 +318,13 @@ server {
     return 301 https://$host$request_uri;
 }
 server {
+    add_header Vary Accept;
+    add_header Vary Accept-Language;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header Cache-Control "max-age=86400";
     listen 443 ssl http2;
     server_name example.com;
     root /tmp/overridden-www;
-    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-    add_header Cache-Control "max-age=86400";
     gzip on;
     gzip_disable "msie6";
     gzip_vary on;
