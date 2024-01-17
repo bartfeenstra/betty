@@ -48,25 +48,26 @@ def hashfile(path: Path) -> str:
     return hashlib.md5(':'.join([str(getmtime(path)), str(path)]).encode('utf-8')).hexdigest()
 
 
+class _Open:
+    def __init__(self, fs: FileSystem, file_paths: tuple[Path, ...]):
+        self._fs = fs
+        self._file_paths = file_paths
+        self._file: AsyncContextManager[AsyncTextIOWrapper] | None = None
+
+    async def __aenter__(self) -> AsyncTextIOWrapper:
+        for file_path in map(Path, self._file_paths):
+            for fs_path, fs_encoding in self._fs._paths:
+                with suppress(FileNotFoundError):
+                    self._file = aiofiles.open(fs_path / file_path, encoding=fs_encoding)
+                    return await self._file.__aenter__()
+        raise FileNotFoundError
+
+    async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> None:
+        if self._file is not None:
+            await self._file.__aexit__(None, None, None)
+
+
 class FileSystem:
-    class _Open:
-        def __init__(self, fs: FileSystem, file_paths: tuple[Path, ...]):
-            self._fs = fs
-            self._file_paths = file_paths
-            self._file: AsyncContextManager[AsyncTextIOWrapper] | None = None
-
-        async def __aenter__(self) -> AsyncTextIOWrapper:
-            for file_path in map(Path, self._file_paths):
-                for fs_path, fs_encoding in self._fs._paths:
-                    with suppress(FileNotFoundError):
-                        self._file = aiofiles.open(fs_path / file_path, encoding=fs_encoding)
-                        return await self._file.__aenter__()
-            raise FileNotFoundError
-
-        async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> None:
-            if self._file is not None:
-                await self._file.__aexit__(None, None, None)
-
     def __init__(self, *paths: tuple[Path, str | None]):
         self._paths = deque(paths)
 
@@ -84,7 +85,7 @@ class FileSystem:
         self._paths.clear()
 
     def open(self, *file_paths: Path) -> _Open:
-        return self._Open(self, file_paths)
+        return _Open(self, file_paths)
 
     async def copy2(self, source_path: Path, destination_path: Path) -> Path:
         for fs_path, _ in self._paths:
