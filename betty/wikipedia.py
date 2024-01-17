@@ -11,6 +11,7 @@ from os.path import getmtime
 from pathlib import Path
 from time import time
 from typing import cast, Any
+from urllib.parse import quote
 
 import aiofiles
 import aiohttp
@@ -132,6 +133,9 @@ class _Retriever:
             try:
                 logger.debug(f'Fetching {url}...')
                 async with self._rate_limiter:
+                    print(url)
+                    print(url)
+                    print(url)
                     async with self._http_client.get(url) as response:
                         response_data = await response.read()
                 async with aiofiles.open(cache_file_path, 'w+b') as f:
@@ -159,7 +163,7 @@ class _Retriever:
 
     async def _get_page_query_api_data(self, page_language: str, page_name: str) -> dict[str, Any]:
         return await self._get_query_api_data(
-            f'https://{page_language}.wikipedia.org/w/api.php?action=query&titles={page_name}&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2'
+            f'https://{page_language}.wikipedia.org/w/api.php?action=query&titles={quote(page_name)}&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2'
         )
 
     async def get_translations(self, page_language: str, page_name: str) -> dict[str, str]:
@@ -179,7 +183,8 @@ class _Retriever:
     async def get_summary(self, page_language: str, page_name: str) -> Summary | None:
         logger = logging.getLogger(__name__)
         try:
-            request_data = await self._request(f'https://{page_language}.wikipedia.org/api/rest_v1/page/summary/{page_name}')
+            url = f'https://{page_language}.wikipedia.org/api/rest_v1/page/summary/{page_name}'
+            request_data = await self._request(url)
             try:
                 api_data = json.loads(request_data)
                 return Summary(
@@ -189,7 +194,7 @@ class _Retriever:
                     api_data['extract_html'] if 'extract_html' in api_data else api_data['extract'],
                 )
             except (json.JSONDecodeError, KeyError) as error:
-                raise RetrievalError(f'Could not successfully parse the JSON content: {error}')
+                raise RetrievalError(f'Could not successfully parse the JSON content returned by {url}: {error}')
         except RetrievalError as error:
             logger.warning(str(error))
         return None
@@ -205,7 +210,7 @@ class _Retriever:
         if page_image_name in self._images:
             return self._images[page_image_name]
 
-        url = f'https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&titles=File:{page_image_name}&iiprop=url|mime|canonicaltitle&format=json&formatversion=2'
+        url = f'https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&titles=File:{quote(page_image_name)}&iiprop=url|mime|canonicaltitle&format=json&formatversion=2'
         image_info_api_data = await self._get_query_api_data(url)
 
         try:
