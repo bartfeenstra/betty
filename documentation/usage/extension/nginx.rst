@@ -1,7 +1,7 @@
 The nginx extension
 ===================
 The :py:class:`betty.extension.Nginx` extension creates an `nginx <https://nginx.org>`_ configuration file and a `Docker <https://www.docker.com/>`_ ``Dockerfile`` in the output
-directory. If ``content_negotiation`` is enabled. You must make sure the nginx
+directory. If ``clean_urls`` is enabled. You must make sure the nginx
 `Lua module <https://github.com/openresty/lua-nginx-module#readme>`_ is enabled, and
 `CONE <https://github.com/bartfeenstra/cone>`_'s
 `cone.lua <https://raw.githubusercontent.com/bartfeenstra/cone/master/cone.lua>`_ can be found by putting it in

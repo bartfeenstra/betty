@@ -473,17 +473,6 @@ class TestProjectConfiguration:
         sut.clean_urls = clean_urls
         assert clean_urls == sut.clean_urls
 
-    async def test_content_negotiation(self) -> None:
-        sut = ProjectConfiguration()
-        content_negotiation = True
-        sut.content_negotiation = content_negotiation
-        assert content_negotiation == sut.content_negotiation
-
-    async def test_clean_urls_implied_by_content_negotiation(self) -> None:
-        sut = ProjectConfiguration()
-        sut.content_negotiation = True
-        assert sut.clean_urls
-
     async def test_author_without_author(self) -> None:
         sut = ProjectConfiguration()
         assert sut.author is None
@@ -503,7 +492,6 @@ class TestProjectConfiguration:
         assert not sut.debug
         assert '' == sut.root_path
         assert not sut.clean_urls
-        assert not sut.content_negotiation
 
     async def test_load_should_load_title(self) -> None:
         title = 'My first Betty site'
@@ -555,13 +543,6 @@ class TestProjectConfiguration:
         dump['clean_urls'] = clean_urls
         sut = ProjectConfiguration.load(dump)
         assert clean_urls == sut.clean_urls
-
-    async def test_load_should_content_negotiation(self) -> None:
-        content_negotiation = True
-        dump: Any = ProjectConfiguration().dump()
-        dump['content_negotiation'] = content_negotiation
-        sut = ProjectConfiguration.load(dump)
-        assert content_negotiation == sut.content_negotiation
 
     @pytest.mark.parametrize('debug', [
         True,
@@ -634,7 +615,6 @@ class TestProjectConfiguration:
         assert not sut.debug
         assert '' == sut.root_path
         assert not sut.clean_urls
-        assert not sut.content_negotiation
 
     async def test_dump_should_dump_title(self) -> None:
         title = 'My first Betty site'
@@ -688,13 +668,6 @@ class TestProjectConfiguration:
         sut.clean_urls = clean_urls
         dump: Any = sut.dump()
         assert clean_urls == dump['clean_urls']
-
-    async def test_dump_should_dump_content_negotiation(self) -> None:
-        content_negotiation = True
-        sut = ProjectConfiguration()
-        sut.content_negotiation = content_negotiation
-        dump: Any = sut.dump()
-        assert content_negotiation == dump['content_negotiation']
 
     @pytest.mark.parametrize('debug', [
         True,

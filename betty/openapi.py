@@ -78,7 +78,7 @@ class Specification:
         for entity_type in self._app.entity_types:
             entity_type_name = get_entity_type_name(entity_type)
             entity_type_url_name = camel_case_to_kebab_case(get_entity_type_name(entity_type))
-            if self._app.project.configuration.content_negotiation:
+            if self._app.project.configuration.clean_urls:
                 collection_path = f'/{entity_type_url_name}/'
                 single_path = f'/{entity_type_url_name}/{{id}}/'
             else:

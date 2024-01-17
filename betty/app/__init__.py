@@ -37,7 +37,7 @@ if TYPE_CHECKING:
     from betty.jinja2 import Environment
     from betty.json import JSONEncoder
     from betty.serve import Server
-    from betty.url import StaticUrlGenerator, ContentNegotiationUrlGenerator
+    from betty.url import StaticUrlGenerator, LocalizedUrlGenerator
 
 CONFIGURATION_DIRECTORY_PATH = HOME_DIRECTORY_PATH / 'configuration'
 
@@ -134,7 +134,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         self._dispatcher: ExtensionDispatcher | None = None
         self._entity_types: set[type[Entity]] | None = None
         self._event_types: set[type[EventType]] | None = None
-        self._url_generator: ContentNegotiationUrlGenerator | None = None
+        self._url_generator: LocalizedUrlGenerator | None = None
         self._static_url_generator: StaticUrlGenerator | None = None
         self._jinja2_environment: Environment | None = None
         self._renderer: Renderer | None = None
@@ -250,7 +250,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         return self._dispatcher
 
     @property
-    def url_generator(self) -> ContentNegotiationUrlGenerator:
+    def url_generator(self) -> LocalizedUrlGenerator:
         from betty.url import AppUrlGenerator
 
         if self._url_generator is None:

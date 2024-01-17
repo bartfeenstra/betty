@@ -137,17 +137,6 @@ class TestGeneralPane:
             sut._clean_urls.setChecked(False)
             assert app.project.configuration.clean_urls is False
 
-    async def test_content_negotiation(self, qtbot: QtBot) -> None:
-        async with App() as app:
-            sut = _GeneralPane(app)
-            qtbot.addWidget(sut)
-            sut.show()
-
-            sut._content_negotiation.setChecked(True)
-            assert app.project.configuration.content_negotiation is True
-            sut._content_negotiation.setChecked(False)
-            assert app.project.configuration.content_negotiation is False
-
 
 class TestLocalizationPane:
     async def test_add_locale(self, qtbot: QtBot, assert_window: AssertWindow[_AddLocaleWindow]) -> None:

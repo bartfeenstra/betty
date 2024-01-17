@@ -1,5 +1,4 @@
-{% macro headers(debug=False, localized=False, https=False) %}
-add_header Vary Accept;
+{% macro headers(debug=False, https=False) %}
 add_header Vary Accept-Language;
 {% if https %}
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
@@ -8,9 +7,6 @@ add_header Vary Accept-Language;
     add_header Cache-Control "no-cache";
 {% else %}
     add_header Cache-Control "max-age=86400";
-{% endif %}
-{% if localized %}
-    add_header Content-Language "$locale" always;
 {% endif %}
 {% endmacro %}
 
@@ -38,7 +34,7 @@ server {
     gzip_vary on;
     gzip_types text/css application/javascript application/json application/xml;
 
-    {% if app.project.configuration.content_negotiation %}
+    {% if app.project.configuration.clean_urls %}
         set_by_lua_block $media_type_extension {
             local available_media_types = {'text/html', 'application/json'}
             local media_type_extensions = {}
@@ -53,15 +49,46 @@ server {
     index index.$media_type_extension;
 
     {% if app.project.configuration.locales.multilingual %}
-        location ~ ^/({{ app.project.configuration.locales.values() | map(attribute='alias') | join('|') }})(/|$) {
-            set $locale $1;
+        location @localized_redirect {
+            {% if app.project.configuration.clean_urls %}
+                set_by_lua_block $locale_alias {
+                    local available_locales = {'{{ app.project.configuration.locales | join("', '") }}'}
+                    local locale_aliases = {}
+                    {% for locale_configuration in app.project.configuration.locales.values() %}
+                        locale_aliases['{{ locale_configuration.locale }}'] = '{{ locale_configuration.alias }}'
+                    {% endfor %}
+                    local locale = require('cone').negotiate(ngx.req.get_headers()['Accept-Language'], available_locales)
+                    return locale_aliases[locale]
+                }
+                {{ headers(
+                    debug=app.project.configuration.debug,
+                    https=https
+                ) }}
+                add_header Content-Language "$locale_alias" always;
 
+                return 307 /$locale_alias$uri;
+            {% else %}
+                set $locale_alias {{ app.project.configuration.locales.default.alias }};
+                return 301 /$locale_alias$uri;
+            {% endif %}
+        }
+
+        # The front page.
+        location = / {
+            # nginx does not support redirecting to named locations, so we use try_files with an empty first
+            # argument and assume that never matches a real file.
+            try_files '' @localized_redirect;
+        }
+
+        # Localized resources.
+        location ~* ^/({{ app.project.configuration.locales.values() | map(attribute='alias') | join('|') }})(/|$) {
+            set $locale $1;
 
             {{ headers(
                 debug=app.project.configuration.debug,
-                localized=True,
                 https=https
             ) }}
+            add_header Content-Language "$locale" always;
 
             # Handle HTTP error responses.
             error_page 401 /$locale/.error/401.$media_type_extension;
@@ -73,25 +100,18 @@ server {
 
             try_files $uri $uri/ =404;
         }
-        location @localized_redirect {
-            {% if app.project.configuration.content_negotiation %}
-                set_by_lua_block $locale_alias {
-                    local available_locales = {'{{ app.project.configuration.locales | join("', '") }}'}
-                    local locale_aliases = {}
-                    {% for locale_configuration in app.project.configuration.locales.values() %}
-                        locale_aliases['{{ locale_configuration.locale }}'] = '{{ locale_configuration.alias }}'
-                    {% endfor %}
-                    local locale = require('cone').negotiate(ngx.req.get_headers()['Accept-Language'], available_locales)
-                    return locale_aliases[locale]
-                }
-                return 307 /$locale_alias$uri;
-            {% else %}
-                set $locale_alias {{ app.project.configuration.locales.default.alias }};
-                return 301 /$locale_alias$uri;
-            {% endif %}
-        }
+
+        # Static resources.
         location / {
-            try_files $uri @localized_redirect;
+            # Handle HTTP error responses.
+            error_page 401 /{{ app.project.configuration.locales.default.alias }}/.error/401.$media_type_extension;
+            error_page 403 /{{ app.project.configuration.locales.default.alias }}/.error/403.$media_type_extension;
+            error_page 404 /{{ app.project.configuration.locales.default.alias }}/.error/404.$media_type_extension;
+            location ~ ^/{{ app.project.configuration.locales.default.alias }}/\.error {
+                internal;
+            }
+
+            try_files $uri $uri/ =404;
         }
     {% else %}
         location / {

@@ -555,7 +555,6 @@ class ProjectConfiguration(FileBasedConfiguration):
         self._base_url = 'https://example.com' if base_url is None else base_url
         self._root_path = ''
         self._clean_urls = False
-        self._content_negotiation = False
         self._title = 'Betty'
         self._author: str | None = None
         self._entity_types = EntityTypeConfigurationMapping([
@@ -636,17 +635,8 @@ class ProjectConfiguration(FileBasedConfiguration):
 
     @property
     @reactive_property
-    def content_negotiation(self) -> bool:
-        return self._content_negotiation
-
-    @content_negotiation.setter
-    def content_negotiation(self, content_negotiation: bool) -> None:
-        self._content_negotiation = content_negotiation
-
-    @property
-    @reactive_property
     def clean_urls(self) -> bool:
-        return self._clean_urls or self.content_negotiation
+        return self._clean_urls
 
     @clean_urls.setter
     def clean_urls(self, clean_urls: bool) -> None:
@@ -689,7 +679,6 @@ class ProjectConfiguration(FileBasedConfiguration):
         self._author = other._author
         self._root_path = other._root_path
         self._clean_urls = other._clean_urls
-        self._content_negotiation = other._content_negotiation
         self._debug = other._debug
         self._lifetime_threshold = other._lifetime_threshold
         self._locales.update(other._locales)
@@ -727,10 +716,6 @@ class ProjectConfiguration(FileBasedConfiguration):
                 Assertions(asserter.assert_bool()) | asserter.assert_setattr(configuration, 'clean_urls'),
             ),
             OptionalField(
-                'content_negotiation',
-                Assertions(asserter.assert_bool()) | asserter.assert_setattr(configuration, 'content_negotiation'),
-            ),
-            OptionalField(
                 'debug',
                 Assertions(asserter.assert_bool()) | asserter.assert_setattr(configuration, 'debug'),
             ),
@@ -760,7 +745,6 @@ class ProjectConfiguration(FileBasedConfiguration):
             'root_path': void_none(self.root_path),
             'clean_urls': void_none(self.clean_urls),
             'author': void_none(self.author),
-            'content_negotiation': void_none(self.content_negotiation),
             'debug': void_none(self.debug),
             'lifetime_threshold': void_none(self.lifetime_threshold),
             'locales': self.locales.dump(),

@@ -11,7 +11,7 @@ from betty.model import UserFacingEntity, Entity
 from betty.model.ancestry import Person, Place, File, Source, PlaceName, Event, Citation
 from betty.model.event_type import Death
 from betty.project import LocaleConfiguration
-from betty.url import ContentNegotiationPathUrlGenerator, _EntityUrlGenerator, AppUrlGenerator
+from betty.url import LocalizedPathUrlGenerator, _EntityUrlGenerator, AppUrlGenerator
 
 
 class TestLocalizedPathUrlGenerator:
@@ -27,7 +27,7 @@ class TestLocalizedPathUrlGenerator:
     ])
     async def test_generate(self, expected: str, resource: str) -> None:
         async with App() as app:
-            sut = ContentNegotiationPathUrlGenerator(app)
+            sut = LocalizedPathUrlGenerator(app)
             assert expected == sut.generate(resource, 'text/html')
 
     @pytest.mark.parametrize('expected, resource', [
@@ -39,7 +39,7 @@ class TestLocalizedPathUrlGenerator:
     async def test_generate_with_clean_urls(self, expected: str, resource: str) -> None:
         async with App() as app:
             app.project.configuration.clean_urls = True
-            sut = ContentNegotiationPathUrlGenerator(app)
+            sut = LocalizedPathUrlGenerator(app)
             assert expected == sut.generate(resource, 'text/html')
 
     @pytest.mark.parametrize('expected, resource', [
@@ -48,7 +48,7 @@ class TestLocalizedPathUrlGenerator:
     ])
     async def test_generate_absolute(self, expected: str, resource: str) -> None:
         async with App() as app:
-            sut = ContentNegotiationPathUrlGenerator(app)
+            sut = LocalizedPathUrlGenerator(app)
             assert expected == sut.generate(resource, 'text/html', absolute=True)
 
     @pytest.mark.parametrize('expected, url_generator_locale', [
@@ -66,7 +66,7 @@ class TestLocalizedPathUrlGenerator:
             LocaleConfiguration('nl-NL', 'nl'),
             LocaleConfiguration('en-US', 'en'),
         )
-        sut = ContentNegotiationPathUrlGenerator(app)
+        sut = LocalizedPathUrlGenerator(app)
         assert expected == sut.generate('/index.html', 'text/html', locale=url_generator_locale)
 
 

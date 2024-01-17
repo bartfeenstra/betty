@@ -10,15 +10,15 @@ from betty.openapi import Specification
 
 
 class TestSpecification:
-    @pytest.mark.parametrize('content_negotiation', [
+    @pytest.mark.parametrize('clean_urls', [
         True,
         False,
     ])
-    async def test_build(self, content_negotiation: bool) -> None:
+    async def test_build(self, clean_urls: bool) -> None:
         with open(Path(__file__).parent / 'test_openapi_assets' / 'openapi-schema.json') as f:
             schema = stdjson.load(f)
         app = App()
-        app.project.configuration.content_negotiation = content_negotiation
+        app.project.configuration.clean_urls = clean_urls
         sut = Specification(app)
         specification = sut.build()
         jsonschema.validate(specification, schema)
