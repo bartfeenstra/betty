@@ -105,7 +105,6 @@ class _GeneralPane(LocalizedWidget):
         self._build_lifetime_threshold()
         self._build_mode()
         self._build_clean_urls()
-        self._build_content_negotiation()
         self._generate_html_list_form = _GenerateHtmlListForm(app)
         self._form.addRow(self._generate_html_list_form)
 
@@ -181,26 +180,12 @@ class _GeneralPane(LocalizedWidget):
     def _build_clean_urls(self) -> None:
         def _update_configuration_clean_urls(clean_urls: bool) -> None:
             self._app.project.configuration.clean_urls = clean_urls
-            if not clean_urls:
-                self._content_negotiation.setChecked(False)
         self._clean_urls = QCheckBox()
         self._clean_urls.setChecked(self._app.project.configuration.clean_urls)
         self._clean_urls.toggled.connect(_update_configuration_clean_urls)
         self._form.addRow(self._clean_urls)
         self._clean_urls_caption = Caption()
         self._form.addRow(self._clean_urls_caption)
-
-    def _build_content_negotiation(self) -> None:
-        def _update_configuration_content_negotiation(content_negotiation: bool) -> None:
-            self._app.project.configuration.content_negotiation = content_negotiation
-            if content_negotiation:
-                self._clean_urls.setChecked(True)
-        self._content_negotiation = QCheckBox()
-        self._content_negotiation.setChecked(self._app.project.configuration.content_negotiation)
-        self._content_negotiation.toggled.connect(_update_configuration_content_negotiation)
-        self._form.addRow(self._content_negotiation)
-        self._content_negotiation_caption = Caption()
-        self._form.addRow(self._content_negotiation_caption)
 
     def _do_set_translatables(self) -> None:
         self._configuration_author_label.setText(self._app.localizer._('Author'))
@@ -212,8 +197,6 @@ class _GeneralPane(LocalizedWidget):
         self._development_debug_caption.setText(self._app.localizer._('Output more detailed logs and disable optimizations that make debugging harder.'))
         self._clean_urls.setText(self._app.localizer._('Clean URLs'))
         self._clean_urls_caption.setText(self._app.localizer._('URLs look like <code>/path</code> instead of <code>/path/index.html</code>. This requires a web server that supports it.'))
-        self._content_negotiation.setText(self._app.localizer._('Content negotiation'))
-        self._content_negotiation_caption.setText(self._app.localizer._('Decide the correct page variety to serve users depending on their own preferences. This requires a web server that supports it.'))
 
 
 class _LocalesConfigurationWidget(LocalizedWidget):

@@ -10,7 +10,7 @@ from betty.project import ProjectConfiguration
 from betty.string import camel_case_to_kebab_case
 
 
-class ContentNegotiationUrlGenerator:
+class LocalizedUrlGenerator:
     def generate(self, resource: Any, media_type: str, absolute: bool = False, locale: Localey | None = None) -> str:
         raise NotImplementedError(repr(self))
 
@@ -20,7 +20,7 @@ class StaticUrlGenerator:
         raise NotImplementedError(repr(self))
 
 
-class ContentNegotiationPathUrlGenerator(ContentNegotiationUrlGenerator):
+class LocalizedPathUrlGenerator(LocalizedUrlGenerator):
     def __init__(self, app: App):
         self._app = app
 
@@ -41,7 +41,7 @@ class StaticPathUrlGenerator(StaticUrlGenerator):
         return _generate_from_path(self._configuration, resource, absolute)
 
 
-class _EntityUrlGenerator(ContentNegotiationUrlGenerator):
+class _EntityUrlGenerator(LocalizedUrlGenerator):
     def __init__(self, app: App, entity_type: type[Entity]):
         self._app = app
         self._entity_type = entity_type
@@ -72,14 +72,14 @@ class _EntityUrlGenerator(ContentNegotiationUrlGenerator):
         )
 
 
-class AppUrlGenerator(ContentNegotiationUrlGenerator):
+class AppUrlGenerator(LocalizedUrlGenerator):
     def __init__(self, app: App):
         self._generators = [
             *(
                 _EntityUrlGenerator(app, entity_type)
                 for entity_type in app.entity_types
             ),
-            ContentNegotiationPathUrlGenerator(app),
+            LocalizedPathUrlGenerator(app),
         ]
 
     def generate(self, resource: Any, media_type: str, absolute: bool = False, locale: Localey | None = None) -> str:

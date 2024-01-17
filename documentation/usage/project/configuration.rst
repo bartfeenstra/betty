@@ -62,7 +62,6 @@ All configuration options
 - ``debug`` (optional): ``true`` to output more detailed logs and disable optimizations that make debugging harder. Defaults to ``false``.
 - ``root_path`` (optional): The relative path under the public URL at which the site will be published.
 - ``clean_urls`` (optional): A boolean indicating whether to use clean URLs, e.g. ``/path`` instead of ``/path/index.html``. Defaults to ``false``.
-- ``content_negotiation`` (optional): Enables dynamic content negotiation, but requires a web server that supports it. This implies ``clean_urls``. Defaults to ``false``
 - ``title`` (optional): The project's title.
 - ``author`` (optional): The project's author and copyright holder.
 - ``lifetime_threshold`` (optional); The number of years people are expected to live at most, e.g. after which they're presumed to have died. Defaults to ``125``.
