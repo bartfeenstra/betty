@@ -40,7 +40,7 @@ server {
             local media_type_extensions = {}
             media_type_extensions['text/html'] = 'html'
             media_type_extensions['application/json'] = 'json'
-            local media_type = require('cone').negotiate(ngx.req.get_headers()['Accept'], available_media_types)
+            local media_type = require('content_negotiation').negotiate(ngx.req.get_headers()['Accept'], available_media_types)
             return media_type_extensions[media_type]
         }
     {% else %}
@@ -57,7 +57,7 @@ server {
                     {% for locale_configuration in app.project.configuration.locales.values() %}
                         locale_aliases['{{ locale_configuration.locale }}'] = '{{ locale_configuration.alias }}'
                     {% endfor %}
-                    local locale = require('cone').negotiate(ngx.req.get_headers()['Accept-Language'], available_locales)
+                    local locale = require('content_negotiation').negotiate(ngx.req.get_headers()['Accept-Language'], available_locales)
                     return locale_aliases[locale]
                 }
                 {{ headers(

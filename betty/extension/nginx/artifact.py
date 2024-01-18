@@ -1,3 +1,4 @@
+import asyncio
 from pathlib import Path
 from shutil import copyfile
 from urllib.parse import urlparse
@@ -42,6 +43,7 @@ async def generate_dockerfile_file(app: App, destination_file_path: Path | None 
     Generate a Dockerfile to the given destination path.
     """
     if destination_file_path is None:
-        destination_file_path = app.project.configuration.output_directory_path / 'nginx' / 'docker' / 'Dockerfile'
+        destination_file_path = app.project.configuration.output_directory_path / 'nginx' / 'Dockerfile'
     await makedirs(destination_file_path.parent, exist_ok=True)
-    copyfile(Path(__file__).parent / 'assets' / 'docker' / 'Dockerfile', destination_file_path)
+    await asyncio.to_thread(copyfile, Path(__file__).parent / 'assets' / 'Dockerfile', destination_file_path)
+    await asyncio.to_thread(copyfile, Path(__file__).parent / 'assets' / 'content_negotiation.lua', destination_file_path.parent / 'content_negotiation.lua')
