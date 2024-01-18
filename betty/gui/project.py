@@ -343,7 +343,10 @@ class _AddLocaleWindow(BettyWindow):
         if alias == '':
             alias = None
         try:
-            self._app.project.configuration.locales.append(LocaleConfiguration(locale, alias))
+            self._app.project.configuration.locales.append(LocaleConfiguration(
+                locale,
+                alias=alias,
+            ))
         except AssertionFailed as e:
             mark_invalid(self._alias, str(e))
             return

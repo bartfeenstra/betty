@@ -16,7 +16,10 @@ class TestGenerate:
     async def test_html_lang(self) -> None:
         app = App()
         app.project.configuration.locales['en-US'].alias = 'en'
-        app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
+        app.project.configuration.locales.append(LocaleConfiguration(
+            'nl-NL',
+            alias='nl',
+        ))
         async with app:
             await generate(app)
             with open(assert_betty_html(app, '/nl/index.html', check_links=True)) as f:
@@ -26,8 +29,14 @@ class TestGenerate:
     async def test_root_redirect(self) -> None:
         app = App()
         app.project.configuration.locales.replace(
-            LocaleConfiguration('nl-NL', 'nl'),
-            LocaleConfiguration('en-US', 'en'),
+            LocaleConfiguration(
+                'nl-NL',
+                alias='nl',
+            ),
+            LocaleConfiguration(
+                'en-US',
+                alias='en',
+            ),
         )
         async with app:
             await generate(app)
@@ -38,8 +47,14 @@ class TestGenerate:
     async def test_links(self) -> None:
         app = App()
         app.project.configuration.locales.replace(
-            LocaleConfiguration('nl-NL', 'nl'),
-            LocaleConfiguration('en-US', 'en'),
+            LocaleConfiguration(
+                'nl-NL',
+                alias='nl',
+            ),
+            LocaleConfiguration(
+                'en-US',
+                alias='en',
+            ),
         )
         async with app:
             await generate(app)
@@ -55,8 +70,14 @@ class TestGenerate:
     async def test_links_for_entity_pages(self) -> None:
         app = App()
         app.project.configuration.locales.replace(
-            LocaleConfiguration('nl-NL', 'nl'),
-            LocaleConfiguration('en-US', 'en'),
+            LocaleConfiguration(
+                'nl-NL',
+                alias='nl',
+            ),
+            LocaleConfiguration(
+                'en-US',
+                alias='en',
+            ),
         )
         async with app:
             person = Person(id='PERSON1')
@@ -75,7 +96,10 @@ class TestGenerate:
 
     async def test_files(self) -> None:
         async with App() as app:
-            app.project.configuration.entity_types.append(EntityTypeConfiguration(File, True))
+            app.project.configuration.entity_types.append(EntityTypeConfiguration(
+                entity_type=File,
+                generate_html_list=True,
+            ))
             await generate(app)
         assert_betty_html(app, '/file/index.html', check_links=True)
         assert_betty_json(app, '/file/index.json', 'fileCollection')

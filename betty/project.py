@@ -170,6 +170,7 @@ class ExtensionConfiguration(Configuration):
     def __init__(
         self,
         extension_type: type[Extension],
+        *,
         enabled: bool = True,
         extension_configuration: Configuration | None = None,
     ):
@@ -304,7 +305,7 @@ class ExtensionConfigurationMapping(ConfigurationMapping[type[Extension], Extens
             try:
                 self._configurations[extension_type].enabled = True
             except KeyError:
-                self.append(ExtensionConfiguration(extension_type, True))
+                self.append(ExtensionConfiguration(extension_type))
 
     def disable(self, *extension_types: type[Extension]) -> None:
         for extension_type in extension_types:
@@ -313,7 +314,12 @@ class ExtensionConfigurationMapping(ConfigurationMapping[type[Extension], Extens
 
 
 class EntityTypeConfiguration(Configuration):
-    def __init__(self, entity_type: type[Entity], generate_html_list: bool | None = None):
+    def __init__(
+        self,
+        entity_type: type[Entity],
+        *,
+        generate_html_list: bool | None = None,
+    ):
         super().__init__()
         self._entity_type = entity_type
         self.generate_html_list = generate_html_list  # type: ignore[assignment]
@@ -415,7 +421,12 @@ class EntityTypeConfigurationMapping(ConfigurationMapping[type[Entity], EntityTy
 
 
 class LocaleConfiguration(Configuration):
-    def __init__(self, locale: str, alias: str | None = None):
+    def __init__(
+        self,
+        locale: str,
+        *,
+        alias: str | None = None,
+    ):
         super().__init__()
         self._locale = locale
         if alias is not None and '/' in alias:
@@ -550,26 +561,50 @@ class LocaleConfigurationMapping(ConfigurationMapping[str, LocaleConfiguration])
 
 @final
 class ProjectConfiguration(FileBasedConfiguration):
-    def __init__(self, base_url: str | None = None):
+    def __init__(
+        self,
+        base_url: str | None = None,
+        root_path: str = '',
+        clean_urls: bool = False,
+        title: str = 'Betty',
+        author: str | None = None,
+        entity_types: Iterable[EntityTypeConfiguration] | None = None,
+        extensions: Iterable[ExtensionConfiguration] | None = None,
+        debug: bool = False,
+        locales: Iterable[LocaleConfiguration] | None = None,
+        lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
+    ):
         super().__init__()
         self._base_url = 'https://example.com' if base_url is None else base_url
-        self._root_path = ''
-        self._clean_urls = False
-        self._title = 'Betty'
-        self._author: str | None = None
-        self._entity_types = EntityTypeConfigurationMapping([
-            EntityTypeConfiguration(Person, True),
-            EntityTypeConfiguration(Event, True),
-            EntityTypeConfiguration(Place, True),
-            EntityTypeConfiguration(Source, True),
+        self._root_path = root_path
+        self._clean_urls = clean_urls
+        self._title = title
+        self._author = author
+        self._entity_types = EntityTypeConfigurationMapping(entity_types or [
+            EntityTypeConfiguration(
+                entity_type=Person,
+                generate_html_list=True,
+            ),
+            EntityTypeConfiguration(
+                entity_type=Event,
+                generate_html_list=True,
+            ),
+            EntityTypeConfiguration(
+                entity_type=Place,
+                generate_html_list=True,
+            ),
+            EntityTypeConfiguration(
+                entity_type=Source,
+                generate_html_list=True,
+            ),
         ])
         self._entity_types.react(self)
-        self._extensions = ExtensionConfigurationMapping()
+        self._extensions = ExtensionConfigurationMapping(extensions or ())
         self._extensions.react(self)
-        self._debug = False
-        self._locales = LocaleConfigurationMapping()
+        self._debug = debug
+        self._locales = LocaleConfigurationMapping(locales or ())
         self._locales.react(self)
-        self._lifetime_threshold = DEFAULT_LIFETIME_THRESHOLD
+        self._lifetime_threshold = lifetime_threshold
 
     @property
     def project_directory_path(self) -> Path:

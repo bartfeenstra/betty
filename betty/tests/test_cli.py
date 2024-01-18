@@ -75,8 +75,9 @@ class TestMain:
     async def test_help_with_configuration(self, mocker: MockerFixture) -> None:
         mocker.patch('sys.stderr')
         mocker.patch('sys.stdout')
-        configuration = ProjectConfiguration()
-        configuration.extensions.append(ExtensionConfiguration(DummyExtension))
+        configuration = ProjectConfiguration(
+            extensions=[ExtensionConfiguration(DummyExtension)],
+        )
         await configuration.write()
         runner = CliRunner()
         result = runner.invoke(main, ('-c', str(configuration.configuration_file_path), '--help',), catch_exceptions=False)

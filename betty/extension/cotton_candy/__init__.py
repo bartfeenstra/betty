@@ -95,19 +95,21 @@ class CottonCandyConfiguration(Configuration):
         self,
         *,
         featured_entities: Sequence[EntityReference[UserFacingEntity & Entity]] | None = None,
+        primary_inactive_color: str = DEFAULT_PRIMARY_INACTIVE_COLOR,
+        primary_active_color: str = DEFAULT_PRIMARY_ACTIVE_COLOR,
+        link_inactive_color: str = DEFAULT_LINK_INACTIVE_COLOR,
+        link_active_color: str = DEFAULT_LINK_ACTIVE_COLOR,
     ):
         super().__init__()
-        self._featured_entities = EntityReferenceSequence['UserFacingEntity & Entity']()
-        if featured_entities is not None:
-            self.featured_entities.append(*featured_entities)
+        self._featured_entities = EntityReferenceSequence['UserFacingEntity & Entity'](featured_entities or ())
         self._featured_entities.react(self)
-        self._primary_inactive_color = _ColorConfiguration(self.DEFAULT_PRIMARY_INACTIVE_COLOR)
+        self._primary_inactive_color = _ColorConfiguration(primary_inactive_color)
         self._primary_inactive_color.react(self)
-        self._primary_active_color = _ColorConfiguration(self.DEFAULT_PRIMARY_ACTIVE_COLOR)
+        self._primary_active_color = _ColorConfiguration(primary_active_color)
         self._primary_active_color.react(self)
-        self._link_inactive_color = _ColorConfiguration(self.DEFAULT_LINK_INACTIVE_COLOR)
+        self._link_inactive_color = _ColorConfiguration(link_inactive_color)
         self._link_inactive_color.react(self)
-        self._link_active_color = _ColorConfiguration(self.DEFAULT_LINK_ACTIVE_COLOR)
+        self._link_active_color = _ColorConfiguration(link_active_color)
         self._link_active_color.react(self)
 
     @property

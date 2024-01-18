@@ -103,8 +103,9 @@ class TestWelcomeWindow:
         qtbot: QtBot,
     ) -> None:
         title = 'My First Ancestry Site'
-        configuration = ProjectConfiguration()
-        configuration.title = title
+        configuration = ProjectConfiguration(
+            title=title,
+        )
         await configuration.write()
         async with App() as app:
             await app.project.configuration.write()

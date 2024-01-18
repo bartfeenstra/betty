@@ -126,12 +126,15 @@ class TestGramps:
                 f.write(family_tree_two_xml)
 
             async with App() as app:
-                app.project.configuration.extensions.append(ExtensionConfiguration(Gramps, True, GrampsConfiguration(
-                    family_trees=[
-                        FamilyTreeConfiguration(gramps_family_tree_one_path),
-                        FamilyTreeConfiguration(gramps_family_tree_two_path),
-                    ]
-                )))
+                app.project.configuration.extensions.append(ExtensionConfiguration(
+                    Gramps,
+                    extension_configuration=GrampsConfiguration(
+                        family_trees=[
+                            FamilyTreeConfiguration(file_path=gramps_family_tree_one_path),
+                            FamilyTreeConfiguration(file_path=gramps_family_tree_two_path),
+                        ],
+                    ),
+                ))
                 await load(app)
             assert 'O0001' in app.project.ancestry[File]
             assert 'O0002' in app.project.ancestry[File]

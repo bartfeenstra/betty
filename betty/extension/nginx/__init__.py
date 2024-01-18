@@ -21,7 +21,12 @@ from betty.serve import ServerProvider, Server
 
 
 class NginxConfiguration(Configuration):
-    def __init__(self, www_directory_path: str | None = None, https: bool | None = None):
+    def __init__(
+        self,
+        *,
+        www_directory_path: str | None = None,
+        https: bool | None = None,
+    ):
         super().__init__()
         self._https = https
         self.www_directory_path = www_directory_path

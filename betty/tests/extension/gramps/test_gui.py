@@ -74,7 +74,7 @@ async def test_remove_family_tree(qtbot: QtBot) -> None:
             Gramps,
             extension_configuration=GrampsConfiguration(
                 family_trees=[
-                    FamilyTreeConfiguration(Path('/tmp/family-tree.gpkg')),
+                    FamilyTreeConfiguration(file_path=Path('/tmp/family-tree.gpkg')),
                 ]
             ),
         ))

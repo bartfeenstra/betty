@@ -502,7 +502,10 @@ class TestPopulator:
         )
         app = App()
         app.project.configuration.locales['en-US'].alias = 'en'
-        app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
+        app.project.configuration.locales.append(LocaleConfiguration(
+            'nl-NL',
+            alias='nl',
+        ))
         async with app:
             app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)

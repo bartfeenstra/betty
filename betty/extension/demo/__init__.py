@@ -33,20 +33,38 @@ class _Demo(Extension, Loader):
 
         project = Project(project_id=cls.name())
         project.configuration.extensions.append(ExtensionConfiguration(Demo))
-        project.configuration.extensions.append(ExtensionConfiguration(CottonCandy, True, CottonCandyConfiguration(
-            featured_entities=[
-                EntityReference(Place, 'betty-demo-amsterdam'),
-                EntityReference(Person, 'betty-demo-liberta-lankester'),
-                EntityReference(Place, 'betty-demo-netherlands'),
-            ],
-        )))
+        project.configuration.extensions.append(ExtensionConfiguration(
+            CottonCandy,
+            extension_configuration=CottonCandyConfiguration(
+                featured_entities=[
+                    EntityReference(Place, 'betty-demo-amsterdam'),
+                    EntityReference(Person, 'betty-demo-liberta-lankester'),
+                    EntityReference(Place, 'betty-demo-netherlands'),
+                ],
+            ),
+        ))
         # Include all of the translations Betty ships with.
         project.configuration.locales.replace(
-            LocaleConfiguration('en-US', 'en'),
-            LocaleConfiguration('nl-NL', 'nl'),
-            LocaleConfiguration('fr-FR', 'fr'),
-            LocaleConfiguration('uk', 'uk'),
-            LocaleConfiguration('de-DE', 'de'),
+            LocaleConfiguration(
+                'en-US',
+                alias='en',
+            ),
+            LocaleConfiguration(
+                'nl-NL',
+                alias='nl',
+            ),
+            LocaleConfiguration(
+                'fr-FR',
+                alias='fr',
+            ),
+            LocaleConfiguration(
+                'uk',
+                alias='uk',
+            ),
+            LocaleConfiguration(
+                'de-DE',
+                alias='de',
+            ),
         )
         return project
 

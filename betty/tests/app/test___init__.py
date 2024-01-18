@@ -116,9 +116,12 @@ class TestApp:
     async def test_extensions_with_one_configurable_extension(self) -> None:
         check = 1337
         sut = App()
-        sut.project.configuration.extensions.append(ExtensionConfiguration(ConfigurableExtension, True, ConfigurableExtensionConfiguration(
-            check=check,
-        )))
+        sut.project.configuration.extensions.append(ExtensionConfiguration(
+            ConfigurableExtension,
+            extension_configuration=ConfigurableExtensionConfiguration(
+                check=check,
+            ),
+        ))
         assert isinstance(sut.extensions[ConfigurableExtension], ConfigurableExtension)
         assert check == sut.extensions[ConfigurableExtension].configuration.check
 

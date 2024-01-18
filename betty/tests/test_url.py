@@ -63,8 +63,14 @@ class TestLocalizedPathUrlGenerator:
     ) -> None:
         app = App()
         app.project.configuration.locales.replace(
-            LocaleConfiguration('nl-NL', 'nl'),
-            LocaleConfiguration('en-US', 'en'),
+            LocaleConfiguration(
+                'nl-NL',
+                alias='nl',
+            ),
+            LocaleConfiguration(
+                'en-US',
+                alias='en',
+            ),
         )
         sut = LocalizedPathUrlGenerator(app)
         assert expected == sut.generate('/index.html', 'text/html', locale=url_generator_locale)
