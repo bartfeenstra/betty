@@ -11,6 +11,8 @@ import { GestureHandling } from 'leaflet-gesture-handling'
 import 'leaflet.markercluster/dist/leaflet.markercluster.js'
 import 'leaflet.markercluster/dist/MarkerCluster.css' // eslint-disable-line no-unused-vars
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css' // eslint-disable-line no-unused-vars
+import 'leaflet.fullscreen/Control.FullScreen.js'
+import 'leaflet.fullscreen/Control.FullScreen.css' // eslint-disable-line no-unused-vars
 import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css' // eslint-disable-line no-unused-vars
 import configuration from './configuration.json'
 
@@ -30,7 +32,11 @@ function initializePlaceList (placeList) {
   mapArea.id = (++mapCount).toString()
 
   const map = L.map(mapArea.id, {
-    gestureHandling: true
+    gestureHandling: true,
+    fullscreenControl: true,
+    fullscreenControlOptions: {
+      position: 'topleft'
+    }
   })
 
   // Build the attribution layer.
