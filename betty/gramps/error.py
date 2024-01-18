@@ -1,3 +1,6 @@
+"""
+Provide Gramps error handling utilities.
+"""
 from betty.error import UserFacingError
 
 

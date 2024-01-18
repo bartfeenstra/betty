@@ -1,3 +1,6 @@
+"""
+Provide a Sphinx plugin to apply string replacements to source code.
+"""
 from sphinx.application import Sphinx
 
 

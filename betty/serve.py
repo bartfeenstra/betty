@@ -1,3 +1,6 @@
+"""
+Provide the Serve API to serve resources within the application.
+"""
 from __future__ import annotations
 
 import contextlib

@@ -1,3 +1,7 @@
+"""
+Provide serialization error handling utilities.
+"""
+
 from __future__ import annotations
 
 from contextlib import contextmanager

@@ -1,3 +1,6 @@
+"""
+Provide path handling utilities.
+"""
 from pathlib import Path
 
 

@@ -1,3 +1,6 @@
+"""
+Provide rendering utilities using `Jinja2 <https://jinja.palletsprojects.com>`_.
+"""
 from __future__ import annotations
 
 import datetime

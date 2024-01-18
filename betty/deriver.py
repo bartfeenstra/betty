@@ -1,3 +1,7 @@
+"""
+Provide an API to derive information from ancestries, and create new entities or update existing ones.
+"""
+
 from __future__ import annotations
 
 import logging

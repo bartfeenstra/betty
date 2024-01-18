@@ -1,3 +1,6 @@
+"""
+Provide locale management for the Graphical User Interface.
+"""
 from __future__ import annotations
 
 from typing import Any

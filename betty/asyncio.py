@@ -1,3 +1,6 @@
+"""
+Provide asynchronous programming utilities.
+"""
 from __future__ import annotations
 
 import asyncio

@@ -1,3 +1,6 @@
+"""
+Provide the Dispatch API.
+"""
 from typing import Any, Sequence, Callable, Awaitable
 
 TargetedDispatcher = Callable[..., Awaitable[Sequence[Any]]]

@@ -1,3 +1,6 @@
+"""
+Integrate Betty's Graphical User Interface with the Serve API.
+"""
 from __future__ import annotations
 
 from typing import Any

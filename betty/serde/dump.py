@@ -1,3 +1,6 @@
+"""
+Provide a serialization API.
+"""
 from __future__ import annotations
 
 from typing import TypeVar, Sequence, Mapping, overload, Literal, TypeAlias

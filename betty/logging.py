@@ -1,3 +1,6 @@
+"""
+Provide logging utilities.
+"""
 import sys
 from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET, StreamHandler, LogRecord
 

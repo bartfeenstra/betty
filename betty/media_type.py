@@ -1,3 +1,6 @@
+"""
+Provide `media type <https://en.wikipedia.org/wiki/Media_type>`_ handling utilities.
+"""
 from __future__ import annotations
 
 from email.message import EmailMessage

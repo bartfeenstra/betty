@@ -1,3 +1,6 @@
+"""
+Provide the Documentation API.
+"""
 import asyncio
 import logging
 import os

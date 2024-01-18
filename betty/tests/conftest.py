@@ -1,3 +1,6 @@
+"""
+Integrate Betty with pytest.
+"""
 from __future__ import annotations
 
 import gc

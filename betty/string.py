@@ -1,3 +1,6 @@
+"""
+Provide string handling utilities.
+"""
 import re
 
 _CAMEL_CASE_PATTERN = re.compile(r'(?<!^)(?=[A-Z])')

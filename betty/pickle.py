@@ -1,3 +1,6 @@
+"""
+Provide pickling utilities.
+"""
 from typing import Any, TypeAlias
 
 DictState: TypeAlias = dict[str, Any]

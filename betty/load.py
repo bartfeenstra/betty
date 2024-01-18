@@ -1,3 +1,6 @@
+"""
+Provide the Ancestry loading API.
+"""
 import logging
 
 from betty.app import App

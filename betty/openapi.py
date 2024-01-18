@@ -1,3 +1,6 @@
+"""
+Provide the OpenAPI specification.
+"""
 from betty import about
 from betty.app import App
 from betty.model import get_entity_type_name

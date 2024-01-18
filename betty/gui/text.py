@@ -1,3 +1,6 @@
+"""
+Provide text widgets for the Graphical User Interface.
+"""
 from typing import Any
 
 from PyQt6.QtCore import Qt

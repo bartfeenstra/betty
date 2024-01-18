@@ -1,3 +1,6 @@
+"""
+Provide an API to determine if information should be kept private.
+"""
 from __future__ import annotations
 
 import logging

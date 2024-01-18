@@ -1,3 +1,6 @@
+"""
+Provide class utilities.
+"""
 from typing import Any
 
 

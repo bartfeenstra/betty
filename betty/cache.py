@@ -1,3 +1,6 @@
+"""
+Provide the Cache API.
+"""
 import logging
 import shutil
 from contextlib import suppress

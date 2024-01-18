@@ -1,3 +1,6 @@
+"""
+Provide an API that lets code express arbitrary requirements.
+"""
 from __future__ import annotations
 
 from textwrap import indent
