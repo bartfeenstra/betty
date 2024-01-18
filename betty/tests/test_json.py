@@ -19,7 +19,10 @@ class TestJSONEncoder:
     async def assert_encodes(self, data: Any, schema_definition: str) -> dict[str, Any]:
         app = App()
         app.project.configuration.locales['en-US'].alias = 'en'
-        app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
+        app.project.configuration.locales.append(LocaleConfiguration(
+            'nl-NL',
+            alias='nl',
+        ))
         async with app:
             actual = stdjson.loads(stdjson.dumps(data, cls=app.json_encoder))
         json.validate(actual, schema_definition, app)

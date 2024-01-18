@@ -131,10 +131,11 @@ class TestCottonCandyConfiguration:
         assert expected == sut.dump()
 
     async def test_dump_with_featured_entities(self) -> None:
-        sut = CottonCandyConfiguration()
         entity_type = CottonCandyConfigurationTestEntity
         entity_id = '123'
-        sut.featured_entities.append(EntityReference(entity_type, entity_id))
+        sut = CottonCandyConfiguration(
+            featured_entities=[EntityReference(entity_type, entity_id)],
+        )
         expected = [
             {
                 'entity_type': get_entity_type_name(entity_type),
@@ -147,32 +148,28 @@ class TestCottonCandyConfiguration:
 
     async def test_dump_with_primary_inactive_color(self) -> None:
         hex_value = '#000000'
-        sut = CottonCandyConfiguration()
-        sut.primary_inactive_color.hex = hex_value
+        sut = CottonCandyConfiguration(primary_inactive_color=hex_value)
         dump = sut.dump()
         assert isinstance(dump, dict)
         assert hex_value == dump['primary_inactive_color']
 
     async def test_dump_with_primary_active_color(self) -> None:
         hex_value = '#000000'
-        sut = CottonCandyConfiguration()
-        sut.primary_active_color.hex = hex_value
+        sut = CottonCandyConfiguration(primary_active_color=hex_value)
         dump = sut.dump()
         assert isinstance(dump, dict)
         assert hex_value == dump['primary_active_color']
 
     async def test_dump_with_link_inactive_color(self) -> None:
         hex_value = '#000000'
-        sut = CottonCandyConfiguration()
-        sut.link_inactive_color.hex = hex_value
+        sut = CottonCandyConfiguration(link_inactive_color=hex_value)
         dump = sut.dump()
         assert isinstance(dump, dict)
         assert hex_value == dump['link_inactive_color']
 
     async def test_dump_with_link_active_color(self) -> None:
         hex_value = '#000000'
-        sut = CottonCandyConfiguration()
-        sut.link_active_color.hex = hex_value
+        sut = CottonCandyConfiguration(link_active_color=hex_value)
         dump = sut.dump()
         assert isinstance(dump, dict)
         assert hex_value == dump['link_active_color']

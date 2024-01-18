@@ -52,9 +52,13 @@ class _AppExtensions(ListExtensions):
 
 
 class AppConfiguration(FileBasedConfiguration):
-    def __init__(self):
+    def __init__(
+        self,
+        *,
+        locale: str | None = None,
+    ):
         super().__init__()
-        self._locale: str | None = None
+        self._locale: str | None = locale
 
     @property
     def configuration_file_path(self) -> Path:

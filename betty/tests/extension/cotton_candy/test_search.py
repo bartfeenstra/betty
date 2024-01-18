@@ -16,7 +16,10 @@ class TestIndex:
         app = App()
         app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales['en-US'].alias = 'en'
-        app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
+        app.project.configuration.locales.append(LocaleConfiguration(
+            'nl-NL',
+            alias='nl',
+        ))
         indexed = [item for item in await Index(app, Context(), DEFAULT_LOCALIZER).build()]
 
         assert [] == indexed
@@ -28,7 +31,10 @@ class TestIndex:
         app = App()
         app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales['en-US'].alias = 'en'
-        app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
+        app.project.configuration.locales.append(LocaleConfiguration(
+            'nl-NL',
+            alias='nl',
+        ))
         app.project.ancestry.add(person)
         indexed = [item for item in await Index(app, Context(), DEFAULT_LOCALIZER).build()]
 
@@ -49,7 +55,10 @@ class TestIndex:
         app = App()
         app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales['en-US'].alias = 'en'
-        app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
+        app.project.configuration.locales.append(LocaleConfiguration(
+            'nl-NL',
+            alias='nl',
+        ))
         app.project.ancestry.add(person)
         indexed = [item for item in await Index(app, Context(), DEFAULT_LOCALIZER).build()]
 
@@ -71,7 +80,10 @@ class TestIndex:
         app = App()
         app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales['en-US'].alias = 'en'
-        app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
+        app.project.configuration.locales.append(LocaleConfiguration(
+            'nl-NL',
+            alias='nl',
+        ))
         app.project.ancestry.add(person)
         indexed = [item for item in await Index(app, Context(), app.localizers[locale]).build()]
 
@@ -94,7 +106,10 @@ class TestIndex:
         app = App()
         app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales['en-US'].alias = 'en'
-        app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
+        app.project.configuration.locales.append(LocaleConfiguration(
+            'nl-NL',
+            alias='nl',
+        ))
         app.project.ancestry.add(person)
         indexed = [item for item in await Index(app, Context(), app.localizers[locale]).build()]
 
@@ -119,7 +134,10 @@ class TestIndex:
         app = App()
         app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales['en-US'].alias = 'en'
-        app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
+        app.project.configuration.locales.append(LocaleConfiguration(
+            'nl-NL',
+            alias='nl',
+        ))
         app.project.ancestry.add(person)
         indexed = [item for item in await Index(app, Context(), app.localizers[locale]).build()]
 
@@ -149,7 +167,10 @@ class TestIndex:
         app = App()
         app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales['en-US'].alias = 'en'
-        app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
+        app.project.configuration.locales.append(LocaleConfiguration(
+            'nl-NL',
+            alias='nl',
+        ))
         app.project.ancestry.add(place)
         indexed = [item for item in await Index(app, Context(), app.localizers[locale]).build()]
 
@@ -166,7 +187,10 @@ class TestIndex:
         app = App()
         app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales['en-US'].alias = 'en'
-        app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
+        app.project.configuration.locales.append(LocaleConfiguration(
+            'nl-NL',
+            alias='nl',
+        ))
         app.project.ancestry.add(file)
         indexed = [item for item in await Index(app, Context(), DEFAULT_LOCALIZER).build()]
 
@@ -187,7 +211,10 @@ class TestIndex:
         app = App()
         app.project.configuration.extensions.enable(CottonCandy)
         app.project.configuration.locales['en-US'].alias = 'en'
-        app.project.configuration.locales.append(LocaleConfiguration('nl-NL', 'nl'))
+        app.project.configuration.locales.append(LocaleConfiguration(
+            'nl-NL',
+            alias='nl',
+        ))
         app.project.ancestry.add(file)
         indexed = [item for item in await Index(app, Context(), app.localizers[locale]).build()]
 

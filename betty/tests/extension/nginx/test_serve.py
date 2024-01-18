@@ -21,7 +21,10 @@ class TestDockerizedNginxServer:
         content = 'Hello, and welcome to my site!'
         async with App() as app:
             app.project.configuration.extensions.append(
-                ExtensionConfiguration(Nginx, True, NginxConfiguration(www_directory_path='/var/www/betty'))
+                ExtensionConfiguration(
+                    Nginx,
+                    extension_configuration=NginxConfiguration(www_directory_path='/var/www/betty'),
+                )
             )
             await makedirs(app.project.configuration.www_directory_path)
             async with aiofiles.open(app.project.configuration.www_directory_path / 'index.html', 'w') as f:

@@ -11,7 +11,11 @@ from betty.serde.load import Asserter, Fields, RequiredField, Assertions, Option
 
 
 class FamilyTreeConfiguration(Configuration):
-    def __init__(self, file_path: Path | None = None):
+    def __init__(
+        self,
+        *,
+        file_path: Path | None = None,
+    ):
         super().__init__()
         self.file_path = file_path
 
@@ -67,7 +71,11 @@ class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfigurat
 
 
 class GrampsConfiguration(Configuration):
-    def __init__(self, family_trees: Iterable[FamilyTreeConfiguration] | None = None):
+    def __init__(
+        self,
+        *,
+        family_trees: Iterable[FamilyTreeConfiguration] | None = None,
+    ):
         super().__init__()
         self._family_trees = FamilyTreeConfigurationSequence(family_trees)
         self._family_trees.react(self)

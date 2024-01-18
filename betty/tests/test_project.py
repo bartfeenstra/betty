@@ -179,19 +179,46 @@ class TestLocaleConfiguration:
     async def test_alias_explicit(self) -> None:
         locale = 'nl-NL'
         alias = 'nl'
-        sut = LocaleConfiguration(locale, alias)
+        sut = LocaleConfiguration(
+            locale,
+            alias=alias,
+        )
         assert alias == sut.alias
 
     async def test_invalid_alias(self) -> None:
         locale = 'nl-NL'
         alias = '/'
         with pytest.raises(AssertionFailed):
-            LocaleConfiguration(locale, alias)
+            LocaleConfiguration(
+                locale,
+                alias=alias,
+            )
 
     @pytest.mark.parametrize('expected, sut, other', [
-        (False, LocaleConfiguration('nl', 'NL'), 'not a locale configuration'),
-        (False, LocaleConfiguration('nl', 'NL'), 999),
-        (False, LocaleConfiguration('nl', 'NL'), object()),
+        (
+            False,
+            LocaleConfiguration(
+                'nl',
+                alias='NL',
+            ),
+            'not a locale configuration',
+        ),
+        (
+            False,
+            LocaleConfiguration(
+                'nl',
+                alias='NL',
+            ),
+            999,
+        ),
+        (
+            False,
+            LocaleConfiguration(
+                'nl',
+                alias='NL',
+            ),
+            object(),
+        ),
     ])
     async def test_eq(self, expected: bool, sut: LocaleConfiguration, other: Any) -> None:
         assert expected == (sut == other)
@@ -279,24 +306,54 @@ class TestExtensionConfiguration:
 
     async def test_enabled(self) -> None:
         enabled = True
-        sut = ExtensionConfiguration(_DummyExtension, enabled)
+        sut = ExtensionConfiguration(
+            _DummyExtension,
+            enabled=enabled,
+        )
         assert enabled == sut.enabled
         with assert_reactor_called(sut):
             sut.enabled = False
 
     async def test_configuration(self) -> None:
         extension_type_configuration = Configuration()
-        sut = ExtensionConfiguration(Extension, True, extension_type_configuration)
+        sut = ExtensionConfiguration(
+            Extension,
+            extension_configuration=extension_type_configuration,
+        )
         assert extension_type_configuration == sut.extension_configuration
         with assert_reactor_called(sut):
             extension_type_configuration.react.trigger()
 
     @pytest.mark.parametrize('expected, one, other', [
-        (True, ExtensionConfiguration(_DummyExtension, True), ExtensionConfiguration(_DummyExtension, True)),
-        (True, ExtensionConfiguration(_DummyExtension, True, None), ExtensionConfiguration(_DummyExtension, True, None)),
-        (False, ExtensionConfiguration(_DummyExtension, True, Configuration()), ExtensionConfiguration(_DummyExtension, True, Configuration())),
-        (False, ExtensionConfiguration(_DummyExtension, True), ExtensionConfiguration(_DummyExtension, False)),
-        (False, ExtensionConfiguration(_DummyExtension, True), ExtensionConfiguration(_DummyConfigurableExtension, True)),
+        (
+            True,
+            ExtensionConfiguration(_DummyExtension),
+            ExtensionConfiguration(_DummyExtension),
+        ),
+        (
+            False,
+            ExtensionConfiguration(
+                _DummyExtension,
+                extension_configuration=Configuration(),
+            ),
+            ExtensionConfiguration(
+                _DummyExtension,
+                extension_configuration=Configuration(),
+            ),
+        ),
+        (
+            False,
+            ExtensionConfiguration(_DummyExtension),
+            ExtensionConfiguration(
+                _DummyExtension,
+                enabled=False,
+            ),
+        ),
+        (
+            False,
+            ExtensionConfiguration(_DummyExtension),
+            ExtensionConfiguration(_DummyConfigurableExtension),
+        ),
     ])
     async def test_eq(self, expected: bool, one: ExtensionConfiguration, other: ExtensionConfiguration) -> None:
         assert expected == (one == other)
@@ -389,7 +446,10 @@ class TestEntityTypeConfiguration:
         assert expected == sut.dump()
 
     async def test_dump_with_generate_html_list(self) -> None:
-        sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne, False)
+        sut = EntityTypeConfiguration(
+            entity_type=EntityTypeConfigurationTestEntityOne,
+            generate_html_list=False,
+        )
         expected = {
             'entity_type': 'betty.tests.test_project.EntityTypeConfigurationTestEntityOne',
             'generate_html_list': False,
@@ -397,9 +457,39 @@ class TestEntityTypeConfiguration:
         assert expected == sut.dump()
 
     @pytest.mark.parametrize('expected, one, other', [
-        (True, EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne, True), EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne, True)),
-        (False, EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne, True), EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne, False)),
-        (False, EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne, True), EntityTypeConfiguration(EntityTypeConfigurationTestEntityOther, True)),
+        (
+            True,
+            EntityTypeConfiguration(
+                entity_type=EntityTypeConfigurationTestEntityOne,
+                generate_html_list=True,
+            ),
+            EntityTypeConfiguration(
+                entity_type=EntityTypeConfigurationTestEntityOne,
+                generate_html_list=True,
+            ),
+        ),
+        (
+            False,
+            EntityTypeConfiguration(
+                entity_type=EntityTypeConfigurationTestEntityOne,
+                generate_html_list=True,
+            ),
+            EntityTypeConfiguration(
+                entity_type=EntityTypeConfigurationTestEntityOne,
+                generate_html_list=False,
+            ),
+        ),
+        (
+            False,
+            EntityTypeConfiguration(
+                entity_type=EntityTypeConfigurationTestEntityOne,
+                generate_html_list=True,
+            ),
+            EntityTypeConfiguration(
+                entity_type=EntityTypeConfigurationTestEntityOther,
+                generate_html_list=True,
+            ),
+        ),
     ])
     async def test_eq(self, expected: bool, one: EntityTypeConfiguration, other: EntityTypeConfiguration) -> None:
         assert expected == (one == other)
@@ -440,8 +530,11 @@ class TestEntityTypeConfigurationMapping(ConfigurationMappingTestBase[type[Entit
 class TestProjectConfiguration:
     async def test_pickle(self) -> None:
         sut = ProjectConfiguration()
-        sut.extensions.append(ExtensionConfiguration(Extension, True, None))
-        sut.locales.append(LocaleConfiguration('nl-NL', 'nl'))
+        sut.extensions.append(ExtensionConfiguration(Extension))
+        sut.locales.append(LocaleConfiguration(
+            'nl-NL',
+            alias='nl',
+        ))
         dill.dumps(sut)
 
     async def test_base_url(self) -> None:
@@ -527,7 +620,12 @@ class TestProjectConfiguration:
             locale: locale_config,
         }
         sut = ProjectConfiguration.load(dump)
-        assert LocaleConfigurationMapping([LocaleConfiguration(locale, alias)]) == sut.locales
+        assert LocaleConfigurationMapping([
+            LocaleConfiguration(
+                locale,
+                alias=alias,
+            ),
+        ]) == sut.locales
 
     async def test_load_should_root_path(self) -> None:
         configured_root_path = '/betty/'
@@ -564,7 +662,10 @@ class TestProjectConfiguration:
                 'configuration': extension_configuration,
             },
         }
-        expected = ExtensionConfiguration(DummyConfigurableExtension, True, DummyConfigurableExtensionConfiguration())
+        expected = ExtensionConfiguration(
+            DummyConfigurableExtension,
+            extension_configuration=DummyConfigurableExtensionConfiguration(),
+        )
         sut = ProjectConfiguration.load(dump)
         assert expected == sut.extensions[DummyConfigurableExtension]
 
@@ -573,7 +674,7 @@ class TestProjectConfiguration:
         dump['extensions'] = {
             DummyNonConfigurableExtension.name(): {},
         }
-        expected = ExtensionConfiguration(DummyNonConfigurableExtension, True)
+        expected = ExtensionConfiguration(DummyNonConfigurableExtension)
         sut = ProjectConfiguration.load(dump)
         assert expected == sut.extensions[DummyNonConfigurableExtension]
 
@@ -644,7 +745,10 @@ class TestProjectConfiguration:
     async def test_dump_should_dump_locale_alias(self) -> None:
         locale = 'nl-NL'
         alias = 'nl'
-        locale_configuration = LocaleConfiguration(locale, alias)
+        locale_configuration = LocaleConfiguration(
+            locale,
+            alias=alias,
+        )
         sut = ProjectConfiguration()
         sut.locales.append(locale_configuration)
         sut.locales.remove('en-US')
@@ -681,7 +785,10 @@ class TestProjectConfiguration:
 
     async def test_dump_should_dump_one_extension_with_configuration(self) -> None:
         sut = ProjectConfiguration()
-        sut.extensions.append(ExtensionConfiguration(DummyConfigurableExtension, True, DummyConfigurableExtensionConfiguration()))
+        sut.extensions.append(ExtensionConfiguration(
+            DummyConfigurableExtension,
+            extension_configuration=DummyConfigurableExtensionConfiguration(),
+        ))
         dump: Any = sut.dump()
         expected = {
             'enabled': True,

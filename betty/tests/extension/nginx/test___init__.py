@@ -67,8 +67,14 @@ server {
         app = App()
         app.project.configuration.base_url = 'http://example.com'
         app.project.configuration.locales.replace(
-            LocaleConfiguration('en-US', 'en'),
-            LocaleConfiguration('nl-NL', 'nl'),
+            LocaleConfiguration(
+                'en-US',
+                alias='en',
+            ),
+            LocaleConfiguration(
+                'nl-NL',
+                alias='nl',
+            ),
         )
         app.project.configuration.extensions.append(
             ExtensionConfiguration(Nginx)
@@ -139,8 +145,14 @@ server {
         app.project.configuration.base_url = 'http://example.com'
         app.project.configuration.clean_urls = True
         app.project.configuration.locales.replace(
-            LocaleConfiguration('en-US', 'en'),
-            LocaleConfiguration('nl-NL', 'nl'),
+            LocaleConfiguration(
+                'en-US',
+                alias='en',
+            ),
+            LocaleConfiguration(
+                'nl-NL',
+                alias='nl',
+            ),
         )
         app.project.configuration.extensions.append(ExtensionConfiguration(Nginx))
         expected = r'''
@@ -303,9 +315,12 @@ server {
 
     async def test_post_render_config_with_overridden_www_directory_path(self):
         app = App()
-        app.project.configuration.extensions.append(ExtensionConfiguration(Nginx, True, NginxConfiguration(
-            www_directory_path='/tmp/overridden-www',
-        )))
+        app.project.configuration.extensions.append(ExtensionConfiguration(
+            Nginx,
+            extension_configuration=NginxConfiguration(
+                www_directory_path='/tmp/overridden-www',
+            ),
+        ))
         expected = '''
 server {
     listen 80;

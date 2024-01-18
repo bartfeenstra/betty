@@ -42,42 +42,66 @@ class TestNginx:
             jsonschema.validate(data, json.load(f))
 
     def monolingual_configuration(self) -> ProjectConfiguration:
-        configuration = ProjectConfiguration()
-        configuration.extensions.append(ExtensionConfiguration(Nginx, True, NginxConfiguration(
-            www_directory_path='/var/www/betty/',
-        )))
-        return configuration
+        return ProjectConfiguration(
+            extensions=[
+                ExtensionConfiguration(
+                    Nginx,
+                    extension_configuration=NginxConfiguration(www_directory_path='/var/www/betty/'),
+                ),
+            ],
+        )
 
     def monolingual_clean_urls_configuration(self) -> ProjectConfiguration:
-        configuration = ProjectConfiguration()
-        configuration.extensions.append(ExtensionConfiguration(Nginx, True, NginxConfiguration(
-            www_directory_path='/var/www/betty/',
-        )))
-        configuration.clean_urls = True
-        return configuration
+        return ProjectConfiguration(
+            extensions=[
+                ExtensionConfiguration(
+                    Nginx,
+                    extension_configuration=NginxConfiguration(www_directory_path='/var/www/betty/'),
+                ),
+            ],
+            clean_urls=True,
+        )
 
     def multilingual_configuration(self) -> ProjectConfiguration:
-        configuration = ProjectConfiguration()
-        configuration.extensions.append(ExtensionConfiguration(Nginx, True, NginxConfiguration(
-            www_directory_path='/var/www/betty/',
-        )))
-        configuration.locales.replace(
-            LocaleConfiguration('en-US', 'en'),
-            LocaleConfiguration('nl-NL', 'nl'),
+        return ProjectConfiguration(
+            extensions=[
+                ExtensionConfiguration(
+                    Nginx,
+                    extension_configuration=NginxConfiguration(www_directory_path='/var/www/betty/'),
+                ),
+            ],
+            locales=[
+                LocaleConfiguration(
+                    'en-US',
+                    alias='en',
+                ),
+                LocaleConfiguration(
+                    'nl-NL',
+                    alias='nl',
+                ),
+            ],
         )
-        return configuration
 
     def multilingual_clean_urls_configuration(self) -> ProjectConfiguration:
-        configuration = ProjectConfiguration()
-        configuration.extensions.append(ExtensionConfiguration(Nginx, True, NginxConfiguration(
-            www_directory_path='/var/www/betty/',
-        )))
-        configuration.clean_urls = True
-        configuration.locales.replace(
-            LocaleConfiguration('en-US', 'en'),
-            LocaleConfiguration('nl-NL', 'nl'),
+        return ProjectConfiguration(
+            extensions=[
+                ExtensionConfiguration(
+                    Nginx,
+                    extension_configuration=NginxConfiguration(www_directory_path='/var/www/betty/'),
+                ),
+            ],
+            locales=[
+                LocaleConfiguration(
+                    'en-US',
+                    alias='en',
+                ),
+                LocaleConfiguration(
+                    'nl-NL',
+                    alias='nl',
+                ),
+            ],
+            clean_urls=True,
         )
-        return configuration
 
     async def test_front_page(self):
         async with self.server(self.monolingual_configuration()) as server:
