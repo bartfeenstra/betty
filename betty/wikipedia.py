@@ -133,9 +133,6 @@ class _Retriever:
             try:
                 logger.debug(f'Fetching {url}...')
                 async with self._rate_limiter:
-                    print(url)
-                    print(url)
-                    print(url)
                     async with self._http_client.get(url) as response:
                         response_data = await response.read()
                 async with aiofiles.open(cache_file_path, 'w+b') as f:

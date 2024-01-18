@@ -173,6 +173,7 @@ async def generate(app: App) -> None:
 
     async with _GenerationProcessPool(app, task_context) as process_pool:
         process_pool.delegate(_generate_dispatch)
+        process_pool.delegate(_generate_sitemap)
         process_pool.delegate(_generate_openapi)
 
         for locale in locales:
@@ -359,6 +360,54 @@ async def _generate_entity_json(
     rendered_json = json.dumps(app.project.ancestry[entity_type][entity_id], cls=app.json_encoder)
     async with await create_json_resource(entity_path) as f:
         await f.write(rendered_json)
+
+
+async def _generate_sitemap(
+    task_context: GenerationContext,
+) -> None:
+    app = task_context.app
+    sitemap_template = app.jinja2_environment.get_template('sitemap.xml.j2')
+    sitemaps = []
+    sitemap: list[str] = []
+    sitemap_length = 0
+    sitemaps.append(sitemap)
+    for locale in app.project.configuration.locales:
+        for entity in app.project.ancestry:
+            if isinstance(entity.id, GeneratedEntityId):
+                continue
+            if not isinstance(entity, UserFacingEntity):
+                continue
+
+            sitemap.append(app.url_generator.generate(
+                entity,
+                absolute=True,
+                locale=locale,
+                media_type='text/html',
+            ))
+            sitemap_length += 1
+
+            if sitemap_length == 50_000:
+                sitemap = []
+                sitemap_length = 0
+                sitemaps.append(sitemap)
+
+    sitemaps_urls = []
+    for index, sitemap in enumerate(sitemaps):
+        sitemaps_urls.append(app.static_url_generator.generate(
+            f'sitemap-{index}.xml',
+            absolute=True,
+        ))
+        rendered_sitemap = await sitemap_template.render_async({
+            'urls': sitemap,
+        })
+        async with aiofiles.open(app.project.configuration.www_directory_path / f'sitemap-{index}.xml', 'w') as f:
+            await f.write(rendered_sitemap)
+
+    rendered_sitemap_index = await app.jinja2_environment.get_template('sitemap-index.xml.j2').render_async({
+        'sitemaps_urls': sitemaps_urls,
+    })
+    async with aiofiles.open(app.project.configuration.www_directory_path / 'sitemap.xml', 'w') as f:
+        await f.write(rendered_sitemap_index)
 
 
 async def _generate_openapi(

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from contextlib import suppress
 from typing import Any, cast
+from urllib.parse import quote
 
 from betty.app import App
 from betty.locale import negotiate_locale, Localey, to_locale
@@ -64,7 +65,7 @@ class _EntityUrlGenerator(LocalizedUrlGenerator):
         return _generate_from_path(
             self._app.project.configuration,
             self._pattern.format(
-                entity_id=resource.id,
+                entity_id=quote(resource.id),
                 extension=extension,
             ),
             absolute,
