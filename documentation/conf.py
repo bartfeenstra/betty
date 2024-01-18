@@ -6,14 +6,14 @@ from betty import about
 from betty.fs import ROOT_DIRECTORY_PATH, FileSystem, ASSETS_DIRECTORY_PATH
 from betty.locale import LocalizerRepository
 
+betty_replacements: dict[str, str] = {}
+
 assets = FileSystem()
 assets.prepend(ASSETS_DIRECTORY_PATH, 'utf-8')
 localizers = LocalizerRepository(assets)
-translation_coverage = {
-    locale: localizers.coverage(locale)
-    for locale
-    in localizers.locales
-}
+for locale in localizers.locales:
+    coverage = localizers.coverage(locale)
+    betty_replacements[f'translation-coverage-{locale}'] = str(int(round(100 / (coverage[1] / coverage[0]))))
 
 sys.path.insert(0, path.dirname(path.dirname(betty.__file__)))
 project = 'Betty'
@@ -28,7 +28,7 @@ html_context = {
     'github_repo': 'betty',
     'github_version': '0.3.x',
     'conf_py_path': '/documentation/',
-    'betty_translation_coverage': translation_coverage,
+    'betty_replacements': betty_replacements,
 }
 html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
@@ -42,7 +42,7 @@ html_css_files = [
 highlight_language = 'none'
 templates_path = ['_templates']
 extensions = [
-    'betty.sphinx.extension.jinja2',
+    'betty.sphinx.extension.replacements',
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx_autodoc_typehints',
