@@ -1,3 +1,6 @@
+"""
+Integrate Betty with Docker.
+"""
 import asyncio
 from pathlib import Path
 from types import TracebackType

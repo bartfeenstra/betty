@@ -1,3 +1,6 @@
+"""
+Provide the desktop application/Graphical User Interface.
+"""
 import webbrowser
 from datetime import datetime
 from os import path

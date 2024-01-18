@@ -1,3 +1,6 @@
+"""
+Provide the Configuration API.
+"""
 from __future__ import annotations
 
 from collections import OrderedDict

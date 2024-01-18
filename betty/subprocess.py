@@ -1,3 +1,6 @@
+"""
+Provide a subprocess API.
+"""
 import logging
 import os
 import subprocess as stdsubprocess

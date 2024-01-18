@@ -1,3 +1,6 @@
+"""
+Provide configuration for the :py:class:`betty.extension.Gramps` extension.
+"""
 from __future__ import annotations
 
 from pathlib import Path

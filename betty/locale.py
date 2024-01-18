@@ -1,3 +1,6 @@
+"""
+Provide the Locale API.
+"""
 from __future__ import annotations
 
 import calendar

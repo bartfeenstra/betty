@@ -1,3 +1,6 @@
+"""
+Build nginx and Docker artifacts, such as configuration files.
+"""
 import asyncio
 from pathlib import Path
 from shutil import copyfile
@@ -18,7 +21,7 @@ async def generate_configuration_file(
     https: bool | None = None,
 ) -> None:
     """
-    Generate an nginx.conf file to the given destination path.
+    Generate an ``nginx.conf`` file to the given destination path.
     """
     from betty.extension import Nginx
 
@@ -40,7 +43,7 @@ async def generate_configuration_file(
 
 async def generate_dockerfile_file(app: App, destination_file_path: Path | None = None) -> None:
     """
-    Generate a Dockerfile to the given destination path.
+    Generate a ``Dockerfile`` to the given destination path.
     """
     if destination_file_path is None:
         destination_file_path = app.project.configuration.output_directory_path / 'nginx' / 'Dockerfile'

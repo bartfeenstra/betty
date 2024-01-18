@@ -1,3 +1,8 @@
+"""
+Provide the HTML API, for generating HTML pages.
+"""
+
+
 class CssProvider:
     @property
     def public_css_paths(self) -> list[str]:

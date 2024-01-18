@@ -1,3 +1,6 @@
+"""
+Provide the Generation API.
+"""
 from __future__ import annotations
 
 import json

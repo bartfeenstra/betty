@@ -1,3 +1,6 @@
+"""
+Integrate the nginx extension with Betty's Serve API.
+"""
 import logging
 from pathlib import Path
 from typing import Any

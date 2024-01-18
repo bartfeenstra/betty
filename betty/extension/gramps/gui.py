@@ -1,3 +1,6 @@
+"""
+Provide Gramps's Graphical User Interface.
+"""
 from __future__ import annotations
 
 from pathlib import Path

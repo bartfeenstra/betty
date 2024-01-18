@@ -1,3 +1,6 @@
+"""
+Provide Cotton Candy's search functionality.
+"""
 from __future__ import annotations
 
 from typing import Iterable, Any

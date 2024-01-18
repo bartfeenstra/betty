@@ -1,3 +1,6 @@
+"""
+Provide the Render API.
+"""
 from pathlib import Path
 
 from betty.locale import Localizer

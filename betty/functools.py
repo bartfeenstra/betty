@@ -1,3 +1,6 @@
+"""
+Provide functional programming utilities.
+"""
 from __future__ import annotations
 
 from typing import Any, Iterable, Sized, TypeVar, Callable, Iterator, Generic, cast

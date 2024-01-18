@@ -1,3 +1,6 @@
+"""
+Provide Cotton Candy's Graphical User Interface.
+"""
 from __future__ import annotations
 
 from typing import Callable, Any

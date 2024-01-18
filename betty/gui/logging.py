@@ -1,3 +1,6 @@
+"""
+Provide logging for the Graphical User Interface.
+"""
 import logging
 from typing import Any
 

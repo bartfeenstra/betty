@@ -1,3 +1,6 @@
+"""
+Provide an API to load `Gramps <https://gramps-project.org>`_ family trees into Betty ancestries.
+"""
 from __future__ import annotations
 
 import gzip

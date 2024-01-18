@@ -1,3 +1,6 @@
+"""
+Provide Betty's main data model.
+"""
 from __future__ import annotations
 
 from contextlib import suppress

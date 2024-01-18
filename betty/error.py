@@ -1,3 +1,6 @@
+"""
+Provide error handling utilities.
+"""
 import traceback
 from typing import TypeVar, Self
 
