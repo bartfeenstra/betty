@@ -54,11 +54,6 @@ modindex_common_prefix = ['betty.']
 
 # sphinx.ext.autodoc configuration.
 autodoc_member_order = 'alphabetical'
-autodoc_default_options = {
-    'members': None,
-    'undoc-members': None,
-    'show-inheritnace': None,
-}
 
 # sphinx_autodoc_typehints configuration.
 set_type_checking_flag = True
