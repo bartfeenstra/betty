@@ -30,7 +30,7 @@ class DockerizedNginxServer(AppServer):
         self._output_directory = TemporaryDirectory()
         output_directory_name = await self._output_directory.__aenter__()
         nginx_configuration_file_path = Path(output_directory_name) / 'nginx.conf'
-        docker_directory_path = Path(output_directory_name) / 'docker'
+        docker_directory_path = Path(output_directory_name)
         dockerfile_file_path = docker_directory_path / 'Dockerfile'
 
         self._app.project.configuration.debug = True

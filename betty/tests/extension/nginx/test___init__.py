@@ -160,7 +160,7 @@ server {
         local media_type_extensions = {}
         media_type_extensions['text/html'] = 'html'
         media_type_extensions['application/json'] = 'json'
-        local media_type = require('cone').negotiate(ngx.req.get_headers()['Accept'], available_media_types)
+        local media_type = require('content_negotiation').negotiate(ngx.req.get_headers()['Accept'], available_media_types)
         return media_type_extensions[media_type]
     }
     index index.$media_type_extension;
@@ -170,7 +170,7 @@ server {
             local locale_aliases = {}
             locale_aliases['en-US'] = 'en'
             locale_aliases['nl-NL'] = 'nl'
-            local locale = require('cone').negotiate(ngx.req.get_headers()['Accept-Language'], available_locales)
+            local locale = require('content_negotiation').negotiate(ngx.req.get_headers()['Accept-Language'], available_locales)
             return locale_aliases[locale]
         }
         add_header Vary Accept-Language;
@@ -242,7 +242,7 @@ server {
         local media_type_extensions = {}
         media_type_extensions['text/html'] = 'html'
         media_type_extensions['application/json'] = 'json'
-        local media_type = require('cone').negotiate(ngx.req.get_headers()['Accept'], available_media_types)
+        local media_type = require('content_negotiation').negotiate(ngx.req.get_headers()['Accept'], available_media_types)
         return media_type_extensions[media_type]
     }
     index index.$media_type_extension;

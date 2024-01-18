@@ -22,6 +22,9 @@ fi
 if [ -z "${BETTY_TEST_SKIP_ESLINT-}" ]; then
   ./bin/test-eslint
 fi
+if [ -z "${BETTY_TEST_SKIP_BUSTED-}" ]; then
+  ./bin/test-busted
+fi
 ./bin/test-pytest
 if [ -z "${BETTY_TEST_SKIP_CYPRESS-}" ]; then
   ./bin/test-cypress
