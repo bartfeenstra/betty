@@ -14,7 +14,6 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css' // eslint-disable-
 import 'leaflet.fullscreen/Control.FullScreen.js'
 import 'leaflet.fullscreen/Control.FullScreen.css' // eslint-disable-line no-unused-vars
 import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css' // eslint-disable-line no-unused-vars
-import configuration from './configuration.json'
 
 L.Map.addInitHook('addHandler', 'gestureHandling', GestureHandling)
 
@@ -72,10 +71,9 @@ function initializePlaceList (placeList) {
 
 const BettyIcon = L.Icon.Default.extend({
   options: {
-    imagePath: configuration.rootPath,
-    iconUrl: leafletMarkerIconImage.replace(/^\/+/, ''),
-    iconRetinaUrl: leafletMarkerIcon2xImage.replace(/^\/+/, ''),
-    shadowUrl: leafletMarkerShadowImage.replace(/^\/+/, '')
+    iconUrl: leafletMarkerIconImage,
+    iconRetinaUrl: leafletMarkerIcon2xImage,
+    shadowUrl: leafletMarkerShadowImage
   }
 })
 
