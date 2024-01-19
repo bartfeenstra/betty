@@ -12,7 +12,6 @@ from betty.locale import Date, Datey, DateRange, Localized
 from betty.media_type import MediaType
 from betty.model import get_entity_type_name, Entity
 from betty.model.ancestry import File, PlaceName, Subject, Attendee, Witness, Dated, Person, Place, Citation
-from betty.string import camel_case_to_snake_case
 from betty.tests import TemplateTestCase
 
 
@@ -490,7 +489,7 @@ class TestTestEntity(TemplateTestCase):
         ('false', Person, object()),
     ])
     async def test(self, expected: str, entity_type: type[Entity], data: dict[str, Any]) -> None:
-        template = f'{{% if data is {camel_case_to_snake_case(get_entity_type_name(entity_type))}_entity %}}true{{% else %}}false{{% endif %}}'
+        template = f'{{% if data is entity("{get_entity_type_name(entity_type)}") %}}true{{% else %}}false{{% endif %}}'
         async with self._render(template_string=template, data={
             'data': data,
         }) as (actual, _):

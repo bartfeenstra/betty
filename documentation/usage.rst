@@ -19,4 +19,5 @@ In this section
 - :doc:`/usage/project`
 - :doc:`/usage/ancestry`
 - :doc:`/usage/assets`
+- :doc:`/usage/templating`
 - :doc:`/usage/translation`

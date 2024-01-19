@@ -20,6 +20,10 @@ project = 'Betty'
 version = about.version() or ''
 release = about.version_label()
 copyright = 'Bart Feenstra and contributors'
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3/', None),
+    'jinja2': ('https://jinja.palletsprojects.com/en/latest/', None),
+}
 html_favicon = str(ROOT_DIRECTORY_PATH / 'betty' / 'assets' / 'public' / 'static' / 'betty.ico')
 html_logo = str(ROOT_DIRECTORY_PATH / 'betty' / 'assets' / 'public' / 'static' / 'betty-32x32.png')
 html_context = {
