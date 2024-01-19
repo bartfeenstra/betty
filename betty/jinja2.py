@@ -8,11 +8,13 @@ import json as stdjson
 import os
 import re
 import warnings
+from base64 import b64encode
 from collections import defaultdict
 from contextlib import suppress
 from pathlib import Path
 from typing import Callable, Iterable, Any, Iterator, cast, \
     MutableMapping, Mapping, TypeVar, AsyncIterator
+from urllib.parse import quote
 
 import aiofiles
 from PIL import Image
@@ -306,6 +308,7 @@ class Environment(Jinja2Environment):
         self.filters['void_none'] = void_none
         self.filters['none_void'] = none_void
         self.filters['minimize'] = minimize
+        self.filters['base64'] = lambda input: b64encode(input.encode('utf-8')).decode('utf-8')
 
     def _init_tests(self) -> None:
         self.tests['entity'] = lambda x: isinstance(x, Entity)
@@ -527,7 +530,7 @@ async def _filter_file(context: Context, file: File) -> str:
         file_destination_path = app.project.configuration.www_directory_path / 'file' / file.id / 'file' / file.path.name
         await _do_filter_file(file.path, file_destination_path)
 
-    return f'/file/{file.id}/file/{file.path.name}'
+    return f'/file/{quote(file.id)}/file/{quote(file.path.name)}'
 
 
 async def _do_filter_file(file_source_path: Path, file_destination_path: Path) -> None:
@@ -576,7 +579,7 @@ async def _filter_image(
         cache_directory_path = CACHE_DIRECTORY_PATH / 'image'
         await task_callable(file, cache_directory_path, file_directory_path, destination_name, width, height)
 
-    destination_public_path = '/file/%s' % destination_name
+    destination_public_path = f'/file/{quote(destination_name)}'
 
     return destination_public_path
 
