@@ -3,8 +3,8 @@
       prefix="foaf: http://xmlns.com/foaf/0.1/ og: http://ogp.me/ns# rel: http://purl.org/vocab/relationship/">
 <head>
     {% include 'head.html.j2' %}
-    <link rel="manifest" href="{{ '/betty.webmanifest' | static_url }}"/>
-    <link rel="stylesheet" href="{{ '/cotton_candy.css' | static_url }}"/>
+    <link rel="manifest" href="{{ '/betty.webmanifest' | static_url }}">
+    <link rel="stylesheet" href="{{ '/cotton_candy.css' | static_url }}">
     <script src="{{ '/cotton_candy.js' | static_url }}" defer></script>
 </head>
 <body>
@@ -31,10 +31,11 @@
                         {% endfilter %}
                     {%- endset %}
                 {% endif %}
-                <input id="search-query" type="search"{% if search_keywords_example is defined %} placeholder="{{ search_keywords_example }}"{% endif %} />
+                <input id="search-query" type="search"{% if search_keywords_example is defined %} placeholder="{{ search_keywords_example }}"{% endif %}>
                 <label for="search-query" title="Search">Search</label>
             </form>
             <section id="search-expanded">
+                <h2 class="visually-hidden">Search</h2>
                 <p id="search-instructions">
                     {% trans shortcut = pgettext('enter-search-shortcut', 's') -%}
                         Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> to exit the search. Search again with <kbd>{{ shortcut }}</kbd>.

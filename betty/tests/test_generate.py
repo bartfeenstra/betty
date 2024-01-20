@@ -60,12 +60,12 @@ class TestGenerate:
             await generate(app)
         with open(assert_betty_html(app, '/nl/index.html', check_links=True)) as f:
             html = f.read()
-            assert '<link rel="canonical" href="https://example.com/nl/index.html" hreflang="nl-NL" type="text/html"/>' in html
-            assert '<link rel="alternate" href="/en/index.html" hreflang="en-US" type="text/html"/>' in html
+            assert '<link rel="canonical" href="https://example.com/nl/index.html" hreflang="nl-NL" type="text/html">' in html
+            assert '<link rel="alternate" href="/en/index.html" hreflang="en-US" type="text/html">' in html
         with open(assert_betty_html(app, '/en/index.html', check_links=True)) as f:
             html = f.read()
-            assert '<link rel="canonical" href="https://example.com/en/index.html" hreflang="en-US" type="text/html"/>' in html
-            assert '<link rel="alternate" href="/nl/index.html" hreflang="nl-NL" type="text/html"/>' in html
+            assert '<link rel="canonical" href="https://example.com/en/index.html" hreflang="en-US" type="text/html">' in html
+            assert '<link rel="alternate" href="/nl/index.html" hreflang="nl-NL" type="text/html">' in html
 
     async def test_links_for_entity_pages(self) -> None:
         app = App()
@@ -85,14 +85,14 @@ class TestGenerate:
             await generate(app)
         with open(assert_betty_html(app, f'/nl/person/{person.id}/index.html', check_links=True)) as f:
             html = f.read()
-        assert f'<link rel="canonical" href="https://example.com/nl/person/{person.id}/index.html" hreflang="nl-NL" type="text/html"/>' in html
-        assert f'<link rel="alternate" href="/en/person/{person.id}/index.html" hreflang="en-US" type="text/html"/>' in html
-        assert f'<link rel="alternate" href="/person/{person.id}/index.json" hreflang="und" type="application/json"/>' in html
+        assert f'<link rel="canonical" href="https://example.com/nl/person/{person.id}/index.html" hreflang="nl-NL" type="text/html">' in html
+        assert f'<link rel="alternate" href="/en/person/{person.id}/index.html" hreflang="en-US" type="text/html">' in html
+        assert f'<link rel="alternate" href="/person/{person.id}/index.json" hreflang="und" type="application/json">' in html
         with open(assert_betty_html(app, f'/en/person/{person.id}/index.html', check_links=True)) as f:
             html = f.read()
-        assert f'<link rel="canonical" href="https://example.com/en/person/{person.id}/index.html" hreflang="en-US" type="text/html"/>' in html
-        assert f'<link rel="alternate" href="/nl/person/{person.id}/index.html" hreflang="nl-NL" type="text/html"/>' in html
-        assert f'<link rel="alternate" href="/person/{person.id}/index.json" hreflang="und" type="application/json"/>' in html
+        assert f'<link rel="canonical" href="https://example.com/en/person/{person.id}/index.html" hreflang="en-US" type="text/html">' in html
+        assert f'<link rel="alternate" href="/nl/person/{person.id}/index.html" hreflang="nl-NL" type="text/html">' in html
+        assert f'<link rel="alternate" href="/person/{person.id}/index.json" hreflang="und" type="application/json">' in html
 
     async def test_files(self) -> None:
         async with App() as app:

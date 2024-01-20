@@ -35,7 +35,7 @@ class Test(TemplateTestCase):
             id='P0',
             names=[PlaceName(name='The Place')],
         )
-        expected = 'in <address><a href="/place/P0/index.html"><span>The Place</span></a></address>'
+        expected = 'in <span><a href="/place/P0/index.html"><span>The Place</span></a></span>'
         async with self._render(data={
             'event': event,
         }) as (actual, _):
@@ -64,7 +64,7 @@ class Test(TemplateTestCase):
             id='P0',
             names=[PlaceName(name='The Place')],
         )
-        expected = '1970 in <address><a href="/place/P0/index.html"><span>The Place</span></a></address>'
+        expected = '1970 in <span><a href="/place/P0/index.html"><span>The Place</span></a></span>'
         async with self._render(data={
             'event': event,
         }) as (actual, _):
@@ -89,7 +89,7 @@ class Test(TemplateTestCase):
             names=[PlaceName(name='The Place')],
         )
         event.citations.add(Citation(source=Source(name='The Source')))
-        expected = '1970 in <address><span>The Place</span></address>'
+        expected = '1970 in <span><span>The Place</span></span>'
         async with self._render(data={
             'event': event,
             'embedded': True,
