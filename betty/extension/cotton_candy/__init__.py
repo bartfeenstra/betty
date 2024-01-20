@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import logging
 import re
-from collections.abc import Sequence
+from collections.abc import Sequence, AsyncIterable
 from pathlib import Path
 from shutil import copy2
 from typing import Any, Callable, Iterable, Self, cast
@@ -234,8 +234,8 @@ class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Gener
 
 
 @pass_context
-async def _global_search_index(context: Context) -> Iterable[dict[str, str]]:
-    return await Index(
+async def _global_search_index(context: Context) -> AsyncIterable[dict[str, str]]:
+    return Index(
         context_app(context),
         context_task_context(context),
         context_localizer(context),

@@ -87,6 +87,7 @@ class TestJSONEncoder:
                     'locale': 'nl-NL',
                 },
             ],
+            'private': False,
         }
         actual = await self.assert_encodes(place, 'place')
         assert expected == actual
@@ -172,6 +173,7 @@ class TestJSONEncoder:
             'enclosedBy': [
                 '/place/the_enclosing_place/index.json',
             ],
+            'private': False,
         }
         actual = await self.assert_encodes(place, 'place')
         assert expected == actual

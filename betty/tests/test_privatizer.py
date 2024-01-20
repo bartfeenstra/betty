@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
 
 import pytest
 
 from betty.locale import Date, DateRange, DEFAULT_LOCALIZER
-from betty.model.ancestry import Person, Presence, Event, Source, File, Subject, Attendee, Citation, Privacy
+from betty.model.ancestry import Person, Presence, Event, Source, File, Subject, Attendee, Citation, Privacy, Place, \
+    Enclosure
 from betty.model.event_type import Death, Birth, Marriage
 from betty.privatizer import Privatizer
 from betty.project import DEFAULT_LIFETIME_THRESHOLD
@@ -414,3 +416,77 @@ class TestPrivatizer:
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(file)
         assert file.private
         assert citation.private
+
+    @pytest.mark.parametrize('expected, privacy, events, encloses', [
+        (Privacy.PUBLIC, Privacy.PUBLIC, [], []),
+        (Privacy.PRIVATE, Privacy.PRIVATE, [], []),
+        (Privacy.PRIVATE, Privacy.UNDETERMINED, [], []),
+        (Privacy.UNDETERMINED, Privacy.UNDETERMINED, [
+            Event(public=True),
+            Event(private=True),
+        ], []),
+        (Privacy.PRIVATE, Privacy.UNDETERMINED, [
+            Event(private=True)
+        ], []),
+        (Privacy.PRIVATE, Privacy.UNDETERMINED, [], [
+            Enclosure(None, None),
+        ]),
+        (Privacy.UNDETERMINED, Privacy.UNDETERMINED, [], [
+            Enclosure(Place(public=True), None),
+        ]),
+        (Privacy.PRIVATE, Privacy.UNDETERMINED, [], [
+            Enclosure(Place(private=True), None),
+        ]),
+    ])
+    async def test_privatize_place_should_determine_privacy(
+        self,
+        expected: Privacy,
+        privacy: Privacy,
+        events: Sequence[Event],
+        encloses: Sequence[Enclosure],
+    ) -> None:
+        place = Place(
+            privacy=privacy,
+            events=events,
+            encloses=encloses,
+        )
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(place)
+        assert place.privacy is expected
+
+    async def test_privatize_place_should_privatize_enclosed_by(self) -> None:
+        enclosed_by = Place()
+        place = Place(
+            private=True,
+            enclosed_by=[Enclosure(None, enclosed_by)],
+        )
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(place)
+        assert enclosed_by.private
+
+    async def test_privatize_place_should_not_privatize_public_enclosed_by(self) -> None:
+        enclosed_by = Place(public=True)
+        place = Place(
+            private=True,
+            enclosed_by=[Enclosure(None, enclosed_by)],
+        )
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(place)
+        assert enclosed_by.privacy is Privacy.PUBLIC
+
+    async def test_privatize_place_should_not_privatize_enclosed_by_with_public_associations(self) -> None:
+        enclosed_by = Place(
+            encloses=[Enclosure(Place(), None)],
+        )
+        place = Place(
+            private=True,
+            enclosed_by=[Enclosure(None, enclosed_by)],
+        )
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(place)
+        assert enclosed_by.privacy is not Privacy.PRIVATE
+
+    async def test_privatize_place_should_privatize_encloses(self) -> None:
+        encloses = Place()
+        place = Place(
+            private=True,
+            encloses=[Enclosure(encloses, None)],
+        )
+        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(place)
+        assert encloses.private

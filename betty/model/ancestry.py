@@ -18,7 +18,7 @@ from betty.media_type import MediaType
 from betty.model import many_to_many, Entity, one_to_many, many_to_one, many_to_one_to_many, \
     MultipleTypesEntityCollection, EntityCollection, UserFacingEntity, EntityTypeAssociationRegistry, \
     PickleableEntityGraph
-from betty.model.event_type import EventType
+from betty.model.event_type import EventType, UnknownEventType
 from betty.pickle import State, Pickleable
 
 
@@ -688,24 +688,36 @@ class Enclosure(Dated, HasCitations, Entity):
 @one_to_many('events', 'betty.model.ancestry.Event', 'place')
 @one_to_many('enclosed_by', 'betty.model.ancestry.Enclosure', 'encloses')
 @one_to_many('encloses', 'betty.model.ancestry.Enclosure', 'enclosed_by')
-class Place(HasLinks, HasFiles, UserFacingEntity, Entity):
+class Place(HasLinks, HasFiles, HasPrivacy, UserFacingEntity, Entity):
     def __init__(
         self,
         *,
         id: str | None = None,
         names: list[PlaceName] | None = None,
         events: Iterable[Event] | None = None,
+        enclosed_by: Iterable[Enclosure] | None = None,
+        encloses: Iterable[Enclosure] | None = None,
         coordinates: Point | None = None,
         links: MutableSequence[Link] | None = None,
+        privacy: Privacy | None = None,
+        public: bool | None = None,
+        private: bool | None = None,
     ):
         super().__init__(
             id,
             links=links,
+            privacy=privacy,
+            public=public,
+            private=private,
         )
         self._names = [] if names is None else names
         self._coordinates = coordinates
         if events is not None:
             self.events = events  # type: ignore[assignment]
+        if enclosed_by is not None:
+            self.enclosed_by = enclosed_by  # type: ignore[assignment]
+        if encloses is not None:
+            self.encloses = encloses  # type: ignore[assignment]
 
     def __getstate__(self) -> State:
         dict_state, slots_state = super().__getstate__()
@@ -925,7 +937,7 @@ class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, UserFacingEnti
         self,
         *,
         id: str | None = None,
-        event_type: type[EventType],
+        event_type: type[EventType] = UnknownEventType,
         date: Datey | None = None,
         files: Iterable[File] | None = None,
         citations: Iterable[Citation] | None = None,

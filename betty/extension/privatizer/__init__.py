@@ -55,7 +55,7 @@ class _Privatizer(UserFacingExtension, PostLoader):
             ))
         for entity_type in set(newly_privatized) - {Person}:
             if newly_privatized[entity_type] > 0:
-                logger.info(self._app.localizer._('Privatized {count} {entity_type}, because they are associated with private people.').format(
+                logger.info(self._app.localizer._('Privatized {count} {entity_type}, because they are associated with private information.').format(
                     count=str(newly_privatized[entity_type]),
                     entity_type=entity_type.entity_type_label_plural().localize(self._app.localizer),
                 ))

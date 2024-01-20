@@ -20,7 +20,7 @@ class TestIndex:
             'nl-NL',
             alias='nl',
         ))
-        indexed = [item for item in await Index(app, Context(), DEFAULT_LOCALIZER).build()]
+        indexed = [item async for item in Index(app, Context(), DEFAULT_LOCALIZER).build()]
 
         assert [] == indexed
 
@@ -36,7 +36,7 @@ class TestIndex:
             alias='nl',
         ))
         app.project.ancestry.add(person)
-        indexed = [item for item in await Index(app, Context(), DEFAULT_LOCALIZER).build()]
+        indexed = [item async for item in Index(app, Context(), DEFAULT_LOCALIZER).build()]
 
         assert [] == indexed
 
@@ -60,7 +60,7 @@ class TestIndex:
             alias='nl',
         ))
         app.project.ancestry.add(person)
-        indexed = [item for item in await Index(app, Context(), DEFAULT_LOCALIZER).build()]
+        indexed = [item async for item in Index(app, Context(), DEFAULT_LOCALIZER).build()]
 
         assert [] == indexed
 
@@ -85,7 +85,7 @@ class TestIndex:
             alias='nl',
         ))
         app.project.ancestry.add(person)
-        indexed = [item for item in await Index(app, Context(), app.localizers[locale]).build()]
+        indexed = [item async for item in Index(app, Context(), app.localizers[locale]).build()]
 
         assert 'jane' == indexed[0]['text']
         assert expected in indexed[0]['result']
@@ -111,7 +111,7 @@ class TestIndex:
             alias='nl',
         ))
         app.project.ancestry.add(person)
-        indexed = [item for item in await Index(app, Context(), app.localizers[locale]).build()]
+        indexed = [item async for item in Index(app, Context(), app.localizers[locale]).build()]
 
         assert 'doughnut' == indexed[0]['text']
         assert expected in indexed[0]['result']
@@ -139,7 +139,7 @@ class TestIndex:
             alias='nl',
         ))
         app.project.ancestry.add(person)
-        indexed = [item for item in await Index(app, Context(), app.localizers[locale]).build()]
+        indexed = [item async for item in Index(app, Context(), app.localizers[locale]).build()]
 
         assert 'jane doughnut' == indexed[0]['text']
         assert expected in indexed[0]['result']
@@ -172,10 +172,31 @@ class TestIndex:
             alias='nl',
         ))
         app.project.ancestry.add(place)
-        indexed = [item for item in await Index(app, Context(), app.localizers[locale]).build()]
+        indexed = [item async for item in Index(app, Context(), app.localizers[locale]).build()]
 
         assert 'netherlands nederland' == indexed[0]['text']
         assert expected in indexed[0]['result']
+
+    async def test_private_place(self) -> None:
+        place_id = 'P1'
+        place = Place(
+            id=place_id,
+            names=[
+                PlaceName(
+                    name='Netherlands',
+                    locale='en',
+                ),
+            ],
+            private=True,
+        )
+
+        app = App()
+        app.project.configuration.extensions.enable(CottonCandy)
+        app.project.configuration.locales['en-US'].alias = 'en'
+        app.project.ancestry.add(place)
+        indexed = [item async for item in Index(app, Context(), DEFAULT_LOCALIZER).build()]
+
+        assert [] == indexed
 
     async def test_file_without_description(self) -> None:
         file_id = 'F1'
@@ -192,7 +213,7 @@ class TestIndex:
             alias='nl',
         ))
         app.project.ancestry.add(file)
-        indexed = [item for item in await Index(app, Context(), DEFAULT_LOCALIZER).build()]
+        indexed = [item async for item in Index(app, Context(), DEFAULT_LOCALIZER).build()]
 
         assert [] == indexed
 
@@ -216,7 +237,24 @@ class TestIndex:
             alias='nl',
         ))
         app.project.ancestry.add(file)
-        indexed = [item for item in await Index(app, Context(), app.localizers[locale]).build()]
+        indexed = [item async for item in Index(app, Context(), app.localizers[locale]).build()]
 
         assert '"file" is dutch for "traffic jam"' == indexed[0]['text']
         assert expected in indexed[0]['result']
+
+    async def test_private_file(self) -> None:
+        file_id = 'F1'
+        file = File(
+            id=file_id,
+            path=Path(__file__),
+            description='"file" is Dutch for "traffic jam"',
+            private=True,
+        )
+
+        app = App()
+        app.project.configuration.extensions.enable(CottonCandy)
+        app.project.configuration.locales['en-US'].alias = 'en'
+        app.project.ancestry.add(file)
+        indexed = [item async for item in Index(app, Context(), DEFAULT_LOCALIZER).build()]
+
+        assert [] == indexed

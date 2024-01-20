@@ -333,6 +333,9 @@
         },
         "events": {
           "$ref": "#/definitions/events"
+        },
+        "private": {
+          "$ref": "#/definitions/privacy"
         }
       },
       "required": [
@@ -341,7 +344,8 @@
         "names",
         "encloses",
         "links",
-        "events"
+        "events",
+        "private"
       ],
       "patternProperties": {
         "^@": {
