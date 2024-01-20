@@ -1,6 +1,18 @@
 Development
 ===========
 
+.. toctree::
+   :glob:
+   :hidden:
+   :maxdepth: 1
+   :titlesonly:
+
+   development/extension
+   development/translation
+   development/test
+
+This section covers how to develop Betty itself.
+
 .. note::
     Read :doc:`/about/contributing` if you would like to share your improvements to Betty with the wider community.
 
@@ -8,38 +20,8 @@ Getting started
 ---------------
 :doc:`Install Betty from source </installation/source>`.
 
-Working on translations
------------------------
-
-Making changes to the translatable strings in the source code
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Run ``betty update-translations`` to update the translations files with the changes you made.
-
-Adding translations for a language for which no translations exist yet
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Run ``betty init-translation $locale`` where ``$locale`` is an
-`IETF BCP 47 language tag <https://tools.ietf.org/html/bcp47>`_.
-
-Testing
--------
-In any existing Python environment, run ``./bin/test``.
-
-Environment variables
-^^^^^^^^^^^^^^^^^^^^^
-
-These impact the ``./bin/test`` command:
-
-* ``BETTY_TEST_SKIP_SHELLCHECK=true``: Skip ShellCheck tests.
-* ``BETTY_TEST_SKIP_FLAKE8=true``: Skip Flake8 tests.
-* ``BETTY_TEST_SKIP_MYPY=true``: Skip mypy tests.
-* ``BETTY_TEST_SKIP_STYLELINT=true``: Skip Stylelint tests.
-* ``BETTY_TEST_SKIP_ESLINT=true``: Skip ESLint tests.
-* ``BETTY_TEST_SKIP_BUSTED=true``: Skip the Busted test build.
-* ``BETTY_TEST_SKIP_CYPRESS=true``: Skip Cypress tests.
-* ``BETTY_TEST_SKIP_PYINSTALLER=true``: Skip the PyInstaller test build.
-
-Fixing problems automatically
------------------------------
-In any existing Python environment, run ``./bin/fix``.
+In this section
+---------------
+- :doc:`development/extension`
+- :doc:`development/translation`
+- :doc:`development/test`

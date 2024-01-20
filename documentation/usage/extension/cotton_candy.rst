@@ -1,4 +1,4 @@
-The Cotton Candy extension
+The *Cotton Candy* extension
 ==========================
 The :py:class:`betty.extension.CottonCandy` extension provides Betty's default theme.
 
