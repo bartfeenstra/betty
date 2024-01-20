@@ -18,4 +18,5 @@ In this section
 - :doc:`/usage/gedcom`
 - :doc:`/usage/project`
 - :doc:`/usage/ancestry`
+- :doc:`/usage/assets`
 - :doc:`/usage/translation`

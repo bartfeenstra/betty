@@ -15,6 +15,23 @@ Betty once, you can manage multiple projects.
 You can create and tailor projects through the :doc:`Betty Desktop application</installation/desktop>`,
 or through the :doc:`command line </usage/cli>` using :doc:`configuration files </usage/project/configuration>`.
 
+
+.. note::
+    Betty will consider the directory your project configuration file is located in to be your project directory,
+    and assumes that the directory will not be used for anything else besides your Betty project.
+
+
+The project directory
+--------------------
+``./assets/``
+    Your project's :doc:`assets <assets>`, through which you can override translations, HTML templates, and more.
+``./betty.yaml`` **or** ``./betty.yml`` **or** ``./betty.json``
+    Your project's configuration file.
+``./output/``
+    This is where Betty puts all the things it generates for you.
+``./output/www``
+    This is where Betty puts your generated site.
+
 In this section
 ---------------
 - :doc:`project/configuration`
