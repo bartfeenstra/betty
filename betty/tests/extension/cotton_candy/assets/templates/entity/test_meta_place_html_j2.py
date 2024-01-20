@@ -34,7 +34,7 @@ class Test(TemplateTestCase):
             names=[PlaceName(name='The All-enclosing Place')],
         )
         Enclosure(encloses=enclosing_place, enclosed_by=all_enclosing_place)
-        expected = '<div class="meta">in <address><a href="/place/P1/index.html"><span>The Enclosing Place</span></a></address>, <address><a href="/place/P2/index.html"><span>The All-enclosing Place</span></a></address></div>'
+        expected = '<div class="meta">in <span><a href="/place/P1/index.html"><span>The Enclosing Place</span></a></span>, <span><a href="/place/P2/index.html"><span>The All-enclosing Place</span></a></span></div>'
         async with self._render(data={
             'entity': place,
         }) as (actual, _):
@@ -55,7 +55,7 @@ class Test(TemplateTestCase):
             names=[PlaceName(name='The All-enclosing Place')],
         )
         Enclosure(encloses=enclosing_place, enclosed_by=all_enclosing_place)
-        expected = '<div class="meta">in <address><a href="/place/P1/index.html"><span>The Enclosing Place</span></a></address></div>'
+        expected = '<div class="meta">in <span><a href="/place/P1/index.html"><span>The Enclosing Place</span></a></span></div>'
         async with self._render(data={
             'entity': place,
             'entity_contexts': EntityContexts(all_enclosing_place),
@@ -81,7 +81,7 @@ class Test(TemplateTestCase):
             id='P999',
             names=[PlaceName(name='Far Far Away')],
         )
-        expected = '<div class="meta">in <address><a href="/place/P1/index.html"><span>The Enclosing Place</span></a></address>, <address><a href="/place/P2/index.html"><span>The All-enclosing Place</span></a></address></div>'
+        expected = '<div class="meta">in <span><a href="/place/P1/index.html"><span>The Enclosing Place</span></a></span>, <span><a href="/place/P2/index.html"><span>The All-enclosing Place</span></a></span></div>'
         async with self._render(data={
             'entity': place,
             'entity_contexts': EntityContexts(unrelated_place),

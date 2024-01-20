@@ -1,6 +1,6 @@
 {% set place = place | default(entity) %}
 {% set embedded = embedded | default(False) %}
-<address>
+<span>
     {%- set names = place.names | select_dateds(date_context | default(none)) | list -%}
     {%- if names | length == 0 -%}
         {%- set names = place.names -%}
@@ -17,4 +17,4 @@
     {%- if not embedded -%}
         </a>
     {%- endif -%}
-</address>
+</span>

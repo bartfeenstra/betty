@@ -16,7 +16,7 @@ class Test(TemplateTestCase):
 
     @pytest.mark.parametrize('expected, data, locale', [
         (
-            '<address><a href="/place/P0/index.html"><span>The Place</span></a></address>',
+            '<span><a href="/place/P0/index.html"><span>The Place</span></a></span>',
             {
                 'entity': Place(
                     id='P0',
@@ -26,7 +26,7 @@ class Test(TemplateTestCase):
             None,
         ),
         (
-            '<address><a href="/place/P0/index.html"><span lang="en">The Place</span></a></address>',
+            '<span><a href="/place/P0/index.html"><span lang="en">The Place</span></a></span>',
             {
                 'entity': Place(
                     id='P0',
@@ -39,7 +39,7 @@ class Test(TemplateTestCase):
             None,
         ),
         (
-            '<address><a href="/place/P0/index.html"><span lang="nl">De Plaats</span></a></address>',
+            '<span><a href="/place/P0/index.html"><span lang="nl">De Plaats</span></a></span>',
             {
                 'entity': Place(
                     id='P0',
@@ -55,7 +55,7 @@ class Test(TemplateTestCase):
             'nl',
         ),
         (
-            '<address><span>The Place</span></address>',
+            '<span><span>The Place</span></span>',
             {
                 'entity': Place(
                     id='P0',
@@ -66,7 +66,7 @@ class Test(TemplateTestCase):
             None,
         ),
         (
-            '<address><a href="/place/P0/index.html"><span lang="nl">De Nieuwe Plaats</span></a></address>',
+            '<span><a href="/place/P0/index.html"><span lang="nl">De Nieuwe Plaats</span></a></span>',
             {
                 'entity': Place(
                     id='P0',

@@ -9,7 +9,7 @@
     <span class="private" title="{% trans %}This person's details are unavailable to protect their privacy.{% endtrans %}">{% trans %}private{% endtrans %}</span>
 {%- else -%}
     {%- if person.names | length -%}
-        {% with person_name = person.names | select('public') | first | default(person.names | first) %}
+        {% with person_name = person.names | select('public') | first | default(person.names | first), embedded=True %}
             {% include 'entity/label--person-name.html.j2' %}
         {% endwith %}
     {%- else -%}

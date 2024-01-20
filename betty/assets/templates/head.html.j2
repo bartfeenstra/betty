@@ -1,33 +1,33 @@
 <title>{% if page_title is defined %}{{ page_title | striptags }} - {% endif %}{{ app.project.configuration.title }}</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="generator" content="Betty (https://github.com/bartfeenstra/betty)"/>
+<meta name="generator" content="Betty (https://betty.readthedocs.io)">
 {% if app.project.configuration.author %}
-    <meta name="author" content="{{ app.project.configuration.author }}"/>
+    <meta name="author" content="{{ app.project.configuration.author }}">
 {% endif %}
-<meta name="og:title" content="{{ page_title | default(app.project.configuration.title) | striptags }}"/>
-<meta name="og:site_name" content="{{ app.project.configuration.title }}"/>
-<meta name="twitter:title" content="{{ page_title | default(app.project.configuration.title) | striptags }}"/>
-<meta name="twitter:card" content="summary_large_image"/>
+<meta name="og:title" content="{{ page_title | default(app.project.configuration.title) | striptags }}">
+<meta name="og:site_name" content="{{ app.project.configuration.title }}">
+<meta name="twitter:title" content="{{ page_title | default(app.project.configuration.title) | striptags }}">
+<meta name="twitter:card" content="summary_large_image">
 {% if page_resource is defined %}
     {% if page_resource is has_files %}
         {% for file in page_resource.files %}
             {% if file.media_type.type == 'image' %}
                 {% set page_image_url = file | image(600, 600) | static_url(absolute=true) %}
-                <meta name="og:image" content="{{ page_image_url }}"/>
-                <meta name="og:image:type" content="{{ file.media_type }}"/>
-                <meta name="twitter:image" content="{{ page_image_url }}"/>
+                <meta name="og:image" content="{{ page_image_url }}">
+                <meta name="og:image:type" content="{{ file.media_type }}">
+                <meta name="twitter:image" content="{{ page_image_url }}">
                 {% if file.description %}
-                    <meta name="og:image:description" content="{{ file.description }}"/>
-                    <meta name="twitter:image:alt" content="{{ file.description }}"/>
+                    <meta name="og:image:description" content="{{ file.description }}">
+                    <meta name="twitter:image:alt" content="{{ file.description }}">
                 {% endif %}
             {% endif %}
         {% endfor %}
     {% endif %}
-    <link rel="canonical" href="{{ page_resource | url(absolute=true) }}" hreflang="{{ localizer.locale }}" type="text/html"/>
+    <link rel="canonical" href="{{ page_resource | url(absolute=true) }}" hreflang="{{ localizer.locale }}" type="text/html">
     {% for project_locale in app.project.configuration.locales %}
         {% if project_locale != localizer.locale %}
-            <link rel="alternate" href="{{ page_resource | url(locale=project_locale) }}" hreflang="{{ project_locale }}" type="text/html"/>
+            <link rel="alternate" href="{{ page_resource | url(locale=project_locale) }}" hreflang="{{ project_locale }}" type="text/html">
 
         {% endif %}
     {% endfor %}
@@ -35,13 +35,12 @@
         <script type="application/ld+json">
           {{ page_resource | tojson }}
         </script>
-        <link rel="alternate" href="{{ page_resource | url(media_type='application/json') }}" hreflang="und" type="application/json"/>
+        <link rel="alternate" href="{{ page_resource | url(media_type='application/json') }}" hreflang="und" type="application/json">
     {% endif %}
 {% endif %}
-<meta name="og:image" content="/betty-512x512.png"/>
-<link rel="icon" href="{{ '/betty.ico' | static_url }}"/>
+<link rel="icon" href="{{ '/betty.ico' | static_url }}">
 {% for css_path in public_css_paths %}
-    <link rel="stylesheet" href="{{ css_path }}"/>
+    <link rel="stylesheet" href="{{ css_path }}">
 {% endfor %}
 {% for js_path in public_js_paths %}
     <script src="{{ js_path }}" defer></script>

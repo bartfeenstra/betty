@@ -200,39 +200,44 @@ class _Retriever:
         return None
 
     async def get_image(self, page_language: str, page_name: str) -> Image | None:
-        api_data = await self._get_page_query_api_data(page_language, page_name)
         try:
-            page_image_name = api_data['pageimage']
-        except KeyError:
-            # There may not be any images.
+            api_data = await self._get_page_query_api_data(page_language, page_name)
+            try:
+                page_image_name = api_data['pageimage']
+            except KeyError:
+                # There may not be any images.
+                return None
+
+            if page_image_name in self._images:
+                return self._images[page_image_name]
+
+            url = f'https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&titles=File:{quote(page_image_name)}&iiprop=url|mime|canonicaltitle&format=json&formatversion=2'
+            image_info_api_data = await self._get_query_api_data(url)
+
+            try:
+                image_info = image_info_api_data['imageinfo'][0]
+            except KeyError as error:
+                raise RetrievalError(f'Could not successfully parse the JSON content returned by {url}: {error}')
+
+            extension = None
+            for mimetypes_extension, mimetypes_media_type in mimetypes.types_map.items():
+                if mimetypes_media_type == image_info['mime']:
+                    extension = mimetypes_extension
+            await self._request(image_info['url'], extension)
+
+            file_path = (self._cache_directory_path / hashlib.md5(image_info['url'].encode("utf-8")).hexdigest()).with_suffix(f'.{extension}')
+            image = Image(
+                file_path,
+                MediaType(image_info['mime']),
+                image_info['canonicaltitle'],
+                image_info['descriptionurl'],
+            )
+
+            return image
+        except RetrievalError as error:
+            logger = logging.getLogger(__name__)
+            logger.warning(str(error))
             return None
-
-        if page_image_name in self._images:
-            return self._images[page_image_name]
-
-        url = f'https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&titles=File:{quote(page_image_name)}&iiprop=url|mime|canonicaltitle&format=json&formatversion=2'
-        image_info_api_data = await self._get_query_api_data(url)
-
-        try:
-            image_info = image_info_api_data['imageinfo'][0]
-        except KeyError as error:
-            raise RetrievalError(f'Could not successfully parse the JSON content returned by {url}: {error}')
-
-        extension = None
-        for mimetypes_extension, mimetypes_media_type in mimetypes.types_map.items():
-            if mimetypes_media_type == image_info['mime']:
-                extension = mimetypes_extension
-        await self._request(image_info['url'], extension)
-
-        file_path = (self._cache_directory_path / hashlib.md5(image_info['url'].encode("utf-8")).hexdigest()).with_suffix(f'.{extension}')
-        image = Image(
-            file_path,
-            MediaType(image_info['mime']),
-            image_info['canonicaltitle'],
-            image_info['descriptionurl'],
-        )
-
-        return image
 
     async def get_place_coordinates(self, page_language: str, page_name: str) -> Point | None:
         api_data = await self._get_page_query_api_data(page_language, page_name)
