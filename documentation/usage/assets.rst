@@ -8,7 +8,7 @@ Examples of assets:
 
 - imagery
 - CSS and JavaScript files
-- Jinja2 templates
+- (Jinja2) templates
 - :doc:`translations <translation>`
 
 The File System
@@ -51,4 +51,4 @@ For each of Betty's default assets, extensions' assets, and your projects' asset
     Examples of files that should often be put here are CSS and JavaScript files, images for
     your site's look and feel, and metadata files such as ``robots.txt`` and ``sitemap.xml``.
 ``./templates/``
-    Contains Jinja2 templates.
+    Contains (Jinja2) :doc:`templates <templating>`.

@@ -171,7 +171,10 @@ class BuiltinServer(Server):
     @property
     def public_url(self) -> str:
         if self._port is not None:
-            return f'http://localhost:{self._port}/{self._root_path}'
+            url = f'http://localhost:{self._port}'
+            if self._root_path:
+                url = f'{url}/{self._root_path}'
+            return url
         raise NoPublicUrlBecauseServerNotStartedError()
 
     @sync
