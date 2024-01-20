@@ -14,9 +14,7 @@ Ukrainian (``uk``)
 German (``de-DE``)
     Translations are {{{ translation-coverage-de-DE }}}% complete.
 
-Extensions and projects can override these translations, or provide translations for additional locales. All locale
-information is stored in ``./locale/$locale`` within the assets directories, where ``$locale`` is an
-`IETF BCP 47 <https://tools.ietf.org/html/bcp47>`_ language tag.
+Extensions and projects can override these translations through `asset management <assets>`.
 
 Betty uses `gettext <https://www.gnu.org/software/gettext/>`_ to manage its translations. For each language, there must
 be a ``./locale/$locale/LC_MESSAGES/betty.po`` file that contains the translations for that language. These translations
