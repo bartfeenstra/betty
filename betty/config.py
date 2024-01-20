@@ -13,7 +13,6 @@ from typing import Generic, Iterable, Iterator, SupportsIndex, Hashable, \
 
 import aiofiles
 from aiofiles.os import makedirs
-from ordered_set import OrderedSet
 from reactives import scope
 from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
@@ -431,23 +430,34 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
         self.replace(*other.values())
 
     def replace(self, *values: ConfigurationT) -> None:
-        self_keys = OrderedSet(self.keys())
+        self_keys = list(self.keys())
         other = {
             self._get_key(value): value
             for value in values
         }
         other_values = list(values)
-        other_keys = OrderedSet(map(self._get_key, other_values))
+        other_keys = list(map(self._get_key, other_values))
 
         # Update items that are kept.
-        for key in self_keys & other_keys:
-            self[key].update(other[key])
+        for key in self_keys:
+            if key in other_keys:
+                self[key].update(other[key])
 
         # Add items that are new.
-        self._append_without_trigger(*(other[key] for key in (other_keys - self_keys)))
+        self._append_without_trigger(*(
+            other[key]
+            for key
+            in other_keys
+            if key not in self_keys
+        ))
 
         # Remove items that should no longer be present.
-        self._remove_without_trigger(*(self_keys - other_keys))
+        self._remove_without_trigger(*(
+            key
+            for key
+            in self_keys
+            if key not in other_keys
+        ))
 
         # Ensure everything is in the correct order. This will also trigger reactors.
         self.move_to_beginning(*other_keys)

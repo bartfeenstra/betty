@@ -4,7 +4,7 @@ Provide a URL generation API.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import Any, cast
+from typing import Any
 from urllib.parse import quote
 
 from betty.app import App
@@ -104,9 +104,9 @@ def _generate_from_path(configuration: ProjectConfiguration, path: str, absolute
         try:
             locale_configuration = configuration.locales[locale]
         except KeyError:
-            project_locales = {*configuration.locales}
+            project_locales = list(configuration.locales)
             try:
-                negotiated_locale_data = negotiate_locale(locale, cast(set[Localey], project_locales))
+                negotiated_locale_data = negotiate_locale(locale, project_locales)
                 if negotiated_locale_data is None:
                     raise KeyError
                 locale_configuration = configuration.locales[to_locale(negotiated_locale_data)]

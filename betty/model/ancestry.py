@@ -3,6 +3,7 @@ Provide Betty's main data model.
 """
 from __future__ import annotations
 
+from collections.abc import MutableSequence
 from contextlib import suppress
 from enum import Enum
 from pathlib import Path
@@ -293,11 +294,11 @@ class HasLinks(Pickleable):
     def __init__(
         self,
         *args: Any,
-        links: set[Link] | None = None,
+        links: MutableSequence[Link] | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
-        self._links: set[Link] = set() if links is None else links
+        self._links: MutableSequence[Link] = links if links else []
 
     def __getstate__(self) -> State:
         dict_state, slots_state = super().__getstate__()
@@ -305,7 +306,7 @@ class HasLinks(Pickleable):
         return dict_state, slots_state
 
     @property
-    def links(self) -> set[Link]:
+    def links(self) -> MutableSequence[Link]:
         return self._links
 
 
@@ -351,7 +352,7 @@ class File(Described, HasPrivacy, HasLinks, HasMediaType, HasNotes, HasCitations
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
-        links: set[Link] | None = None,
+        links: MutableSequence[Link] | None = None,
     ):
         super().__init__(
             id,
@@ -449,7 +450,7 @@ class Source(Dated, HasFiles, HasLinks, HasPrivacy, UserFacingEntity, Entity):
         contains: Iterable[Source] | None = None,
         date: Datey | None = None,
         files: Iterable[File] | None = None,
-        links: set[Link] | None = None,
+        links: MutableSequence[Link] | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
@@ -695,7 +696,7 @@ class Place(HasLinks, HasFiles, UserFacingEntity, Entity):
         names: list[PlaceName] | None = None,
         events: Iterable[Event] | None = None,
         coordinates: Point | None = None,
-        links: set[Link] | None = None,
+        links: MutableSequence[Link] | None = None,
     ):
         super().__init__(
             id,
@@ -1114,7 +1115,7 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, UserFacingEntity, Ent
         id: str | None = None,
         files: Iterable[File] | None = None,
         citations: Iterable[Citation] | None = None,
-        links: set[Link] | None = None,
+        links: MutableSequence[Link] | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,

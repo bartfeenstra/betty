@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import difflib
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Iterator, cast, Any
 
@@ -269,15 +270,15 @@ class TestDateRange:
 
 class TestNegotiateLocale:
     @pytest.mark.parametrize('expected, preferred_locale, available_locales', [
-        ('nl', 'nl', {'nl'}),
-        ('nl-NL', 'nl', {'nl-NL'}),
-        ('nl', 'nl-NL', {'nl'}),
-        ('nl-NL', 'nl-NL', {'nl', 'nl-BE', 'nl-NL'}),
-        ('nl', 'nl', {'nl', 'en'}),
-        ('nl', 'nl', {'en', 'nl'}),
-        ('nl-NL', 'nl-BE', {'nl-NL'}),
+        ('nl', 'nl', ['nl']),
+        ('nl-NL', 'nl', ['nl-NL']),
+        ('nl', 'nl-NL', ['nl']),
+        ('nl-NL', 'nl-NL', ['nl', 'nl-BE', 'nl-NL']),
+        ('nl', 'nl', ['nl', 'en']),
+        ('nl', 'nl', ['en', 'nl']),
+        ('nl-NL', 'nl-BE', ['nl-NL']),
     ])
-    async def test(self, expected: Localey | None, preferred_locale: Localey, available_locales: set[Localey]) -> None:
+    async def test(self, expected: Localey | None, preferred_locale: Localey, available_locales: Sequence[Localey]) -> None:
         actual = negotiate_locale(preferred_locale, available_locales)
         assert expected == (to_locale(actual) if actual else actual)
 

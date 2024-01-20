@@ -86,7 +86,7 @@ class _Demo(Extension, Loader):
                     locale='fr',
                 ),
             ],
-            links={Link('https://en.wikipedia.org/wiki/Netherlands')},
+            links=[Link('https://en.wikipedia.org/wiki/Netherlands')],
         )
         self._load(netherlands)
 
@@ -107,7 +107,7 @@ class _Demo(Extension, Loader):
                     locale='fr',
                 ),
             ],
-            links={Link('https://en.wikipedia.org/wiki/North_Holland')},
+            links=[Link('https://en.wikipedia.org/wiki/North_Holland')],
         )
         self._load(Enclosure(encloses=north_holland, enclosed_by=netherlands))
         self._load(north_holland)
@@ -121,7 +121,7 @@ class _Demo(Extension, Loader):
                     locale='uk',
                 ),
             ],
-            links={Link('https://nl.wikipedia.org/wiki/Amsterdam')},
+            links=[Link('https://nl.wikipedia.org/wiki/Amsterdam')],
         )
         self._load(Enclosure(encloses=amsterdam, enclosed_by=north_holland))
         self._load(amsterdam)
@@ -135,7 +135,7 @@ class _Demo(Extension, Loader):
                     locale='uk',
                 ),
             ],
-            links={Link('https://nl.wikipedia.org/wiki/Ilpendam')},
+            links=[Link('https://nl.wikipedia.org/wiki/Ilpendam')],
         )
         self._load(Enclosure(encloses=ilpendam, enclosed_by=north_holland))
         self._load(ilpendam)

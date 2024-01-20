@@ -1,6 +1,7 @@
 """Integrate Betty with `Wikipedia <https://wikipedia.org>`_."""
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from typing import Callable, Iterable, Any
 
@@ -65,11 +66,13 @@ class _Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstan
             page_language, page_name = _parse_url(link.url)
         except NotAPageError:
             return None
-        if negotiate_locale(locale, {page_language}) is None:
+        if negotiate_locale(locale, [page_language]) is None:
             return None
         try:
             return await self._retriever.get_summary(page_language, page_name)
-        except RetrievalError:
+        except RetrievalError as error:
+            logger = logging.getLogger(__name__)
+            logger.warning(str(error))
             return None
 
     @classmethod

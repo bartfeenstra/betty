@@ -396,7 +396,7 @@ def filter_select_localizeds(context: Context, localizeds: Iterable[Localized], 
     for localized in localizeds:
         if include_unspecified and localized.locale in {None, 'mis', 'mul', 'und', 'zxx'}:
             yield localized
-        if localized.locale is not None and negotiate_locale(context_localizer(context).locale, {localized.locale}) is not None:
+        if localized.locale is not None and negotiate_locale(context_localizer(context).locale, [localized.locale]) is not None:
             yield localized
 
 
