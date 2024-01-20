@@ -1,4 +1,4 @@
-The nginx extension
+The *nginx* extension
 ===================
 The :py:class:`betty.extension.Nginx` extension creates an `nginx <https://nginx.org>`_ configuration file and a `Docker <https://www.docker.com/>`_ ``Dockerfile`` in the output
 directory.

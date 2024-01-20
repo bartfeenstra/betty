@@ -1,4 +1,4 @@
-The Gramps extension
+The *Gramps* extension
 ====================
 The :py:class:`betty.extension.Gramps` extension loads entities from `Gramps <https://gramps-project.org>`_ family trees into your Betty ancestry.
 

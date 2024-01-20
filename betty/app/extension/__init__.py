@@ -160,6 +160,11 @@ class Extension:
 
     @classmethod
     def assets_directory_path(cls) -> Path | None:
+        """
+        Return the path on disk where the extension's assets are located.
+
+        This may be anywhere in your Python package.
+        """
         return None
 
     @property

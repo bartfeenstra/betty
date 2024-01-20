@@ -1,4 +1,4 @@
-The Deriver extension
+The *Deriver* extension
 =====================
 The :py:class:`betty.extension.Deriver` extension derives, or infers, events for people based on their existing events. For example, we know that someone's
 final disposition, such as a burial or cremation, comes after their death. If a person has a *burial* event without a

@@ -1,4 +1,4 @@
-The Trees extension
+The *Trees* extension
 ===================
 The :py:class:`betty.extension.Trees` extension renders interactive family trees using `Cytoscape.js <http://js.cytoscape.org/>`_.
 

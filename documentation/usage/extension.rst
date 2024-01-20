@@ -7,15 +7,7 @@ Extensions
    :maxdepth: 1
    :titlesonly:
 
-   extension/cotton_candy
-   extension/deriver
-   extension/gramps
-   extension/http_api_doc
-   extension/maps
-   extension/nginx
-   extension/privatizer
-   extension/trees
-   extension/wikipedia
+   extension/*
 
 Betty's functionality can be altered using *extensions*. An extension can do many things, such as loading new or
 expanding existing ancestry data, or generating additional content for your site.
@@ -35,3 +27,7 @@ In this section
 - :doc:`extension/privatizer`
 - :doc:`extension/trees`
 - :doc:`extension/wikipedia`
+
+See also
+--------
+- :doc:`/development/extension`
