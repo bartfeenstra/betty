@@ -425,7 +425,7 @@ class TestPopulator:
             app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
-        assert set() == resource.links
+        assert [] == resource.links
 
     @patch_cache
     async def test_populate_should_ignore_non_wikipedia_links(self, mocker: MockerFixture) -> None:
@@ -434,13 +434,13 @@ class TestPopulator:
         resource = Source(
             id='the_source',
             name='The Source',
-            links={link},
+            links=[link],
         )
         async with App() as app:
             app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
-        assert {link} == resource.links
+        assert [link] == resource.links
 
     @patch_cache
     async def test_populate_should_populate_existing_link(self, mocker: MockerFixture) -> None:
@@ -457,7 +457,7 @@ class TestPopulator:
         resource = Source(
             id='the_source',
             name='The Source',
-            links={link},
+            links=[link],
         )
         async with App() as app:
             app.project.ancestry.add(resource)
@@ -498,7 +498,7 @@ class TestPopulator:
         resource = Source(
             id='the_source',
             name='The Source',
-            links={link_en},
+            links=[link_en],
         )
         app = App()
         app.project.configuration.locales['en-US'].alias = 'en'
@@ -517,7 +517,12 @@ class TestPopulator:
         ])
         m_retriever.get_translations.assert_called_once_with(page_language, page_name)
         assert 2 == len(resource.links)
-        link_nl = resource.links.difference({link_en}).pop()
+        link_nl = [
+            link
+            for link
+            in resource.links
+            if link != link_en
+        ][0]
         assert 'Amsterdam' == link_nl.label
         assert 'nl' == link_nl.locale
         assert MediaType('text/html') == link_nl.media_type
@@ -534,7 +539,7 @@ class TestPopulator:
         m_retriever.get_image.return_value = None
 
         link = Link(f'https://{page_language}.wikipedia.org/wiki/{page_name}')
-        place = Place(links={link})
+        place = Place(links=[link])
         app = App()
         async with app:
             app.project.ancestry.add(place)

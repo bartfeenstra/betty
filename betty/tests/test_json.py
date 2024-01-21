@@ -110,7 +110,7 @@ class TestJSONEncoder:
                 id='E1',
                 event_type=Birth,
             )],
-            links={link},
+            links=[link],
         )
         place.coordinates = coordinates
         Enclosure(encloses=place, enclosed_by=Place(id='the_enclosing_place'))
@@ -247,7 +247,7 @@ class TestJSONEncoder:
             'https://example.com/the-person',
             label='The Person Online',
         )
-        person.links.add(link)
+        person.links.append(link)
         person.citations.add(Citation(
             id='the_citation',
             source=Source(
@@ -355,7 +355,7 @@ class TestJSONEncoder:
         person.children.add(child)
         link = Link('https://example.com/the-person')
         link.label = 'The Person Online'
-        person.links.add(link)
+        person.links.append(link)
         person.citations.add(Citation(
             id='the_citation',
             source=Source(
@@ -826,7 +826,7 @@ class TestJSONEncoder:
                 id='the_contained_source',
                 name='The Contained Source',
             )],
-            links={link},
+            links=[link],
         )
         Citation(
             id='the_citation',
@@ -899,7 +899,7 @@ class TestJSONEncoder:
                 id='the_contained_source',
                 name='The Contained Source',
             )],
-            links={link},
+            links=[link],
             private=True,
         )
         Citation(

@@ -208,7 +208,7 @@ class TestHasLinks:
         class _HasLinks(HasLinks):
             pass
         sut = _HasLinks()
-        assert set() == sut.links
+        assert [] == sut.links
 
 
 class _HasFiles(HasFiles, Entity):

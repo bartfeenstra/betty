@@ -697,7 +697,7 @@ class GrampsLoader:
             link = Link(str(url_element.get('href')))
             link.relationship = 'external'
             link.label = url_element.get('description')
-            owner.links.add(link)
+            owner.links.append(link)
 
     def _load_attribute_privacy(self, entity: HasPrivacy & Entity, element: ElementTree.Element, tag: str) -> None:
         privacy_value = self._load_attribute('privacy', element, tag)

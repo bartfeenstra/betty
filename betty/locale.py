@@ -516,11 +516,11 @@ class LocalizerRepository:
         preferred_locales = (*preferred_locales, DEFAULT_LOCALE)
         negotiated_locale = negotiate_locale(
             preferred_locales,
-            {
+            [
                 str(get_data(locale))
                 for locale
                 in self.locales
-            },
+            ],
         )
         return self[negotiated_locale or DEFAULT_LOCALE]
 
@@ -668,7 +668,7 @@ class _GettextStr(Str):
         return cast(str, getattr(localizer, self._gettext_method_name)(*self._gettext_args)).format(**self._localize_format_kwargs(localizer, **self._format_kwargs))
 
 
-def negotiate_locale(preferred_locales: Localey | Sequence[Localey], available_locales: set[Localey]) -> Locale | None:
+def negotiate_locale(preferred_locales: Localey | Sequence[Localey], available_locales: Sequence[Localey]) -> Locale | None:
     """
     Negotiate the preferred locale from a sequence.
     """
@@ -712,12 +712,12 @@ def negotiate_localizeds(preferred_locales: Localey | Sequence[Localey], localiz
     """
     negotiated_locale_data = negotiate_locale(
         preferred_locales,
-        {
+        [
             localized.locale
             for localized
             in localizeds
             if localized.locale is not None
-        },
+        ],
     )
     if negotiated_locale_data is not None:
         negotiated_locale = to_locale(negotiated_locale_data)

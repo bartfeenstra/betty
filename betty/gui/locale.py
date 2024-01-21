@@ -63,7 +63,7 @@ class TranslationsLocaleCollector(ReactiveInstance):
         if locale:
             translations_locale = negotiate_locale(
                 locale,
-                set(self._app.localizers.locales),
+                list(self._app.localizers.locales),
             )
             if translations_locale is None:
                 self._configuration_locale_caption.setText(self._app.localizer._('There are no translations for {locale_name}.').format(

@@ -9,6 +9,7 @@ import json
 import logging
 import mimetypes
 import re
+from collections.abc import Sequence, MutableSequence
 from contextlib import suppress
 from os.path import getmtime
 from pathlib import Path
@@ -261,7 +262,7 @@ class _Populator:
         self._image_files: dict[Image, File] = {}
 
     async def populate(self) -> None:
-        locales = set(map(lambda x: x.alias, self._app.project.configuration.locales.values()))
+        locales = list(map(lambda x: x.alias, self._app.project.configuration.locales.values()))
         await gather(*(
             self._populate_entity(entity, locales)
             for entity
@@ -269,7 +270,7 @@ class _Populator:
             if isinstance(entity, HasLinks)
         ))
 
-    async def _populate_entity(self, entity: HasLinks, locales: set[str]) -> None:
+    async def _populate_entity(self, entity: HasLinks, locales: Sequence[str]) -> None:
         await self._populate_has_links(entity, locales)
 
         if isinstance(entity, HasFiles):
@@ -278,8 +279,8 @@ class _Populator:
         if isinstance(entity, Place):
             await self._populate_place(entity)
 
-    async def _populate_has_links(self, has_links: HasLinks, locales: set[str]) -> None:
-        summary_links: set[tuple[str, str]] = set()
+    async def _populate_has_links(self, has_links: HasLinks, locales: Sequence[str]) -> None:
+        summary_links: MutableSequence[tuple[str, str]] = []
         for link in has_links.links:
             try:
                 page_language, page_name = _parse_url(link.url)
@@ -291,20 +292,24 @@ class _Populator:
                 except LocaleNotFoundError:
                     continue
                 else:
-                    summary_links.add((page_language, page_name))
+                    summary_links.append((page_language, page_name))
 
             summary = None
             if link.label is None:
                 with suppress(RetrievalError):
                     summary = await self._retriever.get_summary(page_language, page_name)
             await self.populate_link(link, page_language, summary)
+        await self._populate_has_links_with_translation(has_links, locales, summary_links)
 
-        for page_language, page_name in list(summary_links):
+    async def _populate_has_links_with_translation(self, has_links: HasLinks, locales: Sequence[str], summary_links: MutableSequence[tuple[str, str]]) -> None:
+        for page_language, page_name in summary_links:
             page_translations = await self._retriever.get_translations(page_language, page_name)
             if len(page_translations) == 0:
                 continue
-            page_translation_locale_datas: set[Localey] = set(filter_suppress(get_data, LocaleNotFoundError, page_translations.keys()))
-            for locale in locales.difference({page_language}):
+            page_translation_locale_datas: Sequence[Localey] = list(filter_suppress(get_data, LocaleNotFoundError, page_translations.keys()))
+            for locale in locales:
+                if locale == page_language:
+                    continue
                 added_page_locale_data = negotiate_locale(locale, page_translation_locale_datas)
                 if added_page_locale_data is None:
                     continue
@@ -317,8 +322,9 @@ class _Populator:
                     continue
                 added_link = Link(added_summary.url)
                 await self.populate_link(added_link, added_page_language, added_summary)
-                has_links.links.add(added_link)
-                summary_links.add((added_page_language, added_page_name))
+                has_links.links.append(added_link)
+                summary_links.append((added_page_language, added_page_name))
+            return
 
     async def populate_link(self, link: Link, summary_language: str, summary: Summary | None = None) -> None:
         if link.url.startswith('http:'):
@@ -372,7 +378,7 @@ class _Populator:
                         id=f'wikipedia-{image.title}',
                         path=image.path,
                         media_type=image.media_type,
-                        links={
+                        links=[
                             Link(
                                 f'{image.wikimedia_commons_url}?uselang={locale_configuration.alias}',
                                 label=self._app.localizers[locale_configuration.locale]._('Description, licensing, and image history'),
@@ -382,7 +388,7 @@ class _Populator:
                             )
                             for locale_configuration
                             in self._app.project.configuration.locales.values()
-                        },
+                        ],
                     )
                     self._image_files[image] = file
 
