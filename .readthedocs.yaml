@@ -8,6 +8,7 @@ build:
       - sphinx-apidoc --force --separate -d 999 -o documentation betty betty/tests
 sphinx:
   configuration: documentation/conf.py
+  builder: dirhtml
 python:
   install:
     - method: pip

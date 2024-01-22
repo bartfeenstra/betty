@@ -51,6 +51,8 @@ async def _build(output_directory_path: Path) -> None:
             await subprocess.run_exec(
                 [
                     'sphinx-build',
+                    '-b',
+                    'dirhtml',
                     str(source_directory_path),
                     str(output_directory_path),
                 ],
