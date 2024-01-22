@@ -266,6 +266,12 @@
         },
         "private": {
           "$ref": "#/definitions/privacy"
+        },
+        "eventStatus": {
+          "type": "string"
+        },
+        "eventAttendanceMode": {
+          "type": "string"
         }
       },
       "required": [

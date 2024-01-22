@@ -621,6 +621,8 @@ class TestJSONEncoder:
             'id': 'the_event',
             'private': False,
             'type': 'birth',
+            'eventAttendanceMode': 'https://schema.org/OfflineEventAttendanceMode',
+            'eventStatus': 'https://schema.org/EventScheduled',
             'presences': [],
             'citations': [],
             'links': [
@@ -668,15 +670,19 @@ class TestJSONEncoder:
             '$schema': '/schema.json#/definitions/event',
             '@context': {
                 'place': 'https://schema.org/location',
+                'start': 'https://schema.org/startDate',
+                'end': 'https://schema.org/endDate',
             },
             '@type': 'https://schema.org/Event',
             'id': 'the_event',
             'private': False,
             'type': 'birth',
+            'eventAttendanceMode': 'https://schema.org/OfflineEventAttendanceMode',
+            'eventStatus': 'https://schema.org/EventScheduled',
             'presences': [
                 {
                     '@context': {
-                        'person': 'https://schema.org/actor',
+                        'person': 'https://schema.org/performer',
                     },
                     'role': 'subject',
                     'person': '/person/the_person/index.json',
@@ -749,10 +755,12 @@ class TestJSONEncoder:
             'id': 'the_event',
             'private': True,
             'type': 'birth',
+            'eventAttendanceMode': 'https://schema.org/OfflineEventAttendanceMode',
+            'eventStatus': 'https://schema.org/EventScheduled',
             'presences': [
                 {
                     '@context': {
-                        'person': 'https://schema.org/actor',
+                        'person': 'https://schema.org/performer',
                     },
                     'person': '/person/the_person/index.json',
                 },
