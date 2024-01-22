@@ -12,7 +12,7 @@ from betty.functools import walk
 from betty.locale import DateRange, Date, Localizer
 from betty.model import Entity
 from betty.model.ancestry import Person, Event, HasFiles, HasCitations, HasNotes, Source, \
-    Presence, Privacy, HasPrivacy, Subject
+    Presence, Privacy, HasPrivacy, Subject, Place
 from betty.model.event_type import EndOfLifeEventType
 
 Expirable: TypeAlias = Person | Event | Date | None
@@ -36,6 +36,9 @@ class Privatizer:
         if isinstance(subject, Person):
             self._determine_person_privacy(subject)
 
+        if isinstance(subject, Place):
+            self._determine_place_privacy(subject)
+
         if subject.privacy is not Privacy.PRIVATE:
             return
 
@@ -51,6 +54,9 @@ class Privatizer:
 
         if isinstance(subject, Event):
             self._privatize_event(subject)
+
+        if isinstance(subject, Place):
+            self._privatize_place(subject)
 
         if isinstance(subject, Source):
             self._privatize_source(subject)
@@ -93,6 +99,22 @@ class Privatizer:
         for presence in event.presences:
             self._mark_private(presence, event)
             self.privatize(presence)
+        if event.place:
+            self.privatize(event.place)
+
+    def _privatize_place(self, place: Place) -> None:
+        if not place.private:
+            return
+
+        for enclosure in place.encloses:
+            if not enclosure.encloses:
+                continue
+            self._mark_private(enclosure.encloses, place)
+            self.privatize(enclosure.encloses)
+        for enclosure in place.enclosed_by:
+            if not enclosure.enclosed_by:
+                continue
+            self.privatize(enclosure.enclosed_by)
 
     def _privatize_has_citations(self, has_citations: HasCitations & HasPrivacy) -> None:
         if not has_citations.private:
@@ -168,6 +190,29 @@ class Privatizer:
         logging.getLogger(__name__).debug(self._localizer._('Privatized person {privatized_person_id} ({privatized_person}) because they are likely still alive.').format(
             privatized_person_id=person.id,
             privatized_person=person.label.localize(self._localizer),
+        ))
+
+    def _determine_place_privacy(self, place: Place) -> None:
+        # Do not change existing explicit privacy declarations.
+        if place.privacy is not Privacy.UNDETERMINED:
+            return
+
+        # If there are non-private events, we will not privatize the place.
+        for event in place.events:
+            if not event.private:
+                return
+
+        # If there are non-private enclosed places, we will not privatize the place.
+        for enclosure in place.encloses:
+            if not enclosure.encloses:
+                continue
+            if not enclosure.encloses.private:
+                return
+
+        place.private = True
+        logging.getLogger(__name__).debug(self._localizer._('Privatized place {privatized_place_id} ({privatized_place}) because it is not associated with any public information.').format(
+            privatized_place_id=place.id,
+            privatized_place=place.label.localize(self._localizer),
         ))
 
     def has_expired(
