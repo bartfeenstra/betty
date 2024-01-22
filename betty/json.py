@@ -19,7 +19,7 @@ from betty.media_type import MediaType
 from betty.model import Entity, get_entity_type_name, GeneratedEntityId
 from betty.model.ancestry import Place, Person, PlaceName, Event, Described, HasLinks, HasCitations, Link, Dated, File, \
     Note, PersonName, HasMediaType, PresenceRole, Citation, Source, is_public, Presence, HasPrivacy, is_private, \
-    HasNotes
+    HasNotes, Organizer
 from betty.string import upper_camel_case_to_lower_camel_case
 
 T = TypeVar('T')
@@ -113,6 +113,8 @@ class JSONEncoder(stdjson.JSONEncoder):
                     )
                     encoded['links'].append(localized_html_link)
 
+        if isinstance(entity, Described):
+            self._encode_described(encoded, entity)
         if isinstance(entity, HasPrivacy):
             encoded['private'] = is_private(entity)
         if isinstance(entity, Dated):
@@ -132,10 +134,35 @@ class JSONEncoder(stdjson.JSONEncoder):
             })
             encoded['@context']['description'] = 'https://schema.org/description'
 
-    def _encode_dated(self, encoded: dict[str, Any], dated: Dated) -> None:
-        if is_public(dated):
-            if dated.date is not None:
+    def _encode_dated(
+        self,
+        encoded: dict[str, Any],
+        dated: Dated,
+        start_schema_org: str | None = None,
+        end_schema_org: str | None = None,
+    ) -> None:
+        if is_public(dated) and dated.date:
+            encoded.update({
+                '@context': {},
+            })
+            if isinstance(dated.date, Date):
+                if start_schema_org or end_schema_org:
+                    encoded['@context']['date'] = []
+                if start_schema_org:
+                    encoded['@context']['date'].append(start_schema_org)
+                if end_schema_org:
+                    encoded['@context']['date'].append(end_schema_org)
                 encoded['date'] = dated.date
+            else:
+                encoded['date'] = {}
+                if dated.date.start:
+                    if start_schema_org:
+                        encoded['@context']['start'] = start_schema_org
+                    encoded['date']['start'] = dated.date.start
+                if dated.date.end:
+                    if end_schema_org:
+                        encoded['@context']['end'] = end_schema_org
+                    encoded['date']['end'] = dated.date.end
 
     def _encode_date(self, date: Date) -> dict[str, Any]:
         encoded: dict[str, Any] = {}
@@ -327,31 +354,36 @@ class JSONEncoder(stdjson.JSONEncoder):
         encoded: dict[str, Any] = {
             '@type': 'https://schema.org/Event',
             'type': event.event_type.name(),
-            'presences': [
-                self._encode_event_presence(presence)
-                for presence
-                in event.presences
-                if presence.person is not None and not isinstance(presence.person.id, GeneratedEntityId)
-            ],
+            'eventAttendanceMode': 'https://schema.org/OfflineEventAttendanceMode',
+            'eventStatus': 'https://schema.org/EventScheduled',
+            'presences': [],
         }
         self._encode_entity(encoded, event)
+        self._encode_dated(
+            encoded,
+            event,
+            'https://schema.org/startDate',
+            'https://schema.org/endDate',
+        )
+        for presence in event.presences:
+            if presence.person and not isinstance(presence.person.id, GeneratedEntityId):
+                encoded['presences'].append(self._encode_event_presence(presence))
         if event.place is not None and not isinstance(event.place.id, GeneratedEntityId):
             encoded['place'] = self._generate_url(event.place)
-            encoded.update({
-                '@context': {},
-            })
             encoded['@context']['place'] = 'https://schema.org/location'
         return encoded
 
     def _encode_event_presence(self, presence: Presence) -> dict[str, Any]:
         encoded: dict[str, Any] = {
             '@context': {
-                'person': 'https://schema.org/actor',
+                'person': 'https://schema.org/performer',
             },
             'person': self._generate_url(presence.person),
         }
         if presence.public:
             encoded['role'] = presence.role
+            if isinstance(presence.role, Organizer):
+                encoded['@context']['person'] = 'https://schema.org/organizer'
         return encoded
 
     def _encode_presence_role(self, role: PresenceRole) -> str:
