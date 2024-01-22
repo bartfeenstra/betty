@@ -99,7 +99,7 @@ jobs:
 
       - name: Instlal Lua
         if: startsWith(runner.os, 'Linux')
-        uses: leafo/gh-actions-lua@v9
+        uses: leafo/gh-actions-lua@v10
 
       - name: Install LuaRocks
         if: startsWith(runner.os, 'Linux')
