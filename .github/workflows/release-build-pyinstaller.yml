@@ -28,7 +28,7 @@ jobs:
         shell: bash
 
       - name: Cache pip
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.pip_cache_dir }}
           key: pip-${{ runner.os }}-${{ matrix.python }}-${{ hashFiles('./setup.py') }}
@@ -40,7 +40,7 @@ jobs:
         shell: bash
 
       - name: Cache npm
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.npm_cache_dir }}
           key: npm-${{ runner.os }}-${{ hashFiles('./package.json') }}
