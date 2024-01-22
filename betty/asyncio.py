@@ -44,9 +44,15 @@ def wait(f: Awaitable[T]) -> T:
         synced.join()
         return synced.return_value
     else:
-        return asyncio.run(
-            f,  # type: ignore[arg-type]
-        )
+        try:
+            return asyncio.run(
+                f,  # type: ignore[arg-type]
+            )
+        except RuntimeError as error:
+            # Work around a bug in Python 3.12 that will randomly cause a RuntimeError with the
+            # following message to be raised.
+            if "can't create new thread at interpreter shutdown" not in str(error):
+                raise
 
 
 def sync(f: Callable[P, Awaitable[T]]) -> Callable[P, T]:
