@@ -54,10 +54,12 @@ class TestJSONEncoder:
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/place',
             '@context': {
+                'names': 'https://schema.org/name',
                 'enclosedBy': 'https://schema.org/containedInPlace',
                 'encloses': 'https://schema.org/containsPlace',
                 'events': 'https://schema.org/event'
             },
+            '@id': '/place/the_place/index.json',
             '@type': 'https://schema.org/Place',
             'id': place_id,
             'names': [
@@ -119,11 +121,13 @@ class TestJSONEncoder:
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/place',
             '@context': {
+                'names': 'https://schema.org/name',
                 'enclosedBy': 'https://schema.org/containedInPlace',
                 'encloses': 'https://schema.org/containsPlace',
                 'events': 'https://schema.org/event',
                 'coordinates': 'https://schema.org/geo',
             },
+            '@id': '/place/the_place/index.json',
             '@type': 'https://schema.org/Place',
             'id': place_id,
             'names': [
@@ -184,10 +188,12 @@ class TestJSONEncoder:
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/person',
             '@context': {
+                'names': 'https://schema.org/name',
                 'parents': 'https://schema.org/parent',
                 'children': 'https://schema.org/child',
                 'siblings': 'https://schema.org/sibling',
             },
+            '@id': '/person/the_person/index.json',
             '@type': 'https://schema.org/Person',
             'id': person_id,
             'private': False,
@@ -265,10 +271,12 @@ class TestJSONEncoder:
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/person',
             '@context': {
+                'names': 'https://schema.org/name',
                 'parents': 'https://schema.org/parent',
                 'children': 'https://schema.org/child',
                 'siblings': 'https://schema.org/sibling',
             },
+            '@id': '/person/the_person/index.json',
             '@type': 'https://schema.org/Person',
             'id': person_id,
             'private': False,
@@ -373,10 +381,12 @@ class TestJSONEncoder:
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/person',
             '@context': {
+                'names': 'https://schema.org/name',
                 'parents': 'https://schema.org/parent',
                 'children': 'https://schema.org/child',
                 'siblings': 'https://schema.org/sibling',
             },
+            '@id': '/person/the_person/index.json',
             '@type': 'https://schema.org/Person',
             'id': person_id,
             'names': [],
@@ -420,6 +430,7 @@ class TestJSONEncoder:
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/note',
             '@context': {},
+            '@id': '/note/the_note/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_note',
             'private': False,
@@ -456,6 +467,7 @@ class TestJSONEncoder:
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/note',
             '@context': {},
+            '@id': '/note/the_note/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_note',
             'private': True,
@@ -479,6 +491,7 @@ class TestJSONEncoder:
             expected: dict[str, Any] = {
                 '$schema': '/schema.json#/definitions/file',
                 '@context': {},
+                '@id': '/file/the_file/index.json',
                 'id': 'the_file',
                 'private': False,
                 'entities': [],
@@ -529,6 +542,7 @@ class TestJSONEncoder:
             expected: dict[str, Any] = {
                 '$schema': '/schema.json#/definitions/file',
                 '@context': {},
+                '@id': '/file/the_file/index.json',
                 'id': 'the_file',
                 'private': False,
                 'mediaType': 'text/plain',
@@ -587,6 +601,7 @@ class TestJSONEncoder:
             expected: dict[str, Any] = {
                 '$schema': '/schema.json#/definitions/file',
                 '@context': {},
+                '@id': '/file/the_file/index.json',
                 'id': 'the_file',
                 'private': True,
                 'entities': [
@@ -616,7 +631,10 @@ class TestJSONEncoder:
         )
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/event',
-            '@context': {},
+            '@context': {
+                'presences': 'https://schema.org/performer',
+            },
+            '@id': '/event/the_event/index.json',
             '@type': 'https://schema.org/Event',
             'id': 'the_event',
             'private': False,
@@ -670,9 +688,9 @@ class TestJSONEncoder:
             '$schema': '/schema.json#/definitions/event',
             '@context': {
                 'place': 'https://schema.org/location',
-                'start': 'https://schema.org/startDate',
-                'end': 'https://schema.org/endDate',
+                'presences': 'https://schema.org/performer',
             },
+            '@id': '/event/the_event/index.json',
             '@type': 'https://schema.org/Event',
             'id': 'the_event',
             'private': False,
@@ -681,9 +699,7 @@ class TestJSONEncoder:
             'eventStatus': 'https://schema.org/EventScheduled',
             'presences': [
                 {
-                    '@context': {
-                        'person': 'https://schema.org/performer',
-                    },
+                    '@type': 'https://schema.org/Person',
                     'role': 'subject',
                     'person': '/person/the_person/index.json',
                 },
@@ -693,14 +709,22 @@ class TestJSONEncoder:
             ],
             'date': {
                 'start': {
+                    '@context': {
+                        'iso8601': ['https://schema.org/startDate'],
+                    },
                     'year': 2000,
                     'month': 1,
                     'day': 1,
+                    'iso8601': '2000-01-01',
                 },
                 'end': {
+                    '@context': {
+                        'iso8601': ['https://schema.org/endDate'],
+                    },
                     'year': 2019,
                     'month': 12,
                     'day': 31,
+                    'iso8601': '2019-12-31',
                 },
             },
             'place': '/place/the_place/index.json',
@@ -750,7 +774,9 @@ class TestJSONEncoder:
             '$schema': '/schema.json#/definitions/event',
             '@context': {
                 'place': 'https://schema.org/location',
+                'presences': 'https://schema.org/performer',
             },
+            '@id': '/event/the_event/index.json',
             '@type': 'https://schema.org/Event',
             'id': 'the_event',
             'private': True,
@@ -759,9 +785,7 @@ class TestJSONEncoder:
             'eventStatus': 'https://schema.org/EventScheduled',
             'presences': [
                 {
-                    '@context': {
-                        'person': 'https://schema.org/performer',
-                    },
+                    '@type': 'https://schema.org/Person',
                     'person': '/person/the_person/index.json',
                 },
             ],
@@ -790,6 +814,7 @@ class TestJSONEncoder:
             '@context': {
                 'name': 'https://schema.org/name',
             },
+            '@id': '/source/the_source/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_source',
             'private': False,
@@ -847,6 +872,7 @@ class TestJSONEncoder:
             '@context': {
                 'name': 'https://schema.org/name',
             },
+            '@id': '/source/the_source/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_source',
             'private': False,
@@ -864,6 +890,7 @@ class TestJSONEncoder:
                 'year': 2000,
                 'month': 1,
                 'day': 1,
+                'iso8601': '2000-01-01',
             },
             'links': [
                 {
@@ -919,6 +946,7 @@ class TestJSONEncoder:
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/source',
             '@context': {},
+            '@id': '/source/the_source/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_source',
             'private': True,
@@ -957,6 +985,7 @@ class TestJSONEncoder:
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/source',
             '@context': {},
+            '@id': '/source/the_source/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_source',
             'private': False,
@@ -980,6 +1009,7 @@ class TestJSONEncoder:
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/citation',
             '@context': {},
+            '@id': '/citation/the_citation/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_citation',
             'private': False,
@@ -1022,6 +1052,7 @@ class TestJSONEncoder:
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/citation',
             '@context': {},
+            '@id': '/citation/the_citation/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_citation',
             'private': False,
@@ -1068,6 +1099,7 @@ class TestJSONEncoder:
         expected: dict[str, Any] = {
             '$schema': '/schema.json#/definitions/citation',
             '@context': {},
+            '@id': '/citation/the_citation/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_citation',
             'private': True,
