@@ -656,6 +656,11 @@
         },
         "day": {
           "type": "number"
+        },
+        "iso8601": {
+          "type": "string",
+          "pattern": "^\\d\\d\\d\\d-\\d\\d-\\d\\d$",
+          "description": "An ISO 8601 date."
         }
       },
       "patternProperties": {

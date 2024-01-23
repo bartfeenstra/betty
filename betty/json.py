@@ -19,7 +19,7 @@ from betty.media_type import MediaType
 from betty.model import Entity, get_entity_type_name, GeneratedEntityId
 from betty.model.ancestry import Place, Person, PlaceName, Event, Described, HasLinks, HasCitations, Link, Dated, File, \
     Note, PersonName, HasMediaType, PresenceRole, Citation, Source, is_public, Presence, HasPrivacy, is_private, \
-    HasNotes, Organizer
+    HasNotes
 from betty.string import upper_camel_case_to_lower_camel_case
 
 T = TypeVar('T')
@@ -100,6 +100,7 @@ class JSONEncoder(stdjson.JSONEncoder):
                 relationship='canonical',
                 media_type=MediaType('application/json'),
             )
+            encoded['@id'] = canonical.url
             encoded['links'].append(canonical)
 
             if is_public(entity):
@@ -134,6 +135,14 @@ class JSONEncoder(stdjson.JSONEncoder):
             })
             encoded['@context']['description'] = 'https://schema.org/description'
 
+    def _encode_date_iso8601(self, date: Date) -> str | None:
+        if not date.complete:
+            return None
+        assert date.year
+        assert date.month
+        assert date.day
+        return f'{date.year:04d}-{date.month:02d}-{date.day:02d}'
+
     def _encode_dated(
         self,
         encoded: dict[str, Any],
@@ -142,29 +151,33 @@ class JSONEncoder(stdjson.JSONEncoder):
         end_schema_org: str | None = None,
     ) -> None:
         if is_public(dated) and dated.date:
-            encoded.update({
-                '@context': {},
-            })
+            # @todo Only embed the context for date ranges as they are the only values that expand to more
+            # @todo Maybe add ISO 8601 dates when available? (e.g. all date components exist) and is not fuzzy
+            # @todo Maybe FINALLY add some documentation to Date and DateRange to explain all the details.
             if isinstance(dated.date, Date):
-                if start_schema_org or end_schema_org:
-                    encoded['@context']['date'] = []
-                if start_schema_org:
-                    encoded['@context']['date'].append(start_schema_org)
-                if end_schema_org:
-                    encoded['@context']['date'].append(end_schema_org)
-                encoded['date'] = dated.date
+                encoded['date'] = self._encode_date(
+                    dated.date,
+                    [
+                        schema_org
+                        for schema_org
+                        in (start_schema_org, end_schema_org)
+                        if schema_org
+                    ],
+                )
             else:
                 encoded['date'] = {}
                 if dated.date.start:
-                    if start_schema_org:
-                        encoded['@context']['start'] = start_schema_org
-                    encoded['date']['start'] = dated.date.start
+                    encoded['date']['start'] = self._encode_date(
+                        dated.date.start,
+                        [start_schema_org] if start_schema_org else None,
+                    )
                 if dated.date.end:
-                    if end_schema_org:
-                        encoded['@context']['end'] = end_schema_org
-                    encoded['date']['end'] = dated.date.end
+                    encoded['date']['end'] = self._encode_date(
+                        dated.date.end,
+                        [end_schema_org] if end_schema_org else None,
+                    )
 
-    def _encode_date(self, date: Date) -> dict[str, Any]:
+    def _encode_date(self, date: Date, schemas_org: list[str] | None = None) -> dict[str, Any]:
         encoded: dict[str, Any] = {}
         if date.year:
             encoded['year'] = date.year
@@ -172,6 +185,12 @@ class JSONEncoder(stdjson.JSONEncoder):
             encoded['month'] = date.month
         if date.day:
             encoded['day'] = date.day
+        if date.comparable:
+            if schemas_org:
+                encoded['@context'] = {
+                    'iso8601': schemas_org,
+                }
+            encoded['iso8601'] = self._encode_date_iso8601(date)
         return encoded
 
     def _encode_date_range(self, date: DateRange) -> dict[str, Any]:
@@ -239,6 +258,7 @@ class JSONEncoder(stdjson.JSONEncoder):
     def _encode_place(self, place: Place) -> dict[str, Any]:
         encoded: dict[str, Any] = {
             '@context': {
+                'names': 'https://schema.org/name',
                 'events': 'https://schema.org/event',
                 'enclosedBy': 'https://schema.org/containedInPlace',
                 'encloses': 'https://schema.org/containsPlace',
@@ -273,6 +293,7 @@ class JSONEncoder(stdjson.JSONEncoder):
     def _encode_person(self, person: Person) -> dict[str, Any]:
         encoded: dict[str, Any] = {
             '@context': {
+                'names': 'https://schema.org/name',
                 'parents': 'https://schema.org/parent',
                 'children': 'https://schema.org/child',
                 'siblings': 'https://schema.org/sibling',
@@ -353,6 +374,9 @@ class JSONEncoder(stdjson.JSONEncoder):
     def _encode_event(self, event: Event) -> dict[str, Any]:
         encoded: dict[str, Any] = {
             '@type': 'https://schema.org/Event',
+            '@context': {
+                'presences': 'https://schema.org/performer',
+            },
             'type': event.event_type.name(),
             'eventAttendanceMode': 'https://schema.org/OfflineEventAttendanceMode',
             'eventStatus': 'https://schema.org/EventScheduled',
@@ -375,15 +399,11 @@ class JSONEncoder(stdjson.JSONEncoder):
 
     def _encode_event_presence(self, presence: Presence) -> dict[str, Any]:
         encoded: dict[str, Any] = {
-            '@context': {
-                'person': 'https://schema.org/performer',
-            },
+            '@type': 'https://schema.org/Person',
             'person': self._generate_url(presence.person),
         }
         if presence.public:
             encoded['role'] = presence.role
-            if isinstance(presence.role, Organizer):
-                encoded['@context']['person'] = 'https://schema.org/organizer'
         return encoded
 
     def _encode_presence_role(self, role: PresenceRole) -> str:
