@@ -27,7 +27,6 @@ In addition to Jinja2's built-in filters, Betty provides the following:
 - :py:func:`select_localizeds <betty.jinja2.filter.filter_select_localizeds>`
 - :py:func:`static_url <betty.jinja2.filter.filter_static_url>`
 - :py:func:`sort_localizeds <betty.jinja2.filter.filter_sort_localizeds>`
-- :py:func:`tojson <betty.jinja2.filter.filter_tojson>`
 - :py:func:`unique <betty.jinja2.filter.filter_unique>`
 - :py:func:`upper_camel_case_to_lower_camel_case <betty.string.upper_camel_case_to_lower_camel_case>`
 - :py:func:`url <betty.jinja2.filter.filter_url>`
