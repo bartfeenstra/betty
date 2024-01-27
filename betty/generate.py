@@ -287,7 +287,7 @@ async def _generate_entity_type_list_html(
     app = task_context.app
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
     entity_type_path = app.project.configuration.localize_www_directory_path(locale) / entity_type_name_fs
-    template = app.jinja2_environment.negotiate_template([
+    template = app.jinja2_environment.select_template([
         f'entity/page-list--{entity_type_name_fs}.html.j2',
         'entity/page-list.html.j2',
     ])
@@ -341,7 +341,7 @@ async def _generate_entity_html(
     entity = app.project.ancestry[entity_type][entity_id]
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity))
     entity_path = app.project.configuration.localize_www_directory_path(locale) / entity_type_name_fs / entity.id
-    rendered_html = await app.jinja2_environment.negotiate_template([
+    rendered_html = await app.jinja2_environment.select_template([
         f'entity/page--{entity_type_name_fs}.html.j2',
         'entity/page.html.j2',
     ]).render_async(

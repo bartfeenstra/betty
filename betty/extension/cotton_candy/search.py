@@ -53,7 +53,7 @@ class Index:
 
     async def _render_entity(self, entity: Entity) -> str:
         entity_type_name = get_entity_type_name(entity)
-        return await self._app.jinja2_environment.negotiate_template([
+        return await self._app.jinja2_environment.select_template([
             f'search/result-{camel_case_to_snake_case(entity_type_name)}.html.j2',
             'search/result.html.j2',
         ]).render_async({
