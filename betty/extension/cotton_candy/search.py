@@ -11,18 +11,18 @@ from betty.locale import Localizer
 from betty.model import get_entity_type_name, Entity
 from betty.model.ancestry import Person, Place, File
 from betty.string import camel_case_to_snake_case
-from betty.task import Context
+from betty.job import Context
 
 
 class Index:
     def __init__(
         self,
         app: App,
-        task_context: Context | None,
+        job_context: Context | None,
         localizer: Localizer,
     ):
         self._app = app
-        self._task_context = task_context
+        self._job_context = job_context
         self._localizer = localizer
 
     async def build(self) -> AsyncIterable[dict[str, str]]:
@@ -57,7 +57,7 @@ class Index:
             f'search/result-{camel_case_to_snake_case(entity_type_name)}.html.j2',
             'search/result.html.j2',
         ]).render_async({
-            'task_context': self._task_context,
+            'job_context': self._job_context,
             'localizer': self._localizer,
             'entity': entity,
         })

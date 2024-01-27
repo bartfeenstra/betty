@@ -103,7 +103,7 @@ class _Nginx(ConfigurableExtension[NginxConfiguration], Generator, ServerProvide
             return [DockerizedNginxServer(self._app)]
         return []
 
-    async def generate(self, task_context: GenerationContext) -> None:
+    async def generate(self, job_context: GenerationContext) -> None:
         await generate_configuration_file(self._app)
         await generate_dockerfile_file(self._app)
 

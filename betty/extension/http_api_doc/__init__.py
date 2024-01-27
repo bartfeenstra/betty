@@ -29,7 +29,7 @@ class _HttpApiDoc(UserFacingExtension, Generator, NpmBuilder):
     def npm_cache_scope(cls) -> CacheScope:
         return CacheScope.BETTY
 
-    async def generate(self, task_context: GenerationContext) -> None:
+    async def generate(self, job_context: GenerationContext) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
         await makedirs(self.app.project.configuration.www_directory_path, exist_ok=True)
         await asyncio.to_thread(copy2, assets_directory_path / 'http-api-doc.js', self.app.project.configuration.www_directory_path / 'http-api-doc.js')

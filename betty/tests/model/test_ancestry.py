@@ -5,7 +5,6 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any
 
-import dill
 import pytest
 from geopy import Point
 
@@ -2064,17 +2063,6 @@ class _TestAncestry_OneToOne_Right(Entity):
 
 
 class TestAncestry:
-    async def test_pickle(self) -> None:
-        sut = Ancestry()
-        left = _TestAncestry_OneToOne_Left()
-        right = _TestAncestry_OneToOne_Right()
-        left.one_right = right
-        sut.add(left)
-        unpickled_sut = dill.loads(dill.dumps(sut))
-        assert 2 == len(unpickled_sut)
-        assert left.id == unpickled_sut[_TestAncestry_OneToOne_Left][0].id
-        assert right.id == unpickled_sut[_TestAncestry_OneToOne_Right][0].id
-
     async def test_add_(self) -> None:
         sut = Ancestry()
         left = _TestAncestry_OneToOne_Left()

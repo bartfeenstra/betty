@@ -6,26 +6,20 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-import multiprocessing
 import os
-import queue
 import shutil
-import threading
-from concurrent.futures import ProcessPoolExecutor, Executor, Future, as_completed
+from asyncio import create_task, Task, as_completed, Semaphore, CancelledError, sleep
+from collections.abc import AsyncIterator
 from contextlib import suppress
-from ctypes import c_char_p
-from multiprocessing.managers import ValueProxy
+from math import floor
 from pathlib import Path
-from types import TracebackType
-from typing import cast, AsyncContextManager, Self, Any, ParamSpec, Callable, Concatenate, MutableSequence
+from typing import cast, AsyncContextManager, ParamSpec, Callable, Awaitable, Sequence
 
 import aiofiles
-import dill
 from aiofiles.os import makedirs
 from aiofiles.threadpool.text import AsyncTextIOWrapper
 
 from betty.app import App
-from betty.asyncio import sync, gather
 from betty.json.linked_data import LinkedDataDumpable
 from betty.json.schema import Schema
 from betty.locale import get_display_name
@@ -34,9 +28,7 @@ from betty.model.ancestry import is_public
 from betty.openapi import Specification
 from betty.serde.dump import DictDump, Dump
 from betty.string import camel_case_to_kebab_case, camel_case_to_snake_case, upper_camel_case_to_lower_camel_case
-from betty.task import Context
-
-_GenerationProcessPoolTaskP = ParamSpec('_GenerationProcessPoolTaskP')
+from betty.job import Context
 
 
 def getLogger() -> logging.Logger:
@@ -47,115 +39,18 @@ def getLogger() -> logging.Logger:
 
 
 class Generator:
-    async def generate(self, task_context: GenerationContext) -> None:
+    async def generate(self, job_context: GenerationContext) -> None:
         raise NotImplementedError(repr(self))
 
 
 class GenerationContext(Context):
     def __init__(self, app: App):
         super().__init__()
-        self._pickled_app = multiprocessing.Manager().Value(c_char_p, dill.dumps(app))
-        self._unpickle_app_lock: threading.Lock = multiprocessing.Manager().Lock()
-        self._app: App | None = None
-
-    def __getstate__(self) -> tuple[threading.Lock, MutableSequence[str], ValueProxy[bytes]]:
-        return self._claims_lock, self._claimed_task_ids, self._pickled_app
-
-    def __setstate__(self, state: tuple[threading.Lock, MutableSequence[str], ValueProxy[bytes]]) -> None:
-        self._claims_lock, self._claimed_task_ids, self._pickled_app = state
-        self._unpickle_app_lock = multiprocessing.Manager().Lock()
-        self._app = None
+        self._app = app
 
     @property
     def app(self) -> App:
-        with self._unpickle_app_lock:
-            if self._app is None:
-                self._app = cast(App, dill.loads(self._pickled_app.value))
         return self._app
-
-
-class _GenerationProcessPool:
-    def __init__(self, app: App, task_context: GenerationContext):
-        self._app = app
-        self._task_context = task_context
-        self._queue = multiprocessing.Manager().Queue()
-        self._cancel = multiprocessing.Manager().Event()
-        self._finish = multiprocessing.Manager().Event()
-        self._executor: Executor | None = None
-        self._workers: list[Future[None]] = []
-
-    async def __aenter__(self) -> Self:
-        self._executor = ProcessPoolExecutor(max_workers=self._app.concurrency)
-        for _ in range(0, self._app.concurrency):
-            self._workers.append(self._executor.submit(_GenerationProcessPoolWorker(
-                self._queue,
-                self._cancel,
-                self._finish,
-                self._app.concurrency,
-                self._task_context,
-            )))
-        return self
-
-    async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> None:
-        assert self._executor is not None
-        if exc_val is None:
-            self._finish.set()
-        else:
-            self._cancel.set()
-        try:
-            for worker in as_completed(self._workers):
-                worker.result()
-        except BaseException:
-            self._cancel.set()
-            raise
-        finally:
-            self._executor.shutdown()
-
-    def delegate(
-        self,
-        task_callable: Callable[Concatenate[GenerationContext, _GenerationProcessPoolTaskP], Any],
-        *task_args: _GenerationProcessPoolTaskP.args,
-        **task_kwargs: _GenerationProcessPoolTaskP.kwargs,
-    ) -> None:
-        self._queue.put((task_callable, task_args, task_kwargs))
-
-
-class _GenerationProcessPoolWorker:
-    def __init__(
-        self,
-        task_queue: queue.Queue[tuple[Callable[Concatenate[GenerationContext, _GenerationProcessPoolTaskP], Any], _GenerationProcessPoolTaskP.args, _GenerationProcessPoolTaskP.kwargs]],
-        cancel: threading.Event,
-        finish: threading.Event,
-        async_concurrency: int,
-        task_context: GenerationContext,
-    ):
-        self._task_queue = task_queue
-        self._cancel = cancel
-        self._finish = finish
-        self._async_concurrency = async_concurrency
-        self._context = task_context
-
-    @sync
-    async def __call__(self) -> None:
-        async with self._context.app:
-            await gather(*(
-                self._perform_tasks()
-                for _ in range(0, self._async_concurrency)
-            ))
-
-    async def _perform_tasks(self) -> None:
-        while not self._cancel.is_set():
-            try:
-                task_callable, task_args, task_kwargs = self._task_queue.get_nowait()
-            except queue.Empty:
-                if self._finish.is_set():
-                    return
-            else:
-                await task_callable(
-                    self._context,
-                    *task_args,
-                    **task_kwargs,
-                )
 
 
 async def generate(app: App) -> None:
@@ -163,7 +58,7 @@ async def generate(app: App) -> None:
     Generate a new site.
     """
     logger = getLogger()
-    task_context = GenerationContext(app)
+    job_context = GenerationContext(app)
 
     with suppress(FileNotFoundError):
         await asyncio.to_thread(shutil.rmtree, app.project.configuration.output_directory_path)
@@ -172,45 +67,14 @@ async def generate(app: App) -> None:
 
     # The static public assets may be overridden depending on the number of locales rendered, so ensure they are
     # generated before anything else.
-    await _generate_static_public(app, task_context)
+    await _generate_static_public(app, job_context)
 
-    locales = app.project.configuration.locales
-
-    async with _GenerationProcessPool(app, task_context) as process_pool:
-        process_pool.delegate(_generate_dispatch)
-        process_pool.delegate(_generate_sitemap)
-        process_pool.delegate(_generate_json_schema)
-        process_pool.delegate(_generate_openapi)
-
-        for locale in locales:
-            process_pool.delegate(_generate_public, locale)
-
-        for entity_type in app.entity_types:
-            if not issubclass(entity_type, UserFacingEntity):
-                continue
-            if app.project.configuration.entity_types[entity_type].generate_html_list:
-                for locale in locales:
-                    process_pool.delegate(_generate_entity_type_list_html, locale, entity_type)
-            process_pool.delegate(_generate_entity_type_list_json, entity_type)
-            for entity in app.project.ancestry[entity_type]:
-                if isinstance(entity.id, GeneratedEntityId):
-                    continue
-
-                process_pool.delegate(_generate_entity_json, entity_type, entity.id)
-                if is_public(entity):
-                    for locale in locales:
-                        process_pool.delegate(_generate_entity_html, locale, entity_type, entity.id)
-
-    # Log the generated pages.
-    for locale in app.project.configuration.locales:
-        locale_label = get_display_name(locale, app.localizer.locale)
-        for entity_type in app.entity_types:
-            if issubclass(entity_type, UserFacingEntity):
-                logger.info(app.localizer._('Generated pages for {count} {entity_type} in {locale}.').format(
-                    count=len(app.project.ancestry[entity_type]),
-                    entity_type=entity_type.entity_type_label_plural().localize(app.localizer),
-                    locale=locale_label,
-                ))
+    jobs = [job async for job in _run_jobs(app, job_context)]
+    log_job = create_task(_log_jobs_forever(app, jobs))
+    for completed_job in as_completed(jobs):
+        await completed_job
+    log_job.cancel()
+    await _log_jobs(app, jobs)
 
     os.chmod(app.project.configuration.output_directory_path, 0o755)
     for directory_path_str, subdirectory_names, file_names in os.walk(app.project.configuration.output_directory_path):
@@ -219,6 +83,63 @@ async def generate(app: App) -> None:
             os.chmod(directory_path / subdirectory_name, 0o755)
         for file_name in file_names:
             os.chmod(directory_path / file_name, 0o644)
+
+
+async def _log_jobs(app: App, jobs: Sequence[Task[None]]) -> None:
+    total_job_count = len(jobs)
+    completed_job_count = len([job for job in jobs if job.done()])
+    getLogger().info(app.localizer._(
+        'Generated {completed_job_count} out of {total_job_count} items ({completed_job_percentage}%).').format(
+        completed_job_count=completed_job_count,
+        total_job_count=total_job_count,
+        completed_job_percentage=floor(completed_job_count / (total_job_count / 100)),
+    ))
+
+
+async def _log_jobs_forever(app: App, jobs: Sequence[Task[None]]) -> None:
+    with suppress(CancelledError):
+        while True:
+            await sleep(5)
+            await _log_jobs(app, jobs)
+
+
+_JobP = ParamSpec('_JobP')
+
+
+def _run_job(semaphore: Semaphore, f: Callable[_JobP, Awaitable[None]], *args: _JobP.args, **kwargs: _JobP.kwargs) -> Task[None]:
+    async def _job():
+        async with semaphore:
+            await f(*args, **kwargs)
+    return create_task(_job())
+
+
+async def _run_jobs(app: App, job_context: GenerationContext) -> AsyncIterator[Task[None]]:
+    semaphore = Semaphore(512)
+    yield _run_job(semaphore, _generate_dispatch, job_context)
+    yield _run_job(semaphore, _generate_sitemap, job_context)
+    yield _run_job(semaphore, _generate_json_schema, job_context)
+    yield _run_job(semaphore, _generate_openapi, job_context)
+
+    locales = app.project.configuration.locales
+
+    for locale in locales:
+        yield _run_job(semaphore, _generate_public, job_context, locale)
+
+    for entity_type in app.entity_types:
+        if not issubclass(entity_type, UserFacingEntity):
+            continue
+        if app.project.configuration.entity_types[entity_type].generate_html_list:
+            for locale in locales:
+                yield _run_job(semaphore, _generate_entity_type_list_html, job_context, locale, entity_type)
+        yield _run_job(semaphore, _generate_entity_type_list_json, job_context, entity_type)
+        for entity in app.project.ancestry[entity_type]:
+            if isinstance(entity.id, GeneratedEntityId):
+                continue
+
+            yield _run_job(semaphore, _generate_entity_json, job_context, entity_type, entity.id)
+            if is_public(entity):
+                for locale in locales:
+                    yield _run_job(semaphore, _generate_entity_html, job_context, locale, entity_type, entity.id)
 
 
 async def create_file(path: Path) -> AsyncContextManager[AsyncTextIOWrapper]:
@@ -244,47 +165,47 @@ async def create_json_resource(path: Path) -> AsyncContextManager[AsyncTextIOWra
 
 
 async def _generate_dispatch(
-    task_context: GenerationContext,
+    job_context: GenerationContext,
 ) -> None:
-    app = task_context.app
-    await app.dispatcher.dispatch(Generator)(task_context),
+    app = job_context.app
+    await app.dispatcher.dispatch(Generator)(job_context),
 
 
 async def _generate_public(
-    task_context: GenerationContext,
+    job_context: GenerationContext,
     locale: str,
 ) -> None:
-    app = task_context.app
+    app = job_context.app
     locale_label = get_display_name(locale, app.localizer.locale)
-    getLogger().info(app.localizer._('Generating localized public files in {locale}...').format(
+    getLogger().debug(app.localizer._('Generating localized public files in {locale}...').format(
         locale=locale_label,
     ))
     async for file_path in app.assets.copytree(Path('public') / 'localized', app.project.configuration.localize_www_directory_path(locale)):
         await app.renderer.render_file(
             file_path,
-            task_context=task_context,
+            job_context=job_context,
             localizer=app.localizers[locale],
         )
 
 
 async def _generate_static_public(
     app: App,
-    task_context: Context,
+    job_context: Context,
 ) -> None:
     getLogger().info(app.localizer._('Generating static public files...'))
     async for file_path in app.assets.copytree(Path('public') / 'static', app.project.configuration.www_directory_path):
         await app.renderer.render_file(
             file_path,
-            task_context=task_context,
+            job_context=job_context,
         )
 
 
 async def _generate_entity_type_list_html(
-    task_context: GenerationContext,
+    job_context: GenerationContext,
     locale: str,
     entity_type: type[Entity],
 ) -> None:
-    app = task_context.app
+    app = job_context.app
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
     entity_type_path = app.project.configuration.localize_www_directory_path(locale) / entity_type_name_fs
     template = app.jinja2_environment.select_template([
@@ -292,7 +213,7 @@ async def _generate_entity_type_list_html(
         'entity/page-list.html.j2',
     ])
     rendered_html = await template.render_async(
-        task_context=task_context,
+        job_context=job_context,
         localizer=app.localizers[locale],
         page_resource=f'/{entity_type_name_fs}/index.html',
         entity_type=entity_type,
@@ -300,18 +221,13 @@ async def _generate_entity_type_list_html(
     )
     async with await create_html_resource(entity_type_path) as f:
         await f.write(rendered_html)
-    locale_label = get_display_name(locale, app.localizer.locale)
-    getLogger().info(app.localizer._('Generated the listing page for {entity_type} in {locale}.').format(
-        entity_type=entity_type.entity_type_label_plural().localize(app.localizer),
-        locale=locale_label,
-    ))
 
 
 async def _generate_entity_type_list_json(
-    task_context: GenerationContext,
+    job_context: GenerationContext,
     entity_type: type[Entity & LinkedDataDumpable],
 ) -> None:
-    app = task_context.app
+    app = job_context.app
     entity_type_name = get_entity_type_name(entity_type)
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
     entity_type_path = app.project.configuration.www_directory_path / entity_type_name_fs
@@ -332,12 +248,12 @@ async def _generate_entity_type_list_json(
 
 
 async def _generate_entity_html(
-    task_context: GenerationContext,
+    job_context: GenerationContext,
     locale: str,
     entity_type: type[Entity],
     entity_id: str,
 ) -> None:
-    app = task_context.app
+    app = job_context.app
     entity = app.project.ancestry[entity_type][entity_id]
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity))
     entity_path = app.project.configuration.localize_www_directory_path(locale) / entity_type_name_fs / entity.id
@@ -345,7 +261,7 @@ async def _generate_entity_html(
         f'entity/page--{entity_type_name_fs}.html.j2',
         'entity/page.html.j2',
     ]).render_async(
-        task_context=task_context,
+        job_context=job_context,
         localizer=app.localizers[locale],
         page_resource=entity,
         entity_type=entity.type,
@@ -356,11 +272,11 @@ async def _generate_entity_html(
 
 
 async def _generate_entity_json(
-    task_context: GenerationContext,
+    job_context: GenerationContext,
     entity_type: type[Entity & LinkedDataDumpable],
     entity_id: str,
 ) -> None:
-    app = task_context.app
+    app = job_context.app
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
     entity_path = app.project.configuration.www_directory_path / entity_type_name_fs / entity_id
     entity = cast('Entity & LinkedDataDumpable', app.project.ancestry[entity_type][entity_id])
@@ -370,9 +286,9 @@ async def _generate_entity_json(
 
 
 async def _generate_sitemap(
-    task_context: GenerationContext,
+    job_context: GenerationContext,
 ) -> None:
-    app = task_context.app
+    app = job_context.app
     sitemap_template = app.jinja2_environment.get_template('sitemap.xml.j2')
     sitemaps = []
     sitemap: list[str] = []
@@ -418,10 +334,10 @@ async def _generate_sitemap(
 
 
 async def _generate_json_schema(
-    task_context: GenerationContext,
+    job_context: GenerationContext,
 ) -> None:
-    app = task_context.app
-    getLogger().info(app.localizer._('Generating JSON Schema...'))
+    app = job_context.app
+    getLogger().debug(app.localizer._('Generating JSON Schema...'))
     schema = Schema(app)
     rendered_json = json.dumps(await schema.build())
     async with await create_file(app.project.configuration.www_directory_path / 'schema.json') as f:
@@ -429,10 +345,10 @@ async def _generate_json_schema(
 
 
 async def _generate_openapi(
-    task_context: GenerationContext,
+    job_context: GenerationContext,
 ) -> None:
-    app = task_context.app
-    getLogger().info(app.localizer._('Generating OpenAPI specification...'))
+    app = job_context.app
+    getLogger().debug(app.localizer._('Generating OpenAPI specification...'))
     api_directory_path = app.project.configuration.www_directory_path / 'api'
     rendered_json = json.dumps(await Specification(app).build())
     async with await create_json_resource(api_directory_path) as f:

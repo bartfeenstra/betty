@@ -1061,46 +1061,6 @@ class EntityGraphBuilder(_EntityGraphBuilder):
         self._associations[owner_type][owner_attr_name][owner_id].append((associate_type, associate_id))
 
 
-class PickleableEntityGraph(_EntityGraphBuilder):
-    def __init__(self, *entities: Entity) -> None:
-        super().__init__()
-        self._pickled = False
-        for entity in entities:
-            self._entities[entity.type][entity.id] = entity
-
-    def __getstate__(self) -> tuple[_EntityGraphBuilderEntities, _EntityGraphBuilderAssociations]:
-        self._flatten()
-        return self._entities, self._associations
-
-    def __setstate__(self, state: tuple[_EntityGraphBuilderEntities, _EntityGraphBuilderAssociations]) -> None:
-        self._entities, self._associations = state
-        self._built = False
-        self._pickled = False
-
-    def _flatten(self) -> None:
-        if self._pickled:
-            raise RuntimeError('This entity graph has been pickled already.')
-        self._pickled = True
-
-        for owner in self._iter():
-            unaliased_entity = unalias(owner)
-            entity_type = unaliased_entity.type
-
-            for association in EntityTypeAssociationRegistry.get_all_associations(entity_type):
-                associates: Iterable[Entity]
-                if isinstance(association, ToOneEntityTypeAssociation):
-                    associate = association.get(unaliased_entity)
-                    if associate is None:
-                        continue
-                    associates = [associate]
-                else:
-                    associates = association.get(unaliased_entity)
-                for associate in associates:
-                    self._associations[entity_type][association.owner_attr_name][owner.id].append(
-                        (associate.type, associate.id),
-                    )
-
-
 @contextmanager
 def record_added(entities: EntityCollection[EntityT]) -> Iterator[MultipleTypesEntityCollection[EntityT]]:
     """

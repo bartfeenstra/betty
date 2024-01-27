@@ -24,7 +24,7 @@ from betty.extension.npm import _Npm, NpmBuilder, npm
 from betty.functools import walk
 from betty.generate import Generator, GenerationContext
 from betty.gui import GuiBuilder
-from betty.jinja2 import Jinja2Provider, context_app, context_localizer, context_task_context
+from betty.jinja2 import Jinja2Provider, context_app, context_localizer, context_job_context
 from betty.locale import Date, Str, Datey
 from betty.model import Entity, UserFacingEntity, GeneratedEntityId
 from betty.model.ancestry import Event, Person, Presence, is_public, Subject
@@ -228,7 +228,7 @@ class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Gener
         await asyncio.to_thread(copy2, source_directory_path / 'cotton_candy.css', destination_directory_path / 'cotton_candy.css')
         await asyncio.to_thread(copy2, source_directory_path / 'cotton_candy.js', destination_directory_path / 'cotton_candy.js')
 
-    async def generate(self, task_context: GenerationContext) -> None:
+    async def generate(self, job_context: GenerationContext) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
         await makedirs(self.app.project.configuration.www_directory_path, exist_ok=True)
         await self._copy_npm_build(assets_directory_path, self.app.project.configuration.www_directory_path)
@@ -238,7 +238,7 @@ class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Gener
 async def _global_search_index(context: Context) -> AsyncIterable[dict[str, str]]:
     return Index(
         context_app(context),
-        context_task_context(context),
+        context_job_context(context),
         context_localizer(context),
     ).build()
 
