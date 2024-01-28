@@ -104,8 +104,8 @@ class BettyMainWindow(BettyWindow):
     def title(self) -> str:
         return 'Betty'
 
-    def _do_set_translatables(self) -> None:
-        super()._do_set_translatables()
+    def _set_translatables(self) -> None:
+        super()._set_translatables()
         self.new_project_action.setText(self._app.localizer._('New project...'))
         self.open_project_action.setText(self._app.localizer._('Open project...'))
         self._demo_action.setText(self._app.localizer._('View demo site...'))
@@ -273,8 +273,8 @@ class WelcomeWindow(BettyMainWindow):
         self.demo_button.released.connect(self._demo)
         central_layout.addWidget(self.demo_button)
 
-    def _do_set_translatables(self) -> None:
-        super()._do_set_translatables()
+    def _set_translatables(self) -> None:
+        super()._set_translatables()
         self._welcome.setText(self._app.localizer._('Welcome to Betty'))
         self._welcome_caption.setText(self._app.localizer._('Betty helps you visualize and publish your family history by building interactive genealogy websites out of your <a href="{gramps_url}">Gramps</a> and <a href="{gedcom_url}">GEDCOM</a> family trees.').format(
             gramps_url='https://gramps-project.org/',
@@ -298,8 +298,8 @@ class _AboutBettyWindow(BettyWindow):
         self._label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setCentralWidget(self._label)
 
-    def _do_set_translatables(self) -> None:
-        super()._do_set_translatables()
+    def _set_translatables(self) -> None:
+        super()._set_translatables()
         self._label.setText(''.join(map(lambda x: '<p>%s</p>' % x, [
             self._app.localizer._('Version: {version}').format(
                 version=about.version_label(),
@@ -326,8 +326,8 @@ class ApplicationConfiguration(BettyWindow):
         form_widget = QWidget()
         form_widget.setLayout(self._form)
         self.setCentralWidget(form_widget)
-        locale_collector = TranslationsLocaleCollector(self._app, set(self._app.localizers.locales))
-        for row in locale_collector.rows:
+        self._locale_collector = TranslationsLocaleCollector(self._app, set(self._app.localizers.locales))
+        for row in self._locale_collector.rows:
             self._form.addRow(*row)
 
     @property

@@ -67,7 +67,7 @@ class BettyWindow(LocalizedWindow):
         geometry.moveCenter(screen.availableGeometry().center())
         self.move(geometry.topLeft())
 
-    def _do_set_translatables(self) -> None:
+    def _set_translatables(self) -> None:
         self.setWindowTitle(f'{self.title} - Betty')
 
     @property

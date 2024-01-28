@@ -14,8 +14,6 @@ from PyQt6.QtWidgets import QWidget
 from aiofiles.os import makedirs
 from jinja2 import pass_context
 from jinja2.runtime import Context
-from reactives.instance import ReactiveInstance
-from reactives.instance.property import reactive_property
 
 from betty.app.extension import ConfigurableExtension, Extension, Theme
 from betty.config import Configuration
@@ -51,7 +49,6 @@ class _ColorConfiguration(Configuration):
         return hex_value
 
     @property
-    @reactive_property
     def hex(self) -> str:
         return self._hex
 
@@ -63,6 +60,7 @@ class _ColorConfiguration(Configuration):
                 hex_value=hex_value,
             ))
         self._hex = hex_value
+        self._dispatch_change()
 
     def update(self, other: Self) -> None:
         self.hex = other.hex
@@ -102,15 +100,15 @@ class CottonCandyConfiguration(Configuration):
     ):
         super().__init__()
         self._featured_entities = EntityReferenceSequence['UserFacingEntity & Entity'](featured_entities or ())
-        self._featured_entities.react(self)
+        self._featured_entities.on_change(self)
         self._primary_inactive_color = _ColorConfiguration(primary_inactive_color)
-        self._primary_inactive_color.react(self)
+        self._primary_inactive_color.on_change(self)
         self._primary_active_color = _ColorConfiguration(primary_active_color)
-        self._primary_active_color.react(self)
+        self._primary_active_color.on_change(self)
         self._link_inactive_color = _ColorConfiguration(link_inactive_color)
-        self._link_inactive_color.react(self)
+        self._link_inactive_color.on_change(self)
         self._link_active_color = _ColorConfiguration(link_active_color)
-        self._link_active_color.react(self)
+        self._link_active_color.on_change(self)
 
     @property
     def featured_entities(self) -> EntityReferenceSequence[UserFacingEntity & Entity]:
@@ -175,7 +173,7 @@ class CottonCandyConfiguration(Configuration):
         })
 
 
-class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Generator, GuiBuilder, ReactiveInstance, NpmBuilder, Jinja2Provider):
+class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Generator, GuiBuilder, NpmBuilder, Jinja2Provider):
     @classmethod
     def depends_on(cls) -> set[type[Extension]]:
         return {_Npm}

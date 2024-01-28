@@ -6,8 +6,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Iterable, Any, Self
 
-from reactives.instance.property import reactive_property
-
 from betty.config import Configuration, ConfigurationSequence
 from betty.serde.dump import minimize, Dump, VoidableDump
 from betty.serde.load import Asserter, Fields, RequiredField, Assertions, OptionalField
@@ -28,7 +26,6 @@ class FamilyTreeConfiguration(Configuration):
         return self._file_path == other.file_path
 
     @property
-    @reactive_property
     def file_path(self) -> Path | None:
         return self._file_path
 
@@ -61,7 +58,7 @@ class FamilyTreeConfiguration(Configuration):
 
 class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfiguration]):
     def update(self, other: Self) -> None:
-        self._clear_without_trigger()
+        self._clear_without_dispatch()
         self.append(*other)
 
     @classmethod
@@ -81,7 +78,7 @@ class GrampsConfiguration(Configuration):
     ):
         super().__init__()
         self._family_trees = FamilyTreeConfigurationSequence(family_trees)
-        self._family_trees.react(self)
+        self._family_trees.on_change(self)
 
     @property
     def family_trees(self) -> FamilyTreeConfigurationSequence:

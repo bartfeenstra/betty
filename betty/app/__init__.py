@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os as stdos
 import weakref
+from collections.abc import Callable
 from contextlib import suppress
 from graphlib import CycleError, TopologicalSorter
 from pathlib import Path
@@ -11,8 +12,6 @@ from types import TracebackType
 from typing import TYPE_CHECKING, Mapping, Self, final
 
 import aiohttp
-from reactives.instance import ReactiveInstance
-from reactives.instance.property import reactive_property
 
 from betty.app.extension import ListExtensions, Extension, Extensions, build_extension_type_graph, \
     CyclicDependencyError, ExtensionDispatcher, ConfigurableExtension, discover_extension_types
@@ -30,7 +29,7 @@ from betty.model.event_type import EventType, EventTypeProvider, Birth, Baptism,
     Emigration, Occupation, Retirement, Correspondence, Confirmation
 from betty.project import Project
 from betty.render import Renderer, SequentialRenderer
-from betty.serde.dump import minimize, void_none, Dump, VoidableDump
+from betty.serde.dump import minimize, void_none, Dump, VoidableDump, Void
 from betty.serde.load import AssertionFailed, Fields, Assertions, OptionalField, Asserter
 
 if TYPE_CHECKING:
@@ -48,7 +47,6 @@ class _AppExtensions(ListExtensions):
 
     def _update(self, extensions: list[list[Extension]]) -> None:
         self._extensions = extensions
-        self.react.trigger()
 
 
 class AppConfiguration(FileBasedConfiguration):
@@ -73,7 +71,6 @@ class AppConfiguration(FileBasedConfiguration):
         pass
 
     @property
-    @reactive_property
     def locale(self) -> str | None:
         return self._locale
 
@@ -87,10 +84,11 @@ class AppConfiguration(FileBasedConfiguration):
                 locale=locale,
             ))
         self._locale = locale
+        self._dispatch_change()
 
     def update(self, other: Self) -> None:
         self._locale = other._locale
-        self.react.trigger()
+        self._dispatch_change()
 
     @classmethod
     def load(
@@ -116,7 +114,7 @@ class AppConfiguration(FileBasedConfiguration):
 
 
 @final
-class App(Configurable[AppConfiguration], ReactiveInstance):
+class App(Configurable[AppConfiguration]):
     def __init__(
         self,
         configuration: AppConfiguration | None = None,
@@ -125,6 +123,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         super().__init__()
         self._started = False
         self._configuration = configuration or AppConfiguration()
+        self._configuration.on_change(self._on_locale_change)
         self._assets: FileSystem | None = None
         self._extensions = _AppExtensions()
         self._extensions_initialized = False
@@ -134,6 +133,7 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         with suppress(FileNotFoundError):
             wait(self.configuration.read())
         self._project = project or Project()
+        self.project.configuration.extensions.on_change(self._update_extensions)
 
         self._dispatcher: ExtensionDispatcher | None = None
         self._entity_types: set[type[Entity]] | None = None
@@ -145,17 +145,30 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         self._http_client: aiohttp.ClientSession | None = None
         self._cache: Cache | None = None
 
+    @classmethod
+    def _unreduce(cls, dumped_app_configuration: VoidableDump, project: Project) -> Self:
+        if dumped_app_configuration is Void:
+            app_configuration = None
+        else:
+            app_configuration = AppConfiguration.load(
+                dumped_app_configuration,  # type: ignore[arg-type]
+            )
+        return App(
+            app_configuration,
+            project,
+        )
+
     def __reduce__(self) -> tuple[
-        type[App],
+        Callable[[VoidableDump, Project], Self],
         tuple[
-            AppConfiguration,
+            VoidableDump,
             Project,
         ],
     ]:
         return (
-            App,
+            App._unreduce,
             (
-                self._configuration,
+                self._configuration.dump(),
                 self._project,
             ),
         )
@@ -180,6 +193,10 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         if self._started:
             raise RuntimeError(f'{self} was started, but never stopped.')
 
+    def _on_locale_change(self) -> None:
+        del self.localizer
+        del self.localizers
+
     @property
     def project(self) -> Project:
         return self._project
@@ -192,7 +209,6 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         if not self._extensions_initialized:
             self._extensions_initialized = True
             self._update_extensions()
-            self.project.configuration.extensions.react(self._update_extensions)
 
         return self._extensions
 
@@ -228,18 +244,25 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
                 extension_types_sorter.done(extension_type)
             extensions.append(extensions_batch)
         self._extensions._update(extensions)
+        del self.assets
+        del self.localizers
+        del self.localizer
+        del self.jinja2_environment
+        del self.renderer
+        del self.entity_types
+        del self.event_types
 
     @property
-    @reactive_property(on_trigger_delete=True)
     def assets(self) -> FileSystem:
         if self._assets is None:
-            self._assets = FileSystem()
-            self._assets.prepend(ASSETS_DIRECTORY_PATH, 'utf-8')
+            assets = FileSystem()
+            assets.prepend(ASSETS_DIRECTORY_PATH, 'utf-8')
             for extension in self.extensions.flatten():
                 extension_assets_directory_path = extension.assets_directory_path()
                 if extension_assets_directory_path is not None:
-                    self._assets.prepend(extension_assets_directory_path, 'utf-8')
-            self._assets.prepend(self.project.configuration.assets_directory_path)
+                    assets.prepend(extension_assets_directory_path, 'utf-8')
+            assets.prepend(self.project.configuration.assets_directory_path)
+            self._assets = assets
         return self._assets
 
     @assets.deleter
@@ -273,15 +296,14 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
     def localizer(self) -> Localizer:
         """
         Get the application's localizer.
-
-        The localizer MAY be out of sync with the locale set in the application configuration,
-        if the locale is changed runtime. To keep almost every other part of the application
-        simpler, changing the application locale requires an application restart for the changes
-        to take effect.
         """
         if self._localizer is None:
             self._localizer = self.localizers.get_negotiated(self.configuration.locale or DEFAULT_LOCALE)
         return self._localizer
+
+    @localizer.deleter
+    def localizer(self) -> None:
+        self._localizer = None
 
     @property
     def localizers(self) -> LocalizerRepository:
@@ -289,8 +311,11 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
             self._localizers = LocalizerRepository(self.assets)
         return self._localizers
 
+    @localizers.deleter
+    def localizers(self) -> None:
+        self._localizers = None
+
     @property
-    @reactive_property(on_trigger_delete=True)
     def jinja2_environment(self) -> Environment:
         if not self._jinja2_environment:
             from betty.jinja2 import Environment
@@ -303,7 +328,6 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         self._jinja2_environment = None
 
     @property
-    @reactive_property(on_trigger_delete=True)
     def renderer(self) -> Renderer:
         if not self._renderer:
             from betty.jinja2 import Jinja2Renderer
@@ -335,7 +359,6 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         return lambda *args, **kwargs: JSONEncoder(self)  # type: ignore[return-value]
 
     @property
-    @reactive_property(on_trigger_delete=True)
     def http_client(self) -> aiohttp.ClientSession:
         if not self._http_client:
             self._http_client = aiohttp.ClientSession(
@@ -355,7 +378,6 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
             self._http_client = None
 
     @property
-    @reactive_property(on_trigger_delete=True)
     @sync
     async def entity_types(self) -> set[type[Entity]]:
         if self._entity_types is None:
@@ -378,7 +400,6 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
         self._entity_types = None
 
     @property
-    @reactive_property(on_trigger_delete=True)
     @sync
     async def event_types(self) -> set[type[EventType]]:
         if self._event_types is None:
@@ -405,6 +426,10 @@ class App(Configurable[AppConfiguration], ReactiveInstance):
                 Confirmation,
             }
         return self._event_types
+
+    @event_types.deleter
+    def event_types(self) -> None:
+        self._event_types = None
 
     @property
     def servers(self) -> Mapping[str, Server]:

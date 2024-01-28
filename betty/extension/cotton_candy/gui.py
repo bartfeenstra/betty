@@ -20,12 +20,9 @@ class _ColorConfigurationSwatch(LocalizedWidget):
     def __init__(self, app: App, color: _ColorConfiguration, *args: Any, **kwargs: Any):
         super().__init__(app, *args, **kwargs)
         self._color = color
-        self._color.react(self.repaint)
+        self._color.on_change(self.repaint)
         self.setFixedHeight(24)
         self.setFixedWidth(24)
-
-    def __del__(self) -> None:
-        self._color.react.shutdown(self.repaint)
 
     def paintEvent(self, a0: QPaintEvent | None) -> None:
         painter = QPainter(self)
@@ -64,7 +61,7 @@ class _ColorConfigurationWidget(LocalizedWidget):
 
         self._reset.clicked.connect(_reset)
 
-    def _do_set_translatables(self) -> None:
+    def _set_translatables(self) -> None:
         self._configure.setText(self._app.localizer._('Configure'))
         self._reset.setText(self._app.localizer._('Reset'))
 
@@ -85,7 +82,7 @@ class _ColorConfigurationsWidget(LocalizedWidget):
             self._color_configurations.append(color_widget)
             self._layout.addRow(color_label, color_widget)
 
-    def _do_set_translatables(self) -> None:
+    def _set_translatables(self) -> None:
         for i, (__, color_label, ___) in enumerate(self._colors):
             self._color_labels[i].setText(color_label())
 

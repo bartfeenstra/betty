@@ -7,8 +7,6 @@ from typing import Callable, Iterable, Any
 
 from jinja2 import pass_context
 from jinja2.runtime import Context
-from reactives.instance import ReactiveInstance
-from reactives.instance.property import reactive_property
 
 from betty import wikipedia
 from betty.app.extension import UserFacingExtension
@@ -20,7 +18,7 @@ from betty.model.ancestry import Link
 from betty.wikipedia import Summary, _parse_url, NotAPageError, RetrievalError
 
 
-class _Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstance):
+class _Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self.__retriever: wikipedia._Retriever | None = None
@@ -31,7 +29,6 @@ class _Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstan
         await populator.populate()
 
     @property
-    @reactive_property(on_trigger_delete=True)
     def _retriever(self) -> wikipedia._Retriever:
         if self.__retriever is None:
             self.__retriever = wikipedia._Retriever(self.app.http_client, self.cache_directory_path)

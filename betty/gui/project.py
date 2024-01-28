@@ -17,7 +17,6 @@ from PyQt6.QtWidgets import QFileDialog, QPushButton, QWidget, QVBoxLayout, QHBo
     QGridLayout, QCheckBox, QFormLayout, QLabel, QLineEdit, QButtonGroup, QRadioButton
 from babel import Locale
 from babel.localedata import locale_identifiers
-from reactives.instance.method import reactive_method
 
 from betty import load, generate
 from betty.app import App
@@ -59,7 +58,6 @@ class _GenerateHtmlListForm(LocalizedWidget):
         self._checkboxes: dict[type[UserFacingEntity & Entity], QCheckBox] = {}
         self._update()
 
-    @reactive_method(on_trigger_call=True)
     def _update(self) -> None:
         entity_types = list(sorted(
             [
@@ -89,7 +87,7 @@ class _GenerateHtmlListForm(LocalizedWidget):
         self._checkboxes[entity_type].toggled.connect(_update)
         self._update_for_entity_type(entity_type, row_i)
 
-    def _do_set_translatables(self) -> None:
+    def _set_translatables(self) -> None:
         self._form_label.setText(self._app.localizer._('Generate entity listing pages'))
         for entity_type in self._app.entity_types:
             if issubclass(entity_type, UserFacingEntity):
@@ -190,7 +188,7 @@ class _GeneralPane(LocalizedWidget):
         self._clean_urls_caption = Caption()
         self._form.addRow(self._clean_urls_caption)
 
-    def _do_set_translatables(self) -> None:
+    def _set_translatables(self) -> None:
         self._configuration_author_label.setText(self._app.localizer._('Author'))
         self._configuration_url_label.setText(self._app.localizer._('URL'))
         self._configuration_title_label.setText(self._app.localizer._('Title'))
@@ -255,7 +253,7 @@ class _LocalesConfigurationWidget(LocalizedWidget):
         else:
             self._remove_buttons[locale] = None
 
-    def _do_set_translatables(self) -> None:
+    def _set_translatables(self) -> None:
         self._add_locale_button.setText(self._app.localizer._('Add a locale'))
         for locale, button in self._default_buttons.items():
             button.setText(get_display_name(locale, self._app.localizer.locale))
@@ -278,7 +276,6 @@ class _LocalizationPane(LocalizedWidget):
         self._locales_configuration_widget: _LocalesConfigurationWidget | None = None
         self._build()
 
-    @reactive_method(on_trigger_call=True)
     def _build(self) -> None:
         if self._locales_configuration_widget is not None:
             self._layout.removeWidget(self._locales_configuration_widget)
@@ -330,8 +327,8 @@ class _AddLocaleWindow(BettyWindow):
         )
         buttons_layout.addWidget(self._cancel)
 
-    def _do_set_translatables(self) -> None:
-        super()._do_set_translatables()
+    def _set_translatables(self) -> None:
+        super()._set_translatables()
         self._alias_label.setText(self._app.localizer._('Alias'))
         self._alias_caption.setText(self._app.localizer._('An optional alias is used instead of the locale code to identify this locale, such as in URLs. If US English is the only English language variant on your site, you may want to alias its language code from <code>en-US</code> to <code>en</code>, for instance.'))
 
@@ -400,7 +397,6 @@ class _ExtensionPane(LocalizedWidget):
             if isinstance(extension, GuiBuilder):
                 layout.addWidget(extension.gui_build())
 
-    @reactive_method(on_trigger_call=True)
     def _set_extension_status(self) -> None:
         self._extension_enabled.setDisabled(False)
         self._extension_enabled_caption.setText('')
@@ -417,7 +413,7 @@ class _ExtensionPane(LocalizedWidget):
                 self._extension_enabled.setDisabled(True)
                 self._extension_enabled_caption.setText(str(enable_requirement.reduce()))
 
-    def _do_set_translatables(self) -> None:
+    def _set_translatables(self) -> None:
         self._extension_description.setText(self._extension_type.description().localize(self._app.localizer))
         self._extension_enabled.setText(self._app.localizer._('Enable {extension}').format(
             extension=self._extension_type.label().localize(self._app.localizer),
@@ -498,8 +494,8 @@ class ProjectWindow(BettyMainWindow):
         self._app.project.configuration.autowrite = False
         return super().close()
 
-    def _do_set_translatables(self) -> None:
-        super()._do_set_translatables()
+    def _set_translatables(self) -> None:
+        super()._set_translatables()
         self.project_menu.setTitle('&' + self._app.localizer._('Project'))
         self.save_project_as_action.setText(self._app.localizer._('Save this project as...'))
         self.generate_action.setText(self._app.localizer._('Generate site'))
@@ -509,7 +505,6 @@ class ProjectWindow(BettyMainWindow):
         for extension_type in self._extension_types:
             self._pane_selectors[f'extension-{extension_type.name()}'].setText(extension_type.label().localize(self._app.localizer))
 
-    @reactive_method(on_trigger_call=True)
     def _set_window_title(self) -> None:
         self.setWindowTitle('%s - Betty' % self._app.project.configuration.title)
 
@@ -612,7 +607,7 @@ class _GenerateWindow(BettyWindow):
         load.getLogger().removeHandler(self._logging_handler)
         generate.getLogger().removeHandler(self._logging_handler)
 
-    def _do_set_translatables(self) -> None:
+    def _set_translatables(self) -> None:
         self._cancel_button.setText(self._app.localizer._('Cancel'))
         self._cancel_button.setText(self._app.localizer._('Cancel'))
         self._serve_button.setText(self._app.localizer._('View site'))

@@ -10,7 +10,6 @@ from typing import Any
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QWidget, QFormLayout, QPushButton, QFileDialog, QLineEdit, QHBoxLayout, QVBoxLayout, \
     QGridLayout, QLabel
-from reactives.instance.method import reactive_method
 
 from betty.app import App
 from betty.extension import Gramps
@@ -34,12 +33,12 @@ class _FamilyTrees(LocalizedWidget):
         self._family_trees_remove_buttons: list[QPushButton]
 
         self._build_family_trees()
+        self._app.extensions[Gramps].configuration.family_trees.on_change(self._build_family_trees)
 
         self._add_family_tree_button = QPushButton()
         self._add_family_tree_button.released.connect(self._add_family_tree)
         self._layout.addWidget(self._add_family_tree_button, 1)
 
-    @reactive_method(on_trigger_call=True)
     def _build_family_trees(self) -> None:
         with suppress(AttributeError):
             self._family_trees_widget.setParent(None)
@@ -58,7 +57,7 @@ class _FamilyTrees(LocalizedWidget):
             self._family_trees_layout.addWidget(self._family_trees_remove_buttons[i], i, 1)
         self._layout.insertWidget(0, self._family_trees_widget, alignment=Qt.AlignmentFlag.AlignTop)
 
-    def _do_set_translatables(self) -> None:
+    def _set_translatables(self) -> None:
         self._add_family_tree_button.setText(self._app.localizer._('Add a family tree'))
         for button in self._family_trees_remove_buttons:
             button.setText(self._app.localizer._('Remove'))
@@ -140,7 +139,7 @@ class _AddFamilyTreeWindow(BettyWindow):
         self._cancel.released.connect(self.close)
         buttons_layout.addWidget(self._cancel)
 
-    def _do_set_translatables(self) -> None:
+    def _set_translatables(self) -> None:
         self._file_path_label.setText(self._app.localizer._('File path'))
         self._save_and_close.setText(self._app.localizer._('Save and close'))
         self._cancel.setText(self._app.localizer._('Cancel'))
