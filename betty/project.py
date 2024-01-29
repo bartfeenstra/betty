@@ -611,7 +611,7 @@ class ProjectConfiguration(FileBasedConfiguration):
 
     @property
     def project_directory_path(self) -> Path:
-        return self.configuration_file_path.parent
+        return self.assert_configuration_file_path().parent
 
     @property
     def output_directory_path(self) -> Path:
@@ -802,10 +802,10 @@ class Project(Configurable[ProjectConfiguration]):
         self._configuration = ProjectConfiguration()
         self._ancestry = Ancestry()
 
-    def __getstate__(self) -> tuple[str | None, VoidableDump, Path, Ancestry]:
+    def __getstate__(self) -> tuple[str | None, VoidableDump, Path | None, Ancestry]:
         return self._id, self._configuration.dump(), self._configuration.configuration_file_path, self._ancestry
 
-    def __setstate__(self, state: tuple[str | None, Dump, Path, Ancestry]) -> None:
+    def __setstate__(self, state: tuple[str | None, Dump, Path | None, Ancestry]) -> None:
         self._id, dump, configuration_file_path, self._ancestry = state
         self._configuration = ProjectConfiguration.load(dump)
         self._configuration.configuration_file_path = configuration_file_path

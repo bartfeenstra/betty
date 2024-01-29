@@ -6,7 +6,6 @@ import os as stdos
 import weakref
 from contextlib import suppress
 from graphlib import CycleError, TopologicalSorter
-from pathlib import Path
 from types import TracebackType
 from typing import TYPE_CHECKING, Mapping, Self, final
 
@@ -59,18 +58,7 @@ class AppConfiguration(FileBasedConfiguration):
     ):
         super().__init__()
         self._locale: str | None = locale
-
-    @property
-    def configuration_file_path(self) -> Path:
-        return CONFIGURATION_DIRECTORY_PATH / 'app.json'
-
-    @configuration_file_path.setter
-    def configuration_file_path(self, __) -> None:
-        pass
-
-    @configuration_file_path.deleter
-    def configuration_file_path(self) -> None:
-        pass
+        self._configuration_file_path = CONFIGURATION_DIRECTORY_PATH / 'app.json'
 
     @property
     @reactive_property

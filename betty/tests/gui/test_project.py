@@ -197,7 +197,7 @@ class TestLocalizationPane:
             title = 'My First Ancestry Site'
             app.project.configuration.title = title
 
-        with open(app.project.configuration.configuration_file_path) as f:
+        with open(app.project.configuration.assert_configuration_file_path()) as f:
             read_configuration_dump = json.load(f)
         assert read_configuration_dump == app.project.configuration.dump()
         assert read_configuration_dump['title'] == title

@@ -7,9 +7,8 @@ from collections import OrderedDict
 from contextlib import suppress
 from pathlib import Path
 from reprlib import recursive_repr
-from tempfile import TemporaryDirectory
 from typing import Generic, Iterable, Iterator, SupportsIndex, Hashable, \
-    MutableSequence, MutableMapping, TypeVar, Any, Sequence, overload, cast, Self, TypeAlias
+    MutableSequence, MutableMapping, TypeVar, Any, Sequence, overload, Self, TypeAlias
 
 import aiofiles
 from aiofiles.os import makedirs
@@ -17,7 +16,7 @@ from reactives import scope
 from reactives.instance import ReactiveInstance
 from reactives.instance.property import reactive_property
 
-from betty.asyncio import wait, sync
+from betty.asyncio import sync
 from betty.classtools import repr_instance
 from betty.functools import slice_to_range
 from betty.locale import Str
@@ -58,10 +57,13 @@ class Configuration(ReactiveInstance, Dumpable):
 ConfigurationT = TypeVar('ConfigurationT', bound=Configuration)
 
 
+class NoConfigurationFilePath(RuntimeError):
+    pass
+
+
 class FileBasedConfiguration(Configuration):
     def __init__(self):
         super().__init__()
-        self._project_directory: TemporaryDirectory | None = None  # type: ignore[type-arg]
         self._configuration_file_path: Path | None = None
         self._autowrite = False
 
@@ -82,13 +84,16 @@ class FileBasedConfiguration(Configuration):
     async def _write_reactor(self) -> None:
         await self.write()
 
-    async def write(self, configuration_file_path: Path | None = None) -> None:
-        if configuration_file_path is not None:
+    def _ensure_configuration_file_path(self, configuration_file_path: Path | None = None) -> Path:
+        if configuration_file_path:
             self.configuration_file_path = configuration_file_path
+            return configuration_file_path
+        else:
+            return self.assert_configuration_file_path()
 
-        await self._write(self.configuration_file_path)
+    async def write(self, configuration_file_path: Path | None = None) -> None:
+        configuration_file_path = self._ensure_configuration_file_path(configuration_file_path)
 
-    async def _write(self, configuration_file_path: Path) -> None:
         # Change the working directory to allow absolute paths to be turned relative to the configuration file's directory
         # path.
         formats = FormatRepository()
@@ -103,51 +108,33 @@ class FileBasedConfiguration(Configuration):
         self._configuration_file_path = configuration_file_path
 
     async def read(self, configuration_file_path: Path | None = None) -> None:
-        if configuration_file_path is not None:
-            self.configuration_file_path = configuration_file_path
+        configuration_file_path = self._ensure_configuration_file_path(configuration_file_path)
 
         formats = FormatRepository()
         with SerdeErrorCollection().assert_valid() as errors:
             # Change the working directory to allow relative paths to be resolved against the configuration file's directory
             # path.
-            async with ChDir(self.configuration_file_path.parent):
-                async with aiofiles.open(self.configuration_file_path) as f:
+            async with ChDir(configuration_file_path.parent):
+                async with aiofiles.open(configuration_file_path) as f:
                     read_configuration = await f.read()
                 with errors.catch(Str.plain(
                     'in {configuration_file_path}',
-                    configuration_file_path=str(self.configuration_file_path.resolve()),
+                    configuration_file_path=str(configuration_file_path.resolve()),
                 )):
                     loaded_configuration = self.load(
-                        formats.format_for(self.configuration_file_path.suffix[1:]).load(read_configuration)
+                        formats.format_for(configuration_file_path.suffix[1:]).load(read_configuration)
                     )
         self.update(loaded_configuration)
 
-    def __del__(self) -> None:
-        if hasattr(self, '_project_directory') and self._project_directory is not None:
-            self._project_directory.cleanup()
+    def assert_configuration_file_path(self) -> Path:
+        configuration_file_path = self.configuration_file_path
+        if not configuration_file_path:
+            raise NoConfigurationFilePath
+        return configuration_file_path
 
     @property
-    @reactive_property
-    def configuration_file_path(self) -> Path:
-        if self._configuration_file_path is None:
-            if self._project_directory is None:
-                self._project_directory = TemporaryDirectory()
-            wait(self._write(Path(self._project_directory.name) / f'{type(self).__name__}.json'))
-        return cast(Path, self._configuration_file_path)
-
-    @configuration_file_path.setter
-    def configuration_file_path(self, configuration_file_path: Path) -> None:
-        if configuration_file_path == self._configuration_file_path:
-            return
-        formats = FormatRepository()
-        formats.format_for(configuration_file_path.suffix[1:])
-        self._configuration_file_path = configuration_file_path
-
-    @configuration_file_path.deleter
-    def configuration_file_path(self) -> None:
-        if self._autowrite:
-            raise RuntimeError('Cannot remove the configuration file path while autowrite is enabled.')
-        self._configuration_file_path = None
+    def configuration_file_path(self) -> Path | None:
+        return self._configuration_file_path
 
 
 ConfigurationKey: TypeAlias = SupportsIndex | Hashable | type[Any]

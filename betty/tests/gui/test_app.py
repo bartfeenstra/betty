@@ -150,7 +150,7 @@ class TestApplicationConfiguration:
             locale = 'nl-NL'
             app.configuration.locale = locale
 
-        with open(app.configuration.configuration_file_path) as f:
+        with open(app.configuration.assert_configuration_file_path()) as f:
             read_configuration_dump = json.load(f)
         assert read_configuration_dump == app.configuration.dump()
         assert read_configuration_dump['locale'] == locale

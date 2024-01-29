@@ -2,6 +2,9 @@
 from __future__ import annotations
 
 from contextlib import AsyncExitStack
+from pathlib import Path
+
+from aiofiles.tempfile import TemporaryDirectory
 
 from betty import load, generate, serve
 from betty.app import App
@@ -415,6 +418,8 @@ class DemoServer(Server):
     async def start(self) -> None:
         await super().start()
         try:
+            project_directory_path_str = await self._exit_stack.enter_async_context(TemporaryDirectory())
+            self._app.project.configuration.configuration_file_path = Path(project_directory_path_str) / 'betty.json'
             await self._exit_stack.enter_async_context(self._app)
             await load.load(self._app)
             self._server = serve.BuiltinAppServer(self._app)
