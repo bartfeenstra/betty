@@ -3,6 +3,7 @@ Provide Gramps's Graphical User Interface.
 """
 from __future__ import annotations
 
+from contextlib import suppress
 from pathlib import Path
 from typing import Any
 
@@ -28,9 +29,9 @@ class _FamilyTrees(LocalizedWidget):
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
 
-        self._family_trees_widget = QWidget()
-        self._family_trees_layout = QGridLayout()
-        self._family_trees_remove_buttons: list[QPushButton] = []
+        self._family_trees_widget: QWidget
+        self._family_trees_layout: QGridLayout
+        self._family_trees_remove_buttons: list[QPushButton]
 
         self._build_family_trees()
 
@@ -40,6 +41,8 @@ class _FamilyTrees(LocalizedWidget):
 
     @reactive_method(on_trigger_call=True)
     def _build_family_trees(self) -> None:
+        with suppress(AttributeError):
+            self._family_trees_widget.setParent(None)
         self._family_trees_widget = QWidget()
         self._family_trees_layout = QGridLayout()
         self._family_trees_remove_buttons = []
