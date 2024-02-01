@@ -87,7 +87,7 @@ class _Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader, ReactiveInstan
     def description(cls) -> Str:
         return Str._("""
 Display <a href="https://www.wikipedia.org/">Wikipedia</a> summaries for resources with external links. In your custom <a href="https://jinja2docs.readthedocs.io/en/stable/">Jinja2</a> templates, use the following: <pre><code>
-{% with resource=resource_with_links %}
-    {% include 'wikipedia.html.j2' %}
-{% endwith %}
+{{% with resource=resource_with_links %}}
+    {{% include 'wikipedia.html.j2' %}}
+{{% endwith %}}
 </code></pre>""")
