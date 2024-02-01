@@ -7,6 +7,7 @@ import asyncio
 import copy
 import re
 from asyncio import Task
+from contextlib import suppress
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -203,22 +204,14 @@ class _GeneralPane(LocalizedWidget):
 class _LocalesConfigurationWidget(LocalizedWidget):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self._layout = QVBoxLayout()
-        self.setLayout(self._layout)
 
+        self._layout = QGridLayout()
+        self.setLayout(self._layout)
         self._remove_buttons: dict[str, QPushButton | None] = {}
         self._default_buttons: dict[str, QRadioButton] = {}
-
-        self._add_locale_button = QPushButton()
-        self._add_locale_button.released.connect(self._add_locale)
-        self._layout.addWidget(self._add_locale_button, 1)
-
         self._default_locale_button_group = QButtonGroup()
 
-        self._locales_configuration_layout = QGridLayout()
-
-        self.setLayout(self._locales_configuration_layout)
-        self._layout.insertWidget(0, self, alignment=Qt.AlignmentFlag.AlignTop)
+        self._layout.addWidget(Text('Default locale'))
 
         locales_data: list[tuple[str, str]] = []
         for locale in self._app.project.configuration.locales:
@@ -226,13 +219,13 @@ class _LocalesConfigurationWidget(LocalizedWidget):
             if locale_name is None:
                 continue
             locales_data.append((locale, locale_name))
-        for i, (locale, locale_name) in enumerate(sorted(
+        for locale_index, (locale, locale_name) in enumerate(sorted(
                 locales_data,
                 key=lambda locale_data: locale_data[1],
         )):
-            self._build_locale_configuration(locale, i)
+            self._build_locale_configuration(locale, locale_index + 1)
 
-    def _build_locale_configuration(self, locale: str, i: int) -> None:
+    def _build_locale_configuration(self, locale: str, row_index: int) -> None:
         self._default_buttons[locale] = QRadioButton()
         self._default_buttons[locale].setChecked(locale == self._app.project.configuration.locales.default.locale)
 
@@ -240,7 +233,7 @@ class _LocalesConfigurationWidget(LocalizedWidget):
             self._app.project.configuration.locales.default = locale  # type: ignore[assignment]
         self._default_buttons[locale].clicked.connect(_update_locales_configuration_default)
         self._default_locale_button_group.addButton(self._default_buttons[locale])
-        self._locales_configuration_layout.addWidget(self._default_buttons[locale], i, 0)
+        self._layout.addWidget(self._default_buttons[locale], row_index, 0)
 
         # Allow this locale configuration to be removed only if there are others, and if it is not default one.
         if len(self._app.project.configuration.locales) > 1 and locale != self._app.project.configuration.locales.default.locale:
@@ -248,22 +241,17 @@ class _LocalesConfigurationWidget(LocalizedWidget):
                 del self._app.project.configuration.locales[locale]
             remove_button = QPushButton()
             remove_button.released.connect(_remove_locale)
-            self._locales_configuration_layout.addWidget(remove_button, i, 1)
+            self._layout.addWidget(remove_button, row_index, 1)
             self._remove_buttons[locale] = remove_button
         else:
             self._remove_buttons[locale] = None
 
     def _set_translatables(self) -> None:
-        self._add_locale_button.setText(self._app.localizer._('Add a locale'))
         for locale, button in self._default_buttons.items():
             button.setText(get_display_name(locale, self._app.localizer.locale))
         for button in self._remove_buttons.values():
             if button is not None:
                 button.setText(self._app.localizer._('Remove'))
-
-    def _add_locale(self) -> None:
-        window = _AddLocaleWindow(self._app, self)
-        window.show()
 
 
 class _LocalizationPane(LocalizedWidget):
@@ -273,16 +261,30 @@ class _LocalizationPane(LocalizedWidget):
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
 
-        self._locales_configuration_widget: _LocalesConfigurationWidget | None = None
-        self._build()
+        self._add_locale_button = QPushButton()
+        self._add_locale_button.released.connect(self._add_locale)
+        self._layout.addWidget(self._add_locale_button, 1)
 
-    def _build(self) -> None:
-        if self._locales_configuration_widget is not None:
+        self._layout.addStretch()
+
+        self._locales_configuration_widget: _LocalesConfigurationWidget
+        self._build_locales_configuration()
+        self._app.project.configuration.locales.on_change(self._build_locales_configuration)
+
+    def _build_locales_configuration(self) -> None:
+        with suppress(AttributeError):
             self._layout.removeWidget(self._locales_configuration_widget)
             self._locales_configuration_widget.setParent(None)
             del self._locales_configuration_widget
-
         self._locales_configuration_widget = _LocalesConfigurationWidget(self._app)
+        self._layout.insertWidget(0, self._locales_configuration_widget)
+
+    def _set_translatables(self) -> None:
+        self._add_locale_button.setText(self._app.localizer._('Add a locale'))
+
+    def _add_locale(self) -> None:
+        window = _AddLocaleWindow(self._app, self)
+        window.show()
 
 
 class _AddLocaleWindow(BettyWindow):

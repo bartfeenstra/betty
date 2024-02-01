@@ -146,9 +146,7 @@ class TestLocalizationPane:
             qtbot.addWidget(sut)
             sut.show()
 
-            widget = sut._locales_configuration_widget
-            assert widget is not None
-            qtbot.mouseClick(widget._add_locale_button, Qt.MouseButton.LeftButton)
+            qtbot.mouseClick(sut._add_locale_button, Qt.MouseButton.LeftButton)
             assert_window(_AddLocaleWindow)
 
     async def test_remove_locale(self, qtbot: QtBot) -> None:
