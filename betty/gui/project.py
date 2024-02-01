@@ -420,7 +420,7 @@ class _ExtensionPane(LocalizedWidget):
     def _do_set_translatables(self) -> None:
         self._extension_description.setText(self._extension_type.description().localize(self._app.localizer))
         self._extension_enabled.setText(self._app.localizer._('Enable {extension}').format(
-            extension=self._extension_type.label(),
+            extension=self._extension_type.label().localize(self._app.localizer),
         ))
 
 
