@@ -8,9 +8,6 @@ from pathlib import Path
 from typing import Any, TypeVar, Iterable, TYPE_CHECKING, Generic, \
     Iterator, Sequence, Self
 
-from reactives import scope
-from reactives.instance import ReactiveInstance
-
 from betty import fs
 from betty.app.extension.requirement import Requirement
 from betty.asyncio import gather
@@ -251,7 +248,7 @@ class ConfigurableExtension(Extension, Generic[ConfigurationT], Configurable[Con
         raise NotImplementedError(repr(cls))
 
 
-class Extensions(ReactiveInstance):
+class Extensions:
     def __getitem__(self, extension_type: type[ExtensionT] | str) -> ExtensionT:
         raise NotImplementedError(repr(self))
 
@@ -270,7 +267,6 @@ class ListExtensions(Extensions):
         super().__init__()
         self._extensions = extensions
 
-    @scope.register_self
     def __getitem__(self, extension_type: type[ExtensionT] | str) -> ExtensionT:
         if isinstance(extension_type, str):
             extension_type = import_any(extension_type)
@@ -279,7 +275,6 @@ class ListExtensions(Extensions):
                 return extension  # type: ignore[return-value]
         raise KeyError(f'Unknown extension of type "{extension_type}"')
 
-    @scope.register_self
     def __iter__(self) -> Iterator[Iterator[Extension]]:
         # Use a generator so we discourage calling code from storing the result.
         for batch in self._extensions:
@@ -289,7 +284,6 @@ class ListExtensions(Extensions):
         for batch in self:
             yield from batch
 
-    @scope.register_self
     def __contains__(self, extension_type: type[Extension] | str) -> bool:
         if isinstance(extension_type, str):
             try:

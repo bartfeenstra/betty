@@ -10,9 +10,6 @@ from reprlib import recursive_repr
 from typing import Any, Generic, final, Iterable, cast, Self
 from urllib.parse import urlparse
 
-from reactives import scope
-from reactives.instance.property import reactive_property
-
 from betty.app.extension import Extension, ConfigurableExtension
 from betty.classtools import repr_instance
 from betty.config import Configuration, Configurable, FileBasedConfiguration, ConfigurationMapping, \
@@ -41,7 +38,6 @@ class EntityReference(Configuration, Generic[EntityT]):
         self._entity_type_is_constrained = entity_type_is_constrained
 
     @property
-    @reactive_property
     def entity_type(self) -> type[EntityT] | None:
         return self._entity_type
 
@@ -50,15 +46,16 @@ class EntityReference(Configuration, Generic[EntityT]):
         if self._entity_type_is_constrained:
             raise AttributeError(f'The entity type cannot be set, as it is already constrained to {self._entity_type}.')
         self._entity_type = entity_type
+        self._dispatch_change()
 
     @property
-    @reactive_property
     def entity_id(self) -> str | None:
         return self._entity_id
 
     @entity_id.setter
     def entity_id(self, entity_id: str) -> None:
         self._entity_id = entity_id
+        self._dispatch_change()
 
     @entity_id.deleter
     def entity_id(self) -> None:
@@ -72,7 +69,7 @@ class EntityReference(Configuration, Generic[EntityT]):
         self._entity_type = other._entity_type
         self._entity_type_is_constrained = other._entity_type_is_constrained
         self._entity_id = other._entity_id
-        self.react.trigger()
+        self._dispatch_change()
 
     @classmethod
     def load(
@@ -113,7 +110,6 @@ class EntityReference(Configuration, Generic[EntityT]):
 
         return minimize(dump)
 
-    @scope.register_self
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, EntityReference):
             return NotImplemented
@@ -183,7 +179,7 @@ class ExtensionConfiguration(Configuration):
         if extension_configuration is None and issubclass(extension_type, ConfigurableExtension):
             extension_configuration = extension_type.default_configuration()
         if extension_configuration is not None:
-            extension_configuration.react(self)
+            extension_configuration.on_change(self)
         self._extension_configuration = extension_configuration
 
     def __eq__(self, other: Any) -> bool:
@@ -202,20 +198,17 @@ class ExtensionConfiguration(Configuration):
         return self._extension_type
 
     @property
-    @reactive_property
     def enabled(self) -> bool:
         return self._enabled
 
     @enabled.setter
     def enabled(self, enabled: bool) -> None:
         self._enabled = enabled
+        self._dispatch_change()
 
     @property
     def extension_configuration(self) -> Configuration | None:
         return self._extension_configuration
-
-    def update(self, other: Self) -> None:
-        raise NotImplementedError(repr(self))
 
     @classmethod
     def load(
@@ -341,7 +334,6 @@ class EntityTypeConfiguration(Configuration):
         return self._entity_type
 
     @property
-    @reactive_property
     def generate_html_list(self) -> bool:
         return self._generate_html_list or False
 
@@ -353,11 +345,12 @@ class EntityTypeConfiguration(Configuration):
                 entity_type=get_entity_type_name(self._entity_type)
             ))
         self._generate_html_list = generate_html_list
+        self._dispatch_change()
 
     def update(self, other: Self) -> None:
         self._entity_type = other._entity_type
         self._generate_html_list = other._generate_html_list
-        self.react.trigger()
+        self._dispatch_change()
 
     @classmethod
     def load(
@@ -457,7 +450,6 @@ class LocaleConfiguration(Configuration):
         return self._locale
 
     @property
-    @reactive_property
     def alias(self) -> str:
         if self._alias is None:
             return self.locale
@@ -466,6 +458,7 @@ class LocaleConfiguration(Configuration):
     @alias.setter
     def alias(self, alias: str | None) -> None:
         self._alias = alias
+        self._dispatch_change()
 
     def update(self, other: Self) -> None:
         self._locale = other._locale
@@ -545,7 +538,6 @@ class LocaleConfigurationMapping(ConfigurationMapping[str, LocaleConfiguration])
             ))
 
     @property
-    @reactive_property
     def default(self) -> LocaleConfiguration:
         return next(iter(self._configurations.values()))
 
@@ -555,7 +547,7 @@ class LocaleConfigurationMapping(ConfigurationMapping[str, LocaleConfiguration])
             configuration = self[configuration]
         self._configurations[configuration.locale] = configuration
         self._configurations.move_to_end(configuration.locale, False)
-        self.react.trigger()
+        self._dispatch_change()
 
     @property
     def multilingual(self) -> bool:
@@ -601,12 +593,12 @@ class ProjectConfiguration(FileBasedConfiguration):
                 generate_html_list=True,
             ),
         ])
-        self._entity_types.react(self)
+        self._entity_types.on_change(self)
         self._extensions = ExtensionConfigurationMapping(extensions or ())
-        self._extensions.react(self)
+        self._extensions.on_change(self)
         self._debug = debug
         self._locales = LocaleConfigurationMapping(locales or ())
-        self._locales.react(self)
+        self._locales.on_change(self)
         self._lifetime_threshold = lifetime_threshold
 
     @property
@@ -631,25 +623,24 @@ class ProjectConfiguration(FileBasedConfiguration):
         return self.www_directory_path
 
     @property
-    @reactive_property
     def title(self) -> str:
         return self._title
 
     @title.setter
     def title(self, title: str) -> None:
         self._title = title
+        self._dispatch_change()
 
     @property
-    @reactive_property
     def author(self) -> str | None:
         return self._author
 
     @author.setter
     def author(self, author: str | None) -> None:
         self._author = author
+        self._dispatch_change()
 
     @property
-    @reactive_property
     def base_url(self) -> str:
         return self._base_url
 
@@ -661,24 +652,25 @@ class ProjectConfiguration(FileBasedConfiguration):
         if not base_url_parts.netloc:
             raise AssertionFailed(Str._('The base URL must include a path.'))
         self._base_url = '%s://%s' % (base_url_parts.scheme, base_url_parts.netloc)
+        self._dispatch_change()
 
     @property
-    @reactive_property
     def root_path(self) -> str:
         return self._root_path
 
     @root_path.setter
     def root_path(self, root_path: str) -> None:
         self._root_path = root_path.strip('/')
+        self._dispatch_change()
 
     @property
-    @reactive_property
     def clean_urls(self) -> bool:
         return self._clean_urls
 
     @clean_urls.setter
     def clean_urls(self, clean_urls: bool) -> None:
         self._clean_urls = clean_urls
+        self._dispatch_change()
 
     @property
     def locales(self) -> LocaleConfigurationMapping:
@@ -693,16 +685,15 @@ class ProjectConfiguration(FileBasedConfiguration):
         return self._extensions
 
     @property
-    @reactive_property
     def debug(self) -> bool:
         return self._debug
 
     @debug.setter
     def debug(self, debug: bool) -> None:
         self._debug = debug
+        self._dispatch_change()
 
     @property
-    @reactive_property
     def lifetime_threshold(self) -> int:
         return self._lifetime_threshold
 
@@ -710,6 +701,7 @@ class ProjectConfiguration(FileBasedConfiguration):
     def lifetime_threshold(self, lifetime_threshold: int) -> None:
         self._asserter.assert_positive_number()(lifetime_threshold)
         self._lifetime_threshold = lifetime_threshold
+        self._dispatch_change()
 
     def update(self, other: Self) -> None:
         self._base_url = other._base_url
@@ -722,6 +714,7 @@ class ProjectConfiguration(FileBasedConfiguration):
         self._locales.update(other._locales)
         self._extensions.update(other._extensions)
         self._entity_types.update(other._entity_types)
+        self._dispatch_change()
 
     @classmethod
     def load(

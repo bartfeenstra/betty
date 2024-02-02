@@ -5,7 +5,6 @@ from typing import Any, Self
 
 from PyQt6.QtWidgets import QFormLayout, QButtonGroup, QRadioButton, QWidget, QHBoxLayout, QLineEdit, \
     QFileDialog, QPushButton
-from reactives.instance.property import reactive_property
 
 from betty.app import App
 from betty.app.extension import ConfigurableExtension
@@ -32,26 +31,27 @@ class NginxConfiguration(Configuration):
         self.www_directory_path = www_directory_path
 
     @property
-    @reactive_property
     def https(self) -> bool | None:
         return self._https
 
     @https.setter
     def https(self, https: bool | None) -> None:
         self._https = https
+        self._dispatch_change()
 
     @property
-    @reactive_property
     def www_directory_path(self) -> str | None:
         return self._www_directory_path
 
     @www_directory_path.setter
     def www_directory_path(self, www_directory_path: str | None) -> None:
         self._www_directory_path = www_directory_path
+        self._dispatch_change()
 
     def update(self, other: Self) -> None:
         self._https = other._https
         self._www_directory_path = other._www_directory_path
+        self._dispatch_change()
 
     @classmethod
     def load(

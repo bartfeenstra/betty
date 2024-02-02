@@ -2,9 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Iterable, Self
 
-import dill
 import pytest
-from reactives.tests import assert_reactor_called, assert_scope_empty
 
 from betty.app.extension import Extension, ConfigurableExtension
 from betty.config import Configuration, Configurable
@@ -242,9 +240,7 @@ class TestLocaleConfigurationMapping(ConfigurationMappingTestBase[str, LocaleCon
     async def test_delitem(self) -> None:
         configurations = self.get_configurations()
         sut = self.get_sut([configurations[0], configurations[1]])
-        with assert_scope_empty():
-            with assert_reactor_called(sut):
-                del sut[self.get_configuration_keys()[1]]
+        del sut[self.get_configuration_keys()[1]]
         assert [configurations[0]] == list(sut.values())
 
     async def test_delitem_with_one_remaining_locale_configuration(self) -> None:
@@ -311,8 +307,7 @@ class TestExtensionConfiguration:
             enabled=enabled,
         )
         assert enabled == sut.enabled
-        with assert_reactor_called(sut):
-            sut.enabled = False
+        sut.enabled = False
 
     async def test_configuration(self) -> None:
         extension_type_configuration = Configuration()
@@ -321,8 +316,6 @@ class TestExtensionConfiguration:
             extension_configuration=extension_type_configuration,
         )
         assert extension_type_configuration == sut.extension_configuration
-        with assert_reactor_called(sut):
-            extension_type_configuration.react.trigger()
 
     @pytest.mark.parametrize('expected, one, other', [
         (
@@ -411,8 +404,7 @@ class TestEntityTypeConfiguration:
     ])
     async def test_generate_html_list(self, generate_html_list: bool) -> None:
         sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
-        with assert_reactor_called(sut):
-            sut.generate_html_list = generate_html_list
+        sut.generate_html_list = generate_html_list
         assert generate_html_list == sut.generate_html_list
 
     async def test_load_with_empty_configuration(self) -> None:
@@ -528,15 +520,6 @@ class TestEntityTypeConfigurationMapping(ConfigurationMappingTestBase[type[Entit
 
 
 class TestProjectConfiguration:
-    async def test_pickle(self) -> None:
-        sut = ProjectConfiguration()
-        sut.extensions.append(ExtensionConfiguration(Extension))
-        sut.locales.append(LocaleConfiguration(
-            'nl-NL',
-            alias='nl',
-        ))
-        dill.dumps(sut)
-
     async def test_base_url(self) -> None:
         sut = ProjectConfiguration()
         base_url = 'https://example.com'

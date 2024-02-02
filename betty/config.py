@@ -3,7 +3,11 @@ Provide the Configuration API.
 """
 from __future__ import annotations
 
+import inspect
+import weakref
+from _weakref import ReferenceType
 from collections import OrderedDict
+from collections.abc import Callable
 from contextlib import suppress
 from pathlib import Path
 from reprlib import recursive_repr
@@ -13,9 +17,6 @@ from typing import Generic, Iterable, Iterator, SupportsIndex, Hashable, \
 
 import aiofiles
 from aiofiles.os import makedirs
-from reactives import scope
-from reactives.instance import ReactiveInstance
-from reactives.instance.property import reactive_property
 
 from betty.asyncio import wait, sync
 from betty.classtools import repr_instance
@@ -27,20 +28,47 @@ from betty.serde.error import SerdeErrorCollection
 from betty.serde.format import FormatRepository
 from betty.serde.load import Asserter, Assertion, Assertions
 
+T = TypeVar('T')
 
-class Configuration(ReactiveInstance, Dumpable):
+
+_ConfigurationListener: TypeAlias = Callable[[], None]
+ConfigurationListener: TypeAlias = 'Configuration | _ConfigurationListener'
+
+
+class Configuration(Dumpable):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._asserter = Asserter()
+        self._on_change_listeners: MutableSequence[ReferenceType[_ConfigurationListener]] = []
+
+    def _dispatch_change(self) -> None:
+        for listener_reference in self._on_change_listeners:
+            listener = listener_reference()
+            if listener is None:
+                continue
+            listener()
+
+    def _prepare_listener(self, listener: ConfigurationListener) -> ReferenceType[_ConfigurationListener]:
+        if isinstance(listener, Configuration):
+            listener = listener._dispatch_change
+        if inspect.ismethod(listener):  # type: ignore[redundant-expr]
+            return weakref.WeakMethod(listener)
+        return weakref.ref(listener)
+
+    def on_change(self, listener: ConfigurationListener) -> None:
+        self._on_change_listeners.append(self._prepare_listener(listener))
+
+    def remove_on_change(self, listener: ConfigurationListener) -> None:
+        self._on_change_listeners.append(self._prepare_listener(listener))
 
     def update(self, other: Self) -> None:
         raise NotImplementedError(repr(self))
 
     @classmethod
     def load(
-            cls,
-            dump: Dump,
-            configuration: Self | None = None,
+        cls,
+        dump: Dump,
+        configuration: Self | None = None,
     ) -> Self:
         """
         Load dumped configuration into a new configuration instance.
@@ -73,13 +101,13 @@ class FileBasedConfiguration(Configuration):
     def autowrite(self, autowrite: bool) -> None:
         if autowrite:
             if not self._autowrite:
-                self.react.react_weakref(self._write_reactor)
+                self.on_change(self._on_change_write)
         else:
-            self.react.shutdown(self._write_reactor)
+            self.remove_on_change(self._on_change_write)
         self._autowrite = autowrite
 
     @sync
-    async def _write_reactor(self) -> None:
+    async def _on_change_write(self) -> None:
         await self.write()
 
     async def write(self, configuration_file_path: Path | None = None) -> None:
@@ -127,7 +155,6 @@ class FileBasedConfiguration(Configuration):
             self._project_directory.cleanup()
 
     @property
-    @reactive_property
     def configuration_file_path(self) -> Path:
         if self._configuration_file_path is None:
             if self._project_directory is None:
@@ -165,11 +192,9 @@ class ConfigurationCollection(Configuration, Generic[ConfigurationKeyT, Configur
         if configurations is not None:
             self.append(*configurations)
 
-    @scope.register_self
     def __iter__(self) -> Iterator[ConfigurationKeyT] | Iterator[ConfigurationT]:
         raise NotImplementedError(repr(self))
 
-    @scope.register_self
     def __contains__(self, item: Any) -> bool:
         return item in self._configurations
 
@@ -179,15 +204,12 @@ class ConfigurationCollection(Configuration, Generic[ConfigurationKeyT, Configur
     def __delitem__(self, configuration_key: ConfigurationKeyT) -> None:
         self.remove(configuration_key)
 
-    @scope.register_self
     def __len__(self) -> int:
         return len(self._configurations)
 
-    @scope.register_self
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, self.__class__):
             return NotImplemented
-        scope.register(other)
         if list(self.keys()) != list(other.keys()):
             return False
         if list(self.values()) != list(other.values()):
@@ -198,28 +220,28 @@ class ConfigurationCollection(Configuration, Generic[ConfigurationKeyT, Configur
     def __repr__(self) -> str:
         return repr_instance(self, configurations=list(self.values()))
 
-    def _remove_without_trigger(self, *configuration_keys: ConfigurationKeyT) -> None:
+    def _remove_without_dispatch(self, *configuration_keys: ConfigurationKeyT) -> None:
         for configuration_key in configuration_keys:
             with suppress(LookupError):
                 self._on_remove(self._configurations[configuration_key])  # type: ignore[call-overload]
             del self._configurations[configuration_key]  # type: ignore[call-overload]
 
     def remove(self, *configuration_keys: ConfigurationKeyT) -> None:
-        self._remove_without_trigger(*configuration_keys)
-        self.react.trigger()
+        self._remove_without_dispatch(*configuration_keys)
+        self._dispatch_change()
 
-    def _clear_without_trigger(self) -> None:
-        self._remove_without_trigger(*self.keys())
+    def _clear_without_dispatch(self) -> None:
+        self._remove_without_dispatch(*self.keys())
 
     def clear(self) -> None:
-        self._clear_without_trigger()
-        self.react.trigger()
+        self._clear_without_dispatch()
+        self._dispatch_change()
 
     def _on_add(self, configuration: ConfigurationT) -> None:
-        configuration.react(self)
+        configuration.on_change(self)
 
     def _on_remove(self, configuration: ConfigurationT) -> None:
-        configuration.react.shutdown(self)
+        configuration.remove_on_change(self)
 
     def to_index(self, configuration_key: ConfigurationKeyT) -> int:
         raise NotImplementedError(repr(self))
@@ -303,15 +325,12 @@ class ConfigurationSequence(ConfigurationCollection[int, ConfigurationT], Generi
     def __getitem__(self, configuration_key: int | slice) -> ConfigurationT | Sequence[ConfigurationT]:
         return self._configurations[configuration_key]
 
-    @scope.register_self
     def __iter__(self) -> Iterator[ConfigurationT]:
         return (configuration for configuration in self._configurations)
 
-    @scope.register_self
     def keys(self) -> Iterator[int]:
         return iter(range(0, len(self._configurations)))
 
-    @scope.register_self
     def values(self) -> Iterator[ConfigurationT]:
         yield from self._configurations
 
@@ -327,7 +346,7 @@ class ConfigurationSequence(ConfigurationCollection[int, ConfigurationT], Generi
         if configuration is None:
             configuration = cls()
         else:
-            configuration._clear_without_trigger()
+            configuration._clear_without_dispatch()
         asserter = Asserter()
         with SerdeErrorCollection().assert_valid():
             configuration.append(*asserter.assert_sequence(Assertions(cls._item_type().assert_load()))(dump))
@@ -343,19 +362,19 @@ class ConfigurationSequence(ConfigurationCollection[int, ConfigurationT], Generi
         for configuration in configurations:
             self._on_add(configuration)
             self._configurations.insert(0, configuration)
-        self.react.trigger()
+        self._dispatch_change()
 
     def append(self, *configurations: ConfigurationT) -> None:
         for configuration in configurations:
             self._on_add(configuration)
             self._configurations.append(configuration)
-        self.react.trigger()
+        self._dispatch_change()
 
     def insert(self, index: int, *configurations: ConfigurationT) -> None:
         for configuration in reversed(configurations):
             self._on_add(configuration)
             self._configurations.insert(index, configuration)
-        self.react.trigger()
+        self._dispatch_change()
 
     def move_to_beginning(self, *configuration_keys: int) -> None:
         self.move_to_end(
@@ -371,19 +390,19 @@ class ConfigurationSequence(ConfigurationCollection[int, ConfigurationT], Generi
     def move_towards_beginning(self, *configuration_keys: int) -> None:
         for index in configuration_keys:
             self._configurations.insert(index - 1, self._configurations.pop(index))
-        self.react.trigger()
+        self._dispatch_change()
 
     def move_to_end(self, *configuration_keys: int) -> None:
         for index in configuration_keys:
             self._configurations.append(self._configurations[index])
         for index in reversed(configuration_keys):
             self._configurations.pop(index)
-        self.react.trigger()
+        self._dispatch_change()
 
     def move_towards_end(self, *configuration_keys: int) -> None:
         for index in reversed(configuration_keys):
             self._configurations.insert(index + 1, self._configurations.pop(index))
-        self.react.trigger()
+        self._dispatch_change()
 
 
 class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, ConfigurationT], Generic[ConfigurationKeyT, ConfigurationT]):
@@ -403,7 +422,6 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
     def to_key(self, index: int) -> ConfigurationKeyT:
         return list(self._configurations.keys())[index]
 
-    @scope.register_self
     def __getitem__(self, configuration_key: ConfigurationKeyT) -> ConfigurationT:
         try:
             return self._configurations[configuration_key]
@@ -411,18 +429,15 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
             self.append(self._create_default_item(configuration_key))
             return self._configurations[configuration_key]
 
-    @scope.register_self
     def __iter__(self) -> Iterator[ConfigurationKeyT]:
         return (configuration_key for configuration_key in self._configurations)
 
     def _keys_without_scope(self) -> Iterator[ConfigurationKeyT]:
         return (configuration_key for configuration_key in self._configurations.keys())
 
-    @scope.register_self
     def keys(self) -> Iterator[ConfigurationKeyT]:
         return self._keys_without_scope()
 
-    @scope.register_self
     def values(self) -> Iterator[ConfigurationT]:
         yield from self._configurations.values()
 
@@ -452,7 +467,7 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
         ))
 
         # Remove items that should no longer be present.
-        self._remove_without_trigger(*(
+        self._remove_without_dispatch(*(
             key
             for key
             in self_keys
@@ -495,19 +510,19 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
         for configuration in configurations:
             configuration_key = self._get_key(configuration)
             self._configurations[configuration_key] = configuration
-            configuration.react(self)
+            configuration.on_change(self)
         self.move_to_beginning(*map(self._get_key, configurations))
 
     def _append_without_trigger(self, *configurations: ConfigurationT) -> None:
         for configuration in configurations:
             configuration_key = self._get_key(configuration)
             self._configurations[configuration_key] = configuration
-            configuration.react(self)
+            configuration.on_change(self)
         self._move_to_end_without_trigger(*map(self._get_key, configurations))
 
     def append(self, *configurations: ConfigurationT) -> None:
         self._append_without_trigger(*configurations)
-        self.react.trigger()
+        self._dispatch_change()
 
     def _insert_without_trigger(self, index: int, *configurations: ConfigurationT) -> None:
         current_configuration_keys = list(self._keys_without_scope())
@@ -520,12 +535,12 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
 
     def insert(self, index: int, *configurations: ConfigurationT) -> None:
         self._insert_without_trigger(index, *configurations)
-        self.react.trigger()
+        self._dispatch_change()
 
     def move_to_beginning(self, *configuration_keys: ConfigurationKeyT) -> None:
         for configuration_key in reversed(configuration_keys):
             self._configurations.move_to_end(configuration_key, False)
-        self.react.trigger()
+        self._dispatch_change()
 
     def move_towards_beginning(self, *configuration_keys: ConfigurationKeyT) -> None:
         self._move_by_offset(-1, *configuration_keys)
@@ -536,7 +551,7 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
 
     def move_to_end(self, *configuration_keys: ConfigurationKeyT) -> None:
         self._move_to_end_without_trigger(*configuration_keys)
-        self.react.trigger()
+        self._dispatch_change()
 
     def move_towards_end(self, *configuration_keys: ConfigurationKeyT) -> None:
         self._move_by_offset(1, *configuration_keys)
@@ -548,7 +563,7 @@ class ConfigurationMapping(ConfigurationCollection[ConfigurationKeyT, Configurat
             indices.reverse()
         for index in indices:
             self._insert_without_trigger(index + offset, self._configurations.pop(current_configuration_keys[index]))
-        self.react.trigger()
+        self._dispatch_change()
 
     def _get_key(self, configuration: ConfigurationT) -> ConfigurationKeyT:
         raise NotImplementedError(repr(self))

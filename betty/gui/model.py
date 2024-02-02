@@ -36,7 +36,6 @@ class EntityReferenceCollector(LocalizedWidget):
                 self._entity_reference.entity_type = self._entity_type.currentData()
             self._entity_type = QComboBox()
             self._entity_type.currentIndexChanged.connect(_update_entity_type)
-            # @todo We use translated labels, and sort by them, but neither is reactive.
             entity_types = enumerate(sorted(cast(Iterator['UserFacingEntity & Entity'], filter(
                 lambda entity_type: issubclass(entity_type, UserFacingEntity),
                 self._app.entity_types,
@@ -57,7 +56,7 @@ class EntityReferenceCollector(LocalizedWidget):
 
         self._set_translatables()
 
-    def _do_set_translatables(self) -> None:
+    def _set_translatables(self) -> None:
         if self._entity_reference.entity_type:
             self._entity_id_label.setText(self._app.localizer._('{entity_type_label} ID').format(
                 entity_type_label=self._entity_reference.entity_type.entity_type_label().localize(self._app.localizer),
@@ -148,7 +147,7 @@ class EntityReferenceSequenceCollector(LocalizedWidget):
         entity_reference_remove_button.released.connect(lambda: self._remove_entity_reference(i))
         layout.addWidget(entity_reference_remove_button)
 
-    def _do_set_translatables(self) -> None:
+    def _set_translatables(self) -> None:
         if self._label_builder:
             self._label.setText(self._label_builder())
         if self._caption_builder:
