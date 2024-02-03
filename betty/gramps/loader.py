@@ -148,30 +148,29 @@ class GrampsLoader:
         database = self._tree.getroot()
 
         self._load_notes(database)
-        # @todo Localize all log messages
-        logger.info(f'Loaded {self._added_entity_counts[Note]} notes.')
+        logger.info(self._localizer._(f'Loaded {self._added_entity_counts[Note]} notes.'))
 
         self._load_objects(database, self._gramps_tree_directory_path)
-        logger.info(f'Loaded {self._added_entity_counts[File]} files.')
+        logger.info(self._localizer._(f'Loaded {self._added_entity_counts[File]} files.'))
 
         self._load_repositories(database)
         repository_count = self._added_entity_counts[Source]
-        logger.info(f'Loaded {repository_count} repositories as sources.')
+        logger.info(self._localizer._(f'Loaded {repository_count} repositories as sources.'))
 
         self._load_sources(database)
-        logger.info(f'Loaded {self._added_entity_counts[Source] - repository_count} sources.')
+        logger.info(self._localizer._(f'Loaded {self._added_entity_counts[Source] - repository_count} sources.'))
 
         self._load_citations(database)
-        logger.info(f'Loaded {self._added_entity_counts[Citation]} citations.')
+        logger.info(self._localizer._(f'Loaded {self._added_entity_counts[Citation]} citations.'))
 
         self._load_places(database)
-        logger.info(f'Loaded {self._added_entity_counts[Place]} places.')
+        logger.info(self._localizer._(f'Loaded {self._added_entity_counts[Place]} places.'))
 
         self._load_events(database)
-        logger.info(f'Loaded {self._added_entity_counts[Event]} events.')
+        logger.info(self._localizer._(f'Loaded {self._added_entity_counts[Event]} events.'))
 
         self._load_people(database)
-        logger.info(f'Loaded {self._added_entity_counts[Person]} people.')
+        logger.info(self._localizer._(f'Loaded {self._added_entity_counts[Person]} people.'))
 
         self._load_families(database)
 
