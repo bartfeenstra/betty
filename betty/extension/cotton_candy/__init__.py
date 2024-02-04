@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import logging
 import re
+from collections import defaultdict
 from collections.abc import Sequence, AsyncIterable
 from pathlib import Path
 from shutil import copy2
@@ -212,6 +213,7 @@ class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Gener
                 person,
                 self.app.project.configuration.lifetime_threshold
             ),
+            'person_descendant_families': person_descendant_families,
         }
 
     async def npm_build(self, working_directory_path: Path, assets_directory_path: Path) -> None:
@@ -262,6 +264,20 @@ def person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable[
             continue
         seen.append(event)
         yield event
+
+
+def person_descendant_families(person: Person) -> Iterable[tuple[Sequence[Person], Sequence[Person]]]:
+    """
+    Gather a person's families they are a parent in.
+    """
+    parents = {}
+    children = defaultdict(set)
+    for child in person.children:
+        family = tuple(sorted(map(lambda parent: parent.id, child.parents)))
+        if family not in parents:
+            parents[family] = tuple(child.parents)
+        children[family].add(child)
+    yield from zip(parents.values(), children.values())
 
 
 def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable[Event]:
