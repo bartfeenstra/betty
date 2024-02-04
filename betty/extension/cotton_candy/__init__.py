@@ -3,6 +3,7 @@ Provide Betty's default theme.
 """
 from __future__ import annotations
 
+import asyncio
 import logging
 import re
 from collections import defaultdict
@@ -224,8 +225,8 @@ class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Gener
 
     async def _copy_npm_build(self, source_directory_path: Path, destination_directory_path: Path) -> None:
         await makedirs(destination_directory_path, exist_ok=True)
-        copy2(source_directory_path / 'cotton_candy.css', destination_directory_path / 'cotton_candy.css')
-        copy2(source_directory_path / 'cotton_candy.js', destination_directory_path / 'cotton_candy.js')
+        await asyncio.to_thread(copy2, source_directory_path / 'cotton_candy.css', destination_directory_path / 'cotton_candy.css')
+        await asyncio.to_thread(copy2, source_directory_path / 'cotton_candy.js', destination_directory_path / 'cotton_candy.js')
 
     async def generate(self, task_context: GenerationContext) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)

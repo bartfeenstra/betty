@@ -1,6 +1,7 @@
 """Integrate Betty with `Leaflet.js <https://leafletjs.com/>`_."""
 from __future__ import annotations
 
+import asyncio
 import logging
 from contextlib import suppress
 from pathlib import Path
@@ -29,10 +30,10 @@ class _Maps(UserFacingExtension, CssProvider, JsProvider, Generator, NpmBuilder)
 
     async def _copy_npm_build(self, source_directory_path: Path, destination_directory_path: Path) -> None:
         await makedirs(destination_directory_path, exist_ok=True)
-        copy2(source_directory_path / 'maps.css', destination_directory_path / 'maps.css')
-        copy2(source_directory_path / 'maps.js', destination_directory_path / 'maps.js')
+        await asyncio.to_thread(copy2, source_directory_path / 'maps.css', destination_directory_path / 'maps.css')
+        await asyncio.to_thread(copy2, source_directory_path / 'maps.js', destination_directory_path / 'maps.js')
         with suppress(FileNotFoundError):
-            copytree(source_directory_path / 'images', destination_directory_path / 'images')
+            await asyncio.to_thread(copytree, source_directory_path / 'images', destination_directory_path / 'images')
 
     @classmethod
     def npm_cache_scope(cls) -> CacheScope:

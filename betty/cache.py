@@ -1,6 +1,7 @@
 """
 Provide the Cache API.
 """
+import asyncio
 import logging
 import shutil
 from contextlib import suppress
@@ -22,5 +23,5 @@ class Cache:
 
     async def clear(self) -> None:
         with suppress(FileNotFoundError):
-            shutil.rmtree(fs.CACHE_DIRECTORY_PATH)
+            await asyncio.to_thread(shutil.rmtree, fs.CACHE_DIRECTORY_PATH)
         logging.getLogger(__name__).info(self._localizer._('All caches cleared.'))

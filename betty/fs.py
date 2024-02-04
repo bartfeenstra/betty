@@ -93,7 +93,7 @@ class FileSystem:
     async def copy2(self, source_path: Path, destination_path: Path) -> Path:
         for fs_path, _ in self._paths:
             with suppress(FileNotFoundError):
-                copy2(fs_path / source_path, destination_path)
+                await asyncio.to_thread(copy2, fs_path / source_path, destination_path)
                 return destination_path
         tried_paths = [str(fs_path / source_path) for fs_path, _ in self._paths]
         raise FileNotFoundError('Could not find any of %s.' % ', '.join(tried_paths))

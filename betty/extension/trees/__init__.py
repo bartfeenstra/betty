@@ -1,6 +1,7 @@
 """Provide interactive family trees by integrating Betty with `Cytoscape.js <https://cytoscape.org/>`_."""
 from __future__ import annotations
 
+import asyncio
 import logging
 import subprocess
 from pathlib import Path
@@ -29,8 +30,8 @@ class _Trees(UserFacingExtension, CssProvider, JsProvider, Generator, NpmBuilder
 
     async def _copy_npm_build(self, source_directory_path: Path, destination_directory_path: Path) -> None:
         await makedirs(destination_directory_path, exist_ok=True)
-        copy2(source_directory_path / 'trees.css', destination_directory_path / 'trees.css')
-        copy2(source_directory_path / 'trees.js', destination_directory_path / 'trees.js')
+        await asyncio.to_thread(copy2, source_directory_path / 'trees.css', destination_directory_path / 'trees.css')
+        await asyncio.to_thread(copy2, source_directory_path / 'trees.js', destination_directory_path / 'trees.js')
 
     @classmethod
     def npm_cache_scope(cls) -> CacheScope:

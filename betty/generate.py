@@ -3,6 +3,7 @@ Provide the Generation API.
 """
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import multiprocessing
@@ -164,7 +165,7 @@ async def generate(app: App) -> None:
     task_context = GenerationContext(app)
 
     with suppress(FileNotFoundError):
-        shutil.rmtree(app.project.configuration.output_directory_path)
+        await asyncio.to_thread(shutil.rmtree, app.project.configuration.output_directory_path)
     await aiofiles_os.makedirs(app.project.configuration.output_directory_path, exist_ok=True)
     logger.info(app.localizer._('Generating your site to {output_directory}.').format(output_directory=app.project.configuration.output_directory_path))
 
