@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
 from pytest_mock import MockerFixture
 
@@ -13,11 +14,11 @@ class TestLinkOrCopy:
             content = 'I will say zis only once.'
             source_path = working_directory_path / 'source'
             destination_path = working_directory_path / 'destination'
-            with open(source_path, 'a') as f:
-                f.write(content)
+            async with aiofiles.open(source_path, 'a') as f:
+                await f.write(content)
             await link_or_copy(source_path, destination_path)
-            with open(destination_path) as f:
-                assert content == f.read()
+            async with aiofiles.open(destination_path) as f:
+                assert content == await f.read()
 
     async def test_with_os_error(self, mocker: MockerFixture) -> None:
         m_link = mocker.patch('os.link')
@@ -27,8 +28,8 @@ class TestLinkOrCopy:
             content = 'I will say zis only once.'
             source_path = working_directory_path / 'source'
             destination_path = working_directory_path / 'destination'
-            with open(source_path, 'a') as f:
-                f.write(content)
+            async with aiofiles.open(source_path, 'a') as f:
+                await f.write(content)
             await link_or_copy(source_path, destination_path)
-            with open(destination_path) as f:
-                assert content == f.read()
+            async with aiofiles.open(destination_path) as f:
+                assert content == await f.read()

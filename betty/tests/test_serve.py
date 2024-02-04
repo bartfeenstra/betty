@@ -1,6 +1,7 @@
 import os
 from time import sleep
 
+import aiofiles
 import requests
 from pytest_mock import MockerFixture
 
@@ -14,8 +15,8 @@ class TestBuiltinServer:
         content = 'Hello, and welcome to my site!'
         app = App()
         os.makedirs(app.project.configuration.www_directory_path)
-        with open(app.project.configuration.www_directory_path / 'index.html', 'w') as f:
-            f.write(content)
+        async with aiofiles.open(app.project.configuration.www_directory_path / 'index.html', 'w') as f:
+            await f.write(content)
         async with BuiltinAppServer(app) as server:
             # Wait for the server to start.
             sleep(1)
