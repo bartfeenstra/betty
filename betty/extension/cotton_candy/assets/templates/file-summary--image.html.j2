@@ -1,5 +1,5 @@
 <figure>
-    <img src="{{ file | image(600, 600) | static_url }}"{% if file.description %} alt="{{ file.description }}"{% endif %}>
+    <img src="{{ file | image(500, 500) | static_url }}"{% if file.description %} alt="{{ file.description }}"{% endif %}>
     {% if file.description %}
         <figcaption>{{ file.description }}</figcaption>
     {% endif %}
