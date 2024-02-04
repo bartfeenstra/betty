@@ -8,37 +8,39 @@ from importlib.metadata import distributions
 from pathlib import Path
 from typing import Iterator
 
+import aiofiles
 
-def version() -> str | None:
+
+async def version() -> str | None:
     """
     Get the current Betty installation's version, if it has any.
     """
-    with open(Path(__file__).parent / 'assets' / 'VERSION', encoding='utf-8') as f:
-        release_version = f.read().strip()
+    async with aiofiles.open(Path(__file__).parent / 'assets' / 'VERSION', encoding='utf-8') as f:
+        release_version = (await f.read()).strip()
     if release_version == '0.0.0':
         return None
     return release_version
 
 
-def version_label() -> str:
+async def version_label() -> str:
     """
     Get the human-readable label for the current Betty installation's version.
     """
-    return version() or 'development'
+    return await version() or 'development'
 
 
-def is_stable() -> bool:
+async def is_stable() -> bool:
     """
     Check if the current Betty installation is a stable version.
     """
-    return version() is not None
+    return await version() is not None
 
 
-def is_development() -> bool:
+async def is_development() -> bool:
     """
     Check if the current Betty installation is an unstable development version.
     """
-    return version() is None
+    return await version() is None
 
 
 def _indent_mapping(items: dict[str, str]) -> str:
@@ -53,14 +55,14 @@ def _indent_mapping_item(key: str, value: str, max_indentation: int) -> Iterator
         yield f'{" " * max_indentation}    {line}'
 
 
-def report() -> str:
+async def report() -> str:
     """
     Produce a human-readable report about the current Betty installation.
 
     :returns: A human-readable string in US English, using monospace indentation.
     """
     return _indent_mapping({
-        'Betty': version_label(),
+        'Betty': await version_label(),
         'Operating system': platform.platform(),
         'Python': sys.version,
         'Python packages': _indent_mapping({

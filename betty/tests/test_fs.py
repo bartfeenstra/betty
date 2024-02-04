@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import aiofiles
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
@@ -12,9 +13,12 @@ class TestIterfiles:
             working_directory_path = Path(working_directory_path_str)
             working_subdirectory_path = working_directory_path / 'subdir'
             working_subdirectory_path.mkdir()
-            open(working_directory_path / 'rootfile', 'a').close()
-            open(working_directory_path / '.hiddenrootfile', 'a').close()
-            open(working_subdirectory_path / 'subdirfile', 'a').close()
+            async with aiofiles.open(working_directory_path / 'rootfile', 'a'):
+                pass
+            async with aiofiles.open(working_directory_path / '.hiddenrootfile', 'a'):
+                pass
+            async with aiofiles.open(working_subdirectory_path / 'subdirfile', 'a'):
+                pass
             actual = [str(actualpath)[len(str(working_directory_path)) + 1:] async for actualpath in iterfiles(working_directory_path)]
         expected = {
             '.hiddenrootfile',
@@ -41,14 +45,14 @@ class TestFileSystem:
             source_path_1 = Path(source_path_str_1)
             async with TemporaryDirectory() as source_path_str_2:
                 source_path_2 = Path(source_path_str_2)
-                with open(source_path_1 / 'apples', 'w') as f:
-                    f.write('apples')
-                with open(source_path_2 / 'apples', 'w') as f:
-                    f.write('notapples')
-                with open(source_path_1 / 'oranges', 'w') as f:
-                    f.write('oranges')
-                with open(source_path_2 / 'bananas', 'w') as f:
-                    f.write('bananas')
+                async with aiofiles.open(source_path_1 / 'apples', 'w') as f:
+                    await f.write('apples')
+                async with aiofiles.open(source_path_2 / 'apples', 'w') as f:
+                    await f.write('notapples')
+                async with aiofiles.open(source_path_1 / 'oranges', 'w') as f:
+                    await f.write('oranges')
+                async with aiofiles.open(source_path_2 / 'bananas', 'w') as f:
+                    await f.write('bananas')
 
                 sut = FileSystem((source_path_1, None), (source_path_2, None))
 
@@ -68,14 +72,14 @@ class TestFileSystem:
             source_path_1 = Path(source_path_str_1)
             async with TemporaryDirectory() as source_path_str_2:
                 source_path_2 = Path(source_path_str_2)
-                with open(source_path_1 / 'pinkladies', 'w') as f:
-                    f.write('pinkladies')
-                with open(source_path_2 / 'pinkladies', 'w') as f:
-                    f.write('notpinkladies')
-                with open(source_path_1 / 'apples', 'w') as f:
-                    f.write('notpinkladies')
-                with open(source_path_2 / 'apples', 'w') as f:
-                    f.write('notpinkladies')
+                async with aiofiles.open(source_path_1 / 'pinkladies', 'w') as f:
+                    await f.write('pinkladies')
+                async with aiofiles.open(source_path_2 / 'pinkladies', 'w') as f:
+                    await f.write('notpinkladies')
+                async with aiofiles.open(source_path_1 / 'apples', 'w') as f:
+                    await f.write('notpinkladies')
+                async with aiofiles.open(source_path_2 / 'apples', 'w') as f:
+                    await f.write('notpinkladies')
 
                 sut = FileSystem((source_path_1, None), (source_path_2, None))
 
@@ -87,12 +91,12 @@ class TestFileSystem:
             source_path_1 = Path(source_path_str_1)
             async with TemporaryDirectory() as source_path_str_2:
                 source_path_2 = Path(source_path_str_2)
-                with open(source_path_2 / 'pinkladies', 'w') as f:
-                    f.write('pinkladies')
-                with open(source_path_1 / 'apples', 'w') as f:
-                    f.write('notpinkladies')
-                with open(source_path_2 / 'apples', 'w') as f:
-                    f.write('notpinkladies')
+                async with aiofiles.open(source_path_2 / 'pinkladies', 'w') as f:
+                    await f.write('pinkladies')
+                async with aiofiles.open(source_path_1 / 'apples', 'w') as f:
+                    await f.write('notpinkladies')
+                async with aiofiles.open(source_path_2 / 'apples', 'w') as f:
+                    await f.write('notpinkladies')
 
                 sut = FileSystem((source_path_1, None), (source_path_2, None))
 
@@ -104,10 +108,10 @@ class TestFileSystem:
             source_path_1 = Path(source_path_str_1)
             async with TemporaryDirectory() as source_path_str_2:
                 source_path_2 = Path(source_path_str_2)
-                with open(source_path_1 / 'apples', 'w') as f:
-                    f.write('apples')
-                with open(source_path_2 / 'apples', 'w') as f:
-                    f.write('notapples')
+                async with aiofiles.open(source_path_1 / 'apples', 'w') as f:
+                    await f.write('apples')
+                async with aiofiles.open(source_path_2 / 'apples', 'w') as f:
+                    await f.write('notapples')
 
                 sut = FileSystem((source_path_1, None), (source_path_2, None))
 
@@ -119,14 +123,14 @@ class TestFileSystem:
             source_path_1 = Path(source_path_str_1)
             async with TemporaryDirectory() as source_path_str_2:
                 source_path_2 = Path(source_path_str_2)
-                with open(source_path_1 / 'apples', 'w') as f:
-                    f.write('apples')
-                with open(source_path_2 / 'apples', 'w') as f:
-                    f.write('notapples')
-                with open(source_path_1 / 'oranges', 'w') as f:
-                    f.write('oranges')
-                with open(source_path_2 / 'bananas', 'w') as f:
-                    f.write('bananas')
+                async with aiofiles.open(source_path_1 / 'apples', 'w') as f:
+                    await f.write('apples')
+                async with aiofiles.open(source_path_2 / 'apples', 'w') as f:
+                    await f.write('notapples')
+                async with aiofiles.open(source_path_1 / 'oranges', 'w') as f:
+                    await f.write('oranges')
+                async with aiofiles.open(source_path_2 / 'bananas', 'w') as f:
+                    await f.write('bananas')
 
                 async with TemporaryDirectory() as destination_path_str:
                     destination_path = Path(destination_path_str)
@@ -153,14 +157,14 @@ class TestFileSystem:
             async with TemporaryDirectory() as source_path_str_2:
                 source_path_2 = Path(source_path_str_2)
                 (source_path_2 / 'basket').mkdir()
-                with open(source_path_1 / 'basket' / 'apples', 'w') as f:
-                    f.write('apples')
-                with open(source_path_2 / 'basket' / 'apples', 'w') as f:
-                    f.write('notapples')
-                with open(source_path_1 / 'basket' / 'oranges', 'w') as f:
-                    f.write('oranges')
-                with open(source_path_2 / 'basket' / 'bananas', 'w') as f:
-                    f.write('bananas')
+                async with aiofiles.open(source_path_1 / 'basket' / 'apples', 'w') as f:
+                    await f.write('apples')
+                async with aiofiles.open(source_path_2 / 'basket' / 'apples', 'w') as f:
+                    await f.write('notapples')
+                async with aiofiles.open(source_path_1 / 'basket' / 'oranges', 'w') as f:
+                    await f.write('oranges')
+                async with aiofiles.open(source_path_2 / 'basket' / 'bananas', 'w') as f:
+                    await f.write('bananas')
 
                 async with TemporaryDirectory() as destination_path_str:
                     destination_path = Path(destination_path_str)

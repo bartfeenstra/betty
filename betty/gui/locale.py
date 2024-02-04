@@ -9,6 +9,7 @@ from PyQt6 import QtGui
 from PyQt6.QtWidgets import QComboBox, QLabel, QWidget, QMainWindow, QMessageBox
 
 from betty.app import App
+from betty.asyncio import wait
 from betty.gui.text import Caption
 from betty.locale import negotiate_locale, get_display_name
 
@@ -106,7 +107,7 @@ class TranslationsLocaleCollector:
                     locale_name=get_display_name(locale, localizer.locale),
                 ))
             else:
-                negotiated_locale_translations_coverage = localizers.coverage(translations_locale)
+                negotiated_locale_translations_coverage = wait(localizers.coverage(translations_locale))
                 if negotiated_locale_translations_coverage[1] == 0:
                     negotiated_locale_translations_coverage_percentage = 0
                 else:

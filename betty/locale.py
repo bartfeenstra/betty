@@ -3,6 +3,7 @@ Provide the Locale API.
 """
 from __future__ import annotations
 
+import asyncio
 import calendar
 import contextlib
 import datetime
@@ -10,12 +11,14 @@ import gettext
 import glob
 import logging
 import operator
+from collections.abc import AsyncIterator
 from contextlib import suppress
-from functools import total_ordering, lru_cache
+from functools import total_ordering
 from io import StringIO
 from pathlib import Path
 from typing import Any, Iterator, Sequence, Mapping, Callable, TypeAlias, cast
 
+import aiofiles
 import babel
 from aiofiles.os import makedirs
 from aiofiles.ospath import exists
@@ -25,6 +28,7 @@ from langcodes import Language
 from polib import pofile
 
 from betty import fs
+from betty.asyncio import sync
 from betty.fs import hashfile, FileSystem, ASSETS_DIRECTORY_PATH, ROOT_DIRECTORY_PATH
 from betty.os import ChDir
 
@@ -502,11 +506,29 @@ class LocalizerRepository:
             for po_file_path in glob.glob(str(assets_directory_path / 'locale' / '*' / 'betty.po')):
                 yield Path(po_file_path).parent.name
 
-    def get(self, locale: Localey) -> Localizer:
-        return self[to_locale(locale)]
+    # @todo This is cool for lazy-loading but makes all of the calling code harder.
+    # @todo
+    # @todo
+    # @todo
+    # @todo
+    async def get(self, locale: Localey) -> Localizer:
+        locale = to_locale(locale)
+        try:
+            return self._localizers[locale]
+        except KeyError:
+            return await self._build_translation(locale)
 
-    @lru_cache
-    def get_negotiated(self, *preferred_locales: str) -> Localizer:
+    @sync
+    async def __getitem__(self, locale: Localey) -> Localizer:
+        return await self.get(locale)
+
+    # @todo I **THINK** this fails because it's async AND cached
+    # @todo so coroutines end up in the cache, are returned multiple times,
+    # @todo and therefore risk being awaited concurrently which is illegal
+    # @todo and causes RuntimeError
+    # @todo
+    # @lru_cache
+    async def get_negotiated(self, *preferred_locales: str) -> Localizer:
         preferred_locales = (*preferred_locales, DEFAULT_LOCALE)
         negotiated_locale = negotiate_locale(
             preferred_locales,
@@ -516,19 +538,12 @@ class LocalizerRepository:
                 in self.locales
             ],
         )
-        return self[negotiated_locale or DEFAULT_LOCALE]
+        return await self.get(negotiated_locale or DEFAULT_LOCALE)
 
-    def __getitem__(self, locale: Localey) -> Localizer:
-        locale = to_locale(locale)
-        try:
-            return self._localizers[locale]
-        except KeyError:
-            return self._build_translation(locale)
-
-    def _build_translation(self, locale: str) -> Localizer:
+    async def _build_translation(self, locale: str) -> Localizer:
         translations = gettext.NullTranslations()
         for assets_directory_path, __ in reversed(self._assets.paths):
-            opened_translations = self._open_translations(locale, assets_directory_path)
+            opened_translations = await asyncio.to_thread(self._open_translations, locale, assets_directory_path)
             if opened_translations:
                 opened_translations.add_fallback(translations)
                 translations = opened_translations
@@ -566,29 +581,31 @@ class LocalizerRepository:
         with open(mo_file_path, 'rb') as f:
             return gettext.GNUTranslations(f)
 
-    def coverage(self, locale: Localey) -> tuple[int, int]:
-        translatables = set(self._get_translatables())
+    async def coverage(self, locale: Localey) -> tuple[int, int]:
+        translatables = {translatable async for translatable in self._get_translatables()}
         locale = to_locale(locale)
         if locale == DEFAULT_LOCALE:
             return len(translatables), len(translatables)
-        translations = set(self._get_translations(locale))
+        translations = {translation async for translation in self._get_translations(locale)}
         return len(translations), len(translatables)
 
-    def _get_translatables(self) -> Iterator[str]:
+    async def _get_translatables(self) -> AsyncIterator[str]:
         for assets_directory_path, __ in self._assets.paths:
             with suppress(FileNotFoundError):
-                with open(assets_directory_path / 'betty.pot') as f:
-                    for entry in pofile(f.read()):
+                async with aiofiles.open(assets_directory_path / 'betty.pot') as pot_data_f:
+                    pot_data = await pot_data_f.read()
+                    for entry in pofile(pot_data):
                         yield entry.msgid_with_context
 
-    def _get_translations(self, locale: str) -> Iterator[str]:
+    async def _get_translations(self, locale: str) -> AsyncIterator[str]:
         for assets_directory_path, __ in reversed(self._assets.paths):
             with suppress(FileNotFoundError):
-                with open(
+                async with aiofiles.open(
                     assets_directory_path / 'locale' / locale / 'betty.po',
                     encoding='utf-8',
-                ) as f:
-                    for entry in pofile(f.read()):
+                ) as p_data_f:
+                    po_data = await p_data_f.read()
+                    for entry in pofile(po_data):
                         if entry.translated():
                             yield entry.msgid_with_context
 

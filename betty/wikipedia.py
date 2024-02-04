@@ -338,7 +338,7 @@ class _Populator:
         if link.description is None:
             # There are valid reasons for links in locales that aren't supported.
             with suppress(ValueError):
-                link.description = self._app.localizers.get_negotiated(link.locale)._('Read more on Wikipedia.')
+                link.description = (await self._app.localizers.get_negotiated(link.locale))._('Read more on Wikipedia.')
         if summary is not None and link.label is None:
             link.label = summary.title
 

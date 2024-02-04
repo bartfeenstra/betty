@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+import aiofiles
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
 from pytest_mock import MockerFixture
@@ -37,8 +38,8 @@ class TestProjectWindow:
             navigate(sut, ['save_project_as_action'])
 
         expected_dump = minimize(configuration.dump())
-        with open(save_as_configuration_file_path) as f:
-            actual_dump = json.load(f)
+        async with aiofiles.open(save_as_configuration_file_path) as f:
+            actual_dump = json.loads(await f.read())
         assert actual_dump == expected_dump
 
 
@@ -197,8 +198,8 @@ class TestLocalizationPane:
             title = 'My First Ancestry Site'
             app.project.configuration.title = title
 
-        with open(app.project.configuration.configuration_file_path) as f:
-            read_configuration_dump = json.load(f)
+        async with aiofiles.open(app.project.configuration.configuration_file_path) as f:
+            read_configuration_dump = json.loads(await f.read())
         assert read_configuration_dump == app.project.configuration.dump()
         assert read_configuration_dump['title'] == title
 
