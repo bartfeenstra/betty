@@ -834,6 +834,12 @@ class TestEntityGraphBuilder:
 
 
 class TestPickleableEntityGraph:
+    def assert_entity(self, left: Entity | None, right: Entity | None):
+        assert left is not None
+        assert right is not None
+        assert left.type is right.type
+        assert left.id == right.id
+
     async def test_pickle_to_one(self) -> None:
         to_one_left = _EntityGraphBuilder_ToOne_Left()
         to_one_right = _EntityGraphBuilder_ToOne_Right()
@@ -845,10 +851,10 @@ class TestPickleableEntityGraph:
         unpickled_entities.add(*dill.loads(dill.dumps(sut)).build())
 
         assert to_one_left is not unpickled_entities[_EntityGraphBuilder_ToOne_Left][to_one_left.id]
-        assert to_one_left == unpickled_entities[_EntityGraphBuilder_ToOne_Left][to_one_left.id]
+        self.assert_entity(to_one_left, unpickled_entities[_EntityGraphBuilder_ToOne_Left][to_one_left.id])
         assert to_one_right is not unpickled_entities[_EntityGraphBuilder_ToOne_Right][to_one_right.id]
-        assert to_one_right == unpickled_entities[_EntityGraphBuilder_ToOne_Right][to_one_right.id]
-        assert to_one_right == to_one_left.to_one
+        self.assert_entity(to_one_right, unpickled_entities[_EntityGraphBuilder_ToOne_Right][to_one_right.id])
+        self.assert_entity(to_one_right, to_one_left.to_one)
 
     async def test_pickle_one_to_one(self) -> None:
         one_to_one_left = _EntityGraphBuilder_OneToOne_Left()
@@ -861,11 +867,11 @@ class TestPickleableEntityGraph:
         unpickled_entities.add(*dill.loads(dill.dumps(sut)).build())
 
         assert one_to_one_left is not unpickled_entities[_EntityGraphBuilder_OneToOne_Left][one_to_one_left.id]
-        assert one_to_one_left == unpickled_entities[_EntityGraphBuilder_OneToOne_Left][one_to_one_left.id]
+        self.assert_entity(one_to_one_left, unpickled_entities[_EntityGraphBuilder_OneToOne_Left][one_to_one_left.id])
         assert one_to_one_right is not unpickled_entities[_EntityGraphBuilder_OneToOne_Right][one_to_one_right.id]
-        assert one_to_one_right == unpickled_entities[_EntityGraphBuilder_OneToOne_Right][one_to_one_right.id]
-        assert one_to_one_right == one_to_one_left.to_one
-        assert one_to_one_left == one_to_one_right.to_one
+        self.assert_entity(one_to_one_right, unpickled_entities[_EntityGraphBuilder_OneToOne_Right][one_to_one_right.id])
+        self.assert_entity(one_to_one_right, one_to_one_left.to_one)
+        self.assert_entity(one_to_one_left, one_to_one_right.to_one)
 
     async def test_pickle_many_to_one(self) -> None:
         many_to_one_left = _EntityGraphBuilder_ManyToOne_Left()
@@ -878,10 +884,10 @@ class TestPickleableEntityGraph:
         unpickled_entities.add(*dill.loads(dill.dumps(sut)).build())
 
         assert many_to_one_left is not unpickled_entities[_EntityGraphBuilder_ManyToOne_Left][many_to_one_left.id]
-        assert many_to_one_left == unpickled_entities[_EntityGraphBuilder_ManyToOne_Left][many_to_one_left.id]
+        self.assert_entity(many_to_one_left, unpickled_entities[_EntityGraphBuilder_ManyToOne_Left][many_to_one_left.id])
         assert many_to_one_right is not unpickled_entities[_EntityGraphBuilder_ManyToOne_Right][many_to_one_right.id]
-        assert many_to_one_right == unpickled_entities[_EntityGraphBuilder_ManyToOne_Right][many_to_one_right.id]
-        assert many_to_one_right == many_to_one_left.to_one
+        self.assert_entity(many_to_one_right, unpickled_entities[_EntityGraphBuilder_ManyToOne_Right][many_to_one_right.id])
+        self.assert_entity(many_to_one_right, many_to_one_left.to_one)
         assert many_to_one_left in many_to_one_right.to_many
 
     async def test_pickle_to_many(self) -> None:
@@ -895,9 +901,9 @@ class TestPickleableEntityGraph:
         unpickled_entities.add(*dill.loads(dill.dumps(sut)).build())
 
         assert to_many_left is not unpickled_entities[_EntityGraphBuilder_ToMany_Left][to_many_left.id]
-        assert to_many_left == unpickled_entities[_EntityGraphBuilder_ToMany_Left][to_many_left.id]
+        self.assert_entity(to_many_left, unpickled_entities[_EntityGraphBuilder_ToMany_Left][to_many_left.id])
         assert to_many_right is not unpickled_entities[_EntityGraphBuilder_ToMany_Right][to_many_right.id]
-        assert to_many_right == unpickled_entities[_EntityGraphBuilder_ToMany_Right][to_many_right.id]
+        self.assert_entity(to_many_right, unpickled_entities[_EntityGraphBuilder_ToMany_Right][to_many_right.id])
         assert to_many_right in to_many_left.to_many
 
     async def test_pickle_one_to_many(self) -> None:
@@ -911,11 +917,11 @@ class TestPickleableEntityGraph:
         unpickled_entities.add(*dill.loads(dill.dumps(sut)).build())
 
         assert one_to_many_left is not unpickled_entities[_EntityGraphBuilder_OneToMany_Left][one_to_many_left.id]
-        assert one_to_many_left == unpickled_entities[_EntityGraphBuilder_OneToMany_Left][one_to_many_left.id]
+        self.assert_entity(one_to_many_left, unpickled_entities[_EntityGraphBuilder_OneToMany_Left][one_to_many_left.id])
         assert one_to_many_right is not unpickled_entities[_EntityGraphBuilder_OneToMany_Right][one_to_many_right.id]
-        assert one_to_many_right == unpickled_entities[_EntityGraphBuilder_OneToMany_Right][one_to_many_right.id]
+        self.assert_entity(one_to_many_right, unpickled_entities[_EntityGraphBuilder_OneToMany_Right][one_to_many_right.id])
         assert one_to_many_right in one_to_many_left.to_many
-        assert one_to_many_left == one_to_many_right.to_one
+        self.assert_entity(one_to_many_left, one_to_many_right.to_one)
 
     async def test_pickle_many_to_many(self) -> None:
         many_to_many_left = _EntityGraphBuilder_ManyToMany_Left()
@@ -928,9 +934,9 @@ class TestPickleableEntityGraph:
         unpickled_entities.add(*dill.loads(dill.dumps(sut)).build())
 
         assert many_to_many_left is not unpickled_entities[_EntityGraphBuilder_ManyToMany_Left][many_to_many_left.id]
-        assert many_to_many_left == unpickled_entities[_EntityGraphBuilder_ManyToMany_Left][many_to_many_left.id]
+        self.assert_entity(many_to_many_left, unpickled_entities[_EntityGraphBuilder_ManyToMany_Left][many_to_many_left.id])
         assert many_to_many_right is not unpickled_entities[_EntityGraphBuilder_ManyToMany_Right][many_to_many_right.id]
-        assert many_to_many_right == unpickled_entities[_EntityGraphBuilder_ManyToMany_Right][many_to_many_right.id]
+        self.assert_entity(many_to_many_right, unpickled_entities[_EntityGraphBuilder_ManyToMany_Right][many_to_many_right.id])
         assert many_to_many_right in many_to_many_left.to_many
         assert many_to_many_left in many_to_many_right.to_many
 
@@ -947,14 +953,14 @@ class TestPickleableEntityGraph:
         unpickled_entities.add(*dill.loads(dill.dumps(sut)).build())
 
         assert many_to_one_to_many_left is not unpickled_entities[_EntityGraphBuilder_ManyToOneToMany_Left][many_to_one_to_many_left.id]
-        assert many_to_one_to_many_left == unpickled_entities[_EntityGraphBuilder_ManyToOneToMany_Left][many_to_one_to_many_left.id]
+        self.assert_entity(many_to_one_to_many_left, unpickled_entities[_EntityGraphBuilder_ManyToOneToMany_Left][many_to_one_to_many_left.id])
         assert many_to_one_to_many_middle is not unpickled_entities[_EntityGraphBuilder_ManyToOneToMany_Middle][many_to_one_to_many_middle.id]
-        assert many_to_one_to_many_middle == unpickled_entities[_EntityGraphBuilder_ManyToOneToMany_Middle][many_to_one_to_many_middle.id]
+        self.assert_entity(many_to_one_to_many_middle, unpickled_entities[_EntityGraphBuilder_ManyToOneToMany_Middle][many_to_one_to_many_middle.id])
         assert many_to_one_to_many_right is not unpickled_entities[_EntityGraphBuilder_ManyToOneToMany_Right][many_to_one_to_many_right.id]
-        assert many_to_one_to_many_right == unpickled_entities[_EntityGraphBuilder_ManyToOneToMany_Right][many_to_one_to_many_right.id]
+        self.assert_entity(many_to_one_to_many_right, unpickled_entities[_EntityGraphBuilder_ManyToOneToMany_Right][many_to_one_to_many_right.id])
         assert many_to_one_to_many_middle in many_to_one_to_many_left.to_many
-        assert many_to_one_to_many_left == many_to_one_to_many_middle.to_one_left
-        assert many_to_one_to_many_right == many_to_one_to_many_middle.to_one_right
+        self.assert_entity(many_to_one_to_many_left, many_to_one_to_many_middle.to_one_left)
+        self.assert_entity(many_to_one_to_many_right, many_to_one_to_many_middle.to_one_right)
         assert many_to_one_to_many_middle in many_to_one_to_many_right.to_many
 
 

@@ -125,21 +125,21 @@
                         {% endwith %}
                     </span>
                 {%- endmacro %}
-                {% for parents, per_parent_children in children | groupby('parents.view') %}
+                {% for family_parents, family_children in person | person_descendant_families %}
+                    {% set family_parents = family_parents | reject('eq', person) | list %}
                     <div class="family">
                         <div class="family-description">
                             <div class="family-description-content">
                                 <p>
-                                    {% do parents.remove(person) %}
-                                    {%- if parents | length > 0 -%}
+                                    {%- if family_parents | length > 0 -%}
                                         {% if person_individual_name is defined %}
-                                            {%- trans child_count = per_parent_children | length, person_individual_name = person_individual_name, co_parent_labels = parents | map(co_parent_label) | join(', ') -%}
+                                            {%- trans child_count = family_children | length, person_individual_name = person_individual_name, co_parent_labels = family_parents | map(co_parent_label) | join(', ') -%}
                                                 {{ person_individual_name }} had a child with {{ co_parent_labels }}.
                                             {%- pluralize -%}
                                                 {{ person_individual_name }} had {{ child_count }} children with {{ co_parent_labels }}.
                                             {%- endtrans -%}
                                         {%- else -%}
-                                            {%- trans child_count = per_parent_children | length, co_parent_labels = parents | map(co_parent_label) | join(', ') -%}
+                                            {%- trans child_count = family_children | length, co_parent_labels = family_parents | map(co_parent_label) | join(', ') -%}
                                                 They had a child with {{ co_parent_labels }}.
                                             {%- pluralize -%}
                                                 They had {{ child_count }} children with {{ co_parent_labels }}.
@@ -147,13 +147,13 @@
                                         {%- endif -%}
                                     {%- else -%}
                                         {% if person_individual_name is defined %}
-                                            {%- trans child_count = per_parent_children | length, person_individual_name = person_individual_name -%}
+                                            {%- trans child_count = family_children | length, person_individual_name = person_individual_name -%}
                                                 {{ person_individual_name }} had a child.
                                             {%- pluralize -%}
                                                 {{ person_individual_name }} had {{ child_count }} children.
                                             {%- endtrans -%}
                                         {%- else -%}
-                                            {%- trans child_count = per_parent_children | length -%}
+                                            {%- trans child_count = family_children | length -%}
                                                 They had a child.
                                             {%- pluralize -%}
                                                 They had {{ child_count }} children.
@@ -162,7 +162,7 @@
                                     {%- endif -%}
                                 </p>
                                 {% set ns = namespace(descendant_affiliation_names=[]) %}
-                                {% for per_parent_child in per_parent_children %}
+                                {% for per_parent_child in family_children %}
                                     {% set ns.descendant_affiliation_names = ns.descendant_affiliation_names + (per_parent_child | walk('children') | list + [per_parent_child]) | select('public') | map(attribute='names') | flatten | select('public') | map(attribute='affiliation') | reject('none') | list %}
                                 {% endfor %}
                                 {% set ns.descendant_affiliation_names = ns.descendant_affiliation_names | unique | list | sort | list %}
@@ -184,9 +184,9 @@
                                 {% endif %}
                             </div>
                         </div>
-                        {% set public_per_parent_children = per_parent_children | select('public') | list %}
-                        {% if public_per_parent_children | length > 0 %}
-                            {% with people=public_per_parent_children, type_of='foaf:Person', property='rel:parentOf' %}
+                        {% set public_family_children = family_children | select('public') | list %}
+                        {% if public_family_children | length > 0 %}
+                            {% with people=public_family_children, type_of='foaf:Person', property='rel:parentOf' %}
                                 <div class="family-breakdown">
                                     {% include 'entity/list--person.html.j2' %}
                                 </div>

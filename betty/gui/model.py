@@ -36,7 +36,7 @@ class EntityReferenceCollector(LocalizedWidget):
                 self._entity_reference.entity_type = self._entity_type.currentData()
             self._entity_type = QComboBox()
             self._entity_type.currentIndexChanged.connect(_update_entity_type)
-            entity_types = enumerate(sorted(cast(Iterator['UserFacingEntity & Entity'], filter(
+            entity_types = enumerate(sorted(cast(Iterator[type['UserFacingEntity & Entity']], filter(
                 lambda entity_type: issubclass(entity_type, UserFacingEntity),
                 self._app.entity_types,
             )), key=lambda entity_type: entity_type.entity_type_label().localize(self._app.localizer)))

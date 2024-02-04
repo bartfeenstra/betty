@@ -1079,18 +1079,6 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
     def __repr__(self) -> str:
         return repr_instance(self, id=self.id, individual=self.individual, affiliation=self.affiliation)
 
-    def __eq__(self, other: Any) -> bool:
-        if not super().__eq__(other):
-            return False
-        return (self._individual or '') == (other._individual or '') and (self._affiliation or '') == (other._affiliation or '')
-
-    def __gt__(self, other: Any) -> bool:
-        if other is None:
-            return True
-        if not isinstance(other, PersonName):
-            return NotImplemented
-        return (self._individual or '') > (other._individual or '') and (self._affiliation or '') > (other._affiliation or '')
-
     @classmethod
     def entity_type_label(cls) -> Str:
         return Str._('Person name')

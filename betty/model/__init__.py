@@ -30,7 +30,6 @@ class GeneratedEntityId(str):
         return super().__new__(cls, entity_id or str(uuid4()))
 
 
-@functools.total_ordering
 class Entity(Pickleable):
     def __init__(
         self,
@@ -49,16 +48,6 @@ class Entity(Pickleable):
     def __setstate__(self, state: State):
         EntityTypeAssociationRegistry.initialize(self)
         super().__setstate__(state)
-
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, self.__class__):
-            return False
-        return self._id == other._id
-
-    def __gt__(self, other: Any) -> bool:
-        if not isinstance(other, self.__class__):
-            return NotImplemented
-        return self._id > other._id
 
     def __hash__(self) -> int:
         return hash(self.ancestry_id)
