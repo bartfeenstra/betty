@@ -1,7 +1,7 @@
-import os
-from time import sleep
+from asyncio import sleep
 
 import aiofiles
+from aiofiles.os import makedirs
 import requests
 from pytest_mock import MockerFixture
 
@@ -14,12 +14,12 @@ class TestBuiltinServer:
         mocker.patch('webbrowser.open_new_tab')
         content = 'Hello, and welcome to my site!'
         app = App()
-        os.makedirs(app.project.configuration.www_directory_path)
+        await makedirs(app.project.configuration.www_directory_path)
         async with aiofiles.open(app.project.configuration.www_directory_path / 'index.html', 'w') as f:
             await f.write(content)
         async with BuiltinAppServer(app) as server:
             # Wait for the server to start.
-            sleep(1)
+            await sleep(1)
             response = requests.get(server.public_url)
             assert 200 == response.status_code
             assert content == response.content.decode('utf-8')
