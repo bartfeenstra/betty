@@ -5,6 +5,7 @@ This extension and module are internal.
 """
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
 import shutil
@@ -168,7 +169,7 @@ async def _build_assets_to_directory_path(extension: NpmBuilder & Extension, ass
     assert isinstance(extension, Extension)
     assert isinstance(extension, NpmBuilder)
     with suppress(FileNotFoundError):
-        shutil.rmtree(assets_directory_path)
+        await asyncio.to_thread(shutil.rmtree, assets_directory_path)
     os.makedirs(assets_directory_path)
     async with TemporaryDirectory() as working_directory_path_str:
         working_directory_path = Path(working_directory_path_str)
@@ -202,7 +203,8 @@ class _Npm(Extension):
         if self._npm_requirement:
             self._npm_requirement.assert_met()
 
-        shutil.copytree(
+        await asyncio.to_thread(
+            shutil.copytree,
             _get_assets_src_directory_path(extension_type),
             working_directory_path,
             dirs_exist_ok=True,

@@ -1,6 +1,7 @@
 """Integrate Betty with `ReDoc <https://redocly.com/redoc/>`_."""
 from __future__ import annotations
 
+import asyncio
 import logging
 from pathlib import Path
 from shutil import copy2
@@ -21,7 +22,7 @@ class _HttpApiDoc(UserFacingExtension, Generator, NpmBuilder):
 
     async def npm_build(self, working_directory_path: Path, assets_directory_path: Path) -> None:
         await self.app.extensions[_Npm].install(type(self), working_directory_path)
-        copy2(working_directory_path / 'node_modules' / 'redoc' / 'bundles' / 'redoc.standalone.js', assets_directory_path / 'http-api-doc.js')
+        await asyncio.to_thread(copy2, working_directory_path / 'node_modules' / 'redoc' / 'bundles' / 'redoc.standalone.js', assets_directory_path / 'http-api-doc.js')
         logging.getLogger(__name__).info(self._app.localizer._('Built the HTTP API documentation.'))
 
     @classmethod
@@ -31,7 +32,7 @@ class _HttpApiDoc(UserFacingExtension, Generator, NpmBuilder):
     async def generate(self, task_context: GenerationContext) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
         await makedirs(self.app.project.configuration.www_directory_path, exist_ok=True)
-        copy2(assets_directory_path / 'http-api-doc.js', self.app.project.configuration.www_directory_path / 'http-api-doc.js')
+        await asyncio.to_thread(copy2, assets_directory_path / 'http-api-doc.js', self.app.project.configuration.www_directory_path / 'http-api-doc.js')
 
     @classmethod
     def assets_directory_path(cls) -> Path | None:

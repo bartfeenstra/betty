@@ -3,6 +3,7 @@ Provide OS interaction utilities.
 """
 from __future__ import annotations
 
+import asyncio
 import os
 import shutil
 from contextlib import suppress
@@ -26,7 +27,7 @@ async def link_or_copy(source_path: Path, destination_path: Path) -> None:
             await link(source_path, destination_path)
     except OSError:
         with suppress(shutil.SameFileError):
-            shutil.copyfile(source_path, destination_path)
+            await asyncio.to_thread(shutil.copyfile, source_path, destination_path)
 
 
 class ChDir:
