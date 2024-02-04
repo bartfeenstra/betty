@@ -151,9 +151,6 @@ class JSONEncoder(stdjson.JSONEncoder):
         end_schema_org: str | None = None,
     ) -> None:
         if is_public(dated) and dated.date:
-            # @todo Only embed the context for date ranges as they are the only values that expand to more
-            # @todo Maybe add ISO 8601 dates when available? (e.g. all date components exist) and is not fuzzy
-            # @todo Maybe FINALLY add some documentation to Date and DateRange to explain all the details.
             if isinstance(dated.date, Date):
                 encoded['date'] = self._encode_date(
                     dated.date,
