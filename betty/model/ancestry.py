@@ -6,6 +6,7 @@ from __future__ import annotations
 from collections.abc import MutableSequence
 from contextlib import suppress
 from enum import Enum
+from functools import partial
 from pathlib import Path
 from reprlib import recursive_repr
 from typing import Iterable, Any
@@ -19,7 +20,6 @@ from betty.model import many_to_many, Entity, one_to_many, many_to_one, many_to_
     MultipleTypesEntityCollection, EntityCollection, UserFacingEntity, EntityTypeAssociationRegistry, \
     PickleableEntityGraph
 from betty.model.event_type import EventType, UnknownEventType
-from betty.pickle import State, Pickleable
 
 
 class Privacy(Enum):
@@ -28,7 +28,7 @@ class Privacy(Enum):
     UNDETERMINED = 3
 
 
-class HasPrivacy(Pickleable):
+class HasPrivacy:
     def __init__(
         self,
         *args: Any,
@@ -48,11 +48,6 @@ class HasPrivacy(Pickleable):
             self._privacy = Privacy.PRIVATE
         else:
             self._privacy = Privacy.UNDETERMINED
-
-    def __getstate__(self) -> State:
-        dict_state, slots_state = super().__getstate__()
-        dict_state['_privacy'] = self._privacy
-        return dict_state, slots_state
 
     @property
     def own_privacy(self) -> Privacy:
@@ -136,7 +131,7 @@ def merge_privacies(*privacies: Privacy | HasPrivacy | None) -> Privacy:
     return Privacy.PUBLIC
 
 
-class Dated(Pickleable):
+class Dated:
     def __init__(
         self,
         *args: Any,
@@ -145,11 +140,6 @@ class Dated(Pickleable):
     ):
         super().__init__(*args, **kwargs)
         self.date = date
-
-    def __getstate__(self) -> State:
-        dict_state, slots_state = super().__getstate__()
-        dict_state['date'] = self.date
-        return dict_state, slots_state
 
 
 @many_to_one('entity', 'betty.model.ancestry.HasNotes', 'notes')
@@ -176,10 +166,16 @@ class Note(HasPrivacy, UserFacingEntity, Entity):
         if entity is not None:
             self.entity = entity
 
-    def __getstate__(self) -> State:
-        dict_state, slots_state = super().__getstate__()
-        dict_state['_text'] = self._text
-        return dict_state, slots_state
+    def __reduce__(self) -> Any:
+        return (
+            partial(
+                Note,
+                self.text,
+                id=self.id,
+                privacy=self.privacy,
+            ),
+            (),
+        )
 
     @classmethod
     def entity_type_label(cls) -> Str:
@@ -226,7 +222,7 @@ class HasNotes:
         pass
 
 
-class Described(Pickleable):
+class Described:
     def __init__(
         self,
         *args: Any,
@@ -236,13 +232,8 @@ class Described(Pickleable):
         super().__init__(*args, **kwargs)
         self.description = description
 
-    def __getstate__(self) -> State:
-        dict_state, slots_state = super().__getstate__()
-        dict_state['description'] = self.description
-        return dict_state, slots_state
 
-
-class HasMediaType(Pickleable):
+class HasMediaType:
     def __init__(
         self,
         *args: Any,
@@ -251,11 +242,6 @@ class HasMediaType(Pickleable):
     ):
         super().__init__(*args, **kwargs)
         self.media_type = media_type
-
-    def __getstate__(self) -> State:
-        dict_state, slots_state = super().__getstate__()
-        dict_state['media_type'] = self.media_type
-        return dict_state, slots_state
 
 
 class Link(HasMediaType, Localized, Described):
@@ -282,15 +268,8 @@ class Link(HasMediaType, Localized, Described):
         self.label = label
         self.relationship = relationship
 
-    def __getstate__(self) -> State:
-        dict_state, slots_state = super().__getstate__()
-        dict_state['url'] = self.url
-        dict_state['relationship'] = self.relationship
-        dict_state['label'] = self.label
-        return dict_state, slots_state
 
-
-class HasLinks(Pickleable):
+class HasLinks:
     def __init__(
         self,
         *args: Any,
@@ -299,11 +278,6 @@ class HasLinks(Pickleable):
     ):
         super().__init__(*args, **kwargs)
         self._links: MutableSequence[Link] = links if links else []
-
-    def __getstate__(self) -> State:
-        dict_state, slots_state = super().__getstate__()
-        dict_state['_links'] = self._links
-        return dict_state, slots_state
 
     @property
     def links(self) -> MutableSequence[Link]:
@@ -367,10 +341,19 @@ class File(Described, HasPrivacy, HasLinks, HasMediaType, HasNotes, HasCitations
         )
         self._path = path
 
-    def __getstate__(self) -> State:
-        dict_state, slots_state = super().__getstate__()
-        dict_state['_path'] = self._path
-        return dict_state, slots_state
+    def __reduce__(self) -> Any:
+        return (
+            partial(
+                File,
+                self.path,
+                id=self.id,
+                media_type=self.media_type,
+                description=self.description,
+                privacy=self.privacy,
+                links=self.links,
+            ),
+            (),
+        )
 
     @property
     def entities(self) -> EntityCollection[Entity]:  # type: ignore[empty-body]
@@ -472,12 +455,20 @@ class Source(Dated, HasFiles, HasLinks, HasPrivacy, UserFacingEntity, Entity):
         if contains is not None:
             self.contains = contains  # type: ignore[assignment]
 
-    def __getstate__(self) -> State:
-        dict_state, slots_state = super().__getstate__()
-        dict_state['name'] = self.name
-        dict_state['author'] = self.author
-        dict_state['publisher'] = self.publisher
-        return dict_state, slots_state
+    def __reduce__(self) -> Any:
+        return (
+            partial(
+                Source,
+                self.name,
+                id=self.id,
+                author=self.author,
+                publisher=self.publisher,
+                date=self.date,
+                links=self.links,
+                privacy=self.privacy,
+            ),
+            (),
+        )
 
     def _get_effective_privacy(self) -> Privacy:
         privacy = super()._get_effective_privacy()
@@ -567,10 +558,17 @@ class Citation(Dated, HasFiles, HasPrivacy, UserFacingEntity, Entity):
         self.location = location
         self.source = source
 
-    def __getstate__(self) -> State:
-        dict_state, slots_state = super().__getstate__()
-        dict_state['location'] = self.location
-        return dict_state, slots_state
+    def __reduce__(self) -> Any:
+        return (
+            partial(
+                Citation,
+                id=self.id,
+                location=self.location,
+                date=self.date,
+                privacy=self.privacy,
+            ),
+            (),
+        )
 
     def _get_effective_privacy(self) -> Privacy:
         privacy = super()._get_effective_privacy()
@@ -633,11 +631,6 @@ class PlaceName(Localized, Dated):
         )
         self._name = name
 
-    def __getstate__(self) -> State:
-        dict_state, slots_state = super().__getstate__()
-        dict_state['_name'] = self._name
-        return dict_state, slots_state
-
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, self.__class__):
             return NotImplemented  # pragma: no cover
@@ -669,12 +662,18 @@ class Enclosure(Dated, HasCitations, Entity):
 
     def __init__(
         self,
-        encloses: Place | None,
-        enclosed_by: Place | None,
+        encloses: Place | None = None,
+        enclosed_by: Place | None = None,
     ):
         super().__init__()
         self.encloses = encloses
         self.enclosed_by = enclosed_by
+
+    def __reduce__(self) -> Any:
+        return (
+            Enclosure,
+            (),
+        )
 
     @classmethod
     def entity_type_label(cls) -> Str:
@@ -719,11 +718,18 @@ class Place(HasLinks, HasFiles, HasPrivacy, UserFacingEntity, Entity):
         if encloses is not None:
             self.encloses = encloses  # type: ignore[assignment]
 
-    def __getstate__(self) -> State:
-        dict_state, slots_state = super().__getstate__()
-        dict_state['_names'] = self._names
-        dict_state['_coordinates'] = self._coordinates
-        return dict_state, slots_state
+    def __reduce__(self) -> Any:
+        return (
+            partial(
+                Place,
+                id=self.id,
+                names=self.names,
+                coordinates=self._coordinates,
+                links=self.links,
+                privacy=self.privacy,
+            ),
+            (),
+        )
 
     @property
     def enclosed_by(self) -> EntityCollection[Enclosure]:  # type: ignore[empty-body]
@@ -899,10 +905,15 @@ class Presence(HasPrivacy, Entity):
         self.role = role
         self.event = event
 
-    def __getstate__(self) -> State:
-        dict_state, slots_state = super().__getstate__()
-        dict_state['role'] = self.role
-        return dict_state, slots_state
+    def __reduce__(self) -> Any:
+        return (
+            Presence,
+            (
+                None,
+                self.role,
+                None,
+            ),
+        )
 
     @classmethod
     def entity_type_label(cls) -> Str:
@@ -987,10 +998,18 @@ class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, UserFacingEnti
         else:
             return Str._('{event_type} ({event_description})', **format_kwargs)
 
-    def __getstate__(self) -> State:
-        dict_state, slots_state = super().__getstate__()
-        dict_state['_event_type'] = self._event_type
-        return dict_state, slots_state
+    def __reduce__(self) -> Any:
+        return (
+            partial(
+                Event,
+                id=self.id,
+                event_type=self.event_type,
+                date=self.date,
+                privacy=self.privacy,
+                description=self.description,
+            ),
+            (),
+        )
 
     @recursive_repr()
     def __repr__(self) -> str:
@@ -1064,11 +1083,17 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
         # individual and affiliation names.
         self.person = person
 
-    def __getstate__(self) -> State:
-        dict_state, slots_state = super().__getstate__()
-        dict_state['_individual'] = self._individual
-        dict_state['_affiliation'] = self._affiliation
-        return dict_state, slots_state
+    def __reduce__(self) -> Any:
+        return (
+            partial(
+                PersonName,
+                id=self.id,
+                individual=self.individual,
+                affiliation=self.affiliation,
+                privacy=self.privacy,
+            ),
+            (),
+        )
 
     def _get_effective_privacy(self) -> Privacy:
         privacy = super()._get_effective_privacy()
@@ -1121,6 +1146,8 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, UserFacingEntity, Ent
         private: bool | None = None,
         parents: Iterable[Person] | None = None,
         children: Iterable[Person] | None = None,
+        presences: Iterable[Presence] | None = None,
+        names: Iterable[PersonName] | None = None,
     ):
         super().__init__(
             id,
@@ -1135,6 +1162,21 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, UserFacingEntity, Ent
             self.children = children  # type: ignore[assignment]
         if parents is not None:
             self.parents = parents  # type: ignore[assignment]
+        if presences is not None:
+            self.presences = presences  # type: ignore[assignment]
+        if names is not None:
+            self.names = names  # type: ignore[assignment]
+
+    def __reduce__(self) -> Any:
+        return (
+            partial(
+                Person,
+                id=self.id,
+                links=self.links,
+                privacy=self.privacy,
+            ),
+            (),
+        )
 
     @property
     def parents(self) -> EntityCollection[Person]:  # type: ignore[empty-body]

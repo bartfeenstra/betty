@@ -13,7 +13,6 @@ from uuid import uuid4
 from betty.classtools import repr_instance
 from betty.importlib import import_any, fully_qualified_type_name
 from betty.locale import Str
-from betty.pickle import State, Pickleable
 
 T = TypeVar('T')
 
@@ -30,7 +29,7 @@ class GeneratedEntityId(str):
         return super().__new__(cls, entity_id or str(uuid4()))
 
 
-class Entity(Pickleable):
+class Entity:
     def __init__(
         self,
         id: str | None = None,
@@ -39,15 +38,6 @@ class Entity(Pickleable):
     ):
         self._id = GeneratedEntityId() if id is None else id
         super().__init__(*args, **kwargs)
-
-    def __getstate__(self) -> State:
-        dict_state, slots_state = super().__getstate__()
-        dict_state['_id'] = self._id
-        return dict_state, slots_state
-
-    def __setstate__(self, state: State):
-        EntityTypeAssociationRegistry.initialize(self)
-        super().__setstate__(state)
 
     def __hash__(self) -> int:
         return hash(self.ancestry_id)
