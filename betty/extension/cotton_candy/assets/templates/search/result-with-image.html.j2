@@ -9,7 +9,7 @@
         {% set file = files | first %}
         {% if file.media_type and file.media_type.type == 'image' %}
             <div class="search-result-preview">
-                <img src="{{ file | image(45, 45) | static_url }}" class="image"{% if file.description %} alt="{{ file.description }}"{% endif %}>
+                <img src="{{ file | image(50, 50) | static_url }}" class="image"{% if file.description %} alt="{{ file.description }}"{% endif %}>
             </div>
         {% endif %}
     {% endif %}
