@@ -1,5 +1,4 @@
 import json
-import os
 from pathlib import Path
 from typing import Any
 
@@ -7,6 +6,7 @@ import aiofiles
 import click
 import pytest
 from _pytest.logging import LogCaptureFixture
+from aiofiles.os import makedirs
 from aiofiles.tempfile import TemporaryDirectory
 from click import Command
 from click.testing import CliRunner
@@ -223,7 +223,7 @@ class Serve:
         mocker.patch('betty.serve.BuiltinServer', new_callable=lambda: _KeyboardInterruptedAppServer)
         configuration = ProjectConfiguration()
         await configuration.write()
-        os.makedirs(configuration.www_directory_path)
+        await makedirs(configuration.www_directory_path)
         runner = CliRunner()
         result = runner.invoke(main, ('-c', str(configuration.configuration_file_path), 'serve',), catch_exceptions=False)
         assert 0 == result.exit_code
