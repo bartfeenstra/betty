@@ -6,6 +6,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import sys
+import traceback
 from contextlib import suppress, contextmanager
 from functools import wraps
 from pathlib import Path
@@ -249,10 +250,17 @@ async def _clear_caches() -> None:
 @click.command(help='Explore a demonstration site.')
 @global_command
 async def _demo() -> None:
-    async with demo.DemoServer() as server:
-        await server.show()
-        while True:
-            await asyncio.sleep(999)
+    # @todo remove this try
+    try:
+        async with demo.DemoServer() as server:
+            await server.show()
+            while True:
+                await asyncio.sleep(999)
+    except SystemExit as e:
+        print(e)
+        print(e)
+        print(e)
+        traceback.print_exception(e)
 
 
 @click.command(help="Open Betty's graphical user interface (GUI).")
