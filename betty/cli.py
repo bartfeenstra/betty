@@ -56,6 +56,9 @@ def catch_exceptions() -> Iterator[None]:
             logger.error(str(e))
         else:
             logger.exception(e)
+
+        # @todo remove raise
+        raise
         sys.exit(1)
 
 
@@ -250,17 +253,10 @@ async def _clear_caches() -> None:
 @click.command(help='Explore a demonstration site.')
 @global_command
 async def _demo() -> None:
-    # @todo remove this try
-    try:
-        async with demo.DemoServer() as server:
-            await server.show()
-            while True:
-                await asyncio.sleep(999)
-    except SystemExit as e:
-        print(e)
-        print(e)
-        print(e)
-        traceback.print_exception(e)
+    async with demo.DemoServer() as server:
+        await server.show()
+        while True:
+            await asyncio.sleep(999)
 
 
 @click.command(help="Open Betty's graphical user interface (GUI).")
