@@ -640,6 +640,9 @@ class LocalizerRepository:
                 '-D',
                 'betty',
             ])
+        # @todo REmove this debugging print
+        with open(mo_file_path, 'rb') as f:
+            print(f.read())
         with open(mo_file_path, 'rb') as f:
             return gettext.GNUTranslations(f)
 
