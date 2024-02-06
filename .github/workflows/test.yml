@@ -127,6 +127,11 @@ jobs:
           restore-keys: |
             cypress-
 
+      # todo Remove this debugging task
+      - name: DEBUG THE DEMO COMMAND
+        run: ./bin/test-pytest -vvv -k 'TestDemo' ./betty/tests/test_cli.py
+        shell: bash
+
       - name: Run the tests
         if: startsWith(runner.os, 'Linux')
         run: BETTY_TEST_SKIP_PYINSTALLER=true ./bin/test
