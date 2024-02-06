@@ -172,6 +172,14 @@ class TestDemo:
         mocker.patch('webbrowser.open_new_tab')
         runner = CliRunner()
         result = runner.invoke(main, ('demo',), catch_exceptions=False)
+        print('result.stdout')
+        print('result.stdout')
+        print('result.stdout')
+        print(result.stdout)
+        print('result.stderr')
+        print('result.stderr')
+        print('result.stderr')
+        print(result.stderr)
         assert 0 == result.exit_code
 
 
