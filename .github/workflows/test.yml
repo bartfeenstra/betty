@@ -129,7 +129,7 @@ jobs:
 
       # todo Remove this debugging task
       - name: DEBUG THE DEMO COMMAND
-        run: ./bin/test-pytest -vvv -k 'TestDemo' ./betty/tests/test_cli.py
+        run: ./bin/test-pytest --count=99 -vvv -k 'TestDemo' ./betty/tests/test_cli.py
         shell: bash
 
       - name: Run the tests
