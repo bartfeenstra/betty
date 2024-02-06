@@ -176,10 +176,6 @@ class TestDemo:
         print('result.stdout')
         print('result.stdout')
         print(result.stdout)
-        print('result.stderr')
-        print('result.stderr')
-        print('result.stderr')
-        print(result.stderr)
         assert 0 == result.exit_code
 
 
