@@ -642,7 +642,12 @@ class LocalizerRepository:
             ])
         # @todo REmove this debugging print
         with open(mo_file_path, 'rb') as f:
-            print(f.read())
+            mo_bytes = f.read()
+            print(len(mo_bytes))
+            print(len(mo_bytes))
+            print(len(mo_bytes))
+            print(len(mo_bytes))
+            print(mo_bytes)
         with open(mo_file_path, 'rb') as f:
             return gettext.GNUTranslations(f)
 
