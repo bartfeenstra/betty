@@ -650,6 +650,16 @@ class LocalizerRepository:
                 '-D',
                 'betty',
             ])
+        # @todo REmove this debugging print
+        print('MO')
+        with open(mo_file_path, 'rb') as f:
+            mo_bytes = f.read()
+            print(len(mo_bytes))
+            print(len(mo_bytes))
+            print(len(mo_bytes))
+            print(len(mo_bytes))
+            print(mo_bytes)
+        print('ENDMO')
         with open(mo_file_path, 'rb') as f:
             return gettext.GNUTranslations(f)
 
