@@ -634,6 +634,7 @@ class LocalizerRepository:
                     print('XXX')
                     print(f.read())
                     print('XXX')
+                    raise
 
         cache_directory_path.mkdir(exist_ok=True, parents=True)
 
@@ -662,6 +663,10 @@ class LocalizerRepository:
                 print('XXX')
                 print(f.read())
                 print('XXX')
+                raise
+
+        # @todo Remove return
+        return None
 
     async def coverage(self, locale: Localey) -> tuple[int, int]:
         translatables = {translatable async for translatable in self._get_translatables()}

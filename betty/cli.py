@@ -6,7 +6,6 @@ from __future__ import annotations
 import asyncio
 import logging
 import sys
-import traceback
 from contextlib import suppress, contextmanager
 from functools import wraps
 from pathlib import Path
