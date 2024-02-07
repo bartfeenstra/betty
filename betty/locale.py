@@ -660,8 +660,17 @@ class LocalizerRepository:
             print(len(mo_bytes))
             print(mo_bytes)
         print('ENDMO')
-        with open(mo_file_path, 'rb') as f:
-            return gettext.GNUTranslations(f)
+        try:
+            with open(mo_file_path, 'rb') as f:
+                return gettext.GNUTranslations(f)
+        except BaseException as e:
+            print(e)
+            print(e)
+            print(e)
+            with open(mo_file_path, 'rb') as f:
+                print('XXX')
+                print(f.read())
+                print('XXX')
 
     async def coverage(self, locale: Localey) -> tuple[int, int]:
         translatables = {translatable async for translatable in self._get_translatables()}
