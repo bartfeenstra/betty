@@ -31,6 +31,7 @@ from betty import fs
 from betty.asyncio import sync
 from betty.fs import hashfile, FileSystem, ASSETS_DIRECTORY_PATH, ROOT_DIRECTORY_PATH
 from betty.linked_data import LinkedDataDumpable, dump_context, dump_default
+from betty.logging import CatchHandler
 from betty.os import ChDir
 from betty.serde.dump import DictDump, Dump
 
@@ -636,7 +637,13 @@ class LocalizerRepository:
         cache_directory_path.mkdir(exist_ok=True, parents=True)
 
         with contextlib.redirect_stdout(StringIO()):
-            CommandLineInterface().run([
+            logger = logging.Logger('')
+            handler = CatchHandler()
+            logger.addHandler(handler)
+
+            cli = CommandLineInterface()
+            cli.log = logger
+            compile_exit_code = cli.run([
                 '',
                 'compile',
                 '-i',
@@ -648,6 +655,9 @@ class LocalizerRepository:
                 '-D',
                 'betty',
             ])
+            if compile_exit_code != 0:
+                raise RuntimeError(handler._catches[logging.ERROR])
+
         # @todo Remove this try
         try:
             with open(mo_file_path, 'rb') as f:
