@@ -631,10 +631,7 @@ class LocalizerRepository:
                 print(e)
                 print(e)
                 with open(mo_file_path, 'rb') as f:
-                    print('XXX')
-                    print(f.read())
-                    print('XXX')
-                    raise
+                    raise RuntimeError(f.read())
 
         cache_directory_path.mkdir(exist_ok=True, parents=True)
 
@@ -660,10 +657,7 @@ class LocalizerRepository:
             print(e)
             print(e)
             with open(mo_file_path, 'rb') as f:
-                print('XXX')
-                print(f.read())
-                print('XXX')
-                raise
+                raise RuntimeError(f.read())
 
         # @todo Remove return
         return None
