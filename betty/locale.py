@@ -506,6 +506,11 @@ class LocalizerRepository:
             for po_file_path in glob.glob(str(assets_directory_path / 'locale' / '*' / 'betty.po')):
                 yield Path(po_file_path).parent.name
 
+    # @todo This is cool for lazy-loading but makes all of the calling code harder.
+    # @todo
+    # @todo
+    # @todo
+    # @todo
     async def get(self, locale: Localey) -> Localizer:
         locale = to_locale(locale)
         try:
@@ -517,6 +522,12 @@ class LocalizerRepository:
     async def __getitem__(self, locale: Localey) -> Localizer:
         return await self.get(locale)
 
+    # @todo I **THINK** this fails because it's async AND cached
+    # @todo so coroutines end up in the cache, are returned multiple times,
+    # @todo and therefore risk being awaited concurrently which is illegal
+    # @todo and causes RuntimeError
+    # @todo
+    # @lru_cache
     async def get_negotiated(self, *preferred_locales: str) -> Localizer:
         preferred_locales = (*preferred_locales, DEFAULT_LOCALE)
         negotiated_locale = negotiate_locale(
