@@ -4,14 +4,17 @@ The :py:class:`betty.extension.Gramps` extension loads entities from `Gramps <ht
 
 Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
-.. tabs::
-   .. tab:: YAML
+.. md-tab-set::
+
+   .. md-tab-item:: YAML
+
       .. code-block:: yaml
 
           extensions:
             betty.extension.Gramps: {}
 
-   .. tab:: JSON
+   .. md-tab-item:: JSON
+
       .. code-block:: json
 
           {
@@ -24,8 +27,10 @@ Configuration
 -------------
 This extension is configurable through Betty Desktop or in the configuration file:
 
-.. tabs::
-   .. tab:: YAML
+.. md-tab-set::
+
+   .. md-tab-item:: YAML
+
       .. code-block:: yaml
 
           extensions:
@@ -34,7 +39,8 @@ This extension is configurable through Betty Desktop or in the configuration fil
                 family_trees:
                   - file: ./gramps.gpkg
 
-   .. tab:: JSON
+   .. md-tab-item:: JSON
+
       .. code-block:: json
 
           {
