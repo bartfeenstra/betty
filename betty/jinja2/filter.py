@@ -23,6 +23,7 @@ from jinja2.async_utils import auto_aiter, auto_await
 from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.nodes import EvalContext
 from jinja2.runtime import Context, Macro
+from jinja2.utils import htmlsafe_json_dumps
 from markupsafe import Markup, escape
 from pdf2image.pdf2image import convert_from_path
 
@@ -105,11 +106,28 @@ def filter_format_datey(
     return context_localizer(context).format_datey(datey)
 
 
-def filter_json(data: Any, indent: int | None = None) -> str:
+@pass_context
+def filter_json(context: Context, data: Any, indent: int | None = None) -> str:
     """
     Convert a value to a JSON string.
     """
-    return stdjson.dumps(data, indent=indent)
+    from betty.jinja2 import context_app
+
+    return stdjson.dumps(data, indent=indent, cls=(context_app(context).json_encoder))
+
+
+@pass_context
+def filter_tojson(context: Context, data: Any, indent: int | None = None) -> str:
+    """
+    Convert a value to a JSON string safe for use in an HTML document.
+
+    This mimics Jinja2's built-in JSON filter, but uses Betty's own JSON encoder.
+    """
+    return htmlsafe_json_dumps(
+        data,
+        indent=indent,
+        dumps=lambda *args, **kwargs: filter_json(context, *args, **kwargs),
+    )
 
 
 async def filter_flatten(values_of_values: Iterable[Iterable[T]]) -> AsyncIterator[T]:
@@ -439,7 +457,7 @@ FILTERS = {
     'select_localizeds': filter_select_localizeds,
     'static_url': filter_static_url,
     'sort_localizeds': filter_sort_localizeds,
-    'str': str,
+    'tojson': filter_tojson,
     'unique': filter_unique,
     'upper_camel_case_to_lower_camel_case': upper_camel_case_to_lower_camel_case,
     'url': filter_url,

@@ -113,7 +113,7 @@ async def assert_betty_html(
 async def assert_betty_json(
     app: App,
     url_path: str,
-    schema_definition: str | None = None,
+    schema_definition: str,
 ) -> Path:
     """
     Assert that an entity's JSON resource exists and is valid.
@@ -122,7 +122,6 @@ async def assert_betty_json(
     async with aiofiles.open(betty_json_file_path) as f:
         betty_json = await f.read()
     betty_json_data = stdjson.loads(betty_json)
-    if schema_definition:
-        json.validate(betty_json_data, schema_definition, app)
+    json.validate(betty_json_data, schema_definition, app)
 
     return betty_json_file_path

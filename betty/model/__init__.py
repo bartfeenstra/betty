@@ -7,21 +7,12 @@ import functools
 from collections import defaultdict
 from contextlib import contextmanager
 from reprlib import recursive_repr
-from typing import TypeVar, Generic, Iterable, Any, overload, cast, Iterator, Callable, Self, TypeAlias, TYPE_CHECKING
+from typing import TypeVar, Generic, Iterable, Any, overload, cast, Iterator, Callable, Self, TypeAlias
 from uuid import uuid4
 
 from betty.classtools import repr_instance
 from betty.importlib import import_any, fully_qualified_type_name
-from betty.linked_data import LinkedDataDumpable, dump_link
 from betty.locale import Str
-from betty.media_type import MediaType
-from betty.serde.dump import DictDump, Dump
-from betty.string import camel_case_to_kebab_case
-
-
-if TYPE_CHECKING:
-    from betty.app import App
-
 
 T = TypeVar('T')
 
@@ -38,7 +29,7 @@ class GeneratedEntityId(str):
         return super().__new__(cls, entity_id or str(uuid4()))
 
 
-class Entity(LinkedDataDumpable):
+class Entity:
     def __init__(
         self,
         id: str | None = None,
@@ -83,36 +74,6 @@ class Entity(LinkedDataDumpable):
             entity_id=self.id,
         )
 
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-
-        if not isinstance(self.id, GeneratedEntityId):
-            from betty.model.ancestry import is_public, Link
-
-            static_url = app.static_url_generator.generate(f'/{camel_case_to_kebab_case(get_entity_type_name(self.type))}/{self.id}/index.json')
-
-            dump['id'] = self.id
-            dump['@id'] = static_url
-
-            await dump_link(dump, app, Link(
-                static_url,
-                relationship='canonical',
-                media_type=MediaType('application/ld+json'),
-            ))
-            if is_public(self):
-                await dump_link(dump, app, *(
-                    Link(
-                        app.url_generator.generate(self, media_type='text/html', locale=locale),
-                        relationship='alternate',
-                        media_type=MediaType('text/html'),
-                        locale=locale,
-                    )
-                    for locale
-                    in app.project.configuration.locales
-                ))
-
-        return dump
-
 
 AncestryEntityId: TypeAlias = tuple[type[Entity], str]
 
@@ -122,7 +83,8 @@ class UserFacingEntity:
 
 
 class EntityTypeProvider:
-    async def entity_types(self) -> set[type[Entity]]:
+    @property
+    def entity_types(self) -> set[type[Entity]]:
         raise NotImplementedError(repr(self))
 
 

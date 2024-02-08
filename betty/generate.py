@@ -26,7 +26,6 @@ from aiofiles.threadpool.text import AsyncTextIOWrapper
 
 from betty.app import App
 from betty.asyncio import sync, gather
-from betty.linked_data import LinkedDataDumpable
 from betty.locale import get_display_name
 from betty.model import get_entity_type_name, UserFacingEntity, Entity, GeneratedEntityId
 from betty.model.ancestry import is_public
@@ -307,7 +306,7 @@ async def _generate_entity_type_list_html(
 
 async def _generate_entity_type_list_json(
     task_context: GenerationContext,
-    entity_type: type[Entity & LinkedDataDumpable],
+    entity_type: type[Entity],
 ) -> None:
     app = task_context.app
     entity_type_name = get_entity_type_name(entity_type)
@@ -355,14 +354,13 @@ async def _generate_entity_html(
 
 async def _generate_entity_json(
     task_context: GenerationContext,
-    entity_type: type[Entity & LinkedDataDumpable],
+    entity_type: type[Entity],
     entity_id: str,
 ) -> None:
     app = task_context.app
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
     entity_path = app.project.configuration.www_directory_path / entity_type_name_fs / entity_id
-    entity = cast('Entity & LinkedDataDumpable', app.project.ancestry[entity_type][entity_id])
-    rendered_json = json.dumps(await entity.dump_linked_data(app))
+    rendered_json = json.dumps(app.project.ancestry[entity_type][entity_id], cls=app.json_encoder)
     async with await create_json_resource(entity_path) as f:
         await f.write(rendered_json)
 

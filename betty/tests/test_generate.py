@@ -6,30 +6,11 @@ import aiofiles
 import pytest
 
 from betty.app import App
-from betty.app.extension import Extension
 from betty.generate import generate
-from betty.locale import Str
-from betty.model import Entity, get_entity_type_name, UserFacingEntity, EntityTypeProvider
 from betty.model.ancestry import Person, Place, Source, PlaceName, File, Event, Citation
 from betty.model.event_type import Birth
-from betty.project import LocaleConfiguration, EntityTypeConfiguration, ExtensionConfiguration
-from betty.string import camel_case_to_kebab_case
+from betty.project import LocaleConfiguration, EntityTypeConfiguration
 from betty.tests import assert_betty_html, assert_betty_json
-
-
-class _ThirdPartyEntity(Entity, UserFacingEntity):
-    @classmethod
-    def entity_type_label(cls) -> Str:
-        return Str.plain(cls.__name__)
-
-    @classmethod
-    def entity_type_label_plural(cls) -> Str:
-        return Str.plain(cls.__name__)
-
-
-class _ThirdPartyExtension(Extension, EntityTypeProvider):
-    async def entity_types(self) -> set[type[Entity]]:
-        return {_ThirdPartyEntity}
 
 
 class TestGenerate:
@@ -113,30 +94,6 @@ class TestGenerate:
         assert f'<link rel="canonical" href="https://example.com/en/person/{person.id}/index.html" hreflang="en-US" type="text/html">' in html
         assert f'<link rel="alternate" href="/nl/person/{person.id}/index.html" hreflang="nl-NL" type="text/html">' in html
         assert f'<link rel="alternate" href="/person/{person.id}/index.json" hreflang="und" type="application/json">' in html
-
-    async def test_third_party_entities(self) -> None:
-        entity_type = _ThirdPartyEntity
-        async with App() as app:
-            app.project.configuration.extensions.append(ExtensionConfiguration(_ThirdPartyExtension))
-            app.project.configuration.entity_types.append(EntityTypeConfiguration(
-                entity_type=entity_type,
-                generate_html_list=True,
-            ))
-            await generate(app)
-        await assert_betty_html(app, f'/{camel_case_to_kebab_case(get_entity_type_name(entity_type))}/index.html', check_links=True)
-        await assert_betty_json(app, f'/{camel_case_to_kebab_case(get_entity_type_name(entity_type))}/index.json', 'fileCollection')
-
-    async def test_third_party_entity(self) -> None:
-        entity_type = _ThirdPartyEntity
-        async with App() as app:
-            app.project.configuration.extensions.append(ExtensionConfiguration(_ThirdPartyExtension))
-            entity = _ThirdPartyEntity(
-                id='ENTITY1',
-            )
-            app.project.ancestry.add(entity)
-            await generate(app)
-            await assert_betty_html(app, f'/{camel_case_to_kebab_case(get_entity_type_name(entity_type))}/{entity.id}/index.html', check_links=True)
-            await assert_betty_json(app, f'/{camel_case_to_kebab_case(get_entity_type_name(entity_type))}/{entity.id}/index.json')
 
     async def test_files(self) -> None:
         async with App() as app:

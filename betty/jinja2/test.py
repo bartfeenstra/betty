@@ -5,20 +5,12 @@ from __future__ import annotations
 
 from typing import Any, TypeVar
 
-from betty.linked_data import LinkedDataDumpable
 from betty.locale import DateRange
 from betty.model import Entity, GeneratedEntityId, UserFacingEntity, get_entity_type
 from betty.model.ancestry import HasLinks, HasFiles, Subject, Witness, is_private, is_public, Event
 from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
 
 T = TypeVar('T')
-
-
-def test_linked_data_dumpable(value: Any) -> bool:
-    """
-    Test if a value can be dumped to Linked Data.
-    """
-    return isinstance(value, LinkedDataDumpable)
 
 
 def test_entity(value: Any, entity_type_name: str | None = None) -> bool:
@@ -105,7 +97,6 @@ TESTS = {
     'has_files': test_has_files,
     'has_generated_entity_id': test_has_generated_entity_id,
     'has_links': test_has_links,
-    'linked_data_dumpable': test_linked_data_dumpable,
     'private': is_private,
     'public': is_public,
     'start_of_life_event': test_start_of_life_event,
