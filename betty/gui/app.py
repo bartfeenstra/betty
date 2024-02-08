@@ -302,7 +302,7 @@ class _AboutBettyWindow(BettyWindow):
         super()._set_translatables()
         self._label.setText(''.join(map(lambda x: '<p>%s</p>' % x, [
             self._app.localizer._('Version: {version}').format(
-                version=wait(about.version_label()),
+                version=about.version_label(),
             ),
             self._app.localizer._('Copyright 2019-{year} Bart Feenstra & contributors. Betty is made available to you under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License, Version 3</a> (GPLv3).').format(
                 year=datetime.now().year,

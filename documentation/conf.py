@@ -3,7 +3,6 @@ from os import path
 
 import betty
 from betty import about
-from betty.asyncio import wait
 from betty.fs import ROOT_DIRECTORY_PATH, FileSystem, ASSETS_DIRECTORY_PATH
 from betty.locale import LocalizerRepository
 
@@ -13,13 +12,13 @@ assets = FileSystem()
 assets.prepend(ASSETS_DIRECTORY_PATH, 'utf-8')
 localizers = LocalizerRepository(assets)
 for locale in localizers.locales:
-    coverage = wait(localizers.coverage(locale))
+    coverage = localizers.coverage(locale)
     betty_replacements[f'translation-coverage-{locale}'] = str(int(round(100 / (coverage[1] / coverage[0]))))
 
 sys.path.insert(0, path.dirname(path.dirname(betty.__file__)))
 project = 'Betty'
-version = wait(about.version()) or ''
-release = wait(about.version_label())
+version = about.version() or ''
+release = about.version_label()
 copyright = 'Bart Feenstra and contributors'
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3/', None),

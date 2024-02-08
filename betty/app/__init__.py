@@ -293,13 +293,12 @@ class App(Configurable[AppConfiguration]):
         return self._static_url_generator
 
     @property
-    @sync
-    async def localizer(self) -> Localizer:
+    def localizer(self) -> Localizer:
         """
         Get the application's localizer.
         """
         if self._localizer is None:
-            self._localizer = await self.localizers.get_negotiated(self.configuration.locale or DEFAULT_LOCALE)
+            self._localizer = self.localizers.get_negotiated(self.configuration.locale or DEFAULT_LOCALE)
         return self._localizer
 
     @localizer.deleter

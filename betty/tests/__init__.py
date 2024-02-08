@@ -7,7 +7,6 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Callable, TypeVar, Any, AsyncIterator, Awaitable, ParamSpec
 
-import aiofiles
 import html5lib
 from aiofiles.tempfile import TemporaryDirectory
 from html5lib.html5parser import ParseError
@@ -90,7 +89,7 @@ class TemplateTestCase:
         yield rendered, app
 
 
-async def assert_betty_html(
+def assert_betty_html(
     app: App,
     url_path: str,
     *,
@@ -100,8 +99,8 @@ async def assert_betty_html(
     Assert that an entity's HTML resource exists and is valid.
     """
     betty_html_file_path = app.project.configuration.www_directory_path / Path(url_path.lstrip('/'))
-    async with aiofiles.open(betty_html_file_path) as f:
-        betty_html = await f.read()
+    with open(betty_html_file_path) as f:
+        betty_html = f.read()
     try:
         html5lib.HTMLParser(strict=True).parse(betty_html)
     except ParseError as e:
@@ -110,7 +109,7 @@ async def assert_betty_html(
     return betty_html_file_path
 
 
-async def assert_betty_json(
+def assert_betty_json(
     app: App,
     url_path: str,
     schema_definition: str,
@@ -119,8 +118,8 @@ async def assert_betty_json(
     Assert that an entity's JSON resource exists and is valid.
     """
     betty_json_file_path = app.project.configuration.www_directory_path / Path(url_path.lstrip('/'))
-    async with aiofiles.open(betty_json_file_path) as f:
-        betty_json = await f.read()
+    with open(betty_json_file_path) as f:
+        betty_json = f.read()
     betty_json_data = stdjson.loads(betty_json)
     json.validate(betty_json_data, schema_definition, app)
 

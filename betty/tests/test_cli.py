@@ -3,7 +3,6 @@ import os
 from pathlib import Path
 from typing import Any
 
-import aiofiles
 import click
 import pytest
 from _pytest.logging import LogCaptureFixture
@@ -102,8 +101,8 @@ class TestMain:
             working_directory_path = Path(working_directory_path_str)
             configuration_file_path = working_directory_path / 'betty.json'
             dump: Dump = {}
-            async with aiofiles.open(configuration_file_path, 'w') as f:
-                await f.write(json.dumps(dump))
+            with open(configuration_file_path, 'w') as f:
+                json.dump(dump, f)
 
             runner = CliRunner()
             result = runner.invoke(main, ('-c', str(configuration_file_path), '--help',), catch_exceptions=False)
@@ -114,7 +113,7 @@ class TestMain:
         mocker.patch('sys.stdout')
         async with TemporaryDirectory() as working_directory_path_str:
             working_directory_path = Path(working_directory_path_str)
-            async with aiofiles.open(working_directory_path / 'betty.json', 'w') as config_file:
+            with open(working_directory_path / 'betty.json', 'w') as config_file:
                 url = 'https://example.com'
                 dump: Dump = {
                     'base_url': url,
@@ -122,7 +121,7 @@ class TestMain:
                         DummyExtension.name(): None,
                     },
                 }
-                await config_file.write(json.dumps(dump))
+                json.dump(dump, config_file)
             async with ChDir(working_directory_path):
                 runner = CliRunner()
                 result = runner.invoke(main, ('test',), catch_exceptions=False)
