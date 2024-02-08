@@ -55,6 +55,9 @@ def catch_exceptions() -> Iterator[None]:
             logger.error(str(e))
         else:
             logger.exception(e)
+
+        # @todo remove raise
+        raise
         sys.exit(1)
 
 

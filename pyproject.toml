@@ -121,6 +121,8 @@ development = [
     'betty[test]',
 ]
 ci = [
+#    @todo Remove pytest-repeat here
+    'pytest-repeat ~= 0.9, >= 0.9.1',
     'codecov ~= 2.1, >= 2.1.12',
     'betty[test]',
 ]

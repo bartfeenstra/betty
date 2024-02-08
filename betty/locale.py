@@ -31,6 +31,7 @@ from betty import fs
 from betty.asyncio import sync
 from betty.fs import hashfile, FileSystem, ASSETS_DIRECTORY_PATH, ROOT_DIRECTORY_PATH
 from betty.linked_data import LinkedDataDumpable, dump_context, dump_default
+from betty.logging import CatchHandler
 from betty.os import ChDir
 from betty.serde.dump import DictDump, Dump
 
@@ -621,14 +622,28 @@ class LocalizerRepository:
         cache_directory_path = fs.CACHE_DIRECTORY_PATH / 'locale' / translation_version
         mo_file_path = cache_directory_path / 'betty.mo'
 
-        with suppress(FileNotFoundError):
+        # @todo Remove this try
+        try:
+            with suppress(FileNotFoundError):
+                with open(mo_file_path, 'rb') as f:
+                    return gettext.GNUTranslations(f)
+        except BaseException as e:
+            print(e)
+            print(e)
+            print(e)
             with open(mo_file_path, 'rb') as f:
-                return gettext.GNUTranslations(f)
+                raise RuntimeError(f.read())
 
         cache_directory_path.mkdir(exist_ok=True, parents=True)
 
         with contextlib.redirect_stdout(StringIO()):
-            CommandLineInterface().run([
+            logger = logging.Logger('')
+            handler = CatchHandler()
+            logger.addHandler(handler)
+
+            cli = CommandLineInterface()
+            cli.log = logger
+            compile_exit_code = cli.run([
                 '',
                 'compile',
                 '-i',
@@ -640,8 +655,28 @@ class LocalizerRepository:
                 '-D',
                 'betty',
             ])
-        with open(mo_file_path, 'rb') as f:
-            return gettext.GNUTranslations(f)
+            for level, records in handler._catches.items():
+                print(level)
+                print(level)
+                print(level)
+                for record in records:
+                    print(record)
+            if compile_exit_code != 0:
+                raise RuntimeError(handler._catches[logging.ERROR])
+
+        # @todo Remove this try
+        try:
+            with open(mo_file_path, 'rb') as f:
+                return gettext.GNUTranslations(f)
+        except BaseException as e:
+            print(e)
+            print(e)
+            print(e)
+            with open(mo_file_path, 'rb') as f:
+                raise RuntimeError(f.read())
+
+        # @todo Remove return
+        return None
 
     async def coverage(self, locale: Localey) -> tuple[int, int]:
         translatables = {translatable async for translatable in self._get_translatables()}

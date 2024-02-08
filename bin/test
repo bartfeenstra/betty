@@ -25,7 +25,7 @@ fi
 if [ -z "${BETTY_TEST_SKIP_BUSTED-}" ]; then
   ./bin/test-busted
 fi
-./bin/test-pytest
+./bin/test-pytest -vvv
 if [ -z "${BETTY_TEST_SKIP_CYPRESS-}" ]; then
   ./bin/test-cypress
 fi
