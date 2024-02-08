@@ -622,17 +622,17 @@ class LocalizerRepository:
         cache_directory_path = fs.CACHE_DIRECTORY_PATH / 'locale' / translation_version
         mo_file_path = cache_directory_path / 'betty.mo'
 
-        with suppress(FileNotFoundError):
-            # @todo Remove this try
-            try:
+        # @todo Remove this try
+        try:
+            with suppress(FileNotFoundError):
                 with open(mo_file_path, 'rb') as f:
                     return gettext.GNUTranslations(f)
-            except BaseException as e:
-                print(e)
-                print(e)
-                print(e)
-                with open(mo_file_path, 'rb') as f:
-                    raise RuntimeError(f.read())
+        except BaseException as e:
+            print(e)
+            print(e)
+            print(e)
+            with open(mo_file_path, 'rb') as f:
+                raise RuntimeError(f.read())
 
         cache_directory_path.mkdir(exist_ok=True, parents=True)
 
