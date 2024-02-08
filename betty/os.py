@@ -42,11 +42,11 @@ class ChDir:
         await self.revert()
 
     async def change(self) -> None:
-        self._owd = await asyncio.to_thread(os.getcwd)
+        self._owd = os.getcwd()
         await makedirs(self._directory_path, exist_ok=True)
-        await asyncio.to_thread(os.chdir, self._directory_path)
+        os.chdir(self._directory_path)
 
     async def revert(self) -> None:
         owd = self._owd
         if owd is not None:
-            await asyncio.to_thread(os.chdir, owd)
+            os.chdir(owd)

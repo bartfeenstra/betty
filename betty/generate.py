@@ -21,6 +21,7 @@ from typing import cast, AsyncContextManager, Self, Any, ParamSpec, Callable, Co
 
 import aiofiles
 import dill
+from aiofiles import os as aiofiles_os
 from aiofiles.os import makedirs
 from aiofiles.threadpool.text import AsyncTextIOWrapper
 
@@ -165,7 +166,7 @@ async def generate(app: App) -> None:
 
     with suppress(FileNotFoundError):
         await asyncio.to_thread(shutil.rmtree, app.project.configuration.output_directory_path)
-    await makedirs(app.project.configuration.output_directory_path, exist_ok=True)
+    await aiofiles_os.makedirs(app.project.configuration.output_directory_path, exist_ok=True)
     logger.info(app.localizer._('Generating your site to {output_directory}.').format(output_directory=app.project.configuration.output_directory_path))
 
     # The static public assets may be overridden depending on the number of locales rendered, so ensure they are
