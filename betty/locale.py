@@ -655,6 +655,12 @@ class LocalizerRepository:
                 '-D',
                 'betty',
             ])
+            for level, records in handler._catches.items():
+                print(level)
+                print(level)
+                print(level)
+                for record in records:
+                    print(record)
             if compile_exit_code != 0:
                 raise RuntimeError(handler._catches[logging.ERROR])
 
