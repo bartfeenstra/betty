@@ -3,13 +3,12 @@ Provide the Documentation API.
 """
 import asyncio
 import logging
+import os
 import shutil
 from contextlib import suppress, AsyncExitStack
 from pathlib import Path
 from subprocess import CalledProcessError
 from tempfile import TemporaryDirectory
-
-from aiofiles.os import makedirs
 
 from betty import subprocess, serve
 from betty.fs import ROOT_DIRECTORY_PATH
@@ -26,7 +25,7 @@ async def _build_cache(cache_directory_path: Path) -> Path:
 
 async def _build(output_directory_path: Path) -> None:
     with suppress(FileExistsError):
-        await makedirs(output_directory_path)
+        await asyncio.to_thread(os.makedirs, output_directory_path)
     with TemporaryDirectory() as working_directory_path:
         # sphinx-apidoc must output to the documentation directory, but because we do not want
         # to 'pollute' that with generated files that must not be committed, do our work in a

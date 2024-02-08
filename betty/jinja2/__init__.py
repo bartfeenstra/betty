@@ -4,6 +4,7 @@ Provide rendering utilities using `Jinja2 <https://jinja.palletsprojects.com>`_.
 from __future__ import annotations
 
 import datetime
+import os
 from collections import defaultdict
 from contextlib import suppress
 from pathlib import Path
@@ -255,6 +256,7 @@ class Environment(Jinja2Environment):
             if isinstance(extension, JsProvider)
             for path in extension.public_js_paths
         ]
+        self.globals['path'] = os.path
         self.globals['entity_contexts'] = EntityContexts()
         self.globals['localizer'] = DEFAULT_LOCALIZER
 

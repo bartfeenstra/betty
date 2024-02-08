@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
 
 from betty.app import App
@@ -119,12 +118,12 @@ class TestGramps:
         async with TemporaryDirectory() as working_directory_path_str:
             working_directory_path = Path(working_directory_path_str)
             gramps_family_tree_one_path = working_directory_path / 'one.xml'
-            async with aiofiles.open(gramps_family_tree_one_path, mode='w') as f:
-                await f.write(family_tree_one_xml)
+            with open(gramps_family_tree_one_path, mode='w') as f:
+                f.write(family_tree_one_xml)
 
             gramps_family_tree_two_path = working_directory_path / 'two.xml'
-            async with aiofiles.open(gramps_family_tree_two_path, mode='w') as f:
-                await f.write(family_tree_two_xml)
+            with open(gramps_family_tree_two_path, mode='w') as f:
+                f.write(family_tree_two_xml)
 
             async with App() as app:
                 app.project.configuration.extensions.append(ExtensionConfiguration(

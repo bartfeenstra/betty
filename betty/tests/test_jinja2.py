@@ -3,7 +3,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Iterable, Any, Self
 
-import aiofiles
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
@@ -35,11 +34,11 @@ class TestJinja2Renderer:
             async with TemporaryDirectory() as working_directory_path_str:
                 working_directory_path = Path(working_directory_path_str)
                 template_file_path = working_directory_path / 'betty.txt.j2'
-                async with aiofiles.open(template_file_path, 'w') as f:
-                    await f.write(template)
+                with open(template_file_path, 'w') as f:
+                    f.write(template)
                 await sut.render_file(template_file_path)
-                async with aiofiles.open(working_directory_path / 'betty.txt') as f:
-                    assert expected_output == (await f.read()).strip()
+                with open(working_directory_path / 'betty.txt') as f:
+                    assert expected_output == f.read().strip()
                 assert not template_file_path.exists()
 
 

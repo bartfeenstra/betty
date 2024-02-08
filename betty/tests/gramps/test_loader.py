@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import aiofiles
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
@@ -47,8 +46,8 @@ class TestGrampsLoader:
     async def test_load_xml_with_string(self) -> None:
         gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'
         sut = GrampsLoader(Ancestry(), localizer=DEFAULT_LOCALIZER)
-        async with aiofiles.open(gramps_file_path) as f:
-            await sut.load_xml(await f.read(), rootname(gramps_file_path))
+        with open(gramps_file_path) as f:
+            await sut.load_xml(f.read(), rootname(gramps_file_path))
 
     async def test_load_xml_with_file_path(self) -> None:
         gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'

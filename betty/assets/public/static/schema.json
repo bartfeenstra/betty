@@ -57,18 +57,8 @@
               },
               "affiliation": {
                 "type": "string"
-              },
-              "citations": {
-                "$ref": "#/definitions/citations"
-              },
-              "private": {
-                "$ref": "#/definitions/privacy"
               }
             },
-            "required": [
-              "citations",
-              "private"
-            ],
             "patternProperties": {
               "^@": {
                 "$ref": "#/definitions/jsonLd"
@@ -126,8 +116,6 @@
         "parents",
         "children",
         "siblings",
-        "citations",
-        "links",
         "presences",
         "private"
       ],

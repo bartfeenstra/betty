@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-import operator
 import os as stdos
 import weakref
 from collections.abc import Callable
 from contextlib import suppress
-from functools import reduce
 from graphlib import CycleError, TopologicalSorter
 from pathlib import Path
 from types import TracebackType
@@ -24,6 +22,8 @@ from betty.dispatch import Dispatcher
 from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH, HOME_DIRECTORY_PATH
 from betty.locale import LocalizerRepository, get_data, DEFAULT_LOCALE, Localizer, Str
 from betty.model import Entity, EntityTypeProvider
+from betty.model.ancestry import Citation, Event, File, Person, PersonName, Presence, Place, Enclosure, \
+    Source, Note
 from betty.model.event_type import EventType, EventTypeProvider, Birth, Baptism, Adoption, Death, Funeral, Cremation, \
     Burial, Will, Engagement, Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, \
     Emigration, Occupation, Retirement, Correspondence, Confirmation
@@ -34,6 +34,7 @@ from betty.serde.load import AssertionFailed, Fields, Assertions, OptionalField,
 
 if TYPE_CHECKING:
     from betty.jinja2 import Environment
+    from betty.json import JSONEncoder
     from betty.serve import Server
     from betty.url import StaticUrlGenerator, LocalizedUrlGenerator
 
@@ -292,13 +293,12 @@ class App(Configurable[AppConfiguration]):
         return self._static_url_generator
 
     @property
-    @sync
-    async def localizer(self) -> Localizer:
+    def localizer(self) -> Localizer:
         """
         Get the application's localizer.
         """
         if self._localizer is None:
-            self._localizer = await self.localizers.get_negotiated(self.configuration.locale or DEFAULT_LOCALE)
+            self._localizer = self.localizers.get_negotiated(self.configuration.locale or DEFAULT_LOCALE)
         return self._localizer
 
     @localizer.deleter
@@ -354,6 +354,11 @@ class App(Configurable[AppConfiguration]):
         return self.concurrency ** 2
 
     @property
+    def json_encoder(self) -> type[JSONEncoder]:
+        from betty.json import JSONEncoder
+        return lambda *args, **kwargs: JSONEncoder(self)  # type: ignore[return-value]
+
+    @property
     def http_client(self) -> aiohttp.ClientSession:
         if not self._http_client:
             self._http_client = aiohttp.ClientSession(
@@ -376,9 +381,7 @@ class App(Configurable[AppConfiguration]):
     @sync
     async def entity_types(self) -> set[type[Entity]]:
         if self._entity_types is None:
-            from betty.model.ancestry import Citation, Enclosure, Event, File, Note, Person, PersonName, Presence, Place, Source
-
-            self._entity_types = reduce(operator.or_, await self.dispatcher.dispatch(EntityTypeProvider)(), set()) | {
+            self._entity_types = set(await self.dispatcher.dispatch(EntityTypeProvider)()) | {
                 Citation,
                 Enclosure,
                 Event,

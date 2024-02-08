@@ -11,7 +11,6 @@ In addition to Jinja2's built-in tests, Betty provides the following:
 - :py:func:`has_files <betty.jinja2.test.test_has_files>`
 - :py:func:`has_generated_entity_id <betty.jinja2.test.test_has_generated_entity_id>`
 - :py:func:`has_links <betty.jinja2.test.test_has_links>`
-- :py:func:`linked_data_dumpable <betty.jinja2.test.test_linked_data_dumpable>`
 - :py:func:`private <betty.model.ancestry.is_private>`
 - :py:func:`public <betty.model.ancestry.is_public>`
 - :py:func:`start_of_life_event <betty.jinja2.test.test_start_of_life_event>`

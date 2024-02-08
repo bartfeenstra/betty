@@ -5,7 +5,6 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Iterator, cast, Any
 
-import aiofiles
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
@@ -15,8 +14,8 @@ from betty.locale import Localized, negotiate_localizeds, Date, DateRange, negot
 
 
 class TestPotFile:
-    async def _readlines(self, assets_directory_path: Path) -> Iterator[str]:
-        async with aiofiles.open(assets_directory_path / 'betty.pot') as f:
+    def _readlines(self, assets_directory_path: Path) -> Iterator[str]:
+        with open(assets_directory_path / 'betty.pot') as f:
             return filter(
                 lambda line: not line.startswith((
                     '# Copyright (C) ',
@@ -25,15 +24,15 @@ class TestPotFile:
                     '"PO-Revision-Date: ',
                     '"Generated-By: ',
                 )),
-                await f.readlines(),
+                f.readlines(),
             )
 
     async def test(self) -> None:
         async with TemporaryDirectory() as working_directory_path_str:
             working_directory_path = Path(working_directory_path_str)
             await update_translations(working_directory_path)
-            actual_pot_contents = await self._readlines(ASSETS_DIRECTORY_PATH)
-            expected_pot_contents = await self._readlines(working_directory_path)
+            actual_pot_contents = self._readlines(ASSETS_DIRECTORY_PATH)
+            expected_pot_contents = self._readlines(working_directory_path)
             diff = difflib.unified_diff(
                 list(actual_pot_contents),
                 list(expected_pot_contents),
@@ -409,7 +408,7 @@ msgstr ""
 msgid "Subject"
 msgstr "Onderwerp"
 """
-            async with aiofiles.open(lc_messages_directory_path / 'betty.po', 'w') as f:
-                await f.write(po)
+            with open(lc_messages_directory_path / 'betty.po', 'w') as f:
+                f.write(po)
             sut = LocalizerRepository(fs)
             assert 'Onderwerp' == sut[locale]._('Subject')

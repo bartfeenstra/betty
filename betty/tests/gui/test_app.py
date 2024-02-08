@@ -2,7 +2,6 @@ import json
 from os import path
 from pathlib import Path
 
-import aiofiles
 import pytest
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
@@ -151,7 +150,7 @@ class TestApplicationConfiguration:
             locale = 'nl-NL'
             app.configuration.locale = locale
 
-        async with aiofiles.open(app.configuration.configuration_file_path) as f:
-            read_configuration_dump = json.loads(await f.read())
+        with open(app.configuration.configuration_file_path) as f:
+            read_configuration_dump = json.load(f)
         assert read_configuration_dump == app.configuration.dump()
         assert read_configuration_dump['locale'] == locale

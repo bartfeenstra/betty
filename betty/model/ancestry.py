@@ -9,24 +9,17 @@ from enum import Enum
 from functools import partial
 from pathlib import Path
 from reprlib import recursive_repr
-from typing import Iterable, Any, TYPE_CHECKING
-from urllib.parse import quote
+from typing import Iterable, Any
 
 from geopy import Point
 
 from betty.classtools import repr_instance
-from betty.linked_data import LinkedDataDumpable, dump_context, dump_link
 from betty.locale import Localized, Datey, Str, Localizable
 from betty.media_type import MediaType
 from betty.model import many_to_many, Entity, one_to_many, many_to_one, many_to_one_to_many, \
     MultipleTypesEntityCollection, EntityCollection, UserFacingEntity, EntityTypeAssociationRegistry, \
-    PickleableEntityGraph, GeneratedEntityId, get_entity_type_name
+    PickleableEntityGraph
 from betty.model.event_type import EventType, UnknownEventType
-from betty.serde.dump import DictDump, Dump
-from betty.string import camel_case_to_kebab_case
-
-if TYPE_CHECKING:
-    from betty.app import App
 
 
 class Privacy(Enum):
@@ -35,7 +28,7 @@ class Privacy(Enum):
     UNDETERMINED = 3
 
 
-class HasPrivacy(LinkedDataDumpable):
+class HasPrivacy:
     def __init__(
         self,
         *args: Any,
@@ -92,11 +85,6 @@ class HasPrivacy(LinkedDataDumpable):
     def public(self, public: True) -> None:
         self.privacy = Privacy.PUBLIC
 
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        dump['private'] = self.private
-        return dump
-
 
 def is_private(target: Any) -> bool:
     """
@@ -143,7 +131,7 @@ def merge_privacies(*privacies: Privacy | HasPrivacy | None) -> Privacy:
     return Privacy.PUBLIC
 
 
-class Dated(LinkedDataDumpable):
+class Dated:
     def __init__(
         self,
         *args: Any,
@@ -153,15 +141,9 @@ class Dated(LinkedDataDumpable):
         super().__init__(*args, **kwargs)
         self.date = date
 
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        if self.date and is_public(self):
-            dump['date'] = await self.date.dump_linked_data(app)
-        return dump
-
 
 @many_to_one('entity', 'betty.model.ancestry.HasNotes', 'notes')
-class Note(UserFacingEntity, HasPrivacy, Entity):
+class Note(HasPrivacy, UserFacingEntity, Entity):
     entity: HasNotes
 
     def __init__(
@@ -211,17 +193,9 @@ class Note(UserFacingEntity, HasPrivacy, Entity):
     def label(self) -> Str:
         return Str.plain(self.text)
 
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/note')
-        dump['@type'] = 'https://schema.org/Thing'
-        if self.public:
-            dump['text'] = self.text
-        return dump
-
 
 @one_to_many('notes', 'betty.model.ancestry.Note', 'entity')
-class HasNotes(LinkedDataDumpable):
+class HasNotes:
     def __init__(  # type: ignore[misc]
         self: HasNotes & Entity,
         *args: Any,
@@ -247,18 +221,8 @@ class HasNotes(LinkedDataDumpable):
     def notes(self) -> None:
         pass
 
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        dump['notes'] = [
-            app.static_url_generator.generate(f'/note/{quote(note.id)}/index.json')
-            for note
-            in self.notes
-            if not isinstance(note.id, GeneratedEntityId)
-        ]
-        return dump
 
-
-class Described(LinkedDataDumpable):
+class Described:
     def __init__(
         self,
         *args: Any,
@@ -268,15 +232,8 @@ class Described(LinkedDataDumpable):
         super().__init__(*args, **kwargs)
         self.description = description
 
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        if self.description is not None:
-            dump['description'] = self.description
-            dump_context(dump, description='description')
-        return dump
 
-
-class HasMediaType(LinkedDataDumpable):
+class HasMediaType:
     def __init__(
         self,
         *args: Any,
@@ -286,15 +243,8 @@ class HasMediaType(LinkedDataDumpable):
         super().__init__(*args, **kwargs)
         self.media_type = media_type
 
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        if is_public(self):
-            if self.media_type is not None:
-                dump['mediaType'] = str(self.media_type)
-        return dump
 
-
-class Link(HasMediaType, Localized, Described, LinkedDataDumpable):
+class Link(HasMediaType, Localized, Described):
     url: str
     relationship: str | None
     label: str | None
@@ -318,17 +268,8 @@ class Link(HasMediaType, Localized, Described, LinkedDataDumpable):
         self.label = label
         self.relationship = relationship
 
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        dump['url'] = self.url
-        if self.label is not None:
-            dump['label'] = self.label
-        if self.relationship is not None:
-            dump['relationship'] = self.relationship
-        return dump
 
-
-class HasLinks(LinkedDataDumpable):
+class HasLinks:
     def __init__(
         self,
         *args: Any,
@@ -342,18 +283,9 @@ class HasLinks(LinkedDataDumpable):
     def links(self) -> MutableSequence[Link]:
         return self._links
 
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        await dump_link(
-            dump,
-            app,
-            *(self.links if is_public(self) else ()),
-        )
-        return dump
-
 
 @many_to_many('citations', 'betty.model.ancestry.Citation', 'facts')
-class HasCitations(LinkedDataDumpable):
+class HasCitations:
     def __init__(  # type: ignore[misc]
         self: HasCitations & Entity,
         *args: Any,
@@ -378,16 +310,6 @@ class HasCitations(LinkedDataDumpable):
     @citations.deleter
     def citations(self) -> None:
         pass
-
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        dump['citations'] = [
-            app.static_url_generator.generate(f'/citation/{quote(citation.id)}/index.json')
-            for citation
-            in self.citations
-            if not isinstance(citation.id, GeneratedEntityId)
-        ]
-        return dump
 
 
 @many_to_many('entities', 'betty.model.ancestry.HasFiles', 'files')
@@ -460,17 +382,6 @@ class File(Described, HasPrivacy, HasLinks, HasMediaType, HasNotes, HasCitations
     @property
     def label(self) -> Str:
         return Str.plain(self.description) if self.description else super().label
-
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/file')
-        dump['entities'] = [
-            app.static_url_generator.generate(f'/{camel_case_to_kebab_case(get_entity_type_name(entity))}/{quote(entity.id)}/index.json')
-            for entity
-            in self.entities
-            if not isinstance(entity.id, GeneratedEntityId)
-        ]
-        return dump
 
 
 @many_to_many('files', 'betty.model.ancestry.File', 'entities')
@@ -601,34 +512,6 @@ class Source(Dated, HasFiles, HasLinks, HasPrivacy, UserFacingEntity, Entity):
     def label(self) -> Str:
         return Str.plain(self.name) if self.name else super().label
 
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/source')
-        dump['@type'] = 'https://schema.org/Thing'
-        dump['contains'] = [
-            app.static_url_generator.generate(f'/source/{quote(contained.id)}/index.json')
-            for contained
-            in self.contains
-            if not isinstance(contained.id, GeneratedEntityId)
-        ]
-        dump['citations'] = [
-            app.static_url_generator.generate(f'/citation/{quote(citation.id)}/index.json')
-            for citation
-            in self.citations
-            if not isinstance(citation.id, GeneratedEntityId)
-        ]
-        if self.contained_by is not None and not isinstance(self.contained_by.id, GeneratedEntityId):
-            dump['containedBy'] = app.static_url_generator.generate(f'/source/{quote(self.contained_by.id)}/index.json')
-        if self.public:
-            if self.name is not None:
-                dump_context(dump, name='name')
-                dump['name'] = self.name
-            if self.author is not None:
-                dump['author'] = self.author
-            if self.publisher is not None:
-                dump['publisher'] = self.publisher
-        return dump
-
 
 class AnonymousSource(Source):
     @property  # type: ignore[override]
@@ -717,20 +600,6 @@ class Citation(Dated, HasFiles, HasPrivacy, UserFacingEntity, Entity):
     def label(self) -> Str:
         return self.location or Str.plain('')
 
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/citation')
-        dump['@type'] = 'https://schema.org/Thing'
-        dump['facts'] = [
-            app.static_url_generator.generate(f'/{camel_case_to_kebab_case(get_entity_type_name(fact))}/{quote(fact.id)}/index.json')
-            for fact
-            in self.facts
-            if not isinstance(fact.id, GeneratedEntityId)
-        ]
-        if self.source is not None and not isinstance(self.source.id, GeneratedEntityId):
-            dump['source'] = app.static_url_generator.generate(f'/source/{quote(self.source.id)}/index.json')
-        return dump
-
 
 class AnonymousCitation(Citation):
     @property  # type: ignore[override]
@@ -748,7 +617,7 @@ class AnonymousCitation(Citation):
         pass
 
 
-class PlaceName(Localized, Dated, LinkedDataDumpable):
+class PlaceName(Localized, Dated):
     def __init__(
         self,
         name: str,
@@ -777,11 +646,6 @@ class PlaceName(Localized, Dated, LinkedDataDumpable):
     @property
     def name(self) -> str:
         return self._name
-
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        dump['name'] = self.name
-        return dump
 
 
 @many_to_one_to_many(
@@ -935,57 +799,6 @@ class Place(HasLinks, HasFiles, HasPrivacy, UserFacingEntity, Entity):
         yield from self.files
         for event in self.events:
             yield from event.files
-
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/place')
-        dump_context(
-            dump,
-            names='name',
-            events='event',
-            enclosedBy='containedInPlace',
-            encloses='containsPlace',
-        )
-        dump['@type'] = 'https://schema.org/Place'
-        dump['names'] = [
-            await name.dump_linked_data(app)
-            for name
-            in self.names
-        ]
-        dump['events'] = [
-            app.static_url_generator.generate(f'/event/{quote(event.id)}/index.json')
-            for event
-            in self.events
-            if not isinstance(event.id, GeneratedEntityId)
-        ]
-        dump['enclosedBy'] = [
-            app.static_url_generator.generate(f'/place/{quote(enclosure.enclosed_by.id)}/index.json')
-            for enclosure
-            in self.enclosed_by
-            if enclosure.enclosed_by is not None and not isinstance(enclosure.enclosed_by.id, GeneratedEntityId)
-        ]
-        dump['encloses'] = [
-            app.static_url_generator.generate(f'/place/{quote(enclosure.encloses.id)}/index.json')
-            for enclosure
-            in self.encloses
-            if enclosure.encloses is not None and not isinstance(enclosure.encloses.id, GeneratedEntityId)
-        ]
-        if self.coordinates is not None:
-            dump['coordinates'] = {
-                '@type': 'https://schema.org/GeoCoordinates',
-                'latitude': self.coordinates.latitude,
-                'longitude': self.coordinates.longitude,
-            }
-            dump_context(dump, coordinates='geo')
-            dump_context(
-                dump['coordinates'],  # type: ignore[arg-type]
-                latitude='latitude',
-            )
-            dump_context(
-                dump['coordinates'],  # type: ignore[arg-type]
-                longitude='longitude',
-            )
-        return dump
 
 
 class PresenceRole:
@@ -1240,39 +1053,6 @@ class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, UserFacingEnti
             seen.add(file)
             yield file
 
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/event')
-        dump_context(dump, presences='performer')
-        dump['@type'] = 'https://schema.org/Event'
-        dump['type'] = self.event_type.name()
-        dump['eventAttendanceMode'] = 'https://schema.org/OfflineEventAttendanceMode'
-        dump['eventStatus'] = 'https://schema.org/EventScheduled'
-        dump['presences'] = presences = []
-        if self.date is not None and self.public:
-            await self.date.datey_dump_linked_data(
-                dump['date'],  # type: ignore[arg-type]
-                'startDate',
-                'endDate',
-            )
-        for presence in self.presences:
-            if presence.person and not isinstance(presence.person.id, GeneratedEntityId):
-                presences.append(self._dump_event_presence(presence, app))
-        if self.place is not None and not isinstance(self.place.id, GeneratedEntityId):
-            dump['place'] = app.static_url_generator.generate(f'/place/{quote(self.place.id)}/index.json')
-            dump_context(dump, place='location')
-        return dump
-
-    def _dump_event_presence(self, presence: Presence, app: App) -> DictDump[Dump]:
-        assert presence.person
-        dump: DictDump[Dump] = {
-            '@type': 'https://schema.org/Person',
-            'person': app.static_url_generator.generate(f'/person/{quote(presence.person.id)}/index.json'),
-        }
-        if presence.public:
-            dump['role'] = presence.role.name()
-        return dump
-
 
 @many_to_one('person', 'betty.model.ancestry.Person', 'names')
 class PersonName(Localized, HasCitations, HasPrivacy, Entity):
@@ -1347,17 +1127,6 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
             individual_name='…' if not self.individual else self.individual,
             affiliation_name='…' if not self.affiliation else self.affiliation,
         )
-
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        if self.public:
-            if self.individual is not None:
-                dump_context(dump, individual='givenName')
-                dump['individual'] = self.individual
-            if self.affiliation is not None:
-                dump_context(dump, affiliation='familyName')
-                dump['affiliation'] = self.affiliation
-        return dump
 
 
 @many_to_many('parents', 'betty.model.ancestry.Person', 'children')
@@ -1510,62 +1279,6 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, UserFacingEntity, Ent
             if name.public:
                 return name.label
         return super().label
-
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/person')
-        dump_context(
-            dump,
-            names='name',
-            parents='parent',
-            children='child',
-            siblings='sibling',
-        )
-        dump['@type'] = 'https://schema.org/Person'
-        dump['parents'] = [
-            app.static_url_generator.generate(f'/person/{quote(parent.id)}/index.json')
-            for parent
-            in self.parents
-            if not isinstance(parent.id, GeneratedEntityId)
-        ]
-        dump['children'] = [
-            app.static_url_generator.generate(f'/person/{quote(child.id)}/index.json')
-            for child
-            in self.children
-            if not isinstance(child.id, GeneratedEntityId)
-        ]
-        dump['siblings'] = [
-            app.static_url_generator.generate(f'/person/{quote(sibling.id)}/index.json')
-            for sibling
-            in self.siblings
-            if not isinstance(sibling.id, GeneratedEntityId)
-        ]
-        dump['presences'] = [
-            self._dump_person_presence(presence, app)
-            for presence
-            in self.presences
-            if presence.event is not None and not isinstance(presence.event.id, GeneratedEntityId)
-        ]
-        if self.public:
-            dump['names'] = [
-                await name.dump_linked_data(app)
-                for name
-                in self.names
-                if name.public
-            ]
-        else:
-            dump['names'] = []
-        return dump
-
-    def _dump_person_presence(self, presence: Presence, app: App) -> DictDump[Dump]:
-        assert presence.event
-        dump: DictDump[Dump] = {
-            'event': app.static_url_generator.generate(f'/event/{quote(presence.event.id)}/index.json'),
-        }
-        dump_context(dump, event='performerIn')
-        if presence.public:
-            dump['role'] = presence.role.name()
-        return dump
 
 
 class Ancestry(MultipleTypesEntityCollection[Entity]):

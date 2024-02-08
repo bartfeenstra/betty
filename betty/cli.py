@@ -115,7 +115,7 @@ async def _init_ctx_app(
         'demo': _demo,
         'gui': _gui,
     }
-    if wait(about.is_development()):
+    if about.is_development():
         ctx.obj['commands']['init-translation'] = _init_translation
         ctx.obj['commands']['update-translations'] = _update_translations
     ctx.obj['app'] = app
@@ -227,11 +227,7 @@ class _BettyCommands(click.MultiCommand):
     help='Show most verbose output, including all log messages.',
     callback=_build_init_ctx_verbosity(logging.NOTSET, logging.NOTSET),
 )
-@click.version_option(
-    wait(about.version_label()),
-    message=wait(about.report()),
-    prog_name='Betty',
-)
+@click.version_option(about.version_label(), message=about.report(), prog_name='Betty')
 def main(app: App, verbose: bool, more_verbose: bool, most_verbose: bool) -> None:
     """
     Launch Betty's Command-Line Interface.
@@ -308,7 +304,7 @@ async def _docs():
                 await asyncio.sleep(999)
 
 
-if wait(about.is_development()):
+if about.is_development():
     @click.command(short_help='Initialize a new translation', help='Initialize a new translation.\n\nThis is available only when developing Betty.')
     @click.argument('locale')
     @global_command

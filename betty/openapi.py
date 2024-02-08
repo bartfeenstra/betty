@@ -3,7 +3,6 @@ Provide the OpenAPI specification.
 """
 from betty import about
 from betty.app import App
-from betty.asyncio import wait
 from betty.model import get_entity_type_name
 from betty.serde.dump import DictDump, Dump
 from betty.string import camel_case_to_kebab_case
@@ -23,7 +22,7 @@ class Specification:
             ],
             'info': {
                 'title': 'Betty',
-                'version': wait(about.version_label()),
+                'version': about.version_label()
             },
             'paths': {},
             'components': {
