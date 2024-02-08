@@ -11,6 +11,8 @@ import gettext
 import glob
 import logging
 import operator
+import threading
+from collections import defaultdict
 from collections.abc import AsyncIterator
 from contextlib import suppress
 from functools import total_ordering
@@ -571,6 +573,7 @@ class LocalizerRepository:
     def __init__(self, assets: FileSystem):
         self._assets = assets
         self._localizers: dict[str, Localizer] = {}
+        self._locks: dict[str, threading.Lock] = defaultdict(threading.Lock)
 
     @property
     def locales(self) -> Iterator[str]:
@@ -621,25 +624,26 @@ class LocalizerRepository:
         cache_directory_path = fs.CACHE_DIRECTORY_PATH / 'locale' / translation_version
         mo_file_path = cache_directory_path / 'betty.mo'
 
-        with suppress(FileNotFoundError):
-            with open(mo_file_path, 'rb') as f:
-                return gettext.GNUTranslations(f)
+        with self._locks[locale]:
+            with suppress(FileNotFoundError):
+                with open(mo_file_path, 'rb') as f:
+                    return gettext.GNUTranslations(f)
 
-        cache_directory_path.mkdir(exist_ok=True, parents=True)
+            cache_directory_path.mkdir(exist_ok=True, parents=True)
 
-        with contextlib.redirect_stdout(StringIO()):
-            CommandLineInterface().run([
-                '',
-                'compile',
-                '-i',
-                str(po_file_path),
-                '-o',
-                str(mo_file_path),
-                '-l',
-                str(get_data(locale)),
-                '-D',
-                'betty',
-            ])
+            with contextlib.redirect_stdout(StringIO()):
+                CommandLineInterface().run([
+                    '',
+                    'compile',
+                    '-i',
+                    str(po_file_path),
+                    '-o',
+                    str(mo_file_path),
+                    '-l',
+                    str(get_data(locale)),
+                    '-D',
+                    'betty',
+                ])
         with open(mo_file_path, 'rb') as f:
             return gettext.GNUTranslations(f)
 
