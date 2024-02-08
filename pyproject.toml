@@ -104,7 +104,6 @@ test = [
     'pytest-cov ~= 4.0, >= 4.0.0',
     'pytest-mock ~= 3.10, >= 3.10.0',
     'pytest-qt ~= 4.2, >= 4.2.0',
-    'pytest-xdist ~= 3.5, >= 3.5.0',
     'pytest-xvfb ~= 3.0, >= 3.0.0',
     'types-aiofiles ~= 23.2, >= 23.2.0.0',
     'types-click ~= 7.1, >= 7.1.8',
