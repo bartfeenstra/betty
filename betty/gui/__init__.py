@@ -1,7 +1,6 @@
 """Provide the Graphical User Interface (GUI) for Betty Desktop."""
 from __future__ import annotations
 
-from logging import getLogger
 from typing import Any, TypeVar
 
 from PyQt6.QtCore import pyqtSlot, QObject
@@ -9,10 +8,9 @@ from PyQt6.QtGui import QPalette
 from PyQt6.QtWidgets import QApplication, QWidget
 
 from betty.app import App
-from betty.error import UserFacingError
-from betty.gui.error import ExceptionError, UnexpectedExceptionError
-from betty.locale import Str
-from betty.serde.format import FormatRepository, FormatStr
+from betty.gui.error import ExceptionError, _UnexpectedExceptionError
+from betty.locale import Str, Localizable
+from betty.serde.format import FormatRepository
 
 QWidgetT = TypeVar('QWidgetT', bound=QWidget)
 
@@ -24,7 +22,12 @@ def get_configuration_file_filter() -> Str:
     formats = FormatRepository()
     return Str._(
         'Betty project configuration ({supported_formats})',
-        supported_formats=FormatStr(formats.formats),
+        supported_formats=' '.join(
+            f'*.{extension}'
+            for format
+            in formats.formats
+            for extension in format.extensions
+        ),
     )
 
 
@@ -68,6 +71,10 @@ class BettyApplication(QApplication):
                 color: {caption_color};
                 font-size: 14px;
                 margin-bottom: 0.3em;
+            }}
+
+            Code {{
+                font-family: monospace;
             }}
 
             QLineEdit[invalid="true"] {{
@@ -123,19 +130,35 @@ class BettyApplication(QApplication):
         self._app = app
 
     @pyqtSlot(
-        Exception,
+        type,
+        Localizable,
         QObject,
         bool,
     )
-    def _catch_exception(
+    def _show_user_facing_error(
         self,
-        e: Exception,
+        error_type: type[Exception],
+        error_message: Localizable,
         parent: QObject,
         close_parent: bool,
     ) -> None:
-        if isinstance(e, UserFacingError):
-            window = ExceptionError(self._app, e, parent, close_parent=close_parent)
-        else:
-            getLogger(__name__).exception(e)
-            window = UnexpectedExceptionError(self._app, e, parent, close_parent=close_parent)
+        window = ExceptionError(self._app, error_message, error_type, parent=parent, close_parent=close_parent)
+        window.show()
+
+    @pyqtSlot(
+        type,
+        str,
+        str,
+        QObject,
+        bool,
+    )
+    def _show_unexpected_exception(
+        self,
+        error_type: type[Exception],
+        error_message: str,
+        error_traceback: str,
+        parent: QObject,
+        close_parent: bool,
+    ) -> None:
+        window = _UnexpectedExceptionError(self._app, error_type, error_message, error_traceback, parent=parent, close_parent=close_parent)
         window.show()

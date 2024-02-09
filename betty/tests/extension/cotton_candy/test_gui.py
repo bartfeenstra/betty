@@ -1,4 +1,3 @@
-from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QColorDialog
 from pytest_mock import MockerFixture
@@ -11,6 +10,7 @@ from betty.extension.cotton_candy.gui import _CottonCandyGuiWidget, _ColorConfig
 from betty.locale import Str
 from betty.model import Entity, UserFacingEntity
 from betty.project import EntityReference
+from betty.tests.conftest import BettyQtBot
 
 
 class TestColorConfigurationWidget:
@@ -45,7 +45,7 @@ class CottonCandyGuiWidgetTestEntity(UserFacingEntity, Entity):
 
 
 class TestCottonCandyGuiWidget:
-    async def test_add_featured_entities(self, qtbot: QtBot) -> None:
+    async def test_add_featured_entities(self, qtbot: QtBot, betty_qtbot: BettyQtBot) -> None:
         async with App() as app:
             app.project.configuration.extensions.enable(CottonCandy)
             sut = _CottonCandyGuiWidget(app)
@@ -53,7 +53,7 @@ class TestCottonCandyGuiWidget:
             sut.show()
 
             entity_id = '123'
-            qtbot.mouseClick(sut._featured_entities_entity_references_collector._add_entity_reference_button, Qt.MouseButton.LeftButton)
+            betty_qtbot.mouse_click(sut._featured_entities_entity_references_collector._add_entity_reference_button)
             # @todo Find out an elegant way to test changing the entity type.
             sut._featured_entities_entity_references_collector._entity_reference_collectors[0]._entity_id.setText(entity_id)
             assert app.extensions[CottonCandy].configuration.featured_entities[0].entity_id == entity_id
@@ -82,7 +82,7 @@ class TestCottonCandyGuiWidget:
             sut._featured_entities_entity_references_collector._entity_reference_collectors[1]._entity_id.setText(entity_id)
             assert app.extensions[CottonCandy].configuration.featured_entities[1].entity_id == entity_id
 
-    async def test_remove_featured_entities(self, qtbot: QtBot) -> None:
+    async def test_remove_featured_entities(self, qtbot: QtBot, betty_qtbot: BettyQtBot) -> None:
         async with App() as app:
             app.project.configuration.extensions.enable(CottonCandy)
             entity_reference_1 = EntityReference[CottonCandyGuiWidgetTestEntity](CottonCandyGuiWidgetTestEntity, '123')
@@ -101,7 +101,7 @@ class TestCottonCandyGuiWidget:
             qtbot.addWidget(sut)
             sut.show()
 
-            qtbot.mouseClick(sut._featured_entities_entity_references_collector._entity_reference_remove_buttons[1], Qt.MouseButton.LeftButton)
+            betty_qtbot.mouse_click(sut._featured_entities_entity_references_collector._entity_reference_remove_buttons[1])
             assert entity_reference_1 in app.extensions[CottonCandy].configuration.featured_entities
             assert entity_reference_2 not in app.extensions[CottonCandy].configuration.featured_entities
             assert entity_reference_3 in app.extensions[CottonCandy].configuration.featured_entities

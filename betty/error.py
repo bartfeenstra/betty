@@ -1,7 +1,7 @@
 """
 Provide error handling utilities.
 """
-import traceback
+from traceback import format_exception
 from typing import TypeVar, Self
 
 from betty.locale import Localizable, DEFAULT_LOCALIZER, Localizer
@@ -15,8 +15,7 @@ def serialize(error: BaseExceptionT) -> BaseExceptionT:
 
     This replaces the exception's traceback object with the traceback formatted as a string.
     """
-    formatted_traceback = f'\n"""\n{"".join(traceback.format_exception(type(error), error, error.__traceback__))}"""'
-    error.__cause__ = _SerializedTraceback(formatted_traceback)
+    error.__cause__ = _SerializedTraceback(''.join(format_exception(error)))
     error.__traceback__ = None
     return error
 
@@ -42,13 +41,17 @@ class UserFacingError(Exception, Localizable):
             # Provide a default localization so this exception can be displayed like any other.
             message.localize(DEFAULT_LOCALIZER),
         )
-        self._localizable_message = message
+        self._message = message
 
     def __reduce__(self) -> tuple[type[Self], tuple[Localizable]]:
-        return type(self), (self._localizable_message,)
+        return type(self), (self._message,)
 
     def __str__(self) -> str:
-        return self.localize(DEFAULT_LOCALIZER)
+        return self.message.localize(DEFAULT_LOCALIZER)
+
+    @property
+    def message(self) -> Localizable:
+        return self._message
 
     def localize(self, localizer: Localizer) -> str:
-        return self._localizable_message.localize(localizer)
+        return self.message.localize(localizer)

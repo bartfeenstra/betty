@@ -1,4 +1,5 @@
 import json
+from asyncio import sleep
 from pathlib import Path
 
 import aiofiles
@@ -145,10 +146,10 @@ class TestLocalizationPane:
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()
 
-            betty_qtbot.qtbot.mouseClick(sut._add_locale_button, Qt.MouseButton.LeftButton)
+            betty_qtbot.mouse_click(sut._add_locale_button)
             betty_qtbot.assert_window(_AddLocaleWindow)
 
-    async def test_remove_locale(self, qtbot: QtBot) -> None:
+    async def test_remove_locale(self, qtbot: QtBot, betty_qtbot: BettyQtBot) -> None:
         locale = 'de-DE'
         async with App() as app:
             app.project.configuration.locales.append(
@@ -160,10 +161,7 @@ class TestLocalizationPane:
             sut.show()
             widget = sut._locales_configuration_widget
             assert widget is not None
-            qtbot.mouseClick(
-                widget._remove_buttons[locale],
-                Qt.MouseButton.LeftButton
-            )
+            betty_qtbot.mouse_click(widget._remove_buttons[locale])
 
             assert locale not in app.project.configuration.locales
 
@@ -202,10 +200,13 @@ class TestLocalizationPane:
 
 
 class TestGenerateWindow:
-    async def test_cancel_button_should_close_window(
-        self,
-        betty_qtbot: BettyQtBot,
-    ) -> None:
+    async def test_cancel_button_should_close_window(self, mocker: MockerFixture, betty_qtbot: BettyQtBot) -> None:
+        async def _generate(app: App) -> None:
+            # Ensure this takes a very long time, longer than any timeout. That way,
+            # if cancellation fails, this test may never pass.
+            await sleep(999999999)
+        mocker.patch('betty.generate.generate', new_callable=lambda: _generate)
+
         async with App() as app:
             sut = _GenerateWindow(app)
             betty_qtbot.qtbot.addWidget(sut)
@@ -247,7 +248,7 @@ class TestAddLocaleWindow:
             locale = 'nl-NL'
             sut._locale_collector.locale.setCurrentText(get_display_name(locale))
 
-            betty_qtbot.qtbot.mouseClick(sut._save_and_close, Qt.MouseButton.LeftButton)
+            betty_qtbot.mouse_click(sut._save_and_close)
             betty_qtbot.assert_not_window(sut)
 
             assert locale in sut._app.project.configuration.locales
@@ -267,7 +268,7 @@ class TestAddLocaleWindow:
             sut._locale_collector.locale.setCurrentText(get_display_name(locale))
             sut._alias.setText(alias)
 
-            betty_qtbot.qtbot.mouseClick(sut._save_and_close, Qt.MouseButton.LeftButton)
+            betty_qtbot.mouse_click(sut._save_and_close)
             betty_qtbot.assert_not_window(sut)
 
             assert locale in sut._app.project.configuration.locales
@@ -287,7 +288,7 @@ class TestAddLocaleWindow:
             sut._locale_collector.locale.setCurrentText(get_display_name(locale))
             sut._alias.setText(alias)
 
-            betty_qtbot.qtbot.mouseClick(sut._save_and_close, Qt.MouseButton.LeftButton)
+            betty_qtbot.mouse_click(sut._save_and_close)
 
             betty_qtbot.assert_window(sut)
             betty_qtbot.assert_invalid(sut._alias)

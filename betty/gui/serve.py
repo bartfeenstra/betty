@@ -3,8 +3,6 @@ Integrate Betty's Graphical User Interface with the Serve API.
 """
 from __future__ import annotations
 
-from typing import Any
-
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QObject
 from PyQt6.QtWidgets import QVBoxLayout, QWidget, QPushButton
 
@@ -23,8 +21,8 @@ from betty.serve import Server, AppServer
 class _ServeThread(QThread):
     server_started = pyqtSignal()
 
-    def __init__(self, project: Project, server: Server, serve_window: _ServeWindow, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
+    def __init__(self, project: Project, server: Server, serve_window: _ServeWindow):
+        super().__init__()
         self._project = project
         self._server = server
         self._serve_window = serve_window

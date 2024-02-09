@@ -4,7 +4,6 @@ from pathlib import Path
 
 import aiofiles
 import pytest
-from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
 from pytest_mock import MockerFixture
 from pytestqt.qtbot import QtBot
@@ -17,7 +16,6 @@ from betty.gui.project import ProjectWindow
 from betty.gui.serve import ServeDemoWindow
 from betty.project import ProjectConfiguration
 from betty.serde.error import SerdeError
-from betty.serde.load import FormatError
 from betty.tests import patch_cache
 from betty.tests.conftest import BettyQtBot
 
@@ -85,12 +83,10 @@ class TestWelcomeWindow:
             # Purposefully leave the file empty so it is invalid.
             configuration_file_path.write_text('')
             mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[str(configuration_file_path), None]))
-            betty_qtbot.qtbot.mouseClick(sut.open_project_button, Qt.MouseButton.LeftButton)
+            betty_qtbot.mouse_click(sut.open_project_button)
 
             error = betty_qtbot.assert_error(ExceptionError)
-            exception = error.exception
-            assert isinstance(exception, SerdeError)
-            assert exception.raised(FormatError)
+            assert issubclass(error.error_type, SerdeError)
 
     async def test_open_project_with_valid_file_should_show_project_window(
         self,
@@ -109,7 +105,7 @@ class TestWelcomeWindow:
             sut.show()
 
             mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[str(configuration.configuration_file_path), None]))
-            betty_qtbot.qtbot.mouseClick(sut.open_project_button, Qt.MouseButton.LeftButton)
+            betty_qtbot.mouse_click(sut.open_project_button)
 
             window = betty_qtbot.assert_window(ProjectWindow)
             assert window._app.project.configuration.title == title
@@ -117,7 +113,7 @@ class TestWelcomeWindow:
     async def test_view_demo_site(
         self,
         mocker: MockerFixture,
-        betty_qtbot: BettyQtBot
+        betty_qtbot: BettyQtBot,
     ) -> None:
         mocker.patch('webbrowser.open_new_tab')
         mocker.patch('betty.gui.serve.ServeDemoWindow._start')
@@ -127,8 +123,7 @@ class TestWelcomeWindow:
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()
 
-            betty_qtbot.qtbot.mouseClick(sut.demo_button, Qt.MouseButton.LeftButton)
-
+            betty_qtbot.mouse_click(sut.demo_button)
             betty_qtbot.assert_window(ServeDemoWindow)
 
 

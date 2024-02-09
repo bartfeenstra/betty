@@ -9,7 +9,7 @@ from textwrap import indent
 from typing import Iterator, Self
 
 from betty.error import UserFacingError
-from betty.locale import Localizable, Localizer, Str
+from betty.locale import Localizable, Str, Localizer
 
 
 class SerdeError(UserFacingError, ValueError):
@@ -17,13 +17,23 @@ class SerdeError(UserFacingError, ValueError):
     A serialization or deserialization error.
     """
 
-    def __init__(self, message: Localizable):
+    def __init__(
+        self,
+        message: Localizable,
+        *,
+        contexts: tuple[Localizable, ...] | None = None,
+    ):
         super().__init__(message)
-        self._contexts: tuple[Localizable, ...] = ()
+        self._contexts = contexts or ()
 
-    def localize(self, localizer: Localizer) -> str:
-        localized_contexts = map(lambda context: context.localize(localizer), self._contexts)
-        return (super().localize(localizer) + '\n' + indent('\n'.join(localized_contexts), '- ')).strip()
+    @property
+    def message(self) -> Localizable:
+        def _call_message(localizer: Localizer) -> str:
+            localized_message = self._message.localize(localizer)
+            if self._contexts:
+                localized_message += '\n' + indent('\n'.join(map(lambda context: context.localize(localizer), self._contexts)), '- ')
+            return localized_message
+        return Str.call(_call_message)
 
     def raised(self, error_type: type[SerdeError]) -> bool:
         return isinstance(self, error_type)
@@ -41,7 +51,7 @@ class SerdeError(UserFacingError, ValueError):
         return self_copy
 
     def _copy(self) -> Self:
-        return type(self)(self._localizable_message)
+        return type(self)(self._message)
 
 
 class SerdeErrorCollection(SerdeError):
@@ -59,8 +69,11 @@ class SerdeErrorCollection(SerdeError):
     def __iter__(self) -> Iterator[SerdeError]:
         yield from self._errors
 
-    def localize(self, localizer: Localizer) -> str:
-        return '\n\n'.join(map(lambda error: error.localize(localizer), self._errors))
+    @property
+    def message(self) -> Localizable:
+        if not self._errors:
+            return Str.plain('')
+        return Str.call(lambda localizer: self._message.localize(localizer) + '\n\n' + '\n\n'.join(map(lambda error: error.message.localize(localizer), self._errors)))
 
     def __reduce__(self) -> tuple[type[Self], tuple[list[SerdeError]]]:  # type: ignore[override]
         return type(self), (self._errors,)

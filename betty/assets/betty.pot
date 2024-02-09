@@ -243,6 +243,9 @@ msgstr ""
 msgid "Clear all caches"
 msgstr ""
 
+msgid "Close"
+msgstr ""
+
 msgid "Conference"
 msgstr ""
 
