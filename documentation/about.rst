@@ -31,7 +31,7 @@ Security and maintenance
 ^^^^^^^^^^^^^^^^^^^^^^^^
 A Betty site is secure and requires almost no maintenance.
 
-.. note::
+.. important::
     This is about generated sites. You are still advised to install updates to your installation of Betty when they become available.
 
 What is Betty not?
@@ -41,10 +41,9 @@ Betty does not help you gather or manage the data for your family history. For t
 
 Find Betty on
 -------------
-- :fab:`twitter` `Twitter <https://twitter.com/Betty_Project>`_
-- :fab:`x-twitter` `X <https://twitter.com/Betty_Project>`_
-- :fab:`github` `Github <https://github.com/bartfeenstra/betty>`_
-- :fab:`python` `PyPI <https://pypi.org/project/betty>`_
+- :si-icon:`fontawesome/brands/twitter` `Twitter <https://twitter.com/Betty_Project>`_
+- :si-icon:`fontawesome/brands/github` `Github <https://github.com/bartfeenstra/betty>`_
+- :si-icon:`fontawesome/brands/python` `PyPI <https://pypi.org/project/betty>`_
 
 In this section
 ---------------

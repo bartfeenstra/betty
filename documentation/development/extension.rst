@@ -30,14 +30,17 @@ to enable and configure your extension for their project.
 
 Given an extension ``my_package.my_module.MyExtension``, add the following to your extension's Python package:
 
-.. tabs::
-   .. tab:: pyproject.toml
+.. md-tab-set::
+
+   .. md-tab-item:: pyproject.toml
+
       .. code-block:: toml
 
           [project.entry-points.'betty.extensions']
           'my_package.my_module.MyExtension' = 'my_package.my_module.MyExtension'
 
-   .. tab:: setup.py
+   .. md-tab-item:: setup.py
+
       .. code-block:: python
 
           SETUP = {
@@ -69,7 +72,7 @@ are located. This may be anywhere in your Python package.
 
 Dependencies
 ------------
-.. note::
+.. important::
     Any dependencies on other Python packages must be declared by your extension's Python package.
 
 Extensions have fine-grained control over which other extensions they require, and the order in

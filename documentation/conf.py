@@ -35,15 +35,7 @@ html_context = {
     'conf_py_path': '/documentation/',
     'betty_replacements': betty_replacements,
 }
-html_theme = 'sphinx_rtd_theme'
-html_theme_options = {
-    'collapse_navigation': True,
-    'sticky_navigation': True,
-    'prev_next_buttons_location': None,
-}
-html_css_files = [
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
-]
+html_theme = 'sphinx_immaterial'
 highlight_language = 'none'
 templates_path = ['_templates']
 extensions = [
@@ -53,7 +45,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx_autodoc_typehints',
     'sphinx_design',
-    'sphinx_tabs.tabs',
+    'sphinx_immaterial',
 ]
 nitpicky = True
 modindex_common_prefix = ['betty.']

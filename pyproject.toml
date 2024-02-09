@@ -35,8 +35,7 @@ dependencies = [
     'pyyaml ~= 6.0, >= 6.0.0',
     'sphinx ~= 7.2.6',
     'sphinx-design ~= 0.5.0',
-    'sphinx-tabs ~= 3.4.4',
-    'sphinx_rtd_theme ~= 2.0.0',
+    'sphinx-immaterial ~= 0.11.10',
     'sphinx-autodoc-typehints ~= 1.25.2',
 ]
 classifiers = [

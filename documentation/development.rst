@@ -13,7 +13,7 @@ Development
 
 This section covers how to develop Betty itself.
 
-.. note::
+.. seealso::
     Read :doc:`/about/contributing` if you would like to share your improvements to Betty with the wider community.
 
 Getting started

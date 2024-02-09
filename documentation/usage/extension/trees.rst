@@ -4,14 +4,17 @@ The :py:class:`betty.extension.Trees` extension renders interactive family trees
 
 Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
-.. tabs::
-   .. tab:: YAML
+.. md-tab-set::
+
+   .. md-tab-item:: YAML
+
       .. code-block:: yaml
 
           extensions:
             betty.extension.Trees: {}
 
-   .. tab:: JSON
+   .. md-tab-item:: JSON
+
       .. code-block:: json
 
           {
