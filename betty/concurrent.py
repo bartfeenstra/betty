@@ -4,6 +4,7 @@ Provide utilities for concurrent programming.
 import asyncio
 import threading
 import time
+from math import floor
 from types import TracebackType
 
 
@@ -25,7 +26,7 @@ class RateLimiter:
         now = time.monotonic()
         elapsed = now - self._last_add
         added = elapsed * self._maximum
-        new = self._available + added
+        new = floor(self._available + added)
         if new > 0:
             self._available = min(new, self._maximum)
             self._last_add = now
