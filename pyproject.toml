@@ -84,7 +84,7 @@ pyinstaller = [
 ]
 setuptools = [
     'setuptools ~= 69.0',
-    'twine ~= 4.0, >= 4.0.0',
+    'twine ~= 5.0',
     'wheel ~= 0.40, >= 0.40.0',
 ]
 test = [
