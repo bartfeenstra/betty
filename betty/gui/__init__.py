@@ -6,7 +6,7 @@ from os import path
 from typing import Any, TypeVar
 
 from PyQt6.QtCore import pyqtSlot, QObject
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import QIcon, QPalette
 from PyQt6.QtWidgets import QApplication, QWidget
 
 from betty.app import App
@@ -76,62 +76,74 @@ class BettyWindow(LocalizedWindow):
 
 
 class BettyApplication(QApplication):
-    _STYLESHEET = """
-        Caption {
-            color: #333333;
-            margin-bottom: 0.3em;
-        }
+    def _is_dark_mode(self) -> bool:
+        palette = self.palette()
+        window_lightness = palette.color(QPalette.ColorRole.Window).lightness()
+        window_text_lightness = palette.color(QPalette.ColorRole.WindowText).lightness()
+        return window_lightness < window_text_lightness
 
-        QLineEdit[invalid="true"] {
-            border: 1px solid red;
-            color: red;
-        }
+    def _stylesheet(self) -> str:
+        if self._is_dark_mode():
+            caption_color = '#eeeeee'
+        else:
+            caption_color = '#333333'
+        return f"""
+            Caption {{
+                color: {caption_color};
+                font-size: 14px;
+                margin-bottom: 0.3em;
+            }}
 
-        QPushButton[pane-selector="true"] {
-            padding: 10px;
-        }
+            QLineEdit[invalid="true"] {{
+                border: 1px solid red;
+                color: red;
+            }}
 
-        LogRecord[level="50"],
-        LogRecord[level="40"] {
-            color: red;
-        }
+            QPushButton[pane-selector="true"] {{
+                padding: 10px;
+            }}
 
-        LogRecord[level="30"] {
-            color: yellow;
-        }
+            LogRecord[level="50"],
+            LogRecord[level="40"] {{
+                color: red;
+            }}
 
-        LogRecord[level="20"] {
-            color: green;
-        }
+            LogRecord[level="30"] {{
+                color: yellow;
+            }}
 
-        LogRecord[level="10"],
-        LogRecord[level="0"] {
-            color: white;
-        }
+            LogRecord[level="20"] {{
+                color: green;
+            }}
 
-        _WelcomeText {
-            padding: 10px;
-        }
+            LogRecord[level="10"],
+            LogRecord[level="0"] {{
+                color: white;
+            }}
 
-        _WelcomeTitle {
-            font-size: 20px;
-            padding: 10px;
-        }
+            _WelcomeText {{
+                padding: 10px;
+            }}
 
-        _WelcomeHeading {
-            font-size: 16px;
-            margin-top: 50px;
-        }
+            _WelcomeTitle {{
+                font-size: 20px;
+                padding: 10px;
+            }}
 
-        _WelcomeAction {
-            padding: 10px;
-        }
-        """
+            _WelcomeHeading {{
+                font-size: 16px;
+                margin-top: 50px;
+            }}
+
+            _WelcomeAction {{
+                padding: 10px;
+            }}
+            """
 
     def __init__(self, *args: Any, app: App, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self.setApplicationName('Betty')
-        self.setStyleSheet(self._STYLESHEET)
+        self.setStyleSheet(self._stylesheet())
         self._app = app
 
     @pyqtSlot(

@@ -21,5 +21,4 @@ class Caption(Text):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         font = QFont()
-        font.setPixelSize(12)
         self.setFont(font)
